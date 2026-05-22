@@ -3,7 +3,14 @@ const c = @cImport({
     @cInclude("sqlite3.h");
 });
 
-const ref_schema =
+// Each Ring class gets its own .db file so programs carry only what they need.
+//   chardata.db  → stzCharData   (scripts, directions, categories, diacritics, numbers, separators, ...)
+//   regex.db     → stzRegexData  (named regex patterns)
+//   words.db     → stzRandomData (trilingual words)
+//   boxdraw.db   → stzBoxDrawCharsData (box-drawing Unicode chars)
+//   syscmd.db    → stzSystemCallData   (platform system commands)
+
+const chardata_schema =
     \\CREATE TABLE IF NOT EXISTS scripts (
     \\  code INTEGER PRIMARY KEY,
     \\  name TEXT NOT NULL
@@ -29,19 +36,6 @@ const ref_schema =
     \\CREATE TABLE IF NOT EXISTS categories (
     \\  nbr  INTEGER PRIMARY KEY,
     \\  name TEXT NOT NULL
-    \\);
-    \\CREATE TABLE IF NOT EXISTS regex_patterns (
-    \\  name    TEXT PRIMARY KEY,
-    \\  pattern TEXT NOT NULL
-    \\);
-    \\CREATE TABLE IF NOT EXISTS words (
-    \\  english TEXT NOT NULL,
-    \\  french  TEXT NOT NULL,
-    \\  arabic  TEXT NOT NULL
-    \\);
-    \\CREATE TABLE IF NOT EXISTS box_draw_chars (
-    \\  name       TEXT PRIMARY KEY,
-    \\  char_value TEXT NOT NULL
     \\);
     \\CREATE TABLE IF NOT EXISTS invertible_chars (
     \\  original TEXT NOT NULL,
@@ -80,6 +74,31 @@ const ref_schema =
     \\CREATE TABLE IF NOT EXISTS sentence_separators (
     \\  char_value TEXT NOT NULL
     \\);
+;
+
+const regex_schema =
+    \\CREATE TABLE IF NOT EXISTS regex_patterns (
+    \\  name    TEXT PRIMARY KEY,
+    \\  pattern TEXT NOT NULL
+    \\);
+;
+
+const words_schema =
+    \\CREATE TABLE IF NOT EXISTS words (
+    \\  english TEXT NOT NULL,
+    \\  french  TEXT NOT NULL,
+    \\  arabic  TEXT NOT NULL
+    \\);
+;
+
+const boxdraw_schema =
+    \\CREATE TABLE IF NOT EXISTS box_draw_chars (
+    \\  name       TEXT PRIMARY KEY,
+    \\  char_value TEXT NOT NULL
+    \\);
+;
+
+const syscmd_schema =
     \\CREATE TABLE IF NOT EXISTS system_commands (
     \\  name         TEXT PRIMARY KEY,
     \\  windows_cmd  TEXT NOT NULL DEFAULT '',
@@ -91,6 +110,31 @@ const ref_schema =
 
 fn execSql(db: *c.sqlite3, sql: [*:0]const u8) void {
     _ = c.sqlite3_exec(db, sql, null, null, null);
+}
+
+fn openOrCreate(path: [*:0]const u8) !*c.sqlite3 {
+    var db: ?*c.sqlite3 = null;
+    const rc = c.sqlite3_open(path, &db);
+    if (rc != c.SQLITE_OK or db == null) return error.DbOpen;
+    const d = db.?;
+    execSql(d, "PRAGMA journal_mode=WAL;");
+    execSql(d, "PRAGMA synchronous=NORMAL;");
+    return d;
+}
+
+fn applySchema(db: *c.sqlite3, schema: [*:0]const u8) !void {
+    var err_msg: [*c]u8 = null;
+    const rc = c.sqlite3_exec(db, schema, null, null, &err_msg);
+    if (rc != c.SQLITE_OK) {
+        if (err_msg) |e| c.sqlite3_free(e);
+        return error.Schema;
+    }
+}
+
+fn finalize(db: *c.sqlite3) void {
+    execSql(db, "COMMIT;");
+    execSql(db, "PRAGMA wal_checkpoint(TRUNCATE);");
+    execSql(db, "PRAGMA journal_mode=DELETE;");
 }
 
 fn insertText2(db: *c.sqlite3, sql: [*:0]const u8, v1: []const u8, v2: []const u8) void {
@@ -157,166 +201,148 @@ fn insertText1(db: *c.sqlite3, sql: [*:0]const u8, t1: []const u8) void {
     _ = c.sqlite3_step(stmt);
 }
 
-fn insertSysCmd(db: *c.sqlite3, name: []const u8, win: []const u8, unix: []const u8, desc: []const u8, ret: []const u8) void {
+fn insertSysCmd(db: *c.sqlite3, name: []const u8, win_cmd: []const u8, unix_cmd: []const u8, desc: []const u8, ret: []const u8) void {
     var stmt: ?*c.sqlite3_stmt = null;
     const sql = "INSERT INTO system_commands (name,windows_cmd,unix_cmd,description,return_type) VALUES (?1,?2,?3,?4,?5);";
     if (c.sqlite3_prepare_v2(db, sql, -1, &stmt, null) != c.SQLITE_OK) return;
     defer _ = c.sqlite3_finalize(stmt);
     _ = c.sqlite3_bind_text(stmt, 1, name.ptr, @intCast(name.len), c.SQLITE_TRANSIENT);
-    _ = c.sqlite3_bind_text(stmt, 2, win.ptr, @intCast(win.len), c.SQLITE_TRANSIENT);
-    _ = c.sqlite3_bind_text(stmt, 3, unix.ptr, @intCast(unix.len), c.SQLITE_TRANSIENT);
+    _ = c.sqlite3_bind_text(stmt, 2, win_cmd.ptr, @intCast(win_cmd.len), c.SQLITE_TRANSIENT);
+    _ = c.sqlite3_bind_text(stmt, 3, unix_cmd.ptr, @intCast(unix_cmd.len), c.SQLITE_TRANSIENT);
     _ = c.sqlite3_bind_text(stmt, 4, desc.ptr, @intCast(desc.len), c.SQLITE_TRANSIENT);
     _ = c.sqlite3_bind_text(stmt, 5, ret.ptr, @intCast(ret.len), c.SQLITE_TRANSIENT);
     _ = c.sqlite3_step(stmt);
 }
 
 pub fn main() !void {
-    const db_path = "data/unicode.db";
+    // ═══════════════════════════════════════════════════════════════
+    // 1. chardata.db — scripts, directions, categories, diacritics,
+    //    numbers, invisible chars, invertible chars, separators
+    // ═══════════════════════════════════════════════════════════════
+    {
+        const d = try openOrCreate("data/chardata.db");
+        defer _ = c.sqlite3_close(d);
+        try applySchema(d, chardata_schema);
+        execSql(d, "BEGIN TRANSACTION;");
 
-    var db: ?*c.sqlite3 = null;
-    var rc = c.sqlite3_open(db_path, &db);
-    if (rc != c.SQLITE_OK or db == null) {
-        std.debug.print("ERROR: cannot open database {s}\n", .{db_path});
-        return error.DbOpen;
-    }
-    defer _ = c.sqlite3_close(db.?);
+        const scripts = @import("data/scripts.zig").scripts;
+        for (scripts) |s| insertInt1Text1(d, "INSERT OR REPLACE INTO scripts (code,name) VALUES (?1,?2);", s.code, s.name);
+        std.debug.print("  chardata.db: scripts={d}", .{scripts.len});
 
-    const d = db.?;
-    execSql(d, "PRAGMA journal_mode=WAL;");
-    execSql(d, "PRAGMA synchronous=NORMAL;");
+        const directions = @import("data/directions.zig").directions;
+        for (directions) |dir| insertInt1Text3(d, "INSERT OR REPLACE INTO directions (nbr,short_name,stz_name,description) VALUES (?1,?2,?3,?4);", dir.nbr, dir.short_name, dir.stz_name, dir.description);
+        std.debug.print(" directions={d}", .{directions.len});
 
-    var err_msg: [*c]u8 = null;
-    rc = c.sqlite3_exec(d, ref_schema, null, null, &err_msg);
-    if (rc != c.SQLITE_OK) {
-        std.debug.print("ERROR: schema creation failed\n", .{});
-        if (err_msg) |e| c.sqlite3_free(e);
-        return error.Schema;
-    }
+        const categories = @import("data/categories.zig").categories;
+        for (categories) |cat| insertInt1Text1(d, "INSERT OR REPLACE INTO categories (nbr,name) VALUES (?1,?2);", cat.nbr, cat.name);
+        std.debug.print(" categories={d}", .{categories.len});
 
-    execSql(d, "BEGIN TRANSACTION;");
+        const inv_chars = @import("data/invertible_chars.zig").invertible_chars;
+        for (inv_chars) |ic| insertText2(d, "INSERT INTO invertible_chars (original,inverted) VALUES (?1,?2);", ic.original, ic.inverted);
+        std.debug.print(" invertible={d}", .{inv_chars.len});
 
-    // ── Scripts (156 entries) ────────────────────────────────────
-    const scripts = @import("data/scripts.zig").scripts;
-    for (scripts) |s| {
-        insertInt1Text1(d, "INSERT OR REPLACE INTO scripts (code,name) VALUES (?1,?2);", s.code, s.name);
-    }
-    std.debug.print("  Scripts: {d} rows\n", .{scripts.len});
+        const lat_diacs = @import("data/diacritics_latin.zig").diacritics_latin;
+        for (lat_diacs) |ld| insertText3(d, "INSERT INTO diacritics_latin (diacritized,base_char,description) VALUES (?1,?2,?3);", ld.diacritized, ld.base_char, ld.description);
+        std.debug.print(" latin_diac={d}", .{lat_diacs.len});
 
-    // ── Directions (19 entries) ──────────────────────────────────
-    const directions = @import("data/directions.zig").directions;
-    for (directions) |dir| {
-        insertInt1Text3(d, "INSERT OR REPLACE INTO directions (nbr,short_name,stz_name,description) VALUES (?1,?2,?3,?4);", dir.nbr, dir.short_name, dir.stz_name, dir.description);
-    }
-    std.debug.print("  Directions: {d} rows\n", .{directions.len});
-
-    // ── Categories (30 entries) ──────────────────────────────────
-    const categories = @import("data/categories.zig").categories;
-    for (categories) |cat| {
-        insertInt1Text1(d, "INSERT OR REPLACE INTO categories (nbr,name) VALUES (?1,?2);", cat.nbr, cat.name);
-    }
-    std.debug.print("  Categories: {d} rows\n", .{categories.len});
-
-    // ── Regex patterns (731+ entries) ────────────────────────────
-    const patterns = @import("data/regex_patterns.zig").patterns;
-    for (patterns) |p| {
-        insertText2(d, "INSERT OR REPLACE INTO regex_patterns (name,pattern) VALUES (?1,?2);", p.name, p.pattern);
-    }
-    std.debug.print("  Regex patterns: {d} rows\n", .{patterns.len});
-
-    // ── Words (100 trilingual entries) ───────────────────────────
-    const words = @import("data/words.zig").words;
-    for (words) |w| {
-        insertText3(d, "INSERT INTO words (english,french,arabic) VALUES (?1,?2,?3);", w.english, w.french, w.arabic);
-    }
-    std.debug.print("  Words: {d} rows\n", .{words.len});
-
-    // ── Box drawing chars (80+ entries) ──────────────────────────
-    const box_chars = @import("data/box_draw_chars.zig").box_draw_chars;
-    for (box_chars) |bc| {
-        insertText2(d, "INSERT OR REPLACE INTO box_draw_chars (name,char_value) VALUES (?1,?2);", bc.name, bc.char_value);
-    }
-    std.debug.print("  Box draw chars: {d} rows\n", .{box_chars.len});
-
-    // ── Invertible chars ─────────────────────────────────────────
-    const inv_chars = @import("data/invertible_chars.zig").invertible_chars;
-    for (inv_chars) |ic| {
-        insertText2(d, "INSERT INTO invertible_chars (original,inverted) VALUES (?1,?2);", ic.original, ic.inverted);
-    }
-    std.debug.print("  Invertible chars: {d} rows\n", .{inv_chars.len});
-
-    // ── Latin diacritics ─────────────────────────────────────────
-    const lat_diacs = @import("data/diacritics_latin.zig").diacritics_latin;
-    for (lat_diacs) |ld| {
-        insertText3(d, "INSERT INTO diacritics_latin (diacritized,base_char,description) VALUES (?1,?2,?3);", ld.diacritized, ld.base_char, ld.description);
-    }
-    std.debug.print("  Latin diacritics: {d} rows\n", .{lat_diacs.len});
-
-    // ── Arabic diacritics ────────────────────────────────────────
-    const ar_diacs = @import("data/diacritics_arabic.zig").diacritics_arabic;
-    for (ar_diacs) |ad| {
-        var stmt: ?*c.sqlite3_stmt = null;
-        if (c.sqlite3_prepare_v2(d, "INSERT INTO diacritics_arabic (unicode,without,description) VALUES (?1,?2,?3);", -1, &stmt, null) == c.SQLITE_OK) {
-            _ = c.sqlite3_bind_int(stmt, 1, ad.unicode);
-            _ = c.sqlite3_bind_int(stmt, 2, ad.without);
-            _ = c.sqlite3_bind_text(stmt, 3, ad.description.ptr, @intCast(ad.description.len), c.SQLITE_TRANSIENT);
-            _ = c.sqlite3_step(stmt);
-            _ = c.sqlite3_finalize(stmt);
+        const ar_diacs = @import("data/diacritics_arabic.zig").diacritics_arabic;
+        for (ar_diacs) |ad| {
+            var stmt: ?*c.sqlite3_stmt = null;
+            if (c.sqlite3_prepare_v2(d, "INSERT INTO diacritics_arabic (unicode,without,description) VALUES (?1,?2,?3);", -1, &stmt, null) == c.SQLITE_OK) {
+                _ = c.sqlite3_bind_int(stmt, 1, ad.unicode);
+                _ = c.sqlite3_bind_int(stmt, 2, ad.without);
+                _ = c.sqlite3_bind_text(stmt, 3, ad.description.ptr, @intCast(ad.description.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_step(stmt);
+                _ = c.sqlite3_finalize(stmt);
+            }
         }
+        std.debug.print(" arabic_diac={d}", .{ar_diacs.len});
+
+        const romans = @import("data/roman_numbers.zig").roman_numbers;
+        for (romans) |r| insertText1Int1(d, "INSERT INTO roman_numbers (symbol,value) VALUES (?1,?2);", r.symbol, r.value);
+
+        const mandarins = @import("data/mandarin_numbers.zig").mandarin_numbers;
+        for (mandarins) |m| insertText1Int1(d, "INSERT INTO mandarin_numbers (symbol,value) VALUES (?1,?2);", m.symbol, m.value);
+
+        const fractions = @import("data/fraction_numbers.zig").fraction_numbers;
+        for (fractions) |f| insertText1Int1(d, "INSERT INTO fraction_numbers (fraction,unicode) VALUES (?1,?2);", f.fraction, f.unicode);
+
+        const invisibles = @import("data/invisible_chars.zig").invisible_chars;
+        for (invisibles) |iv| insertInt1(d, "INSERT OR REPLACE INTO invisible_chars (unicode) VALUES (?1);", iv);
+
+        const word_seps = @import("data/separators.zig").word_separators;
+        for (word_seps) |ws| insertText1(d, "INSERT INTO word_separators (char_value) VALUES (?1);", ws);
+
+        const sent_seps = @import("data/separators.zig").sentence_separators;
+        for (sent_seps) |ss| insertText1(d, "INSERT INTO sentence_separators (char_value) VALUES (?1);", ss);
+
+        finalize(d);
+        std.debug.print("\n", .{});
     }
-    std.debug.print("  Arabic diacritics: {d} rows\n", .{ar_diacs.len});
 
-    // ── Roman numbers ────────────────────────────────────────────
-    const romans = @import("data/roman_numbers.zig").roman_numbers;
-    for (romans) |r| {
-        insertText1Int1(d, "INSERT INTO roman_numbers (symbol,value) VALUES (?1,?2);", r.symbol, r.value);
+    // ═══════════════════════════════════════════════════════════════
+    // 2. regex.db — named regex patterns
+    // ═══════════════════════════════════════════════════════════════
+    {
+        const d = try openOrCreate("data/regex.db");
+        defer _ = c.sqlite3_close(d);
+        try applySchema(d, regex_schema);
+        execSql(d, "BEGIN TRANSACTION;");
+
+        const patterns = @import("data/regex_patterns.zig").patterns;
+        for (patterns) |p| insertText2(d, "INSERT OR REPLACE INTO regex_patterns (name,pattern) VALUES (?1,?2);", p.name, p.pattern);
+        std.debug.print("  regex.db: patterns={d}\n", .{patterns.len});
+
+        finalize(d);
     }
-    std.debug.print("  Roman numbers: {d} rows\n", .{romans.len});
 
-    // ── Mandarin numbers ─────────────────────────────────────────
-    const mandarins = @import("data/mandarin_numbers.zig").mandarin_numbers;
-    for (mandarins) |m| {
-        insertText1Int1(d, "INSERT INTO mandarin_numbers (symbol,value) VALUES (?1,?2);", m.symbol, m.value);
+    // ═══════════════════════════════════════════════════════════════
+    // 3. words.db — trilingual words
+    // ═══════════════════════════════════════════════════════════════
+    {
+        const d = try openOrCreate("data/words.db");
+        defer _ = c.sqlite3_close(d);
+        try applySchema(d, words_schema);
+        execSql(d, "BEGIN TRANSACTION;");
+
+        const words = @import("data/words.zig").words;
+        for (words) |w| insertText3(d, "INSERT INTO words (english,french,arabic) VALUES (?1,?2,?3);", w.english, w.french, w.arabic);
+        std.debug.print("  words.db: words={d}\n", .{words.len});
+
+        finalize(d);
     }
-    std.debug.print("  Mandarin numbers: {d} rows\n", .{mandarins.len});
 
-    // ── Fraction numbers ─────────────────────────────────────────
-    const fractions = @import("data/fraction_numbers.zig").fraction_numbers;
-    for (fractions) |f| {
-        insertText1Int1(d, "INSERT INTO fraction_numbers (fraction,unicode) VALUES (?1,?2);", f.fraction, f.unicode);
+    // ═══════════════════════════════════════════════════════════════
+    // 4. boxdraw.db — box-drawing Unicode characters
+    // ═══════════════════════════════════════════════════════════════
+    {
+        const d = try openOrCreate("data/boxdraw.db");
+        defer _ = c.sqlite3_close(d);
+        try applySchema(d, boxdraw_schema);
+        execSql(d, "BEGIN TRANSACTION;");
+
+        const box_chars = @import("data/box_draw_chars.zig").box_draw_chars;
+        for (box_chars) |bc| insertText2(d, "INSERT OR REPLACE INTO box_draw_chars (name,char_value) VALUES (?1,?2);", bc.name, bc.char_value);
+        std.debug.print("  boxdraw.db: chars={d}\n", .{box_chars.len});
+
+        finalize(d);
     }
-    std.debug.print("  Fraction numbers: {d} rows\n", .{fractions.len});
 
-    // ── Invisible chars ──────────────────────────────────────────
-    const invisibles = @import("data/invisible_chars.zig").invisible_chars;
-    for (invisibles) |iv| {
-        insertInt1(d, "INSERT OR REPLACE INTO invisible_chars (unicode) VALUES (?1);", iv);
+    // ═══════════════════════════════════════════════════════════════
+    // 5. syscmd.db — platform system commands
+    // ═══════════════════════════════════════════════════════════════
+    {
+        const d = try openOrCreate("data/syscmd.db");
+        defer _ = c.sqlite3_close(d);
+        try applySchema(d, syscmd_schema);
+        execSql(d, "BEGIN TRANSACTION;");
+
+        const sys_cmds = @import("data/system_commands.zig").system_commands;
+        for (sys_cmds) |sc| insertSysCmd(d, sc.name, sc.windows_cmd, sc.unix_cmd, sc.description, sc.return_type);
+        std.debug.print("  syscmd.db: commands={d}\n", .{sys_cmds.len});
+
+        finalize(d);
     }
-    std.debug.print("  Invisible chars: {d} rows\n", .{invisibles.len});
 
-    // ── Word separators ──────────────────────────────────────────
-    const word_seps = @import("data/separators.zig").word_separators;
-    for (word_seps) |ws| {
-        insertText1(d, "INSERT INTO word_separators (char_value) VALUES (?1);", ws);
-    }
-    std.debug.print("  Word separators: {d} rows\n", .{word_seps.len});
-
-    // ── Sentence separators ──────────────────────────────────────
-    const sent_seps = @import("data/separators.zig").sentence_separators;
-    for (sent_seps) |ss| {
-        insertText1(d, "INSERT INTO sentence_separators (char_value) VALUES (?1);", ss);
-    }
-    std.debug.print("  Sentence separators: {d} rows\n", .{sent_seps.len});
-
-    // ── System commands ──────────────────────────────────────────
-    const sys_cmds = @import("data/system_commands.zig").system_commands;
-    for (sys_cmds) |sc| {
-        insertSysCmd(d, sc.name, sc.windows_cmd, sc.unix_cmd, sc.description, sc.return_type);
-    }
-    std.debug.print("  System commands: {d} rows\n", .{sys_cmds.len});
-
-    execSql(d, "COMMIT;");
-    execSql(d, "PRAGMA wal_checkpoint(TRUNCATE);");
-    execSql(d, "PRAGMA journal_mode=DELETE;");
-
-    std.debug.print("Reference data populated into {s}\n", .{db_path});
+    std.debug.print("Done: 5 databases generated in data/\n", .{});
 }

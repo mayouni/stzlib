@@ -200,8 +200,25 @@ pub fn build(b: *std.Build) void {
     });
     addSqlite(gen_refdata_mod, gen_refdata, b);
     b.installArtifact(gen_refdata);
-    const gen_refdata_step = b.step("gen-refdata", "Populate reference data into unicode.db");
+    const gen_refdata_step = b.step("gen-refdata", "Generate per-class reference databases");
     const gen_refdata_run = b.addRunArtifact(gen_refdata);
     gen_refdata_run.setCwd(b.path("."));
     gen_refdata_step.dependOn(&gen_refdata_run.step);
+
+    // Tool: clean reference tables from unicode.db (one-time migration)
+    const clean_mod = b.createModule(.{
+        .root_source_file = b.path("tools/clean_unicode_db.zig"),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    const clean_exe = b.addExecutable(.{
+        .name = "clean_unicode_db",
+        .root_module = clean_mod,
+    });
+    addSqlite(clean_mod, clean_exe, b);
+    const clean_step = b.step("clean-unicode-db", "Remove reference tables from unicode.db");
+    const clean_run = b.addRunArtifact(clean_exe);
+    clean_run.setCwd(b.path("."));
+    clean_step.dependOn(&clean_run.step);
 }
