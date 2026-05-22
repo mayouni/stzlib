@@ -49,6 +49,23 @@ class stzListFinder from stzList
 			ok
 		ok
 
+		# Engine-backed fast path for string items
+		if isString(pItem)
+			pList = This._EngineListFromContent()
+			if pList != NULL
+				pResult = StzEngineListFindAllStringCS(pList, pItem, pCaseSensitive)
+				StzEngineListFree(pList)
+				if pResult != NULL
+					anResult = This._ContentFromEngineList(pResult)
+					StzEngineListFree(pResult)
+					return anResult
+				else
+					return []
+				ok
+			ok
+		ok
+
+		# Fallback for numbers and other types
 		anResult = @FindAllCS_NbrOrStr( aContent, pItem, pCaseSensitive)
 
 		if isList(anResult) and len(anResult) > 0
@@ -323,19 +340,20 @@ class stzListFinder from stzList
 	#============================================#
 
 	def FindManyCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		anResult = []
+		_nFmLen = len(paItems)
+		_aFmMerged = []
 
-		for i = 1 to nLen
-			anPos = This.FindAllCS(paItems[i], pCaseSensitive)
-			nLenPos = len(anPos)
-			for j = 1 to nLenPos
-				anResult + anPos[j]
+		for _iFm = 1 to _nFmLen
+			_aFmPos = This.FindAllCS(paItems[_iFm], pCaseSensitive)
+			_nFmPosLen = len(_aFmPos)
+			for _jFm = 1 to _nFmPosLen
+				_aFmMerged + _aFmPos[_jFm]
 			next
 		next
 
-		anResult = new stzList(anResult).Sorted()
-		return anResult
+		_oTmp = new stzList(_aFmMerged)
+		_aFmMerged = _oTmp.Sorted()
+		return _aFmMerged
 
 	def FindMany(paItems)
 		return This.FindManyCS(paItems, 1)
@@ -503,8 +521,17 @@ class stzListFinder from stzList
 	#==============================#
 
 	def ContainsCS(pItem, pCaseSensitive)
-		nLen = len(This.FindAllCS(pItem, pCaseSensitive))
-		if nLen > 0
+		if isString(pItem)
+			_pCtList = This._EngineListFromContent()
+			if _pCtList != NULL
+				_nCtResult = StzEngineListContainsStringCS(_pCtList, pItem, pCaseSensitive)
+				StzEngineListFree(_pCtList)
+				return _nCtResult
+			ok
+		ok
+
+		_nCtLen = len(This.FindAllCS(pItem, pCaseSensitive))
+		if _nCtLen > 0
 			return 1
 		else
 			return 0
