@@ -808,6 +808,82 @@ Class stzTable from stzList
 		This._InvalidateEngine()
 
 	  #============================================================#
+	 #  TABLE SECTION (overrides stzList.Section for [col,row])   #
+	#============================================================#
+
+	def Section(p1, p2)
+		if isList(p1) and isList(p2)
+			_nSCol1 = p1[1]
+			_nSRow1 = p1[2]
+			_nSCol2 = p2[1]
+			_nSRow2 = p2[2]
+
+			_nSCols = len(@aContent)
+			_nSRows = 0
+			if _nSCols > 0
+				_nSRows = len(@aContent[1][2])
+			ok
+
+			_aSResult = []
+
+			if _nSCol1 = _nSCol2
+				for _jS = _nSRow1 to _nSRow2
+					_aSResult + @aContent[_nSCol1][2][_jS]
+				next
+				return _aSResult
+			ok
+
+			for _jS = _nSRow1 to _nSRows
+				_aSResult + @aContent[_nSCol1][2][_jS]
+			next
+
+			for _iS = (_nSCol1 + 1) to (_nSCol2 - 1)
+				for _jS = 1 to _nSRows
+					_aSResult + @aContent[_iS][2][_jS]
+				next
+			next
+
+			for _jS = 1 to _nSRow2
+				_aSResult + @aContent[_nSCol2][2][_jS]
+			next
+
+			return _aSResult
+		ok
+
+		_nSLen = This.NumberOfItems()
+		if isString(p1)
+			if p1 = :First or p1 = :FirstItem
+				p1 = 1
+			but p1 = :Last or p1 = :LastItem
+				p1 = _nSLen
+			ok
+		ok
+		if isString(p2)
+			if p2 = :Last or p2 = :LastItem or p2 = :End or p2 = :EndOfList
+				p2 = _nSLen
+			but p2 = :First or p2 = :FirstItem
+				p2 = 1
+			ok
+		ok
+		if NOT @BothAreNumbers(p1, p2)
+			StzRaise("Incorrect params! n1 and n2 must be numbers.")
+		ok
+		if p1 < 1 or p1 > _nSLen or p2 < 1 or p2 > _nSLen
+			StzRaise("Indexes out of range!")
+		ok
+		if p2 < p1
+			_nSTemp = p1
+			p1 = p2
+			p2 = _nSTemp
+		ok
+		_aSContent = This.Content()
+		_aSResult2 = []
+		for _iS2 = p1 to p2
+			_aSResult2 + _aSContent[_iS2]
+		next
+		return _aSResult2
+
+	  #============================================================#
 	 #  ENGINE ACCELERATION INFRASTRUCTURE                         #
 	#============================================================#
 
