@@ -91,9 +91,10 @@ class stzListRandom from stzList
 		ok
 
 		nResult = n
-		while nResult = n
+		for _kRp = 1 to 1000
 			nResult = ARandomNumberBetween(1, nLen)
-		end
+			if nResult != n exit ok
+		next
 
 		return nResult
 
@@ -112,9 +113,10 @@ class stzListRandom from stzList
 		ok
 
 		nResult = panPos[1]
-		while StzFind(panPos, nResult) > 0
+		for _kRpe = 1 to 1000
 			nResult = ARandomNumberBetween(1, nLen)
-		end
+			if StzFind(panPos, nResult) = 0 exit ok
+		next
 
 		return nResult
 
@@ -164,16 +166,12 @@ class stzListRandom from stzList
 			StzRaise("Can't get a random item! The list has only one item.")
 		ok
 
-		nTries = 0
 		result = This.RandomItem()
 
-		while BothAreEqualCS(result, pItem, pCaseSensitive)
+		for _kRie = 1 to 100
+			if NOT BothAreEqualCS(result, pItem, pCaseSensitive) exit ok
 			result = This.RandomItem()
-			nTries++
-			if nTries > 100
-				exit
-			ok
-		end
+		next
 
 		return result
 
