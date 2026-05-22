@@ -736,6 +736,70 @@ class stzTableAggregator from stzTable
 
 		return nResult
 
+	  #==========================================================#
+	 #  ENGINE-BACKED COLUMN AGGREGATION (whole-column, fast)    #
+	#==========================================================#
+
+	def SumCol(pCol)
+		nCol = This.ColToColNumber(pCol)
+		This._EnsureEngine()
+		return StzEngineTableSumCol(@pEngine, nCol-1)
+
+		def SumColumn(pCol)
+			return This.SumCol(pCol)
+
+	def AvgCol(pCol)
+		nCol = This.ColToColNumber(pCol)
+		This._EnsureEngine()
+		return StzEngineTableAvgCol(@pEngine, nCol-1)
+
+		def AvgColumn(pCol)
+			return This.AvgCol(pCol)
+
+		def AverageCol(pCol)
+			return This.AvgCol(pCol)
+
+		def AverageColumn(pCol)
+			return This.AvgCol(pCol)
+
+		def MeanCol(pCol)
+			return This.AvgCol(pCol)
+
+		def MeanColumn(pCol)
+			return This.AvgCol(pCol)
+
+	def MinCol(pCol)
+		nCol = This.ColToColNumber(pCol)
+		This._EnsureEngine()
+		return StzEngineTableMinCol(@pEngine, nCol-1)
+
+		def MinColumn(pCol)
+			return This.MinCol(pCol)
+
+	def MaxCol(pCol)
+		nCol = This.ColToColNumber(pCol)
+		This._EnsureEngine()
+		return StzEngineTableMaxCol(@pEngine, nCol-1)
+
+		def MaxColumn(pCol)
+			return This.MaxCol(pCol)
+
+	def ProductCol(pCol)
+		nCol = This.ColToColNumber(pCol)
+		This._EnsureEngine()
+		return StzEngineTableProductCol(@pEngine, nCol-1)
+
+		def ProductColumn(pCol)
+			return This.ProductCol(pCol)
+
+	def CountNonNullInCol(pCol)
+		nCol = This.ColToColNumber(pCol)
+		This._EnsureEngine()
+		return StzEngineTableCountNonNull(@pEngine, nCol-1)
+
+		def CountNonNullInColumn(pCol)
+			return This.CountNonNullInCol(pCol)
+
 	  #============================================#
 	 #  CASTING THE TABLE INTO A STZTABLE OBJECT  #
 	#============================================#

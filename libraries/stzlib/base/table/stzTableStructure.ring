@@ -56,6 +56,7 @@ class stzTableStructure from stzTable
 		ok
 
 		@aContent + pacColNameAndData
+		This._InvalidateEngine()
 
 		def AddCol(pacColNameAndData)
 			This.AddColumn(pacColNameAndData)
@@ -144,6 +145,7 @@ class stzTableStructure from stzTable
 		ok
 
 		@aContent = paNewTable
+		This._InvalidateEngine()
 
 		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject

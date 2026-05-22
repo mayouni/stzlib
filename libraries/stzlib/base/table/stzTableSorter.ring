@@ -89,13 +89,10 @@ class stzTableSorter from stzTable
 
 	def SortOn(pCol)
 		nCol = This.ColToColNumber(pCol)
-		aRowsSorted = @SortOn( This.Rows(), nCol)
 
-		nLenRows = len(aRowsSorted)
-
-		for i = 1 to nLenRows
-			This.ReplaceRow(i, aRowsSorted[i])
-		next
+		This._EnsureEngine()
+		StzEngineTableSortOn(@pEngine, nCol-1, 1)
+		This._SyncFromEngine()
 
 		#< @FunctionFluentForm
 
@@ -194,18 +191,11 @@ class stzTableSorter from stzTable
 	#=====================================================#
 
 	def SortDownOn(pCol)
+		nCol = This.ColToColNumber(pCol)
 
-		This.SortOn(pCol)
-
-		nRows = This.NumberOfRows()
-		nHalf = nRows / 2
-
-		for i = 1 to nHalf
-			j = nRows - i + 1
-			aTemp = This.Row(i)
-			This.ReplaceRow(i, This.Row(j))
-			This.ReplaceRow(j, aTemp)
-		next
+		This._EnsureEngine()
+		StzEngineTableSortOn(@pEngine, nCol-1, 0)
+		This._SyncFromEngine()
 
 		#< @FunctionFluentForm
 

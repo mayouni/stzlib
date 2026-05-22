@@ -45,9 +45,9 @@ Class stzTable from stzList
 	# Table content is stored as a hashlist where keys are col names
 	# EXAMPLE:
 	# 	[
-	# 		[ "COL1", [ "A", "B", "C" ] ],
-	# 		[ "COL2", [ "a", "b", "c" ] ],
-	# 		[ "COL3", [ "1", "2", "3" ] ]
+	# 		[ “COL1”, [ “A”, “B”, “C” ] ],
+	# 		[ “COL2”, [ “a”, “b”, “c” ] ],
+	# 		[ “COL3”, [ “1”, “2”, “3” ] ]
 	# 	]
 
 	# This choice is made firstly, because columns have names and
@@ -58,19 +58,23 @@ Class stzTable from stzList
 	@anCalculatedCols = []
 	@anCalculatedRows = []
 
+	# Engine handle for Zig-backed acceleration
+	@pEngine = NULL
+	@bEngineStale = TRUE
+
 	# Define border characters
 	@aBorder = [
-		:TopLeft = "â•­",
-		:TopRight = "â•®",
-		:BottomLeft = "â•°",
-		:BottomRight = "â•¯",
-		:Horizontal = "â”€",
-		:Vertical = "â”‚",
-		:TeeRight = "â”œ",
-		:TeeLeft = "â”¤",
-		:TeeDown = "â”¬",
-		:TeeUp = "â”´",
-		:Cross = "â”¼"
+		:TopLeft = “â•­”,
+		:TopRight = “â•®”,
+		:BottomLeft = “â•°”,
+		:BottomRight = “â•¯”,
+		:Horizontal = “â”€”,
+		:Vertical = “â”‚”,
+		:TeeRight = “â”œ”,
+		:TeeLeft = “â”¤”,
+		:TeeDown = “â”¬”,
+		:TeeUp = “â”´”,
+		:Cross = “â”¼”
 	]
 
 	# Attributes used by the Transpose() method
@@ -785,6 +789,7 @@ Class stzTable from stzList
 		for i = 1 to nCols
 			@aContent[i][2][pnRow] = paNewRow[i]
 		next
+		This._InvalidateEngine()
 
 	def ReplaceCell(pCol, pnRow, pValue)
 		n = This.FindCol(pCol)
@@ -792,6 +797,7 @@ Class stzTable from stzList
 			StzRaise("Column not found!")
 		ok
 		@aContent[n][2][pnRow] = pValue
+		This._InvalidateEngine()
 
 	def ReplaceCol(pCol, paNewData)
 		n = This.FindCol(pCol)
@@ -799,3 +805,80 @@ Class stzTable from stzList
 			StzRaise("Column not found!")
 		ok
 		@aContent[n][2] = paNewData
+		This._InvalidateEngine()
+
+	  #============================================================#
+	 #  ENGINE ACCELERATION INFRASTRUCTURE                         #
+	#============================================================#
+
+	def _EnsureEngine()
+		if @pEngine = NULL or @bEngineStale
+			if @pEngine != NULL
+				StzEngineTableFree(@pEngine)
+			ok
+
+			@pEngine = StzEngineTableNew()
+
+			nCols = len(@aContent)
+			for i = 1 to nCols
+				StzEngineTableAddCol(@pEngine, @aContent[i][1])
+			next
+
+			if nCols > 0
+				nRows = len(@aContent[1][2])
+				for r = 1 to nRows
+					StzEngineTableAddRow(@pEngine)
+					for c = 1 to nCols
+						v = @aContent[c][2][r]
+						if isNumber(v)
+							if floor(v) = v
+								StzEngineTableSetCellInt(@pEngine, c-1, r-1, v)
+							else
+								StzEngineTableSetCellFloat(@pEngine, c-1, r-1, v)
+							ok
+						but isString(v)
+							StzEngineTableSetCellString(@pEngine, c-1, r-1, v)
+						ok
+					next
+				next
+			ok
+
+			@bEngineStale = FALSE
+		ok
+
+	def _InvalidateEngine()
+		@bEngineStale = TRUE
+
+	def _SyncFromEngine()
+		nCols = StzEngineTableNumCols(@pEngine)
+		nRows = StzEngineTableNumRows(@pEngine)
+
+		@aContent = []
+		for c = 1 to nCols
+			cName = StzEngineTableColName(@pEngine, c-1)
+			aData = []
+			for r = 1 to nRows
+				nType = StzEngineTableGetCellType(@pEngine, c-1, r-1)
+				if nType = 2
+					aData + StzEngineTableGetCellInt(@pEngine, c-1, r-1)
+				but nType = 3
+					aData + StzEngineTableGetCellFloat(@pEngine, c-1, r-1)
+				but nType = 4
+					aData + StzEngineTableGetCellString(@pEngine, c-1, r-1)
+				else
+					aData + ""
+				ok
+			next
+			@aContent + [cName, aData]
+		next
+		@bEngineStale = FALSE
+
+	def _FreeEngine()
+		if @pEngine != NULL
+			StzEngineTableFree(@pEngine)
+			@pEngine = NULL
+		ok
+
+	def EngineHandle()
+		This._EnsureEngine()
+		return @pEngine
