@@ -160,22 +160,23 @@ func GetLength(pValue)
         # Count Unicode codepoints (not bytes) in a UTF-8 string
         nCount = 0
         nBytes = len(pValue)
-        i = 1
-        while i <= nBytes
-            c = ascii(pValue[i])
-            if (c & 0x80) = 0        # 1-byte (ASCII)
-                i++
-            but (c & 0xE0) = 0xC0    # 2-byte
-                i += 2
-            but (c & 0xF0) = 0xE0    # 3-byte
-                i += 3
-            but (c & 0xF8) = 0xF0    # 4-byte
-                i += 4
+        _iGl = 1
+        for _kGl = 1 to nBytes
+            if _iGl > nBytes exit ok
+            c = ascii(pValue[_iGl])
+            if (c & 0x80) = 0
+                _iGl++
+            but (c & 0xE0) = 0xC0
+                _iGl += 2
+            but (c & 0xF0) = 0xE0
+                _iGl += 3
+            but (c & 0xF8) = 0xF0
+                _iGl += 4
             else
-                i++                   # invalid byte, skip
+                _iGl++
             ok
             nCount++
-        end
+        next
         return nCount
     ok
 
@@ -616,9 +617,10 @@ func FormatShortString(cStr, nItems)
     # Build a list of Unicode character byte-offsets and lengths
     aChars = []
     nBytes = len(cStr)
-    i = 1
-    while i <= nBytes
-        c = ascii(cStr[i])
+    _iFss = 1
+    for _kFss = 1 to nBytes
+        if _iFss > nBytes exit ok
+        c = ascii(cStr[_iFss])
         if (c & 0x80) = 0
             nCharLen = 1
         but (c & 0xE0) = 0xC0
@@ -630,9 +632,9 @@ func FormatShortString(cStr, nItems)
         else
             nCharLen = 1
         ok
-        aChars + [i, nCharLen]
-        i += nCharLen
-    end
+        aChars + [_iFss, nCharLen]
+        _iFss += nCharLen
+    next
 
     nLen = len(aChars)
     cResult = ""

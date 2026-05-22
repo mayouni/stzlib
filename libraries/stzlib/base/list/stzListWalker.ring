@@ -70,11 +70,12 @@ class stzListWalker from stzList
 		nLen = This.NumberOfItems()
 		anResult = []
 
-		i = 1
-		while i <= nLen
-			anResult + i
-			i += n
-		end
+		_iWf = 1
+		for _kWf = 1 to nLen
+			if _iWf > nLen exit ok
+			anResult + _iWf
+			_iWf += n
+		next
 
 		return anResult
 
@@ -89,11 +90,12 @@ class stzListWalker from stzList
 		nLen = This.NumberOfItems()
 		anResult = []
 
-		i = nLen
-		while i >= 1
-			anResult + i
-			i -= n
-		end
+		_iWb = nLen
+		for _kWb = 1 to nLen
+			if _iWb < 1 exit ok
+			anResult + _iWb
+			_iWb -= n
+		next
 
 		return anResult
 
@@ -203,24 +205,25 @@ class stzListWalker from stzList
 	def WalkZigZag(nStep)
 		nLen = This.NumberOfItems()
 		anResult = []
-		bForward = 1
-		i = 1
+		_bZzFwd = 1
+		_iZz = 1
 
-		while i >= 1 and i <= nLen
-			anResult + i
-			if bForward
-				i += nStep
-				if i > nLen
-					i = nLen
-					bForward = 0
+		for _kZz = 1 to nLen * 2
+			if _iZz < 1 or _iZz > nLen exit ok
+			anResult + _iZz
+			if _bZzFwd
+				_iZz += nStep
+				if _iZz > nLen
+					_iZz = nLen
+					_bZzFwd = 0
 				ok
 			else
-				i -= nStep
-				if i < 1
+				_iZz -= nStep
+				if _iZz < 1
 					exit
 				ok
 			ok
-		end
+		next
 
 		return anResult
 
@@ -276,11 +279,12 @@ class stzListWalker from stzList
 		nLen = This.NumberOfItems()
 		anResult = []
 
-		i = 1
-		while i <= nLen
-			anResult + i
-			i += (n + 1)
-		end
+		_iWs = 1
+		for _kWs = 1 to nLen
+			if _iWs > nLen exit ok
+			anResult + _iWs
+			_iWs += (n + 1)
+		next
 
 		return anResult
 
