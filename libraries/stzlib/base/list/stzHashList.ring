@@ -437,7 +437,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		nLen = len(p)
 		for i = 1 to nLen
-			p[i][1] = ring_StzLower(p[i][1])
+			p[i][1] = StzLower(p[i][1])
 		next
 
 		@aContent = p

@@ -1074,7 +1074,10 @@ func @Sort(p)
 	ok
 
 	if isString(p)
-		return ring_sort(p)
+		oStr = new stzString(p)
+		aChars = oStr.Chars()
+		oTemp = new stzList(aChars)
+		return oTemp.Sorted()
 
 	else
 		return @SortList(p)
