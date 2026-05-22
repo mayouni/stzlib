@@ -155,6 +155,21 @@ ok
     load "list/stzSetOfSections.ring"
 
     load "list/stzTable.ring"
+
+    # Table domain submodules
+
+    load "list/stzTableFinder.ring"
+    load "list/stzTableColumnAccess.ring"
+    load "list/stzTableRowAccess.ring"
+    load "list/stzTableCellAccess.ring"
+    load "list/stzTableSearch.ring"
+    load "list/stzTableReplacer.ring"
+    load "list/stzTableStructure.ring"
+    load "list/stzTableSubset.ring"
+    load "list/stzTableSorter.ring"
+    load "list/stzTableAggregator.ring"
+    load "list/stzTableDisplay.ring"
+
     load "list/stzListOfTables.ring"
 
     load "list/stzGrid.ring"
