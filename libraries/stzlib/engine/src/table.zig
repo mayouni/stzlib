@@ -863,6 +863,47 @@ pub fn stz_table_filter_rows(t: ?*const StzTable, col: i64, val: ?*const StzValu
     return tbl.filterRows(@intCast(col), v) catch null;
 }
 
+/// Find all [col, row] positions where a value appears in the table.
+/// Returns results as a flat list: [col0, row0, col1, row1, ...] with 0-based indices.
+/// max_results limits the output buffer.
+pub fn stz_table_find_cell_cs(t: ?*const StzTable, val: ?*const value_mod.StzValue, case_sensitive: i32, out: [*]i64, max_results: usize) callconv(.c) usize {
+    const tbl = t orelse return 0;
+    const v = val orelse return 0;
+    var count: usize = 0;
+    const ncols = tbl.numColumns();
+    for (0..ncols) |col| {
+        for (0..tbl.num_rows) |row| {
+            const cell = tbl.getCell(col, row) orelse continue;
+            if (value_mod.stz_value_equals_cs(cell, v, case_sensitive) != 0) {
+                if (count >= max_results) return count;
+                out[count * 2] = @intCast(col);
+                out[count * 2 + 1] = @intCast(row);
+                count += 1;
+            }
+        }
+    }
+    return count;
+}
+
+/// Find all row positions where a value appears in a specific column.
+/// Returns 0-based row indices.
+pub fn stz_table_find_in_col_cs(t: ?*const StzTable, col: i64, val: ?*const value_mod.StzValue, case_sensitive: i32, out: [*]i64, max_results: usize) callconv(.c) usize {
+    const tbl = t orelse return 0;
+    const v = val orelse return 0;
+    if (col < 0 or @as(usize, @intCast(col)) >= tbl.numColumns()) return 0;
+    const ci: usize = @intCast(col);
+    var count: usize = 0;
+    for (0..tbl.num_rows) |row| {
+        const cell = tbl.getCell(ci, row) orelse continue;
+        if (value_mod.stz_value_equals_cs(cell, v, case_sensitive) != 0) {
+            if (count >= max_results) return count;
+            out[count] = @intCast(row);
+            count += 1;
+        }
+    }
+    return count;
+}
+
 // ─── Tests ───
 
 test "table create and basic ops" {

@@ -128,6 +128,38 @@ pub const StzValue = struct {
         };
     }
 
+    pub fn eqlCS(a: *const StzValue, b: *const StzValue, case_sensitive: bool) bool {
+        if (case_sensitive) return a.eql(b);
+        if (a.tag != b.tag) return false;
+        return switch (a.tag) {
+            .null_val => true,
+            .bool_val => a.data.bool_val == b.data.bool_val,
+            .int_val => a.data.int_val == b.data.int_val,
+            .float_val => a.data.float_val == b.data.float_val,
+            .string_val => {
+                const sa = a.data.string_val;
+                const sb = b.data.string_val;
+                if (sa.len != sb.len) return false;
+                if (sa.len == 0) return true;
+                const a_slice = sa.ptr[0..sa.len];
+                const b_slice = sb.ptr[0..sb.len];
+                for (a_slice, b_slice) |ca, cb| {
+                    if (std.ascii.toLower(ca) != std.ascii.toLower(cb)) return false;
+                }
+                return true;
+            },
+            .list_val => {
+                const la = a.data.list_val;
+                const lb = b.data.list_val;
+                if (la.len != lb.len) return false;
+                for (0..la.len) |i| {
+                    if (!la.items[i].eqlCS(lb.items[i], false)) return false;
+                }
+                return true;
+            },
+        };
+    }
+
     pub fn compare(a: *const StzValue, b: *const StzValue) i32 {
         if (a.tag != b.tag) {
             return @as(i32, @intCast(@intFromEnum(a.tag))) - @as(i32, @intCast(@intFromEnum(b.tag)));
@@ -437,6 +469,12 @@ pub fn stz_value_equals(a: ?*const StzValue, b: ?*const StzValue) callconv(.c) i
     const va = a orelse return if (b == null) 1 else 0;
     const vb = b orelse return 0;
     return if (va.eql(vb)) 1 else 0;
+}
+
+pub fn stz_value_equals_cs(a: ?*const StzValue, b: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
+    const va = a orelse return if (b == null) 1 else 0;
+    const vb = b orelse return 0;
+    return if (va.eqlCS(vb, case_sensitive != 0)) 1 else 0;
 }
 
 pub fn stz_value_compare(a: ?*const StzValue, b: ?*const StzValue) callconv(.c) i32 {

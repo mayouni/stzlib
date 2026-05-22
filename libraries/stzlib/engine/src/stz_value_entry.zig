@@ -24,6 +24,7 @@ comptime {
     @export(&value.stz_value_list_remove, .{ .name = "stz_value_list_remove" });
     @export(&value.stz_value_list_insert, .{ .name = "stz_value_list_insert" });
     @export(&value.stz_value_equals, .{ .name = "stz_value_equals" });
+    @export(&value.stz_value_equals_cs, .{ .name = "stz_value_equals_cs" });
     @export(&value.stz_value_compare, .{ .name = "stz_value_compare" });
     @export(&value.stz_value_clone, .{ .name = "stz_value_clone" });
     @export(&value.stz_value_to_string, .{ .name = "stz_value_to_string" });

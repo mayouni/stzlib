@@ -42,6 +42,8 @@ comptime {
     @export(&table.stz_table_sub_table, .{ .name = "stz_table_sub_table" });
     @export(&table.stz_table_group_by, .{ .name = "stz_table_group_by" });
     @export(&table.stz_table_filter_rows, .{ .name = "stz_table_filter_rows" });
+    @export(&table.stz_table_find_cell_cs, .{ .name = "stz_table_find_cell_cs" });
+    @export(&table.stz_table_find_in_col_cs, .{ .name = "stz_table_find_in_col_cs" });
 
     // ─── Pivot operations ───
     @export(&pivot.stz_pivot_multi_group_by, .{ .name = "stz_pivot_multi_group_by" });
