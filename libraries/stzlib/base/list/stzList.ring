@@ -1042,6 +1042,43 @@ class stzList from stzObject
 		def IsAListOfLists()
 			return This.IsListOfLists()
 
+		def AllItemsAreLists()
+			return This.IsListOfLists()
+
+		def ContainsOnlyLists()
+			return This.IsListOfLists()
+
+	def IsListOfListsOfSameSize()
+		nLen = This.NumberOfItems()
+		if nLen = 0
+			return 0
+		ok
+		if NOT This.IsListOfLists()
+			return 0
+		ok
+		for i = 2 to nLen
+			if len(@aContent[i]) != len(@aContent[i-1])
+				return 0
+			ok
+		next
+		return 1
+
+		def ItemsAreListsOfSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		def AllItemsAreListsOfSameSize()
+			return This.IsListOfListsOfSameSize()
+
+	def IsPairOfNumbers()
+		if len(@aContent) = 2 and isNumber(@aContent[1]) and isNumber(@aContent[2])
+			return 1
+		else
+			return 0
+		ok
+
+		def IsAPairOfNumbers()
+			return This.IsPairOfNumbers()
+
 	def IsListOfPairs()
 		nLen = len(@aContent)
 		for i = 1 to nLen

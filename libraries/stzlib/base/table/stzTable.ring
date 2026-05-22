@@ -272,12 +272,19 @@ Class stzTable from stzList
 		return _oCopy_
 
 	def IsEmpty()
-		if This.CellsQ().AllItemsAreNull()
+		nLen = len(@aContent)
+		if nLen = 0
 			return 1
-
-		else
-			return 0
 		ok
+		for i = 1 to nLen
+			aCol = @aContent[i][2]
+			for j = 1 to len(aCol)
+				if aCol[j] != NULL
+					return 0
+				ok
+			next
+		next
+		return 1
 
 	  #================================================#
 	 #   CHECHKING IF THE TABLE HAS GIVEN COLUMN(S)   #
@@ -367,7 +374,12 @@ Class stzTable from stzList
 	#---------------------------------#
 
 	def ColumnsNames()
-		return This.ToStzHashList().Keys()
+		aResult = []
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			aResult + @aContent[i][1]
+		next
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -674,3 +686,116 @@ Class stzTable from stzList
 			return This.AreColNamesOrNumbers(paCols)
 
 		#>
+
+	  #============================================================#
+	 #  INFRASTRUCTURE METHODS (needed by all submodules)          #
+	#============================================================#
+
+	def FindCol(pCol)
+		if isNumber(pCol)
+			if pCol >= 1 and pCol <= len(@aContent)
+				return pCol
+			else
+				return 0
+			ok
+		ok
+		if isString(pCol)
+			return This.FindColByName(pCol)
+		ok
+		return 0
+
+		def FindColumn(pCol)
+			return This.FindCol(pCol)
+
+	def FindColByName(pcColName)
+		pcColName = StzLower(pcColName)
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			if StzLower(@aContent[i][1]) = pcColName
+				return i
+			ok
+		next
+		return 0
+
+		def FindColumnByName(pcColName)
+			return This.FindColByName(pcColName)
+
+	def ColToColNumber(pCol)
+		if isNumber(pCol)
+			return pCol
+		ok
+		return This.FindCol(pCol)
+
+	def NumberOfRows()
+		if len(@aContent) = 0
+			return 0
+		ok
+		return len(@aContent[1][2])
+
+	def Col(pCol)
+		n = This.FindCol(pCol)
+		if n = 0
+			StzRaise("Column not found!")
+		ok
+		return @aContent[n][2]
+
+		def Column(pCol)
+			return This.Col(pCol)
+
+	def Row(pnRow)
+		aResult = []
+		nCols = len(@aContent)
+		for i = 1 to nCols
+			aResult + @aContent[i][2][pnRow]
+		next
+		return aResult
+
+	def Cell(pCol, pnRow)
+		n = This.FindCol(pCol)
+		if n = 0
+			StzRaise("Column not found!")
+		ok
+		return @aContent[n][2][pnRow]
+
+	def NumberOfCells()
+		return This.NumberOfColumns() * This.NumberOfRows()
+
+	def NthColName(n)
+		return @aContent[n][1]
+
+	def FirstColName()
+		return This.NthColName(1)
+
+	def LastColName()
+		return This.NthColName(This.NumberOfColumns())
+
+	def LastRow()
+		return This.Row(This.NumberOfRows())
+
+	def Rows()
+		aResult = []
+		nRows = This.NumberOfRows()
+		for i = 1 to nRows
+			aResult + This.Row(i)
+		next
+		return aResult
+
+	def ReplaceRow(pnRow, paNewRow)
+		nCols = len(@aContent)
+		for i = 1 to nCols
+			@aContent[i][2][pnRow] = paNewRow[i]
+		next
+
+	def ReplaceCell(pCol, pnRow, pValue)
+		n = This.FindCol(pCol)
+		if n = 0
+			StzRaise("Column not found!")
+		ok
+		@aContent[n][2][pnRow] = pValue
+
+	def ReplaceCol(pCol, paNewData)
+		n = This.FindCol(pCol)
+		if n = 0
+			StzRaise("Column not found!")
+		ok
+		@aContent[n][2] = paNewData
