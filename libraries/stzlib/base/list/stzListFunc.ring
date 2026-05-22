@@ -18,7 +18,70 @@
 /////////////////
 
 	  #============================================#
-	 #  ENGINE UNMARSHALING                       #
+	 #  ENGINE MARSHALING (Ring list -> Engine)   #
+	#============================================#
+
+	func StzEngineMarshalList(aList)
+		pList = StzEngineListNew()
+		if pList = NULL
+			return NULL
+		ok
+
+		nLen = len(aList)
+		for i = 1 to nLen
+			item = aList[i]
+			if isNumber(item)
+				if floor(item) = item
+					StzEngineListAppendInt(pList, item)
+				else
+					StzEngineListAppendFloat(pList, item)
+				ok
+			but isString(item)
+				StzEngineListAppendString(pList, item)
+			but isList(item)
+				aCopy = []
+				for j = 1 to len(item)
+					aCopy + item[j]
+				next
+				pVal = StzEngineMarshalListValue(aCopy)
+				StzEngineListAppendValue(pList, pVal)
+				StzEngineValueFree(pVal)
+			ok
+		next
+
+		return pList
+
+	func StzEngineMarshalListValue(aList)
+		pVal = StzEngineValueNewList()
+		nLen = len(aList)
+		for i = 1 to nLen
+			item = aList[i]
+			if isNumber(item)
+				if floor(item) = item
+					pItem = StzEngineValueNewInt(item)
+				else
+					pItem = StzEngineValueNewFloat(item)
+				ok
+				StzEngineValueListAppend(pVal, pItem)
+				StzEngineValueFree(pItem)
+			but isString(item)
+				pItem = StzEngineValueNewString(item)
+				StzEngineValueListAppend(pVal, pItem)
+				StzEngineValueFree(pItem)
+			but isList(item)
+				aCopy = []
+				for j = 1 to len(item)
+					aCopy + item[j]
+				next
+				pSubVal = StzEngineMarshalListValue(aCopy)
+				StzEngineValueListAppend(pVal, pSubVal)
+				StzEngineValueFree(pSubVal)
+			ok
+		next
+		return pVal
+
+	  #============================================#
+	 #  ENGINE UNMARSHALING (Engine -> Ring list)  #
 	#============================================#
 
 	func StzEngineContentFromList(pList)

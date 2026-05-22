@@ -265,8 +265,9 @@ class stzListRandom from stzList
 				return This
 
 	def Randomized()
-		aResult = This.Copy().RandomizeQ().Content()
-		return aResult
+		oCopy = new stzListRandom(This.Content())
+		oCopy.Randomize()
+		return oCopy.Content()
 
 		def Randomised()
 			return This.Randomized()
