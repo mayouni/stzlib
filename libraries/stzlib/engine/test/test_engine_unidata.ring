@@ -1,4 +1,4 @@
-# Test engine-backed SQLite Unicode data store (embedded data)
+# Test engine-backed SQLite Unicode data store (pre-built DB)
 # Run from engine/test/: D:\Ring126\bin\ring.exe test_engine_unidata.ring
 
 # Find and load the stz_unidata DLL
@@ -9,16 +9,23 @@ if cDll = ""
 ok
 pHandle = LoadLib(cDll)
 
-? "=== Unicode Data: Open (auto-populated from embedded data) ==="
-pDb = StzEngineUnidataOpen("")
-if pDb = NULL
-    ? "FAIL: could not open in-memory database"
+# Find the pre-built unicode.db
+cDbPath = _stzFindDb("unicode.db")
+if cDbPath = ""
+    ? "FAIL: unicode.db not found"
     return
 ok
-? "  Opened in-memory database: OK"
+
+? "=== Unicode Data: Open pre-built database ==="
+pDb = StzEngineUnidataOpen(cDbPath)
+if pDb = NULL
+    ? "FAIL: could not open database at: " + cDbPath
+    return
+ok
+? "  Opened database: OK"
 
 ? ""
-? "=== Unicode Data: Count (should be 34939 from embedded data) ==="
+? "=== Unicode Data: Count (should be 34939) ==="
 nTotal = StzEngineUnidataCount(pDb)
 ? "  Total characters: " + nTotal
 
@@ -26,25 +33,20 @@ nTotal = StzEngineUnidataCount(pDb)
 ? "=== Unicode Data: Char name lookup ==="
 cName = StzEngineUnidataCharName(pDb, 65)
 ? "  U+0041 name: " + cName
-# Expected: LATIN CAPITAL LETTER A
 
 cName2 = StzEngineUnidataCharName(pDb, 97)
 ? "  U+0061 name: " + cName2
-# Expected: LATIN SMALL LETTER A
 
 cName3 = StzEngineUnidataCharName(pDb, 8364)
 ? "  U+20AC name: " + cName3
-# Expected: EURO SIGN
 
 ? ""
 ? "=== Unicode Data: Char category lookup ==="
 cCat = StzEngineUnidataCharCategory(pDb, 65)
 ? "  U+0041 category: " + cCat
-# Expected: Lu
 
 cCat2 = StzEngineUnidataCharCategory(pDb, 48)
 ? "  U+0030 category: " + cCat2
-# Expected: Nd
 
 ? ""
 ? "=== Unicode Data: Search by name ==="
@@ -85,6 +87,39 @@ func _stzFindDll(cDllName)
     cDir = cNorm
     for depth = 1 to 10
         cTry = cDir + "/zig-out/bin/" + cDllName
+        if fexists(cTry)
+            return cTry
+        ok
+        nLast = 0
+        for j = len(cDir) to 1 step -1
+            if cDir[j] = "/"
+                nLast = j
+                exit
+            ok
+        next
+        if nLast < 2
+            exit
+        ok
+        cDir = left(cDir, nLast - 1)
+    next
+    return ""
+
+# ── Helper: find unicode.db ────────────────────────────────────────
+
+func _stzFindDb(cDbName)
+    cDir = currentdir()
+    nLen = len(cDir)
+    cNorm = ""
+    for i = 1 to nLen
+        if cDir[i] = "\"
+            cNorm += "/"
+        else
+            cNorm += cDir[i]
+        ok
+    next
+    cDir = cNorm
+    for depth = 1 to 10
+        cTry = cDir + "/data/" + cDbName
         if fexists(cTry)
             return cTry
         ok

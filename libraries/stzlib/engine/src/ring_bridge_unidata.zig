@@ -7,7 +7,6 @@ const gs = R.ring_vm_api_getstring;
 const gss = R.ring_vm_api_getstringsize;
 const gcp = R.ring_vm_api_getcpointer;
 const rn = R.ring_vm_api_retnumber;
-const rs = R.ring_vm_api_retstring;
 const rs2 = R.ring_vm_api_retstring2;
 const rcp = R.ring_vm_api_retcpointer;
 
@@ -32,13 +31,6 @@ fn ring_Open(p: *anyopaque) callconv(.c) void {
 
 fn ring_Close(p: *anyopaque) callconv(.c) void {
     unidata.stz_unidata_close(getDb(p, 1));
-}
-
-fn ring_ImportFile(p: *anyopaque) callconv(.c) void {
-    const db = getDb(p, 1);
-    const path: [*]const u8 = @ptrCast(gs(p, 2));
-    const path_len: usize = @intCast(gss(p, 2));
-    rn(p, @floatFromInt(unidata.stz_unidata_import_file(db, path, path_len)));
 }
 
 fn ring_CharName(p: *anyopaque) callconv(.c) void {
@@ -88,18 +80,9 @@ fn ring_CharInfo(p: *anyopaque) callconv(.c) void {
     rs2(p, &buf, @intCast(len));
 }
 
-fn ring_Import(p: *anyopaque) callconv(.c) void {
-    const db = getDb(p, 1);
-    const txt: [*]const u8 = @ptrCast(gs(p, 2));
-    const txt_len: usize = @intCast(gss(p, 2));
-    rn(p, @floatFromInt(unidata.stz_unidata_import(db, txt, txt_len)));
-}
-
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineunidataopen", .func = &ring_Open },
     .{ .name = "stzengineunidataclose", .func = &ring_Close },
-    .{ .name = "stzengineunidataimport", .func = &ring_Import },
-    .{ .name = "stzengineunidataimportfile", .func = &ring_ImportFile },
     .{ .name = "stzengineunidatacharname", .func = &ring_CharName },
     .{ .name = "stzengineunidatacharcategory", .func = &ring_CharCategory },
     .{ .name = "stzengineunidatafindbyname", .func = &ring_FindByName },

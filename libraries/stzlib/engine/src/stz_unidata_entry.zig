@@ -5,8 +5,6 @@ pub const ring_bridge = @import("ring_bridge_unidata.zig");
 comptime {
     @export(&unicode_data.stz_unidata_open, .{ .name = "stz_unidata_open" });
     @export(&unicode_data.stz_unidata_close, .{ .name = "stz_unidata_close" });
-    @export(&unicode_data.stz_unidata_import, .{ .name = "stz_unidata_import" });
-    @export(&unicode_data.stz_unidata_import_file, .{ .name = "stz_unidata_import_file" });
     @export(&unicode_data.stz_unidata_char_name, .{ .name = "stz_unidata_char_name" });
     @export(&unicode_data.stz_unidata_char_category, .{ .name = "stz_unidata_char_category" });
     @export(&unicode_data.stz_unidata_find_by_name, .{ .name = "stz_unidata_find_by_name" });
