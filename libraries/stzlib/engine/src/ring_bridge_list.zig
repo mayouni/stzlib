@@ -483,6 +483,32 @@ fn ring_IsSubsetCS(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_is_subset_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))));
 }
 
+// Trim
+fn ring_TrimLeadingString(p: *anyopaque) callconv(.c) void {
+    const l = getL(p, 1) orelse return rn(p, -1);
+    const s = gs(p, 2);
+    const slen = gss(p, 2);
+    const v = value.stz_value_new_string(s, @intCast(slen)) orelse return rn(p, -1);
+    defer value.stz_value_free(v);
+    rn(p, @floatFromInt(list.stz_list_trim_leading(l, v)));
+}
+fn ring_TrimTrailingString(p: *anyopaque) callconv(.c) void {
+    const l = getL(p, 1) orelse return rn(p, -1);
+    const s = gs(p, 2);
+    const slen = gss(p, 2);
+    const v = value.stz_value_new_string(s, @intCast(slen)) orelse return rn(p, -1);
+    defer value.stz_value_free(v);
+    rn(p, @floatFromInt(list.stz_list_trim_trailing(l, v)));
+}
+fn ring_TrimString(p: *anyopaque) callconv(.c) void {
+    const l = getL(p, 1) orelse return rn(p, -1);
+    const s = gs(p, 2);
+    const slen = gss(p, 2);
+    const v = value.stz_value_new_string(s, @intCast(slen)) orelse return rn(p, -1);
+    defer value.stz_value_free(v);
+    rn(p, @floatFromInt(list.stz_list_trim(l, v)));
+}
+
 // Null-delimited
 fn ring_FromNullDelimited(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_from_null_delimited(gs(p, 1), @intCast(gss(p, 1)))), HL);
@@ -569,6 +595,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistrandomitems", .func = &ring_RandomItems },
     .{ .name = "stzenginelistsection", .func = &ring_Section },
     .{ .name = "stzenginelistswap", .func = &ring_Swap },
+    .{ .name = "stzenginelisttrimleadingstring", .func = &ring_TrimLeadingString },
+    .{ .name = "stzenginelisttrimtrailingstring", .func = &ring_TrimTrailingString },
+    .{ .name = "stzenginelisttrimstring", .func = &ring_TrimString },
     .{ .name = "stzenginelistfromnulldelimited", .func = &ring_FromNullDelimited },
     .{ .name = "stzenginelisttonulldelimited", .func = &ring_ToNullDelimited },
 };

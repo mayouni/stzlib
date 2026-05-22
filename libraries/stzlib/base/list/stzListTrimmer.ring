@@ -117,6 +117,15 @@ class stzListTrimmer from stzList
 			return This
 
 	def TrimItemFromLeftCS(pItem, pCaseSensitive)
+		if isString(pItem) and pCaseSensitive = 1
+			_pTlList = This._EngineListFromContent()
+			if _pTlList != NULL
+				StzEngineListTrimLeadingString(_pTlList, pItem)
+				@aContent = This._ContentFromEngineList(_pTlList)
+				StzEngineListFree(_pTlList)
+				return
+			ok
+		ok
 		aContent = This.Content()
 		nLen = len(aContent)
 		nStart = 0
@@ -135,6 +144,15 @@ class stzListTrimmer from stzList
 		This.TrimItemFromLeftCS(pItem, 1)
 
 	def TrimItemFromRightCS(pItem, pCaseSensitive)
+		if isString(pItem) and pCaseSensitive = 1
+			_pTrList = This._EngineListFromContent()
+			if _pTrList != NULL
+				StzEngineListTrimTrailingString(_pTrList, pItem)
+				@aContent = This._ContentFromEngineList(_pTrList)
+				StzEngineListFree(_pTrList)
+				return
+			ok
+		ok
 		aContent = This.Content()
 		nLen = len(aContent)
 		nEnd = 0

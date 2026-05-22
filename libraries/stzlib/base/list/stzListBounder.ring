@@ -64,14 +64,25 @@ class stzListBounder from stzList
 			StzRaise("Indexes out of range! n1 and n2 must be inside the list.")
 		ok
 
-		aResult = []
-
 		if n2 < n1
 			nTemp = n1
 			n1 = n2
 			n2 = nTemp
 		ok
 
+		# Engine fast path
+		_pBsList = This._EngineListFromContent()
+		if _pBsList != NULL
+			_pBsResult = StzEngineListSection(_pBsList, n1, n2)
+			StzEngineListFree(_pBsList)
+			if _pBsResult != NULL
+				_aBsResult = This._ContentFromEngineList(_pBsResult)
+				StzEngineListFree(_pBsResult)
+				return _aBsResult
+			ok
+		ok
+
+		aResult = []
 		for i = n1 to n2
 			aResult + aContent[i]
 		next
