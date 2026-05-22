@@ -47,6 +47,15 @@ class stzListMover from stzList
 				n2 = n2[2]
 			ok
 		ok
+
+		_pSwList = This._EngineListFromContent()
+		if _pSwList != NULL
+			StzEngineListSwap(_pSwList, n1, n2)
+			@aContent = This._ContentFromEngineList(_pSwList)
+			StzEngineListFree(_pSwList)
+			return
+		ok
+
 		temp = This.List()[n1]
 		This.List()[n1] = This.List()[n2]
 		This.List()[n2] = temp
@@ -125,6 +134,14 @@ class stzListMover from stzList
 	#======================================================#
 
 	def Reverse()
+		_pRevList = This._EngineListFromContent()
+		if _pRevList != NULL
+			StzEngineListReverse(_pRevList)
+			@aContent = This._ContentFromEngineList(_pRevList)
+			StzEngineListFree(_pRevList)
+			return
+		ok
+
 		aContent = This.Content()
 		nLen = len(aContent)
 		aResult = []
@@ -175,6 +192,14 @@ class stzListMover from stzList
 	#======================================================#
 
 	def Shuffle()
+		_pShufList = This._EngineListFromContent()
+		if _pShufList != NULL
+			StzEngineListShuffle(_pShufList)
+			@aContent = This._ContentFromEngineList(_pShufList)
+			StzEngineListFree(_pShufList)
+			return
+		ok
+
 		aContent = This.Content()
 		nLen = len(aContent)
 		for i = nLen to 2 step -1

@@ -101,6 +101,19 @@ class stzListReplacer from stzList
 	def ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
 		aContent = This.Content()
 		if n >= 1 and n <= len(aContent)
+			if isString(pNewItem)
+				_pRpList = This._EngineListFromContent()
+				if _pRpList != NULL
+					_pRpVal = StzEngineValueNewString(pNewItem)
+					if _pRpVal != NULL
+						StzEngineListSet(_pRpList, n, _pRpVal)
+						@aContent = This._ContentFromEngineList(_pRpList)
+						StzEngineValueFree(_pRpVal)
+					ok
+					StzEngineListFree(_pRpList)
+					return
+				ok
+			ok
 			aContent[n] = pNewItem
 			This.UpdateWith(aContent)
 		ok
