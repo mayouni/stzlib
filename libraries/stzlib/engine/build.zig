@@ -186,4 +186,22 @@ pub fn build(b: *std.Build) void {
     const run_tests = b.addRunArtifact(tests);
     const test_step = b.step("test", "Run Softanza Engine tests");
     test_step.dependOn(&run_tests.step);
+
+    // Generator: populate reference data tables into unicode.db
+    const gen_refdata_mod = b.createModule(.{
+        .root_source_file = b.path("tools/gen_refdata.zig"),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    const gen_refdata = b.addExecutable(.{
+        .name = "gen_refdata",
+        .root_module = gen_refdata_mod,
+    });
+    addSqlite(gen_refdata_mod, gen_refdata, b);
+    b.installArtifact(gen_refdata);
+    const gen_refdata_step = b.step("gen-refdata", "Populate reference data into unicode.db");
+    const gen_refdata_run = b.addRunArtifact(gen_refdata);
+    gen_refdata_run.setCwd(b.path("."));
+    gen_refdata_step.dependOn(&gen_refdata_run.step);
 }

@@ -66,5 +66,9 @@ pub const regs = [_]R.Reg{
 
 pub fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
     unidata.initGlobal();
-    if (pState) |s| R.registerAll(s, &regs);
+    if (pState) |s| {
+        R.registerAll(s, &regs);
+        const ref_bridge = @import("ring_bridge_refdata.zig");
+        ref_bridge.registerAll(s);
+    }
 }
