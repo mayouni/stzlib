@@ -24,6 +24,34 @@ pub extern fn ring_list_gettype_gc(pState: ?*anyopaque, pList: *anyopaque, nInde
 pub extern fn ring_list_isnumber_gc(pState: ?*anyopaque, pList: *anyopaque, nIndex: c_uint) c_uint;
 pub extern fn ring_list_islist_gc(pState: ?*anyopaque, pList: *anyopaque, nIndex: c_uint) c_uint;
 pub extern fn ring_item_getnumber(pItem: *anyopaque) f64;
+pub extern fn ring_string_size(pString: *anyopaque) c_uint;
+pub extern fn ring_list_isstring_gc(pState: ?*anyopaque, pList: *anyopaque, nIndex: c_uint) c_uint;
+
+// Ring struct layout — stable ABI for direct field access where macros can't be called
+pub const RingString = extern struct { cStr: [*]const u8, nSize: c_uint };
+pub const RingList = extern struct { pFirst: ?*anyopaque, pLast: ?*anyopaque, nSize: c_uint };
+
+pub inline fn ringListSize(pList: *anyopaque) c_uint {
+    const rl: *const RingList = @ptrCast(@alignCast(pList));
+    return rl.nSize;
+}
+
+pub inline fn ringItemStringPtr(pItem: *anyopaque) ?[*]const u8 {
+    const pp: *const ?*const RingString = @ptrCast(@alignCast(pItem));
+    if (pp.*) |rs| return rs.cStr;
+    return null;
+}
+
+pub inline fn ringItemStringSize(pItem: *anyopaque) c_uint {
+    const pp: *const ?*const RingString = @ptrCast(@alignCast(pItem));
+    if (pp.*) |rs| return rs.nSize;
+    return 0;
+}
+
+pub inline fn ringItemListPtr(pItem: *anyopaque) ?*anyopaque {
+    const pp: *const ?*anyopaque = @ptrCast(@alignCast(pItem));
+    return pp.*;
+}
 
 pub const gl = ring_vm_api_getlist;
 pub const il = ring_vm_api_islist;

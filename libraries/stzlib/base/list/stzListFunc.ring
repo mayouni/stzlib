@@ -22,34 +22,7 @@
 	#============================================#
 
 	func StzEngineMarshalList(aList)
-		pList = StzEngineListNew()
-		if pList = NULL
-			return NULL
-		ok
-
-		nLen = len(aList)
-		for i = 1 to nLen
-			item = aList[i]
-			if isNumber(item)
-				if floor(item) = item
-					StzEngineListAppendInt(pList, item)
-				else
-					StzEngineListAppendFloat(pList, item)
-				ok
-			but isString(item)
-				StzEngineListAppendString(pList, item)
-			but isList(item)
-				aCopy = []
-				for j = 1 to len(item)
-					aCopy + item[j]
-				next
-				pVal = StzEngineMarshalListValue(aCopy)
-				StzEngineListAppendValue(pList, pVal)
-				StzEngineValueFree(pVal)
-			ok
-		next
-
-		return pList
+		return StzEngineListMarshalFromRingList(aList)
 
 	func StzEngineMarshalListValue(aList)
 		pVal = StzEngineValueNewList()
