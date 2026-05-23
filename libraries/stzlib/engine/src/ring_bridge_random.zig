@@ -126,12 +126,12 @@ fn ring_NUniqueInRange(p: *anyopaque) callconv(.c) void {
 }
 
 pub const regs = [_]R.Reg{
-    .{ .name = "stzenginrandomseed", .func = &ring_Seed },
-    .{ .name = "stzenginenrandomint", .func = &ring_Int },
-    .{ .name = "stzenginenrandomfloat", .func = &ring_Float },
-    .{ .name = "stzenginenrandombool", .func = &ring_Bool },
-    .{ .name = "stzenginenrandomninrange", .func = &ring_NInRange },
-    .{ .name = "stzenginenrandomnuniqueinrange", .func = &ring_NUniqueInRange },
+    .{ .name = "stzenginerandomseed", .func = &ring_Seed },
+    .{ .name = "stzenginerandomint", .func = &ring_Int },
+    .{ .name = "stzenginerandomfloat", .func = &ring_Float },
+    .{ .name = "stzenginerandombool", .func = &ring_Bool },
+    .{ .name = "stzenginerandomninrange", .func = &ring_NInRange },
+    .{ .name = "stzenginerandomnuniqueinrange", .func = &ring_NUniqueInRange },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

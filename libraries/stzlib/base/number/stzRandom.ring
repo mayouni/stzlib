@@ -1070,16 +1070,15 @@ func StzRandom(n)
 	if n = 0
 		return 0
 	but n > 0
-		return RandomNumberIn(1:n)
+		return StzEngineRandomInt(1, n)
 	else
-		return RandomNumberIn(n:-1)
+		return StzEngineRandomInt(n, -1)
 	ok
 
 	#--
 
 	func StzRandom01()
-		nResult = RandomNumberBetween(0, RandomRoundXT()) / RandomRoundXT()
-		return nResult
+		return StzEngineRandomFloat(0, 1)
 
 	func Random01()
 		return StzRandom01()
@@ -1140,7 +1139,7 @@ func SeedRandom(n)
 #---
 
 func RandomNumber()
-	return ring_random( RingMaxRandom() )
+	return StzEngineRandomInt(1, RingMaxRandom())
 
 	#< @FunctionAlternativeForms
 
@@ -2981,12 +2980,8 @@ func RandomNumberIn(panNumbers)
 	if nLen = 0
 		StzRaise("No valid numbers found in the list!")
 	ok
-	
-	nPos = ring_random(nLen)
-	if nPos = 0
-		nPos = 1
-	ok
 
+	nPos = StzEngineRandomInt(1, nLen)
 	nResult = anNumbers[nPos]
 	return nResult
 
@@ -3042,20 +3037,9 @@ func RandomNumberIn(panNumbers)
 		ok
 	
 		if BothAreIntegers(nMin, nMax)
-			if Abs(nMin - nMax) = 1
-				anTemp = new stzList([ nMin, nMax ]).Sorted()
-				nRandom01 = ARandomNumber01()
-				nResult = anTemp[1] + nRandom01
-				return nResult
-			else
-				return RandomNumberIn(nMin : nMax)
-			ok
+			return StzEngineRandomInt(nMin, nMax)
 		else
-			# Handle decimal numbers
-			nRange = nMax - nMin
-			nRandom01 = ARandomNumber01()
-			nResult = nMin + (nRandom01 * nRange)
-			return nResult
+			return StzEngineRandomFloat(nMin, nMax)
 		ok
 
 
@@ -3090,12 +3074,11 @@ func RandomNumberInZ(panNumbers)
 	next
 
 	nLen = len(anNumbers)
-	nPos = ring_random(nLen)
-
-	if nPos = 0
-		nPos = 1
+	if nLen = 0
+		return [0, 0]
 	ok
 
+	nPos = StzEngineRandomInt(1, nLen)
 	aResult = [ anNumbers[nPos], nPos ]
 
 	return aResult
