@@ -177,6 +177,19 @@ pub fn stz_hashmap_has_key_cs(map: ?*const StzHashMap, key_ptr: [*]const u8, key
     return if (m.findIndex(key_ptr[0..key_len], case_sensitive != 0) != null) 1 else 0;
 }
 
+// INDEX_BASE=1: returns 1-based position, 0 if not found
+pub fn stz_hashmap_find_key(map: ?*const StzHashMap, key_ptr: [*]const u8, key_len: usize) callconv(.c) i64 {
+    const m = map orelse return 0;
+    const idx = m.findIndex(key_ptr[0..key_len], true) orelse return 0;
+    return @as(i64, @intCast(idx)) + 1;
+}
+
+pub fn stz_hashmap_find_key_cs(map: ?*const StzHashMap, key_ptr: [*]const u8, key_len: usize, case_sensitive: i32) callconv(.c) i64 {
+    const m = map orelse return 0;
+    const idx = m.findIndex(key_ptr[0..key_len], case_sensitive != 0) orelse return 0;
+    return @as(i64, @intCast(idx)) + 1;
+}
+
 pub fn stz_hashmap_remove(map: ?*StzHashMap, key_ptr: [*]const u8, key_len: usize) callconv(.c) i32 {
     const m = map orelse return -1;
     const idx = m.findIndex(key_ptr[0..key_len], true) orelse return -1;
@@ -413,4 +426,22 @@ test "hashmap null handles" {
     try std.testing.expectEqual(@as(i32, -1), stz_hashmap_remove(null, "x", 1));
     try std.testing.expect(stz_hashmap_clone(null) == null);
     try std.testing.expect(stz_hashmap_get(null, "x", 1) == null);
+}
+
+test "hashmap find_key" {
+    const m = stz_hashmap_new() orelse return error.AllocFailed;
+    defer stz_hashmap_free(m);
+
+    _ = stz_hashmap_put_int(m, "name", 4, 1);
+    _ = stz_hashmap_put_int(m, "age", 3, 2);
+    _ = stz_hashmap_put_int(m, "job", 3, 3);
+
+    try std.testing.expectEqual(@as(i64, 1), stz_hashmap_find_key(m, "name", 4));
+    try std.testing.expectEqual(@as(i64, 2), stz_hashmap_find_key(m, "age", 3));
+    try std.testing.expectEqual(@as(i64, 3), stz_hashmap_find_key(m, "job", 3));
+    try std.testing.expectEqual(@as(i64, 0), stz_hashmap_find_key(m, "xyz", 3));
+
+    try std.testing.expectEqual(@as(i64, 1), stz_hashmap_find_key_cs(m, "NAME", 4, 0));
+    try std.testing.expectEqual(@as(i64, 0), stz_hashmap_find_key_cs(m, "NAME", 4, 1));
+    try std.testing.expectEqual(@as(i64, 0), stz_hashmap_find_key(null, "x", 1));
 }

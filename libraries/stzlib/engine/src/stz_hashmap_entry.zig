@@ -17,6 +17,8 @@ comptime {
     @export(&hashmap.stz_hashmap_get_string, .{ .name = "stz_hashmap_get_string" });
     @export(&hashmap.stz_hashmap_has_key, .{ .name = "stz_hashmap_has_key" });
     @export(&hashmap.stz_hashmap_has_key_cs, .{ .name = "stz_hashmap_has_key_cs" });
+    @export(&hashmap.stz_hashmap_find_key, .{ .name = "stz_hashmap_find_key" });
+    @export(&hashmap.stz_hashmap_find_key_cs, .{ .name = "stz_hashmap_find_key_cs" });
     @export(&hashmap.stz_hashmap_remove, .{ .name = "stz_hashmap_remove" });
     @export(&hashmap.stz_hashmap_key_at, .{ .name = "stz_hashmap_key_at" });
     @export(&hashmap.stz_hashmap_key_len_at, .{ .name = "stz_hashmap_key_len_at" });
