@@ -554,6 +554,11 @@ fn ring_SplitAt(p: *anyopaque) callconv(.c) void {
 fn ring_SortedInsert(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sorted_insert(getL(p, 1), getV(p, 2))));
 }
+fn ring_Join(p: *anyopaque) callconv(.c) void {
+    var buf: [65536]u8 = undefined;
+    const n = list.stz_list_join(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), &buf, 65536);
+    rs2(p, &buf, @intCast(n));
+}
 
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistnew", .func = &ring_New },
@@ -646,6 +651,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistremovetrailingcs", .func = &ring_RemoveTrailingCS },
     .{ .name = "stzenginelistsplitat", .func = &ring_SplitAt },
     .{ .name = "stzenginelistsortedinsert", .func = &ring_SortedInsert },
+    .{ .name = "stzenginelistjoin", .func = &ring_Join },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

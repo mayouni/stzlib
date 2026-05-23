@@ -200,6 +200,12 @@ class stzListStringify
 	#======================================================#
 
 	def Join(pcSep)
+		_pJnList = @oList._EngineListFromContent()
+		if _pJnList != NULL
+			_cJnResult = StzEngineListJoin(_pJnList, pcSep)
+			StzEngineListFree(_pJnList)
+			return _cJnResult
+		ok
 		aContent = This.Content()
 		nLen = len(aContent)
 		cResult = ""

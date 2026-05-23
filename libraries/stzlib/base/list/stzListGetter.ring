@@ -119,6 +119,17 @@ class stzListGetter
 			n1 = n2
 			n2 = temp
 		ok
+		_pScList = @oList._EngineListFromContent()
+		if _pScList != NULL
+			_pScResult = StzEngineListSection(_pScList, n1, n2)
+			if _pScResult != NULL
+				aResult = @oList._ContentFromEngineList(_pScResult)
+				StzEngineListFree(_pScResult)
+				StzEngineListFree(_pScList)
+				return aResult
+			ok
+			StzEngineListFree(_pScList)
+		ok
 		aResult = []
 		for i = n1 to n2
 			aResult + This.List()[i]
@@ -152,6 +163,17 @@ class stzListGetter
 		return This.NthItem(n)
 
 	def NRandomItems(n)
+		_pRiList = @oList._EngineListFromContent()
+		if _pRiList != NULL
+			_pRiResult = StzEngineListRandomItems(_pRiList, n)
+			if _pRiResult != NULL
+				aResult = @oList._ContentFromEngineList(_pRiResult)
+				StzEngineListFree(_pRiResult)
+				StzEngineListFree(_pRiList)
+				return aResult
+			ok
+			StzEngineListFree(_pRiList)
+		ok
 		_aContent_ = This.Content()
 		nLen = len(_aContent_)
 		if n >= nLen
