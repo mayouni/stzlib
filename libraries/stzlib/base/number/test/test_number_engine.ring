@@ -300,36 +300,46 @@ StzEngineBigIntFree(pBig)
 # ---- Helper ----
 
 func _stzFindDll(cDllName)
-    cDir = currentdir()
-    nLen = len(cDir)
-    cNorm = ""
-    for i = 1 to nLen
-        if cDir[i] = "\"
-            cNorm += "/"
-        else
-            cNorm += cDir[i]
-        ok
-    next
-    cDir = cNorm
-    for depth = 1 to 10
-        cTry = cDir + "/zig-out/bin/" + cDllName
-        if fexists(cTry)
-            return cTry
-        ok
-        cTry2 = cDir + "/engine/zig-out/bin/" + cDllName
-        if fexists(cTry2)
-            return cTry2
-        ok
-        nLast = 0
-        for j = len(cDir) to 1 step -1
-            if cDir[j] = "/"
-                nLast = j
-                exit
-            ok
-        next
-        if nLast < 2
-            exit
-        ok
-        cDir = left(cDir, nLast - 1)
-    next
-    return ""
+
+	cDir = currentdir()
+	nLen = len(cDir)
+	cNorm = ""
+
+	for i = 1 to nLen
+		if cDir[i] = "\"
+			cNorm += "/"
+		else
+			cNorm += cDir[i]
+		ok
+	next
+
+	cDir = cNorm
+
+	for depth = 1 to 10
+
+		cTry = cDir + "/zig-out/bin/" + cDllName
+		if fexists(cTry)
+			return cTry
+		ok
+
+		cTry = cDir + "/engine/zig-out/bin/" + cDllName
+		if fexists(cTry)
+			return cTry
+		ok
+
+		nLast = 0
+		for j = len(cDir) to 1 step -1
+			if cDir[j] = "/"
+				nLast = j
+				exit
+			ok
+		next
+
+		if nLast < 2
+			exit
+		ok
+
+		cDir = left(cDir, nLast - 1)
+	next
+
+	return ""
