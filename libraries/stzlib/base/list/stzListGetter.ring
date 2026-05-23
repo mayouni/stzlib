@@ -16,13 +16,41 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListGetter from stzList
+class stzListGetter
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListGetter! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def List()
+		return @oList.List()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	def ContentCS(pCaseSensitive)
 		return This.List()
-
-	def Content()
-		return This.ContentCS(1)
 
 	def NthItem(n)
 		if CheckingParams()
@@ -105,7 +133,7 @@ class stzListGetter from stzList
 	#======================================================#
 
 	def UniqueItemsCS(pCaseSensitive)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		pResult = StzEngineListUniqueCS(pList, pCaseSensitive)
 		aResult = StzEngineContentFromList(pResult)
 		StzEngineListFree(pResult)
@@ -124,11 +152,12 @@ class stzListGetter from stzList
 		return This.NthItem(n)
 
 	def NRandomItems(n)
-		nLen = len(@aContent)
+		_aContent_ = This.Content()
+		nLen = len(_aContent_)
 		if n >= nLen
 			aResult = []
 			for i = 1 to nLen
-				aResult + @aContent[i]
+				aResult + _aContent_[i]
 			next
 			return aResult
 		ok
@@ -141,7 +170,7 @@ class stzListGetter from stzList
 		next
 		aResult = []
 		for i = 1 to n
-			aResult + @aContent[anIndices[i]]
+			aResult + _aContent_[anIndices[i]]
 		next
 		return aResult
 

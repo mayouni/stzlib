@@ -16,7 +16,32 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListChecker from stzList
+class stzListChecker
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListChecker! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
 
 	  #======================================#
 	 #  CHECKING LIST TYPE COMPOSITION     #
@@ -291,7 +316,7 @@ class stzListChecker from stzList
 
 	def IsOfNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = "of" )
+		   ( isString(@oList.Item(1)) and @oList.Item(1) = "of" )
 			return 1
 		else
 			return 0
@@ -299,8 +324,8 @@ class stzListChecker from stzList
 
 	def IsWithOrByOrUsingNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and
-		     StzFind([ "with", "by", "using" ], This.Item(1)) > 0 )
+		   ( isString(@oList.Item(1)) and
+		     StzFind([ "with", "by", "using" ], @oList.Item(1)) > 0 )
 			return 1
 		else
 			return 0
@@ -308,7 +333,7 @@ class stzListChecker from stzList
 
 	def IsCaseSensitiveNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = "casesensitive" )
+		   ( isString(@oList.Item(1)) and @oList.Item(1) = "casesensitive" )
 			return 1
 		else
 			return 0
@@ -356,7 +381,7 @@ class stzListChecker from stzList
 			return This.AllItemsAreEqual()
 
 	def AllItemsAreUnique()
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		nResult = StzEngineListAllUniqueCS(pList, 1)
 		StzEngineListFree(pList)
 		return nResult
@@ -479,9 +504,9 @@ class stzListChecker from stzList
 			return 1
 		ok
 
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListSortCS(pList, 1)
-		aSorted = This._ContentFromEngineList(pList)
+		aSorted = @oList._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
 		for i = 1 to nLen - 1
 			if NOT isNumber(aSorted[i])

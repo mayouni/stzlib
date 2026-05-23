@@ -16,7 +16,38 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListMover from stzList
+class stzListMover
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListMover! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def List()
+		return @oList.List()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	def Move(n1, n2)
 		if CheckingParams()
@@ -48,10 +79,10 @@ class stzListMover from stzList
 			ok
 		ok
 
-		_pSwList = This._EngineListFromContent()
+		_pSwList = @oList._EngineListFromContent()
 		if _pSwList != NULL
 			StzEngineListSwap(_pSwList, n1, n2)
-			@aContent = This._ContentFromEngineList(_pSwList)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwList))
 			StzEngineListFree(_pSwList)
 			return
 		ok
@@ -108,7 +139,7 @@ class stzListMover from stzList
 		StzEngineListFree(pTmp)
 		aItems = []
 		for i = 1 to nLen
-			aItems + This.NthItem(aSorted[i])
+			aItems + @oList.NthItem(aSorted[i])
 			ring_remove(This.List(), aSorted[i])
 		next
 		oTemp2 = new stzList(aItems)
@@ -134,10 +165,10 @@ class stzListMover from stzList
 	#======================================================#
 
 	def Reverse()
-		_pRevList = This._EngineListFromContent()
+		_pRevList = @oList._EngineListFromContent()
 		if _pRevList != NULL
 			StzEngineListReverse(_pRevList)
-			@aContent = This._ContentFromEngineList(_pRevList)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pRevList))
 			StzEngineListFree(_pRevList)
 			return
 		ok
@@ -148,23 +179,25 @@ class stzListMover from stzList
 		for i = nLen to 1 step -1
 			aResult + aContent[i]
 		next
-		This.UpdateWith(aResult)
+		@oList.UpdateWith(aResult)
 
 		def ReverseQ()
 			This.Reverse()
 			return This
 
 	def Reversed()
-		return This.Copy().ReverseQ().Content()
+		oCopy = new stzListMover(This.Content())
+		oCopy.Reverse()
+		return oCopy.Content()
 
 	  #======================================================#
 	 #   ROTATE -- CIRCULAR SHIFT                           #
 	#======================================================#
 
 	def RotateLeft(n)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListRotateLeft(pList, n)
-		This.UpdateWith(StzEngineContentFromList(pList))
+		@oList.UpdateWith(StzEngineContentFromList(pList))
 		StzEngineListFree(pList)
 
 		def RotateLeftQ(n)
@@ -172,12 +205,14 @@ class stzListMover from stzList
 			return This
 
 	def RotatedLeft(n)
-		return This.Copy().RotateLeftQ(n).Content()
+		oCopy = new stzListMover(This.Content())
+		oCopy.RotateLeft(n)
+		return oCopy.Content()
 
 	def RotateRight(n)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListRotateRight(pList, n)
-		This.UpdateWith(StzEngineContentFromList(pList))
+		@oList.UpdateWith(StzEngineContentFromList(pList))
 		StzEngineListFree(pList)
 
 		def RotateRightQ(n)
@@ -185,17 +220,19 @@ class stzListMover from stzList
 			return This
 
 	def RotatedRight(n)
-		return This.Copy().RotateRightQ(n).Content()
+		oCopy = new stzListMover(This.Content())
+		oCopy.RotateRight(n)
+		return oCopy.Content()
 
 	  #======================================================#
 	 #   SHUFFLE -- RANDOM REORDER                          #
 	#======================================================#
 
 	def Shuffle()
-		_pShufList = This._EngineListFromContent()
+		_pShufList = @oList._EngineListFromContent()
 		if _pShufList != NULL
 			StzEngineListShuffle(_pShufList)
-			@aContent = This._ContentFromEngineList(_pShufList)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pShufList))
 			StzEngineListFree(_pShufList)
 			return
 		ok
@@ -208,27 +245,29 @@ class stzListMover from stzList
 			aContent[i] = aContent[j]
 			aContent[j] = temp
 		next
-		This.UpdateWith(aContent)
+		@oList.UpdateWith(aContent)
 
 		def ShuffleQ()
 			This.Shuffle()
 			return This
 
 	def Shuffled()
-		return This.Copy().ShuffleQ().Content()
+		oCopy = new stzListMover(This.Content())
+		oCopy.Shuffle()
+		return oCopy.Content()
 
 	  #======================================================#
 	 #   MOVE ITEM BY VALUE                                 #
 	#======================================================#
 
 	def MoveItemToStart(pItem)
-		anPos = This.FindAll(pItem)
+		anPos = @oList.FindAll(pItem)
 		if len(anPos) > 0
 			This.MoveToStart(anPos[1])
 		ok
 
 	def MoveItemToEnd(pItem)
-		anPos = This.FindAll(pItem)
+		anPos = @oList.FindAll(pItem)
 		if len(anPos) > 0
 			This.MoveToEnd(anPos[1])
 		ok

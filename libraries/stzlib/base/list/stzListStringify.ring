@@ -17,7 +17,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListStringify from stzList
+class stzListStringify
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListStringify! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	  #------------------------------------------------------------#
 	 #  TRANSFORMING THE LIST TO ITS REPRESENTATION IN RING CODE  #
@@ -56,7 +84,7 @@ class stzListStringify from stzList
 
 		next
 
-		This.UpdateWith(_aContent_)
+		@oList.UpdateWith(_aContent_)
 
 		def StringifyQ()
 			This.Stringify()
@@ -66,7 +94,7 @@ class stzListStringify from stzList
 			This.Stringify()
 
 	def Stringified()
-		_acResult_ = This.Copy().StringifyQ().Content()
+		_acResult_ = @oList.Copy().StringifyQ().Content()
 		return _acResult_
 
 		def StringifiedItems()
@@ -86,14 +114,14 @@ class stzListStringify from stzList
 			ok
 		next
 
-		This.UpdateWith(_aContent_)
+		@oList.UpdateWith(_aContent_)
 
 		def StringifyListsQ()
 			This.StringifyLists()
 			return This
 
 	def ListsStringified()
-		return This.Copy().StringifyListsQ().Content()
+		return @oList.Copy().StringifyListsQ().Content()
 
 	  #------------------------------------------------------------------#
 	 #  STRINGIFYING THE OBJECTS INSIDE THE LIST                        #
@@ -109,14 +137,14 @@ class stzListStringify from stzList
 			ok
 		next
 
-		This.UpdateWith(_aContent_)
+		@oList.UpdateWith(_aContent_)
 
 		def StringifyObjectsQ()
 			This.StringifyObjects()
 			return This
 
 	def ObjectsStringified()
-		return This.Copy().StringifyObjectsQ().Content()
+		return @oList.Copy().StringifyObjectsQ().Content()
 
 	  #================================================#
 	 #   SINGLIFY -- REMOVE CONSECUTIVE DUPLICATES     #
@@ -138,14 +166,14 @@ class stzListStringify from stzList
 			ok
 		next
 
-		This.UpdateWith(_aResult_)
+		@oList.UpdateWith(_aResult_)
 
 		def SinglifyQ()
 			This.Singlify()
 			return This
 
 	def Singlified()
-		return This.Copy().SinglifyQ().Content()
+		return @oList.Copy().SinglifyQ().Content()
 
 	  #===============================#
 	 #   COMPUTABLE FORM             #

@@ -16,7 +16,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListLeadTrail from stzList
+class stzListLeadTrail
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListLeadTrail! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	def HasRepeatedLeadingItemsCS(pCaseSensitive)
 		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
@@ -30,7 +58,7 @@ class stzListLeadTrail from stzList
 		return This.HasRepeatedLeadingItemsCS(1)
 
 	def RepeatedLeadingItemsCS(pCaseSensitive)
-		_pLtList = This._EngineListFromContent()
+		_pLtList = @oList._EngineListFromContent()
 		if _pLtList != NULL
 			_nCsLt = 1
 			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
@@ -102,7 +130,7 @@ class stzListLeadTrail from stzList
 		return This.HasRepeatedTrailingItemsCS(1)
 
 	def RepeatedTrailingItemsCS(pCaseSensitive)
-		_pLtList2 = This._EngineListFromContent()
+		_pLtList2 = @oList._EngineListFromContent()
 		if _pLtList2 != NULL
 			_nCsLt2 = 1
 			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
@@ -147,7 +175,7 @@ class stzListLeadTrail from stzList
 		return This.RepeatedTrailingItemsCS(1)
 
 	def RemoveRepeatedLeadingItemsCS(pCaseSensitive)
-		_pLtRm = This._EngineListFromContent()
+		_pLtRm = @oList._EngineListFromContent()
 		if _pLtRm != NULL
 			_nCsLtRm = 1
 			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
@@ -156,7 +184,7 @@ class stzListLeadTrail from stzList
 				_nCsLtRm = pCaseSensitive
 			ok
 			StzEngineListRemoveLeadingCS(_pLtRm, _nCsLtRm)
-			@aContent = This._ContentFromEngineList(_pLtRm)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pLtRm))
 			StzEngineListFree(_pLtRm)
 			return
 		ok
@@ -164,14 +192,14 @@ class stzListLeadTrail from stzList
 		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
 		nToRemove = len(aLead) - 1
 		if nToRemove > 0
-			This.RemoveSection(1, nToRemove)
+			@oList.RemoveSection(1, nToRemove)
 		ok
 
 	def RemoveRepeatedLeadingItems()
 		This.RemoveRepeatedLeadingItemsCS(1)
 
 	def RemoveRepeatedTrailingItemsCS(pCaseSensitive)
-		_pLtRm2 = This._EngineListFromContent()
+		_pLtRm2 = @oList._EngineListFromContent()
 		if _pLtRm2 != NULL
 			_nCsLtRm2 = 1
 			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
@@ -180,7 +208,7 @@ class stzListLeadTrail from stzList
 				_nCsLtRm2 = pCaseSensitive
 			ok
 			StzEngineListRemoveTrailingCS(_pLtRm2, _nCsLtRm2)
-			@aContent = This._ContentFromEngineList(_pLtRm2)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pLtRm2))
 			StzEngineListFree(_pLtRm2)
 			return
 		ok
@@ -189,7 +217,7 @@ class stzListLeadTrail from stzList
 		nToRemove = len(aTrail) - 1
 		nLen = This.NumberOfItems()
 		if nToRemove > 0
-			This.RemoveSection(nLen - nToRemove + 1, nLen)
+			@oList.RemoveSection(nLen - nToRemove + 1, nLen)
 		ok
 
 	def RemoveRepeatedTrailingItems()
@@ -235,13 +263,13 @@ class stzListLeadTrail from stzList
 	#======================================================#
 
 	def RepeatedLeadingItemsRemovedCS(pCaseSensitive)
-		return This.Copy().RemoveRepeatedLeadingItemsCSQ(pCaseSensitive).Content()
+		return @oList.Copy().RemoveRepeatedLeadingItemsCSQ(pCaseSensitive).Content()
 
 	def RepeatedLeadingItemsRemoved()
 		return This.RepeatedLeadingItemsRemovedCS(1)
 
 	def RepeatedTrailingItemsRemovedCS(pCaseSensitive)
-		return This.Copy().RemoveRepeatedTrailingItemsCSQ(pCaseSensitive).Content()
+		return @oList.Copy().RemoveRepeatedTrailingItemsCSQ(pCaseSensitive).Content()
 
 	def RepeatedTrailingItemsRemoved()
 		return This.RepeatedTrailingItemsRemovedCS(1)
@@ -255,7 +283,7 @@ class stzListLeadTrail from stzList
 			return 0
 		ok
 		if isString(pItem)
-			_pSwList = This._EngineListFromContent()
+			_pSwList = @oList._EngineListFromContent()
 			if _pSwList != NULL
 				_pSwVal = StzEngineValueNewString(pItem)
 				if _pSwVal != NULL
@@ -273,7 +301,7 @@ class stzListLeadTrail from stzList
 				StzEngineListFree(_pSwList)
 			ok
 		ok
-		return BothAreEqualCS(This.List()[1], pItem, pCaseSensitive)
+		return BothAreEqualCS(@oList.List()[1], pItem, pCaseSensitive)
 
 	def StartsWith(pItem)
 		return This.StartsWithCS(pItem, 1)
@@ -283,7 +311,7 @@ class stzListLeadTrail from stzList
 			return 0
 		ok
 		if isString(pItem)
-			_pEwList = This._EngineListFromContent()
+			_pEwList = @oList._EngineListFromContent()
 			if _pEwList != NULL
 				_pEwVal = StzEngineValueNewString(pItem)
 				if _pEwVal != NULL
@@ -302,7 +330,7 @@ class stzListLeadTrail from stzList
 			ok
 		ok
 		nLen = This.NumberOfItems()
-		return BothAreEqualCS(This.List()[nLen], pItem, pCaseSensitive)
+		return BothAreEqualCS(@oList.List()[nLen], pItem, pCaseSensitive)
 
 	def EndsWith(pItem)
 		return This.EndsWithCS(pItem, 1)

@@ -17,7 +17,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListSplits from stzList
+class stzListSplits
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListSplits! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	  #========================================#
 	 #    SPLITTING : THE GENERIC FUNCTION    #
@@ -25,15 +53,15 @@ class stzListSplits from stzList
 
 	def SplitXT(p)
 		anPos = StzSplitterQ(This.NumberOfItems()).SplitXT(p)
-		aResult = This.PositionsAt(anPos)
-		This.UpdateWith( aResult )
+		aResult = @oList.PositionsAt(anPos)
+		@oList.UpdateWith( aResult )
 
 		def SplitXTQ(p)
 			This.SplitXT(p)
 			return This
 
 	def SplittedXT(p)
-		aResult = This.Copy().This.SplitXTQ(p).Content()
+		aResult = @oList.Copy().SplitXTQ(p).Content()
 		return aResult
 
 		def SplitsXT()
@@ -50,7 +78,7 @@ class stzListSplits from stzList
 			aResult + [ aSections[i][1], aSections[i][nLenTemp] ]
 		next
 
-		This.UpdateWith(aResult)
+		@oList.UpdateWith(aResult)
 
 		def SplitAtSectionsXTQ(p)
 			This.SplitAtSectionsXT(p)
@@ -63,7 +91,7 @@ class stzListSplits from stzList
 				return This.SplitAtSectionsXTQ(p)
 
 	def SplittedAsSectionsXT(p)
-		aResult = This.Copy().SplitAsSectionsQ(p).Content()
+		aResult = @oList.Copy().SplitAsSectionsQ(p).Content()
 		return aResult
 
 		def SplittedXTZZ(p)
@@ -129,10 +157,10 @@ class stzListSplits from stzList
 		nLen = len(aSplitPositions)
 
 		for i = 1 to nLen
-			aResult + This.ItemsAtPositions(aSplitPositions[i])
+			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
 		next
 
-		This.UpdateWith(aResult)
+		@oList.UpdateWith(aResult)
 
 		def SplitAtPositionsQ(panPos)
 			This.SplitAtPositions(panPos)
@@ -146,7 +174,7 @@ class stzListSplits from stzList
 				return This
 
 	def SplittedAtPositions(panPos)
-		aResult = This.Copy().SplitAtPositionsQ(panPos).Content()
+		aResult = @oList.Copy().SplitAtPositionsQ(panPos).Content()
 		return aResult
 
 		def SplittedAtThesePositions(panPos)
@@ -158,7 +186,7 @@ class stzListSplits from stzList
 
 	def SplitAtPositionsZZ(panPos)
 		aSections = StzSplitterQ( This.NumberOfItems() ).SplitAtPositionsZZ(panPos)
-		This.UpdateWith(aSections)
+		@oList.UpdateWith(aSections)
 
 		def SplitAtPositionsZZQ(panPos)
 			This.SplitAtPositionsZZ(panPos)
@@ -174,7 +202,7 @@ class stzListSplits from stzList
 			This.SplitAtPositionsZZ(panPos)
 
 	def SplittedAtPositionsZZ(panPos)
-		aResult = This.Copy().SplitAtPositionsZZQ(panPos).Content()
+		aResult = @oList.Copy().SplitAtPositionsZZQ(panPos).Content()
 		return aResult
 
 		def SplittedAtPositionsAsSections(panPos)
@@ -198,7 +226,7 @@ class stzListSplits from stzList
 			return This
 
 	def SplittedAtPosition(n)
-		aResult = This.Copy().SplitAtPositionQ(n).Content()
+		aResult = @oList.Copy().SplitAtPositionQ(n).Content()
 		return aResult
 
 	def SplitAtPositionZZ(n)
@@ -212,7 +240,7 @@ class stzListSplits from stzList
 			This.SplitAtPositionZZ(n)
 
 	def SplittedAtPositionZZ(n)
-		aResult = This.Copy().SplitAtPositionZZQ(n).Content()
+		aResult = @oList.Copy().SplitAtPositionZZQ(n).Content()
 		return aResult
 
 		def SplittedAtPositionAsSections(n)
@@ -226,7 +254,7 @@ class stzListSplits from stzList
 		if isNumber(pItem)
 			This.SplitAtPosition(pItem)
 		else
-			anPos = This.FindAllCS(pItem, pCaseSensitive)
+			anPos = @oList.FindAllCS(pItem, pCaseSensitive)
 			This.SplitAtPositions(anPos)
 		ok
 
@@ -242,7 +270,7 @@ class stzListSplits from stzList
 			return This
 
 	def SplittedAtCS(pItem, pCaseSensitive)
-		aResult = This.Copy().SplitAtCSQ(pItem, pCaseSensitive).Content()
+		aResult = @oList.Copy().SplitAtCSQ(pItem, pCaseSensitive).Content()
 		return aResult
 
 	def SplittedAt(pItem)
@@ -252,7 +280,7 @@ class stzListSplits from stzList
 		if isNumber(pItem)
 			This.SplitAtPositionZZ(pItem)
 		else
-			anPos = This.FindAllCS(pItem, pCaseSensitive)
+			anPos = @oList.FindAllCS(pItem, pCaseSensitive)
 			This.SplitAtPositionsZZ(anPos)
 		ok
 
@@ -270,7 +298,7 @@ class stzListSplits from stzList
 			return This.SplitAtZZ(pItem)
 
 	def SplittedAtCSZZ(pItem, pCaseSensitive)
-		aResult = This.Copy().SplitAtCSZZQ(pItem, pCaseSensitive).Content()
+		aResult = @oList.Copy().SplitAtCSZZQ(pItem, pCaseSensitive).Content()
 		return aResult
 
 		def SplittedAtAsSectionsCS(pItem, pCaseSensitive)
@@ -293,17 +321,17 @@ class stzListSplits from stzList
 		nLen = len(aSplitPositions)
 
 		for i = 1 to nLen
-			aResult + This.ItemsAtPositions(aSplitPositions[i])
+			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
 		next
 
-		This.UpdateWith(aResult)
+		@oList.UpdateWith(aResult)
 
 		def SplitBeforePositionQ(n)
 			This.SplitBeforePosition(n)
 			return This
 
 	def SplittedBeforePosition(n)
-		aResult = This.Copy().SplitBeforePositionQ(n).Content()
+		aResult = @oList.Copy().SplitBeforePositionQ(n).Content()
 		return aResult
 
 	  #===================================#
@@ -314,7 +342,7 @@ class stzListSplits from stzList
 		if isNumber(pItem)
 			This.SplitBeforePosition(pItem)
 		else
-			anPos = This.FindAllCS(pItem, pCaseSensitive)
+			anPos = @oList.FindAllCS(pItem, pCaseSensitive)
 			nLen = len(anPos)
 			for i = 1 to nLen
 				This.SplitBeforePosition(anPos[i])
@@ -343,17 +371,17 @@ class stzListSplits from stzList
 		nLen = len(aSplitPositions)
 
 		for i = 1 to nLen
-			aResult + This.ItemsAtPositions(aSplitPositions[i])
+			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
 		next
 
-		This.UpdateWith(aResult)
+		@oList.UpdateWith(aResult)
 
 		def SplitAfterPositionQ(n)
 			This.SplitAfterPosition(n)
 			return This
 
 	def SplittedAfterPosition(n)
-		aResult = This.Copy().SplitAfterPositionQ(n).Content()
+		aResult = @oList.Copy().SplitAfterPositionQ(n).Content()
 		return aResult
 
 	  #=================================#
@@ -364,7 +392,7 @@ class stzListSplits from stzList
 		if isNumber(pItem)
 			This.SplitAfterPosition(pItem)
 		else
-			anPos = This.FindAllCS(pItem, pCaseSensitive)
+			anPos = @oList.FindAllCS(pItem, pCaseSensitive)
 			nLen = len(anPos)
 			for i = 1 to nLen
 				This.SplitAfterPosition(anPos[i])
@@ -393,17 +421,17 @@ class stzListSplits from stzList
 		nLen = len(aSplitPositions)
 
 		for i = 1 to nLen
-			aResult + This.ItemsAtPositions(aSplitPositions[i])
+			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
 		next
 
-		This.UpdateWith(aResult)
+		@oList.UpdateWith(aResult)
 
 		def SplitToNPartsQ(n)
 			This.SplitToNParts(n)
 			return This
 
 	def SplittedToNParts(n)
-		aResult = This.Copy().SplitToNPartsQ(n).Content()
+		aResult = @oList.Copy().SplitToNPartsQ(n).Content()
 		return aResult
 
 	  #=================================#
@@ -417,10 +445,10 @@ class stzListSplits from stzList
 		nLen = len(aSplitPositions)
 
 		for i = 1 to nLen
-			aResult + This.ItemsAtPositions(aSplitPositions[i])
+			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
 		next
 
-		This.UpdateWith(aResult)
+		@oList.UpdateWith(aResult)
 
 		def SplitToPartsOfNItemsQ(n)
 			This.SplitToPartsOfNItems(n)
@@ -434,7 +462,7 @@ class stzListSplits from stzList
 				return This
 
 	def SplittedToPartsOfNItems(n)
-		aResult = This.Copy().SplitToPartsOfNItemsQ(n).Content()
+		aResult = @oList.Copy().SplitToPartsOfNItemsQ(n).Content()
 		return aResult
 
 		def SplittedToPartsOf(n)
@@ -451,17 +479,17 @@ class stzListSplits from stzList
 		nLen = len(aSplitPositions)
 
 		for i = 1 to nLen
-			aResult + This.ItemsAtPositions(aSplitPositions[i])
+			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
 		next
 
-		This.UpdateWith(aResult)
+		@oList.UpdateWith(aResult)
 
 		def SplitAtPacerQ(nPace, nStart)
 			This.SplitAtPacer(nPace, nStart)
 			return This
 
 	def SplittedAtPacer(nPace, nStart)
-		aResult = This.Copy().SplitAtPacerQ(nPace, nStart).Content()
+		aResult = @oList.Copy().SplitAtPacerQ(nPace, nStart).Content()
 		return aResult
 
 	  #===============================#
@@ -469,7 +497,7 @@ class stzListSplits from stzList
 	#===============================#
 
 	def SplitW(pcCondition)
-		anPos = This.FindW(pcCondition)
+		anPos = @oList.FindW(pcCondition)
 		This.SplitAtPositions(anPos)
 
 		def SplitWQ(pcCondition)
@@ -477,11 +505,11 @@ class stzListSplits from stzList
 			return This
 
 	def SplittedW(pcCondition)
-		aResult = This.Copy().SplitWQ(pcCondition).Content()
+		aResult = @oList.Copy().SplitWQ(pcCondition).Content()
 		return aResult
 
 	def SplitWXT(pcCondition)
-		anPos = This.FindWXT(pcCondition)
+		anPos = @oList.FindWXT(pcCondition)
 		This.SplitAtPositions(anPos)
 
 		def SplitWXTQ(pcCondition)
@@ -489,5 +517,5 @@ class stzListSplits from stzList
 			return This
 
 	def SplittedWXT(pcCondition)
-		aResult = This.Copy().SplitWXTQ(pcCondition).Content()
+		aResult = @oList.Copy().SplitWXTQ(pcCondition).Content()
 		return aResult

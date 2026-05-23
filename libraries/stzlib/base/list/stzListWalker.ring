@@ -16,7 +16,38 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListWalker from stzList
+class stzListWalker
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListWalker! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def List()
+		return @oList.List()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	  #==========================#
 	 #  WALKING THE LIST ITEMS  #
@@ -140,14 +171,14 @@ class stzListWalker from stzList
 	#=========================#
 
 	def WalkW(pcCondition)
-		return This.FindAllItemsW(pcCondition)
+		return @oList.FindAllItemsW(pcCondition)
 
 	  #==========================#
 	 #  WALKING UNTIL           #
 	#==========================#
 
 	def WalkUntil(pcCondition)
-		pList = This._EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		if pList = NULL return [] ok
 
 		pcCondition = _StzStripBraces(pcCondition)
@@ -174,7 +205,7 @@ class stzListWalker from stzList
 	#==========================#
 
 	def WalkWhile(pcCondition)
-		pList = This._EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		if pList = NULL return [] ok
 
 		cNegated = "not (" + _StzStripBraces(pcCondition) + ")"
@@ -292,7 +323,7 @@ class stzListWalker from stzList
 	#=================================#
 
 	def WalkAccumulating(pcExpr)
-		return This.Map(pcExpr)
+		return @oList.Map(pcExpr)
 
 		def WalkAccumulate(pcExpr)
 			return This.WalkAccumulating(pcExpr)

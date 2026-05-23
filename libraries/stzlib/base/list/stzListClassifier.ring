@@ -16,10 +16,41 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListClassifier from stzList
+class stzListClassifier
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListClassifier! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
+
+	def Copy()
+		return new stzListClassifier( @oList.Content() )
 
 	def Classify()
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		pResult = StzEngineListClassifyCS(pList, 0)
 		StzEngineListFree(pList)
 
@@ -59,7 +90,7 @@ class stzListClassifier from stzList
 		return aResult
 
 	def ClassifyBy(pcExpr)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		cMapExpr = "string(" + pcExpr + ")"
 		pMapped = StzEngineListMapExpr(pList, cMapExpr)
 		StzEngineListFree(pList)
@@ -105,7 +136,7 @@ class stzListClassifier from stzList
 	#======================================================#
 
 	def Frequencies()
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		pFreqs = StzEngineListFrequenciesCS(pList, 0)
 		StzEngineListFree(pList)
 

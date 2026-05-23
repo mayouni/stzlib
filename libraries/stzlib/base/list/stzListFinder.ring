@@ -16,7 +16,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListFinder from stzList
+class stzListFinder
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListFinder! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	  #======================================#
 	 #  FINDING ALL OCCURRENCES OF AN ITEM  #
@@ -51,12 +79,12 @@ class stzListFinder from stzList
 
 		# Engine-backed fast path for string items
 		if isString(pItem)
-			pList = This._EngineListFromContent()
+			pList = @oList._EngineListFromContent()
 			if pList != NULL
 				pResult = StzEngineListFindAllStringCS(pList, pItem, pCaseSensitive)
 				StzEngineListFree(pList)
 				if pResult != NULL
-					anResult = This._ContentFromEngineList(pResult)
+					anResult = @oList._ContentFromEngineList(pResult)
 					StzEngineListFree(pResult)
 					return anResult
 				else
@@ -206,7 +234,7 @@ class stzListFinder from stzList
 			ok
 		ok
 
-		nTotal = len(@aContent)
+		nTotal = len(@oList.Content())
 		nPosLen = len(anPos)
 
 		aMarked = []
@@ -522,7 +550,7 @@ class stzListFinder from stzList
 
 	def ContainsCS(pItem, pCaseSensitive)
 		if isString(pItem)
-			_pCtList = This._EngineListFromContent()
+			_pCtList = @oList._EngineListFromContent()
 			if _pCtList != NULL
 				_nCtResult = StzEngineListContainsStringCS(_pCtList, pItem, pCaseSensitive)
 				StzEngineListFree(_pCtList)

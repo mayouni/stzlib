@@ -16,7 +16,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListBounder from stzList
+class stzListBounder
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListBounder! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	  #==========================================#
 	 #  GETTING A SECTION (SLICE) OF THE LIST   #
@@ -71,12 +99,12 @@ class stzListBounder from stzList
 		ok
 
 		# Engine fast path
-		_pBsList = This._EngineListFromContent()
+		_pBsList = @oList._EngineListFromContent()
 		if _pBsList != NULL
 			_pBsResult = StzEngineListSection(_pBsList, n1, n2)
 			StzEngineListFree(_pBsList)
 			if _pBsResult != NULL
-				_aBsResult = This._ContentFromEngineList(_pBsResult)
+				_aBsResult = @oList._ContentFromEngineList(_pBsResult)
 				StzEngineListFree(_pBsResult)
 				return _aBsResult
 			ok
@@ -212,8 +240,8 @@ class stzListBounder from stzList
 			pItem2 = paBounds
 		ok
 
-		if This.FirstItemQ().IsEqualToCS(pItem1, pCaseSensitive) and
-		   This.LastItemQ().IsEqualToCS(pItem2, pCaseSensitive)
+		if @oList.FirstItemQ().IsEqualToCS(pItem1, pCaseSensitive) and
+		   @oList.LastItemQ().IsEqualToCS(pItem2, pCaseSensitive)
 
 			return 1
 		else
@@ -250,8 +278,8 @@ class stzListBounder from stzList
 
 	def RemoveBoundsCS(paBounds, pCaseSensitive)
 		if This.IsBoundedByCS(paBounds, pCaseSensitive)
-			This.RemoveFirstItem()
-			This.RemoveLastItem()
+			@oList.RemoveFirstItem()
+			@oList.RemoveLastItem()
 		ok
 
 		def RemoveBoundsCSQ(paBounds, pCaseSensitive)
@@ -266,7 +294,8 @@ class stzListBounder from stzList
 			return This
 
 	def BoundsRemoved(paBounds)
-		aResult = This.Copy().RemoveBoundsQ(paBounds).Content()
+		oCopy = new stzListBounder(@oList.Content())
+		aResult = oCopy.RemoveBoundsQ(paBounds).Content()
 		return aResult
 
 	  #==============================#
@@ -360,7 +389,7 @@ class stzListBounder from stzList
 		return aResult
 
 	def ClampTo(nMin, nMax)
-		This.Update(This.ClampedTo(nMin, nMax))
+		@oList.Update(This.ClampedTo(nMin, nMax))
 
 		def ClampToQ(nMin, nMax)
 			This.ClampTo(nMin, nMax)
