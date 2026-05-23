@@ -239,7 +239,8 @@ test "null handle safety" {
 }
 
 test "boolean values" {
-    const j = stz_json_parse("{\"active\":true,\"deleted\":false}", 31) orelse return error.NullJson;
+    const src = "{\"active\":true,\"deleted\":false}";
+    const j = stz_json_parse(src, src.len) orelse return error.NullJson;
     defer stz_json_free(j);
     try std.testing.expectEqual(@as(c_int, 1), stz_json_get_bool(j, "active", 6));
     try std.testing.expectEqual(@as(c_int, 0), stz_json_get_bool(j, "deleted", 7));
@@ -254,7 +255,8 @@ test "missing key" {
 }
 
 test "nested json" {
-    const j = stz_json_parse("{\"user\":{\"name\":\"Zin\"},\"tags\":[1,2]}", 35) orelse return error.NullJson;
+    const src = "{\"user\":{\"name\":\"Zin\"},\"tags\":[1,2]}";
+    const j = stz_json_parse(src, src.len) orelse return error.NullJson;
     defer stz_json_free(j);
     try std.testing.expectEqual(@as(c_int, 1), stz_json_is_valid(j));
     try std.testing.expectEqual(@as(c_int, 2), stz_json_size(j));
@@ -272,7 +274,8 @@ test "empty object and array" {
 }
 
 test "array of strings" {
-    const j = stz_json_parse("[\"a\",\"bb\",\"ccc\"]", 16) orelse return error.NullJson;
+    const src = "[\"a\",\"bb\",\"ccc\"]";
+    const j = stz_json_parse(src, src.len) orelse return error.NullJson;
     defer stz_json_free(j);
     var buf: [64]u8 = undefined;
     const len = stz_json_array_at_string(j, 2, &buf, 64);
