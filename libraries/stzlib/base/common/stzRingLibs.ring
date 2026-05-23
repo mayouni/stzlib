@@ -19,6 +19,7 @@ load "../../engine/stz_number.ring"
 load "../../engine/stz_list.ring"
 load "../../engine/stz_hashmap.ring"
 load "../../engine/stz_table.ring"
+load "../../engine/stz_matrix.ring"
 load "../../engine/stz_unidata.ring"
 load "../../engine/stzMeta.ring"
 

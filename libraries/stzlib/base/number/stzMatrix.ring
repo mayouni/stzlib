@@ -195,6 +195,7 @@ class stzMatrix
 	@aMatrix     # Stores the actual matrix data
 	@nRows       # Number of rows
 	@nCols       # Number of columns
+	@pEngineMatrix = NULL
 
 	# Constructor with flexible initialization
 
@@ -220,6 +221,43 @@ class stzMatrix
 				@aMatrix[i] = list(@nCols, 0)
 			next
 		ok
+
+	def _EnsureEngineMatrix()
+		if @pEngineMatrix != NULL
+			return
+		ok
+		@pEngineMatrix = StzEngineMatrixNew(@nRows, @nCols)
+		if @pEngineMatrix = NULL
+			return
+		ok
+		for _iEm = 1 to @nRows
+			for _jEm = 1 to @nCols
+				StzEngineMatrixSet(@pEngineMatrix, _iEm - 1, _jEm - 1, @aMatrix[_iEm][_jEm])
+			next
+		next
+
+	def _InvalidateEngineMatrix()
+		if @pEngineMatrix != NULL
+			StzEngineMatrixFree(@pEngineMatrix)
+			@pEngineMatrix = NULL
+		ok
+
+	def _SyncFromEngine()
+		if @pEngineMatrix = NULL
+			return
+		ok
+		_nEmRows = StzEngineMatrixRows(@pEngineMatrix)
+		_nEmCols = StzEngineMatrixCols(@pEngineMatrix)
+		@nRows = _nEmRows
+		@nCols = _nEmCols
+		@aMatrix = []
+		for _iSf = 1 to _nEmRows
+			_aRow = []
+			for _jSf = 1 to _nEmCols
+				_aRow + StzEngineMatrixGet(@pEngineMatrix, _iSf - 1, _jSf - 1)
+			next
+			@aMatrix + _aRow
+		next
 
 	# Raw matrix access
 
@@ -782,6 +820,7 @@ class stzMatrix
 				@aMatrix[i][j] += paMatrix[i][j]
 			next
 		next
+		This._InvalidateEngineMatrix()
 
 	def MultiplyByMatrix(paMatrix)
 
@@ -795,12 +834,33 @@ class stzMatrix
 
 		nInputRows = len(paMatrix)
 		nInputCols = len(paMatrix[1])
-    
+
 		if @nCols != nInputRows
 			raise("Matrices cannot be multiplied: incompatible dimensions")
 		ok
 
-		# Create temporary result matrix
+		# Engine fast path
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix != NULL
+			_pMbB = StzEngineMatrixNew(nInputRows, nInputCols)
+			if _pMbB != NULL
+				for _iMb = 1 to nInputRows
+					for _jMb = 1 to nInputCols
+						StzEngineMatrixSet(_pMbB, _iMb - 1, _jMb - 1, paMatrix[_iMb][_jMb])
+					next
+				next
+				_pMbResult = StzEngineMatrixMultiply(@pEngineMatrix, _pMbB)
+				StzEngineMatrixFree(_pMbB)
+				if _pMbResult != NULL
+					StzEngineMatrixFree(@pEngineMatrix)
+					@pEngineMatrix = _pMbResult
+					This._SyncFromEngine()
+					return
+				ok
+			ok
+		ok
+
+		# Ring fallback
 
 		aResultMatrix = []
 
@@ -821,11 +881,12 @@ class stzMatrix
 
 			aResultMatrix + aResultRow
 		next
-    
+
 		# Update the current matrix with the result
 
 		@aMatrix = aResultMatrix
 		@nCols = nInputCols
+		This._InvalidateEngineMatrix()
 
 		def MultiplyByMatrixQ(pMatrix)
 			return new stzMatrix(This.MultiplyByMatrix(pMatrix))
@@ -837,6 +898,10 @@ class stzMatrix
 	# Calculates the sum of all elements
 
 	def Sum()
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix != NULL
+			return StzEngineMatrixSum(@pEngineMatrix)
+		ok
 
 		nTotal = 0
 
@@ -858,6 +923,10 @@ class stzMatrix
 	# Finds the maximum value in the matrix
 
 	def Max()
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix != NULL
+			return StzEngineMatrixMax(@pEngineMatrix)
+		ok
 
 		nMax = @aMatrix[1][1]
 
@@ -874,6 +943,10 @@ class stzMatrix
 	# Finds the minimum value in the matrix
 
 	def Min()
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix != NULL
+			return StzEngineMatrixMin(@pEngineMatrix)
+		ok
 
 		nMin = @aMatrix[1][1]
 
@@ -890,6 +963,12 @@ class stzMatrix
 	# Calculates the power of all elements
 
 	def Power(n)
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix != NULL
+			StzEngineMatrixPower(@pEngineMatrix, n)
+			This._SyncFromEngine()
+			return
+		ok
 
 		nTotal = 0
 
@@ -1955,6 +2034,12 @@ class stzMatrix
 			raise("Determinant is only defined for square matrices")
 		ok
 
+		# Engine fast path
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix != NULL
+			return StzEngineMatrixDeterminant(@pEngineMatrix)
+		ok
+
 		# Base cases
 
 		if @nRows = 1
@@ -2012,6 +2097,28 @@ class stzMatrix
 			raise("Inverse is only defined for square matrices")
 		ok
 
+		# Engine fast path
+		This._EnsureEngineMatrix()
+		if @pEngineMatrix != NULL
+			_pInvResult = StzEngineMatrixInverse(@pEngineMatrix)
+			if _pInvResult != NULL
+				_nInvRows = StzEngineMatrixRows(_pInvResult)
+				_nInvCols = StzEngineMatrixCols(_pInvResult)
+				_aInvMatrix = []
+				for _iInv = 1 to _nInvRows
+					_aInvRow = []
+					for _jInv = 1 to _nInvCols
+						_aInvRow + StzEngineMatrixGet(_pInvResult, _iInv - 1, _jInv - 1)
+					next
+					_aInvMatrix + _aInvRow
+				next
+				StzEngineMatrixFree(_pInvResult)
+				@aMatrix = _aInvMatrix
+				This._InvalidateEngineMatrix()
+				return
+			ok
+		ok
+
 		# Check determinant
 
 		nDet = This.Determinant()
@@ -2025,7 +2132,7 @@ class stzMatrix
 		aAugmented = []
 
 		for i = 1 to @nRows
-	
+
 			aRow = []
 	
 			for j = 1 to @nCols

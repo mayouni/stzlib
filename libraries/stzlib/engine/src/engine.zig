@@ -31,6 +31,7 @@ pub const unicode_data = @import("unicode_data.zig");
 pub const ref_data = @import("ref_data.zig");
 pub const table = @import("table.zig");
 pub const pivot = @import("pivot.zig");
+pub const matrix = @import("matrix.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -436,6 +437,26 @@ comptime {
     @export(&unicode_data.stz_unidata_count, .{ .name = "stz_unidata_count" });
     @export(&unicode_data.stz_unidata_char_info, .{ .name = "stz_unidata_char_info" });
 
+    // ─── Foundation: Matrix operations ───
+    @export(&matrix.stz_matrix_new, .{ .name = "stz_matrix_new" });
+    @export(&matrix.stz_matrix_free, .{ .name = "stz_matrix_free" });
+    @export(&matrix.stz_matrix_rows, .{ .name = "stz_matrix_rows" });
+    @export(&matrix.stz_matrix_cols, .{ .name = "stz_matrix_cols" });
+    @export(&matrix.stz_matrix_set, .{ .name = "stz_matrix_set" });
+    @export(&matrix.stz_matrix_get, .{ .name = "stz_matrix_get" });
+    @export(&matrix.stz_matrix_sum, .{ .name = "stz_matrix_sum" });
+    @export(&matrix.stz_matrix_min, .{ .name = "stz_matrix_min" });
+    @export(&matrix.stz_matrix_max, .{ .name = "stz_matrix_max" });
+    @export(&matrix.stz_matrix_mean, .{ .name = "stz_matrix_mean" });
+    @export(&matrix.stz_matrix_add_scalar, .{ .name = "stz_matrix_add_scalar" });
+    @export(&matrix.stz_matrix_multiply_scalar, .{ .name = "stz_matrix_multiply_scalar" });
+    @export(&matrix.stz_matrix_add_matrix, .{ .name = "stz_matrix_add_matrix" });
+    @export(&matrix.stz_matrix_multiply, .{ .name = "stz_matrix_multiply" });
+    @export(&matrix.stz_matrix_transpose, .{ .name = "stz_matrix_transpose" });
+    @export(&matrix.stz_matrix_determinant, .{ .name = "stz_matrix_determinant" });
+    @export(&matrix.stz_matrix_inverse, .{ .name = "stz_matrix_inverse" });
+    @export(&matrix.stz_matrix_power, .{ .name = "stz_matrix_power" });
+
     // ─── Reference Data (scripts, directions, categories, regex, words, etc.) ───
     // Exports are declared directly in ref_data.zig via `pub export fn`
 }
@@ -472,4 +493,5 @@ test {
     _ = ref_data;
     _ = table;
     _ = pivot;
+    _ = matrix;
 }
