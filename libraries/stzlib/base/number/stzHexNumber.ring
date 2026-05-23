@@ -211,24 +211,7 @@ class stzHexNumber from stzObject
 		return new stzString(This.HexNumber())
 
 	def ToDecimalForm()
-		# Converting the integer part of the hex number to decimal
-
-		cIntegerPart = dec( This.IntegerPartWithoutPrefix() )
-
-		# Converting the fractional part of the hex number to decimal
-
-		cFractionalPart = ""
-
-		// TODO
-		
-		# Combining them to get the decimal form of the hex number
-
-		cDecimalForm = cIntegerPart
-		if cFractionalPart != ""
-			cDecimalForm += "." + cFractionalPart
-		ok
-
-		return cDecimalForm
+		return "" + StzEngineNumberFromBase(This.IntegerPartWithoutPrefix(), 16)
 
 		def ToDecimal()
 			return This.ToDecimalForm()

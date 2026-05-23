@@ -123,22 +123,22 @@ class stzBinaryNumber from stzObject
 		off
 
 	def BitwiseAND(nOtherNumber)
-		return This.ToDecimalForm() & nOtherNumber
+		return StzEngineNumberBitwiseAnd(0+ This.ToDecimalForm(), nOtherNumber)
 
 	def BitwiseOR(nOtherNumber)
-		return This.ToDecimalForm() | nOtherNumber
+		return StzEngineNumberBitwiseOr(0+ This.ToDecimalForm(), nOtherNumber)
 
 	def BitwiseXOR(nOtherNumber)
-		return This.ToDecimalForm() ^ nOtherNumber
+		return StzEngineNumberBitwiseXor(0+ This.ToDecimalForm(), nOtherNumber)
 
 	def BitwiseOnesComplement(nOtherNumber)
-		return This.ToDecimalForm() ~ nOtherNumber
+		return StzEngineNumberBitwiseNot(0+ This.ToDecimalForm())
 
 	def BitwiseLeftShift(nOtherNumber)
-		return This.ToDecimalForm() << nOtherNumber
+		return StzEngineNumberBitwiseLShift(0+ This.ToDecimalForm(), nOtherNumber)
 
 	def BitwiseRightShift(nOtherNumber)
-		return This.ToDecimalForm() >> nOtherNumber
+		return StzEngineNumberBitwiseRShift(0+ This.ToDecimalForm(), nOtherNumber)
 
  	  #--------------------------------#
 	 #    INTEGER & FRACTION PARTS    #
@@ -213,28 +213,15 @@ class stzBinaryNumber from stzObject
 	def IntegerPartToDecimalForm()
 		cBinary = This.BinaryNumber()
 
-		# Remove the fractional part
-
 		nDotPos = ring_substr1(cBinary, ".")
 		if nDotPos > 0
 			cBinary = StzLeft(cBinary, nDotPos-1)
 		ok
 
-		# Remove the 0b or b prefix
-
 		cBinary = StzReplace(cBinary, "0b", "")
 		cBinary = StzReplace(cBinary, "b", "")
-		nLen = StzLen(cBinary)
 
-		# Doing the job
-
-		nCurrentTotal = 0
-
-		for i = 1 to nLen
-			nCurrentTotal = nCurrentTotal * 2 + (0+ cBinary[i])
-		next
-
-		return ""+ nCurrentTotal
+		return "" + StzEngineNumberFromBase(cBinary, 2)
 
 		def IntegerPartToDecimal()
 			return This.IntegerPartToDecimalForm()
