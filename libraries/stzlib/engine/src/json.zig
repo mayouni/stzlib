@@ -227,3 +227,85 @@ test "invalid json" {
     defer stz_json_free(j);
     try std.testing.expectEqual(@as(c_int, 0), stz_json_is_valid(j));
 }
+
+test "null handle safety" {
+    try std.testing.expectEqual(@as(c_int, 0), stz_json_is_valid(null));
+    try std.testing.expectEqual(@as(c_int, 0), stz_json_is_array(null));
+    try std.testing.expectEqual(@as(c_int, 0), stz_json_size(null));
+    try std.testing.expectEqual(@as(c_int, 0), stz_json_has_key(null, "k", 1));
+    try std.testing.expectEqual(@as(i64, 0), stz_json_get_int(null, "k", 1));
+    var buf: [64]u8 = undefined;
+    try std.testing.expectEqual(@as(usize, 0), stz_json_get_string(null, "k", 1, &buf, 64));
+}
+
+test "boolean values" {
+    const j = stz_json_parse("{\"active\":true,\"deleted\":false}", 31) orelse return error.NullJson;
+    defer stz_json_free(j);
+    try std.testing.expectEqual(@as(c_int, 1), stz_json_get_bool(j, "active", 6));
+    try std.testing.expectEqual(@as(c_int, 0), stz_json_get_bool(j, "deleted", 7));
+    try std.testing.expectEqual(@as(c_int, -1), stz_json_get_bool(j, "missing", 7));
+}
+
+test "missing key" {
+    const j = stz_json_parse("{\"a\":1}", 7) orelse return error.NullJson;
+    defer stz_json_free(j);
+    try std.testing.expectEqual(@as(c_int, 0), stz_json_has_key(j, "b", 1));
+    try std.testing.expectEqual(@as(i64, 0), stz_json_get_int(j, "b", 1));
+}
+
+test "nested json" {
+    const j = stz_json_parse("{\"user\":{\"name\":\"Zin\"},\"tags\":[1,2]}", 35) orelse return error.NullJson;
+    defer stz_json_free(j);
+    try std.testing.expectEqual(@as(c_int, 1), stz_json_is_valid(j));
+    try std.testing.expectEqual(@as(c_int, 2), stz_json_size(j));
+}
+
+test "empty object and array" {
+    const j1 = stz_json_parse("{}", 2) orelse return error.NullJson;
+    defer stz_json_free(j1);
+    try std.testing.expectEqual(@as(c_int, 0), stz_json_size(j1));
+
+    const j2 = stz_json_parse("[]", 2) orelse return error.NullJson;
+    defer stz_json_free(j2);
+    try std.testing.expectEqual(@as(c_int, 1), stz_json_is_array(j2));
+    try std.testing.expectEqual(@as(c_int, 0), stz_json_size(j2));
+}
+
+test "array of strings" {
+    const j = stz_json_parse("[\"a\",\"bb\",\"ccc\"]", 16) orelse return error.NullJson;
+    defer stz_json_free(j);
+    var buf: [64]u8 = undefined;
+    const len = stz_json_array_at_string(j, 2, &buf, 64);
+    try std.testing.expect(mem.eql(u8, buf[0..len], "bb"));
+}
+
+test "keys extraction" {
+    const j = stz_json_parse("{\"x\":1,\"y\":2}", 13) orelse return error.NullJson;
+    defer stz_json_free(j);
+    var buf: [64]u8 = undefined;
+    const len = stz_json_keys(j, &buf, 64);
+    try std.testing.expect(len > 0);
+}
+
+test "error message on invalid" {
+    const j = stz_json_parse("{broken", 7) orelse return error.NullJson;
+    defer stz_json_free(j);
+    var buf: [256]u8 = undefined;
+    const len = stz_json_error(j, &buf, 256);
+    try std.testing.expect(len > 0);
+}
+
+test "array out of bounds" {
+    const j = stz_json_parse("[1,2,3]", 7) orelse return error.NullJson;
+    defer stz_json_free(j);
+    try std.testing.expectEqual(@as(i64, 0), stz_json_array_at_int(j, 0));
+    try std.testing.expectEqual(@as(i64, 0), stz_json_array_at_int(j, 10));
+    try std.testing.expectEqual(@as(i64, 3), stz_json_array_at_int(j, 3));
+}
+
+test "null and empty input" {
+    const j1 = stz_json_parse(null, 0);
+    try std.testing.expect(j1 == null);
+    const j2 = stz_json_parse("", 0);
+    try std.testing.expect(j2 == null);
+}

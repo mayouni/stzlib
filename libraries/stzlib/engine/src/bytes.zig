@@ -313,3 +313,115 @@ test "hex round-trip" {
     try std.testing.expectEqual(@as(c_int, 1), stz_bytes_from_hex(b2, &buf, hex_len));
     try std.testing.expectEqual(@as(c_int, 2), stz_bytes_size(b2));
 }
+
+test "empty bytes" {
+    const b = stz_bytes_new() orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    try std.testing.expectEqual(@as(c_int, 1), stz_bytes_is_empty(b));
+    try std.testing.expectEqual(@as(c_int, 0), stz_bytes_size(b));
+}
+
+test "append and clear" {
+    const b = stz_bytes_new() orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    stz_bytes_append(b, "abc", 3);
+    try std.testing.expectEqual(@as(c_int, 3), stz_bytes_size(b));
+    stz_bytes_clear(b);
+    try std.testing.expectEqual(@as(c_int, 0), stz_bytes_size(b));
+}
+
+test "insert bytes" {
+    const b = stz_bytes_from("ac", 2) orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    stz_bytes_insert(b, 2, "b", 1);
+    try std.testing.expectEqual(@as(c_int, 3), stz_bytes_size(b));
+    try std.testing.expectEqual(@as(c_int, 'b'), stz_bytes_at(b, 2));
+}
+
+test "remove bytes" {
+    const b = stz_bytes_from("abcde", 5) orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    stz_bytes_remove(b, 2, 2);
+    try std.testing.expectEqual(@as(c_int, 3), stz_bytes_size(b));
+    try std.testing.expectEqual(@as(c_int, 'a'), stz_bytes_at(b, 1));
+    try std.testing.expectEqual(@as(c_int, 'd'), stz_bytes_at(b, 2));
+}
+
+test "left right mid" {
+    const b = stz_bytes_from("hello", 5) orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    var buf: [64]u8 = undefined;
+
+    const l = stz_bytes_left(b, 3, &buf, 64);
+    try std.testing.expect(mem.eql(u8, buf[0..l], "hel"));
+
+    const r = stz_bytes_right(b, 2, &buf, 64);
+    try std.testing.expect(mem.eql(u8, buf[0..r], "lo"));
+
+    const m = stz_bytes_mid(b, 2, 3, &buf, 64);
+    try std.testing.expect(mem.eql(u8, buf[0..m], "ell"));
+}
+
+test "fill" {
+    const b = stz_bytes_new() orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    stz_bytes_fill(b, 0xFF, 4);
+    try std.testing.expectEqual(@as(c_int, 4), stz_bytes_size(b));
+    try std.testing.expectEqual(@as(c_int, 0xFF), stz_bytes_at(b, 1));
+}
+
+test "resize" {
+    const b = stz_bytes_from("abc", 3) orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    stz_bytes_resize(b, 5);
+    try std.testing.expectEqual(@as(c_int, 5), stz_bytes_size(b));
+    try std.testing.expectEqual(@as(c_int, 0), stz_bytes_at(b, 4));
+    stz_bytes_resize(b, 2);
+    try std.testing.expectEqual(@as(c_int, 2), stz_bytes_size(b));
+}
+
+test "to upper lower" {
+    const b = stz_bytes_from("Hello", 5) orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    var buf: [64]u8 = undefined;
+    const ul = stz_bytes_to_upper(b, &buf, 64);
+    try std.testing.expect(mem.eql(u8, buf[0..ul], "HELLO"));
+    const ll = stz_bytes_to_lower(b, &buf, 64);
+    try std.testing.expect(mem.eql(u8, buf[0..ll], "hello"));
+}
+
+test "percent encoding round-trip" {
+    const b = stz_bytes_from("a b&c", 5) orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    var buf: [64]u8 = undefined;
+    const enc_len = stz_bytes_to_percent(b, &buf, 64);
+    try std.testing.expect(enc_len > 5);
+
+    const b2 = stz_bytes_new() orelse return error.NullBytes;
+    defer stz_bytes_free(b2);
+    try std.testing.expectEqual(@as(c_int, 1), stz_bytes_from_percent(b2, &buf, enc_len));
+    try std.testing.expectEqual(@as(c_int, 5), stz_bytes_size(b2));
+}
+
+test "replace bytes" {
+    const b = stz_bytes_from("abcde", 5) orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    stz_bytes_replace(b, 2, 2, "XY", 2);
+    try std.testing.expectEqual(@as(c_int, 5), stz_bytes_size(b));
+    try std.testing.expectEqual(@as(c_int, 'X'), stz_bytes_at(b, 2));
+    try std.testing.expectEqual(@as(c_int, 'Y'), stz_bytes_at(b, 3));
+}
+
+test "at out of bounds" {
+    const b = stz_bytes_from("ab", 2) orelse return error.NullBytes;
+    defer stz_bytes_free(b);
+    try std.testing.expectEqual(@as(c_int, -1), stz_bytes_at(b, 0));
+    try std.testing.expectEqual(@as(c_int, -1), stz_bytes_at(b, 3));
+    try std.testing.expectEqual(@as(c_int, -1), stz_bytes_at(null, 1));
+}
+
+test "null handle safety bytes" {
+    try std.testing.expectEqual(@as(c_int, 0), stz_bytes_size(null));
+    try std.testing.expectEqual(@as(c_int, 1), stz_bytes_is_empty(null));
+    try std.testing.expectEqual(@as(c_int, -1), stz_bytes_at(null, 1));
+}
