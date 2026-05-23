@@ -179,6 +179,10 @@ func _stzFindDll(cDllName)
         if fexists(cTry)
             return cTry
         ok
+        cTry2 = cDir + "/engine/zig-out/bin/" + cDllName
+        if fexists(cTry2)
+            return cTry2
+        ok
         nLast = 0
         for j = len(cDir) to 1 step -1
             if cDir[j] = "/"
