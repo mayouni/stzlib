@@ -34,6 +34,23 @@ comptime {
     @export(&number.stz_number_digit_sum, .{ .name = "stz_number_digit_sum" });
     @export(&number.stz_number_reverse_digits, .{ .name = "stz_number_reverse_digits" });
     @export(&number.stz_number_is_palindrome, .{ .name = "stz_number_is_palindrome" });
+    @export(&number.stz_bigint_from_string_base, .{ .name = "stz_bigint_from_string_base" });
+    @export(&number.stz_number_to_base, .{ .name = "stz_number_to_base" });
+    @export(&number.stz_number_from_base, .{ .name = "stz_number_from_base" });
+    @export(&number.stz_number_bitwise_and, .{ .name = "stz_number_bitwise_and" });
+    @export(&number.stz_number_bitwise_or, .{ .name = "stz_number_bitwise_or" });
+    @export(&number.stz_number_bitwise_xor, .{ .name = "stz_number_bitwise_xor" });
+    @export(&number.stz_number_bitwise_not, .{ .name = "stz_number_bitwise_not" });
+    @export(&number.stz_number_bitwise_lshift, .{ .name = "stz_number_bitwise_lshift" });
+    @export(&number.stz_number_bitwise_rshift, .{ .name = "stz_number_bitwise_rshift" });
+    @export(&number.stz_number_to_scientific, .{ .name = "stz_number_to_scientific" });
+    @export(&number.stz_number_from_scientific, .{ .name = "stz_number_from_scientific" });
+    @export(&number.stz_number_is_even, .{ .name = "stz_number_is_even" });
+    @export(&number.stz_number_is_odd, .{ .name = "stz_number_is_odd" });
+    @export(&number.stz_number_is_armstrong, .{ .name = "stz_number_is_armstrong" });
+    @export(&number.stz_number_divisors, .{ .name = "stz_number_divisors" });
+    @export(&number.stz_number_is_abundant, .{ .name = "stz_number_is_abundant" });
+    @export(&number.stz_number_is_deficient, .{ .name = "stz_number_is_deficient" });
 }
 
 comptime {

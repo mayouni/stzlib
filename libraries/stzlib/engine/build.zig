@@ -37,6 +37,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_unidata", .entry = "src/stz_unidata_entry.zig", .needs_sqlite = true, .needs_ring = true },
     .{ .name = "stz_table", .entry = "src/stz_table_entry.zig", .needs_ring = true },
     .{ .name = "stz_matrix", .entry = "src/stz_matrix_entry.zig", .needs_ring = true },
+    .{ .name = "stz_random", .entry = "src/stz_random_entry.zig", .needs_ring = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
