@@ -1782,6 +1782,98 @@ pub fn stz_list_remove_trailing_cs(list: ?*StzList, case_sensitive: i32) callcon
     return @intCast(to_remove);
 }
 
+// ─── C ABI: Split At Positions ───
+
+fn appendGroup(result: *StzList, src: *const StzList, from: usize, to: usize) void {
+    const group = value_mod.stz_value_new_list() orelse return;
+    for (from..to) |j| {
+        _ = value_mod.stz_value_list_append(group, src.items.items[j]);
+    }
+    _ = stz_list_append_value(result, group);
+    value_mod.stz_value_free(group);
+}
+
+pub fn stz_list_split_at(list_arg: ?*const StzList, positions: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const pos = positions orelse return null;
+    const n = l.len();
+    if (n == 0) return stz_list_new();
+
+    const np = pos.len();
+    if (np == 0) {
+        const result = stz_list_new() orelse return null;
+        appendGroup(result, l, 0, n);
+        return result;
+    }
+
+    var cut_points: [256]usize = undefined;
+    const max_cuts = @min(np, 256);
+    var num_cuts: usize = 0;
+    for (0..max_cuts) |i| {
+        const v = pos.items.items[i];
+        if (v.tag == .int_val) {
+            const idx = v.data.int_val;
+            if (idx >= 0 and @as(usize, @intCast(idx)) < n) {
+                cut_points[num_cuts] = @intCast(idx);
+                num_cuts += 1;
+            }
+        }
+    }
+
+    if (num_cuts == 0) {
+        const result = stz_list_new() orelse return null;
+        appendGroup(result, l, 0, n);
+        return result;
+    }
+
+    std.mem.sort(usize, cut_points[0..num_cuts], {}, std.sort.asc(usize));
+
+    const result = stz_list_new() orelse return null;
+    var prev: usize = 0;
+
+    for (0..num_cuts) |ci| {
+        const cp = cut_points[ci];
+        if (cp <= prev and ci > 0) continue;
+        if (cp > prev) {
+            appendGroup(result, l, prev, cp);
+        }
+        prev = cp;
+    }
+
+    if (prev < n) {
+        appendGroup(result, l, prev, n);
+    }
+
+    return result;
+}
+
+// ─── C ABI: Sorted Insert ───
+
+pub fn stz_list_sorted_insert(list_arg: ?*StzList, v: ?*const StzValue) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const val = v orelse return -1;
+    const n = l.len();
+
+    var lo: usize = 0;
+    var hi: usize = n;
+    while (lo < hi) {
+        const mid = lo + (hi - lo) / 2;
+        if (valueCompareCS(l.items.items[mid], val, true) < 0) {
+            lo = mid + 1;
+        } else {
+            hi = mid;
+        }
+    }
+
+    const new_val = val.clone() catch return -1;
+    l.items.insert(allocator, lo, new_val) catch {
+        new_val.deinit();
+        allocator.destroy(new_val);
+        return -1;
+    };
+    return @intCast(lo);
+}
+
 // ─── Tests ───
 
 test "list basic append and get" {
@@ -3660,4 +3752,113 @@ test "remove_leading_cs no repeat returns 0" {
     _ = stz_list_append_string(l, "b", 1);
     try std.testing.expectEqual(@as(i32, 0), stz_list_remove_leading_cs(l, 1));
     try std.testing.expectEqual(@as(usize, 2), stz_list_len(l));
+}
+
+test "split_at basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (0..5) |i| _ = stz_list_append_int(l, @intCast(i + 1));
+
+    const pos = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(pos);
+    _ = stz_list_append_int(pos, 2);
+
+    const result = stz_list_split_at(l, pos) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(result));
+
+    const g0 = stz_list_get_sublist(result, 0) orelse return error.AllocFailed;
+    defer stz_list_free(g0);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(g0));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(g0, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(g0, 1));
+
+    const g1 = stz_list_get_sublist(result, 1) orelse return error.AllocFailed;
+    defer stz_list_free(g1);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(g1));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(g1, 0));
+}
+
+test "split_at multiple positions" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (0..6) |i| _ = stz_list_append_int(l, @intCast(i + 10));
+
+    const pos = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(pos);
+    _ = stz_list_append_int(pos, 2);
+    _ = stz_list_append_int(pos, 4);
+
+    const result = stz_list_split_at(l, pos) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(result));
+}
+
+test "split_at no positions wraps whole list" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+
+    const pos = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(pos);
+
+    const result = stz_list_split_at(l, pos) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 1), stz_list_len(result));
+
+    const g0 = stz_list_get_sublist(result, 0) orelse return error.AllocFailed;
+    defer stz_list_free(g0);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(g0));
+}
+
+test "sorted_insert into empty" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    const v = value_mod.stz_value_new_int(42) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_sorted_insert(l, v));
+    try std.testing.expectEqual(@as(usize, 1), stz_list_len(l));
+    try std.testing.expectEqual(@as(i64, 42), stz_list_get_int(l, 0));
+}
+
+test "sorted_insert maintains order" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 40);
+
+    const v = value_mod.stz_value_new_int(30) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    const idx = stz_list_sorted_insert(l, v);
+    try std.testing.expectEqual(@as(i32, 2), idx);
+    try std.testing.expectEqual(@as(usize, 4), stz_list_len(l));
+    try std.testing.expectEqual(@as(i64, 30), stz_list_get_int(l, 2));
+}
+
+test "sorted_insert at beginning" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 30);
+
+    const v = value_mod.stz_value_new_int(5) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    const idx = stz_list_sorted_insert(l, v);
+    try std.testing.expectEqual(@as(i32, 0), idx);
+    try std.testing.expectEqual(@as(i64, 5), stz_list_get_int(l, 0));
+}
+
+test "sorted_insert at end" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+
+    const v = value_mod.stz_value_new_int(100) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    const idx = stz_list_sorted_insert(l, v);
+    try std.testing.expectEqual(@as(i32, 2), idx);
+    try std.testing.expectEqual(@as(i64, 100), stz_list_get_int(l, 2));
 }
