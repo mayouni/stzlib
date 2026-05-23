@@ -129,6 +129,68 @@ fn ring_IsPalindrome(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(number.stz_number_is_palindrome(@intFromFloat(g(p, 1)))));
 }
 
+// BigInt from string with base
+fn ring_FromStringBase(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(number.stz_bigint_from_string_base(gs(p, 1), @intCast(gss(p, 1)), @intFromFloat(g(p, 2)))), H);
+}
+
+// Integer base conversion
+fn ring_ToBase(p: *anyopaque) callconv(.c) void {
+    var buf: [4096]u8 = undefined;
+    const len = number.stz_number_to_base(@intFromFloat(g(p, 1)), @intFromFloat(g(p, 2)), &buf, 4096);
+    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "0");
+}
+fn ring_FromBase(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_from_base(gs(p, 1), @intCast(gss(p, 1)), @intFromFloat(g(p, 2)))));
+}
+
+// Bitwise
+fn ring_BitwiseAnd(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_bitwise_and(@intFromFloat(g(p, 1)), @intFromFloat(g(p, 2)))));
+}
+fn ring_BitwiseOr(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_bitwise_or(@intFromFloat(g(p, 1)), @intFromFloat(g(p, 2)))));
+}
+fn ring_BitwiseXor(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_bitwise_xor(@intFromFloat(g(p, 1)), @intFromFloat(g(p, 2)))));
+}
+fn ring_BitwiseNot(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_bitwise_not(@intFromFloat(g(p, 1)))));
+}
+fn ring_BitwiseLShift(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_bitwise_lshift(@intFromFloat(g(p, 1)), @intFromFloat(g(p, 2)))));
+}
+fn ring_BitwiseRShift(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_bitwise_rshift(@intFromFloat(g(p, 1)), @intFromFloat(g(p, 2)))));
+}
+
+// Scientific notation
+fn ring_ToScientific(p: *anyopaque) callconv(.c) void {
+    var buf: [128]u8 = undefined;
+    const len = number.stz_number_to_scientific(g(p, 1), &buf, 128);
+    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "0e+00");
+}
+fn ring_FromScientific(p: *anyopaque) callconv(.c) void {
+    rn(p, number.stz_number_from_scientific(gs(p, 1), @intCast(gss(p, 1))));
+}
+
+// Predicates
+fn ring_IsEven(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_is_even(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsOdd(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_is_odd(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsArmstrong(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_is_armstrong(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsAbundant(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_is_abundant(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsDeficient(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(number.stz_number_is_deficient(@intFromFloat(g(p, 1)))));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginebigintfromint", .func = &ring_FromInt },
     .{ .name = "stzenginebigintfromstring", .func = &ring_FromString },
@@ -160,6 +222,22 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginenumberdigitsum", .func = &ring_DigitSum },
     .{ .name = "stzenginenumberreversedigits", .func = &ring_ReverseDigits },
     .{ .name = "stzenginenumberispalindrome", .func = &ring_IsPalindrome },
+    .{ .name = "stzenginebigintfromstringbase", .func = &ring_FromStringBase },
+    .{ .name = "stzenginenumbertobase", .func = &ring_ToBase },
+    .{ .name = "stzenginenumberfrombase", .func = &ring_FromBase },
+    .{ .name = "stzenginenumberbitwiseand", .func = &ring_BitwiseAnd },
+    .{ .name = "stzenginenumberbitwiseor", .func = &ring_BitwiseOr },
+    .{ .name = "stzenginenumberbitwisexor", .func = &ring_BitwiseXor },
+    .{ .name = "stzenginenumberbitwisenot", .func = &ring_BitwiseNot },
+    .{ .name = "stzenginenumberbitwiselshift", .func = &ring_BitwiseLShift },
+    .{ .name = "stzenginenumberbitwisershift", .func = &ring_BitwiseRShift },
+    .{ .name = "stzenginenumbertoscientific", .func = &ring_ToScientific },
+    .{ .name = "stzenginenumberfromscientific", .func = &ring_FromScientific },
+    .{ .name = "stzenginenumberiseven", .func = &ring_IsEven },
+    .{ .name = "stzenginenumberisodd", .func = &ring_IsOdd },
+    .{ .name = "stzenginenumberisarmstrong", .func = &ring_IsArmstrong },
+    .{ .name = "stzenginenumberisabundant", .func = &ring_IsAbundant },
+    .{ .name = "stzenginenumberisdeficient", .func = &ring_IsDeficient },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
