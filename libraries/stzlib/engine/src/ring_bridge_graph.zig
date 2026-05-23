@@ -1,5 +1,8 @@
+const std = @import("std");
 const graph = @import("graph.zig");
 const R = @import("ring_api.zig");
+
+const gpa = std.heap.c_allocator;
 
 const g = R.ring_vm_api_getnumber;
 const gs = R.ring_vm_api_getstring;
@@ -132,6 +135,43 @@ fn ring_OutDegree(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(graph.stz_graph_out_degree(getH(p, 1), id, id_len)));
 }
 
+fn ring_TopologicalSort(p: *anyopaque) callconv(.c) void {
+    const gr = getH(p, 1) orelse { rs(p, ""); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n <= 0) { rs(p, ""); return; }
+    const nu: usize = @intCast(n);
+    const result = gpa.alloc(u32, nu) catch { rs(p, ""); return; };
+    defer gpa.free(result);
+    const count = graph.stz_graph_topological_sort(gr, result.ptr, nu);
+    if (count == 0) { rs(p, ""); return; }
+    var buf: [16384]u8 = undefined;
+    var out: usize = 0;
+    var name_buf: [256]u8 = undefined;
+    for (0..count) |i| {
+        if (i > 0) {
+            if (out >= buf.len) { rs(p, ""); return; }
+            buf[out] = '\n';
+            out += 1;
+        }
+        const nlen = graph.stz_graph_node_name(gr, result[i], &name_buf, 256);
+        if (out + nlen > buf.len) { rs(p, ""); return; }
+        @memcpy(buf[out..][0..nlen], name_buf[0..nlen]);
+        out += nlen;
+    }
+    if (out > 0) rs2(p, &buf, @intCast(out)) else rs(p, "");
+}
+
+fn ring_ConnectedComponents(p: *anyopaque) callconv(.c) void {
+    const gr = getH(p, 1) orelse { rn(p, 0); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n <= 0) { rn(p, 0); return; }
+    const nu: usize = @intCast(n);
+    const labels = gpa.alloc(u32, nu) catch { rn(p, 0); return; };
+    defer gpa.free(labels);
+    const nc = graph.stz_graph_connected_components(gr, labels.ptr, nu);
+    rn(p, @floatFromInt(nc));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphcreate", .func = &ring_Create },
     .{ .name = "stzenginegraphfree", .func = &ring_Free },
@@ -149,6 +189,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphhascycle", .func = &ring_HasCycle },
     .{ .name = "stzenginegraphindegree", .func = &ring_InDegree },
     .{ .name = "stzenginegraphoutdegree", .func = &ring_OutDegree },
+    .{ .name = "stzenginegraphtopologicalsort", .func = &ring_TopologicalSort },
+    .{ .name = "stzenginegraphconnectedcomponents", .func = &ring_ConnectedComponents },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

@@ -84,6 +84,9 @@ class stzGraph
 
 	@aLastValidationResult = []
 
+	@pEngineGraph = NULL
+	@bEngineStale = TRUE
+
 	def init(pcName)
 		if CheckParams()
 			if NOT isString(pcName)
@@ -96,6 +99,61 @@ class stzGraph
 		ok
 
 		@cId = StzLower(pcName)
+
+	#--------------------------#
+	#  ENGINE ADAPTER LAYER    #
+	#--------------------------#
+
+	def _EngineAvailable()
+		return isFunction("stzenginegraphcreate")
+
+	def _EngineHandle()
+		return @pEngineGraph
+
+	def _InvalidateEngine()
+		@bEngineStale = TRUE
+
+	def _FreeEngine()
+		if @pEngineGraph != NULL
+			StzEngineGraphFree(@pEngineGraph)
+			@pEngineGraph = NULL
+		ok
+		@bEngineStale = TRUE
+
+	def _EnsureEngine()
+		if NOT This._EngineAvailable()
+			return FALSE
+		ok
+
+		if @pEngineGraph != NULL and NOT @bEngineStale
+			return TRUE
+		ok
+
+		if @pEngineGraph != NULL
+			StzEngineGraphFree(@pEngineGraph)
+			@pEngineGraph = NULL
+		ok
+
+		@pEngineGraph = StzEngineGraphCreate(1)
+
+		_nNodeLen_ = len(@aNodes)
+		for _iEng_ = 1 to _nNodeLen_
+			StzEngineGraphAddNode(@pEngineGraph, @aNodes[_iEng_][:id])
+		next
+
+		_nEdgeLen_ = len(@aEdges)
+		for _iEng_ = 1 to _nEdgeLen_
+			StzEngineGraphAddEdge(@pEngineGraph, @aEdges[_iEng_][:from], @aEdges[_iEng_][:to], 1.0)
+		next
+
+		@bEngineStale = FALSE
+		return TRUE
+
+	def _SplitNewline(cStr)
+		if cStr = ""
+			return []
+		ok
+		return StzSplit(cStr, nl)
 
 	def Copy()
 		_oCopy_ = This
@@ -170,6 +228,7 @@ class stzGraph
 			:properties = iif(isList(pacProperties), pacProperties, [])
 		]
 		@aNodes + aNode
+		This._InvalidateEngine()
 
 	def Node(pcNodeId)
 
@@ -340,7 +399,8 @@ class stzGraph
 		@aEdges = []
 		@aAffectedNodes = []
 		@aAffectedEdges = []
-	
+		This._InvalidateEngine()
+
 		def RemoveAllNodes()
 			This.RemoveNodes()
 	
@@ -367,9 +427,10 @@ class stzGraph
 			ok
 		end
 		@aNodes = acNew
-		
+
 		This.RemoveEdgesConnectedTo(pcNodeId)
-	
+		This._InvalidateEngine()
+
 		def RemoveNode(pcNodeId)
 			This.RemoveThisNode(pcNodeId)
 	
@@ -412,7 +473,8 @@ class stzGraph
 	def RemoveEdges()
 		@aEdges = []
 		@aAffectedEdges = []
-	
+		This._InvalidateEngine()
+
 		def RemoveAllEdges()
 			This.RemoveEdges()
 	
@@ -444,7 +506,8 @@ class stzGraph
 			ok
 		end
 		@aEdges = acNew
-	
+		This._InvalidateEngine()
+
 		def RemoveEdge(pcFromNodeId, pcToNodeId)
 			This.RemoveThisEdge(pcFromNodeId, pcToNodeId)
 
@@ -772,7 +835,8 @@ class stzGraph
 			:properties = iif(isList(pacProperties), pacProperties, [])
 		]
 		@aEdges + aEdge
-		
+		This._InvalidateEngine()
+
 		# AUTO-DERIVATION - Execute after mutation
 		if @bAutoDerive
 			This.ApplyDerivationRules()
@@ -1500,6 +1564,11 @@ class stzGraph
 		if pcFromNodeId = pcToNodeId
 			return 1
 		ok
+
+		if This._EnsureEngine()
+			return StzEngineGraphPathExists(@pEngineGraph, StzLower(pcFromNodeId), StzLower(pcToNodeId))
+		ok
+
 		acVisited = []
 		return This._PathExistsDFS(pcFromNodeId, pcToNodeId, acVisited)
 
@@ -1666,6 +1735,11 @@ class stzGraph
 			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
 
+		if This._EnsureEngine()
+			_cEngResult_ = StzEngineGraphNeighbors(@pEngineGraph, StzLower(pcNodeId))
+			return This._SplitNewline(_cEngResult_)
+		ok
+
 		acNeighbors = []
 		nLen = len(@aEdges)
 		for i = 1 to nLen
@@ -1711,6 +1785,11 @@ class stzGraph
 	#-------------------#
 
 	def HasCyclicDependencies()
+
+		if This._EnsureEngine()
+			return StzEngineGraphHasCycle(@pEngineGraph)
+		ok
+
 		acVisited = []
 		acRecStack = []
 
@@ -1761,7 +1840,12 @@ class stzGraph
 		if NOT This.NodeExists(pcNodeId)
 			return []
 		ok
-		
+
+		if This._EnsureEngine()
+			_cEngResult_ = StzEngineGraphReachable(@pEngineGraph, StzLower(pcNodeId))
+			return This._SplitNewline(_cEngResult_)
+		ok
+
 		acReachable = []
 		acVisited = []
 		acQueue = [pcNodeId]
@@ -2291,11 +2375,16 @@ class stzGraph
 		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcToNodeId)
 			return []
 		ok
-	
+
 		if pcFromNodeId = pcToNodeId
 			return [ pcFromNodeId ]
 		ok
-	
+
+		if This._EnsureEngine()
+			_cEngResult_ = StzEngineGraphShortestPath(@pEngineGraph, StzLower(pcFromNodeId), StzLower(pcToNodeId))
+			return This._SplitNewline(_cEngResult_)
+		ok
+
 		_acQueue_ = [ pcFromNodeId ]
 		_acVisited_ = [ pcFromNodeId ]
 		_aParentMap_ = [ [ pcFromNodeId, "" ] ]
@@ -2402,6 +2491,35 @@ class stzGraph
 				This._ExploreComponent(_acNeighbors_[_i_], pacVisited, pacComponent)
 			ok
 		end
+
+	#---------------------------------#
+	#  ENGINE-BACKED GRAPH METHODS    #
+	#---------------------------------#
+
+	def TopologicalSort()
+		if This._EnsureEngine()
+			_cEngResult_ = StzEngineGraphTopologicalSort(@pEngineGraph)
+			return This._SplitNewline(_cEngResult_)
+		ok
+		return []
+
+	def InDegree(pcNodeId)
+		if This._EnsureEngine()
+			return StzEngineGraphInDegree(@pEngineGraph, StzLower(pcNodeId))
+		ok
+		return len(This.Incoming(pcNodeId))
+
+	def OutDegree(pcNodeId)
+		if This._EnsureEngine()
+			return StzEngineGraphOutDegree(@pEngineGraph, StzLower(pcNodeId))
+		ok
+		return len(This.Neighbors(pcNodeId))
+
+	def NumberOfConnectedComponents()
+		if This._EnsureEngine()
+			return StzEngineGraphConnectedComponents(@pEngineGraph)
+		ok
+		return len(This.ConnectedComponents())
 
 	def IsConnected()
 		if len(@aNodes) <= 1
