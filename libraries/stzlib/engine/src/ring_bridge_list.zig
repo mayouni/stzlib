@@ -575,6 +575,94 @@ fn ring_Join(p: *anyopaque) callconv(.c) void {
     rs2(p, &buf, @intCast(n));
 }
 
+// Bulk-load: read a Ring list directly in Zig — one FFI call replaces N per-element calls
+const ITEMTYPE_STRING: c_uint = 1;
+const ITEMTYPE_NUMBER: c_uint = 2;
+const ITEMTYPE_LIST: c_uint = 4;
+
+fn marshalRingListToValue(pRingList: *anyopaque) ?*value.StzValue {
+    const nSize = R.ringListSize(pRingList);
+    const vList = value.stz_value_new_list() orelse return null;
+    var i: c_uint = 1;
+    while (i <= nSize) : (i += 1) {
+        const itemType = R.ring_list_gettype_gc(null, pRingList, i);
+        const pItem = R.ring_list_getitem_gc(null, pRingList, i) orelse continue;
+        if (itemType == ITEMTYPE_NUMBER) {
+            const num = R.ring_item_getnumber(pItem);
+            const iVal: i64 = @intFromFloat(num);
+            const vItem = if (@as(f64, @floatFromInt(iVal)) == num)
+                value.stz_value_new_int(iVal)
+            else
+                value.stz_value_new_float(num);
+            if (vItem) |vi| {
+                _ = value.stz_value_list_append(vList, vi);
+                value.stz_value_free(vi);
+            }
+        } else if (itemType == ITEMTYPE_STRING) {
+            const sPtr = R.ringItemStringPtr(pItem) orelse continue;
+            const sLen = R.ringItemStringSize(pItem);
+            const vItem = value.stz_value_new_string(sPtr, @intCast(sLen));
+            if (vItem) |vi| {
+                _ = value.stz_value_list_append(vList, vi);
+                value.stz_value_free(vi);
+            }
+        } else if (itemType == ITEMTYPE_LIST) {
+            const pSubList = R.ring_list_getlist_gc(null, pRingList, i) orelse continue;
+            const subVal = marshalRingListToValue(pSubList);
+            if (subVal) |sv| {
+                _ = value.stz_value_list_append(vList, sv);
+                value.stz_value_free(sv);
+            }
+        }
+    }
+    return vList;
+}
+
+fn marshalRingList(pRingList: *anyopaque) ?*list.StzList {
+    const nSize = R.ringListSize(pRingList);
+    if (nSize == 0) return list.stz_list_new();
+    const result = list.stz_list_new() orelse return null;
+    var i: c_uint = 1;
+    while (i <= nSize) : (i += 1) {
+        const itemType = R.ring_list_gettype_gc(null, pRingList, i);
+        const pItem = R.ring_list_getitem_gc(null, pRingList, i) orelse continue;
+        if (itemType == ITEMTYPE_NUMBER) {
+            const num = R.ring_item_getnumber(pItem);
+            const iVal: i64 = @intFromFloat(num);
+            if (@as(f64, @floatFromInt(iVal)) == num) {
+                _ = list.stz_list_append_int(result, iVal);
+            } else {
+                _ = list.stz_list_append_float(result, num);
+            }
+        } else if (itemType == ITEMTYPE_STRING) {
+            const sPtr = R.ringItemStringPtr(pItem) orelse continue;
+            const sLen = R.ringItemStringSize(pItem);
+            _ = list.stz_list_append_string(result, sPtr, @intCast(sLen));
+        } else if (itemType == ITEMTYPE_LIST) {
+            const pSubList = R.ring_list_getlist_gc(null, pRingList, i) orelse continue;
+            const subVal = marshalRingListToValue(pSubList);
+            if (subVal) |sv| {
+                _ = list.stz_list_append_value(result, sv);
+                value.stz_value_free(sv);
+            }
+        }
+    }
+    return result;
+}
+
+fn ring_MarshalFromRingList(p: *anyopaque) callconv(.c) void {
+    if (R.ring_vm_api_islist(p, 1) == 0) {
+        rcp(p, @as(?*anyopaque, null), HL);
+        return;
+    }
+    const pRingList = R.ring_vm_api_getlist(p, 1) orelse {
+        rcp(p, @as(?*anyopaque, null), HL);
+        return;
+    };
+    const result = marshalRingList(pRingList);
+    if (result) |r| rcp(p, @ptrCast(r), HL) else rcp(p, @as(?*anyopaque, null), HL);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistnew", .func = &ring_New },
     .{ .name = "stzenginelistfree", .func = &ring_Free },
@@ -672,6 +760,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistmax", .func = &ring_Max },
     .{ .name = "stzenginelistproduct", .func = &ring_Product },
     .{ .name = "stzenginelistmean", .func = &ring_Mean },
+    .{ .name = "stzenginelistmarshalfromringlist", .func = &ring_MarshalFromRingList },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
