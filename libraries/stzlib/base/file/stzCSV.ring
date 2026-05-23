@@ -178,25 +178,4 @@ func IsCSV(cStr)
 	return IsCSVXT(cStr, CSVSeparator())
 
 func IsCSVXT(cStr, cSep)
-    # Check if string is empty
-	cStr = @trim(cStr)
-    if len(cStr) = 0 return false ok
-    
-    # Split into lines
-    aLines = @split(cStr, nl)
-	nLenL = len(aLines)
-    if nLenL < 2 return false ok
-    
-    # Get number of columns from header
-    aHeader = @split(aLines[1], cSep)
-    nCols = len(aHeader)
-    if nCols = 0 return false ok
-    
-    # Check if all rows have same number of columns
-    for i = 2 to nLenL
-        if len(@trim(aLines[i])) = 0 loop ok
-        aRow = @split(aLines[i], cSep)
-        if len(aRow) != nCols return false ok
-    next
-    
-    return true
+	return StzEngineCSVIsValid(cStr, cSep)
