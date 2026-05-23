@@ -93,7 +93,7 @@ Class stzTable from stzList
 
 		oParam = Q(paTable)
 
-		if len(paTable) = 0 or oParam.IsPairOfNumbers()
+		if len(paTable) = 0 or @IsPairOfNumbers(paTable)
 
 		# Example : new stzTable([])
 		#--> Creates an empty table with just a column and a row
