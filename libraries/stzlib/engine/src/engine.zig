@@ -32,6 +32,7 @@ pub const ref_data = @import("ref_data.zig");
 pub const table = @import("table.zig");
 pub const pivot = @import("pivot.zig");
 pub const matrix = @import("matrix.zig");
+pub const random = @import("random.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -366,6 +367,33 @@ comptime {
     @export(&number.stz_number_digit_sum, .{ .name = "stz_number_digit_sum" });
     @export(&number.stz_number_reverse_digits, .{ .name = "stz_number_reverse_digits" });
     @export(&number.stz_number_is_palindrome, .{ .name = "stz_number_is_palindrome" });
+    @export(&number.stz_bigint_from_string_base, .{ .name = "stz_bigint_from_string_base" });
+    @export(&number.stz_number_to_base, .{ .name = "stz_number_to_base" });
+    @export(&number.stz_number_from_base, .{ .name = "stz_number_from_base" });
+    @export(&number.stz_number_bitwise_and, .{ .name = "stz_number_bitwise_and" });
+    @export(&number.stz_number_bitwise_or, .{ .name = "stz_number_bitwise_or" });
+    @export(&number.stz_number_bitwise_xor, .{ .name = "stz_number_bitwise_xor" });
+    @export(&number.stz_number_bitwise_not, .{ .name = "stz_number_bitwise_not" });
+    @export(&number.stz_number_bitwise_lshift, .{ .name = "stz_number_bitwise_lshift" });
+    @export(&number.stz_number_bitwise_rshift, .{ .name = "stz_number_bitwise_rshift" });
+    @export(&number.stz_number_to_scientific, .{ .name = "stz_number_to_scientific" });
+    @export(&number.stz_number_from_scientific, .{ .name = "stz_number_from_scientific" });
+    @export(&number.stz_number_is_even, .{ .name = "stz_number_is_even" });
+    @export(&number.stz_number_is_odd, .{ .name = "stz_number_is_odd" });
+    @export(&number.stz_number_is_armstrong, .{ .name = "stz_number_is_armstrong" });
+    @export(&number.stz_number_divisors, .{ .name = "stz_number_divisors" });
+    @export(&number.stz_number_is_abundant, .{ .name = "stz_number_is_abundant" });
+    @export(&number.stz_number_is_deficient, .{ .name = "stz_number_is_deficient" });
+
+    // ─── Foundation: Random operations ───
+    @export(&random.stz_random_seed, .{ .name = "stz_random_seed" });
+    @export(&random.stz_random_int, .{ .name = "stz_random_int" });
+    @export(&random.stz_random_float, .{ .name = "stz_random_float" });
+    @export(&random.stz_random_n_in_range, .{ .name = "stz_random_n_in_range" });
+    @export(&random.stz_random_n_unique_in_range, .{ .name = "stz_random_n_unique_in_range" });
+    @export(&random.stz_random_shuffle, .{ .name = "stz_random_shuffle" });
+    @export(&random.stz_random_bool, .{ .name = "stz_random_bool" });
+    @export(&random.stz_random_weighted, .{ .name = "stz_random_weighted" });
 
     // ─── Foundation: List operations ───
     @export(&list.stz_list_new, .{ .name = "stz_list_new" });
@@ -494,4 +522,5 @@ test {
     _ = table;
     _ = pivot;
     _ = matrix;
+    _ = random;
 }
