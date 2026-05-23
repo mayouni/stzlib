@@ -16,24 +16,59 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListPerformer from stzList
+class stzListPerformer
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListPerformer! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
+
+	  #===============================#
+	 #     PERFORM / YIELD           #
+	#===============================#
 
 	def Perform(pcAction)
-		@aContent = This.Map(pcAction)
+		aContent = @oList.Map(pcAction)
+		@oList.UpdateWith(aContent)
 
 		def PerformQ(pcAction)
 			This.Perform(pcAction)
 			return This
 
 	def PerformOn(panPos, pcAction)
-		aAll = This.Map(pcAction)
+		aAll = @oList.Map(pcAction)
+		aContent = @oList.Content()
 		nLen = len(panPos)
 		for i = 1 to nLen
 			nPos = panPos[i]
-			if nPos >= 1 and nPos <= len(@aContent)
-				@aContent[nPos] = aAll[nPos]
+			if nPos >= 1 and nPos <= len(aContent)
+				aContent[nPos] = aAll[nPos]
 			ok
 		next
+		@oList.UpdateWith(aContent)
 
 		def PerformOnQ(panPos, pcAction)
 			This.PerformOn(panPos, pcAction)
@@ -43,7 +78,7 @@ class stzListPerformer from stzList
 			This.PerformOn(panPos, pcAction)
 
 	def PerformW(pcCondition, pcAction)
-		anPos = This.FindW(pcCondition)
+		anPos = @oList.FindW(pcCondition)
 		This.PerformOn(anPos, pcAction)
 
 		def PerformWQ(pcCondition, pcAction)
@@ -51,13 +86,13 @@ class stzListPerformer from stzList
 			return This
 
 	def Yield(pcYielder)
-		return This.Map(pcYielder)
+		return @oList.Map(pcYielder)
 
 		def YieldQ(pcYielder)
 			return new stzList(This.Yield(pcYielder))
 
 	def YieldOn(panPos, pcYielder)
-		aAll = This.Map(pcYielder)
+		aAll = @oList.Map(pcYielder)
 		nLen = len(panPos)
 		aResult = []
 		for i = 1 to nLen
@@ -69,7 +104,7 @@ class stzListPerformer from stzList
 		return aResult
 
 	def YieldW(pcCondition, pcYielder)
-		anPos = This.FindW(pcCondition)
+		anPos = @oList.FindW(pcCondition)
 		return This.YieldOn(anPos, pcYielder)
 
 	  #======================================================#
@@ -98,4 +133,4 @@ class stzListPerformer from stzList
 	#======================================================#
 
 	def YieldPairs(pcYielder)
-		return This.Map(pcYielder)
+		return @oList.Map(pcYielder)

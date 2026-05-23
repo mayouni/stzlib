@@ -16,7 +16,39 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListComparator from stzList
+class stzListComparator
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListComparator! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
+
+	  #===============================#
+	 #     COMPARISON METHODS        #
+	#===============================#
 
 	def IsEqualToCS(paOtherList, pCaseSensitive)
 		if NOT isList(paOtherList)
@@ -25,7 +57,7 @@ class stzListComparator from stzList
 		if This.NumberOfItems() != len(paOtherList)
 			return 0
 		ok
-		if This.HasSameContentAsCS(paOtherList, pCaseSensitive)
+		if @oList.HasSameContentAsCS(paOtherList, pCaseSensitive)
 			return 1
 		else
 			return 0
@@ -35,7 +67,7 @@ class stzListComparator from stzList
 		return This.IsEqualToCS(paOtherList, 1)
 
 	def CommonItemsCS(paOtherList, pCaseSensitive)
-		pA = _EngineListFromContent()
+		pA = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pB = oTemp._EngineListFromContent()
 		pResult = StzEngineListIntersectionCS(pA, pB, pCaseSensitive)
@@ -49,7 +81,7 @@ class stzListComparator from stzList
 		return This.CommonItemsCS(paOtherList, 1)
 
 	def UnionCS(paOtherList, pCaseSensitive)
-		pA = _EngineListFromContent()
+		pA = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pB = oTemp._EngineListFromContent()
 		pResult = StzEngineListUnionCS(pA, pB, pCaseSensitive)
@@ -63,7 +95,7 @@ class stzListComparator from stzList
 		return This.UnionCS(paOtherList, 1)
 
 	def DifferenceCS(paOtherList, pCaseSensitive)
-		pA = _EngineListFromContent()
+		pA = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pB = oTemp._EngineListFromContent()
 		pResult = StzEngineListDifferenceCS(pA, pB, pCaseSensitive)
@@ -97,7 +129,7 @@ class stzListComparator from stzList
 	#======================================================#
 
 	def SymmetricDifferenceCS(paOtherList, pCaseSensitive)
-		pA = _EngineListFromContent()
+		pA = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pB = oTemp._EngineListFromContent()
 		pDiff1 = StzEngineListDifferenceCS(pA, pB, pCaseSensitive)
@@ -123,7 +155,7 @@ class stzListComparator from stzList
 	#======================================================#
 
 	def IsSubsetOfCS(paOtherList, pCaseSensitive)
-		pA = _EngineListFromContent()
+		pA = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pB = oTemp._EngineListFromContent()
 		nResult = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)
@@ -137,7 +169,7 @@ class stzListComparator from stzList
 	def IsSupersetOfCS(paOtherList, pCaseSensitive)
 		oTemp = new stzList(paOtherList)
 		pA = oTemp._EngineListFromContent()
-		pB = _EngineListFromContent()
+		pB = @oList._EngineListFromContent()
 		nResult = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)
 		StzEngineListFree(pB)
 		StzEngineListFree(pA)
@@ -151,7 +183,7 @@ class stzListComparator from stzList
 	#======================================================#
 
 	def ContainsCS(pItem, pCaseSensitive)
-		return This.FindFirstCS(pItem, pCaseSensitive) > 0
+		return @oList.FindFirstCS(pItem, pCaseSensitive) > 0
 
 	def Contains(pItem)
 		return This.ContainsCS(pItem, 1)
@@ -271,7 +303,7 @@ class stzListComparator from stzList
 		if This.NumberOfItems() != len(paOtherList)
 			return 0
 		ok
-		pA = _EngineListFromContent()
+		pA = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pB = oTemp._EngineListFromContent()
 		nAsubB = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)

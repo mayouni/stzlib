@@ -16,14 +16,57 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListDuplicates from stzList
+class stzListDuplicates
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListDuplicates! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
+
+	def Copy()
+		return new stzListDuplicates( @oList.Content() )
+
+	def UpdateWith(paNewContent)
+		@oList.UpdateWith(paNewContent)
+
+	def List()
+		return @oList.List()
+
+	def RemoveItemAtPosition(n)
+		@oList.RemoveItemAtPosition(n)
+
+	def FindAllCS(pItem, pCaseSensitive)
+		return @oList.FindAllCS(pItem, pCaseSensitive)
 
 	  #===============================#
 	 #  FINDING DUPLICATED ITEMS    #
 	#===============================#
 
 	def FindDuplicatesCS(pCaseSensitive)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		cResult = StzEngineListFindDuplicatesCS(pList, pCaseSensitive)
 		StzEngineListFree(pList)
 
@@ -166,7 +209,7 @@ class stzListDuplicates from stzList
 	#========================================#
 
 	def FindNonDuplicatedItemsCS(pCaseSensitive)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		cResult = StzEngineListFindNonDuplicatedCS(pList, pCaseSensitive)
 		StzEngineListFree(pList)
 
@@ -207,7 +250,7 @@ class stzListDuplicates from stzList
 	#========================================#
 
 	def ItemsDuplicatedNTimesCS(n, pCaseSensitive)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		pFreqs = StzEngineListFrequenciesCS(pList, pCaseSensitive)
 		StzEngineListFree(pList)
 
@@ -235,7 +278,7 @@ class stzListDuplicates from stzList
 	#========================================#
 
 	def MostDuplicatedItemCS(pCaseSensitive)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		pFreqs = StzEngineListFrequenciesCS(pList, pCaseSensitive)
 		StzEngineListFree(pList)
 

@@ -16,7 +16,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListInserter from stzList
+class stzListInserter
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListInserter! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	  #===================================================#
 	 #     INSERTING AN ITEM BEFORE A GIVEN POSITION     #
@@ -67,11 +95,11 @@ class stzListInserter from stzList
 		ok
 
 		if n >= 1 and n <= This.NumberOfItems()
-			ring_insert(This.List(), n-1, pItem)
+			ring_insert(@oList.List(), n-1, pItem)
 
 		but n > This.NumberofItems()
-			This.ExtendToN(n)
-			ring_insert(This.List(), n-1, pItem)
+			@oList.ExtendToN(n)
+			ring_insert(@oList.List(), n-1, pItem)
 		ok
 
 		def InsertBeforePositionQ(n, pItem)
@@ -86,9 +114,9 @@ class stzListInserter from stzList
 				n = n[2]
 			ok
 
-			aContent = @aContent
+			aContent = @oList.Content()
 			ring_insert(aContent, n, pItem)
-			This.UpdateWith(aContent)
+			@oList.UpdateWith(aContent)
 
 			def InsertAtQ(n, pItem)
 				This.InsertAt(n, pItem)
@@ -106,7 +134,7 @@ class stzListInserter from stzList
 		ok
 
 		if n > 0 and n < This.NumberOfItems()
-			ring_insert(This.List(), n, pItem)
+			ring_insert(@oList.List(), n, pItem)
 		ok
 
 		def InsertAfterPositionQ(n, pItem)
@@ -159,8 +187,8 @@ class stzListInserter from stzList
 			StzRaise("Position out of range!")
 		ok
 
-		pItem = This.Item(n1)
-		This.RemoveItemAtPosition(n1)
+		pItem = @oList.Item(n1)
+		@oList.RemoveItemAtPosition(n1)
 
 		if n2 > n1
 			n2 = n2 - 1
@@ -190,10 +218,10 @@ class stzListInserter from stzList
 			StzRaise("Incorrect param types! n1 and n2 must be numbers.")
 		ok
 
-		_pSwpList = This._EngineListFromContent()
+		_pSwpList = @oList._EngineListFromContent()
 		if _pSwpList != NULL
 			StzEngineListSwap(_pSwpList, n1, n2)
-			@aContent = This._ContentFromEngineList(_pSwpList)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwpList))
 			StzEngineListFree(_pSwpList)
 			return
 		ok
@@ -202,7 +230,7 @@ class stzListInserter from stzList
 		temp = aContent[n1]
 		aContent[n1] = aContent[n2]
 		aContent[n2] = temp
-		This.UpdateWith(aContent)
+		@oList.UpdateWith(aContent)
 
 		def SwapItemsQ(n1, n2)
 			This.SwapItems(n1, n2)

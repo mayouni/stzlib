@@ -16,7 +16,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListReplacer from stzList
+class stzListReplacer
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListReplacer! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	  #=========================================#
 	 #   REPLACING ALL ITEMS WITH A NEW ITEM   #
@@ -31,7 +59,7 @@ class stzListReplacer from stzList
 			_aContent_[@i] = pNewItem
 		next
 
-		This.UpdateWith(_aContent_)
+		@oList.UpdateWith(_aContent_)
 
 		def ReplaceAllItemsQ(pNewItem)
 			This.ReplaceAllItems(pNewItem)
@@ -50,7 +78,7 @@ class stzListReplacer from stzList
 		ok
 
 		if isString(pItem) and isString(pNewItem)
-			_pRpAll = This._EngineListFromContent()
+			_pRpAll = @oList._EngineListFromContent()
 			if _pRpAll != NULL
 				_pOldVal = StzEngineValueNewString(pItem)
 				_pNewVal = StzEngineValueNewString(pNewItem)
@@ -62,7 +90,7 @@ class stzListReplacer from stzList
 						_nCsRp = pCaseSensitive
 					ok
 					StzEngineListReplaceAllCS(_pRpAll, _pOldVal, _pNewVal, _nCsRp)
-					@aContent = This._ContentFromEngineList(_pRpAll)
+					@oList.UpdateWith(@oList._ContentFromEngineList(_pRpAll))
 				ok
 				if _pOldVal != NULL StzEngineValueFree(_pOldVal) ok
 				if _pNewVal != NULL StzEngineValueFree(_pNewVal) ok
@@ -71,7 +99,7 @@ class stzListReplacer from stzList
 			ok
 		ok
 
-		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		anPos = @oList.FindAllCS(pItem, pCaseSensitive)
 		nLen = len(anPos)
 
 		for i = 1 to nLen
@@ -110,7 +138,7 @@ class stzListReplacer from stzList
 			This.ReplaceAllOccurrences(pItem, pNewItem)
 
 	def AllOccurrencesReplacedCS(pItem, pNewItem, pCaseSensitive)
-		aResult = This.Copy().ReplaceAllOccurrencesCSQ(pItem, pNewItem, pCaseSensitive).Content()
+		aResult = @oList.Copy().ReplaceAllOccurrencesCSQ(pItem, pNewItem, pCaseSensitive).Content()
 		return aResult
 
 	def AllOccurrencesReplaced(pItem, pNewItem)
@@ -124,12 +152,12 @@ class stzListReplacer from stzList
 		aContent = This.Content()
 		if n >= 1 and n <= len(aContent)
 			if isString(pNewItem)
-				_pRpList = This._EngineListFromContent()
+				_pRpList = @oList._EngineListFromContent()
 				if _pRpList != NULL
 					_pRpVal = StzEngineValueNewString(pNewItem)
 					if _pRpVal != NULL
 						StzEngineListSet(_pRpList, n, _pRpVal)
-						@aContent = This._ContentFromEngineList(_pRpList)
+						@oList.UpdateWith(@oList._ContentFromEngineList(_pRpList))
 						StzEngineValueFree(_pRpVal)
 					ok
 					StzEngineListFree(_pRpList)
@@ -137,7 +165,7 @@ class stzListReplacer from stzList
 				ok
 			ok
 			aContent[n] = pNewItem
-			This.UpdateWith(aContent)
+			@oList.UpdateWith(aContent)
 		ok
 
 		def ReplaceAnyItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
@@ -162,7 +190,7 @@ class stzListReplacer from stzList
 	#============================================#
 
 	def ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
-		nPos = This.FindNthCS(n, pItem, pCaseSensitive)
+		nPos = @oList.FindNthCS(n, pItem, pCaseSensitive)
 		if nPos > 0
 			This.ReplaceAnyItemAtPosition(nPos, pNewItem)
 		ok
@@ -201,7 +229,7 @@ class stzListReplacer from stzList
 	#================================================#
 
 	def ReplaceLastOccurrenceCS(pItem, pNewItem, pCaseSensitive)
-		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		anPos = @oList.FindAllCS(pItem, pCaseSensitive)
 		nLen = len(anPos)
 		if nLen > 0
 			This.ReplaceAnyItemAtPosition(anPos[nLen], pNewItem)
@@ -264,7 +292,7 @@ class stzListReplacer from stzList
 			aResult + aContent[i]
 		next
 
-		This.UpdateWith(aResult)
+		@oList.UpdateWith(aResult)
 
 	def ReplaceSection(n1, n2, paNewItems)
 		This.ReplaceSectionCS(n1, n2, paNewItems, 1)

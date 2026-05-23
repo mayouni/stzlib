@@ -17,21 +17,52 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListExtractor from stzList
+class stzListExtractor
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListExtractor! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def List()
+		return @oList.List()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	def ExtractCS(pItem, pCaseSensitive)
-		if NOT This.ContainsCS(pItem, pCaseSensitive)
+		if NOT @oList.ContainsCS(pItem, pCaseSensitive)
 			StzRaise("Can't extract the item! It does not exist in the list.")
 		ok
-		This.RemoveCS(pItem, pCaseSensitive)
+		@oList.RemoveCS(pItem, pCaseSensitive)
 		return pItem
 
 	def Extract(pItem)
 		return This.ExtractCS(pItem, 1)
 
 	def ExtractManyCS(paItems, pCaseSensitive)
-		anPos = This.FindManyCS(paItems, pCaseSensitive)
-		This.RemoveItemsAtPositions(anPos)
+		anPos = @oList.FindManyCS(paItems, pCaseSensitive)
+		@oList.RemoveItemsAtPositions(anPos)
 		return paItems
 
 	def ExtractMany(paItems)
@@ -39,11 +70,11 @@ class stzListExtractor from stzList
 
 	def ExtractAll()
 		aResult = This.Content()
-		This.RemoveAllItems()
+		@oList.RemoveAllItems()
 		return aResult
 
 	def ExtractNth(n)
-		pItem = This.NthItem(n)
+		pItem = @oList.NthItem(n)
 		ring_remove(This.List(), n)
 		return pItem
 
@@ -54,19 +85,19 @@ class stzListExtractor from stzList
 		return This.ExtractNth(This.NumberOfItems())
 
 	def ExtractSection(n1, n2)
-		aResult = This.Section(n1, n2)
-		This.RemoveSection(n1, n2)
+		aResult = @oList.Section(n1, n2)
+		@oList.RemoveSection(n1, n2)
 		return aResult
 
 	def ExtractRange(pnStart, pnRange)
-		aResult = This.Range(pnStart, pnRange)
-		This.RemoveRange(pnStart, pnRange)
+		aResult = @oList.Range(pnStart, pnRange)
+		@oList.RemoveRange(pnStart, pnRange)
 		return aResult
 
 	def ExtractW(pcCondition)
-		anPos = This.FindW(pcCondition)
-		aResult = This.ItemsAtPositions(anPos)
-		This.RemoveItemsAtPositions(anPos)
+		anPos = @oList.FindW(pcCondition)
+		aResult = @oList.ItemsAtPositions(anPos)
+		@oList.RemoveItemsAtPositions(anPos)
 		return aResult
 
 	  #======================================================#
@@ -74,7 +105,7 @@ class stzListExtractor from stzList
 	#======================================================#
 
 	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
-		nPos = This.FindNthCS(n, pItem, pCaseSensitive)
+		nPos = @oList.FindNthCS(n, pItem, pCaseSensitive)
 		if nPos = 0
 			return NULL
 		ok
@@ -94,7 +125,7 @@ class stzListExtractor from stzList
 		return This.ExtractFirstOccurrenceCS(pItem, 1)
 
 	def ExtractLastOccurrenceCS(pItem, pCaseSensitive)
-		nPos = This.FindLastCS(pItem, pCaseSensitive)
+		nPos = @oList.FindLastCS(pItem, pCaseSensitive)
 		if nPos = 0
 			return NULL
 		ok
@@ -108,7 +139,7 @@ class stzListExtractor from stzList
 	#======================================================#
 
 	def ExtractDuplicatesCS(pCaseSensitive)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		cResult = StzEngineListFindDuplicatesCS(pList, pCaseSensitive)
 		StzEngineListFree(pList)
 

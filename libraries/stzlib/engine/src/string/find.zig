@@ -892,7 +892,7 @@ test "section_cp middle" {
 }
 
 test "section_cp unicode" {
-    const s = str_from("cafe\xCC\x81", 5);
+    const s = str_from("cafe\xCC\x81", 6);
     defer str_free(s);
     const r = str_section_cp(s, 1, 4);
     defer str_free(r);

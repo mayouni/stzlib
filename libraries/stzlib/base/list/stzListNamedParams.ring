@@ -17,7 +17,44 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListNamedParams from stzList
+class stzListNamedParams
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListNamedParams! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
+
+	def Item(n)
+		return @oList.Item(n)
+
+	def IsHashList()
+		return @oList.IsHashList()
+
+	def ToStzHashList()
+		return @oList.ToStzHashList()
 
 	  #=================================================================#
 	  #  ENGINE-BACKED UNIVERSAL METHODS                                #

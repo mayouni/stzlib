@@ -16,14 +16,42 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListCounter from stzList
+class stzListCounter
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListCounter! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	  #--------------------------------------------------#
 	 #     COUNTING ITEMS VERIFYING A GIVEN CONDITION   #
 	#==================================================#
 
 	def CountItemsW(pCondition)
-		aItems = This.FindW(pCondition)
+		aItems = @oList.FindW(pCondition)
 		nResult = len(aItems)
 		return nResult
 
@@ -40,7 +68,7 @@ class stzListCounter from stzList
 			return This.CountItemsW(pCondition)
 
 	def NumberOfUniqueItemsW(pCondition)
-		return len( This.UniqueItemsW(pCondition) )
+		return len( @oList.UniqueItemsW(pCondition) )
 
 		def CountUniqueItemsW(pCondition)
 			return This.NumberOfUniqueItemsW(pCondition)
@@ -56,7 +84,7 @@ class stzListCounter from stzList
 	#------------------------------------------------------------#
 
 	def CountItemsWXT(pCondition)
-		aItems = This.FindWXT(pCondition)
+		aItems = @oList.FindWXT(pCondition)
 		nResult = len(aItems)
 		return nResult
 
@@ -73,7 +101,7 @@ class stzListCounter from stzList
 			return This.CountItemsWXT(pCondition)
 
 	def NumberOfUniqueItemsWXT(pCondition)
-		return len( This.UniqueItemsWXT(pCondition) )
+		return len( @oList.UniqueItemsWXT(pCondition) )
 
 		def CountUniqueItemsWXT(pCondition)
 			return This.NumberOfUniqueItemsWXT(pCondition)
@@ -89,8 +117,8 @@ class stzListCounter from stzList
 	#====================================================================#
 
 	def InsertAfterW( pcCondition, pNewItem )
-		anPos = This.FindItemsW(pcCondition)
-		This.InsertAfterManyPositions( anPos, pNewItem )
+		anPos = @oList.FindItemsW(pcCondition)
+		@oList.InsertAfterManyPositions( anPos, pNewItem )
 
 		def InsertAfterWQ( pcCondition, pNewItem )
 			This.InsertAfterW( pCondition, pNewItem )
@@ -100,8 +128,8 @@ class stzListCounter from stzList
 			This.InsertAfterW(pCondition, pNewItem)
 
 	def InsertBeforeW(pcCondition, pNewItem)
-		anPos = This.FindItemsW(pcCondition)
-		This.InsertBeforeThesePositions(anPos, pNewItem)
+		anPos = @oList.FindItemsW(pcCondition)
+		@oList.InsertBeforeThesePositions(anPos, pNewItem)
 
 		def InsertBeforeWQ(pcCondition, pNewItem)
 			This.InsertBeforeW(pcCondition, pNewItem)
@@ -115,8 +143,8 @@ class stzListCounter from stzList
 	#------------------------------------------------------------------------------------#
 
 	def InsertAfterWXT( pcCondition, pNewItem )
-		anPos = This.FindItemsWXT(pcCondition)
-		This.InsertAfterManyPositions( anPos, pNewItem )
+		anPos = @oList.FindItemsWXT(pcCondition)
+		@oList.InsertAfterManyPositions( anPos, pNewItem )
 
 		def InsertAfterWXTQ( pcCondition, pNewItem )
 			This.InsertAfterWXT( pCondition, pNewItem )
@@ -126,8 +154,8 @@ class stzListCounter from stzList
 			This.InsertAfterWXT(pCondition, pNewItem)
 
 	def InsertBeforeWXT(pcCondition, pNewItem)
-		anPos = This.FindItemsWXT(pcCondition)
-		This.InsertBeforeThesePositions(anPos, pNewItem)
+		anPos = @oList.FindItemsWXT(pcCondition)
+		@oList.InsertBeforeThesePositions(anPos, pNewItem)
 
 		def InsertBeforeWXTQ(pcCondition, pNewItem)
 			This.InsertBeforeWXT(pcCondition, pNewItem)
@@ -188,7 +216,7 @@ class stzListCounter from stzList
 
 	def CountCS(pItem, pCaseSensitive)
 		if isString(pItem)
-			_pCntList = This._EngineListFromContent()
+			_pCntList = @oList._EngineListFromContent()
 			if _pCntList != NULL
 				_nCntResult = StzEngineListCountStringCS(_pCntList, pItem, pCaseSensitive)
 				StzEngineListFree(_pCntList)

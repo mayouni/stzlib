@@ -16,20 +16,48 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListTrimmer from stzList
+class stzListTrimmer
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListTrimmer! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	def TrimCS(pCaseSensitive)
-		_oCopy_ = This.Copy()
+		_oCopy_ = @oList.Copy()
 		_oCopy_.TrimLeftCS(pCaseSensitive)
 		_oCopy_.TrimRightCS(pCaseSensitive)
-		This.UpdateWith(_oCopy_.Content())
+		@oList.UpdateWith(_oCopy_.Content())
 
 		def TrimCSQ(pCaseSensitive)
 			This.TrimCS(pCaseSensitive)
 			return This
 
 	def TrimmedCS(pCaseSensitive)
-		aResult = This.Copy().TrimCSQ(pCaseSensitive).Content()
+		aResult = @oList.Copy().TrimCSQ(pCaseSensitive).Content()
 		return aResult
 
 	def Trim()
@@ -56,7 +84,7 @@ class stzListTrimmer from stzList
 			ok
 		next
 		if nStart > 0
-			This.RemoveSection(1, nStart)
+			@oList.RemoveSection(1, nStart)
 		ok
 
 		def TrimLeftCSQ(pCaseSensitive)
@@ -67,7 +95,7 @@ class stzListTrimmer from stzList
 		This.TrimLeftCS(1)
 
 	def TrimmedLeft()
-		return This.Copy().TrimLeftCSQ(1).Content()
+		return @oList.Copy().TrimLeftCSQ(1).Content()
 
 	def TrimRightCS(pCaseSensitive)
 		aContent = This.Content()
@@ -84,7 +112,7 @@ class stzListTrimmer from stzList
 			ok
 		next
 		if nEnd > 0
-			This.RemoveSection(nEnd, nLen)
+			@oList.RemoveSection(nEnd, nLen)
 		ok
 
 		def TrimRightCSQ(pCaseSensitive)
@@ -95,7 +123,7 @@ class stzListTrimmer from stzList
 		This.TrimRightCS(1)
 
 	def TrimmedRight()
-		return This.Copy().TrimRightCSQ(1).Content()
+		return @oList.Copy().TrimRightCSQ(1).Content()
 
 	  #======================================================#
 	 #   TRIM SPECIFIC ITEM                                 #
@@ -118,10 +146,10 @@ class stzListTrimmer from stzList
 
 	def TrimItemFromLeftCS(pItem, pCaseSensitive)
 		if isString(pItem) and pCaseSensitive = 1
-			_pTlList = This._EngineListFromContent()
+			_pTlList = @oList._EngineListFromContent()
 			if _pTlList != NULL
 				StzEngineListTrimLeadingString(_pTlList, pItem)
-				@aContent = This._ContentFromEngineList(_pTlList)
+				@oList.UpdateWith(@oList._ContentFromEngineList(_pTlList))
 				StzEngineListFree(_pTlList)
 				return
 			ok
@@ -137,7 +165,7 @@ class stzListTrimmer from stzList
 			ok
 		next
 		if nStart > 0
-			This.RemoveSection(1, nStart)
+			@oList.RemoveSection(1, nStart)
 		ok
 
 	def TrimItemFromLeft(pItem)
@@ -145,10 +173,10 @@ class stzListTrimmer from stzList
 
 	def TrimItemFromRightCS(pItem, pCaseSensitive)
 		if isString(pItem) and pCaseSensitive = 1
-			_pTrList = This._EngineListFromContent()
+			_pTrList = @oList._EngineListFromContent()
 			if _pTrList != NULL
 				StzEngineListTrimTrailingString(_pTrList, pItem)
-				@aContent = This._ContentFromEngineList(_pTrList)
+				@oList.UpdateWith(@oList._ContentFromEngineList(_pTrList))
 				StzEngineListFree(_pTrList)
 				return
 			ok
@@ -164,7 +192,7 @@ class stzListTrimmer from stzList
 			ok
 		next
 		if nEnd > 0
-			This.RemoveSection(nEnd, nLen)
+			@oList.RemoveSection(nEnd, nLen)
 		ok
 
 	def TrimItemFromRight(pItem)
@@ -193,14 +221,14 @@ class stzListTrimmer from stzList
 			ok
 		next
 
-		This.Update(aResult)
+		@oList.Update(aResult)
 
 		def CompactQ()
 			This.Compact()
 			return This
 
 	def Compacted()
-		return This.Copy().CompactQ().Content()
+		return @oList.Copy().CompactQ().Content()
 
 	  #======================================================#
 	 #   SQUEEZE (REMOVE CONSECUTIVE DUPLICATE EMPTY ITEMS) #
@@ -222,14 +250,14 @@ class stzListTrimmer from stzList
 			ok
 		next
 
-		This.Update(aResult)
+		@oList.Update(aResult)
 
 		def SqueezeQ()
 			This.Squeeze()
 			return This
 
 	def Squeezed()
-		return This.Copy().SqueezeQ().Content()
+		return @oList.Copy().SqueezeQ().Content()
 
 	  #======================================================#
 	 #   STRIP NULLS (REMOVE NULLS AND EMPTY STRINGS)      #
@@ -252,14 +280,14 @@ class stzListTrimmer from stzList
 			ok
 		next
 
-		This.Update(aResult)
+		@oList.Update(aResult)
 
 		def StripNullsQ()
 			This.StripNulls()
 			return This
 
 	def NullsStripped()
-		return This.Copy().StripNullsQ().Content()
+		return @oList.Copy().StripNullsQ().Content()
 
 	  #======================================================#
 	 #   TRIM TO SIZE (KEEP ONLY FIRST N ITEMS)            #
@@ -277,7 +305,7 @@ class stzListTrimmer from stzList
 			aResult + aContent[i]
 		next
 
-		This.Update(aResult)
+		@oList.Update(aResult)
 
 		def TrimToSizeQ(n)
 			This.TrimToSize(n)
@@ -301,12 +329,12 @@ class stzListTrimmer from stzList
 
 	def TrimW(pcCondition)
 		cNegated = "not (" + _StzStripBraces(pcCondition) + ")"
-		aResult = This.Filter(cNegated)
-		This.Update(aResult)
+		aResult = @oList.Filter(cNegated)
+		@oList.Update(aResult)
 
 		def TrimWQ(pcCondition)
 			This.TrimW(pcCondition)
 			return This
 
 	def TrimmedW(pcCondition)
-		return This.Copy().TrimWQ(pcCondition).Content()
+		return @oList.Copy().TrimWQ(pcCondition).Content()

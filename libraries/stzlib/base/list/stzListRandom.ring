@@ -17,7 +17,38 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListRandom from stzList
+class stzListRandom
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListRandom! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def List()
+		return @oList.List()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
 
 	  #===========================================#
 	 #   GETTING A RANDOM POSITION IN THE LIST   #
@@ -139,7 +170,7 @@ class stzListRandom from stzList
 	#=================================#
 
 	def RandomItem()
-		return This.ItemAt( This.RandomPosition() )
+		return @oList.ItemAt( This.RandomPosition() )
 
 		def ARandomItem()
 			return This.RandomItem()
@@ -197,7 +228,7 @@ class stzListRandom from stzList
 	#-----------------------------------------------------#
 
 	def RandomItemExceptPosition(n)
-		result = This.ItemAt( This.RandomPositionExcept(n) )
+		result = @oList.ItemAt( This.RandomPositionExcept(n) )
 		return result
 
 		def ARandomItemExceptPosition(n)
@@ -214,7 +245,7 @@ class stzListRandom from stzList
 	#=================================#
 
 	def NRandomItems(n)
-		pList = This._EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		pPicked = StzEngineListRandomItems(pList, n)
 		if pPicked != NULL
 			aResult = StzEngineContentFromList(pPicked)
@@ -234,9 +265,9 @@ class stzListRandom from stzList
 	#================================================#
 
 	def Randomize()
-		pList = This._EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListShuffle(pList)
-		This.UpdateWith( StzEngineContentFromList(pList) )
+		@oList.UpdateWith( StzEngineContentFromList(pList) )
 		StzEngineListFree(pList)
 
 		def RandomizeQ()
@@ -290,7 +321,7 @@ class stzListRandom from stzList
 
 		nLen = n2 - n1 + 1
 		anPos = NRandomNumbersBetweenU(nLen, n1, n2)
-		aItems = This.ItemsAtPositions(anPos)
+		aItems = @oList.ItemsAtPositions(anPos)
 
 		j = 0
 		for i = n1 to n2
@@ -298,7 +329,7 @@ class stzListRandom from stzList
 			aContent[i] = aItems[j]
 		next
 
-		This.UpdateWith(aContent)
+		@oList.UpdateWith(aContent)
 
 		def RandomizeSectionQ(n1, n2)
 			This.RandomizeSection(n1, n2)
@@ -311,7 +342,9 @@ class stzListRandom from stzList
 			This.RandomizeSection(n1, n2)
 
 	def SectionRandomized(n1, n2)
-		aResult = This.Copy().RandomizeSectionQ(n1, n2).Content()
+		oCopy = new stzListRandom(This.Content())
+		oCopy.RandomizeSection(n1, n2)
+		aResult = oCopy.Content()
 		return aResult
 
 		def SectionRandomised(n1, n2)
@@ -344,7 +377,9 @@ class stzListRandom from stzList
 			This.RandomizeSections(panSections)
 
 	def SectionsRandomized(panSections)
-		aResult = This.Copy().RandomizeSectionsQ(panSections).Content()
+		oCopy = new stzListRandom(This.Content())
+		oCopy.RandomizeSections(panSections)
+		aResult = oCopy.Content()
 		return aResult
 
 		def SectionsRandomised(panSections)
@@ -355,7 +390,7 @@ class stzListRandom from stzList
 	#=================================================#
 
 	def RandomizeNumbers()
-		aSections = This.FindNumbersAsSections()
+		aSections = @oList.FindNumbersAsSections()
 		This.RandomizeSections(aSections)
 
 		def RandomizeNumbersQ()
@@ -369,7 +404,9 @@ class stzListRandom from stzList
 			This.RandomizeNumbers()
 
 	def NumbersRandomized()
-		aResult = This.Copy().RandomizeNumbersQ().Content()
+		oCopy = new stzListRandom(This.Content())
+		oCopy.RandomizeNumbers()
+		aResult = oCopy.Content()
 		return aResult
 
 		def NumbersRandomised()
@@ -383,7 +420,7 @@ class stzListRandom from stzList
 	#=================================================#
 
 	def RandomizeStrings()
-		aSections = This.FindStringsAsSections()
+		aSections = @oList.FindStringsAsSections()
 		This.RandomizeSections(aSections)
 
 		def RandomizeStringsQ()
@@ -397,7 +434,9 @@ class stzListRandom from stzList
 			This.RandomizeStrings()
 
 	def StringsRandomized()
-		aResult = This.Copy().RandomizeStringsQ().Content()
+		oCopy = new stzListRandom(This.Content())
+		oCopy.RandomizeStrings()
+		aResult = oCopy.Content()
 		return aResult
 
 		def StringsRandomised()
@@ -411,7 +450,7 @@ class stzListRandom from stzList
 	#=================================================#
 
 	def RandomizeLists()
-		aSections = This.FindListsAsSections()
+		aSections = @oList.FindListsAsSections()
 		This.RandomizeSections(aSections)
 
 		def RandomizeListsQ()
@@ -425,7 +464,9 @@ class stzListRandom from stzList
 			This.RandomizeLists()
 
 	def ListsRandomized()
-		aResult = This.Copy().RandomizeListsQ().Content()
+		oCopy = new stzListRandom(This.Content())
+		oCopy.RandomizeLists()
+		aResult = oCopy.Content()
 		return aResult
 
 		def ListsRandomised()
@@ -439,7 +480,7 @@ class stzListRandom from stzList
 	#=================================================#
 
 	def RandomizeObjects()
-		aSections = This.FindObjectsAsSections()
+		aSections = @oList.FindObjectsAsSections()
 		This.RandomizeSections(aSections)
 
 		def RandomizeObjectsQ()
@@ -453,7 +494,9 @@ class stzListRandom from stzList
 			This.RandomizeObjects()
 
 	def ObjectsRandomized()
-		aResult = This.Copy().RandomizeObjectsQ().Content()
+		oCopy = new stzListRandom(This.Content())
+		oCopy.RandomizeObjects()
+		aResult = oCopy.Content()
 		return aResult
 
 		def ObjectsRandomised()

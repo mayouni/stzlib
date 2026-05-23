@@ -16,7 +16,44 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListSorter from stzList
+class stzListSorter
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListSorter! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
+
+	def Copy()
+		return new stzListSorter( @oList.Content() )
+
+	def UpdateWith(paNewContent)
+		@oList.UpdateWith(paNewContent)
+
+	def Update(paNewContent)
+		@oList.UpdateWith(paNewContent)
 
 	  #=============================#
 	 #  SORTING ORDER OF THE LIST  #
@@ -58,7 +95,7 @@ class stzListSorter from stzList
 		ok
 
 	def IsSortedInAscending()
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		bResult = StzEngineListIsSortedAscending(pList)
 		StzEngineListFree(pList)
 		return bResult
@@ -67,7 +104,7 @@ class stzListSorter from stzList
 			return This.IsSortedInAscending()
 
 	def IsSortedInDescending()
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		bResult = StzEngineListIsSortedDescending(pList)
 		StzEngineListFree(pList)
 		return bResult
@@ -83,9 +120,9 @@ class stzListSorter from stzList
 	#----------------------------------#
 
 	def SortInAscending()
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListSortCS(pList, 1)
-		This.UpdateWith(This._ContentFromEngineList(pList))
+		This.UpdateWith(@oList._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 		def SortInAscendingQ()
@@ -116,9 +153,9 @@ class stzListSorter from stzList
 	#-----------------------------------#
 
 	def SortInDescending()
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListSortDescendingCS(pList, 1)
-		This.UpdateWith(This._ContentFromEngineList(pList))
+		This.UpdateWith(@oList._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 		def SortInDescendingQ()
@@ -140,22 +177,22 @@ class stzListSorter from stzList
 	#--------------------------------------------#
 
 	def SortByInAscending(pcExpr)
-		pList = This._EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		if pList = NULL return ok
 
 		StzEngineListSortByExpr(pList, pcExpr, 1)
-		This.UpdateWith(This._ContentFromEngineList(pList))
+		This.UpdateWith(@oList._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 		def SortBy(pcExpr)
 			This.SortByInAscending(pcExpr)
 
 	def SortByInDescending(pcExpr)
-		pList = This._EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		if pList = NULL return ok
 
 		StzEngineListSortByExpr(pList, pcExpr, 0)
-		This.UpdateWith(This._ContentFromEngineList(pList))
+		This.UpdateWith(@oList._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 	  #-------------------------------------#
@@ -163,9 +200,9 @@ class stzListSorter from stzList
 	#-------------------------------------#
 
 	def Reverse()
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListReverse(pList)
-		This.UpdateWith(This._ContentFromEngineList(pList))
+		This.UpdateWith(@oList._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 		def ReverseQ()
@@ -176,9 +213,9 @@ class stzListSorter from stzList
 			This.Reverse()
 
 	def Reversed()
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListReverse(pList)
-		aResult = This._ContentFromEngineList(pList)
+		aResult = @oList._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
 		return aResult
 
@@ -302,9 +339,9 @@ class stzListSorter from stzList
 	def Ranked()
 		aContent = This.Content()
 		nLen = len(aContent)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListSortCS(pList, 1)
-		aSorted = This._ContentFromEngineList(pList)
+		aSorted = @oList._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
 
 		aResult = []
@@ -323,9 +360,9 @@ class stzListSorter from stzList
 	#==============================#
 
 	def NthSmallest(n)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListSortCS(pList, 1)
-		aSorted = This._ContentFromEngineList(pList)
+		aSorted = @oList._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
 		if n >= 1 and n <= len(aSorted)
 			return aSorted[n]
@@ -333,9 +370,9 @@ class stzListSorter from stzList
 		return NULL
 
 	def NthLargest(n)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListSortDescendingCS(pList, 1)
-		aSorted = This._ContentFromEngineList(pList)
+		aSorted = @oList._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
 		if n >= 1 and n <= len(aSorted)
 			return aSorted[n]
@@ -353,9 +390,9 @@ class stzListSorter from stzList
 			return 0
 		ok
 
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		StzEngineListSortCS(pList, 1)
-		aSorted = This._ContentFromEngineList(pList)
+		aSorted = @oList._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
 		if nLen % 2 = 1
 			return aSorted[ (nLen + 1) / 2 ]

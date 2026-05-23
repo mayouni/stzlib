@@ -16,7 +16,47 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListMerger from stzList
+class stzListMerger
+
+	@oList
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pListOrObj)
+		if isList(pListOrObj)
+			@oList = new stzList(pListOrObj)
+		but isObject(pListOrObj)
+			@oList = pListOrObj
+		else
+			StzRaise("Can't create stzListMerger! Parameter must be a list or stzList object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oList.Content()
+
+	def NumberOfItems()
+		return @oList.NumberOfItems()
+
+	def IsEmpty()
+		return @oList.IsEmpty()
+
+	def Copy()
+		return new stzListMerger( @oList.Content() )
+
+	def Update(paNewContent)
+		@oList.UpdateWith(paNewContent)
+
+	def UpdateWith(paNewContent)
+		@oList.UpdateWith(paNewContent)
+
+	def Add(pItem)
+		@oList.Add(pItem)
 
 	def Merge()
 		aContent = This.Content()
@@ -124,7 +164,7 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def InterleaveWith(paOtherList)
-		pList1 = _EngineListFromContent()
+		pList1 = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListInterleave(pList1, pList2)
@@ -146,7 +186,7 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def ZipWith(paOtherList)
-		pList1 = _EngineListFromContent()
+		pList1 = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListZip(pList1, pList2)
@@ -214,7 +254,7 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def DiffWith(paOtherList)
-		pList1 = _EngineListFromContent()
+		pList1 = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListDifferenceCS(pList1, pList2, 1)
@@ -236,7 +276,7 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def IntersectWith(paOtherList)
-		pList1 = _EngineListFromContent()
+		pList1 = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListIntersectionCS(pList1, pList2, 1)
@@ -258,7 +298,7 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def UnionWith(paOtherList)
-		pList1 = _EngineListFromContent()
+		pList1 = @oList._EngineListFromContent()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListUnionCS(pList1, pList2, 1)
@@ -277,7 +317,7 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def Partition(n)
-		pList = _EngineListFromContent()
+		pList = @oList._EngineListFromContent()
 		pResult = StzEngineListPartition(pList, n)
 		StzEngineListFree(pList)
 		aResult = StzEngineContentFromList(pResult)
