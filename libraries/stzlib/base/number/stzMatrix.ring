@@ -226,15 +226,7 @@ class stzMatrix
 		if @pEngineMatrix != NULL
 			return
 		ok
-		@pEngineMatrix = StzEngineMatrixNew(@nRows, @nCols)
-		if @pEngineMatrix = NULL
-			return
-		ok
-		for _iEm = 1 to @nRows
-			for _jEm = 1 to @nCols
-				StzEngineMatrixSet(@pEngineMatrix, _iEm - 1, _jEm - 1, @aMatrix[_iEm][_jEm])
-			next
-		next
+		@pEngineMatrix = StzEngineMatrixNewFromList(@nRows, @nCols, @aMatrix)
 
 	def _InvalidateEngineMatrix()
 		if @pEngineMatrix != NULL
@@ -842,13 +834,8 @@ class stzMatrix
 		# Engine fast path
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix != NULL
-			_pMbB = StzEngineMatrixNew(nInputRows, nInputCols)
+			_pMbB = StzEngineMatrixNewFromList(nInputRows, nInputCols, paMatrix)
 			if _pMbB != NULL
-				for _iMb = 1 to nInputRows
-					for _jMb = 1 to nInputCols
-						StzEngineMatrixSet(_pMbB, _iMb - 1, _jMb - 1, paMatrix[_iMb][_jMb])
-					next
-				next
 				_pMbResult = StzEngineMatrixMultiply(@pEngineMatrix, _pMbB)
 				StzEngineMatrixFree(_pMbB)
 				if _pMbResult != NULL

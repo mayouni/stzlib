@@ -15,6 +15,19 @@ pub extern fn ring_vm_api_retstring(p: *anyopaque, s: [*:0]const u8) void;
 pub extern fn ring_vm_api_retstring2(p: *anyopaque, s: [*]const u8, len: c_uint) void;
 pub extern fn ring_vm_api_retcpointer(p: *anyopaque, ptr: ?*anyopaque, cType: [*:0]const u8) void;
 
+// Ring List C API — for bulk-loading Ring lists in Zig (no per-element FFI from Ring)
+pub extern fn ring_vm_api_getlist(p: *anyopaque, n: c_int) ?*anyopaque;
+pub extern fn ring_vm_api_islist(p: *anyopaque, n: c_int) c_int;
+pub extern fn ring_list_getitem_gc(pState: ?*anyopaque, pList: *anyopaque, nIndex: c_uint) ?*anyopaque;
+pub extern fn ring_list_getlist_gc(pState: ?*anyopaque, pList: *anyopaque, nIndex: c_uint) ?*anyopaque;
+pub extern fn ring_list_gettype_gc(pState: ?*anyopaque, pList: *anyopaque, nIndex: c_uint) c_uint;
+pub extern fn ring_list_isnumber_gc(pState: ?*anyopaque, pList: *anyopaque, nIndex: c_uint) c_uint;
+pub extern fn ring_list_islist_gc(pState: ?*anyopaque, pList: *anyopaque, nIndex: c_uint) c_uint;
+pub extern fn ring_item_getnumber(pItem: *anyopaque) f64;
+
+pub const gl = ring_vm_api_getlist;
+pub const il = ring_vm_api_islist;
+
 pub const Reg = struct { name: [*:0]const u8, func: *const fn (*anyopaque) callconv(.c) void };
 
 pub fn registerAll(state: *anyopaque, regs: []const Reg) void {
