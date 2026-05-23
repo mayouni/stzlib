@@ -1876,6 +1876,77 @@ pub fn stz_list_sorted_insert(list_arg: ?*StzList, v: ?*const StzValue) callconv
 
 // ─── Tests ───
 
+pub fn stz_list_join(list_arg: ?*const StzList, sep: [*c]const u8, sep_len: usize, out_buf: [*c]u8, out_cap: usize) callconv(.c) usize {
+    const l = list_arg orelse return 0;
+    const n = l.len();
+    if (n == 0) return 0;
+    const separator = if (sep_len > 0 and sep != null) sep[0..sep_len] else "";
+    var pos: usize = 0;
+    for (0..n) |i| {
+        if (i > 0 and separator.len > 0) {
+            if (pos + separator.len > out_cap) break;
+            @memcpy(out_buf[pos .. pos + separator.len], separator);
+            pos += separator.len;
+        }
+        const item = l.items.items[i];
+        switch (item.tag) {
+            .string_val => {
+                const sd = item.data.string_val;
+                if (sd.len == 0) continue;
+                if (pos + sd.len > out_cap) break;
+                @memcpy(out_buf[pos .. pos + sd.len], sd.ptr[0..sd.len]);
+                pos += sd.len;
+            },
+            .int_val => {
+                var buf: [32]u8 = undefined;
+                const s = std.fmt.bufPrint(&buf, "{d}", .{item.data.int_val}) catch continue;
+                if (pos + s.len > out_cap) break;
+                @memcpy(out_buf[pos .. pos + s.len], s);
+                pos += s.len;
+            },
+            .float_val => {
+                var buf: [64]u8 = undefined;
+                const s = std.fmt.bufPrint(&buf, "{d}", .{item.data.float_val}) catch continue;
+                if (pos + s.len > out_cap) break;
+                @memcpy(out_buf[pos .. pos + s.len], s);
+                pos += s.len;
+            },
+            else => {},
+        }
+    }
+    return pos;
+}
+
+test "list join basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "c", 1);
+    var buf: [64]u8 = undefined;
+    const n = stz_list_join(l, ", ", 2, &buf, 64);
+    try std.testing.expectEqualStrings("a, b, c", buf[0..n]);
+}
+
+test "list join numbers" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    var buf: [64]u8 = undefined;
+    const n = stz_list_join(l, "-", 1, &buf, 64);
+    try std.testing.expectEqualStrings("1-2-3", buf[0..n]);
+}
+
+test "list join empty" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    var buf: [64]u8 = undefined;
+    const n = stz_list_join(l, ",", 1, &buf, 64);
+    try std.testing.expectEqual(@as(usize, 0), n);
+}
+
 test "list basic append and get" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);

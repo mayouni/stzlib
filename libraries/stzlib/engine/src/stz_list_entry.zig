@@ -87,6 +87,7 @@ comptime {
     @export(&list.stz_list_remove_trailing_cs, .{ .name = "stz_list_remove_trailing_cs" });
     @export(&list.stz_list_split_at, .{ .name = "stz_list_split_at" });
     @export(&list.stz_list_sorted_insert, .{ .name = "stz_list_sorted_insert" });
+    @export(&list.stz_list_join, .{ .name = "stz_list_join" });
     @export(&list.stz_string_find_chars_w, .{ .name = "stz_string_find_chars_w" });
     @export(&list.stz_string_map_chars, .{ .name = "stz_string_map_chars" });
     @export(&list.stz_string_count_chars_w, .{ .name = "stz_string_count_chars_w" });
