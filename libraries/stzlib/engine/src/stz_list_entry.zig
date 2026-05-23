@@ -88,6 +88,11 @@ comptime {
     @export(&list.stz_list_split_at, .{ .name = "stz_list_split_at" });
     @export(&list.stz_list_sorted_insert, .{ .name = "stz_list_sorted_insert" });
     @export(&list.stz_list_join, .{ .name = "stz_list_join" });
+    @export(&list.stz_list_sum, .{ .name = "stz_list_sum" });
+    @export(&list.stz_list_min, .{ .name = "stz_list_min" });
+    @export(&list.stz_list_max, .{ .name = "stz_list_max" });
+    @export(&list.stz_list_product, .{ .name = "stz_list_product" });
+    @export(&list.stz_list_mean, .{ .name = "stz_list_mean" });
     @export(&list.stz_string_find_chars_w, .{ .name = "stz_string_find_chars_w" });
     @export(&list.stz_string_map_chars, .{ .name = "stz_string_map_chars" });
     @export(&list.stz_string_count_chars_w, .{ .name = "stz_string_count_chars_w" });

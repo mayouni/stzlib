@@ -1600,7 +1600,7 @@ class stzListOfNumbers from stzList
 	// in strings to conserve their round.
 	def init(paList)
 		if isList(paList) and
-		   ( Q(paList).IsEmpty() or Q(paList).IsListOfNumbers() )
+		   ( len(paList) = 0 or @IsListOfNumbers(paList) )
 	
 			@aContent = paList
 	
@@ -1970,6 +1970,13 @@ class stzListOfNumbers from stzList
 		return nResult
 
 	def Min()
+		_pMiList = This._EngineListFromContent()
+		if _pMiList != NULL
+			_nMiResult = StzEngineListMin(_pMiList)
+			StzEngineListFree(_pMiList)
+			return _nMiResult
+		ok
+
 		anContent = This.Content()
 		nResult = new stzList( anContent ).Sorted()[1]
 		return nResult
@@ -2389,6 +2396,13 @@ class stzListOfNumbers from stzList
 		return nResult
 
 	def Max()
+		_pMxList = This._EngineListFromContent()
+		if _pMxList != NULL
+			_nMxResult = StzEngineListMax(_pMxList)
+			StzEngineListFree(_pMxList)
+			return _nMxResult
+		ok
+
 		anContent = This.Content()
 		nResult = new stzList( anContent ).SortedInDescending()[1]
 		return nResult
@@ -3698,6 +3712,12 @@ class stzListOfNumbers from stzList
 	#---------------------------#
 
 	def Product()
+		_pPrList = This._EngineListFromContent()
+		if _pPrList != NULL
+			_nPrResult = StzEngineListProduct(_pPrList)
+			StzEngineListFree(_pPrList)
+			return _nPrResult
+		ok
 
 		anContent = This.Content()
 		nLen = len(anContent)
@@ -3711,7 +3731,13 @@ class stzListOfNumbers from stzList
 		return nResult
 
 	def Sum()
-		
+		_pSmList = This._EngineListFromContent()
+		if _pSmList != NULL
+			_nSmResult = StzEngineListSum(_pSmList)
+			StzEngineListFree(_pSmList)
+			return _nSmResult
+		ok
+
 		anContent = This.Content()
 		nLen = len(anContent)
 		nResult = 0
@@ -3723,6 +3749,13 @@ class stzListOfNumbers from stzList
 		return nResult
 
 	def Mean()
+		_pMnList = This._EngineListFromContent()
+		if _pMnList != NULL
+			_nMnResult = StzEngineListMean(_pMnList)
+			StzEngineListFree(_pMnList)
+			return _nMnResult
+		ok
+
 		return Sum() / (This.NumberOfNumbers())
 
 		def Average()
