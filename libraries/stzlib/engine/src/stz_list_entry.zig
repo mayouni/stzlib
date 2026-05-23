@@ -79,6 +79,12 @@ comptime {
     @export(&list.stz_list_trim, .{ .name = "stz_list_trim" });
     @export(&list.stz_list_section, .{ .name = "stz_list_section" });
     @export(&list.stz_list_swap, .{ .name = "stz_list_swap" });
+    @export(&list.stz_list_leading_count_cs, .{ .name = "stz_list_leading_count_cs" });
+    @export(&list.stz_list_trailing_count_cs, .{ .name = "stz_list_trailing_count_cs" });
+    @export(&list.stz_list_starts_with_cs, .{ .name = "stz_list_starts_with_cs" });
+    @export(&list.stz_list_ends_with_cs, .{ .name = "stz_list_ends_with_cs" });
+    @export(&list.stz_list_remove_leading_cs, .{ .name = "stz_list_remove_leading_cs" });
+    @export(&list.stz_list_remove_trailing_cs, .{ .name = "stz_list_remove_trailing_cs" });
     @export(&list.stz_string_find_chars_w, .{ .name = "stz_string_find_chars_w" });
     @export(&list.stz_string_map_chars, .{ .name = "stz_string_map_chars" });
     @export(&list.stz_string_count_chars_w, .{ .name = "stz_string_count_chars_w" });

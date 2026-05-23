@@ -1699,6 +1699,89 @@ pub fn stz_list_swap(list_arg: ?*StzList, i: usize, j: usize) callconv(.c) i32 {
     return 0;
 }
 
+// ─── C ABI: Leading / Trailing ───
+
+pub fn stz_list_leading_count_cs(list: ?*const StzList, case_sensitive: i32) callconv(.c) i64 {
+    const l = list orelse return 0;
+    const n = l.len();
+    if (n < 2) return 0;
+    const cs = case_sensitive != 0;
+    const first = l.items.items[0];
+    var count: i64 = 1;
+    var i: usize = 1;
+    while (i < n) : (i += 1) {
+        if (valueEqlCS(l.items.items[i], first, cs)) {
+            count += 1;
+        } else break;
+    }
+    if (count < 2) return 0;
+    return count;
+}
+
+pub fn stz_list_trailing_count_cs(list: ?*const StzList, case_sensitive: i32) callconv(.c) i64 {
+    const l = list orelse return 0;
+    const n = l.len();
+    if (n < 2) return 0;
+    const cs = case_sensitive != 0;
+    const last = l.items.items[n - 1];
+    var count: i64 = 1;
+    var i: usize = n - 1;
+    while (i > 0) {
+        i -= 1;
+        if (valueEqlCS(l.items.items[i], last, cs)) {
+            count += 1;
+        } else break;
+    }
+    if (count < 2) return 0;
+    return count;
+}
+
+pub fn stz_list_starts_with_cs(list: ?*const StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return 0;
+    if (l.len() == 0) return 0;
+    const needle = v orelse return 0;
+    const cs = case_sensitive != 0;
+    return if (valueEqlCS(l.items.items[0], needle, cs)) 1 else 0;
+}
+
+pub fn stz_list_ends_with_cs(list: ?*const StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return 0;
+    const n = l.len();
+    if (n == 0) return 0;
+    const needle = v orelse return 0;
+    const cs = case_sensitive != 0;
+    return if (valueEqlCS(l.items.items[n - 1], needle, cs)) 1 else 0;
+}
+
+pub fn stz_list_remove_leading_cs(list: ?*StzList, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return -1;
+    const count = stz_list_leading_count_cs(l, case_sensitive);
+    if (count < 2) return 0;
+    const to_remove: usize = @intCast(count - 1);
+    var i: usize = 0;
+    while (i < to_remove) : (i += 1) {
+        const item = l.items.orderedRemove(0);
+        item.deinit();
+        allocator.destroy(item);
+    }
+    return @intCast(to_remove);
+}
+
+pub fn stz_list_remove_trailing_cs(list: ?*StzList, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return -1;
+    const count = stz_list_trailing_count_cs(l, case_sensitive);
+    if (count < 2) return 0;
+    const to_remove: usize = @intCast(count - 1);
+    var i: usize = 0;
+    while (i < to_remove) : (i += 1) {
+        const idx = l.len() - 1;
+        const item = l.items.orderedRemove(idx);
+        item.deinit();
+        allocator.destroy(item);
+    }
+    return @intCast(to_remove);
+}
+
 // ─── Tests ───
 
 test "list basic append and get" {
@@ -3440,4 +3523,141 @@ test "replace_all_cs case insensitive" {
     try std.testing.expect(std.mem.eql(u8, buf[0..n], "world"));
     n = stz_list_get_string(l, 2, &buf, 64);
     try std.testing.expect(std.mem.eql(u8, buf[0..n], "hi"));
+}
+
+// ─── Leading / Trailing tests ───
+
+test "leading_count_cs with repeated leading" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "c", 1);
+    try std.testing.expectEqual(@as(i64, 3), stz_list_leading_count_cs(l, 1));
+}
+
+test "leading_count_cs no repeat" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    try std.testing.expectEqual(@as(i64, 0), stz_list_leading_count_cs(l, 1));
+}
+
+test "leading_count_cs case insensitive" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "Hello", 5);
+    _ = stz_list_append_string(l, "hello", 5);
+    _ = stz_list_append_string(l, "HELLO", 5);
+    _ = stz_list_append_string(l, "world", 5);
+    try std.testing.expectEqual(@as(i64, 3), stz_list_leading_count_cs(l, 0));
+    try std.testing.expectEqual(@as(i64, 0), stz_list_leading_count_cs(l, 1));
+}
+
+test "trailing_count_cs with repeated trailing" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "c", 1);
+    _ = stz_list_append_string(l, "c", 1);
+    _ = stz_list_append_string(l, "c", 1);
+    try std.testing.expectEqual(@as(i64, 3), stz_list_trailing_count_cs(l, 1));
+}
+
+test "trailing_count_cs no repeat" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    try std.testing.expectEqual(@as(i64, 0), stz_list_trailing_count_cs(l, 1));
+}
+
+test "starts_with_cs match" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "hello", 5);
+    _ = stz_list_append_string(l, "world", 5);
+    const v = value_mod.stz_value_new_string("hello", 5) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_starts_with_cs(l, v, 1));
+}
+
+test "starts_with_cs case insensitive" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "Hello", 5);
+    _ = stz_list_append_string(l, "world", 5);
+    const v = value_mod.stz_value_new_string("hello", 5) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_starts_with_cs(l, v, 1));
+    try std.testing.expectEqual(@as(i32, 1), stz_list_starts_with_cs(l, v, 0));
+}
+
+test "ends_with_cs match" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "hello", 5);
+    _ = stz_list_append_string(l, "world", 5);
+    const v = value_mod.stz_value_new_string("world", 5) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_ends_with_cs(l, v, 1));
+}
+
+test "ends_with_cs no match" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "hello", 5);
+    _ = stz_list_append_string(l, "world", 5);
+    const v = value_mod.stz_value_new_string("hello", 5) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_ends_with_cs(l, v, 1));
+}
+
+test "remove_leading_cs removes duplicates" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "x", 1);
+    _ = stz_list_append_string(l, "x", 1);
+    _ = stz_list_append_string(l, "x", 1);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    const removed = stz_list_remove_leading_cs(l, 1);
+    try std.testing.expectEqual(@as(i32, 2), removed);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(l));
+    var buf: [64]u8 = undefined;
+    var n = stz_list_get_string(l, 0, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "x"));
+    n = stz_list_get_string(l, 1, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "a"));
+}
+
+test "remove_trailing_cs removes duplicates" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "y", 1);
+    _ = stz_list_append_string(l, "y", 1);
+    _ = stz_list_append_string(l, "y", 1);
+    const removed = stz_list_remove_trailing_cs(l, 1);
+    try std.testing.expectEqual(@as(i32, 2), removed);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(l));
+    var buf: [64]u8 = undefined;
+    var n = stz_list_get_string(l, 0, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "a"));
+    n = stz_list_get_string(l, 2, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "y"));
+}
+
+test "remove_leading_cs no repeat returns 0" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_remove_leading_cs(l, 1));
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(l));
 }

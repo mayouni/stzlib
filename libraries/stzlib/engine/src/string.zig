@@ -177,6 +177,8 @@ pub const str_starts_with_any = find.str_starts_with_any;
 pub const str_ends_with_any_cs = find.str_ends_with_any_cs;
 pub const str_ends_with_any = find.str_ends_with_any;
 pub const str_duplicate_substrings_cs = find.str_duplicate_substrings_cs;
+pub const str_between_cs = find.str_between_cs;
+pub const str_section_cp = find.str_section_cp;
 
 // ─── Replace submodule imports ───
 const replace = @import("string/replace.zig");
