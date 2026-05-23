@@ -395,8 +395,8 @@ func StzAssociativeListQ(paList)
 class stzAssociativeList from stzHashList
 
 class stzHashList from stzList # Also called stzAssociativeList
-	// Key-valye list where key is string
 	@aContent = []
+	@pEngineMap = NULL
 
 	  #--------------#
 	 #     INIT     #
@@ -410,31 +410,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		/*
-		There is a bug in Ring 1.14 (4th, may. 2021)
-		Read about it here: https://groups.google.com/g/ring-lang/c/fY6Lh-LDwJg
-
-		The bug occurs when you provide a hashlist using the '=' syntax
-		and you have the keys containing numbers, like this:
-
-		aList = [
-			"1" = [ "text 1", 100 ],
-			"2" = [ "text 2", 200 ],
-			"3" = [ "text 3", 300 ]
-		]
-
-		In this case, the keys dissapear completely from the list.
-
-		So if you look for Content() or Keys() you don't find them.
-		More interestingly, if you won't be able to access the list using them 
-
-		UPDATE: This has been resolved in Ring 1.16 I think...
-		--> Check it and if so, remove this comment!
-		*/
-
-		# Lowercasing all the keys of the hashlist
-		#TODO // Is this really necessary?
-
 		nLen = len(p)
 		for i = 1 to nLen
 			p[i][1] = StzLower(p[i][1])
@@ -442,10 +417,48 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		@aContent = p
 
-
-
 		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
+		ok
+
+	  #===============================#
+	 #   ENGINE HASHMAP HELPERS     #
+	#===============================#
+
+	def _EnsureEngineMap()
+		if @pEngineMap != NULL
+			return
+		ok
+
+		@pEngineMap = StzEngineHashMapNew()
+		if @pEngineMap = NULL
+			return
+		ok
+
+		_aEmContent = @aContent
+		_nEmLen = len(_aEmContent)
+
+		for _iEm = 1 to _nEmLen
+			_cEmKey = _aEmContent[_iEm][1]
+			_vEmVal = _aEmContent[_iEm][2]
+
+			if isString(_vEmVal)
+				StzEngineHashMapPutString(@pEngineMap, _cEmKey, _vEmVal)
+			but isNumber(_vEmVal)
+				if isInteger(_vEmVal)
+					StzEngineHashMapPutInt(@pEngineMap, _cEmKey, _vEmVal)
+				else
+					StzEngineHashMapPutFloat(@pEngineMap, _cEmKey, _vEmVal)
+				ok
+			else
+				StzEngineHashMapPutString(@pEngineMap, _cEmKey, @@(_vEmVal))
+			ok
+		next
+
+	def _InvalidateEngineMap()
+		if @pEngineMap != NULL
+			StzEngineHashMapFree(@pEngineMap)
+			@pEngineMap = NULL
 		ok
 
 	  #-------------#
@@ -521,7 +534,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		nLen = len(aContent)
 
 		aResult = []
-		
+
 		for i = 1 to nLen
 			aResult + aContent[i][1]
 		next
@@ -984,15 +997,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 				paNewHashList = paNewHashList[2]
 			ok
 
-			if NOT( isList(paNewHashList) and IsHashList(paNewHashList) )
+			if NOT( isList(paNewHashList) and @IsHashList(paNewHashList) )
 				StzRaise("Incorrect param type! paNewHashList must be a hashlist.")
 			ok
 		ok
 
 		@aContent = paNewHashList
+		This._InvalidateEngineMap()
 
 		if KeepingHisto() = 1
-			This.AddHistoricValue(This.Content())  # From the parent stzObject
+			This.AddHistoricValue(This.Content())
 		ok
 	
 
@@ -1238,14 +1252,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def InsertBefore(n, paPair)
 		if n > 1 and n <= This.NumberOfPairs()
 			insert( This.HashList, n-1, paPair)
+			This._InvalidateEngineMap()
 		ok
 
 		def InsertBeforeQ(n, paPair)
 			This.InsertBefore(n, paPair)
 			return This
-	
+
 	def InsertAfter(n, paPair)
 		insert( This.HashList, n, paPair)
+		This._InvalidateEngineMap()
 
 		def InsertAfterQ(n, paPair)
 			This.InsertAfter(n, paPair)
@@ -1297,6 +1313,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		n = This.FindKey(pcKey)
 		if n > 0
 			del( This.HashList(), n)
+			This._InvalidateEngineMap()
 		ok
 
 		def RemovePairByKeyQ(pcKey)
@@ -1366,6 +1383,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		This.NthPair(n)[1] = pcNewKey
+		This._InvalidateEngineMap()
 
 		def ReplaceNthKeyQ(n, pcNewKey)
 			This.ReplaceNthKey(n, pcNewKey)
@@ -1416,6 +1434,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		This.NthPair(n)[2] = pNewValue
+		This._InvalidateEngineMap()
 
 		#NOTE // Normally Set... does not belong to Softanza semantics,
 		# we use Replace instead. Here I use to cope with AI-generated
@@ -1452,6 +1471,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def ReplaceValueByKey(pcKey, pNewValue)
 		n = This.FindKey(pckey)
 		This.HashList()[n][2] = pNewValue
+		This._InvalidateEngineMap()
 
 		def ReplaceValueByKeyQ(pcKey, pNewValue)
 			This.ReplaceValueByKey(pcKey, pNewValue)
@@ -1502,19 +1522,28 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def FindKey(pcKey)
 
 		if isString(pcKey)
+			This._EnsureEngineMap()
+			if @pEngineMap != NULL
+				return StzEngineHashMapFindKey(@pEngineMap, pcKey)
+			ok
 			return StzFind( Keys(), pcKey)
 		ok
 
 		def FindThisKey(pcKey)
-			return This.Key(pcKey)
+			return This.FindKey(pcKey)
 
 	def HasKey(pcKey)
 
-		if isString(pcKey) and This.FindKey(pcKey) > 0
-			return 1
-		else
-			return 0
+		if isString(pcKey)
+			This._EnsureEngineMap()
+			if @pEngineMap != NULL
+				return StzEngineHashMapHasKey(@pEngineMap, pcKey)
+			ok
+			if This.FindKey(pcKey) > 0
+				return 1
+			ok
 		ok
+		return 0
 
 		def ContainsKey(pcKey)
 			return This.HasKey(pcKey)

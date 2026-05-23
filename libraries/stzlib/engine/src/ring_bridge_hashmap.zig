@@ -83,6 +83,12 @@ fn ring_HasKey(p: *anyopaque) callconv(.c) void {
 fn ring_HasKeyCS(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(hashmap.stz_hashmap_has_key_cs(getMC(p, 1), gs(p, 2), @intCast(gss(p, 2)), @intFromFloat(g(p, 3)))));
 }
+fn ring_FindKey(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(hashmap.stz_hashmap_find_key(getMC(p, 1), gs(p, 2), @intCast(gss(p, 2)))));
+}
+fn ring_FindKeyCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(hashmap.stz_hashmap_find_key_cs(getMC(p, 1), gs(p, 2), @intCast(gss(p, 2)), @intFromFloat(g(p, 3)))));
+}
 fn ring_Remove(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(hashmap.stz_hashmap_remove(getM(p, 1), gs(p, 2), @intCast(gss(p, 2)))));
 }
@@ -136,6 +142,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginehashmapgetstring", .func = &ring_GetString },
     .{ .name = "stzenginehashmaphaskey", .func = &ring_HasKey },
     .{ .name = "stzenginehashmaphaskeycs", .func = &ring_HasKeyCS },
+    .{ .name = "stzenginehashmapfindkey", .func = &ring_FindKey },
+    .{ .name = "stzenginehashmapfindkeycs", .func = &ring_FindKeyCS },
     .{ .name = "stzenginehashmapremove", .func = &ring_Remove },
     .{ .name = "stzenginehashmapkeyat", .func = &ring_KeyAt },
     .{ .name = "stzenginehashmapvalueat", .func = &ring_ValueAt },
