@@ -33,6 +33,7 @@ pub const table = @import("table.zig");
 pub const pivot = @import("pivot.zig");
 pub const matrix = @import("matrix.zig");
 pub const random = @import("random.zig");
+pub const csv = @import("csv.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -395,6 +396,15 @@ comptime {
     @export(&random.stz_random_bool, .{ .name = "stz_random_bool" });
     @export(&random.stz_random_weighted, .{ .name = "stz_random_weighted" });
 
+    // ─── Foundation: CSV operations ───
+    @export(&csv.stz_csv_parse, .{ .name = "stz_csv_parse" });
+    @export(&csv.stz_csv_free, .{ .name = "stz_csv_free" });
+    @export(&csv.stz_csv_row_count, .{ .name = "stz_csv_row_count" });
+    @export(&csv.stz_csv_col_count, .{ .name = "stz_csv_col_count" });
+    @export(&csv.stz_csv_get_cell, .{ .name = "stz_csv_get_cell" });
+    @export(&csv.stz_csv_is_valid, .{ .name = "stz_csv_is_valid" });
+    @export(&csv.stz_csv_to_string, .{ .name = "stz_csv_to_string" });
+
     // ─── Foundation: List operations ───
     @export(&list.stz_list_new, .{ .name = "stz_list_new" });
     @export(&list.stz_list_free, .{ .name = "stz_list_free" });
@@ -523,4 +533,5 @@ test {
     _ = pivot;
     _ = matrix;
     _ = random;
+    _ = csv;
 }
