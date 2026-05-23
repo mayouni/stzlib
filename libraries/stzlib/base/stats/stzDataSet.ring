@@ -1001,6 +1001,7 @@ class stzDataSet
 	@bFirstChain = FALSE
 
     @nMinSampleSize = 3  # Minimum for advanced statistics
+    @pEngineStats = NULL
 
     def init(paData)
         if CheckParams()
@@ -1012,6 +1013,7 @@ class stzDataSet
         @anData = This._CleanData(paData)
         This._DetectDataType()
         This._InitializeCache()
+        This._InitEngine()
 
     def _CleanData(paData)
         # Remove missing values and prepare data
@@ -1075,24 +1077,15 @@ class stzDataSet
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
         ok
-        
-        cKey = "mean"
-        nCached = This._GetCached(cKey)
-
-        if NOT IsNull(nCached)
-            return nCached
+        if This._EngineAvailable()
+            return StzEngineStatsMean(@pEngineStats)
         ok
-        
         nSum = 0
         nLen = len(@anData)
-        
         for i = 1 to nLen
             nSum += @anData[i]
         next
-        
-        nMean = nSum / nLen
-        This._SetCache(cKey, nMean)
-        return nMean
+        return nSum / nLen
 
 		def Average()
 			return This.Mean()
@@ -1105,28 +1098,16 @@ class stzDataSet
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
         ok
-        
-        cKey = "median"
-        nCached = This._GetCached(cKey)
-
-        if NOT IsNull(nCached)
-            return nCached
+        if This._EngineAvailable()
+            return StzEngineStatsMedian(@pEngineStats)
         ok
-        
         This._SortIfNeeded()
         nLen = len(@anSortedData)
-        
-        nMedian = 0
         if nLen % 2 = 1
-            nMedian = @anSortedData[ceil(nLen/2)]
+            return @anSortedData[ceil(nLen/2)]
         else
-            nMid1 = @anSortedData[nLen/2] 
-            nMid2 = @anSortedData[nLen/2 + 1]
-            nMedian = (nMid1 + nMid2) / 2
+            return (@anSortedData[nLen/2] + @anSortedData[nLen/2 + 1]) / 2
         ok
-        
-        This._SetCache(cKey, nMedian)
-        return nMedian
 
 
 	def Mode()
@@ -1185,27 +1166,17 @@ class stzDataSet
         if @cDataType != "numeric" or len(@anData) <= 1
             return 0
         ok
-        
-        cKey = "stddev"
-        nCached = This._GetCached(cKey)
-
-        if NOT IsNull(nCached)
-            return nCached
+        if This._EngineAvailable()
+            return StzEngineStatsStdDev(@pEngineStats)
         ok
-        
         nMean = This.Mean()
         nSumSquares = 0
         nLen = len(@anData)
-        
         for i = 1 to nLen
             nDiff = @anData[i] - nMean
             nSumSquares += (nDiff * nDiff)
         next
-        
-        nVariance = nSumSquares / (nLen - 1)
-        nStdDev = sqrt(nVariance)
-        This._SetCache(cKey, nStdDev)
-        return nStdDev
+        return sqrt(nSumSquares / (nLen - 1))
 
 		def StdDev()
 			return This.StandardDeviation()
@@ -1215,27 +1186,17 @@ class stzDataSet
 	    if @cDataType != "numeric" or len(@anData) <= 1
 	        return 0
 	    ok
-	    
-	    cKey = "variance"
-	    nCached = This._GetCached(cKey)
-
-	    if NOT isNull(nCached)
-	        return nCached
+	    if This._EngineAvailable()
+	        return StzEngineStatsVariance(@pEngineStats)
 	    ok
-	    
 	    nMean = This.Mean()
-
 	    nSumSquares = 0
 	    nLen = len(@anData)
-	    
 	    for i = 1 to nLen
 	        nDiff = @anData[i] - nMean
 	        nSumSquares += (nDiff * nDiff)
 	    next
-	    
-	    nVariance = nSumSquares / (nLen - 1)
-	    This._SetCache(cKey, nVariance)
-	    return nVariance
+	    return nSumSquares / (nLen - 1)
 
 		def Var()
 			return This.Variance()
@@ -1248,35 +1209,41 @@ class stzDataSet
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
         ok
+        if This._EngineAvailable()
+            return StzEngineStatsRange(@pEngineStats)
+        ok
         return This.Max() - This.Min()
-
 
     def Min()
         if @cDataType != "numeric" or len(@anData) = 0
             return NULL
         ok
+        if This._EngineAvailable()
+            return StzEngineStatsMin(@pEngineStats)
+        ok
         return @min(@anData)
-
 
     def Max()
         if @cDataType != "numeric" or len(@anData) = 0
             return NULL
         ok
+        if This._EngineAvailable()
+            return StzEngineStatsMax(@pEngineStats)
+        ok
         return @max(@anData)
-
 
     def Sum()
         if @cDataType != "numeric"
             return 0
         ok
-
-		nLen = len(@anData)
+        if This._EngineAvailable()
+            return StzEngineStatsSum(@pEngineStats)
+        ok
+        nLen = len(@anData)
         nSum = 0
-
         for i = 1 to nLen
             nSum += @anData[i]
         next
-        
         return nSum
 
 
@@ -1288,21 +1255,19 @@ class stzDataSet
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
         ok
-
-		nLen = len(@anData)
-
-        # Check for non-positive values
+        if This._EngineAvailable()
+            return StzEngineStatsGeometricMean(@pEngineStats)
+        ok
+        nLen = len(@anData)
         for i = 1 to nLen
             if @anData[i] <= 0
-                return 0  # Geometric mean undefined for non-positive values
+                return 0
             ok
         next
-        
-        nProduct = 1      
+        nProduct = 1
         for i = 1 to nLen
             nProduct *= @anData[i]
         next
-        
         return pow(nProduct, 1/nLen)
 
 		#< @FunctionAlternativeForms
@@ -1335,17 +1300,17 @@ class stzDataSet
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
         ok
-        
+        if This._EngineAvailable()
+            return StzEngineStatsHarmonicMean(@pEngineStats)
+        ok
         nSum = 0
         nLen = len(@anData)
-        
         for i = 1 to nLen
             if @anData[i] = 0
-                return 0  # Harmonic mean undefined for zero values
+                return 0
             ok
             nSum += (1 / @anData[i])
         next
-        
         return nLen / nSum
 
 		#< @FunctionAlternativeForms
@@ -1378,7 +1343,9 @@ class stzDataSet
         if @cDataType != "numeric" or This.Mean() = 0
             return 0
         ok
-        
+        if This._EngineAvailable()
+            return StzEngineStatsCoeffOfVariation(@pEngineStats)
+        ok
         return This.StandardDeviation() / abs(This.Mean()) * 100
 
 		def CoVar()
@@ -1576,11 +1543,15 @@ class stzDataSet
 	    if @cDataType != "numeric" or len(@anData) = 0
 	        return 0
 	    ok
-	    
+
 	    if nTrimPercent < 0 or nTrimPercent >= 50
 	        StzRaise("Trim percentage must be between 0 and 50")
 	    ok
-	    
+
+	    if This._EngineAvailable()
+	        return StzEngineStatsTrimmedMean(@pEngineStats, nTrimPercent)
+	    ok
+
 	    cKey = "trimmedmean_" + nTrimPercent
 	    nCached = This._GetCached(cKey)
 	    
@@ -1875,6 +1846,9 @@ class stzDataSet
 
 
 	def Percentile(nPercent)
+		if This._EngineAvailable()
+			return StzEngineStatsPercentile(@pEngineStats, nPercent)
+		ok
 		return This.PercentileXT(nPercent, "interpolation")
 
 
@@ -1928,12 +1902,18 @@ class stzDataSet
 
 
 	def Q1()
+		if This._EngineAvailable()
+			return StzEngineStatsQ1(@pEngineStats)
+		ok
 		return This.Percentile(25)
 
 		def Q1XT(cMethod)
 		    return This.PercentileXT(25, cMethod)
 	
 	def Q2()
+		if This._EngineAvailable()
+			return StzEngineStatsQ2(@pEngineStats)
+		ok
 		return This.Median()
 
 		def Q2XT(cMethod)
@@ -1941,12 +1921,18 @@ class stzDataSet
 		    return This.Median()
 	
 	def Q3()
+		if This._EngineAvailable()
+			return StzEngineStatsQ3(@pEngineStats)
+		ok
 		return This.Percentile(75)
 
 		def Q3XT(cMethod)
 		    return This.PercentileXT(75, cMethod)
 	
 	def IQR()
+		if This._EngineAvailable()
+			return StzEngineStatsIQR(@pEngineStats)
+		ok
 		return This.Q3() - This.Q1()
 
 		def IQRXT(cMethod)
@@ -1966,7 +1952,11 @@ class stzDataSet
         if @cDataType != "numeric" or len(@anData) < @nMinSampleSize
             return 0
         ok
-        
+
+        if This._EngineAvailable()
+            return StzEngineStatsSkewness(@pEngineStats)
+        ok
+
         cKey = "skewness"
         nCached = This._GetCached(cKey)
 
@@ -2001,7 +1991,11 @@ class stzDataSet
         if @cDataType != "numeric" or len(@anData) < 4
             return 0
         ok
-        
+
+        if This._EngineAvailable()
+            return StzEngineStatsKurtosis(@pEngineStats)
+        ok
+
         cKey = "kurtosis"
         nCached = This._GetCached(cKey)
 
@@ -2036,6 +2030,9 @@ class stzDataSet
 
 
 	def ContainsOutliers()
+		if This._EngineAvailable()
+			return StzEngineStatsContainsOutliers(@pEngineStats)
+		ok
 		return len(This.Outliers()) > 0
 
     def Outliers()
@@ -2381,12 +2378,16 @@ class stzDataSet
         if @cDataType != "numeric" or oOtherStats.DataType() != "numeric"
             return 0
         ok
-        
+
         aOtherData = oOtherStats.Data()
         if len(@anData) != len(aOtherData) or len(@anData) < 2
             return 0
         ok
-        
+
+        if This._EngineAvailable() and oOtherStats._EngineAvailable()
+            return StzEngineStatsCorrelation(@pEngineStats, oOtherStats._EngineHandle())
+        ok
+
         nMean1 = This.Mean()
         nMean2 = oOtherStats.Mean()
         nLen = len(@anData)
@@ -2422,12 +2423,16 @@ class stzDataSet
         if @cDataType != "numeric" or oOtherStats.DataType() != "numeric"
             return 0
         ok
-        
+
         aOtherData = oOtherStats.Data()
         if len(@anData) != len(aOtherData) or len(@anData) < 2
             return 0
         ok
-        
+
+        if This._EngineAvailable() and oOtherStats._EngineAvailable()
+            return StzEngineStatsCovariance(@pEngineStats, oOtherStats._EngineHandle())
+        ok
+
         nMean1 = This.Mean()
         nMean2 = oOtherStats.Mean()
         nLen = len(@anData)
@@ -2446,16 +2451,19 @@ class stzDataSet
 			return This.CovarianceWith(oOtherStats)
 
     def RankCorrelationWith(oOtherStats)
-        # Spearman's rank correlation coefficient
         if @cDataType != "numeric" or oOtherStats.DataType() != "numeric"
             return 0
         ok
-        
+
         aOtherData = oOtherStats.Data()
         if len(@anData) != len(aOtherData) or len(@anData) < 2
             return 0
         ok
-        
+
+        if This._EngineAvailable() and oOtherStats._EngineAvailable()
+            return StzEngineStatsRankCorrelation(@pEngineStats, oOtherStats._EngineHandle())
+        ok
+
         # Create rankings
         aRanks1 = This._GetRanks(@anData)
         aRanks2 = This._GetRanks(aOtherData)
@@ -3699,6 +3707,17 @@ class stzDataSet
 
 	def _InitializeCache()
 	    @aCache = []
+
+	def _InitEngine()
+	    if @cDataType = "numeric" and len(@anData) > 0
+	        @pEngineStats = StzEngineStatsCreate(@anData)
+	    ok
+
+	def _EngineAvailable()
+	    return @pEngineStats != NULL
+
+	def _EngineHandle()
+	    return @pEngineStats
 	
 	def _GetCached(cKey)
 	    return @aCache[cKey]
