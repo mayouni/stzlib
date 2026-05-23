@@ -69,52 +69,18 @@ class stzDecimalToBinary from stzObject
 		return BinaryNumberPrefix() + cBinary
 
 	def IntegerPartToBinaryForm()
-		
-		cBinary = ""
-
-		if This.ToStzNumber().NumericValue() = 0
-			cBinary = ""
-
-		else
-			cBinary = ""
-
-			# Take the number corresponding to the integer part
-			n = This.ToStzNumber().IntegerPartValue()
-
-			if This.ToStzNumber().IsNegative()
-				n = -n
-				cBinary = "-"
-			ok
-
-			aTemp = []
-			bAgain = 1
-	
-			# Divide by 2 until reaching 0 as a result
-	
-			while bAgain
-	
-				# If the result is 0 then stop the division
-	
-				if floor(n/2) = 0
-					bAgain = 0
-				ok
-	
-				# Save the remainder
-	
-				aTemp + (n % 2)
-				
-				# Take the result and divide it by 2
-	
-				n = floor(n/2)
-			end
-				
-			for i = len(aTemp) to 1 step -1
-				cBinary += aTemp[i]
-			next
-		
+		nVal = This.ToStzNumber().IntegerPartValue()
+		if nVal = 0
+			return ""
 		ok
 
-		return cBinary
+		cPrefix = ""
+		if nVal < 0
+			cPrefix = "-"
+			nVal = -nVal
+		ok
+
+		return cPrefix + StzEngineNumberToBase(nVal, 2)
 
 	def FractionalPartToBinaryForm()
 

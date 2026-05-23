@@ -2376,11 +2376,7 @@ class stzNumber from stzObject
 		ok
 
 	def IsOdd()
-		if OddOrEven(This.NumericValue()) = :Odd
-			return 1
-		else
-			return 0
-		ok
+		return StzEngineNumberIsOdd(This.NumericValue())
 
 		#< @FunctionAlternativeForm
 
@@ -2400,11 +2396,7 @@ class stzNumber from stzObject
 		#>
 
 	def IsEven()
-		if OddOrEven(This.NumericValue()) = :Even
-			return 1
-		else
-			return 0
-		ok
+		return StzEngineNumberIsEven(This.NumericValue())
 
 		#< @FunctionAlternativeForm
 
@@ -4771,7 +4763,7 @@ class stzNumber from stzObject
 		#>
 			
 	def IntegerPartToHexForm()
-		return UPPER( hex(This.IntegerPartValue()) )
+		return StzUpper(StzEngineNumberToBase(This.IntegerPartValue(), 16))
 
 	def FractionalPartToHexForm()
 		cFraction = This.FractionalPart()
@@ -4797,23 +4789,7 @@ class stzNumber from stzObject
 	# Converting decimal to octal form
 
 	def IntegerPartToOctalForm()
-		aTemp = []
-		cOctal = ""
-		n = This.IntegerPartValue()
-
-		bAgain = 1
-		while bAgain
-			if floor(n / 8) = 0 bAgain = 0 ok
-			aTemp + (n % 8)
-			
-			n = floor(n/8)
-		end
-			
-		for i = len(aTemp) to 1 step -1
-			cOctal += aTemp[i]
-		next
-
-		return This.Sign() + cOctal
+		return This.Sign() + StzEngineNumberToBase(abs(This.IntegerPartValue()), 8)
 
 	def ToOctalForm()
 		return OctalNumberPrefix() + This.ToOctalFormWithoutPrefix()
@@ -4840,23 +4816,16 @@ class stzNumber from stzObject
 	// in the specified base n (between 2 and 36)
 	def IntegerPartToBaseNForm(n)
 		if n >= 2 and n <= 36
-			# Pure Ring integer-to-base-N conversion
-			cDigits = "0123456789abcdefghijklmnopqrstuvwxyz"
-			nVal = abs(This.IntegerValue())
+			nVal = This.IntegerValue()
 			if nVal = 0
 				return "0"
 			ok
-			cResult = ""
-			while nVal > 0
-				nRem = nVal % n
-				cResult = cDigits[nRem + 1] + cResult
-				nVal = floor(nVal / n)
-			end
-			if This.IntegerValue() < 0
-				cResult = "-" + cResult
+			cPrefix = ""
+			if nVal < 0
+				cPrefix = "-"
+				nVal = -nVal
 			ok
-			return cResult
-
+			return cPrefix + StzEngineNumberToBase(nVal, n)
 		else
 			StzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
 		ok

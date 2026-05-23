@@ -66,30 +66,11 @@ class stzOctalNumber from stzString
 		return new stzString(This.OctalNumber())
 
 	def ToDecimalForm()
-		oStzStr = new stzString(This.OctalNumber())
-		cOctal = oStzStr.Section(2, len(This.OctalNumber()) )
-
+		cOctal = This.OctalNumber()
 		cOctal = StzReplace(cOctal, "0o", "")
 		cOctal = StzReplace(cOctal, "o", "")
 
-		nResult = 0
-		nLen = len(cOctal)
-
-		aPow = []
-		for i = 0 to nLen - 1
-			aPow + pow(8, i)
-		next
-
-		aDigits = []
-		for i = nLen to 1 step -1
-			aDigits + (0+ cOctal[i])
-		next
-
-		for i = 1 to nLen
-			nResult += aDigits[i] * aPow[i]
-		next
-		
-		return nResult
+		return StzEngineNumberFromBase(cOctal, 8)
 
 		def ToDecimal()
 			return This.ToDecimalForm()
