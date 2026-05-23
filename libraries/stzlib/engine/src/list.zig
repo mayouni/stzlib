@@ -1874,6 +1874,78 @@ pub fn stz_list_sorted_insert(list_arg: ?*StzList, v: ?*const StzValue) callconv
     return @intCast(lo);
 }
 
+// ─── Numeric Aggregates ───
+
+fn numericVal(item: *const StzValue) ?f64 {
+    return switch (item.tag) {
+        .int_val => @floatFromInt(item.data.int_val),
+        .float_val => item.data.float_val,
+        else => null,
+    };
+}
+
+pub fn stz_list_sum(list_arg: ?*const StzList) callconv(.c) f64 {
+    const l = list_arg orelse return 0;
+    var total: f64 = 0;
+    for (l.items.items) |item| {
+        if (numericVal(item)) |v| total += v;
+    }
+    return total;
+}
+
+pub fn stz_list_product(list_arg: ?*const StzList) callconv(.c) f64 {
+    const l = list_arg orelse return 0;
+    if (l.len() == 0) return 0;
+    var result: f64 = 1;
+    var found = false;
+    for (l.items.items) |item| {
+        if (numericVal(item)) |v| {
+            result *= v;
+            found = true;
+        }
+    }
+    return if (found) result else 0;
+}
+
+pub fn stz_list_min(list_arg: ?*const StzList) callconv(.c) f64 {
+    const l = list_arg orelse return 0;
+    var result: f64 = std.math.inf(f64);
+    var found = false;
+    for (l.items.items) |item| {
+        if (numericVal(item)) |v| {
+            if (v < result) result = v;
+            found = true;
+        }
+    }
+    return if (found) result else 0;
+}
+
+pub fn stz_list_max(list_arg: ?*const StzList) callconv(.c) f64 {
+    const l = list_arg orelse return 0;
+    var result: f64 = -std.math.inf(f64);
+    var found = false;
+    for (l.items.items) |item| {
+        if (numericVal(item)) |v| {
+            if (v > result) result = v;
+            found = true;
+        }
+    }
+    return if (found) result else 0;
+}
+
+pub fn stz_list_mean(list_arg: ?*const StzList) callconv(.c) f64 {
+    const l = list_arg orelse return 0;
+    var total: f64 = 0;
+    var count: f64 = 0;
+    for (l.items.items) |item| {
+        if (numericVal(item)) |v| {
+            total += v;
+            count += 1;
+        }
+    }
+    return if (count > 0) total / count else 0;
+}
+
 // ─── Tests ───
 
 pub fn stz_list_join(list_arg: ?*const StzList, sep: [*c]const u8, sep_len: usize, out_buf: [*c]u8, out_cap: usize) callconv(.c) usize {
@@ -1945,6 +2017,33 @@ test "list join empty" {
     var buf: [64]u8 = undefined;
     const n = stz_list_join(l, ",", 1, &buf, 64);
     try std.testing.expectEqual(@as(usize, 0), n);
+}
+
+test "list numeric aggregates" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 30);
+    _ = stz_list_append_float(l, 5.5);
+
+    try std.testing.expectEqual(@as(f64, 65.5), stz_list_sum(l));
+    try std.testing.expectEqual(@as(f64, 5.5), stz_list_min(l));
+    try std.testing.expectEqual(@as(f64, 30), stz_list_max(l));
+    try std.testing.expectEqual(@as(f64, 33000), stz_list_product(l));
+
+    const mean = stz_list_mean(l);
+    try std.testing.expect(mean > 16.37 and mean < 16.38);
+}
+
+test "list numeric aggregates empty" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    try std.testing.expectEqual(@as(f64, 0), stz_list_sum(l));
+    try std.testing.expectEqual(@as(f64, 0), stz_list_min(l));
+    try std.testing.expectEqual(@as(f64, 0), stz_list_max(l));
+    try std.testing.expectEqual(@as(f64, 0), stz_list_product(l));
+    try std.testing.expectEqual(@as(f64, 0), stz_list_mean(l));
 }
 
 test "list basic append and get" {

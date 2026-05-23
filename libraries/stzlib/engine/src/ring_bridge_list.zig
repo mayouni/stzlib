@@ -554,6 +554,21 @@ fn ring_SplitAt(p: *anyopaque) callconv(.c) void {
 fn ring_SortedInsert(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sorted_insert(getL(p, 1), getV(p, 2))));
 }
+fn ring_Sum(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_sum(getLC(p, 1)));
+}
+fn ring_Min(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_min(getLC(p, 1)));
+}
+fn ring_Max(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_max(getLC(p, 1)));
+}
+fn ring_Product(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_product(getLC(p, 1)));
+}
+fn ring_Mean(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_mean(getLC(p, 1)));
+}
 fn ring_Join(p: *anyopaque) callconv(.c) void {
     var buf: [65536]u8 = undefined;
     const n = list.stz_list_join(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), &buf, 65536);
@@ -652,6 +667,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistsplitat", .func = &ring_SplitAt },
     .{ .name = "stzenginelistsortedinsert", .func = &ring_SortedInsert },
     .{ .name = "stzenginelistjoin", .func = &ring_Join },
+    .{ .name = "stzenginelistsum", .func = &ring_Sum },
+    .{ .name = "stzenginelistmin", .func = &ring_Min },
+    .{ .name = "stzenginelistmax", .func = &ring_Max },
+    .{ .name = "stzenginelistproduct", .func = &ring_Product },
+    .{ .name = "stzenginelistmean", .func = &ring_Mean },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
