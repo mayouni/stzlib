@@ -2,6 +2,7 @@
 # Run from base/number/test/: D:\Ring126\bin\ring.exe test_number_engine.ring
 
 cDll = _stzFindDll("stz_number.dll")
+
 if cDll = ""
     ? "FAIL: stz_number.dll not found"
     return
