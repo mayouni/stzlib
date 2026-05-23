@@ -51,6 +51,11 @@ comptime {
     @export(&string.str_regex_split_count, .{ .name = "str_regex_split_count" });
     @export(&string.str_regex_split_get, .{ .name = "str_regex_split_get" });
 
+    // Between / Section
+    @export(&string.str_between_cs, .{ .name = "str_between_cs" });
+    @export(&string.str_between, .{ .name = "str_between" });
+    @export(&string.str_section_cp, .{ .name = "str_section_cp" });
+
     @export(&char.stz_char_unicode, .{ .name = "stz_char_unicode" });
     @export(&char.stz_char_to_utf8, .{ .name = "stz_char_to_utf8" });
     @export(&char.stz_char_is_letter, .{ .name = "stz_char_is_letter" });

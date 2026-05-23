@@ -611,6 +611,61 @@ pub fn str_duplicate_substrings_cs(handle: StzStringHandle, case: c_int) callcon
     return result;
 }
 
+// ─── Between ───
+
+pub fn str_between_cs(handle: StzStringHandle, start_ptr: [*c]const u8, start_len: usize, end_ptr: [*c]const u8, end_len: usize, case: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (buf.len == 0 or start_len == 0 or end_len == 0) return str_new();
+
+    const start_needle = start_ptr[0..start_len];
+    const end_needle = end_ptr[0..end_len];
+    const cs = case != 0;
+
+    const start_pos = if (cs)
+        (bmhSearch(buf, start_needle, 0) orelse return str_new())
+    else blk: {
+        const folded_buf = casefoldAlloc(buf) orelse return null;
+        defer gpa.free(folded_buf);
+        const folded_needle = casefoldAlloc(start_needle) orelse return null;
+        defer gpa.free(folded_needle);
+        break :blk bmhSearch(folded_buf, folded_needle, 0) orelse return str_new();
+    };
+
+    const after_start = start_pos + start_needle.len;
+    if (after_start >= buf.len) return str_new();
+
+    const remaining = buf[after_start..];
+    const end_pos = if (cs)
+        (bmhSearch(remaining, end_needle, 0) orelse return str_new())
+    else blk: {
+        const folded_rem = casefoldAlloc(remaining) orelse return null;
+        defer gpa.free(folded_rem);
+        const folded_end = casefoldAlloc(end_needle) orelse return null;
+        defer gpa.free(folded_end);
+        break :blk bmhSearch(folded_rem, folded_end, 0) orelse return str_new();
+    };
+
+    const between = remaining[0..end_pos];
+    return str_from(between.ptr, between.len);
+}
+
+pub fn str_section_cp(handle: StzStringHandle, start_cp: i64, end_cp: i64) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (buf.len == 0) return str_new();
+
+    const n = utf8CodepointCount(buf);
+    const s0 = toInternal(start_cp);
+    const e0 = toInternal(end_cp);
+    if (s0 >= n or e0 >= n or s0 > e0) return str_new();
+
+    const byte_start = codepointIndexToByteOffset(buf, s0);
+    const byte_end_cp = if (e0 + 1 >= n) buf.len else codepointIndexToByteOffset(buf, e0 + 1);
+
+    return str_from(buf[byte_start..byte_end_cp].ptr, byte_end_cp - byte_start);
+}
+
 // ─── Tests ───
 
 const testing = std.testing;
@@ -786,4 +841,61 @@ test "ends_with_any_cs CI" {
     try testing.expectEqual(@as(c_int, 0), str_ends_with_any_cs(s, ".txt|.zig", 9, 1));
     // CI: ".zig" matches ".ZIG"
     try testing.expectEqual(@as(c_int, 1), str_ends_with_any_cs(s, ".txt|.zig", 9, 0));
+}
+
+test "between basic" {
+    const s = str_from("<html>content</html>", 20);
+    defer str_free(s);
+    const r = str_between_cs(s, "<html>", 6, "</html>", 7, 1);
+    defer str_free(r);
+    try testing.expect(r != null);
+    const d: [*]const u8 = @ptrCast(str_data(r));
+    try testing.expectEqualStrings("content", d[0..str_size(r)]);
+}
+
+test "between not found" {
+    const s = str_from("hello world", 11);
+    defer str_free(s);
+    const r = str_between_cs(s, "[", 1, "]", 1, 1);
+    defer str_free(r);
+    try testing.expectEqual(@as(usize, 0), str_size(r));
+}
+
+test "between_cs case insensitive" {
+    const s = str_from("START-middle-END", 16);
+    defer str_free(s);
+    const r = str_between_cs(s, "start-", 6, "-end", 4, 0);
+    defer str_free(r);
+    try testing.expect(r != null);
+    const d: [*]const u8 = @ptrCast(str_data(r));
+    try testing.expectEqualStrings("middle", d[0..str_size(r)]);
+}
+
+test "section_cp basic" {
+    const s = str_from("hello world", 11);
+    defer str_free(s);
+    const r = str_section_cp(s, 1, 5);
+    defer str_free(r);
+    try testing.expect(r != null);
+    const d: [*]const u8 = @ptrCast(str_data(r));
+    try testing.expectEqualStrings("hello", d[0..str_size(r)]);
+}
+
+test "section_cp middle" {
+    const s = str_from("hello world", 11);
+    defer str_free(s);
+    const r = str_section_cp(s, 7, 11);
+    defer str_free(r);
+    try testing.expect(r != null);
+    const d: [*]const u8 = @ptrCast(str_data(r));
+    try testing.expectEqualStrings("world", d[0..str_size(r)]);
+}
+
+test "section_cp unicode" {
+    const s = str_from("cafe\xCC\x81", 5);
+    defer str_free(s);
+    const r = str_section_cp(s, 1, 4);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqual(@as(usize, 4), str_size(r));
 }

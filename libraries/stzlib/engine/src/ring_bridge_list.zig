@@ -529,6 +529,26 @@ fn ring_ToNullDelimited(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
 
+// Leading / Trailing
+fn ring_LeadingCountCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_leading_count_cs(getLC(p, 1), @intFromFloat(g(p, 2)))));
+}
+fn ring_TrailingCountCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_trailing_count_cs(getLC(p, 1), @intFromFloat(g(p, 2)))));
+}
+fn ring_StartsWithCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_starts_with_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)))));
+}
+fn ring_EndsWithCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_ends_with_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)))));
+}
+fn ring_RemoveLeadingCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_remove_leading_cs(getL(p, 1), @intFromFloat(g(p, 2)))));
+}
+fn ring_RemoveTrailingCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_remove_trailing_cs(getL(p, 1), @intFromFloat(g(p, 2)))));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistnew", .func = &ring_New },
     .{ .name = "stzenginelistfree", .func = &ring_Free },
@@ -612,6 +632,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelisttrimstring", .func = &ring_TrimString },
     .{ .name = "stzenginelistfromnulldelimited", .func = &ring_FromNullDelimited },
     .{ .name = "stzenginelisttonulldelimited", .func = &ring_ToNullDelimited },
+    .{ .name = "stzenginelistleadingcountcs", .func = &ring_LeadingCountCS },
+    .{ .name = "stzenginelisttrailingcountcs", .func = &ring_TrailingCountCS },
+    .{ .name = "stzengineliststartswithcs", .func = &ring_StartsWithCS },
+    .{ .name = "stzenginelistendswithcs", .func = &ring_EndsWithCS },
+    .{ .name = "stzenginelistremoveleadingcs", .func = &ring_RemoveLeadingCS },
+    .{ .name = "stzenginelistremovetrailingcs", .func = &ring_RemoveTrailingCS },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

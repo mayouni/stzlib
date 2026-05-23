@@ -30,6 +30,27 @@ class stzListLeadTrail from stzList
 		return This.HasRepeatedLeadingItemsCS(1)
 
 	def RepeatedLeadingItemsCS(pCaseSensitive)
+		_pLtList = This._EngineListFromContent()
+		if _pLtList != NULL
+			_nCsLt = 1
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+				_nCsLt = pCaseSensitive[2]
+			but isNumber(pCaseSensitive)
+				_nCsLt = pCaseSensitive
+			ok
+			_nCount = StzEngineListLeadingCountCS(_pLtList, _nCsLt)
+			StzEngineListFree(_pLtList)
+			if _nCount < 2
+				return []
+			ok
+			aContent = This.Content()
+			aResult = []
+			for i = 1 to _nCount
+				aResult + aContent[i]
+			next
+			return aResult
+		ok
+
 		aContent = This.Content()
 		nLen = len(aContent)
 		if nLen < 2
@@ -81,6 +102,28 @@ class stzListLeadTrail from stzList
 		return This.HasRepeatedTrailingItemsCS(1)
 
 	def RepeatedTrailingItemsCS(pCaseSensitive)
+		_pLtList2 = This._EngineListFromContent()
+		if _pLtList2 != NULL
+			_nCsLt2 = 1
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+				_nCsLt2 = pCaseSensitive[2]
+			but isNumber(pCaseSensitive)
+				_nCsLt2 = pCaseSensitive
+			ok
+			_nCount2 = StzEngineListTrailingCountCS(_pLtList2, _nCsLt2)
+			StzEngineListFree(_pLtList2)
+			if _nCount2 < 2
+				return []
+			ok
+			aContent = This.Content()
+			nLen = len(aContent)
+			aResult = []
+			for i = nLen - _nCount2 + 1 to nLen
+				aResult + aContent[i]
+			next
+			return aResult
+		ok
+
 		aContent = This.Content()
 		nLen = len(aContent)
 		if nLen < 2
@@ -104,6 +147,20 @@ class stzListLeadTrail from stzList
 		return This.RepeatedTrailingItemsCS(1)
 
 	def RemoveRepeatedLeadingItemsCS(pCaseSensitive)
+		_pLtRm = This._EngineListFromContent()
+		if _pLtRm != NULL
+			_nCsLtRm = 1
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+				_nCsLtRm = pCaseSensitive[2]
+			but isNumber(pCaseSensitive)
+				_nCsLtRm = pCaseSensitive
+			ok
+			StzEngineListRemoveLeadingCS(_pLtRm, _nCsLtRm)
+			@aContent = This._ContentFromEngineList(_pLtRm)
+			StzEngineListFree(_pLtRm)
+			return
+		ok
+
 		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
 		nToRemove = len(aLead) - 1
 		if nToRemove > 0
@@ -114,6 +171,20 @@ class stzListLeadTrail from stzList
 		This.RemoveRepeatedLeadingItemsCS(1)
 
 	def RemoveRepeatedTrailingItemsCS(pCaseSensitive)
+		_pLtRm2 = This._EngineListFromContent()
+		if _pLtRm2 != NULL
+			_nCsLtRm2 = 1
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+				_nCsLtRm2 = pCaseSensitive[2]
+			but isNumber(pCaseSensitive)
+				_nCsLtRm2 = pCaseSensitive
+			ok
+			StzEngineListRemoveTrailingCS(_pLtRm2, _nCsLtRm2)
+			@aContent = This._ContentFromEngineList(_pLtRm2)
+			StzEngineListFree(_pLtRm2)
+			return
+		ok
+
 		aTrail = This.RepeatedTrailingItemsCS(pCaseSensitive)
 		nToRemove = len(aTrail) - 1
 		nLen = This.NumberOfItems()
@@ -183,6 +254,25 @@ class stzListLeadTrail from stzList
 		if This.NumberOfItems() = 0
 			return 0
 		ok
+		if isString(pItem)
+			_pSwList = This._EngineListFromContent()
+			if _pSwList != NULL
+				_pSwVal = StzEngineValueNewString(pItem)
+				if _pSwVal != NULL
+					_nCsSw = 1
+					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+						_nCsSw = pCaseSensitive[2]
+					but isNumber(pCaseSensitive)
+						_nCsSw = pCaseSensitive
+					ok
+					_nResult = StzEngineListStartsWithCS(_pSwList, _pSwVal, _nCsSw)
+					StzEngineValueFree(_pSwVal)
+					StzEngineListFree(_pSwList)
+					return _nResult
+				ok
+				StzEngineListFree(_pSwList)
+			ok
+		ok
 		return BothAreEqualCS(This.List()[1], pItem, pCaseSensitive)
 
 	def StartsWith(pItem)
@@ -191,6 +281,25 @@ class stzListLeadTrail from stzList
 	def EndsWithCS(pItem, pCaseSensitive)
 		if This.NumberOfItems() = 0
 			return 0
+		ok
+		if isString(pItem)
+			_pEwList = This._EngineListFromContent()
+			if _pEwList != NULL
+				_pEwVal = StzEngineValueNewString(pItem)
+				if _pEwVal != NULL
+					_nCsEw = 1
+					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+						_nCsEw = pCaseSensitive[2]
+					but isNumber(pCaseSensitive)
+						_nCsEw = pCaseSensitive
+					ok
+					_nResult2 = StzEngineListEndsWithCS(_pEwList, _pEwVal, _nCsEw)
+					StzEngineValueFree(_pEwVal)
+					StzEngineListFree(_pEwList)
+					return _nResult2
+				ok
+				StzEngineListFree(_pEwList)
+			ok
 		ok
 		nLen = This.NumberOfItems()
 		return BothAreEqualCS(This.List()[nLen], pItem, pCaseSensitive)

@@ -2914,6 +2914,25 @@ fn ring_StringRegexSplitGet(p: *anyopaque) callconv(.c) void {
     }
 }
 
+// ─── Between CS / Section CP ───
+
+fn ring_StringBetweenCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close: [*c]const u8 = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_between_cs(h, open, open_len, close, close_len, cs)), STZ_HANDLE);
+}
+
+fn ring_StringSectionCP(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const start_cp: i64 = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const end_cp: i64 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_section_cp(h, start_cp, end_cp)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -3365,6 +3384,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringregexreplaceall", .func = &ring_StringRegexReplaceAll },
     .{ .name = "stzenginestringregexsplitcount", .func = &ring_StringRegexSplitCount },
     .{ .name = "stzenginestringregexsplitget", .func = &ring_StringRegexSplitGet },
+    // Between CS / Section CP
+    .{ .name = "stzenginestringbetweencs", .func = &ring_StringBetweenCS },
+    .{ .name = "stzenginestringssectioncp", .func = &ring_StringSectionCP },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
