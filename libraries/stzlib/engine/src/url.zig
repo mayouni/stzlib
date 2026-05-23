@@ -204,3 +204,68 @@ test "simple url" {
     const len = stz_url_path(u, &buf, 256);
     try std.testing.expect(mem.eql(u8, buf[0..len], "/page"));
 }
+
+test "null handle safety url" {
+    try std.testing.expectEqual(@as(c_int, 0), stz_url_is_valid(null));
+    try std.testing.expectEqual(@as(c_int, -1), stz_url_port(null));
+    var buf: [64]u8 = undefined;
+    try std.testing.expectEqual(@as(usize, 0), stz_url_scheme(null, &buf, 64));
+    try std.testing.expectEqual(@as(usize, 0), stz_url_host(null, &buf, 64));
+}
+
+test "null and empty input url" {
+    try std.testing.expect(stz_url_parse(null, 0) == null);
+    try std.testing.expect(stz_url_parse("", 0) == null);
+}
+
+test "url without port" {
+    const u = stz_url_parse("https://example.com/path", 24) orelse return error.NullUrl;
+    defer stz_url_free(u);
+    try std.testing.expectEqual(@as(c_int, -1), stz_url_port(u));
+}
+
+test "url with fragment only" {
+    const u = stz_url_parse("https://example.com#section", 27) orelse return error.NullUrl;
+    defer stz_url_free(u);
+    var buf: [256]u8 = undefined;
+    const len = stz_url_fragment(u, &buf, 256);
+    try std.testing.expect(mem.eql(u8, buf[0..len], "section"));
+}
+
+test "url with query and fragment" {
+    const u = stz_url_parse("http://site.com/p?a=1&b=2#top", 29) orelse return error.NullUrl;
+    defer stz_url_free(u);
+    var buf: [256]u8 = undefined;
+    var len = stz_url_query(u, &buf, 256);
+    try std.testing.expect(mem.eql(u8, buf[0..len], "a=1&b=2"));
+    len = stz_url_fragment(u, &buf, 256);
+    try std.testing.expect(mem.eql(u8, buf[0..len], "top"));
+}
+
+test "url with password" {
+    const u = stz_url_parse("ftp://admin:secret@files.com/data", 32) orelse return error.NullUrl;
+    defer stz_url_free(u);
+    var buf: [256]u8 = undefined;
+    var len = stz_url_user(u, &buf, 256);
+    try std.testing.expect(mem.eql(u8, buf[0..len], "admin"));
+    len = stz_url_password(u, &buf, 256);
+    try std.testing.expect(mem.eql(u8, buf[0..len], "secret"));
+}
+
+test "reconstruct url" {
+    const u = stz_url_parse("https://example.com:9090/api?v=2", 31) orelse return error.NullUrl;
+    defer stz_url_free(u);
+    var buf: [256]u8 = undefined;
+    const len = stz_url_reconstruct(u, &buf, 256);
+    try std.testing.expect(len > 0);
+    try std.testing.expect(mem.eql(u8, buf[0..len], "https://example.com:9090/api?v=2"));
+}
+
+test "url user without password" {
+    const u = stz_url_parse("ssh://git@github.com/repo", 25) orelse return error.NullUrl;
+    defer stz_url_free(u);
+    var buf: [256]u8 = undefined;
+    const len = stz_url_user(u, &buf, 256);
+    try std.testing.expect(mem.eql(u8, buf[0..len], "git"));
+    try std.testing.expectEqual(@as(usize, 0), stz_url_password(u, &buf, 256));
+}
