@@ -79,6 +79,42 @@ fn ring_Power(p: *anyopaque) callconv(.c) void {
     matrix.stz_matrix_power(getM(p, 1), g(p, 2));
 }
 
+fn ring_NewFromList(p: *anyopaque) callconv(.c) void {
+    const nRows: usize = @intFromFloat(g(p, 1));
+    const nCols: usize = @intFromFloat(g(p, 2));
+    if (nRows == 0 or nCols == 0) {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    }
+    if (R.ring_vm_api_islist(p, 3) == 0) {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    }
+    const pOuterList = R.ring_vm_api_getlist(p, 3) orelse {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    };
+    const m = matrix.stz_matrix_new(@intCast(nRows), @intCast(nCols)) orelse {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    };
+    var r: usize = 0;
+    while (r < nRows) : (r += 1) {
+        const ri: c_uint = @intCast(r + 1);
+        if (R.ring_list_islist_gc(null, pOuterList, ri) == 0) continue;
+        const pRowList = R.ring_list_getlist_gc(null, pOuterList, ri) orelse continue;
+        var c: usize = 0;
+        while (c < nCols) : (c += 1) {
+            const ci: c_uint = @intCast(c + 1);
+            if (R.ring_list_isnumber_gc(null, pRowList, ci) == 0) continue;
+            const pItem = R.ring_list_getitem_gc(null, pRowList, ci) orelse continue;
+            const val = R.ring_item_getnumber(pItem);
+            matrix.stz_matrix_set(m, @intCast(r), @intCast(c), val);
+        }
+    }
+    rcp(p, @ptrCast(m), MH);
+}
+
 pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
     const funcs = [_]R.Reg{
         .{ .name = "stzengine" ++ "matrixnew", .func = &ring_New },
@@ -99,6 +135,7 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixdeterminant", .func = &ring_Determinant },
         .{ .name = "stzengine" ++ "matrixinverse", .func = &ring_Inverse },
         .{ .name = "stzengine" ++ "matrixpower", .func = &ring_Power },
+        .{ .name = "stzengine" ++ "matrixnewfromlist", .func = &ring_NewFromList },
     };
     R.registerAll(p, &funcs);
 }
