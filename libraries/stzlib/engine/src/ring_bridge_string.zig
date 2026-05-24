@@ -874,6 +874,44 @@ fn ring_StringHmacSha256(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_hmac_sha256(h, key, key_len)), STZ_HANDLE);
 }
 
+// ─── Locale: Script & Direction Detection ───
+
+fn ring_StringDetectScript(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_detect_script(h)));
+}
+
+fn ring_StringScriptName(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_script_name(h)), STZ_HANDLE);
+}
+
+fn ring_StringDetectDirection(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_detect_direction(h)));
+}
+
+fn ring_StringDirectionName(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_direction_name(h)), STZ_HANDLE);
+}
+
+fn ring_StringHasRTL(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_rtl(h)));
+}
+
+fn ring_StringScriptCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_script_count(h)));
+}
+
+fn ring_StringLocaleCompare(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_locale_compare(h1, h2)));
+}
+
 // ─── CountChar ───
 
 fn ring_StringCountChar(p: *anyopaque) callconv(.c) void {
@@ -3091,6 +3129,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringmd5", .func = &ring_StringMd5 },
     .{ .name = "stzenginestringblake3", .func = &ring_StringBlake3 },
     .{ .name = "stzenginestringhmacsha256", .func = &ring_StringHmacSha256 },
+    .{ .name = "stzenginestringdetectscript", .func = &ring_StringDetectScript },
+    .{ .name = "stzenginestringscriptname", .func = &ring_StringScriptName },
+    .{ .name = "stzenginestringdetectdirection", .func = &ring_StringDetectDirection },
+    .{ .name = "stzenginestringdirectionname", .func = &ring_StringDirectionName },
+    .{ .name = "stzenginestringhasrtl", .func = &ring_StringHasRTL },
+    .{ .name = "stzenginestringscriptcount", .func = &ring_StringScriptCount },
+    .{ .name = "stzenginestringlocalecompare", .func = &ring_StringLocaleCompare },
     .{ .name = "stzenginestringcountchar", .func = &ring_StringCountChar },
     .{ .name = "stzenginestringreplacechar", .func = &ring_StringReplaceChar },
     .{ .name = "stzenginestringcopy", .func = &ring_StringCopy },
