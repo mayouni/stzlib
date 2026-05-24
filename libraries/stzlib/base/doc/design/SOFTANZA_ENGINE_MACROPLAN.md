@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 33                       |
+| Modules built     | 39                       |
 | Design principles | 19                       |
-| Engine tests      | 1199 passing             |
-| DLLs shipping     | 37 (4 Core + 33 Base)    |
+| Engine tests      | 1238 passing             |
+| DLLs shipping     | 43 (4 Core + 39 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -485,6 +485,24 @@ build on. Stream and async are prerequisites for Reaxis.
 - **stz_cache** [DONE]: 256-slot string cache with TTL support,
   hit/miss tracking, hit rate. 9 C ABI functions, 9 Ring bridge
   functions, 5 Zig tests. DLL #37.
+- **stz_stream** [DONE]: 32 byte streams with read/write cursors,
+  peek, seek, reset. 10 C ABI functions, 10 Ring bridge functions,
+  6 Zig tests. DLL #38.
+- **stz_process** [DONE]: Process introspection (PID, uptime, arch,
+  OS, endian, pointer size). 8 C ABI functions, 8 Ring bridge
+  functions, 6 Zig tests. DLL #39.
+- **stz_arith** [DONE]: Arithmetic expression evaluator (+,-,*,/,%,
+  parens, decimals, unary minus). 2 C ABI functions, 2 Ring bridge
+  functions, 10 Zig tests. DLL #40.
+- **stz_registry** [DONE]: 512-slot key-value config store, set/get/
+  has/remove/clear/count/key_at. 7 C ABI functions, 7 Ring bridge
+  functions, 5 Zig tests. DLL #41.
+- **stz_profiler** [DONE]: 128 named timers with call counting,
+  total/avg timing, reset/clear. 9 C ABI functions, 9 Ring bridge
+  functions, 6 Zig tests. DLL #42.
+- **stz_callstack** [DONE]: 128-frame call stack tracker, push/pop/
+  frame/top/to_string/clear. 7 C ABI functions, 7 Ring bridge
+  functions, 6 Zig tests. DLL #43.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 

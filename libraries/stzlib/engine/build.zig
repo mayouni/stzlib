@@ -52,6 +52,12 @@ const base_domains = [_]Domain{
     .{ .name = "stz_watch", .entry = "src/stz_watch_entry.zig", .needs_ring = true },
     .{ .name = "stz_log", .entry = "src/stz_log_entry.zig", .needs_ring = true },
     .{ .name = "stz_cache", .entry = "src/stz_cache_entry.zig", .needs_ring = true },
+    .{ .name = "stz_stream", .entry = "src/stz_stream_entry.zig", .needs_ring = true },
+    .{ .name = "stz_process", .entry = "src/stz_process_entry.zig", .needs_ring = true },
+    .{ .name = "stz_arith", .entry = "src/stz_arith_entry.zig", .needs_ring = true },
+    .{ .name = "stz_registry", .entry = "src/stz_registry_entry.zig", .needs_ring = true },
+    .{ .name = "stz_profiler", .entry = "src/stz_profiler_entry.zig", .needs_ring = true },
+    .{ .name = "stz_callstack", .entry = "src/stz_callstack_entry.zig", .needs_ring = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {

@@ -47,6 +47,12 @@ pub const solver = @import("solver.zig");
 pub const watch = @import("watch.zig");
 pub const log_mod = @import("log.zig");
 pub const cache = @import("cache.zig");
+pub const stream = @import("stream.zig");
+pub const process = @import("process.zig");
+pub const arith = @import("arith.zig");
+pub const registry = @import("registry.zig");
+pub const profiler = @import("profiler.zig");
+pub const callstack_mod = @import("callstack.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -621,4 +627,10 @@ test {
     _ = watch;
     _ = log_mod;
     _ = cache;
+    _ = stream;
+    _ = process;
+    _ = arith;
+    _ = registry;
+    _ = profiler;
+    _ = callstack_mod;
 }
