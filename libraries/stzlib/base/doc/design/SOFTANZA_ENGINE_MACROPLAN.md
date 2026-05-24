@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 25                       |
+| Modules built     | 28                       |
 | Design principles | 19                       |
-| Engine tests      | 1139 passing             |
-| DLLs shipping     | 29 (4 Core + 25 Base)    |
+| Engine tests      | 1166 passing             |
+| DLLs shipping     | 32 (4 Core + 28 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -458,6 +458,17 @@ build on. Stream and async are prerequisites for Reaxis.
 - **stz_codec** [DONE]: Base64 encode/decode, hex encode/decode,
   URL encode/decode, ROT13. 8 C ABI functions, 7 Ring bridge
   functions, 8 Zig tests. DLL #29.
+- **stz_bits** [DONE]: Popcount, leading/trailing zeros, parity,
+  set/clear/toggle, rotate, reverse, byte-swap, extract/deposit,
+  hamming distance, binary string conversion. 20 C ABI functions,
+  20 Ring bridge functions, 11 Zig tests. DLL #30.
+- **stz_html** [DONE]: HTML entity encode/decode (named + numeric),
+  tag stripping, attribute encoding. 4 C ABI functions, 4 Ring
+  bridge functions, 8 Zig tests. DLL #31.
+- **stz_geo** [DONE]: Haversine distance (km/miles), bearing,
+  midpoint, destination point, coordinate validation, unit
+  conversion (km/miles, deg/rad). 14 C ABI functions, 14 Ring
+  bridge functions, 8 Zig tests. DLL #32.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 

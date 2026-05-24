@@ -28,6 +28,9 @@ load "../../engine/stz_graph.ring"
 load "../../engine/stz_text.ring"
 load "../../engine/stz_uuid.ring"
 load "../../engine/stz_codec.ring"
+load "../../engine/stz_bits.ring"
+load "../../engine/stz_html.ring"
+load "../../engine/stz_geo.ring"
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)
