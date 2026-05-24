@@ -36,6 +36,7 @@ pub const random = @import("random.zig");
 pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
 pub const graph = @import("graph.zig");
+pub const text = @import("text.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -466,6 +467,8 @@ comptime {
     @export(&graph.stz_graph_in_degree, .{ .name = "stz_graph_in_degree" });
     @export(&graph.stz_graph_out_degree, .{ .name = "stz_graph_out_degree" });
 
+    // ─── Text operations (exported directly in text.zig) ───
+
     // ─── Foundation: List operations ───
     @export(&list.stz_list_new, .{ .name = "stz_list_new" });
     @export(&list.stz_list_free, .{ .name = "stz_list_free" });
@@ -597,4 +600,5 @@ test {
     _ = csv;
     _ = stats;
     _ = graph;
+    _ = text;
 }
