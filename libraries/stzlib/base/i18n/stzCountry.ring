@@ -309,6 +309,9 @@ _aLocaleCountriesXT = [
 func Country(p)
 	return StzCountryQ(p).Name()
 
+func NumberOfCountries()
+	return StzEngineRefCountryCount()
+
 func CountryNumber(cCountry)
 	return StzCountryQ(cCountry).Number()
 
@@ -632,3 +635,12 @@ class stzCountry
 
 	def CurrencyEmojiFlag()
 		return @aCountryInfo[10]
+
+	def EngineField(pcField)
+		return StzEngineRefCountryField(This.Name(), pcField)
+
+	def EngineFieldByAlpha2(pcField)
+		return StzEngineRefCountryFieldByAlpha2(This.ShortAbbreviation(), pcField)
+
+	def EngineIntField(pcField)
+		return StzEngineRefCountryIntField(This.Name(), pcField)

@@ -113,6 +113,84 @@ fn ring_SysCmd(p: *anyopaque) callconv(.c) void {
     rs2(p, &buf, @intCast(len));
 }
 
+fn ring_CountryCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ref_data.countryCount()));
+}
+
+fn ring_LanguageCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ref_data.languageCount()));
+}
+
+fn ring_CountryName(p: *anyopaque) callconv(.c) void {
+    const id: i32 = @intFromFloat(g(p, 1));
+    var buf: [256]u8 = undefined;
+    const len = ref_data.countryNameById(id, &buf, 256);
+    rs2(p, &buf, @intCast(len));
+}
+
+fn ring_CountryField(p: *anyopaque) callconv(.c) void {
+    const name_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const name_len: i32 = @intCast(gss(p, 1));
+    const col_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const col_len: usize = @intCast(gss(p, 2));
+    var col_buf: [64:0]u8 = @splat(0);
+    const cn = @min(col_len, 63);
+    @memcpy(col_buf[0..cn], col_ptr[0..cn]);
+    var buf: [256]u8 = undefined;
+    const len = ref_data.countryByName(name_ptr, name_len, &col_buf, &buf, 256);
+    rs2(p, &buf, @intCast(len));
+}
+
+fn ring_CountryFieldByAlpha2(p: *anyopaque) callconv(.c) void {
+    const code_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const code_len: i32 = @intCast(gss(p, 1));
+    const col_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const col_len: usize = @intCast(gss(p, 2));
+    var col_buf: [64:0]u8 = @splat(0);
+    const cn = @min(col_len, 63);
+    @memcpy(col_buf[0..cn], col_ptr[0..cn]);
+    var buf: [256]u8 = undefined;
+    const len = ref_data.countryByAlpha2(code_ptr, code_len, &col_buf, &buf, 256);
+    rs2(p, &buf, @intCast(len));
+}
+
+fn ring_CountryIntField(p: *anyopaque) callconv(.c) void {
+    const name_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const name_len: i32 = @intCast(gss(p, 1));
+    const col_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const col_len: usize = @intCast(gss(p, 2));
+    var col_buf: [64:0]u8 = @splat(0);
+    const cn = @min(col_len, 63);
+    @memcpy(col_buf[0..cn], col_ptr[0..cn]);
+    rn(p, @floatFromInt(ref_data.countryIntByName(name_ptr, name_len, &col_buf)));
+}
+
+fn ring_LanguageField(p: *anyopaque) callconv(.c) void {
+    const name_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const name_len: i32 = @intCast(gss(p, 1));
+    const col_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const col_len: usize = @intCast(gss(p, 2));
+    var col_buf: [64:0]u8 = @splat(0);
+    const cn = @min(col_len, 63);
+    @memcpy(col_buf[0..cn], col_ptr[0..cn]);
+    var buf: [256]u8 = undefined;
+    const len = ref_data.languageByName(name_ptr, name_len, &col_buf, &buf, 256);
+    rs2(p, &buf, @intCast(len));
+}
+
+fn ring_LanguageFieldByAbbr(p: *anyopaque) callconv(.c) void {
+    const abbr_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const abbr_len: i32 = @intCast(gss(p, 1));
+    const col_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const col_len: usize = @intCast(gss(p, 2));
+    var col_buf: [64:0]u8 = @splat(0);
+    const cn = @min(col_len, 63);
+    @memcpy(col_buf[0..cn], col_ptr[0..cn]);
+    var buf: [256]u8 = undefined;
+    const len = ref_data.languageByShortAbbr(abbr_ptr, abbr_len, &col_buf, &buf, 256);
+    rs2(p, &buf, @intCast(len));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginerefscriptcount", .func = &ring_ScriptCount },
     .{ .name = "stzenginerefscriptname", .func = &ring_ScriptName },
@@ -132,6 +210,14 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginereflatindiacriticbase", .func = &ring_LatinDiacriticBase },
     .{ .name = "stzenginerefrescmdcount", .func = &ring_SysCmdCount },
     .{ .name = "stzenginerefrescmd", .func = &ring_SysCmd },
+    .{ .name = "stzenginerefcountrycount", .func = &ring_CountryCount },
+    .{ .name = "stzenginerreflanguagecount", .func = &ring_LanguageCount },
+    .{ .name = "stzenginerefcountryname", .func = &ring_CountryName },
+    .{ .name = "stzenginerefcountryfield", .func = &ring_CountryField },
+    .{ .name = "stzenginerefcountryfieldbyalpha2", .func = &ring_CountryFieldByAlpha2 },
+    .{ .name = "stzenginerefcountryintfield", .func = &ring_CountryIntField },
+    .{ .name = "stzenginerreflanguagefield", .func = &ring_LanguageField },
+    .{ .name = "stzenginerreflanguagefieldbyabbr", .func = &ring_LanguageFieldByAbbr },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

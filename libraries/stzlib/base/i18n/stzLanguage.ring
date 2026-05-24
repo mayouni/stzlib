@@ -374,7 +374,7 @@ func LocaleLanguages()
 	return aResult
 
 func NumberOfLanguages()
-	return len($aLocaleLanguagesXT)
+	return StzEngineRefLanguageCount()
 
 	func HowManyLanguages()
 		return NumberOfLanguages()
@@ -572,6 +572,12 @@ class stzLanguage
 		next
 
 		return aResult		
+
+	def EngineField(pcField)
+		return StzEngineRefLanguageField(This.Name(), pcField)
+
+	def EngineFieldByAbbr(pcField)
+		return StzEngineRefLanguageFieldByAbbr(This.Abbreviation(), pcField)
 
 	PRIVATE
 

@@ -9,12 +9,15 @@ func CurrenciesXT()
 func LocaleCurrenciesXT()
 	return CurrenciesXT()
 
+func NumberOfCurrencies()
+	return StzEngineRefCountryCount()
+
 func Currencies()
 	aResult = []
 	for aCountryInfo in LocaleCountriesXT()
 		aResult + aCountryInfo[7][1]
 	next
-	
+
 	return aResult
 	
 func LocaleCurrencies()
