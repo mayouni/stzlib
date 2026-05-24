@@ -13,10 +13,10 @@
 | Modules designed  | 88                       |
 | Modules built     | 22                       |
 | Design principles | 19                       |
-| Engine tests      | 1086 passing             |
+| Engine tests      | 1102 passing             |
 | DLLs shipping     | 26 (4 Core + 22 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 983 DLL functions        |
+| Ring bridge regs  | 997 DLL functions        |
 | Ring classes bridged | 107 files, 3482 calls |
 | Ring Unicode hard | Complete (all domains)   |
 | PCRE2 backend     | 10.47 (industrial regex) |
@@ -341,7 +341,14 @@
   `std.crypto`. 5 new engine functions (str_sha256, str_md5, str_blake3,
   str_hmac_sha256, str_sha256_raw), 4 Ring bridge functions, 6 new Zig tests.
   stzStringCrypto.ring gains SHA256(), MD5(), BLAKE3(), HMACSHA256() methods.
-- **Stats**: 1086 Zig tests, 983 Ring bridge functions, 26 DLLs, 22 modules built,
+- **String Engine Phase F (Locale)**: Script/direction detection, locale-aware
+  comparison. 7 engine functions (str_detect_script, str_script_name,
+  str_detect_direction, str_direction_name, str_has_rtl, str_script_count,
+  str_locale_compare), 7 Ring bridge functions, 16 Zig tests.
+  stzStringLocale.ring fully engine-backed with script/direction/comparison.
+- **String Engine v2 COMPLETE**: All 8 phases (A-H) done. 13 submodules,
+  ~280 functions, full test coverage.
+- **Stats**: 1102 Zig tests, 997 Ring bridge functions, 26 DLLs, 22 modules built,
   107 Ring files making 3482 StzEngine* calls.
 
 ### M-E4: Algorithms [PARTIAL]
@@ -360,21 +367,21 @@
 
 ## MILESTONES AHEAD
 
-### M-E0.5: String Engine v2 [ ]
+### M-E0.5: String Engine v2 [DONE]
 
 > Redesign the string engine for Unicode correctness, Softanza
 > naming, 1-based indexing, and modern domain coverage.
 > See `STRING_ENGINE_DESIGN_v2.md` for full design.
 
-**8 phases:** A (Naming & Indexing) -> B (Safety) ->
-C (Performance) -> D (Module Separation) -> E (Regex) ->
-F (Locale) -> G (NLP/AI) -> H (Crypto)
-
-**Why before M-E1:** The string module is the most-used Engine
-component. Fixing its naming, safety, and Unicode correctness
-now prevents all downstream modules from inheriting the same
-patterns. The CS merge and 1-based indexing set conventions
-that StzValue and StzList will follow.
+**8 phases -- ALL COMPLETE:**
+- A (Naming & Indexing) -- unified _cs() signatures, INDEX_BASE=1
+- B (Safety) -- null-handle guards, StrError reporting, ReDoS hardening
+- C (Performance) -- BMH search, codepoint cache, ASCII fast-path
+- D (Module Separation) -- 13 submodules, ~250 functions
+- E (Regex) -- PCRE2 10.47 backend, industrial-grade
+- F (Locale) -- script/direction detection, locale-aware comparison
+- G (NLP) -- similarity metrics, phonetics, n-grams, extraction
+- H (Crypto) -- SHA-256, MD5, BLAKE3, HMAC-SHA256
 
 ### M-E1: Foundation Types [DONE]
 
