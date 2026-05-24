@@ -11,12 +11,12 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 22                       |
+| Modules built     | 25                       |
 | Design principles | 19                       |
-| Engine tests      | 1102 passing             |
-| DLLs shipping     | 26 (4 Core + 22 Base)    |
+| Engine tests      | 1139 passing             |
+| DLLs shipping     | 29 (4 Core + 25 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 997 DLL functions        |
+| Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
 | Ring Unicode hard | Complete (all domains)   |
 | PCRE2 backend     | 10.47 (industrial regex) |
@@ -442,7 +442,7 @@ stz_text (paragraph/sentence ops), Yielder (not started).
 
 **Depends on:** M-E2 (collections)
 
-### M-E5: Infrastructure Services [ ]
+### M-E5: Infrastructure Services [PARTIAL]
 
 > 25 modules: crypto, codec, compress, stream, watch, process,
 > async, uuid, html, rng, solver, geo, bits, expr, embed,
@@ -450,6 +450,14 @@ stz_text (paragraph/sentence ops), Yielder (not started).
 
 **Why:** Plumbing that signature features and paradigm engines
 build on. Stream and async are prerequisites for Reaxis.
+
+**Started Session 26.**
+- **stz_uuid** [DONE]: UUID v4 generation (crypto random), validation,
+  version extraction, nil UUID, comparison. 6 C ABI functions,
+  6 Ring bridge functions, 9 Zig tests. DLL #28.
+- **stz_codec** [DONE]: Base64 encode/decode, hex encode/decode,
+  URL encode/decode, ROT13. 8 C ABI functions, 7 Ring bridge
+  functions, 8 Zig tests. DLL #29.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 
