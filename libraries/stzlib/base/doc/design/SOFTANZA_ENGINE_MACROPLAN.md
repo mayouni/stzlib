@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 47                       |
+| Modules built     | 49                       |
 | Design principles | 19                       |
-| Engine tests      | 1296 passing             |
-| DLLs shipping     | 51 (4 Core + 47 Base)    |
+| Engine tests      | 1313 passing             |
+| DLLs shipping     | 53 (4 Core + 49 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -522,7 +522,7 @@ build on. Stream and async are prerequisites for Reaxis.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 
-### M-E6: Signature Features [3/11 DONE]
+### M-E6: Signature Features [5/11 DONE]
 
 > 11 modules: pattern, numtheory, natlang, ccode, constraint,
 > reactive, knowgraph, splitter, stringart, display, univops.
@@ -542,6 +542,13 @@ display engine.
 - **stz_univops** [DONE]: Type queries (name/numeric/collection/scalar),
   bytes equal/compare/swap/fill/hash, int min/max/clamp/abs/sign/in_range.
   15 C ABI functions, 10 Ring bridge functions, 7 Zig tests. DLL #51.
+- **stz_pattern** [DONE]: Palindrome, repeat detection/extraction,
+  prefix/suffix matching, arithmetic/geometric/constant sequences,
+  occurrence counting, longest common prefix/suffix.
+  14 C ABI functions, 9 Ring bridge functions, 9 Zig tests. DLL #52.
+- **stz_stringart** [DONE]: Pad left/right, center, repeat, box lines,
+  box borders, indent, truncate with ellipsis, visible length.
+  9 C ABI functions, 9 Ring bridge functions, 8 Zig tests. DLL #53.
 
 **Depends on:** M-E4 (algorithms), M-E5 (infrastructure)
 

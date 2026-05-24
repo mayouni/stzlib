@@ -61,6 +61,8 @@ pub const execmodel = @import("execmodel.zig");
 pub const numtheory = @import("numtheory.zig");
 pub const splitter_mod = @import("splitter.zig");
 pub const univops = @import("univops.zig");
+pub const pattern = @import("pattern.zig");
+pub const stringart = @import("stringart.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -649,4 +651,6 @@ test {
     _ = numtheory;
     _ = splitter_mod;
     _ = univops;
+    _ = pattern;
+    _ = stringart;
 }
