@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 28                       |
+| Modules built     | 29                       |
 | Design principles | 19                       |
-| Engine tests      | 1166 passing             |
-| DLLs shipping     | 32 (4 Core + 28 Base)    |
+| Engine tests      | 1174 passing             |
+| DLLs shipping     | 33 (4 Core + 29 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -469,6 +469,9 @@ build on. Stream and async are prerequisites for Reaxis.
   midpoint, destination point, coordinate validation, unit
   conversion (km/miles, deg/rad). 14 C ABI functions, 14 Ring
   bridge functions, 8 Zig tests. DLL #32.
+- **stz_compress** [DONE]: CRC-32, Adler-32, RLE encode/decode,
+  simple LZ77 compress/decompress. 6 C ABI functions, 6 Ring
+  bridge functions, 8 Zig tests. DLL #33.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 
