@@ -52,6 +52,9 @@ load "../../engine/stz_splitter.ring"
 load "../../engine/stz_univops.ring"
 load "../../engine/stz_pattern.ring"
 load "../../engine/stz_stringart.ring"
+load "../../engine/stz_display.ring"
+load "../../engine/stz_constraint.ring"
+load "../../engine/stz_natlang.ring"
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)

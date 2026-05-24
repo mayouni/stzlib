@@ -63,6 +63,9 @@ pub const splitter_mod = @import("splitter.zig");
 pub const univops = @import("univops.zig");
 pub const pattern = @import("pattern.zig");
 pub const stringart = @import("stringart.zig");
+pub const display_mod = @import("display.zig");
+pub const constraint = @import("constraint.zig");
+pub const natlang = @import("natlang.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -653,4 +656,7 @@ test {
     _ = univops;
     _ = pattern;
     _ = stringart;
+    _ = display_mod;
+    _ = constraint;
+    _ = natlang;
 }
