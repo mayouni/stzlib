@@ -55,6 +55,9 @@ load "../../engine/stz_stringart.ring"
 load "../../engine/stz_display.ring"
 load "../../engine/stz_constraint.ring"
 load "../../engine/stz_natlang.ring"
+load "../../engine/stz_ccode.ring"
+load "../../engine/stz_reactive.ring"
+load "../../engine/stz_knowgraph.ring"
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)
