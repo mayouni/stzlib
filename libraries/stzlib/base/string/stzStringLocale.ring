@@ -47,62 +47,126 @@ class stzStringLocale
 		oLocale = new stzLocale(pcLocale)
 		return oLocale.ToUppercase(@oString.Content())
 
-	  #===============================#
-	 #     LANGUAGE DETECTION        #
-	#===============================#
+	  #======================================#
+	 #     SCRIPT DETECTION (Engine-backed) #
+	#======================================#
+
+	def DetectScript()
+		pH = @oString.Engine()
+		return StzEngineStringDetectScript(pH)
+
+	def ScriptName()
+		pH = @oString.Engine()
+		pR = StzEngineStringScriptName(pH)
+		lcName = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return lcName
+
+	def Script()
+		return This.ScriptName()
+
+	def ScriptCount()
+		pH = @oString.Engine()
+		return StzEngineStringScriptCount(pH)
+
+	def IsMixedScript()
+		return This.ScriptCount() > 1
 
 	def IsLatinScript()
-		pH = @oString.Engine()
-		return StzEngineStringIsLatin(pH)
+		return This.ScriptName() = "Latin"
 
-	def ContainsLatinLetters()
+	def IsArabicScript()
+		return This.ScriptName() = "Arabic"
+
+	def IsHebrewScript()
+		return This.ScriptName() = "Hebrew"
+
+	def IsCyrillicScript()
+		return This.ScriptName() = "Cyrillic"
+
+	def IsGreekScript()
+		return This.ScriptName() = "Greek"
+
+	def IsCJKScript()
+		return This.ScriptName() = "CJK"
+
+	def IsDevanagariScript()
+		return This.ScriptName() = "Devanagari"
+
+	def IsThaiScript()
+		return This.ScriptName() = "Thai"
+
+	  #========================================#
+	 #     DIRECTION DETECTION (Engine-backed) #
+	#========================================#
+
+	def DetectDirection()
 		pH = @oString.Engine()
-		return StzEngineStringContainsLatin(pH)
+		return StzEngineStringDetectDirection(pH)
+
+	def DirectionName()
+		pH = @oString.Engine()
+		pR = StzEngineStringDirectionName(pH)
+		lcDir = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return lcDir
+
+	def Direction()
+		return This.DirectionName()
 
 	def IsRightToLeft()
-		if @oString.NumberOfChars() = 0
-			return 0
-		ok
-
-		n = StzEngineStringCharUnicodeAt(@oString.Engine(), 1)
-		if (n >= 0x0600 and n <= 0x06FF) or
-		   (n >= 0x0590 and n <= 0x05FF) or
-		   (n >= 0xFB50 and n <= 0xFDFF)
-			return 1
-		else
-			return 0
-		ok
+		pH = @oString.Engine()
+		return StzEngineStringDetectDirection(pH) = 1
 
 		def IsRTL()
 			return This.IsRightToLeft()
 
 	def IsLeftToRight()
-		return NOT This.IsRightToLeft()
+		pH = @oString.Engine()
+		return StzEngineStringDetectDirection(pH) = 0
 
 		def IsLTR()
 			return This.IsLeftToRight()
 
-	  #===============================#
-	 #     SCRIPT DETECTION          #
-	#===============================#
+	def HasRTL()
+		pH = @oString.Engine()
+		return StzEngineStringHasRTL(pH) = 1
 
-	def Script()
-		if This.IsRightToLeft()
-			n = StzEngineStringCharUnicodeAt(@oString.Engine(), 1)
-			if n >= 0x0600 and n <= 0x06FF
-				return :Arabic
-			but n >= 0x0590 and n <= 0x05FF
-				return :Hebrew
-			ok
-		ok
-		if This.ContainsLatinLetters()
-			return :Latin
-		ok
-		return :Unknown
+	def IsBidiMixed()
+		pH = @oString.Engine()
+		return StzEngineStringDetectDirection(pH) = 2
+
+	def IsBidiNeutral()
+		pH = @oString.Engine()
+		return StzEngineStringDetectDirection(pH) = 3
+
+	  #=============================================#
+	 #     LOCALE COMPARISON (Engine-backed)        #
+	#=============================================#
+
+	def LocaleCompare(pcOther)
+		pH1 = @oString.Engine()
+		pH2 = StzEngineString(pcOther)
+		lcResult = StzEngineStringLocaleCompare(pH1, pH2)
+		StzEngineStringFree(pH2)
+		return lcResult
+
+	def LocaleEquals(pcOther)
+		return This.LocaleCompare(pcOther) = 0
+
+	def LocaleLessThan(pcOther)
+		return This.LocaleCompare(pcOther) = -1
+
+	def LocaleGreaterThan(pcOther)
+		return This.LocaleCompare(pcOther) = 1
 
 	  #===============================#
 	 #     CHARACTER CLASS TESTS     #
 	#===============================#
+
+	def ContainsLatinLetters()
+		pH = @oString.Engine()
+		return StzEngineStringContainsLatin(pH)
 
 	def ContainsArabicLetters()
 		pH = @oString.Engine()
@@ -140,16 +204,5 @@ class stzStringLocale
 		if @oString.IsEmpty()
 			return 0
 		ok
-		# All chars must be whitespace: count of spaces = total codepoints
 		pH = @oString.Engine()
 		return StzEngineStringCountSpaces(pH) = @oString.NumberOfChars()
-
-	def IsMixedScript()
-		pH = @oString.Engine()
-		bHasLatin = StzEngineStringContainsLatin(pH)
-		bHasArabic = StzEngineStringContainsArabic(pH)
-		if bHasLatin and bHasArabic
-			return 1
-		ok
-		# Could extend to check Hebrew, Greek, CJK etc.
-		return 0

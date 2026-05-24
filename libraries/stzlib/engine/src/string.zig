@@ -83,6 +83,17 @@ pub const str_blake3 = encode.str_blake3;
 pub const str_hmac_sha256 = encode.str_hmac_sha256;
 pub const str_sha256_raw = encode.str_sha256_raw;
 
+// ─── Locale submodule imports ───
+const locale = @import("string/locale.zig");
+
+pub const str_detect_script = locale.str_detect_script;
+pub const str_script_name = locale.str_script_name;
+pub const str_detect_direction = locale.str_detect_direction;
+pub const str_direction_name = locale.str_direction_name;
+pub const str_has_rtl = locale.str_has_rtl;
+pub const str_script_count = locale.str_script_count;
+pub const str_locale_compare = locale.str_locale_compare;
+
 // ─── NLP submodule imports ───
 const nlp = @import("string/nlp.zig");
 
@@ -536,6 +547,19 @@ pub const str_regex_split_count = regex.str_regex_split_count;
 pub const str_regex_split_get = regex.str_regex_split_get;
 
 test {
+    _ = encode;
+    _ = locale;
+    _ = nlp;
+    _ = split;
+    _ = find;
+    _ = replace;
+    _ = transform;
+    _ = inspect;
+    _ = extract;
+    _ = trim;
+    _ = compare;
+    _ = counting;
+    _ = format;
     _ = regex;
 }
 
