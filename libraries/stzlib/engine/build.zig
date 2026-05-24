@@ -74,6 +74,18 @@ const base_domains = [_]Domain{
     .{ .name = "stz_ccode", .entry = "src/stz_ccode_entry.zig", .needs_ring = true },
     .{ .name = "stz_reactive", .entry = "src/stz_reactive_entry.zig", .needs_ring = true },
     .{ .name = "stz_knowgraph", .entry = "src/stz_knowgraph_entry.zig", .needs_ring = true },
+    .{ .name = "stz_namedvars", .entry = "src/stz_namedvars_entry.zig", .needs_ring = true },
+    .{ .name = "stz_truth", .entry = "src/stz_truth_entry.zig", .needs_ring = true },
+    .{ .name = "stz_quantifier", .entry = "src/stz_quantifier_entry.zig", .needs_ring = true },
+    .{ .name = "stz_adverb", .entry = "src/stz_adverb_entry.zig", .needs_ring = true },
+    .{ .name = "stz_timeline", .entry = "src/stz_timeline_entry.zig", .needs_ring = true },
+    .{ .name = "stz_gridnav", .entry = "src/stz_gridnav_entry.zig", .needs_ring = true },
+    .{ .name = "stz_sectmerge", .entry = "src/stz_sectmerge_entry.zig", .needs_ring = true },
+    .{ .name = "stz_deepops", .entry = "src/stz_deepops_entry.zig", .needs_ring = true },
+    .{ .name = "stz_reaxis", .entry = "src/stz_reaxis_entry.zig", .needs_ring = true },
+    .{ .name = "stz_softanzuter", .entry = "src/stz_softanzuter_entry.zig", .needs_ring = true },
+    .{ .name = "stz_polyglot", .entry = "src/stz_polyglot_entry.zig", .needs_ring = true },
+    .{ .name = "stz_polycode", .entry = "src/stz_polycode_entry.zig", .needs_ring = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
