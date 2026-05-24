@@ -48,6 +48,62 @@ class stzStringCrypto
 		return StzEngineStringEntropy(pH)
 
 	  #===============================#
+	 #     SHA-256 (Engine-backed)   #
+	#===============================#
+
+	def SHA256()
+		pH = @oString.Engine()
+		pR = StzEngineStringSha256(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+		def Sha256()
+			return This.SHA256()
+
+	  #===============================#
+	 #     MD5 (Engine-backed)       #
+	#===============================#
+
+	def MD5()
+		pH = @oString.Engine()
+		pR = StzEngineStringMd5(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+		def Md5()
+			return This.MD5()
+
+	  #===============================#
+	 #     BLAKE3 (Engine-backed)    #
+	#===============================#
+
+	def BLAKE3()
+		pH = @oString.Engine()
+		pR = StzEngineStringBlake3(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+		def Blake3()
+			return This.BLAKE3()
+
+	  #=================================#
+	 #     HMAC-SHA256 (Engine-backed) #
+	#=================================#
+
+	def HMACSHA256(pcKey)
+		pH = @oString.Engine()
+		pR = StzEngineStringHmacSha256(pH, pcKey)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+		def HmacSha256(pcKey)
+			return This.HMACSHA256(pcKey)
+
+	  #===============================#
 	 #     XOR CIPHER (Engine)       #
 	#===============================#
 

@@ -77,6 +77,11 @@ pub const str_rot47 = encode.str_rot47;
 pub const str_zigzag = encode.str_zigzag;
 pub const str_hash = encode.str_hash;
 pub const str_entropy = encode.str_entropy;
+pub const str_sha256 = encode.str_sha256;
+pub const str_md5 = encode.str_md5;
+pub const str_blake3 = encode.str_blake3;
+pub const str_hmac_sha256 = encode.str_hmac_sha256;
+pub const str_sha256_raw = encode.str_sha256_raw;
 
 // ─── NLP submodule imports ───
 const nlp = @import("string/nlp.zig");
