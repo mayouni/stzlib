@@ -850,6 +850,30 @@ fn ring_StringHash(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_hash(h)));
 }
 
+// ─── Cryptographic Hashes ───
+
+fn ring_StringSha256(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_sha256(h)), STZ_HANDLE);
+}
+
+fn ring_StringMd5(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_md5(h)), STZ_HANDLE);
+}
+
+fn ring_StringBlake3(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_blake3(h)), STZ_HANDLE);
+}
+
+fn ring_StringHmacSha256(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const key = ring_vm_api_getstring(p, 2);
+    const key_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_hmac_sha256(h, key, key_len)), STZ_HANDLE);
+}
+
 // ─── CountChar ───
 
 fn ring_StringCountChar(p: *anyopaque) callconv(.c) void {
@@ -3063,6 +3087,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringfindallchar", .func = &ring_StringFindAllChar },
     .{ .name = "stzenginestringduplicatesubstringscs", .func = &ring_StringDuplicateSubstringsCS },
     .{ .name = "stzenginestringhash", .func = &ring_StringHash },
+    .{ .name = "stzenginestringsha256", .func = &ring_StringSha256 },
+    .{ .name = "stzenginestringmd5", .func = &ring_StringMd5 },
+    .{ .name = "stzenginestringblake3", .func = &ring_StringBlake3 },
+    .{ .name = "stzenginestringhmacsha256", .func = &ring_StringHmacSha256 },
     .{ .name = "stzenginestringcountchar", .func = &ring_StringCountChar },
     .{ .name = "stzenginestringreplacechar", .func = &ring_StringReplaceChar },
     .{ .name = "stzenginestringcopy", .func = &ring_StringCopy },

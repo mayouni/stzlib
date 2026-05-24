@@ -569,6 +569,65 @@ pub fn str_zigzag(handle: ?*StzString, rails: c_int) callconv(.c) ?*StzString {
     return result;
 }
 
+// ─── Cryptographic Hashes ───
+
+const crypto_hex = "0123456789abcdef";
+
+fn hexDigest(comptime digest_len: usize, digest: *const [digest_len]u8) ?*StzString {
+    var buf: [digest_len * 2]u8 = undefined;
+    for (digest, 0..) |byte, i| {
+        buf[i * 2] = crypto_hex[byte >> 4];
+        buf[i * 2 + 1] = crypto_hex[byte & 0x0f];
+    }
+    return str_from(&buf, digest_len * 2);
+}
+
+pub fn str_sha256(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    var digest: [std.crypto.hash.sha2.Sha256.digest_length]u8 = undefined;
+    std.crypto.hash.sha2.Sha256.hash(buf, &digest, .{});
+    return hexDigest(std.crypto.hash.sha2.Sha256.digest_length, &digest);
+}
+
+pub fn str_md5(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    var digest: [std.crypto.hash.Md5.digest_length]u8 = undefined;
+    std.crypto.hash.Md5.hash(buf, &digest, .{});
+    return hexDigest(std.crypto.hash.Md5.digest_length, &digest);
+}
+
+pub fn str_blake3(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    var digest: [std.crypto.hash.Blake3.digest_length]u8 = undefined;
+    std.crypto.hash.Blake3.hash(buf, &digest, .{});
+    return hexDigest(std.crypto.hash.Blake3.digest_length, &digest);
+}
+
+pub fn str_hmac_sha256(handle: StzStringHandle, key_ptr: [*c]const u8, key_len: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (key_ptr == null or key_len <= 0) return null;
+    const klen: usize = @intCast(key_len);
+    const key = key_ptr[0..klen];
+    var mac: [std.crypto.auth.hmac.sha2.HmacSha256.mac_length]u8 = undefined;
+    std.crypto.auth.hmac.sha2.HmacSha256.create(&mac, buf, key);
+    return hexDigest(std.crypto.auth.hmac.sha2.HmacSha256.mac_length, &mac);
+}
+
+pub fn str_sha256_raw(handle: StzStringHandle, out_buf: [*c]u8, out_len: usize) callconv(.c) usize {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    const dlen = std.crypto.hash.sha2.Sha256.digest_length;
+    if (out_len < dlen) return 0;
+    var digest: [dlen]u8 = undefined;
+    std.crypto.hash.sha2.Sha256.hash(buf, &digest, .{});
+    @memcpy(out_buf[0..dlen], &digest);
+    return dlen;
+}
+
 // ─── Hash & Entropy ───
 
 /// FNV-1a hash of the string bytes.
@@ -772,4 +831,52 @@ test "csv field escaping" {
     const csv = str_to_csv_field(s) orelse return error.SkipZigTest;
     defer core.str_free(csv);
     try testing.expectEqualStrings("\"a,b\"", csv.slice());
+}
+
+test "sha256 known vector" {
+    const s = str_from("hello", 5) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    const h = str_sha256(s) orelse return error.SkipZigTest;
+    defer core.str_free(h);
+    try testing.expectEqualStrings("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", h.slice());
+}
+
+test "md5 known vector" {
+    const s = str_from("hello", 5) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    const h = str_md5(s) orelse return error.SkipZigTest;
+    defer core.str_free(h);
+    try testing.expectEqualStrings("5d41402abc4b2a76b9719d911017c592", h.slice());
+}
+
+test "blake3 produces 64-char hex" {
+    const s = str_from("hello", 5) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    const h = str_blake3(s) orelse return error.SkipZigTest;
+    defer core.str_free(h);
+    try testing.expect(h.slice().len == 64);
+}
+
+test "hmac-sha256 known vector" {
+    const s = str_from("hello", 5) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    const h = str_hmac_sha256(s, "key", 3) orelse return error.SkipZigTest;
+    defer core.str_free(h);
+    try testing.expect(h.slice().len == 64);
+}
+
+test "sha256 empty string" {
+    const s = str_from("", 0) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    const h = str_sha256(s) orelse return error.SkipZigTest;
+    defer core.str_free(h);
+    try testing.expectEqualStrings("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", h.slice());
+}
+
+test "sha256_raw returns 32 bytes" {
+    const s = str_from("test", 4) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    var buf: [32]u8 = undefined;
+    const n = str_sha256_raw(s, &buf, 32);
+    try testing.expect(n == 32);
 }

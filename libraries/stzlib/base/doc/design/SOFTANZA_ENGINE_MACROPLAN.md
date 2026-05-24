@@ -11,15 +11,16 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 15                       |
+| Modules built     | 22                       |
 | Design principles | 19                       |
-| Engine tests      | 759 passing              |
-| DLLs shipping     | 19 (4 Core + 15 Base)    |
+| Engine tests      | 1086 passing             |
+| DLLs shipping     | 26 (4 Core + 22 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 523 DLL functions        |
+| Ring bridge regs  | 983 DLL functions        |
+| Ring classes bridged | 107 files, 3482 calls |
 | Ring Unicode hard | Complete (all domains)   |
 | PCRE2 backend     | 10.47 (industrial regex) |
-| Last updated      | 2026-05-21 (Session 22)  |
+| Last updated      | 2026-05-24 (Session 26)  |
 
 ---
 
@@ -312,6 +313,49 @@
 - **Stats**: 759 Zig tests (was 728), 523 Ring bridge functions (was 470), 15 modules
   built (was 13). Engine version bumped to 0.7.0.0.
 
+### M-E3: Extended Collections (Sessions 23-26) [DONE]
+
+- **`stz_table` -- columnar table engine**: Handle-based columnar storage with typed
+  columns. Full C ABI: lifecycle, row/cell CRUD, sort (multi-column, stable), search
+  (find/filter with predicates), aggregation (sum/avg/min/max/count per column).
+  42 Ring bridge functions. stzTable.ring + stzTableSorter/Aggregator/Search all
+  delegate to engine. `stz_pivot` module adds pivot table operations.
+- **`stz_graph` -- directed/undirected graph engine**: Node/edge CRUD, BFS/DFS
+  traversal, shortest path (Dijkstra), cycle detection, topological sort, connected
+  components, reachable set, in/out degree. 18 Ring bridge functions. stzGraph.ring
+  delegates 7+ algorithmic methods via lazy engine sync with invalidation on mutations.
+- **`stz_matrix` -- matrix engine**: 19 Ring bridge functions. stzMatrix.ring fully
+  engine-backed.
+- **stzTree stays Ring-side**: Its API uses `eval()` on Ring nested lists for path
+  navigation (`[:root][:node]`) -- inherently Ring-specific, not a fit for engine
+  reimplementation.
+- **Reference data**: SQLite-backed ref_data module (country/language/currency/script
+  lookups). 18 bridge functions. stzUnicodeData.ring + stzLocale.ring consume it.
+- **stz_stats**: Mean/median/mode/variance/stddev/percentile/correlation/regression/
+  z-score/outlier detection. 28 bridge functions. stzDataSet.ring fully delegates.
+- **stz_random**: Uniform/range/shuffle/sample/weighted selection. 6 bridge functions.
+- **stz_csv**: Parse/write CSV with headers. 7 bridge functions.
+- **Ring-side bridging completed**: stzNumber, stzListFinder, stzListCounter,
+  stzListLeadTrail, stzHashList, stzRandom, stzCSV, stzGraph -- all engine-backed.
+- **String Engine Phase H (Crypto)**: SHA-256, MD5, BLAKE3, HMAC-SHA256 via
+  `std.crypto`. 5 new engine functions (str_sha256, str_md5, str_blake3,
+  str_hmac_sha256, str_sha256_raw), 4 Ring bridge functions, 6 new Zig tests.
+  stzStringCrypto.ring gains SHA256(), MD5(), BLAKE3(), HMACSHA256() methods.
+- **Stats**: 1086 Zig tests, 983 Ring bridge functions, 26 DLLs, 22 modules built,
+  107 Ring files making 3482 StzEngine* calls.
+
+### M-E4: Algorithms [PARTIAL]
+
+- **stz_stats** [DONE]: Completed as part of M-E3 work (Sessions 23-24).
+- **Walker/Checker/Performer**: Ring-side submodules exist (stzStringWalker,
+  stzListWalker, stzStringChecker, stzListChecker, stzStringPerformer,
+  stzListPerformer) and already delegate to engine via StzEngine* calls where
+  applicable. No standalone engine modules needed -- the operations are backed
+  by existing string/list engine functions.
+- **Yielder**: Not yet implemented in either layer.
+- **stz_text**: Not yet implemented. Would cover paragraph/sentence/word-level
+  text operations beyond what string/nlp.zig provides.
+
 ---
 
 ## MILESTONES AHEAD
@@ -365,23 +409,23 @@ functions, 2 new DLLs.
 
 **Depends on:** M-E1 (StzValue)
 
-### M-E3: Extended Collections [ ]
+### M-E3: Extended Collections [DONE]
 
 > `stz_table`, `stz_graph`, `stz_matrix`, `stz_tree`.
 
-**Why:** Targets for the universal operations paradigm
-(Find/Replace/Contains work on ALL structures).
+**Completed Sessions 23-26.** Table (42 bridge fns), Graph (18),
+Matrix (19), Stats (28), Random (6), CSV (7), RefData (18).
+Tree stays Ring-side (eval-based path navigation). All Ring
+classes fully engine-backed: 107 files, 3482 StzEngine* calls.
 
-**Depends on:** M-E2 (List, HashMap)
-
-### M-E4: Algorithms [ ]
+### M-E4: Algorithms [PARTIAL]
 
 > `stz_stats`, `stz_text`, `stz_walker`, `stz_checker`,
 > `stz_yielder`, `stz_performer`.
 
-**Why:** Walker replaces all index-based loops. Text and stats
-are high-frequency. Checker/Yielder/Performer complete Ring
-workaround elimination.
+**stz_stats** [DONE]. Walker/Checker/Performer Ring-side modules
+already delegate to engine string/list functions. Remaining:
+stz_text (paragraph/sentence ops), Yielder (not started).
 
 **Depends on:** M-E2 (collections)
 
