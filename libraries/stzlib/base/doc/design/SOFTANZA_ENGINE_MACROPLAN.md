@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 44                       |
+| Modules built     | 47                       |
 | Design principles | 19                       |
-| Engine tests      | 1270 passing             |
-| DLLs shipping     | 48 (4 Core + 44 Base)    |
+| Engine tests      | 1296 passing             |
+| DLLs shipping     | 51 (4 Core + 47 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -442,11 +442,12 @@ stz_text (paragraph/sentence ops), Yielder (not started).
 
 **Depends on:** M-E2 (collections)
 
-### M-E5: Infrastructure Services [21/25 DONE]
+### M-E5: Infrastructure Services [DONE]
 
 > 25 modules: crypto, codec, compress, stream, watch, process,
 > async, uuid, html, rng, solver, geo, bits, expr, embed,
 > registry, smallfn, execmodel, cache, log, profiler, callstack.
+> (4 modules -- random, expr, text, csv -- already existed from M-E3/E4.)
 
 **Why:** Plumbing that signature features and paradigm engines
 build on. Stream and async are prerequisites for Reaxis.
@@ -521,7 +522,7 @@ build on. Stream and async are prerequisites for Reaxis.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 
-### M-E6: Signature Features [ ]
+### M-E6: Signature Features [3/11 DONE]
 
 > 11 modules: pattern, numtheory, natlang, ccode, constraint,
 > reactive, knowgraph, splitter, stringart, display, univops.
@@ -529,6 +530,18 @@ build on. Stream and async are prerequisites for Reaxis.
 **Why:** What makes Softanza unique at the feature level --
 PatternEx family, natural language bridge, universal operations,
 display engine.
+
+**Started Session 27.**
+- **stz_numtheory** [DONE]: GCD, LCM, primality, next/prev/nth prime,
+  factorization, Fibonacci, modular pow/inv, divisors, perfect numbers,
+  Euler totient. 16 C ABI functions, 16 Ring bridge functions,
+  12 Zig tests. DLL #49.
+- **stz_splitter** [DONE]: Split by string/width/any-char/lines/words,
+  keep-delimiters, limit splits. 9 C ABI functions, 9 Ring bridge
+  functions, 7 Zig tests. DLL #50.
+- **stz_univops** [DONE]: Type queries (name/numeric/collection/scalar),
+  bytes equal/compare/swap/fill/hash, int min/max/clamp/abs/sign/in_range.
+  15 C ABI functions, 10 Ring bridge functions, 7 Zig tests. DLL #51.
 
 **Depends on:** M-E4 (algorithms), M-E5 (infrastructure)
 
