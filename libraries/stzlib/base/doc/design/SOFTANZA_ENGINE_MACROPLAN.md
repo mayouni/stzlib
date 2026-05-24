@@ -353,20 +353,21 @@
   country/language field queries. 8 Ring bridge functions in ring_bridge_refdata.zig.
   stzCountry.ring, stzLanguage.ring, stzCurrency.ring gain engine-backed methods
   (NumberOfCountries, NumberOfLanguages, EngineField, EngineFieldByAbbr).
-- **Stats**: 1107 Zig tests, 1005 Ring bridge functions, 26 DLLs, 22 modules built,
+- **Stats**: 1122 Zig tests, 1016 Ring bridge functions, 27 DLLs, 23 modules built,
   107 Ring files making 3482 StzEngine* calls.
 
 ### M-E4: Algorithms [PARTIAL]
 
 - **stz_stats** [DONE]: Completed as part of M-E3 work (Sessions 23-24).
+- **stz_text** [DONE]: Paragraph/sentence segmentation, word/char/line/syllable
+  counting, Flesch Reading Ease, Flesch-Kincaid Grade Level, text truncation.
+  11 C ABI functions, 11 Ring bridge functions, 15 Zig tests. DLL #27.
 - **Walker/Checker/Performer**: Ring-side submodules exist (stzStringWalker,
   stzListWalker, stzStringChecker, stzListChecker, stzStringPerformer,
   stzListPerformer) and already delegate to engine via StzEngine* calls where
   applicable. No standalone engine modules needed -- the operations are backed
   by existing string/list engine functions.
 - **Yielder**: Not yet implemented in either layer.
-- **stz_text**: Not yet implemented. Would cover paragraph/sentence/word-level
-  text operations beyond what string/nlp.zig provides.
 
 ---
 
