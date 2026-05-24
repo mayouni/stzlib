@@ -43,6 +43,7 @@ pub const bits = @import("bits.zig");
 pub const html = @import("html.zig");
 pub const geo = @import("geo.zig");
 pub const compressor = @import("compressor.zig");
+pub const solver = @import("solver.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -613,4 +614,5 @@ test {
     _ = html;
     _ = geo;
     _ = compressor;
+    _ = solver;
 }

@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 29                       |
+| Modules built     | 30                       |
 | Design principles | 19                       |
-| Engine tests      | 1174 passing             |
-| DLLs shipping     | 33 (4 Core + 29 Base)    |
+| Engine tests      | 1182 passing             |
+| DLLs shipping     | 34 (4 Core + 30 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -472,6 +472,10 @@ build on. Stream and async are prerequisites for Reaxis.
 - **stz_compress** [DONE]: CRC-32, Adler-32, RLE encode/decode,
   simple LZ77 compress/decompress. 6 C ABI functions, 6 Ring
   bridge functions, 8 Zig tests. DLL #33.
+- **stz_solver** [DONE]: Linear/quadratic equation solving,
+  bisection/Newton root-finding, Simpson integration, polynomial
+  evaluation, lerp/clamp/map_range. 8 C ABI functions, 8 Ring
+  bridge functions, 8 Zig tests. DLL #34.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 
