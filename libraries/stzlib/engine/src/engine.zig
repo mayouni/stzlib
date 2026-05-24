@@ -58,6 +58,9 @@ pub const async_task = @import("async_task.zig");
 pub const embed_mod = @import("embed.zig");
 pub const smallfn = @import("smallfn.zig");
 pub const execmodel = @import("execmodel.zig");
+pub const numtheory = @import("numtheory.zig");
+pub const splitter_mod = @import("splitter.zig");
+pub const univops = @import("univops.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -643,4 +646,7 @@ test {
     _ = embed_mod;
     _ = smallfn;
     _ = execmodel;
+    _ = numtheory;
+    _ = splitter_mod;
+    _ = univops;
 }

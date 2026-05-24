@@ -47,6 +47,9 @@ load "../../engine/stz_async.ring"
 load "../../engine/stz_embed.ring"
 load "../../engine/stz_smallfn.ring"
 load "../../engine/stz_execmodel.ring"
+load "../../engine/stz_numtheory.ring"
+load "../../engine/stz_splitter.ring"
+load "../../engine/stz_univops.ring"
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)
