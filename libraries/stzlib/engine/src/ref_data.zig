@@ -74,6 +74,7 @@ var g_regex: ?*c.sqlite3 = null;
 var g_words: ?*c.sqlite3 = null;
 var g_boxdraw: ?*c.sqlite3 = null;
 var g_syscmd: ?*c.sqlite3 = null;
+var g_i18n: ?*c.sqlite3 = null;
 
 fn getChardata() ?*c.sqlite3 {
     if (g_chardata == null) g_chardata = openDbByName("chardata.db");
@@ -95,6 +96,10 @@ fn getSyscmd() ?*c.sqlite3 {
     if (g_syscmd == null) g_syscmd = openDbByName("syscmd.db");
     return g_syscmd;
 }
+fn getI18n() ?*c.sqlite3 {
+    if (g_i18n == null) g_i18n = openDbByName("i18n.db");
+    return g_i18n;
+}
 
 // Test support
 pub fn setTestDbs(chardata: ?*c.sqlite3, regex: ?*c.sqlite3, words_db: ?*c.sqlite3, boxdraw: ?*c.sqlite3, syscmd: ?*c.sqlite3) void {
@@ -103,6 +108,9 @@ pub fn setTestDbs(chardata: ?*c.sqlite3, regex: ?*c.sqlite3, words_db: ?*c.sqlit
     g_words = words_db;
     g_boxdraw = boxdraw;
     g_syscmd = syscmd;
+}
+pub fn setTestI18n(i18n: ?*c.sqlite3) void {
+    g_i18n = i18n;
 }
 
 // ── Generic helpers ─────────────────────────────────────────────
@@ -236,6 +244,78 @@ pub fn systemCommand(name_ptr: [*]const u8, name_len: i32, platform: i32, out: [
     return 0;
 }
 
+// ── i18n.db queries ────────────────────────────────────────
+
+pub fn countryCount() i32 { return queryCount(getI18n(), "SELECT COUNT(*) FROM countries"); }
+pub fn languageCount() i32 { return queryCount(getI18n(), "SELECT COUNT(*) FROM languages"); }
+
+pub fn countryNameById(id: i32, out: [*]u8, max: i32) i32 {
+    return queryTextByInt(getI18n(), "SELECT name FROM countries WHERE id=?1", id, out, max);
+}
+
+pub fn countryByName(name_ptr: [*]const u8, name_len: i32, col: [*:0]const u8, out: [*]u8, max: i32) i32 {
+    const db = getI18n() orelse return 0;
+    var sql_buf: [128]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf, "SELECT {s} FROM countries WHERE name=?1 COLLATE NOCASE", .{col}) catch return 0;
+    sql_buf[sql.len] = 0;
+    return queryTextByTextCustom(db, @ptrCast(sql_buf[0..sql.len :0]), name_ptr, name_len, out, max);
+}
+
+pub fn countryByAlpha2(code_ptr: [*]const u8, code_len: i32, col: [*:0]const u8, out: [*]u8, max: i32) i32 {
+    const db = getI18n() orelse return 0;
+    var sql_buf: [128]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf, "SELECT {s} FROM countries WHERE alpha2=?1 COLLATE NOCASE", .{col}) catch return 0;
+    sql_buf[sql.len] = 0;
+    return queryTextByTextCustom(db, @ptrCast(sql_buf[0..sql.len :0]), code_ptr, code_len, out, max);
+}
+
+pub fn languageByName(name_ptr: [*]const u8, name_len: i32, col: [*:0]const u8, out: [*]u8, max: i32) i32 {
+    const db = getI18n() orelse return 0;
+    var sql_buf: [128]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf, "SELECT {s} FROM languages WHERE name=?1 COLLATE NOCASE", .{col}) catch return 0;
+    sql_buf[sql.len] = 0;
+    return queryTextByTextCustom(db, @ptrCast(sql_buf[0..sql.len :0]), name_ptr, name_len, out, max);
+}
+
+pub fn languageByShortAbbr(abbr_ptr: [*]const u8, abbr_len: i32, col: [*:0]const u8, out: [*]u8, max: i32) i32 {
+    const db = getI18n() orelse return 0;
+    var sql_buf: [128]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf, "SELECT {s} FROM languages WHERE short_abbr=?1 COLLATE NOCASE", .{col}) catch return 0;
+    sql_buf[sql.len] = 0;
+    return queryTextByTextCustom(db, @ptrCast(sql_buf[0..sql.len :0]), abbr_ptr, abbr_len, out, max);
+}
+
+fn queryTextByTextCustom(db: *c.sqlite3, sql: [*:0]const u8, key_ptr: [*]const u8, key_len: i32, out: [*]u8, max: i32) i32 {
+    var stmt: ?*c.sqlite3_stmt = null;
+    if (c.sqlite3_prepare_v2(db, sql, -1, &stmt, null) != c.SQLITE_OK) return 0;
+    defer _ = c.sqlite3_finalize(stmt);
+    _ = c.sqlite3_bind_text(stmt, 1, key_ptr, key_len, c.SQLITE_TRANSIENT);
+    if (c.sqlite3_step(stmt) == c.SQLITE_ROW) {
+        const txt = c.sqlite3_column_text(stmt, 0);
+        const len: usize = @intCast(c.sqlite3_column_bytes(stmt, 0));
+        if (txt) |t| {
+            const n = @min(len, @as(usize, @intCast(max)) -| 1);
+            @memcpy(out[0..n], t[0..n]);
+            out[n] = 0;
+            return @intCast(n);
+        }
+    }
+    return 0;
+}
+
+pub fn countryIntByName(name_ptr: [*]const u8, name_len: i32, col: [*:0]const u8) i32 {
+    const db = getI18n() orelse return 0;
+    var sql_buf: [128]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf, "SELECT {s} FROM countries WHERE name=?1 COLLATE NOCASE", .{col}) catch return 0;
+    sql_buf[sql.len] = 0;
+    var stmt: ?*c.sqlite3_stmt = null;
+    if (c.sqlite3_prepare_v2(db, @ptrCast(sql_buf[0..sql.len :0]), -1, &stmt, null) != c.SQLITE_OK) return 0;
+    defer _ = c.sqlite3_finalize(stmt);
+    _ = c.sqlite3_bind_text(stmt, 1, name_ptr, name_len, c.SQLITE_TRANSIENT);
+    if (c.sqlite3_step(stmt) == c.SQLITE_ROW) return c.sqlite3_column_int(stmt, 0);
+    return 0;
+}
+
 // ── C ABI exports ───────────────────────────────────────────────
 
 pub export fn stz_refdata_script_count() callconv(.c) i32 { return scriptCount(); }
@@ -256,6 +336,15 @@ pub export fn stz_refdata_latin_diacritic_count() callconv(.c) i32 { return lati
 pub export fn stz_refdata_latin_diacritic_base(diac_ptr: [*]const u8, diac_len: i32, out: [*]u8, max: i32) callconv(.c) i32 { return latinDiacriticBase(diac_ptr, diac_len, out, max); }
 pub export fn stz_refdata_syscmd_count() callconv(.c) i32 { return systemCommandCount(); }
 pub export fn stz_refdata_syscmd(name_ptr: [*]const u8, name_len: i32, platform: i32, out: [*]u8, max: i32) callconv(.c) i32 { return systemCommand(name_ptr, name_len, platform, out, max); }
+
+pub export fn stz_refdata_country_count() callconv(.c) i32 { return countryCount(); }
+pub export fn stz_refdata_language_count() callconv(.c) i32 { return languageCount(); }
+pub export fn stz_refdata_country_name(id: i32, out: [*]u8, max: i32) callconv(.c) i32 { return countryNameById(id, out, max); }
+pub export fn stz_refdata_country_field(name_ptr: [*]const u8, name_len: i32, col: [*:0]const u8, out: [*]u8, max: i32) callconv(.c) i32 { return countryByName(name_ptr, name_len, col, out, max); }
+pub export fn stz_refdata_country_field_by_alpha2(code_ptr: [*]const u8, code_len: i32, col: [*:0]const u8, out: [*]u8, max: i32) callconv(.c) i32 { return countryByAlpha2(code_ptr, code_len, col, out, max); }
+pub export fn stz_refdata_country_int_field(name_ptr: [*]const u8, name_len: i32, col: [*:0]const u8) callconv(.c) i32 { return countryIntByName(name_ptr, name_len, col); }
+pub export fn stz_refdata_language_field(name_ptr: [*]const u8, name_len: i32, col: [*:0]const u8, out: [*]u8, max: i32) callconv(.c) i32 { return languageByName(name_ptr, name_len, col, out, max); }
+pub export fn stz_refdata_language_field_by_abbr(abbr_ptr: [*]const u8, abbr_len: i32, col: [*:0]const u8, out: [*]u8, max: i32) callconv(.c) i32 { return languageByShortAbbr(abbr_ptr, abbr_len, col, out, max); }
 
 // ── Tests ───────────────────────────────────────────────────────
 
@@ -415,4 +504,76 @@ test "ref_data: lookup box draw char LightH" {
     const name = "LightH";
     const len = boxDrawChar(name.ptr, @intCast(name.len), &buf, 64);
     try std.testing.expect(len > 0);
+}
+
+test "ref_data: country count >= 250" {
+    const saved_i18n = g_i18n;
+    const db = openTestDbFile("data/i18n.db");
+    if (db == null) return;
+    g_i18n = db;
+    defer {
+        if (db) |d| _ = c.sqlite3_close(d);
+        g_i18n = saved_i18n;
+    }
+    try std.testing.expect(countryCount() >= 250);
+}
+
+test "ref_data: language count >= 200" {
+    const saved_i18n = g_i18n;
+    const db = openTestDbFile("data/i18n.db");
+    if (db == null) return;
+    g_i18n = db;
+    defer {
+        if (db) |d| _ = c.sqlite3_close(d);
+        g_i18n = saved_i18n;
+    }
+    try std.testing.expect(languageCount() >= 200);
+}
+
+test "ref_data: lookup country France by name" {
+    const saved_i18n = g_i18n;
+    const db = openTestDbFile("data/i18n.db");
+    if (db == null) return;
+    g_i18n = db;
+    defer {
+        if (db) |d| _ = c.sqlite3_close(d);
+        g_i18n = saved_i18n;
+    }
+    var buf: [64]u8 = undefined;
+    const name = "France";
+    const len = countryByName(name.ptr, @intCast(name.len), "alpha2", &buf, 64);
+    try std.testing.expect(len == 2);
+    try std.testing.expect(std.mem.eql(u8, buf[0..2], "FR"));
+}
+
+test "ref_data: lookup language english by name" {
+    const saved_i18n = g_i18n;
+    const db = openTestDbFile("data/i18n.db");
+    if (db == null) return;
+    g_i18n = db;
+    defer {
+        if (db) |d| _ = c.sqlite3_close(d);
+        g_i18n = saved_i18n;
+    }
+    var buf: [64]u8 = undefined;
+    const name = "english";
+    const len = languageByName(name.ptr, @intCast(name.len), "short_abbr", &buf, 64);
+    try std.testing.expect(len == 2);
+    try std.testing.expect(std.mem.eql(u8, buf[0..2], "en"));
+}
+
+test "ref_data: country currency by alpha2 US" {
+    const saved_i18n = g_i18n;
+    const db = openTestDbFile("data/i18n.db");
+    if (db == null) return;
+    g_i18n = db;
+    defer {
+        if (db) |d| _ = c.sqlite3_close(d);
+        g_i18n = saved_i18n;
+    }
+    var buf: [64]u8 = undefined;
+    const code = "US";
+    const len = countryByAlpha2(code.ptr, @intCast(code.len), "currency", &buf, 64);
+    try std.testing.expect(len > 0);
+    try std.testing.expect(std.mem.eql(u8, buf[0..@intCast(len)], "United_States_dollar"));
 }

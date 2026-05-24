@@ -348,7 +348,12 @@
   stzStringLocale.ring fully engine-backed with script/direction/comparison.
 - **String Engine v2 COMPLETE**: All 8 phases (A-H) done. 13 submodules,
   ~280 functions, full test coverage.
-- **Stats**: 1102 Zig tests, 997 Ring bridge functions, 26 DLLs, 22 modules built,
+- **i18n engine backing**: i18n.db generated (261 countries, 323 languages) from
+  countries.zig + languages.zig data files. 8 C ABI exports in ref_data.zig for
+  country/language field queries. 8 Ring bridge functions in ring_bridge_refdata.zig.
+  stzCountry.ring, stzLanguage.ring, stzCurrency.ring gain engine-backed methods
+  (NumberOfCountries, NumberOfLanguages, EngineField, EngineFieldByAbbr).
+- **Stats**: 1107 Zig tests, 1005 Ring bridge functions, 26 DLLs, 22 modules built,
   107 Ring files making 3482 StzEngine* calls.
 
 ### M-E4: Algorithms [PARTIAL]

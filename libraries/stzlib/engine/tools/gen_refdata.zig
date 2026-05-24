@@ -108,6 +108,34 @@ const syscmd_schema =
     \\);
 ;
 
+const i18n_schema =
+    \\CREATE TABLE IF NOT EXISTS countries (
+    \\  id               INTEGER PRIMARY KEY,
+    \\  name             TEXT NOT NULL,
+    \\  alpha2           TEXT NOT NULL,
+    \\  alpha3           TEXT NOT NULL,
+    \\  phone_code       TEXT NOT NULL,
+    \\  default_language TEXT NOT NULL,
+    \\  currency         TEXT NOT NULL,
+    \\  fractional_unit  TEXT NOT NULL,
+    \\  currency_base    INTEGER NOT NULL DEFAULT 100
+    \\);
+    \\CREATE INDEX IF NOT EXISTS idx_country_name ON countries(name);
+    \\CREATE INDEX IF NOT EXISTS idx_country_alpha2 ON countries(alpha2);
+    \\CREATE INDEX IF NOT EXISTS idx_country_alpha3 ON countries(alpha3);
+    \\CREATE TABLE IF NOT EXISTS languages (
+    \\  id               INTEGER PRIMARY KEY,
+    \\  name             TEXT NOT NULL,
+    \\  short_abbr       TEXT NOT NULL,
+    \\  long_abbr        TEXT NOT NULL,
+    \\  default_country  TEXT NOT NULL DEFAULT '',
+    \\  native_name      TEXT NOT NULL DEFAULT ''
+    \\);
+    \\CREATE INDEX IF NOT EXISTS idx_lang_name ON languages(name);
+    \\CREATE INDEX IF NOT EXISTS idx_lang_short ON languages(short_abbr);
+    \\CREATE INDEX IF NOT EXISTS idx_lang_long ON languages(long_abbr);
+;
+
 fn execSql(db: *c.sqlite3, sql: [*:0]const u8) void {
     _ = c.sqlite3_exec(db, sql, null, null, null);
 }
@@ -344,5 +372,52 @@ pub fn main() !void {
         finalize(d);
     }
 
-    std.debug.print("Done: 5 databases generated in data/\n", .{});
+    // ═══════════════════════════════════════════════════════════════
+    // 6. i18n.db — countries and languages
+    // ═══════════════════════════════════════════════════════════════
+    {
+        const d = try openOrCreate("data/i18n.db");
+        defer _ = c.sqlite3_close(d);
+        try applySchema(d, i18n_schema);
+        execSql(d, "BEGIN TRANSACTION;");
+
+        const country_data = @import("data/countries.zig").countries;
+        for (country_data) |co| {
+            var stmt: ?*c.sqlite3_stmt = null;
+            if (c.sqlite3_prepare_v2(d, "INSERT OR REPLACE INTO countries (id,name,alpha2,alpha3,phone_code,default_language,currency,fractional_unit,currency_base) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9);", -1, &stmt, null) == c.SQLITE_OK) {
+                _ = c.sqlite3_bind_int(stmt, 1, co.id);
+                _ = c.sqlite3_bind_text(stmt, 2, co.name.ptr, @intCast(co.name.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 3, co.alpha2.ptr, @intCast(co.alpha2.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 4, co.alpha3.ptr, @intCast(co.alpha3.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 5, co.phone_code.ptr, @intCast(co.phone_code.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 6, co.default_language.ptr, @intCast(co.default_language.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 7, co.currency.ptr, @intCast(co.currency.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 8, co.fractional_unit.ptr, @intCast(co.fractional_unit.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_int(stmt, 9, co.currency_base);
+                _ = c.sqlite3_step(stmt);
+                _ = c.sqlite3_finalize(stmt);
+            }
+        }
+        std.debug.print("  i18n.db: countries={d}", .{country_data.len});
+
+        const lang_data = @import("data/languages.zig").languages;
+        for (lang_data) |la| {
+            var stmt: ?*c.sqlite3_stmt = null;
+            if (c.sqlite3_prepare_v2(d, "INSERT OR REPLACE INTO languages (id,name,short_abbr,long_abbr,default_country,native_name) VALUES (?1,?2,?3,?4,?5,?6);", -1, &stmt, null) == c.SQLITE_OK) {
+                _ = c.sqlite3_bind_int(stmt, 1, la.id);
+                _ = c.sqlite3_bind_text(stmt, 2, la.name.ptr, @intCast(la.name.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 3, la.short_abbr.ptr, @intCast(la.short_abbr.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 4, la.long_abbr.ptr, @intCast(la.long_abbr.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 5, la.default_country.ptr, @intCast(la.default_country.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_bind_text(stmt, 6, la.native_name.ptr, @intCast(la.native_name.len), c.SQLITE_TRANSIENT);
+                _ = c.sqlite3_step(stmt);
+                _ = c.sqlite3_finalize(stmt);
+            }
+        }
+        std.debug.print(" languages={d}\n", .{lang_data.len});
+
+        finalize(d);
+    }
+
+    std.debug.print("Done: 6 databases generated in data/\n", .{});
 }
