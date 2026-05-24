@@ -42,6 +42,11 @@ load "../../engine/stz_arith.ring"
 load "../../engine/stz_registry.ring"
 load "../../engine/stz_profiler.ring"
 load "../../engine/stz_callstack.ring"
+load "../../engine/stz_crypto.ring"
+load "../../engine/stz_async.ring"
+load "../../engine/stz_embed.ring"
+load "../../engine/stz_smallfn.ring"
+load "../../engine/stz_execmodel.ring"
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)

@@ -58,6 +58,11 @@ const base_domains = [_]Domain{
     .{ .name = "stz_registry", .entry = "src/stz_registry_entry.zig", .needs_ring = true },
     .{ .name = "stz_profiler", .entry = "src/stz_profiler_entry.zig", .needs_ring = true },
     .{ .name = "stz_callstack", .entry = "src/stz_callstack_entry.zig", .needs_ring = true },
+    .{ .name = "stz_crypto", .entry = "src/stz_crypto_entry.zig", .needs_ring = true },
+    .{ .name = "stz_async", .entry = "src/stz_async_entry.zig", .needs_ring = true },
+    .{ .name = "stz_embed", .entry = "src/stz_embed_entry.zig", .needs_ring = true },
+    .{ .name = "stz_smallfn", .entry = "src/stz_smallfn_entry.zig", .needs_ring = true },
+    .{ .name = "stz_execmodel", .entry = "src/stz_execmodel_entry.zig", .needs_ring = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
