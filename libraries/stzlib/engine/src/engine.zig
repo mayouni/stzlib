@@ -69,6 +69,18 @@ pub const natlang = @import("natlang.zig");
 pub const ccode = @import("ccode.zig");
 pub const reactive = @import("reactive.zig");
 pub const knowgraph = @import("knowgraph.zig");
+pub const namedvars = @import("namedvars.zig");
+pub const truth = @import("truth.zig");
+pub const quantifier = @import("quantifier.zig");
+pub const adverb = @import("adverb.zig");
+pub const timeline = @import("timeline.zig");
+pub const gridnav = @import("gridnav.zig");
+pub const sectmerge = @import("sectmerge.zig");
+pub const deepops = @import("deepops.zig");
+pub const reaxis = @import("reaxis.zig");
+pub const softanzuter = @import("softanzuter.zig");
+pub const polyglot = @import("polyglot.zig");
+pub const polycode = @import("polycode.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -665,4 +677,16 @@ test {
     _ = ccode;
     _ = reactive;
     _ = knowgraph;
+    _ = namedvars;
+    _ = truth;
+    _ = quantifier;
+    _ = adverb;
+    _ = timeline;
+    _ = gridnav;
+    _ = sectmerge;
+    _ = deepops;
+    _ = reaxis;
+    _ = softanzuter;
+    _ = polyglot;
+    _ = polycode;
 }
