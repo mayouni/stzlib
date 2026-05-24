@@ -37,6 +37,8 @@ pub const csv = @import("csv.zig");
 pub const stats = @import("stats.zig");
 pub const graph = @import("graph.zig");
 pub const text = @import("text.zig");
+pub const uuid = @import("uuid.zig");
+pub const codec = @import("codec.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -601,4 +603,6 @@ test {
     _ = stats;
     _ = graph;
     _ = text;
+    _ = uuid;
+    _ = codec;
 }
