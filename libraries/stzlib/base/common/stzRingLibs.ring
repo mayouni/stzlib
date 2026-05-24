@@ -33,6 +33,9 @@ load "../../engine/stz_html.ring"
 load "../../engine/stz_geo.ring"
 load "../../engine/stz_compress.ring"
 load "../../engine/stz_solver.ring"
+load "../../engine/stz_watch.ring"
+load "../../engine/stz_log.ring"
+load "../../engine/stz_cache.ring"
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)

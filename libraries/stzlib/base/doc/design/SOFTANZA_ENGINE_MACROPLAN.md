@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 30                       |
+| Modules built     | 33                       |
 | Design principles | 19                       |
-| Engine tests      | 1182 passing             |
-| DLLs shipping     | 34 (4 Core + 30 Base)    |
+| Engine tests      | 1199 passing             |
+| DLLs shipping     | 37 (4 Core + 33 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -476,6 +476,15 @@ build on. Stream and async are prerequisites for Reaxis.
   bisection/Newton root-finding, Simpson integration, polynomial
   evaluation, lerp/clamp/map_range. 8 C ABI functions, 8 Ring
   bridge functions, 8 Zig tests. DLL #34.
+- **stz_watch** [DONE]: 64 stopwatch slots with nanosecond precision,
+  start/stop/resume/reset, elapsed in ns/us/ms/s, timestamp.
+  11 C ABI functions, 11 Ring bridge functions, 6 Zig tests. DLL #35.
+- **stz_log** [DONE]: 6 log levels (trace-fatal), level filtering,
+  enable/disable, message buffer, level names. 10 C ABI functions,
+  10 Ring bridge functions, 6 Zig tests. DLL #36.
+- **stz_cache** [DONE]: 256-slot string cache with TTL support,
+  hit/miss tracking, hit rate. 9 C ABI functions, 9 Ring bridge
+  functions, 5 Zig tests. DLL #37.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 
