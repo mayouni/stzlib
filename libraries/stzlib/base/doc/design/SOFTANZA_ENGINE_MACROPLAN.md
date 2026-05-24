@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 52                       |
+| Modules built     | 55                       |
 | Design principles | 19                       |
-| Engine tests      | 1335 passing             |
-| DLLs shipping     | 56 (4 Core + 52 Base)    |
+| Engine tests      | 1357 passing             |
+| DLLs shipping     | 59 (4 Core + 55 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -522,7 +522,7 @@ build on. Stream and async are prerequisites for Reaxis.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 
-### M-E6: Signature Features [8/11 DONE]
+### M-E6: Signature Features [DONE]
 
 > 11 modules: pattern, numtheory, natlang, ccode, constraint,
 > reactive, knowgraph, splitter, stringart, display, univops.
@@ -558,6 +558,15 @@ display engine.
 - **stz_natlang** [DONE]: Word/sentence/char/syllable counting, avg word
   length, case checks (upper/lower/title), digit/alpha/alnum detection.
   11 C ABI functions, 11 Ring bridge functions, 7 Zig tests. DLL #56.
+- **stz_ccode** [DONE]: C type names, sizeof, function declarations, struct
+  fields, includes, defines, typedefs, keyword check, string escaping.
+  9 C ABI functions, 8 Ring bridge functions, 9 Zig tests. DLL #57.
+- **stz_reactive** [DONE]: Observable channels with named subscriptions,
+  event emission, last-event retrieval, channel lifecycle.
+  10 C ABI functions, 10 Ring bridge functions, 6 Zig tests. DLL #58.
+- **stz_knowgraph** [DONE]: Triple store (subject-predicate-object), query
+  by any position, duplicate rejection, has_triple check.
+  11 C ABI functions, 8 Ring bridge functions, 7 Zig tests. DLL #59.
 
 **Depends on:** M-E4 (algorithms), M-E5 (infrastructure)
 

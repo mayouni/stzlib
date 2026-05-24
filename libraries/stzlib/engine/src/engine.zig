@@ -66,6 +66,9 @@ pub const stringart = @import("stringart.zig");
 pub const display_mod = @import("display.zig");
 pub const constraint = @import("constraint.zig");
 pub const natlang = @import("natlang.zig");
+pub const ccode = @import("ccode.zig");
+pub const reactive = @import("reactive.zig");
+pub const knowgraph = @import("knowgraph.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -659,4 +662,7 @@ test {
     _ = display_mod;
     _ = constraint;
     _ = natlang;
+    _ = ccode;
+    _ = reactive;
+    _ = knowgraph;
 }
