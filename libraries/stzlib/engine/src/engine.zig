@@ -39,6 +39,9 @@ pub const graph = @import("graph.zig");
 pub const text = @import("text.zig");
 pub const uuid = @import("uuid.zig");
 pub const codec = @import("codec.zig");
+pub const bits = @import("bits.zig");
+pub const html = @import("html.zig");
+pub const geo = @import("geo.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -605,4 +608,7 @@ test {
     _ = text;
     _ = uuid;
     _ = codec;
+    _ = bits;
+    _ = html;
+    _ = geo;
 }
