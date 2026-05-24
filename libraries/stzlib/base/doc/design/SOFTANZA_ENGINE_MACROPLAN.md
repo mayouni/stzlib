@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 39                       |
+| Modules built     | 44                       |
 | Design principles | 19                       |
-| Engine tests      | 1238 passing             |
-| DLLs shipping     | 43 (4 Core + 39 Base)    |
+| Engine tests      | 1270 passing             |
+| DLLs shipping     | 48 (4 Core + 44 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -442,7 +442,7 @@ stz_text (paragraph/sentence ops), Yielder (not started).
 
 **Depends on:** M-E2 (collections)
 
-### M-E5: Infrastructure Services [PARTIAL]
+### M-E5: Infrastructure Services [21/25 DONE]
 
 > 25 modules: crypto, codec, compress, stream, watch, process,
 > async, uuid, html, rng, solver, geo, bits, expr, embed,
@@ -503,6 +503,21 @@ build on. Stream and async are prerequisites for Reaxis.
 - **stz_callstack** [DONE]: 128-frame call stack tracker, push/pop/
   frame/top/to_string/clear. 7 C ABI functions, 7 Ring bridge
   functions, 6 Zig tests. DLL #43.
+- **stz_crypto** [DONE]: SHA-256, MD5, CRC-32, FNV-32/64 hashing,
+  constant-time comparison. 7 C ABI functions, 7 Ring bridge
+  functions, 8 Zig tests. DLL #44.
+- **stz_async** [DONE]: Cooperative task queue (create/start/complete/
+  fail/cancel), priority-based scheduling. 10 C ABI functions,
+  10 Ring bridge functions, 6 Zig tests. DLL #45.
+- **stz_embed** [DONE]: Engine version/build info, feature flag
+  registry. 10 C ABI functions, 10 Ring bridge functions,
+  4 Zig tests. DLL #46.
+- **stz_smallfn** [DONE]: min/max/abs/sign/clamp/lerp/map_range,
+  ceil/floor/round/trunc/fmod/pow/sqrt/log. 19 C ABI functions,
+  19 Ring bridge functions, 8 Zig tests. DLL #47.
+- **stz_execmodel** [DONE]: State machine with event dispatch,
+  named states + transitions. 9 C ABI functions, 9 Ring bridge
+  functions, 6 Zig tests. DLL #48.
 
 **Depends on:** M-E1 (StzValue), partially M-E2
 

@@ -53,6 +53,11 @@ pub const arith = @import("arith.zig");
 pub const registry = @import("registry.zig");
 pub const profiler = @import("profiler.zig");
 pub const callstack_mod = @import("callstack.zig");
+pub const crypto = @import("crypto.zig");
+pub const async_task = @import("async_task.zig");
+pub const embed_mod = @import("embed.zig");
+pub const smallfn = @import("smallfn.zig");
+pub const execmodel = @import("execmodel.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -633,4 +638,9 @@ test {
     _ = registry;
     _ = profiler;
     _ = callstack_mod;
+    _ = crypto;
+    _ = async_task;
+    _ = embed_mod;
+    _ = smallfn;
+    _ = execmodel;
 }
