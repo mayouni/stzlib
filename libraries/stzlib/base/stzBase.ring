@@ -240,6 +240,11 @@ ok
     load "sequence/stzSequence.ring"
     load "confidence/stzConfidence.ring"
     load "provenance/stzProvenance.ring"
+    load "relation/stzRelation.ring"
+    load "intent/stzIntent.ring"
+    load "resource/stzResource.ring"
+    load "context/stzContext.ring"
+    load "similarity/stzSimilarity.ring"
 
 # Loading files related to the VISUAL module
 
