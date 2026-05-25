@@ -102,8 +102,11 @@ class stzSequence
 	 #     ITERATION                 #
 	#-------------------------------#
 
-	def Next()
+	def NextValue()
 		return StzEngineSeqNext(@cName)
+
+		def Advance()
+			return This.NextValue()
 
 	def Current()
 		return StzEngineSeqCurrent(@cName)
@@ -117,7 +120,7 @@ class stzSequence
 		def IterationNumber()
 			return This.Iteration()
 
-	def NextN(n)
+	def NextNValues(n)
 		if CheckingParams()
 			if NOT isNumber(n) or n < 1
 				StzRaise("Incorrect param! n must be a positive number.")
@@ -126,9 +129,12 @@ class stzSequence
 
 		aResult = []
 		for i = 1 to n
-			aResult + This.Next()
-		next
+			aResult + This.NextValue()
+		next i
 		return aResult
+
+		def AdvanceN(n)
+			return This.NextNValues(n)
 
 	  #-------------------------------#
 	 #     RESET AND CLEANUP         #

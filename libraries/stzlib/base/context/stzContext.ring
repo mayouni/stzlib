@@ -82,11 +82,11 @@ class stzContext
 			This.Set(cKey, cValue)
 			return This
 
-	def Get(cKey)
+	def ValueOf(cKey)
 		return StzEngineContextGet(@nHandle, cKey)
 
 		def Value(cKey)
-			return This.Get(cKey)
+			return This.ValueOf(cKey)
 
 	def Has(cKey)
 		nResult = StzEngineContextHas(@nHandle, cKey)
