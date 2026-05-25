@@ -562,6 +562,25 @@ class stzList from stzObject
 	def IsNotEmpty()
 		return NOT This.IsEmpty()
 
+	  #------------------------------------------#
+	 #  NAMED-PARAM CHECKS (needed by Q() calls) #
+	#------------------------------------------#
+
+	def IsWithOrByOrUsingNamedParam()
+		if This.NumberOfItems() = 2 and isString(This.Item(1))
+			cFirst = This.Item(1)
+			if cFirst = "with" or cFirst = "by" or cFirst = "using"
+				return 1
+			ok
+		ok
+		return 0
+
+	def IsCaseSensitiveNamedParam()
+		if This.NumberOfItems() = 2 and isString(This.Item(1)) and This.Item(1) = "casesensitive"
+			return 1
+		ok
+		return 0
+
 	  #====================#
 	 #  SHOWING THE LIST  #
 	#====================#
