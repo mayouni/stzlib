@@ -11,10 +11,10 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 67                       |
+| Modules built     | 81                       |
 | Design principles | 19                       |
-| Engine tests      | 1420 passing             |
-| DLLs shipping     | 71 (4 Core + 67 Base)    |
+| Engine tests      | 1479 passing             |
+| DLLs shipping     | 85 (4 Core + 81 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
@@ -620,7 +620,7 @@ Each one is a concept rethought from first principles.
 
 **Depends on:** M-E6 (signature features)
 
-### M-E8: Universal Computation [ ]
+### M-E8: Universal Computation [DONE]
 
 > 14 modules: provenance, confidence, explain, similarity,
 > context, resource, validator, schema, intent, embedding,
@@ -628,6 +628,38 @@ Each one is a concept rethought from first principles.
 
 **Why:** General-purpose concerns every programmer needs. These
 make AI natural without AI-specific modules.
+
+**Completed Session 28.**
+- **stz_provenance** [DONE]: 128-slot provenance records (entity/origin/
+  author/timestamp), version tracking. 10 C ABI, 10 Ring bridge, 4 tests. DLL #72.
+- **stz_confidence** [DONE]: 64-slot named confidence scores (0.0-1.0),
+  weighted average, min/max. 8 C ABI, 8 Ring bridge, 5 tests. DLL #73.
+- **stz_explain** [DONE]: 64-slot named explanations with categories,
+  category counting. 8 C ABI, 8 Ring bridge, 4 tests. DLL #74.
+- **stz_similarity** [DONE]: Cosine, Euclidean, Manhattan distance,
+  Jaccard on sorted sets, dot product, normalize. 6 C ABI, 4 Ring bridge,
+  6 tests. DLL #75.
+- **stz_context** [DONE]: 32 nested scopes with key-value pairs, parent
+  inheritance, child override. 8 C ABI, 8 Ring bridge, 4 tests. DLL #76.
+- **stz_resource** [DONE]: 128-slot resource tracker with acquire/release
+  lifecycle, leak detection. 9 C ABI, 9 Ring bridge, 4 tests. DLL #77.
+- **stz_validator** [DONE]: 64-slot validation rules (required/min/max/
+  length), violation tracking. 10 C ABI, 10 Ring bridge, 4 tests. DLL #78.
+- **stz_schema** [DONE]: 32 named schemas with typed fields (string/int/
+  float/bool/list/object). 9 C ABI, 9 Ring bridge, 4 tests. DLL #79.
+- **stz_intent** [DONE]: 64-slot named intents with parameters and
+  priority-based selection. 9 C ABI, 9 Ring bridge, 4 tests. DLL #80.
+- **stz_embedding** [DONE]: 64 named embedding vectors (up to 512 dim),
+  cosine similarity between stored embeddings. 8 C ABI, 7 Ring bridge,
+  4 tests. DLL #81.
+- **stz_sequence** [DONE]: 32 named sequences with step/repeat/bounce
+  modes and configurable bounds. 9 C ABI, 9 Ring bridge, 4 tests. DLL #82.
+- **stz_topology** [DONE]: 64-node adjacency topology with BFS
+  connectivity queries. 8 C ABI, 8 Ring bridge, 4 tests. DLL #83.
+- **stz_relations** [DONE]: 256-slot named binary relations with weighted
+  edges, query by subject/object. 10 C ABI, 8 Ring bridge, 4 tests. DLL #84.
+- **stz_statemachine** [DONE]: 16 named finite state machines with states,
+  transitions, event dispatch. 11 C ABI, 10 Ring bridge, 4 tests. DLL #85.
 
 **Depends on:** M-E5 (infrastructure), M-E7 (paradigm engines)
 
