@@ -233,6 +233,14 @@ ok
 
     load "graph/stzWorkflow.ring"
 
+# Loading files related to the ENGINE WRAPPER modules
+
+    load "statemachine/stzStateMachine.ring"
+    load "validator/stzValidator.ring"
+    load "sequence/stzSequence.ring"
+    load "confidence/stzConfidence.ring"
+    load "provenance/stzProvenance.ring"
+
 # Loading files related to the VISUAL module
 
     #TODO// Put here all visual-oriented functions and classes
