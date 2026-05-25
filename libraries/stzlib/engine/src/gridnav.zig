@@ -133,3 +133,22 @@ test "manhattan distance" {
     try std.testing.expectEqual(@as(i32, 7), stz_grid_distance(1, 2, 4, 6));
     try std.testing.expectEqual(@as(i32, 0), stz_grid_distance(3, 3, 3, 3));
 }
+
+test "is_valid position" {
+    _ = stz_grid_create(4, 6);
+    try std.testing.expectEqual(@as(i32, 1), stz_grid_is_valid(0, 0));
+    try std.testing.expectEqual(@as(i32, 1), stz_grid_is_valid(3, 5));
+    try std.testing.expectEqual(@as(i32, 0), stz_grid_is_valid(4, 0)); // out of rows
+    try std.testing.expectEqual(@as(i32, 0), stz_grid_is_valid(0, 6)); // out of cols
+    try std.testing.expectEqual(@as(i32, 0), stz_grid_is_valid(-1, 0)); // negative
+    stz_grid_reset();
+}
+
+test "reset returns to origin" {
+    _ = stz_grid_create(5, 5);
+    stz_grid_set_pos(3, 4);
+    try std.testing.expectEqual(@as(i32, 3), stz_grid_get_row());
+    stz_grid_reset();
+    try std.testing.expectEqual(@as(i32, 0), stz_grid_get_row());
+    try std.testing.expectEqual(@as(i32, 0), stz_grid_get_col());
+}

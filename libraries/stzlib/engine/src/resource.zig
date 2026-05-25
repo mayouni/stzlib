@@ -152,3 +152,39 @@ test "duplicate register rejected" {
     try std.testing.expectEqual(@as(i32, -2), stz_res_register("x", 1, "t", 1));
     stz_res_clear();
 }
+
+test "unregister" {
+    stz_res_clear();
+    _ = stz_res_register("temp", 4, "pool", 4);
+    try std.testing.expectEqual(@as(i32, 1), stz_res_count());
+    const r = stz_res_unregister("temp", 4);
+    try std.testing.expect(r >= 0);
+    try std.testing.expectEqual(@as(i32, 0), stz_res_count());
+    // unregister non-existent returns 0 (not found)
+    try std.testing.expectEqual(@as(i32, 0), stz_res_unregister("nope", 4));
+    stz_res_clear();
+}
+
+test "clear resets everything" {
+    stz_res_clear();
+    _ = stz_res_register("a", 1, "t", 1);
+    _ = stz_res_register("b", 1, "t", 1);
+    _ = stz_res_acquire("a", 1);
+    stz_res_clear();
+    try std.testing.expectEqual(@as(i32, 0), stz_res_count());
+    try std.testing.expectEqual(@as(i32, 0), stz_res_leaked_count());
+}
+
+test "multiple acquire-release cycles" {
+    stz_res_clear();
+    _ = stz_res_register("conn", 4, "db", 2);
+    _ = stz_res_acquire("conn", 4);
+    _ = stz_res_release("conn", 4);
+    _ = stz_res_acquire("conn", 4);
+    _ = stz_res_release("conn", 4);
+    _ = stz_res_acquire("conn", 4);
+    _ = stz_res_release("conn", 4);
+    try std.testing.expectEqual(@as(i32, 3), stz_res_acquire_count("conn", 4));
+    try std.testing.expectEqual(@as(i32, 0), stz_res_leaked_count());
+    stz_res_clear();
+}

@@ -200,3 +200,37 @@ test "duplicate rejected" {
     try std.testing.expectEqual(@as(i32, -2), stz_skill_register("x", 1, "c", 1));
     stz_skill_clear();
 }
+
+test "count and successes" {
+    stz_skill_clear();
+    _ = stz_skill_register("a", 1, "cat", 3);
+    _ = stz_skill_register("b", 1, "cat", 3);
+    try std.testing.expectEqual(@as(i32, 2), stz_skill_count());
+    _ = stz_skill_record_attempt("a", 1, 1);
+    _ = stz_skill_record_attempt("a", 1, 0);
+    _ = stz_skill_record_attempt("a", 1, 1);
+    try std.testing.expectEqual(@as(i32, 3), stz_skill_attempts("a", 1));
+    try std.testing.expectEqual(@as(i32, 2), stz_skill_successes("a", 1));
+    stz_skill_clear();
+}
+
+test "unregister" {
+    stz_skill_clear();
+    _ = stz_skill_register("temp", 4, "misc", 4);
+    try std.testing.expectEqual(@as(i32, 1), stz_skill_count());
+    const r = stz_skill_unregister("temp", 4);
+    try std.testing.expect(r >= 0);
+    try std.testing.expectEqual(@as(i32, 0), stz_skill_count());
+    // unregister non-existent returns 0 (not found)
+    try std.testing.expectEqual(@as(i32, 0), stz_skill_unregister("nope", 4));
+    stz_skill_clear();
+}
+
+test "score with mixed results" {
+    stz_skill_clear();
+    _ = stz_skill_register("mix", 3, "test", 4);
+    _ = stz_skill_record_attempt("mix", 3, 1);
+    _ = stz_skill_record_attempt("mix", 3, 0);
+    try std.testing.expectApproxEqAbs(@as(f64, 0.5), stz_skill_score("mix", 3), 0.01);
+    stz_skill_clear();
+}

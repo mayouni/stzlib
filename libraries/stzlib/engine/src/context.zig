@@ -193,3 +193,33 @@ test "scope count" {
     stz_ctx_clear();
     try std.testing.expectEqual(@as(i32, 0), stz_ctx_scope_count());
 }
+
+test "pair count" {
+    stz_ctx_clear();
+    const s = stz_ctx_create("pairs", 5, -1);
+    try std.testing.expectEqual(@as(i32, 0), stz_ctx_pair_count(s));
+    _ = stz_ctx_set(s, "k1", 2, "v1", 2);
+    _ = stz_ctx_set(s, "k2", 2, "v2", 2);
+    _ = stz_ctx_set(s, "k3", 2, "v3", 2);
+    try std.testing.expectEqual(@as(i32, 3), stz_ctx_pair_count(s));
+    stz_ctx_clear();
+}
+
+test "destroy scope" {
+    stz_ctx_clear();
+    const s1 = stz_ctx_create("d1", 2, -1);
+    _ = stz_ctx_create("d2", 2, -1);
+    try std.testing.expectEqual(@as(i32, 2), stz_ctx_scope_count());
+    stz_ctx_destroy(s1);
+    try std.testing.expectEqual(@as(i32, 1), stz_ctx_scope_count());
+    stz_ctx_clear();
+}
+
+test "has returns false for missing key" {
+    stz_ctx_clear();
+    const s = stz_ctx_create("chk", 3, -1);
+    try std.testing.expectEqual(@as(i32, 0), stz_ctx_has(s, "missing", 7));
+    _ = stz_ctx_set(s, "exists", 6, "val", 3);
+    try std.testing.expectEqual(@as(i32, 1), stz_ctx_has(s, "exists", 6));
+    stz_ctx_clear();
+}
