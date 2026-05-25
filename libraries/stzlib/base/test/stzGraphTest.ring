@@ -17,7 +17,7 @@ load "../stzbase.ring"
 #============================================#
 
 /*--- Creating Simple Graph
-
+*/
 pr()
 
 oGraph = new stzGraph("SimpleGraph")
