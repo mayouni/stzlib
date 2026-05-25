@@ -190,3 +190,31 @@ test "mode and destroy" {
     try std.testing.expectEqual(@as(i32, 0), stz_interact_session_count());
     stz_interact_clear();
 }
+
+test "session count with multiple sessions" {
+    stz_interact_clear();
+    _ = stz_interact_create("s1", 2, "qa", 2);
+    _ = stz_interact_create("s2", 2, "qa", 2);
+    _ = stz_interact_create("s3", 2, "qa", 2);
+    try std.testing.expectEqual(@as(i32, 3), stz_interact_session_count());
+    stz_interact_clear();
+    try std.testing.expectEqual(@as(i32, 0), stz_interact_session_count());
+}
+
+test "multiple turns ordering" {
+    stz_interact_clear();
+    const s = stz_interact_create("order", 5, "cmd", 3);
+    _ = stz_interact_add_turn(s, "p1", 2, "r1", 2, 100);
+    _ = stz_interact_add_turn(s, "p2", 2, "r2", 2, 200);
+    _ = stz_interact_add_turn(s, "p3", 2, "r3", 2, 300);
+    try std.testing.expectEqual(@as(i32, 3), stz_interact_turn_count(s));
+
+    var buf: [256]u8 = undefined;
+    const l0 = stz_interact_prompt(s, 0, &buf);
+    try std.testing.expectEqualSlices(u8, "p1", buf[0..@intCast(l0)]);
+    const l2 = stz_interact_prompt(s, 2, &buf);
+    try std.testing.expectEqualSlices(u8, "p3", buf[0..@intCast(l2)]);
+    const lp = stz_interact_last_prompt(s, &buf);
+    try std.testing.expectEqualSlices(u8, "p3", buf[0..@intCast(lp)]);
+    stz_interact_clear();
+}

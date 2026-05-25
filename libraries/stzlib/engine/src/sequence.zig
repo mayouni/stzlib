@@ -176,3 +176,35 @@ test "reset" {
     try std.testing.expectEqual(@as(i64, 0), stz_seq_iteration("r", 1));
     stz_seq_clear();
 }
+
+test "count and destroy" {
+    stz_seq_clear();
+    _ = stz_seq_create("s1", 2, 0, 1, 0);
+    _ = stz_seq_create("s2", 2, 0, 1, 0);
+    try std.testing.expectEqual(@as(i32, 2), stz_seq_count());
+    stz_seq_destroy("s1", 2);
+    try std.testing.expectEqual(@as(i32, 1), stz_seq_count());
+    stz_seq_clear();
+    try std.testing.expectEqual(@as(i32, 0), stz_seq_count());
+}
+
+test "iteration counter" {
+    stz_seq_clear();
+    _ = stz_seq_create("it", 2, 0, 3, 0);
+    try std.testing.expectEqual(@as(i64, 0), stz_seq_iteration("it", 2));
+    _ = stz_seq_next("it", 2);
+    try std.testing.expectEqual(@as(i64, 1), stz_seq_iteration("it", 2));
+    _ = stz_seq_next("it", 2);
+    _ = stz_seq_next("it", 2);
+    try std.testing.expectEqual(@as(i64, 3), stz_seq_iteration("it", 2));
+    stz_seq_clear();
+}
+
+test "step with negative step" {
+    stz_seq_clear();
+    _ = stz_seq_create("neg", 3, 100, -10, 0);
+    try std.testing.expectEqual(@as(i64, 100), stz_seq_next("neg", 3));
+    try std.testing.expectEqual(@as(i64, 90), stz_seq_next("neg", 3));
+    try std.testing.expectEqual(@as(i64, 80), stz_seq_next("neg", 3));
+    stz_seq_clear();
+}

@@ -167,3 +167,34 @@ test "remove" {
     try std.testing.expectEqual(@as(i32, 0), stz_rel_count());
     stz_rel_clear();
 }
+
+test "clear resets all" {
+    stz_rel_clear();
+    _ = stz_rel_add("x", 1, "r", 1, "y", 1, 0.5);
+    _ = stz_rel_add("a", 1, "r", 1, "b", 1, 0.7);
+    try std.testing.expectEqual(@as(i32, 2), stz_rel_count());
+    stz_rel_clear();
+    try std.testing.expectEqual(@as(i32, 0), stz_rel_count());
+}
+
+test "relation type retrieval" {
+    stz_rel_clear();
+    const idx = stz_rel_add("node1", 5, "links_to", 8, "node2", 5, 0.95);
+    var buf: [64]u8 = undefined;
+    const tl = stz_rel_type(idx, &buf);
+    try std.testing.expectEqualSlices(u8, "links_to", buf[0..@intCast(tl)]);
+    try std.testing.expectApproxEqAbs(@as(f64, 0.95), stz_rel_weight(idx), 0.001);
+    stz_rel_clear();
+}
+
+test "multiple relations same subject" {
+    stz_rel_clear();
+    _ = stz_rel_add("user", 4, "owns", 4, "car", 3, 1.0);
+    _ = stz_rel_add("user", 4, "likes", 5, "bike", 4, 0.8);
+    _ = stz_rel_add("user", 4, "drives", 6, "truck", 5, 0.3);
+    var out: [256]i32 = undefined;
+    const n = stz_rel_find_by_subject("user", 4, &out);
+    try std.testing.expectEqual(@as(i32, 3), n);
+    try std.testing.expectEqual(@as(i32, 3), stz_rel_count());
+    stz_rel_clear();
+}

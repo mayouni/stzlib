@@ -180,3 +180,29 @@ test "destroy schema" {
     try std.testing.expectEqual(@as(i32, 0), stz_schema_count());
     stz_schema_clear();
 }
+
+test "multiple schemas" {
+    stz_schema_clear();
+    _ = stz_schema_create("users", 5);
+    _ = stz_schema_create("orders", 6);
+    _ = stz_schema_create("items", 5);
+    try std.testing.expectEqual(@as(i32, 3), stz_schema_count());
+    stz_schema_clear();
+    try std.testing.expectEqual(@as(i32, 0), stz_schema_count());
+}
+
+test "multiple fields per schema" {
+    stz_schema_clear();
+    const s = stz_schema_create("product", 7);
+    _ = stz_schema_add_field(s, "id", 2, 1, 1);
+    _ = stz_schema_add_field(s, "name", 4, 0, 1);
+    _ = stz_schema_add_field(s, "price", 5, 2, 1);
+    _ = stz_schema_add_field(s, "desc", 4, 0, 0);
+    try std.testing.expectEqual(@as(i32, 4), stz_schema_field_count(s));
+
+    // Check non-required field
+    try std.testing.expectEqual(@as(i32, 0), stz_schema_field_required(s, 3));
+    // Check required field
+    try std.testing.expectEqual(@as(i32, 1), stz_schema_field_required(s, 0));
+    stz_schema_clear();
+}
