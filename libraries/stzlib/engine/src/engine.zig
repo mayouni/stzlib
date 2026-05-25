@@ -95,6 +95,8 @@ pub const sequence = @import("sequence.zig");
 pub const topology = @import("topology.zig");
 pub const relations = @import("relations.zig");
 pub const statemachine = @import("statemachine.zig");
+pub const interact = @import("interact.zig");
+pub const skill = @import("skill.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -717,4 +719,6 @@ test {
     _ = topology;
     _ = relations;
     _ = statemachine;
+    _ = interact;
+    _ = skill;
 }
