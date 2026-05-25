@@ -130,11 +130,8 @@ class stzSequence
 		aResult = []
 		for i = 1 to n
 			aResult + This.NextValue()
-		next i
+		next
 		return aResult
-
-		def AdvanceN(n)
-			return This.NextNValues(n)
 
 	  #-------------------------------#
 	 #     RESET AND CLEANUP         #
