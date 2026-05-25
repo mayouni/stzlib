@@ -288,6 +288,10 @@ ok
     load "file/stzCSV.ring"
     load "file/stzHtml.ring"
 
+# Loading the YIELDER module (functional map/filter/reduce)
+
+    load "yielder/stzYielder.ring"
+
 # Loading files related to the ERROR module
 
     load "error/stzObjectError.ring"

@@ -42,6 +42,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_stats", .entry = "src/stz_stats_entry.zig", .needs_ring = true },
     .{ .name = "stz_graph", .entry = "src/stz_graph_entry.zig", .needs_ring = true },
     .{ .name = "stz_text", .entry = "src/stz_text_entry.zig", .needs_ring = true },
+    .{ .name = "stz_yielder", .entry = "src/stz_yielder_entry.zig", .needs_ring = true },
     .{ .name = "stz_uuid", .entry = "src/stz_uuid_entry.zig", .needs_ring = true },
     .{ .name = "stz_codec", .entry = "src/stz_codec_entry.zig", .needs_ring = true },
     .{ .name = "stz_bits", .entry = "src/stz_bits_entry.zig", .needs_ring = true },
