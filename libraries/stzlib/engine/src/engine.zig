@@ -81,6 +81,20 @@ pub const reaxis = @import("reaxis.zig");
 pub const softanzuter = @import("softanzuter.zig");
 pub const polyglot = @import("polyglot.zig");
 pub const polycode = @import("polycode.zig");
+pub const provenance = @import("provenance.zig");
+pub const confidence = @import("confidence.zig");
+pub const explain = @import("explain.zig");
+pub const similarity = @import("similarity.zig");
+pub const context_mod = @import("context.zig");
+pub const resource = @import("resource.zig");
+pub const validator_mod = @import("validator.zig");
+pub const schema_mod = @import("schema.zig");
+pub const intent = @import("intent.zig");
+pub const embedding = @import("embedding.zig");
+pub const sequence = @import("sequence.zig");
+pub const topology = @import("topology.zig");
+pub const relations = @import("relations.zig");
+pub const statemachine = @import("statemachine.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -689,4 +703,18 @@ test {
     _ = softanzuter;
     _ = polyglot;
     _ = polycode;
+    _ = provenance;
+    _ = confidence;
+    _ = explain;
+    _ = similarity;
+    _ = context_mod;
+    _ = resource;
+    _ = validator_mod;
+    _ = schema_mod;
+    _ = intent;
+    _ = embedding;
+    _ = sequence;
+    _ = topology;
+    _ = relations;
+    _ = statemachine;
 }

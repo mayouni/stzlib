@@ -86,6 +86,20 @@ const base_domains = [_]Domain{
     .{ .name = "stz_softanzuter", .entry = "src/stz_softanzuter_entry.zig", .needs_ring = true },
     .{ .name = "stz_polyglot", .entry = "src/stz_polyglot_entry.zig", .needs_ring = true },
     .{ .name = "stz_polycode", .entry = "src/stz_polycode_entry.zig", .needs_ring = true },
+    .{ .name = "stz_provenance", .entry = "src/stz_provenance_entry.zig", .needs_ring = true },
+    .{ .name = "stz_confidence", .entry = "src/stz_confidence_entry.zig", .needs_ring = true },
+    .{ .name = "stz_explain", .entry = "src/stz_explain_entry.zig", .needs_ring = true },
+    .{ .name = "stz_similarity", .entry = "src/stz_similarity_entry.zig", .needs_ring = true },
+    .{ .name = "stz_context", .entry = "src/stz_context_entry.zig", .needs_ring = true },
+    .{ .name = "stz_resource", .entry = "src/stz_resource_entry.zig", .needs_ring = true },
+    .{ .name = "stz_validator", .entry = "src/stz_validator_entry.zig", .needs_ring = true },
+    .{ .name = "stz_schema", .entry = "src/stz_schema_entry.zig", .needs_ring = true },
+    .{ .name = "stz_intent", .entry = "src/stz_intent_entry.zig", .needs_ring = true },
+    .{ .name = "stz_embedding", .entry = "src/stz_embedding_entry.zig", .needs_ring = true },
+    .{ .name = "stz_sequence", .entry = "src/stz_sequence_entry.zig", .needs_ring = true },
+    .{ .name = "stz_topology", .entry = "src/stz_topology_entry.zig", .needs_ring = true },
+    .{ .name = "stz_relations", .entry = "src/stz_relations_entry.zig", .needs_ring = true },
+    .{ .name = "stz_statemachine", .entry = "src/stz_statemachine_entry.zig", .needs_ring = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
