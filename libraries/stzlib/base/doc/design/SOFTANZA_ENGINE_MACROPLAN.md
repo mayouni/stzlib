@@ -686,6 +686,24 @@ three promises.
 
 **Depends on:** M-E9
 
+**Session 29 progress (M-S2 Ring-Side Test Hardening):**
+- **test_engine_wrappers.ring** [DONE]: 138 assertions across all 18
+  DLLs (sequence, confidence, provenance, relation, intent, resource,
+  context, similarity, schema, topology, embedding, explain, timeline,
+  gridnav, interact, skill, statemachine, validator). Fixed Ring function
+  placement bug and corrected all bridge function name/signature
+  mismatches discovered.
+- **Ring test audit** [DONE]: Ran ~50 engine-related test files across
+  datetime, file, i18n, string, regex, number, system, network, list,
+  table, and number subdirectories. Results: 48 PASS, 1 FIXED
+  (hashlist needed IsWithOrByOrUsingNamedParam on stzList core),
+  1 minor (test_unicode has 19/20 pass). Legacy test files (119 in
+  base/test/) not audited — most depend on the archived monolith.
+- **stzList core fix** [DONE]: Added IsWithOrByOrUsingNamedParam() and
+  IsCaseSensitiveNamedParam() to stzList.ring. These methods were only
+  in stzListChecker (composition-based), but Q() returns stzList and
+  needs them directly.
+
 ### M-E11: Repository Split [ ]
 
 > Extract `softanza-engine` as standalone repo. stzlib becomes
@@ -760,7 +778,7 @@ manageable size or mixes unrelated concerns.)
 - Migrated code with backward-compatible root loaders
 - Updated Ring FFI bridges per subclass
 
-### M-S2: Ring-Side Test Hardening [ ]
+### M-S2: Ring-Side Test Hardening [PARTIAL]
 
 > Audit all existing stzlib tests, fix broken ones, and write
 > new tests to cover all aspects and scenarios of the library.
