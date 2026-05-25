@@ -246,6 +246,15 @@ ok
     load "context/stzContext.ring"
     load "similarity/stzSimilarity.ring"
 
+    load "schema/stzSchema.ring"
+    load "topology/stzTopology.ring"
+    load "embedding/stzEmbedding.ring"
+    load "explain/stzExplain.ring"
+    load "timeline/stzEngineTimeline.ring"
+    load "gridnav/stzGridNav.ring"
+    load "interact/stzInteraction.ring"
+    load "skill/stzSkill.ring"
+
 # Loading files related to the VISUAL module
 
     #TODO// Put here all visual-oriented functions and classes
