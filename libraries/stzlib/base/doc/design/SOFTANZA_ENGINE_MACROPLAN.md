@@ -11,16 +11,16 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 81                       |
+| Modules built     | 83                       |
 | Design principles | 19                       |
-| Engine tests      | 1479 passing             |
-| DLLs shipping     | 85 (4 Core + 81 Base)    |
+| Engine tests      | 1487 passing             |
+| DLLs shipping     | 87 (4 Core + 83 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
 | Ring classes bridged | 107 files, 3482 calls |
 | Ring Unicode hard | Complete (all domains)   |
 | PCRE2 backend     | 10.47 (industrial regex) |
-| Last updated      | 2026-05-24 (Session 26)  |
+| Last updated      | 2026-05-25 (Session 27)  |
 
 ---
 
@@ -663,7 +663,7 @@ make AI natural without AI-specific modules.
 
 **Depends on:** M-E5 (infrastructure), M-E7 (paradigm engines)
 
-### M-E9: Value Proposition Modules [ ]
+### M-E9: Value Proposition Modules [DONE]
 
 > `stz_interact` (Interaction Engine), `stz_skill` (Skill Engine).
 
@@ -672,6 +672,11 @@ onward. Interaction and Skill modules complete the Engine's
 three promises.
 
 **Depends on:** M-E8 (universal computation)
+
+| # | DLL | Module | C ABI | Tests |
+|---|-----|--------|-------|-------|
+| 86 | stz_interact | interact.zig | 10 | 4 |
+| 87 | stz_skill | skill.zig | 12 | 4 |
 
 ### M-E10: CLI Polish + Ring Bridge Completion [ ]
 
@@ -966,3 +971,4 @@ M-E11 (Repo Split)
 | 2026-05-18 | 13      | Bridging++ | +6 engine fns (all_substrings, unique_substrings, unique_chars_ci, substrings_count, substrings_of_n_chars, is_word enhanced). 8 Ring methods bridged: SubStringsCS, UniqueCharsCS, CharsCS CI, UniqueSubStringsCS, SubStringsOfNCharsCS, IsWord, NumberOfSubStringsCS. 592 tests, 352 DLL fns |
 | 2026-05-18 | 14      | M-S1       | Modularised stzString: 32 domain classes converted to composition pattern, stzString.ring minimal core, monolith archived. Fixed Ring object-copy use-after-free. Added core primitives (NLeftChars, NRightChars, RemoveSection/s, ReplaceSections, Trim). 14/22 TODOs resolved |
 | 2026-05-18 | 15      | M-S1+      | Fixed INDEX_BASE=1 off-by-one in Ring wrappers (FindCS, FindLastCS, _FindSubStr all had double +1). Added 6 Finder methods (FindAsSectionsCS, FindBetweenAsSectionCS, FindBoundedByAsSectionsCS, SubStringsCS, FindCharsWCS/FindW, FindDuplicatesAsSectionsCS). All 8 remaining TODOs in domain files resolved (0 remaining). 5 test suites pass |
+| 2026-05-25 | 27      | M-E9       | interact.zig (10 C ABI, 4 tests) + skill.zig (12 C ABI, 4 tests). DLLs 86-87. 1487 tests, 87 DLLs. M-E9 DONE |

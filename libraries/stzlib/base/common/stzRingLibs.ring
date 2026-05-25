@@ -84,6 +84,8 @@ load "../../engine/stz_sequence.ring"
 load "../../engine/stz_topology.ring"
 load "../../engine/stz_relations.ring"
 load "../../engine/stz_statemachine.ring"
+load "../../engine/stz_interact.ring"
+load "../../engine/stz_skill.ring"
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)

@@ -100,6 +100,8 @@ const base_domains = [_]Domain{
     .{ .name = "stz_topology", .entry = "src/stz_topology_entry.zig", .needs_ring = true },
     .{ .name = "stz_relations", .entry = "src/stz_relations_entry.zig", .needs_ring = true },
     .{ .name = "stz_statemachine", .entry = "src/stz_statemachine_entry.zig", .needs_ring = true },
+    .{ .name = "stz_interact", .entry = "src/stz_interact_entry.zig", .needs_ring = true },
+    .{ .name = "stz_skill", .entry = "src/stz_skill_entry.zig", .needs_ring = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
