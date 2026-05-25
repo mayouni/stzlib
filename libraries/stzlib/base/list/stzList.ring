@@ -566,20 +566,227 @@ class stzList from stzObject
 	 #  NAMED-PARAM CHECKS (needed by Q() calls) #
 	#------------------------------------------#
 
-	def IsWithOrByOrUsingNamedParam()
-		if This.NumberOfItems() = 2 and isString(This.Item(1))
-			cFirst = This.Item(1)
-			if cFirst = "with" or cFirst = "by" or cFirst = "using"
-				return 1
-			ok
-		ok
-		return 0
+	# Generic: checks if this list is a named param (2-item, first is keyword)
+	def IsNamedParam()
+		return StzIsNamedParamList(This.Content())
+
+	# --- Methods with existing global functions ---
+	def IsAndNamedParam()
+		return StzIsAndNamedParamList(This.Content())
+
+	def IsAtNamedParam()
+		return StzIsAtNamedParamList(This.Content())
+
+	def IsAtOrAtPositionNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["at", "atposition"])
+
+	def IsAtPositionNamedParam()
+		return StzIsThisNamedParam(This.Content(), "atposition")
+
+	def IsBetweenNamedParam()
+		return StzIsBetweenNamedParamList(This.Content())
+
+	def IsByNamedParam()
+		return StzIsByNamedParamList(This.Content())
 
 	def IsCaseSensitiveNamedParam()
-		if This.NumberOfItems() = 2 and isString(This.Item(1)) and This.Item(1) = "casesensitive"
-			return 1
-		ok
-		return 0
+		return StzIsCaseSensitiveNamedParamList(This.Content())
+
+	def IsDirectionOrGoingNamedParam()
+		return StzIsDirectionOrGoingNamedParamList(This.Content())
+
+	def IsEqualToNamedParam()
+		return StzIsEqualToNamedParamList(This.Content())
+
+	def IsFromNamedParam()
+		return StzIsFromNamedParamList(This.Content())
+
+	def IsInNamedParam()
+		return StzIsInNamedParamList(This.Content())
+
+	def IsNorNamedParam()
+		return StzIsNorNamedParamList(This.Content())
+
+	def IsOfNamedParam()
+		return StzIsOfNamedParamList(This.Content())
+
+	def IsOfOrOfSubStringNamedParam()
+		return StzIsOfOrOfSubStringNamedParamList(This.Content())
+
+	def IsPositionNamedParam()
+		return StzIsPositionNamedParamList(This.Content())
+
+	def IsPositionOrPositionsNamedParam()
+		return StzIsPositionOrPositionsNamedParamList(This.Content())
+
+	def IsReturnedAsNamedParam()
+		return StzIsReturnedAsNamedParamList(This.Content())
+
+	def IsStartingAtNamedParam()
+		return StzIsStartingAtNamedParamList(This.Content())
+
+	def IsStoppingAtNamedParam()
+		return StzIsStoppingAtNamedParamList(This.Content())
+
+	def IsToNamedParam()
+		return StzIsToNamedParamList(This.Content())
+
+	def IsUsingOrWithOrByNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["using", "with", "by"])
+
+	def IsWhereNamedParam()
+		return StzIsWhereNamedParamList(This.Content())
+
+	def IsWithNamedParam()
+		return StzIsWithNamedParamList(This.Content())
+
+	def IsWithOrByNamedParam()
+		return StzIsWithOrByNamedParamList(This.Content())
+
+	def IsWithOrByOrUsingNamedParam()
+		return StzIsWithOrByOrUsingNamedParamList(This.Content())
+
+	# --- Methods without existing global functions (keyword-based) ---
+	def IsAndcColNamedNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andccolnamed")
+
+	def IsAndcColNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andccol")
+
+	def IsAndColAtNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andcolat")
+
+	def IsAndColAtPositionNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andcolatposition")
+
+	def IsAndColumnAtNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andcolumnat")
+
+	def IsAndColumnAtPositionNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andcolumnatposition")
+
+	def IsAndColumnNamedNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andcolumnnamed")
+
+	def IsAndColumnNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andcolumn")
+
+	def IsAndPositionNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andposition")
+
+	def IsAndReturningNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["andreturning", "andreturnas", "andreturnedas"])
+
+	def IsAndReturningNthNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andreturningnth")
+
+	def IsAndReturnNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["andreturn", "andreturnas", "andreturnedas", "andreturnitas"])
+
+	def IsAndReturnNthNamedParam()
+		return StzIsThisNamedParam(This.Content(), "andreturnnth")
+
+	def IsAndRowAtNamedParam()
+		return StzIsThisNamedParam(This.Content(), "androwat")
+
+	def IsAndRowAtPositionNamedParam()
+		return StzIsThisNamedParam(This.Content(), "androwatposition")
+
+	def IsAndRowNamedParam()
+		return StzIsThisNamedParam(This.Content(), "androw")
+
+	def IsBetweencColNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweenccol")
+
+	def IsBetweenColAtNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweencolat")
+
+	def IsBetweenColAtPositionNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweencolatposition")
+
+	def IsBetweenColumnAtNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweencolumnat")
+
+	def IsBetweenColumnAtPositionNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweencolumnatposition")
+
+	def IsBetweenColumnNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweencolumn")
+
+	def IsBetweenPositionNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["betweenposition", "betweenpositions"])
+
+	def IsBetweenPositionsNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweenpositions")
+
+	def IsBetweenRowAtNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweenrowat")
+
+	def IsBetweenRowAtPositionNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweenrowatposition")
+
+	def IsBetweenRowNamedParam()
+		return StzIsThisNamedParam(This.Content(), "betweenrow")
+
+	def IsByColOrByColNumberNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["bycol", "bycolnumber"])
+
+	def IsByOrUsingOrWithNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["by", "using", "with"])
+
+	def IsByOrWithOrUsingNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["by", "with", "using"])
+
+	def IsByRowNamedParam()
+		return StzIsThisNamedParam(This.Content(), "byrow")
+
+	def IsComingNamedParam()
+		return StzIsThisNamedParam(This.Content(), "coming")
+
+	def IsFromOrOfNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["from", "of"])
+
+	def IsFromPositionNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["fromposition", "from"])
+
+	def IsInANamedParam()
+		return StzIsThisNamedParam(This.Content(), "ina")
+
+	def IsInOrInListNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["in", "inlist"])
+
+	def IsInOrInStringNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["in", "instring"])
+
+	def IsOfSizeNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["ofsize", "size"])
+
+	def IsReturningNamedParam()
+		return StzIsThisNamedParam(This.Content(), "returning")
+
+	def IsReturningNthNamedParam()
+		return StzIsThisNamedParam(This.Content(), "returningnth")
+
+	def IsReturnNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["return", "returnas", "returnedas", "returnitas"])
+
+	def IsReturnNthNamedParam()
+		return StzIsThisNamedParam(This.Content(), "returnnth")
+
+	def IsSeedNamedParam()
+		return StzIsThisNamedParam(This.Content(), "seed")
+
+	def IsSizeNamedParam()
+		return StzIsThisNamedParam(This.Content(), "size")
+
+	def IsToOrOfNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["to", "of"])
+
+	def IsToPositionNamedParam()
+		return StzIsOneOfTheseNamedParamsList(This.Content(), ["toposition", "to"])
+
+	def IsWithRowNamedParam()
+		return StzIsThisNamedParam(This.Content(), "withrow")
 
 	  #====================#
 	 #  SHOWING THE LIST  #
