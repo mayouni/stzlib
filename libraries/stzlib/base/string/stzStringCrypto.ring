@@ -51,63 +51,51 @@ class stzStringCrypto
 	 #     SHA-256 (Engine-backed)   #
 	#===============================#
 
-	def SHA256()
+	def Sha256()
 		pH = @oString.Engine()
 		pR = StzEngineStringSha256(pH)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c
 
-		def Sha256()
-			return This.SHA256()
-
 	  #===============================#
 	 #     MD5 (Engine-backed)       #
 	#===============================#
 
-	def MD5()
+	def Md5()
 		pH = @oString.Engine()
 		pR = StzEngineStringMd5(pH)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c
 
-		def Md5()
-			return This.MD5()
-
 	  #===============================#
 	 #     BLAKE3 (Engine-backed)    #
 	#===============================#
 
-	def BLAKE3()
+	def Blake3()
 		pH = @oString.Engine()
 		pR = StzEngineStringBlake3(pH)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c
 
-		def Blake3()
-			return This.BLAKE3()
-
 	  #=================================#
 	 #     HMAC-SHA256 (Engine-backed) #
 	#=================================#
 
-	def HMACSHA256(pcKey)
+	def HmacSha256(pcKey)
 		pH = @oString.Engine()
 		pR = StzEngineStringHmacSha256(pH, pcKey)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c
 
-		def HmacSha256(pcKey)
-			return This.HMACSHA256(pcKey)
-
 	  #===============================#
 	 #     XOR CIPHER (Engine)       #
 	#===============================#
 
-	def XOREncrypt(pcKey)
+	def XorEncrypt(pcKey)
 		pH = @oString.Engine()
 		pKey = StzEngineString(pcKey)
 		pR = StzEngineStringXorCipher(pH, pKey)
@@ -116,8 +104,8 @@ class stzStringCrypto
 		StzEngineStringFree(pKey)
 		return c
 
-	def XORDecrypt(pcKey)
-		return This.XOREncrypt(pcKey)
+		def XorDecrypt(pcKey)
+			return This.XorEncrypt(pcKey)
 
 	  #===============================#
 	 #     CHECKSUM                  #
