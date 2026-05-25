@@ -13,7 +13,7 @@
 | Modules designed  | 88                       |
 | Modules built     | 83                       |
 | Design principles | 19                       |
-| Engine tests      | 1487 passing             |
+| Engine tests      | 1508 passing             |
 | DLLs shipping     | 87 (4 Core + 83 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
@@ -974,4 +974,5 @@ M-E11 (Repo Split)
 | 2026-05-25 | 27      | M-E9       | interact.zig (10 C ABI, 4 tests) + skill.zig (12 C ABI, 4 tests). DLLs 86-87. 1487 tests, 87 DLLs. M-E9 DONE |
 | 2026-05-25 | 27+     | M-E10      | 10 Ring wrapper classes for M-E7/M-E8 engine modules: stzStateMachine, stzValidator, stzSequence, stzConfidence, stzProvenance, stzRelation, stzIntent, stzResource, stzContext, stzSimilarity. 117 files bridged |
 | 2026-05-25 | 27++    | M-E10      | 8 more Ring wrapper classes: stzSchema, stzTopology, stzEmbedding, stzExplain, stzEngineTimeline, stzGridNav, stzInteraction, stzSkill. All 18 engine wrapper classes complete. 125 files bridged. M-E10 Ring bridges DONE |
-| 2026-05-25 | 27+++   | M-S1       | stzList Phase 2.2+3: added Bisect/PartitionW/Chunks to stzListClassifier, ContainsW/IsPalindrome/IsPairOf*/IsSet/IsPair to stzListChecker. Phase 3 engine coverage verified: Map/Filter/Reduce/Classify/Frequencies/AllUnique all engine-backed. 1487 tests pass |
+| 2026-05-25 | 27+++   | M-S1       | stzList Phase 2.2+3: added Bisect/PartitionW/Chunks to stzListClassifier, ContainsW/IsPalindrome/IsPairOf*/IsSet/IsPair to stzListChecker. Phase 3 engine coverage verified: Map/Filter/Reduce/Classify/Frequencies/AllUnique all engine-backed |
+| 2026-05-25 | 27++++  | Testing    | +21 tests across 8 modules (skill, gridnav, sequence, resource, context, schema, relations, interact). All C ABI exports now tested. 1508 tests pass |
