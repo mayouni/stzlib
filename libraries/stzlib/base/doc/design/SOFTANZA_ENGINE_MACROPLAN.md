@@ -17,7 +17,7 @@
 | DLLs shipping     | 87 (4 Core + 83 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 1029 DLL functions       |
-| Ring classes bridged | 107 files, 3482 calls |
+| Ring classes bridged | 117 files, 3482+ calls |
 | Ring Unicode hard | Complete (all domains)   |
 | PCRE2 backend     | 10.47 (industrial regex) |
 | Last updated      | 2026-05-25 (Session 27)  |
@@ -972,3 +972,4 @@ M-E11 (Repo Split)
 | 2026-05-18 | 14      | M-S1       | Modularised stzString: 32 domain classes converted to composition pattern, stzString.ring minimal core, monolith archived. Fixed Ring object-copy use-after-free. Added core primitives (NLeftChars, NRightChars, RemoveSection/s, ReplaceSections, Trim). 14/22 TODOs resolved |
 | 2026-05-18 | 15      | M-S1+      | Fixed INDEX_BASE=1 off-by-one in Ring wrappers (FindCS, FindLastCS, _FindSubStr all had double +1). Added 6 Finder methods (FindAsSectionsCS, FindBetweenAsSectionCS, FindBoundedByAsSectionsCS, SubStringsCS, FindCharsWCS/FindW, FindDuplicatesAsSectionsCS). All 8 remaining TODOs in domain files resolved (0 remaining). 5 test suites pass |
 | 2026-05-25 | 27      | M-E9       | interact.zig (10 C ABI, 4 tests) + skill.zig (12 C ABI, 4 tests). DLLs 86-87. 1487 tests, 87 DLLs. M-E9 DONE |
+| 2026-05-25 | 27+     | M-E10      | 10 Ring wrapper classes for M-E7/M-E8 engine modules: stzStateMachine, stzValidator, stzSequence, stzConfidence, stzProvenance, stzRelation, stzIntent, stzResource, stzContext, stzSimilarity. 117 files bridged |
