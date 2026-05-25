@@ -356,7 +356,7 @@
 - **Stats**: 1122 Zig tests, 1016 Ring bridge functions, 27 DLLs, 23 modules built,
   107 Ring files making 3482 StzEngine* calls.
 
-### M-E4: Algorithms [PARTIAL]
+### M-E4: Algorithms [DONE]
 
 - **stz_stats** [DONE]: Completed as part of M-E3 work (Sessions 23-24).
 - **stz_text** [DONE]: Paragraph/sentence segmentation, word/char/line/syllable
@@ -367,7 +367,11 @@
   stzListPerformer) and already delegate to engine via StzEngine* calls where
   applicable. No standalone engine modules needed -- the operations are backed
   by existing string/list engine functions.
-- **Yielder**: Not yet implemented in either layer.
+- **stz_yielder** [DONE]: Functional pipeline (map/filter/reduce) on StzList
+  handles. 17 TransformOps, 17 FilterOps, 10 ReduceOps. 7 C ABI functions
+  (map, filter, reduce, reduce_concat, filter_map, map_indexed, count_where,
+  free), 8 Ring bridge functions, 12 Zig tests. Ring wrapper stzYielder.ring
+  with named op dispatch. DLL #60.
 
 ---
 
@@ -431,14 +435,16 @@ Matrix (19), Stats (28), Random (6), CSV (7), RefData (18).
 Tree stays Ring-side (eval-based path navigation). All Ring
 classes fully engine-backed: 107 files, 3482 StzEngine* calls.
 
-### M-E4: Algorithms [PARTIAL]
+### M-E4: Algorithms [DONE]
 
 > `stz_stats`, `stz_text`, `stz_walker`, `stz_checker`,
 > `stz_yielder`, `stz_performer`.
 
-**stz_stats** [DONE]. Walker/Checker/Performer Ring-side modules
-already delegate to engine string/list functions. Remaining:
-stz_text (paragraph/sentence ops), Yielder (not started).
+**All complete.** stz_stats, stz_text, stz_yielder engine modules
+built. Walker/Checker/Performer Ring-side modules delegate to
+existing engine string/list functions. stz_yielder: 7 C ABI
+functions, 8 Ring bridge functions, 12 Zig tests, Ring wrapper
+stzYielder.ring with named op dispatch (DLL #60).
 
 **Depends on:** M-E2 (collections)
 
