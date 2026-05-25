@@ -76,14 +76,14 @@ class stzConfidence
 			This.SetScore(cName, nScore)
 			return This
 
-	def Get(cName)
+	def Score(cName)
 		return StzEngineConfGet(cName)
 
-		def Score(cName)
-			return This.Get(cName)
+		def ScoreOf(cName)
+			return This.Score(cName)
 
 		def ConfidenceOf(cName)
-			return This.Get(cName)
+			return This.Score(cName)
 
 	  #-------------------------------#
 	 #     AGGREGATION               #
