@@ -701,7 +701,7 @@ Three parallel tracks that harden the Ring-side library while
 Engine milestones progress. These can start immediately -- they
 do not depend on Engine completion.
 
-### M-S1: Class Modularization [ ]
+### M-S1: Class Modularization [DONE for stzString + stzList]
 
 > Break monolithic classes into granular, purpose-focused
 > subclasses. Each subclass handles one concern and can be
@@ -974,3 +974,4 @@ M-E11 (Repo Split)
 | 2026-05-25 | 27      | M-E9       | interact.zig (10 C ABI, 4 tests) + skill.zig (12 C ABI, 4 tests). DLLs 86-87. 1487 tests, 87 DLLs. M-E9 DONE |
 | 2026-05-25 | 27+     | M-E10      | 10 Ring wrapper classes for M-E7/M-E8 engine modules: stzStateMachine, stzValidator, stzSequence, stzConfidence, stzProvenance, stzRelation, stzIntent, stzResource, stzContext, stzSimilarity. 117 files bridged |
 | 2026-05-25 | 27++    | M-E10      | 8 more Ring wrapper classes: stzSchema, stzTopology, stzEmbedding, stzExplain, stzEngineTimeline, stzGridNav, stzInteraction, stzSkill. All 18 engine wrapper classes complete. 125 files bridged. M-E10 Ring bridges DONE |
+| 2026-05-25 | 27+++   | M-S1       | stzList Phase 2.2+3: added Bisect/PartitionW/Chunks to stzListClassifier, ContainsW/IsPalindrome/IsPairOf*/IsSet/IsPair to stzListChecker. Phase 3 engine coverage verified: Map/Filter/Reduce/Classify/Frequencies/AllUnique all engine-backed. 1487 tests pass |
