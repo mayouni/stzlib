@@ -545,3 +545,89 @@ class stzListChecker
 
 		def ContainsOnlyAPairOfNumbers()
 			return This.IsPairOfNumbers()
+
+	def IsPairOfStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen = 2 and isString(aContent[1]) and isString(aContent[2])
+			return 1
+		else
+			return 0
+		ok
+
+	def IsPairOfLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen = 2 and isList(aContent[1]) and isList(aContent[2])
+			return 1
+		else
+			return 0
+		ok
+
+	  #==============================#
+	 #  CONDITIONAL CONTAINMENT    #
+	#==============================#
+
+	def ContainsW(pcCondition)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		cCode = StzCCodeToRingCode(pcCondition)
+
+		for @i = 1 to nLen
+			@item = aContent[@i]
+			cEval = StzStringReplace(cCode, "@item", @@(@item))
+			if eval(cEval)
+				return 1
+			ok
+		next
+
+		return 0
+
+		def ContainsWhere(pcCondition)
+			return This.ContainsW(pcCondition)
+
+		def ContainsItemW(pcCondition)
+			return This.ContainsW(pcCondition)
+
+	  #==============================#
+	 #  PALINDROME CHECKING        #
+	#==============================#
+
+	def IsPalindrome()
+		aContent = This.Content()
+		nLen = len(aContent)
+		nHalf = floor(nLen / 2)
+
+		for i = 1 to nHalf
+			c1 = @@(aContent[i])
+			c2 = @@(aContent[nLen - i + 1])
+			if c1 != c2
+				return 0
+			ok
+		next
+
+		return 1
+
+		def IsListPalindrome()
+			return This.IsPalindrome()
+
+	  #==============================#
+	 #  SET CHECKING               #
+	#==============================#
+
+	def IsSet()
+		return This.AllItemsAreUnique()
+
+		def IsASet()
+			return This.IsSet()
+
+	  #==============================#
+	 #  PAIR CHECKING              #
+	#==============================#
+
+	def IsPair()
+		return This.NumberOfItems() = 2
+
+		def IsAPair()
+			return This.IsPair()

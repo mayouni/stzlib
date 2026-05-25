@@ -322,3 +322,104 @@ class stzListClassifier
 			ok
 		next
 		return aResult
+
+	  #======================================================#
+	 #   BISECTION -- SPLIT INTO HALVES                     #
+	#======================================================#
+
+	def Bisect()
+		aContent = This.Content()
+		nLen = len(aContent)
+		nMid = ceil(nLen / 2)
+
+		aFirst = []
+		for i = 1 to nMid
+			aFirst + aContent[i]
+		next
+
+		aSecond = []
+		for i = nMid + 1 to nLen
+			aSecond + aContent[i]
+		next
+
+		return [aFirst, aSecond]
+
+		def BisectQ()
+			return new stzList(This.Bisect())
+
+	def FirstHalf()
+		return This.Bisect()[1]
+
+		def FirstHalfQ()
+			return new stzList(This.FirstHalf())
+
+	def SecondHalf()
+		return This.Bisect()[2]
+
+		def SecondHalfQ()
+			return new stzList(This.SecondHalf())
+
+	  #======================================================#
+	 #   PARTITION BY CONDITION                             #
+	#======================================================#
+
+	def PartitionW(pcCondition)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aTrue = []
+		aFalse = []
+
+		cCode = StzCCodeToRingCode(pcCondition)
+
+		for @i = 1 to nLen
+			@item = aContent[@i]
+			cEval = StzStringReplace(cCode, "@item", @@(@item))
+			bResult = eval(cEval)
+			if bResult
+				aTrue + @item
+			else
+				aFalse + @item
+			ok
+		next
+
+		return [aTrue, aFalse]
+
+		def PartitionWQ(pcCondition)
+			return new stzList(This.PartitionW(pcCondition))
+
+		def PartitionWhere(pcCondition)
+			return This.PartitionW(pcCondition)
+
+		def SplitW(pcCondition)
+			return This.PartitionW(pcCondition)
+
+	  #======================================================#
+	 #   CHUNK -- SPLIT INTO GROUPS OF SIZE N               #
+	#======================================================#
+
+	def Chunks(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		nStart = 1
+
+		while nStart <= nLen
+			aChunk = []
+			nEnd = nStart + n - 1
+			if nEnd > nLen
+				nEnd = nLen
+			ok
+			for j = nStart to nEnd
+				aChunk + aContent[j]
+			next
+			aResult + aChunk
+			nStart = nEnd + 1
+		end
+
+		return aResult
+
+		def ChunksQ(n)
+			return new stzList(This.Chunks(n))
+
+		def SplitToPartsOfNItems(n)
+			return This.Chunks(n)
