@@ -163,7 +163,7 @@ oPlot = new stzVBarPlot([
 oPlot {
 //	AddValues()
 //	AddAverage()
-AddLegend()
+//	AddLegend()
 
 //	SetBarWidth(1)
 //	SetTopChar("▲")

@@ -84,6 +84,12 @@ class stzString from stzObject
 	def IsEmpty()
 		return This.Content() = ""
 
+	def IsAChar()
+		return This.NumberOfChars() = 1
+
+		def IsChar()
+			return This.IsAChar()
+
 	  #=======================================#
 	 #  GETTING A COPY OF THE STRING OBJECT  #
 	#=======================================#

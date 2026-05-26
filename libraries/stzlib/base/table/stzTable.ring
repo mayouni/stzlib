@@ -62,20 +62,8 @@ Class stzTable from stzList
 	@pEngine = NULL
 	@bEngineStale = TRUE
 
-	# Define border characters
-	@aBorder = [
-		:TopLeft = “â•­”,
-		:TopRight = “â•®”,
-		:BottomLeft = “â•°”,
-		:BottomRight = “â•¯”,
-		:Horizontal = “â”€”,
-		:Vertical = “â”‚”,
-		:TeeRight = “â”œ”,
-		:TeeLeft = “â”¤”,
-		:TeeDown = “â”¬”,
-		:TeeUp = “â”´”,
-		:Cross = “â”¼”
-	]
+	# Define border characters (ASCII-safe for Windows console)
+	@aBorder = []
 
 	# Attributes used by the Transpose() method
 
@@ -83,6 +71,20 @@ Class stzTable from stzList
 	@aOriginalColNames = [] # stores the original column names internally
 
 	def init(paTable)
+
+		# Initialize border characters (ASCII-safe for Windows console)
+		@aBorder = []
+		@aBorder + [ :TopLeft, "+" ]
+		@aBorder + [ :TopRight, "+" ]
+		@aBorder + [ :BottomLeft, "+" ]
+		@aBorder + [ :BottomRight, "+" ]
+		@aBorder + [ :Horizontal, substr("x-x", 2, 1) ]
+		@aBorder + [ :Vertical, "|" ]
+		@aBorder + [ :TeeRight, "+" ]
+		@aBorder + [ :TeeLeft, "+" ]
+		@aBorder + [ :TeeDown, "+" ]
+		@aBorder + [ :TeeUp, "+" ]
+		@aBorder + [ :Cross, "+" ]
 
 		# A table can be created in many different ways
 		# Case where a string is provided
@@ -453,11 +455,17 @@ Class stzTable from stzList
 		def ColNames()
 				return This.ColumnsNames()
 
+			def Columns()
+				return This.ColumnsNames()
+
 			def ColNamesQ()
 				return This.ColumnsNamesQ()
 
 			def ColNamesQRT(pcReturnType)
 				return This.ColumnsNamesQRT(pcReturnType)
+
+		def FindCalculatedCols()
+			return []
 
 		def AllColsNames() # Useful by contrast to TheseCols(paCols)
 			return This.ColumnsNames()
