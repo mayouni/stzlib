@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzBase.ring"
 
 /*--- Testing basic Tile initialization and movement
 

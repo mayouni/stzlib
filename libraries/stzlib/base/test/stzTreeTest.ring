@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzBase.ring"
 
 /*--- NODES, ITEMS, AND BRANCHES
 
