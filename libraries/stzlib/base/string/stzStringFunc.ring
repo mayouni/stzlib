@@ -8,6 +8,13 @@
 
 #-- Case conversion (Unicode-aware, replaces ASCII-only Ring upper()/lower())
 
+func StzRepeatStr(cStr, nCount)
+	_cSrResult_ = ""
+	for _iSr_ = 1 to nCount
+		_cSrResult_ += cStr
+	next
+	return _cSrResult_
+
 func StzUpper(cStr)
 	pH = StzEngineString(cStr)
 	pR = StzEngineStringToUpper(pH)

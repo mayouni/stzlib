@@ -404,3 +404,111 @@ class stzString from stzObject
 			return _oDtChar_.DownTo(pcChar)
 		ok
 		return []
+
+	  #============================#
+	 #   TEXT BOXING               #
+	#============================#
+
+	def Box()
+		This.BoxXT([])
+
+	def BoxRound()
+		This.BoxXT([ :Line = :Solid, :AllCorners = :Round ])
+
+	def BoxifyRound()
+		This.BoxRound()
+
+		def BoxifyRoundQ()
+			This.BoxifyRound()
+			return This
+
+	def BoxXT(paBoxOptions)
+		_cBxLine_ = :Solid
+		_bBxRounded_ = 0
+
+		if isList(paBoxOptions)
+			_nBxLen_ = len(paBoxOptions)
+			for _iBx_ = 1 to _nBxLen_
+				if isList(paBoxOptions[_iBx_]) and len(paBoxOptions[_iBx_]) = 2
+					_cBxKey_ = paBoxOptions[_iBx_][1]
+					_vBxVal_ = paBoxOptions[_iBx_][2]
+					if isString(_cBxKey_)
+						if StzLower(_cBxKey_) = "line" and isString(_vBxVal_) and StzLower(_vBxVal_) = "dashed"
+							_cBxLine_ = :Dashed
+						ok
+						if StzLower(_cBxKey_) = "allcorners" and isString(_vBxVal_) and (StzLower(_vBxVal_) = "round" or StzLower(_vBxVal_) = "rounded")
+							_bBxRounded_ = 1
+						ok
+						if StzLower(_cBxKey_) = "rounded" and isNumber(_vBxVal_) and _vBxVal_ = 1
+							_bBxRounded_ = 1
+						ok
+					ok
+				ok
+			next
+		ok
+
+		_nBxWidth_ = This.NumberOfChars() + 2
+		_cBxVTrait_ = "|"
+		_cBxHTrait_ = "-"
+		_cBxC1_ = "+"
+		_cBxC2_ = "+"
+		_cBxC3_ = "+"
+		_cBxC4_ = "+"
+
+		if _cBxLine_ = :Dashed
+			_cBxHTrait_ = "-"
+		ok
+
+		_cBxHLine_ = StzRepeatStr(_cBxHTrait_, _nBxWidth_)
+		_cBxUp_ = _cBxC1_ + _cBxHLine_ + _cBxC2_
+		_cBxMid_ = _cBxVTrait_ + " " + This.Content() + " " + _cBxVTrait_
+		_cBxDown_ = _cBxC4_ + _cBxHLine_ + _cBxC3_
+
+		This.Update(_cBxUp_ + NL + _cBxMid_ + NL + _cBxDown_)
+
+		def BoxXTQ(paBoxOptions)
+			This.BoxXT(paBoxOptions)
+			return This
+
+	def Boxed()
+		_oBxCopy_ = This.Copy()
+		_oBxCopy_.Box()
+		return _oBxCopy_.Content()
+
+	def BoxedRound()
+		_oBxCopy_ = This.Copy()
+		_oBxCopy_.BoxRound()
+		return _oBxCopy_.Content()
+
+	def BoxedXT(paBoxOptions)
+		_oBxCopy_ = This.Copy()
+		_oBxCopy_.BoxXT(paBoxOptions)
+		return _oBxCopy_.Content()
+
+	  #============================#
+	 #   TEXT ALIGNMENT            #
+	#============================#
+
+	def AlignXT(nWidth, cFillChar, cDirection)
+		_cAlContent_ = This.Content()
+		_nAlLen_ = This.NumberOfChars()
+
+		if _nAlLen_ >= nWidth
+			return
+		ok
+
+		_nAlPad_ = nWidth - _nAlLen_
+
+		if cDirection = :Left or cDirection = :left
+			This.Update(_cAlContent_ + copy(cFillChar, _nAlPad_))
+		but cDirection = :Right or cDirection = :right
+			This.Update(copy(cFillChar, _nAlPad_) + _cAlContent_)
+		else
+			_nAlLeft_ = floor(_nAlPad_ / 2)
+			_nAlRight_ = _nAlPad_ - _nAlLeft_
+			This.Update(copy(cFillChar, _nAlLeft_) + _cAlContent_ + copy(cFillChar, _nAlRight_))
+		ok
+
+		def AlignXTQ(nWidth, cFillChar, cDirection)
+			This.AlignXT(nWidth, cFillChar, cDirection)
+			return This

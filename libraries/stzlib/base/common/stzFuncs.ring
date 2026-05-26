@@ -3013,18 +3013,43 @@ func StzFindCS(pThing, paIn, pCaseSensitive)
 	anPos = Q(paIn).FindAllCS(pThing, pCaseSensitive)
 	return anPos
 
-func StzFind(pThing, paIn)
-	if isList(paIn) and len(paIn) = 2 and isString(paIn[1]) and paIn[1] = :in
-		paIn = paIn[2]
+func StzFind(p1, p2)
+	# Named param support: StzFind(x, [:in, list])
+	if isList(p2) and len(p2) = 2 and isString(p2[1]) and p2[1] = :in
+		p2 = p2[2]
 	ok
 
-	if isList(paIn)
-		nLen = len(paIn)
-		for _i = 1 to nLen
-			if paIn[_i] = pThing
-				return _i
+	# Case 1: p2 is a list -> find p1 in p2
+	if isList(p2)
+		_nSfLen_ = len(p2)
+		for _nSfI_ = 1 to _nSfLen_
+			if p2[_nSfI_] = p1
+				return _nSfI_
 			ok
 		next
+		return 0
+	ok
+
+	# Case 2: p1 is a list -> find p2 in p1 (backward compat with stzGraph etc.)
+	if isList(p1)
+		_nSfLen_ = len(p1)
+		for _nSfI_ = 1 to _nSfLen_
+			if p1[_nSfI_] = p2
+				return _nSfI_
+			ok
+		next
+		return 0
+	ok
+
+	# Case 3: Both strings -> find p2 as substring in p1
+	if isString(p1) and isString(p2)
+		_pSfH_ = StzEngineString(p1)
+		_nSfPos_ = StzEngineStringIndexOfFromCS(_pSfH_, p2, 1, 1)
+		StzEngineStringFree(_pSfH_)
+		if _nSfPos_ > 0
+			return _nSfPos_
+		ok
+		return 0
 	ok
 
 	return 0

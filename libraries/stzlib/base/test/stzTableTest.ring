@@ -1,9 +1,8 @@
 load "../stzbase.ring"
-load "../../max/list/stzoivottable.ring" # some samples use stzPivotTable from the MAX layer
-load "../../max/list/stzlist2D.ring" #TODO // Should be relocated in BASE layer
+# stzPivotTable and stzList2D are loaded by stzBase.ring
 
 /*=== CHECKING IF TABLE IS SORTED
-
+*/
 pr()
 
 o1 = new stzTable([
