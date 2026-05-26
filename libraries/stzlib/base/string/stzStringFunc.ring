@@ -2,153 +2,11 @@
  ///   FUNCTIONS FOR THE STZSTRING CLASS   ///
 /////////////////////////////////////////////
 
-  #------------------------------------------------------#
- #  UNICODE-AWARE WRAPPERS (engine-backed, simple API)  #
-#------------------------------------------------------#
-
-#-- Case conversion (Unicode-aware, replaces ASCII-only Ring upper()/lower())
-
-func StzRepeatStr(cStr, nCount)
-	_cSrResult_ = ""
-	for _iSr_ = 1 to nCount
-		_cSrResult_ += cStr
-	next
-	return _cSrResult_
-
-func StzUpper(cStr)
-	pH = StzEngineString(cStr)
-	pR = StzEngineStringToUpper(pH)
-	c = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
-	return c
-
-func StzLower(cStr)
-	pH = StzEngineString(cStr)
-	pR = StzEngineStringToLower(pH)
-	c = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
-	return c
-
-func StzTitle(cStr)
-	pH = StzEngineString(cStr)
-	pR = StzEngineStringToTitle(pH)
-	c = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
-	return c
-
-func StzCaseFold(cStr)
-	return StzEngineUnicodeCaseFold(cStr)
-
-#-- Length (codepoint count, not byte count)
-
-func StzLen(cStr)
-	if isList(cStr)
-		return len(cStr)
-	ok
-	pH = StzEngineString(cStr)
-	n = StzEngineStringCount(pH)
-	StzEngineStringFree(pH)
-	return n
-
-#-- Split null-delimited engine output into Ring list
-#   Used to parse engine functions that return items separated by \0
-
-func _SplitNullDelimited(cJoined)
-	if cJoined = ""
-		return []
-	ok
-	acResult = []
-	cCurrent = ""
-	nLen = len(cJoined)
-	for i = 1 to nLen
-		c = StzMid(cJoined, i, 1)
-		if ascii(c) = 0
-			if cCurrent != ""
-				acResult + cCurrent
-				cCurrent = ""
-			ok
-		else
-			cCurrent += c
-		ok
-	next
-	if cCurrent != ""
-		acResult + cCurrent
-	ok
-	return acResult
-
-#-- Character from codepoint (UTF-8 encoded, replaces byte-only Ring char())
-
-func StzChar(nCodepoint)
-	return StzEngineUnicodeEncode(nCodepoint)
-
-#-- String reverse (codepoint-aware, not byte-reverse)
-
-func StzReverse(cStr)
-	pH = StzEngineString(cStr)
-	pR = StzEngineStringReverse(pH)
-	c = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
-	return c
-
-#-- Type checking (Unicode-aware)
-
-func StzIsUpper(cStr)
-	pH = StzEngineString(cStr)
-	n = StzEngineStringIsUppercase(pH)
-	StzEngineStringFree(pH)
-	return n
-
-func StzIsLower(cStr)
-	pH = StzEngineString(cStr)
-	n = StzEngineStringIsLowercase(pH)
-	StzEngineStringFree(pH)
-	return n
-
-func StzIsAlpha(cStr)
-	pH = StzEngineString(cStr)
-	n = StzEngineStringIsAlpha(pH)
-	StzEngineStringFree(pH)
-	return n
-
-func StzIsDigit(cStr)
-	pH = StzEngineString(cStr)
-	n = StzEngineStringIsDigit(pH)
-	StzEngineStringFree(pH)
-	return n
-
-#-- Substring extraction (codepoint-aware)
-
-func StzLeft(cStr, n)
-	pH = StzEngineString(cStr)
-	pR = StzEngineStringLeft(pH, n)
-	c = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
-	return c
-
-func StzRight(cStr, n)
-	pH = StzEngineString(cStr)
-	pR = StzEngineStringRight(pH, n)
-	c = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
-	return c
-
-func StzMid(cStr, nStart, nLen)
-	pH = StzEngineString(cStr)
-	pR = StzEngineStringMid(pH, nStart - 1, nLen)
-	c = StzEngineStringData(pR)
-	StzEngineStringFree(pR)
-	StzEngineStringFree(pH)
-	return c
-
-  #------------------------------------#
- #  END OF UNICODE-AWARE WRAPPERS     #
-#------------------------------------#
+# NOTE: Primitive string utility functions (StzLen, StzLower, StzUpper,
+# StzLeft, StzRight, StzMid, StzReplace, StzPadLeftXT, StzPadRightXT,
+# StzChar, StzReverse, StzCapitalize, StzCenter, StzRepeatStr, etc.)
+# are defined in common/stzPrimitives.ring — loaded early so ALL
+# domains can use them before string/ loads.
 
 
 func StzStringQ(str)
@@ -202,75 +60,8 @@ func StzStringIsInList(str, aList)
 	func StringIsInList(str, aList)
 		return StzStringIsInList(str, aList)
 
-func StzPadRight(cText, nWidth)
-	return StzPadRightXT(cText, nWidth, " ")
-
-	func PadRight(cText, nWidth)
-		return StzPadRight(cText, nWidth)
-
-func StzPadRightXT(text, width, c)
-	pStr = StzEngineString("" + text)
-	pResult = StzEngineStringLjust(pStr, width, c)
-	cResult = StzEngineStringData(pResult)
-	StzEngineStringFree(pResult)
-	StzEngineStringFree(pStr)
-	return cResult
-
-	func PadRightXT(text, width, c)
-		return StzPadRightXT(text, width, c)
-
-func StzPadLeft(cText, nWidth)
-	return StzPadLeftXT(cText, nWidth, " ")
-
-	func PadLeft(cText, nWidth)
-		return StzPadLeft(cText, nWidth)
-
-func StzPadLeftXT(text, width, c)
-	pStr = StzEngineString("" + text)
-	pResult = StzEngineStringRjust(pStr, width, c)
-	cResult = StzEngineStringData(pResult)
-	StzEngineStringFree(pResult)
-	StzEngineStringFree(pStr)
-	return cResult
-
-	func PadLeftXT(text, width, c)
-		return StzPadLeftXT(text, width, c)
-
-func StzCenter(text, width)
-	pStr = StzEngineString("" + text)
-	pResult = StzEngineStringCenterPad(pStr, width, " ")
-	cResult = StzEngineStringData(pResult)
-	StzEngineStringFree(pResult)
-	StzEngineStringFree(pStr)
-	return cResult
-
-	func Center(text, width)
-		return StzCenter(text, width)
-
-#---
-
-
-func StzCapitalize(str)
-		if len(str) = 0 return str ok
-		pStr = StzEngineString(str)
-		pResult = StzEngineStringCapitalizeFirst(pStr)
-		cResult = StzEngineStringData(pResult)
-		StzEngineStringFree(pResult)
-		StzEngineStringFree(pStr)
-		return cResult
-
-		func Capitalize(str)
-			return StzCapitalize(str)
-
-		func Capitalise(str)
-			return StzCapitalize(str)
-
-		func @Capitalize(str)
-			return StzCapitalize(str)
-
-		func @Capitalise(str)
-			return StzCapitalize(str)
-#--
+# NOTE: StzPadRight/XT, StzPadLeft/XT, StzCenter, StzCapitalize
+# moved to common/stzPrimitives.ring
 
 func StzIsInvisibleString(str)
 
@@ -722,53 +513,8 @@ func StzStringContainsOneOfThese(pcStr, pcSubStr)
 	func @StzStringContainsOneOfThese(pcStr, pcSubStr)
 		return StzStringContainsOneOfThese(pcStr, pcSubStr)
 
-#==
-
-func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
-	if CheckParams()
-		if NOT ( isString(cStr) and isString(cSubStr) and isString(cNewSubStr) )
-			StzRaise("Incorrect params types! cStr, cSubStr, and cNewSubStr must all be strings.")
-		ok
-	ok
-
-	if cStr = "" or cSubStr = ''
-		return cStr
-	ok
-
-	bCase = CaseSensitive(bCaseSensitive)
-
-	# Use Engine for codepoint-safe replace
-	pStr = StzEngineString(cStr)
-	StzEngineStringReplaceCS(pStr, cSubStr, cNewSubStr, bCase)
-
-	cResult = StzEngineStringData(pStr)
-	StzEngineStringFree(pStr)
-	return cResult
-
-	#< @FunctionAlternativeForms
-
-	func @ReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
-		return StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
-
-	func ReplaceCS(str, cSubStr, cNewSubStr, bCaseSensitive)
-		return StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
-
-	#>
-
-func StzReplace(cStr, cSubStr, cNewSubStr)
-	return StzReplaceCS(cStr, cSubStr, cNewSubStr, 1)
-
-	func @Replace(cStr, cSubStr, cNewSubStr)
-		return StzReplace(cStr, cSubStr, cNewSubStr)
-
-	func Replace(cStr, cSubStr, cNewSubStr)
-		return StzReplace(cStr, cSubStr, cNewSubStr)
-
-func StzSplitCS(cStr, cSubStr, bCaseSensitive)
-	return StkSplitCS(cStr, cSubStr, bCaseSensitive)
-
-func StzSplit(cStr, cSubStr)
-	return StkSplit(cStr, cSubStr)
+# NOTE: StzReplaceCS, StzReplace, StzSplitCS, StzSplit
+# moved to common/stzPrimitives.ring
 
 #--
 
