@@ -117,6 +117,7 @@ ok
     load "string/stzStringConcat.ring"
     load "string/stzStringCaseChanger.ring"
     load "string/stzStringAligner.ring"
+    load "string/stzTextStream.ring"
 
 # Loading files related to REGEX module
 
@@ -236,12 +237,14 @@ ok
 # Loading files related to the ENGINE WRAPPER modules
 
     load "statemachine/stzStateMachine.ring"
-    load "validator/stzValidator.ring"
+    load "common/stzValidator.ring"
+    load "common/stzCache.ring"
+    load "common/stzConstraint.ring"
     load "sequence/stzSequence.ring"
     load "relation/stzRelation.ring"
     load "similarity/stzSimilarity.ring"
     load "timeline/stzEngineTimeline.ring"
-    load "gridnav/stzGridNav.ring"
+    load "graph/stzGridNav.ring"
 
 # Loading files related to the VISUAL module
 
@@ -249,6 +252,7 @@ ok
 
 # Loading files related to SYSTEM module
 
+    load "system/stzProfiler.ring"
     load "system/stzSystemCall.ring"
 
     load "system/stzMemoryGlobals.ring"
@@ -275,6 +279,7 @@ ok
     load "file/stzJson.ring"
     load "file/stzCSV.ring"
     load "file/stzHtml.ring"
+    load "file/stzFolderWatcher.ring"
 
 # Loading the YIELDER module (functional map/filter/reduce)
 
@@ -410,6 +415,8 @@ ok
     load "stats/stzDataWrangler.ring"
     load "stats/stzCoeffExtractor.ring"
     load "stats/stzLinearSolver.ring"
+    load "stats/stzMultiObjectiveSolver.ring"
+    load "stats/stzStochasticSolver.ring"
 
 // tz1 = clock()
 // ? "Softanza laoding time:"
