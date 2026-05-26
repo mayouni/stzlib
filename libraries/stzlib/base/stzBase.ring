@@ -280,7 +280,7 @@ ok
     load "file/stzJson.ring"
     load "file/stzCSV.ring"
     load "file/stzHtml.ring"
-    load "file/stzFolderWatcher.ring"
+    # NOTE: stzFolderWatcher.ring is a demo script, not a loadable module
 
 # Loading the YIELDER module (functional map/filter/reduce)
 
