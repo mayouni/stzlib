@@ -372,6 +372,7 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "@item")) return .var_item;
     if (std.mem.eql(u8, w, "@i")) return .var_index;
     if (std.mem.eql(u8, w, "@accumulator")) return .var_accum;
+    if (std.mem.eql(u8, w, "@value")) return .var_accum;
     if (std.mem.eql(u8, w, "@numberofitems")) return .var_count;
     if (std.mem.eql(u8, w, "@char")) return .var_char;
     if (std.mem.eql(u8, w, "true")) return .kw_true;
@@ -1456,6 +1457,11 @@ test "expr: variables @i and @numberofitems" {
 
 test "expr: accumulator for reduce" {
     const r = compileAndEvalReduce("@accumulator + @item", Val.initInt(3), Val.initInt(10));
+    try std.testing.expectEqual(@as(i64, 13), r.data.i);
+}
+
+test "expr: @value alias for accumulator" {
+    const r = compileAndEvalReduce("@value + @item", Val.initInt(3), Val.initInt(10));
     try std.testing.expectEqual(@as(i64, 13), r.data.i);
 }
 

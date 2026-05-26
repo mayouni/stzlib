@@ -945,6 +945,16 @@ class stzList from stzObject
 		nResult = 0
 		if isString(pItem)
 			nResult = StzEngineListFindStringCS(pList, pItem, pCaseSensitive)
+		else
+			# For non-string items (numbers, etc.), use Ring loop
+			_aFcsContent = @aContent
+			_nFcsLen = len(_aFcsContent)
+			for _iFcs = 1 to _nFcsLen
+				if _aFcsContent[_iFcs] = pItem
+					nResult = _iFcs
+					exit
+				ok
+			next
 		ok
 
 		StzEngineListFree(pList)
