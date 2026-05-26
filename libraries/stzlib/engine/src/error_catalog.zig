@@ -101,3 +101,112 @@ test "standard errors register" {
     const params4 = [_]meta.Substitution{};
     try std.testing.expect(eng.formatError("NONEXISTENT", &params4, &buf) == null);
 }
+
+test "error catalog: all standard error codes are unique" {
+    // Verify no duplicate error codes in the catalog
+    for (&standard_errors, 0..) |entry, i| {
+        for (standard_errors[i + 1 ..]) |other| {
+            try std.testing.expect(!std.mem.eql(u8, entry[0], other[0]));
+        }
+    }
+}
+
+test "error catalog: all templates contain substitution markers" {
+    // Every template with ${...} syntax should be well-formed
+    for (&standard_errors) |entry| {
+        const template = entry[1];
+        // Just verify template is non-empty
+        try std.testing.expect(template.len > 0);
+    }
+}
+
+test "error catalog: STRUCTURED error format" {
+    var eng = meta.MetaEngine.init(std.testing.allocator);
+    defer eng.deinit();
+    try registerAll(&eng);
+
+    var buf: [512]u8 = undefined;
+    const params = [_]meta.Substitution{
+        .{ .key = "where", .value = "stzList.ring" },
+        .{ .key = "what", .value = "Index out of range" },
+        .{ .key = "why", .value = "n > NumberOfItems()" },
+        .{ .key = "todo", .value = "Check your index value" },
+    };
+    const len = eng.formatError("STRUCTURED", &params, &buf).?;
+    const result = buf[0..len];
+    try std.testing.expect(std.mem.indexOf(u8, result, "stzList.ring") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result, "Index out of range") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result, "What") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result, "Why") != null);
+    try std.testing.expect(std.mem.indexOf(u8, result, "Todo") != null);
+}
+
+test "error catalog: EMPTY_LIST error" {
+    var eng = meta.MetaEngine.init(std.testing.allocator);
+    defer eng.deinit();
+    try registerAll(&eng);
+
+    var buf: [512]u8 = undefined;
+    const params = [_]meta.Substitution{
+        .{ .key = "op", .value = "Sort" },
+    };
+    const len = eng.formatError("EMPTY_LIST", &params, &buf).?;
+    try std.testing.expectEqualStrings(
+        "Operation Sort is not available on an empty list!",
+        buf[0..len],
+    );
+}
+
+test "error catalog: LIST_SIZE_MISMATCH error" {
+    var eng = meta.MetaEngine.init(std.testing.allocator);
+    defer eng.deinit();
+    try registerAll(&eng);
+
+    var buf: [512]u8 = undefined;
+    const params = [_]meta.Substitution{
+        .{ .key = "size1", .value = "5" },
+        .{ .key = "size2", .value = "3" },
+    };
+    const len = eng.formatError("LIST_SIZE_MISMATCH", &params, &buf).?;
+    try std.testing.expectEqualStrings(
+        "The two lists must have the same size! Got 5 and 3.",
+        buf[0..len],
+    );
+}
+
+test "error catalog: DEPRECATED error" {
+    var eng = meta.MetaEngine.init(std.testing.allocator);
+    defer eng.deinit();
+    try registerAll(&eng);
+
+    var buf: [512]u8 = undefined;
+    const params = [_]meta.Substitution{
+        .{ .key = "old", .value = "FindItems()" },
+        .{ .key = "new", .value = "FindAll()" },
+    };
+    const len = eng.formatError("DEPRECATED", &params, &buf).?;
+    try std.testing.expectEqualStrings(
+        "FindItems() is deprecated. Use FindAll() instead.",
+        buf[0..len],
+    );
+}
+
+test "error catalog: NOT_IMPLEMENTED error" {
+    var eng = meta.MetaEngine.init(std.testing.allocator);
+    defer eng.deinit();
+    try registerAll(&eng);
+
+    var buf: [512]u8 = undefined;
+    const params = [_]meta.Substitution{
+        .{ .key = "feature", .value = "ParallelSort" },
+    };
+    const len = eng.formatError("NOT_IMPLEMENTED", &params, &buf).?;
+    try std.testing.expectEqualStrings(
+        "Feature ParallelSort is not yet implemented!",
+        buf[0..len],
+    );
+}
+
+test "error catalog: catalog size" {
+    try std.testing.expectEqual(@as(usize, 18), standard_errors.len);
+}

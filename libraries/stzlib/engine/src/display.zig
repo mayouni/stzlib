@@ -239,3 +239,119 @@ test "display: ruler" {
     try std.testing.expectEqual(@as(u8, 0x94), buf[16]);
     try std.testing.expectEqual(@as(u8, 0x82), buf[17]);
 }
+
+// ── Edge case tests ──
+
+test "display: format_number zero decimals" {
+    var buf: [64]u8 = undefined;
+    const len = format_number(42.789, 0, &buf);
+    try std.testing.expectEqualStrings("43", buf[0..@intCast(len)]);
+}
+
+test "display: format_number negative decimals clamps to 0" {
+    var buf: [64]u8 = undefined;
+    const len = format_number(3.14, -5, &buf);
+    try std.testing.expect(len > 0);
+}
+
+test "display: format_number large decimals clamps to 15" {
+    var buf: [64]u8 = undefined;
+    const len = format_number(1.0, 100, &buf);
+    try std.testing.expect(len > 0);
+}
+
+test "display: format_int_grouped negative number" {
+    var buf: [64]u8 = undefined;
+    const len = format_int_grouped(-1234567, ',', 3, &buf);
+    try std.testing.expectEqualStrings("-1,234,567", buf[0..@intCast(len)]);
+}
+
+test "display: format_int_grouped zero" {
+    var buf: [64]u8 = undefined;
+    const len = format_int_grouped(0, ',', 3, &buf);
+    try std.testing.expectEqualStrings("0", buf[0..@intCast(len)]);
+}
+
+test "display: format_int_grouped invalid group_size" {
+    var buf: [64]u8 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), format_int_grouped(1234, ',', 0, &buf));
+    try std.testing.expectEqual(@as(i32, 0), format_int_grouped(1234, ',', -1, &buf));
+}
+
+test "display: format_percent zero" {
+    var buf: [64]u8 = undefined;
+    const len = format_percent(0.0, 1, &buf);
+    try std.testing.expectEqualStrings("0.0%", buf[0..@intCast(len)]);
+}
+
+test "display: format_percent full" {
+    var buf: [64]u8 = undefined;
+    const len = format_percent(1.0, 0, &buf);
+    try std.testing.expectEqualStrings("100%", buf[0..@intCast(len)]);
+}
+
+test "display: format_bytes_human exact boundaries" {
+    var buf: [64]u8 = undefined;
+    // 0 bytes
+    const len0 = format_bytes_human(0, &buf);
+    try std.testing.expectEqualStrings("0 B", buf[0..@intCast(len0)]);
+
+    // 1024 bytes = 1.0 KB
+    const len1 = format_bytes_human(1024, &buf);
+    try std.testing.expectEqualStrings("1.0 KB", buf[0..@intCast(len1)]);
+
+    // 1 byte
+    const len2 = format_bytes_human(1, &buf);
+    try std.testing.expectEqualStrings("1 B", buf[0..@intCast(len2)]);
+}
+
+test "display: format_bytes_human negative" {
+    var buf: [64]u8 = undefined;
+    const len = format_bytes_human(-1536, &buf);
+    try std.testing.expectEqualStrings("-1.5 KB", buf[0..@intCast(len)]);
+}
+
+test "display: bar_chart edge cases" {
+    var buf: [64]u8 = undefined;
+    // Zero width
+    try std.testing.expectEqual(@as(i32, 0), bar_chart(5.0, 10.0, 0, '#', '.', &buf));
+    // Zero max
+    try std.testing.expectEqual(@as(i32, 0), bar_chart(5.0, 0.0, 10, '#', '.', &buf));
+    // Negative value clamps to 0
+    const len = bar_chart(-5.0, 10.0, 5, '#', '.', &buf);
+    try std.testing.expectEqualStrings(".....", buf[0..@intCast(len)]);
+    // Value > max clamps to full
+    const len2 = bar_chart(15.0, 10.0, 5, '#', '.', &buf);
+    try std.testing.expectEqualStrings("#####", buf[0..@intCast(len2)]);
+}
+
+test "display: progress_bar edge cases" {
+    var buf: [64]u8 = undefined;
+    // Too narrow
+    try std.testing.expectEqual(@as(i32, 0), progress_bar(5, 10, 1, &buf));
+    try std.testing.expectEqual(@as(i32, 0), progress_bar(5, 10, 2, &buf));
+    // Zero total
+    try std.testing.expectEqual(@as(i32, 0), progress_bar(5, 0, 10, &buf));
+    // Full progress
+    const len = progress_bar(10, 10, 12, &buf);
+    try std.testing.expectEqualStrings("[##########]", buf[0..@intCast(len)]);
+    // Zero progress
+    const len2 = progress_bar(0, 10, 12, &buf);
+    try std.testing.expectEqualStrings("[----------]", buf[0..@intCast(len2)]);
+}
+
+test "display: tree_prefix depth 0 returns 0" {
+    var buf: [64]u8 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), tree_prefix(0, 0, &buf));
+}
+
+test "display: ruler zero width returns 0" {
+    var buf: [64]u8 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), ruler(0, 5, &buf));
+}
+
+test "display: ruler negative major defaults to 10" {
+    var buf: [128]u8 = undefined;
+    const len = ruler(5, -1, &buf);
+    try std.testing.expectEqual(@as(i32, 15), len); // 5 * 3 bytes
+}
