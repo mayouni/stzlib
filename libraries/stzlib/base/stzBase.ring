@@ -238,22 +238,10 @@ ok
     load "statemachine/stzStateMachine.ring"
     load "validator/stzValidator.ring"
     load "sequence/stzSequence.ring"
-    load "confidence/stzConfidence.ring"
-    load "provenance/stzProvenance.ring"
     load "relation/stzRelation.ring"
-    load "intent/stzIntent.ring"
-    load "resource/stzResource.ring"
-    load "context/stzContext.ring"
     load "similarity/stzSimilarity.ring"
-
-    load "schema/stzSchema.ring"
-    load "topology/stzTopology.ring"
-    load "embedding/stzEmbedding.ring"
-    load "explain/stzExplain.ring"
     load "timeline/stzEngineTimeline.ring"
     load "gridnav/stzGridNav.ring"
-    load "interact/stzInteraction.ring"
-    load "skill/stzSkill.ring"
 
 # Loading files related to the VISUAL module
 
