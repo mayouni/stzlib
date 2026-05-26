@@ -55,6 +55,16 @@ pf()
 */
 pr()
 
+cSampleHtml = `
+<html>
+<head><title>Test</title></head>
+<body>
+<h1>Hello World</h1>
+<p class="intro">This is a test paragraph.</p>
+</body>
+</html>
+`
+
 oHtml = HtmlQ(cSampleHtml)
 
 # Using CSS selectors

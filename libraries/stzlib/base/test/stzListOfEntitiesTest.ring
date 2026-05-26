@@ -7,7 +7,7 @@ load "../stzmax.ring"
 
 # The following raises an error because the entity
 # :apple/:company is add twice
-o1 = new stzListOfEntities() {
+o1 = new stzListOfEntities([]) {
 	AddEntity([ :name = "Apple", :type = "Company" ])
 	AddEntity([ :name = "Apple", :type = "Company" ])
 
@@ -18,7 +18,7 @@ o1 = new stzListOfEntities() {
 /*-------------------
 */
 # While this will work
-o1 = new stzListOfEntities() {
+o1 = new stzListOfEntities([]) {
 	AddEntity([ :name = "Apple", :type = "Company" ])
 	AddEntity([ :name = "Apple", :type = "Fruit" ])
 
@@ -31,7 +31,7 @@ o1 = new stzListOfEntities() {
 
 /*-------------------
 */
-o1 = new stzListOfEntities() {
+o1 = new stzListOfEntities([]) {
 	AddEntity([ :name = "Apple", :type = "Company" ])
 	AddEntity([ :name = "Microsoft", :type = "Company" ])
 	AddEntity([ :name = "Google", :type = "Company" ])
@@ -44,7 +44,7 @@ o1 = new stzListOfEntities() {
 
 /*-------------------
 */
-o1 = new stzListOfEntities() {
+o1 = new stzListOfEntities([]) {
 	AddEntity([ :name = "Apple", :type = "Company" ])
 	AddEntity([ :name = "Jobs", :type = "People" ])
 	AddEntity([ :name = "MacOS", :type = "Technology" ])

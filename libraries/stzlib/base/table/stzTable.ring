@@ -958,3 +958,39 @@ Class stzTable from stzList
 	def EngineHandle()
 		This._EnsureEngine()
 		return @pEngine
+
+	  #=========================================#
+	 #  STRUCTURAL OPERATIONS (from submodule) #
+	#=========================================#
+
+	def RemoveNthCol(n)
+		if This.NumberOfCols() = 1
+			@aContent = [ [ :COL1, [ "" ] ] ]
+			return
+		ok
+		ring_remove(@aContent, n)
+
+		def RemoveColAt(n)
+			This.RemoveNthCol(n)
+
+	def RemoveColumn(pColNameOrNumber)
+		_nRcCol_ = This.ColToColNumber(pColNameOrNumber)
+		if _nRcCol_ = 0
+			StzRaise("Column not found!")
+		ok
+		This.RemoveNthCol(_nRcCol_)
+
+		def RemoveCol(pColNameOrNumber)
+			This.RemoveColumn(pColNameOrNumber)
+
+	  #=========================================#
+	 #  DISPLAY OPERATIONS (from submodule)    #
+	#=========================================#
+
+	def Show()
+		_oTdDisp_ = new stzTableDisplay(@aContent)
+		_oTdDisp_.Show()
+
+	def ToString()
+		_oTdToStr_ = new stzTableDisplay(@aContent)
+		return _oTdToStr_.ToString()
