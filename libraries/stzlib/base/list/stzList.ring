@@ -1968,3 +1968,53 @@ class stzList from stzObject
 
 		return nMax
 
+	  #=========================================#
+	 #  ADDITIONAL TYPE CHECKING METHODS       #
+	#=========================================#
+
+	def IsListOfHashLists()
+		_aIlhContent_ = This.Content()
+		_nIlhLen_ = len(_aIlhContent_)
+		if _nIlhLen_ = 0
+			return 0
+		ok
+
+		for _iIlh_ = 1 to _nIlhLen_
+			if NOT isList(_aIlhContent_[_iIlh_])
+				return 0
+			ok
+			_oIlhTemp_ = new stzList(_aIlhContent_[_iIlh_])
+			if NOT _oIlhTemp_.IsHashList()
+				return 0
+			ok
+		next
+
+		return 1
+
+	def IsMadeOfSome(paValues)
+		_aImContent_ = This.Content()
+		_nImLen_ = len(_aImContent_)
+
+		for _iIm_ = 1 to _nImLen_
+			_bImFound_ = 0
+			_nImVLen_ = len(paValues)
+			for _jIm_ = 1 to _nImVLen_
+				if _aImContent_[_iIm_] = paValues[_jIm_]
+					_bImFound_ = 1
+					exit
+				ok
+			next
+			if _bImFound_ = 0
+				return 0
+			ok
+		next
+
+		return 1
+
+	def IsPairOfStrings()
+		_aIpContent_ = This.Content()
+		if len(_aIpContent_) != 2
+			return 0
+		ok
+		return isString(_aIpContent_[1]) and isString(_aIpContent_[2])
+
