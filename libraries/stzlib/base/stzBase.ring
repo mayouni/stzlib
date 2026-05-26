@@ -20,6 +20,7 @@ ok
     load "common/stzRingFuncs.ring"
 
     load "common/stzRingLibs.ring"
+    load "common/stzPrimitives.ring"
     load "common/stzNamedParams.ring"
     load "common/stzSmallFuncs.ring"
     load "common/stzSplitter.ring"
@@ -252,7 +253,7 @@ ok
 
 # Loading files related to SYSTEM module
 
-    load "system/stzProfiler.ring"
+    # NOTE: stzProfiler.ring is a demo script, not a loadable module
     load "system/stzSystemCall.ring"
 
     load "system/stzMemoryGlobals.ring"
