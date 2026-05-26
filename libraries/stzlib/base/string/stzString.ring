@@ -583,17 +583,12 @@ class stzString from stzObject
 			return This.CharsAndUnicodesU()
 
 	  #============================#
-	 #   FIND DUPLICATES           #
+	 #   DUPLICATED SUBSTRINGS    #
 	#============================#
-
-	def FindDuplicates()
-		_oDup_ = new stzStringDuplicates(This)
-		return _oDup_.FindDuplicates()
 
 	def Duplicates()
 		_oDup_ = new stzStringDuplicates(This)
 		return _oDup_.DuplicatedChars()
 
-	def DuplicatesZ()
-		_oDup_ = new stzStringDuplicates(This)
-		return _oDup_.DuplicatesAndTheirPositions()
+		def DuplicatedSubStrings()
+			return This.Duplicates()
