@@ -3070,58 +3070,33 @@ class stzListOfLists from stzList
 	 #  COMMON ITEMS BETWEEN ALL THE LISTS  #
 	#======================================#
 
-	def CommonItemsCS(pCaseSensitive) #ai #claude
+	def CommonItemsCS(pCaseSensitive)
 
 		_aContent_ = This.Content()
-    		if len(_aContent_) = 0 return [] ok
-    		if len(_aContent_) = 1 return _aContent_[1] ok
-    
-    		# Start with the first list as our base for comparison
+		if len(_aContent_) = 0 return [] ok
+		if len(_aContent_) = 1 return _aContent_[1] ok
 
-    		aCommon = _aContent_[1]
-   		nListsLen = len(_aContent_)
-    
-    		# Compare with each subsequent list
+		# Engine-backed pairwise intersection (O(n log n) per pair)
+		nCsFlag = CaseSensitive(pCaseSensitive)
 
-    		for i = 2 to nListsLen
-        		aTemp = []
-        		nCurrentListLen = len(_aContent_[i])
-        		nCommonLen = len(aCommon)
-        
-        		# Check each item in our current common items
+		aCommon = _aContent_[1]
+		nListsLen = len(_aContent_)
 
-        		for j = 1 to nCommonLen
+		for i = 2 to nListsLen
+			pListA = StzEngineMarshalList(aCommon)
+			pListB = StzEngineMarshalList(_aContent_[i])
+			pResult = StzEngineListIntersectionCS(pListA, pListB, nCsFlag)
+			aCommon = StzEngineContentFromList(pResult)
+			StzEngineListFree(pResult)
+			StzEngineListFree(pListB)
+			StzEngineListFree(pListA)
 
-            			item = aCommon[j]
+			if len(aCommon) = 0
+				return []
+			ok
+		next
 
-	   			if isNumber(item) or isString(item)
-
-	            		# Look for this item in the current list
-
-			            	for k = 1 to nCurrentListLen
-			                	if item = _aContent_[i][k]
-			                    		aTemp + item
-			                    		exit  # Found it, no need to continue inner loop
-			                	ok
-			            	next
-
-	   			else
-
-		            		for k = 1 to nCurrentListLen
-		                		if Q(item).IsEqualToCS(_aContent_[i][k], pCaseSensitive)
-		                    			aTemp + item
-		                    			exit  # Found it, no need to continue inner loop
-		                		ok
-		            		next
-	    			ok
-
-        		next
-        
-        		# Update our common items to only those found in current list
-        		aCommon = aTemp
-    		next
-    
-    		return aCommon
+		return aCommon
 
 
 		def IntersectionCS(pCaseSensitive)
