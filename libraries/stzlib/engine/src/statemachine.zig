@@ -234,3 +234,91 @@ test "destroy" {
     try std.testing.expectEqual(@as(i32, 0), stz_fsm_state_count(m));
     stz_fsm_clear();
 }
+
+test "fsm: invalid machine index safety" {
+    try std.testing.expectEqual(@as(i32, -1), stz_fsm_add_state(-1, "s", 1));
+    try std.testing.expectEqual(@as(i32, -1), stz_fsm_add_state(999, "s", 1));
+    try std.testing.expectEqual(@as(i32, 0), stz_fsm_state_count(-1));
+    try std.testing.expectEqual(@as(i32, 0), stz_fsm_transition_count(-1));
+    try std.testing.expectEqual(@as(i32, 0), stz_fsm_send(-1, "e", 1));
+    var buf: [64]u8 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), stz_fsm_current_state(-1, &buf));
+}
+
+test "fsm: set state to unknown state fails" {
+    stz_fsm_clear();
+    const m = stz_fsm_create("m", 1);
+    _ = stz_fsm_add_state(m, "a", 1);
+    try std.testing.expectEqual(@as(i32, 0), stz_fsm_set_state(m, "unknown", 7));
+    stz_fsm_clear();
+}
+
+test "fsm: transition with unknown states fails" {
+    stz_fsm_clear();
+    const m = stz_fsm_create("m", 1);
+    _ = stz_fsm_add_state(m, "a", 1);
+    // Transition referencing non-existent "b" state
+    try std.testing.expectEqual(@as(i32, 0), stz_fsm_add_transition(m, "a", 1, "go", 2, "b", 1));
+    try std.testing.expectEqual(@as(i32, 0), stz_fsm_add_transition(m, "b", 1, "go", 2, "a", 1));
+    stz_fsm_clear();
+}
+
+test "fsm: multiple transitions from same state" {
+    stz_fsm_clear();
+    const m = stz_fsm_create("light", 5);
+    _ = stz_fsm_add_state(m, "off", 3);
+    _ = stz_fsm_add_state(m, "dim", 3);
+    _ = stz_fsm_add_state(m, "bright", 6);
+    _ = stz_fsm_add_transition(m, "off", 3, "switch", 6, "dim", 3);
+    _ = stz_fsm_add_transition(m, "off", 3, "boost", 5, "bright", 6);
+    _ = stz_fsm_set_state(m, "off", 3);
+
+    // "boost" from off -> bright
+    _ = stz_fsm_send(m, "boost", 5);
+    var buf: [64]u8 = undefined;
+    const len = stz_fsm_current_state(m, &buf);
+    try std.testing.expectEqualSlices(u8, "bright", buf[0..@intCast(len)]);
+    stz_fsm_clear();
+}
+
+test "fsm: circular transitions" {
+    stz_fsm_clear();
+    const m = stz_fsm_create("cycle", 5);
+    _ = stz_fsm_add_state(m, "A", 1);
+    _ = stz_fsm_add_state(m, "B", 1);
+    _ = stz_fsm_add_state(m, "C", 1);
+    _ = stz_fsm_add_transition(m, "A", 1, "next", 4, "B", 1);
+    _ = stz_fsm_add_transition(m, "B", 1, "next", 4, "C", 1);
+    _ = stz_fsm_add_transition(m, "C", 1, "next", 4, "A", 1);
+    _ = stz_fsm_set_state(m, "A", 1);
+
+    // Go around the cycle
+    _ = stz_fsm_send(m, "next", 4);
+    _ = stz_fsm_send(m, "next", 4);
+    _ = stz_fsm_send(m, "next", 4);
+    var buf: [64]u8 = undefined;
+    const len = stz_fsm_current_state(m, &buf);
+    try std.testing.expectEqualSlices(u8, "A", buf[0..@intCast(len)]);
+    stz_fsm_clear();
+}
+
+test "fsm: clear resets machine count" {
+    stz_fsm_clear();
+    _ = stz_fsm_create("a", 1);
+    _ = stz_fsm_create("b", 1);
+    stz_fsm_clear();
+    // Creating after clear should succeed
+    const m = stz_fsm_create("c", 1);
+    try std.testing.expect(m >= 0);
+    stz_fsm_clear();
+}
+
+test "fsm: destroy then reuse slot" {
+    stz_fsm_clear();
+    const m1 = stz_fsm_create("first", 5);
+    stz_fsm_destroy(m1);
+    const m2 = stz_fsm_create("second", 6);
+    // Should reuse the slot
+    try std.testing.expectEqual(m1, m2);
+    stz_fsm_clear();
+}

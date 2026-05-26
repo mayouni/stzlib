@@ -133,3 +133,71 @@ test "embed: unknown feature" {
     embed_clear_features();
     try std.testing.expectEqual(@as(i32, -1), embed_has_feature("nope".ptr, 4));
 }
+
+test "embed: version string buffer too small" {
+    var buf: [2]u8 = undefined;
+    const len = embed_version_string(&buf, 2);
+    try std.testing.expectEqual(@as(i32, -1), len);
+}
+
+test "embed: os string buffer too small" {
+    var buf: [1]u8 = undefined;
+    const len = embed_build_os(&buf, 1);
+    try std.testing.expectEqual(@as(i32, -1), len);
+}
+
+test "embed: feature disable then re-enable" {
+    embed_clear_features();
+    const idx = embed_register_feature("test_feat", 9, 1);
+    try std.testing.expect(idx >= 0);
+    try std.testing.expectEqual(@as(i32, 1), embed_has_feature("test_feat", 9));
+    _ = embed_register_feature("test_feat", 9, 0);
+    try std.testing.expectEqual(@as(i32, 0), embed_has_feature("test_feat", 9));
+    _ = embed_register_feature("test_feat", 9, 1);
+    try std.testing.expectEqual(@as(i32, 1), embed_has_feature("test_feat", 9));
+    embed_clear_features();
+}
+
+test "embed: clear resets count" {
+    embed_clear_features();
+    _ = embed_register_feature("a", 1, 1);
+    _ = embed_register_feature("b", 1, 1);
+    _ = embed_register_feature("c", 1, 1);
+    try std.testing.expectEqual(@as(u32, 3), embed_feature_count());
+    embed_clear_features();
+    try std.testing.expectEqual(@as(u32, 0), embed_feature_count());
+}
+
+test "embed: feature name too long rejected" {
+    embed_clear_features();
+    var long_name: [MAX_FEAT_NAME + 10]u8 = undefined;
+    @memset(&long_name, 'x');
+    const result = embed_register_feature(&long_name, long_name.len, 1);
+    try std.testing.expectEqual(@as(i32, -1), result);
+    embed_clear_features();
+}
+
+test "embed: version components consistent" {
+    var buf: [32]u8 = undefined;
+    const len = embed_version_string(&buf, 32);
+    const ver_str = buf[0..@intCast(len)];
+    // Version string should contain dots
+    var dot_count: usize = 0;
+    for (ver_str) |c| {
+        if (c == '.') dot_count += 1;
+    }
+    try std.testing.expectEqual(@as(usize, 2), dot_count);
+}
+
+test "embed: arch returns valid string" {
+    var buf: [64]u8 = undefined;
+    const len = embed_build_arch(&buf, 64);
+    try std.testing.expect(len > 0);
+    // Should be a known arch
+    const arch = buf[0..@intCast(len)];
+    const is_known = std.mem.eql(u8, arch, "x86_64") or
+        std.mem.eql(u8, arch, "aarch64") or
+        std.mem.eql(u8, arch, "x86") or
+        std.mem.eql(u8, arch, "arm");
+    try std.testing.expect(is_known);
+}

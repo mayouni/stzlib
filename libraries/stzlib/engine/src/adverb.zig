@@ -143,3 +143,53 @@ test "adverb: overwrite" {
     try std.testing.expectEqual(Flags.REVERSED, adv_flags("X", 1));
     try std.testing.expectEqual(@as(i32, 1), adv_count());
 }
+
+test "adverb: invalid name length" {
+    adv_clear();
+    try std.testing.expectEqual(@as(i32, -1), adv_define("x", 0, Flags.CASELESS));
+    try std.testing.expectEqual(@as(i32, -1), adv_define("x", -1, Flags.CASELESS));
+}
+
+test "adverb: unknown adverb returns 0 flags" {
+    adv_clear();
+    try std.testing.expectEqual(@as(u32, 0), adv_flags("UNKNOWN", 7));
+    try std.testing.expectEqual(@as(i32, 0), adv_has_flag("UNKNOWN", 7, Flags.CASELESS));
+}
+
+test "adverb: compose unknown adverbs returns 0" {
+    adv_clear();
+    try std.testing.expectEqual(@as(u32, 0), adv_compose("A", 1, "B", 1));
+}
+
+test "adverb: multi-flag composition" {
+    adv_clear();
+    _ = adv_define("CSXT", 4, Flags.CASELESS | Flags.EXTENDED);
+    try std.testing.expectEqual(@as(i32, 1), adv_has_flag("CSXT", 4, Flags.CASELESS));
+    try std.testing.expectEqual(@as(i32, 1), adv_has_flag("CSXT", 4, Flags.EXTENDED));
+    try std.testing.expectEqual(@as(i32, 0), adv_has_flag("CSXT", 4, Flags.FLUENT));
+}
+
+test "adverb: clear then redefine" {
+    adv_clear();
+    _ = adv_define("A", 1, Flags.CASELESS);
+    adv_clear();
+    try std.testing.expectEqual(@as(i32, 0), adv_count());
+    try std.testing.expectEqual(@as(u32, 0), adv_flags("A", 1));
+    _ = adv_define("A", 1, Flags.REVERSED);
+    try std.testing.expectEqual(Flags.REVERSED, adv_flags("A", 1));
+}
+
+test "adverb: all softanza suffixes covered" {
+    adv_init_defaults();
+    // Verify all documented suffixes
+    try std.testing.expect(adv_flags("CS", 2) != 0);
+    try std.testing.expect(adv_flags("XT", 2) != 0);
+    try std.testing.expect(adv_flags("Q", 1) != 0);
+    try std.testing.expect(adv_flags("IB", 2) != 0);
+    try std.testing.expect(adv_flags("Z", 1) != 0);
+    try std.testing.expect(adv_flags("ZZ", 2) != 0);
+    try std.testing.expect(adv_flags("W", 1) != 0);
+    try std.testing.expect(adv_flags("U", 1) != 0);
+    try std.testing.expect(adv_flags("S", 1) != 0);
+    try std.testing.expect(adv_flags("B", 1) != 0);
+}

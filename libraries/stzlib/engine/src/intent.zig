@@ -188,3 +188,71 @@ test "update param" {
     try std.testing.expectEqualSlices(u8, "new", buf[0..@intCast(len)]);
     stz_intent_clear();
 }
+
+test "intent: get nonexistent param returns 0" {
+    stz_intent_clear();
+    const idx = stz_intent_create("test", 4, 1);
+    var buf: [64]u8 = undefined;
+    const len = stz_intent_get_param(idx, "missing", 7, &buf);
+    try std.testing.expectEqual(@as(i32, 0), len);
+    stz_intent_clear();
+}
+
+test "intent: invalid index safety" {
+    stz_intent_clear();
+    try std.testing.expectEqual(@as(i32, 0), stz_intent_priority(-1));
+    try std.testing.expectEqual(@as(i32, 0), stz_intent_priority(999));
+    try std.testing.expectEqual(@as(i32, 0), stz_intent_param_count(-1));
+    var buf: [64]u8 = undefined;
+    try std.testing.expectEqual(@as(i32, 0), stz_intent_get_param(-1, "x", 1, &buf));
+    try std.testing.expectEqual(@as(i32, 0), stz_intent_set_param(-1, "x", 1, "v", 1));
+    stz_intent_clear();
+}
+
+test "intent: multiple intents coexist" {
+    stz_intent_clear();
+    const a = stz_intent_create("navigate", 8, 10);
+    const b = stz_intent_create("search", 6, 20);
+    const c = stz_intent_create("cancel", 6, 5);
+    try std.testing.expectEqual(@as(i32, 3), stz_intent_count());
+    try std.testing.expectEqual(@as(i32, 10), stz_intent_priority(a));
+    try std.testing.expectEqual(@as(i32, 20), stz_intent_priority(b));
+    try std.testing.expectEqual(@as(i32, 5), stz_intent_priority(c));
+    try std.testing.expectEqual(b, stz_intent_top_priority());
+    stz_intent_clear();
+}
+
+test "intent: destroy then top_priority updates" {
+    stz_intent_clear();
+    _ = stz_intent_create("low", 3, 1);
+    const hi = stz_intent_create("high", 4, 100);
+    try std.testing.expectEqual(hi, stz_intent_top_priority());
+    stz_intent_destroy(hi);
+    // After destroying highest, top should be "low"
+    const top = stz_intent_top_priority();
+    try std.testing.expect(top >= 0);
+    try std.testing.expectEqual(@as(i32, 1), stz_intent_priority(top));
+    stz_intent_clear();
+}
+
+test "intent: clear resets everything" {
+    stz_intent_clear();
+    _ = stz_intent_create("a", 1, 1);
+    _ = stz_intent_create("b", 1, 2);
+    stz_intent_clear();
+    try std.testing.expectEqual(@as(i32, 0), stz_intent_count());
+    try std.testing.expectEqual(@as(i32, -1), stz_intent_top_priority());
+}
+
+test "intent: multiple params on one intent" {
+    stz_intent_clear();
+    const idx = stz_intent_create("order", 5, 10);
+    _ = stz_intent_set_param(idx, "item", 4, "book", 4);
+    _ = stz_intent_set_param(idx, "qty", 3, "2", 1);
+    _ = stz_intent_set_param(idx, "color", 5, "blue", 4);
+    try std.testing.expectEqual(@as(i32, 3), stz_intent_param_count(idx));
+    var buf: [64]u8 = undefined;
+    const len = stz_intent_get_param(idx, "color", 5, &buf);
+    try std.testing.expectEqualSlices(u8, "blue", buf[0..@intCast(len)]);
+    stz_intent_clear();
+}
