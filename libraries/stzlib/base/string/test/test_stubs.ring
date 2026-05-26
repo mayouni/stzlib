@@ -473,4 +473,27 @@ func StzPadLeft(cStr, nWidth, cPadChar)
 	next
 	return cStr
 
+func StzPadLeftXT(text, width, c)
+	cStr = "" + text
+	nLen = len(cStr)
+	for i = 1 to width - nLen
+		cStr = c + cStr
+	next
+	return cStr
+
+func StzPadRight(cStr, nWidth, cPadChar)
+	nLen = len(cStr)
+	for i = 1 to nWidth - nLen
+		cStr = cStr + cPadChar
+	next
+	return cStr
+
+func StzPadRightXT(text, width, c)
+	cStr = "" + text
+	nLen = len(cStr)
+	for i = 1 to width - nLen
+		cStr = cStr + c
+	next
+	return cStr
+
 class stzObject
