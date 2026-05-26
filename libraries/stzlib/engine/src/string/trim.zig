@@ -775,3 +775,227 @@ pub fn str_squeeze_char(handle: StzStringHandle, cp: u32) callconv(.c) StzString
     }
     return result;
 }
+
+// ─── Tests ───
+
+const testing = std.testing;
+const str_free = core.str_free;
+
+fn h(comptime s: []const u8) StzStringHandle {
+    return str_from(s.ptr, s.len);
+}
+
+fn expectStr(handle: StzStringHandle, expected: []const u8) !void {
+    const s = handle orelse return error.TestUnexpectedResult;
+    defer str_free(s);
+    try testing.expectEqualSlices(u8, expected, s.slice());
+}
+
+test "str_trim_left: removes leading whitespace" {
+    const s = h("   hello");
+    defer str_free(s);
+    try expectStr(str_trim_left(s), "hello");
+}
+
+test "str_trim_left: no leading whitespace unchanged" {
+    const s = h("hello   ");
+    defer str_free(s);
+    try expectStr(str_trim_left(s), "hello   ");
+}
+
+test "str_trim_right: removes trailing whitespace" {
+    const s = h("hello   ");
+    defer str_free(s);
+    try expectStr(str_trim_right(s), "hello");
+}
+
+test "str_trim_right: no trailing whitespace unchanged" {
+    const s = h("   hello");
+    defer str_free(s);
+    try expectStr(str_trim_right(s), "   hello");
+}
+
+test "str_trim: removes both ends" {
+    const s = h("  hello  ");
+    defer str_free(s);
+    try expectStr(str_trim(s), "hello");
+}
+
+test "str_trim: tabs and newlines" {
+    const s = h("\t\nhello\n\t");
+    defer str_free(s);
+    try expectStr(str_trim(s), "hello");
+}
+
+test "str_trim: all whitespace returns empty" {
+    const s = h("   \t\n  ");
+    defer str_free(s);
+    try expectStr(str_trim(s), "");
+}
+
+test "str_trim: null handle returns null" {
+    const r = str_trim(null);
+    try testing.expectEqual(@as(StzStringHandle, null), r);
+}
+
+test "str_trim_chars: custom characters" {
+    const s = h("***hello***");
+    defer str_free(s);
+    try expectStr(str_trim_chars(s, "*", 1), "hello");
+}
+
+test "str_trim_chars: multi-char set" {
+    const s = h("+-hello-+");
+    defer str_free(s);
+    try expectStr(str_trim_chars(s, "+-", 2), "hello");
+}
+
+test "str_trim_chars: empty set unchanged" {
+    const s = h("hello");
+    defer str_free(s);
+    try expectStr(str_trim_chars(s, "", 0), "hello");
+}
+
+test "str_simplify: collapse internal whitespace" {
+    const s = h("  hello   world  ");
+    defer str_free(s);
+    try expectStr(str_simplify(s), "hello world");
+}
+
+test "str_simplify: tabs and newlines become spaces" {
+    const s = h("hello\t\tworld\n\nfoo");
+    defer str_free(s);
+    try expectStr(str_simplify(s), "hello world foo");
+}
+
+test "str_pad_left: zero-padded number" {
+    const s = h("42");
+    defer str_free(s);
+    try expectStr(str_pad_left(s, 5, "0", 1), "00042");
+}
+
+test "str_pad_left: already wide enough" {
+    const s = h("hello");
+    defer str_free(s);
+    try expectStr(str_pad_left(s, 3, " ", 1), "hello");
+}
+
+test "str_pad_right: space padding" {
+    const s = h("hi");
+    defer str_free(s);
+    try expectStr(str_pad_right(s, 5, ".", 1), "hi...");
+}
+
+test "str_center_pad: center with dots" {
+    const s = h("hi");
+    defer str_free(s);
+    try expectStr(str_center_pad(s, 6, ".", 1), "..hi..");
+}
+
+test "str_center_pad: odd padding favors right" {
+    const s = h("x");
+    defer str_free(s);
+    try expectStr(str_center_pad(s, 4, "-", 1), "-x--");
+}
+
+test "str_zfill: zero-fill" {
+    const s = h("7");
+    defer str_free(s);
+    try expectStr(str_zfill(s, 4), "0007");
+}
+
+test "str_zfill: already long enough" {
+    const s = h("12345");
+    defer str_free(s);
+    try expectStr(str_zfill(s, 3), "12345");
+}
+
+test "str_ljust: left justify" {
+    const s = h("hi");
+    defer str_free(s);
+    try expectStr(str_ljust(s, 5, " ", 1), "hi   ");
+}
+
+test "str_rjust: right justify" {
+    const s = h("hi");
+    defer str_free(s);
+    try expectStr(str_rjust(s, 5, " ", 1), "   hi");
+}
+
+test "str_left_pad: byte-level padding" {
+    const s = h("42");
+    defer str_free(s);
+    try expectStr(str_left_pad(s, 5, '0'), "00042");
+}
+
+test "str_right_pad: byte-level padding" {
+    const s = h("hi");
+    defer str_free(s);
+    try expectStr(str_right_pad(s, 5, '.'), "hi...");
+}
+
+test "str_indent: add indentation" {
+    const s = h("line1\nline2");
+    defer str_free(s);
+    try expectStr(str_indent(s, 4), "    line1\n    line2");
+}
+
+test "str_dedent: remove common indentation" {
+    const s = h("    line1\n    line2\n    line3");
+    defer str_free(s);
+    try expectStr(str_dedent(s), "line1\nline2\nline3");
+}
+
+test "str_dedent: mixed indentation" {
+    const s = h("    deep\n  shallow\n      deeper");
+    defer str_free(s);
+    try expectStr(str_dedent(s), "  deep\nshallow\n    deeper");
+}
+
+test "str_tab_expand: tabs to spaces" {
+    const s = h("a\tb\tc");
+    defer str_free(s);
+    try expectStr(str_tab_expand(s, 4), "a    b    c");
+}
+
+test "str_expand_tabs: export variant" {
+    const s = h("x\ty");
+    defer str_free(s);
+    try expectStr(str_expand_tabs(s, 2), "x  y");
+}
+
+test "str_collapse_spaces: multiple spaces to one" {
+    const s = h("  hello    world  ");
+    defer str_free(s);
+    try expectStr(str_collapse_spaces(s), "hello world");
+}
+
+test "str_normalize_spaces: tabs collapse" {
+    const s = h("  hello\t\tworld  ");
+    defer str_free(s);
+    try expectStr(str_normalize_spaces(s), "hello world");
+}
+
+test "str_squeeze: collapse all runs" {
+    const s = h("aaabbbccc");
+    defer str_free(s);
+    try expectStr(str_squeeze(s), "abc");
+}
+
+test "str_squeeze: mixed content" {
+    const s = h("aabbcc  dd");
+    defer str_free(s);
+    try expectStr(str_squeeze(s), "abc d");
+}
+
+test "str_squeeze_char: specific character" {
+    const s = h("aaabbbccc");
+    defer str_free(s);
+    try expectStr(str_squeeze_char(s, 'a'), "abbbccc");
+}
+
+test "str_squeeze_char: spaces only" {
+    const s = h("hello   world");
+    defer str_free(s);
+    try expectStr(str_squeeze_char(s, ' '), "hello world");
+}

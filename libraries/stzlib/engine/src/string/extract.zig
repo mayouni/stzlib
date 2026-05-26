@@ -436,3 +436,194 @@ pub export fn str_cp_count(handle: ?*StzString) callconv(.c) c_int {
     const src = s.slice();
     return @intCast(utf8CodepointCount(src));
 }
+
+// ─── Tests ───
+
+const testing = std.testing;
+
+fn h(comptime s: []const u8) StzStringHandle {
+    return str_from(s.ptr, s.len);
+}
+
+fn expectStr(handle: StzStringHandle, expected: []const u8) !void {
+    const s = handle orelse return error.TestUnexpectedResult;
+    defer str_free(s);
+    try testing.expectEqualSlices(u8, expected, s.slice());
+}
+
+test "str_mid: basic byte extraction" {
+    const s = h("Hello, World!");
+    defer str_free(s);
+    try expectStr(str_mid(s, 0, 5), "Hello");
+    try expectStr(str_mid(s, 7, 5), "World");
+}
+
+test "str_mid: beyond end returns truncated" {
+    const s = h("abc");
+    defer str_free(s);
+    try expectStr(str_mid(s, 1, 100), "bc");
+}
+
+test "str_mid: null handle returns empty" {
+    try expectStr(str_mid(null, 0, 5), "");
+}
+
+test "str_left: extract prefix" {
+    const s = h("Hello");
+    defer str_free(s);
+    try expectStr(str_left(s, 3), "Hel");
+    try expectStr(str_left(s, 0), "");
+    try expectStr(str_left(s, 100), "Hello");
+}
+
+test "str_right: extract suffix" {
+    const s = h("Hello");
+    defer str_free(s);
+    try expectStr(str_right(s, 3), "llo");
+    try expectStr(str_right(s, 100), "Hello");
+}
+
+test "str_trimmed: whitespace trim" {
+    const s = h("  hello  ");
+    defer str_free(s);
+    try expectStr(str_trimmed(s), "hello");
+}
+
+test "str_nth_char: codepoint indexing" {
+    // "cafe\xCC\x81" = "café" (e + combining acute)
+    const s = h("abc");
+    defer str_free(s);
+    try expectStr(str_nth_char(s, INDEX_BASE + 0), "a");
+    try expectStr(str_nth_char(s, INDEX_BASE + 1), "b");
+    try expectStr(str_nth_char(s, INDEX_BASE + 2), "c");
+}
+
+test "str_nth_char: multibyte chars" {
+    const s = h("\xC3\xA9\xC3\xA8"); // "éè"
+    defer str_free(s);
+    try expectStr(str_nth_char(s, INDEX_BASE + 0), "\xC3\xA9"); // é
+    try expectStr(str_nth_char(s, INDEX_BASE + 1), "\xC3\xA8"); // è
+}
+
+test "str_slice: codepoint range extraction" {
+    const s = h("Hello");
+    defer str_free(s);
+    try expectStr(str_slice(s, INDEX_BASE + 1, 3), "ell");
+}
+
+test "str_slice: multibyte extraction" {
+    const s = h("H\xC3\xA9llo"); // "Héllo"
+    defer str_free(s);
+    try expectStr(str_slice(s, INDEX_BASE, 3), "H\xC3\xA9l");
+}
+
+test "str_chars: decompose into codepoints" {
+    const s = h("ab\xC3\xA9"); // "abé"
+    defer str_free(s);
+    var count: usize = 0;
+    const arr = str_chars(s, &count);
+    try testing.expectEqual(@as(usize, 3), count);
+    if (arr) |a| {
+        // Check content before freeing
+        const s0 = a[0].?.slice();
+        const s1 = a[1].?.slice();
+        const s2 = a[2].?.slice();
+        try testing.expectEqualSlices(u8, "a", s0);
+        try testing.expectEqualSlices(u8, "b", s1);
+        try testing.expectEqualSlices(u8, "\xC3\xA9", s2);
+        str_chars_free(a, count);
+    }
+}
+
+test "str_char_at: codepoint value" {
+    const s = h("A");
+    defer str_free(s);
+    try testing.expectEqual(@as(i32, 65), str_char_at(s, INDEX_BASE));
+}
+
+test "str_mid_cp: codepoint-based mid" {
+    const s = h("H\xC3\xA9llo"); // "Héllo"
+    defer str_free(s);
+    try expectStr(str_mid_cp(s, INDEX_BASE + 1, 2), "\xC3\xA9l");
+}
+
+test "str_left_cp: codepoint left" {
+    const s = h("\xC3\xA9\xC3\xA8\xC3\xA0"); // "éèà"
+    defer str_free(s);
+    try expectStr(str_left_cp(s, 2), "\xC3\xA9\xC3\xA8");
+}
+
+test "str_right_cp: codepoint right" {
+    const s = h("\xC3\xA9\xC3\xA8\xC3\xA0"); // "éèà"
+    defer str_free(s);
+    try expectStr(str_right_cp(s, 2), "\xC3\xA8\xC3\xA0");
+}
+
+test "str_between: extract between delimiters" {
+    const s = h("[hello]");
+    defer str_free(s);
+    try expectStr(str_between(s, "[", 1, "]", 1), "hello");
+}
+
+test "str_between: multi-char delimiters" {
+    const s = h("<<content>>");
+    defer str_free(s);
+    try expectStr(str_between(s, "<<", 2, ">>", 2), "content");
+}
+
+test "str_between: no match returns null" {
+    const s = h("no brackets here");
+    defer str_free(s);
+    try testing.expectEqual(@as(StzStringHandle, null), str_between(s, "[", 1, "]", 1));
+}
+
+test "str_between_nth: specific occurrence" {
+    const s = h("[a][b][c]");
+    defer str_free(s);
+    try expectStr(str_between_nth(s, "[", 1, "]", 1, 0), "a");
+    try expectStr(str_between_nth(s, "[", 1, "]", 1, 1), "b");
+    try expectStr(str_between_nth(s, "[", 1, "]", 1, 2), "c");
+}
+
+test "str_count_between: count delimiter pairs" {
+    const s = h("[a][b][c]");
+    defer str_free(s);
+    try testing.expectEqual(@as(c_int, 3), str_count_between(s, "[", 1, "]", 1));
+}
+
+test "str_substring: inclusive range" {
+    const s = h("Hello");
+    defer str_free(s);
+    try expectStr(str_substring(s, INDEX_BASE + 1, INDEX_BASE + 3), "ell");
+}
+
+test "str_chars_between: exclusive range" {
+    const s = h("abcde");
+    defer str_free(s);
+    try expectStr(str_chars_between(s, INDEX_BASE, INDEX_BASE + 4), "bcd");
+}
+
+test "str_char_at_to_string: returns string" {
+    const s = h("Hello");
+    defer str_free(s);
+    try expectStr(str_char_at_to_string(s, INDEX_BASE), "H");
+    try expectStr(str_char_at_to_string(s, INDEX_BASE + 4), "o");
+}
+
+test "str_between_first: export variant" {
+    const s = h("[first][second]");
+    defer str_free(s);
+    try expectStr(str_between_first(s, "[", 1, "]", 1), "first");
+}
+
+test "str_cp_count: codepoint counting" {
+    const s = h("\xC3\xA9\xC3\xA8\xC3\xA0"); // "éèà"
+    defer str_free(s);
+    try testing.expectEqual(@as(c_int, 3), str_cp_count(s));
+}
+
+test "str_grapheme_count: basic graphemes" {
+    const s = h("Hello");
+    defer str_free(s);
+    try testing.expect(str_grapheme_count(s) >= 5);
+}
