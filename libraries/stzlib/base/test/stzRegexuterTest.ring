@@ -1,5 +1,5 @@
 
-load "../stzmax.ring"
+load "../stzBase.ring"
 
 /*---
 

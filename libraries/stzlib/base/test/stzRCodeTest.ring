@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzBase.ring"
 
 /*--- Debugging external code execution
 

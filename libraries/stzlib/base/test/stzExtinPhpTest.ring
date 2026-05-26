@@ -14,8 +14,8 @@ echo(max(0, 150, 30, 20, -8, -200));  #--> 150
 
 pr()
 
-echo( Min([0, 150, 30, 20, -8, -200]) );   #--> -200	#ERROR #TODO
-echo( Max([0, 150, 30, 20, -8, -200]) );   #--> 150
+echo( @Min([0, 150, 30, 20, -8, -200]) );   #--> -200	#ERROR #TODO
+echo( @Max([0, 150, 30, 20, -8, -200]) );   #--> 150
 
 #NOTE that the only difference is to put the numbers in a list
 # by bounding them by [ and ], inside the min() and max() functions
