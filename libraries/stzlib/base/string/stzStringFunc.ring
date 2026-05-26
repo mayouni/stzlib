@@ -131,6 +131,14 @@ func StzRight(cStr, n)
 	StzEngineStringFree(pH)
 	return c
 
+func StzMid(cStr, nStart, nLen)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringMid(pH, nStart - 1, nLen)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
   #------------------------------------#
  #  END OF UNICODE-AWARE WRAPPERS     #
 #------------------------------------#
