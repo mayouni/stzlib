@@ -117,19 +117,31 @@ pub fn tree_prefix(depth: i32, is_last: i32, out: [*]u8) callconv(.c) i32 {
     if (depth <= 0) return 0;
     var pos: usize = 0;
     const d: usize = @intCast(depth);
+    // Unicode tree connectors: │ = E2 94 82, └ = E2 94 94, ├ = E2 94 9C, ── = E2 94 80 x2
+    const pipe = "\xe2\x94\x82"; // │
+    const elbow = "\xe2\x94\x94"; // └
+    const tee = "\xe2\x94\x9c"; // ├
+    const dash = "\xe2\x94\x80"; // ─
     for (0..d - 1) |_| {
-        out[pos] = '|';
-        out[pos + 1] = ' ';
-        out[pos + 2] = ' ';
+        @memcpy(out[pos .. pos + 3], pipe);
         out[pos + 3] = ' ';
-        pos += 4;
+        out[pos + 4] = ' ';
+        out[pos + 5] = ' ';
+        pos += 6;
     }
     if (is_last != 0) {
-        @memcpy(out[pos .. pos + 4], "`-- ");
+        @memcpy(out[pos .. pos + 3], elbow);
+        @memcpy(out[pos + 3 .. pos + 6], dash);
+        @memcpy(out[pos + 6 .. pos + 9], dash);
+        out[pos + 9] = ' ';
+        pos += 10;
     } else {
-        @memcpy(out[pos .. pos + 4], "|-- ");
+        @memcpy(out[pos .. pos + 3], tee);
+        @memcpy(out[pos + 3 .. pos + 6], dash);
+        @memcpy(out[pos + 6 .. pos + 9], dash);
+        out[pos + 9] = ' ';
+        pos += 10;
     }
-    pos += 4;
     return @intCast(pos);
 }
 
@@ -137,16 +149,23 @@ pub fn ruler(width: i32, major: i32, out: [*]u8) callconv(.c) i32 {
     if (width <= 0) return 0;
     const w: usize = @intCast(width);
     const m: usize = if (major <= 0) 10 else @intCast(major);
+    // Ruler uses Unicode: │ for major, ┼ for mid, ─ for fill
+    // Since each Unicode char is 3 bytes, output is 3*w bytes
+    const tick_major = "\xe2\x94\x82"; // │
+    const tick_mid = "\xe2\x94\xbc"; // ┼
+    const tick_fill = "\xe2\x94\x80"; // ─
+    var pos: usize = 0;
     for (0..w) |i| {
         if (i % m == 0) {
-            out[i] = '|';
+            @memcpy(out[pos .. pos + 3], tick_major);
         } else if (i % (m / 2) == 0 and m >= 4) {
-            out[i] = '+';
+            @memcpy(out[pos .. pos + 3], tick_mid);
         } else {
-            out[i] = '-';
+            @memcpy(out[pos .. pos + 3], tick_fill);
         }
+        pos += 3;
     }
-    return @intCast(w);
+    return @intCast(pos);
 }
 
 // ── C ABI exports ────────────────────────────────────────────
@@ -201,15 +220,22 @@ test "display: progress_bar" {
 test "display: tree_prefix" {
     var buf: [64]u8 = undefined;
     const len = tree_prefix(2, 0, &buf);
-    try std.testing.expectEqualStrings("|   |-- ", buf[0..@intCast(len)]);
+    try std.testing.expectEqualStrings("\xe2\x94\x82   \xe2\x94\x9c\xe2\x94\x80\xe2\x94\x80 ", buf[0..@intCast(len)]);
     const len2 = tree_prefix(1, 1, &buf);
-    try std.testing.expectEqualStrings("`-- ", buf[0..@intCast(len2)]);
+    try std.testing.expectEqualStrings("\xe2\x94\x94\xe2\x94\x80\xe2\x94\x80 ", buf[0..@intCast(len2)]);
 }
 
 test "display: ruler" {
-    var buf: [64]u8 = undefined;
+    var buf: [128]u8 = undefined;
     const len = ruler(10, 5, &buf);
-    try std.testing.expectEqual(@as(i32, 10), len);
-    try std.testing.expectEqual(@as(u8, '|'), buf[0]);
-    try std.testing.expectEqual(@as(u8, '|'), buf[5]);
+    // 10 positions * 3 bytes per Unicode char = 30 bytes
+    try std.testing.expectEqual(@as(i32, 30), len);
+    // Position 0 = major tick │ (E2 94 82)
+    try std.testing.expectEqual(@as(u8, 0xe2), buf[0]);
+    try std.testing.expectEqual(@as(u8, 0x94), buf[1]);
+    try std.testing.expectEqual(@as(u8, 0x82), buf[2]);
+    // Position 5 = major tick │ (at byte offset 15)
+    try std.testing.expectEqual(@as(u8, 0xe2), buf[15]);
+    try std.testing.expectEqual(@as(u8, 0x94), buf[16]);
+    try std.testing.expectEqual(@as(u8, 0x82), buf[17]);
 }
