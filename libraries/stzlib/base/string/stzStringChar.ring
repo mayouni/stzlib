@@ -698,25 +698,19 @@ class stzStringChar from stzObject
 
 			but oStr.RepresentsNumberInHexForm() or
 			    oStr.RepresentsNumberInUnicodeHexForm()
-				nUnicode = StzHexNumberQ(pChar).ToDecimal()
-				cBuf = space(4)
-				nLen = StzEngineCharToUtf8(nUnicode, cBuf, 4)
-				@oString = new stzString(StzLeft(cBuf, nLen))
+				_nCiUni_ = StzHexNumberQ(pChar).ToDecimal()
+				@oString = new stzString(StzEngineCharToUtf8(_nCiUni_))
 
 			but oStr.IsCharName()
-				nUnicode = StzUnicodeDataQ().CharUnicodeByName(pChar)
-				cBuf = space(4)
-				nLen = StzEngineCharToUtf8(nUnicode, cBuf, 4)
-				@oString = new stzString(StzLeft(cBuf, nLen))
+				_nCnUni_ = StzUnicodeDataQ().CharUnicodeByName(pChar)
+				@oString = new stzString(StzEngineCharToUtf8(_nCnUni_))
 
 			else
 				StzRaise("Can not create char object!")
 			ok
 
 		but isNumber(pChar)
-			cBuf = space(4)
-			nLen = StzEngineCharToUtf8(pChar, cBuf, 4)
-			@oString = new stzString(StzLeft(cBuf, nLen))
+			@oString = new stzString(StzEngineCharToUtf8(pChar))
 
 		but isObject(pChar)
 			# Accept a stzString object directly
@@ -1953,3 +1947,29 @@ class stzStringChar from stzObject
 
 	def IsMultaniScript()
 		return This.ScriptCode() = 129
+
+	  #----------------------------#
+	 #  CHAR RANGE (UpTo/DownTo)  #
+	#----------------------------#
+
+	def UpTo(pcChar)
+		_nUtFrom_ = This.Unicode()
+		_nUtTo_ = StzEngineCharUnicode(pcChar)
+		if _nUtFrom_ >= _nUtTo_ return [] ok
+
+		_aUtResult_ = []
+		for _nUtI_ = _nUtFrom_ to _nUtTo_
+			_aUtResult_ + StzCharQ(_nUtI_).Content()
+		next
+		return _aUtResult_
+
+	def DownTo(pcChar)
+		_nDtFrom_ = This.Unicode()
+		_nDtTo_ = StzEngineCharUnicode(pcChar)
+		if _nDtFrom_ <= _nDtTo_ return [] ok
+
+		_aDtResult_ = []
+		for _nDtI_ = _nDtFrom_ to _nDtTo_ step -1
+			_aDtResult_ + StzCharQ(_nDtI_).Content()
+		next
+		return _aDtResult_

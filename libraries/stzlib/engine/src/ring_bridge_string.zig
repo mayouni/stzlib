@@ -249,6 +249,17 @@ fn ring_CharUnicode(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(char_mod.stz_char_unicode(ring_vm_api_getstring(p, 1))));
 }
 
+fn ring_CharToUtf8(p: *anyopaque) callconv(.c) void {
+    const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 1));
+    var buf: [4]u8 = undefined;
+    const n = char_mod.stz_char_to_utf8(cp, &buf, 4);
+    if (n > 0) {
+        ring_vm_api_retstring2(p, &buf, @intCast(n));
+    } else {
+        ring_vm_api_retstring2(p, @constCast(""), 0);
+    }
+}
+
 fn ring_CharIsLetter(p: *anyopaque) callconv(.c) void {
     const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 1));
     ring_vm_api_retnumber(p, @floatFromInt(char_mod.stz_char_is_letter(cp)));
@@ -3038,6 +3049,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringnormalize", .func = &ring_StringNormalize },
     .{ .name = "stzenginestringstripmarks", .func = &ring_StringStripMarks },
     .{ .name = "stzenginecharunicode", .func = &ring_CharUnicode },
+    .{ .name = "stzenginechartoutf8", .func = &ring_CharToUtf8 },
     .{ .name = "stzenginecharisletter", .func = &ring_CharIsLetter },
     .{ .name = "stzenginecharisdigit", .func = &ring_CharIsDigit },
     .{ .name = "stzenginecharisupper", .func = &ring_CharIsUpper },

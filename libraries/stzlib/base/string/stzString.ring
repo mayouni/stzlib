@@ -353,3 +353,54 @@ class stzString from stzObject
 			This.Update(StzEngineStringData(pR))
 			StzEngineStringFree(pR)
 		ok
+
+	  #============================#
+	 #   DUPLICATE SUBSTRINGS     #
+	#============================#
+
+	def ContainsDuplicatesCS(pCaseSensitive)
+		return This.ContainsDuplicatedSubStringsCS(pCaseSensitive)
+
+	def ContainsDuplicates()
+		return This.ContainsDuplicatesCS(1)
+
+	def ContainsDuplicatedSubStringsCS(pCaseSensitive)
+		return len(This.DuplicatedSubStringsCS(pCaseSensitive)) > 0
+
+	def ContainsDuplicatedSubStrings()
+		return This.ContainsDuplicatedSubStringsCS(1)
+
+	def DuplicatedSubStringsCS(pCaseSensitive)
+		_oDsDup_ = new stzStringDuplicates(This)
+		return _oDsDup_.DuplicatedChars()
+
+	def DuplicatedSubStrings()
+		return This.DuplicatedSubStringsCS(1)
+
+	def NumberOfDuplicatesCS(pCaseSensitive)
+		return len(This.DuplicatedSubStringsCS(pCaseSensitive))
+
+	def NumberOfDuplicates()
+		return This.NumberOfDuplicatesCS(1)
+
+	def HasDuplicatedChars()
+		_oDhDup_ = new stzStringDuplicates(This)
+		return _oDhDup_.HasDuplicatedChars()
+
+	  #============================#
+	 #   CHAR RANGE (UpTo/DownTo) #
+	#============================#
+
+	def UpTo(pcChar)
+		if This.NumberOfChars() = 1
+			_oUtChar_ = new stzStringChar(This.Content())
+			return _oUtChar_.UpTo(pcChar)
+		ok
+		return []
+
+	def DownTo(pcChar)
+		if This.NumberOfChars() = 1
+			_oDtChar_ = new stzStringChar(This.Content())
+			return _oDtChar_.DownTo(pcChar)
+		ok
+		return []
