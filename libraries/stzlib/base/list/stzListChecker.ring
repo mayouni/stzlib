@@ -48,28 +48,16 @@ class stzListChecker
 	#======================================#
 
 	def IsListOfNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		for i = 1 to nLen
-			if NOT isNumber(aContent[i])
-				return 0
-			ok
-		next
-
-		return 1
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsAllNumbers(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 	def IsListOfStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		for i = 1 to nLen
-			if NOT isString(aContent[i])
-				return 0
-			ok
-		next
-
-		return 1
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsAllStrings(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 	def IsListOfLists()
 		aContent = This.Content()

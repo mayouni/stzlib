@@ -109,16 +109,11 @@ class stzListDuplicates
 	#=====================================#
 
 	def RemoveDuplicatesCS(pCaseSensitive)
-		anPos = This.FindDuplicatesCS(pCaseSensitive)
-		nLen = len(anPos)
-
-		_oCopy_ = This.Copy()
-
-		for i = nLen to 1 step -1
-			_oCopy_.RemoveItemAtPosition(anPos[i])
-		next
-
-		This.UpdateWith(_oCopy_.Content())
+		# Engine-backed deduplication
+		pList = @oList._EngineListFromContent()
+		StzEngineListRemoveDuplicatesCS(pList, pCaseSensitive)
+		This.UpdateWith(@oList._ContentFromEngineList(pList))
+		StzEngineListFree(pList)
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)

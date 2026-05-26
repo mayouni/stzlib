@@ -280,51 +280,29 @@ class stzListSorter
 	#==============================#
 
 	def Min()
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen = 0
+		if This.NumberOfItems() = 0
 			return NULL
 		ok
 
-		result = aContent[1]
-		for i = 2 to nLen
-			if isNumber(aContent[i]) and isNumber(result)
-				if aContent[i] < result
-					result = aContent[i]
-				ok
-			but isString(aContent[i]) and isString(result)
-				if strcmp(aContent[i], result) < 0
-					result = aContent[i]
-				ok
-			ok
-		next
-
-		return result
+		# Engine-backed O(n) min for numeric lists
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListMin(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def Minimum()
 			return This.Min()
 
 	def Max()
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen = 0
+		if This.NumberOfItems() = 0
 			return NULL
 		ok
 
-		result = aContent[1]
-		for i = 2 to nLen
-			if isNumber(aContent[i]) and isNumber(result)
-				if aContent[i] > result
-					result = aContent[i]
-				ok
-			but isString(aContent[i]) and isString(result)
-				if strcmp(aContent[i], result) > 0
-					result = aContent[i]
-				ok
-			ok
-		next
-
-		return result
+		# Engine-backed O(n) max for numeric lists
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListMax(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def Maximum()
 			return This.Max()
