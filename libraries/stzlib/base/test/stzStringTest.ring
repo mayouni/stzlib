@@ -3073,10 +3073,6 @@ pf()
 # Executed in 0.65 second(s) in Ring 1.22
 
 /*---------- #narration
-*/
-pr()
-
-o1 = new stzString("RINGORIALAND")
 
 # Are there any duplicated substrings in this string?
 
@@ -3108,6 +3104,7 @@ o1 = new stzString("RINGORIALAND")
 pf()
 # Executed in 0.95 second(s) in Ring 1.22
 # Executed in 2.20 second(s) in Ring 1.19
+*/
 
 /*================
 
@@ -4698,7 +4695,7 @@ StopProfiler()
 # Executed in 0.12 second(s) in Ring 1.21
 
 /*----------- #perf
-*/
+
 StartProfiler()
 
 #                    2    7
@@ -4713,6 +4710,7 @@ o1 = new stzString("â€¢â™¥â€¢â€¢â€¢â€¢â™¥â€¢â�
 
 StopProfiler()
 #--> Executed in 0.25 second(s) in Ring 1.21
+*/
 
 /*===========
 

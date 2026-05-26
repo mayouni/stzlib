@@ -512,3 +512,88 @@ class stzString from stzObject
 		def AlignXTQ(nWidth, cFillChar, cDirection)
 			This.AlignXT(nWidth, cFillChar, cDirection)
 			return This
+
+	  #============================#
+	 #   UNIQUE CHARS             #
+	#============================#
+
+	def CharsU()
+		_aCuChars_ = This.Chars()
+		_aCuResult_ = []
+		_nCuLen_ = len(_aCuChars_)
+		for _iCu_ = 1 to _nCuLen_
+			_bCuFound_ = 0
+			_nCuRLen_ = len(_aCuResult_)
+			for _jCu_ = 1 to _nCuRLen_
+				if _aCuResult_[_jCu_] = _aCuChars_[_iCu_]
+					_bCuFound_ = 1
+					exit
+				ok
+			next
+			if _bCuFound_ = 0
+				_aCuResult_ + _aCuChars_[_iCu_]
+			ok
+		next
+		return _aCuResult_
+
+		def UniqueChars()
+			return This.CharsU()
+
+	  #============================#
+	 #   UNICODES                  #
+	#============================#
+
+	def Unicode()
+		if This.NumberOfChars() != 1
+			StzRaise("Can't get unicode! String must be a single character.")
+		ok
+		return StzCharToUnicode(This.Content())
+
+	def Unicodes()
+		_aUcChars_ = This.Chars()
+		_aUcResult_ = []
+		_nUcLen_ = len(_aUcChars_)
+		for _iUc_ = 1 to _nUcLen_
+			_aUcResult_ + StzCharToUnicode(_aUcChars_[_iUc_])
+		next
+		return _aUcResult_
+
+	def CharsAndUnicodes()
+		_aCauChars_ = This.Chars()
+		_aCauResult_ = []
+		_nCauLen_ = len(_aCauChars_)
+		for _iCau_ = 1 to _nCauLen_
+			_aCauResult_ + [ _aCauChars_[_iCau_], StzCharToUnicode(_aCauChars_[_iCau_]) ]
+		next
+		return _aCauResult_
+
+		def UnicodePerChar()
+			return This.CharsAndUnicodes()
+
+	def CharsAndUnicodesU()
+		_aCauuChars_ = This.CharsU()
+		_aCauuResult_ = []
+		_nCauuLen_ = len(_aCauuChars_)
+		for _iCauu_ = 1 to _nCauuLen_
+			_aCauuResult_ + [ _aCauuChars_[_iCauu_], StzCharToUnicode(_aCauuChars_[_iCauu_]) ]
+		next
+		return _aCauuResult_
+
+		def UniqueCharsAndUnicodes()
+			return This.CharsAndUnicodesU()
+
+	  #============================#
+	 #   FIND DUPLICATES           #
+	#============================#
+
+	def FindDuplicates()
+		_oDup_ = new stzStringDuplicates(This)
+		return _oDup_.FindDuplicates()
+
+	def Duplicates()
+		_oDup_ = new stzStringDuplicates(This)
+		return _oDup_.DuplicatedChars()
+
+	def DuplicatesZ()
+		_oDup_ = new stzStringDuplicates(This)
+		return _oDup_.DuplicatesAndTheirPositions()

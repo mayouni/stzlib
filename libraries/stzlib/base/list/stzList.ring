@@ -1780,6 +1780,24 @@ class stzList from stzObject
 		def ContainsMany(paItems)
 			return This.ContainsManyCS(paItems, 1)
 
+		def ContainsThese(paItems)
+			return This.ContainsManyCS(paItems, 1)
+
+		def ContainsEach(paItems)
+			return This.ContainsManyCS(paItems, 1)
+
+		def ContainsAll(paItems)
+			return This.ContainsManyCS(paItems, 1)
+
+		def ContainsTheseCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
+
+		def ContainsEachCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
+
+		def ContainsAllCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
+
 	  #-- RemoveAllCS: remove all occurrences of an item
 
 	def RemoveAllCS(pItem, pCaseSensitive)
@@ -2017,4 +2035,5 @@ class stzList from stzObject
 			return 0
 		ok
 		return isString(_aIpContent_[1]) and isString(_aIpContent_[2])
+
 
