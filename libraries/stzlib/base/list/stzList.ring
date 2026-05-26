@@ -1233,25 +1233,19 @@ class stzList from stzObject
 			return This.IsPair()
 
 	def IsListOfStrings()
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			if NOT isString(@aContent[i])
-				return FALSE
-			ok
-		next
-		return TRUE
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListIsAllStrings(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def IsAListOfStrings()
 			return This.IsListOfStrings()
 
 	def IsListOfNumbers()
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			if NOT isNumber(@aContent[i])
-				return FALSE
-			ok
-		next
-		return TRUE
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListIsAllNumbers(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def IsAListOfNumbers()
 			return This.IsListOfNumbers()
@@ -1955,36 +1949,26 @@ class stzList from stzObject
 	  #-- Min / Max for numeric lists
 
 	def Min()
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen = 0
+		if len(@aContent) = 0
 			return 0
 		ok
 
-		nMin = aContent[1]
-		for i = 2 to nLen
-			if isNumber(aContent[i]) and aContent[i] < nMin
-				nMin = aContent[i]
-			ok
-		next
-
-		return nMin
+		# Engine-backed O(n) min
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListMin(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 	def Max()
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen = 0
+		if len(@aContent) = 0
 			return 0
 		ok
 
-		nMax = aContent[1]
-		for i = 2 to nLen
-			if isNumber(aContent[i]) and aContent[i] > nMax
-				nMax = aContent[i]
-			ok
-		next
-
-		return nMax
+		# Engine-backed O(n) max
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListMax(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 	  #=========================================#
 	 #  ADDITIONAL TYPE CHECKING METHODS       #
