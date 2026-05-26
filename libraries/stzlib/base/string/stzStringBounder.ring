@@ -100,9 +100,11 @@ class stzStringBounder
 			ok
 		ok
 
-		anTemp = new stzList([ n1, n2 ]).Sorted()
-		n1 = anTemp[1]
-		n2 = anTemp[2]
+		if n1 > n2
+			nSwap = n1
+			n1 = n2
+			n2 = nSwap
+		ok
 
 		if NOT ( n1 >= 1 and n1 <= nLen and n2 >= 1 and n2 <= nLen )
 			StzRaise("Indexes out of range! n1 and n2 must be inside the string.")

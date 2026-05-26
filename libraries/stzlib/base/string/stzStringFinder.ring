@@ -129,8 +129,8 @@ class stzStringFinder
 		ok
 
 		anResult = []
-		for i = 0 to nCount - 1
-			# Engine returns 1-based positions (INDEX_BASE=1)
+		for i = 1 to nCount
+			# Engine uses 1-based index for stz_find_result_get
 			anResult + StzEngineFindResultGet(pResult, i)
 		next
 		StzEngineFindResultFree(pResult)
@@ -472,15 +472,17 @@ class stzStringFinder
 
 	def FindCharsWCS(pcCondition, pCaseSensitive)
 		cStr = @oString.Content()
-		cResult = StzEngineStringFindCharsW(cStr, pcCondition)
-		if cResult = ""
-			return []
-		ok
-		aParts = StzSplit(cResult, ",")
+		nLen = StzLen(cStr)
 		anResult = []
-		nLen = len(aParts)
+		# Use Ring eval() to check condition per character
+		# Condition uses @char as the current character variable
 		for i = 1 to nLen
-			anResult + (0 + aParts[i])
+			@char = StzMid(cStr, i, 1)
+			cCode = "bMatch = (" + pcCondition + ")"
+			eval(cCode)
+			if bMatch
+				anResult + i
+			ok
 		next
 		return anResult
 
@@ -529,7 +531,7 @@ class stzStringFinder
 			return []
 		ok
 		anResult = []
-		for i = 0 to nCount - 1
+		for i = 1 to nCount
 			anResult + StzEngineFindResultGet(pResult, i)
 		next
 		StzEngineFindResultFree(pResult)

@@ -182,7 +182,7 @@ class stzStringWords
 			return []
 		ok
 
-		return StzStringQ(cResult).Split(" ")
+		return split(cResult, " ")
 
 	def UniqueWords()
 		return This.UniqueWordsCS(1)
