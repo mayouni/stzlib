@@ -26,18 +26,11 @@ func IsSet(paList)
 		return 1
 	ok
 
-	bResult = 1
-	aSeen = []
-	for i = 1 to nLen
-		if find(aSeen, paList[i]) = 0
-			aSeen + paList[i]
-		else
-			bResult = 0
-			exit
-		ok
-	next
-
-	return bResult
+	# Engine-backed: check if all elements are unique
+	pList = StzEngineMarshalList(paList)
+	nResult = StzEngineListAllUniqueCS(pList, 1)
+	StzEngineListFree(pList)
+	return nResult
 
 	#< @FunctionAlternativeForms
 
@@ -67,8 +60,12 @@ class stzSet from stzList
 			StzRaise(stzSetError(:CanNotCreateSet))
 		ok
 
-		oTempList = new stzList(paList)
-		@aContent = oTempList.ToSet()	# From StzList		
+		# Engine-backed deduplication
+		pList = StzEngineMarshalList(paList)
+		pUnique = StzEngineListUniqueCS(pList, 1)
+		@aContent = StzEngineContentFromList(pUnique)
+		StzEngineListFree(pUnique)
+		StzEngineListFree(pList)
 
 		if KeepingHistory() = 1
 			This.AddHistoricValue(This.Content())
@@ -190,12 +187,14 @@ class stzSet from stzList
 			StzRaise(stzSetError(:CanNotComputeUnionWithNoSet))
 		ok
 
-		aUnion = this.Content()
-		for item in paOtherSet
-			if not ItemExists(item,aUnion) # -> ListContains(aUnion, item)
-				aUnion + item
-			ok
-		next
+		# Engine-backed O(n log n) union
+		pListA = StzEngineMarshalList(This.Content())
+		pListB = StzEngineMarshalList(paOtherSet)
+		pResult = StzEngineListUnionCS(pListA, pListB, 1)
+		aUnion = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
+		StzEngineListFree(pListB)
+		StzEngineListFree(pListA)
 		return aUnion
 
 	def UnionWithQ(paOtherSet)
@@ -254,14 +253,14 @@ class stzSet from stzList
 			paOtherSet = oTempSet.Content()
 		ok
 
-		aIntersection = []
-		// NB: For sets, I prefer using elem (element) as an iterator
-		// rather than item which is preserved to lists.
-		for elem in this.Content()	
-			if ItemExists(elem, paOtherSet)
-				aIntersection + elem
-			ok
-		next
+		# Engine-backed O(n log n) intersection
+		pListA = StzEngineMarshalList(This.Content())
+		pListB = StzEngineMarshalList(paOtherSet)
+		pResult = StzEngineListIntersectionCS(pListA, pListB, 1)
+		aIntersection = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
+		StzEngineListFree(pListB)
+		StzEngineListFree(pListA)
 		return aIntersection
 
 	  #----------------------------------------#
@@ -270,6 +269,29 @@ class stzSet from stzList
 
 	def IntersectionWithMany(paListOfSets)
 		// TODO
+
+	  #-----------------------------------#
+	 #    DIFFERENCE WITH OTHER SET     #
+	#-----------------------------------#
+
+	def DifferenceWith(paOtherSet)
+		if NOT @IsSet(paOtherSet)
+			oTempSet = new stzSet(paOtherSet)
+			paOtherSet = oTempSet.Content()
+		ok
+
+		# Engine-backed O(n log n) difference
+		pListA = StzEngineMarshalList(This.Content())
+		pListB = StzEngineMarshalList(paOtherSet)
+		pResult = StzEngineListDifferenceCS(pListA, pListB, 1)
+		aDiff = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
+		StzEngineListFree(pListB)
+		StzEngineListFree(pListA)
+		return aDiff
+
+	def DifferenceWithQ(paOtherSet)
+		return new stzSet( This.DifferenceWith(paOtherSet) )
 
 	  #-------------------------------------------#
 	 #    INCLUSION OF THE SET IN AN OTHER SET   #
@@ -282,14 +304,9 @@ class stzSet from stzList
 			paOtherSet = oTempSet.ToSet()
 		ok
 
-		bResult = 1
-		for elem in This.Set()
-			if NOT ListExists(elem, paOtherSet)
-				bResult = 0
-				exit
-			ok
-		end
-		return bResult
+		# A is included in B iff A-B is empty (engine-backed)
+		aDiff = This.DifferenceWith(paOtherSet)
+		return len(aDiff) = 0
 
 	  #-------------------------------------------#
 	 #    INCLUSION OF AN OTHER SET IN THE SET   #
@@ -302,14 +319,10 @@ class stzSet from stzList
 			paOtherSet = oTempSet.Content()
 		ok
 
-		bResult = 1
-		for elem in paOtherSet
-			if NOT This.ToStzList().Contains(elem)
-				bResult = 0
-				exit
-			ok
-		end
-		return bResult
+		# B is included in A iff B-A is empty (engine-backed)
+		oOtherSet = new stzSet(paOtherSet)
+		aDiff = oOtherSet.DifferenceWith(This.Content())
+		return len(aDiff) = 0
 
 	def Contains(paOtherSet)
 		return This.Includes(paOtherSet)
