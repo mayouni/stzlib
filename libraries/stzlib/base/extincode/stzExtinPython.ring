@@ -178,7 +178,7 @@ func _else(value)
     if _bVarReset = 1 and len(_aTempVars) > 0
         nTempVars = len(_aTempVars)
         nValues = len(aValues)
-        nLen = Min([ nTempVars, nValues ])
+        nLen = @Min([ nTempVars, nValues ])
         oHash = new stzHashList(_aVars)
         for i = 1 to nLen
             cVarName = _aTempVars[i][1]

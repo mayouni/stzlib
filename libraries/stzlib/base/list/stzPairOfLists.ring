@@ -43,7 +43,7 @@ class stzPairOfLists from stzListOfLists
 		nLen1 = len( This.FirstList() )
 		nlen2 = len( This.SecondList() )
 
-		nMax = Max([ nLen1, nLen2 ])
+		nMax = @Max([ nLen1, nLen2 ])
 
 		cBiggerList = ""
 		cOtherList = ""

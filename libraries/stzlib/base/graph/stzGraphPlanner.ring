@@ -1754,7 +1754,7 @@ class stzPlanComparison
 		nDivergeStep = 0
 		
 		if NOT bSamePath
-			nLen = Min([ len(aStates1), len(aStates2) ])
+			nLen = @Min([ len(aStates1), len(aStates2) ])
 			for i = 1 to nLen
 				if aStates1[i] != aStates2[i]
 					nDivergeStep = i

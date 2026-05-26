@@ -393,7 +393,7 @@ func PathIsGreaterThan(paPath1, paPath2)
 	_nLen1_ = len(paPath1)
 	_nLen2_ = len(paPath2)
 
-   	_nMin_ = Min([ _nLen1_, _nLen2_ ])
+   	_nMin_ = @Min([ _nLen1_, _nLen2_ ])
     
     	# Compare common positions first
 

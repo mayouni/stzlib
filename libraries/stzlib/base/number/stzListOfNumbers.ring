@@ -6112,8 +6112,8 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
-		nMin = Min([ n1, n2 ])
-		nMax = Max([ n1, n2 ])
+		nMin = @Min([ n1, n2 ])
+		nMax = @Max([ n1, n2 ])
 
 		anPos = nMin : nMax
 		nRandom = AnyNumberIn(anPos)
@@ -6165,8 +6165,8 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
-		nMin = Min([ n1, n2 ])
-		nMax = Max([ n1, n2 ])
+		nMin = @Min([ n1, n2 ])
+		nMax = @Max([ n1, n2 ])
 
 		anPos = nMin : nMax
 		nRandom = AnyNumberIn(anPos)
@@ -6220,8 +6220,8 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
-		nMin = Min([ n1, n2 ])
-		nMax = Max([ n1, n2 ])
+		nMin = @Min([ n1, n2 ])
+		nMax = @Max([ n1, n2 ])
 
 		anPos = nMin : nMax
 		nRandom = AnyNumberNotIn(anPos) #TODO
@@ -6290,8 +6290,8 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
-		nMin = Min([ n1, n2 ])
-		nMax = Max([ n1, n2 ])
+		nMin = @Min([ n1, n2 ])
+		nMax = @Max([ n1, n2 ])
 
 		anPos = nMin : nMax
 		nRandom = AnyNumberNotIn(anPos)

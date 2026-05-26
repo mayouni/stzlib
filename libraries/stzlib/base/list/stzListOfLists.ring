@@ -3389,7 +3389,7 @@ class stzListOfLists from stzList
 			next
 		ok
 
-		nMin = Min([ nLenContent, nLenList ])
+		nMin = @Min([ nLenContent, nLenList ])
 
 		for i = 1 to nMin
 			aContent[i] + paList[i]

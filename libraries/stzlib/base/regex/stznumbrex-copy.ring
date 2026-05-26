@@ -376,7 +376,7 @@ class stzNumberex
 			   len(aToken1[:constraints]) = 0 and
 			   len(aToken2[:constraints]) = 0
 				
-				nNewMin = Min([aToken1[:min], aToken2[:min]])
+				nNewMin = @Min([aToken1[:min], aToken2[:min]])
 				nNewMax = aToken1[:max] + aToken2[:max]
 				
 				@aTokens[i-1][:min] = nNewMin
@@ -428,7 +428,7 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 	aToken = aTokens[nTokenIndex]
 
 	# Try different match counts
-	nMax = Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
+	nMax = @Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
 	
 	# DEBUG
 	? "  Token min: " + aToken[:min] + ", max: " + aToken[:max]
@@ -491,7 +491,7 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 	aToken = aTokens[nTokenIndex]
 
 	# Try different match counts
-	nMax = Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
+	nMax = @Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
 
 	if @bDebugMode
 		? "BacktrackMatch: token " + nTokenIndex + "/" + nLenTokens + ", number " + nNumberIndex + "/" + nLenNumbers

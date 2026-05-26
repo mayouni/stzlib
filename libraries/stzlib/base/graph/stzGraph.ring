@@ -2236,7 +2236,7 @@ class stzGraph
 		end
 	
 		acResult = []
-		nLimit = Min([pnCount, nLen])
+		nLimit = @Min([pnCount, nLen])
 		for i = 1 to nLimit
 			acResult + acCriticality[i]["id"]
 		end
