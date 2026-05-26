@@ -17,12 +17,23 @@ func StzListOfListsQ(paList)
 	return new stzListOfLists(paList)
 
 func ItemExists(pItem, paList)
-	oTempList = new stzList(paList)
-	if oTempList.Contains(pItem) 
-		return 1
+	# Engine-backed containment check
+	_pIeList = StzEngineMarshalList(paList)
+	if isString(pItem)
+		_nIeResult = StzEngineListContainsStringCS(_pIeList, pItem, 1)
 	else
-		return 0
+		# For non-string items, fall back to Ring loop
+		_nIeResult = 0
+		_nIeLen = len(paList)
+		for _iIe = 1 to _nIeLen
+			if paList[_iIe] = pItem
+				_nIeResult = 1
+				exit
+			ok
+		next
 	ok
+	StzEngineListFree(_pIeList)
+	return _nIeResult
 
 func ListsMerge(paListOfLists)
 	if CheckingParams()

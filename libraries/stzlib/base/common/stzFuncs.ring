@@ -450,6 +450,20 @@ func StzFindAllCS(pContainer, pVal, pCaseSensitive)
 		return StzStringQ(pContainer).FindCS(pVal, pCaseSensitive)
 
 	else
+		# Engine-backed find for string items
+		if isString(pVal)
+			_pFacList = StzEngineMarshalList(pContainer)
+			_pFacResult = StzEngineListFindAllStringCS(_pFacList, pVal, CaseSensitive(pCaseSensitive))
+			StzEngineListFree(_pFacList)
+			if _pFacResult != NULL
+				_aFacPositions = StzEngineContentFromList(_pFacResult)
+				StzEngineListFree(_pFacResult)
+				return _aFacPositions
+			ok
+			return []
+		ok
+
+		# Fallback for non-string items
 		aResult = []
 		nLen = len(pContainer)
 		for i = 1 to nLen
