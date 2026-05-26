@@ -589,6 +589,3 @@ class stzString from stzObject
 	def Duplicates()
 		_oDup_ = new stzStringDuplicates(This)
 		return _oDup_.DuplicatedChars()
-
-		def DuplicatedSubStrings()
-			return This.Duplicates()
