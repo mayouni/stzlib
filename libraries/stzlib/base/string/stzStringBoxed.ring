@@ -72,10 +72,10 @@ class stzStringBoxed
 		# Build box using Unicode box-drawing chars
 		cHBar = ""
 		for i = 1 to nMaxLen + 2
-			cHBar += "-"
+			cHBar += "─"
 		next
 
-		cResult = "+" + cHBar + "+" + StzChar(10)
+		cResult = "╭" + cHBar + "╮" + StzChar(10)
 
 		for i = 1 to nLines
 			cLine = oLines.NthLine(i)
@@ -85,10 +85,10 @@ class stzStringBoxed
 			for j = 1 to nMaxLen - nLen
 				cPad += " "
 			next
-			cResult += "| " + cLine + cPad + " |" + StzChar(10)
+			cResult += "│ " + cLine + cPad + " │" + StzChar(10)
 		next
 
-		cResult += "+" + cHBar + "+"
+		cResult += "╰" + cHBar + "╯"
 		return cResult
 
 	  #======================================================#
@@ -103,27 +103,27 @@ class stzStringBoxed
 
 		nLen = @oString.NumberOfChars()
 
-		# Build middle line: | c1 | c2 | c3 |
-		cMiddle = "| "
+		# Build middle line: │ c1 │ c2 │ c3 │
+		cMiddle = "│ "
 		for i = 1 to nLen
-			cMiddle += @oString.NthChar(i) + " |"
+			cMiddle += @oString.NthChar(i) + " │"
 			if i < nLen
 				cMiddle += " "
 			ok
 		next
 
 		# Build top/bottom lines with separators
-		cTop = "+"
-		cBottom = "+"
+		cTop = "╭"
+		cBottom = "╰"
 		for i = 1 to nLen
-			cTop += "----"
-			cBottom += "----"
+			cTop += "────"
+			cBottom += "────"
 			if i < nLen
-				cTop += "+"
-				cBottom += "+"
+				cTop += "┬"
+				cBottom += "┴"
 			ok
 		next
-		cTop += "+"
-		cBottom += "+"
+		cTop += "╮"
+		cBottom += "╯"
 
 		return cTop + StzChar(10) + cMiddle + StzChar(10) + cBottom
