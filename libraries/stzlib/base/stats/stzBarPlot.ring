@@ -1,4 +1,29 @@
 
+# Simple rounding that avoids heavy stzNumber dependency
+func _PlotRound(nNumber, nDecimals)
+	_nPrFactor_ = 1
+	for _iPr_ = 1 to nDecimals
+		_nPrFactor_ = _nPrFactor_ * 10
+	next
+	_nPrResult_ = floor(nNumber * _nPrFactor_ + 0.5) / _nPrFactor_
+	# Format with correct decimal places
+	_cPrResult_ = "" + _nPrResult_
+	_nPrDot_ = StzFind(_cPrResult_, ".")
+	if _nPrDot_ = 0
+		_cPrResult_ = _cPrResult_ + "."
+		for _iPr_ = 1 to nDecimals
+			_cPrResult_ = _cPrResult_ + "0"
+		next
+	else
+		_nPrHave_ = StzLen(_cPrResult_) - _nPrDot_
+		if _nPrHave_ < nDecimals
+			for _iPr_ = 1 to (nDecimals - _nPrHave_)
+				_cPrResult_ = _cPrResult_ + "0"
+			next
+		ok
+	ok
+	return _cPrResult_
+
 func StzPlotQ(pcChartType, paDataSet)
 	if CheckParams()
 		if NOT isString(pcChartType)
@@ -122,7 +147,11 @@ class stzBarPlot
 
 			if IsListOfNumbers(aValues)
 				@anValues = aValues
-				@acLabels = oHash.KeysQ().Capitalised()
+				_aBpKeys_ = oHash.Keys()
+				@acLabels = []
+				for _iBpK_ = 1 to len(_aBpKeys_)
+					@acLabels + StzCapitalize(_aBpKeys_[_iBpK_])
+				next
 			ok
 			
 		else
@@ -356,7 +385,7 @@ class stzBarPlot
 				nMaxWidth = max([nMaxWidth, nValueWidth])
 			but @bShowPercent and @nSum > 0
 				nPercent = (@anValues[i] * 100) / @nSum
-				nValueWidth = len('' + RoundN(nPercent, 1) + "%")
+				nValueWidth = len('' + _PlotRound(nPercent, 1) + "%")
 				nMaxWidth = max([nMaxWidth, nValueWidth])
 			ok
 			
@@ -369,7 +398,7 @@ class stzBarPlot
 		
 		# Add space for average value if shown
 		if @bShowAverage
-		    nAvgValueWidth = len("" + RoundN(@nAverage, 1))
+		    nAvgValueWidth = len("" + _PlotRound(@nAverage, 1))
 		    nTotalWidth = nBaseWidth + 2 + nAvgValueWidth
 		else
 		    nTotalWidth = nBaseWidth
@@ -479,7 +508,7 @@ class stzBarPlot
 		
 		nRow = oLayout[:h_axis_row]
 		nStart = iff(@bShowVAxis, oLayout[:v_axis_col], oLayout[:bars_start])
-		nEnd = oLayout[:total_width] - iff(@bShowAverage, len("" + RoundN(@nAverage, 1)) + 2, 0) - 1
+		nEnd = oLayout[:total_width] - iff(@bShowAverage, len("" + _PlotRound(@nAverage, 1)) + 2, 0) - 1
 		
 		# Draw horizontal line
 		for i = nStart to nEnd
@@ -555,10 +584,10 @@ class stzBarPlot
 				if IsInteger(nValue)
 					cValue = "" + nValue
 				else
-					cValue = "" + RoundN(nValue, 1)
+					cValue = "" + _PlotRound(nValue, 1)
 				ok
 			but @bShowPercent and @nSum > 0
-				nPercent = RoundN((nValue * 100) / @nSum, 1)
+				nPercent = _PlotRound((nValue * 100) / @nSum, 1)
 				cValue = '' + nPercent + "%"
 			ok
 			
@@ -635,7 +664,7 @@ class stzBarPlot
 		nBarsStartRow = oLayout[:bars_start_row]
 		nBarsHeight = oLayout[:bars_height]
 		nStart = iff(@bShowVAxis, oLayout[:v_axis_col] + 1, oLayout[:bars_start])
-		nEnd = oLayout[:total_width] - iff(@bShowAverage, len("" + RoundN(@nAverage, 1)) + 2, 0)
+		nEnd = oLayout[:total_width] - iff(@bShowAverage, len("" + _PlotRound(@nAverage, 1)) + 2, 0)
 		
 		# Calculate average line position
 		nAvgRow = nBarsStartRow + nBarsHeight - 1
@@ -657,7 +686,7 @@ class stzBarPlot
 			return
 		ok
 
-		cAvgValue = "" + RoundN(@nAverage, 1)
+		cAvgValue = "" + _PlotRound(@nAverage, 1)
 		nValueStart = nEnd + 2
 		nLen = len(cAvgValue)
 		for j = 1 to nLen

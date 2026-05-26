@@ -550,10 +550,10 @@ class stzTime from stzObject
         return This.ToString()
 
     def StartOfHour()
-        return StzPadLeft(''+ @nHour, 2, "0") + ":00:00"
+        return StzPadLeftXT(''+ @nHour, 2, "0") + ":00:00"
 
     def EndOfHour()
-        return StzPadLeft(''+ @nHour, 2, "0") + ":59:59"
+        return StzPadLeftXT(''+ @nHour, 2, "0") + ":59:59"
 
     #--- FORMATTING ---#
 
@@ -632,7 +632,7 @@ class stzTime from stzObject
             return "Quarter to " + (nHour + 1) + " " + cAMPM
 
         else
-            return '' + nHour + ":" + StzPadLeft(''+ nMinute, 2, "0") + " " + cAMPM
+            return '' + nHour + ":" + StzPadLeftXT(''+ nMinute, 2, "0") + " " + cAMPM
         ok
 
     def ToRelative()
@@ -737,16 +737,16 @@ class stzTime from stzObject
     def pvtFormatTime(cFormat)
         cResult = cFormat
 
-        cResult = StzReplace(cResult, "HH", StzPadLeft(''+ @nHour, 2, "0"))
-        cResult = StzReplace(cResult, "hh", StzPadLeft(''+ @nHour, 2, "0"))
+        cResult = StzReplace(cResult, "HH", StzPadLeftXT(''+ @nHour, 2, "0"))
+        cResult = StzReplace(cResult, "hh", StzPadLeftXT(''+ @nHour, 2, "0"))
 
         if StzFind(cResult, "h")
             cResult = StzReplace(cResult, "h", ''+ @nHour)
         ok
 
-        cResult = StzReplace(cResult, "mm", StzPadLeft(''+ @nMinute, 2, "0"))
-        cResult = StzReplace(cResult, "ss", StzPadLeft(''+ @nSecond, 2, "0"))
-        cResult = StzReplace(cResult, "zzz", StzPadLeft(''+ @nMillisecond, 3, "0"))
+        cResult = StzReplace(cResult, "mm", StzPadLeftXT(''+ @nMinute, 2, "0"))
+        cResult = StzReplace(cResult, "ss", StzPadLeftXT(''+ @nSecond, 2, "0"))
+        cResult = StzReplace(cResult, "zzz", StzPadLeftXT(''+ @nMillisecond, 3, "0"))
         cResult = StzReplace(cResult, "AP", This.AMPM())
 
         return cResult
