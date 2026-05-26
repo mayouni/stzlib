@@ -21,7 +21,7 @@ pf()
 # Executed in 0.17 second(s) in Ring 1.21
 
 /*-----
-
+*/
 pr()
 
 ? isvowel("a") 		# Ring function

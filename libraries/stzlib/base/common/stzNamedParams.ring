@@ -1155,3 +1155,21 @@ func StzIsOfOrToNamedParamList(paList)
 
 	func IsOfOrToNamedParamList(paList)
 		return StzIsOfOrToNamedParamList(paList)
+
+func StzIsSayOrReturnNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Say or paList[1] = :Return
+
+	func IsSayOrReturnNamedParamList(paList)
+		return StzIsSayOrReturnNamedParamList(paList)
+
+func StzIsElseOrOtherwiseNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Else or paList[1] = :Otherwise
+
+	func IsElseOrOtherwiseNamedParamList(paList)
+		return StzIsElseOrOtherwiseNamedParamList(paList)
