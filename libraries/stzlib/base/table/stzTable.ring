@@ -62,7 +62,7 @@ Class stzTable from stzList
 	@pEngine = NULL
 	@bEngineStale = TRUE
 
-	# Define border characters (ASCII-safe for Windows console)
+	# Define border characters (initialized in init())
 	@aBorder = []
 
 	# Attributes used by the Transpose() method
@@ -72,19 +72,19 @@ Class stzTable from stzList
 
 	def init(paTable)
 
-		# Initialize border characters (ASCII-safe for Windows console)
+		# Initialize Softanza visual identity border characters
 		@aBorder = []
-		@aBorder + [ :TopLeft, "+" ]
-		@aBorder + [ :TopRight, "+" ]
-		@aBorder + [ :BottomLeft, "+" ]
-		@aBorder + [ :BottomRight, "+" ]
-		@aBorder + [ :Horizontal, substr("x-x", 2, 1) ]
-		@aBorder + [ :Vertical, "|" ]
-		@aBorder + [ :TeeRight, "+" ]
-		@aBorder + [ :TeeLeft, "+" ]
-		@aBorder + [ :TeeDown, "+" ]
-		@aBorder + [ :TeeUp, "+" ]
-		@aBorder + [ :Cross, "+" ]
+		@aBorder + [ :TopLeft, "╭" ]
+		@aBorder + [ :TopRight, "╮" ]
+		@aBorder + [ :BottomLeft, "╰" ]
+		@aBorder + [ :BottomRight, "╯" ]
+		@aBorder + [ :Horizontal, "─" ]
+		@aBorder + [ :Vertical, "│" ]
+		@aBorder + [ :TeeRight, "├" ]
+		@aBorder + [ :TeeLeft, "┤" ]
+		@aBorder + [ :TeeDown, "┬" ]
+		@aBorder + [ :TeeUp, "┴" ]
+		@aBorder + [ :Cross, "┼" ]
 
 		# A table can be created in many different ways
 		# Case where a string is provided
