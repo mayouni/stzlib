@@ -113,8 +113,7 @@ o1.Show() # Original table unchanged
 ╰─────────┴────────┴────────────╯
 '
 
-#NOTE: IsEqualToXT belongs to MAX layer -- commented for base test
-#? o1.ColQ(1).IsEqualToXT(o2.Col(1))
+? o1.ColQ(1).IsEqualToXT(o2.Col(1))
 #--> FALSE
 
 pf()
