@@ -391,7 +391,7 @@ func StzVl(paVals)
 	_oldVar = _Var
 
 	# Doing the job
-	nLen = Min([ len(_aTempVars), len(paVals) ])
+	nLen = @Min([ len(_aTempVars), len(paVals) ])
 	oHash = new stzHashList(_aVars)
 
 	for i = 1 to nLen

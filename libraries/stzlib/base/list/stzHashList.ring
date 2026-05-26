@@ -1107,7 +1107,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def UpdateKeys(paKeys)
 		oStzList = new stzList(paKeys)
 		if oStzList.ItemsAreAllStrings()
-			for i = 1 to Min([ len(paKeys), This.NumberOfPairs() ])
+			for i = 1 to @Min([ len(paKeys), This.NumberOfPairs() ])
 				This.UpdateNthKey(i, paKeys[i])
 			next i
 		ok
@@ -1128,7 +1128,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
 	
 	def UpdateValues(paValues)
-		for i = 1 to Min([ len(paValues), This.NumberOfPairs() ])
+		for i = 1 to @Min([ len(paValues), This.NumberOfPairs() ])
 			This.UpdateNthValue(i, paValues[i])
 		next
 	
@@ -3811,7 +3811,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def NStrongestClassesXT(n)
 		aClassesXT = new stzList(SortListsOn( ClassesXT(), 2 )).Reversed()
 		nLen = len(aClassesXT)
-		n = Min([ n, nLen ])
+		n = @Min([ n, nLen ])
 
 		aResult = []
 
@@ -3962,7 +3962,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def NWeakestClasses(n)
 		aClassesXT = SortListsOn( ClassesXT(), 2 )
 		nLen = len(aClassesXT)
-		n = Min([ n, nLen ])
+		n = @Min([ n, nLen ])
 
 		aResult = []
 
@@ -3996,7 +3996,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def NWeakestClassesXT(n)
 		aClassesXT = SortListsOn( ClassesXT(), 2 )
 		nLen = len(aClassesXT)
-		n = Min([ n, nLen ])
+		n = @Min([ n, nLen ])
 
 		aResult = []
 

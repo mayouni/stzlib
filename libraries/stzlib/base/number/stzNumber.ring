@@ -4533,7 +4533,7 @@ class stzNumber from stzObject
 		# (becausse we want the calculation to be
 		# as precise as possiblle)
 
-		StzDecimals( Max([ This.Round(), nOtherRound ]) )
+		StzDecimals( @Max([ This.Round(), nOtherRound ]) )
 
 		# Doing the job under that round
 
@@ -4650,7 +4650,7 @@ class stzNumber from stzObject
 		# (becausse we want the calculation to be
 		# as precise as possiblle)
 
-		StzDecimals( Max([ This.Round(), nOtherRound ]) )
+		StzDecimals( @Max([ This.Round(), nOtherRound ]) )
 
 		# Doing the job under that round
 
