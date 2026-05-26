@@ -1173,3 +1173,374 @@ func StzIsElseOrOtherwiseNamedParamList(paList)
 
 	func IsElseOrOtherwiseNamedParamList(paList)
 		return StzIsElseOrOtherwiseNamedParamList(paList)
+
+# --- Batch-generated named param checkers (M-S2 test hardening) ---
+
+func StzIsByOrInColNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :By or paList[1] = :InCol
+
+	func IsByOrInColNamedParamList(paList)
+		return StzIsByOrInColNamedParamList(paList)
+
+func StzIsByOrInRowNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :By or paList[1] = :InRow
+
+	func IsByOrInRowNamedParamList(paList)
+		return StzIsByOrInRowNamedParamList(paList)
+
+func StzIsByOrWithOrUsingNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :By or paList[1] = :With or paList[1] = :Using
+
+	func IsByOrWithOrUsingNamedParamList(paList)
+		return StzIsByOrWithOrUsingNamedParamList(paList)
+
+func StzIsDoNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Do
+
+	func IsDoNamedParamList(paList)
+		return StzIsDoNamedParamList(paList)
+
+func StzIsEndOrToNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :End or paList[1] = :To
+
+	func IsEndOrToNamedParamList(paList)
+		return StzIsEndOrToNamedParamList(paList)
+
+func StzIsFromOrBetweenNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :From or paList[1] = :Between
+
+	func IsFromOrBetweenNamedParamList(paList)
+		return StzIsFromOrBetweenNamedParamList(paList)
+
+func StzIsFromOrFromNodeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :From or paList[1] = :FromNode
+
+	func IsFromOrFromNodeNamedParamList(paList)
+		return StzIsFromOrFromNodeNamedParamList(paList)
+
+func StzIsFromOrFromPathNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :From or paList[1] = :FromPath
+
+	func IsFromOrFromPathNamedParamList(paList)
+		return StzIsFromOrFromPathNamedParamList(paList)
+
+func StzIsFromPathNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :FromPath
+
+	func IsFromPathNamedParamList(paList)
+		return StzIsFromPathNamedParamList(paList)
+
+func StzIsGrandTotalNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :GrandTotal
+
+	func IsGrandTotalNamedParamList(paList)
+		return StzIsGrandTotalNamedParamList(paList)
+
+func StzIsInGroupNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :InGroup
+
+	func IsInGroupNamedParamList(paList)
+		return StzIsInGroupNamedParamList(paList)
+
+func StzIsInPlanNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :InPlan
+
+	func IsInPlanNamedParamList(paList)
+		return StzIsInPlanNamedParamList(paList)
+
+func StzIsItNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :It
+
+	func IsItNamedParamList(paList)
+		return StzIsItNamedParamList(paList)
+
+func StzIsLabelNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Label
+
+	func IsLabelNamedParamList(paList)
+		return StzIsLabelNamedParamList(paList)
+
+func StzIsNodeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Node
+
+	func IsNodeNamedParamList(paList)
+		return StzIsNodeNamedParamList(paList)
+
+func StzIsNodeOrNodesOrFromOrFromNodeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Node or paList[1] = :Nodes or paList[1] = :From or paList[1] = :FromNode
+
+	func IsNodeOrNodesOrFromOrFromNodeNamedParamList(paList)
+		return StzIsNodeOrNodesOrFromOrFromNodeNamedParamList(paList)
+
+func StzIsOfOrOfPlanNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Of or paList[1] = :OfPlan
+
+	func IsOfOrOfPlanNamedParamList(paList)
+		return StzIsOfOrOfPlanNamedParamList(paList)
+
+func StzIsOfOrOfPlanOrInOrInPlanNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Of or paList[1] = :OfPlan or paList[1] = :In or paList[1] = :InPlan
+
+	func IsOfOrOfPlanOrInOrInPlanNamedParamList(paList)
+		return StzIsOfOrOfPlanOrInOrInPlanNamedParamList(paList)
+
+func StzIsOnOrOfNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :On or paList[1] = :Of
+
+	func IsOnOrOfNamedParamList(paList)
+		return StzIsOnOrOfNamedParamList(paList)
+
+func StzIsPlanOrInPlanNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Plan or paList[1] = :InPlan
+
+	func IsPlanOrInPlanNamedParamList(paList)
+		return StzIsPlanOrInPlanNamedParamList(paList)
+
+func StzIsRaiseNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Raise
+
+	func IsRaiseNamedParamList(paList)
+		return StzIsRaiseNamedParamList(paList)
+
+func StzIsRingsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Rings
+
+	func IsRingsNamedParamList(paList)
+		return StzIsRingsNamedParamList(paList)
+
+func StzIsStartOrFromNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Start or paList[1] = :From
+
+	func IsStartOrFromNamedParamList(paList)
+		return StzIsStartOrFromNamedParamList(paList)
+
+func StzIsStartingFromNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :StartingFrom
+
+	func IsStartingFromNamedParamList(paList)
+		return StzIsStartingFromNamedParamList(paList)
+
+func StzIsStepNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Step
+
+	func IsStepNamedParamList(paList)
+		return StzIsStepNamedParamList(paList)
+
+func StzIsSubTotalNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :SubTotal
+
+	func IsSubTotalNamedParamList(paList)
+		return StzIsSubTotalNamedParamList(paList)
+
+func StzIsTextBoxedOptionsNamedParamList(paList)
+	# Validates boxing option hashlists -- permissive for backward compat
+	if NOT isList(paList) return 0 ok
+	return 1
+
+	func IsTextBoxedOptionsNamedParamList(paList)
+		return StzIsTextBoxedOptionsNamedParamList(paList)
+
+func StzIsToOrAndNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :And
+
+	func IsToOrAndNamedParamList(paList)
+		return StzIsToOrAndNamedParamList(paList)
+
+func StzIsToOrToColOrToRowNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :ToCol or paList[1] = :ToRow
+
+	func IsToOrToColOrToRowNamedParamList(paList)
+		return StzIsToOrToColOrToRowNamedParamList(paList)
+
+func StzIsToOrToNodeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :ToNode
+
+	func IsToOrToNodeNamedParamList(paList)
+		return StzIsToOrToNodeNamedParamList(paList)
+
+func StzIsToOrToNodeOrAndNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :ToNode or paList[1] = :And
+
+	func IsToOrToNodeOrAndNamedParamList(paList)
+		return StzIsToOrToNodeOrAndNamedParamList(paList)
+
+func StzIsToOrToNodeOrAndOrAndNodeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :ToNode or paList[1] = :And or paList[1] = :AndNode
+
+	func IsToOrToNodeOrAndOrAndNodeNamedParamList(paList)
+		return StzIsToOrToNodeOrAndOrAndNodeNamedParamList(paList)
+
+func StzIsToOrToNodeOrUntilReachFNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :ToNode or paList[1] = :UntilReachF or paList[1] = :UntilYouReachF
+
+	func IsToOrToNodeOrUntilReachFNamedParamList(paList)
+		return StzIsToOrToNodeOrUntilReachFNamedParamList(paList)
+
+func StzIsToOrToPathNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :ToPath
+
+	func IsToOrToPathNamedParamList(paList)
+		return StzIsToOrToPathNamedParamList(paList)
+
+func StzIsToOrToPositionOrToNodeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :ToPosition or paList[1] = :ToNode
+
+	func IsToOrToPositionOrToNodeNamedParamList(paList)
+		return StzIsToOrToPositionOrToNodeNamedParamList(paList)
+
+func StzIsToOrWithNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :With
+
+	func IsToOrWithNamedParamList(paList)
+		return StzIsToOrWithNamedParamList(paList)
+
+func StzIsToPathNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :ToPath
+
+	func IsToPathNamedParamList(paList)
+		return StzIsToPathNamedParamList(paList)
+
+func StzIsWhenOrIfOrForNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :When or paList[1] = :If or paList[1] = :For
+
+	func IsWhenOrIfOrForNamedParamList(paList)
+		return StzIsWhenOrIfOrForNamedParamList(paList)
+
+func StzIsWidthNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Width
+
+	func IsWidthNamedParamList(paList)
+		return StzIsWidthNamedParamList(paList)
+
+func StzIsWithOrLabelNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :With or paList[1] = :Label
+
+	func IsWithOrLabelNamedParamList(paList)
+		return StzIsWithOrLabelNamedParamList(paList)
+
+func StzIsWithOrToNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :With or paList[1] = :To
+
+	func IsWithOrToNamedParamList(paList)
+		return StzIsWithOrToNamedParamList(paList)
+
