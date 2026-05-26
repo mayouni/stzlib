@@ -547,3 +547,138 @@ test "pivot median even count" {
     const vals = [_]f64{ 10, 20, 30, 40 };
     try std.testing.expectEqual(@as(f64, 25), computeAgg(&vals, .median));
 }
+
+test "pivot aggregation: empty values" {
+    const vals = [_]f64{};
+    try std.testing.expectEqual(@as(f64, 0), computeAgg(&vals, .sum));
+    try std.testing.expectEqual(@as(f64, 0), computeAgg(&vals, .count));
+    try std.testing.expectEqual(@as(f64, 0), computeAgg(&vals, .avg));
+    try std.testing.expectEqual(@as(f64, 0), computeAgg(&vals, .product));
+}
+
+test "pivot aggregation: single value" {
+    const vals = [_]f64{42};
+    try std.testing.expectEqual(@as(f64, 42), computeAgg(&vals, .sum));
+    try std.testing.expectEqual(@as(f64, 1), computeAgg(&vals, .count));
+    try std.testing.expectEqual(@as(f64, 42), computeAgg(&vals, .avg));
+    try std.testing.expectEqual(@as(f64, 42), computeAgg(&vals, .min));
+    try std.testing.expectEqual(@as(f64, 42), computeAgg(&vals, .max));
+    try std.testing.expectEqual(@as(f64, 42), computeAgg(&vals, .product));
+    try std.testing.expectEqual(@as(f64, 42), computeAgg(&vals, .median));
+    // stdev/variance of single value = 0
+    try std.testing.expectEqual(@as(f64, 0), computeAgg(&vals, .stdev));
+    try std.testing.expectEqual(@as(f64, 0), computeAgg(&vals, .variance));
+}
+
+test "pivot aggregation: negative values" {
+    const vals = [_]f64{ -10, -20, -30 };
+    try std.testing.expectEqual(@as(f64, -60), computeAgg(&vals, .sum));
+    try std.testing.expectEqual(@as(f64, -20), computeAgg(&vals, .avg));
+    try std.testing.expectEqual(@as(f64, -30), computeAgg(&vals, .min));
+    try std.testing.expectEqual(@as(f64, -10), computeAgg(&vals, .max));
+    try std.testing.expectEqual(@as(f64, -20), computeAgg(&vals, .median));
+}
+
+test "pivot aggregation: product of zeros" {
+    const vals = [_]f64{ 0, 5, 10 };
+    try std.testing.expectEqual(@as(f64, 0), computeAgg(&vals, .product));
+}
+
+test "pivot cross tab: without totals" {
+    const t = try StzTable.init();
+    defer t.deinit();
+
+    _ = try t.addColumn("region", 6);
+    _ = try t.addColumn("product", 7);
+    _ = try t.addColumn("sales", 5);
+
+    inline for (.{
+        .{ "North", "A", 100 },
+        .{ "South", "B", 200 },
+    }) |row| {
+        const ri = try t.addRow();
+        try t.setCellString(0, ri, row[0], row[0].len);
+        try t.setCellString(1, ri, row[1], row[1].len);
+        try t.setCellInt(2, ri, row[2]);
+    }
+
+    const row_cols = [_]usize{0};
+    const result = try crossTab(t, &row_cols, 1, 2, .sum, false, false);
+    defer result.deinit();
+
+    // Columns: region, A, B (no TOTAL)
+    try std.testing.expectEqual(@as(usize, 3), result.numColumns());
+    // Rows: North, South (no TOTAL)
+    try std.testing.expectEqual(@as(usize, 2), result.num_rows);
+}
+
+test "pivot cross tab: with avg aggregation" {
+    const t = try StzTable.init();
+    defer t.deinit();
+
+    _ = try t.addColumn("dept", 4);
+    _ = try t.addColumn("quarter", 7);
+    _ = try t.addColumn("revenue", 7);
+
+    inline for (.{
+        .{ "IT", "Q1", 100 },
+        .{ "IT", "Q1", 200 },
+        .{ "IT", "Q2", 300 },
+        .{ "HR", "Q1", 150 },
+    }) |row| {
+        const ri = try t.addRow();
+        try t.setCellString(0, ri, row[0], row[0].len);
+        try t.setCellString(1, ri, row[1], row[1].len);
+        try t.setCellInt(2, ri, row[2]);
+    }
+
+    const row_cols = [_]usize{0};
+    const result = try crossTab(t, &row_cols, 1, 2, .avg, false, false);
+    defer result.deinit();
+
+    try std.testing.expectEqual(@as(usize, 3), result.numColumns()); // dept, Q1, Q2
+    try std.testing.expectEqual(@as(usize, 2), result.num_rows); // IT, HR
+}
+
+test "pivot multi group by: single column group" {
+    const t = try StzTable.init();
+    defer t.deinit();
+
+    _ = try t.addColumn("category", 8);
+    _ = try t.addColumn("amount", 6);
+
+    inline for (.{
+        .{ "A", 10 },
+        .{ "B", 20 },
+        .{ "A", 30 },
+        .{ "B", 40 },
+        .{ "A", 50 },
+    }) |row| {
+        const ri = try t.addRow();
+        try t.setCellString(0, ri, row[0], row[0].len);
+        try t.setCellInt(1, ri, row[1]);
+    }
+
+    const cols = [_]usize{0};
+    const grouped = try multiGroupBy(t, &cols, 1, .sum);
+    defer grouped.deinit();
+
+    try std.testing.expectEqual(@as(usize, 2), grouped.numColumns()); // category, result
+    try std.testing.expectEqual(@as(usize, 2), grouped.num_rows); // A, B
+}
+
+test "pivot C ABI: null table returns null" {
+    const cols = [_]i64{0};
+    try std.testing.expect(stz_pivot_multi_group_by(null, &cols, 1, 0, 0) == null);
+    try std.testing.expect(stz_pivot_cross_tab(null, &cols, 1, 1, 2, 0, 0, 0) == null);
+}
+
+test "pivot C ABI: negative column returns null" {
+    const t = try StzTable.init();
+    defer t.deinit();
+    _ = try t.addColumn("x", 1);
+
+    const cols = [_]i64{0};
+    try std.testing.expect(stz_pivot_multi_group_by(t, &cols, 1, -1, 0) == null);
+    try std.testing.expect(stz_pivot_cross_tab(t, &cols, 1, -1, 0, 0, 0, 0) == null);
+}

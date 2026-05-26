@@ -1171,7 +1171,7 @@ class stzPivotTable from stzList
 				ok
 			next
 		
-			aDataColWidths + max([nMinDataWidth, maxWidth + 2])
+			aDataColWidths + @Max([nMinDataWidth, maxWidth + 2])
 		next
 	
 		# Calculate total column width
@@ -1491,7 +1491,7 @@ class stzPivotTable from stzList
 						ok
 					next
 					
-					aDataColWidths[key] = max([nMinDataWidth, maxWidth + 2])
+					aDataColWidths[key] = @Max([nMinDataWidth, maxWidth + 2])
 				ok
 			next
 		next
@@ -2027,7 +2027,7 @@ class stzPivotTable from stzList
 						ok
 					next
 					
-					aDataColWidths[key] = max([nMinDataWidth, maxWidth + 2])
+					aDataColWidths[key] = @Max([nMinDataWidth, maxWidth + 2])
 				ok
 			next
 		next
@@ -2704,7 +2704,7 @@ class stzPivotTable from stzList
 
 					next
 				
-					aDataColWidths[key] = max([nMinDataWidth, maxWidth + 2])
+					aDataColWidths[key] = @Max([nMinDataWidth, maxWidth + 2])
 				ok
 
 			next
@@ -3162,7 +3162,7 @@ class stzPivotTable from stzList
 
 			next
 		
-			aDataColWidths + max([nMinDataWidth, maxWidth + 2])
+			aDataColWidths + @Max([nMinDataWidth, maxWidth + 2])
 		next
 	
 		# Calculate total column width

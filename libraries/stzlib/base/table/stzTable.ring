@@ -754,6 +754,12 @@ Class stzTable from stzList
 		def Column(pCol)
 			return This.Col(pCol)
 
+		def ColQ(pCol)
+			return new stzList(This.Col(pCol))
+
+			def ColumnQ(pCol)
+				return This.ColQ(pCol)
+
 	def Row(pnRow)
 		aResult = []
 		nCols = len(@aContent)
@@ -990,6 +996,16 @@ Class stzTable from stzList
 
 		def RemoveCol(pColNameOrNumber)
 			This.RemoveColumn(pColNameOrNumber)
+
+	  #================================================#
+	 #  CASTING TO PIVOT TABLE (from submodule)       #
+	#================================================#
+
+	#NOTE // stzPivotTable belongs to the MAX layer of StzLib
+	# For the following method to work, you must load "stzMax.ring"
+
+	def ToStzPivotTable()
+		return new stzPivotTable(This)
 
 	  #=========================================#
 	 #  DISPLAY OPERATIONS (from submodule)    #

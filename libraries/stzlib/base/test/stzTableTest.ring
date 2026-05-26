@@ -2,7 +2,7 @@ load "../stzbase.ring"
 # stzPivotTable and stzList2D are loaded by stzBase.ring
 
 /*=== CHECKING IF TABLE IS SORTED
-*/
+
 pr()
 
 o1 = new stzTable([
@@ -47,6 +47,7 @@ oCopy.Show()
 ╰─────────┴────────┴────────────╯
 '
 pf()
+# Executed in 0.01 second(s) in Ring 1.26 (backed by StzEngine)
 # Executed in 0.08 second(s) in Ring 1.24
 
 /*---
@@ -64,7 +65,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*---
-
+*/
 pr()
 
 o1 = new stzTable([
@@ -112,7 +113,8 @@ o1.Show() # Original table unchanged
 ╰─────────┴────────┴────────────╯
 '
 
-? o1.ColQ(1).IsEqualToXT(o2.Col(1))
+#NOTE: IsEqualToXT belongs to MAX layer -- commented for base test
+#? o1.ColQ(1).IsEqualToXT(o2.Col(1))
 #--> FALSE
 
 pf()

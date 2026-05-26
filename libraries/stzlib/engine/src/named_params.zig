@@ -816,3 +816,63 @@ test "keyword count matches table" {
 
     try std.testing.expectEqual(@as(u32, all_keywords.len), eng.named_params.entries.count());
 }
+
+test "keyword table is roughly ordered" {
+    // Verify consecutive entries are not reversed (may have case-insensitive ties)
+    var sorted_count: usize = 0;
+    for (0..all_keywords.len - 1) |i| {
+        const order = std.mem.order(u8, all_keywords[i], all_keywords[i + 1]);
+        if (order == .lt or order == .eq) sorted_count += 1;
+    }
+    // At least 90% should be in order
+    try std.testing.expect(sorted_count * 10 >= (all_keywords.len - 1) * 9);
+}
+
+test "keyword table has no empty entries" {
+    for (&all_keywords) |kw| {
+        try std.testing.expect(kw.len > 0);
+    }
+}
+
+test "keyword table has no duplicates" {
+    for (0..all_keywords.len) |i| {
+        for (i + 1..all_keywords.len) |j| {
+            try std.testing.expect(!std.mem.eql(u8, all_keywords[i], all_keywords[j]));
+        }
+    }
+}
+
+test "common named params are present" {
+    var eng = meta.MetaEngine.init(std.testing.allocator);
+    defer eng.deinit();
+    try registerAll(&eng);
+
+    // Most used params from stzLib
+    try std.testing.expect(eng.isNamedParam("With"));
+    try std.testing.expect(eng.isNamedParam("Using"));
+    try std.testing.expect(eng.isNamedParam("In"));
+    try std.testing.expect(eng.isNamedParam("From"));
+    try std.testing.expect(eng.isNamedParam("To"));
+    try std.testing.expect(eng.isNamedParam("By"));
+    try std.testing.expect(eng.isNamedParam("Between"));
+    try std.testing.expect(eng.isNamedParam("Where"));
+    try std.testing.expect(eng.isNamedParam("Step"));
+    try std.testing.expect(eng.isNamedParam("Direction"));
+}
+
+test "case sensitivity: params are case-exact" {
+    var eng = meta.MetaEngine.init(std.testing.allocator);
+    defer eng.deinit();
+    try registerAll(&eng);
+
+    // Exact case should match
+    try std.testing.expect(eng.isNamedParam("CaseSensitive"));
+    // Wrong case should not match
+    try std.testing.expect(!eng.isNamedParam("casesensitive"));
+    try std.testing.expect(!eng.isNamedParam("CASESENSITIVE"));
+}
+
+test "keyword count is substantial" {
+    // The table should have hundreds of entries
+    try std.testing.expect(all_keywords.len > 500);
+}

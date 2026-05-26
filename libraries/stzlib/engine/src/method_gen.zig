@@ -221,3 +221,97 @@ test "stzList rules register" {
     const rules = rs.rulesForClass("stzList");
     try std.testing.expect(rules.len > 50);
 }
+
+test "rule set: empty class returns empty slice" {
+    var rs = RuleSet.init(std.testing.allocator);
+    defer rs.deinit();
+
+    const rules = rs.rulesForClass("stzAnything");
+    try std.testing.expectEqual(@as(usize, 0), rules.len);
+}
+
+test "rule set: count starts at zero" {
+    var rs = RuleSet.init(std.testing.allocator);
+    defer rs.deinit();
+    try std.testing.expectEqual(@as(usize, 0), rs.count());
+}
+
+test "rule set: CS rule has correct kind" {
+    var rs = RuleSet.init(std.testing.allocator);
+    defer rs.deinit();
+
+    try rs.addCS("stzString", "Find", "FindCS");
+    const rules = rs.rulesForClass("stzString");
+    try std.testing.expectEqual(@as(usize, 1), rules.len);
+    try std.testing.expectEqual(meta.GenKind.cs, rules[0].kind);
+    try std.testing.expectEqualStrings("Find", rules[0].generated);
+    try std.testing.expectEqualStrings("FindCS", rules[0].canonical);
+}
+
+test "rule set: fluent rule has correct kind" {
+    var rs = RuleSet.init(std.testing.allocator);
+    defer rs.deinit();
+
+    try rs.addFluent("stzList", "SortQ", "Sort");
+    const rules = rs.rulesForClass("stzList");
+    try std.testing.expectEqual(meta.GenKind.fluent_q, rules[0].kind);
+    try std.testing.expectEqualStrings("SortQ", rules[0].generated);
+    try std.testing.expectEqualStrings("Sort", rules[0].canonical);
+}
+
+test "rule set: passive rule has correct kind" {
+    var rs = RuleSet.init(std.testing.allocator);
+    defer rs.deinit();
+
+    try rs.addPassive("stzList", "Sorted", "Sort");
+    const rules = rs.rulesForClass("stzList");
+    try std.testing.expectEqual(meta.GenKind.passive, rules[0].kind);
+}
+
+test "rule set: multiple classes are isolated" {
+    var rs = RuleSet.init(std.testing.allocator);
+    defer rs.deinit();
+
+    try rs.addCS("stzList", "Find", "FindCS");
+    try rs.addCS("stzList", "Contains", "ContainsCS");
+    try rs.addCS("stzString", "Replace", "ReplaceCS");
+    try rs.addFluent("stzTable", "SortQ", "Sort");
+
+    try std.testing.expectEqual(@as(usize, 4), rs.count());
+    try std.testing.expectEqual(@as(usize, 2), rs.rulesForClass("stzList").len);
+    try std.testing.expectEqual(@as(usize, 1), rs.rulesForClass("stzString").len);
+    try std.testing.expectEqual(@as(usize, 1), rs.rulesForClass("stzTable").len);
+    try std.testing.expectEqual(@as(usize, 0), rs.rulesForClass("stzNumber").len);
+}
+
+test "stzList rules: CS rules have correct canonical suffix" {
+    var rs = RuleSet.init(std.testing.allocator);
+    defer rs.deinit();
+
+    try registerStzListRules(&rs);
+
+    const rules = rs.rulesForClass("stzList");
+    for (rules) |rule| {
+        if (rule.kind == .cs) {
+            // Canonical for CS rules should end with "CS"
+            try std.testing.expect(std.mem.endsWith(u8, rule.canonical, "CS"));
+            // Generated should NOT end with "CS"
+            try std.testing.expect(!std.mem.endsWith(u8, rule.generated, "CS"));
+        }
+    }
+}
+
+test "stzList rules: Q rules have correct naming" {
+    var rs = RuleSet.init(std.testing.allocator);
+    defer rs.deinit();
+
+    try registerStzListRules(&rs);
+
+    const rules = rs.rulesForClass("stzList");
+    for (rules) |rule| {
+        if (rule.kind == .fluent_q) {
+            // Generated Q method should end with "Q"
+            try std.testing.expect(std.mem.endsWith(u8, rule.generated, "Q"));
+        }
+    }
+}

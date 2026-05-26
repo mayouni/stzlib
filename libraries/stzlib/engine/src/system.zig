@@ -137,3 +137,85 @@ test "platform detection" {
     const m = stz_system_is_macos();
     try std.testing.expect(w + l + m <= 1);
 }
+
+test "platform detection: exactly one true on known OS" {
+    const w = stz_system_is_windows();
+    const l = stz_system_is_linux();
+    const m = stz_system_is_macos();
+    const os = @import("builtin").os.tag;
+    if (os == .windows or os == .linux or os == .macos) {
+        try std.testing.expectEqual(@as(c_int, 1), w + l + m);
+    }
+}
+
+test "platform detection: individual values are 0 or 1" {
+    try std.testing.expect(stz_system_is_windows() == 0 or stz_system_is_windows() == 1);
+    try std.testing.expect(stz_system_is_linux() == 0 or stz_system_is_linux() == 1);
+    try std.testing.expect(stz_system_is_macos() == 0 or stz_system_is_macos() == 1);
+}
+
+test "system env: empty name returns 0" {
+    var buf: [256]u8 = undefined;
+    const len = stz_system_env("", 0, &buf, buf.len);
+    try std.testing.expectEqual(@as(usize, 0), len);
+}
+
+test "system env: null name returns 0" {
+    var buf: [256]u8 = undefined;
+    const len = stz_system_env(null, 0, &buf, buf.len);
+    try std.testing.expectEqual(@as(usize, 0), len);
+}
+
+test "system env: PATH exists" {
+    var buf: [4096]u8 = undefined;
+    const key = if (@import("builtin").os.tag == .windows) "PATH" else "PATH";
+    const len = stz_system_env(key.ptr, key.len, &buf, buf.len);
+    // PATH should exist on all platforms
+    try std.testing.expect(len > 0);
+}
+
+test "system env: nonexistent var returns 0" {
+    var buf: [256]u8 = undefined;
+    const key = "ZIN_NONEXISTENT_VAR_12345";
+    const len = stz_system_env(key.ptr, key.len, &buf, buf.len);
+    try std.testing.expectEqual(@as(usize, 0), len);
+}
+
+test "system exec: null command returns -1" {
+    const result = stz_system_exec(null, 0);
+    try std.testing.expectEqual(@as(c_int, -1), result);
+}
+
+test "system exec: empty command returns -1" {
+    const result = stz_system_exec("", 0);
+    try std.testing.expectEqual(@as(c_int, -1), result);
+}
+
+test "system run: null command returns null" {
+    var out_len: usize = 0;
+    var err_len: usize = 0;
+    var exit_code: c_int = 0;
+    const ptr = stz_system_run(null, 0, &out_len, &err_len, &exit_code);
+    try std.testing.expect(ptr == null);
+    try std.testing.expectEqual(@as(c_int, -1), exit_code);
+}
+
+test "system run: empty command returns null" {
+    var out_len: usize = 0;
+    var err_len: usize = 0;
+    var exit_code: c_int = 0;
+    const ptr = stz_system_run("", 0, &out_len, &err_len, &exit_code);
+    try std.testing.expect(ptr == null);
+    try std.testing.expectEqual(@as(c_int, -1), exit_code);
+}
+
+test "system run free: null pointer is safe" {
+    stz_system_run_free(null, 0);
+    stz_system_run_free(null, 100);
+}
+
+test "getShell returns valid shell" {
+    const shell = getShell();
+    try std.testing.expect(shell.name.len > 0);
+    try std.testing.expect(shell.flag != null);
+}
