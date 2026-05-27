@@ -90,6 +90,32 @@ func _SplitNullDelimited(cJoined)
 	ok
 	return acResult
 
+#-- Parse comma-separated numbers from engine output into Ring list
+#   Used for engine functions returning positions as "2,5,8" etc.
+
+func _ParseCSVNumbers(cCSV)
+	if cCSV = ""
+		return []
+	ok
+	_anPcsvResult_ = []
+	_cPcsvCurrent_ = ""
+	_nPcsvLen_ = ring_len(cCSV)
+	for _iPcsv_ = 1 to _nPcsvLen_
+		_cPcsvChar_ = cCSV[_iPcsv_]
+		if _cPcsvChar_ = ","
+			if _cPcsvCurrent_ != ""
+				_anPcsvResult_ + (0 + _cPcsvCurrent_)
+				_cPcsvCurrent_ = ""
+			ok
+		else
+			_cPcsvCurrent_ += _cPcsvChar_
+		ok
+	next
+	if _cPcsvCurrent_ != ""
+		_anPcsvResult_ + (0 + _cPcsvCurrent_)
+	ok
+	return _anPcsvResult_
+
 #-- Character from codepoint (UTF-8 encoded, replaces byte-only Ring char())
 
 func StzChar(nCodepoint)

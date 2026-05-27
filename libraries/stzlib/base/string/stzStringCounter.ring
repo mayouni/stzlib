@@ -239,3 +239,16 @@ class stzStringCounter
 		def NumberOfRegexMatchesCS(pcPattern, pCaseSensitive)
 			return This.CountRegexCS(pcPattern, pCaseSensitive)
 
+	  #======================================================#
+	 #   COUNT CHARS MATCHING EXPRESSION                    #
+	#======================================================#
+
+	def CountCharsW(pcExpr)
+		return StzEngineStringCountCharsW(@oString.Content(), pcExpr)
+
+		def CountCharsWhere(pcExpr)
+			return This.CountCharsW(pcExpr)
+
+		def NumberOfCharsW(pcExpr)
+			return This.CountCharsW(pcExpr)
+

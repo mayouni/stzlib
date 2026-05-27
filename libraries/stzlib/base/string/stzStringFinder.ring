@@ -471,20 +471,9 @@ class stzStringFinder
 	#========================================#
 
 	def FindCharsWCS(pcCondition, pCaseSensitive)
-		cStr = @oString.Content()
-		nLen = StzLen(cStr)
-		anResult = []
-		# Use Ring eval() to check condition per character
-		# Condition uses @char as the current character variable
-		for i = 1 to nLen
-			@char = StzMid(cStr, i, 1)
-			cCode = "bMatch = (" + pcCondition + ")"
-			eval(cCode)
-			if bMatch
-				anResult + i
-			ok
-		next
-		return anResult
+		# Engine-backed: evaluates expression per character
+		_cFcwResult_ = StzEngineStringFindCharsW(@oString.Content(), pcCondition)
+		return _ParseCSVNumbers(_cFcwResult_)
 
 	def FindCharsW(pcCondition)
 		return This.FindCharsWCS(pcCondition, 1)
@@ -641,3 +630,4 @@ class stzStringFinder
 
 		def FindAllRegexMatchesCS(pcPattern, pCaseSensitive)
 			return This.FindAllRegexCS(pcPattern, pCaseSensitive)
+
