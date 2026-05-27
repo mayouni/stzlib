@@ -558,6 +558,159 @@ pub fn stz_list_is_all_numbers(list: ?*const StzList) callconv(.c) i32 {
     return 1;
 }
 
+// ─── C ABI: List Type Checkers ───
+
+/// Check if all items are lists.
+pub fn stz_list_is_all_lists(list: ?*const StzList) callconv(.c) i32 {
+    const l = list orelse return 0;
+    if (l.len() == 0) return 0;
+    for (l.items.items) |item| {
+        if (item.tag != .list_val) return 0;
+    }
+    return 1;
+}
+
+/// Check if all items are pairs (lists of exactly 2 elements).
+pub fn stz_list_is_all_pairs(list: ?*const StzList) callconv(.c) i32 {
+    const l = list orelse return 0;
+    if (l.len() == 0) return 0;
+    for (l.items.items) |item| {
+        if (item.tag != .list_val) return 0;
+        if (item.data.list_val.len != 2) return 0;
+    }
+    return 1;
+}
+
+/// Check if all items are sections (pairs of numbers).
+pub fn stz_list_is_all_sections(list: ?*const StzList) callconv(.c) i32 {
+    const l = list orelse return 0;
+    if (l.len() == 0) return 0;
+    for (l.items.items) |item| {
+        if (item.tag != .list_val) return 0;
+        const sub = item.data.list_val;
+        if (sub.len != 2) return 0;
+        const a = sub.items[0];
+        const b = sub.items[1];
+        if ((a.tag != .int_val and a.tag != .float_val) or
+            (b.tag != .int_val and b.tag != .float_val)) return 0;
+    }
+    return 1;
+}
+
+/// Check if list has mixed value types (hybrid).
+pub fn stz_list_is_hybrid(list: ?*const StzList) callconv(.c) i32 {
+    const l = list orelse return 0;
+    if (l.len() <= 1) return 0;
+    const first_tag = l.items.items[0].tag;
+    for (l.items.items[1..]) |item| {
+        if (item.tag != first_tag) return 1;
+    }
+    return 0;
+}
+
+/// Check if all items are equal (using case-sensitive comparison).
+pub fn stz_list_all_items_equal_cs(list: ?*const StzList, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return 1;
+    const n = l.len();
+    if (n <= 1) return 1;
+    const cs = case_sensitive != 0;
+    const first = l.get(0) orelse return 1;
+    var i: usize = 1;
+    while (i < n) : (i += 1) {
+        const v = l.get(i) orelse return 0;
+        if (!valueEqlCS(first, v, cs)) return 0;
+    }
+    return 1;
+}
+
+/// Check if list is a palindrome.
+pub fn stz_list_is_palindrome_cs(list: ?*const StzList, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return 1;
+    const n = l.len();
+    if (n <= 1) return 1;
+    const cs = case_sensitive != 0;
+    var i: usize = 0;
+    while (i < n / 2) : (i += 1) {
+        const a = l.get(i) orelse return 0;
+        const b = l.get(n - 1 - i) orelse return 0;
+        if (!valueEqlCS(a, b, cs)) return 0;
+    }
+    return 1;
+}
+
+/// Check if numeric list forms a continuous sequence (1,2,3,...).
+pub fn stz_list_is_continuous(list: ?*const StzList) callconv(.c) i32 {
+    const l = list orelse return 0;
+    const n = l.len();
+    if (n <= 1) return 1;
+    // First check all numbers
+    for (l.items.items) |item| {
+        if (item.tag != .int_val and item.tag != .float_val) return 0;
+    }
+    // Sort a copy and check consecutive difference = 1
+    const sorted = stz_list_clone(list) orelse return 0;
+    defer stz_list_free(sorted);
+    _ = stz_list_sort_cs(sorted, 1);
+    var i: usize = 0;
+    while (i + 1 < n) : (i += 1) {
+        const a = sorted.get(i) orelse return 0;
+        const b = sorted.get(i + 1) orelse return 0;
+        const va: f64 = if (a.tag == .int_val) @floatFromInt(a.data.int_val) else a.data.float_val;
+        const vb: f64 = if (b.tag == .int_val) @floatFromInt(b.data.int_val) else b.data.float_val;
+        if (vb - va != 1.0) return 0;
+    }
+    return 1;
+}
+
+/// Check if all items are lists of the same size.
+pub fn stz_list_is_all_lists_same_size(list: ?*const StzList) callconv(.c) i32 {
+    const l = list orelse return 0;
+    if (l.len() == 0) return 0;
+    const first = l.get(0) orelse return 0;
+    if (first.tag != .list_val) return 0;
+    const expected_size = first.data.list_val.len;
+    var i: usize = 1;
+    while (i < l.len()) : (i += 1) {
+        const item = l.get(i) orelse return 0;
+        if (item.tag != .list_val) return 0;
+        if (item.data.list_val.len != expected_size) return 0;
+    }
+    return 1;
+}
+
+/// Check if strictly increasing (no equal consecutive elements).
+pub fn stz_list_is_strictly_increasing(list: ?*const StzList) callconv(.c) i32 {
+    const l = list orelse return 0;
+    const n = l.len();
+    if (n <= 1) return 1;
+    var i: usize = 0;
+    while (i + 1 < n) : (i += 1) {
+        const a = l.get(i) orelse return 0;
+        const b = l.get(i + 1) orelse return 0;
+        if (a.compare(b) >= 0) return 0;
+    }
+    return 1;
+}
+
+/// Check if strictly decreasing (no equal consecutive elements).
+pub fn stz_list_is_strictly_decreasing(list: ?*const StzList) callconv(.c) i32 {
+    const l = list orelse return 0;
+    const n = l.len();
+    if (n <= 1) return 1;
+    var i: usize = 0;
+    while (i + 1 < n) : (i += 1) {
+        const a = l.get(i) orelse return 0;
+        const b = l.get(i + 1) orelse return 0;
+        if (a.compare(b) <= 0) return 0;
+    }
+    return 1;
+}
+
+/// Check if list is monotonic (either non-decreasing or non-increasing).
+pub fn stz_list_is_monotonic(list: ?*const StzList) callconv(.c) i32 {
+    return if (stz_list_is_sorted_ascending(list) != 0 or stz_list_is_sorted_descending(list) != 0) 1 else 0;
+}
+
 // ─── C ABI: Equality ───
 
 pub fn stz_list_equals_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) i32 {
@@ -4031,4 +4184,225 @@ test "sorted_insert at end" {
     const idx = stz_list_sorted_insert(l, v);
     try std.testing.expectEqual(@as(i32, 2), idx);
     try std.testing.expectEqual(@as(i64, 100), stz_list_get_int(l, 2));
+}
+
+// ===== Checker function tests =====
+
+test "is_all_lists true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    const sub1 = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(sub1);
+    const sub2 = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(sub2);
+    _ = stz_list_append_value(l, sub1);
+    _ = stz_list_append_value(l, sub2);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_all_lists(l));
+}
+
+test "is_all_lists false" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    const sub1 = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(sub1);
+    _ = stz_list_append_value(l, sub1);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_all_lists(l));
+}
+
+test "is_all_pairs true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    // Create pair [1, 2]
+    const pair = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(pair);
+    const v1 = value_mod.stz_value_new_int(1) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v1);
+    const v2 = value_mod.stz_value_new_int(2) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v2);
+    _ = value_mod.stz_value_list_append(pair, v1);
+    _ = value_mod.stz_value_list_append(pair, v2);
+    _ = stz_list_append_value(l, pair);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_all_pairs(l));
+}
+
+test "is_all_pairs false non-pair" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    const sub = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(sub);
+    const v1 = value_mod.stz_value_new_int(1) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v1);
+    _ = value_mod.stz_value_list_append(sub, v1);
+    _ = stz_list_append_value(l, sub);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_all_pairs(l));
+}
+
+test "is_all_sections true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    // [1, 3] is a section (pair of numbers)
+    const sec = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(sec);
+    const s1 = value_mod.stz_value_new_int(1) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(s1);
+    const s2 = value_mod.stz_value_new_int(3) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(s2);
+    _ = value_mod.stz_value_list_append(sec, s1);
+    _ = value_mod.stz_value_list_append(sec, s2);
+    _ = stz_list_append_value(l, sec);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_all_sections(l));
+}
+
+test "is_hybrid true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_string(l, "hello", 5);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_hybrid(l));
+}
+
+test "is_hybrid false homogeneous" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_hybrid(l));
+}
+
+test "all_items_equal_cs true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 5);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_all_items_equal_cs(l, 1));
+}
+
+test "all_items_equal_cs false" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 6);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_all_items_equal_cs(l, 1));
+}
+
+test "is_palindrome_cs true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 1);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_palindrome_cs(l, 1));
+}
+
+test "is_palindrome_cs false" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_palindrome_cs(l, 1));
+}
+
+test "is_continuous true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_continuous(l));
+}
+
+test "is_continuous false" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 5);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_continuous(l));
+}
+
+test "is_all_lists_same_size true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    const p1 = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(p1);
+    const a1 = value_mod.stz_value_new_int(1) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(a1);
+    const a2 = value_mod.stz_value_new_int(2) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(a2);
+    _ = value_mod.stz_value_list_append(p1, a1);
+    _ = value_mod.stz_value_list_append(p1, a2);
+    const p2 = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(p2);
+    const b1 = value_mod.stz_value_new_int(3) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(b1);
+    const b2 = value_mod.stz_value_new_int(4) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(b2);
+    _ = value_mod.stz_value_list_append(p2, b1);
+    _ = value_mod.stz_value_list_append(p2, b2);
+    _ = stz_list_append_value(l, p1);
+    _ = stz_list_append_value(l, p2);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_all_lists_same_size(l));
+}
+
+test "is_strictly_increasing true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 7);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_strictly_increasing(l));
+}
+
+test "is_strictly_increasing false" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 3);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_strictly_increasing(l));
+}
+
+test "is_strictly_decreasing true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 1);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_strictly_decreasing(l));
+}
+
+test "is_monotonic true ascending" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_monotonic(l));
+}
+
+test "is_monotonic false" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 2);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_monotonic(l));
+}
+
+test "checker null handles" {
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_all_lists(null));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_all_pairs(null));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_all_sections(null));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_hybrid(null));
+    try std.testing.expectEqual(@as(i32, 1), stz_list_all_items_equal_cs(null, 1));
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_palindrome_cs(null, 1));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_continuous(null));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_all_lists_same_size(null));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_strictly_increasing(null));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_strictly_decreasing(null));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_monotonic(null));
 }

@@ -60,16 +60,10 @@ class stzListChecker
 		return nResult
 
 	def IsListOfLists()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		for i = 1 to nLen
-			if NOT isList(aContent[i])
-				return 0
-			ok
-		next
-
-		return 1
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsAllLists(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def AllItemsAreLists()
 			return This.IsListOfLists()
@@ -78,25 +72,10 @@ class stzListChecker
 			return This.IsListOfLists()
 
 	def IsListOfListsOfSameSize()
-		_nLen_ = This.NumberOfItems()
-		if _nLen_ = 0
-			return 0
-		ok
-
-		_bResult_ = 0
-		if This.IsListOfLists()
-			_bSame_ = 1
-			aContent = This.Content()
-			for @i = 2 to _nLen_
-				if len(aContent[@i]) != len(aContent[@i-1])
-					_bSame_ = 0
-				ok
-			next
-			if _bSame_ = 1
-				_bResult_ = 1
-			ok
-		ok
-		return _bResult_
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsAllListsSameSize(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def ItemsAreListsOfSameSize()
 			return This.IsListOfListsOfSameSize()
@@ -121,20 +100,10 @@ class stzListChecker
 	#==============================#
 
 	def IsHybrid()
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen <= 1
-			return 0
-		ok
-
-		cFirstType = type(aContent[1])
-		for i = 2 to nLen
-			if type(aContent[i]) != cFirstType
-				return 1
-			ok
-		next
-
-		return 0
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsHybrid(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def IsHybridList()
 			return This.IsHybrid()
@@ -172,29 +141,16 @@ class stzListChecker
 	#==============================#
 
 	def IsListOfPairs()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		for i = 1 to nLen
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 2)
-				return 0
-			ok
-		next
-
-		return 1
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsAllPairs(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 	def IsListOfSections()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		for i = 1 to nLen
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
-			        isNumber(aContent[i][1]) and isNumber(aContent[i][2]))
-				return 0
-			ok
-		next
-
-		return 1
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsAllSections(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 	  #=========================================#
 	 #  EQUALITY AND COMPARISON               #
@@ -351,19 +307,10 @@ class stzListChecker
 	#==============================#
 
 	def AllItemsAreEqual()
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen < 2
-			return 1
-		ok
-
-		cFirst = @@(aContent[1])
-		for i = 2 to nLen
-			if @@(aContent[i]) != cFirst
-				return 0
-			ok
-		next
-		return 1
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListAllItemsEqualCS(pList, 1)
+		StzEngineListFree(pList)
+		return nResult
 
 		def ItemsAreAllEqual()
 			return This.AllItemsAreEqual()
@@ -384,56 +331,25 @@ class stzListChecker
 		return This.AllItemsAreOfType(pType)
 
 	def IsMonotonic()
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen < 2
-			return 1
-		ok
-
-		bAsc = 1
-		bDesc = 1
-		for i = 1 to nLen - 1
-			if NOT (isNumber(aContent[i]) and isNumber(aContent[i+1]))
-				return 0
-			ok
-			if aContent[i] > aContent[i+1]
-				bAsc = 0
-			ok
-			if aContent[i] < aContent[i+1]
-				bDesc = 0
-			ok
-		next
-
-		return (bAsc or bDesc)
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsMonotonic(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def IsMonotonous()
 			return This.IsMonotonic()
 
 	def IsStrictlyIncreasing()
-		aContent = This.Content()
-		nLen = len(aContent)
-		for i = 1 to nLen - 1
-			if NOT (isNumber(aContent[i]) and isNumber(aContent[i+1]))
-				return 0
-			ok
-			if aContent[i] >= aContent[i+1]
-				return 0
-			ok
-		next
-		return 1
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsStrictlyIncreasing(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 	def IsStrictlyDecreasing()
-		aContent = This.Content()
-		nLen = len(aContent)
-		for i = 1 to nLen - 1
-			if NOT (isNumber(aContent[i]) and isNumber(aContent[i+1]))
-				return 0
-			ok
-			if aContent[i] <= aContent[i+1]
-				return 0
-			ok
-		next
-		return 1
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsStrictlyDecreasing(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 	  #==============================#
 	 #  CONTAINMENT CHECKING       #
@@ -486,25 +402,10 @@ class stzListChecker
 	#============================#
 
 	def IsContinuous()
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen < 2
-			return 1
-		ok
-
 		pList = @oList._EngineListFromContent()
-		StzEngineListSortCS(pList, 1)
-		aSorted = @oList._ContentFromEngineList(pList)
+		nResult = StzEngineListIsContinuous(pList)
 		StzEngineListFree(pList)
-		for i = 1 to nLen - 1
-			if NOT isNumber(aSorted[i])
-				return 0
-			ok
-			if aSorted[i+1] - aSorted[i] != 1
-				return 0
-			ok
-		next
-		return 1
+		return nResult
 
 		def IsContiguous()
 			return This.IsContinuous()
@@ -583,19 +484,10 @@ class stzListChecker
 	#==============================#
 
 	def IsPalindrome()
-		aContent = This.Content()
-		nLen = len(aContent)
-		nHalf = floor(nLen / 2)
-
-		for i = 1 to nHalf
-			c1 = @@(aContent[i])
-			c2 = @@(aContent[nLen - i + 1])
-			if c1 != c2
-				return 0
-			ok
-		next
-
-		return 1
+		pList = @oList._EngineListFromContent()
+		nResult = StzEngineListIsPalindromeCS(pList, 1)
+		StzEngineListFree(pList)
+		return nResult
 
 		def IsListPalindrome()
 			return This.IsPalindrome()
