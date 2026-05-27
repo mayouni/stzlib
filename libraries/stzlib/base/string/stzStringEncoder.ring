@@ -337,3 +337,89 @@ class stzStringEncoder
 		oCopy = new stzStringEncoder(@oString.Content())
 		oCopy.Reverse()
 		return oCopy.Content()
+
+	  #===============================#
+	 #     UNICODE NORMALIZATION     #
+	#===============================#
+
+	def NormalizeNFC()
+		pH = @oString.Engine()
+		pR = StzEngineStringNormalize(pH, 0)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def NormalizeNFCQ()
+			This.NormalizeNFC()
+			return This
+
+	def NormalizedNFC()
+		pH = @oString.Engine()
+		pR = StzEngineStringNormalize(pH, 0)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	def NormalizeNFD()
+		pH = @oString.Engine()
+		pR = StzEngineStringNormalize(pH, 1)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def NormalizeNFDQ()
+			This.NormalizeNFD()
+			return This
+
+	def NormalizedNFD()
+		pH = @oString.Engine()
+		pR = StzEngineStringNormalize(pH, 1)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	def NormalizeNFKC()
+		pH = @oString.Engine()
+		pR = StzEngineStringNormalize(pH, 2)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def NormalizeNFKCQ()
+			This.NormalizeNFKC()
+			return This
+
+	def NormalizedNFKC()
+		pH = @oString.Engine()
+		pR = StzEngineStringNormalize(pH, 2)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	def NormalizeNFKD()
+		pH = @oString.Engine()
+		pR = StzEngineStringNormalize(pH, 3)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def NormalizeNFKDQ()
+			This.NormalizeNFKD()
+			return This
+
+	def NormalizedNFKD()
+		pH = @oString.Engine()
+		pR = StzEngineStringNormalize(pH, 3)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	def Normalize()
+		This.NormalizeNFC()
+
+		def NormalizeQ()
+			This.Normalize()
+			return This
+
+	def Normalized()
+		return This.NormalizedNFC()
