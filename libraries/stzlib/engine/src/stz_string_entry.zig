@@ -57,11 +57,16 @@ comptime {
     @export(&string.str_between_all, .{ .name = "str_between_all" });
     @export(&string.str_between_all_cs, .{ .name = "str_between_all_cs" });
     @export(&string.str_between_first_cs, .{ .name = "str_between_first_cs" });
+    @export(&string.str_between_last, .{ .name = "str_between_last" });
     @export(&string.str_replace_between, .{ .name = "str_replace_between" });
     @export(&string.str_replace_first_between, .{ .name = "str_replace_first_between" });
+    @export(&string.str_replace_nth_between, .{ .name = "str_replace_nth_between" });
+    @export(&string.str_replace_last_between, .{ .name = "str_replace_last_between" });
     @export(&string.str_replace_all_between, .{ .name = "str_replace_all_between" });
     @export(&string.str_remove_between, .{ .name = "str_remove_between" });
     @export(&string.str_remove_first_between, .{ .name = "str_remove_first_between" });
+    @export(&string.str_remove_nth_between, .{ .name = "str_remove_nth_between" });
+    @export(&string.str_remove_last_between, .{ .name = "str_remove_last_between" });
     @export(&string.str_remove_all_between, .{ .name = "str_remove_all_between" });
     @export(&string.str_section_cp, .{ .name = "str_section_cp" });
 
