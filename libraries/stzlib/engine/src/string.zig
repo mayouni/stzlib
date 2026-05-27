@@ -215,6 +215,7 @@ pub const str_replace_at = replace.str_replace_at;
 pub const str_replace2 = replace.str_replace2;
 pub const str_replace_any_char = replace.str_replace_any_char;
 pub const str_replace_between = replace.str_replace_between;
+pub const str_replace_all_between = replace.str_replace_all_between;
 pub const str_remove_range = replace.str_remove_range;
 pub const str_remove_all_cs = replace.str_remove_all_cs;
 pub const str_remove_all = replace.str_remove_all;
@@ -228,6 +229,7 @@ pub const str_remove_prefix = replace.str_remove_prefix;
 pub const str_remove_suffix = replace.str_remove_suffix;
 pub const str_remove_whitespace = replace.str_remove_whitespace;
 pub const str_remove_between = replace.str_remove_between;
+pub const str_remove_all_between = replace.str_remove_all_between;
 pub const str_remove_vowels = replace.str_remove_vowels;
 pub const str_remove_duplicate_words = replace.str_remove_duplicate_words;
 pub const str_remove_punctuation = replace.str_remove_punctuation;
@@ -346,6 +348,8 @@ pub const str_substring = extract.str_substring;
 pub const str_chars_between = extract.str_chars_between;
 pub const str_char_at_to_string = extract.str_char_at_to_string;
 pub const str_between_first = extract.str_between_first;
+pub const str_between_all = extract.str_between_all;
+pub const str_between_all_cs = extract.str_between_all_cs;
 pub const str_cp_count = extract.str_cp_count;
 
 // ─── Trim submodule imports ───

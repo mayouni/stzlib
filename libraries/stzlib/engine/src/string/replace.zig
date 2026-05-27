@@ -595,6 +595,52 @@ pub fn str_replace_between(handle: StzStringHandle, open: [*c]const u8, open_len
     return result;
 }
 
+// ─── ReplaceAllBetween: replace ALL open...close pairs ───
+
+/// Replace content in ALL occurrences of open...close (inclusive of delimiters)
+/// with `replacement`. Returns new handle.
+pub fn str_replace_all_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, rep: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or open_len == 0 or close_len == 0) return str_from(src.ptr, src.len);
+
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
+    const result = str_new() orelse return null;
+    var i: usize = 0;
+
+    while (i < src.len) {
+        if (i + open_len <= src.len and mem.eql(u8, src[i..][0..open_len], open_s)) {
+            const after_open = i + open_len;
+            var j = after_open;
+            var found_close = false;
+            while (j + close_len <= src.len) {
+                if (mem.eql(u8, src[j..][0..close_len], close_s)) {
+                    // Replace: emit replacement instead of open+content+close
+                    if (rep_len > 0) {
+                        result.data.appendSlice(gpa, rep[0..rep_len]) catch break;
+                    }
+                    i = j + close_len;
+                    found_close = true;
+                    break;
+                }
+                j += 1;
+            }
+            if (!found_close) {
+                // No close found, copy rest as-is
+                result.data.appendSlice(gpa, src[i..]) catch break;
+                return result;
+            }
+            continue;
+        }
+        result.data.append(gpa, src[i]) catch break;
+        i += 1;
+    }
+
+    return result;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // ─── REMOVE ──────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════
@@ -933,6 +979,15 @@ pub fn str_remove_between(handle: StzStringHandle, open: [*c]const u8, open_len:
         };
     }
     return result;
+}
+
+// ─── RemoveAllBetween: remove ALL open...close pairs ───
+
+/// Remove ALL occurrences of open...close (inclusive of delimiters).
+/// Returns new handle.
+pub fn str_remove_all_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
+    // Delegate to replace_all_between with empty replacement
+    return str_replace_all_between(handle, open, open_len, close, close_len, "", 0);
 }
 
 // ─── RemoveVowels ───
@@ -1565,6 +1620,33 @@ test "replace_between" {
     defer str_free(r);
     try testing.expect(r != null);
     try testing.expectEqualStrings("hello REPLACED bye", r.?.slice());
+}
+
+test "replace_all_between: multiple pairs" {
+    const s = str_from("a[x]b[y]c[z]d", 13);
+    defer str_free(s);
+    const r = str_replace_all_between(s, "[", 1, "]", 1, "!", 1);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("a!b!c!d", r.?.slice());
+}
+
+test "replace_all_between: no match" {
+    const s = str_from("hello world", 11);
+    defer str_free(s);
+    const r = str_replace_all_between(s, "[", 1, "]", 1, "X", 1);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("hello world", r.?.slice());
+}
+
+test "remove_all_between: multiple pairs" {
+    const s = str_from("a[x]b[y]c", 9);
+    defer str_free(s);
+    const r = str_remove_all_between(s, "[", 1, "]", 1);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("abc", r.?.slice());
 }
 
 test "remove_vowels" {

@@ -461,6 +461,27 @@ fn ring_StringBetween(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+fn ring_StringBetweenAll(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const result = string.str_between_all(h, open, open_len, close, close_len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringBetweenAllCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    const result = string.str_between_all_cs(h, open, open_len, close, close_len, cs);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 fn ring_StringCountCharsOfType(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -1592,6 +1613,15 @@ fn ring_StringRemoveBetween(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_between(h, open, open_len, close, close_len)), STZ_HANDLE);
 }
 
+fn ring_StringRemoveAllBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_all_between(h, open, open_len, close, close_len)), STZ_HANDLE);
+}
+
 fn ring_StringIsBlank(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retnumber(p, @floatFromInt(string.str_is_blank(h)));
@@ -1616,6 +1646,17 @@ fn ring_StringReplaceBetween(p: *anyopaque) callconv(.c) void {
     const rep = ring_vm_api_getstring(p, 4);
     const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
     ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
+}
+
+fn ring_StringReplaceAllBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const rep = ring_vm_api_getstring(p, 4);
+    const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_all_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
 }
 
 fn ring_StringContainsOnly(p: *anyopaque) callconv(.c) void {
@@ -3070,6 +3111,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringreplacenth", .func = &ring_StringReplaceNth },
     .{ .name = "stzenginestringisempty", .func = &ring_StringIsEmpty },
     .{ .name = "stzenginestringbetween", .func = &ring_StringBetween },
+    .{ .name = "stzenginestringbetweenall", .func = &ring_StringBetweenAll },
+    .{ .name = "stzenginestringbetweenallcs", .func = &ring_StringBetweenAllCS },
     .{ .name = "stzenginestringcountcharsoftype", .func = &ring_StringCountCharsOfType },
     .{ .name = "stzenginestringisnumeric", .func = &ring_StringIsNumeric },
     .{ .name = "stzenginestringisalpha", .func = &ring_StringIsAlpha },
@@ -3229,10 +3272,12 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringrotate", .func = &ring_StringRotate },
     .{ .name = "stzenginestringrepeattolength", .func = &ring_StringRepeatToLength },
     .{ .name = "stzenginestringremovebetween", .func = &ring_StringRemoveBetween },
+    .{ .name = "stzenginestringremoveallbetween", .func = &ring_StringRemoveAllBetween },
     .{ .name = "stzenginestringisblank", .func = &ring_StringIsBlank },
     .{ .name = "stzenginestringtopascalcase", .func = &ring_StringToPascalCase },
     .{ .name = "stzenginestringisidentifier", .func = &ring_StringIsIdentifier },
     .{ .name = "stzenginestringreplacebetween", .func = &ring_StringReplaceBetween },
+    .{ .name = "stzenginestringreplaceallbetween", .func = &ring_StringReplaceAllBetween },
     .{ .name = "stzenginestringcontainsonly", .func = &ring_StringContainsOnly },
     .{ .name = "stzenginestringcapitalizewords", .func = &ring_StringCapitalizeWords },
     .{ .name = "stzenginestringswapchars", .func = &ring_StringSwapChars },

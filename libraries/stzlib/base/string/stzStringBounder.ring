@@ -197,6 +197,7 @@ class stzStringBounder
 	#===============================#
 
 	def BetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+		# Softanza semantics: Between() returns ALL matches (list)
 
 		if CheckingParams()
 			if isList(pSubStrOrPos2) and IsAndNamedParamList(pSubStrOrPos2)
@@ -209,23 +210,61 @@ class stzStringBounder
 		ok
 
 		if @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2)
-			# Engine-backed: one call instead of find+find+section
-			_bCase_ = @CaseSensitive(pCaseSensitive)
+			# Engine-backed: returns ALL substrings as null-delimited buffer
+			_bBtwnCase_ = @CaseSensitive(pCaseSensitive)
 			pH = @oString.Engine()
-			pR = StzEngineStringBetweenCS(pH, pSubStrOrPos1, pSubStrOrPos2, _bCase_)
-			if pR = NULL return "" ok
-			c = StzEngineStringData(pR)
+			pR = StzEngineStringBetweenAllCS(pH, pSubStrOrPos1, pSubStrOrPos2, _bBtwnCase_)
+			if pR = NULL return [] ok
+			_cBtwnJoined_ = StzEngineStringData(pR)
 			StzEngineStringFree(pR)
-			return c
+			if _cBtwnJoined_ = ""
+				return []
+			ok
+			return _SplitNullDelimited(_cBtwnJoined_)
 		else
+			# Positional: single section between two positions
 			n1 = pSubStrOrPos1 + 1
 			n2 = pSubStrOrPos2 - 1
-			cResult = @oString.Section(n1, n2)
-			return cResult
+			_cBtwnResult_ = @oString.Section(n1, n2)
+			return [ _cBtwnResult_ ]
 		ok
 
 	def Between(pSubStrOrPos1, pSubStrOrPos2)
 		return This.BetweenCS(pSubStrOrPos1, pSubStrOrPos2, 1)
+
+	  #=======================================#
+	 #     FIRST BETWEEN (single result)     #
+	#=======================================#
+
+	def FirstBetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+
+		if CheckingParams()
+			if isList(pSubStrOrPos2) and IsAndNamedParamList(pSubStrOrPos2)
+				pSubStrOrPos2 = pSubStrOrPos2[2]
+			ok
+		ok
+
+		if NOT ( @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2) or @BothAreNumbers(pSubStrOrPos1, pSubStrOrPos2) )
+			StzRaise("Incorrect params types! pSubStrOrPos1 and pSubStrOrPos2 must be both strings or numbers.")
+		ok
+
+		if @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2)
+			# Engine-backed: returns FIRST match only
+			_bFbCase_ = @CaseSensitive(pCaseSensitive)
+			pH = @oString.Engine()
+			pR = StzEngineStringBetweenCS(pH, pSubStrOrPos1, pSubStrOrPos2, _bFbCase_)
+			if pR = NULL return "" ok
+			_cFbResult_ = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			return _cFbResult_
+		else
+			n1 = pSubStrOrPos1 + 1
+			n2 = pSubStrOrPos2 - 1
+			return @oString.Section(n1, n2)
+		ok
+
+	def FirstBetween(pSubStrOrPos1, pSubStrOrPos2)
+		return This.FirstBetweenCS(pSubStrOrPos1, pSubStrOrPos2, 1)
 
 	  #=======================================#
 	 #     BETWEEN -- INCLUDING BOUNDS       #
