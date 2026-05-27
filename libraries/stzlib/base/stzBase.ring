@@ -237,14 +237,14 @@ ok
 
 # Loading files related to the ENGINE WRAPPER modules
 
-    load "statemachine/stzStateMachine.ring"
+    load "common/stzStateMachine.ring"
     load "common/stzValidator.ring"
     load "common/stzCache.ring"
     load "common/stzConstraint.ring"
-    load "sequence/stzSequence.ring"
-    load "relation/stzRelation.ring"
-    load "similarity/stzSimilarity.ring"
-    load "timeline/stzEngineTimeline.ring"
+    load "number/stzSequence.ring"
+    load "common/stzRelation.ring"
+    load "number/stzSimilarity.ring"
+    load "common/stzEngineTimeline.ring"
     load "graph/stzGridNav.ring"
 
 # Loading files related to the VISUAL module
@@ -284,7 +284,7 @@ ok
 
 # Loading the YIELDER module (functional map/filter/reduce)
 
-    load "yielder/stzYielder.ring"
+    load "list/stzYielder.ring"
 
 # Loading files related to the ERROR module
 
