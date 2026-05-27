@@ -216,3 +216,26 @@ class stzStringCounter
 	def CountOverlapping(pcSubStr)
 		return This.CountOverlappingCS(pcSubStr, 1)
 
+	  #======================================================#
+	 #   REGEX MATCH COUNT                                  #
+	#======================================================#
+
+	def CountRegex(pcPattern)
+		pH = @oString.Engine()
+		return StzEngineStringRegexCount(pH, pcPattern, 0)
+
+		def NumberOfRegexMatches(pcPattern)
+			return This.CountRegex(pcPattern)
+
+	def CountRegexCS(pcPattern, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_nFlags_ = 0
+		if _bCase_ = 0
+			_nFlags_ = 1
+		ok
+		pH = @oString.Engine()
+		return StzEngineStringRegexCount(pH, pcPattern, _nFlags_)
+
+		def NumberOfRegexMatchesCS(pcPattern, pCaseSensitive)
+			return This.CountRegexCS(pcPattern, pCaseSensitive)
+

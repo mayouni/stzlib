@@ -370,3 +370,42 @@ class stzStringSplitter
 
 	def RPartitionAfter(pcSep)
 		return This.RPartitionAfterCS(pcSep, 1)
+
+	  #==============================#
+	 #     REGEX SPLIT              #
+	#==============================#
+
+	def SplitByRegex(pcPattern)
+		pH = @oString.Engine()
+		_nSbrCount_ = StzEngineStringRegexSplitCount(pH, pcPattern, 0)
+		if _nSbrCount_ <= 0
+			return [ @oString.Content() ]
+		ok
+		_acSbrResult_ = []
+		for _iSbr_ = 1 to _nSbrCount_
+			_acSbrResult_ + StzEngineStringRegexSplitGet(pH, pcPattern, 0, _iSbr_)
+		next
+		return _acSbrResult_
+
+		def SplitRegex(pcPattern)
+			return This.SplitByRegex(pcPattern)
+
+	def SplitByRegexCS(pcPattern, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_nFlags_ = 0
+		if _bCase_ = 0
+			_nFlags_ = 1
+		ok
+		pH = @oString.Engine()
+		_nSbrcsCount_ = StzEngineStringRegexSplitCount(pH, pcPattern, _nFlags_)
+		if _nSbrcsCount_ <= 0
+			return [ @oString.Content() ]
+		ok
+		_acSbrcsResult_ = []
+		for _iSbrcs_ = 1 to _nSbrcsCount_
+			_acSbrcsResult_ + StzEngineStringRegexSplitGet(pH, pcPattern, _nFlags_, _iSbrcs_)
+		next
+		return _acSbrcsResult_
+
+		def SplitRegexCS(pcPattern, pCaseSensitive)
+			return This.SplitByRegexCS(pcPattern, pCaseSensitive)

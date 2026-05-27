@@ -565,3 +565,26 @@ class stzStringChecker
 
 		def IsAllLetters()
 			return This.IsAlphaString()
+
+	  #===============================#
+	 #     REGEX MATCH CHECK         #
+	#===============================#
+
+	def MatchesRegex(pcPattern)
+		pH = @oString.Engine()
+		return StzEngineStringRegexIsMatch(pH, pcPattern, 0)
+
+		def IsMatchedByRegex(pcPattern)
+			return This.MatchesRegex(pcPattern)
+
+	def MatchesRegexCS(pcPattern, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_nFlags_ = 0
+		if _bCase_ = 0
+			_nFlags_ = 1
+		ok
+		pH = @oString.Engine()
+		return StzEngineStringRegexIsMatch(pH, pcPattern, _nFlags_)
+
+		def IsMatchedByRegexCS(pcPattern, pCaseSensitive)
+			return This.MatchesRegexCS(pcPattern, pCaseSensitive)
