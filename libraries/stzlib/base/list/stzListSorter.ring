@@ -227,30 +227,9 @@ class stzListSorter
 	#==============================#
 
 	def Classify()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		aResult = []
-
-		for i = 1 to nLen
-			cKey = @@(aContent[i])
-			bFound = 0
-
-			nResultLen = len(aResult)
-			for j = 1 to nResultLen
-				if aResult[j][1] = cKey
-					aResult[j][2] + i
-					bFound = 1
-					exit
-				ok
-			next
-
-			if bFound = 0
-				aResult + [ cKey, [i] ]
-			ok
-		next
-
-		return aResult
+		# Delegate to engine-backed stzListClassifier
+		oClassifier = new stzListClassifier(@oList)
+		return oClassifier.Classify()
 
 		def Categorize()
 			return This.Classify()
