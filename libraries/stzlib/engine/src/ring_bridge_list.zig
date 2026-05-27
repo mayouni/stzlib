@@ -69,17 +69,17 @@ fn ring_Insert(p: *anyopaque) callconv(.c) void {
 fn ring_Remove(p: *anyopaque) callconv(.c) void {
     const idx: usize = @intFromFloat(g(p, 2));
     const adjusted = if (idx > 0) idx - 1 else 0;
-    rn(p, @floatFromInt(list.stz_list_remove(getL(p, 1), adjusted)));
+    rn(p, @floatFromInt(list.stz_list_remove_at(getL(p, 1), adjusted)));
 }
 
 // RemoveAllCS(list, value, caseSensitive) -> count removed
 fn ring_RemoveAllCS(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(list.stz_list_remove_all_cs(getL(p, 1), getV(p, 2), @intFromFloat(g(p, 3)))));
+    rn(p, @floatFromInt(list.stz_list_remove_cs(getL(p, 1), getV(p, 2), @intFromFloat(g(p, 3)))));
 }
 
 // ReplaceAllCS(list, oldValue, newValue, caseSensitive) -> count replaced
 fn ring_ReplaceAllCS(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(list.stz_list_replace_all_cs(getL(p, 1), getV(p, 2), getV(p, 3), @intFromFloat(g(p, 4)))));
+    rn(p, @floatFromInt(list.stz_list_replace_cs(getL(p, 1), getV(p, 2), getV(p, 3), @intFromFloat(g(p, 4)))));
 }
 
 // Get (INDEX_BASE=1: subtract 1)
@@ -108,11 +108,11 @@ fn ring_GetString(p: *anyopaque) callconv(.c) void {
 
 // Find (INDEX_BASE=1: return 1-based, 0 for not-found)
 fn ring_FindCS(p: *anyopaque) callconv(.c) void {
-    const result = list.stz_list_find_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)));
+    const result = list.stz_list_find_first_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)));
     rn(p, if (result >= 0) @as(f64, @floatFromInt(result + 1)) else 0);
 }
 fn ring_FindStringCS(p: *anyopaque) callconv(.c) void {
-    const result = list.stz_list_find_string_cs(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), @intFromFloat(g(p, 3)));
+    const result = list.stz_list_find_first_string_cs(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), @intFromFloat(g(p, 3)));
     rn(p, if (result >= 0) @as(f64, @floatFromInt(result + 1)) else 0);
 }
 fn ring_ContainsCS(p: *anyopaque) callconv(.c) void {
@@ -210,12 +210,12 @@ fn ring_ReduceExprNoInit(p: *anyopaque) callconv(.c) void {
     rcp(p, @constCast(@ptrCast(list.stz_list_reduce_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), null))), HV);
 }
 fn ring_FindW(p: *anyopaque) callconv(.c) void {
-    const result = list.stz_list_find_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)));
+    const result = list.stz_list_find_first_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)));
     rn(p, if (result >= 0) @as(f64, @floatFromInt(result + 1)) else 0);
 }
 fn ring_FindAllCS(p: *anyopaque) callconv(.c) void {
     var positions: [65536]i64 = undefined;
-    const count = list.stz_list_find_all_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)), &positions, 65536);
+    const count = list.stz_list_find_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)), &positions, 65536);
     if (count == 0) {
         rs(p, "");
         return;
@@ -247,7 +247,7 @@ fn ring_FindAllStringCS(p: *anyopaque) callconv(.c) void {
     };
     defer value.stz_value_free(needle_val);
     var positions: [65536]i64 = undefined;
-    const count = list.stz_list_find_all_cs(l, needle_val, cs, &positions, 65536);
+    const count = list.stz_list_find_cs(l, needle_val, cs, &positions, 65536);
     const result = list.StzList.init() catch {
         rcp(p, @as(?*anyopaque, null), HL);
         return;
@@ -291,7 +291,7 @@ fn ring_ContainsStringCS(p: *anyopaque) callconv(.c) void {
 
 fn ring_FindAllW(p: *anyopaque) callconv(.c) void {
     var positions: [65536]i64 = undefined;
-    const count = list.stz_list_find_all_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), &positions, 65536);
+    const count = list.stz_list_find_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), &positions, 65536);
     if (count == 0) {
         rs(p, "");
         return;

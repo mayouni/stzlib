@@ -120,7 +120,7 @@ class stzStringFinder
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Bulk find via Engine: one call returns all positions
-		pResult = StzEngineStringFindAllCS(@oString.Engine(), pcSubStr, _bCase_)
+		pResult = StzEngineStringFindCS(@oString.Engine(), pcSubStr, _bCase_)
 
 		nCount = StzEngineFindResultCount(pResult)
 		if nCount = 0
@@ -222,7 +222,7 @@ class stzStringFinder
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		nResult = StzEngineStringLastIndexOfCS(@oString.Engine(), pcSubStr, _bCase_)
+		nResult = StzEngineStringFindLastCS(@oString.Engine(), pcSubStr, _bCase_)
 		# Engine returns 1-based (INDEX_BASE=1), -1 for not found
 		if nResult > 0
 			return nResult
@@ -499,7 +499,7 @@ class stzStringFinder
 	def IndexOfCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		pH = @oString.Engine()
-		return StzEngineStringIndexOfCS(pH, pcSubStr, _bCase_)
+		return StzEngineStringFindFirstCS(pH, pcSubStr, _bCase_)
 
 	def IndexOf(pcSubStr)
 		return This.IndexOfCS(pcSubStr, 1)
@@ -513,7 +513,7 @@ class stzStringFinder
 		pHChar = StzEngineString(pcChar)
 		nCp = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
-		pResult = StzEngineStringFindAllChar(pH, nCp)
+		pResult = StzEngineStringFindChar(pH, nCp)
 		nCount = StzEngineFindResultCount(pResult)
 		if nCount = 0
 			StzEngineFindResultFree(pResult)

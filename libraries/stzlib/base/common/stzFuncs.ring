@@ -3058,7 +3058,7 @@ func StzFind(p1, p2)
 	# Case 3: Both strings -> find p2 as substring in p1
 	if isString(p1) and isString(p2)
 		_pSfH_ = StzEngineString(p1)
-		_nSfPos_ = StzEngineStringIndexOfFromCS(_pSfH_, p2, 1, 1)
+		_nSfPos_ = StzEngineStringFindFirstFromCS(_pSfH_, p2, 1, 1)
 		StzEngineStringFree(_pSfH_)
 		if _nSfPos_ > 0
 			return _nSfPos_

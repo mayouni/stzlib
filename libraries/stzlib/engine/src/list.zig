@@ -182,7 +182,7 @@ pub fn stz_list_insert(list: ?*StzList, index: usize, v: ?*const StzValue) callc
 
 // ─── C ABI: Remove ───
 
-pub fn stz_list_remove(list: ?*StzList, index: usize) callconv(.c) i32 {
+pub fn stz_list_remove_at(list: ?*StzList, index: usize) callconv(.c) i32 {
     const l = list orelse return -1;
     if (index >= l.len()) return -1;
     const removed = l.items.orderedRemove(index);
@@ -191,7 +191,7 @@ pub fn stz_list_remove(list: ?*StzList, index: usize) callconv(.c) i32 {
     return 0;
 }
 
-pub fn stz_list_remove_all_cs(list: ?*StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
+pub fn stz_list_remove_cs(list: ?*StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
     const l = list orelse return -1;
     const needle = v orelse return -1;
     const cs = case_sensitive != 0;
@@ -210,7 +210,7 @@ pub fn stz_list_remove_all_cs(list: ?*StzList, v: ?*const StzValue, case_sensiti
     return removed;
 }
 
-pub fn stz_list_replace_all_cs(list: ?*StzList, old_v: ?*const StzValue, new_v: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
+pub fn stz_list_replace_cs(list: ?*StzList, old_v: ?*const StzValue, new_v: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
     const l = list orelse return -1;
     const needle = old_v orelse return -1;
     const replacement = new_v orelse return -1;
@@ -257,9 +257,9 @@ pub fn stz_list_get_string(list: ?*const StzList, index: usize, buf: [*]u8, buf_
     return copy_len;
 }
 
-// ─── C ABI: Find ───
+// ─── C ABI: Find First ───
 
-pub fn stz_list_find_cs(list: ?*const StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) i64 {
+pub fn stz_list_find_first_cs(list: ?*const StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) i64 {
     const l = list orelse return -1;
     const needle = v orelse return -1;
     const cs = case_sensitive != 0;
@@ -269,7 +269,7 @@ pub fn stz_list_find_cs(list: ?*const StzList, v: ?*const StzValue, case_sensiti
     return -1;
 }
 
-pub fn stz_list_find_string_cs(list: ?*const StzList, ptr: [*]const u8, str_len: usize, case_sensitive: i32) callconv(.c) i64 {
+pub fn stz_list_find_first_string_cs(list: ?*const StzList, ptr: [*]const u8, str_len: usize, case_sensitive: i32) callconv(.c) i64 {
     const l = list orelse return -1;
     const cs = case_sensitive != 0;
     for (l.items.items, 0..) |item, i| {
@@ -286,12 +286,12 @@ pub fn stz_list_find_string_cs(list: ?*const StzList, ptr: [*]const u8, str_len:
 }
 
 pub fn stz_list_contains_cs(list: ?*const StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
-    return if (stz_list_find_cs(list, v, case_sensitive) >= 0) 1 else 0;
+    return if (stz_list_find_first_cs(list, v, case_sensitive) >= 0) 1 else 0;
 }
 
-// ─── C ABI: Find All ───
+// ─── C ABI: Find ───
 
-pub fn stz_list_find_all_cs(list: ?*const StzList, v: ?*const StzValue, case_sensitive: i32, out_buf: [*]i64, out_cap: usize) callconv(.c) usize {
+pub fn stz_list_find_cs(list: ?*const StzList, v: ?*const StzValue, case_sensitive: i32, out_buf: [*]i64, out_cap: usize) callconv(.c) usize {
     const l = list orelse return 0;
     const needle = v orelse return 0;
     const cs = case_sensitive != 0;
@@ -857,7 +857,7 @@ pub fn stz_list_reduce_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_l
     return valToStzValue(accum);
 }
 
-pub fn stz_list_find_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) i64 {
+pub fn stz_list_find_first_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) i64 {
     const l = list orelse return -1;
     const prog = expr.compile(expr_ptr, expr_len) orelse return -1;
     defer prog.deinit();
@@ -876,7 +876,7 @@ pub fn stz_list_find_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: u
     return -1;
 }
 
-pub fn stz_list_find_all_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize, out_buf: [*]i64, out_cap: usize) callconv(.c) usize {
+pub fn stz_list_find_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize, out_buf: [*]i64, out_cap: usize) callconv(.c) usize {
     const l = list orelse return 0;
     const prog = expr.compile(expr_ptr, expr_len) orelse return 0;
     defer prog.deinit();
@@ -1646,7 +1646,7 @@ pub fn stz_list_trim_leading(list_arg: ?*StzList, val: ?*const StzValue) callcon
     while (l.len() > 0) {
         const first = l.get(0) orelse break;
         if (first.compare(v) != 0) break;
-        _ = stz_list_remove(l, 0);
+        _ = stz_list_remove_at(l, 0);
     }
     return 0;
 }
@@ -1657,7 +1657,7 @@ pub fn stz_list_trim_trailing(list_arg: ?*StzList, val: ?*const StzValue) callco
     while (l.len() > 0) {
         const last = l.get(l.len() - 1) orelse break;
         if (last.compare(v) != 0) break;
-        _ = stz_list_remove(l, l.len() - 1);
+        _ = stz_list_remove_at(l, l.len() - 1);
     }
     return 0;
 }
@@ -2063,7 +2063,7 @@ test "list basic append and get" {
     try std.testing.expect(std.mem.eql(u8, buf[0..n], "hello"));
 }
 
-test "list find CS" {
+test "list find first CS" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
 
@@ -2071,9 +2071,9 @@ test "list find CS" {
     _ = stz_list_append_string(l, "Beta", 4);
     _ = stz_list_append_string(l, "Gamma", 5);
 
-    try std.testing.expectEqual(@as(i64, 1), stz_list_find_string_cs(l, "Beta", 4, 1));
-    try std.testing.expectEqual(@as(i64, -1), stz_list_find_string_cs(l, "beta", 4, 1));
-    try std.testing.expectEqual(@as(i64, 1), stz_list_find_string_cs(l, "beta", 4, 0));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_find_first_string_cs(l, "Beta", 4, 1));
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_first_string_cs(l, "beta", 4, 1));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_find_first_string_cs(l, "beta", 4, 0));
 }
 
 test "list contains" {
@@ -2092,7 +2092,7 @@ test "list contains" {
     try std.testing.expectEqual(@as(i32, 0), stz_list_contains_cs(l, missing, 1));
 }
 
-test "list find all" {
+test "list find" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
 
@@ -2106,7 +2106,7 @@ test "list find all" {
     defer value_mod.stz_value_free(needle);
 
     var positions: [10]i64 = undefined;
-    const count = stz_list_find_all_cs(l, needle, 1, &positions, 10);
+    const count = stz_list_find_cs(l, needle, 1, &positions, 10);
     try std.testing.expectEqual(@as(usize, 3), count);
     try std.testing.expectEqual(@as(i64, 0), positions[0]);
     try std.testing.expectEqual(@as(i64, 2), positions[1]);
@@ -2292,7 +2292,7 @@ test "list slice" {
     try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(s, 2));
 }
 
-test "list insert and remove" {
+test "list insert and remove_at" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
 
@@ -2306,7 +2306,7 @@ test "list insert and remove" {
     try std.testing.expectEqual(@as(usize, 3), stz_list_len(l));
     try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(l, 1));
 
-    _ = stz_list_remove(l, 1);
+    _ = stz_list_remove_at(l, 1);
     try std.testing.expectEqual(@as(usize, 2), stz_list_len(l));
     try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(l, 1));
 }
@@ -2528,7 +2528,7 @@ test "reduce_expr null list returns null" {
     try std.testing.expect(stz_list_reduce_expr(null, e.ptr, e.len, null) == null);
 }
 
-test "find_w first match" {
+test "find_first_w first match" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
 
@@ -2538,10 +2538,10 @@ test "find_w first match" {
     _ = stz_list_append_int(l, 15);
 
     const e = "@item > 10";
-    try std.testing.expectEqual(@as(i64, 1), stz_list_find_w(l, e.ptr, e.len));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_find_first_w(l, e.ptr, e.len));
 }
 
-test "find_w no match returns -1" {
+test "find_first_w no match returns -1" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
 
@@ -2549,15 +2549,15 @@ test "find_w no match returns -1" {
     _ = stz_list_append_int(l, 2);
 
     const e = "@item > 100";
-    try std.testing.expectEqual(@as(i64, -1), stz_list_find_w(l, e.ptr, e.len));
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_first_w(l, e.ptr, e.len));
 }
 
-test "find_w null list returns -1" {
+test "find_first_w null list returns -1" {
     const e = "@item > 0";
-    try std.testing.expectEqual(@as(i64, -1), stz_list_find_w(null, e.ptr, e.len));
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_first_w(null, e.ptr, e.len));
 }
 
-test "find_all_w positions" {
+test "find_w positions" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
 
@@ -2569,13 +2569,13 @@ test "find_all_w positions" {
 
     const e = "@item > 10";
     var positions: [10]i64 = undefined;
-    const count = stz_list_find_all_w(l, e.ptr, e.len, &positions, 10);
+    const count = stz_list_find_w(l, e.ptr, e.len, &positions, 10);
     try std.testing.expectEqual(@as(usize, 2), count);
     try std.testing.expectEqual(@as(i64, 1), positions[0]);
     try std.testing.expectEqual(@as(i64, 3), positions[1]);
 }
 
-test "find_all_w empty result" {
+test "find_w empty result" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
 
@@ -2583,7 +2583,7 @@ test "find_all_w empty result" {
 
     const e = "@item > 100";
     var positions: [10]i64 = undefined;
-    const count = stz_list_find_all_w(l, e.ptr, e.len, &positions, 10);
+    const count = stz_list_find_w(l, e.ptr, e.len, &positions, 10);
     try std.testing.expectEqual(@as(usize, 0), count);
 }
 
@@ -3704,7 +3704,7 @@ test "flatten to depth 1" {
     try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(flat, 3));
 }
 
-test "remove_all_cs removes all matching items" {
+test "remove_cs removes all matching items" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
     _ = stz_list_append_string(l, "x", 1);
@@ -3716,7 +3716,7 @@ test "remove_all_cs removes all matching items" {
     const needle = value_mod.stz_value_new_string("x", 1) orelse return error.AllocFailed;
     defer value_mod.stz_value_free(needle);
 
-    const removed = stz_list_remove_all_cs(l, needle, 1);
+    const removed = stz_list_remove_cs(l, needle, 1);
     try std.testing.expectEqual(@as(i32, 3), removed);
     try std.testing.expectEqual(@as(usize, 2), stz_list_len(l));
     var buf: [64]u8 = undefined;
@@ -3726,7 +3726,7 @@ test "remove_all_cs removes all matching items" {
     try std.testing.expect(std.mem.eql(u8, buf[0..n], "b"));
 }
 
-test "remove_all_cs no match returns 0" {
+test "remove_cs no match returns 0" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
     _ = stz_list_append_string(l, "a", 1);
@@ -3735,12 +3735,12 @@ test "remove_all_cs no match returns 0" {
     const needle = value_mod.stz_value_new_string("z", 1) orelse return error.AllocFailed;
     defer value_mod.stz_value_free(needle);
 
-    const removed = stz_list_remove_all_cs(l, needle, 1);
+    const removed = stz_list_remove_cs(l, needle, 1);
     try std.testing.expectEqual(@as(i32, 0), removed);
     try std.testing.expectEqual(@as(usize, 2), stz_list_len(l));
 }
 
-test "replace_all_cs replaces all matching items" {
+test "replace_cs replaces all matching items" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
     _ = stz_list_append_string(l, "old", 3);
@@ -3752,7 +3752,7 @@ test "replace_all_cs replaces all matching items" {
     const new_v = value_mod.stz_value_new_string("new", 3) orelse return error.AllocFailed;
     defer value_mod.stz_value_free(new_v);
 
-    const replaced = stz_list_replace_all_cs(l, old_v, new_v, 1);
+    const replaced = stz_list_replace_cs(l, old_v, new_v, 1);
     try std.testing.expectEqual(@as(i32, 2), replaced);
     try std.testing.expectEqual(@as(usize, 3), stz_list_len(l));
     var buf: [64]u8 = undefined;
@@ -3764,7 +3764,7 @@ test "replace_all_cs replaces all matching items" {
     try std.testing.expect(std.mem.eql(u8, buf[0..n], "new"));
 }
 
-test "replace_all_cs case insensitive" {
+test "replace_cs case insensitive" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
     _ = stz_list_append_string(l, "Hello", 5);
@@ -3776,7 +3776,7 @@ test "replace_all_cs case insensitive" {
     const new_v = value_mod.stz_value_new_string("hi", 2) orelse return error.AllocFailed;
     defer value_mod.stz_value_free(new_v);
 
-    const replaced = stz_list_replace_all_cs(l, old_v, new_v, 0);
+    const replaced = stz_list_replace_cs(l, old_v, new_v, 0);
     try std.testing.expectEqual(@as(i32, 2), replaced);
     var buf: [64]u8 = undefined;
     var n = stz_list_get_string(l, 0, &buf, 64);

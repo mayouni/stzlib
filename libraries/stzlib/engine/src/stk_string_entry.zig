@@ -20,7 +20,7 @@ comptime {
     @export(&string.str_append, .{ .name = "str_append" });
 
     // String search
-    @export(&string.str_index_of, .{ .name = "str_index_of" });
+    @export(&string.str_find_first, .{ .name = "str_find_first" });
     @export(&string.str_contains, .{ .name = "str_contains" });
 
     // Char fundamentals

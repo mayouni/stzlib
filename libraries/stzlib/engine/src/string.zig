@@ -159,22 +159,18 @@ pub const str_unique_null_items = split.str_unique_null_items;
 // ─── Find submodule imports ───
 const find = @import("string/find.zig");
 
-pub const str_index_of_cs = find.str_index_of_cs;
-pub const str_index_of = find.str_index_of;
 pub const str_find_first_cs = find.str_find_first_cs;
 pub const str_find_first = find.str_find_first;
-pub const str_index_of_from_cs = find.str_index_of_from_cs;
-pub const str_index_of_from = find.str_index_of_from;
+pub const str_find_first_from_cs = find.str_find_first_from_cs;
+pub const str_find_first_from = find.str_find_first_from;
 pub const str_byte_to_cp = find.str_byte_to_cp;
 pub const str_count_of = find.str_count_of;
 pub const str_count_of_cs = find.str_count_of_cs;
-pub const str_find_all_cs = find.str_find_all_cs;
-pub const str_find_all = find.str_find_all;
+pub const str_find_cs = find.str_find_cs;
+pub const str_find = find.str_find;
 pub const stz_find_result_count = find.stz_find_result_count;
 pub const stz_find_result_get = find.stz_find_result_get;
 pub const stz_find_result_free = find.stz_find_result_free;
-pub const str_last_index_of_cs = find.str_last_index_of_cs;
-pub const str_last_index_of = find.str_last_index_of;
 pub const str_find_last_cs = find.str_find_last_cs;
 pub const str_find_last = find.str_find_last;
 pub const str_contains_cs = find.str_contains_cs;
@@ -191,7 +187,7 @@ pub const str_starts_with_digit = find.str_starts_with_digit;
 pub const str_starts_with_letter = find.str_starts_with_letter;
 pub const str_ends_with_digit = find.str_ends_with_digit;
 pub const str_ends_with_letter = find.str_ends_with_letter;
-pub const str_find_all_char = find.str_find_all_char;
+pub const str_find_char = find.str_find_char;
 pub const str_starts_with_any_cs = find.str_starts_with_any_cs;
 pub const str_starts_with_any = find.str_starts_with_any;
 pub const str_ends_with_any_cs = find.str_ends_with_any_cs;
@@ -222,18 +218,12 @@ pub const str_replace_between = replace.str_replace_between;
 pub const str_replace_first_between = replace.str_replace_first_between;
 pub const str_replace_nth_between = replace.str_replace_nth_between;
 pub const str_replace_last_between = replace.str_replace_last_between;
-pub const str_replace_all_between = replace.str_replace_all_between;
 pub const str_remove_range = replace.str_remove_range;
-pub const str_remove_all_cs = replace.str_remove_all_cs;
-pub const str_remove_all = replace.str_remove_all;
 pub const str_remove_cs = replace.str_remove_cs;
 pub const str_remove = replace.str_remove;
 pub const str_remove_char_at = replace.str_remove_char_at;
 pub const str_remove_chars_of_type = replace.str_remove_chars_of_type;
 pub const str_remove_consecutive_duplicates = replace.str_remove_consecutive_duplicates;
-pub const str_remove_first_occurrence = replace.str_remove_first_occurrence;
-pub const str_remove_last_occurrence = replace.str_remove_last_occurrence;
-pub const str_remove_nth_occurrence = replace.str_remove_nth_occurrence;
 pub const str_remove_first = replace.str_remove_first;
 pub const str_remove_last = replace.str_remove_last;
 pub const str_remove_nth = replace.str_remove_nth;
@@ -244,7 +234,6 @@ pub const str_remove_between = replace.str_remove_between;
 pub const str_remove_first_between = replace.str_remove_first_between;
 pub const str_remove_nth_between = replace.str_remove_nth_between;
 pub const str_remove_last_between = replace.str_remove_last_between;
-pub const str_remove_all_between = replace.str_remove_all_between;
 pub const str_remove_vowels = replace.str_remove_vowels;
 pub const str_remove_duplicate_words = replace.str_remove_duplicate_words;
 pub const str_remove_punctuation = replace.str_remove_punctuation;
@@ -622,8 +611,8 @@ test "string unicode count" {
 test "string search" {
     const s = str_from("Hello Ring World", 16);
 
-    try std.testing.expectEqual(@as(i64, 7), str_index_of(s, "Ring", 4));
-    try std.testing.expectEqual(@as(i64, -1), str_index_of(s, "Zig", 3));
+    try std.testing.expectEqual(@as(i64, 7), str_find_first(s, "Ring", 4));
+    try std.testing.expectEqual(@as(i64, -1), str_find_first(s, "Zig", 3));
     try std.testing.expectEqual(@as(c_int, 1), str_contains(s, "World", 5));
     try std.testing.expectEqual(@as(c_int, 1), str_starts_with(s, "Hello", 5));
     try std.testing.expectEqual(@as(c_int, 1), str_ends_with(s, "World", 5));
@@ -747,27 +736,27 @@ test "string insert" {
     str_free(s);
 }
 
-test "string index_of_from" {
+test "string find_first_from" {
     const s = str_from("abcabcabc", 9);
-    try std.testing.expectEqual(@as(i64, 1), str_index_of_from(s, "abc", 3, 1));
-    try std.testing.expectEqual(@as(i64, 4), str_index_of_from(s, "abc", 3, 2));
-    try std.testing.expectEqual(@as(i64, 7), str_index_of_from(s, "abc", 3, 5));
-    try std.testing.expectEqual(@as(i64, -1), str_index_of_from(s, "abc", 3, 8));
+    try std.testing.expectEqual(@as(i64, 1), str_find_first_from(s, "abc", 3, 1));
+    try std.testing.expectEqual(@as(i64, 4), str_find_first_from(s, "abc", 3, 2));
+    try std.testing.expectEqual(@as(i64, 7), str_find_first_from(s, "abc", 3, 5));
+    try std.testing.expectEqual(@as(i64, -1), str_find_first_from(s, "abc", 3, 8));
     str_free(s);
 }
 
-test "string index_of_ci" {
+test "string find_first_from_ci" {
     const s = str_from("Hello WORLD", 11);
-    try std.testing.expectEqual(@as(i64, 1), str_index_of_from_cs(s, "hello", 5, 1, 0));
-    try std.testing.expectEqual(@as(i64, 7), str_index_of_from_cs(s, "world", 5, 1, 0));
-    try std.testing.expectEqual(@as(i64, -1), str_index_of_from_cs(s, "xyz", 3, 1, 0));
-    try std.testing.expectEqual(@as(i64, 7), str_index_of_from_cs(s, "WORLD", 5, 4, 0));
+    try std.testing.expectEqual(@as(i64, 1), str_find_first_from_cs(s, "hello", 5, 1, 0));
+    try std.testing.expectEqual(@as(i64, 7), str_find_first_from_cs(s, "world", 5, 1, 0));
+    try std.testing.expectEqual(@as(i64, -1), str_find_first_from_cs(s, "xyz", 3, 1, 0));
+    try std.testing.expectEqual(@as(i64, 7), str_find_first_from_cs(s, "WORLD", 5, 4, 0));
     str_free(s);
 }
 
-test "string find_all" {
+test "string find" {
     const s = str_from("ring is ring and ring", 21);
-    const r = str_find_all(s, "ring", 4);
+    const r = str_find(s, "ring", 4);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
     try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 1));
     try std.testing.expectEqual(@as(i64, 9), stz_find_result_get(r, 2));
@@ -775,15 +764,15 @@ test "string find_all" {
     stz_find_result_free(r);
 
     // Not found
-    const r2 = str_find_all(s, "xyz", 3);
+    const r2 = str_find(s, "xyz", 3);
     try std.testing.expectEqual(@as(c_int, 0), stz_find_result_count(r2));
     stz_find_result_free(r2);
     str_free(s);
 }
 
-test "string find_all_ci" {
+test "string find_ci" {
     const s = str_from("Ring RING ring", 14);
-    const r = str_find_all_cs(s, "ring", 4, 0);
+    const r = str_find_cs(s, "ring", 4, 0);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
     try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 1));
     try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r, 2));
@@ -799,10 +788,10 @@ test "string count_of_ci" {
     str_free(s);
 }
 
-test "string last_index_of_ci" {
+test "string find_last_ci" {
     const s = str_from("abc-ABC-Abc", 11);
-    try std.testing.expectEqual(@as(i64, 9), str_last_index_of_cs(s, "abc", 3, 0));
-    try std.testing.expectEqual(@as(i64, -1), str_last_index_of_cs(s, "xyz", 3, 0));
+    try std.testing.expectEqual(@as(i64, 9), str_find_last_cs(s, "abc", 3, 0));
+    try std.testing.expectEqual(@as(i64, -1), str_find_last_cs(s, "xyz", 3, 0));
     str_free(s);
 }
 
@@ -920,7 +909,7 @@ test "string split_get" {
 
 // ─── Unicode codepoint-position tests ───
 
-test "find_all unicode codepoint positions" {
+test "find unicode codepoint positions" {
     // "bullet heart bullet bullet bullet bullet heart bullet bullet"
     // Each char is 3 bytes (U+2022=E2 80 A2, U+2665=E2 99 A5)
     // String: bullet(0) heart(1) bullet(2) bullet(3) bullet(4) bullet(5) heart(6) bullet(7) bullet(8)
@@ -929,7 +918,7 @@ test "find_all unicode codepoint positions" {
     try std.testing.expectEqual(@as(usize, 9), str_count(s));
 
     // Find heart (E2 99 A5) -- should be at codepoint positions 2 and 7 (1-based)
-    const r = str_find_all(s, "\xe2\x99\xa5", 3);
+    const r = str_find(s, "\xe2\x99\xa5", 3);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r));
     try std.testing.expectEqual(@as(i64, 2), stz_find_result_get(r, 1));
     try std.testing.expectEqual(@as(i64, 7), stz_find_result_get(r, 2));
@@ -937,7 +926,7 @@ test "find_all unicode codepoint positions" {
 
     // Find "bullet heart bullet" (9 bytes) -- at codepoint positions 1 and 6 (1-based)
     const sub = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2";
-    const r2 = str_find_all(s, sub, 9);
+    const r2 = str_find(s, sub, 9);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r2));
     try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r2, 1));
     try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r2, 2));
@@ -946,22 +935,22 @@ test "find_all unicode codepoint positions" {
     str_free(s);
 }
 
-test "index_of unicode codepoint position" {
+test "find_first unicode codepoint position" {
     // "cafe" with e-acute: "caf\xC3\xA9X" -- 5 bytes, 4 codepoints + X
     const s = str_from("caf\xC3\xA9X", 6);
     try std.testing.expectEqual(@as(usize, 5), str_count(s));
     // 'X' is at byte 5 but codepoint position 5 (1-based)
-    try std.testing.expectEqual(@as(i64, 5), str_index_of(s, "X", 1));
+    try std.testing.expectEqual(@as(i64, 5), str_find_first(s, "X", 1));
     str_free(s);
 }
 
-test "last_index_of unicode" {
+test "find_last unicode" {
     // Two hearts in multibyte string
     const str = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2\xe2\x99\xa5";
     const s = str_from(str, 12); // 4 chars, 12 bytes
     try std.testing.expectEqual(@as(usize, 4), str_count(s));
     // Last heart at codepoint position 4 (1-based)
-    try std.testing.expectEqual(@as(i64, 4), str_last_index_of(s, "\xe2\x99\xa5", 3));
+    try std.testing.expectEqual(@as(i64, 4), str_find_last(s, "\xe2\x99\xa5", 3));
     str_free(s);
 }
 
@@ -1321,19 +1310,19 @@ test "find_nth unicode" {
     str_free(s);
 }
 
-test "remove_all" {
+test "remove" {
     const s = str_from("aXbXcXd", 7);
-    const r = str_remove_all(s, "X", 1);
+    const r = str_remove(s, "X", 1);
     try std.testing.expectEqual(@as(usize, 4), str_size(r));
     try std.testing.expect(mem.eql(u8, str_data(r)[0..4], "abcd"));
     str_free(r);
     str_free(s);
 }
 
-test "remove_all multi-byte" {
+test "remove multi-byte" {
     // Remove heart from "a heart b heart c"
     const s = str_from("a\xe2\x99\xa5b\xe2\x99\xa5c", 9);
-    const r = str_remove_all(s, "\xe2\x99\xa5", 3);
+    const r = str_remove(s, "\xe2\x99\xa5", 3);
     try std.testing.expectEqual(@as(usize, 3), str_size(r));
     try std.testing.expect(mem.eql(u8, str_data(r)[0..3], "abc"));
     str_free(r);
@@ -1621,9 +1610,9 @@ test "unique_char_count" {
     str_free(s_hello);
 }
 
-test "remove_all_ci" {
+test "remove_ci" {
     const s = str_from("Hello HELLO hello", 17);
-    const r = str_remove_all_cs(s, "hello", 5, 0);
+    const r = str_remove_cs(s, "hello", 5, 0);
     try std.testing.expectEqual(@as(usize, 2), str_size(r));
     try std.testing.expect(mem.eql(u8, str_data(r)[0..2], "  "));
     str_free(r);
@@ -2248,9 +2237,9 @@ test "sort_chars" {
     str_free(s1);
 }
 
-test "find_all_char" {
+test "find_char" {
     const s1 = str_from("abcabc", 6);
-    const fr = str_find_all_char(s1, 'a');
+    const fr = str_find_char(s1, 'a');
     try std.testing.expect(fr != null);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(fr));
     try std.testing.expectEqual(@as(c_int, 1), stz_find_result_get(fr, 1));
@@ -2314,31 +2303,31 @@ test "compare" {
     str_free(s1);
 }
 
-test "remove_first_occurrence" {
+test "remove_first" {
     const s1 = str_from("hello world hello", 17);
-    const r1 = str_remove_first_occurrence(s1, "hello", 5);
+    const r1 = str_remove_first(s1, "hello", 5);
     try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], " world hello"));
     str_free(r1);
     str_free(s1);
 }
 
-test "remove_last_occurrence" {
+test "remove_last" {
     const s1 = str_from("hello world hello", 17);
-    const r1 = str_remove_last_occurrence(s1, "hello", 5);
+    const r1 = str_remove_last(s1, "hello", 5);
     try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "hello world "));
     str_free(r1);
     str_free(s1);
 }
 
-test "remove_nth_occurrence" {
+test "remove_nth" {
     const s1 = str_from("abcabcabc", 9);
-    const r0 = str_remove_nth_occurrence(s1, "abc", 3, 0);
+    const r0 = str_remove_nth(s1, "abc", 3, 0);
     try std.testing.expect(mem.eql(u8, str_data(r0)[0..@intCast(str_size(r0))], "abcabc"));
     str_free(r0);
-    const r1 = str_remove_nth_occurrence(s1, "abc", 3, 1);
+    const r1 = str_remove_nth(s1, "abc", 3, 1);
     try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "abcabc"));
     str_free(r1);
-    const r2 = str_remove_nth_occurrence(s1, "abc", 3, 2);
+    const r2 = str_remove_nth(s1, "abc", 3, 2);
     try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "abcabc"));
     str_free(r2);
     str_free(s1);
@@ -4432,9 +4421,9 @@ test "ends_with_ci unicode" {
     str_free(s);
 }
 
-test "find_all_ci unicode" {
+test "find_ci unicode" {
     const s = str_from("abcABCabc", 9);
-    const r = str_find_all_cs(s, "abc", 3, 0);
+    const r = str_find_cs(s, "abc", 3, 0);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
     try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 1));
     try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 2));
@@ -4577,26 +4566,26 @@ test "word_ngrams bigrams" {
 
 // ─── CS Merge Tests ───
 
-test "index_of_cs case sensitive" {
+test "find_first_cs case sensitive" {
     const s = str_from("Hello World", 11);
-    try std.testing.expectEqual(@as(i64, 7), str_index_of_cs(s, "World", 5, 1));
-    try std.testing.expectEqual(@as(i64, -1), str_index_of_cs(s, "world", 5, 1));
+    try std.testing.expectEqual(@as(i64, 7), str_find_first_cs(s, "World", 5, 1));
+    try std.testing.expectEqual(@as(i64, -1), str_find_first_cs(s, "world", 5, 1));
     str_free(s);
 }
 
-test "index_of_cs case insensitive" {
+test "find_first_cs case insensitive" {
     const s = str_from("Hello World", 11);
-    try std.testing.expectEqual(@as(i64, 7), str_index_of_cs(s, "WORLD", 5, 0));
-    try std.testing.expectEqual(@as(i64, 1), str_index_of_cs(s, "hello", 5, 0));
+    try std.testing.expectEqual(@as(i64, 7), str_find_first_cs(s, "WORLD", 5, 0));
+    try std.testing.expectEqual(@as(i64, 1), str_find_first_cs(s, "hello", 5, 0));
     str_free(s);
 }
 
-test "find_all_cs" {
+test "find_cs" {
     const s = str_from("abcABCabc", 9);
-    const r1 = str_find_all_cs(s, "abc", 3, 1);
+    const r1 = str_find_cs(s, "abc", 3, 1);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r1));
     stz_find_result_free(r1);
-    const r0 = str_find_all_cs(s, "abc", 3, 0);
+    const r0 = str_find_cs(s, "abc", 3, 0);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r0));
     stz_find_result_free(r0);
     str_free(s);
@@ -4635,10 +4624,10 @@ test "find_nth_cs" {
     str_free(s);
 }
 
-test "last_index_of_cs" {
+test "find_last_cs" {
     const s = str_from("abcABCabc", 9);
-    try std.testing.expectEqual(@as(i64, 7), str_last_index_of_cs(s, "abc", 3, 1));
-    try std.testing.expectEqual(@as(i64, 7), str_last_index_of_cs(s, "abc", 3, 0)); // last CI match at pos 7
+    try std.testing.expectEqual(@as(i64, 7), str_find_last_cs(s, "abc", 3, 1));
+    try std.testing.expectEqual(@as(i64, 7), str_find_last_cs(s, "abc", 3, 0)); // last CI match at pos 7
     str_free(s);
 }
 
@@ -4813,12 +4802,12 @@ test "BMH search with start offset" {
     try std.testing.expectEqual(@as(?usize, 14), bmhSearch(hay, "abcdef", 8));
 }
 
-test "index_of uses BMH for long ASCII needles" {
+test "find_first uses BMH for long ASCII needles" {
     // Needle > 4 bytes, ASCII string -- should use BMH path
     const s = str_from("The quick brown fox jumps over the lazy dog", 43);
-    try std.testing.expectEqual(@as(i64, 17), str_index_of(s, "fox j", 5)); // 1-based
-    try std.testing.expectEqual(@as(i64, 32), str_index_of(s, "the lazy", 8)); // 1-based
-    try std.testing.expectEqual(@as(i64, -1), str_index_of(s, "cat jumps", 9));
+    try std.testing.expectEqual(@as(i64, 17), str_find_first(s, "fox j", 5)); // 1-based
+    try std.testing.expectEqual(@as(i64, 32), str_find_first(s, "the lazy", 8)); // 1-based
+    try std.testing.expectEqual(@as(i64, -1), str_find_first(s, "cat jumps", 9));
     str_free(s);
 }
 

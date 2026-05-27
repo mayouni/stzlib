@@ -200,7 +200,7 @@ class stzString from stzObject
 		ok
 
 		# Engine uses INDEX_BASE=1 (1-based), CS pattern (case=1 sensitive, case=0 insensitive)
-		nResult = StzEngineStringIndexOfFromCS(@pEngine, pcSubStr, nStartAt, bCaseSensitive)
+		nResult = StzEngineStringFindFirstFromCS(@pEngine, pcSubStr, nStartAt, bCaseSensitive)
 
 		# Engine returns 1-based position, -1 for not found
 		if nResult > 0

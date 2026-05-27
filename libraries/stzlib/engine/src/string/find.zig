@@ -25,10 +25,10 @@ const byteOffsetToCodepointIndex = core.byteOffsetToCodepointIndex;
 const str_new = core.str_new;
 const str_from = core.str_from;
 
-// ─── Index Of ───
+// ─── FindFirst (Softanza convention: base verb = ALL, first/last/nth for specific) ───
 
-pub fn str_index_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) i64 {
-    if (case == 0) return str_index_of_from_cs(handle, needle, needle_len, @intCast(INDEX_BASE), 0);
+pub fn str_find_first_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) i64 {
+    if (case == 0) return str_find_first_from_cs(handle, needle, needle_len, @intCast(INDEX_BASE), 0);
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
@@ -56,16 +56,12 @@ pub fn str_index_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len
     return -1;
 }
 
-pub fn str_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
-    return str_index_of_cs(handle, needle, needle_len, 1);
+pub fn str_find_first(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
+    return str_find_first_cs(handle, needle, needle_len, 1);
 }
 
-// ─── FindFirst aliases (Softanza convention: index_of = find_first) ───
-pub const str_find_first_cs = str_index_of_cs;
-pub const str_find_first = str_index_of;
-
-/// Unified index_of_from with case sensitivity parameter.
-pub fn str_index_of_from_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize, case: c_int) callconv(.c) i64 {
+/// FindFirst from a starting position, with case sensitivity parameter.
+pub fn str_find_first_from_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize, case: c_int) callconv(.c) i64 {
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
@@ -110,8 +106,8 @@ pub fn str_index_of_from_cs(handle: StzStringHandle, needle: [*c]const u8, needl
     return -1;
 }
 
-pub fn str_index_of_from(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize) callconv(.c) i64 {
-    return str_index_of_from_cs(handle, needle, needle_len, start_cp, 1);
+pub fn str_find_first_from(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize) callconv(.c) i64 {
+    return str_find_first_from_cs(handle, needle, needle_len, start_cp, 1);
 }
 
 // ─── Byte to Codepoint position ───
@@ -175,11 +171,11 @@ pub fn str_count_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len
     return 0;
 }
 
-// ─── Find All ───
+// ─── Find (base verb = ALL per Softanza convention) ───
 
-/// Unified find_all with case sensitivity parameter.
+/// Find all occurrences with case sensitivity parameter.
 /// case=1: case-sensitive, case=0: case-insensitive (Unicode casefold).
-pub fn str_find_all_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) StzFindResultHandle {
+pub fn str_find_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) StzFindResultHandle {
     const r = gpa.create(StzFindResult) catch return null;
     r.* = StzFindResult.init();
     if (handle) |s| {
@@ -220,8 +216,8 @@ pub fn str_find_all_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len
     return r;
 }
 
-pub fn str_find_all(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
-    return str_find_all_cs(handle, needle, needle_len, 1);
+pub fn str_find(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
+    return str_find_cs(handle, needle, needle_len, 1);
 }
 
 // ─── Find Result Accessors ───
@@ -247,10 +243,10 @@ pub fn stz_find_result_free(result: StzFindResultHandle) callconv(.c) void {
     }
 }
 
-// ─── Last Index Of ───
+// ─── FindLast ───
 
-/// Unified last_index_of with case sensitivity parameter.
-pub fn str_last_index_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) i64 {
+/// Find last occurrence with case sensitivity parameter.
+pub fn str_find_last_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) i64 {
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
@@ -273,19 +269,15 @@ pub fn str_last_index_of_cs(handle: StzStringHandle, needle: [*c]const u8, needl
     return -1;
 }
 
-pub fn str_last_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
-    return str_last_index_of_cs(handle, needle, needle_len, 1);
+pub fn str_find_last(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
+    return str_find_last_cs(handle, needle, needle_len, 1);
 }
-
-// ─── FindLast aliases (Softanza convention: last_index_of = find_last) ───
-pub const str_find_last_cs = str_last_index_of_cs;
-pub const str_find_last = str_last_index_of;
 
 // ─── Contains ───
 
 /// Unified contains with case sensitivity parameter.
 pub fn str_contains_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) c_int {
-    return if (str_index_of_cs(handle, needle, needle_len, case) >= 0) 1 else 0;
+    return if (str_find_first_cs(handle, needle, needle_len, case) >= 0) 1 else 0;
 }
 
 pub fn str_contains(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
@@ -453,8 +445,8 @@ pub fn str_ends_with_letter(handle: StzStringHandle) callconv(.c) c_int {
     return if (unicode.stz_unicode_is_letter(last_cp) != 0) @as(c_int, 1) else @as(c_int, 0);
 }
 
-/// Find all positions of a codepoint.
-pub fn str_find_all_char(handle: StzStringHandle, codepoint: u32) callconv(.c) StzFindResultHandle {
+/// Find all positions of a codepoint (base verb = ALL).
+pub fn str_find_char(handle: StzStringHandle, codepoint: u32) callconv(.c) StzFindResultHandle {
     const s = handle orelse return null;
     const buf = s.slice();
 
@@ -683,27 +675,27 @@ const str_free = core.str_free;
 const str_data = core.str_data;
 const str_size = core.str_size;
 
-test "index_of" {
+test "find_first" {
     const s = str_from("hello world", 11);
     defer str_free(s);
-    try testing.expectEqual(@as(i64, 1), str_index_of(s, "hello", 5));
-    try testing.expectEqual(@as(i64, 7), str_index_of(s, "world", 5));
-    try testing.expectEqual(@as(i64, -1), str_index_of(s, "xyz", 3));
+    try testing.expectEqual(@as(i64, 1), str_find_first(s, "hello", 5));
+    try testing.expectEqual(@as(i64, 7), str_find_first(s, "world", 5));
+    try testing.expectEqual(@as(i64, -1), str_find_first(s, "xyz", 3));
 }
 
-test "index_of_cs" {
+test "find_first_cs" {
     const s = str_from("Hello World", 11);
     defer str_free(s);
     // Case sensitive: "hello" not found
-    try testing.expectEqual(@as(i64, -1), str_index_of_cs(s, "hello", 5, 1));
+    try testing.expectEqual(@as(i64, -1), str_find_first_cs(s, "hello", 5, 1));
     // Case insensitive: "hello" found at 1
-    try testing.expectEqual(@as(i64, 1), str_index_of_cs(s, "hello", 5, 0));
+    try testing.expectEqual(@as(i64, 1), str_find_first_cs(s, "hello", 5, 0));
 }
 
-test "index_of_from" {
+test "find_first_from" {
     const s = str_from("abcabc", 6);
     defer str_free(s);
-    try testing.expectEqual(@as(i64, 4), str_index_of_from(s, "abc", 3, 4));
+    try testing.expectEqual(@as(i64, 4), str_find_first_from(s, "abc", 3, 4));
 }
 
 test "byte_to_cp" {
@@ -725,10 +717,10 @@ test "count_of_cs" {
     try testing.expectEqual(@as(c_int, 3), str_count_of_cs(s, "abc", 3, 0));
 }
 
-test "find_all" {
+test "find" {
     const s = str_from("abcabc", 6);
     defer str_free(s);
-    const fr = str_find_all(s, "abc", 3);
+    const fr = str_find(s, "abc", 3);
     defer stz_find_result_free(fr);
     try testing.expect(fr != null);
     try testing.expectEqual(@as(c_int, 2), stz_find_result_count(fr));
@@ -736,10 +728,10 @@ test "find_all" {
     try testing.expectEqual(@as(i64, 4), stz_find_result_get(fr, 2));
 }
 
-test "last_index_of" {
+test "find_last" {
     const s = str_from("abcabc", 6);
     defer str_free(s);
-    try testing.expectEqual(@as(i64, 4), str_last_index_of(s, "abc", 3));
+    try testing.expectEqual(@as(i64, 4), str_find_last(s, "abc", 3));
 }
 
 test "contains" {
@@ -810,10 +802,10 @@ test "ends_with_digit_letter" {
     try testing.expectEqual(@as(c_int, 0), str_ends_with_letter(s1));
 }
 
-test "find_all_char" {
+test "find_char" {
     const s = str_from("abcabc", 6);
     defer str_free(s);
-    const fr = str_find_all_char(s, 'a');
+    const fr = str_find_char(s, 'a');
     defer stz_find_result_free(fr);
     try testing.expect(fr != null);
     try testing.expectEqual(@as(c_int, 2), stz_find_result_count(fr));
