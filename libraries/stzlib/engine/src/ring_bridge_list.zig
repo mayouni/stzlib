@@ -610,6 +610,30 @@ fn ring_IsMonotonic(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_is_monotonic(getLC(p, 1))));
 }
 
+// Statistics functions
+fn ring_Median(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_median(getLC(p, 1)));
+}
+fn ring_NthSmallest(p: *anyopaque) callconv(.c) void {
+    const n = @as(usize, @intFromFloat(g(p, 2)));
+    const adj = if (n > 0) n - 1 else 0; // INDEX_BASE=1
+    rn(p, list.stz_list_nth_smallest(getLC(p, 1), adj));
+}
+fn ring_NthLargest(p: *anyopaque) callconv(.c) void {
+    const n = @as(usize, @intFromFloat(g(p, 2)));
+    const adj = if (n > 0) n - 1 else 0; // INDEX_BASE=1
+    rn(p, list.stz_list_nth_largest(getLC(p, 1), adj));
+}
+fn ring_Variance(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_variance(getLC(p, 1)));
+}
+fn ring_StdDev(p: *anyopaque) callconv(.c) void {
+    rn(p, list.stz_list_stddev(getLC(p, 1)));
+}
+fn ring_Ranked(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_ranked(getLC(p, 1))), HL);
+}
+
 // Bulk-load: read a Ring list directly in Zig — one FFI call replaces N per-element calls
 const ITEMTYPE_STRING: c_uint = 1;
 const ITEMTYPE_NUMBER: c_uint = 2;
@@ -807,6 +831,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistisstrictlyincreasing", .func = &ring_IsStrictlyIncreasing },
     .{ .name = "stzenginelistisstrictlydecreasing", .func = &ring_IsStrictlyDecreasing },
     .{ .name = "stzenginelistismonotonic", .func = &ring_IsMonotonic },
+    .{ .name = "stzenginelistmedian", .func = &ring_Median },
+    .{ .name = "stzenginelistnthsmallest", .func = &ring_NthSmallest },
+    .{ .name = "stzenginelistnthlargest", .func = &ring_NthLargest },
+    .{ .name = "stzenginelistvariance", .func = &ring_Variance },
+    .{ .name = "stzengineliststddev", .func = &ring_StdDev },
+    .{ .name = "stzenginelistranked", .func = &ring_Ranked },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

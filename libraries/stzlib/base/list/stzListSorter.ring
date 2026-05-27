@@ -294,19 +294,11 @@ class stzListSorter
 	#==============================#
 
 	def Ranked()
-		aContent = This.Content()
-		nLen = len(aContent)
 		pList = @oList._EngineListFromContent()
-		StzEngineListSortCS(pList, 1)
-		aSorted = @oList._ContentFromEngineList(pList)
+		pRanked = StzEngineListRanked(pList)
 		StzEngineListFree(pList)
-
-		aResult = []
-		for i = 1 to nLen
-			nRank = StzFind(aSorted, aContent[i])
-			aResult + nRank
-		next
-
+		aResult = @oList._ContentFromEngineList(pRanked)
+		StzEngineListFree(pRanked)
 		return aResult
 
 		def Ranks()
@@ -318,47 +310,22 @@ class stzListSorter
 
 	def NthSmallest(n)
 		pList = @oList._EngineListFromContent()
-		StzEngineListSortCS(pList, 1)
-		aSorted = @oList._ContentFromEngineList(pList)
+		nResult = StzEngineListNthSmallest(pList, n)
 		StzEngineListFree(pList)
-		if n >= 1 and n <= len(aSorted)
-			return aSorted[n]
-		ok
-		return NULL
+		return nResult
 
 	def NthLargest(n)
 		pList = @oList._EngineListFromContent()
-		StzEngineListSortDescendingCS(pList, 1)
-		aSorted = @oList._ContentFromEngineList(pList)
+		nResult = StzEngineListNthLargest(pList, n)
 		StzEngineListFree(pList)
-		if n >= 1 and n <= len(aSorted)
-			return aSorted[n]
-		ok
-		return NULL
+		return nResult
 
 	  #==============================#
 	 #    MEDIAN                    #
 	#==============================#
 
 	def Median()
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen = 0
-			return 0
-		ok
-
 		pList = @oList._EngineListFromContent()
-		StzEngineListSortCS(pList, 1)
-		aSorted = @oList._ContentFromEngineList(pList)
+		nResult = StzEngineListMedian(pList)
 		StzEngineListFree(pList)
-		if nLen % 2 = 1
-			return aSorted[ (nLen + 1) / 2 ]
-		else
-			n1 = aSorted[ nLen / 2 ]
-			n2 = aSorted[ nLen / 2 + 1 ]
-			if isNumber(n1) and isNumber(n2)
-				return (n1 + n2) / 2
-			else
-				return n1
-			ok
-		ok
+		return nResult
