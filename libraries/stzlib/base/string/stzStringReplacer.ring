@@ -476,11 +476,12 @@ class stzStringReplacer
 	#===============================#
 
 	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
+		# Softanza semantics: replaces ALL open...close pairs
 		pH = @oString.Engine()
-		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, pcReplacement)
-		c = StzEngineStringData(pR)
+		pR = StzEngineStringReplaceAllBetween(pH, pcOpen, pcClose, pcReplacement)
+		_cRbResult_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		@oString.Update(c)
+		@oString.Update(_cRbResult_)
 
 		def ReplaceBetweenQ(pcOpen, pcClose, pcReplacement)
 			This.ReplaceBetween(pcOpen, pcClose, pcReplacement)
@@ -489,6 +490,27 @@ class stzStringReplacer
 	def BetweenReplaced(pcOpen, pcClose, pcReplacement)
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.ReplaceBetween(pcOpen, pcClose, pcReplacement)
+		return _oCopy_.Content()
+
+	  #=======================================#
+	 #     REPLACE FIRST BETWEEN MARKERS     #
+	#=======================================#
+
+	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
+		# Replaces only the FIRST open...close pair
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, pcReplacement)
+		_cRfbResult_ = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(_cRfbResult_)
+
+		def ReplaceFirstBetweenQ(pcOpen, pcClose, pcReplacement)
+			This.ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
+			return This
+
+	def FirstBetweenReplaced(pcOpen, pcClose, pcReplacement)
+		_oCopy_ = new stzStringReplacer(@oString.Content())
+		_oCopy_.ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
 		return _oCopy_.Content()
 
 	  #===============================#

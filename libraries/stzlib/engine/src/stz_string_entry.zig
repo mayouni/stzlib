@@ -54,6 +54,10 @@ comptime {
     // Between / Section
     @export(&string.str_between_cs, .{ .name = "str_between_cs" });
     @export(&string.str_between, .{ .name = "str_between" });
+    @export(&string.str_between_all, .{ .name = "str_between_all" });
+    @export(&string.str_between_all_cs, .{ .name = "str_between_all_cs" });
+    @export(&string.str_replace_all_between, .{ .name = "str_replace_all_between" });
+    @export(&string.str_remove_all_between, .{ .name = "str_remove_all_between" });
     @export(&string.str_section_cp, .{ .name = "str_section_cp" });
 
     @export(&char.stz_char_unicode, .{ .name = "stz_char_unicode" });

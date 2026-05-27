@@ -344,9 +344,12 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
-		_oFinder_ = new stzStringFinder(@oString)
-		aSection = _oFinder_.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
-		This.RemoveSection(aSection[1], aSection[2])
+		# Softanza semantics: removes ALL open...close pairs (engine-backed)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveAllBetween(pH, pcBound1, pcBound2)
+		_cRabResult_ = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(_cRabResult_)
 
 		def RemoveAnyBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
 			This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
@@ -379,6 +382,27 @@ class stzStringRemover
 
 		def BetweenRemoved(pcBound1, pcBound2)
 			return This.AnyBetweenRemoved(pcBound1, pcBound2)
+
+	  #=======================================#
+	 #     REMOVE FIRST BETWEEN MARKERS      #
+	#=======================================#
+
+	def RemoveFirstBetween(pcBound1, pcBound2)
+		# Removes only the FIRST open...close pair
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveBetween(pH, pcBound1, pcBound2)
+		_cRfbResult_ = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(_cRfbResult_)
+
+		def RemoveFirstBetweenQ(pcBound1, pcBound2)
+			This.RemoveFirstBetween(pcBound1, pcBound2)
+			return This
+
+	def FirstBetweenRemoved(pcBound1, pcBound2)
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveFirstBetween(pcBound1, pcBound2)
+		return _oCopy_.Content()
 
 	  #-----------------------------------------------------------#
 	 #   REMOVING BETWEEN TWO SUBSTRINGS -- INCLUDING BOUNDS     #
