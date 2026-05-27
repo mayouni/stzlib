@@ -18,14 +18,11 @@ comptime {
     @export(&string.str_left, .{ .name = "str_left" });
     @export(&string.str_right, .{ .name = "str_right" });
     @export(&string.str_trimmed, .{ .name = "str_trimmed" });
-    @export(&string.str_index_of, .{ .name = "str_index_of" });
-    @export(&string.str_index_of_from, .{ .name = "str_index_of_from" });
     @export(&string.str_byte_to_cp, .{ .name = "str_byte_to_cp" });
     @export(&string.str_count_of, .{ .name = "str_count_of" });
     @export(&string.str_replace_range, .{ .name = "str_replace_range" });
     @export(&string.str_split_count, .{ .name = "str_split_count" });
     @export(&string.str_split_get, .{ .name = "str_split_get" });
-    @export(&string.str_last_index_of, .{ .name = "str_last_index_of" });
     @export(&string.str_contains, .{ .name = "str_contains" });
     @export(&string.str_starts_with, .{ .name = "str_starts_with" });
     @export(&string.str_ends_with, .{ .name = "str_ends_with" });
@@ -42,11 +39,18 @@ comptime {
     @export(&string.str_normalize, .{ .name = "str_normalize" });
     @export(&string.str_strip_marks, .{ .name = "str_strip_marks" });
 
-    // Softanza universal naming convention aliases
+    // Softanza universal naming convention (canonical names only)
     @export(&string.str_find_first, .{ .name = "str_find_first" });
     @export(&string.str_find_first_cs, .{ .name = "str_find_first_cs" });
+    @export(&string.str_find_first_from, .{ .name = "str_find_first_from" });
+    @export(&string.str_find_first_from_cs, .{ .name = "str_find_first_from_cs" });
+    @export(&string.str_find, .{ .name = "str_find" });
+    @export(&string.str_find_cs, .{ .name = "str_find_cs" });
     @export(&string.str_find_last, .{ .name = "str_find_last" });
     @export(&string.str_find_last_cs, .{ .name = "str_find_last_cs" });
+    @export(&string.str_find_nth, .{ .name = "str_find_nth" });
+    @export(&string.str_find_nth_cs, .{ .name = "str_find_nth_cs" });
+    @export(&string.str_find_char, .{ .name = "str_find_char" });
     @export(&string.str_remove, .{ .name = "str_remove" });
     @export(&string.str_remove_cs, .{ .name = "str_remove_cs" });
     @export(&string.str_remove_first, .{ .name = "str_remove_first" });
@@ -73,12 +77,10 @@ comptime {
     @export(&string.str_replace_first_between, .{ .name = "str_replace_first_between" });
     @export(&string.str_replace_nth_between, .{ .name = "str_replace_nth_between" });
     @export(&string.str_replace_last_between, .{ .name = "str_replace_last_between" });
-    @export(&string.str_replace_all_between, .{ .name = "str_replace_all_between" });
     @export(&string.str_remove_between, .{ .name = "str_remove_between" });
     @export(&string.str_remove_first_between, .{ .name = "str_remove_first_between" });
     @export(&string.str_remove_nth_between, .{ .name = "str_remove_nth_between" });
     @export(&string.str_remove_last_between, .{ .name = "str_remove_last_between" });
-    @export(&string.str_remove_all_between, .{ .name = "str_remove_all_between" });
     @export(&string.str_section_cp, .{ .name = "str_section_cp" });
 
     @export(&char.stz_char_unicode, .{ .name = "stz_char_unicode" });

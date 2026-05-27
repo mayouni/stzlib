@@ -719,10 +719,6 @@ pub fn str_replace_last_between(handle: StzStringHandle, open: [*c]const u8, ope
     return str_replace_nth_between(handle, open, open_len, close, close_len, rep, rep_len, total - 1);
 }
 
-// ─── ReplaceAllBetween: alias (base verb already means ALL) ───
-
-/// Alias: str_replace_all_between = str_replace_between (base verb = ALL per Softanza convention)
-pub const str_replace_all_between = str_replace_between;
 
 // ═══════════════════════════════════════════════════════════════
 // ─── REMOVE ──────────────────────────────────────────────────
@@ -771,12 +767,11 @@ pub fn str_remove_range(handle: StzStringHandle, start_cp: usize, cp_count: usiz
     return str_new();
 }
 
-// ─── Remove: base verb = ALL occurrences (Softanza convention) ───
+// ─── Remove (base verb = ALL per Softanza convention) ───
 
 /// Remove all occurrences of `needle` from the string. Returns new handle.
 /// Unified remove with case sensitivity parameter.
-/// Base verb = ALL per Softanza universal naming convention.
-pub fn str_remove_all_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) StzStringHandle {
+pub fn str_remove_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) StzStringHandle {
     if (case == 0) {
         const s = (handle orelse return null);
         _ = s;
@@ -803,18 +798,9 @@ pub fn str_remove_all_cs(handle: StzStringHandle, needle: [*c]const u8, needle_l
     return null;
 }
 
-pub fn str_remove_all(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
-    return str_remove_all_cs(handle, needle, needle_len, 1);
+pub fn str_remove(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
+    return str_remove_cs(handle, needle, needle_len, 1);
 }
-
-// ─── Remove aliases: base verb = ALL per Softanza convention ───
-/// str_remove = str_remove_all (base verb means ALL occurrences)
-pub const str_remove_cs = str_remove_all_cs;
-
-// NOTE: str_remove cannot be a pub const alias because it would clash with
-// the Zig keyword @import resolution. We define it as a thin wrapper.
-// Actually in Zig there's no such clash. Let's use pub const.
-pub const str_remove = str_remove_all;
 
 // ─── RemoveCharAt: remove single codepoint at index ───
 
@@ -888,9 +874,9 @@ pub fn str_remove_consecutive_duplicates(handle: StzStringHandle) callconv(.c) S
     return result;
 }
 
-// ─── RemoveFirst (canonical) / RemoveFirstOccurrence (legacy alias) ───
+// ─── RemoveFirst ───
 
-pub fn str_remove_first_occurrence(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
+pub fn str_remove_first(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
     if (needle == null or needle_len == 0 or needle_len > buf.len) {
@@ -917,12 +903,9 @@ pub fn str_remove_first_occurrence(handle: StzStringHandle, needle: [*c]const u8
     return str_copy(handle);
 }
 
-/// Alias: str_remove_first = str_remove_first_occurrence (short form per Softanza convention)
-pub const str_remove_first = str_remove_first_occurrence;
+// ─── RemoveLast ───
 
-// ─── RemoveLast (canonical) / RemoveLastOccurrence (legacy alias) ───
-
-pub fn str_remove_last_occurrence(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
+pub fn str_remove_last(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
     if (needle == null or needle_len == 0 or needle_len > buf.len) {
@@ -958,12 +941,9 @@ pub fn str_remove_last_occurrence(handle: StzStringHandle, needle: [*c]const u8,
     return str_copy(handle);
 }
 
-/// Alias: str_remove_last = str_remove_last_occurrence (short form per Softanza convention)
-pub const str_remove_last = str_remove_last_occurrence;
+// ─── RemoveNth ───
 
-// ─── RemoveNth (canonical) / RemoveNthOccurrence (legacy alias) ───
-
-pub fn str_remove_nth_occurrence(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) StzStringHandle {
+pub fn str_remove_nth(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
     if (needle == null or needle_len == 0 or n < 0 or needle_len > buf.len) {
@@ -997,9 +977,6 @@ pub fn str_remove_nth_occurrence(handle: StzStringHandle, needle: [*c]const u8, 
     }
     return str_copy(handle);
 }
-
-/// Alias: str_remove_nth = str_remove_nth_occurrence (short form per Softanza convention)
-pub const str_remove_nth = str_remove_nth_occurrence;
 
 // ─── RemovePrefix ───
 
@@ -1075,11 +1052,6 @@ pub fn str_remove_nth_between(handle: StzStringHandle, open: [*c]const u8, open_
 pub fn str_remove_last_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
     return str_replace_last_between(handle, open, open_len, close, close_len, "", 0);
 }
-
-// ─── RemoveAllBetween: alias (base verb already means ALL) ───
-
-/// Alias: str_remove_all_between = str_remove_between (base verb = ALL per Softanza convention)
-pub const str_remove_all_between = str_remove_between;
 
 // ─── RemoveVowels ───
 
@@ -1668,10 +1640,10 @@ test "remove_range" {
     try testing.expectEqualStrings("Hello ", r.?.slice());
 }
 
-test "remove_all" {
+test "remove" {
     const s = str_from("banana", 6);
     defer str_free(s);
-    const r = str_remove_all(s, "an", 2);
+    const r = str_remove(s, "an", 2);
     defer str_free(r);
     try testing.expect(r != null);
     try testing.expectEqualStrings("ba", r.?.slice());
@@ -1713,28 +1685,28 @@ test "replace_between" {
     try testing.expectEqualStrings("hello REPLACED bye", r.?.slice());
 }
 
-test "replace_all_between: multiple pairs" {
+test "replace_between: multiple pairs" {
     const s = str_from("a[x]b[y]c[z]d", 13);
     defer str_free(s);
-    const r = str_replace_all_between(s, "[", 1, "]", 1, "!", 1);
+    const r = str_replace_between(s, "[", 1, "]", 1, "!", 1);
     defer str_free(r);
     try testing.expect(r != null);
     try testing.expectEqualStrings("a!b!c!d", r.?.slice());
 }
 
-test "replace_all_between: no match" {
+test "replace_between: no match" {
     const s = str_from("hello world", 11);
     defer str_free(s);
-    const r = str_replace_all_between(s, "[", 1, "]", 1, "X", 1);
+    const r = str_replace_between(s, "[", 1, "]", 1, "X", 1);
     defer str_free(r);
     try testing.expect(r != null);
     try testing.expectEqualStrings("hello world", r.?.slice());
 }
 
-test "remove_all_between: multiple pairs" {
+test "remove_between: multiple pairs" {
     const s = str_from("a[x]b[y]c", 9);
     defer str_free(s);
-    const r = str_remove_all_between(s, "[", 1, "]", 1);
+    const r = str_remove_between(s, "[", 1, "]", 1);
     defer str_free(r);
     try testing.expect(r != null);
     try testing.expectEqualStrings("abc", r.?.slice());

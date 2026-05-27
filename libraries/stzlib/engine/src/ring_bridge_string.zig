@@ -93,18 +93,18 @@ fn ring_StringTrimmed(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_trimmed(getHandle(p, 1))), STZ_HANDLE);
 }
 
-fn ring_StringIndexOf(p: *anyopaque) callconv(.c) void {
+fn ring_StringFindFirst(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_first(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
-fn ring_StringIndexOfFrom(p: *anyopaque) callconv(.c) void {
+fn ring_StringFindFirstFrom(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const start: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of_from(h, s, len, start)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_first_from(h, s, len, start)));
 }
 
 fn ring_StringByteToCp(p: *anyopaque) callconv(.c) void {
@@ -119,10 +119,10 @@ fn ring_StringCountOf(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_count_of(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
-fn ring_StringLastIndexOf(p: *anyopaque) callconv(.c) void {
+fn ring_StringFindLast(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_last_index_of(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_last(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringContains(p: *anyopaque) callconv(.c) void {
@@ -153,11 +153,11 @@ fn getFindHandle(p: *anyopaque, n: c_int) string.StzFindResultHandle {
     return null;
 }
 
-fn ring_StringFindAll(p: *anyopaque) callconv(.c) void {
+fn ring_StringFind(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all(h, s, len)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find(h, s, len)), FIND_HANDLE);
 }
 
 fn ring_FindResultCount(p: *anyopaque) callconv(.c) void {
@@ -358,11 +358,11 @@ fn ring_StringEquals(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_equals(h1, h2)));
 }
 
-fn ring_StringRemoveAll(p: *anyopaque) callconv(.c) void {
+fn ring_StringRemove(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    const result = string.str_remove_all(h, s, len);
+    const result = string.str_remove(h, s, len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -859,12 +859,12 @@ fn ring_StringSortCharsDesc(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
-// ─── FindAllChar ───
+// ─── FindChar ───
 
-fn ring_StringFindAllChar(p: *anyopaque) callconv(.c) void {
+fn ring_StringFindChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all_char(h, cp)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_char(h, cp)), FIND_HANDLE);
 }
 
 // ─── DuplicateSubstringsCS ───
@@ -1433,32 +1433,32 @@ fn ring_StringCompare(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_compare(h1, h2)));
 }
 
-// ─── RemoveFirstOccurrence ───
+// ─── RemoveFirst ───
 
-fn ring_StringRemoveFirstOccurrence(p: *anyopaque) callconv(.c) void {
+fn ring_StringRemoveFirst(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const needle = ring_vm_api_getstring(p, 2);
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_first_occurrence(h, needle, needle_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_first(h, needle, needle_len)), STZ_HANDLE);
 }
 
-// ─── RemoveLastOccurrence ───
+// ─── RemoveLast ───
 
-fn ring_StringRemoveLastOccurrence(p: *anyopaque) callconv(.c) void {
+fn ring_StringRemoveLast(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const needle = ring_vm_api_getstring(p, 2);
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_last_occurrence(h, needle, needle_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_last(h, needle, needle_len)), STZ_HANDLE);
 }
 
-// ─── RemoveNthOccurrence ───
+// ─── RemoveNth ───
 
-fn ring_StringRemoveNthOccurrence(p: *anyopaque) callconv(.c) void {
+fn ring_StringRemoveNth(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const needle = ring_vm_api_getstring(p, 2);
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_nth_occurrence(h, needle, needle_len, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_nth(h, needle, needle_len, n)), STZ_HANDLE);
 }
 
 // ─── IsCharsSortedAsc ───
@@ -1613,13 +1613,13 @@ fn ring_StringRemoveBetween(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_between(h, open, open_len, close, close_len)), STZ_HANDLE);
 }
 
-fn ring_StringRemoveAllBetween(p: *anyopaque) callconv(.c) void {
+fn ring_StringRemoveBetweenAll(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const open = ring_vm_api_getstring(p, 2);
     const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const close = ring_vm_api_getstring(p, 3);
     const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_all_between(h, open, open_len, close, close_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_between(h, open, open_len, close, close_len)), STZ_HANDLE);
 }
 
 fn ring_StringRemoveFirstBetween(p: *anyopaque) callconv(.c) void {
@@ -1657,7 +1657,7 @@ fn ring_StringReplaceBetween(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
 }
 
-fn ring_StringReplaceAllBetween(p: *anyopaque) callconv(.c) void {
+fn ring_StringReplaceBetweenAll(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const open = ring_vm_api_getstring(p, 2);
     const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
@@ -1665,7 +1665,7 @@ fn ring_StringReplaceAllBetween(p: *anyopaque) callconv(.c) void {
     const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
     const rep = ring_vm_api_getstring(p, 4);
     const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_all_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
 }
 
 fn ring_StringReplaceFirstBetween(p: *anyopaque) callconv(.c) void {
@@ -2683,37 +2683,37 @@ fn ring_StringWordNgrams(p: *anyopaque) callconv(.c) void {
 
 // ─── CS Unified Functions ───
 
-fn ring_StringIndexOfCS(p: *anyopaque) callconv(.c) void {
+fn ring_StringFindFirstCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of_cs(h, s, l, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_first_cs(h, s, l, case)));
 }
 
-fn ring_StringIndexOfFromCS(p: *anyopaque) callconv(.c) void {
+fn ring_StringFindFirstFromCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const start: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of_from_cs(h, s, l, start, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_first_from_cs(h, s, l, start, case)));
 }
 
-fn ring_StringFindAllCS(p: *anyopaque) callconv(.c) void {
+fn ring_StringFindCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all_cs(h, s, l, case)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_cs(h, s, l, case)), FIND_HANDLE);
 }
 
-fn ring_StringLastIndexOfCS(p: *anyopaque) callconv(.c) void {
+fn ring_StringFindLastCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_last_index_of_cs(h, s, l, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_last_cs(h, s, l, case)));
 }
 
 fn ring_StringCountOfCS(p: *anyopaque) callconv(.c) void {
@@ -2774,12 +2774,12 @@ fn ring_StringReplaceCS(p: *anyopaque) callconv(.c) void {
     string.str_replace_cs(h, old, ol, new, nl, case);
 }
 
-fn ring_StringRemoveAllCS(p: *anyopaque) callconv(.c) void {
+fn ring_StringRemoveCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_all_cs(h, s, l, case)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_cs(h, s, l, case)), STZ_HANDLE);
 }
 
 fn ring_StringSplitCountCS(p: *anyopaque) callconv(.c) void {
@@ -3146,17 +3146,15 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringinsert", .func = &ring_StringInsert },
     .{ .name = "stzenginestringmid", .func = &ring_StringMid },
     .{ .name = "stzenginestringtrimmed", .func = &ring_StringTrimmed },
-    .{ .name = "stzenginestringindexof", .func = &ring_StringIndexOf },
-    .{ .name = "stzenginestringfindfirst", .func = &ring_StringIndexOf },
-    .{ .name = "stzenginestringindexoffrom", .func = &ring_StringIndexOfFrom },
+    .{ .name = "stzenginestringfindfirst", .func = &ring_StringFindFirst },
+    .{ .name = "stzenginestringfindfirstfrom", .func = &ring_StringFindFirstFrom },
     .{ .name = "stzenginestringbytetocp", .func = &ring_StringByteToCp },
     .{ .name = "stzenginestringcountof", .func = &ring_StringCountOf },
-    .{ .name = "stzenginestringlastindexof", .func = &ring_StringLastIndexOf },
-    .{ .name = "stzenginestringfindlast", .func = &ring_StringLastIndexOf },
+    .{ .name = "stzenginestringfindlast", .func = &ring_StringFindLast },
     .{ .name = "stzenginestringcontains", .func = &ring_StringContains },
     .{ .name = "stzenginestringstartswith", .func = &ring_StringStartsWith },
     .{ .name = "stzenginestringendswith", .func = &ring_StringEndsWith },
-    .{ .name = "stzenginestringfindall", .func = &ring_StringFindAll },
+    .{ .name = "stzenginestringfind", .func = &ring_StringFind },
     .{ .name = "stzenginefindresultcount", .func = &ring_FindResultCount },
     .{ .name = "stzenginefindresultget", .func = &ring_FindResultGet },
     .{ .name = "stzenginefindresultfree", .func = &ring_FindResultFree },
@@ -3203,8 +3201,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringinsertcp", .func = &ring_StringInsertCp },
     .{ .name = "stzenginestringleftcp", .func = &ring_StringLeftCp },
     .{ .name = "stzenginestringrightcp", .func = &ring_StringRightCp },
-    .{ .name = "stzenginestringremoveall", .func = &ring_StringRemoveAll },
-    .{ .name = "stzenginestringremove", .func = &ring_StringRemoveAll },
+    .{ .name = "stzenginestringremove", .func = &ring_StringRemove },
+    .{ .name = "stzenginestringremove", .func = &ring_StringRemove },
     .{ .name = "stzenginestringlinescount", .func = &ring_StringLinesCount },
     .{ .name = "stzenginestringispalindrome", .func = &ring_StringIsPalindrome },
     .{ .name = "stzenginestringconcat", .func = &ring_StringConcat },
@@ -3261,7 +3259,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcommonsuffix", .func = &ring_StringCommonSuffix },
     .{ .name = "stzenginestringsortcharsasc", .func = &ring_StringSortCharsAsc },
     .{ .name = "stzenginestringsortcharsdesc", .func = &ring_StringSortCharsDesc },
-    .{ .name = "stzenginestringfindallchar", .func = &ring_StringFindAllChar },
+    .{ .name = "stzenginestringfindchar", .func = &ring_StringFindChar },
     .{ .name = "stzenginestringduplicatesubstringscs", .func = &ring_StringDuplicateSubstringsCS },
     .{ .name = "stzenginestringhash", .func = &ring_StringHash },
     .{ .name = "stzenginestringsha256", .func = &ring_StringSha256 },
@@ -3279,13 +3277,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringreplacechar", .func = &ring_StringReplaceChar },
     .{ .name = "stzenginestringcopy", .func = &ring_StringCopy },
     .{ .name = "stzenginestringcompare", .func = &ring_StringCompare },
-    .{ .name = "stzenginestringremovefirstoccurrence", .func = &ring_StringRemoveFirstOccurrence },
-    .{ .name = "stzenginestringremovelastoccurrence", .func = &ring_StringRemoveLastOccurrence },
-    .{ .name = "stzenginestringremoventhoccurrence", .func = &ring_StringRemoveNthOccurrence },
-    // Short-form aliases per Softanza universal naming convention
-    .{ .name = "stzenginestringremovefirst", .func = &ring_StringRemoveFirstOccurrence },
-    .{ .name = "stzenginestringremovelast", .func = &ring_StringRemoveLastOccurrence },
-    .{ .name = "stzenginestringremoventh", .func = &ring_StringRemoveNthOccurrence },
+    .{ .name = "stzenginestringremovefirst", .func = &ring_StringRemoveFirst },
+    .{ .name = "stzenginestringremovelast", .func = &ring_StringRemoveLast },
+    .{ .name = "stzenginestringremoventh", .func = &ring_StringRemoveNth },
     .{ .name = "stzenginestringischarssortedasc", .func = &ring_StringIsCharsSortedAsc },
     .{ .name = "stzenginestringischarssorteddesc", .func = &ring_StringIsCharsSortedDesc },
     .{ .name = "stzenginestringrepeatchar", .func = &ring_StringRepeatChar },
@@ -3360,12 +3354,12 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringrotate", .func = &ring_StringRotate },
     .{ .name = "stzenginestringrepeattolength", .func = &ring_StringRepeatToLength },
     .{ .name = "stzenginestringremovebetween", .func = &ring_StringRemoveBetween },
-    .{ .name = "stzenginestringremoveallbetween", .func = &ring_StringRemoveAllBetween },
+    .{ .name = "stzenginestringremovebetweenall", .func = &ring_StringRemoveBetweenAll },
     .{ .name = "stzenginestringisblank", .func = &ring_StringIsBlank },
     .{ .name = "stzenginestringtopascalcase", .func = &ring_StringToPascalCase },
     .{ .name = "stzenginestringisidentifier", .func = &ring_StringIsIdentifier },
     .{ .name = "stzenginestringreplacebetween", .func = &ring_StringReplaceBetween },
-    .{ .name = "stzenginestringreplaceallbetween", .func = &ring_StringReplaceAllBetween },
+    .{ .name = "stzenginestringreplacebetweenall", .func = &ring_StringReplaceBetweenAll },
     .{ .name = "stzenginestringcontainsonly", .func = &ring_StringContainsOnly },
     .{ .name = "stzenginestringcapitalizewords", .func = &ring_StringCapitalizeWords },
     .{ .name = "stzenginestringswapchars", .func = &ring_StringSwapChars },
@@ -3546,12 +3540,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcharngrams", .func = &ring_StringCharNgrams },
     .{ .name = "stzenginestringwordngrams", .func = &ring_StringWordNgrams },
     // CS unified functions (13)
-    .{ .name = "stzenginestringindexofcs", .func = &ring_StringIndexOfCS },
-    .{ .name = "stzenginestringfindfirstcs", .func = &ring_StringIndexOfCS },
-    .{ .name = "stzenginestringindexoffromcs", .func = &ring_StringIndexOfFromCS },
-    .{ .name = "stzenginestringfindallcs", .func = &ring_StringFindAllCS },
-    .{ .name = "stzenginestringlastindexofcs", .func = &ring_StringLastIndexOfCS },
-    .{ .name = "stzenginestringfindlastcs", .func = &ring_StringLastIndexOfCS },
+    .{ .name = "stzenginestringfindfirstcs", .func = &ring_StringFindFirstCS },
+    .{ .name = "stzenginestringfindfirstfromcs", .func = &ring_StringFindFirstFromCS },
+    .{ .name = "stzenginestringfindcs", .func = &ring_StringFindCS },
+    .{ .name = "stzenginestringfindlastcs", .func = &ring_StringFindLastCS },
     .{ .name = "stzenginestringcountofcs", .func = &ring_StringCountOfCS },
     .{ .name = "stzenginestringcontainscs", .func = &ring_StringContainsCS },
     .{ .name = "stzenginestringstartswithcs", .func = &ring_StringStartsWithCS },
@@ -3559,8 +3551,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringequalscs", .func = &ring_StringEqualsCS },
     .{ .name = "stzenginestringfindnthcs", .func = &ring_StringFindNthCS },
     .{ .name = "stzenginestringreplacecs", .func = &ring_StringReplaceCS },
-    .{ .name = "stzenginestringremoveallcs", .func = &ring_StringRemoveAllCS },
-    .{ .name = "stzenginestringremovecs", .func = &ring_StringRemoveAllCS },
+    .{ .name = "stzenginestringremovecs", .func = &ring_StringRemoveCS },
     .{ .name = "stzenginestringsplitcountcs", .func = &ring_StringSplitCountCS },
     .{ .name = "stzenginestringsplitgetcs", .func = &ring_StringSplitGetCS },
     .{ .name = "stzenginestringallsubstringscs", .func = &ring_StringAllSubstringsCS },
