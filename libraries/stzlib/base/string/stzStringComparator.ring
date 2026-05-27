@@ -313,3 +313,27 @@ class stzStringComparator
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c
+
+	  #======================================================#
+	 #   JARO / JARO-WINKLER SIMILARITY                     #
+	#======================================================#
+
+	def JaroSimilarityWith(pcOtherStr)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		n = StzEngineStringJaro(pH, pH2)
+		StzEngineStringFree(pH2)
+		return n
+
+		def JaroDistanceWith(pcOtherStr)
+			return This.JaroSimilarityWith(pcOtherStr)
+
+	def JaroWinklerSimilarityWith(pcOtherStr)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		n = StzEngineStringJaroWinkler(pH, pH2)
+		StzEngineStringFree(pH2)
+		return n
+
+		def JaroWinklerDistanceWith(pcOtherStr)
+			return This.JaroWinklerSimilarityWith(pcOtherStr)

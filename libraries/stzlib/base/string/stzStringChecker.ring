@@ -547,3 +547,21 @@ class stzStringChecker
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c
+
+	  #===============================#
+	 #     NUMERIC / ALPHA CHECKS    #
+	#===============================#
+
+	def IsNumericString()
+		pH = @oString.Engine()
+		return StzEngineStringIsNumeric(pH)
+
+		def IsANumber()
+			return This.IsNumericString()
+
+	def IsAlphaString()
+		pH = @oString.Engine()
+		return StzEngineStringIsAlpha(pH)
+
+		def IsAllLetters()
+			return This.IsAlphaString()
