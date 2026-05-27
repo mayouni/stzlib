@@ -42,6 +42,17 @@ comptime {
     @export(&string.str_normalize, .{ .name = "str_normalize" });
     @export(&string.str_strip_marks, .{ .name = "str_strip_marks" });
 
+    // Softanza universal naming convention aliases
+    @export(&string.str_find_first, .{ .name = "str_find_first" });
+    @export(&string.str_find_first_cs, .{ .name = "str_find_first_cs" });
+    @export(&string.str_find_last, .{ .name = "str_find_last" });
+    @export(&string.str_find_last_cs, .{ .name = "str_find_last_cs" });
+    @export(&string.str_remove, .{ .name = "str_remove" });
+    @export(&string.str_remove_cs, .{ .name = "str_remove_cs" });
+    @export(&string.str_remove_first, .{ .name = "str_remove_first" });
+    @export(&string.str_remove_last, .{ .name = "str_remove_last" });
+    @export(&string.str_remove_nth, .{ .name = "str_remove_nth" });
+
     // Regex integration (Phase E)
     @export(&string.str_regex_is_match, .{ .name = "str_regex_is_match" });
     @export(&string.str_regex_count, .{ .name = "str_regex_count" });
