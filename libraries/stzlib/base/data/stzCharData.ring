@@ -2514,6 +2514,28 @@ _cMarquerChar = "#"
 		func @InvisibleCharsNames()
 			return InvisibleCharsNames()
 
+	#---------------------------------------------------------#
+	#  GETTING THE UNICODE NAMES OF A LIST OF CHARS/UNICODES  #
+	#---------------------------------------------------------#
+
+	func CharsNames(acChars)
+		_nLen_ = len(acChars)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			_aResult_ + StzCharNameByUnicode(StzUnicode(acChars[_i_]))
+		next
+		return _aResult_
+
+	func UnicodesNames(anUnicodes)
+		_nLen_ = len(anUnicodes)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			_aResult_ + StzCharNameByUnicode(anUnicodes[_i_])
+		next
+		return _aResult_
+
+	#---
+
 	func NumberOfCharsInUnicode()
 		return _nNumberOfCharsInUnicode
 

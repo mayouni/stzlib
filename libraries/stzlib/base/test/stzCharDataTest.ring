@@ -29,11 +29,12 @@ anSomeUnicodes = NRandomNumbersIn( 5, InvisibleUnicodes() )
 # ]
 
  pf()
+# Executed in almost 0 second(s) in Ring 1.26 (Backed by StzEngine)
 # Executed in 0.15 second(s) in Ring 1.23
 # Executed in 0.28 second(s) in Ring 1.21
 
 /*-----------
-
+*/
 pr()
 
 ? ShowShort(
@@ -46,6 +47,8 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*------------
+
+pr()
 
 # Do you knwo how many punctuation chars are theer in Unicode?
 ? NumberOfPunctuationChars()
@@ -73,6 +76,7 @@ pf()
 #--> [ "ⷶ", "ⷷ", "ⷸ", "...", "⹽", "⹾", "⹿" ]
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.26 (Backed by StzEngine)
 # Executed in 1.85 second(s) in Ring 1.23
 
 /*--------------

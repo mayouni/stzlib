@@ -862,12 +862,12 @@ class stzStringChar from stzObject
 		ok
 
 	def Name()
-		cHex = DecimalToHex( This.Unicode() )
-		cResult = StzUnicodeDataQ().CharNameByHexCode(cHex)
-		if cResult = ""
+		# Engine SQLite lookup — O(1) indexed query
+		_cResult_ = StzCharNameByUnicode(This.Unicode())
+		if _cResult_ = ""
 			StzRaise("Can't proceed! The name of this char (" + This.Content() + ") does not exist in the local unicode database.")
 		ok
-		return cResult
+		return _cResult_
 
 		def UnicodeName()
 			return This.Name()

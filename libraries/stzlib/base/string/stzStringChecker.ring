@@ -238,6 +238,9 @@ class stzStringChecker
 		pH = @oString.Engine()
 		return StzEngineStringIsFloat(pH)
 
+		def RepresentsNumberInDecimalForm()
+			return This.RepresentsDecimalNumber()
+
 	def RepresentsBinaryNumber()
 		# Requires 0b/0B prefix per Softanza convention
 		cContent = @oString.Content()
@@ -251,6 +254,9 @@ class stzStringChecker
 		pH = @oString.Engine()
 		return StzEngineStringIsBinaryString(pH)
 
+		def RepresentsNumberInBinaryForm()
+			return This.RepresentsBinaryNumber()
+
 	def RepresentsHexNumber()
 		# Requires 0x/0X prefix per Softanza convention
 		cContent = @oString.Content()
@@ -263,6 +269,23 @@ class stzStringChecker
 		ok
 		pH = @oString.Engine()
 		return StzEngineStringIsHexString(pH)
+
+		def RepresentsNumberInHexForm()
+			return This.RepresentsHexNumber()
+
+	def RepresentsNumberInUnicodeHexForm()
+		# Checks for "U+XXXX" format
+		cContent = @oString.Content()
+		_nLen_ = StzLen(cContent)
+		if _nLen_ < 3
+			return 0
+		ok
+		_cPrefix_ = StzUpper(StzLeft(cContent, 2))
+		if _cPrefix_ != "U+"
+			return 0
+		ok
+		_cHexPart_ = StzRight(cContent, _nLen_ - 2)
+		return StringRepresentsNumberInHexForm("0x" + _cHexPart_)
 
 	  #===============================#
 	 #     REVERSED COPY             #
@@ -412,6 +435,9 @@ class stzStringChecker
 		ok
 		pH = @oString.Engine()
 		return StzEngineStringIsOctalString(pH)
+
+		def RepresentsNumberInOctalForm()
+			return This.RepresentsOctalNumber()
 
 	def IsIdentifier()
 		pH = @oString.Engine()
