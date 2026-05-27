@@ -13,6 +13,8 @@ comptime {
     @export(&unicode_data.stz_unidata_chars_in_range, .{ .name = "stz_unidata_chars_in_range" });
     @export(&unicode_data.stz_unidata_count, .{ .name = "stz_unidata_count" });
     @export(&unicode_data.stz_unidata_char_info, .{ .name = "stz_unidata_char_info" });
+    @export(&unicode_data.stz_unidata_codepoint_by_name, .{ .name = "stz_unidata_codepoint_by_name" });
+    @export(&unicode_data.stz_unidata_contains_name, .{ .name = "stz_unidata_contains_name" });
 }
 
 comptime {

@@ -287,6 +287,13 @@ class stzStringChecker
 		_cHexPart_ = StzRight(cContent, _nLen_ - 2)
 		return StringRepresentsNumberInHexForm("0x" + _cHexPart_)
 
+	def IsCharName()
+		# Engine SQLite lookup — checks if this string is a valid Unicode char name
+		return StzUnicodeContainsName(This.Content())
+
+		def IsACharName()
+			return This.IsCharName()
+
 	  #===============================#
 	 #     REVERSED COPY             #
 	#===============================#

@@ -92,6 +92,12 @@ func StzUnicodeCharsInRange(nFrom, nTo)
 func StzUnicodeCharCount()
     return StzEngineUnidataCount()
 
+func StzCodepointByName(cName)
+    return StzEngineUnidataCodepointByName(cName)
+
+func StzUnicodeContainsName(cName)
+    return StzEngineUnidataContainsName(cName)
+
 #TODO Read this discussion:
 # https://groups.google.com/g/ring-lang/c/yCGeILp49O4/m/FWC5XWpsAQAJ
 
@@ -634,13 +640,29 @@ func UnicodeBlocksContainingXT(pcStr)
 
 
 func CharsContainingInTheirName(pcPartOfName)
-	oUnicodeData = new stzUnicodeData()
-	acResult = oUnicodeData.CharsContaining(pcPartOfName)
-	return acResult
+	# Engine SQLite LIKE search — returns "HEX;NAME\n" lines
+	_cResult_ = StzUnicodeFindByName(pcPartOfName)
+	if _cResult_ = ""
+		return []
+	ok
+	_aLines_ = split(_cResult_, nl)
+	_nLen_ = len(_aLines_)
+	_acResult_ = []
+	for _i_ = 1 to _nLen_
+		if _aLines_[_i_] != ""
+			# Each line is "HEX;NAME" — extract the hex, convert to char
+			_nSemicolon_ = ring_substr1(_aLines_[_i_], ";")
+			if _nSemicolon_ > 0
+				_cHex_ = ring_left(_aLines_[_i_], _nSemicolon_ - 1)
+				_nCodepoint_ = dec("0x" + _cHex_)
+				_acResult_ + StzChar(_nCodepoint_)
+			ok
+		ok
+	next
+	return _acResult_
 
 	func CharsContaining(pcPartOfName)
 		return CharsContainingInTheirName(pcPartOfName)
-
 
 	func @CharsContainingInTheirName(pcPartOfName)
 		return CharsContainingInTheirName(pcPartOfName)
@@ -650,68 +672,72 @@ func CharsContainingInTheirName(pcPartOfName)
 
 
 func CharsNamesContaining(pcPartOfName)
-	oUnicodeData = new stzUnicodeData()
-	acResult = oUnicodeData.CharsNamesContaining(pcPartOfName)
-	return acResult
+	# Engine SQLite LIKE search — returns "HEX;NAME\n" lines
+	_cResult_ = StzUnicodeFindByName(pcPartOfName)
+	if _cResult_ = ""
+		return []
+	ok
+	_aLines_ = split(_cResult_, nl)
+	_nLen_ = len(_aLines_)
+	_acResult_ = []
+	for _i_ = 1 to _nLen_
+		if _aLines_[_i_] != ""
+			_nSemicolon_ = ring_substr1(_aLines_[_i_], ";")
+			if _nSemicolon_ > 0
+				_acResult_ + ring_substr2(_aLines_[_i_], _nSemicolon_ + 1)
+			ok
+		ok
+	next
+	return _acResult_
 
 	func CharNamesContaining(pcPartOfName)
-		return CharsContainingInTheirName(pcPartOfName)
+		return CharsNamesContaining(pcPartOfName)
 
 	func @CharsNamesContaining(pcPartOfName)
-		return CharsContainingInTheirName(pcPartOfName)
+		return CharsNamesContaining(pcPartOfName)
 
 	func @CharNamesContaining(pcPartOfName)
-		return CharsContainingInTheirName(pcPartOfName)
+		return CharsNamesContaining(pcPartOfName)
 
 
 class stzUnicodeData
-	@oStzStrUnicodeData
+	# All methods now delegate to engine SQLite — no text file needed
 
 	def init()
-		@oStzStrUnicodeData = new stzString( UnicodeData() )
-
-	def UnicodeStringObject()
-		return @oStzStrUnicodeData
+		# Nothing to load — engine handles the database internally
 
 	def ContainsCharName(pcCharName)
-		if This.FindCharName(pcCharName) > 0
-			return 1
-		else
-			return 0
-		ok
+		return StzUnicodeContainsName(pcCharName)
 
 		def ContainsName(pcCharName)
-			return This.ContainsCharName()
+			return This.ContainsCharName(pcCharName)
 
 	def FindCharName(pcCharName)
+		# Returns 1 if found, 0 if not (position is meaningless with engine)
 		if NOT isString(pcCharName)
 			StzRaise("Incorrect param type! pcCharName must be a string.")
 		ok
-
-		pcCharName = Q(pcCharName).Uppercased()
-
-		nPos = @oStzStrUnicodeData.FindFirstCS( pcCharName, 0 )
-		return nPos
+		return StzUnicodeContainsName(pcCharName)
 
 		def FindcharByName(pcCharName)
 			return This.FindCharName(pcCharName)
 
 	def SearchCharName(pcCharName)
-		return @oStzStrUnicodeData.FindAllCS( pcCharName, 0 )
+		# Returns names containing the search term
+		return CharsNamesContaining(pcCharName)
 
 		def SearchForCharName(pcCharName)
-			return SearchCharName(pcCharName)
+			return This.SearchCharName(pcCharName)
 
 		def SearchCharByName(pcCharName)
-			return SearchCharName(pcCharName)
-
+			return This.SearchCharName(pcCharName)
 
 	def CharByName(pcCharName)
-		cHex = This.CharHexCodeByName(pcCharName)
-		nUnicode = HexToDecimal( cHex )
-
-		cChar = StzCharQ(nUnicode).Content()
-		return cChar
+		_nCp_ = StzCodepointByName(pcCharName)
+		if _nCp_ < 0
+			StzRaise("Character name not found: " + pcCharName)
+		ok
+		return StzChar(_nCp_)
 
 	def CharHexCodeByName(pcCharName)
 		if CheckingParams()
@@ -719,114 +745,52 @@ class stzUnicodeData
 				StzRaise("Incorrect param type! pcCharName must be a string.")
 			ok
 		ok
-
-		pcCharName = StzUpper(pcCharName)
-		n = This.FindCharName(";"+ pcCharName + ";")
-
-		if n > 0
-			n2 = n - 1
-			n1 = @oStzStrUnicodeData.PreviousOccurrence(NL, n) + 1
-			cHex = HexPrefix() + @oStzStrUnicodeData.Section(n1, n2)
-
-			return cHex
-		else
-			return HexPrefix() 
+		_nCp_ = StzCodepointByName(pcCharName)
+		if _nCp_ < 0
+			return HexPrefix()
 		ok
+		return HexPrefix() + upper(hex(_nCp_))
 
 	def CharUnicodeByName(pcCharName)
-		return StzHexNumberQ( This.CharHexCodeByName(pcCharName) ).ToDecimal()
+		return StzCodepointByName(pcCharName)
 
 		def CharDecimalCodeByName(pcCharName)
 			return This.CharUnicodeByName(pcCharName)
 
 	def CharByHexCode(pcHex)
-		cHex = StzHexNumberQ(pcHex).WithoutPrefix()
-		if @oStzStrUnicodeData.Contains(NL + cHex + ";")
-			nUnicode = StzHexNumberQ(pcHex).ToDecimal()
-			return StzCharQ(nUnicode).Content()
+		_cHex_ = pcHex
+		# Strip prefix if present
+		if len(_cHex_) > 2
+			_cPfx_ = ring_left(_cHex_, 2)
+			if _cPfx_ = "0x" or _cPfx_ = "0X"
+				_cHex_ = ring_substr2(_cHex_, 3)
+			ok
 		ok
+		_nUnicode_ = dec("0x" + _cHex_)
+		return StzChar(_nUnicode_)
 
 	def CharByUnicode(nUnicode)
-		cHex = StzNumberQ(nUnicode).ToHex()
-		return This.CharByHexCode(cHex)
+		return StzChar(nUnicode)
 
 		def CharByDecimalCode(nUnicode)
 			return This.CharByUnicode(nUnicode)
 
 	def CharNameByHexCode(pcHex)
-
 		# Strip hex prefix if present
 		_cHex_ = pcHex
-		if StzLen(_cHex_) > 2
-			_cPfx_ = StzLeft(_cHex_, 2)
+		if len(_cHex_) > 2
+			_cPfx_ = ring_left(_cHex_, 2)
 			if _cPfx_ = "0x" or _cPfx_ = "0X"
-				_cHex_ = StzRight(_cHex_, StzLen(_cHex_) - 2)
+				_cHex_ = ring_substr2(_cHex_, 3)
 			ok
 		ok
-
 		if _cHex_ = ""
 			return ""
 		ok
-
-		_cHex_ = upper(_cHex_)
-
-		switch len(_cHex_)
-		on 3
-			_cHex_ = "0" + _cHex_
-		on 2
-			_cHex_ = "00" + _cHex_
-		on 1
-			_cHex_ = "000" + _cHex_
-		off
-
-		# Use engine to search the unicode data string
-		_cSearch_ = NL + _cHex_ + ";"
-		_pDataH_ = @oStzStrUnicodeData.Engine()
-		_n_ = StzEngineStringFindFirstCS(_pDataH_, _cSearch_, 1)
-
-		if _n_ = 0
-			return ""
-		ok
-
-		_n_ = _n_ + 1	# To compensate the NL
-
-		# Use engine to get the raw data content
-		_cData_ = @oStzStrUnicodeData.Content()
-
-		# Find start of the char name (after the first ";" following the hex code)
-		_bContinue_ = 1
-		_i_ = 0
-
-		while _bContinue_
-			_i_++
-			_c_ = substr(_cData_, _n_ + _i_, 1)
-
-			if _c_ = ";"
-				_n1_ = _n_ + _i_ + 1
-				_bContinue_ = 0
-			ok
-		end
-
-		# Find end of the char name (before the next ";")
-		_n_ = _n1_
-		_bContinue_ = 1
-		_i_ = 0
-
-		while _bContinue_
-			_i_++
-			_c_ = substr(_cData_, _n_ + _i_, 1)
-
-			if _c_ = ";"
-				_n2_ = _n_ + _i_ - 1
-				_bContinue_ = 0
-			ok
-		end
-
-		_cResult_ = substr(_cData_, _n1_, _n2_ - _n1_ + 1)
-		return _cResult_
+		_nCp_ = dec("0x" + _cHex_)
+		return StzCharNameByUnicode(_nCp_)
 
 	def CharNameByUnicode(nUnicode)
-		# Engine SQLite lookup — O(1) indexed query
 		return StzCharNameByUnicode(nUnicode)
 
 	#==
@@ -837,47 +801,54 @@ class stzUnicodeData
 				StzRaise("Incorrect param type! cPartOfName must be a string.")
 			ok
 		ok
-
-		cPartOfName = StzUpper(cPartOfName)
-		acLines = @oStzStrUnicodeData.split(NL)
-		nLen = len(acLines)
-
-		anResult = []
-
-		for i = 1 to nLen
-			if ring_substr1(acLines[i], cPartOfName) > 0
-				cHex = ""
-				n = 1
-				while 1
-					if acLines[i][n] = ";"
-						exit
-					else
-						cHex += acLines[i][n]
-						n++
-					ok
-				end
-				anResult + dec( "0x" + cHex )
-		
+		# Engine SQLite LIKE search — returns "HEX;NAME\n" lines
+		_cResult_ = StzUnicodeFindByName(cPartOfName)
+		if _cResult_ = ""
+			return []
+		ok
+		_aLines_ = split(_cResult_, nl)
+		_nLen_ = len(_aLines_)
+		_anResult_ = []
+		for _i_ = 1 to _nLen_
+			if _aLines_[_i_] != ""
+				_nSemicolon_ = ring_substr1(_aLines_[_i_], ";")
+				if _nSemicolon_ > 0
+					_cHex_ = ring_left(_aLines_[_i_], _nSemicolon_ - 1)
+					_anResult_ + dec("0x" + _cHex_)
+				ok
 			ok
 		next
-
-		return anResult
+		return _anResult_
 
 	def CharsContaining(cPartOfName)
-		acResult = UnicodesToChars( This.UnicodesOfCharsContaining(cPartOfName) )
-		return acResult
+		return CharsContainingInTheirName(cPartOfName)
 
 	def CharsNamesContaining(pcPartOfName)
-		acResult = @CharsNames( This.CharsContaining(pcPartOfName) )
-		return acResult
+		return CharNamesContaining(pcPartOfName)
 
 		def CharNamesContaining(pcPartOfName)
-			return This.CharsNamesContaining(pcPartOfName)
+			# Delegates to the global function already engine-backed
+			_cResult_ = StzUnicodeFindByName(pcPartOfName)
+			if _cResult_ = ""
+				return []
+			ok
+			_aLines_ = split(_cResult_, nl)
+			_nLen_ = len(_aLines_)
+			_acResult_ = []
+			for _i_ = 1 to _nLen_
+				if _aLines_[_i_] != ""
+					_nSemicolon_ = ring_substr1(_aLines_[_i_], ";")
+					if _nSemicolon_ > 0
+						_acResult_ + ring_substr2(_aLines_[_i_], _nSemicolon_ + 1)
+					ok
+				ok
+			next
+			return _acResult_
 
 	#==
 
 	def NumberOfUnicodeChars()
-		return @oStzStrUnicodeData.NumberOfLines()
+		return StzUnicodeCharCount()
 
 		def NumberOfChars()
 			return This.NumberOfUnicodeChars()

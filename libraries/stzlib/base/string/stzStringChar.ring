@@ -663,7 +663,11 @@ func StzIsVowel(p)
 		return StzIsVowel(p)
 
 func StzCharByName(cName)
-	return StzUnicodeDataQ().CharByName(cName)
+	_nCp_ = StzCodepointByName(cName)
+	if _nCp_ < 0
+		StzRaise("Character name not found: " + cName)
+	ok
+	return StzChar(_nCp_)
 
 	func CharByName(cName)
 		return StzCharByName(cName)
@@ -702,7 +706,7 @@ class stzStringChar from stzObject
 				@oString = new stzString(StzEngineCharToUtf8(_nCiUni_))
 
 			but oStr.IsCharName()
-				_nCnUni_ = StzUnicodeDataQ().CharUnicodeByName(pChar)
+				_nCnUni_ = StzCodepointByName(pChar)
 				@oString = new stzString(StzEngineCharToUtf8(_nCnUni_))
 
 			else
