@@ -569,7 +569,7 @@ class stzStringReplacer
 
 	def RemoveNthOccurrenceEngine(n, pcSubStr)
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveNthOccurrence(pH, pcSubStr, n)
+		pR = StzEngineStringRemoveNth(pH, pcSubStr, n)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		@oString.Update(c)

@@ -86,16 +86,11 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveNthCS(n, pcSubStr, pCaseSensitive)
-		# Find nth position then remove by section
-		# (cannot delegate to Replacer — Ring copies objects,
-		#  so shared @oString causes use-after-free on engine handle)
-		_oFinder_ = new stzStringFinder(@oString.Content())
-		nPos = _oFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
-		if nPos = 0
-			return
-		ok
-		nLenOld = StzLen(pcSubStr)
-		This.RemoveSection(nPos, nPos + nLenOld - 1)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveNth(pH, pcSubStr, n)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveNthCSQ(n, pcSubStr, pCaseSensitive)
 			This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
@@ -122,7 +117,7 @@ class stzStringRemover
 
 	def RemoveFirstCS(pcSubStr, pCaseSensitive)
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveFirstOccurrence(pH, pcSubStr)
+		pR = StzEngineStringRemoveFirst(pH, pcSubStr)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		@oString.Update(c)
@@ -150,7 +145,7 @@ class stzStringRemover
 
 	def RemoveLastCS(pcSubStr, pCaseSensitive)
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveLastOccurrence(pH, pcSubStr)
+		pR = StzEngineStringRemoveLast(pH, pcSubStr)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		@oString.Update(c)
@@ -503,20 +498,11 @@ class stzStringRemover
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = StzLen(pcSubStr)
-		cLeft = @oString.NLeftChars(nLenSubStr)
-
-		if BothStringsAreEqualCS(cLeft, pcSubStr, pCaseSensitive)
-			if @oString.IsLeftToRight()
-				n1 = 1
-				n2 = nLenSubStr
-			else
-				nLenStr = @oString.NumberOfChars()
-				n1 = nLenStr - nLenSubStr + 1
-				n2 = nLenStr
-			ok
-			This.RemoveSection(n1, n2)
-		ok
+		pH = @oString.Engine()
+		pR = StzEngineStringRemovePrefix(pH, pcSubStr)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
@@ -548,20 +534,11 @@ class stzStringRemover
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = StzLen(pcSubStr)
-		cRight = @oString.NRightChars(nLenSubStr)
-
-		if BothStringsAreEqualCS(cRight, pcSubStr, pCaseSensitive)
-			if @oString.IsLeftToRight()
-				nLenStr = @oString.NumberOfChars()
-				n1 = nLenStr - nLenSubStr + 1
-				n2 = nLenStr
-			else
-				n1 = 1
-				n2 = nLenSubStr
-			ok
-			This.RemoveSection(n1, n2)
-		ok
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveSuffix(pH, pcSubStr)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
