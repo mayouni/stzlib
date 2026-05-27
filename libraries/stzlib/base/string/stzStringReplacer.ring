@@ -602,3 +602,50 @@ class stzStringReplacer
 
 		def StrippedOfMarks()
 			return This.MarksStripped()
+
+	  #===============================#
+	 #     REGEX REPLACE ALL         #
+	#===============================#
+
+	def ReplaceAllRegex(pcPattern, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringRegexReplaceAll(pH, pcPattern, pcReplacement, 0)
+		if pR = NULL return ok
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def ReplaceAllRegexQ(pcPattern, pcReplacement)
+			This.ReplaceAllRegex(pcPattern, pcReplacement)
+			return This
+
+		def ReplaceRegex(pcPattern, pcReplacement)
+			This.ReplaceAllRegex(pcPattern, pcReplacement)
+
+	def AllRegexReplaced(pcPattern, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringRegexReplaceAll(pH, pcPattern, pcReplacement, 0)
+		if pR = NULL return @oString.Content() ok
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+		def RegexReplaced(pcPattern, pcReplacement)
+			return This.AllRegexReplaced(pcPattern, pcReplacement)
+
+	def ReplaceAllRegexCS(pcPattern, pcReplacement, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_nFlags_ = 0
+		if _bCase_ = 0
+			_nFlags_ = 1
+		ok
+		pH = @oString.Engine()
+		pR = StzEngineStringRegexReplaceAll(pH, pcPattern, pcReplacement, _nFlags_)
+		if pR = NULL return ok
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def ReplaceAllRegexCSQ(pcPattern, pcReplacement, pCaseSensitive)
+			This.ReplaceAllRegexCS(pcPattern, pcReplacement, pCaseSensitive)
+			return This

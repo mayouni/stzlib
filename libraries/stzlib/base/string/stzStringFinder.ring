@@ -579,3 +579,65 @@ class stzStringFinder
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c
+
+	  #===============================#
+	 #     REGEX FIND               #
+	#===============================#
+
+	def FindFirstRegex(pcPattern)
+		pH = @oString.Engine()
+		return StzEngineStringRegexFindFirst(pH, pcPattern, 0)
+
+		def FindRegex(pcPattern)
+			return This.FindFirstRegex(pcPattern)
+
+	def FindFirstRegexCS(pcPattern, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_nFlags_ = 0
+		if _bCase_ = 0
+			_nFlags_ = 1
+		ok
+		pH = @oString.Engine()
+		return StzEngineStringRegexFindFirst(pH, pcPattern, _nFlags_)
+
+		def FindRegexCS(pcPattern, pCaseSensitive)
+			return This.FindFirstRegexCS(pcPattern, pCaseSensitive)
+
+	def FindAllRegex(pcPattern)
+		pH = @oString.Engine()
+		pResult = StzEngineStringRegexFindAll(pH, pcPattern, 0)
+		if pResult = NULL
+			return []
+		ok
+		_nFarCount_ = StzEngineFindResultCount(pResult)
+		_anFarResult_ = []
+		for _iFar_ = 1 to _nFarCount_
+			_anFarResult_ + StzEngineFindResultGet(pResult, _iFar_)
+		next
+		StzEngineFindResultFree(pResult)
+		return _anFarResult_
+
+		def FindAllRegexMatches(pcPattern)
+			return This.FindAllRegex(pcPattern)
+
+	def FindAllRegexCS(pcPattern, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_nFlags_ = 0
+		if _bCase_ = 0
+			_nFlags_ = 1
+		ok
+		pH = @oString.Engine()
+		pResult = StzEngineStringRegexFindAll(pH, pcPattern, _nFlags_)
+		if pResult = NULL
+			return []
+		ok
+		_nFarcsCount_ = StzEngineFindResultCount(pResult)
+		_anFarcsResult_ = []
+		for _iFarcs_ = 1 to _nFarcsCount_
+			_anFarcsResult_ + StzEngineFindResultGet(pResult, _iFarcs_)
+		next
+		StzEngineFindResultFree(pResult)
+		return _anFarcsResult_
+
+		def FindAllRegexMatchesCS(pcPattern, pCaseSensitive)
+			return This.FindAllRegexCS(pcPattern, pCaseSensitive)
