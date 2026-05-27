@@ -354,6 +354,43 @@ pub fn str_between_nth(handle: StzStringHandle, open: [*c]const u8, open_len: us
     return null;
 }
 
+/// Extract the LAST substring between open/close delimiters.
+pub fn str_between_last(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    if (open_len == 0 or close_len == 0) return null;
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
+    var last_start: ?usize = null;
+    var last_end: ?usize = null;
+    var i: usize = 0;
+    while (i + open_len <= bytes.len) {
+        if (std.mem.eql(u8, bytes[i..][0..open_len], open_s)) {
+            const after_open = i + open_len;
+            var j = after_open;
+            while (j + close_len <= bytes.len) {
+                if (std.mem.eql(u8, bytes[j..][0..close_len], close_s)) {
+                    last_start = after_open;
+                    last_end = j;
+                    i = j + close_len;
+                    break;
+                }
+                j += 1;
+            } else {
+                break;
+            }
+            continue;
+        }
+        i += 1;
+    }
+    if (last_start) |ls| {
+        const le = last_end.?;
+        return str_from(bytes[ls..le].ptr, le - ls);
+    }
+    return null;
+}
+
 /// Count occurrences of a substring between two delimiters.
 pub fn str_count_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) c_int {
     const s = (handle orelse return 0);
@@ -685,6 +722,24 @@ test "str_between_nth: specific occurrence" {
     try expectStr(str_between_nth(s, "[", 1, "]", 1, 0), "a");
     try expectStr(str_between_nth(s, "[", 1, "]", 1, 1), "b");
     try expectStr(str_between_nth(s, "[", 1, "]", 1, 2), "c");
+}
+
+test "str_between_last: last occurrence" {
+    const s = h("[a][b][c]");
+    defer str_free(s);
+    try expectStr(str_between_last(s, "[", 1, "]", 1), "c");
+}
+
+test "str_between_last: single pair" {
+    const s = h("[only]");
+    defer str_free(s);
+    try expectStr(str_between_last(s, "[", 1, "]", 1), "only");
+}
+
+test "str_between_last: no match returns null" {
+    const s = h("no brackets");
+    defer str_free(s);
+    try testing.expectEqual(@as(StzStringHandle, null), str_between_last(s, "[", 1, "]", 1));
 }
 
 test "str_count_between: count delimiter pairs" {

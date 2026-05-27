@@ -638,6 +638,87 @@ pub fn str_replace_first_between(handle: StzStringHandle, open: [*c]const u8, op
     return result;
 }
 
+/// Replace content between the NTH open...close pair (0-based nth). Returns new handle.
+pub fn str_replace_nth_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, rep: [*c]const u8, rep_len: usize, nth: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or open_len == 0 or close_len == 0 or nth < 0) return str_from(src.ptr, src.len);
+
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
+    const result = str_new() orelse return null;
+    var i: usize = 0;
+    var occurrence: c_int = 0;
+
+    while (i < src.len) {
+        if (i + open_len <= src.len and mem.eql(u8, src[i..][0..open_len], open_s)) {
+            const after_open = i + open_len;
+            var j = after_open;
+            var found_close = false;
+            while (j + close_len <= src.len) {
+                if (mem.eql(u8, src[j..][0..close_len], close_s)) {
+                    if (occurrence == nth) {
+                        // Replace this pair
+                        if (rep_len > 0) {
+                            result.data.appendSlice(gpa, rep[0..rep_len]) catch break;
+                        }
+                    } else {
+                        // Keep this pair as-is
+                        result.data.appendSlice(gpa, src[i .. j + close_len]) catch break;
+                    }
+                    occurrence += 1;
+                    i = j + close_len;
+                    found_close = true;
+                    break;
+                }
+                j += 1;
+            }
+            if (!found_close) {
+                result.data.appendSlice(gpa, src[i..]) catch break;
+                return result;
+            }
+            continue;
+        }
+        result.data.append(gpa, src[i]) catch break;
+        i += 1;
+    }
+    return result;
+}
+
+/// Replace content between the LAST open...close pair. Returns new handle.
+pub fn str_replace_last_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, rep: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or open_len == 0 or close_len == 0) return str_from(src.ptr, src.len);
+
+    // First count total pairs to find the last one
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+    var total: c_int = 0;
+    var ci: usize = 0;
+    while (ci < src.len) {
+        if (ci + open_len <= src.len and mem.eql(u8, src[ci..][0..open_len], open_s)) {
+            const after = ci + open_len;
+            var cj = after;
+            while (cj + close_len <= src.len) {
+                if (mem.eql(u8, src[cj..][0..close_len], close_s)) {
+                    total += 1;
+                    ci = cj + close_len;
+                    break;
+                }
+                cj += 1;
+            } else {
+                break;
+            }
+            continue;
+        }
+        ci += 1;
+    }
+    if (total == 0) return str_from(src.ptr, src.len);
+    return str_replace_nth_between(handle, open, open_len, close, close_len, rep, rep_len, total - 1);
+}
+
 // ─── ReplaceAllBetween: alias (base verb already means ALL) ───
 
 /// Alias: str_replace_all_between = str_replace_between (base verb = ALL per Softanza convention)
@@ -964,6 +1045,16 @@ pub fn str_remove_between(handle: StzStringHandle, open: [*c]const u8, open_len:
 /// Returns new handle.
 pub fn str_remove_first_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
     return str_replace_first_between(handle, open, open_len, close, close_len, "", 0);
+}
+
+/// Remove the NTH open...close pair (0-based nth). Returns new handle.
+pub fn str_remove_nth_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, nth: c_int) callconv(.c) StzStringHandle {
+    return str_replace_nth_between(handle, open, open_len, close, close_len, "", 0, nth);
+}
+
+/// Remove the LAST open...close pair. Returns new handle.
+pub fn str_remove_last_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
+    return str_replace_last_between(handle, open, open_len, close, close_len, "", 0);
 }
 
 // ─── RemoveAllBetween: alias (base verb already means ALL) ───
@@ -1628,6 +1719,43 @@ test "remove_all_between: multiple pairs" {
     defer str_free(r);
     try testing.expect(r != null);
     try testing.expectEqualStrings("abc", r.?.slice());
+}
+
+test "replace_nth_between: specific pair" {
+    const s = str_from("a[x]b[y]c[z]d", 13);
+    defer str_free(s);
+    // Replace 2nd pair (0-based index 1)
+    const r = str_replace_nth_between(s, "[", 1, "]", 1, "!", 1, 1);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("a[x]b!c[z]d", r.?.slice());
+}
+
+test "replace_last_between: last pair" {
+    const s = str_from("a[x]b[y]c[z]d", 13);
+    defer str_free(s);
+    const r = str_replace_last_between(s, "[", 1, "]", 1, "!", 1);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("a[x]b[y]c!d", r.?.slice());
+}
+
+test "remove_nth_between: specific pair" {
+    const s = str_from("a[x]b[y]c[z]d", 13);
+    defer str_free(s);
+    const r = str_remove_nth_between(s, "[", 1, "]", 1, 0);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("ab[y]c[z]d", r.?.slice());
+}
+
+test "remove_last_between: last pair" {
+    const s = str_from("a[x]b[y]c[z]d", 13);
+    defer str_free(s);
+    const r = str_remove_last_between(s, "[", 1, "]", 1);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("a[x]b[y]cd", r.?.slice());
 }
 
 test "remove_vowels" {

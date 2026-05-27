@@ -2137,6 +2137,57 @@ fn ring_StringBetweenFirstCS(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_between_first_cs(h, open, open_len, close, close_len, cs)), STZ_HANDLE);
 }
 
+fn ring_StringBetweenLast(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close: [*c]const u8 = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_between_last(h, open, open_len, close, close_len)), STZ_HANDLE);
+}
+
+fn ring_StringReplaceNthBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const rep = ring_vm_api_getstring(p, 4);
+    const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
+    const nth: c_int = @intFromFloat(ring_vm_api_getnumber(p, 5));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_nth_between(h, open, open_len, close, close_len, rep, rep_len, nth)), STZ_HANDLE);
+}
+
+fn ring_StringReplaceLastBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const rep = ring_vm_api_getstring(p, 4);
+    const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_last_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
+}
+
+fn ring_StringRemoveNthBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const nth: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_nth_between(h, open, open_len, close, close_len, nth)), STZ_HANDLE);
+}
+
+fn ring_StringRemoveLastBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_last_between(h, open, open_len, close, close_len)), STZ_HANDLE);
+}
+
 fn ring_StringToDotCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retcpointer(p, @ptrCast(string.str_to_dot_case(h)), STZ_HANDLE);
@@ -3390,8 +3441,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtospongebobcase", .func = &ring_StringToSpongebobCase },
     .{ .name = "stzenginestringbetweenfirst", .func = &ring_StringBetweenFirst },
     .{ .name = "stzenginestringbetweenfirstcs", .func = &ring_StringBetweenFirstCS },
+    .{ .name = "stzenginestringbetweenlast", .func = &ring_StringBetweenLast },
     .{ .name = "stzenginestringreplacefirstbetween", .func = &ring_StringReplaceFirstBetween },
+    .{ .name = "stzenginestringreplacenthbetween", .func = &ring_StringReplaceNthBetween },
+    .{ .name = "stzenginestringreplacelastbetween", .func = &ring_StringReplaceLastBetween },
     .{ .name = "stzenginestringremovefirstbetween", .func = &ring_StringRemoveFirstBetween },
+    .{ .name = "stzenginestringremoventhbetween", .func = &ring_StringRemoveNthBetween },
+    .{ .name = "stzenginestringremovelastbetween", .func = &ring_StringRemoveLastBetween },
     .{ .name = "stzenginestringtodotcase", .func = &ring_StringToDotCase },
     .{ .name = "stzenginestringabbreviate", .func = &ring_StringAbbreviate },
     .{ .name = "stzenginestringcountsubstring", .func = &ring_StringCountSubstring },
