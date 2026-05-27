@@ -613,7 +613,9 @@ pub fn str_duplicate_substrings_cs(handle: StzStringHandle, case: c_int) callcon
 
 // ─── Between ───
 
-pub fn str_between_cs(handle: StzStringHandle, start_ptr: [*c]const u8, start_len: usize, end_ptr: [*c]const u8, end_len: usize, case: c_int) callconv(.c) StzStringHandle {
+/// Extract FIRST substring between open/close delimiters with case sensitivity.
+/// For first-only semantics (base verb str_between_cs = ALL per Softanza convention).
+pub fn str_between_first_cs(handle: StzStringHandle, start_ptr: [*c]const u8, start_len: usize, end_ptr: [*c]const u8, end_len: usize, case: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
     if (buf.len == 0 or start_len == 0 or end_len == 0) return str_new();
@@ -843,28 +845,28 @@ test "ends_with_any_cs CI" {
     try testing.expectEqual(@as(c_int, 1), str_ends_with_any_cs(s, ".txt|.zig", 9, 0));
 }
 
-test "between basic" {
+test "between_first_cs basic" {
     const s = str_from("<html>content</html>", 20);
     defer str_free(s);
-    const r = str_between_cs(s, "<html>", 6, "</html>", 7, 1);
+    const r = str_between_first_cs(s, "<html>", 6, "</html>", 7, 1);
     defer str_free(r);
     try testing.expect(r != null);
     const d: [*]const u8 = @ptrCast(str_data(r));
     try testing.expectEqualStrings("content", d[0..str_size(r)]);
 }
 
-test "between not found" {
+test "between_first_cs not found" {
     const s = str_from("hello world", 11);
     defer str_free(s);
-    const r = str_between_cs(s, "[", 1, "]", 1, 1);
+    const r = str_between_first_cs(s, "[", 1, "]", 1, 1);
     defer str_free(r);
     try testing.expectEqual(@as(usize, 0), str_size(r));
 }
 
-test "between_cs case insensitive" {
+test "between_first_cs case insensitive" {
     const s = str_from("START-middle-END", 16);
     defer str_free(s);
-    const r = str_between_cs(s, "start-", 6, "-end", 4, 0);
+    const r = str_between_first_cs(s, "start-", 6, "-end", 4, 0);
     defer str_free(r);
     try testing.expect(r != null);
     const d: [*]const u8 = @ptrCast(str_data(r));

@@ -499,7 +499,7 @@ class stzStringReplacer
 	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
 		# Replaces only the FIRST open...close pair
 		pH = @oString.Engine()
-		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, pcReplacement)
+		pR = StzEngineStringReplaceFirstBetween(pH, pcOpen, pcClose, pcReplacement)
 		_cRfbResult_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		@oString.Update(_cRfbResult_)

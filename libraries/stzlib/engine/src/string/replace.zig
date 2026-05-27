@@ -557,8 +557,10 @@ pub fn str_replace_any_char(handle: StzStringHandle, chars: [*c]const u8, chars_
 }
 
 // ─── ReplaceBetween: replace content between delimiters ───
+// Universal Softanza convention: base verb = ALL matches.
+// str_replace_first_between for first-only.
 
-/// Replace content between first `open` and matching `close` (inclusive of delimiters)
+/// Replace content in ALL occurrences of open...close (inclusive of delimiters)
 /// with `replacement`. Returns new handle.
 pub fn str_replace_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, rep: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
@@ -568,7 +570,48 @@ pub fn str_replace_between(handle: StzStringHandle, open: [*c]const u8, open_len
     const open_s = open[0..open_len];
     const close_s = close[0..close_len];
 
-    // Find first open
+    const result = str_new() orelse return null;
+    var i: usize = 0;
+
+    while (i < src.len) {
+        if (i + open_len <= src.len and mem.eql(u8, src[i..][0..open_len], open_s)) {
+            const after_open = i + open_len;
+            var j = after_open;
+            var found_close = false;
+            while (j + close_len <= src.len) {
+                if (mem.eql(u8, src[j..][0..close_len], close_s)) {
+                    if (rep_len > 0) {
+                        result.data.appendSlice(gpa, rep[0..rep_len]) catch break;
+                    }
+                    i = j + close_len;
+                    found_close = true;
+                    break;
+                }
+                j += 1;
+            }
+            if (!found_close) {
+                result.data.appendSlice(gpa, src[i..]) catch break;
+                return result;
+            }
+            continue;
+        }
+        result.data.append(gpa, src[i]) catch break;
+        i += 1;
+    }
+
+    return result;
+}
+
+/// Replace content between FIRST `open` and matching `close` (inclusive of delimiters)
+/// with `replacement`. Returns new handle.
+pub fn str_replace_first_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, rep: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or open_len == 0 or close_len == 0) return str_from(src.ptr, src.len);
+
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
     const open_pos = mem.indexOf(u8, src, open_s) orelse return str_from(src.ptr, src.len);
     const search_start = open_pos + open_len;
     if (search_start > src.len) return str_from(src.ptr, src.len);
@@ -595,51 +638,10 @@ pub fn str_replace_between(handle: StzStringHandle, open: [*c]const u8, open_len
     return result;
 }
 
-// ─── ReplaceAllBetween: replace ALL open...close pairs ───
+// ─── ReplaceAllBetween: alias (base verb already means ALL) ───
 
-/// Replace content in ALL occurrences of open...close (inclusive of delimiters)
-/// with `replacement`. Returns new handle.
-pub fn str_replace_all_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, rep: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0 or open_len == 0 or close_len == 0) return str_from(src.ptr, src.len);
-
-    const open_s = open[0..open_len];
-    const close_s = close[0..close_len];
-
-    const result = str_new() orelse return null;
-    var i: usize = 0;
-
-    while (i < src.len) {
-        if (i + open_len <= src.len and mem.eql(u8, src[i..][0..open_len], open_s)) {
-            const after_open = i + open_len;
-            var j = after_open;
-            var found_close = false;
-            while (j + close_len <= src.len) {
-                if (mem.eql(u8, src[j..][0..close_len], close_s)) {
-                    // Replace: emit replacement instead of open+content+close
-                    if (rep_len > 0) {
-                        result.data.appendSlice(gpa, rep[0..rep_len]) catch break;
-                    }
-                    i = j + close_len;
-                    found_close = true;
-                    break;
-                }
-                j += 1;
-            }
-            if (!found_close) {
-                // No close found, copy rest as-is
-                result.data.appendSlice(gpa, src[i..]) catch break;
-                return result;
-            }
-            continue;
-        }
-        result.data.append(gpa, src[i]) catch break;
-        i += 1;
-    }
-
-    return result;
-}
+/// Alias: str_replace_all_between = str_replace_between (base verb = ALL per Softanza convention)
+pub const str_replace_all_between = str_replace_between;
 
 // ═══════════════════════════════════════════════════════════════
 // ─── REMOVE ──────────────────────────────────────────────────
@@ -948,47 +950,26 @@ pub fn str_remove_whitespace(handle: StzStringHandle) callconv(.c) StzStringHand
 }
 
 // ─── RemoveBetween: remove text between delimiters ───
-
-/// Remove text between first occurrence of `open` and matching `close` (inclusive of delimiters).
-/// Returns new handle.
-pub fn str_remove_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0 or open_len == 0 or close_len == 0) return str_from(src.ptr, src.len);
-
-    const open_s = open[0..open_len];
-    const close_s = close[0..close_len];
-
-    // Find first open
-    const open_pos = mem.indexOf(u8, src, open_s) orelse return str_from(src.ptr, src.len);
-    // Find first close after open
-    const search_start = open_pos + open_len;
-    if (search_start > src.len) return str_from(src.ptr, src.len);
-    const close_rel = mem.indexOf(u8, src[search_start..], close_s) orelse return str_from(src.ptr, src.len);
-    const close_end = search_start + close_rel + close_len;
-
-    const result = str_new() orelse return null;
-    result.data.appendSlice(gpa, src[0..open_pos]) catch {
-        str_free(result);
-        return null;
-    };
-    if (close_end < src.len) {
-        result.data.appendSlice(gpa, src[close_end..]) catch {
-            str_free(result);
-            return null;
-        };
-    }
-    return result;
-}
-
-// ─── RemoveAllBetween: remove ALL open...close pairs ───
+// Universal Softanza convention: base verb = ALL matches.
+// str_remove_first_between for first-only.
 
 /// Remove ALL occurrences of open...close (inclusive of delimiters).
 /// Returns new handle.
-pub fn str_remove_all_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
-    // Delegate to replace_all_between with empty replacement
-    return str_replace_all_between(handle, open, open_len, close, close_len, "", 0);
+pub fn str_remove_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
+    // Delegate to replace_between with empty replacement (both are ALL semantics)
+    return str_replace_between(handle, open, open_len, close, close_len, "", 0);
 }
+
+/// Remove FIRST occurrence of open...close (inclusive of delimiters).
+/// Returns new handle.
+pub fn str_remove_first_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
+    return str_replace_first_between(handle, open, open_len, close, close_len, "", 0);
+}
+
+// ─── RemoveAllBetween: alias (base verb already means ALL) ───
+
+/// Alias: str_remove_all_between = str_remove_between (base verb = ALL per Softanza convention)
+pub const str_remove_all_between = str_remove_between;
 
 // ─── RemoveVowels ───
 
