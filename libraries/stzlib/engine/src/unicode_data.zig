@@ -306,6 +306,33 @@ pub fn stz_unidata_count(udb: ?*StzUnicodeDb) callconv(.c) i32 {
     return 0;
 }
 
+// ── Query: codepoint by exact name (case-insensitive) ─────────────
+
+pub fn stz_unidata_codepoint_by_name(udb: ?*StzUnicodeDb, name_ptr: [*]const u8, name_len: usize) callconv(.c) i32 {
+    const db = udb orelse return -1;
+    const name = name_ptr[0..name_len];
+
+    var stmt: ?*c.sqlite3_stmt = null;
+    _ = c.sqlite3_prepare_v2(db.db, "SELECT codepoint FROM chars WHERE name=?1 COLLATE NOCASE LIMIT 1;", -1, &stmt, null);
+    defer {
+        if (stmt) |s| _ = c.sqlite3_finalize(s);
+    }
+
+    const s = stmt orelse return -1;
+    _ = c.sqlite3_bind_text(s, 1, name.ptr, @intCast(name.len), c.SQLITE_TRANSIENT);
+
+    if (c.sqlite3_step(s) == c.SQLITE_ROW) {
+        return c.sqlite3_column_int(s, 0);
+    }
+    return -1;
+}
+
+// ── Query: check if name exists (case-insensitive) ────────────────
+
+pub fn stz_unidata_contains_name(udb: ?*StzUnicodeDb, name_ptr: [*]const u8, name_len: usize) callconv(.c) i32 {
+    return if (stz_unidata_codepoint_by_name(udb, name_ptr, name_len) >= 0) 1 else 0;
+}
+
 // ── Query: char full record ────────────────────────────────────────
 
 pub fn stz_unidata_char_info(udb: ?*StzUnicodeDb, codepoint: i32, buf: [*]u8, buf_len: usize) callconv(.c) usize {

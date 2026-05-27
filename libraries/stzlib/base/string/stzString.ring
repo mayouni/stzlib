@@ -269,6 +269,33 @@ class stzString from stzObject
 			return StzEngineStringCountOf(@pEngine, pcSubStr)
 
 	  #========================================#
+	 #     CHECKER DELEGATIONS               #
+	#========================================#
+
+	def IsCharName()
+		return StzUnicodeContainsName(This.Content())
+
+		def IsACharName()
+			return This.IsCharName()
+
+	def RepresentsNumberInHexForm()
+		pH = @pEngine
+		return StzEngineStringIsHexString(pH)
+
+	def RepresentsNumberInUnicodeHexForm()
+		_cContent_ = This.Content()
+		_nLen_ = StzLen(_cContent_)
+		if _nLen_ < 3
+			return 0
+		ok
+		_cPrefix_ = StzUpper(StzLeft(_cContent_, 2))
+		if _cPrefix_ != "U+"
+			return 0
+		ok
+		_cHexPart_ = StzRight(_cContent_, _nLen_ - 2)
+		return StringRepresentsNumberInHexForm("0x" + _cHexPart_)
+
+	  #========================================#
 	 #     DERIVED ACCESSORS                  #
 	#========================================#
 

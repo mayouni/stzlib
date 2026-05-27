@@ -55,6 +55,28 @@ fn ring_CharInfo(p: *anyopaque) callconv(.c) void {
     rs2(p, &buf, @intCast(len));
 }
 
+fn ring_CodepointByName(p: *anyopaque) callconv(.c) void {
+    const db = unidata.getGlobalDb() orelse {
+        rn(p, -1);
+        return;
+    };
+    const name: [*]const u8 = @ptrCast(gs(p, 1));
+    const name_len: usize = @intCast(gss(p, 1));
+    const cp = unidata.stz_unidata_codepoint_by_name(db, name, name_len);
+    rn(p, @floatFromInt(cp));
+}
+
+fn ring_ContainsName(p: *anyopaque) callconv(.c) void {
+    const db = unidata.getGlobalDb() orelse {
+        rn(p, 0);
+        return;
+    };
+    const name: [*]const u8 = @ptrCast(gs(p, 1));
+    const name_len: usize = @intCast(gss(p, 1));
+    const result = unidata.stz_unidata_contains_name(db, name, name_len);
+    rn(p, @floatFromInt(result));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineunidatacharname", .func = &ring_CharName },
     .{ .name = "stzengineunidatacharcategory", .func = &ring_CharCategory },
@@ -62,6 +84,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineunidatacharsinrange", .func = &ring_CharsInRange },
     .{ .name = "stzengineunidatacount", .func = &ring_Count },
     .{ .name = "stzengineunidatacharinfo", .func = &ring_CharInfo },
+    .{ .name = "stzengineunidatacodepointbyname", .func = &ring_CodepointByName },
+    .{ .name = "stzengineunidatacontainsname", .func = &ring_ContainsName },
 };
 
 pub fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
