@@ -236,6 +236,38 @@ class stzString from stzObject
 	def _SplitByStr(cSep)
 		return This._SplitByStrCS(cSep, 1)
 
+	  #============================================#
+	 #     ESSENTIAL FIND / CONTAINS / COUNT      #
+	#============================================#
+
+	# These methods are the most commonly used by other modules.
+	# They delegate to the engine directly for O(n) performance.
+
+	def ContainsCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return StzEngineStringContainsCS(@pEngine, pcSubStr, _bCase_)
+
+	def Contains(pcSubStr)
+		return StzEngineStringContainsCS(@pEngine, pcSubStr, 1)
+
+	def FindFirstCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return StzEngineStringFindFirstCS(@pEngine, pcSubStr, _bCase_)
+
+	def FindFirst(pcSubStr)
+		return StzEngineStringFindFirstCS(@pEngine, pcSubStr, 1)
+
+	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		if _bCase_
+			return StzEngineStringCountOf(@pEngine, pcSubStr)
+		else
+			return StzEngineStringCountOfCI(@pEngine, pcSubStr)
+		ok
+
+		def NumberOfOccurrence(pcSubStr)
+			return StzEngineStringCountOf(@pEngine, pcSubStr)
+
 	  #========================================#
 	 #     DERIVED ACCESSORS                  #
 	#========================================#

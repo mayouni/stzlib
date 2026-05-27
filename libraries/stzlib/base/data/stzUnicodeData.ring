@@ -755,68 +755,79 @@ class stzUnicodeData
 
 	def CharNameByHexCode(pcHex)
 
-		cHex = StzHexNumberQ(pcHex).WithoutPrefix()
+		# Strip hex prefix if present
+		_cHex_ = pcHex
+		if StzLen(_cHex_) > 2
+			_cPfx_ = StzLeft(_cHex_, 2)
+			if _cPfx_ = "0x" or _cPfx_ = "0X"
+				_cHex_ = StzRight(_cHex_, StzLen(_cHex_) - 2)
+			ok
+		ok
 
-		if cHex = ""
+		if _cHex_ = ""
 			return ""
 		ok
 
-		switch len(cHex)
+		_cHex_ = upper(_cHex_)
+
+		switch len(_cHex_)
 		on 3
-			cHex = "0" + cHex
+			_cHex_ = "0" + _cHex_
 		on 2
-			cHex = "00" + cHex
+			_cHex_ = "00" + _cHex_
 		on 1
-			cHex = "000" + cHex
+			_cHex_ = "000" + _cHex_
 		off
 
+		# Use engine to search the unicode data string
+		_cSearch_ = NL + _cHex_ + ";"
+		_pDataH_ = @oStzStrUnicodeData.Engine()
+		_n_ = StzEngineStringFindFirstCS(_pDataH_, _cSearch_, 1)
 
-		n = @oStzStrUnicodeData.FindFirst(NL + cHex + ";")
-		
-		if n = 0
+		if _n_ = 0
 			return ""
 		ok
 
-		n++	# To compensate the NL
+		_n_ = _n_ + 1	# To compensate the NL
 
-		# Defininging start of the char name in n1
+		# Use engine to get the raw data content
+		_cData_ = @oStzStrUnicodeData.Content()
 
-		bContinue = 1
-		i = 0
+		# Find start of the char name (after the first ";" following the hex code)
+		_bContinue_ = 1
+		_i_ = 0
 
-		while bContinue
-			i++
-			c = @oStzStrUnicodeData[n + i]
+		while _bContinue_
+			_i_++
+			_c_ = substr(_cData_, _n_ + _i_, 1)
 
-			if c = ";"
-				n1 = n + i + 1
-				bContinue = 0
+			if _c_ = ";"
+				_n1_ = _n_ + _i_ + 1
+				_bContinue_ = 0
 			ok
 		end
 
-		# Defininging end of the char name in n2
-		n = n1
-		bContinue = 1
-		i = 0
+		# Find end of the char name (before the next ";")
+		_n_ = _n1_
+		_bContinue_ = 1
+		_i_ = 0
 
-		while bContinue
-			i++
-			c = @oStzStrUnicodeData[n + i]
+		while _bContinue_
+			_i_++
+			_c_ = substr(_cData_, _n_ + _i_, 1)
 
-			if c = ";"
-				n2 = n + i - 1
-				bContinue = 0
+			if _c_ = ";"
+				_n2_ = _n_ + _i_ - 1
+				_bContinue_ = 0
 			ok
 		end
 
-		
-		cResult = @oStzStrUnicodeData.Section(n1, n2)
-		return cResult
+		_cResult_ = substr(_cData_, _n1_, _n2_ - _n1_ + 1)
+		return _cResult_
 
 	def CharNameByUnicode(nUnicode)
-		cHex = StzNumberQ(nUnicode).ToHex()
-		cResult = This.CharNameByHexCode(cHex)
-		return cResult
+		# Engine SQLite lookup — O(1) indexed query
+		return StzCharNameByUnicode(nUnicode)
 
 	#==
 

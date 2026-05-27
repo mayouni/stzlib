@@ -509,6 +509,28 @@ class stzList from stzObject
 		def Added(pItem)
 			return This.ItemAdded(pItem)
 
+	  #-----------------------------------#
+	 #  MERGING WITH ANOTHER LIST        #
+	#-----------------------------------#
+
+	def MergeWith(paOtherList)
+		_nLen_ = len(paOtherList)
+		for _i_ = 1 to _nLen_
+			This.Add(paOtherList[_i_])
+		next
+
+		def MergeWithQ(paOtherList)
+			This.MergeWith(paOtherList)
+			return This
+
+	def MergedWith(paOtherList)
+		_aResult_ = This.Content()
+		_nLen_ = len(paOtherList)
+		for _i_ = 1 to _nLen_
+			_aResult_ + paOtherList[_i_]
+		next
+		return _aResult_
+
 	  #-----------------------------------------------------------#
 	 #  ADDING AN ITEM AT A GIVEN POSITION --> INSERT OR EXTEND  #
 	#-----------------------------------------------------------#

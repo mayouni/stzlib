@@ -1059,8 +1059,13 @@ func StringRepresentsNumberInDecimalForm(pcNumber)
 		ok
 	ok
 
-	oStr = new stzString(pcNumber)
-	return oStr.RepresentsNumberInDecimalForm()		
+	_pH_ = StzEngineString(pcNumber)
+	_nResult_ = StzEngineStringIsNumericString(_pH_)
+	if _nResult_ = 0
+		_nResult_ = StzEngineStringIsFloat(_pH_)
+	ok
+	StzEngineStringFree(_pH_)
+	return _nResult_
 
 func CharIsDigit(c)
 	return isDigit(c) # It's a native ring function
@@ -1074,8 +1079,10 @@ func StringRepresentsNumberInBinaryform(pcNumber)
 		ok
 	ok
 
-	oTempStr = new stzString(pcNumber)
-	return oTempStr.RepresentsNumberInBinaryForm()
+	_pH_ = StzEngineString(pcNumber)
+	_nResult_ = StzEngineStringIsBinaryString(_pH_)
+	StzEngineStringFree(_pH_)
+	return _nResult_
 
 # Hex form
 
@@ -1086,8 +1093,10 @@ func StringRepresentsNumberInHexForm(pcNumber)
 		ok
 	ok
 
-	oTempStr = new stzString(pcNumber)
-	return oTempStr.RepresentsNumberInHexForm()
+	_pH_ = StzEngineString(pcNumber)
+	_nResult_ = StzEngineStringIsHexString(_pH_)
+	StzEngineStringFree(_pH_)
+	return _nResult_
 
 func StringRepresentsNumberInUnicodeHexForm(pcNumber)
 	if CheckingParams()
@@ -1096,7 +1105,15 @@ func StringRepresentsNumberInUnicodeHexForm(pcNumber)
 		ok
 	ok
 
-	return StringRepresentsNumberInUnicodeHexForm(pcNumber)
+	if StzLen(pcNumber) < 3
+		return 0
+	ok
+	_cPrefix_ = StzUpper(StzLeft(pcNumber, 2))
+	if _cPrefix_ != "U+"
+		return 0
+	ok
+	_cHexPart_ = StzRight(pcNumber, StzLen(pcNumber) - 2)
+	return StringRepresentsNumberInHexForm("0x" + _cHexPart_)
 
 # Octal form
 
@@ -1107,8 +1124,10 @@ func StringRepresentsNumberInOctalForm(pcNumber)
 		ok
 	ok
 
-	oTempStr = new stzString(pcNumber)
-	return oTempStr.RepresentsNumberInOctalForm()
+	_pH_ = StzEngineString(pcNumber)
+	_nResult_ = StzEngineStringIsOctalString(_pH_)
+	StzEngineStringFree(_pH_)
+	return _nResult_
 
 # Scientific notation form
 
