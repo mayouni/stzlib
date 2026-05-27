@@ -610,6 +610,18 @@ fn ring_IsMonotonic(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_is_monotonic(getLC(p, 1))));
 }
 
+// Find nth/last
+fn ring_FindNthCS(p: *anyopaque) callconv(.c) void {
+    const nth = @as(usize, @intFromFloat(g(p, 3)));
+    const adj_nth = if (nth > 0) nth - 1 else 0; // INDEX_BASE=1 (nth is 1-based)
+    const result = list.stz_list_find_nth_cs(getLC(p, 1), getV(p, 2), adj_nth, @intFromFloat(g(p, 4)));
+    rn(p, if (result >= 0) @as(f64, @floatFromInt(result + 1)) else 0); // INDEX_BASE=1
+}
+fn ring_FindLastCS(p: *anyopaque) callconv(.c) void {
+    const result = list.stz_list_find_last_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)));
+    rn(p, if (result >= 0) @as(f64, @floatFromInt(result + 1)) else 0); // INDEX_BASE=1
+}
+
 // Statistics functions
 fn ring_Median(p: *anyopaque) callconv(.c) void {
     rn(p, list.stz_list_median(getLC(p, 1)));
@@ -837,6 +849,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistvariance", .func = &ring_Variance },
     .{ .name = "stzengineliststddev", .func = &ring_StdDev },
     .{ .name = "stzenginelistranked", .func = &ring_Ranked },
+    .{ .name = "stzenginelistfindnthcs", .func = &ring_FindNthCS },
+    .{ .name = "stzenginelistfindlastcs", .func = &ring_FindLastCS },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

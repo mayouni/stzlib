@@ -107,6 +107,8 @@ comptime {
     @export(&list.stz_list_is_strictly_increasing, .{ .name = "stz_list_is_strictly_increasing" });
     @export(&list.stz_list_is_strictly_decreasing, .{ .name = "stz_list_is_strictly_decreasing" });
     @export(&list.stz_list_is_monotonic, .{ .name = "stz_list_is_monotonic" });
+    @export(&list.stz_list_find_nth_cs, .{ .name = "stz_list_find_nth_cs" });
+    @export(&list.stz_list_find_last_cs, .{ .name = "stz_list_find_last_cs" });
     @export(&list.stz_list_median, .{ .name = "stz_list_median" });
     @export(&list.stz_list_nth_smallest, .{ .name = "stz_list_nth_smallest" });
     @export(&list.stz_list_nth_largest, .{ .name = "stz_list_nth_largest" });
