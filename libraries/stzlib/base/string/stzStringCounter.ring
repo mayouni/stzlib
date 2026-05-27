@@ -203,3 +203,16 @@ class stzStringCounter
 	def CountThai()
 		pH = @oString.Engine()
 		return StzEngineStringCountThai(pH)
+
+	  #======================================================#
+	 #   OVERLAPPING OCCURRENCES                             #
+	#======================================================#
+
+	def CountOverlappingCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		return StzEngineStringCountOverlapping(pH, pcSubStr)
+
+	def CountOverlapping(pcSubStr)
+		return This.CountOverlappingCS(pcSubStr, 1)
+

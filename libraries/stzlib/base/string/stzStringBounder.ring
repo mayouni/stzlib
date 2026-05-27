@@ -208,29 +208,21 @@ class stzStringBounder
 			StzRaise("Incorrect params types! pSubStrOrPos1 and pSubStrOrPos2 must be both strings or numbers.")
 		ok
 
-		oFinder = new stzStringFinder(@oString)
-
 		if @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2)
-			n1 = oFinder.FindFirstCS(pSubStrOrPos1, pCaseSensitive)
-			if n1 = 0
-				return ""
-			else
-				n1 += StzLen(pSubStrOrPos1)
-			ok
-
-			n2 = oFinder.FindLastCS(pSubStrOrPos2, pCaseSensitive)
-			if n2 = 0
-				return ""
-			else
-				n2--
-			ok
+			# Engine-backed: one call instead of find+find+section
+			_bCase_ = @CaseSensitive(pCaseSensitive)
+			pH = @oString.Engine()
+			pR = StzEngineStringBetweenCS(pH, pSubStrOrPos1, pSubStrOrPos2, _bCase_)
+			if pR = NULL return "" ok
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			return c
 		else
 			n1 = pSubStrOrPos1 + 1
 			n2 = pSubStrOrPos2 - 1
+			cResult = @oString.Section(n1, n2)
+			return cResult
 		ok
-
-		cResult = @oString.Section(n1, n2)
-		return cResult
 
 	def Between(pSubStrOrPos1, pSubStrOrPos2)
 		return This.BetweenCS(pSubStrOrPos1, pSubStrOrPos2, 1)
