@@ -575,6 +575,41 @@ fn ring_Join(p: *anyopaque) callconv(.c) void {
     rs2(p, &buf, @intCast(n));
 }
 
+// Checker functions
+fn ring_IsAllLists(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_all_lists(getLC(p, 1))));
+}
+fn ring_IsAllPairs(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_all_pairs(getLC(p, 1))));
+}
+fn ring_IsAllSections(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_all_sections(getLC(p, 1))));
+}
+fn ring_IsHybrid(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_hybrid(getLC(p, 1))));
+}
+fn ring_AllItemsEqualCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_all_items_equal_cs(getLC(p, 1), @intFromFloat(g(p, 2)))));
+}
+fn ring_IsPalindromeCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_palindrome_cs(getLC(p, 1), @intFromFloat(g(p, 2)))));
+}
+fn ring_IsContinuous(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_continuous(getLC(p, 1))));
+}
+fn ring_IsAllListsSameSize(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_all_lists_same_size(getLC(p, 1))));
+}
+fn ring_IsStrictlyIncreasing(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_strictly_increasing(getLC(p, 1))));
+}
+fn ring_IsStrictlyDecreasing(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_strictly_decreasing(getLC(p, 1))));
+}
+fn ring_IsMonotonic(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_monotonic(getLC(p, 1))));
+}
+
 // Bulk-load: read a Ring list directly in Zig — one FFI call replaces N per-element calls
 const ITEMTYPE_STRING: c_uint = 1;
 const ITEMTYPE_NUMBER: c_uint = 2;
@@ -761,6 +796,17 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistproduct", .func = &ring_Product },
     .{ .name = "stzenginelistmean", .func = &ring_Mean },
     .{ .name = "stzenginelistmarshalfromringlist", .func = &ring_MarshalFromRingList },
+    .{ .name = "stzenginelistisalllists", .func = &ring_IsAllLists },
+    .{ .name = "stzenginelistisallpairs", .func = &ring_IsAllPairs },
+    .{ .name = "stzenginelistisallsections", .func = &ring_IsAllSections },
+    .{ .name = "stzenginelistishybrid", .func = &ring_IsHybrid },
+    .{ .name = "stzenginelistallitemsequalcs", .func = &ring_AllItemsEqualCS },
+    .{ .name = "stzenginelistispalindromecs", .func = &ring_IsPalindromeCS },
+    .{ .name = "stzenginelistiscontinuous", .func = &ring_IsContinuous },
+    .{ .name = "stzenginelistisalllistssamesize", .func = &ring_IsAllListsSameSize },
+    .{ .name = "stzenginelistisstrictlyincreasing", .func = &ring_IsStrictlyIncreasing },
+    .{ .name = "stzenginelistisstrictlydecreasing", .func = &ring_IsStrictlyDecreasing },
+    .{ .name = "stzenginelistismonotonic", .func = &ring_IsMonotonic },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

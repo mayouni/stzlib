@@ -96,6 +96,17 @@ comptime {
     @export(&list.stz_string_find_chars_w, .{ .name = "stz_string_find_chars_w" });
     @export(&list.stz_string_map_chars, .{ .name = "stz_string_map_chars" });
     @export(&list.stz_string_count_chars_w, .{ .name = "stz_string_count_chars_w" });
+    @export(&list.stz_list_is_all_lists, .{ .name = "stz_list_is_all_lists" });
+    @export(&list.stz_list_is_all_pairs, .{ .name = "stz_list_is_all_pairs" });
+    @export(&list.stz_list_is_all_sections, .{ .name = "stz_list_is_all_sections" });
+    @export(&list.stz_list_is_hybrid, .{ .name = "stz_list_is_hybrid" });
+    @export(&list.stz_list_all_items_equal_cs, .{ .name = "stz_list_all_items_equal_cs" });
+    @export(&list.stz_list_is_palindrome_cs, .{ .name = "stz_list_is_palindrome_cs" });
+    @export(&list.stz_list_is_continuous, .{ .name = "stz_list_is_continuous" });
+    @export(&list.stz_list_is_all_lists_same_size, .{ .name = "stz_list_is_all_lists_same_size" });
+    @export(&list.stz_list_is_strictly_increasing, .{ .name = "stz_list_is_strictly_increasing" });
+    @export(&list.stz_list_is_strictly_decreasing, .{ .name = "stz_list_is_strictly_decreasing" });
+    @export(&list.stz_list_is_monotonic, .{ .name = "stz_list_is_monotonic" });
 }
 
 comptime {
