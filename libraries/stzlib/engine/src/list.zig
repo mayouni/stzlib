@@ -2099,6 +2099,110 @@ pub fn stz_list_mean(list_arg: ?*const StzList) callconv(.c) f64 {
     return if (count > 0) total / count else 0;
 }
 
+/// Return the median of a numeric list. For odd-length lists returns the middle value;
+/// for even-length lists returns the average of the two middle values.
+pub fn stz_list_median(list_arg: ?*const StzList) callconv(.c) f64 {
+    const l = list_arg orelse return 0;
+    const n = l.len();
+    if (n == 0) return 0;
+
+    // Clone and sort
+    const sorted = stz_list_clone(l) orelse return 0;
+    defer stz_list_free(sorted);
+    _ = stz_list_sort_cs(sorted, 1);
+
+    if (n % 2 == 1) {
+        // Odd: middle element
+        const mid = sorted.get(n / 2) orelse return 0;
+        return numericVal(mid) orelse 0;
+    } else {
+        // Even: average of two middle elements
+        const a = sorted.get(n / 2 - 1) orelse return 0;
+        const b = sorted.get(n / 2) orelse return 0;
+        const va = numericVal(a) orelse return 0;
+        const vb = numericVal(b) orelse return 0;
+        return (va + vb) / 2.0;
+    }
+}
+
+/// Return the nth smallest value (0-based index into sorted list).
+pub fn stz_list_nth_smallest(list_arg: ?*const StzList, n: usize) callconv(.c) f64 {
+    const l = list_arg orelse return 0;
+    if (n >= l.len()) return 0;
+    const sorted = stz_list_clone(l) orelse return 0;
+    defer stz_list_free(sorted);
+    _ = stz_list_sort_cs(sorted, 1);
+    const item = sorted.get(n) orelse return 0;
+    return numericVal(item) orelse 0;
+}
+
+/// Return the nth largest value (0-based: 0 = largest, 1 = second largest, etc.).
+pub fn stz_list_nth_largest(list_arg: ?*const StzList, n: usize) callconv(.c) f64 {
+    const l = list_arg orelse return 0;
+    if (n >= l.len()) return 0;
+    const sorted = stz_list_clone(l) orelse return 0;
+    defer stz_list_free(sorted);
+    _ = stz_list_sort_descending_cs(sorted, 1);
+    const item = sorted.get(n) orelse return 0;
+    return numericVal(item) orelse 0;
+}
+
+/// Return variance of numeric items in the list.
+pub fn stz_list_variance(list_arg: ?*const StzList) callconv(.c) f64 {
+    const l = list_arg orelse return 0;
+    const m = stz_list_mean(l);
+    var sum_sq: f64 = 0;
+    var count: f64 = 0;
+    for (l.items.items) |item| {
+        if (numericVal(item)) |v| {
+            const diff = v - m;
+            sum_sq += diff * diff;
+            count += 1;
+        }
+    }
+    return if (count > 0) sum_sq / count else 0;
+}
+
+/// Return standard deviation of numeric items.
+pub fn stz_list_stddev(list_arg: ?*const StzList) callconv(.c) f64 {
+    return @sqrt(stz_list_variance(list_arg));
+}
+
+/// Compute rank of each item (1-based rank in sorted order).
+/// Returns a new StzList of integers. Ties get the same rank (min rank).
+pub fn stz_list_ranked(list_arg: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const n = l.len();
+    if (n == 0) return stz_list_new();
+
+    const result = StzList.init() catch return null;
+
+    // Clone and sort
+    const sorted = stz_list_clone(l) orelse return null;
+    defer stz_list_free(sorted);
+    _ = stz_list_sort_cs(sorted, 1);
+
+    // For each item in original, find its position in sorted list
+    for (0..n) |i| {
+        const item = l.get(i) orelse {
+            _ = stz_list_append_int(result, 0);
+            continue;
+        };
+        // Linear scan for rank (position in sorted list, 1-based)
+        var rank: i64 = 1;
+        for (0..n) |j| {
+            const s_item = sorted.get(j) orelse continue;
+            if (valueEqlCS(item, s_item, true)) {
+                rank = @intCast(j + 1);
+                break;
+            }
+        }
+        _ = stz_list_append_int(result, rank);
+    }
+
+    return result;
+}
+
 // ─── Tests ───
 
 pub fn stz_list_join(list_arg: ?*const StzList, sep: [*c]const u8, sep_len: usize, out_buf: [*c]u8, out_cap: usize) callconv(.c) usize {
@@ -4405,4 +4509,106 @@ test "checker null handles" {
     try std.testing.expectEqual(@as(i32, 0), stz_list_is_strictly_increasing(null));
     try std.testing.expectEqual(@as(i32, 0), stz_list_is_strictly_decreasing(null));
     try std.testing.expectEqual(@as(i32, 0), stz_list_is_monotonic(null));
+}
+
+// ===== Statistics function tests =====
+
+test "median odd list" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    try std.testing.expectEqual(@as(f64, 2.0), stz_list_median(l));
+}
+
+test "median even list" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 2);
+    try std.testing.expectEqual(@as(f64, 2.5), stz_list_median(l));
+}
+
+test "median null returns 0" {
+    try std.testing.expectEqual(@as(f64, 0), stz_list_median(null));
+}
+
+test "nth_smallest basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 30);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    try std.testing.expectEqual(@as(f64, 10.0), stz_list_nth_smallest(l, 0));
+    try std.testing.expectEqual(@as(f64, 20.0), stz_list_nth_smallest(l, 1));
+    try std.testing.expectEqual(@as(f64, 30.0), stz_list_nth_smallest(l, 2));
+}
+
+test "nth_largest basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 30);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    try std.testing.expectEqual(@as(f64, 30.0), stz_list_nth_largest(l, 0));
+    try std.testing.expectEqual(@as(f64, 20.0), stz_list_nth_largest(l, 1));
+    try std.testing.expectEqual(@as(f64, 10.0), stz_list_nth_largest(l, 2));
+}
+
+test "variance basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 7);
+    _ = stz_list_append_int(l, 9);
+    // mean = 5, variance = 4
+    try std.testing.expectEqual(@as(f64, 4.0), stz_list_variance(l));
+}
+
+test "stddev basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 7);
+    _ = stz_list_append_int(l, 9);
+    // stddev = 2
+    try std.testing.expectEqual(@as(f64, 2.0), stz_list_stddev(l));
+}
+
+test "ranked basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 30);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    const ranked = stz_list_ranked(l) orelse return error.AllocFailed;
+    defer stz_list_free(ranked);
+    try std.testing.expectEqual(@as(usize, 3), ranked.len());
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(ranked, 0)); // 30 is rank 3
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(ranked, 1)); // 10 is rank 1
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(ranked, 2)); // 20 is rank 2
+}
+
+test "ranked null returns null" {
+    try std.testing.expectEqual(@as(?*StzList, null), stz_list_ranked(null));
+}
+
+test "statistics null handles" {
+    try std.testing.expectEqual(@as(f64, 0), stz_list_variance(null));
+    try std.testing.expectEqual(@as(f64, 0), stz_list_stddev(null));
+    try std.testing.expectEqual(@as(f64, 0), stz_list_nth_smallest(null, 0));
+    try std.testing.expectEqual(@as(f64, 0), stz_list_nth_largest(null, 0));
 }

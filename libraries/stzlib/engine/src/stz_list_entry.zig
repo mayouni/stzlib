@@ -107,6 +107,12 @@ comptime {
     @export(&list.stz_list_is_strictly_increasing, .{ .name = "stz_list_is_strictly_increasing" });
     @export(&list.stz_list_is_strictly_decreasing, .{ .name = "stz_list_is_strictly_decreasing" });
     @export(&list.stz_list_is_monotonic, .{ .name = "stz_list_is_monotonic" });
+    @export(&list.stz_list_median, .{ .name = "stz_list_median" });
+    @export(&list.stz_list_nth_smallest, .{ .name = "stz_list_nth_smallest" });
+    @export(&list.stz_list_nth_largest, .{ .name = "stz_list_nth_largest" });
+    @export(&list.stz_list_variance, .{ .name = "stz_list_variance" });
+    @export(&list.stz_list_stddev, .{ .name = "stz_list_stddev" });
+    @export(&list.stz_list_ranked, .{ .name = "stz_list_ranked" });
 }
 
 comptime {
