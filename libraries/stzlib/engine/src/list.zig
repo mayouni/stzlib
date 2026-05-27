@@ -305,6 +305,37 @@ pub fn stz_list_find_cs(list: ?*const StzList, v: ?*const StzValue, case_sensiti
     return count;
 }
 
+/// Find the nth occurrence of a value (0-based nth). Returns 0-based index or -1.
+pub fn stz_list_find_nth_cs(list_ptr: ?*const StzList, v: ?*const StzValue, nth: usize, case_sensitive: i32) callconv(.c) i64 {
+    const l = list_ptr orelse return -1;
+    const needle = v orelse return -1;
+    const cs = case_sensitive != 0;
+    var occurrence: usize = 0;
+    for (l.items.items, 0..) |item, i| {
+        if (valueEqlCS(item, needle, cs)) {
+            if (occurrence == nth) return @intCast(i);
+            occurrence += 1;
+        }
+    }
+    return -1;
+}
+
+/// Find the last occurrence of a value. Returns 0-based index or -1.
+pub fn stz_list_find_last_cs(list_ptr: ?*const StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) i64 {
+    const l = list_ptr orelse return -1;
+    const needle = v orelse return -1;
+    const cs = case_sensitive != 0;
+    const n = l.len();
+    if (n == 0) return -1;
+    var i = n;
+    while (i > 0) {
+        i -= 1;
+        const item = l.get(i) orelse continue;
+        if (valueEqlCS(item, needle, cs)) return @intCast(i);
+    }
+    return -1;
+}
+
 pub fn stz_list_count_cs(list: ?*const StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) usize {
     const l = list orelse return 0;
     const needle = v orelse return 0;
@@ -4611,4 +4642,48 @@ test "statistics null handles" {
     try std.testing.expectEqual(@as(f64, 0), stz_list_stddev(null));
     try std.testing.expectEqual(@as(f64, 0), stz_list_nth_smallest(null, 0));
     try std.testing.expectEqual(@as(f64, 0), stz_list_nth_largest(null, 0));
+}
+
+// ===== Find nth/last tests =====
+
+test "find_nth_cs first occurrence" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 30);
+    _ = stz_list_append_int(l, 10);
+    const v = value_mod.stz_value_new_int(10) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    try std.testing.expectEqual(@as(i64, 0), stz_list_find_nth_cs(l, v, 0, 1));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_find_nth_cs(l, v, 1, 1));
+    try std.testing.expectEqual(@as(i64, 4), stz_list_find_nth_cs(l, v, 2, 1));
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_nth_cs(l, v, 3, 1));
+}
+
+test "find_last_cs basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 30);
+    const v = value_mod.stz_value_new_int(10) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    try std.testing.expectEqual(@as(i64, 2), stz_list_find_last_cs(l, v, 1));
+}
+
+test "find_last_cs not found" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    const v = value_mod.stz_value_new_int(99) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(v);
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_last_cs(l, v, 1));
+}
+
+test "find_nth_last null handles" {
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_nth_cs(null, null, 0, 1));
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_last_cs(null, null, 1));
 }
