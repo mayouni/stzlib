@@ -227,21 +227,100 @@ pub fn str_strip_marks(handle: StzStringHandle) callconv(.c) StzStringHandle {
 }
 
 // ─── Between Delimiters ───
+// Universal Softanza convention: base verb = ALL matches.
+// str_between_first / str_between_nth for specific occurrences.
 
+/// Return ALL substrings between open/close delimiter pairs as null-delimited buffer.
+/// E.g. "[a][b][c]" with "[" and "]" → "a\0b\0c"
+/// Returns empty handle if no match found.
 pub fn str_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
-    if (handle) |s| {
-        const haystack = s.slice();
-        const open_needle = open[0..open_len];
-        const close_needle = close[0..close_len];
-        if (mem.indexOf(u8, haystack, open_needle)) |open_pos| {
-            const after_open = open_pos + open_len;
-            if (mem.indexOfPos(u8, haystack, after_open, close_needle)) |close_pos| {
-                const between = haystack[after_open..close_pos];
-                return str_from(@ptrCast(between.ptr), between.len);
+    const s = handle orelse return str_new();
+    const src = s.slice();
+    if (src.len == 0 or open_len == 0 or close_len == 0) return str_new();
+
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
+    const result = str_new() orelse return null;
+    var i: usize = 0;
+    var found_any = false;
+
+    while (i + open_len <= src.len) {
+        if (mem.eql(u8, src[i..][0..open_len], open_s)) {
+            const after_open = i + open_len;
+            var j = after_open;
+            while (j + close_len <= src.len) {
+                if (mem.eql(u8, src[j..][0..close_len], close_s)) {
+                    if (found_any) {
+                        result.data.append(gpa, 0) catch break;
+                    }
+                    result.data.appendSlice(gpa, src[after_open..j]) catch break;
+                    found_any = true;
+                    i = j + close_len;
+                    break;
+                }
+                j += 1;
+            } else {
+                break;
             }
+            continue;
         }
+        i += 1;
     }
-    return null;
+
+    return result;
+}
+
+/// Return ALL substrings between open/close pairs with case sensitivity.
+/// Returns null-delimited buffer.
+pub fn str_between_cs(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, case: c_int) callconv(.c) StzStringHandle {
+    if (case != 0) {
+        return str_between(handle, open, open_len, close, close_len);
+    }
+
+    // Case-insensitive
+    const s = handle orelse return str_new();
+    const src = s.slice();
+    if (src.len == 0 or open_len == 0 or close_len == 0) return str_new();
+
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
+    const folded_open = casefoldAlloc(open_s) orelse return null;
+    defer gpa.free(folded_open);
+    const folded_close = casefoldAlloc(close_s) orelse return null;
+    defer gpa.free(folded_close);
+    const folded_src = casefoldAlloc(src) orelse return null;
+    defer gpa.free(folded_src);
+
+    const result = str_new() orelse return null;
+    var i: usize = 0;
+    var found_any = false;
+
+    while (i + folded_open.len <= folded_src.len) {
+        if (mem.eql(u8, folded_src[i..][0..folded_open.len], folded_open)) {
+            const after_open = i + folded_open.len;
+            var j = after_open;
+            while (j + folded_close.len <= folded_src.len) {
+                if (mem.eql(u8, folded_src[j..][0..folded_close.len], folded_close)) {
+                    if (found_any) {
+                        result.data.append(gpa, 0) catch break;
+                    }
+                    result.data.appendSlice(gpa, src[after_open..j]) catch break;
+                    found_any = true;
+                    i = j + folded_close.len;
+                    break;
+                }
+                j += 1;
+            } else {
+                break;
+            }
+            continue;
+        }
+        i += 1;
+    }
+
+    return result;
 }
 
 pub fn str_between_nth(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, nth: c_int) callconv(.c) StzStringHandle {
@@ -438,106 +517,13 @@ pub export fn str_cp_count(handle: ?*StzString) callconv(.c) c_int {
     return @intCast(utf8CodepointCount(src));
 }
 
-// ─── BetweenAll: return ALL substrings between delimiter pairs ───
+// ─── BetweenAll: aliases (base verb already means ALL) ───
 
-/// Return all substrings between open/close pairs as null-delimited buffer.
-/// E.g. "[a][b][c]" with "[" and "]" → "a\0b\0c"
-/// Returns empty handle if no match found.
-pub fn str_between_all(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return str_new();
-    const src = s.slice();
-    if (src.len == 0 or open_len == 0 or close_len == 0) return str_new();
+/// Alias: str_between_all = str_between (base verb = ALL per Softanza convention)
+pub const str_between_all = str_between;
 
-    const open_s = open[0..open_len];
-    const close_s = close[0..close_len];
-
-    const result = str_new() orelse return null;
-    var i: usize = 0;
-    var found_any = false;
-
-    while (i + open_len <= src.len) {
-        if (mem.eql(u8, src[i..][0..open_len], open_s)) {
-            const after_open = i + open_len;
-            var j = after_open;
-            while (j + close_len <= src.len) {
-                if (mem.eql(u8, src[j..][0..close_len], close_s)) {
-                    // Add null separator before second+ match
-                    if (found_any) {
-                        result.data.append(gpa, 0) catch break;
-                    }
-                    result.data.appendSlice(gpa, src[after_open..j]) catch break;
-                    found_any = true;
-                    i = j + close_len;
-                    break;
-                }
-                j += 1;
-            } else {
-                // No close found for this open — stop
-                break;
-            }
-            continue;
-        }
-        i += 1;
-    }
-
-    return result;
-}
-
-/// Return all substrings between open/close pairs with case sensitivity.
-/// Returns null-delimited buffer.
-pub fn str_between_all_cs(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, case: c_int) callconv(.c) StzStringHandle {
-    if (case != 0) {
-        // Case-sensitive — use the plain version
-        return str_between_all(handle, open, open_len, close, close_len);
-    }
-
-    // Case-insensitive
-    const s = handle orelse return str_new();
-    const src = s.slice();
-    if (src.len == 0 or open_len == 0 or close_len == 0) return str_new();
-
-    const open_s = open[0..open_len];
-    const close_s = close[0..close_len];
-
-    // Case-fold the needles
-    const folded_open = casefoldAlloc(open_s) orelse return null;
-    defer gpa.free(folded_open);
-    const folded_close = casefoldAlloc(close_s) orelse return null;
-    defer gpa.free(folded_close);
-    // Case-fold the haystack
-    const folded_src = casefoldAlloc(src) orelse return null;
-    defer gpa.free(folded_src);
-
-    const result = str_new() orelse return null;
-    var i: usize = 0;
-    var found_any = false;
-
-    while (i + folded_open.len <= folded_src.len) {
-        if (mem.eql(u8, folded_src[i..][0..folded_open.len], folded_open)) {
-            const after_open = i + folded_open.len;
-            var j = after_open;
-            while (j + folded_close.len <= folded_src.len) {
-                if (mem.eql(u8, folded_src[j..][0..folded_close.len], folded_close)) {
-                    if (found_any) {
-                        result.data.append(gpa, 0) catch break;
-                    }
-                    // Use original src bytes (not folded) for content
-                    result.data.appendSlice(gpa, src[after_open..j]) catch break;
-                    found_any = true;
-                    i = j + folded_close.len;
-                    break;
-                }
-                j += 1;
-            } else {
-                break;
-            }
-            continue;
-        }
-        i += 1;
-    }
-
-    return result;
-}
+/// Alias: str_between_all_cs = str_between_cs (base verb = ALL per Softanza convention)
+pub const str_between_all_cs = str_between_cs;
 
 // ─── Tests ───
 
@@ -661,10 +647,24 @@ test "str_right_cp: codepoint right" {
     try expectStr(str_right_cp(s, 2), "\xC3\xA8\xC3\xA0");
 }
 
-test "str_between: extract between delimiters" {
+test "str_between: single match returns it in buffer" {
     const s = h("[hello]");
     defer str_free(s);
     try expectStr(str_between(s, "[", 1, "]", 1), "hello");
+}
+
+test "str_between: multiple matches returns null-delimited" {
+    const s = h("[a][b][c]");
+    defer str_free(s);
+    const r = str_between(s, "[", 1, "]", 1);
+    defer str_free(r);
+    const sl = r.?.slice();
+    try testing.expectEqual(@as(usize, 5), sl.len); // "a\0b\0c"
+    try testing.expectEqual(@as(u8, 'a'), sl[0]);
+    try testing.expectEqual(@as(u8, 0), sl[1]);
+    try testing.expectEqual(@as(u8, 'b'), sl[2]);
+    try testing.expectEqual(@as(u8, 0), sl[3]);
+    try testing.expectEqual(@as(u8, 'c'), sl[4]);
 }
 
 test "str_between: multi-char delimiters" {
@@ -673,10 +673,10 @@ test "str_between: multi-char delimiters" {
     try expectStr(str_between(s, "<<", 2, ">>", 2), "content");
 }
 
-test "str_between: no match returns null" {
+test "str_between: no match returns empty" {
     const s = h("no brackets here");
     defer str_free(s);
-    try testing.expectEqual(@as(StzStringHandle, null), str_between(s, "[", 1, "]", 1));
+    try expectStr(str_between(s, "[", 1, "]", 1), "");
 }
 
 test "str_between_nth: specific occurrence" {
@@ -730,40 +730,37 @@ test "str_grapheme_count: basic graphemes" {
     try testing.expect(str_grapheme_count(s) >= 5);
 }
 
-test "str_between_all: multiple matches" {
-    const s = h("[a][b][c]");
+test "str_between_all: alias works same as str_between" {
+    const s = h("[x][y]");
     defer str_free(s);
     const r = str_between_all(s, "[", 1, "]", 1);
     defer str_free(r);
-    // Result should be "a\0b\0c"
     const sl = r.?.slice();
-    try testing.expectEqual(@as(usize, 5), sl.len); // "a" + \0 + "b" + \0 + "c"
-    try testing.expectEqual(@as(u8, 'a'), sl[0]);
+    try testing.expectEqual(@as(usize, 3), sl.len); // "x\0y"
+    try testing.expectEqual(@as(u8, 'x'), sl[0]);
     try testing.expectEqual(@as(u8, 0), sl[1]);
-    try testing.expectEqual(@as(u8, 'b'), sl[2]);
-    try testing.expectEqual(@as(u8, 0), sl[3]);
-    try testing.expectEqual(@as(u8, 'c'), sl[4]);
+    try testing.expectEqual(@as(u8, 'y'), sl[2]);
 }
 
-test "str_between_all: single match" {
-    const s = h("[hello]");
+test "str_between_cs: case insensitive ALL matches" {
+    const s = h("[A]text[B]more[C]");
     defer str_free(s);
-    const r = str_between_all(s, "[", 1, "]", 1);
-    // expectStr frees handle, no extra defer
-    try expectStr(r, "hello");
+    // Case-sensitive
+    const r1 = str_between_cs(s, "[", 1, "]", 1, 1);
+    defer str_free(r1);
+    const sl1 = r1.?.slice();
+    try testing.expectEqual(@as(usize, 5), sl1.len); // "A\0B\0C"
+    // Case-insensitive (same result for brackets, but test the path)
+    const r2 = str_between_cs(s, "[", 1, "]", 1, 0);
+    defer str_free(r2);
+    const sl2 = r2.?.slice();
+    try testing.expectEqual(@as(usize, 5), sl2.len);
 }
 
-test "str_between_all: no match" {
-    const s = h("no brackets");
-    defer str_free(s);
-    const r = str_between_all(s, "[", 1, "]", 1);
-    try expectStr(r, "");
-}
-
-test "str_between_all: multi-char delimiters" {
+test "str_between: multi-match with multi-char delimiters" {
     const s = h("<<first>>middle<<second>>");
     defer str_free(s);
-    const r = str_between_all(s, "<<", 2, ">>", 2);
+    const r = str_between(s, "<<", 2, ">>", 2);
     defer str_free(r);
     const sl = r.?.slice();
     // "first\0second"
@@ -771,19 +768,4 @@ test "str_between_all: multi-char delimiters" {
     try testing.expectEqualSlices(u8, "first", sl[0..5]);
     try testing.expectEqual(@as(u8, 0), sl[5]);
     try testing.expectEqualSlices(u8, "second", sl[6..12]);
-}
-
-test "str_between_all_cs: case insensitive" {
-    const s = h("[A]text[B]more[C]");
-    defer str_free(s);
-    // Case-sensitive
-    const r1 = str_between_all_cs(s, "[", 1, "]", 1, 1);
-    defer str_free(r1);
-    const sl1 = r1.?.slice();
-    try testing.expectEqual(@as(usize, 5), sl1.len); // "A\0B\0C"
-    // Case-insensitive (same result for brackets, but test the path)
-    const r2 = str_between_all_cs(s, "[", 1, "]", 1, 0);
-    defer str_free(r2);
-    const sl2 = r2.?.slice();
-    try testing.expectEqual(@as(usize, 5), sl2.len);
 }

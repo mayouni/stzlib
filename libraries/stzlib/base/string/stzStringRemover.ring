@@ -390,7 +390,7 @@ class stzStringRemover
 	def RemoveFirstBetween(pcBound1, pcBound2)
 		# Removes only the FIRST open...close pair
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveBetween(pH, pcBound1, pcBound2)
+		pR = StzEngineStringRemoveFirstBetween(pH, pcBound1, pcBound2)
 		_cRfbResult_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		@oString.Update(_cRfbResult_)

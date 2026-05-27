@@ -193,7 +193,7 @@ pub const str_starts_with_any = find.str_starts_with_any;
 pub const str_ends_with_any_cs = find.str_ends_with_any_cs;
 pub const str_ends_with_any = find.str_ends_with_any;
 pub const str_duplicate_substrings_cs = find.str_duplicate_substrings_cs;
-pub const str_between_cs = find.str_between_cs;
+pub const str_between_first_cs = find.str_between_first_cs;
 pub const str_section_cp = find.str_section_cp;
 
 // ─── Replace submodule imports ───
@@ -215,6 +215,7 @@ pub const str_replace_at = replace.str_replace_at;
 pub const str_replace2 = replace.str_replace2;
 pub const str_replace_any_char = replace.str_replace_any_char;
 pub const str_replace_between = replace.str_replace_between;
+pub const str_replace_first_between = replace.str_replace_first_between;
 pub const str_replace_all_between = replace.str_replace_all_between;
 pub const str_remove_range = replace.str_remove_range;
 pub const str_remove_all_cs = replace.str_remove_all_cs;
@@ -229,6 +230,7 @@ pub const str_remove_prefix = replace.str_remove_prefix;
 pub const str_remove_suffix = replace.str_remove_suffix;
 pub const str_remove_whitespace = replace.str_remove_whitespace;
 pub const str_remove_between = replace.str_remove_between;
+pub const str_remove_first_between = replace.str_remove_first_between;
 pub const str_remove_all_between = replace.str_remove_all_between;
 pub const str_remove_vowels = replace.str_remove_vowels;
 pub const str_remove_duplicate_words = replace.str_remove_duplicate_words;
@@ -347,6 +349,7 @@ pub const str_count_between = extract.str_count_between;
 pub const str_substring = extract.str_substring;
 pub const str_chars_between = extract.str_chars_between;
 pub const str_char_at_to_string = extract.str_char_at_to_string;
+pub const str_between_cs = extract.str_between_cs;
 pub const str_between_first = extract.str_between_first;
 pub const str_between_all = extract.str_between_all;
 pub const str_between_all_cs = extract.str_between_all_cs;
@@ -1198,7 +1201,7 @@ test "is_empty" {
     str_free(nonempty);
 }
 
-test "between" {
+test "between: ALL semantics - single match" {
     const s = str_from("hello [world] end", 17);
     const r = str_between(s, "[", 1, "]", 1);
     try std.testing.expect(r != null);
@@ -1208,7 +1211,17 @@ test "between" {
     str_free(s);
 }
 
-test "between multi-char delimiters" {
+test "between: ALL semantics - multiple matches" {
+    const s = str_from("[a][b][c]", 9);
+    const r = str_between(s, "[", 1, "]", 1);
+    try std.testing.expect(r != null);
+    // "a\0b\0c" = 5 bytes
+    try std.testing.expectEqual(@as(usize, 5), str_size(r));
+    str_free(r);
+    str_free(s);
+}
+
+test "between: ALL semantics - multi-char delimiters" {
     const s = str_from("start<<content>>end", 19);
     const r = str_between(s, "<<", 2, ">>", 2);
     try std.testing.expect(r != null);
@@ -1218,10 +1231,13 @@ test "between multi-char delimiters" {
     str_free(s);
 }
 
-test "between not found" {
+test "between: ALL semantics - not found returns empty" {
     const s = str_from("hello world", 11);
     const r = str_between(s, "[", 1, "]", 1);
-    try std.testing.expect(r == null);
+    // ALL semantics returns empty handle (not null) when no match
+    try std.testing.expect(r != null);
+    try std.testing.expectEqual(@as(usize, 0), str_size(r));
+    str_free(r);
     str_free(s);
 }
 
@@ -2825,19 +2841,27 @@ test "repeat_to_length" {
     str_free(s1);
 }
 
-test "remove_between" {
+test "remove_between: ALL semantics" {
+    // Single pair
     const s1 = str_from("hello [world] end", 17);
     const r1 = str_remove_between(s1, "[", 1, "]", 1);
     try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "hello  end"));
     str_free(r1);
     str_free(s1);
 
-    // HTML tags
-    const s2 = str_from("before<tag>inside</tag>after", 28);
-    const r2 = str_remove_between(s2, "<tag>", 5, "</tag>", 6);
-    try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "beforeafter"));
+    // Multiple pairs — ALL semantics removes all
+    const s2 = str_from("a[x]b[y]c", 9);
+    const r2 = str_remove_between(s2, "[", 1, "]", 1);
+    try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "abc"));
     str_free(r2);
     str_free(s2);
+
+    // HTML tags
+    const s3 = str_from("before<tag>inside</tag>after", 28);
+    const r3 = str_remove_between(s3, "<tag>", 5, "</tag>", 6);
+    try std.testing.expect(mem.eql(u8, str_data(r3)[0..@intCast(str_size(r3))], "beforeafter"));
+    str_free(r3);
+    str_free(s3);
 }
 
 test "is_blank" {
@@ -2896,19 +2920,27 @@ test "is_identifier" {
     str_free(s5);
 }
 
-test "replace_between" {
+test "replace_between: ALL semantics" {
+    // Single pair
     const s1 = str_from("hello [world] end", 17);
     const r1 = str_replace_between(s1, "[", 1, "]", 1, "REPLACED", 8);
     try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "hello REPLACED end"));
     str_free(r1);
     str_free(s1);
 
-    // Replace with empty
-    const s2 = str_from("a<b>c", 5);
-    const r2 = str_replace_between(s2, "<", 1, ">", 1, "", 0);
-    try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "ac"));
+    // Multiple pairs — ALL semantics replaces all
+    const s2 = str_from("a[x]b[y]c[z]d", 13);
+    const r2 = str_replace_between(s2, "[", 1, "]", 1, "!", 1);
+    try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "a!b!c!d"));
     str_free(r2);
     str_free(s2);
+
+    // Replace with empty
+    const s3 = str_from("a<b>c", 5);
+    const r3 = str_replace_between(s3, "<", 1, ">", 1, "", 0);
+    try std.testing.expect(mem.eql(u8, str_data(r3)[0..@intCast(str_size(r3))], "ac"));
+    str_free(r3);
+    str_free(s3);
 }
 
 test "contains_only" {

@@ -51,12 +51,17 @@ comptime {
     @export(&string.str_regex_split_count, .{ .name = "str_regex_split_count" });
     @export(&string.str_regex_split_get, .{ .name = "str_regex_split_get" });
 
-    // Between / Section
-    @export(&string.str_between_cs, .{ .name = "str_between_cs" });
+    // Between / Section (base verb = ALL per Softanza convention)
     @export(&string.str_between, .{ .name = "str_between" });
+    @export(&string.str_between_cs, .{ .name = "str_between_cs" });
     @export(&string.str_between_all, .{ .name = "str_between_all" });
     @export(&string.str_between_all_cs, .{ .name = "str_between_all_cs" });
+    @export(&string.str_between_first_cs, .{ .name = "str_between_first_cs" });
+    @export(&string.str_replace_between, .{ .name = "str_replace_between" });
+    @export(&string.str_replace_first_between, .{ .name = "str_replace_first_between" });
     @export(&string.str_replace_all_between, .{ .name = "str_replace_all_between" });
+    @export(&string.str_remove_between, .{ .name = "str_remove_between" });
+    @export(&string.str_remove_first_between, .{ .name = "str_remove_first_between" });
     @export(&string.str_remove_all_between, .{ .name = "str_remove_all_between" });
     @export(&string.str_section_cp, .{ .name = "str_section_cp" });
 

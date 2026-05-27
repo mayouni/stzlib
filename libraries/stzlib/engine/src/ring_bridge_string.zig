@@ -1622,6 +1622,15 @@ fn ring_StringRemoveAllBetween(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_all_between(h, open, open_len, close, close_len)), STZ_HANDLE);
 }
 
+fn ring_StringRemoveFirstBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_first_between(h, open, open_len, close, close_len)), STZ_HANDLE);
+}
+
 fn ring_StringIsBlank(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retnumber(p, @floatFromInt(string.str_is_blank(h)));
@@ -1657,6 +1666,17 @@ fn ring_StringReplaceAllBetween(p: *anyopaque) callconv(.c) void {
     const rep = ring_vm_api_getstring(p, 4);
     const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
     ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_all_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
+}
+
+fn ring_StringReplaceFirstBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const rep = ring_vm_api_getstring(p, 4);
+    const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_first_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
 }
 
 fn ring_StringContainsOnly(p: *anyopaque) callconv(.c) void {
@@ -2105,6 +2125,16 @@ fn ring_StringBetweenFirst(p: *anyopaque) callconv(.c) void {
     const close: [*c]const u8 = ring_vm_api_getstring(p, 3);
     const close_len: c_int = @intCast(ring_vm_api_getstringsize(p, 3));
     ring_vm_api_retcpointer(p, @ptrCast(string.str_between_first(h, open, open_len, close, close_len)), STZ_HANDLE);
+}
+
+fn ring_StringBetweenFirstCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close: [*c]const u8 = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_between_first_cs(h, open, open_len, close, close_len, cs)), STZ_HANDLE);
 }
 
 fn ring_StringToDotCase(p: *anyopaque) callconv(.c) void {
@@ -3359,6 +3389,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringinsertwordat", .func = &ring_StringInsertWordAt },
     .{ .name = "stzenginestringtospongebobcase", .func = &ring_StringToSpongebobCase },
     .{ .name = "stzenginestringbetweenfirst", .func = &ring_StringBetweenFirst },
+    .{ .name = "stzenginestringbetweenfirstcs", .func = &ring_StringBetweenFirstCS },
+    .{ .name = "stzenginestringreplacefirstbetween", .func = &ring_StringReplaceFirstBetween },
+    .{ .name = "stzenginestringremovefirstbetween", .func = &ring_StringRemoveFirstBetween },
     .{ .name = "stzenginestringtodotcase", .func = &ring_StringToDotCase },
     .{ .name = "stzenginestringabbreviate", .func = &ring_StringAbbreviate },
     .{ .name = "stzenginestringcountsubstring", .func = &ring_StringCountSubstring },

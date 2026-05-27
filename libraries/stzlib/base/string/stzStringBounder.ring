@@ -252,7 +252,7 @@ class stzStringBounder
 			# Engine-backed: returns FIRST match only
 			_bFbCase_ = @CaseSensitive(pCaseSensitive)
 			pH = @oString.Engine()
-			pR = StzEngineStringBetweenCS(pH, pSubStrOrPos1, pSubStrOrPos2, _bFbCase_)
+			pR = StzEngineStringBetweenFirstCS(pH, pSubStrOrPos1, pSubStrOrPos2, _bFbCase_)
 			if pR = NULL return "" ok
 			_cFbResult_ = StzEngineStringData(pR)
 			StzEngineStringFree(pR)
