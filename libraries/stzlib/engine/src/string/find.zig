@@ -60,6 +60,10 @@ pub fn str_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: u
     return str_index_of_cs(handle, needle, needle_len, 1);
 }
 
+// ─── FindFirst aliases (Softanza convention: index_of = find_first) ───
+pub const str_find_first_cs = str_index_of_cs;
+pub const str_find_first = str_index_of;
+
 /// Unified index_of_from with case sensitivity parameter.
 pub fn str_index_of_from_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize, case: c_int) callconv(.c) i64 {
     if (handle) |s| {
@@ -272,6 +276,10 @@ pub fn str_last_index_of_cs(handle: StzStringHandle, needle: [*c]const u8, needl
 pub fn str_last_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
     return str_last_index_of_cs(handle, needle, needle_len, 1);
 }
+
+// ─── FindLast aliases (Softanza convention: last_index_of = find_last) ───
+pub const str_find_last_cs = str_last_index_of_cs;
+pub const str_find_last = str_last_index_of;
 
 // ─── Contains ───
 

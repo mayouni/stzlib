@@ -771,10 +771,11 @@ pub fn str_remove_range(handle: StzStringHandle, start_cp: usize, cp_count: usiz
     return str_new();
 }
 
-// ─── RemoveAll: remove all occurrences ───
+// ─── Remove: base verb = ALL occurrences (Softanza convention) ───
 
 /// Remove all occurrences of `needle` from the string. Returns new handle.
-/// Unified remove_all with case sensitivity parameter.
+/// Unified remove with case sensitivity parameter.
+/// Base verb = ALL per Softanza universal naming convention.
 pub fn str_remove_all_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) StzStringHandle {
     if (case == 0) {
         const s = (handle orelse return null);
@@ -805,6 +806,15 @@ pub fn str_remove_all_cs(handle: StzStringHandle, needle: [*c]const u8, needle_l
 pub fn str_remove_all(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
     return str_remove_all_cs(handle, needle, needle_len, 1);
 }
+
+// ─── Remove aliases: base verb = ALL per Softanza convention ───
+/// str_remove = str_remove_all (base verb means ALL occurrences)
+pub const str_remove_cs = str_remove_all_cs;
+
+// NOTE: str_remove cannot be a pub const alias because it would clash with
+// the Zig keyword @import resolution. We define it as a thin wrapper.
+// Actually in Zig there's no such clash. Let's use pub const.
+pub const str_remove = str_remove_all;
 
 // ─── RemoveCharAt: remove single codepoint at index ───
 
@@ -878,7 +888,7 @@ pub fn str_remove_consecutive_duplicates(handle: StzStringHandle) callconv(.c) S
     return result;
 }
 
-// ─── RemoveFirstOccurrence ───
+// ─── RemoveFirst (canonical) / RemoveFirstOccurrence (legacy alias) ───
 
 pub fn str_remove_first_occurrence(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
@@ -907,7 +917,10 @@ pub fn str_remove_first_occurrence(handle: StzStringHandle, needle: [*c]const u8
     return str_copy(handle);
 }
 
-// ─── RemoveLastOccurrence ───
+/// Alias: str_remove_first = str_remove_first_occurrence (short form per Softanza convention)
+pub const str_remove_first = str_remove_first_occurrence;
+
+// ─── RemoveLast (canonical) / RemoveLastOccurrence (legacy alias) ───
 
 pub fn str_remove_last_occurrence(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
@@ -945,7 +958,10 @@ pub fn str_remove_last_occurrence(handle: StzStringHandle, needle: [*c]const u8,
     return str_copy(handle);
 }
 
-// ─── RemoveNthOccurrence ───
+/// Alias: str_remove_last = str_remove_last_occurrence (short form per Softanza convention)
+pub const str_remove_last = str_remove_last_occurrence;
+
+// ─── RemoveNth (canonical) / RemoveNthOccurrence (legacy alias) ───
 
 pub fn str_remove_nth_occurrence(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
@@ -981,6 +997,9 @@ pub fn str_remove_nth_occurrence(handle: StzStringHandle, needle: [*c]const u8, 
     }
     return str_copy(handle);
 }
+
+/// Alias: str_remove_nth = str_remove_nth_occurrence (short form per Softanza convention)
+pub const str_remove_nth = str_remove_nth_occurrence;
 
 // ─── RemovePrefix ───
 
