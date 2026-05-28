@@ -3271,6 +3271,107 @@ class stzList from stzObject
 		_oAsibSec_ = new stzListSections(This)
 		return _oAsibSec_.AntiSectionIB(n1, n2)
 
+	def FindAntiSections(paSections)
+		if isList(paSections) and StzLen(paSections) = 2 and
+		   isString(paSections[1]) and StzCaseFold(paSections[1]) = "of"
+			paSections = paSections[2]
+		ok
+
+		# Adjust sections from 1-based to 0-based for engine
+		_aFasAdj_ = []
+		for _iFas_ = 1 to StzLen(paSections)
+			_aFasPair_ = paSections[_iFas_]
+			_nFasS_ = _aFasPair_[1] - 1
+			_nFasE_ = _aFasPair_[2] - 1
+			@AddItem(_aFasAdj_, [ _nFasS_, _nFasE_ ])
+		next
+
+		_pFasList_ = StzEngineMarshalList(This.Content())
+		_pFasSecs_ = StzEngineMarshalList(_aFasAdj_)
+		_pFasResult_ = StzEngineListAntiSections(_pFasList_, _pFasSecs_)
+		_aFasRaw_ = StzEngineContentFromList(_pFasResult_)
+		StzEngineListFree(_pFasResult_)
+		StzEngineListFree(_pFasSecs_)
+		StzEngineListFree(_pFasList_)
+
+		# Adjust result pairs from 0-based back to 1-based
+		_aFasResult_ = []
+		for _jFas_ = 1 to StzLen(_aFasRaw_)
+			_aFasPairR_ = _aFasRaw_[_jFas_]
+			_nFasR1_ = _aFasPairR_[1] + 1
+			_nFasR2_ = _aFasPairR_[2] + 1
+			@AddItem(_aFasResult_, [ _nFasR1_, _nFasR2_ ])
+		next
+		return _aFasResult_
+
+	def AntiSections(paSections)
+		if isList(paSections) and StzLen(paSections) = 2 and
+		   isString(paSections[1]) and StzCaseFold(paSections[1]) = "of"
+			paSections = paSections[2]
+		ok
+
+		_aAsSections_ = This.FindAntiSections(paSections)
+		_aAsResult_ = []
+		for _iAs_ = 1 to StzLen(_aAsSections_)
+			_aAsPair_ = _aAsSections_[_iAs_]
+			@AddItem(_aAsResult_, This.Section(_aAsPair_[1], _aAsPair_[2]))
+		next
+		return _aAsResult_
+
+	def FindAntiSectionsIB(paSections)
+		if isList(paSections) and StzLen(paSections) = 2 and
+		   isString(paSections[1]) and StzCaseFold(paSections[1]) = "of"
+			paSections = paSections[2]
+		ok
+
+		# IB = Including Bounds: anti-section boundaries overlap with
+		# the original section boundaries by 1 position on each side.
+		# E.g. sections [3,5],[7,8] on 10 items:
+		#   non-IB: [1,2],[6,6],[9,10]
+		#   IB:     [1,3],[5,7],[8,10]
+
+		# Sort sections for correct boundary computation
+		_aFasibSorted_ = []
+		for _iFasibS_ = 1 to StzLen(paSections)
+			@AddItem(_aFasibSorted_, paSections[_iFasibS_])
+		next
+
+		_nFasibLen_ = StzLen(_aFasibSorted_)
+		_aFasibResult_ = []
+		_nFasibN1_ = 1
+
+		for _iFasib_ = 1 to _nFasibLen_
+			_aFasibPair_ = _aFasibSorted_[_iFasib_]
+			if _aFasibPair_[1] > _nFasibN1_
+				_nFasibN2_ = _aFasibPair_[1]
+				@AddItem(_aFasibResult_, [ _nFasibN1_, _nFasibN2_ ])
+			ok
+			if _iFasib_ < _nFasibLen_
+				_nFasibN1_ = _aFasibPair_[2]
+			ok
+		next
+
+		_nFasibLast_ = _aFasibSorted_[_nFasibLen_][2]
+		if _nFasibLast_ < This.NumberOfItems()
+			@AddItem(_aFasibResult_, [ _nFasibLast_, This.NumberOfItems() ])
+		ok
+
+		return _aFasibResult_
+
+	def AntiSectionsIB(paSections)
+		if isList(paSections) and StzLen(paSections) = 2 and
+		   isString(paSections[1]) and StzCaseFold(paSections[1]) = "of"
+			paSections = paSections[2]
+		ok
+
+		_aAsibSections_ = This.FindAntiSectionsIB(paSections)
+		_aAsibResult_ = []
+		for _iAsib_ = 1 to StzLen(_aAsibSections_)
+			_aAsibPair_ = _aAsibSections_[_iAsib_]
+			@AddItem(_aAsibResult_, This.Section(_aAsibPair_[1], _aAsibPair_[2]))
+		next
+		return _aAsibResult_
+
 	def Ranges(paRanges)
 		_oRgsSec_ = new stzListSections(This)
 		return _oRgsSec_.Ranges(paRanges)

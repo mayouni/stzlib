@@ -121,6 +121,8 @@ comptime {
     @export(&list.stz_list_replace_many_cs, .{ .name = "stz_list_replace_many_cs" });
     @export(&list.stz_list_count_empty_strings, .{ .name = "stz_list_count_empty_strings" });
     @export(&list.stz_list_find_empty_strings, .{ .name = "stz_list_find_empty_strings" });
+    @export(&list.stz_list_sliding_window, .{ .name = "stz_list_sliding_window" });
+    @export(&list.stz_list_anti_sections, .{ .name = "stz_list_anti_sections" });
 }
 
 comptime {

@@ -318,17 +318,12 @@ class stzListGetter
 			return new stzList(This.Triplets())
 
 	def SlidingWindow(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen - n + 1
-			aWindow = []
-			for j = i to i + n - 1
-				aWindow + aContent[j]
-			next
-			aResult + aWindow
-		next
-		return aResult
+		_pSwList_ = StzEngineMarshalList(@oList.Content())
+		_pSwResult_ = StzEngineListSlidingWindow(_pSwList_, n)
+		_aSwResult_ = StzEngineContentFromList(_pSwResult_)
+		StzEngineListFree(_pSwResult_)
+		StzEngineListFree(_pSwList_)
+		return _aSwResult_
 
 		def SlidingWindowQ(n)
 			return new stzList(This.SlidingWindow(n))

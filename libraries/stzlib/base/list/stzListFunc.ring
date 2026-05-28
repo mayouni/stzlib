@@ -299,6 +299,15 @@
 #                                                            #
 #============================================================#
 
+	# @AddItem wraps Ring's add() builtin so it can be called
+	# from inside classes that define their own Add() method
+	# (e.g. stzList). Ring is case-insensitive so add() inside
+	# a class calls This.Add() instead of the builtin.
+
+func @AddItem(paList, pItem)
+	add(paList, pItem)
+	return paList
+
 func ListLowercased(paList)
 	aResult = []
 	nLen = len(paList)
