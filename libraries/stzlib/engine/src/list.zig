@@ -2132,6 +2132,36 @@ pub fn stz_list_ends_with_cs(list: ?*const StzList, v: ?*const StzValue, case_se
     return if (valueEqlCS(l.items.items[n - 1], needle, cs)) 1 else 0;
 }
 
+// Check if list starts with all items from prefix list (in order)
+pub fn stz_list_starts_with_list_cs(list_arg: ?*const StzList, prefix: ?*const StzList, case_sensitive: i32) callconv(.c) i32 {
+    const l = list_arg orelse return 0;
+    const p = prefix orelse return 0;
+    const plen = p.len();
+    if (plen == 0) return 1;
+    if (plen > l.len()) return 0;
+    const cs = case_sensitive != 0;
+    for (0..plen) |i| {
+        if (!valueEqlCS(l.items.items[i], p.items.items[i], cs)) return 0;
+    }
+    return 1;
+}
+
+// Check if list ends with all items from suffix list (in order)
+pub fn stz_list_ends_with_list_cs(list_arg: ?*const StzList, suffix: ?*const StzList, case_sensitive: i32) callconv(.c) i32 {
+    const l = list_arg orelse return 0;
+    const s = suffix orelse return 0;
+    const slen = s.len();
+    if (slen == 0) return 1;
+    const llen = l.len();
+    if (slen > llen) return 0;
+    const cs = case_sensitive != 0;
+    const offset = llen - slen;
+    for (0..slen) |i| {
+        if (!valueEqlCS(l.items.items[offset + i], s.items.items[i], cs)) return 0;
+    }
+    return 1;
+}
+
 pub fn stz_list_remove_leading_cs(list: ?*StzList, case_sensitive: i32) callconv(.c) i32 {
     const l = list orelse return -1;
     const count = stz_list_leading_count_cs(l, case_sensitive);
@@ -4231,6 +4261,36 @@ test "anti sections basic" {
     defer stz_list_free(as1);
     try std.testing.expectEqual(@as(i64, 5), stz_list_get_int(as1, 0));
     try std.testing.expectEqual(@as(i64, 9), stz_list_get_int(as1, 1));
+}
+
+test "starts with list" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..6) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+    const prefix = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(prefix);
+    _ = stz_list_append_int(prefix, 1);
+    _ = stz_list_append_int(prefix, 2);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_starts_with_list_cs(l, prefix, 1));
+    _ = stz_list_clear(prefix);
+    _ = stz_list_append_int(prefix, 2);
+    _ = stz_list_append_int(prefix, 3);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_starts_with_list_cs(l, prefix, 1));
+}
+
+test "ends with list" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..6) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+    const suffix = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(suffix);
+    _ = stz_list_append_int(suffix, 4);
+    _ = stz_list_append_int(suffix, 5);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_ends_with_list_cs(l, suffix, 1));
+    _ = stz_list_clear(suffix);
+    _ = stz_list_append_int(suffix, 3);
+    _ = stz_list_append_int(suffix, 4);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_ends_with_list_cs(l, suffix, 1));
 }
 
 test "deep flatten nested" {

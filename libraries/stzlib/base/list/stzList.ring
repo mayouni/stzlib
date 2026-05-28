@@ -1359,6 +1359,32 @@ class stzList from stzObject
 			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
 
 	  #---------------------------------------------------#
+	 #  STARTS WITH / ENDS WITH (engine-backed)           #
+	#---------------------------------------------------#
+
+	def StartsWithCS(paItems, pCaseSensitive)
+		_pSwList_ = This._EngineListFromContent()
+		_pSwPrefix_ = StzEngineMarshalList(paItems)
+		_nSwResult_ = StzEngineListStartsWithListCS(_pSwList_, _pSwPrefix_, pCaseSensitive)
+		StzEngineListFree(_pSwPrefix_)
+		StzEngineListFree(_pSwList_)
+		return _nSwResult_
+
+	def StartsWith(paItems)
+		return This.StartsWithCS(paItems, 1)
+
+	def EndsWithCS(paItems, pCaseSensitive)
+		_pEwList_ = This._EngineListFromContent()
+		_pEwSuffix_ = StzEngineMarshalList(paItems)
+		_nEwResult_ = StzEngineListEndsWithListCS(_pEwList_, _pEwSuffix_, pCaseSensitive)
+		StzEngineListFree(_pEwSuffix_)
+		StzEngineListFree(_pEwList_)
+		return _nEwResult_
+
+	def EndsWith(paItems)
+		return This.EndsWithCS(paItems, 1)
+
+	  #---------------------------------------------------#
 	 #  EXPRESSION-BACKED OPERATIONS (engine bytecode)    #
 	#---------------------------------------------------#
 

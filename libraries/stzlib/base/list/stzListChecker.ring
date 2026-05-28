@@ -157,34 +157,16 @@ class stzListChecker
 	#=========================================#
 
 	def IsEqualToCS(paOtherList, pCaseSensitive)
-		aContent1 = This.Content()
-		nLen1 = len(aContent1)
-
 		if NOT isList(paOtherList)
 			return 0
 		ok
 
-		nLen2 = len(paOtherList)
-
-		if nLen1 != nLen2
-			return 0
-		ok
-
-		for i = 1 to nLen1
-			c1 = @@(aContent1[i])
-			c2 = @@(paOtherList[i])
-
-			if pCaseSensitive = 0
-				c1 = StzLower(c1)
-				c2 = StzLower(c2)
-			ok
-
-			if c1 != c2
-				return 0
-			ok
-		next
-
-		return 1
+		_pIetList1_ = @oList._EngineListFromContent()
+		_pIetList2_ = StzEngineMarshalList(paOtherList)
+		_nIetResult_ = StzEngineListEqualsCS(_pIetList1_, _pIetList2_, pCaseSensitive)
+		StzEngineListFree(_pIetList2_)
+		StzEngineListFree(_pIetList1_)
+		return _nIetResult_
 
 	def IsEqualTo(paOtherList)
 		return This.IsEqualToCS(paOtherList, 1)
@@ -359,24 +341,18 @@ class stzListChecker
 		return This.IsListOfStrings()
 
 	def ContainsItemCS(pItem, pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		for i = 1 to nLen
-			if BothAreEqualCS(aContent[i], pItem, pCaseSensitive)
-				return 1
-			ok
-		next
-
-		return 0
+		_pCicList_ = @oList._EngineListFromContent()
+		_nCicResult_ = StzEngineListContainsCS(_pCicList_, pItem, pCaseSensitive)
+		StzEngineListFree(_pCicList_)
+		return _nCicResult_
 
 	def ContainsItem(pItem)
 		return This.ContainsItemCS(pItem, 1)
 
 	def ContainsAllOfTheseCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		for i = 1 to nLen
-			if NOT This.ContainsItemCS(paItems[i], pCaseSensitive)
+		_nCatLen_ = len(paItems)
+		for _iCat_ = 1 to _nCatLen_
+			if NOT This.ContainsItemCS(paItems[_iCat_], pCaseSensitive)
 				return 0
 			ok
 		next
@@ -386,9 +362,9 @@ class stzListChecker
 		return This.ContainsAllOfTheseCS(paItems, 1)
 
 	def ContainsOneOfTheseCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		for i = 1 to nLen
-			if This.ContainsItemCS(paItems[i], pCaseSensitive)
+		_nCotLen_ = len(paItems)
+		for _iCot_ = 1 to _nCotLen_
+			if This.ContainsItemCS(paItems[_iCot_], pCaseSensitive)
 				return 1
 			ok
 		next
