@@ -1249,6 +1249,85 @@ class stzString from stzObject
 			This.Replace(paSubStr[_iRmbmxt_], paNewSubStr[_nRmbmxtIdx_])
 		next
 
+	  #===============================#
+	 #   CONTAINS THESE              #
+	#===============================#
+
+	def ContainsTheseCS(pacSubStrings, pCaseSensitive)
+		_oCtFinder_ = new stzStringFinder(This)
+		return _oCtFinder_.ContainsTheseCS(pacSubStrings, pCaseSensitive)
+
+	def ContainsThese(pacSubStrings)
+		return This.ContainsTheseCS(pacSubStrings, 1)
+
+	  #===============================#
+	 #   FIND MANY                    #
+	#===============================#
+
+	def FindManyCS(pacSubStrings, pCaseSensitive)
+		_oFmFinder_ = new stzStringFinder(This)
+		return _oFmFinder_.FindManyCS(pacSubStrings, pCaseSensitive)
+
+	def FindMany(pacSubStrings)
+		return This.FindManyCS(pacSubStrings, 1)
+
+	  #===============================#
+	 #   FIND AS SECTIONS             #
+	#===============================#
+
+	def FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		_oFasFinder_ = new stzStringFinder(This)
+		return _oFasFinder_.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+	def FindAsSections(pcSubStr)
+		return This.FindAsSectionsCS(pcSubStr, 1)
+
+	  #===============================#
+	 #   REPLACE MANY                 #
+	#===============================#
+
+	def ReplaceManyCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
+		_oRmReplacer_ = new stzStringReplacer(This)
+		_oRmReplacer_.ReplaceManyCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
+
+	def ReplaceMany(pacSubStrings, pcNewSubStr)
+		This.ReplaceManyCS(pacSubStrings, pcNewSubStr, 1)
+
+	  #===============================#
+	 #   REMOVE MANY                  #
+	#===============================#
+
+	def RemoveManyCS(pacSubStrings, pCaseSensitive)
+		_oRmmReplacer_ = new stzStringReplacer(This)
+		_oRmmReplacer_.RemoveManyCS(pacSubStrings, pCaseSensitive)
+
+	def RemoveMany(pacSubStrings)
+		This.RemoveManyCS(pacSubStrings, 1)
+
+	  #===============================#
+	 #   REMOVE NTH                   #
+	#===============================#
+
+	def RemoveNthCS(n, pcSubStr, pCaseSensitive)
+		This.ReplaceNthCS(n, pcSubStr, "", pCaseSensitive)
+
+	def RemoveNth(n, pcSubStr)
+		This.RemoveNthCS(n, pcSubStr, 1)
+
+	  #===============================#
+	 #   SURROUND                     #
+	#===============================#
+
+	def Surround(pcBefore, pcAfter)
+		This.Update(pcBefore + This.Content() + pcAfter)
+
+		def SurroundQ(pcBefore, pcAfter)
+			This.Surround(pcBefore, pcAfter)
+			return This
+
+	def Surrounded(pcBefore, pcAfter)
+		return pcBefore + This.Content() + pcAfter
+
 	  #============================#
 	 #   DUPLICATED SUBSTRINGS    #
 	#============================#
