@@ -1,63 +1,63 @@
 load "../stzBase.ring"
 
-_nPsd_ = 0
-_nFld_ = 0
-_nTtl_ = 0
+nPsd = 0
+nFld = 0
+nTtl = 0
 
 ? "=== stzString Between IB Operations Test ==="
 
 # IB variants: bounds ARE included in replacement/removal
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.ReplaceBetweenIB("[", "]", "X")
-_nTtl_++
-if _oT_.Content() = "say X and X please"
+o = new stzString("say [hello] and [world] please")
+o.ReplaceBetweenIB("[", "]", "X")
+nTtl++
+if o.Content() = "say X and X please"
 	? "  PASS: ReplaceBetweenIB all"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: ReplaceBetweenIB all got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: ReplaceBetweenIB all got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.ReplaceFirstBetweenIB("[", "]", "FIRST")
-_nTtl_++
-if _oT_.Content() = "say FIRST and [world] please"
+o = new stzString("say [hello] and [world] please")
+o.ReplaceFirstBetweenIB("[", "]", "FIRST")
+nTtl++
+if o.Content() = "say FIRST and [world] please"
 	? "  PASS: ReplaceFirstBetweenIB"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: ReplaceFirstBetweenIB got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: ReplaceFirstBetweenIB got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.RemoveBetweenIB("[", "]")
-_nTtl_++
-if _oT_.Content() = "say  and  please"
+o = new stzString("say [hello] and [world] please")
+o.RemoveBetweenIB("[", "]")
+nTtl++
+if o.Content() = "say  and  please"
 	? "  PASS: RemoveBetweenIB all"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: RemoveBetweenIB all got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: RemoveBetweenIB all got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.RemoveFirstBetweenIB("[", "]")
-_nTtl_++
-if _oT_.Content() = "say  and [world] please"
+o = new stzString("say [hello] and [world] please")
+o.RemoveFirstBetweenIB("[", "]")
+nTtl++
+if o.Content() = "say  and [world] please"
 	? "  PASS: RemoveFirstBetweenIB"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: RemoveFirstBetweenIB got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: RemoveFirstBetweenIB got=" + o.Content()
+	nFld++
 ok
 
 ? ""
 ? "=========================="
-? "Total: " + _nTtl_
-? "Passed: " + _nPsd_
-? "Failed: " + _nFld_
-if _nFld_ = 0
+? "Total: " + nTtl
+? "Passed: " + nPsd
+? "Failed: " + nFld
+if nFld = 0
 	? "ALL TESTS PASSED!"
 else
 	? "SOME TESTS FAILED!"

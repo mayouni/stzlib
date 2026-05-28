@@ -1,108 +1,108 @@
 load "../stzBase.ring"
 
-_nPsd_ = 0
-_nFld_ = 0
-_nTtl_ = 0
+nPsd = 0
+nFld = 0
+nTtl = 0
 
 ? "=== stzString Between Operations Test ==="
 
 # Softanza convention: bounds NOT included by default
 # IB variants include bounds in replacement/removal
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.ReplaceBetween("[", "]", "X")
-_nTtl_++
-if _oT_.Content() = "say [X] and [X] please"
+o = new stzString("say [hello] and [world] please")
+o.ReplaceBetween("[", "]", "X")
+nTtl++
+if o.Content() = "say [X] and [X] please"
 	? "  PASS: ReplaceBetween all"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: ReplaceBetween all got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: ReplaceBetween all got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.ReplaceFirstBetween("[", "]", "FIRST")
-_nTtl_++
-if _oT_.Content() = "say [FIRST] and [world] please"
+o = new stzString("say [hello] and [world] please")
+o.ReplaceFirstBetween("[", "]", "FIRST")
+nTtl++
+if o.Content() = "say [FIRST] and [world] please"
 	? "  PASS: ReplaceFirstBetween"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: ReplaceFirstBetween got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: ReplaceFirstBetween got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.ReplaceLastBetween("[", "]", "LAST")
-_nTtl_++
-if _oT_.Content() = "say [hello] and [LAST] please"
+o = new stzString("say [hello] and [world] please")
+o.ReplaceLastBetween("[", "]", "LAST")
+nTtl++
+if o.Content() = "say [hello] and [LAST] please"
 	? "  PASS: ReplaceLastBetween"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: ReplaceLastBetween got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: ReplaceLastBetween got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("<a> <b> <c>")
-_oT_.ReplaceNthBetween(2, "<", ">", "X")
-_nTtl_++
-if _oT_.Content() = "<a> <X> <c>"
+o = new stzString("<a> <b> <c>")
+o.ReplaceNthBetween(2, "<", ">", "X")
+nTtl++
+if o.Content() = "<a> <X> <c>"
 	? "  PASS: ReplaceNthBetween(2)"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: ReplaceNthBetween(2) got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: ReplaceNthBetween(2) got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.RemoveBetween("[", "]")
-_nTtl_++
-if _oT_.Content() = "say [] and [] please"
+o = new stzString("say [hello] and [world] please")
+o.RemoveBetween("[", "]")
+nTtl++
+if o.Content() = "say [] and [] please"
 	? "  PASS: RemoveBetween all"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: RemoveBetween all got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: RemoveBetween all got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.RemoveFirstBetween("[", "]")
-_nTtl_++
-if _oT_.Content() = "say [] and [world] please"
+o = new stzString("say [hello] and [world] please")
+o.RemoveFirstBetween("[", "]")
+nTtl++
+if o.Content() = "say [] and [world] please"
 	? "  PASS: RemoveFirstBetween"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: RemoveFirstBetween got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: RemoveFirstBetween got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("say [hello] and [world] please")
-_oT_.RemoveLastBetween("[", "]")
-_nTtl_++
-if _oT_.Content() = "say [hello] and [] please"
+o = new stzString("say [hello] and [world] please")
+o.RemoveLastBetween("[", "]")
+nTtl++
+if o.Content() = "say [hello] and [] please"
 	? "  PASS: RemoveLastBetween"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: RemoveLastBetween got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: RemoveLastBetween got=" + o.Content()
+	nFld++
 ok
 
-_oT_ = new stzString("<a> <b> <c>")
-_oT_.RemoveNthBetween(2, "<", ">")
-_nTtl_++
-if _oT_.Content() = "<a> <> <c>"
+o = new stzString("<a> <b> <c>")
+o.RemoveNthBetween(2, "<", ">")
+nTtl++
+if o.Content() = "<a> <> <c>"
 	? "  PASS: RemoveNthBetween(2)"
-	_nPsd_++
+	nPsd++
 else
-	? "  FAIL: RemoveNthBetween(2) got=" + _oT_.Content()
-	_nFld_++
+	? "  FAIL: RemoveNthBetween(2) got=" + o.Content()
+	nFld++
 ok
 
 ? ""
 ? "=========================="
-? "Total: " + _nTtl_
-? "Passed: " + _nPsd_
-? "Failed: " + _nFld_
-if _nFld_ = 0
+? "Total: " + nTtl
+? "Passed: " + nPsd
+? "Failed: " + nFld
+if nFld = 0
 	? "ALL TESTS PASSED!"
 else
 	? "SOME TESTS FAILED!"
