@@ -2708,9 +2708,15 @@ class stzList from stzObject
 		_oStponiSplitter_ = new stzListSplits(This)
 		return _oStponiSplitter_.SplitToPartsOfNItems(n)
 
+		def SplitToPartsOf(n)
+			return This.SplitToPartsOfNItems(n)
+
 	def SplittedToPartsOfNItems(n)
 		_oSdtponiSplitter_ = new stzListSplits(This)
 		return _oSdtponiSplitter_.SplittedToPartsOfNItems(n)
+
+		def SplittedToPartsOf(n)
+			return This.SplittedToPartsOfNItems(n)
 
 	def SplitAtPacer(nPace, nStart)
 		_oSapcrSplitter_ = new stzListSplits(This)

@@ -2100,6 +2100,45 @@ pub fn stz_list_split_at(list_arg: ?*const StzList, positions: ?*const StzList) 
     return result;
 }
 
+// ─── C ABI: Split Before / After Position ───
+
+pub fn stz_list_split_before(list_arg: ?*const StzList, pos: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const n = l.len();
+    if (n == 0) return stz_list_new();
+    const p = if (pos > n) n else pos;
+    const result = stz_list_new() orelse return null;
+    if (p > 0) appendGroup(result, l, 0, p);
+    if (p < n) appendGroup(result, l, p, n);
+    return result;
+}
+
+pub fn stz_list_split_after(list_arg: ?*const StzList, pos: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const n = l.len();
+    if (n == 0) return stz_list_new();
+    const p = if (pos >= n) n else pos + 1;
+    const result = stz_list_new() orelse return null;
+    if (p > 0) appendGroup(result, l, 0, p);
+    if (p < n) appendGroup(result, l, p, n);
+    return result;
+}
+
+pub fn stz_list_split_to_parts_of_n(list_arg: ?*const StzList, n: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    if (n == 0) return null;
+    const len = l.len();
+    if (len == 0) return stz_list_new();
+    const result = stz_list_new() orelse return null;
+    var i: usize = 0;
+    while (i < len) {
+        const end = @min(i + n, len);
+        appendGroup(result, l, i, end);
+        i = end;
+    }
+    return result;
+}
+
 // ─── C ABI: Sorted Insert ───
 
 pub fn stz_list_sorted_insert(list_arg: ?*StzList, v: ?*const StzValue) callconv(.c) i32 {
@@ -4337,6 +4376,48 @@ test "split_at no positions wraps whole list" {
     const g0 = stz_list_get_sublist(result, 0) orelse return error.AllocFailed;
     defer stz_list_free(g0);
     try std.testing.expectEqual(@as(usize, 2), stz_list_len(g0));
+}
+
+test "split_before position 3 of 5" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..6) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+
+    const result = stz_list_split_before(l, 3) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(result));
+    const g0 = stz_list_get_sublist(result, 0) orelse return error.AllocFailed;
+    defer stz_list_free(g0);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(g0));
+    const g1 = stz_list_get_sublist(result, 1) orelse return error.AllocFailed;
+    defer stz_list_free(g1);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(g1));
+}
+
+test "split_after position 2 of 5" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..6) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+
+    const result = stz_list_split_after(l, 2) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(result));
+    const g0 = stz_list_get_sublist(result, 0) orelse return error.AllocFailed;
+    defer stz_list_free(g0);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(g0));
+    const g1 = stz_list_get_sublist(result, 1) orelse return error.AllocFailed;
+    defer stz_list_free(g1);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(g1));
+}
+
+test "split_to_parts_of_n chunks of 2 from 5" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..6) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+
+    const result = stz_list_split_to_parts_of_n(l, 2) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(result));
 }
 
 test "sorted_insert into empty" {

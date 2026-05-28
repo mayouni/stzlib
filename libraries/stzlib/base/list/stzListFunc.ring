@@ -62,32 +62,41 @@
 			return []
 		ok
 
-		nLen = StzEngineListLen(pList)
-		aResult = []
+		_nEcfLen_ = StzEngineListLen(pList)
+		_aEcfResult_ = []
 
-		for i = 1 to nLen
-			nType = StzEngineListItemType(pList, i)
-			switch nType
+		for _iEcf_ = 1 to _nEcfLen_
+			_nEcfType_ = StzEngineListItemType(pList, _iEcf_)
+			switch _nEcfType_
 			on 2
-				aResult + StzEngineListGetInt(pList, i)
+				_aEcfResult_ + StzEngineListGetInt(pList, _iEcf_)
 			on 3
-				aResult + StzEngineListGetFloat(pList, i)
+				_aEcfResult_ + StzEngineListGetFloat(pList, _iEcf_)
 			on 4
-				aResult + StzEngineListGetString(pList, i)
+				_aEcfResult_ + StzEngineListGetString(pList, _iEcf_)
 			on 5
-				pSub = StzEngineListGetSubList(pList, i)
-				if pSub != NULL
-					aResult + StzEngineContentFromList(pSub)
-					StzEngineListFree(pSub)
+				_pEcfSub_ = StzEngineListGetSubList(pList, _iEcf_)
+				if _pEcfSub_ != NULL
+					# Save loop state before recursion (Ring vars are global)
+					_nEcfSaveLen_ = _nEcfLen_
+					_iEcfSave_ = _iEcf_
+
+					_aEcfSubContent_ = StzEngineContentFromList(_pEcfSub_)
+					add(_aEcfResult_, _aEcfSubContent_)
+					StzEngineListFree(_pEcfSub_)
+
+					# Restore loop state after recursion
+					_nEcfLen_ = _nEcfSaveLen_
+					_iEcf_ = _iEcfSave_
 				else
-					aResult + []
+					add(_aEcfResult_, [])
 				ok
 			other
-				aResult + NULL
+				_aEcfResult_ + NULL
 			off
 		next
 
-		return aResult
+		return _aEcfResult_
 
 	  #============================================#
 	 #  Q-CONSTRUCTORS FOR MODULAR CLASSES        #

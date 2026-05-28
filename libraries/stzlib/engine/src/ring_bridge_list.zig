@@ -562,6 +562,21 @@ fn ring_RemoveTrailingCS(p: *anyopaque) callconv(.c) void {
 fn ring_SplitAt(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_split_at(getLC(p, 1), getLC(p, 2))), HL);
 }
+// SplitBefore (INDEX_BASE=1: subtract 1)
+fn ring_SplitBefore(p: *anyopaque) callconv(.c) void {
+    const pos: usize = @intFromFloat(g(p, 2));
+    const adjusted = if (pos > 0) pos - 1 else 0;
+    rcp(p, @ptrCast(list.stz_list_split_before(getLC(p, 1), adjusted)), HL);
+}
+// SplitAfter (INDEX_BASE=1: subtract 1)
+fn ring_SplitAfter(p: *anyopaque) callconv(.c) void {
+    const pos: usize = @intFromFloat(g(p, 2));
+    const adjusted = if (pos > 0) pos - 1 else 0;
+    rcp(p, @ptrCast(list.stz_list_split_after(getLC(p, 1), adjusted)), HL);
+}
+fn ring_SplitToPartsOfN(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_split_to_parts_of_n(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+}
 fn ring_SortedInsert(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sorted_insert(getL(p, 1), getV(p, 2))));
 }
@@ -856,6 +871,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistremoveleadingcs", .func = &ring_RemoveLeadingCS },
     .{ .name = "stzenginelistremovetrailingcs", .func = &ring_RemoveTrailingCS },
     .{ .name = "stzenginelistsplitat", .func = &ring_SplitAt },
+    .{ .name = "stzenginelistsplitbefore", .func = &ring_SplitBefore },
+    .{ .name = "stzenginelistsplitafter", .func = &ring_SplitAfter },
+    .{ .name = "stzenginelistsplittopartsofn", .func = &ring_SplitToPartsOfN },
     .{ .name = "stzenginelistsortedinsert", .func = &ring_SortedInsert },
     .{ .name = "stzenginelistjoin", .func = &ring_Join },
     .{ .name = "stzenginelistsum", .func = &ring_Sum },
