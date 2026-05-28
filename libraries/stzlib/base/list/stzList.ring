@@ -2469,4 +2469,1155 @@ class stzList from stzObject
 		ok
 		return isString(_aIpContent_[1]) and isString(_aIpContent_[2])
 
+	  #=============================================#
+	 #  DELEGATIONS TO DOMAIN SUBMODULES           #
+	#=============================================#
+
+	  #-----------------------------#
+	 #  FINDER DELEGATIONS         #
+	#-----------------------------#
+
+	# FindFirst/FindLast already exist as FindFirstOccurrenceCS/FindLastOccurrenceCS
+
+	def AntiFindCS(pItem, pCaseSensitive)
+		_oAfFinder_ = new stzListFinder(This)
+		return _oAfFinder_.AntiFindCS(pItem, pCaseSensitive)
+
+	def AntiFind(pItem)
+		return This.AntiFindCS(pItem, 1)
+
+	def AntiFindAsSectionsCS(pItem, pCaseSensitive)
+		_oAfsaFinder_ = new stzListFinder(This)
+		return _oAfsaFinder_.AntiFindAsSectionsCS(pItem, pCaseSensitive)
+
+	def AntiFindAsSections(pItem)
+		return This.AntiFindAsSectionsCS(pItem, 1)
+
+	def AntiPositions(anPos)
+		_oApFinder_ = new stzListFinder(This)
+		return _oApFinder_.AntiPositions(anPos)
+
+	def FindNOccurrencesCS(n, pItem, pCaseSensitive)
+		_oFnoFinder_ = new stzListFinder(This)
+		return _oFnoFinder_.FindNOccurrencesCS(n, pItem, pCaseSensitive)
+
+	def FindNOccurrences(n, pItem)
+		return This.FindNOccurrencesCS(n, pItem, 1)
+
+	# FindFirstCS/FindFirst/FindLastCS/FindLast already defined above as aliases
+
+	def FindGivenOccurrencesCS(panOccurrences, pItem, pCaseSensitive)
+		_oFgoFinder_ = new stzListFinder(This)
+		return _oFgoFinder_.FindGivenOccurrencesCS(panOccurrences, pItem, pCaseSensitive)
+
+	def FindGivenOccurrences(panOccurrences, pItem)
+		return This.FindGivenOccurrencesCS(panOccurrences, pItem, 1)
+
+	def FindAllExceptFirstCS(pItem, pCaseSensitive)
+		_oFaefFinder_ = new stzListFinder(This)
+		return _oFaefFinder_.FindAllExceptFirstCS(pItem, pCaseSensitive)
+
+	def FindAllExceptFirst(pItem)
+		return This.FindAllExceptFirstCS(pItem, 1)
+
+	def FindAllExceptLastCS(pItem, pCaseSensitive)
+		_oFaelFinder_ = new stzListFinder(This)
+		return _oFaelFinder_.FindAllExceptLastCS(pItem, pCaseSensitive)
+
+	def FindAllExceptLast(pItem)
+		return This.FindAllExceptLastCS(pItem, 1)
+
+	def FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+		_oFnnoFinder_ = new stzListFinder(This)
+		return _oFnnoFinder_.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+	def FindNextNthOccurrence(n, pItem, pnStartingAt)
+		return This.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, 1)
+
+	def FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+		_oFnoFinder2_ = new stzListFinder(This)
+		return _oFnoFinder2_.FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+	def FindNextOccurrence(pItem, pnStartingAt)
+		return This.FindNextOccurrenceCS(pItem, pnStartingAt, 1)
+
+	def FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+		_oFpnoFinder_ = new stzListFinder(This)
+		return _oFpnoFinder_.FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+	def FindPreviousNthOccurrence(n, pItem, pnStartingAt)
+		return This.FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, 1)
+
+	def FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+		_oFpoFinder_ = new stzListFinder(This)
+		return _oFpoFinder_.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+	def FindPreviousOccurrence(pItem, pnStartingAt)
+		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, 1)
+
+	# CountItemsW/CountW already defined above
+
+	  #-----------------------------#
+	 #  COUNTER DELEGATIONS        #
+	#-----------------------------#
+
+	def NumberOfUniqueItemsW(pCondition)
+		_oNuiwCounter_ = new stzListCounter(This)
+		return _oNuiwCounter_.NumberOfUniqueItemsW(pCondition)
+
+	def CountItemsWXT(pCondition)
+		_oCiwxtCounter_ = new stzListCounter(This)
+		return _oCiwxtCounter_.CountItemsWXT(pCondition)
+
+	def NumberOfUniqueItemsWXT(pCondition)
+		_oNuiwxtCounter_ = new stzListCounter(This)
+		return _oNuiwxtCounter_.NumberOfUniqueItemsWXT(pCondition)
+
+	def InsertAfterW(pcCondition, pNewItem)
+		_oIawCounter_ = new stzListCounter(This)
+		_oIawCounter_.InsertAfterW(pcCondition, pNewItem)
+		This.UpdateWith(_oIawCounter_.Content())
+
+	def InsertBeforeW(pcCondition, pNewItem)
+		_oIbwCounter_ = new stzListCounter(This)
+		_oIbwCounter_.InsertBeforeW(pcCondition, pNewItem)
+		This.UpdateWith(_oIbwCounter_.Content())
+
+	  #-----------------------------#
+	 #  SPLITTER DELEGATIONS       #
+	#-----------------------------#
+
+	# SplitAt already defined in core
+
+	def SplitXT(p)
+		_oSxtSplitter_ = new stzListSplits(This)
+		return _oSxtSplitter_.SplitXT(p)
+
+	def SplittedXT(p)
+		_oSdxtSplitter_ = new stzListSplits(This)
+		return _oSdxtSplitter_.SplittedXT(p)
+
+	def SplitAsSectionsXT(p)
+		_oSasxtSplitter_ = new stzListSplits(This)
+		return _oSasxtSplitter_.SplitAsSectionsXT(p)
+
+	def SplittedAsSectionsXT(p)
+		_oSdasxtSplitter_ = new stzListSplits(This)
+		return _oSdasxtSplitter_.SplittedAsSectionsXT(p)
+
+	def SplitCS(pItemOrPos, pCaseSensitive)
+		_oScsSplitter_ = new stzListSplits(This)
+		return _oScsSplitter_.SplitCS(pItemOrPos, pCaseSensitive)
+
+	def SplitAtPositions(panPos)
+		_oSapSplitter_ = new stzListSplits(This)
+		return _oSapSplitter_.SplitAtPositions(panPos)
+
+	def SplittedAtPositions(panPos)
+		_oSdapSplitter_ = new stzListSplits(This)
+		return _oSdapSplitter_.SplittedAtPositions(panPos)
+
+	def SplitAtPositionsZZ(panPos)
+		_oSapzzSplitter_ = new stzListSplits(This)
+		return _oSapzzSplitter_.SplitAtPositionsZZ(panPos)
+
+	def SplittedAtPositionsZZ(panPos)
+		_oSdapzzSplitter_ = new stzListSplits(This)
+		return _oSdapzzSplitter_.SplittedAtPositionsZZ(panPos)
+
+	def SplitAtPosition(n)
+		_oSaposSplitter_ = new stzListSplits(This)
+		return _oSaposSplitter_.SplitAtPosition(n)
+
+	def SplittedAtPosition(n)
+		_oSdaposSplitter_ = new stzListSplits(This)
+		return _oSdaposSplitter_.SplittedAtPosition(n)
+
+	def SplitAtPositionZZ(n)
+		_oSapozzSplitter_ = new stzListSplits(This)
+		return _oSapozzSplitter_.SplitAtPositionZZ(n)
+
+	def SplittedAtPositionZZ(n)
+		_oSdapozzSplitter_ = new stzListSplits(This)
+		return _oSdapozzSplitter_.SplittedAtPositionZZ(n)
+
+	def SplitAtCS(pItem, pCaseSensitive)
+		_oSacsSplitter_ = new stzListSplits(This)
+		return _oSacsSplitter_.SplitAtCS(pItem, pCaseSensitive)
+
+	def SplittedAtCS(pItem, pCaseSensitive)
+		_oSdacsSplitter_ = new stzListSplits(This)
+		return _oSdacsSplitter_.SplittedAtCS(pItem, pCaseSensitive)
+
+	def SplittedAt(pItem)
+		return This.SplittedAtCS(pItem, 1)
+
+	def SplitAtCSZZ(pItem, pCaseSensitive)
+		_oSacszzSplitter_ = new stzListSplits(This)
+		return _oSacszzSplitter_.SplitAtCSZZ(pItem, pCaseSensitive)
+
+	def SplitAtZZ(pItem)
+		return This.SplitAtCSZZ(pItem, 1)
+
+	def SplittedAtCSZZ(pItem, pCaseSensitive)
+		_oSdacszzSplitter_ = new stzListSplits(This)
+		return _oSdacszzSplitter_.SplittedAtCSZZ(pItem, pCaseSensitive)
+
+	def SplittedAtZZ(pItem)
+		return This.SplittedAtCSZZ(pItem, 1)
+
+	def SplitBeforePosition(n)
+		_oSbpSplitter_ = new stzListSplits(This)
+		return _oSbpSplitter_.SplitBeforePosition(n)
+
+	def SplittedBeforePosition(n)
+		_oSdbpSplitter_ = new stzListSplits(This)
+		return _oSdbpSplitter_.SplittedBeforePosition(n)
+
+	def SplitBeforeCS(pItem, pCaseSensitive)
+		_oSbcsSplitter_ = new stzListSplits(This)
+		return _oSbcsSplitter_.SplitBeforeCS(pItem, pCaseSensitive)
+
+	def SplitBefore(pItem)
+		return This.SplitBeforeCS(pItem, 1)
+
+	def SplitAfterPosition(n)
+		_oSafpSplitter_ = new stzListSplits(This)
+		return _oSafpSplitter_.SplitAfterPosition(n)
+
+	def SplittedAfterPosition(n)
+		_oSdafpSplitter_ = new stzListSplits(This)
+		return _oSdafpSplitter_.SplittedAfterPosition(n)
+
+	def SplitAfterCS(pItem, pCaseSensitive)
+		_oSafcsSplitter_ = new stzListSplits(This)
+		return _oSafcsSplitter_.SplitAfterCS(pItem, pCaseSensitive)
+
+	def SplitAfter(pItem)
+		return This.SplitAfterCS(pItem, 1)
+
+	def SplitToNParts(n)
+		_oStnpSplitter_ = new stzListSplits(This)
+		return _oStnpSplitter_.SplitToNParts(n)
+
+	def SplittedToNParts(n)
+		_oSdtnpSplitter_ = new stzListSplits(This)
+		return _oSdtnpSplitter_.SplittedToNParts(n)
+
+	def SplitToPartsOfNItems(n)
+		_oStponiSplitter_ = new stzListSplits(This)
+		return _oStponiSplitter_.SplitToPartsOfNItems(n)
+
+	def SplittedToPartsOfNItems(n)
+		_oSdtponiSplitter_ = new stzListSplits(This)
+		return _oSdtponiSplitter_.SplittedToPartsOfNItems(n)
+
+	def SplitAtPacer(nPace, nStart)
+		_oSapcrSplitter_ = new stzListSplits(This)
+		return _oSapcrSplitter_.SplitAtPacer(nPace, nStart)
+
+	def SplittedAtPacer(nPace, nStart)
+		_oSdapcrSplitter_ = new stzListSplits(This)
+		return _oSdapcrSplitter_.SplittedAtPacer(nPace, nStart)
+
+	def SplitW(pcCondition)
+		_oSwSplitter_ = new stzListSplits(This)
+		return _oSwSplitter_.SplitW(pcCondition)
+
+	def SplittedW(pcCondition)
+		_oSdwSplitter_ = new stzListSplits(This)
+		return _oSdwSplitter_.SplittedW(pcCondition)
+
+	def SplitWXT(pcCondition)
+		_oSwxtSplitter_ = new stzListSplits(This)
+		return _oSwxtSplitter_.SplitWXT(pcCondition)
+
+	def SplittedWXT(pcCondition)
+		_oSdwxtSplitter_ = new stzListSplits(This)
+		return _oSdwxtSplitter_.SplittedWXT(pcCondition)
+
+	  #-------------------------------#
+	 #  LEAD/TRAIL DELEGATIONS       #
+	#-------------------------------#
+
+	def HasRepeatedLeadingItemsCS(pCaseSensitive)
+		_oHrliLt_ = new stzListLeadTrail(This)
+		return _oHrliLt_.HasRepeatedLeadingItemsCS(pCaseSensitive)
+
+	def HasRepeatedLeadingItems()
+		return This.HasRepeatedLeadingItemsCS(1)
+
+	def RepeatedLeadingItemsCS(pCaseSensitive)
+		_oRliLt_ = new stzListLeadTrail(This)
+		return _oRliLt_.RepeatedLeadingItemsCS(pCaseSensitive)
+
+	def RepeatedLeadingItems()
+		return This.RepeatedLeadingItemsCS(1)
+
+	def RepeatedLeadingItemCS(pCaseSensitive)
+		_oRlicLt_ = new stzListLeadTrail(This)
+		return _oRlicLt_.RepeatedLeadingItemCS(pCaseSensitive)
+
+	def RepeatedLeadingItem()
+		return This.RepeatedLeadingItemCS(1)
+
+	def NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+		_oNrliLt_ = new stzListLeadTrail(This)
+		return _oNrliLt_.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+	def NumberOfRepeatedLeadingItems()
+		return This.NumberOfRepeatedLeadingItemsCS(1)
+
+	def HasRepeatedTrailingItemsCS(pCaseSensitive)
+		_oHrtiLt_ = new stzListLeadTrail(This)
+		return _oHrtiLt_.HasRepeatedTrailingItemsCS(pCaseSensitive)
+
+	def HasRepeatedTrailingItems()
+		return This.HasRepeatedTrailingItemsCS(1)
+
+	def RepeatedTrailingItemsCS(pCaseSensitive)
+		_oRtiLt_ = new stzListLeadTrail(This)
+		return _oRtiLt_.RepeatedTrailingItemsCS(pCaseSensitive)
+
+	def RepeatedTrailingItems()
+		return This.RepeatedTrailingItemsCS(1)
+
+	def RepeatedTrailingItemCS(pCaseSensitive)
+		_oRticLt_ = new stzListLeadTrail(This)
+		return _oRticLt_.RepeatedTrailingItemCS(pCaseSensitive)
+
+	def RepeatedTrailingItem()
+		return This.RepeatedTrailingItemCS(1)
+
+	def NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+		_oNrtiLt_ = new stzListLeadTrail(This)
+		return _oNrtiLt_.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+	def NumberOfRepeatedTrailingItems()
+		return This.NumberOfRepeatedTrailingItemsCS(1)
+
+	  #-------------------------------#
+	 #  EXTRACTOR DELEGATIONS        #
+	#-------------------------------#
+
+	def ExtractCS(pItem, pCaseSensitive)
+		_oEcsExt_ = new stzListExtractor(This)
+		_oEcsExt_.ExtractCS(pItem, pCaseSensitive)
+		This.UpdateWith(_oEcsExt_.Content())
+
+	def ExtractManyCS(paItems, pCaseSensitive)
+		_oEmcsExt_ = new stzListExtractor(This)
+		_oEmcsExt_.ExtractManyCS(paItems, pCaseSensitive)
+		This.UpdateWith(_oEmcsExt_.Content())
+
+	def ExtractMany(paItems)
+		This.ExtractManyCS(paItems, 1)
+
+	def ExtractAll()
+		_oEaExt_ = new stzListExtractor(This)
+		_oEaExt_.ExtractAll()
+		This.UpdateWith(_oEaExt_.Content())
+
+	def ExtractNth(n)
+		_oEnExt_ = new stzListExtractor(This)
+		_oEnExt_.ExtractNth(n)
+		This.UpdateWith(_oEnExt_.Content())
+
+	def ExtractFirst()
+		_oEfExt_ = new stzListExtractor(This)
+		_oEfExt_.ExtractFirst()
+		This.UpdateWith(_oEfExt_.Content())
+
+	def ExtractLast()
+		_oElExt_ = new stzListExtractor(This)
+		_oElExt_.ExtractLast()
+		This.UpdateWith(_oElExt_.Content())
+
+	def ExtractSection(n1, n2)
+		_oEsExt_ = new stzListExtractor(This)
+		_oEsExt_.ExtractSection(n1, n2)
+		This.UpdateWith(_oEsExt_.Content())
+
+	def ExtractRange(pnStart, pnRange)
+		_oErExt_ = new stzListExtractor(This)
+		_oErExt_.ExtractRange(pnStart, pnRange)
+		This.UpdateWith(_oErExt_.Content())
+
+	def ExtractW(pcCondition)
+		_oEwExt_ = new stzListExtractor(This)
+		_oEwExt_.ExtractW(pcCondition)
+		This.UpdateWith(_oEwExt_.Content())
+
+	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
+		_oEnocsExt_ = new stzListExtractor(This)
+		_oEnocsExt_.ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
+		This.UpdateWith(_oEnocsExt_.Content())
+
+	def ExtractNthOccurrence(n, pItem)
+		This.ExtractNthOccurrenceCS(n, pItem, 1)
+
+	def ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
+		_oEfocsExt_ = new stzListExtractor(This)
+		_oEfocsExt_.ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
+		This.UpdateWith(_oEfocsExt_.Content())
+
+	def ExtractFirstOccurrence(pItem)
+		This.ExtractFirstOccurrenceCS(pItem, 1)
+
+	def ExtractLastOccurrenceCS(pItem, pCaseSensitive)
+		_oElocsExt_ = new stzListExtractor(This)
+		_oElocsExt_.ExtractLastOccurrenceCS(pItem, pCaseSensitive)
+		This.UpdateWith(_oElocsExt_.Content())
+
+	def ExtractLastOccurrence(pItem)
+		This.ExtractLastOccurrenceCS(pItem, 1)
+
+	def ExtractDuplicatesCS(pCaseSensitive)
+		_oEdcsExt_ = new stzListExtractor(This)
+		_oEdcsExt_.ExtractDuplicatesCS(pCaseSensitive)
+		This.UpdateWith(_oEdcsExt_.Content())
+
+	def ExtractDuplicates()
+		This.ExtractDuplicatesCS(1)
+
+	def ExtractStrings()
+		_oEsExt2_ = new stzListExtractor(This)
+		_oEsExt2_.ExtractStrings()
+		This.UpdateWith(_oEsExt2_.Content())
+
+	def ExtractNumbers()
+		_oEnExt2_ = new stzListExtractor(This)
+		_oEnExt2_.ExtractNumbers()
+		This.UpdateWith(_oEnExt2_.Content())
+
+	def ExtractLists()
+		_oElExt2_ = new stzListExtractor(This)
+		_oElExt2_.ExtractLists()
+		This.UpdateWith(_oElExt2_.Content())
+
+	def Pop()
+		_nPopLen_ = This.NumberOfItems()
+		if _nPopLen_ = 0
+			return NULL
+		ok
+		_pPopItem_ = This.Item(_nPopLen_)
+		This.RemoveLastItem()
+		return _pPopItem_
+
+	def PopFirst()
+		if This.NumberOfItems() = 0
+			return NULL
+		ok
+		_pPfItem_ = This.Item(1)
+		This.RemoveFirstItem()
+		return _pPfItem_
+
+	def Take(n)
+		_oTkExt_ = new stzListExtractor(This)
+		_aTkResult_ = _oTkExt_.Take(n)
+		This.UpdateWith(_oTkExt_.Content())
+		return _aTkResult_
+
+	def TakeLast(n)
+		_oTlExt_ = new stzListExtractor(This)
+		_aTlResult_ = _oTlExt_.TakeLast(n)
+		This.UpdateWith(_oTlExt_.Content())
+		return _aTlResult_
+
+	  #-------------------------------#
+	 #  TRIMMER DELEGATIONS          #
+	#-------------------------------#
+
+	def TrimCS(pCaseSensitive)
+		_oTcsTr_ = new stzListTrimmer(This)
+		_oTcsTr_.TrimCS(pCaseSensitive)
+		This.UpdateWith(_oTcsTr_.Content())
+
+	def TrimmedCS(pCaseSensitive)
+		_oTdcsTr_ = new stzListTrimmer(This)
+		return _oTdcsTr_.TrimmedCS(pCaseSensitive)
+
+	def Trim()
+		This.TrimCS(1)
+
+	def Trimmed()
+		return This.TrimmedCS(1)
+
+	def TrimLeftCS(pCaseSensitive)
+		_oTlcsTr_ = new stzListTrimmer(This)
+		_oTlcsTr_.TrimLeftCS(pCaseSensitive)
+		This.UpdateWith(_oTlcsTr_.Content())
+
+	def TrimLeft()
+		This.TrimLeftCS(1)
+
+	def TrimmedLeft()
+		return This.TrimmedCS(1)
+
+	def TrimRightCS(pCaseSensitive)
+		_oTrcsTr_ = new stzListTrimmer(This)
+		_oTrcsTr_.TrimRightCS(pCaseSensitive)
+		This.UpdateWith(_oTrcsTr_.Content())
+
+	def TrimRight()
+		This.TrimRightCS(1)
+
+	def TrimmedRight()
+		_oTdrTr_ = new stzListTrimmer(This)
+		return _oTdrTr_.TrimmedRight()
+
+	def TrimItemCS(pItem, pCaseSensitive)
+		_oTicsTr_ = new stzListTrimmer(This)
+		_oTicsTr_.TrimItemCS(pItem, pCaseSensitive)
+		This.UpdateWith(_oTicsTr_.Content())
+
+	def TrimItem(pItem)
+		This.TrimItemCS(pItem, 1)
+
+	def TrimItemFromLeftCS(pItem, pCaseSensitive)
+		_oTiflcsTr_ = new stzListTrimmer(This)
+		_oTiflcsTr_.TrimItemFromLeftCS(pItem, pCaseSensitive)
+		This.UpdateWith(_oTiflcsTr_.Content())
+
+	def TrimItemFromLeft(pItem)
+		This.TrimItemFromLeftCS(pItem, 1)
+
+	def TrimItemFromRightCS(pItem, pCaseSensitive)
+		_oTifrcsTr_ = new stzListTrimmer(This)
+		_oTifrcsTr_.TrimItemFromRightCS(pItem, pCaseSensitive)
+		This.UpdateWith(_oTifrcsTr_.Content())
+
+	def TrimItemFromRight(pItem)
+		This.TrimItemFromRightCS(pItem, 1)
+
+	def Compact()
+		_oCpTr_ = new stzListTrimmer(This)
+		_oCpTr_.Compact()
+		This.UpdateWith(_oCpTr_.Content())
+
+	def Compacted()
+		_oCpdTr_ = new stzListTrimmer(This)
+		return _oCpdTr_.Compacted()
+
+	def Squeeze()
+		_oSqTr_ = new stzListTrimmer(This)
+		_oSqTr_.Squeeze()
+		This.UpdateWith(_oSqTr_.Content())
+
+	def Squeezed()
+		_oSqdTr_ = new stzListTrimmer(This)
+		return _oSqdTr_.Squeezed()
+
+	def StripNulls()
+		_oSnTr_ = new stzListTrimmer(This)
+		_oSnTr_.StripNulls()
+		This.UpdateWith(_oSnTr_.Content())
+
+	def NullsStripped()
+		_oNsTr_ = new stzListTrimmer(This)
+		return _oNsTr_.NullsStripped()
+
+	def TrimToSize(n)
+		_oTtsTr_ = new stzListTrimmer(This)
+		_oTtsTr_.TrimToSize(n)
+		This.UpdateWith(_oTtsTr_.Content())
+
+	def TrimmedToSize(n)
+		_oTdtsTr_ = new stzListTrimmer(This)
+		return _oTdtsTr_.TrimmedToSize(n)
+
+	def TrimW(pcCondition)
+		_oTwTr_ = new stzListTrimmer(This)
+		_oTwTr_.TrimW(pcCondition)
+		This.UpdateWith(_oTwTr_.Content())
+
+	def TrimmedW(pcCondition)
+		_oTdwTr_ = new stzListTrimmer(This)
+		return _oTdwTr_.TrimmedW(pcCondition)
+
+	  #-------------------------------#
+	 #  GETTER DELEGATIONS           #
+	#-------------------------------#
+
+	def UniqueItemsCS(pCaseSensitive)
+		_oUicsGt_ = new stzListGetter(This)
+		return _oUicsGt_.UniqueItemsCS(pCaseSensitive)
+
+	def UniqueItems()
+		return This.UniqueItemsCS(1)
+
+	def RandomItem()
+		_oRiGt_ = new stzListGetter(This)
+		return _oRiGt_.RandomItem()
+
+	def NRandomItems(n)
+		_oNriGt_ = new stzListGetter(This)
+		return _oNriGt_.NRandomItems(n)
+
+	def ItemsBetween(n1, n2)
+		_oIbGt_ = new stzListGetter(This)
+		return _oIbGt_.ItemsBetween(n1, n2)
+
+	def EveryNthItem(n)
+		_oEniGt_ = new stzListGetter(This)
+		return _oEniGt_.EveryNthItem(n)
+
+	def Head(n)
+		_oHdGt_ = new stzListGetter(This)
+		return _oHdGt_.Head(n)
+
+	def Tail(n)
+		_oTlGt_ = new stzListGetter(This)
+		return _oTlGt_.Tail(n)
+
+	def OnlyStrings()
+		_oOsGt_ = new stzListGetter(This)
+		return _oOsGt_.OnlyStrings()
+
+	def OnlyNumbers()
+		_oOnGt_ = new stzListGetter(This)
+		return _oOnGt_.OnlyNumbers()
+
+	def OnlyLists()
+		_oOlGt_ = new stzListGetter(This)
+		return _oOlGt_.OnlyLists()
+
+	def OnlyChars()
+		_oOcGt_ = new stzListGetter(This)
+		return _oOcGt_.OnlyChars()
+
+	def Pairs()
+		_oPrGt_ = new stzListGetter(This)
+		return _oPrGt_.Pairs()
+
+	def Triplets()
+		_oTrGt_ = new stzListGetter(This)
+		return _oTrGt_.Triplets()
+
+	def SlidingWindow(n)
+		_oSwGt_ = new stzListGetter(This)
+		return _oSwGt_.SlidingWindow(n)
+
+	  #-------------------------------#
+	 #  WALKER DELEGATIONS           #
+	#-------------------------------#
+
+	def AddWalker(pcName, pnStart, pnEnd, pnStep)
+		_oAwWk_ = new stzListWalker(This)
+		_oAwWk_.AddWalker(pcName, pnStart, pnEnd, pnStep)
+
+	def WalkNForward(n)
+		_oWnfWk_ = new stzListWalker(This)
+		return _oWnfWk_.WalkNForward(n)
+
+	def WalkNBackward(n)
+		_oWnbWk_ = new stzListWalker(This)
+		return _oWnbWk_.WalkNBackward(n)
+
+	def WalkBetween(n1, n2, nStep)
+		_oWbWk_ = new stzListWalker(This)
+		return _oWbWk_.WalkBetween(n1, n2, nStep)
+
+	def WalkForthAndBack(n)
+		_oWfabWk_ = new stzListWalker(This)
+		return _oWfabWk_.WalkForthAndBack(n)
+
+	def WalkW(pcCondition)
+		_oWwWk_ = new stzListWalker(This)
+		return _oWwWk_.WalkW(pcCondition)
+
+	def WalkUntil(pcCondition)
+		_oWuWk_ = new stzListWalker(This)
+		return _oWuWk_.WalkUntil(pcCondition)
+
+	def WalkWhile(pcCondition)
+		_oWwhWk_ = new stzListWalker(This)
+		return _oWwhWk_.WalkWhile(pcCondition)
+
+	def WalkZigZag(nStep)
+		_oWzzWk_ = new stzListWalker(This)
+		return _oWzzWk_.WalkZigZag(nStep)
+
+	def WalkEveryNth(n)
+		_oWenWk_ = new stzListWalker(This)
+		return _oWenWk_.WalkEveryNth(n)
+
+	# PositionsWhere already defined above as alias of FindAllItemsW
+
+	def WalkFromTo(nFrom, nTo)
+		_oWftWk_ = new stzListWalker(This)
+		return _oWftWk_.WalkFromTo(nFrom, nTo)
+
+	def WalkSkipping(n)
+		_oWsWk_ = new stzListWalker(This)
+		return _oWsWk_.WalkSkipping(n)
+
+	def WalkAccumulating(pcExpr)
+		_oWaWk_ = new stzListWalker(This)
+		return _oWaWk_.WalkAccumulating(pcExpr)
+
+	  #-------------------------------#
+	 #  MOVER DELEGATIONS            #
+	#-------------------------------#
+
+	def Move(n1, n2)
+		_oMvMvr_ = new stzListMover(This)
+		_oMvMvr_.Move(n1, n2)
+		This.UpdateWith(_oMvMvr_.Content())
+
+	def Swap(n1, n2)
+		_oSwMvr_ = new stzListMover(This)
+		_oSwMvr_.Swap(n1, n2)
+		This.UpdateWith(_oSwMvr_.Content())
+
+	def MoveToStart(n)
+		_oMtsMvr_ = new stzListMover(This)
+		_oMtsMvr_.MoveToStart(n)
+		This.UpdateWith(_oMtsMvr_.Content())
+
+	def MoveToEnd(n)
+		_oMteMvr_ = new stzListMover(This)
+		_oMteMvr_.MoveToEnd(n)
+		This.UpdateWith(_oMteMvr_.Content())
+
+	def SwapFirstAndLast()
+		_oSfalMvr_ = new stzListMover(This)
+		_oSfalMvr_.SwapFirstAndLast()
+		This.UpdateWith(_oSfalMvr_.Content())
+
+	def MoveMany(panPositions, nTo)
+		_oMmMvr_ = new stzListMover(This)
+		_oMmMvr_.MoveMany(panPositions, nTo)
+		This.UpdateWith(_oMmMvr_.Content())
+
+	def RotateLeft(n)
+		_oRlMvr_ = new stzListMover(This)
+		_oRlMvr_.RotateLeft(n)
+		This.UpdateWith(_oRlMvr_.Content())
+
+	def RotatedLeft(n)
+		_oRdlMvr_ = new stzListMover(This)
+		return _oRdlMvr_.RotatedLeft(n)
+
+	def RotateRight(n)
+		_oRrMvr_ = new stzListMover(This)
+		_oRrMvr_.RotateRight(n)
+		This.UpdateWith(_oRrMvr_.Content())
+
+	def RotatedRight(n)
+		_oRdrMvr_ = new stzListMover(This)
+		return _oRdrMvr_.RotatedRight(n)
+
+	def Shuffle()
+		_oShMvr_ = new stzListMover(This)
+		_oShMvr_.Shuffle()
+		This.UpdateWith(_oShMvr_.Content())
+
+	def Shuffled()
+		_oShdMvr_ = new stzListMover(This)
+		return _oShdMvr_.Shuffled()
+
+	def MoveItemToStart(pItem)
+		_oMitsMvr_ = new stzListMover(This)
+		_oMitsMvr_.MoveItemToStart(pItem)
+		This.UpdateWith(_oMitsMvr_.Content())
+
+	def MoveItemToEnd(pItem)
+		_oMiteMvr_ = new stzListMover(This)
+		_oMiteMvr_.MoveItemToEnd(pItem)
+		This.UpdateWith(_oMiteMvr_.Content())
+
+	  #-------------------------------#
+	 #  SECTIONS DELEGATIONS         #
+	#-------------------------------#
+
+	def SectionCSZ(n1, n2, pCaseSensitive)
+		_oScszSec_ = new stzListSections(This)
+		return _oScszSec_.SectionCSZ(n1, n2, pCaseSensitive)
+
+	def SectionZ(n1, n2)
+		return This.SectionCSZ(n1, n2, 1)
+
+	def SectionCSZZ(n1, n2, pCaseSensitive)
+		_oScszzSec_ = new stzListSections(This)
+		return _oScszzSec_.SectionCSZZ(n1, n2, pCaseSensitive)
+
+	def SectionZZ(n1, n2)
+		return This.SectionCSZZ(n1, n2, 1)
+
+	def Sections(paSections)
+		_oSsSec_ = new stzListSections(This)
+		return _oSsSec_.Sections(paSections)
+
+	def FindAntiSection(n1, n2)
+		_oFasSec_ = new stzListSections(This)
+		return _oFasSec_.FindAntiSection(n1, n2)
+
+	def AntiSection(n1, n2)
+		_oAsSec_ = new stzListSections(This)
+		return _oAsSec_.AntiSection(n1, n2)
+
+	def FindAntiSectionIB(n1, n2)
+		_oFasibSec_ = new stzListSections(This)
+		return _oFasibSec_.FindAntiSectionIB(n1, n2)
+
+	def AntiSectionIB(n1, n2)
+		_oAsibSec_ = new stzListSections(This)
+		return _oAsibSec_.AntiSectionIB(n1, n2)
+
+	def Ranges(paRanges)
+		_oRgsSec_ = new stzListSections(This)
+		return _oRgsSec_.Ranges(paRanges)
+
+	def AntiRanges(paRanges)
+		_oArgsSec_ = new stzListSections(This)
+		return _oArgsSec_.AntiRanges(paRanges)
+
+	def RangesAndAntiRanges(paRanges)
+		_oRaarSec_ = new stzListSections(This)
+		return _oRaarSec_.RangesAndAntiRanges(paRanges)
+
+	def AntiRangesIB(paRanges)
+		_oAribSec_ = new stzListSections(This)
+		return _oAribSec_.AntiRangesIB(paRanges)
+
+	def RangesAndAntiRangesIB(paRanges)
+		_oRaaribSec_ = new stzListSections(This)
+		return _oRaaribSec_.RangesAndAntiRangesIB(paRanges)
+
+	  #-------------------------------#
+	 #  CLASSIFIER DELEGATIONS       #
+	#-------------------------------#
+
+	def Classify()
+		_oCfClf_ = new stzListClassifier(This)
+		return _oCfClf_.Classify()
+
+	def Classified()
+		_oCfdClf_ = new stzListClassifier(This)
+		return _oCfdClf_.Classified()
+
+	def Classes()
+		_oClsClf_ = new stzListClassifier(This)
+		return _oClsClf_.Classes()
+
+	def ClassifyBy(pcExpr)
+		_oCbClf_ = new stzListClassifier(This)
+		return _oCbClf_.ClassifyBy(pcExpr)
+
+	def NumberOfClasses()
+		_oNcClf_ = new stzListClassifier(This)
+		return _oNcClf_.NumberOfClasses()
+
+	def Frequencies()
+		_oFqClf_ = new stzListClassifier(This)
+		return _oFqClf_.Frequencies()
+
+	def MostFrequent()
+		_oMfClf_ = new stzListClassifier(This)
+		return _oMfClf_.MostFrequent()
+
+	def LeastFrequent()
+		_oLfClf_ = new stzListClassifier(This)
+		return _oLfClf_.LeastFrequent()
+
+	def GroupBy(pcExpr)
+		_oGbClf_ = new stzListClassifier(This)
+		return _oGbClf_.GroupBy(pcExpr)
+
+	def Histogram()
+		_oHgClf_ = new stzListClassifier(This)
+		return _oHgClf_.Histogram()
+
+	def ItemsAppearingNTimes(n)
+		_oIantClf_ = new stzListClassifier(This)
+		return _oIantClf_.ItemsAppearingNTimes(n)
+
+	def ItemsAppearingMoreThanNTimes(n)
+		_oIamtntClf_ = new stzListClassifier(This)
+		return _oIamtntClf_.ItemsAppearingMoreThanNTimes(n)
+
+	def ItemsAppearingLessThanNTimes(n)
+		_oIaltntClf_ = new stzListClassifier(This)
+		return _oIaltntClf_.ItemsAppearingLessThanNTimes(n)
+
+	def FrequencyOf(pItem)
+		_oFoClf_ = new stzListClassifier(This)
+		return _oFoClf_.FrequencyOf(pItem)
+
+	def Mode()
+		_oMdClf_ = new stzListClassifier(This)
+		return _oMdClf_.Mode()
+
+	def Bisect()
+		_oBsClf_ = new stzListClassifier(This)
+		return _oBsClf_.Bisect()
+
+	def FirstHalf()
+		_oFhClf_ = new stzListClassifier(This)
+		return _oFhClf_.FirstHalf()
+
+	def SecondHalf()
+		_oShClf_ = new stzListClassifier(This)
+		return _oShClf_.SecondHalf()
+
+	def PartitionW(pcCondition)
+		_oPwClf_ = new stzListClassifier(This)
+		return _oPwClf_.PartitionW(pcCondition)
+
+	def Chunks(n)
+		_oChClf_ = new stzListClassifier(This)
+		return _oChClf_.Chunks(n)
+
+	  #-------------------------------#
+	 #  RANDOM DELEGATIONS           #
+	#-------------------------------#
+
+	def RandomPosition()
+		_oRpRnd_ = new stzListRandom(This)
+		return _oRpRnd_.RandomPosition()
+
+	def RandomPositionGreaterThan(n)
+		_oRpgtRnd_ = new stzListRandom(This)
+		return _oRpgtRnd_.RandomPositionGreaterThan(n)
+
+	def RandomPositionLessThan(n)
+		_oRpltRnd_ = new stzListRandom(This)
+		return _oRpltRnd_.RandomPositionLessThan(n)
+
+	def RandomPositionExcept(n)
+		_oRpeRnd_ = new stzListRandom(This)
+		return _oRpeRnd_.RandomPositionExcept(n)
+
+	def RandomPositionExceptPositions(panPos)
+		_oRpepRnd_ = new stzListRandom(This)
+		return _oRpepRnd_.RandomPositionExceptPositions(panPos)
+
+	def NRandomPositions(n)
+		_oNrpRnd_ = new stzListRandom(This)
+		return _oNrpRnd_.NRandomPositions(n)
+
+	def RandomItemExceptCS(pItem, pCaseSensitive)
+		_oRiecsRnd_ = new stzListRandom(This)
+		return _oRiecsRnd_.RandomItemExceptCS(pItem, pCaseSensitive)
+
+	def RandomItemExcept(pItem)
+		return This.RandomItemExceptCS(pItem, 1)
+
+	def RandomItemExceptPosition(n)
+		_oRiepRnd_ = new stzListRandom(This)
+		return _oRiepRnd_.RandomItemExceptPosition(n)
+
+	def Randomize()
+		_oRzRnd_ = new stzListRandom(This)
+		_oRzRnd_.Randomize()
+		This.UpdateWith(_oRzRnd_.Content())
+
+	def Randomized()
+		_oRzdRnd_ = new stzListRandom(This)
+		return _oRzdRnd_.Randomized()
+
+	def RandomizeSection(n1, n2)
+		_oRzsRnd_ = new stzListRandom(This)
+		_oRzsRnd_.RandomizeSection(n1, n2)
+		This.UpdateWith(_oRzsRnd_.Content())
+
+	def SectionRandomized(n1, n2)
+		_oSrRnd_ = new stzListRandom(This)
+		return _oSrRnd_.SectionRandomized(n1, n2)
+
+	  #-------------------------------#
+	 #  PERFORMER DELEGATIONS        #
+	#-------------------------------#
+
+	# Perform/PerformOn/Yield already defined in core
+
+	def PerformW(pcCondition, pcAction)
+		_oPwPrf_ = new stzListPerformer(This)
+		_oPwPrf_.PerformW(pcCondition, pcAction)
+		This.UpdateWith(_oPwPrf_.Content())
+
+	def YieldOn(panPos, pcYielder)
+		_oYoPrf_ = new stzListPerformer(This)
+		return _oYoPrf_.YieldOn(panPos, pcYielder)
+
+	def YieldW(pcCondition, pcYielder)
+		_oYwPrf_ = new stzListPerformer(This)
+		return _oYwPrf_.YieldW(pcCondition, pcYielder)
+
+	def PerformOnEachItemAndItsPosition(pcAction)
+		_oPoeiapPrf_ = new stzListPerformer(This)
+		_oPoeiapPrf_.PerformOnEachItemAndItsPosition(pcAction)
+		This.UpdateWith(_oPoeiapPrf_.Content())
+
+	def YieldPairs(pcYielder)
+		_oYpPrf_ = new stzListPerformer(This)
+		return _oYpPrf_.YieldPairs(pcYielder)
+
+	  #-------------------------------#
+	 #  MERGER DELEGATIONS           #
+	#-------------------------------#
+
+	def AssociateWith(paOtherList)
+		_oAwMrg_ = new stzListMerger(This)
+		return _oAwMrg_.AssociateWith(paOtherList)
+
+	def AssociatedWith(paOtherList)
+		_oAdwMrg_ = new stzListMerger(This)
+		return _oAdwMrg_.AssociatedWith(paOtherList)
+
+	def MergeWithMany(paLists)
+		_oMwmMrg_ = new stzListMerger(This)
+		_oMwmMrg_.MergeWithMany(paLists)
+		This.UpdateWith(_oMwmMrg_.Content())
+
+	def MergedWithMany(paLists)
+		_oMdwmMrg_ = new stzListMerger(This)
+		return _oMdwmMrg_.MergedWithMany(paLists)
+
+	def InterleaveWith(paOtherList)
+		_oIwMrg_ = new stzListMerger(This)
+		_oIwMrg_.InterleaveWith(paOtherList)
+		This.UpdateWith(_oIwMrg_.Content())
+
+	def InterleavedWith(paOtherList)
+		_oIdwMrg_ = new stzListMerger(This)
+		return _oIdwMrg_.InterleavedWith(paOtherList)
+
+	def ZipWith(paOtherList)
+		_oZwMrg_ = new stzListMerger(This)
+		return _oZwMrg_.ZipWith(paOtherList)
+
+	def ZippedWith(paOtherList)
+		_oZdwMrg_ = new stzListMerger(This)
+		return _oZdwMrg_.ZippedWith(paOtherList)
+
+	def Unzip()
+		_oUzMrg_ = new stzListMerger(This)
+		return _oUzMrg_.Unzip()
+
+	def Unzipped()
+		_oUzdMrg_ = new stzListMerger(This)
+		return _oUzdMrg_.Unzipped()
+
+	def PrependWith(paOtherList)
+		_oPwMrg_ = new stzListMerger(This)
+		_oPwMrg_.PrependWith(paOtherList)
+		This.UpdateWith(_oPwMrg_.Content())
+
+	def PrependedWith(paOtherList)
+		_oPdwMrg_ = new stzListMerger(This)
+		return _oPdwMrg_.PrependedWith(paOtherList)
+
+	def DiffWith(paOtherList)
+		_oDwMrg_ = new stzListMerger(This)
+		return _oDwMrg_.DiffWith(paOtherList)
+
+	def IntersectWith(paOtherList)
+		_oIswMrg_ = new stzListMerger(This)
+		return _oIswMrg_.IntersectWith(paOtherList)
+
+	def UnionWith(paOtherList)
+		_oUwMrg_ = new stzListMerger(This)
+		return _oUwMrg_.UnionWith(paOtherList)
+
+	  #-------------------------------#
+	 #  INSERTER DELEGATIONS         #
+	#-------------------------------#
+
+	def Insert(pItem, pWhere)
+		_oIIns_ = new stzListInserter(This)
+		_oIIns_.Insert(pItem, pWhere)
+		This.UpdateWith(_oIIns_.Content())
+
+	def InsertBeforePosition(n, pItem)
+		_oIbpIns_ = new stzListInserter(This)
+		_oIbpIns_.InsertBeforePosition(n, pItem)
+		This.UpdateWith(_oIbpIns_.Content())
+
+	def InsertAfterPosition(n, pItem)
+		_oIapIns_ = new stzListInserter(This)
+		_oIapIns_.InsertAfterPosition(n, pItem)
+		This.UpdateWith(_oIapIns_.Content())
+
+	def InsertBeforePositions(panPositions, pItem)
+		_oIbpsIns_ = new stzListInserter(This)
+		_oIbpsIns_.InsertBeforePositions(panPositions, pItem)
+		This.UpdateWith(_oIbpsIns_.Content())
+
+	  #-------------------------------#
+	 #  BOUNDER DELEGATIONS          #
+	#-------------------------------#
+
+	def SectionXT(n1, n2)
+		_oSxtBnd_ = new stzListBounder(This)
+		return _oSxtBnd_.SectionXT(n1, n2)
+
+	def AreBoundsOfCS(pcSubStr, pIn, pCaseSensitive)
+		_oAbocsBnd_ = new stzListBounder(This)
+		return _oAbocsBnd_.AreBoundsOfCS(pcSubStr, pIn, pCaseSensitive)
+
+	def AreBoundsOf(pItem, pIn)
+		return This.AreBoundsOfCS(pItem, pIn, 1)
+
+	def IsBoundedByCS(paBounds, pCaseSensitive)
+		_oIbbcsBnd_ = new stzListBounder(This)
+		return _oIbbcsBnd_.IsBoundedByCS(paBounds, pCaseSensitive)
+
+	def IsBoundedBy(paBounds)
+		return This.IsBoundedByCS(paBounds, 1)
+
+	def BoundsUpToNItems(n)
+		_oButniBnd_ = new stzListBounder(This)
+		return _oButniBnd_.BoundsUpToNItems(n)
+
+	def Bounds()
+		_oBsBnd_ = new stzListBounder(This)
+		return _oBsBnd_.Bounds()
+
+	def RemoveBoundsCS(paBounds, pCaseSensitive)
+		_oRbcsBnd_ = new stzListBounder(This)
+		_oRbcsBnd_.RemoveBoundsCS(paBounds, pCaseSensitive)
+		This.UpdateWith(_oRbcsBnd_.Content())
+
+	def RemoveBounds(paBounds)
+		This.RemoveBoundsCS(paBounds, 1)
+
+	def BoundsRemoved(paBounds)
+		_oBrBnd_ = new stzListBounder(This)
+		return _oBrBnd_.BoundsRemoved(paBounds)
+
+	def Middle()
+		_oMdBnd_ = new stzListBounder(This)
+		return _oMdBnd_.Middle()
+
+	def ClampedTo(nMin, nMax)
+		_oCtBnd_ = new stzListBounder(This)
+		return _oCtBnd_.ClampedTo(nMin, nMax)
+
+	def ClampTo(nMin, nMax)
+		_oCltBnd_ = new stzListBounder(This)
+		_oCltBnd_.ClampTo(nMin, nMax)
+		This.UpdateWith(_oCltBnd_.Content())
+
+	def IsWithinBounds(n)
+		_oIwbBnd_ = new stzListBounder(This)
+		return _oIwbBnd_.IsWithinBounds(n)
+
+	def ItemsBetweenPositions(n1, n2)
+		_oIbpBnd_ = new stzListBounder(This)
+		return _oIbpBnd_.ItemsBetweenPositions(n1, n2)
+
+	  #-------------------------------#
+	 #  FLATTENER DELEGATIONS        #
+	#-------------------------------#
+
+	# Flatten/Flattened already exist in core
+
+	  #-------------------------------#
+	 #  PATHS DELEGATIONS            #
+	#-------------------------------#
+
+	# stzListPaths has only 3 methods - minimal, skip for now
+
 
