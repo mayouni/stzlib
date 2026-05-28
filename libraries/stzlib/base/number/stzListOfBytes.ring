@@ -320,24 +320,24 @@ class stzListOfBytes from stzList
 		if oCaract.IsAscii()
 			nCode = oCaract.AsciiCode()
 			cChar = StzChar(nCode)
-			@cData = copy(cChar, This.NumberOfBytes())
+			@cData = @copy(cChar, This.NumberOfBytes())
 			return @cData
 		else
 			return StzRaise(stzListOfBytesError(:CanNotFillBytesWithNonAsciiChar))
 		ok
 
 	def FillWithAsciiCharUpToNBytes(pcChar, nBytes)
-		@cData = copy(StzChar(ascii(pcChar)), nBytes)
+		@cData = @copy(StzChar(ascii(pcChar)), nBytes)
 
 	def FillWithAsciiCharUpToNChars(pcChar, nChars)
 		nBytes = nChars * This.NumberOfBytesPerChar()
-		@cData = copy(StzChar(ascii(pcChar)), nBytes)
+		@cData = @copy(StzChar(ascii(pcChar)), nBytes)
 
 	def Resize(n)
 		if n < StzLen(@cData)
 			@cData = StzLeft(@cData, n)
 		but n > StzLen(@cData)
-			@cData = @cData + copy(StzChar(0), n - StzLen(@cData))
+			@cData = @cData + @copy(StzChar(0), n - StzLen(@cData))
 		ok
 
 	def Reserve(n)

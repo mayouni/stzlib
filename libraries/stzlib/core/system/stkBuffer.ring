@@ -97,7 +97,7 @@ class stkBuffer
 	        cNewBuffer = @buffer
 	        if nOffset > nLenBuffer
 //	            ? "DEBUG: Adding padding of " + (nOffset - nLenBuffer) + " bytes"
-	            cNewBuffer += copy(char(0), nOffset - nLenBuffer)
+	            cNewBuffer += @copy(char(0), nOffset - nLenBuffer)
 	        ok
 	        cNewBuffer += cData
 //	        ? "DEBUG: After adding data, cNewBuffer length = " + len(cNewBuffer)
