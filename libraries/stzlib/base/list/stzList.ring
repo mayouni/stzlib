@@ -836,6 +836,89 @@ class stzList from stzObject
 	def StzType()
 		return :stzList
 
+	  #=============================================#
+	 #  REPLACE DELEGATIONS (via stzListReplacer)  #
+	#=============================================#
+
+	def ReplaceCS(pItem, pNewItem, pCaseSensitive)
+		_oRpl_ = new stzListReplacer(This)
+		_oRpl_.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
+		@aContent = _oRpl_.Content()
+
+	def Replace(pItem, pNewItem)
+		This.ReplaceCS(pItem, pNewItem, 1)
+
+	def ReplaceNthCS(n, pItem, pNewItem, pCaseSensitive)
+		_oRplN_ = new stzListReplacer(This)
+		_oRplN_.ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
+		@aContent = _oRplN_.Content()
+
+	def ReplaceNth(n, pItem, pNewItem)
+		This.ReplaceNthCS(n, pItem, pNewItem, 1)
+
+	def ReplaceFirstCS(pItem, pNewItem, pCaseSensitive)
+		_oRplF_ = new stzListReplacer(This)
+		_oRplF_.ReplaceFirstOccurrenceCS(pItem, pNewItem, pCaseSensitive)
+		@aContent = _oRplF_.Content()
+
+	def ReplaceFirst(pItem, pNewItem)
+		This.ReplaceFirstCS(pItem, pNewItem, 1)
+
+	def ReplaceLastCS(pItem, pNewItem, pCaseSensitive)
+		_oRplL_ = new stzListReplacer(This)
+		_oRplL_.ReplaceLastOccurrenceCS(pItem, pNewItem, pCaseSensitive)
+		@aContent = _oRplL_.Content()
+
+	def ReplaceLast(pItem, pNewItem)
+		This.ReplaceLastCS(pItem, pNewItem, 1)
+
+	def ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
+		_oRplM_ = new stzListReplacer(This)
+		_oRplM_.ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
+		@aContent = _oRplM_.Content()
+
+	def ReplaceManyByMany(paItems, paNewItems)
+		This.ReplaceManyByManyCS(paItems, paNewItems, 1)
+
+	def ReplaceManyByManyXT(paItems, paNewItems)
+		_oRplMxt_ = new stzListReplacer(This)
+		_oRplMxt_.ReplaceManyByManyXT(paItems, paNewItems)
+		@aContent = _oRplMxt_.Content()
+
+	  #=============================================#
+	 #  STRINGIFY DELEGATION (via stzListStringify) #
+	#=============================================#
+
+	def Stringify()
+		_oStfy_ = new stzListStringify(This)
+		_oStfy_.Stringify()
+		@aContent = _oStfy_.Content()
+
+		def StringifyQ()
+			This.Stringify()
+			return This
+
+	  #=================================================#
+	 #  CONTAINS DELEGATIONS (via stzListComparator)    #
+	#=================================================#
+
+	def ContainsOneOfTheseCS(paItems, pCaseSensitive)
+		_oCmpCont_ = new stzListComparator(This)
+		return _oCmpCont_.ContainsOneOfTheseCS(paItems, pCaseSensitive)
+
+	def ContainsOneOfThese(paItems)
+		return This.ContainsOneOfTheseCS(paItems, 1)
+
+		def ContainsEither(paItems)
+			return This.ContainsOneOfThese(paItems)
+
+	def ContainsAllOfTheseCS(paItems, pCaseSensitive)
+		_oCmpAll_ = new stzListComparator(This)
+		return _oCmpAll_.ContainsAllOfTheseCS(paItems, pCaseSensitive)
+
+	def ContainsAllOfThese(paItems)
+		return This.ContainsAllOfTheseCS(paItems, 1)
+
 	  #=========================================#
 	 #  ENGINE-BACKED OPERATIONS (Zig engine)  #
 	#=========================================#
@@ -1129,32 +1212,88 @@ class stzList from stzObject
 		return aResult
 
 	  #-------------------------------------------#
-	 #  EQUALITY CHECK (engine-backed)           #
+	 #  EQUALITY CHECK (set-based, engine-backed) #
 	#-------------------------------------------#
 
 	def IsEqualToCS(paOtherList, pCaseSensitive)
+		# Set-based equality: same items regardless of order
 		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		pList1 = This._EngineListFromContent()
-		if pList1 = NULL return 0 ok
-
-		oOther = new stzList(paOtherList)
-		pList2 = oOther._EngineListFromContent()
-		if pList2 = NULL
-			StzEngineListFree(pList1)
+		if NOT isList(paOtherList)
 			return 0
 		ok
 
-		nResult = StzEngineListEqualsCS(pList1, pList2, pCaseSensitive)
-		StzEngineListFree(pList1)
-		StzEngineListFree(pList2)
+		if len(@aContent) != len(paOtherList)
+			return 0
+		ok
 
-		return nResult
+		# Use mutual subset check (A subset B AND B subset A)
+		_pEqList1_ = This._EngineListFromContent()
+		if _pEqList1_ = NULL return 0 ok
+
+		_oEqOther_ = new stzList(paOtherList)
+		_pEqList2_ = _oEqOther_._EngineListFromContent()
+		if _pEqList2_ = NULL
+			StzEngineListFree(_pEqList1_)
+			return 0
+		ok
+
+		_nAsubB_ = StzEngineListIsSubsetCS(_pEqList1_, _pEqList2_, pCaseSensitive)
+		_nBsubA_ = StzEngineListIsSubsetCS(_pEqList2_, _pEqList1_, pCaseSensitive)
+		StzEngineListFree(_pEqList1_)
+		StzEngineListFree(_pEqList2_)
+
+		return _nAsubB_ and _nBsubA_
 
 	def IsEqualTo(paOtherList)
 		return This.IsEqualToCS(paOtherList, 1)
+
+	  #------------------------------------------------#
+	 #  STRICT EQUALITY (same items + same positions)  #
+	#------------------------------------------------#
+
+	def IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
+		# Positional equality: same items at same positions
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT isList(paOtherList)
+			return 0
+		ok
+
+		_pSeList1_ = This._EngineListFromContent()
+		if _pSeList1_ = NULL return 0 ok
+
+		_oSeOther_ = new stzList(paOtherList)
+		_pSeList2_ = _oSeOther_._EngineListFromContent()
+		if _pSeList2_ = NULL
+			StzEngineListFree(_pSeList1_)
+			return 0
+		ok
+
+		_nSeResult_ = StzEngineListEqualsCS(_pSeList1_, _pSeList2_, pCaseSensitive)
+		StzEngineListFree(_pSeList1_)
+		StzEngineListFree(_pSeList2_)
+
+		return _nSeResult_
+
+	def IsStrictlyEqualTo(paOtherList)
+		return This.IsStrictlyEqualToCS(paOtherList, 1)
+
+		def IsIdenticalTo(paOtherList)
+			return This.IsStrictlyEqualTo(paOtherList)
+
+		def IsEqualToXT(paOtherList)
+			return This.IsStrictlyEqualTo(paOtherList)
+
+		def IsIdenticalToCS(paOtherList, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
+
+		def IsEqualToCSXT(paOtherList, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
 
 	  #---------------------------------------------------#
 	 #  EXPRESSION-BACKED OPERATIONS (engine bytecode)    #

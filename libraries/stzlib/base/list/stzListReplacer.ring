@@ -296,3 +296,71 @@ class stzListReplacer
 
 	def ReplaceSection(n1, n2, paNewItems)
 		This.ReplaceSectionCS(n1, n2, paNewItems, 1)
+
+	  #============================================#
+	 #   REPLACING MANY ITEMS BY MANY             #
+	#============================================#
+
+	def ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
+		if isList(paNewItems) and len(paNewItems) > 0
+			if isString(paNewItems[1]) and
+			   (paNewItems[1] = :by or paNewItems[1] = :with or paNewItems[1] = :By or paNewItems[1] = :With)
+				paNewItems = paNewItems[2]
+			ok
+		ok
+
+		_nRmbmItemsLen_ = len(paItems)
+		_nRmbmNewLen_ = len(paNewItems)
+
+		if _nRmbmItemsLen_ = 0 or _nRmbmNewLen_ = 0
+			return
+		ok
+
+		if _nRmbmItemsLen_ != _nRmbmNewLen_
+			StzRaise("Incorrect values! paItems and paNewItems must have the same size.")
+		ok
+
+		for _iRmbm_ = 1 to _nRmbmItemsLen_
+			This.ReplaceAllOccurrencesCS(paItems[_iRmbm_], paNewItems[_iRmbm_], pCaseSensitive)
+		next
+
+		def ReplaceManyByManyCSQ(paItems, paNewItems, pCaseSensitive)
+			This.ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
+			return This
+
+	def ReplaceManyByMany(paItems, paNewItems)
+		This.ReplaceManyByManyCS(paItems, paNewItems, 1)
+
+		def ReplaceManyByManyQ(paItems, paNewItems)
+			This.ReplaceManyByMany(paItems, paNewItems)
+			return This
+
+	def ReplaceManyByManyCSXT(paItems, paNewItems, pCaseSensitive)
+		# XT version: if paNewItems is shorter, it cycles; if longer, it truncates
+		if isList(paNewItems) and len(paNewItems) > 0
+			if isString(paNewItems[1]) and
+			   (paNewItems[1] = :by or paNewItems[1] = :with or paNewItems[1] = :By or paNewItems[1] = :With)
+				paNewItems = paNewItems[2]
+			ok
+		ok
+
+		_nRmbmxtItemsLen_ = len(paItems)
+		_nRmbmxtNewLen_ = len(paNewItems)
+
+		if _nRmbmxtItemsLen_ = 0 or _nRmbmxtNewLen_ = 0
+			return
+		ok
+
+		# Build a matched-size replacement list by cycling
+		_aRmbmxtMatched_ = []
+		for _iRmbmxt_ = 1 to _nRmbmxtItemsLen_
+			_nRmbmxtIdx_ = ((_iRmbmxt_ - 1) % _nRmbmxtNewLen_) + 1
+			_aRmbmxtMatched_ + paNewItems[_nRmbmxtIdx_]
+		next
+
+		for _iRmbmxt2_ = 1 to _nRmbmxtItemsLen_
+			This.ReplaceAllOccurrencesCS(paItems[_iRmbmxt2_], _aRmbmxtMatched_[_iRmbmxt2_], pCaseSensitive)
+		next
+
+	def ReplaceManyByManyXT(paItems, paNewItems)
+		This.ReplaceManyByManyCSXT(paItems, paNewItems, 1)
