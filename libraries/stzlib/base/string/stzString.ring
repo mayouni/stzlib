@@ -1204,37 +1204,125 @@ class stzString from stzObject
 	def NthBetween(n, pBound1, pBound2)
 		return This.NthBetweenCS(n, pBound1, pBound2, 1)
 
+	# --- ReplaceBetween / RemoveBetween ---
+	# Engine replaces INCLUDING bounds. For default (bounds preserved),
+	# we wrap replacement with pcOpen + replacement + pcClose.
+	# IB variants pass replacement directly (engine includes bounds).
+
 	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
-		_oRbBounder_ = new stzStringBounder(This)
-		_oRbBounder_.ReplaceBetween(pcOpen, pcClose, pcReplacement)
+		_pRbR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
+		if _pRbR_ != NULL
+			This.Update(StzEngineStringData(_pRbR_))
+			StzEngineStringFree(_pRbR_)
+		ok
 
 	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
-		_oRfbBounder_ = new stzStringBounder(This)
-		_oRfbBounder_.ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
+		_pRfbR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
+		if _pRfbR_ != NULL
+			This.Update(StzEngineStringData(_pRfbR_))
+			StzEngineStringFree(_pRfbR_)
+		ok
 
 	def ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
-		_oRlbBounder_ = new stzStringBounder(This)
-		_oRlbBounder_.ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
+		_pRlbR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
+		if _pRlbR_ != NULL
+			This.Update(StzEngineStringData(_pRlbR_))
+			StzEngineStringFree(_pRlbR_)
+		ok
 
 	def ReplaceNthBetween(n, pcOpen, pcClose, pcReplacement)
-		_oRnbBounder_ = new stzStringBounder(This)
-		_oRnbBounder_.ReplaceNthBetween(n, pcOpen, pcClose, pcReplacement)
+		_pRnbR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose, n - 1)
+		if _pRnbR_ != NULL
+			This.Update(StzEngineStringData(_pRnbR_))
+			StzEngineStringFree(_pRnbR_)
+		ok
 
 	def RemoveBetween(pcOpen, pcClose)
-		_oRmbBounder_ = new stzStringBounder(This)
-		_oRmbBounder_.RemoveBetween(pcOpen, pcClose)
+		_pRmbR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose)
+		if _pRmbR_ != NULL
+			This.Update(StzEngineStringData(_pRmbR_))
+			StzEngineStringFree(_pRmbR_)
+		ok
 
 	def RemoveFirstBetween(pcOpen, pcClose)
-		_oRmfbBounder_ = new stzStringBounder(This)
-		_oRmfbBounder_.RemoveFirstBetween(pcOpen, pcClose)
+		_pRmfbR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose)
+		if _pRmfbR_ != NULL
+			This.Update(StzEngineStringData(_pRmfbR_))
+			StzEngineStringFree(_pRmfbR_)
+		ok
 
 	def RemoveLastBetween(pcOpen, pcClose)
-		_oRmlbBounder_ = new stzStringBounder(This)
-		_oRmlbBounder_.RemoveLastBetween(pcOpen, pcClose)
+		_pRmlbR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose)
+		if _pRmlbR_ != NULL
+			This.Update(StzEngineStringData(_pRmlbR_))
+			StzEngineStringFree(_pRmlbR_)
+		ok
 
 	def RemoveNthBetween(n, pcOpen, pcClose)
-		_oRmnbBounder_ = new stzStringBounder(This)
-		_oRmnbBounder_.RemoveNthBetween(n, pcOpen, pcClose)
+		_pRmnbR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose, n - 1)
+		if _pRmnbR_ != NULL
+			This.Update(StzEngineStringData(_pRmnbR_))
+			StzEngineStringFree(_pRmnbR_)
+		ok
+
+	# --- IB variants (Including Bounds) ---
+	# Engine replaces including bounds — pass replacement directly
+
+	def ReplaceBetweenIB(pcOpen, pcClose, pcReplacement)
+		_pRbibR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, pcReplacement)
+		if _pRbibR_ != NULL
+			This.Update(StzEngineStringData(_pRbibR_))
+			StzEngineStringFree(_pRbibR_)
+		ok
+
+	def ReplaceFirstBetweenIB(pcOpen, pcClose, pcReplacement)
+		_pRfbibR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, pcReplacement)
+		if _pRfbibR_ != NULL
+			This.Update(StzEngineStringData(_pRfbibR_))
+			StzEngineStringFree(_pRfbibR_)
+		ok
+
+	def ReplaceLastBetweenIB(pcOpen, pcClose, pcReplacement)
+		_pRlbibR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, pcReplacement)
+		if _pRlbibR_ != NULL
+			This.Update(StzEngineStringData(_pRlbibR_))
+			StzEngineStringFree(_pRlbibR_)
+		ok
+
+	def ReplaceNthBetweenIB(n, pcOpen, pcClose, pcReplacement)
+		_pRnbibR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, pcReplacement, n - 1)
+		if _pRnbibR_ != NULL
+			This.Update(StzEngineStringData(_pRnbibR_))
+			StzEngineStringFree(_pRnbibR_)
+		ok
+
+	def RemoveBetweenIB(pcOpen, pcClose)
+		_pRmbibR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, "")
+		if _pRmbibR_ != NULL
+			This.Update(StzEngineStringData(_pRmbibR_))
+			StzEngineStringFree(_pRmbibR_)
+		ok
+
+	def RemoveFirstBetweenIB(pcOpen, pcClose)
+		_pRmfbibR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, "")
+		if _pRmfbibR_ != NULL
+			This.Update(StzEngineStringData(_pRmfbibR_))
+			StzEngineStringFree(_pRmfbibR_)
+		ok
+
+	def RemoveLastBetweenIB(pcOpen, pcClose)
+		_pRmlbibR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, "")
+		if _pRmlbibR_ != NULL
+			This.Update(StzEngineStringData(_pRmlbibR_))
+			StzEngineStringFree(_pRmlbibR_)
+		ok
+
+	def RemoveNthBetweenIB(n, pcOpen, pcClose)
+		_pRmnbibR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, "", n - 1)
+		if _pRmnbibR_ != NULL
+			This.Update(StzEngineStringData(_pRmnbibR_))
+			StzEngineStringFree(_pRmnbibR_)
+		ok
 
 	def BetweenIB(pBound1, pBound2)
 		_oBibBounder_ = new stzStringBounder(This)

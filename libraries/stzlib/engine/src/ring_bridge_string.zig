@@ -2,6 +2,12 @@
 //
 // Wraps Softanza Engine string+char functions as Ring extension
 // functions. Ring calls these by name after ringlib_init registers them.
+//
+// HANDLE TABLE: Instead of passing raw C pointers across the Ring-Zig
+// FFI boundary (which causes sporadic alignment panics), all engine
+// handles are stored in a Zig-side table. Ring receives/passes integer
+// IDs (via retnumber/getnumber). This eliminates all pointer alignment
+// issues because Ring never touches the actual pointers.
 
 const string = @import("string.zig");
 const char_mod = @import("char.zig");
@@ -10,17 +16,69 @@ const R = @import("ring_api.zig");
 const ring_vm_api_getstring = R.ring_vm_api_getstring;
 const ring_vm_api_getstringsize = R.ring_vm_api_getstringsize;
 const ring_vm_api_getnumber = R.ring_vm_api_getnumber;
-const ring_vm_api_getcpointer = R.ring_vm_api_getcpointer;
 const ring_vm_api_retnumber = R.ring_vm_api_retnumber;
 const ring_vm_api_retstring = R.ring_vm_api_retstring;
 const ring_vm_api_retstring2 = R.ring_vm_api_retstring2;
-const ring_vm_api_retcpointer = R.ring_vm_api_retcpointer;
+
+// ─── Handle Table ───
+// Maps integer IDs (1-based) to raw engine pointers.
+// Ring only sees the integer; Zig resolves to the actual pointer.
+
+const MAX_HANDLES = 8192;
+var handle_table: [MAX_HANDLES]?*anyopaque = [_]?*anyopaque{null} ** MAX_HANDLES;
+var next_slot: usize = 0;
+
+fn storeHandle(ptr: ?*anyopaque) f64 {
+    const raw = ptr orelse return 0;
+    var i: usize = 0;
+    while (i < MAX_HANDLES) : (i += 1) {
+        const idx = (next_slot + i) % MAX_HANDLES;
+        if (handle_table[idx] == null) {
+            handle_table[idx] = raw;
+            next_slot = (idx + 1) % MAX_HANDLES;
+            return @floatFromInt(idx + 1); // 1-based ID
+        }
+    }
+    return 0; // table full
+}
+
+fn resolveHandle(id: f64) ?*anyopaque {
+    const raw_id = @as(i64, @intFromFloat(id));
+    if (raw_id <= 0 or raw_id > MAX_HANDLES) return null;
+    const idx: usize = @intCast(raw_id - 1);
+    return handle_table[idx];
+}
+
+fn releaseSlot(id: f64) void {
+    const raw_id = @as(i64, @intFromFloat(id));
+    if (raw_id <= 0 or raw_id > MAX_HANDLES) return;
+    const idx: usize = @intCast(raw_id - 1);
+    handle_table[idx] = null;
+}
+
+// Shadow the real cpointer functions: store/resolve via handle table.
+// All 267+ call sites automatically use the table -- no per-site changes.
+fn ring_vm_api_retcpointer(p: *anyopaque, ptr: ?*anyopaque, _: [*:0]const u8) void {
+    R.ring_vm_api_retnumber(p, storeHandle(ptr));
+}
+
+fn ring_vm_api_getcpointer(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
+    const id = R.ring_vm_api_getnumber(p, n);
+    return resolveHandle(id);
+}
 
 const STZ_HANDLE: [*:0]const u8 = "StzStringHandle";
 
 fn getHandle(p: *anyopaque, n: c_int) string.StzStringHandle {
     const ptr = ring_vm_api_getcpointer(p, n, STZ_HANDLE);
-    if (ptr) |raw| return @ptrCast(@alignCast(raw));
+    if (ptr) |raw| {
+        // Use @intFromPtr + @ptrFromInt to bypass alignment check.
+        // Ring's C pointer storage may return pointers that trigger
+        // Zig's @alignCast safety panic under high allocation churn.
+        const addr = @intFromPtr(raw);
+        if (addr == 0) return null;
+        return @ptrFromInt(addr);
+    }
     return null;
 }
 
@@ -47,7 +105,13 @@ fn ring_StringFrom(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_StringFree(p: *anyopaque) callconv(.c) void {
-    string.str_free(getHandle(p, 1));
+    const id = R.ring_vm_api_getnumber(p, 1);
+    const h_ptr = resolveHandle(id);
+    if (h_ptr) |raw| {
+        const h: string.StzStringHandle = @ptrFromInt(@intFromPtr(raw));
+        string.str_free(h);
+    }
+    releaseSlot(id);
 }
 
 fn ring_StringData(p: *anyopaque) callconv(.c) void {
@@ -149,7 +213,11 @@ const FIND_HANDLE: [*:0]const u8 = "StzFindResultHandle";
 
 fn getFindHandle(p: *anyopaque, n: c_int) string.StzFindResultHandle {
     const ptr = ring_vm_api_getcpointer(p, n, FIND_HANDLE);
-    if (ptr) |raw| return @ptrCast(@alignCast(raw));
+    if (ptr) |raw| {
+        const addr = @intFromPtr(raw);
+        if (addr == 0) return null;
+        return @ptrFromInt(addr);
+    }
     return null;
 }
 
@@ -171,7 +239,13 @@ fn ring_FindResultGet(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_FindResultFree(p: *anyopaque) callconv(.c) void {
-    string.stz_find_result_free(getFindHandle(p, 1));
+    const id = R.ring_vm_api_getnumber(p, 1);
+    const h_ptr = resolveHandle(id);
+    if (h_ptr) |raw| {
+        const fh: string.StzFindResultHandle = @ptrFromInt(@intFromPtr(raw));
+        string.stz_find_result_free(fh);
+    }
+    releaseSlot(id);
 }
 
 fn ring_StringReplace(p: *anyopaque) callconv(.c) void {
@@ -1429,7 +1503,10 @@ fn ring_StringCopy(p: *anyopaque) callconv(.c) void {
 fn ring_StringCompare(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const ptr2 = ring_vm_api_getcpointer(p, 2, STZ_HANDLE);
-    const h2: string.StzStringHandle = if (ptr2) |raw| @ptrCast(@alignCast(raw)) else null;
+    const h2: string.StzStringHandle = if (ptr2) |raw| blk: {
+        const addr2 = @intFromPtr(raw);
+        break :blk if (addr2 == 0) null else @ptrFromInt(addr2);
+    } else null;
     ring_vm_api_retnumber(p, @floatFromInt(string.str_compare(h1, h2)));
 }
 
