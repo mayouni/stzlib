@@ -154,6 +154,12 @@ class stzListDuplicates
 		def ContainsDuplicates()
 			return This.HasDuplicates()
 
+		def ContainsDuplicatedItems()
+			return This.HasDuplicates()
+
+		def ContainsDuplicatedItemsCS(pCaseSensitive)
+			return This.HasDuplicatesCS(pCaseSensitive)
+
 	  #========================================#
 	 #  NUMBER OF DUPLICATES                 #
 	#========================================#

@@ -1057,6 +1057,40 @@ class stzList from stzObject
 			return This.WithoutDuplicationCS(pCaseSensitive)
 
 	  #--------------------------------------#
+	 #  DUPLICATE DETECTION (delegates to   #
+	 #  stzListDuplicates)                  #
+	#--------------------------------------#
+
+	def ContainsDuplicatedItemsCS(pCaseSensitive)
+		_oDupChk_ = new stzListDuplicates(This)
+		return _oDupChk_.HasDuplicatesCS(pCaseSensitive)
+
+	def ContainsDuplicatedItems()
+		return This.ContainsDuplicatedItemsCS(1)
+
+		def HasDuplicates()
+			return This.ContainsDuplicatedItems()
+
+		def HasDuplicatesCS(pCaseSensitive)
+			return This.ContainsDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsDuplicates()
+			return This.ContainsDuplicatedItems()
+
+	def DuplicatedItemsCS(pCaseSensitive)
+		_oDupItm_ = new stzListDuplicates(This)
+		return _oDupItm_.DuplicatedItemsCS(pCaseSensitive)
+
+	def DuplicatedItems()
+		return This.DuplicatedItemsCS(1)
+
+	def NumberOfDuplicatedItemsCS(pCaseSensitive)
+		return len(This.DuplicatedItemsCS(pCaseSensitive))
+
+	def NumberOfDuplicatedItems()
+		return This.NumberOfDuplicatedItemsCS(1)
+
+	  #--------------------------------------#
 	 #  FLATTEN (engine-backed)             #
 	#--------------------------------------#
 
