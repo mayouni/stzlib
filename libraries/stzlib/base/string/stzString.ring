@@ -1087,6 +1087,157 @@ class stzString from stzObject
 			ok
 
 	  #============================#
+	 #   CHAR OPERATIONS          #
+	#============================#
+
+	def RemoveFirstChar()
+		_cRfcContent_ = This.Content()
+		if StzLen(_cRfcContent_) > 0
+			This.Update(StzRight(_cRfcContent_, StzLen(_cRfcContent_) - 1))
+		ok
+
+	def RemoveLastChar()
+		_cRlcContent_ = This.Content()
+		_nRlcLen_ = StzLen(_cRlcContent_)
+		if _nRlcLen_ > 0
+			This.Update(StzLeft(_cRlcContent_, _nRlcLen_ - 1))
+		ok
+
+	def RemoveFirstAndLastChars()
+		This.RemoveFirstChar()
+		This.RemoveLastChar()
+
+		def RemoveFirstAndLastCharsQ()
+			This.RemoveFirstAndLastChars()
+			return This
+
+	def SizeInBytes()
+		return ring_len(This.Content())
+
+	  #================================#
+	 #   CONTAINS MULTIPLE            #
+	#================================#
+
+	def ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+		_oCmpStr_ = new stzStringComparator(This)
+		return _oCmpStr_.ContainsOneOfTheseCS(paSubStr, pCaseSensitive)
+
+	def ContainsOneOfThese(paSubStr)
+		return This.ContainsOneOfTheseCS(paSubStr, 1)
+
+		def ContainsEither(paSubStr)
+			return This.ContainsOneOfThese(paSubStr)
+
+	  #================================#
+	 #   FIND/REMOVE BOUNDS           #
+	#================================#
+
+	def FindTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+		_nFtbLen_ = This.NumberOfChars()
+		_nFtbLenB1_ = StzLen(pcBound1)
+		_nFtbLenB2_ = StzLen(pcBound2)
+		_aFtbResult_ = []
+		_nFtbPos_ = 1
+
+		while _nFtbPos_ < _nFtbLen_
+			_nFtb1_ = This.FindFirstSTCS(pcBound1, _nFtbPos_, pCaseSensitive)
+			if _nFtb1_ = 0
+				exit
+			ok
+			_nFtb2_ = This.FindFirstSTCS(pcBound2, _nFtb1_ + _nFtbLenB1_, pCaseSensitive)
+			if _nFtb2_ = 0
+				exit
+			ok
+			_aFtbResult_ + _nFtb1_ + _nFtb2_
+			_nFtbPos_ = _nFtb2_
+		end
+
+		return _aFtbResult_
+
+	def FindTheseBounds(pcBound1, pcBound2)
+		return This.FindTheseBoundsCS(pcBound1, pcBound2, 1)
+
+	def RemoveTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+		# Remove each bound occurrence from the result of FindTheseBounds
+		_aRtbPos_ = This.FindTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+		_nRtbLen_ = len(_aRtbPos_)
+		if _nRtbLen_ = 0 return ok
+
+		# Build sections for the bounds and remove from end to start
+		_nRtbB1Len_ = StzLen(pcBound1)
+		_nRtbB2Len_ = StzLen(pcBound2)
+		_aRtbSections_ = []
+		_iRtb_ = _nRtbLen_
+		while _iRtb_ >= 1
+			_aRtbSections_ + [ _aRtbPos_[_iRtb_], _aRtbPos_[_iRtb_] + _nRtbB2Len_ - 1 ]
+			_iRtb_ -= 1
+			if _iRtb_ >= 1
+				_aRtbSections_ + [ _aRtbPos_[_iRtb_], _aRtbPos_[_iRtb_] + _nRtbB1Len_ - 1 ]
+				_iRtb_ -= 1
+			ok
+		end
+
+		This.RemoveSections(_aRtbSections_)
+
+	def RemoveTheseBounds(pcBound1, pcBound2)
+		This.RemoveTheseBoundsCS(pcBound1, pcBound2, 1)
+
+		def RemoveTheseBoundsQ(pcBound1, pcBound2)
+			This.RemoveTheseBounds(pcBound1, pcBound2)
+			return This
+
+	  #===============================#
+	 #   REPLACE MANY BY MANY        #
+	#===============================#
+
+	def ReplaceManyByManyCS(paSubStr, paNewSubStr, pCaseSensitive)
+		if isList(paNewSubStr) and len(paNewSubStr) > 0
+			if isString(paNewSubStr[1]) and
+			   (paNewSubStr[1] = :by or paNewSubStr[1] = :with or paNewSubStr[1] = :By or paNewSubStr[1] = :With)
+				paNewSubStr = paNewSubStr[2]
+			ok
+		ok
+
+		_nRmbmLen_ = len(paSubStr)
+		_nRmbmNewLen_ = len(paNewSubStr)
+
+		if _nRmbmLen_ = 0 or _nRmbmNewLen_ = 0
+			return
+		ok
+
+		if _nRmbmLen_ != _nRmbmNewLen_
+			StzRaise("Incorrect values! paSubStr and paNewSubStr must have the same size.")
+		ok
+
+		for _iRmbm_ = 1 to _nRmbmLen_
+			This.ReplaceCS(paSubStr[_iRmbm_], paNewSubStr[_iRmbm_], pCaseSensitive)
+		next
+
+	def ReplaceManyByMany(paSubStr, paNewSubStr)
+		This.ReplaceManyByManyCS(paSubStr, paNewSubStr, 1)
+
+	def ReplaceManyByManyXT(paSubStr, paNewSubStr)
+		# XT version: cycles through replacements if lists differ in size
+		if isList(paNewSubStr) and len(paNewSubStr) > 0
+			if isString(paNewSubStr[1]) and
+			   (paNewSubStr[1] = :by or paNewSubStr[1] = :with or paNewSubStr[1] = :By or paNewSubStr[1] = :With)
+				paNewSubStr = paNewSubStr[2]
+			ok
+		ok
+
+		_nRmbmxtLen_ = len(paSubStr)
+		_nRmbmxtNewLen_ = len(paNewSubStr)
+
+		if _nRmbmxtLen_ = 0 or _nRmbmxtNewLen_ = 0
+			return
+		ok
+
+		for _iRmbmxt_ = 1 to _nRmbmxtLen_
+			_nRmbmxtIdx_ = ((_iRmbmxt_ - 1) % _nRmbmxtNewLen_) + 1
+			This.Replace(paSubStr[_iRmbmxt_], paNewSubStr[_nRmbmxtIdx_])
+		next
+
+	  #============================#
 	 #   DUPLICATED SUBSTRINGS    #
 	#============================#
 
