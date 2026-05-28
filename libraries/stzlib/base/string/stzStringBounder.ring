@@ -333,6 +333,84 @@ class stzStringBounder
 	def NthBetween(n, pSubStrOrPos1, pSubStrOrPos2)
 		return This.NthBetweenCS(n, pSubStrOrPos1, pSubStrOrPos2, 1)
 
+	  #=============================================#
+	 #     REPLACE BETWEEN (Softanza convention)   #
+	#=============================================#
+
+	# ReplaceBetween = ALL occurrences (Softanza Universal Naming)
+
+	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, pcReplacement)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceFirstBetween(pH, pcOpen, pcClose, pcReplacement)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceLastBetween(pH, pcOpen, pcClose, pcReplacement)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def ReplaceNthBetween(n, pcOpen, pcClose, pcReplacement)
+		pH = @oString.Engine()
+		# Engine is 0-based for nth
+		pR = StzEngineStringReplaceNthBetween(pH, pcOpen, pcClose, pcReplacement, n - 1)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	  #=============================================#
+	 #     REMOVE BETWEEN (Softanza convention)    #
+	#=============================================#
+
+	# RemoveBetween = ALL occurrences
+
+	def RemoveBetween(pcOpen, pcClose)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveBetween(pH, pcOpen, pcClose)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def RemoveFirstBetween(pcOpen, pcClose)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveFirstBetween(pH, pcOpen, pcClose)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def RemoveLastBetween(pcOpen, pcClose)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveLastBetween(pH, pcOpen, pcClose)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def RemoveNthBetween(n, pcOpen, pcClose)
+		pH = @oString.Engine()
+		# Engine is 0-based for nth
+		pR = StzEngineStringRemoveNthBetween(pH, pcOpen, pcClose, n - 1)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
 	  #=======================================#
 	 #     BETWEEN -- INCLUDING BOUNDS       #
 	#=======================================#
