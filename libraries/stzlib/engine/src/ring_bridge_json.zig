@@ -4,11 +4,18 @@ const R = @import("ring_api.zig");
 const g = R.ring_vm_api_getnumber;
 const gs = R.ring_vm_api_getstring;
 const gss = R.ring_vm_api_getstringsize;
-const gcp = R.ring_vm_api_getcpointer;
 const rn = R.ring_vm_api_retnumber;
 const rs = R.ring_vm_api_retstring;
 const rs2 = R.ring_vm_api_retstring2;
-const rcp = R.ring_vm_api_retcpointer;
+
+// Shadow the real cpointer functions: store/resolve via handle table.
+fn rcp(p: *anyopaque, ptr: ?*anyopaque, _: [*:0]const u8) void {
+    R.retHandle(p, ptr);
+}
+
+fn gcp(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
+    return R.getHandle(p, n);
+}
 
 const H: [*:0]const u8 = "StzJsonHandle";
 
@@ -21,7 +28,13 @@ fn getH(p: *anyopaque, n: c_int) j.StzJsonHandle {
 fn ring_Parse(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(j.stz_json_parse(gs(p, 1), @intCast(gss(p, 1)))), H);
 }
-fn ring_Free(p: *anyopaque) callconv(.c) void { j.stz_json_free(getH(p, 1)); }
+fn ring_Free(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const h: j.StzJsonHandle = @ptrCast(@alignCast(ptr));
+        j.stz_json_free(h);
+    }
+}
 fn ring_IsValid(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(j.stz_json_is_valid(getH(p, 1)))); }
 fn ring_IsArray(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(j.stz_json_is_array(getH(p, 1)))); }
 fn ring_Size(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(j.stz_json_size(getH(p, 1)))); }

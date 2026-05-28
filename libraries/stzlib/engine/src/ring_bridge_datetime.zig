@@ -2,11 +2,18 @@ const dt = @import("datetime.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
-const gcp = R.ring_vm_api_getcpointer;
 const rn = R.ring_vm_api_retnumber;
 const rs = R.ring_vm_api_retstring;
 const rs2 = R.ring_vm_api_retstring2;
-const rcp = R.ring_vm_api_retcpointer;
+
+// Shadow the real cpointer functions: store/resolve via handle table.
+fn rcp(p: *anyopaque, ptr: ?*anyopaque, _: [*:0]const u8) void {
+    R.retHandle(p, ptr);
+}
+
+fn gcp(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
+    return R.getHandle(p, n);
+}
 
 const DH: [*:0]const u8 = "StzDateHandle";
 const TH: [*:0]const u8 = "StzTimeHandle";
@@ -33,7 +40,13 @@ fn ring_DateNew(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(dt.stz_date_new(@intFromFloat(g(p, 1)), @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)))), DH);
 }
 fn ring_DateToday(p: *anyopaque) callconv(.c) void { rcp(p, @ptrCast(dt.stz_date_today()), DH); }
-fn ring_DateFree(p: *anyopaque) callconv(.c) void { dt.stz_date_free(getD(p, 1)); }
+fn ring_DateFree(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const h: dt.StzDateHandle = @ptrCast(@alignCast(ptr));
+        dt.stz_date_free(h);
+    }
+}
 fn ring_DateYear(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(dt.stz_date_year(getD(p, 1)))); }
 fn ring_DateMonth(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(dt.stz_date_month(getD(p, 1)))); }
 fn ring_DateDay(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(dt.stz_date_day(getD(p, 1)))); }
@@ -87,7 +100,13 @@ fn ring_TimeNewMs(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(dt.stz_time_new_ms(@intFromFloat(g(p, 1)), @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)))), TH);
 }
 fn ring_TimeNow(p: *anyopaque) callconv(.c) void { rcp(p, @ptrCast(dt.stz_time_now()), TH); }
-fn ring_TimeFree(p: *anyopaque) callconv(.c) void { dt.stz_time_free(getT(p, 1)); }
+fn ring_TimeFree(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const h: dt.StzTimeHandle = @ptrCast(@alignCast(ptr));
+        dt.stz_time_free(h);
+    }
+}
 fn ring_TimeHour(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(dt.stz_time_hour(getT(p, 1)))); }
 fn ring_TimeMinute(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(dt.stz_time_minute(getT(p, 1)))); }
 fn ring_TimeSecond(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(dt.stz_time_second(getT(p, 1)))); }
@@ -122,7 +141,13 @@ fn ring_DTNow(p: *anyopaque) callconv(.c) void { rcp(p, @ptrCast(dt.stz_datetime
 fn ring_DTFromUnix(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(dt.stz_datetime_from_unix(@intFromFloat(g(p, 1)))), DTH);
 }
-fn ring_DTFree(p: *anyopaque) callconv(.c) void { dt.stz_datetime_free(getDT(p, 1)); }
+fn ring_DTFree(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const h: dt.StzDateTimeHandle = @ptrCast(@alignCast(ptr));
+        dt.stz_datetime_free(h);
+    }
+}
 fn ring_DTYear(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(dt.stz_datetime_year(getDT(p, 1)))); }
 fn ring_DTMonth(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(dt.stz_datetime_month(getDT(p, 1)))); }
 fn ring_DTDay(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(dt.stz_datetime_day(getDT(p, 1)))); }

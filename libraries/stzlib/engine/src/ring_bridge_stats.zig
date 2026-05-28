@@ -3,11 +3,18 @@ const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
 const gl = R.ring_vm_api_getlist;
-const gcp = R.ring_vm_api_getcpointer;
 const rn = R.ring_vm_api_retnumber;
 const rs = R.ring_vm_api_retstring;
 const rs2 = R.ring_vm_api_retstring2;
-const rcp = R.ring_vm_api_retcpointer;
+
+// Shadow the real cpointer functions: store/resolve via handle table.
+fn rcp(p: *anyopaque, ptr: ?*anyopaque, _: [*:0]const u8) void {
+    R.retHandle(p, ptr);
+}
+
+fn gcp(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
+    return R.getHandle(p, n);
+}
 
 const H: [*:0]const u8 = "StzStatsHandle";
 const allocator = @import("std").heap.c_allocator;
@@ -43,9 +50,9 @@ fn ring_Create(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_Free(p: *anyopaque) callconv(.c) void {
-    const ptr = gcp(p, 1, H);
-    if (ptr) |raw| {
-        const c: ?*stats.StzStats = @ptrCast(@alignCast(raw));
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const c: ?*stats.StzStats = @ptrCast(@alignCast(ptr));
         stats.stz_stats_free(c);
     }
 }

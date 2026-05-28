@@ -7,11 +7,18 @@ const STZ_HANDLE: [*:0]const u8 = "StzListHandle";
 
 const g = R.ring_vm_api_getnumber;
 const rn = R.ring_vm_api_retnumber;
-const gp = R.ring_vm_api_getcpointer;
-const rp = R.ring_vm_api_retcpointer;
 const gs = R.ring_vm_api_getstring;
 const gss = R.ring_vm_api_getstringsize;
 const rs2 = R.ring_vm_api_retstring2;
+
+// Shadow the real cpointer functions: store/resolve via handle table.
+fn rp(p: *anyopaque, ptr: ?*anyopaque, _: [*:0]const u8) void {
+    R.retHandle(p, ptr);
+}
+
+fn gp(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
+    return R.getHandle(p, n);
+}
 
 // Map: StzEngineYielderMap(handle, op) -> handle
 fn ring_YielderMap(p: *anyopaque) callconv(.c) void {
@@ -86,8 +93,10 @@ fn ring_YielderCountWhere(p: *anyopaque) callconv(.c) void {
 
 // Free: StzEngineYielderFree(handle)
 fn ring_YielderFree(p: *anyopaque) callconv(.c) void {
-    const h = gp(p, 1, STZ_HANDLE) orelse return;
-    yielder.stz_yielder_free(h);
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        yielder.stz_yielder_free(ptr);
+    }
 }
 
 // MapIndexed: StzEngineYielderMapIndexed(handle, op) -> handle
