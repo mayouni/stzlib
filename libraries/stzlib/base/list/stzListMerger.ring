@@ -59,20 +59,20 @@ class stzListMerger
 		@oList.Add(pItem)
 
 	def Merge()
-		aContent = This.Content()
-		nLen = This.NumberOfItems()
-		aResult = []
-		for i = 1 to nLen
-			if isList(aContent[i])
-				nLenList = len(aContent[i])
-				for j = 1 to nLenList
-					aResult + aContent[i][j]
+		_aMrgContent_ = This.Content()
+		_nMrgLen_ = This.NumberOfItems()
+		_aMrgResult_ = []
+		for _iMrg_ = 1 to _nMrgLen_
+			if isList(_aMrgContent_[_iMrg_])
+				_nMrgLenList_ = len(_aMrgContent_[_iMrg_])
+				for _jMrg_ = 1 to _nMrgLenList_
+					@AddItem(_aMrgResult_, _aMrgContent_[_iMrg_][_jMrg_])
 				next
 			else
-				aResult + aContent[i]
+				@AddItem(_aMrgResult_, _aMrgContent_[_iMrg_])
 			ok
 		next
-		This.Update(aResult)
+		This.Update(_aMrgResult_)
 
 		def MergeQ()
 			This.Merge()
@@ -83,9 +83,9 @@ class stzListMerger
 		return aResult
 
 	def MergeWith(paOtherList)
-		nLen = len(paOtherList)
-		for i = 1 to nLen
-			This.Add(paOtherList[i])
+		_nMwLen_ = len(paOtherList)
+		for _iMw_ = 1 to _nMwLen_
+			This.Add(paOtherList[_iMw_])
 		next
 
 		def MergeWithQ(paOtherList)
@@ -97,18 +97,18 @@ class stzListMerger
 		return aResult
 
 	def AssociateWith(paOtherList)
-		aContent = This.Content()
-		nLen = This.NumberOfItems()
-		nLenOther = len(paOtherList)
-		aResult = []
-		for i = 1 to nLen
-			if i <= nLenOther
-				aResult + [aContent[i], paOtherList[i]]
+		_aAwContent_ = This.Content()
+		_nAwLen_ = This.NumberOfItems()
+		_nAwLenOther_ = len(paOtherList)
+		_aAwResult_ = []
+		for _iAw_ = 1 to _nAwLen_
+			if _iAw_ <= _nAwLenOther_
+				@AddItem(_aAwResult_, [_aAwContent_[_iAw_], paOtherList[_iAw_]])
 			else
-				aResult + [aContent[i], ""]
+				@AddItem(_aAwResult_, [_aAwContent_[_iAw_], ""])
 			ok
 		next
-		return aResult
+		return _aAwResult_
 
 		def AssociateWithQ(paOtherList)
 			return new stzList(This.AssociateWith(paOtherList))
@@ -130,12 +130,12 @@ class stzListMerger
 			return This
 
 	def _FlattenHelper(aList, aResult)
-		nLen = len(aList)
-		for i = 1 to nLen
-			if isList(aList[i])
-				This._FlattenHelper(aList[i], aResult)
+		_nFhLen_ = len(aList)
+		for _iFh_ = 1 to _nFhLen_
+			if isList(aList[_iFh_])
+				This._FlattenHelper(aList[_iFh_], aResult)
 			else
-				aResult + aList[i]
+				@AddItem(aResult, aList[_iFh_])
 			ok
 		next
 
@@ -147,9 +147,9 @@ class stzListMerger
 	#======================================================#
 
 	def MergeWithMany(paLists)
-		nLen = len(paLists)
-		for i = 1 to nLen
-			This.MergeWith(paLists[i])
+		_nMwmLen_ = len(paLists)
+		for _iMwm_ = 1 to _nMwmLen_
+			This.MergeWith(paLists[_iMwm_])
 		next
 
 		def MergeWithManyQ(paLists)
@@ -207,17 +207,17 @@ class stzListMerger
 	#======================================================#
 
 	def Unzip()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aFirst = []
-		aSecond = []
-		for i = 1 to nLen
-			if isList(aContent[i]) and len(aContent[i]) >= 2
-				aFirst + aContent[i][1]
-				aSecond + aContent[i][2]
+		_aUzContent_ = This.Content()
+		_nUzLen_ = len(_aUzContent_)
+		_aUzFirst_ = []
+		_aUzSecond_ = []
+		for _iUz_ = 1 to _nUzLen_
+			if isList(_aUzContent_[_iUz_]) and len(_aUzContent_[_iUz_]) >= 2
+				@AddItem(_aUzFirst_, _aUzContent_[_iUz_][1])
+				@AddItem(_aUzSecond_, _aUzContent_[_iUz_][2])
 			ok
 		next
-		return [aFirst, aSecond]
+		return [_aUzFirst_, _aUzSecond_]
 
 		def UnzipQ()
 			return new stzList(This.Unzip())
@@ -230,17 +230,17 @@ class stzListMerger
 	#======================================================#
 
 	def PrependWith(paOtherList)
-		nLen = len(paOtherList)
-		aContent = This.Content()
-		aResult = []
-		for i = 1 to nLen
-			aResult + paOtherList[i]
+		_nPwLen_ = len(paOtherList)
+		_aPwContent_ = This.Content()
+		_aPwResult_ = []
+		for _iPw_ = 1 to _nPwLen_
+			@AddItem(_aPwResult_, paOtherList[_iPw_])
 		next
-		nLen2 = len(aContent)
-		for i = 1 to nLen2
-			aResult + aContent[i]
+		_nPwLen2_ = len(_aPwContent_)
+		for _jPw_ = 1 to _nPwLen2_
+			@AddItem(_aPwResult_, _aPwContent_[_jPw_])
 		next
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aPwResult_)
 
 		def PrependWithQ(paOtherList)
 			This.PrependWith(paOtherList)

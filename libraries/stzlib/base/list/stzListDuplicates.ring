@@ -66,21 +66,21 @@ class stzListDuplicates
 	#===============================#
 
 	def FindDuplicatesCS(pCaseSensitive)
-		pList = @oList._EngineListFromContent()
-		cResult = StzEngineListFindDuplicatesCS(pList, pCaseSensitive)
-		StzEngineListFree(pList)
+		_pFdList_ = @oList._EngineListFromContent()
+		_cFdResult_ = StzEngineListFindDuplicatesCS(_pFdList_, pCaseSensitive)
+		StzEngineListFree(_pFdList_)
 
-		if cResult = ""
+		if _cFdResult_ = ""
 			return []
 		ok
 
-		aParts = StzSplit(cResult, ",")
-		nLen = len(aParts)
-		anResult = []
-		for i = 1 to nLen
-			anResult + (0 + aParts[i])
+		_aFdParts_ = StzSplit(_cFdResult_, ",")
+		_nFdLen_ = len(_aFdParts_)
+		_anFdResult_ = []
+		for _iFd_ = 1 to _nFdLen_
+			@AddItem(_anFdResult_, 0 + _aFdParts_[_iFd_])
 		next
-		return anResult
+		return _anFdResult_
 
 	def FindDuplicates()
 		return This.FindDuplicatesCS(1)
@@ -90,16 +90,16 @@ class stzListDuplicates
 	#===============================#
 
 	def DuplicatedItemsCS(pCaseSensitive)
-		anPos = This.FindDuplicatesCS(pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(anPos)
+		_anDiPos_ = This.FindDuplicatesCS(pCaseSensitive)
+		_aDiContent_ = This.Content()
+		_nDiLen_ = len(_anDiPos_)
 
-		aResult = []
-		for i = 1 to nLen
-			aResult + aContent[anPos[i]]
+		_aDiResult_ = []
+		for _iDi_ = 1 to _nDiLen_
+			@AddItem(_aDiResult_, _aDiContent_[_anDiPos_[_iDi_]])
 		next
 
-		return aResult
+		return _aDiResult_
 
 	def DuplicatedItems()
 		return This.DuplicatedItemsCS(1)
@@ -110,10 +110,10 @@ class stzListDuplicates
 
 	def RemoveDuplicatesCS(pCaseSensitive)
 		# Engine-backed deduplication
-		pList = @oList._EngineListFromContent()
-		StzEngineListRemoveDuplicatesCS(pList, pCaseSensitive)
-		This.UpdateWith(@oList._ContentFromEngineList(pList))
-		StzEngineListFree(pList)
+		_pRdList_ = @oList._EngineListFromContent()
+		StzEngineListRemoveDuplicatesCS(_pRdList_, pCaseSensitive)
+		This.UpdateWith(@oList._ContentFromEngineList(_pRdList_))
+		StzEngineListFree(_pRdList_)
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
@@ -175,19 +175,19 @@ class stzListDuplicates
 	#=================================================#
 
 	def FindDuplicatesOfCS(pItem, pCaseSensitive)
-		anPos = This.FindAllCS(pItem, pCaseSensitive)
-		nLen = len(anPos)
+		_anFdoPos_ = This.FindAllCS(pItem, pCaseSensitive)
+		_nFdoLen_ = len(_anFdoPos_)
 
-		if nLen <= 1
+		if _nFdoLen_ <= 1
 			return []
 		ok
 
-		aResult = []
-		for i = 2 to nLen
-			aResult + anPos[i]
+		_aFdoResult_ = []
+		for _iFdo_ = 2 to _nFdoLen_
+			@AddItem(_aFdoResult_, _anFdoPos_[_iFdo_])
 		next
 
-		return aResult
+		return _aFdoResult_
 
 	def FindDuplicatesOf(pItem)
 		return This.FindDuplicatesOfCS(pItem, 1)
@@ -210,21 +210,21 @@ class stzListDuplicates
 	#========================================#
 
 	def FindNonDuplicatedItemsCS(pCaseSensitive)
-		pList = @oList._EngineListFromContent()
-		cResult = StzEngineListFindNonDuplicatedCS(pList, pCaseSensitive)
-		StzEngineListFree(pList)
+		_pFndList_ = @oList._EngineListFromContent()
+		_cFndResult_ = StzEngineListFindNonDuplicatedCS(_pFndList_, pCaseSensitive)
+		StzEngineListFree(_pFndList_)
 
-		if cResult = ""
+		if _cFndResult_ = ""
 			return []
 		ok
 
-		aParts = StzSplit(cResult, ",")
-		nLen = len(aParts)
-		anResult = []
-		for i = 1 to nLen
-			anResult + (0 + aParts[i])
+		_aFndParts_ = StzSplit(_cFndResult_, ",")
+		_nFndLen_ = len(_aFndParts_)
+		_anFndResult_ = []
+		for _iFnd_ = 1 to _nFndLen_
+			@AddItem(_anFndResult_, 0 + _aFndParts_[_iFnd_])
 		next
-		return anResult
+		return _anFndResult_
 
 	def FindNonDuplicatedItems()
 		return This.FindNonDuplicatedItemsCS(1)
@@ -234,14 +234,14 @@ class stzListDuplicates
 	#========================================#
 
 	def NonDuplicatedItemsCS(pCaseSensitive)
-		anPos = This.FindNonDuplicatedItemsCS(pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(anPos)
-		aResult = []
-		for i = 1 to nLen
-			aResult + aContent[anPos[i]]
+		_anNdiPos_ = This.FindNonDuplicatedItemsCS(pCaseSensitive)
+		_aNdiContent_ = This.Content()
+		_nNdiLen_ = len(_anNdiPos_)
+		_aNdiResult_ = []
+		for _iNdi_ = 1 to _nNdiLen_
+			@AddItem(_aNdiResult_, _aNdiContent_[_anNdiPos_[_iNdi_]])
 		next
-		return aResult
+		return _aNdiResult_
 
 	def NonDuplicatedItems()
 		return This.NonDuplicatedItemsCS(1)
@@ -251,25 +251,25 @@ class stzListDuplicates
 	#========================================#
 
 	def ItemsDuplicatedNTimesCS(n, pCaseSensitive)
-		pList = @oList._EngineListFromContent()
-		pFreqs = StzEngineListFrequenciesCS(pList, pCaseSensitive)
-		StzEngineListFree(pList)
+		_pIdnList_ = @oList._EngineListFromContent()
+		_pIdnFreqs_ = StzEngineListFrequenciesCS(_pIdnList_, pCaseSensitive)
+		StzEngineListFree(_pIdnList_)
 
-		aRaw = StzEngineContentFromList(pFreqs)
-		StzEngineListFree(pFreqs)
+		_aIdnRaw_ = StzEngineContentFromList(_pIdnFreqs_)
+		StzEngineListFree(_pIdnFreqs_)
 
-		nLen = len(aRaw)
-		aResult = []
-		i = 1
-		for _k = 1 to nLen / 2
-			cKey = aRaw[i]
-			nCount = aRaw[i + 1]
-			if nCount = n
-				aResult + cKey
+		_nIdnLen_ = len(_aIdnRaw_)
+		_aIdnResult_ = []
+		_iIdn_ = 1
+		for _kIdn_ = 1 to _nIdnLen_ / 2
+			_cIdnKey_ = _aIdnRaw_[_iIdn_]
+			_nIdnCount_ = _aIdnRaw_[_iIdn_ + 1]
+			if _nIdnCount_ = n
+				@AddItem(_aIdnResult_, _cIdnKey_)
 			ok
-			i += 2
+			_iIdn_ += 2
 		next
-		return aResult
+		return _aIdnResult_
 
 	def ItemsDuplicatedNTimes(n)
 		return This.ItemsDuplicatedNTimesCS(n, 1)
@@ -279,27 +279,27 @@ class stzListDuplicates
 	#========================================#
 
 	def MostDuplicatedItemCS(pCaseSensitive)
-		pList = @oList._EngineListFromContent()
-		pFreqs = StzEngineListFrequenciesCS(pList, pCaseSensitive)
-		StzEngineListFree(pList)
+		_pMdiList_ = @oList._EngineListFromContent()
+		_pMdiFreqs_ = StzEngineListFrequenciesCS(_pMdiList_, pCaseSensitive)
+		StzEngineListFree(_pMdiList_)
 
-		aRaw = StzEngineContentFromList(pFreqs)
-		StzEngineListFree(pFreqs)
+		_aMdiRaw_ = StzEngineContentFromList(_pMdiFreqs_)
+		StzEngineListFree(_pMdiFreqs_)
 
-		nLen = len(aRaw)
-		nMax = 0
-		cResult = ""
-		i = 1
-		for _k = 1 to nLen / 2
-			cKey = aRaw[i]
-			nCount = aRaw[i + 1]
-			if nCount > nMax
-				nMax = nCount
-				cResult = cKey
+		_nMdiLen_ = len(_aMdiRaw_)
+		_nMdiMax_ = 0
+		_cMdiResult_ = ""
+		_iMdi_ = 1
+		for _kMdi_ = 1 to _nMdiLen_ / 2
+			_cMdiKey_ = _aMdiRaw_[_iMdi_]
+			_nMdiCount_ = _aMdiRaw_[_iMdi_ + 1]
+			if _nMdiCount_ > _nMdiMax_
+				_nMdiMax_ = _nMdiCount_
+				_cMdiResult_ = _cMdiKey_
 			ok
-			i += 2
+			_iMdi_ += 2
 		next
-		return cResult
+		return _cMdiResult_
 
 	def MostDuplicatedItem()
 		return This.MostDuplicatedItemCS(1)
