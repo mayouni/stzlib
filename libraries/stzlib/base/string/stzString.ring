@@ -1170,6 +1170,35 @@ class stzString from stzObject
 			return This
 
 	  #===============================#
+	 #   BETWEEN                      #
+	#===============================#
+
+	# Between() returns ALL substrings between bounds (Softanza Universal Naming Convention)
+	# FirstBetween/LastBetween/NthBetween for specific occurrences
+
+	def BetweenCS(pBound1, pBound2, pCaseSensitive)
+		_oBtBounder_ = new stzStringBounder(This)
+		return _oBtBounder_.BetweenCS(pBound1, pBound2, pCaseSensitive)
+
+	def Between(pBound1, pBound2)
+		return This.BetweenCS(pBound1, pBound2, 1)
+
+	def FirstBetweenCS(pBound1, pBound2, pCaseSensitive)
+		_oFbBounder_ = new stzStringBounder(This)
+		return _oFbBounder_.FirstBetweenCS(pBound1, pBound2, pCaseSensitive)
+
+	def FirstBetween(pBound1, pBound2)
+		return This.FirstBetweenCS(pBound1, pBound2, 1)
+
+	def BetweenIB(pBound1, pBound2)
+		_oBibBounder_ = new stzStringBounder(This)
+		return _oBibBounder_.BetweenIB(pBound1, pBound2)
+
+	def BetweenCSIB(pBound1, pBound2, pCaseSensitive)
+		_oBcibBounder_ = new stzStringBounder(This)
+		return _oBcibBounder_.BetweenCSIB(pBound1, pBound2, pCaseSensitive)
+
+	  #===============================#
 	 #   REPLACE MANY BY MANY        #
 	#===============================#
 
