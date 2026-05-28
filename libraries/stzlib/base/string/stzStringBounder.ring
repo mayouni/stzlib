@@ -267,6 +267,73 @@ class stzStringBounder
 		return This.FirstBetweenCS(pSubStrOrPos1, pSubStrOrPos2, 1)
 
 	  #=======================================#
+	 #     LAST BETWEEN (single result)      #
+	#=======================================#
+
+	def LastBetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+
+		if CheckingParams()
+			if isList(pSubStrOrPos2) and IsAndNamedParamList(pSubStrOrPos2)
+				pSubStrOrPos2 = pSubStrOrPos2[2]
+			ok
+		ok
+
+		if NOT ( @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2) or @BothAreNumbers(pSubStrOrPos1, pSubStrOrPos2) )
+			StzRaise("Incorrect params types! pSubStrOrPos1 and pSubStrOrPos2 must be both strings or numbers.")
+		ok
+
+		if @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2)
+			# Engine-backed: returns LAST match only
+			pH = @oString.Engine()
+			pR = StzEngineStringBetweenLast(pH, pSubStrOrPos1, pSubStrOrPos2)
+			if pR = NULL return "" ok
+			_cLbResult_ = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			return _cLbResult_
+		else
+			n1 = pSubStrOrPos1 + 1
+			n2 = pSubStrOrPos2 - 1
+			return @oString.Section(n1, n2)
+		ok
+
+	def LastBetween(pSubStrOrPos1, pSubStrOrPos2)
+		return This.LastBetweenCS(pSubStrOrPos1, pSubStrOrPos2, 1)
+
+	  #=======================================#
+	 #     NTH BETWEEN (single result)       #
+	#=======================================#
+
+	def NthBetweenCS(n, pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+
+		if CheckingParams()
+			if isList(pSubStrOrPos2) and IsAndNamedParamList(pSubStrOrPos2)
+				pSubStrOrPos2 = pSubStrOrPos2[2]
+			ok
+		ok
+
+		if NOT ( @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2) or @BothAreNumbers(pSubStrOrPos1, pSubStrOrPos2) )
+			StzRaise("Incorrect params types! pSubStrOrPos1 and pSubStrOrPos2 must be both strings or numbers.")
+		ok
+
+		if @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2)
+			# Engine-backed: returns NTH match only
+			# Engine is 0-based for nth, Softanza is 1-based
+			pH = @oString.Engine()
+			pR = StzEngineStringBetweenNth(pH, pSubStrOrPos1, pSubStrOrPos2, n - 1)
+			if pR = NULL return "" ok
+			_cNbResult_ = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			return _cNbResult_
+		else
+			n1 = pSubStrOrPos1 + 1
+			n2 = pSubStrOrPos2 - 1
+			return @oString.Section(n1, n2)
+		ok
+
+	def NthBetween(n, pSubStrOrPos1, pSubStrOrPos2)
+		return This.NthBetweenCS(n, pSubStrOrPos1, pSubStrOrPos2, 1)
+
+	  #=======================================#
 	 #     BETWEEN -- INCLUDING BOUNDS       #
 	#=======================================#
 

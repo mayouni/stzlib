@@ -1190,6 +1190,20 @@ class stzString from stzObject
 	def FirstBetween(pBound1, pBound2)
 		return This.FirstBetweenCS(pBound1, pBound2, 1)
 
+	def LastBetweenCS(pBound1, pBound2, pCaseSensitive)
+		_oLbBounder_ = new stzStringBounder(This)
+		return _oLbBounder_.LastBetweenCS(pBound1, pBound2, pCaseSensitive)
+
+	def LastBetween(pBound1, pBound2)
+		return This.LastBetweenCS(pBound1, pBound2, 1)
+
+	def NthBetweenCS(n, pBound1, pBound2, pCaseSensitive)
+		_oNbBounder_ = new stzStringBounder(This)
+		return _oNbBounder_.NthBetweenCS(n, pBound1, pBound2, pCaseSensitive)
+
+	def NthBetween(n, pBound1, pBound2)
+		return This.NthBetweenCS(n, pBound1, pBound2, 1)
+
 	def BetweenIB(pBound1, pBound2)
 		_oBibBounder_ = new stzStringBounder(This)
 		return _oBibBounder_.BetweenIB(pBound1, pBound2)
