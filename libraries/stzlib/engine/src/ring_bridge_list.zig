@@ -646,6 +646,27 @@ fn ring_Ranked(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_ranked(getLC(p, 1))), HL);
 }
 
+fn ring_ReplaceManyCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_replace_many_cs(getL(p, 1), getLC(p, 2), getLC(p, 3), @intFromFloat(g(p, 4)))));
+}
+
+fn ring_CountEmptyStrings(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_count_empty_strings(getLC(p, 1))));
+}
+
+fn ring_FindEmptyStrings(p: *anyopaque) callconv(.c) void {
+    const result = list.stz_list_find_empty_strings(getLC(p, 1));
+    // Result contains 0-based positions; add INDEX_BASE=1 adjustment
+    if (result) |r| {
+        for (r.items.items) |item| {
+            if (item.tag == .int_val) {
+                item.data.int_val += 1; // INDEX_BASE=1
+            }
+        }
+    }
+    rcp(p, @ptrCast(result), HL);
+}
+
 // Bulk-load: read a Ring list directly in Zig — one FFI call replaces N per-element calls
 const ITEMTYPE_STRING: c_uint = 1;
 const ITEMTYPE_NUMBER: c_uint = 2;
@@ -851,6 +872,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistranked", .func = &ring_Ranked },
     .{ .name = "stzenginelistfindnthcs", .func = &ring_FindNthCS },
     .{ .name = "stzenginelistfindlastcs", .func = &ring_FindLastCS },
+    .{ .name = "stzenginelistreplacemanycs", .func = &ring_ReplaceManyCS },
+    .{ .name = "stzenginelistcountemptystrings", .func = &ring_CountEmptyStrings },
+    .{ .name = "stzenginelistfindemptystrings", .func = &ring_FindEmptyStrings },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

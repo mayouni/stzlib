@@ -228,6 +228,75 @@ pub fn stz_list_replace_cs(list: ?*StzList, old_v: ?*const StzValue, new_v: ?*co
     return replaced;
 }
 
+/// Replace multiple items at once: for each item in the list, if it matches
+/// old_values[i], replace with new_values[i]. First match wins (no cascading).
+/// Returns the number of items replaced, or -1 on error.
+pub fn stz_list_replace_many_cs(list: ?*StzList, old_values: ?*const StzList, new_values: ?*const StzList, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return -1;
+    const olds = old_values orelse return -1;
+    const news = new_values orelse return -1;
+    const n_pairs = olds.len();
+    if (n_pairs != news.len()) return -1;
+    if (n_pairs == 0) return 0;
+    const cs = case_sensitive != 0;
+    var replaced: i32 = 0;
+    for (l.items.items) |item| {
+        for (0..n_pairs) |k| {
+            const old_v = olds.get(k) orelse continue;
+            if (valueEqlCS(item, old_v, cs)) {
+                const new_v = news.get(k) orelse continue;
+                const cloned = new_v.clone() catch return -1;
+                item.deinit();
+                item.* = cloned.*;
+                allocator.destroy(cloned);
+                replaced += 1;
+                break; // first match wins, move to next item
+            }
+        }
+    }
+    return replaced;
+}
+
+/// Count items matching a predicate string value (empty strings).
+pub fn stz_list_count_empty_strings(list: ?*const StzList) callconv(.c) i32 {
+    const l = list orelse return 0;
+    var count: i32 = 0;
+    for (l.items.items) |item| {
+        if (item.tag == .string_val) {
+            if (item.data.string_val.len == 0) {
+                count += 1;
+            }
+        }
+    }
+    return count;
+}
+
+/// Find positions of empty strings in the list (0-based). Returns a new list
+/// of integer values, or null on error. Caller must free the result.
+pub fn stz_list_find_empty_strings(list: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list orelse return null;
+    const result = StzList.init() catch return null;
+    for (l.items.items, 0..) |item, idx| {
+        if (item.tag == .string_val and item.data.string_val.len == 0) {
+            const v = value_mod.stz_value_new_int(@intCast(idx)) orelse {
+                result.deinit();
+                allocator.destroy(result);
+                return null;
+            };
+            result.appendClone(v) catch {
+                v.deinit();
+                allocator.destroy(v);
+                result.deinit();
+                allocator.destroy(result);
+                return null;
+            };
+            v.deinit();
+            allocator.destroy(v);
+        }
+    }
+    return result;
+}
+
 // ─── C ABI: Get ───
 
 pub fn stz_list_get(list: ?*const StzList, index: usize) callconv(.c) ?*const StzValue {
@@ -4686,4 +4755,89 @@ test "find_last_cs not found" {
 test "find_nth_last null handles" {
     try std.testing.expectEqual(@as(i64, -1), stz_list_find_nth_cs(null, null, 0, 1));
     try std.testing.expectEqual(@as(i64, -1), stz_list_find_last_cs(null, null, 1));
+}
+
+// ─── Tests for stz_list_replace_many_cs ───
+
+test "replace_many_cs basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "a", 1);
+
+    const olds = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(olds);
+    _ = stz_list_append_string(olds, "a", 1);
+    _ = stz_list_append_string(olds, "b", 1);
+
+    const news = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(news);
+    _ = stz_list_append_string(news, "X", 1);
+    _ = stz_list_append_string(news, "Y", 1);
+
+    const replaced = stz_list_replace_many_cs(l, olds, news, 1);
+    try std.testing.expectEqual(@as(i32, 3), replaced);
+
+    // Verify: ["X", "Y", "X"]
+    var buf: [64]u8 = undefined;
+    const n0 = stz_list_get_string(l, 0, &buf, 64);
+    try std.testing.expectEqualSlices(u8, "X", buf[0..n0]);
+    const n1 = stz_list_get_string(l, 1, &buf, 64);
+    try std.testing.expectEqualSlices(u8, "Y", buf[0..n1]);
+    const n2 = stz_list_get_string(l, 2, &buf, 64);
+    try std.testing.expectEqualSlices(u8, "X", buf[0..n2]);
+}
+
+test "replace_many_cs mismatched sizes" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    const olds = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(olds);
+    _ = stz_list_append_string(olds, "a", 1);
+    const news = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(news);
+    // news is empty, olds has 1 — should return -1
+    try std.testing.expectEqual(@as(i32, -1), stz_list_replace_many_cs(l, olds, news, 1));
+}
+
+test "replace_many_cs null handles" {
+    try std.testing.expectEqual(@as(i32, -1), stz_list_replace_many_cs(null, null, null, 1));
+}
+
+// ─── Tests for stz_list_count_empty_strings ───
+
+test "count_empty_strings basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "", 0);
+    _ = stz_list_append_string(l, "c", 1);
+    _ = stz_list_append_string(l, "", 0);
+    try std.testing.expectEqual(@as(i32, 2), stz_list_count_empty_strings(l));
+}
+
+test "count_empty_strings none" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_int(l, 42);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_count_empty_strings(l));
+}
+
+// ─── Tests for stz_list_find_empty_strings ───
+
+test "find_empty_strings basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "", 0);
+    _ = stz_list_append_string(l, "c", 1);
+    _ = stz_list_append_string(l, "", 0);
+
+    const result = stz_list_find_empty_strings(l) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 2), result.len());
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(result, 0));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(result, 1));
 }
