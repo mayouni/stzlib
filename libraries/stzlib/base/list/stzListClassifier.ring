@@ -50,29 +50,29 @@ class stzListClassifier
 		return new stzListClassifier( @oList.Content() )
 
 	def Classify()
-		pList = @oList._EngineListFromContent()
-		pResult = StzEngineListClassifyCS(pList, 0)
-		StzEngineListFree(pList)
+		_pClList_ = @oList._EngineListFromContent()
+		_pClResult_ = StzEngineListClassifyCS(_pClList_, 0)
+		StzEngineListFree(_pClList_)
 
-		aRaw = StzEngineContentFromList(pResult)
-		StzEngineListFree(pResult)
+		_aClRaw_ = StzEngineContentFromList(_pClResult_)
+		StzEngineListFree(_pClResult_)
 
-		nLen = len(aRaw)
-		aResult = []
-		i = 1
-		for _k = 1 to nLen / 2
-			cKey = aRaw[i]
-			cPositions = aRaw[i + 1]
-			aParts = StzSplit(cPositions, ",")
-			anPos = []
-			nParts = len(aParts)
-			for j = 1 to nParts
-				anPos + (0 + aParts[j])
+		_nClLen_ = len(_aClRaw_)
+		_aClResult_ = []
+		_iCl_ = 1
+		for _kCl_ = 1 to _nClLen_ / 2
+			_cClKey_ = _aClRaw_[_iCl_]
+			_cClPositions_ = _aClRaw_[_iCl_ + 1]
+			_aClParts_ = StzSplit(_cClPositions_, ",")
+			_anClPos_ = []
+			_nClParts_ = len(_aClParts_)
+			for _jCl_ = 1 to _nClParts_
+				@AddItem(_anClPos_, 0 + _aClParts_[_jCl_])
 			next
-			aResult + [cKey, anPos]
-			i += 2
+			@AddItem(_aClResult_, [_cClKey_, _anClPos_])
+			_iCl_ += 2
 		next
-		return aResult
+		return _aClResult_
 
 		def ClassifyQ()
 			return new stzList(This.Classify())
@@ -81,42 +81,42 @@ class stzListClassifier
 		return This.Classify()
 
 	def Classes()
-		aClassified = This.Classify()
-		nLen = len(aClassified)
-		aResult = []
-		for i = 1 to nLen
-			aResult + aClassified[i][1]
+		_aClsClassified_ = This.Classify()
+		_nClsLen_ = len(_aClsClassified_)
+		_aClsResult_ = []
+		for _iCls_ = 1 to _nClsLen_
+			@AddItem(_aClsResult_, _aClsClassified_[_iCls_][1])
 		next
-		return aResult
+		return _aClsResult_
 
 	def ClassifyBy(pcExpr)
-		pList = @oList._EngineListFromContent()
-		cMapExpr = "string(" + pcExpr + ")"
-		pMapped = StzEngineListMapExpr(pList, cMapExpr)
-		StzEngineListFree(pList)
+		_pCbList_ = @oList._EngineListFromContent()
+		_cCbMapExpr_ = "string(" + pcExpr + ")"
+		_pCbMapped_ = StzEngineListMapExpr(_pCbList_, _cCbMapExpr_)
+		StzEngineListFree(_pCbList_)
 
-		pResult = StzEngineListClassifyCS(pMapped, 1)
-		StzEngineListFree(pMapped)
+		_pCbResult_ = StzEngineListClassifyCS(_pCbMapped_, 1)
+		StzEngineListFree(_pCbMapped_)
 
-		aRaw = StzEngineContentFromList(pResult)
-		StzEngineListFree(pResult)
+		_aCbRaw_ = StzEngineContentFromList(_pCbResult_)
+		StzEngineListFree(_pCbResult_)
 
-		nLen = len(aRaw)
-		aResult = []
-		i = 1
-		for _k = 1 to nLen / 2
-			cKey = aRaw[i]
-			cPositions = aRaw[i + 1]
-			aParts = StzSplit(cPositions, ",")
-			anPos = []
-			nParts = len(aParts)
-			for j = 1 to nParts
-				anPos + (0 + aParts[j])
+		_nCbLen_ = len(_aCbRaw_)
+		_aCbResult_ = []
+		_iCb_ = 1
+		for _kCb_ = 1 to _nCbLen_ / 2
+			_cCbKey_ = _aCbRaw_[_iCb_]
+			_cCbPositions_ = _aCbRaw_[_iCb_ + 1]
+			_aCbParts_ = StzSplit(_cCbPositions_, ",")
+			_anCbPos_ = []
+			_nCbParts_ = len(_aCbParts_)
+			for _jCb_ = 1 to _nCbParts_
+				@AddItem(_anCbPos_, 0 + _aCbParts_[_jCb_])
 			next
-			aResult + [cKey, anPos]
-			i += 2
+			@AddItem(_aCbResult_, [_cCbKey_, _anCbPos_])
+			_iCb_ += 2
 		next
-		return aResult
+		return _aCbResult_
 
 	def PartsCS(pCaseSensitive)
 		return This.Classify()
@@ -136,57 +136,57 @@ class stzListClassifier
 	#======================================================#
 
 	def Frequencies()
-		pList = @oList._EngineListFromContent()
-		pFreqs = StzEngineListFrequenciesCS(pList, 0)
-		StzEngineListFree(pList)
+		_pFrList_ = @oList._EngineListFromContent()
+		_pFrFreqs_ = StzEngineListFrequenciesCS(_pFrList_, 0)
+		StzEngineListFree(_pFrList_)
 
-		aRaw = StzEngineContentFromList(pFreqs)
-		StzEngineListFree(pFreqs)
+		_aFrRaw_ = StzEngineContentFromList(_pFrFreqs_)
+		StzEngineListFree(_pFrFreqs_)
 
-		nLen = len(aRaw)
-		aResult = []
-		i = 1
-		for _k = 1 to nLen / 2
-			aResult + [aRaw[i], aRaw[i + 1]]
-			i += 2
+		_nFrLen_ = len(_aFrRaw_)
+		_aFrResult_ = []
+		_iFr_ = 1
+		for _kFr_ = 1 to _nFrLen_ / 2
+			@AddItem(_aFrResult_, [_aFrRaw_[_iFr_], _aFrRaw_[_iFr_ + 1]])
+			_iFr_ += 2
 		next
-		return aResult
+		return _aFrResult_
 
 	  #======================================================#
 	 #   MOST / LEAST FREQUENT                              #
 	#======================================================#
 
 	def MostFrequent()
-		aFreqs = This.Frequencies()
-		nLen = len(aFreqs)
-		if nLen = 0
+		_aMfFreqs_ = This.Frequencies()
+		_nMfLen_ = len(_aMfFreqs_)
+		if _nMfLen_ = 0
 			return NULL
 		ok
-		nMax = 0
-		cResult = ""
-		for i = 1 to nLen
-			if aFreqs[i][2] > nMax
-				nMax = aFreqs[i][2]
-				cResult = aFreqs[i][1]
+		_nMfMax_ = 0
+		_cMfResult_ = ""
+		for _iMf_ = 1 to _nMfLen_
+			if _aMfFreqs_[_iMf_][2] > _nMfMax_
+				_nMfMax_ = _aMfFreqs_[_iMf_][2]
+				_cMfResult_ = _aMfFreqs_[_iMf_][1]
 			ok
 		next
-		return cResult
+		return _cMfResult_
 
 	def LeastFrequent()
-		aFreqs = This.Frequencies()
-		nLen = len(aFreqs)
-		if nLen = 0
+		_aLfFreqs_ = This.Frequencies()
+		_nLfLen_ = len(_aLfFreqs_)
+		if _nLfLen_ = 0
 			return NULL
 		ok
-		nMin = aFreqs[1][2]
-		cResult = aFreqs[1][1]
-		for i = 2 to nLen
-			if aFreqs[i][2] < nMin
-				nMin = aFreqs[i][2]
-				cResult = aFreqs[i][1]
+		_nLfMin_ = _aLfFreqs_[1][2]
+		_cLfResult_ = _aLfFreqs_[1][1]
+		for _iLf_ = 2 to _nLfLen_
+			if _aLfFreqs_[_iLf_][2] < _nLfMin_
+				_nLfMin_ = _aLfFreqs_[_iLf_][2]
+				_cLfResult_ = _aLfFreqs_[_iLf_][1]
 			ok
 		next
-		return cResult
+		return _cLfResult_
 
 	  #======================================================#
 	 #   GROUP BY EXPRESSION                                #
@@ -203,26 +203,26 @@ class stzListClassifier
 	#======================================================#
 
 	def Partition(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		nGroupSize = ceil(nLen / n)
-		nStart = 1
-		for i = 1 to n
-			aGroup = []
-			nEnd = nStart + nGroupSize - 1
-			if nEnd > nLen
-				nEnd = nLen
+		_aPartContent_ = This.Content()
+		_nPartLen_ = len(_aPartContent_)
+		_aPartResult_ = []
+		_nPartGroupSize_ = ceil(_nPartLen_ / n)
+		_nPartStart_ = 1
+		for _iPart_ = 1 to n
+			_aPartGroup_ = []
+			_nPartEnd_ = _nPartStart_ + _nPartGroupSize_ - 1
+			if _nPartEnd_ > _nPartLen_
+				_nPartEnd_ = _nPartLen_
 			ok
-			for j = nStart to nEnd
-				aGroup + aContent[j]
+			for _jPart_ = _nPartStart_ to _nPartEnd_
+				@AddItem(_aPartGroup_, _aPartContent_[_jPart_])
 			next
-			if len(aGroup) > 0
-				aResult + aGroup
+			if len(_aPartGroup_) > 0
+				@AddItem(_aPartResult_, _aPartGroup_)
 			ok
-			nStart = nEnd + 1
+			_nPartStart_ = _nPartEnd_ + 1
 		next
-		return aResult
+		return _aPartResult_
 
 		def PartitionQ(n)
 			return new stzList(This.Partition(n))
@@ -242,15 +242,15 @@ class stzListClassifier
 	#======================================================#
 
 	def ItemsAppearingNTimes(n)
-		aFreqs = This.Frequencies()
-		nLen = len(aFreqs)
-		aResult = []
-		for i = 1 to nLen
-			if aFreqs[i][2] = n
-				aResult + aFreqs[i][1]
+		_aIntFreqs_ = This.Frequencies()
+		_nIntLen_ = len(_aIntFreqs_)
+		_aIntResult_ = []
+		for _iInt_ = 1 to _nIntLen_
+			if _aIntFreqs_[_iInt_][2] = n
+				@AddItem(_aIntResult_, _aIntFreqs_[_iInt_][1])
 			ok
 		next
-		return aResult
+		return _aIntResult_
 
 		def ItemsWithFrequency(n)
 			return This.ItemsAppearingNTimes(n)
@@ -260,41 +260,33 @@ class stzListClassifier
 	#======================================================#
 
 	def ItemsAppearingMoreThanNTimes(n)
-		aFreqs = This.Frequencies()
-		nLen = len(aFreqs)
-		aResult = []
-		for i = 1 to nLen
-			if aFreqs[i][2] > n
-				aResult + aFreqs[i][1]
+		_aImtFreqs_ = This.Frequencies()
+		_nImtLen_ = len(_aImtFreqs_)
+		_aImtResult_ = []
+		for _iImt_ = 1 to _nImtLen_
+			if _aImtFreqs_[_iImt_][2] > n
+				@AddItem(_aImtResult_, _aImtFreqs_[_iImt_][1])
 			ok
 		next
-		return aResult
+		return _aImtResult_
 
 	def ItemsAppearingLessThanNTimes(n)
-		aFreqs = This.Frequencies()
-		nLen = len(aFreqs)
-		aResult = []
-		for i = 1 to nLen
-			if aFreqs[i][2] < n
-				aResult + aFreqs[i][1]
+		_aIltFreqs_ = This.Frequencies()
+		_nIltLen_ = len(_aIltFreqs_)
+		_aIltResult_ = []
+		for _iIlt_ = 1 to _nIltLen_
+			if _aIltFreqs_[_iIlt_][2] < n
+				@AddItem(_aIltResult_, _aIltFreqs_[_iIlt_][1])
 			ok
 		next
-		return aResult
+		return _aIltResult_
 
 	  #======================================================#
 	 #   FREQUENCY OF A SPECIFIC ITEM                       #
 	#======================================================#
 
 	def FrequencyOf(pItem)
-		aContent = This.Content()
-		nLen = len(aContent)
-		nCount = 0
-		for i = 1 to nLen
-			if BothAreEqual(aContent[i], pItem)
-				nCount++
-			ok
-		next
-		return nCount
+		return @oList.CountCS(pItem, 1)
 
 		def HowMany(pItem)
 			return This.FrequencyOf(pItem)
@@ -304,45 +296,45 @@ class stzListClassifier
 	#======================================================#
 
 	def Mode()
-		aFreqs = This.Frequencies()
-		nLen = len(aFreqs)
-		if nLen = 0
+		_aMdFreqs_ = This.Frequencies()
+		_nMdLen_ = len(_aMdFreqs_)
+		if _nMdLen_ = 0
 			return []
 		ok
-		nMax = 0
-		for i = 1 to nLen
-			if aFreqs[i][2] > nMax
-				nMax = aFreqs[i][2]
+		_nMdMax_ = 0
+		for _iMd_ = 1 to _nMdLen_
+			if _aMdFreqs_[_iMd_][2] > _nMdMax_
+				_nMdMax_ = _aMdFreqs_[_iMd_][2]
 			ok
 		next
-		aResult = []
-		for i = 1 to nLen
-			if aFreqs[i][2] = nMax
-				aResult + aFreqs[i][1]
+		_aMdResult_ = []
+		for _jMd_ = 1 to _nMdLen_
+			if _aMdFreqs_[_jMd_][2] = _nMdMax_
+				@AddItem(_aMdResult_, _aMdFreqs_[_jMd_][1])
 			ok
 		next
-		return aResult
+		return _aMdResult_
 
 	  #======================================================#
 	 #   BISECTION -- SPLIT INTO HALVES                     #
 	#======================================================#
 
 	def Bisect()
-		aContent = This.Content()
-		nLen = len(aContent)
-		nMid = ceil(nLen / 2)
+		_aBsContent_ = This.Content()
+		_nBsLen_ = len(_aBsContent_)
+		_nBsMid_ = ceil(_nBsLen_ / 2)
 
-		aFirst = []
-		for i = 1 to nMid
-			aFirst + aContent[i]
+		_aBsFirst_ = []
+		for _iBs_ = 1 to _nBsMid_
+			@AddItem(_aBsFirst_, _aBsContent_[_iBs_])
 		next
 
-		aSecond = []
-		for i = nMid + 1 to nLen
-			aSecond + aContent[i]
+		_aBsSecond_ = []
+		for _jBs_ = _nBsMid_ + 1 to _nBsLen_
+			@AddItem(_aBsSecond_, _aBsContent_[_jBs_])
 		next
 
-		return [aFirst, aSecond]
+		return [_aBsFirst_, _aBsSecond_]
 
 		def BisectQ()
 			return new stzList(This.Bisect())
@@ -364,25 +356,25 @@ class stzListClassifier
 	#======================================================#
 
 	def PartitionW(pcCondition)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aTrue = []
-		aFalse = []
+		_aPwContent_ = This.Content()
+		_nPwLen_ = len(_aPwContent_)
+		_aPwTrue_ = []
+		_aPwFalse_ = []
 
-		cCode = StzCCodeToRingCode(pcCondition)
+		_cPwCode_ = StzCCodeToRingCode(pcCondition)
 
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			cEval = StzStringReplace(cCode, "@item", @@(@item))
-			bResult = eval(cEval)
-			if bResult
-				aTrue + @item
+		for @i = 1 to _nPwLen_
+			@item = _aPwContent_[@i]
+			_cPwEval_ = StzStringReplace(_cPwCode_, "@item", @@(@item))
+			_bPwResult_ = eval(_cPwEval_)
+			if _bPwResult_
+				@AddItem(_aPwTrue_, @item)
 			else
-				aFalse + @item
+				@AddItem(_aPwFalse_, @item)
 			ok
 		next
 
-		return [aTrue, aFalse]
+		return [_aPwTrue_, _aPwFalse_]
 
 		def PartitionWQ(pcCondition)
 			return new stzList(This.PartitionW(pcCondition))
@@ -398,25 +390,12 @@ class stzListClassifier
 	#======================================================#
 
 	def Chunks(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		nStart = 1
-
-		while nStart <= nLen
-			aChunk = []
-			nEnd = nStart + n - 1
-			if nEnd > nLen
-				nEnd = nLen
-			ok
-			for j = nStart to nEnd
-				aChunk + aContent[j]
-			next
-			aResult + aChunk
-			nStart = nEnd + 1
-		end
-
-		return aResult
+		_pChList_ = @oList._EngineListFromContent()
+		_pChResult_ = StzEngineListChunked(_pChList_, n)
+		_aChResult_ = StzEngineContentFromList(_pChResult_)
+		StzEngineListFree(_pChResult_)
+		StzEngineListFree(_pChList_)
+		return _aChResult_
 
 		def ChunksQ(n)
 			return new stzList(This.Chunks(n))

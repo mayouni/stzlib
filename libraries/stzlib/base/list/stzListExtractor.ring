@@ -139,32 +139,32 @@ class stzListExtractor
 	#======================================================#
 
 	def ExtractDuplicatesCS(pCaseSensitive)
-		pList = @oList._EngineListFromContent()
-		cResult = StzEngineListFindDuplicatesCS(pList, pCaseSensitive)
-		StzEngineListFree(pList)
+		_pEdList_ = @oList._EngineListFromContent()
+		_cEdResult_ = StzEngineListFindDuplicatesCS(_pEdList_, pCaseSensitive)
+		StzEngineListFree(_pEdList_)
 
-		if cResult = ""
+		if _cEdResult_ = ""
 			return []
 		ok
 
-		aParts = StzSplit(cResult, ",")
-		nLen = len(aParts)
-		anDupPos = []
-		for i = 1 to nLen
-			anDupPos + (0 + aParts[i])
+		_aEdParts_ = StzSplit(_cEdResult_, ",")
+		_nEdLen_ = len(_aEdParts_)
+		_anEdDupPos_ = []
+		for _iEd_ = 1 to _nEdLen_
+			@AddItem(_anEdDupPos_, 0 + _aEdParts_[_iEd_])
 		next
 
-		aContent = This.Content()
-		aDups = []
-		for i = 1 to nLen
-			aDups + aContent[anDupPos[i]]
+		_aEdContent_ = This.Content()
+		_aEdDups_ = []
+		for _jEd_ = 1 to _nEdLen_
+			@AddItem(_aEdDups_, _aEdContent_[_anEdDupPos_[_jEd_]])
 		next
 
-		for i = nLen to 1 step -1
-			ring_remove(This.List(), anDupPos[i])
+		for _kEd_ = _nEdLen_ to 1 step -1
+			ring_remove(This.List(), _anEdDupPos_[_kEd_])
 		next
 
-		return aDups
+		return _aEdDups_
 
 	def ExtractDuplicates()
 		return This.ExtractDuplicatesCS(1)
@@ -174,52 +174,52 @@ class stzListExtractor
 	#======================================================#
 
 	def ExtractStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		anPos = []
-		for i = nLen to 1 step -1
-			if isString(aContent[i])
-				aResult + aContent[i]
-				anPos + i
+		_aEsContent_ = This.Content()
+		_nEsLen_ = len(_aEsContent_)
+		_aEsResult_ = []
+		_anEsPos_ = []
+		for _iEs_ = _nEsLen_ to 1 step -1
+			if isString(_aEsContent_[_iEs_])
+				@AddItem(_aEsResult_, _aEsContent_[_iEs_])
+				@AddItem(_anEsPos_, _iEs_)
 			ok
 		next
-		for i = 1 to len(anPos)
-			ring_remove(This.List(), anPos[i])
+		for _jEs_ = 1 to len(_anEsPos_)
+			ring_remove(This.List(), _anEsPos_[_jEs_])
 		next
-		return ListReversed(aResult)
+		return ListReversed(_aEsResult_)
 
 	def ExtractNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		anPos = []
-		for i = nLen to 1 step -1
-			if isNumber(aContent[i])
-				aResult + aContent[i]
-				anPos + i
+		_aEnContent_ = This.Content()
+		_nEnLen_ = len(_aEnContent_)
+		_aEnResult_ = []
+		_anEnPos_ = []
+		for _iEn_ = _nEnLen_ to 1 step -1
+			if isNumber(_aEnContent_[_iEn_])
+				@AddItem(_aEnResult_, _aEnContent_[_iEn_])
+				@AddItem(_anEnPos_, _iEn_)
 			ok
 		next
-		for i = 1 to len(anPos)
-			ring_remove(This.List(), anPos[i])
+		for _jEn_ = 1 to len(_anEnPos_)
+			ring_remove(This.List(), _anEnPos_[_jEn_])
 		next
-		return ListReversed(aResult)
+		return ListReversed(_aEnResult_)
 
 	def ExtractLists()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		anPos = []
-		for i = nLen to 1 step -1
-			if isList(aContent[i])
-				aResult + aContent[i]
-				anPos + i
+		_aElContent_ = This.Content()
+		_nElLen_ = len(_aElContent_)
+		_aElResult_ = []
+		_anElPos_ = []
+		for _iEl_ = _nElLen_ to 1 step -1
+			if isList(_aElContent_[_iEl_])
+				@AddItem(_aElResult_, _aElContent_[_iEl_])
+				@AddItem(_anElPos_, _iEl_)
 			ok
 		next
-		for i = 1 to len(anPos)
-			ring_remove(This.List(), anPos[i])
+		for _jEl_ = 1 to len(_anElPos_)
+			ring_remove(This.List(), _anElPos_[_jEl_])
 		next
-		return ListReversed(aResult)
+		return ListReversed(_aElResult_)
 
 	  #======================================================#
 	 #   POP -- EXTRACT LAST (STACK STYLE)                  #
