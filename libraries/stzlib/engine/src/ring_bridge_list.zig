@@ -577,6 +577,12 @@ fn ring_SplitAfter(p: *anyopaque) callconv(.c) void {
 fn ring_SplitToPartsOfN(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_split_to_parts_of_n(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
 }
+fn ring_SlidingWindow(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_sliding_window(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+}
+fn ring_AntiSections(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_anti_sections(getLC(p, 1), getLC(p, 2))), HL);
+}
 fn ring_SortedInsert(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sorted_insert(getL(p, 1), getV(p, 2))));
 }
@@ -904,6 +910,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistreplacemanycs", .func = &ring_ReplaceManyCS },
     .{ .name = "stzenginelistcountemptystrings", .func = &ring_CountEmptyStrings },
     .{ .name = "stzenginelistfindemptystrings", .func = &ring_FindEmptyStrings },
+    .{ .name = "stzenginelistslidingwindow", .func = &ring_SlidingWindow },
+    .{ .name = "stzenginelistantisections", .func = &ring_AntiSections },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

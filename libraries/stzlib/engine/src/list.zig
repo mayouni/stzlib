@@ -1729,6 +1729,132 @@ pub fn stz_list_paired(list_arg: ?*const StzList) callconv(.c) ?*StzList {
     return stz_list_chunked(list_arg, 2);
 }
 
+// ─── Sliding Window ───
+
+pub fn stz_list_sliding_window(list_arg: ?*const StzList, n: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    if (n == 0) return null;
+    const total = l.len();
+    if (total == 0 or n > total) return stz_list_new();
+    const result = stz_list_new() orelse return null;
+
+    for (0..total - n + 1) |i| {
+        const window_val = value_mod.stz_value_new_list() orelse {
+            stz_list_free(result);
+            return null;
+        };
+        for (i..i + n) |j| {
+            if (l.get(j)) |v| { _ = value_mod.stz_value_list_append(window_val, v); }
+        }
+        _ = stz_list_append_value(result, window_val);
+        value_mod.stz_value_free(window_val);
+    }
+    return result;
+}
+
+// ─── Anti-Sections ───
+
+/// Given a list of length `total` and a set of section pairs [start, end] (0-based),
+/// return the complementary sections — the gaps NOT covered by any input section.
+pub fn stz_list_anti_sections(list_arg: ?*const StzList, sections: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const secs = sections orelse return null;
+    const total = l.len();
+    if (total == 0) return stz_list_new();
+
+    // Collect and clamp section pairs
+    const nsec = secs.len();
+    var pairs: [128][2]usize = undefined;
+    var npairs: usize = 0;
+    var idx: usize = 0;
+    while (idx < nsec and npairs < 128) : (idx += 1) {
+        const pair_val = secs.get(idx) orelse continue;
+        if (pair_val.tag != .list_val) continue;
+        const sub = pair_val.data.list_val;
+        if (sub.len < 2) continue;
+        const v1 = sub.items[0];
+        const v2 = sub.items[1];
+        if (v1.tag != .int_val or v2.tag != .int_val) continue;
+        var s: usize = @intCast(@max(0, v1.data.int_val));
+        var e: usize = @intCast(@max(0, v2.data.int_val));
+        if (s > e) {
+            const tmp = s;
+            s = e;
+            e = tmp;
+        }
+        if (s >= total) continue;
+        if (e >= total) e = total - 1;
+        pairs[npairs] = .{ s, e };
+        npairs += 1;
+    }
+
+    // Sort pairs by start
+    if (npairs > 1) {
+        for (0..npairs - 1) |a| {
+            for (a + 1..npairs) |b| {
+                if (pairs[a][0] > pairs[b][0]) {
+                    const tmp = pairs[a];
+                    pairs[a] = pairs[b];
+                    pairs[b] = tmp;
+                }
+            }
+        }
+    }
+
+    // Merge overlapping
+    var merged: [128][2]usize = undefined;
+    var nmerged: usize = 0;
+    if (npairs > 0) {
+        merged[0] = pairs[0];
+        nmerged = 1;
+        for (1..npairs) |i| {
+            if (pairs[i][0] <= merged[nmerged - 1][1] + 1) {
+                if (pairs[i][1] > merged[nmerged - 1][1]) {
+                    merged[nmerged - 1][1] = pairs[i][1];
+                }
+            } else {
+                merged[nmerged] = pairs[i];
+                nmerged += 1;
+            }
+        }
+    }
+
+    // Build anti-sections (gaps)
+    const result = stz_list_new() orelse return null;
+    var prev: usize = 0;
+
+    for (0..nmerged) |i| {
+        if (merged[i][0] > prev) {
+            // Gap from prev to merged[i][0]-1
+            const gap = value_mod.stz_value_new_list() orelse continue;
+            const v1 = value_mod.stz_value_new_int(@intCast(prev));
+            _ = value_mod.stz_value_list_append(gap, v1);
+            value_mod.stz_value_free(v1);
+            const v2 = value_mod.stz_value_new_int(@intCast(merged[i][0] - 1));
+            _ = value_mod.stz_value_list_append(gap, v2);
+            value_mod.stz_value_free(v2);
+            _ = stz_list_append_value(result, gap);
+            value_mod.stz_value_free(gap);
+        }
+        prev = merged[i][1] + 1;
+    }
+
+    // Trailing gap
+    if (prev < total) {
+        const gap = value_mod.stz_value_new_list() orelse return result;
+        const v1 = value_mod.stz_value_new_int(@intCast(prev));
+        _ = value_mod.stz_value_list_append(gap, v1);
+        value_mod.stz_value_free(v1);
+        const v2 = value_mod.stz_value_new_int(@intCast(total - 1));
+        _ = value_mod.stz_value_list_append(gap, v2);
+        value_mod.stz_value_free(v2);
+        _ = stz_list_append_value(result, gap);
+        value_mod.stz_value_free(gap);
+    }
+
+    return result;
+}
+
 // ─── Deep Flatten ───
 
 fn deepFlattenInto(l: *const StzList, result: *StzList) void {
@@ -4045,6 +4171,66 @@ test "paired basic" {
     try std.testing.expectEqual(@as(usize, 2), p0.len());
     try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(p0, 0));
     try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(p0, 1));
+}
+
+test "sliding window basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..6) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+    const result = stz_list_sliding_window(l, 3) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    // [1,2,3,4,5] windows of 3 => [[1,2,3],[2,3,4],[3,4,5]]
+    try std.testing.expectEqual(@as(usize, 3), result.len());
+    const w0 = stz_list_get_sublist(result, 0) orelse return error.AllocFailed;
+    defer stz_list_free(w0);
+    try std.testing.expectEqual(@as(usize, 3), w0.len());
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(w0, 0));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(w0, 2));
+    const w2 = stz_list_get_sublist(result, 2) orelse return error.AllocFailed;
+    defer stz_list_free(w2);
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(w2, 0));
+    try std.testing.expectEqual(@as(i64, 5), stz_list_get_int(w2, 2));
+}
+
+test "sliding window size equals list" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..4) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+    const result = stz_list_sliding_window(l, 3) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 1), result.len());
+}
+
+test "anti sections basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..11) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+    // sections: [2,4] (0-based) => items 3,4,5 covered
+    // anti-sections: [0,1] and [5,9]
+    const secs = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(secs);
+    const pair = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    const v1 = value_mod.stz_value_new_int(2) orelse return error.AllocFailed;
+    _ = value_mod.stz_value_list_append(pair, v1);
+    value_mod.stz_value_free(v1);
+    const v2 = value_mod.stz_value_new_int(4) orelse return error.AllocFailed;
+    _ = value_mod.stz_value_list_append(pair, v2);
+    value_mod.stz_value_free(v2);
+    _ = stz_list_append_value(secs, pair);
+    value_mod.stz_value_free(pair);
+
+    const result = stz_list_anti_sections(l, secs) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    // Should be 2 anti-sections: [0,1] and [5,9]
+    try std.testing.expectEqual(@as(usize, 2), result.len());
+    const as0 = stz_list_get_sublist(result, 0) orelse return error.AllocFailed;
+    defer stz_list_free(as0);
+    try std.testing.expectEqual(@as(i64, 0), stz_list_get_int(as0, 0));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(as0, 1));
+    const as1 = stz_list_get_sublist(result, 1) orelse return error.AllocFailed;
+    defer stz_list_free(as1);
+    try std.testing.expectEqual(@as(i64, 5), stz_list_get_int(as1, 0));
+    try std.testing.expectEqual(@as(i64, 9), stz_list_get_int(as1, 1));
 }
 
 test "deep flatten nested" {
