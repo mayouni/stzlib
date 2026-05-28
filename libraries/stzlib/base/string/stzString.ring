@@ -259,11 +259,7 @@ class stzString from stzObject
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		if _bCase_
-			return StzEngineStringCountOf(@pEngine, pcSubStr)
-		else
-			return StzEngineStringCountOfCI(@pEngine, pcSubStr)
-		ok
+		return StzEngineStringCountOfCS(@pEngine, pcSubStr, _bCase_)
 
 		def NumberOfOccurrence(pcSubStr)
 			return StzEngineStringCountOf(@pEngine, pcSubStr)
@@ -542,21 +538,7 @@ class stzString from stzObject
 	#============================================#
 
 	def InsertBefore(n, pcSubStr)
-		_nIbLen_ = This.NumberOfChars()
-		if n < 1 or n > _nIbLen_ + 1
-			return
-		ok
-		if n = 1
-			This.Update(pcSubStr + This.Content())
-			return
-		ok
-		if n = _nIbLen_ + 1
-			This.Update(This.Content() + pcSubStr)
-			return
-		ok
-		_cIbLeft_ = This.Section(1, n - 1)
-		_cIbRight_ = This.Section(n, _nIbLen_)
-		This.Update(_cIbLeft_ + pcSubStr + _cIbRight_)
+		StzEngineStringInsertCp(@pEngine, n, pcSubStr)
 
 		def InsertBeforeQ(n, pcSubStr)
 			This.InsertBefore(n, pcSubStr)
@@ -648,10 +630,19 @@ class stzString from stzObject
 	#============================================#
 
 	def Lines()
-		return This._SplitByStr(NL)
+		_nLnCount_ = StzEngineStringLinesSplitCount(@pEngine)
+		_aLnResult_ = []
+		for _iLn_ = 1 to _nLnCount_
+			_pLnHandle_ = StzEngineStringLineAt(@pEngine, _iLn_)
+			if _pLnHandle_ != NULL
+				_aLnResult_ + StzEngineStringData(_pLnHandle_)
+				StzEngineStringFree(_pLnHandle_)
+			ok
+		next
+		return _aLnResult_
 
 	def NumberOfLines()
-		return len(This.Lines())
+		return StzEngineStringCountLines(@pEngine)
 
 	  #========================================#
 	 #     CHECKER DELEGATIONS               #
@@ -968,23 +959,15 @@ class stzString from stzObject
 	#============================#
 
 	def CharsU()
-		_aCuChars_ = This.Chars()
-		_aCuResult_ = []
-		_nCuLen_ = len(_aCuChars_)
-		for _iCu_ = 1 to _nCuLen_
-			_bCuFound_ = 0
-			_nCuRLen_ = len(_aCuResult_)
-			for _jCu_ = 1 to _nCuRLen_
-				if _aCuResult_[_jCu_] = _aCuChars_[_iCu_]
-					_bCuFound_ = 1
-					exit
-				ok
-			next
-			if _bCuFound_ = 0
-				_aCuResult_ + _aCuChars_[_iCu_]
-			ok
-		next
-		return _aCuResult_
+		_pCuHandle_ = StzEngineStringUniqueChars(@pEngine)
+		if _pCuHandle_ = NULL
+			return []
+		ok
+		_pCuSplit_ = StzEngineStringCharsSplit(_pCuHandle_)
+		_cCuJoined_ = StzEngineStringData(_pCuSplit_)
+		StzEngineStringFree(_pCuSplit_)
+		StzEngineStringFree(_pCuHandle_)
+		return _SplitNullDelimited(_cCuJoined_)
 
 		def UniqueChars()
 			return This.CharsU()
@@ -1037,11 +1020,12 @@ class stzString from stzObject
 	#============================#
 
 	def Repeated(n)
-		_cRptContent_ = This.Content()
-		_cRptResult_ = ""
-		for _iRpt_ = 1 to n
-			_cRptResult_ += _cRptContent_
-		next
+		_pRptHandle_ = StzEngineStringRepeat(@pEngine, n)
+		if _pRptHandle_ = NULL
+			return This.Content()
+		ok
+		_cRptResult_ = StzEngineStringData(_pRptHandle_)
+		StzEngineStringFree(_pRptHandle_)
 		return _cRptResult_
 
 		def RepeatedNTimes(n)
@@ -1080,11 +1064,10 @@ class stzString from stzObject
 
 		def IsEqualToCS(pcStr, pCaseSensitive)
 			_bEqCase_ = @CaseSensitive(pCaseSensitive)
-			if _bEqCase_
-				return This.Content() = pcStr
-			else
-				return StzLower(This.Content()) = StzLower(pcStr)
-			ok
+			_pEqOther_ = StzEngineString(pcStr)
+			_nEqResult_ = StzEngineStringEqualsCS(@pEngine, _pEqOther_, _bEqCase_)
+			StzEngineStringFree(_pEqOther_)
+			return _nEqResult_
 
 	  #============================#
 	 #   CHAR OPERATIONS          #
