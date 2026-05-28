@@ -1469,3 +1469,714 @@ class stzString from stzObject
 	def Duplicates()
 		_oDup_ = new stzStringDuplicates(This)
 		return _oDup_.DuplicatedChars()
+
+	  #========================================#
+	 #     CHECKER DELEGATIONS (EXPANDED)     #
+	#========================================#
+
+	# --- Palindrome ---
+
+	def IsPalindromeCS(pCaseSensitive)
+		_oIpChk_ = new stzStringChecker(This)
+		return _oIpChk_.IsPalindromeCS(pCaseSensitive)
+
+	def IsPalindrome()
+		return This.IsPalindromeCS(1)
+
+	def IsPalindromeWords()
+		_oIpwChk_ = new stzStringChecker(This)
+		return _oIpwChk_.IsPalindromeWords()
+
+	# --- Anagram ---
+
+	def IsAnagramOfCS(pcOtherStr, pCaseSensitive)
+		_oIaChk_ = new stzStringChecker(This)
+		return _oIaChk_.IsAnagramOfCS(pcOtherStr, pCaseSensitive)
+
+	def IsAnagramOf(pcOtherStr)
+		return This.IsAnagramOfCS(pcOtherStr, 1)
+
+	# --- Case checking ---
+
+	def IsUppercase()
+		_oIuChk_ = new stzStringChecker(This)
+		return _oIuChk_.IsUppercase()
+
+	def IsLowercase()
+		_oIlChk_ = new stzStringChecker(This)
+		return _oIlChk_.IsLowercase()
+
+	def IsCapitalcase()
+		_oIccChk_ = new stzStringChecker(This)
+		return _oIccChk_.IsCapitalcase()
+
+	def IsHybridcase()
+		_oIhcChk_ = new stzStringChecker(This)
+		return _oIhcChk_.IsHybridcase()
+
+	def IsTitlecase()
+		_oItcChk_ = new stzStringChecker(This)
+		return _oItcChk_.IsTitlecase()
+
+	def IsCamelCase()
+		_oIcmcChk_ = new stzStringChecker(This)
+		return _oIcmcChk_.IsCamelCase()
+
+	def IsSnakeCase()
+		_oIscChk_ = new stzStringChecker(This)
+		return _oIscChk_.IsSnakeCase()
+
+	def IsKebabCase()
+		_oIkcChk_ = new stzStringChecker(This)
+		return _oIkcChk_.IsKebabCase()
+
+	# --- Content composition ---
+
+	def ContainsOnlySpaces()
+		_oCosChk_ = new stzStringChecker(This)
+		return _oCosChk_.ContainsOnlySpaces()
+
+	def ContainsOnlyLetters()
+		_oColChk_ = new stzStringChecker(This)
+		return _oColChk_.ContainsOnlyLetters()
+
+	def ContainsOnlyNumbers()
+		_oConChk_ = new stzStringChecker(This)
+		return _oConChk_.ContainsOnlyNumbers()
+
+	def ContainsOnlyDigits()
+		_oCodChk_ = new stzStringChecker(This)
+		return _oCodChk_.ContainsOnlyDigits()
+
+	def ContainsOnlyLettersAndNumbers()
+		_oColnChk_ = new stzStringChecker(This)
+		return _oColnChk_.ContainsOnlyLettersAndNumbers()
+
+	# --- IsMadeOf ---
+
+	def IsMadeOfCS(acSubStr, pCaseSensitive)
+		_oImoChk_ = new stzStringChecker(This)
+		return _oImoChk_.IsMadeOfCS(acSubStr, pCaseSensitive)
+
+	def IsMadeOf(acSubStr)
+		return This.IsMadeOfCS(acSubStr, 1)
+
+	def IsMadeOfCharCS(c, pCaseSensitive)
+		_oImocChk_ = new stzStringChecker(This)
+		return _oImocChk_.IsMadeOfCharCS(c, pCaseSensitive)
+
+	def IsMadeOfChar(c)
+		return This.IsMadeOfCharCS(c, 1)
+
+	def IsMadeOfSomeCS(acSubStr, pCaseSensitive)
+		_oImosChk_ = new stzStringChecker(This)
+		return _oImosChk_.IsMadeOfSomeCS(acSubStr, pCaseSensitive)
+
+	def IsMadeOfSome(acSubStr)
+		return This.IsMadeOfSomeCS(acSubStr, 1)
+
+	# --- Number representation ---
+
+	def RepresentsInteger()
+		_oRiChk_ = new stzStringChecker(This)
+		return _oRiChk_.RepresentsInteger()
+
+	def RepresentsSignedInteger()
+		_oRsiChk_ = new stzStringChecker(This)
+		return _oRsiChk_.RepresentsSignedInteger()
+
+	def RepresentsUnsignedInteger()
+		_oRuiChk_ = new stzStringChecker(This)
+		return _oRuiChk_.RepresentsUnsignedInteger()
+
+	def RepresentsNumber()
+		_oRnChk_ = new stzStringChecker(This)
+		return _oRnChk_.RepresentsNumber()
+
+	def RepresentsDecimalNumber()
+		_oRdnChk_ = new stzStringChecker(This)
+		return _oRdnChk_.RepresentsDecimalNumber()
+
+		def RepresentsNumberInDecimalForm()
+			return This.RepresentsDecimalNumber()
+
+	def RepresentsBinaryNumber()
+		_oRbnChk_ = new stzStringChecker(This)
+		return _oRbnChk_.RepresentsBinaryNumber()
+
+		def RepresentsNumberInBinaryForm()
+			return This.RepresentsBinaryNumber()
+
+	def RepresentsHexNumber()
+		_oRhnChk_ = new stzStringChecker(This)
+		return _oRhnChk_.RepresentsHexNumber()
+
+	def RepresentsOctalNumber()
+		_oRonChk_ = new stzStringChecker(This)
+		return _oRonChk_.RepresentsOctalNumber()
+
+		def RepresentsNumberInOctalForm()
+			return This.RepresentsOctalNumber()
+
+	# --- Structural checks ---
+
+	def IsBlank()
+		_oIbChk_ = new stzStringChecker(This)
+		return _oIbChk_.IsBlank()
+
+	def IsIdentifier()
+		_oIidChk_ = new stzStringChecker(This)
+		return _oIidChk_.IsIdentifier()
+
+	def IsBalanced()
+		_oIblChk_ = new stzStringChecker(This)
+		return _oIblChk_.IsBalanced()
+
+	def IsEmailLike()
+		_oIelChk_ = new stzStringChecker(This)
+		return _oIelChk_.IsEmailLike()
+
+	def IsUrlLike()
+		_oIulChk_ = new stzStringChecker(This)
+		return _oIulChk_.IsUrlLike()
+
+	def IsPangram()
+		_oIpgChk_ = new stzStringChecker(This)
+		return _oIpgChk_.IsPangram()
+
+	def IsIsogram()
+		_oIigChk_ = new stzStringChecker(This)
+		return _oIigChk_.IsIsogram()
+
+	def IsWord()
+		_oIwChk_ = new stzStringChecker(This)
+		return _oIwChk_.IsWord()
+
+	def IsLetter()
+		_oIltChk_ = new stzStringChecker(This)
+		return _oIltChk_.IsLetter()
+
+	def IsADigit()
+		_oIadChk_ = new stzStringChecker(This)
+		return _oIadChk_.IsADigit()
+
+	# --- Sort order ---
+
+	def IsCharsSortedAscending()
+		_oIcsaChk_ = new stzStringChecker(This)
+		return _oIcsaChk_.IsCharsSortedAscending()
+
+		def IsCharsSortedAsc()
+			return This.IsCharsSortedAscending()
+
+	def IsCharsSortedDescending()
+		_oIcsdChk_ = new stzStringChecker(This)
+		return _oIcsdChk_.IsCharsSortedDescending()
+
+		def IsCharsSortedDesc()
+			return This.IsCharsSortedDescending()
+
+	# --- Leading/Trailing ---
+
+	def HasLeadingChars()
+		_oHlcChk_ = new stzStringChecker(This)
+		return _oHlcChk_.HasLeadingChars()
+
+	def HasTrailingChars()
+		_oHtcChk_ = new stzStringChecker(This)
+		return _oHtcChk_.HasTrailingChars()
+
+	def HasLeadingAndTrailingChars()
+		return This.HasLeadingChars() and This.HasTrailingChars()
+
+	# --- Reversed copy ---
+
+	def IsReversedCopyOfCS(pcOtherStr, pCaseSensitive)
+		_oIrcChk_ = new stzStringChecker(This)
+		return _oIrcChk_.IsReversedCopyOfCS(pcOtherStr, pCaseSensitive)
+
+	def IsReversedCopyOf(pcOtherStr)
+		return This.IsReversedCopyOfCS(pcOtherStr, 1)
+
+	# --- Language content ---
+
+	def ContainsLatin()
+		_oClChk_ = new stzStringChecker(This)
+		return _oClChk_.ContainsLatin()
+
+	def ContainsArabic()
+		_oCaChk_ = new stzStringChecker(This)
+		return _oCaChk_.ContainsArabic()
+
+	# --- Char containment ---
+
+	def ContainsCharCS(pcChar, pCaseSensitive)
+		_oCchChk_ = new stzStringChecker(This)
+		return _oCchChk_.ContainsCharCS(pcChar, pCaseSensitive)
+
+	def ContainsChar(pcChar)
+		return This.ContainsCharCS(pcChar, 1)
+
+	def ContainsAnyOfCharsCS(pcChars, pCaseSensitive)
+		_oCaocChk_ = new stzStringChecker(This)
+		return _oCaocChk_.ContainsAnyOfCharsCS(pcChars, pCaseSensitive)
+
+	def ContainsAnyOfChars(pcChars)
+		return This.ContainsAnyOfCharsCS(pcChars, 1)
+
+	def ContainsAllOfCharsCS(pcChars, pCaseSensitive)
+		_oCalcChk_ = new stzStringChecker(This)
+		return _oCalcChk_.ContainsAllOfCharsCS(pcChars, pCaseSensitive)
+
+	def ContainsAllOfChars(pcChars)
+		return This.ContainsAllOfCharsCS(pcChars, 1)
+
+	def ContainsOnlyCharsCS(pcChars, pCaseSensitive)
+		_oCocChk_ = new stzStringChecker(This)
+		return _oCocChk_.ContainsOnlyCharsCS(pcChars, pCaseSensitive)
+
+	def ContainsOnlyChars(pcChars)
+		return This.ContainsOnlyCharsCS(pcChars, 1)
+
+	# --- Control/Mark checks ---
+
+	def IsControl()
+		_oIctlChk_ = new stzStringChecker(This)
+		return _oIctlChk_.IsControl()
+
+	def HasMark()
+		_oHmChk_ = new stzStringChecker(This)
+		return _oHmChk_.HasMark()
+
+	def CharIsControlAt(n)
+		_oCicaChk_ = new stzStringChecker(This)
+		return _oCicaChk_.CharIsControlAt(n)
+
+	def CharIsMarkAt(n)
+		_oCimaChk_ = new stzStringChecker(This)
+		return _oCimaChk_.CharIsMarkAt(n)
+
+	def CharIsSpaceAt(n)
+		_oCisaChk_ = new stzStringChecker(This)
+		return _oCisaChk_.CharIsSpaceAt(n)
+
+	# --- Only marks/controls/latin ---
+
+	def OnlyMarks()
+		_oOmChk_ = new stzStringChecker(This)
+		return _oOmChk_.OnlyMarks()
+
+	def OnlyControls()
+		_oOcChk_ = new stzStringChecker(This)
+		return _oOcChk_.OnlyControls()
+
+	def OnlyLatinLetters()
+		_oOllChk_ = new stzStringChecker(This)
+		return _oOllChk_.OnlyLatinLetters()
+
+	# --- Numeric/Alpha ---
+
+	def IsNumericString()
+		_oInsChk_ = new stzStringChecker(This)
+		return _oInsChk_.IsNumericString()
+
+		def IsANumber()
+			return This.IsNumericString()
+
+	def IsAlphaString()
+		_oIasChk_ = new stzStringChecker(This)
+		return _oIasChk_.IsAlphaString()
+
+		def IsAllLetters()
+			return This.IsAlphaString()
+
+	# --- Regex match ---
+
+	def MatchesRegex(pcPattern)
+		_oMrChk_ = new stzStringChecker(This)
+		return _oMrChk_.MatchesRegex(pcPattern)
+
+		def IsMatchedByRegex(pcPattern)
+			return This.MatchesRegex(pcPattern)
+
+	def MatchesRegexCS(pcPattern, pCaseSensitive)
+		_oMrcChk_ = new stzStringChecker(This)
+		return _oMrcChk_.MatchesRegexCS(pcPattern, pCaseSensitive)
+
+		def IsMatchedByRegexCS(pcPattern, pCaseSensitive)
+			return This.MatchesRegexCS(pcPattern, pCaseSensitive)
+
+	  #========================================#
+	 #     FINDER DELEGATIONS (EXPANDED)      #
+	#========================================#
+
+	# --- Substrings ---
+
+	def SubStringsCS(pCaseSensitive)
+		_oSsFinder_ = new stzStringFinder(This)
+		return _oSsFinder_.SubStringsCS(pCaseSensitive)
+
+	def SubStrings()
+		return This.SubStringsCS(1)
+
+	# --- IndexOf ---
+
+	def IndexOfCS(pcSubStr, pCaseSensitive)
+		_oIoFinder_ = new stzStringFinder(This)
+		return _oIoFinder_.IndexOfCS(pcSubStr, pCaseSensitive)
+
+	def IndexOf(pcSubStr)
+		return This.IndexOfCS(pcSubStr, 1)
+
+	# --- FindAllChar ---
+
+	def FindAllChar(pcChar)
+		_oFacFinder_ = new stzStringFinder(This)
+		return _oFacFinder_.FindAllChar(pcChar)
+
+	# --- StartsWithAny / EndsWithAny ---
+
+	def StartsWithAnyCS(pcPrefixes, pCaseSensitive)
+		_oSwFinder_ = new stzStringFinder(This)
+		return _oSwFinder_.StartsWithAnyCS(pcPrefixes, pCaseSensitive)
+
+	def StartsWithAny(pcPrefixes)
+		return This.StartsWithAnyCS(pcPrefixes, 1)
+
+	def EndsWithAnyCS(pcSuffixes, pCaseSensitive)
+		_oEwFinder_ = new stzStringFinder(This)
+		return _oEwFinder_.EndsWithAnyCS(pcSuffixes, pCaseSensitive)
+
+	def EndsWithAny(pcSuffixes)
+		return This.EndsWithAnyCS(pcSuffixes, 1)
+
+	# --- FindBetweenAsSection ---
+
+	def FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+		_oFbasFinder_ = new stzStringFinder(This)
+		return _oFbasFinder_.FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+
+	def FindBetweenAsSection(pcBound1, pcBound2)
+		return This.FindBetweenAsSectionCS(pcBound1, pcBound2, 1)
+
+	# --- FindBoundedByAsSections ---
+
+	def FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+		_oFbbasFinder_ = new stzStringFinder(This)
+		return _oFbbasFinder_.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+
+	def FindBoundedByAsSections(pacBounds)
+		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
+
+	# --- FindDuplicatesAsSections ---
+
+	def FindDuplicatesAsSectionsCS(pCaseSensitive)
+		_oFdasFinder_ = new stzStringFinder(This)
+		return _oFdasFinder_.FindDuplicatesAsSectionsCS(pCaseSensitive)
+
+	def FindDuplicatesAsSections()
+		return This.FindDuplicatesAsSectionsCS(1)
+
+	# --- FindW (conditional) ---
+
+	def FindCharsWCS(pcCondition, pCaseSensitive)
+		_oFcwFinder_ = new stzStringFinder(This)
+		return _oFcwFinder_.FindCharsWCS(pcCondition, pCaseSensitive)
+
+	def FindCharsW(pcCondition)
+		return This.FindCharsWCS(pcCondition, 1)
+
+	def FindWCS(pcCondition, pCaseSensitive)
+		_oFwFinder_ = new stzStringFinder(This)
+		return _oFwFinder_.FindWCS(pcCondition, pCaseSensitive)
+
+	def FindW(pcCondition)
+		return This.FindWCS(pcCondition, 1)
+
+	# --- CharsBetween ---
+
+	def CharsBetween(nFrom, nTo)
+		_oCbFinder_ = new stzStringFinder(This)
+		return _oCbFinder_.CharsBetween(nFrom, nTo)
+
+	# --- Regex find ---
+
+	def FindFirstRegex(pcPattern)
+		_oFfrFinder_ = new stzStringFinder(This)
+		return _oFfrFinder_.FindFirstRegex(pcPattern)
+
+		def FindRegex(pcPattern)
+			return This.FindFirstRegex(pcPattern)
+
+	def FindFirstRegexCS(pcPattern, pCaseSensitive)
+		_oFfrcsFinder_ = new stzStringFinder(This)
+		return _oFfrcsFinder_.FindFirstRegexCS(pcPattern, pCaseSensitive)
+
+		def FindRegexCS(pcPattern, pCaseSensitive)
+			return This.FindFirstRegexCS(pcPattern, pCaseSensitive)
+
+	def FindAllRegex(pcPattern)
+		_oFarFinder_ = new stzStringFinder(This)
+		return _oFarFinder_.FindAllRegex(pcPattern)
+
+		def FindAllRegexMatches(pcPattern)
+			return This.FindAllRegex(pcPattern)
+
+	def FindAllRegexCS(pcPattern, pCaseSensitive)
+		_oFarcsFinder_ = new stzStringFinder(This)
+		return _oFarcsFinder_.FindAllRegexCS(pcPattern, pCaseSensitive)
+
+		def FindAllRegexMatchesCS(pcPattern, pCaseSensitive)
+			return This.FindAllRegexCS(pcPattern, pCaseSensitive)
+
+	  #========================================#
+	 #     COUNTER DELEGATIONS                #
+	#========================================#
+
+	def CountCS(pcSubStr, pCaseSensitive)
+		_oCntCounter_ = new stzStringCounter(This)
+		return _oCntCounter_.CountCS(pcSubStr, pCaseSensitive)
+
+		def NumberOfOccurrencesCS(pcSubStr, pCaseSensitive)
+			return This.CountCS(pcSubStr, pCaseSensitive)
+
+	def Count(pcSubStr)
+		return This.CountCS(pcSubStr, 1)
+
+		def NumberOfOccurrences(pcSubStr)
+			return This.Count(pcSubStr)
+
+	def CountOverlappingCS(pcSubStr, pCaseSensitive)
+		_oCoCounter_ = new stzStringCounter(This)
+		return _oCoCounter_.CountOverlappingCS(pcSubStr, pCaseSensitive)
+
+	def CountOverlapping(pcSubStr)
+		return This.CountOverlappingCS(pcSubStr, 1)
+
+	def CountLeadingChar(pcChar)
+		_oClcCounter_ = new stzStringCounter(This)
+		return _oClcCounter_.CountLeadingChar(pcChar)
+
+	def CountTrailingChar(pcChar)
+		_oCtcCounter_ = new stzStringCounter(This)
+		return _oCtcCounter_.CountTrailingChar(pcChar)
+
+	def CountRegex(pcPattern)
+		_oCrCounter_ = new stzStringCounter(This)
+		return _oCrCounter_.CountRegex(pcPattern)
+
+	def CountRegexCS(pcPattern, pCaseSensitive)
+		_oCrcCounter_ = new stzStringCounter(This)
+		return _oCrcCounter_.CountRegexCS(pcPattern, pCaseSensitive)
+
+	  #========================================#
+	 #     SPLITTER DELEGATIONS               #
+	#========================================#
+
+	def SplitAtCS(pcSepOrPos, pCaseSensitive)
+		_oSaSplitter_ = new stzStringSplitter(This)
+		return _oSaSplitter_.SplitAtCS(pcSepOrPos, pCaseSensitive)
+
+	def SplitAt(pcSepOrPos)
+		return This.SplitAtCS(pcSepOrPos, 1)
+
+	def SplitBeforeCS(pcSubStr, pCaseSensitive)
+		_oSbSplitter_ = new stzStringSplitter(This)
+		return _oSbSplitter_.SplitBeforeCS(pcSubStr, pCaseSensitive)
+
+	def SplitBefore(pcSubStr)
+		return This.SplitBeforeCS(pcSubStr, 1)
+
+	def SplitAfterCS(pcSubStr, pCaseSensitive)
+		_oSafSplitter_ = new stzStringSplitter(This)
+		return _oSafSplitter_.SplitAfterCS(pcSubStr, pCaseSensitive)
+
+	def SplitAfter(pcSubStr)
+		return This.SplitAfterCS(pcSubStr, 1)
+
+	def SplitAroundCS(pcSubStr, pCaseSensitive)
+		_oSarSplitter_ = new stzStringSplitter(This)
+		return _oSarSplitter_.SplitAroundCS(pcSubStr, pCaseSensitive)
+
+	def SplitAround(pcSubStr)
+		return This.SplitAroundCS(pcSubStr, 1)
+
+	def Partition(pcSubStr)
+		_nPtPos_ = This.FindFirst(pcSubStr)
+		if _nPtPos_ = 0
+			return [ This.Content(), "", "" ]
+		ok
+		_nPtSepLen_ = StzLen(pcSubStr)
+		_cPtBefore_ = ""
+		if _nPtPos_ > 1
+			_cPtBefore_ = This.Section(1, _nPtPos_ - 1)
+		ok
+		_cPtAfter_ = ""
+		_nPtEnd_ = _nPtPos_ + _nPtSepLen_
+		if _nPtEnd_ <= This.NumberOfChars()
+			_cPtAfter_ = This.Section(_nPtEnd_, This.NumberOfChars())
+		ok
+		return [ _cPtBefore_, pcSubStr, _cPtAfter_ ]
+
+	def RPartition(pcSubStr)
+		_nRpPos_ = This.FindLast(pcSubStr)
+		if _nRpPos_ = 0
+			return [ "", "", This.Content() ]
+		ok
+		_nRpSepLen_ = StzLen(pcSubStr)
+		_cRpBefore_ = ""
+		if _nRpPos_ > 1
+			_cRpBefore_ = This.Section(1, _nRpPos_ - 1)
+		ok
+		_cRpAfter_ = ""
+		_nRpEnd_ = _nRpPos_ + _nRpSepLen_
+		if _nRpEnd_ <= This.NumberOfChars()
+			_cRpAfter_ = This.Section(_nRpEnd_, This.NumberOfChars())
+		ok
+		return [ _cRpBefore_, pcSubStr, _cRpAfter_ ]
+
+	def SplitByRegex(pcPattern)
+		_oSbrSplitter_ = new stzStringSplitter(This)
+		return _oSbrSplitter_.SplitByRegex(pcPattern)
+
+	def SplitByRegexCS(pcPattern, pCaseSensitive)
+		_oSbrcSplitter_ = new stzStringSplitter(This)
+		return _oSbrcSplitter_.SplitByRegexCS(pcPattern, pCaseSensitive)
+
+	def SplitAtPosition(n)
+		_oSapSplitter_ = new stzStringSplitter(This)
+		return _oSapSplitter_.SplitAtPosition(n)
+
+	def SplitAtPositions(anPositions)
+		_oSapsSplitter_ = new stzStringSplitter(This)
+		return _oSapsSplitter_.SplitAtPositions(anPositions)
+
+	  #========================================#
+	 #     INSERTER DELEGATIONS               #
+	#========================================#
+
+	def InsertBeforeSubStringCS(pcSubStr, pcInsert, pCaseSensitive)
+		_oIbsInserter_ = new stzStringInserter(This)
+		_oIbsInserter_.InsertBeforeSubStringCS(pcSubStr, pcInsert, pCaseSensitive)
+		This.Update(_oIbsInserter_.Content())
+
+	def InsertBeforeSubString(pcSubStr, pcInsert)
+		This.InsertBeforeSubStringCS(pcSubStr, pcInsert, 1)
+
+	def InsertAfterSubStringCS(pcSubStr, pcInsert, pCaseSensitive)
+		_oIasInserter_ = new stzStringInserter(This)
+		_oIasInserter_.InsertAfterSubStringCS(pcSubStr, pcInsert, pCaseSensitive)
+		This.Update(_oIasInserter_.Content())
+
+	def InsertAfterSubString(pcSubStr, pcInsert)
+		This.InsertAfterSubStringCS(pcSubStr, pcInsert, 1)
+
+	def InsertBeforeFirstCS(pcSubStr, pcInsert, pCaseSensitive)
+		_oIbfInserter_ = new stzStringInserter(This)
+		_oIbfInserter_.InsertBeforeFirstCS(pcSubStr, pcInsert, pCaseSensitive)
+		This.Update(_oIbfInserter_.Content())
+
+	def InsertBeforeFirst(pcSubStr, pcInsert)
+		This.InsertBeforeFirstCS(pcSubStr, pcInsert, 1)
+
+	def InsertAfterFirstCS(pcSubStr, pcInsert, pCaseSensitive)
+		_oIafInserter_ = new stzStringInserter(This)
+		_oIafInserter_.InsertAfterFirstCS(pcSubStr, pcInsert, pCaseSensitive)
+		This.Update(_oIafInserter_.Content())
+
+	def InsertAfterFirst(pcSubStr, pcInsert)
+		This.InsertAfterFirstCS(pcSubStr, pcInsert, 1)
+
+	def InsertBeforeLastCS(pcSubStr, pcInsert, pCaseSensitive)
+		_oIblInserter_ = new stzStringInserter(This)
+		_oIblInserter_.InsertBeforeLastCS(pcSubStr, pcInsert, pCaseSensitive)
+		This.Update(_oIblInserter_.Content())
+
+	def InsertBeforeLast(pcSubStr, pcInsert)
+		This.InsertBeforeLastCS(pcSubStr, pcInsert, 1)
+
+	def InsertAfterLastCS(pcSubStr, pcInsert, pCaseSensitive)
+		_oIalInserter_ = new stzStringInserter(This)
+		_oIalInserter_.InsertAfterLastCS(pcSubStr, pcInsert, pCaseSensitive)
+		This.Update(_oIalInserter_.Content())
+
+	def InsertAfterLast(pcSubStr, pcInsert)
+		This.InsertAfterLastCS(pcSubStr, pcInsert, 1)
+
+	def InsertBeforeNthCS(n, pcSubStr, pcInsert, pCaseSensitive)
+		_oIbnInserter_ = new stzStringInserter(This)
+		_oIbnInserter_.InsertBeforeNthCS(n, pcSubStr, pcInsert, pCaseSensitive)
+		This.Update(_oIbnInserter_.Content())
+
+	def InsertBeforeNth(n, pcSubStr, pcInsert)
+		This.InsertBeforeNthCS(n, pcSubStr, pcInsert, 1)
+
+	def InsertAfterNthCS(n, pcSubStr, pcInsert, pCaseSensitive)
+		_oIanInserter_ = new stzStringInserter(This)
+		_oIanInserter_.InsertAfterNthCS(n, pcSubStr, pcInsert, pCaseSensitive)
+		This.Update(_oIanInserter_.Content())
+
+	def InsertAfterNth(n, pcSubStr, pcInsert)
+		This.InsertAfterNthCS(n, pcSubStr, pcInsert, 1)
+
+	  #========================================#
+	 #     REMOVER DELEGATIONS                #
+	#========================================#
+
+	def RemoveCharAt(n)
+		This.RemoveSection(n, n)
+
+	def RemoveAtPosition(n)
+		This.RemoveSection(n, n)
+
+	def RemoveW(pcCondition)
+		_oRwRemover_ = new stzStringRemover(This)
+		_oRwRemover_.RemoveW(pcCondition)
+		This.Update(_oRwRemover_.Content())
+
+	def RemoveSpaces()
+		This.Remove(" ")
+
+	def RemoveLeadingSpaces()
+		This.TrimLeft()
+
+	def RemoveTrailingSpaces()
+		This.TrimRight()
+
+	def RemoveDuplicatesCS(pCaseSensitive)
+		_oRdRemover_ = new stzStringRemover(This)
+		_oRdRemover_.RemoveDuplicatesCS(pCaseSensitive)
+		This.Update(_oRdRemover_.Content())
+
+	def RemoveDuplicates()
+		This.RemoveDuplicatesCS(1)
+
+	def RemoveFromLeftCS(pcSubStr, pCaseSensitive)
+		_oRflRemover_ = new stzStringRemover(This)
+		_oRflRemover_.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
+		This.Update(_oRflRemover_.Content())
+
+	def RemoveFromLeft(pcSubStr)
+		This.RemoveFromLeftCS(pcSubStr, 1)
+
+	def RemoveFromRightCS(pcSubStr, pCaseSensitive)
+		_oRfrRemover_ = new stzStringRemover(This)
+		_oRfrRemover_.RemoveFromRightCS(pcSubStr, pCaseSensitive)
+		This.Update(_oRfrRemover_.Content())
+
+	def RemoveFromRight(pcSubStr)
+		This.RemoveFromRightCS(pcSubStr, 1)
+
+	def RemoveRange(nStart, nRange)
+		This.RemoveSection(nStart, nStart + nRange - 1)
+
+	  #========================================#
+	 #     FIND FIRST STARTING AT            #
+	#========================================#
+
+	def FindFirstSTCS(pcSubStr, nStartAt, pCaseSensitive)
+		_bFstCase_ = @CaseSensitive(pCaseSensitive)
+		return This._FindSubStr(pcSubStr, nStartAt, _bFstCase_)
+
+	def FindFirstST(pcSubStr, nStartAt)
+		return This.FindFirstSTCS(pcSubStr, nStartAt, 1)
