@@ -1204,6 +1204,38 @@ class stzString from stzObject
 	def NthBetween(n, pBound1, pBound2)
 		return This.NthBetweenCS(n, pBound1, pBound2, 1)
 
+	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
+		_oRbBounder_ = new stzStringBounder(This)
+		_oRbBounder_.ReplaceBetween(pcOpen, pcClose, pcReplacement)
+
+	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
+		_oRfbBounder_ = new stzStringBounder(This)
+		_oRfbBounder_.ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
+
+	def ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
+		_oRlbBounder_ = new stzStringBounder(This)
+		_oRlbBounder_.ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
+
+	def ReplaceNthBetween(n, pcOpen, pcClose, pcReplacement)
+		_oRnbBounder_ = new stzStringBounder(This)
+		_oRnbBounder_.ReplaceNthBetween(n, pcOpen, pcClose, pcReplacement)
+
+	def RemoveBetween(pcOpen, pcClose)
+		_oRmbBounder_ = new stzStringBounder(This)
+		_oRmbBounder_.RemoveBetween(pcOpen, pcClose)
+
+	def RemoveFirstBetween(pcOpen, pcClose)
+		_oRmfbBounder_ = new stzStringBounder(This)
+		_oRmfbBounder_.RemoveFirstBetween(pcOpen, pcClose)
+
+	def RemoveLastBetween(pcOpen, pcClose)
+		_oRmlbBounder_ = new stzStringBounder(This)
+		_oRmlbBounder_.RemoveLastBetween(pcOpen, pcClose)
+
+	def RemoveNthBetween(n, pcOpen, pcClose)
+		_oRmnbBounder_ = new stzStringBounder(This)
+		_oRmnbBounder_.RemoveNthBetween(n, pcOpen, pcClose)
+
 	def BetweenIB(pBound1, pBound2)
 		_oBibBounder_ = new stzStringBounder(This)
 		return _oBibBounder_.BetweenIB(pBound1, pBound2)
