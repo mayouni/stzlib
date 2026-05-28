@@ -169,7 +169,14 @@ func StzIsAsciiChar(c)
 
 func StzIsChar(pStrOrNbr)
 	if isString(pStrOrNbr)
-		if isNumber(Unicode(pStrOrNbr))
+		# A char is a single Unicode codepoint
+		# Quick check: must be 1-4 bytes and produce exactly 1 codepoint
+		_nIcByteLen_ = ring_len(pStrOrNbr)
+		if _nIcByteLen_ < 1 or _nIcByteLen_ > 4
+			return 0
+		ok
+		# Use engine to check if it's exactly 1 codepoint
+		if StzLen(pStrOrNbr) = 1
 			return 1
 		else
 			return 0
