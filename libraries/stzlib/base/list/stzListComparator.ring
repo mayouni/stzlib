@@ -51,17 +51,22 @@ class stzListComparator
 	#===============================#
 
 	def IsEqualToCS(paOtherList, pCaseSensitive)
+		# Set-based equality: same items regardless of order
 		if NOT isList(paOtherList)
 			return 0
 		ok
 		if This.NumberOfItems() != len(paOtherList)
 			return 0
 		ok
-		if @oList.HasSameContentAsCS(paOtherList, pCaseSensitive)
-			return 1
-		else
-			return 0
-		ok
+		# Mutual subset check via engine
+		_pCmpA_ = @oList._EngineListFromContent()
+		_oCmpTemp_ = new stzList(paOtherList)
+		_pCmpB_ = _oCmpTemp_._EngineListFromContent()
+		_nCmpAsubB_ = StzEngineListIsSubsetCS(_pCmpA_, _pCmpB_, pCaseSensitive)
+		_nCmpBsubA_ = StzEngineListIsSubsetCS(_pCmpB_, _pCmpA_, pCaseSensitive)
+		StzEngineListFree(_pCmpB_)
+		StzEngineListFree(_pCmpA_)
+		return _nCmpAsubB_ and _nCmpBsubA_
 
 	def IsEqualTo(paOtherList)
 		return This.IsEqualToCS(paOtherList, 1)
@@ -123,6 +128,42 @@ class stzListComparator
 
 	def IsNotEqualTo(paOtherList)
 		return NOT This.IsEqualTo(paOtherList)
+
+	  #======================================================#
+	 #   STRICT EQUALITY (SAME CONTENT + SAME ORDER)        #
+	#======================================================#
+
+	def IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
+		# Strictly equal = same items at same positions
+		if NOT isList(paOtherList)
+			return 0
+		ok
+		_aScContent_ = This.Content()
+		_nScLen_ = len(_aScContent_)
+		if _nScLen_ != len(paOtherList)
+			return 0
+		ok
+		for _iSc_ = 1 to _nScLen_
+			if NOT BothAreEqualCS(_aScContent_[_iSc_], paOtherList[_iSc_], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
+
+		def IsIdenticalToCS(paOtherList, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
+
+		def IsEqualToCSXT(paOtherList, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
+
+	def IsStrictlyEqualTo(paOtherList)
+		return This.IsStrictlyEqualToCS(paOtherList, 1)
+
+		def IsIdenticalTo(paOtherList)
+			return This.IsStrictlyEqualTo(paOtherList)
+
+		def IsEqualToXT(paOtherList)
+			return This.IsStrictlyEqualTo(paOtherList)
 
 	  #======================================================#
 	 #   SYMMETRIC DIFFERENCE                               #
