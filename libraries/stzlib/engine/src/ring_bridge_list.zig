@@ -583,6 +583,12 @@ fn ring_SlidingWindow(p: *anyopaque) callconv(.c) void {
 fn ring_AntiSections(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_anti_sections(getLC(p, 1), getLC(p, 2))), HL);
 }
+fn ring_StartsWithListCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_starts_with_list_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))));
+}
+fn ring_EndsWithListCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_ends_with_list_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))));
+}
 fn ring_SortedInsert(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sorted_insert(getL(p, 1), getV(p, 2))));
 }
@@ -912,6 +918,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistfindemptystrings", .func = &ring_FindEmptyStrings },
     .{ .name = "stzenginelistslidingwindow", .func = &ring_SlidingWindow },
     .{ .name = "stzenginelistantisections", .func = &ring_AntiSections },
+    .{ .name = "stzengineliststartswithlistcs", .func = &ring_StartsWithListCS },
+    .{ .name = "stzenginelistendswithlistcs", .func = &ring_EndsWithListCS },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

@@ -134,21 +134,16 @@ class stzListComparator
 	#======================================================#
 
 	def IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
-		# Strictly equal = same items at same positions
+		# Strictly equal = same items at same positions (order matters)
 		if NOT isList(paOtherList)
 			return 0
 		ok
-		_aScContent_ = This.Content()
-		_nScLen_ = len(_aScContent_)
-		if _nScLen_ != len(paOtherList)
-			return 0
-		ok
-		for _iSc_ = 1 to _nScLen_
-			if NOT BothAreEqualCS(_aScContent_[_iSc_], paOtherList[_iSc_], pCaseSensitive)
-				return 0
-			ok
-		next
-		return 1
+		_pSeA_ = @oList._EngineListFromContent()
+		_pSeB_ = StzEngineMarshalList(paOtherList)
+		_nSeResult_ = StzEngineListEqualsCS(_pSeA_, _pSeB_, pCaseSensitive)
+		StzEngineListFree(_pSeB_)
+		StzEngineListFree(_pSeA_)
+		return _nSeResult_
 
 		def IsIdenticalToCS(paOtherList, pCaseSensitive)
 			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
@@ -224,15 +219,15 @@ class stzListComparator
 	#======================================================#
 
 	def ContainsCS(pItem, pCaseSensitive)
-		return @oList.FindFirstCS(pItem, pCaseSensitive) > 0
+		return @oList.ContainsCS(pItem, pCaseSensitive)
 
 	def Contains(pItem)
 		return This.ContainsCS(pItem, 1)
 
 	def ContainsAllOfTheseCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		for i = 1 to nLen
-			if NOT This.ContainsCS(paItems[i], pCaseSensitive)
+		_nCatLen_ = len(paItems)
+		for _iCat_ = 1 to _nCatLen_
+			if NOT This.ContainsCS(paItems[_iCat_], pCaseSensitive)
 				return 0
 			ok
 		next
@@ -242,9 +237,9 @@ class stzListComparator
 		return This.ContainsAllOfTheseCS(paItems, 1)
 
 	def ContainsOneOfTheseCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		for i = 1 to nLen
-			if This.ContainsCS(paItems[i], pCaseSensitive)
+		_nCotLen_ = len(paItems)
+		for _iCot_ = 1 to _nCotLen_
+			if This.ContainsCS(paItems[_iCot_], pCaseSensitive)
 				return 1
 			ok
 		next
@@ -291,37 +286,23 @@ class stzListComparator
 	#======================================================#
 
 	def StartsWithCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		if nLen > This.NumberOfItems()
-			return 0
-		ok
-		aContent = This.Content()
-		for i = 1 to nLen
-			if NOT BothAreEqualCS(aContent[i], paItems[i], pCaseSensitive)
-				return 0
-			ok
-		next
-		return 1
+		_pSwList_ = @oList._EngineListFromContent()
+		_pSwPrefix_ = StzEngineMarshalList(paItems)
+		_nSwResult_ = StzEngineListStartsWithListCS(_pSwList_, _pSwPrefix_, pCaseSensitive)
+		StzEngineListFree(_pSwPrefix_)
+		StzEngineListFree(_pSwList_)
+		return _nSwResult_
 
 	def StartsWith(paItems)
 		return This.StartsWithCS(paItems, 1)
 
 	def EndsWithCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		nTotal = This.NumberOfItems()
-		if nLen > nTotal
-			return 0
-		ok
-		aContent = This.Content()
-		nStart = nTotal - nLen + 1
-		j = 1
-		for i = nStart to nTotal
-			if NOT BothAreEqualCS(aContent[i], paItems[j], pCaseSensitive)
-				return 0
-			ok
-			j++
-		next
-		return 1
+		_pEwList_ = @oList._EngineListFromContent()
+		_pEwSuffix_ = StzEngineMarshalList(paItems)
+		_nEwResult_ = StzEngineListEndsWithListCS(_pEwList_, _pEwSuffix_, pCaseSensitive)
+		StzEngineListFree(_pEwSuffix_)
+		StzEngineListFree(_pEwList_)
+		return _nEwResult_
 
 	def EndsWith(paItems)
 		return This.EndsWithCS(paItems, 1)

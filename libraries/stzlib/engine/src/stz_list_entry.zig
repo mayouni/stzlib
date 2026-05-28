@@ -123,6 +123,8 @@ comptime {
     @export(&list.stz_list_find_empty_strings, .{ .name = "stz_list_find_empty_strings" });
     @export(&list.stz_list_sliding_window, .{ .name = "stz_list_sliding_window" });
     @export(&list.stz_list_anti_sections, .{ .name = "stz_list_anti_sections" });
+    @export(&list.stz_list_starts_with_list_cs, .{ .name = "stz_list_starts_with_list_cs" });
+    @export(&list.stz_list_ends_with_list_cs, .{ .name = "stz_list_ends_with_list_cs" });
 }
 
 comptime {
