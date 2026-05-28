@@ -953,10 +953,15 @@ class stzList from stzObject
 		return aResult
 
 	  #----------------------------------------------#
-	 #  FINDING ITEMS (engine-backed, 0-based→1)    #
+	 #  FINDING ITEMS (engine-backed, first match)  #
 	#----------------------------------------------#
 
-	def FindCS(pItem, pCaseSensitive)
+	# Note: Find() = ALL occurrences is defined later via
+	# FindAllOccurrencesCS at line ~1668, with aliases
+	# FindAll, FindFirst, FindLast, FindNth.
+	# This method provides a fast single-result engine path.
+
+	def _FindFirstEngine(pItem, pCaseSensitive)
 		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
@@ -968,7 +973,6 @@ class stzList from stzObject
 		if isString(pItem)
 			nResult = StzEngineListFindStringCS(pList, pItem, pCaseSensitive)
 		else
-			# For non-string items (numbers, etc.), use Ring loop
 			_aFcsContent = @aContent
 			_nFcsLen = len(_aFcsContent)
 			for _iFcs = 1 to _nFcsLen
@@ -982,9 +986,6 @@ class stzList from stzObject
 		StzEngineListFree(pList)
 		return nResult
 
-	def Find(pItem)
-		return This.FindCS(pItem, 1)
-
 	  #----------------------------------------------#
 	 #  CONTAINS (engine-backed)                    #
 	#----------------------------------------------#
@@ -994,7 +995,7 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		return This.FindCS(pItem, pCaseSensitive) > 0
+		return This._FindFirstEngine(pItem, pCaseSensitive) > 0
 
 	def Contains(pItem)
 		return This.ContainsCS(pItem, 1)
@@ -1048,6 +1049,12 @@ class stzList from stzObject
 
 	def WithoutDuplication()
 		return This.WithoutDuplicationCS(1)
+
+		def Unique()
+			return This.WithoutDuplication()
+
+		def UniqueCS(pCaseSensitive)
+			return This.WithoutDuplicationCS(pCaseSensitive)
 
 	  #--------------------------------------#
 	 #  FLATTEN (engine-backed)             #
@@ -1675,6 +1682,12 @@ class stzList from stzObject
 		next
 
 		return anResult
+
+		def FindCS(pItem, pCaseSensitive)
+			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+
+		def Find(pItem)
+			return This.FindAllOccurrencesCS(pItem, 1)
 
 		def FindAllCS(pItem, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
