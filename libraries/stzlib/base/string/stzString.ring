@@ -222,7 +222,7 @@ class stzString from stzObject
 	def _SplitByStrCS(cSep, bCaseSensitive)
 		nCount = StzEngineStringSplitCountCS(@pEngine, cSep, bCaseSensitive)
 		aResult = []
-		for i = 0 to nCount - 1
+		for i = 1 to nCount
 			pPart = StzEngineStringSplitGetCS(@pEngine, cSep, i, bCaseSensitive)
 			if pPart != NULL
 				aResult + StzEngineStringData(pPart)
@@ -267,6 +267,237 @@ class stzString from stzObject
 
 		def NumberOfOccurrence(pcSubStr)
 			return StzEngineStringCountOf(@pEngine, pcSubStr)
+
+	  #============================================#
+	 #     FIND ALL / FIND NTH                    #
+	#============================================#
+
+	def FindCS(pcSubStr, pCaseSensitive)
+		_oFaFinder_ = new stzStringFinder(This)
+		return _oFaFinder_.FindCS(pcSubStr, pCaseSensitive)
+
+	def Find(pcSubStr)
+		return This.FindCS(pcSubStr, 1)
+
+		def FindAll(pcSubStr)
+			return This.Find(pcSubStr)
+
+		def FindAllCS(pcSubStr, pCaseSensitive)
+			return This.FindCS(pcSubStr, pCaseSensitive)
+
+	def FindNthCS(n, pcSubStr, pCaseSensitive)
+		_oFnFinder_ = new stzStringFinder(This)
+		return _oFnFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
+
+	def FindNth(n, pcSubStr)
+		return This.FindNthCS(n, pcSubStr, 1)
+
+	def FindLastCS(pcSubStr, pCaseSensitive)
+		_oFlFinder_ = new stzStringFinder(This)
+		return _oFlFinder_.FindLastCS(pcSubStr, pCaseSensitive)
+
+	def FindLast(pcSubStr)
+		return This.FindLastCS(pcSubStr, 1)
+
+	  #============================================#
+	 #     STARTS WITH / ENDS WITH                #
+	#============================================#
+
+	def StartsWithCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return StzEngineStringStartsWithCS(@pEngine, pcSubStr, _bCase_)
+
+	def StartsWith(pcSubStr)
+		return StzEngineStringStartsWith(@pEngine, pcSubStr)
+
+	def EndsWithCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return StzEngineStringEndsWithCS(@pEngine, pcSubStr, _bCase_)
+
+	def EndsWith(pcSubStr)
+		return StzEngineStringEndsWith(@pEngine, pcSubStr)
+
+	  #============================================#
+	 #     CASE CHANGE                            #
+	#============================================#
+
+	def Uppercase()
+		This.Update(StzUpper(This.Content()))
+
+		def UppercaseQ()
+			This.Uppercase()
+			return This
+
+	def Uppercased()
+		return StzUpper(This.Content())
+
+	def Lowercase()
+		This.Update(StzLower(This.Content()))
+
+		def LowercaseQ()
+			This.Lowercase()
+			return This
+
+	def Lowercased()
+		return StzLower(This.Content())
+
+	def Capitalize()
+		_cCapStr_ = This.Content()
+		if StzLen(_cCapStr_) > 0
+			_cCapFirst_ = StzUpper(StzLeft(_cCapStr_, 1))
+			if StzLen(_cCapStr_) > 1
+				_pCapH_ = StzEngineString(_cCapStr_)
+				_pCapRest_ = StzEngineStringSlice(_pCapH_, 2, StzLen(_cCapStr_) - 1)
+				_cCapRest_ = StzLower(StzEngineStringData(_pCapRest_))
+				StzEngineStringFree(_pCapRest_)
+				StzEngineStringFree(_pCapH_)
+				This.Update(_cCapFirst_ + _cCapRest_)
+			else
+				This.Update(_cCapFirst_)
+			ok
+		ok
+
+		def CapitalizeQ()
+			This.Capitalize()
+			return This
+
+	def Capitalized()
+		_oCapCopy_ = This.Copy()
+		_oCapCopy_.Capitalize()
+		return _oCapCopy_.Content()
+
+	  #============================================#
+	 #     REVERSE                                #
+	#============================================#
+
+	def Reverse()
+		_pRvResult_ = StzEngineStringReverse(@pEngine)
+		if _pRvResult_ != NULL
+			This.Update(StzEngineStringData(_pRvResult_))
+			StzEngineStringFree(_pRvResult_)
+		ok
+
+		def ReverseQ()
+			This.Reverse()
+			return This
+
+	def Reversed()
+		_pRvdResult_ = StzEngineStringReverse(@pEngine)
+		if _pRvdResult_ != NULL
+			_cRvdResult_ = StzEngineStringData(_pRvdResult_)
+			StzEngineStringFree(_pRvdResult_)
+			return _cRvdResult_
+		ok
+		return This.Content()
+
+	  #============================================#
+	 #     REPLACE                                #
+	#============================================#
+
+	def ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		_bRpCase_ = @CaseSensitive(pCaseSensitive)
+		StzEngineStringReplaceCS(@pEngine, pcSubStr, pcNewSubStr, _bRpCase_)
+
+		def ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def Replace(pcSubStr, pcNewSubStr)
+		This.ReplaceCS(pcSubStr, pcNewSubStr, 1)
+
+		def ReplaceQ(pcSubStr, pcNewSubStr)
+			This.Replace(pcSubStr, pcNewSubStr)
+			return This
+
+		def ReplaceAll(pcSubStr, pcNewSubStr)
+			This.Replace(pcSubStr, pcNewSubStr)
+
+		def ReplaceAllCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+	def ReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		_oRpdCopy_ = This.Copy()
+		_oRpdCopy_.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		return _oRpdCopy_.Content()
+
+	def Replaced(pcSubStr, pcNewSubStr)
+		return This.ReplacedCS(pcSubStr, pcNewSubStr, 1)
+
+	  #============================================#
+	 #     REMOVE                                 #
+	#============================================#
+
+	def RemoveCS(pcSubStr, pCaseSensitive)
+		This.ReplaceCS(pcSubStr, "", pCaseSensitive)
+
+		def RemoveCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveCS(pcSubStr, pCaseSensitive)
+			return This
+
+	def Remove(pcSubStr)
+		This.Replace(pcSubStr, "")
+
+		def RemoveQ(pcSubStr)
+			This.Remove(pcSubStr)
+			return This
+
+		def RemoveAll(pcSubStr)
+			This.Remove(pcSubStr)
+
+		def RemoveAllCS(pcSubStr, pCaseSensitive)
+			This.RemoveCS(pcSubStr, pCaseSensitive)
+
+	  #============================================#
+	 #     SPLIT                                  #
+	#============================================#
+
+	def SplitCS(pcSep, pCaseSensitive)
+		_bSpCase_ = @CaseSensitive(pCaseSensitive)
+		return This._SplitByStrCS(pcSep, _bSpCase_)
+
+	def Split(pcSep)
+		return This._SplitByStr(pcSep)
+
+	  #============================================#
+	 #     TRIMMED                                #
+	#============================================#
+
+	def Trimmed()
+		_pTmResult_ = StzEngineStringTrim(@pEngine)
+		if _pTmResult_ != 0
+			_cTmResult_ = StzEngineStringData(_pTmResult_)
+			StzEngineStringFree(_pTmResult_)
+			return _cTmResult_
+		ok
+		return This.Content()
+
+	def TrimmedLeft()
+		_pTlResult_ = StzEngineStringTrimLeft(@pEngine)
+		if _pTlResult_ != 0
+			_cTlResult_ = StzEngineStringData(_pTlResult_)
+			StzEngineStringFree(_pTlResult_)
+			return _cTlResult_
+		ok
+		return This.Content()
+
+	def TrimmedRight()
+		_pTrResult_ = StzEngineStringTrimRight(@pEngine)
+		if _pTrResult_ != 0
+			_cTrResult_ = StzEngineStringData(_pTrResult_)
+			StzEngineStringFree(_pTrResult_)
+			return _cTrResult_
+		ok
+		return This.Content()
+
+	  #============================================#
+	 #     LINES                                  #
+	#============================================#
+
+	def Lines()
+		return This._SplitByStr(NL)
+
+	def NumberOfLines()
+		return len(This.Lines())
 
 	  #========================================#
 	 #     CHECKER DELEGATIONS               #
