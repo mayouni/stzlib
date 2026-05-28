@@ -814,6 +814,12 @@ class stzList from stzObject
 	 #  SHOWING THE LIST  #
 	#====================#
 
+	def Stringified()
+		return @@(This.Content())
+
+		def ToCode()
+			return This.Stringified()
+
 	def Show()
 		? @@( This.Content() )
 
