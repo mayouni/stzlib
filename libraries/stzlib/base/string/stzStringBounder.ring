@@ -334,14 +334,16 @@ class stzStringBounder
 		return This.NthBetweenCS(n, pSubStrOrPos1, pSubStrOrPos2, 1)
 
 	  #=============================================#
-	 #     REPLACE BETWEEN (Softanza convention)   #
+	 #     REPLACE BETWEEN (bounds preserved)      #
 	#=============================================#
 
-	# ReplaceBetween = ALL occurrences (Softanza Universal Naming)
+	# Default: bounds are NOT included (Softanza convention)
+	# ReplaceBetween("[", "]", "X") on "[hello]" => "[X]"
+	# Engine replaces including bounds, so we wrap replacement
 
 	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
 		pH = @oString.Engine()
-		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, pcReplacement)
+		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
 		if pR != NULL
 			@oString.Update(StzEngineStringData(pR))
 			StzEngineStringFree(pR)
@@ -349,7 +351,7 @@ class stzStringBounder
 
 	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
 		pH = @oString.Engine()
-		pR = StzEngineStringReplaceFirstBetween(pH, pcOpen, pcClose, pcReplacement)
+		pR = StzEngineStringReplaceFirstBetween(pH, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
 		if pR != NULL
 			@oString.Update(StzEngineStringData(pR))
 			StzEngineStringFree(pR)
@@ -357,7 +359,7 @@ class stzStringBounder
 
 	def ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
 		pH = @oString.Engine()
-		pR = StzEngineStringReplaceLastBetween(pH, pcOpen, pcClose, pcReplacement)
+		pR = StzEngineStringReplaceLastBetween(pH, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
 		if pR != NULL
 			@oString.Update(StzEngineStringData(pR))
 			StzEngineStringFree(pR)
@@ -366,6 +368,45 @@ class stzStringBounder
 	def ReplaceNthBetween(n, pcOpen, pcClose, pcReplacement)
 		pH = @oString.Engine()
 		# Engine is 0-based for nth
+		pR = StzEngineStringReplaceNthBetween(pH, pcOpen, pcClose, pcOpen + pcReplacement + pcClose, n - 1)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	  #=================================================#
+	 #     REPLACE BETWEEN IB (bounds included)         #
+	#=================================================#
+
+	# IB: bounds ARE included in replacement
+	# ReplaceBetweenIB("[", "]", "X") on "[hello]" => "X"
+
+	def ReplaceBetweenIB(pcOpen, pcClose, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, pcReplacement)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def ReplaceFirstBetweenIB(pcOpen, pcClose, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceFirstBetween(pH, pcOpen, pcClose, pcReplacement)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def ReplaceLastBetweenIB(pcOpen, pcClose, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceLastBetween(pH, pcOpen, pcClose, pcReplacement)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def ReplaceNthBetweenIB(n, pcOpen, pcClose, pcReplacement)
+		pH = @oString.Engine()
 		pR = StzEngineStringReplaceNthBetween(pH, pcOpen, pcClose, pcReplacement, n - 1)
 		if pR != NULL
 			@oString.Update(StzEngineStringData(pR))
@@ -373,14 +414,15 @@ class stzStringBounder
 		ok
 
 	  #=============================================#
-	 #     REMOVE BETWEEN (Softanza convention)    #
+	 #     REMOVE BETWEEN (bounds preserved)       #
 	#=============================================#
 
-	# RemoveBetween = ALL occurrences
+	# Default: bounds are NOT included
+	# RemoveBetween("[", "]") on "[hello]" => "[]"
 
 	def RemoveBetween(pcOpen, pcClose)
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveBetween(pH, pcOpen, pcClose)
+		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, pcOpen + pcClose)
 		if pR != NULL
 			@oString.Update(StzEngineStringData(pR))
 			StzEngineStringFree(pR)
@@ -388,7 +430,7 @@ class stzStringBounder
 
 	def RemoveFirstBetween(pcOpen, pcClose)
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveFirstBetween(pH, pcOpen, pcClose)
+		pR = StzEngineStringReplaceFirstBetween(pH, pcOpen, pcClose, pcOpen + pcClose)
 		if pR != NULL
 			@oString.Update(StzEngineStringData(pR))
 			StzEngineStringFree(pR)
@@ -396,7 +438,7 @@ class stzStringBounder
 
 	def RemoveLastBetween(pcOpen, pcClose)
 		pH = @oString.Engine()
-		pR = StzEngineStringRemoveLastBetween(pH, pcOpen, pcClose)
+		pR = StzEngineStringReplaceLastBetween(pH, pcOpen, pcClose, pcOpen + pcClose)
 		if pR != NULL
 			@oString.Update(StzEngineStringData(pR))
 			StzEngineStringFree(pR)
@@ -404,7 +446,45 @@ class stzStringBounder
 
 	def RemoveNthBetween(n, pcOpen, pcClose)
 		pH = @oString.Engine()
-		# Engine is 0-based for nth
+		pR = StzEngineStringReplaceNthBetween(pH, pcOpen, pcClose, pcOpen + pcClose, n - 1)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	  #=================================================#
+	 #     REMOVE BETWEEN IB (bounds included)          #
+	#=================================================#
+
+	# IB: bounds ARE removed too
+	# RemoveBetweenIB("[", "]") on "[hello]" => ""
+
+	def RemoveBetweenIB(pcOpen, pcClose)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, "")
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def RemoveFirstBetweenIB(pcOpen, pcClose)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveFirstBetween(pH, pcOpen, pcClose)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def RemoveLastBetweenIB(pcOpen, pcClose)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveLastBetween(pH, pcOpen, pcClose)
+		if pR != NULL
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
+
+	def RemoveNthBetweenIB(n, pcOpen, pcClose)
+		pH = @oString.Engine()
 		pR = StzEngineStringRemoveNthBetween(pH, pcOpen, pcClose, n - 1)
 		if pR != NULL
 			@oString.Update(StzEngineStringData(pR))

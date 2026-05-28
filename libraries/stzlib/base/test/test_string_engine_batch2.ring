@@ -42,15 +42,17 @@ $Assert("IsAlphaString abc123", oCheck3.IsAlphaString() = 0)
 # --- BOUNDER: BetweenCS engine delegation ---
 ? "--- Bounder: Between ---"
 oB = new stzStringBounder("Hello [World] from [Ring]")
-cBetween = oB.Between("[", "]")
-? "  Between []: " + cBetween
-$Assert("Between brackets", cBetween = "World")
+aBetween = oB.Between("[", "]")
+? "  Between []: found " + len(aBetween) + " matches"
+$Assert("Between brackets count", len(aBetween) = 2)
+$Assert("Between brackets first", aBetween[1] = "World")
+$Assert("Between brackets second", aBetween[2] = "Ring")
 
-# Test with positions (should still work)
+# Test with positions (returns a list with one element)
 oB2 = new stzStringBounder("ABCDEFGH")
-cSec = oB2.Between(2, 5)
-? "  Between 2,5: " + cSec
-$Assert("Between positions 2-5", cSec = "CD")
+aSec = oB2.Between(2, 5)
+? "  Between 2,5: " + aSec[1]
+$Assert("Between positions 2-5", aSec[1] = "CD")
 
 ? ""
 
