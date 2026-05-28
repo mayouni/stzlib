@@ -448,6 +448,160 @@ class stzString from stzObject
 			This.RemoveCS(pcSubStr, pCaseSensitive)
 
 	  #============================================#
+	 #     REPLACE NTH / FIRST / LAST             #
+	#============================================#
+
+	def ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		_bRnCase_ = @CaseSensitive(pCaseSensitive)
+		_pRnResult_ = StzEngineStringReplaceNthCS(@pEngine, pcSubStr, pcNewSubStr, n, _bRnCase_)
+		_cRnResult_ = StzEngineStringData(_pRnResult_)
+		StzEngineStringFree(_pRnResult_)
+		This.Update(_cRnResult_)
+
+		def ReplaceNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def ReplaceNth(n, pcSubStr, pcNewSubStr)
+		This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, 1)
+
+		def ReplaceNthQ(n, pcSubStr, pcNewSubStr)
+			This.ReplaceNth(n, pcSubStr, pcNewSubStr)
+			return This
+
+	def ReplaceFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		_bRfCase_ = @CaseSensitive(pCaseSensitive)
+		_pRfResult_ = StzEngineStringReplaceFirstCS(@pEngine, pcSubStr, pcNewSubStr, _bRfCase_)
+		_cRfResult_ = StzEngineStringData(_pRfResult_)
+		StzEngineStringFree(_pRfResult_)
+		This.Update(_cRfResult_)
+
+		def ReplaceFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def ReplaceFirst(pcSubStr, pcNewSubStr)
+		This.ReplaceFirstCS(pcSubStr, pcNewSubStr, 1)
+
+		def ReplaceFirstQ(pcSubStr, pcNewSubStr)
+			This.ReplaceFirst(pcSubStr, pcNewSubStr)
+			return This
+
+	def ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		_bRlCase_ = @CaseSensitive(pCaseSensitive)
+		_pRlResult_ = StzEngineStringReplaceLastCS(@pEngine, pcSubStr, pcNewSubStr, _bRlCase_)
+		_cRlResult_ = StzEngineStringData(_pRlResult_)
+		StzEngineStringFree(_pRlResult_)
+		This.Update(_cRlResult_)
+
+		def ReplaceLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def ReplaceLast(pcSubStr, pcNewSubStr)
+		This.ReplaceLastCS(pcSubStr, pcNewSubStr, 1)
+
+		def ReplaceLastQ(pcSubStr, pcNewSubStr)
+			This.ReplaceLast(pcSubStr, pcNewSubStr)
+			return This
+
+	  #============================================#
+	 #     REMOVE FIRST / LAST                    #
+	#============================================#
+
+	def RemoveFirstCS(pcSubStr, pCaseSensitive)
+		This.ReplaceFirstCS(pcSubStr, "", pCaseSensitive)
+
+		def RemoveFirstCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveFirstCS(pcSubStr, pCaseSensitive)
+			return This
+
+	def RemoveFirst(pcSubStr)
+		This.ReplaceFirst(pcSubStr, "")
+
+		def RemoveFirstQ(pcSubStr)
+			This.RemoveFirst(pcSubStr)
+			return This
+
+	def RemoveLastCS(pcSubStr, pCaseSensitive)
+		This.ReplaceLastCS(pcSubStr, "", pCaseSensitive)
+
+		def RemoveLastCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveLastCS(pcSubStr, pCaseSensitive)
+			return This
+
+	def RemoveLast(pcSubStr)
+		This.ReplaceLast(pcSubStr, "")
+
+		def RemoveLastQ(pcSubStr)
+			This.RemoveLast(pcSubStr)
+			return This
+
+	  #============================================#
+	 #     INSERT                                  #
+	#============================================#
+
+	def InsertBefore(n, pcSubStr)
+		_nIbLen_ = This.NumberOfChars()
+		if n < 1 or n > _nIbLen_ + 1
+			return
+		ok
+		if n = 1
+			This.Update(pcSubStr + This.Content())
+			return
+		ok
+		if n = _nIbLen_ + 1
+			This.Update(This.Content() + pcSubStr)
+			return
+		ok
+		_cIbLeft_ = This.Section(1, n - 1)
+		_cIbRight_ = This.Section(n, _nIbLen_)
+		This.Update(_cIbLeft_ + pcSubStr + _cIbRight_)
+
+		def InsertBeforeQ(n, pcSubStr)
+			This.InsertBefore(n, pcSubStr)
+			return This
+
+		def InsertBeforePosition(n, pcSubStr)
+			This.InsertBefore(n, pcSubStr)
+
+		def InsertAt(n, pcSubStr)
+			This.InsertBefore(n, pcSubStr)
+
+		def InsertAtQ(n, pcSubStr)
+			This.InsertBefore(n, pcSubStr)
+			return This
+
+	def InsertAfter(n, pcSubStr)
+		This.InsertBefore(n + 1, pcSubStr)
+
+		def InsertAfterQ(n, pcSubStr)
+			This.InsertAfter(n, pcSubStr)
+			return This
+
+		def InsertAfterPosition(n, pcSubStr)
+			This.InsertAfter(n, pcSubStr)
+
+	  #============================================#
+	 #     WORDS                                   #
+	#============================================#
+
+	def Words()
+		_pWdResult_ = StzEngineStringWordsSplit(@pEngine)
+		_cWdJoined_ = StzEngineStringData(_pWdResult_)
+		StzEngineStringFree(_pWdResult_)
+		return _SplitNullDelimited(_cWdJoined_)
+
+	def NumberOfWords()
+		return StzEngineStringCountWords(@pEngine)
+
+		def CountWords()
+			return This.NumberOfWords()
+
+		def HowManyWords()
+			return This.NumberOfWords()
+
+	  #============================================#
 	 #     SPLIT                                  #
 	#============================================#
 
