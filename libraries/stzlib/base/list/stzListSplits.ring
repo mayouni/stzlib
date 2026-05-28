@@ -3,9 +3,8 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : List splits subclass -- split-finding       #
-#                  operations. All canonical methods delegate   #
-#                  to stzSplitter for the actual computation.   #
+#   Description  : List splits subclass -- split operations.   #
+#                  Engine-backed via stz_list_split_* C ABI.   #
 #                  For aliases, use stzListSplitsXT.            #
 #   Version      : V0.9 (2026)                                #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
@@ -51,68 +50,11 @@ class stzListSplits
 	 #    SPLITTING : THE GENERIC FUNCTION    #
 	#========================================#
 
-	def SplitXT(p)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitXT(p)
-		aResult = @oList.PositionsAt(anPos)
-		@oList.UpdateWith( aResult )
-
-		def SplitXTQ(p)
-			This.SplitXT(p)
-			return This
-
-	def SplittedXT(p)
-		aResult = @oList.Copy().SplitXTQ(p).Content()
-		return aResult
-
-		def SplitsXT()
-			return This.SplittedXT(p)
-
-	def SplitAsSectionsXT(p)
-		aSections = This.SplitXT(p)
-		nLen = len(aSections)
-
-		aResult = []
-
-		for i = 1 to nLen
-			nLenTemp = len(aSections[i])
-			aResult + [ aSections[i][1], aSections[i][nLenTemp] ]
-		next
-
-		@oList.UpdateWith(aResult)
-
-		def SplitAtSectionsXTQ(p)
-			This.SplitAtSectionsXT(p)
-			return This
-
-		def SplitXTZZ(p)
-			This.SplitAsSectionsXT(p)
-
-			def SplitXTZZQ(p)
-				return This.SplitAtSectionsXTQ(p)
-
-	def SplittedAsSectionsXT(p)
-		aResult = @oList.Copy().SplitAsSectionsQ(p).Content()
-		return aResult
-
-		def SplittedXTZZ(p)
-			return This.SplittedAsSectionsXT(p)
-
-		def SplitsAsSectionsXT(p)
-			return This.SplittedAsSectionsXT(p)
-
-		def SplitsXTZZ(p)
-			return This.SplittedAsSectionsXT(p)
-
-	  #----------------------------------------#
-	 #  SPLITTING THE LIST -- A GENERAL FORM  #
-	#========================================#
-
 	def SplitCS(pItemOrPos, pCaseSensitive)
 
 		if isList(pItemOrPos)
 
 			if len(pItemOrPos) = 2 and isString(pItemOrPos[1]) and
-
 			   ( pItemOrPos[1] = :At or
 			     pItemOrPos[1] = :AtPosition )
 
@@ -151,16 +93,22 @@ class stzListSplits
 	#=====================================================#
 
 	def SplitAtPositions(panPos)
-		aSplitPositions = StzSplitterQ( This.NumberOfItems() ).SplitAtPositions(panPos)
-
-		aResult = []
-		nLen = len(aSplitPositions)
-
-		for i = 1 to nLen
-			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
+		# Engine-backed: marshal list + positions, call split_at
+		# INDEX_BASE=1: convert 1-based positions to 0-based for engine
+		_aSapAdj_ = []
+		for _iSap_ = 1 to len(panPos)
+			_aSapAdj_ + (panPos[_iSap_] - 1)
 		next
 
-		@oList.UpdateWith(aResult)
+		_pSapList_ = StzEngineMarshalList(@oList.Content())
+		_pSapPos_ = StzEngineMarshalList(_aSapAdj_)
+		_pSapResult_ = StzEngineListSplitAt(_pSapList_, _pSapPos_)
+		_aSapResult_ = StzEngineContentFromList(_pSapResult_)
+		StzEngineListFree(_pSapResult_)
+		StzEngineListFree(_pSapPos_)
+		StzEngineListFree(_pSapList_)
+
+		@oList.UpdateWith(_aSapResult_)
 
 		def SplitAtPositionsQ(panPos)
 			This.SplitAtPositions(panPos)
@@ -174,165 +122,51 @@ class stzListSplits
 				return This
 
 	def SplittedAtPositions(panPos)
-		aResult = @oList.Copy().SplitAtPositionsQ(panPos).Content()
-		return aResult
+		# INDEX_BASE=1: convert to 0-based for engine
+		_aSadAdj_ = []
+		for _iSad_ = 1 to len(panPos)
+			_aSadAdj_ + (panPos[_iSad_] - 1)
+		next
+
+		_pSadList_ = StzEngineMarshalList(@oList.Content())
+		_pSadPos_ = StzEngineMarshalList(_aSadAdj_)
+		_pSadResult_ = StzEngineListSplitAt(_pSadList_, _pSadPos_)
+		_aSadResult_ = StzEngineContentFromList(_pSadResult_)
+		StzEngineListFree(_pSadResult_)
+		StzEngineListFree(_pSadPos_)
+		StzEngineListFree(_pSadList_)
+
+		return _aSadResult_
 
 		def SplittedAtThesePositions(panPos)
 			return This.SplittedAtPositions(panPos)
-
-	  #-----------------------------------------------------#
-	 #  SPLITTING AT POSITIONS -- ZZ/EXTENDED (AS SECTIONS) #
-	#-----------------------------------------------------#
-
-	def SplitAtPositionsZZ(panPos)
-		aSections = StzSplitterQ( This.NumberOfItems() ).SplitAtPositionsZZ(panPos)
-		@oList.UpdateWith(aSections)
-
-		def SplitAtPositionsZZQ(panPos)
-			This.SplitAtPositionsZZ(panPos)
-			return This
-
-		def SplitAtPositionsAsSections(panPos)
-			This.SplitAtPositionsZZ(panPos)
-
-		def SplitAtThesePositionsZZ(panPos)
-			This.SplitAtPositionsZZ(panPos)
-
-		def SplitAtThesePositionsAsSections(panPos)
-			This.SplitAtPositionsZZ(panPos)
-
-	def SplittedAtPositionsZZ(panPos)
-		aResult = @oList.Copy().SplitAtPositionsZZQ(panPos).Content()
-		return aResult
-
-		def SplittedAtPositionsAsSections(panPos)
-			return This.SplittedAtPositionsZZ(panPos)
-
-		def SplittedAtThesePositionsZZ(panPos)
-			return This.SplittedAtPositionsZZ(panPos)
-
-		def SplittedAtThesePositionsAsSections(panPos)
-			return This.SplittedAtPositionsZZ(panPos)
-
-	  #==================================#
-	 #  SPLITTING AT A GIVEN POSITION   #
-	#==================================#
-
-	def SplitAtPosition(n)
-		This.SplitAtPositions([n])
-
-		def SplitAtPositionQ(n)
-			This.SplitAtPosition(n)
-			return This
-
-	def SplittedAtPosition(n)
-		aResult = @oList.Copy().SplitAtPositionQ(n).Content()
-		return aResult
-
-	def SplitAtPositionZZ(n)
-		This.SplitAtPositionsZZ([n])
-
-		def SplitAtPositionZZQ(n)
-			This.SplitAtPositionZZ(n)
-			return This
-
-		def SplitAtPositionAsSections(n)
-			This.SplitAtPositionZZ(n)
-
-	def SplittedAtPositionZZ(n)
-		aResult = @oList.Copy().SplitAtPositionZZQ(n).Content()
-		return aResult
-
-		def SplittedAtPositionAsSections(n)
-			return This.SplittedAtPositionZZ(n)
-
-	  #================================#
-	 #  SPLITTING AT A GIVEN ITEM     #
-	#================================#
-
-	def SplitAtCS(pItem, pCaseSensitive)
-		if isNumber(pItem)
-			This.SplitAtPosition(pItem)
-		else
-			anPos = @oList.FindAllCS(pItem, pCaseSensitive)
-			This.SplitAtPositions(anPos)
-		ok
-
-		def SplitAtCSQ(pItem, pCaseSensitive)
-			This.SplitAtCS(pItem, pCaseSensitive)
-			return This
-
-	def SplitAt(pItem)
-		return This.SplitAtCS(pItem, 1)
-
-		def SplitAtQ(pItem)
-			This.SplitAt(pItem)
-			return This
-
-	def SplittedAtCS(pItem, pCaseSensitive)
-		aResult = @oList.Copy().SplitAtCSQ(pItem, pCaseSensitive).Content()
-		return aResult
-
-	def SplittedAt(pItem)
-		return This.SplittedAtCS(pItem, 1)
-
-	def SplitAtCSZZ(pItem, pCaseSensitive)
-		if isNumber(pItem)
-			This.SplitAtPositionZZ(pItem)
-		else
-			anPos = @oList.FindAllCS(pItem, pCaseSensitive)
-			This.SplitAtPositionsZZ(anPos)
-		ok
-
-		def SplitAtCSZZQ(pItem, pCaseSensitive)
-			This.SplitAtCSZZ(pItem, pCaseSensitive)
-			return This
-
-		def SplitAtAsSectionsCS(pItem, pCaseSensitive)
-			This.SplitAtCSZZ(pItem, pCaseSensitive)
-
-	def SplitAtZZ(pItem)
-		return This.SplitAtCSZZ(pItem, 1)
-
-		def SplitAtAsSections(pItem)
-			return This.SplitAtZZ(pItem)
-
-	def SplittedAtCSZZ(pItem, pCaseSensitive)
-		aResult = @oList.Copy().SplitAtCSZZQ(pItem, pCaseSensitive).Content()
-		return aResult
-
-		def SplittedAtAsSectionsCS(pItem, pCaseSensitive)
-			return This.SplittedAtCSZZ(pItem, pCaseSensitive)
-
-	def SplittedAtZZ(pItem)
-		return This.SplittedAtCSZZ(pItem, 1)
-
-		def SplittedAtAsSections(pItem)
-			return This.SplittedAtZZ(pItem)
 
 	  #======================================#
 	 #  SPLITTING BEFORE A GIVEN POSITION   #
 	#======================================#
 
 	def SplitBeforePosition(n)
-		aSplitPositions = StzSplitterQ( This.NumberOfItems() ).SplitBeforePosition(n)
+		# Engine-backed: stz_list_split_before
+		_pSbpList_ = StzEngineMarshalList(@oList.Content())
+		_pSbpResult_ = StzEngineListSplitBefore(_pSbpList_, n)
+		_aSbpResult_ = StzEngineContentFromList(_pSbpResult_)
+		StzEngineListFree(_pSbpResult_)
+		StzEngineListFree(_pSbpList_)
 
-		aResult = []
-		nLen = len(aSplitPositions)
-
-		for i = 1 to nLen
-			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
-		next
-
-		@oList.UpdateWith(aResult)
+		@oList.UpdateWith(_aSbpResult_)
 
 		def SplitBeforePositionQ(n)
 			This.SplitBeforePosition(n)
 			return This
 
 	def SplittedBeforePosition(n)
-		aResult = @oList.Copy().SplitBeforePositionQ(n).Content()
-		return aResult
+		_pSbdList_ = StzEngineMarshalList(@oList.Content())
+		_pSbdResult_ = StzEngineListSplitBefore(_pSbdList_, n)
+		_aSbdResult_ = StzEngineContentFromList(_pSbdResult_)
+		StzEngineListFree(_pSbdResult_)
+		StzEngineListFree(_pSbdList_)
+
+		return _aSbdResult_
 
 	  #===================================#
 	 #  SPLITTING BEFORE A GIVEN ITEM    #
@@ -342,11 +176,10 @@ class stzListSplits
 		if isNumber(pItem)
 			This.SplitBeforePosition(pItem)
 		else
-			anPos = @oList.FindAllCS(pItem, pCaseSensitive)
-			nLen = len(anPos)
-			for i = 1 to nLen
-				This.SplitBeforePosition(anPos[i])
-			next
+			_anSbcPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
+			if len(_anSbcPos_) > 0
+				This.SplitAtPositions(_anSbcPos_)
+			ok
 		ok
 
 		def SplitBeforeCSQ(pItem, pCaseSensitive)
@@ -365,24 +198,27 @@ class stzListSplits
 	#=====================================#
 
 	def SplitAfterPosition(n)
-		aSplitPositions = StzSplitterQ( This.NumberOfItems() ).SplitAfterPosition(n)
+		# Engine-backed: stz_list_split_after
+		_pSfpList_ = StzEngineMarshalList(@oList.Content())
+		_pSfpResult_ = StzEngineListSplitAfter(_pSfpList_, n)
+		_aSfpResult_ = StzEngineContentFromList(_pSfpResult_)
+		StzEngineListFree(_pSfpResult_)
+		StzEngineListFree(_pSfpList_)
 
-		aResult = []
-		nLen = len(aSplitPositions)
-
-		for i = 1 to nLen
-			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
-		next
-
-		@oList.UpdateWith(aResult)
+		@oList.UpdateWith(_aSfpResult_)
 
 		def SplitAfterPositionQ(n)
 			This.SplitAfterPosition(n)
 			return This
 
 	def SplittedAfterPosition(n)
-		aResult = @oList.Copy().SplitAfterPositionQ(n).Content()
-		return aResult
+		_pSfdList_ = StzEngineMarshalList(@oList.Content())
+		_pSfdResult_ = StzEngineListSplitAfter(_pSfdList_, n)
+		_aSfdResult_ = StzEngineContentFromList(_pSfdResult_)
+		StzEngineListFree(_pSfdResult_)
+		StzEngineListFree(_pSfdList_)
+
+		return _aSfdResult_
 
 	  #=================================#
 	 #  SPLITTING AFTER A GIVEN ITEM   #
@@ -392,11 +228,11 @@ class stzListSplits
 		if isNumber(pItem)
 			This.SplitAfterPosition(pItem)
 		else
-			anPos = @oList.FindAllCS(pItem, pCaseSensitive)
-			nLen = len(anPos)
-			for i = 1 to nLen
-				This.SplitAfterPosition(anPos[i])
-			next
+			_anSacPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
+			if len(_anSacPos_) > 0
+				# Split after the last occurrence found
+				This.SplitAfterPosition(_anSacPos_[len(_anSacPos_)])
+			ok
 		ok
 
 		def SplitAfterCSQ(pItem, pCaseSensitive)
@@ -410,45 +246,115 @@ class stzListSplits
 			This.SplitAfter(pItem)
 			return This
 
+	  #==================================#
+	 #  SPLITTING AT A GIVEN POSITION   #
+	#==================================#
+
+	def SplitAtPosition(n)
+		# "Split at position N" = split before position N
+		This.SplitBeforePosition(n)
+
+		def SplitAtPositionQ(n)
+			This.SplitAtPosition(n)
+			return This
+
+	def SplittedAtPosition(n)
+		return This.SplittedBeforePosition(n)
+
+	  #================================#
+	 #  SPLITTING AT A GIVEN ITEM     #
+	#================================#
+
+	def SplitAtCS(pItem, pCaseSensitive)
+		if isNumber(pItem)
+			This.SplitAtPosition(pItem)
+		else
+			_anSatPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
+			This.SplitAtPositions(_anSatPos_)
+		ok
+
+		def SplitAtCSQ(pItem, pCaseSensitive)
+			This.SplitAtCS(pItem, pCaseSensitive)
+			return This
+
+	def SplitAt(pItem)
+		return This.SplitAtCS(pItem, 1)
+
+		def SplitAtQ(pItem)
+			This.SplitAt(pItem)
+			return This
+
+	def SplittedAtCS(pItem, pCaseSensitive)
+		if isNumber(pItem)
+			return This.SplittedAtPosition(pItem)
+		ok
+		_anSadcPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
+		return This.SplittedAtPositions(_anSadcPos_)
+
+	def SplittedAt(pItem)
+		return This.SplittedAtCS(pItem, 1)
+
 	  #==============================#
 	 #  SPLITTING TO N EQUAL PARTS  #
 	#==============================#
 
 	def SplitToNParts(n)
-		aSplitPositions = StzSplitterQ( This.NumberOfItems() ).SplitToNParts(n)
+		# Compute chunk size: ceiling(NumberOfItems / n)
+		_nSnpLen_ = This.NumberOfItems()
+		if n <= 0 or _nSnpLen_ = 0
+			return
+		ok
 
-		aResult = []
-		nLen = len(aSplitPositions)
+		_nSnpChunk_ = floor(_nSnpLen_ / n)
+		if _nSnpLen_ % n > 0
+			_nSnpChunk_ = _nSnpChunk_ + 1
+		ok
 
-		for i = 1 to nLen
-			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
-		next
+		# Use engine split_to_parts_of_n with computed chunk size
+		_pSnpList_ = StzEngineMarshalList(@oList.Content())
+		_pSnpResult_ = StzEngineListSplitToPartsOfN(_pSnpList_, _nSnpChunk_)
+		_aSnpResult_ = StzEngineContentFromList(_pSnpResult_)
+		StzEngineListFree(_pSnpResult_)
+		StzEngineListFree(_pSnpList_)
 
-		@oList.UpdateWith(aResult)
+		@oList.UpdateWith(_aSnpResult_)
 
 		def SplitToNPartsQ(n)
 			This.SplitToNParts(n)
 			return This
 
 	def SplittedToNParts(n)
-		aResult = @oList.Copy().SplitToNPartsQ(n).Content()
-		return aResult
+		_nSndLen_ = This.NumberOfItems()
+		if n <= 0 or _nSndLen_ = 0
+			return []
+		ok
+
+		_nSndChunk_ = floor(_nSndLen_ / n)
+		if _nSndLen_ % n > 0
+			_nSndChunk_ = _nSndChunk_ + 1
+		ok
+
+		_pSndList_ = StzEngineMarshalList(@oList.Content())
+		_pSndResult_ = StzEngineListSplitToPartsOfN(_pSndList_, _nSndChunk_)
+		_aSndResult_ = StzEngineContentFromList(_pSndResult_)
+		StzEngineListFree(_pSndResult_)
+		StzEngineListFree(_pSndList_)
+
+		return _aSndResult_
 
 	  #=================================#
 	 #  SPLITTING TO PARTS OF N ITEMS  #
 	#=================================#
 
 	def SplitToPartsOfNItems(n)
-		aSplitPositions = StzSplitterQ( This.NumberOfItems() ).SplitToPartsOfNItems(n)
+		# Engine-backed: stz_list_split_to_parts_of_n
+		_pSpnList_ = StzEngineMarshalList(@oList.Content())
+		_pSpnResult_ = StzEngineListSplitToPartsOfN(_pSpnList_, n)
+		_aSpnResult_ = StzEngineContentFromList(_pSpnResult_)
+		StzEngineListFree(_pSpnResult_)
+		StzEngineListFree(_pSpnList_)
 
-		aResult = []
-		nLen = len(aSplitPositions)
-
-		for i = 1 to nLen
-			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
-		next
-
-		@oList.UpdateWith(aResult)
+		@oList.UpdateWith(_aSpnResult_)
 
 		def SplitToPartsOfNItemsQ(n)
 			This.SplitToPartsOfNItems(n)
@@ -462,60 +368,60 @@ class stzListSplits
 				return This
 
 	def SplittedToPartsOfNItems(n)
-		aResult = @oList.Copy().SplitToPartsOfNItemsQ(n).Content()
-		return aResult
+		_pSpdList_ = StzEngineMarshalList(@oList.Content())
+		_pSpdResult_ = StzEngineListSplitToPartsOfN(_pSpdList_, n)
+		_aSpdResult_ = StzEngineContentFromList(_pSpdResult_)
+		StzEngineListFree(_pSpdResult_)
+		StzEngineListFree(_pSpdList_)
+
+		return _aSpdResult_
 
 		def SplittedToPartsOf(n)
 			return This.SplittedToPartsOfNItems(n)
-
-	  #===================================#
-	 #  SPLITTING USING A GIVEN PACER    #
-	#===================================#
-
-	def SplitAtPacer(nPace, nStart)
-		aSplitPositions = StzSplitterQ( This.NumberOfItems() ).SplitAtPacer(nPace, nStart)
-
-		aResult = []
-		nLen = len(aSplitPositions)
-
-		for i = 1 to nLen
-			aResult + @oList.ItemsAtPositions(aSplitPositions[i])
-		next
-
-		@oList.UpdateWith(aResult)
-
-		def SplitAtPacerQ(nPace, nStart)
-			This.SplitAtPacer(nPace, nStart)
-			return This
-
-	def SplittedAtPacer(nPace, nStart)
-		aResult = @oList.Copy().SplitAtPacerQ(nPace, nStart).Content()
-		return aResult
 
 	  #===============================#
 	 #  SPLITTING USING A CONDITION  #
 	#===============================#
 
 	def SplitW(pcCondition)
-		anPos = @oList.FindW(pcCondition)
-		This.SplitAtPositions(anPos)
+		_anSwPos_ = @oList.FindW(pcCondition)
+		This.SplitAtPositions(_anSwPos_)
 
 		def SplitWQ(pcCondition)
 			This.SplitW(pcCondition)
 			return This
 
 	def SplittedW(pcCondition)
-		aResult = @oList.Copy().SplitWQ(pcCondition).Content()
-		return aResult
+		_anSwdPos_ = @oList.FindW(pcCondition)
+		return This.SplittedAtPositions(_anSwdPos_)
 
-	def SplitWXT(pcCondition)
-		anPos = @oList.FindWXT(pcCondition)
-		This.SplitAtPositions(anPos)
+	  #===================================#
+	 #  SPLITTING USING A GIVEN PACER    #
+	#===================================#
 
-		def SplitWXTQ(pcCondition)
-			This.SplitWXT(pcCondition)
+	def SplitAtPacer(nPace, nStart)
+		# Generate positions at the given pace
+		_anPcrPos_ = []
+		_nPcrLen_ = This.NumberOfItems()
+		_iPcr_ = nStart
+		while _iPcr_ <= _nPcrLen_
+			_anPcrPos_ + _iPcr_
+			_iPcr_ = _iPcr_ + nPace
+		end
+
+		This.SplitAtPositions(_anPcrPos_)
+
+		def SplitAtPacerQ(nPace, nStart)
+			This.SplitAtPacer(nPace, nStart)
 			return This
 
-	def SplittedWXT(pcCondition)
-		aResult = @oList.Copy().SplitWXTQ(pcCondition).Content()
-		return aResult
+	def SplittedAtPacer(nPace, nStart)
+		_anSdpcrPos_ = []
+		_nSdpcrLen_ = This.NumberOfItems()
+		_iSdpcr_ = nStart
+		while _iSdpcr_ <= _nSdpcrLen_
+			_anSdpcrPos_ + _iSdpcr_
+			_iSdpcr_ = _iSdpcr_ + nPace
+		end
+
+		return This.SplittedAtPositions(_anSdpcrPos_)
