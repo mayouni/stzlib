@@ -186,10 +186,19 @@ class stzStringSplitter
 			return [ This.Content() ]
 		ok
 
-		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtPosition(n)
-		acResult = @oString.Sections(aSections)
+		# Split at position n: [1..n-1] and [n+1..end]
+		# (position n itself is excluded -- it's the split point)
+		_nSapLen_ = This.NumberOfChars()
+		_aSapResult_ = []
 
-		return acResult
+		if n > 1
+			add(_aSapResult_, @oString.Section(1, n - 1))
+		ok
+		if n < _nSapLen_
+			add(_aSapResult_, @oString.Section(n + 1, _nSapLen_))
+		ok
+
+		return _aSapResult_
 
 	  #=================================#
 	 #     SPLIT AT POSITIONS          #
@@ -205,10 +214,27 @@ class stzStringSplitter
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
-		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtPositions(anPos)
-		acResult = @oString.Sections(aSections)
+		# Split at multiple positions (each position is excluded)
+		_anSapsorted_ = sort(anPos)
+		_nSapLen_ = This.NumberOfChars()
+		_aSapResult_ = []
+		_nSapPrev_ = 1
 
-		return acResult
+		for _iSap_ = 1 to len(_anSapsorted_)
+			_nSapPos_ = _anSapsorted_[_iSap_]
+			if _nSapPos_ >= _nSapPrev_ and _nSapPos_ <= _nSapLen_
+				if _nSapPos_ > _nSapPrev_
+					add(_aSapResult_, @oString.Section(_nSapPrev_, _nSapPos_ - 1))
+				ok
+				_nSapPrev_ = _nSapPos_ + 1
+			ok
+		next
+
+		if _nSapPrev_ <= _nSapLen_
+			add(_aSapResult_, @oString.Section(_nSapPrev_, _nSapLen_))
+		ok
+
+		return _aSapResult_
 
 	  #===============================#
 	 #     SPLIT BEFORE              #
@@ -259,9 +285,25 @@ class stzStringSplitter
 			return []
 		ok
 
-		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforePositions(anPos)
-		acResult = @oString.Sections(aSections)
-		return acResult
+		# Split before each position: segments end at pos-1, next starts at pos
+		_anSbpSorted_ = sort(anPos)
+		_nSbpLen_ = This.NumberOfChars()
+		_aSbpResult_ = []
+		_nSbpPrev_ = 1
+
+		for _iSbp_ = 1 to len(_anSbpSorted_)
+			_nSbpPos_ = _anSbpSorted_[_iSbp_]
+			if _nSbpPos_ > _nSbpPrev_ and _nSbpPos_ <= _nSbpLen_
+				add(_aSbpResult_, @oString.Section(_nSbpPrev_, _nSbpPos_ - 1))
+				_nSbpPrev_ = _nSbpPos_
+			ok
+		next
+
+		if _nSbpPrev_ <= _nSbpLen_
+			add(_aSbpResult_, @oString.Section(_nSbpPrev_, _nSbpLen_))
+		ok
+
+		return _aSbpResult_
 
 	  #==============================#
 	 #     SPLIT AFTER              #
@@ -319,9 +361,25 @@ class stzStringSplitter
 			return []
 		ok
 
-		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfterPositions(anPos)
-		acResult = @oString.Sections(aSections)
-		return acResult
+		# Split after each position: segments end at pos, next starts at pos+1
+		_anSapSorted_ = sort(anPos)
+		_nSapLen_ = This.NumberOfChars()
+		_aSapResult_ = []
+		_nSapPrev_ = 1
+
+		for _iSap_ = 1 to len(_anSapSorted_)
+			_nSapPos_ = _anSapSorted_[_iSap_]
+			if _nSapPos_ >= _nSapPrev_ and _nSapPos_ <= _nSapLen_
+				add(_aSapResult_, @oString.Section(_nSapPrev_, _nSapPos_))
+				_nSapPrev_ = _nSapPos_ + 1
+			ok
+		next
+
+		if _nSapPrev_ <= _nSapLen_
+			add(_aSapResult_, @oString.Section(_nSapPrev_, _nSapLen_))
+		ok
+
+		return _aSapResult_
 
 	  #======================================================#
 	 #   PARTITION (split into [before, sep, after])         #
