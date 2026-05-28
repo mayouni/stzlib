@@ -86,6 +86,48 @@ else
 	? "  FAIL: BetweenIB=" + _cIB_ _nFailed_++
 ok
 
+# --- LastBetween ---
+_oStr9_ = new stzString("say [hello] and [world] please")
+_cLast_ = _oStr9_.LastBetween("[", "]")
+_nTotal_++
+if _cLast_ = "world"
+	? "  PASS: LastBetween=world" _nPassed_++
+else
+	? "  FAIL: LastBetween=" + _cLast_ _nFailed_++
+ok
+
+# --- NthBetween ---
+_oStr10_ = new stzString("<a> <b> <c>")
+_cNth1_ = _oStr10_.NthBetween(1, "<", ">")
+_cNth2_ = _oStr10_.NthBetween(2, "<", ">")
+_cNth3_ = _oStr10_.NthBetween(3, "<", ">")
+_nTotal_++
+if _cNth1_ = "a" and _cNth2_ = "b" and _cNth3_ = "c"
+	? "  PASS: NthBetween 1=a, 2=b, 3=c" _nPassed_++
+else
+	? "  FAIL: NthBetween 1=" + _cNth1_ + " 2=" + _cNth2_ + " 3=" + _cNth3_ _nFailed_++
+ok
+
+# --- LastBetween with no match ---
+_oStr11_ = new stzString("no brackets")
+_cLastNone_ = _oStr11_.LastBetween("[", "]")
+_nTotal_++
+if _cLastNone_ = ""
+	? "  PASS: LastBetween no match = empty" _nPassed_++
+else
+	? "  FAIL: LastBetween no match got=" + _cLastNone_ _nFailed_++
+ok
+
+# --- NthBetween out of range ---
+_oStr12_ = new stzString("[only] one")
+_cNthOob_ = _oStr12_.NthBetween(5, "[", "]")
+_nTotal_++
+if _cNthOob_ = ""
+	? "  PASS: NthBetween out of range = empty" _nPassed_++
+else
+	? "  FAIL: NthBetween out of range got=" + _cNthOob_ _nFailed_++
+ok
+
 ? ""
 ? "=========================="
 ? "Total: " + _nTotal_
