@@ -941,18 +941,27 @@ class stzList from stzObject
 		return 0
 
 	def FindEmptyStrings()
-		_aFesContent_ = @aContent
-		_nFesLen_ = len(_aFesContent_)
-		_aFesResult_ = []
-		for _iFes_ = 1 to _nFesLen_
-			if isString(_aFesContent_[_iFes_]) and _aFesContent_[_iFes_] = ""
-				_aFesResult_ + _iFes_
-			ok
-		next
-		return _aFesResult_
+		_pFesList_ = This._EngineListFromContent()
+		if _pFesList_ = NULL
+			return []
+		ok
+		_pFesResult_ = StzEngineListFindEmptyStrings(_pFesList_)
+		StzEngineListFree(_pFesList_)
+		if _pFesResult_ = NULL
+			return []
+		ok
+		_aFesOut_ = StzEngineContentFromList(_pFesResult_)
+		StzEngineListFree(_pFesResult_)
+		return _aFesOut_
 
 	def CountEmptyStrings()
-		return len(This.FindEmptyStrings())
+		_pCesList_ = This._EngineListFromContent()
+		if _pCesList_ = NULL
+			return 0
+		ok
+		_nCesCount_ = StzEngineListCountEmptyStrings(_pCesList_)
+		StzEngineListFree(_pCesList_)
+		return _nCesCount_
 
 	def ReplaceEmptyStrings(pNewItem)
 		_aResContent_ = @aContent
