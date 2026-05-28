@@ -1882,48 +1882,78 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		if nLen = 0
+		if len(@aContent) = 0
 			return []
 		ok
 
-		anResult = @FindAllCS_NbrOrStr(aContent, pItem, pCaseSensitive)
-
-		if isList(anResult) and len(anResult) > 0
-			return anResult
+		# Engine path for string items
+		if isString(pItem)
+			_pFaoList_ = This._EngineListFromContent()
+			if _pFaoList_ = NULL
+				return []
+			ok
+			_pFaoResult_ = StzEngineListFindAllStringCS(_pFaoList_, pItem, pCaseSensitive)
+			StzEngineListFree(_pFaoList_)
+			if _pFaoResult_ = NULL
+				return []
+			ok
+			_aFaoOut_ = StzEngineContentFromList(_pFaoResult_)
+			StzEngineListFree(_pFaoResult_)
+			return _aFaoOut_
 		ok
 
-		cItem = ""
+		# Engine path for number items (use comma-delimited find)
+		if isNumber(pItem)
+			_pFaoList2_ = This._EngineListFromContent()
+			if _pFaoList2_ = NULL
+				return []
+			ok
+			_cFaoRaw_ = StzEngineListFindAllCS(_pFaoList2_, StzEngineValueNewInt(pItem), pCaseSensitive)
+			StzEngineListFree(_pFaoList2_)
+			if len(_cFaoRaw_) = 0
+				return []
+			ok
+			_aFaoSplit_ = StzSplit(_cFaoRaw_, ",")
+			_nFaoSLen_ = len(_aFaoSplit_)
+			for _iFao_ = 1 to _nFaoSLen_
+				_aFaoSplit_[_iFao_] = 0 + _aFaoSplit_[_iFao_]
+			next
+			return _aFaoSplit_
+		ok
+
+		# Fallback for lists/objects: stringify and compare
+		_aFaoContent_ = This.Content()
+		_nFaoLen_ = len(_aFaoContent_)
+
+		_cFaoItem_ = ""
 		if isList(pItem)
-			cItem = @@(pItem)
+			_cFaoItem_ = @@(pItem)
 		but isObject(pItem) and @IsStzObject(pItem) and pItem.IsNamed()
-			cItem = pItem.ObjectName()
+			_cFaoItem_ = pItem.ObjectName()
 		else
-			cItem = Q(pItem).Stringified()
+			_cFaoItem_ = Q(pItem).Stringified()
 		ok
 
-		acContent = []
-		for _k = 1 to nLen
-			acContent + ("" + aContent[_k])
+		_acFaoContent_ = []
+		for _kFao_ = 1 to _nFaoLen_
+			_acFaoContent_ + ("" + _aFaoContent_[_kFao_])
 		next
 
 		if pCaseSensitive = 0
-			cItem = StzLower(cItem)
-			for i = 1 to nLen
-				acContent[i] = StzLower(acContent[i])
+			_cFaoItem_ = StzLower(_cFaoItem_)
+			for _iFao2_ = 1 to _nFaoLen_
+				_acFaoContent_[_iFao2_] = StzLower(_acFaoContent_[_iFao2_])
 			next
 		ok
 
-		anResult = []
-		for i = 1 to nLen
-			if acContent[i] = cItem
-				anResult + i
+		_anFaoResult_ = []
+		for _iFao3_ = 1 to _nFaoLen_
+			if _acFaoContent_[_iFao3_] = _cFaoItem_
+				_anFaoResult_ + _iFao3_
 			ok
 		next
 
-		return anResult
+		return _anFaoResult_
 
 		def FindCS(pItem, pCaseSensitive)
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
@@ -2256,6 +2286,138 @@ class stzList from stzObject
 		nResult = StzEngineListMax(pList)
 		StzEngineListFree(pList)
 		return nResult
+
+	  #-- Sum / Product / Mean (engine-backed)
+
+	def Sum()
+		if len(@aContent) = 0 return 0 ok
+		_pSmList_ = This._EngineListFromContent()
+		_nSmResult_ = StzEngineListSum(_pSmList_)
+		StzEngineListFree(_pSmList_)
+		return _nSmResult_
+
+	def Product()
+		if len(@aContent) = 0 return 0 ok
+		_pPrList_ = This._EngineListFromContent()
+		_nPrResult_ = StzEngineListProduct(_pPrList_)
+		StzEngineListFree(_pPrList_)
+		return _nPrResult_
+
+	def Mean()
+		if len(@aContent) = 0 return 0 ok
+		_pMnList_ = This._EngineListFromContent()
+		_nMnResult_ = StzEngineListMean(_pMnList_)
+		StzEngineListFree(_pMnList_)
+		return _nMnResult_
+
+		def Average()
+			return This.Mean()
+
+	  #-- Variance / StdDev (engine-backed)
+
+	def Variance()
+		if len(@aContent) = 0 return 0 ok
+		_pVarList_ = This._EngineListFromContent()
+		_nVarResult_ = StzEngineListVariance(_pVarList_)
+		StzEngineListFree(_pVarList_)
+		return _nVarResult_
+
+	def Stddev()
+		if len(@aContent) = 0 return 0 ok
+		_pSdList_ = This._EngineListFromContent()
+		_nSdResult_ = StzEngineListStddev(_pSdList_)
+		StzEngineListFree(_pSdList_)
+		return _nSdResult_
+
+		def StandardDeviation()
+			return This.Stddev()
+
+	  #-- Median / Nth Smallest / Nth Largest (engine-backed)
+
+	def Median()
+		if len(@aContent) = 0 return 0 ok
+		_pMdList_ = This._EngineListFromContent()
+		_nMdResult_ = StzEngineListMedian(_pMdList_)
+		StzEngineListFree(_pMdList_)
+		return _nMdResult_
+
+	def NthSmallest(n)
+		if len(@aContent) = 0 return 0 ok
+		_pNsListH_ = This._EngineListFromContent()
+		_nNsResult_ = StzEngineListNthSmallest(_pNsListH_, n)
+		StzEngineListFree(_pNsListH_)
+		return _nNsResult_
+
+	def NthLargest(n)
+		if len(@aContent) = 0 return 0 ok
+		_pNlListH_ = This._EngineListFromContent()
+		_nNlResult_ = StzEngineListNthLargest(_pNlListH_, n)
+		StzEngineListFree(_pNlListH_)
+		return _nNlResult_
+
+	  #-- Repeat (engine-backed)
+
+	def Repeat(n)
+		_pRptList_ = This._EngineListFromContent()
+		if _pRptList_ = NULL return ok
+		_pRptResult_ = StzEngineListRepeat(_pRptList_, n)
+		if _pRptResult_ != NULL
+			@aContent = This._ContentFromEngineList(_pRptResult_)
+			StzEngineListFree(_pRptResult_)
+		ok
+		StzEngineListFree(_pRptList_)
+
+		def RepeatQ(n)
+			This.Repeat(n)
+			return This
+
+	def Repeated(n)
+		_pRpdList_ = This._EngineListFromContent()
+		if _pRpdList_ = NULL return [] ok
+		_pRpdResult_ = StzEngineListRepeat(_pRpdList_, n)
+		_aRpdOut_ = []
+		if _pRpdResult_ != NULL
+			_aRpdOut_ = This._ContentFromEngineList(_pRpdResult_)
+			StzEngineListFree(_pRpdResult_)
+		ok
+		StzEngineListFree(_pRpdList_)
+		return _aRpdOut_
+
+	  #-- SplitAt (engine-backed)
+
+	def SplitAt(n)
+		_pSaList_ = This._EngineListFromContent()
+		if _pSaList_ = NULL return [[], []] ok
+		_pSaResult_ = StzEngineListSplitAt(_pSaList_, n)
+		StzEngineListFree(_pSaList_)
+		if _pSaResult_ = NULL return [[], []] ok
+		_aSaOut_ = This._ContentFromEngineList(_pSaResult_)
+		StzEngineListFree(_pSaResult_)
+		return _aSaOut_
+
+	  #-- Ranked (engine-backed)
+
+	def Ranked()
+		_pRkList_ = This._EngineListFromContent()
+		if _pRkList_ = NULL return [] ok
+		_pRkResult_ = StzEngineListRanked(_pRkList_)
+		StzEngineListFree(_pRkList_)
+		if _pRkResult_ = NULL return [] ok
+		_aRkOut_ = This._ContentFromEngineList(_pRkResult_)
+		StzEngineListFree(_pRkResult_)
+		return _aRkOut_
+
+	  #-- Join (engine-backed)
+
+	def Join(pcSep)
+		_pJnList_ = This._EngineListFromContent()
+		if _pJnList_ = NULL return "" ok
+		_cJnResult_ = StzEngineListJoin(_pJnList_, pcSep)
+		StzEngineListFree(_pJnList_)
+		return _cJnResult_
+
+		def Joined(pcSep)
+			return This.Join(pcSep)
 
 	  #=========================================#
 	 #  ADDITIONAL TYPE CHECKING METHODS       #
