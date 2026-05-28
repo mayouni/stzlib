@@ -919,6 +919,60 @@ class stzList from stzObject
 	def ContainsAllOfThese(paItems)
 		return This.ContainsAllOfTheseCS(paItems, 1)
 
+	  #================================================#
+	 #  CHECKER DELEGATIONS (via stzListChecker)       #
+	#================================================#
+
+	def AllItemsAreOfType(pcType)
+		_oChkType_ = new stzListChecker(This)
+		return _oChkType_.AllItemsAreOfType(pcType)
+
+		def EachItemIsA(pcType)
+			return This.AllItemsAreOfType(pcType)
+
+	def ContainsEmptyStrings()
+		_aEsContent_ = @aContent
+		_nEsLen_ = len(_aEsContent_)
+		for _iEs_ = 1 to _nEsLen_
+			if isString(_aEsContent_[_iEs_]) and _aEsContent_[_iEs_] = ""
+				return 1
+			ok
+		next
+		return 0
+
+	def FindEmptyStrings()
+		_aFesContent_ = @aContent
+		_nFesLen_ = len(_aFesContent_)
+		_aFesResult_ = []
+		for _iFes_ = 1 to _nFesLen_
+			if isString(_aFesContent_[_iFes_]) and _aFesContent_[_iFes_] = ""
+				_aFesResult_ + _iFes_
+			ok
+		next
+		return _aFesResult_
+
+	def CountEmptyStrings()
+		return len(This.FindEmptyStrings())
+
+	def ReplaceEmptyStrings(pNewItem)
+		_aResContent_ = @aContent
+		_nResLen_ = len(_aResContent_)
+		for _iRes_ = 1 to _nResLen_
+			if isString(_aResContent_[_iRes_]) and _aResContent_[_iRes_] = ""
+				_aResContent_[_iRes_] = pNewItem
+			ok
+		next
+		@aContent = _aResContent_
+
+	def RemoveEmptyStrings()
+		_anRmesPos_ = This.FindEmptyStrings()
+		_nRmesLen_ = len(_anRmesPos_)
+		if _nRmesLen_ = 0 return ok
+		# Remove from end to preserve indices
+		for _iRmes_ = _nRmesLen_ to 1 step -1
+			ring_remove(@aContent, _anRmesPos_[_iRmes_])
+		next
+
 	  #=========================================#
 	 #  ENGINE-BACKED OPERATIONS (Zig engine)  #
 	#=========================================#
