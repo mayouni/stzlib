@@ -317,7 +317,18 @@ ok
 ? ""
 ? "--- Sections ---"
 
-# AntiSection skipped - stzListSections.FindAntiSections internal bug
+o = new stzList("A":"J")
+aAnti = o.FindAntiSections(:Of = [ [3, 5], [7, 8] ])
+nTtl++
+if StzLen(aAnti) = 3 and aAnti[1][1] = 1 and aAnti[1][2] = 2 and
+   aAnti[2][1] = 6 and aAnti[2][2] = 6 and
+   aAnti[3][1] = 9 and aAnti[3][2] = 10
+	? "  PASS: FindAntiSections([3,5],[7,8]) = [[1,2],[6,6],[9,10]]"
+	nPsd++
+else
+	? "  FAIL: FindAntiSections"
+	nFld++
+ok
 
 o = new stzList([1, 2, 3, 4, 5])
 aSecs = o.Sections([[1, 2], [4, 5]])
