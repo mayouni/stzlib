@@ -941,13 +941,13 @@ class stzString from stzObject
 		_nAlPad_ = nWidth - _nAlLen_
 
 		if cDirection = :Left or cDirection = :left
-			This.Update(_cAlContent_ + copy(cFillChar, _nAlPad_))
+			This.Update(_cAlContent_ + StzRepeatStr(cFillChar, _nAlPad_))
 		but cDirection = :Right or cDirection = :right
-			This.Update(copy(cFillChar, _nAlPad_) + _cAlContent_)
+			This.Update(StzRepeatStr(cFillChar, _nAlPad_) + _cAlContent_)
 		else
 			_nAlLeft_ = floor(_nAlPad_ / 2)
 			_nAlRight_ = _nAlPad_ - _nAlLeft_
-			This.Update(copy(cFillChar, _nAlLeft_) + _cAlContent_ + copy(cFillChar, _nAlRight_))
+			This.Update(StzRepeatStr(cFillChar, _nAlLeft_) + _cAlContent_ + StzRepeatStr(cFillChar, _nAlRight_))
 		ok
 
 		def AlignXTQ(nWidth, cFillChar, cDirection)
@@ -2180,3 +2180,491 @@ class stzString from stzObject
 
 	def FindFirstST(pcSubStr, nStartAt)
 		return This.FindFirstSTCS(pcSubStr, nStartAt, 1)
+
+	  #========================================#
+	 #     COMPARATOR DELEGATIONS             #
+	#========================================#
+
+	def IsNotEqualToCS(pcStr, pCaseSensitive)
+		return NOT This.IsEqualToCS(pcStr, pCaseSensitive)
+
+	def IsNotEqualTo(pcStr)
+		return NOT This.IsEqualTo(pcStr)
+
+	def IsLessThan(pcStr)
+		_oLtComp_ = new stzStringComparator(This)
+		return _oLtComp_.IsLessThan(pcStr)
+
+	def IsGreaterThan(pcStr)
+		_oGtComp_ = new stzStringComparator(This)
+		return _oGtComp_.IsGreaterThan(pcStr)
+
+	def LevenshteinDistanceWith(pcStr)
+		_oLdComp_ = new stzStringComparator(This)
+		return _oLdComp_.LevenshteinDistanceWith(pcStr)
+
+		def EditDistanceWith(pcStr)
+			return This.LevenshteinDistanceWith(pcStr)
+
+	def CommonPrefixWithCS(pcStr, pCaseSensitive)
+		_oCpComp_ = new stzStringComparator(This)
+		return _oCpComp_.CommonPrefixWithCS(pcStr, pCaseSensitive)
+
+	def CommonPrefixWith(pcStr)
+		return This.CommonPrefixWithCS(pcStr, 1)
+
+	def CommonSuffixWithCS(pcStr, pCaseSensitive)
+		_oCsComp_ = new stzStringComparator(This)
+		return _oCsComp_.CommonSuffixWithCS(pcStr, pCaseSensitive)
+
+	def CommonSuffixWith(pcStr)
+		return This.CommonSuffixWithCS(pcStr, 1)
+
+	def DiffWith(pcStr)
+		_oDwComp_ = new stzStringComparator(This)
+		return _oDwComp_.DiffWith(pcStr)
+
+	def JaroSimilarityWith(pcStr)
+		_oJsComp_ = new stzStringComparator(This)
+		return _oJsComp_.JaroSimilarityWith(pcStr)
+
+	def JaroWinklerSimilarityWith(pcStr)
+		_oJwComp_ = new stzStringComparator(This)
+		return _oJwComp_.JaroWinklerSimilarityWith(pcStr)
+
+	def Soundex()
+		_oSxComp_ = new stzStringComparator(This)
+		return _oSxComp_.Soundex()
+
+	def Metaphone()
+		_oMpComp_ = new stzStringComparator(This)
+		return _oMpComp_.Metaphone()
+
+	def ContainsAllOfTheseCS(pacSubStr, pCaseSensitive)
+		return This.ContainsTheseCS(pacSubStr, pCaseSensitive)
+
+	def ContainsAllOfThese(pacSubStr)
+		return This.ContainsThese(pacSubStr)
+
+	  #========================================#
+	 #     TEXT DELEGATIONS                   #
+	#========================================#
+
+	# --- Script detection ---
+
+	def Script()
+		_oScText_ = new stzStringText(This)
+		return _oScText_.Script()
+
+	def Scripts()
+		_oScrsText_ = new stzStringText(This)
+		return _oScrsText_.Scripts()
+
+	def NumberOfScripts()
+		_oNsText_ = new stzStringText(This)
+		return _oNsText_.NumberOfScripts()
+
+	# --- Word operations (supplement existing Words/NumberOfWords) ---
+
+	def NthWord(n)
+		_oNwText_ = new stzStringText(This)
+		return _oNwText_.NthWord(n)
+
+	def FirstWord()
+		_oFwText_ = new stzStringText(This)
+		return _oFwText_.FirstWord()
+
+	def LastWord()
+		_oLwText_ = new stzStringText(This)
+		return _oLwText_.LastWord()
+
+	def UniqueWordsCS(pCaseSensitive)
+		_oUwText_ = new stzStringText(This)
+		return _oUwText_.UniqueWordsCS(pCaseSensitive)
+
+	def UniqueWords()
+		return This.UniqueWordsCS(1)
+
+	def ContainsWordCS(pcWord, pCaseSensitive)
+		_oCwText_ = new stzStringText(This)
+		return _oCwText_.ContainsWordCS(pcWord, pCaseSensitive)
+
+	def ContainsWord(pcWord)
+		return This.ContainsWordCS(pcWord, 1)
+
+	def ReverseWords()
+		_oRwText_ = new stzStringText(This)
+		_oRwText_.ReverseWords()
+		This.Update(_oRwText_.Content())
+
+	def SortWordsCS(pCaseSensitive)
+		_oSwText_ = new stzStringText(This)
+		_oSwText_.SortWordsCS(pCaseSensitive)
+		This.Update(_oSwText_.Content())
+
+	def SortWords()
+		This.SortWordsCS(1)
+
+	def WordFrequency(pcWord)
+		_oWfText_ = new stzStringText(This)
+		return _oWfText_.WordFrequency(pcWord)
+
+	def MostFrequentWord()
+		_oMfwText_ = new stzStringText(This)
+		return _oMfwText_.MostFrequentWord()
+
+	# --- Sentences ---
+
+	def NumberOfSentences()
+		_oNsText_ = new stzStringText(This)
+		return _oNsText_.NumberOfSentences()
+
+	def Sentences()
+		_oSText_ = new stzStringText(This)
+		return _oSText_.Sentences()
+
+	def NthSentence(n)
+		_oNsntText_ = new stzStringText(This)
+		return _oNsntText_.NthSentence(n)
+
+	def FirstSentence()
+		return This.NthSentence(1)
+
+	def LastSentence()
+		_oLsText_ = new stzStringText(This)
+		return _oLsText_.LastSentence()
+
+	# --- Paragraphs ---
+
+	def NumberOfParagraphs()
+		_oNpText_ = new stzStringText(This)
+		return _oNpText_.NumberOfParagraphs()
+
+	def Paragraphs()
+		_oPText_ = new stzStringText(This)
+		return _oPText_.Paragraphs()
+
+	def NthParagraph(n)
+		_oNprgText_ = new stzStringText(This)
+		return _oNprgText_.NthParagraph(n)
+
+	# --- Text transforms ---
+
+	def Simplify()
+		_oSmText_ = new stzStringText(This)
+		_oSmText_.Simplify()
+		This.Update(_oSmText_.Content())
+
+		def SimplifyQ()
+			This.Simplify()
+			return This
+
+	def Simplified()
+		_oSmdText_ = new stzStringText(This)
+		_oSmdText_.Simplify()
+		return _oSmdText_.Content()
+
+	def ToSlug()
+		_oTsText_ = new stzStringText(This)
+		return _oTsText_.ToSlug()
+
+	def Initials()
+		_oInText_ = new stzStringText(This)
+		return _oInText_.Initials()
+
+	  #========================================#
+	 #     ENCODER DELEGATIONS                #
+	#========================================#
+
+	def ToHex()
+		_oThEnc_ = new stzStringEncoder(This)
+		return _oThEnc_.ToHex()
+
+	def FromHex()
+		_oFhEnc_ = new stzStringEncoder(This)
+		_oFhEnc_.FromHex()
+		This.Update(_oFhEnc_.Content())
+
+	def UrlEncoded()
+		_oUeEnc_ = new stzStringEncoder(This)
+		return _oUeEnc_.UrlEncoded()
+
+	def UrlEncode()
+		This.Update(This.UrlEncoded())
+
+		def UrlEncodeQ()
+			This.UrlEncode()
+			return This
+
+	def UrlDecoded()
+		_oUdEnc_ = new stzStringEncoder(This)
+		return _oUdEnc_.UrlDecoded()
+
+	def UrlDecode()
+		This.Update(This.UrlDecoded())
+
+		def UrlDecodeQ()
+			This.UrlDecode()
+			return This
+
+	def HtmlEncoded()
+		_oHeEnc_ = new stzStringEncoder(This)
+		return _oHeEnc_.HtmlEncoded()
+
+	def HtmlEncode()
+		This.Update(This.HtmlEncoded())
+
+	def HtmlDecoded()
+		_oHdEnc_ = new stzStringEncoder(This)
+		return _oHdEnc_.HtmlDecoded()
+
+	def HtmlDecode()
+		This.Update(This.HtmlDecoded())
+
+	def ToBinary()
+		_oTbEnc_ = new stzStringEncoder(This)
+		return _oTbEnc_.ToBinary()
+
+	def ToOctal()
+		_oToEnc_ = new stzStringEncoder(This)
+		return _oToEnc_.ToOctal()
+
+	def EscapedForRegex()
+		_oErEnc_ = new stzStringEncoder(This)
+		return _oErEnc_.EscapedForRegex()
+
+	def EscapeForRegex()
+		This.Update(This.EscapedForRegex())
+
+	# --- Unicode normalization ---
+
+	def NormalizeNFC()
+		_oNnfcEnc_ = new stzStringEncoder(This)
+		_oNnfcEnc_.NormalizeNFC()
+		This.Update(_oNnfcEnc_.Content())
+
+	def NormalizedNFC()
+		_oNdfcEnc_ = new stzStringEncoder(This)
+		return _oNdfcEnc_.NormalizedNFC()
+
+	def NormalizeNFD()
+		_oNnfdEnc_ = new stzStringEncoder(This)
+		_oNnfdEnc_.NormalizeNFD()
+		This.Update(_oNnfdEnc_.Content())
+
+	def NormalizedNFD()
+		_oNdfdEnc_ = new stzStringEncoder(This)
+		return _oNdfdEnc_.NormalizedNFD()
+
+	def NormalizeNFKC()
+		_oNnfkcEnc_ = new stzStringEncoder(This)
+		_oNnfkcEnc_.NormalizeNFKC()
+		This.Update(_oNnfkcEnc_.Content())
+
+	def NormalizedNFKC()
+		_oNdfkcEnc_ = new stzStringEncoder(This)
+		return _oNdfkcEnc_.NormalizedNFKC()
+
+	def NormalizeNFKD()
+		_oNnfkdEnc_ = new stzStringEncoder(This)
+		_oNnfkdEnc_.NormalizeNFKD()
+		This.Update(_oNnfkdEnc_.Content())
+
+	def NormalizedNFKD()
+		_oNdfkdEnc_ = new stzStringEncoder(This)
+		return _oNdfkdEnc_.NormalizedNFKD()
+
+	  #========================================#
+	 #     FORMATTER DELEGATIONS              #
+	#========================================#
+
+	def Titlecased()
+		_oTcFmt_ = new stzStringFormatter(This)
+		return _oTcFmt_.Titlecased()
+
+	def ApplyTitlecase()
+		This.Update(This.Titlecased())
+
+		def ApplyTitlecaseQ()
+			This.ApplyTitlecase()
+			return This
+
+	def CaseFolded()
+		_oCfFmt_ = new stzStringFormatter(This)
+		return _oCfFmt_.CaseFolded()
+
+	def LeftAlignXT(nWidth, cFillChar)
+		This.AlignXT(nWidth, cFillChar, :Left)
+
+	def RightAlignXT(nWidth, cFillChar)
+		This.AlignXT(nWidth, cFillChar, :Right)
+
+	def CenterAlignXT(nWidth, cFillChar)
+		This.AlignXT(nWidth, cFillChar, :Center)
+
+	def LeftAligned(nWidth)
+		_oCpFmt_ = This.Copy()
+		_oCpFmt_.AlignXT(nWidth, " ", :Left)
+		return _oCpFmt_.Content()
+
+	def RightAligned(nWidth)
+		_oCpFmt_ = This.Copy()
+		_oCpFmt_.AlignXT(nWidth, " ", :Right)
+		return _oCpFmt_.Content()
+
+	def CenterAligned(nWidth)
+		_oCpFmt_ = This.Copy()
+		_oCpFmt_.AlignXT(nWidth, " ", :Center)
+		return _oCpFmt_.Content()
+
+	def PadLeft(nWidth, cFillChar)
+		This.AlignXT(nWidth, cFillChar, :Right)
+
+	def PadRight(nWidth, cFillChar)
+		This.AlignXT(nWidth, cFillChar, :Left)
+
+	def PaddedLeft(nWidth, cFillChar)
+		_oCpFmt_ = This.Copy()
+		_oCpFmt_.PadLeft(nWidth, cFillChar)
+		return _oCpFmt_.Content()
+
+	def PaddedRight(nWidth, cFillChar)
+		_oCpFmt_ = This.Copy()
+		_oCpFmt_.PadRight(nWidth, cFillChar)
+		return _oCpFmt_.Content()
+
+	  #========================================#
+	 #     LEAD/TRAIL DELEGATIONS             #
+	#========================================#
+
+	def RepeatedLeadingCharsCS(pCaseSensitive)
+		_oRlcLt_ = new stzStringLeadTrail(This)
+		return _oRlcLt_.RepeatedLeadingCharsCS(pCaseSensitive)
+
+	def RepeatedLeadingChars()
+		return This.RepeatedLeadingCharsCS(1)
+
+	def RepeatedTrailingCharsCS(pCaseSensitive)
+		_oRtcLt_ = new stzStringLeadTrail(This)
+		return _oRtcLt_.RepeatedTrailingCharsCS(pCaseSensitive)
+
+	def RepeatedTrailingChars()
+		return This.RepeatedTrailingCharsCS(1)
+
+	def RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+		_oRrlcLt_ = new stzStringLeadTrail(This)
+		_oRrlcLt_.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+		This.Update(_oRrlcLt_.Content())
+
+	def RemoveRepeatedLeadingChars()
+		This.RemoveRepeatedLeadingCharsCS(1)
+
+	def RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+		_oRrtcLt_ = new stzStringLeadTrail(This)
+		_oRrtcLt_.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+		This.Update(_oRrtcLt_.Content())
+
+	def RemoveRepeatedTrailingChars()
+		This.RemoveRepeatedTrailingCharsCS(1)
+
+	def EnsurePrefixCS(pcPrefix, pCaseSensitive)
+		_oEpLt_ = new stzStringLeadTrail(This)
+		_oEpLt_.EnsurePrefixCS(pcPrefix, pCaseSensitive)
+		This.Update(_oEpLt_.Content())
+
+	def EnsurePrefix(pcPrefix)
+		This.EnsurePrefixCS(pcPrefix, 1)
+
+	def EnsureSuffixCS(pcSuffix, pCaseSensitive)
+		_oEsLt_ = new stzStringLeadTrail(This)
+		_oEsLt_.EnsureSuffixCS(pcSuffix, pCaseSensitive)
+		This.Update(_oEsLt_.Content())
+
+	def EnsureSuffix(pcSuffix)
+		This.EnsureSuffixCS(pcSuffix, 1)
+
+	def RemoveFromStartCS(pcPrefix, pCaseSensitive)
+		_oRfsLt_ = new stzStringLeadTrail(This)
+		_oRfsLt_.RemoveFromStartCS(pcPrefix, pCaseSensitive)
+		This.Update(_oRfsLt_.Content())
+
+	def RemoveFromStart(pcPrefix)
+		This.RemoveFromStartCS(pcPrefix, 1)
+
+	def RemoveFromEndCS(pcSuffix, pCaseSensitive)
+		_oRfeLt_ = new stzStringLeadTrail(This)
+		_oRfeLt_.RemoveFromEndCS(pcSuffix, pCaseSensitive)
+		This.Update(_oRfeLt_.Content())
+
+	def RemoveFromEnd(pcSuffix)
+		This.RemoveFromEndCS(pcSuffix, 1)
+
+	  #========================================#
+	 #     LINES DELEGATIONS                  #
+	#========================================#
+
+	def NthLine(n)
+		_oNlLines_ = new stzStringLines(This)
+		return _oNlLines_.NthLine(n)
+
+	def FirstLine()
+		return This.NthLine(1)
+
+	def LastLine()
+		_oLlLines_ = new stzStringLines(This)
+		return _oLlLines_.LastLine()
+
+	def UniqueLinesCS(pCaseSensitive)
+		_oUlLines_ = new stzStringLines(This)
+		return _oUlLines_.UniqueLinesCS(pCaseSensitive)
+
+	def UniqueLines()
+		return This.UniqueLinesCS(1)
+
+	def SortLinesCS(pCaseSensitive)
+		_oSlLines_ = new stzStringLines(This)
+		_oSlLines_.SortLinesCS(pCaseSensitive)
+		This.Update(_oSlLines_.Content())
+
+	def SortLines()
+		This.SortLinesCS(1)
+
+	def RemoveBlankLines()
+		_oRblLines_ = new stzStringLines(This)
+		_oRblLines_.RemoveBlankLines()
+		This.Update(_oRblLines_.Content())
+
+	def LinesContainingCS(pcSubStr, pCaseSensitive)
+		_oLcLines_ = new stzStringLines(This)
+		return _oLcLines_.LinesContainingCS(pcSubStr, pCaseSensitive)
+
+	def LinesContaining(pcSubStr)
+		return This.LinesContainingCS(pcSubStr, 1)
+
+	  #========================================#
+	 #     TRIMMER DELEGATIONS                #
+	#========================================#
+
+	def TrimCharCS(pcChar, pCaseSensitive)
+		_oTcTrm_ = new stzStringTrimmer(This)
+		_oTcTrm_.TrimCharCS(pcChar, pCaseSensitive)
+		This.Update(_oTcTrm_.Content())
+
+	def TrimChar(pcChar)
+		This.TrimCharCS(pcChar, 1)
+
+	def TrimLeftCharCS(pcChar, pCaseSensitive)
+		_oTlcTrm_ = new stzStringTrimmer(This)
+		_oTlcTrm_.RemoveThisCharFromStartCS(pcChar, pCaseSensitive)
+		This.Update(_oTlcTrm_.Content())
+
+	def TrimLeftChar(pcChar)
+		This.TrimLeftCharCS(pcChar, 1)
+
+	def TrimRightCharCS(pcChar, pCaseSensitive)
+		_oTrcTrm_ = new stzStringTrimmer(This)
+		_oTrcTrm_.RemoveThisCharFromEndCS(pcChar, pCaseSensitive)
+		This.Update(_oTrcTrm_.Content())
+
+	def TrimRightChar(pcChar)
+		This.TrimRightCharCS(pcChar, 1)

@@ -302,6 +302,187 @@ else
 	nFld++
 ok
 
+# --- Comparator delegations ---
+? ""
+? "--- Comparator Delegations ---"
+
+o = new stzString("hello")
+nDist = o.LevenshteinDistanceWith("hallo")
+nTtl++
+if isNumber(nDist) and nDist > 0
+	? "  PASS: LevenshteinDistanceWith dist=" + nDist
+	nPsd++
+else
+	? "  FAIL: LevenshteinDistanceWith"
+	nFld++
+ok
+
+o = new stzString("hello")
+nJaro = o.JaroSimilarityWith("hallo")
+nTtl++
+if isNumber(nJaro) and nJaro > 0
+	? "  PASS: JaroSimilarityWith val=" + nJaro
+	nPsd++
+else
+	? "  FAIL: JaroSimilarityWith"
+	nFld++
+ok
+
+o = new stzString("hello world")
+cSoundex = o.Soundex()
+nTtl++
+if isString(cSoundex) and cSoundex != ""
+	? "  PASS: Soundex = " + cSoundex
+	nPsd++
+else
+	? "  FAIL: Soundex"
+	nFld++
+ok
+
+o = new stzString("hello")
+nTtl++
+if o.IsLessThan("world")
+	? "  PASS: IsLessThan hello < world"
+	nPsd++
+else
+	? "  FAIL: IsLessThan hello < world"
+	nFld++
+ok
+
+o = new stzString("programming")
+cPrefix = o.CommonPrefixWith("program")
+nTtl++
+if cPrefix = "program"
+	? "  PASS: CommonPrefixWith = program"
+	nPsd++
+else
+	? "  FAIL: CommonPrefixWith got=" + cPrefix
+	nFld++
+ok
+
+# --- Text delegations ---
+? ""
+? "--- Text Delegations ---"
+
+o = new stzString("Hello World Ring")
+cFirst = o.FirstWord()
+nTtl++
+if cFirst = "Hello"
+	? "  PASS: FirstWord = Hello"
+	nPsd++
+else
+	? "  FAIL: FirstWord got=" + cFirst
+	nFld++
+ok
+
+cLast = o.LastWord()
+nTtl++
+if cLast = "Ring"
+	? "  PASS: LastWord = Ring"
+	nPsd++
+else
+	? "  FAIL: LastWord got=" + cLast
+	nFld++
+ok
+
+nTtl++
+if o.ContainsWord("World")
+	? "  PASS: ContainsWord World"
+	nPsd++
+else
+	? "  FAIL: ContainsWord World"
+	nFld++
+ok
+
+# --- Encoder delegations ---
+? ""
+? "--- Encoder Delegations ---"
+
+o = new stzString("Hello World")
+cUrl = o.UrlEncoded()
+nTtl++
+if isString(cUrl) and cUrl != ""
+	? "  PASS: UrlEncoded = " + cUrl
+	nPsd++
+else
+	? "  FAIL: UrlEncoded"
+	nFld++
+ok
+
+o = new stzString("<b>test</b>")
+cHtml = o.HtmlEncoded()
+nTtl++
+if isString(cHtml) and cHtml != ""
+	? "  PASS: HtmlEncoded = " + cHtml
+	nPsd++
+else
+	? "  FAIL: HtmlEncoded"
+	nFld++
+ok
+
+# --- Formatter delegations ---
+? ""
+? "--- Formatter Delegations ---"
+
+o = new stzString("hello")
+cPadded = o.PaddedLeft(10, ".")
+nTtl++
+if cPadded = ".....hello"
+	? "  PASS: PaddedLeft = " + cPadded
+	nPsd++
+else
+	? "  FAIL: PaddedLeft got=" + cPadded
+	nFld++
+ok
+
+o = new stzString("hello")
+cPadded = o.PaddedRight(10, ".")
+nTtl++
+if cPadded = "hello....."
+	? "  PASS: PaddedRight = " + cPadded
+	nPsd++
+else
+	? "  FAIL: PaddedRight got=" + cPadded
+	nFld++
+ok
+
+# --- LeadTrail delegations ---
+? ""
+? "--- LeadTrail Delegations ---"
+
+o = new stzString("http://example.com")
+o.EnsurePrefix("http://")
+nTtl++
+if o.Content() = "http://example.com"
+	? "  PASS: EnsurePrefix already present"
+	nPsd++
+else
+	? "  FAIL: EnsurePrefix got=" + o.Content()
+	nFld++
+ok
+
+o = new stzString("example.com")
+o.EnsurePrefix("http://")
+nTtl++
+if o.Content() = "http://example.com"
+	? "  PASS: EnsurePrefix added"
+	nPsd++
+else
+	? "  FAIL: EnsurePrefix got=" + o.Content()
+	nFld++
+ok
+
+o = new stzString("file.txt")
+o.EnsureSuffix(".txt")
+nTtl++
+if o.Content() = "file.txt"
+	? "  PASS: EnsureSuffix already present"
+	nPsd++
+else
+	? "  FAIL: EnsureSuffix got=" + o.Content()
+	nFld++
+ok
+
 # --- SUMMARY ---
 ? ""
 ? "=========================="
