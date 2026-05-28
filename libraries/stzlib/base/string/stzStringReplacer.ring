@@ -478,7 +478,7 @@ class stzStringReplacer
 	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
 		# Softanza semantics: replaces ALL open...close pairs
 		pH = @oString.Engine()
-		pR = StzEngineStringReplaceAllBetween(pH, pcOpen, pcClose, pcReplacement)
+		pR = StzEngineStringReplaceBetweenAll(pH, pcOpen, pcClose, pcReplacement)
 		_cRbResult_ = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		@oString.Update(_cRbResult_)
