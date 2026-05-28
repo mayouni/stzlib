@@ -1033,6 +1033,60 @@ class stzString from stzObject
 			return This.CharsAndUnicodesU()
 
 	  #============================#
+	 #   REPEATED / CONCATENATE   #
+	#============================#
+
+	def Repeated(n)
+		_cRptContent_ = This.Content()
+		_cRptResult_ = ""
+		for _iRpt_ = 1 to n
+			_cRptResult_ += _cRptContent_
+		next
+		return _cRptResult_
+
+		def RepeatedNTimes(n)
+			return This.Repeated(n)
+
+	def Repeat(n)
+		This.Update(This.Repeated(n))
+
+		def RepeatQ(n)
+			This.Repeat(n)
+			return This
+
+	def Concatenate(pcStr)
+		This.Update(This.Content() + pcStr)
+
+		def ConcatenateQ(pcStr)
+			This.Concatenate(pcStr)
+			return This
+
+		def Append(pcStr)
+			This.Concatenate(pcStr)
+
+		def AppendQ(pcStr)
+			This.Concatenate(pcStr)
+			return This
+
+	def Concatenated(pcStr)
+		return This.Content() + pcStr
+
+	  #============================#
+	 #   EQUALITY                  #
+	#============================#
+
+	def IsEqualTo(pcStr)
+		return This.Content() = pcStr
+
+		def IsEqualToCS(pcStr, pCaseSensitive)
+			_bEqCase_ = @CaseSensitive(pCaseSensitive)
+			if _bEqCase_
+				return This.Content() = pcStr
+			else
+				return StzLower(This.Content()) = StzLower(pcStr)
+			ok
+
+	  #============================#
 	 #   DUPLICATED SUBSTRINGS    #
 	#============================#
 
