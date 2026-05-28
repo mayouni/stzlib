@@ -5,11 +5,18 @@ const R = @import("ring_api.zig");
 const g = R.ring_vm_api_getnumber;
 const gs = R.ring_vm_api_getstring;
 const gss = R.ring_vm_api_getstringsize;
-const gcp = R.ring_vm_api_getcpointer;
 const rn = R.ring_vm_api_retnumber;
 const rs = R.ring_vm_api_retstring;
 const rs2 = R.ring_vm_api_retstring2;
-const rcp = R.ring_vm_api_retcpointer;
+
+// Shadow the real cpointer functions: store/resolve via handle table.
+fn rcp(p: *anyopaque, ptr: ?*anyopaque, _: [*:0]const u8) void {
+    R.retHandle(p, ptr);
+}
+
+fn gcp(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
+    return R.getHandle(p, n);
+}
 
 const HM: [*:0]const u8 = "StzHashMapHandle";
 const HV: [*:0]const u8 = "StzValueHandle";
@@ -37,7 +44,11 @@ fn ring_New(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(hashmap.stz_hashmap_new()), HM);
 }
 fn ring_Free(p: *anyopaque) callconv(.c) void {
-    hashmap.stz_hashmap_free(getM(p, 1));
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const h: ?*hashmap.StzHashMap = @ptrCast(@alignCast(ptr));
+        hashmap.stz_hashmap_free(h);
+    }
 }
 fn ring_Len(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(hashmap.stz_hashmap_len(getMC(p, 1))));

@@ -2,9 +2,16 @@ const matrix = @import("matrix.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
-const gcp = R.ring_vm_api_getcpointer;
 const rn = R.ring_vm_api_retnumber;
-const rcp = R.ring_vm_api_retcpointer;
+
+// Shadow the real cpointer functions: store/resolve via handle table.
+fn rcp(p: *anyopaque, ptr: ?*anyopaque, _: [*:0]const u8) void {
+    R.retHandle(p, ptr);
+}
+
+fn gcp(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
+    return R.getHandle(p, n);
+}
 
 const MH: [*:0]const u8 = "StzMatrixHandle";
 
@@ -25,7 +32,11 @@ fn ring_New(p: *anyopaque) callconv(.c) void {
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
 fn ring_Free(p: *anyopaque) callconv(.c) void {
-    matrix.stz_matrix_free(getM(p, 1));
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const h: ?*matrix.StzMatrix = @ptrCast(@alignCast(ptr));
+        matrix.stz_matrix_free(h);
+    }
 }
 fn ring_Rows(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(matrix.stz_matrix_rows(getMC(p, 1))));

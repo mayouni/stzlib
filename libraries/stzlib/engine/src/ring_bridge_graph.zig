@@ -7,11 +7,18 @@ const gpa = std.heap.c_allocator;
 const g = R.ring_vm_api_getnumber;
 const gs = R.ring_vm_api_getstring;
 const gss = R.ring_vm_api_getstringsize;
-const gcp = R.ring_vm_api_getcpointer;
 const rn = R.ring_vm_api_retnumber;
 const rs = R.ring_vm_api_retstring;
 const rs2 = R.ring_vm_api_retstring2;
-const rcp = R.ring_vm_api_retcpointer;
+
+// Shadow the real cpointer functions: store/resolve via handle table.
+fn rcp(p: *anyopaque, ptr: ?*anyopaque, _: [*:0]const u8) void {
+    R.retHandle(p, ptr);
+}
+
+fn gcp(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
+    return R.getHandle(p, n);
+}
 
 const H: [*:0]const u8 = "StzGraphHandle";
 
@@ -33,9 +40,9 @@ fn ring_Create(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_Free(p: *anyopaque) callconv(.c) void {
-    const ptr = gcp(p, 1, H);
-    if (ptr) |raw| {
-        const c: ?*graph.StzGraph = @ptrCast(@alignCast(raw));
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const c: ?*graph.StzGraph = @ptrCast(@alignCast(ptr));
         graph.stz_graph_free(c);
     }
 }

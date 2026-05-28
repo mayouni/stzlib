@@ -4,11 +4,18 @@ const R = @import("ring_api.zig");
 const g = R.ring_vm_api_getnumber;
 const gs = R.ring_vm_api_getstring;
 const gss = R.ring_vm_api_getstringsize;
-const gcp = R.ring_vm_api_getcpointer;
 const rn = R.ring_vm_api_retnumber;
 const rs = R.ring_vm_api_retstring;
 const rs2 = R.ring_vm_api_retstring2;
-const rcp = R.ring_vm_api_retcpointer;
+
+// Shadow the real cpointer functions: store/resolve via handle table.
+fn rcp(p: *anyopaque, ptr: ?*anyopaque, _: [*:0]const u8) void {
+    R.retHandle(p, ptr);
+}
+
+fn gcp(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
+    return R.getHandle(p, n);
+}
 
 const H: [*:0]const u8 = "StzUrlHandle";
 
@@ -37,7 +44,13 @@ fn bufField(p: *anyopaque, comptime field: enum { scheme, host, path, query, fra
 fn ring_Parse(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(url.stz_url_parse(gs(p, 1), @intCast(gss(p, 1)))), H);
 }
-fn ring_Free(p: *anyopaque) callconv(.c) void { url.stz_url_free(getH(p, 1)); }
+fn ring_Free(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const h: url.StzUrlHandle = @ptrCast(@alignCast(ptr));
+        url.stz_url_free(h);
+    }
+}
 fn ring_IsValid(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(url.stz_url_is_valid(getH(p, 1)))); }
 fn ring_Scheme(p: *anyopaque) callconv(.c) void { bufField(p, .scheme); }
 fn ring_Host(p: *anyopaque) callconv(.c) void { bufField(p, .host); }
