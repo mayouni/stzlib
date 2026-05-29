@@ -58,35 +58,35 @@ class stzListRemover
 		ok
 
 		if isString(pItem)
-			_pRmList = @oList._EngineListFromContent()
-			if _pRmList != NULL
-				_pRmVal = StzEngineValueNewString(pItem)
-				if _pRmVal != NULL
-					_nCsRm = 1
+			_pRmList_ = @oList._EngineListFromContent()
+			if _pRmList_ != NULL
+				_pRmVal_ = StzEngineValueNewString(pItem)
+				if _pRmVal_ != NULL
+					_nRmCs_ = 1
 					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
-						_nCsRm = pCaseSensitive[2]
+						_nRmCs_ = pCaseSensitive[2]
 					but isNumber(pCaseSensitive)
-						_nCsRm = pCaseSensitive
+						_nRmCs_ = pCaseSensitive
 					ok
-					StzEngineListRemoveAllCS(_pRmList, _pRmVal, _nCsRm)
-					@oList.UpdateWith(@oList._ContentFromEngineList(_pRmList))
-					StzEngineValueFree(_pRmVal)
+					StzEngineListRemoveAllCS(_pRmList_, _pRmVal_, _nRmCs_)
+					@oList.UpdateWith(@oList._ContentFromEngineList(_pRmList_))
+					StzEngineValueFree(_pRmVal_)
 				ok
-				StzEngineListFree(_pRmList)
+				StzEngineListFree(_pRmList_)
 				return
 			ok
 		ok
 
-		anPos = @oList.FindAllCS(pItem, pCaseSensitive)
-		nLenPos = len(anPos)
+		_anRmPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
+		_nRmLenPos_ = len(_anRmPos_)
 
-		_oCopy_ = @oList.Copy()
+		_oRmCopy_ = @oList.Copy()
 
-		for i = nLenPos to 1 step -1
-			_oCopy_.RemoveItemAtPosition(anPos[i])
+		for _iRm_ = _nRmLenPos_ to 1 step -1
+			_oRmCopy_.RemoveItemAtPosition(_anRmPos_[_iRm_])
 		next
 
-		@oList.UpdateWith(_oCopy_.Content())
+		@oList.UpdateWith(_oRmCopy_.Content())
 
 		def RemoveAllCSQ(pItem, pCaseSensitive)
 			This.RemoveAllCS(pItem, pCaseSensitive)
@@ -111,8 +111,8 @@ class stzListRemover
 			This.RemoveAll(pItem)
 
 	def AllOccurrencesRemoved(pItem)
-		aResult = @oList.Copy().RemoveAllQ(pItem).Content()
-		return aResult
+		_aAorResult_ = @oList.Copy().RemoveAllQ(pItem).Content()
+		return _aAorResult_
 
 	  #--------------------------------------------------#
 	 #   REMOVING AN ITEM BY SPECIFYING ITS POSITION    #
@@ -133,17 +133,17 @@ class stzListRemover
 		ok
 
 		if n <= This.NumberOfItems()
-			_pRipList = @oList._EngineListFromContent()
-			if _pRipList != NULL
-				StzEngineListRemove(_pRipList, n)
-				@oList.UpdateWith(@oList._ContentFromEngineList(_pRipList))
-				StzEngineListFree(_pRipList)
+			_pRipList_ = @oList._EngineListFromContent()
+			if _pRipList_ != NULL
+				StzEngineListRemove(_pRipList_, n)
+				@oList.UpdateWith(@oList._ContentFromEngineList(_pRipList_))
+				StzEngineListFree(_pRipList_)
 				return
 			ok
 
-			aContent = This.Content()
-			ring_del( aContent, n )
-			@oList.UpdateWith(aContent)
+			_aRipContent_ = This.Content()
+			ring_del( _aRipContent_, n )
+			@oList.UpdateWith(_aRipContent_)
 		ok
 
 		def RemoveItemAtPositionQ(n)
@@ -160,8 +160,8 @@ class stzListRemover
 			This.RemoveItemAtPosition(n)
 
 	def NthItemRemoved(n)
-		aResult = @oList.Copy().RemoveItemAtPositionQ(n).Content()
-		return aResult
+		_aNirResult_ = @oList.Copy().RemoveItemAtPositionQ(n).Content()
+		return _aNirResult_
 
 	  #--------------------------------------#
 	 #    REMOVING FIRST ITEM IN THE LIST   #
@@ -175,8 +175,8 @@ class stzListRemover
 			return This
 
 	def FirstItemRemoved()
-		aResult = @oList.Copy().RemoveFirstItemQ().Content()
-		return aResult
+		_aFirResult_ = @oList.Copy().RemoveFirstItemQ().Content()
+		return _aFirResult_
 
 	  #-------------------------------------#
 	 #    REMOVING LAST ITEM IN THE LIST   #
@@ -190,8 +190,8 @@ class stzListRemover
 			return This
 
 	def LastItemRemoved()
-		aResult = @oList.Copy().RemoveLastItemQ().Content()
-		return aResult
+		_aLirResult_ = @oList.Copy().RemoveLastItemQ().Content()
+		return _aLirResult_
 
 	  #----------------------------------#
 	 #   REMOVING FIRST AND LAST ITEMS  #
@@ -210,9 +210,9 @@ class stzListRemover
 	#----------------------------------------------------#
 
 	def RemoveManyCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
-		for i = 1 to nLen
-			This.RemoveAllCS(paItems[i], pCaseSensitive)
+		_nRmcLen_ = len(paItems)
+		for _iRmc_ = 1 to _nRmcLen_
+			This.RemoveAllCS(paItems[_iRmc_], pCaseSensitive)
 		next
 
 		def RemoveManyCSQ(paItems, pCaseSensitive)
@@ -239,10 +239,10 @@ class stzListRemover
 		ok
 
 		panPositions = new stzList(panPositions).Sorted()
-		nLen = len(panPositions)
+		_nRiapLen_ = len(panPositions)
 
-		for i = nLen to 1 step -1
-			This.RemoveItemAtPosition(panPositions[i])
+		for _iRiap_ = _nRiapLen_ to 1 step -1
+			This.RemoveItemAtPosition(panPositions[_iRiap_])
 		next
 
 		def RemoveItemsAtPositionsQ(panPositions)
@@ -257,16 +257,16 @@ class stzListRemover
 	#------------------------------------------#
 
 	def RemoveSection(n1, n2)
-		nLen = This.NumberOfItems()
+		_nRsLen_ = This.NumberOfItems()
 		if n1 < 1 { n1 = 1 }
-		if n2 > nLen { n2 = nLen }
+		if n2 > _nRsLen_ { n2 = _nRsLen_ }
 
-		anPositions = []
-		for i = n1 to n2
-			anPositions + i
+		_anRsPositions_ = []
+		for _iRs_ = n1 to n2
+			@AddItem(_anRsPositions_, _iRs_)
 		next
 
-		This.RemoveItemsAtPositions(anPositions)
+		This.RemoveItemsAtPositions(_anRsPositions_)
 
 		def RemoveSectionQ(n1, n2)
 			This.RemoveSection(n1, n2)
@@ -296,8 +296,8 @@ class stzListRemover
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		anPositions = @oList.FindAllItemsW(pcCondition)
-		This.RemoveItemsAtPositions(anPositions)
+		_anRwPositions_ = @oList.FindAllItemsW(pcCondition)
+		This.RemoveItemsAtPositions(_anRwPositions_)
 
 		def RemoveWQ(pcCondition)
 			This.RemoveW(pcCondition)
@@ -308,9 +308,9 @@ class stzListRemover
 	#------------------------------------#
 
 	def RemoveNthOccurrenceCS(n, pItem, pCaseSensitive)
-		nPos = @oList.FindNthCS(n, pItem, pCaseSensitive)
-		if nPos > 0
-			This.RemoveItemAtPosition(nPos)
+		_nRnoPos_ = @oList.FindNthCS(n, pItem, pCaseSensitive)
+		if _nRnoPos_ > 0
+			This.RemoveItemAtPosition(_nRnoPos_)
 		ok
 
 		def RemoveNthOccurrenceCSQ(n, pItem, pCaseSensitive)
@@ -335,10 +335,10 @@ class stzListRemover
 	#-------------------------------------------#
 
 	def RemoveLastOccurrenceCS(pItem, pCaseSensitive)
-		anPos = @oList.FindAllCS(pItem, pCaseSensitive)
-		nLen = len(anPos)
-		if nLen > 0
-			This.RemoveItemAtPosition(anPos[nLen])
+		_anRloPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
+		_nRloLen_ = len(_anRloPos_)
+		if _nRloLen_ > 0
+			This.RemoveItemAtPosition(_anRloPos_[_nRloLen_])
 		ok
 
 	def RemoveLastOccurrence(pItem)

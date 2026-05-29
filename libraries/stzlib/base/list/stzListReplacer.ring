@@ -78,32 +78,32 @@ class stzListReplacer
 		ok
 
 		if isString(pItem) and isString(pNewItem)
-			_pRpAll = @oList._EngineListFromContent()
-			if _pRpAll != NULL
-				_pOldVal = StzEngineValueNewString(pItem)
-				_pNewVal = StzEngineValueNewString(pNewItem)
-				if _pOldVal != NULL and _pNewVal != NULL
-					_nCsRp = 1
+			_pRpAll_ = @oList._EngineListFromContent()
+			if _pRpAll_ != NULL
+				_pRpOldVal_ = StzEngineValueNewString(pItem)
+				_pRpNewVal_ = StzEngineValueNewString(pNewItem)
+				if _pRpOldVal_ != NULL and _pRpNewVal_ != NULL
+					_nRpCs_ = 1
 					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
-						_nCsRp = pCaseSensitive[2]
+						_nRpCs_ = pCaseSensitive[2]
 					but isNumber(pCaseSensitive)
-						_nCsRp = pCaseSensitive
+						_nRpCs_ = pCaseSensitive
 					ok
-					StzEngineListReplaceAllCS(_pRpAll, _pOldVal, _pNewVal, _nCsRp)
-					@oList.UpdateWith(@oList._ContentFromEngineList(_pRpAll))
+					StzEngineListReplaceAllCS(_pRpAll_, _pRpOldVal_, _pRpNewVal_, _nRpCs_)
+					@oList.UpdateWith(@oList._ContentFromEngineList(_pRpAll_))
 				ok
-				if _pOldVal != NULL StzEngineValueFree(_pOldVal) ok
-				if _pNewVal != NULL StzEngineValueFree(_pNewVal) ok
-				StzEngineListFree(_pRpAll)
+				if _pRpOldVal_ != NULL StzEngineValueFree(_pRpOldVal_) ok
+				if _pRpNewVal_ != NULL StzEngineValueFree(_pRpNewVal_) ok
+				StzEngineListFree(_pRpAll_)
 				return
 			ok
 		ok
 
-		anPos = @oList.FindAllCS(pItem, pCaseSensitive)
-		nLen = len(anPos)
+		_anRpPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
+		_nRpLen_ = len(_anRpPos_)
 
-		for i = 1 to nLen
-			This.ReplaceAnyItemAtPositionCS(anPos[i], pNewItem, pCaseSensitive)
+		for _iRp_ = 1 to _nRpLen_
+			This.ReplaceAnyItemAtPositionCS(_anRpPos_[_iRp_], pNewItem, pCaseSensitive)
 		next
 
 		def ReplaceAllOccurrencesCSQ(pItem, pNewItem, pCaseSensitive)
@@ -138,8 +138,8 @@ class stzListReplacer
 			This.ReplaceAllOccurrences(pItem, pNewItem)
 
 	def AllOccurrencesReplacedCS(pItem, pNewItem, pCaseSensitive)
-		aResult = @oList.Copy().ReplaceAllOccurrencesCSQ(pItem, pNewItem, pCaseSensitive).Content()
-		return aResult
+		_aAorResult_ = @oList.Copy().ReplaceAllOccurrencesCSQ(pItem, pNewItem, pCaseSensitive).Content()
+		return _aAorResult_
 
 	def AllOccurrencesReplaced(pItem, pNewItem)
 		return This.AllOccurrencesReplacedCS(pItem, pNewItem, 1)
@@ -149,23 +149,23 @@ class stzListReplacer
 	#==================================================#
 
 	def ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
-		aContent = This.Content()
-		if n >= 1 and n <= len(aContent)
+		_aRapContent_ = This.Content()
+		if n >= 1 and n <= len(_aRapContent_)
 			if isString(pNewItem)
-				_pRpList = @oList._EngineListFromContent()
-				if _pRpList != NULL
-					_pRpVal = StzEngineValueNewString(pNewItem)
-					if _pRpVal != NULL
-						StzEngineListSet(_pRpList, n, _pRpVal)
-						@oList.UpdateWith(@oList._ContentFromEngineList(_pRpList))
-						StzEngineValueFree(_pRpVal)
+				_pRapList_ = @oList._EngineListFromContent()
+				if _pRapList_ != NULL
+					_pRapVal_ = StzEngineValueNewString(pNewItem)
+					if _pRapVal_ != NULL
+						StzEngineListSet(_pRapList_, n, _pRapVal_)
+						@oList.UpdateWith(@oList._ContentFromEngineList(_pRapList_))
+						StzEngineValueFree(_pRapVal_)
 					ok
-					StzEngineListFree(_pRpList)
+					StzEngineListFree(_pRapList_)
 					return
 				ok
 			ok
-			aContent[n] = pNewItem
-			@oList.UpdateWith(aContent)
+			_aRapContent_[n] = pNewItem
+			@oList.UpdateWith(_aRapContent_)
 		ok
 
 		def ReplaceAnyItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
@@ -190,9 +190,9 @@ class stzListReplacer
 	#============================================#
 
 	def ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
-		nPos = @oList.FindNthCS(n, pItem, pCaseSensitive)
-		if nPos > 0
-			This.ReplaceAnyItemAtPosition(nPos, pNewItem)
+		_nRnoPos_ = @oList.FindNthCS(n, pItem, pCaseSensitive)
+		if _nRnoPos_ > 0
+			This.ReplaceAnyItemAtPosition(_nRnoPos_, pNewItem)
 		ok
 
 		def ReplaceNthOccurrenceCSQ(n, pItem, pNewItem, pCaseSensitive)
@@ -229,10 +229,10 @@ class stzListReplacer
 	#================================================#
 
 	def ReplaceLastOccurrenceCS(pItem, pNewItem, pCaseSensitive)
-		anPos = @oList.FindAllCS(pItem, pCaseSensitive)
-		nLen = len(anPos)
-		if nLen > 0
-			This.ReplaceAnyItemAtPosition(anPos[nLen], pNewItem)
+		_anRloPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
+		_nRloLen_ = len(_anRloPos_)
+		if _nRloLen_ > 0
+			This.ReplaceAnyItemAtPosition(_anRloPos_[_nRloLen_], pNewItem)
 		ok
 
 		def ReplaceLastOccurrenceCSQ(pItem, pNewItem, pCaseSensitive)
@@ -251,9 +251,9 @@ class stzListReplacer
 	#=====================================#
 
 	def ReplaceManyCS(paItems, pNewItem, pCaseSensitive)
-		nLen = len(paItems)
-		for i = 1 to nLen
-			This.ReplaceAllOccurrencesCS(paItems[i], pNewItem, pCaseSensitive)
+		_nRmLen_ = len(paItems)
+		for _iRm_ = 1 to _nRmLen_
+			This.ReplaceAllOccurrencesCS(paItems[_iRm_], pNewItem, pCaseSensitive)
 		next
 
 		def ReplaceManyCSQ(paItems, pNewItem, pCaseSensitive)
@@ -272,27 +272,27 @@ class stzListReplacer
 	#============================================#
 
 	def ReplaceSectionCS(n1, n2, paNewItems, pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aRsContent_ = This.Content()
+		_nRsLen_ = len(_aRsContent_)
 
 		if n1 < 1 { n1 = 1 }
-		if n2 > nLen { n2 = nLen }
+		if n2 > _nRsLen_ { n2 = _nRsLen_ }
 
-		aResult = []
-		for i = 1 to n1 - 1
-			aResult + aContent[i]
+		_aRsResult_ = []
+		for _iRsPre_ = 1 to n1 - 1
+			@AddItem(_aRsResult_, _aRsContent_[_iRsPre_])
 		next
 
-		nNewLen = len(paNewItems)
-		for i = 1 to nNewLen
-			aResult + paNewItems[i]
+		_nRsNewLen_ = len(paNewItems)
+		for _iRsNew_ = 1 to _nRsNewLen_
+			@AddItem(_aRsResult_, paNewItems[_iRsNew_])
 		next
 
-		for i = n2 + 1 to nLen
-			aResult + aContent[i]
+		for _iRsPost_ = n2 + 1 to _nRsLen_
+			@AddItem(_aRsResult_, _aRsContent_[_iRsPost_])
 		next
 
-		@oList.UpdateWith(aResult)
+		@oList.UpdateWith(_aRsResult_)
 
 	def ReplaceSection(n1, n2, paNewItems)
 		This.ReplaceSectionCS(n1, n2, paNewItems, 1)
