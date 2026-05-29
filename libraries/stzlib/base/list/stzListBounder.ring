@@ -52,8 +52,8 @@ class stzListBounder
 
 	def SectionCS(n1, n2, pCaseSensitive)
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aScContent_ = This.Content()
+		_nScLen_ = len(_aScContent_)
 
 		if CheckingParams()
 
@@ -69,13 +69,13 @@ class stzListBounder
 				if StzFind([ :First, :FirstItem ], n1) > 0
 					n1 = 1
 				but StzFind([ :Last, :LastItem ], n1) > 0
-					n1 = nLen
+					n1 = _nScLen_
 				ok
 			ok
 
 			if isString(n2)
 				if StzFind([ :End, :Last, :LastItem, :EndOfList ], n2) > 0
-					n2 = nLen
+					n2 = _nScLen_
 				but StzFind([ :First, :FirstItem ], n2) > 0
 					n2 = 1
 				ok
@@ -86,36 +86,36 @@ class stzListBounder
 			ok
 		ok
 
-		if NOT ( ( n1 >= 1 and n1 <= nLen ) and
-			 ( n2 >= 1 and n2 <= nLen ) )
+		if NOT ( ( n1 >= 1 and n1 <= _nScLen_ ) and
+			 ( n2 >= 1 and n2 <= _nScLen_ ) )
 
 			StzRaise("Indexes out of range! n1 and n2 must be inside the list.")
 		ok
 
 		if n2 < n1
-			nTemp = n1
+			_nScTemp_ = n1
 			n1 = n2
-			n2 = nTemp
+			n2 = _nScTemp_
 		ok
 
 		# Engine fast path
-		_pBsList = @oList._EngineListFromContent()
-		if _pBsList != NULL
-			_pBsResult = StzEngineListSection(_pBsList, n1, n2)
-			StzEngineListFree(_pBsList)
-			if _pBsResult != NULL
-				_aBsResult = @oList._ContentFromEngineList(_pBsResult)
-				StzEngineListFree(_pBsResult)
-				return _aBsResult
+		_pBsList_ = @oList._EngineListFromContent()
+		if _pBsList_ != NULL
+			_pBsResult_ = StzEngineListSection(_pBsList_, n1, n2)
+			StzEngineListFree(_pBsList_)
+			if _pBsResult_ != NULL
+				_aBsResult_ = @oList._ContentFromEngineList(_pBsResult_)
+				StzEngineListFree(_pBsResult_)
+				return _aBsResult_
 			ok
 		ok
 
-		aResult = []
-		for i = n1 to n2
-			aResult + aContent[i]
+		_aScFallback_ = []
+		for _iSc_ = n1 to n2
+			@AddItem(_aScFallback_, _aScContent_[_iSc_])
 		next
 
-		return aResult
+		return _aScFallback_
 
 		def SectionCSQ(n1, n2, pCaseSensitive)
 			return new stzList( This.SectionCS(n1, n2, pCaseSensitive) )
@@ -131,26 +131,26 @@ class stzListBounder
 	#-------------------------------------------------#
 
 	def SectionXT(n1, n2)
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSxContent_ = This.Content()
+		_nSxLen_ = len(_aSxContent_)
 
-		if n1 < 1 or n1 > nLen or n2 < 1 or n2 > nLen
+		if n1 < 1 or n1 > _nSxLen_ or n2 < 1 or n2 > _nSxLen_
 			StzRaise("Indexes out of range!")
 		ok
 
-		aResult = []
+		_aSxResult_ = []
 
 		if n1 <= n2
-			for i = n1 to n2
-				aResult + aContent[i]
+			for _iSx_ = n1 to n2
+				@AddItem(_aSxResult_, _aSxContent_[_iSx_])
 			next
 		else
-			for i = n1 to n2 step -1
-				aResult + aContent[i]
+			for _jSx_ = n1 to n2 step -1
+				@AddItem(_aSxResult_, _aSxContent_[_jSx_])
 			next
 		ok
 
-		return aResult
+		return _aSxResult_
 
 		def SectionXTQ(n1, n2)
 			return new stzList(This.SectionXT(n1, n2))
@@ -160,16 +160,16 @@ class stzListBounder
 	#===========================================#
 
 	def Sections(paSections)
-		nLen = len(paSections)
-		aResult = []
+		_nSsLen_ = len(paSections)
+		_aSsResult_ = []
 
-		for i = 1 to nLen
-			aSection = paSections[i]
-			aItems = This.Section(aSection[1], aSection[2])
-			aResult + aItems
+		for _iSs_ = 1 to _nSsLen_
+			_aSsSection_ = paSections[_iSs_]
+			_aSsItems_ = This.Section(_aSsSection_[1], _aSsSection_[2])
+			@AddItem(_aSsResult_, _aSsItems_)
 		next
 
-		return aResult
+		return _aSsResult_
 
 		def SectionsQ(paSections)
 			return new stzList(This.Sections(paSections))
@@ -203,26 +203,26 @@ class stzListBounder
 
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aAbContent_ = This.Content()
+		_nAbLen_ = len(_aAbContent_)
 
-		oSubStr = new stzString(pcSubStr)
-		bResult = 0
+		_oAbSubStr_ = new stzString(pcSubStr)
+		_bAbResult_ = 0
 
 		if This.IsListOfPairs()
-			bResult = 1
+			_bAbResult_ = 1
 
-			for i = 1 to nLen
-				bResult = oSubStr.IsBoundedByIn(aContent[i], pIn)
-				if bResult = 0
+			for _iAb_ = 1 to _nAbLen_
+				_bAbResult_ = _oAbSubStr_.IsBoundedByIn(_aAbContent_[_iAb_], pIn)
+				if _bAbResult_ = 0
 					exit
 				ok
 			next
 		else
-			bResult = oSubStr.IsBoundedByIn(aContent, pIn)
+			_bAbResult_ = _oAbSubStr_.IsBoundedByIn(_aAbContent_, pIn)
 		ok
 
-		return bResult
+		return _bAbResult_
 
 	def AreBoundsOf(pItem, pIn)
 		return This.AreBoundsOfCS(pItem, pIn, 1)
@@ -233,15 +233,15 @@ class stzListBounder
 
 	def IsBoundedByCS(paBounds, pCaseSensitive)
 		if isList(paBounds) and IsPair(paBounds)
-			pItem1 = paBounds[1]
-			pItem2 = paBounds[2]
+			_pIbItem1_ = paBounds[1]
+			_pIbItem2_ = paBounds[2]
 		else
-			pItem1 = paBounds
-			pItem2 = paBounds
+			_pIbItem1_ = paBounds
+			_pIbItem2_ = paBounds
 		ok
 
-		if @oList.FirstItemQ().IsEqualToCS(pItem1, pCaseSensitive) and
-		   @oList.LastItemQ().IsEqualToCS(pItem2, pCaseSensitive)
+		if @oList.FirstItemQ().IsEqualToCS(_pIbItem1_, pCaseSensitive) and
+		   @oList.LastItemQ().IsEqualToCS(_pIbItem2_, pCaseSensitive)
 
 			return 1
 		else
@@ -256,18 +256,18 @@ class stzListBounder
 	#--------------------------------------------#
 
 	def BoundsUpToNItems(n)
-		aFirst = This.NFirstItems(n)
-		aLast  = This.NLastItems(n)
+		_aBuFirst_ = This.NFirstItems(n)
+		_aBuLast_  = This.NLastItems(n)
 
-		if len(aFirst) = 1
-			aFirst = aFirst[1]
+		if len(_aBuFirst_) = 1
+			_aBuFirst_ = _aBuFirst_[1]
 		ok
 
-		if len(aLast) = 1
-			aLast = aLast[1]
+		if len(_aBuLast_) = 1
+			_aBuLast_ = _aBuLast_[1]
 		ok
 
-		return [ aFirst, aLast ]
+		return [ _aBuFirst_, _aBuLast_ ]
 
 	def Bounds()
 		return This.BoundsUpToNItems(1)
@@ -294,9 +294,9 @@ class stzListBounder
 			return This
 
 	def BoundsRemoved(paBounds)
-		oCopy = new stzListBounder(@oList.Content())
-		aResult = oCopy.RemoveBoundsQ(paBounds).Content()
-		return aResult
+		_oBrCopy_ = new stzListBounder(@oList.Content())
+		_aBrResult_ = _oBrCopy_.RemoveBoundsQ(paBounds).Content()
+		return _aBrResult_
 
 	  #==============================#
 	 #  IS PAIR / IS LIST OF PAIRS  #
@@ -306,11 +306,11 @@ class stzListBounder
 		return This.NumberOfItems() = 2
 
 	def IsListOfPairs()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aIlpContent_ = This.Content()
+		_nIlpLen_ = len(_aIlpContent_)
 
-		for i = 1 to nLen
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 2)
+		for _iIlp_ = 1 to _nIlpLen_
+			if NOT (isList(_aIlpContent_[_iIlp_]) and len(_aIlpContent_[_iIlp_]) = 2)
 				return 0
 			ok
 		next
@@ -322,19 +322,19 @@ class stzListBounder
 	#=======================================#
 
 	def Middle()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aMdContent_ = This.Content()
+		_nMdLen_ = len(_aMdContent_)
 
-		if nLen < 3
+		if _nMdLen_ < 3
 			return []
 		ok
 
-		aResult = []
-		for i = 2 to nLen - 1
-			aResult + aContent[i]
+		_aMdResult_ = []
+		for _iMd_ = 2 to _nMdLen_ - 1
+			@AddItem(_aMdResult_, _aMdContent_[_iMd_])
 		next
 
-		return aResult
+		return _aMdResult_
 
 		def WithoutBounds()
 			return This.Middle()
@@ -344,20 +344,20 @@ class stzListBounder
 	#=======================================#
 
 	def Range(nStart, nCount)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
+		_aRgContent_ = This.Content()
+		_nRgLen_ = len(_aRgContent_)
+		_aRgResult_ = []
 
-		nEnd = nStart + nCount - 1
-		if nEnd > nLen
-			nEnd = nLen
+		_nRgEnd_ = nStart + nCount - 1
+		if _nRgEnd_ > _nRgLen_
+			_nRgEnd_ = _nRgLen_
 		ok
 
-		for i = nStart to nEnd
-			aResult + aContent[i]
+		for _iRg_ = nStart to _nRgEnd_
+			@AddItem(_aRgResult_, _aRgContent_[_iRg_])
 		next
 
-		return aResult
+		return _aRgResult_
 
 		def RangeQ(nStart, nCount)
 			return new stzList(This.Range(nStart, nCount))
@@ -367,26 +367,26 @@ class stzListBounder
 	#==========================================#
 
 	def ClampedTo(nMin, nMax)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
+		_aClContent_ = This.Content()
+		_nClLen_ = len(_aClContent_)
+		_aClResult_ = []
 
-		for i = 1 to nLen
-			if isNumber(aContent[i])
-				n = aContent[i]
-				if n < nMin
-					n = nMin
+		for _iCl_ = 1 to _nClLen_
+			if isNumber(_aClContent_[_iCl_])
+				_nClN_ = _aClContent_[_iCl_]
+				if _nClN_ < nMin
+					_nClN_ = nMin
 				ok
-				if n > nMax
-					n = nMax
+				if _nClN_ > nMax
+					_nClN_ = nMax
 				ok
-				aResult + n
+				@AddItem(_aClResult_, _nClN_)
 			else
-				aResult + aContent[i]
+				@AddItem(_aClResult_, _aClContent_[_iCl_])
 			ok
 		next
 
-		return aResult
+		return _aClResult_
 
 	def ClampTo(nMin, nMax)
 		@oList.Update(This.ClampedTo(nMin, nMax))
@@ -417,19 +417,19 @@ class stzListBounder
 	#=======================================#
 
 	def NFirstItems(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
+		_aNfContent_ = This.Content()
+		_nNfLen_ = len(_aNfContent_)
+		_aNfResult_ = []
 
-		if n > nLen
-			n = nLen
+		if n > _nNfLen_
+			n = _nNfLen_
 		ok
 
-		for i = 1 to n
-			aResult + aContent[i]
+		for _iNf_ = 1 to n
+			@AddItem(_aNfResult_, _aNfContent_[_iNf_])
 		next
 
-		return aResult
+		return _aNfResult_
 
 		def FirstNItems(n)
 			return This.NFirstItems(n)
@@ -438,20 +438,20 @@ class stzListBounder
 			return This.NFirstItems(n)
 
 	def NLastItems(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
+		_aNlContent_ = This.Content()
+		_nNlLen_ = len(_aNlContent_)
+		_aNlResult_ = []
 
-		if n > nLen
-			n = nLen
+		if n > _nNlLen_
+			n = _nNlLen_
 		ok
 
-		nStart = nLen - n + 1
-		for i = nStart to nLen
-			aResult + aContent[i]
+		_nNlStart_ = _nNlLen_ - n + 1
+		for _iNl_ = _nNlStart_ to _nNlLen_
+			@AddItem(_aNlResult_, _aNlContent_[_iNl_])
 		next
 
-		return aResult
+		return _aNlResult_
 
 		def LastNItems(n)
 			return This.NLastItems(n)
