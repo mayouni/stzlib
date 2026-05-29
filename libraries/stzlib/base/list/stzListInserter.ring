@@ -114,9 +114,9 @@ class stzListInserter
 				n = n[2]
 			ok
 
-			aContent = @oList.Content()
-			ring_insert(aContent, n, pItem)
-			@oList.UpdateWith(aContent)
+			_aIatContent_ = @oList.Content()
+			ring_insert(_aIatContent_, n, pItem)
+			@oList.UpdateWith(_aIatContent_)
 
 			def InsertAtQ(n, pItem)
 				This.InsertAt(n, pItem)
@@ -154,10 +154,10 @@ class stzListInserter
 		ok
 
 		panPositions = new stzList(panPositions).Sorted()
-		nLen = len(panPositions)
+		_nIbpLen_ = len(panPositions)
 
-		for i = nLen to 1 step -1
-			This.InsertBeforePosition(panPositions[i], pItem)
+		for _iIbp_ = _nIbpLen_ to 1 step -1
+			This.InsertBeforePosition(panPositions[_iIbp_], pItem)
 		next
 
 		def InsertBeforePositionsQ(panPositions, pItem)
@@ -187,14 +187,14 @@ class stzListInserter
 			StzRaise("Position out of range!")
 		ok
 
-		pItem = @oList.Item(n1)
+		_pMiItem_ = @oList.Item(n1)
 		@oList.RemoveItemAtPosition(n1)
 
 		if n2 > n1
 			n2 = n2 - 1
 		ok
 
-		This.InsertBeforePosition(n2, pItem)
+		This.InsertBeforePosition(n2, _pMiItem_)
 
 		def MoveItemQ(n1, n2)
 			This.MoveItem(n1, n2)
@@ -218,19 +218,19 @@ class stzListInserter
 			StzRaise("Incorrect param types! n1 and n2 must be numbers.")
 		ok
 
-		_pSwpList = @oList._EngineListFromContent()
-		if _pSwpList != NULL
-			StzEngineListSwap(_pSwpList, n1, n2)
-			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwpList))
-			StzEngineListFree(_pSwpList)
+		_pSwpList_ = @oList._EngineListFromContent()
+		if _pSwpList_ != NULL
+			StzEngineListSwap(_pSwpList_, n1, n2)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwpList_))
+			StzEngineListFree(_pSwpList_)
 			return
 		ok
 
-		aContent = This.Content()
-		temp = aContent[n1]
-		aContent[n1] = aContent[n2]
-		aContent[n2] = temp
-		@oList.UpdateWith(aContent)
+		_aSwpContent_ = This.Content()
+		_swpTemp_ = _aSwpContent_[n1]
+		_aSwpContent_[n1] = _aSwpContent_[n2]
+		_aSwpContent_[n2] = _swpTemp_
+		@oList.UpdateWith(_aSwpContent_)
 
 		def SwapItemsQ(n1, n2)
 			This.SwapItems(n1, n2)
