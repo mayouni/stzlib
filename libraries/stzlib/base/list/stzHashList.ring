@@ -2942,21 +2942,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindKeysByItem(pItem)
-		anPos = This.FindItemInList(pItem)
-		nLen = len(anPos)
+		_anFkbiPos_ = This.FindItemInList(pItem)
+		_nFkbiLen_ = len(_anFkbiPos_)
 
-		anResult = []
+		_anFkbiResult_ = []
 
-		for i = 1 to nLen
-			anResult + anPos[i]
+		for _iFkbi_ = 1 to _nFkbiLen_
+			@AddItem(_anFkbiResult_, _anFkbiPos_[_iFkbi_])
 		next
 
-		return anResult
+		return _anFkbiResult_
 
 		def FindKeysByItemInList(pItem)
 			return This.FindKeysByItem(pItem)
 
-	def NumberOfKeysByItemInList() ###
+	def NumberOfKeysByItemInList(pValue) ### Fixed: was missing pValue param
 		return len( This.FindKeysByItemInList(pValue) )
 
 		#< @FunctionAlternativeForms
@@ -3004,10 +3004,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.FindKeyByItemInList(pValue)
 
 	def FindLastKeyByItemInList(pValue)
-		n = This.NumberOfKeysByItemInList()
+		_nFlkbiN_ = This.NumberOfKeysByItemInList(pValue)
 
 		if This.ContainsItemInList(pValue)
-			return This.FindKeysByItemInList(pValue)[n]
+			return This.FindKeysByItemInList(pValue)[_nFlkbiN_]
 		else
 			return 0
 		ok
@@ -3016,24 +3016,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.FindLastKeyByItemInList(pValue)
 
 	def KeyByItemInList(pValue)
-		n = This.FindKeyByItemInList(pValue)
+		_nKbiN_ = This.FindKeyByItemInList(pValue)
 
-		return This.Key( n )
+		return This.Key( _nKbiN_ )
 
 		def KeyByItem(pValue)
 			return This.KeyByItemInList(pValue)
 
 	def KeysByItemInList(pValue)
-		anPos = This.FindKeysByItemInList()
-		nLen = len(anPos)
+		_anKbiPos_ = This.FindKeysByItemInList(pValue) ### Fixed: was missing pValue arg
+		_nKbiLen_ = len(_anKbiPos_)
 
-		aResult = []
+		_aKbiResult_ = []
 
-		for i = 1 to nLen
-			aResult + This.Key(anPos[i])
+		for _iKbi_ = 1 to _nKbiLen_
+			@AddItem(_aKbiResult_, This.Key(_anKbiPos_[_iKbi_]))
 		next
 
-		return aResult
+		return _aKbiResult_
 
 		def KeysByItem(pValue)
 			return This.KeysByItem(pValue)
@@ -3262,8 +3262,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# --> To avoid any confusion, use Klass with K instead,
 		# or if you prefer, use Category.
 
-		aResult = This.KeysForValue(pcClass)
-		return aResult
+		_aKlResult_ = This.KeysForValue(pcClass)
+		return _aKlResult_
 
 		#< @FunctionFluentForms
 
@@ -3330,8 +3330,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-------------------------------------------#
 
 	def NumberOfValuesInClass(pcClass)
-		nResult = len( This.Klass(pcClass) )
-		return nResult
+		_nNvicResult_ = len( This.Klass(pcClass) )
+		return _nNvicResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3392,16 +3392,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#--------------------------------#
 
 	def ClassesSizes()
-		acClasses = This.Classes()
-		nLen = len(acClasses)
+		_acCssClasses_ = This.Classes()
+		_nCssLen_ = len(_acCssClasses_)
 
-		anResult = []
+		_anCssResult_ = []
 
-		for i = 1 to nLen
-			anResult + This.ClassSize(acClasses[i])
+		for _iCss_ = 1 to _nCssLen_
+			@AddItem(_anCssResult_, This.ClassSize(_acCssClasses_[_iCss_]))
 		next
 
-		return anResult
+		return _anCssResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3419,16 +3419,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def ClassesSizesXT()
-		acClasses = This.Classes()
-		nLen = len(acClasses)
+		_acCsxClasses_ = This.Classes()
+		_nCsxLen_ = len(_acCsxClasses_)
 
-		aResult = []
+		_aCsxResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ acClasses[i], This.ClassSize(acClasses[i]) ]
+		for _iCsx_ = 1 to _nCsxLen_
+			@AddItem(_aCsxResult_, [ _acCsxClasses_[_iCsx_], This.ClassSize(_acCsxClasses_[_iCsx_]) ])
 		next
 
-		return aResult
+		return _aCsxResult_
 
 		def KlassesSizesXT()
 			return This.ClassesSizesXT()
@@ -3462,15 +3462,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(pacClasses)
+		_nTcsLen_ = len(pacClasses)
 
-		anResult = []
+		_anTcsResult_ = []
 
-		for i = 1 to nLen
-			anResult + This.ClassSize(pacClasses[i])
+		for _iTcs_ = 1 to _nTcsLen_
+			@AddItem(_anTcsResult_, This.ClassSize(pacClasses[_iTcs_]))
 		next
 
-		return anResult
+		return _anTcsResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3506,15 +3506,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(pacClasses)
+		_nTcsxLen_ = len(pacClasses)
 
-		aResult = []
+		_aTcsxResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ pacClasses[i], This.ClassSize(pacClasses[i]) ]
+		for _iTcsx_ = 1 to _nTcsxLen_
+			@AddItem(_aTcsxResult_, [ pacClasses[_iTcsx_], This.ClassSize(pacClasses[_iTcsx_]) ])
 		next
 
-		return aResult
+		return _aTcsxResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3548,8 +3548,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#============================================#
 
 	def KlassFreq(pcClass)
-		nResult = This.NumberOfValuesInClass(pcClass) / This.NumberOfValues()
-		return nResult
+		_nKfResult_ = This.NumberOfValuesInClass(pcClass) / This.NumberOfValues()
+		return _nKfResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3581,8 +3581,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def KlassFreqXT(pcClass)
-		aResult = [ pcClass, This.ClassFreq(pcClass) ]
-		return aResult
+		_aKfxResult_ = [ pcClass, This.ClassFreq(pcClass) ]
+		return _aKfxResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3630,16 +3630,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#------------------------------------------#
 
 	def ClassesFrequencies()
-		acClasses = This.Classes()
-		nLen = len(acClasses)
+		_acCfsClasses_ = This.Classes()
+		_nCfsLen_ = len(_acCfsClasses_)
 
-		anResult = []
+		_anCfsResult_ = []
 
-		for i = 1 to nLen
-			anResult + This.ClassFrequency(acClasses[i])
+		for _iCfs_ = 1 to _nCfsLen_
+			@AddItem(_anCfsResult_, This.ClassFrequency(_acCfsClasses_[_iCfs_]))
 		next
 
-		return anResult
+		return _anCfsResult_
 
 		def KlassesFrequencies()
 			return This.ClassesFrequencies()
@@ -3659,16 +3659,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def ClassesFrequenciesXT()
-		acClasses = This.Classes()
-		nLen = len(acClasses)
+		_acCfxClasses_ = This.Classes()
+		_nCfxLen_ = len(_acCfxClasses_)
 
-		aResult = []
+		_aCfxResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ acClasses[i], This.ClassFrequency(acClasses[i]) ]
+		for _iCfx_ = 1 to _nCfxLen_
+			@AddItem(_aCfxResult_, [ _acCfxClasses_[_iCfx_], This.ClassFrequency(_acCfxClasses_[_iCfx_]) ])
 		next
 
-		return aResult
+		return _aCfxResult_
 
 		def KlassesFrequenciesXT()
 			return This.ClassesFrequenciesXT()
@@ -3712,15 +3712,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(pacClasses)
+		_nTcfLen_ = len(pacClasses)
 
-		anResult = []
+		_anTcfResult_ = []
 
-		for i = 1 to nLen
-			anResult + This.ClassFrequency(pacClasses[i])
+		for _iTcf_ = 1 to _nTcfLen_
+			@AddItem(_anTcfResult_, This.ClassFrequency(pacClasses[_iTcf_]))
 		next
 
-		return anResult
+		return _anTcfResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3748,15 +3748,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(pacClasses)
+		_nTcfxLen_ = len(pacClasses)
 
-		aResult = []
+		_aTcfxResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ pacClasses[i], This.ClassFrequency(pacClasses[i]) ]
+		for _iTcfx_ = 1 to _nTcfxLen_
+			@AddItem(_aTcfxResult_, [ pacClasses[_iTcfx_], This.ClassFrequency(pacClasses[_iTcfx_]) ])
 		next
 
-		return aResult
+		return _aTcfxResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3806,18 +3806,18 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#=====================================#
 
 	def NStrongestClasses(n)
-		aClassesXT = new stzList(SortListsOn( ClassesXT(), 2 )).Reversed()
-		nLen = len(aClassesXT)
+		_aNscXT_ = new stzList(SortListsOn( ClassesXT(), 2 )).Reversed()
+		_nNscLen_ = len(_aNscXT_)
 
-		n = @Min([ n, nLen ])
+		n = @Min([ n, _nNscLen_ ])
 
-		aResult = []
+		_aNscResult_ = []
 
-		for i = 1 to n
-			aResult + aClassesXT[i][1]
+		for _iNsc_ = 1 to n
+			@AddItem(_aNscResult_, _aNscXT_[_iNsc_][1])
 		next
 
-		return aResult
+		return _aNscResult_
 		
 		#< @FunctionAlternativeForms
 
@@ -3841,17 +3841,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def NStrongestClassesXT(n)
-		aClassesXT = new stzList(SortListsOn( ClassesXT(), 2 )).Reversed()
-		nLen = len(aClassesXT)
-		n = @Min([ n, nLen ])
+		_aNscxXT_ = new stzList(SortListsOn( ClassesXT(), 2 )).Reversed()
+		_nNscxLen_ = len(_aNscxXT_)
+		n = @Min([ n, _nNscxLen_ ])
 
-		aResult = []
+		_aNscxResult_ = []
 
-		for i = 1 to n
-			aResult + aClassesXT[i]
+		for _iNscx_ = 1 to n
+			@AddItem(_aNscxResult_, _aNscxXT_[_iNscx_])
 		next
 
-		return aResult
+		return _aNscxResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3992,17 +3992,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#===================================#
 
 	def NWeakestClasses(n)
-		aClassesXT = SortListsOn( ClassesXT(), 2 )
-		nLen = len(aClassesXT)
-		n = @Min([ n, nLen ])
+		_aNwcXT_ = SortListsOn( ClassesXT(), 2 )
+		_nNwcLen_ = len(_aNwcXT_)
+		n = @Min([ n, _nNwcLen_ ])
 
-		aResult = []
+		_aNwcResult_ = []
 
-		for i = 1 to n
-			aResult + aClassesXT[i][1]
+		for _iNwc_ = 1 to n
+			@AddItem(_aNwcResult_, _aNwcXT_[_iNwc_][1])
 		next
 
-		return aResult
+		return _aNwcResult_
 
 		#< @FunctionAlternativeForms
 
@@ -4026,17 +4026,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def NWeakestClassesXT(n)
-		aClassesXT = SortListsOn( ClassesXT(), 2 )
-		nLen = len(aClassesXT)
-		n = @Min([ n, nLen ])
+		_aNwcxXT_ = SortListsOn( ClassesXT(), 2 )
+		_nNwcxLen_ = len(_aNwcxXT_)
+		n = @Min([ n, _nNwcxLen_ ])
 
-		aResult = []
+		_aNwcxResult_ = []
 
-		for i = 1 to n
-			aResult + aClassesXT[i]
+		for _iNwcx_ = 1 to n
+			@AddItem(_aNwcxResult_, _aNwcxXT_[_iNwcx_])
 		next
 
-		return aResult
+		return _aNwcxResult_
 
 		#< @FunctionAlternativeForms
 
@@ -4170,15 +4170,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#=====================================#
 
 	def ClassesInList()
-		acResult = []
-		aUniqueValues = U( @Merge(This.Lists()) )
-		nLen = len(aUniqueValues)
+		_acCilResult_ = []
+		_aCilUnique_ = U( @Merge(This.Lists()) )
+		_nCilLen_ = len(_aCilUnique_)
 
-		for i = 1 to nLen
-			acResult + Q(aUniqueValues[i]).Stringified()
+		for _iCil_ = 1 to _nCilLen_
+			@AddItem(_acCilResult_, Q(_aCilUnique_[_iCil_]).Stringified())
 		next
 
-		return acResult
+		return _acCilResult_
 
 		#< @FunctionFluentForm
 
@@ -4287,15 +4287,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ClassifyInList()
 
-		aResult = []
-		aClasses = This.ClassesInList()
-		nLen = len(aClasses)
+		_aClilResult_ = []
+		_aClilClasses_ = This.ClassesInList()
+		_nClilLen_ = len(_aClilClasses_)
 
-		for i = 1 to nLen
-			aResult + [ aClasses[i], This.FindItem(aClasses[i]) ]
+		for _iClil_ = 1 to _nClilLen_
+			@AddItem(_aClilResult_, [ _aClilClasses_[_iClil_], This.FindItem(_aClilClasses_[_iClil_]) ])
 		next
 
-		return aResult
+		return _aClilResult_
 
 		#< @FunctionFluentForm
 
@@ -4397,8 +4397,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-------------------------------------------------#
 
 	def KlassInList(pcClass)
-		aResult = This.KeysForItemInList(pcClass)
-		return aResult
+		_aKlilResult_ = This.KeysForItemInList(pcClass)
+		return _aKlilResult_
 
 		#< @FunctionFluentForms
 
@@ -4496,27 +4496,27 @@ this: lefttoright
 		return 1
 
 	def ToCode()
-		aPairs = This.Content()
-		nLen = len(aPairs)
+		_aTcPairs_ = This.Content()
+		_nTcLen_ = len(_aTcPairs_)
 
-		cResult = "[ "
+		_cTcResult_ = "[ "
 
-		for i = 1 to nLen
-			cKey = aPairs[i][1]
-			cValue = Q(aPairs[i][2]).Stringified()
+		for _iTc_ = 1 to _nTcLen_
+			_cTcKey_ = _aTcPairs_[_iTc_][1]
+			_cTcValue_ = Q(_aTcPairs_[_iTc_][2]).Stringified()
 
-			cBound = '"'
-			if Q(cValue).IsBoundedBy('"')
-				cBound = "'"
+			_cTcBound_ = '"'
+			if Q(_cTcValue_).IsBoundedBy('"')
+				_cTcBound_ = "'"
 			ok
-			cValue = cBound + cValue + cBound
+			_cTcValue_ = _cTcBound_ + _cTcValue_ + _cTcBound_
 
-			cPair = ":" + cKey + " = " + cValue + ", "
-			cResult += cPair
+			_cTcPair_ = ":" + _cTcKey_ + " = " + _cTcValue_ + ", "
+			_cTcResult_ += _cTcPair_
 		next
 
-		cResult = Q(cResult).RemovedFromEnd(", ") + " ]"
-		return cResult
+		_cTcResult_ = Q(_cTcResult_).RemovedFromEnd(", ") + " ]"
+		return _cTcResult_
 
 	  #-----------------------------#
 	 #     Operator overloading    #
@@ -4538,15 +4538,15 @@ this: lefttoright
 	#---------------------------------------------#
 
 	def ToStzTable()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aTstContent_ = This.Content()
+		_nTstLen_ = len(_aTstContent_)
 
-		aTable = aContent
+		_aTstTable_ = _aTstContent_
 
-		for i = 1 to nLen
+		for _iTst_ = 1 to _nTstLen_
 
 
 		next
 
-		oResult = new stzTable(aTable)
-		return oResult
+		_oTstResult_ = new stzTable(_aTstTable_)
+		return _oTstResult_
