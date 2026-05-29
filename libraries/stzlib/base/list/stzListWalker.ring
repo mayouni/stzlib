@@ -98,16 +98,16 @@ class stzListWalker
 	#==========================================#
 
 	def WalkNForward(n)
-		nLen = This.NumberOfItems()
-		anResult = []
+		_nWnfLen_ = This.NumberOfItems()
+		_anWnfResult_ = []
 
-		i = 1
-		while i <= nLen
-			anResult + i
-			i += n
+		_iWnf_ = 1
+		while _iWnf_ <= _nWnfLen_
+			@AddItem(_anWnfResult_, _iWnf_)
+			_iWnf_ += n
 		end
 
-		return anResult
+		return _anWnfResult_
 
 		def WalkForwardNSteps(n)
 			return This.WalkNForward(n)
@@ -117,16 +117,16 @@ class stzListWalker
 	#==========================================#
 
 	def WalkNBackward(n)
-		nLen = This.NumberOfItems()
-		anResult = []
+		_nWnbLen_ = This.NumberOfItems()
+		_anWnbResult_ = []
 
-		i = nLen
-		while i >= 1
-			anResult + i
-			i -= n
+		_iWnb_ = _nWnbLen_
+		while _iWnb_ >= 1
+			@AddItem(_anWnbResult_, _iWnb_)
+			_iWnb_ -= n
 		end
 
-		return anResult
+		return _anWnbResult_
 
 		def WalkBackwardNSteps(n)
 			return This.WalkNBackward(n)
@@ -136,35 +136,35 @@ class stzListWalker
 	#=========================#
 
 	def WalkBetween(n1, n2, nStep)
-		anResult = []
+		_anWbResult_ = []
 
 		if n1 <= n2
-			for i = n1 to n2 step nStep
-				anResult + i
+			for _iWb_ = n1 to n2 step nStep
+				@AddItem(_anWbResult_, _iWb_)
 			next
 		else
-			for i = n1 to n2 step -nStep
-				anResult + i
+			for _jWb_ = n1 to n2 step -nStep
+				@AddItem(_anWbResult_, _jWb_)
 			next
 		ok
 
-		return anResult
+		return _anWbResult_
 
 	  #===================================#
 	 #  WALKING FORTH AND BACK          #
 	#===================================#
 
 	def WalkForthAndBack(n)
-		anForward = This.WalkNForward(n)
-		anBackward = This.WalkNBackward(n)
+		_anWfbFwd_ = This.WalkNForward(n)
+		_anWfbBwd_ = This.WalkNBackward(n)
 
-		aResult = anForward
-		nLen = len(anBackward)
-		for i = 1 to nLen
-			aResult + anBackward[i]
+		_aWfbResult_ = _anWfbFwd_
+		_nWfbLen_ = len(_anWfbBwd_)
+		for _iWfb_ = 1 to _nWfbLen_
+			@AddItem(_aWfbResult_, _anWfbBwd_[_iWfb_])
 		next
 
-		return aResult
+		return _aWfbResult_
 
 	  #=========================#
 	 #  WALKING WHERE          #
@@ -178,96 +178,96 @@ class stzListWalker
 	#==========================#
 
 	def WalkUntil(pcCondition)
-		pList = @oList._EngineListFromContent()
-		if pList = NULL return [] ok
+		_pWuList_ = @oList._EngineListFromContent()
+		if _pWuList_ = NULL return [] ok
 
 		pcCondition = _StzStripBraces(pcCondition)
-		nFirst = StzEngineListFindW(pList, pcCondition)
-		StzEngineListFree(pList)
+		_nWuFirst_ = StzEngineListFindW(_pWuList_, pcCondition)
+		StzEngineListFree(_pWuList_)
 
-		if nFirst = 0
-			nLen = This.NumberOfItems()
-			anResult = []
-			for i = 1 to nLen
-				anResult + i
+		if _nWuFirst_ = 0
+			_nWuLen_ = This.NumberOfItems()
+			_anWuResult_ = []
+			for _iWu_ = 1 to _nWuLen_
+				@AddItem(_anWuResult_, _iWu_)
 			next
-			return anResult
+			return _anWuResult_
 		ok
 
-		anResult = []
-		for i = 1 to nFirst - 1
-			anResult + i
+		_anWuResult2_ = []
+		for _jWu_ = 1 to _nWuFirst_ - 1
+			@AddItem(_anWuResult2_, _jWu_)
 		next
-		return anResult
+		return _anWuResult2_
 
 	  #==========================#
 	 #  WALKING WHILE           #
 	#==========================#
 
 	def WalkWhile(pcCondition)
-		pList = @oList._EngineListFromContent()
-		if pList = NULL return [] ok
+		_pWwList_ = @oList._EngineListFromContent()
+		if _pWwList_ = NULL return [] ok
 
-		cNegated = "not (" + _StzStripBraces(pcCondition) + ")"
-		nFirst = StzEngineListFindW(pList, cNegated)
-		StzEngineListFree(pList)
+		_cWwNegated_ = "not (" + _StzStripBraces(pcCondition) + ")"
+		_nWwFirst_ = StzEngineListFindW(_pWwList_, _cWwNegated_)
+		StzEngineListFree(_pWwList_)
 
-		if nFirst = 0
-			nLen = This.NumberOfItems()
-			anResult = []
-			for i = 1 to nLen
-				anResult + i
+		if _nWwFirst_ = 0
+			_nWwLen_ = This.NumberOfItems()
+			_anWwResult_ = []
+			for _iWw_ = 1 to _nWwLen_
+				@AddItem(_anWwResult_, _iWw_)
 			next
-			return anResult
+			return _anWwResult_
 		ok
 
-		anResult = []
-		for i = 1 to nFirst - 1
-			anResult + i
+		_anWwResult2_ = []
+		for _jWw_ = 1 to _nWwFirst_ - 1
+			@AddItem(_anWwResult2_, _jWw_)
 		next
-		return anResult
+		return _anWwResult2_
 
 	  #=================================#
 	 #  WALKING IN ZIGZAG PATTERN      #
 	#=================================#
 
 	def WalkZigZag(nStep)
-		nLen = This.NumberOfItems()
-		anResult = []
-		bForward = 1
-		i = 1
+		_nWzLen_ = This.NumberOfItems()
+		_anWzResult_ = []
+		_bWzForward_ = 1
+		_iWz_ = 1
 
-		while i >= 1 and i <= nLen
-			anResult + i
-			if bForward
-				i += nStep
-				if i > nLen
-					i = nLen
-					bForward = 0
+		while _iWz_ >= 1 and _iWz_ <= _nWzLen_
+			@AddItem(_anWzResult_, _iWz_)
+			if _bWzForward_
+				_iWz_ += nStep
+				if _iWz_ > _nWzLen_
+					_iWz_ = _nWzLen_
+					_bWzForward_ = 0
 				ok
 			else
-				i -= nStep
-				if i < 1
+				_iWz_ -= nStep
+				if _iWz_ < 1
 					exit
 				ok
 			ok
 		end
 
-		return anResult
+		return _anWzResult_
 
 	  #==================================#
 	 #  WALKING EVERY NTH POSITION      #
 	#==================================#
 
 	def WalkEveryNth(n)
-		nLen = This.NumberOfItems()
-		anResult = []
+		_nWenLen_ = This.NumberOfItems()
+		_anWenResult_ = []
 
-		for i = n to nLen step n
-			anResult + i
+		for _iWen_ = n to _nWenLen_ step n
+			@AddItem(_anWenResult_, _iWen_)
 		next
 
-		return anResult
+		return _anWenResult_
 
 		def WalkEach(n)
 			return This.WalkEveryNth(n)
@@ -287,33 +287,33 @@ class stzListWalker
 	#==============================#
 
 	def WalkFromTo(nFrom, nTo)
-		anResult = []
+		_anWftResult_ = []
 		if nFrom <= nTo
-			for i = nFrom to nTo
-				anResult + i
+			for _iWft_ = nFrom to nTo
+				@AddItem(_anWftResult_, _iWft_)
 			next
 		else
-			for i = nFrom to nTo step -1
-				anResult + i
+			for _jWft_ = nFrom to nTo step -1
+				@AddItem(_anWftResult_, _jWft_)
 			next
 		ok
-		return anResult
+		return _anWftResult_
 
 	  #==============================#
 	 #  WALK SKIPPING N ITEMS       #
 	#==============================#
 
 	def WalkSkipping(n)
-		nLen = This.NumberOfItems()
-		anResult = []
+		_nWskLen_ = This.NumberOfItems()
+		_anWskResult_ = []
 
-		i = 1
-		while i <= nLen
-			anResult + i
-			i += (n + 1)
+		_iWsk_ = 1
+		while _iWsk_ <= _nWskLen_
+			@AddItem(_anWskResult_, _iWsk_)
+			_iWsk_ += (n + 1)
 		end
 
-		return anResult
+		return _anWskResult_
 
 		def WalkSkip(n)
 			return This.WalkSkipping(n)
