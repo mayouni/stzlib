@@ -68,14 +68,14 @@ func Keys(paList)
 		StzRaise("Incorrect param type! paList must be a hashlist.")
 	ok
 
-	acResult = []
-	nLen = len(paList)
+	_acKeysResult_ = []
+	_nKeysLen_ = len(paList)
 
-	for i = 1 to nLen
-		acResult + paList[i][1]
+	for _iKeys_ = 1 to _nKeysLen_
+		add(_acKeysResult_, paList[_iKeys_][1])
 	next
 
-	return acResult
+	return _acKeysResult_
 
 	func @Keys(paList)
 		return Keys(paList)
@@ -100,14 +100,14 @@ func HasKey(paList, pcKey)
 		return FALSE
 	ok
 
-	nLen = len(paList)
-	acKeys = []
+	_nHkLen_ = len(paList)
+	_acHkKeys_ = []
 
-	for i = 1 to nLen
-		acKeys + StzLower(paList[i][1])
+	for _iHk_ = 1 to _nHkLen_
+		add(_acHkKeys_, StzLower(paList[_iHk_][1]))
 	next
 
-	return iff(StzFind(acKeys, StzLower(pcKey)) > 0, TRUE, FALSE)
+	return iff(StzFind(_acHkKeys_, StzLower(pcKey)) > 0, TRUE, FALSE)
 
 	func @HasKey(paList, pcKey)
 		return HasKey(paList, pcKey)
@@ -133,16 +133,16 @@ func HasKeys(paList, pacKeys)
 		return FALSE
 	ok
 
-	nLen = len(paList)
-	acAllKeys = []
+	_nHksLen_ = len(paList)
+	_acHksAllKeys_ = []
 
-	for i = 1 to nLen
-		acAllKeys + paList[i][1]
+	for _iHks_ = 1 to _nHksLen_
+		add(_acHksAllKeys_, paList[_iHks_][1])
 	next
 
-	nLen = len(pacKeys)
-	for i = 1 to nLen
-		if find(acAllKeys, pacKeys[i]) = 0
+	_nHksKeysLen_ = len(pacKeys)
+	for _jHks_ = 1 to _nHksKeysLen_
+		if find(_acHksAllKeys_, pacKeys[_jHks_]) = 0
 			return 0
 		ok
 	next
@@ -174,25 +174,25 @@ func HasKeysXT(paList, pacKeys)
 		return FALSE
 	ok
 
-	nLen = len(paList)
-	acAllKeys = []
+	_nHkxLen_ = len(paList)
+	_acHkxAllKeys_ = []
 
-	for i = 1 to nLen
-		acAllKeys + StzLower(paList[i][1])
+	for _iHkx_ = 1 to _nHkxLen_
+		add(_acHkxAllKeys_, StzLower(paList[_iHkx_][1]))
 	next
 
-	aResult = []
-	nKeysLen = len(pacKeys)
-	
-	for i = 1 to nKeysLen
-		if find(acAllKeys, StzLower(pacKeys[i])) > 0
-			aResult + TRUE
+	_aHkxResult_ = []
+	_nHkxKeysLen_ = len(pacKeys)
+
+	for _jHkx_ = 1 to _nHkxKeysLen_
+		if find(_acHkxAllKeys_, StzLower(pacKeys[_jHkx_])) > 0
+			add(_aHkxResult_, TRUE)
 		else
-			aResult + FALSE
+			add(_aHkxResult_, FALSE)
 		ok
 	next
 
-	return aResult
+	return _aHkxResult_
 
 
 	func @HasKeysXT(paList, pacKeys)
@@ -410,9 +410,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(p)
-		for i = 1 to nLen
-			p[i][1] = StzLower(p[i][1])
+		_nInitLen_ = len(p)
+		for _iInit_ = 1 to _nInitLen_
+			p[_iInit_][1] = StzLower(p[_iInit_][1])
 		next
 
 		@aContent = p
@@ -435,23 +435,23 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return
 		ok
 
-		_aEmContent = @aContent
-		_nEmLen = len(_aEmContent)
+		_aEmContent_ = @aContent
+		_nEmLen_ = len(_aEmContent_)
 
-		for _iEm = 1 to _nEmLen
-			_cEmKey = _aEmContent[_iEm][1]
-			_vEmVal = _aEmContent[_iEm][2]
+		for _iEm_ = 1 to _nEmLen_
+			_cEmKey_ = _aEmContent_[_iEm_][1]
+			_vEmVal_ = _aEmContent_[_iEm_][2]
 
-			if isString(_vEmVal)
-				StzEngineHashMapPutString(@pEngineMap, _cEmKey, _vEmVal)
-			but isNumber(_vEmVal)
-				if isInteger(_vEmVal)
-					StzEngineHashMapPutInt(@pEngineMap, _cEmKey, _vEmVal)
+			if isString(_vEmVal_)
+				StzEngineHashMapPutString(@pEngineMap, _cEmKey_, _vEmVal_)
+			but isNumber(_vEmVal_)
+				if isInteger(_vEmVal_)
+					StzEngineHashMapPutInt(@pEngineMap, _cEmKey_, _vEmVal_)
 				else
-					StzEngineHashMapPutFloat(@pEngineMap, _cEmKey, _vEmVal)
+					StzEngineHashMapPutFloat(@pEngineMap, _cEmKey_, _vEmVal_)
 				ok
 			else
-				StzEngineHashMapPutString(@pEngineMap, _cEmKey, @@(_vEmVal))
+				StzEngineHashMapPutString(@pEngineMap, _cEmKey_, @@(_vEmVal_))
 			ok
 		next
 
@@ -571,19 +571,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 			off
 
 	def KeysForValue(pValue)
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aKfvContent_ = This.Content()
+		_nKfvLen_ = len(_aKfvContent_)
 
-		aResult = []
+		_aKfvResult_ = []
 
-		for i = 1 to nLen
-			aPair = aContent[i]
-			if Q(aPair[2]).IsStrictlyEqualTo(pValue)
-				aResult + aPair[1]
+		for _iKfv_ = 1 to _nKfvLen_
+			_aKfvPair_ = _aKfvContent_[_iKfv_]
+			if Q(_aKfvPair_[2]).IsStrictlyEqualTo(pValue)
+				@AddItem(_aKfvResult_, _aKfvPair_[1])
 			ok
 		next
 
-		return aResult
+		return _aKfvResult_
 
 		#< @FunctionFluentForms
 
@@ -628,15 +628,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Values()
 
-		_aContent_ = This.Content()
-		_aResult_ = []
-		_nLen_ = This.NumberOfPairs()
+		_aVlContent_ = This.Content()
+		_aVlResult_ = []
+		_nVlLen_ = This.NumberOfPairs()
 
-		for @i = 1 to _nLen_
-			_aResult_ + _aContent_[@i][2]
+		for _iVl_ = 1 to _nVlLen_
+			@AddItem(_aVlResult_, _aVlContent_[_iVl_][2])
 		next
 
-		return _aResult_
+		return _aVlResult_
 
 		def ValuesQ()
 			return This.ValuesQRT(:stzList)
@@ -667,36 +667,36 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ValuesAreListsOfSameSize()
 
-		_aContent_ = This.Content()
-		_nLen_ = This.NumberOfValues()
+		_aValsContent_ = This.Content()
+		_nValsLen_ = This.NumberOfValues()
 
-		if _nLen_ = 1
+		if _nValsLen_ = 1
 			return 1
 		ok
 
-		_nSize_ = len(_aContent_[1][2])
-		_bResult_ = 1
+		_nValsSize_ = len(_aValsContent_[1][2])
+		_bValsResult_ = 1
 
-		for @i = 2 to _nLen_
-			if len(_aContent_[@i][2]) != _nSize_
-				_bResult_ = 0
+		for _iVals_ = 2 to _nValsLen_
+			if len(_aValsContent_[_iVals_][2]) != _nValsSize_
+				_bValsResult_ = 0
 				exit
 			ok
 		next
 
-		return _bResult_
+		return _bValsResult_
 
 	def ValuesAndKeys()
-		aValues = This.Values()
-		nLen = len(aValues)
+		_aVakValues_ = This.Values()
+		_nVakLen_ = len(_aVakValues_)
 
-		aResult = []
+		_aVakResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ value, This.NthKey(i) ]
+		for _iVak_ = 1 to _nVakLen_
+			@AddItem(_aVakResult_, [ _aVakValues_[_iVak_], This.NthKey(_iVak_) ])
 		next
 
-		return aResults
+		return _aVakResult_
 
 	def NthKey(n)
 		if isString(n)
@@ -747,9 +747,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		ok
 
-		nLen = len(This.Content())
-		if n > nLen or n < 1
-			StzRaise("Can't access item " + n + " in the hashlist! The hashlist contains only " + nLen + "pairs.")
+		_nNvLen_ = len(This.Content())
+		if n > _nNvLen_ or n < 1
+			StzRaise("Can't access item " + n + " in the hashlist! The hashlist contains only " + _nNvLen_ + "pairs.")
 		ok
 
 		return This.Content()[n][2]
@@ -1001,8 +1001,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def UniqueValues()
-		aResult = This.ValuesQ().DuplicatesRemoved()
-		return aResult
+		_aUvResult_ = This.ValuesQ().DuplicatesRemoved()
+		return _aUvResult_
 
 		def ValuesU()
 			return This.UniqueValues()
@@ -1011,8 +1011,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.UniqueValues()
 
 	def ValuesAtPositions(anPos)
-		aResult = This.ValuesQ().ItemsAtPositions(anPos)
-		return aResult
+		_aVapResult_ = This.ValuesQ().ItemsAtPositions(anPos)
+		return _aVapResult_
 
 		def ValuesAtThesePositions(anPos)
 			return This.ValuesAtPositions(anPos)
@@ -1099,19 +1099,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def UpdatePair(paPair, paNewPair)
 		if isList(paPair) and @IsPairAndKeyIsString(paNewPair) and
 		   This.ContainsPair(paPair)
-			n = This.FindPair(paPair)
+			_nUpN_ = This.FindPair(paPair)
 
-			This.UpdateNthKey(n, paNewPair[1])
-			This.UpdateNthValue(n, paNewPair[2])
+			This.UpdateNthKey(_nUpN_, paNewPair[1])
+			This.UpdateNthValue(_nUpN_, paNewPair[2])
 		else
 			StzRaise("Key must be a string!")
 		ok
-	
+
 	def UpdateNthKey(n, pcValue)
 		if isList(n) and isNumber(pcValue)
-			temp = n
+			_unkTemp_ = n
 			n = pcValue
-			pcValue = temp
+			pcValue = _unkTemp_
 		ok
 
 		if n = :First
@@ -1122,26 +1122,26 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		# Now, let's do the job
 
-		aContent = This.Content()
-		aContent[n][1] = pcValue
-		This.UpdateWith(aContent)
+		_aUnkContent_ = This.Content()
+		_aUnkContent_[n][1] = pcValue
+		This.UpdateWith(_aUnkContent_)
 
 	def UpdateKey(pcKey, pcNewKey)
 		if isString(pcKey) and This.ContainsKey(pcKey)
-			aContent = This.Content()
-			n = This.FindKey(pcKey)
-			aContent[n][1] = pcNewKey
-			This.UpdateWith(aContent)
+			_aUkContent_ = This.Content()
+			_nUkN_ = This.FindKey(pcKey)
+			_aUkContent_[_nUkN_][1] = pcNewKey
+			This.UpdateWith(_aUkContent_)
 		ok
-	
+
 	def UpdateKeys(paKeys)
-		oStzList = new stzList(paKeys)
-		if oStzList.ItemsAreAllStrings()
-			for i = 1 to @Min([ len(paKeys), This.NumberOfPairs() ])
-				This.UpdateNthKey(i, paKeys[i])
-			next i
+		_oUksList_ = new stzList(paKeys)
+		if _oUksList_.ItemsAreAllStrings()
+			for _iUks_ = 1 to @Min([ len(paKeys), This.NumberOfPairs() ])
+				This.UpdateNthKey(_iUks_, paKeys[_iUks_])
+			next _iUks_
 		ok
-	
+
 	def UpdateNthValue(n, pValue)
 
 		if n = :First
@@ -1150,24 +1150,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 			n = This.NumberOfValues()
 		ok
 
-		aContent = This.Content()
-		aContent[n][2] = pValue
-		This.UpdateWith(aContent)
+		_aUnvContent_ = This.Content()
+		_aUnvContent_[n][2] = pValue
+		This.UpdateWith(_aUnvContent_)
 
 		def UpdateNthOccurrenceOfValue(pValue)
 			This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
-	
-	def UpdateValues(paValues)
-		for i = 1 to @Min([ len(paValues), This.NumberOfPairs() ])
-			This.UpdateNthValue(i, paValues[i])
-		next
-	
-	def UpdateValue(pValue, pNewValue)
-		anPos = This.FindValue(pValue)
-		nLen = len(anPos)
 
-		for i = 1 to nLen
-			This.UpdateNthValue(anPos[i], pNewValue)
+	def UpdateValues(paValues)
+		for _iUvs_ = 1 to @Min([ len(paValues), This.NumberOfPairs() ])
+			This.UpdateNthValue(_iUvs_, paValues[_iUvs_])
+		next
+
+	def UpdateValue(pValue, pNewValue)
+		_anUvPos_ = This.FindValue(pValue)
+		_nUvLen_ = len(_anUvPos_)
+
+		for _iUv_ = 1 to _nUvLen_
+			This.UpdateNthValue(_anUvPos_[_iUv_], pNewValue)
 		next
 	
 	def UpdateFirstOccurrenceOfValue(pValue, pNewValue)
@@ -1177,8 +1177,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.UpdateFirstOccurrenceOfValue(pValue, pNewValue)
 		
 	def UpdateLastValue(pValue, pNewValue)
-		n = NumberOfOccurrenceOfValue(pValue)
-		This.UpdateNthValue(n, pValue, pNewValue)
+		_nUlvN_ = NumberOfOccurrenceOfValue(pValue)
+		This.UpdateNthValue(_nUlvN_, pValue, pNewValue)
 
 	def UpdateAllPairsWith(paPair)
 		if CheckingParams()
@@ -1191,12 +1191,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aUapContent_ = This.Content()
+		_nUapLen_ = len(_aUapContent_)
 
-		for i = 1 to nLen
-			aContent[i] = paPair
+		for _iUap_ = 1 to _nUapLen_
+			_aUapContent_[_iUap_] = paPair
 		next
+
+		This.UpdateWith(_aUapContent_)
 
 	  #-----------------------------#
 	 #  REVERSING KEYS AND VALUES  #
@@ -1204,18 +1206,18 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ReverseKeysAndValues()
 
-		_aKeys_ = This.Keys()
-		_aValues_ = This.Values()
-		_nLen_ = This.NumberOfPairs()
+		_aRkvKeys_ = This.Keys()
+		_aRkvValues_ = This.Values()
+		_nRkvLen_ = This.NumberOfPairs()
 
-		_oCopy_ = This.Copy()
+		_oRkvCopy_ = This.Copy()
 
-		for @i = 1 to _nLen_
-			_oCopy_.UpdatenthKey( @i, ""+ _aValues_[@i] )
-			_ocopy_.UpdateNthValue( @i, _aKeys[@i] )
+		for _iRkv_ = 1 to _nRkvLen_
+			_oRkvCopy_.UpdateNthKey( _iRkv_, "" + _aRkvValues_[_iRkv_] )
+			_oRkvCopy_.UpdateNthValue( _iRkv_, _aRkvKeys_[_iRkv_] )
 		next
 
-		This.UpdateWith( _oCopy_.Content() )
+		This.UpdateWith( _oRkvCopy_.Content() )
 
 		def ReverseKeysAndValuesQ()
 			This.ReverseKeysAndValues()
@@ -1233,10 +1235,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 				StzRaise("Can't add the pair! the key you provided already exists.")
 			ok
 
-			aContent = This.Content()
-			aContent + paNewPair
+			_aApContent_ = This.Content()
+			@AddItem(_aApContent_, paNewPair)
 
-			This.UpdateWith(aContent)
+			This.UpdateWith(_aApContent_)
 
 		else
 			StzRaise("Syntax error! The value you provided is not a pair with its key beeing a string.")
@@ -1254,9 +1256,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 
 	def AddPairs(paListOfPairs)
-		nLen = len(paListOfPairs)
-		for i = 1 to nLen
-			This.AddPair(paListOfPairs[i])
+		_nApsLen_ = len(paListOfPairs)
+		for _iAps_ = 1 to _nApsLen_
+			This.AddPair(paListOfPairs[_iAps_])
 		next
 
 		def AddPairsQ(paListOfPairs)
@@ -1322,27 +1324,27 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#TODO // Review all the library according to this.
 
-		aContent = This.Content()
-		del(aContent, n)
-		This.UpdateWith(aContent)
+		_aRnpContent_ = This.Content()
+		del(_aRnpContent_, n)
+		This.UpdateWith(_aRnpContent_)
 
 		def RemoveNthPairQ(n)
 			This.RemovePair(n)
 			return This
 
 	def RemovePair(paPair)
-		oList = new stzList( This.HashList() )
-		aResult = oList.RemoveQ(paPair).Content()
-		This.Update(aResult)
+		_oRpList_ = new stzList( This.HashList() )
+		_aRpResult_ = _oRpList_.RemoveQ(paPair).Content()
+		This.Update(_aRpResult_)
 
 		def RemovePairQ(paPair)
 			This.RemovePair(paPair)
 			return This
 		
 	def RemovePairByKey(pcKey)
-		n = This.FindKey(pcKey)
-		if n > 0
-			del( This.HashList(), n)
+		_nRpbkN_ = This.FindKey(pcKey)
+		if _nRpbkN_ > 0
+			del( This.HashList(), _nRpbkN_)
 			This._InvalidateEngineMap()
 		ok
 
@@ -1364,17 +1366,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(pacKeys)
+		_nRpbksLen_ = len(pacKeys)
 
-		for i = 1 to nLen
-			This.RemovePairByKey(pacKeys[i])
+		for _iRpbks_ = 1 to _nRpbksLen_
+			This.RemovePairByKey(pacKeys[_iRpbks_])
 		next
 
 	def RemovePairsByValue(pValue)
-		aPos = This.FindValue(pValue)
+		_anRpbvPos_ = This.FindValue(pValue)
 
-		aResult = StzListQ( This.HashList() ).RemoveItemsAtThesePositionsQ( aPos ).Content()
-		This.Update(aResult)
+		_aRpbvResult_ = StzListQ( This.HashList() ).RemoveItemsAtThesePositionsQ( _anRpbvPos_ ).Content()
+		This.Update(_aRpbvResult_)
 
 		def RemovePairsByValueQ(pValue)
 			This.RemovePairsByValue(pValue)
@@ -1387,10 +1389,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(paValues)
+		_nRpbvsLen_ = len(paValues)
 
-		for i = 1 to nLen
-			This.RemovePairsByValue(paValues[i])
+		for _iRpbvs_ = 1 to _nRpbvsLen_
+			This.RemovePairsByValue(paValues[_iRpbvs_])
 		next
 
 	  #------------------#
@@ -1398,8 +1400,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#==================#
 
 	def ReplaceKey(pcKey, pcNewKey)
-		n = This.FindKey(pcKey)
-		This.ReplaceNthKey(n, pcNewKey)
+		_nRkN_ = This.FindKey(pcKey)
+		This.ReplaceNthKey(_nRkN_, pcNewKey)
 
 		def ReplaceKeyQ(pcKey, pcNewKey)
 			This.ReplaceKey(pcKey, pcNewKey)
@@ -1438,8 +1440,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#====================#
 
 	def ReplaceValue(pValue, pNewValue)
-		n = This.FindValue(pValue)
-		This.ReplaceNthValue(n, pNewValue)
+		_nRvN_ = This.FindValue(pValue)
+		This.ReplaceNthValue(_nRvN_, pNewValue)
 
 		def ReplaceValueQ(pValue, pNewValue)
 			This.ReplaceValue(pValue, pNewValue)
@@ -1449,9 +1451,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		if CheckingParam()
 			if NOT isNumber(n) and isNumber(pNewValue)
-				temp = n
+				_rnvTemp_ = n
 				n = pNewValue
-				pNewValue = temp
+				pNewValue = _rnvTemp_
 			ok
 
 			if isList(pNewValue) and Q(pNewValue).IsWithOrByNamedParam()
@@ -1499,8 +1501,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#--------------------#
 
 	def ReplaceValueByKey(pcKey, pNewValue)
-		n = This.FindKey(pckey)
-		This.HashList()[n][2] = pNewValue
+		_nRvkN_ = This.FindKey(pcKey)
+		This.HashList()[_nRvkN_][2] = pNewValue
 		This._InvalidateEngineMap()
 
 		def ReplaceValueByKeyQ(pcKey, pNewValue)
@@ -1519,16 +1521,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#===================#
 
 	def ReplacePair(paPair, paNewPair)
-		n = This.FindPair(paPair)
-		This.ReplaceNthPair(n, paNewPair)
+		_nRpN_ = This.FindPair(paPair)
+		This.ReplaceNthPair(_nRpN_, paNewPair)
 
 		def ReplacePairQ(paPair, paNewPair)
 			This.ReplacePair(paPair, paNewPair)
 			return This
 
 	def ReplacePairByKey(pcKey, paNewPair)
-		n = This.FindKey(pcKey)
-		This.ReplaceNthPair(n, paNewPair)
+		_nRpbkN_ = This.FindKey(pcKey)
+		This.ReplaceNthPair(_nRpbkN_, paNewPair)
 	
 		def ReplacePairByKeyQ(pcKey, paNewPair)
 			This.ReplacePairByKey(pcKey, paNewPair)
@@ -1543,8 +1545,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#---------------------#
 
 	def FindKeys(pacKeys)
-		aResult = This.KeysQ().FindMany(pacKeys)
-		return aResult
+		_aFksResult_ = This.KeysQ().FindMany(pacKeys)
+		return _aFksResult_
 
 		def FindTheseKeys(pacKeys)
 			return This.FindKeys(pacKeys)
@@ -1603,23 +1605,23 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		if NOT @IsPairAndKeyIsString(paPair)
 			StzRaise("Can't search the list." + NL + "Because paPair is not a pair!")
-		ok 
+		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFpContent_ = This.Content()
+		_nFpLen_ = len(_aFpContent_)
 
-		nResult = 0
+		_nFpResult_ = 0
 
-		for i = 1 to nLen
-			aPair = aContent[i]
-			if Q(aPair[1]).IsEqualTo(paPair[1]) and
-			   Q(aPair[2]).IsEqualTo(paPair[2])
+		for _iFp_ = 1 to _nFpLen_
+			_aFpPair_ = _aFpContent_[_iFp_]
+			if Q(_aFpPair_[1]).IsEqualTo(paPair[1]) and
+			   Q(_aFpPair_[2]).IsEqualTo(paPair[2])
 
-				nResult = i
+				_nFpResult_ = _iFp_
 				exit
-			ok	
+			ok
 		next
-		return nResult
+		return _nFpResult_
 
 
 	def ContainsPair(paPair)
@@ -1678,8 +1680,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#------------------------------------------------------#
 
 	def ContainsValuesCS(paValues, pCaseSensitive)
-		bResult = This.ValuesQ().ContainsManyCS(paValues, pCaseSensitive)
-		return bResult
+		_bCvsResult_ = This.ValuesQ().ContainsManyCS(paValues, pCaseSensitive)
+		return _bCvsResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1717,8 +1719,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#---------------------#
 
 	def FindValueCS(pValue, pCaseSensitive)
-		anResult = This.ValuesQ().FindAllCS(pValue, pCaseSensitive)
-		return anResult
+		_anFvcsResult_ = This.ValuesQ().FindAllCS(pValue, pCaseSensitive)
+		return _anFvcsResult_
 
 		#< @FunctionAlternativeForms
 
