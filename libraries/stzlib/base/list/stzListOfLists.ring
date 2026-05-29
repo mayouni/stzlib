@@ -3640,9 +3640,9 @@ class stzListOfLists from stzList
 		#>
 
 	def SortedOn(n)
-		aResult = This.Copy().SortOnQ(n).Content()
+		_aSdoResult_ = This.Copy().SortOnQ(n).Content()
 
-		return aResult
+		return _aSdoResult_
 
 		def SortedUpOn(n)
 			return This.SortedOn(n)
@@ -3655,8 +3655,8 @@ class stzListOfLists from stzList
 	#-------------------------------------------------------------#
 
 	def SortDownOn(n)
-		aResult = new stzList(This.SortedOn(n)).Reversed()
-		This.UpdateWith(aResult)
+		_aSdoResult_ = new stzList(This.SortedOn(n)).Reversed()
+		This.UpdateWith(_aSdoResult_)
 
 		#< @FunctionFluentForm
 
@@ -3669,7 +3669,7 @@ class stzListOfLists from stzList
 		#< @FunctionAlternativeForms
 
 		def SortInDescendingOn(n)
-			This.SortDown(n)
+			This.SortDownOn(n) ### Fixed: was This.SortDown(n) -- missing On
 
 			def SortInDescendingOnQ(n)
 				return This.SortDownOnQ(n)
@@ -3677,9 +3677,9 @@ class stzListOfLists from stzList
 		#>
 
 	def SortedDownOn(n)
-		aResult = This.Copy().SortDownOnQ(n).Content()
+		_aSddoResult_ = This.Copy().SortDownOnQ(n).Content()
 
-		return aResult
+		return _aSddoResult_
 
 		def SortedInDescendingOn(n)
 			return This.SortedDownOn(n)
@@ -3718,8 +3718,8 @@ class stzListOfLists from stzList
 		#>
 
 	def SortedBy(pcExpr)
-		aResult = This.Copy().SortByQ(pcExpr).Content()
-		return aResult
+		_aSbResult_ = This.Copy().SortByQ(pcExpr).Content()
+		return _aSbResult_
 
 		def SortedInAscendingBy(pcExpr)
 			return This.SortedBy(pcExpr)
@@ -3746,8 +3746,8 @@ class stzListOfLists from stzList
 				return This.SortInDescendingByQ(pcExpr)
 
 	def SortedInDescendingBy(pcExpr)
-		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
-		return aResult
+		_aSidbResult_ = This.Copy().SortInDescendingByQ(pcExpr).Content()
+		return _aSidbResult_
 
 		def SortedDownBy(pcExpr)
 			return This.SortedInDescendingBy(pcExpr)
@@ -3762,29 +3762,27 @@ class stzListOfLists from stzList
 
 	def SortOnBy(nCol, pcExpr)
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSobContent_ = This.Content()
+		_nSobLen_ = len(_aSobContent_)
 
-		aCol = This.Col(nCol)
-		nLenCol = len(aCol)
+		_aSobCol_ = This.Col(nCol)
+		_nSobLenCol_ = len(_aSobCol_)
 
-		cCode = 'value = (' + _StzStripBraces(pcExpr) + ')'
+		_cSobCode_ = 'value = (' + _StzStripBraces(pcExpr) + ')'
 
-		aResult = []
-
-		for @i = 1 to nLenCol
-			@item = aCol[@i]
-			eval(cCode)
-			ring_insert(aContent[@i], 1, value)
+		for @i = 1 to _nSobLenCol_
+			@item = _aSobCol_[@i]
+			eval(_cSobCode_)
+			ring_insert(_aSobContent_[@i], 1, value)
 		next
 
-		This.UpdateWith( @SortLists(aContent) )
+		This.UpdateWith( @SortLists(_aSobContent_) )
 		This.RemoveCol(1)
-		
+
 		#< @FunctionFluentForm
 
 		def SortOnByQ(nCol, pcExpr)
-			This.SortOnBy(ncol, pcExpr)
+			This.SortOnBy(nCol, pcExpr) ### Fixed: was bare `ncol` lowercase (works in Ring case-insensitive but unsafe)
 			return This
 
 		#>
@@ -3806,14 +3804,14 @@ class stzListOfLists from stzList
 		#>
 
 	def SortedOnBy(nCol, pcExpr)
-		aResult = This.Copy().SortOnByQ(nCol, pcExpr).Content()
-		return aResult
+		_aSobdResult_ = This.Copy().SortOnByQ(nCol, pcExpr).Content()
+		return _aSobdResult_
 
 		def SortedInAscendingOnBy(nCol, pcExpr)
 			return This.SortedOnBy(nCol, pcExpr)
 
 		def SortedUpOnBy(nCol, pcExpr)
-			return This.SortedByOn(nCol, pcExpr)
+			return This.SortedOnBy(nCol, pcExpr) ### Fixed: was SortedByOn (nonexistent)
 
 	  #---------------------------------------------------------------------------------------#
 	 #  SORTING THE LISTS BY AN EXPRESSION EVALUATED AGAINST A GIVEN COLUMN - IN DESCENDING  #
@@ -3834,8 +3832,8 @@ class stzListOfLists from stzList
 				return This.SortInDescendingOnByQ(nCol, pcExpr)
 
 	def SortedInDescendingOnBy(nCol, pcExpr)
-		aResult = This.Copy().SortInDescendingOnByQ(nCol, pcExpr).Content()
-		return aResult
+		_aSidobResult_ = This.Copy().SortInDescendingOnByQ(nCol, pcExpr).Content()
+		return _aSidobResult_
 
 		def SortedDownOnBy(nCol, pcExpr)
 			return This.SortedInDescendingOnBy(nCol, pcExpr)
@@ -3845,18 +3843,18 @@ class stzListOfLists from stzList
 	#===========================================#
 
 	def RemoveDuplicatesInNthList(n)
-		aContent = This.Content()
-		aContent[n] = @WithoutDuplicates(aContent[n])
-		This.UpdateWith(aContent)
+		_aRdnContent_ = This.Content()
+		_aRdnContent_[n] = @WithoutDuplicates(_aRdnContent_[n])
+		This.UpdateWith(_aRdnContent_)
 
 
 		def RemoveDuplicatesInNthListQ(n)
 			This.RemoveDuplicatesInNthList(n)
-			return
+			return This ### Fixed: was bare `return` -- fluent form returned NULL
 
 	def DuplicatesInNthListRemoved(n)
-		aResult = This.Copy().RemoveDuplicatesInNthListQ(n).Content()
-		return aResult
+		_aDnrResult_ = This.Copy().RemoveDuplicatesInNthListQ(n).Content()
+		return _aDnrResult_
 
 		def WithoutDuplicatesInNthList(n)
 			return This.DuplicatesInNthListRemoved(n)
@@ -3872,14 +3870,14 @@ class stzListOfLists from stzList
 	#--------------------------------------------#
 
 	def RemoveDuplicatesInLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aRdlContent_ = This.Content()
+		_nRdlLen_ = len(_aRdlContent_)
 
-		for i = 1 to nLen
-			aContent[i] = @WithoutDuplicates(@aContent[i])
+		for _iRdl_ = 1 to _nRdlLen_
+			_aRdlContent_[_iRdl_] = @WithoutDuplicates(@aContent[_iRdl_])
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aRdlContent_)
 
 
 		def RemoveDuplicatesInListsQ()
@@ -3887,8 +3885,8 @@ class stzListOfLists from stzList
 			return This
 
 	def DuplicatesInListsRemoved()
-		aResult = This.RemoveDuplicatesInListsQ().Content()
-		return aResult
+		_aDlrResult_ = This.Copy().RemoveDuplicatesInListsQ().Content() ### Fixed: was missing .Copy() so it mutated self
+		return _aDlrResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3912,65 +3910,64 @@ class stzListOfLists from stzList
 	# ~> to make it on another column, use ClassifyOn(nCol)
 
 	def Classify()
-		acContent = This.FirstColQ().StringifyNamedObjectsQ().Lowercased()
+		_acClContent_ = This.FirstColQ().StringifyNamedObjectsQ().Lowercased()
 
-		nLen = len(acContent)
-		anPosUndefined = []
-		acSeen = []
+		_nClLen_ = len(_acClContent_)
+		_anClPosU_ = []
+		_acClSeen_ = []
 
-		aResult = []
+		_aClResult_ = []
 
-		for i = 1 to nLen
+		for _iCl_ = 1 to _nClLen_
 
-			if isString(acContent[i])
+			if isString(_acClContent_[_iCl_])
 
-				if acContent[i] = :@NullObject or
-				   acContent[i] = :@TrueObject or
-				   acContent[i] = :@FalseObject
+				if _acClContent_[_iCl_] = :@NullObject or
+				   _acClContent_[_iCl_] = :@TrueObject or
+				   _acClContent_[_iCl_] = :@FalseObject
 
-					anPosUndefined + i
+					@AddItem(_anClPosU_, _iCl_)
 					loop
 				ok
 
-				nLenList = len(@aContent[i])
+				_nClInner_ = len(@aContent[_iCl_])
 
-				if StzFind(acSeen, acContent[i]) = 0
-					aResult + [ acContent[i], [] ]
+				if StzFind(_acClSeen_, _acClContent_[_iCl_]) = 0
+					@AddItem(_aClResult_, [ _acClContent_[_iCl_], [] ])
 
-					for j = 2 to nLenlist
-						aResult[ acContent[i] ] + @aContent[i][j]
+					for _jCl_ = 2 to _nClInner_
+						_aClResult_[ _acClContent_[_iCl_] ] + @aContent[_iCl_][_jCl_]
 					next
 
-					acSeen + acContent[i]
+					@AddItem(_acClSeen_, _acClContent_[_iCl_])
 
 				else
 
-					for j = 2 to nLenList
-						aResult[ acContent[i] ] + @aContent[i][j]
+					for _jCl2_ = 2 to _nClInner_
+						_aClResult_[ _acClContent_[_iCl_] ] + @aContent[_iCl_][_jCl2_]
 					next
-					
+
 				ok
 			else
-				anPosUndefined + i
+				@AddItem(_anClPosU_, _iCl_)
 			ok
 		next
 
-		nLenUndefined = len(anPosUndefined)
-		if nLenUndefined > 0
-			aResult + [ :@Undefined, [] ]
-	
-			
-			for i = 1 to nLenUndefined
-				nPos = anPosUndefined[i]
-				nLenList = len(@aContent[nPos])
-	
-				for j = 2 to nLenList
-					aResult[ :@Undefined ] + @aContent[nPos][j]
+		_nClLenU_ = len(_anClPosU_)
+		if _nClLenU_ > 0
+			@AddItem(_aClResult_, [ :@Undefined, [] ])
+
+			for _kCl_ = 1 to _nClLenU_
+				_nClPos_ = _anClPosU_[_kCl_]
+				_nClInnerU_ = len(@aContent[_nClPos_])
+
+				for _wCl_ = 2 to _nClInnerU_
+					_aClResult_[ :@Undefined ] + @aContent[_nClPos_][_wCl_]
 				next
 			next
 		ok
 
-		return aResult
+		return _aClResult_
 
 		#< @FunctionFluentForms
 
@@ -4007,9 +4004,9 @@ class stzListOfLists from stzList
 	#------------------------------------------------#
 
 	def ClassifyOn(pnColNumber)
-		oCopy = This.Copy().MoveColQ(pnColNumber, 1)
-		aResult = oCopy.Classify()
-		return aResult
+		_oCloCopy_ = This.Copy().MoveColQ(pnColNumber, 1)
+		_aCloResult_ = _oCloCopy_.Classify()
+		return _aCloResult_
 
 		#< @FunctionFluentForms
 
@@ -4108,26 +4105,24 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		cCode = 'value = (' + _StzStripBraces(pcExpr) + ')'
+		_cCobCode_ = 'value = (' + _StzStripBraces(pcExpr) + ')'
 
-		aContent = This.Content()
+		_aCobContent_ = This.Content()
 
-		aCol = This.Col(nCol)
-		nLenCol = len(aCol)
+		_aCobCol_ = This.Col(nCol)
+		_nCobLenCol_ = len(_aCobCol_)
 
-		aResult = []
-
-		for @i = 1 to nLenCol
-			@item = aCol[@i]
-			eval(cCode)
-			ring_insert(aContent[@i], nCol, value)
+		for @i = 1 to _nCobLenCol_
+			@item = _aCobCol_[@i]
+			eval(_cCobCode_)
+			ring_insert(_aCobContent_[@i], nCol, value)
 		next
 
-		aResult = StzListOfListsQ(aContent).
+		_aCobResult_ = StzListOfListsQ(_aCobContent_).
 				RemoveColQ(nCol+1).
 				ClassifyOn(nCol)
 
-		return aResult
+		return _aCobResult_
 
 	  #===============================================#
 	 #  MOVING A COLUMN FROM A POSITION TO AN OTHER  #
@@ -4147,29 +4142,29 @@ class stzListOfLists from stzList
 			return
 		ok
 
-		nNumberOfCols = This.NumberOfCols()
+		_nMcCols_ = This.NumberOfCols()
 
-		if n1 < 1 or n1 > nNumberOfCols
+		if n1 < 1 or n1 > _nMcCols_
 			return
 		ok
 
-		if n2 < 1 or n2 > nNumberOfCols
+		if n2 < 1 or n2 > _nMcCols_
 			return
 		ok
 
 		# Doing the job
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aMcContent_ = This.Content()
+		_nMcLen_ = len(_aMcContent_)
 
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
-			if n1 <= nLenList and n2 <= nLenList
-				@Move(aContent[i], n1, n2)
+		for _iMc_ = 1 to _nMcLen_
+			_nMcInner_ = len(_aMcContent_[_iMc_])
+			if n1 <= _nMcInner_ and n2 <= _nMcInner_
+				@Move(_aMcContent_[_iMc_], n1, n2)
 			ok
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aMcContent_)
 
 
 		#< @FunctionFluentForm
@@ -4197,8 +4192,8 @@ class stzListOfLists from stzList
 		#>
 
 	def ColMoved(n1, n2)
-		aResult = This.Copy().MoveColQ(n1, n2).Content()
-		return aResult
+		_aCmResult_ = This.Copy().MoveColQ(n1, n2).Content()
+		return _aCmResult_
 
 		def ColumnMoved(n1, n2)
 			return This.ColMoved(n1, n2)
@@ -4216,14 +4211,14 @@ class stzListOfLists from stzList
 			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [
 				:From, :FromPosition,
 				:Between, :BetweenPosition, :BetweenPositions ])
-				
+
 				n1 = n1[2]
 			ok
 
 			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [
 				:To, :ToPosition, :And, :AndPosition ])
-				
-				n1 = n2[2]
+
+				n2 = n2[2] ### Fixed: was `n1 = n2[2]` -- assigned to wrong var, dropped n2 named-param unwrap
 			ok
 
 			if NOT (isNumber(n1) and isNumber(n2))
@@ -4237,29 +4232,29 @@ class stzListOfLists from stzList
 			return
 		ok
 
-		nNumberOfCols = This.NumberOfCols()
+		_nScCols_ = This.NumberOfCols()
 
-		if n1 < 1 or n1 > nNumberOfCols
+		if n1 < 1 or n1 > _nScCols_
 			return
 		ok
 
-		if n2 < 1 or n2 > nNumberOfCols
+		if n2 < 1 or n2 > _nScCols_
 			return
 		ok
 
 		# Doing the job
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aScContent_ = This.Content()
+		_nScLen_ = len(_aScContent_)
 
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
-			if n1 <= nLenList and n2 <= nLenList
-				ring_swap(aContent[i], n1, n2)
+		for _iSc_ = 1 to _nScLen_
+			_nScInner_ = len(_aScContent_[_iSc_])
+			if n1 <= _nScInner_ and n2 <= _nScInner_
+				ring_swap(_aScContent_[_iSc_], n1, n2)
 			ok
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aScContent_)
 
 
 		#< @FunctionFluentForm
@@ -4289,8 +4284,8 @@ class stzListOfLists from stzList
 		#>
 
 	def ColsSwapped(n1, n2)
-		aResult = This.Copy().SwapCols(n1, n2).Content()
-		return aResult
+		_aCsResult_ = This.Copy().SwapColsQ(n1, n2).Content() ### Fixed: was calling non-fluent SwapCols (returns NULL)
+		return _aCsResult_
 
 		def ColumnsSwapped(n1, n2)
 			return This.ColsSwapped(n1, n2)
@@ -4320,33 +4315,33 @@ class stzListOfLists from stzList
 
 		# Early check
 
-		nNumberOfCols = This.NumberOfCols()
+		_nIcCols_ = This.NumberOfCols()
 
-		if n < 1 or n > nNumberOfCols
+		if n < 1 or n > _nIcCols_
 			return
 		ok
 
 		# Doing the job
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		nLenCol = len(paColData)
+		_aIcContent_ = This.Content()
+		_nIcLen_ = len(_aIcContent_)
+		_nIcLenCol_ = len(paColData)
 
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
+		for _iIc_ = 1 to _nIcLen_
+			_nIcInner_ = len(_aIcContent_[_iIc_])
 
-			item = ""
-			if i <= nLenCol
-				item = paColData[i]
+			_icItem_ = ""
+			if _iIc_ <= _nIcLenCol_
+				_icItem_ = paColData[_iIc_]
 			ok
 
-			if n <= nLenList
-				ring_insert(aContent[i], n, item)
+			if n <= _nIcInner_
+				ring_insert(_aIcContent_[_iIc_], n, _icItem_)
 			ok
 
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aIcContent_)
 
 
 		#< @FunctionFluentForm
@@ -4384,23 +4379,23 @@ class stzListOfLists from stzList
 
 		# Early Check
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aRcContent_ = This.Content()
+		_nRcLen_ = len(_aRcContent_)
 
-		if n < 1 or n > nLen
+		if n < 1 or n > _nRcLen_
 			return
 		ok
 
 		# Doing the job
 
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
-			if n <= nLenList
-				ring_remove(aContent[i], n)
+		for _iRc_ = 1 to _nRcLen_
+			_nRcInner_ = len(_aRcContent_[_iRc_])
+			if n <= _nRcInner_
+				ring_remove(_aRcContent_[_iRc_], n)
 			ok
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aRcContent_)
 
 
 		#< @FunctionFluentForm
@@ -4440,8 +4435,8 @@ class stzListOfLists from stzList
 		#>
 
 	def ColRemoved(n)
-		aResult = This.Copy().RemoveColQ(n).Content()
-		return aResult
+		_aCrResult_ = This.Copy().RemoveColQ(n).Content()
+		return _aCrResult_
 
 		#< @FunctionAlternativeForms
 
@@ -4474,23 +4469,23 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aRcsContent_ = This.Content()
+		_nRcsLen_ = len(_aRcsContent_)
 
 		anColNumbers = new stzList(anColNumbers).Sorted()
-		nLenCols = len(anColNumbers)
+		_nRcsLenCols_ = len(anColNumbers)
 
-		for i = nLenCols to 1 step -1
-			n = anColNumbers[i]
-			for j = 1 to nLen
-				nLenList = len(aContent[j])
-				if n <= nLenList
-					ring_remove(aContent[j], n)
+		for _iRcs_ = _nRcsLenCols_ to 1 step -1
+			_nRcsN_ = anColNumbers[_iRcs_]
+			for _jRcs_ = 1 to _nRcsLen_
+				_nRcsInner_ = len(_aRcsContent_[_jRcs_])
+				if _nRcsN_ <= _nRcsInner_
+					ring_remove(_aRcsContent_[_jRcs_], _nRcsN_)
 				ok
 			next
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aRcsContent_)
 
 
 		#< @FunctionFluentForm
@@ -4507,13 +4502,13 @@ class stzListOfLists from stzList
 			This.RemoveCols(anColNumbers)
 
 			def RemoveTheseColqQ(anColNumbers)
-				return This.RemoveColsQ(n)
+				return This.RemoveColsQ(anColNumbers) ### Fixed: was passing bare `n` (undefined)
 
 		def RemoveManyCols(anColNumbers)
 			This.RemoveCols(anColNumbers)
 
 			def RemoveManyColqQ(anColNumbers)
-				return This.RemoveColsQ(n)
+				return This.RemoveColsQ(anColNumbers) ### Fixed: was bare `n` (undefined)
 
 		def RemoveColumns(anColNumbers)
 			This.RemoveCols(anColNumbers)
@@ -4526,19 +4521,19 @@ class stzListOfLists from stzList
 			This.RemoveTheseCols(anColNumbers)
 
 			def RemoveTheseColumnsQ(anColNumbers)
-				return This.RemoveCoslQ(anColNumbers)
+				return This.RemoveColsQ(anColNumbers) ### Fixed: was RemoveCoslQ (typo)
 
 		def RemoveManyColumns(anColNumbers)
 			This.RemoveTheseCols(anColNumbers)
 
 			def RemoveManyColumnsQ(anColNumbers)
-				return This.RemoveCoslQ(anColNumbers)
+				return This.RemoveColsQ(anColNumbers) ### Fixed: was RemoveCoslQ (typo)
 	
 		#>
 
 	def ColsRemoved(anColNumbers)
-		aResult = This.Copy().RemoveColsQ(anColNumbers).Content()
-		return aResult
+		_aCrdResult_ = This.Copy().RemoveColsQ(anColNumbers).Content()
+		return _aCrdResult_
 
 		#< @FunctionAlternativeForms
 
@@ -4585,33 +4580,33 @@ class stzListOfLists from stzList
 
 		# Early check
 
-		nNumberOfCols = This.NumberOfCols()
+		_nRpcCols_ = This.NumberOfCols()
 
-		if n < 1 or n > nNumberOfCols
+		if n < 1 or n > _nRpcCols_
 			return
 		ok
 
 		# Doing the job
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		nLenCol = len(paColData)
+		_aRpcContent_ = This.Content()
+		_nRpcLen_ = len(_aRpcContent_)
+		_nRpcLenCol_ = len(paColData)
 
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
+		for _iRpc_ = 1 to _nRpcLen_
+			_nRpcInner_ = len(_aRpcContent_[_iRpc_])
 
-			item = ""
-			if i <= nLenCol
-				item = paColData[i]
+			_rpcItem_ = ""
+			if _iRpc_ <= _nRpcLenCol_
+				_rpcItem_ = paColData[_iRpc_]
 			ok
 
-			if n <= nLenList
-				aContent[i][n] = item
+			if n <= _nRpcInner_
+				_aRpcContent_[_iRpc_][n] = _rpcItem_
 			ok
 
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aRpcContent_)
 
 
 		#< @FunctionFluentForm
@@ -4644,10 +4639,10 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		nLen = len(panColNumbers)
+		_nRpsLen_ = len(panColNumbers)
 
-		for i = 1 to nLen
-			this.ReplaceCol(panColNumbers[i], paColData)
+		for _iRps_ = 1 to _nRpsLen_
+			this.ReplaceCol(panColNumbers[_iRps_], paColData)
 		next
 
 	  #==================================================#
@@ -4659,25 +4654,25 @@ class stzListOfLists from stzList
 
 	def ToListOfStzLists()
 
-		aoResult = []
-		nLen = len(@aContent)
+		_aoTlsResult_ = []
+		_nTlsLen_ = len(@aContent)
 
-		for i = 1 to nLen
-			aoResult + new stzList(@aContent[i])
+		for _iTls_ = 1 to _nTlsLen_
+			@AddItem(_aoTlsResult_, new stzList(@aContent[_iTls_]))
 		next
 
-		return aoResult
+		return _aoTlsResult_
 
 	def ToListsInString()
-		acResult = []
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
+		_acTlisResult_ = []
+		_aTlisLists_ = This.ListOfLists()
+		_nTlisLen_ = len(_aTlisLists_)
 
-		for i = 1 to nLen
-			acResult + @@(aListOfLists[i])
+		for _iTlis_ = 1 to _nTlisLen_
+			@AddItem(_acTlisResult_, @@(_aTlisLists_[_iTlis_]))
 		next
 
-		return acResult
+		return _acTlisResult_
 
 		def ToListsInStringQ()
 			return new stzString( This.ToListsInString() )
@@ -4695,10 +4690,10 @@ class stzListOfLists from stzList
 				return new stzString( This.ToListInNormalForm() )
 
 	def ToListInStringInShortForm()
-		cList = @@(This.Content())
-		oStr = new stzString(cList)
-		cResult = oStr.ToListInShortForm()
-		return cResult
+		_cTlissList_ = @@(This.Content())
+		_oTlissStr_ = new stzString(_cTlissList_)
+		_cTlissResult_ = _oTlissStr_.ToListInShortForm()
+		return _cTlissResult_
 
 		def ToListInStringInShortFormQ()
 			return new stzString( This.ToListInStringInShortForm() )
@@ -4722,31 +4717,31 @@ class stzListOfLists from stzList
 		return new stzList( This.Content() )
 
 	def ToListOfStrings() #TODO // Do we need it? compare with stzList.Stringified()
-		aResult = []
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
+		_aTosResult_ = []
+		_aTosLists_ = This.ListOfLists()
+		_nTosLen_ = len(_aTosLists_)
 
-		for i = 1 to nLen 
-			aResult + @@( aListOfLists[i] ) # @@ --> ComputableForm( list )
+		for _iTos_ = 1 to _nTosLen_
+			@AddItem(_aTosResult_, @@( _aTosLists_[_iTos_] )) # @@ --> ComputableForm( list )
 		next
 
-		return aResult
+		return _aTosResult_
 
 
 	def IsListOfPairs()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aIlpContent_ = This.Content()
+		_nIlpLen_ = len(_aIlpContent_)
 
-		bResult = 1
+		_bIlpResult_ = 1
 
-		for i = 1 to nLen
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 2)
-				bResult = 0
+		for _iIlp_ = 1 to _nIlpLen_
+			if NOT (isList(_aIlpContent_[_iIlp_]) and len(_aIlpContent_[_iIlp_]) = 2)
+				_bIlpResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bIlpResult_
 
 	def ToStzListOfpairs()
 		if This.IsListOfPairs()
@@ -4767,14 +4762,14 @@ class stzListOfLists from stzList
 	#======================================#
 
 	def SpeedUp()
-		anNumbers = This.Content()
+		_anSuNumbers_ = This.Content()
 
-		n1 = anNumbers[1]
-		n2 = anNumbers[2]
+		_nSuN1_ = _anSuNumbers_[1]
+		_nSuN2_ = _anSuNumbers_[2]
 
-		nResult = n1 / n2
+		_nSuResult_ = _nSuN1_ / _nSuN2_
 
-		return nResult
+		return _nSuResult_
 
 		def SpeedUpX()
 			return This.SpeedUp()
@@ -4784,14 +4779,14 @@ class stzListOfLists from stzList
 	#-------------------------------------------------#
 
 	def GainFactor()
-		anNumbers = This.Content()
+		_anGfNumbers_ = This.Content()
 
-		n1 = anNumbers[1]
-		n2 = anNumbers[2]
+		_nGfN1_ = _anGfNumbers_[1]
+		_nGfN2_ = _anGfNumbers_[2]
 
-		nResult = n2 / n1
+		_nGfResult_ = _nGfN2_ / _nGfN1_
 
-		return nResult
+		return _nGfResult_
 	
 		def GainX()
 			return This.GainFactor()
@@ -4802,41 +4797,41 @@ class stzListOfLists from stzList
 
 	func AreContiguous()
 
-		bResult = 1
-		nLen = len(@aContent)
+		_bAcResult_ = 1
+		_nAcLen_ = len(@aContent)
 
-		for i = 1 to nLen
+		for _iAc_ = 1 to _nAcLen_
 
-			aList = @aContent[i]
-			nLenList = len(aList)
+			_aAcList_ = @aContent[_iAc_]
+			_nAcInner_ = len(_aAcList_)
 
-			if nLenList > 2
+			if _nAcInner_ > 2
 
-				if @IsListOfNumbers(aList)
-					for j = 2 to nLenList
-						if NOT aList[j] = aList[j-1] + 1
-							bResult = 0
+				if @IsListOfNumbers(_aAcList_)
+					for _jAcN_ = 2 to _nAcInner_
+						if NOT _aAcList_[_jAcN_] = _aAcList_[_jAcN_-1] + 1
+							_bAcResult_ = 0
 							exit
 						ok
 					next
-	
-				but @IsListOfChars(aList)
-					for j = 2 to nLenList
-						if NOT ascii(aList[j]) = ascii(aList[j-1]) + 1
-							bResult = 0
+
+				but @IsListOfChars(_aAcList_)
+					for _jAcC_ = 2 to _nAcInner_
+						if NOT ascii(_aAcList_[_jAcC_]) = ascii(_aAcList_[_jAcC_-1]) + 1
+							_bAcResult_ = 0
 							exit
 						ok
 					next
 				ok
 			ok
 
-			if bResult = 0
+			if _bAcResult_ = 0
 				exit
 			ok
 
 		next
-	
-		return bResult
+
+		return _bAcResult_
 
 		def AreContinuous()
 			return This.AreContiguous()
@@ -4871,22 +4866,22 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		aAdjusted = This.Adjusted()
-		nLen = len(aAdjusted)
+		_aFslAdj_ = This.Adjusted()
+		_nFslLen_ = len(_aFslAdj_)
 
-		aResult = []
+		_aFslResult_ = []
 
-		for i = 1 to nLen
+		for _iFsl_ = 1 to _nFslLen_
 
-			anPos = StzListQ(aAdjusted[i]).FindSubListCS(paItems, pCaseSensitive)
-			
-			if len(anPos) > 0
-				aResult + [ i, anPos ]
+			_anFslPos_ = StzListQ(_aFslAdj_[_iFsl_]).FindSubListCS(paItems, pCaseSensitive)
+
+			if len(_anFslPos_) > 0
+				@AddItem(_aFslResult_, [ _iFsl_, _anFslPos_ ])
 			ok
 
 		next
 
-		return aResult
+		return _aFslResult_
 
 		def FindContiguousItemsCS(paItems, pCaseSensitive)
 			return This.FindSubListCS(paItems, pCaseSensitive)
@@ -4904,21 +4899,21 @@ class stzListOfLists from stzList
 	#====================#
 
 	def SortLists()
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_aSltContent_ = This.Content()
+		_nSltLen_ = len(_aSltContent_)
 
-		_aResult_ = []
+		_aSltResult_ = []
 
-		for @i = 1 to _nLen_
-			_aResult_ + @Sort(_aContent_[@i])
+		for _iSlt_ = 1 to _nSltLen_
+			@AddItem(_aSltResult_, @Sort(_aSltContent_[_iSlt_]))
 		next
 
-		This.UpdateWith(_aResult_)
+		This.UpdateWith(_aSltResult_)
 
 		def SortListQ()
 			This.SortLists()
 			return This
 
 	def ListsSorted()
-		_aResult_ = This.Copy().SortListQ().Content()
-		return _aResult_
+		_aLsResult_ = This.Copy().SortListQ().Content()
+		return _aLsResult_
