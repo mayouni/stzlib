@@ -427,7 +427,7 @@ pub const milestones = [_]Milestone{
         .track = "stzlib",
         .title = "Ring-Side Test Hardening",
         .status = .partial,
-        .summary = "Session 38-39: 3 regression suites added pinning the 41+ latent bugs found+fixed during M-S1 Phase 2 cleanup (53 assertions across stzListOfLists / stzHashList / submodules). Session 39 uncovered 6 more bugs incl. an architectural cross-DLL handle-table issue: stz_value.dll handles dont resolve in stz_list.dll's static handle table, so StzEngineListReplaceAllCS/RemoveAllCS via value handles return -1. Engine fast-paths for string Replace/Remove disabled until shared handle table or string-only engine variants land. Function-form tests, edge cases, narrated GIVEN/WHEN/THEN, test runner integration still pending",
+        .summary = "Session 38-40: 5 regression suites added pinning the 47 latent bugs found+fixed during M-S1 Phase 2 cleanup (114 assertions across stzListOfLists / stzHashList / submodules batch 1/2/3). Session 40 uncovered 5 more bugs in stzListExtractor: ExtractNth/First/Last used ring_remove(This.List(),n) which returned a copy not a reference -- the mutation never persisted; ExtractStrings/Numbers/Lists called nonexistent ListReversed and had the same mutation-leak; ExtractDuplicatesCS same. ARCHITECTURAL: stz_value.dll and stz_list.dll have separate static handle tables -- engine fast-paths for string Replace/Remove disabled in stzListReplacer + stzListRemover until shared handle table or string-only engine variants land. Function-form tests, edge cases, narrated GIVEN/WHEN/THEN, test runner integration still pending",
     },
     .{
         .id = "M-S3",
