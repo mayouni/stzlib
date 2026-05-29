@@ -2636,46 +2636,46 @@ class stzListOfLists from stzList
 			StzRaise("Incorrect param type! pCaseSensitive must be 1 or FALSE.")
 		ok
 
-		aLists = @aContent
+		_aIxxLists_ = @aContent
 
 		if pCaseSensitive = 0
-			aLists = This.Lowercased()
+			_aIxxLists_ = This.Lowercased()
 		ok
 
-		nLenLists = len(aLists)
+		_nIxxLenLists_ = len(_aIxxLists_)
 
 		# Early cheks
 
-		if nLenLists = 0
+		if _nIxxLenLists_ = 0
 			return []
 		ok
 
 		# Doing the job
 
-		aItems = This.FlattenedQ().WithoutDuplicationCS(pCaseSensitive)
-		nLenItems = len(aItems)
+		_aIxxItems_ = This.FlattenedQ().WithoutDuplicationCS(pCaseSensitive)
+		_nIxxLenItems_ = len(_aIxxItems_)
 
-		aResult = []
-	
-		for i = 1 to nLenItems
-			aPos = []
+		_aIxxResult_ = []
 
-			for j = 1 to nLenLists
-				nLen = len(aLists[j])
-				for w = 1 to nLen
-					if ring_type(aLists[j][w]) = ring_type(aItems[i]) and
-					   aLists[j][w] = aItems[i]
+		for _iIxx_ = 1 to _nIxxLenItems_
+			_aIxxPos_ = []
 
-						aPos + [ j, w ]
+			for _jIxx_ = 1 to _nIxxLenLists_
+				_nIxxInnerLen_ = len(_aIxxLists_[_jIxx_])
+				for _wIxx_ = 1 to _nIxxInnerLen_
+					if ring_type(_aIxxLists_[_jIxx_][_wIxx_]) = ring_type(_aIxxItems_[_iIxx_]) and
+					   _aIxxLists_[_jIxx_][_wIxx_] = _aIxxItems_[_iIxx_]
+
+						@AddItem(_aIxxPos_, [ _jIxx_, _wIxx_ ])
 					ok
 				next
 			next
 
-			aResult + [ aItems[i], aPos ]
+			@AddItem(_aIxxResult_, [ _aIxxItems_[_iIxx_], _aIxxPos_ ])
 
 		next
 
-		return aResult
+		return _aIxxResult_
 
 		def IndexCSXTQ()
 			return This.IndexCSXTQRT(pCaseSensitive, :stzList)
@@ -2738,69 +2738,69 @@ class stzListOfLists from stzList
 	#-----------------------------------------#
 
 	def NumberOfOccurrenceOfEntry(pEntry)
-		return len(o1.IndexOn(:Position)[pEntry])
+		return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1
 
 		def NumberOfOccurrencesOfEntry(pEntry)
 			return This.NumberOfOccurrenceOfEntry(pEntry)
 
-		def HowManyEntry()
-			return len(o1.IndexOn(:Position)[pEntry])
+		def HowManyEntry(pEntry)
+			return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1 + missing pEntry param
 
-		def HowManyEntries()
-			return len(o1.IndexOn(:Position)[pEntry])
+		def HowManyEntries(pEntry)
+			return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1 + missing pEntry param
 
 	def NthOccurrenceOfEntry(n, pEntry)
-		return o1.IndexOn(:Position)[pEntry][n]
+		return This.IndexOn(:Position)[pEntry][n] ### Fixed: was bare o1
 
 		def NthOccurrencesOfEntry(n, pEntry)
 			return This.NthOccurrenceOfEntry(n, pEntry)
 
 	def FirstOccurrenceOfEntry(pEntry)
-		return NthOccurrenceOfEntry(1, pEntry)
+		return This.NthOccurrenceOfEntry(1, pEntry) ### Fixed: was bare call
 
 	def LastOccurrenceOfEntry(pEntry)
-		return NthOccurrenceOfEntry(This.NumberOfOccurrenceOfEntry(pEntry), pEntry)
+		return This.NthOccurrenceOfEntry(This.NumberOfOccurrenceOfEntry(pEntry), pEntry) ### Fixed: was bare call
 
 	  #========================================================#
 	 #   CHECKING IF THE LIST OF LISTS CONTAINS A GIVEN ITEM  #
 	#========================================================#
 
 	def ContainsItemCS(pItem, pCaseSensitive)
-		bResult = 0
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
+		_bCicResult_ = 0
+		_aCicLists_ = This.ListOfLists()
+		_nCicLen_ = len(_aCicLists_)
 
-		for i = 1 to nLen
-			oStzList = new stzList( aListOfLists[i] )
-			if oStzList.ContainsCS(pItem, pCaseSensitive)
-				bResult = 1
+		for _iCic_ = 1 to _nCicLen_
+			_oCicList_ = new stzList( _aCicLists_[_iCic_] )
+			if _oCicList_.ContainsCS(pItem, pCaseSensitive)
+				_bCicResult_ = 1
 				exit
 			ok
 		next
 
-		return bResult
+		return _bCicResult_
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsItem(pItem)
-		return This.ContainsItemCS(pItem, :CaseSensitive)
+		return This.ContainsItemCS(pItem, 1) ### Fixed: was passing symbol :CaseSensitive instead of 1
 
 	  #---------------------------------------------#
 	 #  GETTING THE LISTS CONTAINING A GIVEN ITEM  #
 	#---------------------------------------------#
 
 	def ListsContainingItemCS(pItem, pCaseSensitive)
-		aResult = []
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
+		_aLciResult_ = []
+		_aLciLists_ = This.ListOfLists()
+		_nLciLen_ = len(_aLciLists_)
 
-		for i = 1 to nLen
-			oStzList = new stzList(aListOfLists[i])
-			if oStzList.ContainsCS(pItem, pCaseSensitive)
-				aResult + aListOfLists[i]
+		for _iLci_ = 1 to _nLciLen_
+			_oLciList_ = new stzList(_aLciLists_[_iLci_])
+			if _oLciList_.ContainsCS(pItem, pCaseSensitive)
+				@AddItem(_aLciResult_, _aLciLists_[_iLci_])
 			ok
 		next
-		return aResult
+		return _aLciResult_
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -2812,18 +2812,18 @@ class stzListOfLists from stzList
 	#------------------------------------------------#
 
 	def EachListContainsCS(pItem, pCaseSensitive)
-		bResult = 1
-		aLists = This.Content()
-		nLen = len(aLists)
+		_bElcResult_ = 1
+		_aElcLists_ = This.Content()
+		_nElcLen_ = len(_aElcLists_)
 
-		for i = 1 to nLen
-			if NOT Q(aLists[i]).ContainsCS(pItem, pCaseSensitive)
-				bResult = 0
+		for _iElc_ = 1 to _nElcLen_
+			if NOT Q(_aElcLists_[_iElc_]).ContainsCS(pItem, pCaseSensitive)
+				_bElcResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bElcResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2879,9 +2879,8 @@ class stzListOfLists from stzList
 			StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
 
 	def Merged()
-		aContent = This.Content()
-		aResult = @Merge(@aContent)
-		return aResult
+		_aMgResult_ = @Merge(@aContent)
+		return _aMgResult_
 
 	  #----------------------------------------#
 	 #  GETTING A FLATTENED COPY OF THE LIST  #
@@ -2904,19 +2903,19 @@ class stzListOfLists from stzList
 	#===========================================================#
 
 	def SizeOfEach@Is(n)
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSeContent_ = This.Content()
+		_nSeLen_ = len(_aSeContent_)
 
-		nResult = 1
+		_bSeResult_ = 1 ### Fixed: was nResult=1 but inner branch set bResult=0 (different var)
 
-		for i = 1 to nLen
-			if len(aContent[i]) != n
-				bResult = 0
+		for _iSe_ = 1 to _nSeLen_
+			if len(_aSeContent_[_iSe_]) != n
+				_bSeResult_ = 0
 				exit
 			ok
 		next
 
-		return nResult
+		return _bSeResult_
 
 		#< @FunctionalternativeForms
 
@@ -3082,31 +3081,31 @@ class stzListOfLists from stzList
 
 	def CommonItemsCS(pCaseSensitive)
 
-		_aContent_ = This.Content()
-		if len(_aContent_) = 0 return [] ok
-		if len(_aContent_) = 1 return _aContent_[1] ok
+		_aCiContent_ = This.Content()
+		if len(_aCiContent_) = 0 return [] ok
+		if len(_aCiContent_) = 1 return _aCiContent_[1] ok
 
 		# Engine-backed pairwise intersection (O(n log n) per pair)
-		nCsFlag = CaseSensitive(pCaseSensitive)
+		_nCiCsFlag_ = CaseSensitive(pCaseSensitive)
 
-		aCommon = _aContent_[1]
-		nListsLen = len(_aContent_)
+		_aCiCommon_ = _aCiContent_[1]
+		_nCiLen_ = len(_aCiContent_)
 
-		for i = 2 to nListsLen
-			pListA = StzEngineMarshalList(aCommon)
-			pListB = StzEngineMarshalList(_aContent_[i])
-			pResult = StzEngineListIntersectionCS(pListA, pListB, nCsFlag)
-			aCommon = StzEngineContentFromList(pResult)
-			StzEngineListFree(pResult)
-			StzEngineListFree(pListB)
-			StzEngineListFree(pListA)
+		for _iCi_ = 2 to _nCiLen_
+			_pCiListA_ = StzEngineMarshalList(_aCiCommon_)
+			_pCiListB_ = StzEngineMarshalList(_aCiContent_[_iCi_])
+			_pCiResult_ = StzEngineListIntersectionCS(_pCiListA_, _pCiListB_, _nCiCsFlag_)
+			_aCiCommon_ = StzEngineContentFromList(_pCiResult_)
+			StzEngineListFree(_pCiResult_)
+			StzEngineListFree(_pCiListB_)
+			StzEngineListFree(_pCiListA_)
 
-			if len(aCommon) = 0
+			if len(_aCiCommon_) = 0
 				return []
 			ok
 		next
 
-		return aCommon
+		return _aCiCommon_
 
 
 		def IntersectionCS(pCaseSensitive)
@@ -3125,21 +3124,21 @@ class stzListOfLists from stzList
 	#================================================#
 
 	def Cols()
-		nLen = This.NumberOfCols()
-		aResult = []
+		_nClLen_ = This.NumberOfCols()
+		_aClResult_ = []
 
-		for i = 1 to nLen
-			aResult + This.Col(i)
+		for _iCl_ = 1 to _nClLen_
+			@AddItem(_aClResult_, This.Col(_iCl_))
 		next
 
-		return aResult
+		return _aClResult_
 
 		def Columns()
 			return This.Cols()
 
 	def NumberOfColumns()
-		nResult = This.MaxSize()
-		return nResult
+		_nNocResult_ = This.MaxSize()
+		return _nNocResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3167,10 +3166,10 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		nLen = len(@aContent)
-	
+		_nNcxLen_ = len(@aContent)
+
 		if EarlyCheck()
-			if nLen = 0
+			if _nNcxLen_ = 0
 				return []
 			ok
 
@@ -3181,18 +3180,18 @@ class stzListOfLists from stzList
 
 		# Doing the job
 
-		aResult = []
+		_aNcxResult_ = []
 
-		for i = 1 to nLen
-			nLenList = len(@aContent[i])
-			if nLenList >= n
-				aResult + @aContent[i][n]
+		for _iNcx_ = 1 to _nNcxLen_
+			_nNcxInner_ = len(@aContent[_iNcx_])
+			if _nNcxInner_ >= n
+				@AddItem(_aNcxResult_, @aContent[_iNcx_][n])
 			else
-				aResult + ""
+				@AddItem(_aNcxResult_, "")
 			ok
 		next
 
-		return aResult
+		return _aNcxResult_
 
 		#< @FunctionFluentForm
 
@@ -3224,10 +3223,10 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		nLen = len(@aContent)
+		_nNcLen_ = len(@aContent)
 
 		if EarlyCheck()
-			if nLen = 0
+			if _nNcLen_ = 0
 				return []
 			ok
 
@@ -3238,16 +3237,16 @@ class stzListOfLists from stzList
 
 		# Doing the job
 
-		aResult = []
+		_aNcResult_ = []
 
-		for i = 1 to nLen
-			nLenList = len(@aContent[i])
-			if n <= nLenList
-				aResult + @aContent[i][n]
+		for _iNc_ = 1 to _nNcLen_
+			_nNcInner_ = len(@aContent[_iNc_])
+			if n <= _nNcInner_
+				@AddItem(_aNcResult_, @aContent[_iNc_][n])
 			ok
 		next
 
-		return aResult
+		return _aNcResult_
 
 		#< @FunctionFluentForm
 
@@ -3359,28 +3358,28 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		nLenList = len(paList)
-		if nLenList = 0
+		_nAcLenList_ = len(paList)
+		if _nAcLenList_ = 0
 			return
 		ok
 
-		aContent = This.Content()
-		nLenContent = len(aContent)
+		_aAcContent_ = This.Content()
+		_nAcLenContent_ = len(_aAcContent_)
 
-		if nLenList > 1 and nLenContent = 1 and len(aContent[1]) = 0
-			
-			for i = 1 to nLen - 1
-				aContent + []
+		if _nAcLenList_ > 1 and _nAcLenContent_ = 1 and len(_aAcContent_[1]) = 0
+
+			for _iAc1_ = 1 to _nAcLenList_ - 1 ### Fixed: was `nLen - 1` -- undefined nLen
+				@AddItem(_aAcContent_, [])
 			next
 		ok
 
-		nMin = @Min([ nLenContent, nLenList ])
+		_nAcMin_ = @Min([ _nAcLenContent_, _nAcLenList_ ])
 
-		for i = 1 to nMin
-			aContent[i] + paList[i]
+		for _iAc2_ = 1 to _nAcMin_
+			_aAcContent_[_iAc2_] + paList[_iAc2_]
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aAcContent_)
 
 	  #------------------------------------------------------#
 	 #  ADDING A COLUMN AT THE END OF THE LIST -- EXTENDED  #
@@ -3414,25 +3413,25 @@ class stzListOfLists from stzList
 
 		This.Justify()
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aAcxContent_ = This.Content()
+		_nAcxLen_ = len(_aAcxContent_)
 
-		for i = 1 to nLen
-			aContent[i] + paList[i]
-		next	
+		for _iAcx_ = 1 to _nAcxLen_
+			_aAcxContent_[_iAcx_] + paList[_iAcx_]
+		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aAcxContent_)
 
 	  #==================================#
 	 #  SORTING NTH LIST IN  ASCENDING  #
 	#==================================#
 
 	def SortNthList(n)
-		aContent = This.Content()
-		aSorted = @SortList(aContent[n])
-		aContent[n] = aSorted
+		_aSnContent_ = This.Content()
+		_aSnSorted_ = @SortList(_aSnContent_[n])
+		_aSnContent_[n] = _aSnSorted_
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aSnContent_)
 
 
 		def SortNthListQ(n)
@@ -3452,24 +3451,25 @@ class stzListOfLists from stzList
 				return This.SortNthListQ(n)
 
 	def NthListSorted(n)
-		aResult = This.Copy().SortNthListInAscendingQ().Content()
+		_aNlsResult_ = This.Copy().SortNthListQ(n).Content() ### Fixed: was bad method name + missing arg + no return
+		return _aNlsResult_
 
 		def NthListSortedUp(n)
-			return NthListSorted(n)
+			return This.NthListSorted(n)
 
 		def NthListSortedInAscending(n)
-			return NthListSorted(n)
+			return This.NthListSorted(n)
 
 	  #----------------------------------#
 	 #  SORTING NTH LIST IN DESCENDING  #
 	#----------------------------------#
 
 	def SortDownNthList(n)
-		aContent = This.Content()
-		aSorted = new stzList(@SortList(aContent[n])).Reversed()
-		aContent[n] = aSorted
+		_aSdnContent_ = This.Content()
+		_aSdnSorted_ = new stzList(@SortList(_aSdnContent_[n])).Reversed()
+		_aSdnContent_[n] = _aSdnSorted_
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aSdnContent_)
 
 
 		def SortDownNthListQ(n)
@@ -3483,11 +3483,11 @@ class stzListOfLists from stzList
 				return This.SortNthListQ(n)
 
 	def NthListSortedDown(n)
-		aResult = This.Copy().SortDownNthListQ(n).Content()
-		return aResult
+		_aNlsdResult_ = This.Copy().SortDownNthListQ(n).Content()
+		return _aNlsdResult_
 
 		def NthListSortedInDescending(n)
-			return NthListSortedDown(n)
+			return This.NthListSortedDown(n)
 
 	  #--------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN ASCENDING ON THE NTH COLUMN  #
@@ -3503,8 +3503,8 @@ class stzListOfLists from stzList
 			return This.IsSortedInAscending()
 
 	def IsSortedInAscendingOn(n)
-		bResult = This.ColQ(n).IsSortedInAscending()
-		return bResult
+		_bIsaoResult_ = This.ColQ(n).IsSortedInAscending()
+		return _bIsaoResult_
 
 		def IsSortedUpOn(n)
 			return This.IsSortedInAscendingOn(n)
@@ -3523,11 +3523,11 @@ class stzListOfLists from stzList
 			return This.IsSortedInDescending()
 
 	def IsSortedInDescendingOn(n)
-		bResult = This.ColQ(n).IsSortedInDescending()
-		return bResult
+		_bIsdoResult_ = This.ColQ(n).IsSortedInDescending()
+		return _bIsdoResult_
 
 		def IsSortedDownOn(n)
-			return This.IsSortedInDescendingDown(n)
+			return This.IsSortedInDescendingOn(n) ### Fixed: was IsSortedInDescendingDown (nonexistent)
 
 	  #----------------------------------#
 	 #  SORTING THE LISTS IN ASCENDING  #
@@ -3563,8 +3563,8 @@ class stzListOfLists from stzList
 		#>
 
 	def Sorted()
-		aResult = This.Copy().SortQ().Content()
-		return aResult
+		_aSdResult_ = This.Copy().SortQ().Content()
+		return _aSdResult_
 
 		def SortedInAscending()
 			return This.Sorted()
@@ -3598,8 +3598,8 @@ class stzListOfLists from stzList
 		#>
 
 	def SortedDown()
-		aResult = This.Copy().SortDownQ().Content()
-		return aResult
+		_aSdwResult_ = This.Copy().SortDownQ().Content()
+		return _aSdwResult_
 
 		def SortedInDescending()
 			return This.SortedDown()
@@ -3610,9 +3610,9 @@ class stzListOfLists from stzList
 
 	def SortOn(n)
 
-		aResult = @SortListsOn(This.Content(), n)
+		_aSoResult_ = @SortListsOn(This.Content(), n)
 
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aSoResult_)
 
 		#< @FunctionFluentForm
 
