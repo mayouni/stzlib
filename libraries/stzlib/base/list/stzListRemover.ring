@@ -57,13 +57,25 @@ class stzListRemover
 			ok
 		ok
 
-		# Engine fast-path disabled (same cross-DLL handle issue as
-		# stzListReplacer.ReplaceAllOccurrencesCS): StzEngineValueNewString
-		# returns a handle from stz_value.dll's table, but the
-		# StzEngineListRemoveAllCS lookup happens in stz_list.dll's table.
-		# Fall back to the Ring iteration path until a shared handle
-		# table or string-only engine variant lands.
+		# Engine fast path via string-direct variant (sidesteps the
+		# cross-DLL handle-table issue).
+		if isString(pItem)
+			_pRmList_ = @oList._EngineListFromContent()
+			if _pRmList_ != NULL
+				_nRmCs_ = 1
+				if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+					_nRmCs_ = pCaseSensitive[2]
+				but isNumber(pCaseSensitive)
+					_nRmCs_ = pCaseSensitive
+				ok
+				StzEngineListRemoveAllStringCS(_pRmList_, pItem, _nRmCs_)
+				@oList.UpdateWith(@oList._ContentFromEngineList(_pRmList_))
+				StzEngineListFree(_pRmList_)
+				return
+			ok
+		ok
 
+		# Fallback for non-string types
 		_anRmPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
 		_nRmLenPos_ = len(_anRmPos_)
 
