@@ -1534,8 +1534,8 @@ class stzListOfLists from stzList
 		#>
 
 	def Extended()
-		aResult = This.Copy().ExtendQ().Content()
-		return aResult
+		_aExtdResult_ = This.Copy().ExtendQ().Content()
+		return _aExtdResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1680,8 +1680,8 @@ class stzListOfLists from stzList
 		#>
 
 	def ExtendedXT(pItem)
-		aResult = This.Copy().ExtendXTQ().Content()
-		return aResult
+		_aExdxResult_ = This.Copy().ExtendXTQ(pItem).Content()
+		return _aExdxResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1776,8 +1776,8 @@ class stzListOfLists from stzList
 
 
 	def ExtendedTo(n)
-		aResult = This.Copy().ExtendToQ(n).Content()
-		return aResult
+		_aExtdtResult_ = This.Copy().ExtendToQ(n).Content()
+		return _aExtdtResult_
 
 		def ExtendedToPosition(n)
 			if NOT isNumber(n)
@@ -1823,16 +1823,16 @@ class stzListOfLists from stzList
 
 		# Doing the job
 
-		nLen = This.NumberOfLists()
-		for i = 1 to nLen
-			nSize = This.SizeOfList(i)
+		_nExtxLen_ = This.NumberOfLists()
+		for _iExtx_ = 1 to _nExtxLen_
+			_nExtxSize_ = This.SizeOfList(_iExtx_)
 
-			aTemp = This.NthList(i)
-			for j = 1 to n - nSize
-				aTemp + pItem
+			_aExtxTemp_ = This.NthList(_iExtx_)
+			for _jExtx_ = 1 to n - _nExtxSize_
+				@AddItem(_aExtxTemp_, pItem)
 			next
 
-			This.ReplaceAt(i, aTemp)
+			This.ReplaceAt(_iExtx_, _aExtxTemp_)
 
 		next
 
@@ -1866,8 +1866,8 @@ class stzListOfLists from stzList
 		#>
 
 	def ExtendedToXT(n, pItem)
-		aResult = This.Copy().ExtendToXTQ(n, pItem).Content()
-		return aResult
+		_aEdtxResult_ = This.Copy().ExtendToXTQ(n, pItem).Content()
+		return _aEdtxResult_
 
 		#< @FunctionAlternativeForm
 
@@ -1896,16 +1896,16 @@ class stzListOfLists from stzList
 	#TODO // Add Stretch and Expand alternatives to all remaining methods
 
 	def ExtendToByRepeatingItems(n)
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aEtbrContent_ = This.Content()
+		_nEtbrLen_ = len(_aEtbrContent_)
 
-		aResult = []
+		_aEtbrResult_ = []
 
-		for i = 1 to nLen
-			aResult + Q(aContent[i]).ExtendedToByRepeatingItems(n)
+		for _iEtbr_ = 1 to _nEtbrLen_
+			@AddItem(_aEtbrResult_, Q(_aEtbrContent_[_iEtbr_]).ExtendedToByRepeatingItems(n))
 		next
 
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aEtbrResult_)
 
 		#< @FunctionFluentForm
 
@@ -1926,8 +1926,8 @@ class stzListOfLists from stzList
 		#>
 
 	def ExtendedToByRepeatingItems(n)
-		aResult = This.Copy().ExtendToByRepeatingItemsQ(n).Content()
-		return aResul
+		_aEdbrResult_ = This.Copy().ExtendToByRepeatingItemsQ(n).Content()
+		return _aEdbrResult_
 
 		#< @FunctionAlternativeForm
 
@@ -1968,8 +1968,8 @@ class stzListOfLists from stzList
 		#>
 
 	def ExtendedByRepeatingItems()
-		aResult = This.Copy().ExtendByRepeatingItemsQ().Content()
-		return aResult
+		_aExbrResult_ = This.Copy().ExtendByRepeatingItemsQ().Content()
+		return _aExbrResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1986,16 +1986,16 @@ class stzListOfLists from stzList
 	#-------------------------------------------------------------------------#
 
 	def ExtendToWithItemsIn(n, paItems)
-		aContent = This.Content()
-		nLen = len(aConten)
+		_aEtwiContent_ = This.Content()
+		_nEtwiLen_ = len(_aEtwiContent_)
 
-		aResult = []
+		_aEtwiResult_ = []
 
-		for i = 1 to nLen
-			aResult + Q(aContent[i]).ExtendedToWithItemsIn(n, paItems)
+		for _iEtwi_ = 1 to _nEtwiLen_
+			@AddItem(_aEtwiResult_, Q(_aEtwiContent_[_iEtwi_]).ExtendedToWithItemsIn(n, paItems))
 		next
 
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aEtwiResult_)
 
 
 		def ExtendToWithItemsInQ(n, paItems)
@@ -2009,8 +2009,8 @@ class stzListOfLists from stzList
 				return This.ExtendToWithItemsInQ(n, paItems)
 
 	def ExtendedToWithItemsIn(n, paItems)
-		aResult = This.Copy().ExtendToWithItemsInQ(n, paItems).Content()
-		return aResult
+		_aEtwiResult2_ = This.Copy().ExtendToWithItemsInQ(n, paItems).Content()
+		return _aEtwiResult2_
 
 		def ExtendedToUsingItemsIn(n, paItems)
 			return This.ExtendedToWithItemsIn(n, paItems)
@@ -2033,8 +2033,8 @@ class stzListOfLists from stzList
 				return This.ExtendWithItemsInQ(paItems)
 
 	def ExtendedWithItemsIn(paItems)
-		aResult = This.Copy().ExtendWithItemsInQ(paItems).Content()
-		return aResult
+		_aEwiResult_ = This.Copy().ExtendWithItemsInQ(paItems).Content()
+		return _aEwiResult_
 
 		def ExtendedUsingItemsIn(paItems)
 			return This.ExtendedWithItemsIn(paItems)
@@ -2073,8 +2073,8 @@ class stzListOfLists from stzList
 		#>
 
 	def Shrinked()
-		aResult = This.Copy().ShrinkQ().Content()
-		return aResult
+		_aSkResult_ = This.Copy().ShrinkQ().Content()
+		return _aSkResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2110,20 +2110,20 @@ class stzListOfLists from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nLen = This.NumberOfLists()
-		for i = 1 to nLen
-			nSize = This.SizeOfList(i)
+		_nSktLen_ = This.NumberOfLists()
+		for _iSkt_ = 1 to _nSktLen_
+			_nSktSize_ = This.SizeOfList(_iSkt_)
 
-			aTemp = []
-			if n < nSize
-				aTemp = This.NthListQ(i).Section(1, n)
-				This.ReplaceAt(i, aTemp)
+			_aSktTemp_ = []
+			if n < _nSktSize_
+				_aSktTemp_ = This.NthListQ(_iSkt_).Section(1, n)
+				This.ReplaceAt(_iSkt_, _aSktTemp_)
 			ok
 
 		next
 
 		def ShrinkToQ(n)
-			This.ShrinkTp(n)
+			This.ShrinkTo(n) ### Fixed: was misspelled "ShrinkTp"
 			return This
 
 		#< @FunctionAlternativeForm
@@ -2134,8 +2134,8 @@ class stzListOfLists from stzList
 		#>
 
 	def ShrinkedTo(n)
-		aResult = This.Copy().ShrinkToQ(n).Content()
-		return aResult
+		_aSkdtResult_ = This.Copy().ShrinkToQ(n).Content()
+		return _aSkdtResult_
 
 		def ShrinkedToPosition(n)
 			if NOT isNumber(n)
@@ -2166,41 +2166,41 @@ class stzListOfLists from stzList
 
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		nLargest = This.SizeOfLargestList()
+		_aSkwContent_ = This.Content()
+		_nSkwLen_ = len(_aSkwContent_)
+		_nSkwLargest_ = This.SizeOfLargestList()
 
-		aResult = []
+		_aSkwResult_ = []
 
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
+		for _iSkw_ = 1 to _nSkwLen_
+			_nSkwInner_ = len(_aSkwContent_[_iSkw_])
 
-			if n > nLargest
+			if n > _nSkwLargest_
 				loop
 			ok
 
-			if n < nLenList
+			if n < _nSkwInner_
 
-				_aTemp_ = []
-				for j = 1 to n
-					_aTemp_ + aContent[i][j]
+				_aSkwTemp_ = []
+				for _jSkw_ = 1 to n
+					@AddItem(_aSkwTemp_, _aSkwContent_[_iSkw_][_jSkw_])
 				next
 
-				aResult + _aTemp_
+				@AddItem(_aSkwResult_, _aSkwTemp_)
 
 			else
-				_aTemp_ = aContent[i]
-				_nDiff_ = nLenList - n
+				_aSkwTemp_ = _aSkwContent_[_iSkw_]
+				_nSkwDiff_ = _nSkwInner_ - n
 
-				for j = 1 to _nDiff_
-					_aTemp_ + pItem
+				for _kSkw_ = 1 to _nSkwDiff_
+					@AddItem(_aSkwTemp_, pItem)
 				next
 
-				aResult + _aTemp_
+				@AddItem(_aSkwResult_, _aSkwTemp_)
 			ok
 		next
 
-		This.UpdateWith(aResult)
+		This.UpdateWith(_aSkwResult_)
 
 		#< @FunctionFluentForm
 
@@ -2227,16 +2227,16 @@ class stzListOfLists from stzList
 		#>
 
 	def ShrinkedToWith(n, pWith)
-		aResult = This.Copy().ShrinkToWithQ(n, pWith).Content()
-		return aResult
+		_aSktwResult_ = This.Copy().ShrinkToWithQ(n, pWith).Content()
+		return _aSktwResult_
 
 		#< @FunctionAlternativeForms
 
 		def ShrinkedToUsing(n, pUsing)
-			return This.ShrinkedToWith(n, pWith)
+			return This.ShrinkedToWith(n, pUsing) ### Fixed: was passing undefined pWith
 
 		def ShrinkedToBy(n, pBy)
-			return This.ShrinkedToWith(n, pWith)
+			return This.ShrinkedToWith(n, pBy) ### Fixed: was passing undefined pWith
 
 		#>
 
@@ -2247,53 +2247,53 @@ class stzListOfLists from stzList
 	def AdjustWith(pItem)
 
 		if CheckingParams()
-	
+
 			if isList(pItem) and Q(pItem).IsWithOrByOrUsingNamedParam()
 				pItem = pItem[2]
 			ok
 
 		ok
 
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
-		_nLargest_ = This.SizeOfLargestList()
+		_aAdwContent_ = This.Content()
+		_nAdwLen_ = len(_aAdwContent_)
+		_nAdwLargest_ = This.SizeOfLargestList()
 
-		_aResult_ = []
+		_aAdwResult_ = []
 
-		for @i = 1 to _nLen_
+		for _iAdw_ = 1 to _nAdwLen_
 
-			_nLenList_ = len(_aContent_[@i])
+			_nAdwInner_ = len(_aAdwContent_[_iAdw_])
 
-			if _nLenList_ = _nLargest_
-				_aResult_ + _aContent_[@i]
+			if _nAdwInner_ = _nAdwLargest_
+				@AddItem(_aAdwResult_, _aAdwContent_[_iAdw_])
 				loop
 			ok
 
-			_nDiff_ = Abs( _nLenList_ - _nLargest_ )
+			_nAdwDiff_ = Abs( _nAdwInner_ - _nAdwLargest_ )
 
-			if _nLenList_ < _nLargest_
+			if _nAdwInner_ < _nAdwLargest_
 
-				_aTempList_ = _aContent_[@i]
+				_aAdwTemp_ = _aAdwContent_[_iAdw_]
 
-				for @j = 1 to _nDiff_
-					_aTempList_ + pItem
+				for _jAdw_ = 1 to _nAdwDiff_
+					@AddItem(_aAdwTemp_, pItem)
 				next
 
 			else
 
-				_aTempList_ = []
+				_aAdwTemp_ = []
 
-				for @j = 1 to _nLargest_
-					_aTempList_ + _aContent_[@j]
+				for _kAdw_ = 1 to _nAdwLargest_
+					@AddItem(_aAdwTemp_, _aAdwContent_[_iAdw_][_kAdw_]) ### Fixed: was [_iAdw_] not [_iAdw_][_kAdw_]
 				next
 
 			ok
 
-			_aResult_ + _aTempList_
+			@AddItem(_aAdwResult_, _aAdwTemp_)
 
 		next
 
-		This.UpdateWith(_aResult_)
+		This.UpdateWith(_aAdwResult_)
 
 		def AdjustWithQ(pItem)
 			This.AdjustWith(pItem)
@@ -2306,8 +2306,8 @@ class stzListOfLists from stzList
 				return This.AdjustWithQ(pItem)
 
 	def AdjustedWith(pItem)
-		_aResult_ = This.Copy().AdjustWithQ(pItem).Content()
-		return _aResult_
+		_aAdwdResult_ = This.Copy().AdjustWithQ(pItem).Content()
+		return _aAdwdResult_
 
 		def AdjustedUsing(pItem)
 			return This.AdjustedWith(pItem)
@@ -2328,8 +2328,8 @@ class stzListOfLists from stzList
 				return This.AdjustToQ(n)
 
 	def AdjustedTo(n)
-		_aResult_ = This.Copy().AdjustToQ(n).Conten()
-		return _aResult_
+		_aAdtResult_ = This.Copy().AdjustToQ(n).Content() ### Fixed: .Conten() typo
+		return _aAdtResult_
 
 		def AdjustedToPosition(n)
 			return This.AdjustedTo(n)
@@ -2354,45 +2354,45 @@ class stzListOfLists from stzList
 
 		ok
 
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_aAdxContent_ = This.Content()
+		_nAdxLen_ = len(_aAdxContent_)
 
-		_aResult_ = []
+		_aAdxResult_ = []
 
-		for @i = 1 to _nLen_
+		for _iAdx_ = 1 to _nAdxLen_
 
-			_nLenList_ = len(_aContent_[@i])
+			_nAdxInner_ = len(_aAdxContent_[_iAdx_])
 
-			if _nLenList_ = n
-				_aResult_ + _aContent_[@i]
+			if _nAdxInner_ = n
+				@AddItem(_aAdxResult_, _aAdxContent_[_iAdx_])
 				loop
 			ok
 
-			_nDiff_ = Abs( _nLenList_ - n )
+			_nAdxDiff_ = Abs( _nAdxInner_ - n )
 
-			if _nLenList_ < n
+			if _nAdxInner_ < n
 
-				_aTempList_ = _aContent_[@i]
+				_aAdxTemp_ = _aAdxContent_[_iAdx_]
 
-				for @j = 1 to _nDiff_
-					_aTempList_ + pItem
+				for _jAdx_ = 1 to _nAdxDiff_
+					@AddItem(_aAdxTemp_, pItem)
 				next
 
 			else
 
-				_aTempList_ = []
+				_aAdxTemp_ = []
 
-				for @j = 1 to n
-					_aTempList_ + _aContent_[@j]
+				for _kAdx_ = 1 to n
+					@AddItem(_aAdxTemp_, _aAdxContent_[_iAdx_][_kAdx_]) ### Fixed: was [_iAdx_] only
 				next
 
 			ok
 
-			_aResult_ + _aTempList_
+			@AddItem(_aAdxResult_, _aAdxTemp_)
 
 		next
 
-		This.UpdateWith(_aResult_)
+		This.UpdateWith(_aAdxResult_)
 
 
 		#< @FunctionFluentForm
@@ -2415,8 +2415,8 @@ class stzListOfLists from stzList
 				return This.AdjustXTQ(n, pItem)
 
 	def AdjustedXT(n, pItem)
-		aResult = This.Copy().AdjustXTQ(n, pItem).Content()
-		return aResult
+		_aAdxdResult_ = This.Copy().AdjustXTQ(n, pItem).Content()
+		return _aAdxdResult_
 
 		def AdjustedToXT(n, pItem)
 			return This.AdjustedXT(n, pItem)
@@ -2437,8 +2437,8 @@ class stzListOfLists from stzList
 			return This
 
 	def Associated()
-		aResult = This.Copy().AssociateQ().Content()
-		return aResult
+		_aAsResult_ = This.Copy().AssociateQ().Content()
+		return _aAsResult_
 
 	  #----------------------------#
 	 #  PAIRIFYING THE TWO LISTS  #
@@ -2448,12 +2448,12 @@ class stzListOfLists from stzList
 		This.UpdateWith( @Pairify(This.Content()) )
 
 		def PairifyQ()
-			This.Parify()
+			This.Pairify() ### Fixed: was "Parify" typo
 			return This
 
 	def Pairified()
-		_aResult_ = This.Copy().PairifyQ().Content()
-		return _aResult_
+		_aPaResult_ = This.Copy().PairifyQ().Content()
+		return _aPaResult_
 
 	  #-------------------------------------#
 	 #   REVERSING THE ITEMS OF THE LIST   #
@@ -2464,10 +2464,10 @@ class stzListOfLists from stzList
 
 	def ReverseLists()
 
-		oTemp = new stzList(This.ListOfLists())
-		aResult = oTemp.Reversed()
+		_oRvlTemp_ = new stzList(This.ListOfLists())
+		_aRvlResult_ = _oRvlTemp_.Reversed()
 
-		This.Update( aResult )
+		This.Update( _aRvlResult_ )
 
 		def ReverseItems()
 			This.ReverseLists()
@@ -2484,8 +2484,8 @@ class stzListOfLists from stzList
 				return This.ReverseListsQ()
 
 	def ReversedLists()
-		aResult = This.Copy().ReverseListsQ().Content()
-		return aResult
+		_aRvldResult_ = This.Copy().ReverseListsQ().Content()
+		return _aRvldResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2505,16 +2505,16 @@ class stzListOfLists from stzList
 	#--------------------------------------#
 
 	def ReverseItemsInLists()
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
+		_aRiilLists_ = This.ListOfLists()
+		_nRiilLen_ = len(_aRiilLists_)
 
-		aReversed = This.Content()
+		_aRiilReversed_ = This.Content()
 
-		for i = 1 to nLen
-			aReversed[i] = Q(aListOfLists[i]).Reversed()
+		for _iRiil_ = 1 to _nRiilLen_
+			_aRiilReversed_[_iRiil_] = Q(_aRiilLists_[_iRiil_]).Reversed()
 		next
 
-		This.UpdateWith(aReversed)
+		This.UpdateWith(_aRiilReversed_)
 
 		def ReverseItemsInListsQ()
 			This.ReverseItemsInLists()
@@ -2528,8 +2528,8 @@ class stzListOfLists from stzList
 				return This
 
 	def ItemsInListsReversed()
-		aResult = This.Copy().ReverseItemsInListsQ().Content()
-		return aResult
+		_aIilrResult_ = This.Copy().ReverseItemsInListsQ().Content()
+		return _aIilrResult_
 
 		def ListsContentReversed()
 			return This.ItemsInListsReversed()
@@ -2547,46 +2547,46 @@ class stzListOfLists from stzList
 			StzRaise("Incorrect param type! pCaseSensitive must be 1 or FALSE.")
 		ok
 
-		aLists = @aContent
+		_aIxLists_ = @aContent
 
 		if pCaseSensitive = 0
-			aLists = This.Lowercased()
+			_aIxLists_ = This.Lowercased()
 		ok
 
-		nLenLists = len(aLists)
+		_nIxLenLists_ = len(_aIxLists_)
 
 		# Early cheks
 
-		if nLenLists = 0
+		if _nIxLenLists_ = 0
 			return []
 		ok
 
 		# Doing the job
 
-		aItems = This.FlattenedQ().WithoutDuplicationCS(pCaseSensitive)
-		nLenItems = len(aItems)
+		_aIxItems_ = This.FlattenedQ().WithoutDuplicationCS(pCaseSensitive)
+		_nIxLenItems_ = len(_aIxItems_)
 
-		aResult = []
-	
-		for i = 1 to nLenItems
-			anPos = []
+		_aIxResult_ = []
 
-			for j = 1 to nLenLists
-				nLen = len(aLists[j])
-				for w = 1 to nLen
-					if ring_type(aLists[j][w]) = ring_type(aItems[i]) and
-					   aLists[j][w] = aItems[i]
+		for _iIx_ = 1 to _nIxLenItems_
+			_anIxPos_ = []
 
-						anPos + j
+			for _jIx_ = 1 to _nIxLenLists_
+				_nIxInnerLen_ = len(_aIxLists_[_jIx_])
+				for _wIx_ = 1 to _nIxInnerLen_
+					if ring_type(_aIxLists_[_jIx_][_wIx_]) = ring_type(_aIxItems_[_iIx_]) and
+					   _aIxLists_[_jIx_][_wIx_] = _aIxItems_[_iIx_]
+
+						@AddItem(_anIxPos_, _jIx_)
 					ok
 				next
 			next
 
-			aResult + [ aItems[i], anPos ]
+			@AddItem(_aIxResult_, [ _aIxItems_[_iIx_], _anIxPos_ ])
 
 		next
 
-		return aResult
+		return _aIxResult_
 
 		def IndexCSQ()
 			return This.IndexCSQRT(pCaseSensitive, :stzList)
