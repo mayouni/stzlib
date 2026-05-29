@@ -57,25 +57,12 @@ class stzListRemover
 			ok
 		ok
 
-		if isString(pItem)
-			_pRmList_ = @oList._EngineListFromContent()
-			if _pRmList_ != NULL
-				_pRmVal_ = StzEngineValueNewString(pItem)
-				if _pRmVal_ != NULL
-					_nRmCs_ = 1
-					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
-						_nRmCs_ = pCaseSensitive[2]
-					but isNumber(pCaseSensitive)
-						_nRmCs_ = pCaseSensitive
-					ok
-					StzEngineListRemoveAllCS(_pRmList_, _pRmVal_, _nRmCs_)
-					@oList.UpdateWith(@oList._ContentFromEngineList(_pRmList_))
-					StzEngineValueFree(_pRmVal_)
-				ok
-				StzEngineListFree(_pRmList_)
-				return
-			ok
-		ok
+		# Engine fast-path disabled (same cross-DLL handle issue as
+		# stzListReplacer.ReplaceAllOccurrencesCS): StzEngineValueNewString
+		# returns a handle from stz_value.dll's table, but the
+		# StzEngineListRemoveAllCS lookup happens in stz_list.dll's table.
+		# Fall back to the Ring iteration path until a shared handle
+		# table or string-only engine variant lands.
 
 		_anRmPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
 		_nRmLenPos_ = len(_anRmPos_)
@@ -111,8 +98,10 @@ class stzListRemover
 			This.RemoveAll(pItem)
 
 	def AllOccurrencesRemoved(pItem)
-		_aAorResult_ = @oList.Copy().RemoveAllQ(pItem).Content()
-		return _aAorResult_
+		# Was @oList.Copy().RemoveAllQ(pItem) but RemoveAllQ isnt on core stzList
+		_o = new stzListRemover(@oList.Content())
+		_o.RemoveAll(pItem)
+		return _o.Content()
 
 	  #--------------------------------------------------#
 	 #   REMOVING AN ITEM BY SPECIFYING ITS POSITION    #

@@ -57,8 +57,12 @@ class stzListTrimmer
 			return This
 
 	def TrimmedCS(pCaseSensitive)
-		_aTdResult_ = @oList.Copy().TrimCSQ(pCaseSensitive).Content()
-		return _aTdResult_
+		# Was @oList.Copy().TrimCSQ(...) -- but Copy() returns a plain stzList
+		# which doesnt have the TrimCSQ method (its on stzListTrimmer).
+		# Wrap in a fresh stzListTrimmer instead.
+		_oTdCopy_ = new stzListTrimmer(@oList.Content())
+		_oTdCopy_.TrimCS(pCaseSensitive)
+		return _oTdCopy_.Content()
 
 	def Trim()
 		This.TrimCS(1)
@@ -95,7 +99,9 @@ class stzListTrimmer
 		This.TrimLeftCS(1)
 
 	def TrimmedLeft()
-		return @oList.Copy().TrimLeftCSQ(1).Content()
+		_o = new stzListTrimmer(@oList.Content())
+		_o.TrimLeftCS(1)
+		return _o.Content()
 
 	def TrimRightCS(pCaseSensitive)
 		_aTrcContent_ = This.Content()
@@ -123,7 +129,9 @@ class stzListTrimmer
 		This.TrimRightCS(1)
 
 	def TrimmedRight()
-		return @oList.Copy().TrimRightCSQ(1).Content()
+		_o = new stzListTrimmer(@oList.Content())
+		_o.TrimRightCS(1)
+		return _o.Content()
 
 	  #======================================================#
 	 #   TRIM SPECIFIC ITEM                                 #
@@ -228,7 +236,9 @@ class stzListTrimmer
 			return This
 
 	def Compacted()
-		return @oList.Copy().CompactQ().Content()
+		_o = new stzListTrimmer(@oList.Content())
+		_o.Compact()
+		return _o.Content()
 
 	  #======================================================#
 	 #   SQUEEZE (REMOVE CONSECUTIVE DUPLICATE EMPTY ITEMS) #
@@ -257,7 +267,9 @@ class stzListTrimmer
 			return This
 
 	def Squeezed()
-		return @oList.Copy().SqueezeQ().Content()
+		_o = new stzListTrimmer(@oList.Content())
+		_o.Squeeze()
+		return _o.Content()
 
 	  #======================================================#
 	 #   STRIP NULLS (REMOVE NULLS AND EMPTY STRINGS)      #
@@ -287,7 +299,9 @@ class stzListTrimmer
 			return This
 
 	def NullsStripped()
-		return @oList.Copy().StripNullsQ().Content()
+		_o = new stzListTrimmer(@oList.Content())
+		_o.StripNulls()
+		return _o.Content()
 
 	  #======================================================#
 	 #   TRIM TO SIZE (KEEP ONLY FIRST N ITEMS)            #
@@ -337,4 +351,6 @@ class stzListTrimmer
 			return This
 
 	def TrimmedW(pcCondition)
-		return @oList.Copy().TrimWQ(pcCondition).Content()
+		_o = new stzListTrimmer(@oList.Content())
+		_o.TrimW(pcCondition)
+		return _o.Content()

@@ -77,27 +77,13 @@ class stzListReplacer
 			ok
 		ok
 
-		if isString(pItem) and isString(pNewItem)
-			_pRpAll_ = @oList._EngineListFromContent()
-			if _pRpAll_ != NULL
-				_pRpOldVal_ = StzEngineValueNewString(pItem)
-				_pRpNewVal_ = StzEngineValueNewString(pNewItem)
-				if _pRpOldVal_ != NULL and _pRpNewVal_ != NULL
-					_nRpCs_ = 1
-					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
-						_nRpCs_ = pCaseSensitive[2]
-					but isNumber(pCaseSensitive)
-						_nRpCs_ = pCaseSensitive
-					ok
-					StzEngineListReplaceAllCS(_pRpAll_, _pRpOldVal_, _pRpNewVal_, _nRpCs_)
-					@oList.UpdateWith(@oList._ContentFromEngineList(_pRpAll_))
-				ok
-				if _pRpOldVal_ != NULL StzEngineValueFree(_pRpOldVal_) ok
-				if _pRpNewVal_ != NULL StzEngineValueFree(_pRpNewVal_) ok
-				StzEngineListFree(_pRpAll_)
-				return
-			ok
-		ok
+		# Engine fast-path disabled: stz_list.dll and stz_value.dll have
+		# SEPARATE static handle tables. Passing a value handle created
+		# in stz_value.dll to StzEngineListReplaceAllCS (which lives in
+		# stz_list.dll) resolves the handle in the wrong table and the
+		# call returns -1 without replacing anything. Until a shared
+		# handle table or string-only engine variant lands, fall back
+		# to the Ring iteration path.
 
 		_anRpPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
 		_nRpLen_ = len(_anRpPos_)
@@ -138,8 +124,10 @@ class stzListReplacer
 			This.ReplaceAllOccurrences(pItem, pNewItem)
 
 	def AllOccurrencesReplacedCS(pItem, pNewItem, pCaseSensitive)
-		_aAorResult_ = @oList.Copy().ReplaceAllOccurrencesCSQ(pItem, pNewItem, pCaseSensitive).Content()
-		return _aAorResult_
+		# Was @oList.Copy().ReplaceAllOccurrencesCSQ -- not on core stzList
+		_o = new stzListReplacer(@oList.Content())
+		_o.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
+		return _o.Content()
 
 	def AllOccurrencesReplaced(pItem, pNewItem)
 		return This.AllOccurrencesReplacedCS(pItem, pNewItem, 1)
@@ -149,21 +137,10 @@ class stzListReplacer
 	#==================================================#
 
 	def ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
+		# Engine path disabled -- cross-DLL handle bug (see RemoveAllCS).
+		# Direct Ring assignment is also faster for a single position.
 		_aRapContent_ = This.Content()
 		if n >= 1 and n <= len(_aRapContent_)
-			if isString(pNewItem)
-				_pRapList_ = @oList._EngineListFromContent()
-				if _pRapList_ != NULL
-					_pRapVal_ = StzEngineValueNewString(pNewItem)
-					if _pRapVal_ != NULL
-						StzEngineListSet(_pRapList_, n, _pRapVal_)
-						@oList.UpdateWith(@oList._ContentFromEngineList(_pRapList_))
-						StzEngineValueFree(_pRapVal_)
-					ok
-					StzEngineListFree(_pRapList_)
-					return
-				ok
-			ok
 			_aRapContent_[n] = pNewItem
 			@oList.UpdateWith(_aRapContent_)
 		ok

@@ -263,13 +263,19 @@ class stzListLeadTrail
 	#======================================================#
 
 	def RepeatedLeadingItemsRemovedCS(pCaseSensitive)
-		return @oList.Copy().RemoveRepeatedLeadingItemsCSQ(pCaseSensitive).Content()
+		# Was @oList.Copy().RemoveRepeatedLeadingItemsCSQ -- not on core stzList
+		_o = new stzListLeadTrail(@oList.Content())
+		_o.RemoveRepeatedLeadingItemsCS(pCaseSensitive)
+		return _o.Content()
 
 	def RepeatedLeadingItemsRemoved()
 		return This.RepeatedLeadingItemsRemovedCS(1)
 
 	def RepeatedTrailingItemsRemovedCS(pCaseSensitive)
-		return @oList.Copy().RemoveRepeatedTrailingItemsCSQ(pCaseSensitive).Content()
+		# Was @oList.Copy().RemoveRepeatedTrailingItemsCSQ -- not on core stzList
+		_o = new stzListLeadTrail(@oList.Content())
+		_o.RemoveRepeatedTrailingItemsCS(pCaseSensitive)
+		return _o.Content()
 
 	def RepeatedTrailingItemsRemoved()
 		return This.RepeatedTrailingItemsRemovedCS(1)
