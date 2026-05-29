@@ -74,8 +74,12 @@ class stzListExtractor
 		return aResult
 
 	def ExtractNth(n)
+		# Was `ring_remove(This.List(), n)` -- This.List() returns a list
+		# value, not a mutable reference into @oList.@aContent, so the
+		# removal didn't persist. Use the proper @oList.RemoveItemAtPosition
+		# which goes through UpdateWith and persists.
 		pItem = @oList.NthItem(n)
-		ring_remove(This.List(), n)
+		@oList.RemoveItemAtPosition(n)
 		return pItem
 
 	def ExtractFirst()
@@ -161,7 +165,7 @@ class stzListExtractor
 		next
 
 		for _kEd_ = _nEdLen_ to 1 step -1
-			ring_remove(This.List(), _anEdDupPos_[_kEd_])
+			@oList.RemoveItemAtPosition(_anEdDupPos_[_kEd_])
 		next
 
 		return _aEdDups_
@@ -174,52 +178,55 @@ class stzListExtractor
 	#======================================================#
 
 	def ExtractStrings()
+		# Collect forward to preserve order, then remove in reverse pass
+		# to keep indices valid. `ring_remove(This.List(), ...)` was a
+		# no-op (List() returns a copy), and ListReversed wasnt defined.
 		_aEsContent_ = This.Content()
 		_nEsLen_ = len(_aEsContent_)
 		_aEsResult_ = []
 		_anEsPos_ = []
-		for _iEs_ = _nEsLen_ to 1 step -1
+		for _iEs_ = 1 to _nEsLen_
 			if isString(_aEsContent_[_iEs_])
 				@AddItem(_aEsResult_, _aEsContent_[_iEs_])
 				@AddItem(_anEsPos_, _iEs_)
 			ok
 		next
-		for _jEs_ = 1 to len(_anEsPos_)
-			ring_remove(This.List(), _anEsPos_[_jEs_])
+		for _jEs_ = len(_anEsPos_) to 1 step -1
+			@oList.RemoveItemAtPosition(_anEsPos_[_jEs_])
 		next
-		return ListReversed(_aEsResult_)
+		return _aEsResult_
 
 	def ExtractNumbers()
 		_aEnContent_ = This.Content()
 		_nEnLen_ = len(_aEnContent_)
 		_aEnResult_ = []
 		_anEnPos_ = []
-		for _iEn_ = _nEnLen_ to 1 step -1
+		for _iEn_ = 1 to _nEnLen_
 			if isNumber(_aEnContent_[_iEn_])
 				@AddItem(_aEnResult_, _aEnContent_[_iEn_])
 				@AddItem(_anEnPos_, _iEn_)
 			ok
 		next
-		for _jEn_ = 1 to len(_anEnPos_)
-			ring_remove(This.List(), _anEnPos_[_jEn_])
+		for _jEn_ = len(_anEnPos_) to 1 step -1
+			@oList.RemoveItemAtPosition(_anEnPos_[_jEn_])
 		next
-		return ListReversed(_aEnResult_)
+		return _aEnResult_
 
 	def ExtractLists()
 		_aElContent_ = This.Content()
 		_nElLen_ = len(_aElContent_)
 		_aElResult_ = []
 		_anElPos_ = []
-		for _iEl_ = _nElLen_ to 1 step -1
+		for _iEl_ = 1 to _nElLen_
 			if isList(_aElContent_[_iEl_])
 				@AddItem(_aElResult_, _aElContent_[_iEl_])
 				@AddItem(_anElPos_, _iEl_)
 			ok
 		next
-		for _jEl_ = 1 to len(_anElPos_)
-			ring_remove(This.List(), _anElPos_[_jEl_])
+		for _jEl_ = len(_anElPos_) to 1 step -1
+			@oList.RemoveItemAtPosition(_anElPos_[_jEl_])
 		next
-		return ListReversed(_aElResult_)
+		return _aElResult_
 
 	  #======================================================#
 	 #   POP -- EXTRACT LAST (STACK STYLE)                  #
