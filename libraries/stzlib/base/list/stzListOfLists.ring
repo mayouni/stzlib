@@ -4250,7 +4250,11 @@ class stzListOfLists from stzList
 		for _iSc_ = 1 to _nScLen_
 			_nScInner_ = len(_aScContent_[_iSc_])
 			if n1 <= _nScInner_ and n2 <= _nScInner_
-				ring_swap(_aScContent_[_iSc_], n1, n2)
+				# Inline swap -- ring_swap calls swap() which is shadowed
+				# by user-defined func Swap(p1, p2) in stzFuncs.ring
+				_scTmp_ = _aScContent_[_iSc_][n1]
+				_aScContent_[_iSc_][n1] = _aScContent_[_iSc_][n2]
+				_aScContent_[_iSc_][n2] = _scTmp_
 			ok
 		next
 
