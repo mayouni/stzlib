@@ -38,19 +38,11 @@ class stzYielder
 		_nMapOp_ = _TransformOpCode(pcOp)
 		if _nMapOp_ = -1 return @aContent ok
 
-		_pMapList_ = StzEngineMarshalList(@aContent)
-		if _pMapList_ = NULL return @aContent ok
-
-		_pMapResult_ = StzEngineYielderMap(_pMapList_, _nMapOp_)
-		if _pMapResult_ = NULL
-			StzEngineListFree(_pMapList_)
-			return @aContent
-		ok
-
-		_aMapOut_ = StzEngineContentFromList(_pMapResult_)
-		StzEngineListFree(_pMapList_)
-		StzEngineYielderFree(_pMapResult_)
-		return _aMapOut_
+		# NOTE: engine fast-path disabled because yielder lives in a
+		# separate DLL and cannot resolve list-DLL handles (cross-DLL
+		# handle-table bug). Re-enable once a direct-marshal bridge
+		# variant (StzEngineYielderMapDirect) lands.
+		return _RingMap_(@aContent, _nMapOp_)
 
 	def MapQ(pcOp)
 		@aContent = This.Map(pcOp)
@@ -59,20 +51,7 @@ class stzYielder
 	def MapIndexed(pcOp)
 		_nMiOp_ = _TransformOpCode(pcOp)
 		if _nMiOp_ = -1 return @aContent ok
-
-		_pMiList_ = StzEngineMarshalList(@aContent)
-		if _pMiList_ = NULL return @aContent ok
-
-		_pMiResult_ = StzEngineYielderMapIndexed(_pMiList_, _nMiOp_)
-		if _pMiResult_ = NULL
-			StzEngineListFree(_pMiList_)
-			return @aContent
-		ok
-
-		_aMiOut_ = StzEngineContentFromList(_pMiResult_)
-		StzEngineListFree(_pMiList_)
-		StzEngineYielderFree(_pMiResult_)
-		return _aMiOut_
+		return _RingMap_(@aContent, _nMiOp_)
 
 	def MapIndexedQ(pcOp)
 		@aContent = This.MapIndexed(pcOp)
@@ -85,20 +64,7 @@ class stzYielder
 	def Filter(pcOp)
 		_nFltOp_ = _FilterOpCode(pcOp)
 		if _nFltOp_ = -1 return @aContent ok
-
-		_pFltList_ = StzEngineMarshalList(@aContent)
-		if _pFltList_ = NULL return @aContent ok
-
-		_pFltResult_ = StzEngineYielderFilter(_pFltList_, _nFltOp_)
-		if _pFltResult_ = NULL
-			StzEngineListFree(_pFltList_)
-			return []
-		ok
-
-		_aFltOut_ = StzEngineContentFromList(_pFltResult_)
-		StzEngineListFree(_pFltList_)
-		StzEngineYielderFree(_pFltResult_)
-		return _aFltOut_
+		return _RingFilter_(@aContent, _nFltOp_)
 
 	def FilterQ(pcOp)
 		@aContent = This.Filter(pcOp)
@@ -111,20 +77,15 @@ class stzYielder
 	def Reduce(pcOp)
 		_nRedOp_ = _ReduceOpCode(pcOp)
 		if _nRedOp_ = -1 return 0 ok
-
-		_pRedList_ = StzEngineMarshalList(@aContent)
-		if _pRedList_ = NULL return 0 ok
-
-		_nRedResult_ = StzEngineYielderReduce(_pRedList_, _nRedOp_)
-		StzEngineListFree(_pRedList_)
-		return _nRedResult_
+		return _RingReduce_(@aContent, _nRedOp_)
 
 	def ReduceConcat(pcSep)
-		_pRcList_ = StzEngineMarshalList(@aContent)
-		if _pRcList_ = NULL return "" ok
-
-		_cRcResult_ = StzEngineYielderReduceConcat(_pRcList_, pcSep)
-		StzEngineListFree(_pRcList_)
+		_cRcResult_ = ""
+		_nRcLen_ = len(@aContent)
+		for _iRc_ = 1 to _nRcLen_
+			if _iRc_ > 1 _cRcResult_ += pcSep ok
+			_cRcResult_ += "" + @aContent[_iRc_]
+		next
 		return _cRcResult_
 
 	  #-------------------#
@@ -135,20 +96,8 @@ class stzYielder
 		_nFmFiltOp_ = _FilterOpCode(pcFilterOp)
 		_nFmTransOp_ = _TransformOpCode(pcTransformOp)
 		if _nFmFiltOp_ = -1 or _nFmTransOp_ = -1 return @aContent ok
-
-		_pFmList_ = StzEngineMarshalList(@aContent)
-		if _pFmList_ = NULL return @aContent ok
-
-		_pFmResult_ = StzEngineYielderFilterMap(_pFmList_, _nFmFiltOp_, _nFmTransOp_)
-		if _pFmResult_ = NULL
-			StzEngineListFree(_pFmList_)
-			return []
-		ok
-
-		_aFmOut_ = StzEngineContentFromList(_pFmResult_)
-		StzEngineListFree(_pFmList_)
-		StzEngineYielderFree(_pFmResult_)
-		return _aFmOut_
+		_aFmFilt_ = _RingFilter_(@aContent, _nFmFiltOp_)
+		return _RingMap_(_aFmFilt_, _nFmTransOp_)
 
 	def MapFilteredQ(pcFilterOp, pcTransformOp)
 		@aContent = This.MapFiltered(pcFilterOp, pcTransformOp)
@@ -161,13 +110,7 @@ class stzYielder
 	def CountWhere(pcOp)
 		_nCwOp_ = _FilterOpCode(pcOp)
 		if _nCwOp_ = -1 return 0 ok
-
-		_pCwList_ = StzEngineMarshalList(@aContent)
-		if _pCwList_ = NULL return 0 ok
-
-		_nCwResult_ = StzEngineYielderCountWhere(_pCwList_, _nCwOp_)
-		StzEngineListFree(_pCwList_)
-		return _nCwResult_
+		return len(_RingFilter_(@aContent, _nCwOp_))
 
 	  #---------------------#
 	 #  CONVENIENCE NAMES  #
@@ -269,6 +212,7 @@ class stzYielder
 	def _TransformOpCode(pcName)
 		if isNumber(pcName) return pcName ok
 		if not isString(pcName) return -1 ok
+		pcName = lower(pcName)
 
 		switch pcName
 		on "typename"   return 0
@@ -294,6 +238,7 @@ class stzYielder
 	def _FilterOpCode(pcName)
 		if isNumber(pcName) return pcName ok
 		if not isString(pcName) return -1 ok
+		pcName = lower(pcName)
 
 		switch pcName
 		on "isstring"   return 0
@@ -319,6 +264,7 @@ class stzYielder
 	def _ReduceOpCode(pcName)
 		if isNumber(pcName) return pcName ok
 		if not isString(pcName) return -1 ok
+		pcName = lower(pcName)
 
 		switch pcName
 		on "sum"          return 0
@@ -333,3 +279,133 @@ class stzYielder
 		on "alltrue"      return 9
 		other             return -1
 		off
+
+#--- Pure-Ring helpers (yielder engine bridge unavailable cross-DLL).
+
+func _RingMap_(aIn, nOp)
+	aOut = []
+	nLen = len(aIn)
+	for i = 1 to nLen
+		item = aIn[i]
+		switch nOp
+		on 0  # typename
+			aOut + type(item)
+		on 1  # abs
+			if isNumber(item) aOut + fabs(item) else aOut + item ok
+		on 2  # negate
+			if isNumber(item) aOut + (-item) else aOut + item ok
+		on 3  # double
+			if isNumber(item) aOut + (item * 2) else aOut + item ok
+		on 4  # square
+			if isNumber(item) aOut + (item * item) else aOut + item ok
+		on 5  # tostring
+			aOut + ("" + item)
+		on 6  # toint
+			if isString(item) aOut + 0 + item else aOut + floor(item) ok
+		on 7  # tofloat
+			if isString(item) aOut + 0.0 + item else aOut + (item + 0.0) ok
+		on 8  # strlen
+			if isString(item) aOut + len(item) else aOut + 0 ok
+		on 9  # strupper
+			if isString(item) aOut + upper(item) else aOut + item ok
+		on 10 # strlower
+			if isString(item) aOut + lower(item) else aOut + item ok
+		on 11 # strtrim
+			if isString(item) aOut + trim(item) else aOut + item ok
+		on 12 # strreverse
+			if isString(item)
+				rev = ""
+				for j = len(item) to 1 step -1 rev += item[j] next
+				aOut + rev
+			else aOut + item ok
+		on 13 # increment
+			if isNumber(item) aOut + (item + 1) else aOut + item ok
+		on 14 # decrement
+			if isNumber(item) aOut + (item - 1) else aOut + item ok
+		on 15 # iseven
+			if isNumber(item) and (item % 2 = 0) aOut + 1 else aOut + 0 ok
+		on 16 # sign
+			if isNumber(item)
+				if item > 0 aOut + 1
+				but item < 0 aOut + (-1)
+				else aOut + 0 ok
+			else aOut + 0 ok
+		other
+			aOut + item
+		off
+	next
+	return aOut
+
+func _RingFilter_(aIn, nOp)
+	aOut = []
+	nLen = len(aIn)
+	for i = 1 to nLen
+		item = aIn[i]
+		bKeep = 0
+		switch nOp
+		on 0  bKeep = isString(item)
+		on 1  bKeep = isNumber(item)
+		on 2  if isNumber(item) bKeep = (floor(item) = item) ok
+		on 3  if isNumber(item) bKeep = (floor(item) != item) ok
+		on 4  bKeep = (item = 0 or item = 1)
+		on 5  bKeep = isNull(item)
+		on 6  bKeep = isList(item)
+		on 7  if isNumber(item) bKeep = (item > 0) ok
+		on 8  if isNumber(item) bKeep = (item < 0) ok
+		on 9  if isNumber(item) bKeep = (item = 0) ok
+		on 10 if isNumber(item) bKeep = (item != 0) ok
+		on 11 if isString(item) bKeep = (item = "") but isList(item) bKeep = (len(item) = 0) ok
+		on 12 if isString(item) bKeep = (item != "") but isList(item) bKeep = (len(item) > 0) ok
+		on 13 if isNumber(item) bKeep = (item % 2 = 0) ok
+		on 14 if isNumber(item) bKeep = (item % 2 != 0) ok
+		on 15 bKeep = (item = 1)
+		on 16 bKeep = (item = 0)
+		off
+		if bKeep aOut + item ok
+	next
+	return aOut
+
+func _RingReduce_(aIn, nOp)
+	nLen = len(aIn)
+	# Match engine convention: empty input -> 0 for every reduce op.
+	if nLen = 0 return 0 ok
+	switch nOp
+	on 0  # sum
+		acc = 0
+		for i = 1 to nLen if isNumber(aIn[i]) acc += aIn[i] ok next
+		return acc
+	on 1  # product
+		acc = 1
+		for i = 1 to nLen if isNumber(aIn[i]) acc *= aIn[i] ok next
+		return acc
+	on 2  # min
+		if nLen = 0 return 0 ok
+		mn = aIn[1]
+		for i = 2 to nLen if isNumber(aIn[i]) and aIn[i] < mn mn = aIn[i] ok next
+		return mn
+	on 3  # max
+		if nLen = 0 return 0 ok
+		mx = aIn[1]
+		for i = 2 to nLen if isNumber(aIn[i]) and aIn[i] > mx mx = aIn[i] ok next
+		return mx
+	on 4  return nLen
+	on 5  # countstrings
+		c = 0
+		for i = 1 to nLen if isString(aIn[i]) c++ ok next
+		return c
+	on 6  # countnumbers
+		c = 0
+		for i = 1 to nLen if isNumber(aIn[i]) c++ ok next
+		return c
+	on 7  # concat
+		s = ""
+		for i = 1 to nLen s += "" + aIn[i] next
+		return s
+	on 8  # anytrue
+		for i = 1 to nLen if aIn[i] = 1 return 1 ok next
+		return 0
+	on 9  # alltrue
+		for i = 1 to nLen if aIn[i] != 1 return 0 ok next
+		return 1
+	off
+	return 0

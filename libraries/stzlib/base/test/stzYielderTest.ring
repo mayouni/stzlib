@@ -2,7 +2,7 @@ load "../../core/common/stkRingLibs.ring"
 load "../common/stzRingLibs.ring"
 load "../list/stzListFunc.ring"
 
-load "stzYielder.ring"
+load "../list/stzYielder.ring"
 
 ? "=== stzYielder Tests ==="
 
