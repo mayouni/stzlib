@@ -13,14 +13,14 @@
 | Modules designed  | 88                       |
 | Modules built     | 83                       |
 | Design principles | 19                       |
-| Engine tests      | 1508 passing             |
+| Engine tests      | 1593 passing             |
 | DLLs shipping     | 87 (4 Core + 83 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 1029 DLL functions       |
+| Ring bridge regs  | 1031 DLL functions       |
 | Ring classes bridged | 125 files, 3482+ calls |
 | Ring Unicode hard | Complete (all domains)   |
 | PCRE2 backend     | 10.47 (industrial regex) |
-| Last updated      | 2026-05-25 (Session 27)  |
+| Last updated      | 2026-05-28 (Session 30)  |
 
 ---
 
@@ -1000,3 +1000,8 @@ M-E11 (Repo Split)
 | 2026-05-25 | 27++    | M-E10      | 8 more Ring wrapper classes: stzSchema, stzTopology, stzEmbedding, stzExplain, stzEngineTimeline, stzGridNav, stzInteraction, stzSkill. All 18 engine wrapper classes complete. 125 files bridged. M-E10 Ring bridges DONE |
 | 2026-05-25 | 27+++   | M-S1       | stzList Phase 2.2+3: added Bisect/PartitionW/Chunks to stzListClassifier, ContainsW/IsPalindrome/IsPairOf*/IsSet/IsPair to stzListChecker. Phase 3 engine coverage verified: Map/Filter/Reduce/Classify/Frequencies/AllUnique all engine-backed |
 | 2026-05-25 | 27++++  | Testing    | +21 tests across 8 modules (skill, gridnav, sequence, resource, context, schema, relations, interact). All C ABI exports now tested. 1508 tests pass |
+| 2026-05-28 | 28      | M-S1       | stzList Phase 1: engine-backed Checker/Comparator (StartsWith/EndsWith list-prefix engine fns added), Classifier/Extractor (FrequencyOf/Chunks via engine), Merger/Duplicates. Fixed Comparator.ContainsCS mixed-type bug (route to engine-backed @oList.ContainsCS). Variable scoping fix (_prefixed_ convention) across these submodules. 1591 engine tests, 14/14 checker/comparator + 13/13 classifier + 26/26 delegation tests pass |
+| 2026-05-28 | 29      | CLI        | Added softanza status/coverage/roadmap/next commands backed by comptime engine_status.zig table (14 domains, 28 submodules, 21 milestones). Source of truth for "where are we?" -- avoids re-deriving progress each session |
+| 2026-05-28 | 29+     | M-S1       | Phase 2: scoping cleanup for Getter (35 methods), Sorter (14), Bounder (22) -- 11->14 clean submodules, 27%->30% engine-backed. All delegation tests still pass |
+| 2026-05-28 | 30      | CLI        | Aligned CLI roadmap with canonical M-E0.5..M-E11 + M-S1..M-S3 milestone naming from this doc. Status command now shows macro stats first, then tracked subset. Roadmap splits ENGINE/STZLIB tracks. Added Status.partial for mid-flight milestones (M-E10, M-S1, M-S2). |
+| 2026-05-28 | 30+     | M-S1       | Phase 2 cont'd: scoping cleanup for Sections (12 methods), Walker (18), Flattener (12 + 2 global recursive helpers). 14->17 clean submodules. Walker WalkUntil/WalkWhile use engine FindW. Flattener Paired/Chunked/DeepFlatten/FlattenToDepth all engine. 1593 engine tests pass |

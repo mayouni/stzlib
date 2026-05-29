@@ -53,7 +53,7 @@ class stzListSections
 
 	def SectionCS(n1, n2, pCaseSensitive)
 
-		nLen = This.NumberOfItems()
+		_nScLen_ = This.NumberOfItems()
 
 		if CheckingParams()
 
@@ -89,7 +89,7 @@ class stzListSections
 
 			if isString(n2) and (n2 = :Last or n2 = :LastItem or
 			   n2 = :End or n2 = :EndOfList)
-				n2 = nLen
+				n2 = _nScLen_
 			ok
 
 			if NOT (isNumber(n1) and isNumber(n2))
@@ -98,11 +98,11 @@ class stzListSections
 		ok
 
 		if n1 < 0
-			n1 = nLen + n1 + 1
+			n1 = _nScLen_ + n1 + 1
 		ok
 
 		if n2 < 0
-			n2 = nLen + n2 + 1
+			n2 = _nScLen_ + n2 + 1
 		ok
 
 		if n1 = 0
@@ -113,30 +113,30 @@ class stzListSections
 			n2 = 1
 		ok
 
-		if n1 > nLen
-			n1 = nLen
+		if n1 > _nScLen_
+			n1 = _nScLen_
 		ok
 
-		if n2 > nLen
-			n2 = nLen
+		if n2 > _nScLen_
+			n2 = _nScLen_
 		ok
 
 		if n1 > n2
-			nTemp = n1
+			_nScTemp_ = n1
 			n1 = n2
-			n2 = nTemp
+			n2 = _nScTemp_
 		ok
 
-		pList = @oList._EngineListFromContent()
-		pSection = StzEngineListSection(pList, n1, n2)
-		if pSection != NULL
-			aResult = StzEngineContentFromList(pSection)
-			StzEngineListFree(pSection)
+		_pScList_ = @oList._EngineListFromContent()
+		_pScSection_ = StzEngineListSection(_pScList_, n1, n2)
+		if _pScSection_ != NULL
+			_aScResult_ = StzEngineContentFromList(_pScSection_)
+			StzEngineListFree(_pScSection_)
 		else
-			aResult = []
+			_aScResult_ = []
 		ok
-		StzEngineListFree(pList)
-		return aResult
+		StzEngineListFree(_pScList_)
+		return _aScResult_
 
 		def SectionCSQ(n1, n2, pCaseSensitive)
 			return new stzList( This.SectionCS(n1, n2, pCaseSensitive) )
@@ -176,8 +176,8 @@ class stzListSections
 			ok
 		ok
 
-		aResult = [ This.SectionCS(n1, n2, pCaseSensitive), n1 ]
-		return aResult
+		_aSczResult_ = [ This.SectionCS(n1, n2, pCaseSensitive), n1 ]
+		return _aSczResult_
 
 		def SliceCSZ(n1, n2, pCaseSensitive)
 			return This.SectionCSZ(n1, n2, pCaseSensitive)
@@ -203,8 +203,8 @@ class stzListSections
 			ok
 		ok
 
-		aResult = [ This.SectionCS(n1, n2, pCaseSensitive), [n1, n2] ]
-		return aResult
+		_aSczzResult_ = [ This.SectionCS(n1, n2, pCaseSensitive), [n1, n2] ]
+		return _aSczzResult_
 
 		def SliceCSZZ(n1, n2, pCaseSensitive)
 			return This.SectionCSZZ(n1, n2, pCaseSensitive)
@@ -220,14 +220,14 @@ class stzListSections
 	#======================================#
 
 	def Sections(paSections)
-		aResult = []
-		nLen = len(paSections)
+		_aSsResult_ = []
+		_nSsLen_ = len(paSections)
 
-		for i = 1 to nLen
-			aResult + [ This.Section(paSections[i][1], paSections[i][2]) ]
+		for _iSs_ = 1 to _nSsLen_
+			@AddItem(_aSsResult_, This.Section(paSections[_iSs_][1], paSections[_iSs_][2]))
 		next
 
-		return aResult
+		return _aSsResult_
 
 		def SectionsQ(paSections)
 			return new stzList( This.Sections(paSections) )
@@ -259,8 +259,8 @@ class stzListSections
 			return This.FindAntiSection(n1, n2)
 
 	def AntiSection(n1, n2)
-		aResult = This.Section( This.FindAntiSection(n1, n2) )
-		return aResult
+		_aAsResult_ = This.Section( This.FindAntiSection(n1, n2) )
+		return _aAsResult_
 
 		def AntiSectionQ(paSections)
 			return new stzList( This.AntiSection(paSections) )
@@ -283,8 +283,8 @@ class stzListSections
 			return This.FindAntiSectionIB(n1, n2)
 
 	def AntiSectionIB(n1, n2)
-		aResult = This.Section( This.FindAntiSectionIB(n1, n2) )
-		return aResult
+		_aAsiResult_ = This.Section( This.FindAntiSectionIB(n1, n2) )
+		return _aAsiResult_
 
 		def AntiSectionIBQ(paSections)
 			return new stzList( This.AntiSectionIB(paSections) )
@@ -317,18 +317,18 @@ class stzListSections
 			return ""
 		ok
 
-		aResult = []
+		_aRgResult_ = []
 
 		if pnRange > 0
-			aResult + This.Section( pnStart, pnStart + pnRange -1 )
+			@AddItem(_aRgResult_, This.Section( pnStart, pnStart + pnRange -1 ))
 		else
-			n1 = pnStart + pnRange + 1
-			if n1 > 0
-				aResult + This.Section( n1, pnStart )
+			_nRgN1_ = pnStart + pnRange + 1
+			if _nRgN1_ > 0
+				@AddItem(_aRgResult_, This.Section( _nRgN1_, pnStart ))
 			ok
 		ok
 
-		return aResult
+		return _aRgResult_
 
 		def RangeQ(pnStart, pnRange)
 			return new stzList( This.Range(pnStart, pnRange) )
@@ -350,23 +350,23 @@ class stzListSections
 			pnStart = @oList.NumberOfItems() + pnStart + 1
 		ok
 
-		aSection = @RangeToSection(pnStart, pnRange)
-		aResult = @oList.SectionXT(aSection[1], aSection[2])
+		_aRxSection_ = @RangeToSection(pnStart, pnRange)
+		_aRxResult_ = @oList.SectionXT(_aRxSection_[1], _aRxSection_[2])
 
-		return aResult
+		return _aRxResult_
 
 	  #------------------------------------#
 	 #   GETTING MANY RANGES OF THE LIST  #
 	#------------------------------------#
 
 	def Ranges(paRanges)
-		aResult = []
+		_aRgsResult_ = []
 
-		for aRange in paRanges
-			aResult + This.Range( aRange[1], aRange[2] )
+		for _aRgsRange_ in paRanges
+			@AddItem(_aRgsResult_, This.Range( _aRgsRange_[1], _aRgsRange_[2] ))
 		next
 
-		return aResult
+		return _aRgsResult_
 
 		def ManyRanges(paSections)
 			return This.Ranges(paRanges)
@@ -376,10 +376,10 @@ class stzListSections
 	#--------------------------------------------------------#
 
 	def AntiRanges(paRanges)
-		aSections = RangesToSections(paRanges)
-		aResult = @oList.AntiSections(aSections)
+		_aArSections_ = RangesToSections(paRanges)
+		_aArResult_ = @oList.AntiSections(_aArSections_)
 
-		return aResult
+		return _aArResult_
 
 		def RangesOtherThan(paRanges)
 			return This.AntiRanges()
@@ -388,9 +388,9 @@ class stzListSections
 			return new stzList( This.AntiRanges(paRanges) )
 
 	def RangesAndAntiRanges(paRanges)
-		aSections = SectionsToRanges(paRanges)
-		aResult = @oList.SectionsAndAntiSections(aSections)
-		return aResult
+		_aRarSections_ = SectionsToRanges(paRanges)
+		_aRarResult_ = @oList.SectionsAndAntiSections(_aRarSections_)
+		return _aRarResult_
 
 		def RangesAndAntiRangesQ(paRanges)
 			return new stzList( This.RangesAndAntiRanges(paRanges) )
@@ -403,10 +403,10 @@ class stzListSections
 	#---------------------------------------------------------------------------#
 
 	def AntiRangesIB(paRanges)
-		aSections = RangesToSections(paRanges)
-		aResult = @oList.AntiSectionsIB(aSections)
+		_aAribSections_ = RangesToSections(paRanges)
+		_aAribResult_ = @oList.AntiSectionsIB(_aAribSections_)
 
-		return aResult
+		return _aAribResult_
 
 		def RangesOtherThanIB(paRanges)
 			return This.AntiRangesIB()
@@ -415,9 +415,9 @@ class stzListSections
 			return new stzList( This.AntiRangesIB(paRanges) )
 
 	def RangesAndAntiRangesIB(paRanges)
-		aSections = SectionsToRanges(paRanges)
-		aResult = @oList.SectionsAndAntiSectionsIB(aSections)
-		return aResult
+		_aRaribSections_ = SectionsToRanges(paRanges)
+		_aRaribResult_ = @oList.SectionsAndAntiSectionsIB(_aRaribSections_)
+		return _aRaribResult_
 
 		def RangesAndAntiRangesIBQ(paRanges)
 			return new stzList( This.RangesAndAntiRangesIB(paRanges) )

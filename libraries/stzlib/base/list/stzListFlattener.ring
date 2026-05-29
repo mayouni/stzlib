@@ -17,37 +17,39 @@
 /////////////////
 
 func _DeepFlattenHelper(paList)
-	aResult = []
-	nLen = len(paList)
-	for i = 1 to nLen
-		if isList(paList[i])
-			aTemp = _DeepFlattenHelper(paList[i])
-			for j = 1 to len(aTemp)
-				aResult + aTemp[j]
+	# Recursive: use unique-per-call locals via Ring built-in @oList scope simulation.
+	# Bare vars would be clobbered by inner recursive call -- use eval scope.
+	_aDfhResult_ = []
+	_nDfhLen_ = len(paList)
+	for _iDfh_ = 1 to _nDfhLen_
+		if isList(paList[_iDfh_])
+			_aDfhTemp_ = _DeepFlattenHelper(paList[_iDfh_])
+			for _jDfh_ = 1 to len(_aDfhTemp_)
+				add(_aDfhResult_, _aDfhTemp_[_jDfh_])
 			next
 		else
-			aResult + paList[i]
+			add(_aDfhResult_, paList[_iDfh_])
 		ok
 	next
-	return aResult
+	return _aDfhResult_
 
 func _FlattenDepthHelper(paList, nDepth)
 	if nDepth = 0
 		return paList
 	ok
-	aResult = []
-	nLen = len(paList)
-	for i = 1 to nLen
-		if isList(paList[i])
-			aTemp = _FlattenDepthHelper(paList[i], nDepth - 1)
-			for j = 1 to len(aTemp)
-				aResult + aTemp[j]
+	_aFdhResult_ = []
+	_nFdhLen_ = len(paList)
+	for _iFdh_ = 1 to _nFdhLen_
+		if isList(paList[_iFdh_])
+			_aFdhTemp_ = _FlattenDepthHelper(paList[_iFdh_], nDepth - 1)
+			for _jFdh_ = 1 to len(_aFdhTemp_)
+				add(_aFdhResult_, _aFdhTemp_[_jFdh_])
 			next
 		else
-			aResult + paList[i]
+			add(_aFdhResult_, paList[_iFdh_])
 		ok
 	next
-	return aResult
+	return _aFdhResult_
 
 
   /////////////////
@@ -104,36 +106,36 @@ class stzListFlattener
 	#============================#
 
 	def Flatten()
-		aContent = This.Content()
-		nLen = This.NumberOfItems()
+		_aFlContent_ = This.Content()
+		_nFlLen_ = This.NumberOfItems()
 
-		aResult = []
-		aTemp = []
+		_aFlResult_ = []
+		_aFlTemp_ = []
 
-		for i = 1 to nLen
+		for _iFl_ = 1 to _nFlLen_
 
-			if isList(aContent[i])
+			if isList(_aFlContent_[_iFl_])
 
-				aTemp = Q(aContent[i]).Flattened()
-				nLenTemp = len(aTemp)
+				_aFlTemp_ = Q(_aFlContent_[_iFl_]).Flattened()
+				_nFlLenTemp_ = len(_aFlTemp_)
 
-				for j = 1 to nLenTemp
-					aResult + aTemp[j]
+				for _jFl_ = 1 to _nFlLenTemp_
+					@AddItem(_aFlResult_, _aFlTemp_[_jFl_])
 				next
 			else
-				aResult + aContent[i]
+				@AddItem(_aFlResult_, _aFlContent_[_iFl_])
 			ok
 		next
 
-		This.Update(aResult)
+		This.Update(_aFlResult_)
 
 		def FlattenQ()
 			This.Flatten()
 			return This
 
 	def Flattened()
-		aResult = This.Copy().FlattenQ().Content()
-		return aResult
+		_aFldResult_ = This.Copy().FlattenQ().Content()
+		return _aFldResult_
 
 	  #=======================================#
 	 #     ASSOCIATE WITH AN ANOTHER LIST    #
@@ -145,30 +147,30 @@ class stzListFlattener
 			StzRaise("Incorrect param type!")
 		ok
 
-		aResult = []
-		nLen  = This.NumberOfItems()
-		nLenOtherList = len(paOtherList)
+		_aAwResult_ = []
+		_nAwLen_  = This.NumberOfItems()
+		_nAwLenOther_ = len(paOtherList)
 
-		aContent = This.Content()
+		_aAwContent_ = This.Content()
 
-		for i = 1 to nLen
-			otherItem = ""
-			if i <= nLenOtherList
-				otherItem = paOtherList[i]
+		for _iAw_ = 1 to _nAwLen_
+			_otherAwItem_ = ""
+			if _iAw_ <= _nAwLenOther_
+				_otherAwItem_ = paOtherList[_iAw_]
 			ok
 
-			aResult + [ aContent[i], otherItem ]
+			@AddItem(_aAwResult_, [ _aAwContent_[_iAw_], _otherAwItem_ ])
 		next
 
-		This.Update( aResult )
+		This.Update( _aAwResult_ )
 
 		def AssociateWithQ(paOtherList)
 			This.AssociateWith(paOtherList)
 			return This
 
 	def AssociatedWith(paOtherList)
-		aResult = This.Copy().AssociateWithQ(paOtherList).Content()
-		return aResult
+		_aAwdResult_ = This.Copy().AssociateWithQ(paOtherList).Content()
+		return _aAwdResult_
 
 	  #===============================#
 	 #     TYPE CONVERSION          #
@@ -203,15 +205,15 @@ class stzListFlattener
 	#=====================================#
 
 	def Stringify()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSfContent_ = This.Content()
+		_nSfLen_ = len(_aSfContent_)
 
-		acResult = []
-		for i = 1 to nLen
-			acResult + @@(aContent[i])
+		_acSfResult_ = []
+		for _iSf_ = 1 to _nSfLen_
+			@AddItem(_acSfResult_, @@(_aSfContent_[_iSf_]))
 		next
 
-		return acResult
+		return _acSfResult_
 
 		def Stringified()
 			return This.Stringify()
@@ -221,9 +223,9 @@ class stzListFlattener
 	#=======================================#
 
 	def HasRepeatedLeadingItemsCS(pCaseSensitive)
-		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
+		_aHrlLead_ = This.RepeatedLeadingItemsCS(pCaseSensitive)
 
-		if len(aLead) > 0
+		if len(_aHrlLead_) > 0
 			return 1
 		else
 			return 0
@@ -233,79 +235,79 @@ class stzListFlattener
 			return This.HasRepeatedLeadingItemsCS(1)
 
 	def RepeatedLeadingItemsCS(pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aRliContent_ = This.Content()
+		_nRliLen_ = len(_aRliContent_)
 
-		if nLen <= 1
+		if _nRliLen_ <= 1
 			return []
 		ok
 
-		cFirst = @@(aContent[1])
+		_cRliFirst_ = @@(_aRliContent_[1])
 		if pCaseSensitive = 0
-			cFirst = StzLower(cFirst)
+			_cRliFirst_ = StzLower(_cRliFirst_)
 		ok
 
-		aResult = []
-		for i = 2 to nLen
-			cItem = @@(aContent[i])
+		_aRliResult_ = []
+		for _iRli_ = 2 to _nRliLen_
+			_cRliItem_ = @@(_aRliContent_[_iRli_])
 			if pCaseSensitive = 0
-				cItem = StzLower(cItem)
+				_cRliItem_ = StzLower(_cRliItem_)
 			ok
 
-			if cItem = cFirst
-				aResult + aContent[i]
+			if _cRliItem_ = _cRliFirst_
+				@AddItem(_aRliResult_, _aRliContent_[_iRli_])
 			else
 				exit
 			ok
 		next
 
-		return aResult
+		return _aRliResult_
 
 	def RepeatedLeadingItems()
 		return This.RepeatedLeadingItemsCS(1)
 
 	def HasRepeatedTrailingItemsCS(pCaseSensitive)
-		aTrail = This.RepeatedTrailingItemsCS(pCaseSensitive)
+		_aHrtTrail_ = This.RepeatedTrailingItemsCS(pCaseSensitive)
 
-		if len(aTrail) > 0
+		if len(_aHrtTrail_) > 0
 			return 1
 		else
 			return 0
 		ok
 
 	def RepeatedTrailingItemsCS(pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aRtiContent_ = This.Content()
+		_nRtiLen_ = len(_aRtiContent_)
 
-		if nLen <= 1
+		if _nRtiLen_ <= 1
 			return []
 		ok
 
-		cLast = @@(aContent[nLen])
+		_cRtiLast_ = @@(_aRtiContent_[_nRtiLen_])
 		if pCaseSensitive = 0
-			cLast = StzLower(cLast)
+			_cRtiLast_ = StzLower(_cRtiLast_)
 		ok
 
-		aResult = []
-		for i = nLen - 1 to 1 step -1
-			cItem = @@(aContent[i])
+		_aRtiResult_ = []
+		for _iRti_ = _nRtiLen_ - 1 to 1 step -1
+			_cRtiItem_ = @@(_aRtiContent_[_iRti_])
 			if pCaseSensitive = 0
-				cItem = StzLower(cItem)
+				_cRtiItem_ = StzLower(_cRtiItem_)
 			ok
 
-			if cItem = cLast
-				aResult + aContent[i]
+			if _cRtiItem_ = _cRtiLast_
+				@AddItem(_aRtiResult_, _aRtiContent_[_iRti_])
 			else
 				exit
 			ok
 		next
 
-		oTemp = new stzList(aResult)
-		pTmp = oTemp._EngineListFromContent()
-		StzEngineListReverse(pTmp)
-		aReversed = oTemp._ContentFromEngineList(pTmp)
-		StzEngineListFree(pTmp)
-		return aReversed
+		_oRtiTemp_ = new stzList(_aRtiResult_)
+		_pRtiTmp_ = _oRtiTemp_._EngineListFromContent()
+		StzEngineListReverse(_pRtiTmp_)
+		_aRtiReversed_ = _oRtiTemp_._ContentFromEngineList(_pRtiTmp_)
+		StzEngineListFree(_pRtiTmp_)
+		return _aRtiReversed_
 
 	def RepeatedTrailingItems()
 		return This.RepeatedTrailingItemsCS(1)
@@ -315,115 +317,115 @@ class stzListFlattener
 	#=======================================#
 
 	def DeepFlatten()
-		pList = @oList._EngineListFromContent()
-		pResult = StzEngineListDeepFlatten(pList)
-		StzEngineListFree(pList)
-		This.Update(StzEngineContentFromList(pResult))
-		StzEngineListFree(pResult)
+		_pDfList_ = @oList._EngineListFromContent()
+		_pDfResult_ = StzEngineListDeepFlatten(_pDfList_)
+		StzEngineListFree(_pDfList_)
+		This.Update(StzEngineContentFromList(_pDfResult_))
+		StzEngineListFree(_pDfResult_)
 
 		def DeepFlattenQ()
 			This.DeepFlatten()
 			return This
 
 	def DeepFlattened()
-		pList = @oList._EngineListFromContent()
-		pResult = StzEngineListDeepFlatten(pList)
-		StzEngineListFree(pList)
-		aResult = StzEngineContentFromList(pResult)
-		StzEngineListFree(pResult)
-		return aResult
+		_pDfdList_ = @oList._EngineListFromContent()
+		_pDfdResult_ = StzEngineListDeepFlatten(_pDfdList_)
+		StzEngineListFree(_pDfdList_)
+		_aDfdResult_ = StzEngineContentFromList(_pDfdResult_)
+		StzEngineListFree(_pDfdResult_)
+		return _aDfdResult_
 
 	  #=======================================#
 	 #     FLATTENING TO A GIVEN DEPTH       #
 	#=======================================#
 
 	def FlattenToDepth(n)
-		pList = @oList._EngineListFromContent()
-		pResult = StzEngineListFlattenToDepth(pList, n)
-		StzEngineListFree(pList)
-		This.Update(StzEngineContentFromList(pResult))
-		StzEngineListFree(pResult)
+		_pFtdList_ = @oList._EngineListFromContent()
+		_pFtdResult_ = StzEngineListFlattenToDepth(_pFtdList_, n)
+		StzEngineListFree(_pFtdList_)
+		This.Update(StzEngineContentFromList(_pFtdResult_))
+		StzEngineListFree(_pFtdResult_)
 
 		def FlattenToDepthQ(n)
 			This.FlattenToDepth(n)
 			return This
 
 	def FlattenedToDepth(n)
-		pList = @oList._EngineListFromContent()
-		pResult = StzEngineListFlattenToDepth(pList, n)
-		StzEngineListFree(pList)
-		aResult = StzEngineContentFromList(pResult)
-		StzEngineListFree(pResult)
-		return aResult
+		_pFtddList_ = @oList._EngineListFromContent()
+		_pFtddResult_ = StzEngineListFlattenToDepth(_pFtddList_, n)
+		StzEngineListFree(_pFtddList_)
+		_aFtddResult_ = StzEngineContentFromList(_pFtddResult_)
+		StzEngineListFree(_pFtddResult_)
+		return _aFtddResult_
 
 	  #=======================================#
 	 #     PAIRED (GROUP INTO PAIRS)         #
 	#=======================================#
 
 	def Paired()
-		pList = @oList._EngineListFromContent()
-		pResult = StzEngineListPaired(pList)
-		StzEngineListFree(pList)
-		aResult = StzEngineContentFromList(pResult)
-		StzEngineListFree(pResult)
-		return aResult
+		_pPdList_ = @oList._EngineListFromContent()
+		_pPdResult_ = StzEngineListPaired(_pPdList_)
+		StzEngineListFree(_pPdList_)
+		_aPdResult_ = StzEngineContentFromList(_pPdResult_)
+		StzEngineListFree(_pPdResult_)
+		return _aPdResult_
 
 	  #=======================================#
 	 #     CHUNKED (GROUP INTO N-SIZE)       #
 	#=======================================#
 
 	def Chunked(n)
-		pList = @oList._EngineListFromContent()
-		pResult = StzEngineListChunked(pList, n)
-		StzEngineListFree(pList)
-		aResult = StzEngineContentFromList(pResult)
-		StzEngineListFree(pResult)
-		return aResult
+		_pCkList_ = @oList._EngineListFromContent()
+		_pCkResult_ = StzEngineListChunked(_pCkList_, n)
+		StzEngineListFree(_pCkList_)
+		_aCkResult_ = StzEngineContentFromList(_pCkResult_)
+		StzEngineListFree(_pCkResult_)
+		return _aCkResult_
 
 	  #=======================================#
 	 #     INTERLEAVE WITH ANOTHER LIST      #
 	#=======================================#
 
 	def InterleavedWith(paOther)
-		aContent = This.Content()
-		nLen1 = len(aContent)
-		nLen2 = len(paOther)
-		nMax = nLen1
-		if nLen2 > nMax
-			nMax = nLen2
+		_aIwContent_ = This.Content()
+		_nIwLen1_ = len(_aIwContent_)
+		_nIwLen2_ = len(paOther)
+		_nIwMax_ = _nIwLen1_
+		if _nIwLen2_ > _nIwMax_
+			_nIwMax_ = _nIwLen2_
 		ok
 
-		aResult = []
-		for i = 1 to nMax
-			if i <= nLen1
-				aResult + aContent[i]
+		_aIwResult_ = []
+		for _iIw_ = 1 to _nIwMax_
+			if _iIw_ <= _nIwLen1_
+				@AddItem(_aIwResult_, _aIwContent_[_iIw_])
 			ok
-			if i <= nLen2
-				aResult + paOther[i]
+			if _iIw_ <= _nIwLen2_
+				@AddItem(_aIwResult_, paOther[_iIw_])
 			ok
 		next
 
-		return aResult
+		return _aIwResult_
 
 	  #=======================================#
 	 #     OBJECTIFIED (ITEMS AS OBJECTS)    #
 	#=======================================#
 
 	def Objectified()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aoResult = []
+		_aObContent_ = This.Content()
+		_nObLen_ = len(_aObContent_)
+		_aoObResult_ = []
 
-		for i = 1 to nLen
-			if isString(aContent[i])
-				aoResult + new stzString(aContent[i])
-			but isNumber(aContent[i])
-				aoResult + new stzNumber(aContent[i])
-			but isList(aContent[i])
-				aoResult + new stzList(aContent[i])
+		for _iOb_ = 1 to _nObLen_
+			if isString(_aObContent_[_iOb_])
+				@AddItem(_aoObResult_, new stzString(_aObContent_[_iOb_]))
+			but isNumber(_aObContent_[_iOb_])
+				@AddItem(_aoObResult_, new stzNumber(_aObContent_[_iOb_]))
+			but isList(_aObContent_[_iOb_])
+				@AddItem(_aoObResult_, new stzList(_aObContent_[_iOb_]))
 			else
-				aoResult + aContent[i]
+				@AddItem(_aoObResult_, _aObContent_[_iOb_])
 			ok
 		next
 
-		return aoResult
+		return _aoObResult_
