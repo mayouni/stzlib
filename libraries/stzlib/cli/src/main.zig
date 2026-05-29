@@ -241,11 +241,25 @@ fn cmdBuild(gpa: std.mem.Allocator) u8 {
 
 fn cmdStatus() u8 {
     const wr = w();
+    const m = engine_status.macro;
     wr.writeAll("Softanza Engine Status\n======================\n\n") catch {};
+
+    wr.writeAll("Macro (canonical, from SOFTANZA_ENGINE_MACROPLAN.md):\n") catch {};
+    wr.print("  modules designed     {d}\n", .{m.modules_designed}) catch {};
+    wr.print("  modules built        {d}\n", .{m.modules_built}) catch {};
+    wr.print("  design principles    {d}\n", .{m.design_principles}) catch {};
+    wr.print("  engine tests         {d} passing\n", .{m.engine_tests}) catch {};
+    wr.print("  DLLs shipping        {d}\n", .{m.dlls_shipping}) catch {};
+    wr.print("  Qt dependencies      {d} (fully purged)\n", .{m.qt_dependencies}) catch {};
+    wr.print("  Ring bridge regs     {d} DLL functions\n", .{m.ring_bridge_regs}) catch {};
+    wr.print("  Ring classes bridged {d} files, {d}+ engine calls\n", .{ m.ring_classes_bridged, m.ring_engine_calls }) catch {};
+    wr.print("  last updated         {s} (session {d})\n", .{ m.last_updated, m.last_session }) catch {};
+    wr.writeAll("\n") catch {};
 
     var d_done: u32 = 0;
     var d_wip: u32 = 0;
     var d_plan: u32 = 0;
+    var d_part: u32 = 0;
     var fns_total: u32 = 0;
     var bridged_total: u32 = 0;
     for (engine_status.domains) |d| {
@@ -253,6 +267,7 @@ fn cmdStatus() u8 {
             .done => d_done += 1,
             .in_progress => d_wip += 1,
             .planned => d_plan += 1,
+            .partial => d_part += 1,
         }
         fns_total += d.engine_fns;
         bridged_total += d.ring_methods_bridged;
@@ -268,33 +283,55 @@ fn cmdStatus() u8 {
         sub_backed += s.engine_backed;
     }
 
-    var m_done: u32 = 0;
-    var m_wip: u32 = 0;
-    var m_plan: u32 = 0;
-    for (engine_status.milestones) |m| {
-        switch (m.status) {
-            .done => m_done += 1,
-            .in_progress => m_wip += 1,
-            .planned => m_plan += 1,
+    var me_done: u32 = 0;
+    var me_wip: u32 = 0;
+    var me_part: u32 = 0;
+    var me_plan: u32 = 0;
+    var ms_done: u32 = 0;
+    var ms_wip: u32 = 0;
+    var ms_part: u32 = 0;
+    var ms_plan: u32 = 0;
+    for (engine_status.milestones) |ms| {
+        const is_engine = std.mem.eql(u8, ms.track, "engine");
+        switch (ms.status) {
+            .done => if (is_engine) {
+                me_done += 1;
+            } else {
+                ms_done += 1;
+            },
+            .in_progress => if (is_engine) {
+                me_wip += 1;
+            } else {
+                ms_wip += 1;
+            },
+            .partial => if (is_engine) {
+                me_part += 1;
+            } else {
+                ms_part += 1;
+            },
+            .planned => if (is_engine) {
+                me_plan += 1;
+            } else {
+                ms_plan += 1;
+            },
         }
     }
 
-    wr.print("Domains          {d} ({d} DONE, {d} WIP, {d} PLAN)\n", .{ engine_status.domains.len, d_done, d_wip, d_plan }) catch {};
-    wr.print("Engine C ABI fns ~{d} across all domains\n", .{fns_total}) catch {};
-    wr.print("Ring methods     ~{d} bridged to engine\n", .{bridged_total}) catch {};
+    wr.writeAll("Tracked here (subset of full 87-DLL surface):\n") catch {};
+    wr.print("  Domains    {d} ({d} DONE, {d} WIP, {d} PLAN, {d} PART)\n", .{ engine_status.domains.len, d_done, d_wip, d_plan, d_part }) catch {};
+    wr.print("             ~{d} engine fns / ~{d} ring methods bridged\n", .{ fns_total, bridged_total }) catch {};
     wr.writeAll("\n") catch {};
-    wr.print("Submodules       {d} (list-domain tracked)\n", .{engine_status.submodules.len}) catch {};
-    wr.print("                 {d} scoping-clean (_prefixed_ vars)\n", .{sub_clean}) catch {};
-    wr.print("                 {d} scoping-debt  (bare vars; class-attribute risk)\n", .{sub_dirty}) catch {};
-    wr.print("                 ~{d} methods total, ~{d} engine-backed ({d}%)\n", .{
+    wr.print("  Submodules {d} list-domain ({d} scoping-clean, {d} debt)\n", .{ engine_status.submodules.len, sub_clean, sub_dirty }) catch {};
+    wr.print("             ~{d} methods, ~{d} engine-backed ({d}%)\n", .{
         sub_methods,
         sub_backed,
         if (sub_methods == 0) 0 else sub_backed * 100 / sub_methods,
     }) catch {};
     wr.writeAll("\n") catch {};
-    wr.print("Milestones       {d} ({d} DONE, {d} WIP, {d} PLAN)\n", .{ engine_status.milestones.len, m_done, m_wip, m_plan }) catch {};
+    wr.print("  M-E track  {d} milestones ({d} DONE, {d} PART, {d} WIP, {d} PLAN)\n", .{ me_done + me_part + me_wip + me_plan, me_done, me_part, me_wip, me_plan }) catch {};
+    wr.print("  M-S track  {d} milestones ({d} DONE, {d} PART, {d} WIP, {d} PLAN)\n", .{ ms_done + ms_part + ms_wip + ms_plan, ms_done, ms_part, ms_wip, ms_plan }) catch {};
     wr.writeAll("\nUse `softanza coverage` for per-domain detail,\n") catch {};
-    wr.writeAll("    `softanza roadmap`  for milestones,\n") catch {};
+    wr.writeAll("    `softanza roadmap`  for milestones (M-E + M-S),\n") catch {};
     wr.writeAll("    `softanza next`     for the priority queue.\n") catch {};
     return 0;
 }
@@ -357,8 +394,21 @@ fn cmdCoverage(filter: ?[]const u8) u8 {
 
 fn cmdRoadmap() u8 {
     const wr = w();
-    wr.writeAll("Softanza Engine Roadmap\n=======================\n\n") catch {};
+    wr.writeAll("Softanza Roadmap\n================\n") catch {};
+    wr.writeAll("Mirrors base/doc/design/SOFTANZA_ENGINE_MACROPLAN.md\n\n") catch {};
+
+    wr.writeAll("ENGINE TRACK (M-E -- Zig modules, C ABI, Ring bridges)\n") catch {};
+    wr.writeAll("------------------------------------------------------\n") catch {};
     for (engine_status.milestones) |m| {
+        if (!std.mem.eql(u8, m.track, "engine")) continue;
+        wr.print("[{s}] {s:<6}  {s}\n", .{ m.status.tag(), m.id, m.title }) catch {};
+        wr.print("           {s}\n\n", .{m.summary}) catch {};
+    }
+
+    wr.writeAll("STZLIB TRACK (M-S -- Ring-side modularization, tests, docs)\n") catch {};
+    wr.writeAll("-----------------------------------------------------------\n") catch {};
+    for (engine_status.milestones) |m| {
+        if (!std.mem.eql(u8, m.track, "stzlib")) continue;
         wr.print("[{s}] {s:<6}  {s}\n", .{ m.status.tag(), m.id, m.title }) catch {};
         wr.print("           {s}\n\n", .{m.summary}) catch {};
     }
@@ -369,20 +419,20 @@ fn cmdNext() u8 {
     const wr = w();
     wr.writeAll("Next-priority work\n==================\n\n") catch {};
 
-    // 1. In-progress milestones first
-    wr.writeAll("In-progress milestones:\n") catch {};
-    var any_wip = false;
+    // 1. Partial milestones first (the active fronts that need closing)
+    wr.writeAll("Partial / WIP milestones (active fronts):\n") catch {};
+    var any_active = false;
     for (engine_status.milestones) |m| {
-        if (m.status == .in_progress) {
-            wr.print("  - {s:<6} {s}\n", .{ m.id, m.title }) catch {};
-            wr.print("           {s}\n", .{m.summary}) catch {};
-            any_wip = true;
+        if (m.status == .partial or m.status == .in_progress) {
+            wr.print("  [{s}] {s:<6} ({s})  {s}\n", .{ m.status.tag(), m.id, m.track, m.title }) catch {};
+            wr.print("                {s}\n", .{m.summary}) catch {};
+            any_active = true;
         }
     }
-    if (!any_wip) wr.writeAll("  (none)\n") catch {};
+    if (!any_active) wr.writeAll("  (none)\n") catch {};
 
-    // 2. Scoping debt (highest-risk first by method count)
-    wr.writeAll("\nScoping debt (submodules with bare vars):\n") catch {};
+    // 2. Scoping debt (the M-S1 phase 2 queue)
+    wr.writeAll("\nScoping debt (M-S1 Phase 2 queue):\n") catch {};
     var any_debt = false;
     for (engine_status.submodules) |s| {
         if (!s.scoping_clean) {
@@ -399,7 +449,7 @@ fn cmdNext() u8 {
     var any_plan = false;
     for (engine_status.milestones) |m| {
         if (m.status == .planned) {
-            wr.print("  - {s:<6} {s}\n", .{ m.id, m.title }) catch {};
+            wr.print("  [{s}] {s:<6} ({s})  {s}\n", .{ m.status.tag(), m.id, m.track, m.title }) catch {};
             any_plan = true;
         }
     }
