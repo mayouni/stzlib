@@ -273,20 +273,20 @@ class stzListOfLists from stzList
 
 		if CheckingParams()
 
-			if NOT isList(paList) 
+			if NOT isList(paList)
 				StzRaise("Can't create the stzListOfLists object! You must provide a list.")
 			ok
-	
-			bOk = 1
-			nLen = len(paList)
-	
-			for i = 1 to nLen
-				if NOT isList(paList[i])
-					bOk = 0
+
+			_bInitOk_ = 1
+			_nInitLen_ = len(paList)
+
+			for _iInit_ = 1 to _nInitLen_
+				if NOT isList(paList[_iInit_])
+					_bInitOk_ = 0
 				ok
 			next
-	
-			if NOT bOk
+
+			if NOT _bInitOk_
 				StzRaise("Can't create the stzListOfLists object! You must provide a list of lists!")
 			ok
 
@@ -376,8 +376,8 @@ class stzListOfLists from stzList
 	#-----------------#
 
 	def AddList(paList)
-		aTempContent = This.Content()
-		This.UpdateWith(aTempContent + paList)
+		_aAlContent_ = This.Content()
+		This.UpdateWith(_aAlContent_ + paList)
 
 	def AddMany(paListOfLists)
 		if CheckingParams()
@@ -386,14 +386,14 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		aContent = This.Content()
+		_aAmContent_ = This.Content()
 
-		nLen = len(paListOfLists)
-		for i = 1 to nLen
-			aContent + paListOfLists[i]
+		_nAmLen_ = len(paListOfLists)
+		for _iAm_ = 1 to _nAmLen_
+			@AddItem(_aAmContent_, paListOfLists[_iAm_])
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aAmContent_)
 
 		def AddManyLists(paListOfLists)
 			This.AddMany(paListOfLists)
@@ -408,21 +408,21 @@ class stzListOfLists from stzList
 			if isString(n)
 				if n = :First or n = :FirstList
 					n = 1
-	
-				but n = :First or n = :FirstList
+
+				but n = :Last or n = :LastList
 					n = This.NumberOfLists()
-	
+
 				ok
 			ok
-	
+
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
 		ok
 
-		aResult = This.Content()[n]
-		return aResult
+		_aNlResult_ = This.Content()[n]
+		return _aNlResult_
 
 		#< @FunctionFluentForm
 		
@@ -463,19 +463,18 @@ class stzListOfLists from stzList
 			return This.FindManyInListsCS(pItem, pCaseSensitive)
 		ok
 
-		nLen = len(@aContent)
-		aResult = []
+		_nFilLen_ = len(@aContent)
+		_aFilResult_ = []
 
-		for i = 1 to nLen
-			anPos = @FindAllCS( @aContent[i], pItem, pCaseSensitive)
-			nLenPos = len(anPos)
-			atemp = []
-			for j = 1 to nLenPos
-				aResult + [ i, anPos[j] ]
+		for _iFil_ = 1 to _nFilLen_
+			_anFilPos_ = @FindAllCS( @aContent[_iFil_], pItem, pCaseSensitive)
+			_nFilLenPos_ = len(_anFilPos_)
+			for _jFil_ = 1 to _nFilLenPos_
+				@AddItem(_aFilResult_, [ _iFil_, _anFilPos_[_jFil_] ])
 			next
 		next
 
-		return aResult
+		return _aFilResult_
 
 		#< @FunctionAlternativeForms
 
@@ -520,21 +519,21 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		aItems = U(paItems)
+		_aFmilItems_ = U(paItems)  # dedup -- kept for backward-compat (was computed-then-discarded)
 
-		nLen = len(@aContent)
-		aoStzLists = This.ToListOfStzLists()
-		aResult = []
+		_nFmilLen_ = len(@aContent)
+		_aoFmilLists_ = This.ToListOfStzLists()
+		_aFmilResult_ = []
 
-		for i = 1 to nLen
-			anPos = aoStzLists[i].FindManyCS(paItems, pCaseSensitive)
-			nLenPos = len(anPos)
-			for j = 1 to nLenPos
-				aResult + [ i, anPos[j] ]
+		for _iFmil_ = 1 to _nFmilLen_
+			_anFmilPos_ = _aoFmilLists_[_iFmil_].FindManyCS(paItems, pCaseSensitive)
+			_nFmilLenPos_ = len(_anFmilPos_)
+			for _jFmil_ = 1 to _nFmilLenPos_
+				@AddItem(_aFmilResult_, [ _iFmil_, _anFmilPos_[_jFmil_] ])
 			next
 		next
-		
-		return aResult
+
+		return _aFmilResult_
 
 		#< @FunctionAlternativeForms
 
@@ -570,21 +569,21 @@ class stzListOfLists from stzList
 
 	def PositionsW(pcCondition)
 
-		cCondition = StringSimplified(_StzStripBraces(pcCondition))
-		aResult = []
+		_cPwCondition_ = StringSimplified(_StzStripBraces(pcCondition))
+		aResult = []  # MUST stay bare -- referenced by user-supplied eval(cCode) below
 
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
+		_aPwLists_ = This.ListOfLists()
+		_nPwLen_ = len(_aPwLists_)
 
-		for @i = 1 to nLen 
-			@list = aListOfLists[@i]
+		for @i = 1 to _nPwLen_
+			@list = _aPwLists_[@i]
 
 			@item = @list # Allows using both @list and @item in the user's script
-			cCode = "if " + cCondition + NL +
+			_cPwCode_ = "if " + _cPwCondition_ + NL +
 				TAB + "aResult + @i" + NL +
 			"ok"
 
-			eval(cCode)
+			eval(_cPwCode_)
 		next
 
 		return aResult
@@ -638,21 +637,21 @@ class stzListOfLists from stzList
 
 	def ListsW(pcCondition)
 
-		cCondition = StringSimplified(_StzStripBraces(pcCondition))
-		aResult = []
+		_cLwCondition_ = StringSimplified(_StzStripBraces(pcCondition))
+		aResult = []  # MUST stay bare -- referenced by user-supplied eval(cCode) below
 
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
+		_aLwLists_ = This.ListOfLists()
+		_nLwLen_ = len(_aLwLists_)
 
-		for @i = 1 to nLen 
-			@list = aListOfLists[@i]
+		for @i = 1 to _nLwLen_
+			@list = _aLwLists_[@i]
 
 			@item = @list # Allows using both @list and @item in the user's script
-			cCode = "if " + cCondition + NL +
+			_cLwCode_ = "if " + _cLwCondition_ + NL +
 				TAB + "aResult + @list" + NL +
 			"ok"
 
-			eval(cCode)
+			eval(_cLwCode_)
 		next
 
 		return aResult
@@ -682,12 +681,12 @@ class stzListOfLists from stzList
 	#-----------------------------#
 
 	def ListsWZ(pcCondition)
-		aListsW = This.ListsW(pcCondition)
-		anPosW  = This.PositionsW(pcCondition)
+		_aLwzListsW_ = This.ListsW(pcCondition)
+		_anLwzPosW_  = This.PositionsW(pcCondition)
 
-		aResult = @Association([ aListsW, anPosW ])
+		_aLwzResult_ = @Association([ _aLwzListsW_, _anLwzPosW_ ])
 
-		return aResult
+		return _aLwzResult_
 
 		#< @FunctionFluentForm
 
@@ -714,17 +713,17 @@ class stzListOfLists from stzList
 	#==========================================#
 
 	def Sizes()
-		
-		aContent = This.ListOfLists()
-		nLen = len(aContent)
 
-		anResult = []
+		_aSzContent_ = This.ListOfLists()
+		_nSzLen_ = len(_aSzContent_)
 
-		for i = 1 to nLen
-			anResult + len(aContent[i])
+		_anSzResult_ = []
+
+		for _iSz_ = 1 to _nSzLen_
+			@AddItem(_anSzResult_, len(_aSzContent_[_iSz_]))
 		next
 
-		return anResult
+		return _anSzResult_
 
 		#< @FunctionAlternativeForms
 
@@ -752,28 +751,28 @@ class stzListOfLists from stzList
 	#-----------------------------------------------#
 
 	def ListsHaveSameNumberOfItems()
-	
-		aContent = This.Content()
-		nLen = len(aContent)
 
-		if nLen = 0
+		_aLhsContent_ = This.Content()
+		_nLhsLen_ = len(_aLhsContent_)
+
+		if _nLhsLen_ = 0
 			StzRaise("Can't check inner lists! Because the list is empty.")
 
-		but nLen = 1
+		but _nLhsLen_ = 1
 			return 1
 		ok
 
-		nLenList = len(aContent[1])
-		bResult = 1
+		_nLhsInner_ = len(_aLhsContent_[1])
+		_bLhsResult_ = 1
 
-		for i = 2 to nLen
-			if len( aContent[i] ) != nLenList
-				bResult = 0
+		for _iLhs_ = 2 to _nLhsLen_
+			if len( _aLhsContent_[_iLhs_] ) != _nLhsInner_
+				_bLhsResult_ = 0
 				exit
 			ok
 		next
 
-		return bResult
+		return _bLhsResult_
 
 		#< @FunctionAlternativeForms
 
@@ -847,21 +846,21 @@ class stzListOfLists from stzList
 
 	def FindSmallestLists()
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFslContent_ = This.Content()
+		_nFslLen_ = len(_aFslContent_)
 
-		anResult = []
-		nMin = This.SmallestSize()
+		_anFslResult_ = []
+		_nFslMin_ = This.SmallestSize()
 
-		for i = 1 to nLen
+		for _iFsl_ = 1 to _nFslLen_
 
-			if len(aContent[i]) = nMin
-				anResult + i
+			if len(_aFslContent_[_iFsl_]) = _nFslMin_
+				@AddItem(_anFslResult_, _iFsl_)
 			ok
 
 		next
 
-		return anResult
+		return _anFslResult_
 
 		def FindMinLists()
 			return This.FindSmallestLists()
@@ -879,14 +878,14 @@ class stzListOfLists from stzList
 			return This.FindSmallestLists()
 
 	def SmallestLists()
-		aResult = This.ItemsAtPositions( This.FindSmallestLists() )
-		return aResult
+		_aSlResult_ = This.ItemsAtPositions( This.FindSmallestLists() )
+		return _aSlResult_
 
 	#--
 
 	def SmallestListsZ()
-		aResult = Association([ This.SmallestLists(), This.FindSmallestLists() ])
-		return aResult
+		_aSlzResult_ = Association([ This.SmallestLists(), This.FindSmallestLists() ])
+		return _aSlzResult_
 
 	  #-------------------#
 	 #   BIGGEST LISTS   #
@@ -894,19 +893,19 @@ class stzListOfLists from stzList
 
 	def FindBiggestLists()
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		nMax = This.BiggestSize()
+		_aFblContent_ = This.Content()
+		_nFblLen_ = len(_aFblContent_)
+		_nFblMax_ = This.BiggestSize()
 
-		anResult = []
+		_anFblResult_ = []
 
-		for i = 1 to nLen
-			if len(aContent[i]) = nMax
-				anResult + i
+		for _iFbl_ = 1 to _nFblLen_
+			if len(_aFblContent_[_iFbl_]) = _nFblMax_
+				@AddItem(_anFblResult_, _iFbl_)
 			ok
 		next
 
-		return anResult
+		return _anFblResult_
 
 		#< @FunctionAlternativeForms
 
@@ -953,9 +952,9 @@ class stzListOfLists from stzList
 	# add* "big", "great", and "large" as alternatives all over the library
 
 	def BiggestLists()
-		anPos = This.FindBiggestLists()
-		aResult = This.ItemsAtPositions(anPos)
-		return aResult
+		_anBlPos_ = This.FindBiggestLists()
+		_aBlResult_ = This.ItemsAtPositions(_anBlPos_)
+		return _aBlResult_
 
 		#< @FuntionAlternativeForms
 
@@ -968,8 +967,8 @@ class stzListOfLists from stzList
 		#>
 
 	def BiggestListsZ()
-		aResult = Association([ This.BiggestLists(), This.FindBiggestLists() ])
-		return aResult
+		_aBlzResult_ = Association([ This.BiggestLists(), This.FindBiggestLists() ])
+		return _aBlzResult_
 
 		#< @FuntionAlternativeForms
 
@@ -994,19 +993,19 @@ class stzListOfLists from stzList
 	#---------------------#
 
 	def FindListsOfSizeN(n)
-		
-		aContent = This.Content()
-		nLen = len(aContent)
 
-		anResult = []
+		_aFlsContent_ = This.Content()
+		_nFlsLen_ = len(_aFlsContent_)
 
-		for i = 1 to nLen
-			if len(aContent[i]) = n
-				anResult + i
+		_anFlsResult_ = []
+
+		for _iFls_ = 1 to _nFlsLen_
+			if len(_aFlsContent_[_iFls_]) = n
+				@AddItem(_anFlsResult_, _iFls_)
 			ok
 		next
 
-		return anResult
+		return _anFlsResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1023,9 +1022,9 @@ class stzListOfLists from stzList
 
 	def ListsOfSizeN(n)
 
-		anPos = This.FindListsOfSizeN(n)
-		aResult = This.ItemsAtPositions(anPos)
-		return aResult
+		_anLsnPos_ = This.FindListsOfSizeN(n)
+		_aLsnResult_ = This.ItemsAtPositions(_anLsnPos_)
+		return _aLsnResult_
 
 		#< @FunctionAlternativeForm
 
@@ -1039,23 +1038,23 @@ class stzListOfLists from stzList
 	#======================================================#
 
 	func FindMissingItems()
-		nMin = This.MinSize()
-		nMaxSize = This.MaxSize()
-	
-		aContent = This.Content()
-		nLen = len(aContent)
-	
-		aResult = []
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
-			if nLenList < nMaxSize
-				for j = nLenList + 1 to nMaxSize
-					aResult + [ i, j ]
+		_nFmiMin_ = This.MinSize()
+		_nFmiMax_ = This.MaxSize()
+
+		_aFmiContent_ = This.Content()
+		_nFmiLen_ = len(_aFmiContent_)
+
+		_aFmiResult_ = []
+		for _iFmi_ = 1 to _nFmiLen_
+			_nFmiInner_ = len(_aFmiContent_[_iFmi_])
+			if _nFmiInner_ < _nFmiMax_
+				for _jFmi_ = _nFmiInner_ + 1 to _nFmiMax_
+					@AddItem(_aFmiResult_, [ _iFmi_, _jFmi_ ])
 				next
 			ok
 		next
-	
-		return aResult
+
+		return _aFmiResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1076,21 +1075,21 @@ class stzListOfLists from stzList
 
 	def NumberOfMissingItems()
 
-		nMin = This.MinSize()
-		nMaxSize = This.MaxSize()
-	
-		aContent = This.Content()
-		nLen = len(aContent)
-	
-		nResult = 0
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
-			if nLenList < nMaxSize
-				nResult += (nMaxSize - nLenList)
+		_nNmiMin_ = This.MinSize()
+		_nNmiMax_ = This.MaxSize()
+
+		_aNmiContent_ = This.Content()
+		_nNmiLen_ = len(_aNmiContent_)
+
+		_nNmiResult_ = 0
+		for _iNmi_ = 1 to _nNmiLen_
+			_nNmiInner_ = len(_aNmiContent_[_iNmi_])
+			if _nNmiInner_ < _nNmiMax_
+				_nNmiResult_ += (_nNmiMax_ - _nNmiInner_)
 			ok
 		next
-	
-		return nResult
+
+		return _nNmiResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1113,19 +1112,19 @@ class stzListOfLists from stzList
 	#==========================#
 
 	def ItemsAtPositionN(n)
-		aResult = []
+		_aIapnResult_ = []
 
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
+		_aIapnLists_ = This.ListOfLists()
+		_nIapnLen_ = len(_aIapnLists_)
 
-		for i = 1 to nLen
-			aList = aListOfLists[i]
-			if len(aList) >= n
-				aResult + aList[n]
+		for _iIapn_ = 1 to _nIapnLen_
+			_aIapnList_ = _aIapnLists_[_iIapn_]
+			if len(_aIapnList_) >= n
+				@AddItem(_aIapnResult_, _aIapnList_[n])
 			ok
 		next
 
-		return aResult
+		return _aIapnResult_
 
 		#< @FunctionFluentForm
 
@@ -1211,22 +1210,22 @@ class stzListOfLists from stzList
 	#=================#
 
 	def FindSmallestList()
-		nLen = This.NumberOfLists()
-		if nLen = 0
+		_nFslLen_ = This.NumberOfLists()
+		if _nFslLen_ = 0
 			return ""
 
-		but nLen = 1
+		but _nFslLen_ = 1
 			return This.NthList(1)
 		ok
 
-		nResult = 1
-		for i = 2 to nLen
-			if len( This.NthList(i) ) < len( This.NthList(nResult) )
-				nResult = i
+		_nFslResult_ = 1
+		for _iFsl_ = 2 to _nFslLen_
+			if len( This.NthList(_iFsl_) ) < len( This.NthList(_nFslResult_) )
+				_nFslResult_ = _iFsl_
 			ok
 		next
 
-		return nResult
+		return _nFslResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1244,23 +1243,23 @@ class stzListOfLists from stzList
 		# If they are many, returns only the first
 		# To return them all, use SmallestLists()
 
-		nLen = This.NumberOfLists()
-		if nLen = 0
+		_nSltLen_ = This.NumberOfLists()
+		if _nSltLen_ = 0
 			return ""
 
-		but nLen = 1
+		but _nSltLen_ = 1
 			return This.NthList(1)
 		ok
 
-		nPos = 1
-		for i = 2 to nLen
-			if len( This.NthList(i) ) < len( This.NthList(nPos) )
-				nPos = i
+		_nSltPos_ = 1
+		for _iSlt_ = 2 to _nSltLen_
+			if len( This.NthList(_iSlt_) ) < len( This.NthList(_nSltPos_) )
+				_nSltPos_ = _iSlt_
 			ok
 		next
 
-		aResult = This.NthList(nPos)
-		return aResult
+		_aSltResult_ = This.NthList(_nSltPos_)
+		return _aSltResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1273,8 +1272,8 @@ class stzListOfLists from stzList
 		#>
 
 	def SmallestListZ()
-		aResult = [ This.SmallestList(), This.FindSmallestList() ]
-		return aResult
+		_aSlzSingleResult_ = [ This.SmallestList(), This.FindSmallestList() ]
+		return _aSlzSingleResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1294,8 +1293,8 @@ class stzListOfLists from stzList
 	#-------------------------#
 
 	def SizeOfSmallestList()
-		nResult = len( This.SmallestList() )
-		return nResult
+		_nSosResult_ = len( This.SmallestList() )
+		return _nSosResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1315,22 +1314,22 @@ class stzListOfLists from stzList
 	#----------------#
 
 	def FindLargestList()
-		nLen = This.NumberOfLists()
-		if nLen = 0
+		_nFllLen_ = This.NumberOfLists()
+		if _nFllLen_ = 0
 			return ""
 
-		but nLen = 1
+		but _nFllLen_ = 1
 			return This.NthList(1)
 		ok
 
-		nResult = 1
-		for i = 2 to nLen
-			if len( This.NthList(i) ) > len( This.NthList(nResult) )
-				nResult = i
+		_nFllResult_ = 1
+		for _iFll_ = 2 to _nFllLen_
+			if len( This.NthList(_iFll_) ) > len( This.NthList(_nFllResult_) )
+				_nFllResult_ = _iFll_
 			ok
 		next
 
-		return nResult
+		return _nFllResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1343,24 +1342,24 @@ class stzListOfLists from stzList
 		#>
 
 	def LargestList()
-		
-		nLen = This.NumberOfLists()
-		if nLen = 0
+
+		_nLgLen_ = This.NumberOfLists()
+		if _nLgLen_ = 0
 			return ""
 
-		but nLen = 1
+		but _nLgLen_ = 1
 			return This.NthList(1)
 		ok
 
-		nPos = 1
-		for i = 2 to nLen
-			if len( This.NthList(i) ) > len( This.NthList(nPos) )
-				nPos = i
+		_nLgPos_ = 1
+		for _iLg_ = 2 to _nLgLen_
+			if len( This.NthList(_iLg_) ) > len( This.NthList(_nLgPos_) )
+				_nLgPos_ = _iLg_
 			ok
 		next
 
-		aResult = This.NthList(nPos)
-		return aResult
+		_aLgResult_ = This.NthList(_nLgPos_)
+		return _aLgResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1379,8 +1378,8 @@ class stzListOfLists from stzList
 		#>
 
 	def LargestListZ()
-		aResult = [ This.LargestList(), This.FindLargestList() ]
-		return aResult
+		_aLgzResult_ = [ This.LargestList(), This.FindLargestList() ]
+		return _aLgzResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1420,8 +1419,8 @@ class stzListOfLists from stzList
 	#------------------------#
 
 	def SizeOfLargestList()
-		nResult = len( This.LargestList() )
-		return nResult
+		_nSolResult_ = len( This.LargestList() )
+		return _nSolResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1459,8 +1458,8 @@ class stzListOfLists from stzList
 	#---------------------#
 
 	def SizeOfList(n)
-		nResult = len( This.NthList(n) )
-		return nResult
+		_nSolnResult_ = len( This.NthList(n) )
+		return _nSolnResult_
 
 		def Size(n)
 			return This.SizeOfList(n)
