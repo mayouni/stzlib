@@ -427,7 +427,7 @@ pub const milestones = [_]Milestone{
         .track = "stzlib",
         .title = "Ring-Side Test Hardening",
         .status = .partial,
-        .summary = "Session 29: 48 PASS / 1 FIXED / 1 minor across ~50 engine-related tests. Function-form tests, edge cases, narrated GIVEN/WHEN/THEN suite, test runner integration pending",
+        .summary = "Session 29: 48 PASS / 1 FIXED / 1 minor across ~50 engine-related tests. Session 38: regression test suites added pinning the 35 latent bugs found+fixed during M-S1 Phase 2 cleanup (15 stzListOfLists checks + 10 stzHashList checks). Function-form tests, edge cases, narrated GIVEN/WHEN/THEN suite, test runner integration still pending",
     },
     .{
         .id = "M-S3",

@@ -1908,9 +1908,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#------------------------------#
 
 	def FindNthKeyByValue(n, pValue)
+		# FindKeysByValue searches INSIDE list-valued entries via .Contains,
+		# but ContainsValue compares the whole value -- so guarding on
+		# ContainsValue would always return 0 for sub-item lookups.
+		# Guard directly on the result of FindKeysByValue instead.
 		_nFnkbvResult_ = 0
-		if This.ContainsValue(pValue)
-			_nFnkbvResult_ = This.FindKeysByValue(pValue)[n]
+		_anFnkbvPos_ = This.FindKeysByValue(pValue)
+		if len(_anFnkbvPos_) >= n
+			_nFnkbvResult_ = _anFnkbvPos_[n]
 		ok
 		return _nFnkbvResult_
 
@@ -1920,8 +1925,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindFirstKeyByValue(pValue)
 		_nFfkbvResult_ = 0
-		if This.ContainsValue(pValue)
-			_nFfkbvResult_ = This.FindKeysByValue(pValue)[1]
+		_anFfkbvPos_ = This.FindKeysByValue(pValue)
+		if len(_anFfkbvPos_) > 0
+			_nFfkbvResult_ = _anFfkbvPos_[1]
 		ok
 		return _nFfkbvResult_
 
