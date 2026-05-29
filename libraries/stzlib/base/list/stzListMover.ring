@@ -58,12 +58,12 @@ class stzListMover
 				n2 = n2[2]
 			ok
 		ok
-		item = This.List()[n1]
+		_mvItem_ = This.List()[n1]
 		ring_remove(This.List(), n1)
 		if n2 > n1
 			n2 = n2 - 1
 		ok
-		ring_insert(This.List(), n2 - 1, item)
+		ring_insert(This.List(), n2 - 1, _mvItem_)
 
 		def MoveQ(n1, n2)
 			This.Move(n1, n2)
@@ -79,17 +79,17 @@ class stzListMover
 			ok
 		ok
 
-		_pSwList = @oList._EngineListFromContent()
-		if _pSwList != NULL
-			StzEngineListSwap(_pSwList, n1, n2)
-			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwList))
-			StzEngineListFree(_pSwList)
+		_pSwList_ = @oList._EngineListFromContent()
+		if _pSwList_ != NULL
+			StzEngineListSwap(_pSwList_, n1, n2)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwList_))
+			StzEngineListFree(_pSwList_)
 			return
 		ok
 
-		temp = This.List()[n1]
+		_swTemp_ = This.List()[n1]
 		This.List()[n1] = This.List()[n2]
-		This.List()[n2] = temp
+		This.List()[n2] = _swTemp_
 
 		def SwapQ(n1, n2)
 			This.Swap(n1, n2)
@@ -131,29 +131,29 @@ class stzListMover
 	#======================================================#
 
 	def MoveMany(panPositions, nTo)
-		nLen = len(panPositions)
-		oTemp = new stzList(panPositions)
-		pTmp = oTemp._EngineListFromContent()
-		StzEngineListSortDescendingCS(pTmp, 1)
-		aSorted = oTemp._ContentFromEngineList(pTmp)
-		StzEngineListFree(pTmp)
-		aItems = []
-		for i = 1 to nLen
-			aItems + @oList.NthItem(aSorted[i])
-			ring_remove(This.List(), aSorted[i])
+		_nMmLen_ = len(panPositions)
+		_oMmTemp_ = new stzList(panPositions)
+		_pMmTmp_ = _oMmTemp_._EngineListFromContent()
+		StzEngineListSortDescendingCS(_pMmTmp_, 1)
+		_aMmSorted_ = _oMmTemp_._ContentFromEngineList(_pMmTmp_)
+		StzEngineListFree(_pMmTmp_)
+		_aMmItems_ = []
+		for _iMm_ = 1 to _nMmLen_
+			@AddItem(_aMmItems_, @oList.NthItem(_aMmSorted_[_iMm_]))
+			ring_remove(This.List(), _aMmSorted_[_iMm_])
 		next
-		oTemp2 = new stzList(aItems)
-		pTmp2 = oTemp2._EngineListFromContent()
-		StzEngineListReverse(pTmp2)
-		aItems = oTemp2._ContentFromEngineList(pTmp2)
-		StzEngineListFree(pTmp2)
-		nInsert = nTo
-		if nInsert > This.NumberOfItems()
-			nInsert = This.NumberOfItems() + 1
+		_oMmTemp2_ = new stzList(_aMmItems_)
+		_pMmTmp2_ = _oMmTemp2_._EngineListFromContent()
+		StzEngineListReverse(_pMmTmp2_)
+		_aMmItems_ = _oMmTemp2_._ContentFromEngineList(_pMmTmp2_)
+		StzEngineListFree(_pMmTmp2_)
+		_nMmInsert_ = nTo
+		if _nMmInsert_ > This.NumberOfItems()
+			_nMmInsert_ = This.NumberOfItems() + 1
 		ok
-		for i = 1 to len(aItems)
-			ring_insert(This.List(), nInsert - 1, aItems[i])
-			nInsert++
+		for _jMm_ = 1 to len(_aMmItems_)
+			ring_insert(This.List(), _nMmInsert_ - 1, _aMmItems_[_jMm_])
+			_nMmInsert_++
 		next
 
 		def MoveManyQ(panPositions, nTo)
@@ -165,109 +165,109 @@ class stzListMover
 	#======================================================#
 
 	def Reverse()
-		_pRevList = @oList._EngineListFromContent()
-		if _pRevList != NULL
-			StzEngineListReverse(_pRevList)
-			@oList.UpdateWith(@oList._ContentFromEngineList(_pRevList))
-			StzEngineListFree(_pRevList)
+		_pRevList_ = @oList._EngineListFromContent()
+		if _pRevList_ != NULL
+			StzEngineListReverse(_pRevList_)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pRevList_))
+			StzEngineListFree(_pRevList_)
 			return
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = nLen to 1 step -1
-			aResult + aContent[i]
+		_aRevContent_ = This.Content()
+		_nRevLen_ = len(_aRevContent_)
+		_aRevResult_ = []
+		for _iRev_ = _nRevLen_ to 1 step -1
+			@AddItem(_aRevResult_, _aRevContent_[_iRev_])
 		next
-		@oList.UpdateWith(aResult)
+		@oList.UpdateWith(_aRevResult_)
 
 		def ReverseQ()
 			This.Reverse()
 			return This
 
 	def Reversed()
-		oCopy = new stzListMover(This.Content())
-		oCopy.Reverse()
-		return oCopy.Content()
+		_oRdCopy_ = new stzListMover(This.Content())
+		_oRdCopy_.Reverse()
+		return _oRdCopy_.Content()
 
 	  #======================================================#
 	 #   ROTATE -- CIRCULAR SHIFT                           #
 	#======================================================#
 
 	def RotateLeft(n)
-		pList = @oList._EngineListFromContent()
-		StzEngineListRotateLeft(pList, n)
-		@oList.UpdateWith(StzEngineContentFromList(pList))
-		StzEngineListFree(pList)
+		_pRlList_ = @oList._EngineListFromContent()
+		StzEngineListRotateLeft(_pRlList_, n)
+		@oList.UpdateWith(StzEngineContentFromList(_pRlList_))
+		StzEngineListFree(_pRlList_)
 
 		def RotateLeftQ(n)
 			This.RotateLeft(n)
 			return This
 
 	def RotatedLeft(n)
-		oCopy = new stzListMover(This.Content())
-		oCopy.RotateLeft(n)
-		return oCopy.Content()
+		_oRldCopy_ = new stzListMover(This.Content())
+		_oRldCopy_.RotateLeft(n)
+		return _oRldCopy_.Content()
 
 	def RotateRight(n)
-		pList = @oList._EngineListFromContent()
-		StzEngineListRotateRight(pList, n)
-		@oList.UpdateWith(StzEngineContentFromList(pList))
-		StzEngineListFree(pList)
+		_pRrList_ = @oList._EngineListFromContent()
+		StzEngineListRotateRight(_pRrList_, n)
+		@oList.UpdateWith(StzEngineContentFromList(_pRrList_))
+		StzEngineListFree(_pRrList_)
 
 		def RotateRightQ(n)
 			This.RotateRight(n)
 			return This
 
 	def RotatedRight(n)
-		oCopy = new stzListMover(This.Content())
-		oCopy.RotateRight(n)
-		return oCopy.Content()
+		_oRrdCopy_ = new stzListMover(This.Content())
+		_oRrdCopy_.RotateRight(n)
+		return _oRrdCopy_.Content()
 
 	  #======================================================#
 	 #   SHUFFLE -- RANDOM REORDER                          #
 	#======================================================#
 
 	def Shuffle()
-		_pShufList = @oList._EngineListFromContent()
-		if _pShufList != NULL
-			StzEngineListShuffle(_pShufList)
-			@oList.UpdateWith(@oList._ContentFromEngineList(_pShufList))
-			StzEngineListFree(_pShufList)
+		_pShufList_ = @oList._EngineListFromContent()
+		if _pShufList_ != NULL
+			StzEngineListShuffle(_pShufList_)
+			@oList.UpdateWith(@oList._ContentFromEngineList(_pShufList_))
+			StzEngineListFree(_pShufList_)
 			return
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		for i = nLen to 2 step -1
-			j = random(i - 1) + 1
-			temp = aContent[i]
-			aContent[i] = aContent[j]
-			aContent[j] = temp
+		_aShufContent_ = This.Content()
+		_nShufLen_ = len(_aShufContent_)
+		for _iShuf_ = _nShufLen_ to 2 step -1
+			_jShuf_ = random(_iShuf_ - 1) + 1
+			_shufTemp_ = _aShufContent_[_iShuf_]
+			_aShufContent_[_iShuf_] = _aShufContent_[_jShuf_]
+			_aShufContent_[_jShuf_] = _shufTemp_
 		next
-		@oList.UpdateWith(aContent)
+		@oList.UpdateWith(_aShufContent_)
 
 		def ShuffleQ()
 			This.Shuffle()
 			return This
 
 	def Shuffled()
-		oCopy = new stzListMover(This.Content())
-		oCopy.Shuffle()
-		return oCopy.Content()
+		_oShufCopy_ = new stzListMover(This.Content())
+		_oShufCopy_.Shuffle()
+		return _oShufCopy_.Content()
 
 	  #======================================================#
 	 #   MOVE ITEM BY VALUE                                 #
 	#======================================================#
 
 	def MoveItemToStart(pItem)
-		anPos = @oList.FindAll(pItem)
-		if len(anPos) > 0
-			This.MoveToStart(anPos[1])
+		_anMisPos_ = @oList.FindAll(pItem)
+		if len(_anMisPos_) > 0
+			This.MoveToStart(_anMisPos_[1])
 		ok
 
 	def MoveItemToEnd(pItem)
-		anPos = @oList.FindAll(pItem)
-		if len(anPos) > 0
-			This.MoveToEnd(anPos[1])
+		_anMiePos_ = @oList.FindAll(pItem)
+		if len(_anMiePos_) > 0
+			This.MoveToEnd(_anMiePos_[1])
 		ok
