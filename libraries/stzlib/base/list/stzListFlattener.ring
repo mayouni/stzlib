@@ -17,8 +17,9 @@
 /////////////////
 
 func _DeepFlattenHelper(paList)
-	# Recursive: use unique-per-call locals via Ring built-in @oList scope simulation.
-	# Bare vars would be clobbered by inner recursive call -- use eval scope.
+	# Recursive: Ring func locals are NOT shared across recursive
+	# call frames in practice (verified empirically; the var rename
+	# was sufficient -- save/restore not needed).
 	_aDfhResult_ = []
 	_nDfhLen_ = len(paList)
 	for _iDfh_ = 1 to _nDfhLen_
