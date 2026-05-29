@@ -3,6 +3,7 @@
 const std = @import("std");
 const fs = std.fs;
 const process = std.process;
+const engine_status = @import("engine_status.zig");
 
 pub fn main() !u8 {
     var gpa_impl: std.heap.GeneralPurposeAllocator(.{}) = .init;
@@ -34,6 +35,15 @@ pub fn main() !u8 {
         return cmdTest(gpa, path);
     } else if (std.mem.eql(u8, cmd, "build")) {
         return cmdBuild(gpa);
+    } else if (std.mem.eql(u8, cmd, "status")) {
+        return cmdStatus();
+    } else if (std.mem.eql(u8, cmd, "coverage")) {
+        const filter = if (args.len >= 3) args[2] else null;
+        return cmdCoverage(filter);
+    } else if (std.mem.eql(u8, cmd, "roadmap")) {
+        return cmdRoadmap();
+    } else if (std.mem.eql(u8, cmd, "next")) {
+        return cmdNext();
     } else if (std.mem.eql(u8, cmd, "help") or std.mem.eql(u8, cmd, "--help") or std.mem.eql(u8, cmd, "-h")) {
         printUsage();
         return 0;
@@ -62,6 +72,12 @@ fn printUsage() void {
         \\  build               Build the Engine DLL
         \\  version             Show Engine + Ring versions
         \\  doctor              Check setup (Ring, Engine, paths)
+        \\
+        \\  status              Engine progress overview (domains + counts)
+        \\  coverage [domain]   Per-domain delegation breakdown
+        \\  roadmap             Engine milestones (DONE / WIP / PLAN)
+        \\  next                Next-priority work to land
+        \\
         \\  help                Show this message
         \\
     ) catch {};
@@ -221,6 +237,175 @@ fn cmdBuild(gpa: std.mem.Allocator) u8 {
     }
     printErr("Engine build failed.\n");
     return 1;
+}
+
+fn cmdStatus() u8 {
+    const wr = w();
+    wr.writeAll("Softanza Engine Status\n======================\n\n") catch {};
+
+    var d_done: u32 = 0;
+    var d_wip: u32 = 0;
+    var d_plan: u32 = 0;
+    var fns_total: u32 = 0;
+    var bridged_total: u32 = 0;
+    for (engine_status.domains) |d| {
+        switch (d.status) {
+            .done => d_done += 1,
+            .in_progress => d_wip += 1,
+            .planned => d_plan += 1,
+        }
+        fns_total += d.engine_fns;
+        bridged_total += d.ring_methods_bridged;
+    }
+
+    var sub_clean: u32 = 0;
+    var sub_dirty: u32 = 0;
+    var sub_methods: u32 = 0;
+    var sub_backed: u32 = 0;
+    for (engine_status.submodules) |s| {
+        if (s.scoping_clean) sub_clean += 1 else sub_dirty += 1;
+        sub_methods += s.methods;
+        sub_backed += s.engine_backed;
+    }
+
+    var m_done: u32 = 0;
+    var m_wip: u32 = 0;
+    var m_plan: u32 = 0;
+    for (engine_status.milestones) |m| {
+        switch (m.status) {
+            .done => m_done += 1,
+            .in_progress => m_wip += 1,
+            .planned => m_plan += 1,
+        }
+    }
+
+    wr.print("Domains          {d} ({d} DONE, {d} WIP, {d} PLAN)\n", .{ engine_status.domains.len, d_done, d_wip, d_plan }) catch {};
+    wr.print("Engine C ABI fns ~{d} across all domains\n", .{fns_total}) catch {};
+    wr.print("Ring methods     ~{d} bridged to engine\n", .{bridged_total}) catch {};
+    wr.writeAll("\n") catch {};
+    wr.print("Submodules       {d} (list-domain tracked)\n", .{engine_status.submodules.len}) catch {};
+    wr.print("                 {d} scoping-clean (_prefixed_ vars)\n", .{sub_clean}) catch {};
+    wr.print("                 {d} scoping-debt  (bare vars; class-attribute risk)\n", .{sub_dirty}) catch {};
+    wr.print("                 ~{d} methods total, ~{d} engine-backed ({d}%)\n", .{
+        sub_methods,
+        sub_backed,
+        if (sub_methods == 0) 0 else sub_backed * 100 / sub_methods,
+    }) catch {};
+    wr.writeAll("\n") catch {};
+    wr.print("Milestones       {d} ({d} DONE, {d} WIP, {d} PLAN)\n", .{ engine_status.milestones.len, m_done, m_wip, m_plan }) catch {};
+    wr.writeAll("\nUse `softanza coverage` for per-domain detail,\n") catch {};
+    wr.writeAll("    `softanza roadmap`  for milestones,\n") catch {};
+    wr.writeAll("    `softanza next`     for the priority queue.\n") catch {};
+    return 0;
+}
+
+fn cmdCoverage(filter: ?[]const u8) u8 {
+    const wr = w();
+
+    if (filter) |needle| {
+        wr.print("Softanza Coverage -- domain: {s}\n", .{needle}) catch {};
+        wr.writeAll("================================\n\n") catch {};
+
+        var found = false;
+        for (engine_status.domains) |d| {
+            if (std.mem.eql(u8, d.name, needle)) {
+                found = true;
+                wr.print("[{s}] {s}\n", .{ d.status.tag(), d.name }) catch {};
+                wr.print("  engine_module : {s}\n", .{d.engine_module}) catch {};
+                wr.print("  ring_class    : {s}\n", .{d.ring_class}) catch {};
+                wr.print("  bridge        : {s}\n", .{d.bridge}) catch {};
+                wr.print("  engine fns    : {d}\n", .{d.engine_fns}) catch {};
+                wr.print("  ring methods  : {d}\n", .{d.ring_methods_bridged}) catch {};
+                wr.print("  notes         : {s}\n", .{d.notes}) catch {};
+                break;
+            }
+        }
+        if (!found) {
+            wr.print("Domain '{s}' not tracked.\n", .{needle}) catch {};
+            return 1;
+        }
+
+        // Show submodules belonging to this domain
+        var any_sub = false;
+        for (engine_status.submodules) |s| {
+            if (std.mem.eql(u8, s.parent, needle)) {
+                if (!any_sub) {
+                    wr.writeAll("\nSubmodules:\n") catch {};
+                    wr.writeAll("  scope  engine /total  name                            notes\n") catch {};
+                    any_sub = true;
+                }
+                const scope_tag: []const u8 = if (s.scoping_clean) "clean" else "DEBT ";
+                wr.print("  {s}  {d:>3} /{d:>4}    {s:<32}{s}\n", .{
+                    scope_tag, s.engine_backed, s.methods, s.name, s.notes,
+                }) catch {};
+            }
+        }
+        return 0;
+    }
+
+    wr.writeAll("Softanza Coverage -- all domains\n") catch {};
+    wr.writeAll("================================\n\n") catch {};
+    wr.writeAll("status  engine /bridged  name        notes\n") catch {};
+    for (engine_status.domains) |d| {
+        wr.print("[{s}]  {d:>4}   /{d:>4}     {s:<11} {s}\n", .{
+            d.status.tag(), d.engine_fns, d.ring_methods_bridged, d.name, d.notes,
+        }) catch {};
+    }
+    wr.writeAll("\nRun `softanza coverage <domain>` to see submodules.\n") catch {};
+    return 0;
+}
+
+fn cmdRoadmap() u8 {
+    const wr = w();
+    wr.writeAll("Softanza Engine Roadmap\n=======================\n\n") catch {};
+    for (engine_status.milestones) |m| {
+        wr.print("[{s}] {s:<6}  {s}\n", .{ m.status.tag(), m.id, m.title }) catch {};
+        wr.print("           {s}\n\n", .{m.summary}) catch {};
+    }
+    return 0;
+}
+
+fn cmdNext() u8 {
+    const wr = w();
+    wr.writeAll("Next-priority work\n==================\n\n") catch {};
+
+    // 1. In-progress milestones first
+    wr.writeAll("In-progress milestones:\n") catch {};
+    var any_wip = false;
+    for (engine_status.milestones) |m| {
+        if (m.status == .in_progress) {
+            wr.print("  - {s:<6} {s}\n", .{ m.id, m.title }) catch {};
+            wr.print("           {s}\n", .{m.summary}) catch {};
+            any_wip = true;
+        }
+    }
+    if (!any_wip) wr.writeAll("  (none)\n") catch {};
+
+    // 2. Scoping debt (highest-risk first by method count)
+    wr.writeAll("\nScoping debt (submodules with bare vars):\n") catch {};
+    var any_debt = false;
+    for (engine_status.submodules) |s| {
+        if (!s.scoping_clean) {
+            wr.print("  - {s:<28} ({d:>3} methods, {d} engine-backed)\n", .{
+                s.name, s.methods, s.engine_backed,
+            }) catch {};
+            any_debt = true;
+        }
+    }
+    if (!any_debt) wr.writeAll("  (none -- all submodules clean)\n") catch {};
+
+    // 3. Planned milestones
+    wr.writeAll("\nPlanned milestones:\n") catch {};
+    var any_plan = false;
+    for (engine_status.milestones) |m| {
+        if (m.status == .planned) {
+            wr.print("  - {s:<6} {s}\n", .{ m.id, m.title }) catch {};
+            any_plan = true;
+        }
+    }
+    if (!any_plan) wr.writeAll("  (none)\n") catch {};
+
+    return 0;
 }
 
 fn containsIgnoreCase(haystack: []const u8, needle: []const u8) bool {
