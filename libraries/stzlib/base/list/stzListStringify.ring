@@ -52,8 +52,8 @@ class stzListStringify
 	#------------------------------------------------------------#
 
 	def ToCode()
-		cResult = @@( This.Content() )
-		return cResult
+		_cTcResult_ = @@( This.Content() )
+		return _cTcResult_
 
 		def ToCodeQ()
 			return new stzString(This.ToCode())
@@ -64,27 +64,27 @@ class stzListStringify
 
 	def Stringify()
 
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_aSfContent_ = This.Content()
+		_nSfLen_ = len(_aSfContent_)
 
-		for @i = 1 to _nLen_
+		for _iSf_ = 1 to _nSfLen_
 
-			if isString(_aContent_[@i])
+			if isString(_aSfContent_[_iSf_])
 				loop
 
-			but isNumber(_aContent_[@i])
-				_aContent_[@i] = ""+ _aContent_[@i]
+			but isNumber(_aSfContent_[_iSf_])
+				_aSfContent_[_iSf_] = ""+ _aSfContent_[_iSf_]
 
-			but isList(_aContent_[@i])
-				_aContent_[@i] = @@(_aContent_[@i])
+			but isList(_aSfContent_[_iSf_])
+				_aSfContent_[_iSf_] = @@(_aSfContent_[_iSf_])
 
-			but isObject(_aContent_[@i])
-				_aContent_[@i] = @ObjectVarName(_aContent_[@i])
+			but isObject(_aSfContent_[_iSf_])
+				_aSfContent_[_iSf_] = @ObjectVarName(_aSfContent_[_iSf_])
 			ok
 
 		next
 
-		@oList.UpdateWith(_aContent_)
+		@oList.UpdateWith(_aSfContent_)
 
 		def StringifyQ()
 			This.Stringify()
@@ -94,8 +94,8 @@ class stzListStringify
 			This.Stringify()
 
 	def Stringified()
-		_acResult_ = @oList.Copy().StringifyQ().Content()
-		return _acResult_
+		_acSdResult_ = @oList.Copy().StringifyQ().Content()
+		return _acSdResult_
 
 		def StringifiedItems()
 			return This.Stringified()
@@ -105,16 +105,16 @@ class stzListStringify
 	#------------------------------------------------------------------#
 
 	def StringifyLists()
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_aSlContent_ = This.Content()
+		_nSlLen_ = len(_aSlContent_)
 
-		for @i = 1 to _nLen_
-			if isList(_aContent_[@i])
-				_aContent_[@i] = @@(_aContent_[@i])
+		for _iSl_ = 1 to _nSlLen_
+			if isList(_aSlContent_[_iSl_])
+				_aSlContent_[_iSl_] = @@(_aSlContent_[_iSl_])
 			ok
 		next
 
-		@oList.UpdateWith(_aContent_)
+		@oList.UpdateWith(_aSlContent_)
 
 		def StringifyListsQ()
 			This.StringifyLists()
@@ -128,16 +128,16 @@ class stzListStringify
 	#------------------------------------------------------------------#
 
 	def StringifyObjects()
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_aSoContent_ = This.Content()
+		_nSoLen_ = len(_aSoContent_)
 
-		for @i = 1 to _nLen_
-			if isObject(_aContent_[@i])
-				_aContent_[@i] = @ObjectVarName(_aContent_[@i])
+		for _iSo_ = 1 to _nSoLen_
+			if isObject(_aSoContent_[_iSo_])
+				_aSoContent_[_iSo_] = @ObjectVarName(_aSoContent_[_iSo_])
 			ok
 		next
 
-		@oList.UpdateWith(_aContent_)
+		@oList.UpdateWith(_aSoContent_)
 
 		def StringifyObjectsQ()
 			This.StringifyObjects()
@@ -151,22 +151,22 @@ class stzListStringify
 	#================================================#
 
 	def Singlify()
-		_aContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_aSgContent_ = This.Content()
+		_nSgLen_ = len(_aSgContent_)
 
-		if _nLen_ <= 1
+		if _nSgLen_ <= 1
 			return
 		ok
 
-		_aResult_ = [ _aContent_[1] ]
+		_aSgResult_ = [ _aSgContent_[1] ]
 
-		for @i = 2 to _nLen_
-			if NOT Q(_aContent_[@i]).IsEqualTo(_aContent_[@i - 1])
-				_aResult_ + _aContent_[@i]
+		for _iSg_ = 2 to _nSgLen_
+			if NOT Q(_aSgContent_[_iSg_]).IsEqualTo(_aSgContent_[_iSg_ - 1])
+				@AddItem(_aSgResult_, _aSgContent_[_iSg_])
 			ok
 		next
 
-		@oList.UpdateWith(_aResult_)
+		@oList.UpdateWith(_aSgResult_)
 
 		def SinglifyQ()
 			This.Singlify()
@@ -189,8 +189,8 @@ class stzListStringify
 			return This.ComputableForm()
 
 	def ToListInStringInShortForm()
-		cResult = This.ToCodeQ().ToListInShortForm()
-		return cResult
+		_cTlisfResult_ = This.ToCodeQ().ToListInShortForm()
+		return _cTlisfResult_
 
 		def ToListInShortForm()
 			return This.ToListInStringInShortForm()
@@ -200,26 +200,26 @@ class stzListStringify
 	#======================================================#
 
 	def Join(pcSep)
-		_pJnList = @oList._EngineListFromContent()
-		if _pJnList != NULL
-			_cJnResult = StzEngineListJoin(_pJnList, pcSep)
-			StzEngineListFree(_pJnList)
-			return _cJnResult
+		_pJnList_ = @oList._EngineListFromContent()
+		if _pJnList_ != NULL
+			_cJnResult_ = StzEngineListJoin(_pJnList_, pcSep)
+			StzEngineListFree(_pJnList_)
+			return _cJnResult_
 		ok
-		aContent = This.Content()
-		nLen = len(aContent)
-		cResult = ""
-		for i = 1 to nLen
-			if i > 1
-				cResult += pcSep
+		_aJnContent_ = This.Content()
+		_nJnLen_ = len(_aJnContent_)
+		_cJnFallback_ = ""
+		for _iJn_ = 1 to _nJnLen_
+			if _iJn_ > 1
+				_cJnFallback_ += pcSep
 			ok
-			if isString(aContent[i])
-				cResult += aContent[i]
+			if isString(_aJnContent_[_iJn_])
+				_cJnFallback_ += _aJnContent_[_iJn_]
 			else
-				cResult += "" + aContent[i]
+				_cJnFallback_ += "" + _aJnContent_[_iJn_]
 			ok
 		next
-		return cResult
+		return _cJnFallback_
 
 		def JoinQ(pcSep)
 			return new stzString(This.Join(pcSep))
@@ -235,33 +235,33 @@ class stzListStringify
 	#======================================================#
 
 	def Lowercased()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isString(aContent[i])
-				aResult + StzLower(aContent[i])
+		_aLcContent_ = This.Content()
+		_nLcLen_ = len(_aLcContent_)
+		_aLcResult_ = []
+		for _iLc_ = 1 to _nLcLen_
+			if isString(_aLcContent_[_iLc_])
+				@AddItem(_aLcResult_, StzLower(_aLcContent_[_iLc_]))
 			else
-				aResult + aContent[i]
+				@AddItem(_aLcResult_, _aLcContent_[_iLc_])
 			ok
 		next
-		return aResult
+		return _aLcResult_
 
 		def LowercasedQ()
 			return new stzList(This.Lowercased())
 
 	def Uppercased()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isString(aContent[i])
-				aResult + StzUpper(aContent[i])
+		_aUcContent_ = This.Content()
+		_nUcLen_ = len(_aUcContent_)
+		_aUcResult_ = []
+		for _iUc_ = 1 to _nUcLen_
+			if isString(_aUcContent_[_iUc_])
+				@AddItem(_aUcResult_, StzUpper(_aUcContent_[_iUc_]))
 			else
-				aResult + aContent[i]
+				@AddItem(_aUcResult_, _aUcContent_[_iUc_])
 			ok
 		next
-		return aResult
+		return _aUcResult_
 
 		def UppercasedQ()
 			return new stzList(This.Uppercased())
@@ -271,27 +271,27 @@ class stzListStringify
 	#======================================================#
 
 	def NumbersToStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isNumber(aContent[i])
-				aResult + ("" + aContent[i])
+		_aNtsContent_ = This.Content()
+		_nNtsLen_ = len(_aNtsContent_)
+		_aNtsResult_ = []
+		for _iNts_ = 1 to _nNtsLen_
+			if isNumber(_aNtsContent_[_iNts_])
+				@AddItem(_aNtsResult_, "" + _aNtsContent_[_iNts_])
 			else
-				aResult + aContent[i]
+				@AddItem(_aNtsResult_, _aNtsContent_[_iNts_])
 			ok
 		next
-		return aResult
+		return _aNtsResult_
 
 	def StringsToNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isString(aContent[i]) and isNumber(0 + aContent[i])
-				aResult + (0 + aContent[i])
+		_aStnContent_ = This.Content()
+		_nStnLen_ = len(_aStnContent_)
+		_aStnResult_ = []
+		for _iStn_ = 1 to _nStnLen_
+			if isString(_aStnContent_[_iStn_]) and isNumber(0 + _aStnContent_[_iStn_])
+				@AddItem(_aStnResult_, 0 + _aStnContent_[_iStn_])
 			else
-				aResult + aContent[i]
+				@AddItem(_aStnResult_, _aStnContent_[_iStn_])
 			ok
 		next
-		return aResult
+		return _aStnResult_
