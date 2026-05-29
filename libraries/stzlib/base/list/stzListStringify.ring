@@ -121,7 +121,10 @@ class stzListStringify
 			return This
 
 	def ListsStringified()
-		return @oList.Copy().StringifyListsQ().Content()
+		# Was @oList.Copy().StringifyListsQ -- not on core stzList
+		_o = new stzListStringify(@oList.Content())
+		_o.StringifyLists()
+		return _o.Content()
 
 	  #------------------------------------------------------------------#
 	 #  STRINGIFYING THE OBJECTS INSIDE THE LIST                        #
@@ -144,7 +147,10 @@ class stzListStringify
 			return This
 
 	def ObjectsStringified()
-		return @oList.Copy().StringifyObjectsQ().Content()
+		# Was @oList.Copy().StringifyObjectsQ -- not on core stzList
+		_o = new stzListStringify(@oList.Content())
+		_o.StringifyObjects()
+		return _o.Content()
 
 	  #================================================#
 	 #   SINGLIFY -- REMOVE CONSECUTIVE DUPLICATES     #
@@ -173,7 +179,10 @@ class stzListStringify
 			return This
 
 	def Singlified()
-		return @oList.Copy().SinglifyQ().Content()
+		# Was @oList.Copy().SinglifyQ -- not on core stzList
+		_o = new stzListStringify(@oList.Content())
+		_o.Singlify()
+		return _o.Content()
 
 	  #===============================#
 	 #   COMPUTABLE FORM             #

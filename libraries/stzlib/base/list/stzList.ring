@@ -1928,23 +1928,16 @@ class stzList from stzObject
 			return _aFaoOut_
 		ok
 
-		# Engine path for number items (use comma-delimited find)
+		# Engine/Ring path for number items -- delegate to the proven
+		# global helper used by stzListFinder. The previous direct call
+		# to StzEngineListFindAllCS+StzEngineValueNewInt returned empty
+		# for all-number lists (bug found via M-S2 regression test).
 		if isNumber(pItem)
-			_pFaoList2_ = This._EngineListFromContent()
-			if _pFaoList2_ = NULL
-				return []
+			_anFaoNumResult_ = @FindAllCS_NbrOrStr( @aContent, pItem, pCaseSensitive )
+			if isList(_anFaoNumResult_)
+				return _anFaoNumResult_
 			ok
-			_cFaoRaw_ = StzEngineListFindAllCS(_pFaoList2_, StzEngineValueNewInt(pItem), pCaseSensitive)
-			StzEngineListFree(_pFaoList2_)
-			if len(_cFaoRaw_) = 0
-				return []
-			ok
-			_aFaoSplit_ = StzSplit(_cFaoRaw_, ",")
-			_nFaoSLen_ = len(_aFaoSplit_)
-			for _iFao_ = 1 to _nFaoSLen_
-				_aFaoSplit_[_iFao_] = 0 + _aFaoSplit_[_iFao_]
-			next
-			return _aFaoSplit_
+			return []
 		ok
 
 		# Fallback for lists/objects: stringify and compare

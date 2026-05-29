@@ -427,7 +427,7 @@ pub const milestones = [_]Milestone{
         .track = "stzlib",
         .title = "Ring-Side Test Hardening",
         .status = .partial,
-        .summary = "Session 29: 48 PASS / 1 FIXED / 1 minor across ~50 engine-related tests. Session 38: regression test suites added pinning the 35 latent bugs found+fixed during M-S1 Phase 2 cleanup (15 stzListOfLists checks + 10 stzHashList checks). Function-form tests, edge cases, narrated GIVEN/WHEN/THEN suite, test runner integration still pending",
+        .summary = "Session 38-39: 3 regression suites added pinning the 41+ latent bugs found+fixed during M-S1 Phase 2 cleanup (53 assertions across stzListOfLists / stzHashList / submodules). Session 39 uncovered 6 more bugs incl. an architectural cross-DLL handle-table issue: stz_value.dll handles dont resolve in stz_list.dll's static handle table, so StzEngineListReplaceAllCS/RemoveAllCS via value handles return -1. Engine fast-paths for string Replace/Remove disabled until shared handle table or string-only engine variants land. Function-form tests, edge cases, narrated GIVEN/WHEN/THEN, test runner integration still pending",
     },
     .{
         .id = "M-S3",
