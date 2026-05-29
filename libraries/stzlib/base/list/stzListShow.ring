@@ -73,21 +73,21 @@ func ComputableShortFormXT(pValue, nItems)
     if NOT (isList(pValue) or isString(pValue))
         raise("Short form only works with lists or strings")
     ok
-    
-    nLen = GetLength(pValue)
-    
-    if nLen < $nMinValueForShortForm
+
+    _nCsfxLen_ = GetLength(pValue)
+
+    if _nCsfxLen_ < $nMinValueForShortForm
         return ComputableForm(pValue)
     ok
-    
+
     if NOT isNumber(nItems)
         raise("Number of items must be a number")
     ok
-    
-    if nItems * 2 >= nLen
+
+    if nItems * 2 >= _nCsfxLen_
         return ComputableForm(pValue)
     ok
-    
+
     if isList(pValue)
         return FormatShortList(pValue, nItems)
     else
@@ -103,21 +103,21 @@ func ComputableShortFormXTNL(pValue, nItems)
     if NOT (isList(pValue) or isString(pValue))
         raise("Short form only works with lists or strings")
     ok
-    
-    nLen = GetLength(pValue)
-    
-    if nLen < $nMinValueForShortForm
+
+    _nCsfxnlLen_ = GetLength(pValue)
+
+    if _nCsfxnlLen_ < $nMinValueForShortForm
         return ComputableFormNL(pValue)
     ok
-    
+
     if NOT isNumber(nItems)
         raise("Number of items must be a number")
     ok
-    
-    if nItems * 2 >= nLen
+
+    if nItems * 2 >= _nCsfxnlLen_
         return ComputableFormNL(pValue)
     ok
-    
+
     if isList(pValue)
         return FormatShortListNL(pValue, nItems)
     else
@@ -158,25 +158,25 @@ func GetLength(pValue)
         return len(pValue)
     else
         # Count Unicode codepoints (not bytes) in a UTF-8 string
-        nCount = 0
-        nBytes = len(pValue)
-        i = 1
-        while i <= nBytes
-            c = ascii(pValue[i])
-            if (c & 0x80) = 0        # 1-byte (ASCII)
-                i++
-            but (c & 0xE0) = 0xC0    # 2-byte
-                i += 2
-            but (c & 0xF0) = 0xE0    # 3-byte
-                i += 3
-            but (c & 0xF8) = 0xF0    # 4-byte
-                i += 4
+        _nGlCount_ = 0
+        _nGlBytes_ = len(pValue)
+        _iGl_ = 1
+        while _iGl_ <= _nGlBytes_
+            _cGl_ = ascii(pValue[_iGl_])
+            if (_cGl_ & 0x80) = 0        # 1-byte (ASCII)
+                _iGl_++
+            but (_cGl_ & 0xE0) = 0xC0    # 2-byte
+                _iGl_ += 2
+            but (_cGl_ & 0xF0) = 0xE0    # 3-byte
+                _iGl_ += 3
+            but (_cGl_ & 0xF8) = 0xF0    # 4-byte
+                _iGl_ += 4
             else
-                i++                   # invalid byte, skip
+                _iGl_++                   # invalid byte, skip
             ok
-            nCount++
+            _nGlCount_++
         end
-        return nCount
+        return _nGlCount_
     ok
 
 # Smart expansion logic - only expand when it truly improves readability
@@ -184,65 +184,65 @@ func ShouldExpandListSmart(aList)
     if NOT isList(aList)
         return false
     ok
-    
+
     # Always expand if the inline version would be too long
-    nEstimatedWidth = EstimateInlineWidth(aList)
-    if nEstimatedWidth > $nMaxInlineWidth
+    _nSelsEstWidth_ = EstimateInlineWidth(aList)
+    if _nSelsEstWidth_ > $nMaxInlineWidth
         return true
     ok
-    
+
     # Don't expand very small lists
     if len(aList) <= 2
         return false
     ok
-    
+
     # Calculate the "complexity score" of the list
-    nComplexity = CalculateComplexity(aList)
-    
+    _nSelsCpx_ = CalculateComplexity(aList)
+
     # Expand if genuinely complex OR if it would be too wide
-    return nComplexity > $nMaxComplexityThreshold or nEstimatedWidth > ($nMaxInlineWidth * 0.8)
+    return _nSelsCpx_ > $nMaxComplexityThreshold or _nSelsEstWidth_ > ($nMaxInlineWidth * 0.8)
 
 func CalculateComplexity(aList)
-    nScore = 0
-    
+    _nCcScore_ = 0
+
     # Base score for list length
-    nScore += len(aList) * 5
-    
+    _nCcScore_ += len(aList) * 5
+
     # Penalty for deep nesting (more than 2 levels)
-    nMaxDepth = GetMaxDepth(aList)
-    if nMaxDepth > 2
-        nScore += (nMaxDepth - 2) * 20
+    _nCcMaxDepth_ = GetMaxDepth(aList)
+    if _nCcMaxDepth_ > 2
+        _nCcScore_ += (_nCcMaxDepth_ - 2) * 20
     ok
-    
+
     # Score for long strings
-    for item in aList
-        if isString(item) and len(item) > 30
-            nScore += len(item)
+    for _itemCcStr_ in aList
+        if isString(_itemCcStr_) and len(_itemCcStr_) > 30
+            _nCcScore_ += len(_itemCcStr_)
         ok
     next
-    
+
     # Score for wide nested lists (lists with many items)
-    for item in aList
-        if isList(item) and len(item) > 5
-            nScore += len(item) * 3
+    for _itemCcLst_ in aList
+        if isList(_itemCcLst_) and len(_itemCcLst_) > 5
+            _nCcScore_ += len(_itemCcLst_) * 3
         ok
     next
-    
-    return nScore
+
+    return _nCcScore_
 
 func GetMaxDepth(aList)
-    nMaxDepth = 1
-    
-    for item in aList
-        if isList(item)
-            nDepth = 1 + GetMaxDepth(item)
-            if nDepth > nMaxDepth
-                nMaxDepth = nDepth
+    _nGmdMaxDepth_ = 1
+
+    for _itemGmd_ in aList
+        if isList(_itemGmd_)
+            _nGmdDepth_ = 1 + GetMaxDepth(_itemGmd_)
+            if _nGmdDepth_ > _nGmdMaxDepth_
+                _nGmdMaxDepth_ = _nGmdDepth_
             ok
         ok
     next
-    
-    return nMaxDepth
+
+    return _nGmdMaxDepth_
 
 
 # Smart formatting specifically for NL mode - always considers expansion
@@ -268,26 +268,26 @@ func FormatListSmart(aList, cSep, cIndent)
     if len(aList) = 0
         return "[ ]"
     ok
-    
+
     # Check if this list can be compacted
     if CanCompactList(aList)
         return FormatCompactList(aList)
     ok
-    
+
     # Otherwise, use regular expanded formatting
-    cResult = "[" + cSep
-    nLen = len(aList)
-    for i = 1 to nLen
-        cResult += cIndent + $cIndentChar + FormatValueSmart(aList[i], cSep, cIndent + $cIndentChar)
-        
-        if i < nLen
-            cResult += ","
+    _cFlsResult_ = "[" + cSep
+    _nFlsLen_ = len(aList)
+    for _iFls_ = 1 to _nFlsLen_
+        _cFlsResult_ += cIndent + $cIndentChar + FormatValueSmart(aList[_iFls_], cSep, cIndent + $cIndentChar)
+
+        if _iFls_ < _nFlsLen_
+            _cFlsResult_ += ","
         ok
-        cResult += cSep
+        _cFlsResult_ += cSep
     next
-    
-    cResult += cIndent + "]"
-    return cResult
+
+    _cFlsResult_ += cIndent + "]"
+    return _cFlsResult_
 
 
 # Smart list formatting specifically for NL mode
@@ -295,53 +295,53 @@ func FormatListSmartNL(aList, cSep, cIndent)
     if len(aList) = 0
         return "[ ]"
     ok
-    
+
     # In NL mode, check if the top-level list should be expanded
-    nInlineWidth = EstimateInlineWidth(aList)
-    
+    _nFlsnlInline_ = EstimateInlineWidth(aList)
+
     # More aggressive expansion for readability
-    bShouldExpand = false
-    
+    _bFlsnlExpand_ = false
+
     # Expand if too wide
-    if nInlineWidth > $nMaxInlineWidth
-        bShouldExpand = true
+    if _nFlsnlInline_ > $nMaxInlineWidth
+        _bFlsnlExpand_ = true
     ok
-    
+
     # Expand if contains nested lists (visual complexity)
-    if NOT bShouldExpand
-        for item in aList
-            if isList(item) and len(item) > 0
-                bShouldExpand = true
+    if NOT _bFlsnlExpand_
+        for _itemFlsnlNest_ in aList
+            if isList(_itemFlsnlNest_) and len(_itemFlsnlNest_) > 0
+                _bFlsnlExpand_ = true
                 exit
             ok
         next
     ok
-    
-    # Expand if more than 3 items
-    if NOT bShouldExpand and len(aList) > 3
-        bShouldExpand = true
-    ok
-    
-    if bShouldExpand
-        cResult = "[" + cSep
-        cNextIndent = cIndent + $cIndentChar
-        nLen = len(aList)
 
-        for i = 1 to nLen
-            # For each item, decide whether to keep it compact or not
-            cFormattedItem = FormatItemForNL(aList[i], cNextIndent)
-            cResult += cNextIndent + cFormattedItem
-            
-            if i < nLen
-                cResult += ","
-            ok
-            cResult += cSep
-        next
-        
-        cResult += cIndent + "]"
-        return cResult
+    # Expand if more than 3 items
+    if NOT _bFlsnlExpand_ and len(aList) > 3
+        _bFlsnlExpand_ = true
     ok
-    
+
+    if _bFlsnlExpand_
+        _cFlsnlResult_ = "[" + cSep
+        _cFlsnlNextIndent_ = cIndent + $cIndentChar
+        _nFlsnlLen_ = len(aList)
+
+        for _iFlsnl_ = 1 to _nFlsnlLen_
+            # For each item, decide whether to keep it compact or not
+            _cFlsnlItem_ = FormatItemForNL(aList[_iFlsnl_], _cFlsnlNextIndent_)
+            _cFlsnlResult_ += _cFlsnlNextIndent_ + _cFlsnlItem_
+
+            if _iFlsnl_ < _nFlsnlLen_
+                _cFlsnlResult_ += ","
+            ok
+            _cFlsnlResult_ += cSep
+        next
+
+        _cFlsnlResult_ += cIndent + "]"
+        return _cFlsnlResult_
+    ok
+
     # If it's simple enough, keep it compact
     return FormatCompactList(aList)
 
@@ -350,25 +350,25 @@ func FormatListSmartNL(aList, cSep, cIndent)
 func FormatItemForNL(pValue, cBaseIndent)
     if isNumber(pValue)
         return "" + pValue
-        
+
     but isString(pValue)
         return FormatString(pValue)
-        
+
     but isList(pValue)
         # For nested lists, be more conservative about keeping them inline
-        nWidth = EstimateInlineWidth(pValue)
-        
+        _nFifnlWidth_ = EstimateInlineWidth(pValue)
+
         # Only keep simple, short lists inline
-        if len(pValue) <= 3 and nWidth <= $nMaxCompactWidth and NOT ContainsNestedLists(pValue)
+        if len(pValue) <= 3 and _nFifnlWidth_ <= $nMaxCompactWidth and NOT ContainsNestedLists(pValue)
             return FormatCompactList(pValue)
         else
             # If nested list is complex, expand it too
             return FormatListSmartNL(pValue, NL, cBaseIndent)
         ok
-        
+
     but isObject(pValue)
         return ObjectVarName(pValue)
-        
+
     else
         raise("Unsupported value type")
     ok
@@ -376,8 +376,8 @@ func FormatItemForNL(pValue, cBaseIndent)
 
 # Check if a list contains nested lists
 func ContainsNestedLists(aList)
-    for item in aList
-        if isList(item)
+    for _itemCnl_ in aList
+        if isList(_itemCnl_)
             return true
         ok
     next
@@ -389,37 +389,37 @@ func CanCompactList(aList)
     if len(aList) > 6
         return false
     ok
-    
+
     # Check the total "width" if we were to format inline
-    nTotalWidth = EstimateInlineWidth(aList)
-    
+    _nCclTotal_ = EstimateInlineWidth(aList)
+
     # Compact only if it would fit comfortably and isn't too complex
-    if nTotalWidth > $nMaxCompactWidth
+    if _nCclTotal_ > $nMaxCompactWidth
         return false
     ok
-    
+
     # Don't compact if it contains nested lists (adds visual complexity)
-    for item in aList
-        if isList(item) and len(item) > 0
+    for _itemCcl_ in aList
+        if isList(_itemCcl_) and len(_itemCcl_) > 0
             return false
         ok
     next
-    
+
     return true
 
 func EstimateInlineWidth(aList)
-    nWidth = 4  # [ and ]
-    nLen = len(aList)
+    _nEiwWidth_ = 4  # [ and ]
+    _nEiwLen_ = len(aList)
 
-    for i = 1 to nLen
-        if i > 1
-            nWidth += 2  # ", "
+    for _iEiw_ = 1 to _nEiwLen_
+        if _iEiw_ > 1
+            _nEiwWidth_ += 2  # ", "
         ok
-        
-        nWidth += EstimateItemWidth(aList[i])
+
+        _nEiwWidth_ += EstimateItemWidth(aList[_iEiw_])
     next
-    
-    return nWidth
+
+    return _nEiwWidth_
 
 func EstimateItemWidth(pValue)
     if isNumber(pValue)
@@ -441,19 +441,19 @@ func EstimateItemWidth(pValue)
     ok
 
 func FormatCompactList(aList)
-    cResult = "[ "
-    nLen = len(aList)
+    _cFclResult_ = "[ "
+    _nFclLen_ = len(aList)
 
-    for i = 1 to nLen
-        cResult += FormatValueCompact(aList[i])
-        
-        if i < nLen
-            cResult += ", "
+    for _iFcl_ = 1 to _nFclLen_
+        _cFclResult_ += FormatValueCompact(aList[_iFcl_])
+
+        if _iFcl_ < _nFclLen_
+            _cFclResult_ += ", "
         ok
     next
-    
-    cResult += " ]"
-    return cResult
+
+    _cFclResult_ += " ]"
+    return _cFclResult_
 
 func FormatValueCompact(pValue)
     if isNumber(pValue)
@@ -483,26 +483,26 @@ func ShouldExpandList(aList)
     if NOT isList(aList)
         return false
     ok
-    
+
     # Expand if list is long
     if len(aList) > 7
         return true
     ok
-    
+
     # Expand if contains nested lists
-    for item in aList
-        if isList(item)
+    for _itemSelNest_ in aList
+        if isList(_itemSelNest_)
             return true
         ok
     next
-    
+
     # Expand if contains long strings
-    for item in aList
-        if isString(item) and len(item) > 20
+    for _itemSelStr_ in aList
+        if isString(_itemSelStr_) and len(_itemSelStr_) > 20
             return true
         ok
     next
-    
+
     return false
 
 func FormatValue(pValue, cSep, cIndent)
@@ -538,122 +538,122 @@ func FormatList(aList, cSep, cIndent)
     if len(aList) = 0
         return "[ ]"
     ok
-    
-    cResult = "[" + cSep
-    nLen = len(aList)
 
-    for i = 1 to nLen
-        cResult += FormatValue(aList[i], cSep + cIndent, cIndent)
-        
-        if i < nLen
-            cResult += "," + cSep
+    _cFlResult_ = "[" + cSep
+    _nFlLen_ = len(aList)
+
+    for _iFl_ = 1 to _nFlLen_
+        _cFlResult_ += FormatValue(aList[_iFl_], cSep + cIndent, cIndent)
+
+        if _iFl_ < _nFlLen_
+            _cFlResult_ += "," + cSep
         ok
     next
-    
-    cResult += cSep + "]"
 
-    return cResult
+    _cFlResult_ += cSep + "]"
+
+    return _cFlResult_
 
 func FormatListNL(aList, cSep, cIndent)
     if len(aList) = 0
         return "[ ]"
     ok
-    
-    cResult = "[" + NL + cIndent
-    nLen = len(aList)
 
-    for i = 1 to nLen
-        cResult += TAB + FormatValue(aList[i], cSep, cIndent)
-        
-        if i < nLen
-            cResult += "," + cSep + NL
+    _cFlnlResult_ = "[" + NL + cIndent
+    _nFlnlLen_ = len(aList)
+
+    for _iFlnl_ = 1 to _nFlnlLen_
+        _cFlnlResult_ += TAB + FormatValue(aList[_iFlnl_], cSep, cIndent)
+
+        if _iFlnl_ < _nFlnlLen_
+            _cFlnlResult_ += "," + cSep + NL
         ok
     next
-    
-    cResult += NL + "]"
-    return cResult
+
+    _cFlnlResult_ += NL + "]"
+    return _cFlnlResult_
 
 func FormatShortList(aList, nItems)
-    aShort = []
-    nLen = len(aList)
-    
+    _aFslShort_ = []
+    _nFslLen_ = len(aList)
+
     # Add first nItems
-    for i = 1 to nItems
-        aShort + aList[i]
+    for _iFslHead_ = 1 to nItems
+        add(_aFslShort_, aList[_iFslHead_])
     next
-    
+
     # Add ellipsis
-    aShort + "..."
-    
+    add(_aFslShort_, "...")
+
     # Add last nItems
-    for i = (nLen - nItems + 1) to nLen
-        aShort + aList[i]
+    for _iFslTail_ = (_nFslLen_ - nItems + 1) to _nFslLen_
+        add(_aFslShort_, aList[_iFslTail_])
     next
-    
-    return FormatList(aShort, " ", "")
+
+    return FormatList(_aFslShort_, " ", "")
 
 
 func FormatShortListNL(aList, nItems)
-    aShort = []
-    nLen = len(aList)
-    
+    _aFslnlShort_ = []
+    _nFslnlLen_ = len(aList)
+
     # Add first nItems
-    for i = 1 to nItems
-        aShort + aList[i]
+    for _iFslnlHead_ = 1 to nItems
+        add(_aFslnlShort_, aList[_iFslnlHead_])
     next
-    
+
     # Add ellipsis
-    aShort + "..."
-    
+    add(_aFslnlShort_, "...")
+
     # Add last nItems
-    for i = (nLen - nItems + 1) to nLen
-        aShort + aList[i]
+    for _iFslnlTail_ = (_nFslnlLen_ - nItems + 1) to _nFslnlLen_
+        add(_aFslnlShort_, aList[_iFslnlTail_])
     next
-    
-    return FormatListNL(aShort, " ", "")
+
+    return FormatListNL(_aFslnlShort_, " ", "")
 
 func FormatShortString(cStr, nItems)
     # Build a list of Unicode character byte-offsets and lengths
-    aChars = []
-    nBytes = len(cStr)
-    i = 1
-    while i <= nBytes
-        c = ascii(cStr[i])
-        if (c & 0x80) = 0
-            nCharLen = 1
-        but (c & 0xE0) = 0xC0
-            nCharLen = 2
-        but (c & 0xF0) = 0xE0
-            nCharLen = 3
-        but (c & 0xF8) = 0xF0
-            nCharLen = 4
+    _aFssChars_ = []
+    _nFssBytes_ = len(cStr)
+    _iFssScan_ = 1
+    while _iFssScan_ <= _nFssBytes_
+        _cFssByte_ = ascii(cStr[_iFssScan_])
+        if (_cFssByte_ & 0x80) = 0
+            _nFssCharLen_ = 1
+        but (_cFssByte_ & 0xE0) = 0xC0
+            _nFssCharLen_ = 2
+        but (_cFssByte_ & 0xF0) = 0xE0
+            _nFssCharLen_ = 3
+        but (_cFssByte_ & 0xF8) = 0xF0
+            _nFssCharLen_ = 4
         else
-            nCharLen = 1
+            _nFssCharLen_ = 1
         ok
-        aChars + [i, nCharLen]
-        i += nCharLen
+        add(_aFssChars_, [_iFssScan_, _nFssCharLen_])
+        _iFssScan_ += _nFssCharLen_
     end
 
-    nLen = len(aChars)
-    cResult = ""
+    _nFssLen_ = len(_aFssChars_)
+    _cFssResult_ = ""
 
     # Add first nItems characters
-    for i = 1 to nItems
-        if i <= nLen
-            cResult += StzMid(cStr, aChars[i][1], aChars[i][2])
+    for _iFssHead_ = 1 to nItems
+        if _iFssHead_ <= _nFssLen_
+            _cFssResult_ += StzMid(cStr, _aFssChars_[_iFssHead_][1], _aFssChars_[_iFssHead_][2])
         ok
     next
 
-    cResult += "..."
+    _cFssResult_ += "..."
 
     # Add last nItems characters
-    for i = (nLen - nItems + 1) to nLen
-        if i >= 1 and i <= nLen
-            cResult += StzMid(cStr, aChars[i][1], aChars[i][2])
+    for _iFssTail_ = (_nFssLen_ - nItems + 1) to _nFssLen_
+        if _iFssTail_ >= 1 and _iFssTail_ <= _nFssLen_
+            _cFssResult_ += StzMid(cStr, _aFssChars_[_iFssTail_][1], _aFssChars_[_iFssTail_][2])
         ok
     next
 
-    return cResult
+    return _cFssResult_
 
 #--- Convenient Aliases ---
 
@@ -664,18 +664,18 @@ func @@NL(pValue)
     return ComputableFormNL(pValue)
 
 func @@NL1(pValue)
-	cResult = "[" + NL
-	nLen = len(pValue)
-	for i = 1 to nLen
-		cResult += TAB + @@(pValue[i])
-		if i < nLen
-			cResult += "," + NL
+	_cAanl1Result_ = "[" + NL
+	_nAanl1Len_ = len(pValue)
+	for _iAanl1_ = 1 to _nAanl1Len_
+		_cAanl1Result_ += TAB + @@(pValue[_iAanl1_])
+		if _iAanl1_ < _nAanl1Len_
+			_cAanl1Result_ += "," + NL
 		else
-			cResult += NL
+			_cAanl1Result_ += NL
 		ok
 	next
-	cResult += "]"
-	return cResult
+	_cAanl1Result_ += "]"
+	return _cAanl1Result_
 
 func @@S(pValue)
     return ComputableShortForm(pValue)

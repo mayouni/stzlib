@@ -51,34 +51,34 @@ class stzListPerformer
 	#===============================#
 
 	def Perform(pcAction)
-		_pPfList = @oList._EngineListFromContent()
-		if _pPfList != NULL
-			_pPfResult = StzEngineListMapExpr(_pPfList, pcAction)
-			if _pPfResult != NULL
-				@oList.UpdateWith(@oList._ContentFromEngineList(_pPfResult))
-				StzEngineListFree(_pPfResult)
+		_pPfList_ = @oList._EngineListFromContent()
+		if _pPfList_ != NULL
+			_pPfResult_ = StzEngineListMapExpr(_pPfList_, pcAction)
+			if _pPfResult_ != NULL
+				@oList.UpdateWith(@oList._ContentFromEngineList(_pPfResult_))
+				StzEngineListFree(_pPfResult_)
 			ok
-			StzEngineListFree(_pPfList)
+			StzEngineListFree(_pPfList_)
 			return
 		ok
-		aContent = @oList.Map(pcAction)
-		@oList.UpdateWith(aContent)
+		_aPfContent_ = @oList.Map(pcAction)
+		@oList.UpdateWith(_aPfContent_)
 
 		def PerformQ(pcAction)
 			This.Perform(pcAction)
 			return This
 
 	def PerformOn(panPos, pcAction)
-		aAll = @oList.Map(pcAction)
-		aContent = @oList.Content()
-		nLen = len(panPos)
-		for i = 1 to nLen
-			nPos = panPos[i]
-			if nPos >= 1 and nPos <= len(aContent)
-				aContent[nPos] = aAll[nPos]
+		_aPoAll_ = @oList.Map(pcAction)
+		_aPoContent_ = @oList.Content()
+		_nPoLen_ = len(panPos)
+		for _iPo_ = 1 to _nPoLen_
+			_nPoPos_ = panPos[_iPo_]
+			if _nPoPos_ >= 1 and _nPoPos_ <= len(_aPoContent_)
+				_aPoContent_[_nPoPos_] = _aPoAll_[_nPoPos_]
 			ok
 		next
-		@oList.UpdateWith(aContent)
+		@oList.UpdateWith(_aPoContent_)
 
 		def PerformOnQ(panPos, pcAction)
 			This.PerformOn(panPos, pcAction)
@@ -88,24 +88,24 @@ class stzListPerformer
 			This.PerformOn(panPos, pcAction)
 
 	def PerformW(pcCondition, pcAction)
-		anPos = @oList.FindW(pcCondition)
-		This.PerformOn(anPos, pcAction)
+		_anPwPos_ = @oList.FindW(pcCondition)
+		This.PerformOn(_anPwPos_, pcAction)
 
 		def PerformWQ(pcCondition, pcAction)
 			This.PerformW(pcCondition, pcAction)
 			return This
 
 	def Yield(pcYielder)
-		_pYdList = @oList._EngineListFromContent()
-		if _pYdList != NULL
-			_pYdResult = StzEngineListMapExpr(_pYdList, pcYielder)
-			if _pYdResult != NULL
-				_aYdContent = @oList._ContentFromEngineList(_pYdResult)
-				StzEngineListFree(_pYdResult)
-				StzEngineListFree(_pYdList)
-				return _aYdContent
+		_pYdList_ = @oList._EngineListFromContent()
+		if _pYdList_ != NULL
+			_pYdResult_ = StzEngineListMapExpr(_pYdList_, pcYielder)
+			if _pYdResult_ != NULL
+				_aYdContent_ = @oList._ContentFromEngineList(_pYdResult_)
+				StzEngineListFree(_pYdResult_)
+				StzEngineListFree(_pYdList_)
+				return _aYdContent_
 			ok
-			StzEngineListFree(_pYdList)
+			StzEngineListFree(_pYdList_)
 		ok
 		return @oList.Map(pcYielder)
 
@@ -113,20 +113,20 @@ class stzListPerformer
 			return new stzList(This.Yield(pcYielder))
 
 	def YieldOn(panPos, pcYielder)
-		aAll = @oList.Map(pcYielder)
-		nLen = len(panPos)
-		aResult = []
-		for i = 1 to nLen
-			nPos = panPos[i]
-			if nPos >= 1 and nPos <= len(aAll)
-				aResult + aAll[nPos]
+		_aYoAll_ = @oList.Map(pcYielder)
+		_nYoLen_ = len(panPos)
+		_aYoResult_ = []
+		for _iYo_ = 1 to _nYoLen_
+			_nYoPos_ = panPos[_iYo_]
+			if _nYoPos_ >= 1 and _nYoPos_ <= len(_aYoAll_)
+				@AddItem(_aYoResult_, _aYoAll_[_nYoPos_])
 			ok
 		next
-		return aResult
+		return _aYoResult_
 
 	def YieldW(pcCondition, pcYielder)
-		anPos = @oList.FindW(pcCondition)
-		return This.YieldOn(anPos, pcYielder)
+		_anYwPos_ = @oList.FindW(pcCondition)
+		return This.YieldOn(_anYwPos_, pcYielder)
 
 	  #======================================================#
 	 #   YIELD ON POSITIONS Q                               #

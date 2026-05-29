@@ -315,9 +315,9 @@ pub const submodules = [_]Submodule{
     .{ .parent = "list", .name = "stzListInserter",       .methods = 8,  .engine_backed = 3,  .scoping_clean = true,  .notes = "InsertAt via ring_insert; SwapItems engine; MoveItem clean" },
     .{ .parent = "list", .name = "stzListMover",          .methods = 14, .engine_backed = 6,  .scoping_clean = true,  .notes = "Swap/RotateLeft/Right/Reverse/Shuffle engine; MoveMany scoping clean" },
     .{ .parent = "list", .name = "stzListRandom",         .methods = 35, .engine_backed = 4,  .scoping_clean = true,  .notes = "Shuffle/NRandomItems/Randomize engine; RandomizeSection/Numbers/Strings/Lists/Objects clean" },
-    .{ .parent = "list", .name = "stzListPerformer",      .methods = 8,  .engine_backed = 2,  .scoping_clean = false, .notes = "Map/Filter/Reduce expr engine; 9 bare vars" },
-    .{ .parent = "list", .name = "stzListStringify",      .methods = 14, .engine_backed = 1,  .scoping_clean = false, .notes = "Join engine; rest formatting Ring-side" },
-    .{ .parent = "list", .name = "stzListShow",           .methods = 18, .engine_backed = 0,  .scoping_clean = false, .notes = "viz/render Ring-side; 20 bare vars + box-drawing" },
+    .{ .parent = "list", .name = "stzListPerformer",      .methods = 8,  .engine_backed = 4,  .scoping_clean = true,  .notes = "Perform/Yield via StzEngineListMapExpr; PerformOn/PerformW/YieldOn/YieldW clean" },
+    .{ .parent = "list", .name = "stzListStringify",      .methods = 14, .engine_backed = 1,  .scoping_clean = true,  .notes = "Join via StzEngineListJoin; Stringify/Singlify/Lowercased/Uppercased/Numbers<->Strings clean" },
+    .{ .parent = "list", .name = "stzListShow",           .methods = 18, .engine_backed = 0,  .scoping_clean = true,  .notes = "global recursive funcs (FormatList/FormatValue/etc) made recursion-safe; Ring-side viz with box-drawing" },
     .{ .parent = "list", .name = "stzHashList",           .methods = 60, .engine_backed = 0,  .scoping_clean = false, .notes = "hashmap engine exists; Ring class still pure; ~190 bare vars" },
     .{ .parent = "list", .name = "stzListOfLists",        .methods = 55, .engine_backed = 0,  .scoping_clean = false, .notes = "specialised container; ~190 bare vars" },
 };
