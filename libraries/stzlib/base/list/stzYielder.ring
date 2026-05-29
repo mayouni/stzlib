@@ -42,7 +42,7 @@ class stzYielder
 		# separate DLL and cannot resolve list-DLL handles (cross-DLL
 		# handle-table bug). Re-enable once a direct-marshal bridge
 		# variant (StzEngineYielderMapDirect) lands.
-		return _RingMap_(@aContent, _nMapOp_)
+		return ring_Map(@aContent, _nMapOp_)
 
 	def MapQ(pcOp)
 		@aContent = This.Map(pcOp)
@@ -51,7 +51,7 @@ class stzYielder
 	def MapIndexed(pcOp)
 		_nMiOp_ = _TransformOpCode(pcOp)
 		if _nMiOp_ = -1 return @aContent ok
-		return _RingMap_(@aContent, _nMiOp_)
+		return ring_Map(@aContent, _nMiOp_)
 
 	def MapIndexedQ(pcOp)
 		@aContent = This.MapIndexed(pcOp)
@@ -64,7 +64,7 @@ class stzYielder
 	def Filter(pcOp)
 		_nFltOp_ = _FilterOpCode(pcOp)
 		if _nFltOp_ = -1 return @aContent ok
-		return _RingFilter_(@aContent, _nFltOp_)
+		return ring_Filter(@aContent, _nFltOp_)
 
 	def FilterQ(pcOp)
 		@aContent = This.Filter(pcOp)
@@ -77,7 +77,7 @@ class stzYielder
 	def Reduce(pcOp)
 		_nRedOp_ = _ReduceOpCode(pcOp)
 		if _nRedOp_ = -1 return 0 ok
-		return _RingReduce_(@aContent, _nRedOp_)
+		return ring_Reduce(@aContent, _nRedOp_)
 
 	def ReduceConcat(pcSep)
 		_cRcResult_ = ""
@@ -96,8 +96,8 @@ class stzYielder
 		_nFmFiltOp_ = _FilterOpCode(pcFilterOp)
 		_nFmTransOp_ = _TransformOpCode(pcTransformOp)
 		if _nFmFiltOp_ = -1 or _nFmTransOp_ = -1 return @aContent ok
-		_aFmFilt_ = _RingFilter_(@aContent, _nFmFiltOp_)
-		return _RingMap_(_aFmFilt_, _nFmTransOp_)
+		_aFmFilt_ = ring_Filter(@aContent, _nFmFiltOp_)
+		return ring_Map(_aFmFilt_, _nFmTransOp_)
 
 	def MapFilteredQ(pcFilterOp, pcTransformOp)
 		@aContent = This.MapFiltered(pcFilterOp, pcTransformOp)
@@ -110,7 +110,7 @@ class stzYielder
 	def CountWhere(pcOp)
 		_nCwOp_ = _FilterOpCode(pcOp)
 		if _nCwOp_ = -1 return 0 ok
-		return len(_RingFilter_(@aContent, _nCwOp_))
+		return len(ring_Filter(@aContent, _nCwOp_))
 
 	  #---------------------#
 	 #  CONVENIENCE NAMES  #
@@ -282,7 +282,7 @@ class stzYielder
 
 #--- Pure-Ring helpers (yielder engine bridge unavailable cross-DLL).
 
-func _RingMap_(aIn, nOp)
+func ring_Map(aIn, nOp)
 	aOut = []
 	nLen = len(aIn)
 	for i = 1 to nLen
@@ -336,7 +336,7 @@ func _RingMap_(aIn, nOp)
 	next
 	return aOut
 
-func _RingFilter_(aIn, nOp)
+func ring_Filter(aIn, nOp)
 	aOut = []
 	nLen = len(aIn)
 	for i = 1 to nLen
@@ -365,7 +365,7 @@ func _RingFilter_(aIn, nOp)
 	next
 	return aOut
 
-func _RingReduce_(aIn, nOp)
+func ring_Reduce(aIn, nOp)
 	nLen = len(aIn)
 	# Match engine convention: empty input -> 0 for every reduce op.
 	if nLen = 0 return 0 ok
