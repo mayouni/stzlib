@@ -140,10 +140,10 @@ pub const domains = [_]Domain{
         .engine_module = "engine/src/hashmap.zig",
         .ring_class = "base/list/stzHashList.ring",
         .bridge = "engine/src/ring_bridge_hashmap.zig",
-        .engine_fns = 22,
-        .ring_methods_bridged = 0,
-        .status = .planned,
-        .notes = "engine module live; stzHashList Ring bridge pending (M-S1 phase 2)",
+        .engine_fns = 23,
+        .ring_methods_bridged = 6,
+        .status = .in_progress,
+        .notes = "M-E18 started: cached @pEngineMap with lazy build + invalidate on mutation; HasKey/FindKey/NumberOfPairs/ValueInt/Float/StringByKey engine-backed",
     },
     .{
         .name = "value",
@@ -318,7 +318,7 @@ pub const submodules = [_]Submodule{
     .{ .parent = "list", .name = "stzListPerformer",      .methods = 8,  .engine_backed = 4,  .scoping_clean = true,  .notes = "Perform/Yield via StzEngineListMapExpr; PerformOn/PerformW/YieldOn/YieldW clean" },
     .{ .parent = "list", .name = "stzListStringify",      .methods = 14, .engine_backed = 1,  .scoping_clean = true,  .notes = "Join via StzEngineListJoin; Stringify/Singlify/Lowercased/Uppercased/Numbers<->Strings clean" },
     .{ .parent = "list", .name = "stzListShow",           .methods = 18, .engine_backed = 0,  .scoping_clean = true,  .notes = "global recursive funcs (FormatList/FormatValue/etc) made recursion-safe; Ring-side viz with box-drawing" },
-    .{ .parent = "list", .name = "stzHashList",           .methods = 60, .engine_backed = 0,  .scoping_clean = false, .notes = "hashmap engine exists; Ring class still pure; ~190 bare vars" },
+    .{ .parent = "list", .name = "stzHashList",           .methods = 63, .engine_backed = 6,  .scoping_clean = false, .notes = "Engine: HasKey/FindKey/NumberOfPairs/ValueInt/Float/StringByKey via cached @pEngineMap with auto-invalidate on mutation; Keys() scoping clean; bulk of class still Ring-side" },
     .{ .parent = "list", .name = "stzListOfLists",        .methods = 55, .engine_backed = 0,  .scoping_clean = false, .notes = "specialised container; ~190 bare vars" },
 };
 

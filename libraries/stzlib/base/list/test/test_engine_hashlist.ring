@@ -3,8 +3,6 @@
 
 load "../../stzBase.ring"
 
-pr()
-
 nPass = 0
 nFail = 0
 
@@ -116,10 +114,44 @@ else
 	? "  FAIL: expected 'mansour'"
 ok
 
+? ""
+? "=== Engine Delegation: NumberOfPairs ==="
+
+nCount = o1.NumberOfPairs()
+? "  NumberOfPairs() = " + nCount
+if nCount = 3
+	nPass++
+else
+	nFail++
+	? "  FAIL: expected 3, got " + nCount
+ok
+
+? ""
+? "=== Engine Delegation: ValueIntByKey ==="
+
+nAge = o1.ValueIntByKey(:age)
+? "  ValueIntByKey(:age) = " + nAge
+if nAge = 44
+	nPass++
+else
+	nFail++
+	? "  FAIL: expected 44, got " + nAge
+ok
+
+? ""
+? "=== Engine Delegation: ValueStringByKey ==="
+
+cName = o1.ValueStringByKey(:name)
+? "  ValueStringByKey(:name) = " + cName
+if cName = "mansour"
+	nPass++
+else
+	nFail++
+	? "  FAIL: expected 'mansour', got " + cName
+ok
+
 # --- Summary ---
 ? ""
 ? "================================="
 ? "  PASSED: " + nPass + "  FAILED: " + nFail
 ? "================================="
-
-pf()

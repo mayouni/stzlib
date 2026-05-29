@@ -472,6 +472,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return This.Content()
 
 	def NumberOfPairs()
+		# Engine fast path: stz_hashmap_len is O(1) cached vs Ring len() on a hashlist array
+		This._EnsureEngineMap()
+		if @pEngineMap != NULL
+			return StzEngineHashMapLen(@pEngineMap)
+		ok
 		return len(This.Content())
 
 		def NumberOfPairsQ()
@@ -530,16 +535,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 
 	def Keys()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aHkContent_ = This.Content()
+		_nHkLen_ = len(_aHkContent_)
 
-		aResult = []
+		_aHkResult_ = []
 
-		for i = 1 to nLen
-			aResult + aContent[i][1]
+		for _iHk_ = 1 to _nHkLen_
+			@AddItem(_aHkResult_, _aHkContent_[_iHk_][1])
 		next
 
-		return aResult
+		return _aHkResult_
 
 		def KeysQ()
 			return This.KeysQRT(:stzList)
@@ -892,7 +897,32 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return Q( This.ValueInNthPair(n) )
 
 	def ValueByKey(pcKey)
+		# Ring's hashlist[key] indexer is the canonical fast path -- it does
+		# a single C lookup on the underlying VM hash table. The engine
+		# StzEngineHashMapGet* path is kept for type-coerced reads via
+		# ValueIntByKey/ValueFloatByKey/ValueStringByKey helpers below.
 		return This.Content()[ pcKey ]
+
+	def ValueIntByKey(pcKey)
+		This._EnsureEngineMap()
+		if @pEngineMap != NULL
+			return StzEngineHashMapGetInt(@pEngineMap, pcKey)
+		ok
+		return 0 + This.ValueByKey(pcKey)
+
+	def ValueFloatByKey(pcKey)
+		This._EnsureEngineMap()
+		if @pEngineMap != NULL
+			return StzEngineHashMapGetFloat(@pEngineMap, pcKey)
+		ok
+		return 0.0 + This.ValueByKey(pcKey)
+
+	def ValueStringByKey(pcKey)
+		This._EnsureEngineMap()
+		if @pEngineMap != NULL
+			return StzEngineHashMapGetString(@pEngineMap, pcKey)
+		ok
+		return "" + This.ValueByKey(pcKey)
 
 		#< @FunctionAlternativeForms
 
