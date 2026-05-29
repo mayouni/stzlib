@@ -77,14 +77,26 @@ class stzListReplacer
 			ok
 		ok
 
-		# Engine fast-path disabled: stz_list.dll and stz_value.dll have
-		# SEPARATE static handle tables. Passing a value handle created
-		# in stz_value.dll to StzEngineListReplaceAllCS (which lives in
-		# stz_list.dll) resolves the handle in the wrong table and the
-		# call returns -1 without replacing anything. Until a shared
-		# handle table or string-only engine variant lands, fall back
-		# to the Ring iteration path.
+		# Engine fast path via string-direct variant (sidesteps the
+		# cross-DLL handle-table issue: the engine creates the StzValue
+		# inside stz_list.dll, so no cross-DLL handle lookup is needed).
+		if isString(pItem) and isString(pNewItem)
+			_pRpAll_ = @oList._EngineListFromContent()
+			if _pRpAll_ != NULL
+				_nRpCs_ = 1
+				if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+					_nRpCs_ = pCaseSensitive[2]
+				but isNumber(pCaseSensitive)
+					_nRpCs_ = pCaseSensitive
+				ok
+				StzEngineListReplaceAllStringCS(_pRpAll_, pItem, pNewItem, _nRpCs_)
+				@oList.UpdateWith(@oList._ContentFromEngineList(_pRpAll_))
+				StzEngineListFree(_pRpAll_)
+				return
+			ok
+		ok
 
+		# Fallback for non-string types
 		_anRpPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
 		_nRpLen_ = len(_anRpPos_)
 
@@ -137,8 +149,19 @@ class stzListReplacer
 	#==================================================#
 
 	def ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
-		# Engine path disabled -- cross-DLL handle bug (see RemoveAllCS).
-		# Direct Ring assignment is also faster for a single position.
+		# Engine fast path for strings via the new SetString variant
+		# (string-direct, no cross-DLL handle lookup).
+		if isString(pNewItem)
+			_pRapList_ = @oList._EngineListFromContent()
+			if _pRapList_ != NULL
+				StzEngineListSetString(_pRapList_, n, pNewItem)
+				@oList.UpdateWith(@oList._ContentFromEngineList(_pRapList_))
+				StzEngineListFree(_pRapList_)
+				return
+			ok
+		ok
+
+		# Fallback: direct Ring assignment
 		_aRapContent_ = This.Content()
 		if n >= 1 and n <= len(_aRapContent_)
 			_aRapContent_[n] = pNewItem

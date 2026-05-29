@@ -14,6 +14,9 @@ comptime {
     @export(&list.stz_list_remove_at, .{ .name = "stz_list_remove_at" });
     @export(&list.stz_list_remove_cs, .{ .name = "stz_list_remove_cs" });
     @export(&list.stz_list_replace_cs, .{ .name = "stz_list_replace_cs" });
+    @export(&list.stz_list_replace_all_string_cs, .{ .name = "stz_list_replace_all_string_cs" });
+    @export(&list.stz_list_remove_all_string_cs, .{ .name = "stz_list_remove_all_string_cs" });
+    @export(&list.stz_list_set_string, .{ .name = "stz_list_set_string" });
     @export(&list.stz_list_get, .{ .name = "stz_list_get" });
     @export(&list.stz_list_get_int, .{ .name = "stz_list_get_int" });
     @export(&list.stz_list_get_float, .{ .name = "stz_list_get_float" });

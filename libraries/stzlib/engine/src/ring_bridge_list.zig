@@ -93,6 +93,44 @@ fn ring_ReplaceAllCS(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_replace_cs(getL(p, 1), getV(p, 2), getV(p, 3), @intFromFloat(g(p, 4)))));
 }
 
+// String-direct variants -- avoid the cross-DLL handle-table bug
+// where StzValue handles minted in stz_value.dll dont resolve in
+// stz_list.dlls own static handle table.
+
+// ReplaceAllStringCS(list, oldStr, newStr, caseSensitive) -> count
+fn ring_ReplaceAllStringCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_replace_all_string_cs(
+        getL(p, 1),
+        @ptrCast(gs(p, 2)),
+        @intCast(gss(p, 2)),
+        @ptrCast(gs(p, 3)),
+        @intCast(gss(p, 3)),
+        @intFromFloat(g(p, 4)),
+    )));
+}
+
+// RemoveAllStringCS(list, str, caseSensitive) -> count
+fn ring_RemoveAllStringCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_remove_all_string_cs(
+        getL(p, 1),
+        @ptrCast(gs(p, 2)),
+        @intCast(gss(p, 2)),
+        @intFromFloat(g(p, 3)),
+    )));
+}
+
+// SetString(list, index, str) -> 0 or -1.  INDEX_BASE=1.
+fn ring_SetString(p: *anyopaque) callconv(.c) void {
+    const idx: usize = @intFromFloat(g(p, 2));
+    const adjusted = if (idx > 0) idx - 1 else 0;
+    rn(p, @floatFromInt(list.stz_list_set_string(
+        getL(p, 1),
+        adjusted,
+        @ptrCast(gs(p, 3)),
+        @intCast(gss(p, 3)),
+    )));
+}
+
 // Get (INDEX_BASE=1: subtract 1)
 fn ring_Get(p: *anyopaque) callconv(.c) void {
     const idx: usize = @intFromFloat(g(p, 2));
@@ -805,6 +843,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistremove", .func = &ring_Remove },
     .{ .name = "stzenginelistremoveallcs", .func = &ring_RemoveAllCS },
     .{ .name = "stzenginelistreplaceallcs", .func = &ring_ReplaceAllCS },
+    .{ .name = "stzenginelistreplaceallstringcs", .func = &ring_ReplaceAllStringCS },
+    .{ .name = "stzenginelistremoveallstringcs", .func = &ring_RemoveAllStringCS },
+    .{ .name = "stzenginelistsetstring", .func = &ring_SetString },
     .{ .name = "stzenginelistget", .func = &ring_Get },
     .{ .name = "stzenginelistgetint", .func = &ring_GetInt },
     .{ .name = "stzenginelistgetfloat", .func = &ring_GetFloat },

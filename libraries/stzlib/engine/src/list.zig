@@ -228,6 +228,74 @@ pub fn stz_list_replace_cs(list: ?*StzList, old_v: ?*const StzValue, new_v: ?*co
     return replaced;
 }
 
+/// String-direct Replace variant. Takes raw string pointers + lengths
+/// instead of value handles. This avoids the cross-DLL handle-table
+/// issue where a value handle minted in stz_value.dll cant be looked
+/// up in stz_list.dll's table.
+pub fn stz_list_replace_all_string_cs(list: ?*StzList, old_ptr: [*]const u8, old_len: usize, new_ptr: [*]const u8, new_len: usize, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return -1;
+    const needle = value_mod.stz_value_new_string(old_ptr, old_len) orelse return -1;
+    defer {
+        needle.deinit();
+        allocator.destroy(needle);
+    }
+    const replacement = value_mod.stz_value_new_string(new_ptr, new_len) orelse return -1;
+    defer {
+        replacement.deinit();
+        allocator.destroy(replacement);
+    }
+    const cs = case_sensitive != 0;
+    var replaced: i32 = 0;
+    for (l.items.items) |item| {
+        if (valueEqlCS(item, needle, cs)) {
+            const cloned = replacement.clone() catch return -1;
+            item.deinit();
+            item.* = cloned.*;
+            allocator.destroy(cloned);
+            replaced += 1;
+        }
+    }
+    return replaced;
+}
+
+/// String-direct Remove variant. Same cross-DLL handle workaround as
+/// stz_list_replace_all_string_cs.
+pub fn stz_list_remove_all_string_cs(list: ?*StzList, str_ptr: [*]const u8, str_len: usize, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return -1;
+    const needle = value_mod.stz_value_new_string(str_ptr, str_len) orelse return -1;
+    defer {
+        needle.deinit();
+        allocator.destroy(needle);
+    }
+    const cs = case_sensitive != 0;
+    var i: usize = 0;
+    var removed: i32 = 0;
+    while (i < l.items.items.len) {
+        if (valueEqlCS(l.items.items[i], needle, cs)) {
+            const item = l.items.orderedRemove(i);
+            item.deinit();
+            allocator.destroy(item);
+            removed += 1;
+        } else {
+            i += 1;
+        }
+    }
+    return removed;
+}
+
+/// String-direct Set variant for setting a single position to a string.
+/// Same cross-DLL workaround.
+pub fn stz_list_set_string(list: ?*StzList, index: usize, str_ptr: [*]const u8, str_len: usize) callconv(.c) i32 {
+    const l = list orelse return -1;
+    if (index >= l.items.items.len) return -1;
+    const new_val = value_mod.stz_value_new_string(str_ptr, str_len) orelse return -1;
+    defer allocator.destroy(new_val);
+    const old = l.items.items[index];
+    old.deinit();
+    old.* = new_val.*;
+    return 0;
+}
+
 /// Replace multiple items at once: for each item in the list, if it matches
 /// old_values[i], replace with new_values[i]. First match wins (no cascading).
 /// Returns the number of items replaced, or -1 on error.
