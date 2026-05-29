@@ -67,26 +67,26 @@ class stzListGetter
 		return This.NthItem(This.NumberOfItems())
 
 	def CentralItem()
-		n = ceil(This.NumberOfItems() / 2)
-		return This.NthItem(n)
+		_nCiN_ = ceil(This.NumberOfItems() / 2)
+		return This.NthItem(_nCiN_)
 
 	def NFirstItems(n)
-		aResult = []
-		for i = 1 to n
-			aResult + This.List()[i]
+		_aNfResult_ = []
+		for _iNf_ = 1 to n
+			@AddItem(_aNfResult_, This.List()[_iNf_])
 		next
-		return aResult
+		return _aNfResult_
 
 		def NFirstItemsQ(n)
 			return new stzList(This.NFirstItems(n))
 
 	def NLastItems(n)
-		nLen = This.NumberOfItems()
-		aResult = []
-		for i = nLen - n + 1 to nLen
-			aResult + This.List()[i]
+		_nNlLen_ = This.NumberOfItems()
+		_aNlResult_ = []
+		for _iNl_ = _nNlLen_ - n + 1 to _nNlLen_
+			@AddItem(_aNlResult_, This.List()[_iNl_])
 		next
-		return aResult
+		return _aNlResult_
 
 		def NLastItemsQ(n)
 			return new stzList(This.NLastItems(n))
@@ -96,12 +96,12 @@ class stzListGetter
 	#======================================================#
 
 	def ItemsAtPositions(panPositions)
-		aResult = []
-		nLen = len(panPositions)
-		for i = 1 to nLen
-			aResult + This.List()[panPositions[i]]
+		_aIapResult_ = []
+		_nIapLen_ = len(panPositions)
+		for _iIap_ = 1 to _nIapLen_
+			@AddItem(_aIapResult_, This.List()[panPositions[_iIap_]])
 		next
-		return aResult
+		return _aIapResult_
 
 		def ItemsAt(panPositions)
 			return This.ItemsAtPositions(panPositions)
@@ -111,30 +111,30 @@ class stzListGetter
 	#======================================================#
 
 	def Section(n1, n2)
-		nLen = This.NumberOfItems()
+		_nScLen_ = This.NumberOfItems()
 		if n1 < 1 n1 = 1 ok
-		if n2 > nLen n2 = nLen ok
+		if n2 > _nScLen_ n2 = _nScLen_ ok
 		if n1 > n2
-			temp = n1
+			_nScTemp_ = n1
 			n1 = n2
-			n2 = temp
+			n2 = _nScTemp_
 		ok
-		_pScList = @oList._EngineListFromContent()
-		if _pScList != NULL
-			_pScResult = StzEngineListSection(_pScList, n1, n2)
-			if _pScResult != NULL
-				aResult = @oList._ContentFromEngineList(_pScResult)
-				StzEngineListFree(_pScResult)
-				StzEngineListFree(_pScList)
-				return aResult
+		_pScList_ = @oList._EngineListFromContent()
+		if _pScList_ != NULL
+			_pScResult_ = StzEngineListSection(_pScList_, n1, n2)
+			if _pScResult_ != NULL
+				_aScResult_ = @oList._ContentFromEngineList(_pScResult_)
+				StzEngineListFree(_pScResult_)
+				StzEngineListFree(_pScList_)
+				return _aScResult_
 			ok
-			StzEngineListFree(_pScList)
+			StzEngineListFree(_pScList_)
 		ok
-		aResult = []
-		for i = n1 to n2
-			aResult + This.List()[i]
+		_aScFallback_ = []
+		for _iSc_ = n1 to n2
+			@AddItem(_aScFallback_, This.List()[_iSc_])
 		next
-		return aResult
+		return _aScFallback_
 
 	def Range(pnStart, pnRange)
 		return This.Section(pnStart, pnStart + pnRange - 1)
@@ -144,12 +144,12 @@ class stzListGetter
 	#======================================================#
 
 	def UniqueItemsCS(pCaseSensitive)
-		pList = @oList._EngineListFromContent()
-		pResult = StzEngineListUniqueCS(pList, pCaseSensitive)
-		aResult = StzEngineContentFromList(pResult)
-		StzEngineListFree(pResult)
-		StzEngineListFree(pList)
-		return aResult
+		_pUiList_ = @oList._EngineListFromContent()
+		_pUiResult_ = StzEngineListUniqueCS(_pUiList_, pCaseSensitive)
+		_aUiResult_ = StzEngineContentFromList(_pUiResult_)
+		StzEngineListFree(_pUiResult_)
+		StzEngineListFree(_pUiList_)
+		return _aUiResult_
 
 	def UniqueItems()
 		return This.UniqueItemsCS(1)
@@ -159,42 +159,42 @@ class stzListGetter
 	#======================================================#
 
 	def RandomItem()
-		n = random(This.NumberOfItems() - 1) + 1
-		return This.NthItem(n)
+		_nRdN_ = random(This.NumberOfItems() - 1) + 1
+		return This.NthItem(_nRdN_)
 
 	def NRandomItems(n)
-		_pRiList = @oList._EngineListFromContent()
-		if _pRiList != NULL
-			_pRiResult = StzEngineListRandomItems(_pRiList, n)
-			if _pRiResult != NULL
-				aResult = @oList._ContentFromEngineList(_pRiResult)
-				StzEngineListFree(_pRiResult)
-				StzEngineListFree(_pRiList)
-				return aResult
+		_pNriList_ = @oList._EngineListFromContent()
+		if _pNriList_ != NULL
+			_pNriResult_ = StzEngineListRandomItems(_pNriList_, n)
+			if _pNriResult_ != NULL
+				_aNriResult_ = @oList._ContentFromEngineList(_pNriResult_)
+				StzEngineListFree(_pNriResult_)
+				StzEngineListFree(_pNriList_)
+				return _aNriResult_
 			ok
-			StzEngineListFree(_pRiList)
+			StzEngineListFree(_pNriList_)
 		ok
-		_aContent_ = This.Content()
-		nLen = len(_aContent_)
-		if n >= nLen
-			aResult = []
-			for i = 1 to nLen
-				aResult + _aContent_[i]
+		_aNriContent_ = This.Content()
+		_nNriLen_ = len(_aNriContent_)
+		if n >= _nNriLen_
+			_aNriAll_ = []
+			for _iNri_ = 1 to _nNriLen_
+				@AddItem(_aNriAll_, _aNriContent_[_iNri_])
 			next
-			return aResult
+			return _aNriAll_
 		ok
-		anIndices = 1 : nLen
-		for i = nLen to 2 step -1
-			j = random(i - 1) + 1
-			temp = anIndices[i]
-			anIndices[i] = anIndices[j]
-			anIndices[j] = temp
+		_anNriIdx_ = 1 : _nNriLen_
+		for _iNri2_ = _nNriLen_ to 2 step -1
+			_jNri_ = random(_iNri2_ - 1) + 1
+			_nNriTmp_ = _anNriIdx_[_iNri2_]
+			_anNriIdx_[_iNri2_] = _anNriIdx_[_jNri_]
+			_anNriIdx_[_jNri_] = _nNriTmp_
 		next
-		aResult = []
-		for i = 1 to n
-			aResult + _aContent_[anIndices[i]]
+		_aNriPick_ = []
+		for _kNri_ = 1 to n
+			@AddItem(_aNriPick_, _aNriContent_[_anNriIdx_[_kNri_]])
 		next
-		return aResult
+		return _aNriPick_
 
 	  #======================================================#
 	 #   ITEMS BETWEEN TWO POSITIONS                        #
@@ -211,13 +211,13 @@ class stzListGetter
 	#======================================================#
 
 	def EveryNthItem(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = n to nLen step n
-			aResult + aContent[i]
+		_aEniContent_ = This.Content()
+		_nEniLen_ = len(_aEniContent_)
+		_aEniResult_ = []
+		for _iEni_ = n to _nEniLen_ step n
+			@AddItem(_aEniResult_, _aEniContent_[_iEni_])
 		next
-		return aResult
+		return _aEniResult_
 
 		def EveryNthItemQ(n)
 			return new stzList(This.EveryNthItem(n))
@@ -246,73 +246,73 @@ class stzListGetter
 	#======================================================#
 
 	def OnlyStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isString(aContent[i])
-				aResult + aContent[i]
+		_aOsContent_ = This.Content()
+		_nOsLen_ = len(_aOsContent_)
+		_aOsResult_ = []
+		for _iOs_ = 1 to _nOsLen_
+			if isString(_aOsContent_[_iOs_])
+				@AddItem(_aOsResult_, _aOsContent_[_iOs_])
 			ok
 		next
-		return aResult
+		return _aOsResult_
 
 	def OnlyNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isNumber(aContent[i])
-				aResult + aContent[i]
+		_aOnContent_ = This.Content()
+		_nOnLen_ = len(_aOnContent_)
+		_aOnResult_ = []
+		for _iOn_ = 1 to _nOnLen_
+			if isNumber(_aOnContent_[_iOn_])
+				@AddItem(_aOnResult_, _aOnContent_[_iOn_])
 			ok
 		next
-		return aResult
+		return _aOnResult_
 
 	def OnlyLists()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isList(aContent[i])
-				aResult + aContent[i]
+		_aOlContent_ = This.Content()
+		_nOlLen_ = len(_aOlContent_)
+		_aOlResult_ = []
+		for _iOl_ = 1 to _nOlLen_
+			if isList(_aOlContent_[_iOl_])
+				@AddItem(_aOlResult_, _aOlContent_[_iOl_])
 			ok
 		next
-		return aResult
+		return _aOlResult_
 
 	def OnlyChars()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if isString(aContent[i]) and len(aContent[i]) = 1
-				aResult + aContent[i]
+		_aOcContent_ = This.Content()
+		_nOcLen_ = len(_aOcContent_)
+		_aOcResult_ = []
+		for _iOc_ = 1 to _nOcLen_
+			if isString(_aOcContent_[_iOc_]) and len(_aOcContent_[_iOc_]) = 1
+				@AddItem(_aOcResult_, _aOcContent_[_iOc_])
 			ok
 		next
-		return aResult
+		return _aOcResult_
 
 	  #======================================================#
 	 #   PAIRS / TRIPLETS / WINDOWS                         #
 	#======================================================#
 
 	def Pairs()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen - 1
-			aResult + [aContent[i], aContent[i + 1]]
+		_aPrContent_ = This.Content()
+		_nPrLen_ = len(_aPrContent_)
+		_aPrResult_ = []
+		for _iPr_ = 1 to _nPrLen_ - 1
+			@AddItem(_aPrResult_, [_aPrContent_[_iPr_], _aPrContent_[_iPr_ + 1]])
 		next
-		return aResult
+		return _aPrResult_
 
 		def PairsQ()
 			return new stzList(This.Pairs())
 
 	def Triplets()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen - 2
-			aResult + [aContent[i], aContent[i + 1], aContent[i + 2]]
+		_aTrContent_ = This.Content()
+		_nTrLen_ = len(_aTrContent_)
+		_aTrResult_ = []
+		for _iTr_ = 1 to _nTrLen_ - 2
+			@AddItem(_aTrResult_, [_aTrContent_[_iTr_], _aTrContent_[_iTr_ + 1], _aTrContent_[_iTr_ + 2]])
 		next
-		return aResult
+		return _aTrResult_
 
 		def TripletsQ()
 			return new stzList(This.Triplets())
