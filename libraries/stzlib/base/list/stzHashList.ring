@@ -1753,8 +1753,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindValuesCS(paValues, pCaseSensitive)
 
-		anResult = This.ValuesQ().FindManyCS(paValues, pCaseSensitive)
-		return anResult
+		_anFvsResult_ = This.ValuesQ().FindManyCS(paValues, pCaseSensitive)
+		return _anFvsResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1889,41 +1889,41 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindKeysByValue(pValue)
 
-		aContent = This.HashList()
-		nLen = len(aContent)
+		_aFkbvContent_ = This.HashList()
+		_nFkbvLen_ = len(_aFkbvContent_)
 
-		anResult = []
-		
-		for i = 1 to nLen
+		_anFkbvResult_ = []
 
-			if Q(aContent[i][2]).Contains(pValue)
-				anResult + i
+		for _iFkbv_ = 1 to _nFkbvLen_
+
+			if Q(_aFkbvContent_[_iFkbv_][2]).Contains(pValue)
+				@AddItem(_anFkbvResult_, _iFkbv_)
 			ok
 		next
 
-		return anResult
+		return _anFkbvResult_
 
 	  #------------------------------#
 	 #   FINDING NTH KEY BY VALUE   #TODO // Add case sensitivity
 	#------------------------------#
 
-	def FindNthKeyByValue(pValue)
-		nResult = 0
+	def FindNthKeyByValue(n, pValue)
+		_nFnkbvResult_ = 0
 		if This.ContainsValue(pValue)
-			nResult = This.FindKeysByValue(pValue)[n]
+			_nFnkbvResult_ = This.FindKeysByValue(pValue)[n]
 		ok
-		return nResult
+		return _nFnkbvResult_
 
 	  #--------------------------------#
 	 #   FINDING FIRST KEY BY VALUE   #TODO // Add case sensitivity
 	#--------------------------------#
 
 	def FindFirstKeyByValue(pValue)
-		nResult = 0
+		_nFfkbvResult_ = 0
 		if This.ContainsValue(pValue)
-			nResult = This.FindKeysByValue(pValue)[1]
+			_nFfkbvResult_ = This.FindKeysByValue(pValue)[1]
 		ok
-		return nResult
+		return _nFfkbvResult_
 
 		#< @FunctionAlternativeForm
 
@@ -1943,64 +1943,64 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-------------------------------#
 
 	def FindLastKeyByValue(pValue)
-		cResult = ""
-		for i = This.NumberOfPairs() to 1 step -1
-			if Q(This.Value(i)).IsEqualTo(pValue)
-				cResult = This.Key(i)
+		_cFlkbvResult_ = ""
+		for _iFlkbv_ = This.NumberOfPairs() to 1 step -1
+			if Q(This.Value(_iFlkbv_)).IsEqualTo(pValue)
+				_cFlkbvResult_ = This.Key(_iFlkbv_)
 				exit
 			ok
-		next i
-		return cResult
+		next _iFlkbv_
+		return _cFlkbvResult_
 
 	  #----------------------------------------------------#
 	 #   GETTING THE KEY CORRESPONDING TO A GIVEN VALUE   #TODO // Add case sensitivity
 	#----------------------------------------------------#
 
 	def KeyByValue(pValue)
-		acKeys = This.KeysByValue(pValue)
-		nLen = len(acKeys)
+		_acKbvKeys_ = This.KeysByValue(pValue)
+		_nKbvLen_ = len(_acKbvKeys_)
 
-		if nLen = 0
+		if _nKbvLen_ = 0
 			return ""
 		ok
 
-		cResult = acKeys[1]
-		return cResult
+		_cKbvResult_ = _acKbvKeys_[1]
+		return _cKbvResult_
 	
 	  #-----------------------------------------------------#
 	 #   GETTING THE KEYS CORRESPONDING TO A GIVEN VALUE   #TODO // Add case sensitivity
 	#-----------------------------------------------------#
 
 	def KeysByValue(pValue)
-		anPos = This.FindKeysByValue(pValue)
-		acResult = This.KeysAtPositions(anPos)
+		_anKsbvPos_ = This.FindKeysByValue(pValue)
+		_acKsbvResult_ = This.KeysAtPositions(_anKsbvPos_)
 
-		return acResult
+		return _acKsbvResult_
 
 	  #---------------------------------------------------------#
 	 #  GETTING THE KEYS CORRESPONDING TO THE PROVIDED VALUES  #
 	#---------------------------------------------------------#
 
 	def KeysByValues(paValues)
-		nLen = len(paValues)
+		_nKsbvsLen_ = len(paValues)
 
-		acKeys = []
+		_acKsbvsKeys_ = []
 
-		for i = 1 to nLen
-			acKeys + This.KeysByValue(paValues[i])
+		for _iKsbvs_ = 1 to _nKsbvsLen_
+			@AddItem(_acKsbvsKeys_, This.KeysByValue(paValues[_iKsbvs_]))
 		next
 
-		acResult = StzListQ(acKeys).MergeQ().WithoutDuplicates()
+		_acKsbvsResult_ = StzListQ(_acKsbvsKeys_).MergeQ().WithoutDuplicates()
 
-		return acResult
+		return _acKsbvsResult_
 
 	  #----------------------------------------------#
 	 #  GETTING THE KEYS AT THE PROVIDED POSITIONS  #
 	#==============================================#
 
 	def KeysAtPositions(panPos)
-		acResult = This.KeysQ().ItemsAtPositions(panPos)
-		return acResult
+		_acKapResult_ = This.KeysQ().ItemsAtPositions(panPos)
+		return _acKapResult_
 
 		def KeysAtThesePositions(panPos)
 			return This.KeysAtPositions(panPos)
@@ -2011,48 +2011,48 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFlContent_ = This.Content()
+		_nFlLen_ = len(_aFlContent_)
 
-		anResult = []
+		_anFlResult_ = []
 
-		for i = 1 to nLen
-			if isList(aContent[i][2])
-				anResult + i
+		for _iFl_ = 1 to _nFlLen_
+			if isList(_aFlContent_[_iFl_][2])
+				@AddItem(_anFlResult_, _iFl_)
 			ok
 		next
 
-		return anResult
+		return _anFlResult_
 
 	def FindNonLists() // #TODO Make a more performant solution
-		anResult = Q( 1 : This.Size() ) - These( This.FindLists() )
-		return anResult
+		_anFnlResult_ = Q( 1 : This.Size() ) - These( This.FindLists() )
+		return _anFnlResult_
 
 	def Lists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aLsContent_ = This.Content()
+		_nLsLen_ = len(_aLsContent_)
 
-		aResult = []
+		_aLsResult_ = []
 
-		for i = 1 to nLen
-			if isList(aContent[i][2])
-				aResult + aContent[i][2]
+		for _iLs_ = 1 to _nLsLen_
+			if isList(_aLsContent_[_iLs_][2])
+				@AddItem(_aLsResult_, _aLsContent_[_iLs_][2])
 			ok
 		next
 
-		return aResult
+		return _aLsResult_
 
 	def ListsZ()
-		aListsU = U( This.Lists() )
-		nLen = len(aListsU)
+		_aLszU_ = U( This.Lists() )
+		_nLszLen_ = len(_aLszU_)
 
-		aResult = []
+		_aLszResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ aListsU[i], This.FindList(aListsU[i]) ]
+		for _iLsz_ = 1 to _nLszLen_
+			@AddItem(_aLszResult_, [ _aLszU_[_iLsz_], This.FindList(_aLszU_[_iLsz_]) ])
 		next
 
-		return aResult
+		return _aLszResult_
 
 	def FindList(paList) # Add case sensitivity
 
@@ -2062,24 +2062,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		anPos = Q(This.Lists()).Find(paList)
-		anResult = []
-		if len(anPos) > 0 
-			anResult = Q(This.FindLists()).ItemsAtPositions(anPos)
+		_anFlsPos_ = Q(This.Lists()).Find(paList)
+		_anFlsResult_ = []
+		if len(_anFlsPos_) > 0
+			_anFlsResult_ = Q(This.FindLists()).ItemsAtPositions(_anFlsPos_)
 		ok
 
-		return anResult
+		return _anFlsResult_
 
 	def ListZ(paList)
 		if CheckingParams()
-			if NOT isList(paList) 
+			if NOT isList(paList)
 				StzRaise("Incorrect param type! paList must be a list.")
 			ok
 		ok
 
-		anPos = This.FindList(paList)
-		aResult = [ paList, anPos ]	
-		return aResult
+		_anLzPos_ = This.FindList(paList)
+		_aLzResult_ = [ paList, _anLzPos_ ]
+		return _aLzResult_
 
 	def FindTheseLists(paLists)
 		if CheckingParams()
@@ -2089,20 +2089,20 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		paLists = U(paLists) # Duplicates removed
-		nLen = len(paLists)
-		anResult = []
+		_nFtlLen_ = len(paLists)
+		_anFtlResult_ = []
 
-		for i = 1 to nLen
-			anPos = This.FindList(paLists[i])
-			nLenPos = len(anPos)
+		for _iFtl_ = 1 to _nFtlLen_
+			_anFtlPos_ = This.FindList(paLists[_iFtl_])
+			_nFtlLenPos_ = len(_anFtlPos_)
 
-			for j = 1 to nLenPos
-				anResult + anPos[j]
+			for _jFtl_ = 1 to _nFtlLenPos_
+				@AddItem(_anFtlResult_, _anFtlPos_[_jFtl_])
 			next
 		next
 
-		anResult = new stzList(anResult).Sorted()
-		return anResult
+		_anFtlResult_ = new stzList(_anFtlResult_).Sorted()
+		return _anFtlResult_
 
 	def TheseListsZ(paLists)
 		if CheckingParams()
@@ -2111,14 +2111,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(paLists)
-		aResult = []
+		_nTlzLen_ = len(paLists)
+		_aTlzResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ paLists[i], This.FindList(paLists[i]) ]
+		for _iTlz_ = 1 to _nTlzLen_
+			@AddItem(_aTlzResult_, [ paLists[_iTlz_], This.FindList(paLists[_iTlz_]) ])
 		next
 
-		return aResult
+		return _aTlzResult_
 
 	#--
 
@@ -2128,44 +2128,44 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFnContent_ = This.Content()
+		_nFnLen_ = len(_aFnContent_)
 
-		anResult = []
+		_anFnResult_ = []
 
-		for i = 1 to nLen
-			if isNumber(aContent[i][2])
-				anResult + i
+		for _iFn_ = 1 to _nFnLen_
+			if isNumber(_aFnContent_[_iFn_][2])
+				@AddItem(_anFnResult_, _iFn_)
 			ok
 		next
 
-		return anResult
+		return _anFnResult_
 
 	def Numbers()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aNsContent_ = This.Content()
+		_nNsLen_ = len(_aNsContent_)
 
-		aResult = []
+		_aNsResult_ = []
 
-		for i = 1 to nLen
-			if isNumber(aContent[i][2])
-				aResult + aContent[i][2]
+		for _iNs_ = 1 to _nNsLen_
+			if isNumber(_aNsContent_[_iNs_][2])
+				@AddItem(_aNsResult_, _aNsContent_[_iNs_][2])
 			ok
 		next
 
-		return aResult
+		return _aNsResult_
 
 	def NumbersZ()
-		aNumbersU = U( This.Numbers() )
-		nLen = len(aNumbersU)
+		_aNszU_ = U( This.Numbers() )
+		_nNszLen_ = len(_aNszU_)
 
-		aResult = []
+		_aNszResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ aNumbersU[i], This.FindNumber(aNumbersU[i]) ]
+		for _iNsz_ = 1 to _nNszLen_
+			@AddItem(_aNszResult_, [ _aNszU_[_iNsz_], This.FindNumber(_aNszU_[_iNsz_]) ])
 		next
 
-		return aResult
+		return _aNszResult_
 
 	def FindNumber(paNumber) # Add case sensitivity
 
@@ -2175,24 +2175,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		anPos = Q(This.Numbers()).Find(paNumber)
-		anResult = []
-		if len(anPos) > 0 
-			anResult = Q(This.FindNumbers()).ItemsAtPositions(anPos)
+		_anFnbPos_ = Q(This.Numbers()).Find(paNumber)
+		_anFnbResult_ = []
+		if len(_anFnbPos_) > 0
+			_anFnbResult_ = Q(This.FindNumbers()).ItemsAtPositions(_anFnbPos_)
 		ok
 
-		return anResult
+		return _anFnbResult_
 
 	def NumberZ(paNumber)
 		if CheckingParams()
-			if NOT isNumber(paNumber) 
+			if NOT isNumber(paNumber)
 				StzRaise("Incorrect param type! paNumber must be a list.")
 			ok
 		ok
 
-		anPos = This.FindNumber(paNumber)
-		aResult = [ paNumber, anPos ]	
-		return aResult
+		_anNzPos_ = This.FindNumber(paNumber)
+		_aNzResult_ = [ paNumber, _anNzPos_ ]
+		return _aNzResult_
 
 	def FindTheseNumbers(paNumbers)
 		if CheckingParams()
@@ -2202,20 +2202,20 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		paNumbers = U(paNumbers) # Duplicates removed
-		nLen = len(paNumbers)
-		anResult = []
+		_nFtnLen_ = len(paNumbers)
+		_anFtnResult_ = []
 
-		for i = 1 to nLen
-			anPos = This.FindNumber(paNumbers[i])
-			nLenPos = len(anPos)
+		for _iFtn_ = 1 to _nFtnLen_
+			_anFtnPos_ = This.FindNumber(paNumbers[_iFtn_])
+			_nFtnLenPos_ = len(_anFtnPos_)
 
-			for j = 1 to nLenPos
-				anResult + anPos[j]
+			for _jFtn_ = 1 to _nFtnLenPos_
+				@AddItem(_anFtnResult_, _anFtnPos_[_jFtn_])
 			next
 		next
 
-		anResult = new stzList(anResult).Sorted()
-		return anResult
+		_anFtnResult_ = new stzList(_anFtnResult_).Sorted()
+		return _anFtnResult_
 
 	def TheseNumbersZ(paNumbers)
 		if CheckingParams()
@@ -2224,14 +2224,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(paNumbers)
-		aResult = []
+		_nTnzLen_ = len(paNumbers)
+		_aTnzResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ paNumbers[i], This.FindNumber(paNumbers[i]) ]
+		for _iTnz_ = 1 to _nTnzLen_
+			@AddItem(_aTnzResult_, [ paNumbers[_iTnz_], This.FindNumber(paNumbers[_iTnz_]) ])
 		next
 
-		return aResult
+		return _aTnzResult_
 
 	  #--------------------------------------------#
 	 #  FINDING STRINGS (VALUES THAT ARE STRING)  #
@@ -2239,44 +2239,44 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFsContent_ = This.Content()
+		_nFsLen_ = len(_aFsContent_)
 
-		anResult = []
+		_anFsResult_ = []
 
-		for i = 1 to nLen
-			if isString(aContent[i][2])
-				anResult + i
+		for _iFs_ = 1 to _nFsLen_
+			if isString(_aFsContent_[_iFs_][2])
+				@AddItem(_anFsResult_, _iFs_)
 			ok
 		next
 
-		return anResult
+		return _anFsResult_
 
 	def Strings()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSsContent_ = This.Content()
+		_nSsLen_ = len(_aSsContent_)
 
-		aResult = []
+		_aSsResult_ = []
 
-		for i = 1 to nLen
-			if isString(aContent[i][2])
-				aResult + aContent[i][2]
+		for _iSs_ = 1 to _nSsLen_
+			if isString(_aSsContent_[_iSs_][2])
+				@AddItem(_aSsResult_, _aSsContent_[_iSs_][2])
 			ok
 		next
 
-		return aResult
+		return _aSsResult_
 
 	def StringsZ()
-		aStringsU = U( This.Strings() )
-		nLen = len(aStringsU)
+		_aSszU_ = U( This.Strings() )
+		_nSszLen_ = len(_aSszU_)
 
-		aResult = []
+		_aSszResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ aStringsU[i], This.FindString(aStringsU[i]) ]
+		for _iSsz_ = 1 to _nSszLen_
+			@AddItem(_aSszResult_, [ _aSszU_[_iSsz_], This.FindString(_aSszU_[_iSsz_]) ])
 		next
 
-		return aResult
+		return _aSszResult_
 
 	def FindString(paString) # Add case sensitivity
 
@@ -2286,24 +2286,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		anPos = Q(This.Strings()).Find(paString)
-		anResult = []
-		if len(anPos) > 0 
-			anResult = Q(This.FindStrings()).ItemsAtPositions(anPos)
+		_anFsbPos_ = Q(This.Strings()).Find(paString)
+		_anFsbResult_ = []
+		if len(_anFsbPos_) > 0
+			_anFsbResult_ = Q(This.FindStrings()).ItemsAtPositions(_anFsbPos_)
 		ok
 
-		return anResult
+		return _anFsbResult_
 
 	def StringZ(paString)
 		if CheckingParams()
-			if NOT isString(paString) 
+			if NOT isString(paString)
 				StzRaise("Incorrect param type! paString must be a list.")
 			ok
 		ok
 
-		anPos = This.FindString(paString)
-		aResult = [ paString, anPos ]	
-		return aResult
+		_anSzPos_ = This.FindString(paString)
+		_aSzResult_ = [ paString, _anSzPos_ ]
+		return _aSzResult_
 
 	def FindTheseStrings(paStrings)
 		if CheckingParams()
@@ -2313,20 +2313,20 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		paStrings = U(paStrings) # Duplicates removed
-		nLen = len(paStrings)
-		anResult = []
+		_nFtsLen_ = len(paStrings)
+		_anFtsResult_ = []
 
-		for i = 1 to nLen
-			anPos = This.FindString(paStrings[i])
-			nLenPos = len(anPos)
+		for _iFts_ = 1 to _nFtsLen_
+			_anFtsPos_ = This.FindString(paStrings[_iFts_])
+			_nFtsLenPos_ = len(_anFtsPos_)
 
-			for j = 1 to nLenPos
-				anResult + anPos[j]
+			for _jFts_ = 1 to _nFtsLenPos_
+				@AddItem(_anFtsResult_, _anFtsPos_[_jFts_])
 			next
 		next
 
-		anResult = new stzList(anResult).Sorted()
-		return anResult
+		_anFtsResult_ = new stzList(_anFtsResult_).Sorted()
+		return _anFtsResult_
 
 	def TheseStringsZ(paStrings)
 		if CheckingParams()
@@ -2335,14 +2335,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		nLen = len(paStrings)
-		aResult = []
+		_nTszLen_ = len(paStrings)
+		_aTszResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ paStrings[i], This.FindString(paStrings[i]) ]
+		for _iTsz_ = 1 to _nTszLen_
+			@AddItem(_aTszResult_, [ paStrings[_iTsz_], This.FindString(paStrings[_iTsz_]) ])
 		next
 
-		return aResult
+		return _aTszResult_
 
 	  #---------------------------------------------#
 	 #  FINDING OBJECTS (VALUES THAT ARE OBJECTS)  #
@@ -2350,32 +2350,32 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFoContent_ = This.Content()
+		_nFoLen_ = len(_aFoContent_)
 
-		anResult = []
+		_anFoResult_ = []
 
-		for i = 1 to nLen
-			if isObject(aContent[i][2])
-				anResult + i
+		for _iFo_ = 1 to _nFoLen_
+			if isObject(_aFoContent_[_iFo_][2])
+				@AddItem(_anFoResult_, _iFo_)
 			ok
 		next
 
-		return anResult
+		return _anFoResult_
 
 	def Objects()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aOsContent_ = This.Content()
+		_nOsLen_ = len(_aOsContent_)
 
-		aResult = []
+		_aOsResult_ = []
 
-		for i = 1 to nLen
-			if isObject(aContent[i][2])
-				aResult + aContent[i][2]
+		for _iOs_ = 1 to _nOsLen_
+			if isObject(_aOsContent_[_iOs_][2])
+				@AddItem(_aOsResult_, _aOsContent_[_iOs_][2])
 			ok
 		next
 
-		return aResult
+		return _aOsResult_
 
 	  #------------------------------------------------------#
 	 #  FINDING STZLISTS (VALUES THAT ARE STZLIST OBJECTS)  #
@@ -2383,32 +2383,32 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindStzLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFszlContent_ = This.Content()
+		_nFszlLen_ = len(_aFszlContent_)
 
-		anResult = []
+		_anFszlResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzList(aContent[i][2])
-				anResult + i
+		for _iFszl_ = 1 to _nFszlLen_
+			if @IsStzList(_aFszlContent_[_iFszl_][2])
+				@AddItem(_anFszlResult_, _iFszl_)
 			ok
 		next
 
-		return anResult
+		return _anFszlResult_
 
 	def StzLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSzlContent_ = This.Content()
+		_nSzlLen_ = len(_aSzlContent_)
 
-		aResult = []
+		_aSzlResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzList(aContent[i][2])
-				aResult + aContent[i][2]
+		for _iSzl_ = 1 to _nSzlLen_
+			if @IsStzList(_aSzlContent_[_iSzl_][2])
+				@AddItem(_aSzlResult_, _aSzlContent_[_iSzl_][2])
 			ok
 		next
 
-		return aResult
+		return _aSzlResult_
 
 	  #-------------------------------------------------------#
 	 #  FINDING STZHASHLISTS (VALUES THAT ARE STZHASHLISTS)  #
@@ -2416,32 +2416,32 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindStzHashLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFszhlContent_ = This.Content()
+		_nFszhlLen_ = len(_aFszhlContent_)
 
-		anResult = []
+		_anFszhlResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzHashList(aContent[i][2])
-				anResult + i
+		for _iFszhl_ = 1 to _nFszhlLen_
+			if @IsStzHashList(_aFszhlContent_[_iFszhl_][2])
+				@AddItem(_anFszhlResult_, _iFszhl_)
 			ok
 		next
 
-		return anResult
+		return _anFszhlResult_
 
 	def StzHashLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSzhlContent_ = This.Content()
+		_nSzhlLen_ = len(_aSzhlContent_)
 
-		aResult = []
+		_aSzhlResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzHashList(aContent[i][2])
-				aResult + aContent[i][2]
+		for _iSzhl_ = 1 to _nSzhlLen_
+			if @IsStzHashList(_aSzhlContent_[_iSzhl_][2])
+				@AddItem(_aSzhlResult_, _aSzhlContent_[_iSzhl_][2])
 			ok
 		next
 
-		return aResult
+		return _aSzhlResult_
 
 	  #---------------------------------------------------#
 	 #  FINDING STZNUMBERS (VALUES THAT ARE STZNUMBERS)  #
@@ -2449,32 +2449,32 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindStzNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFsznContent_ = This.Content()
+		_nFsznLen_ = len(_aFsznContent_)
 
-		anResult = []
+		_anFsznResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzNumber(aContent[i][2])
-				anResult + i
+		for _iFszn_ = 1 to _nFsznLen_
+			if @IsStzNumber(_aFsznContent_[_iFszn_][2])
+				@AddItem(_anFsznResult_, _iFszn_)
 			ok
 		next
 
-		return anResult
+		return _anFsznResult_
 
 	def StzNumbers()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSznContent_ = This.Content()
+		_nSznLen_ = len(_aSznContent_)
 
-		aResult = []
+		_aSznResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzNumber(aContent[i][2])
-				aResult + aContent[i][2]
+		for _iSzn_ = 1 to _nSznLen_
+			if @IsStzNumber(_aSznContent_[_iSzn_][2])
+				@AddItem(_aSznResult_, _aSznContent_[_iSzn_][2])
 			ok
 		next
 
-		return aResult
+		return _aSznResult_
 
 	  #---------------------------------------------------#
 	 #  FINDING STZSTRINGS (VALUES THAT ARE STZSTRINGS)  #
@@ -2482,32 +2482,32 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindStzStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFszsContent_ = This.Content()
+		_nFszsLen_ = len(_aFszsContent_)
 
-		anResult = []
+		_anFszsResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzString(aContent[i][2])
-				anResult + i
+		for _iFszs_ = 1 to _nFszsLen_
+			if @IsStzString(_aFszsContent_[_iFszs_][2])
+				@AddItem(_anFszsResult_, _iFszs_)
 			ok
 		next
 
-		return anResult
+		return _anFszsResult_
 
 	def StzStrings()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSzsContent_ = This.Content()
+		_nSzsLen_ = len(_aSzsContent_)
 
-		aResult = []
+		_aSzsResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzString(aContent[i][2])
-				aResult + aContent[i][2]
+		for _iSzs_ = 1 to _nSzsLen_
+			if @IsStzString(_aSzsContent_[_iSzs_][2])
+				@AddItem(_aSzsResult_, _aSzsContent_[_iSzs_][2])
 			ok
 		next
 
-		return aResult
+		return _aSzsResult_
 
 	  #---------------------------------------------------#
 	 #  FINDING STZOBJECTS (VALUES THAT ARE STZOBJECTS)  #
@@ -2515,32 +2515,32 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#TODO // Add case sensitivity
 
 	def FindStzObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFszoContent_ = This.Content()
+		_nFszoLen_ = len(_aFszoContent_)
 
-		anResult = []
+		_anFszoResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzObject(aContent[i][2])
-				anResult + i
+		for _iFszo_ = 1 to _nFszoLen_
+			if @IsStzObject(_aFszoContent_[_iFszo_][2])
+				@AddItem(_anFszoResult_, _iFszo_)
 			ok
 		next
 
-		return anResult
+		return _anFszoResult_
 
 	def StzObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aSzoContent_ = This.Content()
+		_nSzoLen_ = len(_aSzoContent_)
 
-		aResult = []
+		_aSzoResult_ = []
 
-		for i = 1 to nLen
-			if @IsStzObject(aContent[i][2])
-				aResult + aContent[i][2]
+		for _iSzo_ = 1 to _nSzoLen_
+			if @IsStzObject(_aSzoContent_[_iSzo_][2])
+				@AddItem(_aSzoResult_, _aSzoContent_[_iSzo_][2])
 			ok
 		next
 
-		return aResult
+		return _aSzoResult_
 
 	  #---------------------------------------------------------------------------#
 	 #   CHECHKING IF ONE VALUE (AT LEAST) IS A LIST CONTAINING THE GIVEN ITEM   #
@@ -2564,25 +2564,25 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		# See EXAMPLE in FindItemInList()
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aCiContent_ = This.Content()
+		_nCiLen_ = len(_aCiContent_)
 
-		bResult = 0
+		_bCiResult_ = 0
 
-		for i = 1 to nLen
+		for _iCi_ = 1 to _nCiLen_
 
-			if isList(aContent[i][2])
+			if isList(_aCiContent_[_iCi_][2])
 
-				oStzList = new stzList(aContent[i][2])
-				if oStzList.Contains(pItem)
-					bResult = 1
+				_oCiList_ = new stzList(_aCiContent_[_iCi_][2])
+				if _oCiList_.Contains(pItem)
+					_bCiResult_ = 1
 					exit
 				ok
 			ok
 
 		next
 
-		return bResult
+		return _bCiResult_
 
 		def ContainsSubValue(pItem)
 			return This.ContainsItem(pItem)
@@ -2610,24 +2610,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#--> [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ]
 		*/
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aFiContent_ = This.Content()
+		_nFiLen_ = len(_aFiContent_)
 
-		aResult = []
+		_aFiResult_ = []
 
-		for i = 1 to nLen
+		for _iFi_ = 1 to _nFiLen_
 
-			if isList(aContent[i][2])
+			if isList(_aFiContent_[_iFi_][2])
 
-				oStzList = new stzList(aContent[i][2])
-				if oStzList.Contains(pItem)
-					aResult + [ i, oStzList.FindAll(pItem) ]
+				_oFiList_ = new stzList(_aFiContent_[_iFi_][2])
+				if _oFiList_.Contains(pItem)
+					@AddItem(_aFiResult_, [ _iFi_, _oFiList_.FindAll(pItem) ])
 				ok
 			ok
 
 		next
 
-		return aResult
+		return _aFiResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2686,37 +2686,37 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# step 1 : we get the items and their positions (see format
 		# the example in TheseItemsZ() function
 
-		aTemp1 = This.TheseItemsZ(paItems)
-		nLen = len(aTemp1)
+		_aFtiT1_ = This.TheseItemsZ(paItems)
+		_nFtiLen1_ = len(_aFtiT1_)
 
 		# Step 2 : we  take the positions (pairs) and put them in a list
 
-		aTemp2 = []
+		_aFtiT2_ = []
 
-		for i = 1 to nLen
-			aPos = aTemp1[i][2]
-			nLenPos = len(aPos)
+		for _iFti1_ = 1 to _nFtiLen1_
+			_aFtiPos1_ = _aFtiT1_[_iFti1_][2]
+			_nFtiLenPos1_ = len(_aFtiPos1_)
 
-			for j = 1 to nLenPos
-				aTemp2 + aPos[j]
+			for _jFti1_ = 1 to _nFtiLenPos1_
+				@AddItem(_aFtiT2_, _aFtiPos1_[_jFti1_])
 			next
 		next
 
 		# Step 2 : we factorise the obtained list to get the positions
 
-		nLen = len(aTemp2)
-		aResult = []
+		_nFtiLen2_ = len(_aFtiT2_)
+		_aFtiResult_ = []
 
-		for i = 1 to nLen
-			nLenPos = len(aTemp2[i][2])
-			for j = 1 to nLenPos
-				aResult + [ aTemp2[i][1], aTemp2[i][2][j] ]
+		for _iFti2_ = 1 to _nFtiLen2_
+			_nFtiLenPos2_ = len(_aFtiT2_[_iFti2_][2])
+			for _jFti2_ = 1 to _nFtiLenPos2_
+				@AddItem(_aFtiResult_, [ _aFtiT2_[_iFti2_][1], _aFtiT2_[_iFti2_][2][_jFti2_] ])
 			next
 		next
 
 		# Step 4 : we return the result
 
-		return aResult
+		return _aFtiResult_
 
 		#< @FunctionAlternativeForms
 
@@ -2760,14 +2760,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		paItems = U(paItems) # Duplicates removed
 
-		nLen = len(paItems)
-		aResult = []
+		_nTizLen_ = len(paItems)
+		_aTizResult_ = []
 
-		for i = 1 to nLen
-			aResult + [ paItems[i], This.FindItem(paItems[i]) ]
+		for _iTiz_ = 1 to _nTizLen_
+			@AddItem(_aTizResult_, [ paItems[_iTiz_], This.FindItem(paItems[_iTiz_]) ])
 		next
 
-		return aResult
+		return _aTizResult_
 
 		#< @FunctionFluentForms
 
@@ -2798,49 +2798,49 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Items()
 
-		aResult = U( This.ValuesQ().OnlyListsQ().Merged() )
-		return aResult
+		_aItmResult_ = U( This.ValuesQ().OnlyListsQ().Merged() )
+		return _aItmResult_
 
 	def FindItems()
-	
-		aIndex = This.Copy().ListifyQ().ValuesQRT(:stzListOfLists).IndexXT()
 
-		aItems = This.Items()
-		nLen = len(aIndex)
+		_aFimIndex_ = This.Copy().ListifyQ().ValuesQRT(:stzListOfLists).IndexXT()
 
-		aResult = []
+		_aFimItems_ = This.Items()
+		_nFimLen_ = len(_aFimIndex_)
 
-		for i = 1 to nLen
-			aPairs = aIndex[i][2]
-			nLenPairs = len(aPairs)
-			for j = 1 to nLenPairs
-				aResult + aPairs[j]
+		_aFimResult_ = []
+
+		for _iFim_ = 1 to _nFimLen_
+			_aFimPairs_ = _aFimIndex_[_iFim_][2]
+			_nFimLenPairs_ = len(_aFimPairs_)
+			for _jFim_ = 1 to _nFimLenPairs_
+				@AddItem(_aFimResult_, _aFimPairs_[_jFim_])
 			next
 		next
 
-		return aResult
+		return _aFimResult_
 
 	def ItemsZ()
-		
-		aIndex = This.Copy().ListifyQ().ValuesQRT(:stzListOfLists).IndexXT()
 
-		aItems = This.Items()
-		anPos = QRT(aIndex, :stzHashList).FindTheseKeys(aItems)
-		nLen = len(anPos)
+		_aItmzIndex_ = This.Copy().ListifyQ().ValuesQRT(:stzListOfLists).IndexXT()
 
-		aResult = []
-		for i = 1 to nLen
-			aResult + aIndex[anPos[i]]
+		_aItmzItems_ = This.Items()
+		_anItmzPos_ = QRT(_aItmzIndex_, :stzHashList).FindTheseKeys(_aItmzItems_)
+		_nItmzLen_ = len(_anItmzPos_)
+
+		_aItmzResult_ = []
+		for _iItmz_ = 1 to _nItmzLen_
+			@AddItem(_aItmzResult_, _aItmzIndex_[_anItmzPos_[_iItmz_]])
 		next
 
-		return aResult
+		return _aItmzResult_
 
 	def NumberOfItems()
 		return len(This.Items())
 
 	def ItemZ(pItem)
-		aResult = [ pItem, This.FindItem(pItem) ]
-		return aResult
+		_aItzResult_ = [ pItem, This.FindItem(pItem) ]
+		return _aItzResult_
 
 	  #-------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE NTH OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
@@ -2855,15 +2855,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 			n = This.NumberOfOccurreceOfItemInList(pItem)
 		ok
 
-		anPos = This.FindItel(pItem)
-		nLen = len(anPos)
+		_anFniPos_ = This.FindItem(pItem)
+		_nFniLen_ = len(_anFniPos_)
 
-		nResult = 0
-		if nLen > 0
-			nResult = anPos[n]
+		_nFniResult_ = 0
+		if _nFniLen_ > 0
+			_nFniResult_ = _anFniPos_[n]
 		ok
 
-		return nResult
+		return _nFniResult_
 
 		def FindNthOccurrenceOfItemInList(n, pItem)
 			return This.FindNthItem(n, pItem)
@@ -3043,23 +3043,23 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------------------------------------#
 
 	def Copy()
-		oCopy = new stzHashList(This.content())
-		return oCopy
+		_oCpCopy_ = new stzHashList(This.content())
+		return _oCpCopy_
 
 	def Listify()
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		_aLfContent_ = This.Content()
+		_nLfLen_ = len(_aLfContent_)
 
-		for i = 1 to nLen
-			if NOT isList(aContent[i][2])
-				aTempList = []
-				aTempList + aContent[i][2]
-				aContent[i][2] = aTempList
+		for _iLf_ = 1 to _nLfLen_
+			if NOT isList(_aLfContent_[_iLf_][2])
+				_aLfTemp_ = []
+				@AddItem(_aLfTemp_, _aLfContent_[_iLf_][2])
+				_aLfContent_[_iLf_][2] = _aLfTemp_
 			ok
 		next
 
-		This.UpdateWith(aContent)
+		This.UpdateWith(_aLfContent_)
 
 
 		def ListifyQ() #TODO // Ensure consistency in all library
@@ -3067,8 +3067,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This
 
 	def Listified()
-		aResult = This.Copy().ListifyQ().Content()
-		return aResult
+		_aLfdResult_ = This.Copy().ListifyQ().Content()
+		return _aLfdResult_
 
 	  #===========================#
 	 #     CLASSIFYING VALUES    #
@@ -3076,15 +3076,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Classify()
 
-		aResult = []
-		acClasses = This.Classes()
-		nlen = len(acClasses)
+		_aCfResult_ = []
+		_acCfClasses_ = This.Classes()
+		_nCfLen_ = len(_acCfClasses_)
 
-		for i = 1 to nLen
-			aResult + [ acClasses[i], This.KeysForValue(acClasses[i]) ]
+		for _iCf_ = 1 to _nCfLen_
+			@AddItem(_aCfResult_, [ _acCfClasses_[_iCf_], This.KeysForValue(_acCfClasses_[_iCf_]) ])
 		next
 
-		return aResult
+		return _aCfResult_
 
 		#< @FunctionFluentForm
 
@@ -3113,15 +3113,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#---------------------------------------------------------#
 
 	def Classes()
-		acResult = []
-		aUniqueValues = This.UniqueValues()
-		nLen = len(aUniqueValues)
+		_acCsResult_ = []
+		_aCsUnique_ = This.UniqueValues()
+		_nCsLen_ = len(_aCsUnique_)
 
-		for i = 1 to nLen
-			acResult + Q(aUniqueValues[i]).Stringified()
+		for _iCs_ = 1 to _nCsLen_
+			@AddItem(_acCsResult_, Q(_aCsUnique_[_iCs_]).Stringified())
 		next
 
-		return acResult
+		return _acCsResult_
 
 		#< @FunctionFluentForm
 
@@ -3163,8 +3163,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------------------------------------------#
 
 	def ContainsClass(pcClass)
-		bResult = This.ContainsValueCS(pcClass, 0)
-		return bResult
+		_bCcResult_ = This.ContainsValueCS(pcClass, 0)
+		return _bCcResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3198,8 +3198,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-------------------------------------------------------#
 
 	def ContainsClasses(pacClasses)
-		bResult = This.ContainsValuesCS(pacClasses, 0)
-		return bResult
+		_bCcsResult_ = This.ContainsValuesCS(pacClasses, 0)
+		return _bCcsResult_
 
 		#< @FunctionAlternativeForms
 
