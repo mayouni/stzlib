@@ -232,7 +232,7 @@ Sy {
 
 pf()
 
-load "stzlib.ring"
+# load "stzlib.ring"   # stzBase.ring at top already loads the library
 
 /*========================================
    GIT WORKFLOW
