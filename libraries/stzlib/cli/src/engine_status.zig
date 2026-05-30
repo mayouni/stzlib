@@ -419,15 +419,15 @@ pub const milestones = [_]Milestone{
         .id = "M-S1",
         .track = "stzlib",
         .title = "Class Modularization",
-        .status = .partial,
-        .summary = "stzString DONE (32 domain classes, monolith archived); stzList Phase 1 DONE (Finder/Counter/Splits/Checker/Comparator/Classifier/Extractor/Merger/Duplicates/Sorter/Getter/Bounder bridged + scoping-clean); Phase 2 WIP (12 submodules with scoping debt + stzHashList bridge)",
+        .status = .done,
+        .summary = "stzString DONE (32 domain classes, monolith archived). stzList DONE: Phase 1 bridged Finder/Counter/Splits/Checker/Comparator/Classifier/Extractor/Merger/Duplicates/Sorter/Getter/Bounder; Phase 2 scoping cleanup landed all 28 submodules + stzHashList engine bridge. M-S1 closed at session 37; the Phase 2 sweep flushed 33 latent bugs (later regression sessions added 19 more across stzString modularization gaps and stzTable/stzGraph). 52 cumulative bugs surfaced through this work.",
     },
     .{
         .id = "M-S2",
         .track = "stzlib",
         .title = "Ring-Side Test Hardening",
         .status = .partial,
-        .summary = "Session 38-43: 9 regression suites pin the 47 latent bugs + 13-suite coverage at 227 assertions. Session 43 LANDS THE CROSS-DLL HANDLE FIX: added stz_list_replace_all_string_cs / stz_list_remove_all_string_cs / stz_list_set_string -- string-direct variants that take raw ptr+len instead of StzValue handles. The engine creates the StzValue inside stz_list.dll, so no cross-DLL handle lookup needed. Re-enabled engine fast paths in stzListReplacer.ReplaceAllOccurrencesCS/ReplaceAnyItemAtPositionCS and stzListRemover.RemoveAllCS. New test_engine_string_direct.ring (10 checks) validates the fast paths work for both case-sensitive and case-insensitive variants. 1591 engine tests still pass, 5 new C ABI exports. Function-form tests, narrated GIVEN/WHEN/THEN, test runner integration still pending",
+        .summary = "Sessions 38-45: 19 regression suites pin 52 latent bugs, 442 cumulative assertions. Session 43 shipped the cross-DLL handle fix (stz_list_replace_all_string_cs / stz_list_remove_all_string_cs / stz_list_set_string -- string-direct variants that take raw ptr+len instead of StzValue handles). Session 44 added pure-Ring fallbacks for stzYielder (Map/Filter/Reduce + 17/17/10 ops) when the engine cant be reached cross-DLL, plus test_edge_cases (37) and test_function_forms (31). Session 45 closed the M-E3 regression slice: test_number_regression (40) + test_table_regression (24) + test_graph_regression (21) -- 4 more latent bugs (stzString Represents*Number family + LeftChar/RightChar lost in modularization; stzTable Section page-reading sweep; stzGraph HasEdge param typo). Still pending: function-form tests across the rest of submodules, narrated GIVEN/WHEN/THEN runner, an engine-side direct-marshal bridge for yielder to reinstate the engine fast path",
     },
     .{
         .id = "M-S3",
