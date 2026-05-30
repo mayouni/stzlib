@@ -1382,7 +1382,6 @@ func IsSortedDownListOfPairsOfNumbers(paList)
 
 
 func IsListOfNumbers(paList)
-	t1= clock()
 	if NOT isList(paList)
 		return 0
 	ok
@@ -1394,9 +1393,6 @@ func IsListOfNumbers(paList)
 			return 0
 		ok
 	next
-
-	t2= clock()
-	? (t2-t1)/clockspersecond()
 
 	return 1
 
