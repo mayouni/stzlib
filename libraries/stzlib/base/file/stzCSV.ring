@@ -83,7 +83,10 @@ func ListToCSVXT(aList, cSep)
     return cResult
 
 	func List2DToCSVXT(aList, cSep)
-		return ListToCSV(aList, cSep)
+		# Was `return ListToCSV(aList, cSep)` -- ListToCSV is 1-arg,
+		# so passing the separator raised R20 and made the alias
+		# unusable. Forward to the XT variant.
+		return ListToCSVXT(aList, cSep)
 
 # Function to transform a CSV string to a list
 
@@ -112,7 +115,9 @@ func StringToCSVListXT(cStr, cSep)
 			return FALSE
 		ok
 
-		cSep = CSVSep()
+		# Bug fix: the param cSep was being clobbered by the global
+		# default (cSep = CSVSep()), so XT-form callers with a custom
+		# separator were silently parsing with ';'.
 		acLines = @split(cStr, NL)
 		nLen = len(acLines)
 

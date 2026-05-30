@@ -254,6 +254,24 @@ class stzStringChecker
 		ok
 		return 0
 
+	def IsNumberInString()
+		# Alias for RepresentsNumber -- "is the string a number literal?"
+		return This.RepresentsNumber()
+
+	def IsListInString()
+		# Minimal heuristic: trimmed content starts with '[' and ends
+		# with ']'. The monolith had a deeper eval-based check that
+		# also accepted short-form ranges like '"a" : "d"'; the simple
+		# bracket check covers the CSV-parser use case (decide if a
+		# field value should be eval'd back into a Ring list).
+		_cIisContent_ = @oString.Content()
+		_cIisTrim_ = trim(_cIisContent_)
+		if len(_cIisTrim_) < 2 return 0 ok
+		if _cIisTrim_[1] = "[" and _cIisTrim_[len(_cIisTrim_)] = "]"
+			return 1
+		ok
+		return 0
+
 	def RepresentsCalculableNumber()
 		# Ring uses double precision; any number that lexes is calculable
 		# within the usual range. Delegating to RepresentsNumber matches

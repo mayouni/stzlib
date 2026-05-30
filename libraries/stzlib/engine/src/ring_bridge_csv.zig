@@ -78,7 +78,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginecsvrowcount", .func = &ring_RowCount },
     .{ .name = "stzenginecsvcolcount", .func = &ring_ColCount },
     .{ .name = "stzenginecsvgetcell", .func = &ring_GetCell },
-    .{ .name = "stzenginecsvIsvalid", .func = &ring_IsValid },
+    .{ .name = "stzenginecsvisvalid", .func = &ring_IsValid },
     .{ .name = "stzenginecsvtostring", .func = &ring_ToString },
 };
 
