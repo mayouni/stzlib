@@ -201,25 +201,35 @@ class stzMatrix
 
 	def init(paInput)
 
-		if isList(paInput)
+		if NOT isList(paInput)
+			stzRaise("Incorrect input! stzMatrix needs a 2D list or a [rows, cols] dim pair.")
+		ok
 
-			# If input is a list, directly use it as matrix
+		# Disambiguate: [n, m] (two numbers) -> zero-matrix of those
+		# dims; anything else is a 2D list of rows. The earlier
+		# implementation checked `isList` first and crashed on
+		# `len(paInput[1])` for the dim-pair form (paInput[1] is a
+		# number, not a list).
+		if len(paInput) = 2 and isNumber(paInput[1]) and isNumber(paInput[2])
 
-			@aMatrix = paInput
-			@nRows = len(paInput)
-			@nCols = len(paInput[1])
-
-		but isNumber(paInput[1]) and isNumber(paInput[2])
-
-			# If input is dimensions, create zero matrix
-
+			# Zero matrix of given dimensions
 			@nRows = paInput[1]
 			@nCols = paInput[2]
 			@aMatrix = list(@nRows)
 
+			# Ring's list(n) creates a list of n zeros (1D) -- the
+			# original `list(@nCols, 0)` form takes only one arg in
+			# Ring and would raise "Bad parameters value, error in
+			# range!". Build each row explicitly.
 			for i = 1 to @nRows
-				@aMatrix[i] = list(@nCols, 0)
+				@aMatrix[i] = list(@nCols)
 			next
+
+		else
+			# 2D matrix list
+			@aMatrix = paInput
+			@nRows = len(paInput)
+			@nCols = len(paInput[1])
 		ok
 
 	def _EnsureEngineMatrix()
