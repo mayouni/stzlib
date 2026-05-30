@@ -1614,6 +1614,14 @@ class stzString from stzObject
 		_oRcnChk_ = new stzStringChecker(This)
 		return _oRcnChk_.RepresentsCalculableNumber()
 
+	def IsNumberInString()
+		_oInisChk_ = new stzStringChecker(This)
+		return _oInisChk_.IsNumberInString()
+
+	def IsListInString()
+		_oIlisChk_ = new stzStringChecker(This)
+		return _oIlisChk_.IsListInString()
+
 	def RepresentsNumber()
 		_oRnChk_ = new stzStringChecker(This)
 		return _oRnChk_.RepresentsNumber()
