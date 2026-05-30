@@ -827,40 +827,25 @@ Class stzTable from stzList
 
 	def Section(p1, p2)
 		if isList(p1) and isList(p2)
+			# Rectangular section [col1,row1] to [col2,row2].
+			# Row-major: (row1,col1), (row1,col2)..(row1,colN),
+			#            (row2,col1)..(row2,colN), ..., (rowN,colN).
+			# Earlier implementation did a page-reading sweep (first
+			# column to end-of-table, middle columns full, last column
+			# from top) which contradicted both the submodule
+			# (stzTableCellAccess.Section) and intuitive cell-block
+			# semantics.
 			_nSCol1 = p1[1]
 			_nSRow1 = p1[2]
 			_nSCol2 = p2[1]
 			_nSRow2 = p2[2]
 
-			_nSCols = len(@aContent)
-			_nSRows = 0
-			if _nSCols > 0
-				_nSRows = len(@aContent[1][2])
-			ok
-
 			_aSResult = []
-
-			if _nSCol1 = _nSCol2
-				for _jS = _nSRow1 to _nSRow2
-					_aSResult + @aContent[_nSCol1][2][_jS]
-				next
-				return _aSResult
-			ok
-
-			for _jS = _nSRow1 to _nSRows
-				_aSResult + @aContent[_nSCol1][2][_jS]
-			next
-
-			for _iS = (_nSCol1 + 1) to (_nSCol2 - 1)
-				for _jS = 1 to _nSRows
-					_aSResult + @aContent[_iS][2][_jS]
+			for _iS = _nSRow1 to _nSRow2
+				for _jS = _nSCol1 to _nSCol2
+					_aSResult + @aContent[_jS][2][_iS]
 				next
 			next
-
-			for _jS = 1 to _nSRow2
-				_aSResult + @aContent[_nSCol2][2][_jS]
-			next
-
 			return _aSResult
 		ok
 
