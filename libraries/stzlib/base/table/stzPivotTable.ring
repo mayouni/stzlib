@@ -257,7 +257,14 @@ class stzPivotTable from stzList
 		return TRUE
 
 	def _AggFuncToInt()
+		# Accept common synonyms. Previously "avg" / "mean" / "cnt"
+		# didn't match any branch and fell through to `return 0`
+		# (which is SUM) -- so pivot tables built with Analyze(...,
+		# "AVG") silently aggregated as SUM.
 		_cFn = StzLower(@cAggFunc)
+		if _cFn = "avg" or _cFn = "mean"  _cFn = "average" ok
+		if _cFn = "cnt"                   _cFn = "count"   ok
+
 		if _cFn = "sum"      return 0 ok
 		if _cFn = "count"    return 1 ok
 		if _cFn = "average"  return 2 ok
@@ -796,17 +803,29 @@ class stzPivotTable from stzList
 			return @cCellNullValue
 		ok
 
-		switch StzLower(@cAggFunc)
+		# Accept common synonyms so "AVG" / "MEAN" both work alongside
+		# "AVERAGE", and "CNT" alongside "COUNT". Previously only the
+		# long forms matched and "AVG" silently fell through, then
+		# whichever branch followed (here SUM was before AVERAGE in
+		# the switch) produced the wrong result.
+		_cAggFunc_ = StzLower(@cAggFunc)
+		if _cAggFunc_ = "avg" or _cAggFunc_ = "mean"
+			_cAggFunc_ = "average"
+		but _cAggFunc_ = "cnt"
+			_cAggFunc_ = "count"
+		ok
+
+		switch _cAggFunc_
 
 			on "sum"
 
 				nResult = 0
 				nLen = len(aValues)
-	
+
 				for i = 1 to nLen
 					nResult += aValues[i]
 				next
-	
+
 				return nResult
 
 			on "average"
@@ -819,7 +838,7 @@ class stzPivotTable from stzList
 				next
 
 				return nResult / nLen
-				
+
 			on "count"
 				return len(aValues)
 				
