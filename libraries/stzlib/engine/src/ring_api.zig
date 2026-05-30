@@ -90,6 +90,18 @@ pub extern fn ring_item_getnumber(pItem: *anyopaque) f64;
 pub extern fn ring_string_size(pString: *anyopaque) c_uint;
 pub extern fn ring_list_isstring_gc(pState: ?*anyopaque, pList: *anyopaque, nIndex: c_uint) c_uint;
 
+// --- Ring list WRITE side (return Ring lists from bridge functions) ---
+// `ring_vm_api_newlist(p)` allocates a fresh Ring list owned by the VM
+// for the duration of this call; `ring_vm_api_retlist(p, *List)` returns
+// it to the caller. The add* helpers append items in place.
+pub extern fn ring_vm_api_newlist(p: *anyopaque) ?*anyopaque;
+pub extern fn ring_vm_api_retlist(p: *anyopaque, pList: *anyopaque) void;
+pub extern fn ring_list_addint(pList: *anyopaque, x: c_int) void;
+pub extern fn ring_list_adddouble(pList: *anyopaque, x: f64) void;
+pub extern fn ring_list_addstring(pList: *anyopaque, cStr: [*:0]const u8) void;
+pub extern fn ring_list_addstring2(pList: *anyopaque, cStr: [*]const u8, nSize: c_uint) void;
+pub extern fn ring_list_newlist(pList: *anyopaque) ?*anyopaque;
+
 // Ring struct layout — stable ABI for direct field access where macros can't be called
 pub const RingString = extern struct { cStr: [*]const u8, nSize: c_uint };
 pub const RingList = extern struct { pFirst: ?*anyopaque, pLast: ?*anyopaque, nSize: c_uint };
