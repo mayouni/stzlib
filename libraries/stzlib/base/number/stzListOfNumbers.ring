@@ -4958,15 +4958,19 @@ class stzListOfNumbers from stzList
 		n2 = aContent[2]
 
 		bResult = 1
+		# Loop must start at i=2 -- starting at i=3 silently skipped
+		# the gap between positions [1] and [2], so e.g. [1, 5, 6]
+		# wrongly returned contiguous (1->5 jump never checked, only
+		# the direction was set by `if n1 < n2`).
 		if n1 < n2
-			for i = 3 to nLen
+			for i = 2 to nLen
 				if aContent[i] != aContent[i-1] + 1
 					bResult = 0
 					exit
 				ok
 			next
 		else // n1 > n2
-			for i = 3 to nLen
+			for i = 2 to nLen
 				if aContent[i] != aContent[i-1] - 1
 					bResult = 0
 					exit
