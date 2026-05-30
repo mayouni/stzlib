@@ -8339,8 +8339,15 @@ class stzListOfNumbers from stzList
 	#-------------------------------------#
 
 	def SortInDescending()
-		aResult = new stzList( @Sort(This.Content()) ).Reversed()
-		return aResult
+		# Active form: must mutate self, not just compute and return.
+		# Original code did `aResult = new stzList(...).Reversed()` --
+		# chained method call on a `new` expression which Ring's
+		# parser was choking on (R13 "Object is required"). Split
+		# into two statements + actually persist the result.
+		_aSidSorted_ = @Sort(This.Content())
+		_oSidTemp_ = new stzList(_aSidSorted_)
+		_aSidResult_ = _oSidTemp_.Reversed()
+		This.UpdateWith(_aSidResult_)
 
 		def SortInDescendingQ()
 			This.SortInDescending()
