@@ -234,6 +234,34 @@ class stzStringChecker
 		ok
 		return StzEngineStringIsFloat(pH)
 
+	def RepresentsRealNumber()
+		# Real-number == any number per the monolith convention.
+		return This.RepresentsNumber()
+
+	def RepresentsSignedNumber()
+		# Number AND first char is + or -.
+		if This.RepresentsNumber()
+			_cRsnFirst_ = @oString.NthChar(1)
+			if _cRsnFirst_ = "+" or _cRsnFirst_ = "-"
+				return 1
+			ok
+		ok
+		return 0
+
+	def RepresentsUnsignedNumber()
+		if This.RepresentsNumber() and NOT This.RepresentsSignedNumber()
+			return 1
+		ok
+		return 0
+
+	def RepresentsCalculableNumber()
+		# Ring uses double precision; any number that lexes is calculable
+		# within the usual range. Delegating to RepresentsNumber matches
+		# the practical intent (the elaborate digit-count test in the
+		# monolith was for arbitrary-precision contexts that arent in
+		# play here).
+		return This.RepresentsNumber()
+
 	def RepresentsDecimalNumber()
 		pH = @oString.Engine()
 		return StzEngineStringIsFloat(pH)

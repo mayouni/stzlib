@@ -142,6 +142,15 @@ class stzString from stzObject
 	def LastChar()
 		return This.NthChar(This.NumberOfChars())
 
+	def LeftChar()
+		# LTR alias for FirstChar. The monolith branched on
+		# IsLeftToRight()/RTL; until directionality is wired up in the
+		# modular checker, default to LTR convention.
+		return This.FirstChar()
+
+	def RightChar()
+		return This.LastChar()
+
 	def Chars()
 		pH = This.Engine()
 		pR = StzEngineStringCharsSplit(pH)
@@ -1588,6 +1597,22 @@ class stzString from stzObject
 	def RepresentsUnsignedInteger()
 		_oRuiChk_ = new stzStringChecker(This)
 		return _oRuiChk_.RepresentsUnsignedInteger()
+
+	def RepresentsRealNumber()
+		_oRrnChk_ = new stzStringChecker(This)
+		return _oRrnChk_.RepresentsRealNumber()
+
+	def RepresentsSignedNumber()
+		_oRsnChk_ = new stzStringChecker(This)
+		return _oRsnChk_.RepresentsSignedNumber()
+
+	def RepresentsUnsignedNumber()
+		_oRunChk_ = new stzStringChecker(This)
+		return _oRunChk_.RepresentsUnsignedNumber()
+
+	def RepresentsCalculableNumber()
+		_oRcnChk_ = new stzStringChecker(This)
+		return _oRcnChk_.RepresentsCalculableNumber()
 
 	def RepresentsNumber()
 		_oRnChk_ = new stzStringChecker(This)
