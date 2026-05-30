@@ -186,7 +186,11 @@ class stzItemCS
 	#--
 
 	def NumberOfOccurrenceCS(pCaseSensitive)
+		# Missing `return nResult` -- every caller (including the
+		# nested NumberOfOccurrence / NumberOfOccurrences /
+		# HowManyOccurrence aliases) received NULL silently.
 		nResult = This.ListQ().NumberOfOccurrenceCS(This.Item(), pCaseSensitive)
+		return nResult
 
 		def NumberOfOccurrencesCS(pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pCaseSensitive)
@@ -206,7 +210,9 @@ class stzItemCS
 	#--
 
 	def PositionsCS(pCaseSensitive)
-		anResult = This.ListQ().FindAllCS(This.Item())
+		# FindAllCS requires 2 args (item + case-sensitive flag).
+		# The original call passed only the item -> R19.
+		anResult = This.ListQ().FindAllCS(This.Item(), pCaseSensitive)
 		return anResult
 
 	def Positions()
