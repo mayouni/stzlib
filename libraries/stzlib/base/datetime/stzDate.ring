@@ -1000,7 +1000,10 @@ def LastWeekdayOfMonth()
 
         pHandle1 = StzEngineDateNew(@nYear, @nMonth, @nDay)
         pHandle2 = StzEngineDateNew(oOtherDate.Year(), oOtherDate.MonthN(), oOtherDate.DayN())
-        nResult = StzEngineDateDiffDays(pHandle1, pHandle2)
+        # Engine's stz_date_diff_days(a, b) returns a - b. The semantic
+        # of DaysTo is "days from this to other", which is other - this
+        # -- so call with args swapped.
+        nResult = StzEngineDateDiffDays(pHandle2, pHandle1)
         StzEngineDateFree(pHandle1)
         StzEngineDateFree(pHandle2)
 	return nResult
