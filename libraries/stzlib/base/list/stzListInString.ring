@@ -32,8 +32,11 @@ class stzListInString from stzString
 			return new stzList(This.List())
 
 		def ListQRT(pcType)
-			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
+			# Was referencing undefined `pcReturnType` (param is pcType).
+			# Named-param unwrap also operated on the wrong variable.
+			# Both crash with R24.
+			if isList(pcType) and IsOneOfTheseNamedParamsList(pcType, [ :ReturnedAs, :ReturnAs ])
+				pcType = pcType[2]
 			ok
 
 			cCode = "oResult = new " + pcType + "(This.List())"
@@ -47,7 +50,12 @@ class stzListInString from stzString
 			return Content()
 
 	def Copy()
-		return new stzListInString( This.Content() )
+		# init expects the ORIGINAL string-form of the list, not the
+		# parsed Ring list. Was passing This.Content() (= List(), the
+		# parsed list) which made the ctor's IsListInString string-check
+		# crash inside stzStringQ on a non-string. Pass back the
+		# preserved source string instead.
+		return new stzListInString( This.ListInString() )
 
 	def ToStzList()
 		return new stzList( This.List() )
