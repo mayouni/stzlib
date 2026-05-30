@@ -428,14 +428,17 @@ class stzStringList
 	#======================================================#
 
 	def Reverse()
-		@acContent = reverse(@acContent)
+		# Use ring_reverse -- bare `reverse(...)` resolves
+		# case-insensitively to this class's own Reverse() (0 params)
+		# and raises R20. Same shadow family as Insert/Add/Abs/Swap.
+		@acContent = ring_reverse(@acContent)
 
 		def ReverseQ()
 			This.Reverse()
 			return This
 
 	def Reversed()
-		return reverse(@acContent)
+		return ring_reverse(@acContent)
 
 	  #======================================================#
 	 #   UNIQUE (remove duplicates, engine-backed)          #
