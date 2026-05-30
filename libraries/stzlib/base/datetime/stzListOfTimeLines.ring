@@ -55,7 +55,15 @@ class stzListOfTimeLines from stzObject
 		if isList(p) and IsHashList(p)
 			// Assume named params like :Lanes = [...], :Start = ..., :End = ...
 			if HasKey(p, :Lanes)
-				@aLanes = p[:Lanes]
+				# Uppercase here -- Lane() and HasLane() lookup
+				# with StzUpper(pcLane), but init was storing the
+				# names as the user passed them. The mismatch made
+				# every init-set lane unreachable.
+				_aLnsTmp_ = p[:Lanes]
+				@aLanes = []
+				for _iLn_ = 1 to len(_aLnsTmp_)
+					@aLanes + StzUpper(_aLnsTmp_[_iLn_])
+				next
 			else
 				StzRaise("Missing required param! :Lanes must be provided as a list of strings.")
 			ok
@@ -70,11 +78,15 @@ class stzListOfTimeLines from stzObject
 				StzRaise("Missing required param! :Start must be provided.")
 			ok
 
-			if HasKey(p, :end)
+			# Case-normalised the keys here. Ring's HasKey is
+			# actually case-insensitive, so the bug was symptomatic
+			# rather than literal -- but the case inconsistency made
+			# the intent ambiguous (line checked :end but read :End).
+			if HasKey(p, :End)
 				@cGlobalEnd = This._normalizeDateTime(p[:End])
 
-			but HasKey(p, :to)
-				@cGlobalEnd = This._normalizeDateTime(p[:to])
+			but HasKey(p, :To)
+				@cGlobalEnd = This._normalizeDateTime(p[:To])
 
 			else
 				StzRaise("Missing required param! :End must be provided.")
@@ -84,8 +96,8 @@ class stzListOfTimeLines from stzObject
 		ok
 
 		// Initialize each lane as a stzTimeLine with global bounds
+		# Removed stray debug print: `? @@([@cGlobalStart, @cGlobalEnd])`
 		nLen = len(@aLanes)
-? @@([ @cGlobalStart, @cGlobalEnd ])
 		for i = 1 to nLen
 			oLaneTL = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
 			@aTimeLines + oLaneTL
@@ -209,8 +221,16 @@ class stzListOfTimeLines from stzObject
 	// Adding to Specific Lanes (Delegates to stzTimeLine methods)
 
 	def AddPointToLane(pcLane, pcLabel, pDateTime)
-		oLaneTL = This.Lane(pcLane)
-		oLaneTL.AddPoint(pcLabel, pDateTime)
+		# Was `oLaneTL = This.Lane(pcLane); oLaneTL.AddPoint(...)` --
+		# Ring returns a COPY of the stzTimeLine object from list
+		# indexing, so the mutation never persisted back into
+		# @aTimeLines. Index directly so the in-place AddPoint
+		# writes to the stored timeline.
+		nIndex = StzFind(@aLanes, StzUpper(pcLane))
+		if nIndex = 0
+			StzRaise("No lane found with name: " + pcLane)
+		ok
+		@aTimeLines[nIndex].AddPoint(pcLabel, pDateTime)
 
 		def AddPointToLaneQ(pcLane, pcLabel, pDateTime)
 			This.AddPointToLane(pcLane, pcLabel, pDateTime)
@@ -415,13 +435,50 @@ class stzListOfTimeLines from stzObject
 	// Normalization (Delegated from stzTimeLine)
 
 	def _normalizeDateTime(pDateTime)
-		// Copy from stzTimeLine's _normalizeDateTime
+		# Was an empty stub ("// Copy from stzTimeLine's
+		# _normalizeDateTime") -- every call returned NULL, so init's
+		# @cGlobalStart and @cGlobalEnd both wound up empty and the
+		# class could not construct. Ported the impl from stzTimeLine.
+		cDateTime = ""
+
+		if isString(pDateTime)
+			cDateTime = trim(pDateTime)
+			if cDateTime = ""
+				StzRaise("Invalid format! Empty strings are not allowed for datevalue!")
+			ok
+		else
+			cDateTime = new stzDateTime(pDateTime).ToString()
+		ok
+
+		if This._isTimeOnly(cDateTime)
+			StzRaise("Invalid format! Time specified without a date")
+		but This._isDateOnly(cDateTime)
+			cDateTime += " 00:00:00"
+		ok
+
+		try
+			new stzDateTime(cDateTime)
+		catch
+			StzRaise("Invalid datetime format (" + cDateTime + ")!")
+		done
+
+		return cDateTime
 
 		def _isDateOnly(cDateTime)
-			// Copy from stzTimeLine
+			# Was an empty stub. Ported from stzTimeLine.
+			if StzLen(cDateTime) = 10 and StzMid(cDateTime, 5, 1) = "-" and StzMid(cDateTime, 8, 1) = "-"
+				return 1
+			else
+				return 0
+			ok
 
 		def _isTimeOnly(cDateTime)
-			// Copy from stzTimeLine
+			# Was an empty stub. Ported from stzTimeLine.
+			if StzLen(cDateTime) = 8 and StzMid(cDateTime, 3, 1) = ":" and StzMid(cDateTime, 6, 1) = ":"
+				return 1
+			else
+				return 0
+			ok
 
 	// Other Delegated Methods (with lane param)
 
