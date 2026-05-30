@@ -922,7 +922,7 @@ class stzGraph
 		end
 		return 0
 
-		def HasEdge(pcFomId, pcToNodeId)
+		def HasEdge(pcFromNodeId, pcToNodeId)
 			return This.EdgeExists(pcFromNodeId, pcToNodeId)
 
 	def Edges()
