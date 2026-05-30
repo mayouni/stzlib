@@ -266,6 +266,15 @@ class stzString from stzObject
 	def FindFirst(pcSubStr)
 		return StzEngineStringFindFirstCS(@pEngine, pcSubStr, 1)
 
+		def FindFirstOccurrence(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def FirstOccurrence(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def FindFirstSubString(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringCountOfCS(@pEngine, pcSubStr, _bCase_)

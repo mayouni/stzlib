@@ -4808,7 +4808,10 @@ class stzNumber from stzObject
 	# Converting decimal to octal form
 
 	def IntegerPartToOctalForm()
-		return This.Sign() + StzEngineNumberToBase(abs(This.IntegerPartValue()), 8)
+		# Use fabs -- bare abs() resolves case-insensitively to this
+		# class's own Abs() method (0 params) and raises R20 on the
+		# argument. Same family as the Insert/Swap/Add shadows.
+		return This.Sign() + StzEngineNumberToBase(fabs(This.IntegerPartValue()), 8)
 
 	def ToOctalForm()
 		return OctalNumberPrefix() + This.ToOctalFormWithoutPrefix()
