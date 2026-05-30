@@ -3,11 +3,15 @@ func IsCounterNamedParamList(paParams)
 		return 0
 	ok
 
+	# The validator's allowed-keys list was missing :WhenYouReach
+	# (the init() method honours it at line 42 but the validator
+	# rejected it). Length cap was 4 but there are 5 valid keys;
+	# raised to 5.
 	nLen = len(paParams)
-	if nLen >= 1 and nLen <= 4 and 
+	if nLen >= 1 and nLen <= 5 and
 	   IsHashList(paParams) and
-	   StzHashListQ(paParams).KeysQ().IsMadeOfSome([ :StartAt, :AfterYouSkip, :RestartAt, :Step ])
-	
+	   StzHashListQ(paParams).KeysQ().IsMadeOfSome([ :StartAt, :AfterYouSkip, :WhenYouReach, :RestartAt, :Step ])
+
 			return 1
 	else
 		return 0
