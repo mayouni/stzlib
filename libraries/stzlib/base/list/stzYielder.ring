@@ -37,12 +37,10 @@ class stzYielder
 	def Map(pcOp)
 		_nMapOp_ = _TransformOpCode(pcOp)
 		if _nMapOp_ = -1 return @aContent ok
-
-		# NOTE: engine fast-path disabled because yielder lives in a
-		# separate DLL and cannot resolve list-DLL handles (cross-DLL
-		# handle-table bug). Re-enable once a direct-marshal bridge
-		# variant (StzEngineYielderMapDirect) lands.
-		return ring_Map(@aContent, _nMapOp_)
+		# Engine direct-marshal path (yielder DLL takes the Ring list,
+		# marshals it locally, runs the op, returns a Ring list).
+		# Sidesteps the cross-DLL handle-table problem.
+		return StzEngineYielderMapDirect(@aContent, _nMapOp_)
 
 	def MapQ(pcOp)
 		@aContent = This.Map(pcOp)
@@ -51,7 +49,7 @@ class stzYielder
 	def MapIndexed(pcOp)
 		_nMiOp_ = _TransformOpCode(pcOp)
 		if _nMiOp_ = -1 return @aContent ok
-		return ring_Map(@aContent, _nMiOp_)
+		return StzEngineYielderMapIndexedDirect(@aContent, _nMiOp_)
 
 	def MapIndexedQ(pcOp)
 		@aContent = This.MapIndexed(pcOp)
@@ -64,7 +62,7 @@ class stzYielder
 	def Filter(pcOp)
 		_nFltOp_ = _FilterOpCode(pcOp)
 		if _nFltOp_ = -1 return @aContent ok
-		return ring_Filter(@aContent, _nFltOp_)
+		return StzEngineYielderFilterDirect(@aContent, _nFltOp_)
 
 	def FilterQ(pcOp)
 		@aContent = This.Filter(pcOp)
@@ -77,16 +75,10 @@ class stzYielder
 	def Reduce(pcOp)
 		_nRedOp_ = _ReduceOpCode(pcOp)
 		if _nRedOp_ = -1 return 0 ok
-		return ring_Reduce(@aContent, _nRedOp_)
+		return StzEngineYielderReduceDirect(@aContent, _nRedOp_)
 
 	def ReduceConcat(pcSep)
-		_cRcResult_ = ""
-		_nRcLen_ = len(@aContent)
-		for _iRc_ = 1 to _nRcLen_
-			if _iRc_ > 1 _cRcResult_ += pcSep ok
-			_cRcResult_ += "" + @aContent[_iRc_]
-		next
-		return _cRcResult_
+		return StzEngineYielderReduceConcatDirect(@aContent, pcSep)
 
 	  #-------------------#
 	 #   FILTER + MAP    #
@@ -96,8 +88,7 @@ class stzYielder
 		_nFmFiltOp_ = _FilterOpCode(pcFilterOp)
 		_nFmTransOp_ = _TransformOpCode(pcTransformOp)
 		if _nFmFiltOp_ = -1 or _nFmTransOp_ = -1 return @aContent ok
-		_aFmFilt_ = ring_Filter(@aContent, _nFmFiltOp_)
-		return ring_Map(_aFmFilt_, _nFmTransOp_)
+		return StzEngineYielderFilterMapDirect(@aContent, _nFmFiltOp_, _nFmTransOp_)
 
 	def MapFilteredQ(pcFilterOp, pcTransformOp)
 		@aContent = This.MapFiltered(pcFilterOp, pcTransformOp)
@@ -110,7 +101,7 @@ class stzYielder
 	def CountWhere(pcOp)
 		_nCwOp_ = _FilterOpCode(pcOp)
 		if _nCwOp_ = -1 return 0 ok
-		return len(ring_Filter(@aContent, _nCwOp_))
+		return StzEngineYielderCountWhereDirect(@aContent, _nCwOp_)
 
 	  #---------------------#
 	 #  CONVENIENCE NAMES  #
@@ -280,132 +271,8 @@ class stzYielder
 		other             return -1
 		off
 
-#--- Pure-Ring helpers (yielder engine bridge unavailable cross-DLL).
-
-func ring_Map(aIn, nOp)
-	aOut = []
-	nLen = len(aIn)
-	for i = 1 to nLen
-		item = aIn[i]
-		switch nOp
-		on 0  # typename
-			aOut + type(item)
-		on 1  # abs
-			if isNumber(item) aOut + fabs(item) else aOut + item ok
-		on 2  # negate
-			if isNumber(item) aOut + (-item) else aOut + item ok
-		on 3  # double
-			if isNumber(item) aOut + (item * 2) else aOut + item ok
-		on 4  # square
-			if isNumber(item) aOut + (item * item) else aOut + item ok
-		on 5  # tostring
-			aOut + ("" + item)
-		on 6  # toint
-			if isString(item) aOut + 0 + item else aOut + floor(item) ok
-		on 7  # tofloat
-			if isString(item) aOut + 0.0 + item else aOut + (item + 0.0) ok
-		on 8  # strlen
-			if isString(item) aOut + len(item) else aOut + 0 ok
-		on 9  # strupper
-			if isString(item) aOut + upper(item) else aOut + item ok
-		on 10 # strlower
-			if isString(item) aOut + lower(item) else aOut + item ok
-		on 11 # strtrim
-			if isString(item) aOut + trim(item) else aOut + item ok
-		on 12 # strreverse
-			if isString(item)
-				rev = ""
-				for j = len(item) to 1 step -1 rev += item[j] next
-				aOut + rev
-			else aOut + item ok
-		on 13 # increment
-			if isNumber(item) aOut + (item + 1) else aOut + item ok
-		on 14 # decrement
-			if isNumber(item) aOut + (item - 1) else aOut + item ok
-		on 15 # iseven
-			if isNumber(item) and (item % 2 = 0) aOut + 1 else aOut + 0 ok
-		on 16 # sign
-			if isNumber(item)
-				if item > 0 aOut + 1
-				but item < 0 aOut + (-1)
-				else aOut + 0 ok
-			else aOut + 0 ok
-		other
-			aOut + item
-		off
-	next
-	return aOut
-
-func ring_Filter(aIn, nOp)
-	aOut = []
-	nLen = len(aIn)
-	for i = 1 to nLen
-		item = aIn[i]
-		bKeep = 0
-		switch nOp
-		on 0  bKeep = isString(item)
-		on 1  bKeep = isNumber(item)
-		on 2  if isNumber(item) bKeep = (floor(item) = item) ok
-		on 3  if isNumber(item) bKeep = (floor(item) != item) ok
-		on 4  bKeep = (item = 0 or item = 1)
-		on 5  bKeep = isNull(item)
-		on 6  bKeep = isList(item)
-		on 7  if isNumber(item) bKeep = (item > 0) ok
-		on 8  if isNumber(item) bKeep = (item < 0) ok
-		on 9  if isNumber(item) bKeep = (item = 0) ok
-		on 10 if isNumber(item) bKeep = (item != 0) ok
-		on 11 if isString(item) bKeep = (item = "") but isList(item) bKeep = (len(item) = 0) ok
-		on 12 if isString(item) bKeep = (item != "") but isList(item) bKeep = (len(item) > 0) ok
-		on 13 if isNumber(item) bKeep = (item % 2 = 0) ok
-		on 14 if isNumber(item) bKeep = (item % 2 != 0) ok
-		on 15 bKeep = (item = 1)
-		on 16 bKeep = (item = 0)
-		off
-		if bKeep aOut + item ok
-	next
-	return aOut
-
-func ring_Reduce(aIn, nOp)
-	nLen = len(aIn)
-	# Match engine convention: empty input -> 0 for every reduce op.
-	if nLen = 0 return 0 ok
-	switch nOp
-	on 0  # sum
-		acc = 0
-		for i = 1 to nLen if isNumber(aIn[i]) acc += aIn[i] ok next
-		return acc
-	on 1  # product
-		acc = 1
-		for i = 1 to nLen if isNumber(aIn[i]) acc *= aIn[i] ok next
-		return acc
-	on 2  # min
-		if nLen = 0 return 0 ok
-		mn = aIn[1]
-		for i = 2 to nLen if isNumber(aIn[i]) and aIn[i] < mn mn = aIn[i] ok next
-		return mn
-	on 3  # max
-		if nLen = 0 return 0 ok
-		mx = aIn[1]
-		for i = 2 to nLen if isNumber(aIn[i]) and aIn[i] > mx mx = aIn[i] ok next
-		return mx
-	on 4  return nLen
-	on 5  # countstrings
-		c = 0
-		for i = 1 to nLen if isString(aIn[i]) c++ ok next
-		return c
-	on 6  # countnumbers
-		c = 0
-		for i = 1 to nLen if isNumber(aIn[i]) c++ ok next
-		return c
-	on 7  # concat
-		s = ""
-		for i = 1 to nLen s += "" + aIn[i] next
-		return s
-	on 8  # anytrue
-		for i = 1 to nLen if aIn[i] = 1 return 1 ok next
-		return 0
-	on 9  # alltrue
-		for i = 1 to nLen if aIn[i] != 1 return 0 ok next
-		return 1
-	off
-	return 0
+# Yielder helpers ring_Map/ring_Filter/ring_Reduce removed --
+# the engine direct-marshal bridge (StzEngineYielderMapDirect /
+# FilterDirect / ReduceDirect / FilterMapDirect / CountWhereDirect /
+# ReduceConcatDirect / MapIndexedDirect) now handles every Map/
+# Filter/Reduce path natively.
