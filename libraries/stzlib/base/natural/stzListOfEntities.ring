@@ -107,7 +107,13 @@ class stzListOfEntities from stzList
 			return This.EntitiesTypes()
 
 	def UniqueTypes()
-		return StzListQ( This.Types() ).Duplicates()
+		# Was `StzListQ(...).Duplicates()` -- double bug:
+		# (1) Duplicates() only exists in the monolithic archive,
+		#     never ported to modular stzList -> R14 unreachable.
+		# (2) Even if it existed, Duplicates would return the DUPED
+		#     items, not the uniques -- inverted semantics relative
+		#     to the method name.
+		return StzListQ( This.Types() ).Unique()
 
 	def EntityN(n)
 		if n > 0 and n <= This.NumberOfEntities()
