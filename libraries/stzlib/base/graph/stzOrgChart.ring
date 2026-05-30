@@ -123,10 +123,12 @@ class stzOrgChart from stzDiagram
 			This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
 
 	def AddStaffPosition(pcId)
-		This.AddStaffPositionXT(pcIde, pcId)
+		# Typo: pcIde -> pcId. Method was unreachable -- R24 every call.
+		This.AddStaffPositionXT(pcId, pcId)
 
 		def AddStaff(pcId)
-			This.AddStaffPositionXT(pcIde, pcId)
+			# Same typo as parent. R24 every call.
+			This.AddStaffPositionXT(pcId, pcId)
 
 	def AddStaffPositionXT(pcId, pcTitle)
 	    	This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
@@ -136,7 +138,8 @@ class stzOrgChart from stzDiagram
 			This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
 
 	def AddStaffPositionXTT(pcId, pcTitle, paProp)
-	    if NOT IsHashList(paprop)
+	    # Typo: paprop -> paProp. Method was unreachable -- R24 every call.
+	    if NOT IsHashList(paProp)
 	        stzraise("Incorrect param type! paProp must be a hashlist.")
 	    ok
 	
