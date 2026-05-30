@@ -1955,7 +1955,15 @@ class stzList from stzObject
 
 		_acFaoContent_ = []
 		for _kFao_ = 1 to _nFaoLen_
-			_acFaoContent_ + ("" + _aFaoContent_[_kFao_])
+			# Use @@(...) -- it stringifies lists/objects safely.
+			# Was `"" + _aFaoContent_[_kFao_]` which raised R21 for
+			# list-valued items (e.g. FindPair on stzListOfPairs).
+			_xFao_ = _aFaoContent_[_kFao_]
+			if isList(_xFao_) or isObject(_xFao_)
+				_acFaoContent_ + @@(_xFao_)
+			else
+				_acFaoContent_ + ("" + _xFao_)
+			ok
 		next
 
 		if pCaseSensitive = 0

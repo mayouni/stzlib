@@ -227,7 +227,11 @@ class stzListOfPairs from stzListOfLists
 	#-------------------------------------------------#
 
 	def FindPair(paPair)
-		return This.FindItem(paPair)
+		# Was `This.FindItem(paPair)` -- FindItem isn't defined on
+		# this class, stzListOfLists, or stzList. The whole method
+		# raised R14 on every call. Route to the inherited Find that
+		# accepts any value (including a 2-elem list literal).
+		return This.FindFirst(paPair)
 
 	  #------------------------------------------------------------------#
 	 #  FINDING POSITIONS OF A VALUE IN THE LIST OF FIRST/SECOND ITEMS  #
@@ -246,13 +250,17 @@ class stzListOfPairs from stzListOfLists
 	#---------------------------------------------#
 
 	def PairsAreMadeOfEqualItems()
+		# Inverted-logic bug: was setting bResult = 0 when items ARE
+		# equal; should be when items are NOT equal. Returned the
+		# wrong answer on every call (including the typical
+		# "yes, all pairs are equal" case).
 		aContent = This.Content()
 		nLen = len(aContent)
 
 		bResult = 1
 
 		for i = 1 to nLen
-			if Q(aContent[i][1]).IsEqualTo(aContent[i][2])
+			if NOT Q(aContent[i][1]).IsEqualTo(aContent[i][2])
 				bResult = 0
 			ok
 		next
@@ -691,8 +699,14 @@ class stzListOfPairs from stzListOfLists
 	#=========================================================#
 
 	def SortOnInDescending(n)
-		aResult = new stzList(This.SortedOnInAscending(n)).Reversed()
-		This.UpdateWith(aResult)
+		# Split the chain -- Ring's parser raises R13 on
+		# `new stzList(...).Reversed()` (method-call directly off a
+		# `new` expression). Same pattern fixed in
+		# stzListOfNumbers.SortInDescending earlier this session.
+		_aSoidAsc_ = This.SortedOnInAscending(n)
+		_oSoidTmp_ = new stzList(_aSoidAsc_)
+		_aSoidResult_ = _oSoidTmp_.Reversed()
+		This.UpdateWith(_aSoidResult_)
 
 		#< @FunctionFluentForm
 
