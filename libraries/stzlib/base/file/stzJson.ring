@@ -288,7 +288,10 @@ def init(p)
 			_SetError("Cannot prepend to object")
 			return This
 		ok
-		insert(@aData, 0, value)
+		# Use ring_insert (1-based softanza wrapper) -- bare `insert`
+		# resolves case-insensitively to this class's own
+		# Insert(nIndex, value) method (2 params) and raises R20.
+		ring_insert(@aData, 1, value)
 		return This
 
 	def Insert(nIndex, value)
@@ -300,7 +303,7 @@ def init(p)
 			_SetError("Index out of range")
 			return This
 		ok
-		insert(@aData, nIndex - 1, value)
+		ring_insert(@aData, nIndex, value)
 		return This
 
 	def RemoveAt(nIndex)
