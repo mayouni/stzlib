@@ -1,0 +1,51 @@
+[ FAIL ] 01_calling_today_and_creating_a_date_object_from_toda.ring:
+         #1 ? Today() -> expected '27/09/2025' not found past cursor 0
+         #2 ? oDate.Date() # Or ToString() -> expected '27/09/2025' not found past cursor 0
+[ FAIL ] 02_creating_an_empty_stzdate_object_and_then_setting_.ring:
+         #1 ? o1.Date() -> expected '10/10/2025' not found past cursor 0
+         #3 ? o1.Date() -> expected '11/10/2025' not found past cursor 16
+[ FAIL ] 03_creating_a_date_from_string.ring:
+         #1 ? oDate.Date() -> expected '15/03/2024 # Format by deafult, can be changed' not found past cursor 0
+[ PASS ] 04_creating_a_date_objectfrom_list_of_numbers.ring: 1 assertions matched
+[ PASS ] 05_createing_a_date_object_from_a_hashlist_in_any_ord.ring: 1 assertions matched
+[ FAIL ] 06_pr.ring:
+         #1 ? o1.ToHuman() -> expected 'Saturday, October 25th, 2025' not found past cursor 0
+[ FAIL ] 07_getting_current_date_and_time.ring:
+         #1 ? Now() # Default format -> expected '27/09/2025 14:30:25' not found past cursor 0
+         #2 ? NowXT() # ISO format -> expected '2025-26-10 14:26:38' not found past cursor 0
+[ PASS ] 08_adding_days_to_a_date.ring: 1 assertions matched
+[ PASS ] 09_using_operator_overloading_to_add_days.ring: 1 assertions matched
+[ skip ] 10_adding_months_and_years.ring: no #--> markers
+[ PASS ] 11_subtracting_days_using_operator.ring: 1 assertions matched
+[ PASS ] 12_using_string_operations_for_date_arithmetic.ring: 1 assertions matched
+[ PASS ] 13_getting_day_name_in_different_languages.ring: 2 assertions matched
+[ PASS ] 14_getting_month_name_in_different_languages.ring: 2 assertions matched
+[ PASS ] 15_getting_various_date_components.ring: 5 assertions matched
+[ PASS ] 16_checking_if_year_is_leap_year.ring: 2 assertions matched
+[ PASS ] 17_getting_days_in_month_and_year.ring: 2 assertions matched
+[ PASS ] 18_calculating_days_months_and_years_between_dates.ring: 3 assertions matched
+[ PASS ] 19_checking_if_a_date_is_between_two_other_dates.ring: 1 assertions matched
+[ PASS ] 20_comparing_dates.ring: 7 assertions matched
+[ PASS ] 21_pr.ring: 4 assertions matched
+[ FAIL ] 22_formatting_dates_in_different_styles.ring:
+         #4 ? oDate.ToStringXT("dddd, MMMM d, yyyy") # Custom format -> expected 'Monday, July 15, 2024' not found past cursor 32
+[ FAIL ] 23_using_named_formats.ring:
+         #1 ? oDate.ToStringXT(:Long) -> expected 'Wednesday, December 25, 2024' not found past cursor 0
+[ PASS ] 24_getting_week_number.ring: 1 assertions matched
+[ skip ] 25_date_validation.ring: no #--> markers
+[ FAIL ] 26_calculating_age.ring:
+         #1 ? oBirthday.Age()  # Automatic calculation -> expected '35' not found past cursor 0
+[ skip ] 27_pr.ring: no #--> markers
+[ PASS ] 28_pr.ring: 3 assertions matched
+[ PASS ] 30_convert_current_date_to_julian_day_number.ring: 1 assertions matched
+[ FAIL ] 31_create_a_date_from_a_julian_day_number.ring:
+         #1 ? o1.Content() -> expected '16/09/2024 (the corresponding Gregorian date)' not found past cursor 0
+[ FAIL ] 32_navigation_methods.ring:
+         #13 ? o1.DayBeforeMonthStart() -> expected '01/10/2025' not found past cursor 241
+         #14 ? o1.DayAfterYearEnd() -> expected '31/12/2025' not found past cursor 241
+         #15 ? o1.DayBeforeYearStart() -> expected '01/01/2025' not found past cursor 241
+         #16 ? o1.NextEndOfMonth() -> expected '31/10/2025' not found past cursor 241
+         #17 ? o1.PreviousEndOfMonth() -> expected '31/10/2025' not found past cursor 241
+         ... +5 more
+---
+PASS: 18 / FAIL: 10 / skip: 3

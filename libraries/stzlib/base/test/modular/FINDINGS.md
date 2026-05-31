@@ -13,6 +13,16 @@ prints.
 
 ## Per-module status
 
+| Module       | Blocks | PASS | FAIL | TIMEOUT | skip |
+|--------------|-------:|-----:|-----:|--------:|-----:|
+| duration     |     17 |    9 |    6 |       0 |    2 |
+| date         |     31 |   18 |   10 |       0 |    3 |
+| calendar     |     47 |   21 |   14 |       0 |   12 |
+| number       |     71 |   24 |   31 |       2 |   14 |
+| **totals**   |  **166** | **72** | **61** | **2** | **31** |
+
+PASS rate excluding skips/timeouts: 72 / 135 = **53%**.
+
 ### duration (extracted from stzdurationtest.ring)
 
 17 blocks generated, **9 PASS / 6 FAIL / 2 skip**.
@@ -30,6 +40,39 @@ Failures (all confirmed real findings, not parser artefacts):
 
 Skips (06, 07) had narrative blocks with no `#-->` markers — they
 were demos rather than assertions.
+
+### date (extracted from stzdatetest.ring)
+
+31 blocks, **18 PASS / 10 FAIL / 3 skip**.
+
+Most failures involve `Today()`-derived assertions or `Now()`
+formatting; these are partly non-deterministic and partly real
+library drift. Worth a focused review of `stzDate.ToString*`
+methods against the original expected formats.
+
+### calendar (extracted from stzcalendartest.ring)
+
+47 blocks, **21 PASS / 14 FAIL / 12 skip**.
+
+Large skip count -- many blocks are pure rendering demos (no
+#--> markers). Failures concentrate on locale-aware calendar
+rendering; likely related to the recent i18n / locale-array
+work and worth a directed review.
+
+### number (extracted from stznumbertest.ring)
+
+71 blocks, **24 PASS / 31 FAIL / 2 TIMEOUT / 14 skip**.
+
+The two TIMEOUTs (60s each):
+- 18 `RandomNumberGreaterThan(12)` -- naive random-sample loop
+  until result exceeds 10^12 digits; needs an algorithmic rewrite
+  or a budget cap
+- 20 `pr()` block -- similar algorithmic stall
+
+Sample real findings worth deeper investigation:
+- 12 `o1 + 3500` arithmetic returning unexpected value
+- 07 `PrimesUnder(19)` output drift
+- 10 hash-by-numeric-key (`aHash[:1]`) behavior change
 
 ## Treatment policy
 
