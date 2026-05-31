@@ -4631,13 +4631,13 @@ func StzHexUnicodes(p)
 #---
 
 func YaAllah()
-	return "ÙŠÙŽØ§ Ø£ÙŽÙ„Ù„Ù‡"
+	return "ÙŠÙŽا أÙŽÙ„Ù„Ù‡"
 
 func YaMuhammed()
-	return "ÙŠØ§ Ù…ÙØ­ÙŽÙ…Ù‘ÙŽØ¯Ù’"
+	return "ÙŠا Ù…ُحÙŽÙ…Ù‘ÙŽدÙ’"
 
 func SalatNabee()
-	return "ØµÙ„Ù‘Ù‰ Ø§Ù„Ù„Ù‡ Ø¹Ù„Ù‰ Ù†Ø¨ÙŠÙ‘Ù‡ Ø§Ù„Ø£ÙƒØ±Ù…"
+	return "صÙ„Ù‘Ù‰ اÙ„Ù„Ù‡ عÙ„Ù‰ Ù†بÙŠÙ‘Ù‡ اÙ„أÙƒرÙ…"
 
 func StzNHearts(n)
 	return Q(Heart()).RepeatedNTimes(n)

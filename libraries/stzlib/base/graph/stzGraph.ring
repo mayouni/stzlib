@@ -3461,7 +3461,7 @@ class stzGraph
 
 	    for i = 1 to nLen
 	        aEdge = This.Edge(acPath[i], acPath[i+1])
-	        aStory + (acPath[i] + " Ã¢â€ â€™ " + acPath[i+1])
+	        aStory + (acPath[i] + " ââ€ â€™ " + acPath[i+1])
 		if aEdge[:label] != ""
 			aStory[len(aStory)] +=  (" : because {" + acPath[i] + "} " + StzReplace(aEdge[:label], "_", " ") + " {" + acPath[i+1] + "}" )
 		ok
@@ -4459,9 +4459,9 @@ class stzGraph
 				nVarDegree = len(oOtherGraph.Neighbors(cNodeId)) + len(oOtherGraph.Incoming(cNodeId))
 				
 				if nVarDegree > nBaseDegree
-					acCriticalityChanges + [cNodeId, "Criticality increased (degree " + nBaseDegree + " Ã¢â€ â€™ " + nVarDegree + ")"]
+					acCriticalityChanges + [cNodeId, "Criticality increased (degree " + nBaseDegree + " ââ€ â€™ " + nVarDegree + ")"]
 				but nVarDegree < nBaseDegree
-					acCriticalityChanges + [cNodeId, "Criticality decreased (degree " + nBaseDegree + " Ã¢â€ â€™ " + nVarDegree + ")"]
+					acCriticalityChanges + [cNodeId, "Criticality decreased (degree " + nBaseDegree + " ââ€ â€™ " + nVarDegree + ")"]
 				ok
 			ok
 		next
@@ -5560,14 +5560,14 @@ class stzGraphFinder
 class stzGraphAsciiVisualizer
 	@oGraph
 
-	@cBoxTopLeft = "Ã¢â€¢Â­"
-	@cBoxTopRight = "Ã¢â€¢Â®"
-	@cBoxBottomLeft = "Ã¢â€¢Â°"
-	@cBoxBottomRight = "Ã¢â€¢Â¯"
-	@cBoxHorizontal = "Ã¢â€â‚¬"
-	@cBoxVertical = "Ã¢â€â€š"
+	@cBoxTopLeft = "ââ€¢­"
+	@cBoxTopRight = "ââ€¢®"
+	@cBoxBottomLeft = "ââ€¢°"
+	@cBoxBottomRight = "ââ€¢¯"
+	@cBoxHorizontal = "ââ€â‚¬"
+	@cBoxVertical = "ââ€â€š"
 	@cArrowDown = "v"
-	@cArrowUp = "Ã¢â€ â€˜"
+	@cArrowUp = "ââ€ â€˜"
 	@cPipeChar = "|"
 	@cBranchSeparator = "////"
 	@cCycleIndicator = "CYCLE"
@@ -5873,7 +5873,7 @@ class stzGraphComparison
 		
 		for i = 1 to nLen
 			aComp = aComps[i]
-			cResult += "Ã¢â‚¬Â¢ " + aComp[:name] + ": " + aComp[:explanation] + NL
+			cResult += "ââ‚¬¢ " + aComp[:name] + ": " + aComp[:explanation] + NL
 		next
 		
 		return cResult

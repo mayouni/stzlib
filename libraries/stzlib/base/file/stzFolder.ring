@@ -371,19 +371,19 @@ class stzFolder from stzObject
 	@acCollapseFolders = []
 
 	@acDisplayChars = [
-		:VerticlalChar = "Ã¢â€â€š",
-		:VerticalCharTick = "Ã¢â€Å“",
-		:ClosingChar = "Ã¢â€¢Â°",
-		:File = " Ã°Å¸â€”â€¹",
-		:FileFound = "Ã°Å¸â€œâ€ž",
-		:FolderRoot = "Ã°Å¸â€”â‚¬",
-		:FolderRootXT = "Ã°Å¸â€œÂ",
-		:FolderOpened = "Ã°Å¸â€”Â",
-		:FolderOpenedFound = "Ã°Å¸â€œâ€š",
-		:FolderClosedEmpty = "Ã°Å¸â€”â‚¬",
-		:FolderClosedFull = "Ã°Å¸â€“Â¿",
-		:FolderRootSearchSymbol = "Ã°Å¸Å½Â¯",
-		:FileFoundSymbol = "Ã°Å¸â€˜â€°"
+		:VerticlalChar = "ââ€â€š",
+		:VerticalCharTick = "ââ€Å“",
+		:ClosingChar = "ââ€¢°",
+		:File = " ðÅ¸â€”â€¹",
+		:FileFound = "ðÅ¸â€œâ€ž",
+		:FolderRoot = "ðÅ¸â€”â‚¬",
+		:FolderRootXT = "ðÅ¸â€œ",
+		:FolderOpened = "ðÅ¸â€”",
+		:FolderOpenedFound = "ðÅ¸â€œâ€š",
+		:FolderClosedEmpty = "ðÅ¸â€”â‚¬",
+		:FolderClosedFull = "ðÅ¸â€“¿",
+		:FolderRootSearchSymbol = "ðÅ¸Å½¯",
+		:FileFoundSymbol = "ðÅ¸â€˜â€°"
 	]
 
 	@bBacthMode = FALSE
@@ -4791,14 +4791,14 @@ class stzFolder from stzObject
 	            
 	            # Add found indicator if file matches
 	            if bFileMatches
-	                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets Ã°Å¸â€˜â€°Ã°Å¸â€œâ€ž
+	                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets ðÅ¸â€˜â€°ðÅ¸â€œâ€ž
 	            end
 	            
 	            # Use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "Ã¢â€â‚¬" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "ââ€â‚¬" + cIcon + " " + cItemName + nl
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "Ã¢â€â‚¬" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "ââ€â‚¬" + cIcon + " " + cItemName + nl
 	            end
 	            
 	        else  # folder
@@ -4863,10 +4863,10 @@ class stzFolder from stzObject
 	            
 	            # Build the line - use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "Ã¢â€â‚¬" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "ââ€â‚¬" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + "  "  # No vertical line continuation for last item
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "Ã¢â€â‚¬" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "ââ€â‚¬" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + @acDisplayChars[:VerticlalChar] + " "  # Continue vertical line
 	            end
 	            

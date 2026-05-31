@@ -1247,7 +1247,7 @@ class stzDiagram from stzGraph
 			ok
 			
 			for aEffect in aEffects
-				acLegend + "  ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ " + aEffect[1] + ": " + aEffect[2]
+				acLegend + "  ÃƒÆ’Ã‚¢Ãƒ¢ââ€š¬ Ãƒ¢ââ€š¬ââ€ž¢ " + aEffect[1] + ": " + aEffect[2]
 			next
 			
 			acLegend + ""
@@ -2905,7 +2905,7 @@ class stzDiagramToDot
 	    cOutput = '    ' + cFrom + ' -> ' + cTo
 	    aAttrs = []
 	    
-	    # Check if this is a supervisorÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢helper edge
+	    # Check if this is a supervisorÃƒÆ’Ã‚¢Ãƒ¢ââ€š¬ Ãƒ¢ââ€š¬ââ€ž¢helper edge
 	    if StzLeft(cTo, 8) = "_helper_"
 	        aAttrs + 'arrowhead=none'
 	        aAttrs + 'weight=10'
