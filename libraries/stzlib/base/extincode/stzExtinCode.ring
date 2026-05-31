@@ -26,8 +26,12 @@ func iif(pCondition, pTrue, pFalse)
 			StzRaise("Incorrect param type! pCondition must be a number, a string, or a list of strings.")
 		ok
 
-		if isList(pCondition) and IsItNamedParamList(pcondition)
-			cCondition = cCondition[2]
+		# Was `IsItNamedParamList(pcondition)` -> R24 undefined
+		# (typo for pCondition). And the unwrap then did
+		# `cCondition = cCondition[2]` referencing two undefined
+		# variables. Fixed both.
+		if isList(pCondition) and IsItNamedParamList(pCondition)
+			pCondition = pCondition[2]
 		ok
 
 		if isList(pTrue) and IsSayOrReturnNamedParamList(pTrue)
@@ -50,9 +54,9 @@ func iif(pCondition, pTrue, pFalse)
 
 	ok
 
-	# pCondition is a string
-
-	cCode = 'bOk = (' + cCondition + ')'
+	# pCondition is a string -- was `cCondition` (undefined). The
+	# whole eval was unreachable; iif("x = 1", ...) crashed.
+	cCode = 'bOk = (' + pCondition + ')'
 
 	eval(cCode)
 
