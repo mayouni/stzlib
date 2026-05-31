@@ -652,11 +652,11 @@ class stzLocale from stzObject
 				@cAbbreviation = _LocaleNormalizeAbbr(DefaultLocaleAbbreviation())
 				return
 
-			but IsCountryName(pLocale)
+			but StzStringQ(pLocale).IsCountryName()
 				This.Init([ :Country = pLocale ])
 				return
 
-			but IsLanguageName(pLocale)
+			but StzStringQ(pLocale).IsLanguageName()
 				This.Init([ :Language = pLocale ])
 				return
 
@@ -673,32 +673,32 @@ class stzLocale from stzObject
 			if oLocale.ContainsOneOccurrence("-")
 
 				aParts = oLocale.Split("-")
-				if IsLanguageAbbreviation(aParts[1])
+				if StzStringQ(aParts[1]).IsLanguageAbbreviation()
 					@cLangAbbreviation = aParts[1]
 
-				but IsScriptAbbreviation(aParts[1])
+				but StzStringQ(aParts[1]).IsScriptAbbreviation()
 					@cScriptAbbreviation = aParts[1]
 				ok
 
-				if IsScriptAbbreviation(aParts[2])
+				if StzStringQ(aParts[2]).IsScriptAbbreviation()
 					@cScriptAbbreviation = aParts[2]
 
-				but IsCountryAbbreviation(aParts[2])
+				but StzStringQ(aParts[2]).IsCountryAbbreviation()
 					@cCountryAbbreviation = aParts[2]
 				ok
 
 			but oLocale.ContainsNTimes(2, "-")
 
 				aParts =  oLocale.Split("-")
-				if IsLanguageAbbreviation(aParts[1])
+				if StzStringQ(aParts[1]).IsLanguageAbbreviation()
 					@cLangAbbreviation = aParts[1]
 				ok
 
-				if IsScriptAbbreviation(aParts[2])
+				if StzStringQ(aParts[2]).IsScriptAbbreviation()
 					@cScriptAbbreviation = aParts[2]
 				ok
 
-				if IsCountryAbbreviation(aParts[3])
+				if StzStringQ(aParts[3]).IsCountryAbbreviation()
 					@cCountryAbbreviation = aParts[3]
 				ok
 			ok
@@ -717,15 +717,15 @@ class stzLocale from stzObject
 			cScriptAbbr  = NULL
 			cCountryAbbr = NULL
 
-			if cLangName != NULL and IsLanguageName(cLangName)
+			if cLangName != NULL and StzStringQ(cLangName).IsLanguageName()
 				cLangAbbr = StzLanguageQ(cLangName).Abbreviation()
 			ok
 
-			if cScriptName != NULL and IsScriptName(cScriptName)
+			if cScriptName != NULL and StzStringQ(cScriptName).IsScriptName()
 				cScriptAbbr = StzScriptQ(cScriptName).Abbreviation()
 			ok
 
-			if cCountryName != NULL and IsCountryName(cCountryName)
+			if cCountryName != NULL and StzStringQ(cCountryName).IsCountryName()
 				cCountryAbbr = StzCountryQ(cCountryName).Abbreviation()
 			ok
 
