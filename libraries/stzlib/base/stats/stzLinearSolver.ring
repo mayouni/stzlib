@@ -76,14 +76,18 @@ class stzLinearSolver from stzObject
 		return this
 
 	def addIntegerVariable(varName, lowerBound, upperBound)
+		# Was `@variables + [:type, "integer"]` -- appends a malformed
+		# pair to the variables list instead of modifying the just-
+		# added variable's :type field. The added variable kept its
+		# default "continuous" type.
 		this.addVariable(varName, lowerBound, upperBound)
-
-		@variables + [ :type, "integer" ]
+		@variables[ len(@variables) ][:type] = "integer"
 		return this
 
 	def addBinaryVariable(varName)
+		# Same bug as addIntegerVariable.
 		this.addVariable(varName, 0, 1)
-		@variables+ [:type, "binary"]
+		@variables[ len(@variables) ][:type] = "binary"
 		return this
 
 	def variables()
@@ -106,8 +110,8 @@ class stzLinearSolver from stzObject
 		# value: number
 
 		if NOT isString(expression)
+			# Was duplicated -- second raise was dead code after first.
 			stzRaise("Expression must be a string!")
-			StzRaise("Expression must be a string!")
 		ok
 
 		if NOT isString(operator)
