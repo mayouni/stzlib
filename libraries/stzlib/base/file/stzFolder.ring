@@ -424,7 +424,10 @@ class stzFolder from stzObject
 		#-- @Misspelled
 
 		def Seperator()
-			return This.Seprator()
+			# Was `This.Seprator()` (typo, missing 'a') -- R14 every
+			# call. Misspelled alias forwarded to a non-existent
+			# misspelling of the canonical Separator.
+			return This.Separator()
 
 	def SystemSeparator()
 		if isWindows() return "\" ok

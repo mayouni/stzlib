@@ -757,7 +757,9 @@ class stzFileXT from stzObject
 		pcIntent = StzLower(pcIntent)
 
 		if pcIntent = "info"
-			return new stzFileInfo(cFileName)
+			# Was `new stzFileInfo(cFileName)` -- cFileName is
+			# undefined (the param is pcFileName). R24 every call.
+			return new stzFileInfo(pcFileName)
 
 		but pcIntent = "read" or pcIntent = "reader" or pcIntent = "readonly"
 			return new stzFileReader(pcFileName)
