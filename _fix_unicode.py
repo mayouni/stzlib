@@ -1,89 +1,75 @@
 #!/usr/bin/env python3
-"""Fix double-encoded UTF-8 in Softanza .ring files via targeted byte
-substitution.
+"""Fix Softanza .ring files mangled by UTF-8 -> cp1252 -> UTF-8.
 
-The mass-migration commit (60852618) re-read files as Latin-1 then
-wrote them as UTF-8, double-encoding the multi-byte chars. For each
-multi-byte UTF-8 sequence `XX YY`, the result became `c3 (XX-0x40)
-c2 YY` if XX is in c0-df, or `c3 (XX-0x40) c2 YY c2 ZZ` for longer
-sequences, etc. We map known doubles back to singles.
+When the bytes of a UTF-8 string were re-read as cp1252 (Windows-1252)
+then re-saved as UTF-8, each original byte b became:
+  byte b -> codepoint cp1252_to_unicode(b) -> UTF-8(codepoint)
 
-This is safer than a full round-trip because:
-- Files that mix proper UTF-8 (e.g. " " quote chars from a code paste)
-  with double-encoded literals are common
-- Only the recognized double-encoded patterns get touched
+To reverse: scan for every UTF-8 sequence that decodes to a character
+within the cp1252 representable set, replace it with the original
+cp1252 byte (= the original raw UTF-8 byte before the mangling).
 """
-import sys, os
+import sys
 
-# Map of (double-encoded bytes) -> (proper UTF-8 bytes).
-# Each Latin-supplement / Latin-extended char shows as `c3 83 c2 XX`
-# when double-encoded. Each Arabic char shows as `c3 98 c2 XX` etc.
-SUBSTITUTIONS = []
+# cp1252 -> Unicode codepoint table for the high range (0x80..0xFF).
+# 0x80-0x9F is the "smart-quote" range that differs from Latin-1.
+# 0xA0-0xFF maps identically.
+CP1252_HIGH = {
+    0x80: 0x20AC, 0x82: 0x201A, 0x83: 0x0192, 0x84: 0x201E, 0x85: 0x2026,
+    0x86: 0x2020, 0x87: 0x2021, 0x88: 0x02C6, 0x89: 0x2030, 0x8A: 0x0160,
+    0x8B: 0x2039, 0x8C: 0x0152, 0x8E: 0x017D,
+    0x91: 0x2018, 0x92: 0x2019, 0x93: 0x201C, 0x94: 0x201D, 0x95: 0x2022,
+    0x96: 0x2013, 0x97: 0x2014, 0x98: 0x02DC, 0x99: 0x2122, 0x9A: 0x0161,
+    0x9B: 0x203A, 0x9C: 0x0153, 0x9E: 0x017E, 0x9F: 0x0178,
+}
 
-# Latin-1 supplement (U+0080..U+00FF: UTF-8 = c2 XX or c3 XX)
-# When double-encoded: c3 82 c2 XX (for c2 XX originals) and c3 83 c2 XX (for c3 XX originals)
-for x in range(0x80, 0xc0):  # c2 XX cases
-    SUBSTITUTIONS.append((bytes([0xc3, 0x82, 0xc2, x]), bytes([0xc2, x])))
-for x in range(0x80, 0xc0):  # c3 XX cases (XX shifted from raw to UTF-8 trail byte form)
-    # c3 83 c2 XX -> c3 XX (where the Latin-1 codepoint is 0xC3 = X+0x40 ish)
-    # Actually for U+00C3 the latin-1 byte is c3. UTF-8 of U+00C3 is c3 83. When
-    # re-encoded latin-1 then UTF-8 the c3 byte becomes c3 83 again, and 83 becomes
-    # c2 83. So we get c3 83 c2 83 for U+00C3. To recover: c3 83 c2 XX -> c3 (XX or XX+0x40?)
-    # The mapping is: original utf-8 byte 0xc3 + trail byte Z -> double = c3 83 c2 Z
-    SUBSTITUTIONS.append((bytes([0xc3, 0x83, 0xc2, x]), bytes([0xc3, x])))
+def build_substitution_table():
+    subs = []
+    for b in range(0x80, 0x100):
+        if b in CP1252_HIGH:
+            cp = CP1252_HIGH[b]
+        elif b in (0x81, 0x8D, 0x8F, 0x90, 0x9D):
+            continue
+        else:
+            cp = b
+        utf8_bytes = chr(cp).encode('utf-8')
+        subs.append((utf8_bytes, bytes([b])))
+    # Longer patterns first so 3-byte cp1252 chars (like quotes) don't
+    # leave dangling pieces.
+    subs.sort(key=lambda p: -len(p[0]))
+    return subs
 
-# Arabic block U+0600..U+06FF: UTF-8 = d8 XX, d9 XX, da XX, db XX
-# Double-encoded: c3 98 c2 XX, c3 99 c2 XX, c3 9a c2 XX, c3 9b c2 XX
-for lead in (0xd8, 0xd9, 0xda, 0xdb):
-    for x in range(0x80, 0xc0):
-        SUBSTITUTIONS.append((bytes([0xc3, lead - 0x40, 0xc2, x]), bytes([lead, x])))
-
-# Detect any double-encoded marker that suggests fix is needed
-RECOGNIZED_MARKERS = [
-    b'\xc3\x83\xc2\xa9',  # é
-    b'\xc3\x83\xc2\xa8',  # è
-    b'\xc3\x83\xc2\xa0',  # à
-    b'\xc3\x83\xc2\xa7',  # ç
-    b'\xc3\x83\xc2\xb4',  # ô
-    b'\xc3\x98\xc2',      # Arabic d8 XX double-encode
-    b'\xc3\x99\xc2',      # Arabic d9 XX
-]
+SUBS = build_substitution_table()
 
 def needs_fix(data):
-    # Broader detection: any `c3 83 c2 XX` or `c3 98/99/9a/9b c2 XX`
-    # sequence indicates double-encoded Latin or Arabic content.
-    for lead in (0x83, 0x98, 0x99, 0x9a, 0x9b):
-        if bytes([0xc3, lead, 0xc2]) in data:
-            return True
-    return any(m in data for m in RECOGNIZED_MARKERS)
+    return (b'\xc3\x99' in data or b'\xc3\x83\xc2' in data or
+            b'\xc3\x98\xc2' in data or b'\xe2\x80' in data and b'\xc3' in data)
 
 def fix_file(path):
     with open(path, 'rb') as f:
         data = f.read()
-
     if not needs_fix(data):
-        return False, 'no double-encoding detected'
+        return False, 'no mangling markers detected'
 
     out = data
-    n_subs = 0
-    for src, dst in SUBSTITUTIONS:
-        if src in out:
-            n_subs += out.count(src)
-            out = out.replace(src, dst)
+    n_total = 0
+    for utf8_seq, raw_byte in SUBS:
+        count = out.count(utf8_seq)
+        if count > 0:
+            out = out.replace(utf8_seq, raw_byte)
+            n_total += count
 
-    if n_subs == 0:
-        return False, 'no recognized substitutions to apply'
+    if n_total == 0:
+        return False, 'no substitutions applied'
 
-    # Validate the result is itself valid UTF-8 (modulo a possible BOM)
     try:
         out.decode('utf-8-sig')
     except UnicodeDecodeError as e:
-        return False, f'fix produced invalid UTF-8: {e}'
+        return False, f'result not valid UTF-8 (NOT written): {e}'
 
     with open(path, 'wb') as f:
         f.write(out)
-
-    return True, f'{n_subs} substitutions, {len(data)} -> {len(out)} bytes'
+    return True, f'{n_total} substitutions, {len(data)} -> {len(out)} bytes'
 
 def main():
     sys.stdout.reconfigure(encoding='utf-8')
@@ -91,7 +77,10 @@ def main():
         print('Usage: _fix_unicode.py <file1> [<file2> ...]')
         return
     for path in sys.argv[1:]:
-        ok, msg = fix_file(path)
+        try:
+            ok, msg = fix_file(path)
+        except Exception as e:
+            ok, msg = False, f'error: {e}'
         status = 'FIXED' if ok else 'skip '
         print(f'[{status}] {path}: {msg}')
 
