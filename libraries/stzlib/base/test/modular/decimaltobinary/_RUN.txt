@@ -1,0 +1,9 @@
+[ PASS ] 01_pr.ring: 1 assertions matched
+[ PASS ] 02_positive_integer.ring: 1 assertions matched
+[ PASS ] 03_positive_decimal_number.ring: 1 assertions matched
+[ PASS ] 04_negative_integer.ring: 1 assertions matched
+[ PASS ] 05_zero.ring: 1 assertions matched
+[ FAIL ] 06_test_5_negative_decimal_number.ring:
+         #1 ? o5.ToBinaryForm() -> expected '0b-0.101' not found past cursor 0
+---
+PASS: 5 / FAIL: 1

@@ -1,0 +1,8 @@
+[ skip ] 01_basic_command_execution_echover_on_windows_echo_on.ring: no #--> markers
+[ skip ] 02_command_with_output_capture.ring: no #--> markers
+[ skip ] 03_file_listing.ring: no #--> markers
+[ skip ] 04_test_graphviz_dot_command_if_installed.ring: no #--> markers
+[ FAIL ] 05_test_with_stzdotcode_class.ring:
+         #1 ? "Tests completed!" -> expected 'svg correctly generated and displayed' not found past cursor 0
+---
+FAIL: 1 / skip: 4

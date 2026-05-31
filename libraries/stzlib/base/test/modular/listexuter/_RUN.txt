@@ -1,0 +1,14 @@
+[ FAIL ] 01_listex_type_patterns_in_listexuter.ring:
+         #1 ? @@NL( Results() ) -> expected '[ [ [42, "hello"], [84, "HELLO"] ], [ [10, 20, 30], [10, 20,' not found past cursor 0
+[ FAIL ] 02_quantifiers_and_ranges.ring:
+         #1 ? @@NL( MatchesXT() ) -> expected '[ [ [10, "apple"], [10, "apple"] ], [ [20, 30, "banana"], [5' not found past cursor 0
+[ FAIL ] 03_negation_and_alternation.ring:
+         #1 ? @@NL( MatchesXT() ) -> expected '[ [ "text", ["NOT_NUMBER", "text"] ], [ "text", "TEXT" ], [ ' not found past cursor 0
+[ FAIL ] 04_explicit_sets_and_nested_patterns.ring:
+         #1 ? @@NL( MatchesXT() ) -> expected '[ [ 200, [200, "OK"] ], [ 404, [404, "Not Found"] ], [ ["/us' not found past cursor 0
+[ FAIL ] 05_advanced_combining_multiple_listex_features.ring:
+         #1 ? @@NL( MatchesXT() ) -> expected '[ [ ["temp_readings", [22, 24, 21, 25], "celsius"], ["ID: te' not found past cursor 0
+[ skip ] 06_real-world_json_configuration_validation.ring: no #--> markers
+[ skip ] 07_data_structure_transformation_tree_processing.ring: no #--> markers
+---
+FAIL: 5 / skip: 2

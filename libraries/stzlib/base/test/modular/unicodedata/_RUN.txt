@@ -1,0 +1,28 @@
+[ skip ] 01_block_1.ring: no #--> markers
+[ FAIL ] 02_pr.ring:
+         #1 ? MaxUnicode() -> expected '1_114_112' not found past cursor 0
+         #2 ? NumberOfUnicodeChars() -> expected '149_186' not found past cursor 0
+         #3 ? NumberOfLinesInUnicodeDataFile() + NL -> expected '34_931' not found past cursor 0
+[ FAIL ] 03_pr.ring:
+         #1 ? ShowShort( UnicodesOfCharsContaining("arabic") ) -> expected '[ 1536, 1537, 1538, "...", 126651, 126704, 126705 ]' not found past cursor 0
+         #2 ? ShowShort( CharsContaining("arabic") ) -> expected '[ "\u0600", "\u0601", "\u0602", "...", "\ueebb", "\ueef0", "\ueef1" ]' not found past cursor 0
+[ FAIL ] 04_block_4.ring:
+         #1 ? ShowShortNL( UnicodeBlocksXT() ) # XT --> ..Along with the -> expected '[ [ "Basic Latin", [ 0, 127 ] ], [ "Latin-1 Supplement", [ 1' not found past cursor 0
+         #2 ? @@( UnicodeBlocksContaining("box") ) # or, to be precise:  -> expected '[ "Box Drawing" ]' not found past cursor 0
+         #3 ? @@( UnicodeBlocksContainingXT("box") ) -> expected '[ "Box Drawing", [9472, 9599] ]' not found past cursor 0
+         #4 ? ShowShort( acBoxChars ) -> expected '[ "─", "━", "│", "...", "╽", "╾", "╿" ]' not found past cursor 0
+         #5 ? @@NL( CharsAndNames( NRandomItemsInU(5, acBoxChars) ) ) -> expected '[ [ "┖", "BOX DRAWINGS UP HEAVY AND RIGHT LIGHT" ], [ "╸", "' not found past cursor 0
+         ... +2 more
+[ PASS ] 05_pr.ring: 2 assertions matched
+[ PASS ] 06_pr.ring: 1 assertions matched
+[ FAIL ] 07_pr.ring:
+         #3 ? StzCharQ("0x2601").Content() -> expected '☁' not found past cursor 5
+[ FAIL ] 08_pr.ring:
+         #1 ? FindCharByName("CLOUD") + NL -> expected '506499' not found past cursor 0
+         #2 ? SearchCharByName("CLOUD") #ERROR : logical error! See next -> expected '[ 506499, 514585, 514690, 1751988, 1752036, 1752084, 1752125' not found past cursor 0
+         #3 ? @@( First3(CharsContaining("CLOUD")) ) -> expected '[ "☁", "⛅", "⛈" ]' not found past cursor 0
+         #5 ? CharByName("LATIN LETTER SMALL CAPITAL G") -> expected 'ɢ' not found past cursor 1
+         #6 ? CharByName("CLOUD") -> expected '☁' not found past cursor 1
+         ... +10 more
+---
+PASS: 2 / FAIL: 5 / skip: 1

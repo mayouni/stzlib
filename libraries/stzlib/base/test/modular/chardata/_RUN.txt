@@ -1,0 +1,18 @@
+[ FAIL ] 01_invisible_unicodes.ring:
+         #2 ? ShowShort( InvisibleUnicodes() ) -> expected '[ 9, 32, 173, "...", 119160, 119161, 119162 ]' not found past cursor 29
+         #3 ? @@( anSomeUnicodes ) + NL -> expected '[ 6069, 8199, 8207, 8287, 10240 ]' not found past cursor 29
+         #4 ? UnicodesNames(anSomeUnicodes) -> expected '[ "KHMER VOWEL INHERENT AA", "FIGURE SPACE", "RIGHT-TO-LEFT ' not found past cursor 29
+[ FAIL ] 01_pr.ring:
+         #2 ? ShowShort( InvisibleUnicodes() ) -> expected '[ 9, 32, 173, "...", 119160, 119161, 119162 ]' not found past cursor 29
+         #3 ? @@( anSomeUnicodes ) + NL -> expected '[ 6069, 8199, 8207, 8287, 10240 ]' not found past cursor 29
+         #4 ? UnicodesNames(anSomeUnicodes) -> expected '[ "KHMER VOWEL INHERENT AA", "FIGURE SPACE", "RIGHT-TO-LEFT ' not found past cursor 29
+[ skip ] 02_circled_chars_merge.ring: no #--> markers
+[ skip ] 02_pr.ring: no #--> markers
+[ FAIL ] 03_pr.ring:
+         #3 ? NumberOfGeneralPunctuationChars() -> expected '111' not found past cursor 43
+[ FAIL ] 03_punctuation_breakdown.ring:
+         #3 ? NumberOfGeneralPunctuationChars() -> expected '111' not found past cursor 43
+[ PASS ] 04_pr.ring: 1 assertions matched
+[ PASS ] 04_unicode_directions.ring: 1 assertions matched
+---
+PASS: 2 / FAIL: 4 / skip: 2

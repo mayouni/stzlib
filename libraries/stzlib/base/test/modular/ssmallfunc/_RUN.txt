@@ -1,0 +1,3 @@
+[ skip ] 01_some_small_functions_ring_119_quicker_than_120.ring: no #--> markers
+---
+skip: 1

@@ -1,0 +1,18 @@
+[ skip ] 02_we_start_speeking_in_compuer-natural_code_cnc.ring: no #--> markers
+[ skip ] 03_now_we_say.ring: no #--> markers
+[ FAIL ] 04_now_what_if_you_want_the_chain_to_execute_randomly.ring:
+         #1 ? SometimesWhen(:v).Is("12").DoThis('{ ? "Done! Because I am -> expected 'Sometimes, it will say: Done! Because I am lucky ;)' not found past cursor 0
+[ skip ] 05_of_course_when_values_are_different_this_will_neve.ring: no #--> markers
+[ skip ] 06_now_lets_experiment_with_an_other_construction_usi.ring: no #--> markers
+[ skip ] 07_here_using_until_you_need_to_be_careful_because_yo.ring: no #--> markers
+[ FAIL ] 08_weve_seen_the_use_of_until_what_if_we_try_since_in.ring:
+         #1 ? Since(:v).Is("12").DoThis('{ v += "0" ? v }').WhyCodeNotYe -> expected 'Because "Since(:v)" requires "DoThis(:v)" not to execute unt' not found past cursor 0
+[ skip ] 09_todo.ring: no #--> markers
+[ skip ] 10_todo.ring: no #--> markers
+[ skip ] 11_todo.ring: no #--> markers
+[ skip ] 12_todo.ring: no #--> markers
+[ skip ] 13_todo.ring: no #--> markers
+[ skip ] 14_todo.ring: no #--> markers
+[ skip ] 16_todo.ring: no #--> markers
+---
+FAIL: 2 / skip: 12

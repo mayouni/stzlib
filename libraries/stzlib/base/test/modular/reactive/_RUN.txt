@@ -1,0 +1,11 @@
+[ skip ] 01_making_a_regular_function_reactive.ring: no #--> markers
+[ skip ] 02_reactive_functions_with_complex_data_processing.ring: no #--> markers
+[ skip ] 03_basic_stream_creation_and_consumption.ring: no #--> markers
+[ skip ] 04_stream_transformation_and_filtering.ring: no #--> markers
+[ skip ] 05_same_example_as_above_with_a_reduce_function.ring: no #--> markers
+[ skip ] 06_basic_timer_operations_check_output.ring: no #--> markers
+[ skip ] 07_timer-based_data_generation.ring: no #--> markers
+[ skip ] 08_basic_http_requests.ring: no #--> markers
+[ skip ] 09_http_request_pipeline_with_stream_processing.ring: no #--> markers
+---
+skip: 9

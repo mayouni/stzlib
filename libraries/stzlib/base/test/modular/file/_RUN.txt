@@ -1,0 +1,10 @@
+[ skip ] 01_getting_information_about_files.ring: no #--> markers
+[ FAIL ] 02_reading_files_pure_intent.ring:
+         #3 ? oReader.Size() # Or SizeInBytes() -> expected '385' not found past cursor 0
+[ skip ] 03_appending_to_files_read_append_intent.ring: no #--> markers
+[ FAIL ] 04_creating_new_files_read_create_intent.ring:
+         #1 ? oCreator.Size()  # Check current size -> expected '146' not found past cursor 0
+[ skip ] 05_overwriting_files_read_overwrite_intent.ring: no #--> markers
+[ PASS ] 06_updating_files_read_sophisticated_update_intent.ring: 3 assertions matched
+---
+PASS: 1 / FAIL: 2 / skip: 3

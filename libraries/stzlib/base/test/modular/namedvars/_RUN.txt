@@ -1,0 +1,30 @@
+[ PASS ] 01_dynamic_construction_of_variable_names.ring: 4 assertions matched
+[ PASS ] 02_block_2.ring: 2 assertions matched
+[ FAIL ] 03_pr.ring:
+         #1 ? v([ :x, :y, :z ]) -> expected '[ -1, 0, 1 ]' not found past cursor 0
+[ FAIL ] 04_pr.ring:
+         #1 ? v([ :x, :y, :z ]) -> expected '[ 10, 20, 30 ]' not found past cursor 0
+[ PASS ] 05_pr.ring: 1 assertions matched
+[ PASS ] 06_pr.ring: 9 assertions matched
+[ PASS ] 07_pr.ring: 1 assertions matched
+[ FAIL ] 08_pr.ring:
+         #1 ? @@( TempVarsXT() ) -> expected '[ :say = null, :name1 = "Hussein", :name2 = "Haneen", :name3' not found past cursor 0
+[ FAIL ] 09_pr.ring:
+         #1 ? v(:name) -> expected 'ERROR: Undefined named variable!' not found past cursor 0
+[ FAIL ] 10_pr.ring:
+         #1 ? v([ :name1, :name2, :name7 ]) -> expected 'ERROR: Undefined named variable!' not found past cursor 0
+[ PASS ] 11_pr.ring: 1 assertions matched
+[ PASS ] 12_pr.ring: 1 assertions matched
+[ FAIL ] 13_naming_unnamed_objects_and_making_them_findable.ring:
+         #4 ? @@( o1.FindObjects() ) -> expected '[ 2, 4, 5, 6, 8 ]' not found past cursor 24
+         #5 ? @@( o1.ObjectsZ() ) + NL # Or ObjectsAndTheirPositions() -> expected '[ [ "ogreeting", [ 2, 4 ] ], [ "@noname", [ 5, 8 ] ], [ "ohe' not found past cursor 24
+         #6 ? @@( o1.FindObject(:oGreeting) ) -> expected '[ 2, 4 ]' not found past cursor 24
+         #7 ? @@( o1.FindObject(:oHello) ) -> expected '[ 6 ]' not found past cursor 24
+         #8 ? @@( o1.FindNamedObjects() ) -> expected '[ 2, 4, 6 ]' not found past cursor 24
+         ... +9 more
+[ PASS ] 14_pr.ring: 5 assertions matched
+[ PASS ] 15_pr.ring: 2 assertions matched
+[ skip ] 16_block_16.ring: no #--> markers
+[ skip ] 17_pr.ring: no #--> markers
+---
+PASS: 9 / FAIL: 6 / skip: 2

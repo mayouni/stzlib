@@ -1,0 +1,39 @@
+[ FAIL ] 01_creating_timelines_with_lanes_start_and_end_bounda.ring:
+         #3 ? Duration() -> expected '31622399 (seconds)' not found past cursor 39
+         #6 ? @@( Lanes() ) -> expected '[ "TEAM A", "TEAM B" ] # Note: labels uppercased if applicab' not found past cursor 57
+[ FAIL ] 02_creating_timelines_with_date-only_inputs.ring:
+         #1 ? @@NL( o1.Content() )  # Time added automatically to "2024- -> expected '[ [ "start", "2024-10-10 00:00:00" ], [ "end", "2024-10-22 1' not found past cursor 0
+[ FAIL ] 03_setting_global_boundaries_without_time.ring:
+         #1 ? o1.Lane("Project1").Point("EVENT") -> expected '2024-03-15 00:00:00' not found past cursor 0
+         #2 ? @@( o1.Lane("Project2").Span("WEEK") ) -> expected '[ "2024-03-01 00:00:00", "2024-03-07 00:00:00" ]' not found past cursor 0
+         #3 ? o1.GlobalStart() -> expected '2024-01-01 00:00:00' not found past cursor 0
+         #4 ? @@NL( o1.Content() ) + NL -> expected 'Similar structure as above with added points/spans in respec' not found past cursor 0
+[ FAIL ] 04_adding_and_removing_lanes.ring:
+         #1 ? NumberOfLanes() -> expected '3' not found past cursor 0
+         #2 ? @@( Lanes() ) -> expected '[ "TEAM A", "TEAM B", "RESOURCES" ]' not found past cursor 0
+[ FAIL ] 05_adding_points_to_specific_lanes.ring:
+         #2 ? @@( Lane("Team A").PointNames() ) -> expected '[ "NEW_YEAR", "SUMMER" ]' not found past cursor 48
+         #3 ? Lane("Team B").Point("VALENTINE") -> expected '2024-02-14 00:00:00' not found past cursor 48
+[ PASS ] 06_adding_multiple_points_and_spans_to_lanes.ring: 2 assertions matched
+[ skip ] 07_renaming_labels_in_specific_lanes.ring: no #--> markers
+[ FAIL ] 08_querying_whats_at_a_specific_time_across_lanes.ring:
+         #1 ? @@NL( WhatsAt("2024-03-15 10:00:00") ) -> expected '[ [ "lane", "TEAM A" ], [ "events", [ [ "EVENT1", "point" ] ' not found past cursor 0
+[ FAIL ] 09_detecting_cross-lane_overlaps.ring:
+         #1 ? @@( CrossLaneOverlaps() ) -> expected '[ [ [ "DEV", "QA" ], "CODING", "TESTING", 432000 ] ] # 5 day' not found past cursor 0
+[ skip ] 10_adding_blocked_spans_to_lanes.ring: no #--> markers
+[ skip ] 11_checking_blocks_in_lanes.ring: no #--> markers
+[ FAIL ] 12_basic_show_with_multiple_lanes.ring:
+         #1 ? Show() -> expected 'Multi-lane ASCII visualization with lanes labeled on left' not found past cursor 0
+[ FAIL ] 13_show_uncovered_across_lanes.ring:
+         #1 ? ShowUncovered() -> expected "Visualization with '/' for uncovered in each lane" not found past cursor 0
+[ skip ] 14_highlighting_across_lanes.ring: no #--> markers
+[ FAIL ] 15_converting_to_single_timeline.ring:
+         #1 ? oMerged.Point("DEV-EVENT") -> expected '2024-03-15 00:00:00' not found past cursor 0
+         #2 ? @@( oMerged.Span("QA-TEST") ) -> expected '[ "2024-04-01 00:00:00", "2024-04-30 00:00:00" ]' not found past cursor 0
+[ FAIL ] 16_clearing_all_lanes.ring:
+         #1 ? Lane("Team A").CountPoints() -> expected '0' not found past cursor 0
+[ FAIL ] 17_complex_example_with_multiple_lanes_blocks_and_vis.ring:
+         #1 ? Show() -> expected 'Multi-lane visualization with spans, points, and blocks' not found past cursor 0
+         #2 ? @@NL( UncoveredPeriodsPerLane() ) -> expected 'List of uncovered periods for each lane' not found past cursor 0
+---
+PASS: 1 / FAIL: 12 / skip: 4

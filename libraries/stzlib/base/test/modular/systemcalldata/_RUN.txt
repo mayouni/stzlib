@@ -1,0 +1,28 @@
+[ skip ] 01_example_1_list_files_like_rx_pattern.ring: no #--> markers
+[ skip ] 02_example_2_with_braces_syntax.ring: no #--> markers
+[ skip ] 03_example_3_copy_file_with_parameters.ring: no #--> markers
+[ skip ] 04_example_4_fluent_style_with_params.ring: no #--> markers
+[ skip ] 05_example_5_multiple_params_at_once.ring: no #--> markers
+[ skip ] 06_example_6_ping_host.ring: no #--> markers
+[ skip ] 07_example_7_get_datetime.ring: no #--> markers
+[ skip ] 08_example_8_create_directory.ring: no #--> markers
+[ skip ] 09_example_9_download_file.ring: no #--> markers
+[ skip ] 10_example_10_check_disk_space.ring: no #--> markers
+[ skip ] 11_example_11_open_fileurl.ring: no #--> markers
+[ skip ] 12_example_12_calculate_checksum.ring: no #--> markers
+[ skip ] 13_example_13_reuse_same_object.ring: no #--> markers
+[ skip ] 14_example_14_direct_program_call_original_style.ring: no #--> markers
+[ skip ] 15_git_workflow.ring: no #--> markers
+[ skip ] 16_image_batch_processing.ring: no #--> markers
+[ skip ] 17_video_processing.ring: no #--> markers
+[ skip ] 18_docker_deployment.ring: no #--> markers
+[ skip ] 19_document_conversion.ring: no #--> markers
+[ skip ] 20_file_security.ring: no #--> markers
+[ skip ] 21_database_backup.ring: no #--> markers
+[ skip ] 22_system_monitoring.ring: no #--> markers
+[ skip ] 23_batch_file_operations.ring: no #--> markers
+[ skip ] 24_web_scraping.ring: no #--> markers
+[ skip ] 25_package_installation.ring: no #--> markers
+[ skip ] 26_text_processing_pipeline.ring: no #--> markers
+---
+skip: 26

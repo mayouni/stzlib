@@ -41,6 +41,33 @@ prints.
 
 PASS rate excluding skips/timeouts: 150 / 338 = **44%**.
 
+### Wave 3 -- 57 more small modules
+
+Coverage expanded to **78 modules / 1181 thematic blocks**:
+
+  Total: 285 PASS / 391 FAIL / 5 TIMEOUT / 500 skip
+  PASS rate excluding skips/timeouts: **42 %**
+
+The full per-module table is regenerated into `_SUMMARY.txt` (sorted
+by FAIL count desc so reconciliation candidates surface first).
+
+Top reconciliation candidates by FAIL count (>= 10):
+- list-ish, json, hashlist, knowledgegraph
+- ccode, regex, dataset, number
+- graphex, coeffextractor, baturalcode
+- object, global, tile, hexnumbert
+
+Modules with 0 PASS but many FAILs in this wave (likely systemic
+drift / API rename rather than per-test bugs):
+- ccode (1 PASS / 14 FAIL)
+- knowledgegraph (1 PASS / 14 FAIL)
+- chainoftruth (0 PASS / 1 FAIL / 24 skip)
+- chainofvalue (0 PASS / 2 FAIL / 12 skip)
+
+Deferred (too large to run in this batch — extract done):
+- list (645 blocks), table (229), char (120), graph (90),
+  locale (88), listoflists (70), diagram (58), timeline (53)
+
 `global` shows 3 TIMEOUTs and high FAIL count — likely the same
 algorithmic-stall pattern as the number module. Worth focused
 review alongside `stzCounter.CountTo(1M)` perf regression (task #4).

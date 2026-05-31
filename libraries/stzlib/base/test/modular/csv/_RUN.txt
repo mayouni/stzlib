@@ -1,0 +1,4 @@
+[ PASS ] 01_pr.ring: 1 assertions matched
+[ PASS ] 02_block_2.ring: 1 assertions matched
+---
+PASS: 2

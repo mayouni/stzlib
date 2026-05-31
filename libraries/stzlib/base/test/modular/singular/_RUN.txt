@@ -1,0 +1,10 @@
+[ skip ] 01_test_regular_plurals.ring: no #--> markers
+[ skip ] 02_test_morphological_patterns.ring: no #--> markers
+[ skip ] 03_test_irregular_plurals.ring: no #--> markers
+[ skip ] 04_test_unchanged_plurals.ring: no #--> markers
+[ skip ] 05_test_uppercase_and_trimmed_input.ring: no #--> markers
+[ skip ] 06_test_edge_cases.ring: no #--> markers
+[ skip ] 07_test_dynamic_rule_addition.ring: no #--> markers
+[ skip ] 08_test_category-based_queries.ring: no #--> markers
+---
+skip: 8

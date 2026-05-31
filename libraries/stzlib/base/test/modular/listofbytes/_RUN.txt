@@ -1,0 +1,51 @@
+[ PASS ] 01_pr.ring: 1 assertions matched
+[ FAIL ] 02_pr.ring:
+         #1 ? @@( o1.Bytes() ) -> expected '[ "s", " ", " ", " ", "m" ]' not found past cursor 0
+         #2 ? @@( o1.Bytecodes() ) -> expected '[ 115, -29, -118, -79, 109 ]' not found past cursor 0
+         #3 ? @@( o1.BytesPerChar() ) -> expected '[ [ "s", [ "s" ] ], [ "㊱", [ " ", " ", " " ] ], [ "m", [ "m"' not found past cursor 0
+         #4 ? @@( o1.BytecodesPerChar() ) -> expected '[ [ "s", [ 115 ] ], [ "㊱", [ -29, -118, -79 ] ], [ "m", [ 10' not found past cursor 0
+[ FAIL ] 03_pr.ring:
+         #1 ? @@( o1.Bytes() ) -> expected '[ " ", " ", " ", " ", " ", " ", " ", " ", " ", " " ]' not found past cursor 0
+         #2 ? @@( o1.Bytecodes() ) -> expected '[ -39, -123, -40, -79, -40, -83, -40, -88, -40, -89 ]' not found past cursor 0
+         #3 ? @@( o1.BytesPerChar() ) -> expected '[ [ "م", [ " ", " " ] ], [ "ر", [ " ", " " ] ], [ "ح", [ " "' not found past cursor 0
+         #4 ? @@( o1.BytecodesPerChar() ) -> expected '[ [ "م", [ -39, -123 ] ], [ "ر", [ -40, -79 ] ], [ "ح", [ -4' not found past cursor 0
+[ PASS ] 04_pr.ring: 1 assertions matched
+[ FAIL ] 05_pr.ring:
+         #1 ? @@( QByteArrayToListOfBytecodes(oQByteArray) ) + NL -> expected '[ 82, 73, 78, 71 ]' not found past cursor 0
+         #2 ? @@( QByteArrayToListOfChars(oQByteArray) ) + NL -> expected '[ "R", "I", "N", "G" ]' not found past cursor 0
+         #3 ? @@( QByteArrayToListOfUnicodesPerChar(oQByteArray) ) -> expected '[ [ "R", [ 82 ] ], [ "I", [ 73 ] ], [ "N", [ 78 ] ], [ "G", ' not found past cursor 0
+[ FAIL ] 06_pr.ring:
+         #1 ? CallMethod("Content()", :On = [ :o1, :o2 ]) -> expected '[ "Python", "Ring" ]' not found past cursor 0
+         #2 ? CallMethod("Content()", :On = [ :o1, :o2 ]) -> expected '[ "Ring", "Python" ]' not found past cursor 0
+         #3 ? CallMethod("ToString()", :On = [ :o1, :o2 ]) -> expected '[ "New", "Old" ]' not found past cursor 0
+         #4 ? CallMethod("ToString()", :On = [ :o1, :o2 ]) -> expected '[ "Old", "New" ]' not found past cursor 0
+[ FAIL ] 07_pr.ring:
+         #1 ? o1.NumberOfBytes() -> expected '6' not found past cursor 0
+         #2 ? @@( o1.Bytecodes() ) -> expected '[ 109, -48, -106, -28, -72, -67 ]' not found past cursor 0
+         #3 ? @@( o1.NumberOfBytesPerChar() ) -> expected '[ [ "m", 1 ], [ "Ж", 2 ], [ "丽", 3 ] ]' not found past cursor 0
+         #4 ? o1.NLeftBytes(3) # Or 3LeftBytes() -> expected 'mЖ' not found past cursor 0
+         #5 ? o1.NRightBytes(3) # Or 3RightBytes() -> expected '丽' not found past cursor 0
+[ FAIL ] 08_pr.ring:
+         #3 ? o1.Section(4,:End) -> expected '丽' not found past cursor 3
+[ PASS ] 09_pr.ring: 1 assertions matched
+[ PASS ] 10_pr.ring: 2 assertions matched
+[ PASS ] 11_pr.ring: 4 assertions matched
+[ FAIL ] 12_pr.ring:
+         #1 ? o1.tohex().data() -> expected 'e381a7' not found past cursor 0
+[ FAIL ] 13_block_13.ring:
+         #1 ? str2hex("で") # A Ring function -> expected 'e381a7' not found past cursor 0
+[ FAIL ] 14_pr.ring:
+         #3 ? o1.Hexcodes() -> expected '[ "0xe3", "0x81", "0xa7" ]' not found past cursor 15
+         #4 ? o1.HexcodesWithoutPrefix() -> expected '[ "e3", "81", "a7" ]' not found past cursor 15
+         #5 ? o1.ToHexUTF8() -> expected '\\xe3 \\x81 \\xa7' not found past cursor 15
+[ FAIL ] 15_block_15.ring:
+         #1 ? o1.CharsU() -> expected '[ "s", "d" ]' not found past cursor 0
+[ FAIL ] 16_pr.ring:
+         #2 ? @@( Bytecodes() ) -> expected '[ 115, -29, -118, -79, 109 ] TODO // Understand why some val' not found past cursor 7
+         #3 ? BytecodeOfByteN(5) -> expected '109' not found past cursor 7
+         #6 ? @@( BytesPerChar() ) -> expected '[ [ "s", [ "s" ] ], [ "㊱", [ " ", " ", " " ] ], [ "m", [ "m"' not found past cursor 316
+         #7 ? @@( BytesOfCharNumber(2) ) -> expected '[ " ", " ", " " ]' not found past cursor 316
+         #8 ? @@( BytesOfChar("㊱") ) -> expected '[ " ", " ", " " ]' not found past cursor 316
+         ... +1 more
+---
+PASS: 5 / FAIL: 11

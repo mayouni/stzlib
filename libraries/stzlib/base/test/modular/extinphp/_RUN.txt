@@ -1,0 +1,4 @@
+[ skip ] 01_using_a_php_code_inside_ring.ring: no #--> markers
+[ skip ] 02_php.ring: no #--> markers
+---
+skip: 2

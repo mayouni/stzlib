@@ -1,0 +1,18 @@
+[ FAIL ] 01_basic_generation.ring:
+         #1 ? o1.Content() -> expected 'EB2D8987-C83B-4DE8-B3D8-20B058A7201B' not found past cursor 0
+[ FAIL ] 02_format_variations.ring:
+         #1 ? o1.Content() -> expected 'F78F5731-1E62-4394-AC20-4AB5AF780653' not found past cursor 0
+         #2 ? o1.WithoutHyphens() -> expected 'F78F57311E624394AC204AB5AF780653' not found past cursor 0
+[ PASS ] 03_version_and_variant.ring: 2 assertions matched
+[ FAIL ] 04_null_uuid.ring:
+         #3 ? o1.Content() -> expected '3D7543C0-E5B4-43B2-B3D6-75A2AF5131D4' not found past cursor 38
+[ FAIL ] 05_hash.ring:
+         #1 ? o1.Hashed() -> expected '1484387222' not found past cursor 0
+[ skip ] 06_multiple_generations.ring: no #--> markers
+[ FAIL ] 07_block_7.ring:
+         #2 ? o1.Uuid() -> expected '"E1C2A3B4-D74E-459E-99CE-1380D59B6DEC"' not found past cursor 1
+         #3 ? o1.HashedUuid() -> expected '"1944623326"' not found past cursor 1
+[ skip ] 08_block_8.ring: no #--> markers
+[ skip ] 09_block_9.ring: no #--> markers
+---
+PASS: 1 / FAIL: 5 / skip: 3

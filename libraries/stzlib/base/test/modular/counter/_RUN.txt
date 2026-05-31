@@ -1,0 +1,7 @@
+[ PASS ] 01_skip_after_9_restart_at_0.ring: 3 assertions matched
+[ PASS ] 02_restart_at_1.ring: 2 assertions matched
+[ PASS ] 03_restart_at_2.ring: 2 assertions matched
+[ skip ] 04_raw_ring_1M_perf.ring: no #--> markers
+[ skip ] 05_softanza_1M_perf.ring: no #--> markers
+---
+PASS: 3 / skip: 2

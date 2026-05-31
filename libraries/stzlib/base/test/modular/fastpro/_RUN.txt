@@ -1,0 +1,35 @@
+[ PASS ] 01_pr.ring: 1 assertions matched
+[ PASS ] 02_pr.ring: 2 assertions matched
+[ skip ] 03_block_3.ring: no #--> markers
+[ PASS ] 04_pr.ring: 1 assertions matched
+[ PASS ] 05_pr.ring: 1 assertions matched
+[ PASS ] 06_pr.ring: 1 assertions matched
+[ PASS ] 07_pr.ring: 1 assertions matched
+[ FAIL ] 08_pr.ring:
+         #1 ? @@NL(aMatrix) + NL -> expected '[ [ 100, 100, 100 ], [ 100, 100, 100 ], [ 7, 8, 9 ] ]' not found past cursor 0
+         #2 ? @@NL(aMatrix) -> expected '[ [ 100, 100, 1000 ], [ 100, 100, 1000 ], [ 7, 8, 80 ] ]' not found past cursor 0
+[ PASS ] 09_pr.ring: 2 assertions matched
+[ PASS ] 10_pr.ring: 2 assertions matched
+[ FAIL ] 11_pr.ring:
+         #1 ? @@NL(aMatrix) -> expected '[ [ 1, 2, 3 ], [ 5, 5, 5 ], [ 5, 5, 5 ] ]' not found past cursor 0
+         #2 ? @@NL(aMatrix) -> expected '[ [ 1, 0, 0 ], [ 5, 0, 0 ], [ 5, 0, 0 ] ]' not found past cursor 0
+[ PASS ] 12_pr.ring: 2 assertions matched
+[ PASS ] 13_pr.ring: 2 assertions matched
+[ PASS ] 14_pr.ring: 2 assertions matched
+[ PASS ] 15_pr.ring: 3 assertions matched
+[ PASS ] 16_pr.ring: 2 assertions matched
+[ PASS ] 17_pr.ring: 2 assertions matched
+[ PASS ] 18_pr.ring: 3 assertions matched
+[ PASS ] 19_pr.ring: 2 assertions matched
+[ FAIL ] 20_pr.ring:
+         #1 ? @@NL(aMatrix) -> expected 'aMatrix = [ [ 1, 2, 0 ], [ 2, 4, 1 ], [ 2, 7, 0 ] ]' not found past cursor 0
+[ PASS ] 21_pr.ring: 2 assertions matched
+[ PASS ] 22_pr.ring: 1 assertions matched
+[ PASS ] 23_pr.ring: 2 assertions matched
+[ skip ] 24_pr.ring: no #--> markers
+[ FAIL ] 25_block_25.ring:
+         #1 ? @@NL(aImage) -> expected '[ [ 10, 26, 10 ], [ 14, 28, 11 ], [ 18, 30, 12 ] ]' not found past cursor 0
+[ FAIL ] 26_block_26.ring:
+         #1 ? @@NL(aImage) -> expected '[ [ 194.50, 194.50, 194.50 ], [ 237, 237, 237 ], [ 160.20, 1' not found past cursor 0
+---
+PASS: 19 / FAIL: 5 / skip: 2

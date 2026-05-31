@@ -1,0 +1,8 @@
+[ skip ] 01_understanding_httpget_-_simple_web_request.ring: no #--> markers
+[ skip ] 02_understanding_httppost_-_sending_data_to_server.ring: no #--> markers
+[ skip ] 03_creating_a_stream_of_http_responses.ring: no #--> markers
+[ skip ] 04_combining_http_with_timers_for_polling.ring: no #--> markers
+[ skip ] 05_real-world_example_fetching_and_combining_data_fro.ring: no #--> markers
+[ skip ] 06_what_you_learned_with_these_examples.ring: no #--> markers
+---
+skip: 6

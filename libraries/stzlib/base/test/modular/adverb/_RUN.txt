@@ -1,0 +1,11 @@
+[ skip ] 01_morphological_patterns_priority_4.ring: no #--> markers
+[ skip ] 02_irregular_forms_priority_1.ring: no #--> markers
+[ skip ] 03_domain-specific_priority_2.ring: no #--> markers
+[ skip ] 04_geographiccultural_priority_3.ring: no #--> markers
+[ skip ] 05_testing_priority_system.ring: no #--> markers
+[ skip ] 06_dynamic_rule_management.ring: no #--> markers
+[ skip ] 07_category-based_queries.ring: no #--> markers
+[ skip ] 08_edge_cases.ring: no #--> markers
+[ skip ] 09_block_9.ring: no #--> markers
+---
+skip: 9
