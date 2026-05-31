@@ -5,17 +5,17 @@
 $aDayNames = [
     [ :English, [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" ] ],
     [ :French, [ "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche" ] ],
-    [ :Arabic, [ "اÙ„اثÙ†ÙŠÙ†", "اÙ„ثÙ„اثاء", "اÙ„أربعاء", "اÙ„خÙ…ÙŠس", "اÙ„جÙ…عة", "اÙ„سبت", "اÙ„أحد" ] ]
+    [ :Arabic, [ "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد" ] ]
 ]
 
 # Multi-language month names
 $aMonthNames = [
-    [ :English, [ "January", "February", "March", "April", "May", "June",
+    [ :English, [ "January", "February", "March", "April", "May", "June", 
                  "July", "August", "September", "October", "November", "December" ] ],
     [ :French, [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
                 "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ] ],
-    [ :Arabic, [ "ÙŠÙ†اÙŠر", "فبراÙŠر", "Ù…ارس", "أبرÙŠÙ„", "Ù…اÙŠÙˆ", "ÙŠÙˆÙ†ÙŠÙˆ",
-                "ÙŠÙˆÙ„ÙŠÙˆ", "أغسطس", "سبتÙ…بر", "أÙƒتÙˆبر", "Ù†ÙˆفÙ…بر", "دÙŠسÙ…بر" ] ]
+    [ :Arabic, [ "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+                "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" ] ]
 ]
 
 # Default language
