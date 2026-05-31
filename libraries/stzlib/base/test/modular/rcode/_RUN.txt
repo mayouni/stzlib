@@ -1,0 +1,19 @@
+[ FAIL ] 01_debugging_external_code_execution.ring:
+         #1 ? @@(Trace()) + NL -> expected '[ [ [ "language", "r" ], [ "timestamp", "25/02/2025-09:08:58' not found past cursor 0
+         #2 ? Code() -> expected 'The listing of the internal code generate by the class in th' not found past cursor 0
+[ skip ] 02_basic_numeric_data.ring: no #--> markers
+[ FAIL ] 03_simple_nested_list_with_different_data_types.ring:
+         #1 ? @@( R.Result() ) -> expected '[ [ "basic_stats", [ [ "numbers", [ 12, 15, 18, 22, 25 ] ], ' not found past cursor 0
+[ skip ] 04_data_analysis_with_na_handling.ring: no #--> markers
+[ FAIL ] 05_statistical_calculations.ring:
+         #1 ? @@ ( R.Result() ) -> expected '[ [ "raw_data", [ 18.20, 19.50, 22.10, 23.40, 25.80, 26.90, ' not found past cursor 0
+[ skip ] 06_nested_calculations_with_custom_functions.ring: no #--> markers
+[ skip ] 07_time_series_data_with_aggregation.ring: no #--> markers
+[ skip ] 08_graphic_dataviz_-_complex_scatter_plot_with_densit.ring: no #--> markers
+[ skip ] 10_fuel_efficiency_by_cylinder_count.ring: no #--> markers
+[ skip ] 11_bar_chart_with_error_bars.ring: no #--> markers
+[ skip ] 12_connected_scatterplot.ring: no #--> markers
+[ skip ] 14_world_map.ring: no #--> markers
+[ skip ] 15_advanced_sample_of_africa.ring: no #--> markers
+---
+FAIL: 3 / skip: 10

@@ -1,0 +1,30 @@
+[ FAIL ] 02_creating_basic_entities.ring:
+         #3 ? o1.Created() -> expected '2025-09-26 14:30:15 (timestamp)' not found past cursor 11
+[ PASS ] 03_using_the_wildcard_to_read_and_set_properties.ring: 6 assertions matched
+[ FAIL ] 04_entity_with_custom_properties.ring:
+         #2 ? @@(o1.Properties()) -> expected '["name", "type", "created", "model", "year", "color"]' not found past cursor 5
+[ PASS ] 05_modifying_entity_properties.ring: 5 assertions matched
+[ PASS ] 06_entity_type_checking.ring: 3 assertions matched
+[ FAIL ] 07_creating_list_of_entities.ring:
+         #2 ? @@(oList.Names()) -> expected '["alice", "bob", "ferrari", "laptop"]' not found past cursor 1
+         #3 ? @@(oList.Types()) -> expected '["person", "person", "car", "device"]' not found past cursor 1
+[ FAIL ] 08_finding_entities.ring:
+         #4 ? oList.FindEntitiesByType("person") -> expected '[1, 2]' not found past cursor 5
+[ FAIL ] 09_getting_specific_entities.ring:
+         #1 ? oList.FirstEntity()[:name] -> expected 'alice' not found past cursor 0
+         #2 ? oList.LastEntity()[:name] -> expected 'laptop' not found past cursor 0
+[ FAIL ] 10_adding_entities.ring:
+         #1 ? oList.NumberOfEntities() -> expected '5' not found past cursor 0
+[ FAIL ] 11_removing_entities.ring:
+         #2 ? oList.ContainsName("ferrari") -> expected '0' not found past cursor 18
+[ FAIL ] 12_filtering_and_sorting.ring:
+         #2 ? oList.Names() -> expected '["alice", "bob", "laptop", "truck"]' not found past cursor 17
+         #3 ? oList.Types() -> expected '["device", "person", "person", "vehicle"]' not found past cursor 17
+[ FAIL ] 13_list_operations.ring:
+         #2 ? oList.UniqueTypes() -> expected '["device", "person", "vehicle"]' not found past cursor 7
+[ FAIL ] 14_copying_and_clearing.ring:
+         #3 ? oListCopy.IsEmpty() -> expected '0' not found past cursor 67
+[ skip ] 15_error_handling_examples.ring: no #--> markers
+[ PASS ] 16_complex_entity_with_metadata.ring: 2 assertions matched
+---
+PASS: 4 / FAIL: 10 / skip: 1

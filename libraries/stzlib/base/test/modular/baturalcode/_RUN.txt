@@ -1,0 +1,32 @@
+[ FAIL ] 01_pr.ring:
+         #1 ? Future() -> expected '[ "uppercase", "remove" ]' not found past cursor 0
+[ FAIL ] 02_pr.ring:
+         #2 ? oStr.Content() -> expected 'R♥NG' not found past cursor 53
+[ skip ] 03_programming_the_future_litterally_in_softanza.ring: no #--> markers
+[ FAIL ] 04_pr.ring:
+         #1 ? Q("AnnIE").NumberOfVowels() # same as ? Q("AnnIE").VowelN( -> expected '3' not found past cursor 0
+         #2 ? Q("AnnIE").Vowels() -> expected '[ "A", "I", "E" ]' not found past cursor 0
+         #4 ? Q("AnnIE").VowelN() # N ~> Number of... -> expected '3' not found past cursor 9
+[ FAIL ] 05_pr.ring:
+         #3 ? Q("AnnIE").VowelsB() -> expected 'TRUE' not found past cursor 74
+[ FAIL ] 06_profon.ring:
+         #1 ? MainObject().Content() -> expected '"hi"' not found past cursor 0
+[ FAIL ] 07_-coding_-eloquence.ring:
+         #4 ? Q("ring").IsAXT([ :Lowercase, :Latin, :String ]) -> expected 'TRUE' not found past cursor 27
+         #5 ? Q("ring").IsAXT([ :String ]) -> expected 'TRUE' not found past cursor 27
+         #6 ? QM("ring").IsAXTQ([ :Lowercase, :Latin, :String ]).WhichQ( -> expected 'TRUE' not found past cursor 27
+         #7 ? TheStringQM("ring").IsAQ([ :Lowercase, :Latin, :String ]). -> expected 'TRUE' not found past cursor 27
+         #8 ? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).With -> expected 'TRUE' not found past cursor 27
+         ... +5 more
+[ FAIL ] 08_pr.ring:
+         #3 ? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).ThatQ().Are -> expected 'TRUE' not found past cursor 17
+[ skip ] 09_pr.ring: no #--> markers
+[ skip ] 10_pr.ring: no #--> markers
+[ PASS ] 11_pr.ring: 1 assertions matched
+[ FAIL ] 12_pr.ring:
+         #1 ? o1.FirstChar() -> expected '"R"' not found past cursor 0
+         #2 ? o1.LastChar() -> expected '"g"' not found past cursor 0
+[ PASS ] 13_pr.ring: 1 assertions matched
+[ skip ] 14_pr.ring: no #--> markers
+---
+PASS: 2 / FAIL: 8 / skip: 4

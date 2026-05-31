@@ -1,0 +1,15 @@
+[ skip ] 01_army_recruitment_optimization_from_the_article.ring: no #--> markers
+[ skip ] 02_restaurant_menu_planning.ring: no #--> markers
+[ skip ] 03_manufacturing_optimization_with_integer_constraint.ring: no #--> markers
+[ skip ] 04_batch_production_scheduling.ring: no #--> markers
+[ skip ] 05_investment_portfolio_optimization.ring: no #--> markers
+[ skip ] 06_budget_allocation_across_departments.ring: no #--> markers
+[ skip ] 07_classic_diet_problem_for_teaching_linear_programmi.ring: no #--> markers
+[ skip ] 08_transportation_problem_for_logistics_education.ring: no #--> markers
+[ skip ] 09_rpg_character_build_optimization.ring: no #--> markers
+[ skip ] 10_game_economy_balancing.ring: no #--> markers
+[ skip ] 11_event_planning_with_multiple_constraints.ring: no #--> markers
+[ skip ] 12_supply_chain_optimization_with_uncertainty.ring: no #--> markers
+[ skip ] 13_same_problem_different_solvers.ring: no #--> markers
+---
+skip: 13

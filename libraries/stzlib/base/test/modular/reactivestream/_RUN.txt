@@ -1,0 +1,23 @@
+[ PASS ] 01_softanza_typical_code_for_programming_reactive_str.ring: 1 assertions matched
+[ skip ] 02_basic_stream_operations.ring: no #--> markers
+[ skip ] 03_stream_transformations_-_map_filter.ring: no #--> markers
+[ skip ] 04_data_aggregation_with_accumulate.ring: no #--> markers
+[ skip ] 05_analytics_dashboard_with_multiple_metrics.ring: no #--> markers
+[ skip ] 06_complex_transformation_chains.ring: no #--> markers
+[ skip ] 07_chat_message_processing.ring: no #--> markers
+[ skip ] 08_e-commerce_order_processing.ring: no #--> markers
+[ skip ] 09_timer-based_streams.ring: no #--> markers
+[ skip ] 10_file-based_streams.ring: no #--> markers
+[ skip ] 11_network-based_streams.ring: no #--> markers
+[ skip ] 12_sensor-based_streams.ring: no #--> markers
+[ skip ] 13_libuv_integration_example.ring: no #--> markers
+[ skip ] 14_multi-source_stream_composition.ring: no #--> markers
+[ skip ] 15_immediate_auto-conclude_default.ring: no #--> markers
+[ skip ] 16_debounced_auto-conclude.ring: no #--> markers
+[ skip ] 17_buffer_strategy_-_store_data_when_processing_is_sl.ring: no #--> markers
+[ skip ] 18_drop_strategy_-_discard_data_when_overwhelmed.ring: no #--> markers
+[ skip ] 19_latest_strategy_-_keep_most_recent_data.ring: no #--> markers
+[ skip ] 20_block_strategy_-_pause_stream_when_capacity_reache.ring: no #--> markers
+[ skip ] 21_real-world_example_log_processing_with_adaptive_ov.ring: no #--> markers
+---
+PASS: 1 / skip: 20

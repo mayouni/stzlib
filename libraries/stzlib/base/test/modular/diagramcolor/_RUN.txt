@@ -1,0 +1,12 @@
+[ skip ] 01_base_colors.ring: no #--> markers
+[ PASS ] 02_base_colors_intensities.ring: 1 assertions matched
+[ PASS ] 03_semantic_colors.ring: 6 assertions matched
+[ PASS ] 04_node_type_colors.ring: 7 assertions matched
+[ skip ] 05_direct_hex_colors.ring: no #--> markers
+[ skip ] 06_extended_palette.ring: no #--> markers
+[ skip ] 07_full_intensity_chain_coral.ring: no #--> markers
+[ skip ] 08_full_intensity_chain_teal.ring: no #--> markers
+[ PASS ] 09_legacy_color_names.ring: 6 assertions matched
+[ PASS ] 10_full_palette_count.ring: 1 assertions matched
+---
+PASS: 5 / skip: 5

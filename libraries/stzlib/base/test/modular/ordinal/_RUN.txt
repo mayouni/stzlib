@@ -1,0 +1,5 @@
+[ skip ] 01_english.ring: no #--> markers
+[ skip ] 02_french.ring: no #--> markers
+[ skip ] 03_arabic.ring: no #--> markers
+---
+skip: 3

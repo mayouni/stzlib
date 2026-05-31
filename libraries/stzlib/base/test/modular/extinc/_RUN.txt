@@ -1,0 +1,7 @@
+[ skip ] 01_pr.ring: no #--> markers
+[ skip ] 02_pr.ring: no #--> markers
+[ PASS ] 03_block_3.ring: 2 assertions matched
+[ skip ] 04_pr.ring: no #--> markers
+[ PASS ] 05_pr.ring: 1 assertions matched
+---
+PASS: 2 / skip: 3

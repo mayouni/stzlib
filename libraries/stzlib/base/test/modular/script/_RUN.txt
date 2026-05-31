@@ -1,0 +1,4 @@
+[ skip ] 01_you_can_create_a_script_object_bu_specifying_its_n.ring: no #--> markers
+[ skip ] 02_you_can_access_to_serveral_data_returned_by_the_st.ring: no #--> markers
+---
+skip: 2

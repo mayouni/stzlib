@@ -1,0 +1,4 @@
+[ PASS ] 01_error_function_undefined_--_tosetofhashlists.ring: 1 assertions matched
+[ skip ] 02_block_2.ring: no #--> markers
+---
+PASS: 1 / skip: 1

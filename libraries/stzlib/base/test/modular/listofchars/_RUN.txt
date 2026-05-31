@@ -1,0 +1,41 @@
+[ FAIL ] 01_pr.ring:
+         #1 ? @@( o1.Content() ) + NL -> expected '[ "α", "β", "γ" ]' not found past cursor 0
+         #2 ? @@( Unicodes([ "α", "β", "γ" ]) ) + NL -> expected '[ 945, 946, 947 ]' not found past cursor 0
+         #3 ? @@( MathChars() ) -> expected '[ "¬", "°", "±", "¼", "½", "¾", "×", "÷", "Γ", "Δ", "Θ", "Λ"' not found past cursor 0
+[ FAIL ] 02_block_2.ring:
+         #1 ? NumberOfMathChars() -> expected '68' not found past cursor 0
+         #2 ? MathCharsQRT(:stzListOfChars).CharsAndTheirNames() -> expected '[ [ "¬", "NOT SIGN" ], [ "°", "DEGREE SIGN" ], [ "±", "PLUS-' not found past cursor 0
+[ FAIL ] 03_pr.ring:
+         #1 ? o1.FindAll("♥") -> expected '[3, 6, 9]' not found past cursor 0
+         #2 ? o1.NFirstOccurrences(2, :Of = "♥") -> expected '[3, 6]' not found past cursor 0
+         #3 ? o1.NFirstOccurrencesST(2, :Of = "♥", :StartingAt = 1) -> expected '[3, 6]' not found past cursor 0
+         #4 ? o1.NLastOccurrences(2, :Of = "♥") -> expected '[6, 9]' not found past cursor 0
+         #5 ? o1.NLastOccurrencesST(2, "♥", :StartingAt = 1) -> expected '[6, 9]' not found past cursor 0
+         ... +2 more
+[ FAIL ] 04_pr.ring:
+         #2 ? StzListOfCharsQ("1":"5").IsContiguous() -> expected 'TRUE' not found past cursor 6
+         #3 ? StzListOfCharsQ('"ا":"ج"').IsContiguous() -> expected 'TRUE TODO: ERROR!' not found past cursor 6
+[ FAIL ] 05_pr.ring:
+         #1 ? o1.Unicodes() -> expected '[ 97, 98, 99 ]' not found past cursor 0
+         #2 ? CharsUnicodes([ "a", "b", "c" ]) -> expected '[ 97, 98, 99 ]' not found past cursor 0
+[ skip ] 06_pr.ring: no #--> markers
+[ skip ] 07_pr.ring: no #--> markers
+[ FAIL ] 08_pr.ring:
+         #1 ? StzListOfCharsQ("A":"E").BoxedXT([ :Line = :Dashed, :AllCo -> expected '╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮ ┊ A ┊ B ┊ C ┊ D ┊ E ┊ ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌' not found past cursor 0
+[ FAIL ] 09_pr.ring:
+         #1 ? StzListOfCharsQ("SOFTANZA").Boxed() -> expected '┌───┬───┬───┬───┬───┬───┬───┬───┐ │ S │ O │ F │ T │ A │ N │ ' not found past cursor 0
+[ skip ] 10_pr.ring: no #--> markers
+[ FAIL ] 11_pr.ring:
+         #1 ? StzListOfCharsQ(L('"ا":"ج"')).BoxedXT([ :Line = :Dashed, : -> expected '╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮ o ┊ ا ┊ ب ┊ ة ┊ ت ┊ ث ┊ ج ┊ ╰╌╌╌┴╌' not found past cursor 0
+[ FAIL ] 12_pr.ring:
+         #1 ? StzListOfCharsQ("منصوريات").Boxed() -> expected '┌───┬───┬───┬───┬───┬───┬───┬───┐ o │ م │ ن │ ص │ و │ ر │ ي ' not found past cursor 0
+[ PASS ] 13_pr.ring: 1 assertions matched
+[ FAIL ] 14_pr.ring:
+         #1 ? Q("[1, 2, 3 ]").ToList() # Or L("[1, 2, 3 ]") -> expected '[ 1, 2, 3 ]' not found past cursor 0
+         #2 ? Q("1:3").ToList() # Or ? L("1:3") -> expected '[ 1, 2, 3 ]' not found past cursor 0
+         #3 ? Q('"A":"C"').ToList() # Or L('"A":"C"') -> expected '[ "A", "B", "C"]' not found past cursor 0
+         #4 ? Q("#1 : #3").ToList() # Or L("#1 : #3") -> expected '[ "#1", "#2", "#3" ]' not found past cursor 0
+         #5 ? Q("#21 : #23").ToList() # Or L("#21 : #23") -> expected '[ #21, #22, #23 ]' not found past cursor 0
+         ... +2 more
+---
+PASS: 1 / FAIL: 10 / skip: 3

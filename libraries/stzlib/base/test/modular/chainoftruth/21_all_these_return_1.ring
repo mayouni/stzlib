@@ -1,0 +1,12 @@
+# Narrative
+# --------
+# # All these return 1
+#
+# Extracted from stzchainoftruthtest.ring, block #21.
+
+load "../../../stzBase.ring"
+
+
+? _("ring").ContainsNo("x").ContainsNo("y")._
+? _("ring").ContainsNo("x").Nor("y")._
+? _("ring").ContainsNeighther("x").Nor("y")._

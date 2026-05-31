@@ -1,0 +1,15 @@
+[ PASS ] 01_pr.ring: 3 assertions matched
+[ skip ] 02_pr.ring: no #--> markers
+[ FAIL ] 03_pr.ring:
+         #2 ? str -> expected 'I love pizza' not found past cursor 28
+[ FAIL ] 04_stzextcode_quick-narration.ring:
+         #3 ? @substr("one two three", 6, 8) -> expected 'two' not found past cursor 15
+[ FAIL ] 05_pr.ring:
+         #2 ? IsMadeOfNumbersAndStrings() -> expected 'TRUE' not found past cursor 6
+         #3 ? IsMadeOfNumbersOrStrings() -> expected 'TRUE' not found past cursor 6
+[ skip ] 06_block_6.ring: no #--> markers
+[ skip ] 07_pr.ring: no #--> markers
+[ PASS ] 08_pr.ring: 2 assertions matched
+[ PASS ] 09_pr.ring: 2 assertions matched
+---
+PASS: 3 / FAIL: 3 / skip: 3

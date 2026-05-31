@@ -1,0 +1,36 @@
+[ PASS ] 01_match_all_nodes.ring: 2 assertions matched
+[ PASS ] 02_match_nodes_by_label.ring: 2 assertions matched
+[ PASS ] 03_match_nodes_with_properties.ring: 1 assertions matched
+[ PASS ] 04_match_simple_edge.ring: 3 assertions matched
+[ PASS ] 05_match_edge_with_properties.ring: 2 assertions matched
+[ PASS ] 06_filter_with_equals.ring: 1 assertions matched
+[ PASS ] 07_filter_with_comparison.ring: 2 assertions matched
+[ PASS ] 08_filter_with_contains.ring: 1 assertions matched
+[ PASS ] 09_filter_with_and_condition.ring: 2 assertions matched
+[ PASS ] 10_filter_with_or_condition.ring: 1 assertions matched
+[ PASS ] 11_filter_with_function.ring: 1 assertions matched
+[ FAIL ] 12_select_specific_property.ring:
+         #1 ? @@NL( Definition() ) + NL # Or Query() or AST() -> expected '[ [ "match_patterns", [ [ [ "type", "node" ], [ "alias", "n"' not found past cursor 0
+[ PASS ] 13_select_with_alias.ring: 2 assertions matched
+[ FAIL ] 14_select_multiple_fields.ring:
+         #2 ? @@( aResults[1] ) -> expected '[["n.name", "Alice"], ["n.age", 30]]' not found past cursor 1
+[ PASS ] 15_select_distinct.ring: 1 assertions matched
+[ PASS ] 16_order_by_ascending.ring: 2 assertions matched
+[ PASS ] 17_skip_and_limit.ring: 3 assertions matched
+[ PASS ] 18_create_single_node.ring: 1 assertions matched
+[ PASS ] 19_create_edge.ring: 2 assertions matched
+[ PASS ] 20_set_property.ring: 1 assertions matched
+[ FAIL ] 21_set_multiple_properties.ring:
+         #2 ? oGraph.NodeProperty("alice", "city") -> expected '"Paris"' not found past cursor 2
+[ PASS ] 22_delete_node.ring: 1 assertions matched
+[ FAIL ] 23_find_friends_of_friends.ring:
+         #1 ? len(aResults) -> expected '2 (carol and dave)' not found past cursor 0
+[ FAIL ] 24_explain_query_execution_plan.ring:
+         #1 ? @@NL(aExplanation) -> expected '[ [ [ "step", "match" ], [ "description", [ "Scan all nodes,' not found past cursor 0
+[ skip ] 25_convert_query_to_opencypher.ring: no #--> markers
+[ skip ] 26_scenario_1_normal_fluent_api.ring: no #--> markers
+[ FAIL ] 27_scenario_2_manual_definition_manipulation.ring:
+         #1 ? @@NL(aDef) -> expected '[ [ "match_patterns", [ [ [ "type", "node" ], [ "alias", "n"' not found past cursor 0
+[ skip ] 28_scenario_3_serialization_future.ring: no #--> markers
+---
+PASS: 19 / FAIL: 6 / skip: 3

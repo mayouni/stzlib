@@ -1,0 +1,34 @@
+[ FAIL ] 01_example_1_basic_instant_matching.ring:
+         #1 ? Tmx.Match(StzDateTimeQ("2025-10-22 14:30:00")) -> expected 'TRUE (exact match)' not found past cursor 0
+         #2 ? Tmx.MatchPartial(StzDateTimeQ("2025-10-22 14:30:00")) -> expected 'TRUE (partial also works for single item)' not found past cursor 0
+[ FAIL ] 02_example_2_duration_constraints_with_steps.ring:
+         #1 ? Tmx.Match(oDur1) -> expected 'TRUE (90min is in range and on 15min boundary)' not found past cursor 0
+         #2 ? Tmx.Match(oDur2) -> expected 'FALSE (80min not on 15min step: 60, 75, 90, 105, 120)' not found past cursor 0
+[ FAIL ] 03_example_3_event_sequences_-_match_vs_matchpartial.ring:
+         #1 ? Tmx1.Match(oTimeline) -> expected 'FALSE (pattern stops at Break, but Lunch remains)' not found past cursor 0
+         #2 ? Tmx1.MatchPartial(oTimeline) -> expected 'TRUE (Meeting->Break sequence exists)' not found past cursor 0
+[ FAIL ] 04_example_4_complete_sequence_matching.ring:
+         #1 ? Tmx2.Match(oTimeline2) -> expected 'TRUE (exact match - entire timeline consumed)' not found past cursor 0
+[ FAIL ] 05_example_5_gap_duration_constraints.ring:
+         #1 ? Tmx3.MatchPartial(oTimeline3) -> expected 'TRUE (finds A->30min->B)' not found past cursor 0
+         #2 ? Tmx4.MatchPartial(oTimeline3) -> expected 'FALSE (gap is 30min, not 1h)' not found past cursor 0
+[ FAIL ] 06_example_6_alternation_patterns.ring:
+         #1 ? Tmx5.MatchPartial(oTimeline4) -> expected 'TRUE (Meeting->Coffee path matches)' not found past cursor 0
+[ FAIL ] 07_example_7_event_span_duration_constraints.ring:
+         #1 ? Tmx6.Match(oTimeline5) -> expected 'TRUE (Session span is 60 minutes)' not found past cursor 0
+         #2 ? Tmx7.Match(oTimeline5) -> expected 'FALSE (Session is 60min, not 30min)' not found past cursor 0
+[ FAIL ] 08_example_8_quantifiers_-_zero_or_more.ring:
+         #1 ? Tmx8.Match(oTimeline6) -> expected 'TRUE (@Duration* matches 1 gap)' not found past cursor 0
+[ FAIL ] 09_example_9_adjacent_events_no_gaps.ring:
+         #1 ? Tmx9.Match(oTimeline7) -> expected 'TRUE (events are adjacent, no gap required)' not found past cursor 0
+[ FAIL ] 10_example_10_pattern_debugging.ring:
+         #1 ? Tmx10.MatchPartial(oTimeline8) -> expected 'TRUE (with detailed trace)' not found past cursor 0
+[ FAIL ] 11_example_11_real-world_meeting_scheduler.ring:
+         #1 ? Tmx11.MatchPartial(oSchedule) -> expected 'TRUE (pattern exists in schedule)' not found past cursor 0
+         #2 ? Tmx12.MatchPartial(oSchedule) -> expected 'TRUE (DeepWork is 2.5 hours)' not found past cursor 0
+[ FAIL ] 12_example_12_finding_patterns_across_timeline.ring:
+         #1 ? Tmx13.MatchPartial(oTimeline9) -> expected 'TRUE (Target found at position 3)' not found past cursor 0
+[ FAIL ] 13_example_13_pattern_explanation.ring:
+         #1 ? @@NL(Tmx14.Explain()) -> expected 'Shows tokens, constraints, and semantics' not found past cursor 0
+---
+FAIL: 13

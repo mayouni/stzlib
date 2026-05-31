@@ -1,0 +1,31 @@
+[ skip ] 01_setup_create_test_files_in_systest.ring: no #--> markers
+[ FAIL ] 02_test_1_basic_command_execution.ring:
+         #1 ? "Success: " + oCall.Succeeded() -> expected 'Output: Hello World #TODO #ERR see why it returned \\"Hello W' not found past cursor 0
+[ skip ] 03_test_2_file_operations_with_parameters.ring: no #--> markers
+[ PASS ] 04_test_3_multiple_parameters.ring: 1 assertions matched
+[ PASS ] 05_test_4_auto-typed_return_from_sys.ring: 2 assertions matched
+[ skip ] 06_test_5_error_handling.ring: no #--> markers
+[ PASS ] 07_test_6_successfailure_checks.ring: 1 assertions matched
+[ FAIL ] 08_test_7_output_capture_control.ring:
+         #3 ? o1.Error() -> expected 'The command syntax is incorrect.' not found past cursor 3
+[ skip ] 09_test_8_silent_execution.ring: no #--> markers
+[ FAIL ] 10_test_9_reuse_object_for_multiple_commands.ring:
+         #1 ? oCall.Output() -> expected '"First"' not found past cursor 0
+         #2 ? oCall.Output() -> expected '"Second"' not found past cursor 0
+[ skip ] 11_test_10_step-by-step_building.ring: no #--> markers
+[ PASS ] 12_test_11_timeout_handling.ring: 2 assertions matched
+[ FAIL ] 13_test_12_file_operations_in_systest.ring:
+         #2 ? "✓ File moved: " + fexists("systest/newdir/moved.txt") -> expected '✓ File moved: TRUE' not found past cursor 0
+[ PASS ] 14_pr.ring: 1 assertions matched
+[ skip ] 15_test_13_legacy_function_compatibility.ring: no #--> markers
+[ skip ] 16_test_14_open_file_with_default_app.ring: no #--> markers
+[ PASS ] 17_test_15_working_with_sys_commands.ring: 1 assertions matched
+[ PASS ] 18_pr.ring: 1 assertions matched
+[ PASS ] 19_pr.ring: 1 assertions matched
+[ FAIL ] 20_test_16_error_states.ring:
+         #2 ? oCall.ExitCode() -> expected '1 (Means failure in commandline standard)' not found past cursor 1
+         #5 ? oCall.ExitCode() -> expected '0 (Means successin command line standard)' not found past cursor 5
+[ skip ] 21_test_17_chaining_with_q_methods.ring: no #--> markers
+[ PASS ] 22_test_18_complex_file_operations.ring: 1 assertions matched
+---
+PASS: 9 / FAIL: 5 / skip: 8
