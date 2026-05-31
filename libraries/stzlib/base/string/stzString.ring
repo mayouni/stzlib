@@ -13,6 +13,13 @@
 #--------------------------------------------------------------#
 
 
+# Global wrappers for the string-checker family were trialed here
+# but Ring's parser flagged each as "Function redefinition" because
+# the class below also defines methods with the same names. Callers
+# (stzLocale, stzCurrency, etc.) that need the global form should
+# use stzStringQ(p).IsXxx() instead -- which is what the in-class
+# methods exist for.
+
 class stzString from stzObject
 
 	@pEngine
@@ -1697,6 +1704,57 @@ class stzString from stzObject
 	def IsCurrencySymbol()
 		# Stub (the monolith left this as TODO with no body).
 		return 0
+
+	def IsScriptName()
+		if This.IsEmpty() return 0 ok
+		_cInSn_ = lower(This.String())
+		for _aInSi_ in LocaleScriptsXT()
+			if lower(_aInSi_[2]) = _cInSn_
+				return 1
+			ok
+		next
+		return 0
+
+	def IsScriptCode()
+		if This.IsEmpty() return 0 ok
+		_cInScode_ = This.String()
+		for _aInSi_ in LocaleScriptsXT()
+			if _aInSi_[1] = _cInScode_
+				return 1
+			ok
+		next
+		return 0
+
+	def IsScriptNumber()
+		return This.IsScriptCode()
+
+	def IsScriptAbbreviation()
+		if This.IsEmpty() return 0 ok
+		_cInSa_ = lower(This.String())
+		for _aInSi_ in LocaleScriptsXT()
+			if lower(_aInSi_[3]) = _cInSa_
+				return 1
+			ok
+		next
+		return 0
+
+	def ContainsOneOccurrenceCS(pcSubStr, pCaseSensitive)
+		return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) = 1
+
+	def ContainsOneOccurrence(pcSubStr)
+		return This.ContainsOneOccurrenceCS(pcSubStr, 1)
+
+	def ContainsOnlyOne(pcSubStr)
+		return This.ContainsOneOccurrence(pcSubStr)
+
+	def ContainsOne(pcSubStr)
+		return This.ContainsOneOccurrence(pcSubStr)
+
+	def ContainsNTimesCS(n, pcSubStr, pCaseSensitive)
+		return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) = n
+
+	def ContainsNTimes(n, pcSubStr)
+		return This.ContainsNTimesCS(n, pcSubStr, 1)
 
 	def RepresentsInteger()
 		_oRiChk_ = new stzStringChecker(This)

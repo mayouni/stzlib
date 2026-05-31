@@ -5524,10 +5524,23 @@ func ListItemsAreAllStrings(paList)
 		return ListItemsAreAllStrings(paList)
 
 func IsLocaleList(paList)
-	return IsLocaleList(paList)
+	# Was `return IsLocaleList(paList)` -- infinite recursion (R4
+	# Stack Overflow at depth 997). Real impl: a locale list is a
+	# hashlist with at least one of :Language, :Script, :Country.
+	if NOT (isList(paList) and IsHashList(paList))
+		return 0
+	ok
+	if HasKey(paList, :Language) or
+	   HasKey(paList, :Script)   or
+	   HasKey(paList, :Country)
+		return 1
+	ok
+	return 0
 
-	def @IsLocaleList(paList)
-		return This.IsLocaleList(paList)
+	func @IsLocaleList(paList)
+		# Was `return This.IsLocaleList(...)` -- `This.` doesn't work
+		# inside a global func. Just forward to the func.
+		return IsLocaleList(paList)
 
 #===
 
