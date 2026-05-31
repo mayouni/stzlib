@@ -25,9 +25,28 @@ prints.
 | tree         |     10 |    7 |    3 |       0 |    0 |
 | grid         |     22 |   12 |    5 |       0 |    5 |
 | html         |      9 |    0 |    3 |       0 |    6 |
-| **totals**   |  **313** | **116** | **121** | **2** | **74** |
+| global       |     50 |    7 |   19 |       3 |   21 |
+| object       |     32 |    7 |   15 |       0 |   10 |
+| plot         |     73 |    4 |    3 |       0 |   66 |
+| pivottable   |      4 |    0 |    2 |       0 |    2 |
+| sortedlist   |      1 |    0 |    1 |       0 |    0 |
+| listofentities |    4 |    0 |    0 |       0 |    4 |
+| listparser   |      3 |    0 |    1 |       0 |    2 |
+| tile         |     21 |   10 |    7 |       0 |    4 |
+| hexnumbert   |     13 |    4 |    7 |       0 |    2 |
+| pythoncode   |     10 |    0 |    1 |       0 |    9 |
+| appserver    |      2 |    0 |    0 |       0 |    2 |
+| extinpython  |     12 |    2 |    6 |       0 |    4 |
+| **totals**   |  **538** | **150** | **183** | **5** | **200** |
 
-PASS rate excluding skips/timeouts: 116 / 239 = **49%**.
+PASS rate excluding skips/timeouts: 150 / 338 = **44%**.
+
+`global` shows 3 TIMEOUTs and high FAIL count — likely the same
+algorithmic-stall pattern as the number module. Worth focused
+review alongside `stzCounter.CountTo(1M)` perf regression (task #4).
+
+`plot` is dominated by demo blocks (66 skips). The 3 FAILs are real
+plot-rendering drift.
 
 Per-module `_RUN.txt` files capture the raw runner output and serve as
 the canonical regression baseline for follow-up reconciliation.

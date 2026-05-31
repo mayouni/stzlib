@@ -1,0 +1,13 @@
+[ skip ] 01_pr.ring: no #--> markers
+[ FAIL ] 02_simple_python_code.ring:
+         #1 ? @@( Result() ) -> expected '[ [ "numbers", [ 1, 2, 3, 4, 5 ] ], [ "mean", 3 ] ]' not found past cursor 0
+[ skip ] 03_data_analysis_with_pandas.ring: no #--> markers
+[ skip ] 04_text_processing_with_python_and_its_regex_engine.ring: no #--> markers
+[ skip ] 05_python_machine_learning_integration_in_a_ring_prog.ring: no #--> markers
+[ skip ] 06_advanced_example_-_comparing_perf_python_vs_softan.ring: no #--> markers
+[ skip ] 07_pr.ring: no #--> markers
+[ skip ] 08_face_detection_with_python.ring: no #--> markers
+[ skip ] 09_block_9.ring: no #--> markers
+[ skip ] 10_block_10.ring: no #--> markers
+---
+FAIL: 1 / skip: 9

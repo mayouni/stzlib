@@ -1,0 +1,61 @@
+[ skip ] 01_checking_truth.ring: no #--> markers
+[ skip ] 02_pr.ring: no #--> markers
+[ skip ] 03_truth_in_ring.ring: no #--> markers
+[ FAIL ] 04_truth_in_softanza.ring:
+         #1 ? @@( SubStringsMakingAStringFalse() ) -> expected '[]' not found past cursor 0
+         #6 ? @@( InnerItemsMakingAListFalse() ) -> expected '[ "X" ]' not found past cursor 9
+[ PASS ] 05_pr.ring: 1 assertions matched
+[ FAIL ] 06_pr.ring:
+         #1 ? attributes(o1) # A Ring function -> expected '[ "name", "age", "job" ]' not found past cursor 0
+[ FAIL ] 07_pr.ring:
+         #2 ? Q(NullObject()).IsNamedObject() -> expected 'TRUE' not found past cursor 11
+         #4 ? Q(TrueObject()).IsNamedObject() -> expected 'TRUE' not found past cursor 25
+         #6 ? Q(FalseObject()).IsNamedObject() -> expected 'TRUE' not found past cursor 40
+[ FAIL ] 08_pr.ring:
+         #1 ? Name() -> expected ':myobj' not found past cursor 0
+         #2 ? StzType() -> expected ':stznumber' not found past cursor 0
+[ FAIL ] 09_pr.ring:
+         #1 ? @@( StzNullObjectQ() ) -> expected '@noname' not found past cursor 0
+         #2 ? @@([ StzNullObjectQ() ]) -> expected '[ @noname ]' not found past cursor 0
+[ skip ] 10_pr.ring: no #--> markers
+[ FAIL ] 11_pr.ring:
+         #1 ? StzNumberQ("-5.23456").Absolute() -> expected '"5.23456"' not found past cursor 0
+[ skip ] 12_pr.ring: no #--> markers
+[ PASS ] 13_tonumber_and_tonumberw.ring: 3 assertions matched
+[ FAIL ] 14_startprofiler.ring:
+         #1 ? Q(-5).ToNumberW('{ @number = Q(@number).Abs() }') -> expected '5' not found past cursor 0
+         #3 ? QRT([ -1, 2, -3, -4, 5 ], :stzListOfNumbers).ToNumberW('{  -> expected '-1' not found past cursor 182
+[ FAIL ] 15_startprofiler.ring:
+         #1 ? @@( Q("Ring").Unicodes() ) -> expected '[ 82, 105, 110, 103 ]' not found past cursor 0
+[ FAIL ] 16_pr.ring:
+         #1 ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }') -> expected '3' not found past cursor 0
+         #3 ? Q([ "Me", "and", "You!" ]).Yield('len(@item)') -> expected '[2, 3, 4]' not found past cursor 20
+[ PASS ] 17_pr.ring: 2 assertions matched
+[ FAIL ] 18_pr.ring:
+         #1 ? PluralOfThisStzType(:stzchar) -> expected '"stzchars"' not found past cursor 0
+         #2 ? StzTypeToPlural(:stzchar) -> expected '"stzchars"' not found past cursor 0
+         #3 ? PluralToStzType(:stzchars) -> expected '"stzchar"' not found past cursor 0
+[ skip ] 19_pr.ring: no #--> markers
+[ FAIL ] 20_pr.ring:
+         #15 ? Q("2").Is(:NumberInString) -> expected 'TRUE' not found past cursor 35
+         #16 ? Q("2").IsEitherA(:Number, :Or = :String) -> expected 'TRUE' not found past cursor 35
+         #17 ? Q("2").IsOneOfThese([ 3, "2", 5 ]) -> expected 'TRUE' not found past cursor 35
+         #18 ? Q([ 10, 20, 30 ]).IsA(:ListOfNumbers) -> expected 'TRUE' not found past cursor 35
+[ PASS ] 21_pr.ring: 1 assertions matched
+[ skip ] 22_block_22.ring: no #--> markers
+[ PASS ] 23_pr.ring: 1 assertions matched
+[ skip ] 24_block_24.ring: no #--> markers
+[ PASS ] 25_pr.ring: 1 assertions matched
+[ skip ] 26_block_26.ring: no #--> markers
+[ FAIL ] 27_pr.ring:
+         #3 ? Q([ "1", "2", "3" ]).EachItemIsA([ :String, :NumberInStrin -> expected 'TRUE' not found past cursor 3
+[ FAIL ] 28_pr.ring:
+         #2 ? o1.Is(:String) -> expected 'FALSE' not found past cursor 3
+[ FAIL ] 29_pr.ring:
+         #1 ? o1.Is(:StzString) -> expected 'TRUE' not found past cursor 0
+[ skip ] 30_pr.ring: no #--> markers
+[ PASS ] 31_pr.ring: 2 assertions matched
+[ FAIL ] 32_pr.ring:
+         #1 ? HowManyStzClasses() -> expected '60' not found past cursor 0
+---
+PASS: 7 / FAIL: 15 / skip: 10
