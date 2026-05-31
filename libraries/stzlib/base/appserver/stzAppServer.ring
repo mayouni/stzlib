@@ -80,10 +80,10 @@ class stzAppServer from stzNetwork
 		# Pre-load Softanza computational engine
 		oComputeEngine = new stzComputeEngine()
 
-		oComputeEngin.PreloadStringEngine()    # Unicode tables, patterns
-		oComputeEngin.PreloadObjectSystem()    # Class definitions, methods
-		oComputeEngin.PreloadCollections()     # Data structures, algorithms
-		oComputeEngin.PreloadNLP()             # Language models (if available)
+		oComputeEngine.PreloadStringEngine()    # Unicode tables, patterns
+		oComputeEngine.PreloadObjectSystem()    # Class definitions, methods
+		oComputeEngine.PreloadCollections()     # Data structures, algorithms
+		oComputeEngine.PreloadNLP()             # Language models (if available)
 
 		? "✓ Softanza computational engine loaded"
 

@@ -47,7 +47,9 @@ class stzAppResponse
 		# oTcpServer.SendTo(oClient, cResponse)
 		bSent = True
 
-	def NotFound(cMessag)
+	def NotFound(cMessage)
+		# Param was `cMessag` (typo missing 'e') -- body referenced
+		# cMessage (correct spelling) so every call was R24.
 		if cMessage = ""
 			cMessage = "Not Found"
 		ok
