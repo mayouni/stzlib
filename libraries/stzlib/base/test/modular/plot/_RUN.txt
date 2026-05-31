@@ -1,0 +1,81 @@
+[ FAIL ] 01_pr.ring:
+         #1 ? oNum.ToCompactForm() -> expected '1.3B' not found past cursor 0
+         #2 ? oNum.ToKForm() -> expected '1290800.3K' not found past cursor 0
+         #3 ? oNum.ToMForm() -> expected '1290.8M' not found past cursor 0
+         #4 ? oNum.ToBForm() -> expected '1.3B' not found past cursor 0
+[ PASS ] 02_pr.ring: 2 assertions matched
+[ PASS ] 03_pr.ring: 2 assertions matched
+[ skip ] 04_pr.ring: no #--> markers
+[ skip ] 05_block_5.ring: no #--> markers
+[ skip ] 06_block_6.ring: no #--> markers
+[ skip ] 07_pr.ring: no #--> markers
+[ skip ] 08_add_setpercent_to_horizontal_chart.ring: no #--> markers
+[ skip ] 09_custom_width_and_hight.ring: no #--> markers
+[ skip ] 10_custom_bar_character.ring: no #--> markers
+[ skip ] 11_x-axis_disabled.ring: no #--> markers
+[ skip ] 12_y-axis_disabled.ring: no #--> markers
+[ skip ] 13_labels_disabled.ring: no #--> markers
+[ skip ] 14_average_line_enabled.ring: no #--> markers
+[ skip ] 15_values_displayed.ring: no #--> markers
+[ skip ] 16_values_displayed.ring: no #--> markers
+[ skip ] 17_custom_bar_width_with_long_label.ring: no #--> markers
+[ skip ] 18_multiple_bars_with_varying_values.ring: no #--> markers
+[ skip ] 19_zero_values.ring: no #--> markers
+[ skip ] 20_single_bar.ring: no #--> markers
+[ skip ] 21_large_values_with_scaling.ring: no #--> markers
+[ FAIL ] 22_test_1_basic_horizontal_bar_chart_with_percent_val.ring:
+         #1 ? oPlot.Width() -> expected '18' not found past cursor 0
+[ PASS ] 23_test_2_custom_width.ring: 1 assertions matched
+[ skip ] 24_test_3_custom_bar_character.ring: no #--> markers
+[ skip ] 25_test_4_x-axis_disabled.ring: no #--> markers
+[ skip ] 26_test_5_y-axis_disabled.ring: no #--> markers
+[ skip ] 27_test_6_both_axes_disabled.ring: no #--> markers
+[ skip ] 28_test_7_labels_disabled.ring: no #--> markers
+[ skip ] 29_test_8_values_displayed.ring: no #--> markers
+[ skip ] 30_test_10_custom_maximum_label_width.ring: no #--> markers
+[ skip ] 31_test_11_long_labels.ring: no #--> markers
+[ skip ] 32_test_12_multiple_bars_with_varying_values.ring: no #--> markers
+[ skip ] 33_test_13_zero_values.ring: no #--> markers
+[ skip ] 34_test_14_single_bar.ring: no #--> markers
+[ skip ] 35_test_15_large_values_with_scaling.ring: no #--> markers
+[ skip ] 36_using_the_short_form_stzcharq.ring: no #--> markers
+[ skip ] 37_pr.ring: no #--> markers
+[ skip ] 38_pr.ring: no #--> markers
+[ skip ] 39_pr.ring: no #--> markers
+[ skip ] 40_pr.ring: no #--> markers
+[ skip ] 41_pr.ring: no #--> markers
+[ skip ] 42_pr.ring: no #--> markers
+[ skip ] 43_pr.ring: no #--> markers
+[ skip ] 44_pr.ring: no #--> markers
+[ skip ] 45_pr.ring: no #--> markers
+[ skip ] 46_pr.ring: no #--> markers
+[ skip ] 47_pr.ring: no #--> markers
+[ skip ] 48_setting_the_legend_layout_to_vertical.ring: no #--> markers
+[ skip ] 49_basic_histogram_with_student_test_scores.ring: no #--> markers
+[ skip ] 50_histogram_with_frequency_display_and_statistics.ring: no #--> markers
+[ skip ] 51_histogram_with_percentage_display.ring: no #--> markers
+[ skip ] 52_simple_histogram_without_axes.ring: no #--> markers
+[ skip ] 53_compact_histogram_with_custom_bin_width.ring: no #--> markers
+[ skip ] 54_basic_4-item_test_with_percentages.ring: no #--> markers
+[ skip ] 55_2-item_comparison_test.ring: no #--> markers
+[ skip ] 56_3-item_test_with_values_and_percentages.ring: no #--> markers
+[ skip ] 57_5-item_test_recursive_division.ring: no #--> markers
+[ skip ] 58_large_dataset_6_items.ring: no #--> markers
+[ skip ] 59_equal_values_test.ring: no #--> markers
+[ skip ] 60_custom_size_test.ring: no #--> markers
+[ skip ] 61_values_only_no_percentages.ring: no #--> markers
+[ skip ] 62_single_item_test.ring: no #--> markers
+[ skip ] 63_large_numbers_test.ring: no #--> markers
+[ skip ] 64_8-item_complex_test.ring: no #--> markers
+[ skip ] 65_test_1_basic_scatter_plot_with_coordinate_pairs.ring: no #--> markers
+[ skip ] 66_test_2_named_data_points_with_labels.ring: no #--> markers
+[ skip ] 67_test_4_xy_hashlist_format_with_coordinate_values.ring: no #--> markers
+[ skip ] 68_test_6_clean_plot_without_axes.ring: no #--> markers
+[ PASS ] 69_pr.ring: 1 assertions matched
+[ skip ] 70_in_the_name_of_allah.ring: no #--> markers
+[ skip ] 71_test_7_performance_data_visualization.ring: no #--> markers
+[ FAIL ] 72_pr.ring:
+         #1 ? @trimEnd(str) -> expected '" ╰┬──┬─────┬──────┬─────┬───────┬►"' not found past cursor 0
+[ skip ] 73_test_8_temperature_correlation_study.ring: no #--> markers
+---
+PASS: 4 / FAIL: 3 / skip: 66

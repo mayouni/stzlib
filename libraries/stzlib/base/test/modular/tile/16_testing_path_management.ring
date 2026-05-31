@@ -1,0 +1,68 @@
+# Narrative
+# --------
+# Testing path management
+#
+# Extracted from stzTileTest.ring, block #16.
+
+load "../../../stzBase.ring"
+
+
+pr()
+
+StzTileQ([8, 6]) {
+
+	# Add some obstacles
+
+	AddObstacles([ [3, 2], [3, 3], [3, 4], [5, 2], [5, 3], [5, 4] ])
+	
+	# Create a path manually
+
+	AddPath([
+
+		[1, 1], [2, 1],
+			[2, 2],	   [4, 2],
+			[2, 3],	   [4, 3],
+			[2, 4],	   [4, 4],    [6, 2],
+					      [6, 3],
+					      [6, 4], [7, 4], [8, 4]
+	])
+	
+	# Path length
+
+	? PathLength()
+	#--> 13
+	
+	# Show the Tile with path
+
+	MoveTo(8, 4)
+	Show()
+#-->
+#     1   2   3   4   5   6   7   8   
+#   ╭───┬───┬───┬───┬───┬───┬───┬─v─╮
+# 1 │ ○ │ ○ │   │   │   │   │   │   │
+#   ├───┼───┼───┼───┼───┼───┼───┼───┤
+# 2 │   │ ○ │███│ ○ │███│ ○ │   │   │
+#   ├───┼───┼───┼───┼───┼───┼───┼───┤
+# 3 │   │ ○ │███│ ○ │███│ ○ │   │   │
+#   ├───┼───┼───┼───┼───┼───┼───┼───┤
+# 4 >   │ ○ │███│ ○ │███│ ○ │ ○ │ ♥ │
+#   ├───┼───┼───┼───┼───┼───┼───┼───┤
+# 5 │   │   │   │   │   │   │   │   │
+#   ├───┼───┼───┼───┼───┼───┼───┼───┤
+# 6 │   │   │   │   │   │   │   │   │
+#   ╰───┴───┴───┴───┴───┴───┴───┴───╯
+
+	# Calculate path efficiency compared to direct distance
+	? PathEfficiency() # %
+	#--> 83.33
+
+	# Clear path
+
+	ClearPath()
+	? PathLength()
+	#--> 0
+
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.22

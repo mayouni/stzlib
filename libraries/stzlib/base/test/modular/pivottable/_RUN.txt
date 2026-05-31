@@ -1,0 +1,13 @@
+[ FAIL ] 01_pr.ring:
+         #1 ? Value("Product A", "Q1") -> expected '39000' not found past cursor 0
+         #2 ? RowTotal("Product A") -> expected '92000' not found past cursor 0
+         #3 ? ColumnTotal("Q2") -> expected '91000' not found past cursor 0
+         #4 ? GrandTotal() -> expected '164000' not found past cursor 0
+[ skip ] 02_using_multiple_dimensions_for_rows_and_columns.ring: no #--> markers
+[ skip ] 03_various_aggregation_functions.ring: no #--> markers
+[ FAIL ] 04_block_4.ring:
+         #1 ? Value("2024", "Marketing") -> expected '7000' not found past cursor 0
+         #2 ? Value(["2024", "Q2"], "Marketing") -> expected '10000' not found past cursor 0
+         #3 ? Value([ "2023", "Q3" ], "Sales") -> expected '50000' not found past cursor 0
+---
+FAIL: 2 / skip: 2

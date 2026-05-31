@@ -1,0 +1,9 @@
+[ FAIL ] 01_pr.ring:
+         #1 ? @@( List() ) + NL -> expected '[ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"' not found past cursor 0
+         #2 ? @@( ParsedPositions() ) + NL	#--> 1:12 -> expected '[ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]' not found past cursor 0
+         #3 ? ParsedPositions() -> expected '[ 3, 6, 9 ]' not found past cursor 0
+         #4 ? ParsedPositions() -> expected '[ 4, 6, 8 ]' not found past cursor 0
+[ skip ] 02_pr.ring: no #--> markers
+[ skip ] 03_block_3.ring: no #--> markers
+---
+FAIL: 1 / skip: 2

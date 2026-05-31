@@ -1,0 +1,6 @@
+[ FAIL ] 01_block_1.ring:
+         #1 ? o1.Content() -> expected '[ 1, 2, 3, 4, 5 ]' not found past cursor 0
+         #2 ? o1.Content() -> expected '[ 1, 2, 3, 4, 5, 6 ]' not found past cursor 0
+         #3 ? o1.Content() -> expected '[ 1, 2, 3, 4, 5, 6 ]' not found past cursor 0
+---
+FAIL: 1
