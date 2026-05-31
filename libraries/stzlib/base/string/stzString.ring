@@ -1595,6 +1595,109 @@ class stzString from stzObject
 
 	# --- Number representation ---
 
+	# --- Country / Language identifier checkers ---
+	# These were missing from the modular stzString (only in the
+	# monolithic archive). stzCountry's init crashes (R14
+	# "iscountrycode method not found") without them.
+
+	def IsCountryName()
+		if This.IsEmpty() return 0 ok
+		_cInName_ = This.String()
+		for _aInCi_ in LocaleCountriesXT()
+			if lower(_aInCi_[2]) = lower(_cInName_)
+				return 1
+			ok
+		next
+		return 0
+
+	def IsCountryAbbreviation()
+		if This.IsEmpty() return 0 ok
+		_cInAbbr_ = This.String()
+		for _aInCi_ in LocaleCountriesXT()
+			if upper(_aInCi_[3]) = upper(_cInAbbr_) or
+			   upper(_aInCi_[4]) = upper(_cInAbbr_)
+				return 1
+			ok
+		next
+		return 0
+
+	def IsCountryNumber()
+		if This.IsEmpty() return 0 ok
+		_cInNum_ = This.String()
+		for _aInCi_ in LocaleCountriesXT()
+			if lower(_aInCi_[1]) = lower(_cInNum_)
+				return 1
+			ok
+		next
+		return 0
+
+	def IsCountryCode()
+		return This.IsCountryNumber()
+
+	def IsCountryPhoneCode()
+		if This.IsEmpty() return 0 ok
+		_cInPc_ = This.String()
+		for _aInCi_ in LocaleCountriesXT()
+			if _aInCi_[5] = _cInPc_
+				return 1
+			ok
+		next
+		return 0
+
+	def IsLanguageName()
+		if This.IsEmpty() return 0 ok
+		_cInLn_ = This.String()
+		for _aInLi_ in LocaleLanguagesXT()
+			if lower(_aInLi_[2]) = lower(_cInLn_)
+				return 1
+			ok
+		next
+		return 0
+
+	def IsLanguageNumber()
+		if This.IsEmpty() return 0 ok
+		_cInLnm_ = This.String()
+		for _aInLi_ in LocaleLanguagesXT()
+			if _aInLi_[1] = _cInLnm_
+				return 1
+			ok
+		next
+		return 0
+
+	def IsLanguageCode()
+		return This.IsLanguageNumber()
+
+	def IsLanguageAbbreviation()
+		if This.IsEmpty() return 0 ok
+		_cInLa_ = This.String()
+		for _aInLi_ in LocaleLanguagesXT()
+			if lower(_aInLi_[3]) = lower(_cInLa_) or
+			   lower(_aInLi_[4]) = lower(_cInLa_)
+				return 1
+			ok
+		next
+		return 0
+
+	def IsLocaleAbbreviation()
+		# Minimal stub matching the convention. Full impl in the
+		# monolith depended on a locale-abbreviations table we don't
+		# have wired here yet. Returns 0 for now.
+		return 0
+
+	def IsCurrencyName()
+		if This.IsEmpty() return 0 ok
+		_cInCnm_ = lower(This.String())
+		for _aInCx_ in CurrenciesXT()
+			if lower(_aInCx_[1]) = _cInCnm_
+				return 1
+			ok
+		next
+		return 0
+
+	def IsCurrencySymbol()
+		# Stub (the monolith left this as TODO with no body).
+		return 0
+
 	def RepresentsInteger()
 		_oRiChk_ = new stzStringChecker(This)
 		return _oRiChk_.RepresentsInteger()

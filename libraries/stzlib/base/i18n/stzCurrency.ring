@@ -64,7 +64,10 @@ class stzCurrency
 
 	def init(pcCurrencyIdentifier)
 
-		if IsCountryName(pcCurrencyIdentifier)
+		# Was `IsCountryName(...)` -- no global func with that name
+		# exists. Switched to the stzString-method form, which is
+		# consistent with the other branches below.
+		if StzStringQ(pcCurrencyIdentifier).IsCountryName()
 
 			for aCountryInfo in CountriesOrRegionsAndTheirCurrenciesXT()
 				if StzLower(aCountryInfo[1]) = StzLower(pcCurrencyIdentifier)
@@ -86,7 +89,7 @@ class stzCurrency
 		but StzStringQ(pcCurrencyIdentifier).IsCurrencySymbol()
 			// TODO
 
-		but IsLocaleAbbreviation(pcCurrencyIdentifier)
+		but StzStringQ(pcCurrencyIdentifier).IsLocaleAbbreviation()
 			// TODO
 
 		else
