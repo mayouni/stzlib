@@ -371,8 +371,8 @@ class stzFolder from stzObject
 	@acCollapseFolders = []
 
 	@acDisplayChars = [
-		:VerticlalChar = "ââ€â€š",
-		:VerticalCharTick = "ââ€Å“",
+		:VerticlalChar = "ââ€‚",
+		:VerticalCharTick = "ââ€œ",
 		:ClosingChar = "ââ€¢°",
 		:File = " ðÅ¸â€”â€¹",
 		:FileFound = "ðÅ¸â€œâ€ž",
@@ -4796,9 +4796,9 @@ class stzFolder from stzObject
 	            
 	            # Use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "ââ€â‚¬" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "ââ€€" + cIcon + " " + cItemName + nl
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "ââ€â‚¬" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "ââ€€" + cIcon + " " + cItemName + nl
 	            end
 	            
 	        else  # folder
@@ -4863,10 +4863,10 @@ class stzFolder from stzObject
 	            
 	            # Build the line - use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "ââ€â‚¬" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "ââ€€" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + "  "  # No vertical line continuation for last item
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "ââ€â‚¬" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "ââ€€" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + @acDisplayChars[:VerticlalChar] + " "  # Continue vertical line
 	            end
 	            

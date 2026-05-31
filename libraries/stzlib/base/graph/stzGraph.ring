@@ -669,7 +669,7 @@ class stzGraph
 		nLen = len(aViolations)
 		for i = 1 to nLen
 			aV = aViolations[i]
-			cReasons += "  â€¢ [" + aV[:severity] + "] " + aV[:rule] + ": " + aV[:message] + NL
+			cReasons += "  • [" + aV[:severity] + "] " + aV[:rule] + ": " + aV[:message] + NL
 		next
 	
 		return cReasons
@@ -5564,8 +5564,8 @@ class stzGraphAsciiVisualizer
 	@cBoxTopRight = "ââ€¢®"
 	@cBoxBottomLeft = "ââ€¢°"
 	@cBoxBottomRight = "ââ€¢¯"
-	@cBoxHorizontal = "ââ€â‚¬"
-	@cBoxVertical = "ââ€â€š"
+	@cBoxHorizontal = "ââ€€"
+	@cBoxVertical = "ââ€‚"
 	@cArrowDown = "v"
 	@cArrowUp = "ââ€ â€˜"
 	@cPipeChar = "|"
