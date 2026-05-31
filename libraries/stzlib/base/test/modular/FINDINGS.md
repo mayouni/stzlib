@@ -19,9 +19,18 @@ prints.
 | date         |     31 |   18 |   10 |       0 |    3 |
 | calendar     |     47 |   21 |   14 |       0 |   12 |
 | number       |     71 |   24 |   31 |       2 |   14 |
-| **totals**   |  **166** | **72** | **61** | **2** | **31** |
+| dataset      |     52 |    5 |   24 |       0 |   23 |
+| list2d       |      4 |    2 |    0 |       0 |    2 |
+| regex        |     50 |   18 |   25 |       0 |    7 |
+| tree         |     10 |    7 |    3 |       0 |    0 |
+| grid         |     22 |   12 |    5 |       0 |    5 |
+| html         |      9 |    0 |    3 |       0 |    6 |
+| **totals**   |  **313** | **116** | **121** | **2** | **74** |
 
-PASS rate excluding skips/timeouts: 72 / 135 = **53%**.
+PASS rate excluding skips/timeouts: 116 / 239 = **49%**.
+
+Per-module `_RUN.txt` files capture the raw runner output and serve as
+the canonical regression baseline for follow-up reconciliation.
 
 ### duration (extracted from stzdurationtest.ring)
 

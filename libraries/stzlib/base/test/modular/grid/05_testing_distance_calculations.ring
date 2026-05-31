@@ -1,0 +1,78 @@
+# Narrative
+# --------
+# Testing distance calculations
+#
+# Extracted from stzGridTest.ring, block #5.
+
+load "../../../stzBase.ring"
+
+
+pr()
+
+StzGridQ([10, 10]) {
+
+	? @@( SizeXT() )
+	#--> [ 10, 10 ]
+
+	? @@( CurrentPosition() ) + NL
+	#--> [1, 1]
+
+	Show()
+	#-->
+	#     1 2 3 4 5 6 7 8 9 0 
+	#   ╭─v───────────────────╮
+	# 1 > x . . . . . . . . . │
+	# 2 │ . . . . . . . . . . │
+	# 3 │ . . . . . . . . . . │
+	# 4 │ . . . . . . . . . . │
+	# 5 │ . . . . . . . . . . │
+	# 6 │ . . . . . . . . . . │
+	# 7 │ . . . . . . . . . . │
+	# 8 │ . . . . . . . . . . │
+	# 9 │ . . . . . . . . . . │
+	# 0 │ . . . . . . . . . . │
+	#   ╰─────────────────────╯
+	
+	MoveTo(3, 3)
+	? @@( Position() )
+	#--> [ 3, 3 ]
+	
+	# Manhattan Distance
+	
+	? DistanceTo(7, 6)
+	#--> 7
+	
+	# Euclidean Distance
+	
+	? @@( EuclideanDistanceTo(7, 6) )
+	#--> 5
+	
+	# Moving using MoveBy
+	
+	MoveBy(4, 3)  # Move 4 columns right, 3 rows down
+	
+	# New Position
+	
+	? @@( Position() ) + NL
+	#--> [ 7, 6 ]
+	
+	Show()
+	#-->
+	#     1 2 3 4 5 6 7 8 9 0 
+	#   ╭─────────────v───────╮
+	# 1 │ . . . . . . . . . . │
+	# 2 │ . . . . . . . . . . │
+	# 3 │ . . . . . . . . . . │
+	# 4 │ . . . . . . . . . . │
+	# 5 │ . . . . . . . . . . │
+	# 6 > . . . . . . x . . . │
+	# 7 │ . . . . . . . . . . │
+	# 8 │ . . . . . . . . . . │
+	# 9 │ . . . . . . . . . . │
+	# 0 │ . . . . . . . . . . │
+	#   ╰─────────────────────╯
+
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22

@@ -1,0 +1,110 @@
+[ skip ] 01_core_descriptive_statistics.ring: no #--> markers
+[ skip ] 02_alternative_means.ring: no #--> markers
+[ skip ] 03_coefficient_of_variation.ring: no #--> markers
+[ skip ] 04_confidence_intervals.ring: no #--> markers
+[ skip ] 05_weighted_mean_tests.ring: no #--> markers
+[ skip ] 06_trimmed_mean_tests.ring: no #--> markers
+[ skip ] 07_percentile_rank_tests.ring: no #--> markers
+[ FAIL ] 08_categorical_data_analysis_tests.ring:
+         #1 ? Mode() -> expected '"Red" (most frequent value)' not found past cursor 0
+         #2 ? @@(FreqTable()) -> expected '[[ " Red", 3], [ " Blue", 2], [ " Green", 1], [ " Yellow", 1' not found past cursor 0
+         #3 ? @@(PercentFreq()) -> expected '[[ " Red", 42.8571], ...] (percentage of each category)' not found past cursor 0
+         #4 ? @@(RelFreq()) -> expected '[[ " Red", 0.4286], ...] (proportion of each category)' not found past cursor 0
+         #5 ? @@(UValues()) -> expected '[ " Red", "Blue", "Green", "Yellow " ] (unique values)' not found past cursor 0
+         ... +2 more
+[ skip ] 09_data_type_detection.ring: no #--> markers
+[ FAIL ] 10_contingency_table_tests.ring:
+         #1 ? @@(aTable) -> expected '[[ " X", "Y", "Z " ], [[ " A", [3, 0, 0]], [ " B", [0, 2, 0]' not found past cursor 0
+[ FAIL ] 11_mode_count_tests.ring:
+         #1 ? @@(FrequencyTable()) -> expected '[[ " 1", 1], [ " 2", 4], [ " 3", 1], [ " 4", 1], [ " 5", 1]]' not found past cursor 0
+[ FAIL ] 12_quartiles_and_percentiles.ring:
+         #1 ? Q1() -> expected '12.5 (first quartile)' not found past cursor 0
+         #2 ? Q2() -> expected '25 (second quartile, median)' not found past cursor 0
+         #3 ? Q3() -> expected '37.5 (third quartile)' not found past cursor 0
+         #4 ? IQR() -> expected '25 (interquartile range, Q3 - Q1)' not found past cursor 0
+         #5 ? @@(Quartiles()) -> expected '[12.5, 25, 37.5] (using interpolation)' not found past cursor 0
+         ... +2 more
+[ FAIL ] 13_shape_measures.ring:
+         #1 ? Skewness() -> expected '0.0027 (near 0, nearly symmetric)' not found past cursor 0
+         #2 ? Kurtosis() -> expected '-3.9006 (negative = flatter than normal distribution)' not found past cursor 0
+[ skip ] 14_outlier_detection_and_z-scores.ring: no #--> markers
+[ FAIL ] 15_sorted_data.ring:
+         #1 ? @@(o1.SortedData()) -> expected '[10, 20, 30, 40, 50]' not found past cursor 0
+[ FAIL ] 16_time_series_and_trend_analysis.ring:
+         #1 ? @@(o1.MovingAverage(3)) -> expected '[3, 5, 7, 9] (average of 3 consecutive values)' not found past cursor 0
+         #2 ? @@(Trend([ 1, 3, 5, 7, 9 ])) # Or StzDataSetQ([ 1, 3, 5, 7 -> expected '[[ " up", 5]] (upward trend)' not found past cursor 0
+         #3 ? @@(StzDataSetQ([ 7, 4, 3, 1 ]).Trend()) -> expected '[[ " down", 4]] (downward trend)' not found past cursor 0
+         #4 ? @@(StzDataSetQ([ 7, 4, 3, 1, 5, 9, 12 ]).Trend()) -> expected '[[ " down", 4], [ " up", 3]]' not found past cursor 0
+         #5 ? @@(StzDataSetQ([ 7, 4, 3, 1, 1, 1, 5, 9, 12 ]).Trend()) -> expected '[[ " down", 4], [ " stable", 2], [ " up", 3]]' not found past cursor 0
+         ... +1 more
+[ FAIL ] 17_deciles_tests.ring:
+         #1 ? @@(Deciles()) # (10th to 90th percentiles) -> expected '[ 1.9000, 2.8000, 3.7000, 4.6000, 5.5000, 6.4000, 7.3000, 8.' not found past cursor 0
+         #2 ? @@(Quartiles()) # (for comparison) -> expected '[3.25, 5.5, 7.75]' not found past cursor 0
+[ FAIL ] 18_box_plot_statistics_tests.ring:
+         #1 ? @@NL(BoxPlotStats()) -> expected '[ [ "min", 1 ], [ "q1", 3.7500 ], [ "median", 6.5000 ], [ "q' not found past cursor 0
+         #2 ? @@(Outliers()) # (beyond 1.5*IQR) -> expected '[20]' not found past cursor 0
+[ FAIL ] 19_normality_test_tests.ring:
+         #1 ? @@NL(aTest) -> expected '[ [ "test", "heuristic" ], [ "skewness", 0 ], [ "kurtosis", ' not found past cursor 0
+         #2 ? @@NL( NormalityTest() ) -> expected '[ [ "test", "heuristic" ], [ "skewness", 0.0413 ], [ "kurtos' not found past cursor 0
+[ skip ] 20_correlation_analysis_tests.ring: no #--> markers
+[ skip ] 21_chi-square_test_for_independence.ring: no #--> markers
+[ skip ] 22_similarity_measures.ring: no #--> markers
+[ FAIL ] 23_regression_coefficients_tests.ring:
+         #1 ? @@NL(aRegression) -> expected '[[ " slope", 2], [ " intercept", 0], [ " r_squared", 1]]' not found past cursor 0
+         #2 ? @@NL(aRegression2) -> expected '[[ " slope", 2.4], [ " intercept", -1.8], [ " r_squared", 0.' not found past cursor 0
+[ skip ] 24_partial_correlation_tests.ring: no #--> markers
+[ FAIL ] 25_mutual_information_tests.ring:
+         #1 ? oA.MutualInformationWith(oB) -> expected '1 (perfect dependence)' not found past cursor 0
+         #2 ? oA.MutualInfoWith(oC) -> expected '0.0817 (near independence)' not found past cursor 0
+[ skip ] 26_data_transformation_tests.ring: no #--> markers
+[ skip ] 27_access_to_original_data.ring: no #--> markers
+[ PASS ] 28_basic_insights.ring: 1 assertions matched
+[ PASS ] 29_categorical_insights.ring: 1 assertions matched
+[ FAIL ] 30_custom_insight_rules.ring:
+         #1 ? @@NL(InsightsOfDomain(:Finance)) + NL -> expected '[ "High financial volatility (CV = 52.7046%). Risk assessmen' not found past cursor 0
+         #2 ? @@NL(InsightsXT()) -> expected '[ "High variability (CV = 52.7046%) suggests heterogeneous d' not found past cursor 0
+[ FAIL ] 31_weighted_rules.ring:
+         #1 ? @@NL(PrioritizedInsights(:Finance)) -> expected '[ [ "High mean (30).", 2 ], [ "High financial volatility (CV' not found past cursor 0
+         #2 ? @@NL( InsightsForDomain(:Finance) ) + NL -> expected '[ "High financial volatility (CV = 52.7046%). Risk assessmen' not found past cursor 0
+         #3 ? @@NL( InsightsXT() ) -> expected '[ "High variability (CV = 52.7046%) suggests heterogeneous d' not found past cursor 0
+[ FAIL ] 32_data_quality_tests.ring:
+         #1 ? @@(MissingValues()) -> expected '[\'\', "NA", "NULL", "n/a", "#N/A " ]' not found past cursor 0
+         #2 ? @@(o1.Data()) -> expected '[ 1, 3, 5 ] (excludes missing values)' not found past cursor 0
+         #3 ? o1.Count() -> expected '3 (count of valid values)' not found past cursor 0
+[ FAIL ] 33_data_validation.ring:
+         #3 ? @@NL(o1.Recommendations()) -> expected '[ "Small sample size (n=5) prone to outlier influence. Use n' not found past cursor 80
+[ skip ] 34_cache_performance.ring: no #--> markers
+[ PASS ] 35_utility_standalone_functions.ring: 1 assertions matched
+[ FAIL ] 36_summary_and_export_functions.ring:
+         #1 ? @@NL(o1.Export()) + nl -> expected '[ [ "data_type", "numeric" ], [ "count", 5 ], [ "unique_coun' not found past cursor 0
+[ FAIL ] 37_empty_dataset.ring:
+         #1 ? @@(Insights()) -> expected '[ "Dataset is empty - No analysis possible without data.", "' not found past cursor 0
+[ FAIL ] 38_single_value_dataset.ring:
+         #1 ? @@NL(o1.Insights()) -> expected '[ "Low variability (CV = 0%) indicates consistent, homogeneo' not found past cursor 0
+[ FAIL ] 39_mixed_data_types.ring:
+         #1 ? @@NL(Insights()) -> expected '[ "Low variability (CV = 0%) indicates consistent, homogeneo' not found past cursor 0
+[ FAIL ] 40_invalid_correlation_cases.ring:
+         #1 ? o1.CorrelationWith(o2) -> expected '0 (different lengths)' not found past cursor 0
+         #2 ? o3.ChiSquareWith(o4) -> expected '0 (different lengths)' not found past cursor 0
+[ FAIL ] 41_demonstrates_a_comprehensive_analysis_using_multip.ring:
+         #1 ? oSales.Mean() -> expected '190 // Average sales is 190 units' not found past cursor 0
+         #2 ? oSales.TrimmedMean(20) -> expected '190 // Still 190, meaning no big outliers affect the average' not found past cursor 0
+         #3 ? oSales.StandardDeviation() + NL -> expected '60.5530 // Sales fluctuate by about 60.55 units' not found past cursor 0
+         #4 ? @@NL( oSales.BoxPlotStats() ) + NL -> expected '[ [ "min", 100 ], ~> Lowest sales: 100 units [ "q1", 145 ], ' not found past cursor 0
+         #5 ? @@NL( oMonth.RegressionCoefficients(oSales) ) + NL -> expected '[ [ "slope", 20 ], ~> Sales grow by 20 units each month [ "i' not found past cursor 0
+         ... +1 more
+[ PASS ] 42_pr.ring: 3 assertions matched
+[ PASS ] 43_example_1_basic_data_exploration.ring: 1 assertions matched
+[ skip ] 44_example_2_quality_control_analysis.ring: no #--> markers
+[ FAIL ] 45_example_3_correlation_analysis_between_variables.ring:
+         #1 ? oTemp.CorrelationWith(oSalesTemp) -> expected '0.9942 #TODO Strong positive correlation expected?' not found past cursor 0
+[ skip ] 46_example_4_outlier_investigation.ring: no #--> markers
+[ skip ] 47_example_5_custom_plan_creation.ring: no #--> markers
+[ skip ] 48_example_6_trend_analysis_for_time_series.ring: no #--> markers
+[ FAIL ] 49_example_7_comparative_analysis_plan.ring:
+         #1 ? "Improvement: " + @@(nImprovement) + "%" -> expected 'OUTPUT' not found past cursor 0
+[ skip ] 50_example_8_smart_plan_selection.ring: no #--> markers
+[ skip ] 51_example_9_plan_chaining.ring: no #--> markers
+[ skip ] 52_example_10_conditional_plan_execution.ring: no #--> markers
+---
+PASS: 5 / FAIL: 24 / skip: 23
