@@ -84,9 +84,18 @@ def strip_annotations(s):
 # (brackets, quotes, colons, commas) and collapse all whitespace.
 # Used only as a fallback when strict matching has already failed.
 _PUNCT_RE = re.compile(r"[\[\]\(\)\{\}\"',:=]")
+# Trailing-zero stripper: "12.50" -> "12.5", "25.00" -> "25"
+_TRAILING_ZEROS_RE = re.compile(r'(\d+\.\d*?)0+\b')
+_BARE_DOT_RE = re.compile(r'(\d+)\.\b')
 def relax(s):
     s = _PUNCT_RE.sub(' ', s)
     s = re.sub(r'\s+', ' ', s).strip().lower()
+    # Normalise float representations: drop trailing zeros after
+    # the decimal point ("12.50" -> "12.5"), then drop bare trailing
+    # dots ("25." -> "25"). The library and the narrative often
+    # disagree on the trailing-zero count for the same value.
+    s = _TRAILING_ZEROS_RE.sub(r'\1', s)
+    s = _BARE_DOT_RE.sub(r'\1', s)
     return s
 
 def check_file(path):

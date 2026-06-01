@@ -1,30 +1,30 @@
-[ FAIL ] 01_test_longer_token_prefixes_parsed_correctly.ring:
-         #1 ? oGx.Match(oGraph) -> expected 'Should parse as "nodeproperty" not "node"' not found past cursor 0
-[ FAIL ] 02_test_edgeproperty_vs_edge.ring:
-         #1 ? oGx.Match(oGraph) -> expected 'Should parse as "edgeproperty" not "edge"' not found past cursor 0
-[ FAIL ] 03_test_nodecount_vs_node.ring:
-         #1 ? oGx.Match(oGraph) -> expected 'Should parse as "nodecount"' not found past cursor 0
-[ PASS ] 04_case-insensitive_matching_default.ring: 1 assertions matched
-[ PASS ] 05_case-sensitive_matching_with_cs_flag.ring: 3 assertions matched
-[ PASS ] 06_mixed_case_sensitivity_in_pattern.ring: 1 assertions matched
-[ skip ] 07_cache_performance_test.ring: no #--> markers
-[ skip ] 08_cache_stats_and_management.ring: no #--> markers
-[ skip ] 09_cache_with_different_graphs.ring: no #--> markers
-[ PASS ] 10_property_value_comparison_greater_than.ring: 1 assertions matched
-[ PASS ] 11_property_value_comparison_less_than.ring: 1 assertions matched
-[ PASS ] 12_property_equality_constraint.ring: 1 assertions matched
-[ PASS ] 13_multiple_property_constraints.ring: 1 assertions matched
-[ PASS ] 14_property_constraint_with_flow.ring: 1 assertions matched
-[ skip ] 15_explain_method_usage.ring: no #--> markers
-[ FAIL ] 16_standardized_debug_output.ring:
-         #1 ? oGx.Match(oGraph) -> expected 'Shows consistent debug messages' not found past cursor 0
-[ PASS ] 17_preserved_case_in_labels.ring: 1 assertions matched
-[ PASS ] 18_parentheses_content_before_lowercasing.ring: 1 assertions matched
-[ skip ] 19_alternation_with_enhancement_tracking.ring: no #--> markers
-[ PASS ] 20_cicd_with_case_sensitivity.ring: 2 assertions matched
-[ PASS ] 21_state_machine_with_properties.ring: 1 assertions matched
-[ PASS ] 22_negation_with_case_sensitivity.ring: 2 assertions matched
-[ skip ] 23_multi-stage_with_caching_benchmark.ring: no #--> markers
-[ skip ] 24_all_enhancements_together.ring: no #--> markers
----
-PASS: 13 / FAIL: 4 / skip: 7
+[ FAIL ] 01_test_longer_token_prefixes_parsed_correctly.ring:
+         #1 ? oGx.Match(oGraph) -> expected 'Should parse as "nodeproperty" not "node"' not found past cursor 0
+[ FAIL ] 02_test_edgeproperty_vs_edge.ring:
+         #1 ? oGx.Match(oGraph) -> expected 'Should parse as "edgeproperty" not "edge"' not found past cursor 0
+[ FAIL ] 03_test_nodecount_vs_node.ring:
+         #1 ? oGx.Match(oGraph) -> expected 'Should parse as "nodecount"' not found past cursor 0
+[ PASS ] 04_case-insensitive_matching_default.ring: 1 assertions matched
+[ PASS ] 05_case-sensitive_matching_with_cs_flag.ring: 3 assertions matched
+[ PASS ] 06_mixed_case_sensitivity_in_pattern.ring: 1 assertions matched
+[ skip ] 07_cache_performance_test.ring: no #--> markers
+[ skip ] 08_cache_stats_and_management.ring: no #--> markers
+[ skip ] 09_cache_with_different_graphs.ring: no #--> markers
+[ PASS ] 10_property_value_comparison_greater_than.ring: 1 assertions matched
+[ PASS ] 11_property_value_comparison_less_than.ring: 1 assertions matched
+[ PASS ] 12_property_equality_constraint.ring: 1 assertions matched
+[ PASS ] 13_multiple_property_constraints.ring: 1 assertions matched
+[ PASS ] 14_property_constraint_with_flow.ring: 1 assertions matched
+[ skip ] 15_explain_method_usage.ring: no #--> markers
+[ FAIL ] 16_standardized_debug_output.ring:
+         #1 ? oGx.Match(oGraph) -> expected 'Shows consistent debug messages' not found past cursor 0
+[ PASS ] 17_preserved_case_in_labels.ring: 1 assertions matched
+[ PASS ] 18_parentheses_content_before_lowercasing.ring: 1 assertions matched
+[ skip ] 19_alternation_with_enhancement_tracking.ring: no #--> markers
+[ PASS ] 20_cicd_with_case_sensitivity.ring: 2 assertions matched
+[ PASS ] 21_state_machine_with_properties.ring: 1 assertions matched
+[ PASS ] 22_negation_with_case_sensitivity.ring: 2 assertions matched
+[ skip ] 23_multi-stage_with_caching_benchmark.ring: no #--> markers
+[ skip ] 24_all_enhancements_together.ring: no #--> markers
+---
+PASS: 13 / FAIL: 4 / skip: 7

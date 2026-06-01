@@ -1,47 +1,43 @@
-[ FAIL ] 01_pr.ring:
-         #1 ? QByteArrayToString(oByteArray) -> expected 'XYZ' not found past cursor 0
-[ PASS ] 02_pr.ring: 1 assertions matched
-[ PASS ] 03_pr.ring: 2 assertions matched
-[ skip ] 04_pr.ring: no #--> markers
-[ FAIL ] 05_pr.ring:
-         #5 ? ListToJsonXT([["name", "John"], ["age", 30], ["hobbies", [ -> expected 'Returns' not found past cursor 28
-[ PASS ] 06_pr.ring: 1 assertions matched
-[ PASS ] 07_pr.ring: 1 assertions matched
-[ PASS ] 08_example_provided_by_bert_meriani.ring: 3 assertions matched
-[ FAIL ] 09_pr.ring:
-         #1 ? oJson.ToString() -> expected '{"age":30,"name":"John"}' not found past cursor 0
-[ PASS ] 10_example_title.ring: 1 assertions matched
-[ FAIL ] 11_basic_initialization_from_json_string.ring:
-         #1 ? @@NL( oJson.ToList() ) -> expected 'Note: Order of key-value pairs may vary due to qt-behavoir (' not found past cursor 0
-[ FAIL ] 12_basic_initialization_from_ring_list.ring:
-         #1 ? oJson.ToString() -> expected '{"age":25,"name":"Alice"}' not found past cursor 0
-[ FAIL ] 13_getting_keys.ring:
-         #1 ? oJson.Keys() -> expected '["age", "name"] # Note: Order of keys is not guaranteed' not found past cursor 0
-[ FAIL ] 14_accessing_value_by_key.ring:
-         #1 ? oJson.Value("name") -> expected '"John"' not found past cursor 0
-[ FAIL ] 15_setting_a_new_value.ring:
-         #1 ? oJson.ToString() -> expected '{"age":31,"name":"John"} # Note: Key order may vary' not found past cursor 0
-[ PASS ] 16_removing_a_key.ring: 1 assertions matched
-[ PASS ] 17_taking_a_key_remove_and_return_value.ring: 2 assertions matched
-[ FAIL ] 18_basic_initialization_from_json_array.ring:
-         #1 ? oJson.ToList() -> expected '[1, 2, 3]' not found past cursor 0
-[ PASS ] 19_checking_if_its_an_array.ring: 1 assertions matched
-[ PASS ] 20_accessing_element_by_index.ring: 1 assertions matched
-[ PASS ] 21_getting_first_element.ring: 1 assertions matched
-[ PASS ] 22_getting_last_element.ring: 1 assertions matched
-[ FAIL ] 23_adding_an_element_to_array.ring:
-         #1 ? oJson.ToString() -> expected '[1,2,3,4]' not found past cursor 0
-[ FAIL ] 24_prepending_an_element_to_array.ring:
-         #1 ? oJson.ToString() -> expected '[0,1,2,3]' not found past cursor 0
-[ FAIL ] 25_inserting_an_element_at_position.ring:
-         #1 ? oJson.ToString() -> expected '[1,1.5,2,3]' not found past cursor 0
-[ FAIL ] 26_removing_an_element_by_index.ring:
-         #1 ? oJson.ToString() -> expected '[1,3]' not found past cursor 0
-[ FAIL ] 27_taking_an_element_by_index.ring:
-         #2 ? oJson.ToString() -> expected '[1,3]' not found past cursor 1
-[ PASS ] 28_checking_if_element_exists_in_array.ring: 2 assertions matched
-[ FAIL ] 29_replacing_an_element_in_array.ring:
-         #1 ? oJson.ToString() -> expected '[1,2.5,3]' not found past cursor 0
-[ PASS ] 30_copying_a_json_object.ring: 1 assertions matched
----
-PASS: 14 / FAIL: 15 / skip: 1
+[ FAIL ] 01_pr.ring:
+         #1 ? QByteArrayToString(oByteArray) -> expected 'XYZ' not found past cursor 0
+[ PASS ] 02_pr.ring: 1 assertions matched
+[ PASS ] 03_pr.ring: 2 assertions matched
+[ skip ] 04_pr.ring: no #--> markers
+[ FAIL ] 05_pr.ring:
+         #5 ? ListToJsonXT([["name", "John"], ["age", 30], ["hobbies", [ -> expected 'Returns' not found past cursor 28
+[ PASS ] 06_pr.ring: 1 assertions matched
+[ PASS ] 07_pr.ring: 1 assertions matched
+[ PASS ] 08_example_provided_by_bert_meriani.ring: 3 assertions matched
+[ PASS ] 09_pr.ring: 3 assertions matched
+[ PASS ] 10_example_title.ring: 1 assertions matched
+[ FAIL ] 11_basic_initialization_from_json_string.ring:
+         #1 ? @@NL( oJson.ToList() ) -> expected 'Note: Order of key-value pairs may vary due to qt-behavoir a' not found past cursor 0
+[ PASS ] 12_basic_initialization_from_ring_list.ring: 2 assertions matched
+[ FAIL ] 13_getting_keys.ring:
+         #1 ? oJson.Keys() -> expected '["age", "name"]' not found past cursor 0
+[ PASS ] 14_accessing_value_by_key.ring: 1 assertions matched
+[ FAIL ] 15_setting_a_new_value.ring:
+         #1 ? oJson.ToString() -> expected '{"age":31,"name":"John"}' not found past cursor 0
+[ PASS ] 16_removing_a_key.ring: 1 assertions matched
+[ PASS ] 17_taking_a_key_remove_and_return_value.ring: 2 assertions matched
+[ PASS ] 18_basic_initialization_from_json_array.ring: 1 assertions matched
+[ PASS ] 19_checking_if_its_an_array.ring: 1 assertions matched
+[ PASS ] 20_accessing_element_by_index.ring: 1 assertions matched
+[ PASS ] 21_getting_first_element.ring: 1 assertions matched
+[ PASS ] 22_getting_last_element.ring: 1 assertions matched
+[ FAIL ] 23_adding_an_element_to_array.ring:
+         #1 ? oJson.ToString() -> expected '[1,2,3,4]' not found past cursor 0
+[ FAIL ] 24_prepending_an_element_to_array.ring:
+         #1 ? oJson.ToString() -> expected '[0,1,2,3]' not found past cursor 0
+[ FAIL ] 25_inserting_an_element_at_position.ring:
+         #1 ? oJson.ToString() -> expected '[1,1.5,2,3]' not found past cursor 0
+[ FAIL ] 26_removing_an_element_by_index.ring:
+         #1 ? oJson.ToString() -> expected '[1,3]' not found past cursor 0
+[ FAIL ] 27_taking_an_element_by_index.ring:
+         #2 ? oJson.ToString() -> expected '[1,3]' not found past cursor 1
+[ PASS ] 28_checking_if_element_exists_in_array.ring: 2 assertions matched
+[ FAIL ] 29_replacing_an_element_in_array.ring:
+         #1 ? oJson.ToString() -> expected '[1,2.5,3]' not found past cursor 0
+[ PASS ] 30_copying_a_json_object.ring: 1 assertions matched
+---
+PASS: 18 / FAIL: 11 / skip: 1
