@@ -45,7 +45,8 @@
 [ skip ] 22_block_22.ring: no #--> markers
 [ PASS ] 23_pr.ring: 1 assertions matched
 [ skip ] 24_block_24.ring: no #--> markers
-[ PASS ] 25_pr.ring: 1 assertions matched
+[ FAIL ] 25_pr.ring:
+         #1 ? o1.EachItemIsEither( :Number, :Or, :NumberInString ) -> expected 'TRUE' not found past cursor 0
 [ skip ] 26_block_26.ring: no #--> markers
 [ FAIL ] 27_pr.ring:
          #3 ? Q([ "1", "2", "3" ]).EachItemIsA([ :String, :NumberInStrin -> expected 'TRUE' not found past cursor 3
@@ -58,4 +59,4 @@
 [ FAIL ] 32_pr.ring:
          #1 ? HowManyStzClasses() -> expected '60' not found past cursor 0
 ---
-PASS: 7 / FAIL: 15 / skip: 10
+PASS: 6 / FAIL: 16 / skip: 10
