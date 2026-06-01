@@ -55,14 +55,32 @@ class stzDecimalToBinary from stzObject
 	def ToBinaryForm()
 		cBinary = ""
 
-		if This.ToStzNumber().NumericValue() = 0
+		_nNum_ = This.ToStzNumber().NumericValue()
+
+		if _nNum_ = 0
 			cBinary = "0"
 		else
-	
-			cBinary += This.IntegerPartToBinaryForm()
-	
+
+			_cIntPart_ = This.IntegerPartToBinaryForm()
+
+			# When the integer part is 0, the helper short-circuits
+			# to "". Force a literal "0" so the rendered form keeps
+			# the leading zero (e.g. "0b-0.101" not "0b-.101").
+			if _cIntPart_ = "" or _cIntPart_ = "-"
+				_cIntPart_ += "0"
+			ok
+
+			cBinary += _cIntPart_
+
 			if This.ToStzNumber().HasFractionalPart()
 				cBinary  += DefaultFractionalSeparator() + This.FractionalPartToBinaryForm()
+			ok
+
+			# Re-apply the negative sign if it was dropped by the
+			# integer-part short-circuit (e.g. "-0.625" has integer
+			# part 0, which renders as plain "0").
+			if _nNum_ < 0 and NOT left(cBinary, 1) = "-"
+				cBinary = "-" + cBinary
 			ok
 		ok
 
