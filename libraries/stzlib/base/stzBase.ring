@@ -13,6 +13,7 @@ ok
 
 # Loading files related tp the COMMON module
 
+    load "common/stzIntSeq.ring"
     load "common/stzCounter.ring"
     load "common/stzFuncs.ring"
 
