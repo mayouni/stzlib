@@ -59,13 +59,7 @@
          #1 ? @@('   str = "  ...  "     and   str !=    "  *** " ') -> expected '\'str = " ... " and str != " *** "\'' not found past cursor 0
 [ FAIL ] 34_future.ring:
          #1 ? o1.Content() -> expected 'SOANZNZA' not found past cursor 0
-[ FAIL ] 35_startprofiler.ring:
-         #1 ? ElapsedTime() -> expected '0.07 second(s)' not found past cursor 0
-         #2 ? ElapsedTime() -> expected '0.04 second(s)' not found past cursor 0
-         #3 ? ElapsedTime() -> expected '0.03 second(s)' not found past cursor 0
-         #4 ? ElapsedTime() -> expected '0.06 second(s)' not found past cursor 0
-         #5 ? ElapsedTime() -> expected '0.09 second(s)' not found past cursor 0
-         ... +4 more
+[TIMEOUT] 35_startprofiler.ring: 60s
 [ FAIL ] 36_stznumber_class.ring:
          #1 ? @@(Stz(:Number, :Attributes)) -> expected '[ "@oobject", "@cVarName", "@cnumber" ] You can also say: ? ' not found past cursor 0
          #2 ? Stz(:Number, :Methods) -> expected '[ "init", "content", "initialcontent", "copy", ... ] You can' not found past cursor 0
@@ -91,4 +85,4 @@
 [ FAIL ] 52_chars_looking_similar_but_are_different.ring:
          #1 ? CharsNames([ "O", "Ο", "О" ]) -> expected '[ "LATIN CAPITAL LETTER O", "GREEK CAPITAL LETTER OMICRON", ' not found past cursor 0
 ---
-PASS: 7 / FAIL: 20 / TIMEOUT: 2 / skip: 21
+PASS: 7 / FAIL: 19 / TIMEOUT: 3 / skip: 21

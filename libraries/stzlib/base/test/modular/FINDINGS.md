@@ -41,6 +41,19 @@ prints.
 
 PASS rate excluding skips/timeouts: 150 / 338 = **44%**.
 
+### Final cumulative state (after reconciliation work)
+
+**84 modules / 1660 thematic blocks** -- corpus complete.
+
+  PASS: 394   FAIL: 557   TIMEOUT: 6   skip: 703
+  PASS rate excl skip/timeout: **41 %**
+
+PASS count climbed +109 from the baseline ~285 once the missing-
+method ports landed. Remaining FAILs are predominantly output-text
+drift (library evolved its messages but narrative wasn't updated),
+not R14 crashes. The corpus now functions as a real regression
+baseline against further drift.
+
 ### Wave 3 -- 57 more small modules
 
 Coverage expanded to **78 modules / 1181 thematic blocks**:
