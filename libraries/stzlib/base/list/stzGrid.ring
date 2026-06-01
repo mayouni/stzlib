@@ -687,14 +687,28 @@ class stzGrid From stzObject
 		for i = 1 to nLen
 			nRow = @nCurrentRow + aDirections[i][1]
 			nCol = @nCurrentCol + aDirections[i][2]
-			
+
 			if IsValidPosition(nCol, nRow)
 				aResult +  [nCol, nRow]
 			ok
 		next
-		
+
+		# Sort col-then-row for stable, position-ordered output.
+		# Ring's `sort()` chokes on lists-of-lists; use a simple
+		# pair-comparison sort. Matches the original narrative tests
+		# which were written when the iteration was column-major.
+		for _i_ = 1 to len(aResult) - 1
+			for _j_ = _i_ + 1 to len(aResult)
+				if aResult[_i_][1] > aResult[_j_][1] or
+				   (aResult[_i_][1] = aResult[_j_][1] and aResult[_i_][2] > aResult[_j_][2])
+					_t_ = aResult[_i_]
+					aResult[_i_] = aResult[_j_]
+					aResult[_j_] = _t_
+				ok
+			next
+		next
 		return aResult
-		
+
 		def AdjacentNodes()
 			return This.Neighbors()
 
