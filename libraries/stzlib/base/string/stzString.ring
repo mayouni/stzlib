@@ -266,6 +266,59 @@ class stzString from stzObject
 	def Contains(pcSubStr)
 		return StzEngineStringContainsCS(@pEngine, pcSubStr, 1)
 
+	#-- List membership predicates: does this string appear as an
+	#   item in the given list of strings? Ported from the legacy
+	#   monolithic archive (~line 98300). Backs the natural-language
+	#   chain "Q(str).IsOneOfThese([...])" and its aliases.
+
+	def ExistsInListCS(paList, pCaseSensitive)
+		if NOT isList(paList)
+			StzRaise("ExistsInListCS: paList must be a list")
+		ok
+		_s_ = This.Content()
+		if pCaseSensitive
+			for _item_ in paList
+				if isString(_item_) and _item_ = _s_
+					return 1
+				ok
+			next
+		else
+			_sl_ = lower(_s_)
+			for _item_ in paList
+				if isString(_item_) and lower(_item_) = _sl_
+					return 1
+				ok
+			next
+		ok
+		return 0
+
+		def ExistsAsItemInListCS(paList, pCaseSensitive)
+			return This.ExistsInListCS(paList, pCaseSensitive)
+
+		def IsOneOfTheseCS(paList, pCaseSensitive)
+			return This.ExistsInListCS(paList, pCaseSensitive)
+
+		def IsOneOfCS(paList, pCaseSensitive)
+			return This.ExistsInListCS(paList, pCaseSensitive)
+
+		def IsOneOfTheCS(paList, pCaseSensitive)
+			return This.ExistsInListCS(paList, pCaseSensitive)
+
+	def ExistsInList(paList)
+		return This.ExistsInListCS(paList, 1)
+
+		def ExistsAsItemInList(paList)
+			return This.ExistsInList(paList)
+
+		def IsOneOfThese(paList)
+			return This.ExistsInList(paList)
+
+		def IsOneOf(paList)
+			return This.ExistsInList(paList)
+
+		def IsOneOfThe(paList)
+			return This.ExistsInList(paList)
+
 	def FindFirstCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringFindFirstCS(@pEngine, pcSubStr, _bCase_)

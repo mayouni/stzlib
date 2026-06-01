@@ -16,7 +16,7 @@ o1 = new stzTable([
 ])
 
 o1.AddCol( :JOB = [ "Pilot", "Designer", "Author", "thing", "bye" ] )
-? o1.Shwo() # NOTE this is misspelled!
+? o1.Show() # NOTE this is misspelled!
 
 #--> ID    NAME   AGE        JOB
 #    --- ------- ----- ---------

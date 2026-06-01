@@ -19,7 +19,7 @@ o1 = new stzMatrix([
 
 o1.AddInDiagonal(10)
 
-o1.Shwo() # Note this is misspelled form of Show() but Softanza understands it!
+o1.Show() # Note this is misspelled form of Show() but Softanza understands it!
 #-->
 # ┌          ┐
 # │ 11  2  3 │

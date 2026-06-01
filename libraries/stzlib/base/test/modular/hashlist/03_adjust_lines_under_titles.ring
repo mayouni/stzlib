@@ -15,7 +15,7 @@ o1 = new stzHashList([
 	:job = 		[ "tutor", "coach",  "tutor"  ]
 ])
 
-o1.ToStzTable().Shwo()
+o1.ToStzTable().Show()
 #-->   NAME   PRENAME     JOB
 #      ----- --------- ----
 #       foued     kamel   tutor
