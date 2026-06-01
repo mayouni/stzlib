@@ -3974,4 +3974,18 @@ class stzList from stzObject
 
 	# stzListPaths has only 3 methods - minimal, skip for now
 
+	#-- Unicodes: return the codepoint of each character-string item
+	#   in the list. Called by the global Unicodes(p) function in
+	#   stzFuncs.ring when p is a list. Missing here made
+	#   stzCharData.TurnableNumbers() (and friends) crash with R14.
+
+	def Unicodes()
+		_aUcResult_ = []
+		for _xUcItem_ in @aContent
+			if isString(_xUcItem_) and len(_xUcItem_) > 0
+				_aUcResult_ + StzCharToUnicode(_xUcItem_)
+			ok
+		next
+		return _aUcResult_
+
 
