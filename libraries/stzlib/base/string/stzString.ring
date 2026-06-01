@@ -2765,6 +2765,197 @@ class stzString from stzObject
 	def RemoveTrailingSpaces()
 		This.TrimRight()
 
+	#-- WithoutSpaces / SpacesRemoved: return the content with every
+	#   space character removed, without mutating This. Ported from
+	#   archive line 89601-89614.
+
+	def SpacesRemoved()
+		_cSrStr_ = This.Content()
+		return substr(_cSrStr_, " ", "")
+
+		def WithoutSpaces()
+			return This.SpacesRemoved()
+
+		def WithoutSpacesQ()
+			return new stzString( This.WithoutSpaces() )
+
+		# Preserve the misspelled archive alias for source-compat
+		def WithoutSapces()
+			return This.WithoutSpaces()
+
+	#-- SubStringsSpacifiedCS / TheseSubstringsSpacifiedCS: wrap every
+	#   occurrence of any substring in pacSubStr with spaces in the
+	#   string content, return result. Used by stzCCode.Transpile to
+	#   normalise token boundaries for downstream regex passes.
+	#   Ported from archive line 91253; implementation collapses to a
+	#   simple repeated substr-replace (Ring's built-in is global).
+	#   Case-insensitive path uses a case-folded scan + position-aware
+	#   splice so the result preserves the original casing of
+	#   non-matched chars.
+
+	def SubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
+		if NOT (isList(pacSubStr) and @IsListOfStrings(pacSubStr))
+			StzRaise("SubStringsSpacifiedCS: pacSubStr must be a list of strings")
+		ok
+		_cSscRes_ = This.Content()
+		if @CaseSensitive(pCaseSensitive)
+			for _cSub_ in pacSubStr
+				if _cSub_ != ""
+					_cSscRes_ = substr(_cSscRes_, _cSub_, " " + _cSub_ + " ")
+				ok
+			next
+		else
+			# Case-insensitive: rebuild via manual scan to preserve
+			# original casing in the non-matched stretches.
+			for _cSub_ in pacSubStr
+				if _cSub_ = "" loop ok
+				_cSscOut_ = ""
+				_cSscHay_ = lower(_cSscRes_)
+				_cSscNdl_ = lower(_cSub_)
+				_nSscLen_ = len(_cSscRes_)
+				_nSscSub_ = len(_cSub_)
+				_iSsc_ = 1
+				while _iSsc_ <= _nSscLen_
+					if _iSsc_ + _nSscSub_ - 1 <= _nSscLen_ and substr(_cSscHay_, _iSsc_, _nSscSub_) = _cSscNdl_
+						_cSscOut_ += " " + substr(_cSscRes_, _iSsc_, _nSscSub_) + " "
+						_iSsc_ += _nSscSub_
+					else
+						_cSscOut_ += substr(_cSscRes_, _iSsc_, 1)
+						_iSsc_++
+					ok
+				end
+				_cSscRes_ = _cSscOut_
+			next
+		ok
+		return _cSscRes_
+
+		def TheseSubstringsSpacifiedCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
+
+		def TheseSpacifiedCS(pacSubStr, pCaseSensitive)
+			return This.SubStringsSpacifiedCS(pacSubStr, pCaseSensitive)
+
+	def SubStringsSpacified(pacSubStr)
+		return This.SubStringsSpacifiedCS(pacSubStr, 1)
+
+		def TheseSubstringsSpacified(pacSubStr)
+			return This.SubStringsSpacified(pacSubStr)
+
+		def TheseSpacified(pacSubStr)
+			return This.SubStringsSpacified(pacSubStr)
+
+	#-- FindSubStringsBoundedByIBZZ: for every substring bounded by
+	#   pacBounds[1]..pacBounds[2] return the [startPos, endPos]
+	#   pairs INCLUDING the bounds (IB = inclusive bounds). Ported
+	#   from archive line 34794; self-contained scan rather than
+	#   the SectionsBetween-based archive version.
+
+	def FindSubStringsBoundedByIBZZ(pacBounds)
+		return This.FindSubStringsBoundedByIBCSZZ(pacBounds, 1)
+
+		def FindBoundedByIBZZ(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+	#-- SubStringsBoundedByIB: like BoundedBy but the returned
+	#   substrings INCLUDE the bounds. E.g. on "[@i]___[@i+1]" with
+	#   bounds ["[","]"] returns [ "[@i]", "[@i+1]" ].
+
+	def SubStringsBoundedByIBCS(pacBounds, pCaseSensitive)
+		_aSibZZ_ = This.FindSubStringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
+		_acSibR_ = []
+		_cSibStr_ = This.Content()
+		for _aSibPair_ in _aSibZZ_
+			_nA_ = _aSibPair_[1]
+			_nB_ = _aSibPair_[2]
+			_acSibR_ + substr(_cSibStr_, _nA_, _nB_ - _nA_ + 1)
+		next
+		return _acSibR_
+
+	def SubStringsBoundedByIB(pacBounds)
+		return This.SubStringsBoundedByIBCS(pacBounds, 1)
+
+		def BoundedByIB(pacBounds)
+			return This.SubStringsBoundedByIB(pacBounds)
+
+		def AnyBoundedByIB(pacBounds)
+			return This.SubStringsBoundedByIB(pacBounds)
+
+		def AnySubStringsBoundedByIB(pacBounds)
+			return This.SubStringsBoundedByIB(pacBounds)
+
+	#-- FindSubStringsBoundedByZZ: exclusive-bounds variant. Returns
+	#   the position-pair list for the INNER content (without the
+	#   bound chars). Derived from the IB result by shifting the
+	#   start past the open token and the end before the close token.
+
+	def FindSubStringsBoundedByZZ(pacBounds)
+		return This.FindSubStringsBoundedByCSZZ(pacBounds, 1)
+
+		def FindAnySubStringBoundedByZZ(pacBounds)
+			return This.FindSubStringsBoundedByZZ(pacBounds)
+
+		def FindAnySubStringsBoundedByZZ(pacBounds)
+			return This.FindSubStringsBoundedByZZ(pacBounds)
+
+		def FindBoundedByZZ(pacBounds)
+			return This.FindSubStringsBoundedByZZ(pacBounds)
+
+	def FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+		_aFsbcIB_ = This.FindSubStringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
+		_acFsbcR_ = []
+		_nOpenLen_ = len(pacBounds[1])
+		_nCloseLen_ = len(pacBounds[2])
+		for _aFsbcPair_ in _aFsbcIB_
+			_acFsbcR_ + [ _aFsbcPair_[1] + _nOpenLen_, _aFsbcPair_[2] - _nCloseLen_ ]
+		next
+		return _acFsbcR_
+
+	def FindSubStringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
+		if NOT (isList(pacBounds) and len(pacBounds) = 2 and
+		        isString(pacBounds[1]) and isString(pacBounds[2]))
+			StzRaise("FindSubStringsBoundedByIBCSZZ: pacBounds must be [ open, close ] strings")
+		ok
+		_acFsibResult_ = []
+		_cFsibStr_ = This.Content()
+		_cFsibOpen_ = pacBounds[1]
+		_cFsibClose_ = pacBounds[2]
+		_nFsibLen_ = len(_cFsibStr_)
+		_nFsibO_ = len(_cFsibOpen_)
+		_nFsibC_ = len(_cFsibClose_)
+		if _nFsibO_ = 0 or _nFsibC_ = 0
+			return _acFsibResult_
+		ok
+		_cFsibHay_ = _cFsibStr_
+		_cFsibO2_ = _cFsibOpen_
+		_cFsibC2_ = _cFsibClose_
+		if NOT @CaseSensitive(pCaseSensitive)
+			_cFsibHay_ = lower(_cFsibHay_)
+			_cFsibO2_ = lower(_cFsibO2_)
+			_cFsibC2_ = lower(_cFsibC2_)
+		ok
+		_iFsib_ = 1
+		while _iFsib_ <= _nFsibLen_ - _nFsibO_ + 1
+			if substr(_cFsibHay_, _iFsib_, _nFsibO_) = _cFsibO2_
+				_jFsib_ = _iFsib_ + _nFsibO_
+				_bFsibFound_ = 0
+				while _jFsib_ <= _nFsibLen_ - _nFsibC_ + 1
+					if substr(_cFsibHay_, _jFsib_, _nFsibC_) = _cFsibC2_
+						_acFsibResult_ + [ _iFsib_, _jFsib_ + _nFsibC_ - 1 ]
+						_iFsib_ = _jFsib_ + _nFsibC_
+						_bFsibFound_ = 1
+						exit
+					ok
+					_jFsib_++
+				end
+				if NOT _bFsibFound_
+					_iFsib_++
+				ok
+			else
+				_iFsib_++
+			ok
+		end
+		return _acFsibResult_
+
 	#-- RemoveThisTrailingChar: strip repeated trailing occurrences
 	#   of a single given char. "abc!!" + RemoveThisTrailingChar("!")
 	#   -> "abc". Ported from the legacy monolithic archive
