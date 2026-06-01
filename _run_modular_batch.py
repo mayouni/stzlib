@@ -125,6 +125,11 @@ def check_file(path):
         candidates = [exp_raw]
         if exp_raw == 'TRUE': candidates.append('1')
         if exp_raw == 'FALSE': candidates.append('0')
+        # Empty-list/dict tolerance: `[]` matches `[ ]`, `[  ]`, etc.
+        # Ring's `?` print of empty lists adds whitespace; @@() output
+        # collapses them. Add both forms as candidates.
+        if exp_raw in ('[]', '[ ]', '[  ]'):
+            candidates.extend(['[]', '[ ]'])
         # Also translate TRUE/FALSE inside larger expressions (lists,
         # parenthesised values, etc.). Ring prints booleans as 1/0
         # regardless of context.
