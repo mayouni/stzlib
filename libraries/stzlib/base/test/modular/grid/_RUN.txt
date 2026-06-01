@@ -1,7 +1,6 @@
 [ PASS ] 01_testing_basic_grid_initialization_and_movement.ring: 5 assertions matched
 [ PASS ] 02_testing_hitting_the_right_boundary.ring: 3 assertions matched
-[ FAIL ] 03_testing_different_movement_directions.ring:
-         #10 ? @@( o1.AdjacentNodes() ) + NL -> expected '[ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ], [ 3, 2 ], [ 3, 4 ], [ 4, 2 ]' not found past cursor 198
+[ PASS ] 03_testing_different_movement_directions.ring: 10 assertions matched
 [ skip ] 04_testing_forwardbackward_movement.ring: no #--> markers
 [ PASS ] 05_testing_distance_calculations.ring: 6 assertions matched
 [ skip ] 06_testing_edge_cases_and_boundary_conditions.ring: no #--> markers
@@ -23,4 +22,4 @@
 [ skip ] 21_testing_maze_generation.ring: no #--> markers
 [ PASS ] 22_testing_moving_and_hitting_an_obstacle.ring: 1 assertions matched
 ---
-PASS: 15 / FAIL: 2 / skip: 5
+PASS: 16 / FAIL: 1 / skip: 5
