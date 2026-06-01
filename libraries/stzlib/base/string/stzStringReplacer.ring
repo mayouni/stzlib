@@ -98,6 +98,88 @@ class stzStringReplacer
 			oCopy.Replace(pcSubStr, pcNewSubStr)
 			return oCopy.Content()
 
+	#-- ReplaceByMany: replace successive occurrences of pcSubStr
+	#   with a list of distinct replacements; the i-th occurrence is
+	#   replaced by the i-th entry in pacNewSubStr. If there are
+	#   more occurrences than replacements the extras are left
+	#   untouched. Ported from archive line 41947; uses This.FindCS
+	#   to get positions and a tail-first replace so earlier offsets
+	#   stay valid.
+
+	def ReplaceByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+		# Accept :By/:With/... named-param wrapping
+		if isList(pacNewSubStr) and len(pacNewSubStr) = 2 and isString(pacNewSubStr[1])
+			_cPn_ = lower(pacNewSubStr[1])
+			if _cPn_ = "by" or _cPn_ = "with" or _cPn_ = "using" or _cPn_ = "bymany" or _cPn_ = "withmany" or _cPn_ = "usingmany"
+				pacNewSubStr = pacNewSubStr[2]
+			ok
+		ok
+		if NOT (isList(pacNewSubStr) and @IsListOfStrings(pacNewSubStr))
+			stzRaise("ReplaceByManyCS: pacNewSubStr must be a list of strings.")
+		ok
+		if pcSubStr = ""
+			return
+		ok
+
+		_cContent_ = @oString.Content()
+		_nSubLen_ = len(pcSubStr)
+		_nContentLen_ = len(_cContent_)
+
+		_cHay_ = _cContent_
+		_cNeedle_ = pcSubStr
+		if NOT @CaseSensitive(pCaseSensitive)
+			_cHay_ = lower(_cHay_)
+			_cNeedle_ = lower(_cNeedle_)
+		ok
+
+		# Walk forward, collect positions
+		_anPos_ = []
+		_iScan_ = 1
+		while _iScan_ <= _nContentLen_ - _nSubLen_ + 1
+			if substr(_cHay_, _iScan_, _nSubLen_) = _cNeedle_
+				_anPos_ + _iScan_
+				_iScan_ += _nSubLen_
+			else
+				_iScan_++
+			ok
+		end
+
+		_nReplCount_ = len(pacNewSubStr)
+		_nApply_ = _nReplCount_
+		if len(_anPos_) < _nApply_
+			_nApply_ = len(_anPos_)
+		ok
+
+		# Apply replacements tail-first so earlier offsets stay valid
+		for _iApp_ = _nApply_ to 1 step -1
+			_nP_ = _anPos_[_iApp_]
+			_cNew_ = pacNewSubStr[_iApp_]
+			_cBefore_ = ""
+			if _nP_ > 1
+				_cBefore_ = substr(_cContent_, 1, _nP_ - 1)
+			ok
+			_cAfter_ = ""
+			_nAfter_ = _nP_ + _nSubLen_
+			if _nAfter_ <= _nContentLen_
+				_cAfter_ = substr(_cContent_, _nAfter_)
+			ok
+			_cContent_ = _cBefore_ + _cNew_ + _cAfter_
+			_nContentLen_ = len(_cContent_)
+		next
+
+		@oString.Update(_cContent_)
+
+		def ReplaceByManyCSQ(pcSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This
+
+	def ReplaceByMany(pcSubStr, pacNewSubStr)
+		This.ReplaceByManyCS(pcSubStr, pacNewSubStr, 1)
+
+		def ReplaceByManyQ(pcSubStr, pacNewSubStr)
+			This.ReplaceByMany(pcSubStr, pacNewSubStr)
+			return This
+
 	  #========================================#
 	 #     REPLACE NTH OCCURRENCE            #
 	#========================================#

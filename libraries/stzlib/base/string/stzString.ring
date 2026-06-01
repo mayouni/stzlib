@@ -1897,8 +1897,16 @@ class stzString from stzObject
 		_oRmmReplacer_ = new stzStringReplacer(This)
 		_oRmmReplacer_.RemoveManyCS(pacSubStrings, pCaseSensitive)
 
+		def RemoveManyCSQ(pacSubStrings, pCaseSensitive)
+			This.RemoveManyCS(pacSubStrings, pCaseSensitive)
+			return This
+
 	def RemoveMany(pacSubStrings)
 		This.RemoveManyCS(pacSubStrings, 1)
+
+		def RemoveManyQ(pacSubStrings)
+			This.RemoveMany(pacSubStrings)
+			return This
 
 	  #===============================#
 	 #   REMOVE NTH                   #
