@@ -409,6 +409,57 @@ class stzString from stzObject
 		def FindNextSubString(pcSubStr, nStart)
 			return This.FindNext(pcSubStr, nStart)
 
+	#-- Numbers: extract every number literal embedded in the string
+	#   as a list of strings, preserving signs and decimal points.
+	#   Example: "book: 12.34, watch: -56.30, glasses: 77." ->
+	#   [ "12.34", "-56.30", "77" ]
+	#   Ported from the legacy monolithic archive (~line 100884) --
+	#   pure char-scan, self-contained, depends only on Chars().
+	#   Used by stzTimex.ParseDurationToMinutes() and is the #3
+	#   most-called missing method in the catalog.
+
+	def Numbers()
+		_acResult_ = []
+		_acChars_ = This.Chars()
+		_nLen_ = len(_acChars_)
+		_cCurrentNum_ = ""
+		_bInNumber_ = 0
+		_nLenCurrentNum_ = 0
+		_nLenTemp_ = 0
+
+		for i = 1 to _nLen_
+			_nLenCurrentNum_ = len(_cCurrentNum_)
+			if ring_find([ "0","1","2","3","4","5","6","7","8","9" ], _acChars_[i]) > 0 or
+			   (_acChars_[i] = "." and _nLenCurrentNum_ > 0) or
+			   (_acChars_[i] = "-" and _nLenCurrentNum_ = 0)
+
+				_cCurrentNum_ += _acChars_[i]
+				_bInNumber_ = 1
+			else
+				if _bInNumber_
+					_nLenTemp_ = len(_acResult_)
+					if _nLenTemp_ > 0 and _acResult_[_nLenTemp_] = "-"
+						_acResult_[_nLenTemp_] = "-" + _cCurrentNum_
+					else
+						_acResult_ + _cCurrentNum_
+					ok
+					_cCurrentNum_ = ""
+					_bInNumber_ = 0
+				ok
+			ok
+		next
+
+		if _cCurrentNum_ != ""
+			_nLen_ = len(_acResult_)
+			if _nLen_ > 0 and _acResult_[_nLen_] = "-"
+				_acResult_[_nLen_] = "-" + _cCurrentNum_
+			else
+				_acResult_ + _cCurrentNum_
+			ok
+		ok
+
+		return _acResult_
+
 		def FindFirstOccurrence(pcSubStr)
 			return This.FindFirst(pcSubStr)
 
@@ -2497,6 +2548,62 @@ class stzString from stzObject
 
 	def RemoveTrailingSpaces()
 		This.TrimRight()
+
+	#-- RemoveThisTrailingChar: strip repeated trailing occurrences
+	#   of a single given char. "abc!!" + RemoveThisTrailingChar("!")
+	#   -> "abc". Ported from the legacy monolithic archive
+	#   (~line 27306-27389); standalone byte-level implementation that
+	#   avoids cascading dependencies on FindRepeatedTrailingChars*.
+
+	def RemoveThisTrailingChar(c)
+		if NOT isString(c)
+			StzRaise("RemoveThisTrailingChar: c must be a string")
+		ok
+		if len(c) = 0
+			return
+		ok
+		_cStr_ = This.Content()
+		_nLen_ = len(_cStr_)
+		while _nLen_ > 0 and right(_cStr_, 1) = c
+			_cStr_ = left(_cStr_, _nLen_ - 1)
+			_nLen_--
+		end
+		This.Update(_cStr_)
+
+		def RemoveThisTrailingCharQ(c)
+			This.RemoveThisTrailingChar(c)
+			return This
+
+		def RemoveThisRepeatedTrailingChar(c)
+			This.RemoveThisTrailingChar(c)
+
+		def RemoveThisRepeatedTrailingCharQ(c)
+			This.RemoveThisTrailingChar(c)
+			return This
+
+		def RemoveThisTrailingRepeatedChar(c)
+			This.RemoveThisTrailingChar(c)
+
+		def RemoveThisTrailingRepeatedCharQ(c)
+			This.RemoveThisTrailingChar(c)
+			return This
+
+	def RemoveThisLeadingChar(c)
+		if NOT isString(c)
+			StzRaise("RemoveThisLeadingChar: c must be a string")
+		ok
+		if len(c) = 0
+			return
+		ok
+		_cStr_ = This.Content()
+		while len(_cStr_) > 0 and left(_cStr_, 1) = c
+			_cStr_ = substr(_cStr_, 2)
+		end
+		This.Update(_cStr_)
+
+		def RemoveThisLeadingCharQ(c)
+			This.RemoveThisLeadingChar(c)
+			return This
 
 	def RemoveDuplicatesCS(pCaseSensitive)
 		_oRdRemover_ = new stzStringRemover(This)
