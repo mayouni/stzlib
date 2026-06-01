@@ -1,0 +1,67 @@
+  100 files scanned, 11 unique missing methods
+  200 files scanned, 18 unique missing methods
+  300 files scanned, 29 unique missing methods
+  400 files scanned, 37 unique missing methods
+# Missing-method catalogue (445 files scanned)
+# 47 unique methods missing
+
+## By frequency
+   8  findnext                                  dataset
+   6  removethistrailingcharq                   number
+   6  manyreplaced                              coeffextractor
+   5  removespacesq                             ccode
+   5  isoneofthesecs                            global, number
+   4  trimq                                     ccode
+   3  numbersafter                              ccode
+   3  numbers                                   timex
+   3  eachitemiseithera                         object
+   2  boundedby                                 ccode, global
+   2  onlylistsq                                hashlist
+   2  duplicatesremoved                         hashlist
+   2  splittonpartsq                            number
+   2  capturext                                 regex
+   2  isstzclassname                            global
+   2  eachitemiseither                          object
+   1  findsubstringsboundedbyibzz               ccode
+   1  shwo                                      hashlist
+   1  findvalueoritem                           hashlist
+   1  removeitemsatthesepositionsq              hashlist
+   1  howmany                                   number
+   1  wxt                                       number
+   1  islistoflistsofnumbers                    number
+   1  isstztype                                 number
+   1  isdecimalnumberinstring                   number
+   1  tobinaryformwithoutprefix                 number
+   1  isnestedusing                             regex
+   1  endswithanumber                           global
+   1  showshortn                                global
+   1  findmanyassections                        global
+   1  findassection                             global
+   1  replacesection                            global
+   1  islistof                                  global
+   1  inferetype                                global
+   1  unicodes                                  global
+   1  deepcontainscs                            object
+   1  firstcharremoved                          object
+   1  numericvalue                              object
+   1  isuppercasedfq                            baturalcode
+   1  numberofvowels                            baturalcode
+   1  vowelnb                                   baturalcode
+   1  lengthq                                   baturalcode
+   1  arenegative                               baturalcode
+   1  inlowarcase                               baturalcode
+   1  inlowercase                               baturalcode
+   1  firstcharq                                baturalcode
+   1  inlowercaseq                              baturalcode
+
+## By module
+baturalcode            (9 unique): arenegative, firstcharq, inlowarcase, inlowercase, inlowercaseq, isuppercasedfq, lengthq, numberofvowels, vowelnb
+ccode                  (5 unique): boundedby, findsubstringsboundedbyibzz, numbersafter, removespacesq, trimq
+coeffextractor         (1 unique): manyreplaced
+dataset                (1 unique): findnext
+global                 (11 unique): boundedby, endswithanumber, findassection, findmanyassections, inferetype, islistof, isoneofthesecs, isstzclassname, replacesection, showshortn...
+hashlist               (5 unique): duplicatesremoved, findvalueoritem, onlylistsq, removeitemsatthesepositionsq, shwo
+number                 (9 unique): howmany, isdecimalnumberinstring, islistoflistsofnumbers, isoneofthesecs, isstztype, removethistrailingcharq, splittonpartsq, tobinaryformwithoutprefix, wxt
+object                 (5 unique): deepcontainscs, eachitemiseither, eachitemiseithera, firstcharremoved, numericvalue
+regex                  (2 unique): capturext, isnestedusing
+timex                  (1 unique): numbers
