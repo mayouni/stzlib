@@ -1182,6 +1182,17 @@ class stzList from stzObject
 			This.RemoveDuplicates()
 			return This
 
+	#-- Immutable / past-tense aliases for the dedup operation.
+	#   DuplicatesRemoved() returns the deduped list value without
+	#   mutating This (equivalent to WithoutDuplication, ported from
+	#   archive line 41406). Used by stzHashList.UniqueValues().
+
+	def DuplicatesRemovedCS(pCaseSensitive)
+		return This.WithoutDuplicationCS(pCaseSensitive)
+
+	def DuplicatesRemoved()
+		return This.WithoutDuplicationCS(1)
+
 	def WithoutDuplicationCS(pCaseSensitive)
 		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
