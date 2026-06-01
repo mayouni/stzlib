@@ -14,8 +14,7 @@
          #1 ? @@( StzNullObjectQ() ) -> expected '@noname' not found past cursor 0
          #2 ? @@([ StzNullObjectQ() ]) -> expected '[ @noname ]' not found past cursor 0
 [ skip ] 10_pr.ring: no #--> markers
-[ FAIL ] 11_pr.ring:
-         #1 ? StzNumberQ("-5.23456").Absolute() -> expected '"5.23456"' not found past cursor 0
+[ PASS ] 11_pr.ring: 1 assertions matched
 [ skip ] 12_pr.ring: no #--> markers
 [ PASS ] 13_tonumber_and_tonumberw.ring: 3 assertions matched
 [ FAIL ] 14_startprofiler.ring:
@@ -52,4 +51,4 @@
 [ FAIL ] 32_pr.ring:
          #1 ? HowManyStzClasses() -> expected '60' not found past cursor 0
 ---
-PASS: 8 / FAIL: 14 / skip: 10
+PASS: 9 / FAIL: 13 / skip: 10
