@@ -1,0 +1,44 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzStringTest.ring, block #751.
+
+load "../../../stzBase.ring"
+
+
+StzStringQ("RING") {
+	? Content()
+	? Boxed()
+
+	? BoxedRounded()
+	? BoxedRoundedDashed()
+
+	? EachCharBoxed()
+	? EachCharboxedRounded()
+
+	? VizFindBoxedRounded("I")
+}
+
+#--> RING
+#   ┌──────┐
+#   │ RING │
+#   └──────┘
+#   ╭──────╮
+#   │ RING │
+#   ╰──────╯
+#   ╭╌╌╌╌╌╌╮
+#   ┊ RING ┊
+#   ╰╌╌╌╌╌╌╯
+#   ┌───┬───┬───┬───┐
+#   │ R │ I │ N │ G │
+#   └───┴───┴───┴───┘
+#   ╭───┬───┬───┬───╮
+#   │ R │ I │ N │ G │
+#   ╰───┴───┴───┴───╯
+#   ╭───┬───┬───┬───╮
+#   │ R │ I │ N │ G │
+#   ╰───┴─•─┴───┴───╯
+
+pf()
+# Executed in 0.10 second(s) in Ring 1.23

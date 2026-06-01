@@ -1,0 +1,88 @@
+[ FAIL ] 01_creating_timeline_with_start_and_end_boundaries.ring:
+         #3 ? Duration() -> expected '31622399 (seconds)' not found past cursor 39
+[ PASS ] 02_creating_timeline_onject_with_a_date_containing_no.ring: 1 assertions matched
+[ FAIL ] 03_pr.ring:
+         #4 ? @@NL( o1.Content() ) + NL -> expected '[ [ "start", "2024-01-01 00:00:00" ], [ "end", "2024-03-20 0' not found past cursor 88
+[ FAIL ] 04_adding_and_retrieving_points.ring:
+         #2 ? @@( PointNames() ) -> expected '["NEW_YEAR", "VALENTINE", "SUMMER"]' not found past cursor 1
+[ PASS ] 05_adding_points_with_q_chaining.ring: 1 assertions matched
+[ PASS ] 06_removing_points.ring: 3 assertions matched
+[ skip ] 07_renaming_labels_of_points_and_spans_togethor.ring: no #--> markers
+[ skip ] 08_renaming_labels_of_points_and_spans_togethor.ring: no #--> markers
+[ FAIL ] 09_alternative_names_for_points_moments.ring:
+         #1 ? oTimeLine.Moments() -> expected '[ [ "MILESTONE", "2024-06-15 12:00:00" ] ]' not found past cursor 0
+[ FAIL ] 10_adding_and_retrieving_spans.ring:
+         #2 ? SpanNames() -> expected '["Q1", "Q2", "Q3"]' not found past cursor 1
+         #3 ? Span("Q2") -> expected '["2024-04-01 00:00:00", "2024-06-30 23:59:59"]' not found past cursor 1
+[ FAIL ] 11_span_boundaries_and_duration.ring:
+         #3 ? SpanDuration("PROJECT") -> expected '15897599 (seconds)' not found past cursor 39
+         #4 ? SpanDurationQ("PROJECT").ToHuman() -> expected '6 months' not found past cursor 39
+[ FAIL ] 12_removing_spans.ring:
+         #3 ? SpanNames() -> expected '[ "PHASE1", "PHASE3" ]' not found past cursor 3
+[ FAIL ] 13_alternative_names_for_spans_periods.ring:
+         #1 ? oTimeLine.Periods() -> expected '[["VACATION", "2024-07-01 00:00:00", "2024-07-15 23:59:59"]]' not found past cursor 0
+[ PASS ] 14_finding_what_happens_at_a_specific_time.ring: 2 assertions matched
+[ FAIL ] 15_finding_points_between_dates.ring:
+         #1 ? @@( oTimeLine.PointsBetween("2024-02-01 00:00:00", "2024-0 -> expected '["FEB_EVENT", "MAR_EVENT"]' not found past cursor 0
+         #2 ? oTimeLine.MomentsBetween("2024-02-01 00:00:00", :And = "20 -> expected '["FEB_EVENT", "MAR_EVENT"]' not found past cursor 0
+[ FAIL ] 16_finding_spans_between_dates.ring:
+         #1 ? @@( oTimeLine.SpansBetween("2024-01-15 00:00:00", "2024-02 -> expected '["JAN_SPAN", "FEB_SPAN"]' not found past cursor 0
+[ PASS ] 17_finding_spans_overlapping_a_point.ring: 2 assertions matched
+[ PASS ] 18_checking_for_overlapping_spans.ring: 1 assertions matched
+[ FAIL ] 19_getting_overlapping_span_details.ring:
+         #1 ? @@( oTimeLine.OverlappingSpans() ) -> expected '[ ["PROJECT_A", "PROJECT_B", 4060799] ] Duration shows overl' not found past cursor 0
+[ PASS ] 20_timeline_without_overlaps.ring: 3 assertions matched
+[ FAIL ] 21_finding_gaps_between_spans.ring:
+         #1 ? @@NL( oTimeLine.Gaps() ) -> expected '[ [:After = "PHASE1", :Before = "PHASE2", :Duration = 120960' not found past cursor 0
+[ skip ] 22_pr.ring: no #--> markers
+[ skip ] 23_managing_uncovered_periods_in_timeline.ring: no #--> markers
+[ FAIL ] 24_distance_between_points.ring:
+         #1 ? oTimeLine.Distance("START", "END") -> expected '5184000 (seconds)' not found past cursor 0
+         #2 ? oTimeLine.DistanceQ("START", "END").ToHuman() -> expected '60 days' not found past cursor 0
+         #3 ? oTimeLine.Distance(:From = "START", :To = "END") -> expected '5184000' not found past cursor 0
+[ FAIL ] 25_distance_between_span_boundaries.ring:
+         #1 ? oTimeLine.Distance("PHASE1", "PHASE2") -> expected '2678401 (seconds)' not found past cursor 0
+[ FAIL ] 26_mixed_distance_calculations.ring:
+         #1 ? oTimeLine.Distance("KICKOFF", "WORK") # Or TimeBetween -> expected '1432800 (seconds)' not found past cursor 0
+         #2 ? oTimeLine.TimeBetween("KICKOFF", "WORK") -> expected '1432800' not found past cursor 0
+[ FAIL ] 27_sorted_points.ring:
+         #1 ? @@NL( oTimeLine.SortedPoints() ) -> expected '[ ["FIRST", "2024-01-15 10:00:00"], ["SECOND", "2024-05-15 1' not found past cursor 0
+[ FAIL ] 28_sorted_spans.ring:
+         #1 ? @@NL( oTimeLine.SortedSpans() ) -> expected '[ ["Q1", "2024-01-01 00:00:00", "2024-03-31 23:59:59"], ["Q2' not found past cursor 0
+[ FAIL ] 29_timeline_summary.ring:
+         #1 ? @@NL( oTimeLine.Summary() ) -> expected '[ :Start = "2024-01-01 00:00:00", :End = "2024-12-31 23:59:5' not found past cursor 0
+[ PASS ] 30_copying_timeline.ring: 3 assertions matched
+[ PASS ] 31_clearing_timeline.ring: 4 assertions matched
+[ FAIL ] 32_simple_display_without_configuration.ring:
+         #1 ? @@NL( oTimeLine.Stats() ) -> expected '[ [ "metric", "value" ],' not found past cursor 0
+[ FAIL ] 33_custom_width_display.ring:
+         #1 ? oTimeLine.ToStringXT([ :Width = 30 ]) -> expected 'Q1 Q2 Q3 │──────●──────●──────●────────○─► 1 2 3 ╭────┬─────' not found past cursor 0
+[ FAIL ] 34_finding_and_highlighting_specific_element.ring:
+         #2 ? @@(FindMomentXT("EVENT_1")) + NL -> expected '[ [ "1", "2024-02-15 10:00:00" ], [ "3", "2024-08-15 10:00:0' not found past cursor 48
+[ PASS ] 35_highlighting_spans.ring: 1 assertions matched
+[ FAIL ] 36_period_is_an_alias_of_span.ring:
+         #2 ? @@(FindPeriodXT("SUCCESS")) + NL -> expected '[ [ "1", [ "2024-01-01 00:00:00", "2024-03-31 23:59:59" ] ],' not found past cursor 102
+[ skip ] 37_complex_timeline_with_overlapping_spans.ring: no #--> markers
+[ skip ] 38_pr.ring: no #--> markers
+[ skip ] 39_point_outside_boundaries_raises_error.ring: no #--> markers
+[ skip ] 40_span_outside_boundaries_raises_error.ring: no #--> markers
+[ skip ] 41_invalid_span_start_end.ring: no #--> markers
+[ PASS ] 42_pr.ring: 1 assertions matched
+[ skip ] 43_pr.ring: no #--> markers
+[ PASS ] 44_pr.ring: 1 assertions matched
+[ FAIL ] 45_pr.ring:
+         #1 ? @@NL(WhatsAt("2024-03-15 10:00:00")) + NL -> expected '[ [ [ "One", "point" ], [ "Two", "point" ], [ "Three", "poin' not found past cursor 0
+         #2 ? @@NL(WhatsAt("2024-03-15")) + NL         # Date only: all  -> expected '[ [ "One", "point" ], [ "Two", "point" ], [ "Three", "point"' not found past cursor 0
+         #3 ? @@NL(WhatsAt("10:00:00") )            # Time only: all eve -> expected '[ [ "One", "point" ], [ "Two", "point" ], [ "Three", "point"' not found past cursor 0
+         #4 ? @@NL(PointNamesXT()) + NL           # [["EVENT1", 3], ["EV -> expected '[ [ "One", 1 ], [ "Two", 1 ], [ "Three", 1 ] ]' not found past cursor 0
+         #5 ? @@(WhatsBetween("2024-03-12", "2024-03-18")) -> expected '[ "One", "Two", "Three" ]' not found past cursor 0
+[ skip ] 46_pr.ring: no #--> markers
+[ skip ] 47_simple_blocked_maintenance_period.ring: no #--> markers
+[ skip ] 48_multiple_blocked_periods.ring: no #--> markers
+[ skip ] 49_checking_blocks_before_operations.ring: no #--> markers
+[ skip ] 50_block_specific_maintenance_points.ring: no #--> markers
+[ skip ] 51_mixed_blocked_spans_and_points.ring: no #--> markers
+[ skip ] 52_visualize_blocks.ring: no #--> markers
+[ skip ] 53_complex_timeline_with_blocked_regions_and_points.ring: no #--> markers
+---
+PASS: 12 / FAIL: 23 / skip: 18

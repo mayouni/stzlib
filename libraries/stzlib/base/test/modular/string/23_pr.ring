@@ -1,0 +1,21 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzStringTest.ring, block #23.
+
+load "../../../stzBase.ring"
+
+
+o1 = new stzString("ring---")
+
+o1.RemoveThisCharFromRightXT("*")
+? o1.Content()
+#--> "ring---"
+
+o1.RemoveThisCharFromRightXT("-")
+? o1.Content()
+#--> "ring"
+
+pf()
+# Executed in 0.01 second(s).

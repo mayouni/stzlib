@@ -1,0 +1,36 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzStringTest.ring, block #99.
+
+load "../../../stzBase.ring"
+
+
+Q("PROGRAMMING") {
+
+   ? Boxed()
+
+   ? BoxedRound()
+
+   ? EachCharBoxed()
+
+   ? EachCharBoxRounded()
+
+}
+
+pf()
+# Executed in 0.07 second(s) in Ring 1.23
+#-->
+# ┌─────────────┐
+# │ PROGRAMMING │
+# └─────────────┘
+# ╭─────────────╮
+# │ PROGRAMMING │
+# ╰─────────────╯
+# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+# │ P │ R │ O │ G │ R │ A │ M │ M │ I │ N │ G │
+# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# │ P │ R │ O │ G │ R │ A │ M │ M │ I │ N │ G │
+# ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯

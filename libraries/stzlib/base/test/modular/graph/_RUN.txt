@@ -1,0 +1,149 @@
+[ skip ] 01_creating_simple_graph.ring: no #--> markers
+[ skip ] 02_label_automatic_normalization.ring: no #--> markers
+[ PASS ] 03_node_and_edge_existence.ring: 2 assertions matched
+[ FAIL ] 04_path_finding.ring:
+         #1 ? @@NL( PathsXT("start", "end") ) -> expected '[ ["start", "middle", "end"] ]' not found past cursor 0
+[ skip ] 05_enforcing_well_formed_node_ids_one_string_without_.ring: no #--> markers
+[ PASS ] 06_reachability.ring: 1 assertions matched
+[ skip ] 07_neighbors_and_incoming.ring: no #--> markers
+[ FAIL ] 08_undirected_graph_support_via_bidirectional_edges.ring:
+         #1 ? oGraph.IsConnected() -> expected 'FALSE (because "c" is not connected yet)' not found past cursor 0
+         #5 ? @@( oGraph.ReachableFrom("a") ) -> expected '[ "a", "b", "c" ] # Transitively via bidirectional' not found past cursor 7
+[ PASS ] 09_pr.ring: 15 assertions matched
+[ skip ] 10_node_navigation.ring: no #--> markers
+[ FAIL ] 11_node_properties.ring:
+         #3 ? @@( Properties() ) -> expected '["priority", "status", "owner"]' not found past cursor 117
+[ skip ] 12_node_removal.ring: no #--> markers
+[ FAIL ] 13_node_copy_and_duplicate.ring:
+         #1 ? Node("copy1")["properties"]["color"] -> expected '"blue"' not found past cursor 0
+[ skip ] 14_node_merge.ring: no #--> markers
+[ skip ] 15_insert_nodes.ring: no #--> markers
+[ skip ] 16_batch_update_using_anonymous_function.ring: no #--> markers
+[ skip ] 17_node_splitting_merge_inverse_split_one_node_into_t.ring: no #--> markers
+[ FAIL ] 18_pr.ring:
+         #1 ? @@( FindQ("nodes").WithTagQ("prod").Run() ) -> expected '["n1", "n2"]' not found past cursor 0
+         #2 ? @@( FindQ("edges").WithPropertyQ("bandwidth").Run() ) -> expected '["n1->n2", "n2->n3"]' not found past cursor 0
+         #3 ? @@( FindQ("edges").WhereQ("bandwidth", "=", 100).Run() ) -> expected '["n1->n2"]' not found past cursor 0
+         #4 ? @@( FindQ("edges").WithTagQ("critical").Run() ) -> expected '["n1->n2"]' not found past cursor 0
+[ skip ] 19_cycle_detection.ring: no #--> markers
+[ skip ] 20_bottleneck_detection.ring: no #--> markers
+[ FAIL ] 21_graph_metrics.ring:
+         #2 ? NodeDensity100() # Or NodeDensityInPercentage() -> expected '50 (%)' not found past cursor 3
+[ FAIL ] 22_parallelizable_branches.ring:
+         #1 ? @@( ParallelizableBranches() ) # Or ParaBranches() -> expected '[["pathA", "pathB"]]' not found past cursor 0
+[ FAIL ] 23_impact_analysis.ring:
+         #2 ? @@( FailureScope("api") ) -> expected '["worker1", "worker2"]' not found past cursor 1
+         #3 ? @@( MostCriticalNodes(2) ) -> expected '["api", "db"]' not found past cursor 1
+[ FAIL ] 24_weighted_edges_and_operations.ring:
+         #3 ? PathWeight(["a", "b", "c"]) -> expected '13 # Sum of weights' not found past cursor 4
+[ skip ] 25_multi-edges_between_same_nodes_raises_an_error.ring: no #--> markers
+[ FAIL ] 26_pr.ring:
+         #1 ? @@NL( EdgesBetween("A", "B") ) -> expected '[ ["A", "route1", "B"] ]' not found past cursor 0
+         #2 ? @@NL( EdgesBetween("A", "C") ) -> expected '[ ["A", "route2", "C"] ]' not found past cursor 0
+[ PASS ] 27_density_and_sparsity_metrics.ring: 2 assertions matched
+[ FAIL ] 28_pr.ring:
+         #3 ? DensityCategory() -> expected '"very sparse"' not found past cursor 7
+         #7 ? DensityCategory() + NL -> expected '"sparse" (just below 0.5)' not found past cursor 28
+         #10 ? DensityLevel() -> expected '"dense"' not found past cursor 43
+[ skip ] 29_dot_export.ring: no #--> markers
+[ skip ] 30_json_export.ring: no #--> markers
+[ skip ] 31_ascii_visualization.ring: no #--> markers
+[ skip ] 32_graphml_export_check_graphml_correctness.ring: no #--> markers
+[ skip ] 33_graph_explanation.ring: no #--> markers
+[ skip ] 34_path_explanation.ring: no #--> markers
+[ FAIL ] 35_query_by_pattern.ring:
+         #1 ? NodesByType("backend") -> expected '["svc1", "db1"]' not found past cursor 0
+         #2 ? Find("nodes").Where("type", "=", "backend").Run() -> expected '["svc1", "db1"]' not found past cursor 0
+         #3 ? Find("nodes").Where("sql", "=", "yes").Run() -> expected '["db1"]' not found past cursor 0
+[ FAIL ] 36_find_node_paths.ring:
+         #1 ? @@NL( PathsTo(:Node = "target") ) # Or FindPath("target") -> expected '[ ["start", "mid1", "target"], ["start", "mid2", "target"] ]' not found past cursor 0
+[ FAIL ] 37_path_matching.ring:
+         #1 ? @@NL( Paths() ) #TODO// All paths in the graph -> expected '[ ["n1", "n2", "n3"], ["n2", "n3", "n4"], ["n1", "n2", "n3",' not found past cursor 0
+[ FAIL ] 38_edge_property_queries.ring:
+         #2 ? @@( Find("edges").Where("speed", "between", [ 80, 120 ]).R -> expected '[ [ "a", "b" ] ]' not found past cursor 73
+[ FAIL ] 39_node_properties.ring:
+         #2 ? @@( NodePropertiesXT("n1") ) -> expected '[:owner = "alice", :created = "2024-01-01"]' not found past cursor 22
+         #3 ? NodeProperty("n1", "modified") -> expected '"2024-01-15"' not found past cursor 22
+         #4 ? @@( NodeProperties("n1") ) -> expected '[]' not found past cursor 22
+[ PASS ] 40_edge_props.ring: 3 assertions matched
+[ FAIL ] 41_edge_properties.ring:
+         #1 ? EdgeProperty("a", "b", "status") -> expected '"active"' not found past cursor 0
+[ skip ] 42_batch_edge_updates_using_anonymous_functions.ring: no #--> markers
+[ skip ] 43_yaml_format.ring: no #--> markers
+[ FAIL ] 44_shortest_path_in_linear_graph.ring:
+         #1 ? @@( ShortestPath(:From = :n1, :To = :n3) ) -> expected '["n1", "n2", "n3"]' not found past cursor 0
+[ FAIL ] 45_shortest_path_with_multiple_routes.ring:
+         #1 ? @@( ShortestPath(:From = "a", :To = "d") ) -> expected '["a", "b", "d"]' not found past cursor 0
+[ FAIL ] 46_no_path_exists.ring:
+         #1 ? @@( ShortestPath(:From = :x, :To = :z) ) -> expected '[]' not found past cursor 0
+[ PASS ] 47_connected_graph.ring: 2 assertions matched
+[ FAIL ] 48_multiple_components.ring:
+         #2 ? @@NL( ConnectedComponents() ) -> expected '[ ["a", "b"], ["c", "d"] ]' not found past cursor 1
+[ FAIL ] 49_articulation_points.ring:
+         #1 ? @@( ArticulationPoints() ) -> expected '["n2", "n3"] - Removing either disconnects the graph' not found past cursor 0
+[ FAIL ] 50_betweenness_centrality.ring:
+         #1 ? BetweennessCentrality(:center) -> expected '0.33 (2 out of 6 possible paths go through center in directe' not found past cursor 0
+         #2 ? BetweennessCentrality(:n1) -> expected '0 (no paths go through peripheral nodes)' not found past cursor 0
+[ FAIL ] 51_pr.ring:
+         #1 ? BetweennessCentrality(:center) -> expected '1 (all paths go through center in undirected graph)' not found past cursor 0
+         #2 ? BetweennessCentrality(:n1) -> expected '0 (no paths go through peripheral nodes)' not found past cursor 0
+[ FAIL ] 52_closeness_centrality.ring:
+         #1 ? ClosenessCentrality(:b) -> expected '1 (average distance = 1)' not found past cursor 0
+         #2 ? ClosenessCentrality(:a) -> expected '0.67 (average distance = 1.5)' not found past cursor 0
+[ FAIL ] 53_clustering_coefficient.ring:
+         #1 ? ClusteringCoefficient("a") -> expected '1 (neighbors are fully connected)' not found past cursor 0
+[ FAIL ] 54_clustering_coefficient_in_incomplete_triangle.ring:
+         #1 ? ClusteringCoeff(:x) -> expected '0 (neighbors not connected)' not found past cursor 0
+[ FAIL ] 55_diameter_of_graph.ring:
+         #1 ? Diameter() -> expected '3 (longest path: n1 to n4)' not found past cursor 0
+[ FAIL ] 56_average_path_length.ring:
+         #1 ? AveragePathLength() -> expected '1.33 (paths: a-b=1, b-c=1, a-c=2)' not found past cursor 0
+[ PASS ] 57_real-world_network_analysis.ring: 6 assertions matched
+[ PASS ] 58_workflow_dependency_analysis.ring: 5 assertions matched
+[ FAIL ] 59_basic_self-loop_operations.ring:
+         #2 ? EdgeProperty(:from = "node", :to = "node", "type") -> expected '"recursive"' not found past cursor 1
+[ FAIL ] 60_self-loops_in_cycles_and_reachability.ring:
+         #1 ? HasCyclicDependencies() -> expected 'TRUE # Self-loop counts as cycle' not found past cursor 0
+         #2 ? ReachableFromNode("a") -> expected '[ "a", "b" ] # Includes self' not found past cursor 0
+[ PASS ] 61_constraint_block_invalid_ops_rule_runs_before_oper.ring: 1 assertions matched
+[ skip ] 62_constraint_cycle_prevention_in_directed_graphs_dag.ring: no #--> markers
+[ PASS ] 63_derivation_manager_access_rights.ring: 1 assertions matched
+[ FAIL ] 64_validation_orphan_task_detection.ring:
+         #1 ? @@NL( ValidateXT(:PROJECT_RULES_GROUP) ) + NL -> expected '[ [ "status", "fail" ], [ "rulegroup", "project" ], [ "issue' not found past cursor 0
+         #2 ? ValidateXT(:PROJECT_RULES_GROUP)[:status] -> expected '"pass"' not found past cursor 0
+[ PASS ] 65_rule_management_introspection.ring: 5 assertions matched
+[ PASS ] 66_complete_dev_project_workflow.ring: 4 assertions matched
+[ PASS ] 67_built-in_transitivity_derivation.ring: 2 assertions matched
+[ FAIL ] 68_validation_history_tracking.ring:
+         #3 ? @@NL( Violations() ) -> expected '[]' not found past cursor 9
+[ PASS ] 69_comparing_identical_graphs_should_show_no_changes.ring: 1 assertions matched
+[ PASS ] 70_business_analyst_exploring_3_restructuring_options.ring: 1 assertions matched
+[ FAIL ] 71_converting_comparison_to_table_for_further_analysi.ring:
+         #1 ? oMatrix.MostImpactful() + NL -> expected 'Add_COO_Layer' not found past cursor 0
+         #2 ? oMatrix.LeastImpactful() + NL -> expected 'Flat_Structure' not found past cursor 0
+[ FAIL ] 72_finding_best_candidates_programmatically.ring:
+         #1 ? @@( oMatrix.WithoutCycles() ) + NL -> expected '[ ]' not found past cursor 0
+         #2 ? @@(oMatrix.ByMetric(:NodesAdded)) + NL -> expected '["Flat_Structure", "Add_COO_Layer", "Matrix_Org"]' not found past cursor 0
+         #3 ? @@(oMatrix.ByMetric(:EdgesAdded)) -> expected '[ "Add_COO_Layer", "Flat_Structure", "Matrix_Org" ]' not found past cursor 0
+[ PASS ] 73_complete_business_decision_workflow.ring: 1 assertions matched
+[ PASS ] 74_business_scenario_adding_new_departments.ring: 1 assertions matched
+[ PASS ] 75_business_scenario_downsizing.ring: 1 assertions matched
+[ PASS ] 76_business_scenario_budget_adjustments.ring: 1 assertions matched
+[ PASS ] 77_business_scenario_relieving_bottleneck_by_adding_c.ring: 1 assertions matched
+[ PASS ] 78_business_scenario_creating_circular_dependency_war.ring: 1 assertions matched
+[ PASS ] 79_business_scenario_organizational_restructuring.ring: 1 assertions matched
+[ PASS ] 80_business_scenario_department_becomes_isolated.ring: 1 assertions matched
+[ PASS ] 81_business_scenario_comparing_sparse_vs_dense_struct.ring: 1 assertions matched
+[ PASS ] 82_using_diffwith_alias_for_brevity.ring: 1 assertions matched
+[ FAIL ] 83_how_to_use_stzgraf_file_format.ring:
+         #1 ? @@(NodeProperty("warehouse_ny", "capacity")) #ERR -> expected 'Should return 50000 but returned ""' not found past cursor 0
+[ skip ] 84_how_to_use_stzrulz_file_format.ring: no #--> markers
+[ skip ] 85_how_to_use_stzrulf_file_format.ring: no #--> markers
+[ skip ] 86_example_1_query-triggered_constraint_rules.ring: no #--> markers
+[ PASS ] 87_example_2_query-triggered_derivation_rules.ring: 3 assertions matched
+[ FAIL ] 88_example_3_graph_projection_tograph.ring:
+         #3 ? Density100() -> expected '33.33%' not found past cursor 3
+[ skip ] 89_example_4_graph_views_toview.ring: no #--> markers
+[ PASS ] 90_example_5_combined_workflow.ring: 3 assertions matched
+---
+PASS: 27 / FAIL: 37 / skip: 26
