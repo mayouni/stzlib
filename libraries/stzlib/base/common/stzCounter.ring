@@ -153,6 +153,46 @@ class stzCounter from stzObject
 
 		#>
 
+	#-- ENGINE-FIRST fast path:
+	# CountingSeq / CountToSeq / CountSeq return an stzIntSeq object
+	# wrapping a Zig-allocated []i64 backing store. The whole cycle
+	# is built in one C call in O(N) time; subsequent queries
+	# (Sum/Min/Max/At/Len) stay engine-fast.
+	# Reference: N = 1,000,000 builds in ~7 ms on Ring 1.26 (vs
+	# > 60 s for Counting()'s Ring-loop list path).
+
+	def CountingSeq(nNumber)
+		if isList(nNumber) and Q(nNumber).IsToNamedParam()
+			nNumber = nNumber[2]
+		ok
+		if NOT isNumber(nNumber)
+			StzRaise("CountingSeq: nNumber must be a number.")
+		ok
+
+		_nMode_ = 0
+		_nCycleParam_ = 0
+		if @nWhenYouReach != 0
+			_nMode_ = 1
+			_nCycleParam_ = @nWhenYouReach
+		but @nAfterYouSkip != 0
+			_nMode_ = 2
+			_nCycleParam_ = @nAfterYouSkip
+		ok
+
+		_pHandle_ = StzEngineIntSeqCreateCycle(
+			@nStartAt, @nStep, _nCycleParam_, @nRestartAt, nNumber, _nMode_
+		)
+		return new stzIntSeq(_pHandle_)
+
+		def CountSeq(nNumber)
+			return This.CountingSeq(nNumber)
+
+		def CountToSeq(nNumber)
+			return This.CountingSeq(nNumber)
+
+		def CountingToSeq(nNumber)
+			return This.CountingSeq(nNumber)
+
 	def CountingXT(nNumber, paReturnNth)
 		/* Example
 		o1 = new stzCounter([

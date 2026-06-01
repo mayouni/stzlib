@@ -79,6 +79,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_similarity", .entry = "src/stz_similarity_entry.zig", .needs_ring = true },
     .{ .name = "stz_validator", .entry = "src/stz_validator_entry.zig", .needs_ring = true },
     .{ .name = "stz_sequence", .entry = "src/stz_sequence_entry.zig", .needs_ring = true },
+    .{ .name = "stz_intseq", .entry = "src/stz_intseq_entry.zig", .needs_ring = true },
     .{ .name = "stz_relations", .entry = "src/stz_relations_entry.zig", .needs_ring = true },
     .{ .name = "stz_statemachine", .entry = "src/stz_statemachine_entry.zig", .needs_ring = true },
 };
