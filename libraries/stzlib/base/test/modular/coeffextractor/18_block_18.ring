@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stzcoeffextractortest.ring, block #18.
 

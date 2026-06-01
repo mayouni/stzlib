@@ -50,4 +50,3 @@ Best Practices:
 - Cache responses when appropriate
 - Process data as it arrives (don't wait for all requests)
 
-*/

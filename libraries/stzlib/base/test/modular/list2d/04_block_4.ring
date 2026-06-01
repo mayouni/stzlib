@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stzList2DTest.ring, block #4.
 

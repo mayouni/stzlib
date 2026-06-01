@@ -7,7 +7,6 @@
 load "../../../stzBase.ring"
 
 # This example illustrates editable filtered view with commit/rollback
-*/
 pr()
 
 StzGraphQ("organization") {

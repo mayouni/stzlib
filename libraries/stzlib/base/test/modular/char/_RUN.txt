@@ -1,186 +1,176 @@
-[ PASS ] 01_pr.ring: 4 assertions matched
-[ skip ] 02_block_2.ring: no #--> markers
-[ PASS ] 03_pr.ring: 1 assertions matched
-[ PASS ] 04_pr.ring: 5 assertions matched
-[ skip ] 05_pr.ring: no #--> markers
-[ PASS ] 06_pr.ring: 8 assertions matched
-[ FAIL ] 07_todo_logical_errors.ring:
-         #1 ? StzCharQ("0x10481").Content() #--> TODO: ERR, should be "𐒁 -> expected 'ҁ' not found past cursor 0
-         #2 ? Q("Schöne Grüße").Length() # means "Kind Regards" in germa -> expected '12' not found past cursor 0
-         #3 ? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA") #ERRor!  -> expected 'ҁ' not found past cursor 0
-         #4 ? StzCharQ("ҁ").Name() -> expected 'CYRILLIC SMALL LETTER KOPPA' not found past cursor 0
-         #5 ? Q("𐒁").CharName() #TODO-ERROR: correct it to be OSMANYA LE -> expected 'QUESTION MARK' not found past cursor 0
-         ... +1 more
-[ FAIL ] 08_turnable_numbers.ring:
-         #1 ? @@(TurnableNumbers()) -> expected '[ 2, 3 ]' not found past cursor 0
-         #2 ? @@(TurnableNumbersUnicodes()) -> expected '[ 2, 3 ]' not found past cursor 0
-         #3 ? @@(TurnableNumbersXT()) #NOTE// Font in Notepad may not sh -> expected '[ [ 2, "↊" ], [ 3, "↋" ] ]' not found past cursor 0
-[ FAIL ] 09_turned_numbers.ring:
-         #3 ? @@( Q([ "↊", "↋" ]).Names() ) -> expected '[ "TURNED DIGIT TWO", "TURNED DIGIT THREE" ]' not found past cursor 27
-         #4 ? @@(TurnedNumbersXT()) # Or TurnedNumberAndTheirUnicodes() -> expected '[ [ "↊", 8586 ], [ "↋", 8587 ] ]' not found past cursor 27
-[ PASS ] 100_pr.ring: 1 assertions matched
-[ skip ] 101_pr.ring: no #--> markers
-[ skip ] 102_pr.ring: no #--> markers
-[ skip ] 103_pr.ring: no #--> markers
-[ skip ] 104_pr.ring: no #--> markers
-[ skip ] 105_pr.ring: no #--> markers
-[ PASS ] 106_pr.ring: 1 assertions matched
-[ FAIL ] 107_pr.ring:
-         #1 ? o1.Unicode() -> expected '3572' not found past cursor 0
-[ skip ] 108_pr.ring: no #--> markers
-[ skip ] 109_pr.ring: no #--> markers
-[ FAIL ] 10_turnable_chars.ring:
-         #4 ? @@S( TurnableUnicodesXT()) # Or ShowShort() -> expected '[ [ 36, "$" ], [ 38, "&" ], [ 40, "(" ], "...", [ 43843, "ꭃ"' not found past cursor 86
-[ skip ] 110_block_110.ring: no #--> markers
-[ PASS ] 111_pr.ring: 1 assertions matched
-[ skip ] 112_pr.ring: no #--> markers
-[ skip ] 113_pr.ring: no #--> markers
-[ FAIL ] 114_pr.ring:
-         #2 ? @@(o1.InvisibleChars()) -> expected '[ "RIGHT-TO-LEFT OVERRIDE" ]' not found past cursor 14
-[ FAIL ] 115_pr.ring:
-         #1 ? @@(o1.Bytes()) -> expected '[ "�", "�" ]' not found past cursor 0
-[ skip ] 116_pr.ring: no #--> markers
-[ skip ] 117_pr.ring: no #--> markers
-[ FAIL ] 118_pr.ring:
-         #1 ? @@(o1.Bytes()) -> expected '[ "s", "�", "�", "�", "m" ]' not found past cursor 0
-         #2 ? @@(o1.NumberOfBytesPerChar()) -> expected '[ [ "s", 33 ], [ "㊱", 35 ], [ "m", 33 ] ]' not found past cursor 0
-[ skip ] 119_pr.ring: no #--> markers
-[ FAIL ] 11_pr.ring:
-         #1 ? o1.Reverted() -> expected 'Ɯ' not found past cursor 0
-         #2 ? o1.Reverted() -> expected 'M' not found past cursor 0
-[ skip ] 120_block_120.ring: no #--> markers
-[ FAIL ] 12_pr.ring:
-         #3 ? o1.Turned() -> expected 'M' not found past cursor 17
-         #4 ? o1.IsTurned() -> expected 'FALSE' not found past cursor 17
-         #6 ? o1.Turned() -> expected 'Ɯ' not found past cursor 18
-[ FAIL ] 13_pr.ring:
-         #5 ? Q("ƎℲI⅂").IsTurned() -> expected 'TRUE' not found past cursor 302
-         #6 ? Q("ƎℲI⅂").Turned() -> expected 'LIFE' not found past cursor 302
-         #7 ? Q("LIFE").Turned() -> expected 'ƎℲI⅂' not found past cursor 302
-         #8 ? Q("LIFE").CharsTurned() -> expected '⅂IℲƎ' not found past cursor 302
-         #9 ? Q("⅂IℲƎ").CharsTurned() -> expected 'LIFE' not found past cursor 302
-[ FAIL ] 14_pr.ring:
-         #2 ? Q("GARY").CharsBoxedRounded() -> expected '╭───┬───┬───┬───╮ │ G │ A │ R │ Y │ ╰───┴───┴───┴───╯' not found past cursor 0
-         #3 ? Q("GARY").Inversed() # Inverses the order of chars -> expected 'YRAG' not found past cursor 0
-         #4 ? Q("GARY").Turned() # Turns the chars down -> expected '⅄RⱯ⅁' not found past cursor 0
-[ FAIL ] 15_pr.ring:
-         #3 ? @@( LatinDotlessUnicodes() ) + NL -> expected '[ 305, 567 ]' not found past cursor 192
-         #4 ? @@( LatinDotlessLetters() ) -> expected '[ "ı", "ȷ" ]' not found past cursor 192
-[ skip ] 16_pr.ring: no #--> markers
-[ PASS ] 17_arabic_dotless_letters.ring: 4 assertions matched
-[ FAIL ] 18_latin_dotless_letters.ring:
-         #1 ? @@( LatinDotlessLetters() ) + NL -> expected '[ "ı", "ȷ" ]' not found past cursor 0
-         #2 ? @@( LatinDotlessUnicodes() ) + NL -> expected '[ 305, 567 ]' not found past cursor 0
-         #3 ? @@( LatinDotlessLettersAndTheirUnicodes() ) + NL -> expected '[ [ "ı", 305 ], [ "ȷ", 567 ] ]' not found past cursor 0
-         #4 ? @@( LatinDotlessLettersXT() ) + NL -> expected '[ [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]' not found past cursor 0
-[ FAIL ] 19_dotless_letters.ring:
-         #1 ? @@( DotlessLetters() ) + NL -> expected '[ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و"' not found past cursor 0
-         #2 ? @@( DotlessUnicodes() ) + NL -> expected '[ 1609, 1575, 1581, 1583, 1585, 1587, 1589, 1591, 1593, 1605' not found past cursor 0
-         #3 ? @@( DotlessLettersAndTheirUnicodes() ) + NL -> expected '[ [ "ى", 1609 ], [ "ا", 1575 ], [ "ح", 1581 ], [ "د", 1583 ]' not found past cursor 0
-         #4 ? @@( DotlessLettersXT() ) + NL -> expected '[ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ ' not found past cursor 0
-[ FAIL ] 20_pr.ring:
-         #2 ? UnicodeChar(1114113) -> expected 'ERR: Incorrect param type! p must be a number less then 1114' not found past cursor 7
-[ FAIL ] 21_pr.ring:
-         #2 ? UnicodeChar(149186) -> expected '"䛂"' not found past cursor 6
-         #3 ? LastUnicodeChar() -> expected '"䛂"' not found past cursor 6
-[TIMEOUT] 22_pr.ring: 60s
-[ FAIL ] 23_pr.ring:
-         #1 ? MaxUnicode() -> expected '1_114_112' not found past cursor 0
-         #2 ? NumberOfUnicodeChars() -> expected '149_186' not found past cursor 0
-         #3 ? LastUnicodeChar() -> expected '䛂' not found past cursor 0
-[ skip ] 24_pr.ring: no #--> markers
-[ skip ] 25_pr.ring: no #--> markers
-[ skip ] 26_pr.ring: no #--> markers
-[ skip ] 27_pr.ring: no #--> markers
-[ skip ] 28_pr.ring: no #--> markers
-[ skip ] 29_pr.ring: no #--> markers
-[ skip ] 30_pr.ring: no #--> markers
-[ skip ] 31_pr.ring: no #--> markers
-[ skip ] 32_pr.ring: no #--> markers
-[ skip ] 33_pr.ring: no #--> markers
-[ skip ] 34_pr.ring: no #--> markers
-[ skip ] 35_pr.ring: no #--> markers
-[ FAIL ] 36_pr.ring:
-         #1 ? StzCharQ("百").Name() -> expected "Can't proceed! The name of this char does not exist in the l" not found past cursor 0
-[ FAIL ] 37_pr.ring:
-         #1 ? Q("◐◰☁").CharsNames() -> expected '[ "CIRCLE WITH LEFT HALF BLACK", "WHITE SQUARE WITH UPPER LE' not found past cursor 0
-[ FAIL ] 38_pr.ring:
-         #1 ? Q("⛅⛱☕").CharsNames() -> expected '[ "SUN BEHIND CLOUD", "UMBRELLA ON GROUND", "HOT BEVERAGE" ]' not found past cursor 0
-[ skip ] 39_pr.ring: no #--> markers
-[ skip ] 40_pr.ring: no #--> markers
-[ skip ] 41_pr.ring: no #--> markers
-[ FAIL ] 42_pr.ring:
-         #1 ? WordNonLetterChars() -> expected '[ "_", "-", "*", "/", "\\", "+", "0", "1", "2", "3", "4", "5"' not found past cursor 0
-[ skip ] 43_pr.ring: no #--> markers
-[ skip ] 44_pr.ring: no #--> markers
-[ PASS ] 45_pr.ring: 2 assertions matched
-[ skip ] 46_pr.ring: no #--> markers
-[ PASS ] 47_pr.ring: 2 assertions matched
-[ skip ] 48_pr.ring: no #--> markers
-[ PASS ] 49_pr.ring: 2 assertions matched
-[ skip ] 50_pr.ring: no #--> markers
-[ skip ] 51_pr.ring: no #--> markers
-[ FAIL ] 52_pr.ring:
-         #1 ? Q("LIFE").Inverted() -> expected 'ƎℲI⅂' not found past cursor 0
-         #2 ? Q("GAYA").Inverted() -> expected 'Ɐ⅄Ɐ⅁' not found past cursor 0
-         #3 ? Q("TELLAVIX (Y908$)").Inverted() #TODO // Fix parenthesis  -> expected 'Should be ($806⅄) XIɅⱯ⅂⅂ƎꞱ' not found past cursor 0
-[ skip ] 53_pr.ring: no #--> markers
-[ PASS ] 54_pr.ring: 1 assertions matched
-[ PASS ] 55_pr.ring: 1 assertions matched
-[ skip ] 56_pr.ring: no #--> markers
-[ skip ] 57_pr.ring: no #--> markers
-[ skip ] 58_pr.ring: no #--> markers
-[ skip ] 59_pr.ring: no #--> markers
-[ skip ] 60_pr.ring: no #--> markers
-[ skip ] 61_pr.ring: no #--> markers
-[ skip ] 62_pr.ring: no #--> markers
-[ skip ] 63_pr.ring: no #--> markers
-[ PASS ] 64_pr.ring: 1 assertions matched
-[ skip ] 65_pr.ring: no #--> markers
-[ skip ] 66_pr.ring: no #--> markers
-[ PASS ] 67_pr.ring: 1 assertions matched
-[ skip ] 68_pr.ring: no #--> markers
-[ skip ] 69_pr.ring: no #--> markers
-[ skip ] 70_pr.ring: no #--> markers
-[ skip ] 71_pr.ring: no #--> markers
-[ skip ] 72_pr.ring: no #--> markers
-[ FAIL ] 73_pr.ring:
-         #1 ? o1.AsciiCode() -> expected "Can't get ASCII code for this character!" not found past cursor 0
-[ skip ] 74_pr.ring: no #--> markers
-[ skip ] 75_pr.ring: no #--> markers
-[ FAIL ] 76_todo_make_it_possible.ring:
-         #1 ? c1.Content() -> expected "Error in file stzHexNumber.ring: What : Can't create the hex" not found past cursor 0
-[ skip ] 77_pr.ring: no #--> markers
-[ skip ] 78_pr.ring: no #--> markers
-[ FAIL ] 79_pr.ring:
-         #1 ? LanguagesInScript(:cyrillic) -> expected 'belarusian bosnian bulgarian kazakh kyrgyz ladino macedonian' not found past cursor 0
-[ FAIL ] 80_pr.ring:
-         #1 ? LanguagesInScript(:arabic) -> expected 'acehnese, adyghe, afar, afrikaans, algerian, amazigh, arabic' not found past cursor 0
-[ skip ] 81_pr.ring: no #--> markers
-[ FAIL ] 82_pr.ring:
-         #1 ? CommonLanguagesInScripts([ :cyrillic, :arabic ]) -> expected 'belarusian bosnian kazakh kyrgyz persian' not found past cursor 0
-[ FAIL ] 83_pr.ring:
-         #1 ? CommonLanguagesInScripts([ :cyrillic, :latin ]) -> expected 'belarusian bosnian bulgarian kazakh ladino mongolian montene' not found past cursor 0
-[ skip ] 84_pr.ring: no #--> markers
-[ FAIL ] 85_pr.ring:
-         #1 ? Languages() -> expected 'c, :abkhazian, :oromo, :afar, :afrikaans, :albanian, :amhari' not found past cursor 0
-[ skip ] 86_pr.ring: no #--> markers
-[ skip ] 87_pr.ring: no #--> markers
-[ skip ] 88_pr.ring: no #--> markers
-[ skip ] 89_pr.ring: no #--> markers
-[ FAIL ] 90_pr.ring:
-         #1 ? ShowShort( LanguagesInScript(CharScript("ض")) ) + NL -> expected '[ "acehnese", "adyghe", "afar", "...", "wolof", "yoruba", "z' not found past cursor 0
-         #2 ? ShowShort( StzScriptQ(CharScript("ض")).Languages() ) -> expected '[ "acehnese", "adyghe", "afar", "...", "wolof", "yoruba", "z' not found past cursor 0
-[ skip ] 91_pr.ring: no #--> markers
-[ PASS ] 92_pr.ring: 1 assertions matched
-[ PASS ] 93_pr.ring: 1 assertions matched
-[ FAIL ] 94_pr.ring:
-         #1 ? o1.UPPERcased() #TODO // Ring upper() may be responsible f -> expected 'should return Ⅺ but it returned nothing' not found past cursor 0
-[ FAIL ] 95_pr.ring:
-         #1 ? @@(CircledDigits()) -> expected '[ "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⓪" ]' not found past cursor 0
-[ skip ] 96_pr.ring: no #--> markers
-[ skip ] 97_pr.ring: no #--> markers
-[ skip ] 98_pr.ring: no #--> markers
-[ skip ] 99_pr.ring: no #--> markers
----
-PASS: 17 / FAIL: 33 / TIMEOUT: 1 / skip: 69
+[ PASS ] 01_pr.ring: 4 assertions matched
+[ skip ] 02_block_2.ring: no #--> markers
+[ PASS ] 03_pr.ring: 1 assertions matched
+[ PASS ] 04_pr.ring: 5 assertions matched
+[ skip ] 05_pr.ring: no #--> markers
+[ PASS ] 06_pr.ring: 8 assertions matched
+[ FAIL ] 07_todo_logical_errors.ring:
+         #1 ? StzCharQ("0x10481").Content() #--> TODO: ERR, should be "𐒁 -> expected 'ҁ' not found past cursor 0
+         #2 ? Q("Schöne Grüße").Length() # means "Kind Regards" in germa -> expected '12' not found past cursor 0
+         #3 ? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA") #ERRor!  -> expected 'ҁ' not found past cursor 0
+         #4 ? StzCharQ("ҁ").Name() -> expected 'CYRILLIC SMALL LETTER KOPPA' not found past cursor 0
+         #5 ? Q("𐒁").CharName() #TODO-ERROR: correct it to be OSMANYA LE -> expected 'QUESTION MARK' not found past cursor 0
+         ... +1 more
+[ FAIL ] 08_turnable_numbers.ring:
+         #1 ? @@(TurnableNumbers()) -> expected '[ 2, 3 ]' not found past cursor 0
+         #2 ? @@(TurnableNumbersUnicodes()) -> expected '[ 2, 3 ]' not found past cursor 0
+         #3 ? @@(TurnableNumbersXT()) #NOTE// Font in Notepad may not sh -> expected '[ [ 2, "↊" ], [ 3, "↋" ] ]' not found past cursor 0
+[ FAIL ] 09_turned_numbers.ring:
+         #3 ? @@( Q([ "↊", "↋" ]).Names() ) -> expected '[ "TURNED DIGIT TWO", "TURNED DIGIT THREE" ]' not found past cursor 27
+         #4 ? @@(TurnedNumbersXT()) # Or TurnedNumberAndTheirUnicodes() -> expected '[ [ "↊", 8586 ], [ "↋", 8587 ] ]' not found past cursor 27
+[ PASS ] 100_pr.ring: 1 assertions matched
+[ skip ] 101_pr.ring: no #--> markers
+[ skip ] 102_pr.ring: no #--> markers
+[ skip ] 103_pr.ring: no #--> markers
+[ skip ] 104_pr.ring: no #--> markers
+[ skip ] 105_pr.ring: no #--> markers
+[ PASS ] 106_pr.ring: 1 assertions matched
+[ FAIL ] 107_pr.ring:
+         #1 ? o1.Unicode() -> expected '3572' not found past cursor 0
+[ skip ] 108_pr.ring: no #--> markers
+[ skip ] 109_pr.ring: no #--> markers
+[ PASS ] 10_turnable_chars.ring: 6 assertions matched
+[ skip ] 110_block_110.ring: no #--> markers
+[ PASS ] 111_pr.ring: 1 assertions matched
+[ skip ] 112_pr.ring: no #--> markers
+[ skip ] 113_pr.ring: no #--> markers
+[ FAIL ] 114_pr.ring:
+         #2 ? @@(o1.InvisibleChars()) -> expected '[ "RIGHT-TO-LEFT OVERRIDE" ]' not found past cursor 14
+[ FAIL ] 115_pr.ring:
+         #1 ? @@(o1.Bytes()) -> expected '[ "�", "�" ]' not found past cursor 0
+[ skip ] 116_pr.ring: no #--> markers
+[ skip ] 117_pr.ring: no #--> markers
+[ FAIL ] 118_pr.ring:
+         #1 ? @@(o1.Bytes()) -> expected '[ "s", "�", "�", "�", "m" ]' not found past cursor 0
+         #2 ? @@(o1.NumberOfBytesPerChar()) -> expected '[ [ "s", 33 ], [ "㊱", 35 ], [ "m", 33 ] ]' not found past cursor 0
+[ skip ] 119_pr.ring: no #--> markers
+[ FAIL ] 11_pr.ring:
+         #1 ? o1.Reverted() -> expected 'Ɯ' not found past cursor 0
+[ skip ] 120_block_120.ring: no #--> markers
+[ FAIL ] 12_pr.ring:
+         #4 ? o1.IsTurned() -> expected 'FALSE' not found past cursor 17
+         #6 ? o1.Turned() -> expected 'Ɯ' not found past cursor 18
+[ FAIL ] 13_pr.ring:
+         #5 ? Q("ƎℲI⅂").IsTurned() -> expected 'TRUE' not found past cursor 302
+         #6 ? Q("ƎℲI⅂").Turned() -> expected 'LIFE' not found past cursor 302
+         #7 ? Q("LIFE").Turned() -> expected 'ƎℲI⅂' not found past cursor 302
+         #8 ? Q("LIFE").CharsTurned() -> expected '⅂IℲƎ' not found past cursor 302
+         #9 ? Q("⅂IℲƎ").CharsTurned() -> expected 'LIFE' not found past cursor 302
+[ FAIL ] 14_pr.ring:
+         #2 ? Q("GARY").CharsBoxedRounded() -> expected '╭───┬───┬───┬───╮ │ G │ A │ R │ Y │ ╰───┴───┴───┴───╯' not found past cursor 0
+         #3 ? Q("GARY").Inversed() # Inverses the order of chars -> expected 'YRAG' not found past cursor 0
+         #4 ? Q("GARY").Turned() # Turns the chars down -> expected '⅄RⱯ⅁' not found past cursor 0
+[ PASS ] 15_pr.ring: 4 assertions matched
+[ skip ] 16_pr.ring: no #--> markers
+[ PASS ] 17_arabic_dotless_letters.ring: 4 assertions matched
+[ FAIL ] 18_latin_dotless_letters.ring:
+         #4 ? @@( LatinDotlessLettersXT() ) + NL -> expected '[ [ "ı", "ı" ], [ "i", "ı" ], [ "ȷ", "ȷ" ], [ "j", "ȷ" ] ]' not found past cursor 0
+[ FAIL ] 19_dotless_letters.ring:
+         #1 ? @@( DotlessLetters() ) + NL -> expected '[ "ى", "ا", "ح", "د", "ر", "س", "ص", "ط", "ع", "م", "ه", "و"' not found past cursor 0
+         #2 ? @@( DotlessUnicodes() ) + NL -> expected '[ 1609, 1575, 1581, 1583, 1585, 1587, 1589, 1591, 1593, 1605' not found past cursor 0
+         #3 ? @@( DotlessLettersAndTheirUnicodes() ) + NL -> expected '[ [ "ى", 1609 ], [ "ا", 1575 ], [ "ح", 1581 ], [ "د", 1583 ]' not found past cursor 0
+         #4 ? @@( DotlessLettersXT() ) + NL -> expected '[ [ "ى", "ى" ], [ "ي", "ٮ" ], [ "ح", "ح" ], [ "خ", "ح" ], [ ' not found past cursor 0
+[ FAIL ] 20_pr.ring:
+         #2 ? UnicodeChar(1114113) -> expected 'ERR: Incorrect param type! p must be a number less then 1114' not found past cursor 7
+[ FAIL ] 21_pr.ring:
+         #2 ? UnicodeChar(149186) -> expected '"䛂"' not found past cursor 6
+         #3 ? LastUnicodeChar() -> expected '"䛂"' not found past cursor 6
+[TIMEOUT] 22_pr.ring: 60s
+[ FAIL ] 23_pr.ring:
+         #1 ? MaxUnicode() -> expected '1_114_112' not found past cursor 0
+         #2 ? NumberOfUnicodeChars() -> expected '149_186' not found past cursor 0
+         #3 ? LastUnicodeChar() -> expected '䛂' not found past cursor 0
+[ skip ] 24_pr.ring: no #--> markers
+[ skip ] 25_pr.ring: no #--> markers
+[ skip ] 26_pr.ring: no #--> markers
+[ skip ] 27_pr.ring: no #--> markers
+[ skip ] 28_pr.ring: no #--> markers
+[ skip ] 29_pr.ring: no #--> markers
+[ skip ] 30_pr.ring: no #--> markers
+[ skip ] 31_pr.ring: no #--> markers
+[ skip ] 32_pr.ring: no #--> markers
+[ skip ] 33_pr.ring: no #--> markers
+[ skip ] 34_pr.ring: no #--> markers
+[ skip ] 35_pr.ring: no #--> markers
+[ FAIL ] 36_pr.ring:
+         #1 ? StzCharQ("百").Name() -> expected "Can't proceed! The name of this char does not exist in the l" not found past cursor 0
+[ FAIL ] 37_pr.ring:
+         #1 ? Q("◐◰☁").CharsNames() -> expected '[ "CIRCLE WITH LEFT HALF BLACK", "WHITE SQUARE WITH UPPER LE' not found past cursor 0
+[ FAIL ] 38_pr.ring:
+         #1 ? Q("⛅⛱☕").CharsNames() -> expected '[ "SUN BEHIND CLOUD", "UMBRELLA ON GROUND", "HOT BEVERAGE" ]' not found past cursor 0
+[ skip ] 39_pr.ring: no #--> markers
+[ skip ] 40_pr.ring: no #--> markers
+[ skip ] 41_pr.ring: no #--> markers
+[ PASS ] 42_pr.ring: 1 assertions matched
+[ skip ] 43_pr.ring: no #--> markers
+[ skip ] 44_pr.ring: no #--> markers
+[ PASS ] 45_pr.ring: 2 assertions matched
+[ skip ] 46_pr.ring: no #--> markers
+[ PASS ] 47_pr.ring: 2 assertions matched
+[ skip ] 48_pr.ring: no #--> markers
+[ PASS ] 49_pr.ring: 2 assertions matched
+[ skip ] 50_pr.ring: no #--> markers
+[ skip ] 51_pr.ring: no #--> markers
+[ FAIL ] 52_pr.ring:
+         #1 ? Q("LIFE").Inverted() -> expected 'ƎℲI⅂' not found past cursor 0
+         #2 ? Q("GAYA").Inverted() -> expected 'Ɐ⅄Ɐ⅁' not found past cursor 0
+         #3 ? Q("TELLAVIX (Y908$)").Inverted() #TODO // Fix parenthesis  -> expected 'Should be ($806⅄) XIɅⱯ⅂⅂ƎꞱ' not found past cursor 0
+[ skip ] 53_pr.ring: no #--> markers
+[ PASS ] 54_pr.ring: 1 assertions matched
+[ PASS ] 55_pr.ring: 1 assertions matched
+[ skip ] 56_pr.ring: no #--> markers
+[ skip ] 57_pr.ring: no #--> markers
+[ skip ] 58_pr.ring: no #--> markers
+[ skip ] 59_pr.ring: no #--> markers
+[ skip ] 60_pr.ring: no #--> markers
+[ skip ] 61_pr.ring: no #--> markers
+[ skip ] 62_pr.ring: no #--> markers
+[ skip ] 63_pr.ring: no #--> markers
+[ PASS ] 64_pr.ring: 1 assertions matched
+[ skip ] 65_pr.ring: no #--> markers
+[ skip ] 66_pr.ring: no #--> markers
+[ PASS ] 67_pr.ring: 1 assertions matched
+[ skip ] 68_pr.ring: no #--> markers
+[ skip ] 69_pr.ring: no #--> markers
+[ skip ] 70_pr.ring: no #--> markers
+[ skip ] 71_pr.ring: no #--> markers
+[ skip ] 72_pr.ring: no #--> markers
+[ FAIL ] 73_pr.ring:
+         #1 ? o1.AsciiCode() -> expected "Can't get ASCII code for this character!" not found past cursor 0
+[ skip ] 74_pr.ring: no #--> markers
+[ skip ] 75_pr.ring: no #--> markers
+[ FAIL ] 76_todo_make_it_possible.ring:
+         #1 ? c1.Content() -> expected "Error in file stzHexNumber.ring: What : Can't create the hex" not found past cursor 0
+[ skip ] 77_pr.ring: no #--> markers
+[ skip ] 78_pr.ring: no #--> markers
+[ FAIL ] 79_pr.ring:
+         #1 ? LanguagesInScript(:cyrillic) -> expected 'belarusian bosnian bulgarian kazakh kyrgyz ladino macedonian' not found past cursor 0
+[ FAIL ] 80_pr.ring:
+         #1 ? LanguagesInScript(:arabic) -> expected 'acehnese, adyghe, afar, afrikaans, algerian, amazigh, arabic' not found past cursor 0
+[ skip ] 81_pr.ring: no #--> markers
+[ FAIL ] 82_pr.ring:
+         #1 ? CommonLanguagesInScripts([ :cyrillic, :arabic ]) -> expected 'belarusian bosnian kazakh kyrgyz persian' not found past cursor 0
+[ FAIL ] 83_pr.ring:
+         #1 ? CommonLanguagesInScripts([ :cyrillic, :latin ]) -> expected 'belarusian bosnian bulgarian kazakh ladino mongolian montene' not found past cursor 0
+[ skip ] 84_pr.ring: no #--> markers
+[ PASS ] 85_pr.ring: 1 assertions matched
+[ skip ] 86_pr.ring: no #--> markers
+[ skip ] 87_pr.ring: no #--> markers
+[ skip ] 88_pr.ring: no #--> markers
+[ skip ] 89_pr.ring: no #--> markers
+[ FAIL ] 90_pr.ring:
+         #1 ? ShowShort( LanguagesInScript(CharScript("ض")) ) + NL -> expected '[ "acehnese", "adyghe", "afar", "...", "wolof", "yoruba", "z' not found past cursor 0
+         #2 ? ShowShort( StzScriptQ(CharScript("ض")).Languages() ) -> expected '[ "acehnese", "adyghe", "afar", "...", "wolof", "yoruba", "z' not found past cursor 0
+[ skip ] 91_pr.ring: no #--> markers
+[ PASS ] 92_pr.ring: 1 assertions matched
+[ PASS ] 93_pr.ring: 1 assertions matched
+[ FAIL ] 94_pr.ring:
+         #1 ? o1.UPPERcased() #TODO // Ring upper() may be responsible f -> expected 'should return Ⅺ but it returned nothing' not found past cursor 0
+[ FAIL ] 95_pr.ring:
+         #1 ? @@(CircledDigits()) -> expected '[ "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⓪" ]' not found past cursor 0
+[ skip ] 96_pr.ring: no #--> markers
+[ skip ] 97_pr.ring: no #--> markers
+[ skip ] 98_pr.ring: no #--> markers
+[ skip ] 99_pr.ring: no #--> markers
+---
+PASS: 21 / FAIL: 29 / TIMEOUT: 1 / skip: 69

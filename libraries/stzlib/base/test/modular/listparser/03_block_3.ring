@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stzListParserTest.ring, block #3.
 

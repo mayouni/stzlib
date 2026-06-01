@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stzlistofbytestest.ring, block #15.
 

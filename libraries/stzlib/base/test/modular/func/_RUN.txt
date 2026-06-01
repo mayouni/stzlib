@@ -1,6 +1,6 @@
-[ skip ] 01_softanza_nulliness.ring: no #--> markers
-[ skip ] 02_softanza_emptiness.ring: no #--> markers
-[ skip ] 03_softanza_truthness.ring: no #--> markers
-[ skip ] 04_softanza_falsiness.ring: no #--> markers
----
-skip: 4
+[ skip ] 01_softanza_nulliness.ring: no #--> markers
+[ skip ] 02_softanza_emptiness.ring: no #--> markers
+[ skip ] 03_softanza_truthness.ring: no #--> markers
+[ skip ] 04_softanza_falsiness.ring: no #--> markers
+---
+skip: 4

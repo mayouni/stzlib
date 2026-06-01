@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stzSsplittertest.ring, block #10.
 

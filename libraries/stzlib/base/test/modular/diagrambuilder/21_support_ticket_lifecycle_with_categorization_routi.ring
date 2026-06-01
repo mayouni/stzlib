@@ -7,7 +7,6 @@
 load "../../../stzBase.ring"
 
 	investigation, escalation, and satisfaction tracking
-*/
 pr()
 
 oSupportWorkflow = new stzDiagramMaker("Customer Support Workflow")

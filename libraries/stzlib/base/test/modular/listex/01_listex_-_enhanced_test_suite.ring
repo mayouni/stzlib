@@ -7,7 +7,6 @@
 load "../../../stzBase.ring"
 
 #=====================================#
-*/
 
 # Test the problematic patterns with debug enabled
 ? ""

@@ -21,4 +21,3 @@ o1 = new stzString("•♥••••♥••")
 
 StopProfiler()
 #--> Executed in 0.25 second(s) in Ring 1.21
-*/

@@ -22,7 +22,6 @@ load "../../../stzBase.ring"
   
   Here we simplify: just reach the treasury by fastest route.
 `
-*/
 pr()
 
 oGraph = new stzGraph("treasure_hunt")

@@ -125,6 +125,14 @@ def check_file(path):
         candidates = [exp_raw]
         if exp_raw == 'TRUE': candidates.append('1')
         if exp_raw == 'FALSE': candidates.append('0')
+        # Also translate TRUE/FALSE inside larger expressions (lists,
+        # parenthesised values, etc.). Ring prints booleans as 1/0
+        # regardless of context.
+        if re.search(r'\b(TRUE|FALSE)\b', exp_raw):
+            tr = re.sub(r'\bTRUE\b', '1', exp_raw)
+            tr = re.sub(r'\bFALSE\b', '0', tr)
+            if tr != exp_raw:
+                candidates.append(tr)
 
         # First try strict normalised match
         strict_pos = -1

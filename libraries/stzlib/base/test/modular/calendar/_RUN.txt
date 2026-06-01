@@ -17,26 +17,23 @@
          #6 ? Current() -> expected 'November 2025' not found past cursor 48
 [ PASS ] 17_navigating_to_a_given_date.ring: 1 assertions matched
 [ FAIL ] 18_getting_current_info.ring:
-         #1 ? Current() -> expected 'October 2024 # Add the current day' not found past cursor 0
-         #2 ? @@(CurrentXT()) -> expected '[ :year = ..., :month = ..., :day = ... ]' not found past cursor 0
+         #2 ? @@(CurrentXT()) -> expected '[ :year = ..., :month = ..., :day = ... ]' not found past cursor 12
 [ PASS ] 19_test_12_copy_and_comparison.ring: 1 assertions matched
 [ PASS ] 20_test_13_data_export.ring: 1 assertions matched
 [ skip ] 21_test_14_custom_constraints.ring: no #--> markers
 [ skip ] 22_test_15_stats.ring: no #--> markers
 [ PASS ] 23_multi-calendar_comparsion.ring: 1 assertions matched
-[ FAIL ] 24_timeline_integration.ring:
-         #1 ? oCal.ConflictsWith(oTimeline) -> expected 'TRUE (events hit holidays/weekends)' not found past cursor 0
+[ PASS ] 24_timeline_integration.ring: 2 assertions matched
 [ skip ] 25_real_world_example_sprint_planning.ring: no #--> markers
 [ PASS ] 26_quarter_initialization.ring: 11 assertions matched
 [ PASS ] 27_year-month_string_init.ring: 4 assertions matched
 [ PASS ] 28_single_date_initialization.ring: 4 assertions matched
-[ FAIL ] 29_year-only_initialization.ring:
-         #4 ? "Total Days: " + TotalDays() -> expected 'Total Days: 366 (leap year)' not found past cursor 44
+[ PASS ] 29_year-only_initialization.ring: 4 assertions matched
 [ PASS ] 30_list_initialization_variants.ring: 5 assertions matched
 [ PASS ] 31_content_method.ring: 1 assertions matched
 [ FAIL ] 32_firstdayofweeklastdayofweek.ring:
-         #1 ? "First Day of Week: " + FirstDayOfWeek() -> expected 'First Day of Week: 2024-09-30 (Monday of week containing 202' not found past cursor 0
-         #2 ? "Last Day of Week: " + LastDayOfWeek() -> expected 'Last Day of Week: 2024-10-06 (Sunday)' not found past cursor 0
+         #1 ? "First Day of Week: " + FirstDayOfWeek() -> expected 'First Day of Week: 2024-09-30' not found past cursor 0
+         #2 ? "Last Day of Week: " + LastDayOfWeek() -> expected 'Last Day of Week: 2024-10-06' not found past cursor 0
 [ FAIL ] 33_working_days_list.ring:
          #3 ? "Last working day: " + aWorkingDays[len(aWorkingDays)] -> expected 'Last working day: 2024-10-31' not found past cursor 56
 [ FAIL ] 34_weekends_list.ring:
@@ -53,8 +50,7 @@
 [ FAIL ] 39_availableweeks_and_minutes.ring:
          #1 ? "Available Weeks: " + AvailableWeeksN() -> expected 'Available Weeks: 5 (ceil(23 / 5))' not found past cursor 0
          #2 ? "Contains Available Weeks: " + ContainsAvailableWeeks() -> expected 'Contains Available Weeks: TRUE' not found past cursor 0
-[ FAIL ] 40_istoday_method.ring:
-         #1 ? "Is Today (October 2024): " + IsToday() -> expected 'FALSE (Result depends on current date)' not found past cursor 0
+[ PASS ] 40_istoday_method.ring: 2 assertions matched
 [ skip ] 41_tojson_and_tocsv_export.ring: no #--> markers
 [ skip ] 42_display_variants.ring: no #--> markers
 [ skip ] 43_dateinfo_variations.ring: no #--> markers
@@ -65,7 +61,6 @@
          #1 ? @@NL(aLegend) -> expected '[ [ "holiday", "[D]" ], [ "weekend", "░" ] ]' not found past cursor 0
 [ PASS ] 48_setvizwidth_and_setvizheight.ring: 4 assertions matched
 [ skip ] 49_stats_method.ring: no #--> markers
-[ FAIL ] 50_detailedtable_methods.ring:
-         #1 ? "Detailed Table Row Count: " + len(aDetailTable) -> expected 'Detailed Table Row Count: 32 (header + 31 days)' not found past cursor 0
+[ PASS ] 50_detailedtable_methods.ring: 1 assertions matched
 ---
-PASS: 21 / FAIL: 14 / skip: 12
+PASS: 25 / FAIL: 10 / skip: 12

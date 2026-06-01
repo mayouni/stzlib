@@ -43,7 +43,6 @@ pf()
 # Executed in 0.05 second(s).
 
 #--------- DIFF
-*/
 pr()
 
 o1 = new stzList([ "green", "red", "blue" ])

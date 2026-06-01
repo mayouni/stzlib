@@ -44,7 +44,6 @@ pf()
 #-------------------------------------------#
 # Example : Animal Kingdom Knowledge Graph  #
 #-------------------------------------------#
-*/
 pr()
 
 oAnimalKG = new stzKnowledgeGraph("Animal Kingdom")

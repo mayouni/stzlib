@@ -10,7 +10,6 @@ load "../../../stzBase.ring"
 # hashlists and deeplists by keys, and help avoid Ring issue
 # discribed in the example next this one
 
-*/
 pr()
 
 aHash = [

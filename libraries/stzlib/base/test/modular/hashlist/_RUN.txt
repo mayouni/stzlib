@@ -1,6 +1,4 @@
-[ FAIL ] 01_write_a_small_narration_about_haskey_haskeys.ring:
-         #4 ? HasKeys(aHash, [ "name", "none", "age" ]) -> expected 'FALSE' not found past cursor 93
-         #5 ? @@( HasKeysXT(aHash, [ "name", "none", "age" ]) ) + NL -> expected '[ TRUE, FALSE, TRUE ]' not found past cursor 93
+[ PASS ] 01_write_a_small_narration_about_haskey_haskeys.ring: 6 assertions matched
 [ PASS ] 02_write_a_narration_about_it.ring: 4 assertions matched
 [ skip ] 03_adjust_lines_under_titles.ring: no #--> markers
 [ PASS ] 04_pr.ring: 2 assertions matched
@@ -45,4 +43,4 @@
 [ skip ] 26_pr.ring: no #--> markers
 [ skip ] 27_pr.ring: no #--> markers
 ---
-PASS: 14 / FAIL: 8 / skip: 5
+PASS: 15 / FAIL: 7 / skip: 5

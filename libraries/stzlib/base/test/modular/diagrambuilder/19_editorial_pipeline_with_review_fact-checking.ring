@@ -7,7 +7,6 @@
 load "../../../stzBase.ring"
 
 	SEO optimization, and publication scheduling
-*/
 pr()
 
 oPublishWorkflow = new stzDiagramMaker("Editorial Publishing Pipeline")

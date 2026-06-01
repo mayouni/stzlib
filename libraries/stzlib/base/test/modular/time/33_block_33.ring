@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stztimetest.ring, block #33.
 

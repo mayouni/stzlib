@@ -7,7 +7,6 @@
 load "../../../stzBase.ring"
 
 # Use case: Responsive design based on window dimensions
-*/
 
 	new qApp {
 	        oQML = new RingQML(NULL) {
