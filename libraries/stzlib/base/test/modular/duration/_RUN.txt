@@ -1,0 +1,26 @@
+[ PASS ] 01_creating_duration_from_seconds.ring: 1 assertions matched
+[ PASS ] 02_creation_duration_from_natural_language_string.ring: 3 assertions matched
+[ FAIL ] 03_retriving_duration_components.ring:
+         #8 ? @@NL( oDuration.Components() ) -> expected '[ :Days = 2, :Hours = 5, :Minutes = 30, :Seconds = 45, :Mill' not found past cursor 24
+[ PASS ] 04_arithmetic_operations.ring: 6 assertions matched
+[ PASS ] 05_comparisons.ring: 7 assertions matched
+[ skip ] 06_formatting_options.ring: no #--> markers
+[ skip ] 07_add_this_feature_to_stzdate.ring: no #--> markers
+[ FAIL ] 08_pr.ring:
+         #7 ? oDuration.ToHuman() -> expected '1 hour and 30 minutes' not found past cursor 91
+         #8 ? oDuration.ToHuman() -> expected '3 hours and 30 minutes' not found past cursor 91
+         #9 ? oDuration.ToHuman() -> expected '3 hours' not found past cursor 91
+[ FAIL ] 09_task_timer.ring:
+         #1 ? o1.ToHuman() -> expected '14 seconds' not found past cursor 0
+         #2 ? o1.TotalSeconds() -> expected '14' not found past cursor 0
+[ PASS ] 10_meeting_scheduler.ring: 4 assertions matched
+[ FAIL ] 11_project_time_estimation.ring:
+         #1 ? "Total days (with buffer): " + oWithBuffer.TotalDays() -> expected 'Task breakdown: Design mockups: 2d Backend development: 5d F' not found past cursor 0
+[ PASS ] 12_high_precision_duration.ring: 3 assertions matched
+[ PASS ] 13_duration_state_checks.ring: 3 assertions matched
+[ PASS ] 14_copy_and_clone.ring: 3 assertions matched
+[ PASS ] 15_edge_cases.ring: 5 assertions matched
+[ PASS ] 16_adding_more_patterns_to_tohuman.ring: 6 assertions matched
+[ PASS ] 17_customising_unit_names.ring: 2 assertions matched
+---
+PASS: 11 / FAIL: 4 / skip: 2

@@ -9,13 +9,10 @@
 [ PASS ] 05_pr.ring: 6 assertions matched
 [ FAIL ] 06_pr.ring:
          #1 ? PrimesUnderQ(5000).WXT(' isWeiferich(@number) ') -> expected '[ 1093, 3511 ]' not found past cursor 0
-[ FAIL ] 07_pr.ring:
-         #1 ? PrimesUnder(19) -> expected '[ 2, 3, 5, 7, 11, 13, 17 ]' not found past cursor 0
-         #2 ? PrimesUnderIB(19) -> expected '[ 2, 3, 5, 7, 11, 13, 17, 19 ]' not found past cursor 0
+[ PASS ] 07_pr.ring: 2 assertions matched
 [ skip ] 08_block_8.ring: no #--> markers
 [ skip ] 09_softanza.ring: no #--> markers
-[ FAIL ] 10_ring.ring:
-         #4 ? aHash[:1] -> expected '"One"' not found past cursor 69
+[ PASS ] 10_ring.ring: 4 assertions matched
 [ FAIL ] 11_pr.ring:
          #4 ? Max( CommonNumbers([ Factors(n1), Factors(n2) ]) ) -> expected '5' not found past cursor 91
 [ FAIL ] 12_pr.ring:
@@ -24,9 +21,7 @@
 [ PASS ] 14_pr.ring: 3 assertions matched
 [ PASS ] 15_pr.ring: 3 assertions matched
 [ PASS ] 16_pr.ring: 3 assertions matched
-[ FAIL ] 17_pr.ring:
-         #1 ? Name() -> expected ':myage' not found past cursor 0
-         #3 ? StzType() -> expected ':stznumber' not found past cursor 8
+[ PASS ] 17_pr.ring: 3 assertions matched
 [TIMEOUT] 18_pr.ring: 60s
 [ FAIL ] 19_pr.ring:
          #1 ? RandomNumberLessThan(12) -> expected '10' not found past cursor 0
@@ -40,9 +35,7 @@
 [ FAIL ] 24_pr.ring:
          #1 ? 3RandomNumbers( :Between = 1, :And = 5 ) -> expected '[ 4, 3, 3 ]' not found past cursor 0
          #2 ? 3RandomNumbersIB( :Between = 1, :And = 5 ) -> expected '[ 4, 5, 4 ]' not found past cursor 0
-[ FAIL ] 25_pr.ring:
-         #1 ? OddOrEven(5) -> expected ':Odd' not found past cursor 0
-         #2 ? OddOrEven(120) -> expected ':Even' not found past cursor 0
+[ PASS ] 25_pr.ring: 2 assertions matched
 [ PASS ] 26_pr.ring: 2 assertions matched
 [ skip ] 27_pr.ring: no #--> markers
 [ FAIL ] 28_pr.ring:
@@ -54,15 +47,11 @@
 [ PASS ] 32_pr.ring: 3 assertions matched
 [ PASS ] 33_pr.ring: 4 assertions matched
 [ PASS ] 34_pr.ring: 1 assertions matched
-[ FAIL ] 35_pr.ring:
-         #1 ? o1.RepeatedNTimes(3) -> expected '[11, 11, 11]' not found past cursor 0
+[ PASS ] 35_pr.ring: 3 assertions matched
 [ PASS ] 36_pr.ring: 1 assertions matched
 [ FAIL ] 37_pr.ring:
-         #2 ? o1.RepeatXT(:InA = :String, :OfSize = 7) -> expected '"5555555"' not found past cursor 8
          #3 ? @@( o1.RepeatXT(:InA = :Grid, :OfSize = [3, 3]) ) + NL -> expected '[ [ 5, 5, 5 ], [ 5, 5, 5 ], [ 5, 5, 5 ] ]' not found past cursor 8
-[ FAIL ] 38_pr.ring:
-         #1 ? Q(5).RepeatXT( :InAPair, @ ) -> expected '[5, 5]' not found past cursor 0
-         #2 ? Q(5).RepeatedInAPair() -> expected '[5, 5]' not found past cursor 0
+[ PASS ] 38_pr.ring: 2 assertions matched
 [ PASS ] 39_pr.ring: 1 assertions matched
 [ FAIL ] 40_pr.ring:
          #1 ? Q("Ring").RepeatedInAPairQ().Types() -> expected '[ "STRING", "STRING" ]' not found past cursor 0
@@ -81,14 +70,9 @@
          #2 ? RoundedTo(3) -> expected '"81.8"' not found past cursor 6
          #3 ? RoundedToXT(3) -> expected '"81.800"' not found past cursor 6
 [ PASS ] 47_pr.ring: 8 assertions matched
-[ FAIL ] 48_pr.ring:
-         #4 ? o1.StringValue() # Or Content() ~> Sensitive to the curren -> expected '"-12.4521"' not found past cursor 10
+[ PASS ] 48_pr.ring: 4 assertions matched
 [ PASS ] 49_pr.ring: 3 assertions matched
-[ FAIL ] 50_pr.ring:
-         #2 ? o1.Sine() -> expected '"-0.99986"' not found past cursor 1
-         #3 ? o1.Cosine() -> expected '"-0.01644"' not found past cursor 1
-         #4 ? o1.Tangent() -> expected '"60.82558"' not found past cursor 1
-         #5 ? o1.Cotangent() -> expected '"0.01644"' not found past cursor 1
+[ PASS ] 50_pr.ring: 5 assertions matched
 [ PASS ] 51_pr.ring: 2 assertions matched
 [ FAIL ] 52_pr.ring:
          #1 ? StzNumberQ(1).UpTo(7) -> expected '1:7' not found past cursor 0
@@ -128,4 +112,4 @@
 [ skip ] 75_pr.ring: no #--> markers
 [ skip ] 76_todo_error.ring: no #--> markers
 ---
-PASS: 23 / FAIL: 32 / TIMEOUT: 2 / skip: 14
+PASS: 31 / FAIL: 24 / TIMEOUT: 2 / skip: 14

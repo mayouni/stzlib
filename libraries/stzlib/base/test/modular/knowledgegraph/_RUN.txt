@@ -1,14 +1,11 @@
-[ FAIL ] 01_adding_facts_triples.ring:
-         #1 ? @@NL( Facts() ) -> expected '[ ["Dogs", :IsA, "Animals"], ["Dogs", :Eats, "Food"], ["Cats' not found past cursor 0
-[ FAIL ] 02_removing_facts.ring:
-         #2 ? @@NL( Facts() ) -> expected '[ ["X", :RelatesTo, "Y"] ]' not found past cursor 60
+[ PASS ] 01_adding_facts_triples.ring: 1 assertions matched
+[ PASS ] 02_removing_facts.ring: 2 assertions matched
 [ FAIL ] 03_query_with_variable_subject.ring:
          #1 ? @@( Query(["?x", :IsA, "Mammals"]) ) -> expected '["Dogs", "Cats"]' not found past cursor 0
 [ FAIL ] 04_query_with_variable_object.ring:
          #1 ? @@( Query(["Dogs", :Eats, "?what"]) ) -> expected '["Meat"]' not found past cursor 0
          #2 ? @@( Query(["Dogs", :Drinks, "?what"]) ) -> expected '["Water"]' not found past cursor 0
-[ FAIL ] 05_query_both_variables.ring:
-         #1 ? @@NL( Query(["?x", :Knows, "?y"]) ) -> expected '[ ["Alice", "Bob"], ["Charlie", "Diana"] ]' not found past cursor 0
+[ PASS ] 05_query_both_variables.ring: 1 assertions matched
 [ PASS ] 06_query_existence_check.ring: 2 assertions matched
 [ FAIL ] 07_finding_predicates_of_entity.ring:
          #1 ? @@( Predicates("Alice") ) -> expected '[:WorksAt, :LivesIn, :Knows]' not found past cursor 0
@@ -16,8 +13,7 @@
          #1 ? @@NL( Relations("Node1") ) -> expected '[ [:ConnectsTo, "Node2"], [:HasProperty, "Active"], [:PartOf' not found past cursor 0
 [ FAIL ] 09_finding_similar_entities.ring:
          #1 ? @@NL( SimilarTo("Dogs") ) -> expected '[ ["Cats", 3], ["Birds", 2] ] Cats shares 3 predicates, Bird' not found past cursor 0
-[ FAIL ] 10_defining_class_hierarchy.ring:
-         #1 ? @@NL( Facts() ) -> expected '[ ["Mammals", :SubClassOf, "Animals"], ["Dogs", :SubClassOf,' not found past cursor 0
+[ PASS ] 10_defining_class_hierarchy.ring: 1 assertions matched
 [ skip ] 11_defining_properties_with_constraints.ring: no #--> markers
 [ FAIL ] 12_family_tree_knowledge_graph.ring:
          #1 ? @@( Query(["Alice", :ParentOf, "?child"]) ) -> expected '["Bob", "Charlie"]' not found past cursor 0
@@ -32,7 +28,6 @@
          #2 ? @@( Query(["?x", :IsA, "Mammals"]) ) -> expected '["Dogs", "Cats"]' not found past cursor 0
 [ FAIL ] 15_using_graph_algorithms_on_knowledge_graph.ring:
          #1 ? @@( ShortestPath(:From = "A", :To = "D") ) -> expected '["A", "B", "C", "D"]' not found past cursor 0
-         #3 ? @@( ArticulationPoints() ) -> expected '["B", "C"]' not found past cursor 5
 [ FAIL ] 16_combined_knowledge_structure_analysis.ring:
          #1 ? @@( Query(["Concept1", :RelatesTo, "?x"]) ) -> expected '[ "Concept2" ]' not found past cursor 0
          #2 ? @@NL( Relations("Concept2") ) + NL -> expected '[ [ "relatesto", "Concept3" ] ]' not found past cursor 0
@@ -40,4 +35,4 @@
          #4 ? BetweennessCentrality("Concept2") -> expected '0.50' not found past cursor 0
 [ skip ] 17_pr.ring: no #--> markers
 ---
-PASS: 1 / FAIL: 14 / skip: 2
+PASS: 5 / FAIL: 10 / skip: 2

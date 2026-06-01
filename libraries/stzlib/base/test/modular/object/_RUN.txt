@@ -3,16 +3,12 @@
 [ skip ] 03_truth_in_ring.ring: no #--> markers
 [ FAIL ] 04_truth_in_softanza.ring:
          #1 ? @@( SubStringsMakingAStringFalse() ) -> expected '[]' not found past cursor 0
-         #6 ? @@( InnerItemsMakingAListFalse() ) -> expected '[ "X" ]' not found past cursor 9
 [ PASS ] 05_pr.ring: 1 assertions matched
-[ FAIL ] 06_pr.ring:
-         #1 ? attributes(o1) # A Ring function -> expected '[ "name", "age", "job" ]' not found past cursor 0
+[ PASS ] 06_pr.ring: 4 assertions matched
 [ FAIL ] 07_pr.ring:
-         #2 ? Q(NullObject()).IsNamedObject() -> expected 'TRUE' not found past cursor 11
          #4 ? Q(TrueObject()).IsNamedObject() -> expected 'TRUE' not found past cursor 25
          #6 ? Q(FalseObject()).IsNamedObject() -> expected 'TRUE' not found past cursor 40
 [ FAIL ] 08_pr.ring:
-         #1 ? Name() -> expected ':myobj' not found past cursor 0
          #2 ? StzType() -> expected ':stznumber' not found past cursor 0
 [ FAIL ] 09_pr.ring:
          #1 ? @@( StzNullObjectQ() ) -> expected '@noname' not found past cursor 0
@@ -31,10 +27,7 @@
          #1 ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }') -> expected '3' not found past cursor 0
          #3 ? Q([ "Me", "and", "You!" ]).Yield('len(@item)') -> expected '[2, 3, 4]' not found past cursor 20
 [ PASS ] 17_pr.ring: 2 assertions matched
-[ FAIL ] 18_pr.ring:
-         #1 ? PluralOfThisStzType(:stzchar) -> expected '"stzchars"' not found past cursor 0
-         #2 ? StzTypeToPlural(:stzchar) -> expected '"stzchars"' not found past cursor 0
-         #3 ? PluralToStzType(:stzchars) -> expected '"stzchar"' not found past cursor 0
+[ PASS ] 18_pr.ring: 3 assertions matched
 [ skip ] 19_pr.ring: no #--> markers
 [ FAIL ] 20_pr.ring:
          #15 ? Q("2").Is(:NumberInString) -> expected 'TRUE' not found past cursor 35
@@ -59,4 +52,4 @@
 [ FAIL ] 32_pr.ring:
          #1 ? HowManyStzClasses() -> expected '60' not found past cursor 0
 ---
-PASS: 6 / FAIL: 16 / skip: 10
+PASS: 8 / FAIL: 14 / skip: 10
