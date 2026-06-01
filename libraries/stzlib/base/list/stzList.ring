@@ -3776,6 +3776,189 @@ class stzList from stzObject
 		return _oIbpBnd_.ItemsBetweenPositions(n1, n2)
 
 	  #-------------------------------#
+	 #  EACH-ITEM-IS-EITHER MINI-DSL #
+	#-------------------------------#
+
+	#-- AllItemsAreEither / EachItemIsEither[A/An]: a symbol-DSL
+	#   predicate that returns TRUE iff every item satisfies the
+	#   LEFT side OR the RIGHT side. Accepted argument forms:
+	#
+	#   1. (PRED, :Or = OTHERPRED, TYPE)
+	#        Both sides share TYPE. Left uses PRED; right uses
+	#        OTHERPRED. Ring resolves ":Or = OTHERPRED" to a 2-list
+	#        [ "Or", OTHERPRED ] which we detect.
+	#
+	#   2. (TYPE1, :Or, TYPE2)
+	#        Each side is just a type check.
+	#
+	#   3. ([ pred1, pred2, ..., TYPE ], :Or, [ pred1', ..., TYPE' ])
+	#        Each side is a list whose LAST element is the type and
+	#        the rest are predicates that must all hold.
+	#
+	#   Side forms mix freely; a single non-type symbol on one side
+	#   inherits the type from the other.
+	#
+	#   Ported from the archive symbol-DSL at stzList_monolithic.ring
+	#   line ~60000 but kept self-contained (no shared eval-glue file).
+	#   On any unknown predicate / type, the side fails silently and
+	#   returns FALSE rather than crashing -- callers can rely on the
+	#   method always returning a boolean.
+
+	def AllItemsAreEither(p1, p2, p3)
+		_aEieSpec_ = This._EieResolve(p1, p2, p3)
+		if _aEieSpec_ = NULL
+			return 0
+		ok
+		_cEieLT_ = _aEieSpec_[1]
+		_aEieLP_ = _aEieSpec_[2]
+		_cEieRT_ = _aEieSpec_[3]
+		_aEieRP_ = _aEieSpec_[4]
+		_nEieN_ = This.NumberOfItems()
+		for _iEie_ = 1 to _nEieN_
+			_xEieItem_ = @aContent[_iEie_]
+			if NOT ( This._EieCheck(_xEieItem_, _cEieLT_, _aEieLP_) or
+			         This._EieCheck(_xEieItem_, _cEieRT_, _aEieRP_) )
+				return 0
+			ok
+		next
+		return 1
+
+		def EachItemIsEither(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		def EachItemIsEitherA(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		def EachItemIsEitherAn(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		def ItemsAreEither(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		def AllItemsHaveEither(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+		def ItemsHaveEither(p1, p2, p3)
+			return This.AllItemsAreEither(p1, p2, p3)
+
+	#-- Internal: parse the three params into (leftType, leftPreds,
+	#   rightType, rightPreds). Returns NULL on malformed input.
+
+	def _EieResolve(p1, p2, p3)
+		_cLT_ = NULL  _aLP_ = []
+		_cRT_ = NULL  _aRP_ = []
+
+		# Form A: p2 = [ "Or", X ] -- shared-type DSL
+		if isList(p2) and len(p2) = 2 and isString(p2[1]) and lower(p2[1]) = "or"
+			if NOT isString(p3)
+				return NULL
+			ok
+			_cLT_ = p3
+			_cRT_ = p3
+			if isString(p1)
+				_aLP_ + p1
+			but isList(p1)
+				for _s_ in p1
+					_aLP_ + _s_
+				next
+			else
+				return NULL
+			ok
+			_aRP_ + p2[2]
+			return [ _cLT_, _aLP_, _cRT_, _aRP_ ]
+		ok
+
+		# Form B/C: p2 must be the bare :Or marker
+		if NOT (isString(p2) and lower(p2) = "or")
+			return NULL
+		ok
+
+		# Resolve each side
+		_aL_ = This._EieResolveSide(p1)
+		if _aL_ = NULL return NULL ok
+		_cLT_ = _aL_[1]  _aLP_ = _aL_[2]
+
+		_aR_ = This._EieResolveSide(p3)
+		if _aR_ = NULL return NULL ok
+		_cRT_ = _aR_[1]  _aRP_ = _aR_[2]
+
+		# Borrow type if one side is predicate-only
+		if _cLT_ = NULL _cLT_ = _cRT_ ok
+		if _cRT_ = NULL _cRT_ = _cLT_ ok
+		if _cLT_ = NULL return NULL ok
+
+		return [ _cLT_, _aLP_, _cRT_, _aRP_ ]
+
+	def _EieResolveSide(pSide)
+		_aTypes_ = [ "number", "string", "list", "object" ]
+		_cT_ = NULL  _aP_ = []
+		if isString(pSide)
+			if ring_find(_aTypes_, lower(pSide)) > 0
+				_cT_ = pSide
+			else
+				_aP_ + pSide
+			ok
+		but isList(pSide) and len(pSide) > 0
+			# Last item is the type
+			_cLast_ = pSide[len(pSide)]
+			if NOT isString(_cLast_)
+				return NULL
+			ok
+			if ring_find(_aTypes_, lower(_cLast_)) > 0
+				_cT_ = _cLast_
+				for _i_ = 1 to len(pSide) - 1
+					_aP_ + pSide[_i_]
+				next
+			else
+				# No explicit type -- treat all as predicates
+				for _x_ in pSide _aP_ + _x_ next
+			ok
+		else
+			return NULL
+		ok
+		return [ _cT_, _aP_ ]
+
+	def _EieCheck(pItem, pcType, paPreds)
+		if pcType = NULL
+			return 0
+		ok
+		_bTypeOk_ = 0
+		switch lower(pcType)
+		on "number"
+			_bTypeOk_ = isNumber(pItem)
+		on "string"
+			_bTypeOk_ = isString(pItem)
+		on "list"
+			_bTypeOk_ = isList(pItem)
+		on "object"
+			_bTypeOk_ = isObject(pItem)
+		off
+		if NOT _bTypeOk_
+			return 0
+		ok
+		# All predicates must pass
+		for _cPred_ in paPreds
+			if NOT isString(_cPred_)
+				return 0
+			ok
+			# Skip type-name re-mentions
+			if lower(_cPred_) = lower(pcType)
+				loop
+			ok
+			_xEieI_ = pItem
+			_bEieR_ = 0
+			try
+				eval('_bEieR_ = Stz' + pcType + 'Q(_xEieI_).Is' + _cPred_ + '()')
+			catch
+				return 0
+			done
+			if NOT _bEieR_
+				return 0
+			ok
+		next
+		return 1
+
+	  #-------------------------------#
 	 #  FLATTENER DELEGATIONS        #
 	#-------------------------------#
 

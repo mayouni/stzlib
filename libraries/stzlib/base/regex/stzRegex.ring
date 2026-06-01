@@ -781,6 +781,15 @@ class stzRegex
 		def NamedCaptureGroups()
 			return This.NamedGroups()
 
+		def CaptureXT()
+			return This.NamedGroups()
+
+		def CapturesXT()
+			return This.NamedGroups()
+
+		def CaptureGroupsXT()
+			return This.NamedGroups()
+
 	def FindCapture()
 		_aPosZZ_ = This.FindMatchesZZ()
 		_nLen_ = len(_aPosZZ_)
