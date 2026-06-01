@@ -2325,6 +2325,12 @@ class stzList from stzObject
 		StzEngineListFree(pList)
 		return nResult
 
+		def Smallest()
+			return This.Min()
+
+		def Lowest()
+			return This.Min()
+
 	def Max()
 		if len(@aContent) = 0
 			return 0
@@ -2335,6 +2341,15 @@ class stzList from stzObject
 		nResult = StzEngineListMax(pList)
 		StzEngineListFree(pList)
 		return nResult
+
+		def Greatest()
+			return This.Max()
+
+		def Largest()
+			return This.Max()
+
+		def Highest()
+			return This.Max()
 
 	  #-- Sum / Product / Mean (engine-backed)
 

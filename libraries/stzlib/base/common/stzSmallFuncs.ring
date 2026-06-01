@@ -773,3 +773,43 @@ func StzWhereXT(cCode)
 
 	func WhereXT(cCode)
 		return StzWhereXT(cCode)
+
+# Global Join() function. Mirrors stzList.Join() but works on raw
+# Ring lists too -- callers like stzCCode use it on intermediate
+# substring arrays without wrapping them first.
+
+func Join(paList)
+	if NOT isList(paList)
+		StzRaise("Join: paList must be a list")
+	ok
+	cJoined = ""
+	nLen = len(paList)
+	for i = 1 to nLen
+		if isString(paList[i])
+			cJoined += paList[i]
+		but isNumber(paList[i])
+			cJoined += "" + paList[i]
+		ok
+	next
+	return cJoined
+
+	func JoinXT(paList, pcSep)
+		if NOT isList(paList)
+			StzRaise("JoinXT: paList must be a list")
+		ok
+		if NOT isString(pcSep)
+			StzRaise("JoinXT: pcSep must be a string")
+		ok
+		cJoinedSep = ""
+		nLn = len(paList)
+		for i = 1 to nLn
+			if isString(paList[i])
+				cJoinedSep += paList[i]
+			but isNumber(paList[i])
+				cJoinedSep += "" + paList[i]
+			ok
+			if i < nLn
+				cJoinedSep += pcSep
+			ok
+		next
+		return cJoinedSep
