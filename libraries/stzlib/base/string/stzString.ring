@@ -1463,12 +1463,34 @@ class stzString from stzObject
 			This.Update(StzRight(_cRfcContent_, StzLen(_cRfcContent_) - 1))
 		ok
 
+		def RemoveFirstCharQ()
+			This.RemoveFirstChar()
+			return This
+
+	#-- Immutable / past-tense forms: return the modified content
+	#   without mutating This. Used by stzNumber.Absolute() and
+	#   similar fluent chains.
+
+	def FirstCharRemoved()
+		_oFcrTmp_ = new stzString( This.Content() )
+		_oFcrTmp_.RemoveFirstChar()
+		return _oFcrTmp_.Content()
+
+	def LastCharRemoved()
+		_oLcrTmp_ = new stzString( This.Content() )
+		_oLcrTmp_.RemoveLastChar()
+		return _oLcrTmp_.Content()
+
 	def RemoveLastChar()
 		_cRlcContent_ = This.Content()
 		_nRlcLen_ = StzLen(_cRlcContent_)
 		if _nRlcLen_ > 0
 			This.Update(StzLeft(_cRlcContent_, _nRlcLen_ - 1))
 		ok
+
+		def RemoveLastCharQ()
+			This.RemoveLastChar()
+			return This
 
 	def RemoveFirstAndLastChars()
 		This.RemoveFirstChar()
