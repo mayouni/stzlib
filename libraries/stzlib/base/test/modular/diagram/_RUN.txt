@@ -1,69 +1,65 @@
-[ skip ] 01_simple_diagram_without_edges.ring: no #--> markers
-[ skip ] 02_node_forms.ring: no #--> markers
-[ skip ] 03_creating_nodes_in_sequence.ring: no #--> markers
-[ skip ] 04_creating_nodes_in_sequence_with_lablels.ring: no #--> markers
-[ skip ] 05_using_direct_names_of_forms_to_create_nodes.ring: no #--> markers
-[ skip ] 06_like_in_stzgraph_three_levels_are_allowed_addnode_.ring: no #--> markers
-[ skip ] 07_style_options.ring: no #--> markers
-[ skip ] 08_pr.ring: no #--> markers
-[ skip ] 09_building_workflow_diagram_with_node_types_and_them.ring: no #--> markers
-[ PASS ] 10_analyzing_workflow_path_metrics.ring: 1 assertions matched
-[ skip ] 11_adding_performance_properties_to_nodes.ring: no #--> markers
-[ skip ] 12_retrieving_annotations_by_type.ring: no #--> markers
-[ skip ] 13_grouping_nodes_into_logical_domains.ring: no #--> markers
-[ skip ] 14_retrieving_cluster_details.ring: no #--> markers
-[ skip ] 15_testing_different_theme_configurations.ring: no #--> markers
-[ skip ] 16_testing_different_layout_configurations.ring: no #--> markers
-[ PASS ] 17_converting_diagram_to_hashlist_representation.ring: 1 assertions matched
-[ PASS ] 18_generating_stzdiag_native_text_format.ring: 1 assertions matched
-[ FAIL ] 19_saving_diagram_to_stzdiagram_file.ring:
-         #1 ? oDiag.Name() -> expected 'sample' not found past cursor 0
-[ PASS ] 20_converting_diagram_with_cluster_definitions.ring: 1 assertions matched
-[ PASS ] 21_converting_diagram_with_annotations.ring: 1 assertions matched
-[ skip ] 22_converting_to_graphviz_dot_language.ring: no #--> markers
-[ skip ] 23_saving_to_dot_file.ring: no #--> markers
-[ PASS ] 24_verifying_dot_node_type_shapes.ring: 1 assertions matched
-[ FAIL ] 25_converting_to_mermaidjs_syntax.ring:
-         #1 ? oDiag.Mermaid() -> expected 'Past it in https://mermaid.live/' not found past cursor 0
-[ skip ] 26_saving_to_mermaid_file.ring: no #--> markers
-[ PASS ] 27_verifying_mermaid_node_type_shapes.ring: 1 assertions matched
-[ PASS ] 28_converting_to_json_format.ring: 1 assertions matched
-[ skip ] 29_saving_to_json_file.ring: no #--> markers
-[ PASS ] 30_verifying_json_structure_fields.ring: 1 assertions matched
-[ PASS ] 31_verifying_edge_labels_in_all_formats.ring: 3 assertions matched
-[ skip ] 32_layout_variations.ring: no #--> markers
-[ skip ] 33_edge_style_variations.ring: no #--> markers
-[ skip ] 34_node_type_variations.ring: no #--> markers
-[ skip ] 35_theme_variations.ring: no #--> markers
-[ skip ] 36_generating_the_diagram_image_in_all_the_supported_.ring: no #--> markers
-[ skip ] 37_combined_options.ring: no #--> markers
-[ skip ] 38_color_resolution.ring: no #--> markers
-[ PASS ] 39_basic_import_on_empty_diagram.ring: 2 assertions matched
-[ skip ] 40_import_diagram_with_semantic_colors.ring: no #--> markers
-[ FAIL ] 41_import_as_subdiagram.ring:
-         #1 ? oDiag.NodeCount() -> expected '5 (start, main, sub1, sub2, result)' not found past cursor 0
-[ skip ] 42_import_error_-_missing_connection_node.ring: no #--> markers
-[ FAIL ] 43_remove_single_node.ring:
-         #4 ? oDiag.EdgeCount() -> expected '0 (both edges removed)' not found past cursor 63
-[ PASS ] 44_remove_multiple_nodes.ring: 1 assertions matched
-[ FAIL ] 45_pr.ring:
-         #1 ? keys([ [ "color", "process" ], [ "color", "blue" ], [ "pri -> expected 'Incorrect param type! paList must be a hashlist. ~> Because ' not found past cursor 0
-[ PASS ] 46_clear_all_nodes.ring: 6 assertions matched
-[ PASS ] 47_set_and_get_node_properties.ring: 1 assertions matched
-[ PASS ] 48_update_node_properties.ring: 2 assertions matched
-[ PASS ] 49_edge_properties_operations.ring: 2 assertions matched
-[ FAIL ] 50_remove_properties.ring:
-         #2 ? @@(oDiag.NodeProps("n1")) -> expected '[]' not found past cursor 26
-[ FAIL ] 51_build_edit_import_and_visualize.ring:
-         #3 ? @@NL( oDiag.Node(:validate) ) -> expected '[ [ "id", "validate" ], [ "label", "Validate" ], [ "properti' not found past cursor 72
-[ FAIL ] 52_visual_rules_data-driven.ring:
-         #2 ? @@( NodesAffectedByVisualRules() ) -> expected '[ [ [ "name", "CHEAP_GREEN" ], [ "conditiontype", "property_' not found past cursor 326
-[ FAIL ] 53_combined_validation_visual.ring:
-         #2 ? @@NL( ValidateXT(:SOX) ) -> expected '[ [ "status", "pass" ], [ "domain", "sox" ], [ "issuecount",' not found past cursor 24
-[ skip ] 54_fluent_visual_rules_with_class.ring: no #--> markers
-[ skip ] 55_approval_workflow_visualization.ring: no #--> markers
-[ skip ] 56_visual_rules_merging_with_visual_rules.ring: no #--> markers
-[ PASS ] 57_data_pipeline_health_with_visual_rules.ring: 1 assertions matched
-[ skip ] 58_block_58.ring: no #--> markers
----
-PASS: 17 / FAIL: 9 / skip: 32
+[ skip ] 01_simple_diagram_without_edges.ring: no #--> markers
+[ skip ] 02_node_forms.ring: no #--> markers
+[ skip ] 03_creating_nodes_in_sequence.ring: no #--> markers
+[ skip ] 04_creating_nodes_in_sequence_with_lablels.ring: no #--> markers
+[ skip ] 05_using_direct_names_of_forms_to_create_nodes.ring: no #--> markers
+[ skip ] 06_like_in_stzgraph_three_levels_are_allowed_addnode_.ring: no #--> markers
+[ skip ] 07_style_options.ring: no #--> markers
+[ skip ] 08_pr.ring: no #--> markers
+[ skip ] 09_building_workflow_diagram_with_node_types_and_them.ring: no #--> markers
+[ PASS ] 10_analyzing_workflow_path_metrics.ring: 1 assertions matched
+[ skip ] 11_adding_performance_properties_to_nodes.ring: no #--> markers
+[ skip ] 12_retrieving_annotations_by_type.ring: no #--> markers
+[ skip ] 13_grouping_nodes_into_logical_domains.ring: no #--> markers
+[ skip ] 14_retrieving_cluster_details.ring: no #--> markers
+[ skip ] 15_testing_different_theme_configurations.ring: no #--> markers
+[ skip ] 16_testing_different_layout_configurations.ring: no #--> markers
+[ PASS ] 17_converting_diagram_to_hashlist_representation.ring: 1 assertions matched
+[ PASS ] 18_generating_stzdiag_native_text_format.ring: 1 assertions matched
+[ FAIL ] 19_saving_diagram_to_stzdiagram_file.ring:
+         #1 ? oDiag.Name() -> expected 'sample' not found past cursor 0
+[ PASS ] 20_converting_diagram_with_cluster_definitions.ring: 1 assertions matched
+[ PASS ] 21_converting_diagram_with_annotations.ring: 1 assertions matched
+[ skip ] 22_converting_to_graphviz_dot_language.ring: no #--> markers
+[ skip ] 23_saving_to_dot_file.ring: no #--> markers
+[ PASS ] 24_verifying_dot_node_type_shapes.ring: 1 assertions matched
+[ FAIL ] 25_converting_to_mermaidjs_syntax.ring:
+         #1 ? oDiag.Mermaid() -> expected 'Past it in https://mermaid.live/' not found past cursor 0
+[ skip ] 26_saving_to_mermaid_file.ring: no #--> markers
+[ PASS ] 27_verifying_mermaid_node_type_shapes.ring: 1 assertions matched
+[ PASS ] 28_converting_to_json_format.ring: 1 assertions matched
+[ skip ] 29_saving_to_json_file.ring: no #--> markers
+[ PASS ] 30_verifying_json_structure_fields.ring: 1 assertions matched
+[ PASS ] 31_verifying_edge_labels_in_all_formats.ring: 3 assertions matched
+[ skip ] 32_layout_variations.ring: no #--> markers
+[ skip ] 33_edge_style_variations.ring: no #--> markers
+[ skip ] 34_node_type_variations.ring: no #--> markers
+[ skip ] 35_theme_variations.ring: no #--> markers
+[ skip ] 36_generating_the_diagram_image_in_all_the_supported_.ring: no #--> markers
+[ skip ] 37_combined_options.ring: no #--> markers
+[ skip ] 38_color_resolution.ring: no #--> markers
+[ PASS ] 39_basic_import_on_empty_diagram.ring: 2 assertions matched
+[ skip ] 40_import_diagram_with_semantic_colors.ring: no #--> markers
+[ PASS ] 41_import_as_subdiagram.ring: 2 assertions matched
+[ skip ] 42_import_error_-_missing_connection_node.ring: no #--> markers
+[ PASS ] 43_remove_single_node.ring: 4 assertions matched
+[ PASS ] 44_remove_multiple_nodes.ring: 1 assertions matched
+[ FAIL ] 45_pr.ring:
+         #1 ? keys([ [ "color", "process" ], [ "color", "blue" ], [ "pri -> expected 'Incorrect param type! paList must be a hashlist. ~> Because ' not found past cursor 0
+[ PASS ] 46_clear_all_nodes.ring: 6 assertions matched
+[ PASS ] 47_set_and_get_node_properties.ring: 1 assertions matched
+[ PASS ] 48_update_node_properties.ring: 2 assertions matched
+[ PASS ] 49_edge_properties_operations.ring: 2 assertions matched
+[ PASS ] 50_remove_properties.ring: 2 assertions matched
+[ PASS ] 51_build_edit_import_and_visualize.ring: 3 assertions matched
+[ FAIL ] 52_visual_rules_data-driven.ring:
+         #2 ? @@( NodesAffectedByVisualRules() ) -> expected '[ [ [ "name", "CHEAP_GREEN" ], [ "conditiontype", "property_' not found past cursor 326
+[ FAIL ] 53_combined_validation_visual.ring:
+         #2 ? @@NL( ValidateXT(:SOX) ) -> expected '[ [ "status", "pass" ], [ "domain", "sox" ], [ "issuecount",' not found past cursor 24
+[ skip ] 54_fluent_visual_rules_with_class.ring: no #--> markers
+[ skip ] 55_approval_workflow_visualization.ring: no #--> markers
+[ skip ] 56_visual_rules_merging_with_visual_rules.ring: no #--> markers
+[ PASS ] 57_data_pipeline_health_with_visual_rules.ring: 1 assertions matched
+[ skip ] 58_block_58.ring: no #--> markers
+---
+PASS: 21 / FAIL: 5 / skip: 32
