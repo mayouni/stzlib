@@ -8,10 +8,8 @@
          #2 ? o1.Between(6, 11) + NL # Equivalent to Section(7, 10) -> expected '"ring"' not found past cursor 0
          #3 ? o1.BoundedBy([ "<<<", ">>>" ]) -> expected '[ "ring", "softanza" ]' not found past cursor 0
 [ FAIL ] 05_pr.ring:
-         #1 ? @@( o1.FindSubStringsBoundedByIBZZ([ "[", "]" ]) ) -> expected '[ [ 7, 10 ], [ 18, 25 ] ]' not found past cursor 0
-         #2 ? @@( o1.SubStringsBoundedByIB([ "[", "]" ]) ) -> expected '[ "[@i]", "[@i + 1]" ]' not found past cursor 0
-         #3 ? @@( o1.FindAnySubStringBoundedByZZ([ "[", "]" ]) ) -> expected '[ [8, 9], [19, 24] ]' not found past cursor 0
-         #4 ? o1.NumbersAfter("@i") -> expected '[ "+1", "+5" ]' not found past cursor 0
+         #3 ? @@( o1.FindAnySubStringBoundedByZZ([ "[", "]" ]) ) -> expected '[ [8, 9], [19, 24] ]' not found past cursor 48
+         #4 ? o1.NumbersAfter("@i") -> expected '[ "+1", "+5" ]' not found past cursor 48
 [ FAIL ] 06_pr.ring:
          #1 ? o1.NumbersAfter("@i") -> expected '[ "-3", "+3" ]' not found past cursor 0
 [ FAIL ] 07_startprofiler.ring:
