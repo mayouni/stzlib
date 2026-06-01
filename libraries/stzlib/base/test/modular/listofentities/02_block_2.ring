@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stzListOfEntitiesTest.ring, block #2.
 

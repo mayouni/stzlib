@@ -7,7 +7,6 @@
 load "../../../stzBase.ring"
 
 	with multiple screening stages and background checks
-*/	
 pr()
 
 oRecruitmentWorkflow = new stzDiagramMaker("Recruitment Process")

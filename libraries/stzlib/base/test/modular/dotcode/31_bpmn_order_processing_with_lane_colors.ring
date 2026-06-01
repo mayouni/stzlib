@@ -7,7 +7,6 @@
 load "../../../stzBase.ring"
 
 #==========================================#
-*/
 pr()
 
 #TODO #ERR No colors displayed!

@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stznumbertest.ring, block #2.
 

@@ -1,33 +1,27 @@
-[ FAIL ] 01_using_a_python_code_inside_ring.ring:
-         #1 ? Q(1:5)['::-1'] -> expected '[ 5, 4, 3, 2, 1 ]' not found past cursor 0
-         #2 ? Q(1:10)['2:8:2'] -> expected '[ 2, 4, 6, 8 ]' not found past cursor 0
-[ FAIL ] 02_pr.ring:
-         #1 ? range1Q([ 1, 5 ])['::-1'] -> expected '[ 4, 3, 2, 1 ]' not found past cursor 0
-[ FAIL ] 03_pr.ring:
-         #1 ? range0(3) -> expected '[ 0, 1, 2 ]' not found past cursor 0
-         #2 ? @@( range0(-3) ) + NL -> expected '[]' not found past cursor 0
-         #3 ? range0([ 3, 10 ]) -> expected '[ 3, 4, 5, 6, 7, 8, 9 ]' not found past cursor 0
-         #4 ? @@( range0([ 10, 3 ]) ) + NL -> expected '[]' not found past cursor 0
-         #5 ? range0([ -3, 3 ]) -> expected '[-3, -2, -1, 0, 1, 2]' not found past cursor 0
-         ... +5 more
-[ FAIL ] 04_pr.ring:
-         #1 ? range0(3) -> expected '[0, 1, 2]' not found past cursor 0
-         #2 ? range0([ 1, 3 ]) -> expected '[1, 2]' not found past cursor 0
-         #3 ? range0([ 2, 8, 3 ]) -> expected '[2, 5]' not found past cursor 0
-         #4 ? range1(3) -> expected '[1, 2, 3]' not found past cursor 0
-         #5 ? range1([ 1, 3 ]) -> expected '[1, 2, 3]' not found past cursor 0
-         ... +3 more
-[ PASS ] 05_pr.ring: 1 assertions matched
-[ FAIL ] 06_pr.ring:
-         #1 ? Q(' + ').join([ "a", "b", "c" ]) -> expected 'a + b + c' not found past cursor 0
-[ PASS ] 07_block_7.ring: 1 assertions matched
-[ skip ] 08_pr.ring: no #--> markers
-[ FAIL ] 09_pr.ring:
-         #1 ? v([ :x, :y, :z ]) -> expected '[ 10, 20, 30 ]' not found past cursor 0
-         #2 ? v([ :x, :z ]) -> expected '[ 10, 30 ]' not found past cursor 0
-         #3 ? v([ :x, :x, :z, :y ]) -> expected '[ 10, 10, 30, 20 ]' not found past cursor 0
-[ skip ] 10_pr.ring: no #--> markers
-[ skip ] 11_pr.ring: no #--> markers
-[ skip ] 12_pr.ring: no #--> markers
----
-PASS: 2 / FAIL: 6 / skip: 4
+[ FAIL ] 01_using_a_python_code_inside_ring.ring:
+         #1 ? Q(1:5)['::-1'] -> expected '[ 5, 4, 3, 2, 1 ]' not found past cursor 0
+         #2 ? Q(1:10)['2:8:2'] -> expected '[ 2, 4, 6, 8 ]' not found past cursor 0
+[ FAIL ] 02_pr.ring:
+         #1 ? range1Q([ 1, 5 ])['::-1'] -> expected '[ 4, 3, 2, 1 ]' not found past cursor 0
+[ FAIL ] 03_pr.ring:
+         #2 ? @@( range0(-3) ) + NL -> expected '[]' not found past cursor 0
+         #4 ? @@( range0([ 10, 3 ]) ) + NL -> expected '[]' not found past cursor 0
+         #6 ? @@( range0([ 3, -3 ]) ) -> expected '[]' not found past cursor 0
+         #9 ? @@( range0([ 10, 3, 2 ]) ) + NL -> expected '[]' not found past cursor 3
+         #11 ? @@( range0([ 3, 10, -2 ]) ) -> expected '[]' not found past cursor 3
+[ FAIL ] 04_pr.ring:
+         #7 ? range1(':5:-1') -> expected '[ 5, 4, 3, 2, 1 ]' not found past cursor 0
+         #8 ? range0(':5:-1') -> expected '[ 4, 3, 2, 1, 0 ]' not found past cursor 0
+[ PASS ] 05_pr.ring: 1 assertions matched
+[ FAIL ] 06_pr.ring:
+         #1 ? Q(' + ').join([ "a", "b", "c" ]) -> expected 'a + b + c' not found past cursor 0
+[ PASS ] 07_block_7.ring: 1 assertions matched
+[ skip ] 08_pr.ring: no #--> markers
+[ FAIL ] 09_pr.ring:
+         #2 ? v([ :x, :z ]) -> expected '[ 10, 30 ]' not found past cursor 0
+         #3 ? v([ :x, :x, :z, :y ]) -> expected '[ 10, 10, 30, 20 ]' not found past cursor 0
+[ skip ] 10_pr.ring: no #--> markers
+[ skip ] 11_pr.ring: no #--> markers
+[ skip ] 12_pr.ring: no #--> markers
+---
+PASS: 2 / FAIL: 6 / skip: 4

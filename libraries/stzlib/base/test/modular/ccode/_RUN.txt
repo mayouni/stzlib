@@ -1,39 +1,33 @@
-[ PASS ] 01_pr.ring: 2 assertions matched
-[ FAIL ] 02_pr.ring:
-         #1 ? @@( Q("This[@i+1]").NumbersAfter("@i") ) -> expected '[ "1" ]' not found past cursor 0
-[ FAIL ] 03_pr.ring:
-         #1 ? StzCCodeQ('{ This[ @i + 3 ] = This[@i + 1] }').ExecutableS -> expected '[ 1, -3 ]' not found past cursor 0
-[ FAIL ] 04_between_vs_boundedby.ring:
-         #1 ? o1.Between("<<<", ">>>") # Or SubStringBetween() -> expected '"ring>>>___<<<softanza"' not found past cursor 0
-         #2 ? o1.Between(6, 11) + NL # Equivalent to Section(7, 10) -> expected '"ring"' not found past cursor 0
-         #3 ? o1.BoundedBy([ "<<<", ">>>" ]) -> expected '[ "ring", "softanza" ]' not found past cursor 0
-[ FAIL ] 05_pr.ring:
-         #3 ? @@( o1.FindAnySubStringBoundedByZZ([ "[", "]" ]) ) -> expected '[ [8, 9], [19, 24] ]' not found past cursor 48
-         #4 ? o1.NumbersAfter("@i") -> expected '[ "+1", "+5" ]' not found past cursor 48
-[ FAIL ] 06_pr.ring:
-         #1 ? o1.NumbersAfter("@i") -> expected '[ "-3", "+3" ]' not found past cursor 0
-[ FAIL ] 07_startprofiler.ring:
-         #1 ? o1.ExecutableSection() -> expected '[4, -3]' not found past cursor 0
-[ FAIL ] 08_startprofiler.ring:
-         #1 ? o1.NumbersAfter("@i") -> expected '[ "+1", "-2" ]' not found past cursor 0
-[ FAIL ] 09_block_9.ring:
-         #1 ? o1.ExecutableSection() -> expected '[ 1, :Last ] Which is wrong!' not found past cursor 0
-         #2 ? o1.ExecutableSectionXT() #TODO // Check this! -> expected '[ 1, -1 ]' not found past cursor 0
-         #3 ? o1.Transpiled() -> expected 'This[@i] = This[@i + 1] + 5' not found past cursor 0
-         #4 ? StzCCodeQ('This[@i] = This[@i + 1] + 5').ExecutableSection -> expected '[ 1, -1 ]' not found past cursor 0
-[ FAIL ] 10_chech_output.ring:
-         #1 ? o1.ExecutableSectionXT() -> expected '[ 2, :Last ]' not found past cursor 0
-[ FAIL ] 11_startprofiler.ring:
-         #1 ? o1.ExecutableSection() -> expected '[ 5, :Last ]' not found past cursor 0
-[ FAIL ] 12_block_12.ring:
-         #1 ? o1.ExecutableSection() -> expected '[ 1, :Last ]' not found past cursor 0
-         #2 ? o1.ExecutableSectionXT() -> expected '[ 1, :Last ]' not found past cursor 0
-[ FAIL ] 13_startprofiler.ring:
-         #1 ? o1.Transpiled() -> expected 'Q( This[@i] ).IsUppercase()' not found past cursor 0
-         #2 ? o1.ExecutableSectionXT() -> expected '[ 1, :Last ]' not found past cursor 0
-[ FAIL ] 14_check_output.ring:
-         #1 ? o1.ExecutableSectionXT() -> expected '[ 1, -1 ]' not found past cursor 0
-[ FAIL ] 15_check_output.ring:
-         #1 ? o1.ExecutableSectionXT() -> expected '[ 1, -1 ]' not found past cursor 0
----
-PASS: 1 / FAIL: 14
+[ PASS ] 01_pr.ring: 2 assertions matched
+[ PASS ] 02_pr.ring: 2 assertions matched
+[ FAIL ] 03_pr.ring:
+         #1 ? StzCCodeQ('{ This[ @i + 3 ] = This[@i + 1] }').ExecutableS -> expected '[ 1, -3 ]' not found past cursor 0
+[ FAIL ] 04_between_vs_boundedby.ring:
+         #1 ? o1.Between("<<<", ">>>") # Or SubStringBetween() -> expected '"ring>>>___<<<softanza"' not found past cursor 0
+[ FAIL ] 05_pr.ring:
+         #4 ? o1.NumbersAfter("@i") -> expected '[ "+1", "+5" ]' not found past cursor 48
+[ PASS ] 06_pr.ring: 1 assertions matched
+[ FAIL ] 07_startprofiler.ring:
+         #1 ? o1.ExecutableSection() -> expected '[4, -3]' not found past cursor 0
+[ PASS ] 08_startprofiler.ring: 1 assertions matched
+[ FAIL ] 09_block_9.ring:
+         #1 ? o1.ExecutableSection() -> expected '[ 1, :Last ] Which is wrong!' not found past cursor 0
+         #2 ? o1.ExecutableSectionXT() #TODO // Check this! -> expected '[ 1, -1 ]' not found past cursor 0
+         #3 ? o1.Transpiled() -> expected 'This[@i] = This[@i + 1] + 5' not found past cursor 0
+         #4 ? StzCCodeQ('This[@i] = This[@i + 1] + 5').ExecutableSection -> expected '[ 1, -1 ]' not found past cursor 0
+[ FAIL ] 10_chech_output.ring:
+         #1 ? o1.ExecutableSectionXT() -> expected '[ 2, :Last ]' not found past cursor 0
+[ FAIL ] 11_startprofiler.ring:
+         #1 ? o1.ExecutableSection() -> expected '[ 5, :Last ]' not found past cursor 0
+[ FAIL ] 12_block_12.ring:
+         #1 ? o1.ExecutableSection() -> expected '[ 1, :Last ]' not found past cursor 0
+         #2 ? o1.ExecutableSectionXT() -> expected '[ 1, :Last ]' not found past cursor 0
+[ FAIL ] 13_startprofiler.ring:
+         #1 ? o1.Transpiled() -> expected 'Q( This[@i] ).IsUppercase()' not found past cursor 0
+         #2 ? o1.ExecutableSectionXT() -> expected '[ 1, :Last ]' not found past cursor 0
+[ FAIL ] 14_check_output.ring:
+         #1 ? o1.ExecutableSectionXT() -> expected '[ 1, -1 ]' not found past cursor 0
+[ FAIL ] 15_check_output.ring:
+         #1 ? o1.ExecutableSectionXT() -> expected '[ 1, -1 ]' not found past cursor 0
+---
+PASS: 4 / FAIL: 11

@@ -7,7 +7,6 @@
 load "../../../stzBase.ring"
 
 # Use case: Basic structure, Window creation, Text display
-*/
 	new qApp {
 		oQML = new RingQML(NULL)
 		oQML.LoadContent(QML_1_1())

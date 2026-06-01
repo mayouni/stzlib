@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stznaturalmarkuptest.ring, block #2.
 

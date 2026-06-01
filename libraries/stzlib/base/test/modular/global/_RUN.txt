@@ -1,88 +1,83 @@
-[ FAIL ] 01_pr.ring:
-         #4 ? IsStzFindable( Q(1:20) ) # because Q() elevates 1:20 to a  -> expected 'TRUE' not found past cursor 7
-[ FAIL ] 02_pr.ring:
-         #1 ? 3 : 5 -> expected '[ 3, 5 ]' not found past cursor 0
-         #2 ? "3" : "5" -> expected '[ "3", "4", "5" ]' not found past cursor 0
-         #3 ? 10 : 12 -> expected '[ 10, 11, 12 ]' not found past cursor 0
-         #4 ? "10" : "12" -> expected '"10"' not found past cursor 0
-         #5 ? L(' "10":"12" ') -> expected '#--> [ "10", "11", "12" ]' not found past cursor 0
-[ PASS ] 03_0.ring: 2 assertions matched
-[ PASS ] 04_pr.ring: 9 assertions matched
-[ PASS ] 05_pr.ring: 1 assertions matched
-[ PASS ] 06_pr.ring: 4 assertions matched
-[ PASS ] 07_pr.ring: 1 assertions matched
-[TIMEOUT] 08_desabling_param_checking_to_enhance_performance.ring: 60s
-[TIMEOUT] 09_continue.ring: 60s
-[ skip ] 10_pr.ring: no #--> markers
-[ skip ] 11_pr.ring: no #--> markers
-[ skip ] 12_block_12.ring: no #--> markers
-[ skip ] 13_pr.ring: no #--> markers
-[ skip ] 14_block_14.ring: no #--> markers
-[ skip ] 15_pr.ring: no #--> markers
-[ skip ] 16_pr.ring: no #--> markers
-[ skip ] 17_pr.ring: no #--> markers
-[ skip ] 18_pr.ring: no #--> markers
-[ FAIL ] 19_pr.ring:
-         #1 ? ShowShort(aNumbers) -> expected '[ 1, 2, 3, "...", 98, 99, 100 ]' not found past cursor 0
-[ skip ] 20_pr.ring: no #--> markers
-[ skip ] 21_pr.ring: no #--> markers
-[ skip ] 22_pr.ring: no #--> markers
-[ skip ] 23_pr.ring: no #--> markers
-[ FAIL ] 24_showing_the_short_form_of_a_long_list.ring:
-         #5 ? @@SXT(1:50, [2, 3]) + NL -> expected '[ 1, 2, "...", 48, 49, 50 ]' not found past cursor 237
-[ FAIL ] 25_q110showshort.ring:
-         #1 ? Q(1:10).ShowShortXT([2, 3]) -> expected '[ 1, 2, "...", 8, 9, 10 ]' not found past cursor 0
-[ skip ] 26_pr.ring: no #--> markers
-[ FAIL ] 27_pr.ring:
-         #1 ? @@( o1.Content() ) -> expected '[ [1,3], [4, 7], [8, 9] ]' not found past cursor 0
-[ PASS ] 28_pr.ring: 1 assertions matched
-[ FAIL ] 29_pr.ring:
-         #1 ? @@( o1.FindMany([ "emm", "eh" ]) ) -> expected '[4, 10, 14, 20 ]' not found past cursor 0
-         #2 ? @@(o1.FindManyAsSections([ "emm", "eh" ])) -> expected '[ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]' not found past cursor 0
-         #3 ? @@( o1.Find([ "emm", "eh" ]) ) -> expected '[4, 10, 14, 20 ]' not found past cursor 0
-         #4 ? @@(o1.FindAsSections([ "emm", "eh" ])) # Of FindZZ() for s -> expected '[ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]' not found past cursor 0
-[ FAIL ] 30_pr.ring:
-         #3 ? @@( o1.FindAsSection("--") ) # Section without "s"! --> sa -> expected '[ 5, 6 ]' not found past cursor 63
-         #4 ? @@( o1.FindZ("--") ) -> expected '[ 5, 6, 14, 19 ]' not found past cursor 63
-         #5 ? @@( o1.FindZZ("--") ) -> expected '[ [ 5, 6 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]' not found past cursor 63
-         #6 ? @@( o1.FindAsSections([ "---", "--" ]) ) + NL -> expected '[ [ 5, 6 ], [ 5, 7 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]' not found past cursor 63
-         #7 ? @@( o1.BoundedBy("|") ) -> expected '[ "---", "....", "--" ]' not found past cursor 63
-         ... +1 more
-[ FAIL ] 31_write_a.ring:
-         #1 ? @@( o1.FindAsSections([ "---", "....", "--" ]) ) + NL -> expected '[ [ 5, 6 ], [ 5, 7 ], [ 6, 7 ], [ 9, 12 ], [ 14, 15 ], [ 19,' not found past cursor 0
-         #2 ? @@( o1.Sections( o1.FindAsSections([ "---", "....", "--" ] -> expected '[ "--", "---", "--", "....", "--", "--" ]' not found past cursor 0
-         #3 ? @@NL( o1.TheseSubStringsZZ([ "---", "....", "--" ]) ) -> expected '[ [ "---", [ [ 5, 7 ] ] ], [ "....", [ [ 9, 12 ] ] ], [ "--"' not found past cursor 0
-[ FAIL ] 32_pr.ring:
-         #1 ? @@NL( o1.BoundedBy('"') ) + NL -> expected '[ " ... ", " and str != ", " *** " ]' not found past cursor 0
-         #2 ? @@( o1.FindAsSections( o1.BoundedBy('"') ) ) -> expected '[ [ 11, 17 ], [ 19, 39 ], [ 41, 46 ] ]' not found past cursor 0
-[ FAIL ] 33_pr.ring:
-         #1 ? @@('   str = "  ...  "     and   str !=    "  *** " ') -> expected '\'str = " ... " and str != " *** "\'' not found past cursor 0
-[ FAIL ] 34_future.ring:
-         #1 ? o1.Content() -> expected 'SOANZNZA' not found past cursor 0
-[TIMEOUT] 35_startprofiler.ring: 60s
-[ FAIL ] 36_stznumber_class.ring:
-         #1 ? @@(Stz(:Number, :Attributes)) -> expected '[ "@oobject", "@cVarName", "@cnumber" ] You can also say: ? ' not found past cursor 0
-         #2 ? Stz(:Number, :Methods) -> expected '[ "init", "content", "initialcontent", "copy", ... ] You can' not found past cursor 0
-[ FAIL ] 37_qarepeatedntimes3_or_repeated3.ring:
-         #1 ? @@( Q([1,2]).RepeatedNTimes(3) ) # Or Repeated(3) -> expected '[ [ 1, 2 ], [ 1, 2 ], [ 1, 2 ] ]' not found past cursor 0
-         #2 ? Q(10).RepeatedNTimes(3) # Or Repeated(3) -> expected '[ 30, 30, 30 ]' not found past cursor 0
-[ FAIL ] 38_some_features_come_to_empower_metaprogramming.ring:
-         #1 ? Stz(:Char, [ :Methods, :Where = 'Q(@Method).StartsWith("is -> expected '[ :isLeftToRight, :IsRightToLeft, ... ]' not found past cursor 0
-[ skip ] 40_inferring_types_q_qq.ring: no #--> markers
-[ skip ] 41_q6.ring: no #--> markers
-[ skip ] 42_q13.ring: no #--> markers
-[ skip ] 43_qac.ring: no #--> markers
-[ skip ] 44_q_12_58_1012.ring: no #--> markers
-[ FAIL ] 45_q_a_20_b_30.ring:
-         #1 ? @@( Types() ) -> expected '[ "string", "number", "string", "number" ]' not found past cursor 0
-[ FAIL ] 46_q_a_20_b_30.ring:
-         #1 ? @@( Types() ) -> expected '[ "string", "number", "list", "number" ]' not found past cursor 0
-[ FAIL ] 47_q_a_20_b_10_30.ring:
-         #1 ? @@( Types() ) -> expected '[ "string", "number", "list", "number" ]' not found past cursor 0
-[ skip ] 49_pr.ring: no #--> markers
-[ skip ] 50_block_50.ring: no #--> markers
-[ PASS ] 51_pr.ring: 4 assertions matched
-[ FAIL ] 52_chars_looking_similar_but_are_different.ring:
-         #1 ? CharsNames([ "O", "Ο", "О" ]) -> expected '[ "LATIN CAPITAL LETTER O", "GREEK CAPITAL LETTER OMICRON", ' not found past cursor 0
----
-PASS: 7 / FAIL: 19 / TIMEOUT: 3 / skip: 21
+[ FAIL ] 01_pr.ring:
+         #4 ? IsStzFindable( Q(1:20) ) # because Q() elevates 1:20 to a  -> expected 'TRUE' not found past cursor 7
+[ FAIL ] 02_pr.ring:
+         #1 ? 3 : 5 -> expected '[ 3, 5 ]' not found past cursor 0
+         #5 ? L(' "10":"12" ') -> expected '#--> [ "10", "11", "12" ]' not found past cursor 0
+[ PASS ] 03_0.ring: 2 assertions matched
+[ PASS ] 04_pr.ring: 9 assertions matched
+[ PASS ] 05_pr.ring: 1 assertions matched
+[ PASS ] 06_pr.ring: 4 assertions matched
+[ PASS ] 07_pr.ring: 1 assertions matched
+[TIMEOUT] 08_desabling_param_checking_to_enhance_performance.ring: 60s
+[TIMEOUT] 09_continue.ring: 60s
+[ skip ] 10_pr.ring: no #--> markers
+[ skip ] 11_pr.ring: no #--> markers
+[ skip ] 12_block_12.ring: no #--> markers
+[ skip ] 13_pr.ring: no #--> markers
+[ skip ] 14_block_14.ring: no #--> markers
+[ skip ] 15_pr.ring: no #--> markers
+[ skip ] 16_pr.ring: no #--> markers
+[ skip ] 17_pr.ring: no #--> markers
+[ skip ] 18_pr.ring: no #--> markers
+[ FAIL ] 19_pr.ring:
+         #1 ? ShowShort(aNumbers) -> expected '[ 1, 2, 3, "...", 98, 99, 100 ]' not found past cursor 0
+[ skip ] 20_pr.ring: no #--> markers
+[ skip ] 21_pr.ring: no #--> markers
+[ skip ] 22_pr.ring: no #--> markers
+[ skip ] 23_pr.ring: no #--> markers
+[ FAIL ] 24_showing_the_short_form_of_a_long_list.ring:
+         #5 ? @@SXT(1:50, [2, 3]) + NL -> expected '[ 1, 2, "...", 48, 49, 50 ]' not found past cursor 237
+[ FAIL ] 25_q110showshort.ring:
+         #1 ? Q(1:10).ShowShortXT([2, 3]) -> expected '[ 1, 2, "...", 8, 9, 10 ]' not found past cursor 0
+[ skip ] 26_pr.ring: no #--> markers
+[ FAIL ] 27_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ [1,3], [4, 7], [8, 9] ]' not found past cursor 0
+[ PASS ] 28_pr.ring: 1 assertions matched
+[ FAIL ] 29_pr.ring:
+         #1 ? @@( o1.FindMany([ "emm", "eh" ]) ) -> expected '[4, 10, 14, 20 ]' not found past cursor 0
+         #2 ? @@(o1.FindManyAsSections([ "emm", "eh" ])) -> expected '[ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]' not found past cursor 0
+         #3 ? @@( o1.Find([ "emm", "eh" ]) ) -> expected '[4, 10, 14, 20 ]' not found past cursor 0
+         #4 ? @@(o1.FindAsSections([ "emm", "eh" ])) # Of FindZZ() for s -> expected '[ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]' not found past cursor 0
+[ FAIL ] 30_pr.ring:
+         #3 ? @@( o1.FindAsSection("--") ) # Section without "s"! --> sa -> expected '[ 5, 6 ]' not found past cursor 63
+         #4 ? @@( o1.FindZ("--") ) -> expected '[ 5, 6, 14, 19 ]' not found past cursor 63
+         #5 ? @@( o1.FindZZ("--") ) -> expected '[ [ 5, 6 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]' not found past cursor 63
+         #6 ? @@( o1.FindAsSections([ "---", "--" ]) ) + NL -> expected '[ [ 5, 6 ], [ 5, 7 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]' not found past cursor 63
+         #7 ? @@( o1.BoundedBy("|") ) -> expected '[ "---", "....", "--" ]' not found past cursor 63
+         ... +1 more
+[ FAIL ] 31_write_a.ring:
+         #1 ? @@( o1.FindAsSections([ "---", "....", "--" ]) ) + NL -> expected '[ [ 5, 6 ], [ 5, 7 ], [ 6, 7 ], [ 9, 12 ], [ 14, 15 ], [ 19,' not found past cursor 0
+         #2 ? @@( o1.Sections( o1.FindAsSections([ "---", "....", "--" ] -> expected '[ "--", "---", "--", "....", "--", "--" ]' not found past cursor 0
+         #3 ? @@NL( o1.TheseSubStringsZZ([ "---", "....", "--" ]) ) -> expected '[ [ "---", [ [ 5, 7 ] ] ], [ "....", [ [ 9, 12 ] ] ], [ "--"' not found past cursor 0
+[ FAIL ] 32_pr.ring:
+         #1 ? @@NL( o1.BoundedBy('"') ) + NL -> expected '[ " ... ", " and str != ", " *** " ]' not found past cursor 0
+         #2 ? @@( o1.FindAsSections( o1.BoundedBy('"') ) ) -> expected '[ [ 11, 17 ], [ 19, 39 ], [ 41, 46 ] ]' not found past cursor 0
+[ PASS ] 33_pr.ring: 1 assertions matched
+[ FAIL ] 34_future.ring:
+         #1 ? o1.Content() -> expected 'SOANZNZA' not found past cursor 0
+[TIMEOUT] 35_startprofiler.ring: 60s
+[ FAIL ] 36_stznumber_class.ring:
+         #1 ? @@(Stz(:Number, :Attributes)) -> expected '[ "@oobject", "@cVarName", "@cnumber" ] You can also say: ? ' not found past cursor 0
+         #2 ? Stz(:Number, :Methods) -> expected '[ "init", "content", "initialcontent", "copy", ... ] You can' not found past cursor 0
+[ FAIL ] 37_qarepeatedntimes3_or_repeated3.ring:
+         #2 ? Q(10).RepeatedNTimes(3) # Or Repeated(3) -> expected '[ 30, 30, 30 ]' not found past cursor 0
+[ FAIL ] 38_some_features_come_to_empower_metaprogramming.ring:
+         #1 ? Stz(:Char, [ :Methods, :Where = 'Q(@Method).StartsWith("is -> expected '[ :isLeftToRight, :IsRightToLeft, ... ]' not found past cursor 0
+[ skip ] 40_inferring_types_q_qq.ring: no #--> markers
+[ skip ] 41_q6.ring: no #--> markers
+[ skip ] 42_q13.ring: no #--> markers
+[ skip ] 43_qac.ring: no #--> markers
+[ skip ] 44_q_12_58_1012.ring: no #--> markers
+[ FAIL ] 45_q_a_20_b_30.ring:
+         #1 ? @@( Types() ) -> expected '[ "string", "number", "string", "number" ]' not found past cursor 0
+[ FAIL ] 46_q_a_20_b_30.ring:
+         #1 ? @@( Types() ) -> expected '[ "string", "number", "list", "number" ]' not found past cursor 0
+[ FAIL ] 47_q_a_20_b_10_30.ring:
+         #1 ? @@( Types() ) -> expected '[ "string", "number", "list", "number" ]' not found past cursor 0
+[ skip ] 49_pr.ring: no #--> markers
+[ skip ] 50_block_50.ring: no #--> markers
+[ PASS ] 51_pr.ring: 4 assertions matched
+[ FAIL ] 52_chars_looking_similar_but_are_different.ring:
+         #1 ? CharsNames([ "O", "Ο", "О" ]) -> expected '[ "LATIN CAPITAL LETTER O", "GREEK CAPITAL LETTER OMICRON", ' not found past cursor 0
+---
+PASS: 8 / FAIL: 18 / TIMEOUT: 3 / skip: 21

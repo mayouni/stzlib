@@ -42,4 +42,3 @@ Other timer-based applications can be:
 - A simple animation system
 - A data polling system for APIs
 
-*/

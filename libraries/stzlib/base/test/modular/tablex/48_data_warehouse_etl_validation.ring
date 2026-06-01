@@ -50,7 +50,6 @@ pf()
 # ✓ Test suites (assertions on fixtures)
 # ✓ Dashboard refreshes (pattern reuse)
 
-*/
 
 pr()
 

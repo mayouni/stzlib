@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stztabletest.ring, block #3.
 

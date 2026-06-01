@@ -8,7 +8,6 @@ load "../../../stzBase.ring"
 
 #    Goal: Allocate character attribute points to maximize combat effectiveness
 #    under certain balance constraints using a genetic solver for complex preferences
-*/
 pr()
 
 o1 = new stzLinearSolver()

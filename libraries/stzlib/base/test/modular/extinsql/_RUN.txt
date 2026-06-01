@@ -1,4 +1,4 @@
-[ FAIL ] 01_sql_support_in_softanza_external_code.ring:
-         #3 ? v(:sql) # Or you can say ? v(:sqlData) -> expected '[ [ "Bob", 89 ], [ "Dan", 120 ], [ "Roy", 100 ] ]' not found past cursor 0
----
-FAIL: 1
+[ FAIL ] 01_sql_support_in_softanza_external_code.ring:
+         #3 ? v(:sql) # Or you can say ? v(:sqlData) -> expected '[ [ "Bob", 89 ], [ "Dan", 120 ], [ "Roy", 100 ] ]' not found past cursor 0
+---
+FAIL: 1

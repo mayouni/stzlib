@@ -1,35 +1,35 @@
-[ skip ] 01_testing_basic_initialization_with_simple_list_data.ring: no #--> markers
-[ skip ] 02_testing_initialization_with_2d_table_data.ring: no #--> markers
-[ PASS ] 03_testing_duplicate_removal.ring: 1 assertions matched
-[ FAIL ] 04_testing_missing_value_handling_with_different_stra.ring:
-         #3 ? o1._CountMissingValues() -> expected '0' not found past cursor 86
-         #4 ? nFilled -> expected '4' not found past cursor 86
-[ FAIL ] 05_testing_whitespace_trimming_and_case_normalization.ring:
-         #1 ? nTrimmed -> expected '2' not found past cursor 0
-         #2 ? @@(o1.GetData()) + NL -> expected '[ "John DOE", "mary smith", "BOB WILSON", "alice BROWN" ]' not found past cursor 0
-         #3 ? nNormalized -> expected '2' not found past cursor 0
-         #4 ? @@(o1.GetData()) -> expected '[ "John Doe", "Mary Smith", "Bob Wilson", "Alice Brown" ]' not found past cursor 0
-[ skip ] 06_testing_data_type_validation.ring: no #--> markers
-[ skip ] 07_testing_range_validation.ring: no #--> markers
-[ skip ] 08_testing_outlier_detection.ring: no #--> markers
-[ PASS ] 09_testing_data_type_conversion.ring: 1 assertions matched
-[ PASS ] 10_testing_numeric_normalization.ring: 1 assertions matched
-[ PASS ] 11_testing_categorical_encoding.ring: 1 assertions matched
-[ PASS ] 12_testing_plan_generation_and_execution.ring: 1 assertions matched
-[ skip ] 13_testing_different_plan_templates.ring: no #--> markers
-[ skip ] 14_testing_goal-based_plan_execution.ring: no #--> markers
-[ PASS ] 15_testing_export_to_different_softanza_classes.ring: 1 assertions matched
-[ PASS ] 16_testing_quick_operation_methods.ring: 1 assertions matched
-[ FAIL ] 17_testing_chainable_operations.ring:
-         #1 ? @@(o1.GetData()) -> expected 'See why the data is not altered' not found past cursor 0
-[ skip ] 18_testing_comprehensive_reporting.ring: no #--> markers
-[ skip ] 19_testing_after_applying_transformations.ring: no #--> markers
-[ PASS ] 20_testing_with_empty_dataset.ring: 1 assertions matched
-[ skip ] 21_testing_with_single_column_data.ring: no #--> markers
-[ PASS ] 22_testing_with_all_missing_values.ring: 1 assertions matched
-[ skip ] 23_testing_with_larger_dataset.ring: no #--> markers
-[ skip ] 24_customer_database_cleanup_scenario.ring: no #--> markers
-[ PASS ] 25_sales_data_preparation_for_analysis.ring: 1 assertions matched
-[ PASS ] 26_survey_response_data_standardization.ring: 1 assertions matched
----
-PASS: 11 / FAIL: 3 / skip: 12
+[ skip ] 01_testing_basic_initialization_with_simple_list_data.ring: no #--> markers
+[ skip ] 02_testing_initialization_with_2d_table_data.ring: no #--> markers
+[ PASS ] 03_testing_duplicate_removal.ring: 1 assertions matched
+[ FAIL ] 04_testing_missing_value_handling_with_different_stra.ring:
+         #3 ? o1._CountMissingValues() -> expected '0' not found past cursor 86
+         #4 ? nFilled -> expected '4' not found past cursor 86
+[ FAIL ] 05_testing_whitespace_trimming_and_case_normalization.ring:
+         #1 ? nTrimmed -> expected '2' not found past cursor 0
+         #2 ? @@(o1.GetData()) + NL -> expected '[ "John DOE", "mary smith", "BOB WILSON", "alice BROWN" ]' not found past cursor 0
+         #3 ? nNormalized -> expected '2' not found past cursor 0
+         #4 ? @@(o1.GetData()) -> expected '[ "John Doe", "Mary Smith", "Bob Wilson", "Alice Brown" ]' not found past cursor 0
+[ skip ] 06_testing_data_type_validation.ring: no #--> markers
+[ skip ] 07_testing_range_validation.ring: no #--> markers
+[ skip ] 08_testing_outlier_detection.ring: no #--> markers
+[ PASS ] 09_testing_data_type_conversion.ring: 1 assertions matched
+[ PASS ] 10_testing_numeric_normalization.ring: 1 assertions matched
+[ PASS ] 11_testing_categorical_encoding.ring: 1 assertions matched
+[ PASS ] 12_testing_plan_generation_and_execution.ring: 1 assertions matched
+[ skip ] 13_testing_different_plan_templates.ring: no #--> markers
+[ skip ] 14_testing_goal-based_plan_execution.ring: no #--> markers
+[ PASS ] 15_testing_export_to_different_softanza_classes.ring: 1 assertions matched
+[ PASS ] 16_testing_quick_operation_methods.ring: 1 assertions matched
+[ FAIL ] 17_testing_chainable_operations.ring:
+         #1 ? @@(o1.GetData()) -> expected 'See why the data is not altered' not found past cursor 0
+[ skip ] 18_testing_comprehensive_reporting.ring: no #--> markers
+[ skip ] 19_testing_after_applying_transformations.ring: no #--> markers
+[ PASS ] 20_testing_with_empty_dataset.ring: 1 assertions matched
+[ skip ] 21_testing_with_single_column_data.ring: no #--> markers
+[ PASS ] 22_testing_with_all_missing_values.ring: 1 assertions matched
+[ skip ] 23_testing_with_larger_dataset.ring: no #--> markers
+[ skip ] 24_customer_database_cleanup_scenario.ring: no #--> markers
+[ PASS ] 25_sales_data_preparation_for_analysis.ring: 1 assertions matched
+[ PASS ] 26_survey_response_data_standardization.ring: 1 assertions matched
+---
+PASS: 11 / FAIL: 3 / skip: 12

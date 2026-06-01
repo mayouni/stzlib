@@ -17,7 +17,6 @@ load "../../../stzBase.ring"
   
   When minimizing time, planner weighs trade-offs automatically.
 `
-*/
 pr()
 
 oGraph = new stzGraph("delivery")

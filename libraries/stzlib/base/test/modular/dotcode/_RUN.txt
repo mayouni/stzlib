@@ -1,0 +1,38 @@
+[ skip ] 01_testing_painting_a_grid_on_the_background_fix_it.ring: no #--> markers
+[ skip ] 02_personalizing_the_background_color_of_the_dot_diag.ring: no #--> markers
+[ skip ] 03_testing_multiple_edges_between_the_same_two_nodes_.ring: no #--> markers
+[ skip ] 04_test_all_dot_shapes.ring: no #--> markers
+[ skip ] 05_pr.ring: no #--> markers
+[ skip ] 06_pr.ring: no #--> markers
+[ FAIL ] 07_example_1_basic.ring:
+         #1 ? Dot.Duration() -> expected '0.30 second(s)' not found past cursor 0
+[ skip ] 08_example_2_styled_graph.ring: no #--> markers
+[ skip ] 09_example_3_system_architecture.ring: no #--> markers
+[ FAIL ] 10_example_4_process_flow_with_clusters.ring:
+         #1 ? Dot.Duration() -> expected 'PDF created: output\\process_flow.pdf' not found past cursor 0
+[ skip ] 11_example_5_modern_design.ring: no #--> markers
+[ skip ] 12_example_6_html-like_table_inside_the_diagram.ring: no #--> markers
+[ skip ] 13_example_7_error_handling.ring: no #--> markers
+[ skip ] 14_example_8_oraganization_chart.ring: no #--> markers
+[ skip ] 15_example_9_order_processing_workflow.ring: no #--> markers
+[ skip ] 16_example_10_bpmn_process_customer_onboarding_workfl.ring: no #--> markers
+[ skip ] 17_example_11_sales_funnel_decision_tree_hybrid_analy.ring: no #--> markers
+[ skip ] 18_example_12_dsequence_diagram.ring: no #--> markers
+[ skip ] 19_example_12_bis_dsequence_diagram.ring: no #--> markers
+[ skip ] 20_example_13_node_shapes_gallery.ring: no #--> markers
+[ skip ] 21_example_14_edge_styles_and_arrows.ring: no #--> markers
+[ skip ] 22_example_15_rank_and_ordering_control.ring: no #--> markers
+[ skip ] 23_example_16_clusters_subgraphs.ring: no #--> markers
+[ skip ] 24_example_17_record_shapes_tables.ring: no #--> markers
+[ FAIL ] 25_example_18_color_schemes.ring:
+         #1 ? Dot.Duration() -> expected '0.92 second(s)' not found past cursor 0
+[ FAIL ] 26_example_19_state_machine.ring:
+         #1 ? Dot.Duration() -> expected '0.95' not found past cursor 0
+[ FAIL ] 27_example_20_network_topology.ring:
+         #1 ? Dot.Duration() -> expected '0.97' not found past cursor 0
+[ skip ] 28_example_21_decision_tree.ring: no #--> markers
+[ skip ] 29_example_22_timelinegantt-style.ring: no #--> markers
+[ skip ] 30_professional_bpmn_order_processing_workflow.ring: no #--> markers
+[ skip ] 31_bpmn_order_processing_with_lane_colors.ring: no #--> markers
+---
+FAIL: 5 / skip: 26

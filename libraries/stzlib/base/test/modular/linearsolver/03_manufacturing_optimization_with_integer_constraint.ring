@@ -10,7 +10,6 @@ load "../../../stzBase.ring"
 # Goal: Decide how many chairs, tables, and desks to make 
 # to maximize profit, using limited resources.
 # Integer variables mean you can't produce fractional furniture.
-*/
 pr()
 
 o1 = new stzLinearSolver()

@@ -1,6 +1,5 @@
 # Narrative
 # --------
-# */
 #
 # Extracted from stznamedvarstest.ring, block #2.
 
