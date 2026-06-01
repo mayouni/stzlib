@@ -1293,6 +1293,16 @@ class stzString from stzObject
 			StzEngineStringFree(_pEqOther_)
 			return _nEqResult_
 
+		#-- Strict equality: same content AND same Ring type (string).
+		#   When the other side is a list/number, returns 0. Used by
+		#   stzHashList.KeysForValue to compare values polymorphically.
+
+		def IsStrictlyEqualTo(pOther)
+			if NOT isString(pOther)
+				return 0
+			ok
+			return This.Content() = pOther
+
 	  #============================#
 	 #   CHAR OPERATIONS          #
 	#============================#
@@ -1650,6 +1660,29 @@ class stzString from stzObject
 
 	def ReplaceMany(pacSubStrings, pcNewSubStr)
 		This.ReplaceManyCS(pacSubStrings, pcNewSubStr, 1)
+
+	#-- Immutable forms of ReplaceMany. Return the new string content
+	#   without mutating This. Ported from archive line 41923.
+
+	def ManyReplacedCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
+		_oCopyMr_ = This.Copy()
+		_oCopyMr_.ReplaceManyCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
+		return _oCopyMr_.Content()
+
+	def ManyReplaced(pacSubStrings, pcNewSubStr)
+		return This.ManyReplacedCS(pacSubStrings, pcNewSubStr, 1)
+
+		def ManySubstringsReplaced(pacSubStrings, pcNewSubStr)
+			return This.ManyReplaced(pacSubStrings, pcNewSubStr)
+
+		def SubStringsReplaced(pacSubStrings, pcNewSubStr)
+			return This.ManyReplaced(pacSubStrings, pcNewSubStr)
+
+		def TheseSubstringsReplaced(pacSubStrings, pcNewSubStr)
+			return This.ManyReplaced(pacSubStrings, pcNewSubStr)
+
+		def TheseReplaced(pacSubStrings, pcNewSubStr)
+			return This.ManyReplaced(pacSubStrings, pcNewSubStr)
 
 	  #===============================#
 	 #   REMOVE MANY                  #
