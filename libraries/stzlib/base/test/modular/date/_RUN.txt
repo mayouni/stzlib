@@ -4,8 +4,7 @@
 [ FAIL ] 02_creating_an_empty_stzdate_object_and_then_setting_.ring:
          #1 ? o1.Date() -> expected '10/10/2025' not found past cursor 0
          #3 ? o1.Date() -> expected '11/10/2025' not found past cursor 16
-[ FAIL ] 03_creating_a_date_from_string.ring:
-         #1 ? oDate.Date() -> expected '15/03/2024 # Format by deafult, can be changed' not found past cursor 0
+[ PASS ] 03_creating_a_date_from_string.ring: 1 assertions matched
 [ PASS ] 04_creating_a_date_objectfrom_list_of_numbers.ring: 1 assertions matched
 [ PASS ] 05_createing_a_date_object_from_a_hashlist_in_any_ord.ring: 1 assertions matched
 [ FAIL ] 06_pr.ring:
@@ -39,7 +38,7 @@
 [ PASS ] 28_pr.ring: 3 assertions matched
 [ PASS ] 30_convert_current_date_to_julian_day_number.ring: 1 assertions matched
 [ FAIL ] 31_create_a_date_from_a_julian_day_number.ring:
-         #1 ? o1.Content() -> expected '16/09/2024 (the corresponding Gregorian date)' not found past cursor 0
+         #1 ? o1.Content() -> expected '16/09/2024' not found past cursor 0
 [ FAIL ] 32_navigation_methods.ring:
          #13 ? o1.DayBeforeMonthStart() -> expected '01/10/2025' not found past cursor 241
          #14 ? o1.DayAfterYearEnd() -> expected '31/12/2025' not found past cursor 241
@@ -48,4 +47,4 @@
          #17 ? o1.PreviousEndOfMonth() -> expected '31/10/2025' not found past cursor 241
          ... +5 more
 ---
-PASS: 18 / FAIL: 10 / skip: 3
+PASS: 19 / FAIL: 9 / skip: 3

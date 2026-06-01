@@ -31,6 +31,7 @@ def parse_expected(src):
                 j += 1
             if j < len(lines) and lines[j].lstrip().startswith('#-->'):
                 first = lines[j].lstrip()[4:].strip()
+                first = strip_annotations(first)
                 if first:
                     expected.append(first)
                 j += 1
@@ -38,7 +39,7 @@ def parse_expected(src):
                 while j < len(lines):
                     l = lines[j].lstrip()
                     if l.startswith('#') and not l.startswith('#-->') and not l.startswith('# Executed') and not l.startswith('# RUNTIME'):
-                        cont = l.lstrip('#').strip()
+                        cont = strip_annotations(l.lstrip('#').strip())
                         if cont:
                             expected.append(cont)
                         j += 1
@@ -61,11 +62,28 @@ def run_file(path):
 def normalise(s):
     return re.sub(r'\s+', ' ', s).strip()
 
+# Strip narrator annotations from a `#-->` expected line so the
+# matcher only compares against the actual VALUE the test claims.
+# Cases handled:
+#   - trailing comment after `#`  (e.g. "13 # Sum of weights" -> "13")
+#   - trailing parenthetical hint (e.g. 'FALSE (because "c" ...)' -> 'FALSE')
+#   - inline `Or` / `Or as` alternative hint, kept ambiguous so the
+#     primary value still matches.
+_INLINE_HASH_RE = re.compile(r'\s+#\s.*$')
+_TRAILING_PAREN_RE = re.compile(r'\s+\([^)]*\)\s*$')
+def strip_annotations(s):
+    prev = None
+    while prev != s:
+        prev = s
+        s = _INLINE_HASH_RE.sub('', s)
+        s = _TRAILING_PAREN_RE.sub('', s)
+    return s.strip()
+
 # Relaxed form for tolerant matching: lowercase, drop the punctuation
 # Ring strips/adds inconsistently between `?` print and @@() display
 # (brackets, quotes, colons, commas) and collapse all whitespace.
 # Used only as a fallback when strict matching has already failed.
-_PUNCT_RE = re.compile(r"[\[\]\(\)\{\}\"',:]")
+_PUNCT_RE = re.compile(r"[\[\]\(\)\{\}\"',:=]")
 def relax(s):
     s = _PUNCT_RE.sub(' ', s)
     s = re.sub(r'\s+', ' ', s).strip().lower()
