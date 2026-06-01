@@ -1,0 +1,155 @@
+[ FAIL ] 01_pr.ring:
+         #2 ? @@( o1.Sizes() ) -> expected '[ 4, 2, 2 ]' not found past cursor 1
+         #6 ? @@NL( o1.Content() ) -> expected '[ [ "mohannad", 100, "hi", "ring" ], [ "karim", 20, "hi", ""' not found past cursor 50
+[ skip ] 02_pr.ring: no #--> markers
+[ FAIL ] 03_pr.ring:
+         #3 ? @@( o1.NthCol(4) ) -> expected '[ "ring"]' not found past cursor 31
+[ PASS ] 04_pr.ring: 1 assertions matched
+[ FAIL ] 05_block_5.ring:
+         #1 ? oQList.Content() -> expected '[ "X" ,"x" ]' not found past cursor 0
+         #2 ? @@NL( sort(aLists, 3) ) -> expected '[ [ "mazen", 300, "X", 1 ], [ "amer", 300, "a", 1 ] ]' not found past cursor 0
+[ PASS ] 06_pr.ring: 1 assertions matched
+[ skip ] 07_pr.ring: no #--> markers
+[ FAIL ] 08_block_8.ring:
+         #1 ? @@NL( SortListsOn(aLists, 3) ) -> expected '[ [ "abir", "", "", "" ], [ "mourad", 18, "", "" ], [ "salem' not found past cursor 0
+[ PASS ] 09_pr.ring: 1 assertions matched
+[ skip ] 10_difference_between_sorton_and_sortby.ring: no #--> markers
+[ PASS ] 11_col_and_colxt_in_a_list_of_lists.ring: 2 assertions matched
+[ FAIL ] 12_measuring_speedup_and_perfprmance_gain.ring:
+         #2 ? SpeedUp(12.08, 3.20) + NL   # Or SpeedUpX() or PerfGainX() -> expected '3.78' not found past cursor 5
+         #3 ? oTimes.PerfGains() # Or PerfGains100() -> expected '[73.51, 63.13, 93.22]' not found past cursor 5
+         #4 ? oTimes.SpeedUps() # Or PerfGainsX() -> expected '[3.77, 2.71, 14.75]' not found past cursor 5
+         #5 ? oSales.Gain100()  # Or simply Gain() instead of PerfGain() -> expected '[ 18.21, 24.81 ]' not found past cursor 5
+         #6 ? oSales.GainX()    # Or GainFactor() instead of SpeedUp() -> expected '[ 1.22, 1.33 ]' not found past cursor 5
+[ PASS ] 13_pr.ring: 1 assertions matched
+[ FAIL ] 14_pr.ring:
+         #2 ? @@( o1.FindMany([ 2, 3, 4 ]) ) + NL -> expected '[ 2, 3, 4, 6, 7, 8, 11, 12, 13 ]' not found past cursor 6
+         #3 ? @@( o1.FindManyQ([ 2, 3, 4 ]) / 3 ) + NL -> expected '[ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ]' not found past cursor 6
+[ FAIL ] 15_pr.ring:
+         #1 ? o1.FindSubList([ 2, 3, 4 ]) -> expected '[ 2, 6, 11 ]' not found past cursor 0
+[ PASS ] 16_pr.ring: 3 assertions matched
+[ FAIL ] 17_pr.ring:
+         #2 ? o1.FindListsWXT(' Q(@list).Contains("abir") ') -> expected '[ 3, 7, 9 ]' not found past cursor 43
+         #3 ? @@NL( o1.ListsWXTZ(' Q(@list).Contains("abir") ') ) + NL -> expected '[ [ [ "abir", 234 ], 3 ], [ [ "abir" ], 7 ], [ [ "abir" ], 9' not found past cursor 43
+         #4 ? @@NL( o1.ListsWXTZ(' Q(@list).ContainsMany([ "amer", 34 ]) -> expected '[ [ [ "amer", 34, [ 1, 2, 3 ] ], 8 ], [ [ "sahloul", 108, "a' not found past cursor 43
+[ FAIL ] 18_pr.ring:
+         #1 ? Q([ "sahloul", 108, "amer", 34 ]).FindSubList([ "amer", 34 -> expected '[ 3, 4 ]' not found past cursor 0
+         #2 ? @@NL( o1.FindSubList([ "amer", 34 ]) ) + NL -> expected '[ [ 2, [ 3, 4 ] ], [ 8, [ 1, 2 ] ], [ 9, [ 3, 4 ] ] ]' not found past cursor 0
+[ FAIL ] 19_pr.ring:
+         #1 ? @@NL( o1.SortedOn(3) ) -> expected '[ [ "salem", 67, "", "" ], [ "mourad", 18, "", "" ], [ "abir' not found past cursor 0
+[ PASS ] 20_pr.ring: 1 assertions matched
+[ FAIL ] 21_pr.ring:
+         #1 ? @@NL( o1.SortedOn(3) ) -> expected '[ [ "selim", 199, 1500 ], [ "hatem", 1200, [ "xyz", "www" ] ' not found past cursor 0
+[ PASS ] 22_pr.ring: 2 assertions matched
+[ skip ] 23_pr.ring: no #--> markers
+[ FAIL ] 24_pr.ring:
+         #1 ? Intersection([ "A":"C", "A":"C", "A":"C" ]) -> expected '[ "A", "B", "C" ]' not found past cursor 0
+         #2 ? Intersection([ "A":"C", "A":"B", "A":"C" ]) -> expected '[ "A", "B" ]' not found past cursor 0
+[ PASS ] 25_pr.ring: 2 assertions matched
+[ FAIL ] 26_pr.ring:
+         #2 ? @@( o1.SortedInDescending() ) -> expected '[ [ "23", "25" ], [ "16", "17" ], [ "08", "10" ], [ "01", "0' not found past cursor 66
+[ FAIL ] 27_pr.ring:
+         #1 ? @@( Association([ [ :one, :two, :three ], s[1, 2, 3] ]) ) -> expected '[ [ "one", 1 ], [ "two", 2 ], [ "three", 3 ] ]' not found past cursor 0
+[ FAIL ] 28_pr.ring:
+         #1 ? @@(o1.FindExtraItems()) + NL -> expected '[ [ 1, [ ] ], [ 2, [ 3, 4 ] ], [ 3, [ 3 ] ], [ 4, [ 3, 4, 5,' not found past cursor 0
+         #2 ? @@( o1.ExtraItems() ) -> expected '[ [ ], [ "I", "♥" ], [ "R" ], [ "I", "N", "G" ] ]' not found past cursor 0
+[ PASS ] 29_pr.ring: 1 assertions matched
+[ PASS ] 30_pr.ring: 1 assertions matched
+[ PASS ] 31_pr.ring: 1 assertions matched
+[ FAIL ] 32_pr.ring:
+         #1 ? @@( o1.Merged() ) -> expected '[ 1, 2, 3, [ 4 ], 5 ]' not found past cursor 0
+[ PASS ] 33_pr.ring: 1 assertions matched
+[ PASS ] 34_pr.ring: 1 assertions matched
+[ FAIL ] 35_pr.ring:
+         #1 ? o1.CommonItems() # Same as Intersection() -> expected '[ "Ring", "Pyhton" ]' not found past cursor 0
+[ FAIL ] 36_pr.ring:
+         #1 ? @@( o1.ToSet() ) -> expected '[ "a", "ab", "b", [ 1, 2, 3 ], "abc", "bc", "c" ]' not found past cursor 0
+[ FAIL ] 37_pr.ring:
+         #1 ? Q([ "a", "ab", "b", [ 1, 2, 3 ] ]).ToSet() -> expected '[ "a", "ab", "b", [ 1, 2, 3 ] ]' not found past cursor 0
+[ FAIL ] 38_extending_a_list.ring:
+         #1 ? @@( o1.content() ) -> expected '[ "A", "B", "C", "", "" ]' not found past cursor 0
+[ FAIL ] 39_pr.ring:
+         #1 ? @@( o1.content() ) -> expected '[ "A", "B", "C", "♥", "♥" ]' not found past cursor 0
+[ FAIL ] 40_extending_the_lists_of_a_list_of_lists.ring:
+         #3 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "", "" ], [ "C", "D", "E", "F" ], [ "I", "", "' not found past cursor 3
+[ FAIL ] 41_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥", "♥" ], [ "C", "D", "E", "F" ], [ "I", "♥"' not found past cursor 0
+[ FAIL ] 42_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "A", "B", "A", "B" ], [ "C", "D", "E", "F", "C' not found past cursor 0
+[ FAIL ] 43_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥", "♥", "♥", "♥" ], [ "C", "D", "E", "F", "♥' not found past cursor 0
+[ FAIL ] 44_shrinking_a_list.ring:
+         #1 ? o1.Content() -> expected '[ "A", "B", "C" ]' not found past cursor 0
+[ FAIL ] 45_shrinking_a_list_of_lists.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B" ], [ "D", "E" ], [ "H", "I" ] ]' not found past cursor 0
+[ FAIL ] 46_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ [ "A" ], [ "D" ], [ "H" ] ]' not found past cursor 0
+[ skip ] 47_pr.ring: no #--> markers
+[ FAIL ] 48_pr.ring:
+         #1 ? @@( o1.Shrinked() ) + NL -> expected '[ [ "A" ], [ "C" ], [ "I" ] ]' not found past cursor 0
+         #2 ? @@( o1.Extended() ) -> expected '[ [ "A", "B", "", "" ], [ "C", "D", "E", "F" ], [ "I", "", "' not found past cursor 0
+[ FAIL ] 49_pr.ring:
+         #2 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "", "" ], [ "C", "D", "E", "F" ], [ "I", "", "' not found past cursor 1
+[ FAIL ] 50_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥", "♥" ], [ "C", "D", "E", "F" ], [ "I", "♥"' not found past cursor 0
+[ FAIL ] 51_pr.ring:
+         #2 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥" ], [ "C", "D", "E", "F" ], [ "I", "♥", "♥"' not found past cursor 1
+         #3 ? o1.IsHomolog() -> expected 'FALSE' not found past cursor 1
+[ FAIL ] 52_pr.ring:
+         #2 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥", "♥", "♥" ], [ "C", "D", "E", "F", "♥" ], ' not found past cursor 1
+[ FAIL ] 53_pr.ring:
+         #1 ? o1.Smallest() -> expected '[1, 2]' not found past cursor 0
+         #4 ? o1.Largest() -> expected '[1,2, 3, 4, 5]' not found past cursor 7
+[ FAIL ] 54_pr.ring:
+         #1 ? @@( o1.FindLargestLists() ) + NL -> expected '[2, 4]' not found past cursor 0
+[ FAIL ] 55_pr.ring:
+         #1 ? @@( o1.FindSmallestLists() ) + NL -> expected '[1, 4]' not found past cursor 0
+         #2 ? @@( o1.SmallestLists() ) + NL -> expected '[ [1, 2], [1, 2] ]' not found past cursor 0
+[ PASS ] 56_pr.ring: 1 assertions matched
+[ PASS ] 57_pr.ring: 1 assertions matched
+[ FAIL ] 58_pr.ring:
+         #2 ? o1.EachItemIs(:ListOfStrings) -> expected 'TRUE' not found past cursor 19
+         #3 ? o1.EachItemIs(:ListOfChars) -> expected 'TRUE' not found past cursor 19
+[ FAIL ] 59_pr.ring:
+         #1 ? @@( o1.MergeQ().Content() ) -> expected '[ "A", 1, 2, 3, "B", 4, 5, 6, 7, 8, 9, 10 ]' not found past cursor 0
+         #2 ? @@( o1.MergeQ().Content() ) -> expected '[ "A", 1, 2, 3, "B", 4, 5, 6, 7, "C", [ 99, 100 ], "D", 8, 9' not found past cursor 0
+         #3 ? @@( o1.FlattenQ().Content() ) -> expected '[ "A", 1, 2, 3, "B", 4, 5, 6, 7, "C", 99, 100, "D", 8, 9, 10' not found past cursor 0
+[ PASS ] 60_pr.ring: 2 assertions matched
+[ FAIL ] 61_pr.ring:
+         #1 ? o1.FindAll([9,9,9]) -> expected '[3, 6, 9]' not found past cursor 0
+         #2 ? o1.NFirstOccurrences(2, :Of = [9,9,9]) -> expected '[3, 6]' not found past cursor 0
+         #3 ? o1.NFirstOccurrencesXT(2, :Of = [9,9,9], :StartingAt = 1) -> expected '[3, 6]' not found past cursor 0
+         #4 ? o1.NLastOccurrences(2, :Of = [9,9,9]) -> expected '[6, 9]' not found past cursor 0
+         #5 ? o1.NLastOccurrencesXT(2, [9,9,9], :StartingAt = 1) -> expected '[6, 9]' not found past cursor 0
+         ... +2 more
+[ FAIL ] 62_pr.ring:
+         #1 ? @@(o1.RepeatedLeadingChars()) -> expected '[]' not found past cursor 0
+         #2 ? o1.ContainsLeadingAndTrailingChars() -> expected 'FALSE' not found past cursor 0
+         #3 ? o1.FirstAndLastChars() -> expected '[ "[", "]" ]' not found past cursor 0
+         #4 ? o1.Bounds() -> expected '[ "[", "]" ]' not found past cursor 0
+         #5 ? @@( o1.FindTheseBoundsAsSections("[[", "]") ) -> expected '[ ]' not found past cursor 0
+         ... +2 more
+[ FAIL ] 63_pr.ring:
+         #1 ? @@( StzListQ( 4:8 ).ToListInAString() ) -> expected '"[ 4, 5, 6, 7, 8 ]"' not found past cursor 0
+         #2 ? @@( StzListQ( 4:8 ).ToListInAStringInShortForm() ) -> expected '"4:8"' not found past cursor 0
+[ FAIL ] 64_retest_after_including_checkw.ring:
+         #1 ? @@( o1.ToListInString() ) -> expected '"[ [ 1, 2, 3 ], [ 4, 5 ], [ 6, 7 ] ]"' not found past cursor 0
+         #2 ? @@( o1.ToListInStringInShortForm() ) -> expected '[ "1:3", "4:5", "6:7" ]' not found past cursor 0
+[ FAIL ] 65_pr.ring:
+         #1 ? o1.NthList(4) -> expected '[3, 5]' not found past cursor 0
+         #3 ? @@( o1.ListsOfSize(2) ) -> expected '[ [9, 0], [3, 5] ]' not found past cursor 21
+         #4 ? o1.PositionsOfListsOfSize(2) -> expected '[ 3, 4 ]' not found past cursor 21
+         #9 ? o1.PositionsOfSmallestLists() -> expected '[ 3, 4 ]' not found past cursor 93
+[ PASS ] 66_pr.ring: 1 assertions matched
+[ PASS ] 67_pr.ring: 1 assertions matched
+[ PASS ] 68_make_a_narration_about_indexing_lists_of_lists.ring: 2 assertions matched
+[ FAIL ] 69_pr.ring:
+         #1 ? 3Cards() -> expected '[ "🂭", "🂡", "🂡" ]' not found past cursor 0
+         #2 ? @@NL( o1.Adjusted() ) + NL -> expected '[ [ "A", "B", "", "", "" ], [ 1, 2, 3, 4, 5 ], [ "🂡", "🂨", "' not found past cursor 0
+         #3 ? @@NL( o1.AdjustedWith( AHeart() ) ) # Or AdjustedWith("♥") -> expected '[ [ "A", "B", "♥", "♥", "♥" ], [ 1, 2, 3, 4, 5 ], [ "🂡", "🂨"' not found past cursor 0
+         #4 ? @@NL( o1.Stretched() ) + NL # Or Extended or Expanded -> expected '[ [ "A", "B", "", "", "" ], [ 1, 2, 3, 4, 5 ], [ "🂡", "🂨", "' not found past cursor 0
+         #5 ? @@NL( o1.Shrinked() ) -> expected '[ [ "A", "B" ], [ 1, 2 ], [ "🂡", "🂥" ] ]' not found past cursor 0
+[ FAIL ] 70_pr.ring:
+         #2 ? @@( o1.FindInLists([ "A", "♥" ]) ) -> expected '[ [ 1, 1 ], [ 1, 2 ], [ 2, 3 ], [ 2, 4 ], [ 3, 2 ], [ 3, 3 ]' not found past cursor 42
+---
+PASS: 20 / FAIL: 45 / skip: 5

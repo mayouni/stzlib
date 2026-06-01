@@ -1,9 +1,14 @@
 module                  blocks  PASS  FAIL  TIMEOUT  skip
 -----------------------------------------------------------------
+listoflists                70    20    45        0     5
+graph                      90    27    37        0    26
+char                      120    17    33        1    69
 number                     71    24    31        2    14
 regex                      50    18    25        0     7
 dataset                    52     5    24        0    23
+timeline                   53    12    23        0    18
 global                     50     7    19        3    21
+locale                     88    16    19        0    53
 json                       30    14    15        0     1
 object                     32     7    15        0    10
 calendar                   47    21    14        0    12
@@ -13,6 +18,7 @@ hashlist                   27     8    14        0     5
 knowledgegraph             17     1    14        0     2
 timex                      13     0    13        0     0
 listoftimelines            17     1    12        0     4
+diagram                    58    15    11        0    32
 listofbytes                16     5    11        0     0
 coeffextractor             18     8    10        0     0
 date                       31    18    10        0     3
@@ -79,5 +85,5 @@ singular                    8     0     0        0     8
 ssmallfunc                  1     0     0        0     1
 systemcalldata             26     0     0        0    26
 -----------------------------------------------------------------
-TOTAL                    1181   285   391        5   500
-  -> 78 modules; PASS rate excl skip/timeout: 42%
+TOTAL                    1660   392   559        6   703
+  -> 84 modules; PASS rate excl skip/timeout: 41%

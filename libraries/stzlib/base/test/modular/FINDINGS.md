@@ -68,6 +68,44 @@ Deferred (too large to run in this batch — extract done):
 - list (645 blocks), table (229), char (120), graph (90),
   locale (88), listoflists (70), diagram (58), timeline (53)
 
+### Wave 4 -- 6 medium-large modules
+
+Ran timeline, diagram, listoflists, locale, graph, char in parallel:
+
+| module      | blocks | PASS | FAIL | TIMEOUT | skip |
+|-------------|-------:|-----:|-----:|--------:|-----:|
+| timeline    |     53 |   12 |   23 |       0 |   18 |
+| diagram     |     58 |   15 |   11 |       0 |   32 |
+| listoflists |     70 |   20 |   45 |       0 |    5 |
+| locale      |     88 |   16 |   19 |       0 |   53 |
+| graph       |     90 |   27 |   37 |       0 |   26 |
+| char        |    120 |   17 |   33 |       1 |   69 |
+
+Wave 4 totals: 107 PASS / 168 FAIL / 1 TIMEOUT / 203 skip (479 blocks)
+
+### Cumulative across 84 modules
+
+  **1660 blocks    392 PASS    559 FAIL    6 TIMEOUT    703 skip**
+  PASS rate excluding skips/timeouts: **41 %**
+
+stzString modularised (981 blocks) but not yet run (would take
+multiple hours); deferred for a dedicated session.
+
+## Systemic gap signal
+
+Spot-check on the ccode module revealed `NumbersAfter()` /
+`BoundedBy()` / `RemoveSpacesQ` / `TrimQ` etc. are called but exist
+only in the legacy monolithic archive (`string/archive/
+stzString_monolithic.ring`); they were not carried into the modular
+stzString. This is the same bug family as the 22 modularization
+gaps we fixed in earlier waves.
+
+`_detect_missing_methods.py` was added to systematically catalogue
+the missing methods by re-running every block under Ring and
+parsing `Calling Method without definition: X` errors. Catalogue
+output will land alongside `_SUMMARY.txt` once the long-running
+detection completes.
+
 `global` shows 3 TIMEOUTs and high FAIL count — likely the same
 algorithmic-stall pattern as the number module. Worth focused
 review alongside `stzCounter.CountTo(1M)` perf regression (task #4).
