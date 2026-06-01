@@ -525,6 +525,56 @@ class stzString from stzObject
 		def NumbersAfterCS(pcSubStr, pCaseSensitive)
 			return This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)
 
+	#-- Vowels: return the list of vowel chars in the string (ASCII
+	#   a/e/i/o/u, case-insensitive). Ported from archive line
+	#   103163; self-contained byte scan. NumberOfVowels / VowelN
+	#   are simple count aliases; VowelsB / HasVowels are predicates.
+
+	def Vowels()
+		_cVoStr_ = This.Content()
+		_nVoLen_ = len(_cVoStr_)
+		_acVoR_ = []
+		_cVoVo_ = "aeiouAEIOU"
+		_iVo_ = 1
+		while _iVo_ <= _nVoLen_
+			_cVoCh_ = substr(_cVoStr_, _iVo_, 1)
+			_nVoB_ = ascii(_cVoCh_)
+			if _nVoB_ < 128
+				if substr(_cVoVo_, _cVoCh_) > 0
+					_acVoR_ + _cVoCh_
+				ok
+				_iVo_ += 1
+			but _nVoB_ < 224
+				_iVo_ += 2
+			but _nVoB_ < 240
+				_iVo_ += 3
+			else
+				_iVo_ += 4
+			ok
+		end
+		return _acVoR_
+
+	def NumberOfVowels()
+		return len(This.Vowels())
+
+		def VowelN()
+			return This.NumberOfVowels()
+
+		def VowelNb()
+			return This.NumberOfVowels()
+
+		def CountVowels()
+			return This.NumberOfVowels()
+
+	def HasVowels()
+		return len(This.Vowels()) > 0
+
+		def VowelsB()
+			return This.HasVowels()
+
+		def ContainsVowels()
+			return This.HasVowels()
+
 	def Numbers()
 		_acResult_ = []
 		_acChars_ = This.Chars()
