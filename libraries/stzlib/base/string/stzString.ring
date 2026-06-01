@@ -1567,6 +1567,39 @@ class stzString from stzObject
 	def Between(pBound1, pBound2)
 		return This.BetweenCS(pBound1, pBound2, 1)
 
+	#-- BoundedBy: same semantics as Between() (returns the list of
+	#   substrings sitting between matched open/close delimiters) but
+	#   takes the bounds packed as a 2-list [ open, close ]. Matches
+	#   the archive API at line 34272 + 34290. Used by ccode tests
+	#   that read like `o1.BoundedBy([ "[", "]" ])`.
+
+	def BoundedByCS(pacBounds, pCaseSensitive)
+		if NOT (isList(pacBounds) and len(pacBounds) = 2)
+			StzRaise("BoundedByCS: pacBounds must be a 2-list [ open, close ]")
+		ok
+		return This.BetweenCS(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+		def SubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.BoundedByCS(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.BoundedByCS(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCS(pacBounds, pCaseSensitive)
+			return This.BoundedByCS(pacBounds, pCaseSensitive)
+
+	def BoundedBy(pacBounds)
+		return This.BoundedByCS(pacBounds, 1)
+
+		def SubStringsBoundedBy(pacBounds)
+			return This.BoundedBy(pacBounds)
+
+		def AnySubStringsBoundedBy(pacBounds)
+			return This.BoundedBy(pacBounds)
+
+		def AnyBoundedBy(pacBounds)
+			return This.BoundedBy(pacBounds)
+
 	def FirstBetweenCS(pBound1, pBound2, pCaseSensitive)
 		_oFbBounder_ = new stzStringBounder(This)
 		return _oFbBounder_.FirstBetweenCS(pBound1, pBound2, pCaseSensitive)
