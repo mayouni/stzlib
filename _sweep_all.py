@@ -19,7 +19,7 @@ def main():
         try:
             p = subprocess.run(
                 [sys.executable, "_run_modular_batch.py", str(d)],
-                capture_output=True, timeout=600,
+                capture_output=True, timeout=180,
             )
             out = p.stdout.decode('utf-8', errors='replace')
             (d / "_RUN.txt").write_text(out, encoding='utf-8')
