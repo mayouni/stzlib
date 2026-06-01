@@ -28,7 +28,8 @@
          #1 ? Name() -> expected ':myage' not found past cursor 0
          #3 ? StzType() -> expected ':stznumber' not found past cursor 8
 [TIMEOUT] 18_pr.ring: 60s
-[ PASS ] 19_pr.ring: 1 assertions matched
+[ FAIL ] 19_pr.ring:
+         #1 ? RandomNumberLessThan(12) -> expected '10' not found past cursor 0
 [TIMEOUT] 20_pr.ring: 60s
 [ FAIL ] 21_pr.ring:
          #1 ? NRandomNumbersLessThan(3, 17_000) -> expected '[ 16_997, 16_998, 16_998 ]' not found past cursor 0
@@ -55,13 +56,10 @@
 [ PASS ] 34_pr.ring: 1 assertions matched
 [ FAIL ] 35_pr.ring:
          #1 ? o1.RepeatedNTimes(3) -> expected '[11, 11, 11]' not found past cursor 0
-         #2 ? o1.Times(3) -> expected '33' not found past cursor 0
-         #3 ? o1.Times([2, 3]) -> expected '66' not found past cursor 0
 [ PASS ] 36_pr.ring: 1 assertions matched
 [ FAIL ] 37_pr.ring:
-         #1 ? @@( o1.RepeatXT(:InA = :List, :OfSize = 2) ) -> expected '[ 5, 5 ]' not found past cursor 0
-         #2 ? o1.RepeatXT(:InA = :String, :OfSize = 7) -> expected '"5555555"' not found past cursor 0
-         #3 ? @@( o1.RepeatXT(:InA = :Grid, :OfSize = [3, 3]) ) + NL -> expected '[ [ 5, 5, 5 ], [ 5, 5, 5 ], [ 5, 5, 5 ] ]' not found past cursor 0
+         #2 ? o1.RepeatXT(:InA = :String, :OfSize = 7) -> expected '"5555555"' not found past cursor 8
+         #3 ? @@( o1.RepeatXT(:InA = :Grid, :OfSize = [3, 3]) ) + NL -> expected '[ [ 5, 5, 5 ], [ 5, 5, 5 ], [ 5, 5, 5 ] ]' not found past cursor 8
 [ FAIL ] 38_pr.ring:
          #1 ? Q(5).RepeatXT( :InAPair, @ ) -> expected '[5, 5]' not found past cursor 0
          #2 ? Q(5).RepeatedInAPair() -> expected '[5, 5]' not found past cursor 0
@@ -130,4 +128,4 @@
 [ skip ] 75_pr.ring: no #--> markers
 [ skip ] 76_todo_error.ring: no #--> markers
 ---
-PASS: 24 / FAIL: 31 / TIMEOUT: 2 / skip: 14
+PASS: 23 / FAIL: 32 / TIMEOUT: 2 / skip: 14

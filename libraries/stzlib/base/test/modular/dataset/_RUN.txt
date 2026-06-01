@@ -77,12 +77,9 @@
 [ PASS ] 35_utility_standalone_functions.ring: 1 assertions matched
 [ FAIL ] 36_summary_and_export_functions.ring:
          #1 ? @@NL(o1.Export()) + nl -> expected '[ [ "data_type", "numeric" ], [ "count", 5 ], [ "unique_coun' not found past cursor 0
-[ FAIL ] 37_empty_dataset.ring:
-         #1 ? @@(Insights()) -> expected '[ "Dataset is empty - No analysis possible without data.", "' not found past cursor 0
-[ FAIL ] 38_single_value_dataset.ring:
-         #1 ? @@NL(o1.Insights()) -> expected '[ "Low variability (CV = 0%) indicates consistent, homogeneo' not found past cursor 0
-[ FAIL ] 39_mixed_data_types.ring:
-         #1 ? @@NL(Insights()) -> expected '[ "Low variability (CV = 0%) indicates consistent, homogeneo' not found past cursor 0
+[ PASS ] 37_empty_dataset.ring: 1 assertions matched
+[ PASS ] 38_single_value_dataset.ring: 1 assertions matched
+[ PASS ] 39_mixed_data_types.ring: 1 assertions matched
 [ FAIL ] 40_invalid_correlation_cases.ring:
          #1 ? o1.CorrelationWith(o2) -> expected '0 (different lengths)' not found past cursor 0
          #2 ? o3.ChiSquareWith(o4) -> expected '0 (different lengths)' not found past cursor 0
@@ -107,4 +104,4 @@
 [ skip ] 51_example_9_plan_chaining.ring: no #--> markers
 [ skip ] 52_example_10_conditional_plan_execution.ring: no #--> markers
 ---
-PASS: 5 / FAIL: 24 / skip: 23
+PASS: 8 / FAIL: 21 / skip: 23

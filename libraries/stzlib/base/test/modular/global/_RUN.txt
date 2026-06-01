@@ -59,14 +59,19 @@
          #1 ? @@('   str = "  ...  "     and   str !=    "  *** " ') -> expected '\'str = " ... " and str != " *** "\'' not found past cursor 0
 [ FAIL ] 34_future.ring:
          #1 ? o1.Content() -> expected 'SOANZNZA' not found past cursor 0
-[TIMEOUT] 35_startprofiler.ring: 60s
+[ FAIL ] 35_startprofiler.ring:
+         #1 ? ElapsedTime() -> expected '0.07 second(s)' not found past cursor 0
+         #2 ? ElapsedTime() -> expected '0.04 second(s)' not found past cursor 0
+         #3 ? ElapsedTime() -> expected '0.03 second(s)' not found past cursor 0
+         #4 ? ElapsedTime() -> expected '0.06 second(s)' not found past cursor 0
+         #5 ? ElapsedTime() -> expected '0.09 second(s)' not found past cursor 0
+         ... +4 more
 [ FAIL ] 36_stznumber_class.ring:
          #1 ? @@(Stz(:Number, :Attributes)) -> expected '[ "@oobject", "@cVarName", "@cnumber" ] You can also say: ? ' not found past cursor 0
          #2 ? Stz(:Number, :Methods) -> expected '[ "init", "content", "initialcontent", "copy", ... ] You can' not found past cursor 0
 [ FAIL ] 37_qarepeatedntimes3_or_repeated3.ring:
          #1 ? @@( Q([1,2]).RepeatedNTimes(3) ) # Or Repeated(3) -> expected '[ [ 1, 2 ], [ 1, 2 ], [ 1, 2 ] ]' not found past cursor 0
          #2 ? Q(10).RepeatedNTimes(3) # Or Repeated(3) -> expected '[ 30, 30, 30 ]' not found past cursor 0
-         #3 ? Q(10).Times(3) -> expected '30' not found past cursor 0
 [ FAIL ] 38_some_features_come_to_empower_metaprogramming.ring:
          #1 ? Stz(:Char, [ :Methods, :Where = 'Q(@Method).StartsWith("is -> expected '[ :isLeftToRight, :IsRightToLeft, ... ]' not found past cursor 0
 [ skip ] 40_inferring_types_q_qq.ring: no #--> markers
@@ -86,4 +91,4 @@
 [ FAIL ] 52_chars_looking_similar_but_are_different.ring:
          #1 ? CharsNames([ "O", "Ο", "О" ]) -> expected '[ "LATIN CAPITAL LETTER O", "GREEK CAPITAL LETTER OMICRON", ' not found past cursor 0
 ---
-PASS: 7 / FAIL: 19 / TIMEOUT: 3 / skip: 21
+PASS: 7 / FAIL: 20 / TIMEOUT: 2 / skip: 21

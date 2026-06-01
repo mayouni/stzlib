@@ -187,6 +187,45 @@ class stzString from stzObject
 		ok
 		return ""
 
+	#-- Replace the chars at positions n1..n2 (inclusive) with
+	#   pcNewSubStr. Ported from the legacy monolithic archive
+	#   (~line 84916), kept minimal: pure numeric positions only.
+	#   Symbolic forms (:First/:Last) are not yet supported.
+
+	def ReplaceSection(n1, n2, pcNewSubStr)
+		if NOT (isNumber(n1) and isNumber(n2))
+			StzRaise("ReplaceSection: n1 and n2 must be numbers")
+		ok
+		if NOT isString(pcNewSubStr)
+			StzRaise("ReplaceSection: pcNewSubStr must be a string")
+		ok
+		_cStr_ = This.Content()
+		_nLen_ = len(_cStr_)
+		if n1 < 1
+			n1 = 1
+		ok
+		if n2 > _nLen_
+			n2 = _nLen_
+		ok
+		if n1 > n2
+			_t_ = n1
+			n1 = n2
+			n2 = _t_
+		ok
+		_cBefore_ = ""
+		if n1 > 1
+			_cBefore_ = substr(_cStr_, 1, n1 - 1)
+		ok
+		_cAfter_ = ""
+		if n2 < _nLen_
+			_cAfter_ = substr(_cStr_, n2 + 1)
+		ok
+		This.Update(_cBefore_ + pcNewSubStr + _cAfter_)
+
+		def ReplaceSectionQ(n1, n2, pcNewSubStr)
+			This.ReplaceSection(n1, n2, pcNewSubStr)
+			return This
+
 	def Sections(aSections)
 		acResult = []
 		nCharCount = This.NumberOfChars()
@@ -325,6 +364,50 @@ class stzString from stzObject
 
 	def FindFirst(pcSubStr)
 		return StzEngineStringFindFirstCS(@pEngine, pcSubStr, 1)
+
+	#-- FindNext: find the next occurrence of pcSubStr starting AFTER
+	#   position nStart (so FindNext("x", 0) is equivalent to FindFirst).
+	#   Ported from the legacy monolithic archive (~line 50328). Uses
+	#   Ring's substr() with start-position support so it works for
+	#   both case-sensitive and case-insensitive search without pulling
+	#   in engine-level changes.
+
+	def FindNextCS(pcSubStr, nStart, pCaseSensitive)
+		if NOT isString(pcSubStr)
+			StzRaise("FindNextCS: pcSubStr must be a string")
+		ok
+		if NOT isNumber(nStart)
+			StzRaise("FindNextCS: nStart must be a number")
+		ok
+		if pcSubStr = ""
+			return 0
+		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_cFull_ = This.Content()
+		if nStart < 0
+			nStart = 0
+		ok
+		if nStart >= len(_cFull_)
+			return 0
+		ok
+		# Take tail of string starting AFTER nStart, search there,
+		# then offset back to the full-string position.
+		_cTail_ = substr(_cFull_, nStart + 1)
+		if _bCase_
+			_nPos_ = substr(_cTail_, pcSubStr)
+		else
+			_nPos_ = substr(lower(_cTail_), lower(pcSubStr))
+		ok
+		if _nPos_ = 0
+			return 0
+		ok
+		return _nPos_ + nStart
+
+	def FindNext(pcSubStr, nStart)
+		return This.FindNextCS(pcSubStr, nStart, 1)
+
+		def FindNextSubString(pcSubStr, nStart)
+			return This.FindNext(pcSubStr, nStart)
 
 		def FindFirstOccurrence(pcSubStr)
 			return This.FindFirst(pcSubStr)
