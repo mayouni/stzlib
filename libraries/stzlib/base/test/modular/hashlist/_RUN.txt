@@ -7,12 +7,8 @@
          #1 ? Name() -> expected ':myhash' not found past cursor 0
          #2 ? StzType() -> expected ':stzhashlist' not found past cursor 0
 [ PASS ] 05_pr.ring: 6 assertions matched
-[ FAIL ] 06_pr.ring:
-         #1 ? @@( o1.FindValues([ "here", "and", "there" ]) ) -> expected '[ 1, 2, 4 ]' not found past cursor 0
-[ FAIL ] 07_pr.ring:
-         #1 ? @@( o1.FindValues([ "here", "and", "there" ]) ) -> expected '[ ]' not found past cursor 0
-         #2 ? @@( o1.FindTheseInLists([ "here", "and", "there" ]) ) -> expected '[ [ 1, 1 ], [ 2, 1 ], [ 4, 1 ] ]' not found past cursor 0
-         #3 ? @@( o1.FindTheseItems([ "here", "and", "there" ]) ) -> expected '[ [ 1, 1 ], [ 2, 1 ], [ 4, 1 ] ]' not found past cursor 0
+[ PASS ] 06_pr.ring: 1 assertions matched
+[ PASS ] 07_pr.ring: 3 assertions matched
 [ FAIL ] 08_todo.ring:
          #1 ? o1.FindValueOrItem(:can) # called also FindVitem(:can) -> expected '[ 1, 2, 5 ]' not found past cursor 0
 [ PASS ] 09_finding_items_inside_values_that_are_lists.ring: 4 assertions matched
@@ -62,4 +58,4 @@
 [ skip ] 26_pr.ring: no #--> markers
 [ skip ] 27_pr.ring: no #--> markers
 ---
-PASS: 8 / FAIL: 14 / skip: 5
+PASS: 10 / FAIL: 12 / skip: 5
