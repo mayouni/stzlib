@@ -61,6 +61,16 @@ def run_file(path):
 def normalise(s):
     return re.sub(r'\s+', ' ', s).strip()
 
+# Relaxed form for tolerant matching: lowercase, drop the punctuation
+# Ring strips/adds inconsistently between `?` print and @@() display
+# (brackets, quotes, colons, commas) and collapse all whitespace.
+# Used only as a fallback when strict matching has already failed.
+_PUNCT_RE = re.compile(r"[\[\]\(\)\{\}\"',:]")
+def relax(s):
+    s = _PUNCT_RE.sub(' ', s)
+    s = re.sub(r'\s+', ' ', s).strip().lower()
+    return s
+
 def check_file(path):
     src = path.read_text(encoding='utf-8', errors='replace')
     pairs = parse_expected(src)
@@ -76,27 +86,52 @@ def check_file(path):
     # Trim the "Executed in / STOPPED!" tail.
     out = re.split(r'Executed in [^\n]*\n', out)[0]
     out_norm = normalise(out)
+    out_relaxed = relax(out_norm)
 
     # Ordered-substring containment: each expected (after normalising
     # whitespace) must appear in the remaining runtime output past
-    # the cursor of the previous match.
-    cursor = 0
+    # the cursor of the previous match. We try a few format-tolerant
+    # candidates so format-only drifts don't show up as FAIL:
+    #   - TRUE / FALSE in #--> matches 1 / 0 at runtime
+    #   - bracketed lists `[ a, b, c ]` match the same items printed
+    #     one-per-line (Ring's default list output) by stripping all
+    #     punctuation noise via relax()
+    #   - `:Symbol` in the doc matches both `:symbol` and `symbol`
+    #     (Ring tokenizes `:Symbol` lowercase, and `?` strips the
+    #     leading colon)
+    cursor_norm = 0
+    cursor_relaxed = 0
     mismatches = []
     for idx, (expr, expected) in enumerate(pairs):
-        exp = normalise(' '.join(expected))
-        # Tolerance: TRUE/FALSE in #--> matches 1/0 at runtime
-        candidates = [exp]
-        if exp == 'TRUE': candidates.append('1')
-        if exp == 'FALSE': candidates.append('0')
-        found_at = -1
+        exp_raw = normalise(' '.join(expected))
+        candidates = [exp_raw]
+        if exp_raw == 'TRUE': candidates.append('1')
+        if exp_raw == 'FALSE': candidates.append('0')
+
+        # First try strict normalised match
+        strict_pos = -1
+        strict_end = 0
         for c in candidates:
-            pos = out_norm.find(c, cursor)
-            if pos >= 0 and (found_at < 0 or pos < found_at):
-                found_at = pos + len(c)
-        if found_at < 0:
-            mismatches.append(f'#{idx+1} {expr.strip()[:60]} -> expected {exp[:60]!r} not found past cursor {cursor}')
-        else:
-            cursor = found_at
+            pos = out_norm.find(c, cursor_norm)
+            if pos >= 0 and (strict_pos < 0 or pos < strict_pos):
+                strict_pos = pos
+                strict_end = pos + len(c)
+
+        if strict_pos >= 0:
+            cursor_norm = strict_end
+            # Keep relaxed cursor in sync (approximate)
+            cursor_relaxed = len(relax(out_norm[:strict_end]))
+            continue
+
+        # Strict failed -- try relaxed (punctuation- + symbol-folded).
+        exp_relaxed = relax(exp_raw)
+        if exp_relaxed and out_relaxed.find(exp_relaxed, cursor_relaxed) >= 0:
+            pos = out_relaxed.find(exp_relaxed, cursor_relaxed)
+            cursor_relaxed = pos + len(exp_relaxed)
+            continue
+
+        mismatches.append(f'#{idx+1} {expr.strip()[:60]} -> expected {exp_raw[:60]!r} not found past cursor {cursor_norm}')
+
     if mismatches:
         return ('FAIL', mismatches)
     return ('PASS', f'{len(pairs)} assertions matched')

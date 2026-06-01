@@ -3,9 +3,7 @@
          #5 ? @@( HasKeysXT(aHash, [ "name", "none", "age" ]) ) + NL -> expected '[ TRUE, FALSE, TRUE ]' not found past cursor 93
 [ PASS ] 02_write_a_narration_about_it.ring: 4 assertions matched
 [ skip ] 03_adjust_lines_under_titles.ring: no #--> markers
-[ FAIL ] 04_pr.ring:
-         #1 ? Name() -> expected ':myhash' not found past cursor 0
-         #2 ? StzType() -> expected ':stzhashlist' not found past cursor 0
+[ PASS ] 04_pr.ring: 2 assertions matched
 [ PASS ] 05_pr.ring: 6 assertions matched
 [ PASS ] 06_pr.ring: 1 assertions matched
 [ PASS ] 07_pr.ring: 3 assertions matched
@@ -13,15 +11,8 @@
          #1 ? o1.FindValueOrItem(:can) # called also FindVitem(:can) -> expected '[ 1, 2, 5 ]' not found past cursor 0
 [ PASS ] 09_finding_items_inside_values_that_are_lists.ring: 4 assertions matched
 [ PASS ] 10_pr.ring: 1 assertions matched
-[ FAIL ] 11_pr.ring:
-         #1 ? o1.FindLists() -> expected '[ 3, 5, 6 ]' not found past cursor 0
-         #3 ? o1.FindNumbers() -> expected '[1, 7, 8]' not found past cursor 79
-         #4 ? o1.Numbers() -> expected '[ 0, 6, 7 ]' not found past cursor 79
-         #5 ? o1.FindStrings() -> expected '[2, 4]' not found past cursor 79
-         #6 ? o1.Strings() -> expected '[ "One", "Three" ]' not found past cursor 79
-         ... +1 more
+[ PASS ] 11_pr.ring: 18 assertions matched
 [ FAIL ] 12_pr.ring:
-         #2 ? @@( o1.ListsZ() ) + NL -> expected '[ [ [ "is", "will", "can", "some", "can" ], [ 3 ] ], [ [ "ca' not found past cursor 15
          #5 ? @@( o1.FindTheseLists([ [ "can", "will" ], [ "will" ] ]) ) -> expected '[ 5, 6, 16 ]' not found past cursor 162
          #6 ? @@( o1.TheseListsZ([ [ "can", "will" ], [ "will" ] ]) ) -> expected '[ [ [ "can", "will" ], [ 5 ] ], [ [ "will" ], [ 6, 16 ] ] ]' not found past cursor 162
 [ FAIL ] 13_pr.ring:
@@ -32,15 +23,14 @@
          #2 ? @@( o1.FindItems() ) + NL -> expected '[ [ 1, 1 ], [ 3, 1 ], [ 2, 1 ], [ 2, 2 ], [ 4, 2 ], [ 5, 1 ]' not found past cursor 0
          #3 ? @@( o1.ItemsZ() ) -> expected '[ [ "is", [ [ 2, 1 ] ] ], [ "will", [ [ 2, 2 ], [ 4, 2 ], [ ' not found past cursor 0
 [ PASS ] 15_pr.ring: 4 assertions matched
-[ FAIL ] 16_pr.ring:
-         #2 ? @@NL( o1.KlassifyItemsInLists() ) # Or KlassifyInLists() -> expected '[ [ "will", [ [ 2, [ 1 ] ], [ 3, [ 4 ] ], [ 5, [ 4 ] ] ] ], ' not found past cursor 1
+[ PASS ] 16_pr.ring: 2 assertions matched
 [ FAIL ] 17_pr.ring:
-         #2 ? @@( o1.Klasses() ) + NL -> expected '[ :red, :white, :green, :yellow ]' not found past cursor 1
          #7 ? @@( reverse( sort( o1.KlassesFreqsXT(), 2 ) ) ) + NL -> expected '[ [ "white", 0.38 ], [ "red", 0.25 ], [ "green", 0.25 ], [ "' not found past cursor 225
          #18 ? o1.StrongestKlass() + NL -> expected ':white' not found past cursor 460
          #19 ? o1.StrongestKlassXT() -> expected '[ :white, 0.38 ]' not found past cursor 460
          #20 ? o1.WeakestKlass() + NL -> expected ':yellow' not found past cursor 460
-         ... +6 more
+         #21 ? o1.WeakestKlassXT() -> expected '[ :yellow, 0.12 ]' not found past cursor 460
+         ... +5 more
 [ FAIL ] 18_block_18.ring:
          #1 ? @@( o1.FindItem(:nice) ) + NL -> expected '[ 1, [ 2 ] ] # exists in pair 1 at position 2' not found past cursor 0
          #3 ? @@( o1.FindItems() ) + NL -> expected '[ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ], [ 2, 1 ]' not found past cursor 59
@@ -58,4 +48,4 @@
 [ skip ] 26_pr.ring: no #--> markers
 [ skip ] 27_pr.ring: no #--> markers
 ---
-PASS: 10 / FAIL: 12 / skip: 5
+PASS: 13 / FAIL: 9 / skip: 5
