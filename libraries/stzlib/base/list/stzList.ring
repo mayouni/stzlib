@@ -2112,7 +2112,11 @@ class stzList from stzObject
 			next
 		next
 
-		return new stzList(anResult).Sorted()
+		# Ring 1.26 parser dislikes `new X(...).Sorted()` chaining
+		# (raises R13 "Object is required" at the dot). Bind to a
+		# local first.
+		_oFmcsTmp_ = new stzList(anResult)
+		return _oFmcsTmp_.Sorted()
 
 		def FindMany(paItems)
 			return This.FindManyCS(paItems, 1)
