@@ -436,6 +436,95 @@ class stzString from stzObject
 	#   Used by stzTimex.ParseDurationToMinutes() and is the #3
 	#   most-called missing method in the catalog.
 
+	#-- NumbersComingAfter: find every signed/decimal number literal
+	#   that follows an occurrence of pcSubStr in the string. Returns
+	#   a list of strings (the textual number forms incl. sign).
+	#   Example: new stzString("This[@i-1] = This[@i+3]").NumbersComingAfter("@i")
+	#         -> [ "-1", "+3" ]
+	#   Ported from archive line 101153 but kept self-contained:
+	#   manual scan instead of stzRegex + WithoutSpaces dependency.
+	#   Used by stzCCode and friends.
+
+	def NumbersComingAfterCS(pcSubStr, pCaseSensitive)
+		if NOT isString(pcSubStr)
+			StzRaise("NumbersComingAfterCS: pcSubStr must be a string")
+		ok
+		_acNcaResult_ = []
+		_cNcaStr_ = This.Content()
+		_nNcaLen_ = len(_cNcaStr_)
+		_nNcaSubLen_ = len(pcSubStr)
+		if _nNcaSubLen_ = 0 or _nNcaLen_ = 0
+			return _acNcaResult_
+		ok
+
+		# Build case-folded haystack/needle when CS = 0
+		_cNcaHay_ = _cNcaStr_
+		_cNcaNeedle_ = pcSubStr
+		if NOT @CaseSensitive(pCaseSensitive)
+			_cNcaHay_ = lower(_cNcaHay_)
+			_cNcaNeedle_ = lower(_cNcaNeedle_)
+		ok
+
+		_acDigits_ = [ "0","1","2","3","4","5","6","7","8","9" ]
+
+		_iNca_ = 1
+		while _iNca_ <= _nNcaLen_ - _nNcaSubLen_ + 1
+			if substr(_cNcaHay_, _iNca_, _nNcaSubLen_) = _cNcaNeedle_
+				_j_ = _iNca_ + _nNcaSubLen_
+
+				# Skip whitespace
+				while _j_ <= _nNcaLen_ and (substr(_cNcaStr_,_j_,1) = " " or substr(_cNcaStr_,_j_,1) = char(9))
+					_j_++
+				end
+
+				# Optional sign
+				_cNum_ = ""
+				if _j_ <= _nNcaLen_ and (substr(_cNcaStr_,_j_,1) = "+" or substr(_cNcaStr_,_j_,1) = "-")
+					_cNum_ += substr(_cNcaStr_,_j_,1)
+					_j_++
+					# Allow whitespace between sign and digits
+					while _j_ <= _nNcaLen_ and (substr(_cNcaStr_,_j_,1) = " " or substr(_cNcaStr_,_j_,1) = char(9))
+						_j_++
+					end
+				ok
+
+				# Integer digits
+				_bHasDigit_ = 0
+				while _j_ <= _nNcaLen_ and ring_find(_acDigits_, substr(_cNcaStr_,_j_,1)) > 0
+					_cNum_ += substr(_cNcaStr_,_j_,1)
+					_j_++
+					_bHasDigit_ = 1
+				end
+
+				# Optional decimal part
+				if _j_ <= _nNcaLen_ and substr(_cNcaStr_,_j_,1) = "."
+					_cNum_ += "."
+					_j_++
+					while _j_ <= _nNcaLen_ and ring_find(_acDigits_, substr(_cNcaStr_,_j_,1)) > 0
+						_cNum_ += substr(_cNcaStr_,_j_,1)
+						_j_++
+					end
+				ok
+
+				if _bHasDigit_
+					_acNcaResult_ + _cNum_
+				ok
+				_iNca_ = _j_
+			else
+				_iNca_++
+			ok
+		end
+		return _acNcaResult_
+
+	def NumbersComingAfter(pcSubStr)
+		return This.NumbersComingAfterCS(pcSubStr, 1)
+
+		def NumbersAfter(pcSubStr)
+			return This.NumbersComingAfter(pcSubStr)
+
+		def NumbersAfterCS(pcSubStr, pCaseSensitive)
+			return This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)
+
 	def Numbers()
 		_acResult_ = []
 		_acChars_ = This.Chars()
