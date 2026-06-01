@@ -1811,6 +1811,13 @@ class stzList from stzObject
 			This.RemoveItemsAtPositions(panPos)
 			return This
 
+		def RemoveItemsAtThesePositions(panPos)
+			This.RemoveItemsAtPositions(panPos)
+
+		def RemoveItemsAtThesePositionsQ(panPos)
+			This.RemoveItemsAtPositions(panPos)
+			return This
+
 	  #-- RemoveSection: remove items between two positions
 
 	def RemoveSection(n1, n2)
@@ -3118,17 +3125,29 @@ class stzList from stzObject
 		_oOsGt_ = new stzListGetter(This)
 		return _oOsGt_.OnlyStrings()
 
+		def OnlyStringsQ()
+			return new stzList( This.OnlyStrings() )
+
 	def OnlyNumbers()
 		_oOnGt_ = new stzListGetter(This)
 		return _oOnGt_.OnlyNumbers()
+
+		def OnlyNumbersQ()
+			return new stzList( This.OnlyNumbers() )
 
 	def OnlyLists()
 		_oOlGt_ = new stzListGetter(This)
 		return _oOlGt_.OnlyLists()
 
+		def OnlyListsQ()
+			return new stzList( This.OnlyLists() )
+
 	def OnlyChars()
 		_oOcGt_ = new stzListGetter(This)
 		return _oOcGt_.OnlyChars()
+
+		def OnlyCharsQ()
+			return new stzList( This.OnlyChars() )
 
 	def Pairs()
 		_oPrGt_ = new stzListGetter(This)
