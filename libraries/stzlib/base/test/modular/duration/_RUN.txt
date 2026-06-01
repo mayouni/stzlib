@@ -1,7 +1,6 @@
 [ PASS ] 01_creating_duration_from_seconds.ring: 1 assertions matched
 [ PASS ] 02_creation_duration_from_natural_language_string.ring: 3 assertions matched
-[ FAIL ] 03_retriving_duration_components.ring:
-         #8 ? @@NL( oDuration.Components() ) -> expected '[ :Days = 2, :Hours = 5, :Minutes = 30, :Seconds = 45, :Mill' not found past cursor 24
+[ PASS ] 03_retriving_duration_components.ring: 8 assertions matched
 [ PASS ] 04_arithmetic_operations.ring: 6 assertions matched
 [ PASS ] 05_comparisons.ring: 7 assertions matched
 [ skip ] 06_formatting_options.ring: no #--> markers
@@ -23,4 +22,4 @@
 [ PASS ] 16_adding_more_patterns_to_tohuman.ring: 6 assertions matched
 [ PASS ] 17_customising_unit_names.ring: 2 assertions matched
 ---
-PASS: 11 / FAIL: 4 / skip: 2
+PASS: 12 / FAIL: 3 / skip: 2

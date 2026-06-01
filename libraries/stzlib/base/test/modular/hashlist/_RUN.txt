@@ -32,7 +32,6 @@
          #21 ? o1.WeakestKlassXT() -> expected '[ :yellow, 0.12 ]' not found past cursor 460
          ... +5 more
 [ FAIL ] 18_block_18.ring:
-         #1 ? @@( o1.FindItem(:nice) ) + NL -> expected '[ 1, [ 2 ] ] # exists in pair 1 at position 2' not found past cursor 0
          #3 ? @@( o1.FindItems() ) + NL -> expected '[ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ], [ 2, 1 ]' not found past cursor 59
          #4 ? @@( o1.TheseItemsZ([ :glad, :can ]) ) -> expected '[ [ "glad", [ [ 1, [ 3 ] ] ] ], [ "can", [ [ 2, [ 3 ] ] ] ] ' not found past cursor 59
 [ FAIL ] 19_pr.ring:
@@ -42,10 +41,8 @@
 [ PASS ] 22_pr.ring: 3 assertions matched
 [ PASS ] 23_pr.ring: 2 assertions matched
 [ PASS ] 24_block_24.ring: 1 assertions matched
-[ FAIL ] 25_pr.ring:
-         #2 ? o1.Content() -> expected '[ :name = "mansour", :job = "programmer" ]' not found past cursor 1
-         #3 ? o1.RemovePairByKeyQ(:job).Content() -> expected '[ :name = "mansour" ]' not found past cursor 1
+[ PASS ] 25_pr.ring: 3 assertions matched
 [ skip ] 26_pr.ring: no #--> markers
 [ skip ] 27_pr.ring: no #--> markers
 ---
-PASS: 13 / FAIL: 9 / skip: 5
+PASS: 14 / FAIL: 8 / skip: 5
