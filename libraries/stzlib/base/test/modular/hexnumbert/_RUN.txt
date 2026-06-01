@@ -5,14 +5,11 @@
          #1 ? @@( o1.Content() ) -> expected '[ 12, 25, 38 ]' not found past cursor 0
 [ PASS ] 04_pr.ring: 2 assertions matched
 [ PASS ] 05_pr.ring: 1 assertions matched
-[ FAIL ] 06_pr.ring:
-         #1 ? Q(1245).Digits() -> expected '[ 1, 2, 4, 5 ]' not found past cursor 0
-         #2 ? Q(-12.45).Digits() -> expected '[ 1, 2, 4, 5 ]' not found past cursor 0
+[ PASS ] 06_pr.ring: 2 assertions matched
 [ PASS ] 07_pr.ring: 4 assertions matched
 [ skip ] 08_this_is_an_update_of_the_next_narration_of_the_sol.ring: no #--> markers
 [ skip ] 09_pr.ring: no #--> markers
 [ FAIL ] 10_pr.ring:
-         #1 ? HexPrefixes() -> expected '[ "x", "0x", "U+" ]' not found past cursor 0
          #3 ? HexToDecimal("x167A") -> expected '5754' not found past cursor 18
 [ FAIL ] 11_block_11.ring:
          #1 ? Content()	# Same as WithoutPrefix() -> expected '167A' not found past cursor 0
@@ -26,4 +23,4 @@
 [ FAIL ] 13_pr.ring:
          #1 ? o1.Content() -> expected '0x13' not found past cursor 0
 ---
-PASS: 4 / FAIL: 7 / skip: 2
+PASS: 5 / FAIL: 6 / skip: 2
