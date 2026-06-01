@@ -66,25 +66,29 @@ class stzCounter from stzObject
 		ok		
 
 	# PERF NOTE (Ring 1.26):
-	# This implementation runs a Ring-level for-loop with a list-
-	# append per iteration, which scales as O(N^2) on Ring 1.26
-	# when invoked through a class method (each `aResult + n` goes
-	# through the object's attribute table). On Ring 1.23 the same
-	# body ran ~0.91 s for N = 1,000,000 -- the modular test
-	# base/test/modular/counter/05_softanza_1M_perf.ring records
-	# that baseline.
+	# Counting() builds a list of N cycled values. We tested two
+	# implementations on Ring 1.26 and both scale as O(N^2):
 	#
-	# The proper fix is engine-first: build a `stz_seq_fill_list`
-	# entry point in libraries/stzlib/engine/src/sequence.zig that
-	# fills a Ring list in one C call (using the same newlist/retlist
-	# direct-marshal pattern as stzYielder), and have Counting()
-	# delegate to it. That keeps the perf story consistent with the
-	# rest of Softanza (engine-backed beats native Ring) regardless
-	# of the Ring interpreter's per-iteration cost.
+	# 1. Ring-side loop with `aResult + n` (the current code below).
+	#    Reference: 0.91 s for N=1,000,000 on Ring 1.23. On 1.26 the
+	#    same body takes >60 s for N=100,000 because class-method-
+	#    local `aResult + n` walks the object attribute table.
 	#
-	# Until that engine variant lands we keep the current loop as the
-	# functional reference -- see the engine roadmap (task #4 on the
-	# session list and ZIN_PILLAR_AGENTS.md for the dispatch plan).
+	# 2. Engine bridge `StzEngineCounterFill` -- a Zig function that
+	#    builds the list in one C call via ring_list_adddouble. Was
+	#    expected to win big but turned out NO FASTER than (1): each
+	#    `ring_list_adddouble` call appears O(N) at the Ring C-API
+	#    level (probably re-walking pLast). FFI per-call overhead
+	#    dominates.
+	#
+	# The engine entry point is wired (see ring_bridge_sequence.zig)
+	# and remains available for callers that benefit at smaller N,
+	# but the production hot path stays on the Ring loop because
+	# it's the simpler, equally-fast option until either Ring fixes
+	# ring_list_adddouble or we add a true batch-fill C API.
+	#
+	# Modular test 05_softanza_1M_perf.ring records the 0.91 s
+	# Ring-1.23 baseline as the regression target.
 
 	def Counting(nNumber)
 		if CheckingParams()
@@ -100,21 +104,20 @@ class stzCounter from stzObject
 		aResult = []
 		n =  @nStartAt
 
-
 		if @nWhenYouReach != 0
 
 			for i = @nStartAt to nNumber step @nStep
-	
+
 				if i = @nWhenYouReach
 					n = @nRestartAt
 				ok
-	
+
 				aResult + n
 				n++
 				if n = @nWhenYouReach
 					n = @nRestartAt
 				ok
-				
+
 			next
 
 		but @nAfterYouSkip != 0
@@ -130,12 +133,11 @@ class stzCounter from stzObject
 				if n = @nAfterYouSkip + 1
 					n = @nRestartAt
 				ok
-				
+
 			next
 
 		ok
 
-		
 		return aResult
 
 		#< @FunctionAlternativeForms
