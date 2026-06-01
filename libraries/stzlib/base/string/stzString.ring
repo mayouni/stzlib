@@ -70,6 +70,24 @@ class stzString from stzObject
 		def StringQ()
 			return new stzString(This.String())
 
+	#-- Override stzObject.Stringified/ToString. The parent returns
+	#   ObjectName() (which is "@noname" for unnamed objects);
+	#   stzString must return its actual content. Without this
+	#   override, stzHashList.Classes() returned 4x "@noname" instead
+	#   of the unique value labels.
+
+	def ToString()
+		return This.Content()
+
+		def Stringified()
+			return This.Content()
+
+		def DeepStringified()
+			return This.Content()
+
+		def ToStringQ()
+			return new stzString( This.Content() )
+
 	  #=======================================#
 	 #     GETTING THE ENGINE HANDLE         #
 	#=======================================#

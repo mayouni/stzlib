@@ -40,11 +40,11 @@
          #2 ? @@NL( o1.KlassifyItemsInLists() ) # Or KlassifyInLists() -> expected '[ [ "will", [ [ 2, [ 1 ] ], [ 3, [ 4 ] ], [ 5, [ 4 ] ] ] ], ' not found past cursor 1
 [ FAIL ] 17_pr.ring:
          #2 ? @@( o1.Klasses() ) + NL -> expected '[ :red, :white, :green, :yellow ]' not found past cursor 1
-         #3 ? @@( o1.KlassesSizes() ) -> expected '[ 2, 3, 2, 1 ]' not found past cursor 1
-         #4 ? @@( o1.KlassesSizesXT() ) -> expected '[ [ "red", 2 ], [ "white", 3 ], [ "green", 2 ], [ "yellow", ' not found past cursor 1
-         #5 ? @@( o1.KlassesFreqs() ) + NL -> expected '[ 0.25, 0.38, 0.25, 0.13 ]' not found past cursor 1
-         #6 ? @@( o1.KlassesFreqsXT() ) + NL -> expected '[ [ "red", 0.25 ], [ "white", 0.38 ], [ "green", 0.25 ], [ "' not found past cursor 1
-         ... +10 more
+         #7 ? @@( reverse( sort( o1.KlassesFreqsXT(), 2 ) ) ) + NL -> expected '[ [ "white", 0.38 ], [ "red", 0.25 ], [ "green", 0.25 ], [ "' not found past cursor 225
+         #18 ? o1.StrongestKlass() + NL -> expected ':white' not found past cursor 460
+         #19 ? o1.StrongestKlassXT() -> expected '[ :white, 0.38 ]' not found past cursor 460
+         #20 ? o1.WeakestKlass() + NL -> expected ':yellow' not found past cursor 460
+         ... +6 more
 [ FAIL ] 18_block_18.ring:
          #1 ? @@( o1.FindItem(:nice) ) + NL -> expected '[ 1, [ 2 ] ] # exists in pair 1 at position 2' not found past cursor 0
          #3 ? @@( o1.FindItems() ) + NL -> expected '[ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ], [ 2, 1 ]' not found past cursor 59
