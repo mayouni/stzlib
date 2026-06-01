@@ -23,7 +23,7 @@ o1 = new stzNumber(5)
 # 	[ 5, 5, 5 ]
 # ]
 
-? o1.RepeatXT(:InA = :StzTable, :OfSize = [3, 3]).Shwo() #NOTE that Shwo() is a misspelled
+? o1.RepeatXT(:InA = :StzTable, :OfSize = [3, 3]).Show() #NOTE that Shwo() is a misspelled
 						         # form of Show(), recognised and fixed
 #--> :COL1   :COL2   :COL3
 #    ------ ------- ------

@@ -16,7 +16,7 @@ o1 = new stzTable([
 
 ])
 
-? o1.Shwo() 	// #NOTE this is a mispelled form of Show()
+? o1.Show() 	// #NOTE this is a mispelled form of Show()
 #-->
 '
 â•­â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â•®
