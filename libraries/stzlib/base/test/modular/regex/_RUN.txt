@@ -62,8 +62,7 @@
 [ PASS ] 34_test_2_line_matching.ring: 1 assertions matched
 [ PASS ] 35_test_3_greedy_vs_non-greedy.ring: 2 assertions matched
 [ PASS ] 36_test_4_word_boundaries.ring: 2 assertions matched
-[ FAIL ] 37_test_5_capture_values_of_defined_groups.ring:
-         #3 ? @@( o1.Capture() ) -> expected '[ "John", "30" ]' not found past cursor 3
+[ PASS ] 37_test_5_capture_values_of_defined_groups.ring: 3 assertions matched
 [ PASS ] 38_test_6_named_capture_groups.ring: 4 assertions matched
 [ FAIL ] 39_test_7_error_handling.ring:
          #2 ? o1.LastError() -> expected 'missing closing parenthesis' not found past cursor 1
@@ -84,4 +83,4 @@
 [ FAIL ] 52_block_52.ring:
          #1 ? @@(anNumbers) + NL -> expected '[ 12500, 10200, 14800, 52700, 17100, 14400, 87200, 25200, 45' not found past cursor 0
 ---
-PASS: 20 / FAIL: 23 / skip: 7
+PASS: 21 / FAIL: 22 / skip: 7
