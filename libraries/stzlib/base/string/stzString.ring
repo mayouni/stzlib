@@ -433,8 +433,16 @@ class stzString from stzObject
 		def ReplaceAll(pcSubStr, pcNewSubStr)
 			This.Replace(pcSubStr, pcNewSubStr)
 
+			def ReplaceAllQ(pcSubStr, pcNewSubStr)
+				This.ReplaceAll(pcSubStr, pcNewSubStr)
+				return This
+
 		def ReplaceAllCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceAllCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceAllCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This
 
 	def ReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oRpdCopy_ = This.Copy()
@@ -819,6 +827,10 @@ class stzString from stzObject
 			This.Update(StzEngineStringData(pR))
 			StzEngineStringFree(pR)
 		ok
+
+		def TrimQ()
+			This.Trim()
+			return This
 
 	  #============================#
 	 #   DUPLICATE SUBSTRINGS     #
@@ -2339,6 +2351,10 @@ class stzString from stzObject
 
 	def RemoveSpaces()
 		This.Remove(" ")
+
+		def RemoveSpacesQ()
+			This.RemoveSpaces()
+			return This
 
 	def RemoveLeadingSpaces()
 		This.TrimLeft()
