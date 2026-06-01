@@ -1746,10 +1746,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.FindValue(pValue)
 
 		def FindValueOrItem(pValue)
-			return This.FindValue(pValue)
+			# Match both: value == pValue, or value is a list that
+			# contains pValue as one of its items. Returns the keys'
+			# positions sorted ascending.
+			_anFvoiResult_ = []
+			_aVals_ = This.Values()
+			_nLen_ = len(_aVals_)
+			for _iFvoi_ = 1 to _nLen_
+				_xVal_ = _aVals_[_iFvoi_]
+				if _xVal_ = pValue
+					_anFvoiResult_ + _iFvoi_
+				but isList(_xVal_) and ring_find(_xVal_, pValue) > 0
+					_anFvoiResult_ + _iFvoi_
+				ok
+			next
+			return _anFvoiResult_
 
 		def FindVitem(pValue)
-			return This.FindValue(pValue)
+			return This.FindValueOrItem(pValue)
 
 		#>
 
