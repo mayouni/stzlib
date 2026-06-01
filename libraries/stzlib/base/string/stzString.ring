@@ -543,6 +543,49 @@ class stzString from stzObject
 	def EndsWith(pcSubStr)
 		return StzEngineStringEndsWith(@pEngine, pcSubStr)
 
+	#-- Predicates: does the string end with / start with a numeric
+	#   character (0-9)? Ported from the legacy monolithic archive
+	#   (line 100803) but kept self-contained -- no dependency on
+	#   stzChar.IsANumber. Used by stzGlobal feature detection.
+
+	def EndsWithANumber()
+		_cEwanStr_ = This.Content()
+		if len(_cEwanStr_) = 0
+			return 0
+		ok
+		return ring_find([ "0","1","2","3","4","5","6","7","8","9" ], right(_cEwanStr_, 1)) > 0
+
+		def EndsWithATrailingNumber()
+			return This.EndsWithANumber()
+
+		def EndsWithAFinalNumber()
+			return This.EndsWithANumber()
+
+		def EndsWithNumber()
+			return This.EndsWithANumber()
+
+		def ContainsATrailingNumber()
+			return This.EndsWithANumber()
+
+		def ContainsAFinalNumber()
+			return This.EndsWithANumber()
+
+		def ContainsAnEndingNumber()
+			return This.EndsWithANumber()
+
+	def StartsWithANumber()
+		_cSwanStr_ = This.Content()
+		if len(_cSwanStr_) = 0
+			return 0
+		ok
+		return ring_find([ "0","1","2","3","4","5","6","7","8","9" ], left(_cSwanStr_, 1)) > 0
+
+		def StartsWithALeadingNumber()
+			return This.StartsWithANumber()
+
+		def StartsWithNumber()
+			return This.StartsWithANumber()
+
 	  #============================================#
 	 #     CASE CHANGE                            #
 	#============================================#

@@ -2745,6 +2745,9 @@ class stzList from stzObject
 		_oStnpSplitter_ = new stzListSplits(This)
 		return _oStnpSplitter_.SplitToNParts(n)
 
+		def SplitToNPartsQ(n)
+			return new stzList( This.SplitToNParts(n) )
+
 	def SplittedToNParts(n)
 		_oSdtnpSplitter_ = new stzListSplits(This)
 		return _oSdtnpSplitter_.SplittedToNParts(n)
