@@ -26,9 +26,7 @@
 [ skip ] 09_creating_multiple_folders.ring: no #--> markers
 [ FAIL ] 10_creating_folder_paths.ring:
          #1 ? oDeepFolder.Name() -> expected 'Level3' not found past cursor 0
-[ FAIL ] 11_removing_files_and_folders.ring:
-         #1 ? CountFolders() -> expected '6' not found past cursor 0
-         #2 ? CountFolders() -> expected '5' not found past cursor 0
+[ PASS ] 11_removing_files_and_folders.ring: 2 assertions matched
 [ FAIL ] 12_recursive_removal.ring:
          #1 ? Path() -> expected 'C:\\TestArea\\Level1' not found past cursor 0
          #2 ? bSuccess -> expected 'Removal successful: TRUE' not found past cursor 0
@@ -76,4 +74,4 @@
          #2 ? Path() -> expected 'C:/Windows/Temp/ChainTest/SubTest Confirms persistent naviga' not found past cursor 0
 [ skip ] 33_complete_folder_management_workflow.ring: no #--> markers
 ---
-PASS: 7 / FAIL: 21 / skip: 5
+PASS: 8 / FAIL: 20 / skip: 5

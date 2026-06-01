@@ -1,25 +1,25 @@
-[ PASS ] 01_testing_basic_grid_initialization_and_movement.ring: 5 assertions matched
-[ PASS ] 02_testing_hitting_the_right_boundary.ring: 3 assertions matched
-[ PASS ] 03_testing_different_movement_directions.ring: 10 assertions matched
-[ skip ] 04_testing_forwardbackward_movement.ring: no #--> markers
-[ PASS ] 05_testing_distance_calculations.ring: 6 assertions matched
-[ skip ] 06_testing_edge_cases_and_boundary_conditions.ring: no #--> markers
-[ PASS ] 07_pr.ring: 3 assertions matched
-[ PASS ] 08_pr.ring: 1 assertions matched
-[ PASS ] 09_testing_direction_changes_and_movement_combination.ring: 5 assertions matched
-[ PASS ] 10_testing_multi-node_movement.ring: 4 assertions matched
-[ PASS ] 11_testing_hitting_the_right_boundary.ring: 3 assertions matched
-[ PASS ] 12_testing_direction-specific_movements.ring: 5 assertions matched
-[ PASS ] 13_testing_nextprevious_nth_node_methods.ring: 7 assertions matched
-[ PASS ] 14_testing_boundary_cases_and_error_handling.ring: 6 assertions matched
-[ skip ] 15_advanced_test_sample.ring: no #--> markers
-[ PASS ] 16_testing_obstacles_management.ring: 6 assertions matched
-[ PASS ] 17_testing_path_management.ring: 3 assertions matched
-[ skip ] 18_testing_path_finding_algorithms.ring: no #--> markers
-[ FAIL ] 19_testing_path_analysis_and_display_utilities.ring:
-         #1 ? o1.PathComplexity() -> expected '10' not found past cursor 0
-[ PASS ] 20_testing_region_management_and_connectivity.ring: 6 assertions matched
-[ skip ] 21_testing_maze_generation.ring: no #--> markers
-[ PASS ] 22_testing_moving_and_hitting_an_obstacle.ring: 1 assertions matched
----
-PASS: 16 / FAIL: 1 / skip: 5
+[ PASS ] 01_testing_basic_grid_initialization_and_movement.ring: 5 assertions matched
+[ PASS ] 02_testing_hitting_the_right_boundary.ring: 3 assertions matched
+[ PASS ] 03_testing_different_movement_directions.ring: 10 assertions matched
+[ skip ] 04_testing_forwardbackward_movement.ring: no #--> markers
+[ PASS ] 05_testing_distance_calculations.ring: 6 assertions matched
+[ skip ] 06_testing_edge_cases_and_boundary_conditions.ring: no #--> markers
+[ PASS ] 07_pr.ring: 3 assertions matched
+[ PASS ] 08_pr.ring: 1 assertions matched
+[ PASS ] 09_testing_direction_changes_and_movement_combination.ring: 5 assertions matched
+[ PASS ] 10_testing_multi-node_movement.ring: 4 assertions matched
+[ PASS ] 11_testing_hitting_the_right_boundary.ring: 3 assertions matched
+[ PASS ] 12_testing_direction-specific_movements.ring: 5 assertions matched
+[ PASS ] 13_testing_nextprevious_nth_node_methods.ring: 7 assertions matched
+[ PASS ] 14_testing_boundary_cases_and_error_handling.ring: 6 assertions matched
+[ skip ] 15_advanced_test_sample.ring: no #--> markers
+[ PASS ] 16_testing_obstacles_management.ring: 6 assertions matched
+[ PASS ] 17_testing_path_management.ring: 3 assertions matched
+[ skip ] 18_testing_path_finding_algorithms.ring: no #--> markers
+[ FAIL ] 19_testing_path_analysis_and_display_utilities.ring:
+         #1 ? o1.PathComplexity() -> expected '10' not found past cursor 0
+[ PASS ] 20_testing_region_management_and_connectivity.ring: 6 assertions matched
+[ skip ] 21_testing_maze_generation.ring: no #--> markers
+[ PASS ] 22_testing_moving_and_hitting_an_obstacle.ring: 1 assertions matched
+---
+PASS: 16 / FAIL: 1 / skip: 5

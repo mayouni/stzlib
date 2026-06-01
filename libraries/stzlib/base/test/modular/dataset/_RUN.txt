@@ -14,19 +14,15 @@
 [ skip ] 09_data_type_detection.ring: no #--> markers
 [ PASS ] 10_contingency_table_tests.ring: 1 assertions matched
 [ PASS ] 11_mode_count_tests.ring: 1 assertions matched
-[ FAIL ] 12_quartiles_and_percentiles.ring:
-         #5 ? @@(Quartiles()) -> expected '[12.5, 25, 37.5]' not found past cursor 17
+[ PASS ] 12_quartiles_and_percentiles.ring: 7 assertions matched
 [ FAIL ] 13_shape_measures.ring:
          #1 ? Skewness() -> expected '0.0027' not found past cursor 0
          #2 ? Kurtosis() -> expected '-3.9006' not found past cursor 0
 [ skip ] 14_outlier_detection_and_z-scores.ring: no #--> markers
 [ PASS ] 15_sorted_data.ring: 1 assertions matched
 [ PASS ] 16_time_series_and_trend_analysis.ring: 6 assertions matched
-[ FAIL ] 17_deciles_tests.ring:
-         #1 ? @@(Deciles()) # (10th to 90th percentiles) -> expected '[ 1.9000, 2.8000, 3.7000, 4.6000, 5.5000, 6.4000, 7.3000, 8.' not found past cursor 0
-         #2 ? @@(Quartiles()) # (for comparison) -> expected '[3.25, 5.5, 7.75]' not found past cursor 0
-[ FAIL ] 18_box_plot_statistics_tests.ring:
-         #1 ? @@NL(BoxPlotStats()) -> expected '[ [ "min", 1 ], [ "q1", 3.7500 ], [ "median", 6.5000 ], [ "q' not found past cursor 0
+[ PASS ] 17_deciles_tests.ring: 2 assertions matched
+[ PASS ] 18_box_plot_statistics_tests.ring: 2 assertions matched
 [ FAIL ] 19_normality_test_tests.ring:
          #1 ? @@NL(aTest) -> expected '[ [ "test", "heuristic" ], [ "skewness", 0 ], [ "kurtosis", ' not found past cursor 0
          #2 ? @@NL( NormalityTest() ) -> expected '[ [ "test", "heuristic" ], [ "skewness", 0.0413 ], [ "kurtos' not found past cursor 0
@@ -81,4 +77,4 @@
 [ skip ] 51_example_9_plan_chaining.ring: no #--> markers
 [ skip ] 52_example_10_conditional_plan_execution.ring: no #--> markers
 ---
-PASS: 14 / FAIL: 15 / skip: 23
+PASS: 17 / FAIL: 12 / skip: 23

@@ -1,66 +1,60 @@
-[ skip ] 01_pr.ring: no #--> markers
-[ PASS ] 02_test_1_basic_calendar_creation.ring: 7 assertions matched
-[ FAIL ] 03_test_2_working_days_configuration.ring:
-         #3 ? FirstWorkingDay() -> expected '2024-10-01' not found past cursor 50
-         #4 ? len(WorkingDays()) -> expected '23' not found past cursor 50
-[ PASS ] 04_test_3_holiday_management.ring: 3 assertions matched
-[ PASS ] 05_test_4_business_hours_and_breaks.ring: 2 assertions matched
-[ PASS ] 06_test_5_capacity_calculations.ring: 4 assertions matched
-[ PASS ] 07_test_6_task_fitting.ring: 3 assertions matched
-[ PASS ] 08_test_7_date_information.ring: 2 assertions matched
-[ skip ] 09_test_8_display_options.ring: no #--> markers
-[ skip ] 10_test_9_heat_map_visualization.ring: no #--> markers
-[ skip ] 12_pr.ring: no #--> markers
-[ PASS ] 14_navigation_to_next_and_previous_month.ring: 7 assertions matched
-[ FAIL ] 15_navigating_to_next_and_previous_year.ring:
-         #4 ? Current() + NL -> expected 'November 2025' not found past cursor 30
-         #6 ? Current() -> expected 'November 2025' not found past cursor 48
-[ PASS ] 17_navigating_to_a_given_date.ring: 1 assertions matched
-[ FAIL ] 18_getting_current_info.ring:
-         #2 ? @@(CurrentXT()) -> expected '[ :year = ..., :month = ..., :day = ... ]' not found past cursor 12
-[ PASS ] 19_test_12_copy_and_comparison.ring: 1 assertions matched
-[ PASS ] 20_test_13_data_export.ring: 1 assertions matched
-[ skip ] 21_test_14_custom_constraints.ring: no #--> markers
-[ skip ] 22_test_15_stats.ring: no #--> markers
-[ PASS ] 23_multi-calendar_comparsion.ring: 1 assertions matched
-[ PASS ] 24_timeline_integration.ring: 2 assertions matched
-[ skip ] 25_real_world_example_sprint_planning.ring: no #--> markers
-[ PASS ] 26_quarter_initialization.ring: 11 assertions matched
-[ PASS ] 27_year-month_string_init.ring: 4 assertions matched
-[ PASS ] 28_single_date_initialization.ring: 4 assertions matched
-[ PASS ] 29_year-only_initialization.ring: 4 assertions matched
-[ PASS ] 30_list_initialization_variants.ring: 5 assertions matched
-[ PASS ] 31_content_method.ring: 1 assertions matched
-[ FAIL ] 32_firstdayofweeklastdayofweek.ring:
-         #1 ? "First Day of Week: " + FirstDayOfWeek() -> expected 'First Day of Week: 2024-09-30' not found past cursor 0
-         #2 ? "Last Day of Week: " + LastDayOfWeek() -> expected 'Last Day of Week: 2024-10-06' not found past cursor 0
-[ FAIL ] 33_working_days_list.ring:
-         #3 ? "Last working day: " + aWorkingDays[len(aWorkingDays)] -> expected 'Last working day: 2024-10-31' not found past cursor 56
-[ FAIL ] 34_weekends_list.ring:
-         #2 ? "First weekend day: " + aWeekends[1] -> expected 'First weekend day: 2024-10-05' not found past cursor 25
-         #3 ? "Contains Weekends: " + ContainsWeekends() -> expected 'Contains Weekends: TRUE' not found past cursor 25
-         #4 ? "Has Weekends: " + HasWeekends() -> expected 'Has Weekends: TRUE' not found past cursor 25
-[ FAIL ] 35_available_days_list.ring:
-         #1 ? "Available Days Count: " + len(aAvailableDays) -> expected 'Available Days Count: 22' not found past cursor 0
-[ PASS ] 36_consecutive_working_days.ring: 3 assertions matched
-[ PASS ] 37_freedays.ring: 2 assertions matched
-[ FAIL ] 38_totalweeks_and_containsweeks.ring:
-         #2 ? "Contains Weeks: " + ContainsWeeks() -> expected 'Contains Weeks: TRUE' not found past cursor 14
-         #3 ? "Has Weeks: " + HasWeeks() -> expected 'Has Weeks: TRUE' not found past cursor 14
-[ FAIL ] 39_availableweeks_and_minutes.ring:
-         #1 ? "Available Weeks: " + AvailableWeeksN() -> expected 'Available Weeks: 5 (ceil(23 / 5))' not found past cursor 0
-         #2 ? "Contains Available Weeks: " + ContainsAvailableWeeks() -> expected 'Contains Available Weeks: TRUE' not found past cursor 0
-[ PASS ] 40_istoday_method.ring: 2 assertions matched
-[ skip ] 41_tojson_and_tocsv_export.ring: no #--> markers
-[ skip ] 42_display_variants.ring: no #--> markers
-[ skip ] 43_dateinfo_variations.ring: no #--> markers
-[ PASS ] 44_year_navigation_methods.ring: 6 assertions matched
-[ PASS ] 45_month_navigation_methods.ring: 6 assertions matched
-[ skip ] 46_alias_methods_verification.ring: no #--> markers
-[ FAIL ] 47_legend_method.ring:
-         #1 ? @@NL(aLegend) -> expected '[ [ "holiday", "[D]" ], [ "weekend", "░" ] ]' not found past cursor 0
-[ PASS ] 48_setvizwidth_and_setvizheight.ring: 4 assertions matched
-[ skip ] 49_stats_method.ring: no #--> markers
-[ PASS ] 50_detailedtable_methods.ring: 1 assertions matched
----
-PASS: 25 / FAIL: 10 / skip: 12
+[ skip ] 01_pr.ring: no #--> markers
+[ PASS ] 02_test_1_basic_calendar_creation.ring: 7 assertions matched
+[ PASS ] 03_test_2_working_days_configuration.ring: 4 assertions matched
+[ PASS ] 04_test_3_holiday_management.ring: 3 assertions matched
+[ PASS ] 05_test_4_business_hours_and_breaks.ring: 2 assertions matched
+[ PASS ] 06_test_5_capacity_calculations.ring: 4 assertions matched
+[ PASS ] 07_test_6_task_fitting.ring: 3 assertions matched
+[ PASS ] 08_test_7_date_information.ring: 2 assertions matched
+[ skip ] 09_test_8_display_options.ring: no #--> markers
+[ skip ] 10_test_9_heat_map_visualization.ring: no #--> markers
+[ skip ] 12_pr.ring: no #--> markers
+[ PASS ] 14_navigation_to_next_and_previous_month.ring: 7 assertions matched
+[ FAIL ] 15_navigating_to_next_and_previous_year.ring:
+         #4 ? Current() + NL -> expected 'November 2025' not found past cursor 30
+         #6 ? Current() -> expected 'November 2025' not found past cursor 48
+[ PASS ] 17_navigating_to_a_given_date.ring: 1 assertions matched
+[ FAIL ] 18_getting_current_info.ring:
+         #2 ? @@(CurrentXT()) -> expected '[ :year = ..., :month = ..., :day = ... ]' not found past cursor 12
+[ PASS ] 19_test_12_copy_and_comparison.ring: 1 assertions matched
+[ PASS ] 20_test_13_data_export.ring: 1 assertions matched
+[ skip ] 21_test_14_custom_constraints.ring: no #--> markers
+[ skip ] 22_test_15_stats.ring: no #--> markers
+[ PASS ] 23_multi-calendar_comparsion.ring: 1 assertions matched
+[ PASS ] 24_timeline_integration.ring: 2 assertions matched
+[ skip ] 25_real_world_example_sprint_planning.ring: no #--> markers
+[ PASS ] 26_quarter_initialization.ring: 11 assertions matched
+[ PASS ] 27_year-month_string_init.ring: 4 assertions matched
+[ PASS ] 28_single_date_initialization.ring: 4 assertions matched
+[ PASS ] 29_year-only_initialization.ring: 4 assertions matched
+[ PASS ] 30_list_initialization_variants.ring: 5 assertions matched
+[ PASS ] 31_content_method.ring: 1 assertions matched
+[ FAIL ] 32_firstdayofweeklastdayofweek.ring:
+         #1 ? "First Day of Week: " + FirstDayOfWeek() -> expected 'First Day of Week: 2024-09-30' not found past cursor 0
+         #2 ? "Last Day of Week: " + LastDayOfWeek() -> expected 'Last Day of Week: 2024-10-06' not found past cursor 0
+[ FAIL ] 33_working_days_list.ring:
+         #3 ? "Last working day: " + aWorkingDays[len(aWorkingDays)] -> expected 'Last working day: 2024-10-31' not found past cursor 56
+[ FAIL ] 34_weekends_list.ring:
+         #2 ? "First weekend day: " + aWeekends[1] -> expected 'First weekend day: 2024-10-05' not found past cursor 25
+         #4 ? "Has Weekends: " + HasWeekends() -> expected 'Has Weekends: TRUE' not found past cursor 76
+[ FAIL ] 35_available_days_list.ring:
+         #1 ? "Available Days Count: " + len(aAvailableDays) -> expected 'Available Days Count: 22' not found past cursor 0
+[ PASS ] 36_consecutive_working_days.ring: 3 assertions matched
+[ PASS ] 37_freedays.ring: 2 assertions matched
+[ PASS ] 38_totalweeks_and_containsweeks.ring: 4 assertions matched
+[ FAIL ] 39_availableweeks_and_minutes.ring:
+         #1 ? "Available Weeks: " + AvailableWeeksN() -> expected 'Available Weeks: 5 (ceil(23 / 5))' not found past cursor 0
+[ PASS ] 40_istoday_method.ring: 2 assertions matched
+[ skip ] 41_tojson_and_tocsv_export.ring: no #--> markers
+[ skip ] 42_display_variants.ring: no #--> markers
+[ skip ] 43_dateinfo_variations.ring: no #--> markers
+[ PASS ] 44_year_navigation_methods.ring: 6 assertions matched
+[ PASS ] 45_month_navigation_methods.ring: 6 assertions matched
+[ skip ] 46_alias_methods_verification.ring: no #--> markers
+[ FAIL ] 47_legend_method.ring:
+         #1 ? @@NL(aLegend) -> expected '[ [ "holiday", "[D]" ], [ "weekend", "░" ] ]' not found past cursor 0
+[ PASS ] 48_setvizwidth_and_setvizheight.ring: 4 assertions matched
+[ skip ] 49_stats_method.ring: no #--> markers
+[ PASS ] 50_detailedtable_methods.ring: 1 assertions matched
+---
+PASS: 27 / FAIL: 8 / skip: 12

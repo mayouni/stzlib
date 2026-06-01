@@ -1984,3 +1984,17 @@ class stzStringChar from stzObject
 			_aDtResult_ + StzCharQ(_nDtI_).Content()
 		next
 		return _aDtResult_
+
+
+  /////////////////////////////
+ ///  stzChar = stzStringChar  ///
+/////////////////////////////
+
+# stzChar is the shorter Softanza alias for stzStringChar.
+# The narrative tests (and a lot of user-facing examples) refer
+# to `new stzChar(...)` directly; before this alias the modular
+# build only exposed stzStringChar so those tests crashed with
+# R11 (class not found). Direct inheritance keeps the full API
+# while making `new stzChar(...)` syntactically valid.
+
+class stzChar from stzStringChar
