@@ -1745,6 +1745,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def Find(pValue)
 			return This.FindValue(pValue)
 
+		def FindValueOrItem(pValue)
+			return This.FindValue(pValue)
+
+		def FindVitem(pValue)
+			return This.FindValue(pValue)
+
 		#>
 
 	  #-------------------------#
