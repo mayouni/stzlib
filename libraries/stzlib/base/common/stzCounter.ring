@@ -65,12 +65,33 @@ class stzCounter from stzObject
 			StzRaise(stzCounterError(:CanNotCreateCounter))
 		ok		
 
+	# PERF NOTE (Ring 1.26):
+	# This implementation runs a Ring-level for-loop with a list-
+	# append per iteration, which scales as O(N^2) on Ring 1.26
+	# when invoked through a class method (each `aResult + n` goes
+	# through the object's attribute table). On Ring 1.23 the same
+	# body ran ~0.91 s for N = 1,000,000 -- the modular test
+	# base/test/modular/counter/05_softanza_1M_perf.ring records
+	# that baseline.
+	#
+	# The proper fix is engine-first: build a `stz_seq_fill_list`
+	# entry point in libraries/stzlib/engine/src/sequence.zig that
+	# fills a Ring list in one C call (using the same newlist/retlist
+	# direct-marshal pattern as stzYielder), and have Counting()
+	# delegate to it. That keeps the perf story consistent with the
+	# rest of Softanza (engine-backed beats native Ring) regardless
+	# of the Ring interpreter's per-iteration cost.
+	#
+	# Until that engine variant lands we keep the current loop as the
+	# functional reference -- see the engine roadmap (task #4 on the
+	# session list and ZIN_PILLAR_AGENTS.md for the dispatch plan).
+
 	def Counting(nNumber)
 		if CheckingParams()
 			if isList(nNumber) and Q(nNumber).IsToNamedParam()
 				nNumber = nNumber[2]
 			ok
-	
+
 			if NOT isNumber(nNumber)
 				StzRaise("Incorrect param type! nNumber must be a number.")
 			ok
