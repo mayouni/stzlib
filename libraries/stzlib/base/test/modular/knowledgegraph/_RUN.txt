@@ -1,8 +1,7 @@
 [ FAIL ] 01_adding_facts_triples.ring:
          #1 ? @@NL( Facts() ) -> expected '[ ["Dogs", :IsA, "Animals"], ["Dogs", :Eats, "Food"], ["Cats' not found past cursor 0
 [ FAIL ] 02_removing_facts.ring:
-         #1 ? @@NL( Facts() ) -> expected '[ [ "X", "relatesto", "Y" ], [ "X", "differentfrom", "Z" ] ]' not found past cursor 0
-         #2 ? @@NL( Facts() ) -> expected '[ ["X", :RelatesTo, "Y"] ]' not found past cursor 0
+         #2 ? @@NL( Facts() ) -> expected '[ ["X", :RelatesTo, "Y"] ]' not found past cursor 60
 [ FAIL ] 03_query_with_variable_subject.ring:
          #1 ? @@( Query(["?x", :IsA, "Mammals"]) ) -> expected '["Dogs", "Cats"]' not found past cursor 0
 [ FAIL ] 04_query_with_variable_object.ring:

@@ -46,11 +46,14 @@ class stzKnowledgeGraph from stzGraph
 		if NOT This.NodeExists(pcSubject)
 			This.AddNodeXTT(pcSubject, pcSubject, [:type = "entity"])
 		ok
-		
+
+		# Bug fix: previously the object label was @@(pcObject) which
+		# wraps strings with literal quote chars ("Animals" -> '"Animals"').
+		# Use the raw string so the label round-trips clean.
 		if NOT This.NodeExists(pcObject)
-			This.AddNodeXTT(pcObject, @@(pcObject), [:type = "entity"])
+			This.AddNodeXTT(pcObject, pcObject, [:type = "entity"])
 		ok
-		
+
 		This.AddEdgeXTT(pcSubject, pcObject, pcPredicate, [:type = "fact"])
 
 		def AddTriple(pcSubject, pcPredicate, pcObject)
@@ -65,13 +68,19 @@ class stzKnowledgeGraph from stzGraph
 	def Facts()
 		_aFacts_ = []
 		_aEdges_ = This.Edges()
-		
+
+		# Node :id is stored lowercased (stzGraph normalises for
+		# case-insensitive lookup) but :label preserves the original
+		# casing passed in by AddFact. We return labels so callers
+		# get the same strings they put in.
 		_nLen_ = len(_aEdges_)
 		for _i_ = 1 to _nLen_
 			_aEdge_ = _aEdges_[_i_]
-			_aFacts_ + [_aEdge_[:from], _aEdge_[:label], _aEdge_[:to]]
+			_cFromLabel_ = This.Node(_aEdge_[:from])[:label]
+			_cToLabel_   = This.Node(_aEdge_[:to])[:label]
+			_aFacts_ + [_cFromLabel_, _aEdge_[:label], _cToLabel_]
 		end
-		
+
 		return _aFacts_
 
 		def Triples()
