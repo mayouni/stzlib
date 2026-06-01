@@ -81,10 +81,10 @@ $aWranglingGoals = [
 ]
 
 # =============================================================================
-# stzDataRangler Class Definition
+# stzDataWrangler Class Definition
 # =============================================================================
 
-class stzDataRangler
+class stzDataWrangler
     # ATTRIBUTES
     # ==========
     @aData = []              # The dataset (list or 2D list)
@@ -104,8 +104,8 @@ class stzDataRangler
         Initialize the data rangler with your dataset
         
         Usage:
-            oRangler = new stzDataRangler(myData)           # For simple list
-            oRangler = new stzDataRangler(myTable, headers) # For 2D table
+            oRangler = new stzDataWrangler(myData)           # For simple list
+            oRangler = new stzDataWrangler(myTable, headers) # For 2D table
         """
         @aData = paData
         @aHeaders = paHeaders
@@ -1351,7 +1351,7 @@ next
 
     def GetCleanData()
         """Return data with basic cleaning applied"""
-        oTempRangler = new stzDataRangler(@aData, @aHeaders)
+        oTempRangler = new stzDataWrangler(@aData, @aHeaders)
         oTempRangler.QuickClean()
         return oTempRangler.GetData()
 
