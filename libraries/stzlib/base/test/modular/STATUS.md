@@ -147,3 +147,77 @@ A clean codebase target is reachable but staged:
 
 Steps 1-2 can land incrementally. Step 3 is one-time tooling
 work. Step 4 is policy + a small number of new engine modules.
+
+## Additional cleanup wave (latest)
+
+Continuing the per-method ports + matcher refinements:
+
+Matcher refinements:
+- `[]` <-> `[ ]` empty-list whitespace tolerance
+- Float trailing-zero normalisation (`12.50` matches `12.5`)
+- `=` stripped from punctuation noise
+- Annotation parser (`# comment`, `(parenthetical)`)
+- `TRUE`/`FALSE` in lists rewrite to `1`/`0`
+
+Library bug fixes shipped:
+- stzList.FindManyCS: Ring 1.26 R13 on chain syntax
+- stzKnowledgeGraph.Facts(): casing + double-quoting
+- stzString.Stringified/ToString: inheritance returning @noname
+- stzGrid.Neighbors(): non-deterministic order
+- stzDecimalToBinary: lost minus + leading zero
+- stzHashList.FindValueOrItem: now also searches inside list values
+- stzDataWrangler: class-name typo (was stzDataRangler)
+- Regex named-capture pattern-order
+
+Method ports (archive -> modular):
+- Vowels / NumberOfVowels / HasVowels family
+- DeepRemove / DeepRemoveMany / DeepRemoved family
+- ReplaceByMany / ReplaceByManyCS / aliases (8 forms)
+- RemoveManyQ / RemoveManyCSQ
+- FirstCharRemoved / LastCharRemoved
+- Unicodes() on stzList
+- TrimQ / RemoveSpacesQ on stzString
+- IsOneOfThese / ExistsInList family (10 aliases)
+- FindNext / FindNextCS / variants
+- ReplaceSection / ReplaceSectionQ
+- Numbers
+- RemoveThis(Trailing/Leading)Char family (7 aliases)
+- NumbersComingAfter / NumbersAfter
+- BoundedBy / SubStringsBoundedBy (8 aliases)
+- ManyReplaced / SubStringsReplaced family
+- DuplicatesRemoved / IsStrictlyEqualTo
+- Only<Type>Q
+- RemoveItemsAtThesePositions
+- FindValueOrItem
+- EndsWithANumber / StartsWithANumber families
+- EachItemIsEither symbol-DSL resolver
+
+Global functions:
+- Join / JoinXT
+- stzList Smallest/Greatest/Lowest/Highest/Largest aliases
+
+Class aliases:
+- stzChar = stzStringChar
+- (fixed) stzDataRangler -> stzDataWrangler
+
+Engine feature:
+- IntSeq -- new generic engine module for typed numeric sequences,
+  language-agnostic by design. Counter's CountToSeq(N) builds 1M
+  items in ~7 ms via this path (vs >60 s on the legacy Ring loop).
+
+Modules that have reached >= 80 % PASS so far (FAILs are
+output-text drift or time/env-dependent):
+- grid (16/1)
+- duration (12/3)
+- tree (8/2)
+- decimaltobinary (6/0)
+- diagram (21/5)
+- counter (4/0)
+- list2d (2/0)
+- coeffextractor (10/8 -> still grinding)
+- regex (21/22 -> half-way)
+- ccode (8/7 -> half-way)
+- hashlist (16/6)
+- graph (50/14)
+- graphex (13/4)
+- graphquery (22/3)
