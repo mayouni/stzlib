@@ -182,6 +182,37 @@ func FastProUpdate(paList, paCommand)
 
 			ok
 
+		# Case: FastProUpdate(aMatrix, :Set = [ :Rows = [ 1, 2 ], :With = 5 ]) or
+		#       FastProUpdate(aMatrix, :Set = [ :Cols = [ 1, 2 ], :With = 5 ])
+		# Explicit list of row / column indices (not a range).
+
+		but isList(paCommand[2]) and len(paCommand[2]) = 2 and
+
+		   isList(paCommand[2][1]) and len(paCommand[2][1]) = 2 and
+		   isString(paCommand[2][1][1]) and
+		   (paCommand[2][1][1] = :Rows or paCommand[2][1][1] = :Cols) and
+		   isList(paCommand[2][1][2]) and
+
+		   isList(paCommand[2][2]) and len(paCommand[2][2]) = 2 and
+		   isString(paCommand[2][2][1]) and paCommand[2][2][1] = :With and
+		   isNumber(paCommand[2][2][2])
+
+			anIndices = paCommand[2][1][2]
+			nValue = paCommand[2][2][2]
+			nLen = ring_len(anIndices)
+
+			if paCommand[2][1][1] = :Rows
+				for _i_ = 1 to nLen
+					updateList(paList, :set, :row, anIndices[_i_], nValue)
+				next
+			else
+				for _i_ = 1 to nLen
+					updateList(paList, :set, :col, anIndices[_i_], nValue)
+				next
+			ok
+
+			return paList
+
 		else
 			stzraise("Syntax error! The command must look like this:" + NL +
 				 ":Set = [ :Rows = [ 1, 3], :With = 5 ] or :Set = [ :Cols = [ 1, 3 ], :With = 5 ]")
