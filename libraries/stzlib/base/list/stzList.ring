@@ -4171,6 +4171,43 @@ class stzList from stzObject
 	#   simpler implementation here -- pure structural walk, no
 	#   @@()-stringification round-trip.
 
+	# DeepContains / DeepContainsCS: does the (nested) list contain
+	# pItem at any depth? Recursive walk. Complements DeepRemove.
+
+	def DeepContainsCS(pItem, pCaseSensitive)
+		return This._DeepContainsCS(@aContent, pItem, pCaseSensitive)
+
+	def DeepContains(pItem)
+		return This.DeepContainsCS(pItem, 1)
+
+		def DeeplyContains(pItem)
+			return This.DeepContains(pItem)
+
+	def _DeepContainsCS(paList, pItem, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		for _xItem_ in paList
+			if isList(_xItem_)
+				if This._DeepContainsCS(_xItem_, pItem, pCaseSensitive)
+					return 1
+				ok
+			else
+				if _bCase_
+					if _xItem_ = pItem
+						return 1
+					ok
+				else
+					if isString(_xItem_) and isString(pItem)
+						if lower(_xItem_) = lower(pItem)
+							return 1
+						ok
+					but _xItem_ = pItem
+						return 1
+					ok
+				ok
+			ok
+		next
+		return 0
+
 	def DeepRemove(pItem)
 		@aContent = This._DeepFilterCS(@aContent, [pItem], 1)
 		
