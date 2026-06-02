@@ -2191,7 +2191,7 @@ class stzObject
 	def Values()
 		aResult = []
 		acAttributes = This.Attributes()
-		nLen = len(acAttributes)
+		nLen = ring_len(acAttributes)
 
 		for i = 1 to nLen 
 			cCode = "aResult + This." + acAttributes[i]
@@ -5811,7 +5811,7 @@ class stzObject
 	def SizeInBytes()
 		aValues = []
 		acAttributes = ring_attributes(This)
-		nLen = len(acAttributes)
+		nLen = ring_len(acAttributes)
 
 		for i = 1 to nLen
 			cCode = 'value = This.' + acAttributes[i]
@@ -5853,7 +5853,7 @@ class stzObject
 	def SizeInBytes32()
 		aValues = []
 		acAttributes = ring_attributes(This)
-		nLen = len(acAttributes)
+		nLen = ring_len(acAttributes)
 
 		for i = 1 to nLen
 			cCode = 'value = This.' + acAttributes[i]
@@ -5887,7 +5887,7 @@ class stzObject
 	def SizeInBytes64()
 		aValues = []
 		acAttributes = ring_attributes(This)
-		nLen = len(acAttributes)
+		nLen = ring_len(acAttributes)
 
 		for i = 1 to nLen
 			cCode = 'value = This.' + acAttributes[i]
@@ -6015,7 +6015,7 @@ class stzObject
 	def ContentSize()
 		aValues = []
 		acAttributes = ring_attributes(This)
-		nLen = len(acAttributes)
+		nLen = ring_len(acAttributes)
 
 		for i = 1 to nLen
 			cCode = 'value = This.' + acAttributes[i]
