@@ -885,6 +885,24 @@ class stzList from stzObject
 		_oRplMxt_.ReplaceManyByManyXT(paItems, paNewItems)
 		@aContent = _oRplMxt_.Content()
 
+	# Positional replace: swap whatever lives at position n with pNewItem.
+	# Mirrors AddItemAt / InsertAt / RemoveAt naming.
+
+	def ReplaceAt(n, pNewItem)
+		if n >= 1 and n <= ring_len(@aContent)
+			@aContent[n] = pNewItem
+		ok
+
+		def ReplaceAtQ(n, pNewItem)
+			This.ReplaceAt(n, pNewItem)
+			return This
+
+		def UpdateAt(n, pNewItem)
+			This.ReplaceAt(n, pNewItem)
+
+		def SetItemAt(n, pNewItem)
+			This.ReplaceAt(n, pNewItem)
+
 	  #=============================================#
 	 #  STRINGIFY DELEGATION (via stzListStringify) #
 	#=============================================#
