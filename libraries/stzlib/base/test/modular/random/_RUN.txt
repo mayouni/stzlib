@@ -1,0 +1,120 @@
+[ FAIL ] 01_pr.ring:
+         #1 ? @@(anPlayerHand) -> expected '#--> [ 48, 20, 6, 51, 35 ]' not found past cursor 0
+[ FAIL ] 02_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ "D", 4, "A", 3, "C", 2, 1, "B" ]' not found past cursor 0
+         #2 ? @@( o1.Content() ) -> expected '[ 4, 1, 2, 3, "A", "B", "C", "D" ]' not found past cursor 0
+         #3 ? @@( o1.Content() ) -> expected '[ 1, 2, 3, 4, "D", "A", "C", "B" ]' not found past cursor 0
+[ FAIL ] 03_pr.ring:
+         #1 ? cPassword -> expected '@3Ond72H' not found past cursor 0
+[ FAIL ] 04_pr.ring:
+         #1 ? random01() # Or ARandomNumberBetween(0, 1) -> expected '0.61' not found past cursor 0
+         #2 ? ARandomNumberBetween(-3.5, 2.8) -> expected '-2.45' not found past cursor 0
+         #3 ? ARandomNumberLessThan(0.7) -> expected '0.557' not found past cursor 0
+[ FAIL ] 05_pr.ring:
+         #1 ? ShowShort( anUserIds ) -> expected '[ 7587, 7590, 7593, "...", 10843, 10846, 10849 ]' not found past cursor 0
+[ FAIL ] 06_pr.ring:
+         #1 ? SomeXT(NumbersIn(-5:5), 20/100) -> expected '[ -5, 0, 4 ]' not found past cursor 0
+         #2 ? MostXT(PositiveNumbersIn(-5:5), 90/100) -> expected '[ 3, 4, 5, 1 ]' not found past cursor 0
+[ FAIL ] 07_pr.ring:
+         #2 ? @@(acCommonItems) -> expected '[ "sword", "gem", "gold", "scroll" ]' not found past cursor 0
+[ FAIL ] 08_pr.ring:
+         #1 ? Some(aNumbers) -> expected '[ 12, 10, 7 ]' not found past cursor 0
+         #2 ? Some(aNumbers) -> expected '[ 10, 25, 7, 9 ]' not found past cursor 0
+[ FAIL ] 09_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ 1, "A", 4, 3, "D", "C", "B", 2 ]' not found past cursor 0
+[ FAIL ] 10_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ "A", "B", 30, 50, 40, 60, "A", "B", "C" ]' not found past cursor 0
+         #2 ? o1.Content() -> expected '[ 1, 2, 3, 4, "B", "C", "D", "A" ]' not found past cursor 0
+         #3 ? @@( o1.Content() ) -> expected '[ 1, 4, 2, 3, "A", "B", "C", "D" ]' not found past cursor 0
+[ FAIL ] 11_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ 1, 2, 3, 4, "A", "C", "D", "B" ]' not found past cursor 0
+[ FAIL ] 12_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ 1, 2, 4, 3, "A", "B", "C", 10, 8, 9, "D" ]' not found past cursor 0
+[ FAIL ] 13_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ 1, 2, "C", "A", "B", 6, 7, "D", "F", "G", "E" ]' not found past cursor 0
+[ FAIL ] 14_pr.ring:
+         #1 ? @@( o1.Content() ) -> expected '[ "A", "B", [ 1, 2, 3 ], [ 6, 7, 8 ], [ 4, 5 ], "C", [11, 12' not found past cursor 0
+[ FAIL ] 15_pr.ring:
+         #1 ? @@( ARandomSection() ) + NL # Or ASection() or ASubString  -> expected '"234"' not found past cursor 0
+         #2 ? @@( ARandomSectionZ() ) + NL -> expected '[ "678", [ 6, 8 ] ]' not found past cursor 0
+         #3 ? @@( SomeRandomSections() ) + NL -> expected '[ "345678", "4567" ]' not found past cursor 0
+         #4 ? @@( SomeRandomSectionsZ() ) + NL -> expected '[ [ "3456", 3 ], [ "45", 4 ] ]' not found past cursor 0
+         #5 ? @@( SomeRandomSectionsZZ() ) -> expected '[ [ "23456", [ 2, 6 ] ], [ "12", [ 1, 2 ] ], [ "78", [ 7, 8 ' not found past cursor 0
+[ FAIL ] 16_pr.ring:
+         #1 ? @@( ARandomSection() ) + NL -> expected '[ "7", "8" ]' not found past cursor 0
+         #2 ? @@( ARandomSectionZ() ) + NL -> expected '[ [ "3", "4", "5", "6", "7", "8" ], 3 ]' not found past cursor 0
+         #3 ? @@( ARandomSectionZZ() ) + NL -> expected '[ [ "1", "2", "3", "4", "5", "6" ], [ 1, 6 ] ]' not found past cursor 0
+         #4 ? @@( SomeRandomSections() ) + NL -> expected '[ [ "1", "2", "3", "4", "5", "6" ], [ "5", "6", "7", "8", "9' not found past cursor 0
+         #5 ? @@( SomeRandomSectionsZ() ) + NL -> expected '[ [ [ "5", "6", "7", "8" ], 5 ], [ [ "1", "2", "3", "4", "5"' not found past cursor 0
+         ... +4 more
+[ FAIL ] 17_pr.ring:
+         #1 ? NRandomItems(3) -> expected '[ "A", "S", "Z" ]' not found past cursor 0
+         #2 ? @@( NRandomItemsZ(3) ) -> expected '[ [ "S", 1 ], [ "A", 8 ], [ "N", 6 ] ]' not found past cursor 0
+[ FAIL ] 18_pr.ring:
+         #2 ? ARandomChar() -> expected 'T' not found past cursor 84
+         #3 ? ARandomPositionGreaterThan(4) -> expected '8' not found past cursor 84
+         #4 ? ARandomCharAfterPosition(4) -> expected 'A' not found past cursor 84
+         #5 ? ARandomPositionExcept(5) -> expected '1' not found past cursor 84
+         #6 ? ARandomCharExcept("A") -> expected 'S' not found past cursor 84
+         ... +3 more
+[ FAIL ] 19_pr.ring:
+         #2 ? ARandomItem() -> expected 'S' not found past cursor 19
+         #3 ? ARandomPositionGreaterThan(4) -> expected '5' not found past cursor 19
+         #6 ? ARandomItemExcept("A") -> expected 'Z' not found past cursor 81
+         #7 ? ARandomPositionLessThan(4) -> expected '3' not found past cursor 81
+         #8 ? ARandomItemBeforePosition(4) -> expected 'O' not found past cursor 81
+         ... +2 more
+[ FAIL ] 20_pr.ring:
+         #1 ? Some( NumbersIn( -5 : 5 ) ) -> expected '[ -1, -4, -5, 3 ]' not found past cursor 0
+         #2 ? Few( NumbersIn( -5 : 5 ) ) -> expected '[ 0, -4 ]' not found past cursor 0
+         #3 ? All( EvenNumbersIn( -5 : 5 ) ) -> expected '[ -4, -2, 0, 2, 4 ]' not found past cursor 0
+         #4 ? Half( OddNumbersIn( -5 : 5 ) ) -> expected '[ -5, 1, 3 ]' not found past cursor 0
+         #5 ? Most( PositiveNumbersIn( -5 : 5 ) ) -> expected '[ 1, 2, 4, 5 ]' not found past cursor 0
+[ PASS ] 21_pr.ring: 2 assertions matched
+[ PASS ] 22_pr.ring: 2 assertions matched
+[ PASS ] 23_pr.ring: 6 assertions matched
+[ PASS ] 24_pr.ring: 4 assertions matched
+[ FAIL ] 25_pr.ring:
+         #1 ? SomeXT( NumbersIn( -5 : 5 ), 20/100 ) -> expected '[ -5, 0, 4 ]' not found past cursor 0
+         #3 ? MostXT( PositiveNumbersIn( -5 : 5 ), 90/100 ) -> expected '[ 3, 4, 5, 1 ]' not found past cursor 0
+[ PASS ] 26_pr.ring: 1 assertions matched
+[ FAIL ] 27_pr.ring:
+         #2 ? NRandomItemsIn(3, "A":"E") -> expected '[ "B", "B", "E" ]' not found past cursor 13
+         #3 ? NRandomItemsInU(3, "A":"E") -> expected '[ "B", "E", "A" ]' not found past cursor 13
+[ FAIL ] 28_pr.ring:
+         #1 ? NRandomNumbersIn(3, 1:10) -> expected '[ 1, 1, 1 ]' not found past cursor 0
+         #2 ? NRandomNumbersInU(3, 1:10) -> expected '[ 5, 1, 10 ]' not found past cursor 0
+[ FAIL ] 29_pr.ring:
+         #1 ? 9_999_999_999 + 1 -> expected '10_000_000_000' not found past cursor 0
+         #2 ? 9_999_999_999 * 2 -> expected '19_999_999_998' not found past cursor 0
+[ FAIL ] 30_----_in_this_narration_i_will_show_how_sofanza_com.ring:
+         #1 ? @@( random(9_999_999_999) ) -> expected '""' not found past cursor 0
+         #2 ? RingMaxRandom() -> expected '999_999_999' not found past cursor 0
+         #3 ? MaxRingSeed() -> expected '1_999_999_999' not found past cursor 0
+         #4 ? ARandomNumber() -> expected '133_322_384' not found past cursor 0
+         #5 ? ARandomNumberXT(77) -> expected '32_438_4546' not found past cursor 0
+[ FAIL ] 31_pr.ring:
+         #3 ? @@( ARandomNumberInZ(1:10) ) + NL -> expected '[ 2, 2 ]' not found past cursor 70
+         #4 ? RandomNumberBetween(100, 150) + NL -> expected '149' not found past cursor 70
+         #5 ? @@( NRandomNumbersBetween(3, 100, 110) ) + NL -> expected '[ 101, 101, 101 ]' not found past cursor 70
+         #6 ? @@( NRandomNumbersBetweenU(3, 100, 110) ) + NL -> expected '[ 102, 109, 105 ]' not found past cursor 70
+         #7 ? @@( NRandomNumbersBetweenZ(3, 100, 110) ) + NL -> expected '[ [ 105, 6 ], [ 108, 9 ], [ 105, 6 ] ]' not found past cursor 70
+         ... +1 more
+[ FAIL ] 33_pr.ring:
+         #1 ? random(-10) # Standard Ring function returning NULL -> expected '""' not found past cursor 0
+         #3 ? SomeRandomNumbersBetween(-10, -1) -> expected '[ -10, -10, -4 ]' not found past cursor 2
+         #4 ? SomeRandomNumbersBetweenU(-10, -1) -> expected '[ -10, -7, -3 ]' not found past cursor 2
+[ FAIL ] 34_pr.ring:
+         #3 ? NRandomNumbersIn(5, 0:3) -> expected '[ 0, 3, 1, 1, 0 ]' not found past cursor 3
+[ FAIL ] 35_block_35.ring:
+         #1 ? random01() # Or StzRandom01() -> expected '0.31' not found past cursor 0
+         #2 ? ARandomNumberLessThan01(0.7) -> expected '0.52' not found past cursor 0
+         #4 ? random01() # Or StzRandom01() -> expected '0.949' not found past cursor 4
+         #5 ? ARandomNumberLessThan01(0.7) -> expected '0.557' not found past cursor 4
+         #7 ? random01() # Or StzRandom01() -> expected '0.91723' not found past cursor 25
+         ... +1 more
+[ FAIL ] 36_pr.ring:
+         #1 ? ARandomNumberBetween(1, 2) -> expected '1.34' not found past cursor 0
+         #2 ? ARandomNumberBetween(-3, -2) -> expected '-2.45' not found past cursor 0
+---
+PASS: 5 / FAIL: 30

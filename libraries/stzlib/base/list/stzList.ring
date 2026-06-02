@@ -1257,6 +1257,58 @@ class stzList from stzObject
 	 #  FLATTEN (engine-backed)             #
 	#--------------------------------------#
 
+	#-- FindSubList / ContainsSubList: locate contiguous occurrences
+	#   of a sub-list. Self-contained walk -- avoids the archive's
+	#   FindManyCSQ + AreContiguous chain.
+
+	def FindSubListCS(paSubList, pCaseSensitive)
+		if NOT (isList(paSubList) and len(paSubList) >= 1)
+			return []
+		ok
+		_nFsbLen_ = len(paSubList)
+		_nFsbN_ = len(@aContent)
+		_anFsbR_ = []
+		_bFsbCase_ = @CaseSensitive(pCaseSensitive)
+		_iFsb_ = 1
+		while _iFsb_ <= _nFsbN_ - _nFsbLen_ + 1
+			_bFsbMatch_ = 1
+			for _kFsb_ = 1 to _nFsbLen_
+				_xA_ = @aContent[_iFsb_ + _kFsb_ - 1]
+				_xB_ = paSubList[_kFsb_]
+				if NOT _bFsbCase_ and isString(_xA_) and isString(_xB_)
+					if lower(_xA_) != lower(_xB_)
+						_bFsbMatch_ = 0
+						exit
+					ok
+				but _xA_ != _xB_
+					_bFsbMatch_ = 0
+					exit
+				ok
+			next
+			if _bFsbMatch_
+				_anFsbR_ + _iFsb_
+				_iFsb_ += _nFsbLen_
+			else
+				_iFsb_++
+			ok
+		end
+		return _anFsbR_
+
+	def FindSubList(paSubList)
+		return This.FindSubListCS(paSubList, 1)
+
+		def FindTheseContiguousItems(paSubList)
+			return This.FindSubList(paSubList)
+
+		def FindTheseAdjacentItems(paSubList)
+			return This.FindSubList(paSubList)
+
+	def ContainsSubListCS(paSubList, pCaseSensitive)
+		return len(This.FindSubListCS(paSubList, pCaseSensitive)) > 0
+
+	def ContainsSubList(paSubList)
+		return This.ContainsSubListCS(paSubList, 1)
+
 	#-- Merge: flatten ONE level only. For each item: if it's a list,
 	#   spread its items; otherwise keep as-is. Distinct from
 	#   Flatten() which fully recurses. Port from archive line 37074;
@@ -3620,6 +3672,39 @@ class stzList from stzObject
 	def RandomPosition()
 		_oRpRnd_ = new stzListRandom(This)
 		return _oRpRnd_.RandomPosition()
+
+		def ARandomPosition()
+			return This.RandomPosition()
+
+		def APosition()
+			return This.RandomPosition()
+
+		def AnyPosition()
+			return This.RandomPosition()
+
+	def RandomSection()
+		# Return a random [start, end] pair within 1..N.
+		_nRsN_ = len(@aContent)
+		if _nRsN_ = 0
+			return [ 0, 0 ]
+		ok
+		_nRsA_ = ARandomNumberBetween(1, _nRsN_)
+		_nRsB_ = ARandomNumberBetween(1, _nRsN_)
+		if _nRsA_ > _nRsB_
+			_nRsT_ = _nRsA_
+			_nRsA_ = _nRsB_
+			_nRsB_ = _nRsT_
+		ok
+		return [ _nRsA_, _nRsB_ ]
+
+		def ARandomSection()
+			return This.RandomSection()
+
+		def ASection()
+			return This.RandomSection()
+
+		def AnySection()
+			return This.RandomSection()
 
 	def RandomPositionGreaterThan(n)
 		_oRpgtRnd_ = new stzListRandom(This)
