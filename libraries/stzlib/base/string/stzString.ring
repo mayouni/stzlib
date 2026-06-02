@@ -583,6 +583,74 @@ class stzString from stzObject
 		end
 		return _acVoR_
 
+	# Return a random char from the string content. Uniform random
+	# choice across char positions.
+
+	def RandomChar()
+		_acRcChars_ = This.Chars()
+		_nRcN_ = len(_acRcChars_)
+		if _nRcN_ = 0
+			return ""
+		ok
+		return _acRcChars_[ ARandomNumberBetween(1, _nRcN_) ]
+
+		def ARandomChar()
+			return This.RandomChar()
+
+		def AChar()
+			return This.RandomChar()
+
+		def AnyChar()
+			return This.RandomChar()
+
+	# FindNumbersAsSections: for each number found in the content,
+	# return a [start, end] pair (1-based byte positions). Used by
+	# stzListRandom.RandomizeNumbers and friends.
+
+	def FindNumbersAsSections()
+		_cFnasStr_ = This.Content()
+		_nFnasLen_ = len(_cFnasStr_)
+		_aFnasResult_ = []
+		_acDigits_ = [ "0","1","2","3","4","5","6","7","8","9" ]
+		_iFnas_ = 1
+		while _iFnas_ <= _nFnasLen_
+			_cFnasCh_ = substr(_cFnasStr_, _iFnas_, 1)
+			# Possible sign
+			_nFnasStart_ = _iFnas_
+			_bFnasSign_ = 0
+			if _cFnasCh_ = "+" or _cFnasCh_ = "-"
+				if _iFnas_ + 1 <= _nFnasLen_ and ring_find(_acDigits_, substr(_cFnasStr_, _iFnas_+1, 1)) > 0
+					_bFnasSign_ = 1
+					_iFnas_++
+					_cFnasCh_ = substr(_cFnasStr_, _iFnas_, 1)
+				ok
+			ok
+			if ring_find(_acDigits_, _cFnasCh_) > 0
+				_jFnas_ = _iFnas_
+				while _jFnas_ <= _nFnasLen_ and ring_find(_acDigits_, substr(_cFnasStr_, _jFnas_, 1)) > 0
+					_jFnas_++
+				end
+				if _jFnas_ <= _nFnasLen_ and substr(_cFnasStr_, _jFnas_, 1) = "."
+					_jFnas_++
+					while _jFnas_ <= _nFnasLen_ and ring_find(_acDigits_, substr(_cFnasStr_, _jFnas_, 1)) > 0
+						_jFnas_++
+					end
+				ok
+				_aFnasResult_ + [ _nFnasStart_, _jFnas_ - 1 ]
+				_iFnas_ = _jFnas_
+			else
+				if _bFnasSign_
+					_iFnas_ = _nFnasStart_ + 1
+				else
+					_iFnas_++
+				ok
+			ok
+		end
+		return _aFnasResult_
+
+		def FindNumbersZZ()
+			return This.FindNumbersAsSections()
+
 	def NumberOfVowels()
 		return len(This.Vowels())
 
