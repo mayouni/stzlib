@@ -93,16 +93,31 @@ func _DateFormatString(nYear, nMonth, nDay, cFormat)
     cMonthName = StzEngineDateMonthName(pHandle)
     StzEngineDateFree(pHandle)
 
+    # Replace tokens by descending length into ASCII-safe placeholders
+    # (\x01..\x07) so a freshly-substituted name like "Wednesday" (which
+    # contains "d") doesn't get clobbered by the single-letter "d" pass.
+
     cResult = cFormat
-    cResult = StzReplace(cResult, "dddd", cDayName)
-    cResult = StzReplace(cResult, "ddd", StzLeft(cDayName, 3))
-    cResult = StzReplace(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
-    cResult = StzReplace(cResult, "MMMM", cMonthName)
-    cResult = StzReplace(cResult, "MMM", StzLeft(cMonthName, 3))
-    cResult = StzReplace(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
+    cResult = StzReplace(cResult, "dddd", char(1))
+    cResult = StzReplace(cResult, "ddd",  char(2))
+    cResult = StzReplace(cResult, "dd",   char(3))
+    cResult = StzReplace(cResult, "d",    char(4))
+    cResult = StzReplace(cResult, "MMMM", char(5))
+    cResult = StzReplace(cResult, "MMM",  char(6))
+    cResult = StzReplace(cResult, "MM",   char(7))
+    cResult = StzReplace(cResult, "M",    char(8))
     cResult = StzReplace(cResult, "yyyy", "" + nYear)
     nYY = nYear % 100
-    cResult = StzReplace(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
+    cResult = StzReplace(cResult, "yy",   _PadLeft("" + nYY, 2, "0"))
+
+    cResult = StzReplace(cResult, char(1), cDayName)
+    cResult = StzReplace(cResult, char(2), StzLeft(cDayName, 3))
+    cResult = StzReplace(cResult, char(3), _PadLeft("" + nDay, 2, "0"))
+    cResult = StzReplace(cResult, char(4), "" + nDay)
+    cResult = StzReplace(cResult, char(5), cMonthName)
+    cResult = StzReplace(cResult, char(6), StzLeft(cMonthName, 3))
+    cResult = StzReplace(cResult, char(7), _PadLeft("" + nMonth, 2, "0"))
+    cResult = StzReplace(cResult, char(8), "" + nMonth)
     return cResult
 
 func _PadLeft(cStr, nWidth, cPadChar)
