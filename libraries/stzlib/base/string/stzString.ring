@@ -233,7 +233,7 @@ class stzString from stzObject
 			StzRaise("ReplaceSection: pcNewSubStr must be a string")
 		ok
 		_cStr_ = This.Content()
-		_nLen_ = len(_cStr_)
+		_nLen_ = ring_len(_cStr_)
 		if n1 < 1
 			n1 = 1
 		ok
@@ -262,7 +262,7 @@ class stzString from stzObject
 	def Sections(aSections)
 		acResult = []
 		nCharCount = This.NumberOfChars()
-		nLen = len(aSections)
+		nLen = ring_len(aSections)
 		for i = 1 to nLen
 			n1 = aSections[i][1]
 			n2 = aSections[i][2]
@@ -549,7 +549,7 @@ class stzString from stzObject
 	# objects (each backed by stzStringChar via the alias).
 	def ToListOfStzChars()
 		_acTosChars_ = This.Chars()
-		_nTosLen_ = len(_acTosChars_)
+		_nTosLen_ = ring_len(_acTosChars_)
 		_aTosR_ = []
 		for _iTos_ = 1 to _nTosLen_
 			_aTosR_ + new stzChar(_acTosChars_[_iTos_])
@@ -674,7 +674,7 @@ class stzString from stzObject
 	# with `+` corners, `-` horizontals, `|` verticals.
 	def Boxify()
 		_cStr_ = This.Content()
-		_nLen_ = len(_cStr_)
+		_nLen_ = ring_len(_cStr_)
 		_cHbar_ = "+"
 		for _iB_ = 1 to _nLen_ + 2
 			_cHbar_ += "-"
@@ -841,7 +841,7 @@ class stzString from stzObject
 
 	def RandomChar()
 		_acRcChars_ = This.Chars()
-		_nRcN_ = len(_acRcChars_)
+		_nRcN_ = ring_len(_acRcChars_)
 		if _nRcN_ = 0
 			return ""
 		ok
@@ -862,7 +862,7 @@ class stzString from stzObject
 
 	def FindNumbersAsSections()
 		_cFnasStr_ = This.Content()
-		_nFnasLen_ = len(_cFnasStr_)
+		_nFnasLen_ = ring_len(_cFnasStr_)
 		_aFnasResult_ = []
 		_acDigits_ = [ "0","1","2","3","4","5","6","7","8","9" ]
 		_iFnas_ = 1
@@ -1644,7 +1644,7 @@ class stzString from stzObject
 
 	def ReplaceSections(aSections, pcNewSubStr)
 		# Replace sections from end to start to preserve positions
-		nLen = len(aSections)
+		nLen = ring_len(aSections)
 		for i = 1 to nLen - 1
 			for j = 1 to nLen - i
 				if aSections[j][1] < aSections[j+1][1]
@@ -1774,7 +1774,7 @@ class stzString from stzObject
 		_bBxRounded_ = 0
 
 		if isList(paBoxOptions)
-			_nBxLen_ = len(paBoxOptions)
+			_nBxLen_ = ring_len(paBoxOptions)
 			for _iBx_ = 1 to _nBxLen_
 				if isList(paBoxOptions[_iBx_]) and len(paBoxOptions[_iBx_]) = 2
 					_cBxKey_ = paBoxOptions[_iBx_][1]
@@ -1891,7 +1891,7 @@ class stzString from stzObject
 	def Unicodes()
 		_aUcChars_ = This.Chars()
 		_aUcResult_ = []
-		_nUcLen_ = len(_aUcChars_)
+		_nUcLen_ = ring_len(_aUcChars_)
 		for _iUc_ = 1 to _nUcLen_
 			_aUcResult_ + StzCharToUnicode(_aUcChars_[_iUc_])
 		next
@@ -1900,7 +1900,7 @@ class stzString from stzObject
 	def CharsAndUnicodes()
 		_aCauChars_ = This.Chars()
 		_aCauResult_ = []
-		_nCauLen_ = len(_aCauChars_)
+		_nCauLen_ = ring_len(_aCauChars_)
 		for _iCau_ = 1 to _nCauLen_
 			_aCauResult_ + [ _aCauChars_[_iCau_], StzCharToUnicode(_aCauChars_[_iCau_]) ]
 		next
@@ -1912,7 +1912,7 @@ class stzString from stzObject
 	def CharsAndUnicodesU()
 		_aCauuChars_ = This.CharsU()
 		_aCauuResult_ = []
-		_nCauuLen_ = len(_aCauuChars_)
+		_nCauuLen_ = ring_len(_aCauuChars_)
 		for _iCauu_ = 1 to _nCauuLen_
 			_aCauuResult_ + [ _aCauuChars_[_iCauu_], StzCharToUnicode(_aCauuChars_[_iCauu_]) ]
 		next
@@ -2362,8 +2362,8 @@ class stzString from stzObject
 			ok
 		ok
 
-		_nRmbmLen_ = len(paSubStr)
-		_nRmbmNewLen_ = len(paNewSubStr)
+		_nRmbmLen_ = ring_len(paSubStr)
+		_nRmbmNewLen_ = ring_len(paNewSubStr)
 
 		if _nRmbmLen_ = 0 or _nRmbmNewLen_ = 0
 			return
@@ -2389,8 +2389,8 @@ class stzString from stzObject
 			ok
 		ok
 
-		_nRmbmxtLen_ = len(paSubStr)
-		_nRmbmxtNewLen_ = len(paNewSubStr)
+		_nRmbmxtLen_ = ring_len(paSubStr)
+		_nRmbmxtNewLen_ = ring_len(paNewSubStr)
 
 		if _nRmbmxtLen_ = 0 or _nRmbmxtNewLen_ = 0
 			return
@@ -3657,7 +3657,7 @@ class stzString from stzObject
 			return
 		ok
 		_cStr_ = This.Content()
-		_nLen_ = len(_cStr_)
+		_nLen_ = ring_len(_cStr_)
 		while _nLen_ > 0 and right(_cStr_, 1) = c
 			_cStr_ = left(_cStr_, _nLen_ - 1)
 			_nLen_--
