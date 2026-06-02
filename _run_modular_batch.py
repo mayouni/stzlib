@@ -73,7 +73,7 @@ def normalise(s):
 #     space + letter + word(s) is treated as narrator prose, not
 #     part of the literal value.
 _INLINE_HASH_RE = re.compile(r'\s+#\s.*$')
-_TRAILING_PAREN_RE = re.compile(r'\s+\([^)]*\)\s*$')
+_TRAILING_PAREN_RE = re.compile(r'\s+\(.*\)\s*$')
 _TRAILING_PROSE_RE = re.compile(r'([\]\}\)"\'])\s+[A-Za-z]\w+(\s+\w+){1,}.*$')
 # Same idea but allows the prose to be introduced by ` - ` or ` -- `
 # (a hyphen separator the narrator commonly uses).
