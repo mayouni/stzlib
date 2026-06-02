@@ -17,8 +17,7 @@
 [ skip ] 14_testing_goal-based_plan_execution.ring: no #--> markers
 [ PASS ] 15_testing_export_to_different_softanza_classes.ring: 1 assertions matched
 [ PASS ] 16_testing_quick_operation_methods.ring: 1 assertions matched
-[ FAIL ] 17_testing_chainable_operations.ring:
-         #1 ? @@(o1.GetData()) -> expected 'See why the data is not altered' not found past cursor 0
+[ PASS ] 17_testing_chainable_operations.ring: 1 assertions matched
 [ skip ] 18_testing_comprehensive_reporting.ring: no #--> markers
 [ skip ] 19_testing_after_applying_transformations.ring: no #--> markers
 [ PASS ] 20_testing_with_empty_dataset.ring: 1 assertions matched
@@ -29,4 +28,4 @@
 [ PASS ] 25_sales_data_preparation_for_analysis.ring: 1 assertions matched
 [ PASS ] 26_survey_response_data_standardization.ring: 1 assertions matched
 ---
-PASS: 12 / FAIL: 2 / skip: 12
+PASS: 13 / FAIL: 1 / skip: 12

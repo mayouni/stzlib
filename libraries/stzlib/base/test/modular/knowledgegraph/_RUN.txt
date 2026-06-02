@@ -12,7 +12,7 @@
 [ FAIL ] 08_finding_all_relations_of_entity.ring:
          #1 ? @@NL( Relations("Node1") ) -> expected '[ [:ConnectsTo, "Node2"], [:HasProperty, "Active"], [:PartOf' not found past cursor 0
 [ FAIL ] 09_finding_similar_entities.ring:
-         #1 ? @@NL( SimilarTo("Dogs") ) -> expected '[ ["Cats", 3], ["Birds", 2] ] Cats shares 3 predicates, Bird' not found past cursor 0
+         #1 ? @@NL( SimilarTo("Dogs") ) -> expected '[ ["Cats", 3], ["Birds", 2] ]' not found past cursor 0
 [ PASS ] 10_defining_class_hierarchy.ring: 1 assertions matched
 [ skip ] 11_defining_properties_with_constraints.ring: no #--> markers
 [ FAIL ] 12_family_tree_knowledge_graph.ring:

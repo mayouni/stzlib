@@ -252,13 +252,15 @@ class stzDataWrangler
     def TrimWhitespace()
         """Remove leading and trailing whitespace from text data"""
         nCleaned = 0
-        
+
         if @cDataStructure = "list"
             for i = 1 to len(@aData)
                 if isString(@aData[i])
                     original = @aData[i]
                     @aData[i] = trim(@aData[i])
-                    if original != @aData[i] nCleaned++ ok
+                    if original != @aData[i]
+                        nCleaned++
+                    ok
                 ok
             next
         else
@@ -267,7 +269,9 @@ class stzDataWrangler
                     if isString(@aData[i][j])
                         original = @aData[i][j]
                         @aData[i][j] = trim(@aData[i][j])
-                        if original != @aData[i][j] nCleaned++ ok
+                        if original != @aData[i][j]
+                            nCleaned++
+                        ok
                     ok
                 next
             next
