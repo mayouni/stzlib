@@ -1133,6 +1133,45 @@ class stzString from stzObject
 		_cHexPart_ = StzRight(_cContent_, _nLen_ - 2)
 		return StringRepresentsNumberInHexForm("0x" + _cHexPart_)
 
+		def IsHexUnicode()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		def IsAHexUnicode()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		def IsHexUnicodeInString()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		def RepresentsAHexUnicode()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+		def RepresentsAHexUnicodeInString()
+			return This.RepresentsNumberInUnicodeHexForm()
+
+	# Dotless / DotsRemoved: return the content with dots stripped
+	# from "i" and "j" (Unicode "Latin Letter Dotless I" / "Dotless J").
+	# Lossy on purpose -- meant for the typographic effect, not for
+	# round-trippable encoding. Port from archive line 93405.
+
+	def DotsRemoved()
+		_cDrContent_ = This.Content()
+		_cDrR_ = substr(_cDrContent_, "i", char(305))     # U+0131 ı
+		_cDrR_ = substr(_cDrR_, "j", char(567))           # U+0237 ȷ
+		_cDrR_ = substr(_cDrR_, "I", char(304))           # U+0130 İ -> dotted; keep as I? actually I has no dot
+		return _cDrR_
+
+		def Dotless()
+			return This.DotsRemoved()
+
+		def WithoutDots()
+			return This.DotsRemoved()
+
+		def WithoutDotsOnLetters()
+			return This.DotsRemoved()
+
+		def DotsOnLettersRemoved()
+			return This.DotsRemoved()
+
 	  #========================================#
 	 #     DERIVED ACCESSORS                  #
 	#========================================#
