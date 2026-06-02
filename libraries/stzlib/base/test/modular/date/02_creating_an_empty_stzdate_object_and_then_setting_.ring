@@ -3,6 +3,7 @@
 # Creating an empty stzDate object and then setting the date
 #
 # Extracted from stzdatetest.ring, block #2.
+# @clock 2025-10-10 00:00:00
 
 load "../../../stzBase.ring"
 

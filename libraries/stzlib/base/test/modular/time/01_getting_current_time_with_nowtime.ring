@@ -3,6 +3,7 @@
 # Getting current time with NowTime()
 #
 # Extracted from stztimetest.ring, block #1.
+# @clock 2025-09-30 23:05:39
 
 load "../../../stzBase.ring"
 

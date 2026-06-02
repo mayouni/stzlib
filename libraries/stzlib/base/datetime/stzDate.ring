@@ -56,6 +56,12 @@ $aRelativeDateKeywords = [
     [ "start of year", "START_OF_YEAR" ]
 ]
 
+# Freezable wall-clock globals (see StzFreezeClock for full notes).
+# Must be initialised at module top-level so every later func sees them
+# as legitimate globals rather than uninitialised locals.
+$cStzFrozenDate = ""
+$cStzFrozenTime = ""
+
 func _DaysInMonth(nYear, nMonth)
     aMonthDays = [31,28,31,30,31,30,31,31,30,31,30,31]
     if nMonth = 2 and _IsLeapYear(nYear) return 29 ok
@@ -140,7 +146,7 @@ func _IsValidDate(nYear, nMonth, nDay)
     return TRUE
 
 func StzTimeStamp()
-	return Date() + " " + Time()
+	return StzSysDate() + " " + StzSysTime()
 
 	func TimeStamp()
 		return StzTimeStamp()
@@ -261,7 +267,59 @@ func StzGetMonthNameInLanguage(nMonth, cLanguage)
 	func GetMonthNameXT(nMonth, cLanguage)
 		return StzGetMonthNameInLanguage(nMonth, cLanguage)
 
+# --- Freezable wall-clock --------------------------------------------------
+# A small global lets tests and demos pin the wall clock to a known instant
+# so snapshot assertions (Today(), Now(), Date(), Time()) stay stable across
+# runs. The freeze ONLY affects code routed through the Stz wrappers below;
+# the underlying Ring date()/time() builtins are never touched.
+#
+# Format is the canonical "YYYY-MM-DD HH:MM:SS". Either half may be empty
+# (e.g. just a date) in which case the other half falls back to live system
+# time. StzUnfreezeClock() restores live behaviour.
+#
+# Tests use it via the # @clock YYYY-MM-DD HH:MM:SS pragma honoured by the
+# modular test runner.
+
+func StzFreezeClock(cTimestamp)
+	# Accept "YYYY-MM-DD HH:MM:SS", "YYYY-MM-DD", or "HH:MM:SS".
+	cTimestamp = trim(cTimestamp)
+	if cTimestamp = ""
+		StzUnfreezeClock()
+		return
+	ok
+	_acStzFcParts_ = split(cTimestamp, " ")
+	if len(_acStzFcParts_) >= 1 and len(_acStzFcParts_[1]) >= 8 and substr(_acStzFcParts_[1], 5, 1) = "-"
+		# Date half -- convert from ISO YYYY-MM-DD to Ring's DD/MM/YYYY.
+		_cStzFcY_ = substr(_acStzFcParts_[1], 1, 4)
+		_cStzFcM_ = substr(_acStzFcParts_[1], 6, 2)
+		_cStzFcD_ = substr(_acStzFcParts_[1], 9, 2)
+		$cStzFrozenDate = _cStzFcD_ + "/" + _cStzFcM_ + "/" + _cStzFcY_
+	but len(_acStzFcParts_) >= 1 and substr(_acStzFcParts_[1], 3, 1) = ":"
+		# First half is actually a time
+		$cStzFrozenTime = _acStzFcParts_[1]
+		return
+	ok
+	if len(_acStzFcParts_) >= 2
+		$cStzFrozenTime = _acStzFcParts_[2]
+	ok
+
+	func FreezeClock(cTimestamp)
+		StzFreezeClock(cTimestamp)
+
+func StzUnfreezeClock()
+	$cStzFrozenDate = ""
+	$cStzFrozenTime = ""
+
+	func UnfreezeClock()
+		StzUnfreezeClock()
+
+func StzClockIsFrozen()
+	return $cStzFrozenDate != "" or $cStzFrozenTime != ""
+
 func StzSysDate()
+	if $cStzFrozenDate != ""
+		return $cStzFrozenDate
+	ok
 	return date()
 
 	func SysDate()
@@ -273,6 +331,15 @@ func StzSysDate()
 	func DateSys()
 		return StzSysDate()
 
+func StzSysTime()
+	if $cStzFrozenTime != ""
+		return $cStzFrozenTime
+	ok
+	return time()
+
+	func SysTime()
+		return StzSysTime()
+
 func StzAddDays(cDate, n)
 	return addDays(cDate, n)
 
@@ -283,7 +350,7 @@ func StzDateQ(pDate)
     return new stzDate(pDate)
 
 func StzNow()
-	return Date() + " " + Time()
+	return StzSysDate() + " " + StzSysTime()
 
 	func Now()
 		return StzNow()

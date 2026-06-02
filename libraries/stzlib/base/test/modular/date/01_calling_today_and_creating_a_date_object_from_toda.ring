@@ -3,6 +3,7 @@
 # Calling Today() and Creating a date object from today
 #
 # Extracted from stzdatetest.ring, block #1.
+# @clock 2025-09-27 00:00:00
 
 load "../../../stzBase.ring"
 

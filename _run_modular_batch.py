@@ -51,13 +51,54 @@ def parse_expected(src):
             i += 1
     return pairs
 
+# Recognised pragmas at the top of a test file:
+#   # @clock 2025-09-27 14:30:25      -- freeze the wall clock to this
+#                                        instant for the duration of the run.
+#   # @clock 2025-09-27                -- date-only freeze (time stays live).
+#   # @clock 14:30:25                  -- time-only freeze (date stays live).
+_CLOCK_PRAGMA_RE = re.compile(r'^\s*#\s*@clock\s+(.+?)\s*$', re.M)
+
+def _extract_clock_pragma(src):
+    m = _CLOCK_PRAGMA_RE.search(src)
+    return m.group(1) if m else None
+
 def run_file(path):
-    proc = subprocess.run(
-        [RING, str(path.name)],
-        cwd=str(path.parent),
-        capture_output=True, timeout=60,
-    )
-    return proc.stdout.decode('utf-8', errors='replace')
+    src = path.read_text(encoding='utf-8', errors='replace')
+    clock = _extract_clock_pragma(src)
+    if clock is None:
+        target = path.name
+    else:
+        # Write a tiny shim that freezes the clock, then loads the
+        # real test. Lives alongside the test so its relative ../../..
+        # load paths stay valid.
+        target = '_clockshim_' + path.name
+        shim_path = path.parent / target
+        shim_path.write_text(
+            'load "' + path.name + '"\n',
+            encoding='utf-8',
+        )
+        # Inject freeze at the very top by wrapping: emit a wrapper file
+        # that freezes the clock first, then loads the real test.
+        wrapper = (
+            'load "../../../stzBase.ring"\n'
+            'StzFreezeClock("' + clock.replace('"', '\\"') + '")\n'
+            'load "' + path.name + '"\n'
+        )
+        shim_path.write_text(wrapper, encoding='utf-8')
+    try:
+        proc = subprocess.run(
+            [RING, target],
+            cwd=str(path.parent),
+            capture_output=True, timeout=60,
+        )
+        out = proc.stdout.decode('utf-8', errors='replace')
+    finally:
+        if clock is not None:
+            try:
+                (path.parent / target).unlink()
+            except OSError:
+                pass
+    return out
 
 def normalise(s):
     return re.sub(r'\s+', ' ', s).strip()
