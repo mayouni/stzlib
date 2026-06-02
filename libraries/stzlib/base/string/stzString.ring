@@ -942,14 +942,14 @@ class stzString from stzObject
 	def Numbers()
 		_acResult_ = []
 		_acChars_ = This.Chars()
-		_nLen_ = len(_acChars_)
+		_nLen_ = ring_len(_acChars_)
 		_cCurrentNum_ = ""
 		_bInNumber_ = 0
 		_nLenCurrentNum_ = 0
 		_nLenTemp_ = 0
 
 		for i = 1 to _nLen_
-			_nLenCurrentNum_ = len(_cCurrentNum_)
+			_nLenCurrentNum_ = ring_len(_cCurrentNum_)
 			if ring_find([ "0","1","2","3","4","5","6","7","8","9" ], _acChars_[i]) > 0 or
 			   (_acChars_[i] = "." and _nLenCurrentNum_ > 0) or
 			   (_acChars_[i] = "-" and _nLenCurrentNum_ = 0)
@@ -958,7 +958,7 @@ class stzString from stzObject
 				_bInNumber_ = 1
 			else
 				if _bInNumber_
-					_nLenTemp_ = len(_acResult_)
+					_nLenTemp_ = ring_len(_acResult_)
 					if _nLenTemp_ > 0 and _acResult_[_nLenTemp_] = "-"
 						_acResult_[_nLenTemp_] = "-" + _cCurrentNum_
 					else
@@ -971,7 +971,7 @@ class stzString from stzObject
 		next
 
 		if _cCurrentNum_ != ""
-			_nLen_ = len(_acResult_)
+			_nLen_ = ring_len(_acResult_)
 			if _nLen_ > 0 and _acResult_[_nLen_] = "-"
 				_acResult_[_nLen_] = "-" + _cCurrentNum_
 			else
