@@ -2382,20 +2382,32 @@ class stzGraph
 
 		if This._EnsureEngine()
 			_cEngResult_ = StzEngineGraphShortestPath(@pEngineGraph, StzLower(pcFromNodeId), StzLower(pcToNodeId))
-			return This._SplitNewline(_cEngResult_)
+			_aEngPath_ = This._SplitNewline(_cEngResult_)
+			if len(_aEngPath_) > 0
+				return _aEngPath_
+			ok
+			# Engine returned no path -- fall through to the BFS
+			# fallback below so a path that exists in the in-memory
+			# edges still gets found.
 		ok
 
-		_acQueue_ = [ pcFromNodeId ]
-		_acVisited_ = [ pcFromNodeId ]
-		_aParentMap_ = [ [ pcFromNodeId, "" ] ]
-	
+		# BFS works against lowercased ids because Neighbors() and
+		# the edge store use StzLower internally. Lowercase the
+		# bounds so the equality check at the destination hits.
+		_cFromId_ = StzLower(pcFromNodeId)
+		_cToId_   = StzLower(pcToNodeId)
+
+		_acQueue_ = [ _cFromId_ ]
+		_acVisited_ = [ _cFromId_ ]
+		_aParentMap_ = [ [ _cFromId_, "" ] ]
+
 		while len(_acQueue_) > 0
 			_cCurrent_ = _acQueue_[1]
 			del(_acQueue_, 1)
-			
-			if _cCurrent_ = pcToNodeId
+
+			if _cCurrent_ = _cToId_
 				_acPath_ = []
-				_cNode_ = pcToNodeId
+				_cNode_ = _cToId_
 				
 				while _cNode_ != ""
 					_acPath_ + _cNode_
