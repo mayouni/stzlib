@@ -3989,6 +3989,87 @@ class stzList from stzObject
 
 	# stzListPaths has only 3 methods - minimal, skip for now
 
+	#-- DeepRemove / DeepRemoveMany: walk the nested list structure
+	#   and drop any item that matches pItem / any item in paItems.
+	#   Recurses into nested lists. Ported from archive line 16144;
+	#   simpler implementation here -- pure structural walk, no
+	#   @@()-stringification round-trip.
+
+	def DeepRemove(pItem)
+		@aContent = This._DeepFilterCS(@aContent, [pItem], 1)
+		
+
+		def DeepRemoveQ(pItem)
+			This.DeepRemove(pItem)
+			return This
+
+		def DeepRemoveCS(pItem, pCaseSensitive)
+			@aContent = This._DeepFilterCS(@aContent, [pItem], pCaseSensitive)
+			
+
+	def DeepRemoveMany(paItems)
+		if NOT isList(paItems)
+			StzRaise("DeepRemoveMany: paItems must be a list")
+		ok
+		@aContent = This._DeepFilterCS(@aContent, paItems, 1)
+		
+
+		def DeepRemoveManyQ(paItems)
+			This.DeepRemoveMany(paItems)
+			return This
+
+		def DeepRemoveManyCS(paItems, pCaseSensitive)
+			if NOT isList(paItems)
+				StzRaise("DeepRemoveManyCS: paItems must be a list")
+			ok
+			@aContent = This._DeepFilterCS(@aContent, paItems, pCaseSensitive)
+			
+
+	def DeepRemoved(pItem)
+		_oDrTmp_ = new stzList(@aContent)
+		_oDrTmp_.DeepRemove(pItem)
+		return _oDrTmp_.Content()
+
+	def ManyDeepRemoved(paItems)
+		_oMdrTmp_ = new stzList(@aContent)
+		_oMdrTmp_.DeepRemoveMany(paItems)
+		return _oMdrTmp_.Content()
+
+	#-- Helper: case-sensitive deep filter. Returns a NEW list with
+	#   anything matching paRemove removed at any nesting depth.
+	def _DeepFilterCS(paList, paRemove, pCaseSensitive)
+		_aDfR_ = []
+		_bDfCase_ = @CaseSensitive(pCaseSensitive)
+		for _xDfItem_ in paList
+			if isList(_xDfItem_)
+				_aDfR_ + This._DeepFilterCS(_xDfItem_, paRemove, pCaseSensitive)
+			else
+				_bDfDrop_ = 0
+				for _xDfRm_ in paRemove
+					if _bDfCase_
+						if _xDfItem_ = _xDfRm_
+							_bDfDrop_ = 1
+							exit
+						ok
+					else
+						if isString(_xDfItem_) and isString(_xDfRm_)
+							if lower(_xDfItem_) = lower(_xDfRm_)
+								_bDfDrop_ = 1
+								exit
+							ok
+						but _xDfItem_ = _xDfRm_
+							_bDfDrop_ = 1
+							exit
+						ok
+					ok
+				next
+				if NOT _bDfDrop_
+					_aDfR_ + _xDfItem_
+				ok
+			ok
+		next
+		return _aDfR_
+
 	#-- Unicodes: return the codepoint of each character-string item
 	#   in the list. Called by the global Unicodes(p) function in
 	#   stzFuncs.ring when p is a list. Missing here made

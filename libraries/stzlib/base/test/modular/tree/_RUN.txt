@@ -12,7 +12,6 @@
          #5 ? @@NL( o1.FindTheseItems([ "X", "C", 2, 5 ]) ) + NL -> expected '[ "[:root][:node3][1]", "[:root][:node3][1]", "[:root][:node' not found past cursor 70
          #6 ? @@NL( o1.FindItems() ) + NL # Or FindAllItems() -> expected '[ "[:root][:node1][1]", "[:root][:node1][:node11][5]", "[:ro' not found past cursor 70
          #7 ? @@NL( o1.ItemsZ() ) # Or ItemsAndTheirPaths() -> expected '[ [ "X", [ "[:root][:node1]", "[:root][:node1][:node11]", "[' not found past cursor 70
-[ FAIL ] 10_pr.ring:
-         #1 ? @@( o1.Content() ) -> expected '[ [ 1, 2, [ 3 ] ], 4 ]' not found past cursor 0
+[ PASS ] 10_pr.ring: 1 assertions matched
 ---
-PASS: 7 / FAIL: 3
+PASS: 8 / FAIL: 2
