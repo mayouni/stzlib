@@ -1627,7 +1627,7 @@ class stzString from stzObject
 	def RemoveSections(aSections)
 		# Remove sections from end to start to preserve positions
 		# Sort sections by start position descending
-		nLen = len(aSections)
+		nLen = ring_len(aSections)
 		for i = 1 to nLen - 1
 			for j = 1 to nLen - i
 				if aSections[j][1] < aSections[j+1][1]
@@ -2163,7 +2163,7 @@ class stzString from stzObject
 	#   that read like `o1.BoundedBy([ "[", "]" ])`.
 
 	def BoundedByCS(pacBounds, pCaseSensitive)
-		if NOT (isList(pacBounds) and len(pacBounds) = 2)
+		if NOT (isList(pacBounds) and ring_len(pacBounds) = 2)
 			StzRaise("BoundedByCS: pacBounds must be a 2-list [ open, close ]")
 		ok
 		return This.BetweenCS(pacBounds[1], pacBounds[2], pCaseSensitive)
@@ -3590,8 +3590,8 @@ class stzString from stzObject
 	def FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 		_aFsbcIB_ = This.FindSubStringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
 		_acFsbcR_ = []
-		_nOpenLen_ = len(pacBounds[1])
-		_nCloseLen_ = len(pacBounds[2])
+		_nOpenLen_ = ring_len(pacBounds[1])
+		_nCloseLen_ = ring_len(pacBounds[2])
 		for _aFsbcPair_ in _aFsbcIB_
 			_acFsbcR_ + [ _aFsbcPair_[1] + _nOpenLen_, _aFsbcPair_[2] - _nCloseLen_ ]
 		next
