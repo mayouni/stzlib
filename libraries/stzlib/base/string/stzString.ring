@@ -583,6 +583,136 @@ class stzString from stzObject
 		end
 		return _acVoR_
 
+	# Extend / ExtendXT: append content / pad to length / pad to
+	# position. Port from archive line 3596 (the DSL variant) plus
+	# the simpler positional cases.
+
+	def Extend(pWith)
+		if isString(pWith)
+			This.Update( This.Content() + pWith )
+		but isNumber(pWith)
+			# Pad with spaces to reach position pWith.
+			_nExN_ = This.NumberOfChars()
+			if pWith > _nExN_
+				_nExPad_ = pWith - _nExN_
+				_cExPad_ = ""
+				for _iExPad_ = 1 to _nExPad_
+					_cExPad_ += " "
+				next
+				This.Update( This.Content() + _cExPad_ )
+			ok
+		ok
+
+		def ExtendQ(pWith)
+			This.Extend(pWith)
+			return This
+
+	def ExtendWith(pcStr)
+		if NOT isString(pcStr)
+			StzRaise("ExtendWith: pcStr must be a string")
+		ok
+		This.Update( This.Content() + pcStr )
+
+		def ExtendWithQ(pcStr)
+			This.ExtendWith(pcStr)
+			return This
+
+	def ExtendToPosition(n)
+		if NOT isNumber(n)
+			StzRaise("ExtendToPosition: n must be a number")
+		ok
+		_nEtpN_ = This.NumberOfChars()
+		if n > _nEtpN_
+			_nPad_ = n - _nEtpN_
+			_cPad_ = ""
+			for _iPad_ = 1 to _nPad_
+				_cPad_ += " "
+			next
+			This.Update( This.Content() + _cPad_ )
+		ok
+
+		def ExtendToPositionQ(n)
+			This.ExtendToPosition(n)
+			return This
+
+	def ExtendToPositionWith(n, pcChar)
+		if NOT (isNumber(n) and isString(pcChar))
+			StzRaise("ExtendToPositionWith: n must be a number and pcChar a string")
+		ok
+		_nEpwN_ = This.NumberOfChars()
+		if n > _nEpwN_
+			_nPad2_ = n - _nEpwN_
+			_cPad2_ = ""
+			for _iPad2_ = 1 to _nPad2_
+				_cPad2_ += pcChar
+			next
+			This.Update( This.Content() + _cPad2_ )
+		ok
+
+		def ExtendToPositionWithQ(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+			return This
+
+	def ExtendXT(pNarg, pWarg)
+		# DSL dispatcher for the common Extend cases. Accepts:
+		#   ExtendXT(:String, :With = "DE")        -> append
+		#   ExtendXT(:String, :ToPosition = 5)     -> pad with " "
+		#   ExtendXT(:ToPosition = 5, :With = "*") -> pad with "*"
+		#   ExtendXT(:ToNChars = 7, :With = ".")   -> pad to N chars
+
+		# Use simpler names to dodge a recurring Ring 1.26 parser
+		# weirdness in this method only.
+		if isString(pNarg)
+			if lower(pNarg) = "string"
+				if isList(pWarg)
+					_pWa2_ = pWarg
+					_nWalen_ = ring_len(_pWa2_)
+					if _nWalen_ = 2
+						if isString(_pWa2_[1])
+							_cKa_ = lower(_pWa2_[1])
+							if _cKa_ = "with" or _cKa_ = "using" or _cKa_ = "by"
+								This.ExtendWith(_pWa2_[2])
+								return
+							but _cKa_ = "toposition" or _cKa_ = "to"
+								This.ExtendToPosition(_pWa2_[2])
+								return
+							ok
+						ok
+					ok
+				ok
+			ok
+		but isList(pNarg)
+			# Ring's `[:Key = v]` literal is a 1-list whose element is
+			# a 2-list `[:Key, v]`. Unwrap one level when we see that.
+			_pNa2_ = pNarg
+			if ring_len(_pNa2_) = 1 and isList(_pNa2_[1])
+				_pNa2_ = _pNa2_[1]
+			ok
+			_nNalen_ = ring_len(_pNa2_)
+			if _nNalen_ = 2
+				if isString(_pNa2_[1])
+					_cKb_ = lower(_pNa2_[1])
+					if _cKb_ = "toposition" or _cKb_ = "to"
+						if isList(pWarg) and ring_len(pWarg) = 2
+							This.ExtendToPositionWith(_pNa2_[2], pWarg[2])
+						else
+							This.ExtendToPosition(_pNa2_[2])
+						ok
+						return
+					but _cKb_ = "tonchars"
+						if isList(pWarg) and ring_len(pWarg) = 2
+							This.ExtendToPositionWith(_pNa2_[2], pWarg[2])
+						ok
+						return
+					ok
+				ok
+			ok
+		ok
+
+		def ExtendXTQ(pNarg, pWarg)
+			This.ExtendXT(pNarg, pWarg)
+			return This
+
 	# Return a random char from the string content. Uniform random
 	# choice across char positions.
 
