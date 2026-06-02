@@ -1290,6 +1290,12 @@ class stzLocale from stzObject
 		def ToLowercase(pcStr)
 			return This.StringLowercased(pcStr)
 
+		def Lowercase(pcStr)
+			return This.StringLowercased(pcStr)
+
+		def Lower(pcStr)
+			return This.StringLowercased(pcStr)
+
 	def CharLowercased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringLowercased(pcChar)
@@ -1317,6 +1323,12 @@ class stzLocale from stzObject
 		return cResult
 
 		def ToUppercase(pcStr)
+			return This.StringUppercased(pcStr)
+
+		def Uppercase(pcStr)
+			return This.StringUppercased(pcStr)
+
+		def Upper(pcStr)
 			return This.StringUppercased(pcStr)
 
 	def CharUppercased(pcChar)
