@@ -5779,10 +5779,10 @@ class stzObject
 			nResult = StzNumberQ(aContent).Size()
 
 		but isString(aContent)
-			nResult = len(aContent)
+			nResult = ring_len(aContent)
 
 		but isList(aContent)
-			nResult = len(aContent)
+			nResult = ring_len(aContent)
 
 		ok
 
