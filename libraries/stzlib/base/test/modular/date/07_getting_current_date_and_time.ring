@@ -3,6 +3,7 @@
 # Getting current date and time
 #
 # Extracted from stzdatetest.ring, block #7.
+# @clock 2025-09-27 14:30:25
 
 load "../../../stzBase.ring"
 

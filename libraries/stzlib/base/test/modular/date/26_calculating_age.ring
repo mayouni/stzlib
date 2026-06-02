@@ -3,6 +3,7 @@
 # Calculating Age
 #
 # Extracted from stzdatetest.ring, block #26.
+# @clock 2025-09-27 00:00:00
 
 load "../../../stzBase.ring"
 
