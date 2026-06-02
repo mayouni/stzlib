@@ -1,111 +1,110 @@
-[ skip ] 01_creating_simple_graph.ring: no #--> markers
-[ skip ] 02_label_automatic_normalization.ring: no #--> markers
-[ PASS ] 03_node_and_edge_existence.ring: 2 assertions matched
-[ FAIL ] 04_path_finding.ring:
-         #1 ? @@NL( PathsXT("start", "end") ) -> expected '[ ["start", "middle", "end"] ]' not found past cursor 0
-[ skip ] 05_enforcing_well_formed_node_ids_one_string_without_.ring: no #--> markers
-[ PASS ] 06_reachability.ring: 1 assertions matched
-[ skip ] 07_neighbors_and_incoming.ring: no #--> markers
-[ PASS ] 08_undirected_graph_support_via_bidirectional_edges.ring: 5 assertions matched
-[ PASS ] 09_pr.ring: 15 assertions matched
-[ skip ] 10_node_navigation.ring: no #--> markers
-[ FAIL ] 11_node_properties.ring:
-         #3 ? @@( Properties() ) -> expected '["priority", "status", "owner"]' not found past cursor 117
-[ skip ] 12_node_removal.ring: no #--> markers
-[ PASS ] 13_node_copy_and_duplicate.ring: 2 assertions matched
-[ skip ] 14_node_merge.ring: no #--> markers
-[ skip ] 15_insert_nodes.ring: no #--> markers
-[ skip ] 16_batch_update_using_anonymous_function.ring: no #--> markers
-[ skip ] 17_node_splitting_merge_inverse_split_one_node_into_t.ring: no #--> markers
-[ FAIL ] 18_pr.ring:
-         #2 ? @@( FindQ("edges").WithPropertyQ("bandwidth").Run() ) -> expected '["n1->n2", "n2->n3"]' not found past cursor 0
-         #3 ? @@( FindQ("edges").WhereQ("bandwidth", "=", 100).Run() ) -> expected '["n1->n2"]' not found past cursor 0
-         #4 ? @@( FindQ("edges").WithTagQ("critical").Run() ) -> expected '["n1->n2"]' not found past cursor 0
-[ skip ] 19_cycle_detection.ring: no #--> markers
-[ skip ] 20_bottleneck_detection.ring: no #--> markers
-[ PASS ] 21_graph_metrics.ring: 2 assertions matched
-[ PASS ] 22_parallelizable_branches.ring: 1 assertions matched
-[ PASS ] 23_impact_analysis.ring: 3 assertions matched
-[ PASS ] 24_weighted_edges_and_operations.ring: 3 assertions matched
-[ skip ] 25_multi-edges_between_same_nodes_raises_an_error.ring: no #--> markers
-[ PASS ] 26_pr.ring: 2 assertions matched
-[ PASS ] 27_density_and_sparsity_metrics.ring: 2 assertions matched
-[ PASS ] 28_pr.ring: 11 assertions matched
-[ skip ] 29_dot_export.ring: no #--> markers
-[ skip ] 30_json_export.ring: no #--> markers
-[ skip ] 31_ascii_visualization.ring: no #--> markers
-[ skip ] 32_graphml_export_check_graphml_correctness.ring: no #--> markers
-[ skip ] 33_graph_explanation.ring: no #--> markers
-[ skip ] 34_path_explanation.ring: no #--> markers
-[ PASS ] 35_query_by_pattern.ring: 3 assertions matched
-[ FAIL ] 36_find_node_paths.ring:
-         #1 ? @@NL( PathsTo(:Node = "target") ) # Or FindPath("target") -> expected '[ ["start", "mid1", "target"], ["start", "mid2", "target"] ]' not found past cursor 0
-[ FAIL ] 37_path_matching.ring:
-         #1 ? @@NL( Paths() ) #TODO// All paths in the graph -> expected '[ ["n1", "n2", "n3"], ["n2", "n3", "n4"], ["n1", "n2", "n3",' not found past cursor 0
-[ PASS ] 38_edge_property_queries.ring: 4 assertions matched
-[ FAIL ] 39_node_properties.ring:
-         #4 ? @@( NodeProperties("n1") ) -> expected '[]' not found past cursor 22
-[ PASS ] 40_edge_props.ring: 3 assertions matched
-[ PASS ] 41_edge_properties.ring: 1 assertions matched
-[ skip ] 42_batch_edge_updates_using_anonymous_functions.ring: no #--> markers
-[ skip ] 43_yaml_format.ring: no #--> markers
-[ PASS ] 44_shortest_path_in_linear_graph.ring: 2 assertions matched
-[ PASS ] 45_shortest_path_with_multiple_routes.ring: 2 assertions matched
-[ FAIL ] 46_no_path_exists.ring:
-         #1 ? @@( ShortestPath(:From = :x, :To = :z) ) -> expected '[]' not found past cursor 0
-[ PASS ] 47_connected_graph.ring: 2 assertions matched
-[ PASS ] 48_multiple_components.ring: 2 assertions matched
-[ FAIL ] 49_articulation_points.ring:
-         #1 ? @@( ArticulationPoints() ) -> expected '["n2", "n3"] - Removing either disconnects the graph' not found past cursor 0
-[ PASS ] 50_betweenness_centrality.ring: 2 assertions matched
-[ PASS ] 51_pr.ring: 2 assertions matched
-[ PASS ] 52_closeness_centrality.ring: 2 assertions matched
-[ PASS ] 53_clustering_coefficient.ring: 1 assertions matched
-[ PASS ] 54_clustering_coefficient_in_incomplete_triangle.ring: 1 assertions matched
-[ PASS ] 55_diameter_of_graph.ring: 1 assertions matched
-[ PASS ] 56_average_path_length.ring: 1 assertions matched
-[ PASS ] 57_real-world_network_analysis.ring: 6 assertions matched
-[ PASS ] 58_workflow_dependency_analysis.ring: 5 assertions matched
-[ PASS ] 59_basic_self-loop_operations.ring: 3 assertions matched
-[ PASS ] 60_self-loops_in_cycles_and_reachability.ring: 2 assertions matched
-[ PASS ] 61_constraint_block_invalid_ops_rule_runs_before_oper.ring: 1 assertions matched
-[ skip ] 62_constraint_cycle_prevention_in_directed_graphs_dag.ring: no #--> markers
-[ PASS ] 63_derivation_manager_access_rights.ring: 1 assertions matched
-[ FAIL ] 64_validation_orphan_task_detection.ring:
-         #1 ? @@NL( ValidateXT(:PROJECT_RULES_GROUP) ) + NL -> expected '[ [ "status", "fail" ], [ "rulegroup", "project" ], [ "issue' not found past cursor 0
-[ PASS ] 65_rule_management_introspection.ring: 5 assertions matched
-[ PASS ] 66_complete_dev_project_workflow.ring: 4 assertions matched
-[ PASS ] 67_built-in_transitivity_derivation.ring: 2 assertions matched
-[ FAIL ] 68_validation_history_tracking.ring:
-         #3 ? @@NL( Violations() ) -> expected '[]' not found past cursor 9
-[ PASS ] 69_comparing_identical_graphs_should_show_no_changes.ring: 1 assertions matched
-[ PASS ] 70_business_analyst_exploring_3_restructuring_options.ring: 1 assertions matched
-[ FAIL ] 71_converting_comparison_to_table_for_further_analysi.ring:
-         #1 ? oMatrix.MostImpactful() + NL -> expected 'Add_COO_Layer' not found past cursor 0
-         #2 ? oMatrix.LeastImpactful() + NL -> expected 'Flat_Structure' not found past cursor 0
-[ FAIL ] 72_finding_best_candidates_programmatically.ring:
-         #1 ? @@( oMatrix.WithoutCycles() ) + NL -> expected '[ ]' not found past cursor 0
-         #2 ? @@(oMatrix.ByMetric(:NodesAdded)) + NL -> expected '["Flat_Structure", "Add_COO_Layer", "Matrix_Org"]' not found past cursor 0
-         #3 ? @@(oMatrix.ByMetric(:EdgesAdded)) -> expected '[ "Add_COO_Layer", "Flat_Structure", "Matrix_Org" ]' not found past cursor 0
-[ PASS ] 73_complete_business_decision_workflow.ring: 1 assertions matched
-[ PASS ] 74_business_scenario_adding_new_departments.ring: 1 assertions matched
-[ PASS ] 75_business_scenario_downsizing.ring: 1 assertions matched
-[ PASS ] 76_business_scenario_budget_adjustments.ring: 1 assertions matched
-[ PASS ] 77_business_scenario_relieving_bottleneck_by_adding_c.ring: 1 assertions matched
-[ PASS ] 78_business_scenario_creating_circular_dependency_war.ring: 1 assertions matched
-[ PASS ] 79_business_scenario_organizational_restructuring.ring: 1 assertions matched
-[ PASS ] 80_business_scenario_department_becomes_isolated.ring: 1 assertions matched
-[ PASS ] 81_business_scenario_comparing_sparse_vs_dense_struct.ring: 1 assertions matched
-[ PASS ] 82_using_diffwith_alias_for_brevity.ring: 1 assertions matched
-[ FAIL ] 83_how_to_use_stzgraf_file_format.ring:
-         #1 ? @@(NodeProperty("warehouse_ny", "capacity")) #ERR -> expected 'Should return 50000 but returned ""' not found past cursor 0
-[ skip ] 84_how_to_use_stzrulz_file_format.ring: no #--> markers
-[ skip ] 85_how_to_use_stzrulf_file_format.ring: no #--> markers
-[ skip ] 86_example_1_query-triggered_constraint_rules.ring: no #--> markers
-[ PASS ] 87_example_2_query-triggered_derivation_rules.ring: 3 assertions matched
-[ FAIL ] 88_example_3_graph_projection_tograph.ring:
-         #3 ? Density100() -> expected '33.33%' not found past cursor 3
-[ skip ] 89_example_4_graph_views_toview.ring: no #--> markers
-[ PASS ] 90_example_5_combined_workflow.ring: 3 assertions matched
----
-PASS: 50 / FAIL: 14 / skip: 26
+[ skip ] 01_creating_simple_graph.ring: no #--> markers
+[ skip ] 02_label_automatic_normalization.ring: no #--> markers
+[ PASS ] 03_node_and_edge_existence.ring: 2 assertions matched
+[ FAIL ] 04_path_finding.ring:
+         #1 ? @@NL( PathsXT("start", "end") ) -> expected '[ ["start", "middle", "end"] ]' not found past cursor 0
+[ skip ] 05_enforcing_well_formed_node_ids_one_string_without_.ring: no #--> markers
+[ PASS ] 06_reachability.ring: 1 assertions matched
+[ skip ] 07_neighbors_and_incoming.ring: no #--> markers
+[ PASS ] 08_undirected_graph_support_via_bidirectional_edges.ring: 5 assertions matched
+[ PASS ] 09_pr.ring: 15 assertions matched
+[ skip ] 10_node_navigation.ring: no #--> markers
+[ FAIL ] 11_node_properties.ring:
+         #3 ? @@( Properties() ) -> expected '["priority", "status", "owner"]' not found past cursor 117
+[ skip ] 12_node_removal.ring: no #--> markers
+[ PASS ] 13_node_copy_and_duplicate.ring: 2 assertions matched
+[ skip ] 14_node_merge.ring: no #--> markers
+[ skip ] 15_insert_nodes.ring: no #--> markers
+[ skip ] 16_batch_update_using_anonymous_function.ring: no #--> markers
+[ skip ] 17_node_splitting_merge_inverse_split_one_node_into_t.ring: no #--> markers
+[ FAIL ] 18_pr.ring:
+         #2 ? @@( FindQ("edges").WithPropertyQ("bandwidth").Run() ) -> expected '["n1->n2", "n2->n3"]' not found past cursor 0
+         #3 ? @@( FindQ("edges").WhereQ("bandwidth", "=", 100).Run() ) -> expected '["n1->n2"]' not found past cursor 0
+         #4 ? @@( FindQ("edges").WithTagQ("critical").Run() ) -> expected '["n1->n2"]' not found past cursor 0
+[ skip ] 19_cycle_detection.ring: no #--> markers
+[ skip ] 20_bottleneck_detection.ring: no #--> markers
+[ PASS ] 21_graph_metrics.ring: 2 assertions matched
+[ PASS ] 22_parallelizable_branches.ring: 1 assertions matched
+[ PASS ] 23_impact_analysis.ring: 3 assertions matched
+[ PASS ] 24_weighted_edges_and_operations.ring: 3 assertions matched
+[ skip ] 25_multi-edges_between_same_nodes_raises_an_error.ring: no #--> markers
+[ PASS ] 26_pr.ring: 2 assertions matched
+[ PASS ] 27_density_and_sparsity_metrics.ring: 2 assertions matched
+[ PASS ] 28_pr.ring: 11 assertions matched
+[ skip ] 29_dot_export.ring: no #--> markers
+[ skip ] 30_json_export.ring: no #--> markers
+[ skip ] 31_ascii_visualization.ring: no #--> markers
+[ skip ] 32_graphml_export_check_graphml_correctness.ring: no #--> markers
+[ skip ] 33_graph_explanation.ring: no #--> markers
+[ skip ] 34_path_explanation.ring: no #--> markers
+[ PASS ] 35_query_by_pattern.ring: 3 assertions matched
+[ FAIL ] 36_find_node_paths.ring:
+         #1 ? @@NL( PathsTo(:Node = "target") ) # Or FindPath("target") -> expected '[ ["start", "mid1", "target"], ["start", "mid2", "target"] ]' not found past cursor 0
+[ FAIL ] 37_path_matching.ring:
+         #1 ? @@NL( Paths() ) #TODO// All paths in the graph -> expected '[ ["n1", "n2", "n3"], ["n2", "n3", "n4"], ["n1", "n2", "n3",' not found past cursor 0
+[ FAIL ] 38_edge_property_queries.ring:
+         #1 ? @@( Find("edges").Where("speed", "=", 100).Run() ) -> expected '[ [ "a", "b" ] ]' not found past cursor 0
+         #2 ? @@( Find("edges").Where("speed", "between", [ 80, 120 ]).R -> expected '[ [ "a", "b" ] ]' not found past cursor 0
+         #3 ? @@NL( NodesWF( func(aNode) { return aNode[:properties][:st -> expected '[ "a", "d" ]' not found past cursor 0
+         #4 ? @@NL( EdgesWF( func(aEdge) { return aEdge[:properties][:sp -> expected '[ [ "a", "b" ], [ "c", "d" ] ]' not found past cursor 0
+[ PASS ] 39_node_properties.ring: 4 assertions matched
+[ PASS ] 40_edge_props.ring: 3 assertions matched
+[ PASS ] 41_edge_properties.ring: 1 assertions matched
+[ skip ] 42_batch_edge_updates_using_anonymous_functions.ring: no #--> markers
+[ skip ] 43_yaml_format.ring: no #--> markers
+[ PASS ] 44_shortest_path_in_linear_graph.ring: 2 assertions matched
+[ PASS ] 45_shortest_path_with_multiple_routes.ring: 2 assertions matched
+[ PASS ] 46_no_path_exists.ring: 2 assertions matched
+[ PASS ] 47_connected_graph.ring: 2 assertions matched
+[ PASS ] 48_multiple_components.ring: 2 assertions matched
+[ FAIL ] 49_articulation_points.ring:
+         #1 ? @@( ArticulationPoints() ) -> expected '["n2", "n3"] - Removing either disconnects the graph' not found past cursor 0
+[ PASS ] 50_betweenness_centrality.ring: 2 assertions matched
+[ PASS ] 51_pr.ring: 2 assertions matched
+[ PASS ] 52_closeness_centrality.ring: 2 assertions matched
+[ PASS ] 53_clustering_coefficient.ring: 1 assertions matched
+[ PASS ] 54_clustering_coefficient_in_incomplete_triangle.ring: 1 assertions matched
+[ PASS ] 55_diameter_of_graph.ring: 1 assertions matched
+[ PASS ] 56_average_path_length.ring: 1 assertions matched
+[ PASS ] 57_real-world_network_analysis.ring: 6 assertions matched
+[ PASS ] 58_workflow_dependency_analysis.ring: 5 assertions matched
+[ PASS ] 59_basic_self-loop_operations.ring: 3 assertions matched
+[ PASS ] 60_self-loops_in_cycles_and_reachability.ring: 2 assertions matched
+[ PASS ] 61_constraint_block_invalid_ops_rule_runs_before_oper.ring: 1 assertions matched
+[ skip ] 62_constraint_cycle_prevention_in_directed_graphs_dag.ring: no #--> markers
+[ PASS ] 63_derivation_manager_access_rights.ring: 1 assertions matched
+[ FAIL ] 64_validation_orphan_task_detection.ring:
+         #1 ? @@NL( ValidateXT(:PROJECT_RULES_GROUP) ) + NL -> expected '[ [ "status", "fail" ], [ "rulegroup", "project" ], [ "issue' not found past cursor 0
+[ PASS ] 65_rule_management_introspection.ring: 5 assertions matched
+[ PASS ] 66_complete_dev_project_workflow.ring: 4 assertions matched
+[ PASS ] 67_built-in_transitivity_derivation.ring: 2 assertions matched
+[ PASS ] 68_validation_history_tracking.ring: 3 assertions matched
+[ PASS ] 69_comparing_identical_graphs_should_show_no_changes.ring: 1 assertions matched
+[ PASS ] 70_business_analyst_exploring_3_restructuring_options.ring: 1 assertions matched
+[ PASS ] 71_converting_comparison_to_table_for_further_analysi.ring: 3 assertions matched
+[ FAIL ] 72_finding_best_candidates_programmatically.ring:
+         #1 ? @@( oMatrix.WithoutCycles() ) + NL -> expected '[ ]' not found past cursor 0
+         #2 ? @@(oMatrix.ByMetric(:NodesAdded)) + NL -> expected '["Flat_Structure", "Add_COO_Layer", "Matrix_Org"]' not found past cursor 0
+         #3 ? @@(oMatrix.ByMetric(:EdgesAdded)) -> expected '[ "Add_COO_Layer", "Flat_Structure", "Matrix_Org" ]' not found past cursor 0
+[ PASS ] 73_complete_business_decision_workflow.ring: 1 assertions matched
+[ PASS ] 74_business_scenario_adding_new_departments.ring: 1 assertions matched
+[ PASS ] 75_business_scenario_downsizing.ring: 1 assertions matched
+[ PASS ] 76_business_scenario_budget_adjustments.ring: 1 assertions matched
+[ PASS ] 77_business_scenario_relieving_bottleneck_by_adding_c.ring: 1 assertions matched
+[ PASS ] 78_business_scenario_creating_circular_dependency_war.ring: 1 assertions matched
+[ PASS ] 79_business_scenario_organizational_restructuring.ring: 1 assertions matched
+[ PASS ] 80_business_scenario_department_becomes_isolated.ring: 1 assertions matched
+[ PASS ] 81_business_scenario_comparing_sparse_vs_dense_struct.ring: 1 assertions matched
+[ PASS ] 82_using_diffwith_alias_for_brevity.ring: 1 assertions matched
+[ FAIL ] 83_how_to_use_stzgraf_file_format.ring:
+         #1 ? @@(NodeProperty("warehouse_ny", "capacity")) #ERR -> expected 'but returned ""' not found past cursor 0
+[ skip ] 84_how_to_use_stzrulz_file_format.ring: no #--> markers
+[ skip ] 85_how_to_use_stzrulf_file_format.ring: no #--> markers
+[ skip ] 86_example_1_query-triggered_constraint_rules.ring: no #--> markers
+[ PASS ] 87_example_2_query-triggered_derivation_rules.ring: 3 assertions matched
+[ FAIL ] 88_example_3_graph_projection_tograph.ring:
+         #3 ? Density100() -> expected '33.33%' not found past cursor 3
+[ skip ] 89_example_4_graph_views_toview.ring: no #--> markers
+[ PASS ] 90_example_5_combined_workflow.ring: 3 assertions matched
+---
+PASS: 53 / FAIL: 11 / skip: 26

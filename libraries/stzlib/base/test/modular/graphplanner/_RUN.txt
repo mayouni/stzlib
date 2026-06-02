@@ -1,74 +1,68 @@
-[ skip ] 01_what_is_graph_planning.ring: no #--> markers
-[ PASS ] 02_example_11_simple_linear_path.ring: 3 assertions matched
-[ FAIL ] 03_example_12_path_with_choice_-_a_picks_optimal.ring:
-         #2 ? @@( Route() ) # Or StatesXT("optimal_path") -> expected '[ "a", "c", "d" ] Took the fast_road to C, then to D' not found past cursor 2
-         #3 ? @@NL( Actions() ) # Or ActionsXT("optimal_path") -> expected 'Full action breakdown showing each transition and its cost [' not found past cursor 2
-[ FAIL ] 04_example_13_complex_grid_-_finding_optimal_path_in_.ring:
-         #1 ? oPlanner.Cost() -> expected '22 (found the middle corridor strategy!) Breakdown: 10(n1->n' not found past cursor 0
-         #2 ? @@( oPlanner.Route() ) -> expected '[ "n1", "n2", "n5", "n6", "n9" ] Path visualization: Goes ri' not found past cursor 0
-[ FAIL ] 05_example_21_rpg_quest_-_find_any_treasure_worth_100.ring:
-         #2 ? @@( Route() ) -> expected '[ "village", "forest", "dungeon" ] Went to dungeon because i' not found past cursor 1
-         #3 ? @@NL( Actions() ) -> expected 'Action sequence showing the quest path [ [ [ "from", "villag' not found past cursor 1
-[ FAIL ] 06_example_22_treasure_hunt_-_multi-condition_goal.ring:
-         #2 ? @@( Route() ) -> expected '[ "start", "shop", "vault", "treasury" ] Skipped crypt becau' not found past cursor 2
-[ FAIL ] 07_example_31_warehouse_navigation_-_discovering_shor.ring:
-         #1 ? Cost() -> expected '45' not found past cursor 0
-         #2 ? @@( Route() ) -> expected '[ "entrance", "receiving", "storage", "shelf_42" ] Skipped a' not found past cursor 0
-         #3 ? @@NL( Explain() ) -> expected '[ [ "plan", "shortcut" ], [ "actions", [ [ [ "from", "entran' not found past cursor 0
-[ FAIL ] 08_example_32_multi-stop_delivery.ring:
-         #2 ? @@( Route() ) -> expected '[ "dock", "zone_b", "zone_c", "exit" ] Took shortcut directl' not found past cursor 2
-[ FAIL ] 09_example_41_production_line_optimization.ring:
-         #1 ? Cost() -> expected '32 Breakdown: 10(cut) + 15(shape) + 2(skip_polish) + 5(finis' not found past cursor 0
-         #2 ? @@( Route() ) -> expected '[ "raw", "cut", "shape", "assemble", "finished" ] No "polish' not found past cursor 0
-[ PASS ] 10_example_42_budget_constraints.ring: 2 assertions matched
-[ FAIL ] 11_example_51_internet_packet_routing_-_minimize_late.ring:
-         #2 ? @@( Route() ) -> expected '[ "client", "router1", "cdn", "origin" ] Used direct router1' not found past cursor 2
-[ FAIL ] 12_example_61_npc_finds_safest_path.ring:
-         #2 ? @@( Route() ) -> expected '[ "spawn", "forest", "river", "hill", "objective" ] NPC wise' not found past cursor 2
-[ PASS ] 13_example_71_last-mile_delivery_optimization.ring: 2 assertions matched
-[ FAIL ] 14_example_72_emergency_response_-_every_second_count.ring:
-         #2 ? @@( Route() ) -> expected '[ "station", "back_road", "hospital", "emergency_site" ] Avo' not found past cursor 2
-[ FAIL ] 15_example_81_spatial_heuristics_-_smarter_search.ring:
-         #3 ? @@( Route() ) -> expected '[ "p0_0", "p1_0", "p2_0", "p3_0", "p3_1", "p3_2", "p3_3" ] W' not found past cursor 4
-[ FAIL ] 16_example_82_understanding_how_a_works_internally.ring:
-         #2 ? @@( Route() ) -> expected '[ "a", "c", "d" ] A* correctly chose the C route even though' not found past cursor 1
-[ FAIL ] 17_example_91_supply_chain_planning_with_explanation.ring:
-         #1 ? Cost() -> expected '1700 ~>' not found past cursor 0
-[ PASS ] 18_example_101_when_to_use_a_vs_goal-based_search.ring: 4 assertions matched
-[ FAIL ] 19_example_111_using_the_fastest_profile.ring:
-         #1 ? Cost() -> expected '25' not found past cursor 0
-         #2 ? @@( Route() ) + NL -> expected '[ "warehouse", "suburb_b", "customer" ] Chose suburb_b route' not found past cursor 0
-[ PASS ] 20_example_112_comparing_fastest_vs_cheapest_profiles.ring: 1 assertions matched
-[ FAIL ] 21_example_113_the_safest_profile_for_emergency_route.ring:
-         #1 ? @@( Route() ) -> expected '[ "hospital", "industrial", "emergency_site" ] Avoided dange' not found past cursor 0
-[ PASS ] 22_example_114_the_balanced_profile.ring: 2 assertions matched
-[ PASS ] 23_example_121_understanding_where_cost_comes_from.ring: 1 assertions matched
-[ PASS ] 24_example_122_profile_cost_breakdown.ring: 1 assertions matched
-[ PASS ] 25_example_131_why_was_this_route_chosen.ring: 2 assertions matched
-[ PASS ] 26_example_132_efficiency_analysis.ring: 2 assertions matched
-[ PASS ] 27_example_141_what_alternatives_were_considered.ring: 3 assertions matched
-[ FAIL ] 28_example_151_comparing_two_strategies.ring:
-         #1 ? @@NL (ExplainDifferenceWith("rush") ) + NL -> expected '[ [ "plan1", "budget" ], [ "plan2", "rush" ], [ "same_path",' not found past cursor 0
-         #2 ? @@NL( ExplainTradeoffsAgainst("rush") ) # Or Tradeoffs("ru -> expected '[ [ "plan1", "budget" ], [ "plan2", "rush" ], [ "cost_winner' not found past cursor 0
-[ FAIL ] 29_example_152_which_is_cheaper.ring:
-         #1 ? WhichIsCheaper("rush") -> expected 'rush' not found past cursor 0
-         #2 ? CostSaving("rush") # Or HowMutchCheaper() -> expected '34.20' not found past cursor 0
-[ FAIL ] 30_example_161_complete_warehouse_robot_planning.ring:
-         #1 ? @@( Route() ) -> expected '[ "receiving", "aisle_main", "storage", "shelf_42" ]' not found past cursor 0
-         #2 ? Cost() -> expected '21.90' not found past cursor 0
-         #3 ? @@NL( ExplainEfficiency() ) + NL -> expected '[ [ "plan", "urgent" ], [ "nodes_explored", 4 ], [ "path_len' not found past cursor 0
-         #4 ? @@( Route() ) -> expected '[ "receiving", "aisle_main", "storage", "shelf_42" ]' not found past cursor 0
-         #5 ? Cost() -> expected '18.60' not found past cursor 0
-         ... +3 more
-[ PASS ] 31_example_171_teaching_a_through_exploration.ring: 4 assertions matched
-[ PASS ] 32_example_181_comparing_4_different_strategies.ring: 5 assertions matched
-[ PASS ] 33_example_182_ranking_all_plans.ring: 1 assertions matched
-[ PASS ] 34_example_191_learning_from_past_executions.ring: 12 assertions matched
-[ FAIL ] 35_example_192_tracking_performance_over_time.ring:
-         #1 ? Cost() -> expected 'Run 1: 35, Run 2: 38, Run 3: 41, Run 4: 44, Run 5: 47' not found past cursor 0
-[ PASS ] 36_example_201_finding_plans_within_budget.ring: 9 assertions matched
-[ PASS ] 37_example_202_finding_plans_within_percentage_of_opt.ring: 4 assertions matched
-[ PASS ] 38_example_203_complex_multi-constraint_filtering.ring: 4 assertions matched
-[ PASS ] 39_example_204_requiring_specific_waypoints.ring: 3 assertions matched
----
-PASS: 19 / FAIL: 19 / skip: 1
+[ skip ] 01_what_is_graph_planning.ring: no #--> markers
+[ PASS ] 02_example_11_simple_linear_path.ring: 3 assertions matched
+[ PASS ] 03_example_12_path_with_choice_-_a_picks_optimal.ring: 3 assertions matched
+[ FAIL ] 04_example_13_complex_grid_-_finding_optimal_path_in_.ring:
+         #1 ? oPlanner.Cost() -> expected '22 (found the middle corridor strategy!) Breakdown: 10(n1->n' not found past cursor 0
+[ FAIL ] 05_example_21_rpg_quest_-_find_any_treasure_worth_100.ring:
+         #2 ? @@( Route() ) -> expected '[ "village", "forest", "dungeon" ] Went to dungeon because i' not found past cursor 1
+[ PASS ] 06_example_22_treasure_hunt_-_multi-condition_goal.ring: 3 assertions matched
+[ FAIL ] 07_example_31_warehouse_navigation_-_discovering_shor.ring:
+         #1 ? Cost() -> expected '45' not found past cursor 0
+         #2 ? @@( Route() ) -> expected '[ "entrance", "receiving", "storage", "shelf_42" ]' not found past cursor 0
+         #3 ? @@NL( Explain() ) -> expected '[ [ "plan", "shortcut" ], [ "actions", [ [ [ "from", "entran' not found past cursor 0
+[ PASS ] 08_example_32_multi-stop_delivery.ring: 2 assertions matched
+[ FAIL ] 09_example_41_production_line_optimization.ring:
+         #1 ? Cost() -> expected '32 Breakdown: 10(cut) + 15(shape) + 2(skip_polish) + 5(finis' not found past cursor 0
+         #2 ? @@( Route() ) -> expected '[ "raw", "cut", "shape", "assemble", "finished" ] No "polish' not found past cursor 0
+[ PASS ] 10_example_42_budget_constraints.ring: 2 assertions matched
+[ FAIL ] 11_example_51_internet_packet_routing_-_minimize_late.ring:
+         #2 ? @@( Route() ) -> expected '[ "client", "router1", "cdn", "origin" ] Used direct router1' not found past cursor 2
+[ PASS ] 12_example_61_npc_finds_safest_path.ring: 2 assertions matched
+[ PASS ] 13_example_71_last-mile_delivery_optimization.ring: 2 assertions matched
+[ PASS ] 14_example_72_emergency_response_-_every_second_count.ring: 2 assertions matched
+[ FAIL ] 15_example_81_spatial_heuristics_-_smarter_search.ring:
+         #3 ? @@( Route() ) -> expected '[ "p0_0", "p1_0", "p2_0", "p3_0", "p3_1", "p3_2", "p3_3" ]' not found past cursor 4
+[ FAIL ] 16_example_82_understanding_how_a_works_internally.ring:
+         #2 ? @@( Route() ) -> expected '[ "a", "c", "d" ] A* correctly chose the C route even though' not found past cursor 1
+[ FAIL ] 17_example_91_supply_chain_planning_with_explanation.ring:
+         #1 ? Cost() -> expected '1700 ~>' not found past cursor 0
+[ PASS ] 18_example_101_when_to_use_a_vs_goal-based_search.ring: 4 assertions matched
+[ FAIL ] 19_example_111_using_the_fastest_profile.ring:
+         #1 ? Cost() -> expected '25' not found past cursor 0
+[ PASS ] 20_example_112_comparing_fastest_vs_cheapest_profiles.ring: 1 assertions matched
+[ PASS ] 21_example_113_the_safest_profile_for_emergency_route.ring: 2 assertions matched
+[ PASS ] 22_example_114_the_balanced_profile.ring: 2 assertions matched
+[ PASS ] 23_example_121_understanding_where_cost_comes_from.ring: 1 assertions matched
+[ PASS ] 24_example_122_profile_cost_breakdown.ring: 1 assertions matched
+[ PASS ] 25_example_131_why_was_this_route_chosen.ring: 2 assertions matched
+[ PASS ] 26_example_132_efficiency_analysis.ring: 2 assertions matched
+[ PASS ] 27_example_141_what_alternatives_were_considered.ring: 3 assertions matched
+[ FAIL ] 28_example_151_comparing_two_strategies.ring:
+         #1 ? @@NL (ExplainDifferenceWith("rush") ) + NL -> expected '[ [ "plan1", "budget" ], [ "plan2", "rush" ], [ "same_path",' not found past cursor 0
+         #2 ? @@NL( ExplainTradeoffsAgainst("rush") ) # Or Tradeoffs("ru -> expected '[ [ "plan1", "budget" ], [ "plan2", "rush" ], [ "cost_winner' not found past cursor 0
+[ FAIL ] 29_example_152_which_is_cheaper.ring:
+         #2 ? CostSaving("rush") # Or HowMutchCheaper() -> expected '34.20' not found past cursor 0
+[ FAIL ] 30_example_161_complete_warehouse_robot_planning.ring:
+         #1 ? @@( Route() ) -> expected '[ "receiving", "aisle_main", "storage", "shelf_42" ]' not found past cursor 0
+         #2 ? Cost() -> expected '21.90' not found past cursor 0
+         #3 ? @@NL( ExplainEfficiency() ) + NL -> expected '[ [ "plan", "urgent" ], [ "nodes_explored", 4 ], [ "path_len' not found past cursor 0
+         #4 ? @@( Route() ) -> expected '[ "receiving", "aisle_main", "storage", "shelf_42" ]' not found past cursor 0
+         #5 ? Cost() -> expected '18.60' not found past cursor 0
+         ... +3 more
+[ PASS ] 31_example_171_teaching_a_through_exploration.ring: 4 assertions matched
+[ PASS ] 32_example_181_comparing_4_different_strategies.ring: 5 assertions matched
+[ PASS ] 33_example_182_ranking_all_plans.ring: 1 assertions matched
+[ PASS ] 34_example_191_learning_from_past_executions.ring: 12 assertions matched
+[ PASS ] 35_example_192_tracking_performance_over_time.ring: 6 assertions matched
+[ FAIL ] 36_example_201_finding_plans_within_budget.ring:
+         #2 ? @@( oFilter1.Plans() ) + NL -> expected '[ "plan_cheap", "plan_via_medium" ]' not found past cursor 19
+         #3 ? @@NL( oFilter1.PlansXT() ) + NL -> expected '[ [ "constrains_applied", [ [ "maxcost", 50 ] ] ], [ "plans_' not found past cursor 19
+         #5 ? @@( oFilter2.Plans() ) + NL -> expected '[ "plan_cheap", "plan_via_medium" ]' not found past cursor 180
+         #6 ? @@NL( oFilter2.PlansXT() ) + NL -> expected '[ [ "constrains_applied", [ [ "avoid", "avoid_me" ] ] ], [ "' not found past cursor 180
+         #8 ? @@(oFilter3.Plans()) + NL -> expected '[ "plan_via_avoid", "plan_via_medium" ]' not found past cursor 292
+         ... +1 more
+[ PASS ] 37_example_202_finding_plans_within_percentage_of_opt.ring: 4 assertions matched
+[ PASS ] 38_example_203_complex_multi-constraint_filtering.ring: 4 assertions matched
+[ PASS ] 39_example_204_requiring_specific_waypoints.ring: 3 assertions matched
+---
+PASS: 25 / FAIL: 13 / skip: 1
