@@ -2163,8 +2163,13 @@ class stzString from stzObject
 	#   that read like `o1.BoundedBy([ "[", "]" ])`.
 
 	def BoundedByCS(pacBounds, pCaseSensitive)
+		# Accept either a single-string bound (same on both sides,
+		# e.g. BoundedBy('"')) or a 2-list [ open, close ].
+		if isString(pacBounds)
+			return This.BetweenCS(pacBounds, pacBounds, pCaseSensitive)
+		ok
 		if NOT (isList(pacBounds) and ring_len(pacBounds) = 2)
-			StzRaise("BoundedByCS: pacBounds must be a 2-list [ open, close ]")
+			StzRaise("BoundedByCS: pacBounds must be a string or a 2-list [ open, close ]")
 		ok
 		return This.BetweenCS(pacBounds[1], pacBounds[2], pCaseSensitive)
 
