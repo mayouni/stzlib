@@ -12,11 +12,10 @@
 [ PASS ] 12_family_tree_knowledge_graph.ring: 3 assertions matched
 [ PASS ] 13_company_organization_knowledge_graph.ring: 3 assertions matched
 [ PASS ] 14_scientific_taxonomy.ring: 2 assertions matched
-[ FAIL ] 15_using_graph_algorithms_on_knowledge_graph.ring:
-         #1 ? @@( ShortestPath(:From = "A", :To = "D") ) -> expected '["A", "B", "C", "D"]' not found past cursor 0
+[ PASS ] 15_using_graph_algorithms_on_knowledge_graph.ring: 3 assertions matched
 [ FAIL ] 16_combined_knowledge_structure_analysis.ring:
          #3 ? ClusteringCoefficient("Concept2") -> expected '1' not found past cursor 46
          #4 ? BetweennessCentrality("Concept2") -> expected '0.50' not found past cursor 46
 [ skip ] 17_pr.ring: no #--> markers
 ---
-PASS: 13 / FAIL: 2 / skip: 2
+PASS: 14 / FAIL: 1 / skip: 2
