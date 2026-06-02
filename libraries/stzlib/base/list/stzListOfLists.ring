@@ -3639,6 +3639,15 @@ class stzListOfLists from stzList
 
 		#>
 
+	# SortOnDown / SortDescendingOn -- alias used by external
+	# narratives. Wraps SortDownOn which lives below.
+	def SortOnDown(n)
+		This.SortDownOn(n)
+
+		def SortOnDownQ(n)
+			This.SortDownOn(n)
+			return This
+
 	def SortedOn(n)
 		_aSdoResult_ = This.Copy().SortOnQ(n).Content()
 
