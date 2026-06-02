@@ -577,6 +577,111 @@ class stzString from stzObject
 		def HTMLEscape()
 			return This.HtmlEscaped()
 
+	# ContainsXT: extended Contains dispatcher. Accepts a single
+	# substring or a list of substrings (returns TRUE if any).
+	def ContainsXT(pVal)
+		if isString(pVal)
+			return This.Contains(pVal)
+		but isList(pVal)
+			for _xCxItem_ in pVal
+				if isString(_xCxItem_) and This.Contains(_xCxItem_)
+					return 1
+				ok
+			next
+			return 0
+		ok
+		return 0
+
+	# ContainsInSection: does pcSubStr appear within the substring
+	# bounded by positions [n1, n2] (inclusive)?
+	def ContainsInSection(pcSubStr, n1, n2)
+		_cSec_ = This.Section(n1, n2)
+		_oTmp_ = new stzString(_cSec_)
+		return _oTmp_.Contains(pcSubStr)
+
+		def ContainsInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+			_cSec_ = This.Section(n1, n2)
+			_oTmp_ = new stzString(_cSec_)
+			return _oTmp_.ContainsCS(pcSubStr, pCaseSensitive)
+
+	# ReplaceInSection: replace occurrences of pcSubStr within the
+	# section [n1, n2] with pcNew. Returns the new content.
+	def ReplaceInSection(n1, n2, pcSubStr, pcNew)
+		_cAll_ = This.Content()
+		_cBefore_ = ""
+		if n1 > 1
+			_cBefore_ = substr(_cAll_, 1, n1 - 1)
+		ok
+		_cMid_ = substr(_cAll_, n1, n2 - n1 + 1)
+		_cAfter_ = ""
+		if n2 < len(_cAll_)
+			_cAfter_ = substr(_cAll_, n2 + 1)
+		ok
+		_cMid_ = substr(_cMid_, pcSubStr, pcNew)
+		This.Update( _cBefore_ + _cMid_ + _cAfter_ )
+
+		def ReplaceInSectionQ(n1, n2, pcSubStr, pcNew)
+			This.ReplaceInSection(n1, n2, pcSubStr, pcNew)
+			return This
+
+	# UppercaseSubString: uppercase only the section [n1, n2].
+	def UppercaseSubString(n1, n2)
+		_cAll_ = This.Content()
+		_cBefore_ = ""
+		if n1 > 1
+			_cBefore_ = substr(_cAll_, 1, n1 - 1)
+		ok
+		_cMid_ = substr(_cAll_, n1, n2 - n1 + 1)
+		_cAfter_ = ""
+		if n2 < len(_cAll_)
+			_cAfter_ = substr(_cAll_, n2 + 1)
+		ok
+		This.Update( _cBefore_ + upper(_cMid_) + _cAfter_ )
+
+		def UppercaseSubStringQ(n1, n2)
+			This.UppercaseSubString(n1, n2)
+			return This
+
+	# Shorten: truncate the content to the first N chars + "..."
+	# if it's longer than N. Defaults to N = 30.
+	def Shorten()
+		return This.ShortenedN(30)
+
+	def ShortenedN(n)
+		if NOT isNumber(n) or n < 4
+			return This.Content()
+		ok
+		_cStr_ = This.Content()
+		if len(_cStr_) <= n
+			return _cStr_
+		ok
+		return substr(_cStr_, 1, n - 3) + "..."
+
+		def Shortened()
+			return This.ShortenedN(30)
+
+		def ShortenedUsing(n, pcSuffix)
+			if NOT isNumber(n) or n < 1
+				return This.Content()
+			ok
+			_cStr2_ = This.Content()
+			if len(_cStr2_) <= n
+				return _cStr2_
+			ok
+			return substr(_cStr2_, 1, n - len(pcSuffix)) + pcSuffix
+
+	# Boxify: surround the content with a simple ASCII box drawn
+	# with `+` corners, `-` horizontals, `|` verticals.
+	def Boxify()
+		_cStr_ = This.Content()
+		_nLen_ = len(_cStr_)
+		_cHbar_ = "+"
+		for _iB_ = 1 to _nLen_ + 2
+			_cHbar_ += "-"
+		next
+		_cHbar_ += "+"
+		return _cHbar_ + char(10) + "| " + _cStr_ + " |" + char(10) + _cHbar_
+
 	def Vowels()
 		_cVoStr_ = This.Content()
 		_nVoLen_ = len(_cVoStr_)
