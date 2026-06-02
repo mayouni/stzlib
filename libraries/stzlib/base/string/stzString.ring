@@ -646,6 +646,9 @@ class stzString from stzObject
 
 		return _acResult_
 
+		def NumbersQ()
+			return new stzList( This.Numbers() )
+
 		def FindFirstOccurrence(pcSubStr)
 			return This.FindFirst(pcSubStr)
 

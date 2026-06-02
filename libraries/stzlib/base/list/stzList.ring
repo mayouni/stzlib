@@ -1659,6 +1659,32 @@ class stzList from stzObject
 		def IsAListOfPairs()
 			return This.IsListOfPairs()
 
+	def IsListOfPairsOfNumbers()
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			p = @aContent[i]
+			if NOT (isList(p) and len(p) = 2 and isNumber(p[1]) and isNumber(p[2]))
+				return FALSE
+			ok
+		next
+		return TRUE
+
+		def IsAListOfPairsOfNumbers()
+			return This.IsListOfPairsOfNumbers()
+
+	def IsListOfPairsOfStrings()
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			p = @aContent[i]
+			if NOT (isList(p) and len(p) = 2 and isString(p[1]) and isString(p[2]))
+				return FALSE
+			ok
+		next
+		return TRUE
+
+		def IsAListOfPairsOfStrings()
+			return This.IsListOfPairsOfStrings()
+
 	def IsSet()
 		nLen = len(@aContent)
 		for i = 1 to nLen

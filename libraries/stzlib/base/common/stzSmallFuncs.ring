@@ -793,6 +793,23 @@ func Join(paList)
 	next
 	return cJoined
 
+# Global StzSubStr() -- thin alias for Ring's substr() with the
+# (str, start, length) signature. Used by stzRegex.PartialMatchInfo
+# and other engine-result formatters that build substring extracts
+# from raw byte positions.
+
+func StzSubStr(cStr, nStart, nLen)
+	if NOT isString(cStr)
+		StzRaise("StzSubStr: cStr must be a string")
+	ok
+	if NOT (isNumber(nStart) and isNumber(nLen))
+		StzRaise("StzSubStr: nStart and nLen must be numbers")
+	ok
+	if nLen <= 0 or nStart < 1
+		return ""
+	ok
+	return substr(cStr, nStart, nLen)
+
 	func JoinXT(paList, pcSep)
 		if NOT isList(paList)
 			StzRaise("JoinXT: paList must be a list")
