@@ -826,6 +826,14 @@ class stzList from stzObject
 	def ShowShort()
 		? @@S( This.Content() )
 
+	def ShowShortN(n)
+		? ComputableShortFormXT( This.Content(), n )
+
+	def ShowShortXT(nItems)
+		# nItems may be a number (symmetric N first + N last)
+		# or a 2-list [nHead, nTail] for asymmetric short form.
+		? ComputableShortFormXT( This.Content(), nItems )
+
 	  #-----------------------------#
 	 #  CLASS NAME                 #
 	#-----------------------------#

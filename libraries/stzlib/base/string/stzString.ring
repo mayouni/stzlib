@@ -2428,6 +2428,13 @@ class stzString from stzObject
 	#===============================#
 
 	def FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		# Polymorphic dispatch: a list of substrings is routed to
+		# FindManyAsSectionsCS so callers can write
+		# `FindAsSections([ "a", "b" ])` instead of remembering the
+		# Many-prefixed name.
+		if isList(pcSubStr)
+			return This.FindManyAsSectionsCS(pcSubStr, pCaseSensitive)
+		ok
 		_oFasFinder_ = new stzStringFinder(This)
 		return _oFasFinder_.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 
@@ -2437,11 +2444,61 @@ class stzString from stzObject
 		def FindZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
 
+		def FindZ(pcSubStr)
+			return This.FindAsSection(pcSubStr)
+
 		def FindAllZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
 
 		def FindAllAsSections(pcSubStr)
 			return This.FindAsSections(pcSubStr)
+
+	# Singular form: returns the first occurrence as a [start, end]
+	# section (rather than a list of sections). Useful when the
+	# narrative cares about "where IS that one substring".
+
+	def FindAsSectionCS(pcSubStr, pCaseSensitive)
+		_aSecs_ = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		if ring_len(_aSecs_) = 0
+			return []
+		ok
+		return _aSecs_[1]
+
+	def FindAsSection(pcSubStr)
+		return This.FindAsSectionCS(pcSubStr, 1)
+
+		def FindFirstAsSection(pcSubStr)
+			return This.FindAsSection(pcSubStr)
+
+	# Plural with explicit "Many" prefix: same semantics as
+	# FindAsSections but accepts a list of substrings, with the
+	# results from all of them flattened into a single ordered list.
+
+	def FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
+		_aMasResult_ = []
+		_nMasLen_ = ring_len(pacSubStr)
+		for _iMas_ = 1 to _nMasLen_
+			_aMasOne_ = This.FindAsSectionsCS(pacSubStr[_iMas_], pCaseSensitive)
+			_nMasInner_ = ring_len(_aMasOne_)
+			for _jMas_ = 1 to _nMasInner_
+				_aMasResult_ + _aMasOne_[_jMas_]
+			next
+		next
+		# Sort by start position so the output is canonically ordered.
+		_nMasOut_ = ring_len(_aMasResult_)
+		for _iMas_ = 1 to _nMasOut_ - 1
+			for _jMas_ = 1 to _nMasOut_ - _iMas_
+				if _aMasResult_[_jMas_][1] > _aMasResult_[_jMas_+1][1]
+					_aMasTmp_ = _aMasResult_[_jMas_]
+					_aMasResult_[_jMas_] = _aMasResult_[_jMas_+1]
+					_aMasResult_[_jMas_+1] = _aMasTmp_
+				ok
+			next
+		next
+		return _aMasResult_
+
+	def FindManyAsSections(pacSubStr)
+		return This.FindManyAsSectionsCS(pacSubStr, 1)
 
 	def FindZZCS(pcSubStr, pCaseSensitive)
 		return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
