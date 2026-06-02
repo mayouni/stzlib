@@ -186,34 +186,40 @@ class stzKnowledgeGraph from stzGraph
 	#-------------------#
 
 	def Predicates(pcEntity)
+		# Edge :from / :label are stored lowercased; lowercase the
+		# query term once so case-insensitive lookups still match.
+		_cPenE_ = lower(pcEntity)
 		_acPredicates_ = []
 		_aEdges_ = This.Edges()
-		
+
 		_nLen_ = len(_aEdges_)
 		for _i_ = 1 to _nLen_
-			if _aEdges_[_i_][:from] = pcEntity
+			if _aEdges_[_i_][:from] = _cPenE_
 				if StzFind(_acPredicates_, _aEdges_[_i_][:label]) = 0
 					_acPredicates_ + _aEdges_[_i_][:label]
 				ok
 			ok
-		end
-		
+		next
+
 		return _acPredicates_
 
 		def PredicatesOf(pcEntity)
 			return This.Predicates(pcEntity)
 
 	def Relations(pcEntity)
+		_cRelE_ = lower(pcEntity)
 		_aRelations_ = []
 		_aEdges_ = This.Edges()
-		
+
 		_nLen_ = len(_aEdges_)
 		for _i_ = 1 to _nLen_
-			if _aEdges_[_i_][:from] = pcEntity
-				_aRelations_ + [_aEdges_[_i_][:label], _aEdges_[_i_][:to]]
+			if _aEdges_[_i_][:from] = _cRelE_
+				# Recover the to-node's original-case label.
+				_cToLab_ = This.Node(_aEdges_[_i_][:to])[:label]
+				_aRelations_ + [_aEdges_[_i_][:label], _cToLab_]
 			ok
-		end
-		
+		next
+
 		return _aRelations_
 
 		def RelationsOf(pcEntity)
@@ -221,30 +227,33 @@ class stzKnowledgeGraph from stzGraph
 
 	def SimilarTo(pcEntity)
 		_aMyPredicates_ = This.Predicates(pcEntity)
+		_cSimE_ = lower(pcEntity)
 		_acSimilar_ = []
 		_aNodes_ = This.Nodes()
-		
+
 		_nNodeLen_ = len(_aNodes_)
 		for _i_ = 1 to _nNodeLen_
 			_cNodeId_ = _aNodes_[_i_][:id]
-			
-			if _cNodeId_ != pcEntity
+
+			if _cNodeId_ != _cSimE_
 				_aTheirPredicates_ = This.Predicates(_cNodeId_)
 				_nOverlap_ = 0
-				
+
 				_nMyLen_ = len(_aMyPredicates_)
 				for _j_ = 1 to _nMyLen_
 					if StzFind(_aTheirPredicates_, _aMyPredicates_[_j_]) > 0
 						_nOverlap_++
 					ok
-				end
-				
+				next
+
 				if _nOverlap_ > 0
-					_acSimilar_ + [_cNodeId_, _nOverlap_]
+					# Use the node's original-case label.
+					_cNodeLab_ = _aNodes_[_i_][:label]
+					_acSimilar_ + [_cNodeLab_, _nOverlap_]
 				ok
 			ok
-		end
-		
+		next
+
 		return _acSimilar_
 
 		def SimilarEntities(pcEntity)

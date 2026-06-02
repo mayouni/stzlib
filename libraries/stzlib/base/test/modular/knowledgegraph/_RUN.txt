@@ -4,25 +4,19 @@
 [ PASS ] 04_query_with_variable_object.ring: 2 assertions matched
 [ PASS ] 05_query_both_variables.ring: 1 assertions matched
 [ PASS ] 06_query_existence_check.ring: 2 assertions matched
-[ FAIL ] 07_finding_predicates_of_entity.ring:
-         #1 ? @@( Predicates("Alice") ) -> expected '[:WorksAt, :LivesIn, :Knows]' not found past cursor 0
-[ FAIL ] 08_finding_all_relations_of_entity.ring:
-         #1 ? @@NL( Relations("Node1") ) -> expected '[ [:ConnectsTo, "Node2"], [:HasProperty, "Active"], [:PartOf' not found past cursor 0
-[ FAIL ] 09_finding_similar_entities.ring:
-         #1 ? @@NL( SimilarTo("Dogs") ) -> expected '[ ["Cats", 3], ["Birds", 2] ]' not found past cursor 0
+[ PASS ] 07_finding_predicates_of_entity.ring: 1 assertions matched
+[ PASS ] 08_finding_all_relations_of_entity.ring: 1 assertions matched
+[ PASS ] 09_finding_similar_entities.ring: 1 assertions matched
 [ PASS ] 10_defining_class_hierarchy.ring: 1 assertions matched
 [ skip ] 11_defining_properties_with_constraints.ring: no #--> markers
-[ FAIL ] 12_family_tree_knowledge_graph.ring:
-         #3 ? @@( Predicates("Bob") ) -> expected '[:SiblingOf, :ParentOf]' not found past cursor 0
-[ FAIL ] 13_company_organization_knowledge_graph.ring:
-         #3 ? @@NL( SimilarTo("Alice") ) -> expected '[["Bob", 2], [ "Charlie", 1 ]]' not found past cursor 0
+[ PASS ] 12_family_tree_knowledge_graph.ring: 3 assertions matched
+[ PASS ] 13_company_organization_knowledge_graph.ring: 3 assertions matched
 [ PASS ] 14_scientific_taxonomy.ring: 2 assertions matched
 [ FAIL ] 15_using_graph_algorithms_on_knowledge_graph.ring:
          #1 ? @@( ShortestPath(:From = "A", :To = "D") ) -> expected '["A", "B", "C", "D"]' not found past cursor 0
 [ FAIL ] 16_combined_knowledge_structure_analysis.ring:
-         #2 ? @@NL( Relations("Concept2") ) + NL -> expected '[ [ "relatesto", "Concept3" ] ]' not found past cursor 14
-         #3 ? ClusteringCoefficient("Concept2") -> expected '1' not found past cursor 14
-         #4 ? BetweennessCentrality("Concept2") -> expected '0.50' not found past cursor 14
+         #3 ? ClusteringCoefficient("Concept2") -> expected '1' not found past cursor 46
+         #4 ? BetweennessCentrality("Concept2") -> expected '0.50' not found past cursor 46
 [ skip ] 17_pr.ring: no #--> markers
 ---
-PASS: 8 / FAIL: 7 / skip: 2
+PASS: 13 / FAIL: 2 / skip: 2
