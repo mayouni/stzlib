@@ -150,6 +150,12 @@ func StzListOfChars(paList)
 	func ListOfChars(paList)
 		return StzListOfChars(paList)
 
+func StzListOfCharsQ(paList)
+	return new stzStringCharList(paList)
+
+	func ListOfCharsQ(paList)
+		return StzListOfCharsQ(paList)
+
 func StzListOfLetters(paList)
 	if @IsListOfLetters(paList)
 		return StzStringCharListQ(paList).Uppercased()
@@ -204,8 +210,20 @@ class stzStringCharList
 	def Content()
 		return @acChars
 
+		def ToList()
+			return @acChars
+
+		def Chars()
+			return @acChars
+
 	def NumberOfChars()
 		return len(@acChars)
+
+		def Len()
+			return len(@acChars)
+
+		def Length()
+			return len(@acChars)
 
 	def NthChar(n)
 		if n < 1 or n > len(@acChars)

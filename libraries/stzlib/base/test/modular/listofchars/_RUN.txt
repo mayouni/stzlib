@@ -12,9 +12,7 @@
          #4 ? o1.NLastOccurrences(2, :Of = "♥") -> expected '[6, 9]' not found past cursor 0
          #5 ? o1.NLastOccurrencesST(2, "♥", :StartingAt = 1) -> expected '[6, 9]' not found past cursor 0
          ... +2 more
-[ FAIL ] 04_pr.ring:
-         #2 ? StzListOfCharsQ("1":"5").IsContiguous() -> expected 'TRUE' not found past cursor 6
-         #3 ? StzListOfCharsQ('"ا":"ج"').IsContiguous() -> expected 'TRUE TODO: ERROR!' not found past cursor 6
+[ PASS ] 04_pr.ring: 3 assertions matched
 [ FAIL ] 05_pr.ring:
          #1 ? o1.Unicodes() -> expected '[ 97, 98, 99 ]' not found past cursor 0
          #2 ? CharsUnicodes([ "a", "b", "c" ]) -> expected '[ 97, 98, 99 ]' not found past cursor 0
@@ -38,4 +36,4 @@
          #5 ? Q("#21 : #23").ToList() # Or L("#21 : #23") -> expected '[ #21, #22, #23 ]' not found past cursor 0
          ... +2 more
 ---
-PASS: 1 / FAIL: 10 / skip: 3
+PASS: 2 / FAIL: 9 / skip: 3

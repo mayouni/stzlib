@@ -2,12 +2,10 @@
 [ FAIL ] 02_pr.ring:
          #1 ? @@( o1.SplitXT( :AtSections = [ [3,5], [8,9] ] ) ) -> expected '[ [ 1, 2 ], [ 6, 7 ], [ 10, 10 ] ]' not found past cursor 0
 [ FAIL ] 03_pr.ring:
-         #1 ? @@( o1.SplitAt( :Position = 5) ) -> expected '[ [1, 4], [6, 10] ]' not found past cursor 0
-         #2 ? @@( o1.SplitAt([3, 7]) ) -> expected '[ [ 1, 2 ], [ 4, 6 ], [ 8, 10 ] ]' not found past cursor 0
-         #3 ? @@( o1.SplitAtSection(4, 7) ) -> expected '[ [ 1, 3 ], [ 8, 10 ] ]' not found past cursor 0
-         #4 ? @@( o1.SplitAtSection(1, 9) ) -> expected '[ [ 10, 10 ] ]' not found past cursor 0
-         #5 ? @@( o1.SplitAtSections([ [3,5], [7, 8] ]) ) -> expected '[ [1, 2], [6, 6], [9, 10] ]' not found past cursor 0
-         ... +3 more
+         #5 ? @@( o1.SplitAtSections([ [3,5], [7, 8] ]) ) -> expected '[ [1, 2], [6, 6], [9, 10] ]' not found past cursor 96
+         #6 ? @@( o1.SplitAt( :Sections = [ [3,5], [7, 8] ] ) ) -> expected '[ [1, 2], [6, 6], [9, 10] ]' not found past cursor 96
+         #7 ? @@( o1.SplitAt( :Section = [ 4, 6 ] ) ) -> expected '[ [ 1, 3 ], [ 7, 10 ] ]' not found past cursor 96
+         #8 ? @@( o1.SplitAt( :Sections = [ [ 4, 6 ] ] ) ) -> expected '[ [ 1, 3 ], [ 7, 10 ] ]' not found past cursor 96
 [ FAIL ] 04_pr.ring:
          #1 ? @@( o1.SplitBefore( :Position = 10) ) -> expected '[ [ 1, 9 ], [ 10, 10 ] ]' not found past cursor 0
          #2 ? @@( o1.SplitBefore( :Position = 5) ) -> expected '[ [1, 4], [5, 10] ]' not found past cursor 0
@@ -37,7 +35,6 @@
          #4 ? @@( o1.SplittedAtWXT( :Where = 'Q(@position).IsMultipleOf( -> expected '[ [ 1, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]' not found past cursor 0
          #5 ? @@( o1.SplittedAtWXT( 'Q(@position).IsMultipleOf(3)' ) ) -> expected '[ [ 1, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]' not found past cursor 0
          ... +6 more
-[ FAIL ] 10_block_10.ring:
-         #1 ? @@( o1.GetPairsFromPositions([3, 6, 8]) ) -> expected '[ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]' not found past cursor 0
+[ PASS ] 10_block_10.ring: 1 assertions matched
 ---
-PASS: 1 / FAIL: 9
+PASS: 2 / FAIL: 8
