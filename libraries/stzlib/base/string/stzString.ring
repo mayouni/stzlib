@@ -559,6 +559,24 @@ class stzString from stzObject
 		def ToListOfChars()
 			return This.Chars()
 
+	# HtmlEscaped: escape `&`, `<`, `>`, `"`, `'` to HTML entities.
+	# Self-contained: no engine dependency, no external lookup.
+
+	def HtmlEscaped()
+		_cHesContent_ = This.Content()
+		_cHesR_ = substr(_cHesContent_, "&", "&amp;")
+		_cHesR_ = substr(_cHesR_, "<", "&lt;")
+		_cHesR_ = substr(_cHesR_, ">", "&gt;")
+		_cHesR_ = substr(_cHesR_, char(34), "&quot;")
+		_cHesR_ = substr(_cHesR_, char(39), "&#39;")
+		return _cHesR_
+
+		def EscapedHtml()
+			return This.HtmlEscaped()
+
+		def HTMLEscape()
+			return This.HtmlEscaped()
+
 	def Vowels()
 		_cVoStr_ = This.Content()
 		_nVoLen_ = len(_cVoStr_)
@@ -2924,6 +2942,32 @@ class stzString from stzObject
 	def StartsWithAny(pcPrefixes)
 		return This.StartsWithAnyCS(pcPrefixes, 1)
 
+	# StartsWithXT: extended startswith. Accepts a single prefix or
+	# a list of prefixes. Convenience dispatcher.
+	def StartsWithXT(pVal)
+		if isString(pVal)
+			return This.StartsWith(pVal)
+		but isList(pVal)
+			return This.StartsWithAny(pVal)
+		ok
+		return 0
+
+		def StartsWithXTCS(pVal, pCaseSensitive)
+			if isString(pVal)
+				return This.StartsWithCS(pVal, pCaseSensitive)
+			but isList(pVal)
+				return This.StartsWithAnyCS(pVal, pCaseSensitive)
+			ok
+			return 0
+
+	def EndsWithXT(pVal)
+		if isString(pVal)
+			return This.EndsWith(pVal)
+		but isList(pVal)
+			return This.EndsWithAny(pVal)
+		ok
+		return 0
+
 	def EndsWithAnyCS(pcSuffixes, pCaseSensitive)
 		_oEwFinder_ = new stzStringFinder(This)
 		return _oEwFinder_.EndsWithAnyCS(pcSuffixes, pCaseSensitive)
@@ -3020,6 +3064,15 @@ class stzString from stzObject
 
 		def NumberOfOccurrencesCS(pcSubStr, pCaseSensitive)
 			return This.CountCS(pcSubStr, pCaseSensitive)
+
+		def NumberOfSubStringsCS(pcSubStr, pCaseSensitive)
+			return This.CountCS(pcSubStr, pCaseSensitive)
+
+		def NumberOfSubStrings(pcSubStr)
+			return This.CountCS(pcSubStr, 1)
+
+		def NumberOfSubStringsU(pcSubStr)
+			return This.CountCS(pcSubStr, 0)
 
 	def Count(pcSubStr)
 		return This.CountCS(pcSubStr, 1)
