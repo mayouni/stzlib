@@ -1257,6 +1257,36 @@ class stzList from stzObject
 	 #  FLATTEN (engine-backed)             #
 	#--------------------------------------#
 
+	#-- Merge: flatten ONE level only. For each item: if it's a list,
+	#   spread its items; otherwise keep as-is. Distinct from
+	#   Flatten() which fully recurses. Port from archive line 37074;
+	#   used by stzHashList.Items() to coalesce list-of-lists values.
+
+	def Merge()
+		_aMgContent_ = @aContent
+		_nMgLen_ = len(_aMgContent_)
+		_aMgR_ = []
+		for _iMg_ = 1 to _nMgLen_
+			if isList(_aMgContent_[_iMg_])
+				_nMgInner_ = len(_aMgContent_[_iMg_])
+				for _jMg_ = 1 to _nMgInner_
+					_aMgR_ + _aMgContent_[_iMg_][_jMg_]
+				next
+			else
+				_aMgR_ + _aMgContent_[_iMg_]
+			ok
+		next
+		@aContent = _aMgR_
+
+		def MergeQ()
+			This.Merge()
+			return This
+
+	def Merged()
+		_oMdTmp_ = new stzList(@aContent)
+		_oMdTmp_.Merge()
+		return _oMdTmp_.Content()
+
 	def Flatten()
 		pList = This._EngineListFromContent()
 		if pList = NULL return ok
