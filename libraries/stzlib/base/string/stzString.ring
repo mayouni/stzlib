@@ -102,6 +102,15 @@ class stzString from stzObject
 	def NumberOfChars()
 		return StzLen(This.Content())
 
+		def Length()
+			return This.NumberOfChars()
+
+		def LengthQ()
+			return new stzNumber( This.NumberOfChars() )
+
+		def Len()
+			return This.NumberOfChars()
+
 	  #=======================================#
 	 #  CHECKING IF THE STRING IS EMPTY      #
 	#=======================================#
@@ -164,8 +173,14 @@ class stzString from stzObject
 	def FirstChar()
 		return This.NthChar(1)
 
+		def FirstCharQ()
+			return new stzString( This.FirstChar() )
+
 	def LastChar()
 		return This.NthChar(This.NumberOfChars())
+
+		def LastCharQ()
+			return new stzString( This.LastChar() )
 
 	def LeftChar()
 		# LTR alias for FirstChar. The monolith branched on
@@ -566,6 +581,20 @@ class stzString from stzObject
 		def CountVowels()
 			return This.NumberOfVowels()
 
+	# Returns 1 if the string is a single vowel char (case-insensitive
+	# ASCII a/e/i/o/u). Convenience predicate; callers use it as
+	# `Q(c).IsVowel()` or `Q(c).Vowel()`.
+
+	def IsVowel()
+		_cIvStr_ = This.Content()
+		if len(_cIvStr_) != 1
+			return 0
+		ok
+		return ring_find([ "a","e","i","o","u","A","E","I","O","U" ], _cIvStr_) > 0
+
+		def Vowel()
+			return This.IsVowel()
+
 	def HasVowels()
 		return len(This.Vowels()) > 0
 
@@ -741,6 +770,16 @@ class stzString from stzObject
 
 	def Lowercase()
 		This.Update(StzLower(This.Content()))
+
+		# Misspelled but historically-used aliases
+		def InLowercase()
+			return new stzString( StzLower(This.Content()) ).Content()
+
+		def InLowercaseQ()
+			return new stzString( StzLower(This.Content()) )
+
+		def InLowarcase()
+			return This.InLowercase()
 
 		def LowercaseQ()
 			This.Lowercase()
