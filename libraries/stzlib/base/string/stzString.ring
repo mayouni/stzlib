@@ -545,6 +545,20 @@ class stzString from stzObject
 	#   103163; self-contained byte scan. NumberOfVowels / VowelN
 	#   are simple count aliases; VowelsB / HasVowels are predicates.
 
+	# Transform the chars of the string into a list of stzChar
+	# objects (each backed by stzStringChar via the alias).
+	def ToListOfStzChars()
+		_acTosChars_ = This.Chars()
+		_nTosLen_ = len(_acTosChars_)
+		_aTosR_ = []
+		for _iTos_ = 1 to _nTosLen_
+			_aTosR_ + new stzChar(_acTosChars_[_iTos_])
+		next
+		return _aTosR_
+
+		def ToListOfChars()
+			return This.Chars()
+
 	def Vowels()
 		_cVoStr_ = This.Content()
 		_nVoLen_ = len(_cVoStr_)
@@ -1753,6 +1767,18 @@ class stzString from stzObject
 		def AnyBoundedBy(pacBounds)
 			return This.BoundedBy(pacBounds)
 
+	def ContainsSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+		return len(This.BoundedByCS(pacBounds, pCaseSensitive)) > 0
+
+	def ContainsSubStringsBoundedBy(pacBounds)
+		return len(This.BoundedBy(pacBounds)) > 0
+
+		def ContainsBoundedBy(pacBounds)
+			return This.ContainsSubStringsBoundedBy(pacBounds)
+
+		def ContainsAnyBoundedBy(pacBounds)
+			return This.ContainsSubStringsBoundedBy(pacBounds)
+
 	def FirstBetweenCS(pBound1, pBound2, pCaseSensitive)
 		_oFbBounder_ = new stzStringBounder(This)
 		return _oFbBounder_.FirstBetweenCS(pBound1, pBound2, pCaseSensitive)
@@ -1985,6 +2011,18 @@ class stzString from stzObject
 
 	def FindAsSections(pcSubStr)
 		return This.FindAsSectionsCS(pcSubStr, 1)
+
+		def FindZZ(pcSubStr)
+			return This.FindAsSections(pcSubStr)
+
+		def FindAllZZ(pcSubStr)
+			return This.FindAsSections(pcSubStr)
+
+		def FindAllAsSections(pcSubStr)
+			return This.FindAsSections(pcSubStr)
+
+	def FindZZCS(pcSubStr, pCaseSensitive)
+		return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 
 	  #===============================#
 	 #   REPLACE MANY                 #
