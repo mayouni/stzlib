@@ -1,11 +1,8 @@
 [ PASS ] 01_testing_basic_tile_initialization_and_movement.ring: 5 assertions matched
 [ PASS ] 02_testing_hitting_the_right_boundary.ring: 3 assertions matched
-[ FAIL ] 03_testing_different_movement_directions.ring:
-         #1 ? @@(o1.SizeXT()) + NL -> expected '[5, 5 ]' not found past cursor 0
-         #10 ? @@( o1.AdjacentCells() ) + NL -> expected '[ [ 2, 2 ], [ 2, 3 ], [ 2, 4 ], [ 3, 2 ], [ 3, 4 ], [ 4, 2 ]' not found past cursor 294
+[ PASS ] 03_testing_different_movement_directions.ring: 10 assertions matched
 [ skip ] 04_testing_forwardbackward_movement.ring: no #--> markers
-[ FAIL ] 05_testing_distance_calculations.ring:
-         #2 ? @@( CurrentPosition() ) + NL -> expected '[1, 1]' not found past cursor 10
+[ PASS ] 05_testing_distance_calculations.ring: 6 assertions matched
 [ skip ] 06_testing_edge_cases_and_boundary_conditions.ring: no #--> markers
 [ PASS ] 07_pr.ring: 3 assertions matched
 [ PASS ] 08_pr.ring: 1 assertions matched
@@ -16,17 +13,13 @@
 [ PASS ] 12_testing_direction-specific_movements.ring: 4 assertions matched
 [ FAIL ] 13_testing_nextprevious_nth_cell_methods.ring:
          #2 ? @@(o1.Position()) -> expected '[ 3, 2 ]' not found past cursor 8
-         #3 ? o1.Direction() -> expected 'Forward' not found past cursor 8
          #4 ? @@(o1.NextNthCell(2)) -> expected '[ 5, 2 ]' not found past cursor 8
          #5 ? @@(o1.PreviousNthCell(2)) -> expected '[ 3, 2 ]' not found past cursor 8
          #6 ? @@(o1.NextNthCell(1)) -> expected '[ 5, 3 ]' not found past cursor 8
 [ FAIL ] 14_testing_boundary_cases_and_error_handling.ring:
-         #1 ? @@( o1.SizeXT() ) -> expected '[ 6, 4 ]' not found past cursor 0
-         #2 ? @@(o1.Position()) -> expected '[ 1, 1 ]' not found past cursor 0
-         #3 ? @@(o1.Position()) -> expected '[ 1, 1 ]' not found past cursor 0
-         #4 ? @@(o1.Position()) -> expected '[ 6, 4 ]' not found past cursor 0
-         #5 ? @@(o1.Position()) -> expected '[ 6, 4 ]' not found past cursor 0
-         ... +1 more
+         #4 ? @@(o1.Position()) -> expected '[ 6, 4 ]' not found past cursor 26
+         #5 ? @@(o1.Position()) -> expected '[ 6, 4 ]' not found past cursor 26
+         #6 ? @@(o1.Position()) -> expected '[ 6, 4 ]' not found past cursor 26
 [ PASS ] 15_testing_obstacles_management.ring: 6 assertions matched
 [ PASS ] 16_testing_path_management.ring: 3 assertions matched
 [ skip ] 17_testing_path_finding_algorithms.ring: no #--> markers
@@ -34,7 +27,6 @@
          #1 ? o1.PathComplexity() -> expected '10' not found past cursor 0
 [ PASS ] 19_testing_region_management_and_connectivity.ring: 6 assertions matched
 [ skip ] 20_testing_maze_generation.ring: no #--> markers
-[ FAIL ] 21_testing_moving_and_hitting_an_obstacle.ring:
-         #1 ? @@( o1.Position() ) -> expected '[2, 3]' not found past cursor 0
+[ PASS ] 21_testing_moving_and_hitting_an_obstacle.ring: 1 assertions matched
 ---
-PASS: 10 / FAIL: 7 / skip: 4
+PASS: 13 / FAIL: 4 / skip: 4

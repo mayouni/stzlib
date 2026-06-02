@@ -6,7 +6,6 @@
 
 load "../../../stzBase.ring"
 
-*
 pr()
 
 o1 = new stzTile([6, 4])

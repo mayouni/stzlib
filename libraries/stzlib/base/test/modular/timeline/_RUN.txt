@@ -39,7 +39,7 @@
 [ FAIL ] 32_simple_display_without_configuration.ring:
          #1 ? @@NL( oTimeLine.Stats() ) -> expected '[ [ "metric", "value" ],' not found past cursor 0
 [ FAIL ] 33_custom_width_display.ring:
-         #1 ? oTimeLine.ToStringXT([ :Width = 30 ]) -> expected '│──────●──────●──────●────────○─► 1 2 3 ╭────┬──────────────' not found past cursor 0
+         #1 ? oTimeLine.ToStringXT([ :Width = 30 ]) -> expected 'Q1 Q2 Q3 │──────●──────●──────●────────○─► 1 2 3 ╭────┬─────' not found past cursor 0
 [ FAIL ] 34_finding_and_highlighting_specific_element.ring:
          #2 ? @@(FindMomentXT("EVENT_1")) + NL -> expected '[ [ "1", "2024-02-15 10:00:00" ], [ "3", "2024-08-15 10:00:0' not found past cursor 48
 [ PASS ] 35_highlighting_spans.ring: 1 assertions matched
