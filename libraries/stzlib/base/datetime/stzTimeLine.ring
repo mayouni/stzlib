@@ -739,13 +739,13 @@ class stzTimeLine from stzObject
 		return This.Span(pcLabel)[1]
 
 		def SpanStartQ(pcLabel)
-			return new stzDateTimeQ(This.SpanStart(pcLabel))
-		
+			return StzDateTimeQ(This.SpanStart(pcLabel))
+
 	def SpanEnd(pcLabel)
 		return This.Span(pcLabel)[2]
 
 		def SpanEndQ(pcLabel)
-			return new stzDateTimeQ(This.SpanEnd(pcLabel))
+			return StzDateTimeQ(This.SpanEnd(pcLabel))
 
 	def SpanDuration(pcLabel)
 		return This.SpanStartQ(pcLabel).DurationTo(This.SpanEnd(pcLabel), :InSeconds)
