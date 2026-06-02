@@ -1,0 +1,45 @@
+[ FAIL ] 01_getting_current_time_with_nowtime.ring:
+         #1 ? Now() -> expected '30/09/2025 23:05:00' not found past cursor 0
+         #2 ? NowTime() # Or simply Time() -> expected '23:05:39' not found past cursor 0
+         #3 ? oTime.Time() # Or Content() or ToString() -> expected '23:05:39' not found past cursor 0
+[ PASS ] 02_creating_time_from_string.ring: 2 assertions matched
+[ PASS ] 03_creating_time_from_hash_list.ring: 1 assertions matched
+[ PASS ] 04_creating_time_from_seconds_since_midnight.ring: 1 assertions matched
+[ PASS ] 05_validating_time_strings.ring: 3 assertions matched
+[ PASS ] 06_getting_time_components.ring: 3 assertions matched
+[ FAIL ] 07_12-hour_format_operations.ring:
+         #3 ? oTime.To12Hour() -> expected '2:30:00' not found past cursor 1
+[ PASS ] 08_adding_time_units.ring: 3 assertions matched
+[ PASS ] 09_subtracting_time_units.ring: 3 assertions matched
+[ PASS ] 10_operator_overloading_with.ring: 1 assertions matched
+[ PASS ] 11_operator_overloading_with_-.ring: 1 assertions matched
+[ PASS ] 12_time_difference_with_-_operator.ring: 1 assertions matched
+[ PASS ] 13_comparing_times_with_secsto_and_minutesto.ring: 3 assertions matched
+[ PASS ] 14_comparison_operators.ring: 3 assertions matched
+[ PASS ] 15_isbefore_isafter_isequalto.ring: 3 assertions matched
+[ PASS ] 16_isbetween.ring: 2 assertions matched
+[ PASS ] 17_time_of_day_checks.ring: 4 assertions matched
+[ PASS ] 18_ampm_checks.ring: 2 assertions matched
+[ PASS ] 19_special_time_checks.ring: 2 assertions matched
+[ PASS ] 20_work_hours_check.ring: 2 assertions matched
+[ PASS ] 21_seconds_sinceuntil_midnight.ring: 2 assertions matched
+[ FAIL ] 22_time_navigation.ring:
+         #2 ? oTime.PreviousHour() -> expected '10:30:00' not found past cursor 8
+         #4 ? oTime.PreviousMinute() -> expected '10:30:00' not found past cursor 26
+[ PASS ] 23_rounding_times.ring: 2 assertions matched
+[ PASS ] 24_start_and_end_of_hour.ring: 3 assertions matched
+[ FAIL ] 25_different_format_outputs.ring:
+         #1 ? oTime.To12Hour() -> expected '2:30:45 PM' not found past cursor 0
+         #4 ? oTime.ToSimple() -> expected '2:30 PM' not found past cursor 17
+[ FAIL ] 26_custom_format_strings.ring:
+         #2 ? oTime.ToStringXT("h:mm AP") -> expected '2:30 PM' not found past cursor 5
+[ FAIL ] 27_named_format_strings.ring:
+         #4 ? oTime.ToStringXT(:AmPm) -> expected '2:30:45 PM' not found past cursor 27
+[ PASS ] 28_human-readable_time.ring: 4 assertions matched
+[ PASS ] 29_part_of_day.ring: 4 assertions matched
+[ PASS ] 30_copying_time_objects.ring: 2 assertions matched
+[ PASS ] 31_working_with_milliseconds.ring: 2 assertions matched
+[ PASS ] 32_chaining_operations_with_q_functions.ring: 1 assertions matched
+[ skip ] 33_block_33.ring: no #--> markers
+---
+PASS: 26 / FAIL: 6 / skip: 1

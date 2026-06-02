@@ -79,7 +79,8 @@
          #3 ? MostXT( PositiveNumbersIn( -5 : 5 ), 90/100 ) -> expected '[ 3, 4, 5, 1 ]' not found past cursor 0
 [ PASS ] 26_pr.ring: 1 assertions matched
 [ FAIL ] 27_pr.ring:
-         #2 ? NRandomItemsIn(3, "A":"E") -> expected '[ "B", "B", "E" ]' not found past cursor 7
+         #2 ? NRandomItemsIn(3, "A":"E") -> expected '[ "B", "B", "E" ]' not found past cursor 5
+         #3 ? NRandomItemsInU(3, "A":"E") -> expected '[ "B", "E", "A" ]' not found past cursor 5
 [ FAIL ] 28_pr.ring:
          #1 ? NRandomNumbersIn(3, 1:10) -> expected '[ 1, 1, 1 ]' not found past cursor 0
          #2 ? NRandomNumbersInU(3, 1:10) -> expected '[ 5, 1, 10 ]' not found past cursor 0
@@ -93,11 +94,11 @@
          #4 ? ARandomNumber() -> expected '133_322_384' not found past cursor 0
          #5 ? ARandomNumberXT(77) -> expected '32_438_4546' not found past cursor 0
 [ FAIL ] 31_pr.ring:
-         #3 ? @@( ARandomNumberInZ(1:10) ) + NL -> expected '[ 2, 2 ]' not found past cursor 58
-         #4 ? RandomNumberBetween(100, 150) + NL -> expected '149' not found past cursor 58
-         #5 ? @@( NRandomNumbersBetween(3, 100, 110) ) + NL -> expected '[ 101, 101, 101 ]' not found past cursor 58
-         #6 ? @@( NRandomNumbersBetweenU(3, 100, 110) ) + NL -> expected '[ 102, 109, 105 ]' not found past cursor 58
-         #7 ? @@( NRandomNumbersBetweenZ(3, 100, 110) ) + NL -> expected '[ [ 105, 6 ], [ 108, 9 ], [ 105, 6 ] ]' not found past cursor 58
+         #3 ? @@( ARandomNumberInZ(1:10) ) + NL -> expected '[ 2, 2 ]' not found past cursor 109
+         #4 ? RandomNumberBetween(100, 150) + NL -> expected '149' not found past cursor 109
+         #5 ? @@( NRandomNumbersBetween(3, 100, 110) ) + NL -> expected '[ 101, 101, 101 ]' not found past cursor 109
+         #6 ? @@( NRandomNumbersBetweenU(3, 100, 110) ) + NL -> expected '[ 102, 109, 105 ]' not found past cursor 109
+         #7 ? @@( NRandomNumbersBetweenZ(3, 100, 110) ) + NL -> expected '[ [ 105, 6 ], [ 108, 9 ], [ 105, 6 ] ]' not found past cursor 109
          ... +1 more
 [ FAIL ] 33_pr.ring:
          #1 ? random(-10) # Standard Ring function returning NULL -> expected '""' not found past cursor 0

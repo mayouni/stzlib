@@ -466,8 +466,8 @@ class stzString from stzObject
 		ok
 		_acNcaResult_ = []
 		_cNcaStr_ = This.Content()
-		_nNcaLen_ = len(_cNcaStr_)
-		_nNcaSubLen_ = len(pcSubStr)
+		_nNcaLen_ = ring_len(_cNcaStr_)
+		_nNcaSubLen_ = ring_len(pcSubStr)
 		if _nNcaSubLen_ = 0 or _nNcaLen_ = 0
 			return _acNcaResult_
 		ok
