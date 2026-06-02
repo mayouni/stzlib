@@ -141,7 +141,8 @@ func FastProUpdate(paList, paCommand)
 		but isList(paCommand[2]) and len(paCommand[2]) = 2 and
 
 		   isList(paCommand[2][1]) and len(paCommand[2][1]) = 2 and
-		   isString(paCommand[2][1][1]) and paCommand[2][1][1] = :ColsFrom and
+		   isString(paCommand[2][1][1]) and
+		   (paCommand[2][1][1] = :ColsFrom or paCommand[2][1][1] = :RowsFrom) and
 
 		   isList(paCommand[2][1][2]) and len(paCommand[2][1][2]) = 2 and
 		   isNumber(paCommand[2][1][2][1]) and
@@ -151,28 +152,28 @@ func FastProUpdate(paList, paCommand)
 		   isNumber(paCommand[2][1][2][2][2])
 
 
-			if paCommand[2][1][1] = :Rows
+			if paCommand[2][1][1] = :RowsFrom
 
 				if isList(paCommand[2][2]) and len(paCommand[2][2]) = 2 and
 				   isString(paCommand[2][2][1]) and paCommand[2][2][1] = :With and
 				   isNumber(paCommand[2][2][2])
 
 					nStart = paCommand[2][1][2][1]
-					nEnd   = paCommand[2][1][2][2]
+					nEnd   = paCommand[2][1][2][2][2]
 					nValue = paCommand[2][2][2]
 
 					updateList(paList, :set, :manyrows, nStart, nEnd, nValue)
 					return paList
 				ok
 
-			else # paCommand[2][1][1] = :Cols
+			else # paCommand[2][1][1] = :ColsFrom
 
 				if isList(paCommand[2][2]) and len(paCommand[2][2]) = 2 and
 				   isString(paCommand[2][2][1]) and paCommand[2][2][1] = :With and
 				   isNumber(paCommand[2][2][2])
 
 					nStart = paCommand[2][1][2][1]
-					nEnd   = paCommand[2][1][2][2]
+					nEnd   = paCommand[2][1][2][2][2]
 					nValue = paCommand[2][2][2]
 
 					updateList(paList, :set, :manycols, nStart, nEnd, nValue)

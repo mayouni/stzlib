@@ -11,8 +11,7 @@
 [ PASS ] 09_pr.ring: 2 assertions matched
 [ PASS ] 10_pr.ring: 2 assertions matched
 [ FAIL ] 11_pr.ring:
-         #1 ? @@NL(aMatrix) -> expected '[ [ 1, 2, 3 ], [ 5, 5, 5 ], [ 5, 5, 5 ] ]' not found past cursor 0
-         #2 ? @@NL(aMatrix) -> expected '[ [ 1, 0, 0 ], [ 5, 0, 0 ], [ 5, 0, 0 ] ]' not found past cursor 0
+         #2 ? @@NL(aMatrix) -> expected '[ [ 1, 0, 0 ], [ 5, 0, 0 ], [ 5, 0, 0 ] ]' not found past cursor 41
 [ PASS ] 12_pr.ring: 2 assertions matched
 [ PASS ] 13_pr.ring: 2 assertions matched
 [ PASS ] 14_pr.ring: 2 assertions matched
