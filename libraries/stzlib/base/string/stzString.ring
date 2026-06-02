@@ -3553,7 +3553,7 @@ class stzString from stzObject
 		return _acFsbcR_
 
 	def FindSubStringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
-		if NOT (isList(pacBounds) and len(pacBounds) = 2 and
+		if NOT (isList(pacBounds) and ring_len(pacBounds) = 2 and
 		        isString(pacBounds[1]) and isString(pacBounds[2]))
 			StzRaise("FindSubStringsBoundedByIBCSZZ: pacBounds must be [ open, close ] strings")
 		ok
@@ -3561,9 +3561,9 @@ class stzString from stzObject
 		_cFsibStr_ = This.Content()
 		_cFsibOpen_ = pacBounds[1]
 		_cFsibClose_ = pacBounds[2]
-		_nFsibLen_ = len(_cFsibStr_)
-		_nFsibO_ = len(_cFsibOpen_)
-		_nFsibC_ = len(_cFsibClose_)
+		_nFsibLen_ = ring_len(_cFsibStr_)
+		_nFsibO_ = ring_len(_cFsibOpen_)
+		_nFsibC_ = ring_len(_cFsibClose_)
 		if _nFsibO_ = 0 or _nFsibC_ = 0
 			return _acFsibResult_
 		ok
