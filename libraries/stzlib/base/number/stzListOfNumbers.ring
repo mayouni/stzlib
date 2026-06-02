@@ -1978,7 +1978,8 @@ class stzListOfNumbers from stzList
 		ok
 
 		anContent = This.Content()
-		nResult = new stzList( anContent ).Sorted()[1]
+		_oChain_ = new stzList( anContent )
+		nResult = _oChain_.Sorted()[1]
 		return nResult
 
 		def MinNumber()
@@ -2404,7 +2405,8 @@ class stzListOfNumbers from stzList
 		ok
 
 		anContent = This.Content()
-		nResult = new stzList( anContent ).SortedInDescending()[1]
+		_oChain_ = new stzList( anContent )
+		nResult = _oChain_.SortedInDescending()[1]
 		return nResult
 
 		def MaxNumber()
@@ -4850,7 +4852,9 @@ class stzListOfNumbers from stzList
 			return []
 		ok
 
-		anSorted = new stzList(anContent).Sorted()
+		_oChain_ = new stzList(anContent)
+
+		anSorted = _oChain_.Sorted()
 		aSections = []
 		n = 0
 

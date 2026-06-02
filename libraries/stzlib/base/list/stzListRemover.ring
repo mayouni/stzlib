@@ -239,7 +239,9 @@ class stzListRemover
 			ok
 		ok
 
-		panPositions = new stzList(panPositions).Sorted()
+		_oChain_ = new stzList(panPositions)
+
+		panPositions = _oChain_.Sorted()
 		_nRiapLen_ = len(panPositions)
 
 		for _iRiap_ = _nRiapLen_ to 1 step -1

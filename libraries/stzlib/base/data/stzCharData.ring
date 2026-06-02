@@ -1464,7 +1464,8 @@ _cMarquerChar = "#"
 		acResult = []
 		for i = 1 to nLen
 			if acUnicodeScriptsXT[i][2] = cScript
-				acResult = new stzList(acUnicodeScriptsXT[i][4]).Sorted()
+				_oChain_ = new stzList(acUnicodeScriptsXT[i][4])
+				acResult = _oChain_.Sorted()
 				exit
 			ok
 		next
