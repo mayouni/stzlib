@@ -557,7 +557,8 @@ class stzSplitter from stzListOfNumbers
 
 		nLen = This.NumberOfItems()
 
-		anPos = U( new stzList(panPos).Sorted() )
+		_oTmpSpSort_ = new stzList(panPos)
+		anPos = U( _oTmpSpSort_.Sorted() )
 		nLenPos = len(anPos)
 
 		for i = 1 to nLenPos
@@ -687,7 +688,8 @@ class stzSplitter from stzListOfNumbers
 
 		nLen = This.NumberOfItems()
 
-		anPos = U( new stzList(panPos).Sorted() )
+		_oTmpSpSort_ = new stzList(panPos)
+		anPos = U( _oTmpSpSort_.Sorted() )
 		nLenPos = len(anPos)
 
 		for i = 1 to nLenPos

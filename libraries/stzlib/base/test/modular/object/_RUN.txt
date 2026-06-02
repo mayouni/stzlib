@@ -14,7 +14,8 @@
          #1 ? @@( StzNullObjectQ() ) -> expected '@noname' not found past cursor 0
          #2 ? @@([ StzNullObjectQ() ]) -> expected '[ @noname ]' not found past cursor 0
 [ skip ] 10_pr.ring: no #--> markers
-[ PASS ] 11_pr.ring: 1 assertions matched
+[ FAIL ] 11_pr.ring:
+         #1 ? StzNumberQ("-5.23456").Absolute() -> expected '"5.23456"' not found past cursor 0
 [ skip ] 12_pr.ring: no #--> markers
 [ PASS ] 13_tonumber_and_tonumberw.ring: 3 assertions matched
 [ FAIL ] 14_startprofiler.ring:
@@ -29,10 +30,12 @@
 [ PASS ] 18_pr.ring: 3 assertions matched
 [ skip ] 19_pr.ring: no #--> markers
 [ FAIL ] 20_pr.ring:
-         #15 ? Q("2").Is(:NumberInString) -> expected 'TRUE' not found past cursor 35
-         #16 ? Q("2").IsEitherA(:Number, :Or = :String) -> expected 'TRUE' not found past cursor 35
-         #17 ? Q("2").IsOneOfThese([ 3, "2", 5 ]) -> expected 'TRUE' not found past cursor 35
-         #18 ? Q([ 10, 20, 30 ]).IsA(:ListOfNumbers) -> expected 'TRUE' not found past cursor 35
+         #5 ? Q("str").IsAString() -> expected 'TRUE' not found past cursor 297
+         #6 ? Q("5").IsNumberInString() -> expected 'TRUE' not found past cursor 297
+         #7 ? Q("str").IsA(:String) -> expected 'TRUE' not found past cursor 297
+         #8 ? Q("str").IsA(:StzString) -> expected 'TRUE' not found past cursor 297
+         #9 ? Q("str").IsAn(:Object) -> expected 'TRUE' not found past cursor 297
+         ... +9 more
 [ PASS ] 21_pr.ring: 1 assertions matched
 [ skip ] 22_block_22.ring: no #--> markers
 [ PASS ] 23_pr.ring: 1 assertions matched
@@ -44,8 +47,7 @@
          #3 ? Q([ "1", "2", "3" ]).EachItemIsA([ :String, :NumberInStrin -> expected 'TRUE' not found past cursor 3
 [ FAIL ] 28_pr.ring:
          #2 ? o1.Is(:String) -> expected 'FALSE' not found past cursor 3
-[ FAIL ] 29_pr.ring:
-         #1 ? o1.Is(:StzString) -> expected 'TRUE' not found past cursor 0
+[ PASS ] 29_pr.ring: 1 assertions matched
 [ skip ] 30_pr.ring: no #--> markers
 [ PASS ] 31_pr.ring: 2 assertions matched
 [ FAIL ] 32_pr.ring:

@@ -6,7 +6,6 @@
 
 load "../../../stzBase.ring"
 
-*
 pr()
 
 # Register: No one approves their own work

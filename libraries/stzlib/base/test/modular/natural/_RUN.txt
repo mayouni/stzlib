@@ -1,0 +1,42 @@
+[ skip ] 01_pr.ring: no #--> markers
+[ skip ] 02_block_2.ring: no #--> markers
+[ skip ] 03_block_3.ring: no #--> markers
+[ FAIL ] 04_pr.ring:
+         #1 ? BoxRound( o1.Result() + " " + o2.Result() ) -> expected '╭─────────────╮ │ Hello Niamy │ ╰─────────────╯' not found past cursor 0
+[ skip ] 05_boxing_with_modifiers.ring: no #--> markers
+[ skip ] 06_raising_error_when_object_type_is_not_supported.ring: no #--> markers
+[ FAIL ] 07_getting_result_without_display.ring:
+         #1 ? Nt.Result() -> expected 'TEST_DATA' not found past cursor 0
+         #2 ? Nt.Code() + NL -> expected 'oStr = StzStringQ("test.data") oStr.Replace(".", "_") oStr.U' not found past cursor 0
+[ skip ] 08_chained_operations.ring: no #--> markers
+[ skip ] 09_object_creation_variations.ring: no #--> markers
+[ skip ] 10_basic_transformations.ring: no #--> markers
+[ skip ] 11_multiple_operations.ring: no #--> markers
+[ skip ] 12_boxing_with_options.ring: no #--> markers
+[ FAIL ] 13_trimming_operations.ring:
+         #1 ? o1.Code() -> expected 'oStr = StzStringQ(" oStr.Trim() oStr.Uppercase() ? oStr.Cont' not found past cursor 0
+[ skip ] 14_reverse_operations.ring: no #--> markers
+[ skip ] 15_case_transformations.ring: no #--> markers
+[ skip ] 16_substitute_operation.ring: no #--> markers
+[ skip ] 17_change_operation.ring: no #--> markers
+[ skip ] 18_multiple_modifiers.ring: no #--> markers
+[ skip ] 19_frame_alternative.ring: no #--> markers
+[ skip ] 20_print_alternative.ring: no #--> markers
+[ skip ] 21_complex_chaining.ring: no #--> markers
+[ skip ] 22_command_chaining.ring: no #--> markers
+[ skip ] 23_multiple_parameter_consumption.ring: no #--> markers
+[ skip ] 24_definerecall_state.ring: no #--> markers
+[ skip ] 25_multiple_definerecall_cycles.ring: no #--> markers
+[ skip ] 26_capitalize.ring: no #--> markers
+[ skip ] 27_empty_value_protection.ring: no #--> markers
+[ FAIL ] 28_debug_mode_testing.ring:
+         #1 ? @@NL( Nt.DebugLog() ) -> expected '[ [ [ "timestamp", 2166 ], [ "message", "Executing natural c' not found past cursor 0
+[ skip ] 29_clearing_debug_log.ring: no #--> markers
+[ skip ] 31_multiple_boxing_with_free_punctuation.ring: no #--> markers
+[ skip ] 32_natural_code_in_english.ring: no #--> markers
+[ FAIL ] 33_natural_code_in_hausa_latin_script_boko.ring:
+         #1 ? o1.Code() -> expected 'oStr = StzStringQ("hello niger") oStr.Spacify() oStr.Upperca' not found past cursor 0
+[ skip ] 34_from_file.ring: no #--> markers
+[ skip ] 35_multiline_with_proper_formatting.ring: no #--> markers
+---
+FAIL: 5 / skip: 29

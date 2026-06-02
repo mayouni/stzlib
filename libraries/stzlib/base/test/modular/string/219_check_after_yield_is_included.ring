@@ -6,7 +6,6 @@
 
 load "../../../stzBase.ring"
 
-*
 pr()
 
 # To return the ascii code of each letter we say:

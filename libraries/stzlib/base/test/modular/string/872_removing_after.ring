@@ -6,7 +6,6 @@
 
 load "../../../stzBase.ring"
 
-*
 StartProfiler()
 	
 Q("Ring programming* language.") {
