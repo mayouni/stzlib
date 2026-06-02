@@ -1,77 +1,67 @@
-[ FAIL ] 01_basic_folder_creation_and_information.ring:
-         #4 ? Count() # Or Size() -> expected '3' not found past cursor 200
-[ FAIL ] 02_getting_folder_names_and_paths.ring:
-         #1 ? Name() -> expected 'Projects' not found past cursor 0
-         #2 ? Path() -> expected 'C:\\Users\\John\\Documents\\Projects' not found past cursor 0
-         #3 ? FullPath() # Or AbsolutePath() -> expected 'C:\\Users\\John\\Documents\\Projects' not found past cursor 0
-[ FAIL ] 03_folder_status_checks.ring:
-         #3 ? HasFiles() # Or ContainsFiles() -> expected 'TRUE' not found past cursor 142
-         #4 ? HasFolders() # Or HasDirs() -> expected 'TRUE' not found past cursor 142
-[ FAIL ] 04_basic_navigation.ring:
-         #1 ? Path() -> expected 'C:\\Users' not found past cursor 0
-         #2 ? Path() -> expected 'C:\\Users\\Public' not found past cursor 0
-         #3 ? Path() -> expected 'C:\\Users' not found past cursor 0
-         #4 ? Path() -> expected 'C:\\Users\\[Username]' not found past cursor 0
-[ FAIL ] 05_listing_files_and_folders.ring:
-         #1 ? First3(aFiles) -> expected 'calc.exe notepad.exe cmd.exe' not found past cursor 0
-         #2 ? First3(aFolders) -> expected 'drivers config Tasks' not found past cursor 0
-[ FAIL ] 06_counting_contents.ring:
-         #3 ? CountFolders() + NL # Or CountDirs() -> expected '41' not found past cursor 165
-         #4 ? DeepCount() -> expected '16309' not found past cursor 165
-         #5 ? DeepCountFiles() -> expected '14392' not found past cursor 165
-         #6 ? DeepCountFolders() -> expected '1917' not found past cursor 165
-[ PASS ] 07_checking_for_specific_content.ring: 4 assertions matched
-[ FAIL ] 08_creating_single_folders.ring:
-         #1 ? oNewFolder.Name() -> expected 'TestSubFolder' not found past cursor 0
-[ skip ] 09_creating_multiple_folders.ring: no #--> markers
-[ FAIL ] 10_creating_folder_paths.ring:
-         #1 ? oDeepFolder.Name() -> expected 'Level3' not found past cursor 0
-[ PASS ] 11_removing_files_and_folders.ring: 2 assertions matched
-[ FAIL ] 12_recursive_removal.ring:
-         #1 ? Path() -> expected 'C:\\TestArea\\Level1' not found past cursor 0
-         #2 ? bSuccess -> expected 'Removal successful: TRUE' not found past cursor 0
-[ FAIL ] 13_basic_search_operations.ring:
-         #1 ? @FirstN(5, acExeFiles) -> expected 'calc.exe notepad.exe cmd.exe ping.exe ipconfig.exe' not found past cursor 0
-[ FAIL ] 14_specialized_search_methods.ring:
-         #1 ? len(aDlls) -> expected '3611' not found past cursor 0
-         #2 ? len(aConfigFolders) -> expected 'Config folders: 2' not found past cursor 0
-         #3 ? @@(aConfigFolders) -> expected '[ "config", "Configuration" ]' not found past cursor 0
-[ FAIL ] 15_files_by_extension.ring:
-         #1 ? len(aExeFiles) -> expected '642' not found past cursor 0
-         #2 ? len(aDllFiles) -> expected '3382' not found past cursor 0
-[ skip ] 16_specialized_search_methods.ring: no #--> markers
-[ skip ] 17_pr.ring: no #--> markers
-[ FAIL ] 18_detailed_information.ring:
-         #1 ? @@NL(o1.Info()) -> expected "'" not found past cursor 0
-[ FAIL ] 19_softanza_use_as_a_separator_but_gives_access_to_sy.ring:
-         #3 ? @@( o1.FindFile("/test.txt") ) -> expected '[ "/test.txt" ]' not found past cursor 0
-         #4 ? @@( o1.FindFile("\test.txt") ) -> expected '[ "/test.txt" ]' not found past cursor 0
-[ PASS ] 20_short_and_long_folders_and_files_names.ring: 6 assertions matched
-[ skip ] 21_pr.ring: no #--> markers
-[ PASS ] 22_pr.ring: 2 assertions matched
-[ PASS ] 23_ring_dir_and_softanza_dir.ring: 2 assertions matched
-[ PASS ] 24_folder_tree_display.ring: 12 assertions matched
-[ PASS ] 25_we_can_even_search_inside_text_files_for_the_word_.ring: 1 assertions matched
-[ FAIL ] 26_pr.ring:
-         #1 ? @@( o1.Files() ) -> expected '[ "/test.txt" ]' not found past cursor 0
-         #2 ? @@( o1.FilesXT() ) -> expected '[ "c:/testarea/test.txt" ]' not found past cursor 0
-         #3 ? @@NL( o1.DeepFiles() ) -> expected 'a list of simlified paths' not found past cursor 0
-[ FAIL ] 27_pr.ring:
-         #2 ? o1.NormalizefileName("test.txt") -> expected '/test.txt' not found past cursor 5
-         #3 ? o1.NormalizeFolderName("images") + NL -> expected '/images/' not found past cursor 5
-         #4 ? o1.IsFolderPath("/images") -> expected 'TRUE' not found past cursor 5
-         #5 ? o1.IsFolderPath("images") -> expected 'TRUE' not found past cursor 5
-[ FAIL ] 28_block_28.ring:
-         #1 ? @@( o1.FindFiles(["test.txt"]) ) -> expected '[ "test.txt" ]' not found past cursor 0
-[ PASS ] 29_visual_finding.ring: 1 assertions matched
-[ FAIL ] 30_copy_and_clone.ring:
-         #1 ? o1.Path() -> expected 'C:\\Windows\\System32' not found past cursor 0
-         #2 ? o2.Path() -> expected 'C:\\Windows\\System32' not found past cursor 0
-[ FAIL ] 31_refresh_operation.ring:
-         #1 ? Count() # or CountFilesAndFolders() -> expected '5' not found past cursor 0
-[ FAIL ] 32_folder_creation_and_navigation_logic.ring:
-         #1 ? Path() -> expected 'C:/Windows/Temp' not found past cursor 0
-         #2 ? Path() -> expected 'C:/Windows/Temp/ChainTest/SubTest Confirms persistent naviga' not found past cursor 0
-[ skip ] 33_complete_folder_management_workflow.ring: no #--> markers
----
-PASS: 8 / FAIL: 20 / skip: 5
+[ FAIL ] 01_basic_folder_creation_and_information.ring:
+         #4 ? Count() # Or Size() -> expected '3' not found past cursor 0
+[ FAIL ] 02_getting_folder_names_and_paths.ring:
+         #2 ? Path() -> expected 'C:\\Users\\John\\Documents\\Projects' not found past cursor 0
+         #3 ? FullPath() # Or AbsolutePath() -> expected 'C:\\Users\\John\\Documents\\Projects' not found past cursor 0
+[ PASS ] 03_folder_status_checks.ring: 4 assertions matched
+[ FAIL ] 04_basic_navigation.ring:
+         #1 ? Path() -> expected 'C:\\Users' not found past cursor 0
+         #2 ? Path() -> expected 'C:\\Users\\Public' not found past cursor 0
+         #3 ? Path() -> expected 'C:\\Users' not found past cursor 0
+         #4 ? Path() -> expected 'C:\\Users\\[Username]' not found past cursor 0
+[ FAIL ] 05_listing_files_and_folders.ring:
+         #1 ? First3(aFiles) -> expected 'calc.exe notepad.exe cmd.exe' not found past cursor 0
+[ FAIL ] 06_counting_contents.ring:
+         #3 ? CountFolders() + NL # Or CountDirs() -> expected '41' not found past cursor 165
+         #4 ? DeepCount() -> expected '16309' not found past cursor 165
+         #5 ? DeepCountFiles() -> expected '14392' not found past cursor 165
+         #6 ? DeepCountFolders() -> expected '1917' not found past cursor 165
+[ PASS ] 07_checking_for_specific_content.ring: 4 assertions matched
+[ PASS ] 08_creating_single_folders.ring: 1 assertions matched
+[ skip ] 09_creating_multiple_folders.ring: no #--> markers
+[ PASS ] 10_creating_folder_paths.ring: 1 assertions matched
+[ PASS ] 11_removing_files_and_folders.ring: 2 assertions matched
+[ FAIL ] 12_recursive_removal.ring:
+         #1 ? Path() -> expected 'C:\\TestArea\\Level1' not found past cursor 0
+[ FAIL ] 13_basic_search_operations.ring:
+         #1 ? @FirstN(5, acExeFiles) -> expected 'calc.exe notepad.exe cmd.exe ping.exe ipconfig.exe' not found past cursor 0
+[ FAIL ] 14_specialized_search_methods.ring:
+         #1 ? len(aDlls) -> expected '3611' not found past cursor 0
+         #3 ? @@(aConfigFolders) -> expected '[ "config", "Configuration" ]' not found past cursor 0
+[ FAIL ] 15_files_by_extension.ring:
+         #1 ? len(aExeFiles) -> expected '642' not found past cursor 0
+         #2 ? len(aDllFiles) -> expected '3382' not found past cursor 0
+[ skip ] 16_specialized_search_methods.ring: no #--> markers
+[ skip ] 17_pr.ring: no #--> markers
+[ FAIL ] 18_detailed_information.ring:
+         #1 ? @@NL(o1.Info()) -> expected "'" not found past cursor 0
+[ FAIL ] 19_softanza_use_as_a_separator_but_gives_access_to_sy.ring:
+         #3 ? @@( o1.FindFile("/test.txt") ) -> expected '[ "/test.txt" ]' not found past cursor 0
+         #4 ? @@( o1.FindFile("\test.txt") ) -> expected '[ "/test.txt" ]' not found past cursor 0
+[ PASS ] 20_short_and_long_folders_and_files_names.ring: 6 assertions matched
+[ skip ] 21_pr.ring: no #--> markers
+[ PASS ] 22_pr.ring: 2 assertions matched
+[ PASS ] 23_ring_dir_and_softanza_dir.ring: 2 assertions matched
+[ PASS ] 24_folder_tree_display.ring: 12 assertions matched
+[ PASS ] 25_we_can_even_search_inside_text_files_for_the_word_.ring: 1 assertions matched
+[ FAIL ] 26_pr.ring:
+         #1 ? @@( o1.Files() ) -> expected '[ "/test.txt" ]' not found past cursor 0
+         #2 ? @@( o1.FilesXT() ) -> expected '[ "c:/testarea/test.txt" ]' not found past cursor 0
+         #3 ? @@NL( o1.DeepFiles() ) -> expected 'a list of simlified paths' not found past cursor 0
+[ FAIL ] 27_pr.ring:
+         #2 ? o1.NormalizefileName("test.txt") -> expected '/test.txt' not found past cursor 0
+         #3 ? o1.NormalizeFolderName("images") + NL -> expected '/images/' not found past cursor 0
+[ FAIL ] 28_block_28.ring:
+         #1 ? @@( o1.FindFiles(["test.txt"]) ) -> expected '[ "test.txt" ]' not found past cursor 0
+[ PASS ] 29_visual_finding.ring: 1 assertions matched
+[ FAIL ] 30_copy_and_clone.ring:
+         #1 ? o1.Path() -> expected 'C:\\Windows\\System32' not found past cursor 0
+         #2 ? o2.Path() -> expected 'C:\\Windows\\System32' not found past cursor 0
+[ FAIL ] 31_refresh_operation.ring:
+         #1 ? Count() # or CountFilesAndFolders() -> expected '5' not found past cursor 0
+[ FAIL ] 32_folder_creation_and_navigation_logic.ring:
+         #1 ? Path() -> expected 'C:/Windows/Temp' not found past cursor 0
+         #2 ? Path() -> expected 'C:/Windows/Temp/ChainTest/SubTest' not found past cursor 0
+[ skip ] 33_complete_folder_management_workflow.ring: no #--> markers
+---
+PASS: 11 / FAIL: 17 / skip: 5

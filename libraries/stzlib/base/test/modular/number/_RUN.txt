@@ -69,7 +69,9 @@
          #2 ? RoundedTo(3) -> expected '"81.8"' not found past cursor 6
          #3 ? RoundedToXT(3) -> expected '"81.800"' not found past cursor 6
 [ PASS ] 47_pr.ring: 8 assertions matched
-[ PASS ] 48_pr.ring: 4 assertions matched
+[ FAIL ] 48_pr.ring:
+         #3 ? o1.Value() # Or NumericValue() ~> Sensitive to the currend -> expected '-12.45' not found past cursor 182
+         #4 ? o1.StringValue() # Or Content() ~> Sensitive to the curren -> expected '"-12.4521"' not found past cursor 182
 [ PASS ] 49_pr.ring: 3 assertions matched
 [ PASS ] 50_pr.ring: 5 assertions matched
 [ PASS ] 51_pr.ring: 2 assertions matched
@@ -83,7 +85,8 @@
 [ skip ] 56_pr.ring: no #--> markers
 [ PASS ] 57_pr.ring: 2 assertions matched
 [ FAIL ] 58_pr.ring:
-         #3 ? o1.Content() -> expected '23500.12399999999980' not found past cursor 3
+         #2 ? o1.MaxRound() -> expected '6' not found past cursor 179
+         #3 ? o1.Content() -> expected '23500.12399999999980' not found past cursor 179
 [ FAIL ] 59_pr.ring:
          #1 ? o1.Content() -> expected '"123.00000000000000"' not found past cursor 0
          #2 ? o1.Content() -> expected '"12345678912345"' not found past cursor 0
@@ -96,8 +99,7 @@
          #4 ? o1.RoundedTo(3) -> expected '"12.456"' not found past cursor 0
          #5 ? o1.RoundedTo(4) -> expected '"12.456"' not found past cursor 0
          ... +1 more
-[ FAIL ] 62_pr.ring:
-         #4 ? IsDividableBy("2.001") -> expected 'FALSE' not found past cursor 198
+[ PASS ] 62_pr.ring: 4 assertions matched
 [ skip ] 63_block_63.ring: no #--> markers
 [ skip ] 64_o1_new_stzbinarynumber0b00101011000011.ring: no #--> markers
 [ skip ] 67_o1_new_stznumber12500.ring: no #--> markers

@@ -1830,7 +1830,9 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! panPos must be a list.")
 		ok
 
-		panSorted = new stzList(panPos).Sorted()
+		_oChain_ = new stzList(panPos)
+
+		panSorted = _oChain_.Sorted()
 		nLen = len(panSorted)
 
 		for i = nLen to 1 step -1

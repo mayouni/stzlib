@@ -4476,7 +4476,9 @@ class stzListOfLists from stzList
 		_aRcsContent_ = This.Content()
 		_nRcsLen_ = len(_aRcsContent_)
 
-		anColNumbers = new stzList(anColNumbers).Sorted()
+		_oChain_ = new stzList(anColNumbers)
+
+		anColNumbers = _oChain_.Sorted()
 		_nRcsLenCols_ = len(anColNumbers)
 
 		for _iRcs_ = _nRcsLenCols_ to 1 step -1

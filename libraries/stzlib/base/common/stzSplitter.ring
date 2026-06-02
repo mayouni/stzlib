@@ -409,7 +409,9 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitAtPosition(panPos[1])
 		ok
 
-		panPos = new stzList(panPos).Sorted()
+		_oChain_ = new stzList(panPos)
+
+		panPos = _oChain_.Sorted()
 		aPairs = This.GetPairsFromPositions(panPos)
 
 		nFirstPos = panPos[1]
@@ -1763,7 +1765,8 @@ class stzSplitter from stzListOfNumbers
 		if aPos[len(aPos)] != 10 { aPos + nLen }
 		
 		# Sorting the list
-		aPos = new stzList(aPos).Sorted()
+		_oChain_ = new stzList(aPos)
+		aPos = _oChain_.Sorted()
 		
 		# Getting the pairs of that list
 

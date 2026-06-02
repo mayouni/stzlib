@@ -153,7 +153,9 @@ class stzListInserter
 			pItem = pItem[2]
 		ok
 
-		panPositions = new stzList(panPositions).Sorted()
+		_oChain_ = new stzList(panPositions)
+
+		panPositions = _oChain_.Sorted()
 		_nIbpLen_ = len(panPositions)
 
 		for _iIbp_ = _nIbpLen_ to 1 step -1

@@ -40,21 +40,24 @@
 [ PASS ] 29_categorical_insights.ring: 1 assertions matched
 [ FAIL ] 30_custom_insight_rules.ring:
          #1 ? @@NL(InsightsOfDomain(:Finance)) + NL -> expected '[ "High financial volatility (CV = 52.7046%). Risk assessmen' not found past cursor 0
-         #2 ? @@NL(InsightsXT()) -> expected '[ "High variability (CV = 52.7046%) suggests heterogeneous d' not found past cursor 0
+         #2 ? @@NL(InsightsXT()) -> expected '[ "High variability "Extreme kurtosis detected (-6.6400). Di' not found past cursor 0
 [ FAIL ] 31_weighted_rules.ring:
          #1 ? @@NL(PrioritizedInsights(:Finance)) -> expected '[ [ "High mean (30).", 2 ], [ "High financial volatility (CV' not found past cursor 0
          #2 ? @@NL( InsightsForDomain(:Finance) ) + NL -> expected '[ "High financial volatility (CV = 52.7046%). Risk assessmen' not found past cursor 0
-         #3 ? @@NL( InsightsXT() ) -> expected '[ "High variability (CV = 52.7046%) suggests heterogeneous d' not found past cursor 0
+         #3 ? @@NL( InsightsXT() ) -> expected '[ "High variability "Extreme kurtosis detected (-6.6400). Di' not found past cursor 0
 [ PASS ] 32_data_quality_tests.ring: 3 assertions matched
 [ FAIL ] 33_data_validation.ring:
-         #3 ? @@NL(o1.Recommendations()) -> expected '[ "Small sample size (n=5) prone to outlier influence. Use n' not found past cursor 80
+         #3 ? @@NL(o1.Recommendations()) -> expected '[ "Small sample size TrimmedMean(), and interpret results ca' not found past cursor 80
 [ skip ] 34_cache_performance.ring: no #--> markers
 [ PASS ] 35_utility_standalone_functions.ring: 1 assertions matched
 [ FAIL ] 36_summary_and_export_functions.ring:
          #1 ? @@NL(o1.Export()) + nl -> expected '[ [ "data_type", "numeric" ], [ "count", 5 ], [ "unique_coun' not found past cursor 0
-[ PASS ] 37_empty_dataset.ring: 1 assertions matched
-[ PASS ] 38_single_value_dataset.ring: 1 assertions matched
-[ PASS ] 39_mixed_data_types.ring: 1 assertions matched
+[ FAIL ] 37_empty_dataset.ring:
+         #1 ? @@(Insights()) -> expected '[ "Dataset is empty - No analysis possible without data.", "' not found past cursor 0
+[ FAIL ] 38_single_value_dataset.ring:
+         #1 ? @@NL(o1.Insights()) -> expected '[ "Low variability "Near-normal distribution characteristics' not found past cursor 0
+[ FAIL ] 39_mixed_data_types.ring:
+         #1 ? @@NL(Insights()) -> expected '[ "Low variability "Near-normal distribution characteristics' not found past cursor 0
 [ PASS ] 40_invalid_correlation_cases.ring: 2 assertions matched
 [ FAIL ] 41_demonstrates_a_comprehensive_analysis_using_multip.ring:
          #1 ? oSales.Mean() -> expected '190 // Average sales is 190 units' not found past cursor 0
@@ -71,10 +74,9 @@
 [ skip ] 46_example_4_outlier_investigation.ring: no #--> markers
 [ skip ] 47_example_5_custom_plan_creation.ring: no #--> markers
 [ skip ] 48_example_6_trend_analysis_for_time_series.ring: no #--> markers
-[ FAIL ] 49_example_7_comparative_analysis_plan.ring:
-         #1 ? "Improvement: " + @@(nImprovement) + "%" -> expected 'OUTPUT' not found past cursor 0
+[ PASS ] 49_example_7_comparative_analysis_plan.ring: 1 assertions matched
 [ skip ] 50_example_8_smart_plan_selection.ring: no #--> markers
 [ skip ] 51_example_9_plan_chaining.ring: no #--> markers
 [ skip ] 52_example_10_conditional_plan_execution.ring: no #--> markers
 ---
-PASS: 17 / FAIL: 12 / skip: 23
+PASS: 15 / FAIL: 14 / skip: 23
