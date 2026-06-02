@@ -3499,8 +3499,8 @@ class stzString from stzObject
 				_cSscOut_ = ""
 				_cSscHay_ = lower(_cSscRes_)
 				_cSscNdl_ = lower(_cSub_)
-				_nSscLen_ = len(_cSscRes_)
-				_nSscSub_ = len(_cSub_)
+				_nSscLen_ = ring_len(_cSscRes_)
+				_nSscSub_ = ring_len(_cSub_)
 				_iSsc_ = 1
 				while _iSsc_ <= _nSscLen_
 					if _iSsc_ + _nSscSub_ - 1 <= _nSscLen_ and substr(_cSscHay_, _iSsc_, _nSscSub_) = _cSscNdl_
