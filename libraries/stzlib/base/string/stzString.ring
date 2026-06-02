@@ -604,24 +604,37 @@ class stzString from stzObject
 			_oTmp_ = new stzString(_cSec_)
 			return _oTmp_.ContainsCS(pcSubStr, pCaseSensitive)
 
-	# ReplaceInSection: replace occurrences of pcSubStr within the
-	# section [n1, n2] with pcNew. Returns the new content.
-	def ReplaceInSection(n1, n2, pcSubStr, pcNew)
+	# ReplaceInSection: replace occurrences of pSubStr within the
+	# section [n1, n2] with pNew. Polymorphic on argument order:
+	#   ReplaceInSection(n1, n2, pSubStr, pNew)      -- bounds first
+	#   ReplaceInSection(pSubStr, pNew, n1, n2)      -- substrings first
+	def ReplaceInSection(pA, pB, pC, pD)
+		if isString(pA) and isString(pB) and isNumber(pC) and isNumber(pD)
+			_n1_ = pC
+			_n2_ = pD
+			_cSub_ = pA
+			_cNew_ = pB
+		else
+			_n1_ = pA
+			_n2_ = pB
+			_cSub_ = pC
+			_cNew_ = pD
+		ok
 		_cAll_ = This.Content()
 		_cBefore_ = ""
-		if n1 > 1
-			_cBefore_ = substr(_cAll_, 1, n1 - 1)
+		if _n1_ > 1
+			_cBefore_ = substr(_cAll_, 1, _n1_ - 1)
 		ok
-		_cMid_ = substr(_cAll_, n1, n2 - n1 + 1)
+		_cMid_ = substr(_cAll_, _n1_, _n2_ - _n1_ + 1)
 		_cAfter_ = ""
-		if n2 < len(_cAll_)
-			_cAfter_ = substr(_cAll_, n2 + 1)
+		if _n2_ < ring_len(_cAll_)
+			_cAfter_ = substr(_cAll_, _n2_ + 1)
 		ok
-		_cMid_ = substr(_cMid_, pcSubStr, pcNew)
+		_cMid_ = substr(_cMid_, _cSub_, _cNew_)
 		This.Update( _cBefore_ + _cMid_ + _cAfter_ )
 
-		def ReplaceInSectionQ(n1, n2, pcSubStr, pcNew)
-			This.ReplaceInSection(n1, n2, pcSubStr, pcNew)
+		def ReplaceInSectionQ(pA, pB, pC, pD)
+			This.ReplaceInSection(pA, pB, pC, pD)
 			return This
 
 	# UppercaseSubString: uppercase only the section [n1, n2].
