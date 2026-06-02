@@ -1235,6 +1235,72 @@ class stzString from stzObject
 	# Lossy on purpose -- meant for the typographic effect, not for
 	# round-trippable encoding. Port from archive line 93405.
 
+	# DiacriticsRemoved: strip combining diacritic codepoints from
+	# the content. Uses NFD normalisation to decompose accented
+	# letters into base + combining marks, then drops any codepoint
+	# in the combining ranges:
+	#   U+0300-U+036F   Combining Diacritical Marks (Latin etc.)
+	#   U+0610-U+061A   Arabic
+	#   U+064B-U+065F   Arabic Tashkil (Fatha, Damma, ...)
+	#   U+06D6-U+06ED   Arabic supplementals
+	#   U+0951-U+0954   Vedic / Devanagari
+
+	def DiacriticsRemoved()
+		# NFD-decompose then strip any 2-byte sequence whose
+		# codepoint lies in a combining-mark range. Simple byte
+		# walk; precomposed chars get split into base + mark by
+		# NFD so the mark is visible as its own 2-byte sequence.
+		_oDrencoder_ = new stzStringEncoder( This.Content() )
+		_cDrnfdstr_ = _oDrencoder_.NormalizedNFD()
+		_nDrlength_ = ring_len(_cDrnfdstr_)
+		_cDrresult_ = ""
+		_iDrindex_ = 1
+		while _iDrindex_ <= _nDrlength_
+			_bDr1_ = ascii( substr(_cDrnfdstr_, _iDrindex_, 1) )
+			if _bDr1_ < 128
+				_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 1)
+				_iDrindex_++
+			but _bDr1_ >= 192 and _bDr1_ < 224 and _iDrindex_ + 1 <= _nDrlength_
+				_bDr2_ = ascii( substr(_cDrnfdstr_, _iDrindex_ + 1, 1) )
+				_nDrcp_ = ((_bDr1_ - 192) * 64) + (_bDr2_ - 128)
+				if (_nDrcp_ >= 768 and _nDrcp_ <= 879) or
+				   (_nDrcp_ >= 1552 and _nDrcp_ <= 1562) or
+				   (_nDrcp_ >= 1611 and _nDrcp_ <= 1631) or
+				   (_nDrcp_ >= 1750 and _nDrcp_ <= 1773)
+					_iDrindex_ += 2
+				else
+					_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 2)
+					_iDrindex_ += 2
+				ok
+			but _bDr1_ >= 224 and _bDr1_ < 240 and _iDrindex_ + 2 <= _nDrlength_
+				_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 3)
+				_iDrindex_ += 3
+			but _bDr1_ >= 240 and _iDrindex_ + 3 <= _nDrlength_
+				_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 4)
+				_iDrindex_ += 4
+			else
+				_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 1)
+				_iDrindex_++
+			ok
+		end
+		return _cDrresult_
+
+		def WithoutDiacritics()
+			return This.DiacriticsRemoved()
+
+	def RemoveDiacritics()
+		This.Update( This.DiacriticsRemoved() )
+
+		def RemoveDiacriticsQ()
+			This.RemoveDiacritics()
+			return This
+
+	def ContainsDiacritics()
+		return This.DiacriticsRemoved() != This.Content()
+
+		def HasDiacritics()
+			return This.ContainsDiacritics()
+
 	def DotsRemoved()
 		_cDrContent_ = This.Content()
 		_cDrR_ = substr(_cDrContent_, "i", char(305))     # U+0131 ı
