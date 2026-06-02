@@ -169,9 +169,9 @@ func CreateIfInexistant(cPath)
 func FolderCreateIfInexistant(cFolderPath)
     if NOT isdir(cFolderPath)
         if isWindows()
-            stzsystemSilent("cmd.exe", ["/c", "mkdir", cFolderPath])
+            StzSystemSilentXT("cmd.exe", ["/c", "mkdir", cFolderPath])
         else
-            stzsystemSilent("mkdir", ["-p", cFolderPath])
+            StzSystemSilentXT("mkdir", ["-p", cFolderPath])
         ok
     ok
 
