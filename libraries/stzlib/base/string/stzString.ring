@@ -684,7 +684,7 @@ class stzString from stzObject
 
 	def Vowels()
 		_cVoStr_ = This.Content()
-		_nVoLen_ = len(_cVoStr_)
+		_nVoLen_ = ring_len(_cVoStr_)
 		_acVoR_ = []
 		_cVoVo_ = "aeiouAEIOU"
 		_iVo_ = 1
@@ -905,7 +905,7 @@ class stzString from stzObject
 			return This.FindNumbersAsSections()
 
 	def NumberOfVowels()
-		return len(This.Vowels())
+		return ring_len(This.Vowels())
 
 		def VowelN()
 			return This.NumberOfVowels()
@@ -922,7 +922,7 @@ class stzString from stzObject
 
 	def IsVowel()
 		_cIvStr_ = This.Content()
-		if len(_cIvStr_) != 1
+		if ring_len(_cIvStr_) != 1
 			return 0
 		ok
 		return ring_find([ "a","e","i","o","u","A","E","I","O","U" ], _cIvStr_) > 0
@@ -931,7 +931,7 @@ class stzString from stzObject
 			return This.IsVowel()
 
 	def HasVowels()
-		return len(This.Vowels()) > 0
+		return ring_len(This.Vowels()) > 0
 
 		def VowelsB()
 			return This.HasVowels()
