@@ -67,17 +67,29 @@ def normalise(s):
 # Cases handled:
 #   - trailing comment after `#`  (e.g. "13 # Sum of weights" -> "13")
 #   - trailing parenthetical hint (e.g. 'FALSE (because "c" ...)' -> 'FALSE')
-#   - inline `Or` / `Or as` alternative hint, kept ambiguous so the
-#     primary value still matches.
+#   - trailing English prose after a value (e.g.
+#     `[ "a", "c", "d" ] Took the fast_road` -> `[ "a", "c", "d" ]`).
+#     Heuristic: after a closing `]`, `}`, `)`, or `"`, a run of
+#     space + letter + word(s) is treated as narrator prose, not
+#     part of the literal value.
 _INLINE_HASH_RE = re.compile(r'\s+#\s.*$')
 _TRAILING_PAREN_RE = re.compile(r'\s+\([^)]*\)\s*$')
+_TRAILING_PROSE_RE = re.compile(r'([\]\}\)"\'])\s+[A-Za-z]\w+(\s+\w+){1,}.*$')
+# A pure-prose continuation line has only words and basic
+# punctuation (.,?!;:) -- no list / map / value tokens. Drop it.
+_PURE_PROSE_RE = re.compile(r'^[A-Za-z]\w+(\s+[A-Za-z\d\.\,\;\!\?\:\-\_][\w\.\,\;\!\?\:\-\_]*)*\s*$')
 def strip_annotations(s):
     prev = None
     while prev != s:
         prev = s
         s = _INLINE_HASH_RE.sub('', s)
         s = _TRAILING_PAREN_RE.sub('', s)
-    return s.strip()
+        s = _TRAILING_PROSE_RE.sub(r'\1', s)
+    s = s.strip()
+    # If the whole line is pure narrator prose, drop it.
+    if s and _PURE_PROSE_RE.match(s) and not any(c in s for c in '[]{}=<>'):
+        return ''
+    return s
 
 # Relaxed form for tolerant matching: lowercase, drop the punctuation
 # Ring strips/adds inconsistently between `?` print and @@() display
