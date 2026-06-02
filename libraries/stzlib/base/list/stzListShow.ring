@@ -80,18 +80,30 @@ func ComputableShortFormXT(pValue, nItems)
         return ComputableForm(pValue)
     ok
 
-    if NOT isNumber(nItems)
-        raise("Number of items must be a number")
+    # Accept either a single number (N first + N last) or a
+    # two-element list [nHead, nTail] for asymmetric short forms.
+
+    _nHead_ = 0
+    _nTail_ = 0
+    if isNumber(nItems)
+        _nHead_ = nItems
+        _nTail_ = nItems
+    but isList(nItems) and ring_len(nItems) = 2 and
+        isNumber(nItems[1]) and isNumber(nItems[2])
+        _nHead_ = nItems[1]
+        _nTail_ = nItems[2]
+    else
+        raise("Number of items must be a number or a 2-element list [nHead, nTail]")
     ok
 
-    if nItems * 2 >= _nCsfxLen_
+    if (_nHead_ + _nTail_) >= _nCsfxLen_
         return ComputableForm(pValue)
     ok
 
     if isList(pValue)
-        return FormatShortList(pValue, nItems)
+        return FormatShortList(pValue, [ _nHead_, _nTail_ ])
     else
-        return FormatShortString(pValue, nItems)
+        return FormatShortString(pValue, _nHead_)
     ok
 
 #--- Short Form Functions ---
@@ -575,18 +587,29 @@ func FormatListNL(aList, cSep, cIndent)
 
 func FormatShortList(aList, nItems)
     _aFslShort_ = []
-    _nFslLen_ = len(aList)
+    _nFslLen_ = ring_len(aList)
 
-    # Add first nItems
-    for _iFslHead_ = 1 to nItems
+    # Accept symmetric (number) or asymmetric ([nHead, nTail]) request.
+    _nFslHead_ = 0
+    _nFslTail_ = 0
+    if isNumber(nItems)
+        _nFslHead_ = nItems
+        _nFslTail_ = nItems
+    but isList(nItems) and ring_len(nItems) = 2
+        _nFslHead_ = nItems[1]
+        _nFslTail_ = nItems[2]
+    ok
+
+    # Add first nHead items
+    for _iFslHead_ = 1 to _nFslHead_
         add(_aFslShort_, aList[_iFslHead_])
     next
 
     # Add ellipsis
     add(_aFslShort_, "...")
 
-    # Add last nItems
-    for _iFslTail_ = (_nFslLen_ - nItems + 1) to _nFslLen_
+    # Add last nTail items
+    for _iFslTail_ = (_nFslLen_ - _nFslTail_ + 1) to _nFslLen_
         add(_aFslShort_, aList[_iFslTail_])
     next
 
