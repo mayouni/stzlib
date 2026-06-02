@@ -75,9 +75,10 @@ def normalise(s):
 _INLINE_HASH_RE = re.compile(r'\s+#\s.*$')
 _TRAILING_PAREN_RE = re.compile(r'\s+\([^)]*\)\s*$')
 _TRAILING_PROSE_RE = re.compile(r'([\]\}\)"\'])\s+[A-Za-z]\w+(\s+\w+){1,}.*$')
-# A pure-prose continuation line has only words and basic
-# punctuation (.,?!;:) -- no list / map / value tokens. Drop it.
-_PURE_PROSE_RE = re.compile(r'^[A-Za-z]\w+(\s+[A-Za-z\d\.\,\;\!\?\:\-\_][\w\.\,\;\!\?\:\-\_]*)*\s*$')
+# A pure-prose continuation line: starts with a Capword, has at
+# LEAST one more word after it (so single-word values like `ring`,
+# `softanza`, `TRUE` survive), and has no value-structure tokens.
+_PURE_PROSE_RE = re.compile(r'^[A-Z][a-z]+(\s+[A-Za-z\d\.\,\;\!\?\:\-\_][\w\.\,\;\!\?\:\-\_]*){1,}\s*$')
 def strip_annotations(s):
     prev = None
     while prev != s:

@@ -26,9 +26,10 @@
          #2 ? o1.extractCoefficient(cExpr, "y") -> expected '2.0' not found past cursor 0
 [ PASS ] 13_zero_coefficient_case.ring: 1 assertions matched
 [ PASS ] 14_batch_extraction.ring: 1 assertions matched
-[ PASS ] 15_expression_validation.ring: 2 assertions matched
+[ FAIL ] 15_expression_validation.ring:
+         #2 ? o1.validateExpression(cExpr) -> expected 'TRUE' not found past cursor 1
 [ PASS ] 16_variables_as_substrings_edge_case.ring: 2 assertions matched
 [ PASS ] 17_spaces_and_formatting.ring: 2 assertions matched
 [ PASS ] 18_block_18.ring: 3 assertions matched
 ---
-PASS: 11 / FAIL: 7
+PASS: 10 / FAIL: 8

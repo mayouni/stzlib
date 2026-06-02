@@ -9,18 +9,18 @@
 [ PASS ] 10_partial_match_time_format_validation.ring: 2 assertions matched
 [ PASS ] 11_partial_match_url_validation.ring: 2 assertions matched
 [ FAIL ] 12_recursiveness.ring:
-         #4 ? MatchManyRecursiveXT([ "()", "(())", "((()))" ]) -> expected '[ TRUE, TRUE, TRUE ]' not found past cursor 0
-         #6 ? MatchManyRecursiveXT([ "()", "not matching", "((()))" ]) -> expected '[ TRUE, FALSE, TRUE ]' not found past cursor 0
+         #4 ? MatchManyRecursiveXT([ "()", "(())", "((()))" ]) -> expected '[ TRUE, TRUE, TRUE ]' not found past cursor 5
+         #6 ? MatchManyRecursiveXT([ "()", "not matching", "((()))" ]) -> expected '[ TRUE, FALSE, TRUE ]' not found past cursor 13
 [ skip ] 13_matching_nested_html_tags.ring: no #--> markers
 [ skip ] 14_matching_balanced_parentheses.ring: no #--> markers
 [ skip ] 15_block_15.ring: no #--> markers
 [ PASS ] 16_isrecursivepattern_and_isrecursivematch.ring: 3 assertions matched
 [ FAIL ] 17_pr.ring:
-         #2 ? @@NL( oRegex.RecursiveMatchInfo() ) + NL -> expected '[ [ "isrecursive", TRUE ], [ "depth", 1 ], [ "matches", [ [ ' not found past cursor 0
+         #2 ? @@NL( oRegex.RecursiveMatchInfo() ) + NL -> expected '[ [ "isrecursive", TRUE ], [ "depth", 1 ], [ "matches", [ [ ' not found past cursor 1
          #4 ? @@NL( oRegex.RecursiveValuesZZ() ) + NL -> expected '[ [ "(a(b(c)d)e)", [ 1, 11 ] ], [ "(b(c)d)", [ 3, 9 ] ], [ "' not found past cursor 174
          #7 ? @@( oRegex.FindRecursiveValuesZZ() ) -> expected '[ [ 1, 11 ], [ 3, 9 ], [ 5, 7 ] ]' not found past cursor 323
 [ FAIL ] 18_pr.ring:
-         #2 ? @@NL( oRegex.RecursiveMatchInfo()  ) -> expected '[ [ [ "isrecursive", 1 ], [ "depth", 4 ], [ "matches", [ [ "' not found past cursor 0
+         #2 ? @@NL( oRegex.RecursiveMatchInfo()  ) -> expected '[ [ [ "isrecursive", 1 ], [ "depth", 4 ], [ "matches", [ [ "' not found past cursor 1
 [ FAIL ] 19_pr.ring:
          #1 ? @@NL( rx.RecursiveMatchInfo() ) -> expected '[ [ "isrecursive", TRUE ], [ "depth", 2 ], [ "matches", [ [ ' not found past cursor 0
 [ FAIL ] 20_recursive_named_matches.ring:
@@ -32,29 +32,36 @@
          #5 ? @@NL( MatchesZZ() ) + NL -> expected '[ [ "(a(b(c(x)(y))d(z))e)", [ 1, 20 ] ], [ "e", [ 19, 19 ] ]' not found past cursor 82
          #8 ? @@NL( RecursiveMatchesZZ() ) + NL -> expected '[ [ "(a(b(c(x)(y))d(z))e)", [ 1, 20 ] ], [ "(b(c(x)(y))d(z))' not found past cursor 173
 [ FAIL ] 24_finding_captured_matches.ring:
-         #2 ? @@( Matches() ) -> expected '[ "John", "30" ]' not found past cursor 0
-         #3 ? @@( FindMatches() ) -> expected '[ 7, 18 ]' not found past cursor 0
-         #4 ? @@( FindMatchesZZ() ) -> expected '[ [ 7, 10 ], [ 18, 19 ] ]' not found past cursor 0
+         #2 ? @@( Matches() ) -> expected '[ "John", "30" ]' not found past cursor 1
+         #3 ? @@( FindMatches() ) -> expected '[ 7, 18 ]' not found past cursor 1
+         #4 ? @@( FindMatchesZZ() ) -> expected '[ [ 7, 10 ], [ 18, 19 ] ]' not found past cursor 1
 [ PASS ] 25_findind_partial_matches.ring: 4 assertions matched
 [ PASS ] 26_pr.ring: 4 assertions matched
 [ FAIL ] 27_finding_recursive_nested_substrings.ring:
-         #4 ? @@NL( FindNestedZZ() ) -> expected '[ [ 1, 20 ], [ 3, 18 ], [ 5, 13 ], [ 7, 9 ], [ 10, 12 ], [ 1' not found past cursor 105
+         #2 ? @@NL( NestedMatches() ) -> expected '[ "(a(b(c(x)(y))d(z))e)", "(b(c(x)(y))d(z))", "(c(x)(y))", "' not found past cursor 1
+         #4 ? @@NL( FindNestedZZ() ) -> expected '[ [ 1, 20 ], [ 3, 18 ], [ 5, 13 ], [ 7, 9 ], [ 10, 12 ], [ 1' not found past cursor 125
 [ PASS ] 28_understanding_regex_options.ring: 2 assertions matched
-[ PASS ] 29_test_2_case_sensitivity.ring: 2 assertions matched
+[ FAIL ] 29_test_2_case_sensitivity.ring:
+         #1 ? o.MatchXT(txt, 1, :MatchEntireContent, [])  # Returns fals -> expected 'FALSE' not found past cursor 0
 [ PASS ] 30_test_3_greedy_vs_non-greedy.ring: 2 assertions matched
-[ PASS ] 31_test_4_line_boundaries.ring: 2 assertions matched
+[ FAIL ] 31_test_4_line_boundaries.ring:
+         #1 ? o.MatchXT(txt, 1, :MatchEntireContent, []) -> expected 'FALSE' not found past cursor 0
 [ PASS ] 32_test_5_word_boundaries.ring: 2 assertions matched
 [ PASS ] 33_testing_complete_stzregex_implementation.ring: 2 assertions matched
 [ PASS ] 34_test_2_line_matching.ring: 1 assertions matched
 [ PASS ] 35_test_3_greedy_vs_non-greedy.ring: 2 assertions matched
 [ PASS ] 36_test_4_word_boundaries.ring: 2 assertions matched
 [ PASS ] 37_test_5_capture_values_of_defined_groups.ring: 3 assertions matched
-[ PASS ] 38_test_6_named_capture_groups.ring: 4 assertions matched
-[ PASS ] 39_test_7_error_handling.ring: 2 assertions matched
+[ FAIL ] 38_test_6_named_capture_groups.ring:
+         #4 ? @@NL( o1.CaptureXT() ) -> expected '[ [ "name", "John" ], [ "age", "30" ] ]' not found past cursor 21
+[ FAIL ] 39_test_7_error_handling.ring:
+         #2 ? o1.LastError() -> expected 'missing closing parenthesis' not found past cursor 1
 [ PASS ] 40_test_8_options_via_matchxt.ring: 2 assertions matched
-[ PASS ] 41_real-world_regular_expression_examples_with_softan.ring: 4 assertions matched
+[ FAIL ] 41_real-world_regular_expression_examples_with_softan.ring:
+         #4 ? o1.Match(cPhoneText) -> expected 'TRUE' not found past cursor 112
 [ PASS ] 42_log_file_analysis.ring: 1 assertions matched
-[ PASS ] 43_email_processing.ring: 2 assertions matched
+[ FAIL ] 43_email_processing.ring:
+         #2 ? o.Match("invalid@email") -> expected 'FALSE' not found past cursor 8
 [ PASS ] 44_code_analysis.ring: 1 assertions matched
 [ PASS ] 45_datetime_processing.ring: 1 assertions matched
 [ PASS ] 46_address_processing.ring: 1 assertions matched
@@ -66,4 +73,4 @@
 [ FAIL ] 52_block_52.ring:
          #1 ? @@(anNumbers) + NL -> expected '[ 12500, 10200, 14800, 52700, 17100, 14400, 87200, 25200, 45' not found past cursor 0
 ---
-PASS: 33 / FAIL: 10 / skip: 7
+PASS: 27 / FAIL: 16 / skip: 7
