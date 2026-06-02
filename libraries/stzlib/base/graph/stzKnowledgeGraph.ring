@@ -92,45 +92,66 @@ class stzKnowledgeGraph from stzGraph
 
 	def Query(paPattern)
 		# Pattern: ["?x", :IsA, "Animals"] or ["Dogs", :Eats, "?what"]
-		
+		# stzGraph stores edge :from / :to / :label all lowercased
+		# for case-insensitive matching; bound terms here have to
+		# be lowercased before comparing so the user-facing pattern
+		# (which uses the original casing) still matches.
+
 		_cSubject_ = paPattern[1]
 		_cPredicate_ = paPattern[2]
 		_cObject_ = paPattern[3]
-		
+
 		_acResults_ = []
 		_aEdges_ = This.Edges()
 		_nLen_ = len(_aEdges_)
-		
+
 		_bSubjVar_ = (isString(_cSubject_) and StzLeft(_cSubject_, 1) = "?")
 		_bObjVar_ = (isString(_cObject_) and StzLeft(_cObject_, 1) = "?")
-		
+
+		# Lowercase any bound terms once, up front.
+		_cSubjLow_ = ""
+		if isString(_cSubject_) and NOT _bSubjVar_
+			_cSubjLow_ = lower(_cSubject_)
+		ok
+		_cObjLow_ = ""
+		if isString(_cObject_) and NOT _bObjVar_
+			_cObjLow_ = lower(_cObject_)
+		ok
+		_cPredLow_ = _cPredicate_
+		if isString(_cPredicate_)
+			_cPredLow_ = lower(_cPredicate_)
+		ok
+
 		if _bSubjVar_ and _bObjVar_
-			# Both variables: return all subject-object pairs for predicate
+			# Both variables: return all subject-object pairs for predicate.
+			# Convert IDs back to original-case node labels.
 			for _i_ = 1 to _nLen_
-				if _aEdges_[_i_][:label] = _cPredicate_
-					_acResults_ + [_aEdges_[_i_][:from], _aEdges_[_i_][:to]]
+				if _aEdges_[_i_][:label] = _cPredLow_
+					_cFromLab_ = This.Node(_aEdges_[_i_][:from])[:label]
+					_cToLab_   = This.Node(_aEdges_[_i_][:to])[:label]
+					_acResults_ + [ _cFromLab_, _cToLab_ ]
 				ok
-			end
-			
+			next
+
 		but _bSubjVar_
-			# Subject is variable
 			for _i_ = 1 to _nLen_
-				if _aEdges_[_i_][:to] = _cObject_ and _aEdges_[_i_][:label] = _cPredicate_
-					if StzFind(_acResults_, _aEdges_[_i_][:from]) = 0
-						_acResults_ + _aEdges_[_i_][:from]
+				if _aEdges_[_i_][:to] = _cObjLow_ and _aEdges_[_i_][:label] = _cPredLow_
+					_cFromLab_ = This.Node(_aEdges_[_i_][:from])[:label]
+					if StzFind(_acResults_, _cFromLab_) = 0
+						_acResults_ + _cFromLab_
 					ok
 				ok
-			end
-			
+			next
+
 		but _bObjVar_
-			# Object is variable
 			for _i_ = 1 to _nLen_
-				if _aEdges_[_i_][:from] = _cSubject_ and _aEdges_[_i_][:label] = _cPredicate_
-					if StzFind(_acResults_, _aEdges_[_i_][:to]) = 0
-						_acResults_ + _aEdges_[_i_][:to]
+				if _aEdges_[_i_][:from] = _cSubjLow_ and _aEdges_[_i_][:label] = _cPredLow_
+					_cToLab_ = This.Node(_aEdges_[_i_][:to])[:label]
+					if StzFind(_acResults_, _cToLab_) = 0
+						_acResults_ + _cToLab_
 					ok
 				ok
-			end
+			next
 			
 		else
 			# Both bound - check existence
