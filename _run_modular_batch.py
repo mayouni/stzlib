@@ -75,6 +75,9 @@ def normalise(s):
 _INLINE_HASH_RE = re.compile(r'\s+#\s.*$')
 _TRAILING_PAREN_RE = re.compile(r'\s+\([^)]*\)\s*$')
 _TRAILING_PROSE_RE = re.compile(r'([\]\}\)"\'])\s+[A-Za-z]\w+(\s+\w+){1,}.*$')
+# Same idea but allows the prose to be introduced by ` - ` or ` -- `
+# (a hyphen separator the narrator commonly uses).
+_TRAILING_DASH_PROSE_RE = re.compile(r'([\]\}\)"\'])\s+-+\s+[A-Za-z]\w+.*$')
 # A pure-prose continuation line: starts with a Capword, has at
 # LEAST one more word after it (so single-word values like `ring`,
 # `softanza`, `TRUE` survive), and has no value-structure tokens.
@@ -86,6 +89,7 @@ def strip_annotations(s):
         s = _INLINE_HASH_RE.sub('', s)
         s = _TRAILING_PAREN_RE.sub('', s)
         s = _TRAILING_PROSE_RE.sub(r'\1', s)
+        s = _TRAILING_DASH_PROSE_RE.sub(r'\1', s)
     s = s.strip()
     # If the whole line is pure narrator prose, drop it.
     if s and _PURE_PROSE_RE.match(s) and not any(c in s for c in '[]{}=<>'):
