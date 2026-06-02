@@ -133,6 +133,18 @@ func _PadLeft(cStr, nWidth, cPadChar)
     return cStr
 
 func _TodayYMD()
+    # Honor the freezable wall-clock when set (see StzFreezeClock).
+    # Engine path is bypassed in that mode so snapshot tests stay
+    # deterministic across the entire stzDate surface (init(""),
+    # AddDays, Navigation methods, Age, etc., all of which route
+    # here rather than through StzSysDate).
+    if $cStzFrozenDate != ""
+        _acTymdParts_ = split($cStzFrozenDate, "/")
+        if len(_acTymdParts_) = 3
+            return [ 0+ _acTymdParts_[3], 0+ _acTymdParts_[2], 0+ _acTymdParts_[1] ]
+        ok
+    ok
+
     pHandle = StzEngineDateToday()
     nY = StzEngineDateYear(pHandle)
     nM = StzEngineDateMonth(pHandle)
