@@ -2032,6 +2032,31 @@ class stzString from stzObject
 			This.RemoveFirstAndLastChars()
 			return This
 
+	# Conditional first/last char removers: act only if the first
+	# (resp. last) char equals pcChar. Used by code-string fluent
+	# chains that may or may not see leading/trailing braces.
+
+	def RemoveThisFirstChar(pcChar)
+		_cRtfContent_ = This.Content()
+		if StzLen(_cRtfContent_) > 0 and StzLeft(_cRtfContent_, 1) = pcChar
+			This.RemoveFirstChar()
+		ok
+
+		def RemoveThisFirstCharQ(pcChar)
+			This.RemoveThisFirstChar(pcChar)
+			return This
+
+	def RemoveThisLastChar(pcChar)
+		_cRtlContent_ = This.Content()
+		_nRtlLen_ = StzLen(_cRtlContent_)
+		if _nRtlLen_ > 0 and StzRight(_cRtlContent_, 1) = pcChar
+			This.RemoveLastChar()
+		ok
+
+		def RemoveThisLastCharQ(pcChar)
+			This.RemoveThisLastChar(pcChar)
+			return This
+
 	def SizeInBytes()
 		return ring_len(This.Content())
 
@@ -2081,7 +2106,7 @@ class stzString from stzObject
 	def RemoveTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
 		# Remove each bound occurrence from the result of FindTheseBounds
 		_aRtbPos_ = This.FindTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
-		_nRtbLen_ = len(_aRtbPos_)
+		_nRtbLen_ = ring_len(_aRtbPos_)
 		if _nRtbLen_ = 0 return ok
 
 		# Build sections for the bounds and remove from end to start
@@ -2105,6 +2130,16 @@ class stzString from stzObject
 
 		def RemoveTheseBoundsQ(pcBound1, pcBound2)
 			This.RemoveTheseBounds(pcBound1, pcBound2)
+			return This
+
+	# Single-bound forms: same character on both sides.
+	# E.g. RemoveBounds('"') strips matching leading + trailing quotes.
+
+	def RemoveBounds(pcBound)
+		This.RemoveTheseBoundsCS(pcBound, pcBound, 1)
+
+		def RemoveBoundsQ(pcBound)
+			This.RemoveBounds(pcBound)
 			return This
 
 	  #===============================#
@@ -3045,6 +3080,16 @@ class stzString from stzObject
 		return _oSwFinder_.StartsWithAnyCS(pcPrefixes, pCaseSensitive)
 
 	def StartsWithAny(pcPrefixes)
+		return This.StartsWithAnyCS(pcPrefixes, 1)
+
+	# Aliases: StartsWithOneOfThese{,CS} mirror the Softanza
+	# universal naming when a list-of-candidates phrasing reads
+	# more naturally than "Any".
+
+	def StartsWithOneOfTheseCS(pcPrefixes, pCaseSensitive)
+		return This.StartsWithAnyCS(pcPrefixes, pCaseSensitive)
+
+	def StartsWithOneOfThese(pcPrefixes)
 		return This.StartsWithAnyCS(pcPrefixes, 1)
 
 	# StartsWithXT: extended startswith. Accepts a single prefix or
