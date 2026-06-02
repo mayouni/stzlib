@@ -1,21 +1,13 @@
 [ PASS ] 01_geeting_all_the_matches_in_a_string.ring: 2 assertions matched
 [ skip ] 03_partial_match_form_validation_as_user_types.ring: no #--> markers
 [ skip ] 04_partial_match_real-time_search.ring: no #--> markers
-[ FAIL ] 05_partial_match_detailed_match_information_for_ui_fe.ring:
-         #1 ? @@NL(o1.PartialMatchInfo("hello12")) -> expected '[ [ "matchtype", "partial" ], [ "matched", "hello12" ], [ "s' not found past cursor 0
+[ PASS ] 05_partial_match_detailed_match_information_for_ui_fe.ring: 1 assertions matched
 [ skip ] 06_partial_match_autocomplete_suggestions.ring: no #--> markers
 [ skip ] 07_partial_match_processing_streaming_data.ring: no #--> markers
-[ FAIL ] 08_partial_match_phone_number_validation.ring:
-         #1 ? @@NL( o1.PartialMatchInfo("123") ) + NL -> expected '[ [ "matchtype", "partial" ], [ "matched", "123" ], [ "secti' not found past cursor 0
-         #2 ? @@NL( o1.PartialMatchInfo("123-456") ) -> expected '[ [ "matchtype", "partial" ], [ "matched", "123-456" ], [ "s' not found past cursor 0
-[ FAIL ] 09_partial_match_email_validation.ring:
-         #1 ? @@NL( o1.PartialMatchInfo("user") ) + NL -> expected '[ [ "matchtype", "partial" ], [ "matched", "user" ], [ "sect' not found past cursor 0
-[ FAIL ] 10_partial_match_time_format_validation.ring:
-         #1 ? @@NL( o1.PartialMatchInfo("12") ) + NL -> expected '[ [ "matchtype", "partial" ], [ "matched", "12" ], [ "sectio' not found past cursor 0
-         #2 ? @@NL( o1.PartialMatchInfo("12:34") ) -> expected '[ [ "matchtype", "partial" ], [ "matched", "12:34" ], [ "sec' not found past cursor 0
-[ FAIL ] 11_partial_match_url_validation.ring:
-         #1 ? @@NL( o1.PartialMatchInfo("http") ) + NL -> expected '[ [ "matchtype", "partial" ], [ "matched", "http" ], [ "sect' not found past cursor 0
-         #2 ? @@NL( o1.PartialMatchInfo("https://example") ) -> expected '[ [ "matchtype", "partial" ], [ "matched", "https://example"' not found past cursor 0
+[ PASS ] 08_partial_match_phone_number_validation.ring: 2 assertions matched
+[ PASS ] 09_partial_match_email_validation.ring: 1 assertions matched
+[ PASS ] 10_partial_match_time_format_validation.ring: 2 assertions matched
+[ PASS ] 11_partial_match_url_validation.ring: 2 assertions matched
 [ FAIL ] 12_recursiveness.ring:
          #4 ? MatchManyRecursiveXT([ "()", "(())", "((()))" ]) -> expected '[ TRUE, TRUE, TRUE ]' not found past cursor 0
          #6 ? MatchManyRecursiveXT([ "()", "not matching", "((()))" ]) -> expected '[ TRUE, FALSE, TRUE ]' not found past cursor 0
@@ -43,12 +35,8 @@
          #2 ? @@( Matches() ) -> expected '[ "John", "30" ]' not found past cursor 0
          #3 ? @@( FindMatches() ) -> expected '[ 7, 18 ]' not found past cursor 0
          #4 ? @@( FindMatchesZZ() ) -> expected '[ [ 7, 10 ], [ 18, 19 ] ]' not found past cursor 0
-[ FAIL ] 25_findind_partial_matches.ring:
-         #3 ? @@( o1.FindPartialMatchZZ("http") ) + NL -> expected '[ 1, 4 ]' not found past cursor 1
-         #4 ? @@NL( o1.PartialMatchInfo("http") ) -> expected '[ [ "matchtype", "partial" ], [ "matched", "http" ], [ "sect' not found past cursor 1
-[ FAIL ] 26_pr.ring:
-         #3 ? @@( o1.FindPartialMatchZZ(cMyUrl) ) + NL -> expected '[ 1, 15 ]' not found past cursor 0
-         #4 ? @@NL( o1.PartialMatchInfo("https://example") ) -> expected '[ [ "matchtype", "partial" ], [ "matched", "https://example"' not found past cursor 0
+[ PASS ] 25_findind_partial_matches.ring: 4 assertions matched
+[ PASS ] 26_pr.ring: 4 assertions matched
 [ FAIL ] 27_finding_recursive_nested_substrings.ring:
          #4 ? @@NL( FindNestedZZ() ) -> expected '[ [ 1, 20 ], [ 3, 18 ], [ 5, 13 ], [ 7, 9 ], [ 10, 12 ], [ 1' not found past cursor 105
 [ PASS ] 28_understanding_regex_options.ring: 2 assertions matched
@@ -78,4 +66,4 @@
 [ FAIL ] 52_block_52.ring:
          #1 ? @@(anNumbers) + NL -> expected '[ 12500, 10200, 14800, 52700, 17100, 14400, 87200, 25200, 45' not found past cursor 0
 ---
-PASS: 26 / FAIL: 17 / skip: 7
+PASS: 33 / FAIL: 10 / skip: 7

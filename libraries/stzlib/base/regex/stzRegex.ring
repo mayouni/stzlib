@@ -719,7 +719,18 @@ class stzRegex
 		_nCount_ = StzEngineRegexNamedGroupCount(@pRegexHandle)
 		if _nCount_ = 0 return [] ok
 
-		_acResult_ = []
+		# Walk the pattern to get names in source order.
+		# PCRE2's enumeration is alphabetical (hash-based) which is
+		# rarely what callers want; the test corpus and most usages
+		# expect pattern order. Two named-group syntaxes are
+		# accepted: (?<name>...) and (?P<name>...).
+		_acResult_ = This._CaptureNamesFromPattern()
+		if len(_acResult_) > 0
+			return _acResult_
+		ok
+
+		# Fallback: engine enumeration (alphabetical) if pattern
+		# scanning yielded nothing.
 		for @i = 1 to _nCount_
 			_cName_ = StzEngineRegexNamedGroupName(@pRegexHandle, @i)
 			if _cName_ != ""
@@ -728,6 +739,65 @@ class stzRegex
 		next
 
 		return _acResult_
+
+	def _CaptureNamesFromPattern()
+		# Scan @cPattern for (?<name>... or (?P<name>... outside
+		# character classes and not preceded by a backslash.
+		_acCnp_ = []
+		if NOT isString(@cPattern) or @cPattern = ""
+			return _acCnp_
+		ok
+		_cPat_ = @cPattern
+		_nPat_ = len(_cPat_)
+		_i_ = 1
+		_bInClass_ = 0
+		while _i_ <= _nPat_
+			_cCh_ = substr(_cPat_, _i_, 1)
+			if _cCh_ = "\" and _i_ < _nPat_
+				_i_ += 2
+				loop
+			ok
+			if _cCh_ = "[" and NOT _bInClass_
+				_bInClass_ = 1
+				_i_++
+				loop
+			ok
+			if _cCh_ = "]" and _bInClass_
+				_bInClass_ = 0
+				_i_++
+				loop
+			ok
+			if _bInClass_
+				_i_++
+				loop
+			ok
+			# Try to match (?<NAME> or (?P<NAME>
+			if _cCh_ = "(" and _i_ + 2 <= _nPat_ and substr(_cPat_, _i_+1, 1) = "?"
+				_nNameStart_ = 0
+				if substr(_cPat_, _i_+2, 1) = "<" and _i_+3 <= _nPat_ and substr(_cPat_,_i_+3,1) != "="
+					# Skip "(?<" but reject "(?<=" lookbehind. Also skip "(?<!" .
+					if substr(_cPat_, _i_+3, 1) != "!"
+						_nNameStart_ = _i_ + 3
+					ok
+				but _i_ + 3 <= _nPat_ and substr(_cPat_, _i_+2, 2) = "P<"
+					_nNameStart_ = _i_ + 4
+				ok
+				if _nNameStart_ > 0
+					# Read up to '>'
+					_j_ = _nNameStart_
+					while _j_ <= _nPat_ and substr(_cPat_, _j_, 1) != ">"
+						_j_++
+					end
+					if _j_ <= _nPat_ and _j_ > _nNameStart_
+						_acCnp_ + substr(_cPat_, _nNameStart_, _j_ - _nNameStart_)
+						_i_ = _j_ + 1
+						loop
+					ok
+				ok
+			ok
+			_i_++
+		end
+		return _acCnp_
 
 		def Names()
 			return This.CaptureNames()
@@ -1011,10 +1081,13 @@ class stzRegex
 		if nResult = 1
 			_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 			_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
+			# Convert engine's half-open [start, end) to Softanza's
+			# inclusive [start, end] convention so callers can use
+			# the pair directly with Section()/Substr().
 			return [
 				:matchType = "complete",
 				:matched   = pcStr,
-				:section  = [ _nStart_, _nEnd_ ]
+				:section  = [ _nStart_, _nEnd_ - 1 ]
 			]
 		ok
 
@@ -1024,7 +1097,7 @@ class stzRegex
 			return [
 				:matchType = "partial",
 				:matched   = StzSubStr(pcStr, _nStart_, _nEnd_ - _nStart_),
-				:section  = [ _nStart_, _nEnd_ ]
+				:section  = [ _nStart_, _nEnd_ - 1 ]
 			]
 		ok
 
