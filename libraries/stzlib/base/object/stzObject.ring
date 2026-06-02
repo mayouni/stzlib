@@ -4675,20 +4675,40 @@ class stzObject
 		ok
 
 	def Numberified()
-		if This.IsANumber()
-			return This.NumbericValue()
+		# Detect actual underlying content type rather than relying on
+		# the IsA{Number,String,List} dispatch -- those return 0 in the
+		# bare stzObject ancestor for subclasses (e.g. stzList) that
+		# don't override them, which would route a real list value to
+		# the catch-all "can't be numberified" error.
 
-		but This.IsAString()
+		_cNfContent_ = This.Content()
+
+		if isNumber(_cNfContent_)
+			return _cNfContent_
+
+		but isString(_cNfContent_)
 			if This.IsNumberInString()
-				cNumber = StzReplace(This.Content(), "_", "")
-				return 0+ cNumber
+				_cNfNumber_ = StzReplace(_cNfContent_, "_", "")
+				return 0+ _cNfNumber_
 
 			else
 				StzRaise("Incorrect value! The string do not contain a well formed number.")
 			ok
 
-		but This.IsAList()
-			return StzListQ(This.Content()).Numberified()
+		but isList(_cNfContent_)
+			_anNfResult_ = []
+			_nNfLen_ = ring_len(_cNfContent_)
+			for _i_ = 1 to _nNfLen_
+				_xNfItem_ = _cNfContent_[_i_]
+				if isNumber(_xNfItem_)
+					_anNfResult_ + _xNfItem_
+				but isString(_xNfItem_)
+					_anNfResult_ + (0+ StzReplace(_xNfItem_, "_", ""))
+				else
+					StzRaise("Incorrect value! List element is neither number nor numeric string.")
+				ok
+			next
+			return _anNfResult_
 
 		else
 			StzRaise("Incorrect param type! Objects can't be numberified.")
