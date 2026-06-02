@@ -948,6 +948,12 @@ class stzList from stzObject
 		def EachItemIsA(pcType)
 			return This.AllItemsAreOfType(pcType)
 
+		def EachItemIs(pcType)
+			return This.AllItemsAreOfType(pcType)
+
+		def AllItemsAre(pcType)
+			return This.AllItemsAreOfType(pcType)
+
 	def ContainsEmptyStrings()
 		_aEsContent_ = @aContent
 		_nEsLen_ = len(_aEsContent_)
@@ -2468,6 +2474,32 @@ class stzList from stzObject
 
 		def ExtendToWith(n, pWith)
 			This.ExtendToPositionXT(n, pWith)
+
+	# Shrink: truncate the list to the first n items (in place).
+
+	def ShrinkTo(n)
+		_nShLen_ = ring_len(@aContent)
+		if n < 0
+			n = 0
+		ok
+		if n >= _nShLen_
+			return
+		ok
+		_aShNew_ = []
+		for _iSh_ = 1 to n
+			_aShNew_ + @aContent[_iSh_]
+		next
+		@aContent = _aShNew_
+
+		def ShrinkToQ(n)
+			This.ShrinkTo(n)
+			return This
+
+		def TruncateTo(n)
+			This.ShrinkTo(n)
+
+		def KeepFirst(n)
+			This.ShrinkTo(n)
 
 	def Extend(pWith)
 		# Append a single element (or a list of elements) to the list.
