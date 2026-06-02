@@ -1288,8 +1288,22 @@ class stzTimeLine from stzObject
 	
 		def TimeBetween(cLabel1, cLabel2)
 			return This.DurationXT(cLabel1, cLabel2)
-	
+
 			def TimeBetweenQ(cLabel1, cLabel2)
+				return This.DurationXTQ(cLabel1, cLabel2)
+
+		def Distance(cLabel1, cLabel2)
+			# Accept either positional (start, end) or named-param
+			# (:From = "start", :To = "end") forms.
+			if isList(cLabel1) and len(cLabel1) = 2 and isString(cLabel1[1]) and lower(cLabel1[1]) = "from"
+				cLabel1 = cLabel1[2]
+			ok
+			if isList(cLabel2) and len(cLabel2) = 2 and isString(cLabel2[1]) and lower(cLabel2[1]) = "to"
+				cLabel2 = cLabel2[2]
+			ok
+			return This.DurationXT(cLabel1, cLabel2)
+
+			def DistanceQ(cLabel1, cLabel2)
 				return This.DurationXTQ(cLabel1, cLabel2)
 
 		def IntervalBetween(cLabel1, cLabel2)

@@ -798,6 +798,23 @@ func Join(paList)
 # and other engine-result formatters that build substring extracts
 # from raw byte positions.
 
+# Global stopwords status. The full stopwords feature lives in
+# libraries/stzlib/max/string/stxStringStopWords.ring (extended
+# layer); the simple status flag itself is base-layer territory so
+# narrative tests in the base/test corpus can flip it without
+# pulling in `max`.
+
+_cStopWordsStatus = :MustNotBeRemoved
+
+func StopWordsMustBeRemoved()
+	_cStopWordsStatus = :MustBeRemoved
+
+	func StopWordsMustNotBeRemoved()
+		_cStopWordsStatus = :MustNotBeRemoved
+
+func StopWordsStatus()
+	return _cStopWordsStatus
+
 func StzSubStr(cStr, nStart, nLen)
 	if NOT isString(cStr)
 		StzRaise("StzSubStr: cStr must be a string")
