@@ -514,7 +514,7 @@ class stzList from stzObject
 	#-----------------------------------#
 
 	def MergeWith(paOtherList)
-		_nLen_ = len(paOtherList)
+		_nLen_ = ring_len(paOtherList)
 		for _i_ = 1 to _nLen_
 			This.Add(paOtherList[_i_])
 		next
@@ -525,7 +525,7 @@ class stzList from stzObject
 
 	def MergedWith(paOtherList)
 		_aResult_ = This.Content()
-		_nLen_ = len(paOtherList)
+		_nLen_ = ring_len(paOtherList)
 		for _i_ = 1 to _nLen_
 			_aResult_ + paOtherList[_i_]
 		next
@@ -956,7 +956,7 @@ class stzList from stzObject
 
 	def ContainsEmptyStrings()
 		_aEsContent_ = @aContent
-		_nEsLen_ = len(_aEsContent_)
+		_nEsLen_ = ring_len(_aEsContent_)
 		for _iEs_ = 1 to _nEsLen_
 			if isString(_aEsContent_[_iEs_]) and _aEsContent_[_iEs_] = ""
 				return 1
@@ -989,7 +989,7 @@ class stzList from stzObject
 
 	def ReplaceEmptyStrings(pNewItem)
 		_aResContent_ = @aContent
-		_nResLen_ = len(_aResContent_)
+		_nResLen_ = ring_len(_aResContent_)
 		for _iRes_ = 1 to _nResLen_
 			if isString(_aResContent_[_iRes_]) and _aResContent_[_iRes_] = ""
 				_aResContent_[_iRes_] = pNewItem
@@ -999,7 +999,7 @@ class stzList from stzObject
 
 	def RemoveEmptyStrings()
 		_anRmesPos_ = This.FindEmptyStrings()
-		_nRmesLen_ = len(_anRmesPos_)
+		_nRmesLen_ = ring_len(_anRmesPos_)
 		if _nRmesLen_ = 0 return ok
 		# Remove from end to preserve indices
 		for _iRmes_ = _nRmesLen_ to 1 step -1
@@ -1289,8 +1289,8 @@ class stzList from stzObject
 		if NOT (isList(paSubList) and len(paSubList) >= 1)
 			return []
 		ok
-		_nFsbLen_ = len(paSubList)
-		_nFsbN_ = len(@aContent)
+		_nFsbLen_ = ring_len(paSubList)
+		_nFsbN_ = ring_len(@aContent)
 		_anFsbR_ = []
 		_bFsbCase_ = @CaseSensitive(pCaseSensitive)
 		_iFsb_ = 1
@@ -1340,11 +1340,11 @@ class stzList from stzObject
 
 	def Merge()
 		_aMgContent_ = @aContent
-		_nMgLen_ = len(_aMgContent_)
+		_nMgLen_ = ring_len(_aMgContent_)
 		_aMgR_ = []
 		for _iMg_ = 1 to _nMgLen_
 			if isList(_aMgContent_[_iMg_])
-				_nMgInner_ = len(_aMgContent_[_iMg_])
+				_nMgInner_ = ring_len(_aMgContent_[_iMg_])
 				for _jMg_ = 1 to _nMgInner_
 					_aMgR_ + _aMgContent_[_iMg_][_jMg_]
 				next
@@ -2139,7 +2139,7 @@ class stzList from stzObject
 
 		# Fallback for lists/objects: stringify and compare
 		_aFaoContent_ = This.Content()
-		_nFaoLen_ = len(_aFaoContent_)
+		_nFaoLen_ = ring_len(_aFaoContent_)
 
 		_cFaoItem_ = ""
 		if isList(pItem)
@@ -2733,7 +2733,7 @@ class stzList from stzObject
 
 	def IsListOfHashLists()
 		_aIlhContent_ = This.Content()
-		_nIlhLen_ = len(_aIlhContent_)
+		_nIlhLen_ = ring_len(_aIlhContent_)
 		if _nIlhLen_ = 0
 			return 0
 		ok
@@ -2752,11 +2752,11 @@ class stzList from stzObject
 
 	def IsMadeOfSome(paValues)
 		_aImContent_ = This.Content()
-		_nImLen_ = len(_aImContent_)
+		_nImLen_ = ring_len(_aImContent_)
 
 		for _iIm_ = 1 to _nImLen_
 			_bImFound_ = 0
-			_nImVLen_ = len(paValues)
+			_nImVLen_ = ring_len(paValues)
 			for _jIm_ = 1 to _nImVLen_
 				if _aImContent_[_iIm_] = paValues[_jIm_]
 					_bImFound_ = 1
@@ -3818,7 +3818,7 @@ class stzList from stzObject
 
 	def RandomSection()
 		# Return a random [start, end] pair within 1..N.
-		_nRsN_ = len(@aContent)
+		_nRsN_ = ring_len(@aContent)
 		if _nRsN_ = 0
 			return [ 0, 0 ]
 		ok
