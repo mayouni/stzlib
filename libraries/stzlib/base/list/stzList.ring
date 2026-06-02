@@ -1711,6 +1711,28 @@ class stzList from stzObject
 		def IsAListOfPairs()
 			return This.IsListOfPairs()
 
+	# True iff the list of numbers is sorted ascending with consecutive
+	# values (e.g. [3,4,5] -> TRUE, [3,5,6] -> FALSE).
+	def IsContiguous()
+		nLen = len(@aContent)
+		if nLen < 2
+			return TRUE
+		ok
+		for i = 1 to nLen
+			if NOT isNumber(@aContent[i])
+				return FALSE
+			ok
+		next
+		for i = 2 to nLen
+			if @aContent[i] != @aContent[i-1] + 1
+				return FALSE
+			ok
+		next
+		return TRUE
+
+		def AreContiguous()
+			return This.IsContiguous()
+
 	def IsListOfPairsOfNumbers()
 		nLen = len(@aContent)
 		for i = 1 to nLen
