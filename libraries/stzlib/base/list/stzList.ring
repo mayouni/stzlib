@@ -2483,6 +2483,47 @@ class stzList from stzObject
 		def ExtendToWith(n, pWith)
 			This.ExtendToPositionXT(n, pWith)
 
+	# DifferenceWithXT: structured diff against another list.
+	# Returns [ :added = [...], :removed = [...], :modified = [...] ].
+	# Items in This but not in other are :added (from This's POV);
+	# items in other but not in This are :removed; :modified is left
+	# empty by this base form (used by stzGraph._CompareEdges where
+	# edge identity is value-equality).
+
+	def DifferenceWithXT(paOther)
+		_aDwAdded_ = []
+		_aDwRemoved_ = []
+		_nDwLen_ = ring_len(@aContent)
+		for _iDw_ = 1 to _nDwLen_
+			if ring_find(paOther, @aContent[_iDw_]) = 0
+				_aDwAdded_ + @aContent[_iDw_]
+			ok
+		next
+		_nDwOLen_ = ring_len(paOther)
+		for _iDw_ = 1 to _nDwOLen_
+			if ring_find(@aContent, paOther[_iDw_]) = 0
+				_aDwRemoved_ + paOther[_iDw_]
+			ok
+		next
+		return [
+			:added = _aDwAdded_,
+			:removed = _aDwRemoved_,
+			:modified = []
+		]
+
+		def DifferenceWith(paOther)
+			_aDwx_ = This.DifferenceWithXT(paOther)
+			# Plain form: return only the symmetric difference items
+			# (added + removed) without the modified bucket.
+			_aDwRes_ = []
+			for _xDw_ in _aDwx_[:added]
+				_aDwRes_ + _xDw_
+			next
+			for _xDw_ in _aDwx_[:removed]
+				_aDwRes_ + _xDw_
+			next
+			return _aDwRes_
+
 	# Shrink: truncate the list to the first n items (in place).
 
 	def ShrinkTo(n)
