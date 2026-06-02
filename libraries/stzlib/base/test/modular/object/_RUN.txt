@@ -2,7 +2,7 @@
 [ skip ] 02_pr.ring: no #--> markers
 [ skip ] 03_truth_in_ring.ring: no #--> markers
 [ FAIL ] 04_truth_in_softanza.ring:
-         #1 ? @@( SubStringsMakingAStringFalse() ) -> expected '[]' not found past cursor 0
+         #4 ? IsTrueXT([ "hello", "this", "is", "wrong" ]) -> expected 'FALSE' not found past cursor 19
 [ PASS ] 05_pr.ring: 1 assertions matched
 [ PASS ] 06_pr.ring: 4 assertions matched
 [ FAIL ] 07_pr.ring:

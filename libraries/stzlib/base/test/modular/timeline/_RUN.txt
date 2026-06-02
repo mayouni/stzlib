@@ -9,9 +9,7 @@
 [ skip ] 08_renaming_labels_of_points_and_spans_togethor.ring: no #--> markers
 [ PASS ] 09_alternative_names_for_points_moments.ring: 2 assertions matched
 [ PASS ] 10_adding_and_retrieving_spans.ring: 4 assertions matched
-[ FAIL ] 11_span_boundaries_and_duration.ring:
-         #3 ? SpanDuration("PROJECT") -> expected '15897599' not found past cursor 39
-         #4 ? SpanDurationQ("PROJECT").ToHuman() -> expected '6 months' not found past cursor 39
+[ PASS ] 11_span_boundaries_and_duration.ring: 4 assertions matched
 [ PASS ] 12_removing_spans.ring: 3 assertions matched
 [ PASS ] 13_alternative_names_for_spans_periods.ring: 2 assertions matched
 [ PASS ] 14_finding_what_happens_at_a_specific_time.ring: 2 assertions matched
@@ -36,8 +34,7 @@
 [ PASS ] 29_timeline_summary.ring: 1 assertions matched
 [ PASS ] 30_copying_timeline.ring: 3 assertions matched
 [ PASS ] 31_clearing_timeline.ring: 4 assertions matched
-[ FAIL ] 32_simple_display_without_configuration.ring:
-         #1 ? @@NL( oTimeLine.Stats() ) -> expected '[ [ "metric", "value" ],' not found past cursor 0
+[ PASS ] 32_simple_display_without_configuration.ring: 1 assertions matched
 [ FAIL ] 33_custom_width_display.ring:
          #1 ? oTimeLine.ToStringXT([ :Width = 30 ]) -> expected 'Q1 Q2 Q3 │──────●──────●──────●────────○─► 1 2 3 ╭────┬─────' not found past cursor 0
 [ FAIL ] 34_finding_and_highlighting_specific_element.ring:
@@ -63,4 +60,4 @@
 [ skip ] 52_visualize_blocks.ring: no #--> markers
 [ skip ] 53_complex_timeline_with_blocked_regions_and_points.ring: no #--> markers
 ---
-PASS: 26 / FAIL: 9 / skip: 18
+PASS: 28 / FAIL: 7 / skip: 18
