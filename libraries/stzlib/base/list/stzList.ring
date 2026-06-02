@@ -1669,7 +1669,7 @@ class stzList from stzObject
 			return This.IsListOfNumbers()
 
 	def IsListOfLists()
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		for i = 1 to nLen
 			if NOT isList(@aContent[i])
 				return FALSE
@@ -1685,6 +1685,29 @@ class stzList from stzObject
 
 		def ContainsOnlyLists()
 			return This.IsListOfLists()
+
+	# IsListOfListsOfNumbers: each top-level item must be a list,
+	# and each inner item must be a number.
+	def IsListOfListsOfNumbers()
+		_nIllonLen_ = ring_len(@aContent)
+		if _nIllonLen_ = 0
+			return 0
+		ok
+		for _iIllon_ = 1 to _nIllonLen_
+			if NOT isList(@aContent[_iIllon_])
+				return 0
+			ok
+			_nIllonInner_ = ring_len(@aContent[_iIllon_])
+			for _jIllon_ = 1 to _nIllonInner_
+				if NOT isNumber(@aContent[_iIllon_][_jIllon_])
+					return 0
+				ok
+			next
+		next
+		return 1
+
+		def IsAListOfListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
 
 	def IsListOfListsOfSameSize()
 		nLen = This.NumberOfItems()
