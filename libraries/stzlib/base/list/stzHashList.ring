@@ -2050,9 +2050,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFlResult_
 
-	def FindNonLists() // #TODO Make a more performant solution
-		_anFnlResult_ = Q( 1 : This.Size() ) - These( This.FindLists() )
-		return _anFnlResult_
+	def FindNonLists()
+		# Return the positions whose value is NOT a list.
+		# (Previous impl used `Q(1:N) - These(...)` which depends on
+		# a `-` operator overload that doesn't exist on stzList in
+		# the modular build. Direct walk is both simpler and faster.)
+		_anFnlListPos_ = This.FindLists()
+		_aFnlContent_ = This.Content()
+		_nFnlLen_ = len(_aFnlContent_)
+		_anFnlR_ = []
+		for _iFnl_ = 1 to _nFnlLen_
+			if ring_find(_anFnlListPos_, _iFnl_) = 0
+				_anFnlR_ + _iFnl_
+			ok
+		next
+		return _anFnlR_
 
 	def Lists()
 		_aLsContent_ = This.Content()
