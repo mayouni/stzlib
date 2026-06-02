@@ -2294,6 +2294,14 @@ class stzList from stzObject
 		def FindMany(paItems)
 			return This.FindManyCS(paItems, 1)
 
+		# Fluent (Q) form: same result wrapped in a stzList so the
+		# caller can pipe it through `/`, `Sorted()`, etc.
+		def FindManyCSQ(paItems, pCaseSensitive)
+			return new stzList(This.FindManyCS(paItems, pCaseSensitive))
+
+		def FindManyQ(paItems)
+			return new stzList(This.FindMany(paItems))
+
 	  #-- ContainsManyCS: check if list contains multiple items
 
 	def ContainsManyCS(paItems, pCaseSensitive)
@@ -2446,6 +2454,37 @@ class stzList from stzObject
 
 		def ExtendToPositionWith(n, pWith)
 			This.ExtendToPositionXT(n, pWith)
+
+	# Sugar aliases over ExtendToPositionXT: the same operation
+	# but using the more natural "ExtendTo" / "Extend" naming.
+	# Default filler is the empty string.
+
+	def ExtendTo(n)
+		This.ExtendToPositionXT(n, "")
+
+		def ExtendToQ(n)
+			This.ExtendTo(n)
+			return This
+
+		def ExtendToWith(n, pWith)
+			This.ExtendToPositionXT(n, pWith)
+
+	def Extend(pWith)
+		# Append a single element (or a list of elements) to the list.
+		if isList(pWith)
+			for _xExWi_ in pWith
+				This.AddItem(_xExWi_)
+			next
+		else
+			This.AddItem(pWith)
+		ok
+
+		def ExtendQ(pWith)
+			This.Extend(pWith)
+			return This
+
+		def ExtendWith(pWith)
+			This.Extend(pWith)
 
 	  #-- Perform: execute code on each item
 
