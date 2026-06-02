@@ -1567,6 +1567,18 @@ func StzText(pcStr)
 	func Text(pcStr)
 		return StzText(pcStr)
 
+# stzText doesn't have its own dedicated class -- it's just a
+# semantic alias for "narrative text", which structurally is a
+# stzString. Q-form constructors return the stzString wrapper so
+# the test narratives like `StzTextQ("...") { Initials() ... }`
+# work without a new class.
+
+func StzTextQ(pcStr)
+	return new stzString(pcStr)
+
+	func TextQ(pcStr)
+		return StzTextQ(pcStr)
+
 func StzNumberOfCharsOf(pcStr)
 	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringCount(pStr)

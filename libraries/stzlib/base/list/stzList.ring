@@ -3746,6 +3746,17 @@ class stzList from stzObject
 		_oRzdRnd_ = new stzListRandom(This)
 		return _oRzdRnd_.Randomized()
 
+	def RandomizeNumbers()
+		_oRznRnd_ = new stzListRandom(This)
+		_oRznRnd_.RandomizeNumbers()
+		This.UpdateWith(_oRznRnd_.Content())
+
+		def RandomiseNumbers()
+			This.RandomizeNumbers()
+
+		def ShuffleNumbers()
+			This.RandomizeNumbers()
+
 	def RandomizeSection(n1, n2)
 		_oRzsRnd_ = new stzListRandom(This)
 		_oRzsRnd_.RandomizeSection(n1, n2)

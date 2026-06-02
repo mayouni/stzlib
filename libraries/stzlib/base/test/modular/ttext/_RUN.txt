@@ -1,0 +1,64 @@
+[ FAIL ] 01_chars_vs_letters.ring:
+         #1 ? @@( SQ(str).Chars() ) # Uses stzString -> expected '[ "П", "и", "+", "+", "е", "́", "т", "و", "*", "*", "ש", "ָ"' not found past cursor 0
+         #2 ? @@( TQ(str).Letters() ) # Uses stzText -> expected '[ "П", "и", "е", "т", "و", "ש", "ب", "d" ]' not found past cursor 0
+[ FAIL ] 02_arabic_shaddah_is_a_considedred_by_unicode_as_a_di.ring:
+         #1 ? @@( TQ(txt).Letters() ) -> expected 'Gives ["م", "و", "د", " ّ", "ت", "ي" ]' not found past cursor 0
+[ skip ] 03_retest_after_adding_replaceallcharsw_in_stzstring.ring: no #--> markers
+[ skip ] 04_retest_after_adding_replaceallcharsw_in_stzstring.ring: no #--> markers
+[ skip ] 05_stringisstzclassnamestzlist.ring: no #--> markers
+[ PASS ] 06_stzstringq和平script_--_han.ring: 1 assertions matched
+[ skip ] 07_stzstringqسلامscriptisarabic_--_true.ring: no #--> markers
+[ skip ] 08_is_this_arabic_word_diacriticized.ring: no #--> markers
+[ skip ] 09_now_lets_see_how_diacritics_can_be_removed_from_a_.ring: no #--> markers
+[ skip ] 10_stzstringq_4_scripts_--_common_inherited.ring: no #--> markers
+[ skip ] 11_stzstringq_4_isscripthybrid_--_true.ring: no #--> markers
+[ skip ] 12_o1_new_stzstringlatin_4.ring: no #--> markers
+[ skip ] 13_o1_new_stzstringabc285xyمن.ring: no #--> markers
+[ FAIL ] 14_stztextqprogramming_without_code_technology.ring:
+         #1 ? Initials() -> expected '[ "P", "W", "C", "T" ]' not found past cursor 0
+[ skip ] 15_str.ring: no #--> markers
+[ skip ] 16_str.ring: no #--> markers
+[ skip ] 17_block_17.ring: no #--> markers
+[ FAIL ] 18_softanza_makes_its_best_to_accurately_identify_wor.ring:
+         #1 ? StzTextQ('Softanza: "playing" with words 1001 times!!').Wo -> expected '[ :softanza, :playing, :words, 1001, times ]' not found past cursor 0
+         #2 ? StzTextQ('Softanza: "playing" with words 1001 times!!').Wo -> expected '[ :softanza, :playing, :words, :with, 1001, times ]' not found past cursor 0
+[ skip ] 19_in_rality_this_word_identification_process_is_time.ring: no #--> markers
+[ skip ] 20_todo.ring: no #--> markers
+[ skip ] 21_block_21.ring: no #--> markers
+[ skip ] 22_stztextqmahmoud_ahmed_mohamed_mahmoud_mahmoud_ahme.ring: no #--> markers
+[ skip ] 23_o1_new_stztextlets_meet_in_tunis_next_month.ring: no #--> markers
+[ skip ] 24_replaceword_--_replacewords_--_replacewordswithmar.ring: no #--> markers
+[ skip ] 25_stztextqmahmoud_ahmed_mohamed_mahmoud_mahmoud_ahme.ring: no #--> markers
+[ skip ] 26_o1_new_stztextring_is_not_the_ring_you_ware_but_th.ring: no #--> markers
+[ skip ] 27_ctext_john_is_the_son_of_john_second.ring: no #--> markers
+[ FAIL ] 28_ctext_john_is_the_son_of_john_second.ring:
+         #1 ? WordsAndTheirFrequencies() -> expected '[ [ "john", 0.20 ], [ "is", 0.13 ], [ "the", 0.07 ], [ "son"' not found past cursor 0
+         #2 ? UniqueWordsFrequencies() -> expected '[ 0.20, 0.13, 0.07, 0.13, 0.13, 0.27, 0.07 ]' not found past cursor 0
+         #3 ? TheseWordsFrequencies([ :son, :second, :john ]) -> expected '[ 0.13, 0.27, 0.20 ]' not found past cursor 0
+         #4 ? TheseWordsAndTheirFrequencies([ :son, :second, :john ]) -> expected '[ :son = 0.13, :second = 0.27, :john = 0.20 ]' not found past cursor 0
+         #5 ? WordsHavingThisFrequency(0.13) -> expected '[ "is", "son", "of" ]' not found past cursor 0
+         ... +3 more
+[ FAIL ] 29_back_here.ring:
+         #1 ? WordsAndTheirFrequencies() -> expected '[ [ "john", 0.50 ], [ "son", 0.33 ], [ "william", 0.50 ] ] ]' not found past cursor 0
+         #2 ? UniqueWordsFrequencies() -> expected '[ 0.50, 0.33, 0.17 ]' not found past cursor 0
+         #3 ? TheseWordsFrequencies([ :son, :second, :john ]) -> expected '[ 0.33, 0.67, 0.50 ] !!!!! ERROR : second is a stopword, sho' not found past cursor 0
+         #4 ? TheseWordsAndTheirFrequencies([ :son, :second, :john ]) -> expected '[ :son = 0.33, :second = 0.67, :john = 0.50 ]' not found past cursor 0
+         #5 ? WordsHavingThisFrequency(0.50) -> expected '[ "john", "william" ]' not found past cursor 0
+         ... +1 more
+[ skip ] 30_stopwordsinenglish.ring: no #--> markers
+[ skip ] 31_qthatlanguageifstopword_--_english.ring: no #--> markers
+[ skip ] 32_stztextqkırşehirdiacriticsremoved_--_kirsehir_turk.ring: no #--> markers
+[ skip ] 33_errror.ring: no #--> markers
+[ skip ] 34_o1_new_stztexta_la_recherche_du_temps_perdu.ring: no #--> markers
+[ FAIL ] 35_ok.ring:
+         #1 ? OnlyArabic() -> expected 'Returns: "حنين جميلة وعمرها 7 سنوات !"' not found past cursor 0
+         #2 ? OnlyLatin() -> expected 'Returns: "Hanine is a nice 7 years-old girl!"' not found past cursor 0
+[ skip ] 36_refactored_fixing_is_in_progress.ring: no #--> markers
+[ FAIL ] 37_o1_new_stzstringthis_is_just_عربي_latin_script.ring:
+         #1 ? o1.ToStzText().Scripts() -> expected '[ :latin, :common, :arabic ]' not found past cursor 0
+[ skip ] 38_error_fixing_in_progress.ring: no #--> markers
+[ skip ] 39_o1_new_stztextsoftanza.ring: no #--> markers
+[ skip ] 40_o1_new_stztextpython_ruby_ring_julia.ring: no #--> markers
+[ skip ] 41_o1_new_stztextring_python_ruby_julia.ring: no #--> markers
+---
+PASS: 1 / FAIL: 8 / skip: 32
