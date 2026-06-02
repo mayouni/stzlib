@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*----
-
+*/
 pr()
 
 o1 = new stzCounter([
@@ -24,7 +24,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.03 second(s) in Ring 1.21
 
-/*-----
+/*----- #ERR
 
 pr()
 
@@ -80,7 +80,7 @@ pf()
 # Executed in 0.20 second(s) in Ring 1.23
 
 /*---
-
+*/
 # Softanza stzCount
 
 pr()

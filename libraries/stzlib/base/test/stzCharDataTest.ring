@@ -34,7 +34,7 @@ anSomeUnicodes = NRandomNumbersIn( 5, InvisibleUnicodes() )
 # Executed in 0.28 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 pr()
 
 ? ShowShort(
@@ -44,6 +44,7 @@ pr()
 #--> [ 9312, 9313, 9314, "...", 9447, 9448, 9449 ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*------------

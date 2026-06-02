@@ -167,7 +167,7 @@ class stzDataWrangler
         
         @aData = aCleanData
         nRemoved = nOriginalSize - This._GetRowCount()
-        This._LogTransformation("RemoveDuplicates", nRemoved + " duplicates removed")
+        This._LogTransformation("RemoveDuplicates", "" + nRemoved + " duplicates removed")
         return nRemoved
 
     def HandleMissingValues(cStrategy)
@@ -194,7 +194,7 @@ class stzDataWrangler
             nFilled = This._HandleMissingInTable(cStrategy)
         ok
         
-        This._LogTransformation("HandleMissingValues", nFilled + " values processed with strategy: " + cStrategy)
+        This._LogTransformation("HandleMissingValues", "" + nFilled + " values processed with strategy: " + cStrategy)
         return nFilled
 
     def _HandleMissingInList(cStrategy)
@@ -256,9 +256,9 @@ class stzDataWrangler
         if @cDataStructure = "list"
             for i = 1 to len(@aData)
                 if isString(@aData[i])
-                    original = @aData[i]
+                    cOriginal = @aData[i]
                     @aData[i] = trim(@aData[i])
-                    if original != @aData[i]
+                    if strcmp(cOriginal, @aData[i]) != 0
                         nCleaned++
                     ok
                 ok
@@ -267,9 +267,9 @@ class stzDataWrangler
             for i = 1 to len(@aData)
                 for j = 1 to len(@aData[i])
                     if isString(@aData[i][j])
-                        original = @aData[i][j]
+                        cOriginal = @aData[i][j]
                         @aData[i][j] = trim(@aData[i][j])
-                        if original != @aData[i][j]
+                        if strcmp(cOriginal, @aData[i][j]) != 0
                             nCleaned++
                         ok
                     ok
@@ -277,16 +277,14 @@ class stzDataWrangler
             next
         ok
         
-        This._LogTransformation("TrimWhitespace", nCleaned + " values cleaned")
+        This._LogTransformation("TrimWhitespace", "" + nCleaned + " values cleaned")
         return nCleaned
 
     def NormalizeCase(cMode)
-        """
-        Normalize text case
-        Modes: "lower", "upper", "title", "sentence"
-        """
+        # Normalize text case
+        # Modes: lower, upper, title, sentence
 
-		if @trim(cMode) = ""
+		if trim(cMode) = ""
 			cMode = "lower"
 		ok
 
@@ -295,22 +293,28 @@ class stzDataWrangler
         if @cDataStructure = "list"
             for i = 1 to len(@aData)
                 if isString(@aData[i])
+                    cOrig = @aData[i]
                     @aData[i] = This._ApplyCaseNormalization(@aData[i], cMode)
-                    nNormalized++
+                    if strcmp(cOrig, @aData[i]) != 0
+                        nNormalized++
+                    ok
                 ok
             next
         else
             for i = 1 to len(@aData)
                 for j = 1 to len(@aData[i])
                     if isString(@aData[i][j])
+                        cOrig = @aData[i][j]
                         @aData[i][j] = This._ApplyCaseNormalization(@aData[i][j], cMode)
-                        nNormalized++
+                        if strcmp(cOrig, @aData[i][j]) != 0
+                            nNormalized++
+                        ok
                     ok
                 next
             next
         ok
         
-        This._LogTransformation("NormalizeCase", nNormalized + " values normalized to " + cMode)
+        This._LogTransformation("NormalizeCase", "" + nNormalized + " values normalized to " + cMode)
         return nNormalized
 
     # PILLAR 2: DATA VALIDATION
@@ -449,7 +453,7 @@ class stzDataWrangler
             next
         ok
         
-        This._LogTransformation("ConvertDataTypes", nConverted + " values converted")
+        This._LogTransformation("ConvertDataTypes", "" + nConverted + " values converted")
         return nConverted
 
     def NormalizeNumeric(cMethod)
@@ -483,7 +487,7 @@ class stzDataWrangler
             next
         ok
         
-        This._LogTransformation("NormalizeNumeric", nNormalized + " values normalized using " + cMethod)
+        This._LogTransformation("NormalizeNumeric", "" + nNormalized + " values normalized using " + cMethod)
         return nNormalized
 
     def EncodeCategories(cMethod)
@@ -509,7 +513,7 @@ class stzDataWrangler
             next
         ok
         
-        This._LogTransformation("EncodeCategories", nEncoded + " categorical values encoded")
+        This._LogTransformation("EncodeCategories", "" + nEncoded + " categorical values encoded")
         return nEncoded
 
     # PILLAR 4: PLAN EXECUTION SYSTEM
