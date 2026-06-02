@@ -3089,6 +3089,9 @@ class stzString from stzObject
 	def FindBetweenAsSection(pcBound1, pcBound2)
 		return This.FindBetweenAsSectionCS(pcBound1, pcBound2, 1)
 
+		def FindBetweenAsSections(pcBound1, pcBound2)
+			return This.FindBetweenAsSectionCS(pcBound1, pcBound2, 1)
+
 	# --- FindBoundedByAsSections ---
 
 	def FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
@@ -3097,6 +3100,24 @@ class stzString from stzObject
 
 	def FindBoundedByAsSections(pacBounds)
 		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
+
+		def FindAnyBoundedByAsSections(pacBounds)
+			return This.FindBoundedByAsSections(pacBounds)
+
+		def FindAnyBoundedBy(pacBounds)
+			return This.BoundedBy(pacBounds)
+
+	# IsBoundedByCS / IsBoundedBy: predicate. True iff the content
+	# starts with pacBounds[1] AND ends with pacBounds[2].
+	def IsBoundedByCS(pacBounds, pCaseSensitive)
+		if NOT (isList(pacBounds) and len(pacBounds) = 2)
+			return 0
+		ok
+		return This.StartsWithCS(pacBounds[1], pCaseSensitive) and
+		       This.EndsWith(pacBounds[2])
+
+	def IsBoundedBy(pacBounds)
+		return This.IsBoundedByCS(pacBounds, 1)
 
 	# --- FindDuplicatesAsSections ---
 
