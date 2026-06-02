@@ -3711,6 +3711,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KlassesFrequenciesXT()
 			return This.ClassesFrequenciesXT()
 
+		# ClassesXT (alias used by NStrongestClasses for `sort on freq`).
+		# Returns [classname, frequency] pairs.
+		def ClassesXT()
+			return This.ClassesFreqsXT()
+
+		def KlassesXT()
+			return This.ClassesFreqsXT()
+
 		def ClassesFreqsXT()
 			return This.ClassesFrequenciesXT()
 
@@ -3844,7 +3852,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#=====================================#
 
 	def NStrongestClasses(n)
-		_aNscXT_ = new stzList(SortListsOn( ClassesXT(), 2 )).Reversed()
+		# Avoid `new stzList(...).Reversed()` chain (Ring 1.26 parses
+		# the dot as binding to the arg expression, not the new
+		# object, raising R13). Bind first.
+		_oNscTmp_ = new stzList( SortListsOn( This.ClassesXT(), 2 ) )
+		_aNscXT_ = _oNscTmp_.Reversed()
 		_nNscLen_ = len(_aNscXT_)
 
 		n = @Min([ n, _nNscLen_ ])
@@ -3879,7 +3891,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def NStrongestClassesXT(n)
-		_aNscxXT_ = new stzList(SortListsOn( ClassesXT(), 2 )).Reversed()
+		_oNscxTmp_ = new stzList( SortListsOn( This.ClassesXT(), 2 ) )
+		_aNscxXT_ = _oNscxTmp_.Reversed()
 		_nNscxLen_ = len(_aNscxXT_)
 		n = @Min([ n, _nNscxLen_ ])
 
