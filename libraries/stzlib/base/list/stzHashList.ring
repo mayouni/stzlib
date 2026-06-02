@@ -2139,7 +2139,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			next
 		next
 
-		_anFtlResult_ = new stzList(_anFtlResult_).Sorted()
+		_oTmpSort_ = new stzList(_anFtlResult_)
+		_anFtlResult_ = _oTmpSort_.Sorted()
 		return _anFtlResult_
 
 	def TheseListsZ(paLists)
@@ -2252,7 +2253,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			next
 		next
 
-		_anFtnResult_ = new stzList(_anFtnResult_).Sorted()
+		_oTmpSort_ = new stzList(_anFtnResult_)
+		_anFtnResult_ = _oTmpSort_.Sorted()
 		return _anFtnResult_
 
 	def TheseNumbersZ(paNumbers)
@@ -2363,7 +2365,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 			next
 		next
 
-		_anFtsResult_ = new stzList(_anFtsResult_).Sorted()
+		_oTmpSort_ = new stzList(_anFtsResult_)
+		_anFtsResult_ = _oTmpSort_.Sorted()
 		return _anFtsResult_
 
 	def TheseStringsZ(paStrings)
