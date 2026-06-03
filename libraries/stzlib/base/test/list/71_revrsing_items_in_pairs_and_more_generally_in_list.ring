@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # The same code you write for reversing items inside a list of pairs:
 
@@ -26,3 +27,5 @@ o1.ReverseItemsInLists()
 # specific using nearly the same code and the same semantics.
 
 # PS: CONSISTENCY is one of the 7 design goals of SoftanzaLib.
+
+pf()

@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Modern mobile navigation
 
 
@@ -182,3 +184,5 @@ load "../../stzBase.ring"
 #===============================================#
 #   SECTION 10: COMPLETE APPLICATION EXAMPLE    #
 #===============================================#
+
+pf()

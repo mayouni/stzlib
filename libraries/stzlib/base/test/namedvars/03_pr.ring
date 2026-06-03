@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 Vr([ :x, :y, :z ]) '=' Vl([ -1, 0, 1 ])
 ? v([ :x, :y, :z ])

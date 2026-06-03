@@ -3,6 +3,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== Core: Init and Content ==="
 o = new stzList([1, 2, 3])
 ? "  Content: " + @@(o.Content())
@@ -60,3 +62,5 @@ aData = [ ["banana", 3], ["apple", 1], ["cherry", 2] ]
 
 ? ""
 ? "All core/marshaling tests completed."
+
+pf()

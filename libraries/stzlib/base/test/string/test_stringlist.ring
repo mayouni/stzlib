@@ -2,6 +2,8 @@ load "test_stubs.ring"
 load "../stzString.ring"
 load "../stzStringList.ring"
 
+pr()
+
 ? "Step 1: Testing ContainsCS"
 o = new stzStringList(["Hello", "World", "HELLO", "test"])
 
@@ -146,3 +148,5 @@ ok
 
 ? ""
 ? "=== ALL STRINGLIST TESTS PASSED ==="
+
+pf()

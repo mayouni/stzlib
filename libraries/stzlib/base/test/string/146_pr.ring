@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzString("ABCDE")
 o1.Shrink( :ToPosition = 3 )

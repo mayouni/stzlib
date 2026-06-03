@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzNumber("27 898 116.56")
 ? o1.Structure(:AsListOfLists)
@@ -100,3 +101,5 @@ o1.FromHex("x407")
 
 o1.FromOctal("o2007")
 ? o1.Content()
+
+pf()

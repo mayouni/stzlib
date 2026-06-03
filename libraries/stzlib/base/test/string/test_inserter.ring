@@ -3,6 +3,8 @@ load "../stzString.ring"
 load "../stzStringFinder.ring"
 load "../stzStringInserter.ring"
 
+pr()
+
 ? "Step 1: Testing InsertBefore position"
 o = new stzStringInserter("Hello World")
 o.InsertBefore(6, "Beautiful ")
@@ -66,3 +68,5 @@ ok
 
 ? ""
 ? "=== ALL INSERTER TESTS PASSED ==="
+
+pf()

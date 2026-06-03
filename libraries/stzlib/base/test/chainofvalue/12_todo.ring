@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? Until(v).Becomes.ANumber().DoThis('{
 		v += "0"
@@ -16,3 +17,5 @@ load "../../stzBase.ring"
 
 		? v + " : " + ring_type(v)
 }')
+
+pf()

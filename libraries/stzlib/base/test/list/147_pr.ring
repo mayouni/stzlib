@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList([0, 1, 2])
 o1 * 3

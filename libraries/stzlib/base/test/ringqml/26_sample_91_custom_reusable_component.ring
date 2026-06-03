@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Component definition and reuse
 
 
@@ -120,3 +122,5 @@ load "../../stzBase.ring"
 	#--> NewComponent() registers reusable QML components
 	#--> Components have properties for customization
 	#--> Promotes DRY principle and maintainability
+
+pf()

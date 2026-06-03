@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 // WalkUntil has not same output in stzString and stzList!
 
@@ -20,3 +21,5 @@ StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
 	? WalkUntil("@item = 'D'") #--> 1:5
 	? WalkUntil('@item = "x"') #--> 0
 }
+
+pf()

@@ -1,0 +1,18 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzlistofcharstest.ring, block #9.
+
+load "../../stzBase.ring"
+
+pr()
+
+? StzListOfCharsQ("SOFTANZA").Boxed()
+#-->
+# ┌───┬───┬───┬───┬───┬───┬───┬───┐
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# └───┴───┴───┴───┴───┴───┴───┴───┘
+
+pf()
+# Executed in 0.03 second(s).

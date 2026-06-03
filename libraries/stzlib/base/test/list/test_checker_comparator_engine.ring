@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 nPsd = 0
 nFld = 0
 nTtl = 0
@@ -171,3 +173,5 @@ if nFld = 0
 else
 	? "SOME TESTS FAILED!"
 ok
+
+pf()

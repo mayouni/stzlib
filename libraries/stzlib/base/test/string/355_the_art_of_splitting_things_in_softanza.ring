@@ -7,6 +7,9 @@
 load "../../stzBase.ring"
 
 		
+
+pr()
+
 # Softanza can do all these splitting cases, both for strings and lists:
 
  -------------------+--------+--------+-------+--------- 
@@ -32,3 +35,5 @@ load "../../stzBase.ring"
  -------------------+--------+--------+-------+---------
 
 # See fellowing examples...
+
+pf()

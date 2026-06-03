@@ -1,0 +1,28 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzStringTest.ring, block #950.
+
+load "../../stzBase.ring"
+
+pr()
+
+o1 = new stzString("..STZ..STZ..STZ")
+
+? o1.ToStzListOfChars().BoxXT([
+	:Hilighted = Q( o1.FindZZ("STZ") ).Flattened(),
+	:Sectioned = TRUE,
+	:Numbered = TRUE,
+	:Rounded = TRUE
+ ])
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# │ . │ . │ S │ T │ Z │ . │ . │ S │ T │ Z │ . │ . │ S │ T │ Z │
+# ╰───┴───┴─•─┴───┴─•─┴───┴───┴─•─┴───┴─•─┴───┴───┴─•─┴───┴─•─╯
+#           '-------'           '-------'           '-------'
+#           3       5           8     10            13     15
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.26
+# Executed in 0.12 second(s) in Ring 1.24

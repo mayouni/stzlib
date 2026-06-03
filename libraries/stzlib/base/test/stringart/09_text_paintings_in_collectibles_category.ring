@@ -6,7 +6,7 @@
 
 load "../../stzBase.ring"
 
-
+pr()
 
 ? StringArt("#{Coins}") +NL
 #-->
@@ -56,6 +56,7 @@ load "../../stzBase.ring"
 # \      /
 #  \    /
 #   \  /
-#    \/	
+#    \/
 
+pf()
 # Executed in 0.001 seconds.

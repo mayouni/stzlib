@@ -7,6 +7,8 @@ load "test_stubs.ring"
 ? "Loading stzString"
 load "../stzString.ring"
 
+pr()
+
 ? ""
 ? "=== Test 1: String-level bulk type extraction ==="
 
@@ -192,3 +194,5 @@ StzEngineStringFree(pMixHeb)
 
 ? ""
 ? "=== ALL ENGINE CHAR CLASSIFICATION TESTS PASSED ==="
+
+pf()

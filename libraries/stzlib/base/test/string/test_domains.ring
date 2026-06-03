@@ -10,6 +10,8 @@ load "../stzStringFinder.ring"
 load "../stzStringSplitter.ring"
 load "../stzStringReplacer.ring"
 
+pr()
+
 ? "Step 4: Testing stzString core"
 o1 = new stzString("Ring is beautiful!")
 ? "  Content: " + o1.Content()
@@ -47,3 +49,5 @@ oReplacer.Replace("World", "Ring")
 
 ? ""
 ? "=== ALL DOMAIN TESTS PASSED ==="
+
+pf()

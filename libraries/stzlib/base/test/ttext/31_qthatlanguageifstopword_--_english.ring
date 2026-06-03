@@ -6,4 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? Q("في").LanguageIfStopWord() 		#--> :Arabic
+
+pf()

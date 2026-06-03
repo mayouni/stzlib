@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"What's your name please",
 	"Mabrooka",
 	"Your name is a nice name",
@@ -18,3 +20,5 @@ load "../../stzBase.ring"
 ? o1.FindStringCS("mabrooka", :CaseSensitive = FALSE) #--> [ 2, 6 ]
 
 ? o1.FindManyStringsCS( [ "i see", "mabrooka" ], :CS = FALSE ) # [ 2, 4, 6 ]
+
+pf()

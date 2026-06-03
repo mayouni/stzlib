@@ -8,5 +8,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? RingMaxRound()
 #--> 14
+
+pf()

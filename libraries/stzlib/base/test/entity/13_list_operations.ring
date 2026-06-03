@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? oList.IsEmpty()
 #--> 0
@@ -21,3 +22,5 @@ oList.Show()
 # 2. alice (person)
 # 3. bob (person)
 # 4. truck (vehicle)
+
+pf()

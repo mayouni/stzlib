@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # In conditional code, there are always to forms:
 #	- the ...W(pcCondition) form, which is more performant, but less expressive
@@ -33,4 +34,6 @@ o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 #--> [ 8, 11 ]
 
 StopProfiler()
+
+pf()
 # Executed in 0.28 second(s).

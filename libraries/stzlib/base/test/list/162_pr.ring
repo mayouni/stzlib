@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
 o1.Shrink( :ToPosition = 3 )

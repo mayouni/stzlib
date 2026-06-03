@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 #########################
 
 1. Obstacles Management
@@ -43,3 +45,5 @@ load "../../stzBase.ring"
 	7.1. Converting to list of lists
 	7.2. String grid representation
 	7.3. File export/import
+
+pf()

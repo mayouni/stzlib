@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Rectangle properties, color, dimensions
 
 	new qApp {
@@ -44,3 +46,5 @@ load "../../stzBase.ring"
 	
 	#--> Rectangles are QML's most versatile visual element
 	#--> They can contain other elements and serve as containers
+
+pf()

@@ -1,5 +1,7 @@
 load "../../string/test/test_stubs.ring"
 
+pr()
+
 # Load stz_locale.dll
 cLocaleLib = _stzFindDll("stz_locale.dll")
 if cLocaleLib != ""
@@ -135,3 +137,5 @@ ok
 
 ? ""
 ? "=== All locale engine tests completed ==="
+
+pf()

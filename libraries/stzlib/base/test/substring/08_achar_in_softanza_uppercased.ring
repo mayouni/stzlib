@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? SomeChars( :In = "softanza" ).Uppercased()
 
 ? ASubString( :In = "softanza" ).Uppercased() + NL

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 app = new stzAppServer()
 
@@ -41,3 +42,7 @@ app.Post("/api/analyze", func oRequest, oResponse {
 })
 
 app.Start(8080)
+#ERR
+# Calling Function without definition: uv_defaulloop
+
+pf()

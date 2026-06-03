@@ -3,6 +3,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== Flatten ==="
 o = new stzList([1, [2, 3], 4, [5, 6]])
 ? "  Flattened: " + @@(o.Flattened())
@@ -54,3 +56,5 @@ o = new stzList([1, 2, 3])
 
 ? ""
 ? "All structural operation tests completed."
+
+pf()

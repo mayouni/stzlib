@@ -6,7 +6,11 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	RemoveAllCS("TWO", :CaseSensitive = FALSE) 
 	#--> Same as RemoveAllCS("TWO", :CS = FALSE)
 	? Content() #--> [ "one","three","four" ]
 }
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? @substr("softanza solvers are here!", 10, 16)
 #--> "solvers"

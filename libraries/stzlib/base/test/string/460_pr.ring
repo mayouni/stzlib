@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? Q("(9, 7, 8)").
 	RemoveCharsWXTQ('Q(@Char).IsNumberInString()'). # becomes (, , )

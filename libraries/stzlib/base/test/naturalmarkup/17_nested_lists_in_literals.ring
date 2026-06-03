@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	cMarkup = '
 	Create {+matrix:list ~1} with {#1 [["a", "b"], ["c", "d"]]}.
@@ -18,3 +19,5 @@ load "../../stzBase.ring"
 #--> [["a", "b"], ["c", "d"]]
 
 proff()
+
+pf()

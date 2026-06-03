@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Linear and radial gradients
 
 	new qApp {
@@ -84,3 +86,5 @@ load "../../stzBase.ring"
 	#--> Gradients add depth and visual interest
 	#--> GradientStops define color at specific positions
 	#--> Modern UIs often use subtle gradients
+
+pf()

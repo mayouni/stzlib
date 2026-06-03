@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # of some functions involving bounds and things inbetween.
 # I left it here as a memory of the hard work made on this front...
 
@@ -32,3 +34,5 @@ ReplaceXT()
 
 RemoveXT()
 #--> DONE
+
+pf()

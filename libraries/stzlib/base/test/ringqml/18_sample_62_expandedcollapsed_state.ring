@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Toggling UI sections
 
 
@@ -97,3 +99,5 @@ load "../../stzBase.ring"
 #=========================================#
 #   SECTION 7: RING ↔ QML COMMUNICATION   #
 #=========================================#
+
+pf()

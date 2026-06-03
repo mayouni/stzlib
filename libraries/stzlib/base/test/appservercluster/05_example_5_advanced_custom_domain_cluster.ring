@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
     oCluster = new stzCluster()
     
@@ -44,3 +45,5 @@ load "../../stzBase.ring"
     }
     
     oCluster.Start(8080)
+
+pf()

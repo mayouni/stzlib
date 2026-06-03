@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = StzTableQ([ 3, 3 ]) { Fill(:With = "A") }
 o1.Show()

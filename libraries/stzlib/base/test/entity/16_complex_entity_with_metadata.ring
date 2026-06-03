@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oComplexEntity = new stzEntity([
     :name = "server01",
@@ -32,3 +33,5 @@ oComplexEntity.Show()
 #   memory: 32GB
 #   status: active
 #   owner: IT Department
+
+pf()

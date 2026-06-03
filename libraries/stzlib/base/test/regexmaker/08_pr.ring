@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 rx(pat(:SocialHandle)) { ? Pattern() + NL + Explain() + NL + ExplainXT() }
 #--> ^@[a-zA-Z0-9._]{1,30}$

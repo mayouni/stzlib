@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.StringsW('{ @string = "watch" }') #--> "watch"
 
 ? o1.StringsW('{ Q(@string).IsEqualToCS("watch", :CS = FALSE) }')
@@ -23,3 +25,5 @@ load "../../stzBase.ring"
 
 ? o1.StringsPositionsW('{ Q(@string).IsEqualToCS("watch", :CS = FALSE) }')
 #--> [1, 3, 5]
+
+pf()

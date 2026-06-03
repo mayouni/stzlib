@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzMatrix([
 	[ 0.05, 0.07 ],

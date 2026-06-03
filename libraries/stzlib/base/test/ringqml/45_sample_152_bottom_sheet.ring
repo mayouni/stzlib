@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Modal content from bottom
 
 
@@ -242,3 +244,5 @@ load "../../stzBase.ring"
 	#--> Bottom sheet modal pattern
 	#--> Slide-up animation
 	#--> Overlay dimming
+
+pf()

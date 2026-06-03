@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzString("1♥♥456♥♥901♥♥4")
 

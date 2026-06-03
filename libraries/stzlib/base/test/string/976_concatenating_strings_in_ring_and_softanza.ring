@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 StartProfiler()
 
 # In Ring, concatenating 1 million strings takes about 45 seconds:
@@ -40,4 +42,6 @@ StartProfiler()
 	#--> 11.25
 
 StopProfiler()
+
+pf()
 # Executed in 3.83 second(s) in Ring 1.22

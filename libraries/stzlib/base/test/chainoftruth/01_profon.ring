@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	Q("Apple").IsA(:Fruit)
 		? WhatIs(:Apple) #--> :Fruit
@@ -32,3 +33,5 @@ Q(:Fruit).Is("the means by which flowering plants disseminate their seeds")
 		? Where("Steve Jobs").WorksAt() #--> :Apple
 
 proff()
+
+pf()

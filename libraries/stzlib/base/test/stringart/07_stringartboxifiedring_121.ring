@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? StringArtBoxified("STZ-CORE")
 
 #-->
@@ -64,3 +66,5 @@ SetStringArtStyle("retro")
 #------------------------------#
 # TEXT-BASED PAINTINGS DATASET #
 #------------------------------#
+
+pf()

@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Ring controls QML elements
 
 	nCounter = 0
@@ -82,3 +84,5 @@ load "../../stzBase.ring"
 	#--> Ring.getVar() retrieves Ring variable values
 	#--> Ring.setVar() can set Ring variables from QML
 	#--> Creates a data bridge between Ring and QML
+
+pf()

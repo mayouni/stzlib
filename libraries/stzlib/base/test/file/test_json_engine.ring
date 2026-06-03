@@ -1,5 +1,7 @@
 load "../../string/test/test_stubs.ring"
 
+pr()
+
 # Load stz_json.dll
 ? "Loading stz_json.dll..."
 cJsonLib = _stzFindDll("stz_json.dll")
@@ -122,3 +124,5 @@ ok
 
 ? ""
 ? "=== All stz_json engine tests completed ==="
+
+pf()

@@ -8,6 +8,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 ? o1.BoxedRound()
@@ -21,3 +22,5 @@ o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 # 	╭───────╮
 # 	│ PARIS │
 # 	╰───────╯
+
+pf()

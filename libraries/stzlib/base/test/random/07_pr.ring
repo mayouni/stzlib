@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 acTreasureChest = [ "gold", "sword", "potion", "gem", "scroll" ]
 

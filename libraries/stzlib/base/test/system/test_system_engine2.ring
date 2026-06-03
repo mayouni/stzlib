@@ -1,5 +1,7 @@
 load "../../string/test/test_stubs.ring"
 
+pr()
+
 # Load stz_system.dll
 ? "Loading stz_system.dll..."
 cSysLib = _stzFindDll("stz_system.dll")
@@ -59,3 +61,5 @@ ok
 
 ? ""
 ? "=== All stz_system engine tests completed ==="
+
+pf()

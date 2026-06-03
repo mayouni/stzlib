@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Test 7: Compact Multi-Series
 

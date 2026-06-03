@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 Vr( "a" : "z" ) '=' Vl( 1 : NumberOfLatinLetters() )
 ? v(:t)

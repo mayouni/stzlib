@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? pat(:creditCard) + NL
 #--> ^\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}$

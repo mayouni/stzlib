@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.Words()
 ? o1.WordsPositions()
 ? o1.WordsAndTheirPositions()
+
+pf()

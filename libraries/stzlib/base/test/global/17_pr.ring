@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 @ForEach( :number, :in = 1:5 ) { X('
 

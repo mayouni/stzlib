@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 @ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] ) { X('
 	? name + " " + age

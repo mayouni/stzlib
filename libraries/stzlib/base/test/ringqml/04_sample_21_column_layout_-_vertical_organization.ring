@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Automatic vertical stacking with spacing
 
 	new qApp {
@@ -77,3 +79,5 @@ load "../../stzBase.ring"
 	
 	#--> Column automatically arranges children vertically
 	#--> Spacing property controls the gap between elements
+
+pf()

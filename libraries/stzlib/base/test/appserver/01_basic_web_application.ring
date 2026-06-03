@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 app = new stzAppServer()
 
 # Simple route
@@ -37,5 +39,7 @@ app.Get_("/api/process", func oRequest, oResponse {
 
 # Start the server
 app.Start(3000)
+#ERR
+# Calling Function without definition: uv_defaulloop
 
 pf()

@@ -6,7 +6,7 @@
 
 load "../../stzBase.ring"
 
-
+pr()
 
     # Simple cluster monitoring
     while oCluster.oClusterManager.bIsRunning
@@ -35,3 +35,5 @@ load "../../stzBase.ring"
         # Sleep equivalent (simplified)
         for i = 1 to 1000000 next  # Busy wait for demo
     end
+
+pf()

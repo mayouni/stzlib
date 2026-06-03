@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Changes the object and returns its content IN THE SAME TIME:
 

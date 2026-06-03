@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Quick actions menu
 
 
@@ -251,3 +253,5 @@ RESOURCES:
 - Ring Community: https://groups.google.com/g/ring-lang
 
 Happy coding with RingQML! 🎨🚀
+
+pf()

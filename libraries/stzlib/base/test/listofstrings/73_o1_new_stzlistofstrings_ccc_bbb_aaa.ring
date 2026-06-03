@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.SortedInAscending() #--> [ "aaa", "bbb", "ccc" ]
 #--> Content of the main lis is not sorted:
 ? o1.Content() #--> [ "ccc", "bbb", "aaa" ]
+
+pf()

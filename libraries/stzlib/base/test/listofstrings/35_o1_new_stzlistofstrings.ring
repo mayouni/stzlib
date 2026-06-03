@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"what's your name please",
 	"mabrooka",
 	"your name and my name are not the same",
@@ -41,3 +43,5 @@ load "../../stzBase.ring"
 #		[ 2, 1 ], [ 6, 1 ]
 #	]
 #  ]
+
+pf()

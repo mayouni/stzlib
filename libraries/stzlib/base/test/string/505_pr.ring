@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Here is a fluent chain of actions that starts from
 # the word "LIFE" and ends at the word "L ♥ F E"

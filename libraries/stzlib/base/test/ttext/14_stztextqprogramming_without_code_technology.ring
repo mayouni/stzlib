@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	? Initials()
 	#--> [ "P", "W", "C", "T" ]
@@ -16,3 +17,5 @@ load "../../stzBase.ring"
 	# Or you can return any type you need using the QRT() construct:
 	? InitialsQRT(:stzString).Content()
 }
+
+pf()

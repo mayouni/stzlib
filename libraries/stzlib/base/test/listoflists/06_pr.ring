@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 aList = [
 	[ "salem", 67, "" ],

@@ -6,7 +6,11 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	RemoveAll("two")
 
 	? Content() #--> [ "one","three","four" ]
 }
+
+pf()

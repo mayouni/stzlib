@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oList.AddEntity([ :name = "truck", :type = "vehicle", :wheels = 6 ])
 
@@ -14,3 +15,5 @@ oList.AddEntity([ :name = "truck", :type = "vehicle", :wheels = 6 ])
 
 ? oList.HasEntity("truck")
 #--> 1
+
+pf()

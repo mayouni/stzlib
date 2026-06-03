@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StzRaise([
 	:Where	= "stzString.ring",
@@ -19,3 +20,5 @@ load "../../stzBase.ring"
 #	  Why  : Describes why it happened
 #	  Todo : Posposes an action to do
 #
+
+pf()

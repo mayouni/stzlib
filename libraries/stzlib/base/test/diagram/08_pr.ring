@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oDiag = new stzDiagram("ColorSystemTest")
 oDiag {

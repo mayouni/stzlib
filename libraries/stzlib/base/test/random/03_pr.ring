@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 cCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
 	   "0123456789" + "#!@~_" +

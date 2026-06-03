@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ✅ DO USE:
 - RunAfter() for delays
@@ -24,3 +25,5 @@ load "../../stzBase.ring"
 - Everything happens through timers and callbacks
 - The event loop must stay free to process events
 - Use Start() to begin processing, Stop() to end
+
+pf()

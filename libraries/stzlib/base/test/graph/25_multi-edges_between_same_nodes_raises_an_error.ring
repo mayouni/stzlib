@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oGraph = new stzGraph("MultiEdgeTest")
 oGraph {
@@ -17,3 +18,5 @@ oGraph {
 	#--> Edge already exists between 'source' and 'target'!
 }
 #TODO : Should we support multi-edges?
+
+pf()

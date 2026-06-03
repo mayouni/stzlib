@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	cMarkup = '
 	Create {+data:list ~1} with {#1 ["first", "second", "third"]}.
@@ -18,3 +19,5 @@ load "../../stzBase.ring"
 #--> 3
 
 proff()
+
+pf()

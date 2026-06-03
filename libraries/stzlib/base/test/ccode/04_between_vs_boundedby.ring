@@ -29,4 +29,5 @@ o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
 #--> [ "ring", "softanza" ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26 (Backed by StzEngine)
 # Executed in 0.01 second(s) in Ring 1.21

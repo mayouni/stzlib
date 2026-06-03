@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: User text input and real-time updates
 
 
@@ -58,3 +60,5 @@ load "../../stzBase.ring"
 	#--> TextField provides user text input
 	#--> Text binding (inputField.text) creates live updates
 	#--> This is QML's reactivity in action!
+
+pf()

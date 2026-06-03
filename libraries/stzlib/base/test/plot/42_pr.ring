@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Test 5: With Percentage Display
 

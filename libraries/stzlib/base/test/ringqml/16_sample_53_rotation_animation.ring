@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Rotating elements smoothly
 
 
@@ -67,3 +69,5 @@ load "../../stzBase.ring"
 #=====================================#
 #   SECTION 6: STATES & TRANSITIONS   #
 #=====================================#
+
+pf()

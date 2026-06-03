@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 cUnicodeNames = "0020;SPACE
 0021;EXCLAMATION MARK

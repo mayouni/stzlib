@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"___ ring ___ ring",
 	"ring ___ ring ___ ring",
 	"___ ring"
@@ -16,3 +18,5 @@ load "../../stzBase.ring"
 
 ? @@( o1.FindNLastOccurrencesOfSubString(3, "ring") )
 #--> [ [ 2, 10 ], [ 2, 19 ], [ 3, 5 ] ]
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 bPositive = TRUE
 Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])

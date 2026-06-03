@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StzTextQ("مُسْتَحَقَّاتُُ").Scripts()
 ? StzTextQ("مُسْتَحَقَّاتُُ").Script()
@@ -14,3 +15,5 @@ load "../../stzBase.ring"
 ? StzTextQ("مُسْتَحَقَّاتُُ").DiacriticsRemoved()
 
 ? StzTextQ("مُسْتَحَقَّاتُُ").RemoveDiacriticsQ().Content()
+
+pf()

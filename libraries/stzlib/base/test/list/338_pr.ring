@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # The W() small function take a string (containing a condition)
 # and returns a list of the form :Where = ...

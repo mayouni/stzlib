@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # All these return 1:
 
@@ -13,3 +14,5 @@ load "../../stzBase.ring"
 ? _("Ring").IsA(:String).Having('FirstChar() = "R"')._
 ? _("Ring").IsA(:String).That('Contains("in")')._
 ? _("Ring").IsA(:String).Containing('in')._
+
+pf()

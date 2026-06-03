@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? Q([
 	[ "COL1", [ "A", "B", "C" ] ],

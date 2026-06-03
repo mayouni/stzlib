@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList2D([
 	[ "A", "B" ],
@@ -13,3 +14,5 @@ o1 = new stzList2D([
 ])
 
 #--> ERROR: Can't create the stz2DList object! All the lists must have same size.
+
+pf()

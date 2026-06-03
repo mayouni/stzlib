@@ -1,5 +1,7 @@
 load "../../string/test/test_stubs.ring"
 
+pr()
+
 # Load stz_url.dll
 ? "Loading stz_url.dll..."
 cUrlLib = _stzFindDll("stz_url.dll")
@@ -77,3 +79,5 @@ ok
 
 ? ""
 ? "=== All stz_url engine tests completed ==="
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 1. **RunAfter**: One-time execution after delay
    - RunAfter(function, milliseconds)
@@ -42,3 +43,4 @@ Other timer-based applications can be:
 - A simple animation system
 - A data polling system for APIs
 
+pf()

@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.ContainsCS("StzRaise", :CS = FALSE)	#--> TRUE
 ? o1.FindFirstcs("StzRaise", :CS = FALSE)	#--> 318
+
+pf()

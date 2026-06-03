@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Look at this list:
 

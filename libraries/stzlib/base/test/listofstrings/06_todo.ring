@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 StartProfiler()
 
@@ -14,3 +15,5 @@ o1 = new stzListOfStrings([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" 
 
 
 StopProfiler()
+
+pf()

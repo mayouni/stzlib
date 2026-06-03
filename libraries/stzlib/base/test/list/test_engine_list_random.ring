@@ -3,6 +3,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== Shuffle ==="
 oRand = new stzListRandom([1, 2, 3, 4, 5])
 oRand.Shuffle()
@@ -39,3 +41,5 @@ aPicked = oRand.NRandomItems(10)
 
 ? ""
 ? "All random/shuffle tests completed."
+
+pf()

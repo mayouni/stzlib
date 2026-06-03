@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Dynamic data-driven UIs
 
 
@@ -123,3 +125,5 @@ load "../../stzBase.ring"
 #==================================#
 #   SECTION 9: ADVANCED PATTERNS   #
 #==================================#
+
+pf()

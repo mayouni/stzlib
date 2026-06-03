@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? Q(11) + [2, 3] # same as 11 + 2 + 3
 #--> 16

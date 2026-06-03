@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? StringArt("#{Rocket}")
 ? "Let's blast off into the world of Ring programming!"
+
+pf()

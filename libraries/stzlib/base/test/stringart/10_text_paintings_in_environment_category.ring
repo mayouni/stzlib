@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StringArt("#{Tree}") + NL
 #-->
@@ -31,5 +32,6 @@ load "../../stzBase.ring"
 #-->
 # ┏━━━━━━━━━━━━━━━┓
 # ┗━━━━━━━━━━━━━━━┛
-	
+
+pf()
 # Executed in 0 seconds.

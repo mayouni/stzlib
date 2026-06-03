@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Contextual information and actions
 
 	new qApp {
@@ -273,3 +275,5 @@ load "../../stzBase.ring"
 #========================================#
 #   SECTION 14: DATA VISUALIZATION       #
 #========================================#
+
+pf()

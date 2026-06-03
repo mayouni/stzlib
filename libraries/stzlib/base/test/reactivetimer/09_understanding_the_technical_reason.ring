@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 🔍 WHY Sleep() BREAKS REACTIVE CODE
 The fundamental problem:
@@ -26,3 +27,5 @@ The fundamental problem:
    - Uses internal timer to detect data gaps
    - Sleep() prevents this timer from running
    - Result: stream never concludes automatically
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # WAY 4: Creating a table by provding just the rows, without
 # column names (they are added automatically by softanza):

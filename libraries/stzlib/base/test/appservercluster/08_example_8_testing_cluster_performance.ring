@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
     ? "Testing cluster computational performance..."
     
@@ -71,3 +72,5 @@ def GetExpectedCluster(cPath)
         return "Search Cluster"
     ok
     return "General Cluster"
+
+pf()

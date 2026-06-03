@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Everything is true except 0, "", FalseObject(), and NullObject()
 # Make a simular article to this:
@@ -24,3 +25,5 @@ load "../../stzBase.ring"
 ? IsTrue("text") #--> TRUE
 ? IsTrue([1, 2, 3]) #--> TRUE
 ? IsTrue([]) #--> TRUE
+
+pf()

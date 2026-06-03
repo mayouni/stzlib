@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzString("Ringprogramminglanguageispowerful!")
 //o1.InsertAfterPositions([ 4, 15, 23, 25], " ")

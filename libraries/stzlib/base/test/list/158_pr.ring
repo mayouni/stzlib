@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 o1.ExtendXT( :List, :ToPosition = 5 )

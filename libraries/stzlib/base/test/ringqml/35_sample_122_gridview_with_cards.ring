@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Grid layout of items (photo gallery, products)
 #TODO Adjust the offset after the bar title
 
@@ -133,3 +135,5 @@ load "../../stzBase.ring"
 	#--> GridView arranges items in grid layout
 	#--> cellWidth and cellHeight control grid spacing
 	#--> Perfect for catalogs, galleries, dashboards
+
+pf()

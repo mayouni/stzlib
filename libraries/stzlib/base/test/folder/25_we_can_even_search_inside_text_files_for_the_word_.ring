@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # (restults return the path of the file and the numbers of lines)
 
 ? @@NL( o1.DeepSearchInFiles("program") )
@@ -26,3 +28,5 @@ load "../../stzBase.ring"
 	]
 ]
 '
+
+pf()

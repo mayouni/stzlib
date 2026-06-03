@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? Q("ABCDEFGHI") / 3
 #--> [ "ABC", "DEF", "GHI" ]

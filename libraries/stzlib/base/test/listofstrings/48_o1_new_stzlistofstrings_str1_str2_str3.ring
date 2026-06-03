@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 o1.RemoveEmptyStrings()
 ? o1.Content() #--> [ "str1", "str2", "str3" ]
+
+pf()

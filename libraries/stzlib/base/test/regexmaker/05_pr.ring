@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 rx(pat(:domain)) { ? Explain() + NL }
 #--> Matches domain names

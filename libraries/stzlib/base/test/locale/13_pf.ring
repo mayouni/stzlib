@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 StzLocaleQ("zh-CN") {		
 	? CountryName()				#--> china

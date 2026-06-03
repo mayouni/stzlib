@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? Q("ORingoriaLand") - [ "O", "oria", "Land" ]
 #--> Ring

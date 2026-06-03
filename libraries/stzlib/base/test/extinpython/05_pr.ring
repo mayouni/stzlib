@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # In python, we get the integer part of the division using the // operator
 

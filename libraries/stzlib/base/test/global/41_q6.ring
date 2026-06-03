@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	? Type()	#--> "object"
 	? StzType()	#--> "stznumber"
 }
+
+pf()

@@ -6,4 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? _([]).IsNot(:AString)._	#--> FALSE
+
+pf()

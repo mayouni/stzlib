@@ -14,6 +14,8 @@ load "../stzStringCounter.ring"
 load "../stzStringChecker.ring"
 load "../stzStringConcat.ring"
 
+pr()
+
 ? ""
 ? "=== Test: stzStringBounder ==="
 oBounder = new stzStringBounder("<<hello>> and <<world>>")
@@ -51,3 +53,5 @@ oConcat = new stzStringConcat("Hello")
 
 ? ""
 ? "=== ALL ADDITIONAL DOMAIN TESTS PASSED ==="
+
+pf()

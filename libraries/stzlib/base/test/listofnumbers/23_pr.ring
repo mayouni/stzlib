@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? @@( Q(["one", "two", "three", "four", "five", "six" ]) / 3 ) + NL
 #--> [ [ "one", "two" ], [ "three", "four" ], [ "five", "six" ] ]

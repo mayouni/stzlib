@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
     oCluster = new stzCluster()
     oCluster.WithNLP(3).WithMath(2).WithVision(2).WithSearch(1)
     oCluster.Start(8080)
+
+pf()

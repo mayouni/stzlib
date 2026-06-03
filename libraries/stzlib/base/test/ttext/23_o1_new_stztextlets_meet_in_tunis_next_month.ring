@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 o1.ReplaceWord("Tunis", :With = "Cairo")
 ? o1.Content()
+
+pf()

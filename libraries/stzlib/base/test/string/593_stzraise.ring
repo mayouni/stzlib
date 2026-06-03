@@ -6,6 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StzRaise("Simple error message!")
 #--> Simple error message!
+
+pf()

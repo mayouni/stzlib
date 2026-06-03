@@ -1,5 +1,7 @@
 load "../../string/test/test_stubs.ring"
 
+pr()
+
 # Load stz_locale.dll
 cLocaleLib = _stzFindDll("stz_locale.dll")
 if cLocaleLib != ""
@@ -122,3 +124,5 @@ func _StzDayAbbr(nDay)
 
 func _StzTitlecase(cStr)
 	return StzEngineLocaleToTitlecase(cStr)
+
+pf()

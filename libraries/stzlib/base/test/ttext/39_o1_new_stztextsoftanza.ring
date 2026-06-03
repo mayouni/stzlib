@@ -6,4 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.ContainsOnlyLetters() #--> TRUE
+
+pf()

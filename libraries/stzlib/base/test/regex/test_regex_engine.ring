@@ -118,6 +118,8 @@ nCut2 = len(cNorm2) - len("/zig-out/bin/stz_regex.dll")
 $cEngineDir = left(cNorm2, nCut2)
 load "../../../engine/stz_regex.ring"
 
+pr()
+
 aMatches = StzRegexMatchAll("[a-z]+", "Hello World Test")
 ? "  Found " + len(aMatches) + " matches"
 if len(aMatches) = 3
@@ -128,3 +130,5 @@ ok
 
 ? ""
 ? "=== All stz_regex engine tests completed ==="
+
+pf()

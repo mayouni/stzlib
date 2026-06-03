@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # WAY 2 : Creating an empty table with 3 columns and 3 rows
 

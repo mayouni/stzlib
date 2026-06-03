@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oTimeLine = new stzTimeLine(
 	:Start = "",

@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Managing different UI configurations
 
 
@@ -123,3 +125,5 @@ load "../../stzBase.ring"
 	#--> States define different UI configurations
 	#--> Transitions animate between states automatically
 	#--> Clean way to manage complex UI variations
+
+pf()

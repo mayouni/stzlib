@@ -3,6 +3,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== FindCS: case sensitive ==="
 o = new stzList(["hello", "Hello", "HELLO", "hello"])
 ? "  FindFirstCS('hello', :CS=1): " + o.FindFirstCS("hello", :CS = TRUE)
@@ -38,3 +40,5 @@ oG = new stzListGetter([1, 2, 3, 2, 1, 4, 3])
 
 ? ""
 ? "All find/search tests completed."
+
+pf()

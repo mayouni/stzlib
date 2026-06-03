@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzTable([
 	[ :COL1,    :COL2,    :COL3 ],

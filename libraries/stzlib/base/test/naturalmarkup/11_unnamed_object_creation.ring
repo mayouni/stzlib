@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	cMarkup = '
 	Create an {+list} with default empty content.
@@ -19,3 +20,5 @@ load "../../stzBase.ring"
 #--> ["a", "b", "c"]
 
 proff()
+
+pf()

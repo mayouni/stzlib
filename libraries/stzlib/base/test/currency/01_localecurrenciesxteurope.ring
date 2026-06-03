@@ -6,4 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? CountriesOrRegionsAndTheirCurrenciesXT()[:united_states]
+
+pf()

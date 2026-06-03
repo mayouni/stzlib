@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StringArt("#{Rocket}") + NL
 #-->
@@ -69,3 +70,5 @@ load "../../stzBase.ring"
 # |(◯◯)|
 # |__/\__|
 #  '--'--'
+
+pf()

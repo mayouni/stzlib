@@ -6,9 +6,13 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 // --> ReplaceWordCS
 StzTextQ("mahmoud, ahmed, mohamed, Mahmoud, mahmoud, ahmed.") {
 	ReplaceWordsWithMarquers()
 	//ReplaceWordsCS(["mahmoud"], :With = ["Mansour"], 0)
 	//? Content()
 }
+
+pf()

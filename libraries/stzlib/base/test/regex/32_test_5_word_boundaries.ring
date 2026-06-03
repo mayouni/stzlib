@@ -25,4 +25,6 @@ txt = "compress express"
 #--> FALSE
 
 prf()
+
+pf()
 # Executed in 0.01 second(s) in Ring 1.22

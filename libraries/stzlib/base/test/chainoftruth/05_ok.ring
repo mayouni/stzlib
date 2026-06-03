@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # All these are 0:
 
@@ -13,3 +14,5 @@ load "../../stzBase.ring"
 ? _("ring").IsA(:Number).Which(:IsUppercase)._
 ? _("ring").IsA(:String).Which(:IsUppercase)._
 #TODO // an example for objects
+
+pf()

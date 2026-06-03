@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # When you try to remove the diacritics of the german word "München"
 ? StzTextgQ("München").DiacriticsRemoved() #--> "Munchen"
@@ -20,3 +21,5 @@ load "../../stzBase.ring"
 ? StzTextQ("München").DiacriticsRemovedInLocale([ :Language = :German ]) # "Muenchen"
 
 # and you're done with the correct answer!
+
+pf()

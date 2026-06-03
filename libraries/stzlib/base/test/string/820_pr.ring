@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 #                   1.3....8.0..
 o1 = new stzString("NoWomanNoCry")

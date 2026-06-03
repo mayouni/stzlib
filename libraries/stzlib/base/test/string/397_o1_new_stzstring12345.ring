@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? o1.Section(2, 4)
 #--> "234"
@@ -21,3 +22,5 @@ load "../../stzBase.ring"
 
 ? o1.Section(:@, 3)
 #--> "3"
+
+pf()

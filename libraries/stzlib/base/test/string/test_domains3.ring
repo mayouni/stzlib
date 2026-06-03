@@ -11,6 +11,8 @@ load "../stzStringRemover.ring"
 load "../stzStringLeadTrail.ring"
 load "../stzStringTrimmer.ring"
 
+pr()
+
 ? ""
 ? "=== Test: stzString Trim ==="
 oT = new stzString("  hello  ")
@@ -74,3 +76,5 @@ oTrim2.TrimRight()
 
 ? ""
 ? "=== ALL EXTENDED TESTS PASSED ==="
+
+pf()

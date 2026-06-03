@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 StartProfiler()
 
@@ -23,3 +24,5 @@ StzListQ([ 1, 2, "A", "B", 5, "C", 7 ]) {
 
 StopProfiler()
 #--> Executed in 0.20 second(s)
+
+pf()

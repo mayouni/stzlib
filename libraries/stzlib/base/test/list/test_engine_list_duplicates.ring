@@ -3,6 +3,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== FindDuplicates ==="
 oD = new stzListDuplicates([1, 2, 3, 2, 4, 1, 3])
 ? "  FindDuplicates [1,2,3,2,4,1,3]: " + @@(oD.FindDuplicates())
@@ -41,3 +43,5 @@ o = new stzList([1, 2, 3])
 
 ? ""
 ? "All duplicate/unique tests completed."
+
+pf()

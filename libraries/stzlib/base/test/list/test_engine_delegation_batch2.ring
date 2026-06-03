@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== Testing Engine Delegation Batch 2 ==="
 ? ""
 
@@ -71,3 +73,5 @@ oSet = new stzSet([1, 2, 3, 2, 1])
 
 ? ""
 ? "=== All batch 2 delegation tests passed! ==="
+
+pf()

@@ -6,7 +6,7 @@
 
 load "../../stzBase.ring"
 
-
+pr()
 
 # All these are semantically equivalent and return 1
 
@@ -15,3 +15,5 @@ load "../../stzBase.ring"
 
 ? _("ring").ContainsNo("x")._	
 ? _("ring").DoesNotContain("x")._
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # System info (truncated)
 oCall = new stzSystemCall(Sys(:SystemInfo))

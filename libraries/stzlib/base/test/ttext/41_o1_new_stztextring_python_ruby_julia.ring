@@ -6,4 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.WordsQRT(:stzString).Content()
+
+pf()

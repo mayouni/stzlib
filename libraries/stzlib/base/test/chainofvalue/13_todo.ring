@@ -6,6 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 //Until(v).Becomes.EqualTo(12).DoThis('{ v += 2 ? v }')
 #Until(v).Becomes.DoubleOf(6).DoThis('{ v += 2 ? v }')
+
+pf()

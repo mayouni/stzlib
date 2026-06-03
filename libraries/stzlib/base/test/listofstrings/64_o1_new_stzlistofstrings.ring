@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"What's your name please",
 	"Mabrooka",
 	"Your name is a nice name",
@@ -19,3 +21,5 @@ load "../../stzBase.ring"
 #	[ "name" , [ [ 1, 13 ], [ 3, 6 ], [ 3, 21 ] ] ],
 #	[ "nice" , [ [ 3, 16 ] ] ]
 #     ]
+
+pf()

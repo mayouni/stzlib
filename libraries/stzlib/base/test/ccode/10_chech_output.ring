@@ -14,6 +14,7 @@ StartProfiler()
 	#--> [ 2, :Last ]
 
 StopProfiler()
+# Executed in 0.01 second(s) in Ring 1.26 (Backed by StzEngine)
 # Executed in 0.07 second(s) in Ring 1.23
 # Executed in 0.12 second(s) in Ring 1.21
 # Executed in 0.26 second(s) in Ring 1.17

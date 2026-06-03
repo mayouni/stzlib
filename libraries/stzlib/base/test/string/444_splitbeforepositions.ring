@@ -1,0 +1,20 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzStringTest.ring, block #444.
+
+load "../../stzBase.ring"
+
+pr()
+
+o1 = new stzString("---4---8---")
+
+? @@( o1.SplitBeforePositions([ 4, 8 ]) ) + NL
+#--> [ "---", "4---", "8---" ]
+
+? @@( o1.SplitWXT(:BeforePositions = ' Q(@position).IsOneOfThese([ 4, 8 ]) ') )
+#--> [ "---", "4---", "8---" ]
+
+pf()
+# Executed in 0.13 second(s) in Ring 1.21

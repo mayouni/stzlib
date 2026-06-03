@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: QML triggers Ring logic
 
 
@@ -69,3 +71,5 @@ load "../../stzBase.ring"
 	#--> First parameter is function name as string
 	#--> Second parameter is array of arguments
 	#--> Output: Console shows Ring execution confirmation
+
+pf()

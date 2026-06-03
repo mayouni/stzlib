@@ -6,5 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 //? ThisValue(5).IsANumber()
+
+pf()

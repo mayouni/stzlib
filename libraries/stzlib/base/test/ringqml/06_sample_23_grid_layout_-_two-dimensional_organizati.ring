@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Grid for structured 2D layouts
 
 	new qApp {
@@ -55,3 +57,5 @@ load "../../stzBase.ring"
 	#--> Grid with columns property creates structured layouts
 	#--> Repeater generates multiple elements from a model
 	#--> Ideal for dashboards, calculators, image galleries
+
+pf()

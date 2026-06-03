@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	? FirstString()	#--> one
 	? LastString()	#--> four
@@ -15,3 +16,5 @@ load "../../stzBase.ring"
 	? FindLast("two") #--> 4
 	? FindNthOccurrence(2, "two") #--> 4
 }
+
+pf()

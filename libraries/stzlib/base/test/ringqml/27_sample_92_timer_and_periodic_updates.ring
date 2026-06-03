@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Time-based UI updates
 
 
@@ -71,3 +73,5 @@ load "../../stzBase.ring"
 	#--> Timer triggers actions periodically
 	#--> Perfect for clocks, countdowns, auto-refresh
 	#--> interval is in milliseconds
+
+pf()

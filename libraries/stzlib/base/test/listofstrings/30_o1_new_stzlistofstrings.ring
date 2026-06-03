@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"How many roads must a man walk down",
 	"Before you call him a man?",
 	"How many seas must a white dove sail",
@@ -19,3 +21,5 @@ load "../../stzBase.ring"
 	? o1.LeftAlignedXT( :Width = :Max, :Char = "" )
 	? o1.AlignedToLeft()
 	? o1.LeftAligned()
+
+pf()

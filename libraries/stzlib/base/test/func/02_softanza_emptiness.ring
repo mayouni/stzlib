@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Emptiness applies to "" for strings, [] for lists, and NullObject() for objects
 
@@ -14,3 +15,5 @@ load "../../stzBase.ring"
 ? IsEmpty(0) #--> FALSE
 ? IsEmpty(NullObject()) #--> TRUE
 ? IsEmpty(FalseObject()) #--> FALSE
+
+pf()

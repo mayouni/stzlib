@@ -17,6 +17,8 @@ load "../stzStringInserter.ring"
 load "../stzStringComparator.ring"
 load "../stzStringEncoder.ring"
 
+pr()
+
 nPass = 0
 nFail = 0
 
@@ -796,3 +798,5 @@ if nFail = 0
 else
     ? "=== SOME TESTS FAILED ==="
 ok
+
+pf()

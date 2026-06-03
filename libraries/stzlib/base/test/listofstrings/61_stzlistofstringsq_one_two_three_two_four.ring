@@ -6,8 +6,11 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	RemoveMany([ "two", "four" ])
 	# Same as RemoveManyStrings(), RemoveTheseStrings() and RemoveThese()
 	? Content() #--> [ "one","three" ]
 }
+
+pf()

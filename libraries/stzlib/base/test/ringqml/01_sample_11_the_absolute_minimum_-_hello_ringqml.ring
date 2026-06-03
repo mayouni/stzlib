@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Basic structure, Window creation, Text display
 	new qApp {
 		oQML = new RingQML(NULL)
@@ -35,3 +37,5 @@ load "../../stzBase.ring"
 	
 	#--> A window appears with centered text
 	#--> This is the minimal template for any RingQML application
+
+pf()

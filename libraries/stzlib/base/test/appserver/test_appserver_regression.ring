@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 nPsd = 0
 nFld = 0
 nTtl = 0
@@ -33,11 +35,11 @@ chk("Body() is string",              isString(oReq.Body()))
 
 # Pass dummy client ref (test won't actually send)
 oRes = new stzAppResponse(NULL)
-chk("Response constructs",           isObject(oRes))
+chk("Response constructs", isObject(oRes))
 
 # Status / Header chain
 ret = oRes.Status(200, "OK")
-chk("Status returns object",         isObject(ret))
+chk("Status returns object", isObject(ret))
 
 # ------------------------------------------------------------
 # stzAppRouter
@@ -46,12 +48,12 @@ chk("Status returns object",         isObject(ret))
 ? "--- stzAppRouter ---"
 
 oRouter = new stzAppRouter
-chk("Router constructs",             isObject(oRouter))
+chk("Router constructs", isObject(oRouter))
 
 # Add route
 oRouter.AddRoute("GET", "/test", func r, s { })
-chk("HasRoute after Add",            oRouter.HasRoute("GET", "/test") = 1 or oRouter.HasRoute("GET", "/test") = TRUE)
-chk("Missing route returns false",   oRouter.HasRoute("GET", "/missing") = 0 or oRouter.HasRoute("GET", "/missing") = FALSE)
+chk("HasRoute after Add", oRouter.HasRoute("GET", "/test") = 1 or oRouter.HasRoute("GET", "/test") = TRUE)
+chk("Missing route returns false", oRouter.HasRoute("GET", "/missing") = 0 or oRouter.HasRoute("GET", "/missing") = FALSE)
 
 # ------------------------------------------------------------
 # Summary
@@ -66,6 +68,9 @@ if nFld = 0
 else
 	? "SOME appserver CHECKS FAILED!"
 ok
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.26
 
 func chk(cLabel, bCond)
 	nTtl++

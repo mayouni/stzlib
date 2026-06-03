@@ -6,5 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? _("G").IsAString().Which(:IsLetter)._
+
+pf()

@@ -6,5 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? _("ring").Is(:Lowercase).Is(:Even)._ #--> FALSE
+
+pf()

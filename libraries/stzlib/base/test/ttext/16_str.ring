@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ليكن هذا النّصّ العربّي، هل من قارئ له؟ لا؟! لا بأس: سنحاول...
 "
 
@@ -24,3 +26,5 @@ StzTextQ(str) {
 	? SupplementalPunctuations() #--> [ ]
 
 }
+
+pf()

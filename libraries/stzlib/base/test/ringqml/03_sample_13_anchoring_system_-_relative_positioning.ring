@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: How QML handles layout without hardcoded positions
 
 	new qApp {
@@ -69,3 +71,5 @@ load "../../stzBase.ring"
 #===============================#
 #   SECTION 2: LAYOUT MASTERY   #
 #===============================#
+
+pf()

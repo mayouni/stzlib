@@ -25,4 +25,6 @@ o1 = new stzRegex("quick.*fox")
 #--> FALSE
 
 prf()
+
+pf()
 # Executed in 0.01 second(s) in Ring 1.22

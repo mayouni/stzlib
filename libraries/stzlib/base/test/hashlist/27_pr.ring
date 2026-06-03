@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzHashList([ :name = "Hussein", :age = 1, :grandftaher = "Hussein" ])
 o1.AddPair( :grandmother = "Arem" )

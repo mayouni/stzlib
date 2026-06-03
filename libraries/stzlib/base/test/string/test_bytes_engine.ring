@@ -1,5 +1,7 @@
 load "test_stubs.ring"
 
+pr()
+
 # Load stz_bytes.dll
 ? "Loading stz_bytes.dll..."
 cBytesLib = _stzFindDll("stz_bytes.dll")
@@ -124,3 +126,5 @@ ok
 
 ? ""
 ? "=== All stz_bytes engine tests completed ==="
+
+pf()

@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # An entity is defined by the pair :name/:type
 
 # The following raises an error because the entity
@@ -17,3 +19,5 @@ o1 = new stzListOfEntities([]) {
 	Show()
 
 }
+
+pf()

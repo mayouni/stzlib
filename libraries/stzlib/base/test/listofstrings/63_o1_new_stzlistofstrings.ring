@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"What's your name please",
 	"Mabrooka",
 	"Your name is a nice name",
@@ -24,3 +26,5 @@ load "../../stzBase.ring"
 #--> [ 3, 6 ]
 #--> The 2nd occurrenc of "name" in the list
 # of strings is in position 6 of the 3rd string.
+
+pf()

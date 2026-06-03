@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? @.UppercaseSubString("ring").In("I LOVE THE ring LANGUAGE!")
 #--> I LOVE THE RING LANGUAGE!
@@ -21,3 +22,5 @@ Show( v[@1, @2] )
 
 
 @2.Show()
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StringArt("#{Heart2}") + NL
 #-->
@@ -31,3 +32,5 @@ load "../../stzBase.ring"
 #                 |  o  o | |  o  o |.|/
 #                 | *  *  | |*  *  *| /
 #                 |_______|_|_______|/
+
+pf()

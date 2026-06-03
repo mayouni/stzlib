@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Organizing content in tabs
 
 	new qApp {
@@ -215,3 +217,5 @@ load "../../stzBase.ring"
 #======================================#
 #   SECTION 12: DATA DISPLAY PATTERNS  #
 #======================================#
+
+pf()

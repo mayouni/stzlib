@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? "" = 0
 
@@ -16,3 +17,5 @@ load "../../stzBase.ring"
 
 ? 1 = "01.0"
 #--> TRUE
+
+pf()

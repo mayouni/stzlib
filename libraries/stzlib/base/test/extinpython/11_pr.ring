@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # f-strings are a feature in Python for interpolating string
 # content, by dynmalically evaluating variables inside it:

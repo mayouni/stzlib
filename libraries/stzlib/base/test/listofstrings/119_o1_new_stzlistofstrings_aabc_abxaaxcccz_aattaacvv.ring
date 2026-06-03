@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.ContainsSubStringInEachString("aa") #--> TRUE
 
 ? @@( o1.UniqueChars() )	#TODO // fix performance lag!
@@ -14,3 +16,5 @@ load "../../stzBase.ring"
 
 ? @@( o1.CommonChars() )
 #--> ["a", "c"]
+
+pf()

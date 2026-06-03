@@ -6,5 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? _("ring").Containing("in")._
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? o1.SplitXT(
 	:Using = "and",
@@ -25,3 +26,5 @@ load "../../stzBase.ring"
 	:ExcludeTrailingSequenceOfNChars_FromSplittedParts = [ :AnyNumberOf, ">" ]
 	]
 )
+
+pf()

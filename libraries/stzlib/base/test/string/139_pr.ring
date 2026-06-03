@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzString("123")
 o1.ExtendToWithCharsIn( 8, "1":"3" )

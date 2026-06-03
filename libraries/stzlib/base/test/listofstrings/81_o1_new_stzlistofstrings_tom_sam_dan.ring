@@ -6,7 +6,11 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.Uppercased()	#--> [ "TOM", "SAM", "DAN" ]
 
 o1 = new stzListOfStrings([ "TOM", "SAM", "DAN" ])
 ? o1.Lowercased()	#--> [ "tom", "sam", "dan" ]
+
+pf()

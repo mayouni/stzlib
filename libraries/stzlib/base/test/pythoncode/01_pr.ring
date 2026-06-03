@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Python code  
 Py() { @('res = 2 + 3') Run() ? Result() }  #--> 5

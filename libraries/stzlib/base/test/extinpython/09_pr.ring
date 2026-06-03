@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # In Softanza, you can define many variables and affect
 # values to them in one line like this:

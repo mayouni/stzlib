@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 Nt = Naturally("
     Create a stxString with 'test.data'
@@ -13,3 +14,5 @@ Nt = Naturally("
     Uppercase it
 ")
 #--> ERROR: Unsupported object type while processing "CREATE_OBJECT"!
+
+pf()

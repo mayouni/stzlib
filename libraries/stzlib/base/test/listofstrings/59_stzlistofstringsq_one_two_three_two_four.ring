@@ -7,8 +7,13 @@
 load "../../stzBase.ring"
 
 	
+
+pr()
+
 	RemoveNthOccurrence(2, "two")
 	# Same as: RemoveNthOccurrenceOfString(2, "two")
 
 	? Content()  #--> [ "one", "two", "three", "four" ]
 }
+
+pf()

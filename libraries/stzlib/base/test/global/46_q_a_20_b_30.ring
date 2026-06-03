@@ -6,9 +6,13 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	? Type()	#--> "object"
 	? StzType()	#--> "stzlist"
 
 	? @@( Types() )
 	#--> [ "string", "number", "list", "number" ]
 }
+
+pf()

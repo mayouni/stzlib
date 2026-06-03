@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 StzCurrencyQ(:Russia) {
 
 	? "Currency name:"
@@ -28,3 +30,5 @@ StzCurrencyQ(:Russia) {
 	? Base()
 
 }
+
+pf()

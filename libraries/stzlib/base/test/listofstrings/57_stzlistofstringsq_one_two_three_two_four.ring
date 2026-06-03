@@ -6,9 +6,13 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	RemoveFirstString() #--> [ "two", "three", "two", "four" ]
 	? Content()
 
 	RemoveNthString(3) # or RemoveStringAtPosition(3)
 	? Content() #--> [ "two", "three", "four" ]
 }
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzString("ABC")
 o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeated )

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	cMarkup = 'create {+list ~1} with {#1 ["one", "two"]} and "hello" then show'
 	
@@ -18,3 +19,5 @@ load "../../stzBase.ring"
 #--> ["create", "{+list", "~1}", "with", "{#1", ["one", "two"], "}", "and", "hello", "then", "show"]
 
 proff()
+
+pf()

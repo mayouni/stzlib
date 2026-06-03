@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzListOfStrings([ "CAIRO", "TUNIS", "PARIS" ])
 
@@ -25,3 +26,5 @@ o1 = new stzListOfStrings([ "bingo", "tongo", "congo" ])
 o1.ReplaceStringAtPosition(3,"fongo")
 ? @@( o1.Content() )
 #--> [ "bingo", "tongo", "fongo" ]
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? @@( Q([ " ", 1, " ", "A", "A", 2, "B", 3, "C", "C", "C", 4, "D", "D" ]).
 	RemoveWXTQ('isNumber(@item)').

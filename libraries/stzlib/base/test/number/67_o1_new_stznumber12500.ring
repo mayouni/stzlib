@@ -6,8 +6,12 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.ToHexForm()
 ? o1.ToOctalForm()
 
 ? o1.ToHexFormWithoutPrefix()
 ? o1.ToOctalFormWithoutPrefix()
+
+pf()

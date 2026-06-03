@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 aMatrix = [
 	[ 10, 20, 30 ],

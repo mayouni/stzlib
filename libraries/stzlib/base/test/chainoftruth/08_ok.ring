@@ -6,8 +6,11 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # All these return 1
 
 ? _("ring").IsA(:String)._
 ? _("f").IsA(:Letter)._
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oListCopy = oList.Copy()
 ? oListCopy.NumberOfEntities()
@@ -17,3 +18,5 @@ oList.Clear()
 
 ? oListCopy.IsEmpty()
 #--> 0
+
+pf()

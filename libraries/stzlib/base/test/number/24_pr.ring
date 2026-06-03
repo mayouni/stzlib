@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? 3RandomNumbers( :Between = 1, :And = 5 )
 #--> [ 4, 3, 3 ]

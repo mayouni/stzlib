@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # In this example, the large list contains +160K items...
 

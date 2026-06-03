@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # range(n) : 0 <= x < n	--> n not included!
 

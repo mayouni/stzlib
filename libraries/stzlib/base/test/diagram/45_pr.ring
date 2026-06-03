@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? keys([ [ "color", "process" ], [ "color", "blue" ], [ "priority", "high" ] ])
 #--> Incorrect param type! paList must be a hashlist.

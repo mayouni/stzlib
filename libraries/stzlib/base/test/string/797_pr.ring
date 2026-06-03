@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzString("RingoriaLandLand")
 ? o1 - "Land"

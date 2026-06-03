@@ -6,7 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? o1.Content()
 
 StopProfiler()
+
+pf()

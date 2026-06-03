@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 aBigList = 1:30_000
 aMore = [ "A", "B", "2", "A", "A", "B", 2, 2, "." ]

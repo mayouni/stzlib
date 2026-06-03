@@ -4,6 +4,8 @@ load "../stzStringChecker.ring"
 load "../stzStringComparator.ring"
 load "../stzStringReplacer.ring"
 
+pr()
+
 ? "=== stzStringChecker Number Representation Tests ==="
 
 # Test RepresentsInteger
@@ -234,3 +236,5 @@ oRpl = new stzStringReplacer("heeelllo")
 
 ? ""
 ? "=== All tests completed ==="
+
+pf()

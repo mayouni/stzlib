@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oPlot = new stzVBarPlot([ 42, 18, 73, 29, 35, 70, 14, 34 ])
 

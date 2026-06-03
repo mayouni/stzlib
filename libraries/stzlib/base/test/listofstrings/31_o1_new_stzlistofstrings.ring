@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"How many roads must a man walk down",
 	"Before you call him a man?",
 	"How many seas must a white dove sail",
@@ -20,3 +22,5 @@ load "../../stzBase.ring"
 	? o1.AlignedToCenter()
 	? o1.CenterAligned()
 	? o1.Centered()
+
+pf()

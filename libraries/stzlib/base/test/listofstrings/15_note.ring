@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	- RemoveNthItem(n) : Remove item at position n
 
 	- RemoveNthXT(n, pItem) : Remove nth occurrence of pItem
@@ -46,3 +48,5 @@ o1.RemoveNthItem(:Last) # ChekParams() should be turned ON for :Last to be recog
 
 StopProfiler()
 #--> Executed in 0.07 second(s)
+
+pf()

@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # and finding a substring inside the string items of the list of string
 
 # Let's explain this by example
@@ -51,3 +53,5 @@ o1 = new stzListOfStrings([
 #--> "mabourka" exists (whatever case is) AS A SUBSTRING:
 # 	- of the 2nd string, at position 1, and
 # 	- of the 6th string at position 1
+
+pf()

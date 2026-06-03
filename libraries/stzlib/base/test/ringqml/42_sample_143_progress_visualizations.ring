@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Multiple progress display styles
 
 
@@ -214,3 +216,5 @@ load "../../stzBase.ring"
 	#--> Multiple progress bar styles
 	#--> Circular progress with Canvas
 	#--> Smooth animations : Resize the window to see
+
+pf()

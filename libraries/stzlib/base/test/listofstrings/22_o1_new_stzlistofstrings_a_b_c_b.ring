@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 o1.ReplaceStringCS("B", "_", :CS = FALSE)
 ? o1.Content() #--> [ "A", "_", "C", "_" ]
+
+pf()

@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Responsive design based on window dimensions
 
 	new qApp {
@@ -121,3 +123,5 @@ load "../../stzBase.ring"
 #====================================#
 #   SECTION 3: INTERACTIVE ELEMENTS  #
 #====================================#
+
+pf()

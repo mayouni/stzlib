@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 #--> [ 1, 2, 3, "...", 8, 9, 10 ]
 
 ? Q(1:10).ShowShortN(3)

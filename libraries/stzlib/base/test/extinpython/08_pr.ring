@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # I asked Bard (Google AI) about a Python code that returns the
 # uppercase strings from a given list of strings...
