@@ -1,0 +1,61 @@
+# Narrative
+# --------
+# # Text paintings in COLLECTIBLES category
+#
+# Extracted from stzstringarttest.ring, block #9.
+
+load "../../stzBase.ring"
+
+
+
+? StringArt("#{Coins}") +NL
+#-->
+#   ┌───────┐
+# │   $$$   │
+# │  $     $  │
+# │ $   $   $ │
+# │ $  $$$  $ │
+# │ $   $   $ │
+# │  $     $  │
+#  │   $$$   │
+#   └───────┘
+
+? StringArt("#{Stars}") + NL
+#-->
+#     ★
+#   ☆   ☆
+# ☆       ☆
+#   ☆   ☆
+#     ★
+
+? StringArt("#{Hearts}") + NL
+#-->
+#  ❤️❤️   ❤️❤️ 
+# ❤️❤️❤️ ❤️❤️❤️
+#  ❤️❤️❤️❤️❤️ 
+#    ❤️❤️❤️  
+#      ❤️   
+
+? StringArt("#{Key}") + NL
+#-->
+#  ┌───┐
+# ┌┘ □ └┐
+# │ ┌─┐ │
+# └─┘ └─┘
+#    │
+#    │
+#  ┌─┴─┐
+#  └───┘
+
+? StringArt("#{Gem}")
+#-->
+#    /\
+#   /  \
+#  /    \
+# /______\
+# \      /
+#  \    /
+#   \  /
+#    \/	
+
+# Executed in 0.001 seconds.

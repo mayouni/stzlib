@@ -1,0 +1,58 @@
+# Narrative
+# --------
+# Testing maze generation
+#
+# Extracted from stzGridTest.ring, block #21.
+
+load "../../stzBase.ring"
+
+
+pr()
+
+StzGridQ([15, 8]) {
+
+	# Generating random maze (30% obstacle density)
+	# ~> Result will be randomized but should have
+	# approximately 30% of cells as obstacles
+
+	RandomMaze(30)
+	Show()
+	#-->
+	#     1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 
+	#   ╭─v─────────────────────────────╮
+	# 1 > x . . . . ■ . ■ . . ■ ■ ■ ■ . │
+	# 2 │ . . . ■ . . . . . ■ ■ . . . . │
+	# 3 │ . . ■ . ■ . . . . . ■ . . . ■ │
+	# 4 │ . . . ■ . . . . . . . . . . ■ │
+	# 5 │ . . ■ ■ ■ ■ . . ■ . . . . ■ ■ │
+	# 6 │ . ■ ■ . . . . . . . . . . ■ . │
+	# 7 │ ■ ■ . . ■ . ■ . . ■ ■ . ■ . . │
+	# 8 │ . ■ . . . . . . ■ . . . . ■ . │
+	#   ╰───────────────────────────────╯
+
+	ClearObstacles()
+
+	# Generating maze with guaranteed path
+	# ~> Result will show a path from (1,1) to (15,8)
+	# with obstacles that don't block the path
+
+	MazeWithPath([1, 1], [15, 8])
+	Show()
+	#-->
+	#     1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 
+	#   ╭─v─────────────────────────────╮
+	# 1 > x . . ■ . . . . ■ ■ . ■ . . . │
+	# 2 │ ◌ . ■ . . . . . ■ . . . . . . │
+	# 3 │ ◌ . . . . . . . ■ . . . ■ . ■ │
+	# 4 │ ◌ ■ . . ■ . ■ ■ . . . . ■ . . │
+	# 5 │ ◌ . . . ■ ■ ■ . ■ . ■ . . . . │
+	# 6 │ ◌ . . ■ ■ . . . . . . . . . . │
+	# 7 │ ◌ . ■ . ■ . . . . ■ . . . . . │
+	# 8 │ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ ◌ │
+	#   ╰───────────────────────────────╯
+
+}
+
+pf()
+# Executed in 0.11 second(s) in Ring 1.26
+# Executed in almost 0.12 second(s) in Ring 1.22
