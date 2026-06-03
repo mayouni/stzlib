@@ -345,8 +345,25 @@ class stzStringReplacer
 	 #     REMOVE NTH/FIRST/LAST    #
 	#===============================#
 
+	# RemoveNthCS: engine-backed. The Zig implementation walks the
+	# byte stream in one pass and rebuilds the string without the
+	# Nth match -- no intermediate ReplaceNthCS allocation, no
+	# Ring-side loop. Case-sensitive only at present; the CS
+	# variant exists for naming consistency with the rest of the
+	# Remove* family. (Insensitive matching will route through
+	# StzEngineStringRemoveNthCI once it lands on the engine side;
+	# until then it falls back to ReplaceNthCS for pCaseSensitive=0.)
+
 	def RemoveNthCS(n, pcSubStr, pCaseSensitive)
-		This.ReplaceNthCS(n, pcSubStr, "", pCaseSensitive)
+		if pCaseSensitive = 1
+			pH = @oString.Engine()
+			pR = StzEngineStringRemoveNth(pH, pcSubStr, n)
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			@oString.Update(c)
+		else
+			This.ReplaceNthCS(n, pcSubStr, "", pCaseSensitive)
+		ok
 
 		def RemoveNthCSQ(n, pcSubStr, pCaseSensitive)
 			This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
@@ -354,6 +371,21 @@ class stzStringReplacer
 
 	def RemoveNth(n, pcSubStr)
 		This.RemoveNthCS(n, pcSubStr, 1)
+
+		def RemoveNthQ(n, pcSubStr)
+			This.RemoveNth(n, pcSubStr)
+			return This
+
+		# Softanza universal naming: RemoveNthOccurrence{,CS} are
+		# the long-form aliases. The "Engine"-flavoured form that
+		# used to exist (RemoveNthOccurrenceEngine) has been
+		# folded into RemoveNthCS itself -- callers should never
+		# need to know whether the work lives in Ring or Zig.
+		def RemoveNthOccurrence(n, pcSubStr)
+			This.RemoveNth(n, pcSubStr)
+
+		def RemoveNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
+			This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
 
 	def RemoveFirstCS(pcSubStr, pCaseSensitive)
 		This.RemoveNthCS(1, pcSubStr, pCaseSensitive)
@@ -646,22 +678,7 @@ class stzStringReplacer
 		return _oCopy_.Content()
 
 	  #===============================#
-	 #     REMOVE NTH OCCURRENCE     #
-	#===============================#
-
-	def RemoveNthOccurrenceEngine(n, pcSubStr)
-		pH = @oString.Engine()
-		pR = StzEngineStringRemoveNth(pH, pcSubStr, n)
-		c = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
-		@oString.Update(c)
-
-		def RemoveNthOccurrenceEngineQ(n, pcSubStr)
-			This.RemoveNthOccurrenceEngine(n, pcSubStr)
-			return This
-
-	  #===============================#
-	 #     SPACIFY (Engine-backed)   #
+	 #     SPACIFY                    #
 	#===============================#
 
 	def Spacify()
@@ -683,7 +700,7 @@ class stzStringReplacer
 		return c
 
 	  #===============================#
-	 #     STRIP MARKS (Engine)      #
+	 #     STRIP MARKS                #
 	#===============================#
 
 	def StripMarks()
