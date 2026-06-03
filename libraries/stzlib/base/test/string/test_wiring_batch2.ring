@@ -9,6 +9,8 @@ load "../stzStringGetter.ring"
 load "../stzStringCaseChanger.ring"
 load "../stzStringNumbers.ring"
 
+pr()
+
 ? "=== Counter Tests ==="
 
 # CountAnyChar
@@ -190,3 +192,5 @@ oRpl = new stzStringReplacer("hello")
 
 ? ""
 ? "=== All batch 2+3 tests completed ==="
+
+pf()

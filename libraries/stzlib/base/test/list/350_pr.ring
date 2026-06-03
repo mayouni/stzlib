@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? W('len(@item)=3')
 #--> ( "where", "len(@item)=3" ]

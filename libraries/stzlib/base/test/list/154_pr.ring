@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList("A" : "C")
 o1.ExtendToWith(5, "*")

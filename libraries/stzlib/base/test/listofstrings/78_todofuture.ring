@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzListOfStrings([ "aaa bbb ccc", "mm nnn oo", "vvv aaa", "yyy nn", "bb aa c" ])
 ? o1.WordsOfEachStringAreSortedInAscending() #--> FALSE
@@ -39,3 +40,5 @@ o1 = new stzListOfStrings([ "aaa bbb ccc", "mm nnn oo", "vvv aaa", "yyy nn", "bb
 ? o1.NumberOfStringsWhereWordsAreSortedInAscending() 	#--> 2
 ? o1.NumberOfStringsWhereWordsAreSortedInDescending()	#--> 2
 ? o1.NumberOfStringsWhereWordsAreUnsorted()		#--> 1
+
+pf()

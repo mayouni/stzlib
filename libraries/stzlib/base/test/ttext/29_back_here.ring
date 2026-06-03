@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 cText = "John is the son of John second. 
 Second son of John second is William second."
@@ -49,3 +50,5 @@ StzTextQ(cText) {
 	#--> [ "john" = 0.50, "william" = 0.50 ]
 
 }
+
+pf()

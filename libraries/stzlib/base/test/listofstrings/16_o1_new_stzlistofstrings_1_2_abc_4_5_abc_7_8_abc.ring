@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? o1.FindAll("abc")
 #--> [3, 6, 9]
@@ -31,3 +32,5 @@ load "../../stzBase.ring"
 
 ? o1.LastNOccurrencesXT(2, :Of = "abc", :StartingAt = 10)
 #--> [6, 9]
+
+pf()

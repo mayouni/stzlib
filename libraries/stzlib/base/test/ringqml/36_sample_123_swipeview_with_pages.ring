@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Swipeable content (onboarding, image viewer)
 
 
@@ -146,3 +148,5 @@ load "../../stzBase.ring"
 	#--> SwipeView allows swipeable pages
 	#--> PageIndicator shows current page
 	#--> Great for onboarding, galleries, tutorials
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # All these return an error message:
 
@@ -15,3 +16,5 @@ load "../../stzBase.ring"
 
 #--> ERROR MESSAGE:
 #--> Indexes out of range! n1 and n2 must be inside the string.
+
+pf()

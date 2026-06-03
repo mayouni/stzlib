@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Interactive visual feedback
 
 	new qApp {
@@ -59,3 +61,5 @@ load "../../stzBase.ring"
 	#--> MouseArea detects user interaction
 	#--> hoverEnabled allows hover state detection
 	#--> Behavior on color creates smooth transitions
+
+pf()

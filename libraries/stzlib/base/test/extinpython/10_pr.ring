@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # In Python, we can assign multiple values to many variables:
 '

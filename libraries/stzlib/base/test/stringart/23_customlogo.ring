@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
    ____  _
   / __ \(_)____  ____ _
  / /_/ / / ___/ / __ `/
@@ -22,3 +24,5 @@ load "../../stzBase.ring"
 
 t = (clock() - t0) / clockspersecond()
 ? "Executed in " + t + " seconds."
+
+pf()

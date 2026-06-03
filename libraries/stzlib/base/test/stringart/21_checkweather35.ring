@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 #-->
 # It's hot outside!
 #    \   🌞  /
@@ -33,4 +35,5 @@ func CheckWeather(temperature)
         ? StringArt("#{Cloud}")
     ok
 
+pf()
 # Executed in 0.001 seconds.

@@ -5,6 +5,9 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 //IsFunctionCall()
 //ExtractFunctionParams()
+
+pf()

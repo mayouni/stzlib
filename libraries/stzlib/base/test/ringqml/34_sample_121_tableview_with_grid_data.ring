@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Displaying tabular data
 
 	new qApp {
@@ -185,3 +187,5 @@ load "../../stzBase.ring"
 	#--> ListView with custom header creates table effect
 	#--> Alternating row colors improve readability
 	#--> Status badges show data visually
+
+pf()

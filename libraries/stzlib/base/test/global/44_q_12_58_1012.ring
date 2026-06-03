@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	? Type()	#--> "object"
 	? StzType()	#--> "stzlist"
 }
@@ -16,3 +18,5 @@ QQ([ 1:2, 5:8, 10:12 ]){
 	? Type()	#--> "object"
 	? StzType()	#--> "stzlistoflists"
 }
+
+pf()

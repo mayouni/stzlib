@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 aList = 1:20
 
@@ -16,3 +17,5 @@ aList = 1:20
 # Short form:
 ? ShowShort( Q(1:20).Slice(4, :Last) )
 #--> [ 4, 5, 6, "...", 18, 19, 20 ]
+
+pf()

@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 o1.RemoveDuplicatesOfThisString("111")
 ? @@( o1.Content() )
 #--> [ "111", "b", "222", "c", "222", "s", "222" ]
+
+pf()

@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	FindAllOccurrencesOfWordCS(pcWord, pCaseSensitive)
 }
+
+pf()

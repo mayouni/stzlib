@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzlist(1:120_000)
 ShowShort( o1.Stringified() )

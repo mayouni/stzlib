@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Test 8: Large Dataset with Custom Characters
 

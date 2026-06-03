@@ -6,10 +6,13 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 QM("hi")
 ? MainObject().Content()
 #--> "hi"
 
 proff()
+
+pf()
 # Executed in 0.01 second(s)

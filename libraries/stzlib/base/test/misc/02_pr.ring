@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Ring's del(): modifies the list variable bur returns nothing
 

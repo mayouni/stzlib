@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Automatic UI updates through bindings
 
 
@@ -74,3 +76,5 @@ load "../../stzBase.ring"
 	#--> Property bindings create automatic relationships
 	#--> When source changes, target updates instantly
 	#--> No explicit update code required - it's reactive!
+
+pf()

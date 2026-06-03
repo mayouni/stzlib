@@ -6,6 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StzTextQ("évènement").DiacriticsRemoved()
 ? StzTextQ("Zoölogy").DiacriticsRemoved()
+
+pf()

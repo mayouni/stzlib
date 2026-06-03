@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Animating position changes
 
 
@@ -67,3 +69,5 @@ load "../../stzBase.ring"
 	#--> SequentialAnimation creates back-and-forth motion
 	#--> Easing functions control animation feel
 	#--> Animations make UIs feel alive and responsive
+
+pf()

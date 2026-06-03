@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 `
 Imagine you're navigating a city. Each intersection is a NODE (a state),
@@ -49,3 +50,5 @@ REAL-WORLD APPLICATIONS:
 #========================================#
 #  SECTION 1: BASIC PATHFINDING WITH A*  #
 #========================================#
+
+pf()

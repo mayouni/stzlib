@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzTimeLine(
 	:Start = "2024-03-01 00:00:00",

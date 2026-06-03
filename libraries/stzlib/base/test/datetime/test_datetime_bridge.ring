@@ -26,6 +26,8 @@ $cEngineDir = left(cNorm, nCut)
 # Load bridge wrappers (DLL already loaded, this adds Ring functions)
 load "../../../engine/stz_datetime.ring"
 
+pr()
+
 ? "=== DateTime Bridge Wrapper Tests ==="
 
 # Test 1: StzDaysInMonth
@@ -166,3 +168,5 @@ ok
 
 ? ""
 ? "=== All datetime bridge tests completed ==="
+
+pf()

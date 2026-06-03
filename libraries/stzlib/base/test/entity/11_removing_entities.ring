@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oList.RemoveEntity("ferrari")
 ? oList.NumberOfEntities()
@@ -13,3 +14,5 @@ oList.RemoveEntity("ferrari")
 
 ? oList.ContainsName("ferrari")
 #--> 0
+
+pf()

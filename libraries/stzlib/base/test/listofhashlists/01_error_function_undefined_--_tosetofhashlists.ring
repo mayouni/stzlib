@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 aList = [
 
 	[ :number = 1, :name = "teeba", :age = 10 	],
@@ -22,3 +24,5 @@ o1 = new stzListOfHashLists( aList )
 	[ :number = 2, :name = [ "haneen", "hussein" ], :age = [ 7, 1]	],
 
 */
+
+pf()

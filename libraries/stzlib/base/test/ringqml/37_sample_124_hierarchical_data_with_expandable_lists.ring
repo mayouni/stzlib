@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Tree-like data structures
 
 
@@ -211,3 +213,5 @@ load "../../stzBase.ring"
 #===========================================#
 #   SECTION 13: DIALOGS & POPUP PATTERNS    #
 #===========================================#
+
+pf()

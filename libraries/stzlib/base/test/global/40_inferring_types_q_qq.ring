@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 #NOTE: Unlike Ring, Softanza return type in lowercase.
 
 Q("ring") {
@@ -13,3 +15,5 @@ Q("ring") {
 	? IsAnObject()	#--> TRUE
 	? StzType()	#--> "stzstring"
 }
+
+pf()

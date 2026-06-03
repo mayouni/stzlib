@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Besides this, and for total control on how Softanza does its job,
 # other useful instructions are provided to fine-tune the inherent
@@ -34,3 +35,5 @@ load "../../stzBase.ring"
 # Hence, those instructions define what king of chars,
 # in plus of letters themselves, should be considered
 # by softanza in identifying words...
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	cMarkup = '
 	Let me work with {+greeting:string ~1} containing {#1 "  hello world  "}.
@@ -20,3 +21,5 @@ load "../../stzBase.ring"
 #--> Hello World
 
 proff()
+
+pf()

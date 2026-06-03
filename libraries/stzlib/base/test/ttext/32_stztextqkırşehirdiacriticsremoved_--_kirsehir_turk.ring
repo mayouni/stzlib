@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? StzTextQ("Þingvellir").DiacriticsRemoved() #--> "Pingvellir" / Iceland
 ? stzTextQ("Malmö").DiacriticsRemoved() #--> "Malmo"	/ Swidesh
+
+pf()

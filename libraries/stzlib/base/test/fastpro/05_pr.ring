@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 myList = 1:7
 

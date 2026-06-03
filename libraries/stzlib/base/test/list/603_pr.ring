@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList( L(' "♥1" : "♥9" ') )
 ? @@SP( o1 / [ "Mansoor", "Teeba", "Haneen" ] )

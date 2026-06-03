@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.FindAllCS("B", :CS = FALSE)
 #--> [2, 4]
+
+pf()

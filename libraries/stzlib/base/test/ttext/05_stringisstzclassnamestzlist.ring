@@ -6,4 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? StzStringQ("stzlist").IsStzClassName()
+
+pf()

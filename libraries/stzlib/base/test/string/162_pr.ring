@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? @@( Q("--<<♥♥♥>>--<<♥♥♥>>---<<♥♥♥>>").
 	FindBoundedByAsSections([ "<<", ">>" ]) ) # Or Simply FindBoundedByZZ()

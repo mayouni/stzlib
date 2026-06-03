@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
     oHealthCluster = new stzCluster() {
         WithVision(4)      # OCR for medical records, X-rays, prescriptions
@@ -19,3 +20,5 @@ load "../../stzBase.ring"
     # POST /api/process-xray → Vision Cluster (OCR + analysis)
     # POST /api/analyze-symptoms → NLP Cluster (medical text processing)
     # GET /api/search-interactions → Search Cluster (drug database)
+
+pf()

@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 StartProfiler()
 	
 Q("Ring programming* language.") {
@@ -17,3 +19,5 @@ Q("Ring programming* language.") {
 	
 StopProfiler()
 #--> Executed in 0.02 second(s)
+
+pf()

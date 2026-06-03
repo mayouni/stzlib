@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== Char Quick Test ==="
 
 _nPassed_ = 0
@@ -38,3 +40,5 @@ if _oChk_.IsCharName() ? "  PASS: IsCharName" _nPassed_++ else ? "  FAIL: IsChar
 if _nFailed_ = 0
 	? "ALL TESTS PASSED!"
 ok
+
+pf()

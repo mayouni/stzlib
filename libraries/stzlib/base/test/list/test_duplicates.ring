@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== Duplicates Test ==="
 
 _oLst1_ = new stzList(["a", "b", "a", "c", "b"])
@@ -15,3 +17,5 @@ if NOT _oLst2_.ContainsDuplicatedItems() ? "  PASS: No duplicates" else ? "  FAI
 
 ? ""
 ? "=== DONE ==="
+
+pf()

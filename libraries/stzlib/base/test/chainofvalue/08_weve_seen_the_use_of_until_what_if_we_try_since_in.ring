@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # First thing to note is that Since() requires a StopValue() to stop
 ? Since(:v).Is("12").RequiresStopValue() #--> TRUE
@@ -24,3 +25,5 @@ load "../../stzBase.ring"
 # This beeing understood, let's write a complete chain and see what it returns:
 Since(:v).Is("12").DoThis('{ v += "0" ? v }').StopWhen(:v).Becomes("1200000")
 #-->	[ "120", "1200", "12000", "120000", "1200000" ]
+
+pf()

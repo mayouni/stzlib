@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 @ForEach( [ :name, :age ], :in = [ [ "teebah", 12], ["haneen", 8], ["hussein", 2] ] ) { X('
 

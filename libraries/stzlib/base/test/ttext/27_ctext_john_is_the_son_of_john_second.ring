@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 Second son of John second is William second."
 
 StopWordsMustBeRemoved()
@@ -13,3 +15,5 @@ StopWordsMustBeRemoved()
 StzTextQ(cText) {
 	? Words()
 }
+
+pf()

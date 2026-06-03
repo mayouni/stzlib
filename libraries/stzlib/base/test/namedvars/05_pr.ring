@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 Vr([ :names ]) '=' Vl([ [ "Hussein", "Haneen", "Teebah" ] ])
 ? @@( v(:names) )

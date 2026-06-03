@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 aSensorReadings = [
     ["timestamp", "temperature"],

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 for i = 1 to 1_000
 	cCode = "str = ''+ i + ' '"

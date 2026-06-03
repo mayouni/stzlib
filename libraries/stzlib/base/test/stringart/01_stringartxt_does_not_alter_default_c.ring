@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? DefaultStringArtStyle()
 #--> retro
 
@@ -25,3 +27,5 @@ load "../../stzBase.ring"
 
 ? DefaultStringArtStyle()
 #--> retro
+
+pf()

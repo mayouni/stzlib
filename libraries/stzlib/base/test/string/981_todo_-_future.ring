@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Constarints are defined at the global level and then reused every where
 # inside your softanza objects
@@ -38,3 +39,5 @@ StzStringQ("SOFTANZA") {
 
 	? "Passed"
 }
+
+pf()

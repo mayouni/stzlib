@@ -1,0 +1,63 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzStringTest.ring, block #752.
+
+load "../../stzBase.ring"
+
+pr()
+
+StzStringQ("RING IS NICE") {
+
+	? Content()
+
+	? Boxed()
+	? BoxedRound()
+
+	? EachCharBoxed()
+	? EachCharBoxedRounded()
+
+	? VizFindBoxed("I")
+
+	? BoxedDashed()
+	? BoxedDashedRounded()
+
+	? CharsBoxedXT([
+		:Line = :Solid,
+		:Corners = [
+			:Round, :Rectangular,
+			:Round, :Rectangular
+		]
+	])
+
+}
+
+#--> RING IS NICE
+#   ┌──────────────┐
+#   │ RING IS NICE │
+#   └──────────────┘
+#   ╭──────────────╮
+#   │ RING IS NICE │
+#   ╰──────────────╯
+#   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+#   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
+#   └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+#   ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+#   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
+#   ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+#   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+#   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
+#   └───┴─•─┴───┴───┴───┴─•─┴───┴───┴───┴─•─┴───┴───┘
+#   ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+#   ┊ RING IS NICE ┊
+#   └╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+#   ╭╌╌╌╌╌╌╌╌╌╌╌╌╌╌╮
+#   ┊ RING IS NICE ┊
+#   ╰╌╌╌╌╌╌╌╌╌╌╌╌╌╌╯
+#   ╭──────────────┐
+#   │ RING IS NICE │
+#   └──────────────╯
+
+pf()
+# Executed in 0.14 second(s) in Ring 1.23

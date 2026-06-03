@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 Key Benefits Demonstrated:
 
@@ -38,3 +39,5 @@ Key Benefits Demonstrated:
 The result: Enterprise-grade computational clustering that's 
 as simple to use as a single server, but with 20-100x 
 the performance for specialized workloads.
+
+pf()

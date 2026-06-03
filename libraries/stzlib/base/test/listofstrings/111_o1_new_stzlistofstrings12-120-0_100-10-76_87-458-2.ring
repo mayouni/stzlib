@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 o1.ReplaceSubString("-", :With = "_")
 ? o1.Content()
 #--> [ "12_120_0", "100_10_76", "87_458_20" ]
+
+pf()

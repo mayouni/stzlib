@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StzStringQ("ABTCADNBBABEFAVCC").VizFindManyXT("A")
 
@@ -17,3 +18,5 @@ load "../../stzBase.ring"
 #  "T" :  --^----.------.-^ (2)
 #  "V" :  -------^------^-- (2)
 #  "X" :  ----------------- (0)
+
+pf()

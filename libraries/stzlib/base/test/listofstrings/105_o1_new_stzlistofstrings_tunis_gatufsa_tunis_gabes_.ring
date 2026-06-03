@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 o1.SortInDescending()
 ? @@(o1.Content())
 #--> [ "tuta", "tunis", "tunis", "regueb", "regueb", "gatufsa", "gabes", "Tunis" ]
+
+pf()

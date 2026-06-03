@@ -15,6 +15,8 @@ load "../stzStringExtractor.ring"
 load "../stzStringRandomizer.ring"
 load "../stzStringCrypto.ring"
 
+pr()
+
 nPass = 0
 nFail = 0
 
@@ -511,3 +513,5 @@ if nFail = 0
 else
     ? "=== SOME TESTS FAILED ==="
 ok
+
+pf()

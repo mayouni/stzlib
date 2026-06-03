@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # WAY 5: Creating a table by providing a hashtable where
 # the column names are keys and rows are values

@@ -11,6 +11,8 @@ ok
 
 load "../stzJson.ring"
 
+pr()
+
 ? "=== StzJson Wrapper Function Tests ==="
 
 # Test 1: StzJsonIsValid
@@ -66,3 +68,5 @@ oJson = StzJsonQ('{"x":1,"y":2}')
 
 ? ""
 ? "=== All StzJson wrapper tests completed ==="
+
+pf()

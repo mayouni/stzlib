@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Ternary operator in C-style languages (C, C#, Java, Javascript, PHP...)
 # variable = (condition) ? value1 : value2;

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 StartProfiler()
 #                    2    7
@@ -17,4 +18,6 @@ o1 = new stzString("•♥••••♥••")
 #--> 0
 
 StopProfiler()
+
+pf()
 # Executed in 0.01 second(s) in Ring 1.21

@@ -6,9 +6,13 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.ToStzText().Scripts()
 #--> [
 #	:latin,
 #	:common,
 #	:arabic
 #    ]
+
+pf()

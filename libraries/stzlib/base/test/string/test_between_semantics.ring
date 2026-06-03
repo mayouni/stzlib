@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 $nPassed = 0
 $nFailed = 0
 
@@ -111,3 +113,5 @@ func $Assert(cName, bResult)
 		? "  FAIL: " + cName
 		$nFailed++
 	ok
+
+pf()

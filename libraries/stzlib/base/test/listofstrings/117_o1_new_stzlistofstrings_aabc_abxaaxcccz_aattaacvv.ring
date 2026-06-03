@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.NumberOfOccurrenceOfSubString("aa") #--> 4
 ? @@(o1.NumberOfOccurrenceOfSubStringXT("aa"))
 #--> [ [ 1, 1 ], [ 2, 1 ], [ 3, 2 ] ]
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? oList.FirstEntity()[:name]
 #--> alice
@@ -16,3 +17,5 @@ load "../../stzBase.ring"
 aPersons = oList.EntitiesOfType("person")
 ? len(aPersons)
 #--> 2
+
+pf()

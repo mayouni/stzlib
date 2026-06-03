@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 //? StzTextQ("Softanza: playing with words!!").Words()
 #--> [ :softanza, :playing, :with, :words, 1001, times ]
@@ -39,3 +40,5 @@ StopWordsMustNotBeRemoved()
 #--> [ :softanza, :playing, :words, :with, 1001, times ]
 
 # and you can see the word :with in the output again.
+
+pf()

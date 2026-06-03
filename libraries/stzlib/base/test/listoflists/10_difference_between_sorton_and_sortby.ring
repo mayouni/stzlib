@@ -6,7 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 SortOn(pcColName)
 
 SortBy(pcExpr)
+
+pf()

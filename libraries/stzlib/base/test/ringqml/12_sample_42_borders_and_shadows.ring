@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Visual depth and emphasis
 
 	new qApp {
@@ -80,3 +82,5 @@ load "../../stzBase.ring"
 	#--> Borders add clear visual boundaries
 	#--> DropShadow creates depth perception
 	#--> Essential for card-based and modern material design
+
+pf()

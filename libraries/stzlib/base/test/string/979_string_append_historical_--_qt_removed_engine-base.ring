@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # This test block used Qt's QStringList for performance testing.
 # Qt has been replaced by the Zig-based Softanza Engine.
@@ -17,3 +18,5 @@ load "../../stzBase.ring"
       ///////////      TO BE FIXED LATER       /////////////
  ///////////////                              //
 ///////////////////////////////////////////////
+
+pf()

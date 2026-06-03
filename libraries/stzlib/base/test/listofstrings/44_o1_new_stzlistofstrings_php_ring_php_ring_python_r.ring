@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 o1.ReplaceInStringNTheNthOccurrence(2, 3, "ring", "♥" )
 ? o1.Content()
 #--> [ "php", "ring php ring python ♥", "python" ]
+
+pf()

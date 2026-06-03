@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"___ ring ___ ring",
 	"ring ___ ring ___ ring",
 	"___ ring"
@@ -15,3 +17,5 @@ o1.ReplaceNthOccurrenceOfSubString(4, "ring", "♥♥♥")
 
 ? @@(o1.Content() )
 #--> [ "___ ring ___ ring", "ring ___ ♥♥♥ ___ ring", "___ ring" ]
+
+pf()

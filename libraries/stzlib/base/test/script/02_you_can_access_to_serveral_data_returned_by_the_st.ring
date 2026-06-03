@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 StzScriptQ(:Arabic) {
 	? Script()	#--> arabic
@@ -27,3 +28,5 @@ StzScriptQ(:Arabic) {
 	? DefaultCountryNumber() #--> "64"
 
 }
+
+pf()

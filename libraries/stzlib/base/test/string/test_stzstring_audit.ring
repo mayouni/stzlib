@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== stzString Method Audit ==="
 ? ""
 
@@ -178,3 +180,5 @@ if o25.IsEqualTo("Hello") ? "  PASS: IsEqualTo() true" _nPassed_++ else ? "  FAI
 if _nFailed_ = 0
 	? "ALL TESTS PASSED!"
 ok
+
+pf()

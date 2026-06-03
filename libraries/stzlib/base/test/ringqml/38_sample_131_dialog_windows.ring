@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Modal dialogs for user decisions
 
 	new qApp {
@@ -167,3 +169,5 @@ load "../../stzBase.ring"
 	#--> Dialog provides modal popup windows
 	#--> standardButtons adds common button sets
 	#--> onAccepted/onRejected handle user choices
+
+pf()

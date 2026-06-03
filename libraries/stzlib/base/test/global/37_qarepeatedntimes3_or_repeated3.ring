@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 #--> "AAA"
 
 ? @@( Q([1,2]).RepeatedNTimes(3) ) # Or Repeated(3)
@@ -17,3 +19,5 @@ load "../../stzBase.ring"
 # Don't confuse it with
 ? Q(10).Times(3)
 #--> 30
+
+pf()

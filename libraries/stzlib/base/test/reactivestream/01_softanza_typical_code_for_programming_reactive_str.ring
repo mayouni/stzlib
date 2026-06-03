@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # First, everything must happen inside a ReactiveSystem object.
 # In Softanza, reactive streams (and any other reactive element)

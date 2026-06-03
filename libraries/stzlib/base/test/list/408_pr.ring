@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList([ 1, 2, 3 ])
 ? @@( o1 + Q(4) + 5 )

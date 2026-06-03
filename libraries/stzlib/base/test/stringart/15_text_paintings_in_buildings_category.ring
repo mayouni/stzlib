@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StringArt("#{Castle}") + NL
 #-->
@@ -53,4 +54,5 @@ load "../../stzBase.ring"
 # ../|' v . | .|||||/____|____\|||| /|. . | . ./
 #  |//\............/...........\........../../\\\
 
+pf()
 # Executed in 0.001 seconds.

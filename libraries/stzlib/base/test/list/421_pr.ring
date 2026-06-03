@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? Q("A**BC***DE***") - 3	# Remove the last 3 chars
 #--> "A**BC***DE"

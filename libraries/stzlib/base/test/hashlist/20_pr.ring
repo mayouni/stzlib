@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # The keys of a hashlist must be unique. Otherwise you won't be able to
 # create the hashlist objectS

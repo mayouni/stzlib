@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
     oEcomCluster = new stzCluster() {
         WithVision(3)      # Product image analysis, visual search
@@ -21,3 +22,5 @@ load "../../stzBase.ring"
     # POST /api/sentiment-reviews → NLP Cluster  
     # POST /api/optimize-pricing → Math Cluster
     # GET /api/search-products → Search Cluster
+
+pf()

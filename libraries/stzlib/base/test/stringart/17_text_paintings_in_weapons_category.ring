@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StringArt("#{Sword}") + NL
 #-->
@@ -105,4 +106,5 @@ load "../../stzBase.ring"
 # |___\
 #    L ±
 
+pf()
 # Executed in 0.003 seconds.

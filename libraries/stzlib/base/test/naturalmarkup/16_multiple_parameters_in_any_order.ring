@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	cMarkup = '
 	Process data with {^compute ~3} where {#3 "fast"} mode is set, using {#1 [10, 20, 30]} and {#2 "sum"} operation.
@@ -17,3 +18,5 @@ load "../../stzBase.ring"
 #--> [computed result based on parameters]
 
 proff()
+
+pf()

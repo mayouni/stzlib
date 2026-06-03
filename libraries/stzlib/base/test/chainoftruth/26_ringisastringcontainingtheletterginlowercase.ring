@@ -6,4 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 //? _("Ring").IsAString().Containing("in").Whaterver('StringCase()').ItHas()
+
+pf()

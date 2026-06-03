@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"What's your name please",
 	"Mabrooka",
 	"Your name and my name are not the same",
@@ -16,3 +18,5 @@ load "../../stzBase.ring"
 
 ? o1.FindNthOccurrenceOfSubString(2, "name")
 #--> [ 3, 6 ]
+
+pf()

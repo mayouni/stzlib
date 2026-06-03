@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 StartProfiler()
 
@@ -17,5 +18,7 @@ o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
 #--> FALSE
 
 StopProfiler()
+
+pf()
 # Executed in 0.02 second(s) in Ring 1.22
 # Executed in 0.06 second(s) in Ring 1.21

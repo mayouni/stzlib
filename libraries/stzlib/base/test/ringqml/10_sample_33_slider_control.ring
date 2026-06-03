@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Range input and value binding
 
 
@@ -80,3 +82,5 @@ load "../../stzBase.ring"
 #==============================#
 #   SECTION 4: VISUAL DESIGN   #
 #==============================#
+
+pf()

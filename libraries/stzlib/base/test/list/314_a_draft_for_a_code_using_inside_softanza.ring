@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 StartProfiler()
 
@@ -40,4 +41,6 @@ end
 # [ [ 6, 9 ], [ 11, 14 ], [ 18, 21 ], [ 4, 15 ], [ 1, 22 ] ]
 
 StopProfiler()
+
+pf()
 # Executed in 0.01 second(s).

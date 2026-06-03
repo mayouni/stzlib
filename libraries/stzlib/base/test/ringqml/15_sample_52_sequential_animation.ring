@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Choreographing multiple animations
 
 
@@ -71,3 +73,5 @@ load "../../stzBase.ring"
 	#--> SequentialAnimation chains animations
 	#--> Multiple properties can animate simultaneously
 	#--> Creates engaging, dynamic UIs
+
+pf()

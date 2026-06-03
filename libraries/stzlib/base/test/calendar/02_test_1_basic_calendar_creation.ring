@@ -35,4 +35,5 @@ oCal {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26
 # Executed in almost 0 second(s) in Ring 1.24

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? fabs(-5) #--> 5	Ring function
 ? Abs(-5)  #--> 5	Softanza function

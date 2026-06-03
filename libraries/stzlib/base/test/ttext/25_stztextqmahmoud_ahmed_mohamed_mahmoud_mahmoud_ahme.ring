@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	ReplaceWordsWithMarquersXT([
 		:By = :OrderOfOccurrenceOfWords,
 		:Except = [],
@@ -13,3 +15,5 @@ load "../../stzBase.ring"
 	])
 	#--> "#1, #2, #3, #4, #5, #6."
 }
+
+pf()

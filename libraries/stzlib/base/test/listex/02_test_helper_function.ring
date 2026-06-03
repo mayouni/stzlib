@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 #------------------------#
 */
 func TestPattern(cPattern, aTestCases)
@@ -37,3 +39,5 @@ func TestPattern(cPattern, aTestCases)
     next
     
     return
+
+pf()

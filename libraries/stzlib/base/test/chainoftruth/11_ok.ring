@@ -6,6 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? _(8)._ 	# Returns 8
 ? _("ring")._ 	# Returns "ring"
+
+pf()

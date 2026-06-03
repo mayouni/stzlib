@@ -26,4 +26,6 @@ o.SetPattern("^End:.*$") # ^ only matches start of string
 #--> TRUE
 
 prf()
+
+pf()
 # Executed in almost 0 second(s) in Ring 1.22

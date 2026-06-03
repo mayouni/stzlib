@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? @@('   str = "  ...  "     and   str !=    "  *** " ')
 #--> 'str = "  ...  " and str != "  *** "'

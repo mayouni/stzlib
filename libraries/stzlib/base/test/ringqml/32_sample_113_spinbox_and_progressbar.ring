@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Numeric input and progress display
 
 	new qApp {
@@ -156,3 +158,5 @@ load "../../stzBase.ring"
 	#--> SpinBox for numeric input with increment/decrement
 	#--> ProgressBar shows task completion
 	#--> BusyIndicator for indeterminate progress
+
+pf()

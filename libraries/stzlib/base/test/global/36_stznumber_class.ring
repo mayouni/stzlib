@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 #--> "stznumber"
 # You can also say: ? StzNumberClass()
 
@@ -16,3 +18,5 @@ load "../../stzBase.ring"
 ? Stz(:Number, :Methods)
 #--> [ "init", "content", "initialcontent", "copy", ... ]
 # You can also say: ? StzNumberMethods()
+
+pf()

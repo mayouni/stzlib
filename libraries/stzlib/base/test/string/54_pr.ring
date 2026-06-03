@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 put "What's your First name?"
 

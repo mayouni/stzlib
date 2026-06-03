@@ -13,6 +13,8 @@ ok
 
 load "../stzfile.ring"
 
+pr()
+
 ? ""
 ? "=== stzFileEngine Tests ==="
 
@@ -67,3 +69,5 @@ StzDirDelete(cTmpDir)
 
 ? ""
 ? "=== All stzFileEngine tests completed ==="
+
+pf()

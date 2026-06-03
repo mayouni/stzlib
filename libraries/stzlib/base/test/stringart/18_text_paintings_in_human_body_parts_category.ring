@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StringArt("#{Head}") + NL
 #-->
@@ -81,6 +82,7 @@ load "../../stzBase.ring"
 # | ≋≋≋≋≋ |
 # | ≋≋≋≋≋ |
 #  \     /
-#   '---'	
+#   '---'
 
+pf()
 # Executed in 0.002 seconds.

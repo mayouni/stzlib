@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.ConcatenateUsing(" ")
 #--> Tunis gafsa tunis gabes tunis regueb tuta regueb
+
+pf()

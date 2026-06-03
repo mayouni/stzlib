@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StringArt("#{Checkpoint}") + NL
 #-->
@@ -75,4 +76,5 @@ load "../../stzBase.ring"
 # /        \
 # ----------
 
+pf()
 # Executed in 0.001 seconds.

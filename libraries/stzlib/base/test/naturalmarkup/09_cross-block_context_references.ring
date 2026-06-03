@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	cMarkup = '
 	I will create {+fruits:list ~1} with {#1 ["apple", "banana", "cherry"]}.
@@ -22,3 +23,5 @@ load "../../stzBase.ring"
 #--> ["cherry", "banana", "apple"]
 
 proff()
+
+pf()

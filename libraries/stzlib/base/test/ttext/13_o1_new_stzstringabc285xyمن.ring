@@ -6,5 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.Scripts()
 ? o1.ScriptIs(:Hybrid)
+
+pf()

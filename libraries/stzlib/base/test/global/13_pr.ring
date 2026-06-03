@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Contrariwise, this Ring for/in loop takes too long to complete!
 # (500 thousand times and not 5 million like in the example above!)
 

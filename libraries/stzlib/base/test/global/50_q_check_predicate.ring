@@ -12,6 +12,9 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? Q("(,,)").Check(:That = 'StzCharQ(@Char).IsPunctuation()')
 #--> TRUE
+
+pf()

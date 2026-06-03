@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzListOfStrings([
 	"___ ring ___ ring",
@@ -21,3 +22,5 @@ o1 = new stzListOfStrings([
 
 ? @@( o1.FindTheseOccurrencesOfSubString([1, 3, 5 ], "ring") )
 #--> [ [ 1, 5 ], [ 2, 1 ], [ 2, 19 ] ]
+
+pf()

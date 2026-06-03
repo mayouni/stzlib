@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? _([]).IsA(:List)._	#--> TRUE
 ? _(12).IsA(:Number)._	#--> TRUE
@@ -19,3 +20,5 @@ o1 = new person { name = "ali" }
 
 class Person
 	name
+
+pf()

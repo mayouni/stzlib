@@ -10,6 +10,9 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StzListOfStringsQ([ "aaa", "bbb", "ccc" ]).SortInDescendingQ().Content()
 #--> [ "ccc", "bbb", "aaa" ]
+
+pf()

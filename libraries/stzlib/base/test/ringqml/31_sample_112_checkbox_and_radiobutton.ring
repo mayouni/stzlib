@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Boolean and exclusive selections
 
 	new qApp {
@@ -163,3 +165,5 @@ load "../../stzBase.ring"
 	#--> CheckBox for multiple selections
 	#--> RadioButton for exclusive choices
 	#--> Calculated properties update automatically
+
+pf()

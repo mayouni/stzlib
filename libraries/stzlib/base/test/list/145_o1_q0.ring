@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 o1 * 3
 o1.Show()
 #--> [ 0, 0, 0 ]

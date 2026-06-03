@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzText("Ring 17")
 ? o1.IsWord() #--> TRUE
@@ -17,3 +18,5 @@ o1 = new stzText("حُسَيْــــنْ")
 ? o1.IsArabicWord()
 
 ? StringIsWord("حُسَيْــــنْ")
+
+pf()

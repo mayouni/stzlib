@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 n = -12;
 vr(:sign) '=' b(n > 0) '?' bt("positive") '!!' bf("negative");

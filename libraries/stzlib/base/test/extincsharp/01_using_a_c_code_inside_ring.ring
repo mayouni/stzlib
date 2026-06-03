@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 StartProfiler()
 
 # This is a C# code showing string interpolation:
@@ -25,6 +27,8 @@ Console.WriteLine( $("The range of integers is {min} to {max}") );
 #NOTE // that the only change made to the original C# code is to bound the string with ()
 
 StopProfiler()
+
+pf()
 # Executed in 0.01 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.10 second(s) in Ring 1.20

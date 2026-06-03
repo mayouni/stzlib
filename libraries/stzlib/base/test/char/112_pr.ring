@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Be careful: there is a hidden char that inverted the text "freind" and
 # forced it to be written from right to left!

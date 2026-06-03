@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 nCode = 65	# The character "A"
 

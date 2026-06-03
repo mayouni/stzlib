@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? @@( o1.NumberOfOccurrenceOfManySubstrings(["a","f","x"]) ) 
 #--> [ 9, 0, 2 ]
 ? @@( o1.NumberOfOccurrenceOfManySubstringsXT(["a","f","x"]) ) 
@@ -14,3 +16,5 @@ load "../../stzBase.ring"
 #	[ ],				  #>>> "f" does'nt exist!
 #	[ [ 2, 2 ] ]			  #>>> There is 2 "x"s in string number 2
 #    ]
+
+pf()

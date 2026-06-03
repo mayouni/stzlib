@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 o1.ReplaceWordsCS( [ :ring ], [ :Watch ], 0 )
 ? o1.Content()
 
@@ -13,3 +15,5 @@ o1.ReplaceWordsCS( [ :ring ], [ :Watch ], 0 )
 ReplaceManyWordsCS(pacWords, pacNewWords, pCaseSensitive)
 ReplaceEachWordCS(pacWords, pacNewWords, pCaseSensitive)
 ReplaceAllOccurrencesOfWordsCS(pacWords, pacNewWords, pCaseSensitive)
+
+pf()

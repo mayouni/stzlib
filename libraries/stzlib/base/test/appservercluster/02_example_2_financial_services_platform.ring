@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
     # Heavy math processing for risk analysis, modeling, trading algorithms
     oFinanceCluster = new stzCluster() {
@@ -20,3 +21,5 @@ load "../../stzBase.ring"
     # POST /api/calculate-risk → Math Cluster (instant response)
     # POST /api/analyze-earnings → NLP Cluster (instant response)
     # GET /api/search-market → Search Cluster (instant response)
+
+pf()

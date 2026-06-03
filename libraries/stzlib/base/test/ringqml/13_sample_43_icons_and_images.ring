@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Visual elements beyond basic shapes
 
 
@@ -63,3 +65,5 @@ load "../../stzBase.ring"
 #====================================#
 #   SECTION 5: ANIMATIONS & MOTION   #
 #====================================#
+
+pf()

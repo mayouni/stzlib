@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Content refresh gesture
 #TODO Adjust position of 'Pull down to refresh'
 
@@ -168,3 +170,5 @@ load "../../stzBase.ring"
 	#--> Pull-to-refresh gesture
 	#--> Flickable with bounds behavior
 	#--> Loading indicator
+
+pf()

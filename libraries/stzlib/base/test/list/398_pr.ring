@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList([ 1, "A":"B", 2, 3, "X", "Y", "Z" ])
 

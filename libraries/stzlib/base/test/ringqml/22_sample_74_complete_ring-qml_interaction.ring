@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Bidirectional communication pattern
 
 
@@ -155,3 +157,5 @@ load "../../stzBase.ring"
 #==========================================#
 #   SECTION 8: DATA BINDING & REACTIVITY   #
 #==========================================#
+
+pf()

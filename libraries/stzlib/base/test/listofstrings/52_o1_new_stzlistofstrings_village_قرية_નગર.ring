@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.StringsW('T(@string).Script() = :Arabic') #--> [ "قرية" ]
 
 ? o1.StringsPositionsW('T(@string).Script() = :Arabic') #--> 2
+
+pf()

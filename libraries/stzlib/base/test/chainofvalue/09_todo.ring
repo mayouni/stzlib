@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 OnlyWhen(v).Is.AStringQ().DoThis('{ ? "Done! As requested." }') #--> DoThis() : Do_().This_()
 
@@ -15,3 +16,5 @@ OnlyWhen(v).IsNot.ANumberQ().DoThis('{ ? "Done! As requested." }')
 OnlyWhen(v).Is.Not_.ANumberQ().DoThis('{ ? "Done! As requested." }')
 
 SometimesWhen(n).IsANumberQ().DoThis('{ ? "Done! Because I am lucky ;)" }')
+
+pf()

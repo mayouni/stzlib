@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 Q(1:299_000).Section(100, 299_000)
 

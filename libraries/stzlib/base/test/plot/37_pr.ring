@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Test 1: Basic Multi-Series Plot (same as previous sample but with new stz...)
 

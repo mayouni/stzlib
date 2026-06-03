@@ -11,6 +11,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 nPsd = 0
 nFld = 0
 nTtl = 0
@@ -165,3 +167,5 @@ func chk(cLabel, bCond)
 		nFld++
 		? "  FAIL: " + cLabel
 	ok
+
+pf()

@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Selection from predefined options
 
 	new qApp {
@@ -109,3 +111,5 @@ load "../../stzBase.ring"
 	#--> ComboBox for dropdown selections
 	#--> Can use simple string arrays or ListModel with roles
 	#--> Essential for forms and settings
+
+pf()

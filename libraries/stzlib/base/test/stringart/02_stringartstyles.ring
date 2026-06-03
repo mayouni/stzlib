@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 #--> [ "retro", "neon", "geo", "flower" ]
 
 SetStringArtStyle(:flower)
@@ -24,3 +26,5 @@ SetStringArtStyle(:flower)
 # ''-'   `'-'    '---'  '--'    '--'    `'-...-'  
 # 
 # IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!
+
+pf()

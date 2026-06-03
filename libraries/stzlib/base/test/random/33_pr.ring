@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? random(-10) # Standard Ring function returning NULL
 #--> ""

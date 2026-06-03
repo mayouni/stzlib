@@ -10,6 +10,9 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? @@( Q("SOFTANZA").Section(-99, 99) )
 #--> Indexes out of range! n1 and n2 must be inside the string.
+
+pf()

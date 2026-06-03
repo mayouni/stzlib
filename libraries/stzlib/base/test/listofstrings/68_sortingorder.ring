@@ -1,0 +1,22 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzlistofstringstest.ring, block #68.
+
+load "../../stzBase.ring"
+
+pr()
+
+o1 = new stzListOfStrings([ "aaa", "ccc", "bbb" ])
+? o1.SortingOrder()
+#--> :Unsorted
+
+? o1.IsSortedInAscending()
+#--> FALSE
+
+? o1.IsSortedInDescending()
+#--> FALSE
+
+pf()
+# Executed in 0.09 second(s)

@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Getting data back from Ring
 
 
@@ -97,3 +99,5 @@ load "../../stzBase.ring"
 	#--> Ring functions can return values to QML
 	#--> Return value captured in JavaScript variable
 	#--> Enables powerful Ring computation from QML
+
+pf()

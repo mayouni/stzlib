@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 // This will raise an error
 try
@@ -22,3 +23,5 @@ catch
     ? "Error: Cannot remove core property"
 end
 #--> Error: Cannot remove core property
+
+pf()

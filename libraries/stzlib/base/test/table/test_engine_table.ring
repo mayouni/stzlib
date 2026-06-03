@@ -3,6 +3,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 nPass = 0
 nFail = 0
 
@@ -250,3 +252,5 @@ StzEngineTableFree(pTable)
 ? "================================="
 ? "  PASSED: " + nPass + "  FAILED: " + nFail
 ? "================================="
+
+pf()

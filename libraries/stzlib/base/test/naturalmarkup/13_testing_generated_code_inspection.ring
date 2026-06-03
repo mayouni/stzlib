@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	cMarkup = '
 	Create {+numbers:list ~1} with {#1 [1, 2, 3]}.
@@ -24,3 +25,5 @@ load "../../stzBase.ring"
 #--> onumbers.Show()
 
 proff()
+
+pf()

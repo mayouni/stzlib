@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
     ? "Setting up production computational cluster..."
     
@@ -34,3 +35,5 @@ load "../../stzBase.ring"
     ok
     
     return oProductionCluster
+
+pf()

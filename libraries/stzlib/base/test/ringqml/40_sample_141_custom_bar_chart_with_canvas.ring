@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Simple data visualization
 
 	new qApp {
@@ -147,3 +149,5 @@ load "../../stzBase.ring"
 	#--> Custom bar chart using Rectangles
 	#--> Animated data updates
 	#--> Data-driven visualization
+
+pf()

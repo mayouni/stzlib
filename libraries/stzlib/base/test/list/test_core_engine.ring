@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== stzList Core Engine Delegation ==="
 
 o = new stzList([1, 2, 3, "hello", 5])
@@ -28,3 +30,5 @@ o4 = new stzList([])
 
 ? ""
 ? "=== Core engine delegation OK ==="
+
+pf()

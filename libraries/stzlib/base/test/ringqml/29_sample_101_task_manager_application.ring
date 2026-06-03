@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Bringing everything together
 
 
@@ -388,3 +390,5 @@ load "../../stzBase.ring"
 #================================================#
 #   SECTION 11: ADVANCED CONTROLS & COMPONENTS   #
 #================================================#
+
+pf()

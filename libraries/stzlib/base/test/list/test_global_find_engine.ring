@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== Testing Global Find Engine Delegation ==="
 ? ""
 
@@ -41,3 +43,5 @@ next
 
 ? ""
 ? "=== All global find tests passed! ==="
+
+pf()

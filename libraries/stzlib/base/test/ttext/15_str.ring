@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 “General Punctuation”! ; This means there is more to know, right?!
 Well.. there is a set of supplemental “Punctuation” in Unicode.
 "
@@ -25,3 +27,5 @@ StzTextQ(str) {
 	? SupplementalPunctuations() #--> [ ]
 
 }
+
+pf()

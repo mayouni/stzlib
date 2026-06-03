@@ -6,7 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzListOfStrings([ "name", "اسم", "姓名" ])
 ? o1.Scripts()
 #--> [ "latin", "arabic", "han" ]
+
+pf()

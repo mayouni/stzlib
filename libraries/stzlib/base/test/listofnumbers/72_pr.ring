@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzString("weloveringlanguage!")
 o1.AddXT(" ", :AfterThese = Q([ "we", "love", "ring", "language" ]).Reversed())

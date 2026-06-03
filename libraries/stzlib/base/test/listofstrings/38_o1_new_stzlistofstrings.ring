@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"___ ring ___",
 	"___ ring ___ ring",
 	"___ ruby ___ ring",
@@ -21,3 +23,5 @@ load "../../stzBase.ring"
 #	[ [ 3, 1 ], , [ 4, 1 ] ], 		#<<< Occurrences of "ruby"
 #	[  ] 					#<<< No occurrences at all for "pyhthon"
 #   ]
+
+pf()

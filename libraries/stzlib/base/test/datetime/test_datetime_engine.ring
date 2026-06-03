@@ -15,6 +15,8 @@ ok
 load "../stzDate.ring"
 load "../stzTime.ring"
 
+pr()
+
 ? ""
 ? "=== stzDate & stzTime Engine Migration Tests ==="
 
@@ -92,3 +94,5 @@ oTime3 = new stzTime("10:15:30.500")
 
 ? ""
 ? "=== All stzDate & stzTime migration tests completed ==="
+
+pf()

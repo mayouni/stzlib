@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # The distribution of the items of a list can be made directly using
 # the "/" operator on the list object:

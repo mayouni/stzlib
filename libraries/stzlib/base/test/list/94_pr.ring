@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList([ 1, "r_INg", 2, "R_ng", 3, "R_ING" ])
 o1.StringifyLowercaseAndReplaceXT("_", :With = AHeart())

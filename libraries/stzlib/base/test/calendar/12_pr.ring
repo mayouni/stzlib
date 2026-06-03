@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oCal = new stzCalendar([2024, 10])
 

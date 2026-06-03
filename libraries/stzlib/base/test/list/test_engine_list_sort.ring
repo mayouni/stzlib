@@ -3,6 +3,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== Sort: Ascending ==="
 o = new stzList([3, 1, 4, 1, 5, 9, 2])
 o.Sort()
@@ -72,3 +74,5 @@ aData = [ [3, "c"], [1, "a"], [2, "b"] ]
 
 ? ""
 ? "All sort/reverse tests completed."
+
+pf()

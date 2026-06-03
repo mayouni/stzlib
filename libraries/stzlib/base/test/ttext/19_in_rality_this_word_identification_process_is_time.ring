@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # large texts. This will be enhanced in the future, but for now,
 # you can instruct Softanza to adopt a quicker route, with less
 # constraints, by using one of these two nstructions:
@@ -25,3 +27,5 @@ IdentifyWordsInStrictMode()
 # The idea is that library lets you make your own choice and think of
 # the acceptable balance, for you actual needs, between accuracy
 # and performance!
+
+pf()

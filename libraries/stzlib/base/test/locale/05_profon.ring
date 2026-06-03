@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 StzCountryQ(:palau) {
 	? Name()				#--> palau
@@ -13,5 +14,7 @@ StzCountryQ(:palau) {
 }
 
 proff()
+
+pf()
 # Executed in almost 0 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.18

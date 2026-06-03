@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 #TODO // This is a special case we should manage
 StzCalendarQ([1528, 10 ]).Show()
@@ -41,4 +42,5 @@ Legend:
 '
 
 pf()
+# Executed in 0.11 second(s) in Ring 1.26 (Backed by StzEngine)
 # Executed in 0.38 second(s) in Ring 1.26

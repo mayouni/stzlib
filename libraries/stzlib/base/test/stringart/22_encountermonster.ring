@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 #-->
 # You encounter a fearsome dragon!
 #    /\\__/\\
@@ -43,3 +45,5 @@ func EncounterMonster()
         ? "You turn and run as fast as you can!"
         ? StringArt("#{RightFeet}")
     ok
+
+pf()

@@ -3,6 +3,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 aIn = [1, -2, 3, -4, 5]
 ? "Input: " + list2str(aIn)
 
@@ -38,3 +40,5 @@ cCat = StzEngineYielderReduceConcatDirect(aStr, "-")
 # MapFiltered direct: keep positives, then square (filter=7, transform=4)
 aMF = StzEngineYielderFilterMapDirect(aIn, 7, 4)
 ? "MapFilteredDirect      = " + list2str(aMF)
+
+pf()

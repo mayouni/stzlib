@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Look at theses statements and guess their results:
 
@@ -45,5 +46,7 @@ StartProfiler()
 	# ]
 
 StopProfiler()
+
+pf()
 # Executed in 0.14 second(s) on Ring 1.21
 # Executed in 0.18 second(s) on Ring 1.20

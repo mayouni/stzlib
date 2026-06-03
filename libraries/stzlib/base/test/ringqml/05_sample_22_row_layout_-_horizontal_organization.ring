@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Horizontal arrangement of elements
 
 	new qApp {
@@ -56,3 +58,5 @@ load "../../stzBase.ring"
 	
 	#--> Row arranges children horizontally
 	#--> Perfect for toolbars, button groups, navigation
+
+pf()

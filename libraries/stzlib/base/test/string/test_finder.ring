@@ -2,6 +2,8 @@ load "test_stubs.ring"
 load "../stzString.ring"
 load "../stzStringFinder.ring"
 
+pr()
+
 ? "Step 1: Testing FindNthCS"
 oFinder = new stzStringFinder(new stzString("hello world hello"))
 nPos = oFinder.FindNthCS(2, "hello", 1)
@@ -48,3 +50,5 @@ ok
 
 ? ""
 ? "=== ALL FINDER TESTS PASSED ==="
+
+pf()

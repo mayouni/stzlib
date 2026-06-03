@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? "LIFE"
 ? Q("LIFE").Inverted()

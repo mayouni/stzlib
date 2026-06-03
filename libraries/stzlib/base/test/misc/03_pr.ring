@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Ring's default substr(): returns new string, str unchanged
 

@@ -18,3 +18,5 @@ pr()
 ? IsNull(NullObject()) #--> TRUE
 ? IsNull(TrueObject()) #--> FALSE
 ? IsNull(FalseObject()) #--> FALSE
+
+pf()

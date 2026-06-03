@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Deriving values from other properties
 
 
@@ -130,3 +132,5 @@ load "../../stzBase.ring"
 	#--> Computed properties derive values from inputs
 	#--> Ternary operators enable conditional logic
 	#--> All updates happen automatically through bindings
+
+pf()

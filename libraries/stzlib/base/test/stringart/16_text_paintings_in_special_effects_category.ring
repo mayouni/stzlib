@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? StringArt("#{SunRise}") + NL
 #-->
@@ -80,5 +81,6 @@ load "../../stzBase.ring"
 # │ │▓▓▓│ │
 # \ └───┘ /
 #  `─────'
-	
+
+pf()
 # Executed in 0.003 seconds.

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 oPersonsList = oList.FilterByType("person")
 ? oPersonsList.NumberOfEntities()
@@ -18,3 +19,5 @@ oList.SortByName()
 oList.SortByType()
 ? oList.Types()
 #--> ["device", "person", "person", "vehicle"]
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 nOriginalPrice = 150
 nDiscountRate = 15

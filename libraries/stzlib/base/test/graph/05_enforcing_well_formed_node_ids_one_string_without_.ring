@@ -12,3 +12,5 @@ pr()
 o1 = new stzGraph("")
 o1.AddNode("no please!")
 #--> ERROR MESSAGE: pcNodeId must be one string without spaces nor new lines..
+
+pf()

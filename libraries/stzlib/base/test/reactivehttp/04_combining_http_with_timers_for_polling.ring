@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # Polling means checking a server repeatedly for new data
 # Common pattern for real-time updates without WebSockets

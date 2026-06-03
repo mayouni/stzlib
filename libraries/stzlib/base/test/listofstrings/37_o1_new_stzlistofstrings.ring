@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 	"What's your name please?",
 	"Mabrooka!",
 	"Your name and my name are not the same...",
@@ -20,3 +22,5 @@ load "../../stzBase.ring"
 # For your convinience, you can get the result in an exmpanded form:
 ? @@( o1.FindSubStringXT("name") )
 #--> [ [ 1, 13 ], [ 3, 6 ], [ 3, 18 ] ]
+
+pf()

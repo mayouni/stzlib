@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # All these return 1
 
@@ -15,3 +16,5 @@ load "../../stzBase.ring"
 ? _("ring").Contains("i")._
 # or
 ? _("ring").IsContaining("i")._
+
+pf()

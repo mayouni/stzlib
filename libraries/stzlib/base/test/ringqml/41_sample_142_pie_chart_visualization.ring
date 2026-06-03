@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Proportional data display
 
 	new qApp {
@@ -127,3 +129,5 @@ load "../../stzBase.ring"
 	#--> Canvas for custom drawing
 	#--> Pie chart using arc drawing
 	#--> Legend shows data breakdown
+
+pf()

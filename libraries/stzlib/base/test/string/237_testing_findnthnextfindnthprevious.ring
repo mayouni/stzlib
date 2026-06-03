@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # on a very large string (~2M chars)
 
 StartProfiler()
@@ -31,4 +33,6 @@ o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
 #--> 0
 
 StopProfiler()
+
+pf()
 # Executed in 0.19 second(s) in Ring 1.21

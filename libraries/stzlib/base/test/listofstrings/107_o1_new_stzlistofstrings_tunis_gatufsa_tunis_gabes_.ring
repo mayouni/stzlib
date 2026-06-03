@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.FindNthOccurrenceCS(2, "tunis", TRUE) #--> 5
 
 ? @@(o1.StringsContainingCS("tu", TRUE)) # Same as o1.FilterCS("tu", TRUE)
@@ -13,3 +15,5 @@ load "../../stzBase.ring"
 
 ? @@( o1.UniqueStringsContainingCS("tu", TRUE) )
 #--> [ "gatufsa", "tunis", "tuta" ]
+
+pf()

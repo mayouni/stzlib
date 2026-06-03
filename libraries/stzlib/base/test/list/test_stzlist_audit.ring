@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== stzList Method Audit ==="
 ? ""
 
@@ -93,3 +95,5 @@ if _nCnt_ = 3 ? "  PASS: NumberOfOccurrence()" _nPassed_++ else ? "  FAIL: Numbe
 if _nFailed_ = 0
 	? "ALL TESTS PASSED!"
 ok
+
+pf()

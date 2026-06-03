@@ -12,6 +12,8 @@ load "../stzStringRemover.ring"
 load "../stzStringExtractor.ring"
 load "../stzStringInserter.ring"
 
+pr()
+
 ? ""
 ? "=== Test: FindAsSections ==="
 oF = new stzStringFinder("hello ring what a nice ring!")
@@ -113,3 +115,5 @@ ok
 
 ? ""
 ? "=== ALL EXTENDED FINDER TESTS PASSED ==="
+
+pf()

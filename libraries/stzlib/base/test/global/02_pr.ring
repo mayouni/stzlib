@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 ? 3 : 5
 #--> [ 3, 5 ]

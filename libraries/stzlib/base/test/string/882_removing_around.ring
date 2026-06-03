@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 StartProfiler()
 	
@@ -17,4 +18,6 @@ Q("_-♥-_-♥-_-♥-_") {
 }
 	
 StopProfiler()
+
+pf()
 # Executed in 0.06 second(s)

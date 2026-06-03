@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 1. **HttpGet**: Non-blocking GET requests
    - HttpGet(url, onSuccess, onError)
@@ -50,3 +51,4 @@ Best Practices:
 - Cache responses when appropriate
 - Process data as it arrives (don't wait for all requests)
 
+pf()

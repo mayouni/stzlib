@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 # WAY 3: Creating a table by provding a list of lists, formatted as you
 # would find it in the real world (the first line is for column names!)

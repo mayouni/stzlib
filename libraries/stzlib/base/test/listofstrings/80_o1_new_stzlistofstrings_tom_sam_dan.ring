@@ -6,6 +6,10 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? o1.ContainsCS("sam", TRUE)	#--> TRUE
 ? o1.ContainsCS("SAM", TRUE)	#--> FALSE
 ? o1.ContainsCS("SAM", :CS = FALSE)	#--> TRUE
+
+pf()

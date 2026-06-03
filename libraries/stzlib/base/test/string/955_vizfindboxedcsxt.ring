@@ -1,0 +1,23 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzStringTest.ring, block #955.
+
+load "../../stzBase.ring"
+
+pr()
+
+o1 = new stzString("..STZ..StZ..stz...STZ")
+
+# The order of params is defined by the order of name suffixes:
+
+? o1.VizFindBoxedCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ])
+#-->
+# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+# │ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │ . │ . │ . │ S │ T │ Z │
+# └───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴───┴─•─┴───┴───┘
+
+pf()
+# Executed in 0..7 second(s) in Ring 1.26
+# Executed in 0.11 second(s) in Ring 1.22

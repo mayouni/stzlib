@@ -6,6 +6,9 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzNumber("12500")
 ? o1.ToBinaryFormwithoutPrefix()
+
+pf()

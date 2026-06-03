@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 nCards = 1:52
 oGameDeck = new stzList(nCards)

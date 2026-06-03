@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 	cMarkup = '
 	I want to {^replace ~3} in text where {#2 "old"} becomes {#3 "new"} using {#1 "This is old text"}.
@@ -17,3 +18,5 @@ load "../../stzBase.ring"
 #--> This is new text
 
 proff()
+
+pf()

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 decimals(3)
 ? 81.8

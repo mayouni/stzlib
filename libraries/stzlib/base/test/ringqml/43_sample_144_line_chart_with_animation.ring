@@ -6,6 +6,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 # Use case: Trend visualization
 #TODO: See why animation is not running
 
@@ -124,3 +126,5 @@ load "../../stzBase.ring"
 #============================================#
 #   SECTION 15: MOBILE UI PATTERNS           #
 #============================================#
+
+pf()

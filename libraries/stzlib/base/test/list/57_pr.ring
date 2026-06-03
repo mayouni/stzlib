@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList( Q("1♥♥456♥♥901♥♥4").Chars() )
 

@@ -6,6 +6,7 @@
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzTable([ [ 10, "ten" ], [ 20, "twenty" ] ])
 o1.Show()
