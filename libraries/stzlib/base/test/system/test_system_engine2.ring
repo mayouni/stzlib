@@ -1,10 +1,7 @@
 
 #ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
 
-load "../../string/test/test_stubs.ring"
-
-pr()
-
+load "../string/test_stubs.ring"
 # Load stz_system.dll
 ? "Loading stz_system.dll..."
 cSysLib = _stzFindDll("stz_system.dll")
@@ -64,5 +61,3 @@ ok
 
 ? ""
 ? "=== All stz_system engine tests completed ==="
-
-pf()

@@ -2,12 +2,9 @@
 #ERR Error (E9) : Can't open file ../stzString.ring
 
 load "test_stubs.ring"
-load "../stzString.ring"
-load "../stzStringFinder.ring"
-load "../stzStringInserter.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringFinder.ring"
+load "../../string/stzStringInserter.ring"
 ? "Step 1: Testing InsertBefore position"
 o = new stzStringInserter("Hello World")
 o.InsertBefore(6, "Beautiful ")
@@ -71,5 +68,3 @@ ok
 
 ? ""
 ? "=== ALL INSERTER TESTS PASSED ==="
-
-pf()

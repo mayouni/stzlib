@@ -3,7 +3,7 @@
 # #todo Write a #narration
 #
 # Extracted from stzStringTest.ring, block #8.
-#ERR exit 1: [ ".", ".", "." ]
+#ERR panic: integer does not fit in destination type
 
 load "../../stzBase.ring"
 

@@ -1,7 +1,7 @@
 
 #ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
 
-load "../../string/test/test_stubs.ring"
+load "../string/test_stubs.ring"
 
 # Load stz_json.dll
 cJsonLib = _stzFindDll("stz_json.dll")
@@ -12,10 +12,7 @@ else
 	return
 ok
 
-load "../stzJson.ring"
-
-pr()
-
+load "../../file/stzJson.ring"
 ? "=== StzJson Wrapper Function Tests ==="
 
 # Test 1: StzJsonIsValid
@@ -71,5 +68,3 @@ oJson = StzJsonQ('{"x":1,"y":2}')
 
 ? ""
 ? "=== All StzJson wrapper tests completed ==="
-
-pf()

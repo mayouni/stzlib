@@ -8,19 +8,16 @@
 load "test_stubs.ring"
 
 ? "Loading classes"
-load "../stzString.ring"
-load "../stzStringFinder.ring"
-load "../stzStringCaseChanger.ring"
-load "../stzStringAligner.ring"
-load "../stzStringLines.ring"
-load "../stzStringWords.ring"
-load "../stzStringSections.ring"
-load "../stzStringInserter.ring"
-load "../stzStringComparator.ring"
-load "../stzStringEncoder.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringFinder.ring"
+load "../../string/stzStringCaseChanger.ring"
+load "../../string/stzStringAligner.ring"
+load "../../string/stzStringLines.ring"
+load "../../string/stzStringWords.ring"
+load "../../string/stzStringSections.ring"
+load "../../string/stzStringInserter.ring"
+load "../../string/stzStringComparator.ring"
+load "../../string/stzStringEncoder.ring"
 nPass = 0
 nFail = 0
 
@@ -800,5 +797,3 @@ if nFail = 0
 else
     ? "=== SOME TESTS FAILED ==="
 ok
-
-pf()

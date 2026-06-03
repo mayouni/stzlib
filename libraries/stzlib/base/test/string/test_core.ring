@@ -8,10 +8,7 @@
 load "test_stubs.ring"
 
 ? "Step 2: Loading stzString"
-load "../stzString.ring"
-
-pr()
-
+load "../../string/stzString.ring"
 ? "Step 4: Creating stzString object"
 o1 = new stzString("Hello")
 ? "  Content: " + o1.Content()
@@ -22,5 +19,3 @@ o1 = new stzString("Hello")
 
 ? ""
 ? "=== ALL CORE TESTS PASSED ==="
-
-pf()

@@ -1,10 +1,7 @@
 
 #ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
 
-load "../../string/test/test_stubs.ring"
-
-pr()
-
+load "../string/test_stubs.ring"
 # Load stz_meta.dll
 cMetaLib = _stzFindDll("stz_meta.dll")
 if cMetaLib != ""
@@ -125,5 +122,3 @@ stz_meta_shutdown()
 
 ? ""
 ? "=== All meta engine tests completed ==="
-
-pf()

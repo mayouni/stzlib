@@ -1,10 +1,7 @@
 
 #ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
 
-load "../../string/test/test_stubs.ring"
-
-pr()
-
+load "../string/test_stubs.ring"
 # Load stz_url.dll
 ? "Loading stz_url.dll..."
 cUrlLib = _stzFindDll("stz_url.dll")
@@ -82,5 +79,3 @@ ok
 
 ? ""
 ? "=== All stz_url engine tests completed ==="
-
-pf()

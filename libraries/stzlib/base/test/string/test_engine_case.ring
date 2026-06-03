@@ -7,11 +7,8 @@
 load "test_stubs.ring"
 
 ? "Loading stzString + CaseChanger"
-load "../stzString.ring"
-load "../stzStringCaseChanger.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringCaseChanger.ring"
 ? ""
 ? "=== Test 1: Engine ToUpper/ToLower via stzStringCaseChanger ==="
 
@@ -65,5 +62,3 @@ oTog = new stzStringCaseChanger("Hello World")
 
 ? ""
 ? "=== ALL ENGINE CASE TESTS PASSED ==="
-
-pf()

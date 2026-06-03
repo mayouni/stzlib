@@ -1,7 +1,7 @@
 
 #ERR Error (E9) : Can't open file test_stubs.ring
 
-load "test_stubs.ring"
+load "../string/test_stubs.ring"
 
 # Load stz_bytes.dll
 ? "Loading stz_bytes.dll..."
@@ -14,10 +14,7 @@ else
 	return
 ok
 
-load "../stzBytes.ring"
-
-pr()
-
+load "../../string/stzBytes.ring"
 ? ""
 ? "=== stzBytes Engine-Backed Tests ==="
 
@@ -82,5 +79,3 @@ oB7 = new stzBytes("hello world")
 
 ? ""
 ? "=== All stzBytes tests completed ==="
-
-pf()

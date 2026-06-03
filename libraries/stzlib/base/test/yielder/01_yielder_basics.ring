@@ -11,9 +11,6 @@ load "../common/stzRingLibs.ring"
 load "../list/stzListFunc.ring"
 
 load "../list/stzYielder.ring"
-
-pr()
-
 ? "=== stzYielder Tests ==="
 
 # Test Map operations
@@ -125,5 +122,3 @@ func list2str(aList)
 	next
 	_cRes_ += "]"
 	return _cRes_
-
-pf()

@@ -1,10 +1,7 @@
 
 #ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
 
-load "../../string/test/test_stubs.ring"
-
-pr()
-
+load "../string/test_stubs.ring"
 # Load stz_locale.dll
 cLocaleLib = _stzFindDll("stz_locale.dll")
 if cLocaleLib != ""
@@ -140,5 +137,3 @@ ok
 
 ? ""
 ? "=== All locale engine tests completed ==="
-
-pf()

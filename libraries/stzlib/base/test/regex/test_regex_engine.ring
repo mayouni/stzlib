@@ -1,7 +1,7 @@
 
 #ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
 
-load "../../string/test/test_stubs.ring"
+load "../string/test_stubs.ring"
 
 # Load stz_regex.dll
 ? "Loading stz_regex.dll..."
@@ -120,9 +120,6 @@ next
 nCut2 = len(cNorm2) - len("/zig-out/bin/stz_regex.dll")
 $cEngineDir = left(cNorm2, nCut2)
 load "../../../engine/stz_regex.ring"
-
-pr()
-
 aMatches = StzRegexMatchAll("[a-z]+", "Hello World Test")
 ? "  Found " + len(aMatches) + " matches"
 if len(aMatches) = 3
@@ -133,5 +130,3 @@ ok
 
 ? ""
 ? "=== All stz_regex engine tests completed ==="
-
-pf()

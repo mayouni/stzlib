@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #294.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: spacesremoved
 
 load "../../stzBase.ring"
 

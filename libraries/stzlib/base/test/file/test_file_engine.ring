@@ -1,7 +1,7 @@
 
 #ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
 
-load "../../string/test/test_stubs.ring"
+load "../string/test_stubs.ring"
 
 # Load stz_file.dll
 ? "Loading stz_file.dll..."
@@ -14,10 +14,7 @@ else
 	return
 ok
 
-load "../stzfile.ring"
-
-pr()
-
+load "../../file/stzFile.ring"
 ? ""
 ? "=== stzFileEngine Tests ==="
 
@@ -72,5 +69,3 @@ StzDirDelete(cTmpDir)
 
 ? ""
 ? "=== All stzFileEngine tests completed ==="
-
-pf()

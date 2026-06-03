@@ -2,11 +2,8 @@
 #ERR Error (E9) : Can't open file ../stzString.ring
 
 load "test_stubs.ring"
-load "../stzString.ring"
-load "../stzStringList.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringList.ring"
 ? "Step 1: Testing ContainsCS"
 o = new stzStringList(["Hello", "World", "HELLO", "test"])
 
@@ -151,5 +148,3 @@ ok
 
 ? ""
 ? "=== ALL STRINGLIST TESTS PASSED ==="
-
-pf()

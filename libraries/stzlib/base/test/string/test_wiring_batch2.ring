@@ -2,18 +2,15 @@
 #ERR Error (E9) : Can't open file ../stzString.ring
 
 load "test_stubs.ring"
-load "../stzString.ring"
-load "../stzStringChecker.ring"
-load "../stzStringComparator.ring"
-load "../stzStringReplacer.ring"
-load "../stzStringCounter.ring"
-load "../stzStringFinder.ring"
-load "../stzStringGetter.ring"
-load "../stzStringCaseChanger.ring"
-load "../stzStringNumbers.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringChecker.ring"
+load "../../string/stzStringComparator.ring"
+load "../../string/stzStringReplacer.ring"
+load "../../string/stzStringCounter.ring"
+load "../../string/stzStringFinder.ring"
+load "../../string/stzStringGetter.ring"
+load "../../string/stzStringCaseChanger.ring"
+load "../../string/stzStringNumbers.ring"
 ? "=== Counter Tests ==="
 
 # CountAnyChar
@@ -195,5 +192,3 @@ oRpl = new stzStringReplacer("hello")
 
 ? ""
 ? "=== All batch 2+3 tests completed ==="
-
-pf()

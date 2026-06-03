@@ -5,26 +5,23 @@
 ? "Loading stubs + DLL"
 #ERR Error (E9) : Can't open file test_stubs.ring
 
-load "test_stubs.ring"
+load "../string/test_stubs.ring"
 
 ? "Loading classes"
-load "../stzString.ring"
-load "../stzStringFinder.ring"
-load "../stzStringReplacer.ring"
-load "../stzStringTrimmer.ring"
-load "../stzStringRemover.ring"
-load "../stzStringCaseChanger.ring"
-load "../stzStringGetter.ring"
-load "../stzStringDuplicates.ring"
-load "../stzStringExtractor.ring"
-load "../stzStringSplitter.ring"
-load "../stzStringConcat.ring"
-load "../stzStringBounder.ring"
-load "../stzStringRandomizer.ring"
-load "../stzStringWalker.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringFinder.ring"
+load "../../string/stzStringReplacer.ring"
+load "../../string/stzStringTrimmer.ring"
+load "../../string/stzStringRemover.ring"
+load "../../string/stzStringCaseChanger.ring"
+load "../../string/stzStringGetter.ring"
+load "../../string/stzStringDuplicates.ring"
+load "../../string/stzStringExtractor.ring"
+load "../../string/stzStringSplitter.ring"
+load "../../string/stzStringConcat.ring"
+load "../../string/stzStringBounder.ring"
+load "../../string/stzStringRandomizer.ring"
+load "../../string/stzStringWalker.ring"
 nPass = 0
 nFail = 0
 
@@ -300,5 +297,3 @@ if nFail = 0
 else
     ? "=== SOME UNICODE TESTS FAILED ==="
 ok
-
-pf()

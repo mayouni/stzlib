@@ -7,15 +7,12 @@
 
 load "test_stubs.ring"
 
-load "../stzString.ring"
-load "../stzStringFinder.ring"
-load "../stzStringReplacer.ring"
-load "../stzStringRemover.ring"
-load "../stzStringExtractor.ring"
-load "../stzStringInserter.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringFinder.ring"
+load "../../string/stzStringReplacer.ring"
+load "../../string/stzStringRemover.ring"
+load "../../string/stzStringExtractor.ring"
+load "../../string/stzStringInserter.ring"
 ? ""
 ? "=== Test: FindAsSections ==="
 oF = new stzStringFinder("hello ring what a nice ring!")
@@ -117,5 +114,3 @@ ok
 
 ? ""
 ? "=== ALL EXTENDED FINDER TESTS PASSED ==="
-
-pf()

@@ -7,17 +7,14 @@
 load "test_stubs.ring"
 
 ? "Loading classes"
-load "../stzString.ring"
-load "../stzStringFinder.ring"
-load "../stzStringBounder.ring"
-load "../stzStringFormatter.ring"
-load "../stzStringGetter.ring"
-load "../stzStringCounter.ring"
-load "../stzStringChecker.ring"
-load "../stzStringConcat.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringFinder.ring"
+load "../../string/stzStringBounder.ring"
+load "../../string/stzStringFormatter.ring"
+load "../../string/stzStringGetter.ring"
+load "../../string/stzStringCounter.ring"
+load "../../string/stzStringChecker.ring"
+load "../../string/stzStringConcat.ring"
 ? ""
 ? "=== Test: stzStringBounder ==="
 oBounder = new stzStringBounder("<<hello>> and <<world>>")
@@ -55,5 +52,3 @@ oConcat = new stzStringConcat("Hello")
 
 ? ""
 ? "=== ALL ADDITIONAL DOMAIN TESTS PASSED ==="
-
-pf()
