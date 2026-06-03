@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #513.
+#ERR Error (R14) : Calling Method without definition: findobjects
 
 load "../../stzBase.ring"
 

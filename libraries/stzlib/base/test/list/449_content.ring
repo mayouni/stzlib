@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #449.
+#ERR Error (R3) : Calling Function without definition: removenextnthoccurrences
 
 load "../../stzBase.ring"
 

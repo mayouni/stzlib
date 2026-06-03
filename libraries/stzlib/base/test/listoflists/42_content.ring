@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofliststest.ring, block #42.
+#ERR Error (R14) : Calling Method without definition: extendedtobyrepeatingitems
 
 load "../../stzBase.ring"
 

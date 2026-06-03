@@ -3,6 +3,7 @@
 # ///
 #
 # Extracted from stzlisttest.ring, block #6.
+#ERR Error (R14) : Calling Method without definition: manyremoved
 
 load "../../stzBase.ring"
 

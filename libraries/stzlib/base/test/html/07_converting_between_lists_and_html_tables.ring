@@ -3,6 +3,7 @@
 # CONVERTING BETWEEN LISTS AND HTML TABLES
 #
 # Extracted from stzHtmlTest.ring, block #7.
+#ERR Error (R3) : Calling Function without definition: listtohtmlxt
 
 load "../../stzBase.ring"
 

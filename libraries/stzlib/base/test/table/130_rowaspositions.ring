@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #130.
+#ERR Error (R14) : Calling Method without definition: rowaspositions
 
 load "../../stzBase.ring"
 

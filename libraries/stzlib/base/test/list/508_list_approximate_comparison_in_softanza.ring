@@ -3,6 +3,7 @@
 # #narration List approximate comparison in Softanza
 #
 # Extracted from stzlisttest.ring, block #508.
+#ERR Error (R14) : Calling Method without definition: isquietequalto
 
 load "../../stzBase.ring"
 

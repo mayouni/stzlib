@@ -3,6 +3,7 @@
 # Test Graphviz dot command (if installed)
 #
 # Extracted from stzsystemfunctest.ring, block #4.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

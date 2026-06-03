@@ -3,6 +3,7 @@
 # Timer-based data generation
 #
 # Extracted from stzreactivetest.ring, block #7.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #TODO Test it after adding Yield()
 #
 # Extracted from stzStringTest.ring, block #413.
+#ERR Error (R14) : Calling Method without definition: findcharswxt
 
 load "../../stzBase.ring"
 

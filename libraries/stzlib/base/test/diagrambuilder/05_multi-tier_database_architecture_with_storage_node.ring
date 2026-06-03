@@ -3,6 +3,7 @@
 # Multi-tier database architecture with storage nodes
 #
 # Extracted from stzdiagrambuildertest.ring, block #5.
+#ERR Error (R24) : Using uninitialized variable: demonstrating
 
 load "../../stzBase.ring"
 

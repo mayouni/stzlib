@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlocaletest.ring, block #77.
+#ERR Error (R3) : Calling Function without definition: language
 
 load "../../stzBase.ring"
 

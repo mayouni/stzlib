@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #203.
+#ERR Error (R14) : Calling Method without definition: replacetheserows
 
 load "../../stzBase.ring"
 

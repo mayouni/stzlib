@@ -3,6 +3,7 @@
 # Using a C# code inside Ring  #===
 #
 # Extracted from stzextincsharptest.ring, block #1.
+#ERR Error (R24) : Using uninitialized variable: console
 
 load "../../stzBase.ring"
 

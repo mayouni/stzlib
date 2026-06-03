@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzpythoncodeTest.ring, block #7.
+#ERR Error (R14) : Calling Method without definition: deepreplace
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #todo #narration PROGRAMMING THE FUTURE, LITTERALLY, IN SOFTANZA
 #
 # Extracted from stzbaturalcodetest.ring, block #3.
+#ERR Error (R14) : Calling Method without definition: isuppercasedfq
 
 load "../../stzBase.ring"
 

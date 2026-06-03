@@ -3,6 +3,7 @@
 # # we can even search inside text files for the word program
 #
 # Extracted from stzfoldertest.ring, block #25.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

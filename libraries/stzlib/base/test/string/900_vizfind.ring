@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #900.
+#ERR Error (R14) : Calling Method without definition: vizfind
 
 load "../../stzBase.ring"
 

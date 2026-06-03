@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #854.
+#ERR Error (R14) : Calling Method without definition: containsnoccurrences
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #TODO
 #
 # Extracted from stzsubstringTest.ring, block #7.
+#ERR Error (R3) : Calling Function without definition: only
 
 load "../../stzBase.ring"
 

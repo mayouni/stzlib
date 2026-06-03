@@ -3,6 +3,7 @@
 # o1 = new stzString("123---789---")
 #
 # Extracted from stzStringTest.ring, block #966.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

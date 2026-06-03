@@ -3,6 +3,7 @@
 # TODO: LOGICAL ERROR IN QT??
 #
 # Extracted from stzStringTest.ring, block #657.
+#ERR Error (R14) : Calling Method without definition: charcase
 
 load "../../stzBase.ring"
 

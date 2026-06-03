@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #905.
+#ERR Error (R14) : Calling Method without definition: boxifycharsxt
 
 load "../../stzBase.ring"
 

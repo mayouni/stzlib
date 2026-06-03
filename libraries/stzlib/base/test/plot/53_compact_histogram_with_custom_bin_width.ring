@@ -3,6 +3,7 @@
 # Compact histogram with custom bin width
 #
 # Extracted from stzPlotTest.ring, block #53.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

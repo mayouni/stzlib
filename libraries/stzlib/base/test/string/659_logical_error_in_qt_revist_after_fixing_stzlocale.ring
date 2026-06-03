@@ -3,6 +3,7 @@
 # LOGICAL ERROR IN QT: Revist after fixing stzLocale
 #
 # Extracted from stzStringTest.ring, block #659.
+#ERR Error (R14) : Calling Method without definition: lowercasedinlocale
 
 load "../../stzBase.ring"
 

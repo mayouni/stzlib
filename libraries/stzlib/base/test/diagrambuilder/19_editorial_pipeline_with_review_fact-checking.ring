@@ -3,6 +3,7 @@
 # Editorial pipeline with review, fact-checking,
 #
 # Extracted from stzdiagrambuildertest.ring, block #19.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

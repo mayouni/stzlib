@@ -3,6 +3,7 @@
 # Sample 13.1: Dialog Windows
 #
 # Extracted from stzringqmltest.ring, block #38.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

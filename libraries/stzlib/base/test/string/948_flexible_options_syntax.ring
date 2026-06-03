@@ -3,6 +3,7 @@
 # #narration FLEXIBLE OPTIONS SYNTAX
 #
 # Extracted from stzStringTest.ring, block #948.
+#ERR Error (R14) : Calling Method without definition: vizfindboxedxt
 
 load "../../stzBase.ring"
 

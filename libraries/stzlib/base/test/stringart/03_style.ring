@@ -3,6 +3,7 @@
 # */
 #
 # Extracted from stzstringarttest.ring, block #3.
+#ERR Error (R11) : Error in class name, class not found: stzstringart
 
 load "../../stzBase.ring"
 

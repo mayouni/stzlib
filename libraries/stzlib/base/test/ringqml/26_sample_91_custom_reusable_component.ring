@@ -3,6 +3,7 @@
 # Sample 9.1: Custom Reusable Component
 #
 # Extracted from stzringqmltest.ring, block #26.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

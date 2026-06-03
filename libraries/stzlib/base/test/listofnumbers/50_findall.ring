@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlistofnumberstest.ring, block #50.
+#ERR Error (R14) : Calling Method without definition: firstnitemsqrt
 
 load "../../stzBase.ring"
 

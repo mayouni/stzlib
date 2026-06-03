@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #503.
+#ERR Error (R14) : Calling Method without definition: findnextstcs
 
 load "../../stzBase.ring"
 

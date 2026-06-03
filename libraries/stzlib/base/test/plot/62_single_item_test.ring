@@ -3,6 +3,7 @@
 # Single item test
 #
 # Extracted from stzPlotTest.ring, block #62.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

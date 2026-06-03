@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #646.
+#ERR Error (R14) : Calling Method without definition: walkuntilitem
 
 load "../../stzBase.ring"
 

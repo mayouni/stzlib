@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #392.
+#ERR Error (R14) : Calling Method without definition: commonsubstrings
 
 load "../../stzBase.ring"
 

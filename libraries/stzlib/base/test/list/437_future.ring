@@ -3,6 +3,7 @@
 # #TODO (future)
 #
 # Extracted from stzlisttest.ring, block #437.
+#ERR Error (R3) : Calling Function without definition: vizfindmany
 
 load "../../stzBase.ring"
 

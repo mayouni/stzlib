@@ -1,3 +1,4 @@
+#ERR Error (R24) : Using uninitialized variable: ﻿load
 ﻿load "../stzBase.ring"
 
 ? "=== Replace & Contains Delegation Test ==="

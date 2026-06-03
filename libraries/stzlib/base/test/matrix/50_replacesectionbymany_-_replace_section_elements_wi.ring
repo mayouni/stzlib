@@ -3,6 +3,7 @@
 # ReplaceSectionByMany() - Replace section elements with multiple values
 #
 # Extracted from stzmatrixtest.ring, block #50.
+#ERR Error (R14) : Calling Method without definition: isbymanynamedparam
 
 load "../../stzBase.ring"
 

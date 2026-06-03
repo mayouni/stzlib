@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #232.
+#ERR Error (R14) : Calling Method without definition: ismadeofuniformlists
 
 load "../../stzBase.ring"
 

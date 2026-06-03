@@ -3,6 +3,7 @@
 # Testing categorical encoding
 #
 # Extracted from stzdatawranglertest.ring, block #11.
+#ERR exit 1: Error (S1) In file: 11_testing_categorical_encoding.ring
 
 load "../../stzBase.ring"
 

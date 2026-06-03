@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #88.
+#ERR Error (R14) : Calling Method without definition: allitemsareemptylists
 
 load "../../stzBase.ring"
 

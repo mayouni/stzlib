@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #325.
+#ERR Error (R14) : Calling Method without definition: numberoflevels
 
 load "../../stzBase.ring"
 

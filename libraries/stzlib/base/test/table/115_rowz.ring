@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #115.
+#ERR Error (R14) : Calling Method without definition: rowz
 
 load "../../stzBase.ring"
 

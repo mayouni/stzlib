@@ -3,6 +3,7 @@
 # #narration XML/HTML tag analysis
 #
 # Extracted from stzStringTest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: itemsandtheirnumberofoccurrence
 
 load "../../stzBase.ring"
 

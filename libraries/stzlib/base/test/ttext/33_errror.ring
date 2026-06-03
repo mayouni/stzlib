@@ -3,6 +3,7 @@
 # ///// ERRROR /////
 #
 # Extracted from stzTtexttest.ring, block #33.
+#ERR Error (R3) : Calling Function without definition: stztextgq
 
 load "../../stzBase.ring"
 

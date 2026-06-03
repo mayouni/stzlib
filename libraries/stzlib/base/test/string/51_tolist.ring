@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #51.
+#ERR Error (R14) : Calling Method without definition: tolist
 
 load "../../stzBase.ring"
 

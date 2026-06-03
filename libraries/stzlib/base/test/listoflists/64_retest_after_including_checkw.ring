@@ -3,6 +3,7 @@
 # #TODO Retest after including CheckW()
 #
 # Extracted from stzlistofliststest.ring, block #64.
+#ERR Error (R14) : Calling Method without definition: tolistinstring
 
 load "../../stzBase.ring"
 

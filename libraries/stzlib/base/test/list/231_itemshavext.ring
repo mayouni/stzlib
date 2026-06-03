@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #231.
+#ERR Error (R14) : Calling Method without definition: itemshavext
 
 load "../../stzBase.ring"
 

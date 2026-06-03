@@ -3,6 +3,7 @@
 # Understanding HttpGet - Simple web request
 #
 # Extracted from stzreactivehttptest.ring, block #1.
+#ERR Error (R3) : Calling Function without definition: download
 
 load "../../stzBase.ring"
 

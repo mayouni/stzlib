@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #140.
+#ERR Error (R14) : Calling Method without definition: countincol
 
 load "../../stzBase.ring"
 

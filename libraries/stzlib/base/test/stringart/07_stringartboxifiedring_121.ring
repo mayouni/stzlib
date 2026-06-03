@@ -3,6 +3,7 @@
 # ? StringArtBoxified("RING 1.21")
 #
 # Extracted from stzstringarttest.ring, block #7.
+#ERR Error (R3) : Calling Function without definition: stringartboxified
 
 load "../../stzBase.ring"
 

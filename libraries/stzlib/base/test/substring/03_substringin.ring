@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzsubstringTest.ring, block #3.
+#ERR Error (R14) : Calling Method without definition: substringinq
 
 load "../../stzBase.ring"
 

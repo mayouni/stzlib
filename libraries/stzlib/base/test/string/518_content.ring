@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #518.
+#ERR Error (R14) : Calling Method without definition: swap
 
 load "../../stzBase.ring"
 

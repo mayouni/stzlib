@@ -3,6 +3,7 @@
 # #TODO Make a narration
 #
 # Extracted from stztabletest.ring, block #227.
+#ERR Error (R14) : Calling Method without definition: fromcsv
 
 load "../../stzBase.ring"
 

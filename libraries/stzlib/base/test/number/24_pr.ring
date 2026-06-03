@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stznumbertest.ring, block #24.
+#ERR Error (R3) : Calling Function without definition: 3randomnumbers
 
 load "../../stzBase.ring"
 

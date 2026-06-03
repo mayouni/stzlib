@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #555.
+#ERR Error (R14) : Calling Method without definition: splittedtopartsofnitemsxt
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #34.
+#ERR Error (R14) : Calling Method without definition: findcolsexcept
 
 load "../../stzBase.ring"
 

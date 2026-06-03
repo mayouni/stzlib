@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #474.
+#ERR Error (R14) : Calling Method without definition: findfirstoccurrence
 
 load "../../stzBase.ring"
 

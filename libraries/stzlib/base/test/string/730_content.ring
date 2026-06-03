@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #730.
+#ERR Error (R3) : Calling Function without definition: hash
 
 load "../../stzBase.ring"
 

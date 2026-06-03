@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #684.
+#ERR Error (R14) : Calling Method without definition: isuppercaseof
 
 load "../../stzBase.ring"
 

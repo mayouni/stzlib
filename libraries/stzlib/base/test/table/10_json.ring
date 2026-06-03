@@ -3,6 +3,7 @@
 # JSON
 #
 # Extracted from stztabletest.ring, block #10.
+#ERR Error (R14) : Calling Method without definition: tojsonxt
 
 load "../../stzBase.ring"
 

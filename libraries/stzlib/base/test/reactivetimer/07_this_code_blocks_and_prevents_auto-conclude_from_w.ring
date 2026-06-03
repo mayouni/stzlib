@@ -3,6 +3,7 @@
 # This code BLOCKS and prevents auto-conclude from working!
 #
 # Extracted from stzreactivetimertest.ring, block #7.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

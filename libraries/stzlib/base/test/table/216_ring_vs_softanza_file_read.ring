@@ -3,6 +3,7 @@
 # Ring vs Softanza file read()
 #
 # Extracted from stztabletest.ring, block #216.
+#ERR Error (R14) : Calling Method without definition: fromcsv
 
 load "../../stzBase.ring"
 

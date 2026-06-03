@@ -3,6 +3,7 @@
 # TODO
 #
 # Extracted from stzStringTest.ring, block #81.
+#ERR Error (R14) : Calling Method without definition: replacemanywithmany
 
 load "../../stzBase.ring"
 

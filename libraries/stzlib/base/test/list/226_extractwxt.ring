@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #226.
+#ERR Error (R14) : Calling Method without definition: extractwxt
 
 load "../../stzBase.ring"
 

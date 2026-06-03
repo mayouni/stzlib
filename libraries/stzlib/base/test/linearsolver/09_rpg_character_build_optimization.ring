@@ -3,6 +3,7 @@
 # RPG Character Build Optimization
 #
 # Extracted from stzlinearsolvertest.ring, block #9.
+#ERR Error (R5) : Can't access the list item, Object is not list
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #605.
+#ERR Error (R14) : Calling Method without definition: marquer
 
 load "../../stzBase.ring"
 

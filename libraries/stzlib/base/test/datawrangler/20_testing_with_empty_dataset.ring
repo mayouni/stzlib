@@ -3,6 +3,7 @@
 # Testing with empty dataset
 #
 # Extracted from stzdatawranglertest.ring, block #20.
+#ERR Error (R24) : Using uninitialized variable: clean
 
 load "../../stzBase.ring"
 

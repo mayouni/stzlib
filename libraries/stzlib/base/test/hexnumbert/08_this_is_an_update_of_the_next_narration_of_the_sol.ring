@@ -3,6 +3,7 @@
 # #NOTE This is an update of the next narration of the solution
 #
 # Extracted from stzhexnumbertTest.ring, block #8.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

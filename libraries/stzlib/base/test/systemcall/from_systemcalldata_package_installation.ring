@@ -3,6 +3,7 @@
 # PACKAGE INSTALLATION
 #
 # Extracted from stzsystemcalldatatest.ring, block #25.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

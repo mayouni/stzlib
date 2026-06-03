@@ -3,6 +3,7 @@
 # EXAMPLE 5: Custom Plan Creation
 #
 # Extracted from stzdatasettest.ring, block #47.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

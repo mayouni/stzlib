@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #11.
+#ERR Error (R14) : Calling Method without definition: fromjson
 
 load "../../stzBase.ring"
 

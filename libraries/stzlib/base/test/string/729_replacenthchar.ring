@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #729.
+#ERR Error (R14) : Calling Method without definition: replacenthcharq
 
 load "../../stzBase.ring"
 

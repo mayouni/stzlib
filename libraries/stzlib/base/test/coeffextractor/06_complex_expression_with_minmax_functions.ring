@@ -3,6 +3,7 @@
 # Complex expression with min/max functions
 #
 # Extracted from stzcoeffextractortest.ring, block #6.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

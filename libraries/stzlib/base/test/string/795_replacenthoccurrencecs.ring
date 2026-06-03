@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #795.
+#ERR Error (R14) : Calling Method without definition: replacenthoccurrencecsq
 
 load "../../stzBase.ring"
 

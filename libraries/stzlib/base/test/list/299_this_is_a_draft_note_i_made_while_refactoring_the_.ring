@@ -3,6 +3,7 @@
 # #NOTE: This is a draft note I made while refactoring the naming startegy
 #
 # Extracted from stzlisttest.ring, block #299.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

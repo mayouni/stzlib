@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #743.
+#ERR Error (R14) : Calling Method without definition: removecharswhereq
 
 load "../../stzBase.ring"
 

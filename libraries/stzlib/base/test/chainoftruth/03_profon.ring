@@ -3,6 +3,7 @@
 # profon()
 #
 # Extracted from stzchainoftruthtest.ring, block #3.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

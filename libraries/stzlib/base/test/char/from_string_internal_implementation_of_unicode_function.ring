@@ -3,6 +3,7 @@
 # #narration INTERNAL IMPLEMENTATION OF UNICODE() FUNCTION
 #
 # Extracted from stzStringTest.ring, block #853.
+#ERR Error (R3) : Calling Function without definition: stzcharerror
 
 load "../../stzBase.ring"
 

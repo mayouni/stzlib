@@ -3,6 +3,7 @@
 # Sample 1.2: Understanding the Rectangle - The Building Block
 #
 # Extracted from stzringqmltest.ring, block #2.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

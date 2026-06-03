@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #391.
+#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
 
 load "../../stzBase.ring"
 

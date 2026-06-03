@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofliststest.ring, block #25.
+#ERR Error (R14) : Calling Method without definition: allitemsareequalcs
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #561.
+#ERR Error (R14) : Calling Method without definition: splittopartsofnchars
 
 load "../../stzBase.ring"
 

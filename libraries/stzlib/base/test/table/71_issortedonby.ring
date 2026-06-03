@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stztabletest.ring, block #71.
+#ERR Error (R14) : Calling Method without definition: issortedonby
 
 load "../../stzBase.ring"
 

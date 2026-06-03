@@ -3,6 +3,7 @@
 # Advanced reactive patterns for real-world applications
 #
 # Extracted from stzreactivefunctest.ring, block #6.
+#ERR Error (R24) : Using uninitialized variable: transformeddata
 
 load "../../stzBase.ring"
 

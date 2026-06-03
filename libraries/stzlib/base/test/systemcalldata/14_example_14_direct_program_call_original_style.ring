@@ -3,6 +3,7 @@
 # EXAMPLE 14: Direct Program Call (Original Style)
 #
 # Extracted from stzsystemcalldatatest.ring, block #14.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

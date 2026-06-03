@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "*", "A*B*C", "*" ])
 #
 # Extracted from stzlistofstringstest.ring, block #28.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

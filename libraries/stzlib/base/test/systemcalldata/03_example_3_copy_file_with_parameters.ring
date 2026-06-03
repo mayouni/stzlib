@@ -3,6 +3,7 @@
 # EXAMPLE 3: Copy File with Parameters
 #
 # Extracted from stzsystemcalldatatest.ring, block #3.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

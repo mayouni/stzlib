@@ -3,6 +3,7 @@
 # Folder Tree Display
 #
 # Extracted from stzfoldertest.ring, block #24.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

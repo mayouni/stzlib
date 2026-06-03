@@ -3,6 +3,7 @@
 # Filter by Region and Quarter
 #
 # Extracted from stztabletest.ring, block #218.
+#ERR Error (R14) : Calling Method without definition: filterbycq
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Detecting cross-lane overlaps
 #
 # Extracted from stzlistoftimelinestest.ring, block #9.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

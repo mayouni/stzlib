@@ -3,6 +3,7 @@
 # # Text paintings in HUMAN BODY PARTS category
 #
 # Extracted from stzstringarttest.ring, block #18.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # EXAMPLE 7: Comparative Analysis Plan
 #
 # Extracted from stzdatasettest.ring, block #49.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

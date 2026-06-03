@@ -3,6 +3,7 @@
 # TODO
 #
 # Extracted from stzStringTest.ring, block #311.
+#ERR Error (R14) : Calling Method without definition: insertaftereachncharsxt
 
 load "../../stzBase.ring"
 

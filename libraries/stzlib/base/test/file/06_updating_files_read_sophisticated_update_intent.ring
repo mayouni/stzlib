@@ -3,6 +3,7 @@
 # UPDATING FILES (read + sophisticated update intent)
 #
 # Extracted from stzfiletest.ring, block #6.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #491.
+#ERR Error (R14) : Calling Method without definition: findspaces
 
 load "../../stzBase.ring"
 

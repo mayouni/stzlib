@@ -3,6 +3,7 @@
 # #narration TRAILING CHAR, TRAILING CHARS, AND TRAILiNG SUBSTRING
 #
 # Extracted from stzStringTest.ring, block #672.
+#ERR Error (R14) : Calling Method without definition: hastrailingsubstring
 
 load "../../stzBase.ring"
 

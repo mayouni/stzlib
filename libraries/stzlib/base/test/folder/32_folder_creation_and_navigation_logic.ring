@@ -3,6 +3,7 @@
 # Folder creation and navigation logic
 #
 # Extracted from stzfoldertest.ring, block #32.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

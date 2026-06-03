@@ -3,6 +3,7 @@
 # Multi-level decision logic for user authentication
 #
 # Extracted from stzdiagrambuildertest.ring, block #7.
+#ERR Error (R24) : Using uninitialized variable: demonstrating
 
 load "../../stzBase.ring"
 

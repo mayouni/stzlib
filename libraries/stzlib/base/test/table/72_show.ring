@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stztabletest.ring, block #72.
+#ERR Error (R14) : Calling Method without definition: sorton
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Example 9: Complex Quantifiers
 #
 # Extracted from stzregexmakertest.ring, block #24.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

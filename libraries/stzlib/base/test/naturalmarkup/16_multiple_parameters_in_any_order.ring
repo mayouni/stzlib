@@ -3,6 +3,7 @@
 # Multiple parameters in any order
 #
 # Extracted from stznaturalmarkuptest.ring, block #16.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

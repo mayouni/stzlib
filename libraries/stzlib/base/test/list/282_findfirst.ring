@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #282.
+#ERR Error (R14) : Calling Method without definition: findnext
 
 load "../../stzBase.ring"
 

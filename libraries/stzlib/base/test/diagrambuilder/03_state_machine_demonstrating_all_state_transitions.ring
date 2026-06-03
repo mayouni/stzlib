@@ -3,6 +3,7 @@
 # State machine demonstrating all state transitions
 #
 # Extracted from stzdiagrambuildertest.ring, block #3.
+#ERR Error (R24) : Using uninitialized variable: with
 
 load "../../stzBase.ring"
 

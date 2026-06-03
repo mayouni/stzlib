@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzjsontest.ring, block #2.
+#ERR Error (R3) : Calling Function without definition: isqbytearray
 
 load "../../stzBase.ring"
 

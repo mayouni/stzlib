@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #573.
+#ERR Error (R14) : Calling Method without definition: sortinascending
 
 load "../../stzBase.ring"
 

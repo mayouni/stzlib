@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofcharstest.ring, block #5.
+#ERR Error (R11) : Error in class name, class not found: stzlistofchars
 
 load "../../stzBase.ring"
 

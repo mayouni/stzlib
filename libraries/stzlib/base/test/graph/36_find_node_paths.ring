@@ -3,6 +3,7 @@
 # Find Node Paths
 #
 # Extracted from stzgraphtest.ring, block #36.
+#ERR panic: integer part of floating point value out of bounds
 
 load "../../stzBase.ring"
 

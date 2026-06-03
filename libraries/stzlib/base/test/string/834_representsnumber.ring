@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #834.
+#ERR Error (R14) : Calling Method without definition: numberform
 
 load "../../stzBase.ring"
 

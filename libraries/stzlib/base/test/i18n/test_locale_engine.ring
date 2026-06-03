@@ -1,3 +1,6 @@
+
+#ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
+
 load "../../string/test/test_stubs.ring"
 
 pr()

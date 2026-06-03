@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #924.
+#ERR Error (R14) : Calling Method without definition: issortedindescending
 
 load "../../stzBase.ring"
 

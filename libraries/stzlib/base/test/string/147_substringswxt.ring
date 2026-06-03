@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stzStringTest.ring, block #147.
+#ERR Error (R14) : Calling Method without definition: substringswxt
 
 load "../../stzBase.ring"
 

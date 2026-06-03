@@ -3,6 +3,7 @@
 # Example 3: XML-like tags
 #
 # Extracted from stzregexmakertest.ring, block #19.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

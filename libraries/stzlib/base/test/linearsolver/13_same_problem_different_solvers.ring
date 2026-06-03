@@ -3,6 +3,7 @@
 # Same problem, different solvers
 #
 # Extracted from stzlinearsolvertest.ring, block #13.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

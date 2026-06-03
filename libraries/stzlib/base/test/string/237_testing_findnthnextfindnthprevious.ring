@@ -3,6 +3,7 @@
 # # Testing FindNthNext()/FindNthPrevious
 #
 # Extracted from stzStringTest.ring, block #237.
+#ERR Error (R3) : Calling Function without definition: unicodedataasstring
 
 load "../../stzBase.ring"
 

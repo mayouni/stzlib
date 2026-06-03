@@ -3,6 +3,7 @@
 # Insurance claims processing with fraud detection,
 #
 # Extracted from stzdiagrambuildertest.ring, block #17.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

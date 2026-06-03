@@ -3,6 +3,7 @@
 # ? StringArtStyles()
 #
 # Extracted from stzstringarttest.ring, block #2.
+#ERR Error (R3) : Calling Function without definition: setstringartstyle
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #208.
+#ERR panic: @memcpy arguments alias
 
 load "../../stzBase.ring"
 

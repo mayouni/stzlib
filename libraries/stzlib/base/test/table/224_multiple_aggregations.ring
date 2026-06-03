@@ -3,6 +3,7 @@
 # Multiple Aggregations
 #
 # Extracted from stztabletest.ring, block #224.
+#ERR Error (R14) : Calling Method without definition: aggregate
 
 load "../../stzBase.ring"
 

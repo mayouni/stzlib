@@ -3,6 +3,7 @@
 # ? StringArt("STZ-CORE") + NL
 #
 # Extracted from stzstringarttest.ring, block #5.
+#ERR Error (R3) : Calling Function without definition: stringartboxified
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #206.
+#ERR Error (R14) : Calling Method without definition: isfromfilenamedparam
 
 load "../../stzBase.ring"
 

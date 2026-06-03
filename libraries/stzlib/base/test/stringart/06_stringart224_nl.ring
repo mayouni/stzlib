@@ -3,6 +3,7 @@
 # ? StringArt("2+2=4") + nl
 #
 # Extracted from stzstringarttest.ring, block #6.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #35.
+#ERR Error (R14) : Calling Method without definition: charname
 
 load "../../stzBase.ring"
 

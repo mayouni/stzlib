@@ -3,6 +3,7 @@
 # Manufacturing optimization with integer constraints
 #
 # Extracted from stzlinearsolvertest.ring, block #3.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

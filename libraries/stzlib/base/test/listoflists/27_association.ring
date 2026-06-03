@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofliststest.ring, block #27.
+#ERR Error (C9) : Brackets ']' is missing
 
 load "../../stzBase.ring"
 

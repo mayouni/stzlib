@@ -3,6 +3,7 @@
 # #narration "What You Think Is What You Write"
 #
 # Extracted from stzStringTest.ring, block #451.
+#ERR Error (R14) : Calling Method without definition: charsq
 
 load "../../stzBase.ring"
 

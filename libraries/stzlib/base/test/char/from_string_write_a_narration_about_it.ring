@@ -3,6 +3,7 @@
 # #todo Write a narration about it
 #
 # Extracted from stzStringTest.ring, block #858.
+#ERR Error (R14) : Calling Method without definition: partsusingxt
 
 load "../../stzBase.ring"
 

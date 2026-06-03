@@ -3,6 +3,7 @@
 # TODO (future)
 #
 # Extracted from stzStringTest.ring, block #775.
+#ERR Error (R3) : Calling Function without definition: removerepeatedleadingcharsw
 
 load "../../stzBase.ring"
 

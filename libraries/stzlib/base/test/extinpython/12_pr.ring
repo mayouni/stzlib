@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzextinpythonTest.ring, block #12.
+#ERR Error (R14) : Calling Method without definition: appendedwith
 
 load "../../stzBase.ring"
 

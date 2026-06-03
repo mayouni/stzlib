@@ -3,6 +3,7 @@
 # Using ..ST() and ..STD() extension
 #
 # Extracted from stzStringTest.ring, block #317.
+#ERR Error (R14) : Calling Method without definition: findnthst
 
 load "../../stzBase.ring"
 

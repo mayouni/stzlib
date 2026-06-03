@@ -3,6 +3,7 @@
 # ok!
 #
 # Extracted from stzchainoftruthtest.ring, block #9.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

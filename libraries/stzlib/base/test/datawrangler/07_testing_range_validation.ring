@@ -3,6 +3,7 @@
 # Testing range validation
 #
 # Extracted from stzdatawranglertest.ring, block #7.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #todo #narration
 #
 # Extracted from stzStringTest.ring, block #947.
+#ERR Error (R14) : Calling Method without definition: vizfind
 
 load "../../stzBase.ring"
 

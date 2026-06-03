@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #632.
+#ERR Error (R3) : Calling Function without definition: sortedinascending
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Using ..ST() + ..D() + ZZ() prefixes
 #
 # Extracted from stzStringTest.ring, block #319.
+#ERR Error (R14) : Calling Method without definition: findnthstdzz
 
 load "../../stzBase.ring"
 

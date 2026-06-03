@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #856.
+#ERR Error (R14) : Calling Method without definition: onlynumbers
 
 load "../../stzBase.ring"
 

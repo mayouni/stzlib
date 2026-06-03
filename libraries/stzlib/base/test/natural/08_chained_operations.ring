@@ -3,6 +3,7 @@
 # CHAINED OPERATIONS
 #
 # Extracted from stznaturaltest.ring, block #8.
+#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

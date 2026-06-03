@@ -3,6 +3,7 @@
 # Expression with square root
 #
 # Extracted from stzcoeffextractortest.ring, block #10.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

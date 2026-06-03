@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #429.
+#ERR Error (R14) : Calling Method without definition: ismadeofthese
 
 load "../../stzBase.ring"
 

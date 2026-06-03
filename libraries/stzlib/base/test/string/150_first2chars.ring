@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #150.
+#ERR Error (R14) : Calling Method without definition: first2chars
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Game economy balancing
 #
 # Extracted from stzlinearsolvertest.ring, block #10.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

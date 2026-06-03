@@ -3,6 +3,7 @@
 # HR workflow for employee leave approval
 #
 # Extracted from stzdiagrambuildertest.ring, block #18.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

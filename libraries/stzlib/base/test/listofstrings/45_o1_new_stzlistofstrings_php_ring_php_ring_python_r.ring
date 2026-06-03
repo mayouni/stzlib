@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
 #
 # Extracted from stzlistofstringstest.ring, block #45.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

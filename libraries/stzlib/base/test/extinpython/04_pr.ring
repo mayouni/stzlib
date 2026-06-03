@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzextinpythonTest.ring, block #4.
+#ERR Error (R14) : Calling Method without definition: numberofoccurrenceq
 
 load "../../stzBase.ring"
 

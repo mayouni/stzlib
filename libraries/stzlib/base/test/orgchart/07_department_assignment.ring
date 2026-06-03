@@ -21,7 +21,6 @@ oOrg {
     
     ? NodeProperty(:@vp_eng, :@eng_dept) #--> "engineering"
 }
-#ERR Inexistant node key or/and property!
 # In method nodeproperty()
 
 pf()

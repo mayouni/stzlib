@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofbytestest.ring, block #12.
+#ERR Error (R11) : Error in class name, class not found: qbytearray
 
 load "../../stzBase.ring"
 

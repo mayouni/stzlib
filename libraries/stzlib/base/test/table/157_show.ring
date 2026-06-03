@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #157.
+#ERR Error (R14) : Calling Method without definition: eraserow
 
 load "../../stzBase.ring"
 

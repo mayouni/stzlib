@@ -3,6 +3,7 @@
 # */
 #
 # Extracted from stzsubstringTest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: substringin
 
 load "../../stzBase.ring"
 

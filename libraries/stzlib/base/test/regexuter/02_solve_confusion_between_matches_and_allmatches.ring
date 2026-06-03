@@ -3,6 +3,7 @@
 # #TODO: solve confusion between Matches() and AllMatches()
 #
 # Extracted from stzregexutertest.ring, block #2.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

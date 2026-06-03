@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #668.
+#ERR Error (R14) : Calling Method without definition: trailingchar
 
 load "../../stzBase.ring"
 

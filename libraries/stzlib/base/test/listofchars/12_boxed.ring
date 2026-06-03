@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofcharstest.ring, block #12.
+#ERR exit 1: Line 79 Bad parameters value, error in length!
 
 load "../../stzBase.ring"
 

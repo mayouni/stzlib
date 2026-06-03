@@ -3,6 +3,7 @@
 # Sample 8.3: ListModel and Repeater
 #
 # Extracted from stzringqmltest.ring, block #25.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

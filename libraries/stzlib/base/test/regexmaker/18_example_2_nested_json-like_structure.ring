@@ -3,6 +3,7 @@
 # Example 2: Nested JSON-like structure
 #
 # Extracted from stzregexmakertest.ring, block #18.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

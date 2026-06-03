@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #336.
+#ERR Error (R14) : Calling Method without definition: sectionsbetween
 
 load "../../stzBase.ring"
 

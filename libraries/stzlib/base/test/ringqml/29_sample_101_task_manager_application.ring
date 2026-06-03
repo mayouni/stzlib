@@ -3,6 +3,7 @@
 # Sample 10.1: Task Manager Application
 #
 # Extracted from stzringqmltest.ring, block #29.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

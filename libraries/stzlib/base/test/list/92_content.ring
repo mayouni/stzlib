@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #92.
+#ERR Error (R14) : Calling Method without definition: stringifyandreplace
 
 load "../../stzBase.ring"
 

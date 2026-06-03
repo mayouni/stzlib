@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #288.
+#ERR Error (R14) : Calling Method without definition: finddupsecutivesubstring
 
 load "../../stzBase.ring"
 

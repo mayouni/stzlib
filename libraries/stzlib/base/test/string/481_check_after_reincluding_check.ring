@@ -3,6 +3,7 @@
 # #TODO check after reincluding check()
 #
 # Extracted from stzStringTest.ring, block #481.
+#ERR Error (R14) : Calling Method without definition: allcharsarext
 
 load "../../stzBase.ring"
 

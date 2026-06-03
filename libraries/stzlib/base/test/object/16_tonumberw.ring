@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzObjectTest.ring, block #16.
+#ERR panic: integer does not fit in destination type
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Using ..Z() and ..ZZ() extensions
 #
 # Extracted from stzStringTest.ring, block #313.
+#ERR Error (R14) : Calling Method without definition: firstz
 
 load "../../stzBase.ring"
 

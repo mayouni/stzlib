@@ -3,6 +3,7 @@
 # IMAGE BATCH PROCESSING
 #
 # Extracted from stzsystemcalldatatest.ring, block #16.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

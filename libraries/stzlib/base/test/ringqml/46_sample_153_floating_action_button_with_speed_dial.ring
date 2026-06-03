@@ -3,6 +3,7 @@
 # Sample 15.3: Floating Action Button with Speed Dial
 #
 # Extracted from stzringqmltest.ring, block #46.
+#ERR exit 1: Error (S1) In file: 46_sample_153_floating_action_button_with_speed_dial.ring
 
 load "../../stzBase.ring"
 

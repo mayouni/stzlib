@@ -3,6 +3,7 @@
 # #TODO Check output!
 #
 # Extracted from stzccodetest.ring, block #14.
+#ERR panic: @memcpy arguments alias
 
 load "../../stzBase.ring"
 

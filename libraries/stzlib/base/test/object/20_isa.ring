@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzObjectTest.ring, block #20.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

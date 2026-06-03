@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #187.
+#ERR Error (R14) : Calling Method without definition: findnthincol
 
 load "../../stzBase.ring"
 

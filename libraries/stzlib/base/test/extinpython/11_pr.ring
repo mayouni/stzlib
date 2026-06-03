@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzextinpythonTest.ring, block #11.
+#ERR Error (R14) : Calling Method without definition: interpolated
 
 load "../../stzBase.ring"
 

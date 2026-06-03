@@ -3,6 +3,7 @@
 # Remove Single Node
 #
 # Extracted from stzdiagramtest.ring, block #43.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

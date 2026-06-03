@@ -3,6 +3,7 @@
 # Q([ 1:2, 5:8, 10:12 ]){
 #
 # Extracted from stzGlobalTest.ring, block #44.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

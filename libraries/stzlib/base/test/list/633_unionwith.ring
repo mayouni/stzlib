@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #633.
+#ERR Error (R14) : Calling Method without definition: intersectionwith
 
 load "../../stzBase.ring"
 

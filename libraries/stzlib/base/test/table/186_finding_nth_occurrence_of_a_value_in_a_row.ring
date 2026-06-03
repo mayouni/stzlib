@@ -3,6 +3,7 @@
 # // Finding nth occurrence of a value in a row
 #
 # Extracted from stztabletest.ring, block #186.
+#ERR Error (R14) : Calling Method without definition: findnthinrow
 
 load "../../stzBase.ring"
 

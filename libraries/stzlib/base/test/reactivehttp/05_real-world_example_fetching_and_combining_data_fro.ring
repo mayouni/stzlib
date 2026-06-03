@@ -3,6 +3,7 @@
 # Real-world example: Fetching and combining data from multiple APIs
 #
 # Extracted from stzreactivehttptest.ring, block #5.
+#ERR Error (R3) : Calling Function without definition: download
 
 load "../../stzBase.ring"
 

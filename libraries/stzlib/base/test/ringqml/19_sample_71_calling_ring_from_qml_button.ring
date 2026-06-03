@@ -3,6 +3,7 @@
 # Sample 7.1: Calling Ring from QML Button
 #
 # Extracted from stzringqmltest.ring, block #19.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

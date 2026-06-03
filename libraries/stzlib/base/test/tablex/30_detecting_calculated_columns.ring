@@ -3,6 +3,7 @@
 # Detecting calculated columns
 #
 # Extracted from stztablextest.ring, block #30.
+#ERR Error (R14) : Calling Method without definition: addcalculatedcol
 
 load "../../stzBase.ring"
 

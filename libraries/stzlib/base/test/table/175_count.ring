@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #175.
+#ERR Error (R14) : Calling Method without definition: countofcell
 
 load "../../stzBase.ring"
 

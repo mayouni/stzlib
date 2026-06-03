@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #138.
+#ERR Error (R14) : Calling Method without definition: extendtowithcharsrepeated
 
 load "../../stzBase.ring"
 

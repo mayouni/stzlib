@@ -3,6 +3,7 @@
 # # StringArtXT() does not alter default c
 #
 # Extracted from stzstringarttest.ring, block #1.
+#ERR Error (R3) : Calling Function without definition: defaultstringartstyle
 
 load "../../stzBase.ring"
 

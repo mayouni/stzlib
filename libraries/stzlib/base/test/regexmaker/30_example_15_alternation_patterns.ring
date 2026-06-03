@@ -3,6 +3,7 @@
 # Example 15: Alternation Patterns
 #
 # Extracted from stzregexmakertest.ring, block #30.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

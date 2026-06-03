@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #435.
+#ERR Error (R3) : Calling Function without definition: vizfind
 
 load "../../stzBase.ring"
 

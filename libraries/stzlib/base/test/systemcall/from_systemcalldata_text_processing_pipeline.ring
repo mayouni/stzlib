@@ -3,6 +3,7 @@
 # TEXT PROCESSING PIPELINE
 #
 # Extracted from stzsystemcalldatatest.ring, block #26.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

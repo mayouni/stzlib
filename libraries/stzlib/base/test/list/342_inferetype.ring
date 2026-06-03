@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #342.
+#ERR Error (R14) : Calling Method without definition: inferetype
 
 load "../../stzBase.ring"
 

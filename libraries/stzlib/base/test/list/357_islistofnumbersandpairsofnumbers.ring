@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #357.
+#ERR Error (R14) : Calling Method without definition: islistofnumbersandpairsofnumbers
 
 load "../../stzBase.ring"
 

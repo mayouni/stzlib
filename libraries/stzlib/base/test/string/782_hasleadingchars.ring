@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #782.
+#ERR Error (R14) : Calling Method without definition: leadingchar
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Example 5: Single Level No Children
 #
 # Extracted from stzregexmakertest.ring, block #21.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

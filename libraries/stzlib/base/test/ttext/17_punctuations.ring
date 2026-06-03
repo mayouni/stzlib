@@ -3,6 +3,7 @@
 # ..........................................................
 #
 # Extracted from stzTtexttest.ring, block #17.
+#ERR Error (R14) : Calling Method without definition: fromurl
 
 load "../../stzBase.ring"
 

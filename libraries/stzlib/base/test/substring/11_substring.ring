@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzsubstringTest.ring, block #11.
+#ERR Error (R11) : Error in class name, class not found: stzsubstring
 
 load "../../stzBase.ring"
 

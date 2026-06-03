@@ -3,6 +3,7 @@
 # # Text paintings in ENVIRONMENT category
 #
 # Extracted from stzstringarttest.ring, block #10.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

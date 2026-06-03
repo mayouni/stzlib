@@ -3,6 +3,7 @@
 # EXAMPLE 12: Calculate Checksum
 #
 # Extracted from stzsystemcalldatatest.ring, block #12.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

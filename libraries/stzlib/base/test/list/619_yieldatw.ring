@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #619.
+#ERR Error (R14) : Calling Method without definition: yieldatw
 
 load "../../stzBase.ring"
 

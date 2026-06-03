@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #60.
+#ERR Error (R14) : Calling Method without definition: spacifysubstringusing
 
 load "../../stzBase.ring"
 

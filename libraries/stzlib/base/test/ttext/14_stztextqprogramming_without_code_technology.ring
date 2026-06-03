@@ -3,6 +3,7 @@
 # StzTextQ("Programming Without Code Technology") {
 #
 # Extracted from stzTtexttest.ring, block #14.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #  BENCHMARK FOR C LANGAUGE  # TODO Check error
 #
 # Extracted from stzextercodetest.ring, block #41.
+#ERR Error (R31) : Trying to destroy the object using the self reference
 
 load "../../stzBase.ring"
 

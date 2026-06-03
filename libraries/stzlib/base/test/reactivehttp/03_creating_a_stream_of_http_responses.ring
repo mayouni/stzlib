@@ -3,6 +3,7 @@
 # Creating a stream of HTTP responses
 #
 # Extracted from stzreactivehttptest.ring, block #3.
+#ERR Error (R3) : Calling Function without definition: download
 
 load "../../stzBase.ring"
 

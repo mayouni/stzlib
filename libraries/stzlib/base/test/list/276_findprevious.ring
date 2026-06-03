@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #276.
+#ERR Error (R14) : Calling Method without definition: findprevious
 
 load "../../stzBase.ring"
 

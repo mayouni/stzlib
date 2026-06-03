@@ -3,6 +3,7 @@
 # Same process flow using LeftRight layout
 #
 # Extracted from stzdiagrambuildertest.ring, block #11.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

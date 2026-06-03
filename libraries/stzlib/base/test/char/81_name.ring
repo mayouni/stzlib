@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #81.
+#ERR Error (R14) : Calling Method without definition: isturnedchar
 
 load "../../stzBase.ring"
 

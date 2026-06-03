@@ -3,6 +3,7 @@
 # Example 1: Basic Cluster Setup (3 lines to create enterprise-grade clustering)
 #
 # Extracted from stzappserverclustertest.ring, block #1.
+#ERR Error (R3) : Calling Function without definition: init
 
 load "../../stzBase.ring"
 

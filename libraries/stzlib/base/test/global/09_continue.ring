@@ -3,6 +3,7 @@
 # Continue
 #
 # Extracted from stzGlobalTest.ring, block #9.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

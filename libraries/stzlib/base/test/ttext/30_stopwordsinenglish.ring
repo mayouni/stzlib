@@ -3,6 +3,7 @@
 # # ? StopWordsIn(:english)
 #
 # Extracted from stzTtexttest.ring, block #30.
+#ERR Error (R14) : Calling Method without definition: isstopwordin
 
 load "../../stzBase.ring"
 

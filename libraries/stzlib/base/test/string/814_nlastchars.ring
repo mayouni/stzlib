@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #814.
+#ERR Error (R14) : Calling Method without definition: nlastcharsq
 
 load "../../stzBase.ring"
 

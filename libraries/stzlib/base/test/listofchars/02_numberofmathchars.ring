@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stzlistofcharstest.ring, block #2.
+#ERR Error (R24) : Using uninitialized variable: $anmathunicodes
 
 load "../../stzBase.ring"
 

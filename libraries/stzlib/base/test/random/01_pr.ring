@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzrandomtest.ring, block #1.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

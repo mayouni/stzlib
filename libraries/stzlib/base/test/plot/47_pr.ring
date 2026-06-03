@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzPlotTest.ring, block #47.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

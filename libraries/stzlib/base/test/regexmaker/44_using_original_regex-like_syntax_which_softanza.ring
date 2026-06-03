@@ -3,6 +3,7 @@
 # Using original regex-like syntax (which Softanza
 #
 # Extracted from stzregexmakertest.ring, block #44.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

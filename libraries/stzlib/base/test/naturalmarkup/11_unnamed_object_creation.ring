@@ -3,6 +3,7 @@
 # Unnamed object creation
 #
 # Extracted from stznaturalmarkuptest.ring, block #11.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

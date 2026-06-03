@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #267.
+#ERR Error (R14) : Calling Method without definition: deepfindboundedbyzz
 
 load "../../stzBase.ring"
 

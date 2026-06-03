@@ -3,6 +3,7 @@
 # TURNED NUMBERS
 #
 # Extracted from stzchartest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: names
 
 load "../../stzBase.ring"
 

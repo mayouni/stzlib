@@ -3,6 +3,7 @@
 # Equal values test
 #
 # Extracted from stzPlotTest.ring, block #59.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

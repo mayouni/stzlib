@@ -3,6 +3,7 @@
 # What you learned with these examples:
 #
 # Extracted from stzreactivetimertest.ring, block #1.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Sample 4.3: Icons and Images
 #
 # Extracted from stzringqmltest.ring, block #13.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

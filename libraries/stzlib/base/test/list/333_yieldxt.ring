@@ -3,6 +3,7 @@
 # #TODO
 #
 # Extracted from stzlisttest.ring, block #333.
+#ERR Error (R14) : Calling Method without definition: yieldxt
 
 load "../../stzBase.ring"
 

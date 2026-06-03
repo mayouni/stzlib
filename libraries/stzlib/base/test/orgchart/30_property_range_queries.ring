@@ -3,6 +3,7 @@
 # Property range queries
 #
 # Extracted from stzorgcharttest.ring, block #30.
+#ERR Error (R3) : Calling Function without definition: nodeswithpropertyxt
 
 load "../../stzBase.ring"
 

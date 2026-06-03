@@ -3,6 +3,7 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #46.
+#ERR Error (R14) : Calling Method without definition: sectionxt
 
 load "../../stzBase.ring"
 

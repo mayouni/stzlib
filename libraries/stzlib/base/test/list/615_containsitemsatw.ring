@@ -3,6 +3,7 @@
 # *
 #
 # Extracted from stzlisttest.ring, block #615.
+#ERR Error (R14) : Calling Method without definition: containsitemsatw
 
 load "../../stzBase.ring"
 

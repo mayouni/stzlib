@@ -3,6 +3,7 @@
 # ok
 #
 # Extracted from stzTtexttest.ring, block #35.
+#ERR Error (R3) : Calling Function without definition: onlyarabic
 
 load "../../stzBase.ring"
 

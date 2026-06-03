@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #156.
+#ERR Error (R14) : Calling Method without definition: extendtowithitemsin
 
 load "../../stzBase.ring"
 

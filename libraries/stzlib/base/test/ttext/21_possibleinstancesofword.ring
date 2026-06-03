@@ -3,6 +3,7 @@
 # //////////////////////////////////////
 #
 # Extracted from stzTtexttest.ring, block #21.
+#ERR Error (R3) : Calling Function without definition: possibleinstancesofword
 
 load "../../stzBase.ring"
 

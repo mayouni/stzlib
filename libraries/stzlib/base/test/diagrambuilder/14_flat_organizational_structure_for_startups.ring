@@ -3,6 +3,7 @@
 # Flat organizational structure for startups
 #
 # Extracted from stzdiagrambuildertest.ring, block #14.
+#ERR Error (R24) : Using uninitialized variable: showing
 
 load "../../stzBase.ring"
 

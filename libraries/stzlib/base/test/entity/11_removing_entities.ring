@@ -3,6 +3,7 @@
 # Removing entities
 #
 # Extracted from stzentitytest.ring, block #11.
+#ERR Error (R24) : Using uninitialized variable: olist
 
 load "../../stzBase.ring"
 

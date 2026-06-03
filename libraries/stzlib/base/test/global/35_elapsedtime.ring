@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzGlobalTest.ring, block #35.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

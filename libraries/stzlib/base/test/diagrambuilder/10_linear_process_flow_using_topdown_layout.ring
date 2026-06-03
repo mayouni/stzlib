@@ -3,6 +3,7 @@
 # Linear process flow using TopDown layout
 #
 # Extracted from stzdiagrambuildertest.ring, block #10.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

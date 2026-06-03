@@ -3,6 +3,7 @@
 # Test longer token prefixes parsed correctly
 #
 # Extracted from stzgraphextest.ring, block #1.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

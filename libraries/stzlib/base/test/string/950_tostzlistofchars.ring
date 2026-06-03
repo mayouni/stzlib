@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #950.
+#ERR Error (R14) : Calling Method without definition: tostzlistofchars
 
 load "../../stzBase.ring"
 

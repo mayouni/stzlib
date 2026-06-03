@@ -3,6 +3,7 @@
 # Microservices architecture using clusters to group
 #
 # Extracted from stzdiagrambuildertest.ring, block #8.
+#ERR Error (R24) : Using uninitialized variable: related
 
 load "../../stzBase.ring"
 

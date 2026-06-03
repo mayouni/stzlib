@@ -3,6 +3,7 @@
 # Basic show with multiple lanes
 #
 # Extracted from stzlistoftimelinestest.ring, block #12.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #618.
+#ERR Error (R14) : Calling Method without definition: yieldwxt
 
 load "../../stzBase.ring"
 

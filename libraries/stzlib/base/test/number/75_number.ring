@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stznumbertest.ring, block #75.
+#ERR Error (R14) : Calling Method without definition: splittonpartsq
 
 load "../../stzBase.ring"
 

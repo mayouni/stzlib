@@ -1,3 +1,6 @@
+
+#ERR Error (E9) : Can't open file ../stzString.ring
+
 load "test_stubs.ring"
 load "../stzString.ring"
 load "../stzStringList.ring"

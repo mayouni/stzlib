@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #701.
+#ERR Error (R14) : Calling Method without definition: containstheletters
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #115.
+#ERR Error (R14) : Calling Method without definition: orientation
 
 load "../../stzBase.ring"
 

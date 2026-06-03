@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #287.
+#ERR Error (R14) : Calling Method without definition: finddupsecutivechars
 
 load "../../stzBase.ring"
 

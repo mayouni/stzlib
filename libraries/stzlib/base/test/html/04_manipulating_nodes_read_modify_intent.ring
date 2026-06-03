@@ -3,6 +3,7 @@
 # MANIPULATING NODES (read + modify intent)
 #
 # Extracted from stzHtmlTest.ring, block #4.
+#ERR Error (R24) : Using uninitialized variable: csamplehtml
 
 load "../../stzBase.ring"
 

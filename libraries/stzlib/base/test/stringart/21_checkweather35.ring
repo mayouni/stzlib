@@ -3,6 +3,7 @@
 # CheckWeather(35)
 #
 # Extracted from stzstringarttest.ring, block #21.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #506.
+#ERR Error (R14) : Calling Method without definition: nthitemwxt
 
 load "../../stzBase.ring"
 

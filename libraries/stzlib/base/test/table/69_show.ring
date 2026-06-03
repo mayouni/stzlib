@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stztabletest.ring, block #69.
+#ERR Error (R14) : Calling Method without definition: sortdown
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Filtering and sorting
 #
 # Extracted from stzentitytest.ring, block #12.
+#ERR Error (R24) : Using uninitialized variable: olist
 
 load "../../stzBase.ring"
 

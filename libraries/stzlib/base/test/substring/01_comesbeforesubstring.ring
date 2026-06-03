@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzsubstringTest.ring, block #1.
+#ERR Error (R3) : Calling Function without definition: substringq
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # TODO: check result correctness!
 #
 # Extracted from stzlistofstringstest.ring, block #75.
+#ERR Error (R14) : Calling Method without definition: sortbyindescending
 
 load "../../stzBase.ring"
 

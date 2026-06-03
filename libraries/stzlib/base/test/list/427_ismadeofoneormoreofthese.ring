@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #427.
+#ERR Error (R3) : Calling Function without definition: ismadeofoneormoreofthese
 
 load "../../stzBase.ring"
 

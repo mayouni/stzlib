@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #15.
+#ERR Error (R14) : Calling Method without definition: charsq
 
 load "../../stzBase.ring"
 

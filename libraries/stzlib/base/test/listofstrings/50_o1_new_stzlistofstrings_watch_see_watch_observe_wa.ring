@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "WATCH", "see", "Watch", "Observe", "watch" ])
 #
 # Extracted from stzlistofstringstest.ring, block #50.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

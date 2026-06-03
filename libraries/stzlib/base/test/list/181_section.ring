@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #181.
+#ERR Error (R14) : Calling Method without definition: tocodeq
 
 load "../../stzBase.ring"
 

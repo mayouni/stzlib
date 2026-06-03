@@ -3,6 +3,7 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #447.
+#ERR Error (R50) : Object does not support operator overloading
 
 load "../../stzBase.ring"
 

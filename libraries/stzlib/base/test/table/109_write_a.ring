@@ -3,6 +3,7 @@
 # #todo write a #narration
 #
 # Extracted from stztabletest.ring, block #109.
+#ERR Error (R14) : Calling Method without definition: findincol
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #664.
+#ERR Error (R3) : Calling Function without definition: titlecasedinlocale
 
 load "../../stzBase.ring"
 

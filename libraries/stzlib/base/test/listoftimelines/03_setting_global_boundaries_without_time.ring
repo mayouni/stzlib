@@ -3,6 +3,7 @@
 # Setting global boundaries without time
 #
 # Extracted from stzlistoftimelinestest.ring, block #3.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

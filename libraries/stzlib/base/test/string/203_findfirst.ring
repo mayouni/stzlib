@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #203.
+#ERR Error (R14) : Calling Method without definition: antifind
 
 load "../../stzBase.ring"
 

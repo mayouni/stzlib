@@ -3,6 +3,7 @@
 # TODO: Add this function (future)
 #
 # Extracted from stzlisttest.ring, block #436.
+#ERR Error (R3) : Calling Function without definition: vizfindxt
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Basic command execution (echo/ver on Windows, echo on Unix)
 #
 # Extracted from stzsystemfunctest.ring, block #1.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #4.
+#ERR Error (R3) : Calling Function without definition: replaceinsections
 
 load "../../stzBase.ring"
 

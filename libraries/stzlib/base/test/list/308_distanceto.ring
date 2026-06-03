@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #308.
+#ERR Error (R14) : Calling Method without definition: distanceto
 
 load "../../stzBase.ring"
 

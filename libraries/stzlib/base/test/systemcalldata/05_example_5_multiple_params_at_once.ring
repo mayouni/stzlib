@@ -3,6 +3,7 @@
 # EXAMPLE 5: Multiple Params at Once
 #
 # Extracted from stzsystemcalldatatest.ring, block #5.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

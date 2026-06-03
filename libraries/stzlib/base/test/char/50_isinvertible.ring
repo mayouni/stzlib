@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #50.
+#ERR Error (R14) : Calling Method without definition: isinvertible
 
 load "../../stzBase.ring"
 

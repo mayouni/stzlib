@@ -3,6 +3,7 @@
 # SmartSplit test - preserving lists and strings
 #
 # Extracted from stznaturalmarkuptest.ring, block #14.
+#ERR Error (R14) : Calling Method without definition: smartsplit
 
 load "../../stzBase.ring"
 

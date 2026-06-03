@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #63.
+#ERR Error (R14) : Calling Method without definition: diacriticremoved
 
 load "../../stzBase.ring"
 

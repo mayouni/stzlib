@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #511.
+#ERR Error (R14) : Calling Method without definition: numberofemptylines
 
 load "../../stzBase.ring"
 

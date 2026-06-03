@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #589.
+#ERR Error (R14) : Calling Method without definition: boundsof
 
 load "../../stzBase.ring"
 

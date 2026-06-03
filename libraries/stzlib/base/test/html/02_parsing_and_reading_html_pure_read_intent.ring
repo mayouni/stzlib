@@ -3,6 +3,7 @@
 # PARSING AND READING HTML (pure read intent
 #
 # Extracted from stzHtmlTest.ring, block #2.
+#ERR Error (R14) : Calling Method without definition: text
 
 load "../../stzBase.ring"
 

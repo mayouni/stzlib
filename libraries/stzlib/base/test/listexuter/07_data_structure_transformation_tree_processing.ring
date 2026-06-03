@@ -3,6 +3,7 @@
 # Data Structure Transformation: Tree Processing
 #
 # Extracted from stzlistexutertest.ring, block #7.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

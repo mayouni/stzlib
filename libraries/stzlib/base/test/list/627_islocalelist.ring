@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #627.
+#ERR Error (R14) : Calling Method without definition: islocalelist
 
 load "../../stzBase.ring"
 

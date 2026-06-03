@@ -3,6 +3,7 @@
 # Sample 15.2: Bottom Sheet
 #
 # Extracted from stzringqmltest.ring, block #45.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

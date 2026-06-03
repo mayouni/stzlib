@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #66.
+#ERR Error (R14) : Calling Method without definition: swapcolums
 
 load "../../stzBase.ring"
 

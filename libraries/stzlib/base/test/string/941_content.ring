@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #941.
+#ERR Error (R14) : Calling Method without definition: insertafterpositions
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofbytestest.ring, block #8.
+#ERR Error (R41) : Invalid numeric string
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofliststest.ring, block #62.
+#ERR Error (R14) : Calling Method without definition: containsleadingandtrailingchars
 
 load "../../stzBase.ring"
 

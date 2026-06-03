@@ -3,6 +3,7 @@
 # Example 6: Real-time Monitoring and Management
 #
 # Extracted from stzappserverclustertest.ring, block #6.
+#ERR Error (R24) : Using uninitialized variable: ocluster
 
 load "../../stzBase.ring"
 

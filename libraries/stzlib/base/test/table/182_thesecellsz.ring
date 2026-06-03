@@ -3,6 +3,7 @@
 # #narration
 #
 # Extracted from stztabletest.ring, block #182.
+#ERR Error (R14) : Calling Method without definition: thesecellsz
 
 load "../../stzBase.ring"
 

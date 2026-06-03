@@ -3,6 +3,7 @@
 # Example 5: Advanced Custom Domain Cluster
 #
 # Extracted from stzappserverclustertest.ring, block #5.
+#ERR Error (R3) : Calling Function without definition: init
 
 load "../../stzBase.ring"
 

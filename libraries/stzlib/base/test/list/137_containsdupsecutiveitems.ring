@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #137.
+#ERR Error (R14) : Calling Method without definition: containsdupsecutiveitems
 
 load "../../stzBase.ring"
 

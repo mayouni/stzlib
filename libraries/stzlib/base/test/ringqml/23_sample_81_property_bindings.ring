@@ -3,6 +3,7 @@
 # Sample 8.1: Property Bindings
 #
 # Extracted from stzringqmltest.ring, block #23.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

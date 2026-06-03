@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #457.
+#ERR Error (R14) : Calling Method without definition: duplicatedcharsremoved
 
 load "../../stzBase.ring"
 

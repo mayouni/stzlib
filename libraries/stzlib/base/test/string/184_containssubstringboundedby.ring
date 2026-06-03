@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #184.
+#ERR Error (R14) : Calling Method without definition: containssubstringboundedby
 
 load "../../stzBase.ring"
 

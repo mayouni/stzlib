@@ -4,6 +4,7 @@
 #
 # Extracted from stzYielderTest.ring (single-block file; no
 # /*--- delimiters in the original, so body kept as one).
+#ERR Error (E9) : Can't open file ../../core/common/stkRingLibs.ring
 
 load "../../core/common/stkRingLibs.ring"
 load "../common/stzRingLibs.ring"

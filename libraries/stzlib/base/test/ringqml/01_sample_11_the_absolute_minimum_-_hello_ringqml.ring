@@ -3,6 +3,7 @@
 # Sample 1.1: The Absolute Minimum - Hello RingQML
 #
 # Extracted from stzringqmltest.ring, block #1.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

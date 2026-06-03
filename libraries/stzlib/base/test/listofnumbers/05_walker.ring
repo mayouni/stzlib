@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #5.
+#ERR Error (R11) : Error in class name, class not found: stzwalker
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #narration: eXTended form of RemoveFirstChar()
 #
 # Extracted from stzStringTest.ring, block #29.
+#ERR Error (R14) : Calling Method without definition: removefirstcharxt
 
 load "../../stzBase.ring"
 

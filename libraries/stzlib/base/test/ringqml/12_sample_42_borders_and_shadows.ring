@@ -3,6 +3,7 @@
 # Sample 4.2: Borders and Shadows
 #
 # Extracted from stzringqmltest.ring, block #12.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

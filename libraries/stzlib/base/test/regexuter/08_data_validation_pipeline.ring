@@ -3,6 +3,7 @@
 # Data Validation Pipeline
 #
 # Extracted from stzregexutertest.ring, block #8.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

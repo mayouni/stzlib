@@ -3,6 +3,7 @@
 # RAISING ERROR WHEN OBJECT TYPE IS NOT SUPPORTED
 #
 # Extracted from stznaturaltest.ring, block #6.
+#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

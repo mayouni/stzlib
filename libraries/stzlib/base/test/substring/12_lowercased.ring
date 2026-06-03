@@ -3,6 +3,7 @@
 # */
 #
 # Extracted from stzsubstringTest.ring, block #12.
+#ERR Error (R11) : Error in class name, class not found: stzsubstring
 
 load "../../stzBase.ring"
 

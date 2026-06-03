@@ -3,6 +3,7 @@
 # HANDLING XML (uniform treatment)
 #
 # Extracted from stzHtmlTest.ring, block #8.
+#ERR Error (R14) : Calling Method without definition: findfirst
 
 load "../../stzBase.ring"
 

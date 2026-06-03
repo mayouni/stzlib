@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofcharstest.ring, block #11.
+#ERR Error (R24) : Using uninitialized variable: palist
 
 load "../../stzBase.ring"
 

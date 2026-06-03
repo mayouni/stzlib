@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #823.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #314.
+#ERR Error (R14) : Calling Method without definition: findlasteassection
 
 load "../../stzBase.ring"
 

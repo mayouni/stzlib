@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #680.
+#ERR Error (R14) : Calling Method without definition: removenlastchars
 
 load "../../stzBase.ring"
 

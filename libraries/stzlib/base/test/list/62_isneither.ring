@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #62.
+#ERR Error (R14) : Calling Method without definition: isneither
 
 load "../../stzBase.ring"
 

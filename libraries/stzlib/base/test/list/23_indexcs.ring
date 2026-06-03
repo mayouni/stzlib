@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #23.
+#ERR Error (R14) : Calling Method without definition: indexcs
 
 load "../../stzBase.ring"
 

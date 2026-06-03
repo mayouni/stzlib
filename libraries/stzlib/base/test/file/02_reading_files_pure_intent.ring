@@ -3,6 +3,7 @@
 # READING FILES (pure intent)
 #
 # Extracted from stzfiletest.ring, block #2.
+#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
 

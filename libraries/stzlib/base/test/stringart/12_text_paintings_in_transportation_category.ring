@@ -3,6 +3,7 @@
 # # Text paintings in TRANSPORTATION category
 #
 # Extracted from stzstringarttest.ring, block #12.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

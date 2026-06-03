@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #53.
+#ERR Error (R14) : Calling Method without definition: inverted
 
 load "../../stzBase.ring"
 

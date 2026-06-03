@@ -3,6 +3,7 @@
 # EXCEL-Like functions
 #
 # Extracted from stztabletest.ring, block #214.
+#ERR Error (R14) : Calling Method without definition: kount
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlistofstringstest.ring, block #8.
+#ERR Error (R41) : Invalid numeric string 
 
 load "../../stzBase.ring"
 

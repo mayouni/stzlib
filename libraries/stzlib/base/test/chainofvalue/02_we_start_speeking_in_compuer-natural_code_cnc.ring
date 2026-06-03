@@ -3,6 +3,7 @@
 # # we start speeking in Compuer-natural Code (CnC)...
 #
 # Extracted from stzchainofvaluetest.ring, block #2.
+#ERR Error (R24) : Using uninitialized variable: v
 
 load "../../stzBase.ring"
 

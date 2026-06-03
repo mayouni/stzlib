@@ -3,6 +3,7 @@
 # Sample 11.2: CheckBox and RadioButton
 #
 # Extracted from stzringqmltest.ring, block #31.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

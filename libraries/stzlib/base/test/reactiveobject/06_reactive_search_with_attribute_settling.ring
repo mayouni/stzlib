@@ -3,6 +3,7 @@
 # Reactive Search with Attribute Settling
 #
 # Extracted from stzreactiveobjecttest.ring, block #6.
+#ERR Error (R24) : Using uninitialized variable: demonstrates
 
 load "../../stzBase.ring"
 

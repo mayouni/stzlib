@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #180.
+#ERR Error (R14) : Calling Method without definition: findbetween
 
 load "../../stzBase.ring"
 

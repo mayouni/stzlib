@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #48.
+#ERR Error (R14) : Calling Method without definition: islatindiacritic
 
 load "../../stzBase.ring"
 

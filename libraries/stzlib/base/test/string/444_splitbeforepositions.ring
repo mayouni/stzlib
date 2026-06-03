@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #444.
+#ERR Error (R14) : Calling Method without definition: splitbeforepositions
 
 load "../../stzBase.ring"
 

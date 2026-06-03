@@ -3,6 +3,7 @@
 # ERROR
 #
 # Extracted from stznumbertest.ring, block #68.
+#ERR Error (R14) : Calling Method without definition: tobinaryformwithoutprefix
 
 load "../../stzBase.ring"
 

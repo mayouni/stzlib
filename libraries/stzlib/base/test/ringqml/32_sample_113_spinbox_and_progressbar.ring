@@ -3,6 +3,7 @@
 # Sample 11.3: SpinBox and ProgressBar
 #
 # Extracted from stzringqmltest.ring, block #32.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

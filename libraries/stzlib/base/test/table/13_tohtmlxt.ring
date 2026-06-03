@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #13.
+#ERR Error (R14) : Calling Method without definition: tohtmlxt
 
 load "../../stzBase.ring"
 

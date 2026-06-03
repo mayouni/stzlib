@@ -3,6 +3,7 @@
 # Same 1..4 cycle for a million iterations, but driven through
 # stzCounter. Compares the cost of going through the Softanza abstraction
 # vs. the raw-Ring baseline in block 04.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

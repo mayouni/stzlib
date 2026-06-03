@@ -3,6 +3,7 @@
 # #  Display variants              #
 #
 # Extracted from stzcalendartest.ring, block #42.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

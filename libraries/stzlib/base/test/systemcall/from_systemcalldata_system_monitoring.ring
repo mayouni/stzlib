@@ -3,6 +3,7 @@
 # SYSTEM MONITORING
 #
 # Extracted from stzsystemcalldatatest.ring, block #22.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

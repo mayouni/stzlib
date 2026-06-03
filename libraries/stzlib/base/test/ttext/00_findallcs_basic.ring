@@ -6,6 +6,7 @@
 #
 # Extracted from stzTtexttest.ring, block #0 (the head block that
 # the original extraction pass skipped).
+#ERR Error (R11) : Error in class name, class not found: stztext
 
 load "../../stzBase.ring"
 

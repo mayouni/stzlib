@@ -3,6 +3,7 @@
 # TODO
 #
 # Extracted from stzchainofvaluetest.ring, block #9.
+#ERR Error (R24) : Using uninitialized variable: v
 
 load "../../stzBase.ring"
 

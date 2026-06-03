@@ -25,5 +25,3 @@ oOrg {
 pf()
 # Visual: CEO node now shows "CEO\nSarah Chen" in gold
 
-#ERR The name of person is not displayed
-#ERR node is showan in white

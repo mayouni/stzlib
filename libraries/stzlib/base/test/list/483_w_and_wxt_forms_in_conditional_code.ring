@@ -3,6 +3,7 @@
 # #narration: ...W() and ..WXT() forms in Conditional Code
 #
 # Extracted from stzlisttest.ring, block #483.
+#ERR Error (R24) : Using uninitialized variable: _time0
 
 load "../../stzBase.ring"
 

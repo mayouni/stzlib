@@ -3,6 +3,7 @@
 # Example 2: Financial Services Platform
 #
 # Extracted from stzappserverclustertest.ring, block #2.
+#ERR Error (R3) : Calling Function without definition: init
 
 load "../../stzBase.ring"
 

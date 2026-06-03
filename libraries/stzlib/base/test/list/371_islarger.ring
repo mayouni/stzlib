@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #371.
+#ERR Error (R14) : Calling Method without definition: islarger
 
 load "../../stzBase.ring"
 

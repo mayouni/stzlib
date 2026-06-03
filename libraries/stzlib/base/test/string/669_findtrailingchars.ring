@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #669.
+#ERR Error (R14) : Calling Method without definition: findtrailingchars
 
 load "../../stzBase.ring"
 

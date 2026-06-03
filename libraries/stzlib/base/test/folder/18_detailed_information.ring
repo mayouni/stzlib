@@ -3,6 +3,7 @@
 # Detailed Information
 #
 # Extracted from stzfoldertest.ring, block #18.
+#ERR exit 1: Error (S1) In file: 18_detailed_information.ring
 
 load "../../stzBase.ring"
 

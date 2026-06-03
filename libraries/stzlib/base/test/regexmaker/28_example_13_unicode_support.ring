@@ -3,6 +3,7 @@
 # Example 13: Unicode Support
 #
 # Extracted from stzregexmakertest.ring, block #28.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

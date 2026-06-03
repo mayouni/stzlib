@@ -3,6 +3,7 @@
 # Group by Multiple Columns
 #
 # Extracted from stztabletest.ring, block #222.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

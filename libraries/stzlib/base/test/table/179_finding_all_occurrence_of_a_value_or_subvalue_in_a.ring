@@ -3,6 +3,7 @@
 # // Finding all occurrence of a value, or subvalue, in a given list of cells
 #
 # Extracted from stztabletest.ring, block #179.
+#ERR Error (R14) : Calling Method without definition: findincells
 
 load "../../stzBase.ring"
 

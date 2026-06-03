@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #481.
+#ERR Error (R14) : Calling Method without definition: numbercomingafter
 
 load "../../stzBase.ring"
 

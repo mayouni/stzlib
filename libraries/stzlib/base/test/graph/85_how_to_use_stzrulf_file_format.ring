@@ -3,6 +3,7 @@
 # How to use .stzrulf file format?
 #
 # Extracted from stzgraphtest.ring, block #85.
+#ERR Error (E9) : Can't open file custom_functions.stzrulf
 
 load "../../stzBase.ring"
 

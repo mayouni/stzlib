@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #451.
+#ERR Error (R3) : Calling Function without definition: findpreviousnthoccurrences
 
 load "../../stzBase.ring"
 

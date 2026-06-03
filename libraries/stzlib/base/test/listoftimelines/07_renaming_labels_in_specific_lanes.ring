@@ -3,6 +3,7 @@
 # Renaming labels in specific lanes
 #
 # Extracted from stzlistoftimelinestest.ring, block #7.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

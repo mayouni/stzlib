@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #644.
+#ERR Error (R3) : Calling Function without definition: nextoccurrence
 
 load "../../stzBase.ring"
 

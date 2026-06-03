@@ -3,6 +3,7 @@
 # 3-item test with values and percentages
 #
 # Extracted from stzPlotTest.ring, block #56.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

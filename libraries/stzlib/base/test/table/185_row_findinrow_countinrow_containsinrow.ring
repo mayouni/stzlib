@@ -3,6 +3,7 @@
 # ROW: FindInRow(), CountInRow(), ContainsInRow()
 #
 # Extracted from stztabletest.ring, block #185.
+#ERR Error (R14) : Calling Method without definition: findinrow
 
 load "../../stzBase.ring"
 

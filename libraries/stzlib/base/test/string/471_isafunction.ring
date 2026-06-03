@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #471.
+#ERR Error (R14) : Calling Method without definition: isafunction
 
 load "../../stzBase.ring"
 

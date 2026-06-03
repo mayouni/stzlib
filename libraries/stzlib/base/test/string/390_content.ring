@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #390.
+#ERR panic: @memcpy arguments alias
 
 load "../../stzBase.ring"
 

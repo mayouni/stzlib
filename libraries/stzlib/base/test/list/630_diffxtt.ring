@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stzlisttest.ring, block #630.
+#ERR Error (R14) : Calling Method without definition: diffxtt
 
 load "../../stzBase.ring"
 

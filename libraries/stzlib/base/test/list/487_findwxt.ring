@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #487.
+#ERR Error (R24) : Using uninitialized variable: _time0
 
 load "../../stzBase.ring"
 

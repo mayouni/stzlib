@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #190.
+#ERR Error (R14) : Calling Method without definition: containsincol
 
 load "../../stzBase.ring"
 

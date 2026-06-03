@@ -3,6 +3,7 @@
 # Combining HTTP with timers for polling
 #
 # Extracted from stzreactivehttptest.ring, block #4.
+#ERR Error (R3) : Calling Function without definition: download
 
 load "../../stzBase.ring"
 

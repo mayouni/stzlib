@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #140.
+#ERR Error (R14) : Calling Method without definition: duporigins
 
 load "../../stzBase.ring"
 

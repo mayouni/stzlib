@@ -3,6 +3,7 @@
 # Complete Folder Management Workflow
 #
 # Extracted from stzfoldertest.ring, block #33.
+#ERR Error (R3) : Calling Function without definition: createfolders
 
 load "../../stzBase.ring"
 

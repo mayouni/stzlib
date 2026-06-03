@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #394.
+#ERR Error (R14) : Calling Method without definition: nonnumbers
 
 load "../../stzBase.ring"
 

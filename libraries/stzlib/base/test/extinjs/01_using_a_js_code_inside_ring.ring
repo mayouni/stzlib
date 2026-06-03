@@ -3,6 +3,7 @@
 # USING a JS code inside Ring  #===
 #
 # Extracted from stzextinjstest.ring, block #1.
+#ERR Error (R24) : Using uninitialized variable: console
 
 load "../../stzBase.ring"
 

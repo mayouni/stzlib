@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #55.
+#ERR Error (R3) : Calling Function without definition: maxnumbers
 
 load "../../stzBase.ring"
 

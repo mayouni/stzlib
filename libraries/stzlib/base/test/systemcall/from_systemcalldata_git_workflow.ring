@@ -3,6 +3,7 @@
 # GIT WORKFLOW
 #
 # Extracted from stzsystemcalldatatest.ring, block #15.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

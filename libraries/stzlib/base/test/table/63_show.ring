@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #63.
+#ERR Error (R14) : Calling Method without definition: swaprows
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #114.
+#ERR Error (R14) : Calling Method without definition: cellsincol
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzbaturalcodetest.ring, block #8.
+#ERR Error (R14) : Calling Method without definition: arenegative
 
 load "../../stzBase.ring"
 

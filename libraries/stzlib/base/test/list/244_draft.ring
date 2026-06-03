@@ -3,6 +3,7 @@
 # #ringqt draft
 #
 # Extracted from stzlisttest.ring, block #244.
+#ERR Error (R11) : Error in class name, class not found: qstringlist
 
 load "../../stzBase.ring"
 

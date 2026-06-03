@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #403.
+#ERR Error (R14) : Calling Method without definition: multiplyby
 
 load "../../stzBase.ring"
 

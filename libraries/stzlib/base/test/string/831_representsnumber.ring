@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #831.
+#ERR Error (R3) : Calling Function without definition: representscalculableinteger
 
 load "../../stzBase.ring"
 

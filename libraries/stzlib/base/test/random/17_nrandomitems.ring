@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzrandomtest.ring, block #17.
+#ERR Error (R3) : Calling Function without definition: nrandomitemsz
 
 load "../../stzBase.ring"
 

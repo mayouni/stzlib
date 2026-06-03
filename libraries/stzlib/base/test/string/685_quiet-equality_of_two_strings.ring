@@ -3,6 +3,7 @@
 # Quiet-Equality of two strings
 #
 # Extracted from stzStringTest.ring, block #685.
+#ERR Error (R24) : Using uninitialized variable: $
 
 load "../../stzBase.ring"
 

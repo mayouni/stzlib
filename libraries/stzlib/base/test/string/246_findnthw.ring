@@ -3,6 +3,7 @@
 # #perf
 #
 # Extracted from stzStringTest.ring, block #246.
+#ERR Error (R14) : Calling Method without definition: findnthw
 
 load "../../stzBase.ring"
 

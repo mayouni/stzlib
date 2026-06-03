@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stznumbertest.ring, block #62.
+#ERR Error (R14) : Calling Method without definition: isdecimalnumberinstring
 
 load "../../stzBase.ring"
 

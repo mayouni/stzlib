@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #520.
+#ERR Error (R14) : Calling Method without definition: eachitemexistsin
 
 load "../../stzBase.ring"
 

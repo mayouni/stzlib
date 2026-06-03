@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #74.
+#ERR Error (R14) : Calling Method without definition: colaspositions
 
 load "../../stzBase.ring"
 

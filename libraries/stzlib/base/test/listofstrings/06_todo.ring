@@ -3,6 +3,7 @@
 # TODO
 #
 # Extracted from stzlistofstringstest.ring, block #6.
+#ERR Error (R14) : Calling Method without definition: findduplicates 
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #146.
+#ERR Error (R14) : Calling Method without definition: shrink
 
 load "../../stzBase.ring"
 

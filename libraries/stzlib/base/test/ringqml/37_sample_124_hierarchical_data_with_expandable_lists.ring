@@ -3,6 +3,7 @@
 # Sample 12.4: Hierarchical Data with Expandable Lists
 #
 # Extracted from stzringqmltest.ring, block #37.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

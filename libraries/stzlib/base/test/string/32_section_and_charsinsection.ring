@@ -3,6 +3,7 @@
 # Section() and CharsInSection()
 #
 # Extracted from stzStringTest.ring, block #32.
+#ERR Error (R14) : Calling Method without definition: charsinsection
 
 load "../../stzBase.ring"
 

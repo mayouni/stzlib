@@ -3,6 +3,7 @@
 # #perf
 #
 # Extracted from stzStringTest.ring, block #611.
+#ERR Error (R3) : Calling Function without definition: nextnthmarquerst
 
 load "../../stzBase.ring"
 

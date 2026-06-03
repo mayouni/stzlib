@@ -3,6 +3,7 @@
 # #ring
 #
 # Extracted from stztabletest.ring, block #102.
+#ERR Error (R7) : Can't assign to a string letter more than one character
 
 load "../../stzBase.ring"
 

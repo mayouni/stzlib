@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #501.
+#ERR Error (R14) : Calling Method without definition: rnditems
 
 load "../../stzBase.ring"
 

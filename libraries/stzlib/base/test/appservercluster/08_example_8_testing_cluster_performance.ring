@@ -3,6 +3,7 @@
 # Example 8: Testing Cluster Performance
 #
 # Extracted from stzappserverclustertest.ring, block #8.
+#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
 

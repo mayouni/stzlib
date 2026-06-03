@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #7.
+#ERR Error (R14) : Calling Method without definition: ishtmltable
 
 load "../../stzBase.ring"
 

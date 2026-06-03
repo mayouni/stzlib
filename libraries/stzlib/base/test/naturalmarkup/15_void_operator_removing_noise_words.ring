@@ -3,6 +3,7 @@
 # Void operator removing noise words
 #
 # Extracted from stznaturalmarkuptest.ring, block #15.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

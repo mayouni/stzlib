@@ -3,6 +3,7 @@
 # ReplaceElementsAt() - Replace elements at specific positions with a single value
 #
 # Extracted from stzmatrixtest.ring, block #46.
+#ERR Error (R14) : Calling Method without definition: isbymanynamedparam
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #544.
+#ERR Error (R14) : Calling Method without definition: onlyobjects
 
 load "../../stzBase.ring"
 

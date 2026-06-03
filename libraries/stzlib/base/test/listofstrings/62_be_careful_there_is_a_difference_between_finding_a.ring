@@ -3,6 +3,7 @@
 # # Be careful: there is a difference between finding a string
 #
 # Extracted from stzlistofstringstest.ring, block #62.
+#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
 
 load "../../stzBase.ring"
 

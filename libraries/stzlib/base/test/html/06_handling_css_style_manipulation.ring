@@ -3,6 +3,7 @@
 # HANDLING CSS (style manipulation)
 #
 # Extracted from stzHtmlTest.ring, block #6.
+#ERR Error (R14) : Calling Method without definition: splittolistofstrings
 
 load "../../stzBase.ring"
 

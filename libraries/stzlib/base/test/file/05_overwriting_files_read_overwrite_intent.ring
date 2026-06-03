@@ -3,6 +3,7 @@
 # OVERWRITING FILES (read + overwrite intent)
 #
 # Extracted from stzfiletest.ring, block #5.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

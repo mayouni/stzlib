@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #71.
+#ERR Error (R14) : Calling Method without definition: isarabic7arakah
 
 load "../../stzBase.ring"
 

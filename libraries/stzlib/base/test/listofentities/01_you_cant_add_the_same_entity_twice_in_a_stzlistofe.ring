@@ -3,6 +3,7 @@
 # # You can't add the same entity twice in a stzListOfEntities
 #
 # Extracted from stzListOfEntitiesTest.ring, block #1.
+#ERR Error (R16) : Using braces to access unknown object
 
 load "../../stzBase.ring"
 

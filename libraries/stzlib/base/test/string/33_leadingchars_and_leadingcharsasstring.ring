@@ -3,6 +3,7 @@
 # LeadingChars() and LeadingCharsAsString()
 #
 # Extracted from stzStringTest.ring, block #33.
+#ERR Error (R14) : Calling Method without definition: leadingchars
 
 load "../../stzBase.ring"
 

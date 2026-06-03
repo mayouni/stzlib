@@ -3,6 +3,7 @@
 # # Text paintings in MISC category
 #
 # Extracted from stzstringarttest.ring, block #19.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

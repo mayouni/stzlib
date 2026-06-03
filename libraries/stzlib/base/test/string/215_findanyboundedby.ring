@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #215.
+#ERR Error (R14) : Calling Method without definition: findanyboundedbyib
 
 load "../../stzBase.ring"
 

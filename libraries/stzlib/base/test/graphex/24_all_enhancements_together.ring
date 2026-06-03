@@ -3,6 +3,7 @@
 # All enhancements together
 #
 # Extracted from stzgraphextest.ring, block #24.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

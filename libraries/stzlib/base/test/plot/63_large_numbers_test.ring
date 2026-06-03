@@ -3,6 +3,7 @@
 # Large numbers test
 #
 # Extracted from stzPlotTest.ring, block #63.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

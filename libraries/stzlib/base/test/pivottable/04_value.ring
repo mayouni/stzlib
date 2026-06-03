@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stzPivotTableTest.ring, block #4.
+#ERR Error (R2) : Array Access (Index out of range)
 
 load "../../stzBase.ring"
 

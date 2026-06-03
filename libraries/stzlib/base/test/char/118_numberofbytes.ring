@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #118.
+#ERR Error (R14) : Calling Method without definition: bytes
 
 load "../../stzBase.ring"
 
