@@ -346,7 +346,7 @@ class stzDateTime from stzObject
 	        @nMs = aComps[7]
 
 	    but isList(pDateTime)
-	        if len(pDateTime) = 2 and
+	        if ring_len(pDateTime) = 2 and
 	           isObject(pDateTime[1]) and isObject(pDateTime[2])
 	            if pDateTime[1].IsAStzDate()
 	                @nYear = pDateTime[1].Year()
@@ -525,7 +525,7 @@ class stzDateTime from stzObject
             aDateParts = split(cDatePart, "-")
         ok
 
-        if len(aDateParts) != 3
+        if ring_len(aDateParts) != 3
             StzRaise("Cannot parse date part: " + cDatePart)
         ok
 
@@ -553,7 +553,7 @@ class stzDateTime from stzObject
         ok
 
         aTimeParts = split(cTimePart, ":")
-        if len(aTimeParts) < 2
+        if ring_len(aTimeParts) < 2
             @nHour = 0
             @nMinute = 0
             @nSecond = 0
@@ -566,12 +566,12 @@ class stzDateTime from stzObject
         @nSecond = 0
         @nMs = 0
 
-        if len(aTimeParts) >= 3
+        if ring_len(aTimeParts) >= 3
             cSecPart = aTimeParts[3]
             if StzFind(cSecPart, ".") > 0
                 aSecParts = split(cSecPart, ".")
                 @nSecond = 0+ aSecParts[1]
-                if len(aSecParts) >= 2
+                if ring_len(aSecParts) >= 2
                     @nMs = 0+ aSecParts[2]
                 ok
             else
@@ -619,15 +619,15 @@ class stzDateTime from stzObject
 	    cTimePart = ""
 	    cAMPM = ""
 
-	    if len(aParts) >= 2
+	    if ring_len(aParts) >= 2
 	        cTimePart = aParts[2]
-	        if len(aParts) >= 3
+	        if ring_len(aParts) >= 3
 	            cAMPM = " AP"
 	        ok
 	    ok
 
 	    aDateParts = split(cDatePart, cDateSep)
-	    if len(aDateParts) != 3
+	    if ring_len(aDateParts) != 3
 	        return NULL
 	    ok
 
@@ -642,9 +642,9 @@ class stzDateTime from stzObject
 	        aTimeParts = split(cTimePart, ":")
 	        cTimeFormat = ""
 
-	        if len(aTimeParts) >= 3
+	        if ring_len(aTimeParts) >= 3
 	            cTimeFormat = "HH:mm:ss"
-	        but len(aTimeParts) = 2
+	        but ring_len(aTimeParts) = 2
 	            cTimeFormat = "HH:mm"
 	        ok
 
@@ -686,7 +686,7 @@ class stzDateTime from stzObject
 	        return FALSE
 	    ok
 
-	    if len(aDateParts) != 3
+	    if ring_len(aDateParts) != 3
 	        return FALSE
 	    ok
 
@@ -705,7 +705,7 @@ class stzDateTime from stzObject
 	    ok
 
 	    aTimeParts = split(cTimePart, ":")
-	    if len(aTimeParts) < 2
+	    if ring_len(aTimeParts) < 2
 	        return FALSE
 	    ok
 
@@ -714,12 +714,12 @@ class stzDateTime from stzObject
 	    nSecond = 0
 	    nMs = 0
 
-	    if len(aTimeParts) >= 3
+	    if ring_len(aTimeParts) >= 3
 	        cSecPart = aTimeParts[3]
 	        if StzFind(cSecPart, ".") > 0
 	            aSecParts = split(cSecPart, ".")
 	            nSecond = 0+ aSecParts[1]
-	            if len(aSecParts) >= 2
+	            if ring_len(aSecParts) >= 2
 	                nMs = 0+ aSecParts[2]
 	            ok
 	        else
@@ -760,7 +760,7 @@ class stzDateTime from stzObject
 	        return FALSE
 	    ok
 
-	    if len(aDateParts) != 3
+	    if ring_len(aDateParts) != 3
 	        return FALSE
 	    ok
 
@@ -1125,10 +1125,10 @@ class stzDateTime from stzObject
 	    aParts = split(cExpr, " ")
 
 	    i = 1
-	    while i <= len(aParts)
+	    while i <= ring_len(aParts)
 	        if isNumber(0+ aParts[i])
 	            nValue = 0+ aParts[i]
-	            if i < len(aParts)
+	            if i < ring_len(aParts)
 	                cUnit = StzLower(aParts[i+1])
 
 	                if cUnit = "day" or cUnit = "days"
@@ -1172,10 +1172,10 @@ class stzDateTime from stzObject
 	    aParts = split(cExpr, " ")
 
 	    i = 1
-	    while i <= len(aParts)
+	    while i <= ring_len(aParts)
 	        if isNumber(0+ aParts[i])
 	            nValue = 0+ aParts[i]
-	            if i < len(aParts)
+	            if i < ring_len(aParts)
 	                cUnit = StzLower(aParts[i+1])
 
 	                if cUnit = "day" or cUnit = "days"
@@ -1908,14 +1908,14 @@ class stzDateTime from stzObject
         return oNewDateTime
 
     def SetComponents(aComponents)
-        if isList(aComponents) and len(aComponents) >= 6
+        if isList(aComponents) and ring_len(aComponents) >= 6
             @nYear = aComponents[1]
             @nMonth = aComponents[2]
             @nDay = aComponents[3]
             @nHour = aComponents[4]
             @nMinute = aComponents[5]
             @nSecond = aComponents[6]
-            if len(aComponents) >= 7
+            if ring_len(aComponents) >= 7
                 @nMs = aComponents[7]
             else
                 @nMs = 0
@@ -2011,8 +2011,8 @@ class stzDateTime from stzObject
 	            cBefore = trim(cBefore)
 
 	            aTokens = split(cBefore, " ")
-	            if len(aTokens) > 0
-	                cNumber = aTokens[len(aTokens)]
+	            if ring_len(aTokens) > 0
+	                cNumber = aTokens[ring_len(aTokens)]
 	                nValue = 0+ cNumber
 	                nTotalMilliseconds += (nValue * nMultiplier)
 	            ok
@@ -2195,7 +2195,7 @@ class stzDateTime from stzObject
             cUnit = aUnit[1]
             nMultiplier = aUnit[2]
 
-            for i = 1 to len(aTokens)
+            for i = 1 to ring_len(aTokens)
                 if StzLower(aTokens[i]) = cUnit and i > 1
                     nValue = 0+ aTokens[i-1]
                     nTotalMs += (nValue * nMultiplier)

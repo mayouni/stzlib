@@ -53,7 +53,7 @@ class stzListBounder
 	def SectionCS(n1, n2, pCaseSensitive)
 
 		_aScContent_ = This.Content()
-		_nScLen_ = len(_aScContent_)
+		_nScLen_ = ring_len(_aScContent_)
 
 		if CheckingParams()
 
@@ -132,7 +132,7 @@ class stzListBounder
 
 	def SectionXT(n1, n2)
 		_aSxContent_ = This.Content()
-		_nSxLen_ = len(_aSxContent_)
+		_nSxLen_ = ring_len(_aSxContent_)
 
 		if n1 < 1 or n1 > _nSxLen_ or n2 < 1 or n2 > _nSxLen_
 			StzRaise("Indexes out of range!")
@@ -160,7 +160,7 @@ class stzListBounder
 	#===========================================#
 
 	def Sections(paSections)
-		_nSsLen_ = len(paSections)
+		_nSsLen_ = ring_len(paSections)
 		_aSsResult_ = []
 
 		for _iSs_ = 1 to _nSsLen_
@@ -204,7 +204,7 @@ class stzListBounder
 		ok
 
 		_aAbContent_ = This.Content()
-		_nAbLen_ = len(_aAbContent_)
+		_nAbLen_ = ring_len(_aAbContent_)
 
 		_oAbSubStr_ = new stzString(pcSubStr)
 		_bAbResult_ = 0
@@ -259,11 +259,11 @@ class stzListBounder
 		_aBuFirst_ = This.NFirstItems(n)
 		_aBuLast_  = This.NLastItems(n)
 
-		if len(_aBuFirst_) = 1
+		if ring_len(_aBuFirst_) = 1
 			_aBuFirst_ = _aBuFirst_[1]
 		ok
 
-		if len(_aBuLast_) = 1
+		if ring_len(_aBuLast_) = 1
 			_aBuLast_ = _aBuLast_[1]
 		ok
 
@@ -307,10 +307,10 @@ class stzListBounder
 
 	def IsListOfPairs()
 		_aIlpContent_ = This.Content()
-		_nIlpLen_ = len(_aIlpContent_)
+		_nIlpLen_ = ring_len(_aIlpContent_)
 
 		for _iIlp_ = 1 to _nIlpLen_
-			if NOT (isList(_aIlpContent_[_iIlp_]) and len(_aIlpContent_[_iIlp_]) = 2)
+			if NOT (isList(_aIlpContent_[_iIlp_]) and ring_len(_aIlpContent_[_iIlp_]) = 2)
 				return 0
 			ok
 		next
@@ -323,7 +323,7 @@ class stzListBounder
 
 	def Middle()
 		_aMdContent_ = This.Content()
-		_nMdLen_ = len(_aMdContent_)
+		_nMdLen_ = ring_len(_aMdContent_)
 
 		if _nMdLen_ < 3
 			return []
@@ -345,7 +345,7 @@ class stzListBounder
 
 	def Range(nStart, nCount)
 		_aRgContent_ = This.Content()
-		_nRgLen_ = len(_aRgContent_)
+		_nRgLen_ = ring_len(_aRgContent_)
 		_aRgResult_ = []
 
 		_nRgEnd_ = nStart + nCount - 1
@@ -368,7 +368,7 @@ class stzListBounder
 
 	def ClampedTo(nMin, nMax)
 		_aClContent_ = This.Content()
-		_nClLen_ = len(_aClContent_)
+		_nClLen_ = ring_len(_aClContent_)
 		_aClResult_ = []
 
 		for _iCl_ = 1 to _nClLen_
@@ -418,7 +418,7 @@ class stzListBounder
 
 	def NFirstItems(n)
 		_aNfContent_ = This.Content()
-		_nNfLen_ = len(_aNfContent_)
+		_nNfLen_ = ring_len(_aNfContent_)
 		_aNfResult_ = []
 
 		if n > _nNfLen_
@@ -439,7 +439,7 @@ class stzListBounder
 
 	def NLastItems(n)
 		_aNlContent_ = This.Content()
-		_nNlLen_ = len(_aNlContent_)
+		_nNlLen_ = ring_len(_aNlContent_)
 		_aNlResult_ = []
 
 		if n > _nNlLen_

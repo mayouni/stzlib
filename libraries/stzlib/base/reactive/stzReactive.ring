@@ -71,7 +71,7 @@ class stzReactiveSystem
 	        sleep(0.1)
 	
 	        # Execute any pending chunked tasks
-	        nLenTasks = len(tasks)
+	        nLenTasks = ring_len(tasks)
 	        for i = 1 to nLenTasks
 	            if tasks[i].status = TASK_PENDING
 	                tasks[i].Execute()
@@ -110,13 +110,13 @@ class stzReactiveSystem
 		timerManager.Stop()
 
 		# Clean up all tasks
-		nLenTasks = len(tasks)
+		nLenTasks = ring_len(tasks)
 		for i = 1 to nLenTasks
 			tasks[i].Cleanup()
 		next
 
 		# Clean up streams
-		nLenStreams = len(streams)
+		nLenStreams = ring_len(streams)
 		for i = 1 to nLenStreams 
 			streams[i].Cleanup()
 		next
@@ -426,7 +426,7 @@ class stzReactiveSystem
 
 	def StringToLibUVBuffer(str)
 		# Converts a string to a libuv buffer for writing.
-		return uv_buf_init(str, len(str))
+		return uv_buf_init(str, ring_len(str))
 
 	#--------------------#
 	#  INTERNAL METHODS  #

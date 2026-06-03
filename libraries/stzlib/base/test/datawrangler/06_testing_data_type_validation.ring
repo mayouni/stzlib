@@ -3,7 +3,7 @@
 # Testing data type validation
 #
 # Extracted from stzdatawranglertest.ring, block #6.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR exit 1: +----------------------+
 
 load "../../stzBase.ring"
 

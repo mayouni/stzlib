@@ -156,7 +156,7 @@ class stzListInserter
 		_oChain_ = new stzList(panPositions)
 
 		panPositions = _oChain_.Sorted()
-		_nIbpLen_ = len(panPositions)
+		_nIbpLen_ = ring_len(panPositions)
 
 		for _iIbp_ = _nIbpLen_ to 1 step -1
 			This.InsertBeforePosition(panPositions[_iIbp_], pItem)

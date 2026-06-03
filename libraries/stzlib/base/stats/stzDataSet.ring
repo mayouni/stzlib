@@ -1018,7 +1018,7 @@ class stzDataSet
     def _CleanData(paData)
         # Remove missing values and prepare data
         aCleanData = []
-        nLen = len(paData)
+        nLen = ring_len(paData)
 
         for i = 1 to nLen
             if NOT This._IsMissing(paData[i])
@@ -1037,14 +1037,14 @@ class stzDataSet
         return StzFind($aSTAT_MISSING_VALUES, cStr) > 0
 
     def _DetectDataType()
-        if len(@anData) = 0
+        if ring_len(@anData) = 0
             @cDataType = "empty"
             return
         ok
 
         nNumeric = 0
         nCategorical = 0
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
 
         for i = 1 to nLen
             if IsNumber(@anData[i])
@@ -1074,14 +1074,14 @@ class stzDataSet
     #=================================================#
 
     def Mean()
-        if @cDataType != "numeric" or len(@anData) = 0
+        if @cDataType != "numeric" or ring_len(@anData) = 0
             return 0
         ok
         if This._EngineAvailable()
             return StzEngineStatsMean(@pEngineStats)
         ok
         nSum = 0
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         for i = 1 to nLen
             nSum += @anData[i]
         next
@@ -1095,14 +1095,14 @@ class stzDataSet
 
 
     def Median()
-        if @cDataType != "numeric" or len(@anData) = 0
+        if @cDataType != "numeric" or ring_len(@anData) = 0
             return 0
         ok
         if This._EngineAvailable()
             return StzEngineStatsMedian(@pEngineStats)
         ok
         This._SortIfNeeded()
-        nLen = len(@anSortedData)
+        nLen = ring_len(@anSortedData)
         if nLen % 2 = 1
             return @anSortedData[ceil(nLen/2)]
         else
@@ -1111,7 +1111,7 @@ class stzDataSet
 
 
 	def Mode()
-	    if len(@anData) = 0
+	    if ring_len(@anData) = 0
 	        return NULL
 	    ok
 	
@@ -1122,7 +1122,7 @@ class stzDataSet
 	        return cached
 	    ok
 	
-	    nLen = len(@anData)
+	    nLen = ring_len(@anData)
 	    aFreqHash = []
 	
 	    for i = 1 to nLen
@@ -1130,7 +1130,7 @@ class stzDataSet
 	        bFound = FALSE
 	        
 	        # Search for existing key in frequency list
-		nLenFreq = len(aFreqHash)
+		nLenFreq = ring_len(aFreqHash)
 	        for j = 1 to nLenFreq
 	            if aFreqHash[j][1] = cItemKey
 	                aFreqHash[j][2]++
@@ -1147,7 +1147,7 @@ class stzDataSet
 	
 	    nMaxFreq = 0
 	    cModeKey = ""
-	    nLenFreq = len(aFreqHash)
+	    nLenFreq = ring_len(aFreqHash)
 	
 	    for i = 1 to nLenFreq
 	        if aFreqHash[i][2] > nMaxFreq
@@ -1163,7 +1163,7 @@ class stzDataSet
 		return This.Mode()
 
     def StandardDeviation()
-        if @cDataType != "numeric" or len(@anData) <= 1
+        if @cDataType != "numeric" or ring_len(@anData) <= 1
             return 0
         ok
         if This._EngineAvailable()
@@ -1171,7 +1171,7 @@ class stzDataSet
         ok
         nMean = This.Mean()
         nSumSquares = 0
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         for i = 1 to nLen
             nDiff = @anData[i] - nMean
             nSumSquares += (nDiff * nDiff)
@@ -1183,7 +1183,7 @@ class stzDataSet
 
 
 	def Variance()
-	    if @cDataType != "numeric" or len(@anData) <= 1
+	    if @cDataType != "numeric" or ring_len(@anData) <= 1
 	        return 0
 	    ok
 	    if This._EngineAvailable()
@@ -1191,7 +1191,7 @@ class stzDataSet
 	    ok
 	    nMean = This.Mean()
 	    nSumSquares = 0
-	    nLen = len(@anData)
+	    nLen = ring_len(@anData)
 	    for i = 1 to nLen
 	        nDiff = @anData[i] - nMean
 	        nSumSquares += (nDiff * nDiff)
@@ -1206,7 +1206,7 @@ class stzDataSet
 
 
     def Range()
-        if @cDataType != "numeric" or len(@anData) = 0
+        if @cDataType != "numeric" or ring_len(@anData) = 0
             return 0
         ok
         if This._EngineAvailable()
@@ -1215,7 +1215,7 @@ class stzDataSet
         return This.Max() - This.Min()
 
     def Min()
-        if @cDataType != "numeric" or len(@anData) = 0
+        if @cDataType != "numeric" or ring_len(@anData) = 0
             return NULL
         ok
         if This._EngineAvailable()
@@ -1224,7 +1224,7 @@ class stzDataSet
         return @min(@anData)
 
     def Max()
-        if @cDataType != "numeric" or len(@anData) = 0
+        if @cDataType != "numeric" or ring_len(@anData) = 0
             return NULL
         ok
         if This._EngineAvailable()
@@ -1239,7 +1239,7 @@ class stzDataSet
         if This._EngineAvailable()
             return StzEngineStatsSum(@pEngineStats)
         ok
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         nSum = 0
         for i = 1 to nLen
             nSum += @anData[i]
@@ -1248,17 +1248,17 @@ class stzDataSet
 
 
     def Count()
-        return len(@anData)
+        return ring_len(@anData)
 
 
     def GeometricMean()
-        if @cDataType != "numeric" or len(@anData) = 0
+        if @cDataType != "numeric" or ring_len(@anData) = 0
             return 0
         ok
         if This._EngineAvailable()
             return StzEngineStatsGeometricMean(@pEngineStats)
         ok
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         for i = 1 to nLen
             if @anData[i] <= 0
                 return 0
@@ -1297,14 +1297,14 @@ class stzDataSet
 
 
     def HarmonicMean()
-        if @cDataType != "numeric" or len(@anData) = 0
+        if @cDataType != "numeric" or ring_len(@anData) = 0
             return 0
         ok
         if This._EngineAvailable()
             return StzEngineStatsHarmonicMean(@pEngineStats)
         ok
         nSum = 0
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         for i = 1 to nLen
             if @anData[i] = 0
                 return 0
@@ -1444,7 +1444,7 @@ class stzDataSet
             aUnique2 = oOtherStats.UniqueValues()
             
             nIntersection = 0
-			nLen = len(aUnique1)
+			nLen = ring_len(aUnique1)
 
             for i = 1 to nLen
                 if StzFind(aUnique2, aUnique1[i]) > 0
@@ -1452,7 +1452,7 @@ class stzDataSet
                 ok
             next
             
-            nUnion = len(aUnique1) + len(aUnique2) - nIntersection
+            nUnion = ring_len(aUnique1) + ring_len(aUnique2) - nIntersection
             return nIntersection / nUnion
         ok
 
@@ -1473,13 +1473,13 @@ class stzDataSet
         ok
 
         # Calculate confidence interval for the mean
-        if @cDataType != "numeric" or len(@anData) < 2
+        if @cDataType != "numeric" or ring_len(@anData) < 2
             return [0, 0]
         ok
         
         nMean = This.Mean()
         nStdDev = This.StandardDeviation()
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         
         # Using t-distribution approximation
         nAlpha = (100 - nConfidence) / 100
@@ -1503,11 +1503,11 @@ class stzDataSet
 	#---
 
 	def WeightedMean(aWeights)
-	    if @cDataType != "numeric" or len(@anData) = 0
+	    if @cDataType != "numeric" or ring_len(@anData) = 0
 	        return 0
 	    ok
 	    
-	    if NOT isList(aWeights) or len(aWeights) != len(@anData)
+	    if NOT isList(aWeights) or ring_len(aWeights) != ring_len(@anData)
 	        StzRaise("Weights must be a list with same length as data")
 	    ok
 	    
@@ -1520,7 +1520,7 @@ class stzDataSet
 	    
 	    nWeightedSum = 0
 	    nWeightSum = 0
-	    nLen = len(@anData)
+	    nLen = ring_len(@anData)
 	    
 	    for i = 1 to nLen
 	        nWeightedSum += @anData[i] * aWeights[i]
@@ -1540,7 +1540,7 @@ class stzDataSet
 
 
 	def TrimmedMean(nTrimPercent)
-	    if @cDataType != "numeric" or len(@anData) = 0
+	    if @cDataType != "numeric" or ring_len(@anData) = 0
 	        return 0
 	    ok
 
@@ -1560,7 +1560,7 @@ class stzDataSet
 	    ok
 	    
 	    This._SortIfNeeded()
-	    nLen = len(@anSortedData)
+	    nLen = ring_len(@anSortedData)
 	    nTrimCount = floor((nLen * nTrimPercent) / 100)
 	    
 	    if nTrimCount * 2 >= nLen
@@ -1584,12 +1584,12 @@ class stzDataSet
 
 
 	def PercentileRank(nValue)
-	    if @cDataType != "numeric" or len(@anData) = 0
+	    if @cDataType != "numeric" or ring_len(@anData) = 0
 	        return 0
 	    ok
 	    
 	    This._SortIfNeeded()
-	    nLen = len(@anSortedData)
+	    nLen = ring_len(@anSortedData)
 	    nBelow = 0
 	    nEqual = 0
 	    
@@ -1620,7 +1620,7 @@ class stzDataSet
 	    ok
 	
 	    aFreqHash = []
-	    nLen = len(@anData)
+	    nLen = ring_len(@anData)
 	
 	    for i = 1 to nLen
 	        cItemKey = "" + @anData[i]
@@ -1651,7 +1651,7 @@ class stzDataSet
 	    nTotal = This.Count()
 	    aRelFreq = []
 	
-	    nLen = len(aFreqTable)
+	    nLen = ring_len(aFreqTable)
 	
 	    for i = 1 to nLen
 	        nRelativeFreq = aFreqTable[i][2] / nTotal
@@ -1669,7 +1669,7 @@ class stzDataSet
         aRelFreq = This.RelativeFrequency()
         aPercFreq = []
 
-        nLen = len(aRelFreq)
+        nLen = ring_len(aRelFreq)
 
         for i = 1 to nLen
             nPercentage = aRelFreq[i][2] * 100
@@ -1683,10 +1683,10 @@ class stzDataSet
 
 
     def UniqueCount()
-        return len(This.UniqueValues())
+        return ring_len(This.UniqueValues())
 
 		def UCount()
-			return len(This.UniqueValues())
+			return ring_len(This.UniqueValues())
 
 
     def UniqueValues()
@@ -1697,7 +1697,7 @@ class stzDataSet
             return cached
         ok
 
-		nLen = len(@anData)
+		nLen = ring_len(@anData)
         aUnique = []
 
         for i = 1 to nLen
@@ -1731,7 +1731,7 @@ class stzDataSet
 
     def EntropyIndex()
         # Shannon entropy for diversity measurement
-        if len(@anData) = 0
+        if ring_len(@anData) = 0
             return 0
         ok
         
@@ -1739,7 +1739,7 @@ class stzDataSet
         nTotal = This.Count()
         nEntropy = 0
         
-		nLen = len(aFreqTable)
+		nLen = ring_len(aFreqTable)
 
         for i = 1 to nLen
             nProbability = aFreqTable[i][2] / nTotal
@@ -1764,7 +1764,7 @@ class stzDataSet
 	    aData1 = @anData
 	    aData2 = oOtherDataSet.Data()
 	    
-	    if len(aData1) != len(aData2)
+	    if ring_len(aData1) != ring_len(aData2)
 	        StzRaise("Both datasets must have same length")
 	    ok
 	    
@@ -1773,8 +1773,8 @@ class stzDataSet
 	    aTable = []
 	    
 	    # Initialize table
-		nLenX = len(aUniqueX)
-		nLenY = len(aUniqueY)
+		nLenX = ring_len(aUniqueX)
+		nLenY = ring_len(aUniqueY)
 
 	    for i = 1 to nLenX
 	        aRow = []
@@ -1785,7 +1785,7 @@ class stzDataSet
 	    next
 	    
 	    # Count occurrences
-	    nLen = len(aData1)
+	    nLen = ring_len(aData1)
 	    for k = 1 to nLen
 	        nXIndex = StzFind(aUniqueX, aData1[k])
 	        nYIndex = StzFind(aUniqueY, aData2[k])
@@ -1801,7 +1801,7 @@ class stzDataSet
 
 
 	def ModeCount()
-	    if len(@anData) = 0
+	    if ring_len(@anData) = 0
 	        return 0
 	    ok
 	    
@@ -1813,12 +1813,12 @@ class stzDataSet
 	    ok
 	    
 	    aFreqTable = This.FrequencyTable()
-	    if len(aFreqTable) = 0
+	    if ring_len(aFreqTable) = 0
 	        return 0
 	    ok
 	    
 	    nMaxFreq = 0
-	    nLen = len(aFreqTable)
+	    nLen = ring_len(aFreqTable)
 	    
 	    for i = 1 to nLen
 	        if aFreqTable[i][2] > nMaxFreq
@@ -1853,7 +1853,7 @@ class stzDataSet
 
 
 	def PercentileXT(nPercent, cMethod) # interpolation or nearest
-	    if @cDataType != "numeric" or len(@anData) = 0
+	    if @cDataType != "numeric" or ring_len(@anData) = 0
 	        return 0
 	    ok
 	    
@@ -1863,7 +1863,7 @@ class stzDataSet
 	    ok
 	    
 	    This._SortIfNeeded()
-	    nLen = len(@anSortedData)
+	    nLen = ring_len(@anSortedData)
 	    
 	    if cMethod = "nearest" or cMethod = "nearestrank"
 	        nRank = ceil((nLen * nPercent) / 100)
@@ -1949,7 +1949,7 @@ class stzDataSet
 	#---
 
     def Skew()
-        if @cDataType != "numeric" or len(@anData) < @nMinSampleSize
+        if @cDataType != "numeric" or ring_len(@anData) < @nMinSampleSize
             return 0
         ok
 
@@ -1971,7 +1971,7 @@ class stzDataSet
             return 0
         ok
         
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         nSum = 0
         
         for i = 1 to nLen
@@ -1988,7 +1988,7 @@ class stzDataSet
 
 
     def Kurtosis()
-        if @cDataType != "numeric" or len(@anData) < 4
+        if @cDataType != "numeric" or ring_len(@anData) < 4
             return 0
         ok
 
@@ -2010,7 +2010,7 @@ class stzDataSet
             return 0
         ok
         
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         nSum = 0
         
         for i = 1 to nLen
@@ -2033,7 +2033,7 @@ class stzDataSet
 		if This._EngineAvailable()
 			return StzEngineStatsContainsOutliers(@pEngineStats)
 		ok
-		return len(This.Outliers()) > 0
+		return ring_len(This.Outliers()) > 0
 
     def Outliers()
         if @cDataType != "numeric"
@@ -2055,7 +2055,7 @@ class stzDataSet
         nUpperBound = nQ3 + (1.5 * nIQR)
         
         aOutliers = []
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         for i = 1 to nLen
             if @anData[i] < nLowerBound or @anData[i] > nUpperBound
                 aOutliers + @anData[i]
@@ -2083,7 +2083,7 @@ class stzDataSet
         ok
         
         aZScores = []
-		nLen = len(@anData)
+		nLen = ring_len(@anData)
         for i = 1 to nLen
             nZScore = (@anData[i] - nMean) / nStdDev
             aZScores + nZScore
@@ -2101,12 +2101,12 @@ class stzDataSet
             return @anData
         ok
         
-        if len(@anData) < nWindow
+        if ring_len(@anData) < nWindow
             return @anData
         ok
         
         aMovingAvg = []
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         
         for i = 1 to (nLen - nWindow + 1)
             nSum = 0
@@ -2132,11 +2132,11 @@ class stzDataSet
 
 	def TrendAnalysis()
 	    # Granular trend analysis detecting segments and inflection points
-	    if @cDataType != "numeric" or len(@anData) < 2
-	        return [ ["insufficient_data", len(@anData)] ]
+	    if @cDataType != "numeric" or ring_len(@anData) < 2
+	        return [ ["insufficient_data", ring_len(@anData)] ]
 	    ok
 	    
-	    nLenData = len(@anData)
+	    nLenData = ring_len(@anData)
 	    
 	    # For simple cases (2-3 points), use basic trend
 	    if nLenData <= 3
@@ -2152,7 +2152,7 @@ class stzDataSet
 	    # Classify each difference
 	    aTrends = []
 	    nTolerance = This._CalculateTolerance()
-		nLenDiff = len(aDifferences)
+		nLenDiff = ring_len(aDifferences)
 	    for i = 1 to nLenDiff
 	        aTrends + This._ClassifyDifference(aDifferences[i], nTolerance)
 	    next
@@ -2161,7 +2161,7 @@ class stzDataSet
 	    aTrendSegments = []
 	    cCurrentTrend = aTrends[1]
 	    nSegmentStart = 1  # Start at first data position
-	    nLenTrends = len(aTrends)
+	    nLenTrends = ring_len(aTrends)
 
 	    for i = 2 to nLenTrends
 	        if aTrends[i] != cCurrentTrend
@@ -2185,7 +2185,7 @@ class stzDataSet
 
 
 	def _SimpleSeriesTrend()
-	    nLen = len(@anData)
+	    nLen = ring_len(@anData)
 	    if nLen = 2
 	        nDiff = @anData[2] - @anData[1]
 	        nTolerance = This._CalculateTolerance()
@@ -2239,7 +2239,7 @@ class stzDataSet
 	#---
 
 	def Deciles()
-	    if @cDataType != "numeric" or len(@anData) = 0
+	    if @cDataType != "numeric" or ring_len(@anData) = 0
 	        return []
 	    ok
 	    
@@ -2261,7 +2261,7 @@ class stzDataSet
 
 	def BoxPlotStats() # Prepare data series for stzBoxPlot
 
-	    if @cDataType != "numeric" or len(@anData) = 0
+	    if @cDataType != "numeric" or ring_len(@anData) = 0
 	        return []
 	    ok
 	    
@@ -2282,10 +2282,10 @@ class stzDataSet
 	    
 	    This._SortIfNeeded()
 	    nWhiskerLow = @anSortedData[1]
-	    nWhiskerHigh = @anSortedData[len(@anSortedData)]
+	    nWhiskerHigh = @anSortedData[ring_len(@anSortedData)]
 	    
 	    # Find actual whisker values within fences
-	    nLen = len(@anSortedData)
+	    nLen = ring_len(@anSortedData)
 	    for i = 1 to nLen
 	        if @anSortedData[i] >= nLowerFence
 	            nWhiskerLow = @anSortedData[i]
@@ -2320,7 +2320,7 @@ class stzDataSet
 
 	def NormalityTest()
 	    # Simplified normality test based on skewness and kurtosis
-	    if @cDataType != "numeric" or len(@anData) < 4
+	    if @cDataType != "numeric" or ring_len(@anData) < 4
 	        return [["test", "insufficient_data"], ["p_value", 0], ["is_normal", 0]]
 	    ok
 	    
@@ -2380,7 +2380,7 @@ class stzDataSet
         ok
 
         aOtherData = oOtherStats.Data()
-        if len(@anData) != len(aOtherData) or len(@anData) < 2
+        if ring_len(@anData) != ring_len(aOtherData) or ring_len(@anData) < 2
             return 0
         ok
 
@@ -2390,7 +2390,7 @@ class stzDataSet
 
         nMean1 = This.Mean()
         nMean2 = oOtherStats.Mean()
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         nSumProduct = 0
         nSumSq1 = 0
         nSumSq2 = 0
@@ -2425,7 +2425,7 @@ class stzDataSet
         ok
 
         aOtherData = oOtherStats.Data()
-        if len(@anData) != len(aOtherData) or len(@anData) < 2
+        if ring_len(@anData) != ring_len(aOtherData) or ring_len(@anData) < 2
             return 0
         ok
 
@@ -2435,7 +2435,7 @@ class stzDataSet
 
         nMean1 = This.Mean()
         nMean2 = oOtherStats.Mean()
-        nLen = len(@anData)
+        nLen = ring_len(@anData)
         nSum = 0
         
         for i = 1 to nLen
@@ -2456,7 +2456,7 @@ class stzDataSet
         ok
 
         aOtherData = oOtherStats.Data()
-        if len(@anData) != len(aOtherData) or len(@anData) < 2
+        if ring_len(@anData) != ring_len(aOtherData) or ring_len(@anData) < 2
             return 0
         ok
 
@@ -2483,7 +2483,7 @@ class stzDataSet
 
     def _GetRanks(aData)
         aIndexed = []
-        nLen = len(aData)
+        nLen = ring_len(aData)
         
         # Create value-index pairs
         for i = 1 to nLen
@@ -2514,7 +2514,7 @@ class stzDataSet
 	    ok
 	    
 	    aOtherData = oOtherStats.Data()
-	    if len(@anData) != len(aOtherData) or len(@anData) < 2
+	    if ring_len(@anData) != ring_len(aOtherData) or ring_len(@anData) < 2
 	        return 0
 	    ok
 	    
@@ -2530,13 +2530,13 @@ class stzDataSet
 	    aUnique1 = This.UniqueValues()
 	    aUnique2 = oOtherStats.UniqueValues()
 	    
-	    if len(aUnique1) = 0 or len(aUnique2) = 0
+	    if ring_len(aUnique1) = 0 or ring_len(aUnique2) = 0
 	        return 0
 	    ok
 	    
 	    # Initialize contingency table
-	    nRows = len(aUnique1)
-	    nCols = len(aUnique2)
+	    nRows = ring_len(aUnique1)
+	    nCols = ring_len(aUnique2)
 	    aContingency = []
 	    for i = 1 to nRows
 	        aRow = []
@@ -2547,7 +2547,7 @@ class stzDataSet
 	    next
 	    
 	    # Populate contingency table with observed frequencies
-	    nLen = len(@anData)
+	    nLen = ring_len(@anData)
 	    for i = 1 to nLen
 	        nRow = StzFind(aUnique1, @anData[i])
 	        nCol = StzFind(aUnique2, aOtherData[i])
@@ -2610,13 +2610,13 @@ class stzDataSet
 	    ok
 	    
 	    aOtherData = oOtherDataSet.Data()
-	    if len(@anData) != len(aOtherData) or len(@anData) < 2
+	    if ring_len(@anData) != ring_len(aOtherData) or ring_len(@anData) < 2
 	        return [[:slope, 0], [:intercept, 0], [:r_squared, 0]]
 	    ok
 	    
 	    nMeanX = This.Mean()
 	    nMeanY = oOtherDataSet.Mean()
-	    nLen = len(@anData)
+	    nLen = ring_len(@anData)
 	    nSumXY = 0
 	    nSumXX = 0
 	    
@@ -2675,13 +2675,13 @@ class stzDataSet
 	    aData1 = @anData
 	    aData2 = oOtherDataSet.Data()
 	    
-	    if len(aData1) != len(aData2) or len(aData1) = 0
+	    if ring_len(aData1) != ring_len(aData2) or ring_len(aData1) = 0
 	        return 0
 	    ok
 	    
 	    # Create joint frequency table
 	    aJointFreq = []
-	    nTotal = len(aData1)
+	    nTotal = ring_len(aData1)
 	    
 	    for i = 1 to nTotal
 	        cPair = "" + aData1[i] + "_" + aData2[i]
@@ -2699,7 +2699,7 @@ class stzDataSet
 	    
 	    # Calculate mutual information
 	    nMI = 0
-	    nJointLen = len(aJointFreq)
+	    nJointLen = ring_len(aJointFreq)
 	    
 	    for i = 1 to nJointLen
 	        nJointProb = aJointFreq[i][2] / nTotal
@@ -2736,14 +2736,14 @@ class stzDataSet
 	
 	def _HashList(aList)
 	    cHash = ""
-	    nLen = len(aList)
+	    nLen = ring_len(aList)
 	    for i = 1 to nLen
 	        cHash += "" + aList[i] + "_"
 	    next
 	    return cHash
 	
 	def _FindInFreqList(aFreqList, cValue)
-	    nLen = len(aFreqList)
+	    nLen = ring_len(aFreqList)
 	    for i = 1 to nLen
 	        if aFreqList[i][1] = cValue
 	            return i
@@ -2752,7 +2752,7 @@ class stzDataSet
 	    return 0
 	
 	def _GetFreqValue(aFreqTable, cValue)
-	    nLen = len(aFreqTable)
+	    nLen = ring_len(aFreqTable)
 	    for i = 1 to nLen
 	        if aFreqTable[i][1] = cValue
 	            return aFreqTable[i][2]
@@ -2780,7 +2780,7 @@ class stzDataSet
         ok
         
         aNormalized = []
-		nLen = len(@anData)
+		nLen = ring_len(@anData)
 
         for i = 1 to nLen
             nNormalized = (@anData[i] - nMin) / nRange
@@ -2804,7 +2804,7 @@ class stzDataSet
         ok
         
         aStandardized = []
-		nLen = len(@anData)
+		nLen = ring_len(@anData)
 
         for i = 1 to nLen
             nStandardized = (@anData[i] - nMean) / nStdDev
@@ -2831,7 +2831,7 @@ class stzDataSet
         ok
         
         aScaled = []
-		nLen = len(@anData)
+		nLen = ring_len(@anData)
 
         for i = 1 to nLen
             nScaled = (@anData[i] - nMedian) / nIQR
@@ -2852,14 +2852,14 @@ class stzDataSet
         # Validate data integrity and quality
         acIssues = []
 
-        if len(@anData) = 0
+        if ring_len(@anData) = 0
             acIssues + "Dataset is empty"
             return acIssues
         ok
         
         if @cDataType = "numeric"
             # Check for infinite or NaN values
-			nLen = len(@anData)
+			nLen = ring_len(@anData)
             for i = 1 to nLen
                 if isNull(@anData[i])
                     aIssues + "Contains null values"
@@ -2869,7 +2869,7 @@ class stzDataSet
 
             # Check for extreme outliers
             aOutliers = This.Outliers()
-            if len(aOutliers) > (This.Count() * 0.2)
+            if ring_len(aOutliers) > (This.Count() * 0.2)
                 acIssues + "High proportion of outliers detected"
             ok
             
@@ -2879,7 +2879,7 @@ class stzDataSet
             ok
         ok
         
-        if len(acIssues) = 0
+        if ring_len(acIssues) = 0
             acIssues + "Data quality appears good"
         ok
         
@@ -2898,7 +2898,7 @@ class stzDataSet
 
     def _GenerateInsights()
         aTemplates = DataSetTemplates()
-        nLen = len(aTemplates)
+        nLen = ring_len(aTemplates)
         acInsights = []
         
         for i = 1 to nLen
@@ -2911,7 +2911,7 @@ class stzDataSet
 
     def _GenerateInsightXT(cType)
         aTemplates = DataSetTemplatesXT(cType)
-        nLen = len(aTemplates)
+        nLen = ring_len(aTemplates)
         acInsights = []
         
         for i = 1 to nLen
@@ -2937,12 +2937,12 @@ class stzDataSet
     def InsightsXT()
         acResults = This.Insights()
         
-        nLen = len($aDomainInsightRules)
+        nLen = ring_len($aDomainInsightRules)
         
         for i = 1 to nLen
             cDomain = $aDomainInsightRules[i][1]
             aDomain = $aDomainInsightRules[i][2]
-            nLenDomain = len(aDomain)
+            nLenDomain = ring_len(aDomain)
             
             for j = 1 to nLenDomain
                 if This._EvaluateCondition(aDomain[j][:condition])
@@ -2957,7 +2957,7 @@ class stzDataSet
         acResults = []
         
         if HasKey($aDomainInsightRules, cDomain)
-            nLen = len($aDomainInsightRules[cDomain])
+            nLen = ring_len($aDomainInsightRules[cDomain])
             
             for i = 1 to nLen
                 if This._EvaluateCondition($aDomainInsightRules[cDomain][i][:condition])
@@ -2976,7 +2976,7 @@ class stzDataSet
     #===============================#
 
     def RecommendAnalysis()
-        nLen = len($aRecommendations)
+        nLen = ring_len($aRecommendations)
         aResults = []
         
         for i = 1 to nLen
@@ -3022,7 +3022,7 @@ class stzDataSet
         
         for aSection in aSections
             # Check for inheritance (first element is :inherit)
-            if len(aSection) >= 2 and aSection[1] = :inherit
+            if ring_len(aSection) >= 2 and aSection[1] = :inherit
 
                 # Handle inheritance
                 cInheritedTemplate = aSection[2]
@@ -3062,7 +3062,7 @@ class stzDataSet
 	
 	    but isList(vContent)
 	        if cFormat = "text"
-				nLen = len(vContent)
+				nLen = ring_len(vContent)
 				for i = 1 to nlen
 					cItem = vContent[i]
 	                cSectionContent += "• " + @trim(This._InterpolateContent(cItem)) + NL
@@ -3108,7 +3108,7 @@ class stzDataSet
 	    if oTempStr.Contains("{Insights()}")
 	        acInsights = This.Insights()
 	        cInsightText = ""
-	        nLen = len(acInsights)
+	        nLen = ring_len(acInsights)
 	
 	        for i = 1 to nLen
 	            cInsightText += "• " + acInsights[i]
@@ -3121,7 +3121,7 @@ class stzDataSet
 	    
 	    if oTempStr.Contains("{Recommendations()}")
 	        acRecommendations = This.Recommendations()
-		nLen = len(acRecommendations)
+		nLen = ring_len(acRecommendations)
 	        cRecommendText = ""
 	        for i = 1 to nLen
 	            cRecommendText += "• " + acRecommendations[i] + NL + NL  # Added extra NL
@@ -3168,9 +3168,9 @@ class stzDataSet
 
         but isList(value)
             cResult = "["
-            for i = 1 to len(value)
+            for i = 1 to ring_len(value)
                 cResult += This._FormatValue(value[i])
-                if i < len(value)
+                if i < ring_len(value)
                     cResult += ", "
                 ok
             next
@@ -3260,7 +3260,7 @@ class stzDataSet
             :title = aTemplate[:title],
             :description = aTemplate[:description],
             :steps = aExecutableSteps,
-            :total_steps = len(aExecutableSteps),
+            :total_steps = ring_len(aExecutableSteps),
         ]
     
 		def GeneratePlan(cNameOrGoalOrTemplate)
@@ -3277,7 +3277,7 @@ class stzDataSet
 			ok
 		ok
 		@bChain = TRUE
-		nLen = len(acPlans)
+		nLen = ring_len(acPlans)
 		for i = 1 to nLen
 			if i = 1
 				@bFirstChain = TRUE
@@ -3371,14 +3371,14 @@ class stzDataSet
         
         if bVerbose
 	    nTime = (clock() - nTime) / clockspersecond()
-            ? "( Plan completed in " + nTime + "s : " + len(aResults) + " successful step(s), " + len(aErrors) + " error(s) )"
+            ? "( Plan completed in " + nTime + "s : " + ring_len(aResults) + " successful step(s), " + ring_len(aErrors) + " error(s) )"
         ok
         
         return [
             :plan = aPlan,
             :results = aResults,
             :errors = aErrors,
-            :success_rate = (len(aResults) / aPlan[:total_steps]) * 100
+            :success_rate = (ring_len(aResults) / aPlan[:total_steps]) * 100
         ]
     
 	def RunPlanXT(cNameOrGoalOrTemplate, bVerbose)
@@ -3460,7 +3460,7 @@ class stzDataSet
 	    
 	    # Check outliers first
 	    if This.ContainsOutliers()
-	        nOutlierPct = (len(This.Outliers()) / nCount) * 100
+	        nOutlierPct = (ring_len(This.Outliers()) / nCount) * 100
 	        if nOutlierPct > 5
 	            return :OUTLIERS
 	        ok
@@ -3475,7 +3475,7 @@ class stzDataSet
 	    # Trending data detection
 	    if nCount >= 5
 	        aTrend = This.TrendAnalysis()
-	        if len(aTrend) = 1 and aTrend[1][1] != "stable"
+	        if ring_len(aTrend) = 1 and aTrend[1][1] != "stable"
 	            return :TRENDS
 	        ok
 	    ok
@@ -3532,7 +3532,7 @@ class stzDataSet
 	    # Stage 5: Detect trends if sequential data
 	    if This.Count() >= 5
 	        aTrend = This.TrendAnalysis()
-	        if len(aTrend) >= 2 or (len(aTrend) = 1 and aTrend[1][1] != "stable")
+	        if ring_len(aTrend) >= 2 or (ring_len(aTrend) = 1 and aTrend[1][1] != "stable")
 	            ? ""
 	            ? "~> Trend pattern identified, analyzing temporal behavior..."
 	            ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -3550,7 +3550,7 @@ class stzDataSet
     #===============================#
     
 	def _PlanNames()
-		nLen = len($aPlanTemplates)
+		nLen = ring_len($aPlanTemplates)
 		acResult = []
 
 		for i = 1 to nLen
@@ -3560,7 +3560,7 @@ class stzDataSet
 		return acResult
 
 	def _PlanTemplates()
-		nLen = len($aPlanTemplates)
+		nLen = ring_len($aPlanTemplates)
 		acResult = []
 
 		for i = 1 to nLen
@@ -3570,7 +3570,7 @@ class stzDataSet
 		return acResult
 
 	def _PlanGoals()
-		nLen = len($aPlanGoals)
+		nLen = ring_len($aPlanGoals)
 		acResult = []
 
 		for i = 1 to nLen
@@ -3634,10 +3634,10 @@ class stzDataSet
         
         # Build execution code
         cCode = "result = " + cFunction + "("
-        if len(aArgs) > 0
-            for i = 1 to len(aArgs)
+        if ring_len(aArgs) > 0
+            for i = 1 to ring_len(aArgs)
                 cCode += aArgs[i]
-                if i < len(aArgs)
+                if i < ring_len(aArgs)
                     cCode += ", "
                 ok
             next
@@ -3682,7 +3682,7 @@ class stzDataSet
                 return cFunction + ": " + vResult
 
             but isList(vResult)
-                return cFunction + ": " + len(vResult) + " value(s)"
+                return cFunction + ": " + ring_len(vResult) + " value(s)"
 
             else
                 return cFunction + ": completed"
@@ -3692,9 +3692,9 @@ class stzDataSet
     
     def _FormatArgs(aArgs)
         cResult = ""
-        for i = 1 to len(aArgs)
+        for i = 1 to ring_len(aArgs)
             cResult += aArgs[i]
-            if i < len(aArgs)
+            if i < ring_len(aArgs)
                 cResult += ", "
             ok
         next
@@ -3709,7 +3709,7 @@ class stzDataSet
 	    @aCache = []
 
 	def _InitEngine()
-	    if @cDataType = "numeric" and len(@anData) > 0
+	    if @cDataType = "numeric" and ring_len(@anData) > 0
 	        @pEngineStats = StzEngineStatsCreate(@anData)
 	    ok
 
@@ -3723,7 +3723,7 @@ class stzDataSet
 	    return @aCache[cKey]
 
 	def _CacheKeys()
-		nLen = len(@aCache)
+		nLen = ring_len(@aCache)
 		acKeys = []
 
 		for i = 1 to nLen

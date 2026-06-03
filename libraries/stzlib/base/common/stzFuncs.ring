@@ -5546,7 +5546,7 @@ class stzForEachObjectOld
 		ok
 	
 		if isList(p)
-			nLen = len(p)
+			nLen = ring_len(p)
 			
 			if NOT IsListOfLists(pIn)
 				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
@@ -5565,7 +5565,7 @@ class stzForEachObjectOld
 			p = aTemp
 
 			if isList(pIn)
-				nLen = len(pIn)
+				nLen = ring_len(pIn)
 				aTemp = []
 				for i = 1 to nLen
 					aTemp + [ pIn[i] ]
@@ -5584,7 +5584,7 @@ class stzForEachObjectOld
 			return This.Vars()
 
 	def NumberOfVars()
-		return len(@acVars)
+		return ring_len(@acVars)
 
 		def NumbersOfVarNames()
 			return This.NumberOfVars()
@@ -5605,7 +5605,7 @@ class stzForEachObjectOld
 		return @aValues
 
 	def NumberOfIterations()
-		return len(@aValues)
+		return ring_len(@aValues)
 
 		def NumberOfValues()
 			return This.NumberOfIterations()
@@ -5624,9 +5624,9 @@ class stzForEachObjectOld
 
 	def @(pcCode)
 
-		for i = 1 to len(@aValues)
+		for i = 1 to ring_len(@aValues)
 
-			for j = 1 to len(@aValues[i])
+			for j = 1 to ring_len(@aValues[i])
 				cCode = @acVars[j] + ' = @aValues[i][j]'
 				eval(cCode)
 			next
@@ -5668,7 +5668,7 @@ class stzForEachObject
 		ok
 	
 		if isList(p)
-			nLen = len(p)
+			nLen = ring_len(p)
 
 			if NOT IsListOfLists(pIn)
 				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
@@ -5682,7 +5682,7 @@ class stzForEachObject
 		ok
 	
 		if isString(p)
-			@Iterations = 1 : len(pIn)
+			@Iterations = 1 : ring_len(pIn)
 
 			aTemp = []
 			aTemp + [ p, pIn ]
@@ -5698,18 +5698,18 @@ class stzForEachObject
 	
 			@aDataVars = []
 	
-			for i = 1 to len(p)
+			for i = 1 to ring_len(p)
 				@aDataVars + [ p[i], [] ]
 			next
 	
 	
-			for i = 1 to len(@aDataVars)
-				for j = 1 to len(@aValues)
+			for i = 1 to ring_len(@aDataVars)
+				for j = 1 to ring_len(@aValues)
 					@aDataVars[i][2] + @aValues[j][i]
 				next
 			next
 
-			@Iterations = 1 : len(@aValues)
+			@Iterations = 1 : ring_len(@aValues)
 		ok
 
 	
@@ -5726,7 +5726,7 @@ class stzForEachObject
 			return This.@Vars()
 
 	def @NumberOfVars()
-		return len(This.@VarsXT())
+		return ring_len(This.@VarsXT())
 
 		def @NumbersOfVarNames()
 			return This.@NumberOfVars()
@@ -5757,7 +5757,7 @@ class stzForEachObject
 		#>
 
 	def @NumberOfIterations()
-		return len(@aValues)
+		return ring_len(@aValues)
 
 		def @NumberOfValues()
 			return This.@NumberOfIterations()
@@ -5794,12 +5794,12 @@ class stzForEachObject
 
 	def Exec(pcCode)
 
-		if isList(pcCode) and len(pcCode) = 2
+		if isList(pcCode) and ring_len(pcCode) = 2
 			ExecN(pcCode[1], pcCode[2])
 			return
 		ok
 
-		nLen = len(@Iterations)
+		nLen = ring_len(@Iterations)
 
 		if This.@NumberOfVars() = 1
 
@@ -5814,7 +5814,7 @@ class stzForEachObject
 
 			for i = 1 to nLen
 				@i = @Iterations[i]
-				for j = 1 to len(@aValues[@i])
+				for j = 1 to ring_len(@aValues[@i])
 					cCode = @acVars[j] + ' = @aValues[' + @Iterations[i] + '][' + j + ']'
 					eval(cCode)
 				next
@@ -5849,7 +5849,7 @@ class stzForEachObject
 			anPos = n
 		ok
 
-		nLen = len(anPos)
+		nLen = ring_len(anPos)
 
 		if This.@NumberOfVars() = 1
 
@@ -5864,7 +5864,7 @@ class stzForEachObject
 
 			for i = 1 to nLen
 				@i = anPos[i]
-				for j = 1 to len(@aValues[@i])
+				for j = 1 to ring_len(@aValues[@i])
 					cCode = @acVars[j] + ' = @aValues[' + anPos[i] + '][' + j + ']'
 					eval(cCode)
 				next

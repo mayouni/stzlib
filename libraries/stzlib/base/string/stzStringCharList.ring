@@ -191,7 +191,7 @@ class stzStringCharList
 
 		but isList(pValue) and Q(pValue).IsListOfNumbers()
 			# List of unicode codepoints
-			nLen = len(pValue)
+			nLen = ring_len(pValue)
 			for i = 1 to nLen
 				@acChars + StzCharQ(pValue[i]).Content()
 			next
@@ -217,16 +217,16 @@ class stzStringCharList
 			return @acChars
 
 	def NumberOfChars()
-		return len(@acChars)
+		return ring_len(@acChars)
 
 		def Len()
-			return len(@acChars)
+			return ring_len(@acChars)
 
 		def Length()
-			return len(@acChars)
+			return ring_len(@acChars)
 
 	def NthChar(n)
-		if n < 1 or n > len(@acChars)
+		if n < 1 or n > ring_len(@acChars)
 			StzRaise("Index out of range!")
 		ok
 		return @acChars[n]
@@ -236,7 +236,7 @@ class stzStringCharList
 
 	def Concatenated()
 		cResult = ""
-		nLen = len(@acChars)
+		nLen = ring_len(@acChars)
 		for i = 1 to nLen
 			cResult += @acChars[i]
 		next
@@ -247,7 +247,7 @@ class stzStringCharList
 	#===============================#
 
 	def Contains(cChar)
-		nLen = len(@acChars)
+		nLen = ring_len(@acChars)
 		for i = 1 to nLen
 			if @acChars[i] = cChar
 				return 1
@@ -257,7 +257,7 @@ class stzStringCharList
 
 	def Find(cChar)
 		anResult = []
-		nLen = len(@acChars)
+		nLen = ring_len(@acChars)
 		for i = 1 to nLen
 			if @acChars[i] = cChar
 				anResult + i
@@ -345,7 +345,7 @@ class stzStringCharList
 	#===============================#
 
 	def Reverse()
-		nLen = len(@acChars)
+		nLen = ring_len(@acChars)
 		acNew = []
 		for i = nLen to 1 step -1
 			acNew + @acChars[i]
@@ -408,7 +408,7 @@ class stzStringCharList
 	#===============================#
 
 	def Unicodes()
-		nLen = len(@acChars)
+		nLen = ring_len(@acChars)
 		anResult = []
 		for i = 1 to nLen
 			anResult + StzEngineCharUnicode(@acChars[i])

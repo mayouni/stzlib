@@ -140,7 +140,7 @@ class stzListOfEntities from stzList
 		ok
 
 	def NumberOfEntities()
-		return len( This.Entities() )
+		return ring_len( This.Entities() )
 
 		def Size()
 			return This.NumberOfEntities()

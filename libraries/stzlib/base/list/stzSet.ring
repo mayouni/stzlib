@@ -172,7 +172,7 @@ class stzSet from stzList
 	#---------------------------------------#
 
 	def NumberOfElements()
-		return len( This.Set() )
+		return ring_len( This.Set() )
 
 	def Element(i)
 		return This.Set()[i]
@@ -306,7 +306,7 @@ class stzSet from stzList
 
 		# A is included in B iff A-B is empty (engine-backed)
 		aDiff = This.DifferenceWith(paOtherSet)
-		return len(aDiff) = 0
+		return ring_len(aDiff) = 0
 
 	  #-------------------------------------------#
 	 #    INCLUSION OF AN OTHER SET IN THE SET   #
@@ -322,7 +322,7 @@ class stzSet from stzList
 		# B is included in A iff B-A is empty (engine-backed)
 		oOtherSet = new stzSet(paOtherSet)
 		aDiff = oOtherSet.DifferenceWith(This.Content())
-		return len(aDiff) = 0
+		return ring_len(aDiff) = 0
 
 	def Contains(paOtherSet)
 		return This.Includes(paOtherSet)
@@ -338,4 +338,4 @@ class stzSet from stzList
 		// TODO
 
 	def NumberOfSubsets()
-		return len( This.Subsets() )
+		return ring_len( This.Subsets() )

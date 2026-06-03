@@ -90,7 +90,7 @@ class stzStringWords
 
 	def NFirstWords(n)
 		acWords = This.Words()
-		nTotal = len(acWords)
+		nTotal = ring_len(acWords)
 		if n > nTotal
 			n = nTotal
 		ok
@@ -103,7 +103,7 @@ class stzStringWords
 
 	def NLastWords(n)
 		acWords = This.Words()
-		nTotal = len(acWords)
+		nTotal = ring_len(acWords)
 		if n > nTotal
 			n = nTotal
 		ok
@@ -121,7 +121,7 @@ class stzStringWords
 
 	def WordAtPosition(n)
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 
 		if n < 1 or n > nLen
 			StzRaise("Position out of range!")
@@ -196,7 +196,7 @@ class stzStringWords
 
 	def LongestWord()
 		acWords = This.Words()
-		nTotal = len(acWords)
+		nTotal = ring_len(acWords)
 		if nTotal = 0
 			return ""
 		ok
@@ -211,7 +211,7 @@ class stzStringWords
 
 	def ShortestWord()
 		acWords = This.Words()
-		nTotal = len(acWords)
+		nTotal = ring_len(acWords)
 		if nTotal = 0
 			return ""
 		ok
@@ -226,7 +226,7 @@ class stzStringWords
 
 	def AverageWordLength()
 		acWords = This.Words()
-		nTotal = len(acWords)
+		nTotal = ring_len(acWords)
 		if nTotal = 0
 			return 0
 		ok
@@ -243,14 +243,14 @@ class stzStringWords
 
 	def WordFrequencies()
 		acWords = This.Words()
-		nTotal = len(acWords)
+		nTotal = ring_len(acWords)
 		acUnique = []
 		anCounts = []
 
 		for i = 1 to nTotal
 			cLow = StzCaseFold(acWords[i])
 			bFound = 0
-			nULen = len(acUnique)
+			nULen = ring_len(acUnique)
 			for j = 1 to nULen
 				if StzCaseFold(acUnique[j]) = cLow
 					anCounts[j] = anCounts[j] + 1
@@ -265,7 +265,7 @@ class stzStringWords
 		next
 
 		aResult = []
-		nULen = len(acUnique)
+		nULen = ring_len(acUnique)
 		for i = 1 to nULen
 			aResult + [acUnique[i], anCounts[i]]
 		next
@@ -273,7 +273,7 @@ class stzStringWords
 
 	def MostFrequentWord()
 		aFreqs = This.WordFrequencies()
-		nFLen = len(aFreqs)
+		nFLen = ring_len(aFreqs)
 		if nFLen = 0
 			return ""
 		ok
@@ -295,7 +295,7 @@ class stzStringWords
 	def ContainsWordCS(pcWord, pCaseSensitive)
 		bCase = @CaseSensitive(pCaseSensitive)
 		acWords = This.Words()
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 
 		for i = 1 to nLen
 			if bCase
@@ -320,7 +320,7 @@ class stzStringWords
 	def ReplaceWordCS(pcOldWord, pcNewWord, pCaseSensitive)
 		bCase = @CaseSensitive(pCaseSensitive)
 		acWords = This.Words()
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 		acResult = []
 
 		for i = 1 to nLen
@@ -340,7 +340,7 @@ class stzStringWords
 		next
 
 		cResult = ""
-		nResLen = len(acResult)
+		nResLen = ring_len(acResult)
 		for i = 1 to nResLen
 			if i > 1
 				cResult += " "
@@ -368,7 +368,7 @@ class stzStringWords
 	def RemoveWordCS(pcWord, pCaseSensitive)
 		bCase = @CaseSensitive(pCaseSensitive)
 		acWords = This.Words()
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 		acResult = []
 
 		for i = 1 to nLen
@@ -384,7 +384,7 @@ class stzStringWords
 		next
 
 		cResult = ""
-		nResLen = len(acResult)
+		nResLen = ring_len(acResult)
 		for i = 1 to nResLen
 			if i > 1
 				cResult += " "

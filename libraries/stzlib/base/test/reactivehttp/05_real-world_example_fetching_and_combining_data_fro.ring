@@ -56,7 +56,7 @@ class DataAggregator
         ? "Fetching data from " + nTotalRequests + " different sources..." + NL
         
         # Fetch from all sources simultaneously (parallel requests)
-        for i = 1 to len(aApiSources)
+        for i = 1 to ring_len(aApiSources)
             aSource = aApiSources[i]
             cName = aSource[1]
             cUrl = aSource[2]
@@ -74,7 +74,7 @@ class DataAggregator
     def ProcessSourceData(cSourceName, aResponseData, sourceIndex)
         # Simulate data processing
         if aResponseData != NULL
-            nDataSize = len(aResponseData)
+            nDataSize = ring_len(aResponseData)
             # Extract key metrics (simplified)
             nItemCount = floor(nDataSize / 100)  # Rough estimate of items
             
@@ -128,7 +128,7 @@ class DataAggregator
         next
         
         ? NL + "📈 SUMMARY:"
-        ? "   Sources processed: " + len(aAggregatedData) + "/" + ntotalRequests  
+        ? "   Sources processed: " + ring_len(aAggregatedData) + "/" + ntotalRequests  
         ? "   Success rate: " + (nSuccessCount * 100 / nTotalRequests) + "%"
         ? "   Total items: ~" + nTotalItems
         ? "   Total data: " + nTotalBytes + " bytes"

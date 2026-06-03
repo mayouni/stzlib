@@ -401,7 +401,7 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		nLenPos = len(panPos)
+		nLenPos = ring_len(panPos)
 		if nLenPos = 0
 			return This.Content()
 
@@ -417,7 +417,7 @@ class stzSplitter from stzListOfNumbers
 		nFirstPos = panPos[1]
 		nLastPos = panPos[nLenPos]
 
-		nLenPairs = len(aPairs)
+		nLenPairs = ring_len(aPairs)
 
 		if aPairs[nLenPairs][2] = nLastPos
 			aPairs[nLenPairs][2]--
@@ -559,7 +559,7 @@ class stzSplitter from stzListOfNumbers
 
 		_oTmpSpSort_ = new stzList(panPos)
 		anPos = U( _oTmpSpSort_.Sorted() )
-		nLenPos = len(anPos)
+		nLenPos = ring_len(anPos)
 
 		for i = 1 to nLenPos
 			if NOT (anPos[i] >= 1 and anPos[i] <= nLen)
@@ -690,7 +690,7 @@ class stzSplitter from stzListOfNumbers
 
 		_oTmpSpSort_ = new stzList(panPos)
 		anPos = U( _oTmpSpSort_.Sorted() )
-		nLenPos = len(anPos)
+		nLenPos = ring_len(anPos)
 
 		for i = 1 to nLenPos
 			if NOT (anPos[i] >= 1 and anPos[i] <= nLen)
@@ -918,13 +918,13 @@ class stzSplitter from stzListOfNumbers
 
 		# Checking params
 
-		if NOT ( isList(paSections) and len(paSections) > 0 and Q(paSections).IsListOfPairsOfNumbers() )
+		if NOT ( isList(paSections) and ring_len(paSections) > 0 and Q(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a non empty list of pairs of numbers.")
 		ok
 
 		# Preparing the data
 
-		nLenSections = len(paSections)
+		nLenSections = ring_len(paSections)
 		aSections = QRT(paSections, :stzListOfPairs).Sorted()
 		
 		nLenMain = This.NumberOfItems()
@@ -948,7 +948,7 @@ class stzSplitter from stzListOfNumbers
 
 		aResult = []
 
-		if len(aFirstSplit) > 0
+		if ring_len(aFirstSplit) > 0
 			aResult + aFirstSplit
 		ok
 
@@ -958,7 +958,7 @@ class stzSplitter from stzListOfNumbers
 			aResult + [ n1, n2 ]
 		next
 
-		if len(aLastSplit) > 0
+		if ring_len(aLastSplit) > 0
 			aResult + aLastSplit
 		ok
 
@@ -1348,7 +1348,7 @@ class stzSplitter from stzListOfNumbers
 
 		aSections = This.SplitToPartsOfNItemsXT(n)
 		
-		nLen = len(aSections)
+		nLen = ring_len(aSections)
 		aLastPair = aSections[ nLen ]
 
 		if (aLastPair[2] - aLastPair[1] + 1) != n
@@ -1512,7 +1512,7 @@ class stzSplitter from stzListOfNumbers
 				# the main parts (starting with first)
 
 				aResult[1][2]++
-				for i = 2 to len(aResult)
+				for i = 2 to ring_len(aResult)
 					aResult[i][1]++
 					aResult[i][2]++
 				next
@@ -1561,7 +1561,7 @@ class stzSplitter from stzListOfNumbers
 				# of the splits on half and we decompose them
 				# each section into two separate sections
 
-				nStart = len(aResult) + 1
+				nStart = ring_len(aResult) + 1
 				nEnd = nStart + nDiff - 1
 
 				for i = nStart to nEnd
@@ -1758,13 +1758,13 @@ class stzSplitter from stzListOfNumbers
 
 		# Doing the job
 
-		if len(aPos) = 0
+		if ring_len(aPos) = 0
 			return [ [] ]
 		ok
 		
 		# Adding 1 and (NumberOfItems()) if inexistant
 		if aPos[1] != 1 { aPos + 1 }
-		if aPos[len(aPos)] != 10 { aPos + nLen }
+		if aPos[ring_len(aPos)] != 10 { aPos + nLen }
 		
 		# Sorting the list
 		_oChain_ = new stzList(aPos)
@@ -1773,11 +1773,11 @@ class stzSplitter from stzListOfNumbers
 		# Getting the pairs of that list
 
 		aPairs = []
-		for i = 1 to len(aPos) - 1
+		for i = 1 to ring_len(aPos) - 1
 			aPairs + [ aPos[i], aPos[i+1] ]
 		next
 
-		nLenPairs = len(aPairs)
+		nLenPairs = ring_len(aPairs)
 		aLastPair = aPairs[nLenPairs]
 		aBeforeLastPair = aPairs[nLenPairs-1]
 
@@ -1797,7 +1797,7 @@ class stzSplitter from stzListOfNumbers
 
 	def pvtSectionsToSectionsIB(aSections)
 
-		nLen = len(aSections)
+		nLen = ring_len(aSections)
 
 		if nLen = 1
 			if aSections[1][1] > 1

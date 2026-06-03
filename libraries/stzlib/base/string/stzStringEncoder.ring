@@ -59,7 +59,7 @@ class stzStringEncoder
 		cResult = ""
 		oHex = new stzString(cHex)
 		acChars = oHex.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		i = 1
 
 		while i <= nLen - 1
@@ -150,7 +150,7 @@ class stzStringEncoder
 	def FromBinary(cBin)
 		acParts = @Split(cBin, " ")
 		cResult = ""
-		nLen = len(acParts)
+		nLen = ring_len(acParts)
 
 		for i = 1 to nLen
 			cByte = acParts[i]
@@ -226,7 +226,7 @@ class stzStringEncoder
 	def FromCharCodes(cCodes)
 		acParts = @Split(cCodes, " ")
 		cResult = ""
-		nLen = len(acParts)
+		nLen = ring_len(acParts)
 
 		for i = 1 to nLen
 			cResult += StzChar(0 + acParts[i])
@@ -244,7 +244,7 @@ class stzStringEncoder
 
 	def HtmlEncoded()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		cResult = ""
 
 		for i = 1 to nLen
@@ -299,7 +299,7 @@ class stzStringEncoder
 
 	def EscapedForRegex()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		cResult = ""
 		cSpecial = ".*+?^${}[]()|\\"
 

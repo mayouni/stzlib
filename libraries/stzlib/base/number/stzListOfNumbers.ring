@@ -1600,7 +1600,7 @@ class stzListOfNumbers from stzList
 	// in strings to conserve their round.
 	def init(paList)
 		if isList(paList) and
-		   ( len(paList) = 0 or @IsListOfNumbers(paList) )
+		   ( ring_len(paList) = 0 or @IsListOfNumbers(paList) )
 	
 			@aContent = paList
 	
@@ -1695,7 +1695,7 @@ class stzListOfNumbers from stzList
 
 	def ToStzListOfStrings()
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		acStrings = []
 
@@ -1946,7 +1946,7 @@ class stzListOfNumbers from stzList
 
 	def FindMin()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		# Early check
 
@@ -2373,7 +2373,7 @@ class stzListOfNumbers from stzList
 
 	def FindMax()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		# Early check
 
@@ -2708,7 +2708,7 @@ class stzListOfNumbers from stzList
 			], pcBeforeOrAfter) > 0
 
 			anSorted = This.ToSetQ().Sorted()
-			nLen = len(anSorted)
+			nLen = ring_len(anSorted)
 			
 			if nLen = 0
 				return ""
@@ -2749,7 +2749,7 @@ class stzListOfNumbers from stzList
 			], pcBeforeOrAfter) > 0
 
 			anSorted = This.ToSetQ().Sorted()
-			nLen = len(anSorted)
+			nLen = ring_len(anSorted)
 
 			if nLen = 0
 				return ""
@@ -2841,7 +2841,7 @@ class stzListOfNumbers from stzList
 		# Doing the job
 
 		anSorted = This.ToSetQ().Sorted()
-		nLen = len(anSorted)
+		nLen = ring_len(anSorted)
 
 		# Case where the list contains only one number
 		# (even if duplicated, like in [ 2, 2, 2 ])
@@ -2962,7 +2962,7 @@ class stzListOfNumbers from stzList
 		# Doing the job
 
 		anSorted = This.ToSetQ().Sorted()
-		nLen = len(anSorted)
+		nLen = ring_len(anSorted)
 
 		# Case where the list contains only one number
 		# (even if duplicated, like in [ 2, 2, 2 ])
@@ -3077,7 +3077,7 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 	
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 
 		if nLen = 0
 			return []
@@ -3230,7 +3230,7 @@ class stzListOfNumbers from stzList
 		# Doing the job
 	
 		anSorted = This.ToSetQ().Sorted()
-		nLen = len(anSorted)
+		nLen = ring_len(anSorted)
 			
 		if nLen = 0
 			return [ "", "" ]
@@ -3317,7 +3317,7 @@ class stzListOfNumbers from stzList
 
 	def Diff()
 		anResult = []
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		if nLen = 1
 			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
 		ok
@@ -3336,7 +3336,7 @@ class stzListOfNumbers from stzList
 
 	def AbsDiff()
 		anResult = []
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		if nLen = 1
 			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
 		ok
@@ -3364,7 +3364,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anResult = []
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		if nLen = 1
 			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
 		ok
@@ -3388,7 +3388,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anResult = []
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		if nLen = 1
 			StzRaise("Can't compute the Diffs! The ist must contain more then 1 number.")
 		ok
@@ -3419,13 +3419,13 @@ class stzListOfNumbers from stzList
 
 		aResult = []
 		panNumbers = U(panNumbers)
-		nLenNumbers = len(panNumbers)
+		nLenNumbers = ring_len(panNumbers)
 
 		for i = 1 to nLenNumbers
 			aResult + [ panNumbers[i], [] ]
 		next
 
-		nLenContent = len(@aContent)
+		nLenContent = ring_len(@aContent)
 
 		for j = 1 to nLenContent
 
@@ -3445,7 +3445,7 @@ class stzListOfNumbers from stzList
 
 			next
 
-			for i = 1 to len(aResult)
+			for i = 1 to ring_len(aResult)
 
 				if StzFind(panNumbers, nNumber) = 0 and
 				   aResult[i][1] = nClosestPivot
@@ -3475,7 +3475,7 @@ class stzListOfNumbers from stzList
 		# [1,2,5,6,9,10] returns [1,3] because the pattern of steps is 1,3,1,3,1...
 		# [4,8,2,3,7,1,2] returns [4,-6,1,4,-6,1] because the steps pattern is 4,-6,1
 
-		if len(@aContent) <= 1
+		if ring_len(@aContent) <= 1
 			StzRaise("Can't compute steps! The list must contain at least 2 numbers.")
   		ok
     
@@ -3483,13 +3483,13 @@ class stzListOfNumbers from stzList
 
 		anDiffs = []
 
-		for i = 2 to len(@aContent)
+		for i = 2 to ring_len(@aContent)
 			anDiffs + (@aContent[i] - @aContent[i-1])
 		next
 
 		# Find shortest repeating pattern
 
-		nLen = len(anDiffs)
+		nLen = ring_len(anDiffs)
 
 		# Special case for [1,2,3,4,5]
 
@@ -3511,7 +3511,7 @@ class stzListOfNumbers from stzList
 			# Check if this pattern repeats throughout
 
 			bMatches = 1
-			nLenPattern = len(anPattern)
+			nLenPattern = ring_len(anPattern)
 
 			for j = 1 to nLen
 				if anDiffs[j] != anPattern[(j-1) % nLenPattern + 1]
@@ -3532,7 +3532,7 @@ class stzListOfNumbers from stzList
 	#-------------------------------------------------------------------#
 
 	def Walker()
-		return new stzWalker(@aContent[1], @aContent[len(@aContent)], This.Steps())
+		return new stzWalker(@aContent[1], @aContent[ring_len(@aContent)], This.Steps())
 
 		def StzWalker()
 			return This.Walker()
@@ -3566,7 +3566,7 @@ class stzListOfNumbers from stzList
 		anOtherSorted = Q(panOtherList).SortedInAscending()
 
 		anMain = []
-		if len(anThisSorted) <= len(anOtherSorted)
+		if ring_len(anThisSorted) <= ring_len(anOtherSorted)
 			anMain  = anThisSorted
 			anOther = anOtherSorted
 		else
@@ -3574,7 +3574,7 @@ class stzListOfNumbers from stzList
 			anOther = anThisSorted
 		ok
 
-		nLen = len(anMain)
+		nLen = ring_len(anMain)
 
 		for i = 1 to nLen
 			if Q(anOther).FindFirst(anMain[i]) > 0
@@ -3631,14 +3631,14 @@ class stzListOfNumbers from stzList
 		anOtherSorted = Q(panOtherList).SortedInDescending()
 
 		anMain = []
-		if len(anThisSorted) <= len(anOtherSorted)
+		if ring_len(anThisSorted) <= ring_len(anOtherSorted)
 			anMain  = anThisSorted
 			anOther = anOtherSorted
 		else
 			anMain  = anOtherSorted
 			anOther = anThisSorted
 		ok
-		nLen = len(anMain)
+		nLen = ring_len(anMain)
 
 		for i = 1 to nLen
 			if Q(anOther).FindFirst(anMain[i]) > 0
@@ -3656,7 +3656,7 @@ class stzListOfNumbers from stzList
 	#--------------------------------------------#
 
 	def LeastCommonMultiple()
-		if len( This.ListOfNumbers() ) < 2
+		if ring_len( This.ListOfNumbers() ) < 2
 			StzRaise("Incorrect value! The list must contain at least 2 numbers.")
 		ok
 
@@ -3673,7 +3673,7 @@ class stzListOfNumbers from stzList
 
 	def Absolute()
 		anContent = This.Content()*
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		for i = 1 to nLen
 			if anContent[i] < 0
@@ -3694,7 +3694,7 @@ class stzListOfNumbers from stzList
 
 	def Negate()
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		for i = 1 to nLen
 			if anContent[i] > 0
@@ -3722,7 +3722,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		nResult = 1
 
@@ -3741,7 +3741,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 		nResult = 0
 
 		for i = 1 to nLen
@@ -3765,7 +3765,7 @@ class stzListOfNumbers from stzList
 
 	def Median()
 			aValuesSorted = @sort(This.Content())
-			nLen = len(aValuesSorted)
+			nLen = ring_len(aValuesSorted)
 			
 			if nLen % 2 = 1
 				return aValuesSorted[ring_ceil(nLen/2)]
@@ -3812,7 +3812,7 @@ class stzListOfNumbers from stzList
 
 	def DividableNumbersBy(n)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		anResult = []
 
@@ -3843,7 +3843,7 @@ class stzListOfNumbers from stzList
 		// --> Should return: [ 3, 3, 3, 4, 5, 5, 5, 5, 5 ])
 		*/
 
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 
 		for i = 1 to nLen
 			if @aContent[i] < nMin
@@ -3878,7 +3878,7 @@ class stzListOfNumbers from stzList
 	#-----------------------------------------#
 
 	def ReplaceSectionWith(n1, n2, n)
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		for i = 1 to nLen
 			if i >= n1 and i <= n2
 				@aContent[i] = n
@@ -3918,7 +3918,7 @@ class stzListOfNumbers from stzList
 	def Cumulate()
 		aResult = []
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		for i = 3 to nLen
 			anContent[i] += anContent[i-1]
@@ -3956,7 +3956,7 @@ class stzListOfNumbers from stzList
 
 	def OnlyUnicodes()
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		aResult = []
 
@@ -4000,7 +4000,7 @@ class stzListOfNumbers from stzList
 	def AddToEach(n)
 		
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 		if nLen = 0
 			StzRaise("Can't add anything! Because the list is empty.")
 		ok
@@ -4045,7 +4045,7 @@ class stzListOfNumbers from stzList
 
 	def SubStructFromEach(n)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 		if nLen = 0
 			StzRaise("Can't substruct anything! Because the list is empty.")
 		ok
@@ -4166,7 +4166,7 @@ class stzListOfNumbers from stzList
 
 	def MultiplyEachBy(n)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 		if nLen = 0
 			StzRaise("Can't multiply anything! Because the list is empty.")
 		ok
@@ -4219,7 +4219,7 @@ class stzListOfNumbers from stzList
 
 	def DivideEachBy(n)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 		if nLen = 0
 			StzRaise("Can't divide anything! Because the list is empty.")
 		ok
@@ -4282,7 +4282,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't add anything! Because the list is empty.")
 		ok
 
-		nLen2 = len(panNumbers)
+		nLen2 = ring_len(panNumbers)
 
 		nLen = nLen1
 		if nLen2 < nLen1
@@ -4339,7 +4339,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't substruct anything! Because the list is empty.")
 		ok
 
-		nLen2 = len(panNumbers)
+		nLen2 = ring_len(panNumbers)
 
 		nLen = nLen1
 		if nLen2 < nLen1
@@ -4397,7 +4397,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't multiply anything! Because the list is empty.")
 		ok
 
-		nLen2 = len(panNumbers)
+		nLen2 = ring_len(panNumbers)
 
 		nLen = nLen1
 		if nLen2 < nLen1
@@ -4476,7 +4476,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't divide anything! Because the list is empty.")
 		ok
 
-		nLen2 = len(panNumbers)
+		nLen2 = ring_len(panNumbers)
 
 		nLen = nLen1
 		if nLen2 < nLen1
@@ -4531,7 +4531,7 @@ class stzListOfNumbers from stzList
 		# Doing the job
 
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 		if nLen = 0
 			StzRaise("Can't add anything! Because the list is empty.")
 		ok
@@ -4624,7 +4624,7 @@ class stzListOfNumbers from stzList
 		# Doing the job
 
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 		if nLen = 0
 			StzRaise("Can't multiply anything! Because the list is empty.")
 		ok
@@ -4847,7 +4847,7 @@ class stzListOfNumbers from stzList
 		*/
 
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 		if nLen < 2
 			return []
 		ok
@@ -4880,7 +4880,7 @@ class stzListOfNumbers from stzList
 
 	def ContiguousToSections()
 		anNumbers = @aContent
-		nLen = len(anNumbers)
+		nLen = ring_len(anNumbers)
 
 		aResult = []
 		aSection = [] + anNumbers[1]
@@ -4939,7 +4939,7 @@ class stzListOfNumbers from stzList
 		return new stzListOfChars( This.Content() )
 
 	def NumberOfNumbers()
-		return len( This.Content() )
+		return ring_len( This.Content() )
 
 	def IsContiguous()
 		nLen = This.NumberOfNumbers()
@@ -5745,7 +5745,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		anNumbers = This.NumbersBetween(n1, n2)
 		nResult = ARandomNumberIn(anNumbers) #TODO // Add ARandomItemIn() function to stzRandomFunctions.ring
@@ -5782,7 +5782,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		anNumbers = This.NumbersBetween(n1, n2)
 		aResult = ARandomNumberInZ(anNumbers)
@@ -5821,7 +5821,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		anNumbers = This.NumbersBetweenIB(n1, n2)
 		nResult = ARandomNumberIn(anNumbers)
@@ -5875,7 +5875,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		anNumbers = This.NumbersBetweenIB(n1, n2)
 		aResult = ARandomNumberInZ(anNumbers)
@@ -5931,7 +5931,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		anNumbers = This.NumbersNotBetween(n1, n2) #TODO
 		nResult = ARandomNumberIn(anNumbers)
@@ -5968,7 +5968,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		anNumbers = This.NumbersNotBetween(n1, n2)
 		aResult = ARandomNumberInZ(anNumbers)
@@ -6007,7 +6007,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		anNumbers = This.NumbersNotBetweenIB(n1, n2) #TODO
 		nResult = ARandomNumberIn(anNumbers) #TODO // Add ARandomItemIn() function to stzRandomFunctions.ring
@@ -6063,7 +6063,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		anNumbers = This.NumbersNotBetweenIB(n1, n2)
 		aResult   = ARandomNumberInZ(anNumbers)
@@ -6653,7 +6653,7 @@ class stzListOfNumbers from stzList
 		// #TODO Make a more performant solution!
 
 		anRandoms = NRandomNumbersIn(anPos)
-		nLen = len(anRandoms)
+		nLen = ring_len(anRandoms)
 
 		aResult = []
 
@@ -6827,7 +6827,7 @@ class stzListOfNumbers from stzList
 		// #TODO Make a more performant solution!
 
 		anRandoms = NRandomNumbersIn(anPos)
-		nLen = len(aRandoms)
+		nLen = ring_len(aRandoms)
 		
 		aResult = []
 
@@ -7046,7 +7046,7 @@ class stzListOfNumbers from stzList
 
 	def SomeRandomNumbersZ()
 		anPos = SomeRandomNumbersIn(1 : This.NumberOfItems())
-		nLen  = len(anPos)
+		nLen  = ring_len(anPos)
 
 		aResult = []
 
@@ -7222,7 +7222,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersSmallerThan(n)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		anResult = []
 
@@ -7270,7 +7270,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersSmallerThanZ(n)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		anResult = []
 
@@ -7299,7 +7299,7 @@ class stzListOfNumbers from stzList
 		ok
 	
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		anResult = []
 
@@ -7369,7 +7369,7 @@ class stzListOfNumbers from stzList
 		ok
 	
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		aResult = []
 
@@ -7404,7 +7404,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		anResult = []
 
@@ -7474,7 +7474,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		aResult = []
 
@@ -7509,7 +7509,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		anResult = []
 
@@ -7556,7 +7556,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		aResult = []
 
@@ -7625,7 +7625,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersOutsidePositionZ(n)
 		anPos = Q( 1 : This.NumberOfItems() ) - n
-		nLen = len(anPos)
+		nLen = ring_len(anPos)
 
 		aResult = []
 
@@ -7657,7 +7657,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersBetween(nMin, nMax)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		anResult = []
 
@@ -7673,7 +7673,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersBetweenZ(nMin, nMax)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		aResult = []
 
@@ -7691,7 +7691,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersBetweenIB(nMin, nMax)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		anResult = []
 
@@ -7707,7 +7707,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersBetweenIBZ(nMin, nMax)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		aResult = []
 
@@ -7725,7 +7725,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersNotBetween(nMin, nMax)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		anResult = []
 
@@ -7741,7 +7741,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersNotBetweenZ(nMin, nMax)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		aResult = []
 
@@ -7759,7 +7759,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersNotBetweenIB(nMin, nMax)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		anResult = []
 
@@ -7775,7 +7775,7 @@ class stzListOfNumbers from stzList
 
 	def NumbersNotBetweenIBZ(nMin, nMax)
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		aResult = []
 
@@ -7790,7 +7790,7 @@ class stzListOfNumbers from stzList
 	def AreNegative()
 		
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		bResult = 1
 
@@ -7853,7 +7853,7 @@ class stzListOfNumbers from stzList
 	def ArePositive()
 		
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		bResult = 1
 
@@ -7917,7 +7917,7 @@ class stzListOfNumbers from stzList
 		_bResult_ = 0
 
 		_anContent_ = This.Content()
-		_nLen_ = len(_anContent_)
+		_nLen_ = ring_len(_anContent_)
 
 		for @i = 1 to _nLen_
 			if _anContent_[@i] > 0
@@ -7932,7 +7932,7 @@ class stzListOfNumbers from stzList
 		_bResult_ = 0
 
 		_anContent_ = This.Content()
-		_nLen_ = len(_anContent_)
+		_nLen_ = ring_len(_anContent_)
 
 		for @i = 1 to _nLen_
 			if _anContent_[@i] < 0
@@ -7953,7 +7953,7 @@ class stzListOfNumbers from stzList
 		_bResult_ = 1
 
 		_anContent_ = This.Content()
-		_nLen_ = len(_anContent_)
+		_nLen_ = ring_len(_anContent_)
 
 		for @i = 1 to _nLen_
 			if _anContent_[@i] < n
@@ -7977,7 +7977,7 @@ class stzListOfNumbers from stzList
 		_bResult_ = 1
 
 		_anContent_ = This.Content()
-		_nLen_ = len(_anContent_)
+		_nLen_ = ring_len(_anContent_)
 
 		for @i = 1 to _nLen_
 			if _anContent_[@i] > n
@@ -7994,7 +7994,7 @@ class stzListOfNumbers from stzList
 	def IsDividableBy(n)
 		
 		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = ring_len(anContent)
 
 		bResult = 1
 
@@ -8117,7 +8117,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		nMaxSize = 0
 		nMaxLeft = 0
@@ -8127,7 +8127,7 @@ class stzListOfNumbers from stzList
 
 			cNumber = ""+ aContent[i]
 
-			nSize = len(cNumber)
+			nSize = ring_len(cNumber)
 			if nSize > nMaxSize
 				nMaxSize = nSize
 			ok
@@ -8160,7 +8160,7 @@ class stzListOfNumbers from stzList
 		for i = 1 to nLen
 
 			cNumber = ""+ aContent[i]
-			nLenNumber = len(cNumber)
+			nLenNumber = ring_len(cNumber)
 			nPosDot = ring_substr1(cNumber, ".")
 			
 			if nPosDot = 0
@@ -8454,7 +8454,7 @@ class stzListOfNumbers from stzList
 
 	def SpeedUps()
 		anNumbers = This.Content()
-		nLen = len(anNumbers)
+		nLen = ring_len(anNumbers)
 
 		if nLen = 1
 			return [ 1 ]
@@ -8498,7 +8498,7 @@ class stzListOfNumbers from stzList
 	def GainsX()
 
 		anNumbers = This.Content()
-		nLen = len(anNumbers)
+		nLen = ring_len(anNumbers)
 
 		if nLen = 1
 			return [ 1 ]
@@ -8542,7 +8542,7 @@ class stzListOfNumbers from stzList
 	def PerfGains() # In percentage
 
 		anNumbers = This.Content()
-		nLen = len(anNumbers)
+		nLen = ring_len(anNumbers)
 
 		if nLen = 1
 			return [ 1 ]
@@ -8578,7 +8578,7 @@ class stzListOfNumbers from stzList
 	def Gains() # In Percentage
 
 		anNumbers = This.Content()
-		nLen = len(anNumbers)
+		nLen = ring_len(anNumbers)
 
 		if nLen = 1
 			return [ 1 ]
@@ -8629,7 +8629,7 @@ class stzListOfNumbers from stzList
 
 	def ArePrimes()
 		bResult = 1
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 
 		for i = 1 to nLen
 			if NOT ring_isprime(@aContent[i])
@@ -8646,7 +8646,7 @@ class stzListOfNumbers from stzList
 
 	def AreWeiferich()
 		bResult = 1
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 
 		for i = 1 to nLen
 			if NOT @IsWeiferich(@aContent[i])
@@ -8663,7 +8663,7 @@ class stzListOfNumbers from stzList
 
 	def ContainsPositiveAndNegativeNumbers()
 
-		_nLen_ = len(@aContent)
+		_nLen_ = ring_len(@aContent)
 		if _nLen_ < 2
 			return 0
 		ok
@@ -8698,7 +8698,7 @@ class stzListOfNumbers from stzList
 
 	def AreNonZeroNumbers()
 	
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 	
 		for i = 1 to nLen
 			if @aContent[i] = 0

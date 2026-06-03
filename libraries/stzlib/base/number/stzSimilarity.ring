@@ -88,7 +88,7 @@ class stzSimilarity
 
 	def CosineFromLists(paA, paB)
 		if CheckingParams()
-			if NOT isList(paA) or NOT isList(paB) or len(paA) != 3 or len(paB) != 3
+			if NOT isList(paA) or NOT isList(paB) or ring_len(paA) != 3 or ring_len(paB) != 3
 				StzRaise("Incorrect params! Both lists must contain exactly 3 numbers.")
 			ok
 		ok
@@ -96,7 +96,7 @@ class stzSimilarity
 
 	def EuclideanFromLists(paA, paB)
 		if CheckingParams()
-			if NOT isList(paA) or NOT isList(paB) or len(paA) != 3 or len(paB) != 3
+			if NOT isList(paA) or NOT isList(paB) or ring_len(paA) != 3 or ring_len(paB) != 3
 				StzRaise("Incorrect params! Both lists must contain exactly 3 numbers.")
 			ok
 		ok
@@ -104,7 +104,7 @@ class stzSimilarity
 
 	def ManhattanFromLists(paA, paB)
 		if CheckingParams()
-			if NOT isList(paA) or NOT isList(paB) or len(paA) != 3 or len(paB) != 3
+			if NOT isList(paA) or NOT isList(paB) or ring_len(paA) != 3 or ring_len(paB) != 3
 				StzRaise("Incorrect params! Both lists must contain exactly 3 numbers.")
 			ok
 		ok
@@ -112,7 +112,7 @@ class stzSimilarity
 
 	def DotProductFromLists(paA, paB)
 		if CheckingParams()
-			if NOT isList(paA) or NOT isList(paB) or len(paA) != 3 or len(paB) != 3
+			if NOT isList(paA) or NOT isList(paB) or ring_len(paA) != 3 or ring_len(paB) != 3
 				StzRaise("Incorrect params! Both lists must contain exactly 3 numbers.")
 			ok
 		ok

@@ -2388,7 +2388,7 @@ class stzNumber from stzObject
 		ok
 
 	def IsOneDigit()
-		if This.IsInteger() and len(This.Content()) = 1
+		if This.IsInteger() and ring_len(This.Content()) = 1
 			return 1
 		else
 			return 0
@@ -2559,7 +2559,7 @@ class stzNumber from stzObject
 
 	def RemoveSign()
 		cNumber = This.Content()
-		nLenNumber = len(cNumber)
+		nLenNumber = ring_len(cNumber)
 
 		cSign = This.Sign()
 
@@ -3040,7 +3040,7 @@ class stzNumber from stzObject
 		if NOT This.IsSigned()
 			return This.IntegerPart()
 		else
-			return StzReplace( This.IntegerPart(), 2, len(This.IntegerPart())-1 )
+			return StzReplace( This.IntegerPart(), 2, ring_len(This.IntegerPart())-1 )
 		ok
 
 		def IntegerPartWithoutSignQ()
@@ -3054,9 +3054,9 @@ class stzNumber from stzObject
 
 	def NumberOfDigitsInIntegerPart()
 		if This.Sign() = ""
-			return len(This.IntegerPart())
+			return ring_len(This.IntegerPart())
 		else
-			return len(This.IntegerPart()) - 1
+			return ring_len(This.IntegerPart()) - 1
 		ok
 
 		def NumberOfIntegers()
@@ -3194,13 +3194,13 @@ class stzNumber from stzObject
 		#>
 
 	def NumberOfDecimals()
-		return len(This.FractionalPartWithoutZeroDot())
+		return ring_len(This.FractionalPartWithoutZeroDot())
 
 	def NumberOfDigitsInFractionalPart()
 		if NOT This.HasFractionalPart()
 			return 0
 		else
-			return len(This.FractionalPartWithoutZeroDot())
+			return ring_len(This.FractionalPartWithoutZeroDot())
 		end
 
 		def NumberOfDigitsInDecimalPart()
@@ -3337,7 +3337,7 @@ class stzNumber from stzObject
 	*/
 
 	def MaxRound()
-		nResult = len( ""+ MaxNumberInRing() ) - This.NumberOfIntegers()
+		nResult = ring_len( ""+ MaxNumberInRing() ) - This.NumberOfIntegers()
 
 		if This.ContainsDecimalPart()
 			nResult -= (1 + This.NumberOfDecimals())
@@ -3628,7 +3628,7 @@ class stzNumber from stzObject
 			bReturnIntermediateResults = 1
 		ok
 
-		nLen = len(paOtherNumbers)
+		nLen = ring_len(paOtherNumbers)
 		aIntermediateResults = []
 
 		for i = 1 to nLen
@@ -3785,7 +3785,7 @@ class stzNumber from stzObject
 			bReturnIntermediateResults = 1
 		ok
 	
-		nLen = len(paOtherNumbers)
+		nLen = ring_len(paOtherNumbers)
 		aIntermediateResults = []
 
 		for i = 1 to nLen
@@ -3938,7 +3938,7 @@ class stzNumber from stzObject
 			bReturnIntermediateResults = 1
 		ok
 	
-		nLen = len(paOtherNumbers)
+		nLen = ring_len(paOtherNumbers)
 		aIntermediateResults = []
 
 		for i = 1 to nLen
@@ -4036,7 +4036,7 @@ class stzNumber from stzObject
 			bReturnIntermediateResults = 1
 		ok
 	
-		nLen = len(paOtherNumbers)
+		nLen = ring_len(paOtherNumbers)
 		aIntermediateResults = []
 
 		for i = 1 to nLen
@@ -4358,7 +4358,7 @@ class stzNumber from stzObject
 
 	def FactorsXT()
 		anFactors = This.Factors()
-		nLen = len(anFactors)
+		nLen = ring_len(anFactors)
 
 		aResult = []
 		for i = 1 to nLen
@@ -4500,10 +4500,10 @@ class stzNumber from stzObject
 	# MULTIPLES UNTIL
 
 	def NumberOfMultiples(pOtherNumber)
-		return len( This.Multiples(pOtherNumber) )
+		return ring_len( This.Multiples(pOtherNumber) )
 
 	def NumberOfMultiplesUntil(pOtherNumber)
-		return len( This.MultiplesUntil(pOtherNumber) )
+		return ring_len( This.MultiplesUntil(pOtherNumber) )
 
 		def NumberOfMultiplesUpTo(pOtherNumber)
 			return This.NumberOfMultiplesUntil(pOtherNumber)
@@ -4928,7 +4928,7 @@ class stzNumber from stzObject
 
 		aTemp = oStzIntegerPart.SplitToNPartsQ(3).Reversed()
 
-		switch len(aTemp)
+		switch ring_len(aTemp)
 		on 0
 			// Nothing
 
@@ -4991,7 +4991,7 @@ class stzNumber from stzObject
 
 		aTemp = oStzIntegerPart.SplitToNPartsQ(3).Reversed()
 
-		switch len(aTemp)
+		switch ring_len(aTemp)
 		on 0
 			// Nothing
 
@@ -5062,7 +5062,7 @@ class stzNumber from stzObject
 	def HasHundreds()
 		oNumber = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 0 and
+		if ring_len(oNumber.IntegerPart()) > 0 and
 		   oNumber.NumericValue() != 0
 
 				return 1
@@ -5092,7 +5092,7 @@ class stzNumber from stzObject
 	def HasThousands()
 		oNumber = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 3
+		if ring_len(oNumber.IntegerPart()) > 3
 			return 1
 
 		else
@@ -5121,7 +5121,7 @@ class stzNumber from stzObject
 	def HasMillions()
 		oNumber = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 6
+		if ring_len(oNumber.IntegerPart()) > 6
 			return 1
 
 		else
@@ -5150,7 +5150,7 @@ class stzNumber from stzObject
 	def HasBillions()
 		oNumber = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 9
+		if ring_len(oNumber.IntegerPart()) > 9
 			return 1
 		else
 			return 0
@@ -5178,7 +5178,7 @@ class stzNumber from stzObject
 	def HasTrillions()
 		oNumber = new stzNumber(This.Content())
 			
-		if len(oNumber.IntegerPart()) > 12
+		if ring_len(oNumber.IntegerPart()) > 12
 			return 1
 
 		else
@@ -5838,7 +5838,7 @@ class stzNumber from stzObject
 
 				# Reading the rounded fraction part
 				cFractionalPart = ""
-				for i = StzFind(cTempNumber, ".") + 1 to len(cTempNumber)
+				for i = StzFind(cTempNumber, ".") + 1 to ring_len(cTempNumber)
 					cFractionalPart += cTempNumber[i]
 				next
 			ok
@@ -5890,7 +5890,7 @@ class stzNumber from stzObject
 		# Defining fractional part
 
 		cCurrentFractionalPart = This.FractionalPartWithoutZeroDot()
-		nCurrentNumberOfDigitsInFractionalPart = len(cCurrentFractionalPart)
+		nCurrentNumberOfDigitsInFractionalPart = ring_len(cCurrentFractionalPart)
 
 		cNewFractionalPart = ""
 
@@ -5922,13 +5922,13 @@ class stzNumber from stzObject
 
 				cFormattedNumber += cFractionalSep
 
-				if nNumberOfDigitsInFractionalPart <= len(oTempNumber.FractionalPartWithoutZerodot())
+				if nNumberOfDigitsInFractionalPart <= ring_len(oTempNumber.FractionalPartWithoutZerodot())
 					for i = 1 to nNumberOfDigitsInFractionalPart
 						cFormattedNumber += oTempNumber.FractionalPartWithoutZerodot()[i]
 					next
 
 				else 
-					nDiff = nNumberOfDigitsInFractionalPart - len(oTempNumber.FractionalPartWithoutZerodot())
+					nDiff = nNumberOfDigitsInFractionalPart - ring_len(oTempNumber.FractionalPartWithoutZerodot())
 		
 					for i = 1 to nDiff
 						cFormattedNumber += "0"
@@ -6482,7 +6482,7 @@ class stzNumber from stzObject
 
 	def DigitCount()
 		if NOT This.IsInteger()
-			return len(This.IntegerPartValue())
+			return ring_len(This.IntegerPartValue())
 		ok
 		return StzEngineNumberDigitCount(This.NumericValue())
 
@@ -6564,7 +6564,7 @@ class stzNumber from stzObject
 
 	def Digits()
 		acChars = This.StringValueQ().RemoveManyQ([ "+", "-", "." ]).Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 
 		anResult = []
 

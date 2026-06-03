@@ -410,7 +410,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nInitLen_ = len(p)
+		_nInitLen_ = ring_len(p)
 		for _iInit_ = 1 to _nInitLen_
 			p[_iInit_][1] = StzLower(p[_iInit_][1])
 		next
@@ -436,7 +436,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		_aEmContent_ = @aContent
-		_nEmLen_ = len(_aEmContent_)
+		_nEmLen_ = ring_len(_aEmContent_)
 
 		for _iEm_ = 1 to _nEmLen_
 			_cEmKey_ = _aEmContent_[_iEm_][1]
@@ -472,12 +472,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return This.Content()
 
 	def NumberOfPairs()
-		# Engine fast path: stz_hashmap_len is O(1) cached vs Ring len() on a hashlist array
+		# Engine fast path: stz_hashmap_len is O(1) cached vs Ring ring_len() on a hashlist array
 		This._EnsureEngineMap()
 		if @pEngineMap != NULL
 			return StzEngineHashMapLen(@pEngineMap)
 		ok
-		return len(This.Content())
+		return ring_len(This.Content())
 
 		def NumberOfPairsQ()
 			new stzNumber(This.NumberOfPairs())
@@ -536,7 +536,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Keys()
 		_aHkContent_ = This.Content()
-		_nHkLen_ = len(_aHkContent_)
+		_nHkLen_ = ring_len(_aHkContent_)
 
 		_aHkResult_ = []
 
@@ -572,7 +572,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def KeysForValue(pValue)
 		_aKfvContent_ = This.Content()
-		_nKfvLen_ = len(_aKfvContent_)
+		_nKfvLen_ = ring_len(_aKfvContent_)
 
 		_aKfvResult_ = []
 
@@ -674,11 +674,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return 1
 		ok
 
-		_nValsSize_ = len(_aValsContent_[1][2])
+		_nValsSize_ = ring_len(_aValsContent_[1][2])
 		_bValsResult_ = 1
 
 		for _iVals_ = 2 to _nValsLen_
-			if len(_aValsContent_[_iVals_][2]) != _nValsSize_
+			if ring_len(_aValsContent_[_iVals_][2]) != _nValsSize_
 				_bValsResult_ = 0
 				exit
 			ok
@@ -688,7 +688,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ValuesAndKeys()
 		_aVakValues_ = This.Values()
-		_nVakLen_ = len(_aVakValues_)
+		_nVakLen_ = ring_len(_aVakValues_)
 
 		_aVakResult_ = []
 
@@ -747,7 +747,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		ok
 
-		_nNvLen_ = len(This.Content())
+		_nNvLen_ = ring_len(This.Content())
 		if n > _nNvLen_ or n < 1
 			StzRaise("Can't access item " + n + " in the hashlist! The hashlist contains only " + _nNvLen_ + "pairs.")
 		ok
@@ -959,7 +959,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def NumberOfOccurrenceOfValue(pValue)
-		return len(This.FindValue(pValue))
+		return ring_len(This.FindValue(pValue))
 
 		#< @FunctionAlternativeForms
 
@@ -1137,7 +1137,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def UpdateKeys(paKeys)
 		_oUksList_ = new stzList(paKeys)
 		if _oUksList_.ItemsAreAllStrings()
-			for _iUks_ = 1 to @Min([ len(paKeys), This.NumberOfPairs() ])
+			for _iUks_ = 1 to @Min([ ring_len(paKeys), This.NumberOfPairs() ])
 				This.UpdateNthKey(_iUks_, paKeys[_iUks_])
 			next _iUks_
 		ok
@@ -1158,13 +1158,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
 
 	def UpdateValues(paValues)
-		for _iUvs_ = 1 to @Min([ len(paValues), This.NumberOfPairs() ])
+		for _iUvs_ = 1 to @Min([ ring_len(paValues), This.NumberOfPairs() ])
 			This.UpdateNthValue(_iUvs_, paValues[_iUvs_])
 		next
 
 	def UpdateValue(pValue, pNewValue)
 		_anUvPos_ = This.FindValue(pValue)
-		_nUvLen_ = len(_anUvPos_)
+		_nUvLen_ = ring_len(_anUvPos_)
 
 		for _iUv_ = 1 to _nUvLen_
 			This.UpdateNthValue(_anUvPos_[_iUv_], pNewValue)
@@ -1192,7 +1192,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		_aUapContent_ = This.Content()
-		_nUapLen_ = len(_aUapContent_)
+		_nUapLen_ = ring_len(_aUapContent_)
 
 		for _iUap_ = 1 to _nUapLen_
 			_aUapContent_[_iUap_] = paPair
@@ -1256,7 +1256,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 
 	def AddPairs(paListOfPairs)
-		_nApsLen_ = len(paListOfPairs)
+		_nApsLen_ = ring_len(paListOfPairs)
 		for _iAps_ = 1 to _nApsLen_
 			This.AddPair(paListOfPairs[_iAps_])
 		next
@@ -1366,7 +1366,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nRpbksLen_ = len(pacKeys)
+		_nRpbksLen_ = ring_len(pacKeys)
 
 		for _iRpbks_ = 1 to _nRpbksLen_
 			This.RemovePairByKey(pacKeys[_iRpbks_])
@@ -1389,7 +1389,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nRpbvsLen_ = len(paValues)
+		_nRpbvsLen_ = ring_len(paValues)
 
 		for _iRpbvs_ = 1 to _nRpbvsLen_
 			This.RemovePairsByValue(paValues[_iRpbvs_])
@@ -1608,7 +1608,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		_aFpContent_ = This.Content()
-		_nFpLen_ = len(_aFpContent_)
+		_nFpLen_ = ring_len(_aFpContent_)
 
 		_nFpResult_ = 0
 
@@ -1638,7 +1638,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ContainsValueCS(pValue, pCaseSensitive)
 
-		if len( This.FindValueCS(pValue, pCaseSensitive) ) > 0
+		if ring_len( This.FindValueCS(pValue, pCaseSensitive) ) > 0
 			return 1
 		else
 			return 0
@@ -1751,7 +1751,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			# positions sorted ascending.
 			_anFvoiResult_ = []
 			_aVals_ = This.Values()
-			_nLen_ = len(_aVals_)
+			_nLen_ = ring_len(_aVals_)
 			for _iFvoi_ = 1 to _nLen_
 				_xVal_ = _aVals_[_iFvoi_]
 				if _xVal_ = pValue
@@ -1910,7 +1910,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def FindKeysByValue(pValue)
 
 		_aFkbvContent_ = This.HashList()
-		_nFkbvLen_ = len(_aFkbvContent_)
+		_nFkbvLen_ = ring_len(_aFkbvContent_)
 
 		_anFkbvResult_ = []
 
@@ -1934,7 +1934,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# Guard directly on the result of FindKeysByValue instead.
 		_nFnkbvResult_ = 0
 		_anFnkbvPos_ = This.FindKeysByValue(pValue)
-		if len(_anFnkbvPos_) >= n
+		if ring_len(_anFnkbvPos_) >= n
 			_nFnkbvResult_ = _anFnkbvPos_[n]
 		ok
 		return _nFnkbvResult_
@@ -1946,7 +1946,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def FindFirstKeyByValue(pValue)
 		_nFfkbvResult_ = 0
 		_anFfkbvPos_ = This.FindKeysByValue(pValue)
-		if len(_anFfkbvPos_) > 0
+		if ring_len(_anFfkbvPos_) > 0
 			_nFfkbvResult_ = _anFfkbvPos_[1]
 		ok
 		return _nFfkbvResult_
@@ -1984,7 +1984,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def KeyByValue(pValue)
 		_acKbvKeys_ = This.KeysByValue(pValue)
-		_nKbvLen_ = len(_acKbvKeys_)
+		_nKbvLen_ = ring_len(_acKbvKeys_)
 
 		if _nKbvLen_ = 0
 			return ""
@@ -2008,7 +2008,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#---------------------------------------------------------#
 
 	def KeysByValues(paValues)
-		_nKsbvsLen_ = len(paValues)
+		_nKsbvsLen_ = ring_len(paValues)
 
 		_acKsbvsKeys_ = []
 
@@ -2038,7 +2038,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindLists()
 		_aFlContent_ = This.Content()
-		_nFlLen_ = len(_aFlContent_)
+		_nFlLen_ = ring_len(_aFlContent_)
 
 		_anFlResult_ = []
 
@@ -2057,7 +2057,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# the modular build. Direct walk is both simpler and faster.)
 		_anFnlListPos_ = This.FindLists()
 		_aFnlContent_ = This.Content()
-		_nFnlLen_ = len(_aFnlContent_)
+		_nFnlLen_ = ring_len(_aFnlContent_)
 		_anFnlR_ = []
 		for _iFnl_ = 1 to _nFnlLen_
 			if ring_find(_anFnlListPos_, _iFnl_) = 0
@@ -2068,7 +2068,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Lists()
 		_aLsContent_ = This.Content()
-		_nLsLen_ = len(_aLsContent_)
+		_nLsLen_ = ring_len(_aLsContent_)
 
 		_aLsResult_ = []
 
@@ -2082,7 +2082,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ListsZ()
 		_aLszU_ = U( This.Lists() )
-		_nLszLen_ = len(_aLszU_)
+		_nLszLen_ = ring_len(_aLszU_)
 
 		_aLszResult_ = []
 
@@ -2102,7 +2102,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		_anFlsPos_ = Q(This.Lists()).Find(paList)
 		_anFlsResult_ = []
-		if len(_anFlsPos_) > 0
+		if ring_len(_anFlsPos_) > 0
 			_anFlsResult_ = Q(This.FindLists()).ItemsAtPositions(_anFlsPos_)
 		ok
 
@@ -2127,12 +2127,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		paLists = U(paLists) # Duplicates removed
-		_nFtlLen_ = len(paLists)
+		_nFtlLen_ = ring_len(paLists)
 		_anFtlResult_ = []
 
 		for _iFtl_ = 1 to _nFtlLen_
 			_anFtlPos_ = This.FindList(paLists[_iFtl_])
-			_nFtlLenPos_ = len(_anFtlPos_)
+			_nFtlLenPos_ = ring_len(_anFtlPos_)
 
 			for _jFtl_ = 1 to _nFtlLenPos_
 				@AddItem(_anFtlResult_, _anFtlPos_[_jFtl_])
@@ -2150,7 +2150,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nTlzLen_ = len(paLists)
+		_nTlzLen_ = ring_len(paLists)
 		_aTlzResult_ = []
 
 		for _iTlz_ = 1 to _nTlzLen_
@@ -2168,7 +2168,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindNumbers()
 		_aFnContent_ = This.Content()
-		_nFnLen_ = len(_aFnContent_)
+		_nFnLen_ = ring_len(_aFnContent_)
 
 		_anFnResult_ = []
 
@@ -2182,7 +2182,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Numbers()
 		_aNsContent_ = This.Content()
-		_nNsLen_ = len(_aNsContent_)
+		_nNsLen_ = ring_len(_aNsContent_)
 
 		_aNsResult_ = []
 
@@ -2196,7 +2196,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def NumbersZ()
 		_aNszU_ = U( This.Numbers() )
-		_nNszLen_ = len(_aNszU_)
+		_nNszLen_ = ring_len(_aNszU_)
 
 		_aNszResult_ = []
 
@@ -2216,7 +2216,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		_anFnbPos_ = Q(This.Numbers()).Find(paNumber)
 		_anFnbResult_ = []
-		if len(_anFnbPos_) > 0
+		if ring_len(_anFnbPos_) > 0
 			_anFnbResult_ = Q(This.FindNumbers()).ItemsAtPositions(_anFnbPos_)
 		ok
 
@@ -2241,12 +2241,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		paNumbers = U(paNumbers) # Duplicates removed
-		_nFtnLen_ = len(paNumbers)
+		_nFtnLen_ = ring_len(paNumbers)
 		_anFtnResult_ = []
 
 		for _iFtn_ = 1 to _nFtnLen_
 			_anFtnPos_ = This.FindNumber(paNumbers[_iFtn_])
-			_nFtnLenPos_ = len(_anFtnPos_)
+			_nFtnLenPos_ = ring_len(_anFtnPos_)
 
 			for _jFtn_ = 1 to _nFtnLenPos_
 				@AddItem(_anFtnResult_, _anFtnPos_[_jFtn_])
@@ -2264,7 +2264,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nTnzLen_ = len(paNumbers)
+		_nTnzLen_ = ring_len(paNumbers)
 		_aTnzResult_ = []
 
 		for _iTnz_ = 1 to _nTnzLen_
@@ -2280,7 +2280,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindStrings()
 		_aFsContent_ = This.Content()
-		_nFsLen_ = len(_aFsContent_)
+		_nFsLen_ = ring_len(_aFsContent_)
 
 		_anFsResult_ = []
 
@@ -2294,7 +2294,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Strings()
 		_aSsContent_ = This.Content()
-		_nSsLen_ = len(_aSsContent_)
+		_nSsLen_ = ring_len(_aSsContent_)
 
 		_aSsResult_ = []
 
@@ -2308,7 +2308,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def StringsZ()
 		_aSszU_ = U( This.Strings() )
-		_nSszLen_ = len(_aSszU_)
+		_nSszLen_ = ring_len(_aSszU_)
 
 		_aSszResult_ = []
 
@@ -2328,7 +2328,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		_anFsbPos_ = Q(This.Strings()).Find(paString)
 		_anFsbResult_ = []
-		if len(_anFsbPos_) > 0
+		if ring_len(_anFsbPos_) > 0
 			_anFsbResult_ = Q(This.FindStrings()).ItemsAtPositions(_anFsbPos_)
 		ok
 
@@ -2353,12 +2353,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		paStrings = U(paStrings) # Duplicates removed
-		_nFtsLen_ = len(paStrings)
+		_nFtsLen_ = ring_len(paStrings)
 		_anFtsResult_ = []
 
 		for _iFts_ = 1 to _nFtsLen_
 			_anFtsPos_ = This.FindString(paStrings[_iFts_])
-			_nFtsLenPos_ = len(_anFtsPos_)
+			_nFtsLenPos_ = ring_len(_anFtsPos_)
 
 			for _jFts_ = 1 to _nFtsLenPos_
 				@AddItem(_anFtsResult_, _anFtsPos_[_jFts_])
@@ -2376,7 +2376,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nTszLen_ = len(paStrings)
+		_nTszLen_ = ring_len(paStrings)
 		_aTszResult_ = []
 
 		for _iTsz_ = 1 to _nTszLen_
@@ -2392,7 +2392,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindObjects()
 		_aFoContent_ = This.Content()
-		_nFoLen_ = len(_aFoContent_)
+		_nFoLen_ = ring_len(_aFoContent_)
 
 		_anFoResult_ = []
 
@@ -2406,7 +2406,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Objects()
 		_aOsContent_ = This.Content()
-		_nOsLen_ = len(_aOsContent_)
+		_nOsLen_ = ring_len(_aOsContent_)
 
 		_aOsResult_ = []
 
@@ -2425,7 +2425,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindStzLists()
 		_aFszlContent_ = This.Content()
-		_nFszlLen_ = len(_aFszlContent_)
+		_nFszlLen_ = ring_len(_aFszlContent_)
 
 		_anFszlResult_ = []
 
@@ -2439,7 +2439,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def StzLists()
 		_aSzlContent_ = This.Content()
-		_nSzlLen_ = len(_aSzlContent_)
+		_nSzlLen_ = ring_len(_aSzlContent_)
 
 		_aSzlResult_ = []
 
@@ -2458,7 +2458,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindStzHashLists()
 		_aFszhlContent_ = This.Content()
-		_nFszhlLen_ = len(_aFszhlContent_)
+		_nFszhlLen_ = ring_len(_aFszhlContent_)
 
 		_anFszhlResult_ = []
 
@@ -2472,7 +2472,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def StzHashLists()
 		_aSzhlContent_ = This.Content()
-		_nSzhlLen_ = len(_aSzhlContent_)
+		_nSzhlLen_ = ring_len(_aSzhlContent_)
 
 		_aSzhlResult_ = []
 
@@ -2491,7 +2491,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindStzNumbers()
 		_aFsznContent_ = This.Content()
-		_nFsznLen_ = len(_aFsznContent_)
+		_nFsznLen_ = ring_len(_aFsznContent_)
 
 		_anFsznResult_ = []
 
@@ -2505,7 +2505,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def StzNumbers()
 		_aSznContent_ = This.Content()
-		_nSznLen_ = len(_aSznContent_)
+		_nSznLen_ = ring_len(_aSznContent_)
 
 		_aSznResult_ = []
 
@@ -2524,7 +2524,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindStzStrings()
 		_aFszsContent_ = This.Content()
-		_nFszsLen_ = len(_aFszsContent_)
+		_nFszsLen_ = ring_len(_aFszsContent_)
 
 		_anFszsResult_ = []
 
@@ -2538,7 +2538,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def StzStrings()
 		_aSzsContent_ = This.Content()
-		_nSzsLen_ = len(_aSzsContent_)
+		_nSzsLen_ = ring_len(_aSzsContent_)
 
 		_aSzsResult_ = []
 
@@ -2557,7 +2557,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindStzObjects()
 		_aFszoContent_ = This.Content()
-		_nFszoLen_ = len(_aFszoContent_)
+		_nFszoLen_ = ring_len(_aFszoContent_)
 
 		_anFszoResult_ = []
 
@@ -2571,7 +2571,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def StzObjects()
 		_aSzoContent_ = This.Content()
-		_nSzoLen_ = len(_aSzoContent_)
+		_nSzoLen_ = ring_len(_aSzoContent_)
 
 		_aSzoResult_ = []
 
@@ -2606,7 +2606,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# See EXAMPLE in FindItemInList()
 
 		_aCiContent_ = This.Content()
-		_nCiLen_ = len(_aCiContent_)
+		_nCiLen_ = ring_len(_aCiContent_)
 
 		_bCiResult_ = 0
 
@@ -2652,7 +2652,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		*/
 
 		_aFiContent_ = This.Content()
-		_nFiLen_ = len(_aFiContent_)
+		_nFiLen_ = ring_len(_aFiContent_)
 
 		_aFiResult_ = []
 
@@ -2728,7 +2728,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# the example in TheseItemsZ() function
 
 		_aFtiT1_ = This.TheseItemsZ(paItems)
-		_nFtiLen1_ = len(_aFtiT1_)
+		_nFtiLen1_ = ring_len(_aFtiT1_)
 
 		# Step 2 : we  take the positions (pairs) and put them in a list
 
@@ -2736,7 +2736,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		for _iFti1_ = 1 to _nFtiLen1_
 			_aFtiPos1_ = _aFtiT1_[_iFti1_][2]
-			_nFtiLenPos1_ = len(_aFtiPos1_)
+			_nFtiLenPos1_ = ring_len(_aFtiPos1_)
 
 			for _jFti1_ = 1 to _nFtiLenPos1_
 				@AddItem(_aFtiT2_, _aFtiPos1_[_jFti1_])
@@ -2745,11 +2745,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		# Step 2 : we factorise the obtained list to get the positions
 
-		_nFtiLen2_ = len(_aFtiT2_)
+		_nFtiLen2_ = ring_len(_aFtiT2_)
 		_aFtiResult_ = []
 
 		for _iFti2_ = 1 to _nFtiLen2_
-			_nFtiLenPos2_ = len(_aFtiT2_[_iFti2_][2])
+			_nFtiLenPos2_ = ring_len(_aFtiT2_[_iFti2_][2])
 			for _jFti2_ = 1 to _nFtiLenPos2_
 				@AddItem(_aFtiResult_, [ _aFtiT2_[_iFti2_][1], _aFtiT2_[_iFti2_][2][_jFti2_] ])
 			next
@@ -2801,7 +2801,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		paItems = U(paItems) # Duplicates removed
 
-		_nTizLen_ = len(paItems)
+		_nTizLen_ = ring_len(paItems)
 		_aTizResult_ = []
 
 		for _iTiz_ = 1 to _nTizLen_
@@ -2847,13 +2847,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aFimIndex_ = This.Copy().ListifyQ().ValuesQRT(:stzListOfLists).IndexXT()
 
 		_aFimItems_ = This.Items()
-		_nFimLen_ = len(_aFimIndex_)
+		_nFimLen_ = ring_len(_aFimIndex_)
 
 		_aFimResult_ = []
 
 		for _iFim_ = 1 to _nFimLen_
 			_aFimPairs_ = _aFimIndex_[_iFim_][2]
-			_nFimLenPairs_ = len(_aFimPairs_)
+			_nFimLenPairs_ = ring_len(_aFimPairs_)
 			for _jFim_ = 1 to _nFimLenPairs_
 				@AddItem(_aFimResult_, _aFimPairs_[_jFim_])
 			next
@@ -2867,7 +2867,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		_aItmzItems_ = This.Items()
 		_anItmzPos_ = QRT(_aItmzIndex_, :stzHashList).FindTheseKeys(_aItmzItems_)
-		_nItmzLen_ = len(_anItmzPos_)
+		_nItmzLen_ = ring_len(_anItmzPos_)
 
 		_aItmzResult_ = []
 		for _iItmz_ = 1 to _nItmzLen_
@@ -2877,7 +2877,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return _aItmzResult_
 
 	def NumberOfItems()
-		return len(This.Items())
+		return ring_len(This.Items())
 
 	def ItemZ(pItem)
 		_aItzResult_ = [ pItem, This.FindItem(pItem) ]
@@ -2897,7 +2897,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		_anFniPos_ = This.FindItem(pItem)
-		_nFniLen_ = len(_anFniPos_)
+		_nFniLen_ = ring_len(_anFniPos_)
 
 		_nFniResult_ = 0
 		if _nFniLen_ > 0
@@ -2984,7 +2984,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindKeysByItem(pItem)
 		_anFkbiPos_ = This.FindItemInList(pItem)
-		_nFkbiLen_ = len(_anFkbiPos_)
+		_nFkbiLen_ = ring_len(_anFkbiPos_)
 
 		_anFkbiResult_ = []
 
@@ -2998,7 +2998,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.FindKeysByItem(pItem)
 
 	def NumberOfKeysByItemInList(pValue) ### Fixed: was missing pValue param
-		return len( This.FindKeysByItemInList(pValue) )
+		return ring_len( This.FindKeysByItemInList(pValue) )
 
 		#< @FunctionAlternativeForms
 
@@ -3066,7 +3066,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def KeysByItemInList(pValue)
 		_anKbiPos_ = This.FindKeysByItemInList(pValue) ### Fixed: was missing pValue arg
-		_nKbiLen_ = len(_anKbiPos_)
+		_nKbiLen_ = ring_len(_anKbiPos_)
 
 		_aKbiResult_ = []
 
@@ -3090,7 +3090,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def Listify()
 
 		_aLfContent_ = This.Content()
-		_nLfLen_ = len(_aLfContent_)
+		_nLfLen_ = ring_len(_aLfContent_)
 
 		for _iLf_ = 1 to _nLfLen_
 			if NOT isList(_aLfContent_[_iLf_][2])
@@ -3119,7 +3119,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		_aCfResult_ = []
 		_acCfClasses_ = This.Classes()
-		_nCfLen_ = len(_acCfClasses_)
+		_nCfLen_ = ring_len(_acCfClasses_)
 
 		for _iCf_ = 1 to _nCfLen_
 			@AddItem(_aCfResult_, [ _acCfClasses_[_iCf_], This.KeysForValue(_acCfClasses_[_iCf_]) ])
@@ -3156,7 +3156,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def Classes()
 		_acCsResult_ = []
 		_aCsUnique_ = This.UniqueValues()
-		_nCsLen_ = len(_aCsUnique_)
+		_nCsLen_ = ring_len(_aCsUnique_)
 
 		for _iCs_ = 1 to _nCsLen_
 			@AddItem(_acCsResult_, Q(_aCsUnique_[_iCs_]).Stringified())
@@ -3274,7 +3274,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-------------------------------------------------------------#
 
 	def NumberOfClasses()
-		return len( This.CLasses() )
+		return ring_len( This.CLasses() )
 
 		def NumberOfKlasses()
 			return This.NumberOfClasses()
@@ -3371,7 +3371,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-------------------------------------------#
 
 	def NumberOfValuesInClass(pcClass)
-		_nNvicResult_ = len( This.Klass(pcClass) )
+		_nNvicResult_ = ring_len( This.Klass(pcClass) )
 		return _nNvicResult_
 
 		#< @FunctionAlternativeForms
@@ -3434,7 +3434,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ClassesSizes()
 		_acCssClasses_ = This.Classes()
-		_nCssLen_ = len(_acCssClasses_)
+		_nCssLen_ = ring_len(_acCssClasses_)
 
 		_anCssResult_ = []
 
@@ -3461,7 +3461,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ClassesSizesXT()
 		_acCsxClasses_ = This.Classes()
-		_nCsxLen_ = len(_acCsxClasses_)
+		_nCsxLen_ = ring_len(_acCsxClasses_)
 
 		_aCsxResult_ = []
 
@@ -3503,7 +3503,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nTcsLen_ = len(pacClasses)
+		_nTcsLen_ = ring_len(pacClasses)
 
 		_anTcsResult_ = []
 
@@ -3547,7 +3547,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nTcsxLen_ = len(pacClasses)
+		_nTcsxLen_ = ring_len(pacClasses)
 
 		_aTcsxResult_ = []
 
@@ -3672,7 +3672,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ClassesFrequencies()
 		_acCfsClasses_ = This.Classes()
-		_nCfsLen_ = len(_acCfsClasses_)
+		_nCfsLen_ = ring_len(_acCfsClasses_)
 
 		_anCfsResult_ = []
 
@@ -3701,7 +3701,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ClassesFrequenciesXT()
 		_acCfxClasses_ = This.Classes()
-		_nCfxLen_ = len(_acCfxClasses_)
+		_nCfxLen_ = ring_len(_acCfxClasses_)
 
 		_aCfxResult_ = []
 
@@ -3761,7 +3761,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nTcfLen_ = len(pacClasses)
+		_nTcfLen_ = ring_len(pacClasses)
 
 		_anTcfResult_ = []
 
@@ -3797,7 +3797,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		_nTcfxLen_ = len(pacClasses)
+		_nTcfxLen_ = ring_len(pacClasses)
 
 		_aTcfxResult_ = []
 
@@ -3860,7 +3860,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# object, raising R13). Bind first.
 		_oNscTmp_ = new stzList( SortListsOn( This.ClassesXT(), 2 ) )
 		_aNscXT_ = _oNscTmp_.Reversed()
-		_nNscLen_ = len(_aNscXT_)
+		_nNscLen_ = ring_len(_aNscXT_)
 
 		n = @Min([ n, _nNscLen_ ])
 
@@ -3896,7 +3896,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def NStrongestClassesXT(n)
 		_oNscxTmp_ = new stzList( SortListsOn( This.ClassesXT(), 2 ) )
 		_aNscxXT_ = _oNscxTmp_.Reversed()
-		_nNscxLen_ = len(_aNscxXT_)
+		_nNscxLen_ = ring_len(_aNscxXT_)
 		n = @Min([ n, _nNscxLen_ ])
 
 		_aNscxResult_ = []
@@ -4047,7 +4047,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def NWeakestClasses(n)
 		_aNwcXT_ = SortListsOn( ClassesXT(), 2 )
-		_nNwcLen_ = len(_aNwcXT_)
+		_nNwcLen_ = ring_len(_aNwcXT_)
 		n = @Min([ n, _nNwcLen_ ])
 
 		_aNwcResult_ = []
@@ -4081,7 +4081,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def NWeakestClassesXT(n)
 		_aNwcxXT_ = SortListsOn( ClassesXT(), 2 )
-		_nNwcxLen_ = len(_aNwcxXT_)
+		_nNwcxLen_ = ring_len(_aNwcxXT_)
 		n = @Min([ n, _nNwcxLen_ ])
 
 		_aNwcxResult_ = []
@@ -4226,7 +4226,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def ClassesInList()
 		_acCilResult_ = []
 		_aCilUnique_ = U( @Merge(This.Lists()) )
-		_nCilLen_ = len(_aCilUnique_)
+		_nCilLen_ = ring_len(_aCilUnique_)
 
 		for _iCil_ = 1 to _nCilLen_
 			@AddItem(_acCilResult_, Q(_aCilUnique_[_iCil_]).Stringified())
@@ -4288,7 +4288,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------------------------------#
 
 	def NumberOfClassesInList()
-		return len( This.CLassesInList() )
+		return ring_len( This.CLassesInList() )
 
 		#< @FunctionAlternativeForms
 
@@ -4343,7 +4343,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		_aClilResult_ = []
 		_aClilClasses_ = This.ClassesInList()
-		_nClilLen_ = len(_aClilClasses_)
+		_nClilLen_ = ring_len(_aClilClasses_)
 
 		for _iClil_ = 1 to _nClilLen_
 			@AddItem(_aClilResult_, [ _aClilClasses_[_iClil_], This.FindItem(_aClilClasses_[_iClil_]) ])
@@ -4551,7 +4551,7 @@ this: lefttoright
 
 	def ToCode()
 		_aTcPairs_ = This.Content()
-		_nTcLen_ = len(_aTcPairs_)
+		_nTcLen_ = ring_len(_aTcPairs_)
 
 		_cTcResult_ = "[ "
 
@@ -4593,7 +4593,7 @@ this: lefttoright
 
 	def ToStzTable()
 		_aTstContent_ = This.Content()
-		_nTstLen_ = len(_aTstContent_)
+		_nTstLen_ = ring_len(_aTstContent_)
 
 		_aTstTable_ = _aTstContent_
 

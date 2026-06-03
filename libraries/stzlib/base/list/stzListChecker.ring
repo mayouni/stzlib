@@ -85,7 +85,7 @@ class stzListChecker
 
 	def IsListOfObjects()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		for i = 1 to nLen
 			if NOT isObject(aContent[i])
@@ -110,7 +110,7 @@ class stzListChecker
 
 	def AllItemsAreOfType(pcType)
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		for i = 1 to nLen
 			if type(aContent[i]) != StzUpper(pcType)
@@ -126,7 +126,7 @@ class stzListChecker
 
 	def IsListOfDecimalNumbers()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		for i = 1 to nLen
 			if NOT isNumber(aContent[i])
@@ -180,7 +180,7 @@ class stzListChecker
 			StzRaise("Incorrect param type!")
 		ok
 
-		return This.NumberOfItems() > len(paOtherList)
+		return This.NumberOfItems() > ring_len(paOtherList)
 
 	def HasLessNumberOfItems(paOtherList)
 		if isList(paOtherList) and IsThanNamedParamList(paOtherList)
@@ -191,7 +191,7 @@ class stzListChecker
 			StzRaise("Incorrect param type!")
 		ok
 
-		return This.NumberOfItems() < len(paOtherList)
+		return This.NumberOfItems() < ring_len(paOtherList)
 
 	def HasSameNumberOfItems(paOtherList)
 		if isList(paOtherList) and IsAsNamedParamList(paOtherList)
@@ -202,7 +202,7 @@ class stzListChecker
 			StzRaise("Incorrect param type!")
 		ok
 
-		return This.NumberOfItems() = len(paOtherList)
+		return This.NumberOfItems() = ring_len(paOtherList)
 
 	  #==============================#
 	 #  STRUCTURE CHECKING         #
@@ -210,10 +210,10 @@ class stzListChecker
 
 	def IsHashList()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		for i = 1 to nLen
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and isString(aContent[i][1]))
+			if NOT (isList(aContent[i]) and ring_len(aContent[i]) = 2 and isString(aContent[i][1]))
 				return 0
 			ok
 		next
@@ -222,7 +222,7 @@ class stzListChecker
 
 	def IsListOfHashLists()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		for i = 1 to nLen
 			if NOT isList(aContent[i])
@@ -350,7 +350,7 @@ class stzListChecker
 		return This.ContainsItemCS(pItem, 1)
 
 	def ContainsAllOfTheseCS(paItems, pCaseSensitive)
-		_nCatLen_ = len(paItems)
+		_nCatLen_ = ring_len(paItems)
 		for _iCat_ = 1 to _nCatLen_
 			if NOT This.ContainsItemCS(paItems[_iCat_], pCaseSensitive)
 				return 0
@@ -362,7 +362,7 @@ class stzListChecker
 		return This.ContainsAllOfTheseCS(paItems, 1)
 
 	def ContainsOneOfTheseCS(paItems, pCaseSensitive)
-		_nCotLen_ = len(paItems)
+		_nCotLen_ = ring_len(paItems)
 		for _iCot_ = 1 to _nCotLen_
 			if This.ContainsItemCS(paItems[_iCot_], pCaseSensitive)
 				return 1
@@ -395,7 +395,7 @@ class stzListChecker
 
 	def IsPairOfNumbers()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 		if nLen = 2 and isNumber(aContent[1]) and isNumber(aContent[2])
 			return 1
 		else
@@ -413,7 +413,7 @@ class stzListChecker
 
 	def IsPairOfStrings()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 		if nLen = 2 and isString(aContent[1]) and isString(aContent[2])
 			return 1
 		else
@@ -422,7 +422,7 @@ class stzListChecker
 
 	def IsPairOfLists()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 		if nLen = 2 and isList(aContent[1]) and isList(aContent[2])
 			return 1
 		else
@@ -435,7 +435,7 @@ class stzListChecker
 
 	def ContainsW(pcCondition)
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		cCode = StzCCodeToRingCode(pcCondition)
 

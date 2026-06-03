@@ -132,7 +132,7 @@ class stzListOfPairs from stzListOfLists
 				StzRaise("Incorrect param type! n must be a number equal to 1 or 2.")
 			ok
 
-			if NOT isList(paNewPair) and len(paNewPair) = 2
+			if NOT isList(paNewPair) and ring_len(paNewPair) = 2
 				StzRaise("Incorrect param type! paNewPair must be a list of 2 items.")
 			ok
 		ok
@@ -190,7 +190,7 @@ class stzListOfPairs from stzListOfLists
 	#-------------------------------#
 
 	def NumberOfPairs()
-		nResult = len(@aContent)
+		nResult = ring_len(@aContent)
 		return nResult
 
 	  #------------------------#
@@ -255,7 +255,7 @@ class stzListOfPairs from stzListOfLists
 		# wrong answer on every call (including the typical
 		# "yes, all pairs are equal" case).
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -272,7 +272,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItems()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		aResult = []
 
@@ -393,7 +393,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItems()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		aResult = []
 
@@ -550,7 +550,7 @@ class stzListOfPairs from stzListOfLists
 
 	def StringifyItems()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		aResult = []
 
@@ -835,7 +835,7 @@ class stzListOfPairs from stzListOfLists
 
 	def ExpandedIfPairsOfNumbers()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		aResult = []
 
@@ -876,7 +876,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SwapItems()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 		aResult = []
 
 		for i = 1 to nLen
@@ -993,7 +993,7 @@ class stzListOfPairs from stzListOfLists
 	def IsListOfSections()
 
 		aContent = This.Content()
-		nLen = len(aContent)	
+		nLen = ring_len(aContent)	
 
 		bResult = 1
 
@@ -1050,7 +1050,7 @@ class stzListOfPairs from stzListOfLists
 
 	def ContainsInAnyPair(pItem)
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 0
 		
@@ -1108,7 +1108,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreNumbers()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1136,7 +1136,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreStrings()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1164,7 +1164,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreChars()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1192,7 +1192,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreLists()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1220,7 +1220,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreObjects()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1248,7 +1248,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreStzObjects()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1276,7 +1276,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreStzChars()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1304,7 +1304,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreStzStrings()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1332,7 +1332,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreStzNumbers()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1360,7 +1360,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreStzLists()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1388,7 +1388,7 @@ class stzListOfPairs from stzListOfLists
 
 	def FirstItemsAreStzHashLists()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1416,7 +1416,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreNumbers()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1444,7 +1444,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreStrings()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1472,7 +1472,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreChars()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1500,7 +1500,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreLists()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1528,7 +1528,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreObjects()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1556,7 +1556,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreStzObjects()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1584,7 +1584,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreStzChars()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1612,7 +1612,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreStzStrings()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1640,7 +1640,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreStzNumbers()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1668,7 +1668,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreStzLists()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1696,7 +1696,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SecondItemsAreStzHashLists()
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		bResult = 1
 
@@ -1728,7 +1728,7 @@ class stzListOfPairs from stzListOfLists
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		aHash = []
 

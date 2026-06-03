@@ -140,7 +140,7 @@ class stzTree from stzList
 			return This.Branches()
 
 	def _CollectBranches(cCurrentPath, paContent, aResult)
-		nLen = len(paContent)
+		nLen = ring_len(paContent)
 
 		for i = 1 to nLen
 			item = paContent[i]
@@ -151,7 +151,7 @@ class stzTree from stzList
 				loop
 			ok
         
-			nLenItem = len(item)
+			nLenItem = ring_len(item)
 
 			# Process branch entries - they're lists
 			# with string as first element
@@ -196,7 +196,7 @@ class stzTree from stzList
 		ok
 
 		aResult = []
-		nLen = len(pacNodesNames)
+		nLen = ring_len(pacNodesNames)
 
 		for i = 1 to nLen
 			aResult + This.Node(pacNodesNames[i])
@@ -205,7 +205,7 @@ class stzTree from stzList
 		return aResult
 
 	def _CollectNodes(paContent, aResult)
-		nLenContent = len(paContent)
+		nLenContent = ring_len(paContent)
 
 		for i = 1 to nLenContent
 			item = paContent[i]
@@ -216,7 +216,7 @@ class stzTree from stzList
 				loop
 			ok
 
-			nLenItem = len(item)
+			nLenItem = ring_len(item)
 
 			# Process branch entries - they're lists
 			# with string as first element
@@ -293,7 +293,7 @@ class stzTree from stzList
 			stzraise("Can't proceed! pacBranches is not a list of valid nodes paths.")
 		ok
 
-		nLen = len(pacBranches)
+		nLen = ring_len(pacBranches)
 		aResult = []
 
 		for i = 1 to nLen
@@ -310,7 +310,7 @@ class stzTree from stzList
 		ok
 
 		_acNodesNames_ = U(pacNodesNames)
-		_nLen_ = len(_acNodesNames_)
+		_nLen_ = ring_len(_acNodesNames_)
 		_acResult_ = [] // Branches
 
 		for @i = 1 to _nLen_
@@ -350,7 +350,7 @@ class stzTree from stzList
 	# An internal method used by Items()
 
 	def _CollectItems(paContent, aResult)
-		nLenContent = len(paContent)
+		nLenContent = ring_len(paContent)
     
 		for i = 1 to nLenContent
 			item = paContent[i]
@@ -358,7 +358,7 @@ class stzTree from stzList
 			# If the item is not a list or it's
 			# a simple value, it's an item in the tree semantic
 
-			if NOT isList(item) OR (isList(item) AND len(item) = 0)
+			if NOT isList(item) OR (isList(item) AND ring_len(item) = 0)
 				aResult + item
 				loop
 			ok
@@ -366,16 +366,16 @@ class stzTree from stzList
 			# If it is a list but not a branch
 			# (doesn't have a string as first element)
 
-			if isList(item) AND (len(item) < 2 OR NOT isString(item[1]))
+			if isList(item) AND (ring_len(item) < 2 OR NOT isString(item[1]))
 				aResult + item
 				loop
 			ok
         
 			# If it's a branch, check its contents
 
-			if isList(item) AND len(item) >= 2 AND isString(item[1])
+			if isList(item) AND ring_len(item) >= 2 AND isString(item[1])
 				# Only process the contents if it's a list
-				if len(item) >= 2 AND isList(item[2])
+				if ring_len(item) >= 2 AND isList(item[2])
 					This._CollectItems(item[2], aResult)
 				ok
 			ok
@@ -385,7 +385,7 @@ class stzTree from stzList
 		aItems = This.Items()
 		aItemPaths = []
 		
-		for i = 1 to len(aItems)
+		for i = 1 to ring_len(aItems)
 			aItemPaths + []
 		next
 		
@@ -395,7 +395,7 @@ class stzTree from stzList
 		This._MapItemsToPathsCS(aRootContent, "[:root]", aItems, aItemPaths, pCaseSensitive)
 		
 		aResult = []
-		for i = 1 to len(aItems)
+		for i = 1 to ring_len(aItems)
 			aResult + [ aItems[i], aItemPaths[i] ]
 		next
 		
@@ -417,13 +417,13 @@ class stzTree from stzList
 	# An internal method used by ItemsZ()
 
 	def _MapItemsToPathsCS(paContent, cCurrentPath, aItems, aItemPaths, pCaseSensitive)
-		nLenContent = len(paContent)
+		nLenContent = ring_len(paContent)
 		
 		for i = 1 to nLenContent
 			item = paContent[i]
 			
 			# If the item is not a list or it's a simple value, then take it
-			if NOT isList(item) OR (isList(item) AND len(item) = 0)
+			if NOT isList(item) OR (isList(item) AND ring_len(item) = 0)
 				nPos = StzListQ(aItems).FindFirstCS(item, pCaseSensitive)
 				if nPos > 0
 					aItemPaths[nPos] + cCurrentPath
@@ -432,7 +432,7 @@ class stzTree from stzList
 			ok
 			
 			# If it is a list but not a branch (doesn't have a string as first element)
-			if isList(item) AND (len(item) < 2 OR NOT isString(item[1]))
+			if isList(item) AND (ring_len(item) < 2 OR NOT isString(item[1]))
 
 				nPos = StzListQ(aItems).FindFirstCS(item, pCaseSensitive)
 				if nPos > 0
@@ -442,12 +442,12 @@ class stzTree from stzList
 			ok
 			
 			# If it's a branch, check its contents
-			if isList(item) AND len(item) >= 2 AND isString(item[1])
+			if isList(item) AND ring_len(item) >= 2 AND isString(item[1])
 				cBranchName = item[1]
 				cBranchPath = cCurrentPath + "[:"+cBranchName+"]"
 				
 				# Only process the contents if it's a list
-				if len(item) >= 2 AND isList(item[2])
+				if ring_len(item) >= 2 AND isList(item[2])
 					This._MapItemsToPathsCS(item[2], cBranchPath, aItems, aItemPaths, pCaseSensitive)
 				ok
 			ok
@@ -464,12 +464,12 @@ class stzTree from stzList
 		aResult = []
 		aItemsAndBranches = This.ItemsXTCS(pCaseSensitive)
 		
-		for i = 1 to len(aItemsAndBranches)
+		for i = 1 to ring_len(aItemsAndBranches)
 			if aItemsAndBranches[i][1] = pItem
 				aBranches = aItemsAndBranches[i][2]
 				aPositions = This._FindItemPositionsAt(pItem, aBranches, pCaseSensitive)
 				
-				for j = 1 to len(aBranches)
+				for j = 1 to ring_len(aBranches)
 					# Concatenate branch path with position directly
 					if aPositions[j] != ""
 						aResult + (aBranches[j] + aPositions[j])
@@ -496,11 +496,11 @@ class stzTree from stzList
 	def _FindItemPositionsAt(pItem, paBranches, pCaseSensitive)
 		aPositions = []
 		
-		for i = 1 to len(paBranches)
+		for i = 1 to ring_len(paBranches)
 			aNodeContent = This.NodeAt(paBranches[i])
 			nPos = 0
 			
-			for j = 1 to len(aNodeContent)
+			for j = 1 to ring_len(aNodeContent)
 				if pCaseSensitive = 1
 					if aNodeContent[j] = pItem
 						nPos = j
@@ -530,7 +530,7 @@ class stzTree from stzList
 		aNodeContent = This.NodeAtBranch(pcBranch)
 		nPos = 0
 		
-		for i = 1 to len(aNodeContent)
+		for i = 1 to ring_len(aNodeContent)
 			if pCaseSensitive = 1
 				if aNodeContent[i] = pItem
 					nPos = i
@@ -555,11 +555,11 @@ class stzTree from stzList
 
 	def FindTheseItemsCS(paItems, pCaseSensitive)
 		aResult = []
-		nLen = len(paItems)
+		nLen = ring_len(paItems)
 
-		for i = 1 to len(paItems)
+		for i = 1 to ring_len(paItems)
 			aBranchesWithPos = This.FindItemCS(paItems[i], pCaseSensitive)
-			nLen2 = len(aBranchesWithPos)
+			nLen2 = ring_len(aBranchesWithPos)
 			for j = 1 to nLen2
 				aResult + aBranchesWithPos[nLen2]
 			next
@@ -576,12 +576,12 @@ class stzTree from stzList
 		aResult = []
 		aItemsAndBranches = This.ItemsXTCS(pCaseSensitive)
 
-		for i = 1 to len(aItemsAndBranches)
+		for i = 1 to ring_len(aItemsAndBranches)
 			cItem = aItemsAndBranches[i][1]
 			aBranches = aItemsAndBranches[i][2]
 			aPositions = This._FindItemPositionsAt(cItem, aBranches, pCaseSensitive)
 
-			for j = 1 to len(aBranches)
+			for j = 1 to ring_len(aBranches)
 				# Concatenate branch path with position directly
 				if aPositions[j] != ""
 					aResult + (aBranches[j] + aPositions[j])
@@ -633,7 +633,7 @@ class stzTree from stzList
 	def AddNodeAt(paNode, pcBranch)
 		if CheckParams()
 
-			if NOT ( isList(paNode) and len(paNode) = 2 and
+			if NOT ( isList(paNode) and ring_len(paNode) = 2 and
 			         isString(paNode[1]) and isList(paNode[2]) )
 
 				stzRaise("Incorrect param! paNode is not a valid node.")
@@ -676,7 +676,7 @@ class stzTree from stzList
 	#-------------------------------#
 	
 	def NumberOfNodesInBranch(pcBranch)
-		return len( @split(pcBranch, "]["))
+		return ring_len( @split(pcBranch, "]["))
 
 		#< @FunctionAlternativeForms
 
@@ -702,7 +702,7 @@ class stzTree from stzList
 	def NodesInBranch(pcBranch)
 	
 		_acSplits_ = @split(pcBranch, "][")
-		_nLen_ = len(_acSplits_)
+		_nLen_ = ring_len(_acSplits_)
 	
 		if _nLen_ > 0
 			_acSplits_[1] = StzReplace(_acSplits_[1], "[", "")

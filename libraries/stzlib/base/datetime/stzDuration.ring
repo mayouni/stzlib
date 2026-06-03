@@ -290,7 +290,7 @@ def ToStringXT(cFormat)
 		nS = This.Seconds()
 		
 		# Check against patterns
-		nLen = len($aDurationPatterns)
+		nLen = ring_len($aDurationPatterns)
 		for i = 1 to nLen
 			if nD = $aDurationPatterns[i][1] and nH = $aDurationPatterns[i][2] and 
 			   nM = $aDurationPatterns[i][3] and nS = $aDurationPatterns[i][4]
@@ -301,7 +301,7 @@ def ToStringXT(cFormat)
 		# Build component-based description
 		aParts = []
 		aValues = [nD, nH, nM, nS]
-		nLen = len($aUnitNames)
+		nLen = ring_len($aUnitNames)
 
 		for i = 1 to nLen
 			nValue = aValues[i]
@@ -315,7 +315,7 @@ def ToStringXT(cFormat)
 		next
 		
 		# Handle edge case: no time components
-		if len(aParts) = 0
+		if ring_len(aParts) = 0
 			aParts + "0 seconds"
 		ok
 		
@@ -631,7 +631,7 @@ def ToStringXT(cFormat)
 	PRIVATE
 	
 	def JoinParts(aParts)
-		nLen = len(aParts)
+		nLen = ring_len(aParts)
 		if nLen = 1
 			return aParts[1]
 		but nLen = 2

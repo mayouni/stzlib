@@ -69,7 +69,7 @@ class stzListFinder
 		ok
 
 		_aFaoContent_ = This.Content()
-		_nFaoLen_ = len(_aFaoContent_)
+		_nFaoLen_ = ring_len(_aFaoContent_)
 
 		if EarlyCheck()
 			if _nFaoLen_ = 0
@@ -96,7 +96,7 @@ class stzListFinder
 		# Fallback for numbers and other types
 		_anFaoResult2_ = @FindAllCS_NbrOrStr( _aFaoContent_, pItem, pCaseSensitive)
 
-		if isList(_anFaoResult2_) and len(_anFaoResult2_) > 0
+		if isList(_anFaoResult2_) and ring_len(_anFaoResult2_) > 0
 			return _anFaoResult2_
 
 		else
@@ -113,12 +113,12 @@ class stzListFinder
 			ok
 
 			_aFaoRawContent_ = This.Content()
-			_nFaoLenRaw_ = len(_aFaoRawContent_)
+			_nFaoLenRaw_ = ring_len(_aFaoRawContent_)
 			_acFaoContent_ = []
 			for _kFao_ = 1 to _nFaoLenRaw_
 				@AddItem(_acFaoContent_, "" + _aFaoRawContent_[_kFao_])
 			next
-			_nFaoLen2_ = len(_acFaoContent_)
+			_nFaoLen2_ = ring_len(_acFaoContent_)
 
 			if pCaseSensitive = 0
 				_cFaoItem_ = StzLower(_cFaoItem_)
@@ -234,8 +234,8 @@ class stzListFinder
 			ok
 		ok
 
-		_nApTotal_ = len(@oList.Content())
-		_nApPosLen_ = len(anPos)
+		_nApTotal_ = ring_len(@oList.Content())
+		_nApPosLen_ = ring_len(anPos)
 
 		_aApMarked_ = []
 		for _kAp_ = 1 to _nApTotal_
@@ -269,7 +269,7 @@ class stzListFinder
 
 		_anFnoAll_ = This.FindAllCS(pItem, pCaseSensitive)
 
-		if n > len(_anFnoAll_)
+		if n > ring_len(_anFnoAll_)
 			return _anFnoAll_
 		ok
 
@@ -289,7 +289,7 @@ class stzListFinder
 
 	def FindFirstCS(pItem, pCaseSensitive)
 		_anFfPos_ = This.FindAllCS(pItem, pCaseSensitive)
-		if len(_anFfPos_) > 0
+		if ring_len(_anFfPos_) > 0
 			return _anFfPos_[1]
 		else
 			return 0
@@ -304,7 +304,7 @@ class stzListFinder
 
 	def FindLastCS(pItem, pCaseSensitive)
 		_anFlPos_ = This.FindAllCS(pItem, pCaseSensitive)
-		_nFlLen_ = len(_anFlPos_)
+		_nFlLen_ = ring_len(_anFlPos_)
 		if _nFlLen_ > 0
 			return _anFlPos_[_nFlLen_]
 		else
@@ -325,7 +325,7 @@ class stzListFinder
 		ok
 
 		_anFnPos_ = This.FindAllCS(pItem, pCaseSensitive)
-		_nFnLen_ = len(_anFnPos_)
+		_nFnLen_ = ring_len(_anFnPos_)
 
 		if n > _nFnLen_ or n < 1
 			return 0
@@ -347,8 +347,8 @@ class stzListFinder
 		ok
 
 		_anFgoPos_ = This.FindAllCS(pItem, pCaseSensitive)
-		_nFgoLenPos_ = len(_anFgoPos_)
-		_nFgoLenOcc_ = len(panOccurrences)
+		_nFgoLenPos_ = ring_len(_anFgoPos_)
+		_nFgoLenOcc_ = ring_len(panOccurrences)
 
 		_anFgoResult_ = []
 		for _iFgo_ = 1 to _nFgoLenOcc_
@@ -368,12 +368,12 @@ class stzListFinder
 	#============================================#
 
 	def FindManyCS(paItems, pCaseSensitive)
-		_nFmLen = len(paItems)
+		_nFmLen = ring_len(paItems)
 		_aFmMerged = []
 
 		for _iFm = 1 to _nFmLen
 			_aFmPos = This.FindAllCS(paItems[_iFm], pCaseSensitive)
-			_nFmPosLen = len(_aFmPos)
+			_nFmPosLen = ring_len(_aFmPos)
 			for _jFm = 1 to _nFmPosLen
 				_aFmMerged + _aFmPos[_jFm]
 			next
@@ -392,7 +392,7 @@ class stzListFinder
 
 	def FindAllExceptFirstCS(pItem, pCaseSensitive)
 		_anFefPos_ = This.FindAllCS(pItem, pCaseSensitive)
-		_nFefLen_ = len(_anFefPos_)
+		_nFefLen_ = ring_len(_anFefPos_)
 
 		if _nFefLen_ <= 1
 			return []
@@ -414,7 +414,7 @@ class stzListFinder
 
 	def FindAllExceptLastCS(pItem, pCaseSensitive)
 		_anFelPos_ = This.FindAllCS(pItem, pCaseSensitive)
-		_nFelLen_ = len(_anFelPos_)
+		_nFelLen_ = ring_len(_anFelPos_)
 
 		if _nFelLen_ <= 1
 			return []
@@ -435,7 +435,7 @@ class stzListFinder
 	#=============================================#
 
 	def NumberOfOccurrenceCS(pItem, pCaseSensitive)
-		return len( This.FindAllCS(pItem, pCaseSensitive) )
+		return ring_len( This.FindAllCS(pItem, pCaseSensitive) )
 
 	def NumberOfOccurrence(pItem)
 		return This.NumberOfOccurrenceCS(pItem, 1)
@@ -459,7 +459,7 @@ class stzListFinder
 		ok
 
 		_anFnnoPos_ = This.FindAllCS(pItem, pCaseSensitive)
-		_nFnnoLen_ = len(_anFnnoPos_)
+		_nFnnoLen_ = ring_len(_anFnnoPos_)
 
 		_nFnnoCount_ = 0
 		for _iFnno_ = 1 to _nFnnoLen_
@@ -505,7 +505,7 @@ class stzListFinder
 		ok
 
 		_anFpnoPos_ = This.FindAllCS(pItem, pCaseSensitive)
-		_nFpnoLen_ = len(_anFpnoPos_)
+		_nFpnoLen_ = ring_len(_anFpnoPos_)
 
 		_nFpnoCount_ = 0
 		for _iFpno_ = _nFpnoLen_ to 1 step -1
@@ -558,7 +558,7 @@ class stzListFinder
 			ok
 		ok
 
-		_nCtLen = len(This.FindAllCS(pItem, pCaseSensitive))
+		_nCtLen = ring_len(This.FindAllCS(pItem, pCaseSensitive))
 		if _nCtLen > 0
 			return 1
 		else
@@ -569,7 +569,7 @@ class stzListFinder
 		return This.ContainsCS(pItem, 1)
 
 	def ContainsManyCS(paItems, pCaseSensitive)
-		nLen = len(paItems)
+		nLen = ring_len(paItems)
 		for i = 1 to nLen
 			if NOT This.ContainsCS(paItems[i], pCaseSensitive)
 				return 0

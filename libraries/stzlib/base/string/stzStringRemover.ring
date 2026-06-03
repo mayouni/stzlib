@@ -223,7 +223,7 @@ class stzStringRemover
 	def RemoveW(pcCondition)
 		_oFinder_ = new stzStringFinder(@oString)
 		anPos = _oFinder_.FindW(pcCondition)
-		for i = len(anPos) to 1 step -1
+		for i = ring_len(anPos) to 1 step -1
 			This.RemoveSection(anPos[i], anPos[i])
 		next
 
@@ -248,7 +248,7 @@ class stzStringRemover
 		ok
 
 		_acSubStr_ = U(pacSubStr)
-		_nLen_ = len(_acSubStr_)
+		_nLen_ = ring_len(_acSubStr_)
 		_oCopy_ = new stzStringRemover(@oString.Content())
 
 		for @i = 1 to _nLen_
@@ -304,11 +304,11 @@ class stzStringRemover
 	def RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
 		acAll = _oFinder_.SubStringsCS(pCaseSensitive)
-		_nLen_ = len(acAll)
+		_nLen_ = ring_len(acAll)
 
 		for @i = 1 to _nLen_
 			bFound = 0
-			for @j = 1 to len(pacSubStr)
+			for @j = 1 to ring_len(pacSubStr)
 				if BothStringsAreEqualCS(acAll[@i], pacSubStr[@j], pCaseSensitive)
 					bFound = 1
 					exit
@@ -455,7 +455,7 @@ class stzStringRemover
 	def RemoveDuplicatesCS(pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
 		aSections = _oFinder_.FindDuplicatesAsSectionsCS(pCaseSensitive)
-		if len(aSections) > 0
+		if ring_len(aSections) > 0
 			@oString.RemoveSections(aSections)
 		ok
 		This.UpdateWith(_cResult_)
@@ -645,8 +645,8 @@ class stzStringRemover
 	def RemoveNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
 		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
-		if len(anPos) < n
-			n = len(anPos)
+		if ring_len(anPos) < n
+			n = ring_len(anPos)
 		ok
 		nLenSubStr = StzLen(pcSubStr)
 		for i = n to 1 step -1
@@ -665,7 +665,7 @@ class stzStringRemover
 	def RemoveNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
 		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
-		nLen = len(anPos)
+		nLen = ring_len(anPos)
 		if nLen < n
 			n = nLen
 		ok
@@ -707,7 +707,7 @@ class stzStringRemover
 
 	def RemoveCharsAtPositions(panPos)
 		aSorted = sort(panPos)
-		for i = len(aSorted) to 1 step -1
+		for i = ring_len(aSorted) to 1 step -1
 			This.RemoveCharAt(aSorted[i])
 		next
 

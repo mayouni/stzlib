@@ -28,7 +28,7 @@ class stzNaturalMarkup from stzObject
 
     def _Blocks()
         @acBlocks = @oCode.SubStringsBoundedBy([ "#<", "#>" ])
-        nLen = len(@acBlocks)
+        nLen = ring_len(@acBlocks)
         for i = 1 to nLen
             if trim(@acBlocks[i]) != ""
                 @aoBlocks + new stzString(@acBlocks[i])
@@ -60,13 +60,13 @@ class stzNaturalMarkup from stzObject
         return nRes
 
     def _DynamicPartsPerBlock()
-        nLen = len(@aoBlocks)
+        nLen = ring_len(@aoBlocks)
 
 
         for i = 1 to nLen
             aData = []
             acParts = @aoBlocks[i].SubstringsBoundedByZZ([ "{", "}" ])
-            nLenParts = len(acParts)
+            nLenParts = ring_len(acParts)
 
             for j = 1 to nLenParts
 

@@ -35,7 +35,7 @@ class stzBytes
 			else
 				@pEngine = StzEngineBytesFrom(pData)
 			ok
-		but isList(pData) and len(pData) = 0
+		but isList(pData) and ring_len(pData) = 0
 			@pEngine = StzEngineBytesNew()
 		else
 			@pEngine = StzEngineBytesNew()

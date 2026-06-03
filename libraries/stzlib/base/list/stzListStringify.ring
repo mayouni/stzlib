@@ -65,7 +65,7 @@ class stzListStringify
 	def Stringify()
 
 		_aSfContent_ = This.Content()
-		_nSfLen_ = len(_aSfContent_)
+		_nSfLen_ = ring_len(_aSfContent_)
 
 		for _iSf_ = 1 to _nSfLen_
 
@@ -106,7 +106,7 @@ class stzListStringify
 
 	def StringifyLists()
 		_aSlContent_ = This.Content()
-		_nSlLen_ = len(_aSlContent_)
+		_nSlLen_ = ring_len(_aSlContent_)
 
 		for _iSl_ = 1 to _nSlLen_
 			if isList(_aSlContent_[_iSl_])
@@ -132,7 +132,7 @@ class stzListStringify
 
 	def StringifyObjects()
 		_aSoContent_ = This.Content()
-		_nSoLen_ = len(_aSoContent_)
+		_nSoLen_ = ring_len(_aSoContent_)
 
 		for _iSo_ = 1 to _nSoLen_
 			if isObject(_aSoContent_[_iSo_])
@@ -158,7 +158,7 @@ class stzListStringify
 
 	def Singlify()
 		_aSgContent_ = This.Content()
-		_nSgLen_ = len(_aSgContent_)
+		_nSgLen_ = ring_len(_aSgContent_)
 
 		if _nSgLen_ <= 1
 			return
@@ -216,7 +216,7 @@ class stzListStringify
 			return _cJnResult_
 		ok
 		_aJnContent_ = This.Content()
-		_nJnLen_ = len(_aJnContent_)
+		_nJnLen_ = ring_len(_aJnContent_)
 		_cJnFallback_ = ""
 		for _iJn_ = 1 to _nJnLen_
 			if _iJn_ > 1
@@ -245,7 +245,7 @@ class stzListStringify
 
 	def Lowercased()
 		_aLcContent_ = This.Content()
-		_nLcLen_ = len(_aLcContent_)
+		_nLcLen_ = ring_len(_aLcContent_)
 		_aLcResult_ = []
 		for _iLc_ = 1 to _nLcLen_
 			if isString(_aLcContent_[_iLc_])
@@ -261,7 +261,7 @@ class stzListStringify
 
 	def Uppercased()
 		_aUcContent_ = This.Content()
-		_nUcLen_ = len(_aUcContent_)
+		_nUcLen_ = ring_len(_aUcContent_)
 		_aUcResult_ = []
 		for _iUc_ = 1 to _nUcLen_
 			if isString(_aUcContent_[_iUc_])
@@ -281,7 +281,7 @@ class stzListStringify
 
 	def NumbersToStrings()
 		_aNtsContent_ = This.Content()
-		_nNtsLen_ = len(_aNtsContent_)
+		_nNtsLen_ = ring_len(_aNtsContent_)
 		_aNtsResult_ = []
 		for _iNts_ = 1 to _nNtsLen_
 			if isNumber(_aNtsContent_[_iNts_])
@@ -294,7 +294,7 @@ class stzListStringify
 
 	def StringsToNumbers()
 		_aStnContent_ = This.Content()
-		_nStnLen_ = len(_aStnContent_)
+		_nStnLen_ = ring_len(_aStnContent_)
 		_aStnResult_ = []
 		for _iStn_ = 1 to _nStnLen_
 			if isString(_aStnContent_[_iStn_]) and isNumber(0 + _aStnContent_[_iStn_])

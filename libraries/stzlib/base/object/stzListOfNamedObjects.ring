@@ -48,7 +48,7 @@ class stzListOfNamedObjects from stzList
 			StzRaise("Incorrect param type! paNamedObjects must be a list of named objects.")
 		ok
 
-		nLen = len(paNamedObjects)
+		nLen = ring_len(paNamedObjects)
 
 		for i = 1 to nLen
 			@aContent + new stzNamedObject(paNamedObjects[i])

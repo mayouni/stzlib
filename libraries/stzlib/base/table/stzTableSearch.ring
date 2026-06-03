@@ -119,7 +119,7 @@ class stzTableSearch from stzTable
 			if _cPairs != ""
 				_aFcResult = []
 				_aParts = StzSplit(_cPairs, ";")
-				_nFcLen = len(_aParts)
+				_nFcLen = ring_len(_aParts)
 				for _iFc = 1 to _nFcLen
 					_aColRow = StzSplit(_aParts[_iFc], ",")
 					_aFcResult + [0 + _aColRow[1], 0 + _aColRow[2]]
@@ -184,13 +184,13 @@ class stzTableSearch from stzTable
 		ok
 
 		paValues = UCS(paValues, pCaseSensitive)
-		nLen = len(paValues)
+		nLen = ring_len(paValues)
 
 		aResult = []
 
 		for i = 1 to nLen
 			aTemp = This.FindCellCS(paValues[i], pCaseSensitive)
-			nLen = len(aTemp)
+			nLen = ring_len(aTemp)
 
 			for j = 1 to nLen
 				aResult + aTemp[j]
@@ -253,7 +253,7 @@ class stzTableSearch from stzTable
 		aCellsXT = This.CellsAndTheirPositions()
 
 		aResult = []
-		for i = 1 to len(aCellsXT)
+		for i = 1 to ring_len(aCellsXT)
 			cellValue = aCellsXT[i][1]
 			oCellValue = Q(cellValue)
 
@@ -393,7 +393,7 @@ class stzTableSearch from stzTable
 
 		aFoundCells = This.FindCellCS(pCellValue, pCaseSensitive)
 
-		if n > 0 and n <= len(aFoundCells)
+		if n > 0 and n <= ring_len(aFoundCells)
 			aResult = aFoundCells[n]
 		ok	
 
@@ -454,13 +454,13 @@ class stzTableSearch from stzTable
 
 		anPos = This.FindSubValueCS(pSubValue, pCaseSensitive)
 
-		nLen = len(anPos)
+		nLen = ring_len(anPos)
 
 		aResult = []
 		m = 0
 		for i = 1 to nLen
 			line = anPos[i]
-			for j = 1 to len(line[2])
+			for j = 1 to ring_len(line[2])
 				m += 1
 				if m = n
 					aResult = [ line[1], line[2][j] ]
@@ -751,7 +751,7 @@ class stzTableSearch from stzTable
 	#-------------------------------------------------------#
 
 	def NumberOfOccurrenceOfCellCS(pCellValue, pCaseSensitive)
-		return len( This.FindCellCS(pCellValue, pCaseSensitive) )
+		return ring_len( This.FindCellCS(pCellValue, pCaseSensitive) )
 
 		#< @FunctionAlternativeForms
 
@@ -889,12 +889,12 @@ class stzTableSearch from stzTable
 	def NumberOfOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
 
 		aPos = This.FindSubValueCS(pSubValue, pCaseSensitive)
-		nLen = len(aPos)
+		nLen = ring_len(aPos)
 
 		nResult = 0
 
 		for i = 1 to nLen
-			nResult += len(aPos[i][2])
+			nResult += ring_len(aPos[i][2])
 		next
 
 		return nResult
@@ -1119,7 +1119,7 @@ class stzTableSearch from stzTable
 	def ContainsRowCS(paRow, pCaseSensitive)
 		bResult = 0
 
-		if isList(paRow) and len(paRow) = This.NumberOfRows()
+		if isList(paRow) and ring_len(paRow) = This.NumberOfRows()
 
 			bResult = This.RowsQ().ContainsCS(paRow, pCaseSensitive)
 		ok
@@ -1153,7 +1153,7 @@ class stzTableSearch from stzTable
 		*/
 
 		bResult = 1
-		nLen = len(paRows)
+		nLen = ring_len(paRows)
 
 		for i = 1 to nLen
 			if NOT This.ContainsRowCS(paRows[i], pCaseSensitive)
@@ -1195,9 +1195,9 @@ class stzTableSearch from stzTable
 
 		bResult = 0
 
-		if isList(paCol) and len(paCol) = 2 and
+		if isList(paCol) and ring_len(paCol) = 2 and
 		   isString(paCol[1]) and This.HasColName(paCol[1]) and
-		   isList(paCol[2]) and len(paCol[2]) = This.NumberOfRows()
+		   isList(paCol[2]) and ring_len(paCol[2]) = This.NumberOfRows()
 
 			cCol = paCol[1]
 			bResult = This.ColQ(cCol).IsEqualToCS(paCol[2], pCaseSensitive)
@@ -1238,7 +1238,7 @@ class stzTableSearch from stzTable
 		*/
 
 		bResult = 1
-		nLen = len(paCols)
+		nLen = ring_len(paCols)
 
 		for i = 1 to nLen
 			if NOT This.ContainsColCS(paCols[i], pCaseSensitive)
@@ -1396,7 +1396,7 @@ class stzTableSearch from stzTable
 
 		ok
 
-		nLen = len(paCells)
+		nLen = ring_len(paCells)
 		aResult = []
 
 		if bValue
@@ -1431,7 +1431,7 @@ class stzTableSearch from stzTable
 
 			for i = 1 to nLen
 				aPos = This.FindSubValueInCellCS(paCells[i][1], paCells[i][2], pCellValueOrSubValue, pCaseSensitive)
-				if len(aPos) > 0
+				if ring_len(aPos) > 0
 					aResult + [ paCells[i], aPos ]
 				ok
 			next
@@ -1493,7 +1493,7 @@ class stzTableSearch from stzTable
 
 		aResult = []
 
-		for i = 1 to len(aCellsXT)
+		for i = 1 to ring_len(aCellsXT)
 
 			CellValue = aCellsXT[i][1]
 			aCellPos  = aCellsXT[i][2]
@@ -1549,7 +1549,7 @@ class stzTableSearch from stzTable
 
 		aResult = []
 
-		for i = 1 to len(aCellsXT)
+		for i = 1 to ring_len(aCellsXT)
 
 			cellValue = aCellsXT[i][1]
 			oCellValue = Q(cellValue)
@@ -1667,7 +1667,7 @@ class stzTableSearch from stzTable
 
 		aResult = []
 
-		if len(anPos) > 0 and n <= len(anPos)
+		if ring_len(anPos) > 0 and n <= ring_len(anPos)
 			aResult = anPos[n]
 		ok
 
@@ -1707,14 +1707,14 @@ class stzTableSearch from stzTable
 		ok
 
 		anPos = This.FindSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
-		nLen = len(anPos)
+		nLen = ring_len(anPos)
 
 		aResult = []
 		m = 0
 
 		for i = 1 to nLen
 			line = anPos[i]
-			nLen2 = len(line[2])
+			nLen2 = ring_len(line[2])
 
 			for j = 1 to nLen2
 				m += 1
@@ -1940,7 +1940,7 @@ class stzTableSearch from stzTable
 	#-------------------------------------------------------------------#
 
 	def NumberOfOccurrencesOfValueInCellsCS(paCells, pCellValue, pCaseSensitive)
-		nResult = len( This.FindValueInCellsCS(paCells, pCellValue, pCaseSensitive) )
+		nResult = ring_len( This.FindValueInCellsCS(paCells, pCellValue, pCaseSensitive) )
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -1989,12 +1989,12 @@ class stzTableSearch from stzTable
 
 	def NumberOfOccurrencesOfSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 		anPos = This.FindSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
-		nLen = len(anPos)
+		nLen = ring_len(anPos)
 
 		nResult = 0
 
 		for i = 1 to nLen
-			nResult += len(anPos[i][2])
+			nResult += ring_len(anPos[i][2])
 		next
 
 		return nResult
@@ -2080,7 +2080,7 @@ class stzTableSearch from stzTable
 	#----------------------------------------------------------#
 
 	def CellsContainValueCS(paCells, pValue, pCaseSensitive)
-		if len( This.FindFirstValueInCellsCS(paCells, pValue, pCaseSensitive) ) > 0
+		if ring_len( This.FindFirstValueInCellsCS(paCells, pValue, pCaseSensitive) ) > 0
 			return 1
 		else
 			return 0
@@ -2103,7 +2103,7 @@ class stzTableSearch from stzTable
 
 	def CellsContainSubValueCS(paCells, pSubValue, pCaseSensitive)
 		aTemp = This.FindFirstSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
-		if isList(aTemp) and len(aTemp) > 0
+		if isList(aTemp) and ring_len(aTemp) > 0
 			return 1
 		else
 			return 0
@@ -2297,7 +2297,7 @@ class stzTableSearch from stzTable
 	#-----------------------------------------------------------------#
 
 	def NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pCellValue, pCaseSensitive)
-		nResult = len( This.FindValueInCellCS(pCellCol, pCellRow, pCellValue, pCaseSensitive) )
+		nResult = ring_len( This.FindValueInCellCS(pCellCol, pCellRow, pCellValue, pCaseSensitive) )
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -2345,7 +2345,7 @@ class stzTableSearch from stzTable
 	#---------------------------------------------------------------#
 
 	def NumberOfOccurrencesOfSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
-		nResult = len( This.FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive) )
+		nResult = ring_len( This.FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive) )
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -2441,7 +2441,7 @@ class stzTableSearch from stzTable
 	#----------------------------------------------------------#
 
 	def CellContainsValueCS( pCellCol, pCellRow, pValue, pCaseSensitive)
-		if len( This.FindFirstValueInCellCS(pCellCol, pCellRow, pValue, pCaseSensitive) ) > 0
+		if ring_len( This.FindFirstValueInCellCS(pCellCol, pCellRow, pValue, pCaseSensitive) ) > 0
 			return 1
 		else
 			return 0
@@ -2735,7 +2735,7 @@ class stzTableSearch from stzTable
 		#>
 
 	def NumberOfOccurrenceOfCellInRowCS(pRow, pCellValue, pCaseSensitive)
-		return len( This.FindCellInRowCS(pRow, pCellValue, pCaseSensitive) )
+		return ring_len( This.FindCellInRowCS(pRow, pCellValue, pCaseSensitive) )
 
 		#< @FunctionAlternativeForms
 
@@ -3079,7 +3079,7 @@ class stzTableSearch from stzTable
 		anPos = This.FindSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 
 		aResult = []
-		if n > 0 and n <= len(anPos)
+		if n > 0 and n <= ring_len(anPos)
 			aResult = anPos[n]
 		ok
 
@@ -3297,7 +3297,7 @@ class stzTableSearch from stzTable
 	#----------------------------------------------------#
 
 	def NumberOfOccurrenceOfCellInRowsCS(panRows, pCellValue, pCaseSensitive)
-		return len( This.FindCellInRowsCS(panRows, pCellValue, pCaseSensitive) )
+		return ring_len( This.FindCellInRowsCS(panRows, pCellValue, pCaseSensitive) )
 
 		#< @FunctionAlternativeForm
 
@@ -3692,7 +3692,7 @@ class stzTableSearch from stzTable
 		anPos = This.FindSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
 		aResult = []
-		if n > 0 and n <= len(anPos)
+		if n > 0 and n <= ring_len(anPos)
 			aResult = anPos[n]
 		ok
 
@@ -4044,7 +4044,7 @@ class stzTableSearch from stzTable
 	#----------------------------------------------#
 
 	def NumberOfOccurrenceOfCellInColCS(pCol, pCellValue, pCaseSensitive)
-		return len( This.FindCellInColCS(pCol, pCellValue, pCaseSensitive) )
+		return ring_len( This.FindCellInColCS(pCol, pCellValue, pCaseSensitive) )
 
 		#< @FunctionAlternativeForms
 
@@ -4798,7 +4798,7 @@ class stzTableSearch from stzTable
 		anPos = This.FindSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
 		aResult = []
-		if n > 0 and n <= len(anPos)
+		if n > 0 and n <= ring_len(anPos)
 			aResult = anPos[n]
 		ok
 
@@ -5140,7 +5140,7 @@ class stzTableSearch from stzTable
 	#-------------------------------------------------------#
 
 	def NumberOfOccurrenceOfCellInColsCS(paCols, pCellValue, pCaseSensitive)
-		return len( This.FindCellInColsCS(paCols, pCellValue, pCaseSensitive) )
+		return ring_len( This.FindCellInColsCS(paCols, pCellValue, pCaseSensitive) )
 
 		#< @FunctionAlternativeForms
 
@@ -5931,7 +5931,7 @@ class stzTableSearch from stzTable
 		#>
 
 	def NumberOfOccurrenceOfCellInSectionCS(paSection1, paSection2, pCellValue, pCaseSensitive)
-		return len( This.FindCellInSectionCS(paSection1, paSection2, pCellValue, pCaseSensitive) )
+		return ring_len( This.FindCellInSectionCS(paSection1, paSection2, pCellValue, pCaseSensitive) )
 
 		#< @FunctionAlternativeForms
 

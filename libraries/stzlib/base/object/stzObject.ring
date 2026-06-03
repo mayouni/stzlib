@@ -2134,7 +2134,7 @@ class stzObject
 		#>
 
 	def SetVarName(pcVarName)
-		if isList(pcVarName) and len(pcVarName) = 2 and isString(pcVarName[1]) and (pcVarName[1] = "to" or pcVarName[1] = "as")
+		if isList(pcVarName) and ring_len(pcVarName) = 2 and isString(pcVarName[1]) and (pcVarName[1] = "to" or pcVarName[1] = "as")
 			pcVarName = pcVarName[2]
 		ok
 
@@ -2389,7 +2389,7 @@ class stzObject
 		ok
 
 		_aTypes_ = paTypes
-		_nLen_ = len(paTypes)
+		_nLen_ = ring_len(paTypes)
 
 		for @i = 1 to _nLen_
 			if isList(_aTypes_[@i]) and IsOrNamedParamList(_aTypes_[@i])
@@ -2430,7 +2430,7 @@ class stzObject
 		ok
 
 		_aTypes_ = paTypes
-		_nLen_ = len(_aTypes_)
+		_nLen_ = ring_len(_aTypes_)
 
 		for @i = 1 to _nLen_
 			if isList(_aTypes_[@i]) and IsOrOrAndNamedParamList(_aTypes_[@i])
@@ -2522,7 +2522,7 @@ class stzObject
 
 		# Checking those functions against the object value
 
-		nLen = len(pacStr)
+		nLen = ring_len(pacStr)
 		if nLen = 0
 			return 0
 		ok
@@ -3189,7 +3189,7 @@ class stzObject
 
 	def WhichAreBoth()
 		aContent = This.Content()
-		if NOT (isList(aList) and len(aList) = 2)
+		if NOT (isList(aList) and ring_len(aList) = 2)
 			return AFalseObject()
 		ok
 
@@ -4303,7 +4303,7 @@ class stzObject
 
 	def Repeat(n)
 
-		if isList(n) and len(n) = 2 and
+		if isList(n) and ring_len(n) = 2 and
 		   isNumber(n[1]) and isString(n[2]) and n[2] = :Times
 			n = n[1]
 		ok
@@ -4438,7 +4438,7 @@ class stzObject
 		# Resolving params
 
 		# ~> Case: RepeatXT([ 3, :Times ], :InAList )
-		if isList(pIn) and len(pIn) = 2 and
+		if isList(pIn) and ring_len(pIn) = 2 and
 		   isNumber(pIn[1]) and isString(pIn[2]) and pIn[2] = :Times
 
 			pnSize = pIn[1]
@@ -4454,7 +4454,7 @@ class stzObject
 
 		# ~> Case : RepeatXT( :NTimes = 3, :InAList )
 
-		if isList(pIn) and len(pIn) = 2 and
+		if isList(pIn) and ring_len(pIn) = 2 and
 		   isString(pIn[1]) and pIn[1] = :NTimes and isNumber(pIn[2])
 
 			pnSizeTemp = pnSize
@@ -4747,7 +4747,7 @@ class stzObject
 
 		if Q(cCode).StartsWithEitherCS( "@number=", :Or = "@number =", 0 )
 			# EXAMPLE
-			# ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }')
+			# ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = ring_len(@list) }')
 			#--> 3
 
 			@list = This.Content()
@@ -4759,7 +4759,7 @@ class stzObject
 			# CASE += is used on a list of items or a string
 
 			# EXAMPLE
-			# ? Q([ "Me", "and", "You!" ]).ToNumberWXT('{ @number += len(@item) }')
+			# ? Q([ "Me", "and", "You!" ]).ToNumberWXT('{ @number += ring_len(@item) }')
 			#--> 9
 			@number = 0
 
@@ -4775,7 +4775,7 @@ class stzObject
 
 			but This.IsAList()
 				aList = This.List()
-				nLenList = len(aList)
+				nLenList = ring_len(aList)
 
 				for @i = 1 to nLenList 
 					@item = This.Item(@i)
@@ -4944,7 +4944,7 @@ class stzObject
 				FindAllCS(pStrOrItem, pCaseSensitive)
 
 		anResult = []
-		if len(anPos) > 0
+		if ring_len(anPos) > 0
 			anResult = Q(anPos).FirstNItemsQRT(n, :stzListOfNumbers).AddedToEach(pnStartingAt-1)
 		ok
 
@@ -5247,25 +5247,25 @@ class stzObject
 		return ring_methods(This)
 
 	def NumberOfMethods()
-		return len(ring_methods(This))
+		return ring_len(ring_methods(This))
 
 		def CountMethods()
-			return len(ring_methods(This))
+			return ring_len(ring_methods(This))
 
 		def HowManyMethods()
-			return len(ring_methods(This))
+			return ring_len(ring_methods(This))
 
 	def Attributes()
 		return ring_attributes(This)
 
 	def NumberOfAttribytes()
-		return len(ring_attributes(This))
+		return ring_len(ring_attributes(This))
 
 		def CountAttributes()
-			return len(ring_attributes(This))
+			return ring_len(ring_attributes(This))
 
 		def HowManyAttributes()
-			return len(ring_attributes(This))
+			return ring_len(ring_attributes(This))
 
 	def ClassName()
 		return "stzobject"

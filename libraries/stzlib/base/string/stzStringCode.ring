@@ -48,7 +48,7 @@ class stzStringCode
 			"catch", "done"
 		]
 
-		nLen = len(acKeywords)
+		nLen = ring_len(acKeywords)
 		for i = 1 to nLen
 			oFinder = new stzStringFinder(cContent)
 			if oFinder.Contains(acKeywords[i])
@@ -93,7 +93,7 @@ class stzStringCode
 		cContent = StzCaseFold(@oString.Content())
 		acLines = split(cContent, nl)
 		nCount = 0
-		nLen = len(acLines)
+		nLen = ring_len(acLines)
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
@@ -108,7 +108,7 @@ class stzStringCode
 		cContent = StzCaseFold(@oString.Content())
 		acLines = split(cContent, nl)
 		nCount = 0
-		nLen = len(acLines)
+		nLen = ring_len(acLines)
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
@@ -123,7 +123,7 @@ class stzStringCode
 		cContent = @oString.Content()
 		acLines = split(cContent, nl)
 		acNames = []
-		nLen = len(acLines)
+		nLen = ring_len(acLines)
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
@@ -136,7 +136,7 @@ class stzStringCode
 				cName = ""
 				oRest = new stzString(cRest)
 				acRestChars = oRest.Chars()
-				nRestLen = len(acRestChars)
+				nRestLen = ring_len(acRestChars)
 				for j = 1 to nRestLen
 					c = acRestChars[j]
 					if c = " " or c = "(" or c = nl
@@ -156,7 +156,7 @@ class stzStringCode
 		cContent = @oString.Content()
 		acLines = split(cContent, nl)
 		acNames = []
-		nLen = len(acLines)
+		nLen = ring_len(acLines)
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
@@ -169,7 +169,7 @@ class stzStringCode
 				cName = ""
 				oRest = new stzString(cRest)
 				acRestChars = oRest.Chars()
-				nRestLen = len(acRestChars)
+				nRestLen = ring_len(acRestChars)
 				for j = 1 to nRestLen
 					c = acRestChars[j]
 					if c = " " or c = nl
@@ -217,7 +217,7 @@ class stzStringCode
 		cContent = @oString.Content()
 		acLines = split(cContent, nl)
 		nCount = 0
-		nLen = len(acLines)
+		nLen = ring_len(acLines)
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])

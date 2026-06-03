@@ -46,12 +46,12 @@ class stzMultiObjectiveSolver from stzObject
 
     def addIntegerVariable(varName, lowerBound, upperBound)
         This.addVariable(varName, lowerBound, upperBound)
-        @aVariables[len(@aVariables)][:type] = "integer"
+        @aVariables[ring_len(@aVariables)][:type] = "integer"
         return this
 
     def addBinaryVariable(varName)
         This.addVariable(varName, 0, 1)
-        @aVariables[len(@aVariables)][:type] = "binary"
+        @aVariables[ring_len(@aVariables)][:type] = "binary"
         return this
 
     def Variables()
@@ -63,7 +63,7 @@ class stzMultiObjectiveSolver from stzObject
 
     def VariableNames()
         aNames = []
-        nVarLen = len(@aVariables)
+        nVarLen = ring_len(@aVariables)
         for i = 1 to nVarLen
             aNames + @aVariables[i][:name]
         next
@@ -116,9 +116,9 @@ class stzMultiObjectiveSolver from stzObject
         if isNull(cMethod) or cMethod = "" cMethod = "nsga_ii" ok
         nStartTime = clock()
         
-        if len(@aVariables) = 0 stzRaise("No variables defined!") ok
-        if len(@aObjectives) = 0 stzRaise("No objectives defined!") ok
-        if len(@aObjectives) = 1 stzRaise("Use stzLinearSolver for single objective problems!") ok
+        if ring_len(@aVariables) = 0 stzRaise("No variables defined!") ok
+        if ring_len(@aObjectives) = 0 stzRaise("No objectives defined!") ok
+        if ring_len(@aObjectives) = 1 stzRaise("Use stzLinearSolver for single objective problems!") ok
 
         switch cMethod
         on "nsga_ii"
@@ -139,9 +139,9 @@ class stzMultiObjectiveSolver from stzObject
 	    aPopulation = This.initializePopulation()
 	    
 	    # CRITICAL FIX: Evaluate initial population objectives
-	    nPopLen = len(aPopulation)
+	    nPopLen = ring_len(aPopulation)
 	    for i = 1 to nPopLen
-	        if len(aPopulation[i][:solution]) > 0
+	        if ring_len(aPopulation[i][:solution]) > 0
 	            aPopulation[i][:objectives] = This.evaluateObjectives(aPopulation[i][:solution])
 	        else
 	            # Generate new solution if invalid
@@ -152,9 +152,9 @@ class stzMultiObjectiveSolver from stzObject
 	    
 	    for gen = 1 to @nGenerations
 	        # Evaluate objectives for all individuals (in case of new ones)
-	        nPopLen = len(aPopulation)
+	        nPopLen = ring_len(aPopulation)
 	        for i = 1 to nPopLen
-	            if len(aPopulation[i][:solution]) > 0 and len(aPopulation[i][:objectives]) = 0
+	            if ring_len(aPopulation[i][:solution]) > 0 and ring_len(aPopulation[i][:objectives]) = 0
 	                aPopulation[i][:objectives] = This.evaluateObjectives(aPopulation[i][:solution])
 	            ok
 	        next
@@ -170,10 +170,10 @@ class stzMultiObjectiveSolver from stzObject
 	    
 	    # Extract Pareto front - only include valid solutions
 	    aParetoFront = []
-	    nPopLen = len(aPopulation)
+	    nPopLen = ring_len(aPopulation)
 	    for i = 1 to nPopLen
-	        if len(aPopulation[i]) > 0 and len(aPopulation[i][:solution]) > 0 and 
-	           len(aPopulation[i][:objectives]) > 0 and aPopulation[i][:rank] = 1
+	        if ring_len(aPopulation[i]) > 0 and ring_len(aPopulation[i][:solution]) > 0 and 
+	           ring_len(aPopulation[i][:objectives]) > 0 and aPopulation[i][:rank] = 1
 	            aParetoFront + aPopulation[i]
 	        ok
 	    next
@@ -182,19 +182,19 @@ class stzMultiObjectiveSolver from stzObject
 
 
     def solveWithEpsilonConstraint()
-        @nIterations = len(@aObjectives) * 10
+        @nIterations = ring_len(@aObjectives) * 10
         aParetoSolutions = []
         
         # Use first objective as primary, others as constraints
         oPrimarySolver = new stzLinearSolver()
         
         # Copy variables and constraints
-        nVarLen = len(@aVariables)
+        nVarLen = ring_len(@aVariables)
         for i = 1 to nVarLen
             var = @aVariables[i]
             oPrimarySolver.addVariable(var[:name], var[:lowerBound], var[:upperBound])
         next
-        nConstLen = len(@aConstraints)
+        nConstLen = ring_len(@aConstraints)
         for i = 1 to nConstLen
             const = @aConstraints[i]
             oPrimarySolver.addConstraint(const[:expression], const[:operator], const[:value])
@@ -211,7 +211,7 @@ class stzMultiObjectiveSolver from stzObject
         # Generate epsilon values for other objectives
         aEpsilonRanges = This.calculateEpsilonRanges()
         
-        nEpsilonLen = len(aEpsilonRanges)
+        nEpsilonLen = ring_len(aEpsilonRanges)
         for i = 1 to nEpsilonLen
             epsilonSet = aEpsilonRanges[i]
             oTempSolver = new stzLinearSolver()
@@ -227,7 +227,7 @@ class stzMultiObjectiveSolver from stzObject
             next
             
             # Add epsilon constraints for secondary objectives
-            nObjLen = len(@aObjectives)
+            nObjLen = ring_len(@aObjectives)
             for j = 2 to nObjLen
                 cOperator = iff(@aObjectives[j][:type] = "maximize", ">=", "<=")
                 oTempSolver.addConstraint(@aObjectives[j][:expression], cOperator, epsilonSet[j-1])
@@ -262,7 +262,7 @@ class stzMultiObjectiveSolver from stzObject
 /*
     def generateRandomSolution()
         aSolution = []
-        nVarLen = len(@aVariables)
+        nVarLen = ring_len(@aVariables)
         for i = 1 to nVarLen
             var = @aVariables[i]
             nValue = var[:lowerBound] + random(var[:upperBound] - var[:lowerBound] + 1)
@@ -276,7 +276,7 @@ class stzMultiObjectiveSolver from stzObject
 
 	def generateRandomSolution()
 	    aSolution = []
-	    nVarLen = len(@aVariables)
+	    nVarLen = ring_len(@aVariables)
 	    for i = 1 to nVarLen
 	        var = @aVariables[i]
 	        
@@ -299,7 +299,7 @@ class stzMultiObjectiveSolver from stzObject
 
     def evaluateObjectives(aSolution)
         aObjectiveValues = []
-        nObjLen = len(@aObjectives)
+        nObjLen = ring_len(@aObjectives)
         for i = 1 to nObjLen
             obj = @aObjectives[i]
             nValue = This.calculateObjectiveValue(obj[:expression], aSolution)
@@ -310,7 +310,7 @@ class stzMultiObjectiveSolver from stzObject
 
     def calculateObjectiveValue(cExpression, aSolution)
         nResult = 0
-        nVarLen = len(@aVariables)
+        nVarLen = ring_len(@aVariables)
         for i = 1 to nVarLen
             var = @aVariables[i]
             nValue = This.getSolutionValue(aSolution, var[:name])
@@ -321,7 +321,7 @@ class stzMultiObjectiveSolver from stzObject
 
     def nonDominatedSort(aPopulation)
         aFronts = []
-        nPopLen = len(aPopulation)
+        nPopLen = ring_len(aPopulation)
         
         for i = 1 to nPopLen
             aPopulation[i][:dominatedSolutions] = []
@@ -348,12 +348,12 @@ class stzMultiObjectiveSolver from stzObject
         aFronts + aFirstFront
         nCurrentFront = 1
         
-        while len(aFronts[nCurrentFront]) > 0
+        while ring_len(aFronts[nCurrentFront]) > 0
             aNextFront = []
-            nCurrentFrontLen = len(aFronts[nCurrentFront])
+            nCurrentFrontLen = ring_len(aFronts[nCurrentFront])
             for i = 1 to nCurrentFrontLen
                 p = aFronts[nCurrentFront][i]
-                nDominatedLen = len(aPopulation[p][:dominatedSolutions])
+                nDominatedLen = ring_len(aPopulation[p][:dominatedSolutions])
                 for j = 1 to nDominatedLen
                     q = aPopulation[p][:dominatedSolutions][j]
                     aPopulation[q][:dominationCount]--
@@ -371,7 +371,7 @@ class stzMultiObjectiveSolver from stzObject
 
     def dominates(individual1, individual2)
         bAtLeastOneBetter = false
-        nObjLen = len(individual1[:objectives])
+        nObjLen = ring_len(individual1[:objectives])
         for i = 1 to nObjLen
             if individual1[:objectives][i] > individual2[:objectives][i]
                 return false
@@ -382,18 +382,18 @@ class stzMultiObjectiveSolver from stzObject
         return bAtLeastOneBetter
 
     def calculateCrowdingDistance(aFronts, aPopulation)
-        nFrontsLen = len(aFronts)
-        nObjLen = len(@aObjectives)
+        nFrontsLen = ring_len(aFronts)
+        nObjLen = ring_len(@aObjectives)
         
         for i = 1 to nFrontsLen
             front = aFronts[i]
-            nFrontLen = len(front)
+            nFrontLen = ring_len(front)
             
             if nFrontLen > 0
                 # Initialize crowding distance to 0
                 for j = 1 to nFrontLen
                     nIndex = front[j]
-                    if nIndex > 0 and nIndex <= len(aPopulation)
+                    if nIndex > 0 and nIndex <= ring_len(aPopulation)
                         aPopulation[nIndex][:crowdingDistance] = 0
                     ok
                 next
@@ -407,10 +407,10 @@ class stzMultiObjectiveSolver from stzObject
                         # Set boundary solutions to infinite distance
                         nFirstIndex = front[1]
                         nLastIndex = front[nFrontLen]
-                        if nFirstIndex > 0 and nFirstIndex <= len(aPopulation)
+                        if nFirstIndex > 0 and nFirstIndex <= ring_len(aPopulation)
                             aPopulation[nFirstIndex][:crowdingDistance] = 999999
                         ok
-                        if nLastIndex > 0 and nLastIndex <= len(aPopulation)
+                        if nLastIndex > 0 and nLastIndex <= ring_len(aPopulation)
                             aPopulation[nLastIndex][:crowdingDistance] = 999999
                         ok
                         
@@ -420,9 +420,9 @@ class stzMultiObjectiveSolver from stzObject
                             nPrevIndex = front[j-1]
                             nNextIndex = front[j+1]
                             
-                            if nCurrentIndex > 0 and nCurrentIndex <= len(aPopulation) and
-                               nPrevIndex > 0 and nPrevIndex <= len(aPopulation) and
-                               nNextIndex > 0 and nNextIndex <= len(aPopulation)
+                            if nCurrentIndex > 0 and nCurrentIndex <= ring_len(aPopulation) and
+                               nPrevIndex > 0 and nPrevIndex <= ring_len(aPopulation) and
+                               nNextIndex > 0 and nNextIndex <= ring_len(aPopulation)
                                 
                                 nDistance = aPopulation[nNextIndex][:objectives][obj] - aPopulation[nPrevIndex][:objectives][obj]
                                 aPopulation[nCurrentIndex][:crowdingDistance] += nDistance
@@ -437,13 +437,13 @@ class stzMultiObjectiveSolver from stzObject
 
     def sortFrontByObjective(front, objIndex, aPopulation)
         # Simple bubble sort by objective value
-        nFrontLen = len(front)
+        nFrontLen = ring_len(front)
         for i = 1 to nFrontLen-1
             for j = 1 to nFrontLen-i
                 nIndex1 = front[j]
                 nIndex2 = front[j+1]
-                if nIndex1 > 0 and nIndex1 <= len(aPopulation) and
-                   nIndex2 > 0 and nIndex2 <= len(aPopulation)
+                if nIndex1 > 0 and nIndex1 <= ring_len(aPopulation) and
+                   nIndex2 > 0 and nIndex2 <= ring_len(aPopulation)
                     if aPopulation[nIndex1][:objectives][objIndex] > aPopulation[nIndex2][:objectives][objIndex]
                         # Swap
                         temp = front[j]
@@ -458,7 +458,7 @@ class stzMultiObjectiveSolver from stzObject
 /*
     def createNewPopulation(aPopulation)
         aNewPopulation = []
-        nPopLen = len(aPopulation)
+        nPopLen = ring_len(aPopulation)
         
         if nPopLen = 0
             # If population is empty, reinitialize
@@ -470,7 +470,7 @@ class stzMultiObjectiveSolver from stzObject
             parent2 = This.tournamentSelection(aPopulation)
             
             # Check if parents are valid
-            if len(parent1) = 0 or len(parent2) = 0
+            if ring_len(parent1) = 0 or ring_len(parent2) = 0
                 # Generate random individual if parents are invalid
                 aSolution = This.generateRandomSolution()
                 child = [ :solution = aSolution, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
@@ -486,13 +486,13 @@ class stzMultiObjectiveSolver from stzObject
 
 	def createNewPopulation(aPopulation)
 	    aNewPopulation = []
-	    nPopLen = len(aPopulation)
+	    nPopLen = ring_len(aPopulation)
 	    
 	    # Count valid individuals
 	    nValidIndividuals = 0
 	    for i = 1 to nPopLen
-	        if len(aPopulation[i]) > 0 and len(aPopulation[i][:solution]) > 0 and 
-	           len(aPopulation[i][:objectives]) > 0
+	        if ring_len(aPopulation[i]) > 0 and ring_len(aPopulation[i][:solution]) > 0 and 
+	           ring_len(aPopulation[i][:objectives]) > 0
 	            nValidIndividuals++
 	        ok
 	    next
@@ -509,8 +509,8 @@ class stzMultiObjectiveSolver from stzObject
 	        parent2 = This.tournamentSelection(aPopulation)
 	        
 	        # Check if parents are valid
-	        if len(parent1) = 0 or len(parent2) = 0 or 
-	           len(parent1[:solution]) = 0 or len(parent2[:solution]) = 0
+	        if ring_len(parent1) = 0 or ring_len(parent2) = 0 or 
+	           ring_len(parent1[:solution]) = 0 or ring_len(parent2[:solution]) = 0
 	            # Generate random individual if parents are invalid
 	            aSolution = This.generateRandomSolution()
 	            child = [ :solution = aSolution, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
@@ -520,7 +520,7 @@ class stzMultiObjectiveSolver from stzObject
 	        ok
 	        
 	        # Ensure child has valid solution structure
-	        if len(child[:solution]) = 0
+	        if ring_len(child[:solution]) = 0
 	            child[:solution] = This.generateRandomSolution()
 	        ok
 	        
@@ -531,7 +531,7 @@ class stzMultiObjectiveSolver from stzObject
 
 /*
     def tournamentSelection(aPopulation)
-        nPopLen = len(aPopulation)
+        nPopLen = ring_len(aPopulation)
         if nPopLen = 0 return [] ok
         
         nIndex1 = random(nPopLen-1) + 1
@@ -560,29 +560,29 @@ class stzMultiObjectiveSolver from stzObject
 */
 
 	def tournamentSelection(aPopulation)
-	    nPopLen = len(aPopulation)
+	    nPopLen = ring_len(aPopulation)
 	    if nPopLen = 0 return [] ok
 	    
 	    # Find valid individuals first
 	    aValidIndices = []
 	    for i = 1 to nPopLen
-	        if len(aPopulation[i]) > 0 and len(aPopulation[i][:solution]) > 0 and 
-	           len(aPopulation[i][:objectives]) > 0
+	        if ring_len(aPopulation[i]) > 0 and ring_len(aPopulation[i][:solution]) > 0 and 
+	           ring_len(aPopulation[i][:objectives]) > 0
 	            aValidIndices + i
 	        ok
 	    next
 	    
-	    if len(aValidIndices) < 2
+	    if ring_len(aValidIndices) < 2
 	        return []  # Not enough valid individuals
 	    ok
 	    
 	    # Select two random valid individuals
-	    nIdx1 = random(len(aValidIndices)-1) + 1
-	    nIdx2 = random(len(aValidIndices)-1) + 1
+	    nIdx1 = random(ring_len(aValidIndices)-1) + 1
+	    nIdx2 = random(ring_len(aValidIndices)-1) + 1
 	    
 	    # Ensure different individuals
-	    while nIdx1 = nIdx2 and len(aValidIndices) > 1
-	        nIdx2 = random(len(aValidIndices)-1) + 1
+	    while nIdx1 = nIdx2 and ring_len(aValidIndices) > 1
+	        nIdx2 = random(ring_len(aValidIndices)-1) + 1
 	    end
 	    
 	    individual1 = aPopulation[aValidIndices[nIdx1]]
@@ -606,11 +606,11 @@ class stzMultiObjectiveSolver from stzObject
         aSolution = []
         
         # Check if parents have valid solutions
-        if len(parent1[:solution]) = 0 or len(parent2[:solution]) = 0
+        if ring_len(parent1[:solution]) = 0 or ring_len(parent2[:solution]) = 0
             return [ :solution = This.generateRandomSolution(), :objectives = [], :rank = 0, :crowdingDistance = 0 ]
         ok
         
-        nSolLen = len(parent1[:solution])
+        nSolLen = ring_len(parent1[:solution])
         for i = 1 to nSolLen
             if random(100) < @nCrossoverRate * 100
                 aSolution + parent1[:solution][i]
@@ -621,10 +621,10 @@ class stzMultiObjectiveSolver from stzObject
         return [ :solution = aSolution, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
 
     def mutate(individual)
-        nSolLen = len(individual[:solution])
+        nSolLen = ring_len(individual[:solution])
         for i = 1 to nSolLen
             if random(100) < @nMutationRate * 100
-                if i <= len(@aVariables)
+                if i <= ring_len(@aVariables)
                     var = @aVariables[i]
                     nNewValue = var[:lowerBound] + random(var[:upperBound] - var[:lowerBound])
                     if var[:type] = "integer" or var[:type] = "binary"
@@ -640,7 +640,7 @@ class stzMultiObjectiveSolver from stzObject
     def calculateEpsilonRanges()
         aRanges = []
         nSteps = 10
-        nObjLen = len(@aObjectives)
+        nObjLen = ring_len(@aObjectives)
         
         for i = 2 to nObjLen
             # Calculate min and max for each secondary objective
@@ -657,14 +657,14 @@ class stzMultiObjectiveSolver from stzObject
         
         # Generate combinations
         aEpsilonSets = []
-        if len(aRanges) = 1
-            nRange1Len = len(aRanges[1])
+        if ring_len(aRanges) = 1
+            nRange1Len = ring_len(aRanges[1])
             for i = 1 to nRange1Len
                 aEpsilonSets + [aRanges[1][i]]
             next
         else
-            nRange1Len = len(aRanges[1])
-            nRange2Len = len(aRanges[2])
+            nRange1Len = ring_len(aRanges[1])
+            nRange2Len = ring_len(aRanges[2])
             for i = 1 to nRange1Len
                 for j = 1 to nRange2Len
                     aEpsilonSets + [aRanges[1][i], aRanges[2][j]]
@@ -677,7 +677,7 @@ class stzMultiObjectiveSolver from stzObject
     def calculateObjectiveBound(cExpression, cType)
         # Simple bound estimation based on variable bounds
         nBound = 0
-        nVarLen = len(@aVariables)
+        nVarLen = ring_len(@aVariables)
         for i = 1 to nVarLen
             var = @aVariables[i]
             nCoeff = This.extractCoefficient(cExpression, var[:name])
@@ -701,7 +701,7 @@ class stzMultiObjectiveSolver from stzObject
 */
 
     def getSolutionValue(aSolution, cVarName)
-        nSolLen = len(aSolution)
+        nSolLen = ring_len(aSolution)
         for i = 1 to nSolLen
             if aSolution[i][1] = cVarName return aSolution[i][2] ok
         next
@@ -712,17 +712,17 @@ class stzMultiObjectiveSolver from stzObject
         return @aParetoSolutions
 
     def bestCompromiseSolution()
-        if len(@aParetoSolutions) = 0 return [] ok
+        if ring_len(@aParetoSolutions) = 0 return [] ok
         
         # Find solution with minimum sum of normalized objectives
         nBestScore = 999999
         aBestSolution = []
-        nParetoLen = len(@aParetoSolutions)
+        nParetoLen = ring_len(@aParetoSolutions)
         
         for i = 1 to nParetoLen
             solution = @aParetoSolutions[i]
             nScore = 0
-            nObjLen = len(solution[:objectives])
+            nObjLen = ring_len(solution[:objectives])
             for j = 1 to nObjLen
                 nScore += abs(solution[:objectives][j])
             next
@@ -749,7 +749,7 @@ class stzMultiObjectiveSolver from stzObject
 
 		? ""
         ? "• Variables:"
-        nVarLen = len(@aVariables)
+        nVarLen = ring_len(@aVariables)
         for i = 1 to nVarLen
             var = @aVariables[i]
             ? " ─ " + var[:name] + " ∈ [" + var[:lowerBound] + ", " + var[:upperBound] + "] (" + var[:type] + ")"
@@ -757,7 +757,7 @@ class stzMultiObjectiveSolver from stzObject
 
 		? ""
         ? "• Constraints:"
-        nConstLen = len(@aConstraints)
+        nConstLen = ring_len(@aConstraints)
         for i = 1 to nConstLen
             const = @aConstraints[i]
             ? " ─ " + const[:expression] + " " + const[:operator] + " " + const[:value]
@@ -765,7 +765,7 @@ class stzMultiObjectiveSolver from stzObject
 
 		? ""
         ? "• Objectives:"
-        nObjLen = len(@aObjectives)
+        nObjLen = ring_len(@aObjectives)
         for i = 1 to nObjLen
             obj = @aObjectives[i]
             ? " ─ " + upper(obj[:type]) + " " + obj[:expression]
@@ -778,12 +778,12 @@ class stzMultiObjectiveSolver from stzObject
             ? "• Solved in " + @nSolveTime + " second(s)"
             ? "• Iterations: " + @nIterations
 			? ""
-            ? "• Pareto Solutions Found: " + len(@aParetoSolutions)
+            ? "• Pareto Solutions Found: " + ring_len(@aParetoSolutions)
             
             oBest = This.bestCompromiseSolution()
-            if len(oBest) > 0
+            if ring_len(oBest) > 0
 				 ? "• Best Compromise Solution:"
-                nSolLen = len(oBest[:solution])
+                nSolLen = ring_len(oBest[:solution])
                 for i = 1 to nSolLen
                     sol = oBest[:solution][i]
                     ? " ─ " + sol[1] + " = " + sol[2]
@@ -791,7 +791,7 @@ class stzMultiObjectiveSolver from stzObject
 
 				? ""
                 ? "• Objective Values:"
-                nObjLen = len(oBest[:objectives])
+                nObjLen = ring_len(oBest[:objectives])
                 for i = 1 to nObjLen
                     nValue = oBest[:objectives][i]
                     if @aObjectives[i][:type] = "maximize" nValue = -nValue ok
@@ -805,31 +805,31 @@ class stzMultiObjectiveSolver from stzObject
         cContent = "Solution,"
         
         # Headers for variables
-        nVarLen = len(@aVariables)
+        nVarLen = ring_len(@aVariables)
         for i = 1 to nVarLen
             cContent += @aVariables[i][:name] + ","
         next
         
         # Headers for objectives
-        nObjLen = len(@aObjectives)
+        nObjLen = ring_len(@aObjectives)
         for i = 1 to nObjLen
             cContent += @aObjectives[i][:expression] + ","
         next
         cContent += nl
         
         # Data rows
-        nParetoLen = len(@aParetoSolutions)
+        nParetoLen = ring_len(@aParetoSolutions)
         for i = 1 to nParetoLen
             cContent += "Sol" + i + ","
             
             # Variable values
-            nSolLen = len(@aParetoSolutions[i][:solution])
+            nSolLen = ring_len(@aParetoSolutions[i][:solution])
             for j = 1 to nSolLen
                 cContent += @aParetoSolutions[i][:solution][j][2] + ","
             next
             
             # Objective values
-            nObjLen = len(@aParetoSolutions[i][:objectives])
+            nObjLen = ring_len(@aParetoSolutions[i][:objectives])
             for j = 1 to nObjLen
                 nValue = @aParetoSolutions[i][:objectives][j]
                 if @aObjectives[j][:type] = "maximize" nValue = -nValue ok

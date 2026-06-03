@@ -229,7 +229,7 @@ class stzHttpClient from stzNetwork
         return This
     
     def ApplyHeaders()
-        if len(headers_list) = 0 return ok
+        if ring_len(headers_list) = 0 return ok
         header_slist = NULL
         for header in headers_list
             header_slist = curl_slist_append(header_slist, header)
@@ -247,11 +247,11 @@ class stzHttpClient from stzNetwork
         return This
     
     def ApplyCookies()
-        if len(cookies_list) = 0 return ok
+        if ring_len(cookies_list) = 0 return ok
         cookie_string = ""
-        for i = 1 to len(cookies_list)
+        for i = 1 to ring_len(cookies_list)
             cookie_string += cookies_list[i]
-            if i < len(cookies_list)
+            if i < ring_len(cookies_list)
                 cookie_string += "; "
             ok
         next
@@ -341,7 +341,7 @@ class stzHttpClient from stzNetwork
     
     def PostForm(cUrl, aFormData)
         form_string = ""
-        for i = 1 to len(aFormData) step 2
+        for i = 1 to ring_len(aFormData) step 2
             if i > 1 form_string += "&" ok
             form_string += URLEncode(aFormData[i]) + "=" + URLEncode(aFormData[i+1])
         next
@@ -364,7 +364,7 @@ class stzHttpClient from stzNetwork
 	    # Initialize global state
 	    parallel_results = []
 	    parallel_completed = 0
-	    parallel_total = len(aUrls)
+	    parallel_total = ring_len(aUrls)
 	    parallel_loop = uv_default_loop()
 	    
 	    # Resize results array
@@ -373,7 +373,7 @@ class stzHttpClient from stzNetwork
 	    next
 	    
 	    # Create parallel requests
-	    for i = 1 to len(aUrls)
+	    for i = 1 to ring_len(aUrls)
 	        CreateParallelRequest(aUrls[i], i)
 	    next
 	    
@@ -385,7 +385,7 @@ class stzHttpClient from stzNetwork
     # Alternative simpler sequential implementation if LibUV is not available
     def GetManySequential(aUrls)
         results = []
-        for i = 1 to len(aUrls)
+        for i = 1 to ring_len(aUrls)
             This.Get_(aUrls[i])
             results + This.Response()
         next
@@ -411,11 +411,11 @@ class stzHttpParallelClient
     def GetMany(aUrls)
         results = []
         completed_requests = 0
-        total_requests = len(aUrls)
+        total_requests = ring_len(aUrls)
         myloop = uv_default_loop()
         
         # Create parallel requests
-        for i = 1 to len(aUrls)
+        for i = 1 to ring_len(aUrls)
             url = aUrls[i]
             This.CreateHttpRequest(url, i)
         next
@@ -604,7 +604,7 @@ class stzHttpParallelClient
             status_line = StzLeft(headers_part, first_line_end - 1)
             # Extract status code (format: HTTP/1.1 200 OK)
             parts = split(status_line, " ")
-            if len(parts) >= 2
+            if ring_len(parts) >= 2
                 status_code = 0 + parts[2]
             ok
         ok

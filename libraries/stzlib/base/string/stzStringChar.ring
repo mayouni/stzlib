@@ -1468,7 +1468,7 @@ class stzStringChar from stzObject
 
 	def IntroducedInUnicodeVersion()
 		n = _CharUnicodeVersion(This.Unicode())
-		if n > 0 and n <= len(_acUnicodeVersions)
+		if n > 0 and n <= ring_len(_acUnicodeVersions)
 			return _acUnicodeVersions[ n ]
 		else
 			StzRaise(stzCharError(:CanNotDefineUnicodeVersion))
@@ -1535,7 +1535,7 @@ class stzStringChar from stzObject
 
 	def Script()
 		nCode = _CharScriptCode(This.Unicode())
-		nLen = len(_aUnicodeScriptsXT)
+		nLen = ring_len(_aUnicodeScriptsXT)
 
 		cResult = :Undefined
 

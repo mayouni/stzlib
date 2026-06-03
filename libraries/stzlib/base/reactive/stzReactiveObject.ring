@@ -53,7 +53,7 @@ class stzReactiveObject from stzReactive
 	# Initialize attribute cache with wrapped object's current values
 	if wrappedObject != OBJECT_STANDALONE
 	    aObjectAttrs = AttributesXT(wrappedObject)
-	    nLen = len(aObjectAttrs)
+	    nLen = ring_len(aObjectAttrs)
 	
 	    for i = 1 to nLen
 	            SetAttributeInStorage(aObjectAttrs[i][1], aObjectAttrs[i][2])
@@ -76,9 +76,9 @@ class stzReactiveObject from stzReactive
 		cError = cCatchError
 		
 		# Handle errors in async operations
-		nLenOp = len(aAsyncOperations)
+		nLenOp = ring_len(aAsyncOperations)
 		for i = 1 to nLenOp
-			if len(aAsyncOperations[i]) >= 5 and aAsyncOperations[i][5] != ""
+			if ring_len(aAsyncOperations[i]) >= 5 and aAsyncOperations[i][5] != ""
 				try
 					f = aAsyncOperations[i][5]
 					call f(cError)
@@ -299,7 +299,7 @@ class stzReactiveObject from stzReactive
 		cAttribute = StzLower(cAttribute)
 
 		# Find in internal storage
-		nLenAttr = len(aAttributesOfStandaloneObjects)
+		nLenAttr = ring_len(aAttributesOfStandaloneObjects)
 
 		for i = 1 to nLenAttr
 			if aAttributesOfStandaloneObjects[i][1] = cAttribute
@@ -313,7 +313,7 @@ class stzReactiveObject from stzReactive
 		cAttribute = StzLower(cAttribute)
 
 		# Find existing Attribute
-		nLenAttr = len(aAttributesOfStandaloneObjects)
+		nLenAttr = ring_len(aAttributesOfStandaloneObjects)
 		for i = 1 to nLenAttr
 			if aAttributesOfStandaloneObjects[i][1] = cAttribute
 				aAttributesOfStandaloneObjects[i][2] = value
@@ -334,7 +334,7 @@ class stzReactiveObject from stzReactive
 
 	def FindAttributeInCache(cAttribute)
 	    cAttribute = StzLower(cAttribute)
-	    nLenCacheAttr = len(aCachedAttributeValues)
+	    nLenCacheAttr = ring_len(aCachedAttributeValues)
 	    for i = 1 to nLenCacheAttr
 	        if aCachedAttributeValues[i][1] = cAttribute
 	            return i
@@ -357,13 +357,13 @@ class stzReactiveObject from stzReactive
 		UpdateBoundAttributes(cAttribute, newValue)
 
 	def ProcessPendingReactions()
-		if len(aPendingChanges) > 0
+		if ring_len(aPendingChanges) > 0
 			ProcessBatchChanges()
 		ok
 
 	def ProcessBatchChanges()
 		aProcessedAttrs = []
-		nLenPend = len(aPendingChanges)
+		nLenPend = ring_len(aPendingChanges)
 
 		for i = 1 to nLenPend
 			cAttribute = aPendingChanges[i][1]
@@ -381,7 +381,7 @@ class stzReactiveObject from stzReactive
 
 	def TriggerAttributeWatchers(cAttribute, oldValue, newValue)
 	    cAttribute = StzLower(cAttribute)
-	    nLenAttr = len(aAttributeWatchers)
+	    nLenAttr = ring_len(aAttributeWatchers)
 	
 	    for i = 1 to nLenAttr
 	        if aAttributeWatchers[i][1] = cAttribute
@@ -400,7 +400,7 @@ class stzReactiveObject from stzReactive
 
 	def UpdateDependentComputedAttributes(cChangedAttribute)
 		cChangedAttribute = StzLower(cChangedAttribute)
-		nLenAttr = len(aComputedAttributes)
+		nLenAttr = ring_len(aComputedAttributes)
 
 		for i = 1 to nLenAttr
 			cAttribute = aComputedAttributes[i][1]
@@ -414,7 +414,7 @@ class stzReactiveObject from stzReactive
 
 	def UpdateBoundAttributes(cAttribute, newValue)
 		cAttribute = StzLower(cAttribute)
-		nLenAttr = len(aAttributeBindings)
+		nLenAttr = ring_len(aAttributeBindings)
 
 		for i = 1 to nLenAttr
 			cSourceAttr = aAttributeBindings[i][1]
@@ -438,7 +438,7 @@ class stzReactiveObject from stzReactive
 
 	def ComputeAttribute(cAttribute)
 	    cAttribute = StzLower(cAttribute)
-	    nLenAttr = len(aComputedAttributes)
+	    nLenAttr = ring_len(aComputedAttributes)
 	
 	    for i = 1 to nLenAttr
 	        if aComputedAttributes[i][1] = cAttribute

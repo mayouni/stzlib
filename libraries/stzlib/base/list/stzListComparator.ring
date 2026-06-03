@@ -55,7 +55,7 @@ class stzListComparator
 		if NOT isList(paOtherList)
 			return 0
 		ok
-		if This.NumberOfItems() != len(paOtherList)
+		if This.NumberOfItems() != ring_len(paOtherList)
 			return 0
 		ok
 		# Mutual subset check via engine
@@ -177,7 +177,7 @@ class stzListComparator
 		StzEngineListFree(pB)
 		StzEngineListFree(pA)
 		aResult = aDiff1
-		nLen = len(aDiff2)
+		nLen = ring_len(aDiff2)
 		for i = 1 to nLen
 			aResult + aDiff2[i]
 		next
@@ -225,7 +225,7 @@ class stzListComparator
 		return This.ContainsCS(pItem, 1)
 
 	def ContainsAllOfTheseCS(paItems, pCaseSensitive)
-		_nCatLen_ = len(paItems)
+		_nCatLen_ = ring_len(paItems)
 		for _iCat_ = 1 to _nCatLen_
 			if NOT This.ContainsCS(paItems[_iCat_], pCaseSensitive)
 				return 0
@@ -237,7 +237,7 @@ class stzListComparator
 		return This.ContainsAllOfTheseCS(paItems, 1)
 
 	def ContainsOneOfTheseCS(paItems, pCaseSensitive)
-		_nCotLen_ = len(paItems)
+		_nCotLen_ = ring_len(paItems)
 		for _iCot_ = 1 to _nCotLen_
 			if This.ContainsCS(paItems[_iCot_], pCaseSensitive)
 				return 1
@@ -253,7 +253,7 @@ class stzListComparator
 	#======================================================#
 
 	def IsSameSizeAs(paOtherList)
-		return This.NumberOfItems() = len(paOtherList)
+		return This.NumberOfItems() = ring_len(paOtherList)
 
 		def HasSameLengthAs(paOtherList)
 			return This.IsSameSizeAs(paOtherList)
@@ -264,8 +264,8 @@ class stzListComparator
 
 	def IsSortedLike(paOtherList)
 		aContent = This.Content()
-		nLen = len(aContent)
-		nLen2 = len(paOtherList)
+		nLen = ring_len(aContent)
+		nLen2 = ring_len(paOtherList)
 		if nLen != nLen2
 			return 0
 		ok
@@ -322,7 +322,7 @@ class stzListComparator
 	#======================================================#
 
 	def IsPermutationOfCS(paOtherList, pCaseSensitive)
-		if This.NumberOfItems() != len(paOtherList)
+		if This.NumberOfItems() != ring_len(paOtherList)
 			return 0
 		ok
 		pA = @oList._EngineListFromContent()

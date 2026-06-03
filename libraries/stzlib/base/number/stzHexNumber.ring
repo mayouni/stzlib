@@ -125,7 +125,7 @@ class stzHexNumber from stzObject
 
 			cTemp = cNumber
 			acHexPrefix = HexPrefixes()
-			nLen = len(acHexPrefix)
+			nLen = ring_len(acHexPrefix)
 
 			for i = 1 to nLen
 				nPrefLen = StzLen(acHexPrefix[i])

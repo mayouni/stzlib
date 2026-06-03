@@ -47,7 +47,7 @@ class stzPair from stzList
 
 	def Update(paPair)
 		if CheckingParams()
-			if NOT ( isList(paPair) and len(panPair) = 2 )
+			if NOT ( isList(paPair) and ring_len(panPair) = 2 )
 				StzRaise("Incorrect param type! paPair must be a list of 2 items.")
 			ok
 		ok

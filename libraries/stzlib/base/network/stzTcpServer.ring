@@ -88,12 +88,12 @@ class stzTcpServer from stzNetwork
         return clients
     
     def ClientCount()
-        return len(clients)
+        return ring_len(clients)
     
     def BroadcastTo(aClients, cData)
         for client in aClients
             buf = new_uv_buf_t()
-            set_uv_buf_t_len(buf, len(cData))
+            set_uv_buf_t_len(buf, ring_len(cData))
             set_uv_buf_t_base(buf, varptr("cData", :char))
             
             write_req = new_uv_write_t()

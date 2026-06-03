@@ -61,7 +61,7 @@ class stzClusterManager
         # Start all cluster nodes
         for aCluster in aClusters
             for oNode in aCluster[:nodes]
-                nNodePort = nPort + (len(aCluster[:nodes]) * 10) + 
+                nNodePort = nPort + (ring_len(aCluster[:nodes]) * 10) + 
                            This.GetNodeIndex(aCluster[:nodes], oNode)
                 oNode.Start(nNodePort, "127.0.0.1")
             next
@@ -100,7 +100,7 @@ class stzClusterManager
             aStatus + [
                 :cluster_type = aCluster[:type],
                 :nodes = aNodeStatus,
-                :total_nodes = len(aCluster[:nodes]),
+                :total_nodes = ring_len(aCluster[:nodes]),
                 :healthy_nodes = This.CountHealthyNodes(aCluster[:nodes])
             ]
         next
@@ -119,7 +119,7 @@ class stzClusterManager
         return nHealthy
 
     def GetNodeIndex(aNodes, oTargetNode)
-        for i = 1 to len(aNodes)
+        for i = 1 to ring_len(aNodes)
             if aNodes[i] = oTargetNode return i ok
         next
         return 1

@@ -120,7 +120,7 @@ class stzHtml
 
 	def FindFirst(pcSelector)
 		aNodes = This.Find(pcSelector)
-		if len(aNodes) > 0
+		if ring_len(aNodes) > 0
 			return aNodes[1]
 		else
 			return NULL
@@ -156,7 +156,7 @@ class stzHtml
 							bMatch = FALSE
 						ok
 					on "attr"
-						if isList(cVal) and len(cVal)=2
+						if isList(cVal) and ring_len(cVal)=2
 							if oNode.Attr(cVal[1]) != cVal[2]
 								bMatch = FALSE
 							ok
@@ -185,7 +185,7 @@ class stzHtml
 		return @aNodes
 
 	def NumberOfElements()
-		return len(This.Elements())
+		return ring_len(This.Elements())
 
 	def Text()
 		return @oHtml.text()
@@ -523,14 +523,14 @@ class stzCSS
 		@aRules = []
 		oStr = new stzString(@cCss)
 		aBlocks = oStr.SplitToListOfStrings("{}")
-		for i=1 to len(aBlocks) step 2
+		for i=1 to ring_len(aBlocks) step 2
 			cSelector = trim(aBlocks[i])
 			cDeclarations = trim(aBlocks[i+1])
 			aDecl = StzStringQ(cDeclarations).Split(";")
 			aProps = []
 			for cDecl in aDecl
 				aPair = StzStringQ(trim(cDecl)).Split(":")
-				if len(aPair)=2
+				if ring_len(aPair)=2
 					aProps + [trim(aPair[1]), trim(aPair[2])]
 				ok
 			next

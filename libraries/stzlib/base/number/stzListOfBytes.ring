@@ -217,7 +217,7 @@ class stzListOfBytes from stzList
 
 	def BytecodesPerChar()
 		aChars = This.Chars()
-		nLen = len(aChars)
+		nLen = ring_len(aChars)
 
 		aResult = []
 
@@ -232,7 +232,7 @@ class stzListOfBytes from stzList
 
 	def BytesPerChar()
 		aChars = This.Chars()
-		nLen = len(aChars)
+		nLen = ring_len(aChars)
 
 		aResult = []
 
@@ -250,7 +250,7 @@ class stzListOfBytes from stzList
 		ok
 
 		aChars = This.Chars()
-		nLen = len(aChars)
+		nLen = ring_len(aChars)
 
 		aResult = []
 
@@ -263,7 +263,7 @@ class stzListOfBytes from stzList
 		def BytesOfThisChar(pcChar)
 
 	def NumberOfBytesInCharNumber(n)
-		nResult = len( This.BytesOfCharNumber(n) )
+		nResult = ring_len( This.BytesOfCharNumber(n) )
 		return nResult
 
 		def NumberOfBytesInCharN(n)
@@ -278,7 +278,7 @@ class stzListOfBytes from stzList
 		ok
 
 		aChars = This.Chars()
-		nLen = len(aChars)
+		nLen = ring_len(aChars)
 
 		aResult = StzListOfBytesQ(aChars[n]).Bytes()
 		return aResult
@@ -453,7 +453,7 @@ class stzListOfBytes from stzList
 
 	def Hexcodes()
 		aBytes = This.Bytes()
-		nLen = len(aBytes)
+		nLen = ring_len(aBytes)
 
 		acResult = []
 
@@ -466,7 +466,7 @@ class stzListOfBytes from stzList
 
 	def HexPerByte()
 		aBytes = This.Bytes()
-		nLen = len(aBytes)
+		nLen = ring_len(aBytes)
 
 		aResult = []
 
@@ -479,7 +479,7 @@ class stzListOfBytes from stzList
 
 	def HexcodesWithoutPrefix()
 		aBytes = This.Bytes()
-		nLen = len(aBytes)
+		nLen = ring_len(aBytes)
 
 		acResult = []
 
@@ -492,7 +492,7 @@ class stzListOfBytes from stzList
 
 	def HexPerByteWithoutPrefix()
 		aBytes = This.Bytes()
-		nLen = len(aBytes)
+		nLen = ring_len(aBytes)
 
 		aResult = []
 
@@ -515,7 +515,7 @@ class stzListOfBytes from stzList
 		ok
 
 		aHex = This.Hexcodes()
-		nLen = len(aHex)
+		nLen = ring_len(aHex)
 
 		cResult = ""
 
@@ -593,7 +593,7 @@ class stzListOfBytes from stzList
 		ok
 
 		aHex = This.HexcodesWithoutPrefix()
-		nLen = len(aHex)
+		nLen = ring_len(aHex)
 
 		cResult = ""
 

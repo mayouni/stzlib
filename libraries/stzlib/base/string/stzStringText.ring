@@ -170,7 +170,7 @@ class stzStringText
 	def Scripts()
 		acResult = []
 		aoStzChars = @oString.ToListOfStzChars()
-		nLen = len(aoStzChars)
+		nLen = ring_len(aoStzChars)
 
 		for i = 1 to nLen
 			acResult + aoStzChars[i].Script()
@@ -180,7 +180,7 @@ class stzStringText
 		return acResult
 
 	def NumberOfScripts()
-		return len(This.Scripts())
+		return ring_len(This.Scripts())
 
 	def ScriptIs(cScript)
 		return This.Script() = cScript
@@ -312,7 +312,7 @@ class stzStringText
 			return This.UniqueWords()
 
 	def NumberOfUniqueWords()
-		return len(This.UniqueWords())
+		return ring_len(This.UniqueWords())
 
 	  #------------------------------------------#
 	 #     WORD CHECKS                          #
@@ -348,7 +348,7 @@ class stzStringText
 		acWords = This.UniqueWordsCS(_bCase_)
 
 		if _bCase_ = 1
-			nLen = len(acWords)
+			nLen = ring_len(acWords)
 			for i = 1 to nLen
 				if acWords[i] = pcWord
 					return 1
@@ -356,7 +356,7 @@ class stzStringText
 			next
 		else
 			cLower = StzCaseFold(pcWord)
-			nLen = len(acWords)
+			nLen = ring_len(acWords)
 			for i = 1 to nLen
 				if StzCaseFold(acWords[i]) = cLower
 					return 1
@@ -372,7 +372,7 @@ class stzStringText
 			return NOT This.ContainsWord(pcWord)
 
 	def ContainsEachWordCS(pacWords, pCaseSensitive)
-		nLen = len(pacWords)
+		nLen = ring_len(pacWords)
 		for i = 1 to nLen
 			if NOT This.ContainsWordCS(pacWords[i], pCaseSensitive)
 				return 0
@@ -529,7 +529,7 @@ class stzStringText
 		acWords = This.Words()
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		nResult = 0
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 
 		if _bCase_ = 1
 			for i = 1 to nLen
@@ -567,7 +567,7 @@ class stzStringText
 	def WordsAndTheirFrequencies()
 		aResult = []
 		acWords = This.UniqueWords()
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 
 		for i = 1 to nLen
 			aResult + [ acWords[i], This.WordFrequency(acWords[i]) ]
@@ -577,7 +577,7 @@ class stzStringText
 
 	def MostFrequentWord()
 		aWordsFreqs = This.WordsAndTheirFrequencies()
-		nLen = len(aWordsFreqs)
+		nLen = ring_len(aWordsFreqs)
 		if nLen = 0
 			return ""
 		ok
@@ -596,7 +596,7 @@ class stzStringText
 
 	def LessFrequentWord()
 		aWordsFreqs = This.WordsAndTheirFrequencies()
-		nLen = len(aWordsFreqs)
+		nLen = ring_len(aWordsFreqs)
 		if nLen = 0
 			return ""
 		ok
@@ -615,7 +615,7 @@ class stzStringText
 
 	def NMostFrequentWords(n)
 		aWordsFreqs = This.WordsAndTheirFrequencies()
-		nLen = len(aWordsFreqs)
+		nLen = ring_len(aWordsFreqs)
 
 		# Sort by frequency descending (simple selection sort)
 		for i = 1 to nLen - 1
@@ -660,7 +660,7 @@ class stzStringText
 		aResult = []
 		acWords = This.UniqueWords()
 		oStr = This.ToStzString()
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 
 		for i = 1 to nLen
 			aResult + [ acWords[i], oStr.FindAllCS(acWords[i], 0) ]
@@ -691,7 +691,7 @@ class stzStringText
 
 	def WordsAreSortedInAscending()
 		acWords = This.Words()
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 		if nLen <= 1
 			return 1
 		ok
@@ -704,7 +704,7 @@ class stzStringText
 
 	def WordsAreSortedInDescending()
 		acWords = This.Words()
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 		if nLen <= 1
 			return 1
 		ok
@@ -735,7 +735,7 @@ class stzStringText
 		acExclude = StzListOfStringsQ(pacWords).Lowercased()
 		acWords = This.Words()
 		aResult = []
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 
 		for i = 1 to nLen
 			if StzFind(acExclude, StzCaseFold(acWords[i])) = 0
@@ -770,7 +770,7 @@ class stzStringText
 		aResult = []
 		cSentence = ""
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		cArabicQM = StzChar(1567) # Arabic question mark
 
 		for i = 1 to nLen
@@ -797,7 +797,7 @@ class stzStringText
 
 	def NthSentence(n)
 		acSentences = This.Sentences()
-		if n >= 1 and n <= len(acSentences)
+		if n >= 1 and n <= ring_len(acSentences)
 			return acSentences[n]
 		ok
 		StzRaise("Index out of range!")
@@ -809,7 +809,7 @@ class stzStringText
 		return This.NthSentence(1)
 
 	def LastSentence()
-		return This.NthSentence(len(This.Sentences()))
+		return This.NthSentence(ring_len(This.Sentences()))
 
 	  #===============================#
 	 #     PARAGRAPHS (Engine-backed)#
@@ -833,7 +833,7 @@ class stzStringText
 		# Split on double newlines (paragraph boundary)
 		aRaw = StzStringQ(cContent).Split(NL + NL)
 		aResult = []
-		nLen = len(aRaw)
+		nLen = ring_len(aRaw)
 
 		for i = 1 to nLen
 			cTrimmed = trim(aRaw[i])
@@ -846,7 +846,7 @@ class stzStringText
 
 	def NthParagraph(n)
 		acParas = This.Paragraphs()
-		if n >= 1 and n <= len(acParas)
+		if n >= 1 and n <= ring_len(acParas)
 			return acParas[n]
 		ok
 		StzRaise("Index out of range!")
@@ -858,7 +858,7 @@ class stzStringText
 		return This.NthParagraph(1)
 
 	def LastParagraph()
-		return This.NthParagraph(len(This.Paragraphs()))
+		return This.NthParagraph(ring_len(This.Paragraphs()))
 
 	  #===============================#
 	 #     LINES (Engine-backed)     #

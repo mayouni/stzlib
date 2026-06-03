@@ -135,7 +135,7 @@ class stzDecimalToBinary from stzObject
 				
 		end
 
-		for i = 1 to len(aTemp)
+		for i = 1 to ring_len(aTemp)
 			cBinary += aTemp[i]
 		next
 

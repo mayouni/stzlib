@@ -56,7 +56,7 @@ class stzStringUnicodeList
 		ok
 
 		# Validate: all items must be numbers in unicode range
-		nLen = len(aList)
+		nLen = ring_len(aList)
 		for i = 1 to nLen
 			if NOT isNumber(aList[i])
 				StzRaise("Can't create stzStringUnicodeList! All items must be numbers.")
@@ -76,10 +76,10 @@ class stzStringUnicodeList
 		return @anUnicodes
 
 	def NumberOfItems()
-		return len(@anUnicodes)
+		return ring_len(@anUnicodes)
 
 	def NthUnicode(n)
-		if n < 1 or n > len(@anUnicodes)
+		if n < 1 or n > ring_len(@anUnicodes)
 			StzRaise("Out of range!")
 		ok
 		return @anUnicodes[n]
@@ -130,7 +130,7 @@ class stzStringUnicodeList
 	#===============================#
 
 	def IsEmpty()
-		return len(@anUnicodes) = 0
+		return ring_len(@anUnicodes) = 0
 
 	def Contains(nUnicode)
 		for n in @anUnicodes
@@ -267,7 +267,7 @@ class stzStringUnicodeList
 
 	def Sorted()
 		aResult = @anUnicodes
-		nLen = len(aResult)
+		nLen = ring_len(aResult)
 		for i = 1 to nLen - 1
 			for j = 1 to nLen - i
 				if aResult[j] > aResult[j+1]
@@ -281,7 +281,7 @@ class stzStringUnicodeList
 
 	def Reversed()
 		aResult = []
-		for i = len(@anUnicodes) to 1 step -1
+		for i = ring_len(@anUnicodes) to 1 step -1
 			aResult + @anUnicodes[i]
 		next
 		return aResult

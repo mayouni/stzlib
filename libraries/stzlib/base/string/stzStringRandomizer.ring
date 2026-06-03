@@ -40,7 +40,7 @@ class stzStringRandomizer
 
 	def Shuffle()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 
 		for i = nLen to 2 step -1
 			j = random(i - 1) + 1
@@ -90,7 +90,7 @@ class stzStringRandomizer
 
 		# Build list of unique chars in the string
 		acUnique = []
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		for i = 1 to nLen
 			c = acChars[i]
 			if StzFind(acUnique, c) = 0
@@ -98,7 +98,7 @@ class stzStringRandomizer
 			ok
 		next
 
-		nAvailable = len(acUnique)
+		nAvailable = ring_len(acUnique)
 		if n > nAvailable
 			n = nAvailable
 		ok
@@ -144,7 +144,7 @@ class stzStringRandomizer
 	def RandomWord()
 		cContent = @oString.Content()
 		acWords = split(cContent, " ")
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 		if nLen = 0
 			return ""
 		ok
@@ -158,7 +158,7 @@ class stzStringRandomizer
 	def ShuffleWords()
 		cContent = @oString.Content()
 		acWords = split(cContent, " ")
-		nLen = len(acWords)
+		nLen = ring_len(acWords)
 
 		for i = nLen to 2 step -1
 			j = random(i - 1) + 1
@@ -192,7 +192,7 @@ class stzStringRandomizer
 
 	def RandomCase()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		cResult = ""
 
 		for i = 1 to nLen
@@ -236,7 +236,7 @@ class stzStringRandomizer
 
 	def RandomRemove(n)
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		if n >= nLen
 			@oString.Update("")
 			return

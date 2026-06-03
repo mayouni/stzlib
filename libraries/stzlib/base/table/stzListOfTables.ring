@@ -29,22 +29,22 @@ class stzListOfTables from stzListOfHashLists
 			StzRaise("Can't create the stzListOfTables object! You must provide a well formed list of hashlists.")
 		ok
 
-		nLen = len(paList)
+		nLen = ring_len(paList)
 		for i = 1 to nLen
 			@aContent + new stzTable(paList[i])
 		next
 
 	def NumberOfTables()
-		return len(@aContent)
+		return ring_len(@aContent)
 
 		def HowManyTables()
-			return len(@aContent)
+			return ring_len(@aContent)
 
 		def CountTables()
-			return len(@aContent)
+			return ring_len(@aContent)
 
 	def Show()
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		for i = 1 to nLen
 			@aContent[i].Show()
 		next

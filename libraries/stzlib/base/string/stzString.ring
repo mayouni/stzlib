@@ -420,7 +420,7 @@ class stzString from stzObject
 		if nStart < 0
 			nStart = 0
 		ok
-		if nStart >= len(_cFull_)
+		if nStart >= ring_len(_cFull_)
 			return 0
 		ok
 		# Take tail of string starting AFTER nStart, search there,
@@ -646,7 +646,7 @@ class stzString from stzObject
 		ok
 		_cMid_ = substr(_cAll_, n1, n2 - n1 + 1)
 		_cAfter_ = ""
-		if n2 < len(_cAll_)
+		if n2 < ring_len(_cAll_)
 			_cAfter_ = substr(_cAll_, n2 + 1)
 		ok
 		This.Update( _cBefore_ + upper(_cMid_) + _cAfter_ )
@@ -665,7 +665,7 @@ class stzString from stzObject
 			return This.Content()
 		ok
 		_cStr_ = This.Content()
-		if len(_cStr_) <= n
+		if ring_len(_cStr_) <= n
 			return _cStr_
 		ok
 		return substr(_cStr_, 1, n - 3) + "..."
@@ -678,10 +678,10 @@ class stzString from stzObject
 				return This.Content()
 			ok
 			_cStr2_ = This.Content()
-			if len(_cStr2_) <= n
+			if ring_len(_cStr2_) <= n
 				return _cStr2_
 			ok
-			return substr(_cStr2_, 1, n - len(pcSuffix)) + pcSuffix
+			return substr(_cStr2_, 1, n - ring_len(pcSuffix)) + pcSuffix
 
 	# Boxify: surround the content with a simple ASCII box drawn
 	# with `+` corners, `-` horizontals, `|` verticals.
@@ -1069,7 +1069,7 @@ class stzString from stzObject
 
 	def EndsWithANumber()
 		_cEwanStr_ = This.Content()
-		if len(_cEwanStr_) = 0
+		if ring_len(_cEwanStr_) = 0
 			return 0
 		ok
 		return ring_find([ "0","1","2","3","4","5","6","7","8","9" ], right(_cEwanStr_, 1)) > 0
@@ -1094,7 +1094,7 @@ class stzString from stzObject
 
 	def StartsWithANumber()
 		_cSwanStr_ = This.Content()
-		if len(_cSwanStr_) = 0
+		if ring_len(_cSwanStr_) = 0
 			return 0
 		ok
 		return ring_find([ "0","1","2","3","4","5","6","7","8","9" ], left(_cSwanStr_, 1)) > 0
@@ -1725,7 +1725,7 @@ class stzString from stzObject
 		return This.ContainsDuplicatesCS(1)
 
 	def ContainsDuplicatedSubStringsCS(pCaseSensitive)
-		return len(This.DuplicatedSubStringsCS(pCaseSensitive)) > 0
+		return ring_len(This.DuplicatedSubStringsCS(pCaseSensitive)) > 0
 
 	def ContainsDuplicatedSubStrings()
 		return This.ContainsDuplicatedSubStringsCS(1)
@@ -1738,7 +1738,7 @@ class stzString from stzObject
 		return This.DuplicatedSubStringsCS(1)
 
 	def NumberOfDuplicatesCS(pCaseSensitive)
-		return len(This.DuplicatedSubStringsCS(pCaseSensitive))
+		return ring_len(This.DuplicatedSubStringsCS(pCaseSensitive))
 
 	def NumberOfDuplicates()
 		return This.NumberOfDuplicatesCS(1)
@@ -1789,7 +1789,7 @@ class stzString from stzObject
 		if isList(paBoxOptions)
 			_nBxLen_ = ring_len(paBoxOptions)
 			for _iBx_ = 1 to _nBxLen_
-				if isList(paBoxOptions[_iBx_]) and len(paBoxOptions[_iBx_]) = 2
+				if isList(paBoxOptions[_iBx_]) and ring_len(paBoxOptions[_iBx_]) = 2
 					_cBxKey_ = paBoxOptions[_iBx_][1]
 					_vBxVal_ = paBoxOptions[_iBx_][2]
 					if isString(_cBxKey_)
@@ -2208,10 +2208,10 @@ class stzString from stzObject
 			return This.BoundedBy(pacBounds)
 
 	def ContainsSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-		return len(This.BoundedByCS(pacBounds, pCaseSensitive)) > 0
+		return ring_len(This.BoundedByCS(pacBounds, pCaseSensitive)) > 0
 
 	def ContainsSubStringsBoundedBy(pacBounds)
-		return len(This.BoundedBy(pacBounds)) > 0
+		return ring_len(This.BoundedBy(pacBounds)) > 0
 
 		def ContainsBoundedBy(pacBounds)
 			return This.ContainsSubStringsBoundedBy(pacBounds)
@@ -2373,7 +2373,7 @@ class stzString from stzObject
 	#===============================#
 
 	def ReplaceManyByManyCS(paSubStr, paNewSubStr, pCaseSensitive)
-		if isList(paNewSubStr) and len(paNewSubStr) > 0
+		if isList(paNewSubStr) and ring_len(paNewSubStr) > 0
 			if isString(paNewSubStr[1]) and
 			   (paNewSubStr[1] = :by or paNewSubStr[1] = :with or paNewSubStr[1] = :By or paNewSubStr[1] = :With)
 				paNewSubStr = paNewSubStr[2]
@@ -2400,7 +2400,7 @@ class stzString from stzObject
 
 	def ReplaceManyByManyXT(paSubStr, paNewSubStr)
 		# XT version: cycles through replacements if lists differ in size
-		if isList(paNewSubStr) and len(paNewSubStr) > 0
+		if isList(paNewSubStr) and ring_len(paNewSubStr) > 0
 			if isString(paNewSubStr[1]) and
 			   (paNewSubStr[1] = :by or paNewSubStr[1] = :with or paNewSubStr[1] = :By or paNewSubStr[1] = :With)
 				paNewSubStr = paNewSubStr[2]
@@ -3230,7 +3230,7 @@ class stzString from stzObject
 	# IsBoundedByCS / IsBoundedBy: predicate. True iff the content
 	# starts with pacBounds[1] AND ends with pacBounds[2].
 	def IsBoundedByCS(pacBounds, pCaseSensitive)
-		if NOT (isList(pacBounds) and len(pacBounds) = 2)
+		if NOT (isList(pacBounds) and ring_len(pacBounds) = 2)
 			return 0
 		ok
 		return This.StartsWithCS(pacBounds[1], pCaseSensitive) and
@@ -3728,7 +3728,7 @@ class stzString from stzObject
 		if NOT isString(c)
 			StzRaise("RemoveThisTrailingChar: c must be a string")
 		ok
-		if len(c) = 0
+		if ring_len(c) = 0
 			return
 		ok
 		_cStr_ = This.Content()
@@ -3761,11 +3761,11 @@ class stzString from stzObject
 		if NOT isString(c)
 			StzRaise("RemoveThisLeadingChar: c must be a string")
 		ok
-		if len(c) = 0
+		if ring_len(c) = 0
 			return
 		ok
 		_cStr_ = This.Content()
-		while len(_cStr_) > 0 and left(_cStr_, 1) = c
+		while ring_len(_cStr_) > 0 and left(_cStr_, 1) = c
 			_cStr_ = substr(_cStr_, 2)
 		end
 		This.Update(_cStr_)

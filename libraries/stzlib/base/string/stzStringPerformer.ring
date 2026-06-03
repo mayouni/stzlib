@@ -98,10 +98,10 @@ class stzStringPerformer
 	def YieldOn(panPos, pcYielder)
 		aAll = This.Yield(pcYielder)
 		aResult = []
-		nLen = len(panPos)
+		nLen = ring_len(panPos)
 		for i = 1 to nLen
 			n = panPos[i]
-			if n >= 1 and n <= len(aAll)
+			if n >= 1 and n <= ring_len(aAll)
 				aResult + aAll[n]
 			ok
 		next

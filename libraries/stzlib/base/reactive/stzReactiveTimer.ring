@@ -153,7 +153,7 @@ class stzTimerManager
 		timers + timer
 		
 	def RemoveTimer(timerId)
-	    for i = len(timers) to 1 step -1  # Iterate backwards
+	    for i = ring_len(timers) to 1 step -1  # Iterate backwards
 	        if timers[i].timerId = timerId
 	            timers[i].Stop()
 	            del(timers, i)
@@ -162,7 +162,7 @@ class stzTimerManager
 	    next
 	    
 	    # Stop run loop if no active timers
-	    if len(timers) = 0
+	    if ring_len(timers) = 0
 	        isRunning = false
 	    ok
 
@@ -175,7 +175,7 @@ class stzTimerManager
 
 	        # Process timers safely by collecting completed ones first
 	        completedIndices = []
-	        nLenTimers = len(timers)
+	        nLenTimers = ring_len(timers)
 
 	        for i = 1 to nLenTimers
 	            timer = timers[i]
@@ -190,9 +190,9 @@ class stzTimerManager
 	        next
 	        
 	        # Remove completed timers in reverse order to maintain indices
-	        for i = len(completedIndices) to 1 step -1
+	        for i = ring_len(completedIndices) to 1 step -1
 	            index = completedIndices[i]
-	            if index >= 1 and index <= len(timers)
+	            if index >= 1 and index <= ring_len(timers)
 	                del(timers, index)
 	            ok
 	        next
@@ -202,7 +202,7 @@ class stzTimerManager
 	        sleep(sleepTime)
 	        
 	        # Don't exit immediately if no timers - wait based on patience level
-	        if len(timers) = 0
+	        if ring_len(timers) = 0
 	            emptyLoopCount++
 	            if emptyLoopCount > emptyLoopPatience
 	                isRunning = false
@@ -226,7 +226,7 @@ class stzTimerManager
 
 	def StopAllTimers()
 	    # Stop all timers and clear the list
-	    nLen = len(timers)
+	    nLen = ring_len(timers)
 	    for i = 1 to nLen
 	        timers[i].Stop()
 	    next

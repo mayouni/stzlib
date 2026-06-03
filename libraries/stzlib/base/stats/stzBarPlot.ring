@@ -129,7 +129,7 @@ class stzBarPlot
 			# Convert simple number list to labeled data
 			@anValues = paDataSet
 			@acLabels = []
-			nLen = len(paDataSet)
+			nLen = ring_len(paDataSet)
 
 			for i = 1 to nLen
 				@acLabels + (@cLabelChar + i)
@@ -149,7 +149,7 @@ class stzBarPlot
 				@anValues = aValues
 				_aBpKeys_ = oHash.Keys()
 				@acLabels = []
-				for _iBpK_ = 1 to len(_aBpKeys_)
+				for _iBpK_ = 1 to ring_len(_aBpKeys_)
 					@acLabels + StzCapitalize(_aBpKeys_[_iBpK_])
 				next
 			ok
@@ -168,7 +168,7 @@ class stzBarPlot
 	def _calculateMetrics()
 		@nMaxValue = max(@anValues)
 		@nSum = @sum(@anValues)
-		@nAverage = @nSum / len(@anValues)
+		@nAverage = @nSum / ring_len(@anValues)
 
 	# --- Configuration Methods ---
 
@@ -297,7 +297,7 @@ class stzBarPlot
 			c = "X"
 		ok
 
-		nLen = len(@acLabels)
+		nLen = ring_len(@acLabels)
 		for i = 1 to nLen
 			@acLabels[i] = (c + i)
 		next
@@ -366,7 +366,7 @@ class stzBarPlot
 	# --- Layout Calculation ---
 
 	def _calculateLayout()
-		nBars = len(@anValues)
+		nBars = ring_len(@anValues)
 		
 		# Calculate element widths (max of bar, label, value widths)
 		aElementWidths = []
@@ -374,18 +374,18 @@ class stzBarPlot
 			nMaxWidth = @nBarWidth
 			
 			# Check label width (only if labels will actually be displayed)
-			if @bShowLabels and @bShowAxisLabels and i <= len(@acLabels)
-				nLabelWidth = min([len(@acLabels[i]), @nMaxLabelWidth])
+			if @bShowLabels and @bShowAxisLabels and i <= ring_len(@acLabels)
+				nLabelWidth = min([ring_len(@acLabels[i]), @nMaxLabelWidth])
 				nMaxWidth = max([nMaxWidth, nLabelWidth])
 			ok
 			
 			# Check value/percent width
 			if @bShowValues
-				nValueWidth = len("" + @anValues[i])
+				nValueWidth = ring_len("" + @anValues[i])
 				nMaxWidth = max([nMaxWidth, nValueWidth])
 			but @bShowPercent and @nSum > 0
 				nPercent = (@anValues[i] * 100) / @nSum
-				nValueWidth = len('' + _PlotRound(nPercent, 1) + "%")
+				nValueWidth = ring_len('' + _PlotRound(nPercent, 1) + "%")
 				nMaxWidth = max([nMaxWidth, nValueWidth])
 			ok
 			
@@ -398,7 +398,7 @@ class stzBarPlot
 		
 		# Add space for average value if shown
 		if @bShowAverage
-		    nAvgValueWidth = len("" + _PlotRound(@nAverage, 1))
+		    nAvgValueWidth = ring_len("" + _PlotRound(@nAverage, 1))
 		    nTotalWidth = nBaseWidth + 2 + nAvgValueWidth
 		else
 		    nTotalWidth = nBaseWidth
@@ -477,8 +477,8 @@ class stzBarPlot
 		next
 
 	def _setChar(nRow, nCol, cChar)
-		if nRow >= 1 and nRow <= len(@acCanvas) and
-		   nCol >= 1 and nCol <= len(@acCanvas[1])
+		if nRow >= 1 and nRow <= ring_len(@acCanvas) and
+		   nCol >= 1 and nCol <= ring_len(@acCanvas[1])
 			@acCanvas[nRow][nCol] = cChar
 		ok
 
@@ -508,7 +508,7 @@ class stzBarPlot
 		
 		nRow = oLayout[:h_axis_row]
 		nStart = iff(@bShowVAxis, oLayout[:v_axis_col], oLayout[:bars_start])
-		nEnd = oLayout[:total_width] - iff(@bShowAverage, len("" + _PlotRound(@nAverage, 1)) + 2, 0) - 1
+		nEnd = oLayout[:total_width] - iff(@bShowAverage, ring_len("" + _PlotRound(@nAverage, 1)) + 2, 0) - 1
 		
 		# Draw horizontal line
 		for i = nStart to nEnd
@@ -522,7 +522,7 @@ class stzBarPlot
 		_setChar(nRow, nEnd + 1, @cHArrowChar)
 
 	def _drawBars(oLayout)
-		nBars = len(@anValues)
+		nBars = ring_len(@anValues)
 		nCurrentH = oLayout[:bars_start]
 		nBarsStartRow = oLayout[:bars_start_row]
 		nBarsEndRow = oLayout[:bars_end_row]
@@ -568,7 +568,7 @@ class stzBarPlot
 			return
 		ok
 		
-		nBars = len(@anValues)
+		nBars = ring_len(@anValues)
 		nCurrentH = oLayout[:bars_start]
 		nBarsStartRow = oLayout[:bars_start_row]
 		nBarsHeight = oLayout[:bars_height]
@@ -604,10 +604,10 @@ class stzBarPlot
 			ok
 			
 			# Center value horizontally
-			nValueStart = nCurrentH + floor((nElementWidth - len(cValue)) / 2)
+			nValueStart = nCurrentH + floor((nElementWidth - ring_len(cValue)) / 2)
 			
 			# Draw value
-			nLen = len(cValue)
+			nLen = ring_len(cValue)
 			for j = 1 to nLen
 				if nValueStart + j - 1 <= oLayout[:total_width]
 					_setChar(nValueRow, nValueStart + j - 1, cValue[j])
@@ -625,26 +625,26 @@ class stzBarPlot
 			return
 		ok
 		
-		nBars = len(@anValues)
+		nBars = ring_len(@anValues)
 		nCurrentH = oLayout[:bars_start]
 		nLabelsRow = oLayout[:labels_row]
 		aElementWidths = oLayout[:element_widths]
 		
 		for i = 1 to nBars
-			if i <= len(@acLabels)
+			if i <= ring_len(@acLabels)
 				cLabel = @acLabels[i]
 				nElementWidth = aElementWidths[i]
 				
 				# Truncate if needed
-				if len(cLabel) > @nMaxLabelWidth
+				if ring_len(cLabel) > @nMaxLabelWidth
 					cLabel = Left(cLabel, @nMaxLabelWidth - 2) + ".."
 				ok
 				
 				# Center label
-				nLabelStart = nCurrentH + floor((nElementWidth - len(cLabel)) / 2)
+				nLabelStart = nCurrentH + floor((nElementWidth - ring_len(cLabel)) / 2)
 				
 				# Draw label
-				nLen = len(cLabel)
+				nLen = ring_len(cLabel)
 				for j = 1 to nLen
 					_setChar(nLabelsRow, nLabelStart + j - 1, cLabel[j])
 				next
@@ -664,7 +664,7 @@ class stzBarPlot
 		nBarsStartRow = oLayout[:bars_start_row]
 		nBarsHeight = oLayout[:bars_height]
 		nStart = iff(@bShowVAxis, oLayout[:v_axis_col] + 1, oLayout[:bars_start])
-		nEnd = oLayout[:total_width] - iff(@bShowAverage, len("" + _PlotRound(@nAverage, 1)) + 2, 0)
+		nEnd = oLayout[:total_width] - iff(@bShowAverage, ring_len("" + _PlotRound(@nAverage, 1)) + 2, 0)
 		
 		# Calculate average line position
 		nAvgRow = nBarsStartRow + nBarsHeight - 1
@@ -675,8 +675,8 @@ class stzBarPlot
 		
 		# Draw average line
 		for i = nStart to nEnd
-			if nAvgRow >= 1 and nAvgRow <= len(@acCanvas) and
-			   i <= len(@acCanvas[1]) and @acCanvas[nAvgRow][i] = " "
+			if nAvgRow >= 1 and nAvgRow <= ring_len(@acCanvas) and
+			   i <= ring_len(@acCanvas[1]) and @acCanvas[nAvgRow][i] = " "
 				_setChar(nAvgRow, i, @cAverageChar)
 			ok
 		next
@@ -688,10 +688,10 @@ class stzBarPlot
 
 		cAvgValue = "" + _PlotRound(@nAverage, 1)
 		nValueStart = nEnd + 2
-		nLen = len(cAvgValue)
+		nLen = ring_len(cAvgValue)
 		for j = 1 to nLen
 		    nCol = nValueStart + j - 1
-		    if nCol <= len(@acCanvas[1])  # Check if within canvas bounds
+		    if nCol <= ring_len(@acCanvas[1])  # Check if within canvas bounds
 		        _setChar(nAvgRow, nCol, cAvgValue[j])
 		    ok
 		next
@@ -713,11 +713,11 @@ class stzBarPlot
 
 	def _canvasToString()
 		cResult = ""
-		nRows = len(@acCanvas)
+		nRows = ring_len(@acCanvas)
 		
 		for i = 1 to nRows
 			cLine = ""
-			nLen = len(@acCanvas[i])
+			nLen = ring_len(@acCanvas[i])
 			for j = 1 to nLen
 				cLine += @acCanvas[i][j]
 			next

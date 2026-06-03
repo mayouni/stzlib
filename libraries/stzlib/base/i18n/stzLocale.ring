@@ -919,7 +919,7 @@ class stzLocale from stzObject
 	#--------------#
 
 	def CurrencyName()
-		nLen = len(_aLocaleCountriesXT)
+		nLen = ring_len(_aLocaleCountriesXT)
 		cNumber = This.CountryNumber()
 
 		for i = 1 to nLen
@@ -1436,7 +1436,7 @@ class stzLocale from stzObject
 		#TODO: delegate the work to stzText when ready
 
 		anPos = oStr.FindAll(" ")
-		if len(anPos) = 0
+		if ring_len(anPos) = 0
 			anPos = [1]
 
 		else
@@ -1446,7 +1446,7 @@ class stzLocale from stzObject
 			anPos = _oChain_.Sorted()
 		ok
 
-		nLen = len(anPos)
+		nLen = ring_len(anPos)
 
 		//for n in anPos
 		for i = 1 to nLen
@@ -1492,7 +1492,7 @@ class stzLocale from stzObject
 
 	def pvtCurrencyXT(pcTypeOfSymbol)
 		cCurrencyName = ""
-		nLen = len(_aLocaleCountriesXT)
+		nLen = ring_len(_aLocaleCountriesXT)
 		cNumber = This.CountryNumber()
 		for i = 1 to nLen
 			if _aLocaleCountriesXT[i][1] = cNumber

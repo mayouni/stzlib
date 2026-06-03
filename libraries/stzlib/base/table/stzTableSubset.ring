@@ -92,7 +92,7 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! pacColNamesOrNumbers must be a list of numbers or a list of strings.")
 		ok
 
-		nLen = len(pacColNamesOrNumbers)
+		nLen = ring_len(pacColNamesOrNumbers)
 		aResult = []
 
 		for i = 1 to nLen
@@ -217,7 +217,7 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! paColNamesOrNumbers must be a list of strings or numbers.")
 		ok
 
-		nLen = len(paColNamesOrNumbers)
+		nLen = ring_len(paColNamesOrNumbers)
 		aResult = []
 
 		for i = 1 to nLen
@@ -283,7 +283,7 @@ class stzTableSubset from stzTable
 		nCols = This.NumberOfCols()
 
 		bAllValid = 1
-		for _i = 1 to len(panColNumbers)
+		for _i = 1 to ring_len(panColNumbers)
 			if panColNumbers[_i] < 1 or panColNumbers[_i] > nCols
 				bAllValid = 0
 				exit
@@ -294,13 +294,13 @@ class stzTableSubset from stzTable
 		ok
 
 		panColNumbers  = new stzList(panColNumbers).Sorted()
-		nLenColNumbers = len(panColNumbers)
+		nLenColNumbers = ring_len(panColNumbers)
 
 		pacColNames    = This.ColNames()
 
-		nNumCols       = len(pacColNames)
+		nNumCols       = ring_len(pacColNames)
 
-		if len(panColNumbers) > nNumCols
+		if ring_len(panColNumbers) > nNumCols
 			panColNumbers = Q(panColNumbers).Section( 1, nNumCols)
 		ok
 
@@ -327,7 +327,7 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
 		ok
 
-		nLen = len(panColNumbers)
+		nLen = ring_len(panColNumbers)
 		aResult = []
 
 		for i = 1 to nLen
@@ -345,7 +345,7 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
 
-		nLen = len(pacColNames)
+		nLen = ring_len(pacColNames)
 		anResult = []
 
 		for i = 1 to nLen
@@ -437,7 +437,7 @@ class stzTableSubset from stzTable
 		ok
 
 		aResult = []
-		nLen = len(panRowsNumbers)
+		nLen = ring_len(panRowsNumbers)
 
 		for i = 1 to nLen
 			aResult + This.Row(panRowsNumbers[i])
@@ -500,7 +500,7 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! panRowsNumbers must be a list of numbers.")
 		ok
 
-		nLen = len(apnRowsNumbers)
+		nLen = ring_len(apnRowsNumbers)
 
 		aResult = []
 		for n in nLen
@@ -857,7 +857,7 @@ class stzTableSubset from stzTable
 			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
 
-		nLen = len(pacColNames)
+		nLen = ring_len(pacColNames)
 		bResult = 1
 
 		for i = 1 to nLen

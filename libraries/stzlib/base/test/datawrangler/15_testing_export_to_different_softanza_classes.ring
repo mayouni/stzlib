@@ -3,7 +3,7 @@
 # Testing export to different Softanza classes
 #
 # Extracted from stzdatawranglertest.ring, block #15.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

@@ -60,7 +60,7 @@ class stzStringReplacer
 				stzRaise("Incorrect param type! pcSubstr must be a string.")
 			ok
 
-			if isList(pcNewSubStr) and len(pcNewSubStr) = 2 and isString(pcNewSubStr[1])
+			if isList(pcNewSubStr) and ring_len(pcNewSubStr) = 2 and isString(pcNewSubStr[1])
 				cPN = StzCaseFold(pcNewSubStr[1])
 				if cPN = "with" or cPN = "using" or cPN = "by" or cPN = "withmany" or cPN = "usingmany" or cPN = "bymany"
 					pcNewSubStr = pcNewSubStr[2]
@@ -108,7 +108,7 @@ class stzStringReplacer
 
 	def ReplaceByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
 		# Accept :By/:With/... named-param wrapping
-		if isList(pacNewSubStr) and len(pacNewSubStr) = 2 and isString(pacNewSubStr[1])
+		if isList(pacNewSubStr) and ring_len(pacNewSubStr) = 2 and isString(pacNewSubStr[1])
 			_cPn_ = lower(pacNewSubStr[1])
 			if _cPn_ = "by" or _cPn_ = "with" or _cPn_ = "using" or _cPn_ = "bymany" or _cPn_ = "withmany" or _cPn_ = "usingmany"
 				pacNewSubStr = pacNewSubStr[2]
@@ -122,8 +122,8 @@ class stzStringReplacer
 		ok
 
 		_cContent_ = @oString.Content()
-		_nSubLen_ = len(pcSubStr)
-		_nContentLen_ = len(_cContent_)
+		_nSubLen_ = ring_len(pcSubStr)
+		_nContentLen_ = ring_len(_cContent_)
 
 		_cHay_ = _cContent_
 		_cNeedle_ = pcSubStr
@@ -144,10 +144,10 @@ class stzStringReplacer
 			ok
 		end
 
-		_nReplCount_ = len(pacNewSubStr)
+		_nReplCount_ = ring_len(pacNewSubStr)
 		_nApply_ = _nReplCount_
-		if len(_anPos_) < _nApply_
-			_nApply_ = len(_anPos_)
+		if ring_len(_anPos_) < _nApply_
+			_nApply_ = ring_len(_anPos_)
 		ok
 
 		# Apply replacements tail-first so earlier offsets stay valid
@@ -164,7 +164,7 @@ class stzStringReplacer
 				_cAfter_ = substr(_cContent_, _nAfter_)
 			ok
 			_cContent_ = _cBefore_ + _cNew_ + _cAfter_
-			_nContentLen_ = len(_cContent_)
+			_nContentLen_ = ring_len(_cContent_)
 		next
 
 		@oString.Update(_cContent_)
@@ -261,7 +261,7 @@ class stzStringReplacer
 			StzRaise("Incorrect param type! pacSubStrings must be a list.")
 		ok
 
-		nLen = len(pacSubStrings)
+		nLen = ring_len(pacSubStrings)
 		for i = 1 to nLen
 			This.ReplaceCS(pacSubStrings[i], pcNewSubStr, pCaseSensitive)
 		next
@@ -325,7 +325,7 @@ class stzStringReplacer
 			StzRaise("Incorrect param type! pacSubStrings must be a list.")
 		ok
 
-		nLen = len(pacSubStrings)
+		nLen = ring_len(pacSubStrings)
 		for i = 1 to nLen
 			This.RemoveCS(pacSubStrings[i], pCaseSensitive)
 		next

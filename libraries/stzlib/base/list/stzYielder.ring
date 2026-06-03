@@ -28,7 +28,7 @@ class stzYielder
 		ok
 
 	def NumberOfItems()
-		return len(@aContent)
+		return ring_len(@aContent)
 
 	  #-----------#
 	 #   MAP     #

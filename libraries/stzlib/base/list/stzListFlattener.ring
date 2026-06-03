@@ -118,7 +118,7 @@ class stzListFlattener
 			if isList(_aFlContent_[_iFl_])
 
 				_aFlTemp_ = Q(_aFlContent_[_iFl_]).Flattened()
-				_nFlLenTemp_ = len(_aFlTemp_)
+				_nFlLenTemp_ = ring_len(_aFlTemp_)
 
 				for _jFl_ = 1 to _nFlLenTemp_
 					@AddItem(_aFlResult_, _aFlTemp_[_jFl_])
@@ -150,7 +150,7 @@ class stzListFlattener
 
 		_aAwResult_ = []
 		_nAwLen_  = This.NumberOfItems()
-		_nAwLenOther_ = len(paOtherList)
+		_nAwLenOther_ = ring_len(paOtherList)
 
 		_aAwContent_ = This.Content()
 
@@ -207,7 +207,7 @@ class stzListFlattener
 
 	def Stringify()
 		_aSfContent_ = This.Content()
-		_nSfLen_ = len(_aSfContent_)
+		_nSfLen_ = ring_len(_aSfContent_)
 
 		_acSfResult_ = []
 		for _iSf_ = 1 to _nSfLen_
@@ -226,7 +226,7 @@ class stzListFlattener
 	def HasRepeatedLeadingItemsCS(pCaseSensitive)
 		_aHrlLead_ = This.RepeatedLeadingItemsCS(pCaseSensitive)
 
-		if len(_aHrlLead_) > 0
+		if ring_len(_aHrlLead_) > 0
 			return 1
 		else
 			return 0
@@ -237,7 +237,7 @@ class stzListFlattener
 
 	def RepeatedLeadingItemsCS(pCaseSensitive)
 		_aRliContent_ = This.Content()
-		_nRliLen_ = len(_aRliContent_)
+		_nRliLen_ = ring_len(_aRliContent_)
 
 		if _nRliLen_ <= 1
 			return []
@@ -270,7 +270,7 @@ class stzListFlattener
 	def HasRepeatedTrailingItemsCS(pCaseSensitive)
 		_aHrtTrail_ = This.RepeatedTrailingItemsCS(pCaseSensitive)
 
-		if len(_aHrtTrail_) > 0
+		if ring_len(_aHrtTrail_) > 0
 			return 1
 		else
 			return 0
@@ -278,7 +278,7 @@ class stzListFlattener
 
 	def RepeatedTrailingItemsCS(pCaseSensitive)
 		_aRtiContent_ = This.Content()
-		_nRtiLen_ = len(_aRtiContent_)
+		_nRtiLen_ = ring_len(_aRtiContent_)
 
 		if _nRtiLen_ <= 1
 			return []
@@ -389,8 +389,8 @@ class stzListFlattener
 
 	def InterleavedWith(paOther)
 		_aIwContent_ = This.Content()
-		_nIwLen1_ = len(_aIwContent_)
-		_nIwLen2_ = len(paOther)
+		_nIwLen1_ = ring_len(_aIwContent_)
+		_nIwLen2_ = ring_len(paOther)
 		_nIwMax_ = _nIwLen1_
 		if _nIwLen2_ > _nIwMax_
 			_nIwMax_ = _nIwLen2_
@@ -414,7 +414,7 @@ class stzListFlattener
 
 	def Objectified()
 		_aObContent_ = This.Content()
-		_nObLen_ = len(_aObContent_)
+		_nObLen_ = ring_len(_aObContent_)
 		_aoObResult_ = []
 
 		for _iOb_ = 1 to _nObLen_

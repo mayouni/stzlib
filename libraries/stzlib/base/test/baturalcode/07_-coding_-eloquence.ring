@@ -3,7 +3,7 @@
 # #natural-coding #semantic-eloquence
 #
 # Extracted from stzbaturalcodetest.ring, block #7.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R14) : Calling Method without definition: lengthq
 
 load "../../stzBase.ring"
 

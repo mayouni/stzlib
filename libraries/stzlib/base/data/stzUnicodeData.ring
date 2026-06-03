@@ -760,7 +760,7 @@ class stzUnicodeData
 	def CharByHexCode(pcHex)
 		_cHex_ = pcHex
 		# Strip prefix if present
-		if len(_cHex_) > 2
+		if ring_len(_cHex_) > 2
 			_cPfx_ = ring_left(_cHex_, 2)
 			if _cPfx_ = "0x" or _cPfx_ = "0X"
 				_cHex_ = ring_substr2(_cHex_, 3)
@@ -778,7 +778,7 @@ class stzUnicodeData
 	def CharNameByHexCode(pcHex)
 		# Strip hex prefix if present
 		_cHex_ = pcHex
-		if len(_cHex_) > 2
+		if ring_len(_cHex_) > 2
 			_cPfx_ = ring_left(_cHex_, 2)
 			if _cPfx_ = "0x" or _cPfx_ = "0X"
 				_cHex_ = ring_substr2(_cHex_, 3)
@@ -807,7 +807,7 @@ class stzUnicodeData
 			return []
 		ok
 		_aLines_ = split(_cResult_, nl)
-		_nLen_ = len(_aLines_)
+		_nLen_ = ring_len(_aLines_)
 		_anResult_ = []
 		for _i_ = 1 to _nLen_
 			if _aLines_[_i_] != ""
@@ -833,7 +833,7 @@ class stzUnicodeData
 				return []
 			ok
 			_aLines_ = split(_cResult_, nl)
-			_nLen_ = len(_aLines_)
+			_nLen_ = ring_len(_aLines_)
 			_acResult_ = []
 			for _i_ = 1 to _nLen_
 				if _aLines_[_i_] != ""

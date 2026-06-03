@@ -77,7 +77,7 @@ class stzListRemover
 
 		# Fallback for non-string types
 		_anRmPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
-		_nRmLenPos_ = len(_anRmPos_)
+		_nRmLenPos_ = ring_len(_anRmPos_)
 
 		_oRmCopy_ = @oList.Copy()
 
@@ -211,7 +211,7 @@ class stzListRemover
 	#----------------------------------------------------#
 
 	def RemoveManyCS(paItems, pCaseSensitive)
-		_nRmcLen_ = len(paItems)
+		_nRmcLen_ = ring_len(paItems)
 		for _iRmc_ = 1 to _nRmcLen_
 			This.RemoveAllCS(paItems[_iRmc_], pCaseSensitive)
 		next
@@ -242,7 +242,7 @@ class stzListRemover
 		_oChain_ = new stzList(panPositions)
 
 		panPositions = _oChain_.Sorted()
-		_nRiapLen_ = len(panPositions)
+		_nRiapLen_ = ring_len(panPositions)
 
 		for _iRiap_ = _nRiapLen_ to 1 step -1
 			This.RemoveItemAtPosition(panPositions[_iRiap_])
@@ -339,7 +339,7 @@ class stzListRemover
 
 	def RemoveLastOccurrenceCS(pItem, pCaseSensitive)
 		_anRloPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
-		_nRloLen_ = len(_anRloPos_)
+		_nRloLen_ = ring_len(_anRloPos_)
 		if _nRloLen_ > 0
 			This.RemoveItemAtPosition(_anRloPos_[_nRloLen_])
 		ok
