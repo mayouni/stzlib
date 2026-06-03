@@ -1,0 +1,71 @@
+# Narrative
+# --------
+# # Text paintings in TRANSPORTATION category
+#
+# Extracted from stzstringarttest.ring, block #12.
+
+load "../../../stzBase.ring"
+
+
+? StringArt("#{Rocket}") + NL
+#-->
+#      △
+#     ╱▲╲
+#    ╱╱ ╲╲
+#   ╱╱···╲╲
+#  ╱╱·····╲╲
+# ╱╱┌─────┐╲╲
+# │││ ▓▓▓ │││
+# │││ ▓▓▓ │││
+# ╰╰───────╯╯
+#  ╰┌─────┐╯
+#   │ ███ │
+#   │ ███ │
+#   ╰─────╯
+
+? StringArt("#{Flagpole}") + NL
+#-->
+# ┌─┐
+# │█│
+# │█│
+# │█│
+# │█│🚩
+# │█│
+# │█│
+# │█│
+# └─┘
+
+? StringArt("#{Plane}") + NL
+#-->
+#        ✈
+#     __|__
+# --o--(_)--o--
+
+? StringArt("#{Car}") + NL
+#-->
+#     ____
+#  __/  |_ \_
+# |  _     _``-.
+# '-(_)---(_)--'
+
+? StringArt("#{Truck}") + NL
+#-->
+#    _____
+#  _| ____|__
+# |__[°  °]__|
+# '-(o)--(o)-'
+
+? StringArt("#{Bike}") + NL
+#-->
+#    __o
+#  _`\<,_
+# (*)/ (*)
+
+? StringArt("#{Spaceship}")
+#-->
+#    /\
+#  _/__\_
+# |  \/  |
+# |(◯◯)|
+# |__/\__|
+#  '--'--'

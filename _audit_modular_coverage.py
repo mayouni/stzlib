@@ -81,6 +81,14 @@ _DOC_BLOCK_RE = re.compile(
 
 
 def _strip_dead_assertions(text: str) -> str:
+    # NB: we do NOT strip `/* ... unclosed */` block-comment tails.
+    # The legacy monoliths use a `/*--- block title ---*/` style where
+    # every block-opener `/*---` is also a block-CLOSER for the
+    # previous block. Under Ring's actual parser this means only the
+    # first block ever runs at the monolith level -- but the modular
+    # extractor pulls each block into its own file where it DOES run.
+    # So treating those `/*` opens as "dead code" would under-count
+    # the markers that the modular suite is actually verifying.
     text = _DEAD_ASSERTION_RE.sub("", text)
     text = _DOC_BLOCK_RE.sub("", text)
     return text
@@ -282,12 +290,23 @@ def _tracked_name(name: str) -> str | None:
     return None
 
 
-def archive_green(results: list[dict]) -> int:
-    """git mv every GREEN legacy file into legacy/ subdir."""
+def archive_green(results: list[dict], include_empty: bool = False) -> int:
+    """git mv every GREEN legacy file into legacy/ subdir.
+
+    If include_empty is set, also archive GREY (0-marker) files and
+    RED files whose legacy_marker_count is 0 -- they have no
+    coverage signal to lose either way.
+    """
     LEGACY_DIR.mkdir(exist_ok=True)
     moved = 0
     for r in results:
-        if r["color"] != "GREEN":
+        archive_this = r["color"] == "GREEN"
+        if include_empty and not archive_this:
+            if r["color"] == "GREY":
+                archive_this = True
+            elif r["color"] == "RED" and r["legacy_marker_count"] == 0:
+                archive_this = True
+        if not archive_this:
             continue
         tracked = _tracked_name(r["name"])
         if tracked is None:
@@ -319,11 +338,29 @@ def archive_green(results: list[dict]) -> int:
 
 
 def main() -> int:
+    # The report can contain marker text from any locale (Arabic,
+    # Russian, French diacritics, ...). On Windows the default
+    # cp1252 stdout encoding chokes on those. Force UTF-8 so the
+    # human report doesn't crash mid-run.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):
+        pass
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--archive",
         action="store_true",
         help="git-mv every GREEN legacy file into base/test/legacy/",
+    )
+    parser.add_argument(
+        "--archive-empty",
+        action="store_true",
+        help=(
+            "Also archive GREY files (legacy has zero `#-->` markers) "
+            "and 0-marker REDs (no modular dir AND no markers to "
+            "preserve). These have no coverage signal to lose."
+        ),
     )
     parser.add_argument(
         "--json",
@@ -352,10 +389,13 @@ def main() -> int:
     else:
         print(render_report(results))
 
-    if args.archive:
+    if args.archive or args.archive_empty:
         print()
-        print("archiving GREEN files ...")
-        moved = archive_green(results)
+        if args.archive_empty:
+            print("archiving GREEN + GREY + 0-marker RED files ...")
+        else:
+            print("archiving GREEN files ...")
+        moved = archive_green(results, include_empty=args.archive_empty)
         print(f"done: {moved} file(s) moved into {LEGACY_DIR}")
 
     return 0

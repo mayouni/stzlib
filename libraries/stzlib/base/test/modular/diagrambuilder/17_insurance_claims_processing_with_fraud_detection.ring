@@ -7,6 +7,7 @@
 load "../../../stzBase.ring"
 
 	damage estimation, and payment authorization
+*/
 pr()
 
 oClaimsWorkflow = new stzDiagramMaker("Insurance Claims Workflow")

@@ -1,0 +1,16 @@
+digraph socialnetwork {
+  rankdir=TD;
+  node [shape=box];
+
+  alice [label="alice"];
+  bob [label="bob"];
+  charlie [label="charlie"];
+  diana [label="diana"];
+  eve [label="eve"];
+
+  alice -> bob;
+  bob -> charlie;
+  bob -> diana;
+  charlie -> diana;
+  diana -> eve;
+}

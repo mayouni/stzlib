@@ -1,5 +1,6 @@
 # Narrative
 # --------
+# */
 #
 # Extracted from stzadverbtest.ring, block #9.
 

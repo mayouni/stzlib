@@ -1,5 +1,6 @@
 # Narrative
 # --------
+# */
 #
 # Extracted from stzcurrencytest.ring, block #4.
 

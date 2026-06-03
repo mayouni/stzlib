@@ -1,0 +1,10 @@
+# Narrative
+# --------
+# o1 = new stzListOfStrings([ "A", "b", "C", "B" ])
+#
+# Extracted from stzlistofstringstest.ring, block #21.
+
+load "../../../stzBase.ring"
+
+? o1.FindAllCS("B", :CS = FALSE)
+#--> [2, 4]
