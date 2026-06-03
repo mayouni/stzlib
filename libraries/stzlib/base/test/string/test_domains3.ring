@@ -6,15 +6,12 @@
 
 load "test_stubs.ring"
 
-load "../stzString.ring"
-load "../stzStringFinder.ring"
-load "../stzStringReplacer.ring"
-load "../stzStringRemover.ring"
-load "../stzStringLeadTrail.ring"
-load "../stzStringTrimmer.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringFinder.ring"
+load "../../string/stzStringReplacer.ring"
+load "../../string/stzStringRemover.ring"
+load "../../string/stzStringLeadTrail.ring"
+load "../../string/stzStringTrimmer.ring"
 ? ""
 ? "=== Test: stzString Trim ==="
 oT = new stzString("  hello  ")
@@ -78,5 +75,3 @@ oTrim2.TrimRight()
 
 ? ""
 ? "=== ALL EXTENDED TESTS PASSED ==="
-
-pf()

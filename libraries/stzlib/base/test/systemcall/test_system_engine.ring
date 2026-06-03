@@ -1,7 +1,7 @@
 
 #ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
 
-load "../../string/test/test_stubs.ring"
+load "../string/test_stubs.ring"
 
 # Load stz_system.dll
 ? "Loading stz_system.dll..."
@@ -57,10 +57,7 @@ nCode = StzEngineSystemExec("echo silent test")
 # Test 5: stzSystemCall class (engine-backed)
 ? ""
 ? "--- Test 5: stzSystemCall class ---"
-load "../stzsystemcall.ring"
-
-pr()
-
+load "../../system/stzSystemCall.ring"
 oSys = new stzSystemCall("echo class test")
 oSys.HideConsole()
 oSys.Run()
@@ -87,5 +84,3 @@ oSys2 = new stzSystemCall("echo os-test")
 
 ? ""
 ? "=== All stzSystemCall engine tests completed ==="
-
-pf()

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #118.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R14) : Calling Method without definition: shortenn
 
 load "../../stzBase.ring"
 

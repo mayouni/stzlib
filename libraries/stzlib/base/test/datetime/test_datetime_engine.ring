@@ -1,7 +1,7 @@
 
 #ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
 
-load "../../string/test/test_stubs.ring"
+load "../string/test_stubs.ring"
 
 # Load stz_datetime.dll
 ? "Loading stz_datetime.dll..."
@@ -15,11 +15,8 @@ else
 ok
 
 # Load date/time classes
-load "../stzDate.ring"
-load "../stzTime.ring"
-
-pr()
-
+load "../../datetime/stzDate.ring"
+load "../../datetime/stzTime.ring"
 ? ""
 ? "=== stzDate & stzTime Engine Migration Tests ==="
 
@@ -97,5 +94,3 @@ oTime3 = new stzTime("10:15:30.500")
 
 ? ""
 ? "=== All stzDate & stzTime migration tests completed ==="
-
-pf()

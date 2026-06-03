@@ -8,17 +8,14 @@
 load "test_stubs.ring"
 
 ? "Loading classes"
-load "../stzString.ring"
-load "../stzStringFinder.ring"
-load "../stzStringReplacer.ring"
-load "../stzStringNumbers.ring"
-load "../stzStringDuplicates.ring"
-load "../stzStringExtractor.ring"
-load "../stzStringRandomizer.ring"
-load "../stzStringCrypto.ring"
-
-pr()
-
+load "../../string/stzString.ring"
+load "../../string/stzStringFinder.ring"
+load "../../string/stzStringReplacer.ring"
+load "../../string/stzStringNumbers.ring"
+load "../../string/stzStringDuplicates.ring"
+load "../../string/stzStringExtractor.ring"
+load "../../string/stzStringRandomizer.ring"
+load "../../string/stzStringCrypto.ring"
 nPass = 0
 nFail = 0
 
@@ -515,5 +512,3 @@ if nFail = 0
 else
     ? "=== SOME TESTS FAILED ==="
 ok
-
-pf()
