@@ -3,6 +3,7 @@
 # Complex narrative with multiple transformations
 #
 # Extracted from stznaturalmarkuptest.ring, block #12.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

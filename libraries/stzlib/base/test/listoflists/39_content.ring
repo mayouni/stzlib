@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofliststest.ring, block #39.
+#ERR Error (R14) : Calling Method without definition: extendxt
 
 load "../../stzBase.ring"
 

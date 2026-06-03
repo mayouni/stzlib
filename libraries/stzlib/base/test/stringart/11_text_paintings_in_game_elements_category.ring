@@ -3,6 +3,7 @@
 # # Text paintings in GAME ELEMENTS category
 #
 # Extracted from stzstringarttest.ring, block #11.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

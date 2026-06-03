@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #205.
+#ERR Error (R14) : Calling Method without definition: isapairq
 
 load "../../stzBase.ring"
 

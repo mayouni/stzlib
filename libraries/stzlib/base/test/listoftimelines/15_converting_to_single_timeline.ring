@@ -3,6 +3,7 @@
 # Converting to single TimeLine
 #
 # Extracted from stzlistoftimelinestest.ring, block #15.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

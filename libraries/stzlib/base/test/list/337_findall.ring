@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #337.
+#ERR Error (R14) : Calling Method without definition: firstnitemsqrt
 
 load "../../stzBase.ring"
 

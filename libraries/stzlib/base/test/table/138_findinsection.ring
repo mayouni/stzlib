@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #138.
+#ERR Error (R14) : Calling Method without definition: findinsection
 
 load "../../stzBase.ring"
 

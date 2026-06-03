@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #217.
+#ERR Error (R14) : Calling Method without definition: boundsof
 
 load "../../stzBase.ring"
 

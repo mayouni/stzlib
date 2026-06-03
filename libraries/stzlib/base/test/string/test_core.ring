@@ -3,6 +3,8 @@
 # Run from the test/ directory: ring test_core.ring
 
 ? "Step 1: Loading stubs + DLL"
+#ERR Error (E9) : Can't open file ../stzString.ring
+
 load "test_stubs.ring"
 
 ? "Step 2: Loading stzString"

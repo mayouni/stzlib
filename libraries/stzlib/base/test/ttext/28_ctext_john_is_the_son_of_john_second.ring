@@ -3,6 +3,7 @@
 # cText = "John is the son of John second.
 #
 # Extracted from stzTtexttest.ring, block #28.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

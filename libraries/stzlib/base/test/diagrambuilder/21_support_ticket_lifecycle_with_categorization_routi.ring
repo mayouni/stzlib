@@ -3,6 +3,7 @@
 # Support ticket lifecycle with categorization, routing,
 #
 # Extracted from stzdiagrambuildertest.ring, block #21.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

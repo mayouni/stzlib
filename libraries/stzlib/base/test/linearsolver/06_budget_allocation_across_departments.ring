@@ -3,6 +3,7 @@
 # Budget allocation across departments
 #
 # Extracted from stzlinearsolvertest.ring, block #6.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

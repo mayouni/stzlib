@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #73.
+#ERR Error (R3) : Calling Function without definition: stzcharerror
 
 load "../../stzBase.ring"
 

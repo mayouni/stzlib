@@ -3,6 +3,7 @@
 # # Now, let's experiment with an other construction, using Until():
 #
 # Extracted from stzchainofvaluetest.ring, block #6.
+#ERR Error (R24) : Using uninitialized variable: v
 
 load "../../stzBase.ring"
 

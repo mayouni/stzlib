@@ -3,6 +3,7 @@
 # Expression with power operations
 #
 # Extracted from stzcoeffextractortest.ring, block #8.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

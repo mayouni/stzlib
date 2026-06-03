@@ -3,6 +3,7 @@
 # Example 10: Special Characters Escaping
 #
 # Extracted from stzregexmakertest.ring, block #25.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

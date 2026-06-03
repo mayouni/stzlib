@@ -3,6 +3,7 @@
 # Color high performers
 #
 # Extracted from stzorgcharttest.ring, block #32.
+#ERR Error (R11) : Error in class name, class not found: stzgraphrule
 
 load "../../stzBase.ring"
 

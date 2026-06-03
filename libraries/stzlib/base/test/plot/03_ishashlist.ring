@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzPlotTest.ring, block #3.
+#ERR Error (R4) : Stack Overflow
 
 load "../../stzBase.ring"
 

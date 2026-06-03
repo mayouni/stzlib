@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #94.
+#ERR Error (R14) : Calling Method without definition: stringifylowercaseandreplacext
 
 load "../../stzBase.ring"
 

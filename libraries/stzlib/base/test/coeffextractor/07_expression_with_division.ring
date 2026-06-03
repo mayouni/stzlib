@@ -3,6 +3,7 @@
 # Expression with division
 #
 # Extracted from stzcoeffextractortest.ring, block #7.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

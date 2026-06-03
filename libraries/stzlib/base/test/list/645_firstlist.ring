@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #645.
+#ERR Error (R14) : Calling Method without definition: firstlist
 
 load "../../stzBase.ring"
 

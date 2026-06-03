@@ -3,6 +3,7 @@
 # Adding multiple points and spans to lanes
 #
 # Extracted from stzlistoftimelinestest.ring, block #6.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

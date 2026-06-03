@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #128.
+#ERR Error (R14) : Calling Method without definition: findincols
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # BOXING WITH OPTIONS
 #
 # Extracted from stznaturaltest.ring, block #12.
+#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

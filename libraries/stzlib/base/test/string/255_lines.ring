@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #255.
+#ERR Error (R14) : Calling Method without definition: ismadeofnumbers
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Sample 3.2: Text Input Field
 #
 # Extracted from stzringqmltest.ring, block #9.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

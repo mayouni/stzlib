@@ -3,6 +3,7 @@
 # #narration
 #
 # Extracted from stzlisttest.ring, block #622.
+#ERR Error (R14) : Calling Method without definition: existin
 
 load "../../stzBase.ring"
 

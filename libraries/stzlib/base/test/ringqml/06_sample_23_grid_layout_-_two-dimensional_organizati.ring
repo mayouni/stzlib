@@ -3,6 +3,7 @@
 # Sample 2.3: Grid Layout - Two-Dimensional Organization
 #
 # Extracted from stzringqmltest.ring, block #6.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

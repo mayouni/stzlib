@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #31.
+#ERR Error (R14) : Calling Method without definition: typesu
 
 load "../../stzBase.ring"
 

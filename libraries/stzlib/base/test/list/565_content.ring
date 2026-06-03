@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #565.
+#ERR Error (R14) : Calling Method without definition: finditemsw
 
 load "../../stzBase.ring"
 

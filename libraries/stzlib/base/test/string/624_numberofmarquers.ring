@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #624.
+#ERR Error (R3) : Calling Function without definition: numberofmarquers
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Weighted Rules
 #
 # Extracted from stzdatasettest.ring, block #31.
+#ERR Error (C18) : Missing closing brace for the block opened!
 
 load "../../stzBase.ring"
 

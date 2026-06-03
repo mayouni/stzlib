@@ -3,6 +3,7 @@
 # TESTING CSV TABLES IN STZSTRING
 #
 # Extracted from stztabletest.ring, block #14.
+#ERR Error (R14) : Calling Method without definition: iscsvtable
 
 load "../../stzBase.ring"
 

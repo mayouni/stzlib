@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #342.
+#ERR Error (R14) : Calling Method without definition: findasantisections
 
 load "../../stzBase.ring"
 

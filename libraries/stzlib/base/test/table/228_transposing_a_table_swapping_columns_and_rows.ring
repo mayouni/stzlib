@@ -3,6 +3,7 @@
 # Transposing a table (swapping columns and rows)
 #
 # Extracted from stztabletest.ring, block #228.
+#ERR Error (R14) : Calling Method without definition: transposext
 
 load "../../stzBase.ring"
 

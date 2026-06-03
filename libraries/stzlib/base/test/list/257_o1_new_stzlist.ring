@@ -3,6 +3,7 @@
 # o1 = new stzList(
 #
 # Extracted from stzlisttest.ring, block #257.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

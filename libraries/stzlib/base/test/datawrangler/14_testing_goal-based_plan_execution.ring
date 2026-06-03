@@ -3,6 +3,7 @@
 # Testing goal-based plan execution
 #
 # Extracted from stzdatawranglertest.ring, block #14.
+#ERR Error (R24) : Using uninitialized variable: amesydataset
 
 load "../../stzBase.ring"
 

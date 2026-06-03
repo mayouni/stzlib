@@ -5,6 +5,7 @@
 # Extracted from stzrandomdatatest.ring (single-block file; the
 # original used no `/*---` delimiters, so the whole body
 # is preserved verbatim as one modular block).
+#ERR Error (R14) : Calling Method without definition: filledwith
 
 load "../../stzBase.ring"
 pr()

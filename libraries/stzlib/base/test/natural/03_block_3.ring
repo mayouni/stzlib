@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stznaturaltest.ring, block #3.
+#ERR Error (C31) : Parentheses '(' is expected
 
 load "../../stzBase.ring"
 

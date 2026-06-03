@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #620.
+#ERR Error (R3) : Calling Function without definition: marquersaresortedindescending
 
 load "../../stzBase.ring"
 

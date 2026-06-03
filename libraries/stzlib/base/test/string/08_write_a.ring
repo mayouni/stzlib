@@ -3,6 +3,7 @@
 # #todo Write a #narration
 #
 # Extracted from stzStringTest.ring, block #8.
+#ERR exit 1: [ ".", ".", "." ]
 
 load "../../stzBase.ring"
 

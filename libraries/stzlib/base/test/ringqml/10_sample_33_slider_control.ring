@@ -3,6 +3,7 @@
 # Sample 3.3: Slider Control
 #
 # Extracted from stzringqmltest.ring, block #10.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

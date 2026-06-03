@@ -3,6 +3,7 @@
 # Testing chainable operations
 #
 # Extracted from stzdatawranglertest.ring, block #17.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

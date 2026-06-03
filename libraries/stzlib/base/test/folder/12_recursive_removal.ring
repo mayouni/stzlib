@@ -3,6 +3,7 @@
 # Recursive Removal
 #
 # Extracted from stzfoldertest.ring, block #12.
+#ERR Error (R3) : Calling Function without definition: deepremoveall
 
 load "../../stzBase.ring"
 

@@ -8,6 +8,7 @@ load "../../stzBase.ring"
 
 pr()
 
+o1 = new stzStringList("A":"C")
 ? o1.Content()
 
 StopProfiler()

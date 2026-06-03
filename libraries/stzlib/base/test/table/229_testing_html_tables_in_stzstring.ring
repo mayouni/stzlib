@@ -3,6 +3,7 @@
 # TESTING HTML TABLES IN STZSTRING #TODO
 #
 # Extracted from stztabletest.ring, block #229.
+#ERR Error (R14) : Calling Method without definition: containshtmltable
 
 load "../../stzBase.ring"
 

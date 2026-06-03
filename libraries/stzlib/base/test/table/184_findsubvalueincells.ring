@@ -3,6 +3,7 @@
 # #narration
 #
 # Extracted from stztabletest.ring, block #184.
+#ERR Error (R14) : Calling Method without definition: findsubvalueincells
 
 load "../../stzBase.ring"
 

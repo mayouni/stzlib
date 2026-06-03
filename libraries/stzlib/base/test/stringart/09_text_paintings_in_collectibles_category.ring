@@ -3,6 +3,7 @@
 # # Text paintings in COLLECTIBLES category
 #
 # Extracted from stzstringarttest.ring, block #9.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #TODO Idem
 #
 # Extracted from stzStringTest.ring, block #220.
+#ERR Error (R14) : Calling Method without definition: yieldwxt
 
 load "../../stzBase.ring"
 

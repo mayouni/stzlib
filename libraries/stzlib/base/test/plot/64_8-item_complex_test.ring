@@ -3,6 +3,7 @@
 # 8-item complex test
 #
 # Extracted from stzPlotTest.ring, block #64.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

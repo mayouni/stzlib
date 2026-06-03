@@ -3,6 +3,7 @@
 # Sample 15.1: Pull-to-Refresh Pattern
 #
 # Extracted from stzringqmltest.ring, block #44.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

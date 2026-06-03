@@ -3,6 +3,7 @@
 # REVRSING ITEMS IN PAIRS AND, MORE GENERALLY, IN LISTS
 #
 # Extracted from stzlisttest.ring, block #71.
+#ERR Error (R14) : Calling Method without definition: reverseitemsinpairs
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #479.
+#ERR Error (R14) : Calling Method without definition: allitemsexcept
 
 load "../../stzBase.ring"
 

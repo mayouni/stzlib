@@ -3,6 +3,7 @@
 # Sample 6.2: Expanded/Collapsed State
 #
 # Extracted from stzringqmltest.ring, block #18.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

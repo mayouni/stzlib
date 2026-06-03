@@ -3,6 +3,7 @@
 # Hierarchical organization with CEO, directors, managers,
 #
 # Extracted from stzdiagrambuildertest.ring, block #12.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

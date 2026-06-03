@@ -3,6 +3,7 @@
 # #narration INSERTING LISTS INSIDE A STRING
 #
 # Extracted from stzStringTest.ring, block #835.
+#ERR Error (R14) : Calling Method without definition: positionafter
 
 load "../../stzBase.ring"
 

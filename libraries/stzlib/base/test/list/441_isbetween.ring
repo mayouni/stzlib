@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #441.
+#ERR Error (R3) : Calling Function without definition: numberofitemswxt
 
 load "../../stzBase.ring"
 

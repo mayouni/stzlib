@@ -3,6 +3,7 @@
 # ERROR
 #
 # Extracted from stzchainoftruthtest.ring, block #18.
+#ERR Error (R24) : Using uninitialized variable: pthing
 
 load "../../stzBase.ring"
 

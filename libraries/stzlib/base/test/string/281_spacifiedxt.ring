@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #281.
+#ERR Error (R14) : Calling Method without definition: spacifiedxt
 
 load "../../stzBase.ring"
 

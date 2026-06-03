@@ -3,6 +3,7 @@
 # Combining case-sensitive patterns
 #
 # Extracted from stztablextest.ring, block #12.
+#ERR Error (R14) : Calling Method without definition: containscellcs
 
 load "../../stzBase.ring"
 

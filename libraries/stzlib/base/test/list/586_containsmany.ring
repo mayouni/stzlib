@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #586.
+#ERR Error (R14) : Calling Method without definition: containsboth
 
 load "../../stzBase.ring"
 

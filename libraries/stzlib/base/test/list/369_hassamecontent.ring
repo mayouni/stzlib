@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #369.
+#ERR Error (R14) : Calling Method without definition: hassamecontent
 
 load "../../stzBase.ring"
 

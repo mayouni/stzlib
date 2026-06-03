@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #516.
+#ERR Error (R14) : Calling Method without definition: move
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # List operations
 #
 # Extracted from stzentitytest.ring, block #13.
+#ERR Error (R24) : Using uninitialized variable: olist
 
 load "../../stzBase.ring"
 

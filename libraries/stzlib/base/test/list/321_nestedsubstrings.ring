@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #321.
+#ERR Error (R14) : Calling Method without definition: nestedsubstrings
 
 load "../../stzBase.ring"
 

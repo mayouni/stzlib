@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzSsplittertest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: splittedwxt
 
 load "../../stzBase.ring"
 

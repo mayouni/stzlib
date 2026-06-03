@@ -3,6 +3,7 @@
 # ADVANCED OPERATIONS AND CHAINING
 #
 # Extracted from stzHtmlTest.ring, block #9.
+#ERR Error (R24) : Using uninitialized variable: csamplehtml
 
 load "../../stzBase.ring"
 

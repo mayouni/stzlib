@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #181.
+#ERR Error (R14) : Calling Method without definition: findnthincells
 
 load "../../stzBase.ring"
 

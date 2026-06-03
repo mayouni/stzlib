@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #266.
+#ERR Error (R14) : Calling Method without definition: findanyboundedbyib
 
 load "../../stzBase.ring"
 

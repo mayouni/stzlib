@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #665.
+#ERR Error (R14) : Calling Method without definition: isscript
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #60.
+#ERR Error (R14) : Calling Method without definition: isrealinstring
 
 load "../../stzBase.ring"
 

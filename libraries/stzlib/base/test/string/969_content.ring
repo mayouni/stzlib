@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #969.
+#ERR Error (R14) : Calling Method without definition: replacesectionsbymany
 
 load "../../stzBase.ring"
 

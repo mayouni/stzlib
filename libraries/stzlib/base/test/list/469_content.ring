@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #469.
+#ERR Error (R14) : Calling Method without definition: extendtoposition
 
 load "../../stzBase.ring"
 

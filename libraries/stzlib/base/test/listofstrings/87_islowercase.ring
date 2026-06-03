@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofstringstest.ring, block #87.
+#ERR Error (R14) : Calling Method without definition: islowercase
 
 load "../../stzBase.ring"
 

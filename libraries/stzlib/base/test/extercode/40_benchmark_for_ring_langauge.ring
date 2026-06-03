@@ -3,6 +3,7 @@
 # #  BENCHMARK FOR RING LANGAUGE  #
 #
 # Extracted from stzextercodetest.ring, block #40.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #109.
+#ERR Error (R14) : Calling Method without definition: nlistified
 
 load "../../stzBase.ring"
 

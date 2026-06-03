@@ -3,6 +3,7 @@
 # #perf Desabling param checking to enhance performance
 #
 # Extracted from stzGlobalTest.ring, block #8.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

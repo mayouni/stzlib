@@ -3,6 +3,7 @@
 # #expressiveness #elegant-code
 #
 # Extracted from stzStringTest.ring, block #82.
+#ERR Error (R14) : Calling Method without definition: replaceallexcept
 
 load "../../stzBase.ring"
 

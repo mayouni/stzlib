@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #119.
+#ERR Error (R14) : Calling Method without definition: deepreplace
 
 load "../../stzBase.ring"
 

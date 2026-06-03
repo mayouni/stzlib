@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #97.
+#ERR Error (R14) : Calling Method without definition: colnumberstonames
 
 load "../../stzBase.ring"
 

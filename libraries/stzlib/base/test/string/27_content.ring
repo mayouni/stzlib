@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #27.
+#ERR Error (R14) : Calling Method without definition: removecharfromleft
 
 load "../../stzBase.ring"
 

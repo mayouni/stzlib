@@ -3,6 +3,7 @@
 # Sample 8.2: Computed Properties
 #
 # Extracted from stzringqmltest.ring, block #24.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

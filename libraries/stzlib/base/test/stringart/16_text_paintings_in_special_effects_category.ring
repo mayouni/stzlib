@@ -3,6 +3,7 @@
 # # Text paintings in SPECIAL EFFECTS category
 #
 # Extracted from stzstringarttest.ring, block #16.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlocaletest.ring, block #43.
+#ERR Error (R14) : Calling Method without definition: islatinscript
 
 load "../../stzBase.ring"
 

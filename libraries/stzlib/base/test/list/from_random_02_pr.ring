@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzrandomtest.ring, block #2.
+#ERR Error (R14) : Calling Method without definition: findnumbersassections
 
 load "../../stzBase.ring"
 

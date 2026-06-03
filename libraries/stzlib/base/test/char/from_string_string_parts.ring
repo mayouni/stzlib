@@ -3,6 +3,7 @@
 # STRING PARTS ===========
 #
 # Extracted from stzStringTest.ring, block #732.
+#ERR Error (R14) : Calling Method without definition: partsusingxt
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #598.
+#ERR Error (R3) : Calling Function without definition: findalloccurrencescs
 
 load "../../stzBase.ring"
 

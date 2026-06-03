@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #331.
+#ERR Error (R14) : Calling Method without definition: previousnitems
 
 load "../../stzBase.ring"
 

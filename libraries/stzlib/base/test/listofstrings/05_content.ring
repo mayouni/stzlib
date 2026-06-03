@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlistofstringstest.ring, block #5.
+#ERR Error (R14) : Calling Method without definition: trimstart 
 
 load "../../stzBase.ring"
 

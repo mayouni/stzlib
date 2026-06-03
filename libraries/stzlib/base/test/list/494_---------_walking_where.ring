@@ -3,6 +3,7 @@
 # /*--------- WALKING WHERE
 #
 # Extracted from stzlisttest.ring, block #494.
+#ERR Error (R3) : Calling Function without definition: walkwhere
 
 load "../../stzBase.ring"
 

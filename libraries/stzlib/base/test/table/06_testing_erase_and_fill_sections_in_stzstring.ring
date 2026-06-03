@@ -3,6 +3,7 @@
 # TESTING ERASE AND FILL SECTIONS IN STZSTRINg
 #
 # Extracted from stztabletest.ring, block #6.
+#ERR Error (R14) : Calling Method without definition: fillsections
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #168.
+#ERR Error (R14) : Calling Method without definition: addcols
 
 load "../../stzBase.ring"
 

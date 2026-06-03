@@ -3,6 +3,7 @@
 # Filtering stzTable
 #
 # Extracted from stztabletest.ring, block #217.
+#ERR Error (R14) : Calling Method without definition: filterbycq
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #TODO
 #
 # Extracted from stzlisttest.ring, block #480.
+#ERR Error (R14) : Calling Method without definition: checkonwxt
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Batch Updates
 #
 # Extracted from stzreactiveobjecttest.ring, block #4.
+#ERR Error (R54) : Object attribute redefinition, attribute is already defined!
 
 load "../../stzBase.ring"
 

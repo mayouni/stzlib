@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #648.
+#ERR Error (R14) : Calling Method without definition: allitemsareequalto
 
 load "../../stzBase.ring"
 

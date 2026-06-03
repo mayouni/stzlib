@@ -3,6 +3,7 @@
 # Combining contains with structure
 #
 # Extracted from stztablextest.ring, block #17.
+#ERR Error (R14) : Calling Method without definition: containscellcs
 
 load "../../stzBase.ring"
 

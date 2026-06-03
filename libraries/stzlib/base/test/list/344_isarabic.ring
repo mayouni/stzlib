@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #344.
+#ERR Error (R3) : Calling Function without definition: tq
 
 load "../../stzBase.ring"
 

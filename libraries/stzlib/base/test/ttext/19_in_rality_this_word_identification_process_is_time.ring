@@ -3,6 +3,7 @@
 # # In rality, this word identification process is time-consuming for
 #
 # Extracted from stzTtexttest.ring, block #19.
+#ERR Error (R3) : Calling Function without definition: identifiywordsinquickmode
 
 load "../../stzBase.ring"
 

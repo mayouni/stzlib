@@ -3,6 +3,7 @@
 # #narration ReplaceXT( ..., In = ..., :With = ... )
 #
 # Extracted from stzStringTest.ring, block #195.
+#ERR panic: @memcpy arguments alias
 
 load "../../stzBase.ring"
 

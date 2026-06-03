@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #673.
+#ERR Error (R14) : Calling Method without definition: trailingsubstring
 
 load "../../stzBase.ring"
 

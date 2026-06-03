@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #602.
+#ERR Error (R14) : Calling Method without definition: hascentralchar
 
 load "../../stzBase.ring"
 

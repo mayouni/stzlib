@@ -3,6 +3,7 @@
 # CHANGE OPERATION
 #
 # Extracted from stznaturaltest.ring, block #17.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

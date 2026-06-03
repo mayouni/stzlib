@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #265.
+#ERR Error (R14) : Calling Method without definition: linesq
 
 load "../../stzBase.ring"
 

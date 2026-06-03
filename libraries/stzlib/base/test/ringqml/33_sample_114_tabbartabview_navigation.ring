@@ -3,6 +3,7 @@
 # Sample 11.4: TabBar/TabView Navigation
 #
 # Extracted from stzringqmltest.ring, block #33.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

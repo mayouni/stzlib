@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #717.
+#ERR Error (R14) : Calling Method without definition: isalmostafunctioncall
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Reactive Bank Account Class
 #
 # Extracted from stzreactiveobjecttest.ring, block #9.
+#ERR Error (R54) : Object attribute redefinition, attribute is already defined!
 
 load "../../stzBase.ring"
 

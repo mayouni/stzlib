@@ -3,6 +3,7 @@
 # #  TEST HELPER FUNCTION  #
 #
 # Extracted from stzlistextest.ring, block #2.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

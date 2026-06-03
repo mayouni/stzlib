@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #711.
+#ERR Error (R14) : Calling Method without definition: islowercased
 
 load "../../stzBase.ring"
 

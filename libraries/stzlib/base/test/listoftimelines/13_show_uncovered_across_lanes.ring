@@ -3,6 +3,7 @@
 # Show uncovered across lanes
 #
 # Extracted from stzlistoftimelinestest.ring, block #13.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Case sensitivity in grouped check
 #
 # Extracted from stztablextest.ring, block #10.
+#ERR Error (R24) : Using uninitialized variable: it
 
 load "../../stzBase.ring"
 

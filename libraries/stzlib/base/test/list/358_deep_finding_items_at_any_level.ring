@@ -3,6 +3,7 @@
 # Deep finding items at any level
 #
 # Extracted from stzlisttest.ring, block #358.
+#ERR Error (R14) : Calling Method without definition: numberoflevels
 
 load "../../stzBase.ring"
 

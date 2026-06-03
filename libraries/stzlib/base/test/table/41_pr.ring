@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #41.
+#ERR Error (R14) : Calling Method without definition: removerows
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # REFACTORED: FIXING IS IN PROGRESS
 #
 # Extracted from stzTtexttest.ring, block #36.
+#ERR Error (R11) : Error in class name, class not found: stztext
 
 load "../../stzBase.ring"
 

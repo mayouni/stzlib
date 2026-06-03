@@ -3,6 +3,7 @@
 # #narration
 #
 # Extracted from stzlisttest.ring, block #131.
+#ERR Error (R14) : Calling Method without definition: numberofduplicates
 
 load "../../stzBase.ring"
 

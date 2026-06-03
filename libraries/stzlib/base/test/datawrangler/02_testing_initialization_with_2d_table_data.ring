@@ -3,6 +3,7 @@
 # Testing initialization with 2D table data
 #
 # Extracted from stzdatawranglertest.ring, block #2.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

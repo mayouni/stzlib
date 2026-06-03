@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #629.
+#ERR Error (R14) : Calling Method without definition: iscontainedin
 
 load "../../stzBase.ring"
 

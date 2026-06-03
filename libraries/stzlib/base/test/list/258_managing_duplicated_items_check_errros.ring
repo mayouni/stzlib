@@ -3,6 +3,7 @@
 # MANAGING DUPLICATED ITEMS: Check errros
 #
 # Extracted from stzlisttest.ring, block #258.
+#ERR Error (R14) : Calling Method without definition: duplicates
 
 load "../../stzBase.ring"
 

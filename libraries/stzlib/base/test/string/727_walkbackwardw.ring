@@ -3,6 +3,7 @@
 # #TODO
 #
 # Extracted from stzStringTest.ring, block #727.
+#ERR Error (R14) : Calling Method without definition: walkbackwardw
 
 load "../../stzBase.ring"
 

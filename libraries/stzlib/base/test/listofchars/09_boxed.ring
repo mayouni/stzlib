@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofcharstest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: boxed
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #279.
+#ERR Error (R3) : Calling Function without definition: @findprevious
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #286.
+#ERR Error (R14) : Calling Method without definition: findduplicates
 
 load "../../stzBase.ring"
 

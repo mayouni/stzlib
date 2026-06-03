@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #731.
+#ERR Error (R14) : Calling Method without definition: stringcase
 
 load "../../stzBase.ring"
 

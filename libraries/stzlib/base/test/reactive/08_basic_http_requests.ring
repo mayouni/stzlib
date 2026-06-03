@@ -3,6 +3,7 @@
 # Basic HTTP requests
 #
 # Extracted from stzreactivetest.ring, block #8.
+#ERR Error (R3) : Calling Function without definition: download
 
 load "../../stzBase.ring"
 

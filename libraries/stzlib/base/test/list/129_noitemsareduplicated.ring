@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #129.
+#ERR Error (R14) : Calling Method without definition: noitemsareduplicated
 
 load "../../stzBase.ring"
 

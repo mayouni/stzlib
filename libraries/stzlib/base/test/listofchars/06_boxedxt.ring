@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofcharstest.ring, block #6.
+#ERR Error (R3) : Calling Function without definition: sethilightchar
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #narration #perf #ring
 #
 # Extracted from stzlisttest.ring, block #271.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

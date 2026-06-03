@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings(  [ "Tunis", "gatufsa", "tunis", "gabes", "tunis", "regueb", "tuta", "regueb" ])
 #
 # Extracted from stzlistofstringstest.ring, block #107.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

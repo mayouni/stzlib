@@ -3,6 +3,7 @@
 # Sample 11.1: ComboBox (Dropdown Selection)
 #
 # Extracted from stzringqmltest.ring, block #30.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

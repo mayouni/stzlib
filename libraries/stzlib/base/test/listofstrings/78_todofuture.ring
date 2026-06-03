@@ -3,6 +3,7 @@
 # TODO/FUTURE
 #
 # Extracted from stzlistofstringstest.ring, block #78.
+#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
 
 load "../../stzBase.ring"
 

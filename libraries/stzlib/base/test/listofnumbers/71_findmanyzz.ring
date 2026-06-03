@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #71.
+#ERR Error (R14) : Calling Method without definition: findmanyzz
 
 load "../../stzBase.ring"
 

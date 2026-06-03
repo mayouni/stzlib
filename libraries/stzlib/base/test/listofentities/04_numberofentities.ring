@@ -3,6 +3,7 @@
 # */
 #
 # Extracted from stzListOfEntitiesTest.ring, block #4.
+#ERR Error (R16) : Using braces to access unknown object
 
 load "../../stzBase.ring"
 

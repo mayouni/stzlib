@@ -3,6 +3,7 @@
 # STRING COMPARAISON
 #
 # Extracted from stzStringTest.ring, block #826.
+#ERR Error (R14) : Calling Method without definition: unicodecomparewithcs
 
 load "../../stzBase.ring"
 

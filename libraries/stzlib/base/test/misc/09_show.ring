@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzmisctest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: sortondown
 
 load "../../stzBase.ring"
 

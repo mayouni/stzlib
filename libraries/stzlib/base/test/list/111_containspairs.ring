@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #111.
+#ERR Error (R14) : Calling Method without definition: containspairs
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # HTTP request pipeline with stream processing
 #
 # Extracted from stzreactivetest.ring, block #9.
+#ERR Error (R3) : Calling Function without definition: download
 
 load "../../stzBase.ring"
 

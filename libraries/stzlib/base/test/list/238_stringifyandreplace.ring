@@ -3,6 +3,7 @@
 # #internal
 #
 # Extracted from stzlisttest.ring, block #238.
+#ERR Error (R24) : Using uninitialized variable: alarge
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #288.
+#ERR Error (R14) : Calling Method without definition: findnth
 
 load "../../stzBase.ring"
 

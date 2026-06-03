@@ -3,6 +3,7 @@
 # Simple process flow with theme and layout
 #
 # Extracted from stzdiagrambuildertest.ring, block #2.
+#ERR Error (R11) : Error in class name, class not found: stzdiagrammaker
 
 load "../../stzBase.ring"
 

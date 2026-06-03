@@ -3,6 +3,7 @@
 # TODO: FUTURE
 #
 # Extracted from stzStringTest.ring, block #526.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

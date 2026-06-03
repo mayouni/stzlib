@@ -3,6 +3,7 @@
 # Same state machine with dark professional theme
 #
 # Extracted from stzdiagrambuildertest.ring, block #4.
+#ERR Error (R24) : Using uninitialized variable: showing
 
 load "../../stzBase.ring"
 

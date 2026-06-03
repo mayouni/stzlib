@@ -5,6 +5,7 @@
 #
 # Extracted from stzlistofstringstest.ring, the per-string round-
 # corner box block.
+#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
 
 load "../../stzBase.ring"
 

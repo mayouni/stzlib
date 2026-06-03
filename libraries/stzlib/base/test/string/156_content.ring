@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #156.
+#ERR Error (R14) : Calling Method without definition: simplifyexcept
 
 load "../../stzBase.ring"
 

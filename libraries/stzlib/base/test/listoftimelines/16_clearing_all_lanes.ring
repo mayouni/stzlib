@@ -3,6 +3,7 @@
 # Clearing all lanes
 #
 # Extracted from stzlistoftimelinestest.ring, block #16.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Example 3: Healthcare Document Processing
 #
 # Extracted from stzappserverclustertest.ring, block #3.
+#ERR Error (R3) : Calling Function without definition: init
 
 load "../../stzBase.ring"
 

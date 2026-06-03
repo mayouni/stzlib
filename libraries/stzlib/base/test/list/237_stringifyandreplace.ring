@@ -3,6 +3,7 @@
 # #internal
 #
 # Extracted from stzlisttest.ring, block #237.
+#ERR Error (R14) : Calling Method without definition: stringifyandreplaceq
 
 load "../../stzBase.ring"
 

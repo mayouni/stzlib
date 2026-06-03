@@ -3,6 +3,7 @@
 # Adding blocked spans to lanes
 #
 # Extracted from stzlistoftimelinestest.ring, block #10.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

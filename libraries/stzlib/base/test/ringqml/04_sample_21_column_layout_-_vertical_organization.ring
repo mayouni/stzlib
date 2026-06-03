@@ -3,6 +3,7 @@
 # Sample 2.1: Column Layout - Vertical Organization
 #
 # Extracted from stzringqmltest.ring, block #4.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

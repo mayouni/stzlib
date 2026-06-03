@@ -3,6 +3,7 @@
 # Cross-block context references
 #
 # Extracted from stznaturalmarkuptest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

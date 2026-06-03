@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #796.
+#ERR Error (R14) : Calling Method without definition: removefirstoccurrence
 
 load "../../stzBase.ring"
 

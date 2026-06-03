@@ -3,6 +3,7 @@
 # FindBoundedSubString() VS FindSubStringBounds()
 #
 # Extracted from stzStringTest.ring, block #567.
+#ERR Error (R14) : Calling Method without definition: findboundedsubstring
 
 load "../../stzBase.ring"
 

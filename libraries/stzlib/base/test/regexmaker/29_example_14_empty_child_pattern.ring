@@ -3,6 +3,7 @@
 # Example 14: Empty Child Pattern
 #
 # Extracted from stzregexmakertest.ring, block #29.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

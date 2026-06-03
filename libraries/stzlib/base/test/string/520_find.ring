@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #520.
+#ERR Error (R14) : Calling Method without definition: findsubstring
 
 load "../../stzBase.ring"
 

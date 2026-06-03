@@ -3,6 +3,7 @@
 # Attribute Streams
 #
 # Extracted from stzreactiveobjecttest.ring, block #5.
+#ERR Error (R54) : Object attribute redefinition, attribute is already defined!
 
 load "../../stzBase.ring"
 

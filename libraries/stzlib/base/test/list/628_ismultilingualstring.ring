@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #628.
+#ERR Error (R14) : Calling Method without definition: ismultilingualstring
 
 load "../../stzBase.ring"
 

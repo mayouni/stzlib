@@ -3,6 +3,7 @@
 # UNDERSTANDING THE ..ed() and ..Q() FUNCTION FORMS
 #
 # Extracted from stzlisttest.ring, block #69.
+#ERR Error (R14) : Calling Method without definition: itemsreversed
 
 load "../../stzBase.ring"
 

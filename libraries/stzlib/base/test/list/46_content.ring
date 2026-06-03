@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #46.
+#ERR Error (R14) : Calling Method without definition: replaceanyitemsatpositionsbymanyxt
 
 load "../../stzBase.ring"
 

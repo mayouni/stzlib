@@ -3,6 +3,7 @@
 # Testing different plan templates
 #
 # Extracted from stzdatawranglertest.ring, block #13.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

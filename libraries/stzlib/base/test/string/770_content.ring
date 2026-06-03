@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #770.
+#ERR Error (R14) : Calling Method without definition: removerepeatedleadingcharscs
 
 load "../../stzBase.ring"
 

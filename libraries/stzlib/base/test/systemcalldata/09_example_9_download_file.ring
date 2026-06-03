@@ -3,6 +3,7 @@
 # EXAMPLE 9: Download File
 #
 # Extracted from stzsystemcalldatatest.ring, block #9.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

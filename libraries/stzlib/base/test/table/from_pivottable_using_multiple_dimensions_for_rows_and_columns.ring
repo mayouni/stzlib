@@ -3,6 +3,7 @@
 # Using multiple dimensions for rows and columns
 #
 # Extracted from stzPivotTableTest.ring, block #2.
+#ERR Error (C18) : Missing closing brace for the block opened!
 
 load "../../stzBase.ring"
 

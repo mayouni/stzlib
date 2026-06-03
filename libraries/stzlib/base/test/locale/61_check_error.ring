@@ -3,6 +3,7 @@
 # #TODO check error
 #
 # Extracted from stzlocaletest.ring, block #61.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

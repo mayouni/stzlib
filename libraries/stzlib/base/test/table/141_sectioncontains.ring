@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #141.
+#ERR Error (R14) : Calling Method without definition: sectioncontains
 
 load "../../stzBase.ring"
 

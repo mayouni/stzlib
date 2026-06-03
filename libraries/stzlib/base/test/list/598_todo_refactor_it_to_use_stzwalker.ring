@@ -3,6 +3,7 @@
 # TODO: refactor it to use stzWalker
 #
 # Extracted from stzlisttest.ring, block #598.
+#ERR Error (R3) : Calling Function without definition: named
 
 load "../../stzBase.ring"
 

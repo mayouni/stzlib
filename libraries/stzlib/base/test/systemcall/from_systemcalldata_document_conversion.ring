@@ -3,6 +3,7 @@
 # DOCUMENT CONVERSION
 #
 # Extracted from stzsystemcalldatatest.ring, block #19.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

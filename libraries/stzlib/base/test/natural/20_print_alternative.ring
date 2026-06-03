@@ -3,6 +3,7 @@
 # PRINT ALTERNATIVE
 #
 # Extracted from stznaturaltest.ring, block #20.
+#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Sample 12.2: GridView with Cards
 #
 # Extracted from stzringqmltest.ring, block #35.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # # Text paintings in ANIMALS category
 #
 # Extracted from stzstringarttest.ring, block #13.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

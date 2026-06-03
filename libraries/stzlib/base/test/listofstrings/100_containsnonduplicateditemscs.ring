@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofstringstest.ring, block #100.
+#ERR Error (R14) : Calling Method without definition: containsnonduplicateditemscs
 
 load "../../stzBase.ring"
 

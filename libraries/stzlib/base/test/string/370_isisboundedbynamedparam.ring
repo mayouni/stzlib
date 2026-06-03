@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #370.
+#ERR Error (R14) : Calling Method without definition: isisboundedbynamedparam
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #narration SEMANTIC PRECISION
 #
 # Extracted from stzlisttest.ring, block #370.
+#ERR Error (R14) : Calling Method without definition: islargerthan
 
 load "../../stzBase.ring"
 

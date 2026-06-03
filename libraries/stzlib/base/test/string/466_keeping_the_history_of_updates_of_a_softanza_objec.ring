@@ -3,6 +3,7 @@
 # KEEPING THE HISTORY OF UPDATES OF A SOFTANZA OBJECT
 #
 # Extracted from stzStringTest.ring, block #466.
+#ERR Error (R14) : Calling Method without definition: removewxtq
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #narration #data-cleansing #data-transformation
 #
 # Extracted from stzStringTest.ring, block #514.
+#ERR Error (R3) : Calling Function without definition: @@sp
 
 load "../../stzBase.ring"
 

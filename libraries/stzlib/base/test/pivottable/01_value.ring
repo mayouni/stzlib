@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzPivotTableTest.ring, block #1.
+#ERR Error (R2) : Array Access (Index out of range)
 
 load "../../stzBase.ring"
 

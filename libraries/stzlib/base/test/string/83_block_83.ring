@@ -3,6 +3,7 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #83.
+#ERR Error (R14) : Calling Method without definition: splitq
 
 load "../../stzBase.ring"
 

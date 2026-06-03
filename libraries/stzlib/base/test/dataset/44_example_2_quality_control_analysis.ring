@@ -3,6 +3,7 @@
 # EXAMPLE 2: Quality Control Analysis
 #
 # Extracted from stzdatasettest.ring, block #44.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

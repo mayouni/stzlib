@@ -3,6 +3,7 @@
 # #narration LIST CLASSIFICATION
 #
 # Extracted from stzlisttest.ring, block #388.
+#ERR Error (R3) : Calling Function without definition: @@sp
 
 load "../../stzBase.ring"
 

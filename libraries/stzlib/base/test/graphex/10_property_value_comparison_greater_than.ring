@@ -3,6 +3,7 @@
 # Property value comparison (greater than)
 #
 # Extracted from stzgraphextest.ring, block #10.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # ? StzStringQ(" 4  ُ  ").IsScript(:Hybrid) #--> TRUE
 #
 # Extracted from stzTtexttest.ring, block #11.
+#ERR Error (R14) : Calling Method without definition: isscript
 
 load "../../stzBase.ring"
 

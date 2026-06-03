@@ -3,6 +3,7 @@
 # Match duplicated words
 #
 # Extracted from stzregexmakertest.ring, block #51.
+#ERR Error (R24) : Using uninitialized variable: pctaggroupname
 
 load "../../stzBase.ring"
 

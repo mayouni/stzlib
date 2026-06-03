@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzjsontest.ring, block #1.
+#ERR Error (R11) : Error in class name, class not found: qbytearray
 
 load "../../stzBase.ring"
 

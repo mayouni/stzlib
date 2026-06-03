@@ -3,6 +3,7 @@
 # Parameter position binding with ~N declaration
 #
 # Extracted from stznaturalmarkuptest.ring, block #10.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

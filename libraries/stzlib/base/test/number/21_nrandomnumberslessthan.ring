@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stznumbertest.ring, block #21.
+#ERR Error (R3) : Calling Function without definition: 5randomnumberslessthan
 
 load "../../stzBase.ring"
 

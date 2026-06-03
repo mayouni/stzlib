@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofstringstest.ring, block #85.
+#ERR Error (R14) : Calling Method without definition: numberofcombinations
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Critical guidelines for reactive programming:
 #
 # Extracted from stzreactivetimertest.ring, block #13.
+#ERR Error (C21) : Unclosed control structure, 'again' is missing
 
 load "../../stzBase.ring"
 

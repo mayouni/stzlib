@@ -3,6 +3,7 @@
 # # Text paintings in WEAPONS category
 #
 # Extracted from stzstringarttest.ring, block #17.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

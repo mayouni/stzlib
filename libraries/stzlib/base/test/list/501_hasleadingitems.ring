@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #501.
+#ERR Error (R3) : Calling Function without definition: hasleadingitems
 
 load "../../stzBase.ring"
 

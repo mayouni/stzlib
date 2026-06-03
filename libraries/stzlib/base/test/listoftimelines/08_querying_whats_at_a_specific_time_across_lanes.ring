@@ -3,6 +3,7 @@
 # Querying what's at a specific time across lanes
 #
 # Extracted from stzlistoftimelinestest.ring, block #8.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

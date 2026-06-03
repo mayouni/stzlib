@@ -3,6 +3,7 @@
 # Alphabetic column check
 #
 # Extracted from stztablextest.ring, block #23.
+#ERR Error (R14) : Calling Method without definition: isalphabetic
 
 load "../../stzBase.ring"
 

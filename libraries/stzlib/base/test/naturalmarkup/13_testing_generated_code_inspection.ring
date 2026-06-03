@@ -3,6 +3,7 @@
 # Testing generated code inspection
 #
 # Extracted from stznaturalmarkuptest.ring, block #13.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

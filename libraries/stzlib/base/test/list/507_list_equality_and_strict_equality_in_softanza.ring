@@ -3,6 +3,7 @@
 # #narration List Equality and Strict Equality in Softanza
 #
 # Extracted from stzlisttest.ring, block #507.
+#ERR Error (R14) : Calling Method without definition: hassamecontentas
 
 load "../../stzBase.ring"
 

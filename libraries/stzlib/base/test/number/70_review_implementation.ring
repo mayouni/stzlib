@@ -3,6 +3,7 @@
 # #TODO Review implementation
 #
 # Extracted from stznumbertest.ring, block #70.
+#ERR Error (R14) : Calling Method without definition: splittonpartsq
 
 load "../../stzBase.ring"
 

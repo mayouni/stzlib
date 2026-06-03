@@ -3,6 +3,7 @@
 # A Softanza narration about one of the many uses of @
 #
 # Extracted from stzlisttest.ring, block #75.
+#ERR Error (R14) : Calling Method without definition: botharenumbers
 
 load "../../stzBase.ring"
 

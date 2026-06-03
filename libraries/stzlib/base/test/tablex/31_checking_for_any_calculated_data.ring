@@ -3,6 +3,7 @@
 # Checking for any calculated data
 #
 # Extracted from stztablextest.ring, block #31.
+#ERR Error (R14) : Calling Method without definition: findcalculatedrows
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # CHECKER
 #
 # Extracted from stzlisttest.ring, block #610.
+#ERR Error (R14) : Calling Method without definition: containsw
 
 load "../../stzBase.ring"
 

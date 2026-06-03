@@ -3,6 +3,7 @@
 # Property constraint with flow
 #
 # Extracted from stzgraphextest.ring, block #14.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stznaturalmarkuptest.ring, block #2.
+#ERR Error (R14) : Calling Method without definition: substringsboundedbyzz
 
 load "../../stzBase.ring"
 

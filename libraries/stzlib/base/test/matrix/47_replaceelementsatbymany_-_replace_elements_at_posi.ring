@@ -3,6 +3,7 @@
 # ReplaceElementsAtByMany() - Replace elements at positions with corresponding values
 #
 # Extracted from stzmatrixtest.ring, block #47.
+#ERR Error (R14) : Calling Method without definition: isbymanynamedparam
 
 load "../../stzBase.ring"
 

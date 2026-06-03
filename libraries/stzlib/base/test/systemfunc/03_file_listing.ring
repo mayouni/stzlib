@@ -3,6 +3,7 @@
 # File listing
 #
 # Extracted from stzsystemfunctest.ring, block #3.
+#ERR Error (C3) : Unclosed control structure, 'ok' is missing
 
 load "../../stzBase.ring"
 

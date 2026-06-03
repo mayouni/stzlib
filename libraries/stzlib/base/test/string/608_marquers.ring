@@ -3,6 +3,7 @@
 # #perf
 #
 # Extracted from stzStringTest.ring, block #608.
+#ERR Error (R3) : Calling Function without definition: marquers
 
 load "../../stzBase.ring"
 

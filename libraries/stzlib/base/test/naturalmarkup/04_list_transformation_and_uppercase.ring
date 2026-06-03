@@ -3,6 +3,7 @@
 # List transformation and uppercase
 #
 # Extracted from stznaturalmarkuptest.ring, block #4.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

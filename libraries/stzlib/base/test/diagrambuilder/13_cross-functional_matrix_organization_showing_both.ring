@@ -3,6 +3,7 @@
 # Cross-functional matrix organization showing both
 #
 # Extracted from stzdiagrambuildertest.ring, block #13.
+#ERR Error (R24) : Using uninitialized variable: functional
 
 load "../../stzBase.ring"
 

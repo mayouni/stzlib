@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #316.
+#ERR Error (R14) : Calling Method without definition: deepfindsubstringsboundedbyzz
 
 load "../../stzBase.ring"
 

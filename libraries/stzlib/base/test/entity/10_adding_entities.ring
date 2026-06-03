@@ -3,6 +3,7 @@
 # Adding entities
 #
 # Extracted from stzentitytest.ring, block #10.
+#ERR Error (R24) : Using uninitialized variable: olist
 
 load "../../stzBase.ring"
 

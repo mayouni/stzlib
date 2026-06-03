@@ -3,6 +3,7 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #45.
+#ERR Error (R14) : Calling Method without definition: theseboundsremoved
 
 load "../../stzBase.ring"
 

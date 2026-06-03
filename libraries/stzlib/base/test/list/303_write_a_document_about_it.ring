@@ -3,6 +3,7 @@
 # #INTERNAL #TODO Write a document about it
 #
 # Extracted from stzlisttest.ring, block #303.
+#ERR Error (R14) : Calling Method without definition: findnext
 
 load "../../stzBase.ring"
 

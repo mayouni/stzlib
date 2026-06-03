@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #393.
+#ERR Error (R14) : Calling Method without definition: commonitems
 
 load "../../stzBase.ring"
 

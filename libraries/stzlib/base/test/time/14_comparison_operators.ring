@@ -3,6 +3,7 @@
 # Comparison operators
 #
 # Extracted from stztimetest.ring, block #14.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

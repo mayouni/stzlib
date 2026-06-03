@@ -3,6 +3,7 @@
 # #todo write a #narration
 #
 # Extracted from stzGlobalTest.ring, block #31.
+#ERR Error (R14) : Calling Method without definition: thesesubstringszz
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #38.
+#ERR Error (R14) : Calling Method without definition: findrow
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #narration ANALYZING THE SCRIPTS FORMING A STRING
 #
 # Extracted from stzStringTest.ring, block #703.
+#ERR Error (R3) : Calling Function without definition: containslettersinscript
 
 load "../../stzBase.ring"
 

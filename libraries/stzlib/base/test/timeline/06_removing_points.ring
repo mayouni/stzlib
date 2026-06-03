@@ -3,6 +3,7 @@
 # Removing points
 #
 # Extracted from stztimelinetest.ring, block #6.
+#ERR Error (R24) : Using uninitialized variable
 
 load "../../stzBase.ring"
 

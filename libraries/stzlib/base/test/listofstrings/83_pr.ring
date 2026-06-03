@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofstringstest.ring, block #83.
+#ERR Error (R14) : Calling Method without definition: splitqrt
 
 load "../../stzBase.ring"
 

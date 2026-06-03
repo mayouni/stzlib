@@ -3,6 +3,7 @@
 # o1 = new stzString("latin 4  ُ  ")
 #
 # Extracted from stzTtexttest.ring, block #12.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

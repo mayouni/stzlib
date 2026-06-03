@@ -3,6 +3,7 @@
 # Sample 4.1: Gradients - Beautiful Color Transitions
 #
 # Extracted from stzringqmltest.ring, block #11.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

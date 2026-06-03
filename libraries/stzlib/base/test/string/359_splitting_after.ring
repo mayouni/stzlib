@@ -3,6 +3,7 @@
 # SPLITTING AFTER
 #
 # Extracted from stzStringTest.ring, block #359.
+#ERR Error (R14) : Calling Method without definition: splitbeforecharswxt
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Testing quick operation methods
 #
 # Extracted from stzdatawranglertest.ring, block #16.
+#ERR Error (R24) : Using uninitialized variable: clean
 
 load "../../stzBase.ring"
 

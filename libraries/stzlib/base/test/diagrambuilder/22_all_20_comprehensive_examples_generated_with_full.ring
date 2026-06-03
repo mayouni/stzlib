@@ -3,6 +3,7 @@
 # All 20 comprehensive examples generated with full
 #
 # Extracted from stzdiagrambuildertest.ring, block #22.
+#ERR Error (R24) : Using uninitialized variable: documentation
 
 load "../../stzBase.ring"
 

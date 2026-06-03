@@ -3,6 +3,7 @@
 # ReplaceThisElementInSection() - Replace specific value in a section with another value
 #
 # Extracted from stzmatrixtest.ring, block #51.
+#ERR Error (R14) : Calling Method without definition: isbymanynamedparam
 
 load "../../stzBase.ring"
 

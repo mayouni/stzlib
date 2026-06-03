@@ -3,6 +3,7 @@
 # #narration REMOVING DUPLICATES
 #
 # Extracted from stzlisttest.ring, block #366.
+#ERR Error (R14) : Calling Method without definition: linesq
 
 load "../../stzBase.ring"
 

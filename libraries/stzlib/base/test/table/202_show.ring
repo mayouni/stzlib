@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #202.
+#ERR Error (R14) : Calling Method without definition: replacethesecols
 
 load "../../stzBase.ring"
 

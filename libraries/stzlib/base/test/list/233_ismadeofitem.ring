@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #233.
+#ERR Error (R14) : Calling Method without definition: ismadeofitem
 
 load "../../stzBase.ring"
 

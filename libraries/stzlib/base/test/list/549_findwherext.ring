@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #549.
+#ERR Error (R14) : Calling Method without definition: findwherext
 
 load "../../stzBase.ring"
 

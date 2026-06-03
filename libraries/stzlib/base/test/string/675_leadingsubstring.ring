@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #675.
+#ERR Error (R14) : Calling Method without definition: leadingsubstring
 
 load "../../stzBase.ring"
 

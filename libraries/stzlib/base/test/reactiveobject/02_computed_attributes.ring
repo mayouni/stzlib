@@ -3,6 +3,7 @@
 # Computed Attributes
 #
 # Extracted from stzreactiveobjecttest.ring, block #2.
+#ERR Error (R54) : Object attribute redefinition, attribute is already defined!
 
 load "../../stzBase.ring"
 

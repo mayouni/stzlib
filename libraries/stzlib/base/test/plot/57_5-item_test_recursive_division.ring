@@ -3,6 +3,7 @@
 # 5-item test (recursive division)
 #
 # Extracted from stzPlotTest.ring, block #57.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

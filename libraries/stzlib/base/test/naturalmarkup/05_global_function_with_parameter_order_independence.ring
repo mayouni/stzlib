@@ -3,6 +3,7 @@
 # Global function with parameter order independence
 #
 # Extracted from stznaturalmarkuptest.ring, block #5.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

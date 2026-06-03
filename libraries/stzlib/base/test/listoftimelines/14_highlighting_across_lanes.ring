@@ -3,6 +3,7 @@
 # Highlighting across lanes
 #
 # Extracted from stzlistoftimelinestest.ring, block #14.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

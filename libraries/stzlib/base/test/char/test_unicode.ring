@@ -3,6 +3,8 @@
 # Run from the test/ directory: ring test_unicode.ring
 
 ? "Loading stubs + DLL"
+#ERR Error (E9) : Can't open file test_stubs.ring
+
 load "test_stubs.ring"
 
 ? "Loading classes"

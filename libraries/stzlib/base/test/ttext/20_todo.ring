@@ -3,6 +3,7 @@
 # TODO
 #
 # Extracted from stzTtexttest.ring, block #20.
+#ERR Error (R3) : Calling Function without definition: charsallowedinstartofword
 
 load "../../stzBase.ring"
 

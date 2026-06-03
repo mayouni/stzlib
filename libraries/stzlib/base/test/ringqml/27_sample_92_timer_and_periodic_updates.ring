@@ -3,6 +3,7 @@
 # Sample 9.2: Timer and Periodic Updates
 #
 # Extracted from stzringqmltest.ring, block #27.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Sample 7.4: Complete Ring-QML Interaction
 #
 # Extracted from stzringqmltest.ring, block #22.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

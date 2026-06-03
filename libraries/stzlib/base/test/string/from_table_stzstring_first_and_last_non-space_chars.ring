@@ -3,6 +3,7 @@
 # stzString first and last non-space chars
 #
 # Extracted from stztabletest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: firstnonspacechar
 
 load "../../stzBase.ring"
 

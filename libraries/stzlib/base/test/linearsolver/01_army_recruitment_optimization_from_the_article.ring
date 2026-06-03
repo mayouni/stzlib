@@ -3,6 +3,7 @@
 # Army recruitment optimization from the article
 #
 # Extracted from stzlinearsolvertest.ring, block #1.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

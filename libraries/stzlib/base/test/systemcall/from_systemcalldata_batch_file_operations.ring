@@ -3,6 +3,7 @@
 # BATCH FILE OPERATIONS
 #
 # Extracted from stzsystemcalldatatest.ring, block #23.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

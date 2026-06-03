@@ -3,6 +3,7 @@
 # Banking workflow with comprehensive validation stages
 #
 # Extracted from stzdiagrambuildertest.ring, block #16.
+#ERR Error (R11) : Error in class name, class not found: stzdiagrammaker
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Checking blocks in lanes
 #
 # Extracted from stzlistoftimelinestest.ring, block #11.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

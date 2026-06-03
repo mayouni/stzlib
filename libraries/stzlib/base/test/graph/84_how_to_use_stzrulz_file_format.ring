@@ -3,6 +3,7 @@
 # How to use .stzrulz file format?
 #
 # Extracted from stzgraphtest.ring, block #84.
+#ERR Error (R24) : Using uninitialized variable: @arules
 
 load "../../stzBase.ring"
 

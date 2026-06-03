@@ -3,6 +3,7 @@
 # NATURAL CODE IN HAUSA LATIN SCRIPT (BOKO)
 #
 # Extracted from stznaturaltest.ring, block #33.
+#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

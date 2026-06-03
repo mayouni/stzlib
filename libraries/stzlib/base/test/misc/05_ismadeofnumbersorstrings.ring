@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzmisctest.ring, block #5.
+#ERR Error (R3) : Calling Function without definition: ismadeofnumbersorstrings
 
 load "../../stzBase.ring"
 

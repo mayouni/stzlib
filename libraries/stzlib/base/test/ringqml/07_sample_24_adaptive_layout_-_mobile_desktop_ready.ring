@@ -3,6 +3,7 @@
 # Sample 2.4: Adaptive Layout - Mobile & Desktop Ready
 #
 # Extracted from stzringqmltest.ring, block #7.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

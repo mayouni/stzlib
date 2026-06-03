@@ -3,6 +3,7 @@
 # Example 4: E-commerce Intelligence Platform
 #
 # Extracted from stzappserverclustertest.ring, block #4.
+#ERR Error (R3) : Calling Function without definition: init
 
 load "../../stzBase.ring"
 

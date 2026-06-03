@@ -3,6 +3,7 @@
 # EXAMPLE 6: Trend Analysis for Time Series
 #
 # Extracted from stzdatasettest.ring, block #48.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Find and AntiFind in stzList
 #
 # Extracted from stzlisttest.ring, block #34.
+#ERR Error (R50) : Object does not support operator overloading
 
 load "../../stzBase.ring"
 

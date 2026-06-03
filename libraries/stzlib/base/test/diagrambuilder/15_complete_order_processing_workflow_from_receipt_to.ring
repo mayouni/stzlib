@@ -3,6 +3,7 @@
 # Complete order processing workflow from receipt to completion
 #
 # Extracted from stzdiagrambuildertest.ring, block #15.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

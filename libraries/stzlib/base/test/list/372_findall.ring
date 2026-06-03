@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #372.
+#ERR Error (R14) : Calling Method without definition: findnth
 
 load "../../stzBase.ring"
 

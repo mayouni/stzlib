@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #553.
+#ERR Error (R14) : Calling Method without definition: countwxt
 
 load "../../stzBase.ring"
 

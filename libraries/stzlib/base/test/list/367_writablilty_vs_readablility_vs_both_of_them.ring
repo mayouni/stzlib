@@ -3,6 +3,7 @@
 # #narration Writablilty VS Readablility VS Both of them!
 #
 # Extracted from stzlisttest.ring, block #367.
+#ERR Error (R14) : Calling Method without definition: swapitems
 
 load "../../stzBase.ring"
 

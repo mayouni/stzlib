@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #256.
+#ERR Error (R14) : Calling Method without definition: linesq
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # ReplaceElementsAtByManyXT() - Replace elements by cycling through replacement values
 #
 # Extracted from stzmatrixtest.ring, block #48.
+#ERR Error (R14) : Calling Method without definition: isbymanynamedparam
 
 load "../../stzBase.ring"
 

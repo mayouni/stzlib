@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #253.
+#ERR Error (R14) : Calling Method without definition: duplicatesz
 
 load "../../stzBase.ring"
 

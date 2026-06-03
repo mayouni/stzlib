@@ -3,6 +3,7 @@
 # 2-item comparison test
 #
 # Extracted from stzPlotTest.ring, block #55.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

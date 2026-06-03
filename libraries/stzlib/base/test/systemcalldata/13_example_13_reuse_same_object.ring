@@ -3,6 +3,7 @@
 # EXAMPLE 13: Reuse Same Object
 #
 # Extracted from stzsystemcalldatatest.ring, block #13.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Nested lists in literals
 #
 # Extracted from stznaturalmarkuptest.ring, block #17.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

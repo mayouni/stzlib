@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #243.
+#ERR Error (R14) : Calling Method without definition: howmanyduplicates
 
 load "../../stzBase.ring"
 

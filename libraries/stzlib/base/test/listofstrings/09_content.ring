@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlistofstringstest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: removesection
 
 load "../../stzBase.ring"
 

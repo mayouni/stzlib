@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofbytestest.ring, block #9.
+#ERR Error (R14) : Calling Method without definition: containsno
 
 load "../../stzBase.ring"
 

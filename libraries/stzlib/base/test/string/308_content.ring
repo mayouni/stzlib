@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #308.
+#ERR Error (R14) : Calling Method without definition: insertxt
 
 load "../../stzBase.ring"
 

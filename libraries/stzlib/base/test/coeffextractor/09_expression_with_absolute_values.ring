@@ -3,6 +3,7 @@
 # Expression with absolute values
 #
 # Extracted from stzcoeffextractortest.ring, block #9.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

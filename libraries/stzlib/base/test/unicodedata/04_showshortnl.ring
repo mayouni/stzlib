@@ -3,6 +3,7 @@
 # #narration
 #
 # Extracted from stzunicodedatatest.ring, block #4.
+#ERR Error (R24) : Using uninitialized variable: $aunicodeblocksxt
 
 load "../../stzBase.ring"
 

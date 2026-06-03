@@ -3,6 +3,7 @@
 # Test @EdgeProperty vs @Edge
 #
 # Extracted from stzgraphextest.ring, block #2.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

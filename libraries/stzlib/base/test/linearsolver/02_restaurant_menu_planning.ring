@@ -3,6 +3,7 @@
 # Restaurant menu planning"
 #
 # Extracted from stzlinearsolvertest.ring, block #2.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

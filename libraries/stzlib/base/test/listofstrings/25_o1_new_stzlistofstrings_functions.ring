@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings( functions() )
 #
 # Extracted from stzlistofstringstest.ring, block #25.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

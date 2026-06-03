@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzextinpythonTest.ring, block #6.
+#ERR Error (R14) : Calling Method without definition: join
 
 load "../../stzBase.ring"
 

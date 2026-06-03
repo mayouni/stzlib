@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stznaturaltest.ring, block #2.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

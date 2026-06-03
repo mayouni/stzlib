@@ -3,6 +3,7 @@
 # FRAME ALTERNATIVE
 #
 # Extracted from stznaturaltest.ring, block #19.
+#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #294.
+#ERR Error (R14) : Calling Method without definition: findpreviousnthoccurrence
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzrandomtest.ring, block #12.
+#ERR Error (R14) : Calling Method without definition: randomizesections
 
 load "../../stzBase.ring"
 

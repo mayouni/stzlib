@@ -3,6 +3,7 @@
 # TODO/FUTURE : AFTER CONSTRAINT IMPLEMENTED
 #
 # Extracted from stzStringTest.ring, block #980.
+#ERR Error (R3) : Calling Function without definition: tostzhashlist
 
 load "../../stzBase.ring"
 

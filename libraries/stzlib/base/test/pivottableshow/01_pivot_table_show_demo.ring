@@ -4,6 +4,7 @@
 #
 # Extracted from stzPivotTableShowTest.ring (single-block file; no
 # /*--- delimiters in the original, so body kept as one).
+#ERR Error (R3) : Calling Function without definition: centertext
 
 load "../../stzBase.ring"
 pr()

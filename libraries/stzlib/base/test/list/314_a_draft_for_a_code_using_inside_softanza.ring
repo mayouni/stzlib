@@ -3,6 +3,7 @@
 # #ring A draft for a code using inside Softanza
 #
 # Extracted from stzlisttest.ring, block #314.
+#ERR Error (R14) : Calling Method without definition: manyremoved
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # A Softanza #narration showing one of the uses of the XT()
 #
 # Extracted from stztabletest.ring, block #43.
+#ERR Error (R14) : Calling Method without definition: showxt
 
 load "../../stzBase.ring"
 

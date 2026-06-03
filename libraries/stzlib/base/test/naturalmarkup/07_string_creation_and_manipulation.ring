@@ -3,6 +3,7 @@
 # String creation and manipulation
 #
 # Extracted from stznaturalmarkuptest.ring, block #7.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

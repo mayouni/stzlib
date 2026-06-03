@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #409.
+#ERR Error (E3) : Deleting scope while no scope!
 
 load "../../stzBase.ring"
 

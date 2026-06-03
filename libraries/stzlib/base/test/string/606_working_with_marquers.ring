@@ -3,6 +3,7 @@
 # WORKING WITH MARQUERS
 #
 # Extracted from stzStringTest.ring, block #606.
+#ERR Error (R14) : Calling Method without definition: containsmarquers
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #278.
+#ERR Error (R14) : Calling Method without definition: isstepnamedparam
 
 load "../../stzBase.ring"
 

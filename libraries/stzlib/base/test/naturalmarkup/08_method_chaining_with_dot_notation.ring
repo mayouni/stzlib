@@ -3,6 +3,7 @@
 # Method chaining with dot notation
 #
 # Extracted from stznaturalmarkuptest.ring, block #8.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

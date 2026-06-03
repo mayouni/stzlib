@@ -3,6 +3,7 @@
 # Event Planning with Multiple Constraints
 #
 # Extracted from stzlinearsolvertest.ring, block #11.
+#ERR Error (R5) : Can't access the list item, Object is not list
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # TODO: refactor it to use stzWalker
 #
 # Extracted from stzlisttest.ring, block #597.
+#ERR Error (R24) : Using uninitialized variable: @awalkers
 
 load "../../stzBase.ring"
 

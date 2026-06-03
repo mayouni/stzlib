@@ -3,6 +3,7 @@
 # # Text paintings in PERSONS category
 #
 # Extracted from stzstringarttest.ring, block #14.
+#ERR Error (R3) : Calling Function without definition: stringart
 
 load "../../stzBase.ring"
 

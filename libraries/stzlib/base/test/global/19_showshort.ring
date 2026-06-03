@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzGlobalTest.ring, block #19.
+#ERR Error (R24) : Using uninitialized variable: number
 
 load "../../stzBase.ring"
 

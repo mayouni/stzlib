@@ -3,6 +3,8 @@
 # Run from the test/ directory: ring test_finder_extended.ring
 
 ? "Loading stubs + DLL"
+#ERR Error (E9) : Can't open file ../stzString.ring
+
 load "test_stubs.ring"
 
 load "../stzString.ring"

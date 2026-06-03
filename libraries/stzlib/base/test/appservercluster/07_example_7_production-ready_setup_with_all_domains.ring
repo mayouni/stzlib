@@ -3,6 +3,7 @@
 # Example 7: Production-Ready Setup with All Domains
 #
 # Extracted from stzappserverclustertest.ring, block #7.
+#ERR Error (R3) : Calling Function without definition: init
 
 load "../../stzBase.ring"
 

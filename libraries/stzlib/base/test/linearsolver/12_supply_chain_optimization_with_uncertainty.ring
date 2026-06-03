@@ -3,6 +3,7 @@
 # Supply Chain Optimization with Uncertainty
 #
 # Extracted from stzlinearsolvertest.ring, block #12.
+#ERR Error (R5) : Can't access the list item, Object is not list
 
 load "../../stzBase.ring"
 

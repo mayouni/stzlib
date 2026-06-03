@@ -3,6 +3,7 @@
 # ? AChar( :In = "softanza" ).Uppercased()
 #
 # Extracted from stzsubstringTest.ring, block #8.
+#ERR Error (R3) : Calling Function without definition: somechars
 
 load "../../stzBase.ring"
 

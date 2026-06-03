@@ -3,6 +3,7 @@
 # cName = "Gary"
 #
 # Extracted from stzStringTest.ring, block #111.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -5,6 +5,7 @@
 # Q([0]) * 3  ->  [ 0, 0, 0 ].
 #
 # Extracted from stzlisttest.ring, the operator-overload block.
+#ERR Error (R50) : Object does not support operator overloading
 
 load "../../stzBase.ring"
 

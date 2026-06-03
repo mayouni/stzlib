@@ -3,6 +3,7 @@
 # ////// BACK HERE ////////
 #
 # Extracted from stzTtexttest.ring, block #29.
+#ERR Error (R3) : Calling Function without definition: wordsandtheirfrequencies
 
 load "../../stzBase.ring"
 

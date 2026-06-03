@@ -3,6 +3,7 @@
 # Example 6: Multiple Independent Levels
 #
 # Extracted from stzregexmakertest.ring, block #22.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

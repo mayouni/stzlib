@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzGlobalTest.ring, block #49.
+#ERR Error (R14) : Calling Method without definition: islistof
 
 load "../../stzBase.ring"
 

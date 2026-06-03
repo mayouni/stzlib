@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzfoldertest.ring, block #17.
+#ERR Error (R14) : Calling Method without definition: vizsearchfiles
 
 load "../../stzBase.ring"
 

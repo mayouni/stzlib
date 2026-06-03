@@ -3,6 +3,7 @@
 # DATABASE BACKUP
 #
 # Extracted from stzsystemcalldatatest.ring, block #21.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Complex multi-term expression
 #
 # Extracted from stzcoeffextractortest.ring, block #11.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

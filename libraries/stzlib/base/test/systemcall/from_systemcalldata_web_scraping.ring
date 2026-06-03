@@ -3,6 +3,7 @@
 # WEB SCRAPING
 #
 # Extracted from stzsystemcalldatatest.ring, block #24.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

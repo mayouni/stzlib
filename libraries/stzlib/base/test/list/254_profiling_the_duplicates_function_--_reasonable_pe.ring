@@ -3,6 +3,7 @@
 # Profiling the Duplicates() function --> Reasonable perf up to 30K items!
 #
 # Extracted from stzlisttest.ring, block #254.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

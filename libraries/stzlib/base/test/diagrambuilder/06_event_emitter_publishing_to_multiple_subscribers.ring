@@ -3,6 +3,7 @@
 # Event emitter publishing to multiple subscribers
 #
 # Extracted from stzdiagrambuildertest.ring, block #6.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #64.
+#ERR Error (R14) : Calling Method without definition: movecol
 
 load "../../stzBase.ring"
 

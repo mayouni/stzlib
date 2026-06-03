@@ -3,6 +3,7 @@
 # Testing with larger dataset
 #
 # Extracted from stzdatawranglertest.ring, block #23.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #495.
+#ERR Error (R14) : Calling Method without definition: substring
 
 load "../../stzBase.ring"
 

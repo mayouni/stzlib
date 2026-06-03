@@ -3,6 +3,7 @@
 # Example 1: Simple balanced parentheses
 #
 # Extracted from stzregexmakertest.ring, block #17.
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

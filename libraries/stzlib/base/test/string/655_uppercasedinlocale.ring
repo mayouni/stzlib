@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #655.
+#ERR Error (R14) : Calling Method without definition: uppercasedinlocale
 
 load "../../stzBase.ring"
 

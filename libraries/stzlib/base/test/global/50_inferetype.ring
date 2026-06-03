@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stzGlobalTest.ring, block #50.
+#ERR Error (R14) : Calling Method without definition: inferetype
 
 load "../../stzBase.ring"
 

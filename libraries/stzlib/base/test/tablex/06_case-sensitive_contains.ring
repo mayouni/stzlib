@@ -3,6 +3,7 @@
 # Case-sensitive contains
 #
 # Extracted from stztablextest.ring, block #6.
+#ERR Error (R14) : Calling Method without definition: containscellcs
 
 load "../../stzBase.ring"
 

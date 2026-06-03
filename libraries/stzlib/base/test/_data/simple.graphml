@@ -8,7 +8,7 @@
   <key id="type" for="graph" attr.name="type" attr.type="string"/>
   <key id="edge_label" for="edge" attr.name="label" attr.type="string"/>
 
-  <graph id="SimpleGraph" edgedefault="directed">
+  <graph id="simplegraph" edgedefault="directed">
     <data key="type">structural</data>
 
     <node id="n1">

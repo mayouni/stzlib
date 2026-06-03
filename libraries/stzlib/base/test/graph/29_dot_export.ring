@@ -3,6 +3,7 @@
 # DOT Export
 #
 # Extracted from stzgraphtest.ring, block #29.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

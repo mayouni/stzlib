@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzrandomtest.ring, block #14.
+#ERR Error (R14) : Calling Method without definition: randomiselists
 
 load "../../stzBase.ring"
 

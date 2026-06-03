@@ -1,3 +1,6 @@
+
+#ERR Error (R3) : Calling Function without definition: pr
+
 load "test_stubs.ring"
 
 pr()

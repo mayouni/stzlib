@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #57.
+#ERR Error (R3) : Calling Function without definition: fill
 
 load "../../stzBase.ring"
 

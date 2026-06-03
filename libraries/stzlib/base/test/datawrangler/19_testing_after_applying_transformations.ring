@@ -3,6 +3,7 @@
 # Testing after applying transformations
 #
 # Extracted from stzdatawranglertest.ring, block #19.
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

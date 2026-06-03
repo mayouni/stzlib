@@ -3,6 +3,7 @@
 # WALKING WHILE
 #
 # Extracted from stzlisttest.ring, block #496.
+#ERR Error (R3) : Calling Function without definition: walkwhilext
 
 load "../../stzBase.ring"
 

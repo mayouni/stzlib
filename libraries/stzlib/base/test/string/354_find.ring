@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #354.
+#ERR Error (R14) : Calling Method without definition: thesesubstringsz
 
 load "../../stzBase.ring"
 

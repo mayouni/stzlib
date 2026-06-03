@@ -3,6 +3,7 @@
 # Copying and clearing
 #
 # Extracted from stzentitytest.ring, block #14.
+#ERR Error (R24) : Using uninitialized variable: olist
 
 load "../../stzBase.ring"
 

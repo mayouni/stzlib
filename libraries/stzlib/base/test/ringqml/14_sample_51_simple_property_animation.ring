@@ -3,6 +3,7 @@
 # Sample 5.1: Simple Property Animation
 #
 # Extracted from stzringqmltest.ring, block #14.
+#ERR Error (R11) : Error in class name, class not found: qapp
 
 load "../../stzBase.ring"
 

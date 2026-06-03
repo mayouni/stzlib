@@ -3,6 +3,7 @@
 # // ReplaceWord --> ReplaceWords --> ReplaceWordsWithMarquers --> ReplaceWordsWithMarquersXT
 #
 # Extracted from stzTtexttest.ring, block #24.
+#ERR Error (R3) : Calling Function without definition: replacewordswithmarquers
 
 load "../../stzBase.ring"
 

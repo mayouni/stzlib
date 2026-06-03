@@ -3,6 +3,7 @@
 # OTHER WALKING TECHNIQUES
 #
 # Extracted from stzlisttest.ring, block #497.
+#ERR Error (R3) : Calling Function without definition: walkwhen
 
 load "../../stzBase.ring"
 

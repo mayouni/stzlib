@@ -3,6 +3,7 @@
 # Finding matching tables
 #
 # Extracted from stztablextest.ring, block #36.
+#ERR Error (R14) : Calling Method without definition: containscellcs
 
 load "../../stzBase.ring"
 

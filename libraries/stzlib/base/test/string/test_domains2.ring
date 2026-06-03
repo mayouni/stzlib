@@ -2,6 +2,8 @@
 # Run from the test/ directory: ring test_domains2.ring
 
 ? "Loading stubs + DLL"
+#ERR Error (E9) : Can't open file ../stzString.ring
+
 load "test_stubs.ring"
 
 ? "Loading classes"

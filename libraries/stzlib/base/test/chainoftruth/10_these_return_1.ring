@@ -3,6 +3,7 @@
 # # These return 1
 #
 # Extracted from stzchainoftruthtest.ring, block #10.
+#ERR Error (C28) : Expression is expected!
 
 load "../../stzBase.ring"
 

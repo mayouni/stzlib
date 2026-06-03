@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzextinpythonTest.ring, block #8.
+#ERR Error (R14) : Calling Method without definition: isupper
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzSsplittertest.ring, block #6.
+#ERR Error (R14) : Calling Method without definition: istopartsofnitemsnamedparam
 
 load "../../stzBase.ring"
 

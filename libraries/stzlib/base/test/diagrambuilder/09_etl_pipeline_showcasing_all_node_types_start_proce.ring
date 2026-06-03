@@ -3,6 +3,7 @@
 # ETL pipeline showcasing all node types: start, process,
 #
 # Extracted from stzdiagrambuildertest.ring, block #9.
+#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

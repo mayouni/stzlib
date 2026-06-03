@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #43.
+#ERR Error (R14) : Calling Method without definition: tosetq
 
 load "../../stzBase.ring"
 

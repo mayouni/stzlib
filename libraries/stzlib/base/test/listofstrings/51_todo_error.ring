@@ -3,6 +3,7 @@
 # TODO: ERROR
 #
 # Extracted from stzlistofstringstest.ring, block #51.
+#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 

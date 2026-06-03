@@ -3,6 +3,7 @@
 # # Of course, when values are different, this will never execute:
 #
 # Extracted from stzchainofvaluetest.ring, block #5.
+#ERR Error (R24) : Using uninitialized variable: v
 
 load "../../stzBase.ring"
 

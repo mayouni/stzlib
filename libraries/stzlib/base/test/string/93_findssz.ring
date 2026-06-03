@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #93.
+#ERR Error (R14) : Calling Method without definition: findssz
 
 load "../../stzBase.ring"
 

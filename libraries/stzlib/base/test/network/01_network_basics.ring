@@ -4,6 +4,7 @@
 #
 # Extracted from stznetworktest.ring (single-block file; no
 # /*--- delimiters in the original, so body kept as one).
+#ERR Error (R35) : Can't create/open the file
 
 load "../../stzBase.ring"
 # =============================================================================

@@ -3,6 +3,7 @@
 # Basic stream creation and consumption
 #
 # Extracted from stzreactivetest.ring, block #3.
+#ERR Error (R3) : Calling Function without definition: onrecieve
 
 load "../../stzBase.ring"
 

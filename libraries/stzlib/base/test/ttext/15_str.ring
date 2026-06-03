@@ -3,6 +3,7 @@
 # str = "
 #
 # Extracted from stzTtexttest.ring, block #15.
+#ERR exit 1: Error (S1) In file: 15_str.ring
 
 load "../../stzBase.ring"
 

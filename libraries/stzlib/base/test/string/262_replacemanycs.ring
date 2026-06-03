@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #262.
+#ERR Error (R14) : Calling Method without definition: replacemanycsq
 
 load "../../stzBase.ring"
 

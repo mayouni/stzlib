@@ -3,6 +3,7 @@
 # Basic list creation and queries
 #
 # Extracted from stznaturalmarkuptest.ring, block #3.
+#ERR Error (R14) : Calling Method without definition: run
 
 load "../../stzBase.ring"
 

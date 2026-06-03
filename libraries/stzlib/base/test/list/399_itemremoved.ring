@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #399.
+#ERR Error (R14) : Calling Method without definition: itemremoved
 
 load "../../stzBase.ring"
 

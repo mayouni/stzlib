@@ -3,6 +3,7 @@
 # $CustomLogo = "
 #
 # Extracted from stzstringarttest.ring, block #23.
+#ERR exit 1: Error (S1) In file: 23_customlogo.ring
 
 load "../../stzBase.ring"
 

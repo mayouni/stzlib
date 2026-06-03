@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #534.
+#ERR Error (R14) : Calling Method without definition: replaceitematpositionsbymany
 
 load "../../stzBase.ring"
 
