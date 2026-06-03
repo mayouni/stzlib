@@ -1,0 +1,16 @@
+# Narrative
+# --------
+# // Retest after adding ReplaceAllCharsW() in stzString
+#
+# Extracted from stzTtexttest.ring, block #4.
+
+load "../../stzBase.ring"
+
+
+? StzTextQ("مُسْتَحَقَّاتُُ").Scripts()
+? StzTextQ("مُسْتَحَقَّاتُُ").Script()
+
+
+? StzTextQ("مُسْتَحَقَّاتُُ").DiacriticsRemoved()
+
+? StzTextQ("مُسْتَحَقَّاتُُ").RemoveDiacriticsQ().Content()

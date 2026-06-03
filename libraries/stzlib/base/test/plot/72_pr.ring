@@ -1,0 +1,15 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzPlotTest.ring, block #72.
+
+load "../../stzBase.ring"
+
+
+str = "    ╰┬──┬─────┬──────┬─────┬───────┬►     "
+? @trimEnd(str)
+#--> "    ╰┬──┬─────┬──────┬─────┬───────┬►"
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23

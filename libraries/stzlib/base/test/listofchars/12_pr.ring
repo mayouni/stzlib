@@ -1,0 +1,17 @@
+# Narrative
+# --------
+# pr()
+#
+# Extracted from stzlistofcharstest.ring, block #12.
+
+load "../../stzBase.ring"
+
+
+? StzListOfCharsQ("منصوريات").Boxed()
+#-->
+#  ┌───┬───┬───┬───┬───┬───┬───┬───┐
+#o │ م │ ن │ ص │ و │ ر │ ي │ ا │ ت │
+#  └───┴───┴───┴───┴───┴───┴───┴───┘
+
+pf()
+# Executed in 0.04 second(s).

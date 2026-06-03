@@ -1,0 +1,48 @@
+# Narrative
+# --------
+# Test all DOT shapes
+#
+# Extracted from stzdotcodetest.ring, block #4.
+
+load "../../stzBase.ring"
+
+
+pr()
+
+oDot = new stzDotCode()
+oDot.SetCode('
+digraph ShapeShowcase {
+    rankdir=TD;
+    
+    // Basic shapes
+    box [label="box" shape=box]
+    ellipse [label="ellipse" shape=ellipse]
+    circle [label="circle" shape=circle]
+    diamond [label="diamond" shape=diamond]
+    
+    // Extended shapes
+    parallelogram [label="parallelogram" shape=parallelogram]
+    hexagon [label="hexagon" shape=hexagon]
+    octagon [label="octagon" shape=octagon]
+    cylinder [label="cylinder" shape=cylinder]
+    
+    // Special shapes
+    doublecircle [label="doublecircle" shape=doublecircle]
+    tripleoctagon [label="tripleoctagon" shape=tripleoctagon]
+    invtriangle [label="invtriangle" shape=invtriangle]
+    house [label="house" shape=house]
+    pentagon [label="pentagon" shape=pentagon]
+    septagon [label="septagon" shape=septagon]
+    
+    // Connect for layout
+    box -> ellipse -> circle -> diamond
+    diamond -> parallelogram -> hexagon -> octagon
+    octagon -> cylinder -> doublecircle -> tripleoctagon
+    tripleoctagon -> invtriangle -> house -> pentagon -> septagon
+}
+')
+
+oDot.SetOutputFormat("png")
+oDot.ExecuteAndView()
+
+pf()

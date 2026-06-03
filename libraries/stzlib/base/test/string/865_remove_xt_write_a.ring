@@ -1,0 +1,19 @@
+# Narrative
+# --------
+# REMOVE XT ================= #todo Write a #narration
+#
+# Extracted from stzStringTest.ring, block #865.
+
+load "../../stzBase.ring"
+
+
+StartProfiler()
+	
+	o1 = new stzString("Ring programming♥ language")
+	o1.RemoveXT("♥", :From = "programming♥")
+	
+	? o1.Content()
+	#--> Ring programming language
+	
+StopProfiler()
+# Executed in 0.01 second(s)
