@@ -65,82 +65,31 @@ class stzCounter from stzObject
 			StzRaise(stzCounterError(:CanNotCreateCounter))
 		ok		
 
-	# PERF NOTE (Ring 1.26):
-	# Counting() builds a list of N cycled values. We tested two
-	# implementations on Ring 1.26 and both scale as O(N^2):
+	#-- Counting (engine-backed, Ring-list-shaped).
 	#
-	# 1. Ring-side loop with `aResult + n` (the current code below).
-	#    Reference: 0.91 s for N=1,000,000 on Ring 1.23. On 1.26 the
-	#    same body takes >60 s for N=100,000 because class-method-
-	#    local `aResult + n` walks the object attribute table.
+	# Returns a Ring list of N values produced by cycling through
+	# (@nStartAt, @nStep) under the wrap-around modes :WhenYouReach
+	# and :AfterYouSkip. The cycle itself is built by the Zig
+	# engine in O(N) (see ring_bridge_intseq.zig), then marshalled
+	# into a Ring list via the engine bridge. Callers see a plain
+	# list and never need to know an engine handle existed.
 	#
-	# 2. Engine bridge `StzEngineCounterFill` -- a Zig function that
-	#    builds the list in one C call via ring_list_adddouble. Was
-	#    expected to win big but turned out NO FASTER than (1): each
-	#    `ring_list_adddouble` call appears O(N) at the Ring C-API
-	#    level (probably re-walking pLast). FFI per-call overhead
-	#    dominates.
-	#
-	# The engine entry point is wired (see ring_bridge_sequence.zig)
-	# and remains available for callers that benefit at smaller N,
-	# but the production hot path stays on the Ring loop because
-	# it's the simpler, equally-fast option until either Ring fixes
-	# ring_list_adddouble or we add a true batch-fill C API.
-	#
-	# Modular test 05_softanza_1M_perf.ring records the 0.91 s
-	# Ring-1.23 baseline as the regression target.
+	# The previous Ring-only loop (aResult + n inside a class
+	# method) was O(N^2) on Ring 1.26 because the attribute table
+	# is re-walked per append; the engine path is the only correct
+	# implementation now and is named with the natural Softanza
+	# verbs (Counting / Count / CountTo / CountingTo). The
+	# engine-flavoured *Seq aliases that existed during the
+	# bring-up phase have been retired -- callers that genuinely
+	# want the raw stzIntSeq handle (e.g. for streaming Sum/Min/Max
+	# over a billion-element cycle without materialising) can call
+	# the dedicated _Handle accessor below.
 
 	def Counting(nNumber)
-		if CheckingParams()
-			if isList(nNumber) and Q(nNumber).IsToNamedParam()
-				nNumber = nNumber[2]
-			ok
-
-			if NOT isNumber(nNumber)
-				StzRaise("Incorrect param type! nNumber must be a number.")
-			ok
-		ok
-
-		aResult = []
-		n =  @nStartAt
-
-		if @nWhenYouReach != 0
-
-			for i = @nStartAt to nNumber step @nStep
-
-				if i = @nWhenYouReach
-					n = @nRestartAt
-				ok
-
-				aResult + n
-				n++
-				if n = @nWhenYouReach
-					n = @nRestartAt
-				ok
-
-			next
-
-		but @nAfterYouSkip != 0
-
-			for i = @nStartAt to nNumber step @nStep
-
-				if i % (@nAfterYouSkip + 1) = 0
-					n = @nRestartAt
-				ok
-
-				aResult + n
-				n++
-				if n = @nAfterYouSkip + 1
-					n = @nRestartAt
-				ok
-
-			next
-
-		ok
-
-		return aResult
-
-		#< @FunctionAlternativeForms
+		_pHandle_ = This._CountingHandle(nNumber)
+		_anResult_ = StzEngineIntSeqToRingList(_pHandle_)
+		StzEngineIntSeqFree(_pHandle_)
+		return _anResult_
 
 		def CountingTo(nNumber)
 			return This.Counting(nNumber)
@@ -151,22 +100,17 @@ class stzCounter from stzObject
 		def CountTo(nNumber)
 			return This.Counting(nNumber)
 
-		#>
+	# Internal: build the engine-side IntSeq and return its handle.
+	# Caller is responsible for either materialising via
+	# StzEngineIntSeqToRingList + StzEngineIntSeqFree, OR wrapping
+	# in stzIntSeq which owns the handle and frees it on Release().
 
-	#-- ENGINE-FIRST fast path:
-	# CountingSeq / CountToSeq / CountSeq return an stzIntSeq object
-	# wrapping a Zig-allocated []i64 backing store. The whole cycle
-	# is built in one C call in O(N) time; subsequent queries
-	# (Sum/Min/Max/At/Len) stay engine-fast.
-	# Reference: N = 1,000,000 builds in ~7 ms on Ring 1.26 (vs
-	# > 60 s for Counting()'s Ring-loop list path).
-
-	def CountingSeq(nNumber)
+	def _CountingHandle(nNumber)
 		if isList(nNumber) and Q(nNumber).IsToNamedParam()
 			nNumber = nNumber[2]
 		ok
 		if NOT isNumber(nNumber)
-			StzRaise("CountingSeq: nNumber must be a number.")
+			StzRaise("Counting: nNumber must be a number.")
 		ok
 
 		_nMode_ = 0
@@ -179,19 +123,27 @@ class stzCounter from stzObject
 			_nCycleParam_ = @nAfterYouSkip
 		ok
 
-		_pHandle_ = StzEngineIntSeqCreateCycle(
+		return StzEngineIntSeqCreateCycle(
 			@nStartAt, @nStep, _nCycleParam_, @nRestartAt, nNumber, _nMode_
 		)
-		return new stzIntSeq(_pHandle_)
 
-		def CountSeq(nNumber)
-			return This.CountingSeq(nNumber)
+	# CountingQ: returns a live stzIntSeq wrapping the engine handle.
+	# Use this when you want engine-fast Sum/Min/Max/At/Len without
+	# materialising to a Ring list. The Q suffix is the Softanza
+	# convention for "give me the wrapping object", same as
+	# StzStringQ etc. -- it is NOT engine-flavoured naming.
 
-		def CountToSeq(nNumber)
-			return This.CountingSeq(nNumber)
+	def CountingQ(nNumber)
+		return new stzIntSeq( This._CountingHandle(nNumber) )
 
-		def CountingToSeq(nNumber)
-			return This.CountingSeq(nNumber)
+		def CountQ(nNumber)
+			return This.CountingQ(nNumber)
+
+		def CountToQ(nNumber)
+			return This.CountingQ(nNumber)
+
+		def CountingToQ(nNumber)
+			return This.CountingQ(nNumber)
 
 	def CountingXT(nNumber, paReturnNth)
 		/* Example

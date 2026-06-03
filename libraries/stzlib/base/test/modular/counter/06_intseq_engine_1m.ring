@@ -1,15 +1,19 @@
 # Narrative
 # --------
 # Engine-first 1M cycle: the same 1..4 cycle as blocks 04 and 05, but
-# built through the stzIntSeq engine feature instead of native Ring
-# list ops. CountToSeq returns an stzIntSeq wrapping a Zig-allocated
-# []i64 backing store; queries (Len, At, Sum, Min, Max) stay engine-
-# fast (no per-item FFI roundtrip).
+# kept on the engine side instead of materialising to a Ring list.
+# CountToQ returns an stzIntSeq wrapping a Zig-allocated []i64 backing
+# store; queries (Len, At, Sum, Min, Max) stay engine-fast (no per-item
+# FFI roundtrip and no Ring-list construction).
+#
+# CountTo() itself always returns a plain Ring list (engine-built,
+# then materialised) and is the natural surface for typical callers.
+# Reach for CountToQ only when you specifically need streaming
+# stats over a large cycle without paying the materialisation cost.
 #
 # Compares directly against block 04 (raw Ring) and block 05
-# (stzCounter Ring-loop). On Ring 1.26 block 05's Counting() hangs
-# at N >= 100,000 due to a class-method list-append regression;
-# this block completes N = 1,000,000 in ~7 ms.
+# (stzCounter materialised path). This block completes N = 1,000,000
+# stat queries in ~7 ms.
 
 load "../../../stzBase.ring"
 
@@ -21,7 +25,7 @@ oCounter = new stzCounter([
     :RestartAt = 1
 ])
 
-oSeq = oCounter.CountToSeq(1000000)
+oSeq = oCounter.CountToQ(1000000)
 
 ? oSeq.Len()
 #--> 1000000
