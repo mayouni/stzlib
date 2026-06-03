@@ -2,12 +2,10 @@
 [ FAIL ] 02_pr.ring:
          #2 ? oStr.Content() -> expected 'R♥NG' not found past cursor 53
 [ skip ] 03_programming_the_future_litterally_in_softanza.ring: no #--> markers
-[ FAIL ] 04_pr.ring:
-         #1 ? Q("AnnIE").NumberOfVowels() # same as ? Q("AnnIE").VowelN( -> expected '3' not found past cursor 0
-         #2 ? Q("AnnIE").Vowels() -> expected '[ "A", "I", "E" ]' not found past cursor 0
-         #4 ? Q("AnnIE").VowelN() # N ~> Number of... -> expected '3' not found past cursor 10
+[ PASS ] 04_pr.ring: 4 assertions matched
 [ FAIL ] 05_pr.ring:
-         #3 ? Q("AnnIE").VowelsB() -> expected 'TRUE' not found past cursor 416
+         #2 ? Q("AnnIE").VowelNB() -> expected 'FALSE' not found past cursor 5
+         #3 ? Q("AnnIE").VowelsB() -> expected 'TRUE' not found past cursor 5
 [ PASS ] 06_profon.ring: 1 assertions matched
 [ FAIL ] 07_-coding_-eloquence.ring:
          #3 ? Q("ring").IsA(:String) -> expected 'TRUE' not found past cursor 289
@@ -25,4 +23,4 @@
 [ PASS ] 13_pr.ring: 1 assertions matched
 [ skip ] 14_pr.ring: no #--> markers
 ---
-PASS: 5 / FAIL: 5 / skip: 4
+PASS: 6 / FAIL: 4 / skip: 4

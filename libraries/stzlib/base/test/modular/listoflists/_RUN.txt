@@ -1,6 +1,5 @@
 [ FAIL ] 01_pr.ring:
          #2 ? @@( o1.Sizes() ) -> expected '[ 4, 2, 2 ]' not found past cursor 1
-         #6 ? @@NL( o1.Content() ) -> expected '[ [ "mohannad", 100, "hi", "ring" ], [ "karim", 20, "hi", ""' not found past cursor 50
 [ skip ] 02_pr.ring: no #--> markers
 [ PASS ] 03_pr.ring: 3 assertions matched
 [ PASS ] 04_pr.ring: 1 assertions matched
@@ -17,8 +16,8 @@
          #2 ? SpeedUp(12.08, 3.20) + NL   # Or SpeedUpX() or PerfGainX() -> expected '3.78' not found past cursor 5
 [ PASS ] 13_pr.ring: 1 assertions matched
 [ FAIL ] 14_pr.ring:
-         #2 ? @@( o1.FindMany([ 2, 3, 4 ]) ) + NL -> expected '[ 2, 3, 4, 6, 7, 8, 11, 12, 13 ]' not found past cursor 0
-         #3 ? @@( o1.FindManyQ([ 2, 3, 4 ]) / 3 ) + NL -> expected '[ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ]' not found past cursor 0
+         #2 ? @@( o1.FindMany([ 2, 3, 4 ]) ) + NL -> expected '[ 2, 3, 4, 6, 7, 8, 11, 12, 13 ]' not found past cursor 6
+         #3 ? @@( o1.FindManyQ([ 2, 3, 4 ]) / 3 ) + NL -> expected '[ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ]' not found past cursor 6
 [ PASS ] 15_pr.ring: 1 assertions matched
 [ PASS ] 16_pr.ring: 3 assertions matched
 [ FAIL ] 17_pr.ring:
@@ -56,42 +55,32 @@
          #1 ? @@( o1.ToSet() ) -> expected '[ "a", "ab", "b", [ 1, 2, 3 ], "abc", "bc", "c" ]' not found past cursor 0
 [ FAIL ] 37_pr.ring:
          #1 ? Q([ "a", "ab", "b", [ 1, 2, 3 ] ]).ToSet() -> expected '[ "a", "ab", "b", [ 1, 2, 3 ] ]' not found past cursor 0
-[ FAIL ] 38_extending_a_list.ring:
-         #1 ? @@( o1.content() ) -> expected '[ "A", "B", "C", "", "" ]' not found past cursor 0
+[ PASS ] 38_extending_a_list.ring: 1 assertions matched
 [ FAIL ] 39_pr.ring:
          #1 ? @@( o1.content() ) -> expected '[ "A", "B", "C", "♥", "♥" ]' not found past cursor 0
-[ FAIL ] 40_extending_the_lists_of_a_list_of_lists.ring:
-         #3 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "", "" ], [ "C", "D", "E", "F" ], [ "I", "", "' not found past cursor 3
-[ FAIL ] 41_pr.ring:
-         #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥", "♥" ], [ "C", "D", "E", "F" ], [ "I", "♥"' not found past cursor 0
+[ PASS ] 40_extending_the_lists_of_a_list_of_lists.ring: 4 assertions matched
+[ PASS ] 41_pr.ring: 1 assertions matched
 [ FAIL ] 42_pr.ring:
          #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "A", "B", "A", "B" ], [ "C", "D", "E", "F", "C' not found past cursor 0
-[ FAIL ] 43_pr.ring:
-         #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥", "♥", "♥", "♥" ], [ "C", "D", "E", "F", "♥' not found past cursor 0
-[ FAIL ] 44_shrinking_a_list.ring:
-         #1 ? o1.Content() -> expected '[ "A", "B", "C" ]' not found past cursor 0
-[ FAIL ] 45_shrinking_a_list_of_lists.ring:
-         #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B" ], [ "D", "E" ], [ "H", "I" ] ]' not found past cursor 0
-[ FAIL ] 46_pr.ring:
-         #1 ? @@( o1.Content() ) -> expected '[ [ "A" ], [ "D" ], [ "H" ] ]' not found past cursor 0
+[ PASS ] 43_pr.ring: 1 assertions matched
+[ PASS ] 44_shrinking_a_list.ring: 1 assertions matched
+[ PASS ] 45_shrinking_a_list_of_lists.ring: 1 assertions matched
+[ PASS ] 46_pr.ring: 1 assertions matched
 [ skip ] 47_pr.ring: no #--> markers
-[ FAIL ] 48_pr.ring:
-         #1 ? @@( o1.Shrinked() ) + NL -> expected '[ [ "A" ], [ "C" ], [ "I" ] ]' not found past cursor 0
-         #2 ? @@( o1.Extended() ) -> expected '[ [ "A", "B", "", "" ], [ "C", "D", "E", "F" ], [ "I", "", "' not found past cursor 0
-[ FAIL ] 49_pr.ring:
-         #2 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "", "" ], [ "C", "D", "E", "F" ], [ "I", "", "' not found past cursor 0
-[ FAIL ] 50_pr.ring:
-         #1 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥", "♥" ], [ "C", "D", "E", "F" ], [ "I", "♥"' not found past cursor 0
-[ FAIL ] 51_pr.ring:
-         #2 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥" ], [ "C", "D", "E", "F" ], [ "I", "♥", "♥"' not found past cursor 0
-[ FAIL ] 52_pr.ring:
-         #2 ? @@( o1.Content() ) -> expected '[ [ "A", "B", "♥", "♥", "♥" ], [ "C", "D", "E", "F", "♥" ], ' not found past cursor 0
+[ PASS ] 48_pr.ring: 2 assertions matched
+[ PASS ] 49_pr.ring: 3 assertions matched
+[ PASS ] 50_pr.ring: 2 assertions matched
+[ PASS ] 51_pr.ring: 3 assertions matched
+[ PASS ] 52_pr.ring: 3 assertions matched
 [ PASS ] 53_pr.ring: 6 assertions matched
 [ PASS ] 54_pr.ring: 2 assertions matched
 [ PASS ] 55_pr.ring: 3 assertions matched
 [ PASS ] 56_pr.ring: 1 assertions matched
 [ PASS ] 57_pr.ring: 1 assertions matched
-[ PASS ] 58_pr.ring: 3 assertions matched
+[ FAIL ] 58_pr.ring:
+         #1 ? o1.EachItemIsA(:ListOfNumbers) -> expected 'TRUE' not found past cursor 0
+         #2 ? o1.EachItemIs(:ListOfStrings) -> expected 'TRUE' not found past cursor 0
+         #3 ? o1.EachItemIs(:ListOfChars) -> expected 'TRUE' not found past cursor 0
 [ PASS ] 59_pr.ring: 3 assertions matched
 [ PASS ] 60_pr.ring: 2 assertions matched
 [ FAIL ] 61_pr.ring:
@@ -102,11 +91,11 @@
          #6 ? o1.NFirstOccurrencesXT(2, :Of = [9,9,9], :StartingAt = 6) -> expected '[6, 9]' not found past cursor 0
 [ FAIL ] 62_pr.ring:
          #1 ? @@(o1.RepeatedLeadingChars()) -> expected '[]' not found past cursor 0
+         #2 ? o1.ContainsLeadingAndTrailingChars() -> expected 'FALSE' not found past cursor 0
          #3 ? o1.FirstAndLastChars() -> expected '[ "[", "]" ]' not found past cursor 0
          #4 ? o1.Bounds() -> expected '[ "[", "]" ]' not found past cursor 0
          #5 ? @@( o1.FindTheseBoundsAsSections("[[", "]") ) -> expected '[ ]' not found past cursor 0
-         #6 ? o1.FindTheseBoundsAsSections("[", "]") -> expected '[ [ 1, 1 ], [ 15, 15 ] ]' not found past cursor 0
-         ... +1 more
+         ... +2 more
 [ FAIL ] 63_pr.ring:
          #1 ? @@( StzListQ( 4:8 ).ToListInAString() ) -> expected '"[ 4, 5, 6, 7, 8 ]"' not found past cursor 0
          #2 ? @@( StzListQ( 4:8 ).ToListInAStringInShortForm() ) -> expected '"4:8"' not found past cursor 0
@@ -125,4 +114,4 @@
          #5 ? @@NL( o1.Shrinked() ) -> expected '[ [ "A", "B" ], [ 1, 2 ], [ "🂡", "🂥" ] ]' not found past cursor 0
 [ PASS ] 70_pr.ring: 2 assertions matched
 ---
-PASS: 31 / FAIL: 34 / skip: 5
+PASS: 42 / FAIL: 23 / skip: 5

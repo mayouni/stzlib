@@ -1,0 +1,3 @@
+[ PASS ] 01_ring_state_pointers.ring: 3 assertions matched
+---
+PASS: 1

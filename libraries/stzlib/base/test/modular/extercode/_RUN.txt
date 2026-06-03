@@ -1,83 +1,83 @@
-[ FAIL ] 02_basic_example.ring:
-         #1 ? @@( oPyCode.FileName() ) -> expected '"temp\\\\pyresult_dcscnr4g.txt"' not found past cursor 0
-         #2 ? @@( read(oPyCode.FileName()) ) -> expected '"[[\'numbers\', [1, 2, 3, 4, 5]], [\'mean\', 3.0]]" As you see, ' not found past cursor 0
-         #3 ? oPyCode.LastCallDuration() + NL -> expected '0.09 seconds' not found past cursor 0
-         #4 ? @@NL( oPyCode.Result() ) -> expected '[ [ "numbers", [ 1, 2, 3, 4, 5 ] ], [ "mean", 3 ] ]' not found past cursor 0
-[ FAIL ] 03_different_number_types.ring:
-         #1 ? @@(oPyCode.Result()) -> expected '[ [ "integer", 42 ], [ "decimal", 3.14 ], [ "negative", -17 ' not found past cursor 0
-[ FAIL ] 04_string_variations_with_proper_escaping.ring:
-         #1 ? @@(oPyCode.Result()) -> expected '[ [ "simple", "Hello World" ], [ "multiline", "First line Se' not found past cursor 0
-[ FAIL ] 05_nested_lists_and_mixed_types.ring:
-         #1 ? @@(oPyCode.Result()) -> expected '[ [ "simple_list", [ 1, 2, 3, 4, 5 ] ], [ "mixed_list", [ 1,' not found past cursor 0
-[ FAIL ] 06_complex_nested_structure.ring:
-         #1 ? @@NL(oPyCode.Result()) -> expected '[ [ "company", [ [ "name", "TechCorp" ], [ "departments", [ ' not found past cursor 0
-[ FAIL ] 08_data_analysis_with_pandas.ring:
-         #1 ? @@(oPyCode.Result()) -> expected '[ [ "total_revenue", 6612.50 ], [ "average_price", 11.62 ], ' not found past cursor 0
-[ FAIL ] 09_text_processing.ring:
-         #1 ? @@(oPyCode.Result()) -> expected '[ [ "text_analysis", [ [ "word_count", 30 ], [ "char_count",' not found past cursor 0
-[ FAIL ] 10_machine_learning_integration.ring:
-         #1 ? @@(oPyCode.Result()) -> expected "[ ['accuracy', 1.0], ['feature_importance', [ 0.055094104372" not found past cursor 0
-[ FAIL ] 12_basic_numeric_data.ring:
-         #1 ? @@(R.Result()) -> expected '[ [ "numbers", [1, 2, 3, 4, 5] ], [ "mean", 3 ] ]' not found past cursor 0
-         #2 ? R.Duration() -> expected '0.48' not found past cursor 0
-[ FAIL ] 13_simple_nested_list_with_different_data_types.ring:
-         #1 ? @@( R.Result() ) -> expected '[ [ "basic_stats", [ [ "numbers", [ 12, 15, 18, 22, 25 ] ], ' not found past cursor 0
-[ FAIL ] 14_data_analysis_with_na_handling.ring:
-         #1 ? @@( R.Result() ) -> expected '[ [ "measurements", [ 23.50, "", 22.10, 24.30, "", 21.80 ] ]' not found past cursor 0
-[ FAIL ] 15_statistical_calculations.ring:
-         #1 ? @@ ( R.Result() ) -> expected '[ [ "raw_data", [ 18.20, 19.50, 22.10, 23.40, 25.80, 26.90, ' not found past cursor 0
-[ skip ] 16_nested_calculations_with_custom_functions.ring: no #--> markers
-[ FAIL ] 17_time_series_data_with_aggregation.ring:
-         #1 ? @@( R.Result() ) -> expected '[ [ "time_series", [ [ "dates", [ "2024-01-01", "2024-01-02"' not found past cursor 0
-[ skip ] 18_graphic_dataviz_-_complex_scatter_plot_with_densit.ring: no #--> markers
-[ skip ] 19_julia_language_examples.ring: no #--> markers
-[ FAIL ] 21_basic_example.ring:
-         #1 ? @@( xc.Result() ) -> expected '[1, 2, 3, 4, 5]' not found past cursor 0
-[ FAIL ] 22_creating_structs_with_key_pairs.ring:
-         #1 ? @@( xc.Result() ) -> expected '[ [ "name", "John" ], [ "age", 30 ], [ "isActive", 1 ] ]' not found past cursor 0
-[ FAIL ] 23_nested_array_of_mixed_types.ring:
-         #1 ? @@( xc.Result() ) -> expected '[ 42, "hello", 3.14, [ 1, 99 ] ]' not found past cursor 0
-[ FAIL ] 24_complex_nested_structure_with_arrays_and_structs.ring:
-         #1 ? @@( xc.Result() ) -> expected '[ [ "person", [ [ "name", "Alice" ], [ "age", 28 ] ] ], [ "s' not found past cursor 0
-[ FAIL ] 26_simple_list_processing.ring:
-         #1 ? @@( oProlog.Result() ) -> expected '[ [ "input_list", [ 1, 2, 3, 4, 5 ] ], [ "transformed_list",' not found past cursor 0
-[ FAIL ] 27_list_of_factorials_in_prolog.ring:
-         #1 ? @@(oProlog.Result()) -> expected '[ [ 1, 1 ], [ 2, 2 ], [ 3, 6 ], [ 4, 24 ], [ 5, 120 ], [ 6, ' not found past cursor 0
-[ FAIL ] 28_define_family_relationships_and_query_ancestors.ring:
-         #1 ? @@(pl.Result()) -> expected '[ [ "john", "mary" ], [ "john", "peter" ], [ "john", "alice"' not found past cursor 0
-[ FAIL ] 29_graph_traversal.ring:
-         #1 ? @@( oProlog.Result() ) -> expected '[ [ "a", "b", "d", "e" ], [ "a", "c", "d", "e" ] ]' not found past cursor 0
-[ FAIL ] 30_family_relationships_database_err.ring:
-         #1 ? @@( oProlog.Result() ) -> expected '[ [ "fathers", [ [ "father", "bob" ], [ "father", "lisa" ] ]' not found past cursor 0
-[ FAIL ] 31_n-queens_problem_err.ring:
-         #1 ? @@( oProlog.Result() ) -> expected '[ [ 2, 4, 1, 3 ], [ 3, 1, 4, 2 ] ]' not found past cursor 0
-[ FAIL ] 32_natural_language_processing.ring:
-         #1 ? @@( oProlog.Result() ) -> expected '[ [ "sentence1", [ "success", [ [ [ "the" ], [ "cat" ] ], [ ' not found past cursor 0
-[ FAIL ] 33_a_simple_array.ring:
-         #1 ? @@( njs.Result() ) -> expected '[10, 20, 30, 40, 50]' not found past cursor 0
-[ FAIL ] 34_mixed_data_types.ring:
-         #1 ? @@( njs.Result() ) -> expected '[ [ "name", "Product Catalog" ], [ "items", [ [ [ "id", 101 ' not found past cursor 0
-[ FAIL ] 35_scientific_notation.ring:
-         #1 ? @@( njs.Result() ) -> expected '[ "avogadro", "6.02214076e+23" ], [ "planck", "6.62607015e-3' not found past cursor 0
-[ FAIL ] 36_asynchronous_operations_with_promises.ring:
-         #1 ? @@( njs.Result() ) -> expected '[ [ "title", "NodeJS Asynchronous Operations Demonstration" ' not found past cursor 0
-[ FAIL ] 37_data_processing_with_modern_javascript.ring:
-         #1 ? @@( njs.Result() ) -> expected '[ [ "categorySummary", [ [ "Electronics", [ [ "count", 2 ], ' not found past cursor 0
-[ FAIL ] 38_basic_web_api_concepts.ring:
-         #1 ? @@( njs.Result() ) -> expected '[ [ "getAllUsers", [ [ "statusCode", 200 ], [ "data", [ [ [ ' not found past cursor 0
-[ FAIL ] 40_benchmark_for_ring_langauge.ring:
-         #1 ? @@( results ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "result", 495396701187506' not found past cursor 0
-[ FAIL ] 41_benchmark_for_c_langauge_todo_check_error.ring:
-         #1 ? "Done!" -> expected '[ [ [ "fibonacci", [ [ "n", 450 ], [ "result", -804422754663' not found past cursor 0
-[ FAIL ] 42_benchmark_for_python_langauge.ring:
-         #1 ? @@( py.Result() ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "result", 495396701187506' not found past cursor 0
-[ FAIL ] 43_benchmark_for_r_langauge.ring:
-         #1 ? @@( R.Result() ) -> expected "[ [ 'fibonacci', [['n', 450], ['result', 4.95396701187506e+9" not found past cursor 0
-[ FAIL ] 44_benchmark_for_julia_langauge.ring:
-         #1 ? @@( J.Result() ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "time_ms", 11.00 ], [ "re' not found past cursor 0
-[ FAIL ] 45_benchmark_for_nodejs_langauge.ring:
-         #1 ? @@( njs.Result() ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "result", "49539670118750' not found past cursor 0
-[ FAIL ] 46_benchmark_for_swi-prolog_langauge.ring:
-         #1 ? @@( plg.Result() ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "result", 495396701187506' not found past cursor 0
----
-FAIL: 37 / skip: 3
+[ FAIL ] 02_basic_example.ring:
+         #1 ? @@( oPyCode.FileName() ) -> expected '"temp\\\\pyresult_dcscnr4g.txt"' not found past cursor 0
+         #2 ? @@( read(oPyCode.FileName()) ) -> expected '"[[\'numbers\', [1, 2, 3, 4, 5]], [\'mean\', 3.0]]" with Ring li' not found past cursor 0
+         #3 ? oPyCode.LastCallDuration() + NL -> expected '0.09 seconds' not found past cursor 0
+         #4 ? @@NL( oPyCode.Result() ) -> expected '[ [ "numbers", [ 1, 2, 3, 4, 5 ] ], [ "mean", 3 ] ]' not found past cursor 0
+[ FAIL ] 03_different_number_types.ring:
+         #1 ? @@(oPyCode.Result()) -> expected '[ [ "integer", 42 ], [ "decimal", 3.14 ], [ "negative", -17 ' not found past cursor 0
+[ FAIL ] 04_string_variations_with_proper_escaping.ring:
+         #1 ? @@(oPyCode.Result()) -> expected '[ [ "simple", "Hello World" ], [ "multiline", "First line Th' not found past cursor 0
+[ FAIL ] 05_nested_lists_and_mixed_types.ring:
+         #1 ? @@(oPyCode.Result()) -> expected '[ [ "simple_list", [ 1, 2, 3, 4, 5 ] ], [ "mixed_list", [ 1,' not found past cursor 0
+[ FAIL ] 06_complex_nested_structure.ring:
+         #1 ? @@NL(oPyCode.Result()) -> expected '[ [ "company", [ [ "name", "TechCorp" ], [ "departments", [ ' not found past cursor 0
+[ FAIL ] 08_data_analysis_with_pandas.ring:
+         #1 ? @@(oPyCode.Result()) -> expected '[ [ "total_revenue", 6612.50 ], [ "average_price", 11.62 ], ' not found past cursor 0
+[ FAIL ] 09_text_processing.ring:
+         #1 ? @@(oPyCode.Result()) -> expected '[ [ "text_analysis", [ [ "word_count", 30 ], [ "char_count",' not found past cursor 0
+[ FAIL ] 10_machine_learning_integration.ring:
+         #1 ? @@(oPyCode.Result()) -> expected "[ ['accuracy', 1.0], ['feature_importance', [ 0.055094104372" not found past cursor 0
+[ FAIL ] 12_basic_numeric_data.ring:
+         #1 ? @@(R.Result()) -> expected '[ [ "numbers", [1, 2, 3, 4, 5] ], [ "mean", 3 ] ]' not found past cursor 0
+         #2 ? R.Duration() -> expected '0.48' not found past cursor 0
+[ FAIL ] 13_simple_nested_list_with_different_data_types.ring:
+         #1 ? @@( R.Result() ) -> expected '[ [ "basic_stats", [ [ "numbers", [ 12, 15, 18, 22, 25 ] ], ' not found past cursor 0
+[ FAIL ] 14_data_analysis_with_na_handling.ring:
+         #1 ? @@( R.Result() ) -> expected '[ [ "measurements", [ 23.50, "", 22.10, 24.30, "", 21.80 ] ]' not found past cursor 0
+[ FAIL ] 15_statistical_calculations.ring:
+         #1 ? @@ ( R.Result() ) -> expected '[ [ "raw_data", [ 18.20, 19.50, 22.10, 23.40, 25.80, 26.90, ' not found past cursor 0
+[ skip ] 16_nested_calculations_with_custom_functions.ring: no #--> markers
+[ FAIL ] 17_time_series_data_with_aggregation.ring:
+         #1 ? @@( R.Result() ) -> expected '[ [ "time_series", [ [ "dates", [ "2024-01-01", "2024-01-02"' not found past cursor 0
+[ skip ] 18_graphic_dataviz_-_complex_scatter_plot_with_densit.ring: no #--> markers
+[ skip ] 19_julia_language_examples.ring: no #--> markers
+[ FAIL ] 21_basic_example.ring:
+         #1 ? @@( xc.Result() ) -> expected '[1, 2, 3, 4, 5]' not found past cursor 0
+[ FAIL ] 22_creating_structs_with_key_pairs.ring:
+         #1 ? @@( xc.Result() ) -> expected '[ [ "name", "John" ], [ "age", 30 ], [ "isActive", 1 ] ]' not found past cursor 0
+[ FAIL ] 23_nested_array_of_mixed_types.ring:
+         #1 ? @@( xc.Result() ) -> expected '[ 42, "hello", 3.14, [ 1, 99 ] ]' not found past cursor 0
+[ FAIL ] 24_complex_nested_structure_with_arrays_and_structs.ring:
+         #1 ? @@( xc.Result() ) -> expected '[ [ "person", [ [ "name", "Alice" ], [ "age", 28 ] ] ], [ "s' not found past cursor 0
+[ FAIL ] 26_simple_list_processing.ring:
+         #1 ? @@( oProlog.Result() ) -> expected '[ [ "input_list", [ 1, 2, 3, 4, 5 ] ], [ "transformed_list",' not found past cursor 0
+[ FAIL ] 27_list_of_factorials_in_prolog.ring:
+         #1 ? @@(oProlog.Result()) -> expected '[ [ 1, 1 ], [ 2, 2 ], [ 3, 6 ], [ 4, 24 ], [ 5, 120 ], [ 6, ' not found past cursor 0
+[ FAIL ] 28_define_family_relationships_and_query_ancestors.ring:
+         #1 ? @@(pl.Result()) -> expected '[ [ "john", "mary" ], [ "john", "peter" ], [ "john", "alice"' not found past cursor 0
+[ FAIL ] 29_graph_traversal.ring:
+         #1 ? @@( oProlog.Result() ) -> expected '[ [ "a", "b", "d", "e" ], [ "a", "c", "d", "e" ] ]' not found past cursor 0
+[ FAIL ] 30_family_relationships_database_err.ring:
+         #1 ? @@( oProlog.Result() ) -> expected '[ [ "fathers", [ [ "father", "bob" ], [ "father", "lisa" ] ]' not found past cursor 0
+[ FAIL ] 31_n-queens_problem_err.ring:
+         #1 ? @@( oProlog.Result() ) -> expected '[ [ 2, 4, 1, 3 ], [ 3, 1, 4, 2 ] ]' not found past cursor 0
+[ FAIL ] 32_natural_language_processing.ring:
+         #1 ? @@( oProlog.Result() ) -> expected '[ [ "sentence1", [ "success", [ [ [ "the" ], [ "cat" ] ], [ ' not found past cursor 0
+[ FAIL ] 33_a_simple_array.ring:
+         #1 ? @@( njs.Result() ) -> expected '[10, 20, 30, 40, 50]' not found past cursor 0
+[ FAIL ] 34_mixed_data_types.ring:
+         #1 ? @@( njs.Result() ) -> expected '[ [ "name", "Product Catalog" ], [ "items", [ [ [ "id", 101 ' not found past cursor 0
+[ FAIL ] 35_scientific_notation.ring:
+         #1 ? @@( njs.Result() ) -> expected '[ "avogadro", "6.02214076e+23" ], [ "planck", "6.62607015e-3' not found past cursor 0
+[ FAIL ] 36_asynchronous_operations_with_promises.ring:
+         #1 ? @@( njs.Result() ) -> expected '[ [ "title", "NodeJS Asynchronous Operations Demonstration" ' not found past cursor 0
+[ FAIL ] 37_data_processing_with_modern_javascript.ring:
+         #1 ? @@( njs.Result() ) -> expected '[ [ "categorySummary", [ [ "Electronics", [ [ "count", 2 ], ' not found past cursor 0
+[ FAIL ] 38_basic_web_api_concepts.ring:
+         #1 ? @@( njs.Result() ) -> expected '[ [ "getAllUsers", [ [ "statusCode", 200 ], [ "data", [ [ [ ' not found past cursor 0
+[ FAIL ] 40_benchmark_for_ring_langauge.ring:
+         #1 ? @@( results ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "result", 495396701187506' not found past cursor 0
+[ FAIL ] 41_benchmark_for_c_langauge_todo_check_error.ring:
+         #1 ? "Done!" -> expected '[ [ [ "fibonacci", [ [ "n", 450 ], [ "result", -804422754663' not found past cursor 0
+[ FAIL ] 42_benchmark_for_python_langauge.ring:
+         #1 ? @@( py.Result() ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "result", 495396701187506' not found past cursor 0
+[ FAIL ] 43_benchmark_for_r_langauge.ring:
+         #1 ? @@( R.Result() ) -> expected "[ [ 'fibonacci', [['n', 450], ['result', 4.95396701187506e+9" not found past cursor 0
+[ FAIL ] 44_benchmark_for_julia_langauge.ring:
+         #1 ? @@( J.Result() ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "time_ms", 11.00 ], [ "re' not found past cursor 0
+[ FAIL ] 45_benchmark_for_nodejs_langauge.ring:
+         #1 ? @@( njs.Result() ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "result", "49539670118750' not found past cursor 0
+[ FAIL ] 46_benchmark_for_swi-prolog_langauge.ring:
+         #1 ? @@( plg.Result() ) -> expected '[ [ "fibonacci", [ [ "n", 450 ], [ "result", 495396701187506' not found past cursor 0
+---
+FAIL: 37 / skip: 3

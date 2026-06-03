@@ -7,10 +7,7 @@
 [ FAIL ] 05_example_21_rpg_quest_-_find_any_treasure_worth_100.ring:
          #2 ? @@( Route() ) -> expected '[ "village", "forest", "dungeon" ] Went to dungeon because i' not found past cursor 1
 [ PASS ] 06_example_22_treasure_hunt_-_multi-condition_goal.ring: 3 assertions matched
-[ FAIL ] 07_example_31_warehouse_navigation_-_discovering_shor.ring:
-         #1 ? Cost() -> expected '45' not found past cursor 0
-         #2 ? @@( Route() ) -> expected '[ "entrance", "receiving", "storage", "shelf_42" ]' not found past cursor 0
-         #3 ? @@NL( Explain() ) -> expected '[ [ "plan", "shortcut" ], [ "actions", [ [ [ "from", "entran' not found past cursor 0
+[ PASS ] 07_example_31_warehouse_navigation_-_discovering_shor.ring: 3 assertions matched
 [ PASS ] 08_example_32_multi-stop_delivery.ring: 2 assertions matched
 [ FAIL ] 09_example_41_production_line_optimization.ring:
          #1 ? Cost() -> expected '32 Breakdown: 10(cut) + 15(shape) + 2(skip_polish) + 5(finis' not found past cursor 0
@@ -68,4 +65,4 @@
 [ PASS ] 38_example_203_complex_multi-constraint_filtering.ring: 4 assertions matched
 [ PASS ] 39_example_204_requiring_specific_waypoints.ring: 3 assertions matched
 ---
-PASS: 24 / FAIL: 14 / skip: 1
+PASS: 25 / FAIL: 13 / skip: 1

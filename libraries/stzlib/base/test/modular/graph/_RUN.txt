@@ -57,8 +57,7 @@
 [ PASS ] 46_no_path_exists.ring: 2 assertions matched
 [ PASS ] 47_connected_graph.ring: 2 assertions matched
 [ PASS ] 48_multiple_components.ring: 2 assertions matched
-[ FAIL ] 49_articulation_points.ring:
-         #1 ? @@( ArticulationPoints() ) -> expected '["n2", "n3"] - Removing either disconnects the graph' not found past cursor 0
+[ PASS ] 49_articulation_points.ring: 1 assertions matched
 [ PASS ] 50_betweenness_centrality.ring: 2 assertions matched
 [ PASS ] 51_pr.ring: 2 assertions matched
 [ PASS ] 52_closeness_centrality.ring: 2 assertions matched
@@ -83,9 +82,7 @@
 [ PASS ] 70_business_analyst_exploring_3_restructuring_options.ring: 1 assertions matched
 [ PASS ] 71_converting_comparison_to_table_for_further_analysi.ring: 3 assertions matched
 [ FAIL ] 72_finding_best_candidates_programmatically.ring:
-         #1 ? @@( oMatrix.WithoutCycles() ) + NL -> expected '[ ]' not found past cursor 0
-         #2 ? @@(oMatrix.ByMetric(:NodesAdded)) + NL -> expected '["Flat_Structure", "Add_COO_Layer", "Matrix_Org"]' not found past cursor 0
-         #3 ? @@(oMatrix.ByMetric(:EdgesAdded)) -> expected '[ "Add_COO_Layer", "Flat_Structure", "Matrix_Org" ]' not found past cursor 0
+         #3 ? @@(oMatrix.ByMetric(:EdgesAdded)) -> expected '[ "Add_COO_Layer", "Flat_Structure", "Matrix_Org" ]' not found past cursor 3
 [ PASS ] 73_complete_business_decision_workflow.ring: 1 assertions matched
 [ PASS ] 74_business_scenario_adding_new_departments.ring: 1 assertions matched
 [ PASS ] 75_business_scenario_downsizing.ring: 1 assertions matched
@@ -107,4 +104,4 @@
 [ skip ] 89_example_4_graph_views_toview.ring: no #--> markers
 [ PASS ] 90_example_5_combined_workflow.ring: 3 assertions matched
 ---
-PASS: 53 / FAIL: 11 / skip: 26
+PASS: 54 / FAIL: 10 / skip: 26

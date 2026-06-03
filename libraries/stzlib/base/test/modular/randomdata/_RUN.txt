@@ -1,0 +1,6 @@
+[ FAIL ] 01_word_data_helpers.ring:
+         #2 ? Five( Words() ) -> expected '[ "apple", "yacht", "truck", "station", "base" ]' not found past cursor 0
+         #3 ? Q([]).FilledWith( Four( FrenchWords() ) ) -> expected '[ "question", "chien", "lampe", "chat" ]' not found past cursor 0
+         #4 ? Q("").FilledWith( AnEnglishWord() + ' & ' + AFrenchWord()  -> expected 'question & soleil' not found past cursor 0
+---
+FAIL: 1
