@@ -40,7 +40,12 @@ LEGACY_DIR = TEST_DIR / "legacy"
 
 # Match a `#--> expected` marker. We compare the *value* part
 # (whitespace-collapsed) so reformat-only drift doesn't trip the audit.
-MARKER_RE = re.compile(r"^\s*#-->\s*(.+?)\s*$", re.M)
+# Critical: anchor to a SINGLE line. A bare '#-->' followed by a
+# multi-line string literal on the next line is a section delimiter,
+# not a value-bearing marker, and we must not slurp the next line as
+# the "expected value". So intra-line whitespace only: [ \t]*, never
+# \s* (which matches newlines).
+MARKER_RE = re.compile(r"^[ \t]*#-->[ \t]*(.+?)[ \t]*$", re.M)
 
 # Match block delimiters in the monolith: `/*----`, `/*-`, `/*=`, etc.
 BLOCK_OPEN_RE = re.compile(r"^/\*[-=]+", re.M)
@@ -51,8 +56,44 @@ def _norm(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip().lower()
 
 
+# A `//?` line in a legacy monolith is a commented-out assertion
+# (the narrative documents what WOULD happen, but the file doesn't
+# actually run it). Any `#-->` marker on the immediately-following
+# line is documentation, not coverage we need to reproduce. We drop
+# the marker so the audit doesn't flag fake gaps. The same goes for
+# `# ? ...` and `#? ...` -- Ring's hash-comment forms.
+_DEAD_ASSERTION_RE = re.compile(
+    r"^[ \t]*(?://\?|#[ \t]*\?).*\r?\n([ \t]*#-->.*\r?\n)+",
+    re.M,
+)
+
+
+# A `#--> SECTION HEADER:` followed by more `#-->` lines is a
+# narrative documentation block (the section header is uppercase
+# with a trailing colon, like `#--> ERROR MESSAGE:`). The lines
+# below it describe the contract in prose rather than recording
+# the output of any specific `?` call. Drop the whole run so the
+# audit doesn't ask the modular suite to reproduce documentation.
+_DOC_BLOCK_RE = re.compile(
+    r"^[ \t]*#-->[ \t]*[A-Z][A-Z _]+:[ \t]*\r?\n(?:[ \t]*#-->.*\r?\n)+",
+    re.M,
+)
+
+
+def _strip_dead_assertions(text: str) -> str:
+    text = _DEAD_ASSERTION_RE.sub("", text)
+    text = _DOC_BLOCK_RE.sub("", text)
+    return text
+
+
 def extract_markers(text: str) -> list[str]:
-    """Return the list of normalised `#-->` expected values in text."""
+    """Return the list of normalised `#-->` expected values in text.
+
+    Strips out `//? ... \\n #--> ...` blocks first so commented-out
+    assertions (which document a path the test doesn't actually
+    exercise) don't masquerade as coverage gaps.
+    """
+    text = _strip_dead_assertions(text)
     return [_norm(m.group(1)) for m in MARKER_RE.finditer(text)]
 
 
