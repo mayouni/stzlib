@@ -1,0 +1,22 @@
+digraph warehouse {
+  rankdir=TD;
+  node [shape=box];
+
+  entrance [label="Main_Entrance"];
+  receiving [label="Receiving_Bay"];
+  aisle_a [label="Aisle_A"];
+  aisle_b [label="Aisle_B"];
+  storage [label="Cold_Storage"];
+  shelf_42 [label="Shelf_42"];
+  packing [label="Packing_Area"];
+  shipping [label="Shipping_Dock"];
+
+  entrance -> receiving [label="hallway"];
+  receiving -> aisle_a [label="hallway"];
+  aisle_a -> aisle_b [label="cross_aisle"];
+  aisle_b -> storage [label="hallway"];
+  storage -> shelf_42 [label="aisle"];
+  shelf_42 -> packing [label="hallway"];
+  packing -> shipping [label="hallway"];
+  receiving -> storage [label="shortcut"];
+}

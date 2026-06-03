@@ -7,6 +7,7 @@
 load "../../../stzBase.ring"
 
 	with balance checking and multi-level approval
+*/
 pr()
 
 oLeaveWorkflow = new stzDiagramMaker("Leave Request Workflow")
