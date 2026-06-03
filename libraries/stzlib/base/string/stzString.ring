@@ -272,6 +272,102 @@ class stzString from stzObject
 		next
 		return acResult
 
+		# Z / ZZ suffixed companions: the input sections list IS the
+		# coordinate set, so 'SectionsZZ' just hands it back (modulo
+		# normalisation) and 'SectionsZ' returns the first one. These
+		# exist for naming symmetry with the AntiSections family.
+		def SectionsZZ(aSections)
+			return aSections
+
+		def SectionsZ(aSections)
+			if ring_len(aSections) = 0
+				return []
+			ok
+			return aSections[1]
+
+	# AntiSections: given a list of sections [[s1,e1],[s2,e2],...] on
+	# a string, return the complementary parts -- the substrings (or
+	# coordinates) of the gaps. The classic use case is "I marked
+	# the interesting bits with Sections; now give me what's around
+	# them."
+
+	def AntiSectionsZZ(aSections)
+		# Compute the complement section list.
+		_nLen_ = This.NumberOfChars()
+		_aSorted_ = This._SortSections(aSections)
+		_aGaps_ = []
+		_nCursor_ = 1
+		_nN_ = ring_len(_aSorted_)
+		for _iAs_ = 1 to _nN_
+			_n1_ = _aSorted_[_iAs_][1]
+			_n2_ = _aSorted_[_iAs_][2]
+			if _nCursor_ < _n1_
+				_aGaps_ + [ _nCursor_, _n1_ - 1 ]
+			ok
+			if _n2_ + 1 > _nCursor_
+				_nCursor_ = _n2_ + 1
+			ok
+		next
+		if _nCursor_ <= _nLen_
+			_aGaps_ + [ _nCursor_, _nLen_ ]
+		ok
+		return _aGaps_
+
+		def AntiSectionsZ(aSections)
+			_aZZ_ = This.AntiSectionsZZ(aSections)
+			if ring_len(_aZZ_) = 0
+				return []
+			ok
+			return _aZZ_[1]
+
+	def AntiSections(aSections)
+		return This.Sections( This.AntiSectionsZZ(aSections) )
+
+	# Internal helper: stable-sort a section list by start coordinate.
+	# Used by AntiSectionsZZ to make the complement well-defined for
+	# unsorted input.
+	def _SortSections(aSections)
+		_aSorted_ = aSections
+		_nN_ = ring_len(_aSorted_)
+		for _iSs_ = 1 to _nN_ - 1
+			for _jSs_ = 1 to _nN_ - _iSs_
+				if _aSorted_[_jSs_][1] > _aSorted_[_jSs_ + 1][1]
+					_aTmp_ = _aSorted_[_jSs_]
+					_aSorted_[_jSs_] = _aSorted_[_jSs_ + 1]
+					_aSorted_[_jSs_ + 1] = _aTmp_
+				ok
+			next
+		next
+		return _aSorted_
+
+	# Find-form: given a substring, locate every occurrence's section
+	# and return the complement -- the gaps BETWEEN occurrences.
+
+	def FindAntiSectionsZZ(pcSubStr)
+		return This.AntiSectionsZZ( This.FindAsSections(pcSubStr) )
+
+		def FindAntiSectionsZ(pcSubStr)
+			_aZZ_ = This.FindAntiSectionsZZ(pcSubStr)
+			if ring_len(_aZZ_) = 0
+				return []
+			ok
+			return _aZZ_[1]
+
+	def FindAntiSections(pcSubStr)
+		return This.Sections( This.FindAntiSectionsZZ(pcSubStr) )
+
+		def FindAsAntiSections(pcSubStr)
+			return This.FindAntiSections(pcSubStr)
+
+		def AntiFindAsSections(pcSubStr)
+			return This.FindAntiSections(pcSubStr)
+
+		def AntiFindAsSectionsZZ(pcSubStr)
+			return This.FindAntiSectionsZZ(pcSubStr)
+
+		def AntiFindAsSectionsZ(pcSubStr)
+			return This.FindAntiSectionsZ(pcSubStr)
+
 	def Range(nStart, nRange)
 		return This.Section(nStart, nStart + nRange - 1)
 
