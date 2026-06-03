@@ -55,7 +55,7 @@ class stzStringConcat
 
 	def ConcatMany(pacStrings)
 		cResult = @oString.Content()
-		nLen = len(pacStrings)
+		nLen = ring_len(pacStrings)
 		for i = 1 to nLen
 			cResult += pacStrings[i]
 		next
@@ -128,7 +128,7 @@ class stzStringConcat
 	def JoinWith(pcSep)
 		aChars = @oString.Chars()
 		cResult = ""
-		nLen = len(aChars)
+		nLen = ring_len(aChars)
 		for i = 1 to nLen
 			cResult += aChars[i]
 			if i < nLen

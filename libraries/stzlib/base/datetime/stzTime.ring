@@ -152,7 +152,7 @@ class stzTime from stzObject
         ok
 
         aParts = split(cTime, ":")
-        if len(aParts) < 2 or len(aParts) > 3
+        if ring_len(aParts) < 2 or ring_len(aParts) > 3
             StzRaise("Cannot parse time string: " + cTime)
         ok
 
@@ -161,12 +161,12 @@ class stzTime from stzObject
         nS = 0
         nMs = 0
 
-        if len(aParts) = 3
+        if ring_len(aParts) = 3
             cSecPart = aParts[3]
             if StzFind(cSecPart, ".")
                 aSubParts = split(cSecPart, ".")
                 nS = 0+ aSubParts[1]
-                if len(aSubParts) > 1
+                if ring_len(aSubParts) > 1
                     nMs = 0+ aSubParts[2]
                 ok
             else

@@ -117,7 +117,7 @@ class stzList from stzObject
 	#-------------------------------------------#
 
 	def NumberOfItemsCS(pCaseSensitive)
-		nResult = len( This.ContentCS(pCaseSensitive) )
+		nResult = ring_len( This.ContentCS(pCaseSensitive) )
 		return nResult
 
 		def NumberOfItemsCSQ(pCaseSensitive)
@@ -138,7 +138,7 @@ class stzList from stzObject
 				ok
 
 	def NumberOfItems()
-		nResult = len(@aContent)
+		nResult = ring_len(@aContent)
 		return nResult
 
 		def NumberOfItemsQ()
@@ -163,7 +163,7 @@ class stzList from stzObject
 	#--------------------------------------------------------------#
 
 	def NumberOfItemsU()
-		return len( Q(This.Content()).WithoutDuplicates() )
+		return ring_len( Q(This.Content()).WithoutDuplicates() )
 
 		def NumberOfItemsUQ()
 			return new stzNumber(This.NumberOfItemsU())
@@ -202,7 +202,7 @@ class stzList from stzObject
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		if n > nLen
 			StzRaise("Index outside the list!" + NL +
@@ -340,7 +340,7 @@ class stzList from stzObject
 
 	def NLastItems(n)
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 		n1 = nLen - n + 1
 		n2 = nLen
 
@@ -411,7 +411,7 @@ class stzList from stzObject
 		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		n2 = pnStartingAt + n - 1
 		if n2 > nLen
@@ -562,7 +562,7 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! paItems must be a list.")
 		ok
 
-		nLen = len(paItems)
+		nLen = ring_len(paItems)
 		for i = 1 to nLen
 			This.AddItem(paItems[i])
 		next
@@ -1158,7 +1158,7 @@ class stzList from stzObject
 			nResult = StzEngineListFindStringCS(pList, pItem, pCaseSensitive)
 		else
 			_aFcsContent = @aContent
-			_nFcsLen = len(_aFcsContent)
+			_nFcsLen = ring_len(_aFcsContent)
 			for _iFcs = 1 to _nFcsLen
 				if _aFcsContent[_iFcs] = pItem
 					nResult = _iFcs
@@ -1280,7 +1280,7 @@ class stzList from stzObject
 		return This.DuplicatedItemsCS(1)
 
 	def NumberOfDuplicatedItemsCS(pCaseSensitive)
-		return len(This.DuplicatedItemsCS(pCaseSensitive))
+		return ring_len(This.DuplicatedItemsCS(pCaseSensitive))
 
 	def NumberOfDuplicatedItems()
 		return This.NumberOfDuplicatedItemsCS(1)
@@ -1294,7 +1294,7 @@ class stzList from stzObject
 	#   FindManyCSQ + AreContiguous chain.
 
 	def FindSubListCS(paSubList, pCaseSensitive)
-		if NOT (isList(paSubList) and len(paSubList) >= 1)
+		if NOT (isList(paSubList) and ring_len(paSubList) >= 1)
 			return []
 		ok
 		_nFsbLen_ = ring_len(paSubList)
@@ -1336,7 +1336,7 @@ class stzList from stzObject
 			return This.FindSubList(paSubList)
 
 	def ContainsSubListCS(paSubList, pCaseSensitive)
-		return len(This.FindSubListCS(paSubList, pCaseSensitive)) > 0
+		return ring_len(This.FindSubListCS(paSubList, pCaseSensitive)) > 0
 
 	def ContainsSubList(paSubList)
 		return This.ContainsSubListCS(paSubList, 1)
@@ -1413,7 +1413,7 @@ class stzList from stzObject
 			return 0
 		ok
 
-		if len(@aContent) != len(paOtherList)
+		if ring_len(@aContent) != ring_len(paOtherList)
 			return 0
 		ok
 
@@ -1632,15 +1632,15 @@ class stzList from stzObject
 	def IsHashList()
 		bResult = 1
 		aTempKeys = []
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		for i = 1 to nLen
-			if NOT ( isList(@aContent[i]) and len(@aContent[i]) = 2 and
+			if NOT ( isList(@aContent[i]) and ring_len(@aContent[i]) = 2 and
 				 isString(@aContent[i][1]) )
 				bResult = 0
 				exit
 			else
 				cKey = @aContent[i][1]
-				nKeyLen = len(aTempKeys)
+				nKeyLen = ring_len(aTempKeys)
 				for j = 1 to nKeyLen
 					if aTempKeys[j] = cKey
 						bResult = 0
@@ -1659,7 +1659,7 @@ class stzList from stzObject
 			return NOT This.IsHashList()
 
 	def IsPair()
-		return len(@aContent) = 2
+		return ring_len(@aContent) = 2
 
 		def IsAPair()
 			return This.IsPair()
@@ -1732,7 +1732,7 @@ class stzList from stzObject
 			return 0
 		ok
 		for i = 2 to nLen
-			if len(@aContent[i]) != len(@aContent[i-1])
+			if ring_len(@aContent[i]) != ring_len(@aContent[i-1])
 				return 0
 			ok
 		next
@@ -1745,7 +1745,7 @@ class stzList from stzObject
 			return This.IsListOfListsOfSameSize()
 
 	def IsPairOfNumbers()
-		if len(@aContent) = 2 and isNumber(@aContent[1]) and isNumber(@aContent[2])
+		if ring_len(@aContent) = 2 and isNumber(@aContent[1]) and isNumber(@aContent[2])
 			return 1
 		else
 			return 0
@@ -1755,9 +1755,9 @@ class stzList from stzObject
 			return This.IsPairOfNumbers()
 
 	def IsListOfPairs()
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		for i = 1 to nLen
-			if NOT (isList(@aContent[i]) and len(@aContent[i]) = 2)
+			if NOT (isList(@aContent[i]) and ring_len(@aContent[i]) = 2)
 				return FALSE
 			ok
 		next
@@ -1769,7 +1769,7 @@ class stzList from stzObject
 	# True iff the list of numbers is sorted ascending with consecutive
 	# values (e.g. [3,4,5] -> TRUE, [3,5,6] -> FALSE).
 	def IsContiguous()
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		if nLen < 2
 			return TRUE
 		ok
@@ -1789,10 +1789,10 @@ class stzList from stzObject
 			return This.IsContiguous()
 
 	def IsListOfPairsOfNumbers()
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		for i = 1 to nLen
 			p = @aContent[i]
-			if NOT (isList(p) and len(p) = 2 and isNumber(p[1]) and isNumber(p[2]))
+			if NOT (isList(p) and ring_len(p) = 2 and isNumber(p[1]) and isNumber(p[2]))
 				return FALSE
 			ok
 		next
@@ -1802,10 +1802,10 @@ class stzList from stzObject
 			return This.IsListOfPairsOfNumbers()
 
 	def IsListOfPairsOfStrings()
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		for i = 1 to nLen
 			p = @aContent[i]
-			if NOT (isList(p) and len(p) = 2 and isString(p[1]) and isString(p[2]))
+			if NOT (isList(p) and ring_len(p) = 2 and isString(p[1]) and isString(p[2]))
 				return FALSE
 			ok
 		next
@@ -1815,7 +1815,7 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStrings()
 
 	def IsSet()
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 		for i = 1 to nLen
 			for j = i + 1 to nLen
 				if @aContent[i] = @aContent[j]
@@ -1988,7 +1988,7 @@ class stzList from stzObject
 		_oChain_ = new stzList(panPos)
 
 		panSorted = _oChain_.Sorted()
-		nLen = len(panSorted)
+		nLen = ring_len(panSorted)
 
 		for i = nLen to 1 step -1
 			This.RemoveItemAtPosition(panSorted[i])
@@ -2113,7 +2113,7 @@ class stzList from stzObject
 			pItem = pItem[2]
 		ok
 
-		if len(@aContent) = 0
+		if ring_len(@aContent) = 0
 			return []
 		ok
 
@@ -2205,7 +2205,7 @@ class stzList from stzObject
 	  #-- NumberOfOccurrenceCS: count occurrences
 
 	def NumberOfOccurrenceCS(pItem, pCaseSensitive)
-		return len(This.FindAllOccurrencesCS(pItem, pCaseSensitive))
+		return ring_len(This.FindAllOccurrencesCS(pItem, pCaseSensitive))
 
 		def NumberOfOccurrencesCS(pItem, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
@@ -2244,7 +2244,7 @@ class stzList from stzObject
 		ok
 
 		anPositions = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
-		nLen = len(anPositions)
+		nLen = ring_len(anPositions)
 
 		if n < 1 or n > nLen
 			return 0
@@ -2271,7 +2271,7 @@ class stzList from stzObject
 
 	def FindLastOccurrenceCS(pItem, pCaseSensitive)
 		anAll = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
-		nLen = len(anAll)
+		nLen = ring_len(anAll)
 		if nLen = 0
 			return 0
 		ok
@@ -2291,10 +2291,10 @@ class stzList from stzObject
 		ok
 
 		anResult = []
-		nLen = len(paItems)
+		nLen = ring_len(paItems)
 		for i = 1 to nLen
 			anPos = This.FindAllOccurrencesCS(paItems[i], pCaseSensitive)
-			for j = 1 to len(anPos)
+			for j = 1 to ring_len(anPos)
 				anResult + anPos[j]
 			next
 		next
@@ -2323,7 +2323,7 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		nLen = len(paItems)
+		nLen = ring_len(paItems)
 		for i = 1 to nLen
 			if NOT This.ContainsCS(paItems[i], pCaseSensitive)
 				return 0
@@ -2361,7 +2361,7 @@ class stzList from stzObject
 		ok
 
 		anPos = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
-		nLenPos = len(anPos)
+		nLenPos = ring_len(anPos)
 
 		for i = nLenPos to 1 step -1
 			This.RemoveItemAtPosition(anPos[i])
@@ -2397,12 +2397,12 @@ class stzList from stzObject
 		cRaw = StzEngineListFindAllW(pList, pcCondition)
 		StzEngineListFree(pList)
 
-		if len(cRaw) = 0
+		if ring_len(cRaw) = 0
 			return []
 		ok
 
 		anResult = StzSplit(cRaw, ",")
-		nLen = len(anResult)
+		nLen = ring_len(anResult)
 		for i = 1 to nLen
 			anResult[i] = 0 + anResult[i]
 		next
@@ -2437,7 +2437,7 @@ class stzList from stzObject
 		ok
 
 		aContent = This.Content()
-		nLen = len(panPos)
+		nLen = ring_len(panPos)
 		aResult = []
 
 		for i = 1 to nLen
@@ -2580,7 +2580,7 @@ class stzList from stzObject
 
 	def PerformOn(panPos, pcAction)
 		pcAction = _StzStripBraces(pcAction)
-		nLen = len(panPos)
+		nLen = ring_len(panPos)
 		pList = This._EngineListFromContent()
 		if pList = NULL return ok
 
@@ -2589,7 +2589,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 			nPos = panPos[i]
-			if nPos >= 1 and nPos <= len(@aContent)
+			if nPos >= 1 and nPos <= ring_len(@aContent)
 				@aContent[nPos] = aNew[nPos]
 			ok
 		next
@@ -2608,7 +2608,7 @@ class stzList from stzObject
 	  #-- Min / Max for numeric lists
 
 	def Min()
-		if len(@aContent) = 0
+		if ring_len(@aContent) = 0
 			return 0
 		ok
 
@@ -2625,7 +2625,7 @@ class stzList from stzObject
 			return This.Min()
 
 	def Max()
-		if len(@aContent) = 0
+		if ring_len(@aContent) = 0
 			return 0
 		ok
 
@@ -2647,21 +2647,21 @@ class stzList from stzObject
 	  #-- Sum / Product / Mean (engine-backed)
 
 	def Sum()
-		if len(@aContent) = 0 return 0 ok
+		if ring_len(@aContent) = 0 return 0 ok
 		_pSmList_ = This._EngineListFromContent()
 		_nSmResult_ = StzEngineListSum(_pSmList_)
 		StzEngineListFree(_pSmList_)
 		return _nSmResult_
 
 	def Product()
-		if len(@aContent) = 0 return 0 ok
+		if ring_len(@aContent) = 0 return 0 ok
 		_pPrList_ = This._EngineListFromContent()
 		_nPrResult_ = StzEngineListProduct(_pPrList_)
 		StzEngineListFree(_pPrList_)
 		return _nPrResult_
 
 	def Mean()
-		if len(@aContent) = 0 return 0 ok
+		if ring_len(@aContent) = 0 return 0 ok
 		_pMnList_ = This._EngineListFromContent()
 		_nMnResult_ = StzEngineListMean(_pMnList_)
 		StzEngineListFree(_pMnList_)
@@ -2673,14 +2673,14 @@ class stzList from stzObject
 	  #-- Variance / StdDev (engine-backed)
 
 	def Variance()
-		if len(@aContent) = 0 return 0 ok
+		if ring_len(@aContent) = 0 return 0 ok
 		_pVarList_ = This._EngineListFromContent()
 		_nVarResult_ = StzEngineListVariance(_pVarList_)
 		StzEngineListFree(_pVarList_)
 		return _nVarResult_
 
 	def Stddev()
-		if len(@aContent) = 0 return 0 ok
+		if ring_len(@aContent) = 0 return 0 ok
 		_pSdList_ = This._EngineListFromContent()
 		_nSdResult_ = StzEngineListStddev(_pSdList_)
 		StzEngineListFree(_pSdList_)
@@ -2692,21 +2692,21 @@ class stzList from stzObject
 	  #-- Median / Nth Smallest / Nth Largest (engine-backed)
 
 	def Median()
-		if len(@aContent) = 0 return 0 ok
+		if ring_len(@aContent) = 0 return 0 ok
 		_pMdList_ = This._EngineListFromContent()
 		_nMdResult_ = StzEngineListMedian(_pMdList_)
 		StzEngineListFree(_pMdList_)
 		return _nMdResult_
 
 	def NthSmallest(n)
-		if len(@aContent) = 0 return 0 ok
+		if ring_len(@aContent) = 0 return 0 ok
 		_pNsListH_ = This._EngineListFromContent()
 		_nNsResult_ = StzEngineListNthSmallest(_pNsListH_, n)
 		StzEngineListFree(_pNsListH_)
 		return _nNsResult_
 
 	def NthLargest(n)
-		if len(@aContent) = 0 return 0 ok
+		if ring_len(@aContent) = 0 return 0 ok
 		_pNlListH_ = This._EngineListFromContent()
 		_nNlResult_ = StzEngineListNthLargest(_pNlListH_, n)
 		StzEngineListFree(_pNlListH_)
@@ -2821,7 +2821,7 @@ class stzList from stzObject
 
 	def IsPairOfStrings()
 		_aIpContent_ = This.Content()
-		if len(_aIpContent_) != 2
+		if ring_len(_aIpContent_) != 2
 			return 0
 		ok
 		return isString(_aIpContent_[1]) and isString(_aIpContent_[2])
@@ -4205,7 +4205,7 @@ class stzList from stzObject
 		_cRT_ = NULL  _aRP_ = []
 
 		# Form A: p2 = [ "Or", X ] -- shared-type DSL
-		if isList(p2) and len(p2) = 2 and isString(p2[1]) and lower(p2[1]) = "or"
+		if isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and lower(p2[1]) = "or"
 			if NOT isString(p3)
 				return NULL
 			ok
@@ -4254,15 +4254,15 @@ class stzList from stzObject
 			else
 				_aP_ + pSide
 			ok
-		but isList(pSide) and len(pSide) > 0
+		but isList(pSide) and ring_len(pSide) > 0
 			# Last item is the type
-			_cLast_ = pSide[len(pSide)]
+			_cLast_ = pSide[ring_len(pSide)]
 			if NOT isString(_cLast_)
 				return NULL
 			ok
 			if ring_find(_aTypes_, lower(_cLast_)) > 0
 				_cT_ = _cLast_
-				for _i_ = 1 to len(pSide) - 1
+				for _i_ = 1 to ring_len(pSide) - 1
 					_aP_ + pSide[_i_]
 				next
 			else
@@ -4452,7 +4452,7 @@ class stzList from stzObject
 	def Unicodes()
 		_aUcResult_ = []
 		for _xUcItem_ in @aContent
-			if isString(_xUcItem_) and len(_xUcItem_) > 0
+			if isString(_xUcItem_) and ring_len(_xUcItem_) > 0
 				_aUcResult_ + StzCharToUnicode(_xUcItem_)
 			ok
 		next

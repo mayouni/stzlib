@@ -221,7 +221,7 @@ class stzListSections
 
 	def Sections(paSections)
 		_aSsResult_ = []
-		_nSsLen_ = len(paSections)
+		_nSsLen_ = ring_len(paSections)
 
 		for _iSs_ = 1 to _nSsLen_
 			@AddItem(_aSsResult_, This.Section(paSections[_iSs_][1], paSections[_iSs_][2]))

@@ -77,7 +77,7 @@ class stzStringFinder
 			StzRaise("Incorrect param type! pacSubStrings must be a list.")
 		ok
 
-		nLen = len(pacSubStrings)
+		nLen = ring_len(pacSubStrings)
 		for i = 1 to nLen
 			if NOT This.ContainsCS(pacSubStrings[i], pCaseSensitive)
 				return FALSE
@@ -100,7 +100,7 @@ class stzStringFinder
 				return This.FindManyCS(pcSubStr, pCaseSensitive)
 			ok
 
-			if isList(pcSubStr) and len(pcSubStr) = 2 and isString(pcSubStr[1])
+			if isList(pcSubStr) and ring_len(pcSubStr) = 2 and isString(pcSubStr[1])
 				cPN = StzCaseFold(pcSubStr[1])
 				if cPN = "of" or cPN = "ofsubstring"
 					pcSubStr = pcSubStr[2]
@@ -254,10 +254,10 @@ class stzStringFinder
 		ok
 
 		aResult = []
-		nLen = len(pacSubStrings)
+		nLen = ring_len(pacSubStrings)
 		for i = 1 to nLen
 			anPositions = This.FindCS(pacSubStrings[i], pCaseSensitive)
-			if len(anPositions) > 0
+			if ring_len(anPositions) > 0
 				aResult + [ pacSubStrings[i], anPositions ]
 			ok
 		next
@@ -296,7 +296,7 @@ class stzStringFinder
 
 	def FindAsSectionsCS(pcSubStr, pCaseSensitive)
 		anFirstPos = This.FindCS(pcSubStr, pCaseSensitive)
-		nLen = len(anFirstPos)
+		nLen = ring_len(anFirstPos)
 
 		if nLen = 0
 			return []
@@ -357,7 +357,7 @@ class stzStringFinder
 
 	def FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 		# pacBounds is a pair [cBound1, cBound2]
-		if NOT (isList(pacBounds) and len(pacBounds) = 2)
+		if NOT (isList(pacBounds) and ring_len(pacBounds) = 2)
 			StzRaise("Incorrect param! pacBounds must be a pair of strings.")
 		ok
 
@@ -372,10 +372,10 @@ class stzStringFinder
 		aResult = []
 
 		# For each bound1 occurrence, find the next bound2 after it
-		for i = 1 to len(anPos1)
+		for i = 1 to ring_len(anPos1)
 			nAfter = anPos1[i] + nLen1
 			# Find the nearest bound2 that starts after bound1 ends
-			for j = 1 to len(anPos2)
+			for j = 1 to ring_len(anPos2)
 				if anPos2[j] > anPos1[i] + nLen1 - 1
 					aResult + [ nAfter, anPos2[j] - 1 ]
 					exit
@@ -435,22 +435,22 @@ class stzStringFinder
 
 	def FindDuplicatesAsSectionsCS(pCaseSensitive)
 		acDuplicates = This.DuplicatesCS(pCaseSensitive)
-		nLen = len(acDuplicates)
+		nLen = ring_len(acDuplicates)
 
 		aResult = []
 
 		for i = 1 to nLen
 			aSections = This.FindAsSectionsCS(acDuplicates[i], pCaseSensitive)
 			# Remove first occurrence — keep only duplicates
-			if len(aSections) > 1
-				for j = 2 to len(aSections)
+			if ring_len(aSections) > 1
+				for j = 2 to ring_len(aSections)
 					aResult + aSections[j]
 				next
 			ok
 		next
 
 		# Sort by start position
-		nLenR = len(aResult)
+		nLenR = ring_len(aResult)
 		for i = 1 to nLenR - 1
 			for j = 1 to nLenR - i
 				if aResult[j][1] > aResult[j+1][1]

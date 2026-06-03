@@ -16,7 +16,7 @@ class stzContextPool
 		next
 
 	def Acquire()
-		if len(aAvailable) > 0
+		if ring_len(aAvailable) > 0
 			oContext = aAvailable[1]
 			del(aAvailable, 1)
 			aActive + oContext
@@ -30,7 +30,7 @@ class stzContextPool
 
 	def Release(oContext)
 		# Find and remove from active
-		for i = 1 to len(aActive)
+		for i = 1 to ring_len(aActive)
 			if aActive[i] = oContext
 				del(aActive, i)
 				exit
@@ -42,10 +42,10 @@ class stzContextPool
 		aAvailable + oContext
 
 	def ActiveCount()
-		return len(aActive)
+		return ring_len(aActive)
 
 	def AvailableCount()
-		return len(aAvailable)
+		return ring_len(aAvailable)
 
 
 class stzComputeContext

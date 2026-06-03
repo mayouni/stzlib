@@ -30,7 +30,7 @@ class stzTableStructure from stzTable
 		*/
 
 		if NOT ( isList(pacColNameAndData) and
-			 len(pacColNameAndData) = 2 and
+			 ring_len(pacColNameAndData) = 2 and
 			 isString(pacColNameAndData[1]) and
 			 isList(pacColNameAndData[2]) )
 
@@ -41,7 +41,7 @@ class stzTableStructure from stzTable
 			StzRaise("Can't add the column! The name your provided already exists.")
 		ok
 
-		nLen = len(pacColNameAndData[2])
+		nLen = ring_len(pacColNameAndData[2])
 		nRows = This.NumberOfRows()
 
 		if nLen < nRows
@@ -62,7 +62,7 @@ class stzTableStructure from stzTable
 			This.AddColumn(pacColNameAndData)
 
 	def AddColumns(pacColNamesAndData)
-		nLen = len(pacColNamesAndData)
+		nLen = ring_len(pacColNamesAndData)
 
 		for i = 1 to nLen
 			This.AddColumn(pacColNamesAndData[i])
@@ -94,7 +94,7 @@ class stzTableStructure from stzTable
 
 		nLen = This.NumberOfCols()
 
-		if NOT len(paRow) = This.NumberOfCols()
+		if NOT ring_len(paRow) = This.NumberOfCols()
 			StzRaise("Incorrect format! paRow must contain " + This.NumberOfCols() + " items.")
 		ok
 
@@ -111,7 +111,7 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect param type! paRows must be a list.")
 		ok
 
-		nLen = len(paRows)
+		nLen = ring_len(paRows)
 		for i = 1 to nLen
 			This.AddRow(paRows[i])
 		next
@@ -231,7 +231,7 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect param type! paColsAndTheirNewNames must be a hashlist.")
 		ok
 
-		nLen = len(paColsAndTheirNewNames)
+		nLen = ring_len(paColsAndTheirNewNames)
 
 		for i = 1 to nLen
 			This.RenameCol(paColsAndTheirNewNames[i][1], paColsAndTheirNewNames[i][2])
@@ -256,7 +256,7 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect param type! panColsNumbers must be a list of numbers.")
 		ok
 
-		nLen = len(panColsNumbers)
+		nLen = ring_len(panColsNumbers)
 
 		for i = 1 to nLen
 			This.RenameColN(panColsNumbers[i])
@@ -319,7 +319,7 @@ class stzTableStructure from stzTable
 		ok
 
 		anColNumbers = new stzList( U(TpacColNamesOrNumbers) ).Sorted()
-		nLen = len(anColNumbers)
+		nLen = ring_len(anColNumbers)
 
 		aContent = @aContent
 
@@ -342,7 +342,7 @@ class stzTableStructure from stzTable
 
 	def RemoveColumns(pacColNamesOrNumbers)
 		anColNumbers = new stzList( U(This.TheseColsToColNumbers(pacColNamesOrNumbers)) ).Sorted()
-		nLen = len(anColNumbers)
+		nLen = ring_len(anColNumbers)
 
 		aContent = @aContent
 
@@ -350,7 +350,7 @@ class stzTableStructure from stzTable
 			ring_remove(aContent, anColNumbers[i])
 		next
 
-		if len(aContent) = 0
+		if ring_len(aContent) = 0
 			aContent = [ :COL1 = [ "" ] ]
 		ok
 
@@ -485,7 +485,7 @@ class stzTableStructure from stzTable
 		ok
 
 		aContent = @aContent
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		for i = 1 to nLen
 			ring_remove(aContent[i][2], n)
@@ -516,9 +516,9 @@ class stzTableStructure from stzTable
 		ok
 
 		aContent = @aContent
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 		anPos = new stzList( U(panRows) ).Sorted()
-		nLenPos = len(anPos)
+		nLenPos = ring_len(anPos)
 
 		for i = nLen to 1 step -1
 			for j = 1 to nLen
@@ -624,10 +624,10 @@ class stzTableStructure from stzTable
 
 		aContent = @aContent
 
-		nLen = len(aContent)
+		nLen = ring_len(aContent)
 
 		for i = 1 to nLen
-			nLenLine = len(aContent[i][2])
+			nLenLine = ring_len(aContent[i][2])
 			for j = 1 to nLenLine
 				aContent[i][2][j] = ""
 			next
@@ -707,7 +707,7 @@ class stzTableStructure from stzTable
 		ok
 
 		aContent = @aContent
-		nLen = len(paCellsPos)
+		nLen = ring_len(paCellsPos)
 
 		for i = 1 to nLen
 			nCol = paCellsPos[i][1]
@@ -748,7 +748,7 @@ class stzTableStructure from stzTable
 				StzRaise("Incorrect param type! n must be a number or a list of numbers.")
 			ok
 
-			if NOT ( isList(paColData) and len(paColData) > 1 and isString(paColData[1]) )
+			if NOT ( isList(paColData) and ring_len(paColData) > 1 and isString(paColData[1]) )
 				StzRaise("Incorrect param type! paColData must be a list with the first item beeing a string.")
 			ok
 		ok
@@ -763,7 +763,7 @@ class stzTableStructure from stzTable
 		cColName = paColData[1]
 		paColData = paColData[2]
 
-		nLenColData = len(paColData)
+		nLenColData = ring_len(paColData)
 		nRows = This.NumberOfRows()
 		nMin = @Min([ nLenColData, nRows ])
 
@@ -872,7 +872,7 @@ class stzTableStructure from stzTable
 
 		nCols = This.NumberOfCols()
 		nRows = This.NumberOfRows()
-		nRowData = len(parowData)
+		nRowData = ring_len(parowData)
 		nMin = @Min([nRowData , nCols ])
 
 		# Filling the missing cells by ""
@@ -935,7 +935,7 @@ class stzTableStructure from stzTable
 		ok
 
 		anPos = new stzList( U(panPos) ).Sorted()
-		nLen = len(anPos)
+		nLen = ring_len(anPos)
 
 		for i = nLen to 1 step -1
 			This.InsertRowAtPosition(panPos[i], paRow)

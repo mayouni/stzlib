@@ -53,7 +53,7 @@ class stzRegexuter
 			return
 		ok
 
-		if NOT (isList(aTrigger) and len(aTrigger) = 2 and 
+		if NOT (isList(aTrigger) and ring_len(aTrigger) = 2 and 
 		        isString(aTrigger[1]) and isString(aTrigger[2]))
 			StzRaise("Incorrect param! aTrigger must be a pair of strings [name, pattern]")
 		ok
@@ -104,7 +104,7 @@ class stzRegexuter
 		# Clean code
 		cCode = trim(cCode)
 		if StzLeft(cCode, 1) = "{" and StzRight(cCode, 1) = "}"
-			cCode = StzMid(cCode, 2, len(cCode)-2)
+			cCode = StzMid(cCode, 2, ring_len(cCode)-2)
 		ok
 
 		aCodesPerTrigger + [cTriggerName, cCode]
@@ -146,10 +146,10 @@ class stzRegexuter
 
 			aMatches = AllMatches(cText, cPattern)
 			
-			if len(aMatches) > 0
+			if ring_len(aMatches) > 0
 				aActiveComputations + cTriggerName
 
-				for i = 1 to len(aMatches)
+				for i = 1 to ring_len(aMatches)
 					match = aMatches[i]
 					# Get position using MatchAt()
 					nPos = oStzStr.FindFirst(match)
@@ -169,7 +169,7 @@ class stzRegexuter
 					ok
 				next
 
-				del(aActiveComputations, len(aActiveComputations))
+				del(aActiveComputations, ring_len(aActiveComputations))
 			ok
 		next
 
@@ -189,7 +189,7 @@ class stzRegexuter
 		# Create state entry hashlist
 		entry = [
 			:timeStamp = date() + " " + time(),
-			:computationOrder = len(aState) + 1,
+			:computationOrder = ring_len(aState) + 1,
 
 			:triggerName = cTriggerName,
 			:pattern = cPattern,

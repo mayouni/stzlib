@@ -63,16 +63,16 @@ class stzGraphex from stzGraph
 		aTokens = This.ParsePattern(cPattern)
 		
 		? "ParsePattern returned: " + @@(aTokens)
-		? "Number of tokens: " + len(aTokens)
+		? "Number of tokens: " + ring_len(aTokens)
 		
-		if len(aTokens) = 0
+		if ring_len(aTokens) = 0
 			? "WARNING: No tokens parsed!"
 			return
 		ok
 		
 		nNodeCounter = 0
 		nPrevNodeId = NULL
-		nLenTokens = len(aTokens)
+		nLenTokens = ring_len(aTokens)
 		
 		for i = 1 to nLenTokens
 			aToken = aTokens[i]
@@ -80,7 +80,7 @@ class stzGraphex from stzGraph
 			? "Processing token #" + i + ": " + @@(aToken)
 			
 			# Check if token is valid before accessing [:type]
-			if NOT isList(aToken) or len(aToken) = 0
+			if NOT isList(aToken) or ring_len(aToken) = 0
 				? "Invalid token at position " + i
 				loop
 			ok
@@ -93,7 +93,7 @@ class stzGraphex from stzGraph
 			
 			if aToken[:type] = "alternation"
 				aAltNodes = []
-				nLenAlternatives = len(aToken[:alternatives])
+				nLenAlternatives = ring_len(aToken[:alternatives])
 				
 				for j = 1 to nLenAlternatives
 					nNodeCounter++
@@ -102,7 +102,7 @@ class stzGraphex from stzGraph
 					cLabel = aAltToken[:type] + iff(HasKey(aAltToken, :label) and aAltToken[:label] != "", "(" + aAltToken[:label] + ")", "")
 					acProps = [ "min=" + aAltToken[:min], "max=" + aAltToken[:max], 
 							"negated=" + iff(aAltToken[:negated], "TRUE", "FALSE") ]
-					if HasKey(aAltToken, :setvalues) and len(aAltToken[:setvalues]) > 0
+					if HasKey(aAltToken, :setvalues) and ring_len(aAltToken[:setvalues]) > 0
 						acProps + "set={" + JoinXT(aAltToken[:setvalues], ";") + "}" + iff(aAltToken[:unique], "U", "")
 					ok
 					This.AddNodeXTT(cAltNodeId, cLabel, acProps)
@@ -129,7 +129,7 @@ class stzGraphex from stzGraph
 				ok
 				acProps = [ "min=" + aToken[:min], "max=" + aToken[:max], 
 						"negated=" + iff(aToken[:negated], "TRUE", "FALSE") ]
-				if HasKey(aToken, :setvalues) and len(aToken[:setvalues]) > 0
+				if HasKey(aToken, :setvalues) and ring_len(aToken[:setvalues]) > 0
 					acProps + "set={" + JoinXT(aToken[:setvalues], ";") + "}" + iff(aToken[:unique], "U", "")
 				ok
 				This.AddNodeXTT(cNodeId, cLabel, acProps)
@@ -140,8 +140,8 @@ class stzGraphex from stzGraph
 				ok
 				
 				# Connect from all pending alternation branches
-				if len(@aPendingAlternationBranches) > 0
-					nLenPending = len(@aPendingAlternationBranches)
+				if ring_len(@aPendingAlternationBranches) > 0
+					nLenPending = ring_len(@aPendingAlternationBranches)
 					for k = 1 to nLenPending
 						This.AddEdgeXT(@aPendingAlternationBranches[k], cNodeId, "sequences")
 					next
@@ -168,10 +168,10 @@ class stzGraphex from stzGraph
 		aParts = split(cInner, "->")
 		
 		? "Parts after split: " + @@(aParts)
-		? "Number of parts: " + len(aParts)
+		? "Number of parts: " + ring_len(aParts)
 		
 		aTokens = []
-		nLenParts = len(aParts)
+		nLenParts = ring_len(aParts)
 		
 		for i = 1 to nLenParts
 			cPart = trim(aParts[i])
@@ -188,7 +188,7 @@ class stzGraphex from stzGraph
 			# Strip outer parentheses first, then check for pipe
 			if startsWith(cPart, "(") and endsWith(cPart, ")")
 				# Strip outer parentheses to get the inner content
-				cInnerPart = @substr(cPart, 2, len(cPart) - 1)
+				cInnerPart = @substr(cPart, 2, ring_len(cPart) - 1)
 				
 				? "  Stripped parentheses: [" + cInnerPart + "]"
 				
@@ -198,7 +198,7 @@ class stzGraphex from stzGraph
 					# Process as alternation without outer parentheses
 					aAltTokens = []
 					aAltParts = @split(cInnerPart, "|")
-					nLenAltParts = len(aAltParts)
+					nLenAltParts = ring_len(aAltParts)
 					bValidAlt = TRUE
 					
 					for j = 1 to nLenAltParts
@@ -206,7 +206,7 @@ class stzGraphex from stzGraph
 						? "    Alternation part #" + j + ": [" + cAlt + "]"
 						if cAlt != ""
 							aToken = This.ParseSingleToken(cAlt)
-							if isList(aToken) and len(aToken) > 0
+							if isList(aToken) and ring_len(aToken) > 0
 								aAltTokens + aToken
 								? "      Token parsed successfully"
 							else
@@ -219,16 +219,16 @@ class stzGraphex from stzGraph
 						ok
 					next
 					
-					if bValidAlt and len(aAltTokens) > 0
-						? "  Adding alternation token with " + len(aAltTokens) + " alternatives"
+					if bValidAlt and ring_len(aAltTokens) > 0
+						? "  Adding alternation token with " + ring_len(aAltTokens) + " alternatives"
 						aTokens + [ [ "type", "alternation" ], [ "alternatives", aAltTokens ] ]
 					else
 						? "  Alternation invalid, using fallback"
-						if len(aAltTokens) > 0
+						if ring_len(aAltTokens) > 0
 							aTokens + aAltTokens[1]
 						else
 							aFallback = This.ParseSingleToken(cPart)
-							if isList(aFallback) and len(aFallback) > 0
+							if isList(aFallback) and ring_len(aFallback) > 0
 								aTokens + aFallback
 							ok
 						ok
@@ -236,7 +236,7 @@ class stzGraphex from stzGraph
 				else
 					? "  No alternation, parsing as single token"
 					aResult = This.ParseSingleToken(cInnerPart)
-					if isList(aResult) and len(aResult) > 0
+					if isList(aResult) and ring_len(aResult) > 0
 						aTokens + aResult
 						? "    Token added"
 					else
@@ -246,7 +246,7 @@ class stzGraphex from stzGraph
 			else
 				? "  No parentheses, parsing as single token"
 				aResult = This.ParseSingleToken(cPart)
-				if isList(aResult) and len(aResult) > 0
+				if isList(aResult) and ring_len(aResult) > 0
 					aTokens + aResult
 					? "    Token added"
 				else
@@ -255,7 +255,7 @@ class stzGraphex from stzGraph
 			ok
 		next
 		
-		? "ParsePattern returning " + len(aTokens) + " tokens"
+		? "ParsePattern returning " + ring_len(aTokens) + " tokens"
 		return aTokens
 
 
@@ -272,7 +272,7 @@ class stzGraphex from stzGraph
 		bNegated = StartsWith(cTokenStr, "@!")
 		if bNegated
 			# Remove @! (positions 1-2), keep from position 3 onwards
-			cTokenStr = "@" + @substr(cTokenStr, 3, len(cTokenStr))
+			cTokenStr = "@" + @substr(cTokenStr, 3, ring_len(cTokenStr))
 		ok
 			
 		# Now process cTokenStr normally with bNegated flag set...
@@ -298,7 +298,7 @@ class stzGraphex from stzGraph
 				nMin = 0
 				nMax = 1
 			off
-			cTokenStr = Left(cTokenStr, len(cTokenStr) - 1)
+			cTokenStr = Left(cTokenStr, ring_len(cTokenStr) - 1)
 		ok
 	
 		# Process set constraints - look for {...}U or {...}
@@ -310,11 +310,11 @@ class stzGraphex from stzGraph
 				cSetContent = @substr(cTokenStr, nBraceStart + 1, nBraceEnd)
 				
 				# Check for U after closing brace
-				if nBraceEnd < len(cTokenStr) and @substr(cTokenStr, nBraceEnd + 1, nBraceEnd + 2) = "U"
+				if nBraceEnd < ring_len(cTokenStr) and @substr(cTokenStr, nBraceEnd + 1, nBraceEnd + 2) = "U"
 					bRequireUnique = TRUE
-					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 2, len(cTokenStr))
+					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 2, ring_len(cTokenStr))
 				else
-					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 1, len(cTokenStr))
+					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 1, ring_len(cTokenStr))
 				ok
 				
 				# Parse set values
@@ -417,7 +417,7 @@ class stzGraphex from stzGraph
 	def ListifyGraph(oGraph)
 		aBranches = []
 		acNodes = oGraph.Nodes()
-		nLenNodes = len(acNodes)
+		nLenNodes = ring_len(acNodes)
 		
 		# Handle single isolated nodes
 		for i = 1 to nLenNodes
@@ -427,7 +427,7 @@ class stzGraphex from stzGraph
 			acIncoming = oGraph.Incoming(cNodeId)
 			
 			# If node has no connections, add it as single-node branch
-			if len(acNeighbors) = 0 and len(acIncoming) = 0
+			if ring_len(acNeighbors) = 0 and ring_len(acIncoming) = 0
 				aBranches + [aNode[:label]]
 			ok
 		next
@@ -437,22 +437,22 @@ class stzGraphex from stzGraph
 			aNode = acNodes[i]
 			cStartId = aNode[:id]
 			acReachable = oGraph.ReachableFrom(cStartId)
-			nLenReachable = len(acReachable)
+			nLenReachable = ring_len(acReachable)
 			for j = 1 to nLenReachable
 				cEndId = acReachable[j]
 				if cEndId != cStartId
 					acPaths = oGraph.FindAllPaths(cStartId, cEndId)
-					nLenPaths = len(acPaths)
+					nLenPaths = ring_len(acPaths)
 					for k = 1 to nLenPaths
 						aPath = acPaths[k]
 						aBranch = []
-						nLenPath = len(aPath)
+						nLenPath = ring_len(aPath)
 						for m = 1 to nLenPath-1
 							cFrom = aPath[m]
 							cTo = aPath[m+1]
 							# Get node by ID
 							aNodeFrom = NULL
-							nLenNodes = len(oGraph.Nodes())
+							nLenNodes = ring_len(oGraph.Nodes())
 							for n = 1 to nLenNodes
 								if oGraph.Nodes()[n][:id] = cFrom
 									aNodeFrom = oGraph.Nodes()[n]
@@ -469,7 +469,7 @@ class stzGraphex from stzGraph
 						next
 						# Add final node
 						aNodeTo = NULL
-						nLenNodes = len(oGraph.Nodes())
+						nLenNodes = ring_len(oGraph.Nodes())
 						for n = 1 to nLenNodes
 							if oGraph.Nodes()[n][:id] = aPath[nLenPath]
 								aNodeTo = oGraph.Nodes()[n]
@@ -479,7 +479,7 @@ class stzGraphex from stzGraph
 						if aNodeTo != NULL
 							aBranch + aNodeTo[:label]
 						ok
-						if len(aBranch) > 0
+						if ring_len(aBranch) > 0
 							aBranches + aBranch
 						ok
 					next
@@ -490,26 +490,26 @@ class stzGraphex from stzGraph
 		# Handle cycles
 		if oGraph.CyclicDependencies()
 			acCyclicNodes = oGraph._GetCyclicNodes()
-			nLenCyclic = len(acCyclicNodes)
+			nLenCyclic = ring_len(acCyclicNodes)
 
 			for i = 1 to nLenCyclic
 				cNode = acCyclicNodes[i]
 				acCyclePaths = oGraph.FindAllPaths(cNode, cNode)
-				nLenCyclePaths = len(acCyclePaths)
+				nLenCyclePaths = ring_len(acCyclePaths)
 
 				for j = 1 to nLenCyclePaths
 					aPath = acCyclePaths[j]
 
-					if len(aPath) > 1
+					if ring_len(aPath) > 1
 						aBranch = ["@Cycle"]
-						nLenPath = len(aPath)
+						nLenPath = ring_len(aPath)
 
 						for k = 1 to nLenPath-1
 							cFrom = aPath[k]
 							cTo = aPath[k+1]
 							# Get node by ID
 							aNodeFrom = NULL
-							nLenNodes = len(oGraph.Nodes())
+							nLenNodes = ring_len(oGraph.Nodes())
 
 							for n = 1 to nLenNodes
 								if oGraph.Nodes()[n][:id] = cFrom
@@ -531,7 +531,7 @@ class stzGraphex from stzGraph
 
 						# Add final node
 						aNodeTo = NULL
-						nLenNodes = len(oGraph.Nodes())
+						nLenNodes = ring_len(oGraph.Nodes())
 						for n = 1 to nLenNodes
 							if oGraph.Nodes()[n][:id] = aPath[nLenPath]
 								aNodeTo = oGraph.Nodes()[n]
@@ -578,7 +578,7 @@ class stzGraphex from stzGraph
 	def ListifyPatternGraph()
 		aBranches = []
 		acNodes = This.Nodes()
-		nLenNodes = len(acNodes)
+		nLenNodes = ring_len(acNodes)
 		
 		if nLenNodes = 0
 			return []
@@ -589,12 +589,12 @@ class stzGraphex from stzGraph
 		for i = 1 to nLenNodes
 			aNode = acNodes[i]
 			acIncoming = This.Incoming(aNode[:id])
-			if len(acIncoming) = 0
+			if ring_len(acIncoming) = 0
 				acRoots + aNode[:id]
 			ok
 		next
 		
-		if len(acRoots) = 0
+		if ring_len(acRoots) = 0
 			acRoots + acNodes[1][:id]
 		ok
 		
@@ -604,7 +604,7 @@ class stzGraphex from stzGraph
 		ok
 		
 		# Traverse from each root
-		nLenRoots = len(acRoots)
+		nLenRoots = ring_len(acRoots)
 		for i = 1 to nLenRoots
 			cRoot = acRoots[i]
 			This.TraversePatternNode(cRoot, [], aBranches, [])
@@ -625,7 +625,7 @@ class stzGraphex from stzGraph
 		if cLabel = "Alternation"
 			# Get alternation branches and continuation
 			acNeighbors = This.Neighbors(cNodeId)
-			nLenNeighbors = len(acNeighbors)
+			nLenNeighbors = ring_len(acNeighbors)
 			
 			# Find alternation branches (edges labeled "alternates")
 			acAltBranches = []
@@ -642,7 +642,7 @@ class stzGraphex from stzGraph
 			next
 			
 			# Process each alternation branch
-			nLenAlt = len(acAltBranches)
+			nLenAlt = ring_len(acAltBranches)
 			for i = 1 to nLenAlt
 				cAltNode = acAltBranches[i]
 				aAltNode = This.Node(cAltNode)
@@ -650,7 +650,7 @@ class stzGraphex from stzGraph
 				if aAltNode != ""
 					# Create path with alternation branch
 					aNewPath = []
-					nLenPath = len(aCurrentPath)
+					nLenPath = ring_len(aCurrentPath)
 					for j = 1 to nLenPath
 						aNewPath + aCurrentPath[j]
 					next
@@ -661,7 +661,7 @@ class stzGraphex from stzGraph
 						This.TraversePatternNode(cContinuation, aNewPath, aBranches, [])
 					else
 						# No continuation, this is the end
-						if len(aNewPath) > 0
+						if ring_len(aNewPath) > 0
 							aBranches + aNewPath
 						ok
 					ok
@@ -670,7 +670,7 @@ class stzGraphex from stzGraph
 		else
 			# Regular node - add label to path
 			aNewPath = []
-			nLenPath = len(aCurrentPath)
+			nLenPath = ring_len(aCurrentPath)
 			for j = 1 to nLenPath
 				aNewPath + aCurrentPath[j]
 			next
@@ -679,14 +679,14 @@ class stzGraphex from stzGraph
 			# Get neighbors
 			acNeighbors = This.Neighbors(cNodeId)
 			
-			if len(acNeighbors) = 0
+			if ring_len(acNeighbors) = 0
 				# End of path
-				if len(aNewPath) > 0
+				if ring_len(aNewPath) > 0
 					aBranches + aNewPath
 				ok
 			else
 				# Continue traversal
-				nLenNeighbors = len(acNeighbors)
+				nLenNeighbors = ring_len(acNeighbors)
 				for i = 1 to nLenNeighbors
 					This.TraversePatternNode(acNeighbors[i], aNewPath, aBranches, acVisited)
 				next
@@ -694,12 +694,12 @@ class stzGraphex from stzGraph
 		ok
 
 	def MatchBranches(aPatternBranches, aTargetBranches)
-		nLenPatternBranches = len(aPatternBranches)
+		nLenPatternBranches = ring_len(aPatternBranches)
 		
 		if @bDebugMode
 			? "=== MatchBranches Debug ==="
 			? "Number of pattern branches: " + nLenPatternBranches
-			? "Number of target branches: " + len(aTargetBranches)
+			? "Number of target branches: " + ring_len(aTargetBranches)
 		ok
 		
 		for i = 1 to nLenPatternBranches
@@ -712,7 +712,7 @@ class stzGraphex from stzGraph
 			# Extract labels and check for negations
 			aPatternLabels = []
 			aForbiddenLabels = []
-			nLenPattern = len(aPatternBranch)
+			nLenPattern = ring_len(aPatternBranch)
 			
 			for j = 1 to nLenPattern
 				cToken = aPatternBranch[j]
@@ -731,7 +731,7 @@ class stzGraphex from stzGraph
 				bIsNegated = FALSE
 				if aNodeFromPattern != ""
 					acProps = aNodeFromPattern[:properties]
-					for k = 1 to len(acProps)
+					for k = 1 to ring_len(acProps)
 						if acProps[k] = "negated=TRUE"
 							bIsNegated = TRUE
 							exit
@@ -754,7 +754,7 @@ class stzGraphex from stzGraph
 			ok
 			
 			# Check each target branch
-			nLenTargetBranches = len(aTargetBranches)
+			nLenTargetBranches = ring_len(aTargetBranches)
 			for k = 1 to nLenTargetBranches
 				aTargetBranch = aTargetBranches[k]
 				
@@ -764,8 +764,8 @@ class stzGraphex from stzGraph
 				
 				# First check forbidden labels - if any exist in target, skip this branch
 				bHasForbidden = FALSE
-				for m = 1 to len(aForbiddenLabels)
-					for n = 1 to len(aTargetBranch)
+				for m = 1 to ring_len(aForbiddenLabels)
+					for n = 1 to ring_len(aTargetBranch)
 						if aForbiddenLabels[m] = aTargetBranch[n]
 							bHasForbidden = TRUE
 							exit
@@ -800,8 +800,8 @@ class stzGraphex from stzGraph
 		return FALSE
 	
 	def IsSubsequenceSimple(aPattern, aTarget)
-		nPatternLen = len(aPattern)
-		nTargetLen = len(aTarget)
+		nPatternLen = ring_len(aPattern)
+		nTargetLen = ring_len(aTarget)
 		
 		if nPatternLen = 0
 			return TRUE
@@ -825,8 +825,8 @@ class stzGraphex from stzGraph
 		return FALSE
 	
 	def IsSubsequence(aPattern, aTarget, aPatternNegations)
-		nPatternLen = len(aPattern)
-		nTargetLen = len(aTarget)
+		nPatternLen = ring_len(aPattern)
+		nTargetLen = ring_len(aTarget)
 		
 		if nPatternLen = 0
 			return TRUE
@@ -862,7 +862,7 @@ class stzGraphex from stzGraph
 	# Enhanced: Better handling of token conversion to stzListex patterns
 	def TokensToListexPattern(aBranch)
 		aPattern = []
-		nLenBranch = len(aBranch)
+		nLenBranch = ring_len(aBranch)
 		
 		for i = 1 to nLenBranch
 			cToken = aBranch[i]

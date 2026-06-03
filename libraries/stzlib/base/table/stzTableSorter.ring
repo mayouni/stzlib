@@ -358,7 +358,7 @@ class stzTableSorter from stzTable
 		oLoL.SortOnBy(nCol, pcExpr)
 
 		aRowsSorted = oLoL.Content()
-		nLenRows = len(aRowsSorted)
+		nLenRows = ring_len(aRowsSorted)
 
 		for i = 1 to nLenRows
 			This.ReplaceRow(i, aRowsSorted[i])
@@ -469,7 +469,7 @@ class stzTableSorter from stzTable
 		oLoL.SortDownOnBy(nCol, pcExpr)
 
 		aRowsSorted = oLol.Content()
-		nLenRows = len(aRowsSorted)
+		nLenRows = ring_len(aRowsSorted)
 
 		for i = 1 to nLenRows
 			This.ReplaceRow(i, aRowsSorted[i])

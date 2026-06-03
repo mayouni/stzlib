@@ -3,7 +3,7 @@
 # Survey response data standardization
 #
 # Extracted from stzdatawranglertest.ring, block #26.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R24) : Using uninitialized variable: column_name
 
 load "../../stzBase.ring"
 

@@ -73,7 +73,7 @@ class stzKnowledgeGraph from stzGraph
 		# case-insensitive lookup) but :label preserves the original
 		# casing passed in by AddFact. We return labels so callers
 		# get the same strings they put in.
-		_nLen_ = len(_aEdges_)
+		_nLen_ = ring_len(_aEdges_)
 		for _i_ = 1 to _nLen_
 			_aEdge_ = _aEdges_[_i_]
 			_cFromLabel_ = This.Node(_aEdge_[:from])[:label]
@@ -103,7 +103,7 @@ class stzKnowledgeGraph from stzGraph
 
 		_acResults_ = []
 		_aEdges_ = This.Edges()
-		_nLen_ = len(_aEdges_)
+		_nLen_ = ring_len(_aEdges_)
 
 		_bSubjVar_ = (isString(_cSubject_) and StzLeft(_cSubject_, 1) = "?")
 		_bObjVar_ = (isString(_cObject_) and StzLeft(_cObject_, 1) = "?")
@@ -169,7 +169,7 @@ class stzKnowledgeGraph from stzGraph
 	def QueryPath(paaPatterns)
 		# Multi-hop: [["?x", :IsA, "Animals"], ["?x", :Eats, "?food"]]
 		
-		if len(paaPatterns) = 0
+		if ring_len(paaPatterns) = 0
 			return []
 		ok
 		
@@ -192,7 +192,7 @@ class stzKnowledgeGraph from stzGraph
 		_acPredicates_ = []
 		_aEdges_ = This.Edges()
 
-		_nLen_ = len(_aEdges_)
+		_nLen_ = ring_len(_aEdges_)
 		for _i_ = 1 to _nLen_
 			if _aEdges_[_i_][:from] = _cPenE_
 				if StzFind(_acPredicates_, _aEdges_[_i_][:label]) = 0
@@ -211,7 +211,7 @@ class stzKnowledgeGraph from stzGraph
 		_aRelations_ = []
 		_aEdges_ = This.Edges()
 
-		_nLen_ = len(_aEdges_)
+		_nLen_ = ring_len(_aEdges_)
 		for _i_ = 1 to _nLen_
 			if _aEdges_[_i_][:from] = _cRelE_
 				# Recover the to-node's original-case label.
@@ -231,7 +231,7 @@ class stzKnowledgeGraph from stzGraph
 		_acSimilar_ = []
 		_aNodes_ = This.Nodes()
 
-		_nNodeLen_ = len(_aNodes_)
+		_nNodeLen_ = ring_len(_aNodes_)
 		for _i_ = 1 to _nNodeLen_
 			_cNodeId_ = _aNodes_[_i_][:id]
 
@@ -239,7 +239,7 @@ class stzKnowledgeGraph from stzGraph
 				_aTheirPredicates_ = This.Predicates(_cNodeId_)
 				_nOverlap_ = 0
 
-				_nMyLen_ = len(_aMyPredicates_)
+				_nMyLen_ = ring_len(_aMyPredicates_)
 				for _j_ = 1 to _nMyLen_
 					if StzFind(_aTheirPredicates_, _aMyPredicates_[_j_]) > 0
 						_nOverlap_++
@@ -298,20 +298,20 @@ class stzKnowledgeGraph from stzGraph
 		# Structure overview
 		nNodes = This.NodeCount()
 		nEdges = This.EdgeCount()
-		nFacts = len(This.Facts())
+		nFacts = ring_len(This.Facts())
 		aExplanation[:structure] = 'Knowledge graph "' + @cId + '" contains ' + 
 		                           nNodes + " entities and " + nFacts + " facts."
 		
 		# Facts analysis
 		aFacts = This.Facts()
-		if len(aFacts) > 0
-			nSample = min([5, len(aFacts)])
+		if ring_len(aFacts) > 0
+			nSample = min([5, ring_len(aFacts)])
 			for i = 1 to nSample
 				aFact = aFacts[i]
 				aExplanation[:facts] + (aFact[1] + " " + aFact[2] + " " + aFact[3])
 			end
-			if len(aFacts) > 5
-				aExplanation[:facts] + ("... and " + (len(aFacts) - 5) + " more facts")
+			if ring_len(aFacts) > 5
+				aExplanation[:facts] + ("... and " + (ring_len(aFacts) - 5) + " more facts")
 			ok
 		else
 			aExplanation[:facts] + "No facts defined yet"
@@ -320,7 +320,7 @@ class stzKnowledgeGraph from stzGraph
 		# Entity analysis
 		aNodes = This.Nodes()
 		acEntities = []
-		nNodeLen = len(aNodes)
+		nNodeLen = ring_len(aNodes)
 		for i = 1 to nNodeLen
 			if HasKey(aNodes[i]["properties"], "type")
 				if aNodes[i]["properties"]["type"] = "entity"
@@ -329,23 +329,23 @@ class stzKnowledgeGraph from stzGraph
 			ok
 		end
 		
-		if len(acEntities) > 0
-			nSample = min([10, len(acEntities)])
+		if ring_len(acEntities) > 0
+			nSample = min([10, ring_len(acEntities)])
 			cEntityList = ""
 			for i = 1 to nSample
 				cEntityList += acEntities[i]
 				if i < nSample cEntityList += ", " ok
 			end
 			aExplanation[:entities] + ("Entities: " + cEntityList)
-			if len(acEntities) > 10
-				aExplanation[:entities] + ("... and " + (len(acEntities) - 10) + " more")
+			if ring_len(acEntities) > 10
+				aExplanation[:entities] + ("... and " + (ring_len(acEntities) - 10) + " more")
 			ok
 		ok
 		
 		# Predicate analysis
 		acAllPredicates = []
 		aEdges = This.Edges()
-		nEdgeLen = len(aEdges)
+		nEdgeLen = ring_len(aEdges)
 		for i = 1 to nEdgeLen
 			cPred = aEdges[i][:label]
 			if cPred != "" and StzFind(acAllPredicates, cPred) = 0
@@ -353,14 +353,14 @@ class stzKnowledgeGraph from stzGraph
 			ok
 		end
 		
-		if len(acAllPredicates) > 0
+		if ring_len(acAllPredicates) > 0
 			aExplanation[:predicates] + ("Predicates used: " + JoinXT(acAllPredicates, ", "))
 		ok
 		
 		# Ontology status
-		if len(@aOntology) > 0
-			aExplanation[:ontology] + ("Ontology defined with " + len(@aOntology) + " constraints")
-			nOntLen = len(@aOntology)
+		if ring_len(@aOntology) > 0
+			aExplanation[:ontology] + ("Ontology defined with " + ring_len(@aOntology) + " constraints")
+			nOntLen = ring_len(@aOntology)
 			for i = 1 to nOntLen
 				if HasKey(@aOntology[i], :property)
 					aExplanation[:ontology] + ("Property: " + @aOntology[i][:property])
@@ -375,7 +375,7 @@ class stzKnowledgeGraph from stzGraph
 		cMostConnected = ""
 		for i = 1 to nNodeLen
 			cNodeId = aNodes[i]["id"]
-			nConnections = len(This.Predicates(cNodeId))
+			nConnections = ring_len(This.Predicates(cNodeId))
 			if nConnections > nMaxConnections
 				nMaxConnections = nConnections
 				cMostConnected = cNodeId
@@ -409,7 +409,7 @@ class stzKnowledgeGraph from stzGraph
 			aExplanation[:insights] + "Inference rules generated new knowledge"
 		ok
 		
-		if len(acAllPredicates) < 3
+		if ring_len(acAllPredicates) < 3
 			aExplanation[:insights] + "Limited relationship types - consider enriching the ontology"
 		ok
 		
@@ -493,7 +493,7 @@ class stzKnowParser
             
             but cSection = "facts" and StzFind(cLine, "|")
                 aParts = split(cLine, "|")
-                if len(aParts) = 3
+                if ring_len(aParts) = 3
                     oKG.AddFact(trim(aParts[1]), trim(aParts[2]), trim(aParts[3]))
                 ok
             ok

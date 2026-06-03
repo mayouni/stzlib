@@ -59,23 +59,23 @@ class stzListex
 	def ParsePattern(cPattern)
 		This.DebugLog("ParsePattern", "Input: " + cPattern)
 		
-		cInner = @trim( @substr( @trim(cPattern), 2, len(cPattern)-1 ) )
+		cInner = @trim( @substr( @trim(cPattern), 2, ring_len(cPattern)-1 ) )
 		aParts = SplitAtTopLevelCommas(cInner)
 
 		aTokens = []
-		for i = 1 to len(aParts)
+		for i = 1 to ring_len(aParts)
 			aTokens + This.ParseToken(@trim(aParts[i]))
 		next
 
-		This.DebugLog("ParsePattern", "Tokens created: " + len(aTokens))
+		This.DebugLog("ParsePattern", "Tokens created: " + ring_len(aTokens))
 		return aTokens
 
 	def ParseNestedPattern(cNestedPattern, bNegated, bCaseSensitive)
-		cInner = @substr(cNestedPattern, 2, len(cNestedPattern)-1)
+		cInner = @substr(cNestedPattern, 2, ring_len(cNestedPattern)-1)
 		aNestedTokens = []
 		aParts = SplitAtTopLevelCommas(cInner)
 
-		for i = 1 to len(aParts)
+		for i = 1 to ring_len(aParts)
 			aToken = This.ParseToken(@trim(aParts[i]))
 			# Inherit case sensitivity if not specified
 			if NOT HasKey(aToken, "casesensitive")
@@ -88,7 +88,7 @@ class stzListex
 		nMax = 1
 		nQuantifier = 1
     
-		nLenNestPat = len(cNestedPattern)
+		nLenNestPat = ring_len(cNestedPattern)
 		if nLenNestPat > 2
 			cRest = Right(cNestedPattern, 1)
 			oQMatch = rx(@cQuantifierPattern)
@@ -137,7 +137,7 @@ class stzListex
 
 	def ParseAlternationToken(cTokenStr, bNegated, bCaseSensitive)
 		aParts = @split(cTokenStr, "|")
-		nLen = len(aParts)
+		nLen = ring_len(aParts)
 		aAlternatives = []
 
 		for i = 1 to nLen
@@ -180,7 +180,7 @@ class stzListex
 		# Check for case-sensitive prefix @cs:
 		if StartsWith(StzLower(cTokenStr), "@cs:")
 			bCaseSensitive = TRUE
-			cTokenStr = @substr(cTokenStr, 5, len(cTokenStr))
+			cTokenStr = @substr(cTokenStr, 5, ring_len(cTokenStr))
 		ok
 
 		# Extract set values BEFORE case conversion to preserve original values
@@ -196,7 +196,7 @@ class stzListex
 		# Check for negation prefix
 		if StartsWith(cTokenStr, "@!")
 			bNegated = true
-			cTokenStr = @subStr(cTokenStr, 3, len(cTokenStr))
+			cTokenStr = @subStr(cTokenStr, 3, ring_len(cTokenStr))
 		ok
 
 		# Handle nested list patterns
@@ -231,7 +231,7 @@ class stzListex
 		ok
 
 		# Range and quantifier processing
-		if len(cRemainder) > 0
+		if ring_len(cRemainder) > 0
 			oRangeMatch = rx(@cRangePattern)
 
 			if oRangeMatch.Match(cRemainder)
@@ -243,8 +243,8 @@ class stzListex
 					raise("Error: Invalid range - min value greater than max: " + cTokenStr)
 				ok
         
-				nRangeLen = len(acNumbers[1]) + 1 + len(acNumbers[2])
-				cRemainder = StzRight(cRemainder, len(cRemainder) - nRangeLen)
+				nRangeLen = ring_len(acNumbers[1]) + 1 + ring_len(acNumbers[2])
+				cRemainder = StzRight(cRemainder, ring_len(cRemainder) - nRangeLen)
 
 			else
 				oQMatch = rx(@cQuantifierPattern)
@@ -265,7 +265,7 @@ class stzListex
 						nMax = 1
 					off
 
-					cRemainder = StzRight(cRemainder, len(cRemainder) - 1)
+					cRemainder = StzRight(cRemainder, ring_len(cRemainder) - 1)
 
 				else
 					oNumberMatch = rx(@cSingleNumberPattern)
@@ -276,14 +276,14 @@ class stzListex
 						nMin = nQuantifier
 						nMax = nQuantifier
                 
-						cRemainder = StzRight(cRemainder, len(cRemainder) - len(aMatches[1]))
+						cRemainder = StzRight(cRemainder, ring_len(cRemainder) - ring_len(aMatches[1]))
 					ok
 				ok
 			ok
 		ok
 
 		# Set constraints processing using preserved values
-		if len(cPreservedSet) > 0
+		if ring_len(cPreservedSet) > 0
 			# Check for {values}U format
 			if EndsWith(cRemainder, "U") and StzFind(cRemainder, "{") > 0
 				bRequireUnique = TRUE
@@ -338,7 +338,7 @@ class stzListex
 		aToken + [ "max", nMax ]
 		aToken + [ "quantifier", nQuantifier ]
 
-		if len(aSetValues) > 0
+		if ring_len(aSetValues) > 0
 			aToken + [ "hasset", true ]
 			aToken + [ "setvalues", aSetValues ]
 			aToken + [ "requireunique", bRequireUnique ]
@@ -359,7 +359,7 @@ class stzListex
 		cCurrent = ""
 		nDepth = 0
 		acChars = Chars(cStr)
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 
 		for i = 1 to nLen
 			cChar = acChars[i]
@@ -378,7 +378,7 @@ class stzListex
 			ok
 		next
 
-		if len(cCurrent) > 0
+		if ring_len(cCurrent) > 0
 			acParts + @trim(cCurrent)
 		ok
 
@@ -395,7 +395,7 @@ class stzListex
 		aValues = []
 		aParts = @split(cSetContent, ";")
 		
-		for i = 1 to len(aParts)
+		for i = 1 to ring_len(aParts)
 			cValue = @trim(aParts[i])
 			
 			if cValue = ""
@@ -420,7 +420,7 @@ class stzListex
 				# Don't call RemoveQuotes - just normalize quotes
 				if (StartsWith(cValue, "'") and EndsWith(cValue, "'"))
 					# Single quotes - convert to double
-					cUnquoted = @substr(cValue, 2, len(cValue) - 1)
+					cUnquoted = @substr(cValue, 2, ring_len(cValue) - 1)
 					cNormalizedValue = '"' + cUnquoted + '"'
 				but (StartsWith(cValue, '"') and EndsWith(cValue, '"'))
 					# Already double quoted
@@ -432,9 +432,9 @@ class stzListex
 
 				if bCheckUnique
 					# For uniqueness check, compare unquoted values
-					cCheck1 = @substr(cNormalizedValue, 2, len(cNormalizedValue) - 1)
-					for j = 1 to len(aValues)
-						cCheck2 = @substr(aValues[j], 2, len(aValues[j]) - 1)
+					cCheck1 = @substr(cNormalizedValue, 2, ring_len(cNormalizedValue) - 1)
+					for j = 1 to ring_len(aValues)
+						cCheck2 = @substr(aValues[j], 2, ring_len(aValues[j]) - 1)
 						if cCheck1 = cCheck2
 							raise("Error: Duplicate value in unique set: " + cValue)
 						ok
@@ -471,13 +471,13 @@ class stzListex
 	def RemoveQuotes(cStr)
 		if (StartsWith(cStr, "'") and EndsWith(cStr, "'")) or
 		   (StartsWith(cStr, '"') and EndsWith(cStr, '"'))
-			cResult = @substr(cStr, 2, len(cStr)-1)
+			cResult = @substr(cStr, 2, ring_len(cStr)-1)
 			return cResult
 		ok
 		return cStr
 
 	def OptimizeTokens()
-		nLen = len(@aTokens)
+		nLen = ring_len(@aTokens)
 		
 		if nLen <= 1
 			return
@@ -515,7 +515,7 @@ class stzListex
 		cCacheKey = @cPattern + "|" + cListSig
 		
 		# Check cache
-		for i = 1 to len(@aMatchCache)
+		for i = 1 to ring_len(@aMatchCache)
 			if @aMatchCache[i][1] = cCacheKey
 				This.DebugLog("Match", "Cache hit!")
 				return @aMatchCache[i][2]
@@ -524,7 +524,7 @@ class stzListex
 
 		# Convert list elements (don't modify original)
 		aElements = []
-		nLen = len(paList)
+		nLen = ring_len(paList)
 
 		for i = 1 to nLen
 			aElements + paList[i]
@@ -544,21 +544,21 @@ class stzListex
 		
 		# Store in cache AFTER computing result
 		@aMatchCache + [cCacheKey, bResult]
-		if len(@aMatchCache) > @nMaxCacheSize
+		if ring_len(@aMatchCache) > @nMaxCacheSize
 			del(@aMatchCache, 1)
 		ok
 		
 		return bResult
 
 	def MatchTokensToElements(aTokens, aElements)
-		nLenTokens = len(aTokens)
-		nLenElements = len(aElements)
+		nLenTokens = ring_len(aTokens)
+		nLenElements = ring_len(aElements)
     
 		return This.BacktrackMatch(aTokens, aElements, 1, 1, [])
 
 	def BacktrackMatch(aTokens, aElements, nTokenIndex, nElementIndex, aUsedValues)
-		nLenTokens = len(aTokens)
-		nLenElements = len(aElements)
+		nLenTokens = ring_len(aTokens)
+		nLenElements = ring_len(aElements)
 
 		if @bDebugMode
 			? ">>> Backtrack: token#" + nTokenIndex + "/" + nLenTokens + 
@@ -582,17 +582,17 @@ class stzListex
 		ok
 
 		aLocalUsedValues = []
-		for i = 1 to len(aUsedValues)
+		for i = 1 to ring_len(aUsedValues)
 			aLocalUsedValues + aUsedValues[i]
 		next
 
 		# Alternation token handling
 		if aToken[:keyword] = "@ALT"
 			if @bDebugMode
-				? ">>> Alternation token with " + len(aToken[:alternatives]) + " alternatives"
+				? ">>> Alternation token with " + ring_len(aToken[:alternatives]) + " alternatives"
 			ok
 			
-			for i = 1 to len(aToken[:alternatives])
+			for i = 1 to ring_len(aToken[:alternatives])
 				aAltTokens = aToken[:alternatives]
 				aNewTokens = []
 
@@ -702,7 +702,7 @@ class stzListex
 			aLocalUsedValuesCopy = []
 			
 			# Copy used values
-			for i = 1 to len(aLocalUsedValues)
+			for i = 1 to ring_len(aLocalUsedValues)
 				aLocalUsedValuesCopy + aLocalUsedValues[i]
 			next
 
@@ -762,7 +762,7 @@ class stzListex
 							bCaseSensitive = aToken[:casesensitive]
 						ok
 
-						for j = 1 to len(aToken[:setvalues])
+						for j = 1 to ring_len(aToken[:setvalues])
 							xSetValue = aToken[:setvalues][j]
 
 							if This.CompareValues(xElemValue, xSetValue, aToken[:type], bCaseSensitive)
@@ -800,7 +800,7 @@ class stzListex
 								? ">>> Already used: " + @@(aLocalUsedValuesCopy)
 							ok
 							
-							for j = 1 to len(aLocalUsedValuesCopy)
+							for j = 1 to ring_len(aLocalUsedValuesCopy)
 								if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type], bCaseSensitive)
 									bDuplicate = TRUE
 									if @bDebugMode
@@ -970,13 +970,13 @@ class stzListex
 	def ListSignature(aList)
 		cContent = @@(aList)
 		nChecksum = 0
-		nLen = len(cContent)
+		nLen = ring_len(cContent)
 		
 		for i = 1 to nLen
 			nChecksum += ascii(cContent[i])
 		next
 		
-		return "" + len(aList) + ":" + nChecksum
+		return "" + ring_len(aList) + ":" + nChecksum
 
 	def ClearCache()
 		@aMatchCache = []
@@ -988,7 +988,7 @@ class stzListex
 
 	def CacheInfo()
 		return [
-			["entries", len(@aMatchCache)],
+			["entries", ring_len(@aMatchCache)],
 			["maxsize", @nMaxCacheSize]
 		]
 
@@ -1016,7 +1016,7 @@ class stzListex
 	def TokensInfo()
 		aInfo = []
 		
-		for i = 1 to len(@aTokens)
+		for i = 1 to ring_len(@aTokens)
 			aToken = @aTokens[i]
 			cInfo = "Token #" + i + ": " + aToken[:keyword]
 			
@@ -1050,7 +1050,7 @@ class stzListex
 	def JoinSetValues(aValues)
 		cResult = ""
 		
-		for i = 1 to len(aValues)
+		for i = 1 to ring_len(aValues)
 			if i > 1
 				cResult += "; "
 			ok
@@ -1065,12 +1065,12 @@ class stzListex
 	def Explain()
 		aInfo = [
 			["Pattern", @cPattern],
-			["TokenCount", len(@aTokens)],
-			["CacheEntries", len(@aMatchCache)]
+			["TokenCount", ring_len(@aTokens)],
+			["CacheEntries", ring_len(@aMatchCache)]
 		]
 		
 		aTokenDetails = []
-		for i = 1 to len(@aTokens)
+		for i = 1 to ring_len(@aTokens)
 			aToken = @aTokens[i]
 			aTokenDetails + [
 				["Index", i],

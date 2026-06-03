@@ -54,13 +54,13 @@ class stzScatterPlot
 			StzRaise("Can't create stzScatterChart! paDataSet must be a list.")
 		ok
 
-		if IsListOfPairs(paDataSet) and len(paDataSet) > 0 and IsListOfNumbers(paDataSet[1])
+		if IsListOfPairs(paDataSet) and ring_len(paDataSet) > 0 and IsListOfNumbers(paDataSet[1])
 			@anHValues = []
 			@anVValues = []
 			@acPointLabels = []
 
-			for i = 1 to len(paDataSet)
-				if len(paDataSet[i]) >= 2
+			for i = 1 to ring_len(paDataSet)
+				if ring_len(paDataSet[i]) >= 2
 					@anHValues + paDataSet[i][1]
 					@anVValues + paDataSet[i][2]
 					@acPointLabels + ("P" + i)
@@ -71,7 +71,7 @@ class stzScatterPlot
 			oHash = new stzHashList(paDataSet)
 			aKeys = oHash.Keys()
 
-			if len(aKeys) = 2 and (aKeys[1] = "H" or aKeys[1] = :H or aKeys[1] = "X" or aKeys[1] = :X) and 
+			if ring_len(aKeys) = 2 and (aKeys[1] = "H" or aKeys[1] = :H or aKeys[1] = "X" or aKeys[1] = :X) and 
 			   (aKeys[2] = "V" or aKeys[2] = :V or aKeys[2] = "Y" or aKeys[2] = :Y)
 				
 				if aKeys[1] = "H" or aKeys[1] = :H
@@ -86,12 +86,12 @@ class stzScatterPlot
 					@anVValues = paDataSet[:Y]
 				ok
 
-				if len(@anHValues) != len(@anVValues)
+				if ring_len(@anHValues) != ring_len(@anVValues)
 					StzRaise("H and V value arrays must have same length!")
 				ok
 
 				@acPointLabels = []
-				for i = 1 to len(@anHValues)
+				for i = 1 to ring_len(@anHValues)
 					@acPointLabels + ("P" + i)
 				next
 
@@ -101,8 +101,8 @@ class stzScatterPlot
 				@acPointLabels = oHash.Keys()
 
 				aValues = oHash.Values()
-				for i = 1 to len(aValues)
-					if isList(aValues[i]) and len(aValues[i]) >= 2
+				for i = 1 to ring_len(aValues)
+					if isList(aValues[i]) and ring_len(aValues[i]) >= 2
 						@anHValues + aValues[i][1]
 						@anVValues + aValues[i][2]
 					ok
@@ -347,7 +347,7 @@ class stzScatterPlot
 		return _finalizeCanvas()
 
 	def _calculateRanges()
-		if len(@anHValues) = 0 or len(@anVValues) = 0
+		if ring_len(@anHValues) = 0 or ring_len(@anVValues) = 0
 			@nHMin = 0
 			@nHMax = 10
 			@nVMin = 0
@@ -387,8 +387,8 @@ class stzScatterPlot
 			for nV in aUniqueV
 				cLabel = _formatValue(nV)
 				cLabel = Trim(cLabel)
-				if len(cLabel) > nMaxVLabelLen
-					nMaxVLabelLen = len(cLabel)
+				if ring_len(cLabel) > nMaxVLabelLen
+					nMaxVLabelLen = ring_len(cLabel)
 				ok
 			next
 			# V-axis width = max label length + space + tick mark + small buffer
@@ -405,12 +405,12 @@ class stzScatterPlot
 		nTopMargin = 1    # For vertical arrow
 		
 		# Calculate right margin based on longest label
-		nLenPointLabels = len(@acPointLabels)
+		nLenPointLabels = ring_len(@acPointLabels)
 		nRightMargin = 2  # Default minimum
 		if @bShowLabels
 		    nMaxLabelLen = 0
 		    for i = 1 to nLenPointLabels
-				nLenLabel = len(@acPointLabels[i])
+				nLenLabel = ring_len(@acPointLabels[i])
 		        if nLenLabel > nMaxLabelLen
 		            nMaxLabelLen = nLenLabel
 		        ok
@@ -466,7 +466,7 @@ class stzScatterPlot
 		nPlotHeight = oLayout[:plot_height]
 
 		# Draw grid lines only from axis to each data point
-		for i = 1 to len(@anHValues)
+		for i = 1 to ring_len(@anHValues)
 			nH = @anHValues[i]
 			nV = @anVValues[i]
 			
@@ -502,18 +502,18 @@ class stzScatterPlot
 
 		# Draw vertical line
 		for i = nStartRow to nEndRow
-			if i >= 1 and i <= len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= len(@acCanvas[i])
+			if i >= 1 and i <= ring_len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= ring_len(@acCanvas[i])
 				@acCanvas[i][nAxisCol] = @cVAxisChar
 			ok
 		next
 
 		# Draw arrow at top
-		if nStartRow - 1 >= 1 and nStartRow - 1 <= len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= len(@acCanvas[nStartRow - 1])
+		if nStartRow - 1 >= 1 and nStartRow - 1 <= ring_len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= ring_len(@acCanvas[nStartRow - 1])
 			@acCanvas[nStartRow - 1][nAxisCol] = @cVArrowChar
 		ok
 
 		# Draw origin (only if H-axis is also visible)
-		if @bShowHAxis and nHAxisRow >= 1 and nHAxisRow <= len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= len(@acCanvas[nHAxisRow])
+		if @bShowHAxis and nHAxisRow >= 1 and nHAxisRow <= ring_len(@acCanvas) and nAxisCol >= 1 and nAxisCol <= ring_len(@acCanvas[nHAxisRow])
 			@acCanvas[nHAxisRow][nAxisCol] = @cOriginChar
 		ok
 
@@ -525,7 +525,7 @@ class stzScatterPlot
 			if nRow >= nStartRow and nRow <= nEndRow
 				cLabel = _formatValue(nV)
 				cLabel = Trim(cLabel)
-				nLabelLen = len(cLabel)
+				nLabelLen = ring_len(cLabel)
 				nLabelStart = nAxisCol - nLabelLen - 1  # Add space before tick mark
 				if nLabelStart >= 1
 					for j = 1 to nLabelLen
@@ -549,7 +549,7 @@ class stzScatterPlot
 		nTotalWidth = oLayout[:total_width]
 
 		# Draw horizontal line
-		if nAxisRow >= 1 and nAxisRow <= len(@acCanvas)
+		if nAxisRow >= 1 and nAxisRow <= ring_len(@acCanvas)
 			for i = nStartCol to nEndCol
 				if i >= 1 and i <= nTotalWidth
 					@acCanvas[nAxisRow][i] = @cHAxisChar
@@ -558,12 +558,12 @@ class stzScatterPlot
 		ok
 
 		# Draw arrow at end
-		if nAxisRow >= 1 and nAxisRow <= len(@acCanvas) and nEndCol + 1 >= 1 and nEndCol + 1 <= nTotalWidth
+		if nAxisRow >= 1 and nAxisRow <= ring_len(@acCanvas) and nEndCol + 1 >= 1 and nEndCol + 1 <= nTotalWidth
 			@acCanvas[nAxisRow][nEndCol + 1] = @cHArrowChar
 		ok
 
 		# Draw origin
-		if @bShowVAxis and nAxisRow >= 1 and nAxisRow <= len(@acCanvas) and nVAxisCol >= 1 and nVAxisCol <= nTotalWidth
+		if @bShowVAxis and nAxisRow >= 1 and nAxisRow <= ring_len(@acCanvas) and nVAxisCol >= 1 and nVAxisCol <= nTotalWidth
 			@acCanvas[nAxisRow][nVAxisCol] = @cOriginChar
 		ok
 
@@ -574,7 +574,7 @@ class stzScatterPlot
 			nCol = nStartCol + floor((nH - @nHMin) * (nPlotWidth - 1) / (@nHMax - @nHMin))
 			if nCol >= nStartCol and nCol <= nEndCol
 				cLabel = _formatValue(nH)
-				nLabelLen = len(cLabel)
+				nLabelLen = ring_len(cLabel)
 				nLabelStart = nCol - floor(nLabelLen / 2)
 				
 				# Draw tick mark
@@ -583,7 +583,7 @@ class stzScatterPlot
 				ok
 				
 				# Draw label below axis (always when axis is visible)
-				if nAxisRow + 1 >= 1 and nAxisRow + 1 <= len(@acCanvas) and
+				if nAxisRow + 1 >= 1 and nAxisRow + 1 <= ring_len(@acCanvas) and
 				   nLabelStart >= 1 and nLabelStart + nLabelLen - 1 <= nTotalWidth
 					for j = 1 to nLabelLen
 						@acCanvas[nAxisRow + 1][nLabelStart + j - 1] = cLabel[j]
@@ -607,7 +607,7 @@ class stzScatterPlot
 		nPlotWidth = oLayout[:plot_width]
 		nPlotHeight = oLayout[:plot_height]
 
-		for i = 1 to len(@anHValues)
+		for i = 1 to ring_len(@anHValues)
 			nH = @anHValues[i]
 			nV = @anVValues[i]
 
@@ -629,7 +629,7 @@ class stzScatterPlot
 			nRow = max([nStartRow, min([nEndRow, nRow])])
 			
 			# Draw the point
-			if nRow >= 1 and nRow <= len(@acCanvas) and nCol >= 1 and nCol <= len(@acCanvas[nRow])
+			if nRow >= 1 and nRow <= ring_len(@acCanvas) and nCol >= 1 and nCol <= ring_len(@acCanvas[nRow])
 				@acCanvas[nRow][nCol] = @cPointChar
 			ok
 		next
@@ -642,8 +642,8 @@ class stzScatterPlot
 		nPlotWidth = oLayout[:plot_width]
 		nPlotHeight = oLayout[:plot_height]
 
-		nLenHVal = len(@anHValues)
-		nLenLabels = len(@acPointLabels)
+		nLenHVal = ring_len(@anHValues)
+		nLenLabels = ring_len(@acPointLabels)
 
 		for i = 1 to nLenHVal
 			if i <= nLenLabels
@@ -669,7 +669,7 @@ class stzScatterPlot
 				nLabelRow = nRow
 
 				# Check bounds and draw label
-				nLenLabel = len(cLabel)
+				nLenLabel = ring_len(cLabel)
 
 				if nLabelRow >= 1 and nLabelRow <= @nHeight and 
 				   nLabelCol >= 1 and nLabelCol + nLenLabel - 1 <= @nWidth
@@ -694,10 +694,10 @@ class stzScatterPlot
 
 	def _finalizeCanvas()
 		cResult = ""
-		nLenCanvas = len(@acCanvas)
+		nLenCanvas = ring_len(@acCanvas)
 		for i = 1 to nLenCanvas
 			cLine = ""
-			nLenCurrent = len(@acCanvas[i])
+			nLenCurrent = ring_len(@acCanvas[i])
 			for j = 1 to nLenCurrent
 				cLine += @acCanvas[i][j]
 			next
@@ -712,8 +712,8 @@ class stzScatterPlot
 		ok
 
 		anPos = oTempStr.FindAll(NL)
-		if len(anPos) > 0
-			nPos = anPos[len(anPos)-1]
+		if ring_len(anPos) > 0
+			nPos = anPos[ring_len(anPos)-1]
 			oTempStr.RemoveSection(nPos, oTempStr.NumberOfChars())
 		ok
 
@@ -730,7 +730,7 @@ class stzScatterPlot
 			acLines = split(cResult, nl)
 			
 			# Find the line with horizontal axis and add X at the end
-			for i = 1 to len(acLines)
+			for i = 1 to ring_len(acLines)
 				if ring_substr1(acLines[i], @cHArrowChar)  > 0
 					acLines[i] += " Y"  # Horizontal axis gets Y label
 					exit
@@ -738,9 +738,9 @@ class stzScatterPlot
 			next
 			
 			cResult = ""
-			for i = 1 to len(acLines)
+			for i = 1 to ring_len(acLines)
 				cResult += acLines[i]
-				if i < len(acLines)
+				if i < ring_len(acLines)
 					cResult += nl
 				ok
 			next
@@ -755,7 +755,7 @@ class stzScatterPlot
 			acLines = split(cResult, nl)
 			
 			# Find the line with vertical arrow and add X above it
-			for i = 1 to len(acLines)
+			for i = 1 to ring_len(acLines)
 				if ring_substr1(acLines[i], @cVArrowChar) > 0
 					nArrowPos = ring_substr1(acLines[i], @cVArrowChar)
 					if nArrowPos > 0
@@ -763,7 +763,7 @@ class stzScatterPlot
 						cXLine = RepeatChar(" ", nArrowPos-1) + "X"
 						# Insert at the beginning
 						acNewLines = [cXLine]
-						for j = 1 to len(acLines)
+						for j = 1 to ring_len(acLines)
 							acNewLines + acLines[j]
 						next
 						acLines = acNewLines
@@ -773,9 +773,9 @@ class stzScatterPlot
 			next
 			
 			cResult = ""
-			for i = 1 to len(acLines)
+			for i = 1 to ring_len(acLines)
 				cResult += acLines[i]
-				if i < len(acLines)
+				if i < ring_len(acLines)
 					cResult += nl
 				ok
 			next

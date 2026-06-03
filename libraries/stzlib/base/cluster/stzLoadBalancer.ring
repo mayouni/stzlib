@@ -95,6 +95,6 @@ class stzLoadBalancer
     def GetRoutingStats()
         return [
             :total_requests = nTotalRequests,
-            :clusters_count = len(aClusters),
-            :routing_rules = len(aRoutingRules)
+            :clusters_count = ring_len(aClusters),
+            :routing_rules = ring_len(aRoutingRules)
         ]

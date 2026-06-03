@@ -134,7 +134,7 @@ class stzStringIO
 
 	def ToJSON()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		cResult = '"'
 		for i = 1 to nLen
 			c = acChars[i]
@@ -167,7 +167,7 @@ class stzStringIO
 
 	def ToXML()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		cResult = ""
 
 		for i = 1 to nLen
@@ -197,7 +197,7 @@ class stzStringIO
 
 	def IsBase64()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		if nLen = 0
 			return 0
 		ok

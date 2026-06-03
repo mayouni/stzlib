@@ -244,7 +244,7 @@ class stzItemCS
 		ok
 
 		anResult = []
-		nLen = len(anOccurrences)
+		nLen = ring_len(anOccurrences)
 
 		oStr = This.ListQ()
 

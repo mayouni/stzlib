@@ -48,7 +48,7 @@ class stzListexuter
             return
         ok
         
-        if NOT (isList(aTrigger) and len(aTrigger) = 2 and 
+        if NOT (isList(aTrigger) and ring_len(aTrigger) = 2 and 
                 isString(aTrigger[1]) and isString(aTrigger[2]))
             StzRaise("Incorrect parameter format! Expected [name, pattern]")
         ok
@@ -88,7 +88,7 @@ class stzListexuter
         # Clean code
         cCode = trim(cCode)
         if StzLeft(cCode, 1) = "{" and StzRight(cCode, 1) = "}"
-            cCode = StzMid(cCode, 2, len(cCode)-2)
+            cCode = StzMid(cCode, 2, ring_len(cCode)-2)
         ok
         
         aCodesPerTrigger + [cTriggerName, cCode]
@@ -102,7 +102,7 @@ class stzListexuter
             StzRaise("Invalid input! Expected list to analyze.")
         ok
         
-        if len(aList) = 0
+        if ring_len(aList) = 0
             ResetState()
             return
         ok
@@ -123,10 +123,10 @@ class stzListexuter
             # Find all sublists that match the pattern
             aMatches = FindAllMatches(aList, oListex)
             
-            if len(aMatches) > 0
+            if ring_len(aMatches) > 0
                 aActiveComputations + cTriggerName
                 
-                for i = 1 to len(aMatches)
+                for i = 1 to ring_len(aMatches)
                     match = aMatches[i]
                     
                     aLastMatches + match
@@ -142,7 +142,7 @@ class stzListexuter
                     ok
                 next
                 
-                del(aActiveComputations, len(aActiveComputations))
+                del(aActiveComputations, ring_len(aActiveComputations))
             ok
         next
         
@@ -160,8 +160,8 @@ class stzListexuter
         ok
         
         # Check parts of the list recursively
-        if len(aList) > 0
-            for i = 1 to len(aList)
+        if ring_len(aList) > 0
+            for i = 1 to ring_len(aList)
                 if isList(aList[i])
                     # Recursively check nested list
                     aSubMatches = FindAllMatches(aList[i], oListex)
@@ -172,13 +172,13 @@ class stzListexuter
             next
             
             # Check for matching sublists at this level
-            for i = 1 to len(aList)
-                for j = i to len(aList)
+            for i = 1 to ring_len(aList)
+                for j = i to ring_len(aList)
                     aSubList = []
                     for _k = i to j
                         aSubList + aList[_k]
                     next
-                    if oListex.Match(aSubList) and len(aSubList) > 0
+                    if oListex.Match(aSubList) and ring_len(aSubList) > 0
                         aResult + aSubList
                     ok
                 next
@@ -199,7 +199,7 @@ class stzListexuter
         # Create state entry
         entry = [
             :timeStamp = date() + " " + time(),
-            :computationOrder = len(aState) + 1,
+            :computationOrder = ring_len(aState) + 1,
             
             :triggerName = cTriggerName,
             :pattern = cPattern,

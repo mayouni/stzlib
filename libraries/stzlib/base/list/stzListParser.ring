@@ -28,7 +28,7 @@ class stzListParser from stzParser
 			StzRaise("Can't create the stzListParser object! You should provide a list.")
 		ok
 
-		if len(paList) = 0
+		if ring_len(paList) = 0
 			StzRaise("Can't create the stzListParser object! The list you provided is empty.")
 		ok
 
@@ -77,7 +77,7 @@ class stzListParser from stzParser
 		if isList(pnEnd) and IsToNamedParamList(pnEnd)
 
 			if pnEnd[2] = :Last or pnEnd[2] = :End
-				pnEnd = len(This.List())
+				pnEnd = ring_len(This.List())
 			else
 				pnEnd = pnEnd[2]
 			ok
@@ -93,7 +93,7 @@ class stzListParser from stzParser
 		ok
 
 		if pnEnd = :Last or pnEnd = :End
-			pnEnd = len(This.List())
+			pnEnd = ring_len(This.List())
 		ok
 
 		@nStart = pnStart

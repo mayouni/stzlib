@@ -154,7 +154,7 @@ class stzStringTrimmer
 
 	def TrimCharFromStartCS(c, pCaseSensitive)
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		nStart = 1
 		for i = 1 to nLen
 			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
@@ -186,7 +186,7 @@ class stzStringTrimmer
 
 	def TrimCharFromEndCS(c, pCaseSensitive)
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		nEnd = nLen
 		for i = nLen to 1 step -1
 			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)

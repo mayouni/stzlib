@@ -62,7 +62,7 @@ class stzWorkflow from stzDiagram
 	
 	def AddStepXTT(pcId, pcLabel, paProps)
 	    # Convert empty list to valid hashlist
-	    if isList(paProps) and len(paProps) = 0
+	    if isList(paProps) and ring_len(paProps) = 0
 	        paProps = [ ["_empty", ""] ]
 	    ok
 	    
@@ -180,7 +180,7 @@ class stzWorkflow from stzDiagram
 		@aActors + aActor
 	
 	def AssignStepTo(pcStepId, pcActorId)
-		for i = 1 to len(@aSteps)
+		for i = 1 to ring_len(@aSteps)
 			if @aSteps[i][:id] = pcStepId
 				@aSteps[i][:assignedTo] = pcActorId
 				exit
@@ -205,7 +205,7 @@ class stzWorkflow from stzDiagram
 	#-----------------------#
 	
 	def SetStepSLA(pcStepId, nHours)
-		for i = 1 to len(@aSteps)
+		for i = 1 to ring_len(@aSteps)
 			if @aSteps[i][:id] = pcStepId
 				@aSteps[i][:sla] = nHours
 				exit
@@ -215,7 +215,7 @@ class stzWorkflow from stzDiagram
 		This.SetNodeProperty(pcStepId, "sla", nHours)
 	
 	def SetStepDuration(pcStepId, nHours)
-		for i = 1 to len(@aSteps)
+		for i = 1 to ring_len(@aSteps)
 			if @aSteps[i][:id] = pcStepId
 				@aSteps[i][:duration] = nHours
 				exit
@@ -255,7 +255,7 @@ class stzWorkflow from stzDiagram
 	
 	def GetPositionForStep(pcStepId)
 		aStep = This.Step_(pcStepId)
-		if len(aStep) = 0
+		if ring_len(aStep) = 0
 			return ""
 		ok
 		
@@ -265,7 +265,7 @@ class stzWorkflow from stzDiagram
 		ok
 		
 		aActor = This.Actor(cActorId)
-		if len(aActor) = 0
+		if ring_len(aActor) = 0
 			return ""
 		ok
 		
@@ -291,7 +291,7 @@ class stzWorkflow from stzDiagram
 			cPosition = This.GetPositionForStep(aStep[:id])
 			if cPosition != ""
 				bFound = FALSE
-				for i = 1 to len(aWorkload)
+				for i = 1 to ring_len(aWorkload)
 					if aWorkload[i][:position] = cPosition
 						aWorkload[i][:stepCount]++
 						aWorkload[i][:totalDuration] += aStep[:duration]
@@ -336,7 +336,7 @@ class stzWorkflow from stzDiagram
 				nDuration = 0
 				for cStepId in acPath
 					aStep = This.Step_(cStepId)
-					if len(aStep) > 0
+					if ring_len(aStep) > 0
 						nDuration += aStep[:duration]
 					ok
 				end
@@ -360,10 +360,10 @@ class stzWorkflow from stzDiagram
 		# Find start/end nodes
 		for aStep in @aSteps
 			cId = aStep[:id]
-			if len(This.Incoming(cId)) = 0
+			if ring_len(This.Incoming(cId)) = 0
 				acStarts + cId
 			ok
-			if len(This.Neighbors(cId)) = 0
+			if ring_len(This.Neighbors(cId)) = 0
 				acEnds + cId
 			ok
 		end
@@ -385,8 +385,8 @@ class stzWorkflow from stzDiagram
 		
 		for aStep in @aSteps
 			cId = aStep[:id]
-			nIncoming = len(This.Incoming(cId))
-			nOutgoing = len(This.Neighbors(cId))
+			nIncoming = ring_len(This.Incoming(cId))
+			nOutgoing = ring_len(This.Neighbors(cId))
 			
 			# High fan-in = bottleneck
 			if nIncoming > 2
@@ -440,9 +440,9 @@ class stzWorkflow from stzDiagram
 		end
 		
 		return [
-			:status = iif(len(aIssues) = 0, "pass", "fail"),
+			:status = iif(ring_len(aIssues) = 0, "pass", "fail"),
 			:domain = "sla",
-			:issueCount = len(aIssues),
+			:issueCount = ring_len(aIssues),
 			:issues = aIssues,
 			:affectedNodes = This._ExtractStepIds(acViolations)
 		]
@@ -456,9 +456,9 @@ class stzWorkflow from stzDiagram
 		end
 		
 		return [
-			:status = iif(len(aIssues) = 0, "pass", "fail"),
+			:status = iif(ring_len(aIssues) = 0, "pass", "fail"),
 			:domain = "bottleneck",
-			:issueCount = len(aIssues),
+			:issueCount = ring_len(aIssues),
 			:issues = aIssues,
 			:affectedNodes = This._ExtractStepIds(acBottlenecks)
 		]
@@ -498,14 +498,14 @@ class stzWorkflow from stzDiagram
 		acBottlenecks = This.Bottlenecks()
 		acIds = This._ExtractStepIds(acBottlenecks)
 		This.ApplyFocusTo(acIds)
-		This.SetSubtitle("Bottlenecks (" + len(acBottlenecks) + ")")
+		This.SetSubtitle("Bottlenecks (" + ring_len(acBottlenecks) + ")")
 		This.View()
 	
 	def ViewSLAViolations()
 		acViolations = This.SLAViolations()
 		acIds = This._ExtractStepIds(acViolations)
 		This.ApplyFocusTo(acIds)
-		This.SetSubtitle("SLA Violations (" + len(acViolations) + ")")
+		This.SetSubtitle("SLA Violations (" + ring_len(acViolations) + ")")
 		This.View()
 	
 	def ViewByActor(pcActorId)
@@ -517,7 +517,7 @@ class stzWorkflow from stzDiagram
 		end
 		
 		aActor = This.Actor(pcActorId)
-		cName = iif(len(aActor) > 0, aActor[:name], pcActorId)
+		cName = iif(ring_len(aActor) > 0, aActor[:name], pcActorId)
 		
 		This.ApplyFocusTo(acSteps)
 		This.SetSubtitle("Steps by " + cName)
@@ -528,7 +528,7 @@ class stzWorkflow from stzDiagram
 		for aStep in @aSteps
 			if aStep[:assignedTo] != ""
 				aActor = This.Actor(aStep[:assignedTo])
-				if len(aActor) > 0 and aActor[:role] = pcRole
+				if ring_len(aActor) > 0 and aActor[:role] = pcRole
 					acSteps + aStep[:id]
 				ok
 			ok
@@ -569,7 +569,7 @@ class stzWorkflow from stzDiagram
 			end
 		ok
 		
-		if len(@aActors) > 0
+		if ring_len(@aActors) > 0
 			cResult += NL + 'actors' + NL
 			for aActor in @aActors
 				cResult += '    ' + aActor[:id] + NL
@@ -849,7 +849,7 @@ class stzFlowParser
 		nSLA = 0
 		cAssigned = ""
 		
-		nLen = len(paProps)
+		nLen = ring_len(paProps)
 		for i = 1 to nLen step 2
 			cKey = paProps[i]
 			pValue = paProps[i + 1]
@@ -880,7 +880,7 @@ class stzFlowParser
 		cName = pcId
 		cRole = ""
 		
-		nLen = len(paProps)
+		nLen = ring_len(paProps)
 		for i = 1 to nLen step 2
 			if paProps[i] = "name"
 				cName = paProps[i + 1]

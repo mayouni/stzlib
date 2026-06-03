@@ -59,7 +59,7 @@ class stzTableFinder from stzTable
 				StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 			ok
 
-			nLen = len(pacColNames)
+			nLen = ring_len(pacColNames)
 			for i = 1 to nLen
 				if pacColNames[i] = :First 	 or
 				   pacColNames[i] = :FirstCol	 or
@@ -164,12 +164,12 @@ class stzTableFinder from stzTable
 
 		paManyColData = U( paManyColData ) # Duplicates are removed
 
-		nLen = len(paManyColData)
+		nLen = ring_len(paManyColData)
 		anResult = []
 
 		for i = 1 to nLen
 			anPos = This.FindColByValueCS(paManyColData[i], pCaseSensitive)
-			nLenPos = len(anPos)
+			nLenPos = ring_len(anPos)
 			for j = 1 to nLenPos
 				anResult + anPos[j]
 			next
@@ -249,7 +249,7 @@ class stzTableFinder from stzTable
 		ok
 
 		anColNumbers = U(panColNumbers)
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 
 		anResult = []
 

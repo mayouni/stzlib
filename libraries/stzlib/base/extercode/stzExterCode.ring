@@ -330,8 +330,8 @@ class stzExterCode
         return isNumber(bResult) and bResult = 1
 
     def LastCallDuration()
-        if len(@aCallTrace) > 0
-            return @aCallTrace[len(@aCallTrace)][:duration]
+        if ring_len(@aCallTrace) > 0
+            return @aCallTrace[ring_len(@aCallTrace)][:duration]
         end
         return 0
 
@@ -350,7 +350,7 @@ class stzExterCode
 
             stzraise("File does not exist!" + NL + NL +
                      "Log content (from " + @cLanguage + " console): " + NL +
-                     "------------------" + copy("-", len(@cLanguage)) + "----------" + NL + NL +
+                     "------------------" + copy("-", ring_len(@cLanguage)) + "----------" + NL + NL +
                      This.Log() + NL + NL +
                      "------------------------" + NL +
                      "End of log file content.")

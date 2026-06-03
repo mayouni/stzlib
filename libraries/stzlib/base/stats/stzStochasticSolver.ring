@@ -52,12 +52,12 @@ class stzStochasticSolver
 
     def addIntegerVariable(varName, lowerBound, upperBound)
         This.addVariable(varName, lowerBound, upperBound)
-        @aVariables[len(@aVariables)][:type] = "integer"
+        @aVariables[ring_len(@aVariables)][:type] = "integer"
         return this
 
     def addBinaryVariable(varName)
         This.addVariable(varName, 0, 1)
-        @aVariables[len(@aVariables)][:type] = "binary"
+        @aVariables[ring_len(@aVariables)][:type] = "binary"
         return this
 
     def variables()
@@ -181,7 +181,7 @@ class stzStochasticSolver
         # Handle multiplication
         if ring_substr1(cExpr, "*")
             acParts = split(cExpr, "*")
-            if len(acParts) = 2
+            if ring_len(acParts) = 2
                 nLeft = 0+ trim(acParts[1])
                 nRight = 0+ trim(acParts[2])
                 return nLeft * nRight
@@ -191,7 +191,7 @@ class stzStochasticSolver
         # Handle division
         if ring_substr1(cExpr, "/")
             acParts = split(cExpr, "/")
-            if len(acParts) = 2
+            if ring_len(acParts) = 2
                 nLeft = 0+ trim(acParts[1])
                 nRight = 0+ trim(acParts[2])
                 if nRight != 0
@@ -205,7 +205,7 @@ class stzStochasticSolver
         # Handle addition
         if ring_substr1(cExpr, "+")
             acParts = split(cExpr, "+")
-            if len(acParts) = 2
+            if ring_len(acParts) = 2
                 nLeft = 0+ trim(acParts[1])
                 nRight = 0+ trim(acParts[2])
                 return nLeft + nRight
@@ -215,7 +215,7 @@ class stzStochasticSolver
         # Handle subtraction
         if ring_substr1(cExpr, "-")
             acParts = split(cExpr, "-")
-            if len(acParts) = 2
+            if ring_len(acParts) = 2
                 nLeft = 0+ trim(acParts[1])
                 nRight = 0+ trim(acParts[2])
                 return nLeft - nRight
@@ -228,9 +228,9 @@ class stzStochasticSolver
     # Main Solving Methods
     def solve()
         nStartTime = clock()
-        if len(@aVariables) = 0 stzRaise("No variables defined!") ok
+        if ring_len(@aVariables) = 0 stzRaise("No variables defined!") ok
         if @cObjective = "" stzRaise("No objective function defined!") ok
-        if len(@aScenarios) = 0 stzRaise("No scenarios defined! Use addScenario() to model uncertainty.") ok
+        if ring_len(@aScenarios) = 0 stzRaise("No scenarios defined! Use addScenario() to model uncertainty.") ok
 
         This.validateScenarios()
 
@@ -251,12 +251,12 @@ class stzStochasticSolver
 
     # Expected Value Method
     def solveExpectedValue()
-        @nIterations = len(@aVariables)
+        @nIterations = ring_len(@aVariables)
         aVarNames = This.variableNames()
         aSolution = []
 
         # Initialize solution
-        for i = 1 to len(@aVariables)
+        for i = 1 to ring_len(@aVariables)
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
 
@@ -275,7 +275,7 @@ class stzStochasticSolver
 
         # Calculate efficiency for each variable
         aEfficiency = []
-        for i = 1 to len(aVarNames)
+        for i = 1 to ring_len(aVarNames)
             nCoeff = aExpectedCoeffs[i]
             nResourceCost = This.calculateExpectedResourceCost(aVarNames[i])
 			if nResourceCost = 0
@@ -313,7 +313,7 @@ class stzStochasticSolver
         aSolution = []
 
         # Initialize solution
-        for i = 1 to len(@aVariables)
+        for i = 1 to ring_len(@aVariables)
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
 
@@ -323,7 +323,7 @@ class stzStochasticSolver
 
         # Calculate efficiency using worst-case
         aEfficiency = []
-        for i = 1 to len(aVarNames)
+        for i = 1 to ring_len(aVarNames)
             nCoeff = aCoeffs[i]
             nResourceCost = This.calculateWorstCaseResourceCost(aVarNames[i])
             nEfficiency = iff(nResourceCost > 0, nCoeff / nResourceCost, 0)
@@ -358,7 +358,7 @@ class stzStochasticSolver
         aSolution = []
 
         # Initialize solution
-        for i = 1 to len(@aVariables)
+        for i = 1 to ring_len(@aVariables)
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
 
@@ -377,7 +377,7 @@ class stzStochasticSolver
 
         # Calculate efficiency with chance constraints
         aEfficiency = []
-        for i = 1 to len(aVarNames)
+        for i = 1 to ring_len(aVarNames)
             nCoeff = aExpectedCoeffs[i]
             nResourceCost = This.calculateChanceResourceCost(aVarNames[i])
             nEfficiency = iff(nResourceCost > 0, nCoeff / nResourceCost, 0)
@@ -534,7 +534,7 @@ class stzStochasticSolver
                 return max([0, limit[1]])
             ok
         next
-        return max([0, aLimits[len(aLimits)][1]])
+        return max([0, aLimits[ring_len(aLimits)][1]])
 
     def calculateScenarioMaxValue(cVarName, aSolution, scenario)
         nMinLimit = 999999
@@ -584,7 +584,7 @@ class stzStochasticSolver
         aSolution = []
         
         # Initialize solution
-        for i = 1 to len(@aVariables)
+        for i = 1 to ring_len(@aVariables)
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
         
@@ -593,7 +593,7 @@ class stzStochasticSolver
         aCoeffs = This.parseObjectiveCoefficients(cScenarioObjective)
         
         # Simple greedy assignment
-        for i = 1 to len(aVarNames)
+        for i = 1 to ring_len(aVarNames)
             cVarName = aVarNames[i]
             nMaxPossible = This.calculateScenarioMaxValue(cVarName, aSolution, scenario)
             nUpperBound = @aVariables[i][:upperBound]
@@ -621,7 +621,7 @@ class stzStochasticSolver
 
     # Analysis Methods
     def analyzeScenarios()
-        if len(@aSolution) = 0 stzRaise("No solution available! Call solve() first.") ok
+        if ring_len(@aSolution) = 0 stzRaise("No solution available! Call solve() first.") ok
         
         aScenarioResults = []
         for scenario in @aScenarios
@@ -659,7 +659,7 @@ class stzStochasticSolver
         return true
 
     def expectedObjectiveValue()
-        if len(@aSolution) = 0 return 0 ok
+        if ring_len(@aSolution) = 0 return 0 ok
         
         nExpectedValue = 0
         for scenario in @aScenarios

@@ -96,7 +96,7 @@ class stzStringNumbers
 	#===============================#
 
 	def NumberOfNumbers()
-		return len(This.Numbers())
+		return ring_len(This.Numbers())
 
 		def CountNumbers()
 			return This.NumberOfNumbers()
@@ -113,7 +113,7 @@ class stzStringNumbers
 
 	def ContainsOnlyNumbers()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 
 		for i = 1 to nLen
 			c = acChars[i]
@@ -129,7 +129,7 @@ class stzStringNumbers
 
 	def RemoveNumbers()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		cResult = ""
 
 		for i = 1 to nLen
@@ -157,7 +157,7 @@ class stzStringNumbers
 	def SumOfNumbers()
 		anNums = This.Numbers()
 		nSum = 0
-		nLen = len(anNums)
+		nLen = ring_len(anNums)
 		for i = 1 to nLen
 			nSum += anNums[i]
 		next
@@ -169,7 +169,7 @@ class stzStringNumbers
 
 	def MaxNumber()
 		anNums = This.Numbers()
-		nLen = len(anNums)
+		nLen = ring_len(anNums)
 		if nLen = 0
 			StzRaise("No numbers found in the string!")
 		ok
@@ -184,7 +184,7 @@ class stzStringNumbers
 
 	def MinNumber()
 		anNums = This.Numbers()
-		nLen = len(anNums)
+		nLen = ring_len(anNums)
 		if nLen = 0
 			StzRaise("No numbers found in the string!")
 		ok
@@ -199,7 +199,7 @@ class stzStringNumbers
 
 	def AverageOfNumbers()
 		anNums = This.Numbers()
-		nLen = len(anNums)
+		nLen = ring_len(anNums)
 		if nLen = 0
 			StzRaise("No numbers found in the string!")
 		ok
@@ -216,7 +216,7 @@ class stzStringNumbers
 
 	def NthNumber(n)
 		anNums = This.Numbers()
-		if n >= 1 and n <= len(anNums)
+		if n >= 1 and n <= ring_len(anNums)
 			return anNums[n]
 		ok
 		StzRaise("Index out of range!")
@@ -233,7 +233,7 @@ class stzStringNumbers
 
 	def ReplaceNumbers(nNewValue)
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		cResult = ""
 		cNewStr = "" + nNewValue
 		bInNum = 0
@@ -270,7 +270,7 @@ class stzStringNumbers
 	def NumbersAsStrings()
 		anNums = This.Numbers()
 		acResult = []
-		nLen = len(anNums)
+		nLen = ring_len(anNums)
 
 		for i = 1 to nLen
 			acResult + ("" + anNums[i])
@@ -284,7 +284,7 @@ class stzStringNumbers
 
 	def PositionsOfNumbers()
 		acChars = @oString.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 		anPositions = []
 		bInNum = 0
 

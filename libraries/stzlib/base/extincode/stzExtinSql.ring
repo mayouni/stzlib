@@ -277,7 +277,7 @@ class WITH
 	def As(paParams)
 		if CheckingParams()
 			if NOT ( isList(paParams) and
-				 len(paParams) > 0 and len(paParams) <= 3 )
+				 ring_len(paParams) > 0 and ring_len(paParams) <= 3 )
 				StzRaise("Incorrect param type! paParams must be a list of 1 to 3 items.")
 			ok
 		ok

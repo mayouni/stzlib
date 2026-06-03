@@ -61,7 +61,7 @@ class stzListOfTimeLines from stzObject
 				# every init-set lane unreachable.
 				_aLnsTmp_ = p[:Lanes]
 				@aLanes = []
-				for _iLn_ = 1 to len(_aLnsTmp_)
+				for _iLn_ = 1 to ring_len(_aLnsTmp_)
 					@aLanes + StzUpper(_aLnsTmp_[_iLn_])
 				next
 			else
@@ -97,7 +97,7 @@ class stzListOfTimeLines from stzObject
 
 		// Initialize each lane as a stzTimeLine with global bounds
 		# Removed stray debug print: `? @@([@cGlobalStart, @cGlobalEnd])`
-		nLen = len(@aLanes)
+		nLen = ring_len(@aLanes)
 		for i = 1 to nLen
 			oLaneTL = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
 			@aTimeLines + oLaneTL
@@ -111,7 +111,7 @@ class stzListOfTimeLines from stzObject
 			:TimeLines = []
 		]
 
-		nLen = len(@aTimeLines)
+		nLen = ring_len(@aTimeLines)
 		for i = 1 to nLen
 			aResult[:TimeLines] + [
 				:Lane = @aLanes[i],
@@ -158,7 +158,7 @@ class stzListOfTimeLines from stzObject
 			return This
 
 	def _updateAllLanesBounds()
-		nLen = len(@aTimeLines)
+		nLen = ring_len(@aTimeLines)
 		for i = 1 to nLen
 			@aTimeLines[i].SetStart(@cGlobalStart)
 			@aTimeLines[i].SetEnd(@cGlobalEnd)
@@ -179,7 +179,7 @@ class stzListOfTimeLines from stzObject
 		return @aLanes
 
 	def NumberOfLanes()
-		return len(@aLanes)
+		return ring_len(@aLanes)
 
 	def Lane(pcLane)
 		nIndex = StzFind(@aLanes, StzUpper(pcLane))
@@ -286,10 +286,10 @@ class stzListOfTimeLines from stzObject
 		cDateTime = This._normalizeDateTime(pDateTime)
 		aResult = []
 
-		nLen = len(@aTimeLines)
+		nLen = ring_len(@aTimeLines)
 		for i = 1 to nLen
 			aLaneEvents = @aTimeLines[i].WhatsAt(cDateTime)
-			if len(aLaneEvents) > 0
+			if ring_len(aLaneEvents) > 0
 				aResult + [ :Lane = @aLanes[i], :Events = aLaneEvents ]
 			ok
 		next
@@ -303,7 +303,7 @@ class stzListOfTimeLines from stzObject
 	def CrossLaneOverlaps()
 		// Detect overlaps between events in different lanes at the same time
 		aResult = []
-		nLen = len(@aTimeLines)
+		nLen = ring_len(@aTimeLines)
 
 		for i = 1 to nLen - 1
 			aSpansI = @aTimeLines[i].Spans()
@@ -329,7 +329,7 @@ class stzListOfTimeLines from stzObject
 
 	def UncoveredPeriodsPerLane()
 		aResult = []
-		nLen = len(@aTimeLines)
+		nLen = ring_len(@aTimeLines)
 		for i = 1 to nLen
 			aUncovered = @aTimeLines[i].UncoveredPeriods()
 			aResult + [ :Lane = @aLanes[i], :Uncovered = aUncovered ]
@@ -371,7 +371,7 @@ class stzListOfTimeLines from stzObject
 		oGlobalLayout = This._calculateGlobalLayout()
 
 		// For each lane, build its timepoints and draw
-		nLenLanes = len(@aLanes)
+		nLenLanes = ring_len(@aLanes)
 		nCurrentRow = 1  // Start row for first lane
 
 		for i = 1 to nLenLanes
@@ -392,13 +392,13 @@ class stzListOfTimeLines from stzObject
 
 	def _addLaneLabelToCanvas(nRow, pcLane)
 		// Pad label to @nLabelWidth and add to canvas rows
-		cPaddedLabel = pcLane + Q(" " * (@nLabelWidth - len(pcLane)))
+		cPaddedLabel = pcLane + Q(" " * (@nLabelWidth - ring_len(pcLane)))
 		// Assume canvas rows are built vertically; integrate into @acVizCanvas
 
 	def _calculateGlobalLayout()
 		// Similar to stzTimeLine's _calculateRequiredVizHeight but global
 		nMaxHeight = 0
-		nLen = len(@aTimeLines)
+		nLen = ring_len(@aTimeLines)
 		for i = 1 to nLen
 			nLaneHeight = @aTimeLines[i]._calculateRequiredVizHeight()
 			if nLaneHeight > nMaxHeight
@@ -502,7 +502,7 @@ class stzListOfTimeLines from stzObject
 		// Merge all lanes into a single stzTimeLine
 		// Strategy: :MergeAll (combine points/spans with lane prefixes), :SelectLane = "Name", etc.
 		oMerged = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
-		nLen = len(@aTimeLines)
+		nLen = ring_len(@aTimeLines)
 		for i = 1 to nLen
 			aPoints = @aTimeLines[i].Points()
 			for p in aPoints
@@ -516,7 +516,7 @@ class stzListOfTimeLines from stzObject
 		return oMerged
 
 	def Clear()
-		nLen = len(@aTimeLines)
+		nLen = ring_len(@aTimeLines)
 		for i = 1 to nLen
 			@aTimeLines[i].Clear()
 		next

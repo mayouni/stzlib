@@ -3,7 +3,7 @@
 # Testing numeric normalization
 #
 # Extracted from stzdatawranglertest.ring, block #10.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R24) : Using uninitialized variable: minmax
 
 load "../../stzBase.ring"
 

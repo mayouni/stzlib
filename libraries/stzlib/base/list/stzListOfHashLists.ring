@@ -37,7 +37,7 @@ class stzListOfHashLists from stzList
 
 	def ToListOfStzHashLists()
 		aResult = []
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 
 		for i = 1 to nLen
 			aResult + new stzHashList(@aContent[i])
@@ -48,12 +48,12 @@ class stzListOfHashLists from stzList
 	def Show()
 
 		cResult = ""
-		nLen = len(@aContent)
+		nLen = ring_len(@aContent)
 
 		for i = 1 to nLen
 
 			aHashList = @aContent[i]
-			nLenHash = len(aHashList)
+			nLenHash = ring_len(aHashList)
 
 			for j = 1 to nLenHash
 				cLine = aHashList[j][1] + " : " + aHashList[j][2]

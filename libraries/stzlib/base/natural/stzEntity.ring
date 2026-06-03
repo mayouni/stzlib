@@ -149,12 +149,12 @@ class stzEntity
 			return This.Property(p)
 
 		but isList(p)
-			if len(p) = 2 and isString(p[1])
+			if ring_len(p) = 2 and isString(p[1])
 				This.SetProperty(p[1], p[2])
 				return
 
 			but IsListOfPairs(p)
-				nLen = len(p)
+				nLen = ring_len(p)
 				for i = 1 to nLen
 					This.SetProperty(p[i][1], p[i][2])
 				next
@@ -195,7 +195,7 @@ class stzEntity
 		if NOT HasKey(@aEntity, pcProp)
 			return 0
 		else
-			nLen = len(@aEntity)
+			nLen = ring_len(@aEntity)
 			for i = 1 to nLen
 				if @aEntity[i][1] = pcProp
 					return i
@@ -256,7 +256,7 @@ class stzEntity
 		return new stzEntity( This.Content() )
 
 	def Size()
-		return len( This.Properties() )
+		return ring_len( This.Properties() )
 
 		def NumberOfProperties()
 			return This.Size()

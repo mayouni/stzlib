@@ -3,7 +3,7 @@
 # Testing range validation
 #
 # Extracted from stzdatawranglertest.ring, block #7.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R24) : Using uninitialized variable: column_name
 
 load "../../stzBase.ring"
 

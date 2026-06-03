@@ -158,7 +158,7 @@ class stzReactiveStream
 			raise("Incorrect param type! paData must be a list.")
 		ok
 	
-		nLen = len(paData)
+		nLen = ring_len(paData)
 		for i = 1 to nLen
 			This.Emit(paData[i])
 		next
@@ -240,7 +240,7 @@ class stzReactiveStream
 
 	def AutoConclude()
 		# Only auto-conclude if we have aReactiveFuncs that need final results
-		if (hasReduceTransform or len(concludeHandlers) > 0) and not isConcluded
+		if (hasReduceTransform or ring_len(concludeHandlers) > 0) and not isConcluded
 			Conclude()
 		ok
 
@@ -256,7 +256,7 @@ class stzReactiveStream
 		
 		# If we have a reduce transform, emit the final accumulated result
 		if hasReduceTransform
-			nLenSub = len(aReactiveFuncs)
+			nLenSub = ring_len(aReactiveFuncs)
 			for i = 1 to nLenSub
 				Rf = aReactiveFuncs[i]
 				call Rf(accumulator)
@@ -264,7 +264,7 @@ class stzReactiveStream
 		ok
 		
 		# Call completion handlers
-		nLenHand = len(concludeHandlers)
+		nLenHand = ring_len(concludeHandlers)
 
 		for i = 1 to nLenHand
 			fConcludeHandler = concludeHandlers[i]
@@ -298,7 +298,7 @@ class stzReactiveStream
 		ok
 		
 		# Call error handlers
-		nLenErr = len(errorHandlers)
+		nLenErr = ring_len(errorHandlers)
 		for i = 1 to nLenErr
 			fErrorHandler = errorHandlers[i]
 			call fErrorHandler(error)
@@ -334,7 +334,7 @@ class stzReactiveStream
 		isOverflowActive = STREAM_STATE_ACTIVE
 		
 		# Notify overflow handlers
-		nLenBack = len(overflowHandlers)
+		nLenBack = ring_len(overflowHandlers)
 		for i = 1 to nLenBack
 			fHandler = overflowHandlers[i]
 			call fHandler(currentBufferCount, bufferSize)
@@ -352,7 +352,7 @@ class stzReactiveStream
 			
 		case :LATEST
 			# Drop oldest, keep latest
-			if len(buffer) > 0
+			if ring_len(buffer) > 0
 				del(buffer, 1)  # Remove oldest
 				currentBufferCount--
 			ok
@@ -370,7 +370,7 @@ class stzReactiveStream
 
 
 	def ProcessAnItemFromBuffer()
-		if len(buffer) = 0
+		if ring_len(buffer) = 0
 			return
 		ok
 	
@@ -381,7 +381,7 @@ class stzReactiveStream
 	
 		# Apply transforms (existing logic)
 		processedData = [data]
-		nLenTrans = len(transforms)
+		nLenTrans = ring_len(transforms)
 
 		for i = 1 to nLenTrans
 			transformType = transforms[i][1]
@@ -397,7 +397,7 @@ class stzReactiveStream
 
 			case TRANSFORM_REDUCE
 				fReduceFunc = transforms[i][2]
-				nLenData = len(processedData)
+				nLenData = ring_len(processedData)
 				for j = 1 to nLenData
 					accumulator = call fReduceFunc(accumulator, processedData[j])
 				next
@@ -416,8 +416,8 @@ class stzReactiveStream
 		
 		# Only emit if we didn't encounter a reduce transform
 		if not hasReduceTransform
-			nLenSub = len(aReactiveFuncs)
-			nLenData = len(processedData)
+			nLenSub = ring_len(aReactiveFuncs)
+			nLenData = ring_len(processedData)
 	
 			for i = 1 to nLenSub
 				Rf = aReactiveFuncs[i]
@@ -440,7 +440,7 @@ class stzReactiveStream
 
 	def ProcessAllInBuffer()
 		# Process all buffered items
-		while len(buffer) > 0
+		while ring_len(buffer) > 0
 			ProcessAnItemFromBuffer()
 		end
 		return self

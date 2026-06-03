@@ -198,14 +198,14 @@ class stzStringCrypto
 
 	def VigenereEncrypt(pcKey)
 		pH = @oString.Engine()
-		pR = StzEngineStringVigenereEncrypt(pH, pcKey, len(pcKey))
+		pR = StzEngineStringVigenereEncrypt(pH, pcKey, ring_len(pcKey))
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		@oString.Update(c)
 
 	def VigenereEncrypted(pcKey)
 		pH = @oString.Engine()
-		pR = StzEngineStringVigenereEncrypt(pH, pcKey, len(pcKey))
+		pR = StzEngineStringVigenereEncrypt(pH, pcKey, ring_len(pcKey))
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c

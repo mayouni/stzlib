@@ -48,7 +48,7 @@ class stzClusterMonitor
         next
         
         # Auto-scaling logic
-        if nOverloadedNodes > len(aCluster[:nodes]) / 2
+        if nOverloadedNodes > ring_len(aCluster[:nodes]) / 2
             This.ScaleUpCluster(aCluster[:type])
         ok
 
@@ -87,10 +87,10 @@ class stzClusterMonitor
             
             aReport + [
                 :cluster_type = aCluster[:type],
-                :total_nodes = len(aCluster[:nodes]),
+                :total_nodes = ring_len(aCluster[:nodes]),
                 :healthy_nodes = nHealthy,
                 :overloaded_nodes = nOverloaded,
-                :health_percentage = (nHealthy * 100) / len(aCluster[:nodes])
+                :health_percentage = (nHealthy * 100) / ring_len(aCluster[:nodes])
             ]
         next
         

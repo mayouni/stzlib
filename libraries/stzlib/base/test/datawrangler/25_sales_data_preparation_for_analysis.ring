@@ -3,7 +3,7 @@
 # Sales data preparation for analysis
 #
 # Extracted from stzdatawranglertest.ring, block #25.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R24) : Using uninitialized variable: clean
 
 load "../../stzBase.ring"
 

@@ -108,7 +108,7 @@ class stzHBarPlot from stzBarPlot
 	# --- Horizontal Layout Calculation ---
 
 	def _calculateLayout()
-	    nBars = len(@anValues)
+	    nBars = ring_len(@anValues)
 	    
 	    # Cap the number of bars to @nMaxHeight
 	    nBarsToShow = min([nBars, @nMaxHeight])  # e.g., 3 bars if @nMaxHeight = 3
@@ -118,8 +118,8 @@ class stzHBarPlot from stzBarPlot
 	    nMaxLabelWidth = 0
 	    if @bShowLabels and @bShowAxisLabels
 	        for i = 1 to nBarsToShow  # Only consider shown bars
-	            if i <= len(@acLabels)
-	                nLabelWidth = min([len(@acLabels[i]), @nMaxLabelWidth])
+	            if i <= ring_len(@acLabels)
+	                nLabelWidth = min([ring_len(@acLabels[i]), @nMaxLabelWidth])
 	                nMaxLabelWidth = max([nMaxLabelWidth, nLabelWidth])
 	            ok
 	        next
@@ -155,10 +155,10 @@ class stzHBarPlot from stzBarPlot
 	        for i = 1 to nBarsToShow
 	            nValue = @anValues[i]
 	            if @bShowValues
-	                nValueWidth = len("" + nValue)
+	                nValueWidth = ring_len("" + nValue)
 	            but @bShowPercent and @nSum > 0
 	                nPercent = (@anValues[i] * 100) / @nSum
-	                nValueWidth = len('' + RoundN(nPercent, 1) + "%")
+	                nValueWidth = ring_len('' + RoundN(nPercent, 1) + "%")
 	            ok
 	            nMaxValueWidth = max([nMaxValueWidth, nValueWidth])
 	        next
@@ -292,15 +292,15 @@ class stzHBarPlot from stzBarPlot
 	    nCurrentRow = oLayout[:bars_start_row]
 	    
 	    for i = 1 to nBarsToShow
-	        if i <= len(@acLabels)
+	        if i <= ring_len(@acLabels)
 	            cLabel = @acLabels[i]
 	            
-	            if len(cLabel) > @nMaxLabelWidth
+	            if ring_len(cLabel) > @nMaxLabelWidth
 	                cLabel = Left(cLabel, @nMaxLabelWidth - 2) + ".."
 	            ok
 	            
-	            nLabelStart = nLabelsCol + oLayout[:max_label_width] - len(cLabel)
-	            nLen = len(cLabel)
+	            nLabelStart = nLabelsCol + oLayout[:max_label_width] - ring_len(cLabel)
+	            nLen = ring_len(cLabel)
 	            for j = 1 to nLen
 	                _setChar(nCurrentRow, nLabelStart + j - 1, cLabel[j])
 	            next
@@ -343,7 +343,7 @@ class stzHBarPlot from stzBarPlot
 	        ok
 	        
 	        nRow = nBarsStartRow + (i - 1)
-	        nLen = len(cValue)
+	        nLen = ring_len(cValue)
 	        for j = 1 to nLen
 	            _setChar(nRow, nValueStartCol + j - 1, cValue[j])
 	        next
@@ -376,7 +376,7 @@ class stzHBarPlot from stzBarPlot
 	    if oLayout[:annotation_row] > 0
 	        cAvgValue = "avg: " + RoundN(@nAverage, 1)
 	        nAvgValueStartCol = nAvgCol + 2
-	        nLen = len(cAvgValue)
+	        nLen = ring_len(cAvgValue)
 	        for j = 1 to nLen
 	            _setChar(oLayout[:annotation_row], nAvgValueStartCol + j - 1, cAvgValue[j])
 	        next

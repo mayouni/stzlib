@@ -3,7 +3,7 @@
 # profon()
 #
 # Extracted from stzchainoftruthtest.ring, block #1.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R3) : Calling Function without definition: @isfruit
 
 load "../../stzBase.ring"
 

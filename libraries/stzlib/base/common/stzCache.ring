@@ -171,7 +171,7 @@ class stzCache from stzObject
 		return CacheFileLines()[n]
 	
 	func CacheFileNumberOfLines()
-		return len(CacheFileLines())
+		return ring_len(CacheFileLines())
 
 	def ComposeLine(paParts)
 		return TransformListToString(paParts, ["|",","])

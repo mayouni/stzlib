@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzbaturalcodetest.ring, block #14.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R14) : Calling Method without definition: containingq
 
 load "../../stzBase.ring"
 

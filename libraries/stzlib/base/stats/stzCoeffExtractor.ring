@@ -149,7 +149,7 @@ class stzCoeffExtractor from stzObject
 	def extractLinearCoefficient(cExpression, cVarName)
 		cExpr = StzReplace(cExpression, "-", "+-")  # Handle negative terms
 		acTerms = @split(cExpr, "+")
-		nLen = len(acTerms)
+		nLen = ring_len(acTerms)
 
 		for i = 1 to nLen
 			cTerm = @trim(acTerms[i])
@@ -245,7 +245,7 @@ class stzCoeffExtractor from stzObject
 	
 
 	def VarNames()
-		nLen = len(@aVars)
+		nLen = ring_len(@aVars)
 		acResult = []
 
 		for i = 1 to nLen

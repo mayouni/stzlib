@@ -302,14 +302,14 @@ class stzAppServer from stzNetwork
 
 		# HTTP request parser
 		aLines = @split(cRawRequest, nl)
-		if len(aLines) = 0
+		if ring_len(aLines) = 0
 			raise("Empty request")
 		ok
 		
 		# Parse request line
 		cRequestLine = aLines[1]
 		aParts = @split(cRequestLine, " ")
-		if len(aParts) < 3
+		if ring_len(aParts) < 3
 			raise("Invalid request line")
 		ok
 		
@@ -322,7 +322,7 @@ class stzAppServer from stzNetwork
 		cBody = ""
 		nBodyStart = 0
 		
-		for i = 2 to len(aLines)
+		for i = 2 to ring_len(aLines)
 			if aLines[i] = ""
 				nBodyStart = i + 1
 				exit
@@ -337,10 +337,10 @@ class stzAppServer from stzNetwork
 		next
 		
 		# Extract body if present
-		if nBodyStart > 0 and nBodyStart <= len(aLines)
-			for i = nBodyStart to len(aLines)
+		if nBodyStart > 0 and nBodyStart <= ring_len(aLines)
+			for i = nBodyStart to ring_len(aLines)
 				cBody += aLines[i]
-				if i < len(aLines) cBody += nl ok
+				if i < ring_len(aLines) cBody += nl ok
 			next
 		ok
 		
@@ -350,7 +350,7 @@ class stzAppServer from stzNetwork
 
 		cResponse = "HTTP/1.1 " + nCode + " " + cMessage + nl +
 		           "Content-Type: text/plain" + nl +
-		           "Content-Length: " + len(cMessage) + nl +
+		           "Content-Length: " + ring_len(cMessage) + nl +
 		           nl + cMessage
 		           
 		oTcpServer.SendTo(oClient, cResponse)

@@ -153,7 +153,7 @@ class stzSystemCall
 
 		oRest = new stzString(cRest)
 		acChars = oRest.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 
 		for i = 1 to nLen
 			c = acChars[i]
@@ -286,10 +286,10 @@ class stzSystemCall
 
 	def _BuildCommandLine()
 		cCmd = ""
-		if @cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[1] = "/c"
+		if @cProgram = "cmd.exe" and ring_len(@acArgs) > 1 and @acArgs[1] = "/c"
 			cCmd = "cmd.exe /c "
 			cCommand = ""
-			for i = 2 to len(@acArgs)
+			for i = 2 to ring_len(@acArgs)
 				cArg = @acArgs[i]
 				if i > 2
 					cCommand += " "
@@ -315,7 +315,7 @@ class stzSystemCall
 			else
 				cCmd = @cProgram
 			ok
-			for i = 1 to len(@acArgs)
+			for i = 1 to ring_len(@acArgs)
 				if StzFind(@acArgs[i], " ") > 0
 					cCmd += ' "' + @acArgs[i] + '"'
 				else
@@ -344,7 +344,7 @@ class stzSystemCall
 
 		acLines = split(@cOutput, NL)
 		aResult = []
-		nLen = len(acLines)
+		nLen = ring_len(acLines)
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
@@ -362,7 +362,7 @@ class stzSystemCall
 		cOut = trim(@cOutput)
 		oOut = new stzString(cOut)
 		acChars = oOut.Chars()
-		nLen = len(acChars)
+		nLen = ring_len(acChars)
 
 		# Try to extract first number from output
 		for i = 1 to nLen
@@ -424,12 +424,12 @@ class stzSystemCall
 			cValue = StzReplace(cValue, "/", "\")
 		ok
 
-		for i = 1 to len(@acArgs)
+		for i = 1 to ring_len(@acArgs)
 			@acArgs[i] = StzReplace(@acArgs[i], "{" + cParam + "}", cValue)
 		next
 
 	def SetParams(aParams)
-		nLen = len(aParams)
+		nLen = ring_len(aParams)
 		for i = 1 to nLen
 			This.SetParam(aParams[i][1], aParams[i][2])
 		next
@@ -588,7 +588,7 @@ class stzSystemCall
 		acLines = split(@cOutput, NL)
 		# Remove empty lines
 		aResult = []
-		nLen = len(acLines)
+		nLen = ring_len(acLines)
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
@@ -729,7 +729,7 @@ class stzSystemCall
 
 		# Check for shell built-in commands
 		aWords = split(cCmd, " ")
-		if len(aWords) > 0
+		if ring_len(aWords) > 0
 			cFirstWord = StzLower(trim(aWords[1]))
 			if find(ShellBuiltInCommands, cFirstWord) > 0
 				bNeedsShell = TRUE

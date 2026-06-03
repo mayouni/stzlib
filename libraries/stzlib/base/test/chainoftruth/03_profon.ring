@@ -3,7 +3,7 @@
 # profon()
 #
 # Extracted from stzchainoftruthtest.ring, block #3.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R14) : Calling Method without definition: inuppercaseq
 
 load "../../stzBase.ring"
 

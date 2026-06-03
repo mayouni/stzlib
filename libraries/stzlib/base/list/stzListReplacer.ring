@@ -98,7 +98,7 @@ class stzListReplacer
 
 		# Fallback for non-string types
 		_anRpPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
-		_nRpLen_ = len(_anRpPos_)
+		_nRpLen_ = ring_len(_anRpPos_)
 
 		for _iRp_ = 1 to _nRpLen_
 			This.ReplaceAnyItemAtPositionCS(_anRpPos_[_iRp_], pNewItem, pCaseSensitive)
@@ -163,7 +163,7 @@ class stzListReplacer
 
 		# Fallback: direct Ring assignment
 		_aRapContent_ = This.Content()
-		if n >= 1 and n <= len(_aRapContent_)
+		if n >= 1 and n <= ring_len(_aRapContent_)
 			_aRapContent_[n] = pNewItem
 			@oList.UpdateWith(_aRapContent_)
 		ok
@@ -230,7 +230,7 @@ class stzListReplacer
 
 	def ReplaceLastOccurrenceCS(pItem, pNewItem, pCaseSensitive)
 		_anRloPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
-		_nRloLen_ = len(_anRloPos_)
+		_nRloLen_ = ring_len(_anRloPos_)
 		if _nRloLen_ > 0
 			This.ReplaceAnyItemAtPosition(_anRloPos_[_nRloLen_], pNewItem)
 		ok
@@ -251,7 +251,7 @@ class stzListReplacer
 	#=====================================#
 
 	def ReplaceManyCS(paItems, pNewItem, pCaseSensitive)
-		_nRmLen_ = len(paItems)
+		_nRmLen_ = ring_len(paItems)
 		for _iRm_ = 1 to _nRmLen_
 			This.ReplaceAllOccurrencesCS(paItems[_iRm_], pNewItem, pCaseSensitive)
 		next
@@ -273,7 +273,7 @@ class stzListReplacer
 
 	def ReplaceSectionCS(n1, n2, paNewItems, pCaseSensitive)
 		_aRsContent_ = This.Content()
-		_nRsLen_ = len(_aRsContent_)
+		_nRsLen_ = ring_len(_aRsContent_)
 
 		if n1 < 1 { n1 = 1 }
 		if n2 > _nRsLen_ { n2 = _nRsLen_ }
@@ -283,7 +283,7 @@ class stzListReplacer
 			@AddItem(_aRsResult_, _aRsContent_[_iRsPre_])
 		next
 
-		_nRsNewLen_ = len(paNewItems)
+		_nRsNewLen_ = ring_len(paNewItems)
 		for _iRsNew_ = 1 to _nRsNewLen_
 			@AddItem(_aRsResult_, paNewItems[_iRsNew_])
 		next
@@ -302,15 +302,15 @@ class stzListReplacer
 	#============================================#
 
 	def ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
-		if isList(paNewItems) and len(paNewItems) > 0
+		if isList(paNewItems) and ring_len(paNewItems) > 0
 			if isString(paNewItems[1]) and
 			   (paNewItems[1] = :by or paNewItems[1] = :with or paNewItems[1] = :By or paNewItems[1] = :With)
 				paNewItems = paNewItems[2]
 			ok
 		ok
 
-		_nRmbmItemsLen_ = len(paItems)
-		_nRmbmNewLen_ = len(paNewItems)
+		_nRmbmItemsLen_ = ring_len(paItems)
+		_nRmbmNewLen_ = ring_len(paNewItems)
 
 		if _nRmbmItemsLen_ = 0 or _nRmbmNewLen_ = 0
 			return
@@ -337,15 +337,15 @@ class stzListReplacer
 
 	def ReplaceManyByManyCSXT(paItems, paNewItems, pCaseSensitive)
 		# XT version: if paNewItems is shorter, it cycles; if longer, it truncates
-		if isList(paNewItems) and len(paNewItems) > 0
+		if isList(paNewItems) and ring_len(paNewItems) > 0
 			if isString(paNewItems[1]) and
 			   (paNewItems[1] = :by or paNewItems[1] = :with or paNewItems[1] = :By or paNewItems[1] = :With)
 				paNewItems = paNewItems[2]
 			ok
 		ok
 
-		_nRmbmxtItemsLen_ = len(paItems)
-		_nRmbmxtNewLen_ = len(paNewItems)
+		_nRmbmxtItemsLen_ = ring_len(paItems)
+		_nRmbmxtNewLen_ = ring_len(paNewItems)
 
 		if _nRmbmxtItemsLen_ = 0 or _nRmbmxtNewLen_ = 0
 			return
