@@ -1,0 +1,15 @@
+[ FAIL ] 01_basic_attribute_watching.ring:
+         #1 ? NL + "✔ Sample completed." -> expected "Setting name to 'John'... ╰─> Name changed from ╰─> Age chan" not found past cursor 0
+[ FAIL ] 02_computed_attributes.ring:
+         #1 ? NL + "✔ Sample completed." -> expected "Setting firstName to 'Jane'... Setting lastName to 'Smith'.." not found past cursor 0
+[ FAIL ] 03_attribute_binding.ring:
+         #1 ? NL + "✔ Sample completed." -> expected 'Setting source temperature to 25°C... Setting source tempera' not found past cursor 0
+[ FAIL ] 04_batch_updates.ring:
+         #1 ? NL + "✔ Sample completed." -> expected 'Individual updates (watch each change): Price updated: $999.' not found past cursor 0
+[ skip ] 05_attribute_streams.ring: no #--> markers
+[ skip ] 06_reactive_search_with_attribute_settling.ring: no #--> markers
+[ skip ] 07_pr.ring: no #--> markers
+[ skip ] 08_making_a_person_class_reactive.ring: no #--> markers
+[ skip ] 09_reactive_bank_account_class.ring: no #--> markers
+---
+FAIL: 4 / skip: 5

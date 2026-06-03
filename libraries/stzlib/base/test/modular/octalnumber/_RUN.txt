@@ -1,0 +1,11 @@
+[ FAIL ] 01_converting_from_octal_de_decimal_binary_and_hexade.ring:
+         #1 ? o1.OctalNumber() -> expected 'o2007' not found past cursor 0
+         #2 ? o1.ToDecimal() -> expected '1031' not found past cursor 0
+         #3 ? o1.ToBinary() -> expected '0b10000000111' not found past cursor 0
+         #4 ? o1.ToHex() -> expected '0x407' not found past cursor 0
+[ FAIL ] 02_block_2.ring:
+         #1 ? o1.OctalNumber() -> expected '0o2007' not found past cursor 0
+         #2 ? o1.OctalNumber() -> expected '0o2007' not found past cursor 0
+         #3 ? o1.OctalNumber() -> expected '0o2007' not found past cursor 0
+---
+FAIL: 2

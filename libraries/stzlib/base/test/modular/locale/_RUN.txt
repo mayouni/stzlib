@@ -1,5 +1,4 @@
-[ FAIL ] 01_pr.ring:
-         #1 ? oLocale.Lowercase("RING") -> expected '"ring"' not found past cursor 0
+[ PASS ] 01_pr.ring: 1 assertions matched
 [ PASS ] 02_pr.ring: 1 assertions matched
 [ skip ] 03_replace_with_setcurrentlocale.ring: no #--> markers
 [ skip ] 04_pr.ring: no #--> markers
@@ -10,8 +9,7 @@
 [ skip ] 09_error_returns_null.ring: no #--> markers
 [ skip ] 10_pr.ring: no #--> markers
 [ skip ] 11_pr.ring: no #--> markers
-[ FAIL ] 12_pr.ring:
-         #1 ? o1.Capitalised() -> expected 'Chinese Yuan' not found past cursor 0
+[ PASS ] 12_pr.ring: 1 assertions matched
 [ skip ] 13_pf.ring: no #--> markers
 [ skip ] 14_pr.ring: no #--> markers
 [ skip ] 15_block_15.ring: no #--> markers
@@ -19,8 +17,7 @@
 [ skip ] 17_block_17.ring: no #--> markers
 [ skip ] 18_pr.ring: no #--> markers
 [ FAIL ] 19_locale_casing_error.ring:
-         #1 ? oLocale.Name()	# Should return China locale but returns C  -> expected 'This induces stzLocale in error:' not found past cursor 0
-         #2 ? StzLocaleQ("cmn_CN").CountryName()	# returns NULL but shou -> expected 'TODO: Verify this bug for all the other locales (see next co' not found past cursor 0
+         #2 ? StzLocaleQ("cmn_CN").CountryName()	# returns NULL but shou -> expected 'TODO: Verify this bug for all the other locales' not found past cursor 0
 [ skip ] 20_block_20.ring: no #--> markers
 [ PASS ] 21_pr.ring: 1 assertions matched
 [ skip ] 22_pr.ring: no #--> markers
@@ -46,17 +43,12 @@
 [ skip ] 39_pr.ring: no #--> markers
 [ skip ] 40_pr.ring: no #--> markers
 [ skip ] 41_pr.ring: no #--> markers
-[ FAIL ] 42_pr.ring:
-         #2 ? ToTitlecase("in search of lost time") -> expected 'In search of lost time' not found past cursor 6
-[ FAIL ] 43_pr.ring:
-         #2 ? ToTitlecase("in search of lost time") -> expected 'In Search Of Lost Time' not found past cursor 13
-[ FAIL ] 44_pr.ring:
-         #1 ? Content() -> expected 'Tunisian dinar' not found past cursor 0
-         #2 ? Content() -> expected 'Tunisian Dinar' not found past cursor 0
+[ PASS ] 42_pr.ring: 2 assertions matched
+[ PASS ] 43_pr.ring: 2 assertions matched
+[ PASS ] 44_pr.ring: 2 assertions matched
 [ skip ] 45_pr.ring: no #--> markers
 [ PASS ] 46_pr.ring: 2 assertions matched
-[ FAIL ] 47_pr.ring:
-         #1 ? StzLocaleQ("ar_eg").CountryPhoneCode() -> expected '"+20"' not found past cursor 0
+[ PASS ] 47_pr.ring: 3 assertions matched
 [ skip ] 48_pr.ring: no #--> markers
 [ FAIL ] 49_pr.ring:
          #1 ? StzLocaleQ([ :Country = :South_Africa, :Language = :tswana -> expected 'iNingizimu Afrika' not found past cursor 0
@@ -69,16 +61,13 @@
 [ skip ] 55_pr.ring: no #--> markers
 [ FAIL ] 56_pr.ring:
          #1 ? StzLocaleQ([ :Country = :south_africa ]).CountryNativeName -> expected 'iNingizimu Afrika' not found past cursor 0
-[ FAIL ] 57_pr.ring:
-         #1 ? StzLocaleQ([ :Country = :Tunisia ]).CountryNumber() -> expected '"216"' not found past cursor 0
+[ PASS ] 57_pr.ring: 1 assertions matched
 [ skip ] 58_pr.ring: no #--> markers
 [ skip ] 59_add_these_features.ring: no #--> markers
 [ PASS ] 60_pr.ring: 1 assertions matched
-[ FAIL ] 61_check_error.ring:
-         #1 ? o1.ToTimeAsString("05:08:34", :Default) #TODO //Check why  -> expected 'Invalid time provided!' not found past cursor 0
+[ PASS ] 61_check_error.ring: 1 assertions matched
 [ PASS ] 62_currency.ring: 1 assertions matched
-[ FAIL ] 63_pr.ring:
-         #1 ? o1.Currency() -> expected 'Tunisian Dinar' not found past cursor 0
+[ PASS ] 63_pr.ring: 2 assertions matched
 [ PASS ] 64_pr.ring: 1 assertions matched
 [ PASS ] 65_pr.ring: 2 assertions matched
 [ PASS ] 66_pr.ring: 1 assertions matched
@@ -90,7 +79,7 @@
 [ skip ] 72_pr.ring: no #--> markers
 [ PASS ] 73_fix_logical_error.ring: 1 assertions matched
 [ FAIL ] 74_pr.ring:
-         #2 ? SystemLocale() -> expected 'fr_FR (on my machine, could be different for you)' not found past cursor 3
+         #2 ? SystemLocale() -> expected 'fr_FR' not found past cursor 3
 [ skip ] 75_pr.ring: no #--> markers
 [ PASS ] 76_pr.ring: 2 assertions matched
 [ FAIL ] 77_pr.ring:
@@ -109,4 +98,4 @@
 [ PASS ] 87_pr.ring: 2 assertions matched
 [ skip ] 88_pr.ring: no #--> markers
 ---
-PASS: 16 / FAIL: 19 / skip: 53
+PASS: 25 / FAIL: 10 / skip: 53

@@ -1,0 +1,3 @@
+[ PASS ] 01_arch_and_bitness_probes.ring: 25 assertions matched
+---
+PASS: 1

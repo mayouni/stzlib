@@ -3,9 +3,7 @@
 [ PASS ] 03_testing_duplicate_removal.ring: 1 assertions matched
 [ PASS ] 04_testing_missing_value_handling_with_different_stra.ring: 4 assertions matched
 [ FAIL ] 05_testing_whitespace_trimming_and_case_normalization.ring:
-         #2 ? @@(o1.GetData()) + NL -> expected '[ "John DOE", "mary smith", "BOB WILSON", "alice BROWN" ]' not found past cursor 6
-         #3 ? nNormalized -> expected '2' not found past cursor 6
-         #4 ? @@(o1.GetData()) -> expected '[ "John Doe", "Mary Smith", "Bob Wilson", "Alice Brown" ]' not found past cursor 6
+         #3 ? nNormalized -> expected '2' not found past cursor 59
 [ skip ] 06_testing_data_type_validation.ring: no #--> markers
 [ skip ] 07_testing_range_validation.ring: no #--> markers
 [ skip ] 08_testing_outlier_detection.ring: no #--> markers

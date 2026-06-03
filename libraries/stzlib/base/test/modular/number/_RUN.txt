@@ -13,8 +13,7 @@
 [ skip ] 08_block_8.ring: no #--> markers
 [ skip ] 09_softanza.ring: no #--> markers
 [ PASS ] 10_ring.ring: 4 assertions matched
-[ FAIL ] 11_pr.ring:
-         #4 ? Max( CommonNumbers([ Factors(n1), Factors(n2) ]) ) -> expected '5' not found past cursor 91
+[ PASS ] 11_pr.ring: 4 assertions matched
 [ FAIL ] 12_pr.ring:
          #1 ? o1 + 3500 -> expected '3600' not found past cursor 0
 [ PASS ] 13_pr.ring: 3 assertions matched
@@ -69,9 +68,7 @@
          #2 ? RoundedTo(3) -> expected '"81.8"' not found past cursor 6
          #3 ? RoundedToXT(3) -> expected '"81.800"' not found past cursor 6
 [ PASS ] 47_pr.ring: 8 assertions matched
-[ FAIL ] 48_pr.ring:
-         #3 ? o1.Value() # Or NumericValue() ~> Sensitive to the currend -> expected '-12.45' not found past cursor 182
-         #4 ? o1.StringValue() # Or Content() ~> Sensitive to the curren -> expected '"-12.4521"' not found past cursor 182
+[ PASS ] 48_pr.ring: 4 assertions matched
 [ PASS ] 49_pr.ring: 3 assertions matched
 [ PASS ] 50_pr.ring: 5 assertions matched
 [ PASS ] 51_pr.ring: 2 assertions matched
@@ -85,8 +82,7 @@
 [ skip ] 56_pr.ring: no #--> markers
 [ PASS ] 57_pr.ring: 2 assertions matched
 [ FAIL ] 58_pr.ring:
-         #2 ? o1.MaxRound() -> expected '6' not found past cursor 179
-         #3 ? o1.Content() -> expected '23500.12399999999980' not found past cursor 179
+         #3 ? o1.Content() -> expected '23500.12399999999980' not found past cursor 3
 [ FAIL ] 59_pr.ring:
          #1 ? o1.Content() -> expected '"123.00000000000000"' not found past cursor 0
          #2 ? o1.Content() -> expected '"12345678912345"' not found past cursor 0
@@ -114,4 +110,4 @@
 [ skip ] 75_pr.ring: no #--> markers
 [ skip ] 76_todo_error.ring: no #--> markers
 ---
-PASS: 31 / FAIL: 24 / TIMEOUT: 2 / skip: 14
+PASS: 33 / FAIL: 22 / TIMEOUT: 2 / skip: 14

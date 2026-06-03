@@ -14,18 +14,19 @@
          #1 ? @@( StzNullObjectQ() ) -> expected '@noname' not found past cursor 0
          #2 ? @@([ StzNullObjectQ() ]) -> expected '[ @noname ]' not found past cursor 0
 [ skip ] 10_pr.ring: no #--> markers
-[ FAIL ] 11_pr.ring:
-         #1 ? StzNumberQ("-5.23456").Absolute() -> expected '"5.23456"' not found past cursor 0
+[ PASS ] 11_pr.ring: 1 assertions matched
 [ skip ] 12_pr.ring: no #--> markers
 [ PASS ] 13_tonumber_and_tonumberw.ring: 3 assertions matched
 [ FAIL ] 14_startprofiler.ring:
          #1 ? Q(-5).ToNumberW('{ @number = Q(@number).Abs() }') -> expected '5' not found past cursor 0
-         #3 ? QRT([ -1, 2, -3, -4, 5 ], :stzListOfNumbers).ToNumberW('{  -> expected '-1' not found past cursor 182
+         #2 ? Q(5).ToNumberW('{ @number = @number + 5 }') -> expected '10' not found past cursor 0
+         #3 ? QRT([ -1, 2, -3, -4, 5 ], :stzListOfNumbers).ToNumberW('{  -> expected '-1' not found past cursor 0
 [ FAIL ] 15_startprofiler.ring:
          #1 ? @@( Q("Ring").Unicodes() ) -> expected '[ 82, 105, 110, 103 ]' not found past cursor 0
 [ FAIL ] 16_pr.ring:
          #1 ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }') -> expected '3' not found past cursor 0
-         #3 ? Q([ "Me", "and", "You!" ]).Yield('len(@item)') -> expected '[2, 3, 4]' not found past cursor 20
+         #2 ? Q([ "Me", "and", "You!" ]).ToNumberW('{ @number += len(@it -> expected '9' not found past cursor 0
+         #3 ? Q([ "Me", "and", "You!" ]).Yield('len(@item)') -> expected '[2, 3, 4]' not found past cursor 0
 [ PASS ] 17_pr.ring: 2 assertions matched
 [ PASS ] 18_pr.ring: 3 assertions matched
 [ skip ] 19_pr.ring: no #--> markers
@@ -53,4 +54,4 @@
 [ FAIL ] 32_pr.ring:
          #1 ? HowManyStzClasses() -> expected '60' not found past cursor 0
 ---
-PASS: 9 / FAIL: 13 / skip: 10
+PASS: 10 / FAIL: 12 / skip: 10

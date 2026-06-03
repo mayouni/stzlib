@@ -1,0 +1,9 @@
+[ FAIL ] 01_pr.ring:
+         #1 ? o1.FractionalPartToDecimalForm() -> expected '0.93359375' not found past cursor 0
+         #2 ? o1.ToDecimalForm() -> expected '61242.93359375 #TODO check correctness!' not found past cursor 0
+[ PASS ] 02_pr.ring: 1 assertions matched
+[ PASS ] 03_pr.ring: 1 assertions matched
+[ PASS ] 04_pr.ring: 1 assertions matched
+[ PASS ] 05_block_5.ring: 3 assertions matched
+---
+PASS: 4 / FAIL: 1

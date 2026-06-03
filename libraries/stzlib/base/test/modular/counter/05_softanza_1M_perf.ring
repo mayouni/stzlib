@@ -22,3 +22,5 @@ anCounterResults = oCounter.CountTo(1000000)
 pf()
 # Reference timing:
 # - 0.91s in Ring 1.23
+
+# Executed in 0.01 second(s) in Ring 1.26 (Backed by StzEngine)
