@@ -1,0 +1,11 @@
+== pythoncode  PASS 10  ERR 0  TIMEOUT 0  (16.2s) ==
+[PASS]    01_pr.ring
+[PASS]    02_simple_python_code.ring
+[PASS]    03_data_analysis_with_pandas.ring
+[PASS]    04_text_processing_with_python_and_its_regex_engine.ring
+[PASS]    05_python_machine_learning_integration_in_a_ring_prog.ring
+[PASS]    06_advanced_example_-_comparing_perf_python_vs_softan.ring
+[PASS]    07_content.ring
+[PASS]    08_face_detection_with_python.ring
+[PASS]    09_result.ring
+[PASS]    10_result.ring

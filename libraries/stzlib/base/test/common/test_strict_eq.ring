@@ -1,5 +1,6 @@
-#ERR Error (R24) : Using uninitialized variable: ﻿load
-﻿load "../stzBase.ring"
+
+
+load "../../stzBase.ring"
 
 ? "=== Strict Equality Test ==="
 

@@ -1,0 +1,4 @@
+== ordinal  PASS 3  ERR 0  TIMEOUT 0  (4.9s) ==
+[PASS]    01_english.ring
+[PASS]    02_french.ring
+[PASS]    03_arabic.ring

@@ -4377,6 +4377,72 @@ class stzList from stzObject
 		def DeeplyContains(pItem)
 			return This.DeepContains(pItem)
 
+	# FilledWith(pItems): replace the wrapped list with pItems, then
+	# return its content. Used for the 'start from an empty list and
+	# fill it with these items' fluent shape.
+	def FilledWith(pItems)
+		if isList(pItems)
+			@aContent = pItems
+		else
+			@aContent + pItems
+		ok
+		return @aContent
+
+		def FilledWithQ(pItems)
+			This.FilledWith(pItems)
+			return This
+
+	# DeepReplace: recursive replace -- walk nested lists and
+	# substitute every occurrence of pOld with pNew. The recursion
+	# enters every list sublist; non-list items are compared with
+	# Ring's = (deep-equal for lists, value-equal for scalars).
+
+	def DeepReplaceCS(pOld, pNew, pCaseSensitive)
+		@aContent = This._DeepReplaceCS(@aContent, pOld, pNew, pCaseSensitive)
+
+		def DeepReplaceCSQ(pOld, pNew, pCaseSensitive)
+			This.DeepReplaceCS(pOld, pNew, pCaseSensitive)
+			return This
+
+	def DeepReplace(pOld, pNew)
+		This.DeepReplaceCS(pOld, pNew, 1)
+
+		def DeepReplaceQ(pOld, pNew)
+			This.DeepReplace(pOld, pNew)
+			return This
+
+		def DeeplyReplace(pOld, pNew)
+			This.DeepReplace(pOld, pNew)
+
+	def _DeepReplaceCS(paList, pOld, pNew, pCaseSensitive)
+		_bDrCase_ = @CaseSensitive(pCaseSensitive)
+		_aDrOut_ = []
+		_nDrLen_ = ring_len(paList)
+		for _iDr_ = 1 to _nDrLen_
+			_xDrIt_ = paList[_iDr_]
+			if isList(_xDrIt_)
+				_aDrOut_ + This._DeepReplaceCS(_xDrIt_, pOld, pNew, pCaseSensitive)
+			else
+				if _bDrCase_
+					if _xDrIt_ = pOld
+						_aDrOut_ + pNew
+					else
+						_aDrOut_ + _xDrIt_
+					ok
+				else
+					if isString(_xDrIt_) and isString(pOld) and
+					   lower(_xDrIt_) = lower(pOld)
+						_aDrOut_ + pNew
+					but _xDrIt_ = pOld
+						_aDrOut_ + pNew
+					else
+						_aDrOut_ + _xDrIt_
+					ok
+				ok
+			ok
+		next
+		return _aDrOut_
+
 	def _DeepContainsCS(paList, pItem, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		_nList2Len_ = ring_len(paList)

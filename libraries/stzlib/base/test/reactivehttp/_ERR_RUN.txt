@@ -1,0 +1,7 @@
+== reactivehttp  PASS 1  ERR 5  TIMEOUT 0  (11.7s) ==
+[ERR]     01_understanding_httpget_-_simple_web_request.ring :: Error (R3) : Calling Function without definition: download
+[PASS]    02_understanding_httppost_-_sending_data_to_server.ring
+[ERR]     03_creating_a_stream_of_http_responses.ring :: Error (R3) : Calling Function without definition: download
+[ERR]     04_combining_http_with_timers_for_polling.ring :: Error (R3) : Calling Function without definition: download
+[ERR]     05_real-world_example_fetching_and_combining_data_fro.ring :: Error (R3) : Calling Function without definition: download
+[ERR]     06_what_you_learned_with_these_examples.ring :: exit 1: Error (S1) In file: 06_what_you_learned_with_these_examples.ring

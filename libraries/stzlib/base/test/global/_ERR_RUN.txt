@@ -1,0 +1,50 @@
+== global  PASS 29  ERR 13  TIMEOUT 7  (18477.2s) ==
+[PASS]    01_isstzfindable.ring
+[PASS]    02_pr.ring
+[PASS]    03_0.ring
+[PASS]    04_bothareequal.ring
+[TIMEOUT] 05_allhavesametype.ring
+[PASS]    06_areequal.ring
+[PASS]    07_bothendwithanumber.ring
+[TIMEOUT] 08_desabling_param_checking_to_enhance_performance.ring
+[TIMEOUT] 09_continue.ring
+[TIMEOUT] 10_pr.ring
+[PASS]    11_pr.ring
+[PASS]    12_block_12.ring
+[TIMEOUT] 13_pr.ring
+[TIMEOUT] 14_block_14.ring
+[PASS]    15_pr.ring
+[PASS]    16_pr.ring
+[PASS]    17_pr.ring
+[PASS]    18_pr.ring
+[ERR]     19_showshort.ring :: Error (R24) : Using uninitialized variable: number
+[PASS]    20_pr.ring
+[PASS]    21_pr.ring
+[PASS]    22_pr.ring
+[PASS]    23_pr.ring
+[PASS]    24_showing_the_short_form_of_a_long_list.ring
+[PASS]    25_q110showshort.ring
+[ERR]     26_sorted.ring :: Error (R14) : Calling Method without definition: sorted
+[PASS]    27_content.ring
+[PASS]    28_association.ring
+[PASS]    29_findmany.ring
+[PASS]    30_find.ring
+[ERR]     31_write_a.ring :: Error (R14) : Calling Method without definition: thesesubstringszz
+[PASS]    32_boundedby.ring
+[PASS]    33_pr.ring
+[PASS]    34_future.ring
+[TIMEOUT] 35_elapsedtime.ring
+[ERR]     36_stznumber_class.ring :: Error (R14) : Calling Method without definition: isstzclassname
+[PASS]    37_qarepeatedntimes3_or_repeated3.ring
+[PASS]    40_inferring_types_q_qq.ring
+[ERR]     41_q6.ring :: Error (C27) : Syntax Error!
+[ERR]     42_q13.ring :: Error (C27) : Syntax Error!
+[ERR]     43_qac.ring :: Error (C27) : Syntax Error!
+[ERR]     44_q_12_58_1012.ring :: Error (C27) : Syntax Error!
+[ERR]     45_q_a_20_b_30.ring :: Error (C27) : Syntax Error!
+[ERR]     46_q_a_20_b_30.ring :: Error (C27) : Syntax Error!
+[ERR]     49_islistof.ring :: Error (R14) : Calling Method without definition: islistof
+[ERR]     50_inferetype.ring :: Error (R14) : Calling Method without definition: inferetype
+[ERR]     50_q_check_predicate.ring :: Error (R14) : Calling Method without definition: check
+[PASS]    51_computableform.ring
+[PASS]    52_chars_looking_similar_but_are_different.ring

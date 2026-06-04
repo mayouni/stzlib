@@ -1,0 +1,52 @@
+== regexmaker  PASS 33  ERR 18  TIMEOUT 0  (81.9s) ==
+[PASS]    01_calling_patterns_bu_their_names_from_the_stz-regex.ring
+[PASS]    02_match.ring
+[PASS]    03_pattern.ring
+[PASS]    04_pr.ring
+[PASS]    05_pr.ring
+[PASS]    06_explain.ring
+[PASS]    07_pattern.ring
+[PASS]    08_pr.ring
+[PASS]    09_pattern.ring
+[PASS]    10_pattern.ring
+[PASS]    11_pr.ring
+[PASS]    12_types.ring
+[PASS]    13_ring_number_vs_softanza_number.ring
+[ERR]     14_declarative_design_of_regex_patterns.ring :: Error (C27) : Syntax Error!
+[ERR]     15_pattern.ring :: Error (C27) : Syntax Error!
+[ERR]     17_example_1_simple_balanced_parentheses.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     18_example_2_nested_json-like_structure.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     19_example_3_xml-like_tags.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    20_example_4_empty_pattern.ring
+[ERR]     21_example_5_single_level_no_children.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     22_example_6_multiple_independent_levels.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     23_example_7_deeply_nested_structure.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     24_example_9_complex_quantifiers.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     25_example_10_special_characters_escaping.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     26_example_11_back_references_with_groups.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     27_example_12_multiple_quantified_children.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     28_example_13_unicode_support.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     29_example_14_empty_child_pattern.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     30_example_15_alternation_patterns.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     31_example_16_pattern_information.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    33_basic_conditional_if_digit_then_match_more_digits_.ring
+[PASS]    34_validate_phone_numbers.ring
+[PASS]    35_match_different_date_formats.ring
+[PASS]    36_url_protocol_matcher.ring
+[PASS]    37_email_validation_with_different_domains.ring
+[PASS]    39_basic_example.ring
+[PASS]    40_validate_monetary_amounts.ring
+[PASS]    41_match_words_not_followed_by_punctuation.ring
+[PASS]    42_match_html_tags_with_specific_attributes.ring
+[PASS]    43_find_numbers_with_specific_context.ring
+[ERR]     44_using_original_regex-like_syntax_which_softanza.ring :: Error (C27) : Syntax Error!
+[PASS]    45_password_validation.ring
+[PASS]    46_html_tag_matcher.ring
+[PASS]    47_smart_quote_matcher.ring
+[PASS]    48_data_validation.ring
+[PASS]    49_html_content_extraction_-_different_matching_behav.ring
+[PASS]    50_data_parsing_-_choosing_appropriate_behavior.ring
+[ERR]     51_match_duplicated_words.ring :: Error (R24) : Using uninitialized variable: pctaggroupname
+[PASS]    52_html_tag_matching.ring
+[PASS]    53_format_validation_with_reused_patterns.ring
+[PASS]    54_use_of_isbeforegroup.ring

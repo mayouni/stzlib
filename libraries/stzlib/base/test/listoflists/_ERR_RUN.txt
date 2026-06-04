@@ -1,0 +1,68 @@
+== listoflists  PASS 53  ERR 14  TIMEOUT 0  (108.4s) ==
+[PASS]    01_howmanymissing.ring
+[PASS]    02_islistoflists.ring
+[PASS]    03_nthlist.ring
+[PASS]    04_content.ring
+[PASS]    06_pr.ring
+[PASS]    07_pr.ring
+[PASS]    08_sortlistson.ring
+[PASS]    09_pr.ring
+[ERR]     10_difference_between_sorton_and_sortby.ring :: Error (R24) : Using uninitialized variable: pccolname
+[PASS]    11_col_and_colxt_in_a_list_of_lists.ring
+[PASS]    13_arecontiguous.ring
+[ERR]     14_findmany.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    15_findsublist.ring
+[PASS]    16_containsmany.ring
+[PASS]    17_listswxt.ring
+[PASS]    18_findsublist.ring
+[PASS]    19_sortedon.ring
+[PASS]    20_sorted.ring
+[PASS]    21_sortedon.ring
+[PASS]    22_index.ring
+[PASS]    23_intersection.ring
+[PASS]    24_intersection.ring
+[ERR]     25_ismadeofsamelist.ring :: Error (R14) : Calling Method without definition: allitemsareequalcs
+[ERR]     26_sortedinascending.ring :: Error (R13) : Object is required
+[ERR]     27_association.ring :: Error (C9) : Brackets ']' is missing
+[ERR]     28_findextraitems.ring :: Error (R14) : Calling Method without definition: findextraitems
+[PASS]    29_flattened.ring
+[PASS]    30_merged.ring
+[PASS]    31_flattened.ring
+[PASS]    32_merged.ring
+[PASS]    33_listsmerge.ring
+[PASS]    34_intersection.ring
+[PASS]    35_commonitems.ring
+[ERR]     36_toset.ring :: Error (R14) : Calling Method without definition: toset
+[ERR]     37_toset.ring :: Error (R14) : Calling Method without definition: toset
+[PASS]    38_extending_a_list.ring
+[ERR]     39_content.ring :: Error (R14) : Calling Method without definition: extendxt
+[PASS]    40_extending_the_lists_of_a_list_of_lists.ring
+[PASS]    41_content.ring
+[ERR]     42_content.ring :: Error (R14) : Calling Method without definition: extendedtobyrepeatingitems
+[PASS]    43_content.ring
+[PASS]    44_shrinking_a_list.ring
+[PASS]    45_shrinking_a_list_of_lists.ring
+[PASS]    46_content.ring
+[ERR]     47_pr.ring :: Error (R14) : Calling Method without definition: istoortoposition
+[PASS]    48_shrinked.ring
+[PASS]    49_ishomolog.ring
+[PASS]    50_content.ring
+[PASS]    51_ishomolog.ring
+[PASS]    52_ishomolog.ring
+[PASS]    53_smallest.ring
+[PASS]    54_findlargestlists.ring
+[PASS]    55_findsmallestlists.ring
+[PASS]    56_associated.ring
+[PASS]    57_association.ring
+[PASS]    60_merged.ring
+[ERR]     61_findall.ring :: Error (R14) : Calling Method without definition: firstnitemsqrt
+[ERR]     62_repeatedleadingchars.ring :: Error (R14) : Calling Method without definition: containsleadingandtrailingchars
+[ERR]     64_retest_after_including_checkw.ring :: Error (R14) : Calling Method without definition: tolistinstring
+[PASS]    65_nthlist.ring
+[PASS]    66_flattened.ring
+[PASS]    67_listsofsizen.ring
+[PASS]    68_make_a_narration_about_indexing_lists_of_lists.ring
+[PASS]    69_pr.ring
+[PASS]    70_findinlists.ring
+[PASS]    test_listoflists_engine.ring
+[PASS]    test_listoflists_regression.ring

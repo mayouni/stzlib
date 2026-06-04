@@ -1,0 +1,4 @@
+== listofhashlists  PASS 1  ERR 2  TIMEOUT 0  (4.7s) ==
+[ERR]     01_error_function_undefined_--_tosetofhashlists.ring :: Error (R14) : Calling Method without definition: tosetofhashlists
+[ERR]     02_show.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    test_listofhashlists_regression.ring

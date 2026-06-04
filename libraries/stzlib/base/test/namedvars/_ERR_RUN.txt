@@ -1,0 +1,16 @@
+== namedvars  PASS 15  ERR 0  TIMEOUT 0  (23.4s) ==
+[PASS]    01_dynamic_construction_of_variable_names.ring
+[PASS]    02_block_2.ring
+[PASS]    03_pr.ring
+[PASS]    04_pr.ring
+[PASS]    05_pr.ring
+[PASS]    06_pr.ring
+[PASS]    07_pr.ring
+[PASS]    08_tempvarsxt.ring
+[PASS]    09_pr.ring
+[PASS]    10_pr.ring
+[PASS]    11_pr.ring
+[PASS]    12_pr.ring
+[PASS]    15_varname.ring
+[PASS]    16_block_16.ring
+[PASS]    17_find.ring

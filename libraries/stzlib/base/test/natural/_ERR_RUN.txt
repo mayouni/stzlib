@@ -1,0 +1,34 @@
+== natural  PASS 30  ERR 3  TIMEOUT 0  (51.2s) ==
+[PASS]    01_code.ring
+[ERR]     02_block_2.ring :: Error (C27) : Syntax Error!
+[ERR]     03_block_3.ring :: Error (C31) : Parentheses '(' is expected
+[PASS]    04_result.ring
+[PASS]    05_boxing_with_modifiers.ring
+[PASS]    06_raising_error_when_object_type_is_not_supported.ring
+[PASS]    07_getting_result_without_display.ring
+[PASS]    08_chained_operations.ring
+[PASS]    09_object_creation_variations.ring
+[PASS]    10_basic_transformations.ring
+[PASS]    11_multiple_operations.ring
+[PASS]    12_boxing_with_options.ring
+[PASS]    13_trimming_operations.ring
+[PASS]    14_reverse_operations.ring
+[PASS]    15_case_transformations.ring
+[PASS]    16_substitute_operation.ring
+[ERR]     17_change_operation.ring :: Error (C8) : Parentheses ')' is missing
+[PASS]    18_multiple_modifiers.ring
+[PASS]    19_frame_alternative.ring
+[PASS]    20_print_alternative.ring
+[PASS]    21_complex_chaining.ring
+[PASS]    22_command_chaining.ring
+[PASS]    23_multiple_parameter_consumption.ring
+[PASS]    24_definerecall_state.ring
+[PASS]    25_multiple_definerecall_cycles.ring
+[PASS]    26_capitalize.ring
+[PASS]    28_debug_mode_testing.ring
+[PASS]    29_clearing_debug_log.ring
+[PASS]    31_multiple_boxing_with_free_punctuation.ring
+[PASS]    32_natural_code_in_english.ring
+[PASS]    33_natural_code_in_hausa_latin_script_boko.ring
+[PASS]    34_from_file.ring
+[PASS]    35_multiline_with_proper_formatting.ring

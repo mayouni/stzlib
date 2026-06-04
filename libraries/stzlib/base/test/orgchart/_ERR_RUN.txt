@@ -1,0 +1,41 @@
+== orgchart  PASS 37  ERR 3  TIMEOUT 0  (71.2s) ==
+[PASS]    01_creating_positions_and_hierarchy.ring
+[PASS]    02_accessing_position_data.ring
+[PASS]    03_direct_reports.ring
+[PASS]    04_adding_and_assigning_people.ring
+[PASS]    05_vacancy_tracking.ring
+[PASS]    06_reassignment.ring
+[PASS]    07_department_assignment.ring
+[PASS]    08_creating_department_clusters.ring
+[PASS]    09_span_of_control.ring
+[PASS]    10_position_hierarchy_analysis.ring
+[PASS]    11_succession_risk.ring
+[PASS]    12_span_of_control_validation.ring
+[PASS]    13_segregation_of_duties.ring
+[PASS]    14_bceao_governance.ring
+[PASS]    15_multiple_validators.ring
+[PASS]    16_theme_and_layout.ring
+[PASS]    17_focus_on_vacant_positions.ring
+[PASS]    18_focus_on_populated_positions.ring
+[PASS]    19_validation-driven_visualization.ring
+[PASS]    20_view_succession_risk.ring
+[PASS]    21_summary_report.ring
+[PASS]    22_vacancy_report.ring
+[PASS]    23_succession_report.ring
+[PASS]    24_succession_report.ring
+[PASS]    25_succession_report.ring
+[ERR]     26_path_finding.ring :: panic: integer part of floating point value out of bounds
+[PASS]    27_reachability.ring
+[PASS]    28_connectivity.ring
+[PASS]    29_property_queries.ring
+[ERR]     30_property_range_queries.ring :: Error (R3) : Calling Function without definition: nodeswithpropertyxt
+[PASS]    31_graph_metrics.ring
+[ERR]     32_color_high_performers.ring :: Error (R11) : Error in class name, class not found: stzgraphrule
+[PASS]    33_reporting_line_changes.ring
+[PASS]    34_position_removal.ring
+[PASS]    35_export_to_stzorg.ring
+[PASS]    36_import_from_stzorg.ring
+[PASS]    37_summary.ring
+[PASS]    38_export_to_dot.ring
+[PASS]    39_natural_language_analysis.ring
+[PASS]    test_orgchart_regression.ring

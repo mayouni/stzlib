@@ -1,0 +1,11 @@
+== html  PASS 3  ERR 7  TIMEOUT 0  (15.8s) ==
+[PASS]    01_getting_information_about_html_documents.ring
+[ERR]     02_parsing_and_reading_html_pure_read_intent.ring :: Error (R14) : Calling Method without definition: text
+[PASS]    03_finding_and_querying_elements_natural_querying.ring
+[ERR]     04_manipulating_nodes_read_modify_intent.ring :: Error (R24) : Using uninitialized variable: csamplehtml
+[ERR]     05_building_new_html_documents_create_intent.ring :: exit 1: pnode: [This Attribute Contains A List]
+[ERR]     06_handling_css_style_manipulation.ring :: Error (R14) : Calling Method without definition: splittolistofstrings
+[ERR]     07_converting_between_lists_and_html_tables.ring :: Error (R3) : Calling Function without definition: listtohtmlxt
+[ERR]     08_handling_xml_uniform_treatment.ring :: Error (R14) : Calling Method without definition: findfirst
+[ERR]     09_advanced_operations_and_chaining.ring :: Error (R24) : Using uninitialized variable: csamplehtml
+[PASS]    test_html_regression.ring

@@ -847,3 +847,26 @@ func StzSubStr(cStr, nStart, nLen)
 			ok
 		next
 		return cJoinedSep
+
+# CenterText: pad cText so it occupies nWidth visible columns, with
+# the text centered (extra space biased to the right when nWidth is
+# even and the remainder is odd). Used by the pivot-table-show
+# row-rendering helper.
+func CenterText(cText, nWidth)
+	if NOT (isString(cText) and isNumber(nWidth)) return cText ok
+	if nWidth < 1 return "" ok
+	nLen = len(cText)
+	if nLen >= nWidth
+		return left(cText, nWidth)
+	ok
+	nLeft = floor((nWidth - nLen) / 2)
+	nRight = nWidth - nLen - nLeft
+	cOut = ""
+	for i = 1 to nLeft
+		cOut += " "
+	next
+	cOut += cText
+	for i = 1 to nRight
+		cOut += " "
+	next
+	return cOut

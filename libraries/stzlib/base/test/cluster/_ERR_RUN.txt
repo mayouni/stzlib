@@ -1,0 +1,2 @@
+== cluster  PASS 1  ERR 0  TIMEOUT 0  (1.8s) ==
+[PASS]    test_cluster_regression.ring

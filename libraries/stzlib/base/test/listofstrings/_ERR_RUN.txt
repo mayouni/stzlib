@@ -1,0 +1,119 @@
+== listofstrings  PASS 7  ERR 111  TIMEOUT 0  (187.8s) ==
+[PASS]    01_concatenatedusing.ring
+[ERR]     02_content.ring :: Error (R14) : Calling Method without definition: sortby
+[ERR]     03_content.ring :: Error (R14) : Calling Method without definition: removesubstring
+[ERR]     04_content.ring :: Error (R14) : Calling Method without definition: trimstrings
+[ERR]     05_content.ring :: Error (R14) : Calling Method without definition: trimstart
+[ERR]     06_todo.ring :: Error (R14) : Calling Method without definition: findduplicates
+[PASS]    07_o1removeduplicatescstrue.ring
+[ERR]     08_content.ring :: Error (R41) : Invalid numeric string
+[ERR]     09_content.ring :: Error (R14) : Calling Method without definition: removesection
+[ERR]     100_containsnonduplicateditemscs.ring :: Error (R14) : Calling Method without definition: containsnonduplicateditemscs
+[ERR]     101_content.ring :: Error (R14) : Calling Method without definition: removeduplicatedstringscs
+[ERR]     102_o1_new_stzlistofstrings_111_b_222_c_111_222_111_s_.ring :: Error (R14) : Calling Method without definition: duplicatedstrings
+[ERR]     103_o1_new_stzlistofstrings_111_b_222_c_111_222_111_s_.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     104_o1_new_stzlistofstrings_111_b_222_c_111_222_111_s_.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     105_o1_new_stzlistofstrings_tunis_gatufsa_tunis_gabes_.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     106_o1_new_stzlistofstrings_tunis_gafsa_tunis_gabes_tu.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     107_o1_new_stzlistofstrings_tunis_gatufsa_tunis_gabes_.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     10_content.ring :: Error (R14) : Calling Method without definition: trimstart
+[ERR]     110_error_fix_it.ring :: Error (R14) : Calling Method without definition: boxxt
+[ERR]     111_o1_new_stzlistofstrings12-120-0_100-10-76_87-458-2.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     112_o1_new_stzlistofstrings_aabc_abxaaxcccz_aattaacvv.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     113_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     114_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     115_o1_new_stzlistofstrings_aabc_abxaaxcccz_aattaacvv.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     116_o1_new_stzlistofstrings_ring_php_php_ring_php_ring.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     117_o1_new_stzlistofstrings_aabc_abxaaxcccz_aattaacvv.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     118_o1_new_stzlistofstrings_aabc_abxaaxcccz_aattaacvv.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     119_o1_new_stzlistofstrings_aabc_abxaaxcccz_aattaacvv.ring :: Error (R24) : Using uninitialized variable: o1
+[PASS]    11_content.ring
+[ERR]     12_content.ring :: exit 1: Line 156 Bad parameter type!
+[ERR]     13_o1_new_stzlistofstrings_name_اسم_姓名.ring :: Error (E9) : Can't open file 13_o1_new_stzlistofstrings_name_???_??.ring
+[ERR]     14_stztextq姓名script_--_han.ring :: Error (E9) : Can't open file 14_stztextq??script_--_han.ring
+[ERR]     15_note.ring :: Error (C8) : Parentheses ')' is missing
+[ERR]     16_o1_new_stzlistofstrings_1_2_abc_4_5_abc_7_8_abc.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     17_o1_new_stzgrid.ring :: Error (C9) : Brackets ']' is missing
+[ERR]     18_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     19_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     20_content.ring :: Error (R14) : Calling Method without definition: replacemanyonebyonecs
+[ERR]     21_o1_new_stzlistofstrings_a_b_c_b.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     22_o1_new_stzlistofstrings_a_b_c_b.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     23_o1_new_stzlistofstrings_a_b_c_d_e_f.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     25_o1_new_stzlistofstrings_functions.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     26_o1_new_stzlistofstrings_c_b_a.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     27_o1_new_stzlistofstrings_c_b_a.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     28_o1_new_stzlistofstrings_abc.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     29_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     30_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     31_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     32_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     33_finding_substrings.ring :: Error (R14) : Calling Method without definition: findsubstring
+[ERR]     34_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     35_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     36_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     37_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     38_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     40_replacing_substrings.ring :: Error (R14) : Calling Method without definition: replacesubstringatposition
+[ERR]     41_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     42_replacing_substrings_inside_a_given_string_of_the_.ring :: Error (R14) : Calling Method without definition: replaceinstringn
+[ERR]     43_o1_new_stzlistofstrings_php_php_ring_python_python.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     44_o1_new_stzlistofstrings_php_ring_php_ring_python_r.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     45_o1_new_stzlistofstrings_php_ring_php_ring_python_r.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     46_o1_new_stzlistofstrings_php_ring_php_ring_python_r.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     48_o1_new_stzlistofstrings_str1_str2_str3.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     50_o1_new_stzlistofstrings_watch_see_watch_observe_wa.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     51_todo_error.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     52_o1_new_stzlistofstrings_village_قرية_નગર.ring :: Error (E9) : Can't open file 52_o1_new_stzlistofstrings_village_????_???.ring
+[ERR]     53_stzlistofstringsq_one_two_three_two_four.ring :: Error (C27) : Syntax Error!
+[ERR]     54_stzlistofstringsq_one_two_three_two_four.ring :: Error (C27) : Syntax Error!
+[ERR]     55_stzlistofstringsq_one_two_three_two_four.ring :: Error (C27) : Syntax Error!
+[ERR]     56_stzlistofstringsq_one_two_three_two_four.ring :: Error (C27) : Syntax Error!
+[ERR]     57_stzlistofstringsq_one_two_three_two_four.ring :: Error (C27) : Syntax Error!
+[ERR]     58_stzlistofstringsq_one_two_three_two_four.ring :: Error (C27) : Syntax Error!
+[ERR]     59_stzlistofstringsq_one_two_three_two_four.ring :: Error (C27) : Syntax Error!
+[ERR]     60_stzlistofstringsq_one_two_three_two_four.ring :: Error (C27) : Syntax Error!
+[ERR]     61_stzlistofstringsq_one_two_three_two_four.ring :: Error (C27) : Syntax Error!
+[ERR]     62_be_careful_there_is_a_difference_between_finding_a.ring :: Error (R14) : Calling Method without definition: findstringcs
+[ERR]     63_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     64_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     65_o1_new_stzlistofstrings.ring :: Error (C27) : Syntax Error!
+[ERR]     66_sortingorder.ring :: Error (R14) : Calling Method without definition: sortingorder
+[ERR]     67_sortingorder.ring :: Error (R14) : Calling Method without definition: sortingorder
+[ERR]     68_sortingorder.ring :: Error (R14) : Calling Method without definition: sortingorder
+[PASS]    69_content.ring
+[ERR]     70_sortinascending.ring :: Error (R3) : Calling Function without definition: stzlistofstringsq
+[PASS]    71_content.ring
+[ERR]     73_o1_new_stzlistofstrings_ccc_bbb_aaa.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     74_o1_new_stzlistofstrings_aaa_bbb_ccc.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     75_todo_check_result_correctness.ring :: Error (R14) : Calling Method without definition: sortbyindescending
+[ERR]     76_sortedbyinascending.ring :: Error (R14) : Calling Method without definition: sortedbyinascending
+[ERR]     77_todofuture.ring :: Error (R14) : Calling Method without definition: wordsofeachstringaresortedinascending
+[ERR]     78_todofuture.ring :: Error (R14) : Calling Method without definition: wordsofeachstringaresortedinascending
+[ERR]     79_areanagrams.ring :: Error (R14) : Calling Method without definition: areanagrams
+[ERR]     80_o1_new_stzlistofstrings_tom_sam_dan.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     81_o1_new_stzlistofstrings_tom_sam_dan.ring :: Error (R24) : Using uninitialized variable: o1
+[ERR]     82_unicodes.ring :: Error (R14) : Calling Method without definition: unicodes
+[ERR]     83_pr.ring :: Error (R14) : Calling Method without definition: splitqrt
+[ERR]     84_split.ring :: Error (R14) : Calling Method without definition: nthsubstringsaftersplittingstringsusing
+[ERR]     85_numberofcombinations.ring :: Error (R14) : Calling Method without definition: numberofcombinations
+[ERR]     86_isuppercase.ring :: Error (R14) : Calling Method without definition: isuppercase
+[ERR]     87_islowercase.ring :: Error (R14) : Calling Method without definition: islowercase
+[ERR]     88_containseachcs.ring :: Error (R14) : Calling Method without definition: containseachcs
+[ERR]     89_findallcs.ring :: Error (R14) : Calling Method without definition: findallcs
+[ERR]     90_sort_descending.ring :: Error (R3) : Calling Function without definition: stzlistofstringsq
+[PASS]    91_boxedxt_each_char_round.ring
+[ERR]     92_boxedround_listofstrings.ring :: Error (R14) : Calling Method without definition: boxedround
+[ERR]     92_findduplicatesofstring.ring :: Error (R14) : Calling Method without definition: findduplicatesofstring
+[ERR]     93_numberofduplicates.ring :: Error (R14) : Calling Method without definition: numberofduplicates
+[PASS]    94_content.ring
+[ERR]     95_content.ring :: Error (R14) : Calling Method without definition: removeduplicatescs
+[ERR]     96_duplicatedstringscs.ring :: Error (R14) : Calling Method without definition: duplicatedstringscs
+[ERR]     97_duplicatedstringscs.ring :: Error (R14) : Calling Method without definition: duplicatedstringscs
+[ERR]     98_containsnonduplicatedstrings.ring :: Error (R14) : Calling Method without definition: containsnonduplicatedstrings
+[ERR]     99_stzlist_has_a_more_performant_implementation_see_e.ring :: Error (R14) : Calling Method without definition: containsnonduplicatedstringscs
+[ERR]     from_baturalcode_12_pr.ring :: Error (R14) : Calling Method without definition: firstchar
+[ERR]     from_list_259_pr.ring :: Error (R14) : Calling Method without definition: howmanyduplicates
+[ERR]     from_list_363_pr.ring :: Error (R14) : Calling Method without definition: insert
+[ERR]     from_listoflists_block_5.ring :: Error (R14) : Calling Method without definition: sort
+[ERR]     from_table_24_pr.ring :: Error (R14) : Calling Method without definition: showxt

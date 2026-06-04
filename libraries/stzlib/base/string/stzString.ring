@@ -3242,6 +3242,37 @@ class stzString from stzObject
 		_oIlisChk_ = new stzStringChecker(This)
 		return _oIlisChk_.IsListInString()
 
+	# FilledWith(pItem): for an empty (or any) wrapped string, set
+	# the content to the string form of pItem and return it. Used
+	# for the 'start from an empty stzString and fill it with this
+	# value' fluent shape.
+	def FilledWith(pItem)
+		if isString(pItem)
+			This.Update(pItem)
+		else
+			This.Update("" + pItem)
+		ok
+		return This.Content()
+
+		def FilledWithQ(pItem)
+			This.FilledWith(pItem)
+			return This
+
+	# ToList: if the string represents a Ring list literal ("[1,2,3]"),
+	# eval it into the actual list. Otherwise returns the chars.
+	# Used by stzSmallFuncs.StzN to count list-in-string elements.
+	def ToList()
+		if This.IsListInString()
+			_aTlRes_ = []
+			_cTlCode_ = "_aTlRes_ = " + This.Content()
+			eval(_cTlCode_)
+			return _aTlRes_
+		ok
+		return This.Chars()
+
+		def ToListQ()
+			return new stzList( This.ToList() )
+
 	def RepresentsNumber()
 		_oRnChk_ = new stzStringChecker(This)
 		return _oRnChk_.RepresentsNumber()

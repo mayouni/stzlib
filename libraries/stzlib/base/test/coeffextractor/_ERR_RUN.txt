@@ -1,0 +1,19 @@
+== coeffextractor  PASS 12  ERR 6  TIMEOUT 0  (32.3s) ==
+[PASS]    01_pr.ring
+[PASS]    02_simple_linear_expressions.ring
+[PASS]    03_negative_coefficients.ring
+[PASS]    04_variables_without_explicit_coefficients.ring
+[PASS]    05_decimal_coefficients.ring
+[ERR]     06_complex_expression_with_minmax_functions.ring :: Error (C27) : Syntax Error!
+[ERR]     07_expression_with_division.ring :: Error (C27) : Syntax Error!
+[ERR]     08_expression_with_power_operations.ring :: Error (C27) : Syntax Error!
+[ERR]     09_expression_with_absolute_values.ring :: Error (C27) : Syntax Error!
+[ERR]     10_expression_with_square_root.ring :: Error (C27) : Syntax Error!
+[ERR]     11_complex_multi-term_expression.ring :: Error (C27) : Syntax Error!
+[PASS]    12_expression_with_parentheses.ring
+[PASS]    13_zero_coefficient_case.ring
+[PASS]    14_batch_extraction.ring
+[PASS]    15_expression_validation.ring
+[PASS]    16_variables_as_substrings_edge_case.ring
+[PASS]    17_spaces_and_formatting.ring
+[PASS]    18_extractcoefficient.ring

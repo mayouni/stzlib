@@ -1,0 +1,6 @@
+== list2d  PASS 5  ERR 0  TIMEOUT 0  (8.2s) ==
+[PASS]    01_content.ring
+[PASS]    02_pr.ring
+[PASS]    03_transpose.ring
+[PASS]    04_content.ring
+[PASS]    test_list2d_regression.ring

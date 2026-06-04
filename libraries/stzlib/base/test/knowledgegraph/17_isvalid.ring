@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzknowledgegraphtest.ring, block #17.
-#ERR Error (R3) : Calling Function without definition: loadrulebase
 
 load "../../stzBase.ring"
 

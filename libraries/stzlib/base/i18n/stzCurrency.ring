@@ -120,6 +120,16 @@ class stzCurrency
 	def ISOSymbol()
 		return StzLocaleQ(This.CountryLocaleAbbreviation()).CurrencyISOSymbol()
 
+		# Abbreviation / NativeAbbreviation: short-form aliases that
+		# narrative tests reach for. Both currently route through
+		# the ISO/native symbol resolvers since the underlying
+		# data table only carries the symbol shape.
+		def Abbreviation()
+			return This.ISOSymbol()
+
+		def NativeAbbreviation()
+			return This.NativeSymbol()
+
 		def ISOSymbolName()
 			return This.ISOSymbol()
 		def Symbol()

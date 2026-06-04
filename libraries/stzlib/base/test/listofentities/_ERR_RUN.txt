@@ -1,0 +1,6 @@
+== listofentities  PASS 1  ERR 4  TIMEOUT 0  (8.0s) ==
+[ERR]     01_you_cant_add_the_same_entity_twice_in_a_stzlistofe.ring :: Error (R16) : Using braces to access unknown object
+[ERR]     02_block_2.ring :: Error (R16) : Using braces to access unknown object
+[ERR]     03_findentitybyname.ring :: Error (R16) : Using braces to access unknown object
+[ERR]     04_numberofentities.ring :: Error (R16) : Using braces to access unknown object
+[PASS]    test_listofentities_regression.ring

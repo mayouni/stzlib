@@ -1,0 +1,11 @@
+== diagramcolor  PASS 10  ERR 0  TIMEOUT 0  (15.2s) ==
+[PASS]    01_base_colors.ring
+[PASS]    02_base_colors_intensities.ring
+[PASS]    03_semantic_colors.ring
+[PASS]    04_node_type_colors.ring
+[PASS]    05_direct_hex_colors.ring
+[PASS]    06_extended_palette.ring
+[PASS]    07_full_intensity_chain_coral.ring
+[PASS]    08_full_intensity_chain_teal.ring
+[PASS]    09_legacy_color_names.ring
+[PASS]    10_full_palette_count.ring

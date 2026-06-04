@@ -1,0 +1,6 @@
+== extinc  PASS 5  ERR 0  TIMEOUT 0  (7.4s) ==
+[PASS]    01_pr.ring
+[PASS]    02_pr.ring
+[PASS]    03_block_3.ring
+[PASS]    04_pr.ring
+[PASS]    05_pr.ring

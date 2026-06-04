@@ -1,0 +1,9 @@
+== uuid  PASS 8  ERR 0  TIMEOUT 0  (13.5s) ==
+[PASS]    01_basic_generation.ring
+[PASS]    02_format_variations.ring
+[PASS]    03_version_and_variant.ring
+[PASS]    04_null_uuid.ring
+[PASS]    05_hash.ring
+[PASS]    06_multiple_generations.ring
+[PASS]    07_hasuuid.ring
+[PASS]    09_block_9.ring

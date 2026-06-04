@@ -1,0 +1,5 @@
+== systemfunc  PASS 0  ERR 4  TIMEOUT 0  (6.5s) ==
+[ERR]     01_basic_command_execution_echover_on_windows_echo_on.ring :: Error (R20) : Calling function with extra number of parameters
+[ERR]     02_command_with_output_capture.ring :: Error (R20) : Calling function with extra number of parameters
+[ERR]     03_file_listing.ring :: Error (C3) : Unclosed control structure, 'ok' is missing
+[ERR]     04_test_graphviz_dot_command_if_installed.ring :: Error (R20) : Calling function with extra number of parameters

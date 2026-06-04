@@ -1,0 +1,2 @@
+== extincsharp  PASS 0  ERR 1  TIMEOUT 0  (1.5s) ==
+[ERR]     01_using_a_c_code_inside_ring.ring :: Error (R24) : Using uninitialized variable: console

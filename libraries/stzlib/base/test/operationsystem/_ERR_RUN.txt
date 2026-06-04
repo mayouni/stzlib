@@ -1,0 +1,2 @@
+== operationsystem  PASS 1  ERR 0  TIMEOUT 0  (1.7s) ==
+[PASS]    01_arch_and_bitness_probes.ring

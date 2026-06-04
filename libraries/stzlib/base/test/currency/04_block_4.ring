@@ -3,7 +3,6 @@
 # */
 #
 # Extracted from stzcurrencytest.ring, block #4.
-#ERR Error (R3) : Calling Function without definition: abbreviation
 
 load "../../stzBase.ring"
 

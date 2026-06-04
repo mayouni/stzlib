@@ -1,0 +1,35 @@
+== systemcall  PASS 22  ERR 12  TIMEOUT 0  (58.5s) ==
+[PASS]    01_setup_create_test_files_in_systest.ring
+[PASS]    02_test_1_basic_command_execution.ring
+[PASS]    03_test_2_file_operations_with_parameters.ring
+[PASS]    04_test_3_multiple_parameters.ring
+[PASS]    05_test_4_auto-typed_return_from_sys.ring
+[PASS]    06_test_5_error_handling.ring
+[PASS]    07_test_6_successfailure_checks.ring
+[PASS]    08_test_7_output_capture_control.ring
+[PASS]    09_test_8_silent_execution.ring
+[PASS]    10_test_9_reuse_object_for_multiple_commands.ring
+[PASS]    11_test_10_step-by-step_building.ring
+[PASS]    12_test_11_timeout_handling.ring
+[PASS]    13_test_12_file_operations_in_systest.ring
+[PASS]    14_output.ring
+[PASS]    15_test_13_legacy_function_compatibility.ring
+[PASS]    16_test_14_open_file_with_default_app.ring
+[PASS]    17_test_15_working_with_sys_commands.ring
+[PASS]    18_output.ring
+[PASS]    19_pr.ring
+[PASS]    20_test_16_error_states.ring
+[PASS]    21_test_17_chaining_with_q_methods.ring
+[PASS]    22_test_18_complex_file_operations.ring
+[ERR]     from_systemcalldata_batch_file_operations.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_docker_deployment.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_document_conversion.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_example_11_open_fileurl.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_file_security.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_git_workflow.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_package_installation.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_system_monitoring.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_text_processing_pipeline.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_video_processing.ring :: Error (C27) : Syntax Error!
+[ERR]     from_systemcalldata_web_scraping.ring :: Error (C27) : Syntax Error!
+[ERR]     test_system_engine.ring :: Error (R3) : Calling Function without definition: ring_len

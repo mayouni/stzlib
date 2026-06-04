@@ -1,0 +1,35 @@
+== random  PASS 24  ERR 10  TIMEOUT 0  (53.9s) ==
+[ERR]     01_pr.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    03_pr.ring
+[PASS]    04_arandomnumberbetween.ring
+[PASS]    05_showshort.ring
+[PASS]    06_somext.ring
+[PASS]    07_pr.ring
+[PASS]    08_some.ring
+[PASS]    09_content.ring
+[PASS]    11_content.ring
+[ERR]     12_content.ring :: Error (R14) : Calling Method without definition: randomizesections
+[ERR]     13_content.ring :: Error (R14) : Calling Method without definition: randomizestrings
+[ERR]     14_content.ring :: Error (R14) : Calling Method without definition: randomiselists
+[ERR]     15_arandomsection.ring :: Error (R3) : Calling Function without definition: arandomsection
+[ERR]     16_arandomsection.ring :: Error (R3) : Calling Function without definition: arandomsectionz
+[ERR]     17_nrandomitems.ring :: Error (R3) : Calling Function without definition: nrandomitemsz
+[ERR]     18_arandomposition.ring :: Error (R3) : Calling Function without definition: arandomposition
+[ERR]     19_arandomposition.ring :: Error (R3) : Calling Function without definition: arandomitem
+[PASS]    20_some.ring
+[PASS]    21_allof.ring
+[PASS]    22_arepositive.ring
+[PASS]    23_arenegativex.ring
+[ERR]     24_matchesx.ring :: Error (R14) : Calling Method without definition: islistofchars
+[PASS]    25_somext.ring
+[PASS]    26_npercentof.ring
+[PASS]    27_arandomitemin.ring
+[PASS]    28_nrandomnumbersin.ring
+[PASS]    29_pr.ring
+[PASS]    30_----_in_this_narration_i_will_show_how_sofanza_com.ring
+[PASS]    31_arandomnumberlessthan.ring
+[PASS]    33_pr.ring
+[PASS]    34_pr.ring
+[PASS]    35_random01.ring
+[PASS]    36_arandomnumberbetween.ring
+[PASS]    50_negative_to_positive_range.ring

@@ -1,0 +1,27 @@
+== fastpro  PASS 26  ERR 0  TIMEOUT 0  (39.6s) ==
+[PASS]    01_pr.ring
+[PASS]    02_pr.ring
+[PASS]    03_islistofnumbers.ring
+[PASS]    04_showshort.ring
+[PASS]    05_pr.ring
+[PASS]    06_pr.ring
+[PASS]    07_pr.ring
+[PASS]    08_pr.ring
+[PASS]    09_pr.ring
+[PASS]    10_pr.ring
+[PASS]    11_pr.ring
+[PASS]    12_pr.ring
+[PASS]    13_pr.ring
+[PASS]    14_pr.ring
+[PASS]    15_pr.ring
+[PASS]    16_pr.ring
+[PASS]    17_pr.ring
+[PASS]    18_pr.ring
+[PASS]    19_pr.ring
+[PASS]    20_pr.ring
+[PASS]    21_pr.ring
+[PASS]    22_pr.ring
+[PASS]    23_pr.ring
+[PASS]    24_numbersin.ring
+[PASS]    25_block_25.ring
+[PASS]    26_block_26.ring

@@ -1,0 +1,55 @@
+== matrix  PASS 46  ERR 8  TIMEOUT 0  (85.3s) ==
+[ERR]     01_basic_examples.ring :: Error (R14) : Calling Method without definition: addtocol
+[PASS]    02_test_global_matrix_creation_functions.ring
+[PASS]    03_pr.ring
+[PASS]    04_multiplying_the_matrix_by_a_number.ring
+[PASS]    05_multiplying_two_matrices.ring
+[PASS]    06_2x2_matrix_determinant.ring
+[PASS]    07_3x3_matrix_inversion.ring
+[PASS]    08_addmatrix_example.ring
+[PASS]    09_multiplycol_example.ring
+[PASS]    10_pr.ring
+[PASS]    11_multiplying_many_cols.ring
+[PASS]    12_pr.ring
+[PASS]    13_multiplyrow_example.ring
+[PASS]    14_multiplying_many_rows.ring
+[PASS]    15_pr.ring
+[PASS]    16_ismatrixofnonzeropositivenumbers.ring
+[PASS]    17_replacecols_example.ring
+[PASS]    18_islistofnonzeropositivenumbers.ring
+[PASS]    19_replacerow_example.ring
+[PASS]    20_addindiagonal_example.ring
+[PASS]    21_diagonal2_example.ring
+[PASS]    22_pr.ring
+[PASS]    23_using_diff.ring
+[PASS]    24_using_submean.ring
+[PASS]    26_findelement_-_find_all_occurrences_of_an_element_i.ring
+[PASS]    27_findelements_-_find_all_occurrences_of_multiple_el.ring
+[PASS]    28_findcol_-_find_columns_that_match_a_pattern.ring
+[PASS]    29_findcols_-_find_all_columns_that_match_multiple_pa.ring
+[PASS]    30_findrow_-_find_rows_that_match_a_pattern.ring
+[PASS]    31_findrows_-_find_all_rows_that_match_multiple_patte.ring
+[PASS]    33_replaceelement_-_replace_all_occurrences_of_an_ele.ring
+[PASS]    34_replaceelementat_-_replace_element_at_a_specific_p.ring
+[PASS]    35_replacethiselementat_-_replace_a_specific_element_.ring
+[PASS]    36_replacetheseelementsat_-_replace_multiple_elements.ring
+[PASS]    38_replaceelementbymany_-_replace_occurrences_with_mu.ring
+[PASS]    39_pr.ring
+[PASS]    40_replaceelementbymanyxt_-_replace_occurrences_with_.ring
+[PASS]    41_replacetheseelementsatbymany_-_replace_specific_el.ring
+[PASS]    42_replacetheseelementsatbymanyxt_-_replace_specific_.ring
+[PASS]    43_pr.ring
+[PASS]    44_working_with_matrix_sections.ring
+[PASS]    45_section.ring
+[ERR]     46_replaceelementsat_-_replace_elements_at_specific_p.ring :: Error (R14) : Calling Method without definition: isbymanynamedparam
+[ERR]     47_replaceelementsatbymany_-_replace_elements_at_posi.ring :: Error (R14) : Calling Method without definition: isbymanynamedparam
+[ERR]     48_replaceelementsatbymanyxt_-_replace_elements_by_cy.ring :: Error (R14) : Calling Method without definition: isbymanynamedparam
+[ERR]     49_replacesection_-_replace_all_elements_in_a_section.ring :: Error (R14) : Calling Method without definition: isbymanynamedparam
+[ERR]     50_replacesectionbymany_-_replace_section_elements_wi.ring :: Error (R14) : Calling Method without definition: isbymanynamedparam
+[ERR]     51_replacethiselementinsection_-_replace_specific_val.ring :: Error (R14) : Calling Method without definition: isbymanynamedparam
+[ERR]     52_replacetheseelementsinsectionbymanyxt_-_replace_mu.ring :: Error (R14) : Calling Method without definition: isbymanynamedparam
+[PASS]    53_simple_method_name_with_flexible_params.ring
+[PASS]    54_istoortocolortorownamedparamlist.ring
+[PASS]    55_pr.ring
+[PASS]    test_engine_matrix.ring
+[PASS]    test_matrix_regression.ring

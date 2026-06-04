@@ -1,0 +1,35 @@
+== folder  PASS 21  ERR 12  TIMEOUT 1  (67.5s) ==
+[PASS]    01_basic_folder_creation_and_information.ring
+[PASS]    02_getting_folder_names_and_paths.ring
+[ERR]     03_folder_status_checks.ring :: Error (C18) : Missing closing brace for the block opened!
+[PASS]    04_basic_navigation.ring
+[PASS]    05_listing_files_and_folders.ring
+[ERR]     06_counting_contents.ring :: exit 1: 36
+[ERR]     07_checking_for_specific_content.ring :: exit 1: 0
+[PASS]    08_creating_single_folders.ring
+[ERR]     09_creating_multiple_folders.ring :: Error (R3) : Calling Function without definition: createfolders
+[PASS]    10_creating_folder_paths.ring
+[PASS]    11_removing_files_and_folders.ring
+[ERR]     12_recursive_removal.ring :: Error (R3) : Calling Function without definition: deepremoveall
+[PASS]    13_basic_search_operations.ring
+[PASS]    14_specialized_search_methods.ring
+[PASS]    15_files_by_extension.ring
+[ERR]     16_specialized_search_methods.ring :: Error (R3) : Calling Function without definition: vizsearchfiles
+[ERR]     17_vizsearchfiles.ring :: Error (R14) : Calling Method without definition: vizsearchfiles
+[ERR]     18_detailed_information.ring :: exit 1: Error (S1) In file: 18_detailed_information.ring
+[PASS]    19_softanza_use_as_a_separator_but_gives_access_to_sy.ring
+[PASS]    20_short_and_long_folders_and_files_names.ring
+[PASS]    21_deepfolders.ring
+[PASS]    22_show.ring
+[PASS]    23_ring_dir_and_softanza_dir.ring
+[TIMEOUT] 24_folder_tree_display.ring
+[ERR]     25_we_can_even_search_inside_text_files_for_the_word_.ring :: Error (R24) : Using uninitialized variable: o1
+[PASS]    26_files.ring
+[PASS]    27_filesxt.ring
+[PASS]    28_findfiles.ring
+[ERR]     29_visual_finding.ring :: Error (R14) : Calling Method without definition: vizsearchfiles
+[PASS]    30_copy_and_clone.ring
+[PASS]    31_refresh_operation.ring
+[ERR]     32_folder_creation_and_navigation_logic.ring :: Error (C27) : Syntax Error!
+[ERR]     33_complete_folder_management_workflow.ring :: Error (R3) : Calling Function without definition: createfolders
+[PASS]    test_folder_regression.ring

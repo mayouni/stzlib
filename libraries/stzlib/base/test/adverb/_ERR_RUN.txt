@@ -1,0 +1,10 @@
+== adverb  PASS 9  ERR 0  TIMEOUT 0  (16.6s) ==
+[PASS]    01_morphological_patterns_priority_4.ring
+[PASS]    02_irregular_forms_priority_1.ring
+[PASS]    03_domain-specific_priority_2.ring
+[PASS]    04_geographiccultural_priority_3.ring
+[PASS]    05_testing_priority_system.ring
+[PASS]    06_dynamic_rule_management.ring
+[PASS]    07_category-based_queries.ring
+[PASS]    08_edge_cases.ring
+[PASS]    09_adverb.ring

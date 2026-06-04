@@ -1,0 +1,6 @@
+== binarynumber  PASS 5  ERR 0  TIMEOUT 0  (9.0s) ==
+[PASS]    01_fractionalparttodecimalform.ring
+[PASS]    02_binarynumber.ring
+[PASS]    03_binarynumber.ring
+[PASS]    04_binarynumber.ring
+[PASS]    05_todecimal.ring

@@ -1,0 +1,15 @@
+== ccode  PASS 11  ERR 3  TIMEOUT 0  (26.7s) ==
+[PASS]    02_numbersafter.ring
+[PASS]    03_executablesection.ring
+[PASS]    04_between_vs_boundedby.ring
+[PASS]    05_findsubstringsboundedbyibzz.ring
+[PASS]    06_numbersafter.ring
+[PASS]    07_executablesection.ring
+[PASS]    08_numbersafter.ring
+[PASS]    09_executablesection.ring
+[PASS]    10_chech_output.ring
+[PASS]    11_executablesection.ring
+[PASS]    12_executablesection.ring
+[ERR]     13_transpiled.ring :: panic: @memcpy arguments alias
+[ERR]     14_check_output.ring :: panic: @memcpy arguments alias
+[ERR]     15_check_output.ring :: exit 1

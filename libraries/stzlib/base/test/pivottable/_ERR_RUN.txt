@@ -1,0 +1,6 @@
+== pivottable  PASS 2  ERR 3  TIMEOUT 0  (7.9s) ==
+[ERR]     01_value.ring :: Error (R2) : Array Access (Index out of range)
+[ERR]     03_various_aggregation_functions.ring :: Error (R2) : Array Access (Index out of range)
+[ERR]     04_value.ring :: Error (R2) : Array Access (Index out of range)
+[PASS]    test_pivot_engine_delegation.ring
+[PASS]    test_pivot_regression.ring

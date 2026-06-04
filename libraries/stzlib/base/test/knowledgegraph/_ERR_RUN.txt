@@ -1,0 +1,19 @@
+== knowledgegraph  PASS 18  ERR 0  TIMEOUT 0  (32.3s) ==
+[PASS]    01_adding_facts_triples.ring
+[PASS]    02_removing_facts.ring
+[PASS]    03_query_with_variable_subject.ring
+[PASS]    04_query_with_variable_object.ring
+[PASS]    05_query_both_variables.ring
+[PASS]    06_query_existence_check.ring
+[PASS]    07_finding_predicates_of_entity.ring
+[PASS]    08_finding_all_relations_of_entity.ring
+[PASS]    09_finding_similar_entities.ring
+[PASS]    10_defining_class_hierarchy.ring
+[PASS]    11_defining_properties_with_constraints.ring
+[PASS]    12_family_tree_knowledge_graph.ring
+[PASS]    13_company_organization_knowledge_graph.ring
+[PASS]    14_scientific_taxonomy.ring
+[PASS]    15_using_graph_algorithms_on_knowledge_graph.ring
+[PASS]    16_combined_knowledge_structure_analysis.ring
+[PASS]    17_isvalid.ring
+[PASS]    test_knowledgegraph_regression.ring

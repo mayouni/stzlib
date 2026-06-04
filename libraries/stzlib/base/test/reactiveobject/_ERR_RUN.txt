@@ -1,0 +1,10 @@
+== reactiveobject  PASS 2  ERR 7  TIMEOUT 0  (17.9s) ==
+[ERR]     01_basic_attribute_watching.ring :: Error (R54) : Object attribute redefinition, attribute is already defined!
+[ERR]     02_computed_attributes.ring :: Error (R54) : Object attribute redefinition, attribute is already defined!
+[ERR]     03_attribute_binding.ring :: Error (R54) : Object attribute redefinition, attribute is already defined!
+[ERR]     04_batch_updates.ring :: Error (R54) : Object attribute redefinition, attribute is already defined!
+[ERR]     05_attribute_streams.ring :: Error (R54) : Object attribute redefinition, attribute is already defined!
+[ERR]     06_reactive_search_with_attribute_settling.ring :: Error (R24) : Using uninitialized variable: demonstrates
+[PASS]    07_checkmark.ring
+[PASS]    08_making_a_person_class_reactive.ring
+[ERR]     09_reactive_bank_account_class.ring :: Error (R54) : Object attribute redefinition, attribute is already defined!

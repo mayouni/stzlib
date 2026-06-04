@@ -1,0 +1,5 @@
+== func  PASS 4  ERR 0  TIMEOUT 0  (6.2s) ==
+[PASS]    01_softanza_nulliness.ring
+[PASS]    02_softanza_emptiness.ring
+[PASS]    03_softanza_truthness.ring
+[PASS]    04_softanza_falsiness.ring

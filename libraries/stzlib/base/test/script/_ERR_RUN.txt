@@ -1,0 +1,4 @@
+== script  PASS 2  ERR 1  TIMEOUT 0  (4.4s) ==
+[PASS]    01_you_can_create_a_script_object_bu_specifying_its_n.ring
+[ERR]     02_you_can_access_to_serveral_data_returned_by_the_st.ring :: Error (R14) : Calling Method without definition: defaultlanguageqtnumber
+[PASS]    test_script_regression.ring
