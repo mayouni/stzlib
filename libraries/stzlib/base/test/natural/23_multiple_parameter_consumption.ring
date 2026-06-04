@@ -3,7 +3,6 @@
 # MULTIPLE PARAMETER CONSUMPTION
 #
 # Extracted from stznaturaltest.ring, block #23.
-#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

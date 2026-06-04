@@ -3,7 +3,6 @@
 # Generating .stzdiag native text format
 #
 # Extracted from stzdiagramtest.ring, block #18.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

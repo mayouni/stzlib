@@ -1,5 +1,4 @@
 
-#ERR Error (E9) : Can't open file test_stubs.ring
 
 load "../string/test_stubs.ring"
 

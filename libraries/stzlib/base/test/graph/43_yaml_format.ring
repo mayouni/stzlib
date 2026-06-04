@@ -3,7 +3,6 @@
 # YAML Format
 #
 # Extracted from stzgraphtest.ring, block #43.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # EMPTY VALUE PROTECTION
 #
 # Extracted from stznaturaltest.ring, block #27.
-#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

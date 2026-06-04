@@ -3,7 +3,6 @@
 # ASCII Visualization
 #
 # Extracted from stzgraphtest.ring, block #31.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

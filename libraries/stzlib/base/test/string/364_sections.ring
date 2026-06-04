@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #364.
-#ERR Error (R14) : Calling Method without definition: antisections
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # TODO
 #
 # Extracted from stzStringTest.ring, block #755.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzbaturalcodetest.ring, block #12.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: firstchar
 
 load "../../stzBase.ring"
 

@@ -1,5 +1,5 @@
 
-#ERR Error (E9) : Can't open file ../../string/test/test_stubs.ring
+#ERR Error (R3) : Calling Function without definition: ring_len
 
 load "../string/test_stubs.ring"
 

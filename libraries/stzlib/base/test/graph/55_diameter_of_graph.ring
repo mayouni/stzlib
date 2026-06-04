@@ -3,7 +3,6 @@
 # Diameter of graph
 #
 # Extracted from stzgraphtest.ring, block #55.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

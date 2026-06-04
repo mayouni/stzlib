@@ -3,7 +3,6 @@
 # SUBSTITUTE OPERATION
 #
 # Extracted from stznaturaltest.ring, block #16.
-#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

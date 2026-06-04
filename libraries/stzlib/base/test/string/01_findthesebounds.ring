@@ -17,5 +17,6 @@ o1.RemoveTheseBounds("[", "]")
 #--> ' @$2{"a";1;[1}U ]'
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26 (Powerd by StzEngine)
 # Executed in 0.03 second(s) in Ring 1.26
 # Executed in 0.05 second(s) in Ring 1.22

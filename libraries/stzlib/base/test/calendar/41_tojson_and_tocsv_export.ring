@@ -3,7 +3,6 @@
 # #  ToJSON and ToCSV export       #
 #
 # Extracted from stzcalendartest.ring, block #41.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

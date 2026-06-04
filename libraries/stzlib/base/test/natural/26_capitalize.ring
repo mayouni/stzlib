@@ -3,7 +3,6 @@
 # CAPITALIZE
 #
 # Extracted from stznaturaltest.ring, block #26.
-#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

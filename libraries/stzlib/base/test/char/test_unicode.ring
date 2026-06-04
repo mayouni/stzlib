@@ -3,7 +3,7 @@
 # Run from the test/ directory: ring test_unicode.ring
 
 ? "Loading stubs + DLL"
-#ERR Error (E9) : Can't open file test_stubs.ring
+#ERR Error (R3) : Calling Function without definition: ring_len
 
 load "../string/test_stubs.ring"
 

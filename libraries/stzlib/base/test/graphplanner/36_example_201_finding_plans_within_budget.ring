@@ -3,7 +3,6 @@
 # Example 20.1: Finding Plans Within Budget
 #
 # Extracted from stzgraphplannertest.ring, block #36.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

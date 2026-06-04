@@ -3,7 +3,7 @@
 # EXAMPLE 3: Correlation Analysis Between Variables
 #
 # Extracted from stzdatasettest.ring, block #45.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

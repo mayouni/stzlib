@@ -3,7 +3,7 @@
 # REPLACING SUBSTRINGS
 #
 # Extracted from stzlistofstringstest.ring, block #40.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: replacesubstringatposition
 
 load "../../stzBase.ring"
 

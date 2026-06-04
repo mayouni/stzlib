@@ -3,7 +3,7 @@
 # EXAMPLE 10: Conditional Plan Execution
 #
 # Extracted from stzdatasettest.ring, block #52.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

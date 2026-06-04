@@ -3,7 +3,6 @@
 # RemoveBetween RemoveAt
 #
 # Extracted from stzStringTest.ring, block #579.
-#ERR Error (R14) : Calling Method without definition: removext
 
 load "../../stzBase.ring"
 

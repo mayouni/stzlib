@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofstringstest.ring, block #68.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: sortingorder
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # Build, Edit, Import, and Visualize
 #
 # Extracted from stzdiagramtest.ring, block #51.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

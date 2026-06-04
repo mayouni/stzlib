@@ -3,7 +3,6 @@
 # MULTIPLE DEFINE/RECALL CYCLES
 #
 # Extracted from stznaturaltest.ring, block #25.
-#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

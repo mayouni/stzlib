@@ -3,7 +3,7 @@
 # REPLACING SUBSTRINGS INSIDE A GIVEN STRING OF THE LIST
 #
 # Extracted from stzlistofstringstest.ring, block #42.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: replaceinstringn
 
 load "../../stzBase.ring"
 

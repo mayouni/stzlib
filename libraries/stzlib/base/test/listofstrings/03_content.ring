@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofstringstest.ring, block #3.
-#ERR Error (R14) : Calling Method without definition: removesubstring 
+#ERR Error (R14) : Calling Method without definition: removesubstring
 
 load "../../stzBase.ring"
 

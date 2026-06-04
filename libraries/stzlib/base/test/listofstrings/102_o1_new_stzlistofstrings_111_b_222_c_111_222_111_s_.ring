@@ -3,7 +3,7 @@
 # o1 = new stzListOfStrings([ "111", "b", "222", "c", "111", "222", "111", "s", "222" ])
 #
 # Extracted from stzlistofstringstest.ring, block #102.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: duplicatedstrings
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # #narration EXTENDED FORMS OF REPEATING OBJECTS IN SOFTANZA
 #
 # Extracted from stzStringTest.ring, block #487.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R14) : Calling Method without definition: isinteger
 
 load "../../stzBase.ring"
 
