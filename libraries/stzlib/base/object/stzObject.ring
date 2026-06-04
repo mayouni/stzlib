@@ -4335,6 +4335,11 @@ class stzObject
 			return 1
 		ok
 		return 0
+
+		# Alias: IsStzClassName -- same predicate, narrative-friendly
+		# spelling used by stzNaturalCode.QRT and stzHashList.ItemsZ.
+		def IsStzClassName()
+			return This.IsStzType()
 	
 	  #======================================#
 	 #  REPEATING THE OBJECT VALUE N TIMES  #

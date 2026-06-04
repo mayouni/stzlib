@@ -2,11 +2,11 @@
 # This file also handles portable DLL discovery so test files
 # don't need hardcoded absolute paths.
 
-# Bare-len alias so the library-wide _hoist_for_len.py sweep's
-# rewrites (ring_len instead of len) link cleanly in this minimal
-# stub environment that does NOT load stzBase / stkRingFuncs.
+# Bare-len alias so library code rewrites (ring_len) link
+# cleanly in this minimal stub. Must live BEFORE any class
+# definition so it stays a top-level function, not a method.
 func ring_len(p)
-	return len(p)
+    return len(p)
 
 $aStzLibConfig = []
 
