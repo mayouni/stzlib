@@ -226,13 +226,17 @@ func StzGetDayNameXT(nDayOfWeek, cLanguage)
         cLanguage = $cCurrentLanguage
     ok
 
-    for aLang in $aDayNames
+    _nDayNames2Len_ = ring_len($aDayNames)
+    for _iLoopDayNames2_ = 1 to _nDayNames2Len_
+    	aLang = $aDayNames[_iLoopDayNames2_]
         if aLang[1] = cLanguage
             return aLang[2][nDayOfWeek]
         ok
     next
 
-    for aLang in $aDayNames
+    _nDayNames1Len_ = ring_len($aDayNames)
+    for _iLoopDayNames1_ = 1 to _nDayNames1Len_
+    	aLang = $aDayNames[_iLoopDayNames1_]
         if aLang[1] = :English
             return aLang[2][nDayOfWeek]
         ok
@@ -258,13 +262,17 @@ func StzGetMonthNameInLanguage(nMonth, cLanguage)
         cLanguage = $cCurrentLanguage
     ok
 
-    for aLang in $aMonthNames
+    _nMonthNames2Len_ = ring_len($aMonthNames)
+    for _iLoopMonthNames2_ = 1 to _nMonthNames2Len_
+    	aLang = $aMonthNames[_iLoopMonthNames2_]
         if aLang[1] = cLanguage
             return aLang[2][nMonth]
         ok
     next
 
-    for aLang in $aMonthNames
+    _nMonthNames1Len_ = ring_len($aMonthNames)
+    for _iLoopMonthNames1_ = 1 to _nMonthNames1Len_
+    	aLang = $aMonthNames[_iLoopMonthNames1_]
         if aLang[1] = :English
             return aLang[2][nMonth]
         ok
@@ -583,7 +591,9 @@ class stzDate from stzObject
         cDate = trim(cDate)
 
         aSeparators = ["/", "-", "."]
-        for cSep in aSeparators
+        _nSeparators1Len_ = ring_len(aSeparators)
+        for _iLoopSeparators1_ = 1 to _nSeparators1Len_
+        	cSep = aSeparators[_iLoopSeparators1_]
             if StzFind(cDate, cSep) > 0
                 aParts = @split(cDate, cSep)
                 if ring_len(aParts) = 3
@@ -1474,7 +1484,9 @@ def LastWeekdayOfMonth()
         ok
 
         cLowerFormat = StzLower(cFormat)
-        for aFormat in $aDateFormats
+        _nDateFormats1Len_ = ring_len($aDateFormats)
+        for _iLoopDateFormats1_ = 1 to _nDateFormats1Len_
+        	aFormat = $aDateFormats[_iLoopDateFormats1_]
             if StzLower(aFormat[1]) = cLowerFormat
                 cFormat = aFormat[2]
                 exit

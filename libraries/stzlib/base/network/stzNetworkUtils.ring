@@ -28,7 +28,9 @@
         parts = split(cIP, ".")
         if len(parts) != 4 return False ok
         
-        for part in parts
+        _nParts1Len_ = ring_len(parts)
+        for _iLoopParts1_ = 1 to _nParts1Len_
+        	part = parts[_iLoopParts1_]
             if not isnumber(part) return False ok
             num = 0 + part
             if num < 0 or num > 255 return False ok
@@ -41,7 +43,9 @@
 
     func UrlEncode(cString)
         cOut = ""
-        for x in cString
+        _nString1Len_ = ring_len(cString)
+        for _iLoopString1_ = 1 to _nString1Len_
+        	x = cString[_iLoopString1_]
             if isalnum(x)
                 cOut += x
             but x = " "

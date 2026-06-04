@@ -1634,7 +1634,10 @@ class stzDataSet
 	
 	    # Convert hash to array of pairs
 	    aFreqTable = []
-	    for cKey in keys(aFreqHash)
+	    _aKeysaFreqHash1_ = keys(aFreqHash)
+	    _nKeysaFreqHash1Len_ = ring_len(_aKeysaFreqHash1_)
+	    for _iLoopKeysaFreqHash1_ = 1 to _nKeysaFreqHash1Len_
+	    	cKey = _aKeysaFreqHash1_[_iLoopKeysaFreqHash1_]
 	        aFreqTable + [cKey, aFreqHash[cKey]]
 	    next
 	
@@ -3020,7 +3023,9 @@ class stzDataSet
 
         cReport = ""
         
-        for aSection in aSections
+        _nSections1Len_ = ring_len(aSections)
+        for _iLoopSections1_ = 1 to _nSections1Len_
+        	aSection = aSections[_iLoopSections1_]
             # Check for inheritance (first element is :inherit)
             if ring_len(aSection) >= 2 and aSection[1] = :inherit
 
@@ -3028,7 +3033,9 @@ class stzDataSet
                 cInheritedTemplate = aSection[2]
                 eval("aInheritedSections = " + cInheritedTemplate + "[:sections]")
            
-                for aInheritedSection in aInheritedSections
+                _nInheritedSections1Len_ = ring_len(aInheritedSections)
+                for _iLoopInheritedSections1_ = 1 to _nInheritedSections1Len_
+                	aInheritedSection = aInheritedSections[_iLoopInheritedSections1_]
                     cReport += This._ProcessSection(aInheritedSection, cFormat)
                 next
 
@@ -3208,7 +3215,9 @@ class stzDataSet
         if HasKey($aDomainInsightRules, cDomain)
             aRules = $aDomainInsightRules[cDomain]
             
-            for aRule in aRules
+            _nRules1Len_ = ring_len(aRules)
+            for _iLoopRules1_ = 1 to _nRules1Len_
+            	aRule = aRules[_iLoopRules1_]
                 if This._EvaluateCondition(aRule[:condition])
                     cInsight = This._InterpolateTemplate(aRule[:template])
                     nWeight = 1
@@ -3335,7 +3344,10 @@ class stzDataSet
         ok
         
         nStepNum = 1
-        for aStep in aPlan[:steps]
+        _aPlansteps2_ = aPlan[:steps]
+        _nPlansteps2Len_ = ring_len(_aPlansteps2_)
+        for _iLoopPlansteps2_ = 1 to _nPlansteps2Len_
+        	aStep = _aPlansteps2_[_iLoopPlansteps2_]
             if bVerbose
                 ? "✅ Step " + nStepNum + "/" + aPlan[:total_steps] + ": " + aStep[:description]
             ok
@@ -3410,7 +3422,10 @@ class stzDataSet
         cSummary += "• Steps (" + aPlan[:total_steps] + "):" + NL
         
         nStep = 1
-        for aStep in aPlan[:steps]
+        _aPlansteps1_ = aPlan[:steps]
+        _nPlansteps1Len_ = ring_len(_aPlansteps1_)
+        for _iLoopPlansteps1_ = 1 to _nPlansteps1Len_
+        	aStep = _aPlansteps1_[_iLoopPlansteps1_]
             cSummary += "  " + nStep + ". " + aStep[:description]
             if HasKey(aStep, :condition)
                 cSummary += " (conditional)"
@@ -3604,8 +3619,9 @@ class stzDataSet
 
         aFiltered = []
         
-        for aStep in aSteps
-
+        _nSteps1Len_ = ring_len(aSteps)
+        for _iLoopSteps1_ = 1 to _nSteps1Len_
+        	aStep = aSteps[_iLoopSteps1_]
             bInclude = TRUE
         
             # Check if step has condition

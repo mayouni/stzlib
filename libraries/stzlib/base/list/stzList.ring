@@ -2517,10 +2517,16 @@ class stzList from stzObject
 			# Plain form: return only the symmetric difference items
 			# (added + removed) without the modified bucket.
 			_aDwRes_ = []
-			for _xDw_ in _aDwx_[:added]
+			_a_aDwx_added1_ = _aDwx_[:added]
+			_n_aDwx_added1Len_ = ring_len(_a_aDwx_added1_)
+			for _iLoop_aDwx_added1_ = 1 to _n_aDwx_added1Len_
+				_xDw_ = _a_aDwx_added1_[_iLoop_aDwx_added1_]
 				_aDwRes_ + _xDw_
 			next
-			for _xDw_ in _aDwx_[:removed]
+			_a_aDwx_removed1_ = _aDwx_[:removed]
+			_n_aDwx_removed1Len_ = ring_len(_a_aDwx_removed1_)
+			for _iLoop_aDwx_removed1_ = 1 to _n_aDwx_removed1Len_
+				_xDw_ = _a_aDwx_removed1_[_iLoop_aDwx_removed1_]
 				_aDwRes_ + _xDw_
 			next
 			return _aDwRes_
@@ -2554,7 +2560,9 @@ class stzList from stzObject
 	def Extend(pWith)
 		# Append a single element (or a list of elements) to the list.
 		if isList(pWith)
-			for _xExWi_ in pWith
+			_nWith1Len_ = ring_len(pWith)
+			for _iLoopWith1_ = 1 to _nWith1Len_
+				_xExWi_ = pWith[_iLoopWith1_]
 				This.AddItem(_xExWi_)
 			next
 		else
@@ -4215,7 +4223,9 @@ class stzList from stzObject
 			if isString(p1)
 				_aLP_ + p1
 			but isList(p1)
-				for _s_ in p1
+				_nP11Len_ = ring_len(p1)
+				for _iLoopP11_ = 1 to _nP11Len_
+					_s_ = p1[_iLoopP11_]
 					_aLP_ + _s_
 				next
 			else
@@ -4269,7 +4279,10 @@ class stzList from stzObject
 				next
 			else
 				# No explicit type -- treat all as predicates
-				for _x_ in pSide _aP_ + _x_ next
+				_nSidePredsLen_ = ring_len(pSide)
+				for _iPreds_ = 1 to _nSidePredsLen_
+					_aP_ + pSide[_iPreds_]
+				next
 			ok
 		else
 			return NULL
@@ -4295,7 +4308,9 @@ class stzList from stzObject
 			return 0
 		ok
 		# All predicates must pass
-		for _cPred_ in paPreds
+		_nPreds1Len_ = ring_len(paPreds)
+		for _iLoopPreds1_ = 1 to _nPreds1Len_
+			_cPred_ = paPreds[_iLoopPreds1_]
 			if NOT isString(_cPred_)
 				return 0
 			ok
@@ -4348,7 +4363,9 @@ class stzList from stzObject
 
 	def _DeepContainsCS(paList, pItem, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		for _xItem_ in paList
+		_nList2Len_ = ring_len(paList)
+		for _iLoopList2_ = 1 to _nList2Len_
+			_xItem_ = paList[_iLoopList2_]
 			if isList(_xItem_)
 				if This._DeepContainsCS(_xItem_, pItem, pCaseSensitive)
 					return 1
@@ -4416,12 +4433,16 @@ class stzList from stzObject
 	def _DeepFilterCS(paList, paRemove, pCaseSensitive)
 		_aDfR_ = []
 		_bDfCase_ = @CaseSensitive(pCaseSensitive)
-		for _xDfItem_ in paList
+		_nList1Len_ = ring_len(paList)
+		for _iLoopList1_ = 1 to _nList1Len_
+			_xDfItem_ = paList[_iLoopList1_]
 			if isList(_xDfItem_)
 				_aDfR_ + This._DeepFilterCS(_xDfItem_, paRemove, pCaseSensitive)
 			else
 				_bDfDrop_ = 0
-				for _xDfRm_ in paRemove
+				_nRemove1Len_ = ring_len(paRemove)
+				for _iLoopRemove1_ = 1 to _nRemove1Len_
+					_xDfRm_ = paRemove[_iLoopRemove1_]
 					if _bDfCase_
 						if _xDfItem_ = _xDfRm_
 							_bDfDrop_ = 1
@@ -4453,7 +4474,9 @@ class stzList from stzObject
 
 	def Unicodes()
 		_aUcResult_ = []
-		for _xUcItem_ in @aContent
+		_nContent1Len_ = ring_len(@aContent)
+		for _iLoopContent1_ = 1 to _nContent1Len_
+			_xUcItem_ = @aContent[_iLoopContent1_]
 			if isString(_xUcItem_) and ring_len(_xUcItem_) > 0
 				_aUcResult_ + StzCharToUnicode(_xUcItem_)
 			ok

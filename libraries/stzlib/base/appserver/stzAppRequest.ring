@@ -23,7 +23,9 @@ class stzAppRequest
 		return aHeaders
 
 	def Header(cName)
-		for aHeader in aHeaders
+		_nHeaders1Len_ = ring_len(aHeaders)
+		for _iLoopHeaders1_ = 1 to _nHeaders1Len_
+			aHeader = aHeaders[_iLoopHeaders1_]
 			if StzLower(aHeader[1]) = StzLower(cName)
 				return aHeader[2]
 			ok
@@ -40,7 +42,9 @@ class stzAppRequest
 			cPath = StzLeft(cPath, nQuestion - 1)
 			
 			aPairs = @split(cQueryString, "&")
-			for cPair in aPairs
+			_nPairs1Len_ = ring_len(aPairs)
+			for _iLoopPairs1_ = 1 to _nPairs1Len_
+				cPair = aPairs[_iLoopPairs1_]
 				nEqual = StzFind(cPair, "=")
 				if nEqual > 0
 					cKey = StzLeft(cPair, nEqual - 1)
@@ -53,7 +57,9 @@ class stzAppRequest
 	def Query(cKey)
 		if cKey = NULL return aQuery ok
 		
-		for aParam in aQuery
+		_nQuery1Len_ = ring_len(aQuery)
+		for _iLoopQuery1_ = 1 to _nQuery1Len_
+			aParam = aQuery[_iLoopQuery1_]
 			if aParam[1] = cKey
 				return aParam[2]
 			ok

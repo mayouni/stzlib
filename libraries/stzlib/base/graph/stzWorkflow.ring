@@ -79,7 +79,9 @@ class stzWorkflow from stzDiagram
 	    
 	    # Filter out dummy key before passing to AddNodeXTT
 	    aNodeProps = []
-	    for aPair in paProps
+	    _nProps1Len_ = ring_len(paProps)
+	    for _iLoopProps1_ = 1 to _nProps1Len_
+	    	aPair = paProps[_iLoopProps1_]
 	        if aPair[1] != "_empty"
 	            aNodeProps + aPair
 	        ok
@@ -89,7 +91,9 @@ class stzWorkflow from stzDiagram
 	    This.AddNodeXTT(pcId, pcLabel, aNodeProps)
 	
 	def Step_(pcId)
-		for aStep in @aSteps
+		_nSteps9Len_ = ring_len(@aSteps)
+		for _iLoopSteps9_ = 1 to _nSteps9Len_
+			aStep = @aSteps[_iLoopSteps9_]
 			if aStep[:id] = pcId
 				return aStep
 			ok
@@ -154,7 +158,9 @@ class stzWorkflow from stzDiagram
 		This.AddEdgeXT(pcFrom, pcTo, pcEvent)
 	
 	def State(pcId)
-		for aState in @aStates
+		_nStates1Len_ = ring_len(@aStates)
+		for _iLoopStates1_ = 1 to _nStates1Len_
+			aState = @aStates[_iLoopStates1_]
 			if aState[:id] = pcId
 				return aState
 			ok
@@ -191,7 +197,9 @@ class stzWorkflow from stzDiagram
 		This.SetNodeProperty(pcStepId, "assignedTo", pcActorId)
 	
 	def Actor(pcId)
-		for aActor in @aActors
+		_nActors2Len_ = ring_len(@aActors)
+		for _iLoopActors2_ = 1 to _nActors2Len_
+			aActor = @aActors[_iLoopActors2_]
 			if aActor[:id] = pcId
 				return aActor
 			ok
@@ -230,7 +238,9 @@ class stzWorkflow from stzDiagram
 	def SLAViolations()
 		acViolations = []
 		
-		for aStep in @aSteps
+		_nSteps8Len_ = ring_len(@aSteps)
+		for _iLoopSteps8_ = 1 to _nSteps8Len_
+			aStep = @aSteps[_iLoopSteps8_]
 			if aStep[:sla] > 0 and aStep[:duration] > aStep[:sla]
 				acViolations + [
 					:step = aStep[:id],
@@ -274,7 +284,9 @@ class stzWorkflow from stzDiagram
 		
 		cRole = aActor[:role]
 		
-		for aMapping in @aRoleAssignments
+		_nRoleAssignments1Len_ = ring_len(@aRoleAssignments)
+		for _iLoopRoleAssignments1_ = 1 to _nRoleAssignments1Len_
+			aMapping = @aRoleAssignments[_iLoopRoleAssignments1_]
 			if aMapping[:role] = cRole
 				return aMapping[:position]
 			ok
@@ -290,7 +302,9 @@ class stzWorkflow from stzDiagram
 		ok
 		
 		# Count steps per position
-		for aStep in @aSteps
+		_nSteps7Len_ = ring_len(@aSteps)
+		for _iLoopSteps7_ = 1 to _nSteps7Len_
+			aStep = @aSteps[_iLoopSteps7_]
 			cPosition = This.GetPositionForStep(aStep[:id])
 			if cPosition != ""
 				bFound = FALSE
@@ -322,7 +336,9 @@ class stzWorkflow from stzDiagram
 	
 	def TotalDuration()
 		nTotal = 0
-		for aStep in @aSteps
+		_nSteps6Len_ = ring_len(@aSteps)
+		for _iLoopSteps6_ = 1 to _nSteps6Len_
+			aStep = @aSteps[_iLoopSteps6_]
 			nTotal += aStep[:duration]
 		end
 		return nTotal
@@ -336,9 +352,13 @@ class stzWorkflow from stzDiagram
 		if This.IsSequential()
 			acAllPaths = This.AllPathsFromStartToEnd()
 			
-			for acPath in acAllPaths
+			_nAcAllPaths1Len_ = ring_len(acAllPaths)
+			for _iLoopAcAllPaths1_ = 1 to _nAcAllPaths1Len_
+				acPath = acAllPaths[_iLoopAcAllPaths1_]
 				nDuration = 0
-				for cStepId in acPath
+				_nAcPath1Len_ = ring_len(acPath)
+				for _iLoopAcPath1_ = 1 to _nAcPath1Len_
+					cStepId = acPath[_iLoopAcPath1_]
 					aStep = This.Step_(cStepId)
 					if ring_len(aStep) > 0
 						nDuration += aStep[:duration]
@@ -362,7 +382,9 @@ class stzWorkflow from stzDiagram
 		acEnds = []
 		
 		# Find start/end nodes
-		for aStep in @aSteps
+		_nSteps5Len_ = ring_len(@aSteps)
+		for _iLoopSteps5_ = 1 to _nSteps5Len_
+			aStep = @aSteps[_iLoopSteps5_]
 			cId = aStep[:id]
 			if ring_len(This.Incoming(cId)) = 0
 				acStarts + cId
@@ -373,10 +395,16 @@ class stzWorkflow from stzDiagram
 		end
 		
 		acAllPaths = []
-		for cStart in acStarts
-			for cEnd in acEnds
+		_nAcStarts1Len_ = ring_len(acStarts)
+		for _iLoopAcStarts1_ = 1 to _nAcStarts1Len_
+			cStart = acStarts[_iLoopAcStarts1_]
+			_nAcEnds1Len_ = ring_len(acEnds)
+			for _iLoopAcEnds1_ = 1 to _nAcEnds1Len_
+				cEnd = acEnds[_iLoopAcEnds1_]
 				acPaths = This.PathsXT(cStart, cEnd)
-				for acPath in acPaths
+				_nAcPaths1Len_ = ring_len(acPaths)
+				for _iLoopAcPaths1_ = 1 to _nAcPaths1Len_
+					acPath = acPaths[_iLoopAcPaths1_]
 					acAllPaths + acPath
 				end
 			end
@@ -387,7 +415,9 @@ class stzWorkflow from stzDiagram
 	def Bottlenecks()
 		acBottlenecks = []
 		
-		for aStep in @aSteps
+		_nSteps4Len_ = ring_len(@aSteps)
+		for _iLoopSteps4_ = 1 to _nSteps4Len_
+			aStep = @aSteps[_iLoopSteps4_]
 			cId = aStep[:id]
 			nIncoming = ring_len(This.Incoming(cId))
 			nOutgoing = ring_len(This.Neighbors(cId))
@@ -439,7 +469,9 @@ class stzWorkflow from stzDiagram
 		acViolations = This.SLAViolations()
 		
 		aIssues = []
-		for aViolation in acViolations
+		_nAcViolations1Len_ = ring_len(acViolations)
+		for _iLoopAcViolations1_ = 1 to _nAcViolations1Len_
+			aViolation = acViolations[_iLoopAcViolations1_]
 			aIssues + ("Step " + aViolation[:step] + " exceeds SLA by " + aViolation[:overrun] + "h")
 		end
 		
@@ -455,7 +487,9 @@ class stzWorkflow from stzDiagram
 		acBottlenecks = This.Bottlenecks()
 		
 		aIssues = []
-		for aBottleneck in acBottlenecks
+		_nAcBottlenecks1Len_ = ring_len(acBottlenecks)
+		for _iLoopAcBottlenecks1_ = 1 to _nAcBottlenecks1Len_
+			aBottleneck = acBottlenecks[_iLoopAcBottlenecks1_]
 			aIssues + ("Bottleneck at " + aBottleneck[:step] + ": " + aBottleneck[:reason])
 		end
 		
@@ -469,7 +503,9 @@ class stzWorkflow from stzDiagram
 	
 	def _ExtractStepIds(paList)
 		acIds = []
-		for aItem in paList
+		_nList1Len_ = ring_len(paList)
+		for _iLoopList1_ = 1 to _nList1Len_
+			aItem = paList[_iLoopList1_]
 			if HasKey(aItem, :step)
 				acIds + aItem[:step]
 			ok
@@ -514,7 +550,9 @@ class stzWorkflow from stzDiagram
 	
 	def ViewByActor(pcActorId)
 		acSteps = []
-		for aStep in @aSteps
+		_nSteps3Len_ = ring_len(@aSteps)
+		for _iLoopSteps3_ = 1 to _nSteps3Len_
+			aStep = @aSteps[_iLoopSteps3_]
 			if aStep[:assignedTo] = pcActorId
 				acSteps + aStep[:id]
 			ok
@@ -529,7 +567,9 @@ class stzWorkflow from stzDiagram
 	
 	def ViewByRole(pcRole)
 		acSteps = []
-		for aStep in @aSteps
+		_nSteps2Len_ = ring_len(@aSteps)
+		for _iLoopSteps2_ = 1 to _nSteps2Len_
+			aStep = @aSteps[_iLoopSteps2_]
 			if aStep[:assignedTo] != ""
 				aActor = This.Actor(aStep[:assignedTo])
 				if ring_len(aActor) > 0 and aActor[:role] = pcRole
@@ -552,7 +592,9 @@ class stzWorkflow from stzDiagram
 		
 		if This.IsSequential()
 			cResult += 'steps' + NL
-			for aStep in @aSteps
+			_nSteps1Len_ = ring_len(@aSteps)
+			for _iLoopSteps1_ = 1 to _nSteps1Len_
+				aStep = @aSteps[_iLoopSteps1_]
 				cResult += '    ' + aStep[:id] + NL
 				cResult += '        label: "' + aStep[:label] + '"' + NL
 				if aStep[:assignedTo] != ""
@@ -568,14 +610,19 @@ class stzWorkflow from stzDiagram
 			end
 			
 			cResult += 'flow' + NL
-			for aEdge in This.Edges()
+			_aThisEdges1_ = This.Edges()
+			_nThisEdges1Len_ = ring_len(_aThisEdges1_)
+			for _iLoopThisEdges1_ = 1 to _nThisEdges1Len_
+				aEdge = _aThisEdges1_[_iLoopThisEdges1_]
 				cResult += '    ' + aEdge[:from] + ' -> ' + aEdge[:to] + NL
 			end
 		ok
 		
 		if ring_len(@aActors) > 0
 			cResult += NL + 'actors' + NL
-			for aActor in @aActors
+			_nActors1Len_ = ring_len(@aActors)
+			for _iLoopActors1_ = 1 to _nActors1Len_
+				aActor = @aActors[_iLoopActors1_]
 				cResult += '    ' + aActor[:id] + NL
 				cResult += '        name: "' + aActor[:name] + '"' + NL
 				cResult += '        role: ' + aActor[:role] + NL
@@ -698,7 +745,9 @@ class stzWorkflowSimulation from stzGraphSimulation
 		]
 	
 	def _ApplyChanges()
-		for aChange in @aChanges
+		_nChanges1Len_ = ring_len(@aChanges)
+		for _iLoopChanges1_ = 1 to _nChanges1Len_
+			aChange = @aChanges[_iLoopChanges1_]
 			switch aChange[:type]
 			on "optimize_step"
 				@oGraph.SetStepDuration(aChange[:step], aChange[:newDuration])
@@ -737,7 +786,10 @@ class stzWorkflowSimulation from stzGraphSimulation
 
 	def _MergeWorkflow(oOther)
 		# Copy steps
-		for aStep in oOther.Steps()
+		_aOtherSteps1_ = oOther.Steps()
+		_nOtherSteps1Len_ = ring_len(_aOtherSteps1_)
+		for _iLoopOtherSteps1_ = 1 to _nOtherSteps1Len_
+			aStep = _aOtherSteps1_[_iLoopOtherSteps1_]
 			This.AddStepXTT(aStep[:id], aStep[:label], aStep[:properties])
 			if aStep[:duration] > 0
 				This.SetStepDuration(aStep[:id], aStep[:duration])
@@ -748,12 +800,18 @@ class stzWorkflowSimulation from stzGraphSimulation
 		end
 		
 		# Copy edges
-		for aEdge in oOther.Edges()
+		_aOtherEdges1_ = oOther.Edges()
+		_nOtherEdges1Len_ = ring_len(_aOtherEdges1_)
+		for _iLoopOtherEdges1_ = 1 to _nOtherEdges1Len_
+			aEdge = _aOtherEdges1_[_iLoopOtherEdges1_]
 			This.ConnectSteps(aEdge[:from], aEdge[:to])
 		end
 		
 		# Copy actors
-		for aActor in oOther.Actors()
+		_aOtherActors1_ = oOther.Actors()
+		_nOtherActors1Len_ = ring_len(_aOtherActors1_)
+		for _iLoopOtherActors1_ = 1 to _nOtherActors1Len_
+			aActor = _aOtherActors1_[_iLoopOtherActors1_]
 			This.AddActor(aActor[:id], aActor[:name], aActor[:role])
 		end
 
@@ -774,7 +832,9 @@ class stzFlowParser
 		cCurrentItem = ""
 		aCurrentProps = []
 		
-		for cLine in acLines
+		_nAcLines1Len_ = ring_len(acLines)
+		for _iLoopAcLines1_ = 1 to _nAcLines1Len_
+			cLine = acLines[_iLoopAcLines1_]
 			cLine = trim(cLine)
 			
 			if cLine = '' or StzLeft(cLine, 1) = "#"

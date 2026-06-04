@@ -934,7 +934,10 @@ class stzStringChar from stzObject
 		return @oString.Orientation()
 
 	def UnicodeDirection()
-		for aLine in UnicodeDirectionsXT()
+		_aUnicodeDirectionsXT1_ = UnicodeDirectionsXT()
+		_nUnicodeDirectionsXT1Len_ = ring_len(_aUnicodeDirectionsXT1_)
+		for _iLoopUnicodeDirectionsXT1_ = 1 to _nUnicodeDirectionsXT1Len_
+			aLine = _aUnicodeDirectionsXT1_[_iLoopUnicodeDirectionsXT1_]
 			if aLine[1] = This.UnicodeDirectionNumber()
 				return aLine[3]
 			ok
@@ -976,7 +979,10 @@ class stzStringChar from stzObject
 		return This.UnicodeDirectionNumber() = "4"
 
 	def IsIndianDigit()
-		for cDigit in IndianDigits()
+		_aIndianDigits2_ = IndianDigits()
+		_nIndianDigits2Len_ = ring_len(_aIndianDigits2_)
+		for _iLoopIndianDigits2_ = 1 to _nIndianDigits2Len_
+			cDigit = _aIndianDigits2_[_iLoopIndianDigits2_]
 			if cDigit = This.Content()
 				return 1
 			ok
@@ -1181,7 +1187,10 @@ class stzStringChar from stzObject
 		return This.IsDigit() or This.IsCircledDigit()
 
 	def IsIndianNumber()
-		for c in IndianDigits()
+		_aIndianDigits1_ = IndianDigits()
+		_nIndianDigits1Len_ = ring_len(_aIndianDigits1_)
+		for _iLoopIndianDigits1_ = 1 to _nIndianDigits1Len_
+			c = _aIndianDigits1_[_iLoopIndianDigits1_]
 			if c = This.Content()
 				return 1
 			ok

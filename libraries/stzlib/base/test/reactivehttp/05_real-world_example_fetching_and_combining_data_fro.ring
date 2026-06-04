@@ -116,7 +116,9 @@ class DataAggregator
         nTotalBytes = 0
         nSuccessCount = 0
         
-        for aData in aAggregatedData
+        _nAggregatedData1Len_ = ring_len(aAggregatedData)
+        for _iLoopAggregatedData1_ = 1 to _nAggregatedData1Len_
+        	aData = aAggregatedData[_iLoopAggregatedData1_]
             ? "📊 " + aData[:source] + ": " + aData[:status] + 
               " (" + aData[:itemCount] + " items, " + aData[:dataSize] + " bytes)"
               

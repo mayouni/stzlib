@@ -446,7 +446,9 @@ class stzMatrix
 
 		#-- Other cases
 
-		for nCol in paColumns
+		_nColumns1Len_ = ring_len(paColumns)
+		for _iLoopColumns1_ = 1 to _nColumns1Len_
+			nCol = paColumns[_iLoopColumns1_]
 			for i = 1 to @nRows
 				@aMatrix[i][nCol] += pnValue
 			next

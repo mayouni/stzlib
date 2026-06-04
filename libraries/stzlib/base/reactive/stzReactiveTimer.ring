@@ -220,7 +220,9 @@ class stzTimerManager
 	def Stop()
 		shouldStop = true
 		isRunning = false
-		for timer in timers
+		_nTimers1Len_ = ring_len(timers)
+		for _iLoopTimers1_ = 1 to _nTimers1Len_
+			timer = timers[_iLoopTimers1_]
 			timer.Stop()
 		next
 

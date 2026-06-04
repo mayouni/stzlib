@@ -29,7 +29,10 @@ lxu() {
         # Calculate sum of child values
         nSum = 0
         
-        for child in @list[2]
+        _aList22_ = @list[2]
+        _nList22Len_ = ring_len(_aList22_)
+        for _iLoopList22_ = 1 to _nList22Len_
+        	child = _aList22_[_iLoopList22_]
             if type(child) = "HASH" and child["type"] = "leaf"
                 nSum += child["value"]
             ok
@@ -49,7 +52,10 @@ lxu() {
         # Calculate total value from children
         nSum = 0
         
-        for child in @list[2]
+        _aList21_ = @list[2]
+        _nList21Len_ = ring_len(_aList21_)
+        for _iLoopList21_ = 1 to _nList21Len_
+        	child = _aList21_[_iLoopList21_]
             if type(child) = "HASH" and child["type"] = "inner"
                 nSum += child["value"]
             ok

@@ -19,7 +19,9 @@ txt = "dear ‮friends!"
 
 # Trying to get it in pure Ring
 
-for c in txt
+_nTxt1Len_ = ring_len(txt)
+for _iLoopTxt1_ = 1 to _nTxt1Len_
+	c = txt[_iLoopTxt1_]
 	? c
 next
 #-->

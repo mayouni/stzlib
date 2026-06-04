@@ -15,7 +15,10 @@ pr()  # Reset solver environment
 ? "Problem: Maximize 3x + 2y subject to x + y <= 100, x <= 60, y <= 80"
 ? ""
 
-for cSolver in ["greedy", "simplex", "branch_bound", "genetic"]
+_aGreedysimplexbranch_boun1_ = ["greedy", "simplex", "branch_bound", "genetic"]
+_nGreedysimplexbranch_boun1Len_ = ring_len(_aGreedysimplexbranch_boun1_)
+for _iLoopGreedysimplexbranch_boun1_ = 1 to _nGreedysimplexbranch_boun1Len_
+	cSolver = _aGreedysimplexbranch_boun1_[_iLoopGreedysimplexbranch_boun1_]
     ? "• Solver: " + upper(cSolver)
 
     oTest = new stzLinearSolver()

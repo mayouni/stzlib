@@ -445,14 +445,18 @@ class stzString from stzObject
 		ok
 		_s_ = This.Content()
 		if pCaseSensitive
-			for _item_ in paList
+			_nList2Len_ = ring_len(paList)
+			for _iLoopList2_ = 1 to _nList2Len_
+				_item_ = paList[_iLoopList2_]
 				if isString(_item_) and _item_ = _s_
 					return 1
 				ok
 			next
 		else
 			_sl_ = lower(_s_)
-			for _item_ in paList
+			_nList1Len_ = ring_len(paList)
+			for _iLoopList1_ = 1 to _nList1Len_
+				_item_ = paList[_iLoopList1_]
 				if isString(_item_) and lower(_item_) = _sl_
 					return 1
 				ok
@@ -679,7 +683,9 @@ class stzString from stzObject
 		if isString(pVal)
 			return This.Contains(pVal)
 		but isList(pVal)
-			for _xCxItem_ in pVal
+			_nVal1Len_ = ring_len(pVal)
+			for _iLoopVal1_ = 1 to _nVal1Len_
+				_xCxItem_ = pVal[_iLoopVal1_]
 				if isString(_xCxItem_) and This.Contains(_xCxItem_)
 					return 1
 				ok
@@ -2947,7 +2953,10 @@ class stzString from stzObject
 	def IsCountryName()
 		if This.IsEmpty() return 0 ok
 		_cInName_ = This.String()
-		for _aInCi_ in LocaleCountriesXT()
+		_aLocaleCountriesXT4_ = LocaleCountriesXT()
+		_nLocaleCountriesXT4Len_ = ring_len(_aLocaleCountriesXT4_)
+		for _iLoopLocaleCountriesXT4_ = 1 to _nLocaleCountriesXT4Len_
+			_aInCi_ = _aLocaleCountriesXT4_[_iLoopLocaleCountriesXT4_]
 			if lower(_aInCi_[2]) = lower(_cInName_)
 				return 1
 			ok
@@ -2957,7 +2966,10 @@ class stzString from stzObject
 	def IsCountryAbbreviation()
 		if This.IsEmpty() return 0 ok
 		_cInAbbr_ = This.String()
-		for _aInCi_ in LocaleCountriesXT()
+		_aLocaleCountriesXT3_ = LocaleCountriesXT()
+		_nLocaleCountriesXT3Len_ = ring_len(_aLocaleCountriesXT3_)
+		for _iLoopLocaleCountriesXT3_ = 1 to _nLocaleCountriesXT3Len_
+			_aInCi_ = _aLocaleCountriesXT3_[_iLoopLocaleCountriesXT3_]
 			if upper(_aInCi_[3]) = upper(_cInAbbr_) or
 			   upper(_aInCi_[4]) = upper(_cInAbbr_)
 				return 1
@@ -2968,7 +2980,10 @@ class stzString from stzObject
 	def IsCountryNumber()
 		if This.IsEmpty() return 0 ok
 		_cInNum_ = This.String()
-		for _aInCi_ in LocaleCountriesXT()
+		_aLocaleCountriesXT2_ = LocaleCountriesXT()
+		_nLocaleCountriesXT2Len_ = ring_len(_aLocaleCountriesXT2_)
+		for _iLoopLocaleCountriesXT2_ = 1 to _nLocaleCountriesXT2Len_
+			_aInCi_ = _aLocaleCountriesXT2_[_iLoopLocaleCountriesXT2_]
 			if lower(_aInCi_[1]) = lower(_cInNum_)
 				return 1
 			ok
@@ -2981,7 +2996,10 @@ class stzString from stzObject
 	def IsCountryPhoneCode()
 		if This.IsEmpty() return 0 ok
 		_cInPc_ = This.String()
-		for _aInCi_ in LocaleCountriesXT()
+		_aLocaleCountriesXT1_ = LocaleCountriesXT()
+		_nLocaleCountriesXT1Len_ = ring_len(_aLocaleCountriesXT1_)
+		for _iLoopLocaleCountriesXT1_ = 1 to _nLocaleCountriesXT1Len_
+			_aInCi_ = _aLocaleCountriesXT1_[_iLoopLocaleCountriesXT1_]
 			if _aInCi_[5] = _cInPc_
 				return 1
 			ok
@@ -2991,7 +3009,10 @@ class stzString from stzObject
 	def IsLanguageName()
 		if This.IsEmpty() return 0 ok
 		_cInLn_ = This.String()
-		for _aInLi_ in LocaleLanguagesXT()
+		_aLocaleLanguagesXT3_ = LocaleLanguagesXT()
+		_nLocaleLanguagesXT3Len_ = ring_len(_aLocaleLanguagesXT3_)
+		for _iLoopLocaleLanguagesXT3_ = 1 to _nLocaleLanguagesXT3Len_
+			_aInLi_ = _aLocaleLanguagesXT3_[_iLoopLocaleLanguagesXT3_]
 			if lower(_aInLi_[2]) = lower(_cInLn_)
 				return 1
 			ok
@@ -3001,7 +3022,10 @@ class stzString from stzObject
 	def IsLanguageNumber()
 		if This.IsEmpty() return 0 ok
 		_cInLnm_ = This.String()
-		for _aInLi_ in LocaleLanguagesXT()
+		_aLocaleLanguagesXT2_ = LocaleLanguagesXT()
+		_nLocaleLanguagesXT2Len_ = ring_len(_aLocaleLanguagesXT2_)
+		for _iLoopLocaleLanguagesXT2_ = 1 to _nLocaleLanguagesXT2Len_
+			_aInLi_ = _aLocaleLanguagesXT2_[_iLoopLocaleLanguagesXT2_]
 			if _aInLi_[1] = _cInLnm_
 				return 1
 			ok
@@ -3014,7 +3038,10 @@ class stzString from stzObject
 	def IsLanguageAbbreviation()
 		if This.IsEmpty() return 0 ok
 		_cInLa_ = This.String()
-		for _aInLi_ in LocaleLanguagesXT()
+		_aLocaleLanguagesXT1_ = LocaleLanguagesXT()
+		_nLocaleLanguagesXT1Len_ = ring_len(_aLocaleLanguagesXT1_)
+		for _iLoopLocaleLanguagesXT1_ = 1 to _nLocaleLanguagesXT1Len_
+			_aInLi_ = _aLocaleLanguagesXT1_[_iLoopLocaleLanguagesXT1_]
 			if lower(_aInLi_[3]) = lower(_cInLa_) or
 			   lower(_aInLi_[4]) = lower(_cInLa_)
 				return 1
@@ -3031,7 +3058,10 @@ class stzString from stzObject
 	def IsCurrencyName()
 		if This.IsEmpty() return 0 ok
 		_cInCnm_ = lower(This.String())
-		for _aInCx_ in CurrenciesXT()
+		_aCurrenciesXT1_ = CurrenciesXT()
+		_nCurrenciesXT1Len_ = ring_len(_aCurrenciesXT1_)
+		for _iLoopCurrenciesXT1_ = 1 to _nCurrenciesXT1Len_
+			_aInCx_ = _aCurrenciesXT1_[_iLoopCurrenciesXT1_]
 			if lower(_aInCx_[1]) = _cInCnm_
 				return 1
 			ok
@@ -3045,7 +3075,10 @@ class stzString from stzObject
 	def IsScriptName()
 		if This.IsEmpty() return 0 ok
 		_cInSn_ = lower(This.String())
-		for _aInSi_ in LocaleScriptsXT()
+		_aLocaleScriptsXT3_ = LocaleScriptsXT()
+		_nLocaleScriptsXT3Len_ = ring_len(_aLocaleScriptsXT3_)
+		for _iLoopLocaleScriptsXT3_ = 1 to _nLocaleScriptsXT3Len_
+			_aInSi_ = _aLocaleScriptsXT3_[_iLoopLocaleScriptsXT3_]
 			if lower(_aInSi_[2]) = _cInSn_
 				return 1
 			ok
@@ -3055,7 +3088,10 @@ class stzString from stzObject
 	def IsScriptCode()
 		if This.IsEmpty() return 0 ok
 		_cInScode_ = This.String()
-		for _aInSi_ in LocaleScriptsXT()
+		_aLocaleScriptsXT2_ = LocaleScriptsXT()
+		_nLocaleScriptsXT2Len_ = ring_len(_aLocaleScriptsXT2_)
+		for _iLoopLocaleScriptsXT2_ = 1 to _nLocaleScriptsXT2Len_
+			_aInSi_ = _aLocaleScriptsXT2_[_iLoopLocaleScriptsXT2_]
 			if _aInSi_[1] = _cInScode_
 				return 1
 			ok
@@ -3068,7 +3104,10 @@ class stzString from stzObject
 	def IsScriptAbbreviation()
 		if This.IsEmpty() return 0 ok
 		_cInSa_ = lower(This.String())
-		for _aInSi_ in LocaleScriptsXT()
+		_aLocaleScriptsXT1_ = LocaleScriptsXT()
+		_nLocaleScriptsXT1Len_ = ring_len(_aLocaleScriptsXT1_)
+		for _iLoopLocaleScriptsXT1_ = 1 to _nLocaleScriptsXT1Len_
+			_aInSi_ = _aLocaleScriptsXT1_[_iLoopLocaleScriptsXT1_]
 			if lower(_aInSi_[3]) = _cInSa_
 				return 1
 			ok
@@ -3787,7 +3826,9 @@ class stzString from stzObject
 		ok
 		_cSscRes_ = This.Content()
 		if @CaseSensitive(pCaseSensitive)
-			for _cSub_ in pacSubStr
+			_nPacSubStr2Len_ = ring_len(pacSubStr)
+			for _iLoopPacSubStr2_ = 1 to _nPacSubStr2Len_
+				_cSub_ = pacSubStr[_iLoopPacSubStr2_]
 				if _cSub_ != ""
 					_cSscRes_ = substr(_cSscRes_, _cSub_, " " + _cSub_ + " ")
 				ok
@@ -3795,7 +3836,9 @@ class stzString from stzObject
 		else
 			# Case-insensitive: rebuild via manual scan to preserve
 			# original casing in the non-matched stretches.
-			for _cSub_ in pacSubStr
+			_nPacSubStr1Len_ = ring_len(pacSubStr)
+			for _iLoopPacSubStr1_ = 1 to _nPacSubStr1Len_
+				_cSub_ = pacSubStr[_iLoopPacSubStr1_]
 				if _cSub_ = "" loop ok
 				_cSscOut_ = ""
 				_cSscHay_ = lower(_cSscRes_)
@@ -3852,7 +3895,9 @@ class stzString from stzObject
 		_aSibZZ_ = This.FindSubStringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
 		_acSibR_ = []
 		_cSibStr_ = This.Content()
-		for _aSibPair_ in _aSibZZ_
+		_n_aSibZZ1Len_ = ring_len(_aSibZZ_)
+		for _iLoop_aSibZZ1_ = 1 to _n_aSibZZ1Len_
+			_aSibPair_ = _aSibZZ_[_iLoop_aSibZZ1_]
 			_nA_ = _aSibPair_[1]
 			_nB_ = _aSibPair_[2]
 			_acSibR_ + substr(_cSibStr_, _nA_, _nB_ - _nA_ + 1)
@@ -3893,7 +3938,9 @@ class stzString from stzObject
 		_acFsbcR_ = []
 		_nOpenLen_ = ring_len(pacBounds[1])
 		_nCloseLen_ = ring_len(pacBounds[2])
-		for _aFsbcPair_ in _aFsbcIB_
+		_n_aFsbcIB1Len_ = ring_len(_aFsbcIB_)
+		for _iLoop_aFsbcIB1_ = 1 to _n_aFsbcIB1Len_
+			_aFsbcPair_ = _aFsbcIB_[_iLoop_aFsbcIB1_]
 			_acFsbcR_ + [ _aFsbcPair_[1] + _nOpenLen_, _aFsbcPair_[2] - _nCloseLen_ ]
 		next
 		return _acFsbcR_

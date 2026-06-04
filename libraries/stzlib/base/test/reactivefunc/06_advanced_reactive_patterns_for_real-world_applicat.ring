@@ -31,7 +31,9 @@ oRs {
     # Transform data
     transformData = func rawData {
         transformed = []
-        for item in rawData
+        _nRawData1Len_ = ring_len(rawData)
+        for _iLoopRawData1_ = 1 to _nRawData1Len_
+        	item = rawData[_iLoopRawData1_]
             transformed + "ITEM_" + upper(item)
         next
         return transformed
@@ -58,7 +60,9 @@ oRs {
     completedQueries = 0
     allResults = []
     
-    for table in tables
+    _nTables1Len_ = ring_len(tables)
+    for _iLoopTables1_ = 1 to _nTables1Len_
+    	table = tables[_iLoopTables1_]
         RQuery.CallAsync([table, ""], func queryResult {
             completedQueries++
             ? "Query " + completedQueries + " completed for table"

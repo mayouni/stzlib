@@ -17,7 +17,10 @@ py() {
 # Function to traverse the list and replace all occurrences of a target item
 def traverse_and_replace(lst, target, replacement):
     count = 0
-    for i in range(len(lst)):
+    _aRangelenlst1_ = range(len(lst)):
+    _nRangelenlst1Len_ = ring_len(_aRangelenlst1_)
+    for _iLoopRangelenlst1_ = 1 to _nRangelenlst1Len_
+    	i = _aRangelenlst1_[_iLoopRangelenlst1_]
         if isinstance(lst[i], list):
             # If the element is a sublist, recurse
             count += traverse_and_replace(lst[i], target, replacement)

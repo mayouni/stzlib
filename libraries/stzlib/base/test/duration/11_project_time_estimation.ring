@@ -20,7 +20,9 @@ aTasks = [
 oTotalProject = DurationQ(0)
 
 ? "Task breakdown:"
-for aTask in aTasks
+_nTasks1Len_ = ring_len(aTasks)
+for _iLoopTasks1_ = 1 to _nTasks1Len_
+	aTask = aTasks[_iLoopTasks1_]
 	? "  " + aTask[1] + ": " + aTask[2].ToCompact()
 	oTotalProject = oTotalProject + aTask[2]
 next

@@ -23,7 +23,9 @@ o1 = new stzDataWrangler(aMixedData, aMixedHeaders)
 ? "BEFORE TYPE CONVERSION:"
 aProfile = o1.GetDataProfile()
 aTypesSummary = aProfile[:data_types]
-for typeInfo in aTypesSummary
+_nTypesSummary1Len_ = ring_len(aTypesSummary)
+for _iLoopTypesSummary1_ = 1 to _nTypesSummary1Len_
+	typeInfo = aTypesSummary[_iLoopTypesSummary1_]
     ? " • " + typeInfo[1] + ": " + o1._JoinList(typeInfo[2], ", ")
 next
 

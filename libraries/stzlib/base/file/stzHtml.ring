@@ -110,7 +110,9 @@ class stzHtml
 
 		aRawNodes = @oHtml.find(pcSelector)
 		aResult = []
-		for oNode in aRawNodes
+		_nRawNodes2Len_ = ring_len(aRawNodes)
+		for _iLoopRawNodes2_ = 1 to _nRawNodes2Len_
+			oNode = aRawNodes[_iLoopRawNodes2_]
 			aResult + new stzHtmlNode(oNode)
 		next
 		return aResult
@@ -137,9 +139,13 @@ class stzHtml
 		if isList(pCondition) and StzHashListQ(pCondition).IsHashList()
 			aNodes = This.Elements()
 			aResult = []
-			for oNode in aNodes
+			_nNodes1Len_ = ring_len(aNodes)
+			for _iLoopNodes1_ = 1 to _nNodes1Len_
+				oNode = aNodes[_iLoopNodes1_]
 				bMatch = TRUE
-				for aPair in pCondition
+				_nCondition1Len_ = ring_len(pCondition)
+				for _iLoopCondition1_ = 1 to _nCondition1Len_
+					aPair = pCondition[_iLoopCondition1_]
 					cKey = StzLower(aPair[1])
 					cVal = aPair[2]
 					switch cKey
@@ -247,7 +253,10 @@ class stzHtml
 
 	func TagsUsed()
 		aTags = []
-		for oNode in This.Elements()
+		_aThisElements1_ = This.Elements()
+		_nThisElements1Len_ = ring_len(_aThisElements1_)
+		for _iLoopThisElements1_ = 1 to _nThisElements1Len_
+			oNode = _aThisElements1_[_iLoopThisElements1_]
 			cTag = StzLower(oNode.Tag())
 			if NOT StzFind(aTags, cTag)
 				aTags + cTag
@@ -371,7 +380,9 @@ class stzHtmlNode
 	def Children()
 		aChildren = @oNode.children()
 		aResult = []
-		for oChild in aChildren
+		_nChildren1Len_ = ring_len(aChildren)
+		for _iLoopChildren1_ = 1 to _nChildren1Len_
+			oChild = aChildren[_iLoopChildren1_]
 			aResult + new stzHtmlNode(oChild)
 		next
 		return aResult
@@ -455,7 +466,9 @@ class stzHtmlNode
 	def Find(pcSelector)
 		aRawNodes = @oNode.find(pcSelector)
 		aResult = []
-		for oRaw in aRawNodes
+		_nRawNodes1Len_ = ring_len(aRawNodes)
+		for _iLoopRawNodes1_ = 1 to _nRawNodes1Len_
+			oRaw = aRawNodes[_iLoopRawNodes1_]
 			aResult + new stzHtmlNode(oRaw)
 		next
 		return aResult
@@ -529,7 +542,9 @@ class stzCSS
 			cDeclarations = trim(aBlocks[i+1])
 			aDecl = StzStringQ(cDeclarations).Split(";")
 			aProps = []
-			for cDecl in aDecl
+			_nDecl1Len_ = ring_len(aDecl)
+			for _iLoopDecl1_ = 1 to _nDecl1Len_
+				cDecl = aDecl[_iLoopDecl1_]
 				aPair = StzStringQ(trim(cDecl)).Split(":")
 				if ring_len(aPair)=2
 					aProps + [trim(aPair[1]), trim(aPair[2])]
@@ -544,7 +559,10 @@ class stzCSS
 
 	def Selectors()
 		aSelectors = []
-		for aRule in This.Rules()
+		_aThisRules2_ = This.Rules()
+		_nThisRules2Len_ = ring_len(_aThisRules2_)
+		for _iLoopThisRules2_ = 1 to _nThisRules2Len_
+			aRule = _aThisRules2_[_iLoopThisRules2_]
 			aSelectors + aRule[1]
 		next
 		return aSelectors
@@ -555,9 +573,15 @@ class stzCSS
 
 	# Natural methods
 	def PropertyOf(pcSelector, pcProp)
-		for aRule in This.Rules()
+		_aThisRules1_ = This.Rules()
+		_nThisRules1Len_ = ring_len(_aThisRules1_)
+		for _iLoopThisRules1_ = 1 to _nThisRules1Len_
+			aRule = _aThisRules1_[_iLoopThisRules1_]
 			if StzLower(aRule[1]) = StzLower(pcSelector)
-				for aProp in aRule[2]
+				_aRule21_ = aRule[2]
+				_nRule21Len_ = ring_len(_aRule21_)
+				for _iLoopRule21_ = 1 to _nRule21Len_
+					aProp = _aRule21_[_iLoopRule21_]
 					if StzLower(aProp[1]) = StzLower(pcProp)
 						return aProp[2]
 					ok
@@ -576,7 +600,9 @@ func ListToHtmlXT(paList)
 
 	nCols = len(paList)
 	nRows = 0
-	for col in paList
+	_nList1Len_ = ring_len(paList)
+	for _iLoopList1_ = 1 to _nList1Len_
+		col = paList[_iLoopList1_]
 		nRows = max(nRows, len(col[2]))
 	next
 
@@ -634,7 +660,9 @@ func HtmlToList(pcHtmlTable)
 	next
 
 	nCell = 1
-	for row in aRows
+	_nRows1Len_ = ring_len(aRows)
+	for _iLoopRows1_ = 1 to _nRows1Len_
+		row = aRows[_iLoopRows1_]
 		aCells = row.children()
 		for c=1 to nCols
 			if nCell <= len(aData)

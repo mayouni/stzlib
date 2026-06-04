@@ -25,7 +25,9 @@ class stzPair from stzList
 	def init(paList)
 		// Control: paList must contain just 2 items
 		@aContent = []
-		for item in paList
+		_nList1Len_ = ring_len(paList)
+		for _iLoopList1_ = 1 to _nList1Len_
+			item = paList[_iLoopList1_]
 			@aContent + item
 		next
 

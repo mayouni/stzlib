@@ -275,7 +275,9 @@ class stzStringRemover
 	#--
 
 	def RemoveMany(pacSubStr)
-		for cSubstr in pacSubstr
+		_nPacSubstr1Len_ = ring_len(pacSubstr)
+		for _iLoopPacSubstr1_ = 1 to _nPacSubstr1Len_
+			cSubstr = pacSubstr[_iLoopPacSubstr1_]
 			This.RemoveAll(cSubstr)
 		next
 

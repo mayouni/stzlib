@@ -653,7 +653,9 @@ class stzTableStructure from stzTable
 	def EraseColumns(pcColNamesOrNumbers)
 		nCols = This.TheseColsToColsNumbers(pcColNamesOrNumbers)
 
-		for n in nCols
+		_nCols1Len_ = ring_len(nCols)
+		for _iLoopCols1_ = 1 to _nCols1Len_
+			n = nCols[_iLoopCols1_]
 			This.EraseCol(n)
 		next
 
@@ -673,7 +675,9 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect param type! panRows must be a list of numbers!")
 		ok
 
-		for n in panRows
+		_nPanRows1Len_ = ring_len(panRows)
+		for _iLoopPanRows1_ = 1 to _nPanRows1Len_
+			n = panRows[_iLoopPanRows1_]
 			This.EraseRow(n)
 		next
 

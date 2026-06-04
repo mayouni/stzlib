@@ -37,12 +37,16 @@ func CustomFunc_ManagerApproval()
 		aNewEdges = []
 		aNodes = oGraph.Nodes()
 		
-		for aNode in aNodes
+		_nNodes2Len_ = ring_len(aNodes)
+		for _iLoopNodes2_ = 1 to _nNodes2Len_
+			aNode = aNodes[_iLoopNodes2_]
 			if oGraph.NodeProperty(aNode[:id], "role") = "manager"
 				cManager = aNode[:id]
 				aSubordinates = oGraph.Neighbors(cManager)
 				
-				for cSub in aSubordinates
+				_nSubordinates1Len_ = ring_len(aSubordinates)
+				for _iLoopSubordinates1_ = 1 to _nSubordinates1Len_
+					cSub = aSubordinates[_iLoopSubordinates1_]
 					cApprovalNode = cSub + "_approval"
 					if oGraph.NodeExists(cApprovalNode)
 						if NOT oGraph.EdgeExists(cManager, cApprovalNode)
@@ -83,7 +87,9 @@ func CustomFunc_BalancedTeams()
 		
 		aNodes = oGraph.Nodes()
 		
-		for aNode in aNodes
+		_nNodes1Len_ = ring_len(aNodes)
+		for _iLoopNodes1_ = 1 to _nNodes1Len_
+			aNode = aNodes[_iLoopNodes1_]
 			if oGraph.NodeProperty(aNode[:id], "role") = "manager"
 				nTeamSize = len(oGraph.Neighbors(aNode[:id]))
 				

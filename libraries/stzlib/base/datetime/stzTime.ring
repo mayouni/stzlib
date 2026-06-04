@@ -585,7 +585,9 @@ class stzTime from stzObject
 
 		ok
 
-        for aFormat in $aTimeFormats
+        _nTimeFormats1Len_ = ring_len($aTimeFormats)
+        for _iLoopTimeFormats1_ = 1 to _nTimeFormats1Len_
+        	aFormat = $aTimeFormats[_iLoopTimeFormats1_]
             if StzLower(aFormat[1]) = cLowerFormat
                 cFormat = aFormat[2]
                 exit

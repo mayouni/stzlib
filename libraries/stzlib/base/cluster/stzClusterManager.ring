@@ -59,8 +59,13 @@ class stzClusterManager
         oHealthMonitor.Start()
         
         # Start all cluster nodes
-        for aCluster in aClusters
-            for oNode in aCluster[:nodes]
+        _nClusters3Len_ = ring_len(aClusters)
+        for _iLoopClusters3_ = 1 to _nClusters3Len_
+        	aCluster = aClusters[_iLoopClusters3_]
+            _aClusternodes3_ = aCluster[:nodes]
+            _nClusternodes3Len_ = ring_len(_aClusternodes3_)
+            for _iLoopClusternodes3_ = 1 to _nClusternodes3Len_
+            	oNode = _aClusternodes3_[_iLoopClusternodes3_]
                 nNodePort = nPort + (ring_len(aCluster[:nodes]) * 10) + 
                            This.GetNodeIndex(aCluster[:nodes], oNode)
                 oNode.Start(nNodePort, "127.0.0.1")
@@ -91,9 +96,14 @@ class stzClusterManager
 
     def GetClusterStatus()
         aStatus = []
-        for aCluster in aClusters
+        _nClusters2Len_ = ring_len(aClusters)
+        for _iLoopClusters2_ = 1 to _nClusters2Len_
+        	aCluster = aClusters[_iLoopClusters2_]
             aNodeStatus = []
-            for oNode in aCluster[:nodes]
+            _aClusternodes2_ = aCluster[:nodes]
+            _nClusternodes2Len_ = ring_len(_aClusternodes2_)
+            for _iLoopClusternodes2_ = 1 to _nClusternodes2Len_
+            	oNode = _aClusternodes2_[_iLoopClusternodes2_]
                 aNodeStatus + oNode.GetHealthStatus()
             next
             
@@ -113,7 +123,9 @@ class stzClusterManager
 
     def CountHealthyNodes(aNodes)
         nHealthy = 0
-        for oNode in aNodes
+        _nNodes1Len_ = ring_len(aNodes)
+        for _iLoopNodes1_ = 1 to _nNodes1Len_
+        	oNode = aNodes[_iLoopNodes1_]
             if oNode.bIsHealthy nHealthy++ ok
         next
         return nHealthy
@@ -134,8 +146,13 @@ class stzClusterManager
         oMainServer.Stop()
         oHealthMonitor.Stop()
         
-        for aCluster in aClusters
-            for oNode in aCluster[:nodes]
+        _nClusters1Len_ = ring_len(aClusters)
+        for _iLoopClusters1_ = 1 to _nClusters1Len_
+        	aCluster = aClusters[_iLoopClusters1_]
+            _aClusternodes1_ = aCluster[:nodes]
+            _nClusternodes1Len_ = ring_len(_aClusternodes1_)
+            for _iLoopClusternodes1_ = 1 to _nClusternodes1Len_
+            	oNode = _aClusternodes1_[_iLoopClusternodes1_]
                 oNode.Stop()
             next
         next

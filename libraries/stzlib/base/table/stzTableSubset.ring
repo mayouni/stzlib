@@ -382,8 +382,9 @@ class stzTableSubset from stzTable
 
 		if This.HasColNames(pacColNames)
 			aResult = []
-			for cColName in pacColNames
-
+			_nPacColNames1Len_ = ring_len(pacColNames)
+			for _iLoopPacColNames1_ = 1 to _nPacColNames1Len_
+				cColName = pacColNames[_iLoopPacColNames1_]
 				aResult + [ cColName, This.Col(cColName) ]
 			next
 
@@ -504,7 +505,9 @@ class stzTableSubset from stzTable
 		nLen = ring_len(apnRowsNumbers)
 
 		aResult = []
-		for n in nLen
+		_nLen1Len_ = ring_len(nLen)
+		for _iLoopLen1_ = 1 to _nLen1Len_
+			n = nLen[_iLoopLen1_]
 			aResult + This.RowZ(panRowsNumbers[i])
 		next
 

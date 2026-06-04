@@ -60,7 +60,9 @@ class stzMBarPlot from stzBarPlot
 			aValues = oSeriesData.Values()
 
 			# Validate all values are positive numbers
-			for nVal in aValues
+			_nValues1Len_ = ring_len(aValues)
+			for _iLoopValues1_ = 1 to _nValues1Len_
+				nVal = aValues[_iLoopValues1_]
 				if not isNumber(nVal) or nVal < 0
 					StzRaise("All values must be positive numbers")
 				ok
@@ -89,7 +91,9 @@ class stzMBarPlot from stzBarPlot
 		@nSum = 0
 		nTotalValues = 0
 
-		for aSeriesInfo in @aSeriesData
+		_nSeriesData1Len_ = ring_len(@aSeriesData)
+		for _iLoopSeriesData1_ = 1 to _nSeriesData1Len_
+			aSeriesInfo = @aSeriesData[_iLoopSeriesData1_]
 			aValues = aSeriesInfo[:Values]
 			nSeriesMax = max(aValues)
 			nSeriesSum = @sum(aValues)
@@ -239,7 +243,9 @@ class stzMBarPlot from stzBarPlot
 			else  # Vertical
 				nLegendHeight = @nSeries
 				nLegendWidth = 0
-				for cName in @acSeriesNames
+				_nAcSeriesNames1Len_ = ring_len(@acSeriesNames)
+				for _iLoopAcSeriesNames1_ = 1 to _nAcSeriesNames1Len_
+					cName = @acSeriesNames[_iLoopAcSeriesNames1_]
 					nLegendWidth = max([nLegendWidth, 3 + ring_len(cName)])
 				next
 			ok

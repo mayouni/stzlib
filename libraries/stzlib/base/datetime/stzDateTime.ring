@@ -198,7 +198,9 @@ func StzIsDateTime(str)
 
 func StzGetDateTimeFormat(cFormatNameOrString)
     if isString(cFormatNameOrString)
-        for aFormat in $aDateTimeFormats
+        _nDateTimeFormats1Len_ = ring_len($aDateTimeFormats)
+        for _iLoopDateTimeFormats1_ = 1 to _nDateTimeFormats1Len_
+        	aFormat = $aDateTimeFormats[_iLoopDateTimeFormats1_]
             if aFormat[1] = cFormatNameOrString
                 return aFormat[2]
             ok
@@ -1999,7 +2001,9 @@ class stzDateTime from stzObject
 	        [:ms, 1]
 	    ]
 
-	    for aUnit in aUnits
+	    _nUnits2Len_ = ring_len(aUnits)
+	    for _iLoopUnits2_ = 1 to _nUnits2Len_
+	    	aUnit = aUnits[_iLoopUnits2_]
 	        cUnit = aUnit[1]
 	        nMultiplier = aUnit[2]
 
@@ -2153,7 +2157,9 @@ class stzDateTime from stzObject
         ok
 
     def GetOriginBase(cOrigin)
-        for aOrigin in aTimeOrigins
+        _nTimeOrigins1Len_ = ring_len(aTimeOrigins)
+        for _iLoopTimeOrigins1_ = 1 to _nTimeOrigins1Len_
+        	aOrigin = aTimeOrigins[_iLoopTimeOrigins1_]
             if aOrigin[1] = cOrigin
                 return aOrigin[2]
             ok
@@ -2191,7 +2197,9 @@ class stzDateTime from stzObject
 
         aTokens = split(cDuration, " ")
 
-        for aUnit in aUnits
+        _nUnits1Len_ = ring_len(aUnits)
+        for _iLoopUnits1_ = 1 to _nUnits1Len_
+        	aUnit = aUnits[_iLoopUnits1_]
             cUnit = aUnit[1]
             nMultiplier = aUnit[2]
 

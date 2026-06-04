@@ -191,7 +191,10 @@ class stzListParser from stzParser
 
 		aResult = []
 
-		for nPosition in This.ParsedPositions()
+		_aThisParsedPositions1_ = This.ParsedPositions()
+		_nThisParsedPositions1Len_ = ring_len(_aThisParsedPositions1_)
+		for _iLoopThisParsedPositions1_ = 1 to _nThisParsedPositions1Len_
+			nPosition = _aThisParsedPositions1_[_iLoopThisParsedPositions1_]
 			aResult + This.List()[ nPosition ]
 		next
 

@@ -4404,8 +4404,10 @@ class stzNumber from stzObject
 	def PrimeFactors()
 		aResult = []
 
-		for n in This.Factors()
-
+		_aThisFactors1_ = This.Factors()
+		_nThisFactors1Len_ = ring_len(_aThisFactors1_)
+		for _iLoopThisFactors1_ = 1 to _nThisFactors1Len_
+			n = _aThisFactors1_[_iLoopThisFactors1_]
 			oTempNumber = new stzNumber(n)
 
 			if oTempNumber.IsPrimeNumber()
@@ -4452,7 +4454,10 @@ class stzNumber from stzObject
 
 	def PrimeFactorsXT()
 		aResult = []
-		for n in This.PrimeFactors()
+		_aThisPrimeFactors1_ = This.PrimeFactors()
+		_nThisPrimeFactors1Len_ = ring_len(_aThisPrimeFactors1_)
+		for _iLoopThisPrimeFactors1_ = 1 to _nThisPrimeFactors1Len_
+			n = _aThisPrimeFactors1_[_iLoopThisPrimeFactors1_]
 			aResult + [ n, This.IntegerPartValue() / n ]
 		next
 		return aResult
@@ -4606,7 +4611,9 @@ class stzNumber from stzObject
 				anMultiples = This.MultiplesUntil(pOtherNumber)
 
 				anNumbers = []
-				for n in anMultiples
+				_nAnMultiples1Len_ = ring_len(anMultiples)
+				for _iLoopAnMultiples1_ = 1 to _nAnMultiples1Len_
+					n = anMultiples[_iLoopAnMultiples1_]
 					if isString(n)
 						anNumbers + ( 0+ n )
 					else
@@ -4618,7 +4625,10 @@ class stzNumber from stzObject
 
 			on :stzListOfStrings
 				acNumbers = []
-				for n in  This.MultiplesUntil(pOtherNumber)
+				_aThisMultiplesUntilpOther1_ = This.MultiplesUntil(pOtherNumber)
+				_nThisMultiplesUntilpOther1Len_ = ring_len(_aThisMultiplesUntilpOther1_)
+				for _iLoopThisMultiplesUntilpOther1_ = 1 to _nThisMultiplesUntilpOther1Len_
+					n = _aThisMultiplesUntilpOther1_[_iLoopThisMultiplesUntilpOther1_]
 					if isNumber(n)
 						acNumbers + ( ""+ n )
 					else

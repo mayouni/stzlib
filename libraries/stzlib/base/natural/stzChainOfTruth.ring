@@ -271,7 +271,9 @@ class stzChainOfTruth from stzObject
 			# ? _(["A","B","C"]).Is([ :AListOfStrings, :AListOfChars, :AListOfLetters ]).AtTheSameTime._
 
 			bIsListOfMethods = 1
-			for str in pThing
+			_nThing2Len_ = ring_len(pThing)
+			for _iLoopThing2_ = 1 to _nThing2Len_
+				str = pThing[_iLoopThing2_]
 				if NOT ( StzFind( methods(This.StzObject()), "is" + str ) > 0 )
 					bIsListOfMethods = 0
 					exit
@@ -280,8 +282,9 @@ class stzChainOfTruth from stzObject
 
 			if bIsListOfMethods
 				bResult = 1
-				for str in pThing
-
+				_nThing1Len_ = ring_len(pThing)
+				for _iLoopThing1_ = 1 to _nThing1Len_
+					str = pThing[_iLoopThing1_]
 					if NOT _(This.Value()).Is(str)._
 						bResult = 0
 						exit

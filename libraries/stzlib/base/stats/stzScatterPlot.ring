@@ -373,7 +373,9 @@ class stzScatterPlot
 		ok
 
 	def _areAllIntegers(anList)
-		for n in anList
+		_nAnList1Len_ = ring_len(anList)
+		for _iLoopAnList1_ = 1 to _nAnList1Len_
+			n = anList[_iLoopAnList1_]
 			if NOT isNumber(n) or floor(n) != n
 				return FALSE
 			ok
@@ -387,7 +389,9 @@ class stzScatterPlot
 			aUniqueV = U(@anVValues)
 			aUniqueV = new stzList(aUniqueV).Sorted()
 			nMaxVLabelLen = 0
-			for nV in aUniqueV
+			_nUniqueV2Len_ = ring_len(aUniqueV)
+			for _iLoopUniqueV2_ = 1 to _nUniqueV2Len_
+				nV = aUniqueV[_iLoopUniqueV2_]
 				cLabel = _formatValue(nV)
 				cLabel = Trim(cLabel)
 				if ring_len(cLabel) > nMaxVLabelLen
@@ -524,7 +528,9 @@ class stzScatterPlot
 		# Always draw V-axis labels when V-axis is visible
 		aUniqueV = U(@anVValues)
 		aUniqueV = new stzList(aUniqueV).Sorted()
-		for nV in aUniqueV
+		_nUniqueV1Len_ = ring_len(aUniqueV)
+		for _iLoopUniqueV1_ = 1 to _nUniqueV1Len_
+			nV = aUniqueV[_iLoopUniqueV1_]
 			nRow = nEndRow - floor((nV - @nVMin) * (nPlotHeight - 1) / (@nVMax - @nVMin))
 			if nRow >= nStartRow and nRow <= nEndRow
 				cLabel = _formatValue(nV)
@@ -574,7 +580,9 @@ class stzScatterPlot
 		# Always draw H-axis labels when H-axis is visible
 		aUniqueH = U(@anHValues)
 		aUniqueH = new stzList(aUniqueH).Sorted()
-		for nH in aUniqueH
+		_nUniqueH1Len_ = ring_len(aUniqueH)
+		for _iLoopUniqueH1_ = 1 to _nUniqueH1Len_
+			nH = aUniqueH[_iLoopUniqueH1_]
 			nCol = nStartCol + floor((nH - @nHMin) * (nPlotWidth - 1) / (@nHMax - @nHMin))
 			if nCol >= nStartCol and nCol <= nEndCol
 				cLabel = _formatValue(nH)

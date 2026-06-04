@@ -227,14 +227,18 @@ func CalculateComplexity(aList)
     ok
 
     # Score for long strings
-    for _itemCcStr_ in aList
+    _nList8Len_ = ring_len(aList)
+    for _iLoopList8_ = 1 to _nList8Len_
+    	_itemCcStr_ = aList[_iLoopList8_]
         if isString(_itemCcStr_) and len(_itemCcStr_) > 30
             _nCcScore_ += len(_itemCcStr_)
         ok
     next
 
     # Score for wide nested lists (lists with many items)
-    for _itemCcLst_ in aList
+    _nList7Len_ = ring_len(aList)
+    for _iLoopList7_ = 1 to _nList7Len_
+    	_itemCcLst_ = aList[_iLoopList7_]
         if isList(_itemCcLst_) and len(_itemCcLst_) > 5
             _nCcScore_ += len(_itemCcLst_) * 3
         ok
@@ -245,7 +249,9 @@ func CalculateComplexity(aList)
 func GetMaxDepth(aList)
     _nGmdMaxDepth_ = 1
 
-    for _itemGmd_ in aList
+    _nList6Len_ = ring_len(aList)
+    for _iLoopList6_ = 1 to _nList6Len_
+    	_itemGmd_ = aList[_iLoopList6_]
         if isList(_itemGmd_)
             _nGmdDepth_ = 1 + GetMaxDepth(_itemGmd_)
             if _nGmdDepth_ > _nGmdMaxDepth_
@@ -321,7 +327,9 @@ func FormatListSmartNL(aList, cSep, cIndent)
 
     # Expand if contains nested lists (visual complexity)
     if NOT _bFlsnlExpand_
-        for _itemFlsnlNest_ in aList
+        _nList5Len_ = ring_len(aList)
+        for _iLoopList5_ = 1 to _nList5Len_
+        	_itemFlsnlNest_ = aList[_iLoopList5_]
             if isList(_itemFlsnlNest_) and len(_itemFlsnlNest_) > 0
                 _bFlsnlExpand_ = true
                 exit
@@ -388,7 +396,9 @@ func FormatItemForNL(pValue, cBaseIndent)
 
 # Check if a list contains nested lists
 func ContainsNestedLists(aList)
-    for _itemCnl_ in aList
+    _nList4Len_ = ring_len(aList)
+    for _iLoopList4_ = 1 to _nList4Len_
+    	_itemCnl_ = aList[_iLoopList4_]
         if isList(_itemCnl_)
             return true
         ok
@@ -411,7 +421,9 @@ func CanCompactList(aList)
     ok
 
     # Don't compact if it contains nested lists (adds visual complexity)
-    for _itemCcl_ in aList
+    _nList3Len_ = ring_len(aList)
+    for _iLoopList3_ = 1 to _nList3Len_
+    	_itemCcl_ = aList[_iLoopList3_]
         if isList(_itemCcl_) and len(_itemCcl_) > 0
             return false
         ok
@@ -502,14 +514,18 @@ func ShouldExpandList(aList)
     ok
 
     # Expand if contains nested lists
-    for _itemSelNest_ in aList
+    _nList2Len_ = ring_len(aList)
+    for _iLoopList2_ = 1 to _nList2Len_
+    	_itemSelNest_ = aList[_iLoopList2_]
         if isList(_itemSelNest_)
             return true
         ok
     next
 
     # Expand if contains long strings
-    for _itemSelStr_ in aList
+    _nList1Len_ = ring_len(aList)
+    for _iLoopList1_ = 1 to _nList1Len_
+    	_itemSelStr_ = aList[_iLoopList1_]
         if isString(_itemSelStr_) and len(_itemSelStr_) > 20
             return true
         ok

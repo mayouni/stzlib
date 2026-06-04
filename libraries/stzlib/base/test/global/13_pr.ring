@@ -12,7 +12,10 @@ pr()
 # Contrariwise, this Ring for/in loop takes too long to complete!
 # (500 thousand times and not 5 million like in the example above!)
 
-for n in 1:500_000
+_a1500_0001_ = 1:500_000
+_n1500_0001Len_ = ring_len(_a1500_0001_)
+for _iLoop1500_0001_ = 1 to _n1500_0001Len_
+	n = _a1500_0001_[_iLoop1500_0001_]
 	// Do nothing
 next
 
