@@ -1132,6 +1132,41 @@ class stzString from stzObject
 		def FindAllCS(pcSubStr, pCaseSensitive)
 			return This.FindCS(pcSubStr, pCaseSensitive)
 
+	# FindInSection: find occurrences of pcSubStr restricted to the
+	# character range [n1, n2]. Returns positions in the FULL string
+	# (not relative to the section). No match -> [].
+	def FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		if NOT (isNumber(n1) and isNumber(n2))
+			StzRaise("FindInSection: n1 and n2 must be numbers.")
+		ok
+		_nFisLen_ = This.NumberOfChars()
+		if n1 < 1
+			n1 = 1
+		ok
+		if n2 > _nFisLen_
+			n2 = _nFisLen_
+		ok
+		if n1 > n2
+			return []
+		ok
+		_cFisSection_ = This.Section(n1, n2)
+		_aFisRel_ = StzStringQ(_cFisSection_).FindCS(pcSubStr, pCaseSensitive)
+		_aFisAbs_ = []
+		_nFisRelLen_ = ring_len(_aFisRel_)
+		for _iFis_ = 1 to _nFisRelLen_
+			_aFisAbs_ + (_aFisRel_[_iFis_] + n1 - 1)
+		next
+		return _aFisAbs_
+
+	def FindInSection(pcSubStr, n1, n2)
+		return This.FindInSectionCS(pcSubStr, n1, n2, 1)
+
+		def FindAllInSection(pcSubStr, n1, n2)
+			return This.FindInSection(pcSubStr, n1, n2)
+
+		def FindAllInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.FindInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+
 	def FindNthCS(n, pcSubStr, pCaseSensitive)
 		_oFnFinder_ = new stzStringFinder(This)
 		return _oFnFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
@@ -3874,6 +3909,138 @@ class stzString from stzObject
 
 		def TheseSpacified(pacSubStr)
 			return This.SubStringsSpacified(pacSubStr)
+
+	# SpacifySubStringsUsing: in-place variant of SubStringsSpacified
+	# that lets the caller choose the separator (default would be a
+	# single space; this form makes it explicit). Wraps every
+	# occurrence of each substring in pacSubStr with the given
+	# separator on both sides.
+
+	def SpacifySubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
+		if NOT (isList(pacSubStr) and @IsListOfStrings(pacSubStr))
+			StzRaise("SpacifySubStringsUsing: pacSubStr must be a list of strings")
+		ok
+		if NOT isString(pcSep)
+			StzRaise("SpacifySubStringsUsing: pcSep must be a string")
+		ok
+		_cRes_ = This.Content()
+		_nLen_ = ring_len(pacSubStr)
+		for _i_ = 1 to _nLen_
+			_cSub_ = pacSubStr[_i_]
+			if _cSub_ = "" loop ok
+			# Walk-and-substitute matching SubStringsSpacifiedCS' shape
+			_cOut_ = ""
+			_cHay_ = _cRes_
+			if NOT @CaseSensitive(pCaseSensitive)
+				_cHayLow_ = lower(_cHay_)
+				_cNdlLow_ = lower(_cSub_)
+			else
+				_cHayLow_ = _cHay_
+				_cNdlLow_ = _cSub_
+			ok
+			_nHayLen_ = ring_len(_cHay_)
+			_nSubLen_ = ring_len(_cSub_)
+			_iC_ = 1
+			while _iC_ <= _nHayLen_
+				if _iC_ + _nSubLen_ - 1 <= _nHayLen_ and
+				   substr(_cHayLow_, _iC_, _nSubLen_) = _cNdlLow_
+					_cOut_ += pcSep + substr(_cHay_, _iC_, _nSubLen_) + pcSep
+					_iC_ += _nSubLen_
+				else
+					_cOut_ += substr(_cHay_, _iC_, 1)
+					_iC_++
+				ok
+			end
+			_cRes_ = _cOut_
+		next
+		This.Update(_cRes_)
+
+		def SpacifySubStringsUsingCSQ(pacSubStr, pcSep, pCaseSensitive)
+			This.SpacifySubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
+			return This
+
+	def SpacifySubStringsUsing(pacSubStr, pcSep)
+		This.SpacifySubStringsUsingCS(pacSubStr, pcSep, 1)
+
+		def SpacifySubStringsUsingQ(pacSubStr, pcSep)
+			This.SpacifySubStringsUsing(pacSubStr, pcSep)
+			return This
+
+		def SpacifySubStringUsing(pcSub, pcSep)
+			This.SpacifySubStringsUsing([ pcSub ], pcSep)
+
+		def SpacifySubStrings(pacSubStr)
+			This.SpacifySubStringsUsing(pacSubStr, " ")
+
+	# AddXT: extended Add dispatching on a named-param DSL.
+	# Supported shapes:
+	#
+	#   AddXT(pcSep, :AfterThese  = [ "a", "b", ... ])
+	#       For each item p in the list, insert pcSep right after
+	#       every occurrence of p in the string.
+	#
+	#   AddXT(pcSep, :BeforeThese = [ "a", "b", ... ])
+	#       Same as AfterThese but the separator lands BEFORE each
+	#       match.
+	#
+	#   AddXT([cBefore, cAfter], :Around = "p")
+	#       Wrap every occurrence of "p" between cBefore and cAfter.
+	#
+	#   AddXT(cBoth, :Around = "p")
+	#       Shortcut for [cBoth, cBoth] -- same separator on both
+	#       sides.
+
+	def AddXT(p1, p2)
+		# Form 1/2: pcSep + :AfterThese / :BeforeThese
+		if isString(p1) and isList(p2) and ring_len(p2) = 2 and isString(p2[1])
+			_cKey_ = lower(p2[1])
+			_xVal_ = p2[2]
+
+			if _cKey_ = "afterthese" or _cKey_ = "beforethese"
+				if NOT isList(_xVal_)
+					StzRaise("AddXT: :" + p2[1] + " expects a list of strings.")
+				ok
+				_bAfter_ = (_cKey_ = "afterthese")
+				_cTxt_ = This.Content()
+				_nVlen_ = ring_len(_xVal_)
+				for _iAx_ = 1 to _nVlen_
+					_cSub_ = _xVal_[_iAx_]
+					if NOT isString(_cSub_) or _cSub_ = "" loop ok
+					if _bAfter_
+						_cTxt_ = substr(_cTxt_, _cSub_, _cSub_ + p1)
+					else
+						_cTxt_ = substr(_cTxt_, _cSub_, p1 + _cSub_)
+					ok
+				next
+				This.Update(_cTxt_)
+				return
+			ok
+		ok
+
+		# Form 3: [cBefore, cAfter] + :Around = "p"
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and isString(p1[2]) and
+		   isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and lower(p2[1]) = "around" and
+		   isString(p2[2])
+			_cTxt_ = This.Content()
+			_cTxt_ = substr(_cTxt_, p2[2], p1[1] + p2[2] + p1[2])
+			This.Update(_cTxt_)
+			return
+		ok
+
+		# Form 4: cBoth + :Around = "p"
+		if isString(p1) and isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and
+		   lower(p2[1]) = "around" and isString(p2[2])
+			_cTxt_ = This.Content()
+			_cTxt_ = substr(_cTxt_, p2[2], p1 + p2[2] + p1)
+			This.Update(_cTxt_)
+			return
+		ok
+
+		StzRaise("AddXT: unsupported argument shape.")
+
+		def AddXTQ(p1, p2)
+			This.AddXT(p1, p2)
+			return This
 
 	#-- FindSubStringsBoundedByIBZZ: for every substring bounded by
 	#   pacBounds[1]..pacBounds[2] return the [startPos, endPos]

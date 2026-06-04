@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #41.
-#ERR Error (R14) : Calling Method without definition: tosetq
+#ERR Error (R2) : Array Access (Index out of range)
 
 load "../../stzBase.ring"
 
