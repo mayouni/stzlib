@@ -1,84 +1,37 @@
 # Narrative
 # --------
-# Sample 2.1: Column Layout - Vertical Organization
+# (retired) Original test for: Sample 2.1: Column Layout - Vertical Organization depended on Ring's qApp{} + RingQML Qt
+# binding. Softanza is now engine-only and does NOT ship that
+# binding. The same end -- 'render this QML markup as a window' --
+# is now expressed via the external-runtime pattern, mirroring
+# stzDotCode (Graphviz).
 #
-# Extracted from stzringqmltest.ring, block #4.
-#ERR Error (R11) : Error in class name, class not found: qapp
+# Replacement skeleton:
+#
+#   load "../../stzBase.ring"
+#
+#   pr()
+#
+#   oQml = new stzQmlCode()
+#   oQml.SetCode("
+#       import QtQuick 2.15
+#       import QtQuick.Window 2.15
+#       Window {
+#           visible: true; width: 450; height: 300; title: 'Hello'
+#       }
+#   ")
+#   oQml.Execute()
+#   ? oQml.Duration()
+#
+#   pf()
+#
+# The standalone Qt `qml` (or `qmlscene`) runtime is invoked as a
+# child process. Configure its path via
+# $aStzLibConfig[:QmlPath] = "...".
+#
+# Skip annotation so the runner doesn't flag this as a real error.
+#SKIP retired -- depends on Ring's qApp Qt binding; use stzQmlCode
 
 load "../../stzBase.ring"
 
-pr()
-
-# Use case: Automatic vertical stacking with spacing
-
-	new qApp {
-		oQML = new RingQML(NULL)
-		oQML.LoadContent(QML_2_1())
-	
-	        exec()
-	}
-	
-	func QML_2_1
-	    return "
-	        import QtQuick 2.15
-	        import QtQuick.Window 2.15
-	        
-	        Window {
-	            visible: true
-	            width: 400
-	            height: 400
-	            title: 'Column Layout'
-	            
-	            Column {
-	                anchors.centerIn: parent
-	                spacing: 15
-	                
-	                Rectangle {
-	                    width: 200
-	                    height: 60
-	                    color: '#e74c3c'
-	                    radius: 5
-	                    
-	                    Text {
-	                        text: 'First Item'
-	                        color: 'white'
-				font.pointSize: 16
-	                        anchors.centerIn: parent
-	                    }
-	                }
-	                
-	                Rectangle {
-	                    width: 200
-	                    height: 60
-	                    color: '#f39c12'
-	                    radius: 5
-	                    
-	                    Text {
-	                        text: 'Second Item'
-	                        color: 'white'
-				font.pointSize: 16
-	                        anchors.centerIn: parent
-	                    }
-	                }
-	                
-	                Rectangle {
-	                    width: 200
-	                    height: 60
-	                    color: '#27ae60'
-	                    radius: 5
-	                    
-	                    Text {
-	                        text: 'Third Item'
-	                        color: 'white'
-				font.pointSize: 16
-	                        anchors.centerIn: parent
-	                    }
-	                }
-	            }
-	        }
-	    "
-	
-	#--> Column automatically arranges children vertically
-	#--> Spacing property controls the gap between elements
-
-pf()
+? "(retired Qt-binding test; see header for the stzQmlCode replacement)"

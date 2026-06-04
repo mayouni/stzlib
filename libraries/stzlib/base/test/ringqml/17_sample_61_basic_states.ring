@@ -1,130 +1,37 @@
 # Narrative
 # --------
-# Sample 6.1: Basic States
+# (retired) Original test for: Sample 6.1: Basic States depended on Ring's qApp{} + RingQML Qt
+# binding. Softanza is now engine-only and does NOT ship that
+# binding. The same end -- 'render this QML markup as a window' --
+# is now expressed via the external-runtime pattern, mirroring
+# stzDotCode (Graphviz).
 #
-# Extracted from stzringqmltest.ring, block #17.
-#ERR Error (R11) : Error in class name, class not found: qapp
+# Replacement skeleton:
+#
+#   load "../../stzBase.ring"
+#
+#   pr()
+#
+#   oQml = new stzQmlCode()
+#   oQml.SetCode("
+#       import QtQuick 2.15
+#       import QtQuick.Window 2.15
+#       Window {
+#           visible: true; width: 450; height: 300; title: 'Hello'
+#       }
+#   ")
+#   oQml.Execute()
+#   ? oQml.Duration()
+#
+#   pf()
+#
+# The standalone Qt `qml` (or `qmlscene`) runtime is invoked as a
+# child process. Configure its path via
+# $aStzLibConfig[:QmlPath] = "...".
+#
+# Skip annotation so the runner doesn't flag this as a real error.
+#SKIP retired -- depends on Ring's qApp Qt binding; use stzQmlCode
 
 load "../../stzBase.ring"
 
-pr()
-
-# Use case: Managing different UI configurations
-
-
-	new qApp {
-	        oQML = new RingQML(NULL) {
-	            loadContent(QML_6_1())
-	        }
-	        exec()
-	    }
-	
-	func QML_6_1
-	    return "
-	        import QtQuick 2.15
-	        import QtQuick.Controls 2.15
-	        import QtQuick.Window 2.15
-	        
-	        Window {
-	            visible: true
-	            width: 400
-	            height: 300
-	            title: 'States'
-	            
-	            Rectangle {
-	                id: statusCard
-	                width: 350
-	                height: 150
-	                color: 'white'
-	                radius: 10
-	                border.width: 2
-	                anchors.centerIn: parent
-	                
-	                state: 'normal'
-	                
-	                states: [
-	                    State {
-	                        name: 'normal'
-	                        PropertyChanges {
-	                            target: statusCard
-	                            border.color: '#3498db'
-	                        }
-	                        PropertyChanges {
-	                            target: statusText
-	                            text: 'Normal Status'
-	                            color: '#3498db'
-	                        }
-	                    },
-	                    State {
-	                        name: 'warning'
-	                        PropertyChanges {
-	                            target: statusCard
-	                            border.color: '#27ae60'
-	                        }
-	                        PropertyChanges {
-	                            target: statusText
-	                            text: 'Warning Status'
-	                            color: '#27ae60'
-	                        }
-	                    },
-	                    State {
-	                        name: 'error'
-	                        PropertyChanges {
-	                            target: statusCard
-	                            border.color: '#e74c3c'
-	                        }
-	                        PropertyChanges {
-	                            target: statusText
-	                            text: 'Error Status'
-	                            color: '#e74c3c'
-	                        }
-	                    }
-	                ]
-	                
-	                transitions: [
-	                    Transition {
-	                        ColorAnimation { duration: 300 }
-	                    }
-	                ]
-	                
-	                Column {
-	                    anchors.centerIn: parent
-	                    spacing: 20
-	                    
-	                    Text {
-	                        id: statusText
-	                        font.pointSize: 16
-	                        font.bold: true
-	                        anchors.horizontalCenter: parent.horizontalCenter
-	                    }
-	                    
-	                    Row {
-	                        spacing: 10
-	                        anchors.horizontalCenter: parent.horizontalCenter
-	                        
-	                        Button {
-	                            text: 'Normal'
-				    font.pointSize: 12
-	                            onClicked: statusCard.state = 'normal'
-	                        }
-	                        Button {
-	                            text: 'Warning'
-				    font.pointSize: 12
-	                            onClicked: statusCard.state = 'warning'
-	                        }
-	                        Button {
-	                            text: 'Error'
-				    font.pointSize: 12
-	                            onClicked: statusCard.state = 'error'
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	    "
-	
-	#--> States define different UI configurations
-	#--> Transitions animate between states automatically
-	#--> Clean way to manage complex UI variations
-
-pf()
+? "(retired Qt-binding test; see header for the stzQmlCode replacement)"

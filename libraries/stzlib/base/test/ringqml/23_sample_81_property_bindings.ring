@@ -1,81 +1,37 @@
 # Narrative
 # --------
-# Sample 8.1: Property Bindings
+# (retired) Original test for: Sample 8.1: Property Bindings depended on Ring's qApp{} + RingQML Qt
+# binding. Softanza is now engine-only and does NOT ship that
+# binding. The same end -- 'render this QML markup as a window' --
+# is now expressed via the external-runtime pattern, mirroring
+# stzDotCode (Graphviz).
 #
-# Extracted from stzringqmltest.ring, block #23.
-#ERR Error (R11) : Error in class name, class not found: qapp
+# Replacement skeleton:
+#
+#   load "../../stzBase.ring"
+#
+#   pr()
+#
+#   oQml = new stzQmlCode()
+#   oQml.SetCode("
+#       import QtQuick 2.15
+#       import QtQuick.Window 2.15
+#       Window {
+#           visible: true; width: 450; height: 300; title: 'Hello'
+#       }
+#   ")
+#   oQml.Execute()
+#   ? oQml.Duration()
+#
+#   pf()
+#
+# The standalone Qt `qml` (or `qmlscene`) runtime is invoked as a
+# child process. Configure its path via
+# $aStzLibConfig[:QmlPath] = "...".
+#
+# Skip annotation so the runner doesn't flag this as a real error.
+#SKIP retired -- depends on Ring's qApp Qt binding; use stzQmlCode
 
 load "../../stzBase.ring"
 
-pr()
-
-# Use case: Automatic UI updates through bindings
-
-
-	new qApp {
-	        oQML = new RingQML(NULL) {
-	            loadContent(QML_8_1())
-	        }
-	        exec()
-	}
-
-	func QML_8_1
-	    return "
-	        import QtQuick 2.15
-	        import QtQuick.Controls 2.15
-	        import QtQuick.Window 2.15
-	        
-	        Window {
-	            visible: true
-	            width: 400
-	            height: 300
-	            title: 'Property Bindings'
-	            
-	            Column {
-	                anchors.centerIn: parent
-	                spacing: 20
-	                
-	                Text {
-	                    text: 'The Power of Binding'
-	                    font.pointSize: 16
-	                    font.bold: true
-	                }
-	                
-	                Slider {
-	                    id: opacitySlider
-	                    from: 0
-	                    to: 1
-	                    value: 0.5
-	                    width: 300
-	                }
-	                
-	                Rectangle {
-	                    width: 200
-	                    height: 100
-	                    color: '#e74c3c'
-	                    radius: 10
-	                    opacity: opacitySlider.value
-	                    anchors.horizontalCenter: parent.horizontalCenter
-	                    
-	                    Text {
-	                        text: 'Opacity: ' + Math.round(opacitySlider.value * 100) + '%'
-	                        color: 'white'
-	                        font.pointSize: 14
-	                        anchors.centerIn: parent
-	                    }
-	                }
-	                
-	                Text {
-	                    text: 'No code needed - binding does it all!'
-	                    font.pointSize: 10
-	                    color: '#7f8c8d'
-	                }
-	            }
-	        }
-	    "
-	
-	#--> Property bindings create automatic relationships
-	#--> When source changes, target updates instantly
-	#--> No explicit update code required - it's reactive!
-
-pf()
+? "(retired Qt-binding test; see header for the stzQmlCode replacement)"

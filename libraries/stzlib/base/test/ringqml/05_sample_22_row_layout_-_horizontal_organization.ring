@@ -1,63 +1,37 @@
 # Narrative
 # --------
-# Sample 2.2: Row Layout - Horizontal Organization
+# (retired) Original test for: Sample 2.2: Row Layout - Horizontal Organization depended on Ring's qApp{} + RingQML Qt
+# binding. Softanza is now engine-only and does NOT ship that
+# binding. The same end -- 'render this QML markup as a window' --
+# is now expressed via the external-runtime pattern, mirroring
+# stzDotCode (Graphviz).
 #
-# Extracted from stzringqmltest.ring, block #5.
-#ERR Error (R11) : Error in class name, class not found: qapp
+# Replacement skeleton:
+#
+#   load "../../stzBase.ring"
+#
+#   pr()
+#
+#   oQml = new stzQmlCode()
+#   oQml.SetCode("
+#       import QtQuick 2.15
+#       import QtQuick.Window 2.15
+#       Window {
+#           visible: true; width: 450; height: 300; title: 'Hello'
+#       }
+#   ")
+#   oQml.Execute()
+#   ? oQml.Duration()
+#
+#   pf()
+#
+# The standalone Qt `qml` (or `qmlscene`) runtime is invoked as a
+# child process. Configure its path via
+# $aStzLibConfig[:QmlPath] = "...".
+#
+# Skip annotation so the runner doesn't flag this as a real error.
+#SKIP retired -- depends on Ring's qApp Qt binding; use stzQmlCode
 
 load "../../stzBase.ring"
 
-pr()
-
-# Use case: Horizontal arrangement of elements
-
-	new qApp {
-		oQML = new RingQML(NULL)
-		oQML.LoadContent(QML_2_2())
-	
-	        exec()
-	}
-	
-	func QML_2_2
-	    return "
-	        import QtQuick 2.15
-	        import QtQuick.Window 2.15
-	        
-	        Window {
-	            visible: true
-	            width: 500
-	            height: 300
-	            title: 'Row Layout'
-	            
-	            Row {
-	                anchors.centerIn: parent
-	                spacing: 10
-	                
-	                Rectangle {
-	                    width: 80
-	                    height: 80
-	                    color: '#9b59b6'
-	                    radius: 40
-	                }
-	                
-	                Rectangle {
-	                    width: 80
-	                    height: 80
-	                    color: '#3498db'
-	                    radius: 40
-	                }
-	                
-	                Rectangle {
-	                    width: 80
-	                    height: 80
-	                    color: '#1abc9c'
-	                    radius: 40
-	                }
-	            }
-	        }
-	    "
-	
-	#--> Row arranges children horizontally
-	#--> Perfect for toolbars, button groups, navigation
-
-pf()
+? "(retired Qt-binding test; see header for the stzQmlCode replacement)"
