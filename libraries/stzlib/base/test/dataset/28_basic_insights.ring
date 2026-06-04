@@ -3,7 +3,6 @@
 # Basic Insights
 #
 # Extracted from stzdatasettest.ring, block #28.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

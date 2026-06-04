@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #99.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R3) : Calling Function without definition: eachcharboxed
 
 load "../../stzBase.ring"
 

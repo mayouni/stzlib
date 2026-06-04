@@ -3,7 +3,6 @@
 # Data Validation
 #
 # Extracted from stzdatasettest.ring, block #33.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

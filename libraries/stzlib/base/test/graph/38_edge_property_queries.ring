@@ -3,7 +3,6 @@
 # Edge Property Queries
 #
 # Extracted from stzgraphtest.ring, block #38.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

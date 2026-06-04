@@ -3,7 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlistofstringstest.ring, block #10.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: trimstart
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofstringstest.ring, block #101.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: removeduplicatedstringscs
 
 load "../../stzBase.ring"
 

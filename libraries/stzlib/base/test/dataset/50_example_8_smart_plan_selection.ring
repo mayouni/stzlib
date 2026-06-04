@@ -3,7 +3,6 @@
 # EXAMPLE 8: Smart Plan Selection
 #
 # Extracted from stzdatasettest.ring, block #50.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

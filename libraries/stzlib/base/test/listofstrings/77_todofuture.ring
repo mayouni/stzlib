@@ -3,7 +3,7 @@
 # TODO/FUTURE
 #
 # Extracted from stzlistofstringstest.ring, block #77.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: wordsofeachstringaresortedinascending
 
 load "../../stzBase.ring"
 

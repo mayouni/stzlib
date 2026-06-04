@@ -3,7 +3,7 @@
 # #ring #qt
 #
 # Extracted from stzlistofliststest.ring, block #5.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: sort
 
 load "../../stzBase.ring"
 

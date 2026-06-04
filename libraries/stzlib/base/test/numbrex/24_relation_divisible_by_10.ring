@@ -3,6 +3,7 @@
 # RELATION: DIVISIBLE BY 10
 #
 # Extracted from stznumbrextest.ring, block #24.
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

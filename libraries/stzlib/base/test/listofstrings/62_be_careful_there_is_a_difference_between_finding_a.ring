@@ -3,7 +3,7 @@
 # # Be careful: there is a difference between finding a string
 #
 # Extracted from stzlistofstringstest.ring, block #62.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: findstringcs
 
 load "../../stzBase.ring"
 

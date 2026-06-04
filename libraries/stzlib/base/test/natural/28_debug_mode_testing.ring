@@ -3,7 +3,6 @@
 # DEBUG MODE TESTING
 #
 # Extracted from stznaturaltest.ring, block #28.
-#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,8 @@
 # 5-item test (recursive division)
 #
 # Extracted from stzPlotTest.ring, block #57.
-#ERR Error (R20) : Calling function with extra number of parameters
+#Error (R14) : Calling Method without definition: removedfromend
+#ERR Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
 

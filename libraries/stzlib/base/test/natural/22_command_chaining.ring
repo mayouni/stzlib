@@ -3,7 +3,6 @@
 # COMMAND CHAINING
 #
 # Extracted from stznaturaltest.ring, block #22.
-#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

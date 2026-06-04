@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #263.
-#ERR panic: @memcpy arguments alias
+#ERR exit 1
 
 load "../../stzBase.ring"
 

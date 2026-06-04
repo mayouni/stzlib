@@ -8,7 +8,7 @@
 load "../../stzBase.ring"
 
 #UPDATE : DONE!
-*/
+
 pr()
 
 # A function used internally to simply the stzRegexuter class

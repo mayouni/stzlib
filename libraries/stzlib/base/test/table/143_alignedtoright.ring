@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #143.
-#ERR Error (R11) : Error in class name, class not found: stzlistofstrings
+#ERR Error (R14) : Calling Method without definition: alignedtoright
 
 load "../../stzBase.ring"
 

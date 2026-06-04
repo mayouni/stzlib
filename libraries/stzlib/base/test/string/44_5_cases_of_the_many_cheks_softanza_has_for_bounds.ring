@@ -3,7 +3,7 @@
 # 5 cases of the many cheks Softanza has for bounds
 #
 # Extracted from stzStringTest.ring, block #44.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R14) : Calling Method without definition: isboundedbyxt
 
 load "../../stzBase.ring"
 

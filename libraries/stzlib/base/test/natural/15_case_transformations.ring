@@ -3,7 +3,6 @@
 # CASE TRANSFORMATIONS
 #
 # Extracted from stznaturaltest.ring, block #15.
-#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 

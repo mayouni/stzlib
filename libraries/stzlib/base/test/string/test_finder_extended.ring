@@ -3,7 +3,7 @@
 # Run from the test/ directory: ring test_finder_extended.ring
 
 ? "Loading stubs + DLL"
-#ERR Error (E9) : Can't open file ../stzString.ring
+#ERR Error (R3) : Calling Function without definition: ring_len
 
 load "test_stubs.ring"
 

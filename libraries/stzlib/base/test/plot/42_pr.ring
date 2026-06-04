@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzPlotTest.ring, block #42.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # REMOVE XT ================= #todo Write a #narration
 #
 # Extracted from stzStringTest.ring, block #865.
-#ERR Error (R14) : Calling Method without definition: removext
 
 load "../../stzBase.ring"
 

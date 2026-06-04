@@ -19,4 +19,5 @@ o1 = new stzString("Softanza")
 #--> 400
 
 pf()
+# Executed in 0.09 second(s) in Ring 1.26 (Powered by Stzengine)
 # Executed in 0.35 second(s) in Ring 1.22

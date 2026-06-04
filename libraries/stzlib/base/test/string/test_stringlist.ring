@@ -1,5 +1,5 @@
 
-#ERR Error (E9) : Can't open file ../stzString.ring
+#ERR Error (R3) : Calling Function without definition: ring_len
 
 load "test_stubs.ring"
 load "../../string/stzString.ring"

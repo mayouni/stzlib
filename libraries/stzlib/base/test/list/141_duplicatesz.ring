@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #141.
-#ERR Error (R14) : Calling Method without definition: duplicatesz
+#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

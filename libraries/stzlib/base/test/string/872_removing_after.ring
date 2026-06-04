@@ -3,7 +3,6 @@
 # REMOVING AFTER
 #
 # Extracted from stzStringTest.ring, block #872.
-#ERR Error (R3) : Calling Function without definition: removext
 
 load "../../stzBase.ring"
 

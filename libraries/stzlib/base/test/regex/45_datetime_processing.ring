@@ -12,7 +12,7 @@ pr()
 
 dateText = "Important dates: 2024-01-12, 01/12/2024, Jan 12, 2024"
 
-o1 = new stzRegex("")
+o1 = new stzRegex("_")
 
 # Match various date formats
 

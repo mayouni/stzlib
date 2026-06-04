@@ -3,7 +3,7 @@
 # Basic histogram with student test scores
 #
 # Extracted from stzPlotTest.ring, block #49.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
 

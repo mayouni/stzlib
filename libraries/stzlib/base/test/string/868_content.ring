@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #868.
-#ERR Error (R14) : Calling Method without definition: removext
 
 load "../../stzBase.ring"
 

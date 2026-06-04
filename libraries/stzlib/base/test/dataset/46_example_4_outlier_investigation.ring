@@ -3,7 +3,6 @@
 # EXAMPLE 4: Outlier Investigation
 #
 # Extracted from stzdatasettest.ring, block #46.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

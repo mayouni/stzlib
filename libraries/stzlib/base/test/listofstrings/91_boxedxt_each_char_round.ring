@@ -7,7 +7,6 @@
 # Extracted from stzlistofstringstest.ring, the per-char round-
 # corner box block. Box-drawing chars are Softanza's visual
 # identity -- preserved verbatim.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

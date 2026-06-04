@@ -20,7 +20,7 @@ oBig = new stzString(cBigText)
 #--> 128457
 
 ? oBig.SizeInBytes() + NL
-#--> 624
+#--> 6617121
 
 ? oBig.FindCS("madrid", FALSE)
 #--> [
@@ -37,4 +37,5 @@ oBig = new stzString(cBigText)
 oBig.ReplaceCS("madrid", "vienna", FALSE)
 
 pf()
+# Executed in 1.54 second(s) in Ring 1.26 (Powered by StzEngine)
 # Executed in 5.21 second(s) in Ring 1.22

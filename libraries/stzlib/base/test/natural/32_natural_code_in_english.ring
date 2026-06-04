@@ -3,7 +3,6 @@
 # NATURAL CODE IN ENGLISH
 #
 # Extracted from stznaturaltest.ring, block #32.
-#ERR Error (R14) : Calling Method without definition: findantisectionszz
 
 load "../../stzBase.ring"
 
