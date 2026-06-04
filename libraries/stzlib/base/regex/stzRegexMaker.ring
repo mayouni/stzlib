@@ -1030,7 +1030,8 @@ class stzRegexMaker
 	def FindGroup(pcName)
 		# Returns index of named group or 0 if not found
 
-		for i = 1 to ring_len(aGroups)
+		_nGroupsLen_ = ring_len(aGroups)
+		for i = 1 to _nGroupsLen_
 			if aGroups[i][1] = pcName
 				return i
 			ok
@@ -1157,7 +1158,8 @@ class stzRecursiveRegexMaker
 		
 		# Process all root levels (those without parents)
 
-		for i = 1 to ring_len(aLevels)
+		_nLevelsLen_2 = ring_len(aLevels)
+		for i = 1 to _nLevelsLen_2
 			if aLevels[i][:parent] = NULL
 				cPattern += pvtBuildPattern(i)
 			ok
@@ -1241,7 +1243,8 @@ class stzRecursiveRegexMaker
 
 	def pvtFindLevelByName(cName)
 
-		for i = 1 to ring_len(aLevels)
+		_nLevelsLen_ = ring_len(aLevels)
+		for i = 1 to _nLevelsLen_
 			if aLevels[i][:name] = cName
 				return i
 			ok

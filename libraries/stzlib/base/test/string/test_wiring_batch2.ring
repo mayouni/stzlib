@@ -80,7 +80,8 @@ oFnd = new stzStringFinder("hello world")
 oFnd = new stzStringFinder("hello")
 aPos = oFnd.FindAllChar("l")
 cPos = ""
-for i = 1 to len(aPos)
+_nPosLen_ = ring_len(aPos)
+for i = 1 to _nPosLen_
 	if i > 1 cPos += "," ok
 	cPos += ("" + aPos[i])
 next

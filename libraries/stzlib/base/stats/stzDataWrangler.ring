@@ -122,7 +122,8 @@ class stzDataWrangler
             @cDataStructure = "table"
             if ring_len(@aHeaders) = 0 and ring_len(@aData) > 0
                 # Generate default headers
-				for i = 1 to ring_len(@aData[1])
+				_nData1Len_ = ring_len(@aData[1])
+				for i = 1 to _nData1Len_
                 	@aHeaders + ("Col" + i)
 				next
             ok
@@ -220,8 +221,10 @@ class stzDataWrangler
     def _HandleMissingInTable(cStrategy)
         nFilled = 0
         
-        for i = 1 to ring_len(@aData)
-            for j = 1 to ring_len(@aData[i])
+        _nDataLen_20 = ring_len(@aData)
+        for i = 1 to _nDataLen_20
+            _nDataiLen_3 = ring_len(@aData[i])
+            for j = 1 to _nDataiLen_3
                 if This._IsMissing(@aData[i][j])
                     if cStrategy = "remove"
                         # Mark row for removal (handled separately)
@@ -229,7 +232,8 @@ class stzDataWrangler
                     else
                         # Get column data for context
 						aColumnData = []
-						for k = 1 to ring_len(@aData)
+						_nDataLen_19 = ring_len(@aData)
+						for k = 1 to _nDataLen_19
                         	aColumnData + @aData[k][j]
 						next
 
@@ -248,7 +252,8 @@ class stzDataWrangler
         nCleaned = 0
 
         if @cDataStructure = "list"
-            for i = 1 to ring_len(@aData)
+            _nDataLen_18 = ring_len(@aData)
+            for i = 1 to _nDataLen_18
                 if isString(@aData[i])
                     cOriginal = @aData[i]
                     @aData[i] = trim(@aData[i])
@@ -258,8 +263,10 @@ class stzDataWrangler
                 ok
             next
         else
-            for i = 1 to ring_len(@aData)
-                for j = 1 to ring_len(@aData[i])
+            _nDataLen_17 = ring_len(@aData)
+            for i = 1 to _nDataLen_17
+                _nDataiLen_2 = ring_len(@aData[i])
+                for j = 1 to _nDataiLen_2
                     if isString(@aData[i][j])
                         cOriginal = @aData[i][j]
                         @aData[i][j] = trim(@aData[i][j])
@@ -285,7 +292,8 @@ class stzDataWrangler
         nNormalized = 0
         
         if @cDataStructure = "list"
-            for i = 1 to ring_len(@aData)
+            _nDataLen_16 = ring_len(@aData)
+            for i = 1 to _nDataLen_16
                 if isString(@aData[i])
                     cOrig = @aData[i]
                     @aData[i] = This._ApplyCaseNormalization(@aData[i], cMode)
@@ -295,8 +303,10 @@ class stzDataWrangler
                 ok
             next
         else
-            for i = 1 to ring_len(@aData)
-                for j = 1 to ring_len(@aData[i])
+            _nDataLen_15 = ring_len(@aData)
+            for i = 1 to _nDataLen_15
+                _nDataiLen_ = ring_len(@aData[i])
+                for j = 1 to _nDataiLen_
                     if isString(@aData[i][j])
                         cOrig = @aData[i][j]
                         @aData[i][j] = This._ApplyCaseNormalization(@aData[i][j], cMode)
@@ -320,9 +330,11 @@ class stzDataWrangler
         aIssues = []
         
         if @cDataStructure = "table"
-            for j = 1 to ring_len(@aHeaders)
+            _nHeadersLen_7 = ring_len(@aHeaders)
+            for j = 1 to _nHeadersLen_7
                 aColumnTypes = []
-                for i = 1 to ring_len(@aData)
+                _nDataLen_14 = ring_len(@aData)
+                for i = 1 to _nDataLen_14
                     if NOT This._IsMissing(@aData[i][j])
                         cType = This._GetDataType(@aData[i][j])
                         if StzFind(aColumnTypes, cType) = 0
@@ -357,7 +369,8 @@ class stzDataWrangler
                 nColIndex = StzFind(@aHeaders, cColumn)
                 
                 if nColIndex > 0
-                    for i = 1 to ring_len(@aData)
+                    _nDataLen_13 = ring_len(@aData)
+                    for i = 1 to _nDataLen_13
                         value = @aData[i][nColIndex]
                         if isNumber(value) and (value < nMin or value > nMax)
                             cIssue = "Row " + i + ", " + cColumn + ": " + value + " outside range [" + nMin + ", " + nMax + "]"
@@ -383,14 +396,16 @@ class stzDataWrangler
         aOutliers = []
         
         if @cDataStructure = "table"
-            for j = 1 to ring_len(@aHeaders)
+            _nHeadersLen_6 = ring_len(@aHeaders)
+            for j = 1 to _nHeadersLen_6
                 aColumnData = This._GetNumericColumnData(j)
                 if ring_len(aColumnData) >= $nWRANGLE_MIN_SAMPLE_SIZE
                     nMean = This._CalculateMean(aColumnData)
                     nStdDev = This._CalculateStdDev(aColumnData)
                     
                     if nStdDev > 0
-                        for i = 1 to ring_len(@aData)
+                        _nDataLen_12 = ring_len(@aData)
+                        for i = 1 to _nDataLen_12
                             value = @aData[i][j]
                             if isNumber(value)
                                 nZScore = abs((value - nMean) / nStdDev)
@@ -426,7 +441,8 @@ class stzDataWrangler
                 nColIndex = StzFind(@aHeaders, cColumn)
                 
                 if nColIndex > 0
-                    for i = 1 to ring_len(@aData)
+                    _nDataLen_11 = ring_len(@aData)
+                    for i = 1 to _nDataLen_11
                         if NOT This._IsMissing(@aData[i][nColIndex])
                             convertedValue = This._ConvertValue(@aData[i][nColIndex], cTargetType)
                             if convertedValue != NULL
@@ -453,14 +469,16 @@ class stzDataWrangler
         nNormalized = 0
         
         if @cDataStructure = "table"
-            for j = 1 to ring_len(@aHeaders)
+            _nHeadersLen_5 = ring_len(@aHeaders)
+            for j = 1 to _nHeadersLen_5
                 aColumnData = This._GetNumericColumnData(j)
                 if ring_len(aColumnData) > 0
                     aNormalizedData = This._NormalizeArray(aColumnData, cMethod)
                     nDataIndex = 1
                     
                     # Apply normalized values back to original positions
-                    for i = 1 to ring_len(@aData)
+                    _nDataLen_10 = ring_len(@aData)
+                    for i = 1 to _nDataLen_10
                         if isNumber(@aData[i][j]) and NOT This._IsMissing(@aData[i][j])
                             @aData[i][j] = aNormalizedData[nDataIndex]
                             nDataIndex++
@@ -485,7 +503,8 @@ class stzDataWrangler
         nEncoded = 0
         
         if @cDataStructure = "table"
-            for j = 1 to ring_len(@aHeaders)
+            _nHeadersLen_4 = ring_len(@aHeaders)
+            for j = 1 to _nHeadersLen_4
                 if This._IsColumnCategorical(j)
                     aUniqueValues = This._GetUniqueColumnValues(j)
                     if cMethod = "label"
@@ -613,7 +632,8 @@ class stzDataWrangler
             return [ @aHeaders, @aData ]
         else
 			aItems = []
-			for i = 1 to ring_len(@aData)
+			_nDataLen_9 = ring_len(@aData)
+			for i = 1 to _nDataLen_9
 				aItems + @aData[i]
 			next
             return [ ["Value"], [ aItems ] ]
@@ -640,7 +660,8 @@ class stzDataWrangler
         else
             # Convert list to single column matrix
 			aItems = []
-			for i = 1 to ring_len(@aData)
+			_nDataLen_8 = ring_len(@aData)
+			for i = 1 to _nDataLen_8
 				if isNumber(@aData[i])
 					aItems + @aData[i]
 				ok
@@ -790,7 +811,8 @@ class stzDataWrangler
     def _ToTitleCase(cText)
         # Simple title case implementation
         aWords = split(cText, " ")
-        for i = 1 to ring_len(aWords)
+        _nWordsLen_ = ring_len(aWords)
+        for i = 1 to _nWordsLen_
             if ring_len(aWords[i]) > 0
                 aWords[i] = StzUpper(StzLeft(aWords[i], 1)) + StzLower(StzMid(aWords[i], 2, StzLen(aWords[i]) - 1))
             ok
@@ -974,9 +996,11 @@ next
         if @cDataStructure != "table" return [] ok
         
         aTypeSummary = []
-        for j = 1 to ring_len(@aHeaders)
+        _nHeadersLen_3 = ring_len(@aHeaders)
+        for j = 1 to _nHeadersLen_3
             aTypes = []
-            for i = 1 to ring_len(@aData)
+            _nDataLen_7 = ring_len(@aData)
+            for i = 1 to _nDataLen_7
                 if NOT This._IsMissing(@aData[i][j])
                     cType = This._GetDataType(@aData[i][j])
                     if StzFind(aTypes, cType) = 0
@@ -1021,7 +1045,8 @@ next
         ok
 
     def _FindRowIndex(aRows, aTargetRow)
-        for i = 1 to ring_len(aRows)
+        _nRowsLen_ = ring_len(aRows)
+        for i = 1 to _nRowsLen_
             if This._RowsEqual(aRows[i], aTargetRow)
                 return i
             ok
@@ -1030,14 +1055,16 @@ next
 
     def _RowsEqual(aRow1, aRow2)
         if ring_len(aRow1) != ring_len(aRow2) return FALSE ok
-        for i = 1 to ring_len(aRow1)
+        _nRow1Len_ = ring_len(aRow1)
+        for i = 1 to _nRow1Len_
             if aRow1[i] != aRow2[i] return FALSE ok
         next
         return TRUE
 
     def _GetNumericColumnData(nColIndex)
         aNumericData = []
-        for i = 1 to ring_len(@aData)
+        _nDataLen_6 = ring_len(@aData)
+        for i = 1 to _nDataLen_6
             if isNumber(@aData[i][nColIndex]) and NOT This._IsMissing(@aData[i][nColIndex])
                 aNumericData + @aData[i][nColIndex]
             ok
@@ -1126,7 +1153,8 @@ next
 
     def _GetUniqueColumnValues(nColIndex)
         aUnique = []
-        for i = 1 to ring_len(@aData)
+        _nDataLen_5 = ring_len(@aData)
+        for i = 1 to _nDataLen_5
             value = @aData[i][nColIndex]
             if NOT This._IsMissing(value) and StzFind(aUnique, value) = 0
                 aUnique + value
@@ -1136,7 +1164,8 @@ next
 
     def _GetNonMissingCount(nColIndex)
         nCount = 0
-        for i = 1 to ring_len(@aData)
+        _nDataLen_4 = ring_len(@aData)
+        for i = 1 to _nDataLen_4
             if NOT This._IsMissing(@aData[i][nColIndex])
                 nCount++
             ok
@@ -1144,7 +1173,8 @@ next
         return nCount
 
     def _ContainsNonNumeric(nColIndex)
-        for i = 1 to ring_len(@aData)
+        _nDataLen_3 = ring_len(@aData)
+        for i = 1 to _nDataLen_3
             value = @aData[i][nColIndex]
             if NOT This._IsMissing(value) and NOT isNumber(value)
                 return TRUE
@@ -1154,7 +1184,8 @@ next
 
     def _ApplyLabelEncoding(nColIndex, aUniqueValues)
         nEncoded = 0
-        for i = 1 to ring_len(@aData)
+        _nDataLen_2 = ring_len(@aData)
+        for i = 1 to _nDataLen_2
             value = @aData[i][nColIndex]
             if NOT This._IsMissing(value)
                 nLabelIndex = StzFind(aUniqueValues, value)
@@ -1167,7 +1198,8 @@ next
         return nEncoded
 
     def _FindInFreqArray(aFreq, item)
-        for i = 1 to ring_len(aFreq)
+        _nFreqLen_ = ring_len(aFreq)
+        for i = 1 to _nFreqLen_
             if aFreq[i][1] = item
                 return i
             ok
@@ -1177,7 +1209,8 @@ next
     def _JoinList(aList, cSeparator)
         if ring_len(aList) = 0 return "" ok
         cResult = "" + aList[1]
-        for i = 2 to ring_len(aList)
+        _nListLen_ = ring_len(aList)
+        for i = 2 to _nListLen_
             cResult += cSeparator + aList[i]
         next
         return cResult
@@ -1186,7 +1219,8 @@ next
         """Standardize column headers for export compatibility"""
         nStandardized = 0
         
-        for i = 1 to ring_len(@aHeaders)
+        _nHeadersLen_2 = ring_len(@aHeaders)
+        for i = 1 to _nHeadersLen_2
             cOriginal = @aHeaders[i]
             cStandardized = This._CleanHeaderName(cOriginal)
             if cOriginal != cStandardized
@@ -1200,7 +1234,8 @@ next
     def _CleanHeaderName(cHeader)
         # Remove special characters, normalize spacing
         cCleaned = ""
-        for i = 1 to ring_len(cHeader)
+        _nHeaderLen_ = ring_len(cHeader)
+        for i = 1 to _nHeaderLen_
             cChar = cHeader[i]
             if isalnum(cChar) or cChar = "_"
                 cCleaned += cChar
@@ -1221,8 +1256,10 @@ next
         nFormatted = 0
         
         if @cDataStructure = "table"
-            for j = 1 to ring_len(@aHeaders)
-                for i = 1 to ring_len(@aData)
+            _nHeadersLen_ = ring_len(@aHeaders)
+            for j = 1 to _nHeadersLen_
+                _nDataLen_ = ring_len(@aData)
+                for i = 1 to _nDataLen_
                     if This._IsDate(@aData[i][j])
                         cFormatted = This._StandardizeDateFormat(@aData[i][j])
                         if cFormatted != @aData[i][j]

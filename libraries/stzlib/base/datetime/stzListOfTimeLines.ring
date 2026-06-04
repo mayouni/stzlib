@@ -61,7 +61,8 @@ class stzListOfTimeLines from stzObject
 				# every init-set lane unreachable.
 				_aLnsTmp_ = p[:Lanes]
 				@aLanes = []
-				for _iLn_ = 1 to ring_len(_aLnsTmp_)
+				_n_aLnsTmpLen_ = ring_len(_aLnsTmp_)
+				for _iLn_ = 1 to _n_aLnsTmpLen_
 					@aLanes + StzUpper(_aLnsTmp_[_iLn_])
 				next
 			else

@@ -39,7 +39,8 @@ acUrls = [
     "https://api.github.com/users/mayouni/repos/stzlib"
 ]
 
-for i = 1 to len(acUrls)
+_nUrlsLen_ = ring_len(acUrls)
+for i = 1 to _nUrlsLen_
     Rs.HttpGet(acUrls[i],
         func cResponse { 
             oHttpStream.Recieve(cResponse) 

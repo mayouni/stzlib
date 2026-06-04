@@ -2549,7 +2549,8 @@ class stzGraph
 			acNeighbors = This.Neighbors(cCurrent)
 			acIncoming = This.Incoming(cCurrent)
 			
-			for i = 1 to ring_len(acNeighbors)
+			_nNeighborsLen_ = ring_len(acNeighbors)
+			for i = 1 to _nNeighborsLen_
 				cNext = acNeighbors[i]
 				if StzFind(acVisited, cNext) = 0
 					acVisited + cNext
@@ -2557,7 +2558,8 @@ class stzGraph
 				ok
 			end
 			
-			for i = 1 to ring_len(acIncoming)
+			_nIncomingLen_ = ring_len(acIncoming)
+			for i = 1 to _nIncomingLen_
 				cNext = acIncoming[i]
 				if StzFind(acVisited, cNext) = 0
 					acVisited + cNext
@@ -5515,7 +5517,8 @@ class stzGraphFinder
 			
 			if HasKey(aElement, acPath[1])
 				pValue = aElement[acPath[1]]
-				for i = 2 to ring_len(acPath)
+				_nPathLen_3 = ring_len(acPath)
+				for i = 2 to _nPathLen_3
 					if isList(pValue) and HasKey(pValue, acPath[i])
 						pValue = pValue[acPath[i]]
 					else
@@ -5526,7 +5529,8 @@ class stzGraphFinder
 				
 			but HasKey(aElement, "properties")
 				pValue = aElement["properties"]
-				for i = 1 to ring_len(acPath)
+				_nPathLen_2 = ring_len(acPath)
+				for i = 1 to _nPathLen_2
 					if isList(pValue) and HasKey(pValue, acPath[i])
 						pValue = pValue[acPath[i]]
 					else

@@ -149,7 +149,8 @@ class stzRegexuter
 			if ring_len(aMatches) > 0
 				aActiveComputations + cTriggerName
 
-				for i = 1 to ring_len(aMatches)
+				_nMatchesLen_ = ring_len(aMatches)
+				for i = 1 to _nMatchesLen_
 					match = aMatches[i]
 					# Get position using MatchAt()
 					nPos = oStzStr.FindFirst(match)

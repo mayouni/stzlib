@@ -336,7 +336,8 @@ class stzTimeLine from stzObject
 			nPos = 0
 	
 			# Find if name already counted
-			for j = 1 to ring_len(aCounts)
+			_nCountsLen_2 = ring_len(aCounts)
+			for j = 1 to _nCountsLen_2
 				if aCounts[j][1] = cLabel
 					nPos = j
 					exit
@@ -385,7 +386,8 @@ class stzTimeLine from stzObject
 			nPos = 0
 	
 			# Find if name already counted
-			for j = 1 to ring_len(aCounts)
+			_nCountsLen_ = ring_len(aCounts)
+			for j = 1 to _nCountsLen_
 				if aCounts[j][1] = cLabel
 					nPos = j
 					exit

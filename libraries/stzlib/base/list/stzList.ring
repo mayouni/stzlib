@@ -2294,7 +2294,8 @@ class stzList from stzObject
 		nLen = ring_len(paItems)
 		for i = 1 to nLen
 			anPos = This.FindAllOccurrencesCS(paItems[i], pCaseSensitive)
-			for j = 1 to ring_len(anPos)
+			_nPosLen_ = ring_len(anPos)
+			for j = 1 to _nPosLen_
 				anResult + anPos[j]
 			next
 		next
@@ -4262,7 +4263,8 @@ class stzList from stzObject
 			ok
 			if ring_find(_aTypes_, lower(_cLast_)) > 0
 				_cT_ = _cLast_
-				for _i_ = 1 to ring_len(pSide) - 1
+				_nSideLen_ = ring_len(pSide)
+				for _i_ = 1 to _nSideLen_ - 1
 					_aP_ + pSide[_i_]
 				next
 			else

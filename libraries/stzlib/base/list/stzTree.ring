@@ -385,7 +385,8 @@ class stzTree from stzList
 		aItems = This.Items()
 		aItemPaths = []
 		
-		for i = 1 to ring_len(aItems)
+		_nItemsLen_3 = ring_len(aItems)
+		for i = 1 to _nItemsLen_3
 			aItemPaths + []
 		next
 		
@@ -395,7 +396,8 @@ class stzTree from stzList
 		This._MapItemsToPathsCS(aRootContent, "[:root]", aItems, aItemPaths, pCaseSensitive)
 		
 		aResult = []
-		for i = 1 to ring_len(aItems)
+		_nItemsLen_2 = ring_len(aItems)
+		for i = 1 to _nItemsLen_2
 			aResult + [ aItems[i], aItemPaths[i] ]
 		next
 		
@@ -464,12 +466,14 @@ class stzTree from stzList
 		aResult = []
 		aItemsAndBranches = This.ItemsXTCS(pCaseSensitive)
 		
-		for i = 1 to ring_len(aItemsAndBranches)
+		_nItemsAndBranchesLen_2 = ring_len(aItemsAndBranches)
+		for i = 1 to _nItemsAndBranchesLen_2
 			if aItemsAndBranches[i][1] = pItem
 				aBranches = aItemsAndBranches[i][2]
 				aPositions = This._FindItemPositionsAt(pItem, aBranches, pCaseSensitive)
 				
-				for j = 1 to ring_len(aBranches)
+				_nBranchesLen_3 = ring_len(aBranches)
+				for j = 1 to _nBranchesLen_3
 					# Concatenate branch path with position directly
 					if aPositions[j] != ""
 						aResult + (aBranches[j] + aPositions[j])
@@ -496,11 +500,13 @@ class stzTree from stzList
 	def _FindItemPositionsAt(pItem, paBranches, pCaseSensitive)
 		aPositions = []
 		
-		for i = 1 to ring_len(paBranches)
+		_nBranchesLen_2 = ring_len(paBranches)
+		for i = 1 to _nBranchesLen_2
 			aNodeContent = This.NodeAt(paBranches[i])
 			nPos = 0
 			
-			for j = 1 to ring_len(aNodeContent)
+			_nNodeContentLen_2 = ring_len(aNodeContent)
+			for j = 1 to _nNodeContentLen_2
 				if pCaseSensitive = 1
 					if aNodeContent[j] = pItem
 						nPos = j
@@ -530,7 +536,8 @@ class stzTree from stzList
 		aNodeContent = This.NodeAtBranch(pcBranch)
 		nPos = 0
 		
-		for i = 1 to ring_len(aNodeContent)
+		_nNodeContentLen_ = ring_len(aNodeContent)
+		for i = 1 to _nNodeContentLen_
 			if pCaseSensitive = 1
 				if aNodeContent[i] = pItem
 					nPos = i
@@ -557,7 +564,8 @@ class stzTree from stzList
 		aResult = []
 		nLen = ring_len(paItems)
 
-		for i = 1 to ring_len(paItems)
+		_nItemsLen_ = ring_len(paItems)
+		for i = 1 to _nItemsLen_
 			aBranchesWithPos = This.FindItemCS(paItems[i], pCaseSensitive)
 			nLen2 = ring_len(aBranchesWithPos)
 			for j = 1 to nLen2
@@ -576,12 +584,14 @@ class stzTree from stzList
 		aResult = []
 		aItemsAndBranches = This.ItemsXTCS(pCaseSensitive)
 
-		for i = 1 to ring_len(aItemsAndBranches)
+		_nItemsAndBranchesLen_ = ring_len(aItemsAndBranches)
+		for i = 1 to _nItemsAndBranchesLen_
 			cItem = aItemsAndBranches[i][1]
 			aBranches = aItemsAndBranches[i][2]
 			aPositions = This._FindItemPositionsAt(cItem, aBranches, pCaseSensitive)
 
-			for j = 1 to ring_len(aBranches)
+			_nBranchesLen_ = ring_len(aBranches)
+			for j = 1 to _nBranchesLen_
 				# Concatenate branch path with position directly
 				if aPositions[j] != ""
 					aResult + (aBranches[j] + aPositions[j])

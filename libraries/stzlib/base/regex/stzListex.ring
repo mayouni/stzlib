@@ -63,7 +63,8 @@ class stzListex
 		aParts = SplitAtTopLevelCommas(cInner)
 
 		aTokens = []
-		for i = 1 to ring_len(aParts)
+		_nPartsLen_3 = ring_len(aParts)
+		for i = 1 to _nPartsLen_3
 			aTokens + This.ParseToken(@trim(aParts[i]))
 		next
 
@@ -75,7 +76,8 @@ class stzListex
 		aNestedTokens = []
 		aParts = SplitAtTopLevelCommas(cInner)
 
-		for i = 1 to ring_len(aParts)
+		_nPartsLen_2 = ring_len(aParts)
+		for i = 1 to _nPartsLen_2
 			aToken = This.ParseToken(@trim(aParts[i]))
 			# Inherit case sensitivity if not specified
 			if NOT HasKey(aToken, "casesensitive")
@@ -395,7 +397,8 @@ class stzListex
 		aValues = []
 		aParts = @split(cSetContent, ";")
 		
-		for i = 1 to ring_len(aParts)
+		_nPartsLen_ = ring_len(aParts)
+		for i = 1 to _nPartsLen_
 			cValue = @trim(aParts[i])
 			
 			if cValue = ""
@@ -433,7 +436,8 @@ class stzListex
 				if bCheckUnique
 					# For uniqueness check, compare unquoted values
 					cCheck1 = @substr(cNormalizedValue, 2, ring_len(cNormalizedValue) - 1)
-					for j = 1 to ring_len(aValues)
+					_nValuesLen_2 = ring_len(aValues)
+					for j = 1 to _nValuesLen_2
 						cCheck2 = @substr(aValues[j], 2, ring_len(aValues[j]) - 1)
 						if cCheck1 = cCheck2
 							raise("Error: Duplicate value in unique set: " + cValue)
@@ -515,7 +519,8 @@ class stzListex
 		cCacheKey = @cPattern + "|" + cListSig
 		
 		# Check cache
-		for i = 1 to ring_len(@aMatchCache)
+		_nMatchCacheLen_ = ring_len(@aMatchCache)
+		for i = 1 to _nMatchCacheLen_
 			if @aMatchCache[i][1] = cCacheKey
 				This.DebugLog("Match", "Cache hit!")
 				return @aMatchCache[i][2]
@@ -582,7 +587,8 @@ class stzListex
 		ok
 
 		aLocalUsedValues = []
-		for i = 1 to ring_len(aUsedValues)
+		_nUsedValuesLen_ = ring_len(aUsedValues)
+		for i = 1 to _nUsedValuesLen_
 			aLocalUsedValues + aUsedValues[i]
 		next
 
@@ -592,7 +598,8 @@ class stzListex
 				? ">>> Alternation token with " + ring_len(aToken[:alternatives]) + " alternatives"
 			ok
 			
-			for i = 1 to ring_len(aToken[:alternatives])
+			_nTokenalternativesLen_ = ring_len(aToken[:alternatives])
+			for i = 1 to _nTokenalternativesLen_
 				aAltTokens = aToken[:alternatives]
 				aNewTokens = []
 
@@ -702,7 +709,8 @@ class stzListex
 			aLocalUsedValuesCopy = []
 			
 			# Copy used values
-			for i = 1 to ring_len(aLocalUsedValues)
+			_nLocalUsedValuesLen_ = ring_len(aLocalUsedValues)
+			for i = 1 to _nLocalUsedValuesLen_
 				aLocalUsedValuesCopy + aLocalUsedValues[i]
 			next
 
@@ -762,7 +770,8 @@ class stzListex
 							bCaseSensitive = aToken[:casesensitive]
 						ok
 
-						for j = 1 to ring_len(aToken[:setvalues])
+						_nTokensetvaluesLen_ = ring_len(aToken[:setvalues])
+						for j = 1 to _nTokensetvaluesLen_
 							xSetValue = aToken[:setvalues][j]
 
 							if This.CompareValues(xElemValue, xSetValue, aToken[:type], bCaseSensitive)
@@ -800,7 +809,8 @@ class stzListex
 								? ">>> Already used: " + @@(aLocalUsedValuesCopy)
 							ok
 							
-							for j = 1 to ring_len(aLocalUsedValuesCopy)
+							_nLocalUsedValuesCopyLen_ = ring_len(aLocalUsedValuesCopy)
+							for j = 1 to _nLocalUsedValuesCopyLen_
 								if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type], bCaseSensitive)
 									bDuplicate = TRUE
 									if @bDebugMode
@@ -1016,7 +1026,8 @@ class stzListex
 	def TokensInfo()
 		aInfo = []
 		
-		for i = 1 to ring_len(@aTokens)
+		_nTokensLen_2 = ring_len(@aTokens)
+		for i = 1 to _nTokensLen_2
 			aToken = @aTokens[i]
 			cInfo = "Token #" + i + ": " + aToken[:keyword]
 			
@@ -1050,7 +1061,8 @@ class stzListex
 	def JoinSetValues(aValues)
 		cResult = ""
 		
-		for i = 1 to ring_len(aValues)
+		_nValuesLen_ = ring_len(aValues)
+		for i = 1 to _nValuesLen_
 			if i > 1
 				cResult += "; "
 			ok
@@ -1070,7 +1082,8 @@ class stzListex
 		]
 		
 		aTokenDetails = []
-		for i = 1 to ring_len(@aTokens)
+		_nTokensLen_ = ring_len(@aTokens)
+		for i = 1 to _nTokensLen_
 			aToken = @aTokens[i]
 			aTokenDetails + [
 				["Index", i],

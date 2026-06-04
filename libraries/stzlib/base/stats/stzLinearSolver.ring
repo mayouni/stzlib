@@ -95,7 +95,8 @@ class stzLinearSolver from stzObject
 
 	def variableNames()
 		aNames = []
-		for i = 1 to ring_len(@variables)
+		_nVariablesLen_ = ring_len(@variables)
+		for i = 1 to _nVariablesLen_
 			aNames + @variables[i][:name]
 		next
 		return aNames

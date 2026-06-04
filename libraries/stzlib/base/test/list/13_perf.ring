@@ -18,7 +18,8 @@ aLarge = 1 : 300_000
 
 aList = [ "A" : "Z", [ 10 : 12, [ "_", "_"] ], [ NullObject(), TRUEObject() ] ]
 for j = 1 to 20_000
-	for i = 1 to len(aList)
+	_nListLen_ = ring_len(aList)
+	for i = 1 to _nListLen_
 		aLarge + aList[i]
 	next
 next

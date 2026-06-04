@@ -722,7 +722,8 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 	def TokensInfo()
 		aInfo = []
 		
-		for i = 1 to ring_len(@aTokens)
+		_nTokensLen_ = ring_len(@aTokens)
+		for i = 1 to _nTokensLen_
 			aToken = @aTokens[i]
 			cInfo = "Token #" + i + ": " + aToken[:keyword]
 			

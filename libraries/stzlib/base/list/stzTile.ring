@@ -81,7 +81,8 @@ Class stzTile From stzGrid
 		# Add path
 		if @bShowPath and len(@aPath) > 0
 			# Mark ALL path cells with the path character
-			for i = 1 to len(@aPath)
+			_nPathLen_ = ring_len(@aPath)
+			for i = 1 to _nPathLen_
 				nPathCol = @aPath[i][1]
 				nPathRow = @aPath[i][2]
 	

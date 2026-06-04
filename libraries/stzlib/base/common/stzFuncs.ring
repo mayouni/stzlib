@@ -5624,9 +5624,11 @@ class stzForEachObjectOld
 
 	def @(pcCode)
 
-		for i = 1 to ring_len(@aValues)
+		_nValuesLen_2 = ring_len(@aValues)
+		for i = 1 to _nValuesLen_2
 
-			for j = 1 to ring_len(@aValues[i])
+			_nValuesiLen_3 = ring_len(@aValues[i])
+			for j = 1 to _nValuesiLen_3
 				cCode = @acVars[j] + ' = @aValues[i][j]'
 				eval(cCode)
 			next
@@ -5698,13 +5700,16 @@ class stzForEachObject
 	
 			@aDataVars = []
 	
-			for i = 1 to ring_len(p)
+			_nPLen_ = ring_len(p)
+			for i = 1 to _nPLen_
 				@aDataVars + [ p[i], [] ]
 			next
 	
 	
-			for i = 1 to ring_len(@aDataVars)
-				for j = 1 to ring_len(@aValues)
+			_nDataVarsLen_ = ring_len(@aDataVars)
+			for i = 1 to _nDataVarsLen_
+				_nValuesLen_ = ring_len(@aValues)
+				for j = 1 to _nValuesLen_
 					@aDataVars[i][2] + @aValues[j][i]
 				next
 			next
@@ -5814,7 +5819,8 @@ class stzForEachObject
 
 			for i = 1 to nLen
 				@i = @Iterations[i]
-				for j = 1 to ring_len(@aValues[@i])
+				_nValuesiLen_2 = ring_len(@aValues[@i])
+				for j = 1 to _nValuesiLen_2
 					cCode = @acVars[j] + ' = @aValues[' + @Iterations[i] + '][' + j + ']'
 					eval(cCode)
 				next
@@ -5864,7 +5870,8 @@ class stzForEachObject
 
 			for i = 1 to nLen
 				@i = anPos[i]
-				for j = 1 to ring_len(@aValues[@i])
+				_nValuesiLen_ = ring_len(@aValues[@i])
+				for j = 1 to _nValuesiLen_
 					cCode = @acVars[j] + ' = @aValues[' + anPos[i] + '][' + j + ']'
 					eval(cCode)
 				next

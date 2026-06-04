@@ -5838,7 +5838,8 @@ class stzNumber from stzObject
 
 				# Reading the rounded fraction part
 				cFractionalPart = ""
-				for i = StzFind(cTempNumber, ".") + 1 to ring_len(cTempNumber)
+				_nTempNumberLen_ = ring_len(cTempNumber)
+				for i = StzFind(cTempNumber, ".") + 1 to _nTempNumberLen_
 					cFractionalPart += cTempNumber[i]
 				next
 			ok

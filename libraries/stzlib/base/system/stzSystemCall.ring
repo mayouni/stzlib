@@ -289,7 +289,8 @@ class stzSystemCall
 		if @cProgram = "cmd.exe" and ring_len(@acArgs) > 1 and @acArgs[1] = "/c"
 			cCmd = "cmd.exe /c "
 			cCommand = ""
-			for i = 2 to ring_len(@acArgs)
+			_nArgsLen_3 = ring_len(@acArgs)
+			for i = 2 to _nArgsLen_3
 				cArg = @acArgs[i]
 				if i > 2
 					cCommand += " "
@@ -315,7 +316,8 @@ class stzSystemCall
 			else
 				cCmd = @cProgram
 			ok
-			for i = 1 to ring_len(@acArgs)
+			_nArgsLen_2 = ring_len(@acArgs)
+			for i = 1 to _nArgsLen_2
 				if StzFind(@acArgs[i], " ") > 0
 					cCmd += ' "' + @acArgs[i] + '"'
 				else
@@ -424,7 +426,8 @@ class stzSystemCall
 			cValue = StzReplace(cValue, "/", "\")
 		ok
 
-		for i = 1 to ring_len(@acArgs)
+		_nArgsLen_ = ring_len(@acArgs)
+		for i = 1 to _nArgsLen_
 			@acArgs[i] = StzReplace(@acArgs[i], "{" + cParam + "}", cValue)
 		next
 

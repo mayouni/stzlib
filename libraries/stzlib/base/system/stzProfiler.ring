@@ -32,7 +32,8 @@ func Assemble(pcPart1, pcPart2, pcPart3)
 	# <MetaCode> : The function becomes aware of its local variables names, types, and values
 		aLocals = locals()
 		aVars = []
-		for v= len(aMeta[:params])+3 to len(aLocals)-4
+		_nLocalsLen_ = ring_len(aLocals)
+		for v = len(aMeta[:params])+3 to _nLocalsLen_-4
 			cCode = "aVars + [ aLocals[v], [ :type = ring_type(" + aLocals[v] + "), :value = " + aLocals[v] + " ] ]"
 			eval(cCode)
 		next

@@ -283,7 +283,8 @@ class stzTableSubset from stzTable
 		nCols = This.NumberOfCols()
 
 		bAllValid = 1
-		for _i = 1 to ring_len(panColNumbers)
+		_nPanColNumbersLen_ = ring_len(panColNumbers)
+		for _i = 1 to _nPanColNumbersLen_
 			if panColNumbers[_i] < 1 or panColNumbers[_i] > nCols
 				bAllValid = 0
 				exit

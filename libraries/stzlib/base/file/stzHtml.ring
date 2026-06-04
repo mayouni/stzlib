@@ -523,7 +523,8 @@ class stzCSS
 		@aRules = []
 		oStr = new stzString(@cCss)
 		aBlocks = oStr.SplitToListOfStrings("{}")
-		for i=1 to ring_len(aBlocks) step 2
+		_nBlocksLen_ = ring_len(aBlocks)
+		for i = 1 to _nBlocksLen_ step 2
 			cSelector = trim(aBlocks[i])
 			cDeclarations = trim(aBlocks[i+1])
 			aDecl = StzStringQ(cDeclarations).Split(";")

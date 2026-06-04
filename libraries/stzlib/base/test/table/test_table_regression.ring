@@ -73,7 +73,8 @@ aAges = oT.Col(:age)
 chk("Col(:age) returns numeric list",      isList(aAges) and isNumber(aAges[1]))
 # Sum manually
 nSum = 0
-for i = 1 to len(aAges) nSum += aAges[i] next
+_nAgesLen_ = ring_len(aAges)
+for i = 1 to _nAgesLen_ nSum += aAges[i] next
 chk("Sum of ages = 105 (35+28+42)",        nSum = 105)
 
 # ------------------------------------------------------------

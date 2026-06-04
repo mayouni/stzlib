@@ -85,7 +85,8 @@ if len(acSubs) = 6
     ? "  PASS (6 substrings)"
 else
     ? "  Got " + len(acSubs) + " substrings"
-    for i = 1 to len(acSubs)
+    _nSubsLen_ = ring_len(acSubs)
+    for i = 1 to _nSubsLen_
         ? "    [" + acSubs[i] + "]"
     next
 ok

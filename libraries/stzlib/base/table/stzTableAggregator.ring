@@ -1333,7 +1333,8 @@ class stzTableAggregator from stzTable
 
 			# Convert group key to string for easy comparison
 			cGroupKey = ""
-			for i = 1 to ring_len(aGroupKey)
+			_nGroupKeyLen_ = ring_len(aGroupKey)
+			for i = 1 to _nGroupKeyLen_
 				cGroupKey += ""+ aGroupKey[i] + '|'
 			next
 
@@ -1355,7 +1356,8 @@ class stzTableAggregator from stzTable
 		acColNames = This.ColNames()
 
 		# Add all columns to result
-		for i = 1 to ring_len(acColNames)
+		_nColNamesLen_3 = ring_len(acColNames)
+		for i = 1 to _nColNamesLen_3
 			aResult + [ acColNames[i], [] ]
 		next
 
@@ -1363,10 +1365,12 @@ class stzTableAggregator from stzTable
 		nLenGroups = ring_len(aUniqueGroups)
 		for i = 1 to nLenGroups
 			aRows = aGroupedRows[i]
-			for j = 1 to ring_len(aRows)
+			_nRowsLen_ = ring_len(aRows)
+			for j = 1 to _nRowsLen_
 				aRow = aRows[j]
 				# Add each value to its column
-				for k = 1 to ring_len(aRow)
+				_nRowLen_ = ring_len(aRow)
+				for k = 1 to _nRowLen_
 					aResult[k][2] + aRow[k]
 				next
 			next
@@ -1694,12 +1698,14 @@ class stzTableAggregator from stzTable
 	        ok
 
 	        # Process each hobby in the list
-	        for j = 1 to ring_len(vCellValue)
+	        _nVCellValueLen_ = ring_len(vCellValue)
+	        for j = 1 to _nVCellValueLen_
 	            cHobby = vCellValue[j]
 
 	            # Find this hobby in our map
 	            nHobbyIndex = 0
-	            for k = 1 to ring_len(aHobbyMap)
+	            _nHobbyMapLen_2 = ring_len(aHobbyMap)
+	            for k = 1 to _nHobbyMapLen_2
 	                if aHobbyMap[k][1] = cHobby
 	                    nHobbyIndex = k
 	                    exit
@@ -1712,7 +1718,8 @@ class stzTableAggregator from stzTable
 	            else
 	                # Existing hobby, check if row already exists
 	                bFound = FALSE
-	                for r = 1 to ring_len(aHobbyMap[nHobbyIndex][2])
+	                _nHobbyMapnHobbyIndex2Len_ = ring_len(aHobbyMap[nHobbyIndex][2])
+	                for r = 1 to _nHobbyMapnHobbyIndex2Len_
 	                    if aHobbyMap[nHobbyIndex][2][r] = nRow
 	                        bFound = TRUE
 	                        exit
@@ -1732,7 +1739,8 @@ class stzTableAggregator from stzTable
 	    acColNames = This.ColNames()
 
 	    # Add all other columns except the list column
-	    for i = 1 to ring_len(acColNames)
+	    _nColNamesLen_2 = ring_len(acColNames)
+	    for i = 1 to _nColNamesLen_2
 	        if acColNames[i] != cListColumn
 	            aNewColumns + acColNames[i]
 	        ok
@@ -1740,17 +1748,20 @@ class stzTableAggregator from stzTable
 
 	    # Create the result table structure
 	    aResult = []
-	    for i = 1 to ring_len(aNewColumns)
+	    _nNewColumnsLen_ = ring_len(aNewColumns)
+	    for i = 1 to _nNewColumnsLen_
 	        aResult + [aNewColumns[i], []]
 	    next
 
 	    # Fill in the data for each hobby group
-	    for i = 1 to ring_len(aHobbyMap)
+	    _nHobbyMapLen_ = ring_len(aHobbyMap)
+	    for i = 1 to _nHobbyMapLen_
 	        cHobby = aHobbyMap[i][1]
 	        aRowIndices = aHobbyMap[i][2]
 
 	        # For each row that has this hobby
-	        for j = 1 to ring_len(aRowIndices)
+	        _nRowIndicesLen_ = ring_len(aRowIndices)
+	        for j = 1 to _nRowIndicesLen_
 	            nRowIndex = aRowIndices[j]
 
 	            # Add the hobby as the first column value
@@ -1758,7 +1769,8 @@ class stzTableAggregator from stzTable
 
 	            # Add all other columns from the original row
 	            nColOffset = 2  # Start from second column
-	            for k = 1 to ring_len(acColNames)
+	            _nColNamesLen_ = ring_len(acColNames)
+	            for k = 1 to _nColNamesLen_
 	                if acColNames[k] != cListColumn
 	                    nColIndex = This.FindCol(acColNames[k])
 	                    aResult[nColOffset][2] + This.Cell(nColIndex, nRowIndex)

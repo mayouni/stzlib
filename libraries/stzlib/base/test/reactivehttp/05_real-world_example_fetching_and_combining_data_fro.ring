@@ -56,7 +56,8 @@ class DataAggregator
         ? "Fetching data from " + nTotalRequests + " different sources..." + NL
         
         # Fetch from all sources simultaneously (parallel requests)
-        for i = 1 to ring_len(aApiSources)
+        _nApiSourcesLen_ = ring_len(aApiSources)
+        for i = 1 to _nApiSourcesLen_
             aSource = aApiSources[i]
             cName = aSource[1]
             cUrl = aSource[2]

@@ -152,7 +152,8 @@ Class stzTable from stzList
 			# 	:SALARY   = []
 			#    ]
 
-			for r = 2 to len(paTable)
+			_nTableLen_ = ring_len(paTable)
+			for r = 2 to _nTableLen_
 				i = 0
 				nLen = len(paTable[r])
 
@@ -183,7 +184,8 @@ Class stzTable from stzList
 			aTempTable = []
 
 			acColNames = []
-			for i = 1 to len(paTable[1])
+			_nTable1Len_ = ring_len(paTable[1])
+			for i = 1 to _nTable1Len_
 				acColNames + ("col" + i)
 			next
 
@@ -284,7 +286,8 @@ Class stzTable from stzList
 		ok
 		for i = 1 to nLen
 			aCol = @aContent[i][2]
-			for j = 1 to len(aCol)
+			_nColLen_ = ring_len(aCol)
+			for j = 1 to _nColLen_
 				if aCol[j] != NULL
 					return 0
 				ok

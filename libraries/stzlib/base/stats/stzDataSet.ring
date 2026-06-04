@@ -3168,7 +3168,8 @@ class stzDataSet
 
         but isList(value)
             cResult = "["
-            for i = 1 to ring_len(value)
+            _nValueLen_ = ring_len(value)
+            for i = 1 to _nValueLen_
                 cResult += This._FormatValue(value[i])
                 if i < ring_len(value)
                     cResult += ", "
@@ -3635,7 +3636,8 @@ class stzDataSet
         # Build execution code
         cCode = "result = " + cFunction + "("
         if ring_len(aArgs) > 0
-            for i = 1 to ring_len(aArgs)
+            _nArgsLen_2 = ring_len(aArgs)
+            for i = 1 to _nArgsLen_2
                 cCode += aArgs[i]
                 if i < ring_len(aArgs)
                     cCode += ", "
@@ -3692,7 +3694,8 @@ class stzDataSet
     
     def _FormatArgs(aArgs)
         cResult = ""
-        for i = 1 to ring_len(aArgs)
+        _nArgsLen_ = ring_len(aArgs)
+        for i = 1 to _nArgsLen_
             cResult += aArgs[i]
             if i < ring_len(aArgs)
                 cResult += ", "

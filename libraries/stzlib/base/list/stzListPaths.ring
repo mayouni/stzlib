@@ -589,7 +589,8 @@ func LongestPath(aPaths)
     aLongest = aPaths[1]
     nMaxLen = len(aLongest)
     
-    for i = 2 to len(aPaths)
+    _nPathsLen_2 = ring_len(aPaths)
+    for i = 2 to _nPathsLen_2
         if len(aPaths[i]) > nMaxLen
             aLongest = aPaths[i]
             nMaxLen = len(aLongest)
@@ -611,7 +612,8 @@ func ShortestPath(aPaths)
     aShortest = aPaths[1]
     nMinLen = len(aShortest)
     
-    for i = 2 to len(aPaths)
+    _nPathsLen_ = ring_len(aPaths)
+    for i = 2 to _nPathsLen_
         if len(aPaths[i]) < nMinLen
             aShortest = aPaths[i]
             nMinLen = len(aShortest)

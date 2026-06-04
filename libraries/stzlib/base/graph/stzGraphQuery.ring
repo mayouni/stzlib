@@ -189,7 +189,8 @@ class stzGraphQuery
 			# Check for simple [:nodes] or first element patterns
 			if ring_len(paParams) > 0 and (paParams[1] = :nodes or paParams[1] = :node)
 				# Look for :where, :labeled, :props in subsequent elements
-				for i = 2 to ring_len(paParams)
+				_nParamsLen_3 = ring_len(paParams)
+				for i = 2 to _nParamsLen_3
 					if isList(paParams[i]) and ring_len(paParams[i]) >= 2
 						if paParams[i][1] = :where
 							aWhere = paParams[i][2]
@@ -252,7 +253,8 @@ class stzGraphQuery
 		
 		if isList(paParams)
 			# Extract from list format
-			for i = 1 to ring_len(paParams)
+			_nParamsLen_2 = ring_len(paParams)
+			for i = 1 to _nParamsLen_2
 				if isList(paParams[i]) and ring_len(paParams[i]) >= 2
 					if paParams[i][1] = :from
 						aInternal["from"] = paParams[i][2]
@@ -586,7 +588,8 @@ class stzGraphQuery
 			]
 			
 			# Extract from list format
-			for i = 2 to ring_len(paParams)
+			_nParamsLen_ = ring_len(paParams)
+			for i = 2 to _nParamsLen_
 				if isList(paParams[i]) and ring_len(paParams[i]) >= 2
 					if paParams[i][1] = :from
 						aInternal["from"] = paParams[i][2]

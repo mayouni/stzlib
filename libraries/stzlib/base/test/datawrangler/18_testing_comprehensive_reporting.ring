@@ -3,7 +3,7 @@
 # Testing comprehensive reporting
 #
 # Extracted from stzdatawranglertest.ring, block #18.
-#ERR exit 1: Line 821 Bad parameter type!
+#ERR exit 1: Line 843 Bad parameter type!
 
 load "../../stzBase.ring"
 

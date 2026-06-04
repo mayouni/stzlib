@@ -30,7 +30,8 @@ class stzContextPool
 
 	def Release(oContext)
 		# Find and remove from active
-		for i = 1 to ring_len(aActive)
+		_nActiveLen_ = ring_len(aActive)
+		for i = 1 to _nActiveLen_
 			if aActive[i] = oContext
 				del(aActive, i)
 				exit

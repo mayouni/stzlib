@@ -21,7 +21,8 @@ bContinue = TRUE
 
 while TRUE
 
-	for i = 2 to len(aList)
+	_nListLen_ = ring_len(aList)
+	for i = 2 to _nListLen_
 	
 		if find(aList1, aList[i-1]) > 0 and
 		   find(aList2, aList[i]) > 0

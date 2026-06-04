@@ -149,7 +149,8 @@ class stzBarPlot
 				@anValues = aValues
 				_aBpKeys_ = oHash.Keys()
 				@acLabels = []
-				for _iBpK_ = 1 to ring_len(_aBpKeys_)
+				_n_aBpKeysLen_ = ring_len(_aBpKeys_)
+				for _iBpK_ = 1 to _n_aBpKeysLen_
 					@acLabels + StzCapitalize(_aBpKeys_[_iBpK_])
 				next
 			ok

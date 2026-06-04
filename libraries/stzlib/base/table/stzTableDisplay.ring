@@ -668,7 +668,8 @@ class stzTableDisplay from stzTable
 
 	    # Get data columns (skip first column which contains headers)
 	    aDataColumns = []
-	    for i = 2 to ring_len(@aContent)
+	    _nContentLen_ = ring_len(@aContent)
+	    for i = 2 to _nContentLen_
 	        aDataColumns + @aContent[i][2]
 	    next
 
