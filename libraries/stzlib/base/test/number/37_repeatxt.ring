@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stznumbertest.ring, block #37.
-#ERR Error (R14) : Calling Method without definition: replaceallq
+#ERR Error (R14) : Calling Method without definition: fillq
 
 load "../../stzBase.ring"
 

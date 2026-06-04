@@ -1671,6 +1671,45 @@ class stzString from stzObject
 	def Split(pcSep)
 		return This._SplitByStr(pcSep)
 
+	# SplitToNParts: split the string into fixed-size character chunks
+	# of n characters each. The split is RIGHT-anchored (counting from
+	# the end of the string), which is the natural shape for digit
+	# grouping -- "1234567" with n=3 gives ["1", "234", "567"]. The
+	# Q form returns a stzList wrapper for fluent chaining.
+
+	def SplitToNParts(n)
+		if NOT (isNumber(n) and n > 0)
+			StzRaise("SplitToNParts: n must be a positive number.")
+		ok
+		_aPartsR_ = []
+		_cSrc_ = This.Content()
+		_nSrcLen_ = ring_len(_cSrc_)
+		_iEnd_ = _nSrcLen_
+		while _iEnd_ > 0
+			_iStart_ = _iEnd_ - n + 1
+			if _iStart_ < 1
+				_iStart_ = 1
+			ok
+			_aPartsR_ + substr(_cSrc_, _iStart_, _iEnd_ - _iStart_ + 1)
+			_iEnd_ = _iStart_ - 1
+		end
+		# _aPartsR_ is right-to-left; reverse to natural left-to-right
+		_aParts_ = []
+		_nPLen_ = ring_len(_aPartsR_)
+		for _iSp_ = _nPLen_ to 1 step -1
+			_aParts_ + _aPartsR_[_iSp_]
+		next
+		return _aParts_
+
+		def SplitToNPartsQ(n)
+			return new stzList( This.SplitToNParts(n) )
+
+		def SplitInNParts(n)
+			return This.SplitToNParts(n)
+
+		def SplitInNPartsQ(n)
+			return This.SplitToNPartsQ(n)
+
 	  #============================================#
 	 #     TRIMMED                                #
 	#============================================#
@@ -4669,6 +4708,26 @@ class stzString from stzObject
 
 	def RemoveFromEnd(pcSuffix)
 		This.RemoveFromEndCS(pcSuffix, 1)
+
+	# Immutable / past-tense companions: return the modified content
+	# without mutating This. Used by stzNumber.RoundTo() and similar
+	# fluent chains that want the result as a value.
+
+	def RemovedFromEndCS(pcSuffix, pCaseSensitive)
+		_oRfeT_ = new stzString( This.Content() )
+		_oRfeT_.RemoveFromEndCS(pcSuffix, pCaseSensitive)
+		return _oRfeT_.Content()
+
+	def RemovedFromEnd(pcSuffix)
+		return This.RemovedFromEndCS(pcSuffix, 1)
+
+		def RemoveFromEndQ(pcSuffix)
+			This.RemoveFromEnd(pcSuffix)
+			return This
+
+		def RemoveFromEndCSQ(pcSuffix, pCaseSensitive)
+			This.RemoveFromEndCS(pcSuffix, pCaseSensitive)
+			return This
 
 	  #========================================#
 	 #     LINES DELEGATIONS                  #

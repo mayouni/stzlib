@@ -1672,6 +1672,18 @@ class stzListOfNumbers from stzList
 		def NumbersWQ(pcCondition)
 			return NumbersWQRT(pcCondition, :stzList)
 
+		# Short aliases used by the narrative tests:
+		#   PrimesUnderQ(5000).WXT(' isWeiferich(@number) ')
+		# Same eval-and-collect contract as NumbersW.
+		def WXT(pcCondition)
+			return This.NumbersW(pcCondition)
+
+		def W(pcCondition)
+			return This.NumbersW(pcCondition)
+
+		def Where(pcCondition)
+			return This.NumbersW(pcCondition)
+
 		def NumbersWQRT(pcCondition, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedParamType()
 				pcReturnType = pcReturnType[2]

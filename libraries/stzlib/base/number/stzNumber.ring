@@ -4814,6 +4814,24 @@ class stzNumber from stzObject
 
 		def ToBinaryNumber()
 			return new stzBinaryNumber( This.ToBinaryForm() )
+
+	# Variant that strips the "0b" prefix from the binary form, for
+	# callers that just want the raw bit-string.
+	def ToBinaryFormWithoutPrefix()
+		_cBin_ = This.ToBinaryForm()
+		if isString(_cBin_) and ring_len(_cBin_) >= 2 and substr(_cBin_, 1, 2) = "0b"
+			return substr(_cBin_, 3)
+		ok
+		return _cBin_
+
+		def ToBinaryWithoutPrefix()
+			return This.ToBinaryFormWithoutPrefix()
+
+		def ToBinaryFormNoPrefix()
+			return This.ToBinaryFormWithoutPrefix()
+
+		def ToBinaryNoPrefix()
+			return This.ToBinaryFormWithoutPrefix()
 	
 	# Converting decimal to octal form
 
