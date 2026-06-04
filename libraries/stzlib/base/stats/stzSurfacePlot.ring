@@ -80,13 +80,17 @@ def init(paData)
 
 	def Sum(anNumbers)
 		nResult = 0
-		for n in anNumbers
+		_nAnNumbers1Len_ = ring_len(anNumbers)
+		for _iLoopAnNumbers1_ = 1 to _nAnNumbers1Len_
+			n = anNumbers[_iLoopAnNumbers1_]
 			nResult += n
 		next
 		return nResult
 
 	def IsListOfNumbers(aList)
-		for item in aList
+		_nList3Len_ = ring_len(aList)
+		for _iLoopList3_ = 1 to _nList3Len_
+			item = aList[_iLoopList3_]
 			if NOT isNumber(item)
 				return FALSE
 			ok
@@ -94,7 +98,9 @@ def init(paData)
 		return TRUE
 
 	def IsListOfPositiveNumbers(aList)
-		for item in aList
+		_nList2Len_ = ring_len(aList)
+		for _iLoopList2_ = 1 to _nList2Len_
+			item = aList[_iLoopList2_]
 			if NOT (isNumber(item) and item > 0)
 				return FALSE
 			ok
@@ -105,7 +111,9 @@ def init(paData)
 		if ring_len(aList) = 0
 			return FALSE
 		ok
-		for item in aList
+		_nList1Len_ = ring_len(aList)
+		for _iLoopList1_ = 1 to _nList1Len_
+			item = aList[_iLoopList1_]
 			if NOT (isList(item) and ring_len(item) = 2)
 				return FALSE
 			ok

@@ -93,7 +93,9 @@ class stzStringUnicodeList
 
 	def Chars()
 		aResult = []
-		for n in @anUnicodes
+		_nAnUnicodes6Len_ = ring_len(@anUnicodes)
+		for _iLoopAnUnicodes6_ = 1 to _nAnUnicodes6Len_
+			n = @anUnicodes[_iLoopAnUnicodes6_]
 			aResult + StzChar(n)
 		next
 		return aResult
@@ -103,7 +105,9 @@ class stzStringUnicodeList
 
 	def ToString()
 		cResult = ""
-		for n in @anUnicodes
+		_nAnUnicodes5Len_ = ring_len(@anUnicodes)
+		for _iLoopAnUnicodes5_ = 1 to _nAnUnicodes5Len_
+			n = @anUnicodes[_iLoopAnUnicodes5_]
 			cResult += StzChar(n)
 		next
 		return cResult
@@ -113,14 +117,18 @@ class stzStringUnicodeList
 
 	def UnicodesAndChars()
 		aResult = []
-		for n in @anUnicodes
+		_nAnUnicodes4Len_ = ring_len(@anUnicodes)
+		for _iLoopAnUnicodes4_ = 1 to _nAnUnicodes4Len_
+			n = @anUnicodes[_iLoopAnUnicodes4_]
 			aResult + [ n, StzChar(n) ]
 		next
 		return aResult
 
 	def CharsAndUnicodes()
 		aResult = []
-		for n in @anUnicodes
+		_nAnUnicodes3Len_ = ring_len(@anUnicodes)
+		for _iLoopAnUnicodes3_ = 1 to _nAnUnicodes3Len_
+			n = @anUnicodes[_iLoopAnUnicodes3_]
 			aResult + [ StzChar(n), n ]
 		next
 		return aResult
@@ -133,7 +141,9 @@ class stzStringUnicodeList
 		return ring_len(@anUnicodes) = 0
 
 	def Contains(nUnicode)
-		for n in @anUnicodes
+		_nAnUnicodes2Len_ = ring_len(@anUnicodes)
+		for _iLoopAnUnicodes2_ = 1 to _nAnUnicodes2Len_
+			n = @anUnicodes[_iLoopAnUnicodes2_]
 			if n = nUnicode
 				return 1
 			ok
@@ -251,9 +261,13 @@ class stzStringUnicodeList
 
 	def Unique()
 		aResult = []
-		for n in @anUnicodes
+		_nAnUnicodes1Len_ = ring_len(@anUnicodes)
+		for _iLoopAnUnicodes1_ = 1 to _nAnUnicodes1Len_
+			n = @anUnicodes[_iLoopAnUnicodes1_]
 			bFound = 0
-			for existing in aResult
+			_nResult1Len_ = ring_len(aResult)
+			for _iLoopResult1_ = 1 to _nResult1Len_
+				existing = aResult[_iLoopResult1_]
 				if existing = n
 					bFound = 1
 					exit

@@ -176,9 +176,13 @@ func ring_sort(aList)
 func U(aList)
 	# Unique: remove duplicates
 	aResult = []
-	for item in aList
+	_nList1Len_ = ring_len(aList)
+	for _iLoopList1_ = 1 to _nList1Len_
+		item = aList[_iLoopList1_]
 		bFound = 0
-		for existing in aResult
+		_nResult1Len_ = ring_len(aResult)
+		for _iLoopResult1_ = 1 to _nResult1Len_
+			existing = aResult[_iLoopResult1_]
 			if existing = item
 				bFound = 1
 				exit
@@ -362,7 +366,9 @@ func IsOneOfTheseNamedParamsList(p, paNames)
 	if len(p) != 2 return 0 ok
 	if NOT isString(p[1]) return 0 ok
 	cName = StzCaseFold(p[1])
-	for cN in paNames
+	_nNames1Len_ = ring_len(paNames)
+	for _iLoopNames1_ = 1 to _nNames1Len_
+		cN = paNames[_iLoopNames1_]
 		if StzCaseFold(cN) = cName
 			return 1
 		ok

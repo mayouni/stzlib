@@ -37,7 +37,9 @@ class stzAppResponse
 		
 		# Add headers
 		This.Header("Content-Length", ring_len(cContent))
-		for aHeader in aHeaders
+		_nHeaders1Len_ = ring_len(aHeaders)
+		for _iLoopHeaders1_ = 1 to _nHeaders1Len_
+			aHeader = aHeaders[_iLoopHeaders1_]
 			cResponse += aHeader[1] + ": " + aHeader[2] + nl
 		next
 		

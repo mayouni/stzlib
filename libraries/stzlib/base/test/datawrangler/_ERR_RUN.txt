@@ -1,4 +1,4 @@
-== datawrangler  PASS 10  ERR 15  TIMEOUT 1  (53.3s) ==
+== datawrangler  PASS 10  ERR 15  TIMEOUT 1  (53.1s) ==
 [PASS]    01_testing_basic_initialization_with_simple_list_data.ring
 [ERR]     02_testing_initialization_with_2d_table_data.ring :: exit 1: +--------------------+
 [PASS]    03_testing_duplicate_removal.ring
@@ -16,10 +16,10 @@
 [ERR]     15_testing_export_to_different_softanza_classes.ring :: Error (R21) : Using operator with values of incorrect type
 [PASS]    16_testing_quick_operation_methods.ring
 [ERR]     17_testing_chainable_operations.ring :: exit 1: +----------------------+
-[ERR]     18_testing_comprehensive_reporting.ring :: exit 1: Line 843 Bad parameter type!
+[ERR]     18_testing_comprehensive_reporting.ring :: exit 1: Line 868 Bad parameter type!
 [ERR]     19_testing_after_applying_transformations.ring :: exit 1: +---------------------------+
 [PASS]    20_testing_with_empty_dataset.ring
-[ERR]     21_testing_with_single_column_data.ring :: exit 1: Line 843 Bad parameter type!
+[ERR]     21_testing_with_single_column_data.ring :: exit 1: Line 868 Bad parameter type!
 [PASS]    22_testing_with_all_missing_values.ring
 [TIMEOUT] 23_testing_with_larger_dataset.ring
 [ERR]     24_customer_database_cleanup_scenario.ring :: exit 1: Initial customer database analysis:

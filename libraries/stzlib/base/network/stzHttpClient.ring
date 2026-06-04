@@ -231,7 +231,9 @@ class stzHttpClient from stzNetwork
     def ApplyHeaders()
         if ring_len(headers_list) = 0 return ok
         header_slist = NULL
-        for header in headers_list
+        _nHeaders_list1Len_ = ring_len(headers_list)
+        for _iLoopHeaders_list1_ = 1 to _nHeaders_list1Len_
+        	header = headers_list[_iLoopHeaders_list1_]
             header_slist = curl_slist_append(header_slist, header)
         next
         curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, header_slist)

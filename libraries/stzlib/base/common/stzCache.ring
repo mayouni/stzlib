@@ -123,7 +123,9 @@ class stzCache from stzObject
 		n = 0
 		aTemp = CacheFileLines()
 	
-		for aLine in aTemp
+		_nTemp1Len_ = ring_len(aTemp)
+		for _iLoopTemp1_ = 1 to _nTemp1Len_
+			aLine = aTemp[_iLoopTemp1_]
 			n++
 			oStzStr = new stzString(aLine)
 	
@@ -155,7 +157,9 @@ class stzCache from stzObject
 		aResult = []
 		cLine = ""
 		i = 0
-		for c in cCache
+		_nCache1Len_ = ring_len(cCache)
+		for _iLoopCache1_ = 1 to _nCache1Len_
+			c = cCache[_iLoopCache1_]
 			i++
 			if c != "|"
 				cLine += c

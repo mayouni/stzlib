@@ -68,7 +68,9 @@ lxu() {
     ]
     
     # Process each section of the configuration
-    for section in configData
+    _nConfigData1Len_ = ring_len(configData)
+    for _iLoopConfigData1_ = 1 to _nConfigData1Len_
+    	section = configData[_iLoopConfigData1_]
         sectionName = section[1]
         sectionConfig = section[2]
         
@@ -87,7 +89,10 @@ lxu() {
     # Analyze which parts of the config were validated
     ? NL + "=== Validation Summary ==="
     
-    for entry in State()
+    _aState1_ = State()
+    _nState1Len_ = ring_len(_aState1_)
+    for _iLoopState1_ = 1 to _nState1Len_
+    	entry = _aState1_[_iLoopState1_]
         ? "- " + entry[:triggerName] + " validated successfully"
     next
 }

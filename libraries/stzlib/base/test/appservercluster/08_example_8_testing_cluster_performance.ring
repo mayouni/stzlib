@@ -37,7 +37,9 @@ pr()
     nStartTime = clock()
     nProcessedRequests = 0
     
-    for aRequest in aTestRequests
+    _nTestRequests1Len_ = ring_len(aTestRequests)
+    for _iLoopTestRequests1_ = 1 to _nTestRequests1Len_
+    	aRequest = aTestRequests[_iLoopTestRequests1_]
         # Simulate request processing
         cMethod = aRequest[1]
         cPath = aRequest[2] 

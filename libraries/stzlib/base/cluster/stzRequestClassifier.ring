@@ -31,9 +31,14 @@ class stzRequestClassifier
         cContent = StzLower(oRequest.Path() + " " + oRequest.Body())
         aScores = []
         
-        for aPattern in aPatterns
+        _nPatterns1Len_ = ring_len(aPatterns)
+        for _iLoopPatterns1_ = 1 to _nPatterns1Len_
+        	aPattern = aPatterns[_iLoopPatterns1_]
             nScore = 0
-            for cKeyword in aPattern[:keywords]
+            _aPatternkeywords1_ = aPattern[:keywords]
+            _nPatternkeywords1Len_ = ring_len(_aPatternkeywords1_)
+            for _iLoopPatternkeywords1_ = 1 to _nPatternkeywords1Len_
+            	cKeyword = _aPatternkeywords1_[_iLoopPatternkeywords1_]
                 if StzFind(cContent, cKeyword) > 0
                     nScore++
                 ok
@@ -44,7 +49,9 @@ class stzRequestClassifier
         # Find highest scoring domain
         cBestDomain = "general"
         nHighestScore = 0
-        for aScore in aScores
+        _nScores1Len_ = ring_len(aScores)
+        for _iLoopScores1_ = 1 to _nScores1Len_
+        	aScore = aScores[_iLoopScores1_]
             if aScore[2] > nHighestScore
                 nHighestScore = aScore[2]
                 cBestDomain = aScore[1]

@@ -53,7 +53,9 @@ class stzWebSocket from stzNetwork
         
         # Convert array to binary string
         binary_string = ""
-        for byte in aData
+        _nData1Len_ = ring_len(aData)
+        for _iLoopData1_ = 1 to _nData1Len_
+        	byte = aData[_iLoopData1_]
             binary_string += StzChar(byte)
         next
         

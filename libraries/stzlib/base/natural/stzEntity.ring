@@ -119,7 +119,10 @@ class stzEntity
 
 	def ContainsValue(pValue)
 		bResult = 0
-		for aPair in This.Entity()
+		_aThisEntity3_ = This.Entity()
+		_nThisEntity3Len_ = ring_len(_aThisEntity3_)
+		for _iLoopThisEntity3_ = 1 to _nThisEntity3Len_
+			aPair = _aThisEntity3_[_iLoopThisEntity3_]
 			if @AreEqual([ aPair[2], pValue ])
 				bResult = 1
 				exit
@@ -235,7 +238,10 @@ class stzEntity
 
 	def Properties()
 		aResult = []
-		for aProp in This.Entity()
+		_aThisEntity2_ = This.Entity()
+		_nThisEntity2Len_ = ring_len(_aThisEntity2_)
+		for _iLoopThisEntity2_ = 1 to _nThisEntity2Len_
+			aProp = _aThisEntity2_[_iLoopThisEntity2_]
 			aResult + aProp[1]
 		next
 		return aResult
@@ -266,7 +272,10 @@ class stzEntity
 
 	def Show()
 		? "Entity: " + This.Name() + " (Type: " + This.Type() + ")"
-		for aProp in This.Entity()
+		_aThisEntity1_ = This.Entity()
+		_nThisEntity1Len_ = ring_len(_aThisEntity1_)
+		for _iLoopThisEntity1_ = 1 to _nThisEntity1Len_
+			aProp = _aThisEntity1_[_iLoopThisEntity1_]
 			if aProp[1] != "name" and aProp[1] != "type"
 				? "  " + aProp[1] + ": " + aProp[2]
 			ok

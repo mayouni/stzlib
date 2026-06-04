@@ -220,8 +220,12 @@ class stzSet from stzList
 
 		aUnion = this.Content()
 		oTempSet = this
-		for lst in paListOfLists
-			for item in lst
+		_nListOfLists1Len_ = ring_len(paListOfLists)
+		for _iLoopListOfLists1_ = 1 to _nListOfLists1Len_
+			lst = paListOfLists[_iLoopListOfLists1_]
+			_nLst1Len_ = ring_len(lst)
+			for _iLoopLst1_ = 1 to _nLst1Len_
+				item = lst[_iLoopLst1_]
 				if not ItemExists(item,aUnion)
 					aUnion + item
 				ok

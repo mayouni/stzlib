@@ -18,7 +18,9 @@ pr()
 	StartTimer()
 	
 	aList = 1 : 200_000
-	for n in aList
+	_nList4Len_ = ring_len(aList)
+	for _iLoopList4_ = 1 to _nList4Len_
+		n = aList[_iLoopList4_]
 		// do nothing
 	next
 	
@@ -98,7 +100,9 @@ pr()
 	aList = 1 : 200_000
 	nSum = 0
 
-	for n in aList 
+	_nList3Len_ = ring_len(aList)
+	for _iLoopList3_ = 1 to _nList3Len_
+		n = aList[_iLoopList3_]
 		nSum += n
 	next
 
@@ -116,7 +120,9 @@ pr()
 
 	aList = 1 : 200_000
 
-	for n in aList 
+	_nList2Len_ = ring_len(aList)
+	for _iLoopList2_ = 1 to _nList2Len_
+		n = aList[_iLoopList2_]
 		n = n + 2 * n
 	next
 
@@ -146,7 +152,9 @@ pr()
 
 	aList = 1 : 1_000_000
 
-	for n in aList 
+	_nList1Len_ = ring_len(aList)
+	for _iLoopList1_ = 1 to _nList1Len_
+		n = aList[_iLoopList1_]
 		n = n + 2 * n
 	next
 

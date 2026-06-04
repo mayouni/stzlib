@@ -26,7 +26,9 @@ class stzClusterMonitor
         end
 
     def CheckClusterHealth()
-        for aCluster in aClusters
+        _nClusters3Len_ = ring_len(aClusters)
+        for _iLoopClusters3_ = 1 to _nClusters3Len_
+        	aCluster = aClusters[_iLoopClusters3_]
             This.MonitorCluster(aCluster)
         next
 
@@ -34,7 +36,10 @@ class stzClusterMonitor
         nOverloadedNodes = 0
         nUnhealthyNodes = 0
         
-        for oNode in aCluster[:nodes]
+        _aClusternodes2_ = aCluster[:nodes]
+        _nClusternodes2Len_ = ring_len(_aClusternodes2_)
+        for _iLoopClusternodes2_ = 1 to _nClusternodes2Len_
+        	oNode = _aClusternodes2_[_iLoopClusternodes2_]
             # Update node metrics (simplified)
             This.UpdateNodeMetrics(oNode)
             
@@ -67,7 +72,9 @@ class stzClusterMonitor
         oNewNode = new stzClusterNode(cType, cNodeId)
         
         # Add to existing cluster
-        for aCluster in aClusters
+        _nClusters2Len_ = ring_len(aClusters)
+        for _iLoopClusters2_ = 1 to _nClusters2Len_
+        	aCluster = aClusters[_iLoopClusters2_]
             if aCluster[:type] = cType
                 aCluster[:nodes] + oNewNode
                 exit
@@ -76,11 +83,16 @@ class stzClusterMonitor
 
     def GetHealthReport()
         aReport = []
-        for aCluster in aClusters
+        _nClusters1Len_ = ring_len(aClusters)
+        for _iLoopClusters1_ = 1 to _nClusters1Len_
+        	aCluster = aClusters[_iLoopClusters1_]
             nHealthy = 0
             nOverloaded = 0
             
-            for oNode in aCluster[:nodes]
+            _aClusternodes1_ = aCluster[:nodes]
+            _nClusternodes1Len_ = ring_len(_aClusternodes1_)
+            for _iLoopClusternodes1_ = 1 to _nClusternodes1Len_
+            	oNode = _aClusternodes1_[_iLoopClusternodes1_]
                 if oNode.bIsHealthy nHealthy++ ok
                 if oNode.IsOverloaded() nOverloaded++ ok
             next

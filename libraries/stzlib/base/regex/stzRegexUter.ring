@@ -68,7 +68,9 @@ class stzRegexuter
 			This.AddTrigger(aTrigger)
 
 	def TriggerNameExists(cName)
-		for trigger in aTriggers
+		_nTriggers2Len_ = ring_len(aTriggers)
+		for _iLoopTriggers2_ = 1 to _nTriggers2Len_
+			trigger = aTriggers[_iLoopTriggers2_]
 			if trigger[1] = cName
 				return TRUE
 			ok
@@ -136,7 +138,9 @@ class stzRegexuter
 		aLastPositions = []  # NEW: Reset positions
 		aActiveComputations = []
 
-		for trigger in aTriggers
+		_nTriggers1Len_ = ring_len(aTriggers)
+		for _iLoopTriggers1_ = 1 to _nTriggers1Len_
+			trigger = aTriggers[_iLoopTriggers1_]
 			cTriggerName = trigger[1]
 			cPattern = trigger[2]
 			
@@ -208,7 +212,9 @@ class stzRegexuter
 		aAffected = []
 		
 		# Look through state history for triggers affected by this one
-		for entry in aState
+		_nState2Len_ = ring_len(aState)
+		for _iLoopState2_ = 1 to _nState2Len_
+			entry = aState[_iLoopState2_]
 			if find(entry[:dependsOn], cTriggerName) > 0
 				aAffected + entry[:triggerName] 
 			ok
@@ -228,11 +234,16 @@ class stzRegexuter
 	def GetDependencyChain(cTriggerName)
 		aChain = []
 		
-		for entry in aState
+		_nState1Len_ = ring_len(aState)
+		for _iLoopState1_ = 1 to _nState1Len_
+			entry = aState[_iLoopState1_]
 			if entry[:triggerName] = cTriggerName
 				aChain + entry[:dependsOn]
 				
-				for depTrigger in entry[:dependsOn]
+				_aEntrydependsOn1_ = entry[:dependsOn]
+				_nEntrydependsOn1Len_ = ring_len(_aEntrydependsOn1_)
+				for _iLoopEntrydependsOn1_ = 1 to _nEntrydependsOn1Len_
+					depTrigger = _aEntrydependsOn1_[_iLoopEntrydependsOn1_]
 					aChain + This.GetDependencyChain(depTrigger)
 				next
 			ok
@@ -296,7 +307,9 @@ class stzRegexuter
 
 		# Find computation code for this trigger
 		cCode = ""
-		for pair in aCodesPerTrigger
+		_nCodesPerTrigger1Len_ = ring_len(aCodesPerTrigger)
+		for _iLoopCodesPerTrigger1_ = 1 to _nCodesPerTrigger1Len_
+			pair = aCodesPerTrigger[_iLoopCodesPerTrigger1_]
 			if pair[1] = cTriggerName
 				cCode = pair[2]
 				exit

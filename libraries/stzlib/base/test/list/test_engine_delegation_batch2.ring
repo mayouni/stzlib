@@ -49,7 +49,9 @@ o7 = new stzListDuplicates(["a", "b", "c", "a", "b", "d"])
 o7.RemoveDuplicates()
 aResult = o7.Content()
 ? "RemoveDuplicates(['a','b','c','a','b','d']): " + len(aResult) + " items"
-for item in aResult
+_nResult1Len_ = ring_len(aResult)
+for _iLoopResult1_ = 1 to _nResult1Len_
+	item = aResult[_iLoopResult1_]
 	? "  " + item
 next
 # Expected: 4 unique items

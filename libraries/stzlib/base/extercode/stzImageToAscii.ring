@@ -65,7 +65,10 @@ class stzImgToAscii
 
         aArgs     = This.BuildArgs()
         cArgsStr  = ""
-        for x in aArgs { cArgsStr += x + " " }
+        _aArgscArgsStrx1_ = aArgs { cArgsStr += x + " " }
+        _nArgscArgsStrx1Len_ = ring_len(_aArgscArgsStrx1_)
+        for _iLoopArgscArgsStrx1_ = 1 to _nArgscArgsStrx1Len_
+        	x = _aArgscArgsStrx1_[_iLoopArgscArgsStrx1_]
         cArgsStr  = rtrim(cArgsStr," ")
 
         cCmd = @@(@cExe) + " " + cArgsStr

@@ -35,7 +35,9 @@ RegisterRuleInGroup(:DEV_RULES_GROUP, "AUTO_TESTS", [
 		aNewEdges = []
 		aNodes = oGraph.Nodes()
 		
-		for aNode in aNodes
+		_nNodes2Len_ = ring_len(aNodes)
+		for _iLoopNodes2_ = 1 to _nNodes2Len_
+			aNode = aNodes[_iLoopNodes2_]
 			if oGraph.NodeProperty(aNode[:id], "type") = "feature"
 				cTest = aNode[:id] + "_test"
 				if NOT oGraph.NodeExists(cTest)
@@ -61,7 +63,9 @@ RegisterRuleInGroup(:DEV_RULES_GROUP, "FULL_COVERAGE", [
 		nFeatures = 0
 		nTests = 0
 		
-		for aNode in aNodes
+		_nNodes1Len_ = ring_len(aNodes)
+		for _iLoopNodes1_ = 1 to _nNodes1Len_
+			aNode = aNodes[_iLoopNodes1_]
 			cType = oGraph.NodeProperty(aNode[:id], "type")
 			if cType = "feature"
 				nFeatures++

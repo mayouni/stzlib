@@ -442,7 +442,9 @@ class stzKnowledgeGraph from stzGraph
 	    cKnow = 'knowledge "' + @cId + '"' + NL + NL
 	    cKnow += "facts" + NL
 	    aFacts = This.Facts()
-	    for aFact in aFacts
+	    _nFacts2Len_ = ring_len(aFacts)
+	    for _iLoopFacts2_ = 1 to _nFacts2Len_
+	    	aFact = aFacts[_iLoopFacts2_]
 	        cKnow += "    " + aFact[1] + " | " + aFact[2] + " | " + aFact[3] + NL
 	    end
 	    return cKnow
@@ -458,7 +460,9 @@ class stzKnowledgeGraph from stzGraph
 
 	def _MergeKnowledgeBase(oOther)
 	    aFacts = oOther.Facts()
-	    for aFact in aFacts
+	    _nFacts1Len_ = ring_len(aFacts)
+	    for _iLoopFacts1_ = 1 to _nFacts1Len_
+	    	aFact = aFacts[_iLoopFacts1_]
 	        This.AddFact(aFact[1], aFact[2], aFact[3])
 	    end
 
@@ -472,7 +476,9 @@ class stzKnowParser
         acLines = split(pcContent, NL)
         cSection = ""
         
-        for cLine in acLines
+        _nAcLines1Len_ = ring_len(acLines)
+        for _iLoopAcLines1_ = 1 to _nAcLines1Len_
+        	cLine = acLines[_iLoopAcLines1_]
             cLine = trim(cLine)
             if cLine = "" or StzLeft(cLine, 1) = "#"
                 loop

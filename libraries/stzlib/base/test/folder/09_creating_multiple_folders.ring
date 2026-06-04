@@ -15,7 +15,9 @@ o1 {
 
     aCreated = CreateFolders([ "Docs", "Images", "Videos", "Music" ])
     
-    for oFolder in aCreated
+    _nCreated1Len_ = ring_len(aCreated)
+    for _iLoopCreated1_ = 1 to _nCreated1Len_
+    	oFolder = aCreated[_iLoopCreated1_]
         ? oFolder.Name()
     next
     #--> Docs

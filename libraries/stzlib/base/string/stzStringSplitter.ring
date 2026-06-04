@@ -349,7 +349,9 @@ class stzStringSplitter
 
 		nLenSub = StzLen(pcSubStr)
 		anAfterPos = []
-		for nPos in anPos
+		_nAnPos1Len_ = ring_len(anPos)
+		for _iLoopAnPos1_ = 1 to _nAnPos1Len_
+			nPos = anPos[_iLoopAnPos1_]
 			anAfterPos + (nPos + nLenSub - 1)
 		next
 

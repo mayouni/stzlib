@@ -46,7 +46,9 @@ cJson = '{"name":"Mansour","age":45,"active":true}'
 ? "--- Test 5: Keys ---"
 aKeys = StzJsonKeys(cJson)
 ? "  Keys count: " + len(aKeys)
-for k in aKeys
+_nKeys1Len_ = ring_len(aKeys)
+for _iLoopKeys1_ = 1 to _nKeys1Len_
+	k = aKeys[_iLoopKeys1_]
 	? "    - " + k
 next
 

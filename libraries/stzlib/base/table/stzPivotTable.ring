@@ -486,7 +486,9 @@ class stzPivotTable from stzList
 		next
 		
 		# Add column combinations
-		for combo in aColCombos
+		_nColCombos1Len_ = ring_len(aColCombos)
+		for _iLoopColCombos1_ = 1 to _nColCombos1Len_
+			combo = aColCombos[_iLoopColCombos1_]
 			aFirstRow + _combineLabels(combo)
 		next
 		
@@ -746,13 +748,19 @@ class stzPivotTable from stzList
 		
 		if isList(aRowValues) 
 			if ring_len(aRowValues) > 0 and isList(aRowValues[1])
-				for subArr in aRowValues
-					for value in subArr
+				_nRowValues2Len_ = ring_len(aRowValues)
+				for _iLoopRowValues2_ = 1 to _nRowValues2Len_
+					subArr = aRowValues[_iLoopRowValues2_]
+					_nSubArr3Len_ = ring_len(subArr)
+					for _iLoopSubArr3_ = 1 to _nSubArr3Len_
+						value = subArr[_iLoopSubArr3_]
 						cKey += "R:" + value + ";"
 					next
 				next
 			else
-				for value in aRowValues
+				_nRowValues1Len_ = ring_len(aRowValues)
+				for _iLoopRowValues1_ = 1 to _nRowValues1Len_
+					value = aRowValues[_iLoopRowValues1_]
 					cKey += "R:" + value + ";"
 				next
 			ok
@@ -760,13 +768,19 @@ class stzPivotTable from stzList
 		
 		if isList(aColValues)
 			if ring_len(aColValues) > 0 and isList(aColValues[1])
-				for subArr in aColValues
-					for value in subArr
+				_nColValues2Len_ = ring_len(aColValues)
+				for _iLoopColValues2_ = 1 to _nColValues2Len_
+					subArr = aColValues[_iLoopColValues2_]
+					_nSubArr2Len_ = ring_len(subArr)
+					for _iLoopSubArr2_ = 1 to _nSubArr2Len_
+						value = subArr[_iLoopSubArr2_]
 						cKey += "C:" + value + ";"
 					next
 				next
 			else
-				for value in aColValues
+				_nColValues1Len_ = ring_len(aColValues)
+				for _iLoopColValues1_ = 1 to _nColValues1Len_
+					value = aColValues[_iLoopColValues1_]
 					cKey += "C:" + value + ";"
 				next
 			ok
@@ -776,7 +790,9 @@ class stzPivotTable from stzList
 
 	def _checkCache(cKey)
 		# Check if cache contains key
-		for item in @aCellCache
+		_nCellCache2Len_ = ring_len(@aCellCache)
+		for _iLoopCellCache2_ = 1 to _nCellCache2Len_
+			item = @aCellCache[_iLoopCellCache2_]
 			if item[1] = cKey
 				return TRUE
 			ok
@@ -785,7 +801,9 @@ class stzPivotTable from stzList
 
 	def _getFromCache(cKey)
 		# Retrieve value from cache
-		for item in @aCellCache
+		_nCellCache1Len_ = ring_len(@aCellCache)
+		for _iLoopCellCache1_ = 1 to _nCellCache1Len_
+			item = @aCellCache[_iLoopCellCache1_]
 			if item[1] = cKey
 				return item[2]
 			ok
@@ -880,9 +898,13 @@ class stzPivotTable from stzList
 		
 		if isList(aArray[1])
 			aResult = []
-			for subArr in aArray
+			_nArray1Len_ = ring_len(aArray)
+			for _iLoopArray1_ = 1 to _nArray1Len_
+				subArr = aArray[_iLoopArray1_]
 				if isList(subArr)
-					for item in subArr
+					_nSubArr1Len_ = ring_len(subArr)
+					for _iLoopSubArr1_ = 1 to _nSubArr1Len_
+						item = subArr[_iLoopSubArr1_]
 						aResult + item
 					next
 				else

@@ -160,7 +160,9 @@ class stzBarPlot
 		ok
 
 		# Validate positive numbers
-		for nVal in @anValues
+		_nAnValues1Len_ = ring_len(@anValues)
+		for _iLoopAnValues1_ = 1 to _nAnValues1Len_
+			nVal = @anValues[_iLoopAnValues1_]
 			if nVal < 0
 				StzRaise("All values must be positive numbers")
 			ok

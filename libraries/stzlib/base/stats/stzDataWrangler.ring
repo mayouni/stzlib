@@ -155,7 +155,9 @@ class stzDataWrangler
             aCleanData = unique(@aData)
         else
             # For tables, compare entire rows
-            for row in @aData
+            _nData8Len_ = ring_len(@aData)
+            for _iLoopData8_ = 1 to _nData8Len_
+            	row = @aData[_iLoopData8_]
                 if This._FindRowIndex(aCleanData, row) = 0
                     aCleanData + row
                 ok
@@ -196,7 +198,9 @@ class stzDataWrangler
         nFilled = 0
         aCleanData = []
         
-        for item in @aData
+        _nData7Len_ = ring_len(@aData)
+        for _iLoopData7_ = 1 to _nData7Len_
+        	item = @aData[_iLoopData7_]
             if This._IsMissing(item)
                 if cStrategy = "remove"
                     # Skip missing items
@@ -362,7 +366,9 @@ class stzDataWrangler
         aIssues = []
         
         if @cDataStructure = "table"
-            for rule in aRangeRules
+            _nRangeRules1Len_ = ring_len(aRangeRules)
+            for _iLoopRangeRules1_ = 1 to _nRangeRules1Len_
+            	rule = aRangeRules[_iLoopRangeRules1_]
                 cColumn = rule[1]
                 nMin = rule[2]
                 nMax = rule[3]
@@ -435,7 +441,9 @@ class stzDataWrangler
         nConverted = 0
         
         if @cDataStructure = "table"
-            for rule in aConversionRules
+            _nConversionRules1Len_ = ring_len(aConversionRules)
+            for _iLoopConversionRules1_ = 1 to _nConversionRules1Len_
+            	rule = aConversionRules[_iLoopConversionRules1_]
                 cColumn = rule[1]
                 cTargetType = rule[2]
                 nColIndex = StzFind(@aHeaders, cColumn)
@@ -532,7 +540,9 @@ class stzDataWrangler
         ok
         
         # Find template definition
-        for template in $aWranglingPlanTemplates
+        _nWranglingPlanTemplates2Len_ = ring_len($aWranglingPlanTemplates)
+        for _iLoopWranglingPlanTemplates2_ = 1 to _nWranglingPlanTemplates2Len_
+        	template = $aWranglingPlanTemplates[_iLoopWranglingPlanTemplates2_]
             if template[2][:name] = cTemplate
                 return [
                     :name = template[2][:name],
@@ -564,7 +574,10 @@ class stzDataWrangler
         aResults = []
         nStartTime = clock()
         
-        for stepp in aPlan[:steps]
+        _aPlansteps1_ = aPlan[:steps]
+        _nPlansteps1Len_ = ring_len(_aPlansteps1_)
+        for _iLoopPlansteps1_ = 1 to _nPlansteps1Len_
+        	stepp = _aPlansteps1_[_iLoopPlansteps1_]
             if @bVerbose
                 ? "â–¶ï¸  " + stepp[:description] + "..."
             ok
@@ -645,9 +658,13 @@ class stzDataWrangler
         if @cDataStructure = "table"
             # Extract only numeric columns
             aNumericData = []
-            for row in @aData
+            _nData6Len_ = ring_len(@aData)
+            for _iLoopData6_ = 1 to _nData6Len_
+            	row = @aData[_iLoopData6_]
                 aNumericRow = []
-                for item in row
+                _nRow3Len_ = ring_len(row)
+                for _iLoopRow3_ = 1 to _nRow3Len_
+                	item = row[_iLoopRow3_]
                     if isNumber(item)
                         aNumericRow + item
                     else
@@ -709,7 +726,9 @@ class stzDataWrangler
         
         if ring_len(@aIssues) > 0
             ? "ðŸš¨ ISSUES DETECTED:"
-            for issue in @aIssues
+            _nIssues1Len_ = ring_len(@aIssues)
+            for _iLoopIssues1_ = 1 to _nIssues1Len_
+            	issue = @aIssues[_iLoopIssues1_]
                 ? "  â€¢ " + issue[:type] + ": " + issue[:description]
             next
             ? ""
@@ -717,7 +736,9 @@ class stzDataWrangler
         
         if ring_len(@aTransformLog) > 0
             ? "ðŸ”„ TRANSFORMATIONS APPLIED:"
-            for transform in @aTransformLog
+            _nTransformLog1Len_ = ring_len(@aTransformLog)
+            for _iLoopTransformLog1_ = 1 to _nTransformLog1Len_
+            	transform = @aTransformLog[_iLoopTransformLog1_]
                 ? "  â€¢ " + transform[:operation] + ": " + transform[:details]
             next
         ok
@@ -774,7 +795,9 @@ class stzDataWrangler
     def _GetMostFrequent(aData)
         # Find mode (most frequent value)
         aFreq = []
-        for item in aData
+        _nData5Len_ = ring_len(aData)
+        for _iLoopData5_ = 1 to _nData5Len_
+        	item = aData[_iLoopData5_]
             if NOT This._IsMissing(item)
                 nIndex = This._FindInFreqArray(aFreq, item)
                 if nIndex = 0
@@ -790,7 +813,9 @@ class stzDataWrangler
         # Find item with highest frequency
         nMaxFreq = 0
         mostFrequent = aFreq[1][1]
-        for freq in aFreq
+        _nFreq1Len_ = ring_len(aFreq)
+        for _iLoopFreq1_ = 1 to _nFreq1Len_
+        	freq = aFreq[_iLoopFreq1_]
             if freq[2] > nMaxFreq
                 nMaxFreq = freq[2]
                 mostFrequent = freq[1]
@@ -894,14 +919,18 @@ class stzDataWrangler
         cInput = StzLower(trim(cInput))
         
         # Check if it's a direct template name
-        for template in $aWranglingPlanTemplates
+        _nWranglingPlanTemplates1Len_ = ring_len($aWranglingPlanTemplates)
+        for _iLoopWranglingPlanTemplates1_ = 1 to _nWranglingPlanTemplates1Len_
+        	template = $aWranglingPlanTemplates[_iLoopWranglingPlanTemplates1_]
             if template[2][:name] = cInput
                 return cInput
             ok
 next
         
         # Check if it's a goal that maps to a template
-        for goal in $aWranglingGoals
+        _nWranglingGoals1Len_ = ring_len($aWranglingGoals)
+        for _iLoopWranglingGoals1_ = 1 to _nWranglingGoals1Len_
+        	goal = $aWranglingGoals[_iLoopWranglingGoals1_]
             if goal[1] = cInput
                 return goal[2]
             ok
@@ -982,7 +1011,9 @@ next
         nSuccessful = 0
         nErrors = 0
         
-        for result in aResults
+        _nResults1Len_ = ring_len(aResults)
+        for _iLoopResults1_ = 1 to _nResults1Len_
+        	result = aResults[_iLoopResults1_]
             if result[:status] = "success"
                 nSuccessful++
             else
@@ -1017,12 +1048,18 @@ next
         nMissing = 0
         
         if @cDataStructure = "list"
-            for item in @aData
+            _nData4Len_ = ring_len(@aData)
+            for _iLoopData4_ = 1 to _nData4Len_
+            	item = @aData[_iLoopData4_]
                 if This._IsMissing(item) nMissing++ ok
             next
         else
-            for row in @aData
-                for item in row
+            _nData3Len_ = ring_len(@aData)
+            for _iLoopData3_ = 1 to _nData3Len_
+            	row = @aData[_iLoopData3_]
+                _nRow2Len_ = ring_len(row)
+                for _iLoopRow2_ = 1 to _nRow2Len_
+                	item = row[_iLoopRow2_]
                     if This._IsMissing(item) nMissing++ ok
                 next
             next
@@ -1036,7 +1073,9 @@ next
         else
             nOriginal = ring_len(@aData)
             aUnique = []
-            for row in @aData
+            _nData2Len_ = ring_len(@aData)
+            for _iLoopData2_ = 1 to _nData2Len_
+            	row = @aData[_iLoopData2_]
                 if This._FindRowIndex(aUnique, row) = 0
                     aUnique + row
                 ok
@@ -1308,7 +1347,9 @@ next
         
         # Check for problematic characters in headers
         if @cDataStructure = "table"
-            for header in @aHeaders
+            _nHeaders1Len_ = ring_len(@aHeaders)
+            for _iLoopHeaders1_ = 1 to _nHeaders1Len_
+            	header = @aHeaders[_iLoopHeaders1_]
                 if find(header, " ") > 0 or find(header, "-") > 0
                     aIssues + "Header contains spaces/hyphens: " + header
                 ok

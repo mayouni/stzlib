@@ -362,7 +362,9 @@ class stzListSections
 	def Ranges(paRanges)
 		_aRgsResult_ = []
 
-		for _aRgsRange_ in paRanges
+		_nRanges1Len_ = ring_len(paRanges)
+		for _iLoopRanges1_ = 1 to _nRanges1Len_
+			_aRgsRange_ = paRanges[_iLoopRanges1_]
 			@AddItem(_aRgsResult_, This.Range( _aRgsRange_[1], _aRgsRange_[2] ))
 		next
 

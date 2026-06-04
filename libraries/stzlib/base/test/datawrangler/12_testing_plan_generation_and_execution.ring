@@ -28,7 +28,10 @@ aPlan = o1.GeneratePlan("clean")
 ? " • Plan: " + aPlan[:title]
 ? " • Description: " + aPlan[:description]
 ? " • Steps:"
-for stepp in aPlan[:steps]
+_aPlansteps1_ = aPlan[:steps]
+_nPlansteps1Len_ = ring_len(_aPlansteps1_)
+for _iLoopPlansteps1_ = 1 to _nPlansteps1Len_
+	stepp = _aPlansteps1_[_iLoopPlansteps1_]
     ? "  ─ " + stepp[:description]
 next
 

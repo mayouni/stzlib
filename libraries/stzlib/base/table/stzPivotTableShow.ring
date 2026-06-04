@@ -134,7 +134,10 @@ Class TableDisplayConfig
             nWidth = StzLen(cLabel)
             
             # For each value in this dimension, measure width
-            for cValue in aColumnValues[i]
+            _aColumnValuesi1_ = aColumnValues[i]
+            _nColumnValuesi1Len_ = ring_len(_aColumnValuesi1_)
+            for _iLoopColumnValuesi1_ = 1 to _nColumnValuesi1Len_
+            	cValue = _aColumnValuesi1_[_iLoopColumnValuesi1_]
                 nValueWidth = StzLen(cValue)
                 if nValueWidth > nWidth
                     nWidth = nValueWidth
@@ -280,10 +283,16 @@ Class TableDisplayConfig
         aColDimValues = aContentDimensions[:ColumnDimValues]
         
         # Create a map for each dimension combination
-        for dim1 in aColDimValues[1]
+        _aColDimValues16_ = aColDimValues[1]
+        _nColDimValues16Len_ = ring_len(_aColDimValues16_)
+        for _iLoopColDimValues16_ = 1 to _nColDimValues16Len_
+        	dim1 = _aColDimValues16_[_iLoopColDimValues16_]
             nGroupWidth = 0
             
-            for dim2 in aColDimValues[2]
+            _aColDimValues28_ = aColDimValues[2]
+            _nColDimValues28Len_ = ring_len(_aColDimValues28_)
+            for _iLoopColDimValues28_ = 1 to _nColDimValues28Len_
+            	dim2 = _aColDimValues28_[_iLoopColDimValues28_]
                 cKey = dim1 + "|" + dim2
                 
                 # Get measured content width or minimum width
@@ -392,8 +401,14 @@ Class TableDisplayConfig
         aColDimValues = aContentDimensions[:ColumnDimValues]
         nGroupWidth = 0
         
-        for dim1 in aColDimValues[1]
-            for dim2 in aColDimValues[2]
+        _aColDimValues15_ = aColDimValues[1]
+        _nColDimValues15Len_ = ring_len(_aColDimValues15_)
+        for _iLoopColDimValues15_ = 1 to _nColDimValues15Len_
+        	dim1 = _aColDimValues15_[_iLoopColDimValues15_]
+            _aColDimValues27_ = aColDimValues[2]
+            _nColDimValues27Len_ = ring_len(_aColDimValues27_)
+            for _iLoopColDimValues27_ = 1 to _nColDimValues27Len_
+            	dim2 = _aColDimValues27_[_iLoopColDimValues27_]
                 cKey = dim1 + "|" + dim2
                 nGroupWidth += aFinalDataWidths[cKey]
             next
@@ -442,8 +457,14 @@ Class TableDisplayConfig
         
         see "Data Column Widths: " + nl
         aColDimValues = aContentDimensions[:ColumnDimValues]
-        for dim1 in aColDimValues[1]
-            for dim2 in aColDimValues[2]
+        _aColDimValues14_ = aColDimValues[1]
+        _nColDimValues14Len_ = ring_len(_aColDimValues14_)
+        for _iLoopColDimValues14_ = 1 to _nColDimValues14Len_
+        	dim1 = _aColDimValues14_[_iLoopColDimValues14_]
+            _aColDimValues26_ = aColDimValues[2]
+            _nColDimValues26Len_ = ring_len(_aColDimValues26_)
+            for _iLoopColDimValues26_ = 1 to _nColDimValues26Len_
+            	dim2 = _aColDimValues26_[_iLoopColDimValues26_]
                 cKey = dim1 + "|" + dim2
                 if @IsHashList(aCalculatedLayout[:DataColumnWidths][cKey])
                     see "  " + cKey + ": " + aCalculatedLayout[:DataColumnWidths][cKey] + nl
@@ -501,7 +522,10 @@ Class TableRenderer
         for i = 1 to _nColDimValues1Len_8
             # Calculate width for this dimension group
             nGroupWidth = 0
-            for dim2 in aColDimValues[2]
+            _aColDimValues25_ = aColDimValues[2]
+            _nColDimValues25Len_ = ring_len(_aColDimValues25_)
+            for _iLoopColDimValues25_ = 1 to _nColDimValues25Len_
+            	dim2 = _aColDimValues25_[_iLoopColDimValues25_]
                 cKey = aColDimValues[1][i] + "|" + dim2
                 if @IsHashList(aDataColumnWidths[cKey])
                     nGroupWidth += aDataColumnWidths[cKey]
@@ -534,7 +558,10 @@ Class TableRenderer
             
             # Calculate width for this dimension group
             nGroupWidth = 0
-            for dim2 in aColDimValues[2]
+            _aColDimValues24_ = aColDimValues[2]
+            _nColDimValues24Len_ = ring_len(_aColDimValues24_)
+            for _iLoopColDimValues24_ = 1 to _nColDimValues24Len_
+            	dim2 = _aColDimValues24_[_iLoopColDimValues24_]
                 cKey = dim1 + "|" + dim2
                 if @IsHashList(aDataColumnWidths[cKey])
                     nGroupWidth += aDataColumnWidths[cKey]
@@ -973,7 +1000,9 @@ Class TableConfigManager
     
     # Batch update settings
     func UpdateSettings(aNewSettings)
-        for aPair in aNewSettings
+        _nNewSettings1Len_ = ring_len(aNewSettings)
+        for _iLoopNewSettings1_ = 1 to _nNewSettings1Len_
+        	aPair = aNewSettings[_iLoopNewSettings1_]
             cKey = aPair[1]
             value = aPair[2]										
             oConfig.SetSetting(cKey, value)
@@ -1018,8 +1047,14 @@ Class TableConfigManager
             nTotalWidth = 0
             nColumnCount = 0
             
-            for dim1 in aColDimValues[1]
-                for dim2 in aColDimValues[2]
+            _aColDimValues13_ = aColDimValues[1]
+            _nColDimValues13Len_ = ring_len(_aColDimValues13_)
+            for _iLoopColDimValues13_ = 1 to _nColDimValues13Len_
+            	dim1 = _aColDimValues13_[_iLoopColDimValues13_]
+                _aColDimValues23_ = aColDimValues[2]
+                _nColDimValues23Len_ = ring_len(_aColDimValues23_)
+                for _iLoopColDimValues23_ = 1 to _nColDimValues23Len_
+                	dim2 = _aColDimValues23_[_iLoopColDimValues23_]
                     cKey = dim1 + "|" + dim2
                     if @IsHashList(aDataColumnWidths[cKey])
                         nTotalWidth += aDataColumnWidths[cKey]
@@ -1032,8 +1067,14 @@ Class TableConfigManager
                 nAvgWidth = nTotalWidth / nColumnCount
                 
                 # Adjust columns to be closer to average (but not exact)
-                for dim1 in aColDimValues[1]
-                    for dim2 in aColDimValues[2]
+                _aColDimValues12_ = aColDimValues[1]
+                _nColDimValues12Len_ = ring_len(_aColDimValues12_)
+                for _iLoopColDimValues12_ = 1 to _nColDimValues12Len_
+                	dim1 = _aColDimValues12_[_iLoopColDimValues12_]
+                    _aColDimValues22_ = aColDimValues[2]
+                    _nColDimValues22Len_ = ring_len(_aColDimValues22_)
+                    for _iLoopColDimValues22_ = 1 to _nColDimValues22Len_
+                    	dim2 = _aColDimValues22_[_iLoopColDimValues22_]
                         cKey = dim1 + "|" + dim2
                         if @IsHashList(aDataColumnWidths[cKey])
                             nCurrentWidth = aDataColumnWidths[cKey]
@@ -1066,8 +1107,14 @@ Class TableConfigManager
             
             # Apply to data columns
             aColDimValues = oConfig.aContentDimensions[:ColumnDimValues]
-            for dim1 in aColDimValues[1]
-                for dim2 in aColDimValues[2]
+            _aColDimValues11_ = aColDimValues[1]
+            _nColDimValues11Len_ = ring_len(_aColDimValues11_)
+            for _iLoopColDimValues11_ = 1 to _nColDimValues11Len_
+            	dim1 = _aColDimValues11_[_iLoopColDimValues11_]
+                _aColDimValues21_ = aColDimValues[2]
+                _nColDimValues21Len_ = ring_len(_aColDimValues21_)
+                for _iLoopColDimValues21_ = 1 to _nColDimValues21Len_
+                	dim2 = _aColDimValues21_[_iLoopColDimValues21_]
                     cKey = dim1 + "|" + dim2
                     if @IsHashList(oConfig.aCalculatedLayout[:DataColumnWidths][cKey])
                         oConfig.aCalculatedLayout[:DataColumnWidths][cKey] *= nScaleFactor
@@ -1105,7 +1152,10 @@ Class TableConfigManager
     func ImportConfig(aConfig)
         if @IsHashList(aConfig[:Settings])
             # Apply all settings
-            for aPair in aConfig[:Settings]
+            _aConfigSettings1_ = aConfig[:Settings]
+            _nConfigSettings1Len_ = ring_len(_aConfigSettings1_)
+            for _iLoopConfigSettings1_ = 1 to _nConfigSettings1Len_
+            	aPair = _aConfigSettings1_[_iLoopConfigSettings1_]
                 cKey = aPair[1]
                 value = aPair[2]
                 oConfig.SetSetting(cKey, value)
@@ -1234,12 +1284,16 @@ Class TableThemeManager
         aTheme = aThemes[cThemeName]
         
         # Apply theme settings to config
-        for aPair in aTheme
+        _nTheme1Len_ = ring_len(aTheme)
+        for _iLoopTheme1_ = 1 to _nTheme1Len_
+        	aPair = aTheme[_iLoopTheme1_]
             cKey = aPair[1]
             value = aPair[2]
             if cKey = :BorderChars
                 # Special case for border chars
-                for aPairr in value
+                _nValue1Len_ = ring_len(value)
+                for _iLoopValue1_ = 1 to _nValue1Len_
+                	aPairr = value[_iLoopValue1_]
                     cBorderKey = aPairr[1]
                     cChar = aPairr[2]
                     oConfig.aDecorators[:BorderChars][cBorderKey] = cChar
@@ -1263,7 +1317,9 @@ Class TableThemeManager
     # Get a list of available themes
     func ListThemes()
         aThemeNames = []
-        for aPair in aThemes
+        _nThemes1Len_ = ring_len(aThemes)
+        for _iLoopThemes1_ = 1 to _nThemes1Len_
+        	aPair = aThemes[_iLoopThemes1_]
             cKey = aPair[1]
             value = aPair[2]
             add(aThemeNames, cKey)

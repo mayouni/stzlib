@@ -343,7 +343,10 @@ class stzLinearSolver from stzObject
 			aBranch2 = this.addBranchConstraint(aCurrentSolution, cFracVar, ">=", ceil(nFracValue))
 			
 			# Evaluate branches
-			for aBranch in [aBranch1, aBranch2]
+			_aABranch1aBranch21_ = [aBranch1, aBranch2]
+			_nABranch1aBranch21Len_ = ring_len(_aABranch1aBranch21_)
+			for _iLoopABranch1aBranch21_ = 1 to _nABranch1aBranch21Len_
+				aBranch = _aABranch1aBranch21_[_iLoopABranch1aBranch21_]
 				if this.isFeasible(aBranch)
 					nValue = this.evaluateSolution(aBranch)
 					

@@ -74,8 +74,9 @@ anNumbers = []
 
 # Applying the :NumbersInString regex to each item
 
-for cItem in acData
-
+_nAcData1Len_ = ring_len(acData)
+for _iLoopAcData1_ = 1 to _nAcData1Len_
+	cItem = acData[_iLoopAcData1_]
 	# Firing Softanza regex engine with rx() and feeding
 	# it with the regex engine called by name using pat()
 
@@ -87,8 +88,10 @@ for cItem in acData
 
 			# Then add them to the result list
 
-			for cMatch in Matches()
-
+			_aMatches1_ = Matches()
+			_nMatches1Len_ = ring_len(_aMatches1_)
+			for _iLoopMatches1_ = 1 to _nMatches1Len_
+				cMatch = _aMatches1_[_iLoopMatches1_]
 				anNumbers + @number(cMatch)
 
 				# The number is matched by the regex engine

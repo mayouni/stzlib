@@ -15,7 +15,10 @@ pr()
         aHealth = oCluster.GetHealth()
         
         ? "=== Cluster Status ==="
-        for aClusterInfo in aStatus[:clusters]
+        _aStatusclusters1_ = aStatus[:clusters]
+        _nStatusclusters1Len_ = ring_len(_aStatusclusters1_)
+        for _iLoopStatusclusters1_ = 1 to _nStatusclusters1Len_
+        	aClusterInfo = _aStatusclusters1_[_iLoopStatusclusters1_]
             ? aClusterInfo[:cluster_type] + ": " + 
               aClusterInfo[:healthy_nodes] + "/" + 
               aClusterInfo[:total_nodes] + " healthy"
@@ -25,7 +28,10 @@ pr()
         ? "==================="
         
         # Check for overloaded clusters
-        for aClusterHealth in aHealth[:clusters]  
+        _aHealthclusters1_ = aHealth[:clusters]
+        _nHealthclusters1Len_ = ring_len(_aHealthclusters1_)
+        for _iLoopHealthclusters1_ = 1 to _nHealthclusters1Len_
+        	aClusterHealth = _aHealthclusters1_[_iLoopHealthclusters1_]
             if aClusterHealth[:overloaded_nodes] > 0
                 ? "WARNING: " + aClusterHealth[:cluster_type] + 
                   " cluster has " + aClusterHealth[:overloaded_nodes] + 

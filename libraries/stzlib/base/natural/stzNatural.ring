@@ -459,9 +459,13 @@ class stzNaturalEngine
 	    
 	    # Filter out quote sections that are inside list sections
 	    aStringSections = []
-	    for aQuoteSection in aAllQuoteSections
+	    _nAllQuoteSections1Len_ = ring_len(aAllQuoteSections)
+	    for _iLoopAllQuoteSections1_ = 1 to _nAllQuoteSections1Len_
+	    	aQuoteSection = aAllQuoteSections[_iLoopAllQuoteSections1_]
 	        bInsideList = FALSE
-	        for aListSection in aListSections
+	        _nListSections1Len_ = ring_len(aListSections)
+	        for _iLoopListSections1_ = 1 to _nListSections1Len_
+	        	aListSection = aListSections[_iLoopListSections1_]
 	            if aQuoteSection[1] >= aListSection[1] and aQuoteSection[2] <= aListSection[2]
 	                bInsideList = TRUE
 	                exit

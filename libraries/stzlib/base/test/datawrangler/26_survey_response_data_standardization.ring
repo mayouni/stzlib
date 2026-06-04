@@ -37,7 +37,9 @@ aCustomRules = [
 ? ""
 ? "1. Range validation with custom rules:"
 aRangeIssues = o1.ValidateRanges(aCustomRules)
-for issue in aRangeIssues
+_nRangeIssues1Len_ = ring_len(aRangeIssues)
+for _iLoopRangeIssues1_ = 1 to _nRangeIssues1Len_
+	issue = aRangeIssues[_iLoopRangeIssues1_]
     ? " • " + issue
 next
 

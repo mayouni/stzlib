@@ -1019,7 +1019,9 @@ class stzDiagram from stzGraph
 		
 		# Apply to nodes
 		aNodes = This.Nodes()
-		for aNode in aNodes
+		_nNodes4Len_ = ring_len(aNodes)
+		for _iLoopNodes4_ = 1 to _nNodes4Len_
+			aNode = aNodes[_iLoopNodes4_]
 			aEnhancements = This._ApplyRulesToElement(aNode, "node")
 			if ring_len(aEnhancements) > 0
 				@aNodeRulesEffects[aNode[:id]] = aEnhancements
@@ -1028,7 +1030,9 @@ class stzDiagram from stzGraph
 		
 		# Apply to edges
 		aEdges = This.Edges()
-		for aEdge in aEdges
+		_nEdges3Len_ = ring_len(aEdges)
+		for _iLoopEdges3_ = 1 to _nEdges3Len_
+			aEdge = aEdges[_iLoopEdges3_]
 			aEnhancements = This._ApplyRulesToElement(aEdge, "edge")
 			cKey = aEdge[:from] + "->" + aEdge[:to]
 			if ring_len(aEnhancements) > 0
@@ -1039,7 +1043,9 @@ class stzDiagram from stzGraph
 	def _ApplyRulesToElement(aElement, cType)
 	    aEnhancements = []
 	    
-	    for aRule in @aoVisualRules
+	    _nAoVisualRules3Len_ = ring_len(@aoVisualRules)
+	    for _iLoopAoVisualRules3_ = 1 to _nAoVisualRules3Len_
+	    	aRule = @aoVisualRules[_iLoopAoVisualRules3_]
 	        aContext = This._BuildRuleContext(aElement)
 	        
 	        if This._RuleMatches(aRule, aContext)
@@ -1050,7 +1056,9 @@ class stzDiagram from stzGraph
 	            aEffects = aRule[:effects]
 	            
 	            # Merge effects
-	            for aEffect in aEffects
+	            _nEffects2Len_ = ring_len(aEffects)
+	            for _iLoopEffects2_ = 1 to _nEffects2Len_
+	            	aEffect = aEffects[_iLoopEffects2_]
 	                aEnhancements[aEffect[1]] = aEffect[2]
 	            end
 	        ok
@@ -1148,14 +1156,18 @@ class stzDiagram from stzGraph
 	def NodesAffectedByVisualRules()
 	    acResult = []
 	    acKeys = keys(@aNodeRulesEffects)
-	    for cKey in acKeys
+	    _nAcKeys2Len_ = ring_len(acKeys)
+	    for _iLoopAcKeys2_ = 1 to _nAcKeys2Len_
+	    	cKey = acKeys[_iLoopAcKeys2_]
 	        acResult + cKey
 	    next
 	    return acResult
 	
 	def VisualRulesApplied()
 	    aResult = []
-	    for aRule in @aoVisualRules
+	    _nAoVisualRules2Len_ = ring_len(@aoVisualRules)
+	    for _iLoopAoVisualRules2_ = 1 to _nAoVisualRules2Len_
+	    	aRule = @aoVisualRules[_iLoopAoVisualRules2_]
 	        aResult + [
 	            :name = aRule[:name],
 	            :conditionType = aRule[:conditionType],
@@ -1173,7 +1185,9 @@ class stzDiagram from stzGraph
 		acResult = []
 		aNodes = This.Nodes()
 		
-		for aNode in aNodes
+		_nNodes3Len_ = ring_len(aNodes)
+		for _iLoopNodes3_ = 1 to _nNodes3Len_
+			aNode = aNodes[_iLoopNodes3_]
 			if HasKey(aNode, :properties) and 
 			   HasKey(aNode[:properties], pcProp)
 				acResult + aNode[:id]
@@ -1192,7 +1206,9 @@ class stzDiagram from stzGraph
 		acResult = []
 		aNodes = This.Nodes()
 		
-		for aNode in aNodes
+		_nNodes2Len_ = ring_len(aNodes)
+		for _iLoopNodes2_ = 1 to _nNodes2Len_
+			aNode = aNodes[_iLoopNodes2_]
 			if HasKey(aNode, :properties) and 
 			   HasKey(aNode[:properties], :tags) and
 			   StzFind(aNode[:properties][:tags], pcTag) > 0
@@ -1206,7 +1222,9 @@ class stzDiagram from stzGraph
 		acResult = []
 		aEdges = This.Edges()
 		
-		for aEdge in aEdges
+		_nEdges2Len_ = ring_len(aEdges)
+		for _iLoopEdges2_ = 1 to _nEdges2Len_
+			aEdge = aEdges[_iLoopEdges2_]
 			if HasKey(aEdge, :properties) and 
 			   HasKey(aEdge[:properties], pcProp)
 				acResult + (aEdge[:from] + "->" + aEdge[:to])
@@ -1219,7 +1237,9 @@ class stzDiagram from stzGraph
 		acResult = []
 		aEdges = This.Edges()
 		
-		for aEdge in aEdges
+		_nEdges1Len_ = ring_len(aEdges)
+		for _iLoopEdges1_ = 1 to _nEdges1Len_
+			aEdge = aEdges[_iLoopEdges1_]
 			if HasKey(aEdge, :properties) and 
 			   HasKey(aEdge[:properties], pcProp) and
 			   aEdge[:properties][pcProp] = pValue
@@ -1236,7 +1256,9 @@ class stzDiagram from stzGraph
 	def propertiesLegend()
 		acLegend = ["=== properties LEGEND ===", ""]
 		
-		for oRule in @aoVisualRules
+		_nAoVisualRules1Len_ = ring_len(@aoVisualRules)
+		for _iLoopAoVisualRules1_ = 1 to _nAoVisualRules1Len_
+			oRule = @aoVisualRules[_iLoopAoVisualRules1_]
 			cCondition = oRule.@cConditionType
 			aParams = oRule.@aConditionParams
 			aEffects = oRule.Effects()
@@ -1246,7 +1268,9 @@ class stzDiagram from stzGraph
 				acLegend + "  Params: " + @@(aParams)
 			ok
 			
-			for aEffect in aEffects
+			_nEffects1Len_ = ring_len(aEffects)
+			for _iLoopEffects1_ = 1 to _nEffects1Len_
+				aEffect = aEffects[_iLoopEffects1_]
 				acLegend + "  ÃƒÆ’Ã‚¢Ãƒ¢ââ€š¬ Ãƒ¢ââ€š¬ââ€ž¢ " + aEffect[1] + ": " + aEffect[2]
 			next
 			
@@ -2145,7 +2169,9 @@ class stzDiagram from stzGraph
 		cStyl += 'colors' + NL
 		if HasKey(@aPalette, @cTheme)
 			acKeys = keys(@aPalette[@cTheme])
-			for cKey in acKeys
+			_nAcKeys1Len_ = ring_len(acKeys)
+			for _iLoopAcKeys1_ = 1 to _nAcKeys1Len_
+				cKey = acKeys[_iLoopAcKeys1_]
 				cStyl += '    ' + cKey + ': ' + @aPalette[@cTheme][cKey] + NL
 			end
 		ok
@@ -2380,7 +2406,9 @@ class stzDiagramToStzDiag
 
 	def NodeListToString(aNodes)
 		cResult = ""
-		for cNode in aNodes
+		_nNodes1Len_ = ring_len(aNodes)
+		for _iLoopNodes1_ = 1 to _nNodes1Len_
+			cNode = aNodes[_iLoopNodes1_]
 			cResult += cNode + ", "
 		end
 		if cResult != ""
@@ -2394,7 +2422,10 @@ class stzDiagramToStzDiag
 		ok
 
 		cResult = "{"
-		for cKey in Keys(aData)
+		_aKeysaData1_ = Keys(aData)
+		_nKeysaData1Len_ = ring_len(_aKeysaData1_)
+		for _iLoopKeysaData1_ = 1 to _nKeysaData1Len_
+			cKey = _aKeysaData1_[_iLoopKeysaData1_]
 			cValue = aData[cKey]
 			if isString(cValue)
 				cResult += cKey + ": " + This.EscapeString(cValue) + ", "
@@ -2477,7 +2508,10 @@ class stzDiagramToDot
 		if ring_len(@oDiagram.Clusters()) > 0
 			cOutput += NL
 			
-			for aCluster in @oDiagram.Clusters()
+			_aDiagramClusters1_ = @oDiagram.Clusters()
+			_nDiagramClusters1Len_ = ring_len(_aDiagramClusters1_)
+			for _iLoopDiagramClusters1_ = 1 to _nDiagramClusters1Len_
+				aCluster = _aDiagramClusters1_[_iLoopDiagramClusters1_]
 				cClusterId = "cluster_" + aCluster["id"]
 				cLabel = aCluster["label"]
 				cColor = aCluster["color"]
@@ -2489,7 +2523,10 @@ class stzDiagramToDot
 				cOutput += '        fillcolor="' + cColor + '20";' + NL  # 20 = transparency
 				
 				# List nodes in cluster
-				for cNodeId in aCluster["nodes"]
+				_aClusternodes1_ = aCluster["nodes"]
+				_nClusternodes1Len_ = ring_len(_aClusternodes1_)
+				for _iLoopClusternodes1_ = 1 to _nClusternodes1Len_
+					cNodeId = _aClusternodes1_[_iLoopClusternodes1_]
 					cOutput += '        ' + This._SanitizeNodeId(cNodeId) + ';' + NL
 				end
 				
@@ -2629,7 +2666,10 @@ class stzDiagramToDot
 	def _GenerateNodes(cTheme)
 		cOutput = ""
 		
-		for aNode in @oDiagram.Nodes()
+		_aDiagramNodes1_ = @oDiagram.Nodes()
+		_nDiagramNodes1Len_ = ring_len(_aDiagramNodes1_)
+		for _iLoopDiagramNodes1_ = 1 to _nDiagramNodes1Len_
+			aNode = _aDiagramNodes1_[_iLoopDiagramNodes1_]
 			cOutput += This._GenerateNode(aNode, cTheme)
 		end
 		
@@ -2891,7 +2931,10 @@ class stzDiagramToDot
 			end
 		ok
 		
-		for aEdge in @oDiagram.Edges()
+		_aDiagramEdges1_ = @oDiagram.Edges()
+		_nDiagramEdges1Len_ = ring_len(_aDiagramEdges1_)
+		for _iLoopDiagramEdges1_ = 1 to _nDiagramEdges1Len_
+			aEdge = _aDiagramEdges1_[_iLoopDiagramEdges1_]
 			cOutput += This._GenerateEdge(aEdge, cTheme)
 		end
 		
@@ -2968,7 +3011,9 @@ class stzDiagramToDot
 	    
 	    cTooltip = ""
 	    
-	    for item in aConfig
+	    _nConfig1Len_ = ring_len(aConfig)
+	    for _iLoopConfig1_ = 1 to _nConfig1Len_
+	    	item = aConfig[_iLoopConfig1_]
 	        cKey = StzLower("" + item)
 	        
 	        if cKey = "nodeid"
@@ -3314,7 +3359,9 @@ class stzStylParser
 		acLines = split(pcContent, NL)
 		cSection = ""
 		
-		for cLine in acLines
+		_nAcLines1Len_ = ring_len(acLines)
+		for _iLoopAcLines1_ = 1 to _nAcLines1Len_
+			cLine = acLines[_iLoopAcLines1_]
 			cLine = trim(cLine)
 			
 			if cLine = "" or StzLeft(cLine, 1) = "#"

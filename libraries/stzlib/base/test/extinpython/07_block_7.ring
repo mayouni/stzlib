@@ -14,7 +14,10 @@ pr()
 def dist(a,b):
     s = 0.0
     n = len(a)
-    for i in range(n):
+    _aRangen1_ = range(n):
+    _nRangen1Len_ = ring_len(_aRangen1_)
+    for _iLoopRangen1_ = 1 to _nRangen1Len_
+    	i = _aRangen1_[_iLoopRangen1_]
         dist = a[i] - b[i]
         s += dist*dist
     return sqrt(s)
@@ -45,7 +48,10 @@ def euc_dist_(a,b)':' # we put the : char between two ''
 s = 0.0
 n = len(a)
 
-for i in range1(n)':'
+_aRange1n1_ = range1(n)':'
+_nRange1n1Len_ = ring_len(_aRange1n1_)
+for _iLoopRange1n1_ = 1 to _nRange1n1Len_
+	i = _aRange1n1_[_iLoopRange1n1_]
 # We use range1() to make it start from 1
 # We can also leave range() and add i++
 

@@ -57,7 +57,9 @@ func CacheFunc(cFunc, aParams, pResult, nSeconds)
 	cCacheLine +=  '"' + stzTimeStamp() + '" , '
 	cCacheLine += "[ "
 	n = 0
-	for value in aParams
+	_nParams1Len_ = ring_len(aParams)
+	for _iLoopParams1_ = 1 to _nParams1Len_
+		value = aParams[_iLoopParams1_]
 		n++
 		switch ring_type(value)
 		on "NUMBER"

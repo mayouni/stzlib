@@ -35,7 +35,9 @@ oFinder2 = new stzStringFinder(o1)
 oSplitter = new stzStringSplitter(o1)
 aParts = oSplitter.SplitAtSubString(" ")
 ? "  Split by space: " + len(aParts) + " parts"
-for item in aParts
+_nParts1Len_ = ring_len(aParts)
+for _iLoopParts1_ = 1 to _nParts1Len_
+	item = aParts[_iLoopParts1_]
 	? "    - [" + item + "]"
 next
 

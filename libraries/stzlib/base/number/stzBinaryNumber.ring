@@ -229,7 +229,10 @@ class stzBinaryNumber from stzObject
 	def FractionalPartToDecimalForm()
 		nCurrentTotal = 0
 		
-		for bit in This.FractionalPartReversed()
+		_aThisFractionalPartRevers1_ = This.FractionalPartReversed()
+		_nThisFractionalPartRevers1Len_ = ring_len(_aThisFractionalPartRevers1_)
+		for _iLoopThisFractionalPartRevers1_ = 1 to _nThisFractionalPartRevers1Len_
+			bit = _aThisFractionalPartRevers1_[_iLoopThisFractionalPartRevers1_]
 			nCurrentTotal = ( nCurrentTotal + (0+ bit) ) / 2
 		next
 

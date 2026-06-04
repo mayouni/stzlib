@@ -5502,7 +5502,9 @@ func FirstListIn(paList)
 func GenerateListAccessCode_FromNameAndPath(pcListName, paPath)
 	// Warining: aPath must contain only numbers!!!
 	cCode = pcListName
-	for n in paPath
+	_nPath1Len_ = ring_len(paPath)
+	for _iLoopPath1_ = 1 to _nPath1Len_
+		n = paPath[_iLoopPath1_]
 		cCode += ("["+ n + ']')
 	next
 
@@ -5554,7 +5556,10 @@ func CallMethod( pcMethod, paOnObjects )
 	ok
 
 	aResult = []
-	for cObjName in paOnObjects[2]
+	_aOnObjects21_ = paOnObjects[2]
+	_nOnObjects21Len_ = ring_len(_aOnObjects21_)
+	for _iLoopOnObjects21_ = 1 to _nOnObjects21Len_
+		cObjName = _aOnObjects21_[_iLoopOnObjects21_]
 		cCode = "aResult + " + cObjName + "." + pcMethod
 		eval(cCode)
 	next
@@ -6137,7 +6142,9 @@ func AllTheseAreNull(paList)
 
 func AllOfTheseAreNotNull(paList)
 	bResult = 1
-	for item in paList
+	_nList2Len_ = ring_len(paList)
+	for _iLoopList2_ = 1 to _nList2Len_
+		item = paList[_iLoopList2_]
 		if isString(item) and isNull(item)
 			bResult = 0
 			exit
@@ -6177,7 +6184,9 @@ func BothAreNotNull(p1, p2)
 
 func NoOneOfTheseIsAString(paList)
 	bResult = 1
-	for item in paList
+	_nList1Len_ = ring_len(paList)
+	for _iLoopList1_ = 1 to _nList1Len_
+		item = paList[_iLoopList1_]
 		if isString(item)
 			bResult = 0
 			exit

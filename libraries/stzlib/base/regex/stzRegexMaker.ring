@@ -226,7 +226,9 @@ class stzRegexMaker
 	def Pattern()
 		cResult = ""
 
-		for cFrag in acFragments
+		_nAcFragments1Len_ = ring_len(acFragments)
+		for _iLoopAcFragments1_ = 1 to _nAcFragments1Len_
+			cFrag = acFragments[_iLoopAcFragments1_]
 			cResult += cFrag
 		next
 
@@ -924,7 +926,9 @@ class stzRegexMaker
 		switch pcMode
 		on :and
 			cResult = ""
-			for cPattern in paPatterns
+			_nPatterns1Len_ = ring_len(paPatterns)
+			for _iLoopPatterns1_ = 1 to _nPatterns1Len_
+				cPattern = paPatterns[_iLoopPatterns1_]
 				cResult += "(?=" + cPattern + ")"
 			next
 			acFragments + cResult
@@ -1178,7 +1182,9 @@ class stzRecursiveRegexMaker
 
 	def LevelNames()
 		aResult = []
-		for level in aLevels
+		_nLevels2Len_ = ring_len(aLevels)
+		for _iLoopLevels2_ = 1 to _nLevels2Len_
+			level = aLevels[_iLoopLevels2_]
 			aResult + level[:name]
 		next
 		return aResult
@@ -1210,7 +1216,10 @@ class stzRecursiveRegexMaker
 
 		aResult = []
 
-		for nChild in aLevels[nLevel][:children]
+		_aLevelsnLevelchildren1_ = aLevels[nLevel][:children]
+		_nLevelsnLevelchildren1Len_ = ring_len(_aLevelsnLevelchildren1_)
+		for _iLoopLevelsnLevelchildren1_ = 1 to _nLevelsnLevelchildren1Len_
+			nChild = _aLevelsnLevelchildren1_[_iLoopLevelsnLevelchildren1_]
 			aResult + aLevels[nChild][:name]
 		next
 
@@ -1220,8 +1229,9 @@ class stzRecursiveRegexMaker
 
 		aResult = []
 
-		for level in aLevels
-
+		_nLevels1Len_ = ring_len(aLevels)
+		for _iLoopLevels1_ = 1 to _nLevels1Len_
+			level = aLevels[_iLoopLevels1_]
 			aInfo = [
 				:name = level[:name],
 				:pattern = level[:pattern],
@@ -1265,7 +1275,10 @@ class stzRecursiveRegexMaker
 
 		cChildrenPattern = ""
 
-		for nChild in level[:children]
+		_aLevelchildren1_ = level[:children]
+		_nLevelchildren1Len_ = ring_len(_aLevelchildren1_)
+		for _iLoopLevelchildren1_ = 1 to _nLevelchildren1Len_
+			nChild = _aLevelchildren1_[_iLoopLevelchildren1_]
 			cChildPattern = pvtBuildPattern(nChild)
 			cChildrenPattern += cChildPattern
 		next

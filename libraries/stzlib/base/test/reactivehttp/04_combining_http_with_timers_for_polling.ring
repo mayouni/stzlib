@@ -71,7 +71,9 @@ func fStopPolling()
     ? "Polling Summary:"
     ? "  - Total polls: " + len(aDataHistory)
     nUpdates = 0
-    for aData in aDataHistory
+    _nDataHistory1Len_ = ring_len(aDataHistory)
+    for _iLoopDataHistory1_ = 1 to _nDataHistory1Len_
+    	aData = aDataHistory[_iLoopDataHistory1_]
         if aData[:hasUpdate]
             nUpdates++
         ok

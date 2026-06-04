@@ -32,7 +32,9 @@ o1 = new stzDataWrangler(aOutlierData, aOutlierHeaders)
 aOutliers = o1.DetectOutliers(2.0)  # Using Z-score threshold of 2.0
 ? "Outliers detected: " + len(aOutliers)
 
-for outlier in aOutliers
+_nOutliers1Len_ = ring_len(aOutliers)
+for _iLoopOutliers1_ = 1 to _nOutliers1Len_
+	outlier = aOutliers[_iLoopOutliers1_]
     ? "  • Row " + outlier[1] + ", " + aOutlierHeaders[outlier[2]] + ": " + outlier[3] + " (Z-score: " + outlier[4] + ")"
 next
 

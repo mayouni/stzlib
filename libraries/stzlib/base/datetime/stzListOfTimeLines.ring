@@ -311,10 +311,14 @@ class stzListOfTimeLines from stzObject
 			for j = i + 1 to nLen
 				aSpansJ = @aTimeLines[j].Spans()
 				// Check for overlapping spans between lane i and j
-				for s1 in aSpansI
+				_nSpansI1Len_ = ring_len(aSpansI)
+				for _iLoopSpansI1_ = 1 to _nSpansI1Len_
+					s1 = aSpansI[_iLoopSpansI1_]
 					oStart1 = new stzDateTime(s1[2])
 					oEnd1 = new stzDateTime(s1[3])
-					for s2 in aSpansJ
+					_nSpansJ1Len_ = ring_len(aSpansJ)
+					for _iLoopSpansJ1_ = 1 to _nSpansJ1Len_
+						s2 = aSpansJ[_iLoopSpansJ1_]
 						oStart2 = new stzDateTime(s2[2])
 						oEnd2 = new stzDateTime(s2[3])
 						if oStart1 < oEnd2 and oStart2 < oEnd1
@@ -506,11 +510,15 @@ class stzListOfTimeLines from stzObject
 		nLen = ring_len(@aTimeLines)
 		for i = 1 to nLen
 			aPoints = @aTimeLines[i].Points()
-			for p in aPoints
+			_nPoints1Len_ = ring_len(aPoints)
+			for _iLoopPoints1_ = 1 to _nPoints1Len_
+				p = aPoints[_iLoopPoints1_]
 				oMerged.AddPoint(@aLanes[i] + "-" + p[1], p[2])
 			next
 			aSpans = @aTimeLines[i].Spans()
-			for s in aSpans
+			_nSpans1Len_ = ring_len(aSpans)
+			for _iLoopSpans1_ = 1 to _nSpans1Len_
+				s = aSpans[_iLoopSpans1_]
 				oMerged.AddSpan(@aLanes[i] + "-" + s[1], s[2], s[3])
 			next
 		next

@@ -3490,7 +3490,9 @@ class stzGraph
 	def UseRulesFrom(pcRuleGroup)
 		if HasKey($aGraphRules, pcRuleGroup)
 			aRules = $aGraphRules[pcRuleGroup]
-			for aRule in aRules
+			_nRules2Len_ = ring_len(aRules)
+			for _iLoopRules2_ = 1 to _nRules2Len_
+				aRule = aRules[_iLoopRules2_]
 				This._AddUniqueRule(aRule)
 			next
 		ok
@@ -3512,7 +3514,9 @@ class stzGraph
 		
 		if aRuleList != NULL
 			# Check if already exists
-			for aExisting in aRuleList
+			_nRuleList1Len_ = ring_len(aRuleList)
+			for _iLoopRuleList1_ = 1 to _nRuleList1Len_
+				aExisting = aRuleList[_iLoopRuleList1_]
 				if aExisting[:name] = cName
 					return  # Already added
 				ok
@@ -3595,16 +3599,26 @@ class stzGraph
 	def RulesApplied()
 		acResult = []
 		
-		for aAffected in @aAffectedNodes
-			for cRule in aAffected[2]
+		_nAffectedNodes1Len_ = ring_len(@aAffectedNodes)
+		for _iLoopAffectedNodes1_ = 1 to _nAffectedNodes1Len_
+			aAffected = @aAffectedNodes[_iLoopAffectedNodes1_]
+			_aAffected22_ = aAffected[2]
+			_nAffected22Len_ = ring_len(_aAffected22_)
+			for _iLoopAffected22_ = 1 to _nAffected22Len_
+				cRule = _aAffected22_[_iLoopAffected22_]
 				if StzFind(acResult, cRule) = 0
 					acResult + cRule
 				ok
 			next
 		next
 		
-		for aAffected in @aAffectedEdges
-			for cRule in aAffected[2]
+		_nAffectedEdges1Len_ = ring_len(@aAffectedEdges)
+		for _iLoopAffectedEdges1_ = 1 to _nAffectedEdges1Len_
+			aAffected = @aAffectedEdges[_iLoopAffectedEdges1_]
+			_aAffected21_ = aAffected[2]
+			_nAffected21Len_ = ring_len(_aAffected21_)
+			for _iLoopAffected21_ = 1 to _nAffected21Len_
+				cRule = _aAffected21_[_iLoopAffected21_]
 				if StzFind(acResult, cRule) = 0
 					acResult + cRule
 				ok
@@ -3707,7 +3721,9 @@ class stzGraph
 	    def _RemoveRuleFromList(aRules, cName)
 		cName = UPPER(cName)
 	        aNew = []
-	        for aRule in aRules
+	        _nRules1Len_ = ring_len(aRules)
+	        for _iLoopRules1_ = 1 to _nRules1Len_
+	        	aRule = aRules[_iLoopRules1_]
 	            if aRule[:name] != cName
 	                aNew + aRule
 	            ok
@@ -3754,13 +3770,19 @@ class stzGraph
 	    # List active rules
 	    def ActiveRules()
 	        acAll = []
-	        for aRule in @aConstraintRules
+	        _nConstraintRules1Len_ = ring_len(@aConstraintRules)
+	        for _iLoopConstraintRules1_ = 1 to _nConstraintRules1Len_
+	        	aRule = @aConstraintRules[_iLoopConstraintRules1_]
 	            acAll + [:Constraint, aRule[:name]]
 	        next
-	        for aRule in @aDerivationRules
+	        _nDerivationRules1Len_ = ring_len(@aDerivationRules)
+	        for _iLoopDerivationRules1_ = 1 to _nDerivationRules1Len_
+	        	aRule = @aDerivationRules[_iLoopDerivationRules1_]
 	            acAll + [:Derivation, aRule[:name]]
 	        next
-	        for aRule in @aValidationRules
+	        _nValidationRules1Len_ = ring_len(@aValidationRules)
+	        for _iLoopValidationRules1_ = 1 to _nValidationRules1Len_
+	        	aRule = @aValidationRules[_iLoopValidationRules1_]
 	            acAll + [:Validation, aRule[:name]]
 	        next
 	        return acAll
@@ -3852,7 +3874,9 @@ class stzGraph
 		nFailed = 0
 		nTotal = 0
 		
-		for cValidator in pacValidators
+		_nPacValidators1Len_ = ring_len(pacValidators)
+		for _iLoopPacValidators1_ = 1 to _nPacValidators1Len_
+			cValidator = pacValidators[_iLoopPacValidators1_]
 			aResult = This._ValidateSingle(cValidator)
 			aResults + aResult
 			
@@ -3873,12 +3897,16 @@ class stzGraph
 	
 	def _FlattenViolations(aViolations)
 		acIssues = []
-		for aViolation in aViolations
+		_nViolations2Len_ = ring_len(aViolations)
+		for _iLoopViolations2_ = 1 to _nViolations2Len_
+			aViolation = aViolations[_iLoopViolations2_]
 			if HasKey(aViolation, :message)
 				pMsg = aViolation[:message]
 				
 				if isList(pMsg)
-					for aSubViolation in pMsg
+					_nMsg2Len_ = ring_len(pMsg)
+					for _iLoopMsg2_ = 1 to _nMsg2Len_
+						aSubViolation = pMsg[_iLoopMsg2_]
 						if isList(aSubViolation) and HasKey(aSubViolation, :message)
 							acIssues + aSubViolation[:message]
 						but isString(aSubViolation)
@@ -3894,12 +3922,16 @@ class stzGraph
 	
 	def _ExtractAffectedNodes(aViolations)
 		acNodes = []
-		for aViolation in aViolations
+		_nViolations1Len_ = ring_len(aViolations)
+		for _iLoopViolations1_ = 1 to _nViolations1Len_
+			aViolation = aViolations[_iLoopViolations1_]
 			if HasKey(aViolation, :message)
 				pMsg = aViolation[:message]
 				
 				if isList(pMsg)
-					for aSubViolation in pMsg
+					_nMsg1Len_ = ring_len(pMsg)
+					for _iLoopMsg1_ = 1 to _nMsg1Len_
+						aSubViolation = pMsg[_iLoopMsg1_]
 						if isList(aSubViolation) and 
 						   HasKey(aSubViolation, :params) and 
 						   HasKey(aSubViolation[:params], :node)
@@ -3924,9 +3956,14 @@ class stzGraph
 	
 	def _MergeAffectedNodes(aResults)
 		acAll = []
-		for aResult in aResults
+		_nResults1Len_ = ring_len(aResults)
+		for _iLoopResults1_ = 1 to _nResults1Len_
+			aResult = aResults[_iLoopResults1_]
 			if HasKey(aResult, :affectedNodes)
-				for cNode in aResult[:affectedNodes]
+				_aResultaffectedNodes1_ = aResult[:affectedNodes]
+				_nResultaffectedNodes1Len_ = ring_len(_aResultaffectedNodes1_)
+				for _iLoopResultaffectedNodes1_ = 1 to _nResultaffectedNodes1Len_
+					cNode = _aResultaffectedNodes1_[_iLoopResultaffectedNodes1_]
 					if StzFind(acAll, cNode) = 0
 						acAll + cNode
 					ok
@@ -5419,7 +5456,9 @@ class stzGraphFinder
 		acResult = []
 		aNodes = @oGraph.Nodes()
 		
-		for aNode in aNodes
+		_nNodes1Len_ = ring_len(aNodes)
+		for _iLoopNodes1_ = 1 to _nNodes1Len_
+			aNode = aNodes[_iLoopNodes1_]
 			if This._NodeMatches(aNode)
 				acResult + aNode[:id]
 			ok
@@ -5431,7 +5470,9 @@ class stzGraphFinder
 		acResult = []
 		aEdges = @oGraph.Edges()
 		
-		for aEdge in aEdges
+		_nEdges1Len_ = ring_len(aEdges)
+		for _iLoopEdges1_ = 1 to _nEdges1Len_
+			aEdge = aEdges[_iLoopEdges1_]
 			if This._EdgeMatches(aEdge)
 				acResult + [ aEdge[:from], aEdge[:to] ]
 			ok
@@ -5439,7 +5480,9 @@ class stzGraphFinder
 		return acResult
 	
 	def _NodeMatches(aNode)
-		for aFilter in @aFilters
+		_nFilters2Len_ = ring_len(@aFilters)
+		for _iLoopFilters2_ = 1 to _nFilters2Len_
+			aFilter = @aFilters[_iLoopFilters2_]
 			cType = aFilter[1]
 			
 			if cType = :where
@@ -5474,7 +5517,9 @@ class stzGraphFinder
 		return TRUE
 	
 	def _EdgeMatches(aEdge)
-		for aFilter in @aFilters
+		_nFilters1Len_ = ring_len(@aFilters)
+		for _iLoopFilters1_ = 1 to _nFilters1Len_
+			aFilter = @aFilters[_iLoopFilters1_]
 			cType = aFilter[1]
 			
 			if cType = :where

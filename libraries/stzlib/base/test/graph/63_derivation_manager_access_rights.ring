@@ -15,7 +15,9 @@ RegisterRuleInGroup(:ACCESS_RULES_GROUP, "MANAGER_SEES_REPORTS", [
 		aNewEdges = []
 		aEdges = oGraph.Edges()
 		
-		for aEdge in aEdges
+		_nEdges1Len_ = ring_len(aEdges)
+		for _iLoopEdges1_ = 1 to _nEdges1Len_
+			aEdge = aEdges[_iLoopEdges1_]
 			if aEdge[:label] = "manages"
 				cManager = aEdge[:from]
 				cEmployee = aEdge[:to]

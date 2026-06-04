@@ -3,7 +3,7 @@
 # Testing comprehensive reporting
 #
 # Extracted from stzdatawranglertest.ring, block #18.
-#ERR exit 1: Line 843 Bad parameter type!
+#ERR exit 1: Line 868 Bad parameter type!
 
 load "../../stzBase.ring"
 
@@ -38,7 +38,9 @@ aDetailedProfile = o1.GetDataProfile()
 ? BoxRound("ISSUES BREAKDOWN")
 aIssues = o1.GetIssues()
 if len(aIssues) > 0
-    for issue in aIssues
+    _nIssues1Len_ = ring_len(aIssues)
+    for _iLoopIssues1_ = 1 to _nIssues1Len_
+    	issue = aIssues[_iLoopIssues1_]
         ? "• [" + issue[:type] + "] " + issue[:description]
     next
 else

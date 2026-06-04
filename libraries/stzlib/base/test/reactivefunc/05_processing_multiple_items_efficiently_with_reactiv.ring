@@ -38,7 +38,9 @@ oRs {
     ? "Processing " + total + " items in parallel..."
     
     # Launch all items for processing simultaneously
-    for item in items
+    _nItems1Len_ = ring_len(items)
+    for _iLoopItems1_ = 1 to _nItems1Len_
+    	item = items[_iLoopItems1_]
         RProcess.CallAsync(
             [item],
             func result {
