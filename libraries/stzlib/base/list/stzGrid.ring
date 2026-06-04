@@ -45,6 +45,11 @@ class stzGrid From stzObject
 	@bShowObstacles = TRUE
 	@bShowPath = TRUE
 
+	# When set via ReplaceAll(:With = val), Content() materializes
+	# a 2D list of the grid dimensions filled with this value.
+	@xFillValue = NULL
+	@bHasFillValue = 0
+
 	def init(panColRow)
 
 		if NOT (isList(panColRow) and ring_len(panColRow) = 2 and
@@ -2843,3 +2848,38 @@ class stzGrid From stzObject
 		ok
 
 		return cResult
+
+	# ReplaceAll(:With = val): record val as the fill value. The
+	# subsequent Content() call materialises a @nRows x @nCols list
+	# of lists filled with val. Used by stzObject.RepeatXT to spell
+	# 'a grid of N x M filled with this value' as a fluent chain:
+	#
+	#   StzGridQ([3, 3]).ReplaceAllQ(:With = 5).Content()
+	#     -> [[5,5,5], [5,5,5], [5,5,5]]
+
+	def ReplaceAll(pNamedParam)
+		if isList(pNamedParam) and ring_len(pNamedParam) = 2 and
+		   isString(pNamedParam[1]) and lower(pNamedParam[1]) = "with"
+			@xFillValue = pNamedParam[2]
+			@bHasFillValue = 1
+			return
+		ok
+		StzRaise("ReplaceAll: expected :With = <value>.")
+
+		def ReplaceAllQ(pNamedParam)
+			This.ReplaceAll(pNamedParam)
+			return This
+
+	def Content()
+		if NOT @bHasFillValue
+			return []
+		ok
+		_aGrid_ = []
+		for _iCgR_ = 1 to @nRows
+			_aRow_ = []
+			for _jCgC_ = 1 to @nCols
+				_aRow_ + @xFillValue
+			next
+			_aGrid_ + _aRow_
+		next
+		return _aGrid_

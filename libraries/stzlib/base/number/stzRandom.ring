@@ -1152,6 +1152,39 @@ func RandomNumber()
 	func AnyNumber()
 		return RandomNumber()
 
+	# Named-param DSL: ARandomNumberBetweenAnd(:Between = n1, :And = n2)
+	# returns a random integer in [n1, n2] (inclusive). Strict bounds
+	# (n1, n2) exclusive: use ARandomNumberStrictlyBetweenAnd.
+	#
+	# (ARandomNumberXT is already defined elsewhere as the seeded
+	# bare-call form, so we don't reuse that name here.)
+
+	func ARandomNumberBetweenAnd(p1, p2)
+		return _ARandomNumberBetweenAnd(p1, p2, 0)   # inclusive
+
+	func ARandomNumberStrictlyBetweenAnd(p1, p2)
+		return _ARandomNumberBetweenAnd(p1, p2, 1)   # exclusive
+
+	func _ARandomNumberBetweenAnd(p1, p2, bStrict)
+		if NOT (isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		        lower(p1[1]) = "between" and isNumber(p1[2]))
+			StzRaise("ARandomNumber: first arg must be :Between = <number>.")
+		ok
+		if NOT (isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and
+		        lower(p2[1]) = "and" and isNumber(p2[2]))
+			StzRaise("ARandomNumber: second arg must be :And = <number>.")
+		ok
+		nMin = p1[2]
+		nMax = p2[2]
+		if bStrict
+			nMin += 1
+			nMax -= 1
+			if nMin > nMax
+				return nMin - 1
+			ok
+		ok
+		return RandomNumberBetween(nMin, nMax)
+
 	#==
 
 	func RandomNumber01()

@@ -4296,6 +4296,45 @@ class stzObject
 
 	def IsAList()
 		return 0
+
+	# IsStzType: when Content() is a string, answer "is this string the
+	# name of a registered Softanza class?". Used by the return-type
+	# routing in stzNumber.MultiplesUntilQRT etc. -- the user passes
+	# :stzList / :stzListOfNumbers as the return type and the dispatch
+	# validates it via Q(name).IsStzType().
+	#
+	# The recognised set covers every public Stz... class the library
+	# ships. Names are matched case-insensitively to spare callers
+	# the exact-casing burden.
+	def IsStzType()
+		_cIstContent_ = This.Content()
+		if NOT isString(_cIstContent_)
+			return 0
+		ok
+		_cIstName_ = lower(_cIstContent_)
+		_acIstTypes_ = [
+			"stzobject", "stznumber", "stzstring", "stzlist",
+			"stzlistofnumbers", "stzlistofstrings", "stzlistofchars",
+			"stzlistofbytes", "stzlistoflists", "stzlistofpairs",
+			"stzlistofhashlists", "stzlistoftimelines",
+			"stzlistofentities", "stzlist2d", "stzlistex",
+			"stzhashlist", "stzpair", "stzpairofnumbers",
+			"stzchar", "stzbyte", "stzdate", "stztime",
+			"stzdatetime", "stzcalendar", "stzduration",
+			"stztimeline", "stzcounter", "stzintseq",
+			"stzregex", "stzhtml", "stzfile", "stzfolder",
+			"stztable", "stztablex", "stzpivottable",
+			"stzmatrex", "stzgrid", "stzgraph", "stzgraphquery",
+			"stzgraphplanner", "stzknowledgegraph", "stzorgchart",
+			"stzdiagram", "stztree", "stztext", "stzentity",
+			"stzdataset", "stzdatawrangler", "stzcurrency",
+			"stzlocale", "stzcountry", "stzuuid", "stzhexnumber",
+			"stzbinarynumber", "stzoctalnumber"
+		]
+		if ring_find(_acIstTypes_, _cIstName_) > 0
+			return 1
+		ok
+		return 0
 	
 	  #======================================#
 	 #  REPEATING THE OBJECT VALUE N TIMES  #

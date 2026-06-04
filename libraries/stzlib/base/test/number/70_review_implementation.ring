@@ -3,7 +3,7 @@
 # #TODO Review implementation
 #
 # Extracted from stznumbertest.ring, block #70.
-#ERR Error (R14) : Calling Method without definition: splittonpartsq
+#ERR Error (R14) : Calling Method without definition: repeatedtrailingcharis
 
 load "../../stzBase.ring"
 

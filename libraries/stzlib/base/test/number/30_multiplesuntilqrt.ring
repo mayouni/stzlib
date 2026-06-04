@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stznumbertest.ring, block #30.
-#ERR Error (R14) : Calling Method without definition: isstztype
+#ERR Error (R14) : Calling Method without definition: sortedinascending
 
 load "../../stzBase.ring"
 

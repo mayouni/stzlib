@@ -4499,6 +4499,20 @@ class stzList from stzObject
 		next
 		return _aUcResult_
 
+	# Types(): map ring_type over the items, return the list of type
+	# tags. "STRING", "NUMBER", "LIST", "OBJECT". Used by the
+	# RepeatedInAPair narrative tests on stzObject.
+	def Types()
+		_aT_ = []
+		_nTl_ = ring_len(@aContent)
+		for _iT_ = 1 to _nTl_
+			_aT_ + ring_type(@aContent[_iT_])
+		next
+		return _aT_
+
+		def TypesQ()
+			return new stzList( This.Types() )
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
