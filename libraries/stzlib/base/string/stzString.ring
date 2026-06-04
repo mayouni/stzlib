@@ -1346,6 +1346,136 @@ class stzString from stzObject
 		def RemoveAll(pcSubStr)
 			This.Remove(pcSubStr)
 
+	# RemoveXT: extended Remove that dispatches on a named-param DSL.
+	# Supported call shapes (all keys case-insensitive):
+	#
+	#   o1.RemoveXT(p, :AtPosition = N)
+	#   o1.RemoveXT(p, :AtPositions = [N, N, ...])
+	#
+	#   o1.RemoveXT(p, :From = pcOtherString)        # rebinds Content to
+	#                                                 # pcOtherString first
+	#   o1.RemoveXT(:Each  = p, :From = c)
+	#   o1.RemoveXT(:First = p, :From = c)
+	#   o1.RemoveXT(:Last  = p, :From = c)
+	#   o1.RemoveXT(:Nth   = [N, p], :From = c)
+	#   o1.RemoveXT(:Nth   = [[N1, N2, ...], p], :From = c)
+	#
+	# Two-arg call where the first arg is a string and the second a
+	# (key,value) named-param list -> positional remove of the
+	# occurrence(s) at byte position(s) given by the value.
+	def RemoveXT(p1, p2)
+		# Form A: RemoveXT(:Selector = p, :From = c)
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1])
+			_cSel_ = lower(p1[1])
+			if isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and lower(p2[1]) = "from"
+				This.Update(p2[2])
+				_pVal_ = p1[2]
+				if _cSel_ = "each"
+					This.RemoveAll(_pVal_)
+					return
+				ok
+				if _cSel_ = "first"
+					This.RemoveFirst(_pVal_)
+					return
+				ok
+				if _cSel_ = "last"
+					This.RemoveLast(_pVal_)
+					return
+				ok
+				if _cSel_ = "nth"
+					# :Nth = [N, "subStr"]  or  [[N1,N2,...], "subStr"]
+					if isList(_pVal_) and ring_len(_pVal_) = 2
+						_xN_ = _pVal_[1]
+						_cSubStr_ = _pVal_[2]
+						if isNumber(_xN_)
+							This.RemoveNth(_xN_, _cSubStr_)
+							return
+						but isList(_xN_)
+							# Sort descending so positions stay valid
+							_anNs_ = _xN_
+							_nNs_ = ring_len(_anNs_)
+							for _iRx_ = 1 to _nNs_ - 1
+								for _jRx_ = 1 to _nNs_ - _iRx_
+									if _anNs_[_jRx_] < _anNs_[_jRx_ + 1]
+										_tmpN_ = _anNs_[_jRx_]
+										_anNs_[_jRx_] = _anNs_[_jRx_ + 1]
+										_anNs_[_jRx_ + 1] = _tmpN_
+									ok
+								next
+							next
+							for _iRx_ = 1 to _nNs_
+								This.RemoveNth(_anNs_[_iRx_], _cSubStr_)
+							next
+							return
+						ok
+					ok
+				ok
+			ok
+		ok
+
+		# Form B: RemoveXT(pcSubStr, :From = c) -- rebind content, then
+		# remove every occurrence.
+		if isString(p1) and isList(p2) and ring_len(p2) = 2 and
+		   isString(p2[1]) and lower(p2[1]) = "from"
+			This.Update(p2[2])
+			This.RemoveAll(p1)
+			return
+		ok
+
+		# Form C: RemoveXT(pcSubStr, :AtPosition = N)
+		if isString(p1) and isList(p2) and ring_len(p2) = 2 and isString(p2[1])
+			_cKey_ = lower(p2[1])
+			if _cKey_ = "atposition" and isNumber(p2[2])
+				This._RemoveOccurrenceAtPos(p1, p2[2])
+				return
+			ok
+			if _cKey_ = "atpositions" and isList(p2[2])
+				# Sort descending so removals don't shift remaining positions.
+				_anPs_ = p2[2]
+				_nPs_ = ring_len(_anPs_)
+				for _iRp_ = 1 to _nPs_ - 1
+					for _jRp_ = 1 to _nPs_ - _iRp_
+						if _anPs_[_jRp_] < _anPs_[_jRp_ + 1]
+							_tmpP_ = _anPs_[_jRp_]
+							_anPs_[_jRp_] = _anPs_[_jRp_ + 1]
+							_anPs_[_jRp_ + 1] = _tmpP_
+						ok
+					next
+				next
+				for _iRp_ = 1 to _nPs_
+					This._RemoveOccurrenceAtPos(p1, _anPs_[_iRp_])
+				next
+				return
+			ok
+		ok
+
+		StzRaise("RemoveXT: unsupported argument shape")
+
+		def RemoveXTQ(p1, p2)
+			This.RemoveXT(p1, p2)
+			return This
+
+	# Internal: remove the substring pcSubStr at exact character
+	# position nPos (the occurrence starts there). No-op if no match.
+	def _RemoveOccurrenceAtPos(pcSubStr, nPos)
+		_cStr_ = This.Content()
+		_nSubLen_ = ring_len(pcSubStr)
+		if nPos < 1 or nPos + _nSubLen_ - 1 > ring_len(_cStr_)
+			return
+		ok
+		if substr(_cStr_, nPos, _nSubLen_) != pcSubStr
+			return
+		ok
+		_cBefore_ = ""
+		if nPos > 1
+			_cBefore_ = substr(_cStr_, 1, nPos - 1)
+		ok
+		_cAfter_ = ""
+		if nPos + _nSubLen_ - 1 < ring_len(_cStr_)
+			_cAfter_ = substr(_cStr_, nPos + _nSubLen_)
+		ok
+		This.Update(_cBefore_ + _cAfter_)
+
 		def RemoveAllCS(pcSubStr, pCaseSensitive)
 			This.RemoveCS(pcSubStr, pCaseSensitive)
 
