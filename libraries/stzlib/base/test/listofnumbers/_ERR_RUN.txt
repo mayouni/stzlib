@@ -1,0 +1,91 @@
+== listofnumbers  PASS 69  ERR 20  TIMEOUT 1  (161.7s) ==
+[PASS]    01_diffs.ring
+[PASS]    02_diffwith.ring
+[PASS]    03_classifybynearestto.ring
+[PASS]    04_steps.ring
+[ERR]     05_walker.ring :: Error (R11) : Error in class name, class not found: stzwalker
+[PASS]    06_containspositiveandnegativenumbers.ring
+[PASS]    07_perfgain100.ring
+[PASS]    08_perfgain100.ring
+[PASS]    09_divide.ring
+[PASS]    10_justified.ring
+[PASS]    11_min.ring
+[PASS]    12_association.ring
+[ERR]     13_nsmallestnumbers.ring :: Error (R14) : Calling Method without definition: sortupq
+[ERR]     15_integers.ring :: Error (R14) : Calling Method without definition: charsq
+[PASS]    16_type.ring
+[PASS]    17_write_a.ring
+[ERR]     18_pr.ring :: Error (R13) : Object is required
+[ERR]     19_pr.ring :: Error (R13) : Object is required
+[PASS]    20_pr.ring
+[PASS]    21_pr.ring
+[PASS]    22_splittedtopartsofnitems.ring
+[PASS]    23_pr.ring
+[PASS]    24_pr.ring
+[PASS]    25_splittedtonparts.ring
+[PASS]    26_pr.ring
+[PASS]    27_pr.ring
+[ERR]     28_pr.ring :: Error (R50) : Object does not support operator overloading
+[ERR]     29_pr.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    30_numbersgreaterthan.ring
+[ERR]     31_pr.ring :: Error (R3) : Calling Function without definition: 3randomnumbersin
+[PASS]    32_nrandomnumbersin.ring
+[PASS]    33_nrandomnumbers.ring
+[TIMEOUT] 34_nrandomnumbers.ring
+[PASS]    35_anynumberbeforeposition.ring
+[PASS]    36_anynumberbefore.ring
+[PASS]    37_anynumberafterposition.ring
+[PASS]    39_anynumberbeforeorafter.ring
+[ERR]     40_anumberotherthan.ring :: Error (R13) : Object is required
+[ERR]     41_neighbors.ring :: Error (R2) : Array Access (Index out of range)
+[PASS]    42_nearest.ring
+[PASS]    43_farthest.ring
+[PASS]    44_neighborsof.ring
+[PASS]    45_farthestneighborsof.ring
+[PASS]    46_farthesttoxt.ring
+[ERR]     47_nearesttoxt.ring :: Error (R2) : Array Access (Index out of range)
+[PASS]    48_min.ring
+[PASS]    49_sum_2_3_2.ring
+[ERR]     50_findall.ring :: Error (R14) : Calling Method without definition: firstnitemsqrt
+[PASS]    51_sortingorder.ring
+[PASS]    52_iscontiguous.ring
+[PASS]    53_content.ring
+[PASS]    54_reversed.ring
+[ERR]     55_max.ring :: Error (R3) : Calling Function without definition: maxnumbers
+[PASS]    56_addedtoeach.ring
+[PASS]    57_content.ring
+[PASS]    58_content.ring
+[PASS]    59_content.ring
+[PASS]    60_content.ring
+[PASS]    61_content.ring
+[PASS]    62_content.ring
+[PASS]    63_executablesection.ring
+[PASS]    64_findw.ring
+[PASS]    65_content.ring
+[ERR]     66_findinsections.ring :: Error (R14) : Calling Method without definition: findinsections
+[ERR]     67_findinsection.ring :: Error (R14) : Calling Method without definition: findinsectionassections
+[ERR]     68_findinsection.ring :: Error (R14) : Calling Method without definition: findxt
+[ERR]     69_findxt.ring :: Error (R14) : Calling Method without definition: findxt
+[ERR]     70_content.ring :: Error (R14) : Calling Method without definition: sortbyindescending
+[ERR]     71_findmanyzz.ring :: Error (R14) : Calling Method without definition: findmanyzz
+[PASS]    72_pr.ring
+[PASS]    73_content.ring
+[PASS]    74_content.ring
+[PASS]    75_thesesubstringsspacified.ring
+[PASS]    76_thesesubstringsspacified.ring
+[ERR]     77_content.ring :: panic: @memcpy arguments alias
+[PASS]    78_content.ring
+[PASS]    79_content.ring
+[PASS]    80_multiplicationsyieldingn.ring
+[PASS]    81_min.ring
+[PASS]    82_content.ring
+[PASS]    83_content.ring
+[PASS]    84_sum.ring
+[PASS]    85_containsadividablenumberby.ring
+[PASS]    86_content.ring
+[PASS]    87_content.ring
+[PASS]    90_nzeros.ring
+[PASS]    from_hexnumbert_04_pr.ring
+[PASS]    from_listoflists_measuring_speedup_and_perfprmance_gain.ring
+[PASS]    test_engine_listofnumbers.ring
+[PASS]    test_listofnumbers_regression.ring

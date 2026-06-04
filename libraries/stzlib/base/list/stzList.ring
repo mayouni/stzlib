@@ -1225,6 +1225,22 @@ class stzList from stzObject
 	def DuplicatesRemoved()
 		return This.WithoutDuplicationCS(1)
 
+	# ToSet / ToSetQ / ToSetOfItems: set-style aliases that return
+	# the deduplicated list. Routed through the existing engine-backed
+	# DuplicatesRemoved so the heavy lifting stays on the Zig side.
+
+	def ToSet()
+		return This.DuplicatesRemoved()
+
+		def ToSetQ()
+			return new stzList( This.ToSet() )
+
+		def ToSetOfItems()
+			return This.ToSet()
+
+		def ToSetOfItemsQ()
+			return new stzList( This.ToSet() )
+
 	def WithoutDuplicationCS(pCaseSensitive)
 		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
@@ -4482,5 +4498,95 @@ class stzList from stzObject
 			ok
 		next
 		return _aUcResult_
+
+	  #=====================================#
+	 #   OPERATOR OVERLOADING              #
+	#=====================================#
+	#
+	# stzList supports the natural Ring operator-overload set so
+	# narrative tests can write things like
+	#
+	#   Q([1, 2, 3]) - 2          # -> [1, 3]
+	#   Q([1, 2, 3]) + 4          # -> [1, 2, 3, 4]
+	#   Q([1, 2]) * 3             # -> [1, 2, 1, 2, 1, 2]
+	#
+	# Semantics for `+` and `-`:
+	#   - the RHS is treated AS A SINGLE ITEM (it's added or removed
+	#     literally, even when it's itself a list).
+	#   - this matches the legacy Softanza contract documented in the
+	#     stzlistofnumbers narrative blocks: `Q([1,2,3,4,5]) - [1,3,5]`
+	#     returns [1,2,3,4,5] unchanged because the literal list
+	#     [1,3,5] is NOT an element of [1,2,3,4,5].
+	#
+	# For element-wise operations, use the explicit method calls
+	# (AddMany / RemoveMany / etc.) -- the operator is reserved for
+	# the simple "single item" reading.
+
+	def operator(pOp, pValue)
+
+		if pOp = "+"
+			# Append pValue as a single item.
+			@aContent + pValue
+			return @aContent
+
+		but pOp = "-"
+			# Remove the first occurrence of pValue (as a single item)
+			# if present. Comparison uses Ring's `=` -- for lists it's
+			# deep-equal, for scalars value-equal.
+			_nMinLen_ = ring_len(@aContent)
+			for _iMin_ = 1 to _nMinLen_
+				if @aContent[_iMin_] = pValue
+					del(@aContent, _iMin_)
+					return @aContent
+				ok
+			next
+			return @aContent
+
+		but pOp = "*"
+			# Repeat the list pValue times (integer).
+			if NOT isNumber(pValue)
+				StzRaise("operator *: rhs must be a number.")
+			ok
+			_aOriginal_ = @aContent
+			@aContent = []
+			_nMul_ = floor(pValue)
+			if _nMul_ < 0
+				_nMul_ = 0
+			ok
+			_nOrigLen_ = ring_len(_aOriginal_)
+			for _iMul_ = 1 to _nMul_
+				for _jMul_ = 1 to _nOrigLen_
+					@aContent + _aOriginal_[_jMul_]
+				next
+			next
+			return @aContent
+
+		but pOp = "/"
+			# Chunk into groups of pValue. Returns a Ring list of
+			# lists (not a stzList wrapper).
+			if NOT isNumber(pValue) or pValue < 1
+				StzRaise("operator /: rhs must be a positive number.")
+			ok
+			_nChunk_ = floor(pValue)
+			_aGroups_ = []
+			_nCntLen_ = ring_len(@aContent)
+			_iCur_ = 1
+			while _iCur_ <= _nCntLen_
+				_aGroup_ = []
+				_iEnd_ = _iCur_ + _nChunk_ - 1
+				if _iEnd_ > _nCntLen_
+					_iEnd_ = _nCntLen_
+				ok
+				for _jCh_ = _iCur_ to _iEnd_
+					_aGroup_ + @aContent[_jCh_]
+				next
+				_aGroups_ + _aGroup_
+				_iCur_ = _iEnd_ + 1
+			end
+			return _aGroups_
+
+		ok
+
+		StzRaise("operator: unsupported operator '" + pOp + "' on stzList.")
 
 

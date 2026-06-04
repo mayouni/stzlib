@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #68.
-#ERR Error (R14) : Calling Method without definition: findinsection
+#ERR Error (R14) : Calling Method without definition: findxt
 
 load "../../stzBase.ring"
 
