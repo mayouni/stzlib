@@ -3,7 +3,6 @@
 # #TODO
 #
 # Extracted from stzRegexTest.ring, block #15.
-#ERR Error (R14) : Calling Method without definition: isnestedusing
 
 load "../../stzBase.ring"
 

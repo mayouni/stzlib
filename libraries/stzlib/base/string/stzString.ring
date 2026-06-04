@@ -3285,6 +3285,54 @@ class stzString from stzObject
 		_oIblChk_ = new stzStringChecker(This)
 		return _oIblChk_.IsBalanced()
 
+	# IsNestedUsing(pcOpen, pcClose): answer "does the string contain
+	# at least one occurrence of pcOpen that itself encloses another
+	# pcOpen before its matching pcClose?". Examples:
+	#   "[x]"        IsNestedUsing("[","]")  -> FALSE
+	#   "[[x]]"      IsNestedUsing("[","]")  -> TRUE
+	#   "[[x[2],y]]" IsNestedUsing("[","]")  -> TRUE
+	#
+	# Different from IsBalanced (which only checks balance of opens
+	# and closes) -- this answers whether the structure has any
+	# proper nesting depth >= 2.
+	def IsNestedUsing(pcOpen, pcClose)
+		if NOT (isString(pcOpen) and isString(pcClose))
+			StzRaise("IsNestedUsing: bounds must be strings.")
+		ok
+		if pcOpen = "" or pcClose = ""
+			return 0
+		ok
+		_cInuTxt_ = This.Content()
+		_nInuLen_ = ring_len(_cInuTxt_)
+		_nInuO_ = ring_len(pcOpen)
+		_nInuC_ = ring_len(pcClose)
+		_nInuDepth_ = 0
+		_iInu_ = 1
+		while _iInu_ <= _nInuLen_
+			if _iInu_ + _nInuO_ - 1 <= _nInuLen_ and
+			   substr(_cInuTxt_, _iInu_, _nInuO_) = pcOpen
+				_nInuDepth_++
+				if _nInuDepth_ >= 2
+					return 1
+				ok
+				_iInu_ += _nInuO_
+			but _iInu_ + _nInuC_ - 1 <= _nInuLen_ and
+			    substr(_cInuTxt_, _iInu_, _nInuC_) = pcClose
+				_nInuDepth_--
+				if _nInuDepth_ < 0
+					_nInuDepth_ = 0
+				ok
+				_iInu_ += _nInuC_
+			else
+				_iInu_++
+			ok
+		end
+		return 0
+
+		def IsNested()
+			# Default to common bracket pair when no bounds given.
+			return This.IsNestedUsing("(", ")")
+
 	def IsEmailLike()
 		_oIelChk_ = new stzStringChecker(This)
 		return _oIelChk_.IsEmailLike()
