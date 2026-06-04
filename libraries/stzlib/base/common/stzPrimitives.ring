@@ -25,8 +25,18 @@ func StzRepeatStr(cStr, nCount)
 	return _cSrResult_
 
 #-- Case conversion (Unicode-aware, replaces ASCII-only Ring upper()/lower())
+#
+# Engine-boundary safety: the Zig engine functions assume a Ring string
+# on input. Passing a number or list directly causes a silent native
+# crash (the process exits with no recoverable error, even inside
+# try/catch). These wrappers coerce non-string input to its decimal
+# string form so caller code that does e.g. StzLower(1234) gets a
+# usable answer instead of a hard exit.
 
 func StzUpper(cStr)
+	if NOT isString(cStr)
+		cStr = "" + cStr
+	ok
 	pH = StzEngineString(cStr)
 	pR = StzEngineStringToUpper(pH)
 	c = StzEngineStringData(pR)
@@ -35,6 +45,9 @@ func StzUpper(cStr)
 	return c
 
 func StzLower(cStr)
+	if NOT isString(cStr)
+		cStr = "" + cStr
+	ok
 	pH = StzEngineString(cStr)
 	pR = StzEngineStringToLower(pH)
 	c = StzEngineStringData(pR)
@@ -43,6 +56,9 @@ func StzLower(cStr)
 	return c
 
 func StzTitle(cStr)
+	if NOT isString(cStr)
+		cStr = "" + cStr
+	ok
 	pH = StzEngineString(cStr)
 	pR = StzEngineStringToTitle(pH)
 	c = StzEngineStringData(pR)
@@ -51,6 +67,9 @@ func StzTitle(cStr)
 	return c
 
 func StzCaseFold(cStr)
+	if NOT isString(cStr)
+		cStr = "" + cStr
+	ok
 	return StzEngineUnicodeCaseFold(cStr)
 
 #-- Length (codepoint count, not byte count)

@@ -3,7 +3,6 @@
 # # We've seen the use of Until(), what if we try Since() instead...
 #
 # Extracted from stzchainofvaluetest.ring, block #8.
-#ERR Error (R24) : Using uninitialized variable: v
 
 load "../../stzBase.ring"
 

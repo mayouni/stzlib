@@ -1,0 +1,15 @@
+== chainofvalue  PASS 9  ERR 5  TIMEOUT 0  (24.5s) ==
+[PASS]    02_we_start_speeking_in_compuer-natural_code_cnc.ring
+[PASS]    03_now_we_say.ring
+[PASS]    04_now_what_if_you_want_the_chain_to_execute_randomly.ring
+[PASS]    05_of_course_when_values_are_different_this_will_neve.ring
+[PASS]    06_now_lets_experiment_with_an_other_construction_usi.ring
+[PASS]    07_here_using_until_you_need_to_be_careful_because_yo.ring
+[PASS]    08_weve_seen_the_use_of_until_what_if_we_try_since_in.ring
+[ERR]     09_todo.ring :: Error (R24) : Using uninitialized variable: v
+[ERR]     10_todo.ring :: Error (R24) : Using uninitialized variable: v
+[ERR]     11_todo.ring :: Error (R24) : Using uninitialized variable: v
+[ERR]     12_todo.ring :: Error (R24) : Using uninitialized variable: v
+[PASS]    13_todo.ring
+[PASS]    14_todo.ring
+[ERR]     16_todo.ring :: Error (C27) : Syntax Error!
