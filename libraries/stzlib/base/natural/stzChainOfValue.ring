@@ -95,12 +95,26 @@ class stzChainOfValue from stzObject
 	#----------------------
 
 	def init(pcVarName)
-? locals()
 		@cVarName = pcVarName
 
+		# Resolve the wrapped variable from the caller's scope by
+		# evaluating '@pValue = <name>'. If the caller forgot to set
+		# <name> first, Ring raises R24. We catch and start the chain
+		# in 'stopped' state so the user-facing API (Is / DoThis /
+		# WhyChainStopped) can still report a clean diagnostic
+		# instead of bringing the whole process down.
 		cCode = '@pValue = ' + @cVarName
-		eval(cCode)
-		
+		try
+			eval(cCode)
+		catch
+			@pValue = NULL
+			@bChainStopped = 1
+			@aWhyChainStopped = [
+				"Because the variable " + @cVarName +
+				" is not defined in the caller's scope."
+			]
+		done
+
 		@cType = ring_type(@pValue)
 
 		Is = This
