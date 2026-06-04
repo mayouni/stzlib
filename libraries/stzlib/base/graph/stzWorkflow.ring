@@ -180,7 +180,8 @@ class stzWorkflow from stzDiagram
 		@aActors + aActor
 	
 	def AssignStepTo(pcStepId, pcActorId)
-		for i = 1 to ring_len(@aSteps)
+		_nStepsLen_3 = ring_len(@aSteps)
+		for i = 1 to _nStepsLen_3
 			if @aSteps[i][:id] = pcStepId
 				@aSteps[i][:assignedTo] = pcActorId
 				exit
@@ -205,7 +206,8 @@ class stzWorkflow from stzDiagram
 	#-----------------------#
 	
 	def SetStepSLA(pcStepId, nHours)
-		for i = 1 to ring_len(@aSteps)
+		_nStepsLen_2 = ring_len(@aSteps)
+		for i = 1 to _nStepsLen_2
 			if @aSteps[i][:id] = pcStepId
 				@aSteps[i][:sla] = nHours
 				exit
@@ -215,7 +217,8 @@ class stzWorkflow from stzDiagram
 		This.SetNodeProperty(pcStepId, "sla", nHours)
 	
 	def SetStepDuration(pcStepId, nHours)
-		for i = 1 to ring_len(@aSteps)
+		_nStepsLen_ = ring_len(@aSteps)
+		for i = 1 to _nStepsLen_
 			if @aSteps[i][:id] = pcStepId
 				@aSteps[i][:duration] = nHours
 				exit
@@ -291,7 +294,8 @@ class stzWorkflow from stzDiagram
 			cPosition = This.GetPositionForStep(aStep[:id])
 			if cPosition != ""
 				bFound = FALSE
-				for i = 1 to ring_len(aWorkload)
+				_nWorkloadLen_ = ring_len(aWorkload)
+				for i = 1 to _nWorkloadLen_
 					if aWorkload[i][:position] = cPosition
 						aWorkload[i][:stepCount]++
 						aWorkload[i][:totalDuration] += aStep[:duration]

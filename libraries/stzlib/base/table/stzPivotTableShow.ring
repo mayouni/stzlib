@@ -98,13 +98,15 @@ Class TableDisplayConfig
         aContentDimensions[:TotalCells] = []
         
         # 1.1 Analyze row labels
-        for i = 1 to len(aRowLabels)
+        _nRowLabelsLen_2 = ring_len(aRowLabels)
+        for i = 1 to _nRowLabelsLen_2
             cLabel = aRowLabels[i]
             nWidth = StzLen(cLabel)
             
             # Find max width of actual data in this column
             nMaxDataWidth = nWidth
-            for r = 2 to len(aPivotData)
+            _nPivotDataLen_5 = ring_len(aPivotData)
+            for r = 2 to _nPivotDataLen_5
                 nValueWidth = StzLen(aPivotData[r][i])
                 if nValueWidth > nMaxDataWidth
                     nMaxDataWidth = nValueWidth
@@ -126,7 +128,8 @@ Class TableDisplayConfig
         
         # 1.3 Measure column headers
         aColumnHeaders = []
-        for i = 1 to len(aColLabels)
+        _nColLabelsLen_ = ring_len(aColLabels)
+        for i = 1 to _nColLabelsLen_
             cLabel = aColLabels[i]
             nWidth = StzLen(cLabel)
             
@@ -150,8 +153,10 @@ Class TableDisplayConfig
         aDataWidths = []
         
         # Process all data rows
-        for r = 2 to len(aPivotData) - 1  # Skip header and total rows
-            for c = len(aRowLabels) + 1 to len(aPivotData[1]) - 1  # Skip row labels and total column
+        _nPivotDataLen_4 = ring_len(aPivotData)
+        for r = 2 to _nPivotDataLen_4 - 1  # Skip header and total rows
+            _nPivotData1Len_4 = ring_len(aPivotData[1])
+            for c = len(aRowLabels) + 1 to _nPivotData1Len_4 - 1  # Skip row labels and total column
                 cHeader = aPivotData[1][c]
                 if cHeader = cTotalLabel  # Skip total columns
                     loop
@@ -186,7 +191,8 @@ Class TableDisplayConfig
         # Measure total cells (rightmost column)
         nMaxTotalWidth = 0
         if bShowTotalColumn
-            for r = 2 to len(aPivotData)
+            _nPivotDataLen_3 = ring_len(aPivotData)
+            for r = 2 to _nPivotDataLen_3
                 nCol = len(aPivotData[r])
                 cValue = "" + aPivotData[r][nCol]
                 nWidth = StzLen(cValue)
@@ -214,8 +220,10 @@ Class TableDisplayConfig
         # Extract unique values for each column dimension
         for i = 1 to nColLabelCount
             aUnique = []
-            for r = 2 to len(aPivotData)
-                for c = len(aRowLabels) + 1 to len(aPivotData[1])
+            _nPivotDataLen_2 = ring_len(aPivotData)
+            for r = 2 to _nPivotDataLen_2
+                _nPivotData1Len_3 = ring_len(aPivotData[1])
+                for c = len(aRowLabels) + 1 to _nPivotData1Len_3
                     cHeader = aPivotData[1][c]
                     if cHeader = cTotalLabel
                         loop
@@ -238,7 +246,8 @@ Class TableDisplayConfig
         aFinalRowWidths = []
         nRowLabelSectionWidth = 0
         
-        for i = 1 to len(aContentDimensions[:RowLabels])
+        _nContentDimensionsRowLabelsLen_ = ring_len(aContentDimensions[:RowLabels])
+        for i = 1 to _nContentDimensionsRowLabelsLen_
             item = aContentDimensions[:RowLabels][i]
             
             # Calculate width with growth ratio and constraints
@@ -334,7 +343,8 @@ Class TableDisplayConfig
         nTableWidth = nRowLabelSectionWidth
         
         # Add width for each dimension group
-        for i = 1 to len(aDimWidthSums)
+        _nDimWidthSumsLen_2 = ring_len(aDimWidthSums)
+        for i = 1 to _nDimWidthSumsLen_2
             nTableWidth += aDimWidthSums[i]
             if i < len(aDimWidthSums)
                 nTableWidth += 1  # Separator between dimension groups
@@ -369,7 +379,8 @@ Class TableDisplayConfig
         add(aBorderOffsets, nCurrentOffset)
         
         # Add each dimension group offset
-        for i = 1 to len(aDimWidthSums)
+        _nDimWidthSumsLen_ = ring_len(aDimWidthSums)
+        for i = 1 to _nDimWidthSumsLen_
             nCurrentOffset += aDimWidthSums[i] + 1  # +1 for separator
             add(aBorderOffsets, nCurrentOffset)
         next
@@ -424,7 +435,8 @@ Class TableDisplayConfig
         see "=== TABLE LAYOUT DEBUG ===" + nl
         see "Row Label Section Width: " + aCalculatedLayout[:RowLabelSectionWidth] + nl
         see "Row Label Widths: " + nl
-        for i = 1 to len(aCalculatedLayout[:RowLabelWidths])
+        _nCalculatedLayoutRowLabelWidthsLen_ = ring_len(aCalculatedLayout[:RowLabelWidths])
+        for i = 1 to _nCalculatedLayoutRowLabelWidthsLen_
             see "  " + aRowLabels[i] + ": " + aCalculatedLayout[:RowLabelWidths][i] + nl
         next
         
@@ -485,7 +497,8 @@ Class TableRenderer
         cTopBorder = cLeftPad + aBorderChars[:TopLeft]
         
         # Add horizontal lines for each column group
-        for i = 1 to len(aColDimValues[1])
+        _nColDimValues1Len_8 = ring_len(aColDimValues[1])
+        for i = 1 to _nColDimValues1Len_8
             # Calculate width for this dimension group
             nGroupWidth = 0
             for dim2 in aColDimValues[2]
@@ -515,7 +528,8 @@ Class TableRenderer
         # 1.2 First header row - first dimension
         cHeader1 = cLeftPad + aBorderChars[:Vertical]
         
-        for i = 1 to len(aColDimValues[1])
+        _nColDimValues1Len_7 = ring_len(aColDimValues[1])
+        for i = 1 to _nColDimValues1Len_7
             dim1 = aColDimValues[1][i]
             
             # Calculate width for this dimension group
@@ -543,12 +557,14 @@ Class TableRenderer
         # 1.3 Separator after first header
         cSep1 = cLeftPad + aBorderChars[:Vertical]
         
-        for i = 1 to len(aColDimValues[1])
+        _nColDimValues1Len_6 = ring_len(aColDimValues[1])
+        for i = 1 to _nColDimValues1Len_6
             dim1 = aColDimValues[1][i]
             cSep = ""
             
             # Add horizontal lines for each subcolumn
-            for j = 1 to len(aColDimValues[2])
+            _nColDimValues2Len_6 = ring_len(aColDimValues[2])
+            for j = 1 to _nColDimValues2Len_6
                 dim2 = aColDimValues[2][j]
                 cKey = dim1 + "|" + dim2
                 
@@ -579,7 +595,8 @@ Class TableRenderer
         cHeader2 = copy(" ", nLeftPadding - nRowLabelSectionWidth)
         
         # Add row labels with separators
-        for i = 1 to len(oConfig.aRowLabels)
+        _nConfigaRowLabelsLen_ = ring_len(oConfig.aRowLabels)
+        for i = 1 to _nConfigaRowLabelsLen_
             cLabel = _center(oConfig.aRowLabels[i], aRowWidths[i])
             cHeader2 += cLabel
             
@@ -591,10 +608,12 @@ Class TableRenderer
         cHeader2 += aBorderChars[:Vertical]
         
         # Add second dimension values
-        for dim1_idx = 1 to len(aColDimValues[1])
+        _nColDimValues1Len_5 = ring_len(aColDimValues[1])
+        for dim1_idx = 1 to _nColDimValues1Len_5
             dim1 = aColDimValues[1][dim1_idx]
             
-            for dim2_idx = 1 to len(aColDimValues[2])
+            _nColDimValues2Len_5 = ring_len(aColDimValues[2])
+            for dim2_idx = 1 to _nColDimValues2Len_5
                 dim2 = aColDimValues[2][dim2_idx]
                 cKey = dim1 + "|" + dim2
                 
@@ -624,11 +643,13 @@ Class TableRenderer
         # 1.5 Main separator before data rows
         cMainSep = aBorderChars[:TeeRight] + copy(aBorderChars[:Horizontal], nRowLabelSectionWidth) + aBorderChars[:Cross]
         
-        for i = 1 to len(aColDimValues[1])
+        _nColDimValues1Len_4 = ring_len(aColDimValues[1])
+        for i = 1 to _nColDimValues1Len_4
             dim1 = aColDimValues[1][i]
             nGroupWidth = 0
             
-            for j = 1 to len(aColDimValues[2])
+            _nColDimValues2Len_4 = ring_len(aColDimValues[2])
+            for j = 1 to _nColDimValues2Len_4
                 dim2 = aColDimValues[2][j]
                 cKey = dim1 + "|" + dim2
                 
@@ -675,7 +696,8 @@ Class TableRenderer
         
         cCurrentDept = ""  # Track current department for grouping
         
-        for r = 2 to len(aPivotData) - 1  # Skip header and total row
+        _nPivotDataLen_ = ring_len(aPivotData)
+        for r = 2 to _nPivotDataLen_ - 1  # Skip header and total row
             # Check if this is a new department
             if aPivotData[r][1] != cCurrentDept
                 cCurrentDept = aPivotData[r][1]
@@ -708,16 +730,19 @@ Class TableRenderer
             cRowData = cRowStart + cRowData + " " + aBorderChars[:Vertical]
             
             # Add data cells for each dimension combination
-            for dim1_idx = 1 to len(aColDimValues[1])
+            _nColDimValues1Len_3 = ring_len(aColDimValues[1])
+            for dim1_idx = 1 to _nColDimValues1Len_3
                 dim1 = aColDimValues[1][dim1_idx]
                 
-                for dim2_idx = 1 to len(aColDimValues[2])
+                _nColDimValues2Len_3 = ring_len(aColDimValues[2])
+                for dim2_idx = 1 to _nColDimValues2Len_3
                     dim2 = aColDimValues[2][dim2_idx]
                     cKey = dim1 + "|" + dim2
                     
                     # Find column index for this combination
                     nColIndex = 0
-                    for c = len(oConfig.aRowLabels) + 1 to len(aPivotData[1])
+                    _nPivotData1Len_2 = ring_len(aPivotData[1])
+                    for c = len(oConfig.aRowLabels) + 1 to _nPivotData1Len_2
                         if aPivotData[1][c] = cKey
                             nColIndex = c
                             exit
@@ -789,11 +814,13 @@ Class TableRenderer
         cBottomSep = copy(" ", nLeftPadding)
         cBottomSep += aBorderChars[:BottomLeft] + copy(aBorderChars[:Horizontal], nRowLabelSectionWidth)
         
-        for i = 1 to len(aColDimValues[1])
+        _nColDimValues1Len_2 = ring_len(aColDimValues[1])
+        for i = 1 to _nColDimValues1Len_2
             dim1 = aColDimValues[1][i]
             nGroupWidth = 0
             
-            for j = 1 to len(aColDimValues[2])
+            _nColDimValues2Len_2 = ring_len(aColDimValues[2])
+            for j = 1 to _nColDimValues2Len_2
                 dim2 = aColDimValues[2][j]
                 cKey = dim1 + "|" + dim2
                 
@@ -834,16 +861,19 @@ Class TableRenderer
             cTotalRow += " " + aBorderChars[:Vertical]
             
             # Add totals for each dimension combination
-            for dim1_idx = 1 to len(aColDimValues[1])
+            _nColDimValues1Len_ = ring_len(aColDimValues[1])
+            for dim1_idx = 1 to _nColDimValues1Len_
                 dim1 = aColDimValues[1][dim1_idx]
                 
-                for dim2_idx = 1 to len(aColDimValues[2])
+                _nColDimValues2Len_ = ring_len(aColDimValues[2])
+                for dim2_idx = 1 to _nColDimValues2Len_
                     dim2 = aColDimValues[2][dim2_idx]
                     cKey = dim1 + "|" + dim2
                     
                     # Find column index for this combination
                     nColIndex = 0
-                    for c = len(oConfig.aRowLabels) + 1 to len(aPivotData[1])
+                    _nPivotData1Len_ = ring_len(aPivotData[1])
+                    for c = len(oConfig.aRowLabels) + 1 to _nPivotData1Len_
                         if aPivotData[1][c] = cKey
                             nColIndex = c
                             exit
@@ -966,7 +996,8 @@ Class TableConfigManager
         # 1. Adjust cell widths based on actual content
         if oConfig.aSettings[:AutoAdjustWidths]
             aRowLabels = oConfig.aContentDimensions[:RowLabels]
-            for i = 1 to len(aRowLabels)
+            _nRowLabelsLen_ = ring_len(aRowLabels)
+            for i = 1 to _nRowLabelsLen_
                 nOptimalWidth = max([ aRowLabels[i][:labelWidth], aRowLabels[i][:maxContentWidth] ])
                 nOptimalWidth = ceil(nOptimalWidth * oConfig.aSettings[:RowLabelGrowthRatio])
                 
@@ -1028,7 +1059,8 @@ Class TableConfigManager
             nScaleFactor = nMaxWidth / nTableWidth
             
             # Apply to row labels
-            for i = 1 to len(oConfig.aCalculatedLayout[:RowLabelWidths])
+            _nConfigaCalculatedLayoutRowLabeLen_ = ring_len(oConfig.aCalculatedLayout[:RowLabelWidths])
+            for i = 1 to _nConfigaCalculatedLayoutRowLabeLen_
                 oConfig.aCalculatedLayout[:RowLabelWidths][i] *= nScaleFactor
             next
             

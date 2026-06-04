@@ -37,7 +37,8 @@ aCustomerResult = o1.ExecutePlan("clean", TRUE)
 aCleanedCustomers = o1.GetData()
 for i = 1 to min([5, len(aCleanedCustomers)])
     ? "Customer " + i + ":"
-    for j = 1 to len(aCustomerHeaders)
+    _nCustomerHeadersLen_ = ring_len(aCustomerHeaders)
+    for j = 1 to _nCustomerHeadersLen_
         ? "• " + aCustomerHeaders[j] + ": " + aCleanedCustomers[i][j]
     next
     ? ""

@@ -21,7 +21,8 @@ lxu() {
         @list[1] = lower(@list[1])
         
         # Validate endpoints begin with "/"
-        for i = 1 to len(@list[3])
+        _nList3Len_ = ring_len(@list[3])
+        for i = 1 to _nList3Len_
             if not beginswith(@list[3][i], "/")
                 @list[3][i] = "/" + @list[3][i]
             ok
@@ -77,7 +78,8 @@ lxu() {
     # Display validated configurations
     ? "=== Validated Configuration ==="
     
-    for i = 1 to len(Results())
+    _nResultsLen_ = ring_len(Results()
+    for i = 1 to _nResultsLen_)
         ? NL + "Section result " + i + ":"
         ? @@NL(Results()[i])
     next

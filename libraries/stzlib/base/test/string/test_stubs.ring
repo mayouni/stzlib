@@ -47,7 +47,8 @@ func _stzFindDll(cDllName)
 		ok
 		# Also try with backslashes (Windows)
 		cTryWin = ""
-		for k = 1 to len(cTry)
+		_nTryLen_ = ring_len(cTry)
+		for k = 1 to _nTryLen_
 			if cTry[k] = "/"
 				cTryWin += "\"
 			else
@@ -283,7 +284,8 @@ func StzFind(p, pItem)
 		return nPos
 	ok
 	if isList(p)
-		for i = 1 to len(p)
+		_nPLen_ = ring_len(p)
+		for i = 1 to _nPLen_
 			if p[i] = pItem
 				return i
 			ok

@@ -1512,7 +1512,8 @@ class stzSplitter from stzListOfNumbers
 				# the main parts (starting with first)
 
 				aResult[1][2]++
-				for i = 2 to ring_len(aResult)
+				_nResultLen_ = ring_len(aResult)
+				for i = 2 to _nResultLen_
 					aResult[i][1]++
 					aResult[i][2]++
 				next
@@ -1773,7 +1774,8 @@ class stzSplitter from stzListOfNumbers
 		# Getting the pairs of that list
 
 		aPairs = []
-		for i = 1 to ring_len(aPos) - 1
+		_nPosLen_ = ring_len(aPos)
+		for i = 1 to _nPosLen_ - 1
 			aPairs + [ aPos[i], aPos[i+1] ]
 		next
 

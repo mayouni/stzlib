@@ -372,10 +372,12 @@ class stzStringFinder
 		aResult = []
 
 		# For each bound1 occurrence, find the next bound2 after it
-		for i = 1 to ring_len(anPos1)
+		_nPos1Len_ = ring_len(anPos1)
+		for i = 1 to _nPos1Len_
 			nAfter = anPos1[i] + nLen1
 			# Find the nearest bound2 that starts after bound1 ends
-			for j = 1 to ring_len(anPos2)
+			_nPos2Len_ = ring_len(anPos2)
+			for j = 1 to _nPos2Len_
 				if anPos2[j] > anPos1[i] + nLen1 - 1
 					aResult + [ nAfter, anPos2[j] - 1 ]
 					exit
@@ -443,7 +445,8 @@ class stzStringFinder
 			aSections = This.FindAsSectionsCS(acDuplicates[i], pCaseSensitive)
 			# Remove first occurrence — keep only duplicates
 			if ring_len(aSections) > 1
-				for j = 2 to ring_len(aSections)
+				_nSectionsLen_ = ring_len(aSections)
+				for j = 2 to _nSectionsLen_
 					aResult + aSections[j]
 				next
 			ok

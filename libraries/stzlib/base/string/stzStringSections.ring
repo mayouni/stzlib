@@ -97,7 +97,8 @@ class stzStringSections
 		nStart = 0
 		for i = 1 to nLen
 			bCovered = 0
-			for k = 1 to ring_len(aCovered)
+			_nCoveredLen_ = ring_len(aCovered)
+			for k = 1 to _nCoveredLen_
 				if aCovered[k] = i
 					bCovered = 1
 					exit

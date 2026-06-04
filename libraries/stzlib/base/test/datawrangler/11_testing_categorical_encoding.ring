@@ -24,7 +24,8 @@ o1 = new stzDataWrangler(aCategoricalData, aCategoricalHeaders)
 
 ? BoxRound("BEFORE CATEGORICAL ENCODING")
 aColumn = []
-for i = 1 to len(aCategoricalData)
+_nCategoricalDataLen_ = ring_len(aCategoricalData)
+for i = 1 to _nCategoricalDataLen_
     aColumn + aCategoricalData[i][2]
 next
 ? "• Data: " + @@(aColumn) + NL

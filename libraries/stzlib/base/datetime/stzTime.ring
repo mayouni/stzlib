@@ -42,7 +42,8 @@ func StzIsTime(str)
         ok
     ok
 
-    for i = 1 to len(aParts)
+    _nPartsLen_ = ring_len(aParts)
+    for i = 1 to _nPartsLen_
         cPart = aParts[i]
         if i = len(aParts) and StzFind(cPart, ".")
             aSubParts = split(cPart, ".")

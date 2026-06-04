@@ -737,7 +737,8 @@ func MultiplicationsYieldingN(n)
 			
 	aFactors = reverse(factors(n))
 
-	for i = 1 to len(aFactors)
+	_nFactorsLen_2 = ring_len(aFactors)
+	for i = 1 to _nFactorsLen_2
 		aResult + [ factors(n)[i] , aFactors[i] ]
 	next i
 
@@ -757,7 +758,8 @@ func MultiplicationsYieldingN_WithoutCommutation(n)
 			
 	aFactors = reverse(factors(n))
 
-	for i = 1 to len(aFactors)-1
+	_nFactorsLen_ = ring_len(aFactors)
+	for i = 1 to _nFactorsLen_-1
 		if i > 1
 			if factors(n)[i] = aFactors[i-1]
 				exit
@@ -3445,7 +3447,8 @@ class stzListOfNumbers from stzList
 
 			next
 
-			for i = 1 to ring_len(aResult)
+			_nResultLen_ = ring_len(aResult)
+			for i = 1 to _nResultLen_
 
 				if StzFind(panNumbers, nNumber) = 0 and
 				   aResult[i][1] = nClosestPivot
@@ -3483,7 +3486,8 @@ class stzListOfNumbers from stzList
 
 		anDiffs = []
 
-		for i = 2 to ring_len(@aContent)
+		_nContentLen_ = ring_len(@aContent)
+		for i = 2 to _nContentLen_
 			anDiffs + (@aContent[i] - @aContent[i-1])
 		next
 

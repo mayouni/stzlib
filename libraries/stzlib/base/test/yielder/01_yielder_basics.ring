@@ -112,7 +112,8 @@ cConcat = oYC.ReduceConcat("-")
 
 func list2str(aList)
 	_cRes_ = "["
-	for _i_ = 1 to len(aList)
+	_nListLen_ = ring_len(aList)
+	for _i_ = 1 to _nListLen_
 		if _i_ > 1 _cRes_ += ", " ok
 		if isString(aList[_i_])
 			_cRes_ += '"' + aList[_i_] + '"'

@@ -96,7 +96,8 @@ class stzListSplits
 		# Engine-backed: marshal list + positions, call split_at
 		# INDEX_BASE=1: convert 1-based positions to 0-based for engine
 		_aSapAdj_ = []
-		for _iSap_ = 1 to ring_len(panPos)
+		_nPanPosLen_2 = ring_len(panPos)
+		for _iSap_ = 1 to _nPanPosLen_2
 			_aSapAdj_ + (panPos[_iSap_] - 1)
 		next
 
@@ -124,7 +125,8 @@ class stzListSplits
 	def SplittedAtPositions(panPos)
 		# INDEX_BASE=1: convert to 0-based for engine
 		_aSadAdj_ = []
-		for _iSad_ = 1 to ring_len(panPos)
+		_nPanPosLen_ = ring_len(panPos)
+		for _iSad_ = 1 to _nPanPosLen_
 			_aSadAdj_ + (panPos[_iSad_] - 1)
 		next
 

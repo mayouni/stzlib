@@ -73,7 +73,8 @@ class stzAppResponse
 			# Check if it's an associative array (object)
 			if isstring(obj[1])
 				cJson = "{"
-				for i = 1 to ring_len(obj) step 2
+				_nObjLen_2 = ring_len(obj)
+				for i = 1 to _nObjLen_2 step 2
 					if i > 1 cJson += "," ok
 					cJson += '"' + obj[i] + '":' + This.ObjectToJson(obj[i+1])
 				next
@@ -82,7 +83,8 @@ class stzAppResponse
 			else
 				# Regular array
 				cJson = "["
-				for i = 1 to ring_len(obj)
+				_nObjLen_ = ring_len(obj)
+				for i = 1 to _nObjLen_
 					if i > 1 cJson += "," ok
 					cJson += This.ObjectToJson(obj[i])
 				next

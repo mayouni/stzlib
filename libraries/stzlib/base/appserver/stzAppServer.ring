@@ -322,7 +322,8 @@ class stzAppServer from stzNetwork
 		cBody = ""
 		nBodyStart = 0
 		
-		for i = 2 to ring_len(aLines)
+		_nLinesLen_2 = ring_len(aLines)
+		for i = 2 to _nLinesLen_2
 			if aLines[i] = ""
 				nBodyStart = i + 1
 				exit
@@ -338,7 +339,8 @@ class stzAppServer from stzNetwork
 		
 		# Extract body if present
 		if nBodyStart > 0 and nBodyStart <= ring_len(aLines)
-			for i = nBodyStart to ring_len(aLines)
+			_nLinesLen_ = ring_len(aLines)
+			for i = nBodyStart to _nLinesLen_
 				cBody += aLines[i]
 				if i < ring_len(aLines) cBody += nl ok
 			next

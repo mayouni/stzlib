@@ -25,7 +25,8 @@ pr()
 		Map(func(data) {
 			# Extract new value from data array
 			newValue = 0
-			for i = 1 to len(data) step 2
+			_nDataLen_2 = ring_len(data)
+			for i = 1 to _nDataLen_2 step 2
 				if data[i] = "newValue" //todo why "newValue"?
 					newValue = data[i+1]
 					exit
@@ -47,7 +48,8 @@ pr()
 		# Also create a simple subscriber for all changes
 		OnPassed(func(data) {
 			newValue = 0
-			for i = 1 to len(data) step 2
+			_nDataLen_ = ring_len(data)
+			for i = 1 to _nDataLen_ step 2
 				if data[i] = "newValue"
 					newValue = data[i+1]
 					exit

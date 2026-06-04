@@ -322,7 +322,8 @@ class stzNaturalEngine
 
 		aMatches = StzStringQ(cCode).SubstringsBoundedBy([ "{", "}" ])
 
-		for i = 1 to ring_len(aMatches)
+		_nMatchesLen_ = ring_len(aMatches)
+		for i = 1 to _nMatchesLen_
 			cKey = aMatches[i]
 			cValue = @@(This.GetContextValue(cKey, aContext))
 
@@ -374,7 +375,8 @@ class stzNaturalEngine
 			aParts = @split(cKey, ".")
 			xCurrent = aContext
 			
-			for i = 1 to ring_len(aParts)
+			_nPartsLen_ = ring_len(aParts)
+			for i = 1 to _nPartsLen_
 				cPart = trim(aParts[i])
 				
 				# Normalize key (case-insensitive, capitalize first letter)

@@ -71,7 +71,8 @@ if len(aResult) = 3 and aResult[1] = "ab" and aResult[2] = "cde" and aResult[3] 
 	nPsd++
 else
 	? "  FAIL: SplitBeforePositions([3,6]) got " + len(aResult) + " parts"
-	for i = 1 to len(aResult)
+	_nResultLen_2 = ring_len(aResult)
+	for i = 1 to _nResultLen_2
 		? "    [" + i + "] = '" + aResult[i] + "'"
 	next
 	nFld++
@@ -89,7 +90,8 @@ if len(aResult) = 3 and aResult[1] = "abc" and aResult[2] = "def" and aResult[3]
 	nPsd++
 else
 	? "  FAIL: SplitAfterPositions([3,6]) got " + len(aResult) + " parts"
-	for i = 1 to len(aResult)
+	_nResultLen_ = ring_len(aResult)
+	for i = 1 to _nResultLen_
 		? "    [" + i + "] = '" + aResult[i] + "'"
 	next
 	nFld++

@@ -24,7 +24,8 @@ o1 = new stzDataWrangler(aNumericData, aNumericHeaders)
 ? BoxRound("BEFORE NORMALIZATION")
 
 aColumn = []
-for i = 1 to len(aNumericData)
+_nNumericDataLen_ = ring_len(aNumericData)
+for i = 1 to _nNumericDataLen_
     aColumn + aNumericData[i][2]
 next
 ? "• Data: " + @@(aColumn) + NL

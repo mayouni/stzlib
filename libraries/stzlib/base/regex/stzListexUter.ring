@@ -126,7 +126,8 @@ class stzListexuter
             if ring_len(aMatches) > 0
                 aActiveComputations + cTriggerName
                 
-                for i = 1 to ring_len(aMatches)
+                _nMatchesLen_ = ring_len(aMatches)
+                for i = 1 to _nMatchesLen_
                     match = aMatches[i]
                     
                     aLastMatches + match
@@ -161,7 +162,8 @@ class stzListexuter
         
         # Check parts of the list recursively
         if ring_len(aList) > 0
-            for i = 1 to ring_len(aList)
+            _nListLen_3 = ring_len(aList)
+            for i = 1 to _nListLen_3
                 if isList(aList[i])
                     # Recursively check nested list
                     aSubMatches = FindAllMatches(aList[i], oListex)
@@ -172,8 +174,10 @@ class stzListexuter
             next
             
             # Check for matching sublists at this level
-            for i = 1 to ring_len(aList)
-                for j = i to ring_len(aList)
+            _nListLen_2 = ring_len(aList)
+            for i = 1 to _nListLen_2
+                _nListLen_ = ring_len(aList)
+                for j = i to _nListLen_
                     aSubList = []
                     for _k = i to j
                         aSubList + aList[_k]

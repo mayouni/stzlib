@@ -465,7 +465,8 @@ class stzPivotTable from stzList
 			return FALSE
 		ok
 		
-		for i = 1 to ring_len(a1)
+		_nA1Len_ = ring_len(a1)
+		for i = 1 to _nA1Len_
 			if a1[i] != a2[i]
 				return FALSE
 			ok
@@ -479,7 +480,8 @@ class stzPivotTable from stzList
 		
 		# Initialize first row with empty cells for row labels
 		aFirstRow = []
-		for i = 1 to ring_len(@aRowLabels)
+		_nRowLabelsLen_ = ring_len(@aRowLabels)
+		for i = 1 to _nRowLabelsLen_
 			aFirstRow + ""
 		next
 		
@@ -503,7 +505,8 @@ class stzPivotTable from stzList
 		ok
 		
 		cResult = ""
-		for i = 1 to ring_len(aLabels)
+		_nLabelsLen_ = ring_len(aLabels)
+		for i = 1 to _nLabelsLen_
 			if i > 1
 				cResult += @cRowLabelsSeparator
 			ok
@@ -1001,7 +1004,8 @@ class stzPivotTable from stzList
 		nColIndex = 0
 		cColLabel = _combineLabels(aFlatColValues)
 		
-		for c = ring_len(@aRowLabels) + 1 to ring_len(@aPivotData[1])
+		_nPivotData1Len_ = ring_len(@aPivotData[1])
+		for c = ring_len(@aRowLabels) + 1 to _nPivotData1Len_
 			if @aPivotData[1][c] = cColLabel
 				nColIndex = c
 				exit

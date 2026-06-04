@@ -31,7 +31,8 @@ pr()
 	
 	aList = 1 : 200_000
 
-	for i = 1 to len(aList)
+	_nListLen_ = ring_len(aList)
+	for i = 1 to _nListLen_
 		// do nothing
 	next
 	

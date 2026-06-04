@@ -151,7 +151,8 @@ class stzListMover
 		if _nMmInsert_ > This.NumberOfItems()
 			_nMmInsert_ = This.NumberOfItems() + 1
 		ok
-		for _jMm_ = 1 to ring_len(_aMmItems_)
+		_n_aMmItemsLen_ = ring_len(_aMmItems_)
+		for _jMm_ = 1 to _n_aMmItemsLen_
 			ring_insert(This.List(), _nMmInsert_ - 1, _aMmItems_[_jMm_])
 			_nMmInsert_++
 		next

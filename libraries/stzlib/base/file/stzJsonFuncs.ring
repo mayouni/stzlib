@@ -379,7 +379,8 @@ func _IsValidJsonValue(vValue)
     return FALSE
 
 func _IsValidJsonArray(aList)
-    for i = 1 to len(aList)
+    _nListLen_ = ring_len(aList)
+    for i = 1 to _nListLen_
         if not _IsValidJsonValue(aList[i])
             return FALSE
         ok

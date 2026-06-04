@@ -249,7 +249,8 @@ class stzHttpClient from stzNetwork
     def ApplyCookies()
         if ring_len(cookies_list) = 0 return ok
         cookie_string = ""
-        for i = 1 to ring_len(cookies_list)
+        _nCookies_listLen_ = ring_len(cookies_list)
+        for i = 1 to _nCookies_listLen_
             cookie_string += cookies_list[i]
             if i < ring_len(cookies_list)
                 cookie_string += "; "
@@ -341,7 +342,8 @@ class stzHttpClient from stzNetwork
     
     def PostForm(cUrl, aFormData)
         form_string = ""
-        for i = 1 to ring_len(aFormData) step 2
+        _nFormDataLen_ = ring_len(aFormData)
+        for i = 1 to _nFormDataLen_ step 2
             if i > 1 form_string += "&" ok
             form_string += URLEncode(aFormData[i]) + "=" + URLEncode(aFormData[i+1])
         next
@@ -373,7 +375,8 @@ class stzHttpClient from stzNetwork
 	    next
 	    
 	    # Create parallel requests
-	    for i = 1 to ring_len(aUrls)
+	    _nUrlsLen_3 = ring_len(aUrls)
+	    for i = 1 to _nUrlsLen_3
 	        CreateParallelRequest(aUrls[i], i)
 	    next
 	    
@@ -385,7 +388,8 @@ class stzHttpClient from stzNetwork
     # Alternative simpler sequential implementation if LibUV is not available
     def GetManySequential(aUrls)
         results = []
-        for i = 1 to ring_len(aUrls)
+        _nUrlsLen_2 = ring_len(aUrls)
+        for i = 1 to _nUrlsLen_2
             This.Get_(aUrls[i])
             results + This.Response()
         next
@@ -415,7 +419,8 @@ class stzHttpParallelClient
         myloop = uv_default_loop()
         
         # Create parallel requests
-        for i = 1 to ring_len(aUrls)
+        _nUrlsLen_ = ring_len(aUrls)
+        for i = 1 to _nUrlsLen_
             url = aUrls[i]
             This.CreateHttpRequest(url, i)
         next

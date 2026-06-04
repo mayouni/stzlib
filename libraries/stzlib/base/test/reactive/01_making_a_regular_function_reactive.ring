@@ -39,7 +39,8 @@ Rs {
     f2 = func x { return x * x }
     f3 = func aList { 
         nSum = 0
-        for i = 1 to len(aList) nSum += aList[i] next
+        _nListLen_ = ring_len(aList)
+        for i = 1 to _nListLen_ nSum += aList[i] next
         return nSum
     }
 

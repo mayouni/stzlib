@@ -253,7 +253,8 @@ class stzTableSearch from stzTable
 		aCellsXT = This.CellsAndTheirPositions()
 
 		aResult = []
-		for i = 1 to ring_len(aCellsXT)
+		_nCellsXTLen_3 = ring_len(aCellsXT)
+		for i = 1 to _nCellsXTLen_3
 			cellValue = aCellsXT[i][1]
 			oCellValue = Q(cellValue)
 
@@ -460,7 +461,8 @@ class stzTableSearch from stzTable
 		m = 0
 		for i = 1 to nLen
 			line = anPos[i]
-			for j = 1 to ring_len(line[2])
+			_nLine2Len_ = ring_len(line[2])
+			for j = 1 to _nLine2Len_
 				m += 1
 				if m = n
 					aResult = [ line[1], line[2][j] ]
@@ -1493,7 +1495,8 @@ class stzTableSearch from stzTable
 
 		aResult = []
 
-		for i = 1 to ring_len(aCellsXT)
+		_nCellsXTLen_2 = ring_len(aCellsXT)
+		for i = 1 to _nCellsXTLen_2
 
 			CellValue = aCellsXT[i][1]
 			aCellPos  = aCellsXT[i][2]
@@ -1549,7 +1552,8 @@ class stzTableSearch from stzTable
 
 		aResult = []
 
-		for i = 1 to ring_len(aCellsXT)
+		_nCellsXTLen_ = ring_len(aCellsXT)
+		for i = 1 to _nCellsXTLen_
 
 			cellValue = aCellsXT[i][1]
 			oCellValue = Q(cellValue)

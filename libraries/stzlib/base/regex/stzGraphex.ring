@@ -731,7 +731,8 @@ class stzGraphex from stzGraph
 				bIsNegated = FALSE
 				if aNodeFromPattern != ""
 					acProps = aNodeFromPattern[:properties]
-					for k = 1 to ring_len(acProps)
+					_nPropsLen_ = ring_len(acProps)
+					for k = 1 to _nPropsLen_
 						if acProps[k] = "negated=TRUE"
 							bIsNegated = TRUE
 							exit
@@ -764,8 +765,10 @@ class stzGraphex from stzGraph
 				
 				# First check forbidden labels - if any exist in target, skip this branch
 				bHasForbidden = FALSE
-				for m = 1 to ring_len(aForbiddenLabels)
-					for n = 1 to ring_len(aTargetBranch)
+				_nForbiddenLabelsLen_ = ring_len(aForbiddenLabels)
+				for m = 1 to _nForbiddenLabelsLen_
+					_nTargetBranchLen_ = ring_len(aTargetBranch)
+					for n = 1 to _nTargetBranchLen_
 						if aForbiddenLabels[m] = aTargetBranch[n]
 							bHasForbidden = TRUE
 							exit

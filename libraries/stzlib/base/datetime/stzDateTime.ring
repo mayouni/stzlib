@@ -2195,7 +2195,8 @@ class stzDateTime from stzObject
             cUnit = aUnit[1]
             nMultiplier = aUnit[2]
 
-            for i = 1 to ring_len(aTokens)
+            _nTokensLen_ = ring_len(aTokens)
+            for i = 1 to _nTokensLen_
                 if StzLower(aTokens[i]) = cUnit and i > 1
                     nValue = 0+ aTokens[i-1]
                     nTotalMs += (nValue * nMultiplier)

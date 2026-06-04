@@ -697,8 +697,10 @@ class stzGrid From stzObject
 		# Ring's `sort()` chokes on lists-of-lists; use a simple
 		# pair-comparison sort. Matches the original narrative tests
 		# which were written when the iteration was column-major.
-		for _i_ = 1 to ring_len(aResult) - 1
-			for _j_ = _i_ + 1 to ring_len(aResult)
+		_nResultLen_2 = ring_len(aResult)
+		for _i_ = 1 to _nResultLen_2 - 1
+			_nResultLen_ = ring_len(aResult)
+			for _j_ = _i_ + 1 to _nResultLen_
 				if aResult[_i_][1] > aResult[_j_][1] or
 				   (aResult[_i_][1] = aResult[_j_][1] and aResult[_i_][2] > aResult[_j_][2])
 					_t_ = aResult[_i_]
@@ -1079,14 +1081,16 @@ class stzGrid From stzObject
 		ok
 		
 	def AddObstacles(aPositions)
-		for i = 1 to ring_len(aPositions)
+		_nPositionsLen_ = ring_len(aPositions)
+		for i = 1 to _nPositionsLen_
 			if isList(aPositions[i]) and ring_len(aPositions[i]) = 2
 				This.AddObstacle(aPositions[i][1], aPositions[i][2])
 			ok
 		next
 		
 	def RemoveObstacle(nCol, nRow)
-		for i = 1 to ring_len(@aObstacles)
+		_nObstaclesLen_4 = ring_len(@aObstacles)
+		for i = 1 to _nObstaclesLen_4
 			if @aObstacles[i][1] = nCol and @aObstacles[i][2] = nRow
 				del(@aObstacles, i)
 				return
@@ -1100,7 +1104,8 @@ class stzGrid From stzObject
 			@aObstacles = []
 
 	def IsObstacle(nCol, nRow)
-		for i = 1 to ring_len(@aObstacles)
+		_nObstaclesLen_3 = ring_len(@aObstacles)
+		for i = 1 to _nObstaclesLen_3
 			if @aObstacles[i][1] = nCol and @aObstacles[i][2] = nRow
 				return TRUE
 			ok
@@ -1313,7 +1318,8 @@ class stzGrid From stzObject
 
 			aNeighbors = This.WalkableNeighbors(nCurrentCol, nCurrentRow)
 			
-			for i = 1 to ring_len(aNeighbors)
+			_nNeighborsLen_ = ring_len(aNeighbors)
+			for i = 1 to _nNeighborsLen_
 				nNeighborCol = aNeighbors[i][1]
 				nNeighborRow = aNeighbors[i][2]
 				
@@ -1453,7 +1459,8 @@ class stzGrid From stzObject
 				
 				# Add the rest of the path
 
-				for i = 1 to ring_len(aPartialPath)
+				_nPartialPathLen_5 = ring_len(aPartialPath)
+				for i = 1 to _nPartialPathLen_5
 					This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
 				next
 				
@@ -1745,7 +1752,8 @@ class stzGrid From stzObject
 						ok
 						
 						# Add the rest of the path
-						for i = 1 to ring_len(aPartialPath)
+						_nPartialPathLen_4 = ring_len(aPartialPath)
+						for i = 1 to _nPartialPathLen_4
 							This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
 						next
 						
@@ -1808,7 +1816,8 @@ class stzGrid From stzObject
 					ok
 					
 					# Add the rest of the path
-					for i = 1 to ring_len(aPartialPath)
+					_nPartialPathLen_3 = ring_len(aPartialPath)
+					for i = 1 to _nPartialPathLen_3
 						This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
 					next
 					
@@ -1849,7 +1858,8 @@ class stzGrid From stzObject
 						ok
 						
 						# Add the rest of the path
-						for i = 1 to ring_len(aPartialPath)
+						_nPartialPathLen_2 = ring_len(aPartialPath)
+						for i = 1 to _nPartialPathLen_2
 							This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
 						next
 						
@@ -1913,7 +1923,8 @@ class stzGrid From stzObject
 					ok
 					
 					# Add the rest of the path
-					for i = 1 to ring_len(aPartialPath)
+					_nPartialPathLen_ = ring_len(aPartialPath)
+					for i = 1 to _nPartialPathLen_
 						This.AddPathNode(aPartialPath[i][1], aPartialPath[i][2])
 					next
 					
@@ -1977,7 +1988,8 @@ class stzGrid From stzObject
 		# Clear path and add nodes
 		This.ClearPath()
 		
-		for i = 1 to ring_len(aNodes)
+		_nNodesLen_ = ring_len(aNodes)
+		for i = 1 to _nNodesLen_
 			if isList(aNodes[i]) and ring_len(aNodes[i]) = 2
 				nCol = aNodes[i][1]
 				nRow = aNodes[i][2]
@@ -2024,7 +2036,8 @@ class stzGrid From stzObject
 	
 		# Add obstacles to the Grid
 		if @bShowObstacles
-			for i = 1 to ring_len(@aObstacles)
+			_nObstaclesLen_2 = ring_len(@aObstacles)
+			for i = 1 to _nObstaclesLen_2
 				nObsCol = @aObstacles[i][1]
 				nObsRow = @aObstacles[i][2]
 	
@@ -2039,7 +2052,8 @@ class stzGrid From stzObject
 			aRegion = aRegions[i]
 			cChar = acChars[i]
 	
-			for j = 1 to ring_len(aRegion)
+			_nRegionLen_3 = ring_len(aRegion)
+			for j = 1 to _nRegionLen_3
 				nCol = aRegion[j][1]
 				nRow = aRegion[j][2]
 	
@@ -2103,7 +2117,8 @@ class stzGrid From stzObject
 		
 		# Add obstacles to the Grid
 		if @bShowObstacles
-			for i = 1 to ring_len(@aObstacles)
+			_nObstaclesLen_ = ring_len(@aObstacles)
+			for i = 1 to _nObstaclesLen_
 				nObsCol = @aObstacles[i][1]
 				nObsRow = @aObstacles[i][2]
 				
@@ -2118,7 +2133,8 @@ class stzGrid From stzObject
 			aRegion = aRegions[i]
 			cChar = acChars[i]
 			
-			for j = 1 to ring_len(aRegion)
+			_nRegionLen_2 = ring_len(aRegion)
+			for j = 1 to _nRegionLen_2
 				nCol = aRegion[j][1]
 				nRow = aRegion[j][2]
 				
@@ -2572,7 +2588,8 @@ class stzGrid From stzObject
 					aResult + aRegion
 					
 					# Mark all cells in this region as visited
-					for i = 1 to ring_len(aRegion)
+					_nRegionLen_ = ring_len(aRegion)
+					for i = 1 to _nRegionLen_
 						aVisited + [ aRegion[i][1], aRegion[i][2] ]
 					next
 				ok
@@ -2707,7 +2724,8 @@ class stzGrid From stzObject
 
 			# Mark ALL path nodes with the path character
 
-			for i = 1 to ring_len(@aPath)
+			_nPathLen_ = ring_len(@aPath)
+			for i = 1 to _nPathLen_
 
 				nPathCol = @aPath[i][1]
 				nPathRow = @aPath[i][2]

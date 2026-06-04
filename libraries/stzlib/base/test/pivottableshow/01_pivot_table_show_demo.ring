@@ -101,12 +101,14 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     aHeaderRow = aPivotData[1]
     
     # Process row dimensions
-    for i = 1 to len(aRowDims)
+    _nRowDimsLen_3 = ring_len(aRowDims)
+    for i = 1 to _nRowDimsLen_3
         add(aRowLabelCols, i)
     next
     
     # Process data columns and find totals column
-    for i = len(aRowDims) + 1 to len(aHeaderRow)
+    _nHeaderRowLen_ = ring_len(aHeaderRow)
+    for i = len(aRowDims) + 1 to _nHeaderRowLen_
         if aHeaderRow[i] = cTotalLabel
             nTotalColIndex = i
         else
@@ -119,7 +121,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     aColDim2Values = []  # Second column dimension values (replaces aGender)
     aColGroups = []
     
-    for i = 1 to len(aDataCols)
+    _nDataColsLen_ = ring_len(aDataCols)
+    for i = 1 to _nDataColsLen_
         colIdx = aDataCols[i]
         colHeader = aHeaderRow[colIdx]
         
@@ -149,11 +152,13 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     
     # Calculate widths for row labels
     aRowLabelWidths = []
-    for i = 1 to len(aRowDims)
+    _nRowDimsLen_2 = ring_len(aRowDims)
+    for i = 1 to _nRowDimsLen_2
         maxWidth = len(aRowDims[i])
         
         # Check all data rows
-        for r = 2 to len(aPivotData) - 1
+        _nPivotDataLen_4 = ring_len(aPivotData)
+        for r = 2 to _nPivotDataLen_4 - 1
             cellValue = "" + aPivotData[r][i]
             if len(cellValue) > maxWidth
                 maxWidth = len(cellValue)
@@ -176,7 +181,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
                 maxWidth = len(dim2Value)  # Use second dimension for width calculation
                 
                 # Check all data rows
-                for r = 2 to len(aPivotData)
+                _nPivotDataLen_3 = ring_len(aPivotData)
+                for r = 2 to _nPivotDataLen_3
                     if colIdx <= len(aPivotData[r])
                         cellValue = "" + aPivotData[r][colIdx]
                         if len(cellValue) > maxWidth
@@ -193,7 +199,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     # Calculate width for total column
     nTotalColWidth = len(cTotalLabel)
     
-    for r = 2 to len(aPivotData)
+    _nPivotDataLen_2 = ring_len(aPivotData)
+    for r = 2 to _nPivotDataLen_2
         if nTotalColIndex <= len(aPivotData[r])
             cellValue = "" + aPivotData[r][nTotalColIndex]
             if len(cellValue) > nTotalColWidth
@@ -233,7 +240,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     cLine = aBorder[:TopLeft]
     
     # Add row labels section
-    for i = 1 to len(aRowLabelWidths)
+    _nRowLabelWidthsLen_5 = ring_len(aRowLabelWidths)
+    for i = 1 to _nRowLabelWidthsLen_5
         cLine += StrFill(aRowLabelWidths[i], aBorder[:Horizontal])
         if i < len(aRowLabelWidths)
             cLine += aBorder[:Horizontal]
@@ -261,7 +269,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     next
     
     # Add dimension sections
-    for i = 1 to len(aColDim1Values)
+    _nColDim1ValuesLen_2 = ring_len(aColDim1Values)
+    for i = 1 to _nColDim1ValuesLen_2
         dim1Value = aColDim1Values[i]
         cLine += StrFill(aDim1Widths[dim1Value], aBorder[:Horizontal])
         if i < len(aColDim1Values)
@@ -277,7 +286,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     cLine = aBorder[:Vertical]
     
     # Space for row dimension headers
-    for i = 1 to len(aRowLabelWidths)
+    _nRowLabelWidthsLen_4 = ring_len(aRowLabelWidths)
+    for i = 1 to _nRowLabelWidthsLen_4
         cLine += StrFill(aRowLabelWidths[i], " ")
         if i < len(aRowLabelWidths)
             cLine += " "
@@ -287,7 +297,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     cLine += aBorder[:Vertical]
     
     # Add first dimension headers
-    for i = 1 to len(aColDim1Values)
+    _nColDim1ValuesLen_ = ring_len(aColDim1Values)
+    for i = 1 to _nColDim1ValuesLen_
         dim1Value = aColDim1Values[i]
         # Capitalize first letter for display
         dim1Display = Upper(Left(dim1Value, 1)) + SubStr(dim1Value, 2)
@@ -306,7 +317,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     cLine = aBorder[:TeeRight]
     
     # Add separators for row dimensions
-    for i = 1 to len(aRowLabelWidths)
+    _nRowLabelWidthsLen_3 = ring_len(aRowLabelWidths)
+    for i = 1 to _nRowLabelWidthsLen_3
         cLine += StrFill(aRowLabelWidths[i], aBorder[:Horizontal])
         if i < len(aRowLabelWidths)
             cLine += aBorder[:TeeDown]
@@ -343,7 +355,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     cLine = aBorder[:Vertical]
     
     # Add row dimension headers
-    for i = 1 to len(aRowDims)
+    _nRowDimsLen_ = ring_len(aRowDims)
+    for i = 1 to _nRowDimsLen_
         dim = aRowDims[i]
         oDim = StzStringQ(dim)
         capitalized = Upper(Left(dim, 1)) + oDim.Section(2, oDim.NumberOfChars())
@@ -384,7 +397,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     cLine = aBorder[:TeeRight]
     
     # Add separators for row dimensions
-    for i = 1 to len(aRowLabelWidths)
+    _nRowLabelWidthsLen_2 = ring_len(aRowLabelWidths)
+    for i = 1 to _nRowLabelWidthsLen_2
         cLine += StrFill(aRowLabelWidths[i], aBorder[:Horizontal])
         if i < len(aRowLabelWidths)
             cLine += aBorder[:Cross]
@@ -420,7 +434,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     nRowDim1Count = 0
     
     # For each data row (skip header row and total row)
-    for r = 2 to len(aPivotData) - 1
+    _nPivotDataLen_ = ring_len(aPivotData)
+    for r = 2 to _nPivotDataLen_ - 1
         cCurrentRowDim1 = aPivotData[r][1]
         
         # Handle first row dimension grouping
@@ -519,7 +534,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     cLine = aBorder[:BottomLeft]
     
     # Add border for row dimensions
-    for i = 1 to len(aRowLabelWidths)
+    _nRowLabelWidthsLen_ = ring_len(aRowLabelWidths)
+    for i = 1 to _nRowLabelWidthsLen_
         cLine += StrFill(aRowLabelWidths[i], aBorder[:Horizontal])
         if i = 1
             cLine += aBorder[:TeeUp]

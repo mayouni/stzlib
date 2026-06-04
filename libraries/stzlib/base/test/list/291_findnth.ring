@@ -15,7 +15,8 @@ pr()
 	aLargeList + "A":"C" + "A":"C"
 	
 	aMyList = [ "_", "_", "A":"C", "_", "_", "A":"C", "_", "_", "A":"C", "_" ]
-	for i = 1 to len(aMyList)
+	_nMyListLen_ = ring_len(aMyList)
+	for i = 1 to _nMyListLen_
 		aLargeList + aMyList[i]
 	next
 

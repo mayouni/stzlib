@@ -256,7 +256,8 @@ class stzStochasticSolver
         aSolution = []
 
         # Initialize solution
-        for i = 1 to ring_len(@aVariables)
+        _nVariablesLen_4 = ring_len(@aVariables)
+        for i = 1 to _nVariablesLen_4
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
 
@@ -275,7 +276,8 @@ class stzStochasticSolver
 
         # Calculate efficiency for each variable
         aEfficiency = []
-        for i = 1 to ring_len(aVarNames)
+        _nVarNamesLen_4 = ring_len(aVarNames)
+        for i = 1 to _nVarNamesLen_4
             nCoeff = aExpectedCoeffs[i]
             nResourceCost = This.calculateExpectedResourceCost(aVarNames[i])
 			if nResourceCost = 0
@@ -313,7 +315,8 @@ class stzStochasticSolver
         aSolution = []
 
         # Initialize solution
-        for i = 1 to ring_len(@aVariables)
+        _nVariablesLen_3 = ring_len(@aVariables)
+        for i = 1 to _nVariablesLen_3
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
 
@@ -323,7 +326,8 @@ class stzStochasticSolver
 
         # Calculate efficiency using worst-case
         aEfficiency = []
-        for i = 1 to ring_len(aVarNames)
+        _nVarNamesLen_3 = ring_len(aVarNames)
+        for i = 1 to _nVarNamesLen_3
             nCoeff = aCoeffs[i]
             nResourceCost = This.calculateWorstCaseResourceCost(aVarNames[i])
             nEfficiency = iff(nResourceCost > 0, nCoeff / nResourceCost, 0)
@@ -358,7 +362,8 @@ class stzStochasticSolver
         aSolution = []
 
         # Initialize solution
-        for i = 1 to ring_len(@aVariables)
+        _nVariablesLen_2 = ring_len(@aVariables)
+        for i = 1 to _nVariablesLen_2
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
 
@@ -377,7 +382,8 @@ class stzStochasticSolver
 
         # Calculate efficiency with chance constraints
         aEfficiency = []
-        for i = 1 to ring_len(aVarNames)
+        _nVarNamesLen_2 = ring_len(aVarNames)
+        for i = 1 to _nVarNamesLen_2
             nCoeff = aExpectedCoeffs[i]
             nResourceCost = This.calculateChanceResourceCost(aVarNames[i])
             nEfficiency = iff(nResourceCost > 0, nCoeff / nResourceCost, 0)
@@ -584,7 +590,8 @@ class stzStochasticSolver
         aSolution = []
         
         # Initialize solution
-        for i = 1 to ring_len(@aVariables)
+        _nVariablesLen_ = ring_len(@aVariables)
+        for i = 1 to _nVariablesLen_
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
         
@@ -593,7 +600,8 @@ class stzStochasticSolver
         aCoeffs = This.parseObjectiveCoefficients(cScenarioObjective)
         
         # Simple greedy assignment
-        for i = 1 to ring_len(aVarNames)
+        _nVarNamesLen_ = ring_len(aVarNames)
+        for i = 1 to _nVarNamesLen_
             cVarName = aVarNames[i]
             nMaxPossible = This.calculateScenarioMaxValue(cVarName, aSolution, scenario)
             nUpperBound = @aVariables[i][:upperBound]

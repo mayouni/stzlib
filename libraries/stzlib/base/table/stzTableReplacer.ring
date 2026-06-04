@@ -62,7 +62,8 @@ class stzTableReplacer from stzTable
 
 		ok
 
-		for i = 1 to ring_len(paCellsPos)
+		_nCellsPosLen_ = ring_len(paCellsPos)
+		for i = 1 to _nCellsPosLen_
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewCellValue)
 		next
 

@@ -119,7 +119,8 @@ class stzClusterManager
         return nHealthy
 
     def GetNodeIndex(aNodes, oTargetNode)
-        for i = 1 to ring_len(aNodes)
+        _nNodesLen_ = ring_len(aNodes)
+        for i = 1 to _nNodesLen_
             if aNodes[i] = oTargetNode return i ok
         next
         return 1

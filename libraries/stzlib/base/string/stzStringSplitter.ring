@@ -220,7 +220,8 @@ class stzStringSplitter
 		_aSapResult_ = []
 		_nSapPrev_ = 1
 
-		for _iSap_ = 1 to ring_len(_anSapsorted_)
+		_n_anSapsortedLen_ = ring_len(_anSapsorted_)
+		for _iSap_ = 1 to _n_anSapsortedLen_
 			_nSapPos_ = _anSapsorted_[_iSap_]
 			if _nSapPos_ >= _nSapPrev_ and _nSapPos_ <= _nSapLen_
 				if _nSapPos_ > _nSapPrev_
@@ -291,7 +292,8 @@ class stzStringSplitter
 		_aSbpResult_ = []
 		_nSbpPrev_ = 1
 
-		for _iSbp_ = 1 to ring_len(_anSbpSorted_)
+		_n_anSbpSortedLen_ = ring_len(_anSbpSorted_)
+		for _iSbp_ = 1 to _n_anSbpSortedLen_
 			_nSbpPos_ = _anSbpSorted_[_iSbp_]
 			if _nSbpPos_ > _nSbpPrev_ and _nSbpPos_ <= _nSbpLen_
 				add(_aSbpResult_, @oString.Section(_nSbpPrev_, _nSbpPos_ - 1))
@@ -367,7 +369,8 @@ class stzStringSplitter
 		_aSapResult_ = []
 		_nSapPrev_ = 1
 
-		for _iSap_ = 1 to ring_len(_anSapSorted_)
+		_n_anSapSortedLen_ = ring_len(_anSapSorted_)
+		for _iSap_ = 1 to _n_anSapSortedLen_
 			_nSapPos_ = _anSapSorted_[_iSap_]
 			if _nSapPos_ >= _nSapPrev_ and _nSapPos_ <= _nSapLen_
 				add(_aSapResult_, @oString.Section(_nSapPrev_, _nSapPos_))

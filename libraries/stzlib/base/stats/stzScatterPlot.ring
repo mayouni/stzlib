@@ -59,7 +59,8 @@ class stzScatterPlot
 			@anVValues = []
 			@acPointLabels = []
 
-			for i = 1 to ring_len(paDataSet)
+			_nDataSetLen_ = ring_len(paDataSet)
+			for i = 1 to _nDataSetLen_
 				if ring_len(paDataSet[i]) >= 2
 					@anHValues + paDataSet[i][1]
 					@anVValues + paDataSet[i][2]
@@ -91,7 +92,8 @@ class stzScatterPlot
 				ok
 
 				@acPointLabels = []
-				for i = 1 to ring_len(@anHValues)
+				_nHValuesLen_3 = ring_len(@anHValues)
+				for i = 1 to _nHValuesLen_3
 					@acPointLabels + ("P" + i)
 				next
 
@@ -101,7 +103,8 @@ class stzScatterPlot
 				@acPointLabels = oHash.Keys()
 
 				aValues = oHash.Values()
-				for i = 1 to ring_len(aValues)
+				_nValuesLen_ = ring_len(aValues)
+				for i = 1 to _nValuesLen_
 					if isList(aValues[i]) and ring_len(aValues[i]) >= 2
 						@anHValues + aValues[i][1]
 						@anVValues + aValues[i][2]
@@ -466,7 +469,8 @@ class stzScatterPlot
 		nPlotHeight = oLayout[:plot_height]
 
 		# Draw grid lines only from axis to each data point
-		for i = 1 to ring_len(@anHValues)
+		_nHValuesLen_2 = ring_len(@anHValues)
+		for i = 1 to _nHValuesLen_2
 			nH = @anHValues[i]
 			nV = @anVValues[i]
 			
@@ -607,7 +611,8 @@ class stzScatterPlot
 		nPlotWidth = oLayout[:plot_width]
 		nPlotHeight = oLayout[:plot_height]
 
-		for i = 1 to ring_len(@anHValues)
+		_nHValuesLen_ = ring_len(@anHValues)
+		for i = 1 to _nHValuesLen_
 			nH = @anHValues[i]
 			nV = @anVValues[i]
 
@@ -730,7 +735,8 @@ class stzScatterPlot
 			acLines = split(cResult, nl)
 			
 			# Find the line with horizontal axis and add X at the end
-			for i = 1 to ring_len(acLines)
+			_nLinesLen_5 = ring_len(acLines)
+			for i = 1 to _nLinesLen_5
 				if ring_substr1(acLines[i], @cHArrowChar)  > 0
 					acLines[i] += " Y"  # Horizontal axis gets Y label
 					exit
@@ -738,7 +744,8 @@ class stzScatterPlot
 			next
 			
 			cResult = ""
-			for i = 1 to ring_len(acLines)
+			_nLinesLen_4 = ring_len(acLines)
+			for i = 1 to _nLinesLen_4
 				cResult += acLines[i]
 				if i < ring_len(acLines)
 					cResult += nl
@@ -755,7 +762,8 @@ class stzScatterPlot
 			acLines = split(cResult, nl)
 			
 			# Find the line with vertical arrow and add X above it
-			for i = 1 to ring_len(acLines)
+			_nLinesLen_3 = ring_len(acLines)
+			for i = 1 to _nLinesLen_3
 				if ring_substr1(acLines[i], @cVArrowChar) > 0
 					nArrowPos = ring_substr1(acLines[i], @cVArrowChar)
 					if nArrowPos > 0
@@ -763,7 +771,8 @@ class stzScatterPlot
 						cXLine = RepeatChar(" ", nArrowPos-1) + "X"
 						# Insert at the beginning
 						acNewLines = [cXLine]
-						for j = 1 to ring_len(acLines)
+						_nLinesLen_2 = ring_len(acLines)
+						for j = 1 to _nLinesLen_2
 							acNewLines + acLines[j]
 						next
 						acLines = acNewLines
@@ -773,7 +782,8 @@ class stzScatterPlot
 			next
 			
 			cResult = ""
-			for i = 1 to ring_len(acLines)
+			_nLinesLen_ = ring_len(acLines)
+			for i = 1 to _nLinesLen_
 				cResult += acLines[i]
 				if i < ring_len(acLines)
 					cResult += nl

@@ -43,7 +43,8 @@
 				StzEngineValueFree(pItem)
 			but isList(item)
 				aCopy = []
-				for j = 1 to len(item)
+				_nItemLen_ = ring_len(item)
+				for j = 1 to _nItemLen_
 					aCopy + item[j]
 				next
 				pSubVal = StzEngineMarshalListValue(aCopy)
@@ -5893,7 +5894,8 @@ func HaveSameContent(paItems)
 	ok
 
 	bResult = 1
-	for i = 2 to len(paItems)
+	_nItemsLen_ = ring_len(paItems)
+	for i = 2 to _nItemsLen_
 		bOk = Q( @@( paItems[i] ) ).IsEqualTo( @@( paItems[1] ) )
 		if NOT bOk
 			bResult = 0
