@@ -1,0 +1,18 @@
+== naturalmarkup  PASS 0  ERR 17  TIMEOUT 0  (25.2s) ==
+[ERR]     01_upper.ring :: exit 1: Error (S1) In file: 01_upper.ring
+[ERR]     02_blocks.ring :: Error (R14) : Calling Method without definition: substringsboundedbyzz
+[ERR]     03_basic_list_creation_and_queries.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     04_list_transformation_and_uppercase.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     05_global_function_with_parameter_order_independence.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     06_global_function_with_parameter_order_independence.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     07_string_creation_and_manipulation.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     08_method_chaining_with_dot_notation.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     09_cross-block_context_references.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     10_parameter_position_binding_with_n_declaration.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     11_unnamed_object_creation.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     12_complex_narrative_with_multiple_transformations.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     13_testing_generated_code_inspection.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     14_smartsplit_test_-_preserving_lists_and_strings.ring :: Error (R14) : Calling Method without definition: smartsplit
+[ERR]     15_void_operator_removing_noise_words.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     16_multiple_parameters_in_any_order.ring :: Error (R14) : Calling Method without definition: run
+[ERR]     17_nested_lists_in_literals.ring :: Error (R14) : Calling Method without definition: run

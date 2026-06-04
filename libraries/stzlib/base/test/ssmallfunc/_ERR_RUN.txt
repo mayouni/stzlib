@@ -1,0 +1,2 @@
+== ssmallfunc  PASS 1  ERR 0  TIMEOUT 0  (1.6s) ==
+[PASS]    01_some_small_functions_ring_119_quicker_than_120.ring

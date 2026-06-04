@@ -3,7 +3,6 @@
 # Some small functions #perf (Ring 1.19 quicker than 1.20)
 #
 # Extracted from stzSsmallfunctest.ring, block #1.
-#ERR Error (R14) : Calling Method without definition: tolist
 
 load "../../stzBase.ring"
 

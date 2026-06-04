@@ -1,0 +1,2 @@
+== pivottableshow  PASS 1  ERR 0  TIMEOUT 0  (1.6s) ==
+[PASS]    01_pivot_table_show_demo.ring

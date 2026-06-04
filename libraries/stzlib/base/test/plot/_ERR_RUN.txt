@@ -1,0 +1,74 @@
+== plot  PASS 51  ERR 22  TIMEOUT 0  (118.6s) ==
+[ERR]     01_tocompactform.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    02_ishashlist.ring
+[ERR]     03_ishashlist.ring :: Error (R4) : Stack Overflow
+[PASS]    04_pr.ring
+[PASS]    05_block_5.ring
+[PASS]    06_block_6.ring
+[PASS]    07_pr.ring
+[PASS]    08_add_setpercent_to_horizontal_chart.ring
+[PASS]    09_custom_width_and_hight.ring
+[PASS]    10_custom_bar_character.ring
+[PASS]    11_x-axis_disabled.ring
+[PASS]    12_y-axis_disabled.ring
+[PASS]    13_labels_disabled.ring
+[PASS]    14_average_line_enabled.ring
+[PASS]    15_values_displayed.ring
+[PASS]    16_values_displayed.ring
+[PASS]    17_custom_bar_width_with_long_label.ring
+[PASS]    18_multiple_bars_with_varying_values.ring
+[PASS]    19_zero_values.ring
+[PASS]    20_single_bar.ring
+[PASS]    21_large_values_with_scaling.ring
+[ERR]     22_test_1_basic_horizontal_bar_chart_with_percent_val.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    23_test_2_custom_width.ring
+[PASS]    24_test_3_custom_bar_character.ring
+[PASS]    25_test_4_x-axis_disabled.ring
+[PASS]    26_test_5_y-axis_disabled.ring
+[PASS]    27_test_6_both_axes_disabled.ring
+[PASS]    28_test_7_labels_disabled.ring
+[PASS]    29_test_8_values_displayed.ring
+[PASS]    30_test_10_custom_maximum_label_width.ring
+[PASS]    31_test_11_long_labels.ring
+[PASS]    32_test_12_multiple_bars_with_varying_values.ring
+[PASS]    33_test_13_zero_values.ring
+[PASS]    34_test_14_single_bar.ring
+[PASS]    35_test_15_large_values_with_scaling.ring
+[PASS]    36_using_the_short_form_stzcharq.ring
+[PASS]    37_pr.ring
+[PASS]    38_pr.ring
+[ERR]     39_pr.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    40_pr.ring
+[PASS]    41_pr.ring
+[ERR]     42_pr.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    43_pr.ring
+[PASS]    44_pr.ring
+[PASS]    45_pr.ring
+[PASS]    46_pr.ring
+[ERR]     47_pr.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    48_setting_the_legend_layout_to_vertical.ring
+[ERR]     49_basic_histogram_with_student_test_scores.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     50_histogram_with_frequency_display_and_statistics.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     51_histogram_with_percentage_display.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     52_simple_histogram_without_axes.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     53_compact_histogram_with_custom_bin_width.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     54_basic_4-item_test_with_percentages.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     55_2-item_comparison_test.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     56_3-item_test_with_values_and_percentages.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     57_5-item_test_recursive_division.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     58_large_dataset_6_items.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     59_equal_values_test.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     60_custom_size_test.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     61_values_only_no_percentages.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     62_single_item_test.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     63_large_numbers_test.ring :: Error (R14) : Calling Method without definition: removedfromend
+[ERR]     64_8-item_complex_test.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    65_test_1_basic_scatter_plot_with_coordinate_pairs.ring
+[PASS]    66_test_2_named_data_points_with_labels.ring
+[PASS]    67_test_4_xy_hashlist_format_with_coordinate_values.ring
+[PASS]    68_test_6_clean_plot_without_axes.ring
+[PASS]    69_content.ring
+[PASS]    70_in_the_name_of_allah.ring
+[PASS]    71_test_7_performance_data_visualization.ring
+[PASS]    72_pr.ring
+[PASS]    73_test_8_temperature_correlation_study.ring

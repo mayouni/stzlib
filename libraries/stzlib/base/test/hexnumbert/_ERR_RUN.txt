@@ -1,0 +1,13 @@
+== hexnumbert  PASS 9  ERR 3  TIMEOUT 0  (19.0s) ==
+[PASS]    01_firstnprimes.ring
+[PASS]    02_block_2.ring
+[ERR]     03_content.ring :: Error (R14) : Calling Method without definition: numberify
+[PASS]    05_firstnprimes.ring
+[PASS]    06_digits.ring
+[PASS]    07_nextprimeafter.ring
+[ERR]     08_this_is_an_update_of_the_next_narration_of_the_sol.ring :: Error (C27) : Syntax Error!
+[ERR]     09_firstnprimes.ring :: Error (R14) : Calling Method without definition: itemswxtq
+[PASS]    10_hexprefixes.ring
+[PASS]    11_content.ring
+[PASS]    12_isunicodehex.ring
+[PASS]    13_content.ring

@@ -1,0 +1,16 @@
+== entity  PASS 9  ERR 6  TIMEOUT 0  (22.5s) ==
+[PASS]    02_creating_basic_entities.ring
+[PASS]    03_using_the_wildcard_to_read_and_set_properties.ring
+[PASS]    04_entity_with_custom_properties.ring
+[PASS]    05_modifying_entity_properties.ring
+[PASS]    06_entity_type_checking.ring
+[PASS]    07_creating_list_of_entities.ring
+[PASS]    08_finding_entities.ring
+[ERR]     09_getting_specific_entities.ring :: Error (R24) : Using uninitialized variable: olist
+[ERR]     10_adding_entities.ring :: Error (R24) : Using uninitialized variable: olist
+[ERR]     11_removing_entities.ring :: Error (R24) : Using uninitialized variable: olist
+[ERR]     12_filtering_and_sorting.ring :: Error (R24) : Using uninitialized variable: olist
+[ERR]     13_list_operations.ring :: Error (R24) : Using uninitialized variable: olist
+[ERR]     14_copying_and_clearing.ring :: Error (R24) : Using uninitialized variable: olist
+[PASS]    15_error_handling_examples.ring
+[PASS]    16_complex_entity_with_metadata.ring

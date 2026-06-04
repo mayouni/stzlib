@@ -1,0 +1,7 @@
+== unicodedata  PASS 3  ERR 3  TIMEOUT 0  (9.5s) ==
+[PASS]    02_maxunicode.ring
+[PASS]    03_showshort.ring
+[ERR]     04_showshortnl.ring :: Error (R24) : Using uninitialized variable: $aunicodeblocksxt
+[ERR]     05_showshortxtnl.ring :: Error (R24) : Using uninitialized variable: $aunicodeblocksxt
+[PASS]    06_charunicodebyname.ring
+[ERR]     08_findcharbyname.ring :: Error (R19) : Calling function with less number of parameters

@@ -1,0 +1,11 @@
+== tree  PASS 10  ERR 0  TIMEOUT 0  (16.4s) ==
+[PASS]    01_nodes_items_and_branches.ring
+[PASS]    02_getting_specific_nodes.ring
+[PASS]    03_branches_and_nodes.ring
+[PASS]    04_finding_nodes.ring
+[PASS]    05_finding_and_getting_a_node.ring
+[PASS]    06_finding_and_getting_many_nodes.ring
+[PASS]    07_isvalidnodepath.ring
+[PASS]    08_isvalidnodepath.ring
+[PASS]    09_finding_and_getting_an_item.ring
+[PASS]    10_content.ring

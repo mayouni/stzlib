@@ -1,0 +1,10 @@
+== misc  PASS 6  ERR 3  TIMEOUT 0  (14.1s) ==
+[PASS]    01_pr.ring
+[PASS]    02_pr.ring
+[PASS]    03_pr.ring
+[PASS]    04_stzextcode_quick-narration.ring
+[ERR]     05_ismadeofnumbersorstrings.ring :: Error (R3) : Calling Function without definition: ismadeofnumbersorstrings
+[PASS]    06_block_6.ring
+[ERR]     07_listoflists.ring :: Error (R14) : Calling Method without definition: sortedondown
+[PASS]    08_min.ring
+[ERR]     09_show.ring :: Error (R14) : Calling Method without definition: sortondown

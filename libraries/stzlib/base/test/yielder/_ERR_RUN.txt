@@ -1,0 +1,3 @@
+== yielder  PASS 2  ERR 0  TIMEOUT 0  (3.2s) ==
+[PASS]    01_yielder_basics.ring
+[PASS]    test_yielder_direct.ring

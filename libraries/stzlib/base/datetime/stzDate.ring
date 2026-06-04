@@ -369,6 +369,12 @@ func StzAddDays(cDate, n)
 func StzDateQ(pDate)
     return new stzDate(pDate)
 
+# Bare ToDate helper: just builds a stzDate from any accepted form
+# and returns its canonical content. Symmetric with ToString /
+# ToInt / etc. helpers used across the narrative tests.
+func ToDate(pDate)
+    return StzDateQ(pDate).Content()
+
 func StzNow()
 	return StzSysDate() + " " + StzSysTime()
 

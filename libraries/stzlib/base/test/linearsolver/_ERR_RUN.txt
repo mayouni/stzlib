@@ -1,0 +1,15 @@
+== linearsolver  PASS 8  ERR 6  TIMEOUT 0  (22.4s) ==
+[PASS]    01_army_recruitment_optimization_from_the_article.ring
+[PASS]    02_restaurant_menu_planning.ring
+[ERR]     03_manufacturing_optimization_with_integer_constraint.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    04_batch_production_scheduling.ring
+[PASS]    05_investment_portfolio_optimization.ring
+[PASS]    06_budget_allocation_across_departments.ring
+[PASS]    07_classic_diet_problem_for_teaching_linear_programmi.ring
+[PASS]    08_transportation_problem_for_logistics_education.ring
+[ERR]     09_rpg_character_build_optimization.ring :: Error (R5) : Can't access the list item, Object is not list
+[ERR]     10_game_economy_balancing.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     11_event_planning_with_multiple_constraints.ring :: Error (R5) : Can't access the list item, Object is not list
+[ERR]     12_supply_chain_optimization_with_uncertainty.ring :: Error (R5) : Can't access the list item, Object is not list
+[ERR]     13_same_problem_different_solvers.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    test_linearsolver_regression.ring

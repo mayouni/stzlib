@@ -1,0 +1,9 @@
+== plural  PASS 8  ERR 0  TIMEOUT 0  (12.8s) ==
+[PASS]    01_test_regular_plurals.ring
+[PASS]    02_test_morphological_patterns.ring
+[PASS]    03_test_irregular_plurals.ring
+[PASS]    04_test_unchanged_plurals.ring
+[PASS]    05_test_uppercase_and_trimmed_input.ring
+[PASS]    06_test_edge_cases.ring
+[PASS]    07_test_dynamic_rule_addition.ring
+[PASS]    08_test_category-based_queries.ring

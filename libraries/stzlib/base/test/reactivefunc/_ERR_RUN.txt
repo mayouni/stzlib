@@ -1,0 +1,8 @@
+== reactivefunc  PASS 6  ERR 1  TIMEOUT 0  (24.7s) ==
+[PASS]    01_understanding_makereactive_-_from_blocking_to_non-.ring
+[PASS]    02_running_multiple_functions_in_parallel.ring
+[PASS]    03_robust_error_handling_with_reactive_functions.ring
+[PASS]    04_chaining_reactive_functions_for_complex_workflows.ring
+[PASS]    05_processing_multiple_items_efficiently_with_reactiv.ring
+[ERR]     06_advanced_reactive_patterns_for_real-world_applicat.ring :: Error (R24) : Using uninitialized variable: transformeddata
+[PASS]    07_practical_example_image_processing_pipeline.ring

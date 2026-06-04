@@ -1,0 +1,19 @@
+== duration  PASS 18  ERR 0  TIMEOUT 0  (27.1s) ==
+[PASS]    01_creating_duration_from_seconds.ring
+[PASS]    02_creation_duration_from_natural_language_string.ring
+[PASS]    03_retriving_duration_components.ring
+[PASS]    04_arithmetic_operations.ring
+[PASS]    05_comparisons.ring
+[PASS]    06_formatting_options.ring
+[PASS]    08_tostring.ring
+[PASS]    09_task_timer.ring
+[PASS]    10_meeting_scheduler.ring
+[PASS]    11_project_time_estimation.ring
+[PASS]    12_high_precision_duration.ring
+[PASS]    13_duration_state_checks.ring
+[PASS]    14_copy_and_clone.ring
+[PASS]    15_edge_cases.ring
+[PASS]    16_adding_more_patterns_to_tohuman.ring
+[PASS]    17_customising_unit_names.ring
+[PASS]    from_timex_example_2_duration_constraints_with_steps.ring
+[PASS]    test_duration_regression.ring

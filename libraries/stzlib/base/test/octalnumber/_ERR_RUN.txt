@@ -1,0 +1,3 @@
+== octalnumber  PASS 2  ERR 0  TIMEOUT 0  (3.3s) ==
+[PASS]    01_converting_from_octal_de_decimal_binary_and_hexade.ring
+[PASS]    02_octalnumber.ring

@@ -1,0 +1,12 @@
+== timex  PASS 11  ERR 0  TIMEOUT 0  (18.6s) ==
+[PASS]    03_example_3_event_sequences_-_match_vs_matchpartial.ring
+[PASS]    04_example_4_complete_sequence_matching.ring
+[PASS]    05_example_5_gap_duration_constraints.ring
+[PASS]    06_example_6_alternation_patterns.ring
+[PASS]    07_example_7_event_span_duration_constraints.ring
+[PASS]    08_example_8_quantifiers_-_zero_or_more.ring
+[PASS]    09_example_9_adjacent_events_no_gaps.ring
+[PASS]    10_example_10_pattern_debugging.ring
+[PASS]    11_example_11_real-world_meeting_scheduler.ring
+[PASS]    12_example_12_finding_patterns_across_timeline.ring
+[PASS]    13_example_13_pattern_explanation.ring

@@ -1,0 +1,14 @@
+== baturalcode  PASS 6  ERR 7  TIMEOUT 0  (23.9s) ==
+[PASS]    01_future.ring
+[PASS]    02_future.ring
+[ERR]     03_programming_the_future_litterally_in_softanza.ring :: Error (R14) : Calling Method without definition: isuppercasedfq
+[PASS]    04_numberofvowels.ring
+[PASS]    05_vowelnb.ring
+[PASS]    06_profon.ring
+[ERR]     07_-coding_-eloquence.ring :: Error (R14) : Calling Method without definition: lengthq
+[ERR]     08_are.ring :: Error (R14) : Calling Method without definition: arenegative
+[ERR]     09_isa.ring :: Error (R13) : Object is required
+[ERR]     10_isa.ring :: Error (R13) : Object is required
+[PASS]    11_pluraltostztype.ring
+[ERR]     13_areboth.ring :: Error (R14) : Calling Method without definition: firstcharq
+[ERR]     14_isa.ring :: Error (R14) : Calling Method without definition: containingq

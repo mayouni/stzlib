@@ -1,0 +1,2 @@
+== extinperl  PASS 1  ERR 0  TIMEOUT 0  (1.5s) ==
+[PASS]    01_pr.ring

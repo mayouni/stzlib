@@ -45,6 +45,11 @@ class stzOrgChart from stzDiagram
 
 	@acValidators = $acOrgChartDefaultValidators
 
+	# Rule-base sources loaded via LoadRuleBase (file path, profile
+	# name, or rule-base object). Consumed by the future rule-eval
+	# engine; for now this is just a recorded list.
+	@aRuleBases = []
+
 	def init(pcTitle)
 		super.init(pcTitle)
 		super.SetGraphType("structural")
@@ -1715,6 +1720,62 @@ class stzOrgChart from stzDiagram
 
 		def LoadFrom(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
+
+		# LoadRuleBase: stub for the future rule-base validation
+		# system. Accepts a file path, a class instance, or a
+		# pre-built profile name (string). For now it just records
+		# the source -- the actual rule-evaluation engine will land
+		# with the dedicated stzRuleBase class.
+		def LoadRuleBase(pSource)
+			@aRuleBases + pSource
+
+		def RuleBases()
+			return @aRuleBases
+
+# Stub rule-base classes that the narrative tests instantiate via
+# LoadRuleBase(new stzXxxRuleBase()). They land here as minimal
+# placeholders -- a real rule-evaluation engine will replace them
+# without changing the public Load + Validate surface.
+
+class stzRuleBase
+	@cName = ""
+	def init(pcName)
+		if isString(pcName)
+			@cName = pcName
+		ok
+	def Name()
+		return @cName
+
+class stzSOXRuleBase from stzRuleBase
+	def init()
+		super.init("SOX")
+
+class stzGDPRRuleBase from stzRuleBase
+	def init()
+		super.init("GDPR")
+
+class stzPCIDSSRuleBase from stzRuleBase
+	def init()
+		super.init("PCI-DSS")
+
+class stzHIPAARuleBase from stzRuleBase
+	def init()
+		super.init("HIPAA")
+
+class stzISO27001RuleBase from stzRuleBase
+	def init()
+		super.init("ISO 27001")
+
+class stzBaselIIIRuleBase from stzRuleBase
+	def init()
+		super.init("Basel III")
+
+class stzBCEAORuleBase from stzRuleBase
+	def init()
+		super.init("BCEAO")
+
+		# IsValid / Validate already exist on stzOrgChart above --
+		# the rule-base layer hooks into them when implemented.
 
 #=====================================================
 #  stzOrgChartBCEAOValidator

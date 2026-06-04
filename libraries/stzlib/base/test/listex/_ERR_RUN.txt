@@ -1,0 +1,3 @@
+== listex  PASS 0  ERR 2  TIMEOUT 0  (3.0s) ==
+[ERR]     01_listex_-_enhanced_test_suite.ring :: Error (C27) : Syntax Error!
+[ERR]     02_test_helper_function.ring :: Error (C27) : Syntax Error!

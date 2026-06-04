@@ -1,0 +1,17 @@
+digraph "systemaccess" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    public_web [label="Public_Website", shape=box, style="rounded,solid,filled", fillcolor="#008000", penwidth=1, fontcolor="white", tooltip=" "]
+    user_portal [label="User_Portal", shape=box, style="rounded,bold,filled", fillcolor="#0000FF", penwidth=1, fontcolor="white", tooltip=" "]
+    admin_panel [label="Admin_Panel", shape=box, style="rounded,bold,filled", fillcolor="#FFA500", penwidth=2, fontcolor="black", tooltip=" "]
+    db_config [label="DB_Config", shape=octagon, style="bold,filled", fillcolor="#FF0000", penwidth=3, fontcolor="white", tooltip=" "]
+    audit_log [label="Audit_Log", shape=box, style="rounded,bold,filled", fillcolor="#FFA500", penwidth=2, fontcolor="black", tooltip=" "]
+
+    public_web -> user_portal
+    user_portal -> admin_panel
+    admin_panel -> db_config
+    admin_panel -> audit_log
+
+}

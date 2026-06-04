@@ -298,7 +298,10 @@ class stzTime from stzObject
             ok
 
         but op = "="
-            if (isObject(v) and classname(v) = "stztime") or (isString(v) and IsTime(v))
+            # Use IsAStzTime() rather than classname(v) -- the latter
+            # is a Ring builtin that mis-resolves inside class-method
+            # scope on Ring 1.26 and trips R20.
+            if (isObject(v) and v.IsAStzTime()) or (isString(v) and IsTime(v))
                 return This.IsEqualTo(v)
             ok
         ok

@@ -1,0 +1,5 @@
+== chardata  PASS 4  ERR 0  TIMEOUT 0  (7.2s) ==
+[PASS]    01_invisible_unicodes.ring
+[PASS]    02_circled_chars_merge.ring
+[PASS]    03_numberofpunctuationchars.ring
+[PASS]    04_unicode_directions.ring

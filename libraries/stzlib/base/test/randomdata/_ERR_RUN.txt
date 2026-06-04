@@ -1,0 +1,2 @@
+== randomdata  PASS 1  ERR 0  TIMEOUT 0  (1.6s) ==
+[PASS]    01_word_data_helpers.ring

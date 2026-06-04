@@ -1,0 +1,7 @@
+== decimaltobinary  PASS 6  ERR 0  TIMEOUT 0  (10.6s) ==
+[PASS]    01_tobinaryform.ring
+[PASS]    02_positive_integer.ring
+[PASS]    03_positive_decimal_number.ring
+[PASS]    04_negative_integer.ring
+[PASS]    05_zero.ring
+[PASS]    06_test_5_negative_decimal_number.ring

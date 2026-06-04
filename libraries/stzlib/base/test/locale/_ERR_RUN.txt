@@ -1,0 +1,92 @@
+== locale  PASS 80  ERR 11  TIMEOUT 0  (184.7s) ==
+[PASS]    01_lowercase.ring
+[PASS]    02_abbreviation.ring
+[ERR]     03_replace_with_setcurrentlocale.ring :: Error (R3) : Calling Function without definition: setdefaultlocale
+[PASS]    04_abbreviation.ring
+[PASS]    05_profon.ring
+[PASS]    06_historical_qt-based_locale_tests_qt_removed.ring
+[PASS]    07_countryname.ring
+[PASS]    08_countryname.ring
+[PASS]    09_error_returns_null.ring
+[PASS]    10_countryname.ring
+[PASS]    11_countryname.ring
+[ERR]     12_capitalised.ring :: Error (R14) : Calling Method without definition: capitalised
+[PASS]    13_pf.ring
+[PASS]    14_pr.ring
+[PASS]    15_countryname.ring
+[PASS]    16_name.ring
+[PASS]    17_abbreviation.ring
+[PASS]    18_abbreviation.ring
+[PASS]    19_locale_casing_error.ring
+[PASS]    20_countryname.ring
+[PASS]    21_abbreviation.ring
+[PASS]    22_abbreviation.ring
+[PASS]    23_abbreviation.ring
+[PASS]    24_abbreviation.ring
+[PASS]    25_abbreviation.ring
+[PASS]    26_abbreviation.ring
+[PASS]    27_abbreviation.ring
+[PASS]    28_containsntimes.ring
+[PASS]    29_nthdayofweek.ring
+[PASS]    30_daysofweek.ring
+[PASS]    31_namesofdaysin.ring
+[PASS]    32_namesofmonthsin.ring
+[PASS]    33_namesofdaysin.ring
+[PASS]    34_in.ring
+[PASS]    35_in.ring
+[PASS]    36_returns_english_names.ring
+[ERR]     37_dayname.ring :: Error (R24) : Using uninitialized variable: o1
+[PASS]    38_abbreviation.ring
+[PASS]    39_abbreviation.ring
+[PASS]    40_islanguageabbreviation.ring
+[PASS]    41_islocalelist.ring
+[ERR]     42_country.ring :: Error (R14) : Calling Method without definition: islatinscript
+[ERR]     43_country.ring :: Error (R14) : Calling Method without definition: islatinscript
+[ERR]     44_content.ring :: Error (R3) : Calling Function without definition: titlecaseinlocale
+[PASS]    45_currencyname.ring
+[PASS]    46_islanguageabbreviation.ring
+[PASS]    47_countryphonecode.ring
+[PASS]    48_abbreviation.ring
+[PASS]    49_countrynativename.ring
+[PASS]    50_countryname.ring
+[PASS]    51_countryname.ring
+[PASS]    52_countryname.ring
+[PASS]    53_countryname.ring
+[PASS]    54_countryname.ring
+[PASS]    55_countryname.ring
+[PASS]    56_countrynativename.ring
+[PASS]    57_countrynumber.ring
+[ERR]     58_touppercase.ring :: Error (R14) : Calling Method without definition: islatinscript
+[ERR]     59_add_these_features.ring :: Error (R3) : Calling Function without definition: defaultlocaleseparator
+[PASS]    60_tostringxt.ring
+[ERR]     61_check_error.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    62_currency.ring
+[PASS]    63_currency.ring
+[PASS]    64_currencyinfo.ring
+[PASS]    65_languagesandtheirdefaultcountries.ring
+[ERR]     66_countriesandtheirdefaultlanguages.ring :: exit 1: Error (S1) In file: 66_countriesandtheirdefaultlanguages.ring
+[PASS]    67_scriptsandtheirdefaultlanguages.ring
+[PASS]    68_country.ring
+[PASS]    69_abbreviation.ring
+[PASS]    70_abbreviation.ring
+[PASS]    71_abbreviation.ring
+[PASS]    72_abbreviation.ring
+[PASS]    73_fix_logical_error.ring
+[PASS]    74_countrynumber.ring
+[PASS]    75_countriesforwhichdefaultlanguageis.ring
+[PASS]    76_scriptsandtheirdefaultlanguages.ring
+[ERR]     77_isscriptname.ring :: Error (R3) : Calling Function without definition: language
+[PASS]    78_systemlocale.ring
+[PASS]    79_islocaleabbreviation.ring
+[PASS]    80_languagename.ring
+[PASS]    81_languagename.ring
+[PASS]    82_languagename.ring
+[PASS]    83_languagename.ring
+[PASS]    84_abbreviation.ring
+[PASS]    85_abbreviation.ring
+[PASS]    86_country.ring
+[PASS]    87_defaultdaysofweek.ring
+[PASS]    88_tolowercase.ring
+[PASS]    from_datetime_locale-aware_ampm_text.ring
+[PASS]    from_string_841_pr.ring
+[PASS]    test_locale_regression.ring

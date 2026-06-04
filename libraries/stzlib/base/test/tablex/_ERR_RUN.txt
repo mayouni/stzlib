@@ -1,0 +1,40 @@
+== tablex  PASS 32  ERR 7  TIMEOUT 0  (61.4s) ==
+[PASS]    01_matching_exact_column_count.ring
+[PASS]    02_matching_column_count_with_comparisons.ring
+[PASS]    03_matching_exact_row_count.ring
+[PASS]    04_combining_structure_constraints.ring
+[ERR]     06_case-sensitive_contains.ring :: Error (R14) : Calling Method without definition: containscellcs
+[PASS]    07_case_sensitivity_in_unique_check.ring
+[PASS]    08_case_sensitivity_in_duplicates_check.ring
+[PASS]    09_case_sensitivity_in_sorted_check.ring
+[ERR]     10_case_sensitivity_in_grouped_check.ring :: Error (R24) : Using uninitialized variable: it
+[PASS]    11_match.ring
+[ERR]     12_combining_case-sensitive_patterns.ring :: Error (R14) : Calling Method without definition: containscellcs
+[PASS]    13_checking_column_names.ring
+[PASS]    14_using_hascol_alternative_syntax.ring
+[ERR]     17_combining_contains_with_structure.ring :: Error (R14) : Calling Method without definition: containscellcs
+[PASS]    18_checking_unique_columns.ring
+[PASS]    19_detecting_duplicates.ring
+[PASS]    20_validating_column_types.ring
+[PASS]    21_multiple_type_constraints.ring
+[PASS]    22_checking_if_column_is_numeric.ring
+[ERR]     23_alphabetic_column_check.ring :: Error (R14) : Calling Method without definition: isalphabetic
+[PASS]    24_column_sum_constraints.ring
+[PASS]    25_column_average_constraints.ring
+[PASS]    26_min_and_max_column_values.ring
+[PASS]    28_completeness_percentage.ring
+[PASS]    29_ensuring_no_nulls.ring
+[ERR]     30_detecting_calculated_columns.ring :: Error (R14) : Calling Method without definition: addcalculatedcol
+[ERR]     31_checking_for_any_calculated_data.ring :: Error (R14) : Calling Method without definition: findcalculatedrows
+[PASS]    32_and_operator_for_multiple_constraints.ring
+[PASS]    34_negation_with.ring
+[PASS]    35_complex_nested_conditions.ring
+[PASS]    39_combining_patterns_with_and.ring
+[PASS]    40_combining_patterns_with_or.ring
+[PASS]    41_negating_a_pattern.ring
+[PASS]    42_inspecting_pattern_tokens.ring
+[PASS]    43_explaining_matches.ring
+[PASS]    44_debug_mode.ring
+[PASS]    45_employee_database_validation.ring
+[PASS]    46_sales_data_quality_check.ring
+[PASS]    47_student_grades_validation.ring

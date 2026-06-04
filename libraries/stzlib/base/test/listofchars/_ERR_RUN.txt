@@ -1,0 +1,15 @@
+== listofchars  PASS 2  ERR 12  TIMEOUT 0  (22.3s) ==
+[ERR]     01_content.ring :: Error (R11) : Error in class name, class not found: stzlistofchars
+[ERR]     02_numberofmathchars.ring :: Error (R24) : Using uninitialized variable: $anmathunicodes
+[ERR]     03_findall.ring :: Error (R11) : Error in class name, class not found: stzlistofchars
+[ERR]     04_iscontiguous.ring :: Error (R24) : Using uninitialized variable: palist
+[ERR]     05_unicodes.ring :: Error (R11) : Error in class name, class not found: stzlistofchars
+[ERR]     06_boxedxt.ring :: Error (R3) : Calling Function without definition: sethilightchar
+[ERR]     07_boxedxt.ring :: Error (R24) : Using uninitialized variable: palist
+[ERR]     08_boxedxt.ring :: Error (R24) : Using uninitialized variable: palist
+[ERR]     09_boxed.ring :: Error (R14) : Calling Method without definition: boxed
+[PASS]    10_pr.ring
+[ERR]     11_boxedxt.ring :: Error (R24) : Using uninitialized variable: palist
+[ERR]     12_boxed.ring :: exit 1: Line 79 Bad parameters value, error in length!
+[PASS]    13_bothendwithanumber.ring
+[ERR]     14_tolist.ring :: Error (R14) : Calling Method without definition: tolist

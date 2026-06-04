@@ -1,0 +1,30 @@
+== object  PASS 25  ERR 4  TIMEOUT 0  (46.9s) ==
+[PASS]    01_checking_truth.ring
+[PASS]    02_istrue.ring
+[PASS]    03_truth_in_ring.ring
+[PASS]    04_truth_in_softanza.ring
+[PASS]    05_inn.ring
+[PASS]    06_pr.ring
+[PASS]    07_name.ring
+[PASS]    08_name.ring
+[PASS]    09_nullobject.ring
+[PASS]    10_pr.ring
+[PASS]    11_absolute.ring
+[PASS]    12_iseither.ring
+[ERR]     13_tonumber_and_tonumberw.ring :: Error (R14) : Calling Method without definition: numericvalue
+[ERR]     14_tonumberw.ring :: panic: integer does not fit in destination type
+[ERR]     15_tonumberw.ring :: panic: integer does not fit in destination type
+[ERR]     16_tonumberw.ring :: panic: integer does not fit in destination type
+[PASS]    17_ishashlist.ring
+[PASS]    18_pluralofthisstztype.ring
+[PASS]    19_ringtypes.ring
+[PASS]    20_isa.ring
+[PASS]    21_eachitemiseithera.ring
+[PASS]    22_isa.ring
+[PASS]    23_eachitemiseithera.ring
+[PASS]    24_eachitemiseithera.ring
+[PASS]    25_eachitemiseither.ring
+[PASS]    26_eachitemiseither.ring
+[PASS]    27_isa.ring
+[PASS]    31_isobject.ring
+[PASS]    32_howmanystzclasses.ring

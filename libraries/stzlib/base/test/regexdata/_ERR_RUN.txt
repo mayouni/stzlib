@@ -1,0 +1,12 @@
+== regexdata  PASS 11  ERR 0  TIMEOUT 0  (17.1s) ==
+[PASS]    01_matches.ring
+[PASS]    02_matches.ring
+[PASS]    03_pattern.ring
+[PASS]    04_pattern.ring
+[PASS]    05_pattern.ring
+[PASS]    06_pattern.ring
+[PASS]    07_pattern.ring
+[PASS]    08_pattern.ring
+[PASS]    09_pattern.ring
+[PASS]    10_pattern.ring
+[PASS]    11_pattern.ring

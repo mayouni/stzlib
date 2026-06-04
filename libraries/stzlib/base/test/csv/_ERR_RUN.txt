@@ -1,0 +1,4 @@
+== csv  PASS 3  ERR 0  TIMEOUT 0  (5.3s) ==
+[PASS]    01_iscsv.ring
+[PASS]    02_iscsv.ring
+[PASS]    test_csv_regression.ring
