@@ -3,7 +3,6 @@
 # Testing outlier detection
 #
 # Extracted from stzdatawranglertest.ring, block #8.
-#ERR Error (R41) : Invalid numeric string
 
 load "../../stzBase.ring"
 

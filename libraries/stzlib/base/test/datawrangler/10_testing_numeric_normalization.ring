@@ -3,7 +3,6 @@
 # Testing numeric normalization
 #
 # Extracted from stzdatawranglertest.ring, block #10.
-#ERR Error (R24) : Using uninitialized variable: minmax
 
 load "../../stzBase.ring"
 

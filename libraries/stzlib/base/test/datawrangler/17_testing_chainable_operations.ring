@@ -3,7 +3,7 @@
 # Testing chainable operations
 #
 # Extracted from stzdatawranglertest.ring, block #17.
-#ERR Error (R24) : Using uninitialized variable: clean
+#ERR exit 1: +----------------------+
 
 load "../../stzBase.ring"
 

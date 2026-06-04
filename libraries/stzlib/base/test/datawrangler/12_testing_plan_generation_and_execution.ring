@@ -3,7 +3,7 @@
 # Testing plan generation and execution
 #
 # Extracted from stzdatawranglertest.ring, block #12.
-#ERR Error (R24) : Using uninitialized variable: clean
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 
@@ -38,7 +38,7 @@ aResult = o1.ExecutePlan("clean", TRUE)
 
 ? ""
 ? BoxRound("EXECUTION SUMMARY")
-? " • Plan executed: " + aResult[:plan]//[:title]
+? " • Plan executed: " + aResult[:plan][:title]
 ? " • Execution time: " + aResult[:execution_time] + " seconds"
 ? " • Summary: " + aResult[:summary]
 
