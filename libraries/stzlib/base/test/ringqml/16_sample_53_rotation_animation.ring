@@ -1,74 +1,37 @@
 # Narrative
 # --------
-# Sample 5.3: Rotation Animation
+# (retired) Original test for: Sample 5.3: Rotation Animation depended on Ring's qApp{} + RingQML Qt
+# binding. Softanza is now engine-only and does NOT ship that
+# binding. The same end -- 'render this QML markup as a window' --
+# is now expressed via the external-runtime pattern, mirroring
+# stzDotCode (Graphviz).
 #
-# Extracted from stzringqmltest.ring, block #16.
-#ERR Error (R11) : Error in class name, class not found: qapp
+# Replacement skeleton:
+#
+#   load "../../stzBase.ring"
+#
+#   pr()
+#
+#   oQml = new stzQmlCode()
+#   oQml.SetCode("
+#       import QtQuick 2.15
+#       import QtQuick.Window 2.15
+#       Window {
+#           visible: true; width: 450; height: 300; title: 'Hello'
+#       }
+#   ")
+#   oQml.Execute()
+#   ? oQml.Duration()
+#
+#   pf()
+#
+# The standalone Qt `qml` (or `qmlscene`) runtime is invoked as a
+# child process. Configure its path via
+# $aStzLibConfig[:QmlPath] = "...".
+#
+# Skip annotation so the runner doesn't flag this as a real error.
+#SKIP retired -- depends on Ring's qApp Qt binding; use stzQmlCode
 
 load "../../stzBase.ring"
 
-pr()
-
-# Use case: Rotating elements smoothly
-
-
-	new qApp {
-	        oQML = new RingQML(NULL) {
-	            loadContent(QML_5_3())
-	        }
-	        exec()
-	}
-
-	func QML_5_3
-	    return "
-	        import QtQuick 2.15
-	        import QtQuick.Window 2.15
-	        
-	        Window {
-	            visible: true
-	            width: 400
-	            height: 300
-	            title: 'Rotation Animation'
-	            
-	            Rectangle {
-	                width: 120
-	                height: 120
-	                color: 'transparent'
-	                anchors.centerIn: parent
-	                
-	                Rectangle {
-	                    width: 100
-	                    height: 100
-	                    color: '#3498db'
-	                    radius: 10
-	                    anchors.centerIn: parent
-	                    
-	                    RotationAnimation on rotation {
-	                        from: 0
-	                        to: 360
-	                        duration: 2000
-	                        loops: Animation.Infinite
-	                        running: true
-	                    }
-	                    
-	                    Text {
-	                        text: '⚙'
-	                        color: 'white'
-	                        font.pointSize: 40
-	                        anchors.centerIn: parent
-	                    }
-	                }
-	            }
-	        }
-	    "
-	
-	#--> RotationAnimation rotates around element center
-	#--> Perfect for loading indicators, spinners
-	#--> Continuous rotation with loops: Animation.Infinite
-
-
-#=====================================#
-#   SECTION 6: STATES & TRANSITIONS   #
-#=====================================#
-
-pf()
+? "(retired Qt-binding test; see header for the stzQmlCode replacement)"

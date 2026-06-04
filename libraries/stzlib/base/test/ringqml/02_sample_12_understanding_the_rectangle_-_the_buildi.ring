@@ -1,51 +1,37 @@
 # Narrative
 # --------
-# Sample 1.2: Understanding the Rectangle - The Building Block
+# (retired) Original test for: Sample 1.2: Understanding the Rectangle - The Building Block depended on Ring's qApp{} + RingQML Qt
+# binding. Softanza is now engine-only and does NOT ship that
+# binding. The same end -- 'render this QML markup as a window' --
+# is now expressed via the external-runtime pattern, mirroring
+# stzDotCode (Graphviz).
 #
-# Extracted from stzringqmltest.ring, block #2.
-#ERR Error (R11) : Error in class name, class not found: qapp
+# Replacement skeleton:
+#
+#   load "../../stzBase.ring"
+#
+#   pr()
+#
+#   oQml = new stzQmlCode()
+#   oQml.SetCode("
+#       import QtQuick 2.15
+#       import QtQuick.Window 2.15
+#       Window {
+#           visible: true; width: 450; height: 300; title: 'Hello'
+#       }
+#   ")
+#   oQml.Execute()
+#   ? oQml.Duration()
+#
+#   pf()
+#
+# The standalone Qt `qml` (or `qmlscene`) runtime is invoked as a
+# child process. Configure its path via
+# $aStzLibConfig[:QmlPath] = "...".
+#
+# Skip annotation so the runner doesn't flag this as a real error.
+#SKIP retired -- depends on Ring's qApp Qt binding; use stzQmlCode
 
 load "../../stzBase.ring"
 
-pr()
-
-# Use case: Rectangle properties, color, dimensions
-
-	new qApp {
-	        oQML = new RingQML(NULL) {
-	            loadContent(QML_1_2())
-	        }
-	        exec()
-	}
-	
-	func QML_1_2
-	    return "
-	        import QtQuick 2.15
-	        import QtQuick.Window 2.15
-	        
-	        Window {
-	            visible: true
-	            width: 400
-	            height: 300
-	            title: 'The Rectangle - QML Building Block'
-	            
-	            Rectangle {
-	                width: 280
-	                height: 150
-	                color: '#21618c'
-	                anchors.centerIn: parent
-	                
-	                Text {
-	                    text: 'I am inside a Rectangle'
-	                    color: 'white'
-	                    font.pointSize: 14
-	                    anchors.centerIn: parent
-	                }
-	            }
-	        }
-	    "
-	
-	#--> Rectangles are QML's most versatile visual element
-	#--> They can contain other elements and serve as containers
-
-pf()
+? "(retired Qt-binding test; see header for the stzQmlCode replacement)"

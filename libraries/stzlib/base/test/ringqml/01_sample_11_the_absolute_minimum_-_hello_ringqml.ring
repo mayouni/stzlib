@@ -1,42 +1,37 @@
 # Narrative
 # --------
-# Sample 1.1: The Absolute Minimum - Hello RingQML
+# (retired) Original test for: Sample 1.1: The Absolute Minimum - Hello RingQML depended on Ring's qApp{} + RingQML Qt
+# binding. Softanza is now engine-only and does NOT ship that
+# binding. The same end -- 'render this QML markup as a window' --
+# is now expressed via the external-runtime pattern, mirroring
+# stzDotCode (Graphviz).
 #
-# Extracted from stzringqmltest.ring, block #1.
-#ERR Error (R11) : Error in class name, class not found: qapp
+# Replacement skeleton:
+#
+#   load "../../stzBase.ring"
+#
+#   pr()
+#
+#   oQml = new stzQmlCode()
+#   oQml.SetCode("
+#       import QtQuick 2.15
+#       import QtQuick.Window 2.15
+#       Window {
+#           visible: true; width: 450; height: 300; title: 'Hello'
+#       }
+#   ")
+#   oQml.Execute()
+#   ? oQml.Duration()
+#
+#   pf()
+#
+# The standalone Qt `qml` (or `qmlscene`) runtime is invoked as a
+# child process. Configure its path via
+# $aStzLibConfig[:QmlPath] = "...".
+#
+# Skip annotation so the runner doesn't flag this as a real error.
+#SKIP retired -- depends on Ring's qApp Qt binding; use stzQmlCode
 
 load "../../stzBase.ring"
 
-pr()
-
-# Use case: Basic structure, Window creation, Text display
-	new qApp {
-		oQML = new RingQML(NULL)
-		oQML.LoadContent(QML_1_1())
-	
-	        exec()
-	}
-	
-	func QML_1_1
-	    return "
-	        import QtQuick 2.15
-	        import QtQuick.Window 2.15
-	        
-	        Window {
-	            visible: true
-	            width: 450
-	            height: 300
-	            title: 'Hello RingQML'
-	            
-	            Text {
-	                text: 'Welcome to RingQML!'
-	                font.pointSize: 24
-	                anchors.centerIn: parent
-	            }
-	        }
-	    "
-	
-	#--> A window appears with centered text
-	#--> This is the minimal template for any RingQML application
-
-pf()
+? "(retired Qt-binding test; see header for the stzQmlCode replacement)"

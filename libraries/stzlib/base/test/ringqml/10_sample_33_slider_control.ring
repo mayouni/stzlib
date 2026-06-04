@@ -1,87 +1,37 @@
 # Narrative
 # --------
-# Sample 3.3: Slider Control
+# (retired) Original test for: Sample 3.3: Slider Control depended on Ring's qApp{} + RingQML Qt
+# binding. Softanza is now engine-only and does NOT ship that
+# binding. The same end -- 'render this QML markup as a window' --
+# is now expressed via the external-runtime pattern, mirroring
+# stzDotCode (Graphviz).
 #
-# Extracted from stzringqmltest.ring, block #10.
-#ERR Error (R11) : Error in class name, class not found: qapp
+# Replacement skeleton:
+#
+#   load "../../stzBase.ring"
+#
+#   pr()
+#
+#   oQml = new stzQmlCode()
+#   oQml.SetCode("
+#       import QtQuick 2.15
+#       import QtQuick.Window 2.15
+#       Window {
+#           visible: true; width: 450; height: 300; title: 'Hello'
+#       }
+#   ")
+#   oQml.Execute()
+#   ? oQml.Duration()
+#
+#   pf()
+#
+# The standalone Qt `qml` (or `qmlscene`) runtime is invoked as a
+# child process. Configure its path via
+# $aStzLibConfig[:QmlPath] = "...".
+#
+# Skip annotation so the runner doesn't flag this as a real error.
+#SKIP retired -- depends on Ring's qApp Qt binding; use stzQmlCode
 
 load "../../stzBase.ring"
 
-pr()
-
-# Use case: Range input and value binding
-
-
-	new qApp {
-		oQML = new RingQML(NULL)
-		oQML.LoadContent(QML_3_3())
-	
-	        exec()
-	}
-
-	func QML_3_3
-	    return "
-	        import QtQuick 2.15
-	        import QtQuick.Controls 2.15
-	        import QtQuick.Window 2.15
-	        
-	        Window {
-	            visible: true
-	            width: 400
-	            height: 400
-	            title: 'Slider Control'
-	            
-	            Column {
-	                anchors.centerIn: parent
-	                spacing: 30
-	                
-	                Text {
-	                    text: 'Adjust Rectangle Size'
-	                    font.pointSize: 14
-	                    anchors.horizontalCenter: parent.horizontalCenter
-	                }
-	                
-	                Slider {
-	                    id: sizeSlider
-	                    from: 50
-	                    to: 200
-	                    value: 100
-	                    width: 300
-	                }
-	                
-	                Rectangle {
-	                    width: sizeSlider.value
-	                    height: sizeSlider.value
-	                    color: '#e74c3c'
-	                    radius: 10
-	                    anchors.horizontalCenter: parent.horizontalCenter
-	                    
-	                    // Smooth size transition
-	                    Behavior on width {
-	                        NumberAnimation { duration: 100 }
-	                    }
-	                    Behavior on height {
-	                        NumberAnimation { duration: 100 }
-	                    }
-	                    
-	                    Text {
-	                        text: Math.round(sizeSlider.value) + 'px'
-	                        color: 'white'
-	                        font.pointSize: 12
-	                        anchors.centerIn: parent
-	                    }
-	                }
-	            }
-	        }
-	    "
-	
-	#--> Slider provides range input
-	#--> Direct binding (sizeSlider.value) updates rectangle size
-	#--> Behavior adds smooth animation to changes
-
-
-#==============================#
-#   SECTION 4: VISUAL DESIGN   #
-#==============================#
-
-pf()
+? "(retired Qt-binding test; see header for the stzQmlCode replacement)"

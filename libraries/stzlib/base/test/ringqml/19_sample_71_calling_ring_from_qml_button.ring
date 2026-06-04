@@ -1,76 +1,37 @@
 # Narrative
 # --------
-# Sample 7.1: Calling Ring from QML Button
+# (retired) Original test for: Sample 7.1: Calling Ring from QML Button depended on Ring's qApp{} + RingQML Qt
+# binding. Softanza is now engine-only and does NOT ship that
+# binding. The same end -- 'render this QML markup as a window' --
+# is now expressed via the external-runtime pattern, mirroring
+# stzDotCode (Graphviz).
 #
-# Extracted from stzringqmltest.ring, block #19.
-#ERR Error (R11) : Error in class name, class not found: qapp
+# Replacement skeleton:
+#
+#   load "../../stzBase.ring"
+#
+#   pr()
+#
+#   oQml = new stzQmlCode()
+#   oQml.SetCode("
+#       import QtQuick 2.15
+#       import QtQuick.Window 2.15
+#       Window {
+#           visible: true; width: 450; height: 300; title: 'Hello'
+#       }
+#   ")
+#   oQml.Execute()
+#   ? oQml.Duration()
+#
+#   pf()
+#
+# The standalone Qt `qml` (or `qmlscene`) runtime is invoked as a
+# child process. Configure its path via
+# $aStzLibConfig[:QmlPath] = "...".
+#
+# Skip annotation so the runner doesn't flag this as a real error.
+#SKIP retired -- depends on Ring's qApp Qt binding; use stzQmlCode
 
 load "../../stzBase.ring"
 
-pr()
-
-# Use case: QML triggers Ring logic
-
-
-	new qApp {
-	        win = new QQuickView() {
-	            setWidth(400)
-	            oQML = new RingQML(win) {
-	                loadContent(QML_7_1())
-	            }
-	            show()
-	        }
-	        exec()
-	    }
-	
-	func HandleButtonClick
-	    ? "Button was clicked from QML"
-	    ? "Ring code executed successfully"
-	    ? "---------------------------------"
-	
-	func QML_7_1
-	    return `
-	        import QtQuick 2.15
-	        import QtQuick.Controls 2.15
-	        
-	        Rectangle {
-	            width: 400
-	            height: 300
-	            color: '#ecf0f1'
-	            
-	            Column {
-	                anchors.centerIn: parent
-	                spacing: 20
-	                
-	                Text {
-	                    text: 'QML → Ring Communication'
-	                    font.pointSize: 16
-	                    font.bold: true
-	                    anchors.horizontalCenter: parent.horizontalCenter
-	                }
-	                
-	                Button {
-	                    text: 'Click to Call Ring Function'
-			    font.pointSize: 12
-	                    anchors.horizontalCenter: parent.horizontalCenter
-	                    onClicked: {
-	                        Ring.callFunc("HandleButtonClick", [])
-	                    }
-	                }
-	                
-	                Text {
-	                    text: 'Check console for output'
-	                    font.pointSize: 12
-	                    color: '#7f8c8d'
-	                    anchors.horizontalCenter: parent.horizontalCenter
-	                }
-	            }
-	        }
-	    `
-
-	#--> Ring.callFunc() executes Ring functions from QML
-	#--> First parameter is function name as string
-	#--> Second parameter is array of arguments
-	#--> Output: Console shows Ring execution confirmation
-
-pf()
+? "(retired Qt-binding test; see header for the stzQmlCode replacement)"

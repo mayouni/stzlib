@@ -346,6 +346,7 @@ ok
     load "extercode/stzPrologCode.ring"
 
     load "extercode/stzDotCode.ring"
+    load "extercode/stzQmlCode.ring"
 
 # Loading files related to the NETWORK module
 
