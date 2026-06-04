@@ -100,13 +100,11 @@ class stzDataWrangler
     # ==============
     
     def init(paData, paHeaders)
-        """
-        Initialize the data rangler with your dataset
-        
-        Usage:
-            oRangler = new stzDataWrangler(myData)           # For simple list
-            oRangler = new stzDataWrangler(myTable, headers) # For 2D table
-        """
+        # Initialize the data rangler with your dataset
+        #
+        # Usage:
+        # oRangler = new stzDataWrangler(myData)           # For simple list
+        # oRangler = new stzDataWrangler(myTable, headers) # For 2D table
         @aData = paData
         @aHeaders = paHeaders
         This._DetectDataStructure()
@@ -147,10 +145,8 @@ class stzDataWrangler
     # ======================
     
     def RemoveDuplicates()
-        """
-        Remove duplicate rows from the dataset
-        Returns: Number of duplicates removed
-        """
+        # Remove duplicate rows from the dataset
+        # Returns: Number of duplicates removed
         nOriginalSize = This._GetRowCount()
         aCleanData = []
         
@@ -171,16 +167,14 @@ class stzDataWrangler
         return nRemoved
 
     def HandleMissingValues(cStrategy)
-        """
-        Handle missing values using specified strategy
-        
-        Strategies:
-            "auto" - Use intelligent defaults based on data type
-            "remove" - Remove rows/items with missing values
-            "fill_mean" - Fill with mean (numeric) or mode (categorical)
-            "fill_zero" - Fill with zero or empty string
-            "interpolate" - Linear interpolation for numeric sequences
-        """
+        # Handle missing values using specified strategy
+        #
+        # Strategies:
+        # "auto" - Use intelligent defaults based on data type
+        # "remove" - Remove rows/items with missing values
+        # "fill_mean" - Fill with mean (numeric) or mode (categorical)
+        # "fill_zero" - Fill with zero or empty string
+        # "interpolate" - Linear interpolation for numeric sequences
 
 		if cStrategy = ""
 			cStrategy = "auto"
@@ -321,10 +315,8 @@ class stzDataWrangler
     # =========================
     
     def ValidateDataTypes()
-        """
-        Validate data type consistency within columns
-        Returns: List of validation issues found
-        """
+        # Validate data type consistency within columns
+        # Returns: List of validation issues found
         aIssues = []
         
         if @cDataStructure = "table"
@@ -347,16 +339,14 @@ class stzDataWrangler
             next
         ok
         
-        This._LogTransformation("ValidateDataTypes", ring_len(aIssues) + " type issues found")
+        This._LogTransformation("ValidateDataTypes", "" + ring_len(aIssues) + " type issues found")
         return aIssues
 
     def ValidateRanges(aRangeRules)
-        """
-        Validate numeric values against specified ranges
-        
-        Range rules format:
-        [ ["column_name", min_value, max_value], ... ]
-        """
+        # Validate numeric values against specified ranges
+        #
+        # Range rules format:
+        # [ ["column_name", min_value, max_value], ... ]
         aIssues = []
         
         if @cDataStructure = "table"
@@ -379,14 +369,12 @@ class stzDataWrangler
             next
         ok
         
-        This._LogTransformation("ValidateRanges", ring_len(aIssues) + " range violations found")
+        This._LogTransformation("ValidateRanges", "" + ring_len(aIssues) + " range violations found")
         return aIssues
 
     def DetectOutliers(nThreshold)
-        """
-        Detect statistical outliers using Z-score method
-        Returns: List of outlier positions
-        """
+        # Detect statistical outliers using Z-score method
+        # Returns: List of outlier positions
 
 		if IsNull(nThreshold) or nThreshold = 0
 			nThreshold = $nWRANGLE_OUTLIER_THRESHOLD
@@ -417,20 +405,18 @@ class stzDataWrangler
             next
         ok
         
-        This._LogTransformation("DetectOutliers", ring_len(aOutliers) + " outliers detected")
+        This._LogTransformation("DetectOutliers", "" + ring_len(aOutliers) + " outliers detected")
         return aOutliers
 
     # PILLAR 3: DATA TRANSFORMATION
     # =============================
     
     def ConvertDataTypes(aConversionRules)
-        """
-        Convert data types based on rules or auto-detection
-        
-        Conversion rules format:
-        [ ["column_name", "target_type"], ... ]
-        Target types: "numeric", "string", "boolean", "date"
-        """
+        # Convert data types based on rules or auto-detection
+        #
+        # Conversion rules format:
+        # [ ["column_name", "target_type"], ... ]
+        # Target types: "numeric", "string", "boolean", "date"
         nConverted = 0
         
         if @cDataStructure = "table"
@@ -457,10 +443,8 @@ class stzDataWrangler
         return nConverted
 
     def NormalizeNumeric(cMethod)
-        """
-        Normalize numeric columns
-        Methods: "minmax" (0-1), "zscore" (mean=0, std=1), "robust" (median-based)
-        """
+        # Normalize numeric columns
+        # Methods: "minmax" (0-1), "zscore" (mean=0, std=1), "robust" (median-based)
 
 		if IsNull(cMethod)
 			cMethod = "minmax"
@@ -491,10 +475,8 @@ class stzDataWrangler
         return nNormalized
 
     def EncodeCategories(cMethod)
-        """
-        Encode categorical variables for analysis
-        Methods: "label" (0,1,2...), "onehot" (binary columns), "ordinal" (custom order)
-        """
+        # Encode categorical variables for analysis
+        # Methods: "label" (0,1,2...), "onehot" (binary columns), "ordinal" (custom order)
 
 		if IsNull(cMethod)
 			cMethod = "label"
@@ -520,12 +502,10 @@ class stzDataWrangler
     # ===============================
     
     def GeneratePlan(cGoalOrTemplate)
-        """
-        Generate a wrangling plan based on goal or template name
-        
-        Goals: "clean", "validate", "analyze", "export"
-        Templates: "basic_cleanup", "data_validation", etc.
-        """
+        # Generate a wrangling plan based on goal or template name
+        #
+        # Goals: "clean", "validate", "analyze", "export"
+        # Templates: "basic_cleanup", "data_validation", etc.
         cTemplate = This._ResolvePlanTemplate(cGoalOrTemplate)
         if cTemplate = NULL
             This._LogTransformation("GeneratePlan", "Unknown goal/template: " + cGoalOrTemplate)
@@ -548,10 +528,8 @@ class stzDataWrangler
         return NULL
 
     def ExecutePlan(cGoalOrTemplate, bVerbose)
-        """
-        Execute a complete wrangling plan
-        Returns: Execution summary with results and any errors
-        """
+        # Execute a complete wrangling plan
+        # Returns: Execution summary with results and any errors
 
         @bVerbose = bVerbose
         aPlan = This.GeneratePlan(cGoalOrTemplate)
@@ -619,10 +597,8 @@ class stzDataWrangler
     # ================================
     
     def ExportForStzDataSet()
-        """
-        Export cleaned data in format suitable for stzDataSet
-        Returns: Clean list or 2D array ready for statistical analysis
-        """
+        # Export cleaned data in format suitable for stzDataSet
+        # Returns: Clean list or 2D array ready for statistical analysis
         if @cDataStructure = "list"
             return @aData
         else
@@ -631,10 +607,8 @@ class stzDataWrangler
         ok
 
     def ExportForStzTable()
-        """
-        Export as structured table data for stzTable class
-        Returns: [headers, data] format
-        """
+        # Export as structured table data for stzTable class
+        # Returns: [headers, data] format
         if @cDataStructure = "table"
             return [ @aHeaders, @aData ]
         else
@@ -646,10 +620,8 @@ class stzDataWrangler
         ok
 
     def ExportForStzMatrix()
-        """
-        Export numeric data suitable for stzMatrix operations
-        Returns: 2D numeric array
-        """
+        # Export numeric data suitable for stzMatrix operations
+        # Returns: 2D numeric array
         if @cDataStructure = "table"
             # Extract only numeric columns
             aNumericData = []
@@ -996,7 +968,7 @@ next
             ok
         next
         
-        return nSuccessful + " successful, " + nErrors + " errors"
+        return "" + nSuccessful + " successful, " + nErrors + " errors"
 
     def _GetDataTypesSummary()
         if @cDataStructure != "table" return [] ok

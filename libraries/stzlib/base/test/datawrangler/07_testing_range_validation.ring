@@ -3,7 +3,6 @@
 # Testing range validation
 #
 # Extracted from stzdatawranglertest.ring, block #7.
-#ERR Error (R24) : Using uninitialized variable: column_name
 
 load "../../stzBase.ring"
 

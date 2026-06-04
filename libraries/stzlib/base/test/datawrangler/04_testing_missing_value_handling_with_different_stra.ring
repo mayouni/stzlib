@@ -3,7 +3,6 @@
 # Testing missing value handling with different strategies
 #
 # Extracted from stzdatawranglertest.ring, block #4.
-#ERR Error (R24) : Using uninitialized variable: auto
 
 load "../../stzBase.ring"
 
