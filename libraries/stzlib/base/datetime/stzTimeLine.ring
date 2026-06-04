@@ -478,7 +478,7 @@ class stzTimeLine from stzObject
 	def RemovePoint(pcLabelOrDateTime)
 		aPos = This.FindPointXT(pcLabelOrDateTime)
 		if ring_len(aPos) > 0
-			del(@aPoints, anPos[1][2])
+			del(@aPoints, aPos[1][2])
 		ok
 
 		def RemovePointQ(pcLabelOrDateTime)
@@ -681,13 +681,13 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcLabel must be a string.")
 		ok
 
-		acResult = []
+		aResult = []
 		nLen = ring_len(@aSpans)
 
 		pcLabel = StzUpper(pcLabel)
 
 		for i = 1 to nLen
-			if @aSpans[i][1] = pcSpan
+			if @aSpans[i][1] = pcLabel
 				aResult + [ [ @aSpans[i][2], @aSpans[i][3] ], i ]
 			ok
 		next
@@ -756,7 +756,7 @@ class stzTimeLine from stzObject
 			return new stzDuration(This.SpanDuration(pcLabel))
 
 	def HasSpan(pcLabel)
-		return This.FindSpan(pcLabel) > 0
+		return ring_len( This.FindSpan(pcLabel) ) > 0
 		
 	def RemoveSpan(pcLabel)
 		if NOT isString(pcLabel)

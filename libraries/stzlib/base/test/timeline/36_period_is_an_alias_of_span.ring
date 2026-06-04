@@ -3,7 +3,6 @@
 # #NOTE Period is an alias of Span
 #
 # Extracted from stztimelinetest.ring, block #36.
-#ERR Error (R24) : Using uninitialized variable: pcspan
 
 load "../../stzBase.ring"
 

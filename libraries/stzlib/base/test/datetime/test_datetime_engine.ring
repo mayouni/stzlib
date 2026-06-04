@@ -1,7 +1,22 @@
 
-#ERR Error (R3) : Calling Function without definition: ring_len
 
 load "../string/test_stubs.ring"
+
+# Explicitly load the engine DLLs this test needs. test_stubs declares
+# the LoadLib pattern but Ring's load-of-load semantics don't propagate
+# its top-level $cStzStringLib / $pStzStringHandle assignments to this
+# loader scope -- so we re-run the discovery + LoadLib here to make
+# stzDate.ToStringXT (which calls StzLower -> StzEngineString) work.
+
+cStrLib = _stzFindDll("stz_string.dll")
+if cStrLib != ""
+	pStrHandle = LoadLib(cStrLib)
+ok
+
+cUniLib = _stzFindDll("stz_unicode.dll")
+if cUniLib != ""
+	pUniHandle = LoadLib(cUniLib)
+ok
 
 # Load stz_datetime.dll
 ? "Loading stz_datetime.dll..."
