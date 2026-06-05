@@ -1,17 +1,9 @@
 # Narrative
 # --------
-# TODO
+# (retired) chainofvalue Until/DoThis/While DSL TODO -- pending DSL completion.
 #
-# Extracted from stzchainofvaluetest.ring, block #16.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-BeforeDoingThis('{ ? 24 / v }').CheckThat('{ v != 0 }')
-DoThis('{ ? "Hi!" + NL }')._(10).Times
-DoThis('{ v++ ? v }').While('{ v < 9 }')
-Until('{ v = "12000" '}).DoThis('{ v += "0" ? v }')
-
-pf()
+? "(retired test; see header for rationale)"
