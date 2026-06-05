@@ -9,6 +9,9 @@ load "../../stzBase.ring"
 
 pr()
 
+# (Original block was a markdown outline only -- no Ring code.)
+/*
+
 #########################
 
 1. Obstacles Management
@@ -47,4 +50,5 @@ pr()
 	7.2. String grid representation
 	7.3. File export/import
 
+*/
 pf()

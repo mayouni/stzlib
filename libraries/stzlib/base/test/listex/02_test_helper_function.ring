@@ -9,8 +9,8 @@ load "../../stzBase.ring"
 
 pr()
 
-#------------------------#
-*/
+
+
 func TestPattern(cPattern, aTestCases)
     Lx = new stzListex(cPattern)
     
