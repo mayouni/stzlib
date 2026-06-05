@@ -1056,6 +1056,21 @@ class stzList from stzObject
 			This.Sort()
 			return This
 
+		# Word-order aliases used by narrative tests.
+		def SortInAscending()
+			This.Sort()
+
+		def SortInAscendingQ()
+			This.Sort()
+			return This
+
+		def SortAscending()
+			This.Sort()
+
+		def SortAscendingQ()
+			This.Sort()
+			return This
+
 	def SortedCS(pCaseSensitive)
 		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
@@ -1300,6 +1315,122 @@ class stzList from stzObject
 
 	def NumberOfDuplicatedItems()
 		return This.NumberOfDuplicatedItemsCS(1)
+
+		# Word-order aliases used by narrative tests.
+		def NumberOfDuplicates()
+			return This.NumberOfDuplicatedItems()
+
+		def NumberOfDuplications()
+			return This.NumberOfDuplicatedItems()
+
+	def FindDuplicates()
+		# Return the positions of duplicated items. Build by walking the
+		# content once with a small "seen" map so we count each item's
+		# 2nd+ occurrence as a duplicate, not the 1st.
+		_aRes_ = []
+		_aData_ = This.Content()
+		_nDataLen_ = ring_len(_aData_)
+		_aSeen_ = []
+		for _i_ = 1 to _nDataLen_
+			_x_ = _aData_[_i_]
+			_bDup_ = FALSE
+			_nSeenLen_ = ring_len(_aSeen_)
+			for _j_ = 1 to _nSeenLen_
+				if _aSeen_[_j_] = _x_
+					_bDup_ = TRUE
+					exit
+				ok
+			next
+			if _bDup_
+				_aRes_ + _i_
+			else
+				_aSeen_ + _x_
+			ok
+		next
+		return _aRes_
+
+		def FindDuplications()
+			return This.FindDuplicates()
+
+		def FindDuplicatesQ()
+			return new stzList( This.FindDuplicates() )
+
+	# FindDuplicatesXT: positions of ALL occurrences of items that have
+	# duplicates (i.e. include the first occurrence too, not just the
+	# 2nd+ that FindDuplicates returns).
+	def FindDuplicatesXT()
+		_aDupItems_ = This.DuplicatedItems()
+		_nDupCount_ = ring_len(_aDupItems_)
+		if _nDupCount_ = 0 return [] ok
+		_aRes_ = []
+		_aData_ = This.Content()
+		_nLen_ = ring_len(_aData_)
+		for _i_ = 1 to _nLen_
+			_x_ = _aData_[_i_]
+			for _j_ = 1 to _nDupCount_
+				if _aDupItems_[_j_] = _x_
+					_aRes_ + _i_
+					exit
+				ok
+			next
+		next
+		return _aRes_
+
+		def FindDuplicationsXT()
+			return This.FindDuplicatesXT()
+
+		# Z-suffix Softanza convention: positions of duplicates.
+		def DuplicatesZ()
+			return This.FindDuplicates()
+
+		def DuplicateItemsZ()
+			return This.FindDuplicates()
+
+		def DuplicationsZ()
+			return This.FindDuplicates()
+
+	# FindNextNthItem(n, :StartingAt = pos): return the nth item in the
+	# content starting from (and including) position pos. Returns NULL
+	# if the requested offset is out of range. The starting position
+	# accepts the bare integer or the :StartingAt named-param form.
+	def FindNextNthItem(n, pnStartingAt)
+		if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+			pnStartingAt = pnStartingAt[2]
+		ok
+		_aData_ = This.Content()
+		_nDataLen_ = ring_len(_aData_)
+		_nIdx_ = pnStartingAt + n - 1
+		if _nIdx_ < 1 or _nIdx_ > _nDataLen_
+			return NULL
+		ok
+		return _aData_[_nIdx_]
+
+		def NextNthItem(n, pnStartingAt)
+			return This.FindNextNthItem(n, pnStartingAt)
+
+	def FindPreviousNthItem(n, pnStartingAt)
+		if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+			pnStartingAt = pnStartingAt[2]
+		ok
+		_aData_ = This.Content()
+		_nDataLen_ = ring_len(_aData_)
+		_nIdx_ = pnStartingAt - n + 1
+		if _nIdx_ < 1 or _nIdx_ > _nDataLen_
+			return NULL
+		ok
+		return _aData_[_nIdx_]
+
+		def PreviousNthItem(n, pnStartingAt)
+			return This.FindPreviousNthItem(n, pnStartingAt)
+
+	# Duplicates() / DuplicateItems() / Duplications(): the duplicated
+	# items themselves (returning DuplicatedItems). The XYZ-Z forms
+	# above return positions; these return values.
+	def Duplicates()
+		return This.DuplicatedItems()
+
+	def Duplications()
+		return This.DuplicatedItems()
 
 	  #--------------------------------------#
 	 #  FLATTEN (engine-backed)             #
@@ -1640,6 +1771,45 @@ class stzList from stzObject
 
 	def HasSameSortingOrderAs(paOther)
 		return This.SortingOrder() = _ListSortingOrder(paOther)
+
+	# HasSameContentAs: order-independent equality check. Two lists
+	# have the same content iff each is a permutation of the other
+	# -- same length, and every item in A appears (with the same
+	# multiplicity) in B. Walk-and-mark, O(N*M) -- fine for narrative
+	# test sizes; lift to a hash-based approach when called on large
+	# lists in real code paths.
+	def HasSameContentAs(paOther)
+		if NOT isList(paOther)
+			return FALSE
+		ok
+		_aData_ = This.Content()
+		_nLen_ = ring_len(_aData_)
+		if _nLen_ != ring_len(paOther)
+			return FALSE
+		ok
+		_aOther_ = paOther + []   # copy
+		for _i_ = 1 to _nLen_
+			_x_ = _aData_[_i_]
+			_bFound_ = FALSE
+			_nOLen_ = ring_len(_aOther_)
+			for _j_ = 1 to _nOLen_
+				if _aOther_[_j_] = _x_
+					del(_aOther_, _j_)
+					_bFound_ = TRUE
+					exit
+				ok
+			next
+			if NOT _bFound_
+				return FALSE
+			ok
+		next
+		return TRUE
+
+		def IsEquivalentTo(paOther)
+			return This.HasSameContentAs(paOther)
+
+		def SameContentAs(paOther)
+			return This.HasSameContentAs(paOther)
 
 	  #-------------------------------------------#
 	 #  TYPE-CHECKING METHODS                    #
@@ -2274,6 +2444,45 @@ class stzList from stzObject
 		def NthOccurrenceCS(n, pItem, pCaseSensitive)
 			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
 
+	# Case-insensitive word-order aliases used by narrative tests.
+	# (Cannot live inside FindNthOccurrenceCS as nested defs because
+	# they take a different arity -- top-level methods instead.)
+	def FindNth(n, pItem)
+		return This.FindNthOccurrenceCS(n, pItem, 1)
+
+		def FindNthOccurrence(n, pItem)
+			return This.FindNthOccurrenceCS(n, pItem, 1)
+
+	# FindNumbersAsSections: scan content, return [[startPos,endPos],...]
+	# for each contiguous run of numeric items. Each section endpoint is
+	# a 1-based position in the original list. Single-number runs are
+	# returned as [pos, pos] (degenerate section).
+	def FindNumbersAsSections()
+		_aRes_ = []
+		_aData_ = This.Content()
+		_nLen_ = ring_len(_aData_)
+		_nStart_ = 0
+		for _i_ = 1 to _nLen_
+			if isNumber(_aData_[_i_])
+				if _nStart_ = 0 _nStart_ = _i_ ok
+			else
+				if _nStart_ > 0
+					_aRes_ + [ _nStart_, _i_ - 1 ]
+					_nStart_ = 0
+				ok
+			ok
+		next
+		if _nStart_ > 0
+			_aRes_ + [ _nStart_, _nLen_ ]
+		ok
+		return _aRes_
+
+		def FindNumbersZZ()
+			return This.FindNumbersAsSections()
+
+		def NumbersAsSections()
+			return This.FindNumbersAsSections()
+
 	  #-- FindFirstOccurrenceCS / FindLastOccurrenceCS
 
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
@@ -2572,6 +2781,56 @@ class stzList from stzObject
 
 		def KeepFirst(n)
 			This.ShrinkTo(n)
+
+	# ExtendXT: named-param Extend DSL used by narrative tests.
+	# Supported forms:
+	#   ExtendXT( :List, :With = [...] )           -- append items
+	#   ExtendXT( :List, :ToPosition = n )         -- pad to length n
+	#   ExtendXT( :ToPosition = n, :With = x )     -- pad to n with x
+	#   ExtendXT( :ToPosition = n, :WithItemsIn = [...] ) -- cycle items
+	#   ExtendXT( :To = n, :WithItemsIn = [...] )  -- :To alias
+	#   ExtendXT( :ToPosition = n, :ByItemsRepeated )    -- cycle self
+	def ExtendXT(p1, p2)
+		_nTo_ = 0
+		_xWith_ = NULL
+		_bRepeat_ = FALSE
+
+		_aArgs_ = [ p1, p2 ]
+		for _i_ = 1 to 2
+			_a_ = _aArgs_[_i_]
+			if isList(_a_) and ring_len(_a_) = 2 and isString(_a_[1])
+				_k_ = _a_[1]
+				if _k_ = :With or _k_ = :WithItemsIn
+					_xWith_ = _a_[2]
+				but _k_ = :ToPosition or _k_ = :To
+					_nTo_ = _a_[2]
+				ok
+			but _a_ = :ByItemsRepeated
+				_bRepeat_ = TRUE
+			ok
+		next
+
+		if _nTo_ > 0
+			if _xWith_ != NULL
+				return This.ExtendToWith(_nTo_, _xWith_)
+			but _bRepeat_
+				_aSrc_ = This.Copy().Content()
+				_nSrcLen_ = ring_len(_aSrc_)
+				if _nSrcLen_ = 0 return ok
+				while ring_len(@aContent) < _nTo_
+					@aContent + _aSrc_[ ((ring_len(@aContent)) % _nSrcLen_) + 1 ]
+				end
+				return
+			else
+				return This.ExtendTo(_nTo_)
+			ok
+		but _xWith_ != NULL
+			return This.Extend(_xWith_)
+		ok
+
+		def ExtendXTQ(p1, p2)
+			This.ExtendXT(p1, p2)
+			return This
 
 	def Extend(pWith)
 		# Append a single element (or a list of elements) to the list.
@@ -2922,6 +3181,20 @@ class stzList from stzObject
 
 	def FindNextOccurrence(pItem, pnStartingAt)
 		return This.FindNextOccurrenceCS(pItem, pnStartingAt, 1)
+
+	# FindNext: convenience wrapper used by narrative tests. Accepts
+	# either FindNext(item, n) or FindNext(item, :StartingAt = n).
+	def FindNext(pItem, pnStartingAt)
+		if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+			pnStartingAt = pnStartingAt[2]
+		ok
+		return This.FindNextOccurrenceCS(pItem, pnStartingAt, 1)
+
+		def FindNextCS(pItem, pnStartingAt, pCaseSensitive)
+			if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+				pnStartingAt = pnStartingAt[2]
+			ok
+			return This.FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
 	def FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 		_oFpnoFinder_ = new stzListFinder(This)
