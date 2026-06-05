@@ -702,6 +702,12 @@ func @@(pValue)
 func @@NL(pValue)
     return ComputableFormNL(pValue)
 
+# Spacified-newline form -- same as @@NL plus a leading blank line
+# so the printed block visually detaches from prior output.
+# Used by 386_classify, 387_classify and similar narrative blocks.
+func @@SP(pValue)
+    return NL + ComputableFormNL(pValue)
+
 func @@NL1(pValue)
 	_cAanl1Result_ = "[" + NL
 	_nAanl1Len_ = len(pValue)
