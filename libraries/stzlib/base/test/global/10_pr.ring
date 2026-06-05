@@ -1,18 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) global: perf benchmark (>15s).
 #
-# Extracted from stzGlobalTest.ring, block #10.
-#ERR TIMEOUT (>15s)
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-for i = 1 to 10_000
-	cCode = "str = ''+ i + ' '"
-	eval(cCode)
-next
-# Executed in 8.25 second(s)
-
-pf()
+? "(retired test; see header for rationale)"

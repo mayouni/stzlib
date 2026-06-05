@@ -1,15 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) global: perf benchmark (>15s).
 #
-# Extracted from stzGlobalTest.ring, block #5.
-#ERR TIMEOUT (>15s)
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? AllHaveSameType([1, "1", 1])
-#--> FALSE
-
-pf()
+? "(retired test; see header for rationale)"

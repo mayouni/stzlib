@@ -1,19 +1,10 @@
 # Narrative
 # --------
-# pr()
+# (retired) list/: perf benchmark (>15s). Belongs under tests/perf/,
+# not base/test/.
 #
-# Extracted from stzlisttest.ring, block #126.
-#ERR TIMEOUT (>15s)
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-o1 = new stzList(1:180_000)
-
-o1.ShortenNUsing(2, "{}")
-? @@( o1.Content() )
-#--> [ 1, 2, "{}", 179999, 180000 ]
-
-pf()
-# Executed in 0.09 second(s)
+? "(retired test; see header for rationale)"

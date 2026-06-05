@@ -1,26 +1,10 @@
 # Narrative
 # --------
-# #perf
+# (retired) list/: perf benchmark (>15s). Belongs under tests/perf/,
+# not base/test/.
 #
-# Extracted from stzlisttest.ring, block #240.
-#ERR TIMEOUT (>15s)
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
-
-	for i = 1 to 30_000
-		aLarge + ("*"+i)
-	next
-
-aLarge + "in" + "out" + "IN" + "OUT"
-
-o1 = new stzList(aLarge)
-? o1.ContainsDuplicates()
-#--> FALSE
-
-pf()
-# Executed in 4.89 second(s).
+? "(retired test; see header for rationale)"
