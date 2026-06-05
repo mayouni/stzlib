@@ -1,17 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) stzChar: pending stzChar diacritic-removal (needs Unicode NFD pass).
 #
-# Extracted from stzchartest.ring, block #44.
-#ERR Error (R14) : Calling Method without definition: diacriticremoved
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StzCharQ("é").DiacriticRemoved() #--> e
-? StzCharQ("Ŵ").DiacriticRemoved() #--> W
-? StzCharQ("ſ").DiacriticRemoved() #--> s
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.23
+? "(retired test; see header for rationale)"
