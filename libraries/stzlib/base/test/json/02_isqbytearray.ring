@@ -1,16 +1,14 @@
 # Narrative
 # --------
-# pr()
+# (retired) Original test depended on Ring's QByteArray Qt binding.
+# Softanza is now engine-only and does NOT ship that binding. The
+# byte-buffer surface is now spelled via stzBytes (engine-backed):
 #
-# Extracted from stzjsontest.ring, block #2.
-#ERR Error (R3) : Calling Function without definition: isqbytearray
+#   o = new stzBytes("XYZ")
+#   ? o.ToString()
+#
+#SKIP retired -- Qt QByteArray binding replaced by stzBytes
 
 load "../../stzBase.ring"
 
-pr()
-
-? IsQByteArray( StringToQByteArray("XYZ") )
-#--> TRUE
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
+? "(retired Qt QByteArray test; see header for stzBytes equivalent)"

@@ -746,7 +746,10 @@ func _StzStripBraces(cStr)
 	pStr = StzEngineString(cStr)
 	nLen = StzEngineStringCount(pStr)
 	if nLen >= 2 and StzEngineStringStartsWith(pStr, "{") and StzEngineStringEndsWith(pStr, "}")
-		pSliced = StzEngineStringSlice(pStr, 1, nLen - 2)
+		# StzEngineStringSlice(handle, start_cp, cp_count) is 1-based.
+		# Skip the leading '{' (start at codepoint 2) and trim 2 chars
+		# total ('{' on the left, '}' on the right).
+		pSliced = StzEngineStringSlice(pStr, 2, nLen - 2)
 		cStr = StzEngineStringData(pSliced)
 		StzEngineStringFree(pSliced)
 		cStr = @trim(cStr)

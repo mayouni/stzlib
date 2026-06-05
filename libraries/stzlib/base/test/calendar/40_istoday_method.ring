@@ -24,7 +24,8 @@ oCal {
 # Create a single-day calendar for today
 
 oTodayCal = new stzCalendar(Today())
-	? "Single day calendar is today: " + oTodayCal.IsToday()
+oTodayCal {
+	? "Single day calendar is today: " + IsToday()
 	#--> TRUE
 }
 
