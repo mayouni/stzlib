@@ -3,7 +3,6 @@
 # # You can access to serveral data returned by the stzScript object like this:
 #
 # Extracted from stzscripttest.ring, block #2.
-#ERR Error (R14) : Calling Method without definition: defaultlanguageqtnumber
 
 load "../../stzBase.ring"
 

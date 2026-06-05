@@ -1,4 +1,4 @@
-== calendar  PASS 46  ERR 2  TIMEOUT 0  (88.3s) ==
+== calendar  PASS 47  ERR 1  TIMEOUT 0  (89.9s) ==
 [PASS]    01_pr.ring
 [PASS]    02_test_1_basic_calendar_creation.ring
 [PASS]    03_test_2_working_days_configuration.ring
@@ -13,7 +13,7 @@
 [PASS]    14_navigation_to_next_and_previous_month.ring
 [PASS]    15_navigating_to_next_and_previous_year.ring
 [PASS]    17_navigating_to_a_given_date.ring
-[ERR]     18_getting_current_info.ring :: Error (R3) : Calling Function without definition: currentxt
+[PASS]    18_getting_current_info.ring
 [PASS]    19_test_12_copy_and_comparison.ring
 [PASS]    20_test_13_data_export.ring
 [PASS]    21_test_14_custom_constraints.ring

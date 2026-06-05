@@ -3,7 +3,6 @@
 # ERROR: function undefined --> ToSetOfHashLists
 #
 # Extracted from stzlistofhashliststest.ring, block #1.
-#ERR Error (R14) : Calling Method without definition: tosetofhashlists
 
 load "../../stzBase.ring"
 

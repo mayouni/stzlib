@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzhexnumbertTest.ring, block #3.
-#ERR Error (R14) : Calling Method without definition: numberify
 
 load "../../stzBase.ring"
 

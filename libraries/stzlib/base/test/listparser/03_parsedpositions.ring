@@ -2,7 +2,6 @@
 # --------
 #
 # Extracted from stzListParserTest.ring, block #3.
-#ERR Error (R15) : Error in parent class name, class not found: stzparser
 
 load "../../stzBase.ring"
 

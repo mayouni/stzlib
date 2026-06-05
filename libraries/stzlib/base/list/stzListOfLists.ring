@@ -3693,6 +3693,14 @@ class stzListOfLists from stzList
 		def SortedInDescendingOn(n)
 			return This.SortedDownOn(n)
 
+		# Word-order alias used by narrative tests: SortedOnDown(n)
+		# == SortedDownOn(n) -- same descending sort on column n.
+		def SortedOnDown(n)
+			return This.SortedDownOn(n)
+
+		def SortedOnUp(n)
+			return This.SortedOn(n)
+
 	  #---------------------------------------------------------------#
 	 #  SORTING THE LISTS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
 	#===============================================================#

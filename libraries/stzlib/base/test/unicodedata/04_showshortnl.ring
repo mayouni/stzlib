@@ -3,7 +3,8 @@
 # #narration
 #
 # Extracted from stzunicodedatatest.ring, block #4.
-#ERR Error (R24) : Using uninitialized variable: $aunicodeblocksxt
+#Error (R3) : Calling Function without definition: charsandnames
+#ERR Error (R3) : Calling Function without definition: charsandtheirnames
 
 load "../../stzBase.ring"
 
