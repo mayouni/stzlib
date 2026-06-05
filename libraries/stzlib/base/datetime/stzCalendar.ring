@@ -1208,6 +1208,39 @@ def RangeInfo(pStart, pEnd)
 		ok
 		return This.Start() + " to " + This.End_()
 
+	# CurrentXT: structured form of Current() -- returns a named-param
+	# hash with the year/month/day breakdown of the current view.
+	def CurrentXT()
+		_aRes_ = [ :year = @nYear, :month = @nMonth, :day = 0 ]
+		if @nMonth > 0
+			_aRes_[:day] = This.CurrentDay()
+		ok
+		return _aRes_
+
+	# CurrentDay / CurrentMonth / CurrentYear: trivial accessors for
+	# the live wall-clock day/month/year. Honour the freezable clock
+	# (see StzFreezeClock).
+	def CurrentDay()
+		_aYmd_ = _TodayYMD()
+		return _aYmd_[3]
+
+	def CurrentMonth()
+		_aYmd_ = _TodayYMD()
+		_nMonth_ = _aYmd_[2]
+		_aNames_ = $aMonthNames[1][2]   # English (default)
+		if _nMonth_ >= 1 and _nMonth_ <= ring_len(_aNames_)
+			return _aNames_[_nMonth_]
+		ok
+		return "" + _nMonth_
+
+		def CurrentMonthN()
+			_aYmd_ = _TodayYMD()
+			return _aYmd_[2]
+
+	def CurrentYear()
+		_aYmd_ = _TodayYMD()
+		return _aYmd_[1]
+
 
 	def IsToday()
 		cToday = Today()

@@ -35,6 +35,34 @@ class stzListOfHashLists from stzList
 	def ListOfHashLists()
 		return This.Content()
 
+	# ToSetOfHashLists: set-style alias returning the deduplicated
+	# inner list. For a collection of hash-lists, deep equality is
+	# defined as Ring's '=' on the underlying list shapes.
+	def ToSetOfHashLists()
+		_aRes_ = []
+		_nLen_ = ring_len(@aContent)
+		for _iSo_ = 1 to _nLen_
+			_aHl_ = @aContent[_iSo_]
+			_bSeen_ = 0
+			_nResLen_ = ring_len(_aRes_)
+			for _jSo_ = 1 to _nResLen_
+				if _aRes_[_jSo_] = _aHl_
+					_bSeen_ = 1
+					exit
+				ok
+			next
+			if NOT _bSeen_
+				_aRes_ + _aHl_
+			ok
+		next
+		return _aRes_
+
+		def ToSetOfHashListsQ()
+			return new stzListOfHashLists( This.ToSetOfHashLists() )
+
+		def ToSet()
+			return This.ToSetOfHashLists()
+
 	def ToListOfStzHashLists()
 		aResult = []
 		nLen = ring_len(@aContent)
@@ -63,7 +91,7 @@ class stzListOfHashLists from stzList
 			cResult += NL
 		next
 
-		? trim(cResult)
+		? ring_trim(cResult)
 
 		#< @FuntionMisspelledForm
 

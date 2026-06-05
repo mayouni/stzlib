@@ -74,34 +74,8 @@ $nNumberOfLinesInUnicodeDataFile = 34_931
 # Engine-backed Unicode lookups (O(1) via SQLite indexed queries)
 # The engine manages the database internally -- Ring never sees it.
 
-func StzCharNameByUnicode(nCodepoint)
-    return StzEngineUnidataCharName(nCodepoint)
 
-func StzCharCategoryByUnicode(nCodepoint)
-    return StzEngineUnidataCharCategory(nCodepoint)
-
-func StzCharInfoByUnicode(nCodepoint)
-    return StzEngineUnidataCharInfo(nCodepoint)
-
-func StzUnicodeFindByName(cPattern)
-    return StzEngineUnidataFindByName(cPattern)
-
-func StzUnicodeCharsInRange(nFrom, nTo)
-    return StzEngineUnidataCharsInRange(nFrom, nTo)
-
-func StzUnicodeCharCount()
-    return StzEngineUnidataCount()
-
-func StzCodepointByName(cName)
-    return StzEngineUnidataCodepointByName(cName)
-
-func StzUnicodeContainsName(cName)
-    return StzEngineUnidataContainsName(cName)
-
-#TODO Read this discussion:
-# https://groups.google.com/g/ring-lang/c/yCGeILp49O4/m/FWC5XWpsAQAJ
-
-
+# --- Lifted globals (Ring only runs $var = ... before the first func) ---
 $anMathUnicodes = [
 	172, 176, 177, 188, 189, 190, 215, 247, 915, 916, 920, 923,
 	926, 928, 931, 933, 934, 936, 937, 945, 946, 947, 948, 949,
@@ -110,8 +84,6 @@ $anMathUnicodes = [
 	8707, 8709, 8711, 8712, 8713, 8719, 8721, 8730, 8733, 8734,
 	8736, 8743, 8744, 8747, 8754, 8756, 8776, 8800, 8801, 8804, 8805
 ]
-
-
 $aUnicodeBlocksXT = [
 	[ "Basic Latin", [0, 127] ],
 	[ "Latin-1 Supplement", [128, 255] ],
@@ -451,8 +423,39 @@ $aUnicodeBlocksXT = [
 	[ "Supplementary Private Use Area-A", [983040, 1048575] ],
 	[ "Supplementary Private Use Area-B", [1048576, 1114111] ]
 ]
-
 $anUnicodesOfBoxCharsdeBlocksXT = 9472:9599
+
+func StzCharNameByUnicode(nCodepoint)
+    return StzEngineUnidataCharName(nCodepoint)
+
+func StzCharCategoryByUnicode(nCodepoint)
+    return StzEngineUnidataCharCategory(nCodepoint)
+
+func StzCharInfoByUnicode(nCodepoint)
+    return StzEngineUnidataCharInfo(nCodepoint)
+
+func StzUnicodeFindByName(cPattern)
+    return StzEngineUnidataFindByName(cPattern)
+
+func StzUnicodeCharsInRange(nFrom, nTo)
+    return StzEngineUnidataCharsInRange(nFrom, nTo)
+
+func StzUnicodeCharCount()
+    return StzEngineUnidataCount()
+
+func StzCodepointByName(cName)
+    return StzEngineUnidataCodepointByName(cName)
+
+func StzUnicodeContainsName(cName)
+    return StzEngineUnidataContainsName(cName)
+
+#TODO Read this discussion:
+# https://groups.google.com/g/ring-lang/c/yCGeILp49O4/m/FWC5XWpsAQAJ
+
+
+
+
+
 
 func UnicodesOfBoxChars()
 	return $anUnicodesOfBoxCharsdeBlocksXT
@@ -671,6 +674,22 @@ func CharsContainingInTheirName(pcPartOfName)
 		return CharsContainingInTheirName(pcPartOfName)
 
 
+func CharsAndNames(pacChars)
+	# For each char in pacChars, return [char, unicode_name].
+	if NOT isList(pacChars)
+		return []
+	ok
+	_aResult_ = []
+	_nLen_ = ring_len(pacChars)
+	for _i_ = 1 to _nLen_
+		_c_ = pacChars[_i_]
+		if isString(_c_) and ring_len(_c_) >= 1
+			_n_ = StzCharToUnicode(_c_)
+			_aResult_ + [ _c_, StzCharNameByUnicode(_n_) ]
+		ok
+	next
+	return _aResult_
+
 func CharsNamesContaining(pcPartOfName)
 	# Engine SQLite LIKE search — returns "HEX;NAME\n" lines
 	_cResult_ = StzUnicodeFindByName(pcPartOfName)
@@ -839,7 +858,9 @@ class stzUnicodeData
 				if _aLines_[_i_] != ""
 					_nSemicolon_ = ring_substr1(_aLines_[_i_], ";")
 					if _nSemicolon_ > 0
-						_acResult_ + ring_substr2(_aLines_[_i_], _nSemicolon_ + 1)
+						# ring_substr2(str, old, new) was the wrong
+						# spelling -- we want the from-N tail.
+						_acResult_ + substr(_aLines_[_i_], _nSemicolon_ + 1)
 					ok
 				ok
 			next

@@ -3,7 +3,6 @@
 # Getting current info #TODO
 #
 # Extracted from stzcalendartest.ring, block #18.
-#ERR Error (R3) : Calling Function without definition: currentxt
 
 load "../../stzBase.ring"
 

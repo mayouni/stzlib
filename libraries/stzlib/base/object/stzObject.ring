@@ -4758,6 +4758,21 @@ class stzObject
 			StzRaise("Incorrect param type! Objects can't be numberified.")
 		ok
 
+		# Aliases used by narrative tests. Numberify == Numberified
+		# semantically (we're already returning a fresh value, not
+		# mutating). NumberifyQ wraps in stzList for chains.
+		def Numberify()
+			return This.Numberified()
+
+		def NumberifyQ()
+			return new stzList( This.Numberified() )
+
+		def NumberifiedQ()
+			return new stzList( This.Numberified() )
+
+		def Numbrify()
+			return This.Numberified()
+
 	  #------------------------------------------------------------------#
 	 #  CASTING THE OBJECT VALUE INTO A NUMBER UNDER A GIVEN CONDITION  #
 	#==================================================================#

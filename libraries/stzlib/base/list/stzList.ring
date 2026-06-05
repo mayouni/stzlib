@@ -3993,6 +3993,25 @@ class stzList from stzObject
 		_oYwPrf_ = new stzListPerformer(This)
 		return _oYwPrf_.YieldW(pcCondition, pcYielder)
 
+	# ItemsW / ItemsWXT / ItemsWXTQ: filter the list by an evaluated
+	# Ring expression where @item is the loop variable. Returns the
+	# items for which the expression is truthy. ItemsWXTQ wraps the
+	# result in stzList for fluent chains.
+	def ItemsW(pcCondition)
+		return This.YieldW('@item', pcCondition)
+
+		def ItemsWXT(pcCondition)
+			return This.ItemsW(pcCondition)
+
+		def ItemsWQ(pcCondition)
+			return new stzList( This.ItemsW(pcCondition) )
+
+		def ItemsWXTQ(pcCondition)
+			return new stzList( This.ItemsW(pcCondition) )
+
+		def Where(pcCondition)
+			return This.ItemsW(pcCondition)
+
 	def PerformOnEachItemAndItsPosition(pcAction)
 		_oPoeiapPrf_ = new stzListPerformer(This)
 		_oPoeiapPrf_.PerformOnEachItemAndItsPosition(pcAction)
@@ -4564,6 +4583,62 @@ class stzList from stzObject
 			ok
 		next
 		return _aUcResult_
+
+	# SortOnDown / SortedOnDown for stzList: when the list is flat
+	# (numbers / strings), forwards to descending sort on the
+	# whole list. When the list is a list-of-lists, forwards to the
+	# stzListOfLists.SortOnDown(n) which sorts on column n.
+	def SortOnDown(n)
+		if This.IsListOfLists()
+			_oLol_ = new stzListOfLists(@aContent)
+			_oLol_.SortOnDown(n)
+			@aContent = _oLol_.Content()
+		else
+			This.SortInDescending()
+		ok
+
+		def SortOnDownQ(n)
+			This.SortOnDown(n)
+			return This
+
+		def SortedOnDown(n)
+			_oLolc_ = This.Copy()
+			_oLolc_.SortOnDown(n)
+			return _oLolc_.Content()
+
+	# IsMadeOf*: predicates that answer "is every item one of the
+	# listed types?". Used by the narrative tests for mixed-content
+	# guards. The Or/And variants are synonyms -- both mean 'every
+	# item is in {numbers, strings}'.
+	def IsMadeOfNumbersOrStrings()
+		_nImnsLen_ = ring_len(@aContent)
+		for _iImns_ = 1 to _nImnsLen_
+			if NOT (isNumber(@aContent[_iImns_]) or isString(@aContent[_iImns_]))
+				return 0
+			ok
+		next
+		return 1
+
+		def IsMadeOfNumbersAndStrings()
+			return This.IsMadeOfNumbersOrStrings()
+
+	def IsMadeOfNumbers()
+		_nImnLen_ = ring_len(@aContent)
+		for _iImn_ = 1 to _nImnLen_
+			if NOT isNumber(@aContent[_iImn_])
+				return 0
+			ok
+		next
+		return 1
+
+	def IsMadeOfStrings()
+		_nImsLen_ = ring_len(@aContent)
+		for _iIms_ = 1 to _nImsLen_
+			if NOT isString(@aContent[_iIms_])
+				return 0
+			ok
+		next
+		return 1
 
 	# Types(): map ring_type over the items, return the list of type
 	# tags. "STRING", "NUMBER", "LIST", "OBJECT". Used by the

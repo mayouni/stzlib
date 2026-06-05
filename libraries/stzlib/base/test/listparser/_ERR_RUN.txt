@@ -1,4 +1,4 @@
-== listparser  PASS 0  ERR 3  TIMEOUT 0  (5.4s) ==
-[ERR]     01_list.ring :: Error (R15) : Error in parent class name, class not found: stzparser
-[ERR]     02_parsedpositions.ring :: Error (R15) : Error in parent class name, class not found: stzparser
-[ERR]     03_parsedpositions.ring :: Error (R15) : Error in parent class name, class not found: stzparser
+== listparser  PASS 3  ERR 0  TIMEOUT 0  (5.4s) ==
+[PASS]    01_list.ring
+[PASS]    02_parsedpositions.ring
+[PASS]    03_parsedpositions.ring

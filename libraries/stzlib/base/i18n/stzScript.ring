@@ -398,6 +398,12 @@ class stzScript
 		def LanguageNumber()
 			return This.DefaultLanguageNumber()
 
+		# Qt-binding-era alias: the legacy code uses
+		# DefaultLanguageQtNumber when the underlying handle was a
+		# QLocale enum. Same data path now.
+		def DefaultLanguageQtNumber()
+			return This.DefaultLanguageNumber()
+
 		#-- @Misspelled
 
 		def DefaultLangaugeNumber()

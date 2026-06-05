@@ -2,6 +2,20 @@
 func StzListParserQ(paList)
 	return new stzListParser(paList)
 
+# Minimal parent class -- the full stzParser lives in max/ and isn't
+# loaded by base/. stzListParser uses this lightweight base-only
+# stzParser stub so it can be loaded directly from stzBase.
+# Both classes are declared together so Ring's "subsequent funcs
+# get swallowed by the most-recent class" rule doesn't bite us.
+class stzParser
+	@xSource = NULL
+
+	def init(pSource)
+		@xSource = pSource
+
+	def Source()
+		return @xSource
+
 class stzListParser from stzParser
 	@aList = []
 	@anParsedPositions = []
