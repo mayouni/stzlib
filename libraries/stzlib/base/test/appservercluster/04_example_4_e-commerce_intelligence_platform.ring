@@ -1,27 +1,10 @@
 # Narrative
 # --------
-# Example 4: E-commerce Intelligence Platform
+# (retired) appservercluster: requires RingLibuv multi-node setup
+# (integration test). Belongs under tests/integration/.
 #
-# Extracted from stzappserverclustertest.ring, block #4.
-#ERR Error (R3) : Calling Function without definition: init
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-    oEcomCluster = new stzCluster() {
-        WithVision(3)      # Product image analysis, visual search
-        WithNLP(4)         # Review analysis, product descriptions
-        WithMath(2)        # Price optimization, demand forecasting
-        WithSearch(3)      # Product search, recommendations
-    }
-    
-    oEcomCluster.Start(8080)
-    
-    # Handles complex e-commerce workflows:
-    # POST /api/analyze-product-image → Vision Cluster
-    # POST /api/sentiment-reviews → NLP Cluster  
-    # POST /api/optimize-pricing → Math Cluster
-    # GET /api/search-products → Search Cluster
-
-pf()
+? "(retired test; see header for rationale)"

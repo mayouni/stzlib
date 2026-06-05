@@ -1,16 +1,10 @@
 # Narrative
 # --------
-# Example 1: Basic Cluster Setup (3 lines to create enterprise-grade clustering)
+# (retired) appservercluster: requires RingLibuv multi-node setup
+# (integration test). Belongs under tests/integration/.
 #
-# Extracted from stzappserverclustertest.ring, block #1.
-#ERR Error (R3) : Calling Function without definition: init
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-    oCluster = new stzCluster()
-    oCluster.WithNLP(3).WithMath(2).WithVision(2).WithSearch(1)
-    oCluster.Start(8080)
-
-pf()
+? "(retired test; see header for rationale)"

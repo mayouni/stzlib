@@ -7,7 +7,6 @@
 #
 # Extracted from stzlistofstringstest.ring, the sort-descending
 # block.
-#ERR Error (R3) : Calling Function without definition: stzlistofstringsq
 
 load "../../stzBase.ring"
 

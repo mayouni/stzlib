@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #185.
-#ERR Error (R14) : Calling Method without definition: findnext
 
 load "../../stzBase.ring"
 

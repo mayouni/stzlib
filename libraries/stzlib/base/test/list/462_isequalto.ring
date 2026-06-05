@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #462.
-#ERR Error (R14) : Calling Method without definition: hassamecontentas
 
 load "../../stzBase.ring"
 

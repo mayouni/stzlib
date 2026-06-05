@@ -53,7 +53,7 @@ o1 {
 	# "Below-average performance (median = 30). Curriculum review needed.",
 	# "High performance variability (CV = 52.7046%). Differentiated instruction required.",
 	# "Wide quality range (Range/Mean = 1.3333). Process capability study needed."
-	]
+	# ]
 
 }
 

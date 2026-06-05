@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlistofbytestest.ring, block #3.
-#ERR exit 1: [ "", "", "", "", "" ]
 
 load "../../stzBase.ring"
 

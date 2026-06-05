@@ -3,7 +3,6 @@
 # #TODO check after adding Perform() function
 #
 # Extracted from stzlisttest.ring, block #354.
-#ERR exit 1
 
 load "../../stzBase.ring"
 

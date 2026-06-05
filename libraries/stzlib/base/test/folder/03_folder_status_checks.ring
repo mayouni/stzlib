@@ -3,7 +3,6 @@
 # Folder Status Checks
 #
 # Extracted from stzfoldertest.ring, block #3.
-#ERR Error (C18) : Missing closing brace for the block opened!
 
 load "../../stzBase.ring"
 
@@ -23,6 +22,7 @@ o1 {
     
     ? HasFolders() # Or HasDirs()
     #--> TRUE
+}
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22

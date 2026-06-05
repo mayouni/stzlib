@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #453.
-#ERR Error (R14) : Calling Method without definition: findnthoccurrence
 
 load "../../stzBase.ring"
 

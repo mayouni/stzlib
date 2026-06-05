@@ -3,7 +3,6 @@
 # #NLP
 #
 # Extracted from stzlisttest.ring, block #143.
-#ERR Error (R14) : Calling Method without definition: duplicates
 
 load "../../stzBase.ring"
 

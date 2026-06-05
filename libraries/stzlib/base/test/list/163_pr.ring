@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #163.
-#ERR Error (R3) : Calling Function without definition: extendxt
 
 load "../../stzBase.ring"
 
