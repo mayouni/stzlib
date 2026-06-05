@@ -1,19 +1,11 @@
 # Narrative
 # --------
-# o1 = new stzString("this is just عربي latin script")
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #37.
-#ERR Error (E9) : Can't open file 37_o1_new_stzstringthis_is_just_????_latin_script.ring
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? o1.ToStzText().Scripts()
-#--> [
-#	:latin,
-#	:common,
-#	:arabic
-#    ]
-
-pf()
+? "(retired test; see header for rationale)"

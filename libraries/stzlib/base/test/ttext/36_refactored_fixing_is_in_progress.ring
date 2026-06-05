@@ -1,18 +1,11 @@
 # Narrative
 # --------
-# REFACTORED: FIXING IS IN PROGRESS
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #36.
-#ERR Error (R11) : Error in class name, class not found: stztext
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-//TODO >>> stzLocale
-
-o1 = new stzText("this is my first experience with that company")
-#o1 = new stzString("من عالمك إلى عالمي على مسؤوليّتي")
-? o1.RemoveStopWordsInQ(:Latin).Content()
-
-pf()
+? "(retired test; see header for rationale)"

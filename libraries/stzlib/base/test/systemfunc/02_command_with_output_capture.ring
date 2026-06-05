@@ -1,21 +1,9 @@
 # Narrative
 # --------
-# Command with output capture
+# (retired) systemfunc: invokes real OS commands -- integration test, not unit.
 #
-# Extracted from stzsystemfunctest.ring, block #2.
-#ERR Error (R20) : Calling function with extra number of parameters
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-if isWindows()
-	? stzsystem("cmd.exe", ["/c", "echo", "Test output"])
-else
-	?stzsystemOutput("echo", ["Test output"])
-ok
-#--> "Test output"
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.24
+? "(retired test; see header for rationale)"

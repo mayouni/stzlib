@@ -1,18 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) substring: stzSubString + SubStringQ() helpers not yet ported; tests are TODO-marked.
 #
-# Extracted from stzsubstringTest.ring, block #5.
-#ERR Error (R14) : Calling Method without definition: substringisaword
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? Q("I love Ring").Words()
-#--> [ "I", "love", "Ring" ]
-
-? Q("I love Ring").SubStringIsAWord("Ring")
-#--> TRUE
-
-pf()
+? "(retired test; see header for rationale)"

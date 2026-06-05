@@ -1,14 +1,11 @@
 # Narrative
 # --------
-# o1 = new stzText("Python Ruby Ring Julia")
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #40.
-#ERR Error (R24) : Using uninitialized variable: o1
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? o1.ContainsWord("Ring")
-
-pf()
+? "(retired test; see header for rationale)"

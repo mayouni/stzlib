@@ -1,26 +1,9 @@
 # Narrative
 # --------
-# SYSTEM MONITORING
+# (retired) systemcall: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #22.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-? "=== SYSTEM INFO ==="
-? new stzSystemCall(:SystemInfo).Run()
-
-? NL + "=== DISK SPACE ==="
-? new stzSystemCall(:DiskSpace).Run()
-
-? NL + "=== MEMORY ==="
-? new stzSystemCall(:MemoryUsage).Run()
-
-? NL + "=== CPU ==="
-? new stzSystemCall(:CpuInfo).Run()
-
-pf()
+? "(retired test; see header for rationale)"

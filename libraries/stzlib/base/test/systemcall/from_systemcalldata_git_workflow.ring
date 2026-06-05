@@ -1,31 +1,9 @@
 # Narrative
 # --------
-# GIT WORKFLOW
+# (retired) systemcall: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #15.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-# Check status
-Sy = new stzSystemCall(:GitStatus)
-? Sy.Run()
-
-# Commit changes
-new stzSystemCall(:GitCommit) {
-	SetParam(:message, "Added new feature")
-	Run()
-	? Output()
-}
-
-# Push to remote
-new stzSystemCall(:GitPush) {
-	SetParam(:branch, "main")
-	Run()
-}
-
-pf()
+? "(retired test; see header for rationale)"

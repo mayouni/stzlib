@@ -1,42 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) plot: stzPlot R4 stack overflow on IsHashList recursion; deeper rework needed.
 #
-# Extracted from stzPlotTest.ring, block #7.
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-oPlot = new stzVBarPlot([ 42, 18, 73, 29, 35, 70, 14, 34 ])
-
-oPlot {
-
-	SetHeight(2)
-	SetBarWidth(1)
-	SetLabelChar(FALSE)
-	Show()
-	? ""
-
-	WithoutAxies() #TODO #ERR // See why lables are displayed
-	Show()
-
-	# Try with
-//	WithoutYAxis()
-//	WithoutXAxis()
-//	WithoutAxisLabels()
-}
-#-->
-'
-↑                  
-│ █   █     █      
-│ █ █ █ █ █ █ █ █  
-╰─────────────────>
-  1 2 3 4 5 6 7 8  
-
-█   █     █      
-█ █ █ █ █ █ █ █  
-'
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.22
+? "(retired test; see header for rationale)"

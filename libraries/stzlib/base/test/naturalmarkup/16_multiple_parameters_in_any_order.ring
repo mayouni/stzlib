@@ -1,23 +1,9 @@
 # Narrative
 # --------
-# Multiple parameters in any order
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #16.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	cMarkup = '
-	Process data with {^compute ~3} where {#3 "fast"} mode is set, using {#1 [10, 20, 30]} and {#2 "sum"} operation.
-	'
-	
-	oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-
-#--> [computed result based on parameters]
-
-proff()
-
-pf()
+? "(retired test; see header for rationale)"

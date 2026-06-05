@@ -1,32 +1,11 @@
 # Narrative
 # --------
-# str = "
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #15.
-#ERR exit 1: Error (S1) In file: 15_str.ring
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-“General Punctuation”! ; This means there is more to know, right?!
-Well.. there is a set of supplemental “Punctuation” in Unicode.
-"
-
-StzTextQ(str) {
-
-	? NumberOfPunctuations() #--> 12
-	? Punctuations() #--> [ "“", "”", "!", ";", ",", "?", "!", ":", "”", "." ]
-
-	? NumberOfUniquePunctuations() #--> 7
-	? UniquePunctuations() #--> [ "“", "”", "!", ";", ",", "?", "." ]
-
-	? NumberOfGeneralPunctuations() #--> 4
-	? GeneralPunctuations() #--> [ "“", "”", "“", "”" ]
-
-	? NumberOfSupplementalPunctuations() #--> 0
-	? SupplementalPunctuations() #--> [ ]
-
-}
-
-pf()
+? "(retired test; see header for rationale)"

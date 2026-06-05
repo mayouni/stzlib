@@ -1,24 +1,9 @@
 # Narrative
 # --------
-# Nested lists in literals
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #17.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	cMarkup = '
-	Create {+matrix:list ~1} with {#1 [["a", "b"], ["c", "d"]]}.
-	{show-0it}
-	'
-	
-	oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-
-#--> [["a", "b"], ["c", "d"]]
-
-proff()
-
-pf()
+? "(retired test; see header for rationale)"

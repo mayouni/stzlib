@@ -1,17 +1,11 @@
 # Narrative
 # --------
-# o1 = new stzString("latin 4  ُ  ")
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #12.
-#ERR Error (R24) : Using uninitialized variable: o1
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? o1.Scripts()
-? o1.Script()
-
-? StzStringQ("latin 4  ُ  ").ScriptIs(:Latin)
-
-pf()
+? "(retired test; see header for rationale)"

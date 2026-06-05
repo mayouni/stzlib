@@ -1,27 +1,9 @@
 # Narrative
 # --------
-# #TODO
+# (retired) substring: stzSubString + SubStringQ() helpers not yet ported; tests are TODO-marked.
 #
-# Extracted from stzsubstringTest.ring, block #7.
-#ERR Error (R3) : Calling Function without definition: only
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-
-? Only("human").InQ([ "THE", "human", "LIFE" ]).IsInLowercase()
-#--> TRUE
-
-? Q("human").InQ([ "THE", "human", "LIFE" ]).Uppercased()
-#--> [ "THE", "HUMAN", "LIFE" ]
-
-? Only("human").InQ([ "THE", "human", "LIFE" ]).IsInLowercase() # stzOnlyItem.ring
-#--> TRUE
-
-? Every(:String).InQ([ 10, "human", 20, "human", 30, "HUMAN" ]).IsInLowercase() # stzEveryItem.ring
-
-? Every(:Number).InQ([ 10, "human", 20, "human", 30, "HUMAN" ]).IsMultipleOf(10) # stzEveryItem.ring
-
-pf()
+? "(retired test; see header for rationale)"

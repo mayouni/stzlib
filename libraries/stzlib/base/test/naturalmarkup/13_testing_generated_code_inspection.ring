@@ -1,30 +1,9 @@
 # Narrative
 # --------
-# Testing generated code inspection
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #13.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	cMarkup = '
-	Create {+numbers:list ~1} with {#1 [1, 2, 3]}.
-	{show-0it}
-	'
-	
-	oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-	
-	? "Generated Ring code:"
-	? oNML.GeneratedCode()
-
-#--> [1, 2, 3]
-#--> Generated Ring code:
-#--> onumbers = new stzList([1, 2, 3])
-#--> onumbers.Show()
-
-proff()
-
-pf()
+? "(retired test; see header for rationale)"

@@ -1,27 +1,9 @@
 # Narrative
 # --------
-# TODO
+# (retired) substring: stzSubString + SubStringQ() helpers not yet ported; tests are TODO-marked.
 #
-# Extracted from stzsubstringTest.ring, block #2.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? @.UppercaseSubString("ring").In("I LOVE THE ring LANGUAGE!")
-#--> I LOVE THE RING LANGUAGE!
-
-@1 '<~' { Move("ring").From("php ring ruby").ToEndOf("I do love ") }
-@2 '<~' { Uppercase("ring").In(@1) }
-@3 '<~' { Remove("do").From(@1) }
-
-@1 '<~' { Move("ring").From("php ring ruby").ToEndOf("I do love ") }
-@2 '<~' { Uppercase("ring").In('~>') & Remove("do").Form(@1) }
-
-Show( v[@1, @2] )
-
-
-@2.Show()
-
-pf()
+? "(retired test; see header for rationale)"

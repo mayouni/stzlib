@@ -1,24 +1,11 @@
 # Narrative
 # --------
-# pr()
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzStringTest.ring, block #728.
-#ERR Error (R14) : Calling Method without definition: containsscript
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StzTextQ("abc سلام abc").ContainsScript(:Arabic)
-#--> TRUE
-
-? StzTextQ("abc سلام abc").ContainsArabicScript()
-#--> TRUE
-
-#NOTE: Scripts are now moved from stzString to stzText
-
-# You can use this short form instead of StzTextQ()
-? TQ("سلام").Script() #--> :Arabic
-
-pf()
-# Executed in 0.07 second(s).
+? "(retired test; see header for rationale)"

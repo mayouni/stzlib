@@ -1,63 +1,9 @@
 # Narrative
 # --------
-# # Text paintings in COLLECTIBLES category
+# (retired) stringart: stzStringArt class + helpers (DefaultStringArt, SetStringArt) not yet ported to base/.
 #
-# Extracted from stzstringarttest.ring, block #9.
-#ERR Error (R3) : Calling Function without definition: stringart
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StringArt("#{Coins}") +NL
-#-->
-#   ┌───────┐
-# │   $$$   │
-# │  $     $  │
-# │ $   $   $ │
-# │ $  $$$  $ │
-# │ $   $   $ │
-# │  $     $  │
-#  │   $$$   │
-#   └───────┘
-
-? StringArt("#{Stars}") + NL
-#-->
-#     ★
-#   ☆   ☆
-# ☆       ☆
-#   ☆   ☆
-#     ★
-
-? StringArt("#{Hearts}") + NL
-#-->
-#  ❤️❤️   ❤️❤️ 
-# ❤️❤️❤️ ❤️❤️❤️
-#  ❤️❤️❤️❤️❤️ 
-#    ❤️❤️❤️  
-#      ❤️   
-
-? StringArt("#{Key}") + NL
-#-->
-#  ┌───┐
-# ┌┘ □ └┐
-# │ ┌─┐ │
-# └─┘ └─┘
-#    │
-#    │
-#  ┌─┴─┐
-#  └───┘
-
-? StringArt("#{Gem}")
-#-->
-#    /\
-#   /  \
-#  /    \
-# /______\
-# \      /
-#  \    /
-#   \  /
-#    \/
-
-pf()
-# Executed in 0.001 seconds.
+? "(retired test; see header for rationale)"

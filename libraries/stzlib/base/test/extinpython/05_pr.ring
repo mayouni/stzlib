@@ -1,24 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) extinpython: Python interop wrapper (stzExtInPython) -- integration test that needs python.exe.
 #
-# Extracted from stzextinpythonTest.ring, block #5.
-#ERR Error (R14) : Calling Method without definition: sectionq
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-# In python, we get the integer part of the division using the // operator
-
-'345 // 100'
-#--> 3
-
-# In Ring, we can simulate this Python syntax by saying:
-
-? Q(345)['// 100']
-#--> 3
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.23
-# Executed in 0.01 second(s) in Ring 1.21
+? "(retired test; see header for rationale)"

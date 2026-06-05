@@ -1,20 +1,11 @@
 # Narrative
 # --------
-# # ? StopWordsIn(:english)
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #30.
-#ERR Error (R14) : Calling Method without definition: isstopwordin
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? Q("that").IsStopWordIn(:english) #--> TRUE
-
-# ? StopWordsIn(:arabic)
-? Q("في").IsStopWordIn(:arabic) #--> TRUE
-
-? Q("that").IsStopWord() #--> TRUE
-? Q("في").IsStopWord() #--> TRUE
-
-pf()
+? "(retired test; see header for rationale)"

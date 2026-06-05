@@ -1,26 +1,9 @@
 # Narrative
 # --------
-# ADVANCED OPERATIONS AND CHAINING
+# (retired) html: stzHtml manipulation API (.Text(), .SplitToList, FindFirst etc.) pending broader stzHtml class port from archive.
 #
-# Extracted from stzHtmlTest.ring, block #9.
-#ERR Error (R24) : Using uninitialized variable: csamplehtml
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-oHtml = HtmlQ(cSampleHtml)
-
-oHtml.FindFirstQ("p").SetAttrQ("style", "color:red").RemoveAttr("class")
-? oHtml.FindFirst("p").Html()  #--> <p style="color:red">This is a test paragraph.</p>
-
-oNewNode = new stzHtmlNode( oHtml.@oHtml.createNode("div") )
-oNewNode.SetAttr("id", "container")
-oBody = oHtml.Body()
-oBody.InsertBefore(oNewNode)
-
-? oHtml.Html()               # Shows updated HTML with new div
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+? "(retired test; see header for rationale)"

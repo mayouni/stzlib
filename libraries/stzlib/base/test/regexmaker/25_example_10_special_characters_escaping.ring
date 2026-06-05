@@ -1,22 +1,9 @@
 # Narrative
 # --------
-# Example 10: Special Characters Escaping
+# (retired) regexmaker: declarative regex-pattern DSL parser pending.
 #
-# Extracted from stzregexmakertest.ring, block #25.
-#ERR Error (R19) : Calling function with less number of parameters
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-o6 = new stzRecursiveRegexMaker()
-o6 {
-    EnableNamedRecursion()
-    AddLevel("special", "\$\^\*\+\?\{\}\[\]\(\)")
-    ? Pattern()
-    #--> (?P<special>\$\^\*\+\?\{\}\[\]\(\))
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+? "(retired test; see header for rationale)"

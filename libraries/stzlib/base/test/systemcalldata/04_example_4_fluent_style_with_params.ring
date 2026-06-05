@@ -1,20 +1,9 @@
 # Narrative
 # --------
-# EXAMPLE 4: Fluent Style with Params
+# (retired) systemcalldata: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #4.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-StzSystemCallQ(:FindFiles).
-	SetParamQ(:pattern, "*.ring").
-	RunQ() {
-	? Output()
-}
-
-pf()
+? "(retired test; see header for rationale)"

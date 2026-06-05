@@ -1,26 +1,9 @@
 # Narrative
 # --------
-# EXAMPLE 11: Open File/URL
+# (retired) systemcall: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #11.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-new stzSystemCall(:OpenFile) {
-	SetParam(:file, "document.pdf")
-	RunSilently()
-}
-
-new stzSystemCall(:OpenUrl) {
-	SetParam(:url, "https://softanza.com")
-	RunSilently()
-}
-
-? "Opened!"
-
-pf()
+? "(retired test; see header for rationale)"

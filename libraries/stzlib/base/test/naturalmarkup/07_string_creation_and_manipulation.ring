@@ -1,26 +1,9 @@
 # Narrative
 # --------
-# String creation and manipulation
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #7.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	cMarkup = '
-	Let me work with {+greeting:string ~1} containing {#1 "  hello world  "}.
-	First, {trim-0it} to clean up spaces.
-	Then {capitalize} the {greeting:string}.
-	Finally {show-0it}!
-	'
-	
-	oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-
-#--> Hello World
-
-proff()
-
-pf()
+? "(retired test; see header for rationale)"

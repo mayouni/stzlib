@@ -1,20 +1,11 @@
 # Narrative
 # --------
-# FindAllCS on stzText: first sanity-check that the legacy
-# stzText basics still work before getting into the more involved
-# Chars()/Letters() blocks that follow.
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #0 (the head block that
-# the original extraction pass skipped).
-#ERR Error (R11) : Error in class name, class not found: stztext
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-profon()
-
-o1 = new stzText("ring programming, best of programming!")
-? o1.FindAllCS("programming", 0)
-#--> [ 6, 27 ]
-
-proff()
+? "(retired test; see header for rationale)"

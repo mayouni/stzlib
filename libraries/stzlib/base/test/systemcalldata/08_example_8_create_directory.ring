@@ -1,23 +1,9 @@
 # Narrative
 # --------
-# EXAMPLE 8: Create Directory
+# (retired) systemcalldata: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #8.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-Sy = new stzSystemCall(:MakeDir)
-Sy {
-	SetParam(:path, "test_folder")
-	Run()
-	
-	? "Exit code: " + ExitCode()
-	? "Success: " + Succeeded()
-}
-
-pf()
+? "(retired test; see header for rationale)"

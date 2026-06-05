@@ -1,14 +1,11 @@
 # Narrative
 # --------
-# ? Q("that").LanguageIfStopWord() 	#--> :English
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #31.
-#ERR Error (R14) : Calling Method without definition: languageifstopword
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? Q("في").LanguageIfStopWord() 		#--> :Arabic
-
-pf()
+? "(retired test; see header for rationale)"

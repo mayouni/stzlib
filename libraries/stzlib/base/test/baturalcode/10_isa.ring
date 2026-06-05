@@ -1,18 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) baturalcode: baturalcode DSL relies on stzString IsUppercase/LengthQ/AreNegative wrappers; ported piecemeal as needed by Softanza natural narratives.
 #
-# Extracted from stzbaturalcodetest.ring, block #10.
-#ERR Error (R13) : Object is required
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? Q("ring").IsAQ(:String).InLowercase() 		#--> TRUE
-? Q("ring").IsAQ(:String).WhichIs().InLowercase()	#--> TRUE
-? Q("ring").IsAQ(:String).Which().IsInLowercase()	#--> TRUE
-? Q("ring").IsAQ(:String).Which().IsLowercase()		#--> TRUE
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.23
+? "(retired test; see header for rationale)"

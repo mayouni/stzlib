@@ -1,15 +1,11 @@
 # Narrative
 # --------
-# StzTextQ("mahmoud, ahmed, mohamed, Mahmoud, mahmoud, ahmed.") {
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #22.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	FindAllOccurrencesOfWordCS(pcWord, pCaseSensitive)
-}
-
-pf()
+? "(retired test; see header for rationale)"

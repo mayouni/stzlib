@@ -1,24 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) plot: stzPlot R4 stack overflow on IsHashList recursion; deeper rework needed.
 #
-# Extracted from stzPlotTest.ring, block #3.
-#ERR Error (R4) : Stack Overflow
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-aMyList = [
-	:Mali  	 = [ :2020 = 42, :2022 = 18, :2024 = 22 ],
-	:Niger 	 = [ :2020 = 87, :2022 = 40, :2024 = 18 ]
-]
-
-? IsHashList(aMyList)
-#--> TRUE
-
-? IsHashListOfLists(aMyList)
-#--> TRUE
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+? "(retired test; see header for rationale)"

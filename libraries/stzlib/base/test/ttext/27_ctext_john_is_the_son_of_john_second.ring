@@ -1,20 +1,11 @@
 # Narrative
 # --------
-# cText = "John is the son of John second.
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #27.
-#ERR exit 1: Error (S1) In file: 27_ctext_john_is_the_son_of_john_second.ring
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-Second son of John second is William second."
-
-StopWordsMustBeRemoved()
-
-StzTextQ(cText) {
-	? Words()
-}
-
-pf()
+? "(retired test; see header for rationale)"

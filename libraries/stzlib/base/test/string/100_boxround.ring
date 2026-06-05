@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #100.
-#ERR exit 1: Error (S1) In file: 100_boxround.ring
 
 load "../../stzBase.ring"
 

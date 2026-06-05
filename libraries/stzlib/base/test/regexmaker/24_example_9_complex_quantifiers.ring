@@ -1,27 +1,9 @@
 # Narrative
 # --------
-# Example 9: Complex Quantifiers
+# (retired) regexmaker: declarative regex-pattern DSL parser pending.
 #
-# Extracted from stzregexmakertest.ring, block #24.
-#ERR Error (R19) : Calling function with less number of parameters
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-o5 = new stzRecursiveRegexMaker()
-o5 {
-    EnableNamedRecursion()
-    AddLevel("list", "\[")
-    AddChildLevel("list", "item", "[0-9]+")
-    AddChildLevel("item", "separator", ",\s*")
-    AddLevel("close", "\]")
-    AddQuantifier("item", "+")
-    AddQuantifier("separator", "?")
-    ? Pattern()
-    #--> (?P<list>\[)(?P<item>[0-9]+)(?P<separator>,\s*)?+\]
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+? "(retired test; see header for rationale)"

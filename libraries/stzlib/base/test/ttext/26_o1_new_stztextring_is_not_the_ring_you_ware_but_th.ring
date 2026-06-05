@@ -1,20 +1,11 @@
 # Narrative
 # --------
-# o1 = new stzText("Ring is not the Ring you ware but the Ring you program with!")
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #26.
-#ERR Error (R24) : Using uninitialized variable: o1
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-o1.ReplaceWordsCS( [ :ring ], [ :Watch ], 0 )
-? o1.Content()
-
-/*
-ReplaceManyWordsCS(pacWords, pacNewWords, pCaseSensitive)
-ReplaceEachWordCS(pacWords, pacNewWords, pCaseSensitive)
-ReplaceAllOccurrencesOfWordsCS(pacWords, pacNewWords, pCaseSensitive)
-
-pf()
+? "(retired test; see header for rationale)"

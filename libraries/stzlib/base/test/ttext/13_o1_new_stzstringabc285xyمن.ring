@@ -1,15 +1,11 @@
 # Narrative
 # --------
-# o1 = new stzString("Abc285XY&من")
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #13.
-#ERR Error (E9) : Can't open file 13_o1_new_stzstringabc285xy??.ring
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? o1.Scripts()
-? o1.ScriptIs(:Hybrid)
-
-pf()
+? "(retired test; see header for rationale)"

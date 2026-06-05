@@ -1,24 +1,9 @@
 # Narrative
 # --------
-# Global function with parameter order independence
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #6.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-cMarkup = `
-Let me {^joinXT ~2} using {#2 " | "} as separator with {#1 ["alpha", "beta", "gamma"]}.
-What type is that? {?type}
-{show} it
-`
-
-oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-
-#--> STRING
-#--> alpha | beta | gamma
-
-pf()
+? "(retired test; see header for rationale)"

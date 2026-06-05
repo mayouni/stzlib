@@ -1,20 +1,9 @@
 # Narrative
 # --------
-# EXAMPLE 2: With Braces Syntax
+# (retired) systemcalldata: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #2.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-Sy = new stzSystemCall(:SystemInfo)
-Sy {
-	Run()
-	? Output()
-}
-
-pf()
+? "(retired test; see header for rationale)"
