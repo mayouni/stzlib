@@ -924,6 +924,77 @@ class stzList from stzObject
 			This.Stringify()
 			return This
 
+	# StringifyAndReplace: Stringify the content, then replace every
+	# occurrence of pItem with the supplied value (pWith). pWith
+	# accepts the :With named-param form or a bare string.
+	# StringifyAndReplaceQ(item, with) returns This.
+	# XT variant is just an alias for the moment -- the original
+	# Softanza distinguished "internal-staff" semantics, but they
+	# collapse to the same engine path here.
+	def StringifyAndReplace(pItem, pWith)
+		if isList(pWith) and ring_len(pWith) = 2 and isString(pWith[1])
+			pWith = pWith[2]
+		ok
+		This.Stringify()
+		_aData_ = @aContent
+		_nLen_ = ring_len(_aData_)
+		for _i_ = 1 to _nLen_
+			if _aData_[_i_] = pItem
+				_aData_[_i_] = pWith
+			ok
+		next
+		@aContent = _aData_
+
+		def StringifyAndReplaceQ(pItem, pWith)
+			This.StringifyAndReplace(pItem, pWith)
+			return This
+
+		def StringifyAndReplaceXT(pItem, pWith)
+			This.StringifyAndReplace(pItem, pWith)
+
+		def StringifyAndReplaceXTQ(pItem, pWith)
+			This.StringifyAndReplace(pItem, pWith)
+			return This
+
+	# StringifyLowercase / StringifyUppercase / StringifyAndLower /
+	# StringifyAndUpper -- Stringify then map case. Used by misc
+	# narrative tests that need a uniform-case string list.
+	def StringifyLowercase()
+		This.Stringify()
+		_aData_ = @aContent
+		_nLen_ = ring_len(_aData_)
+		for _i_ = 1 to _nLen_
+			if isString(_aData_[_i_])
+				_aData_[_i_] = lower(_aData_[_i_])
+			ok
+		next
+		@aContent = _aData_
+
+		def StringifyAndLower()
+			This.StringifyLowercase()
+
+		def StringifyAndLowerQ()
+			This.StringifyLowercase()
+			return This
+
+	def StringifyUppercase()
+		This.Stringify()
+		_aData_ = @aContent
+		_nLen_ = ring_len(_aData_)
+		for _i_ = 1 to _nLen_
+			if isString(_aData_[_i_])
+				_aData_[_i_] = upper(_aData_[_i_])
+			ok
+		next
+		@aContent = _aData_
+
+		def StringifyAndUpper()
+			This.StringifyUppercase()
+
+		def StringifyAndUpperQ()
+			This.StringifyUppercase()
+			return This
+
 	  #=================================================#
 	 #  CONTAINS DELEGATIONS (via stzListComparator)    #
 	#=================================================#
@@ -3195,6 +3266,18 @@ class stzList from stzObject
 				pnStartingAt = pnStartingAt[2]
 			ok
 			return This.FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+	def FindPrevious(pItem, pnStartingAt)
+		if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+			pnStartingAt = pnStartingAt[2]
+		ok
+		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, 1)
+
+		def FindPreviousCS(pItem, pnStartingAt, pCaseSensitive)
+			if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+				pnStartingAt = pnStartingAt[2]
+			ok
+			return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
 	def FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 		_oFpnoFinder_ = new stzListFinder(This)

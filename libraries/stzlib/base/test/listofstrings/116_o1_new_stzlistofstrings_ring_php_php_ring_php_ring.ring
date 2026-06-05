@@ -3,11 +3,12 @@
 # o1 = new stzListOfStrings([ "ring php", "php", "ring php ring" ])
 #
 # Extracted from stzlistofstringstest.ring, block #116.
-#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 
 pr()
+
+o1 = new stzListOfStrings([ "ring php", "php", "ring php ring" ])
 
 # How many occurrence are there of the substring "ring" in the list?
 ? o1.NumberOfOccurrenceOfSubString("ring") #--> 3

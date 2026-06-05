@@ -3,11 +3,12 @@
 # o1 = new stzListOfStrings([ "111", "b", "222", "c", "111", "222", "111", "s", "222" ])
 #
 # Extracted from stzlistofstringstest.ring, block #103.
-#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 
 pr()
+
+o1 = new stzListOfStrings([ "111", "b", "222", "c", "111", "222", "111", "s", "222" ])
 
 o1.RemoveDuplicatesOfThisString("111")
 ? @@( o1.Content() )

@@ -3,11 +3,12 @@
 # o1 = new stzListOfStrings([ "C", "B", "A" ])
 #
 # Extracted from stzlistofstringstest.ring, block #27.
-#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 
 pr()
+
+o1 = new stzListOfStrings([ "C", "B", "A" ])
 
 o1.Move( :String = 1, :ToPositionOfString = 3)
 ? o1.Content() #--> [ "B", "A", "C" ]

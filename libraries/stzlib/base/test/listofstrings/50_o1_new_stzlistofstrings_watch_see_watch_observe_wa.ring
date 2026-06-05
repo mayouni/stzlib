@@ -3,11 +3,12 @@
 # o1 = new stzListOfStrings([ "WATCH", "see", "Watch", "Observe", "watch" ])
 #
 # Extracted from stzlistofstringstest.ring, block #50.
-#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 
 pr()
+
+o1 = new stzListOfStrings([ "WATCH", "see", "Watch", "Observe", "watch" ])
 
 ? o1.StringsW('{ @string = "watch" }') #--> "watch"
 
