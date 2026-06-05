@@ -3,7 +3,6 @@
 # EXAMPLE 6: Trend Analysis for Time Series
 #
 # Extracted from stzdatasettest.ring, block #48.
-#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # Testing chainable operations
 #
 # Extracted from stzdatawranglertest.ring, block #17.
-#ERR exit 1: +----------------------+
 
 load "../../stzBase.ring"
 

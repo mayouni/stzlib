@@ -3,7 +3,6 @@
 # Checking for Specific Content
 #
 # Extracted from stzfoldertest.ring, block #7.
-#ERR exit 1: 0
 
 load "../../stzBase.ring"
 

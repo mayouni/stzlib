@@ -807,6 +807,43 @@ class stzList from stzObject
 	def IsToPositionNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["toposition", "to"])
 
+	def IsToOrToPosition()
+		return This.IsToPositionNamedParam()
+
+		def IsToPositionOrTo()
+			return This.IsToPositionNamedParam()
+
+	# AllItemsAreEqualCS: TRUE iff every item in the list equals
+	# every other item (i.e. all items collapse to a single value).
+	# Case-sensitivity applies only when items are strings.
+	def AllItemsAreEqualCS(pCaseSensitive)
+		_aData_ = This.Content()
+		_nLen_ = ring_len(_aData_)
+		if _nLen_ < 2 return TRUE ok
+		_first_ = _aData_[1]
+		for _i_ = 2 to _nLen_
+			_x_ = _aData_[_i_]
+			if isString(_first_) and isString(_x_) and pCaseSensitive = 0
+				if upper(_first_) != upper(_x_)
+					return FALSE
+				ok
+			else
+				if _first_ != _x_
+					return FALSE
+				ok
+			ok
+		next
+		return TRUE
+
+		def AllItemsAreEqual()
+			return This.AllItemsAreEqualCS(1)
+
+		def AllAreEqualCS(pCaseSensitive)
+			return This.AllItemsAreEqualCS(pCaseSensitive)
+
+		def AllAreEqual()
+			return This.AllItemsAreEqualCS(1)
+
 	def IsWithRowNamedParam()
 		return StzIsThisNamedParam(This.Content(), "withrow")
 

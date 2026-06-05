@@ -3,7 +3,6 @@
 # Counting Contents
 #
 # Extracted from stzfoldertest.ring, block #6.
-#ERR exit 1: 36
 
 load "../../stzBase.ring"
 

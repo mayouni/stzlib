@@ -3,7 +3,6 @@
 # ? Stz(:Number, :Class)
 #
 # Extracted from stzGlobalTest.ring, block #36.
-#ERR Error (R14) : Calling Method without definition: isstzclassname
 
 load "../../stzBase.ring"
 

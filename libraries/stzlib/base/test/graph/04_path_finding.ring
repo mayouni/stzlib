@@ -3,7 +3,6 @@
 # Path Finding
 #
 # Extracted from stzgraphtest.ring, block #4.
-#ERR panic: integer part of floating point value out of bounds
 
 load "../../stzBase.ring"
 

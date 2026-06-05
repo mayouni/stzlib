@@ -3,7 +3,6 @@
 # Testing initialization with 2D table data
 #
 # Extracted from stzdatawranglertest.ring, block #2.
-#ERR exit 1: +--------------------+
 
 load "../../stzBase.ring"
 

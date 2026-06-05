@@ -3,7 +3,6 @@
 # Testing data type conversion
 #
 # Extracted from stzdatawranglertest.ring, block #9.
-#ERR exit 1: BEFORE TYPE CONVERSION:
 
 load "../../stzBase.ring"
 
