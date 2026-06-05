@@ -3,14 +3,13 @@
 # READING FILES (pure intent)
 #
 # Extracted from stzfiletest.ring, block #2.
-#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
 
 
 pr()
 
-oReader = FileRead("../_data/tabdata.csv") # No write methods available - pure reading intent
+oReader = FileReadQ("../_data/tabdata.csv") # No write methods available - pure reading intent
 
 ? oReader.Content() + NL
 #-->

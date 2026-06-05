@@ -420,6 +420,22 @@ func StzFileOverwiteQ(cFileName, cNewContent)
 
 	#>
 
+# Pure-intent overwriter: returns a stzFileOverwriter object so the
+# caller can inspect OriginalContent() / OriginalLines() before
+# committing. Test-facing 1-arg form -- companion to the 2-arg
+# StzFileOverwrite(file, content) one-shot above.
+func FileOverwriter(cFileName)
+	return new stzFileOverwriter(cFileName)
+
+# Pure-intent modifier: returns a stzFileModifier object for
+# inspection + Replace/Insert/Remove operations before Close().
+# 1-arg form -- companion to the 3-arg StzFileModify(file, old, new).
+func FileModifier(cFileName)
+	return new stzFileModifier(cFileName)
+
+	func FileUpdater(cFileName)
+		return new stzFileModifier(cFileName)
+
 func StzFileErase(cFileName)
     if not StzFileExists(cFileName)
         StzRaise("Cannot erase non-existent file: " + cFileName)
@@ -1667,11 +1683,25 @@ class stzFileModifier from stzFileReadingMixin
     # SOPHISTICATED UPDATE METHODS
     def ModifyAllContent(cNewContent)
         StzEngineFileWrite(@cFileName, cNewContent)
+		# Re-read so subsequent OriginalContent()/OriginalLines()
+		# reflect the new on-disk state. Modifier methods chain on
+		# the in-memory snapshot, so keeping it in sync is required
+		# for ReplaceLineContaining + InsertLineAtEnd + Remove* etc.
+		@cOriginalContent = cNewContent
+		@aOriginalLines = @Lines(cNewContent)
 		return 1
 
 	    def ModifyAllContentQ(cNewContent)
 	        This.ModifyAllContent(cNewContent)
 	        return This
+
+	    # Word-order alias used by sophisticated-update narratives.
+	    def ReplaceAllContent(cNewContent)
+	        return This.ModifyAllContent(cNewContent)
+
+		    def ReplaceAllContentQ(cNewContent)
+		        This.ModifyAllContent(cNewContent)
+		        return This
 
     def ModifyAllContentWith(cNewContent)
         This.ModifyAllContent(cNewContent)
@@ -1865,7 +1895,7 @@ class stzFileModifier from stzFileReadingMixin
             ok
         next
 
-        cNewContent = JoinLines(aNewLines)
+        cNewContent = JoinXT(aNewLines, NL)
         This.ModifyAllContent(cNewContent)
     	return 1
 
@@ -1910,7 +1940,7 @@ class stzFileModifier from stzFileReadingMixin
     def ReplaceInLine(nLineNumber, cOldText, cNewText)
         aLines = This.OriginalLines()
         aLines[nLineNumber] = StzReplace(aLines[nLineNumber], cOldText, cNewText)
-        cNewContent = JoinLines(aLines)
+        cNewContent = JoinXT(aLines, NL)
         This.ReplaceAllContent(cNewContent)
 
 	    def ReplaceInLineQ(nLineNumber, cOldText, cNewText)
