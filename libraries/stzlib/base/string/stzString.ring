@@ -70,6 +70,37 @@ class stzString from stzObject
 		def StringQ()
 			return new stzString(This.String())
 
+	# Show -- print the content to stdout (terminated by NL).
+	# Convenience alias used by narrative tests of the form
+	# `o.Show()` instead of `? o.Content()`.
+	def Show()
+		? This.Content()
+
+		def ShowQ()
+			This.Show()
+			return This
+
+		def Display()
+			This.Show()
+
+		def Print()
+			This.Show()
+
+	# SplitQ -- Split() that returns a stzList wrapper for chaining
+	# (the bare Split() returns a Ring list).
+	def SplitQ(pcDelimiter)
+		return new stzList( This.Split(pcDelimiter) )
+
+	# BoundsOf(pcSub) -- the [startPos, endPos] of the FIRST
+	# occurrence of pcSub in This.Content(). Returns [] if absent.
+	def BoundsOf(pcSub)
+		_nPos_ = substr(This.Content(), pcSub)
+		if _nPos_ = 0 return [] ok
+		return [ _nPos_, _nPos_ + len(pcSub) - 1 ]
+
+		def BoundsOfFirstOccurrence(pcSub)
+			return This.BoundsOf(pcSub)
+
 	#-- Override stzObject.Stringified/ToString. The parent returns
 	#   ObjectName() (which is "@noname" for unnamed objects);
 	#   stzString must return its actual content. Without this
