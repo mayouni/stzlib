@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #589.
-#ERR Error (R50) : Object does not support operator overloading
 
 load "../../stzBase.ring"
 

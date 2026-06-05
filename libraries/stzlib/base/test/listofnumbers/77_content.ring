@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #77.
-#ERR panic: @memcpy arguments alias
 
 load "../../stzBase.ring"
 

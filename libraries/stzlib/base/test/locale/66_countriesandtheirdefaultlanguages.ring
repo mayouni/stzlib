@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlocaletest.ring, block #66.
-#ERR exit 1: Error (S1) In file: 66_countriesandtheirdefaultlanguages.ring
 
 load "../../stzBase.ring"
 

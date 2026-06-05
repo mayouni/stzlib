@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #266.
-#ERR Error (R14) : Calling Method without definition: findduplicates
 
 load "../../stzBase.ring"
 

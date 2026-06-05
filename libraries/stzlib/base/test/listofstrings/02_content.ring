@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlistofstringstest.ring, block #2.
-#ERR Error (R14) : Calling Method without definition: sortby
 
 load "../../stzBase.ring"
 

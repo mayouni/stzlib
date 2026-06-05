@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #603.
-#ERR Error (R3) : Calling Function without definition: @@sp
 
 load "../../stzBase.ring"
 

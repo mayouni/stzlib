@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlistofstringstest.ring, block #70.
-#ERR Error (R3) : Calling Function without definition: stzlistofstringsq
 
 load "../../stzBase.ring"
 

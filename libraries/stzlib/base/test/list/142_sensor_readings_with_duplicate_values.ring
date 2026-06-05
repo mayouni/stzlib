@@ -3,7 +3,6 @@
 # # Sensor readings with duplicate values
 #
 # Extracted from stzlisttest.ring, block #142.
-#ERR Error (R14) : Calling Method without definition: findduplicates
 
 load "../../stzBase.ring"
 

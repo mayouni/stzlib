@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #312.
-#ERR Error (R14) : Calling Method without definition: tosetq
 
 load "../../stzBase.ring"
 

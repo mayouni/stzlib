@@ -3,7 +3,6 @@
 # #narration
 #
 # Extracted from stzlisttest.ring, block #509.
-#ERR Error (R14) : Calling Method without definition: sortinascendingq
 
 load "../../stzBase.ring"
 
