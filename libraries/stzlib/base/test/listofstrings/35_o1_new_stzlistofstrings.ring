@@ -3,11 +3,12 @@
 # o1 = new stzListOfStrings([
 #
 # Extracted from stzlistofstringstest.ring, block #35.
-#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 
 pr()
+
+o1 = new stzListOfStrings([
 
 	"what's your name please",
 	"mabrooka",
