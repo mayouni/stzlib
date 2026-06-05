@@ -2215,6 +2215,55 @@ class stzString from stzObject
 	def TrimEnd()
 		This.TrimRight()
 
+	# RemoveThisCharFromStart / Left / End / Right -- strip every
+	# leading (or trailing) occurrence of pcChar. No-op if the
+	# string doesn't start (or end) with pcChar.
+	def RemoveThisCharFromStartXT(pcChar)
+		if NOT isString(pcChar) or ring_len(pcChar) = 0 return ok
+		_cTxt_ = This.Content()
+		_nLenTxt_ = ring_len(_cTxt_)
+		_nLenCh_ = ring_len(pcChar)
+		_n_ = 0
+		while _n_ + _nLenCh_ <= _nLenTxt_ and
+		      substr(_cTxt_, _n_ + 1, _nLenCh_) = pcChar
+			_n_ += _nLenCh_
+		end
+		if _n_ > 0
+			This.Update(substr(_cTxt_, _n_ + 1))
+		ok
+
+		def RemoveThisCharFromLeftXT(pcChar)
+			This.RemoveThisCharFromStartXT(pcChar)
+
+		def RemoveThisCharFromStart(pcChar)
+			This.RemoveThisCharFromStartXT(pcChar)
+
+		def RemoveThisCharFromLeft(pcChar)
+			This.RemoveThisCharFromStartXT(pcChar)
+
+	def RemoveThisCharFromEndXT(pcChar)
+		if NOT isString(pcChar) or ring_len(pcChar) = 0 return ok
+		_cTxt_ = This.Content()
+		_nLenTxt_ = ring_len(_cTxt_)
+		_nLenCh_ = ring_len(pcChar)
+		_n_ = 0
+		while _n_ + _nLenCh_ <= _nLenTxt_ and
+		      substr(_cTxt_, _nLenTxt_ - _n_ - _nLenCh_ + 1, _nLenCh_) = pcChar
+			_n_ += _nLenCh_
+		end
+		if _n_ > 0
+			This.Update(substr(_cTxt_, 1, _nLenTxt_ - _n_))
+		ok
+
+		def RemoveThisCharFromRightXT(pcChar)
+			This.RemoveThisCharFromEndXT(pcChar)
+
+		def RemoveThisCharFromEnd(pcChar)
+			This.RemoveThisCharFromEndXT(pcChar)
+
+		def RemoveThisCharFromRight(pcChar)
+			This.RemoveThisCharFromEndXT(pcChar)
+
 	def Trim()
 		pH = This.Engine()
 		pR = StzEngineStringTrim(pH)
@@ -3865,6 +3914,15 @@ class stzString from stzObject
 
 		def FindAnyBoundedBy(pacBounds)
 			return This.BoundedBy(pacBounds)
+
+	# FindBoundedBy / FindBoundedByCS -- the most common spelling
+	# in narrative tests. Returns the [startPos, endPos] of each
+	# bounded section.
+	def FindBoundedByCS(pacBounds, pCaseSensitive)
+		return This.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+
+	def FindBoundedBy(pacBounds)
+		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
 
 	# IsBoundedByCS / IsBoundedBy: predicate. True iff the content
 	# starts with pacBounds[1] AND ends with pacBounds[2].
