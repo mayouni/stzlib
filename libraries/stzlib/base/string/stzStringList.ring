@@ -422,6 +422,41 @@ class stzStringList
 		oCopy.SortInDescending()
 		return oCopy.Content()
 
+	  #------------------------------------------------------#
+	 #   SORT BY EXPRESSION                                 #
+	#------------------------------------------------------#
+
+	# SortBy(cExpr): sort by an eval'd expression where @string
+	# aliases the per-item string. Pre-compute keys once, then
+	# insertion-sort over (key, value) pairs.
+	def SortBy(pcExpr)
+		_aData_ = This.Content() + []
+		_nLen_ = ring_len(_aData_)
+		if _nLen_ < 2 return ok
+		_aKeys_ = list(_nLen_)
+		for _i_ = 1 to _nLen_
+			@string = _aData_[_i_]
+			eval("_key_ = " + pcExpr)
+			_aKeys_[_i_] = _key_
+		next
+		for _i_ = 2 to _nLen_
+			_curKey_ = _aKeys_[_i_]
+			_curVal_ = _aData_[_i_]
+			_j_ = _i_ - 1
+			while _j_ >= 1 and _aKeys_[_j_] > _curKey_
+				_aKeys_[_j_ + 1] = _aKeys_[_j_]
+				_aData_[_j_ + 1] = _aData_[_j_]
+				_j_--
+			end
+			_aKeys_[_j_ + 1] = _curKey_
+			_aData_[_j_ + 1] = _curVal_
+		next
+		@acContent = _aData_
+
+		def SortByQ(pcExpr)
+			This.SortBy(pcExpr)
+			return This
+
 		def SortedDown()
 			return This.SortedInDescending()
 

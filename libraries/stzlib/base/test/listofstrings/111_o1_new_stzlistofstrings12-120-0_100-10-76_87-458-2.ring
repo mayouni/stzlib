@@ -3,11 +3,12 @@
 # o1 = new stzListOfStrings(["12-120-0", "100-10-76", "87-458-20"])
 #
 # Extracted from stzlistofstringstest.ring, block #111.
-#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 
 pr()
+
+o1 = new stzListOfStrings(["12-120-0", "100-10-76", "87-458-20"])
 
 o1.ReplaceSubString("-", :With = "_")
 ? o1.Content()

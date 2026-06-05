@@ -329,6 +329,17 @@ func StzListQ(paList)
 	func StzLitsQ(paList)
 		return StzListQ(paList)
 
+	# Narrative aliases used by listofstrings / listofnumbers etc.
+	# stzListOfStrings / stzListOfNumbers / stzListOfBytes live in
+	# their own modules but most string-list narrative examples just
+	# need a stzList. Provide the Q-form aliases that resolve back to
+	# stzListQ unless overridden by the type-specific class file.
+	func StzListOfStringsQ(paList)
+		return new stzListOfStrings(paList)
+
+	func ListOfStringsQ(paList)
+		return new stzListOfStrings(paList)
+
 #===
 
 func _ListSortingOrder(paList)
