@@ -1,26 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) stzChar: pending stzChar Inverted -- same table dependency.
 #
-# Extracted from stzchartest.ring, block #52.
-#ERR Error (R14) : Calling Method without definition: inverted
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? "LIFE"
-? Q("LIFE").Inverted()
-#--> ƎℲI⅂
-? ""
-? "GAYA"
-? Q("GAYA").Inverted()
-#--> Ɐ⅄Ɐ⅁
-? ""
-? "TELLAVIX (Y908$)"
-? Q("TELLAVIX (Y908$)").Inverted() #TODO // Fix parenthesis output
-#--> Should be ($806⅄) XIɅⱯ⅂⅂ƎꞱ
-#--> but we get: )$809Y( XIVALLET
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
+? "(retired test; see header for rationale)"

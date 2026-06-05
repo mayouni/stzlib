@@ -883,6 +883,15 @@ class stzStringChar from stzObject
 		def UnicodeName()
 			return This.Name()
 
+		# CharName / CharacterName -- word-order aliases used by
+		# narrative tests that read more naturally with `Char` in
+		# the verb (e.g. Q("✓").CharName() -> "CHECK MARK").
+		def CharName()
+			return This.Name()
+
+		def CharacterName()
+			return This.Name()
+
 	def NameIs(pcName)
 		if NOT isString(pcName)
 			return 0

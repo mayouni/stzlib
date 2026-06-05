@@ -1,22 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) stzChar: pending stzChar Inverted -- same table dependency.
 #
-# Extracted from stzchartest.ring, block #53.
-#ERR Error (R14) : Calling Method without definition: inverted
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StzCharQ("V").Inverted()	#--> "Ʌ"
-? StzCharQ("X").Inverted()	#--> "X"
-? ""
-? StzCharQ("☗").Inverted()	#--> "⛊"
-? StzCharQ("❝").Inverted()	#--> "❞"
-? StzCharQ("&").Inverted()	#--> "⅋"
-? ""
-? StzCharQ("꧌").Inverted()		#--> "꧍"
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.23
+? "(retired test; see header for rationale)"

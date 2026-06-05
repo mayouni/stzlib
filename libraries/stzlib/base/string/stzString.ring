@@ -2207,6 +2207,20 @@ class stzString from stzObject
 		ok
 		return StzCharToUnicode(This.Content())
 
+	# CharName / CharacterName / UnicodeName -- when the string IS a
+	# single character, return its Unicode name (CHECK MARK etc.).
+	# Convenient on Q("✓") narratives that avoid the StzCharQ() ramp.
+	# Ring chained-new+method parses oddly here, so split into two.
+	def CharName()
+		_oChCnTmp_ = new stzChar(This.Content())
+		return _oChCnTmp_.Name()
+
+		def CharacterName()
+			return This.CharName()
+
+		def UnicodeName()
+			return This.CharName()
+
 	def Unicodes()
 		_aUcChars_ = This.Chars()
 		_aUcResult_ = []
