@@ -3,7 +3,6 @@
 # Testing different plan templates
 #
 # Extracted from stzdatawranglertest.ring, block #13.
-#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

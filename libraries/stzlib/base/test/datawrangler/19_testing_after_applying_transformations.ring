@@ -3,7 +3,6 @@
 # Testing after applying transformations
 #
 # Extracted from stzdatawranglertest.ring, block #19.
-#ERR exit 1: +---------------------------+
 
 load "../../stzBase.ring"
 

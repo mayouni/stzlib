@@ -3,7 +3,6 @@
 # Customer database cleanup scenario
 #
 # Extracted from stzdatawranglertest.ring, block #24.
-#ERR exit 1: Initial customer database analysis:
 
 load "../../stzBase.ring"
 

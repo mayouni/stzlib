@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlistofliststest.ring, block #26.
-#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
 

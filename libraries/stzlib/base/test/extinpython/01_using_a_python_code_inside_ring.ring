@@ -3,7 +3,6 @@
 # Using a Python code inside Ring ===
 #
 # Extracted from stzextinpythonTest.ring, block #1.
-#ERR Error (R50) : Object does not support operator overloading
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzextinpythonTest.ring, block #2.
-#ERR Error (R50) : Object does not support operator overloading
 
 load "../../stzBase.ring"
 

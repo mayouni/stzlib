@@ -1934,7 +1934,60 @@ class stzListOfLists from stzList
 		def ExtendedToWithItemsRepeated(n)
 			This.ExtendedToByRepeatingItems(n)
 
+		# Word-order alias used by narrative tests.
+		def ExtendedToByRepeating(n)
+			return This.ExtendedToByRepeatingItems(n)
+
 		#>
+
+	# FindExtraItems / ExtraItems: relative to row 1's length, return
+	# the positions (FindExtraItems) or values (ExtraItems) of each
+	# row's items that lie BEYOND row 1's length. Row 1 itself gets
+	# an empty section.
+	def FindExtraItems()
+		_aData_ = This.Content()
+		_nRows_ = ring_len(_aData_)
+		if _nRows_ = 0 return [] ok
+		_nBase_ = ring_len(_aData_[1])
+		_aRes_ = []
+		for _i_ = 1 to _nRows_
+			_nLen_ = ring_len(_aData_[_i_])
+			_aPositions_ = []
+			if _nLen_ > _nBase_
+				for _j_ = _nBase_ + 1 to _nLen_
+					_aPositions_ + _j_
+				next
+			ok
+			_aRes_ + [ _i_, _aPositions_ ]
+		next
+		return _aRes_
+
+	def ExtraItems()
+		_aData_ = This.Content()
+		_nRows_ = ring_len(_aData_)
+		if _nRows_ = 0 return [] ok
+		_nBase_ = ring_len(_aData_[1])
+		_aRes_ = []
+		for _i_ = 1 to _nRows_
+			_aRow_ = _aData_[_i_]
+			_nLen_ = ring_len(_aRow_)
+			_aExtra_ = []
+			if _nLen_ > _nBase_
+				for _j_ = _nBase_ + 1 to _nLen_
+					_aExtra_ + _aRow_[_j_]
+				next
+			ok
+			_aRes_ + _aExtra_
+		next
+		return _aRes_
+
+	# ToListInString -- default text form. Delegate to the short form
+	# (matches the narrative-test expectation).
+	def ToListInString()
+		return This.ToListInStringInShortForm()
+
+		def ToListInStringQ()
+			return new stzString(This.ToListInString())
 
 	  #----------------------------------------------------------#
 	 #  EXTENDING THE LIST OF LISTS TO THE SIZE OF LARGER LIST  #

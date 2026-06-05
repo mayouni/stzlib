@@ -3,7 +3,6 @@
 # Survey response data standardization
 #
 # Extracted from stzdatawranglertest.ring, block #26.
-#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

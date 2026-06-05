@@ -3,7 +3,6 @@
 # Testing with single column data
 #
 # Extracted from stzdatawranglertest.ring, block #21.
-#ERR exit 1: Line 868 Bad parameter type!
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # EXAMPLE 2: Quality Control Analysis
 #
 # Extracted from stzdatasettest.ring, block #44.
-#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

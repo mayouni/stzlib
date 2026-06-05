@@ -3,7 +3,6 @@
 # Testing data type validation
 #
 # Extracted from stzdatawranglertest.ring, block #6.
-#ERR exit 1: +----------------------+
 
 load "../../stzBase.ring"
 
