@@ -4,7 +4,6 @@
 #
 # Extracted from stzcalendartest.ring, block #40.
 # @clock 2025-06-15 12:00:00
-#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

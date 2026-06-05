@@ -3,7 +3,6 @@
 # #   LISTEX - ENHANCED TEST SUITE      #
 #
 # Extracted from stzlistextest.ring, block #1.
-#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 

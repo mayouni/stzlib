@@ -3,7 +3,6 @@
 # #  ADVANCED TEST SAMPLE  #
 #
 # Extracted from stzGridTest.ring, block #15.
-#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 
