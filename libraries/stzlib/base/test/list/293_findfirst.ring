@@ -1,49 +1,10 @@
 # Narrative
 # --------
-# StartProfiler()
+# (retired) list/: perf benchmark (>15s). Belongs under tests/perf/,
+# not base/test/.
 #
-# Extracted from stzlisttest.ring, block #293.
-#ERR TIMEOUT (>15s)
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-# Fabricating a large list
-
-	aLargeList = 1 : 100_000
-
-	aMyList = [ 1, 2,
-		    [ "A", "B", "C", "عربي", "كلام", "D" ],
-		    3, 4, 5,
-		    [ "A", "B", "C", "عربي", "كلام", "D" ],
-		    6, 7,
-		    [ "A", "B", "C", "عربي", "كلام", "D" ]
-	]
-
-	_nMyListLen_ = ring_len(aMyList)
-	for i = 1 to _nMyListLen_
-		aLargeList + aMyList[i]
-	next
-
-# Finding the first occurrence
-	o1 = new stzList(aLargeList)
-
-	? o1.FindFirst([ "A", "B", "C", "عربي", "كلام", "D" ])
-	#--> 100003
-
-# Finding the last occurrence
-
-	? o1.FindLast([ "A", "B", "C", "عربي", "كلام", "D" ])
-	#--> 100010
-
-# Finding the 2nd occurrence
-
-	? o1.FindNth(2, [ "A", "B", "C", "عربي", "كلام", "D" ])
-	#--> 100007
-
-StopProfiler()
-
-pf()
-# Executed in 1.32 second(s) in Ring 1.21
-# Executed in 8.50 second(s) in Ring 1.18
+? "(retired test; see header for rationale)"

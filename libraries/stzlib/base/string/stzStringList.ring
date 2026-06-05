@@ -399,6 +399,12 @@ class stzStringList
 	def SortedInAscending()
 		return This.SortedInAscendingCS(1)
 
+		# Sorted() shorthand -- default ascending case-sensitive sort,
+		# used by narrative one-liners like `o.Sorted()` that don't
+		# distinguish direction.
+		def Sorted()
+			return This.SortedInAscendingCS(1)
+
 		def SortedUp()
 			return This.SortedInAscending()
 

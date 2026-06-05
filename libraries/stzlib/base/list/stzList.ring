@@ -995,6 +995,59 @@ class stzList from stzObject
 			This.StringifyUppercase()
 			return This
 
+	# StringifyLowercaseAndReplace / StringifyUppercaseAndReplace --
+	# stringify + lower (or upper) every string item, THEN replace
+	# every occurrence of pItem with pWith. XT variant is alias.
+	def StringifyLowercaseAndReplace(pItem, pWith)
+		if isList(pWith) and ring_len(pWith) = 2 and isString(pWith[1])
+			pWith = pWith[2]
+		ok
+		This.StringifyLowercase()
+		_aData_ = @aContent
+		_nLen_ = ring_len(_aData_)
+		for _i_ = 1 to _nLen_
+			if _aData_[_i_] = pItem
+				_aData_[_i_] = pWith
+			ok
+		next
+		@aContent = _aData_
+
+		def StringifyLowercaseAndReplaceQ(pItem, pWith)
+			This.StringifyLowercaseAndReplace(pItem, pWith)
+			return This
+
+		def StringifyLowercaseAndReplaceXT(pItem, pWith)
+			This.StringifyLowercaseAndReplace(pItem, pWith)
+
+		def StringifyLowercaseAndReplaceXTQ(pItem, pWith)
+			This.StringifyLowercaseAndReplace(pItem, pWith)
+			return This
+
+	def StringifyUppercaseAndReplace(pItem, pWith)
+		if isList(pWith) and ring_len(pWith) = 2 and isString(pWith[1])
+			pWith = pWith[2]
+		ok
+		This.StringifyUppercase()
+		_aData_ = @aContent
+		_nLen_ = ring_len(_aData_)
+		for _i_ = 1 to _nLen_
+			if _aData_[_i_] = pItem
+				_aData_[_i_] = pWith
+			ok
+		next
+		@aContent = _aData_
+
+		def StringifyUppercaseAndReplaceQ(pItem, pWith)
+			This.StringifyUppercaseAndReplace(pItem, pWith)
+			return This
+
+		def StringifyUppercaseAndReplaceXT(pItem, pWith)
+			This.StringifyUppercaseAndReplace(pItem, pWith)
+
+		def StringifyUppercaseAndReplaceXTQ(pItem, pWith)
+			This.StringifyUppercaseAndReplace(pItem, pWith)
+			return This
+
 	  #=================================================#
 	 #  CONTAINS DELEGATIONS (via stzListComparator)    #
 	#=================================================#
@@ -3278,6 +3331,34 @@ class stzList from stzObject
 				pnStartingAt = pnStartingAt[2]
 			ok
 			return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+	# FindNthPrevious(n, pItem, pnStartingAt): word-order alias over
+	# FindPreviousNthOccurrence -- find the Nth occurrence of pItem
+	# walking backwards from pnStartingAt. Accepts :StartingAt = n.
+	def FindNthPrevious(n, pItem, pnStartingAt)
+		if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+			pnStartingAt = pnStartingAt[2]
+		ok
+		return This.FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, 1)
+
+		def FindNthPreviousCS(n, pItem, pnStartingAt, pCaseSensitive)
+			if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+				pnStartingAt = pnStartingAt[2]
+			ok
+			return This.FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+	# FindNthNext(n, pItem, pnStartingAt): symmetric forward variant.
+	def FindNthNext(n, pItem, pnStartingAt)
+		if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+			pnStartingAt = pnStartingAt[2]
+		ok
+		return This.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, 1)
+
+		def FindNthNextCS(n, pItem, pnStartingAt, pCaseSensitive)
+			if isList(pnStartingAt) and ring_len(pnStartingAt) = 2
+				pnStartingAt = pnStartingAt[2]
+			ok
+			return This.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 
 	def FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 		_oFpnoFinder_ = new stzListFinder(This)
