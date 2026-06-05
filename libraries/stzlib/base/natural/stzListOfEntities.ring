@@ -1,6 +1,21 @@
 func StzListOfEntitiesQ(paList)
 	return new stzListOfEntities(paList)
 
+# Error-message dispatcher used by stzListOfEntities.AddEntity*.
+# Codes map to the same human-readable messages the original
+# (max-tier) module exposed -- keep wording terse but identifiable.
+func stzListOfEntitiesError(pcCode)
+	switch pcCode
+	on :CanNotAddThisEntityTwice
+		return "Can't add the same entity twice to a stzListOfEntities."
+	on :CanNotAddEntityWithoutName
+		return "Can't add an entity without a :name key."
+	on :CanNotAddNotAHashList
+		return "Can't add a non-hashlist value as an entity."
+	other
+		return "Unknown stzListOfEntities error: " + pcCode
+	off
+
 func IsListOfEntities(paList)
 	if CheckingParams()
 		if NOT isList(paList)
@@ -267,10 +282,35 @@ class stzListOfEntities from stzList
 		@aListOfEntities = []
 
 	def SortByName()
-		@aListOfEntities = StzListQ(@aListOfEntities).SortedBy(:name)
+		# Sort hashlists by the :name key value. No stzList SortedBy --
+		# do it inline with a hoisted-length pass + insertion sort over
+		# the small entity list (usually < a few hundred items).
+		_aData_ = @aListOfEntities
+		_nLen_ = ring_len(_aData_)
+		for _i_ = 2 to _nLen_
+			_oCur_ = _aData_[_i_]
+			_j_ = _i_ - 1
+			while _j_ >= 1 and strcmp(_aData_[_j_][:name], _oCur_[:name]) > 0
+				_aData_[_j_ + 1] = _aData_[_j_]
+				_j_--
+			end
+			_aData_[_j_ + 1] = _oCur_
+		next
+		@aListOfEntities = _aData_
 
 	def SortByType()
-		@aListOfEntities = StzListQ(@aListOfEntities).SortedBy(:type)
+		_aData_ = @aListOfEntities
+		_nLen_ = ring_len(_aData_)
+		for _i_ = 2 to _nLen_
+			_oCur_ = _aData_[_i_]
+			_j_ = _i_ - 1
+			while _j_ >= 1 and strcmp(_aData_[_j_][:type], _oCur_[:type]) > 0
+				_aData_[_j_ + 1] = _aData_[_j_]
+				_j_--
+			end
+			_aData_[_j_ + 1] = _oCur_
+		next
+		@aListOfEntities = _aData_
 
 	def FilterByType(pcType)
 		return new stzListOfEntities( This.EntitiesOfType(pcType) )

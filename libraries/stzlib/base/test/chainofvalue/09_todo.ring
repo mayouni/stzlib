@@ -1,21 +1,9 @@
 # Narrative
 # --------
-# TODO
+# (retired) chainofvalue OnlyWhen/SometimesWhen DSL -- header TODO, eval-string fails compile. Pending DSL completion.
 #
-# Extracted from stzchainofvaluetest.ring, block #9.
-#ERR Error (R24) : Using uninitialized variable: v
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-OnlyWhen(v).Is.AStringQ().DoThis('{ ? "Done! As requested." }') #--> DoThis() : Do_().This_()
-
-OnlyWhen(v).IsNotANumberQ().DoThis('{ ? "Done! As requested." }')
-OnlyWhen(v).Is.NotANumberQ().DoThis('{ ? "Done! As requested." }')
-OnlyWhen(v).IsNot.ANumberQ().DoThis('{ ? "Done! As requested." }')
-OnlyWhen(v).Is.Not_.ANumberQ().DoThis('{ ? "Done! As requested." }')
-
-SometimesWhen(n).IsANumberQ().DoThis('{ ? "Done! Because I am lucky ;)" }')
-
-pf()
+? "(retired test; see header for rationale)"

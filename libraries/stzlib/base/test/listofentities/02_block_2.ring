@@ -3,14 +3,14 @@
 # */
 #
 # Extracted from stzListOfEntitiesTest.ring, block #2.
-#ERR Error (R16) : Using braces to access unknown object
 
 load "../../stzBase.ring"
 
 pr()
 
 # While this will work
-o1 = new stzListOfEntities([]) {
+o1 = new stzListOfEntities([])
+o1 {
 	AddEntity([ :name = "Apple", :type = "Company" ])
 	AddEntity([ :name = "Apple", :type = "Fruit" ])
 
