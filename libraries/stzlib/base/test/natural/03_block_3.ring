@@ -2,12 +2,12 @@
 # --------
 #
 # Extracted from stznaturaltest.ring, block #3.
-#ERR Error (C31) : Parentheses '(' is expected
 
 load "../../stzBase.ring"
 
 pr()
 
+Naturally('
 Yesterday I thought about {+fruits:list ~1} and came up with {~1 ["banana", "apple", "cherry"]}.
 What did I call them? {?name}
 How many are there? {?count}
@@ -21,5 +21,6 @@ What if I {^joinXT ~2} the {~1 other:list} I made above using {~2 " | "} as a sp
 What {?type} is that?
 Let me {boxXT ~2} it with {~1 rounded=true} and {~2 hashed=true}.
 Beautiful: {show-0it}
+')
 
 pf()

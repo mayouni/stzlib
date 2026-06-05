@@ -3,7 +3,6 @@
 # UPDATING FILES (read + sophisticated update intent)
 #
 # Extracted from stzfiletest.ring, block #6.
-#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 
@@ -23,7 +22,7 @@ ObsoleteSetting=remove_me
 
 # Create it manually (or by code) before runnin the sample
 
-oUpdater = FileModify("settings.txt")
+oUpdater = FileModifier("settings.txt")
     # Can read original and current content
     aOriginalLines = oUpdater.OriginalLines()
     cCurrentContent = oUpdater.Content()

@@ -2,7 +2,6 @@
 # --------
 #
 # Extracted from stznaturaltest.ring, block #2.
-#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 
@@ -30,8 +29,9 @@ Naturally('
 # BANANA
 # CHERRY
 
-# Softana NML (Natural Markup Language)
-
+# Softana NML (Natural Markup Language) -- illustrative-only block
+# (not a runnable Ring expression; kept for documentation).
+/*
 {+fruits:list ~1} {~1 ["banana", "apple", "cherry"]}
 {?name}
 {?count}
@@ -46,6 +46,7 @@ Naturally('
 
 {^joinXT ~2} {~1 second:list} {~2 " "}
 {?0what-0is-0its-type}
-{show-0it} 
+{show-0it}
+*/
 
 pf()

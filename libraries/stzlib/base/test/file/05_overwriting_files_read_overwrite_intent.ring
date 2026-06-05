@@ -3,14 +3,13 @@
 # OVERWRITING FILES (read + overwrite intent)
 #
 # Extracted from stzfiletest.ring, block #5.
-#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 
 
 pr()
 
-oOverwriter = FileOverwrite("output.txt") # Created if inexistant
+oOverwriter = FileOverwriter("output.txt") # Created if inexistant
     # Can access original content before overwriting
     cOriginal = oOverwriter.OriginalContent()
     aOriginalLines = oOverwriter.OriginalLines()

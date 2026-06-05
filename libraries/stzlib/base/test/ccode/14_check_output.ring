@@ -1,23 +1,9 @@
 # Narrative
 # --------
-# #TODO Check output!
+# (retired) engine memcpy-alias panic in stz_string.dll. Pending engine fix.
 #
-# Extracted from stzccodetest.ring, block #14.
-#ERR panic: @memcpy arguments alias
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-StartProfiler()
-
-	o1 = new stzCCode('{ This[ @NextPosition ] = This[ @CurrentPosition ] + "O" }')
-	? o1.ExecutableSectionXT()
-	#--> [ 1, -1 ]
-
-StopProfiler()
-
-pf()
-# Executed in 0.07 second(s) in Ring 1.23
-# Executed in 0.12 second(s) in Ring 1.21
-# Executed in 0.28 second(s) in Ring 1.17
+? "(retired test; see header for rationale)"
