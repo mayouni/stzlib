@@ -3,7 +3,6 @@
 # Histogram with percentage display
 #
 # Extracted from stzPlotTest.ring, block #51.
-#ERR Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
 

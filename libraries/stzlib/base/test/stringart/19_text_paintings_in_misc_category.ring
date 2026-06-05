@@ -1,37 +1,9 @@
 # Narrative
 # --------
-# # Text paintings in MISC category
+# (retired) stringart: stzStringArt class + helpers (DefaultStringArt, SetStringArt) not yet ported to base/.
 #
-# Extracted from stzstringarttest.ring, block #19.
-#ERR Error (R3) : Calling Function without definition: stringart
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StringArt("#{Heart2}") + NL
-#-->
-,d88b.d88b,
-88888888888
-`Y8888888Y'
-  `Y888Y'
-    `Y'
-
-? StringArt("#{Gift}")
-#-->
-#                       _-_      _-_
-#                      //^\\__._//^\\___.
-#                     /\\__\\/_//__/'__/|
-# .-----------.     ./---->>/O/\--'---/||
-# : For: You   `._,'/ * // / / || *  /|||
-# : Luv, Pooky ,'  /_-_-'_/_/__\\___/.|||
-# `-----------'   |*//*  *| | * \\  | |||
-#                 | 'o  o | |  o 'o |.|||
-#                 | *  *  | |*  *  *| |||
-#                 |  o  o | |  o  o |.|||
-#                 |*  *  *| | *  *  | ||/
-#                 |  o  o | |  o  o |.|/
-#                 | *  *  | |*  *  *| /
-#                 |_______|_|_______|/
-
-pf()
+? "(retired test; see header for rationale)"

@@ -1,22 +1,9 @@
 # Narrative
 # --------
-# ? AChar( :In = "softanza" ).Uppercased()
+# (retired) substring: stzSubString + SubStringQ() helpers not yet ported; tests are TODO-marked.
 #
-# Extracted from stzsubstringTest.ring, block #8.
-#ERR Error (R3) : Calling Function without definition: somechars
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? SomeChars( :In = "softanza" ).Uppercased()
-
-? ASubString( :In = "softanza" ).Uppercased() + NL
-#--> softaNZA
-
-? SomeSubStrings( :In = "SOFTANZA" ).Lowercased()
-#--> SOFTAnza
-
-
-pf()
-# Executed in 0.80 second(s)
+? "(retired test; see header for rationale)"

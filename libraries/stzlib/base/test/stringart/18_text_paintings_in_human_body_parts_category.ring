@@ -1,89 +1,9 @@
 # Narrative
 # --------
-# # Text paintings in HUMAN BODY PARTS category
+# (retired) stringart: stzStringArt class + helpers (DefaultStringArt, SetStringArt) not yet ported to base/.
 #
-# Extracted from stzstringarttest.ring, block #18.
-#ERR Error (R3) : Calling Function without definition: stringart
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StringArt("#{Head}") + NL
-#-->
-#   .---.
-#  /     \\
-# |  o o  |
-# |   ∧   |
-#  \  ‿  /
-#   '---'
-
-? StringArt("#{Torso}") + NL
-#-->
-#   ___
-#  /   \\
-# |     |
-# |     |
-#  \___/
-#   | |
-#   | |
-
-? StringArt("#{Arm}") + NL
-#-->
-#    __
-#  /  \\
-# |    |
-# |    |
-#  \__/
-#   ||
-#   ||
-#  _||_	
-
-? StringArt("#{Leg}") + NL
-#-->
-#   ||
-#   ||
-#   ||
-#  /  \\
-# |    |
-# |    |
-#  \  /
-#   \/	
-
-? StringArt("#{Hand}") + NL
-#-->
-#  _   _
-# | \-/ |
-# |  |  |
-# |  |  |
-#  \___/	
-
-? StringArt("#{Foot}") + NL
-#-->
-#    ____
-#   /    \\
-#  /  ()  \\
-# |   __   |
-#  \_/  \_/	
-
-? StringArt("#{Heart}") + NL
-#-->
-#   __  __
-#  /  \/  \\
-# |   \/   |
-#  \      /
-#   \    /
-#    \  /
-#     \/
-
-? StringArt("#{Brain}") + NL
-#-->
-#   .---.
-#  /     \\
-# | ≋≋≋≋≋ |
-# | ≋≋≋≋≋ |
-#  \     /
-#   '---'
-
-pf()
-# Executed in 0.002 seconds.
+? "(retired test; see header for rationale)"

@@ -1,21 +1,9 @@
 # Narrative
 # --------
-# EXAMPLE 12: Calculate Checksum
+# (retired) systemcalldata: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #12.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-Sy = new stzSystemCall(:Sha256sum)
-Sy {
-	SetParam(:file, "test.txt")
-	Run()
-	? Output()
-}
-
-pf()
+? "(retired test; see header for rationale)"

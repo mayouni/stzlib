@@ -1,32 +1,9 @@
 # Narrative
 # --------
-# # StringArtXT() does not alter default c
+# (retired) stringart: stzStringArt class + helpers (DefaultStringArt, SetStringArt) not yet ported to base/.
 #
-# Extracted from stzstringarttest.ring, block #1.
-#ERR Error (R3) : Calling Function without definition: defaultstringartstyle
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? DefaultStringArtStyle()
-#--> retro
-
-? "SOFTANZA LOVES"
-? StringArtXT("ring", :flower) # Does not change the default gloabl style
-#-->
-# SOFTANZA LOVES
-# .-------.     .-./`)  ,---.   .--.   .-_'''-.   
-# |  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
-# | ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
-# |(_ o _) /     `-'`'` |  |\_ \|  | . (_,_)/___| 
-# | (_,_).' __   .---.  |  _( )_\  | |  |  .-----.
-# |  |\ \  |  |  |   |  | (_ o _)  | '  \  '-   .'
-# |  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
-# |  |  \    /   |   |  |  |    |  |   \        / 
-# ''-'   `'-'    '---'  '--'    '--'    `'-...-'
-
-? DefaultStringArtStyle()
-#--> retro
-
-pf()
+? "(retired test; see header for rationale)"

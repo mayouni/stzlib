@@ -1,75 +1,9 @@
 # Narrative
 # --------
-# # Text paintings in TRANSPORTATION category
+# (retired) stringart: stzStringArt class + helpers (DefaultStringArt, SetStringArt) not yet ported to base/.
 #
-# Extracted from stzstringarttest.ring, block #12.
-#ERR Error (R3) : Calling Function without definition: stringart
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StringArt("#{Rocket}") + NL
-#-->
-#      △
-#     ╱▲╲
-#    ╱╱ ╲╲
-#   ╱╱···╲╲
-#  ╱╱·····╲╲
-# ╱╱┌─────┐╲╲
-# │││ ▓▓▓ │││
-# │││ ▓▓▓ │││
-# ╰╰───────╯╯
-#  ╰┌─────┐╯
-#   │ ███ │
-#   │ ███ │
-#   ╰─────╯
-
-? StringArt("#{Flagpole}") + NL
-#-->
-# ┌─┐
-# │█│
-# │█│
-# │█│
-# │█│🚩
-# │█│
-# │█│
-# │█│
-# └─┘
-
-? StringArt("#{Plane}") + NL
-#-->
-#        ✈
-#     __|__
-# --o--(_)--o--
-
-? StringArt("#{Car}") + NL
-#-->
-#     ____
-#  __/  |_ \_
-# |  _     _``-.
-# '-(_)---(_)--'
-
-? StringArt("#{Truck}") + NL
-#-->
-#    _____
-#  _| ____|__
-# |__[°  °]__|
-# '-(o)--(o)-'
-
-? StringArt("#{Bike}") + NL
-#-->
-#    __o
-#  _`\<,_
-# (*)/ (*)
-
-? StringArt("#{Spaceship}")
-#-->
-#    /\
-#  _/__\_
-# |  \/  |
-# |(◯◯)|
-# |__/\__|
-#  '--'--'
-
-pf()
+? "(retired test; see header for rationale)"

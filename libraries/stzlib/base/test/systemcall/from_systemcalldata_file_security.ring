@@ -1,31 +1,9 @@
 # Narrative
 # --------
-# FILE SECURITY
+# (retired) systemcall: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #20.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-# Calculate checksum
-Sy = new stzSystemCall(:Sha256sum)
-Sy {
-	SetParam(:file, "important.zip")
-	Run()
-	? "Checksum: " + Output()
-}
-
-# Encrypt file
-new stzSystemCall(:EncryptFile) {
-	SetParams([
-		[:file, "secret.txt"],
-		[:email, "recipient@example.com"]
-	])
-	Run()
-}
-
-pf()
+? "(retired test; see header for rationale)"

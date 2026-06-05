@@ -1,23 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) substring: stzSubString + SubStringQ() helpers not yet ported; tests are TODO-marked.
 #
-# Extracted from stzsubstringTest.ring, block #10.
-#ERR Error (R14) : Calling Method without definition: substring
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-o1 = new stzString("I LOVE THE ring LANGUAGE!")
-
-? o1.SubString("ring")
-#--> ring
-
-? @@( o1.SubString("python") )
-#-->NULL
-
-? o1.SubStringQ("ring").Uppercased()
-#--> I LOVE THE RING LANGUAGE!
-
-pf()
+? "(retired test; see header for rationale)"

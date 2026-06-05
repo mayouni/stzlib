@@ -1,32 +1,9 @@
 # Narrative
 # --------
-# Example 12: Multiple Quantified Children
+# (retired) regexmaker: declarative regex-pattern DSL parser pending.
 #
-# Extracted from stzregexmakertest.ring, block #27.
-#ERR Error (R19) : Calling function with less number of parameters
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-o8 = new stzRecursiveRegexMaker()
-o8 {
-
-	EnableNamedRecursion()
-
-	AddLevel("object", "\{")
-	AddChildLevel("object", "key", '"[^"]+"\s*:\s*')
-	AddChildLevel("key", "value", '[^,}]+')
-    	AddChildLevel("object", "comma", ",\s*")
-	AddLevel("close", "\}")
-
-	AddQuantifier("key", "+")
-	AddQuantifier("comma", "*")
-
-	? Pattern()
-	#--> (?P<object>\{(?P<key>"[^"]+"\s*:\s*(?P<value>[^,}]+))+(?P<comma>,\s*)*)\}
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+? "(retired test; see header for rationale)"

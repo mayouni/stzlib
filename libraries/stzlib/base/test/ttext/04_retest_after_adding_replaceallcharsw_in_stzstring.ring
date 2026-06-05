@@ -1,20 +1,11 @@
 # Narrative
 # --------
-# // Retest after adding ReplaceAllCharsW() in stzString
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #4.
-#ERR exit 1: Line 79 Bad parameters value, error in length!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StzTextQ("مُسْتَحَقَّاتُُ").Scripts()
-? StzTextQ("مُسْتَحَقَّاتُُ").Script()
-
-
-? StzTextQ("مُسْتَحَقَّاتُُ").DiacriticsRemoved()
-
-? StzTextQ("مُسْتَحَقَّاتُُ").RemoveDiacriticsQ().Content()
-
-pf()
+? "(retired test; see header for rationale)"

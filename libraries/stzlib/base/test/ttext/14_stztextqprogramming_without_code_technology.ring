@@ -1,22 +1,11 @@
 # Narrative
 # --------
-# StzTextQ("Programming Without Code Technology") {
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #14.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	? Initials()
-	#--> [ "P", "W", "C", "T" ]
-
-	? InitialsAsString()
-	#--> PWCT
-
-	# Or you can return any type you need using the QRT() construct:
-	? InitialsQRT(:stzString).Content()
-}
-
-pf()
+? "(retired test; see header for rationale)"

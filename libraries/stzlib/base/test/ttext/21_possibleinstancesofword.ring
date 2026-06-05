@@ -1,26 +1,11 @@
 # Narrative
 # --------
-# //////////////////////////////////////
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #21.
-#ERR Error (R3) : Calling Function without definition: possibleinstancesofword
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-# Finally, to bettter undersand what happens internally
-# while Softanza analyses a text and try to recognize
-# its words, these are the two simple steps performed:
-
-# First, The instructions we saw in the above section, are used to
-# generate a list of all possible instances of a given word
-# in start, middle and and end of sentence. Like this:
-
-
-? PossibleInstancesOfWord("Mahmoud")
-
-# Then, those instances are searched one by one inside the text, so
-# we can find all the possible forms the word takes in the text.
-
-pf()
+? "(retired test; see header for rationale)"

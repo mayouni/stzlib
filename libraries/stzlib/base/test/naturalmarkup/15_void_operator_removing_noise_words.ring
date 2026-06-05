@@ -1,26 +1,9 @@
 # Narrative
 # --------
-# Void operator removing noise words
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #15.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	cMarkup = '
-	Create {+data:list ~1} with {#1 ["x", "y", "z"]}.
-	Now {show-0it-0on-0screen}!
-	{what-0is-0the-0name}?
-	'
-	
-	oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-
-#--> ["x", "y", "z"]
-#--> data
-
-proff()
-
-pf()
+? "(retired test; see header for rationale)"

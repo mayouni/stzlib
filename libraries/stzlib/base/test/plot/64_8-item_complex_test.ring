@@ -3,7 +3,6 @@
 # 8-item complex test
 #
 # Extracted from stzPlotTest.ring, block #64.
-#ERR Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
 

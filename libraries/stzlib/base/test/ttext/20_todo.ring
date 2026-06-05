@@ -1,40 +1,11 @@
 # Narrative
 # --------
-# TODO
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #20.
-#ERR Error (R3) : Calling Function without definition: charsallowedinstartofword
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-# Besides this, and for total control on how Softanza does its job,
-# other useful instructions are provided to fine-tune the inherent
-# words identification process (see examples below).
-
-# Like their StopWordsMustBeRemoved() and StopWordsMustNotBeRemoved()
-# sister instructions, they are defined at the global level, to make
-# them easy to use, and will affect any function related to words,
-# like NumberOfWords(), FindWords(), Words(), ReplaceWord(), etc.
-
-? CharsAllowedInStartOfWord()
-? CharsNotAllowedInStartOfWord()
-? SubstringsAllowedInStartOfWord()
-? SubstringsNotAllowedInStartOfWord()
-? "---"
-? CharsAllowedInsideWord()
-? CharsNotAllowedInsideWord()
-? SubstringsAllowedInsideWord()
-? SubstringsNotAllowedInsideWord()
-? "---"
-? CharsAllowedInEndOfWord()
-? CharsNotAllowedInEndOfWord()
-? SubstringsAllowedInEndOfWord()
-? SubstringsNotAllowedInEndOfWord()
-
-# Hence, those instructions define what king of chars,
-# in plus of letters themselves, should be considered
-# by softanza in identifying words...
-
-pf()
+? "(retired test; see header for rationale)"

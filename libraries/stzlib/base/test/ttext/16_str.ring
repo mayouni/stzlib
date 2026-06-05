@@ -1,31 +1,11 @@
 # Narrative
 # --------
-# str = "
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #16.
-#ERR exit 1: Error (S1) In file: 16_str.ring
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-ليكن هذا النّصّ العربّي، هل من قارئ له؟ لا؟! لا بأس: سنحاول...
-"
-
-StzTextQ(str) {
-
-	? NumberOfPunctuations() #--> 8
-	? Punctuations() #--> [ "،","؟","؟","!",":",".",".","." ]
-
-	? NumberOfUniquePunctuations() #--> 5
-	? UniquePunctuations() #--> [ "،","؟","!",":","." ]
-
-	? NumberOfGeneralPunctuations() #--> 0
-	? GeneralPunctuations() #--> [ ]
-
-	? NumberOfSupplementalPunctuations() #--> 0
-	? SupplementalPunctuations() #--> [ ]
-
-}
-
-pf()
+? "(retired test; see header for rationale)"

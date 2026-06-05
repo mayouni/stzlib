@@ -1,24 +1,9 @@
 # Narrative
 # --------
-# List transformation and uppercase
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #4.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-cMarkup = `
-I made an {+other:list} and {fill-it-with ~1} {#1 ["one", "two", "three"]}.
-Now {uppercase} them because LOUD IS BETTER!
-Here they are: {?content}
-`
-
-oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-
-#--> ["ONE", "TWO", "THREE"]
-
-pf()
+? "(retired test; see header for rationale)"

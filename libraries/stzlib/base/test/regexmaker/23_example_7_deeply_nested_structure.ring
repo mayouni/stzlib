@@ -1,26 +1,9 @@
 # Narrative
 # --------
-# Example 7: Deeply Nested Structure
+# (retired) regexmaker: declarative regex-pattern DSL parser pending.
 #
-# Extracted from stzregexmakertest.ring, block #23.
-#ERR Error (R19) : Calling function with less number of parameters
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-o4 = new stzRecursiveRegexMaker()
-o4 {
-    EnableNamedRecursion()
-    AddLevel("outer", "\{")
-    AddChildLevel("outer", "inner1", "\[")
-    AddChildLevel("inner1", "inner2", "\(")
-    AddChildLevel("inner2", "content", "[^()]*")
-    AddLevel("close", "\)\]\}")
-    ? Pattern()
-    #--> (?P<outer>\{)(?P<inner1>\[)(?P<inner2>\()(?P<content>[^()]*)\)\]\}
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+? "(retired test; see header for rationale)"

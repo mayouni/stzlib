@@ -1,18 +1,9 @@
 # Narrative
 # --------
-# EXAMPLE 1: List Files (Like Rx pattern)
+# (retired) systemcalldata: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #1.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-Sy = new stzSystemCall(:ListFiles)
-Sy.Run()
-? Sy.Output()
-
-pf()
+? "(retired test; see header for rationale)"

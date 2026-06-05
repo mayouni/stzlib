@@ -1,55 +1,9 @@
 # Narrative
 # --------
-# */
+# (retired) stringart: stzStringArt class + helpers (DefaultStringArt, SetStringArt) not yet ported to base/.
 #
-# Extracted from stzstringarttest.ring, block #3.
-#ERR Error (R11) : Error in class name, class not found: stzstringart
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-o1 = new stzStringArt("SOFTANZA")
-o1 {
-
-	? "~> " + Style() + NL # Default style
-	? Artify() + NL
-
-	SetStyle(:geo)
-	? "~> " + Style() + NL
-	? Artify() + NL
-
-	SetStyle(:neon)
-	? "~> " + Style() + NL
-	? Boxify() + NL
-
-}
-
-#-->
-# ~> retro
-#
-# ░▄███▄░ ██░░░██ ███████ ░▄███▄░ ██░░░██ ███████ ░▄███▄░
-# ██▀░▀██ ███░░██ ░░██░░░ ██▀░▀██ ███░░██ ░░██░░░ ██▀░▀██
-# ███████ ██▀█░██ ░░██░░░ ██░░░██ ██▀█░██ ░░██░░░ ██░░░██
-# ██░░░██ ██░▀███ ░░██░░░ ██▄░▄██ ██░▀███ ░░██░░░ ██▄░▄██
-# ██░░░██ ██░░░██ ░░██░░░ ░▀███▀░ ██░░░██ ███████ ░▀███▀░
-# 
-#
-# ~> geo
-#
-#   ╭─╮   ╭╮   ╭╮ ╭─────╮  ╭───╮  ╭╮   ╭╮ ╭───╮  ╭───╮ 
-#  ╱   ╲  │╰╮  ││ ╰──┬──╯ ╱ ╭─╮ ╲ │╰╮  ││  ╱│╲  ╱ ╭─╮ ╲
-# ╱─────╲ │ ╰╮ ││    │    │ │ │ │ │ ╰╮ ││   │   │ │ │ │
-# │ ╭─╮ │ │  ╰╮││    │    ╲ ╰─╯ ╱ │  ╰╮││  ╲│╱  ╲ ╰─╯ ╱
-# ╰─╯ ╰─╯ ╰╮  ╰╯╯   ╯╰─    ╰───╯  ╰╮  ╰╯╯ ╰───╯  ╰───╯ 
-#
-# ~> neon
-#
-# ╭━━━╮ ╭━╮ ╭╮ ╭━━━━╮ ╭━━━╮ ╭━╮ ╭╮ ╭━━━╮ ╭━━━╮
-# ┃╭━╮┃ ┃┃╰╮┃┃ ┃ ┃┃ ┃ ┃╭━╮┃ ┃┃╰╮┃┃ ┃┃┃┃┃ ┃╭━╮┃
-# ┃┃━┃┃ ┃╭╮╰╯┃   ┃┃   ┃┃ ┃┃ ┃╭╮╰╯┃  ┃┃┃  ┃┃ ┃┃
-# ┃┃ ┃┃ ┃┃╰╮┃┃   ┃┃   ┃╰━╯┃ ┃┃╰╮┃┃ ┃┃┃┃┃ ┃╰━╯┃
-# ╰━ ━╯ ╰╯ ╰━╯   ╰╯   ╰━━━╯ ╰╯ ╰━╯ ╰━━━╯ ╰━━━╯
-
-pf()
-# Executed in 0.006 seconds.
+? "(retired test; see header for rationale)"

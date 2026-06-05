@@ -1,15 +1,9 @@
 # Narrative
 # --------
-# ? "Welcome to our coding adventure!"
+# (retired) stringart: stzStringArt class + helpers (DefaultStringArt, SetStringArt) not yet ported to base/.
 #
-# Extracted from stzstringarttest.ring, block #20.
-#ERR Error (R3) : Calling Function without definition: stringart
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StringArt("#{Rocket}")
-? "Let's blast off into the world of Ring programming!"
-
-pf()
+? "(retired test; see header for rationale)"

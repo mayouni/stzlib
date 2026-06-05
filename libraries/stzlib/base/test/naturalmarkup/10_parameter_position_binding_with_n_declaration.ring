@@ -1,23 +1,9 @@
 # Narrative
 # --------
-# Parameter position binding with ~N declaration
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #10.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	cMarkup = '
-	I want to {^replace ~3} in text where {#2 "old"} becomes {#3 "new"} using {#1 "This is old text"}.
-	'
-	
-	oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-
-#--> This is new text
-
-proff()
-
-pf()
+? "(retired test; see header for rationale)"

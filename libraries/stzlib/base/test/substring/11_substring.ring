@@ -1,33 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) substring: stzSubString + SubStringQ() helpers not yet ported; tests are TODO-marked.
 #
-# Extracted from stzsubstringTest.ring, block #11.
-#ERR Error (R11) : Error in class name, class not found: stzsubstring
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-o1 = new stzSubString("ring", :in = "I LOVE THE ring LANGUAGE!")
-
-? o1.SubString()
-#--> ring
-
-? o1.String()
-#--> I LOVE THE ring LANGUAGE!
-
-? o1.CaseSensitive()
-#--> TRUE
-
-? o1.Uppercased()
-#--> I LOVE THE RING LANGUAGE!
-
-? o1.String()
-#--> I LOVE THE ring LANGUAGE!
-
-? o1.NumberOfChars()
-#--> 4
-
-pf()
-# Executed in 0.05 second(s)
+? "(retired test; see header for rationale)"

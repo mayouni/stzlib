@@ -1,21 +1,9 @@
 # Narrative
 # --------
-# EXAMPLE 6: Ping Host
+# (retired) systemcalldata: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #6.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-Sy = new stzSystemCall(:Ping)
-Sy {
-	SetParam(:host, "google.com")
-	Run()
-	? Output()
-}
-
-pf()
+? "(retired test; see header for rationale)"

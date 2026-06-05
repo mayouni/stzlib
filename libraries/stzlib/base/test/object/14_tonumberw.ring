@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzObjectTest.ring, block #14.
-#ERR panic: integer does not fit in destination type
 
 load "../../stzBase.ring"
 

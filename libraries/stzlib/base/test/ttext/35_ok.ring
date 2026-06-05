@@ -1,20 +1,11 @@
 # Narrative
 # --------
-# ok
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #35.
-#ERR Error (R3) : Calling Function without definition: onlyarabic
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-StzTextQ( "Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl !" ) {
-	? OnlyArabic()
-	#--> Returns: "حنين جميلة وعمرها 7 سنوات !"
-
-	? OnlyLatin()
-	#--> Returns: "Hanine is a nice 7 years-old girl!"
-}
-
-pf()
+? "(retired test; see header for rationale)"

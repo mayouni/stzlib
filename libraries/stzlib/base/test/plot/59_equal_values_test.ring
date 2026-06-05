@@ -3,7 +3,6 @@
 # Equal values test
 #
 # Extracted from stzPlotTest.ring, block #59.
-#ERR Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
 

@@ -1,22 +1,9 @@
 # Narrative
 # --------
-# pr()
+# (retired) baturalcode: baturalcode DSL relies on stzString IsUppercase/LengthQ/AreNegative wrappers; ported piecemeal as needed by Softanza natural narratives.
 #
-# Extracted from stzbaturalcodetest.ring, block #8.
-#ERR Error (R14) : Calling Method without definition: arenegative
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).ThatQ().AreNegative()
-#--> TRUE
-
-? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).WhichQ().CanBeDividedBy(10)
-#--> TRUE
-
-? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).ThatQ().AreNegativeQ().AndQ().DividableBy(10)
-#--> TRUE
-
-pf()
-# Executed in 0.07 second(s) in Ring 1.23
+? "(retired test; see header for rationale)"

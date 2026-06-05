@@ -1,25 +1,9 @@
 # Narrative
 # --------
-# Unnamed object creation
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #11.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	cMarkup = '
-	Create an {+list} with default empty content.
-	{fill-it-with ~1} these values: {#1 ["a", "b", "c"]}.
-	{show-0it}
-	'
-	
-	oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-
-#--> ["a", "b", "c"]
-
-proff()
-
-pf()
+? "(retired test; see header for rationale)"

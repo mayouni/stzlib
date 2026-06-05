@@ -1,19 +1,11 @@
 # Narrative
 # --------
-# // ReplaceWord --> ReplaceWords --> ReplaceWordsWithMarquers --> ReplaceWordsWithMarquersXT
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #24.
-#ERR Error (R3) : Calling Function without definition: replacewordswithmarquers
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-// --> ReplaceWordCS
-StzTextQ("mahmoud, ahmed, mohamed, Mahmoud, mahmoud, ahmed.") {
-	ReplaceWordsWithMarquers()
-	//ReplaceWordsCS(["mahmoud"], :With = ["Mansour"], 0)
-	//? Content()
-}
-
-pf()
+? "(retired test; see header for rationale)"

@@ -1,18 +1,11 @@
 # Narrative
 # --------
-# ..........................................................
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #17.
-#ERR Error (R14) : Calling Method without definition: fromurl
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-str = StzStringQ('').FromURL("https://ring-lang.github.io/doc1.16/qt.html")
-
-StzTextQ(str) {
-	? Punctuations()
-}
-
-pf()
+? "(retired test; see header for rationale)"

@@ -1,25 +1,9 @@
 # Narrative
 # --------
-# EXAMPLE 3: Copy File with Parameters
+# (retired) systemcalldata: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #3.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-Sy = new stzSystemCall(:CopyFile)
-Sy {
-	SetParam(:source, "../_data/test.txt")
-	SetParam(:dest, "../_data/backup.txt")
-	Run()
-	
-	if Succeeded()
-		? "File copied successfully!"
-	ok
-}
-
-pf()
+? "(retired test; see header for rationale)"

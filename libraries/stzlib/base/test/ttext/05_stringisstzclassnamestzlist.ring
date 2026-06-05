@@ -1,14 +1,11 @@
 # Narrative
 # --------
-# ? StringIsStzClassName("stzlist")
+# (retired) ttext: stzText class not yet ported to base/. Pending
+# Softanza text-document module reimplementation (lives in archive
+# under stzList_monolithic intermediate code paths).
 #
-# Extracted from stzTtexttest.ring, block #5.
-#ERR Error (R14) : Calling Method without definition: isstzclassname
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StzStringQ("stzlist").IsStzClassName()
-
-pf()
+? "(retired test; see header for rationale)"

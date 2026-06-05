@@ -4,7 +4,6 @@
 #
 # Extracted from stzPlotTest.ring, block #57.
 #Error (R14) : Calling Method without definition: removedfromend
-#ERR Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
 

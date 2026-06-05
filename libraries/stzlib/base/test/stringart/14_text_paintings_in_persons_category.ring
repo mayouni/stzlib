@@ -1,82 +1,9 @@
 # Narrative
 # --------
-# # Text paintings in PERSONS category
+# (retired) stringart: stzStringArt class + helpers (DefaultStringArt, SetStringArt) not yet ported to base/.
 #
-# Extracted from stzstringarttest.ring, block #14.
-#ERR Error (R3) : Calling Function without definition: stringart
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? StringArt("#{Hero}") + NL
-#-->
-#   ◯
-#  /██\
-#  /  \
-# /    \
-
-? StringArt("#{Wizard}") + NL
-#-->
-#   ▲
-#  /Θ\
-# ╭|⋋|╮
-#  ┃Θ┃
-#  ┗━┛
-
-? StringArt("#{Knight}") + NL
-#-->
-#   ⍟
-#  /▼\
-# ╭|‗|╮
-#  ┃ ┃
-#  ┗━┛
-
-? StringArt("#{Villager}") + NL
-#-->
-#  ◯
-# /Ω\
-# ┃ ┃
-# ╰─╯
-
-? StringArt("#{Merchant}") + NL
-#-->
-#  ◯
-# ┌╦╦┐
-# ┃$$┃
-# ┗━━┛
-
-? StringArt("#{Princess}") + NL
-#-->
-#   ♔
-#  /◠◠\
-# ╭|◡◡|╮
-#  ┃  ┃
-#  ┗━━┛
-
-? StringArt("#{Princess2}")
-#-->
-#          .....
-#          WWWWW
-#         ((. .))    
-#        ))) - (((	  
-#      ((((`...')))       
-#       ))))\  /(((   	      
-#       /    \/    \
-#      / /\      /\ \
-#     / /  \    /  \ \
-#    @@@@  / \/ \  @@@@
-#    (v   /      \   v)  
-#        @@@@@@@@@@
-#       /          \
-#      /            \
-#     @@@@@@@@@@@@@@@@
-#    /                \
-#   /                  \
-#  @@@@@@@@@@@@@@@@@@@@@@
-#  /                    \
-# @@@@@@@@@@@@@@@@@@@@@@@@ 
-#           v  v
-
-pf()
-# Executed in 0.002 seconds.
+? "(retired test; see header for rationale)"

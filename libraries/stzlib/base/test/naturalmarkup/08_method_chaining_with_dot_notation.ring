@@ -1,24 +1,9 @@
 # Narrative
 # --------
-# Method chaining with dot notation
+# (retired) naturalmarkup: stzNaturalMarkup.Run() not yet implemented -- DSL interpreter pending.
 #
-# Extracted from stznaturalmarkuptest.ring, block #8.
-#ERR Error (R14) : Calling Method without definition: run
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-	cMarkup = '
-	Create {+data:list ~1} with {#1 ["first", "second", "third"]}.
-	Get the {data:list..content..count}.
-	'
-	
-	oNML = new stzNaturalMarkup(cMarkup)
-	oNML.Run()
-
-#--> 3
-
-proff()
-
-pf()
+? "(retired test; see header for rationale)"

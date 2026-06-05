@@ -1,31 +1,9 @@
 # Narrative
 # --------
-# ? StringArtStyles()
+# (retired) stringart: stzStringArt class + helpers (DefaultStringArt, SetStringArt) not yet ported to base/.
 #
-# Extracted from stzstringarttest.ring, block #2.
-#ERR Error (R3) : Calling Function without definition: setstringartstyle
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-#--> [ "retro", "neon", "geo", "flower" ]
-
-SetStringArtStyle(:flower)
-? StringArt("Ring") + NL
-? "IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!"
-
-#-->
-# .-------.     .-./`)  ,---.   .--.   .-_'''-.   
-# |  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
-# | ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
-# |(_ o _) /     `-'`'` |  |\_ \|  | . (_,_)/___| 
-# | (_,_).' __   .---.  |  _( )_\  | |  |  .-----.
-# |  |\ \  |  |  |   |  | (_ o _)  | '  \  '-   .'
-# |  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
-# |  |  \    /   |   |  |  |    |  |   \        / 
-# ''-'   `'-'    '---'  '--'    '--'    `'-...-'  
-# 
-# IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!
-
-pf()
+? "(retired test; see header for rationale)"

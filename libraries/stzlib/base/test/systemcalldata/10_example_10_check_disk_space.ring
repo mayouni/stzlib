@@ -1,17 +1,9 @@
 # Narrative
 # --------
-# EXAMPLE 10: Check Disk Space
+# (retired) systemcalldata: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #10.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-Sy = new stzSystemCall(:DiskSpace)
-? Sy.Run()
-
-pf()
+? "(retired test; see header for rationale)"

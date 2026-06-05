@@ -3,7 +3,6 @@
 # Values only (no percentages)
 #
 # Extracted from stzPlotTest.ring, block #61.
-#ERR Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
 

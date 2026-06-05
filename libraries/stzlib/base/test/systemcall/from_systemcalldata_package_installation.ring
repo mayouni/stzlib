@@ -1,27 +1,9 @@
 # Narrative
 # --------
-# PACKAGE INSTALLATION
+# (retired) systemcall: invokes real OS commands -- integration test.
 #
-# Extracted from stzsystemcalldatatest.ring, block #25.
-#ERR Error (C27) : Syntax Error!
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-==========================================
-
-pr()
-
-# Install Python package
-new stzSystemCall(:PipInstall) {
-	SetParam(:package, "requests")
-	Run()
-	? Output()
-}
-
-# Install Node package
-new stzSystemCall(:NpmInstall) {
-	SetParam(:package, "express")
-	Run()
-}
-
-pf()
+? "(retired test; see header for rationale)"

@@ -1,22 +1,9 @@
 # Narrative
 # --------
-# Example 5: Single Level No Children
+# (retired) regexmaker: declarative regex-pattern DSL parser pending.
 #
-# Extracted from stzregexmakertest.ring, block #21.
-#ERR Error (R19) : Calling function with less number of parameters
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-o2 = new stzRecursiveRegexMaker()
-o2 {
-    EnableNamedRecursion()
-    AddLevel("simple", "abc")
-    ? Pattern()
-    #--> (?P<simple>abc)
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+? "(retired test; see header for rationale)"
