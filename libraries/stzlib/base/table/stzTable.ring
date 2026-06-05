@@ -1130,3 +1130,179 @@ Class stzTable from stzList
 
 		def ContainsCellInCol(pCol, pValue)
 			return This.ContainsCell(pCol, pValue)
+
+	# NumberOfOccurrenceInCol -- count cells in column pCol matching
+	# pValueOrNamed. Accepts bare value / :Value / :OfValue / :OfSubValue.
+	def NumberOfOccurrenceInCol(pCol, pValueOrNamed)
+		return ring_len(This.FindInCol(pCol, _NormalizeColLookupKey(pValueOrNamed)))
+
+		def NumberOfOccurrencesInCol(pCol, pValueOrNamed)
+			return This.NumberOfOccurrenceInCol(pCol, pValueOrNamed)
+
+		def NumberOfOccurrenceInColumn(pCol, pValueOrNamed)
+			return This.NumberOfOccurrenceInCol(pCol, pValueOrNamed)
+
+	# NumberOfOccurrenceInRow(nRow, pValue) -- count cells in row nRow
+	# matching pValue. Walks each column at row index nRow.
+	def NumberOfOccurrenceInRow(nRow, pValue)
+		_pVal_ = _NormalizeColLookupKey(pValue)
+		_bSub_ = FALSE
+		if isList(pValue) and ring_len(pValue) = 2 and isString(pValue[1]) and
+		   lower(pValue[1]) = "ofsubvalue"
+			_bSub_ = TRUE
+		ok
+		_nCount_ = 0
+		_nCols_ = This.NumberOfCols()
+		for _i_ = 1 to _nCols_
+			_cell_ = @aContent[_i_][2][nRow]
+			if _bSub_
+				if isString(_cell_) and isString(_pVal_)
+					if substr(_cell_, _pVal_) > 0 _nCount_++ ok
+				ok
+			else
+				if _cell_ = _pVal_ _nCount_++ ok
+			ok
+		next
+		return _nCount_
+
+		def NumberOfOccurrencesInRow(nRow, pValue)
+			return This.NumberOfOccurrenceInRow(nRow, pValue)
+
+	# NumberOfOccurrenceInCell(nCol, nRow, pValue) -- check just the
+	# single cell at [nCol, nRow]. Returns 0 or 1 (1 if it matches).
+	def NumberOfOccurrenceInCell(nCol, nRow, pValue)
+		_pVal_ = _NormalizeColLookupKey(pValue)
+		_bSub_ = FALSE
+		if isList(pValue) and ring_len(pValue) = 2 and isString(pValue[1]) and
+		   lower(pValue[1]) = "ofsubvalue"
+			_bSub_ = TRUE
+		ok
+		_cell_ = @aContent[nCol][2][nRow]
+		if _bSub_
+			if isString(_cell_) and isString(_pVal_) and substr(_cell_, _pVal_) > 0
+				return 1
+			ok
+			return 0
+		ok
+		if _cell_ = _pVal_ return 1 ok
+		return 0
+
+	# NumberOfOccurrenceInCols(acCols, pValue) -- sum across the
+	# listed columns.
+	def NumberOfOccurrenceInCols(acCols, pValue)
+		_nTot_ = 0
+		_nLen_ = ring_len(acCols)
+		for _i_ = 1 to _nLen_
+			_nTot_ += This.NumberOfOccurrenceInCol(acCols[_i_], pValue)
+		next
+		return _nTot_
+
+		def NumberOfOccurrencesInCols(acCols, pValue)
+			return This.NumberOfOccurrenceInCols(acCols, pValue)
+
+	# NumberOfOccurrenceXT(:InCol/:InRow/:InCell/:InCols + :OfValue/:OfSubValue)
+	def NumberOfOccurrenceXT(p1, p2)
+		if NOT (isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		        isList(p2) and ring_len(p2) = 2 and isString(p2[1]))
+			StzRaise("NumberOfOccurrenceXT: expects two named-param lists.")
+		ok
+		_cWhere_ = lower(p1[1])
+		_xTgt_   = p1[2]
+		if _cWhere_ = "incol" or _cWhere_ = "incolumn"
+			return This.NumberOfOccurrenceInCol(_xTgt_, p2)
+		but _cWhere_ = "inrow"
+			return This.NumberOfOccurrenceInRow(_xTgt_, p2)
+		but _cWhere_ = "incell"
+			if NOT (isList(_xTgt_) and ring_len(_xTgt_) = 2)
+				StzRaise(":InCell expects [nCol, nRow].")
+			ok
+			return This.NumberOfOccurrenceInCell(_xTgt_[1], _xTgt_[2], p2)
+		but _cWhere_ = "incols" or _cWhere_ = "incolumns"
+			return This.NumberOfOccurrenceInCols(_xTgt_, p2)
+		ok
+		return 0
+
+	# ShowXT(opts) -- forwarder to Show(). The option list controls
+	# row numbers, intersection chars, totals etc; until those are
+	# fully ported, fall back to plain Show so callers don't R14.
+	def ShowXT(pOpts)
+		This.Show()
+
+	# Fill(pValue) -- replace every cell in the table with pValue.
+	def Fill(pValue)
+		_nCols_ = This.NumberOfCols()
+		for _i_ = 1 to _nCols_
+			_nRows_ = ring_len(@aContent[_i_][2])
+			for _j_ = 1 to _nRows_
+				@aContent[_i_][2][_j_] = pValue
+			next
+		next
+		This._InvalidateEngine()
+
+		def FillQ(pValue)
+			This.Fill(pValue)
+			return This
+
+	# FillSections(aSections, :With = value) -- replace cells in the
+	# given [colIdx, rowIdx] section pairs. Accepts the :With named
+	# param or a bare value as 2nd arg.
+	def FillSections(aSections, pWith)
+		if isList(pWith) and ring_len(pWith) = 2 and isString(pWith[1]) and
+		   lower(pWith[1]) = "with"
+			pWith = pWith[2]
+		ok
+		_nLen_ = ring_len(aSections)
+		for _i_ = 1 to _nLen_
+			_sec_ = aSections[_i_]
+			if isList(_sec_) and ring_len(_sec_) = 2
+				_c_ = _sec_[1]; _r_ = _sec_[2]
+				if _c_ >= 1 and _c_ <= ring_len(@aContent) and
+				   _r_ >= 1 and _r_ <= ring_len(@aContent[_c_][2])
+					@aContent[_c_][2][_r_] = pWith
+				ok
+			ok
+		next
+		This._InvalidateEngine()
+
+	# RemoveCols(acColsOrNumbers) -- remove every column whose name
+	# or 1-based number is listed.
+	def RemoveCols(acCols)
+		_nLen_ = ring_len(acCols)
+		# Remove in two passes: resolve to indices first (since removal
+		# shifts subsequent indices), then sort descending so we delete
+		# from the right.
+		_anIdx_ = []
+		for _i_ = 1 to _nLen_
+			_n_ = This.FindCol(acCols[_i_])
+			if _n_ > 0 _anIdx_ + _n_ ok
+		next
+		# Sort descending
+		_aSorted_ = _anIdx_
+		_nSL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nSL_
+			_v_ = _aSorted_[_i_]
+			_j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_] < _v_
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]
+				_j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nSL_
+			ring_remove(@aContent, _aSorted_[_i_])
+		next
+		This._InvalidateEngine()
+
+		def RemoveColumns(acCols)
+			This.RemoveCols(acCols)
+
+# Helper: normalise a column lookup key. Accepts bare value, :Value=...,
+# :OfValue=..., :OfSubValue=...
+func _NormalizeColLookupKey(pVal)
+	if isList(pVal) and ring_len(pVal) = 2 and isString(pVal[1])
+		_k_ = lower(pVal[1])
+		if _k_ = "value" or _k_ = "ofvalue" or _k_ = "subvalue" or _k_ = "ofsubvalue"
+			return pVal[2]
+		ok
+	ok
+	return pVal

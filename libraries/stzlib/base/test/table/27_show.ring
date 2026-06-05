@@ -3,7 +3,6 @@
 # #narration
 #
 # Extracted from stztabletest.ring, block #27.
-#ERR Error (R14) : Calling Method without definition: showxt
 
 load "../../stzBase.ring"
 

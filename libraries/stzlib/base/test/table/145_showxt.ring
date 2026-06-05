@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #145.
-#ERR Error (R14) : Calling Method without definition: showxt
 
 load "../../stzBase.ring"
 
