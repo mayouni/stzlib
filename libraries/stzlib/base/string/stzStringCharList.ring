@@ -456,3 +456,40 @@ class stzStringCharList
 		@acChars = paNewChars
 
 	# _SplitNullDelimited() is provided globally by stzStringFunc.ring
+
+  /////////////////////////////
+ ///   ALIAS CLASS HOST    ///
+/////////////////////////////
+
+# stzListOfChars -- alias the rest of the library + every narrative
+# test reaches for. It IS-A stzStringCharList; constructor accepts:
+#   - a list of single-char strings:   new stzListOfChars(["a","b"])
+#   - a list of unicode codepoints:    new stzListOfChars([945,946])
+#     (auto-converted via StzChar(n) per item)
+# Falls back to the parent constructor for string-with-content and
+# other shapes the parent already supports.
+class stzListOfChars from stzStringCharList
+
+	def init(pValue)
+		if isList(pValue)
+			_nLen_ = ring_len(pValue)
+			# If all items are numbers, convert to chars via StzChar.
+			# Otherwise hand off to the parent init unchanged.
+			if _nLen_ > 0
+				_bAllNum_ = TRUE
+				for _i_ = 1 to _nLen_
+					if NOT isNumber(pValue[_i_])
+						_bAllNum_ = FALSE
+						exit
+					ok
+				next
+				if _bAllNum_
+					_aChars_ = []
+					for _i_ = 1 to _nLen_
+						_aChars_ + StzChar(pValue[_i_])
+					next
+					pValue = _aChars_
+				ok
+			ok
+		ok
+		super.init(pValue)
