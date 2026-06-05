@@ -87,8 +87,14 @@ class stzString from stzObject
 			This.Show()
 
 	# SplitQ -- Split() that returns a stzList wrapper for chaining
-	# (the bare Split() returns a Ring list).
+	# (the bare Split() returns a Ring list). Accepts the :Using
+	# named-param form (`SplitQ(:Using = "***")`) as well as a bare
+	# delimiter string.
 	def SplitQ(pcDelimiter)
+		if isList(pcDelimiter) and ring_len(pcDelimiter) = 2 and
+		   isString(pcDelimiter[1]) and lower(pcDelimiter[1]) = "using"
+			pcDelimiter = pcDelimiter[2]
+		ok
 		return new stzList( This.Split(pcDelimiter) )
 
 	# BoundsOf(pcSub) -- the [startPos, endPos] of the FIRST
@@ -2263,6 +2269,77 @@ class stzString from stzObject
 
 		def RemoveThisCharFromRight(pcChar)
 			This.RemoveThisCharFromEndXT(pcChar)
+
+	# ReplaceLeadingChars(:With = pcNew) -- collapse the leading run
+	# of a single repeated char into one instance of pcNew. Examples:
+	#   "___VAR---" + :With="*"  ->  "*VAR---"
+	#   "aaaaHELLO" + :With="A"  ->  "AHELLO"
+	# If there's no run (the first 2 chars differ), the string is
+	# returned unchanged.
+	def ReplaceLeadingChars(pWith)
+		if isList(pWith) and ring_len(pWith) = 2 and isString(pWith[1]) and
+		   lower(pWith[1]) = "with"
+			pWith = pWith[2]
+		ok
+		if NOT isString(pWith) return ok
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		if _nLen_ < 2 return ok
+		_cFirst_ = _cTxt_[1]
+		_n_ = 1
+		while _n_ < _nLen_ and _cTxt_[_n_ + 1] = _cFirst_
+			_n_++
+		end
+		if _n_ < 2 return ok       # no run, leave alone
+		This.Update(pWith + substr(_cTxt_, _n_ + 1))
+
+		def ReplaceLeadingCharsQ(pWith)
+			This.ReplaceLeadingChars(pWith)
+			return This
+
+	def ReplaceTrailingChars(pWith)
+		if isList(pWith) and ring_len(pWith) = 2 and isString(pWith[1]) and
+		   lower(pWith[1]) = "with"
+			pWith = pWith[2]
+		ok
+		if NOT isString(pWith) return ok
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		if _nLen_ < 2 return ok
+		_cLast_ = _cTxt_[_nLen_]
+		_n_ = 1
+		while _n_ < _nLen_ and _cTxt_[_nLen_ - _n_] = _cLast_
+			_n_++
+		end
+		if _n_ < 2 return ok
+		This.Update(substr(_cTxt_, 1, _nLen_ - _n_) + pWith)
+
+		def ReplaceTrailingCharsQ(pWith)
+			This.ReplaceTrailingChars(pWith)
+			return This
+
+	def ReplaceLeadingAndTrailingChars(pWith)
+		This.ReplaceLeadingChars(pWith)
+		This.ReplaceTrailingChars(pWith)
+
+		def ReplaceLeadingAndTrailingCharsQ(pWith)
+			This.ReplaceLeadingAndTrailingChars(pWith)
+			return This
+
+	# ReplaceLeadingChar(pcChar, :With = pcNew) -- replace the leading
+	# run only IF the leading char equals pcChar. Otherwise no-op.
+	def ReplaceLeadingChar(pcChar, pWith)
+		if NOT isString(pcChar) or ring_len(pcChar) = 0 return ok
+		_cTxt_ = This.Content()
+		if ring_len(_cTxt_) = 0 or _cTxt_[1] != pcChar return ok
+		This.ReplaceLeadingChars(pWith)
+
+	def ReplaceTrailingChar(pcChar, pWith)
+		if NOT isString(pcChar) or ring_len(pcChar) = 0 return ok
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		if _nLen_ = 0 or _cTxt_[_nLen_] != pcChar return ok
+		This.ReplaceTrailingChars(pWith)
 
 	def Trim()
 		pH = This.Engine()
