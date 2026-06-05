@@ -1609,6 +1609,109 @@ class stzString from stzObject
 			This.ReplaceLast(pcSubStr, pcNewSubStr)
 			return This
 
+	# ReplaceXT(p1, p2, p3) -- named-param dispatcher for the common
+	# narrative forms. Supported shapes:
+	#   ReplaceXT( :Nth = n, pcSubStr, :With = pcNew )
+	#   ReplaceXT( :First,    pcSubStr, :With = pcNew )
+	#   ReplaceXT( :Last,     pcSubStr, :With = pcNew )
+	#   ReplaceXT( pcSubStr, :At  = n,            :With = pcNew )
+	#   ReplaceXT( pcSubStr, :AtPosition = n,     :With = pcNew )
+	#   ReplaceXT( pcSubStr, :AtPositions = [...],:With = pcNew )
+	#   ReplaceXT( pcSubStr, :In  = pcContext,    :With = pcNew )
+	def ReplaceXT(p1, p2, p3)
+		# Resolve :With from p3
+		_pWith_ = p3
+		if isList(p3) and ring_len(p3) = 2 and isString(p3[1]) and lower(p3[1]) = "with"
+			_pWith_ = p3[2]
+		ok
+
+		# Form A: :Nth = n + substr + :With
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and lower(p1[1]) = "nth"
+			This.ReplaceNth(p1[2], p2, _pWith_)
+			return
+		ok
+
+		# Form B: :First / :Last + substr + :With
+		if isString(p1)
+			_cTag_ = lower(p1)
+			if _cTag_ = "first"
+				This.ReplaceFirst(p2, _pWith_)
+				return
+			but _cTag_ = "last"
+				This.ReplaceLast(p2, _pWith_)
+				return
+			ok
+		ok
+
+		# Forms C+: pcSubStr first, anchor as p2
+		if isString(p1) and isList(p2) and ring_len(p2) = 2 and isString(p2[1])
+			_cAnchor_ = lower(p2[1])
+			_xAnchorV_ = p2[2]
+
+			if _cAnchor_ = "at" or _cAnchor_ = "atposition"
+				This.ReplaceNth(_xAnchorV_, p1, _pWith_)
+				return
+			but _cAnchor_ = "atpositions"
+				if NOT isList(_xAnchorV_)
+					StzRaise("ReplaceXT: :AtPositions expects a list.")
+				ok
+				# Walk descending so earlier positions still map.
+				_aPos_ = _xAnchorV_ + []
+				_nP_ = ring_len(_aPos_)
+				for _i_ = 2 to _nP_
+					_v_ = _aPos_[_i_]; _j_ = _i_ - 1
+					while _j_ >= 1 and _aPos_[_j_] < _v_
+						_aPos_[_j_+1] = _aPos_[_j_]; _j_--
+					end
+					_aPos_[_j_+1] = _v_
+				next
+				_nP_ = ring_len(_aPos_)
+				for _i_ = 1 to _nP_
+					This.ReplaceNth(_aPos_[_i_], p1, _pWith_)
+				next
+				return
+			but _cAnchor_ = "in"
+				# Replace pcSubStr with pWith only within the context
+				# substring (one-shot in the first matching context).
+				if NOT isString(_xAnchorV_) return ok
+				_cCtx_ = _xAnchorV_
+				_cNewCtx_ = substr(_cCtx_, p1, _pWith_)
+				_cTxt_ = This.Content()
+				_cNewTxt_ = substr(_cTxt_, _cCtx_, _cNewCtx_)
+				This.Update(_cNewTxt_)
+				return
+			but _cAnchor_ = "boundedby"
+				# Replace whatever is between the bounds with _pWith_.
+				# Supports either two-element list or single string.
+				_aOpen_ = _xAnchorV_
+				_aClose_ = NULL
+				if isList(_aOpen_) and ring_len(_aOpen_) = 2
+					_aClose_ = _aOpen_[2]; _aOpen_ = _aOpen_[1]
+				but isString(_aOpen_)
+					_aClose_ = _aOpen_
+				ok
+				if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
+				_cTxt_ = This.Content()
+				_nStart_ = substr(_cTxt_, _aOpen_)
+				while _nStart_ > 0
+					_nEnd_ = substr(_cTxt_, _aClose_, _nStart_ + len(_aOpen_))
+					if _nEnd_ = 0 exit ok
+					_cBefore_ = left(_cTxt_, _nStart_ - 1)
+					_cAfter_  = substr(_cTxt_, _nEnd_ + len(_aClose_))
+					_cTxt_ = _cBefore_ + _aOpen_ + _pWith_ + _aClose_ + _cAfter_
+					_nStart_ = substr(_cTxt_, _aOpen_, _nStart_ + len(_aOpen_ + _pWith_ + _aClose_))
+				end
+				This.Update(_cTxt_)
+				return
+			ok
+		ok
+
+		StzRaise("ReplaceXT: unsupported argument shape.")
+
+		def ReplaceXTQ(p1, p2, p3)
+			This.ReplaceXT(p1, p2, p3)
+			return This
+
 	  #============================================#
 	 #     REMOVE FIRST / LAST                    #
 	#============================================#
