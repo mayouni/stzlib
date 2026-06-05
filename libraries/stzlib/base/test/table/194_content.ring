@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #194.
-#ERR Error (R14) : Calling Method without definition: extendxt
 
 load "../../stzBase.ring"
 

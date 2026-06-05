@@ -3,7 +3,6 @@
 # # WAY 6: Creating a table from an external text file (EXPERIMENTAL)
 #
 # Extracted from stztabletest.ring, block #22.
-#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 
