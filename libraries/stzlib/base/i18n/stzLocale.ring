@@ -198,7 +198,27 @@ $_aCurrencyISOData = [
 	[:Antarctic_dollar, "AAD", "$"]
 ]
 
-# â”€â”€ Pure Ring locale helper functions â”€â”€
+# Globals lifted ABOVE the first func -- Ring otherwise silently
+# never assigns when declared below a func/class.
+$cStzDefaultLocale = "en-US"
+
+# Pure Ring locale helper functions
+
+# Default-locale accessors used by narrative tests.
+func DefaultLocaleAbbreviation()
+	return $cStzDefaultLocale
+
+func DefaultLocale()
+	return $cStzDefaultLocale
+
+func CurrentLocale()
+	return $cStzDefaultLocale
+
+func SetDefaultLocale(pcLocaleAbbr)
+	$cStzDefaultLocale = pcLocaleAbbr
+
+func SetCurrentLocale(pcLocaleAbbr)
+	$cStzDefaultLocale = pcLocaleAbbr
 
 func _LocaleLangCodeFromAbbr(cLocaleAbbr)
 	cLocaleAbbr = StzReplace(cLocaleAbbr, "-", "_")
