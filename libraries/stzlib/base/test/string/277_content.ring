@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #277.
-#ERR Error (R14) : Calling Method without definition: spacifyxt
 
 load "../../stzBase.ring"
 
