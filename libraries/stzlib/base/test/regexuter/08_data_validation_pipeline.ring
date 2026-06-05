@@ -3,12 +3,11 @@
 # Data Validation Pipeline
 #
 # Extracted from stzregexutertest.ring, block #8.
-#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 
 # Shows how state helps track validation errors
-*/
+
 pr()
 
 rxu = new stzRegexuter()

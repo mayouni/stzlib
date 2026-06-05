@@ -690,6 +690,9 @@ func CharsAndNames(pacChars)
 	next
 	return _aResult_
 
+	func CharsAndTheirNames(pacChars)
+		return CharsAndNames(pacChars)
+
 func CharsNamesContaining(pcPartOfName)
 	# Engine SQLite LIKE search — returns "HEX;NAME\n" lines
 	_cResult_ = StzUnicodeFindByName(pcPartOfName)
@@ -782,7 +785,7 @@ class stzUnicodeData
 		if ring_len(_cHex_) > 2
 			_cPfx_ = ring_left(_cHex_, 2)
 			if _cPfx_ = "0x" or _cPfx_ = "0X"
-				_cHex_ = ring_substr2(_cHex_, 3)
+				_cHex_ = substr(_cHex_, 3)
 			ok
 		ok
 		_nUnicode_ = dec("0x" + _cHex_)
@@ -800,7 +803,7 @@ class stzUnicodeData
 		if ring_len(_cHex_) > 2
 			_cPfx_ = ring_left(_cHex_, 2)
 			if _cPfx_ = "0x" or _cPfx_ = "0X"
-				_cHex_ = ring_substr2(_cHex_, 3)
+				_cHex_ = substr(_cHex_, 3)
 			ok
 		ok
 		if _cHex_ = ""

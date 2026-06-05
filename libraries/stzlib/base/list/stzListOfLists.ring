@@ -3664,7 +3664,10 @@ class stzListOfLists from stzList
 	#-------------------------------------------------------------#
 
 	def SortDownOn(n)
-		_aSdoResult_ = new stzList(This.SortedOn(n)).Reversed()
+		# Ring chaining `new stzList(x).Method()` parses ambiguously --
+		# evaluate the construction first, then call the method.
+		_oSdoTmp_ = new stzList( This.SortedOn(n) )
+		_aSdoResult_ = _oSdoTmp_.Reversed()
 		This.UpdateWith(_aSdoResult_)
 
 		#< @FunctionFluentForm
