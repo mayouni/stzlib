@@ -1712,6 +1712,79 @@ class stzString from stzObject
 			This.ReplaceXT(p1, p2, p3)
 			return This
 
+	# SpacifyXT -- insert a separator every nStep chars, walking
+	# from left or right. Common shapes:
+	#   SpacifyXT(pcSep, nStep, :Forward|:Backward)
+	#   SpacifyXT(:Using=cSep, :Step=n, :Direction|:Going=:Backward)
+	#   SpacifyXT([sep1, sep2], [step1, step2], :Backward)
+	# The named-param form normalises to the positional form.
+	# Multi-separator form alternates: every step1 insert sep1, etc.
+	def SpacifyXT(p1, p2, p3)
+		# Normalise named-param form to positional.
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		   lower(p1[1]) = "using"
+			p1 = p1[2]
+		ok
+		if isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and
+		   lower(p2[1]) = "step"
+			p2 = p2[2]
+		ok
+		if isList(p3) and ring_len(p3) = 2 and isString(p3[1]) and
+		   (lower(p3[1]) = "direction" or lower(p3[1]) = "going")
+			p3 = p3[2]
+		ok
+
+		# Determine direction.
+		_bBackward_ = FALSE
+		if isString(p3) and (lower(p3) = "backward" or lower(p3) = "reverse")
+			_bBackward_ = TRUE
+		ok
+
+		# Build the per-position separator stream.
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		if _nLen_ < 2 return ok
+
+		# Normalise sep/step to lists for uniform handling.
+		_aSeps_ = p1
+		_aSteps_ = p2
+		if isString(p1) _aSeps_ = [ p1 ] ok
+		if isNumber(p2) _aSteps_ = [ p2 ] ok
+		_nSeps_ = ring_len(_aSeps_)
+
+		_cOut_ = ""
+		_iCount_ = 0
+		_iStepIdx_ = 1
+		if _bBackward_
+			# Walk right-to-left, prepending to _cOut_.
+			for _i_ = _nLen_ to 1 step -1
+				_cOut_ = _cTxt_[_i_] + _cOut_
+				_iCount_++
+				if _i_ > 1 and _iCount_ = _aSteps_[_iStepIdx_]
+					_cOut_ = _aSeps_[_iStepIdx_] + _cOut_
+					_iCount_ = 0
+					_iStepIdx_++
+					if _iStepIdx_ > _nSeps_ _iStepIdx_ = 1 ok
+				ok
+			next
+		else
+			for _i_ = 1 to _nLen_
+				_cOut_ += _cTxt_[_i_]
+				_iCount_++
+				if _i_ < _nLen_ and _iCount_ = _aSteps_[_iStepIdx_]
+					_cOut_ += _aSeps_[_iStepIdx_]
+					_iCount_ = 0
+					_iStepIdx_++
+					if _iStepIdx_ > _nSeps_ _iStepIdx_ = 1 ok
+				ok
+			next
+		ok
+		This.Update(_cOut_)
+
+		def SpacifyXTQ(p1, p2, p3)
+			This.SpacifyXT(p1, p2, p3)
+			return This
+
 	  #============================================#
 	 #     REMOVE FIRST / LAST                    #
 	#============================================#
