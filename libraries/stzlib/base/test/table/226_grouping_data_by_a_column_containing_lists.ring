@@ -3,7 +3,6 @@
 # Grouping data by a column containing lists
 #
 # Extracted from stztabletest.ring, block #226.
-#ERR Error (R14) : Calling Method without definition: showxt
 
 load "../../stzBase.ring"
 
