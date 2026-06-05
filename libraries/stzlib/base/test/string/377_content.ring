@@ -3,7 +3,6 @@
 # *
 #
 # Extracted from stzStringTest.ring, block #377.
-#ERR Error (R3) : Calling Function without definition: addxt
 
 load "../../stzBase.ring"
 

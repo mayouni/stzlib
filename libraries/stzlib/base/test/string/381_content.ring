@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #381.
-#ERR Error (R3) : Calling Function without definition: addxt
 
 load "../../stzBase.ring"
 

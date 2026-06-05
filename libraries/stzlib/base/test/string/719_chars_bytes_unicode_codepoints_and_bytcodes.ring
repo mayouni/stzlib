@@ -3,7 +3,6 @@
 # #narration CHARS, BYTES, UNICODE CODEPOINTS, AND BYTCODES
 #
 # Extracted from stzStringTest.ring, block #719.
-#ERR exit 1: Line 79 Bad parameters value, error in length!
 
 load "../../stzBase.ring"
 

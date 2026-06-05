@@ -1006,3 +1006,127 @@ Class stzTable from stzList
 	def ToString()
 		_oTdToStr_ = new stzTableDisplay(@aContent)
 		return _oTdToStr_.ToString()
+
+	# ----------------------------------------------------------------
+	# Inlined forwarders for methods that live on stzTableStructure /
+	# stzTableFinder / stzTableColumnAccess. Those classes inherit
+	# FROM stzTable, so calling them on a bare stzTable instance would
+	# otherwise miss. We copy the operative logic here -- thin enough
+	# that maintenance cost is low; deduplicate if/when we refactor
+	# the table hierarchy.
+
+	def AddColumn(pacColNameAndData)
+		if NOT ( isList(pacColNameAndData) and
+			 ring_len(pacColNameAndData) = 2 and
+			 isString(pacColNameAndData[1]) and
+			 isList(pacColNameAndData[2]) )
+			StzRaise("Incorrect column format! pacColNameAndData must be [:cColName = [...]].")
+		ok
+		if This.IsColName(pacColNameAndData[1])
+			StzRaise("Can't add the column! The name you provided already exists.")
+		ok
+		nLen = ring_len(pacColNameAndData[2])
+		nRows = This.NumberOfRows()
+		if nLen < nRows
+			for i = nLen+1 to nRows
+				pacColNameAndData[2] + ""
+			next
+		but nLen > nRows
+			for i = nLen to nRows+1 step - 1
+				ring_remove(pacColNameAndData[2], i)
+			next
+		ok
+		@aContent + pacColNameAndData
+		This._InvalidateEngine()
+
+		def AddCol(pacColNameAndData)
+			This.AddColumn(pacColNameAndData)
+
+	# Word-order alias used by narrative tests.
+	def ColName(n)
+		if n < 1 or n > ring_len(@aContent)
+			StzRaise("Column index out of range.")
+		ok
+		return @aContent[n][1]
+
+		def ColumnName(n)
+			return This.ColName(n)
+
+	# FindRow / FindRowCS -- look up a row's position by its value
+	# array. Forwarded version of stzTableFinder.FindRow.
+	def FindRowCS(paRow, pCaseSensitive)
+		_aRowsLocal_ = This.Rows()
+		_nLenRowsLocal_ = ring_len(_aRowsLocal_)
+		_aResultLocal_ = []
+		for _iFrLocal_ = 1 to _nLenRowsLocal_
+			if _aRowsLocal_[_iFrLocal_] = paRow
+				_aResultLocal_ + _iFrLocal_
+			ok
+		next
+		return _aResultLocal_
+
+		def FindRow(paRow)
+			return This.FindRowCS(paRow, 1)
+
+	# FindInCol(pCol, pValueOrSubvalue) -- look up positions in a
+	# single column where the cell equals pValue or contains pSubValue.
+	# Accepts bare value or :Value = / :SubValue = named-param forms.
+	def FindInCol(pCol, pValueOrNamed)
+		return This.FindInColCS(pCol, pValueOrNamed, 1)
+
+	def FindInColCS(pCol, pValueOrNamed, pCaseSensitive)
+		# Strip a trailing :CS=... if the caller bundled three args.
+		_pValue_ = pValueOrNamed
+		_bSub_ = FALSE
+		if isList(_pValue_) and ring_len(_pValue_) = 2 and isString(_pValue_[1])
+			_cKey_ = lower(_pValue_[1])
+			if _cKey_ = "value"
+				_pValue_ = _pValue_[2]
+			but _cKey_ = "subvalue"
+				_pValue_ = _pValue_[2]
+				_bSub_ = TRUE
+			ok
+		ok
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and lower(pCaseSensitive[1]) = "cs"
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		_nColIdx_ = This.FindCol(pCol)
+		if _nColIdx_ = 0 return [] ok
+		_aColData_ = @aContent[_nColIdx_][2]
+		_nLenCol_ = ring_len(_aColData_)
+		_aRes_ = []
+		for _iFcLocal_ = 1 to _nLenCol_
+			_cell_ = _aColData_[_iFcLocal_]
+			_bMatch_ = FALSE
+			if _bSub_
+				if isString(_cell_) and isString(_pValue_)
+					if pCaseSensitive
+						if substr(_cell_, _pValue_) > 0 _bMatch_ = TRUE ok
+					else
+						if substr(upper(_cell_), upper(_pValue_)) > 0 _bMatch_ = TRUE ok
+					ok
+				ok
+			else
+				if pCaseSensitive
+					if _cell_ = _pValue_ _bMatch_ = TRUE ok
+				else
+					if isString(_cell_) and isString(_pValue_)
+						if upper(_cell_) = upper(_pValue_) _bMatch_ = TRUE ok
+					else
+						if _cell_ = _pValue_ _bMatch_ = TRUE ok
+					ok
+				ok
+			ok
+			if _bMatch_ _aRes_ + _iFcLocal_ ok
+		next
+		return _aRes_
+
+	# ContainsCell(pCol, pValue) -- TRUE if any cell in column pCol
+	# equals pValue.
+	def ContainsCell(pCol, pValue)
+		return ring_len(This.FindInCol(pCol, pValue)) > 0
+
+		def ContainsCellInCol(pCol, pValue)
+			return This.ContainsCell(pCol, pValue)
