@@ -4123,6 +4123,35 @@ class stzString from stzObject
 	#       sides.
 
 	def AddXT(p1, p2)
+		# Form 0: pcWhat + :After / :Before / :To / :AfterEach / :BeforeEach
+		# anchored single insertion (or per-occurrence) form.
+		if isString(p1) and isList(p2) and ring_len(p2) = 2 and isString(p2[1])
+			_cKey0_ = lower(p2[1])
+			_xVal0_ = p2[2]
+
+			if (_cKey0_ = "after" or _cKey0_ = "to") and isString(_xVal0_)
+				_cTxt_ = This.Content()
+				_cTxt_ = substr(_cTxt_, _xVal0_, _xVal0_ + p1)
+				This.Update(_cTxt_)
+				return
+			but _cKey0_ = "before" and isString(_xVal0_)
+				_cTxt_ = This.Content()
+				_cTxt_ = substr(_cTxt_, _xVal0_, p1 + _xVal0_)
+				This.Update(_cTxt_)
+				return
+			but _cKey0_ = "aftereach" and isString(_xVal0_)
+				_cTxt_ = This.Content()
+				_cTxt_ = substr(_cTxt_, _xVal0_, _xVal0_ + p1)
+				This.Update(_cTxt_)
+				return
+			but _cKey0_ = "beforeeach" and isString(_xVal0_)
+				_cTxt_ = This.Content()
+				_cTxt_ = substr(_cTxt_, _xVal0_, p1 + _xVal0_)
+				This.Update(_cTxt_)
+				return
+			ok
+		ok
+
 		# Form 1/2: pcSep + :AfterThese / :BeforeThese
 		if isString(p1) and isList(p2) and ring_len(p2) = 2 and isString(p2[1])
 			_cKey_ = lower(p2[1])

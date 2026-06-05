@@ -3,7 +3,6 @@
 # #qt Issue in replacing empty substrings
 #
 # Extracted from stzStringTest.ring, block #258.
-#ERR exit 1: Ruby language
 
 load "../../stzBase.ring"
 
