@@ -1981,14 +1981,14 @@ func IsListOfListsOfObjects(paList)
 	#>
 
 func IsListOfChars(pacList)
-	if NOT isList(paList)
+	if NOT isList(pacList)
 		return 0
 	ok
 
 	bResult = 1
-	nLen = len(paList)
+	nLen = len(pacList)
 	for i = 1 to nLen
-			if Not IsChar(paList[i])
+			if Not IsChar(pacList[i])
 				bResult = FALSE
 				exit
 			ok
