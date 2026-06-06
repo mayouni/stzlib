@@ -2478,6 +2478,19 @@ class stzList from stzObject
 			This.RemoveDuplicatedItems()
 			return This
 
+	# IsReverseOf(paOther): TRUE iff @aContent is the reverse of
+	# paOther (deep-equal item-by-item).
+	def IsReverseOf(paOther)
+		if NOT isList(paOther) return FALSE ok
+		_nLen_ = ring_len(@aContent)
+		if _nLen_ != ring_len(paOther) return FALSE ok
+		for _i_ = 1 to _nLen_
+			if @aContent[_i_] != paOther[_nLen_ - _i_ + 1]
+				return FALSE
+			ok
+		next
+		return TRUE
+
 	  #-- RemoveFirstItem / RemoveLastItem
 
 	def RemoveFirstItem()

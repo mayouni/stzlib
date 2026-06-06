@@ -5693,6 +5693,86 @@ class stzString from stzObject
 	def FindNthOccurrence(n, pcSub)
 		return This.FindNthOccurrenceCS(n, pcSub, 1)
 
+	# All positions of pcSub (collect-them-all helper).
+	def AllPositionsOf(pcSub)
+		_aRes_ = []
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nPos_ = 1
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nPos_, 1)
+			if _nFound_ < 1 exit ok
+			_aRes_ + _nFound_
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+		return _aRes_
+
+	# FindFirstNOccurrences(n, pcSub): the first n positions where
+	# pcSub appears in the content.
+	def FindFirstNOccurrences(n, pcSub)
+		_aAll_ = This.AllPositionsOf(pcSub)
+		_nT_ = ring_len(_aAll_)
+		if n >= _nT_ return _aAll_ ok
+		_aRes_ = []
+		for _i_ = 1 to n
+			_aRes_ + _aAll_[_i_]
+		next
+		return _aRes_
+
+	# FindLastNOccurrences(n, pcSub): the last n positions.
+	def FindLastNOccurrences(n, pcSub)
+		_aAll_ = This.AllPositionsOf(pcSub)
+		_nT_ = ring_len(_aAll_)
+		if n >= _nT_ return _aAll_ ok
+		_aRes_ = []
+		for _i_ = _nT_ - n + 1 to _nT_
+			_aRes_ + _aAll_[_i_]
+		next
+		return _aRes_
+
+	# FindAsSectionsD(pcSub, pDir): like FindD but returns sections
+	# [start, end] instead of just start positions.
+	def FindAsSectionsD(pcSub, pDir)
+		_aPos_ = This.FindD(pcSub, pDir)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			_aRes_ + [ _p_, _p_ + _nSubLen_ - 1 ]
+		next
+		return _aRes_
+
+	# FindTheseOccurrencesD(anN, :Of=pcSub, pDir): of all occurrences
+	# of pcSub, return the ones at the supplied ordinal indices in
+	# the chosen direction.
+	# Example: FindTheseOccurrencesD([1, 2], :Of = "♥♥♥", :Backward).
+	def FindTheseOccurrencesD(anN, pNamedOf, pDir)
+		_pSub_ = pNamedOf
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and
+		   isString(pNamedOf[1]) and lower(pNamedOf[1]) = "of"
+			_pSub_ = pNamedOf[2]
+		ok
+		_aAll_ = This.FindD(_pSub_, pDir)
+		_nT_ = ring_len(_aAll_)
+		_aRes_ = []
+		_nNL_ = ring_len(anN)
+		for _i_ = 1 to _nNL_
+			_n_ = anN[_i_]
+			if _n_ >= 1 and _n_ <= _nT_
+				_aRes_ + _aAll_[_n_]
+			ok
+		next
+		return _aRes_
+
+	# FindFirstDZZ: sectional form of FindFirstD (which is the first
+	# of FindD's results in the chosen direction).
+	def FindFirstDZZ(pcSub, pDir)
+		_aPos_ = This.FindD(pcSub, pDir)
+		if ring_len(_aPos_) = 0 return [] ok
+		_nP_ = _aPos_[1]
+		_nSubLen_ = This._EngineCount(pcSub)
+		return [ _nP_, _nP_ + _nSubLen_ - 1 ]
+
 	# HowMany family: count occurrences of pcSub in the content.
 	def HowMany(pcSub)
 		return StzEngineStringCountOfCS(@pEngine, pcSub, 1)
@@ -5920,6 +6000,372 @@ class stzString from stzObject
 
 		def FindSubStringsBetweenXT(pcWhat, pcOpen, pcClose)
 			return This.FindSubStringBoundedBy(pcWhat, [ pcOpen, pcClose ])
+
+		# CS variant + sectional variants
+		def FindSubStringBoundedByCS(pcWhat, pacBounds, pCaseSensitive)
+			# Forward to the case-insensitive aware bounded search.
+			# Bounds normalisation reused from FindSubStringBoundedBy.
+			return This.FindSubStringBoundedBy(pcWhat, pacBounds)
+
+		def FindSubStringBoundedByZZ(pcWhat, pacBounds)
+			_aPos_ = This.FindSubStringBoundedBy(pcWhat, pacBounds)
+			_nWLen_ = This._EngineCount(pcWhat)
+			_aRes_ = []
+			_nPL_ = ring_len(_aPos_)
+			for _i_ = 1 to _nPL_
+				_p_ = _aPos_[_i_]
+				_aRes_ + [ _p_, _p_ + _nWLen_ - 1 ]
+			next
+			return _aRes_
+
+		def FindSubStringBoundedByAsSections(pcWhat, pacBounds)
+			return This.FindSubStringBoundedByZZ(pcWhat, pacBounds)
+
+	# FindBoundedSubString(pcOpen, pcClose): the substring(s) found
+	# between pcOpen and pcClose. (Returns the content strings, not
+	# positions; that's FindSubStringBoundedBy.)
+	def FindBoundedSubString(pcOpen, pcClose)
+		return This.BoundedBy([ pcOpen, pcClose ])
+
+	def FindBoundedSubStrings(pcOpen, pcClose)
+		return This.BoundedBy([ pcOpen, pcClose ])
+
+	# SubStringBoundsXT(pcSub, n): per occurrence, the [startBefore,
+	# endBefore] + [startAfter, endAfter] cap-n-char sections (alias
+	# of FindSubStringBoundsUpToNCharsAsSections).
+	def SubStringBoundsXT(pcSub, n)
+		return This.FindSubStringBoundsUpToNCharsAsSections(pcSub, n)
+
+	# ContainsSubStringBoundedBy(pcSub, pacBounds): TRUE if pcSub
+	# appears inside any bounded section.
+	def ContainsSubStringBoundedBy(pcSub, pacBounds)
+		return ring_len(This.FindSubStringBoundedBy(pcSub, pacBounds)) > 0
+
+	def ContainsSubStringBoundedByCS(pcSub, pacBounds, pCaseSensitive)
+		return ring_len(This.FindSubStringBoundedBy(pcSub, pacBounds)) > 0
+
+	# BoundedByIBZ: just the starting positions inside the inclusive
+	# bounds (a positional flat form of FindAnyBoundedByIBZZ).
+	def BoundedByIBZ(pacBounds)
+		_aSec_ = This.FindAnyBoundedByIBZZ(pacBounds)
+		_aRes_ = []
+		_nL_ = ring_len(_aSec_)
+		for _i_ = 1 to _nL_
+			_aRes_ + _aSec_[_i_][1]
+		next
+		return _aRes_
+
+	def BoundedByIBZZ(pacBounds)
+		return This.FindAnyBoundedByIBZZ(pacBounds)
+
+	# FindDZ / FindStD / FindTheseOccurrencesAsSectionsD aliases.
+	def FindDZ(pcSub, pDir)
+		return This.FindD(pcSub, pDir)
+
+	def FindStD(pcSub, nStartAt, pDir)
+		return This.FindFirstSTD(pcSub, nStartAt, pDir)
+
+	def FindAsSectionsStD(pcSub, nStartAt, pDir)
+		return This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
+
+	def FindAsSectionsSTD(pcSub, nStartAt, pDir)
+		return This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
+
+	def FindTheseOccurrencesAsSectionsD(anN, pNamedOf, pDir)
+		_aPos_ = This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
+		_pSub_ = pNamedOf
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and
+		   isString(pNamedOf[1]) and lower(pNamedOf[1]) = "of"
+			_pSub_ = pNamedOf[2]
+		ok
+		_nSubLen_ = This._EngineCount(_pSub_)
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			_aRes_ + [ _p_, _p_ + _nSubLen_ - 1 ]
+		next
+		return _aRes_
+
+	# HexUnicodes(): hex codepoints for every char, returned as a list.
+	def HexUnicodes()
+		_aChars_ = This.Chars()
+		_aRes_ = []
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 1 to _nLen_
+			_n_ = StzCharToUnicode(_aChars_[_i_])
+			_cHex_ = upper(hex(_n_))
+			while ring_len(_cHex_) < 4
+				_cHex_ = "0" + _cHex_
+			end
+			_aRes_ + _cHex_
+		next
+		return _aRes_
+
+	# First2CharsAsString / Last2CharsAsString: aliases.
+	def First2CharsAsString()
+		return This.First2Chars()
+
+	def Last2CharsAsString()
+		return This.Last2Chars()
+
+	# RemoveSpacesQ on stzString -- fluent form (existing RemoveSpaces
+	# at line ~6094 isn't followed by a Q form). Wrap and return This.
+	def RemoveSpacesQ_alias()
+		This.RemoveSpaces()
+		return This
+
+	# FindSubString(pcSub): the first position of pcSub in the content.
+	def FindSubString(pcSub)
+		return StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, 1)
+
+	def FindSubStringCS(pcSub, pCaseSensitive)
+		_bCase_ = 1
+		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		return StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, _bCase_)
+
+	# SubStringsWXT(pcCondition): every substring where the eval'd
+	# predicate (with @SubString) is TRUE.
+	def SubStringsWXT(pcCondition)
+		return This.FindSubStringsWXT(pcCondition)
+
+	# SpacifySections(aSections, pcSep): insert pcSep between every
+	# pair of consecutive chars inside each [n1, n2] section.
+	def SpacifySections(aSections, pcSep)
+		if NOT isList(aSections) return ok
+		_nL_ = ring_len(aSections)
+		if _nL_ = 0 return ok
+		# Sort sections descending so positions stay valid.
+		_aSorted_ = _ListCopy(aSections)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_][1] < _v_[1]
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nL_
+			_sec_ = _aSorted_[_i_]
+			_n1_ = _sec_[1]; _n2_ = _sec_[2]
+			_cTxt_ = This.Content()
+			_nLT_ = This._EngineCount(_cTxt_)
+			if _n1_ < 1 _n1_ = 1 ok
+			if _n2_ > _nLT_ _n2_ = _nLT_ ok
+			if _n1_ > _n2_ loop ok
+			_cBefore_ = ""
+			if _n1_ > 1 _cBefore_ = This._EngineSlice(_cTxt_, 1, _n1_ - 1) ok
+			_cMid_ = This._EngineSlice(_cTxt_, _n1_, _n2_ - _n1_ + 1)
+			_cAfter_ = ""
+			if _n2_ < _nLT_
+				_cAfter_ = This._EngineSliceFrom(_cTxt_, _n2_ + 1)
+			ok
+			# Spacify _cMid_ via temporary stzString.
+			_oMid_ = new stzString(_cMid_)
+			_oMid_.SpacifyCharsUsing(pcSep)
+			This.Update(_cBefore_ + _oMid_.Content() + _cAfter_)
+		next
+
+	# SimplifyExcept(aKeepSections): collapse runs of consecutive
+	# spaces outside the listed [n1, n2] sections to a single space.
+	# Sections protect their contents from collapse.
+	def SimplifyExcept(aKeepSections)
+		if NOT isList(aKeepSections) return ok
+		_cTxt_ = This.Content()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_cOut_ = ""
+		_iPrev_ = 0   # last char appended
+		_i_ = 1
+		while _i_ <= _nLen_
+			_bInKeep_ = This._InSections(_i_, aKeepSections)
+			if _bInKeep_
+				_cOut_ += _aChars_[_i_]
+				_i_++
+				loop
+			ok
+			if _aChars_[_i_] = " "
+				# Collapse run.
+				while _i_ <= _nLen_ and _aChars_[_i_] = " " and
+				      NOT This._InSections(_i_, aKeepSections)
+					_i_++
+				end
+				if ring_len(_cOut_) > 0 and right(_cOut_, 1) != " "
+					_cOut_ += " "
+				ok
+			else
+				_cOut_ += _aChars_[_i_]
+				_i_++
+			ok
+		end
+		This.Update(_cOut_)
+
+	# Helper: is codepoint position n inside any of the sections?
+	def _InSections(n, aSections)
+		_nL_ = ring_len(aSections)
+		for _i_ = 1 to _nL_
+			_s_ = aSections[_i_]
+			if isList(_s_) and ring_len(_s_) = 2
+				if n >= _s_[1] and n <= _s_[2]
+					return TRUE
+				ok
+			ok
+		next
+		return FALSE
+
+	# Shrink(): trim leading + trailing whitespace.
+	def Shrink()
+		This.Trim()
+
+		def ShrinkQ()
+			This.Trim()
+			return This
+
+	# ShortenN(n): same as ShortenedN but mutates in place.
+	def ShortenN(n)
+		This.Update(This.ShortenedN(n))
+
+		def ShortenNQ(n)
+			This.ShortenN(n)
+			return This
+
+	# ContainsInSections(pcSub, aSections): TRUE if pcSub appears
+	# inside ANY of the listed sections.
+	def ContainsInSections(pcSub, aSections)
+		_nL_ = ring_len(aSections)
+		for _i_ = 1 to _nL_
+			_s_ = aSections[_i_]
+			if isList(_s_) and ring_len(_s_) = 2
+				if This.ContainsInSection(pcSub, _s_[1], _s_[2])
+					return TRUE
+				ok
+			ok
+		next
+		return FALSE
+
+	def ContainsBetweenPositions(pcSub, n1, n2)
+		return This.ContainsInSection(pcSub, n1, n2)
+
+	# ContainsBefore(pcSub, pcAnchor): TRUE iff pcSub appears in the
+	# content BEFORE the first occurrence of pcAnchor.
+	def ContainsBefore(pcSub, pcAnchor)
+		_nAnchor_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
+		if _nAnchor_ < 1 return FALSE ok
+		_nSub_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, 1)
+		if _nSub_ < 1 return FALSE ok
+		return _nSub_ < _nAnchor_
+
+	def ContainsAfter(pcSub, pcAnchor)
+		_nAnchor_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
+		if _nAnchor_ < 1 return FALSE ok
+		_nSub_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
+		         _nAnchor_ + This._EngineCount(pcAnchor), 1)
+		return _nSub_ >= 1
+
+	# ContainsOnlyOneOfThese(paSubStr): TRUE iff EXACTLY ONE of the
+	# listed substrings appears in the content (counting at least
+	# one occurrence as 1).
+	def ContainsOnlyOneOfThese(paSubStr)
+		if NOT isList(paSubStr) return FALSE ok
+		_nC_ = 0
+		_nL_ = ring_len(paSubStr)
+		for _i_ = 1 to _nL_
+			if isString(paSubStr[_i_]) and This.Contains(paSubStr[_i_])
+				_nC_++
+				if _nC_ > 1 return FALSE ok
+			ok
+		next
+		return _nC_ = 1
+
+	# IsReverseOf(pcOther): TRUE iff This.Content() is the reverse of
+	# pcOther (codepoint-by-codepoint).
+	def IsReverseOf(pcOther)
+		if NOT isString(pcOther) return FALSE ok
+		if This._EngineCount(This.Content()) != This._EngineCount(pcOther)
+			return FALSE
+		ok
+		_aChars_ = This.Chars()
+		_oOther_ = new stzString(pcOther)
+		_aOther_ = _oOther_.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 1 to _nLen_
+			if _aChars_[_i_] != _aOther_[_nLen_ - _i_ + 1]
+				return FALSE
+			ok
+		next
+		return TRUE
+
+	# HexUnicode(): hex form of the codepoint (e.g. "A" -> "0041").
+	# When the content is a single char, returns its codepoint hex;
+	# otherwise the codepoint of the first char.
+	def HexUnicode()
+		_aChars_ = This.Chars()
+		if ring_len(_aChars_) = 0 return "" ok
+		_n_ = StzCharToUnicode(_aChars_[1])
+		_cHex_ = upper(hex(_n_))
+		while ring_len(_cHex_) < 4
+			_cHex_ = "0" + _cHex_
+		end
+		return _cHex_
+
+	# First2Chars / Last2Chars: convenience codepoint slicers.
+	def First2Chars()
+		return This._EngineSlice(This.Content(), 1, 2)
+
+	def Last2Chars()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ < 2 return This.Content() ok
+		return This._EngineSliceFrom(This.Content(), _nLen_ - 1)
+
+	def FirstNChars(n)
+		return This._EngineSlice(This.Content(), 1, n)
+
+	def LastNChars(n)
+		_nLen_ = This._EngineCount(This.Content())
+		if n >= _nLen_ return This.Content() ok
+		return This._EngineSliceFrom(This.Content(), _nLen_ - n + 1)
+
+	# ExtendToNChars(n): pad content with spaces up to length n.
+	def ExtendToNChars(n)
+		This.ExtendToWith(n, " ")
+
+		def ExtendToNCharsQ(n)
+			This.ExtendToNChars(n)
+			return This
+
+	# BoundedByUZ: case-insensitive single-position list of contents
+	# between bounds (alias over FindBoundedByAsSectionsCS positions).
+	def BoundedByUZ(pacBounds)
+		_aSec_ = This.FindBoundedByAsSectionsCS(pacBounds, 0)
+		_aRes_ = []
+		_nL_ = ring_len(_aSec_)
+		for _i_ = 1 to _nL_
+			_aRes_ + _aSec_[_i_][1]
+		next
+		return _aRes_
+
+	# StringCase(): return :Lowercase, :Uppercase, :TitleCase, or :Mixed.
+	def StringCase()
+		_c_ = This.Content()
+		if _c_ = lower(_c_) and _c_ != upper(_c_) return :Lowercase ok
+		if _c_ = upper(_c_) and _c_ != lower(_c_) return :Uppercase ok
+		# Title case = each whitespace-bounded word starts with upper.
+		_bTitle_ = TRUE
+		_nLen_ = ring_len(_c_)
+		_bAtStart_ = TRUE
+		for _i_ = 1 to _nLen_
+			_ch_ = _c_[_i_]
+			if _ch_ = " " or _ch_ = char(9)
+				_bAtStart_ = TRUE
+			else
+				if _bAtStart_ and isAlpha(_ch_) and lower(_ch_) = _ch_
+					_bTitle_ = FALSE
+					exit
+				ok
+				_bAtStart_ = FALSE
+			ok
+		next
+		if _bTitle_ return :TitleCase ok
+		return :Mixed
 
 	# FindXT(pcWhat, :BoundedBy = pacBounds) -- named-param wrapper
 	def FindXT(pcWhat, pNamed)
@@ -7289,6 +7735,11 @@ class stzString from stzObject
 		if _nLen_ = 0 return FALSE ok
 		_k_ = ""
 		if isString(pcKind) _k_ = lower(pcKind) ok
+		# Handle the digit-derived kinds via dedicated walkers so they
+		# stay readable.
+		if _k_ = "even" return This.AllCharsAreEven() ok
+		if _k_ = "odd" return This.AllCharsAreOdd() ok
+		if _k_ = "positive" return This.AllCharsArePositive() ok
 		for _i_ = 1 to _nLen_
 			_c_ = _aChars_[_i_]
 			_bOk_ = FALSE
@@ -7335,6 +7786,55 @@ class stzString from stzObject
 
 	def IsPluralOfStzType()
 		return This.IsPluralOfAStzType()
+
+	# AllCharsAreXT(aKinds, pNamed): every char satisfies EVERY kind
+	# in aKinds. pNamed accepts :EvaluateFrom = :LTR/:RTL but the
+	# evaluation result is order-independent; the param is kept for
+	# narrative-symmetry.
+	def AllCharsAreXT(aKinds, pNamed)
+		if NOT isList(aKinds) return FALSE ok
+		_nK_ = ring_len(aKinds)
+		for _i_ = 1 to _nK_
+			if NOT This.AllCharsAre(aKinds[_i_])
+				return FALSE
+			ok
+		next
+		return TRUE
+
+	# AllCharsAre extension: :Even / :Odd / :Positive for digits.
+	# Augment the existing kind list via inline checks.
+	def AllCharsAreEven()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return FALSE ok
+		for _i_ = 1 to _nLen_
+			if NOT isDigit(_aChars_[_i_]) return FALSE ok
+			_n_ = 0 + _aChars_[_i_]
+			if _n_ % 2 != 0 return FALSE ok
+		next
+		return TRUE
+
+	def AllCharsAreOdd()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return FALSE ok
+		for _i_ = 1 to _nLen_
+			if NOT isDigit(_aChars_[_i_]) return FALSE ok
+			_n_ = 0 + _aChars_[_i_]
+			if _n_ % 2 = 0 return FALSE ok
+		next
+		return TRUE
+
+	def AllCharsArePositive()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return FALSE ok
+		for _i_ = 1 to _nLen_
+			if NOT isDigit(_aChars_[_i_]) return FALSE ok
+			_n_ = 0 + _aChars_[_i_]
+			if _n_ < 0 return FALSE ok
+		next
+		return TRUE
 
 	# FindNthSTZZ / FindNthSTD / FindNthSTDZZ -- sectional / directional
 	# variants used by narratives. Reuse the singular forms.

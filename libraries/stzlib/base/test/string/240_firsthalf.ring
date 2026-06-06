@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #240.
-#ERR Error (R14) : Calling Method without definition: firsthalf
 
 load "../../stzBase.ring"
 

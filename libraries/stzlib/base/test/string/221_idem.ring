@@ -3,7 +3,6 @@
 # #TODO Idem
 #
 # Extracted from stzStringTest.ring, block #221.
-#ERR Error (R14) : Calling Method without definition: lettersq
 
 load "../../stzBase.ring"
 
