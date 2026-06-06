@@ -99,13 +99,83 @@ class stzString from stzObject
 
 	# BoundsOf(pcSub) -- the [startPos, endPos] of the FIRST
 	# occurrence of pcSub in This.Content(). Returns [] if absent.
+	# BoundsOf(pcSub): return the characters that surround pcSub in
+	# This.Content() -- i.e. everything before its first occurrence
+	# and everything after its end. Returns [] if pcSub absent, or
+	# [ cBefore, cAfter ] otherwise.
+	#
+	# (Note: this is the "characters that bound" semantic the
+	# narrative tests expect. For positional bounds use FindAs* or
+	# IndexOf + ring_len.)
 	def BoundsOf(pcSub)
-		_nPos_ = substr(This.Content(), pcSub)
+		_cTxt_ = This.Content()
+		_nPos_ = substr(_cTxt_, pcSub)
 		if _nPos_ = 0 return [] ok
-		return [ _nPos_, _nPos_ + len(pcSub) - 1 ]
+		_nLenSub_ = ring_len(pcSub)
+		_cBefore_ = left(_cTxt_, _nPos_ - 1)
+		_cAfter_  = substr(_cTxt_, _nPos_ + _nLenSub_)
+		return [ _cBefore_, _cAfter_ ]
 
 		def BoundsOfFirstOccurrence(pcSub)
 			return This.BoundsOf(pcSub)
+
+	# BoundsOfUpToNChars(pcSub, n): like BoundsOf but cap each side
+	# at n chars (counted from the inside out). n can also be the
+	# list [nBefore, nAfter] for independent caps.
+	def BoundsOfUpToNChars(pcSub, n)
+		_aB_ = This.BoundsOf(pcSub)
+		if ring_len(_aB_) = 0 return [] ok
+		_cBefore_ = _aB_[1]; _cAfter_ = _aB_[2]
+		_nBefore_ = n
+		_nAfter_  = n
+		if isList(n) and ring_len(n) = 2
+			_nBefore_ = n[1]
+			_nAfter_  = n[2]
+		ok
+		if ring_len(_cBefore_) > _nBefore_ _cBefore_ = right(_cBefore_, _nBefore_) ok
+		if ring_len(_cAfter_)  > _nAfter_  _cAfter_  = left(_cAfter_, _nAfter_)    ok
+		return [ _cBefore_, _cAfter_ ]
+
+	# (No lowercase-c alias needed -- Ring is case-insensitive on
+	# method names, so BoundsOfUpToNchars resolves here directly.)
+
+	# BoundsOfXT(pcSub, p2): dispatch over the trailing param.
+	#   :UpToNChars = n           --> BoundsOfUpToNChars
+	#   [nBefore, nAfter]         --> cap each side independently
+	#   n (number)                --> same as :UpToNChars = n
+	# (For BoundsOfXT(pcSub, m, n) -- three-arg form -- callers use
+	# BoundsOfXT3(pcSub, m, n) since Ring lacks optional params.)
+	def BoundsOfXT(pcSub, p2)
+		# :UpToNChars = n
+		if isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and
+		   lower(p2[1]) = "uptonchars"
+			return This.BoundsOfUpToNChars(pcSub, p2[2])
+		ok
+
+		# [nBefore, nAfter] list (independent caps)
+		if isList(p2) and ring_len(p2) = 2 and isNumber(p2[1]) and isNumber(p2[2])
+			_aB_ = This.BoundsOf(pcSub)
+			if ring_len(_aB_) = 0 return [] ok
+			_cBefore_ = _aB_[1]; _cAfter_ = _aB_[2]
+			if ring_len(_cBefore_) > p2[1] _cBefore_ = right(_cBefore_, p2[1]) ok
+			if ring_len(_cAfter_)  > p2[2] _cAfter_  = left(_cAfter_, p2[2])  ok
+			return [ _cBefore_, _cAfter_ ]
+		ok
+
+		# Bare number = symmetric cap
+		if isNumber(p2)
+			return This.BoundsOfUpToNChars(pcSub, p2)
+		ok
+
+		return []
+
+	def BoundsOfXT3(pcSub, nBefore, nAfter)
+		_aB_ = This.BoundsOf(pcSub)
+		if ring_len(_aB_) = 0 return [] ok
+		_cBefore_ = _aB_[1]; _cAfter_ = _aB_[2]
+		if ring_len(_cBefore_) > nBefore _cBefore_ = right(_cBefore_, nBefore) ok
+		if ring_len(_cAfter_)  > nAfter  _cAfter_  = left(_cAfter_, nAfter)   ok
+		return [ _cBefore_, _cAfter_ ]
 
 	#-- Override stzObject.Stringified/ToString. The parent returns
 	#   ObjectName() (which is "@noname" for unnamed objects);
@@ -1700,12 +1770,12 @@ class stzString from stzObject
 				_cTxt_ = This.Content()
 				_nStart_ = substr(_cTxt_, _aOpen_)
 				while _nStart_ > 0
-					_nEnd_ = substr(_cTxt_, _aClose_, _nStart_ + len(_aOpen_))
+					_nEnd_ = substr(_cTxt_, _aClose_, _nStart_ + ring_len(_aOpen_))
 					if _nEnd_ = 0 exit ok
 					_cBefore_ = left(_cTxt_, _nStart_ - 1)
-					_cAfter_  = substr(_cTxt_, _nEnd_ + len(_aClose_))
+					_cAfter_  = substr(_cTxt_, _nEnd_ + ring_len(_aClose_))
 					_cTxt_ = _cBefore_ + _aOpen_ + _pWith_ + _aClose_ + _cAfter_
-					_nStart_ = substr(_cTxt_, _aOpen_, _nStart_ + len(_aOpen_ + _pWith_ + _aClose_))
+					_nStart_ = substr(_cTxt_, _aOpen_, _nStart_ + ring_len(_aOpen_ + _pWith_ + _aClose_))
 				end
 				This.Update(_cTxt_)
 				return
