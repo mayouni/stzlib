@@ -336,6 +336,11 @@ class stzString from stzObject
 		if NOT (isNumber(n1) and isNumber(n2))
 			StzRaise("ReplaceSection: n1 and n2 must be numbers")
 		ok
+		# Accept :With = pcNew named-param form too.
+		if isList(pcNewSubStr) and ring_len(pcNewSubStr) = 2 and
+		   isString(pcNewSubStr[1]) and lower(pcNewSubStr[1]) = "with"
+			pcNewSubStr = pcNewSubStr[2]
+		ok
 		if NOT isString(pcNewSubStr)
 			StzRaise("ReplaceSection: pcNewSubStr must be a string")
 		ok
@@ -1683,6 +1688,185 @@ class stzString from stzObject
 
 		def ReplaceLastQ(pcSubStr, pcNewSubStr)
 			This.ReplaceLast(pcSubStr, pcNewSubStr)
+			return This
+
+	# ReplaceByMany(pcSubStr, paReplacements): replace each occurrence
+	# of pcSubStr by cycling through paReplacements (so 1st occurrence
+	# gets paReplacements[1], 2nd gets [2], etc., wrapping at the end
+	# of the replacement list).
+	# paReplacements may be a bare list or a :By/:With named-param list.
+	def ReplaceByMany(pcSubStr, paReplacements)
+		if isList(paReplacements) and ring_len(paReplacements) = 2 and
+		   isString(paReplacements[1]) and
+		   (lower(paReplacements[1]) = "by" or lower(paReplacements[1]) = "with")
+			paReplacements = paReplacements[2]
+		ok
+		if NOT isList(paReplacements) return ok
+		_nRepLen_ = ring_len(paReplacements)
+		if _nRepLen_ = 0 return ok
+
+		_cTxt_ = This.Content()
+		_nSubLen_ = ring_len(pcSubStr)
+		_cOut_ = ""
+		_nPos_ = 1
+		_iRep_ = 1
+		_nFound_ = substr(_cTxt_, pcSubStr, _nPos_)
+		while _nFound_ > 0
+			_cOut_ += substr(_cTxt_, _nPos_, _nFound_ - _nPos_)
+			_cOut_ += paReplacements[_iRep_]
+			_iRep_++
+			if _iRep_ > _nRepLen_ _iRep_ = 1 ok
+			_nPos_ = _nFound_ + _nSubLen_
+			_nFound_ = substr(_cTxt_, pcSubStr, _nPos_)
+		end
+		_cOut_ += substr(_cTxt_, _nPos_)
+		This.Update(_cOut_)
+
+		def ReplaceByManyQ(pcSubStr, paReplacements)
+			This.ReplaceByMany(pcSubStr, paReplacements)
+			return This
+
+		def ReplaceByManyXT(pcSubStr, paReplacements)
+			This.ReplaceByMany(pcSubStr, paReplacements)
+
+		def ReplaceByManyXTQ(pcSubStr, paReplacements)
+			This.ReplaceByMany(pcSubStr, paReplacements)
+			return This
+
+	# ReplaceSubStringsBoundedBy(pacBounds, pcNew): replace every
+	# substring sitting BETWEEN the bounds (exclusive of the bounds
+	# themselves) with pcNew. pacBounds can be ["open", "close"] or
+	# a single string used for both ends.
+	def ReplaceSubStringsBoundedBy(pacBounds, pcNew)
+		if isList(pcNew) and ring_len(pcNew) = 2 and isString(pcNew[1]) and
+		   lower(pcNew[1]) = "with"
+			pcNew = pcNew[2]
+		ok
+		_aOpen_ = pacBounds
+		_aClose_ = NULL
+		if isList(pacBounds) and ring_len(pacBounds) = 2
+			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
+		but isString(pacBounds)
+			_aClose_ = pacBounds
+		ok
+		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
+
+		_cTxt_ = This.Content()
+		_nOpenLen_ = ring_len(_aOpen_)
+		_nCloseLen_ = ring_len(_aClose_)
+		_nStart_ = substr(_cTxt_, _aOpen_)
+		while _nStart_ > 0
+			_nInsideStart_ = _nStart_ + _nOpenLen_
+			_nEnd_ = substr(_cTxt_, _aClose_, _nInsideStart_)
+			if _nEnd_ = 0 exit ok
+			_cBefore_ = left(_cTxt_, _nInsideStart_ - 1)
+			_cAfter_  = substr(_cTxt_, _nEnd_)
+			_cTxt_ = _cBefore_ + pcNew + _cAfter_
+			_nStart_ = substr(_cTxt_, _aOpen_, _nInsideStart_ + ring_len(pcNew))
+		end
+		This.Update(_cTxt_)
+
+		def ReplaceSubStringsBoundedByQ(pacBounds, pcNew)
+			This.ReplaceSubStringsBoundedBy(pacBounds, pcNew)
+			return This
+
+	# ReplaceSubStringBoundedBy(pcWhat, pacBounds, pcNew): replace
+	# pcWhat with pcNew only when it sits inside a bounded section.
+	# pacBounds may be ["open","close"] OR a single string used both
+	# ways.
+	def ReplaceSubStringBoundedBy(pcWhat, pacBounds, pcNew)
+		if isList(pcNew) and ring_len(pcNew) = 2 and isString(pcNew[1]) and
+		   lower(pcNew[1]) = "with"
+			pcNew = pcNew[2]
+		ok
+		_aOpen_ = pacBounds
+		_aClose_ = NULL
+		if isList(pacBounds) and ring_len(pacBounds) = 2
+			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
+		but isString(pacBounds)
+			_aClose_ = pacBounds
+		ok
+		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
+
+		_cTxt_ = This.Content()
+		_nOpenLen_ = ring_len(_aOpen_)
+		_nWhatLen_ = ring_len(pcWhat)
+		_nStart_ = substr(_cTxt_, _aOpen_)
+		while _nStart_ > 0
+			_nInsideStart_ = _nStart_ + _nOpenLen_
+			_nEnd_ = substr(_cTxt_, _aClose_, _nInsideStart_)
+			if _nEnd_ = 0 exit ok
+			# Look for pcWhat strictly inside [_nInsideStart_, _nEnd_-1]
+			_nWFound_ = substr(_cTxt_, pcWhat, _nInsideStart_)
+			while _nWFound_ > 0 and _nWFound_ < _nEnd_
+				_cBefore_ = left(_cTxt_, _nWFound_ - 1)
+				_cAfter_  = substr(_cTxt_, _nWFound_ + _nWhatLen_)
+				_cTxt_ = _cBefore_ + pcNew + _cAfter_
+				_nEnd_ += ring_len(pcNew) - _nWhatLen_
+				_nWFound_ = substr(_cTxt_, pcWhat, _nWFound_ + ring_len(pcNew))
+			end
+			# Move past this bounded section so we don't re-match.
+			_nStart_ = substr(_cTxt_, _aOpen_, _nEnd_ + ring_len(_aClose_))
+		end
+		This.Update(_cTxt_)
+
+		def ReplaceSubStringBoundedByQ(pcWhat, pacBounds, pcNew)
+			This.ReplaceSubStringBoundedBy(pcWhat, pacBounds, pcNew)
+			return This
+
+		# ReplaceSubStringBoundedByIB -- inclusive-bounds variant.
+		# Replaces the entire bounded block (bounds + content) when
+		# the content contains pcWhat.
+		def ReplaceSubStringBoundedByIB(pcWhat, pacBounds, pcNew)
+			if isList(pcNew) and ring_len(pcNew) = 2 and isString(pcNew[1]) and
+			   lower(pcNew[1]) = "with"
+				pcNew = pcNew[2]
+			ok
+			_aOpenIB_ = pacBounds
+			_aCloseIB_ = NULL
+			if isList(pacBounds) and ring_len(pacBounds) = 2
+				_aOpenIB_ = pacBounds[1]; _aCloseIB_ = pacBounds[2]
+			but isString(pacBounds)
+				_aCloseIB_ = pacBounds
+			ok
+			if NOT (isString(_aOpenIB_) and isString(_aCloseIB_)) return ok
+			_cTxtIB_ = This.Content()
+			_nOpenLenIB_ = ring_len(_aOpenIB_)
+			_nCloseLenIB_ = ring_len(_aCloseIB_)
+			_nStartIB_ = substr(_cTxtIB_, _aOpenIB_)
+			while _nStartIB_ > 0
+				_nInsideIB_ = _nStartIB_ + _nOpenLenIB_
+				_nEndIB_ = substr(_cTxtIB_, _aCloseIB_, _nInsideIB_)
+				if _nEndIB_ = 0 exit ok
+				_cInsideIB_ = substr(_cTxtIB_, _nInsideIB_, _nEndIB_ - _nInsideIB_)
+				if substr(_cInsideIB_, pcWhat) > 0
+					_cBeforeIB_ = left(_cTxtIB_, _nStartIB_ - 1)
+					_cAfterIB_  = substr(_cTxtIB_, _nEndIB_ + _nCloseLenIB_)
+					_cTxtIB_ = _cBeforeIB_ + pcNew + _cAfterIB_
+					_nStartIB_ = substr(_cTxtIB_, _aOpenIB_, _nStartIB_ + ring_len(pcNew))
+				else
+					_nStartIB_ = substr(_cTxtIB_, _aOpenIB_, _nEndIB_ + _nCloseLenIB_)
+				ok
+			end
+			This.Update(_cTxtIB_)
+
+	# ReplaceSubStringAtPosition(n, pcOld, pcNew): replace pcOld with
+	# pcNew only at character position n (so pcOld must start at n).
+	def ReplaceSubStringAtPosition(n, pcOld, pcNew)
+		if isList(pcNew) and ring_len(pcNew) = 2 and isString(pcNew[1]) and
+		   lower(pcNew[1]) = "with"
+			pcNew = pcNew[2]
+		ok
+		_cTxt_ = This.Content()
+		_nOldLen_ = ring_len(pcOld)
+		if n < 1 or n + _nOldLen_ - 1 > ring_len(_cTxt_) return ok
+		if substr(_cTxt_, n, _nOldLen_) != pcOld return ok
+		_cBefore_ = left(_cTxt_, n - 1)
+		_cAfter_  = substr(_cTxt_, n + _nOldLen_)
+		This.Update(_cBefore_ + pcNew + _cAfter_)
+
+		def ReplaceSubStringAtPositionQ(n, pcOld, pcNew)
+			This.ReplaceSubStringAtPosition(n, pcOld, pcNew)
 			return This
 
 	# ReplaceXT(p1, p2, p3) -- named-param dispatcher for the common
@@ -4109,6 +4293,14 @@ class stzString from stzObject
 
 		def FindAnyBoundedBy(pacBounds)
 			return This.BoundedBy(pacBounds)
+
+		# Inclusive-bounds variant: return sections that include the
+		# bounds themselves (so [startOfOpen .. endOfClose]).
+		def FindAnyBoundedByIB(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+		def FindBoundedByIB(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
 
 	# FindBoundedBy / FindBoundedByCS -- the most common spelling
 	# in narrative tests. Returns the [startPos, endPos] of each

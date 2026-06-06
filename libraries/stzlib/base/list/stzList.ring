@@ -2432,6 +2432,10 @@ class stzList from stzObject
 		This.RemoveFirstItem()
 		This.RemoveLastItem()
 
+		def RemoveFirstAndLastItemsQ()
+			This.RemoveFirstAndLastItems()
+			return This
+
 	  #-- RemoveRange: remove items from start for a count
 
 	def RemoveRange(nStart, nRange)
