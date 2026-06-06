@@ -379,6 +379,19 @@ class stzString from stzObject
 		ok
 		return ""
 
+	# SectionXT(n1, n2): like Section, but each of n1/n2 may be NEGATIVE
+	# meaning "count from the end". So Q("abcdef").SectionXT(3, -3)
+	# returns chars from position 3 to position 6-3+1 = 4 = "cd".
+	# Negative n means (nLen + n + 1).
+	def SectionXT(n1, n2)
+		_nLen_ = This._EngineCount(This.Content())
+		if isNumber(n1) and n1 < 0 n1 = _nLen_ + n1 + 1 ok
+		if isNumber(n2) and n2 < 0 n2 = _nLen_ + n2 + 1 ok
+		return This.Section(n1, n2)
+
+		def SectionXTQ(n1, n2)
+			return new stzString( This.SectionXT(n1, n2) )
+
 	#-- Replace the chars at positions n1..n2 (inclusive) with
 	#   pcNewSubStr. Ported from the legacy monolithic archive
 	#   (~line 84916), kept minimal: pure numeric positions only.
@@ -2916,6 +2929,12 @@ class stzString from stzObject
 			ok
 		next
 		return _aLnResult_
+
+		# Fluent form: return the line list wrapped in stzList so
+		# narrative chains like `o.TrimQ().LinesQ().RemoveWXTQ(...)`
+		# resolve on the list class.
+		def LinesQ()
+			return new stzList( This.Lines() )
 
 	def NumberOfLines()
 		return StzEngineStringCountLines(@pEngine)
@@ -6290,9 +6309,256 @@ class stzString from stzObject
 			if _nFound_ = 0 return 0 ok
 			_nCount_++
 			if _nCount_ = n return _nFound_ ok
-			_nPos_ = _nFound_ + ring_len(pcSubStr)
+			_nPos_ = _nFound_ + This._EngineCount(pcSubStr)
 		end
 		return 0
+
+	# FindFirstSTD: directional find-from-position.
+	#   FindFirstSTD(sub, :StartingAt = n, :Backward)
+	#   FindFirstSTD(sub, :StartingAt = n, :Direction = :Forward|:Backward)
+	def FindFirstSTD(pcSubStr, nStartAt, pDir)
+		if isList(nStartAt) and ring_len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
+		# pDir can be the bare :Backward / :Forward symbol or the
+		# :Direction = :Forward/:Backward named-param shape.
+		_bBackward_ = FALSE
+		if isString(pDir) and lower(pDir) = "backward"
+			_bBackward_ = TRUE
+		but isList(pDir) and ring_len(pDir) = 2 and isString(pDir[1]) and
+		   lower(pDir[1]) = "direction"
+			if isString(pDir[2]) and lower(pDir[2]) = "backward"
+				_bBackward_ = TRUE
+			ok
+		ok
+		_cTxt_ = This.Content()
+		if NOT _bBackward_
+			return This._FindFrom(_cTxt_, pcSubStr, nStartAt)
+		ok
+		# Backward: scan from position nStartAt walking down to 1,
+		# checking codepoint slices of pcSubStr length at each step.
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		_nMax_ = nStartAt
+		if _nMax_ > This._EngineCount(_cTxt_) - _nSubLen_ + 1
+			_nMax_ = This._EngineCount(_cTxt_) - _nSubLen_ + 1
+		ok
+		for _i_ = _nMax_ to 1 step -1
+			if This._EngineSlice(_cTxt_, _i_, _nSubLen_) = pcSubStr
+				return _i_
+			ok
+		next
+		return 0
+
+	# FindFirstSTDZZ: same as FindFirstSTD but returns [start, end]
+	# instead of just start.
+	def FindFirstSTDZZ(pcSubStr, nStartAt, pDir)
+		_nPos_ = This.FindFirstSTD(pcSubStr, nStartAt, pDir)
+		if _nPos_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
+
+	# FindFirstSTZZ: section form of FindFirstST.
+	def FindFirstSTZZ(pcSubStr, nStartAt)
+		_nPos_ = This.FindFirstST(pcSubStr, nStartAt)
+		if _nPos_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
+
+	# Mirror forms: FindLastST / FindLastSTZZ / FindLastSTD aliases.
+	def FindLastSTZZ(pcSubStr, nStartAt)
+		_nPos_ = This.FindLastST(pcSubStr, nStartAt)
+		if _nPos_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
+
+	def FindLastSTD(pcSubStr, nStartAt, pDir)
+		# Forward FindLastSTD := FindLastST starting forward from nStartAt;
+		# Backward := walk backwards looking for any occurrence (so the
+		# "last" one ends up being the highest position <= nStartAt).
+		_bBackward_ = FALSE
+		if isString(pDir) and lower(pDir) = "backward"
+			_bBackward_ = TRUE
+		but isList(pDir) and ring_len(pDir) = 2 and isString(pDir[1]) and
+		   lower(pDir[1]) = "direction"
+			if isString(pDir[2]) and lower(pDir[2]) = "backward"
+				_bBackward_ = TRUE
+			ok
+		ok
+		if NOT _bBackward_
+			return This.FindLastST(pcSubStr, nStartAt)
+		ok
+		return This.FindFirstSTD(pcSubStr, nStartAt, :Backward)
+
+	def FindLastSTDZZ(pcSubStr, nStartAt, pDir)
+		_nPos_ = This.FindLastSTD(pcSubStr, nStartAt, pDir)
+		if _nPos_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
+
+	# FindDuplicates -- positions of duplicated chars in the content.
+	# A char is "duplicated" if it appears more than once anywhere.
+	# Returns the 2nd+ occurrence positions (so the FIRST occurrence
+	# is not reported, matching stzList.FindDuplicates semantics).
+	def FindDuplicates()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		_aSeen_ = []
+		for _i_ = 1 to _nLen_
+			_c_ = _aChars_[_i_]
+			_bDup_ = FALSE
+			_nSL_ = ring_len(_aSeen_)
+			for _j_ = 1 to _nSL_
+				if _aSeen_[_j_] = _c_ _bDup_ = TRUE exit ok
+			next
+			if _bDup_
+				_aRes_ + _i_
+			else
+				_aSeen_ + _c_
+			ok
+		next
+		return _aRes_
+
+	# FindDupSecutiveChars -- positions of any char that EQUALS the
+	# previous one in the codepoint walk (i.e. immediate-duplicates).
+	# Returns the 2nd+ position of each run.
+	def FindDupSecutiveChars()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		for _i_ = 2 to _nLen_
+			if _aChars_[_i_] = _aChars_[_i_ - 1]
+				_aRes_ + _i_
+			ok
+		next
+		return _aRes_
+
+	# FindDupSecutiveSubString: positions where the substring at i+1
+	# equals the substring of the same length ending at i (i.e.
+	# back-to-back identical substrings). Returns the start positions
+	# of the second copy in each consecutive pair.
+	def FindDupSecutiveSubString(pcSub)
+		_nSubLen_ = This._EngineCount(pcSub)
+		if _nSubLen_ = 0 return [] ok
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_aRes_ = []
+		_i_ = 1
+		while _i_ + 2 * _nSubLen_ - 1 <= _nLen_
+			if This._EngineSlice(_cTxt_, _i_, _nSubLen_) = pcSub and
+			   This._EngineSlice(_cTxt_, _i_ + _nSubLen_, _nSubLen_) = pcSub
+				_aRes_ + _i_ + _nSubLen_
+				_i_ += _nSubLen_
+			else
+				_i_++
+			ok
+		end
+		return _aRes_
+
+	# Z-suffix sectional forms (return [start, end] instead of just
+	# start) for the duplicate finders.
+	def FindDuplicatesZZ()
+		_aPos_ = This.FindDuplicates()
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] ]
+		next
+		return _aRes_
+
+	# DuplicatesZ aliases used by narrative tests -- positions of
+	# duplicated chars.
+	def DuplicatesZ()
+		return This.FindDuplicates()
+
+	def DuplicateCharsZ()
+		return This.FindDuplicates()
+
+	def DuplicationsZ()
+		return This.FindDuplicates()
+
+	def FindDupSecutiveCharsZZ()
+		_aPos_ = This.FindDupSecutiveChars()
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] ]
+		next
+		return _aRes_
+
+	# Z-suffix alias: just the start positions of dup-consec
+	# substring matches (same as the bare FindDupSecutiveSubString).
+	def DupSecutiveSubStringZ(pcSub)
+		return This.FindDupSecutiveSubString(pcSub)
+
+	def DupSecutiveCharsZ()
+		return This.FindDupSecutiveChars()
+
+	def FindDupSecutiveSubStringZZ(pcSub)
+		_aPos_ = This.FindDupSecutiveSubString(pcSub)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] + _nSubLen_ - 1 ]
+		next
+		return _aRes_
+
+		# Drop-the-Find prefix alias.
+		def DupSecutiveSubStringZZ(pcSub)
+			return This.FindDupSecutiveSubStringZZ(pcSub)
+
+		def DupSecutiveCharsZZ()
+			return This.FindDupSecutiveCharsZZ()
+
+	# FindNthSTZZ / FindNthSTD / FindNthSTDZZ -- sectional / directional
+	# variants used by narratives. Reuse the singular forms.
+	def FindNthSTZZ(n, pcSubStr, nStartAt)
+		_nPos_ = This.FindNthST(n, pcSubStr, nStartAt)
+		if _nPos_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
+
+	def FindNthSTD(n, pcSubStr, nStartAt, pDir)
+		if isList(nStartAt) and ring_len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
+		_bBackward_ = FALSE
+		if isString(pDir) and lower(pDir) = "backward"
+			_bBackward_ = TRUE
+		but isList(pDir) and ring_len(pDir) = 2 and isString(pDir[1]) and
+		   lower(pDir[1]) = "direction"
+			if isString(pDir[2]) and lower(pDir[2]) = "backward"
+				_bBackward_ = TRUE
+			ok
+		ok
+		if NOT _bBackward_
+			return This.FindNthST(n, pcSubStr, nStartAt)
+		ok
+		# Backward: walk down collecting positions, return the n-th.
+		_cTxt_ = This.Content()
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		_nMax_ = nStartAt
+		_nTxtLen_ = This._EngineCount(_cTxt_)
+		if _nMax_ > _nTxtLen_ - _nSubLen_ + 1
+			_nMax_ = _nTxtLen_ - _nSubLen_ + 1
+		ok
+		_aFound_ = []
+		for _i_ = _nMax_ to 1 step -1
+			if This._EngineSlice(_cTxt_, _i_, _nSubLen_) = pcSubStr
+				_aFound_ + _i_
+				if ring_len(_aFound_) = n return _i_ ok
+			ok
+		next
+		return 0
+
+	def FindNthSTDZZ(n, pcSubStr, nStartAt, pDir)
+		_nPos_ = This.FindNthSTD(n, pcSubStr, nStartAt, pDir)
+		if _nPos_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
 
 	  #========================================#
 	 #     COMPARATOR DELEGATIONS             #
