@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #323.
-#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #747.
-#ERR Error (R14) : Calling Method without definition: findcharswxt
 
 load "../../stzBase.ring"
 

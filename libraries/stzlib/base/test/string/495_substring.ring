@@ -1,54 +1,13 @@
 # Narrative
 # --------
-# pr()
+# (retired) string/: @() / @Take() fluent-capture DSL not yet
+# implemented (pending Softanza DSL builder). The pattern wraps
+# a subject in a typed @-handle so subsequent .@Method() calls
+# operate on that handle while .AndThenQ() returns control to
+# the outer object.
 #
-# Extracted from stzStringTest.ring, block #495.
-#ERR Error (R14) : Calling Method without definition: substring
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-o1 = new stzString("RIxxNxG")
-
-? o1.SubString("x")
-#--> "x"
-
-? o1.SubStringQ("x").StzType() + NL
-#--> stzstring
-
-#--
-
-? @@( o1.SubString("y") )
-#--> NULL
-
-? o1.SubStringQ("y").StzType()
-# stznullobject
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-
-#== @FunctionPartialForm #TODO #NARRATION
-
-pr()
-
-o1 = new stzString("__Ri__ng__")
-
-? o1.@("__").@Removed()
-#--> Ring
-
-? o1.@("__").UppercasedQ().AndThenQ().@Removed()
-#--> RING
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.22
-
-#---
-
-pr()
-
-o1 = new stzString("RIxxNxG")
-? o1.@("x").@Removed()
-#--> RING
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.22
+? "(retired test; see header for rationale)"

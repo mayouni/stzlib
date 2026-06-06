@@ -1948,7 +1948,13 @@ class stzList from stzObject
 		if _nLen_ != ring_len(paOther)
 			return FALSE
 		ok
-		_aOther_ = paOther + []   # copy
+		# Manual copy. Ring's `list + []` appends [] as a new element
+		# instead of concatenating, so it cannot be used to clone.
+		_aOther_ = []
+		_nCpL_ = ring_len(paOther)
+		for _iCp_ = 1 to _nCpL_
+			_aOther_ + paOther[_iCp_]
+		next
 		for _i_ = 1 to _nLen_
 			_x_ = _aData_[_i_]
 			_bFound_ = FALSE

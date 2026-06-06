@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #940.
-#ERR Error (R14) : Calling Method without definition: spacifycharsusing
 
 load "../../stzBase.ring"
 

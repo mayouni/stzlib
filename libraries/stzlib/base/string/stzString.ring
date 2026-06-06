@@ -1749,6 +1749,17 @@ class stzString from stzObject
 	# gets paReplacements[1], 2nd gets [2], etc., wrapping at the end
 	# of the replacement list).
 	# paReplacements may be a bare list or a :By/:With named-param list.
+	# Helper: deep-copy a list. Ring's `list + []` appends the empty
+	# list as a NEW element instead of concatenating, so it cannot be
+	# used to clone. Walk the input and copy element-by-element.
+	def _ListCopy(paList)
+		_aCopy_ = []
+		_nLen_ = ring_len(paList)
+		for _i_ = 1 to _nLen_
+			_aCopy_ + paList[_i_]
+		next
+		return _aCopy_
+
 	# Helper: find pcNeedle in pcHay starting at character position
 	# nFrom (1-based, inclusive). Returns absolute position (1-based)
 	# or 0 if absent. Ring's 3-arg substr is replace, not find-from --
@@ -1952,7 +1963,7 @@ class stzString from stzObject
 
 		if isList(n)
 			# Sort positions descending so earlier ones don't shift.
-			_aPos_ = n + []
+			_aPos_ = _ListCopy(n)
 			_nPL_ = ring_len(_aPos_)
 			for _i_ = 2 to _nPL_
 				_v_ = _aPos_[_i_]; _j_ = _i_ - 1
@@ -2210,7 +2221,7 @@ class stzString from stzObject
 					StzRaise("ReplaceXT: :AtPositions expects a list.")
 				ok
 				# Walk descending so earlier positions still map.
-				_aPos_ = _xAnchorV_ + []
+				_aPos_ = _ListCopy(_xAnchorV_)
 				_nP_ = ring_len(_aPos_)
 				for _i_ = 2 to _nP_
 					_v_ = _aPos_[_i_]; _j_ = _i_ - 1
@@ -2410,6 +2421,23 @@ class stzString from stzObject
 	#============================================#
 
 	def InsertBefore(n, pcSubStr)
+		# List-of-positions form: walk descending so positions stay
+		# valid as later inserts shift the string.
+		if isList(n)
+			_aPos_ = _ListCopy(n)
+			_nPL_ = ring_len(_aPos_)
+			for _i_ = 2 to _nPL_
+				_v_ = _aPos_[_i_]; _j_ = _i_ - 1
+				while _j_ >= 1 and _aPos_[_j_] < _v_
+					_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
+				end
+				_aPos_[_j_ + 1] = _v_
+			next
+			for _i_ = 1 to _nPL_
+				StzEngineStringInsertCp(@pEngine, _aPos_[_i_], pcSubStr)
+			next
+			return
+		ok
 		StzEngineStringInsertCp(@pEngine, n, pcSubStr)
 
 		def InsertBeforeQ(n, pcSubStr)
@@ -2418,6 +2446,110 @@ class stzString from stzObject
 
 		def InsertBeforePosition(n, pcSubStr)
 			This.InsertBefore(n, pcSubStr)
+
+	# ExtendToWith(n, pcChar): pad the string out to total length n
+	# by appending copies of pcChar at the end.
+	def ExtendToWith(n, pcChar)
+		_cTxt_ = This.Content()
+		_nNeed_ = n - ring_len(_cTxt_)
+		if _nNeed_ <= 0 return ok
+		if NOT isString(pcChar) or ring_len(pcChar) = 0 return ok
+		_cPad_ = ""
+		while ring_len(_cPad_) < _nNeed_
+			_cPad_ += pcChar
+		end
+		# Trim to exactly _nNeed_ chars if last iteration overshot.
+		if ring_len(_cPad_) > _nNeed_
+			_cPad_ = left(_cPad_, _nNeed_)
+		ok
+		This.Update(_cTxt_ + _cPad_)
+
+		def ExtendToWithQ(n, pcChar)
+			This.ExtendToWith(n, pcChar)
+			return This
+
+	def ExtendToWithCharsRepeated(n)
+		# Pad out to total length n by cycling through the current
+		# content (so "abc" -> "abc abc a" when n = 8).
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		if _nLen_ = 0 or n <= _nLen_ return ok
+		_cOut_ = _cTxt_
+		_iSrc_ = 1
+		while ring_len(_cOut_) < n
+			_cOut_ += _cTxt_[_iSrc_]
+			_iSrc_++
+			if _iSrc_ > _nLen_ _iSrc_ = 1 ok
+		end
+		This.Update(_cOut_)
+
+		def ExtendToWithCharsRepeatedQ(n)
+			This.ExtendToWithCharsRepeated(n)
+			return This
+
+	def ExtendToWithCharsIn(n, pcCharsOrRange)
+		# Pad out to total length n by cycling through pcCharsOrRange.
+		# A Ring range like "1":"3" expands to "123".
+		_cSrc_ = pcCharsOrRange
+		if isList(pcCharsOrRange) and ring_len(pcCharsOrRange) = 2
+			# Could be range form -- already expanded by Ring to list of chars.
+			_tmp_ = ""
+			_nRL_ = ring_len(pcCharsOrRange)
+			for _i_ = 1 to _nRL_
+				_tmp_ += pcCharsOrRange[_i_]
+			next
+			_cSrc_ = _tmp_
+		ok
+		if NOT isString(_cSrc_) or ring_len(_cSrc_) = 0 return ok
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		_nSrc_ = ring_len(_cSrc_)
+		if n <= _nLen_ return ok
+		_cOut_ = _cTxt_
+		_iSrc_ = 1
+		while ring_len(_cOut_) < n
+			_cOut_ += _cSrc_[_iSrc_]
+			_iSrc_++
+			if _iSrc_ > _nSrc_ _iSrc_ = 1 ok
+		end
+		This.Update(_cOut_)
+
+		def ExtendToWithCharsInQ(n, pcCharsOrRange)
+			This.ExtendToWithCharsIn(n, pcCharsOrRange)
+			return This
+
+	# RemoveCharsWXT(pcCondition): remove every char where the
+	# predicate is TRUE. Predicate runs with @char bound.
+	def RemoveCharsWXT(pcCondition)
+		_cExpr_ = pcCondition
+		if isList(pcCondition) and ring_len(pcCondition) = 2 and
+		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
+			_cExpr_ = pcCondition[2]
+		ok
+		if NOT isString(_cExpr_) return ok
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			@char = _cTxt_[_i_]
+			@Char = @char
+			@position = _i_
+			_bDrop_ = FALSE
+			try
+				eval("_bDrop_ = " + _cExpr_)
+			catch
+				_bDrop_ = FALSE
+			done
+			if NOT _bDrop_ _cOut_ += @char ok
+		next
+		This.Update(_cOut_)
+
+		def RemoveCharsWXTQ(pcCondition)
+			This.RemoveCharsWXT(pcCondition)
+			return This
+
+		def RemoveCharsW(pcCondition)
+			This.RemoveCharsWXT(pcCondition)
 
 		def InsertAt(n, pcSubStr)
 			This.InsertBefore(n, pcSubStr)
@@ -2440,7 +2572,7 @@ class stzString from stzObject
 	# position in anPos. Walk descending so earlier positions stay
 	# valid as later inserts shift the string.
 	def InsertAfterPositions(anPos, pcStr)
-		_aPos_ = anPos + []
+		_aPos_ = _ListCopy(anPos)
 		_nPL_ = ring_len(_aPos_)
 		for _i_ = 2 to _nPL_
 			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
@@ -2459,7 +2591,7 @@ class stzString from stzObject
 
 	# InsertBeforePositions: mirror.
 	def InsertBeforePositions(anPos, pcStr)
-		_aPos_ = anPos + []
+		_aPos_ = _ListCopy(anPos)
 		_nPL_ = ring_len(_aPos_)
 		for _i_ = 2 to _nPL_
 			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
@@ -5492,7 +5624,7 @@ class stzString from stzObject
 		_nL_ = ring_len(aSections)
 		if _nL_ = 0 return ok
 		# Sort sections descending by start.
-		_aSorted_ = aSections + []
+		_aSorted_ = _ListCopy(aSections)
 		for _i_ = 2 to _nL_
 			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
 			while _j_ >= 1 and _aSorted_[_j_][1] < _v_[1]

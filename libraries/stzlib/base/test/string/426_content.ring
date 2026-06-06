@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #426.
-#ERR Error (R14) : Calling Method without definition: splitwxt
 
 load "../../stzBase.ring"
 
