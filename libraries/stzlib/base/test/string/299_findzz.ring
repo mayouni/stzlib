@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #299.
-#ERR Error (R14) : Calling Method without definition: removespacesinsections
 
 load "../../stzBase.ring"
 
