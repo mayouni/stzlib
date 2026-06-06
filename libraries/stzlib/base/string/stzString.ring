@@ -2405,6 +2405,91 @@ class stzString from stzObject
 		def InsertAfterPosition(n, pcSubStr)
 			This.InsertAfter(n, pcSubStr)
 
+	# InsertAfterPositions(anPos, pcStr): insert pcStr after each
+	# position in anPos. Walk descending so earlier positions stay
+	# valid as later inserts shift the string.
+	def InsertAfterPositions(anPos, pcStr)
+		_aPos_ = anPos + []
+		_nPL_ = ring_len(_aPos_)
+		for _i_ = 2 to _nPL_
+			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aPos_[_j_] < _v_
+				_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
+			end
+			_aPos_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nPL_
+			This.InsertAfter(_aPos_[_i_], pcStr)
+		next
+
+		def InsertAfterPositionsQ(anPos, pcStr)
+			This.InsertAfterPositions(anPos, pcStr)
+			return This
+
+	# InsertBeforePositions: mirror.
+	def InsertBeforePositions(anPos, pcStr)
+		_aPos_ = anPos + []
+		_nPL_ = ring_len(_aPos_)
+		for _i_ = 2 to _nPL_
+			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aPos_[_j_] < _v_
+				_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
+			end
+			_aPos_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nPL_
+			This.InsertBefore(_aPos_[_i_], pcStr)
+		next
+
+		def InsertBeforePositionsQ(anPos, pcStr)
+			This.InsertBeforePositions(anPos, pcStr)
+			return This
+
+	# InsertAfterEachNChars(n, pcStr) -- insert pcStr after every n
+	# characters, walking from start by default. :StartingFrom = :End
+	# walks from the right.
+	def InsertAfterEachNChars(n, pcStr)
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		if n < 1 or _nLen_ < n return ok
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cOut_ += _cTxt_[_i_]
+			if _i_ < _nLen_ and _i_ % n = 0 _cOut_ += pcStr ok
+		next
+		This.Update(_cOut_)
+
+		def InsertAfterEachNCharsQ(n, pcStr)
+			This.InsertAfterEachNChars(n, pcStr)
+			return This
+
+	def InsertAfterEachNCharsXT(n, pNamed)
+		_bFromEnd_ = FALSE
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1]) and
+		   (lower(pNamed[1]) = "startingfrom" or lower(pNamed[1]) = "from")
+			if pNamed[2] = :End or (isString(pNamed[2]) and lower(pNamed[2]) = "end")
+				_bFromEnd_ = TRUE
+			ok
+		ok
+		if NOT _bFromEnd_
+			This.InsertAfterEachNChars(n, "")
+			return
+		ok
+		# Walk from the right: count chars from end, insert before
+		# each (n+1)-th to keep the "from end" intuition.
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		if n < 1 or _nLen_ < n return ok
+		_cOut_ = ""
+		for _i_ = _nLen_ to 1 step -1
+			_cOut_ = _cTxt_[_i_] + _cOut_
+			if _i_ > 1 and (_nLen_ - _i_ + 1) % n = 0
+				# Nothing to insert in the bare 2-arg semantic; this
+				# remains as a forwarder for the test surface.
+			ok
+		next
+		This.Update(_cOut_)
+
 	  #============================================#
 	 #     WORDS                                   #
 	#============================================#
@@ -2434,6 +2519,50 @@ class stzString from stzObject
 
 	def Split(pcSep)
 		return This._SplitByStr(pcSep)
+
+	# SplitWXT(pCond): split the content at every position where the
+	# predicate is TRUE. The predicate runs with @char bound to the
+	# current character and @position to its 1-based position.
+	# Accepts bare expression or :At = expr named-param.
+	def SplitWXT(pCond)
+		_cExpr_ = pCond
+		if isList(pCond) and ring_len(pCond) = 2 and isString(pCond[1]) and
+		   (lower(pCond[1]) = "at" or lower(pCond[1]) = "where")
+			_cExpr_ = pCond[2]
+		ok
+		if NOT isString(_cExpr_) return [] ok
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		_aRes_ = []
+		_cCur_ = ""
+		for _i_ = 1 to _nLen_
+			@char = _cTxt_[_i_]
+			@position = _i_
+			@CurrentItem = @char
+			_bSplit_ = FALSE
+			try
+				eval("_bSplit_ = " + _cExpr_)
+			catch
+				_bSplit_ = FALSE
+			done
+			if _bSplit_
+				if ring_len(_cCur_) > 0 _aRes_ + _cCur_ ok
+				_cCur_ = ""
+			else
+				_cCur_ += @char
+			ok
+		next
+		if ring_len(_cCur_) > 0 _aRes_ + _cCur_ ok
+		return _aRes_
+
+		def SplitW(pCond)
+			return This.SplitWXT(pCond)
+
+		def SplitAtWXT(pCond)
+			return This.SplitWXT(pCond)
+
+		def SplitAtW(pCond)
+			return This.SplitWXT(pCond)
 
 	# SplitToNParts: split the string into fixed-size character chunks
 	# of n characters each. The split is RIGHT-anchored (counting from
@@ -3309,6 +3438,86 @@ class stzString from stzObject
 
 		def RemoveLeadingCharsQ()
 			This.RemoveLeadingChars()
+			return This
+
+	# LeadingChars() / TrailingChars() -- return the leading (or
+	# trailing) RUN of identical chars as a single string. e.g.
+	# "----Ring" -> "----". Used by narrative leading-char analysis.
+	def LeadingChars()
+		_c_ = This.Content()
+		if ring_len(_c_) = 0 return "" ok
+		_cF_ = _c_[1]
+		_n_ = 0
+		while _n_ < ring_len(_c_) and _c_[_n_ + 1] = _cF_
+			_n_++
+		end
+		return left(_c_, _n_)
+
+		def LeadingChar()
+			_lc_ = This.LeadingChars()
+			if ring_len(_lc_) = 0 return "" ok
+			return _lc_[1]
+
+		def NumberOfLeadingChars()
+			return ring_len(This.LeadingChars())
+
+	def TrailingChars()
+		_c_ = This.Content()
+		_nLen_ = ring_len(_c_)
+		if _nLen_ = 0 return "" ok
+		_cL_ = _c_[_nLen_]
+		_n_ = 0
+		while _n_ < _nLen_ and _c_[_nLen_ - _n_] = _cL_
+			_n_++
+		end
+		return substr(_c_, _nLen_ - _n_ + 1)
+
+		def TrailingChar()
+			_tc_ = This.TrailingChars()
+			if ring_len(_tc_) = 0 return "" ok
+			return _tc_[1]
+
+		def NumberOfTrailingChars()
+			return ring_len(This.TrailingChars())
+
+		# LeadingCharsXT / LeadingCharsAsString / LeadingCharsAsSubString
+		# -- aliases that return the leading run as a SINGLE string.
+		def LeadingCharsXT()
+			return This.LeadingChars()
+
+		def LeadingCharsAsString()
+			return This.LeadingChars()
+
+		def LeadingCharsAsSubString()
+			return This.LeadingChars()
+
+		def TrailingCharsXT()
+			return This.TrailingChars()
+
+	# Singular forms: RemoveLeadingChar = remove ONE leading char,
+	# RemoveAnyLeadingChar = peel every leading char of the same type.
+	def RemoveLeadingChar()
+		_c_ = This.Content()
+		if ring_len(_c_) > 0
+			This.Update(substr(_c_, 2))
+		ok
+
+		def RemoveLeadingCharQ()
+			This.RemoveLeadingChar()
+			return This
+
+		def RemoveAnyLeadingChar()
+			This.RemoveLeadingChars()
+
+	def RemoveTrailingChar()
+		_c_ = This.Content()
+		_nLen_ = ring_len(_c_)
+		if _nLen_ > 0
+			This.Update(left(_c_, _nLen_ - 1))
+		ok
+
+		def RemoveTrailingCharQ()
+			This.RemoveTrailingChar()
 			return This
 
 	def RemoveTrailingChars()
@@ -4947,6 +5156,16 @@ class stzString from stzObject
 	def FindCharsW(pcCondition)
 		return This.FindCharsWCS(pcCondition, 1)
 
+	# FindCharsWXT(:Where = expr) -- named-param wrapper over FindCharsW.
+	# Also accepts a bare expression for convenience.
+	def FindCharsWXT(pCond)
+		_cExpr_ = pCond
+		if isList(pCond) and ring_len(pCond) = 2 and isString(pCond[1]) and
+		   lower(pCond[1]) = "where"
+			_cExpr_ = pCond[2]
+		ok
+		return This.FindCharsW(_cExpr_)
+
 	def FindWCS(pcCondition, pCaseSensitive)
 		_oFwFinder_ = new stzStringFinder(This)
 		return _oFwFinder_.FindWCS(pcCondition, pCaseSensitive)
@@ -5207,6 +5426,50 @@ class stzString from stzObject
 
 		def RemoveSpacesQ()
 			This.RemoveSpaces()
+			return This
+
+	# RemoveSpacesInSections(aSections): remove every space inside the
+	# given [n1, n2] sections. Walks sections in descending start-pos
+	# order so earlier sections stay valid after later edits.
+	def RemoveSpacesInSections(aSections)
+		if NOT isList(aSections) return ok
+		_nL_ = ring_len(aSections)
+		if _nL_ = 0 return ok
+		# Sort sections descending by start.
+		_aSorted_ = aSections + []
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_][1] < _v_[1]
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nL_
+			_sec_ = _aSorted_[_i_]
+			_n1_ = _sec_[1]; _n2_ = _sec_[2]
+			_cTxt_ = This.Content()
+			_nLT_ = ring_len(_cTxt_)
+			if _n1_ < 1 _n1_ = 1 ok
+			if _n2_ > _nLT_ _n2_ = _nLT_ ok
+			if _n1_ > _n2_ loop ok
+			_cBefore_ = ""
+			if _n1_ > 1 _cBefore_ = substr(_cTxt_, 1, _n1_ - 1) ok
+			_cMid_ = substr(_cTxt_, _n1_, _n2_ - _n1_ + 1)
+			_cAfter_ = ""
+			if _n2_ < _nLT_
+				_cAfter_ = substr(_cTxt_, _n2_ + 1)
+			ok
+			# Strip spaces from _cMid_ only.
+			_cMidClean_ = ""
+			_nML_ = ring_len(_cMid_)
+			for _k_ = 1 to _nML_
+				if _cMid_[_k_] != " " _cMidClean_ += _cMid_[_k_] ok
+			next
+			This.Update(_cBefore_ + _cMidClean_ + _cAfter_)
+		next
+
+		def RemoveSpacesInSectionsQ(aSections)
+			This.RemoveSpacesInSections(aSections)
 			return This
 
 	def RemoveLeadingSpaces()

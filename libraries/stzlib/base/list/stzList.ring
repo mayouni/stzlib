@@ -3601,6 +3601,10 @@ class stzList from stzObject
 		_oSwxtSplitter_ = new stzListSplits(This)
 		return _oSwxtSplitter_.SplitWXT(pcCondition)
 
+	def SplitAtWXT(pcCondition)
+		_oSawSplitter_ = new stzListSplits(This)
+		return _oSawSplitter_.SplitAtWXT(pcCondition)
+
 	def SplittedWXT(pcCondition)
 		_oSdwxtSplitter_ = new stzListSplits(This)
 		return _oSdwxtSplitter_.SplittedWXT(pcCondition)
