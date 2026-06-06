@@ -3325,9 +3325,46 @@ class stzList from stzObject
 	def AntiFindAsSections(pItem)
 		return This.AntiFindAsSectionsCS(pItem, 1)
 
+		# Z-suffix: same as AntiFindAsSections.
+		def AntiFindZZ(pItem)
+			return This.AntiFindAsSections(pItem)
+
+		def AntiFindAsSectionsZZ(pItem)
+			return This.AntiFindAsSections(pItem)
+
+		def AntiFindZZCS(pItem, pCaseSensitive)
+			return This.AntiFindAsSectionsCS(pItem, pCaseSensitive)
+
 	def AntiPositions(anPos)
 		_oApFinder_ = new stzListFinder(This)
 		return _oApFinder_.AntiPositions(anPos)
+
+	# AntiPositionsZZ: the complement of anPos as [start, end] sections.
+	# Walks 1..NumberOfItems, grouping consecutive positions not in anPos.
+	def AntiPositionsZZ(anPos)
+		_aRes_ = []
+		_nLen_ = This.NumberOfItems()
+		_aIn_ = anPos
+		_nStart_ = 0
+		for _i_ = 1 to _nLen_
+			_bInPos_ = FALSE
+			_nIL_ = ring_len(_aIn_)
+			for _j_ = 1 to _nIL_
+				if _aIn_[_j_] = _i_ _bInPos_ = TRUE exit ok
+			next
+			if NOT _bInPos_
+				if _nStart_ = 0 _nStart_ = _i_ ok
+			else
+				if _nStart_ > 0
+					_aRes_ + [ _nStart_, _i_ - 1 ]
+					_nStart_ = 0
+				ok
+			ok
+		next
+		if _nStart_ > 0
+			_aRes_ + [ _nStart_, _nLen_ ]
+		ok
+		return _aRes_
 
 	def FindNOccurrencesCS(n, pItem, pCaseSensitive)
 		_oFnoFinder_ = new stzListFinder(This)

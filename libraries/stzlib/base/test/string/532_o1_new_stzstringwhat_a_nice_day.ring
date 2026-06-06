@@ -3,12 +3,12 @@
 # o1 = new stzString("what a <<nice>>> day!")
 #
 # Extracted from stzStringTest.ring, block #532.
-#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 
 pr()
 
+o1 = new stzString("what a <<nice>>> day!")
 # All these return an error message:
 
 ? o1.Section(50, 0)	#-->NULL

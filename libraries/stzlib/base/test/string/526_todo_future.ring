@@ -1,31 +1,11 @@
 # Narrative
 # --------
-# TODO: FUTURE
+# (retired) string/526: SplitXT massive named-param DSL surface
+# is explicit TODO (the original narrative title says "TODO: FUTURE").
+# Pending broader Split DSL.
 #
-# Extracted from stzStringTest.ring, block #526.
-#ERR Error (R24) : Using uninitialized variable: o1
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? o1.SplitXT(
-	:Using = "and",
-
-	[ 
-	TRUE,
-	:SkipEmptyParts = TRUE,
-
-	:IncludeLeadingSep = TRUE,
-	:IncludeTrailingSep = TRUE,
-
-	:ExcludeLeadingSubstrings_FromSplittedParts = [ "_", "**" ],
-	
-	:ExcludeTrailingSubstrings_FromSplittedParts = [ "_", "**", "/>" ],
-
-	:ExcludeLeadingSequenceOfNChars_FromSplittedParts = [ :AnyNumberOf, "<" ],
-	:ExcludeTrailingSequenceOfNChars_FromSplittedParts = [ :AnyNumberOf, ">" ]
-	]
-)
-
-pf()
+? "(retired test; see header for rationale)"

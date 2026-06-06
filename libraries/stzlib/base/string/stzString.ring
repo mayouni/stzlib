@@ -28,6 +28,48 @@ class stzString from stzObject
 	Those
 
 	  #===================#
+	 #   OPERATOR OVERLOAD #
+	#===================#
+
+	# Ring's `obj[n]` syntax dispatches to operator("[]", n). For
+	# stzString we want the n-th codepoint (1-based). Negative n
+	# counts from the end: Q("ABCDE")[-1] = "E", [-2] = "D".
+	def operator(pOp, pValue)
+		if pOp = "[]"
+			if NOT isNumber(pValue) return "" ok
+			_nLen_ = This._EngineCount(This.Content())
+			_n_ = pValue
+			if _n_ < 0 _n_ = _nLen_ + _n_ + 1 ok
+			if _n_ < 1 or _n_ > _nLen_ return "" ok
+			return This._EngineSlice(This.Content(), _n_, 1)
+		ok
+
+		if pOp = "+"
+			# String concat: append the stringified value.
+			if isString(pValue)
+				This.Update(This.Content() + pValue)
+			but isNumber(pValue)
+				This.Update(This.Content() + ("" + pValue))
+			ok
+			return This.Content()
+		ok
+
+		if pOp = "*"
+			# Repeat the string pValue times.
+			if NOT isNumber(pValue) return This.Content() ok
+			_n_ = floor(pValue)
+			if _n_ < 0 _n_ = 0 ok
+			_cOut_ = ""
+			for _i_ = 1 to _n_
+				_cOut_ += This.Content()
+			next
+			This.Update(_cOut_)
+			return _cOut_
+		ok
+
+		return ""
+
+	  #===================#
 	 #   INITIALIZATION  #
 	#===================#
 
@@ -2137,6 +2179,35 @@ class stzString from stzObject
 
 		def ReplaceCharsAtPositionsQ(anPos, pNamed)
 			This.ReplaceCharsAtPositions(anPos, pNamed)
+			return This
+
+	# ReplaceCharsAtPositionsByMany(anPos, paChars): per-position
+	# parallel replacement -- position anPos[i] gets replaced by
+	# paChars[i] (cycling if there are more positions than chars).
+	def ReplaceCharsAtPositionsByMany(anPos, paChars)
+		if NOT (isList(anPos) and isList(paChars)) return ok
+		_nPL_ = ring_len(anPos)
+		_nCL_ = ring_len(paChars)
+		if _nPL_ = 0 or _nCL_ = 0 return ok
+		# Engine-backed: get the codepoint list, swap each pos.
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 1 to _nPL_
+			_p_ = anPos[_i_]
+			if _p_ >= 1 and _p_ <= _nLen_
+				_repIdx_ = _i_
+				while _repIdx_ > _nCL_ _repIdx_ -= _nCL_ end
+				_aChars_[_p_] = paChars[_repIdx_]
+			ok
+		next
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cOut_ += _aChars_[_i_]
+		next
+		This.Update(_cOut_)
+
+		def ReplaceCharsAtPositionsByManyQ(anPos, paChars)
+			This.ReplaceCharsAtPositionsByMany(anPos, paChars)
 			return This
 
 	# Sit(:OnSection = [n1, n2], :AndHarvest = [:NCharsBefore=a,
@@ -5602,11 +5673,175 @@ class stzString from stzObject
 		return This.SplitAtCS(pcSepOrPos, 1)
 
 	def SplitBeforeCS(pcSubStr, pCaseSensitive)
+		# Accept :CS = bCase named-param on the case flag.
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and lower(pCaseSensitive[1]) = "cs"
+			pCaseSensitive = pCaseSensitive[2]
+		ok
 		_oSbSplitter_ = new stzStringSplitter(This)
 		return _oSbSplitter_.SplitBeforeCS(pcSubStr, pCaseSensitive)
 
 	def SplitBefore(pcSubStr)
 		return This.SplitBeforeCS(pcSubStr, 1)
+
+	# SplitBefore positions / char- or substring-predicate variants.
+	def SplitBeforePositions(anPos)
+		# Split the content into pieces that BEGIN at each position
+		# in anPos (so position p starts a new piece).
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		# Sort positions ascending.
+		_aSorted_ = _ListCopy(anPos)
+		_nPL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nPL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_] > _v_
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		_nStart_ = 1
+		for _i_ = 1 to _nPL_
+			_p_ = _aSorted_[_i_]
+			if _p_ <= _nStart_ loop ok
+			if _p_ > _nLen_ exit ok
+			_aRes_ + This._EngineSlice(_cTxt_, _nStart_, _p_ - _nStart_)
+			_nStart_ = _p_
+		next
+		if _nStart_ <= _nLen_
+			_aRes_ + This._EngineSliceFrom(_cTxt_, _nStart_)
+		ok
+		return _aRes_
+
+	def SplitAfterPositions(anPos)
+		# Split so each position p ENDS a piece (next piece starts at p+1).
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_aSorted_ = _ListCopy(anPos)
+		_nPL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nPL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_] > _v_
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		_nStart_ = 1
+		for _i_ = 1 to _nPL_
+			_p_ = _aSorted_[_i_]
+			if _p_ < _nStart_ loop ok
+			if _p_ > _nLen_ exit ok
+			_aRes_ + This._EngineSlice(_cTxt_, _nStart_, _p_ - _nStart_ + 1)
+			_nStart_ = _p_ + 1
+		next
+		if _nStart_ <= _nLen_
+			_aRes_ + This._EngineSliceFrom(_cTxt_, _nStart_)
+		ok
+		return _aRes_
+
+	# SplitBeforeCharsWXT(pcCondition): split into pieces that begin
+	# at each char position where the eval'd predicate is TRUE.
+	# Predicate runs with @char / @position bindings.
+	def SplitBeforeCharsWXT(pcCondition)
+		_cExpr_ = pcCondition
+		if isList(pcCondition) and ring_len(pcCondition) = 2 and
+		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
+			_cExpr_ = pcCondition[2]
+		ok
+		if NOT isString(_cExpr_) return [] ok
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_anPos_ = []
+		for _i_ = 1 to _nLen_
+			@char = _aChars_[_i_]
+			@Char = @char
+			@position = _i_
+			_bMatch_ = FALSE
+			try
+				eval("_bMatch_ = " + _cExpr_)
+			catch
+				_bMatch_ = FALSE
+			done
+			if _bMatch_ _anPos_ + _i_ ok
+		next
+		return This.SplitBeforePositions(_anPos_)
+
+	def SplitAfterCharsWXT(pcCondition)
+		_cExpr_ = pcCondition
+		if isList(pcCondition) and ring_len(pcCondition) = 2 and
+		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
+			_cExpr_ = pcCondition[2]
+		ok
+		if NOT isString(_cExpr_) return [] ok
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_anPos_ = []
+		for _i_ = 1 to _nLen_
+			@char = _aChars_[_i_]
+			@Char = @char
+			@position = _i_
+			_bMatch_ = FALSE
+			try
+				eval("_bMatch_ = " + _cExpr_)
+			catch
+				_bMatch_ = FALSE
+			done
+			if _bMatch_ _anPos_ + _i_ ok
+		next
+		return This.SplitAfterPositions(_anPos_)
+
+	# SplitBeforeSubStringsWXT(pcCondition): walk every substring
+	# position and split before each that matches the predicate
+	# (predicate runs with @SubString bound). Returns the pieces.
+	def SplitBeforeSubStringsWXT(pcCondition)
+		_cExpr_ = pcCondition
+		if isList(pcCondition) and ring_len(pcCondition) = 2 and
+		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
+			_cExpr_ = pcCondition[2]
+		ok
+		if NOT isString(_cExpr_) return [] ok
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_anPos_ = []
+		for _i_ = 1 to _nLen_
+			for _j_ = _i_ to _nLen_
+				@SubString = This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
+				_bMatch_ = FALSE
+				try
+					eval("_bMatch_ = " + _cExpr_)
+				catch
+					_bMatch_ = FALSE
+				done
+				if _bMatch_ _anPos_ + _i_ exit ok
+			next
+		next
+		return This.SplitBeforePositions(_anPos_)
+
+	def SplitAfterSubStringsWXT(pcCondition)
+		_cExpr_ = pcCondition
+		if isList(pcCondition) and ring_len(pcCondition) = 2 and
+		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
+			_cExpr_ = pcCondition[2]
+		ok
+		if NOT isString(_cExpr_) return [] ok
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_anPos_ = []
+		for _i_ = 1 to _nLen_
+			for _j_ = _i_ to _nLen_
+				@SubString = This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
+				_bMatch_ = FALSE
+				try
+					eval("_bMatch_ = " + _cExpr_)
+				catch
+					_bMatch_ = FALSE
+				done
+				if _bMatch_ _anPos_ + _j_ exit ok
+			next
+		next
+		return This.SplitAfterPositions(_anPos_)
 
 	def SplitAfterCS(pcSubStr, pCaseSensitive)
 		_oSafSplitter_ = new stzStringSplitter(This)
