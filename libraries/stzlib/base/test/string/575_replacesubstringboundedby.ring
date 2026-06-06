@@ -3,7 +3,6 @@
 # ReplaceSubStringBoundedBy
 #
 # Extracted from stzStringTest.ring, block #575.
-#ERR Error (R14) : Calling Method without definition: replacesubstringboundedby
 
 load "../../stzBase.ring"
 

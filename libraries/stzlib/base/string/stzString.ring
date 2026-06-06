@@ -1869,6 +1869,75 @@ class stzString from stzObject
 			This.ReplaceSubStringAtPosition(n, pcOld, pcNew)
 			return This
 
+	# Markers / Marquers (FR) -- placeholder tokens of the form #1,
+	# #2, ..., #N inside the content. The narrative tests check whether
+	# the markers appear in ascending order.
+	#
+	# Markers(): return the list of marker numbers as they appear,
+	# left-to-right. e.g. "#1 #3 #2" -> [1, 3, 2].
+	def Markers()
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		_i_ = 1
+		while _i_ <= _nLen_
+			if _cTxt_[_i_] = "#" and _i_ < _nLen_ and isDigit(_cTxt_[_i_ + 1])
+				_j_ = _i_ + 1
+				while _j_ <= _nLen_ and isDigit(_cTxt_[_j_])
+					_j_++
+				end
+				_cNum_ = substr(_cTxt_, _i_ + 1, _j_ - _i_ - 1)
+				_aRes_ + 0 + _cNum_
+				_i_ = _j_
+			else
+				_i_++
+			ok
+		end
+		return _aRes_
+
+		def Marquers()
+			return This.Markers()
+
+	def NumberOfMarkers()
+		return ring_len(This.Markers())
+
+		def NumberOfMarquers()
+			return This.NumberOfMarkers()
+
+	def MarkersAreSortedInAscending()
+		_aM_ = This.Markers()
+		_nLen_ = ring_len(_aM_)
+		if _nLen_ < 2 return TRUE ok
+		for _i_ = 2 to _nLen_
+			if _aM_[_i_] < _aM_[_i_ - 1] return FALSE ok
+		next
+		return TRUE
+
+		def MarquersAreSortedInAscending()
+			return This.MarkersAreSortedInAscending()
+
+		def MarkersAreSortedAscending()
+			return This.MarkersAreSortedInAscending()
+
+	def MarkersAreSortedInDescending()
+		_aM_ = This.Markers()
+		_nLen_ = ring_len(_aM_)
+		if _nLen_ < 2 return TRUE ok
+		for _i_ = 2 to _nLen_
+			if _aM_[_i_] > _aM_[_i_ - 1] return FALSE ok
+		next
+		return TRUE
+
+		def MarquersAreSortedInDescending()
+			return This.MarkersAreSortedInDescending()
+
+	def MarkersAreSorted()
+		return This.MarkersAreSortedInAscending() or
+		       This.MarkersAreSortedInDescending()
+
+		def MarquersAreSorted()
+			return This.MarkersAreSorted()
+
 	# ReplaceXT(p1, p2, p3) -- named-param dispatcher for the common
 	# narrative forms. Supported shapes:
 	#   ReplaceXT( :Nth = n, pcSubStr, :With = pcNew )
