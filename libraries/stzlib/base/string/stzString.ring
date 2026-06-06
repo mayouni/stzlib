@@ -3890,13 +3890,61 @@ class stzString from stzObject
 	#========================================#
 
 	# --- Substrings ---
-
-	def SubStringsCS(pCaseSensitive)
-		_oSsFinder_ = new stzStringFinder(This)
-		return _oSsFinder_.SubStringsCS(pCaseSensitive)
+	# SubStrings() / SubStringsCS(bCase): enumerate every substring of
+	# This (start..end position pairs over chars), deduplicated by the
+	# requested case sensitivity. SubStrings() returns the full enum
+	# WITH MULTIPLICITY (no dedup); SubStringsCS(1) dedups case-sens.;
+	# SubStringsCS(0) dedups case-insensitively.
 
 	def SubStrings()
-		return This.SubStringsCS(1)
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		_aRes_ = []
+		for _i_ = 1 to _nLen_
+			for _j_ = _i_ to _nLen_
+				_aRes_ + substr(_cTxt_, _i_, _j_ - _i_ + 1)
+			next
+		next
+		return _aRes_
+
+	def NumberOfSubStrings()
+		_n_ = ring_len(This.Content())
+		return (_n_ * (_n_ + 1)) / 2
+
+	def SubStringsCS(pCaseSensitive)
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		_aRes_ = []
+		_bCase_ = (pCaseSensitive = 1)
+		for _i_ = 1 to _nLen_
+			for _j_ = _i_ to _nLen_
+				_s_ = substr(_cTxt_, _i_, _j_ - _i_ + 1)
+				# Dedup: walk the result list, comparing per chosen
+				# case sensitivity. OK on the narrative-test sizes.
+				_bDup_ = FALSE
+				_nrLen_ = ring_len(_aRes_)
+				for _k_ = 1 to _nrLen_
+					if _bCase_
+						if _aRes_[_k_] = _s_ _bDup_ = TRUE exit ok
+					else
+						if upper(_aRes_[_k_]) = upper(_s_)
+							_bDup_ = TRUE exit
+						ok
+					ok
+				next
+				if NOT _bDup_ _aRes_ + _s_ ok
+			next
+		next
+		return _aRes_
+
+	def NumberOfSubStringsCS(pCaseSensitive)
+		return ring_len(This.SubStringsCS(pCaseSensitive))
+
+	def NumberOfSubStringsU()
+		return This.NumberOfSubStringsCS(0)
+
+	def SubStringsU()
+		return This.SubStringsCS(0)
 
 	# --- IndexOf ---
 
@@ -4085,14 +4133,12 @@ class stzString from stzObject
 		def NumberOfOccurrencesCS(pcSubStr, pCaseSensitive)
 			return This.CountCS(pcSubStr, pCaseSensitive)
 
-		def NumberOfSubStringsCS(pcSubStr, pCaseSensitive)
-			return This.CountCS(pcSubStr, pCaseSensitive)
-
-		def NumberOfSubStrings(pcSubStr)
+		# Note: NumberOfSubStrings / NumberOfSubStringsCS / NumberOfSubStringsU
+		# without args (combinatorial enumeration count) are defined at the
+		# class top with the SubStrings group; here we keep only the
+		# differently-named occurrence-count alias for clarity.
+		def CountSubStrings(pcSubStr)
 			return This.CountCS(pcSubStr, 1)
-
-		def NumberOfSubStringsU(pcSubStr)
-			return This.CountCS(pcSubStr, 0)
 
 	def Count(pcSubStr)
 		return This.CountCS(pcSubStr, 1)
