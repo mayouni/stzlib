@@ -4371,6 +4371,52 @@ class stzString from stzObject
 		def FindBoundedByIB(pacBounds)
 			return This.FindSubStringsBoundedByIBZZ(pacBounds)
 
+	# FindSubStringsAsSectionsWXT(pcCondition): enumerate every
+	# substring [start, end] and return the sections where the
+	# eval'd predicate is true. The predicate runs with @SubString
+	# bound to the current substring content.
+	def FindSubStringsAsSectionsWXT(pcCondition)
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		for _i_ = 1 to _nLen_
+			for _j_ = _i_ to _nLen_
+				@SubString = substr(_cTxt_, _i_, _j_ - _i_ + 1)
+				_bMatch_ = FALSE
+				try
+					eval("_bMatch_ = " + pcCondition)
+				catch
+					_bMatch_ = FALSE
+				done
+				if _bMatch_
+					_aRes_ + [ _i_, _j_ ]
+				ok
+			next
+		next
+		return _aRes_
+
+		def FindSubStringsWXT(pcCondition)
+			# Same enumeration; return just the matching substrings
+			# rather than their sections.
+			_aRes2_ = []
+			_aSec_ = This.FindSubStringsAsSectionsWXT(pcCondition)
+			_cTxt2_ = This.Content()
+			_nSL_ = ring_len(_aSec_)
+			for _i_ = 1 to _nSL_
+				_s_ = _aSec_[_i_][1]; _e_ = _aSec_[_i_][2]
+				_aRes2_ + substr(_cTxt2_, _s_, _e_ - _s_ + 1)
+			next
+			return _aRes2_
+
+		def FindSubStringsWXTZZ(pcCondition)
+			return This.FindSubStringsAsSectionsWXT(pcCondition)
+
+		def FindSubStringsAsSectionsW(pcCondition)
+			return This.FindSubStringsAsSectionsWXT(pcCondition)
+
+		def FindSubStringsW(pcCondition)
+			return This.FindSubStringsWXT(pcCondition)
+
 	# FindBoundedBy / FindBoundedByCS -- the most common spelling
 	# in narrative tests. Returns the [startPos, endPos] of each
 	# bounded section.
