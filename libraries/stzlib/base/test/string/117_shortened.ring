@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #117.
-#ERR Error (R14) : Calling Method without definition: shortenedxt
 
 load "../../stzBase.ring"
 

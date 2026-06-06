@@ -4578,6 +4578,28 @@ class stzList from stzObject
 		_oYwPrf_ = new stzListPerformer(This)
 		return _oYwPrf_.YieldW(pcCondition, pcYielder)
 
+	# YieldWXT(pcYielder): transform every item by the eval'd
+	# expression. @item binding. Returns the new list.
+	def YieldWXT(pcYielder)
+		if NOT isString(pcYielder) return [] ok
+		_aRes_ = []
+		_nLen_ = ring_len(@aContent)
+		for _i_ = 1 to _nLen_
+			@item = @aContent[_i_]
+			@position = _i_
+			_xVal_ = NULL
+			try
+				eval("_xVal_ = " + pcYielder)
+			catch
+				_xVal_ = NULL
+			done
+			_aRes_ + _xVal_
+		next
+		return _aRes_
+
+		def YieldWXTQ(pcYielder)
+			return new stzList( This.YieldWXT(pcYielder) )
+
 	# ItemsW / ItemsWXT / ItemsWXTQ: filter the list by an evaluated
 	# Ring expression where @item is the loop variable. Returns the
 	# items for which the expression is truthy. ItemsWXTQ wraps the
