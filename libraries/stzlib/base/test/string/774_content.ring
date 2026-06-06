@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #774.
-#ERR Error (R14) : Calling Method without definition: replaceleadingchar
 
 load "../../stzBase.ring"
 
