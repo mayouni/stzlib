@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #405.
-#ERR Error (R14) : Calling Method without definition: sectionxt
 
 load "../../stzBase.ring"
 

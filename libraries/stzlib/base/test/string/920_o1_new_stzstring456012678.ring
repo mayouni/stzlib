@@ -3,12 +3,12 @@
 # o1 = new stzString("...456...012...678..")
 #
 # Extracted from stzStringTest.ring, block #920.
-#ERR Error (R24) : Using uninitialized variable: o1
 
 load "../../stzBase.ring"
 
 pr()
 
+o1 = new stzString("...456...012...678..")
 o1.ReplaceSectionsByMany([ [ 4, 6], [10, 20], [16, 18] ], ["A", "BB", "CCC"])
 ? o1.Content()
 #--> ERROR MSG: Incorrect param type!
