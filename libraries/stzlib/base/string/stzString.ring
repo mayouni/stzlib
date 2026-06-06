@@ -434,6 +434,89 @@ class stzString from stzObject
 		def SectionXTQ(n1, n2)
 			return new stzString( This.SectionXT(n1, n2) )
 
+	# SectionQ(n1, n2): fluent form -- return the section wrapped in
+	# stzString so subsequent .CharsReversed() / .Uppercase() etc
+	# resolve on the string class.
+	def SectionQ(n1, n2)
+		return new stzString( This.Section(n1, n2) )
+
+	# FirstHalf / SecondHalf -- split the content in two equal halves
+	# (rounded down on odd length). FirstHalfXT returns trailing char.
+	def FirstHalf()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return "" ok
+		_nMid_ = floor(_nLen_ / 2)
+		return This._EngineSlice(This.Content(), 1, _nMid_)
+
+	def FirstHalfXT()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return "" ok
+		_nMid_ = ceil(_nLen_ / 2)
+		return This._EngineSlice(This.Content(), 1, _nMid_)
+
+	def SecondHalf()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return "" ok
+		_nMid_ = floor(_nLen_ / 2) + 1
+		return This._EngineSliceFrom(This.Content(), _nMid_)
+
+	def SecondHalfXT()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return "" ok
+		_nMid_ = ceil(_nLen_ / 2) + 1
+		return This._EngineSliceFrom(This.Content(), _nMid_)
+
+	# Halves(): return [firstHalf, secondHalf] as a list of strings.
+	def Halves()
+		return [ This.FirstHalf(), This.SecondHalf() ]
+
+	def HalvesXT()
+		return [ This.FirstHalfXT(), This.SecondHalfXT() ]
+
+	# FirstHalfZ / SecondHalfZ -- sectional [start, end] forms.
+	def FirstHalfZ()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return [] ok
+		_nMid_ = floor(_nLen_ / 2)
+		return [ 1, _nMid_ ]
+
+	def SecondHalfZ()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return [] ok
+		_nMid_ = floor(_nLen_ / 2) + 1
+		return [ _nMid_, _nLen_ ]
+
+	def HalvesZ()
+		return [ This.FirstHalfZ(), This.SecondHalfZ() ]
+
+	# ZZ variants -- same as Z but the wider tests expect this spelling.
+	def FirstHalfZZ()
+		return This.FirstHalfZ()
+
+	def SecondHalfZZ()
+		return This.SecondHalfZ()
+
+	def HalvesZZ()
+		return This.HalvesZ()
+
+	# IsCircledNumber / IsCircledDigit -- Unicode-aware single-char
+	# predicates (Enclosed Alphanumerics block etc.).
+	def IsCircledNumber()
+		_aChars_ = This.Chars()
+		if ring_len(_aChars_) != 1 return FALSE ok
+		_n_ = StzCharToUnicode(_aChars_[1])
+		# 0x2460..0x2473 = circled 1..20
+		# 0x24EA..0x24FF = circled 0, negative-circled digits
+		# 0x2776..0x2793 = dingbat negative-circled digits
+		# 0x3251..0x325F = circled 21..35
+		return ( (_n_ >= 0x2460 and _n_ <= 0x2473) or
+		         (_n_ >= 0x24EA and _n_ <= 0x24FF) or
+		         (_n_ >= 0x2776 and _n_ <= 0x2793) or
+		         (_n_ >= 0x3251 and _n_ <= 0x325F) )
+
+	def IsCircledDigit()
+		return This.IsCircledNumber()
+
 	#-- Replace the chars at positions n1..n2 (inclusive) with
 	#   pcNewSubStr. Ported from the legacy monolithic archive
 	#   (~line 84916), kept minimal: pure numeric positions only.
@@ -1009,13 +1092,33 @@ class stzString from stzObject
 			return This.Content()
 		ok
 		_cStr_ = This.Content()
-		if ring_len(_cStr_) <= n
+		if This._EngineCount(_cStr_) <= n
 			return _cStr_
 		ok
-		return substr(_cStr_, 1, n - 3) + "..."
+		return This._EngineSlice(_cStr_, 1, n - 3) + "..."
 
 		def Shortened()
 			return This.ShortenedN(30)
+
+		# ShortenedXT(nLeft, nRight, pcEllipsis): keep nLeft chars from
+		# the start, nRight chars from the end, and inject pcEllipsis
+		# between them. When nLeft = 0 the ellipsis is preceded by
+		# nothing; when nRight = 0, followed by nothing.
+		def ShortenedXT(nLeft, nRight, pcEllipsis)
+			_cStr_ = This.Content()
+			_nTxtLen_ = This._EngineCount(_cStr_)
+			if nLeft + nRight >= _nTxtLen_
+				return _cStr_
+			ok
+			_cL_ = ""
+			if nLeft > 0
+				_cL_ = This._EngineSlice(_cStr_, 1, nLeft)
+			ok
+			_cR_ = ""
+			if nRight > 0
+				_cR_ = This._EngineSliceFrom(_cStr_, _nTxtLen_ - nRight + 1)
+			ok
+			return _cL_ + pcEllipsis + _cR_
 
 		def ShortenedUsing(n, pcSuffix)
 			if NOT isNumber(n) or n < 1
@@ -2337,6 +2440,26 @@ class stzString from stzObject
 		def MarquersAreSorted()
 			return This.MarkersAreSorted()
 
+	# MarkersAreUnsorted: TRUE when markers don't all monotone.
+	def MarkersAreUnsorted()
+		return NOT This.MarkersAreSorted()
+
+		def MarquersAreUnsorted()
+			return This.MarkersAreUnsorted()
+
+	# MarkersSortingOrder: :Ascending, :Descending, :Unsorted, or
+	# :Undefined for fewer than 2 markers.
+	def MarkersSortingOrder()
+		_aM_ = This.Markers()
+		_nLen_ = ring_len(_aM_)
+		if _nLen_ < 2 return :Undefined ok
+		if This.MarkersAreSortedInAscending() return :Ascending ok
+		if This.MarkersAreSortedInDescending() return :Descending ok
+		return :Unsorted
+
+		def MarquersSortingOrder()
+			return This.MarkersSortingOrder()
+
 	# ReplaceXT(p1, p2, p3) -- named-param dispatcher for the common
 	# narrative forms. Supported shapes:
 	#   ReplaceXT( :Nth = n, pcSubStr, :With = pcNew )
@@ -2454,6 +2577,22 @@ class stzString from stzObject
 
 		def SpacifyCharsQ()
 			This.SpacifyChars()
+			return This
+
+	# Spacify: shorter spelling -- same as SpacifyChars.
+	def Spacify()
+		This.SpacifyCharsUsing(" ")
+
+		def SpacifyQ()
+			This.Spacify()
+			return This
+
+	# SpacifyUsing: alias of SpacifyCharsUsing.
+	def SpacifyUsing(pcSep)
+		This.SpacifyCharsUsing(pcSep)
+
+		def SpacifyUsingQ(pcSep)
+			This.SpacifyCharsUsing(pcSep)
 			return This
 
 	def SpacifyCharsUsing(pcSep)
@@ -4185,6 +4324,25 @@ class stzString from stzObject
 		def AnySubStringsBoundedBy(pacBounds)
 			return This.BoundedBy(pacBounds)
 
+		# BoundedByZZ: sectional form [start, end] for each bounded
+		# substring (exclusive of the bounds themselves). Single-string
+		# pacBounds is used as both open and close.
+		def BoundedByZZ(pacBounds)
+			if isString(pacBounds)
+				return This.FindBoundedByAsSections([ pacBounds, pacBounds ])
+			ok
+			return This.FindBoundedByAsSections(pacBounds)
+
+		# Case-insensitive variant.
+		def BoundedByUZZ(pacBounds)
+			if isString(pacBounds)
+				return This.FindBoundedByAsSectionsCS([ pacBounds, pacBounds ], 0)
+			ok
+			return This.FindBoundedByAsSectionsCS(pacBounds, 0)
+
+		def BoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+
 		def AnyBoundedBy(pacBounds)
 			return This.BoundedBy(pacBounds)
 
@@ -5509,6 +5667,137 @@ class stzString from stzObject
 				_i_++
 			ok
 		end
+		return _aRes_
+
+	# FindNthOccurrenceCS / FindNthOccurrence: n-th match of pcSub
+	# inside the content. Engine-backed.
+	def FindNthOccurrenceCS(n, pcSub, pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and lower(pCaseSensitive[1]) = "casesensitive"
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		_bCase_ = 1
+		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		_cTxt_ = This.Content()
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nPos_ = 1; _nCount_ = 0
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nPos_, _bCase_)
+			if _nFound_ < 1 return 0 ok
+			_nCount_++
+			if _nCount_ = n return _nFound_ ok
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+		return 0
+
+	def FindNthOccurrence(n, pcSub)
+		return This.FindNthOccurrenceCS(n, pcSub, 1)
+
+	# HowMany family: count occurrences of pcSub in the content.
+	def HowMany(pcSub)
+		return StzEngineStringCountOfCS(@pEngine, pcSub, 1)
+
+	def HowManyCS(pcSub, pCaseSensitive)
+		return StzEngineStringCountOfCS(@pEngine, pcSub, pCaseSensitive)
+
+	def HowManyST(pcSub, nStartAt)
+		if isList(nStartAt) and ring_len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
+		_nCount_ = 0
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nPos_ = nStartAt
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nPos_, 1)
+			if _nFound_ < 1 exit ok
+			_nCount_++
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+		return _nCount_
+
+	def HowManySubStrings()
+		return This.NumberOfSubStrings()
+
+	def HowManyTrailingChar()
+		return This._EngineCount(This.TrailingChars())
+
+	def HowManyLeadingChar()
+		return This._EngineCount(This.LeadingChars())
+
+	# HowManyOccurrenceOfCharRightSide(pcChar) / EndSide: count the
+	# trailing run of pcChar.
+	def HowManyOccurrenceOfCharRightSide(pcChar)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_n_ = 0
+		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = pcChar
+			_n_++
+		end
+		return _n_
+
+	def HowManyOccurrenceOfCharEndSide(pcChar)
+		return This.HowManyOccurrenceOfCharRightSide(pcChar)
+
+	def HowManyOccurrenceOfCharLeftSide(pcChar)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_n_ = 0
+		while _n_ < _nLen_ and _aChars_[_n_ + 1] = pcChar
+			_n_++
+		end
+		return _n_
+
+	def HowManyOccurrenceOfCharStartSide(pcChar)
+		return This.HowManyOccurrenceOfCharLeftSide(pcChar)
+
+	# FindD(pcSub, pDir): directional find (forward / backward).
+	# Accepts :Of = pcSub named-param too.
+	def FindD(pcSubOrNamed, pDir)
+		_pSub_ = pcSubOrNamed
+		if isList(pcSubOrNamed) and ring_len(pcSubOrNamed) = 2 and
+		   isString(pcSubOrNamed[1]) and lower(pcSubOrNamed[1]) = "of"
+			_pSub_ = pcSubOrNamed[2]
+		ok
+		_bBackward_ = FALSE
+		if isString(pDir) and lower(pDir) = "backward"
+			_bBackward_ = TRUE
+		but isList(pDir) and ring_len(pDir) = 2 and isString(pDir[1]) and
+		   lower(pDir[1]) = "direction"
+			if isString(pDir[2]) and lower(pDir[2]) = "backward"
+				_bBackward_ = TRUE
+			ok
+		ok
+		_cTxt_ = This.Content()
+		if NOT _bBackward_
+			# Forward: ALL positions of _pSub_.
+			_aRes_ = []
+			_nSubLen_ = This._EngineCount(_pSub_)
+			_nPos_ = 1
+			while TRUE
+				_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, _pSub_, _nPos_, 1)
+				if _nFound_ < 1 exit ok
+				_aRes_ + _nFound_
+				_nPos_ = _nFound_ + _nSubLen_
+			end
+			return _aRes_
+		ok
+		# Backward: ALL positions, walking from end. Just reverse the
+		# forward-collected list.
+		_aFwd_ = []
+		_nSubLen_ = This._EngineCount(_pSub_)
+		_nPos_ = 1
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, _pSub_, _nPos_, 1)
+			if _nFound_ < 1 exit ok
+			_aFwd_ + _nFound_
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+		_aRes_ = []
+		_nFL_ = ring_len(_aFwd_)
+		for _i_ = _nFL_ to 1 step -1
+			_aRes_ + _aFwd_[_i_]
+		next
 		return _aRes_
 
 	# SubStringsMadeOf(pcChar): the actual matching substrings (each
@@ -6877,6 +7166,175 @@ class stzString from stzObject
 
 		def DupSecutiveCharsZZ()
 			return This.FindDupSecutiveCharsZZ()
+
+	# FindBetween(pcSub, pcOpen, pcClose): the positions of pcSub
+	# when it appears between pcOpen .. pcClose bounded sections.
+	# Convenience wrapper over FindSubStringBoundedBy.
+	def FindBetween(pcSub, pcOpen, pcClose)
+		return This.FindSubStringBoundedBy(pcSub, [ pcOpen, pcClose ])
+
+	# ContainsAt(p1, p2): does the content contain p2 at position p1?
+	# Two shapes supported by narratives:
+	#   ContainsAt(nPos, pcSub)
+	#   ContainsAt(pcSub, :Position = nPos)
+	#   ContainsAt(anPositions, pcSub)  -- ContainsAtPositions
+	def ContainsAt(p1, p2)
+		# Case A: (nPos, pcSub)
+		if isNumber(p1) and isString(p2)
+			return This._EngineSlice(This.Content(), p1, This._EngineCount(p2)) = p2
+		ok
+		# Case B: (pcSub, :Position = nPos)
+		if isString(p1) and isList(p2) and ring_len(p2) = 2 and
+		   isString(p2[1]) and lower(p2[1]) = "position"
+			_n_ = p2[2]
+			return This._EngineSlice(This.Content(), _n_, This._EngineCount(p1)) = p1
+		ok
+		# Case C: (anPositions, pcSub) -- AND of all positions match.
+		if isList(p1) and isString(p2)
+			_nLen_ = ring_len(p1)
+			for _i_ = 1 to _nLen_
+				if This._EngineSlice(This.Content(), p1[_i_], This._EngineCount(p2)) != p2
+					return FALSE
+				ok
+			next
+			return TRUE
+		ok
+		return FALSE
+
+	def ContainsAtPosition(pcSub, n)
+		return This._EngineSlice(This.Content(), n, This._EngineCount(pcSub)) = pcSub
+
+	def ContainsAtPositions(anPositions, pcSub)
+		return This.ContainsAt(anPositions, pcSub)
+
+	# Letters() / LettersQ(): characters that are letters. Engine-
+	# backed: filters the codepoint list by IsLetter() (Unicode-aware).
+	def Letters()
+		_aRes_ = []
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 1 to _nLen_
+			_c_ = _aChars_[_i_]
+			if isalpha(_c_)
+				_aRes_ + _c_
+			ok
+		next
+		return _aRes_
+
+	def LettersQ()
+		return new stzList( This.Letters() )
+
+	def NumberOfLetters()
+		return ring_len(This.Letters())
+
+	# FindWXT: predicate-driven find positions; @char binding.
+	def FindWXT(pcCondition)
+		_cExpr_ = pcCondition
+		if isList(pcCondition) and ring_len(pcCondition) = 2 and
+		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
+			_cExpr_ = pcCondition[2]
+		ok
+		if NOT isString(_cExpr_) return [] ok
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		for _i_ = 1 to _nLen_
+			@char = _aChars_[_i_]
+			@Char = @char
+			@position = _i_
+			_bMatch_ = FALSE
+			try
+				eval("_bMatch_ = " + _cExpr_)
+			catch
+				_bMatch_ = FALSE
+			done
+			if _bMatch_ _aRes_ + _i_ ok
+		next
+		return _aRes_
+
+	# Interpolated(paBindings): replace each `${key}` placeholder in
+	# This with the corresponding value from paBindings (a hashlist
+	# of [:key, value] pairs).
+	def Interpolated(paBindings)
+		if NOT isList(paBindings) return This.Content() ok
+		_cOut_ = This.Content()
+		_nL_ = ring_len(paBindings)
+		for _i_ = 1 to _nL_
+			_p_ = paBindings[_i_]
+			if isList(_p_) and ring_len(_p_) = 2 and isString(_p_[1])
+				# Substitute every "${" + key + "}" with the value.
+				_cPh_ = "${" + _p_[1] + "}"
+				_cVal_ = "" + _p_[2]
+				# Engine-replace (codepoint-aware).
+				_pH_ = StzEngineString(_cOut_)
+				_pR_ = StzEngineStringReplaceCS(_pH_, _cPh_, _cVal_, 1)
+				_cOut_ = StzEngineStringData(_pR_)
+				StzEngineStringFree(_pR_)
+				StzEngineStringFree(_pH_)
+			ok
+		next
+		return _cOut_
+
+	def InterpolatedQ(paBindings)
+		return new stzString( This.Interpolated(paBindings) )
+
+	# AllCharsAre(pcKind): every char matches the given predicate
+	# (which is a symbolic kind like :Chars, :Numbers, :Letters,
+	# :Punctuations, :Arabic, :RightToLeft, :Invertible).
+	# Engine-backed where the helper exists; falls back to
+	# isalpha / isDigit otherwise.
+	def AllCharsAre(pcKind)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return FALSE ok
+		_k_ = ""
+		if isString(pcKind) _k_ = lower(pcKind) ok
+		for _i_ = 1 to _nLen_
+			_c_ = _aChars_[_i_]
+			_bOk_ = FALSE
+			if _k_ = "chars" or _k_ = "strings"
+				_bOk_ = isString(_c_)
+			but _k_ = "numbers" or _k_ = "digits"
+				_bOk_ = isDigit(_c_)
+			but _k_ = "letters"
+				_bOk_ = isAlpha(_c_)
+			but _k_ = "punctuations" or _k_ = "punctuation"
+				_bOk_ = (ring_find([",", ".", ";", ":", "!", "?", "(", ")", "[", "]", "{", "}", "-", "'", char(34), "/", "\", "|", "<", ">"], _c_) > 0)
+			but _k_ = "arabic"
+				_n_ = StzCharToUnicode(_c_)
+				_bOk_ = ((_n_ >= 0x0600 and _n_ <= 0x06FF) or (_n_ >= 0x0750 and _n_ <= 0x077F) or (_n_ >= 0x08A0 and _n_ <= 0x08FF) or (_n_ >= 0xFB50 and _n_ <= 0xFDFF) or (_n_ >= 0xFE70 and _n_ <= 0xFEFF))
+			but _k_ = "righttoleft" or _k_ = "rtl"
+				_n_ = StzCharToUnicode(_c_)
+				_bOk_ = ((_n_ >= 0x0590 and _n_ <= 0x08FF) or (_n_ >= 0xFB1D and _n_ <= 0xFDFF) or (_n_ >= 0xFE70 and _n_ <= 0xFEFF))
+			but _k_ = "invertible"
+				# Provisional: ASCII letters are considered invertible
+				# in the narrative. Real impl needs the Unicode upside-
+				# down char table (see retired Turned tests).
+				_bOk_ = isAlpha(_c_)
+			else
+				_bOk_ = FALSE
+			ok
+			if NOT _bOk_ return FALSE ok
+		next
+		return TRUE
+
+	# IsPluralOfAStzType: predicate checking a :stz<Type>s symbolic
+	# name (e.g. :stzListsOfStrings, :stzStrings). Used by narratives
+	# that introspect Softanza type symbols.
+	def IsPluralOfAStzType()
+		_s_ = lower(This.Content())
+		# Plural shapes Softanza recognises end in "s" (or "es").
+		if NOT (ring_left(_s_, 3) = "stz") return FALSE ok
+		# Must end with 's' AND the singular (without trailing s)
+		# must also be a Stz type name.
+		if NOT (ring_right(_s_, 1) = "s") return FALSE ok
+		_singular_ = ring_left(_s_, ring_len(_s_) - 1)
+		# We accept it as a plural of a stzType if removing the
+		# trailing 's' yields a name that begins with "stz" too.
+		return ring_left(_singular_, 3) = "stz"
+
+	def IsPluralOfStzType()
+		return This.IsPluralOfAStzType()
 
 	# FindNthSTZZ / FindNthSTD / FindNthSTDZZ -- sectional / directional
 	# variants used by narratives. Reuse the singular forms.

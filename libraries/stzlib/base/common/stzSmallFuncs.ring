@@ -275,7 +275,10 @@ func StzQQ(p)
 
 		ok
 
-		return new stzText(p)
+		# stzText hasn't been ported yet -- fall back to stzString so
+		# narrative chains like QQ("Ⓜ").IsCircledNumber() still resolve
+		# on the string surface.
+		return new stzString(p)
 
 	but isList(p)
 

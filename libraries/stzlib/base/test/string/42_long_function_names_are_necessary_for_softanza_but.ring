@@ -3,7 +3,6 @@
 # #narration: long function names are necessary for Softanza, but not for you!
 #
 # Extracted from stzStringTest.ring, block #42.
-#ERR Error (R14) : Calling Method without definition: findsubstringboundsuptoncharsassections
 
 load "../../stzBase.ring"
 
