@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #444.
-#ERR TIMEOUT (>15s)
 
 load "../../stzBase.ring"
 

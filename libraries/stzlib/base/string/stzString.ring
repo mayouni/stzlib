@@ -2738,6 +2738,52 @@ class stzString from stzObject
 		def RemoveCharsW(pcCondition)
 			This.RemoveCharsWXT(pcCondition)
 
+		# Shorter aliases used by fluent narrative chains: drop chars
+		# where the predicate is TRUE. (RemoveW already exists below
+		# routing through stzStringRemover -- we add only the XT/Q
+		# variants here.)
+		def RemoveWXT(pcCondition)
+			This.RemoveCharsWXT(pcCondition)
+
+		def RemoveWXTQ(pcCondition)
+			This.RemoveCharsWXT(pcCondition)
+			return This
+
+		def RemoveWQ(pcCondition)
+			This.RemoveCharsWXT(pcCondition)
+			return This
+
+	# RemoveDuplicatedChars: dedup chars in-place (keep first occurrence).
+	def RemoveDuplicatedChars()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aSeen_ = []
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_c_ = _aChars_[_i_]
+			_bDup_ = FALSE
+			_nSL_ = ring_len(_aSeen_)
+			for _j_ = 1 to _nSL_
+				if _aSeen_[_j_] = _c_ _bDup_ = TRUE exit ok
+			next
+			if NOT _bDup_
+				_aSeen_ + _c_
+				_cOut_ += _c_
+			ok
+		next
+		This.Update(_cOut_)
+
+		def RemoveDuplicatedCharsQ()
+			This.RemoveDuplicatedChars()
+			return This
+
+		def RemoveDupChars()
+			This.RemoveDuplicatedChars()
+
+		def RemoveDupCharsQ()
+			This.RemoveDuplicatedChars()
+			return This
+
 		def InsertAt(n, pcSubStr)
 			This.InsertBefore(n, pcSubStr)
 
@@ -5424,6 +5470,91 @@ class stzString from stzObject
 
 		def FindSubStringsW(pcCondition)
 			return This.FindSubStringsWXT(pcCondition)
+
+	# FindSubStringsMadeOf(pcChar): return the start positions of
+	# each MAXIMAL run of pcChar in the content. e.g. "..._...__"
+	# with pcChar="_" -> [4, 8].
+	def FindSubStringsMadeOf(pcChar)
+		_aRes_ = []
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_i_ = 1
+		while _i_ <= _nLen_
+			if _aChars_[_i_] = pcChar
+				_aRes_ + _i_
+				while _i_ <= _nLen_ and _aChars_[_i_] = pcChar
+					_i_++
+				end
+			else
+				_i_++
+			ok
+		end
+		return _aRes_
+
+	# FindSubStringsMadeOfZZ(pcChar): return [start, end] of each
+	# maximal run.
+	def FindSubStringsMadeOfZZ(pcChar)
+		_aRes_ = []
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_i_ = 1
+		while _i_ <= _nLen_
+			if _aChars_[_i_] = pcChar
+				_nS_ = _i_
+				while _i_ <= _nLen_ and _aChars_[_i_] = pcChar
+					_i_++
+				end
+				_aRes_ + [ _nS_, _i_ - 1 ]
+			else
+				_i_++
+			ok
+		end
+		return _aRes_
+
+	# SubStringsMadeOf(pcChar): the actual matching substrings (each
+	# maximal run as a single string).
+	def SubStringsMadeOf(pcChar)
+		_aRes_ = []
+		_aZZ_ = This.FindSubStringsMadeOfZZ(pcChar)
+		_cTxt_ = This.Content()
+		_nL_ = ring_len(_aZZ_)
+		for _i_ = 1 to _nL_
+			_s_ = _aZZ_[_i_][1]; _e_ = _aZZ_[_i_][2]
+			_aRes_ + This._EngineSlice(_cTxt_, _s_, _e_ - _s_ + 1)
+		next
+		return _aRes_
+
+	# FindSubStringBoundsUpToNCharsAsSections(pcSub, n) -- for each
+	# occurrence of pcSub, return the [startBefore, endBefore] section
+	# of up to n chars to its LEFT and the [startAfter, endAfter]
+	# section of up to n chars to its RIGHT. Returns a flat list of
+	# all such sections.
+	def FindSubStringBoundsUpToNCharsAsSections(pcSub, n)
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nFrom_ = 1
+		_nFound_ = This._FindFrom(_cTxt_, pcSub, _nFrom_)
+		while _nFound_ > 0
+			# Left section [nFound - n, nFound - 1]
+			_nLs_ = _nFound_ - n
+			if _nLs_ < 1 _nLs_ = 1 ok
+			_nLe_ = _nFound_ - 1
+			if _nLe_ >= _nLs_
+				_aRes_ + [ _nLs_, _nLe_ ]
+			ok
+			# Right section [nFound + nSubLen, nFound + nSubLen + n - 1]
+			_nRs_ = _nFound_ + _nSubLen_
+			_nRe_ = _nRs_ + n - 1
+			if _nRe_ > _nLen_ _nRe_ = _nLen_ ok
+			if _nRe_ >= _nRs_
+				_aRes_ + [ _nRs_, _nRe_ ]
+			ok
+			_nFrom_ = _nFound_ + _nSubLen_
+			_nFound_ = This._FindFrom(_cTxt_, pcSub, _nFrom_)
+		end
+		return _aRes_
 
 	# FindSubStringsBoundedBy(pacBounds): return the starting positions
 	# of each substring that sits between the open / close bounds. The

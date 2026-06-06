@@ -29,7 +29,7 @@ o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
 
 # In our case, the function you’d need is this one:
 
-? o1.BoundsOfXT("Ring", 2, 2) # You will understand the XT() usage in a moment ;)
+? o1.BoundsOfXT("Ring", [ 2, 2 ]) # You will understand the XT() usage in a moment ;)
 #--> [ [ "<<", ">>" ], [ "((", "))" ] ]
 
 # This is what you should use when you don’t want all the bounding substrings returned

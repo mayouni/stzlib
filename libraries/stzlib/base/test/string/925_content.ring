@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #925.
-#ERR Error (R14) : Calling Method without definition: replacecharsatpositionsbymany
 
 load "../../stzBase.ring"
 
