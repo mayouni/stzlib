@@ -9,7 +9,7 @@ load "../../stzBase.ring"
 pr()
 
 o1 = new stzString("<<***>>**<<***>>")
-? @@( o1.FindAnyBoundedByAsSections("<<", ">>") )
+? @@( o1.FindAnyBoundedByAsSections([ "<<", ">>" ]) )
 #--> [ [ 3, 5 ], [ 12, 14 ] ]
 
 pf()
