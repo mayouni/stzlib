@@ -408,6 +408,29 @@ class stzStringList
 		def SortedUp()
 			return This.SortedInAscending()
 
+	# WithoutSpaces / WithoutSapces (Softanza intentionally accepts
+	# the misspelled form): return the content with every space removed
+	# from each string item.
+	def WithoutSpaces()
+		_aRes_ = []
+		_nLen_ = ring_len(@acContent)
+		for _i_ = 1 to _nLen_
+			_s_ = @acContent[_i_]
+			_cClean_ = ""
+			_nSLen_ = ring_len(_s_)
+			for _j_ = 1 to _nSLen_
+				if _s_[_j_] != " " _cClean_ += _s_[_j_] ok
+			next
+			_aRes_ + _cClean_
+		next
+		return _aRes_
+
+		def WithoutSapces()
+			return This.WithoutSpaces()
+
+		def TrimAll()
+			return This.WithoutSpaces()
+
 	  #------------------------------------------------------#
 	 #   SORT DESCENDING                                    #
 	#------------------------------------------------------#

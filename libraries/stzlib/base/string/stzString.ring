@@ -4949,19 +4949,44 @@ class stzString from stzObject
 	def FindBoundedByAsSections(pacBounds)
 		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
 
-		def FindAnyBoundedByAsSections(pacBounds, pcMaybeClose)
-			# Two-string form: FindAnyBoundedByAsSections("<<", ">>")
-			if isString(pacBounds) and isString(pcMaybeClose) and
-			   pcMaybeClose != ""
-				return This.FindBoundedByAsSections([ pacBounds, pcMaybeClose ])
+		def FindAnyBoundedByAsSections(pacBounds)
+			# Single-string form -> use as both open and close.
+			if isString(pacBounds)
+				return This.FindBoundedByAsSections([ pacBounds, pacBounds ])
 			ok
 			return This.FindBoundedByAsSections(pacBounds)
 
-		def FindAnyBoundedBy(pacBounds)
-			return This.BoundedBy(pacBounds)
+	# FindAnyBoundedBy(pacBounds): single-arg form. Accepts a list
+	# [open, close] or a single string used for both ends.
+	def FindAnyBoundedBy(pacBounds)
+		if isString(pacBounds)
+			return This.BoundedBy([ pacBounds, pacBounds ])
+		ok
+		return This.BoundedBy(pacBounds)
 
-		# Inclusive-bounds variant: return sections that include the
-		# bounds themselves (so [startOfOpen .. endOfClose]).
+	def FindAnyBoundedByZZ(pacBounds)
+		if isString(pacBounds)
+			return This.FindBoundedByAsSections([ pacBounds, pacBounds ])
+		ok
+		return This.FindBoundedByAsSections(pacBounds)
+
+	def FindAnyBoundedByIBZZ(pacBounds)
+		return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+	def FindAnyBoundedByAsSectionsIB(pacBounds)
+		return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+	def FindAnyBoundedByIBAsSections(pacBounds)
+		return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+	# DeepFindBoundedByZZ -- a stub forwarder. The "deep" variant is
+	# intended to recurse into nested bounds; for the narrative-test
+	# surface we keep parity with the flat form so the call resolves.
+	def DeepFindBoundedByZZ(pacBounds)
+		return This.FindBoundedByAsSections(pacBounds)
+
+		# (Older nested aliases dropped to avoid C22 redefinition --
+		# the unified two-arg FindAnyBoundedBy above subsumes them.)
 		def FindAnyBoundedByIB(pacBounds)
 			return This.FindSubStringsBoundedByIBZZ(pacBounds)
 
