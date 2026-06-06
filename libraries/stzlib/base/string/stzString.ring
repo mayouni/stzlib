@@ -1695,6 +1695,19 @@ class stzString from stzObject
 	# gets paReplacements[1], 2nd gets [2], etc., wrapping at the end
 	# of the replacement list).
 	# paReplacements may be a bare list or a :By/:With named-param list.
+	# Helper: find pcNeedle in pcHay starting at character position
+	# nFrom (1-based, inclusive). Returns absolute position (1-based)
+	# or 0 if absent. Ring's 3-arg substr is replace, not find-from --
+	# this is the missing piece. Lives on stzString to inherit its
+	# implicit Self.
+	def _FindFrom(pcHay, pcNeedle, nFrom)
+		if nFrom < 1 nFrom = 1 ok
+		if nFrom > ring_len(pcHay) return 0 ok
+		_cTail_ = substr(pcHay, nFrom)
+		_nRel_ = substr(_cTail_, pcNeedle)
+		if _nRel_ = 0 return 0 ok
+		return nFrom + _nRel_ - 1
+
 	def ReplaceByMany(pcSubStr, paReplacements)
 		if isList(paReplacements) and ring_len(paReplacements) = 2 and
 		   isString(paReplacements[1]) and
@@ -1710,14 +1723,14 @@ class stzString from stzObject
 		_cOut_ = ""
 		_nPos_ = 1
 		_iRep_ = 1
-		_nFound_ = substr(_cTxt_, pcSubStr, _nPos_)
+		_nFound_ = This._FindFrom(_cTxt_, pcSubStr, _nPos_)
 		while _nFound_ > 0
 			_cOut_ += substr(_cTxt_, _nPos_, _nFound_ - _nPos_)
 			_cOut_ += paReplacements[_iRep_]
 			_iRep_++
 			if _iRep_ > _nRepLen_ _iRep_ = 1 ok
 			_nPos_ = _nFound_ + _nSubLen_
-			_nFound_ = substr(_cTxt_, pcSubStr, _nPos_)
+			_nFound_ = This._FindFrom(_cTxt_, pcSubStr, _nPos_)
 		end
 		_cOut_ += substr(_cTxt_, _nPos_)
 		This.Update(_cOut_)
@@ -1757,12 +1770,12 @@ class stzString from stzObject
 		_nStart_ = substr(_cTxt_, _aOpen_)
 		while _nStart_ > 0
 			_nInsideStart_ = _nStart_ + _nOpenLen_
-			_nEnd_ = substr(_cTxt_, _aClose_, _nInsideStart_)
+			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInsideStart_)
 			if _nEnd_ = 0 exit ok
 			_cBefore_ = left(_cTxt_, _nInsideStart_ - 1)
 			_cAfter_  = substr(_cTxt_, _nEnd_)
 			_cTxt_ = _cBefore_ + pcNew + _cAfter_
-			_nStart_ = substr(_cTxt_, _aOpen_, _nInsideStart_ + ring_len(pcNew))
+			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nInsideStart_ + ring_len(pcNew))
 		end
 		This.Update(_cTxt_)
 
@@ -1794,19 +1807,19 @@ class stzString from stzObject
 		_nStart_ = substr(_cTxt_, _aOpen_)
 		while _nStart_ > 0
 			_nInsideStart_ = _nStart_ + _nOpenLen_
-			_nEnd_ = substr(_cTxt_, _aClose_, _nInsideStart_)
+			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInsideStart_)
 			if _nEnd_ = 0 exit ok
 			# Look for pcWhat strictly inside [_nInsideStart_, _nEnd_-1]
-			_nWFound_ = substr(_cTxt_, pcWhat, _nInsideStart_)
+			_nWFound_ = This._FindFrom(_cTxt_, pcWhat, _nInsideStart_)
 			while _nWFound_ > 0 and _nWFound_ < _nEnd_
 				_cBefore_ = left(_cTxt_, _nWFound_ - 1)
 				_cAfter_  = substr(_cTxt_, _nWFound_ + _nWhatLen_)
 				_cTxt_ = _cBefore_ + pcNew + _cAfter_
 				_nEnd_ += ring_len(pcNew) - _nWhatLen_
-				_nWFound_ = substr(_cTxt_, pcWhat, _nWFound_ + ring_len(pcNew))
+				_nWFound_ = This._FindFrom(_cTxt_, pcWhat, _nWFound_ + ring_len(pcNew))
 			end
 			# Move past this bounded section so we don't re-match.
-			_nStart_ = substr(_cTxt_, _aOpen_, _nEnd_ + ring_len(_aClose_))
+			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + ring_len(_aClose_))
 		end
 		This.Update(_cTxt_)
 
@@ -1836,16 +1849,16 @@ class stzString from stzObject
 			_nStartIB_ = substr(_cTxtIB_, _aOpenIB_)
 			while _nStartIB_ > 0
 				_nInsideIB_ = _nStartIB_ + _nOpenLenIB_
-				_nEndIB_ = substr(_cTxtIB_, _aCloseIB_, _nInsideIB_)
+				_nEndIB_ = This._FindFrom(_cTxtIB_, _aCloseIB_, _nInsideIB_)
 				if _nEndIB_ = 0 exit ok
 				_cInsideIB_ = substr(_cTxtIB_, _nInsideIB_, _nEndIB_ - _nInsideIB_)
 				if substr(_cInsideIB_, pcWhat) > 0
 					_cBeforeIB_ = left(_cTxtIB_, _nStartIB_ - 1)
 					_cAfterIB_  = substr(_cTxtIB_, _nEndIB_ + _nCloseLenIB_)
 					_cTxtIB_ = _cBeforeIB_ + pcNew + _cAfterIB_
-					_nStartIB_ = substr(_cTxtIB_, _aOpenIB_, _nStartIB_ + ring_len(pcNew))
+					_nStartIB_ = This._FindFrom(_cTxtIB_, _aOpenIB_, _nStartIB_ + ring_len(pcNew))
 				else
-					_nStartIB_ = substr(_cTxtIB_, _aOpenIB_, _nEndIB_ + _nCloseLenIB_)
+					_nStartIB_ = This._FindFrom(_cTxtIB_, _aOpenIB_, _nEndIB_ + _nCloseLenIB_)
 				ok
 			end
 			This.Update(_cTxtIB_)
@@ -2023,12 +2036,12 @@ class stzString from stzObject
 				_cTxt_ = This.Content()
 				_nStart_ = substr(_cTxt_, _aOpen_)
 				while _nStart_ > 0
-					_nEnd_ = substr(_cTxt_, _aClose_, _nStart_ + ring_len(_aOpen_))
+					_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nStart_ + ring_len(_aOpen_))
 					if _nEnd_ = 0 exit ok
 					_cBefore_ = left(_cTxt_, _nStart_ - 1)
 					_cAfter_  = substr(_cTxt_, _nEnd_ + ring_len(_aClose_))
 					_cTxt_ = _cBefore_ + _aOpen_ + _pWith_ + _aClose_ + _cAfter_
-					_nStart_ = substr(_cTxt_, _aOpen_, _nStart_ + ring_len(_aOpen_ + _pWith_ + _aClose_))
+					_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nStart_ + ring_len(_aOpen_ + _pWith_ + _aClose_))
 				end
 				This.Update(_cTxt_)
 				return
@@ -4416,6 +4429,109 @@ class stzString from stzObject
 
 		def FindSubStringsW(pcCondition)
 			return This.FindSubStringsWXT(pcCondition)
+
+	# FindSubStringsBoundedBy(pacBounds): return the starting positions
+	# of each substring that sits between the open / close bounds. The
+	# bounds list may use the [open, :And = close] DSL shape or a plain
+	# [open, close] / single string for both ends.
+	def FindSubStringsBoundedBy(pacBounds)
+		_aOpen_ = pacBounds
+		_aClose_ = NULL
+		if isList(pacBounds) and ring_len(pacBounds) = 2
+			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
+			# :And = X normalisation
+			if isList(_aClose_) and ring_len(_aClose_) = 2 and
+			   isString(_aClose_[1]) and lower(_aClose_[1]) = "and"
+				_aClose_ = _aClose_[2]
+			ok
+		but isString(pacBounds)
+			_aClose_ = pacBounds
+		ok
+		if NOT (isString(_aOpen_) and isString(_aClose_)) return [] ok
+
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nOpenLen_ = ring_len(_aOpen_)
+		_nStart_ = substr(_cTxt_, _aOpen_)
+		while _nStart_ > 0
+			_nInside_ = _nStart_ + _nOpenLen_
+			# Ring's 3-arg substr is (haystack, needle, replace), not
+			# (haystack, needle, startPos). Slice the tail then search.
+			_cTail_ = substr(_cTxt_, _nInside_)
+			_nEndRel_ = substr(_cTail_, _aClose_)
+			if _nEndRel_ = 0 exit ok
+			_nEnd_ = _nInside_ + _nEndRel_ - 1
+			_aRes_ + _nInside_
+			# Continue past this bounded section.
+			_cTail2_ = substr(_cTxt_, _nEnd_ + ring_len(_aClose_))
+			_nNextRel_ = substr(_cTail2_, _aOpen_)
+			if _nNextRel_ = 0
+				_nStart_ = 0
+			else
+				_nStart_ = _nEnd_ + ring_len(_aClose_) + _nNextRel_ - 1
+			ok
+		end
+		return _aRes_
+
+		def FindSubStringsBetween(pcOpen, pcClose)
+			return This.FindSubStringsBoundedBy([ pcOpen, pcClose ])
+
+	# FindSubStringBoundedBy(pcWhat, pacBounds): return positions
+	# (only inside bounded sections) where pcWhat appears.
+	def FindSubStringBoundedBy(pcWhat, pacBounds)
+		_aOpen_ = pacBounds
+		_aClose_ = NULL
+		if isList(pacBounds) and ring_len(pacBounds) = 2
+			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
+			if isList(_aClose_) and ring_len(_aClose_) = 2 and
+			   isString(_aClose_[1]) and lower(_aClose_[1]) = "and"
+				_aClose_ = _aClose_[2]
+			ok
+		but isString(pacBounds)
+			_aClose_ = pacBounds
+		ok
+		if NOT (isString(_aOpen_) and isString(_aClose_)) return [] ok
+
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nOpenLen_ = ring_len(_aOpen_)
+		_nStart_ = substr(_cTxt_, _aOpen_)
+		while _nStart_ > 0
+			_nInside_ = _nStart_ + _nOpenLen_
+			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInside_)
+			if _nEnd_ = 0 exit ok
+			_nW_ = This._FindFrom(_cTxt_, pcWhat, _nInside_)
+			while _nW_ > 0 and _nW_ < _nEnd_
+				_aRes_ + _nW_
+				_nW_ = This._FindFrom(_cTxt_, pcWhat, _nW_ + ring_len(pcWhat))
+			end
+			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + ring_len(_aClose_))
+		end
+		return _aRes_
+
+		def FindSubStringsBetweenXT(pcWhat, pcOpen, pcClose)
+			return This.FindSubStringBoundedBy(pcWhat, [ pcOpen, pcClose ])
+
+	# FindXT(pcWhat, :BoundedBy = pacBounds) -- named-param wrapper
+	def FindXT(pcWhat, pNamed)
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1]) and
+		   lower(pNamed[1]) = "boundedby"
+			return This.FindSubStringBoundedBy(pcWhat, pNamed[2])
+		ok
+		return []
+
+	# FindAsSectionsXT(pcWhat, :BoundedBy = pacBounds) -- return start/end
+	# pairs for each match inside any bounded section.
+	def FindAsSectionsXT(pcWhat, pNamed)
+		_aPos_ = This.FindXT(pcWhat, pNamed)
+		_nWLen_ = ring_len(pcWhat)
+		_aRes_ = []
+		_nPL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nPL_
+			_p_ = _aPos_[_i_]
+			_aRes_ + [ _p_, _p_ + _nWLen_ - 1 ]
+		next
+		return _aRes_
 
 	# FindBoundedBy / FindBoundedByCS -- the most common spelling
 	# in narrative tests. Returns the [startPos, endPos] of each

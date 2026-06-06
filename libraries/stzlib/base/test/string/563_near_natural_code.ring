@@ -3,7 +3,6 @@
 # Near Natural Code
 #
 # Extracted from stzStringTest.ring, block #563.
-#ERR Error (R14) : Calling Method without definition: findxt
 
 load "../../stzBase.ring"
 
