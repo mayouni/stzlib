@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #30.
-#ERR Error (R14) : Calling Method without definition: removefirstcharxt
 
 load "../../stzBase.ring"
 

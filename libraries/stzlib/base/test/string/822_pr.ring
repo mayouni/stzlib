@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #822.
-#ERR Error (R14) : Calling Method without definition: insertbeforepositions
 
 load "../../stzBase.ring"
 

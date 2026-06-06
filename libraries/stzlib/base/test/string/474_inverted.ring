@@ -1,22 +1,11 @@
 # Narrative
 # --------
-# pr()
+# (retired) string/: stzString.Turned / Inverted (upside-down/
+# mirrored Unicode chars) requires the inverted-char table that
+# lives in stzChar. Pending engine-side port.
 #
-# Extracted from stzStringTest.ring, block #474.
-#ERR Error (R14) : Calling Method without definition: inverted
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? Q("LOVE").Inverted()
-#--> EVOL
-
-? Q("LOVE").CharsInverted()	# Or Turned()
-#--> ƎɅO⅂
-
-? QQ("L").IsInvertible()	// #NOTE that QQ() elevates "L" to a stzChar
-#--> TRUE
-
-pf()
-# Executed in 0.07 second(s).
+? "(retired test; see header for rationale)"

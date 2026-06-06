@@ -2418,6 +2418,26 @@ class stzList from stzObject
 			This.RemoveSection(n1, n2)
 			return This
 
+	  #-- RemoveW / RemoveWXT: drop items where the eval'd predicate
+	  #   is TRUE. Forwards to stzListRemover.RemoveW. The XT variant
+	  #   is alias (the underlying remover handles both shapes).
+
+	def RemoveW(pcCondition)
+		_oRwRemover_ = new stzListRemover(This)
+		_oRwRemover_.RemoveW(pcCondition)
+		@aContent = _oRwRemover_.Content()
+
+		def RemoveWQ(pcCondition)
+			This.RemoveW(pcCondition)
+			return This
+
+	def RemoveWXT(pcCondition)
+		This.RemoveW(pcCondition)
+
+		def RemoveWXTQ(pcCondition)
+			This.RemoveW(pcCondition)
+			return This
+
 	  #-- RemoveFirstItem / RemoveLastItem
 
 	def RemoveFirstItem()
