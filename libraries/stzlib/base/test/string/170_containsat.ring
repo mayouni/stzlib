@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #170.
-#ERR Error (R14) : Calling Method without definition: containsat
 
 load "../../stzBase.ring"
 

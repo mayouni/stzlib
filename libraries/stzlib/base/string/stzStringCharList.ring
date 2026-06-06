@@ -216,6 +216,59 @@ class stzStringCharList
 		def Chars()
 			return @acChars
 
+	# RemoveSpaces / RemoveSpacesQ: drop every " " char from the list.
+	def RemoveSpaces()
+		_aOut_ = []
+		_nLen_ = ring_len(@acChars)
+		for _i_ = 1 to _nLen_
+			if @acChars[_i_] != " "
+				_aOut_ + @acChars[_i_]
+			ok
+		next
+		@acChars = _aOut_
+
+		def RemoveSpacesQ()
+			This.RemoveSpaces()
+			return This
+
+	# Uppercase / UppercaseQ / Lowercase / LowercaseQ: case-map.
+	def Uppercase()
+		_nLen_ = ring_len(@acChars)
+		for _i_ = 1 to _nLen_
+			if isString(@acChars[_i_])
+				@acChars[_i_] = upper(@acChars[_i_])
+			ok
+		next
+
+		def UppercaseQ()
+			This.Uppercase()
+			return This
+
+	def Lowercase()
+		_nLen_ = ring_len(@acChars)
+		for _i_ = 1 to _nLen_
+			if isString(@acChars[_i_])
+				@acChars[_i_] = lower(@acChars[_i_])
+			ok
+		next
+
+		def LowercaseQ()
+			This.Lowercase()
+			return This
+
+	# JoinQ / Join: concatenate the chars into a single string,
+	# wrapped in stzString for the Q form.
+	def Join()
+		_cOut_ = ""
+		_nLen_ = ring_len(@acChars)
+		for _i_ = 1 to _nLen_
+			_cOut_ += @acChars[_i_]
+		next
+		return _cOut_
+
+		def JoinQ()
+			return new stzString( This.Join() )
+
 	def NumberOfChars()
 		return ring_len(@acChars)
 

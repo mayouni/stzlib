@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #465.
-#ERR Error (R14) : Calling Method without definition: findwxt
 
 load "../../stzBase.ring"
 

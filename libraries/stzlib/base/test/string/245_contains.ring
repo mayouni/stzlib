@@ -3,7 +3,6 @@
 # #perf
 #
 # Extracted from stzStringTest.ring, block #245.
-#ERR Error (R14) : Calling Method without definition: howmany
 
 load "../../stzBase.ring"
 

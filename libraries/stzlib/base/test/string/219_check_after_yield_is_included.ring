@@ -3,7 +3,6 @@
 # #TODO Check after Yield() is included
 #
 # Extracted from stzStringTest.ring, block #219.
-#ERR Error (R14) : Calling Method without definition: lettersq
 
 load "../../stzBase.ring"
 

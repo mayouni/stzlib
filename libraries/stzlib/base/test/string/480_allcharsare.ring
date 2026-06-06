@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #480.
-#ERR Error (R14) : Calling Method without definition: allcharsare
 
 load "../../stzBase.ring"
 
