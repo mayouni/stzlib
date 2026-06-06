@@ -3,7 +3,6 @@
 # #narration: Softanza permissiveness
 #
 # Extracted from stzStringTest.ring, block #37.
-#ERR Error (R14) : Calling Method without definition: removefirstcharcs
 
 load "../../stzBase.ring"
 

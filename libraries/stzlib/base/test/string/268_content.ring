@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #268.
-#ERR Error (R14) : Calling Method without definition: spacifychars
 
 load "../../stzBase.ring"
 

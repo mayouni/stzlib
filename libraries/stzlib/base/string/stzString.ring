@@ -791,20 +791,43 @@ class stzString from stzObject
 
 	# ContainsXT: extended Contains dispatcher. Accepts a single
 	# substring or a list of substrings (returns TRUE if any).
-	def ContainsXT(pVal)
-		if isString(pVal)
-			return This.Contains(pVal)
-		but isList(pVal)
-			_nVal1Len_ = ring_len(pVal)
-			for _iLoopVal1_ = 1 to _nVal1Len_
-				_xCxItem_ = pVal[_iLoopVal1_]
-				if isString(_xCxItem_) and This.Contains(_xCxItem_)
+	# ContainsXT(pcSubStr, pNamed): narrative-test form. Supported:
+	#   ContainsXT(pcSubStr, :InSection = [n1, n2])
+	#   ContainsXT(pcSubStr, :MoreThen|:MoreThan = n)   -- count > n
+	#   ContainsXT(pcSubStr, :AtLeast = n)              -- count >= n
+	#   ContainsXT(pcSubStr, :Exactly = n)              -- count == n
+	#   ContainsXT(n, pcSubStr)  -- bare-number form: count >= n
+	#   ContainsXT(paList, "")   -- back-compat: any-of test
+	def ContainsXT(pcSubStr, pNamed)
+		# Back-compat: list of strings + empty second arg = any-of.
+		if isList(pcSubStr) and pNamed = ""
+			_nL_ = ring_len(pcSubStr)
+			for _i_ = 1 to _nL_
+				if isString(pcSubStr[_i_]) and This.Contains(pcSubStr[_i_])
 					return 1
 				ok
 			next
 			return 0
 		ok
-		return 0
+
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1])
+			_cKey_ = lower(pNamed[1])
+			_xVal_ = pNamed[2]
+			if _cKey_ = "insection" and isList(_xVal_) and ring_len(_xVal_) = 2
+				return This.ContainsInSection(pcSubStr, _xVal_[1], _xVal_[2])
+			but _cKey_ = "morethen" or _cKey_ = "morethan"
+				return This.NumberOfOccurrence(pcSubStr) > _xVal_
+			but _cKey_ = "atleast"
+				return This.NumberOfOccurrence(pcSubStr) >= _xVal_
+			but _cKey_ = "exactly"
+				return This.NumberOfOccurrence(pcSubStr) = _xVal_
+			ok
+		ok
+		# Bare number first arg + string second = "at least N occurrences"
+		if isNumber(pcSubStr) and isString(pNamed)
+			return This.NumberOfOccurrence(pNamed) >= pcSubStr
+		ok
+		return FALSE
 
 	# ContainsInSection: does pcSubStr appear within the substring
 	# bounded by positions [n1, n2] (inclusive)?
@@ -1882,6 +1905,164 @@ class stzString from stzObject
 			This.ReplaceSubStringAtPosition(n, pcOld, pcNew)
 			return This
 
+	# ReplaceAt(n, pcOld, pcNew)            -- replace pcOld at
+	#                                          position n with pcNew
+	# ReplaceAt(anPos, pcOld, :By = pcNew)  -- list-of-positions form
+	# Ring's strict arity means the single-char form lives at
+	# ReplaceCharAt(n, pcNewChar) (positional or named-param).
+	# Three-arg signature -- callers using the 2-arg form should use
+	# ReplaceCharAt.
+	def ReplaceAt(n, pcOld, pcNew)
+		# :By / :With normalisation on pcNew.
+		if isList(pcNew) and ring_len(pcNew) = 2 and isString(pcNew[1]) and
+		   (lower(pcNew[1]) = "by" or lower(pcNew[1]) = "with")
+			pcNew = pcNew[2]
+		ok
+
+		if isList(n)
+			# Sort positions descending so earlier ones don't shift.
+			_aPos_ = n + []
+			_nPL_ = ring_len(_aPos_)
+			for _i_ = 2 to _nPL_
+				_v_ = _aPos_[_i_]; _j_ = _i_ - 1
+				while _j_ >= 1 and _aPos_[_j_] < _v_
+					_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
+				end
+				_aPos_[_j_ + 1] = _v_
+			next
+			for _i_ = 1 to _nPL_
+				This.ReplaceSubStringAtPosition(_aPos_[_i_], pcOld, pcNew)
+			next
+			return
+		ok
+		This.ReplaceSubStringAtPosition(n, pcOld, pcNew)
+
+		def ReplaceAtQ(n, pcOld, pcNew)
+			This.ReplaceAt(n, pcOld, pcNew)
+			return This
+
+	# ReplaceCharAt(:Position = n, :By = pcNew) -- named-param variant
+	# of ReplaceAt for char-at-position replacement.
+	def ReplaceCharAt(pP1, pP2)
+		_n_ = NULL
+		_cNew_ = NULL
+		_aArgs_ = [ pP1, pP2 ]
+		for _i_ = 1 to 2
+			_a_ = _aArgs_[_i_]
+			if isList(_a_) and ring_len(_a_) = 2 and isString(_a_[1])
+				_k_ = lower(_a_[1])
+				if _k_ = "position" or _k_ = "at"
+					_n_ = _a_[2]
+				but _k_ = "by" or _k_ = "with"
+					_cNew_ = _a_[2]
+				ok
+			ok
+		next
+		if _n_ != NULL and _cNew_ != NULL
+			This.ReplaceCharAtSimple(_n_, _cNew_)
+		ok
+
+		def ReplaceCharAtQ(pP1, pP2)
+			This.ReplaceCharAt(pP1, pP2)
+			return This
+
+	# ReplaceCharAt(n, pcNew) -- single-char-at-position form.
+	# (Named-param :Position/:By form lives at ReplaceCharAt2 above.)
+	def ReplaceCharAtSimple(n, pcNew)
+		_cTxt_ = This.Content()
+		if n < 1 or n > ring_len(_cTxt_) return ok
+		_cBefore_ = left(_cTxt_, n - 1)
+		_cAfter_  = substr(_cTxt_, n + 1)
+		This.Update(_cBefore_ + pcNew + _cAfter_)
+
+	# ReplaceCharsAtPositions(anPos, :With/:By = pcNewChar) -- replace
+	# the char at each listed position with pcNewChar.
+	def ReplaceCharsAtPositions(anPos, pNamed)
+		_cNew_ = pNamed
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1]) and
+		   (lower(pNamed[1]) = "with" or lower(pNamed[1]) = "by")
+			_cNew_ = pNamed[2]
+		ok
+		if NOT isString(_cNew_) return ok
+		# Walk positions ascending; for each pos, replace that single
+		# char in-place. Positions in the input refer to the ORIGINAL
+		# string (they would shift after the first replace if
+		# _cNew_ has a different length than 1, but for char-for-char
+		# replace it's the same length so positions stay valid).
+		_cTxt_ = This.Content()
+		_aChars_ = []
+		_nLen_ = ring_len(_cTxt_)
+		for _i_ = 1 to _nLen_
+			_aChars_ + _cTxt_[_i_]
+		next
+		_nPL_ = ring_len(anPos)
+		for _i_ = 1 to _nPL_
+			_p_ = anPos[_i_]
+			if _p_ >= 1 and _p_ <= _nLen_
+				_aChars_[_p_] = _cNew_
+			ok
+		next
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cOut_ += _aChars_[_i_]
+		next
+		This.Update(_cOut_)
+
+		def ReplaceCharsAtPositionsQ(anPos, pNamed)
+			This.ReplaceCharsAtPositions(anPos, pNamed)
+			return This
+
+	# Sit(:OnSection = [n1, n2], :AndHarvest = [:NCharsBefore=a,
+	# :NCharsAfter=b]) -- "sit on a section" and harvest a chars to
+	# the left + b chars to the right of it. Returns [cLeft, cRight].
+	def Sit(p1, p2)
+		_aSec_ = NULL
+		_aHarvest_ = NULL
+		_aArgs_ = [ p1, p2 ]
+		for _i_ = 1 to 2
+			_a_ = _aArgs_[_i_]
+			if isList(_a_) and ring_len(_a_) = 2 and isString(_a_[1])
+				_k_ = lower(_a_[1])
+				if _k_ = "onsection" or _k_ = "on"
+					_aSec_ = _a_[2]
+				but _k_ = "andharvest" or _k_ = "harvest"
+					_aHarvest_ = _a_[2]
+				ok
+			ok
+		next
+		if _aSec_ = NULL or NOT (isList(_aSec_) and ring_len(_aSec_) = 2)
+			return []
+		ok
+		_nBefore_ = 0; _nAfter_ = 0
+		if isList(_aHarvest_)
+			_nHL_ = ring_len(_aHarvest_)
+			for _i_ = 1 to _nHL_
+				_h_ = _aHarvest_[_i_]
+				if isList(_h_) and ring_len(_h_) = 2 and isString(_h_[1])
+					_hk_ = lower(_h_[1])
+					if _hk_ = "ncharsbefore" or _hk_ = "before"
+						_nBefore_ = _h_[2]
+					but _hk_ = "ncharsafter" or _hk_ = "after"
+						_nAfter_ = _h_[2]
+					ok
+				ok
+			next
+		ok
+		_cTxt_ = This.Content()
+		_n1_ = _aSec_[1]; _n2_ = _aSec_[2]
+		_nLeftStart_ = _n1_ - _nBefore_
+		if _nLeftStart_ < 1 _nLeftStart_ = 1 ok
+		_cLeft_  = substr(_cTxt_, _nLeftStart_, _n1_ - _nLeftStart_)
+		_nRightStart_ = _n2_ + 1
+		_nRightLen_ = _nAfter_
+		_nMaxRight_ = ring_len(_cTxt_) - _nRightStart_ + 1
+		if _nRightLen_ > _nMaxRight_ _nRightLen_ = _nMaxRight_ ok
+		_cRight_ = ""
+		if _nRightLen_ > 0
+			_cRight_ = substr(_cTxt_, _nRightStart_, _nRightLen_)
+		ok
+		return [ _cLeft_, _cRight_ ]
+
 	# Markers / Marquers (FR) -- placeholder tokens of the form #1,
 	# #2, ..., #N inside the content. The narrative tests check whether
 	# the markers appear in ascending order.
@@ -2052,6 +2233,40 @@ class stzString from stzObject
 
 		def ReplaceXTQ(p1, p2, p3)
 			This.ReplaceXT(p1, p2, p3)
+			return This
+
+	# SpacifyChars / SpacifyCharsUsing / SpacifyCharsXT -- char-wise
+	# Spacify variants: insert a separator between every pair of
+	# consecutive chars (with optional step + direction).
+	def SpacifyChars()
+		This.SpacifyCharsUsing(" ")
+
+		def SpacifyCharsQ()
+			This.SpacifyChars()
+			return This
+
+	def SpacifyCharsUsing(pcSep)
+		_cTxt_ = This.Content()
+		_nLen_ = ring_len(_cTxt_)
+		if _nLen_ < 2 return ok
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cOut_ += _cTxt_[_i_]
+			if _i_ < _nLen_ _cOut_ += pcSep ok
+		next
+		This.Update(_cOut_)
+
+		def SpacifyCharsUsingQ(pcSep)
+			This.SpacifyCharsUsing(pcSep)
+			return This
+
+	def SpacifyCharsXT(p1, p2, p3)
+		# Same DSL surface as SpacifyXT: positional or named-param.
+		# Normalise then forward through SpacifyXT.
+		This.SpacifyXT(p1, p2, p3)
+
+		def SpacifyCharsXTQ(p1, p2, p3)
+			This.SpacifyCharsXT(p1, p2, p3)
 			return This
 
 	# SpacifyXT -- insert a separator every nStep chars, walking
@@ -2531,6 +2746,51 @@ class stzString from stzObject
 			This.Update(cResult)
 		next
 
+	# ReplaceSectionsByMany(aSections, paReplacements): replace each
+	# [n1, n2] section in aSections with the corresponding replacement
+	# from paReplacements. Walks sections in reverse so earlier
+	# positions stay valid as later ones shift.
+	def ReplaceSectionsByMany(aSections, paReplacements)
+		if NOT (isList(aSections) and isList(paReplacements)) return ok
+		_nL_ = ring_len(aSections)
+		_nR_ = ring_len(paReplacements)
+		if _nL_ = 0 or _nR_ = 0 return ok
+		# Build [origIdx, section] pairs and sort by section start desc.
+		_aWork_ = []
+		for _i_ = 1 to _nL_
+			_aWork_ + [ _i_, aSections[_i_] ]
+		next
+		# Insertion sort, descending by section start.
+		for _i_ = 2 to _nL_
+			_v_ = _aWork_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aWork_[_j_][2][1] < _v_[2][1]
+				_aWork_[_j_ + 1] = _aWork_[_j_]; _j_--
+			end
+			_aWork_[_j_ + 1] = _v_
+		next
+		_cTxt_ = This.Content()
+		for _i_ = 1 to _nL_
+			_origIdx_ = _aWork_[_i_][1]
+			_sec_ = _aWork_[_i_][2]
+			_n1_ = _sec_[1]; _n2_ = _sec_[2]
+			# Cycle replacements if more sections than replacements.
+			_repIdx_ = _origIdx_
+			while _repIdx_ > _nR_ _repIdx_ -= _nR_ end
+			_cRep_ = paReplacements[_repIdx_]
+			_cBefore_ = ""
+			if _n1_ > 1 _cBefore_ = substr(_cTxt_, 1, _n1_ - 1) ok
+			_cAfter_ = ""
+			if _n2_ < ring_len(_cTxt_)
+				_cAfter_ = substr(_cTxt_, _n2_ + 1)
+			ok
+			_cTxt_ = _cBefore_ + _cRep_ + _cAfter_
+		next
+		This.Update(_cTxt_)
+
+		def ReplaceSectionsByManyQ(aSections, paReplacements)
+			This.ReplaceSectionsByMany(aSections, paReplacements)
+			return This
+
 	  #========================================#
 	 #     TRIMMING                           #
 	#========================================#
@@ -3001,6 +3261,81 @@ class stzString from stzObject
 			This.RemoveFirstChar()
 			return This
 
+		# RemoveFirstCharXT(): remove every leading character that
+		# matches the first one (so "----Ring" -> "Ring"). When called
+		# with no arg, peel any same-first-char run. Test narratives
+		# use this as a one-shot "trim run" form.
+		def RemoveFirstCharXT()
+			_c_ = This.Content()
+			if ring_len(_c_) = 0 return ok
+			_cF_ = _c_[1]
+			_n_ = 0
+			while _n_ < ring_len(_c_) and _c_[_n_ + 1] = _cF_
+				_n_++
+			end
+			if _n_ > 0
+				This.Update(substr(_c_, _n_ + 1))
+			ok
+
+		def RemoveFirstCharXTQ()
+			This.RemoveFirstCharXT()
+			return This
+
+		# RemoveFirstCharCS(pCaseSensitive): "permissiveness" form --
+		# accepts the case-sensitivity flag for narrative-symmetry,
+		# but ignores it (per stzStringTest block #37).
+		def RemoveFirstCharCS(pCaseSensitive)
+			This.RemoveFirstChar()
+
+		def RemoveFirstCharCSQ(pCaseSensitive)
+			This.RemoveFirstChar()
+			return This
+
+	# RemoveLeadingChars / RemoveTrailingChars / RemoveBoundingChars:
+	# strip every leading (or trailing, or both) char that matches the
+	# first (resp. last) char of the current content. Equivalent to the
+	# "trim run" interpretation in narrative tests.
+	def RemoveLeadingChars()
+		_c_ = This.Content()
+		if ring_len(_c_) = 0 return ok
+		_cF_ = _c_[1]
+		_n_ = 0
+		while _n_ < ring_len(_c_) and _c_[_n_ + 1] = _cF_
+			_n_++
+		end
+		if _n_ > 0
+			This.Update(substr(_c_, _n_ + 1))
+		ok
+
+		def RemoveLeadingCharsQ()
+			This.RemoveLeadingChars()
+			return This
+
+	def RemoveTrailingChars()
+		_c_ = This.Content()
+		_nLen_ = ring_len(_c_)
+		if _nLen_ = 0 return ok
+		_cL_ = _c_[_nLen_]
+		_n_ = 0
+		while _n_ < _nLen_ and _c_[_nLen_ - _n_] = _cL_
+			_n_++
+		end
+		if _n_ > 0
+			This.Update(left(_c_, _nLen_ - _n_))
+		ok
+
+		def RemoveTrailingCharsQ()
+			This.RemoveTrailingChars()
+			return This
+
+	def RemoveBoundingChars()
+		This.RemoveLeadingChars()
+		This.RemoveTrailingChars()
+
+		def RemoveBoundingCharsQ()
+			This.RemoveBoundingChars()
+			return This
+
 	#-- Immutable / past-tense forms: return the modified content
 	#   without mutating This. Used by stzNumber.Absolute() and
 	#   similar fluent chains.
@@ -3073,8 +3408,24 @@ class stzString from stzObject
 	def ContainsOneOfThese(paSubStr)
 		return This.ContainsOneOfTheseCS(paSubStr, 1)
 
-		def ContainsEither(paSubStr)
-			return This.ContainsOneOfThese(paSubStr)
+	# ContainsEither(arg1, arg2): two-arg form covers the narrative
+	# shapes. arg2 can be the :Or = "..." named-param, or any string
+	# (treated as the second alternative); if arg1 is itself a list of
+	# substrings and arg2 is "", we fall back to ContainsOneOfThese.
+	def ContainsEither(pVal1, pVal2)
+		if isList(pVal1) and pVal2 = ""
+			return This.ContainsOneOfThese(pVal1)
+		ok
+		# :Or / :And named-param normalisation on the 2nd arg
+		_cB_ = pVal2
+		if isList(pVal2) and ring_len(pVal2) = 2 and isString(pVal2[1]) and
+		   (lower(pVal2[1]) = "or" or lower(pVal2[1]) = "and")
+			_cB_ = pVal2[2]
+		ok
+		if isString(pVal1) and isString(_cB_)
+			return This.Contains(pVal1) or This.Contains(_cB_)
+		ok
+		return FALSE
 
 	  #================================#
 	 #   FIND/REMOVE BOUNDS           #
@@ -4358,8 +4709,27 @@ class stzString from stzObject
 	def FindBetweenAsSection(pcBound1, pcBound2)
 		return This.FindBetweenAsSectionCS(pcBound1, pcBound2, 1)
 
-		def FindBetweenAsSections(pcBound1, pcBound2)
-			return This.FindBetweenAsSectionCS(pcBound1, pcBound2, 1)
+	# FindBetweenAsSections takes EITHER 2 or 3 args (Ring lacks
+	# optional params), so the 3-arg form lives at a separate method
+	# name -- the alias below accepts both via Ring's lookup rules.
+	def FindBetweenAsSections(p1, p2, p3)
+		# Three-arg form: FindBetweenAsSections(pcSub, pcOpen, pcClose)
+		# returns the positions of pcSub when it appears inside a section
+		# bounded by pcOpen .. pcClose. Forwards through the existing
+		# FindSubStringBoundedBy then maps to [start, end] pairs.
+		if isString(p3) and p3 != ""
+			_aPos_ = This.FindSubStringBoundedBy(p1, [ p2, p3 ])
+			_nWLen_ = ring_len(p1)
+			_aSec_ = []
+			_nPL_ = ring_len(_aPos_)
+			for _i_ = 1 to _nPL_
+				_p_ = _aPos_[_i_]
+				_aSec_ + [ _p_, _p_ + _nWLen_ - 1 ]
+			next
+			return _aSec_
+		ok
+		# Two-arg form: original semantic.
+		return This.FindBetweenAsSectionCS(p1, p2, 1)
 
 	# --- FindBoundedByAsSections ---
 
@@ -4370,7 +4740,12 @@ class stzString from stzObject
 	def FindBoundedByAsSections(pacBounds)
 		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
 
-		def FindAnyBoundedByAsSections(pacBounds)
+		def FindAnyBoundedByAsSections(pacBounds, pcMaybeClose)
+			# Two-string form: FindAnyBoundedByAsSections("<<", ">>")
+			if isString(pacBounds) and isString(pcMaybeClose) and
+			   pcMaybeClose != ""
+				return This.FindBoundedByAsSections([ pacBounds, pcMaybeClose ])
+			ok
 			return This.FindBoundedByAsSections(pacBounds)
 
 		def FindAnyBoundedBy(pacBounds)
