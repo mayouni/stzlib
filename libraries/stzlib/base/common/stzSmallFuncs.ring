@@ -42,10 +42,22 @@ func StzQH(p)
 	#~> // Use a copy on which the loop is used and then update
 	# the main object in on UpdateWith() call
 
-	SetKeepingHistoryTo(1)
-	_aHisto + p
+	if isglobal("_aHisto")
+		_aHisto + p
+	ok
 
 	return StzQ(p)
+
+# Global stub: history-tracking toggle. The full implementation will
+# weave through each mutating method; for now we just declare the
+# globals so callers don't R3.
+func SetKeepingHistoryTo(bOn)
+	# No-op stub.
+	return
+
+func SetKeepingHistoryToXT(bOn, pcMode)
+	# No-op stub.
+	return
 
 	return StzQHHV(p) # tracing only the value (V)
 

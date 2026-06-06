@@ -2438,6 +2438,46 @@ class stzList from stzObject
 			This.RemoveW(pcCondition)
 			return This
 
+	# RemoveSpaces / RemoveSpacesQ: drop every " " item (string-space)
+	# from the content. Engine-aware: only removes string-typed " ".
+	def RemoveSpaces()
+		_aOut_ = []
+		_nLen_ = ring_len(@aContent)
+		for _i_ = 1 to _nLen_
+			if NOT (isString(@aContent[_i_]) and @aContent[_i_] = " ")
+				_aOut_ + @aContent[_i_]
+			ok
+		next
+		@aContent = _aOut_
+
+		def RemoveSpacesQ()
+			This.RemoveSpaces()
+			return This
+
+	# RemoveDuplicatedItems / Q: in-place dedup. Order-preserving:
+	# keeps the first occurrence of each unique value.
+	def RemoveDuplicatedItems()
+		_aSeen_ = []
+		_aOut_ = []
+		_nLen_ = ring_len(@aContent)
+		for _i_ = 1 to _nLen_
+			_x_ = @aContent[_i_]
+			_bDup_ = FALSE
+			_nSL_ = ring_len(_aSeen_)
+			for _j_ = 1 to _nSL_
+				if _aSeen_[_j_] = _x_ _bDup_ = TRUE exit ok
+			next
+			if NOT _bDup_
+				_aSeen_ + _x_
+				_aOut_ + _x_
+			ok
+		next
+		@aContent = _aOut_
+
+		def RemoveDuplicatedItemsQ()
+			This.RemoveDuplicatedItems()
+			return This
+
 	  #-- RemoveFirstItem / RemoveLastItem
 
 	def RemoveFirstItem()
