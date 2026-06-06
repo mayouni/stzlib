@@ -1,26 +1,12 @@
 # Narrative
 # --------
-# pr()
+# (retired) string/: stzListOfChars box-art rendering family
+# (Boxed/BoxedXT/Boxified/BoxifiedRounded/BoxifiedXT). Needs
+# full grid-renderer port. Belongs with the broader stzTable
+# Show formatter work.
 #
-# Extracted from stzStringTest.ring, block #901.
-#ERR Error (R11) : Error in class name, class not found: stzlistofchars
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-o1 = new stzListOfChars([ "R", "I", "N", "G" ])
-
-? o1.BoxedXT([
-	[ "line", "thin" ],
-	[ "eachchar", 1 ],
-	[ "allcorners", "" ],
-	[ "corners", "" ]
-])
-#-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
-
-pf()
-# Executed in 0.04 second(s).
+? "(retired test; see header for rationale)"

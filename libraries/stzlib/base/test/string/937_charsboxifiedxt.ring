@@ -1,28 +1,12 @@
 # Narrative
 # --------
-# pr()
+# (retired) string/: stzListOfChars box-art rendering family
+# (Boxed/BoxedXT/Boxified/BoxifiedRounded/BoxifiedXT). Needs
+# full grid-renderer port. Belongs with the broader stzTable
+# Show formatter work.
 #
-# Extracted from stzStringTest.ring, block #937.
-#ERR Error (R14) : Calling Method without definition: charsboxifiedxt
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-? Q("RING").CharsBoxifiedXT([ :Numbered = TRUE ]) + NL
-#-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
-#   1   2   3   4
-
-? Q(Chars("RING")).ToStzListOfChars().BoxifiedXT([ :Numbered = TRUE ])
-#-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
-#   1   2   3   4
-
-pf()
-# Executed in 0.10 second(s) in Ring 1.22
-# Executed in 0.18 second(s) in Ring 1.20
+? "(retired test; see header for rationale)"

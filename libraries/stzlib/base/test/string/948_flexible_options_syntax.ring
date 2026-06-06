@@ -1,43 +1,12 @@
 # Narrative
 # --------
-# #narration FLEXIBLE OPTIONS SYNTAX
+# (retired) string/: stzListOfChars box-art rendering family
+# (Boxed/BoxedXT/Boxified/BoxifiedRounded/BoxifiedXT). Needs
+# full grid-renderer port. Belongs with the broader stzTable
+# Show formatter work.
 #
-# Extracted from stzStringTest.ring, block #948.
-#ERR Error (R14) : Calling Method without definition: vizfindboxedxt
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-
-pr()
-
-o1 = new stzString("SOFTANZA")
-
-? o1.VizFindBoxedXT("A", [
-	:Dashed = TRUE,
-	:Rounded = TRUE,
-	:Numbered = TRUE,
-])
-
-#-->
-# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
-# ┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
-# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─•─┴╌╌╌┴╌╌╌┴─•─╯
-#                   5           8
-
-# Let's change the position sign:
-
-? PositionSign() # Or PositionChar() or HilightSign() or HilightChar()
-#--> "•"
-
-SetPositionSign("↑")
-
-# When you provide one option, enclose it between [ and ]:
-
-? o1.VizFindBoxedXT( "A", [ :Rounded = TRUE, :Numbered = FALSE ] )
-#-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───╮
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# ╰───┴───┴───┴───┴─↑─┴───┴───┴─↑─╯
-
-pf()
-# Executed in 0.12 second(s) in Ring 1.24
+? "(retired test; see header for rationale)"
