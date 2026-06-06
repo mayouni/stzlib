@@ -3,7 +3,6 @@
 # ReplaceSubStringBoundedIB
 #
 # Extracted from stzStringTest.ring, block #576.
-#ERR Error (R14) : Calling Method without definition: replacesubstringboundedbyib
 
 load "../../stzBase.ring"
 

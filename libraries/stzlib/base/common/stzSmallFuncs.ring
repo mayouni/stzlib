@@ -32,6 +32,9 @@ func StzQ(p)
 	func TheQ(p)
 		return StzQ(p)
 
+	func TQ(p)
+		return StzQ(p)
+
 func StzQH(p)
 	#TODO // Review the code of all functions where loops are used
 	# on the main object and modify it many times
