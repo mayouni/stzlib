@@ -109,11 +109,16 @@ class stzString from stzObject
 	# IndexOf + ring_len.)
 	def BoundsOf(pcSub)
 		_cTxt_ = This.Content()
-		_nPos_ = substr(_cTxt_, pcSub)
-		if _nPos_ = 0 return [] ok
-		_nLenSub_ = ring_len(pcSub)
-		_cBefore_ = left(_cTxt_, _nPos_ - 1)
-		_cAfter_  = substr(_cTxt_, _nPos_ + _nLenSub_)
+		# Engine find: codepoint-aware first-occurrence search.
+		_nPos_ = StzEngineStringFindFirstFromCS(This.Engine(), pcSub, 1, 1)
+		if _nPos_ < 1 return [] ok
+		_nLenSub_ = This._EngineCount(pcSub)
+		# Slice both sides via the codepoint-aware engine slicer.
+		_cBefore_ = ""
+		if _nPos_ > 1
+			_cBefore_ = This._EngineSlice(_cTxt_, 1, _nPos_ - 1)
+		ok
+		_cAfter_  = This._EngineSliceFrom(_cTxt_, _nPos_ + _nLenSub_)
 		return [ _cBefore_, _cAfter_ ]
 
 		def BoundsOfFirstOccurrence(pcSub)
@@ -132,8 +137,17 @@ class stzString from stzObject
 			_nBefore_ = n[1]
 			_nAfter_  = n[2]
 		ok
-		if ring_len(_cBefore_) > _nBefore_ _cBefore_ = right(_cBefore_, _nBefore_) ok
-		if ring_len(_cAfter_)  > _nAfter_  _cAfter_  = left(_cAfter_, _nAfter_)    ok
+		# Engine-backed codepoint cap (Unicode-correct for ♥ etc.).
+		_nBeLen_ = This._EngineCount(_cBefore_)
+		if _nBeLen_ > _nBefore_
+			# Keep last _nBefore_ codepoints.
+			_cBefore_ = This._EngineSliceFrom(_cBefore_, _nBeLen_ - _nBefore_ + 1)
+		ok
+		_nAfLen_ = This._EngineCount(_cAfter_)
+		if _nAfLen_ > _nAfter_
+			# Keep first _nAfter_ codepoints.
+			_cAfter_  = This._EngineSlice(_cAfter_, 1, _nAfter_)
+		ok
 		return [ _cBefore_, _cAfter_ ]
 
 	# (No lowercase-c alias needed -- Ring is case-insensitive on
@@ -173,8 +187,14 @@ class stzString from stzObject
 		_aB_ = This.BoundsOf(pcSub)
 		if ring_len(_aB_) = 0 return [] ok
 		_cBefore_ = _aB_[1]; _cAfter_ = _aB_[2]
-		if ring_len(_cBefore_) > nBefore _cBefore_ = right(_cBefore_, nBefore) ok
-		if ring_len(_cAfter_)  > nAfter  _cAfter_  = left(_cAfter_, nAfter)   ok
+		_nBeLen_ = This._EngineCount(_cBefore_)
+		if _nBeLen_ > nBefore
+			_cBefore_ = This._EngineSliceFrom(_cBefore_, _nBeLen_ - nBefore + 1)
+		ok
+		_nAfLen_ = This._EngineCount(_cAfter_)
+		if _nAfLen_ > nAfter
+			_cAfter_  = This._EngineSlice(_cAfter_, 1, nAfter)
+		ok
 		return [ _cBefore_, _cAfter_ ]
 
 	#-- Override stzObject.Stringified/ToString. The parent returns
@@ -318,7 +338,8 @@ class stzString from stzObject
 		   lower(n1[1]) = "from"
 			_vF_ = n1[2]
 			if isString(_vF_)
-				n1 = substr(This.Content(), _vF_)
+				# Codepoint-aware first-occurrence find.
+				n1 = StzEngineStringFindFirstFromCS(This.Engine(), _vF_, 1, 1)
 			else
 				n1 = _vF_
 			ok
@@ -327,9 +348,9 @@ class stzString from stzObject
 		   lower(n2[1]) = "to"
 			_vT_ = n2[2]
 			if isString(_vT_)
-				n2 = substr(This.Content(), _vT_)
+				n2 = StzEngineStringFindFirstFromCS(This.Engine(), _vT_, 1, 1)
 				if n2 > 0
-					n2 = n2 + ring_len(_vT_) - 1
+					n2 = n2 + This._EngineCount(_vT_) - 1
 				ok
 			else
 				n2 = _vT_
@@ -376,7 +397,7 @@ class stzString from stzObject
 			StzRaise("ReplaceSection: pcNewSubStr must be a string")
 		ok
 		_cStr_ = This.Content()
-		_nLen_ = ring_len(_cStr_)
+		_nLen_ = This._EngineCount(_cStr_)
 		if n1 < 1
 			n1 = 1
 		ok
@@ -390,11 +411,11 @@ class stzString from stzObject
 		ok
 		_cBefore_ = ""
 		if n1 > 1
-			_cBefore_ = substr(_cStr_, 1, n1 - 1)
+			_cBefore_ = This._EngineSlice(_cStr_, 1, n1 - 1)
 		ok
 		_cAfter_ = ""
 		if n2 < _nLen_
-			_cAfter_ = substr(_cStr_, n2 + 1)
+			_cAfter_ = This._EngineSliceFrom(_cStr_, n2 + 1)
 		ok
 		This.Update(_cBefore_ + pcNewSubStr + _cAfter_)
 
@@ -1760,18 +1781,51 @@ class stzString from stzObject
 		next
 		return _aCopy_
 
-	# Helper: find pcNeedle in pcHay starting at character position
-	# nFrom (1-based, inclusive). Returns absolute position (1-based)
-	# or 0 if absent. Ring's 3-arg substr is replace, not find-from --
-	# this is the missing piece. Lives on stzString to inherit its
-	# implicit Self.
+	# Helper: find pcNeedle in pcHay starting at codepoint position
+	# nFrom (1-based, inclusive). Engine-backed (codepoint-aware,
+	# so Unicode chars like ♥ count as 1 position even though they
+	# occupy 3 UTF-8 bytes). Returns absolute position or 0.
 	def _FindFrom(pcHay, pcNeedle, nFrom)
 		if nFrom < 1 nFrom = 1 ok
-		if nFrom > ring_len(pcHay) return 0 ok
-		_cTail_ = substr(pcHay, nFrom)
-		_nRel_ = substr(_cTail_, pcNeedle)
-		if _nRel_ = 0 return 0 ok
-		return nFrom + _nRel_ - 1
+		_pH_ = StzEngineString(pcHay)
+		_nRes_ = StzEngineStringFindFirstFromCS(_pH_, pcNeedle, nFrom, 1)
+		StzEngineStringFree(_pH_)
+		if _nRes_ < 1 return 0 ok
+		return _nRes_
+
+	# Helper: slice pcHay by codepoint -- start codepoint position
+	# (1-based) and codepoint count. Returns the substring.
+	# Engine-backed; codepoint-aware.
+	def _EngineSlice(pcHay, nStart, nCount)
+		if nStart < 1 or nCount <= 0 return "" ok
+		_pH_ = StzEngineString(pcHay)
+		_pSlc_ = StzEngineStringSlice(_pH_, nStart, nCount)
+		_cRes_ = StzEngineStringData(_pSlc_)
+		StzEngineStringFree(_pSlc_)
+		StzEngineStringFree(_pH_)
+		return _cRes_
+
+	# Helper: slice pcHay from codepoint nStart to the end.
+	def _EngineSliceFrom(pcHay, nStart)
+		_pH_ = StzEngineString(pcHay)
+		_nLen_ = StzEngineStringCount(_pH_)
+		if nStart < 1 nStart = 1 ok
+		if nStart > _nLen_
+			StzEngineStringFree(_pH_)
+			return ""
+		ok
+		_pSlc_ = StzEngineStringSlice(_pH_, nStart, _nLen_ - nStart + 1)
+		_cRes_ = StzEngineStringData(_pSlc_)
+		StzEngineStringFree(_pSlc_)
+		StzEngineStringFree(_pH_)
+		return _cRes_
+
+	# Helper: count codepoints in pcStr.
+	def _EngineCount(pcStr)
+		_pH_ = StzEngineString(pcStr)
+		_n_ = StzEngineStringCount(_pH_)
+		StzEngineStringFree(_pH_)
+		return _n_
 
 	def ReplaceByMany(pcSubStr, paReplacements)
 		if isList(paReplacements) and ring_len(paReplacements) = 2 and
@@ -1784,20 +1838,22 @@ class stzString from stzObject
 		if _nRepLen_ = 0 return ok
 
 		_cTxt_ = This.Content()
-		_nSubLen_ = ring_len(pcSubStr)
+		_nSubLen_ = This._EngineCount(pcSubStr)
 		_cOut_ = ""
 		_nPos_ = 1
 		_iRep_ = 1
 		_nFound_ = This._FindFrom(_cTxt_, pcSubStr, _nPos_)
 		while _nFound_ > 0
-			_cOut_ += substr(_cTxt_, _nPos_, _nFound_ - _nPos_)
+			if _nFound_ > _nPos_
+				_cOut_ += This._EngineSlice(_cTxt_, _nPos_, _nFound_ - _nPos_)
+			ok
 			_cOut_ += paReplacements[_iRep_]
 			_iRep_++
 			if _iRep_ > _nRepLen_ _iRep_ = 1 ok
 			_nPos_ = _nFound_ + _nSubLen_
 			_nFound_ = This._FindFrom(_cTxt_, pcSubStr, _nPos_)
 		end
-		_cOut_ += substr(_cTxt_, _nPos_)
+		_cOut_ += This._EngineSliceFrom(_cTxt_, _nPos_)
 		This.Update(_cOut_)
 
 		def ReplaceByManyQ(pcSubStr, paReplacements)
@@ -1830,17 +1886,21 @@ class stzString from stzObject
 		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
 
 		_cTxt_ = This.Content()
-		_nOpenLen_ = ring_len(_aOpen_)
-		_nCloseLen_ = ring_len(_aClose_)
-		_nStart_ = substr(_cTxt_, _aOpen_)
+		_nOpenLen_ = This._EngineCount(_aOpen_)
+		_nCloseLen_ = This._EngineCount(_aClose_)
+		_nNewLen_ = This._EngineCount(pcNew)
+		_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
 		while _nStart_ > 0
 			_nInsideStart_ = _nStart_ + _nOpenLen_
 			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInsideStart_)
 			if _nEnd_ = 0 exit ok
-			_cBefore_ = left(_cTxt_, _nInsideStart_ - 1)
-			_cAfter_  = substr(_cTxt_, _nEnd_)
+			_cBefore_ = ""
+			if _nInsideStart_ > 1
+				_cBefore_ = This._EngineSlice(_cTxt_, 1, _nInsideStart_ - 1)
+			ok
+			_cAfter_  = This._EngineSliceFrom(_cTxt_, _nEnd_)
 			_cTxt_ = _cBefore_ + pcNew + _cAfter_
-			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nInsideStart_ + ring_len(pcNew))
+			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nInsideStart_ + _nNewLen_)
 		end
 		This.Update(_cTxt_)
 
@@ -1867,9 +1927,11 @@ class stzString from stzObject
 		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
 
 		_cTxt_ = This.Content()
-		_nOpenLen_ = ring_len(_aOpen_)
-		_nWhatLen_ = ring_len(pcWhat)
-		_nStart_ = substr(_cTxt_, _aOpen_)
+		_nOpenLen_ = This._EngineCount(_aOpen_)
+		_nCloseLen_ = This._EngineCount(_aClose_)
+		_nWhatLen_ = This._EngineCount(pcWhat)
+		_nNewLen_ = This._EngineCount(pcNew)
+		_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
 		while _nStart_ > 0
 			_nInsideStart_ = _nStart_ + _nOpenLen_
 			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInsideStart_)
@@ -1877,14 +1939,17 @@ class stzString from stzObject
 			# Look for pcWhat strictly inside [_nInsideStart_, _nEnd_-1]
 			_nWFound_ = This._FindFrom(_cTxt_, pcWhat, _nInsideStart_)
 			while _nWFound_ > 0 and _nWFound_ < _nEnd_
-				_cBefore_ = left(_cTxt_, _nWFound_ - 1)
-				_cAfter_  = substr(_cTxt_, _nWFound_ + _nWhatLen_)
+				_cBefore_ = ""
+				if _nWFound_ > 1
+					_cBefore_ = This._EngineSlice(_cTxt_, 1, _nWFound_ - 1)
+				ok
+				_cAfter_  = This._EngineSliceFrom(_cTxt_, _nWFound_ + _nWhatLen_)
 				_cTxt_ = _cBefore_ + pcNew + _cAfter_
-				_nEnd_ += ring_len(pcNew) - _nWhatLen_
-				_nWFound_ = This._FindFrom(_cTxt_, pcWhat, _nWFound_ + ring_len(pcNew))
+				_nEnd_ += _nNewLen_ - _nWhatLen_
+				_nWFound_ = This._FindFrom(_cTxt_, pcWhat, _nWFound_ + _nNewLen_)
 			end
 			# Move past this bounded section so we don't re-match.
-			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + ring_len(_aClose_))
+			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + _nCloseLen_)
 		end
 		This.Update(_cTxt_)
 
@@ -1909,19 +1974,23 @@ class stzString from stzObject
 			ok
 			if NOT (isString(_aOpenIB_) and isString(_aCloseIB_)) return ok
 			_cTxtIB_ = This.Content()
-			_nOpenLenIB_ = ring_len(_aOpenIB_)
-			_nCloseLenIB_ = ring_len(_aCloseIB_)
-			_nStartIB_ = substr(_cTxtIB_, _aOpenIB_)
+			_nOpenLenIB_ = This._EngineCount(_aOpenIB_)
+			_nCloseLenIB_ = This._EngineCount(_aCloseIB_)
+			_nNewLenIB_ = This._EngineCount(pcNew)
+			_nStartIB_ = This._FindFrom(_cTxtIB_, _aOpenIB_, 1)
 			while _nStartIB_ > 0
 				_nInsideIB_ = _nStartIB_ + _nOpenLenIB_
 				_nEndIB_ = This._FindFrom(_cTxtIB_, _aCloseIB_, _nInsideIB_)
 				if _nEndIB_ = 0 exit ok
-				_cInsideIB_ = substr(_cTxtIB_, _nInsideIB_, _nEndIB_ - _nInsideIB_)
-				if substr(_cInsideIB_, pcWhat) > 0
-					_cBeforeIB_ = left(_cTxtIB_, _nStartIB_ - 1)
-					_cAfterIB_  = substr(_cTxtIB_, _nEndIB_ + _nCloseLenIB_)
+				_cInsideIB_ = This._EngineSlice(_cTxtIB_, _nInsideIB_, _nEndIB_ - _nInsideIB_)
+				if This._FindFrom(_cInsideIB_, pcWhat, 1) > 0
+					_cBeforeIB_ = ""
+					if _nStartIB_ > 1
+						_cBeforeIB_ = This._EngineSlice(_cTxtIB_, 1, _nStartIB_ - 1)
+					ok
+					_cAfterIB_  = This._EngineSliceFrom(_cTxtIB_, _nEndIB_ + _nCloseLenIB_)
 					_cTxtIB_ = _cBeforeIB_ + pcNew + _cAfterIB_
-					_nStartIB_ = This._FindFrom(_cTxtIB_, _aOpenIB_, _nStartIB_ + ring_len(pcNew))
+					_nStartIB_ = This._FindFrom(_cTxtIB_, _aOpenIB_, _nStartIB_ + _nNewLenIB_)
 				else
 					_nStartIB_ = This._FindFrom(_cTxtIB_, _aOpenIB_, _nEndIB_ + _nCloseLenIB_)
 				ok
@@ -1936,11 +2005,17 @@ class stzString from stzObject
 			pcNew = pcNew[2]
 		ok
 		_cTxt_ = This.Content()
-		_nOldLen_ = ring_len(pcOld)
-		if n < 1 or n + _nOldLen_ - 1 > ring_len(_cTxt_) return ok
-		if substr(_cTxt_, n, _nOldLen_) != pcOld return ok
-		_cBefore_ = left(_cTxt_, n - 1)
-		_cAfter_  = substr(_cTxt_, n + _nOldLen_)
+		_nOldLen_ = This._EngineCount(pcOld)
+		_nTxtLen_ = This._EngineCount(_cTxt_)
+		if n < 1 or n + _nOldLen_ - 1 > _nTxtLen_ return ok
+		# Verify pcOld actually starts at codepoint n.
+		_cAtN_ = This._EngineSlice(_cTxt_, n, _nOldLen_)
+		if _cAtN_ != pcOld return ok
+		_cBefore_ = ""
+		if n > 1
+			_cBefore_ = This._EngineSlice(_cTxt_, 1, n - 1)
+		ok
+		_cAfter_  = This._EngineSliceFrom(_cTxt_, n + _nOldLen_)
 		This.Update(_cBefore_ + pcNew + _cAfter_)
 
 		def ReplaceSubStringAtPositionQ(n, pcOld, pcNew)
@@ -2012,9 +2087,13 @@ class stzString from stzObject
 	# (Named-param :Position/:By form lives at ReplaceCharAt2 above.)
 	def ReplaceCharAtSimple(n, pcNew)
 		_cTxt_ = This.Content()
-		if n < 1 or n > ring_len(_cTxt_) return ok
-		_cBefore_ = left(_cTxt_, n - 1)
-		_cAfter_  = substr(_cTxt_, n + 1)
+		_nTxtLen_ = This._EngineCount(_cTxt_)
+		if n < 1 or n > _nTxtLen_ return ok
+		_cBefore_ = ""
+		if n > 1
+			_cBefore_ = This._EngineSlice(_cTxt_, 1, n - 1)
+		ok
+		_cAfter_  = This._EngineSliceFrom(_cTxt_, n + 1)
 		This.Update(_cBefore_ + pcNew + _cAfter_)
 
 	# ReplaceCharsAtPositions(anPos, :With/:By = pcNewChar) -- replace
@@ -2026,17 +2105,10 @@ class stzString from stzObject
 			_cNew_ = pNamed[2]
 		ok
 		if NOT isString(_cNew_) return ok
-		# Walk positions ascending; for each pos, replace that single
-		# char in-place. Positions in the input refer to the ORIGINAL
-		# string (they would shift after the first replace if
-		# _cNew_ has a different length than 1, but for char-for-char
-		# replace it's the same length so positions stay valid).
-		_cTxt_ = This.Content()
-		_aChars_ = []
-		_nLen_ = ring_len(_cTxt_)
-		for _i_ = 1 to _nLen_
-			_aChars_ + _cTxt_[_i_]
-		next
+		# Engine-backed: get the codepoint list, swap by position,
+		# rejoin. Positions refer to the ORIGINAL codepoint indices.
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		_nPL_ = ring_len(anPos)
 		for _i_ = 1 to _nPL_
 			_p_ = anPos[_i_]
@@ -2094,14 +2166,15 @@ class stzString from stzObject
 		_n1_ = _aSec_[1]; _n2_ = _aSec_[2]
 		_nLeftStart_ = _n1_ - _nBefore_
 		if _nLeftStart_ < 1 _nLeftStart_ = 1 ok
-		_cLeft_  = substr(_cTxt_, _nLeftStart_, _n1_ - _nLeftStart_)
+		_cLeft_  = This._EngineSlice(_cTxt_, _nLeftStart_, _n1_ - _nLeftStart_)
 		_nRightStart_ = _n2_ + 1
 		_nRightLen_ = _nAfter_
-		_nMaxRight_ = ring_len(_cTxt_) - _nRightStart_ + 1
+		_nTxtLen_ = This._EngineCount(_cTxt_)
+		_nMaxRight_ = _nTxtLen_ - _nRightStart_ + 1
 		if _nRightLen_ > _nMaxRight_ _nRightLen_ = _nMaxRight_ ok
 		_cRight_ = ""
 		if _nRightLen_ > 0
-			_cRight_ = substr(_cTxt_, _nRightStart_, _nRightLen_)
+			_cRight_ = This._EngineSlice(_cTxt_, _nRightStart_, _nRightLen_)
 		ok
 		return [ _cLeft_, _cRight_ ]
 
@@ -2112,17 +2185,23 @@ class stzString from stzObject
 	# Markers(): return the list of marker numbers as they appear,
 	# left-to-right. e.g. "#1 #3 #2" -> [1, 3, 2].
 	def Markers()
+		# Engine-backed: scan the codepoint list for "#" followed by
+		# digits. Markers like #1, #12 are pure-ASCII so per-char
+		# equality on the codepoint list is correct.
 		_aRes_ = []
-		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		_i_ = 1
 		while _i_ <= _nLen_
-			if _cTxt_[_i_] = "#" and _i_ < _nLen_ and isDigit(_cTxt_[_i_ + 1])
+			if _aChars_[_i_] = "#" and _i_ < _nLen_ and isDigit(_aChars_[_i_ + 1])
 				_j_ = _i_ + 1
-				while _j_ <= _nLen_ and isDigit(_cTxt_[_j_])
+				while _j_ <= _nLen_ and isDigit(_aChars_[_j_])
 					_j_++
 				end
-				_cNum_ = substr(_cTxt_, _i_ + 1, _j_ - _i_ - 1)
+				_cNum_ = ""
+				for _k_ = _i_ + 1 to _j_ - 1
+					_cNum_ += _aChars_[_k_]
+				next
 				_aRes_ + 0 + _cNum_
 				_i_ = _j_
 			else
@@ -2257,14 +2336,20 @@ class stzString from stzObject
 				ok
 				if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
 				_cTxt_ = This.Content()
-				_nStart_ = substr(_cTxt_, _aOpen_)
+				_nOpenLen_ = This._EngineCount(_aOpen_)
+				_nCloseLen_ = This._EngineCount(_aClose_)
+				_nWithLen_ = This._EngineCount(_pWith_)
+				_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
 				while _nStart_ > 0
-					_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nStart_ + ring_len(_aOpen_))
+					_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nStart_ + _nOpenLen_)
 					if _nEnd_ = 0 exit ok
-					_cBefore_ = left(_cTxt_, _nStart_ - 1)
-					_cAfter_  = substr(_cTxt_, _nEnd_ + ring_len(_aClose_))
+					_cBefore_ = ""
+					if _nStart_ > 1
+						_cBefore_ = This._EngineSlice(_cTxt_, 1, _nStart_ - 1)
+					ok
+					_cAfter_  = This._EngineSliceFrom(_cTxt_, _nEnd_ + _nCloseLen_)
 					_cTxt_ = _cBefore_ + _aOpen_ + _pWith_ + _aClose_ + _cAfter_
-					_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nStart_ + ring_len(_aOpen_ + _pWith_ + _aClose_))
+					_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nStart_ + _nOpenLen_ + _nWithLen_ + _nCloseLen_)
 				end
 				This.Update(_cTxt_)
 				return
@@ -2288,12 +2373,12 @@ class stzString from stzObject
 			return This
 
 	def SpacifyCharsUsing(pcSep)
-		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		if _nLen_ < 2 return ok
 		_cOut_ = ""
 		for _i_ = 1 to _nLen_
-			_cOut_ += _cTxt_[_i_]
+			_cOut_ += _aChars_[_i_]
 			if _i_ < _nLen_ _cOut_ += pcSep ok
 		next
 		This.Update(_cOut_)
@@ -2340,8 +2425,9 @@ class stzString from stzObject
 		ok
 
 		# Build the per-position separator stream.
-		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		# Engine-backed: get the codepoint list and walk it.
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		if _nLen_ < 2 return ok
 
 		# Normalise sep/step to lists for uniform handling.
@@ -2357,7 +2443,7 @@ class stzString from stzObject
 		if _bBackward_
 			# Walk right-to-left, prepending to _cOut_.
 			for _i_ = _nLen_ to 1 step -1
-				_cOut_ = _cTxt_[_i_] + _cOut_
+				_cOut_ = _aChars_[_i_] + _cOut_
 				_iCount_++
 				if _i_ > 1 and _iCount_ = _aSteps_[_iStepIdx_]
 					_cOut_ = _aSeps_[_iStepIdx_] + _cOut_
@@ -2368,7 +2454,7 @@ class stzString from stzObject
 			next
 		else
 			for _i_ = 1 to _nLen_
-				_cOut_ += _cTxt_[_i_]
+				_cOut_ += _aChars_[_i_]
 				_iCount_++
 				if _i_ < _nLen_ and _iCount_ = _aSteps_[_iStepIdx_]
 					_cOut_ += _aSeps_[_iStepIdx_]
@@ -2451,16 +2537,19 @@ class stzString from stzObject
 	# by appending copies of pcChar at the end.
 	def ExtendToWith(n, pcChar)
 		_cTxt_ = This.Content()
-		_nNeed_ = n - ring_len(_cTxt_)
+		_nNeed_ = n - This._EngineCount(_cTxt_)
 		if _nNeed_ <= 0 return ok
 		if NOT isString(pcChar) or ring_len(pcChar) = 0 return ok
+		_nCharLen_ = This._EngineCount(pcChar)
 		_cPad_ = ""
-		while ring_len(_cPad_) < _nNeed_
+		_nPadLen_ = 0
+		while _nPadLen_ < _nNeed_
 			_cPad_ += pcChar
+			_nPadLen_ += _nCharLen_
 		end
-		# Trim to exactly _nNeed_ chars if last iteration overshot.
-		if ring_len(_cPad_) > _nNeed_
-			_cPad_ = left(_cPad_, _nNeed_)
+		# Trim to exactly _nNeed_ codepoints if last iteration overshot.
+		if _nPadLen_ > _nNeed_
+			_cPad_ = This._EngineSlice(_cPad_, 1, _nNeed_)
 		ok
 		This.Update(_cTxt_ + _cPad_)
 
@@ -2471,13 +2560,16 @@ class stzString from stzObject
 	def ExtendToWithCharsRepeated(n)
 		# Pad out to total length n by cycling through the current
 		# content (so "abc" -> "abc abc a" when n = 8).
-		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		# Engine-backed: walk by codepoints so Unicode chars count as 1.
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		if _nLen_ = 0 or n <= _nLen_ return ok
-		_cOut_ = _cTxt_
+		_cOut_ = This.Content()
+		_nOutLen_ = _nLen_
 		_iSrc_ = 1
-		while ring_len(_cOut_) < n
-			_cOut_ += _cTxt_[_iSrc_]
+		while _nOutLen_ < n
+			_cOut_ += _aChars_[_iSrc_]
+			_nOutLen_++
 			_iSrc_++
 			if _iSrc_ > _nLen_ _iSrc_ = 1 ok
 		end
@@ -2501,14 +2593,24 @@ class stzString from stzObject
 			_cSrc_ = _tmp_
 		ok
 		if NOT isString(_cSrc_) or ring_len(_cSrc_) = 0 return ok
+		# Engine-backed: codepoint-aware cycling.
 		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
-		_nSrc_ = ring_len(_cSrc_)
+		_nLen_ = This._EngineCount(_cTxt_)
 		if n <= _nLen_ return ok
+		# Get the codepoint list of the source pool.
+		_pHsrc_ = StzEngineString(_cSrc_)
+		_pHsrcS_ = StzEngineStringCharsSplit(_pHsrc_)
+		_cJoined_ = StzEngineStringData(_pHsrcS_)
+		StzEngineStringFree(_pHsrcS_)
+		StzEngineStringFree(_pHsrc_)
+		_aSrcChars_ = _SplitNullDelimited(_cJoined_)
+		_nSrc_ = ring_len(_aSrcChars_)
 		_cOut_ = _cTxt_
+		_nOutLen_ = _nLen_
 		_iSrc_ = 1
-		while ring_len(_cOut_) < n
-			_cOut_ += _cSrc_[_iSrc_]
+		while _nOutLen_ < n
+			_cOut_ += _aSrcChars_[_iSrc_]
+			_nOutLen_++
 			_iSrc_++
 			if _iSrc_ > _nSrc_ _iSrc_ = 1 ok
 		end
@@ -2527,11 +2629,12 @@ class stzString from stzObject
 			_cExpr_ = pcCondition[2]
 		ok
 		if NOT isString(_cExpr_) return ok
-		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		# Engine-backed: walk codepoints, not bytes.
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		_cOut_ = ""
 		for _i_ = 1 to _nLen_
-			@char = _cTxt_[_i_]
+			@char = _aChars_[_i_]
 			@Char = @char
 			@position = _i_
 			_bDrop_ = FALSE
@@ -2612,12 +2715,12 @@ class stzString from stzObject
 	# characters, walking from start by default. :StartingFrom = :End
 	# walks from the right.
 	def InsertAfterEachNChars(n, pcStr)
-		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		if n < 1 or _nLen_ < n return ok
 		_cOut_ = ""
 		for _i_ = 1 to _nLen_
-			_cOut_ += _cTxt_[_i_]
+			_cOut_ += _aChars_[_i_]
 			if _i_ < _nLen_ and _i_ % n = 0 _cOut_ += pcStr ok
 		next
 		This.Update(_cOut_)
@@ -2640,12 +2743,12 @@ class stzString from stzObject
 		ok
 		# Walk from the right: count chars from end, insert before
 		# each (n+1)-th to keep the "from end" intuition.
-		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		if n < 1 or _nLen_ < n return ok
 		_cOut_ = ""
 		for _i_ = _nLen_ to 1 step -1
-			_cOut_ = _cTxt_[_i_] + _cOut_
+			_cOut_ = _aChars_[_i_] + _cOut_
 			if _i_ > 1 and (_nLen_ - _i_ + 1) % n = 0
 				# Nothing to insert in the bare 2-arg semantic; this
 				# remains as a forwarder for the test surface.
@@ -2694,12 +2797,13 @@ class stzString from stzObject
 			_cExpr_ = pCond[2]
 		ok
 		if NOT isString(_cExpr_) return [] ok
-		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		# Engine-backed: walk codepoints, not bytes.
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		_aRes_ = []
 		_cCur_ = ""
 		for _i_ = 1 to _nLen_
-			@char = _cTxt_[_i_]
+			@char = _aChars_[_i_]
 			@position = _i_
 			@CurrentItem = @char
 			_bSplit_ = FALSE
@@ -3070,10 +3174,11 @@ class stzString from stzObject
 			while _repIdx_ > _nR_ _repIdx_ -= _nR_ end
 			_cRep_ = paReplacements[_repIdx_]
 			_cBefore_ = ""
-			if _n1_ > 1 _cBefore_ = substr(_cTxt_, 1, _n1_ - 1) ok
+			if _n1_ > 1 _cBefore_ = This._EngineSlice(_cTxt_, 1, _n1_ - 1) ok
 			_cAfter_ = ""
-			if _n2_ < ring_len(_cTxt_)
-				_cAfter_ = substr(_cTxt_, _n2_ + 1)
+			_nTxtLen_ = This._EngineCount(_cTxt_)
+			if _n2_ < _nTxtLen_
+				_cAfter_ = This._EngineSliceFrom(_cTxt_, _n2_ + 1)
 			ok
 			_cTxt_ = _cBefore_ + _cRep_ + _cAfter_
 		next
@@ -3115,15 +3220,16 @@ class stzString from stzObject
 	def RemoveThisCharFromStartXT(pcChar)
 		if NOT isString(pcChar) or ring_len(pcChar) = 0 return ok
 		_cTxt_ = This.Content()
-		_nLenTxt_ = ring_len(_cTxt_)
-		_nLenCh_ = ring_len(pcChar)
+		_nLenTxt_ = This._EngineCount(_cTxt_)
+		_nLenCh_ = This._EngineCount(pcChar)
+		if _nLenCh_ = 0 return ok
 		_n_ = 0
 		while _n_ + _nLenCh_ <= _nLenTxt_ and
-		      substr(_cTxt_, _n_ + 1, _nLenCh_) = pcChar
+		      This._EngineSlice(_cTxt_, _n_ + 1, _nLenCh_) = pcChar
 			_n_ += _nLenCh_
 		end
 		if _n_ > 0
-			This.Update(substr(_cTxt_, _n_ + 1))
+			This.Update(This._EngineSliceFrom(_cTxt_, _n_ + 1))
 		ok
 
 		def RemoveThisCharFromLeftXT(pcChar)
@@ -3138,15 +3244,16 @@ class stzString from stzObject
 	def RemoveThisCharFromEndXT(pcChar)
 		if NOT isString(pcChar) or ring_len(pcChar) = 0 return ok
 		_cTxt_ = This.Content()
-		_nLenTxt_ = ring_len(_cTxt_)
-		_nLenCh_ = ring_len(pcChar)
+		_nLenTxt_ = This._EngineCount(_cTxt_)
+		_nLenCh_ = This._EngineCount(pcChar)
+		if _nLenCh_ = 0 return ok
 		_n_ = 0
 		while _n_ + _nLenCh_ <= _nLenTxt_ and
-		      substr(_cTxt_, _nLenTxt_ - _n_ - _nLenCh_ + 1, _nLenCh_) = pcChar
+		      This._EngineSlice(_cTxt_, _nLenTxt_ - _n_ - _nLenCh_ + 1, _nLenCh_) = pcChar
 			_n_ += _nLenCh_
 		end
 		if _n_ > 0
-			This.Update(substr(_cTxt_, 1, _nLenTxt_ - _n_))
+			This.Update(This._EngineSlice(_cTxt_, 1, _nLenTxt_ - _n_))
 		ok
 
 		def RemoveThisCharFromRightXT(pcChar)
@@ -3558,15 +3665,18 @@ class stzString from stzObject
 		# with no arg, peel any same-first-char run. Test narratives
 		# use this as a one-shot "trim run" form.
 		def RemoveFirstCharXT()
-			_c_ = This.Content()
-			if ring_len(_c_) = 0 return ok
-			_cF_ = _c_[1]
+			# Engine-backed: take the codepoint list, count the run of
+			# same-leading chars, then slice the remainder.
+			_aChars_ = This.Chars()
+			_nLen_ = ring_len(_aChars_)
+			if _nLen_ = 0 return ok
+			_cF_ = _aChars_[1]
 			_n_ = 0
-			while _n_ < ring_len(_c_) and _c_[_n_ + 1] = _cF_
+			while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
 				_n_++
 			end
 			if _n_ > 0
-				This.Update(substr(_c_, _n_ + 1))
+				This.Update(This._EngineSliceFrom(This.Content(), _n_ + 1))
 			ok
 
 		def RemoveFirstCharXTQ()
@@ -3588,15 +3698,16 @@ class stzString from stzObject
 	# first (resp. last) char of the current content. Equivalent to the
 	# "trim run" interpretation in narrative tests.
 	def RemoveLeadingChars()
-		_c_ = This.Content()
-		if ring_len(_c_) = 0 return ok
-		_cF_ = _c_[1]
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return ok
+		_cF_ = _aChars_[1]
 		_n_ = 0
-		while _n_ < ring_len(_c_) and _c_[_n_ + 1] = _cF_
+		while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
 			_n_++
 		end
 		if _n_ > 0
-			This.Update(substr(_c_, _n_ + 1))
+			This.Update(This._EngineSliceFrom(This.Content(), _n_ + 1))
 		ok
 
 		def RemoveLeadingCharsQ()
@@ -3607,14 +3718,16 @@ class stzString from stzObject
 	# trailing) RUN of identical chars as a single string. e.g.
 	# "----Ring" -> "----". Used by narrative leading-char analysis.
 	def LeadingChars()
-		_c_ = This.Content()
-		if ring_len(_c_) = 0 return "" ok
-		_cF_ = _c_[1]
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return "" ok
+		_cF_ = _aChars_[1]
 		_n_ = 0
-		while _n_ < ring_len(_c_) and _c_[_n_ + 1] = _cF_
+		while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
 			_n_++
 		end
-		return left(_c_, _n_)
+		if _n_ = 0 return "" ok
+		return This._EngineSlice(This.Content(), 1, _n_)
 
 		def LeadingChar()
 			_lc_ = This.LeadingChars()
@@ -3625,15 +3738,16 @@ class stzString from stzObject
 			return ring_len(This.LeadingChars())
 
 	def TrailingChars()
-		_c_ = This.Content()
-		_nLen_ = ring_len(_c_)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		if _nLen_ = 0 return "" ok
-		_cL_ = _c_[_nLen_]
+		_cL_ = _aChars_[_nLen_]
 		_n_ = 0
-		while _n_ < _nLen_ and _c_[_nLen_ - _n_] = _cL_
+		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
 			_n_++
 		end
-		return substr(_c_, _nLen_ - _n_ + 1)
+		if _n_ = 0 return "" ok
+		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
 
 		def TrailingChar()
 			_tc_ = This.TrailingChars()
@@ -3661,8 +3775,8 @@ class stzString from stzObject
 	# RemoveAnyLeadingChar = peel every leading char of the same type.
 	def RemoveLeadingChar()
 		_c_ = This.Content()
-		if ring_len(_c_) > 0
-			This.Update(substr(_c_, 2))
+		if This._EngineCount(_c_) > 0
+			This.Update(This._EngineSliceFrom(_c_, 2))
 		ok
 
 		def RemoveLeadingCharQ()
@@ -3674,9 +3788,9 @@ class stzString from stzObject
 
 	def RemoveTrailingChar()
 		_c_ = This.Content()
-		_nLen_ = ring_len(_c_)
+		_nLen_ = This._EngineCount(_c_)
 		if _nLen_ > 0
-			This.Update(left(_c_, _nLen_ - 1))
+			This.Update(This._EngineSlice(_c_, 1, _nLen_ - 1))
 		ok
 
 		def RemoveTrailingCharQ()
@@ -3684,16 +3798,16 @@ class stzString from stzObject
 			return This
 
 	def RemoveTrailingChars()
-		_c_ = This.Content()
-		_nLen_ = ring_len(_c_)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
 		if _nLen_ = 0 return ok
-		_cL_ = _c_[_nLen_]
+		_cL_ = _aChars_[_nLen_]
 		_n_ = 0
-		while _n_ < _nLen_ and _c_[_nLen_ - _n_] = _cL_
+		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
 			_n_++
 		end
 		if _n_ > 0
-			This.Update(left(_c_, _nLen_ - _n_))
+			This.Update(This._EngineSlice(This.Content(), 1, _nLen_ - _n_))
 		ok
 
 		def RemoveTrailingCharsQ()
@@ -3731,6 +3845,25 @@ class stzString from stzObject
 
 		def RemoveLastCharQ()
 			This.RemoveLastChar()
+			return This
+
+		# RemoveLastCharXT() -- peel every trailing char that matches
+		# the last one (symmetric to RemoveFirstCharXT). Engine-backed.
+		def RemoveLastCharXT()
+			_aChars_ = This.Chars()
+			_nLen_ = ring_len(_aChars_)
+			if _nLen_ = 0 return ok
+			_cL_ = _aChars_[_nLen_]
+			_n_ = 0
+			while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
+				_n_++
+			end
+			if _n_ > 0
+				This.Update(This._EngineSlice(This.Content(), 1, _nLen_ - _n_))
+			ok
+
+		def RemoveLastCharXTQ()
+			This.RemoveLastCharXT()
 			return This
 
 	def RemoveFirstAndLastChars()
@@ -4957,27 +5090,27 @@ class stzString from stzObject
 
 	def SubStrings()
 		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		_nLen_ = This._EngineCount(_cTxt_)
 		_aRes_ = []
 		for _i_ = 1 to _nLen_
 			for _j_ = _i_ to _nLen_
-				_aRes_ + substr(_cTxt_, _i_, _j_ - _i_ + 1)
+				_aRes_ + This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
 			next
 		next
 		return _aRes_
 
 	def NumberOfSubStrings()
-		_n_ = ring_len(This.Content())
+		_n_ = This._EngineCount(This.Content())
 		return (_n_ * (_n_ + 1)) / 2
 
 	def SubStringsCS(pCaseSensitive)
 		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		_nLen_ = This._EngineCount(_cTxt_)
 		_aRes_ = []
 		_bCase_ = (pCaseSensitive = 1)
 		for _i_ = 1 to _nLen_
 			for _j_ = _i_ to _nLen_
-				_s_ = substr(_cTxt_, _i_, _j_ - _i_ + 1)
+				_s_ = This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
 				# Dedup: walk the result list, comparing per chosen
 				# case sensitivity. OK on the narrative-test sizes.
 				_bDup_ = FALSE
@@ -5163,10 +5296,10 @@ class stzString from stzObject
 	def FindSubStringsAsSectionsWXT(pcCondition)
 		_aRes_ = []
 		_cTxt_ = This.Content()
-		_nLen_ = ring_len(_cTxt_)
+		_nLen_ = This._EngineCount(_cTxt_)
 		for _i_ = 1 to _nLen_
 			for _j_ = _i_ to _nLen_
-				@SubString = substr(_cTxt_, _i_, _j_ - _i_ + 1)
+				@SubString = This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
 				_bMatch_ = FALSE
 				try
 					eval("_bMatch_ = " + pcCondition)
@@ -5189,7 +5322,7 @@ class stzString from stzObject
 			_nSL_ = ring_len(_aSec_)
 			for _i_ = 1 to _nSL_
 				_s_ = _aSec_[_i_][1]; _e_ = _aSec_[_i_][2]
-				_aRes2_ + substr(_cTxt2_, _s_, _e_ - _s_ + 1)
+				_aRes2_ + This._EngineSlice(_cTxt2_, _s_, _e_ - _s_ + 1)
 			next
 			return _aRes2_
 
@@ -5223,25 +5356,17 @@ class stzString from stzObject
 
 		_aRes_ = []
 		_cTxt_ = This.Content()
-		_nOpenLen_ = ring_len(_aOpen_)
-		_nStart_ = substr(_cTxt_, _aOpen_)
+		_nOpenLen_ = This._EngineCount(_aOpen_)
+		_nCloseLen_ = This._EngineCount(_aClose_)
+		# Engine find: codepoint-aware, so positions inside Unicode
+		# content (♥ etc.) match what the test expects.
+		_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
 		while _nStart_ > 0
 			_nInside_ = _nStart_ + _nOpenLen_
-			# Ring's 3-arg substr is (haystack, needle, replace), not
-			# (haystack, needle, startPos). Slice the tail then search.
-			_cTail_ = substr(_cTxt_, _nInside_)
-			_nEndRel_ = substr(_cTail_, _aClose_)
-			if _nEndRel_ = 0 exit ok
-			_nEnd_ = _nInside_ + _nEndRel_ - 1
+			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInside_)
+			if _nEnd_ = 0 exit ok
 			_aRes_ + _nInside_
-			# Continue past this bounded section.
-			_cTail2_ = substr(_cTxt_, _nEnd_ + ring_len(_aClose_))
-			_nNextRel_ = substr(_cTail2_, _aOpen_)
-			if _nNextRel_ = 0
-				_nStart_ = 0
-			else
-				_nStart_ = _nEnd_ + ring_len(_aClose_) + _nNextRel_ - 1
-			ok
+			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + _nCloseLen_)
 		end
 		return _aRes_
 
@@ -5266,8 +5391,10 @@ class stzString from stzObject
 
 		_aRes_ = []
 		_cTxt_ = This.Content()
-		_nOpenLen_ = ring_len(_aOpen_)
-		_nStart_ = substr(_cTxt_, _aOpen_)
+		_nOpenLen_ = This._EngineCount(_aOpen_)
+		_nCloseLen_ = This._EngineCount(_aClose_)
+		_nWhatLen_ = This._EngineCount(pcWhat)
+		_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
 		while _nStart_ > 0
 			_nInside_ = _nStart_ + _nOpenLen_
 			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInside_)
@@ -5275,9 +5402,9 @@ class stzString from stzObject
 			_nW_ = This._FindFrom(_cTxt_, pcWhat, _nInside_)
 			while _nW_ > 0 and _nW_ < _nEnd_
 				_aRes_ + _nW_
-				_nW_ = This._FindFrom(_cTxt_, pcWhat, _nW_ + ring_len(pcWhat))
+				_nW_ = This._FindFrom(_cTxt_, pcWhat, _nW_ + _nWhatLen_)
 			end
-			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + ring_len(_aClose_))
+			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + _nCloseLen_)
 		end
 		return _aRes_
 
@@ -5636,22 +5763,29 @@ class stzString from stzObject
 			_sec_ = _aSorted_[_i_]
 			_n1_ = _sec_[1]; _n2_ = _sec_[2]
 			_cTxt_ = This.Content()
-			_nLT_ = ring_len(_cTxt_)
+			_nLT_ = This._EngineCount(_cTxt_)
 			if _n1_ < 1 _n1_ = 1 ok
 			if _n2_ > _nLT_ _n2_ = _nLT_ ok
 			if _n1_ > _n2_ loop ok
 			_cBefore_ = ""
-			if _n1_ > 1 _cBefore_ = substr(_cTxt_, 1, _n1_ - 1) ok
-			_cMid_ = substr(_cTxt_, _n1_, _n2_ - _n1_ + 1)
+			if _n1_ > 1 _cBefore_ = This._EngineSlice(_cTxt_, 1, _n1_ - 1) ok
+			_cMid_ = This._EngineSlice(_cTxt_, _n1_, _n2_ - _n1_ + 1)
 			_cAfter_ = ""
 			if _n2_ < _nLT_
-				_cAfter_ = substr(_cTxt_, _n2_ + 1)
+				_cAfter_ = This._EngineSliceFrom(_cTxt_, _n2_ + 1)
 			ok
-			# Strip spaces from _cMid_ only.
+			# Strip spaces from _cMid_ via per-codepoint walk.
+			_aMidChars_ = []
+			_pHm_ = StzEngineString(_cMid_)
+			_pHmS_ = StzEngineStringCharsSplit(_pHm_)
+			_cJoinedM_ = StzEngineStringData(_pHmS_)
+			StzEngineStringFree(_pHmS_)
+			StzEngineStringFree(_pHm_)
+			_aMidChars_ = _SplitNullDelimited(_cJoinedM_)
 			_cMidClean_ = ""
-			_nML_ = ring_len(_cMid_)
+			_nML_ = ring_len(_aMidChars_)
 			for _k_ = 1 to _nML_
-				if _cMid_[_k_] != " " _cMidClean_ += _cMid_[_k_] ok
+				if _aMidChars_[_k_] != " " _cMidClean_ += _aMidChars_[_k_] ok
 			next
 			This.Update(_cBefore_ + _cMidClean_ + _cAfter_)
 		next
