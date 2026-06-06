@@ -225,6 +225,47 @@ class stzStringCharList
 		def Length()
 			return ring_len(@acChars)
 
+	# Section(:From = pcA, :To = pcB) -- return the slice of chars
+	# between the first occurrence of pcA and the first occurrence of
+	# pcB (both inclusive). Also accepts numeric positions
+	# Section(n1, n2). Returns a plain list of chars.
+	def Section(p1, p2)
+		_nLen_ = ring_len(@acChars)
+		_n1_ = p1; _n2_ = p2
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		   lower(p1[1]) = "from"
+			_vF_ = p1[2]
+			if isString(_vF_)
+				_n1_ = 0
+				for _i_ = 1 to _nLen_
+					if @acChars[_i_] = _vF_ _n1_ = _i_ exit ok
+				next
+			else
+				_n1_ = _vF_
+			ok
+		ok
+		if isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and
+		   lower(p2[1]) = "to"
+			_vT_ = p2[2]
+			if isString(_vT_)
+				_n2_ = 0
+				for _i_ = 1 to _nLen_
+					if @acChars[_i_] = _vT_ _n2_ = _i_ exit ok
+				next
+			else
+				_n2_ = _vT_
+			ok
+		ok
+		if NOT (isNumber(_n1_) and isNumber(_n2_)) return [] ok
+		if _n1_ < 1 _n1_ = 1 ok
+		if _n2_ > _nLen_ _n2_ = _nLen_ ok
+		if _n1_ > _n2_ return [] ok
+		_aRes_ = []
+		for _i_ = _n1_ to _n2_
+			_aRes_ + @acChars[_i_]
+		next
+		return _aRes_
+
 	def NthChar(n)
 		if n < 1 or n > ring_len(@acChars)
 			StzRaise("Index out of range!")

@@ -305,8 +305,39 @@ class stzString from stzObject
 		StzEngineStringFree(pR)
 		return _SplitNullDelimited(cJoined)
 
+		def CharsQ()
+			# Fluent form: return the char list wrapped in stzListOfChars
+			# so .Section(:From, :To) etc. resolve on the list class.
+			return new stzListOfChars( This.Chars() )
+
 	def Section(n1, n2)
+		# Narrative aliases: Section(:From = pcA, :To = pcB) where
+		# pcA/pcB are characters or substrings. Resolve to positions
+		# (first occurrence) before the numeric path.
+		if isList(n1) and ring_len(n1) = 2 and isString(n1[1]) and
+		   lower(n1[1]) = "from"
+			_vF_ = n1[2]
+			if isString(_vF_)
+				n1 = substr(This.Content(), _vF_)
+			else
+				n1 = _vF_
+			ok
+		ok
+		if isList(n2) and ring_len(n2) = 2 and isString(n2[1]) and
+		   lower(n2[1]) = "to"
+			_vT_ = n2[2]
+			if isString(_vT_)
+				n2 = substr(This.Content(), _vT_)
+				if n2 > 0
+					n2 = n2 + ring_len(_vT_) - 1
+				ok
+			else
+				n2 = _vT_
+			ok
+		ok
 		nLen = This.NumberOfChars()
+		if NOT isNumber(n1) return "" ok
+		if NOT isNumber(n2) return "" ok
 		if n1 < 1
 			n1 = 1
 		ok
@@ -5951,11 +5982,51 @@ class stzString from stzObject
 	#========================================#
 
 	def FindFirstSTCS(pcSubStr, nStartAt, pCaseSensitive)
+		# :StartingAt = n normalisation.
+		if isList(nStartAt) and ring_len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
 		_bFstCase_ = @CaseSensitive(pCaseSensitive)
 		return This._FindSubStr(pcSubStr, nStartAt, _bFstCase_)
 
 	def FindFirstST(pcSubStr, nStartAt)
+		if isList(nStartAt) and ring_len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
 		return This.FindFirstSTCS(pcSubStr, nStartAt, 1)
+
+	# FindLastST: forward to the engine's "find from end" path.
+	def FindLastST(pcSubStr, nStartAt)
+		if isList(nStartAt) and ring_len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
+		# Walk forward and remember the last hit at or after nStartAt.
+		_nPos_ = nStartAt; _nLast_ = 0
+		while TRUE
+			_nFound_ = This._FindSubStr(pcSubStr, _nPos_, 1)
+			if _nFound_ = 0 exit ok
+			_nLast_ = _nFound_
+			_nPos_ = _nFound_ + ring_len(pcSubStr)
+		end
+		return _nLast_
+
+	def FindNthST(n, pcSubStr, nStartAt)
+		if isList(nStartAt) and ring_len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
+		_nPos_ = nStartAt; _nCount_ = 0
+		while TRUE
+			_nFound_ = This._FindSubStr(pcSubStr, _nPos_, 1)
+			if _nFound_ = 0 return 0 ok
+			_nCount_++
+			if _nCount_ = n return _nFound_ ok
+			_nPos_ = _nFound_ + ring_len(pcSubStr)
+		end
+		return 0
 
 	  #========================================#
 	 #     COMPARATOR DELEGATIONS             #
