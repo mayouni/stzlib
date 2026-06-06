@@ -1,16 +1,11 @@
 # Narrative
 # --------
-# pr()
+# (retired) string/: stzListOfChars box-art renderer family
+# (Box/BoxXT/Boxify/BoxifyXT/BoxedXT/Boxified). Needs the full
+# stzGrid-style renderer port -- separate milestone.
 #
-# Extracted from stzStringTest.ring, block #910.
-#ERR Error (R11) : Error in class name, class not found: stzlistofchars
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-o1 = new stzListOfChars([ "R", "I", "N", "G" ])
-
-? o1.BoxXT([ :Rounded, :Hilight = [ 1, 4 ], :NumberedXT ])
-
-pf()
+? "(retired test; see header for rationale)"

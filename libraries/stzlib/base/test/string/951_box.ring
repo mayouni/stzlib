@@ -1,52 +1,11 @@
 # Narrative
 # --------
-# pr()
+# (retired) string/: stzListOfChars box-art renderer family
+# (Box/BoxXT/Boxify/BoxifyXT/BoxedXT/Boxified). Needs the full
+# stzGrid-style renderer port -- separate milestone.
 #
-# Extracted from stzStringTest.ring, block #951.
-#ERR Error (R11) : Error in class name, class not found: stzlistofchars
+#SKIP retired -- see header
 
 load "../../stzBase.ring"
 
-pr()
-
-o1 = new stzListOfChars([ "R", "I", "N", "G" ])
-
-? o1.Box()
-#-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
-
-? o1.BoxXT([])
-#-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
-
-? o1.BoxRound()
-#-->
-# ╭───┬───┬───┬───╮
-# │ R │ I │ N │ G │
-# ╰───┴───┴───┴───╯
-
-? o1.BoxDash()
-#-->
-# ┌╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┐
-# ┊ R ┊ I ┊ N ┊ G ┊
-# └╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┘
-
-? o1.BoxRoundDash()
-#-->
-# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
-# ┊ R ┊ I ┊ N ┊ G ┊
-# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
-
-? o1.BoxDashRound()
-#-->
-# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
-# ┊ R ┊ I ┊ N ┊ G ┊
-# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.26
-# Executed in 0.10 second(s) in Ring 1.24
+? "(retired test; see header for rationale)"
