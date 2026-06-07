@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #689.
-#ERR Error (R14) : Calling Method without definition: isquietequalto
 
 load "../../stzBase.ring"
 
