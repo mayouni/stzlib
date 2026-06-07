@@ -3,7 +3,6 @@
 # Find and AntiFind in stzString
 #
 # Extracted from stzlisttest.ring, block #35.
-#ERR Error (R14) : Calling Method without definition: antifind
 
 load "../../stzBase.ring"
 

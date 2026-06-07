@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #395.
-#ERR Error (R14) : Calling Method without definition: replacew
 
 load "../../stzBase.ring"
 
