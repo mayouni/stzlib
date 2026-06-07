@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #293.
-#ERR Error (R14) : Calling Method without definition: unspacify
 
 load "../../stzBase.ring"
 
