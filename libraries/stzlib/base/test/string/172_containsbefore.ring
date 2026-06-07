@@ -3,7 +3,6 @@
 # *
 #
 # Extracted from stzStringTest.ring, block #172.
-#ERR Error (R14) : Calling Method without definition: containsbefore
 
 load "../../stzBase.ring"
 
