@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #49.
-#ERR Error (R14) : Calling Method without definition: randompositionafter
 
 load "../../stzBase.ring"
 

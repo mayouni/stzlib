@@ -8255,6 +8255,88 @@ class stzString from stzObject
 	def IsNotAString()
 		return FALSE
 
+	# AreBoundsOfXT(:Open=, :Close=): TRUE iff THIS contains both
+	# bounds; the IsBoundOfXT predicate flipped to "we contain
+	# something bounded by these".
+	def AreBoundsOfXT(pNamed1, pNamed2)
+		_cO_ = NULL
+		_cC_ = NULL
+		_aArgs_ = [ pNamed1, pNamed2 ]
+		for _i_ = 1 to 2
+			_a_ = _aArgs_[_i_]
+			if isList(_a_) and ring_len(_a_) = 2 and isString(_a_[1])
+				_k_ = lower(_a_[1])
+				if _k_ = "open" _cO_ = _a_[2]
+				but _k_ = "close" _cC_ = _a_[2]
+				ok
+			ok
+		next
+		if NOT (isString(_cO_) and isString(_cC_)) return FALSE ok
+		return This.Contains(_cO_) and This.Contains(_cC_)
+
+	# RandomPositionAfter(nFrom): a random codepoint position
+	# strictly after nFrom (inclusive of the last position).
+	def RandomPositionAfter(nFrom)
+		_nLen_ = This._EngineCount(This.Content())
+		if nFrom < 1 nFrom = 0 ok
+		if nFrom >= _nLen_ return 0 ok
+		_nSpan_ = _nLen_ - nFrom
+		return nFrom + 1 + (random(_nSpan_ - 1))
+
+	# FindNextSTCS(pcSub, nStartAt, pCaseSensitive): forward search
+	# from nStartAt with case flag.
+	def FindNextSTCS(pcSub, nStartAt, pCaseSensitive)
+		if isList(nStartAt) and ring_len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
+		_bCase_ = 1
+		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		return StzEngineStringFindFirstFromCS(@pEngine, pcSub,
+		       nStartAt + 1, _bCase_)
+
+	# ContainsMoreThenN(pcSub, n): TRUE iff content contains pcSub
+	# strictly more than n times.
+	def ContainsMoreThenN(pcSub, n)
+		return This.HowMany(pcSub) > n
+
+	def ContainsMoreThanN(pcSub, n)
+		return This.HowMany(pcSub) > n
+
+	def ContainsAtLeastN(pcSub, n)
+		return This.HowMany(pcSub) >= n
+
+	def ContainsExactlyN(pcSub, n)
+		return This.HowMany(pcSub) = n
+
+	# IsMarquer / IsMarker: TRUE iff content is a "#N" marker token.
+	def IsMarquer()
+		_c_ = This.Content()
+		if ring_len(_c_) < 2 return FALSE ok
+		if _c_[1] != "#" return FALSE ok
+		for _i_ = 2 to ring_len(_c_)
+			if NOT isDigit(_c_[_i_]) return FALSE ok
+		next
+		return TRUE
+
+	def IsMarker()
+		return This.IsMarquer()
+
+	# NumberOfEmptyLines(): count blank lines (after trim).
+	def NumberOfEmptyLines()
+		_aLines_ = This.Lines()
+		_nL_ = ring_len(_aLines_)
+		_nC_ = 0
+		for _i_ = 1 to _nL_
+			if ring_len(trim(_aLines_[_i_])) = 0
+				_nC_++
+			ok
+		next
+		return _nC_
+
+	def NumberOfNonEmptyLines()
+		return This.NumberOfLines() - This.NumberOfEmptyLines()
+
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
