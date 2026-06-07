@@ -95,7 +95,9 @@ func _SplitNullDelimited(cJoined)
 	nLen = len(cJoined)
 	for i = 1 to nLen
 		c = StzMid(cJoined, i, 1)
-		if ascii(c) = 0
+		# Multi-byte (UTF-8) chars are never NULL; ascii() would fail
+		# on them, so skip the NULL test for any non-single-byte char.
+		if len(c) = 1 and ascii(c) = 0
 			if cCurrent != ""
 				acResult + cCurrent
 				cCurrent = ""
