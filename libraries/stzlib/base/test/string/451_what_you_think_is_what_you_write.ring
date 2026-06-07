@@ -3,7 +3,7 @@
 # #narration "What You Think Is What You Write"
 #
 # Extracted from stzStringTest.ring, block #451.
-#ERR Error (R14) : Calling Method without definition: charsq
+#ERR Error (R14) : Calling Method without definition: numbrifiedq
 
 load "../../stzBase.ring"
 

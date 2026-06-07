@@ -3,6 +3,7 @@
 # o1 = new stzString("_♥_★_♥_")
 #
 # Extracted from stzStringTest.ring, block #396.
+#ERR Error (R14) : Calling Method without definition: thesecharsz
 
 load "../../stzBase.ring"
 

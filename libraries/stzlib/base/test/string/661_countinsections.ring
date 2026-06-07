@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #661.
-#ERR Error (R14) : Calling Method without definition: countinsections
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

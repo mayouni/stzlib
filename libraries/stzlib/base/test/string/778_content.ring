@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #778.
-#ERR Error (R14) : Calling Method without definition: replacefirstnchars
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

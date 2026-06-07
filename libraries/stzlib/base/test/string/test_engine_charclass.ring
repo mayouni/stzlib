@@ -2,6 +2,7 @@
 # Run from the test/ directory: ring test_engine_charclass.ring
 
 ? "Loading stubs + DLL"
+#ERR Error (R3) : Calling Function without definition: stzenginestring
 
 load "test_stubs.ring"
 

@@ -3,7 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #631.
-#ERR Error (R14) : Calling Method without definition: marquerszz
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

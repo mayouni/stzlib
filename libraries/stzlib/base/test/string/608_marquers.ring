@@ -3,7 +3,7 @@
 # #perf
 #
 # Extracted from stzStringTest.ring, block #608.
-#ERR Error (R3) : Calling Function without definition: marquers
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

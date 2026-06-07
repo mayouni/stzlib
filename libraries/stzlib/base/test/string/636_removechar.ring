@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #636.
-#ERR Error (R14) : Calling Method without definition: removecharq
+#ERR Error (R41) : Invalid numeric string
 
 load "../../stzBase.ring"
 

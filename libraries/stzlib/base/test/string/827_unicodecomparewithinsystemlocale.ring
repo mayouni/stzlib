@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #827.
-#ERR Error (R14) : Calling Method without definition: unicodecomparewithinsystemlocale
+#ERR Error (R41) : Invalid numeric string
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #395.
+#ERR exit 1: Line 98 Bad parameters value, error in length!
 
 load "../../stzBase.ring"
 

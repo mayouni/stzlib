@@ -3,7 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #282.
-#ERR Error (R14) : Calling Method without definition: spacifyxt
+#ERR Error (R2) : Array Access (Index out of range)
 
 load "../../stzBase.ring"
 

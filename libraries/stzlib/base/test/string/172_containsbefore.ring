@@ -3,6 +3,7 @@
 # *
 #
 # Extracted from stzStringTest.ring, block #172.
+#ERR exit 1: 0
 
 load "../../stzBase.ring"
 

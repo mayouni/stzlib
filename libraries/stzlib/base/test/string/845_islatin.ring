@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #845.
-#ERR Error (R14) : Calling Method without definition: islatin
+#ERR exit 1: Line 98 Bad parameters value, error in length!
 
 load "../../stzBase.ring"
 

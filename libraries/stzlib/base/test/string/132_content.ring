@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #132.
-#ERR Error (R14) : Calling Method without definition: spacifysections
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

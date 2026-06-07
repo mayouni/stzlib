@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #456.
-#ERR Error (R14) : Calling Method without definition: charsq
+#ERR Error (R14) : Calling Method without definition: removeduplicatesq
 
 load "../../stzBase.ring"
 
