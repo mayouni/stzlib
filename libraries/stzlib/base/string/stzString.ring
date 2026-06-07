@@ -1064,22 +1064,40 @@ class stzString from stzObject
 			This.ReplaceInSection(pA, pB, pC, pD)
 			return This
 
-	# UppercaseSubString: uppercase only the section [n1, n2].
-	def UppercaseSubString(n1, n2)
+	# UppercaseSubString: uppercase a section or a named substring.
+	# Accepts:
+	#   - UppercaseSubString(pcSub)           : every occurrence
+	#   - UppercaseSubString([n1, n2])        : 1-arg list form
+	def UppercaseSubString(p1)
+		if isString(p1)
+			This.Replace(p1, upper(p1))
+			return
+		ok
+		if isList(p1) and ring_len(p1) = 2 and isNumber(p1[1]) and isNumber(p1[2])
+			This._UppercaseSubStringRange(p1[1], p1[2])
+		ok
+
+	# UppercaseSubStringXT(n1, n2): positional range form (kept distinct
+	# from the 1-arg dispatcher to satisfy Ring's strict arity).
+	def UppercaseSubStringXT(n1, n2)
+		This._UppercaseSubStringRange(n1, n2)
+
+	def _UppercaseSubStringRange(n1, n2)
 		_cAll_ = This.Content()
+		_nTL_ = ring_len(_cAll_)
 		_cBefore_ = ""
 		if n1 > 1
-			_cBefore_ = substr(_cAll_, 1, n1 - 1)
+			_cBefore_ = This._EngineSlice(_cAll_, 1, n1 - 1)
 		ok
-		_cMid_ = substr(_cAll_, n1, n2 - n1 + 1)
+		_cMid_ = This._EngineSlice(_cAll_, n1, n2 - n1 + 1)
 		_cAfter_ = ""
-		if n2 < ring_len(_cAll_)
-			_cAfter_ = substr(_cAll_, n2 + 1)
+		if n2 < _nTL_
+			_cAfter_ = This._EngineSliceFrom(_cAll_, n2 + 1)
 		ok
 		This.Update( _cBefore_ + upper(_cMid_) + _cAfter_ )
 
-		def UppercaseSubStringQ(n1, n2)
-			This.UppercaseSubString(n1, n2)
+		def UppercaseSubStringQ(p1)
+			This.UppercaseSubString(p1)
 			return This
 
 	# Shorten: truncate the content to the first N chars + "..."
@@ -1120,7 +1138,16 @@ class stzString from stzObject
 			ok
 			return _cL_ + pcEllipsis + _cR_
 
-		def ShortenedUsing(n, pcSuffix)
+		# ShortenedUsing(p1[, p2]):
+		#   ShortenedUsing(pcEllipsis)        : keep first+last 4 chars, glue with ellipsis
+		#   ShortenedUsing(n, pcSuffix)       : keep first n chars, end with suffix
+		def ShortenedUsing(p1)
+			if isString(p1)
+				return This._ShortenedUsingMid(p1, 4)
+			ok
+			return This.Content()
+
+		def ShortenedUsingXT(n, pcSuffix)
 			if NOT isNumber(n) or n < 1
 				return This.Content()
 			ok
@@ -1129,6 +1156,15 @@ class stzString from stzObject
 				return _cStr2_
 			ok
 			return substr(_cStr2_, 1, n - ring_len(pcSuffix)) + pcSuffix
+
+		def _ShortenedUsingMid(pcEllipsis, nFromEnd)
+			_cAll_ = This.Content()
+			_nTL_ = ring_len(_cAll_)
+			if _nTL_ <= 2 * nFromEnd + ring_len(pcEllipsis)
+				return _cAll_
+			ok
+			return substr(_cAll_, 1, nFromEnd) + pcEllipsis +
+			       substr(_cAll_, _nTL_ - nFromEnd + 1)
 
 	# Boxify: surround the content with a simple ASCII box drawn
 	# with `+` corners, `-` horizontals, `|` verticals.
@@ -6117,9 +6153,16 @@ class stzString from stzObject
 	def SubStringsWXT(pcCondition)
 		return This.FindSubStringsWXT(pcCondition)
 
-	# SpacifySections(aSections, pcSep): insert pcSep between every
-	# pair of consecutive chars inside each [n1, n2] section.
-	def SpacifySections(aSections, pcSep)
+	# SpacifySections(aSections [, pcSep]): insert pcSep between every
+	# pair of consecutive chars inside each [n1, n2] section. pcSep
+	# defaults to " " when the second arg is omitted.
+	def SpacifySections(aSections)
+		This._SpacifySectionsWithSep(aSections, " ")
+
+	def SpacifySectionsXT(aSections, pcSep)
+		This._SpacifySectionsWithSep(aSections, pcSep)
+
+	def _SpacifySectionsWithSep(aSections, pcSep)
 		if NOT isList(aSections) return ok
 		_nL_ = ring_len(aSections)
 		if _nL_ = 0 return ok
@@ -6356,9 +6399,16 @@ class stzString from stzObject
 		_oTmp_.SpacifyXT(p1, p2, p3)
 		return _oTmp_.Content()
 
-	# SpacifyTheseSubStrings(paSubStr, pcSep): wrap each occurrence
-	# of every substring in paSubStr with pcSep on each side.
-	def SpacifyTheseSubStrings(paSubStr, pcSep)
+	# SpacifyTheseSubStrings(paSubStr [, pcSep]): wrap each occurrence
+	# of every substring in paSubStr with pcSep on each side. pcSep
+	# defaults to " " when the second arg is omitted.
+	def SpacifyTheseSubStrings(paSubStr)
+		This._SpacifyTheseSubStringsSep(paSubStr, " ")
+
+	def SpacifyTheseSubStringsXT(paSubStr, pcSep)
+		This._SpacifyTheseSubStringsSep(paSubStr, pcSep)
+
+	def _SpacifyTheseSubStringsSep(paSubStr, pcSep)
 		if NOT (isList(paSubStr) and isString(pcSep)) return ok
 		_nLen_ = ring_len(paSubStr)
 		for _i_ = 1 to _nLen_
@@ -6367,8 +6417,8 @@ class stzString from stzObject
 			ok
 		next
 
-		def SpacifyTheseSubStringsQ(paSubStr, pcSep)
-			This.SpacifyTheseSubStrings(paSubStr, pcSep)
+		def SpacifyTheseSubStringsQ(paSubStr)
+			This.SpacifyTheseSubStrings(paSubStr)
 			return This
 
 	# SplitAtSections(aSections): the pieces of content sliced by the
@@ -6820,7 +6870,27 @@ class stzString from stzObject
 
 	# Bounds(pcOpen, pcClose): the [open, close] positions of the
 	# first bounded match. Two-arg form.
-	def Bounds(pcOpen, pcClose)
+	# Bounds(): auto-detect leading and trailing non-letter runs
+	# - e.g. "<<Ring>>" -> [ "<<", ">>" ], "---Ring___" -> [ "---", "___" ].
+	# Falls back to [ firstchar, lastchar ] for fully alphanumeric input.
+	def Bounds()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return [] ok
+		if _nLen_ = 1 return [ _aChars_[1], _aChars_[1] ] ok
+		_cLead_ = ""; _i_ = 1
+		while _i_ <= _nLen_ and NOT isAlpha(_aChars_[_i_])
+			_cLead_ += _aChars_[_i_]; _i_++
+		end
+		_cTrail_ = ""; _i_ = _nLen_
+		while _i_ >= 1 and NOT isAlpha(_aChars_[_i_])
+			_cTrail_ = _aChars_[_i_] + _cTrail_; _i_--
+		end
+		if _cLead_ = "" _cLead_ = _aChars_[1] ok
+		if _cTrail_ = "" _cTrail_ = _aChars_[_nLen_] ok
+		return [ _cLead_, _cTrail_ ]
+
+	def BoundsBetween(pcOpen, pcClose)
 		_nO_ = StzEngineStringFindFirstFromCS(@pEngine, pcOpen, 1, 1)
 		if _nO_ < 1 return [] ok
 		_nC_ = StzEngineStringFindFirstFromCS(@pEngine, pcClose,
@@ -7119,10 +7189,57 @@ class stzString from stzObject
 			This.RemoveCharFromRightXT(pcChar)
 			return This
 
-	# NumberOfConsecutiveSubStrings(pcSub): count of back-to-back
-	# identical occurrences (e.g. "...♥♥♥..." has 2 consecutive ♥♥).
-	def NumberOfConsecutiveSubStrings(pcSub)
+	# NumberOfConsecutiveSubStrings([pcSub]): count of back-to-back
+	# identical occurrences. 0-arg form returns total char count.
+	def NumberOfConsecutiveSubStrings()
+		return ring_len(This.Chars())
+
+	def NumberOfConsecutiveSubStringsOf(pcSub)
 		return ring_len(This.FindDupSecutiveSubString(pcSub))
+
+	def ConsecutiveSubStrings()
+		return This.Chars()
+
+	def FindConsecutiveSubStrings()
+		return This.Chars()
+
+	def FindConsecutiveSubStringsZ()
+		_n_ = ring_len(This.Chars())
+		_aR_ = []
+		for _i_ = 1 to _n_
+			_aR_ + _i_
+		next
+		return _aR_
+
+	def FindConsecutiveSubStringsZZ()
+		_aChars_ = This.Chars()
+		_n_ = ring_len(_aChars_)
+		_aR_ = []
+		for _i_ = 1 to _n_
+			_aR_ + [ _aChars_[_i_], [ _i_, _i_ ] ]
+		next
+		return _aR_
+
+	def ShortenedNUsing(n, pcSuffix)
+		return This.ShortenedUsingXT(n, pcSuffix)
+
+	# BoundsRemoved(): drop the auto-detected leading + trailing
+	# non-letter bounds.
+	def BoundsRemoved()
+		_aB_ = This.Bounds()
+		if ring_len(_aB_) != 2 return This.Content() ok
+		_cAll_ = This.Content()
+		_cLead_ = _aB_[1]; _cTrail_ = _aB_[2]
+		if ring_left(_cAll_, ring_len(_cLead_)) = _cLead_
+			_cAll_ = substr(_cAll_, ring_len(_cLead_) + 1)
+		ok
+		if ring_right(_cAll_, ring_len(_cTrail_)) = _cTrail_
+			_cAll_ = ring_left(_cAll_, ring_len(_cAll_) - ring_len(_cTrail_))
+		ok
+		return _cAll_
+
+		def BoundsRemovedQ()
+			return new stzString( This.BoundsRemoved() )
 
 	def NumberOfConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
@@ -8003,9 +8120,12 @@ class stzString from stzObject
 		_nLen_ = This._EngineCount(pcNum)
 		return This._EngineSlice(This.Content(), 1, _nLen_) = pcNum
 
-	# SplitToPartsOfNCharsXT(n, pNamed): same as SplitToPartsOfNChars
+	# SplitToPartsOfNCharsXT(n[, pNamed]): same as SplitToPartsOfNChars
 	# but accepts options (currently a stub forwarder).
-	def SplitToPartsOfNCharsXT(n, pNamed)
+	def SplitToPartsOfNCharsXT(n)
+		return This.SplitToPartsOfNChars(n)
+
+	def SplitToPartsOfNCharsXTOpt(n, pNamed)
 		return This.SplitToPartsOfNChars(n)
 
 	# FindMadeOfZZ alias.
@@ -8375,6 +8495,12 @@ class stzString from stzObject
 
 	# BoundsXT(pacBounds, n): the bounds of the n-th bounded match.
 	def BoundsXT(pacBounds, n)
+		# Accept named-param :Of = "needle" for pacBounds.
+		if isList(pacBounds) and ring_len(pacBounds) = 2 and
+		   isString(pacBounds[1]) and lower(pacBounds[1]) = "of"
+			pacBounds = pacBounds[2]
+		ok
+		if NOT isNumber(n) return [] ok
 		_aSec_ = This.FindBoundedByAsSections(pacBounds)
 		if n < 1 or n > ring_len(_aSec_) return [] ok
 		return _aSec_[n]
