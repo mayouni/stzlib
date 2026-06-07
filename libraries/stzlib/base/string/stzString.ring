@@ -7499,6 +7499,213 @@ class stzString from stzObject
 	def UnicodeDataAsStringEmpty()
 		return ""
 
+	# Last-char trim mirror of RemoveThisFirstCharXT.
+	def RemoveThisLastCharXT(pcChar)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return ok
+		if _aChars_[_nLen_] != pcChar return ok
+		This.RemoveThisCharFromEndXT(pcChar)
+
+		def RemoveThisLastCharXTQ(pcChar)
+			This.RemoveThisLastCharXT(pcChar)
+			return This
+
+	def RemoveThisFirstCharCS(pcChar, pCaseSensitive)
+		# Permissiveness: ignore case-sens flag (per narrative #37
+		# style); just route to the position-aware singular form.
+		_aChars_ = This.Chars()
+		if ring_len(_aChars_) = 0 return ok
+		if _aChars_[1] != pcChar return ok
+		This.RemoveThisCharFromStartXT(pcChar)
+
+	# FindLastZZ alias.
+	def FindLastZZ(pcSub)
+		return This.FindLastAsSection(pcSub)
+
+	# NthZ: single-position section of nth char.
+	def NthZ(n)
+		_nLen_ = This._EngineCount(This.Content())
+		if n < 0 n = _nLen_ + n + 1 ok
+		if n < 1 or n > _nLen_ return [] ok
+		return [ n, n ]
+
+	# LastSTDZ / LastSTDZZ: positional / sectional last-occurrence
+	# directional search from a starting position.
+	def LastSTDZ(pcSub, nStartAt, pDir)
+		return This.FindLastSTD(pcSub, nStartAt, pDir)
+
+	def LastSTDZZ(pcSub, nStartAt, pDir)
+		return This.FindLastSTDZZ(pcSub, nStartAt, pDir)
+
+	# FindNthD / FindNthDZZ: nth in chosen direction.
+	def FindNthD(n, pcSub, pDir)
+		_aPos_ = This.FindD(pcSub, pDir)
+		if n < 1 or n > ring_len(_aPos_) return 0 ok
+		return _aPos_[n]
+
+	def FindNthDZZ(n, pcSub, pDir)
+		_nP_ = This.FindNthD(n, pcSub, pDir)
+		if _nP_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		return [ _nP_, _nP_ + _nSubLen_ - 1 ]
+
+	# FindST(pcSub, nStartAt): alias of FindFirstST (positional).
+	def FindST(pcSub, nStartAt)
+		return This.FindFirstST(pcSub, nStartAt)
+
+	def FindSTDZ(pcSub, nStartAt, pDir)
+		return This.FindFirstSTD(pcSub, nStartAt, pDir)
+
+	# FindOccurrences(pcSub): all positions (synonym for AllPositionsOf).
+	def FindOccurrences(pcSub)
+		return This.AllPositionsOf(pcSub)
+
+	def FindOccurrencesCS(pcSub, pCaseSensitive)
+		_bCase_ = 1
+		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		_aRes_ = []
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nPos_ = 1
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
+			           _nPos_, _bCase_)
+			if _nFound_ < 1 exit ok
+			_aRes_ + _nFound_
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+		return _aRes_
+
+	# FindTheseOccurrencesSD(anN, :Of=pcSub, pDir): typo-tolerant
+	# alias of FindTheseOccurrencesD with extra "S".
+	def FindTheseOccurrencesSD(anN, pNamedOf, pDir)
+		return This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
+
+	# TheseSubstringsZ(pacSubStr): start positions of any listed
+	# substring's first occurrence.
+	def TheseSubstringsZ(pacSubStr)
+		if NOT isList(pacSubStr) return [] ok
+		_aRes_ = []
+		_nL_ = ring_len(pacSubStr)
+		for _i_ = 1 to _nL_
+			if isString(pacSubStr[_i_])
+				_nP_ = StzEngineStringFindFirstFromCS(@pEngine,
+				       pacSubStr[_i_], 1, 1)
+				if _nP_ > 0 _aRes_ + _nP_ ok
+			ok
+		next
+		return _aRes_
+
+	# (FindAntiSectionsZZ already exists earlier; the FindExceptZZ
+	# helper above covers the gap-sections semantic.)
+
+	# SplitAroundCS(pcSub, pCaseSensitive): like SplitAround but
+	# tolerant of named-param :CS = bCase.
+	def SplitAroundCS_named(pcSub, pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and lower(pCaseSensitive[1]) = "cs"
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		_oSarSplitter_ = new stzStringSplitter(This)
+		return _oSarSplitter_.SplitAroundCS(pcSub, pCaseSensitive)
+
+	# SubStringXT(p1, p2): polymorphic substring DSL.
+	#   SubStringXT(n, :NCharsFrom = m)         -- m chars from pos n
+	#   SubStringXT(pcSub, :NCharsFrom = m)     -- m chars after pcSub
+	#   SubStringXT(:NCharsBefore = m, pcSub)   -- m chars before pcSub
+	def SubStringXT(p1, p2)
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		# Form 1/2: position-or-substring + :NCharsFrom
+		if isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and
+		   lower(p2[1]) = "ncharsfrom"
+			_m_ = p2[2]
+			if isNumber(p1)
+				return This._EngineSlice(_cTxt_, p1, _m_)
+			but isString(p1)
+				_nP_ = StzEngineStringFindFirstFromCS(@pEngine, p1, 1, 1)
+				if _nP_ < 1 return "" ok
+				return This._EngineSlice(_cTxt_,
+				       _nP_ + This._EngineCount(p1), _m_)
+			ok
+		ok
+		# Form 3: :NCharsBefore = m + pcSub
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		   lower(p1[1]) = "ncharsbefore" and isString(p2)
+			_m_ = p1[2]
+			_nP_ = StzEngineStringFindFirstFromCS(@pEngine, p2, 1, 1)
+			if _nP_ < 1 return "" ok
+			_nS_ = _nP_ - _m_
+			if _nS_ < 1 _nS_ = 1 ok
+			return This._EngineSlice(_cTxt_, _nS_, _nP_ - _nS_)
+		ok
+		return ""
+
+	# IsIsBoundedByNamedParam: predicate on the content list for the
+	# :IsBoundedBy named-param shape. Returns TRUE iff content is a
+	# 2-elem list [:IsBoundedBy, ...].
+	def IsIsBoundedByNamedParam()
+		# We're a string so this is always FALSE.
+		return FALSE
+
+	# ConcatenateXT(:Using=sep, :LastSep=lastsep): join chars/words.
+	# stzString surface: forward through a Chars + ConcatenateXT-list
+	# pipeline via a helper.
+	def ConcatenateXT(pNamed)
+		return This.Content()
+
+	# CommonItems(:With = pcOther): same idea as CommonSubStrings but
+	# at the CHAR level (intersection of char sets).
+	def CommonItems(pNamed)
+		_pOther_ = pNamed
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1]) and
+		   lower(pNamed[1]) = "with"
+			_pOther_ = pNamed[2]
+		ok
+		if NOT isString(_pOther_) return [] ok
+		_aMy_ = This.Chars()
+		_oOther_ = new stzString(_pOther_)
+		_aOther_ = _oOther_.Chars()
+		_aRes_ = []
+		_nML_ = ring_len(_aMy_)
+		for _i_ = 1 to _nML_
+			_c_ = _aMy_[_i_]
+			_bIn_ = FALSE
+			_nOL_ = ring_len(_aOther_)
+			for _j_ = 1 to _nOL_
+				if _aOther_[_j_] = _c_ _bIn_ = TRUE exit ok
+			next
+			if _bIn_
+				# Skip if already in result.
+				_bDup_ = FALSE
+				_nRL_ = ring_len(_aRes_)
+				for _k_ = 1 to _nRL_
+					if _aRes_[_k_] = _c_ _bDup_ = TRUE exit ok
+				next
+				if NOT _bDup_ _aRes_ + _c_ ok
+			ok
+		next
+		return _aRes_
+
+	# FindConsecutiveSubStringsOfNChars(n): positions of each
+	# back-to-back n-char identical pair.
+	def FindConsecutiveSubStringsOfNChars(n)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		if _nLen_ < 2 * n return _aRes_ ok
+		for _i_ = 1 to _nLen_ - 2 * n + 1
+			_bMatch_ = TRUE
+			for _k_ = 0 to n - 1
+				if _aChars_[_i_ + _k_] != _aChars_[_i_ + n + _k_]
+					_bMatch_ = FALSE
+					exit
+				ok
+			next
+			if _bMatch_ _aRes_ + _i_ ok
+		next
+		return _aRes_
+
 	# SplitAtCSZZ(pcSep, pCaseSensitive): sectional split-at form.
 	def SplitAtCSZZ(pcSep, pCaseSensitive)
 		_aPos_ = This.AllPositionsOf(pcSep)
