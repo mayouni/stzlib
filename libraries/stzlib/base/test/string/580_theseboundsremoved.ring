@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #580.
-#ERR Error (R14) : Calling Method without definition: theseboundsremoved
 
 load "../../stzBase.ring"
 

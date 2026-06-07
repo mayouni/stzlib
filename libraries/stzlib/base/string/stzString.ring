@@ -6314,6 +6314,14 @@ class stzString from stzObject
 		if _nLen_ < 2 return This.Content() ok
 		return This._EngineSliceFrom(This.Content(), _nLen_ - 1)
 
+	def Last3Chars()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ < 3 return This.Content() ok
+		return This._EngineSliceFrom(This.Content(), _nLen_ - 2)
+
+	def First3Chars()
+		return This._EngineSlice(This.Content(), 1, 3)
+
 	def FirstNChars(n)
 		return This._EngineSlice(This.Content(), 1, n)
 
@@ -6340,6 +6348,458 @@ class stzString from stzObject
 			_aRes_ + _aSec_[_i_][1]
 		next
 		return _aRes_
+
+	# Spacified / SpacifiedUsing / SpacifiedXT: non-mutating Spacify
+	# variants. Return the spaced-out string without altering This.
+	def Spacified()
+		_oTmp_ = new stzString(This.Content())
+		_oTmp_.Spacify()
+		return _oTmp_.Content()
+
+	def SpacifiedUsing(pcSep)
+		_oTmp_ = new stzString(This.Content())
+		_oTmp_.SpacifyCharsUsing(pcSep)
+		return _oTmp_.Content()
+
+	def SpacifiedXT(p1, p2, p3)
+		_oTmp_ = new stzString(This.Content())
+		_oTmp_.SpacifyXT(p1, p2, p3)
+		return _oTmp_.Content()
+
+	# SpacifyTheseSubStrings(paSubStr, pcSep): wrap each occurrence
+	# of every substring in paSubStr with pcSep on each side.
+	def SpacifyTheseSubStrings(paSubStr, pcSep)
+		if NOT (isList(paSubStr) and isString(pcSep)) return ok
+		_nLen_ = ring_len(paSubStr)
+		for _i_ = 1 to _nLen_
+			if isString(paSubStr[_i_])
+				This.SpacifySubStringsUsing([paSubStr[_i_]], pcSep)
+			ok
+		next
+
+		def SpacifyTheseSubStringsQ(paSubStr, pcSep)
+			This.SpacifyTheseSubStrings(paSubStr, pcSep)
+			return This
+
+	# SplitAtSections(aSections): the pieces of content sliced by the
+	# listed [n1, n2] sections. Each section becomes one piece.
+	def SplitAtSections(aSections)
+		if NOT isList(aSections) return [] ok
+		_aRes_ = []
+		_nL_ = ring_len(aSections)
+		_cTxt_ = This.Content()
+		for _i_ = 1 to _nL_
+			_s_ = aSections[_i_]
+			if isList(_s_) and ring_len(_s_) = 2
+				_aRes_ + This._EngineSlice(_cTxt_, _s_[1], _s_[2] - _s_[1] + 1)
+			ok
+		next
+		return _aRes_
+
+	# SplitAtCharsWXT(pcCondition): split content at every char where
+	# the eval'd predicate is TRUE. Predicate runs with @char binding.
+	# Same semantics as SplitWXT but spelled for char-narratives.
+	def SplitAtCharsWXT(pcCondition)
+		return This.SplitWXT(pcCondition)
+
+	# CommonSubStrings(:With = pcOther): substrings appearing in both
+	# This and pcOther (set-style intersection at the char-substring
+	# level, capped at the smaller string's substring count).
+	def CommonSubStrings(pNamed)
+		_pOther_ = pNamed
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1]) and
+		   lower(pNamed[1]) = "with"
+			_pOther_ = pNamed[2]
+		ok
+		if NOT isString(_pOther_) return [] ok
+		_aMy_ = This.SubStringsCS(1)
+		_oOther_ = new stzString(_pOther_)
+		_aOther_ = _oOther_.SubStringsCS(1)
+		_aRes_ = []
+		_nML_ = ring_len(_aMy_)
+		for _i_ = 1 to _nML_
+			_s_ = _aMy_[_i_]
+			_nOL_ = ring_len(_aOther_)
+			for _j_ = 1 to _nOL_
+				if _aOther_[_j_] = _s_
+					_aRes_ + _s_
+					exit
+				ok
+			next
+		next
+		return _aRes_
+
+	# EndsWithNumberN(pcNumStr): TRUE if the content ENDS with the
+	# given number-as-string. Accepts optional leading sign in pcNumStr.
+	def EndsWithNumberN(pcNumStr)
+		if NOT isString(pcNumStr) return FALSE ok
+		_cTxt_ = This.Content()
+		_nT_ = This._EngineCount(_cTxt_)
+		_nN_ = This._EngineCount(pcNumStr)
+		if _nT_ < _nN_ return FALSE ok
+		return This._EngineSliceFrom(_cTxt_, _nT_ - _nN_ + 1) = pcNumStr
+
+	# (EndsWithNumber zero-arg form already exists above as nested
+	# alias; the 1-arg "ends with this number" variant is reachable
+	# via EndsWithNumberN.)
+
+	# TheseBoundsRemoved(pcOpen, pcClose): return the content with
+	# pcOpen stripped from start and pcClose from end (only when both
+	# are present in those positions).
+	def TheseBoundsRemoved(pcOpen, pcClose)
+		_cTxt_ = This.Content()
+		_nO_ = This._EngineCount(pcOpen)
+		_nC_ = This._EngineCount(pcClose)
+		if This._EngineSlice(_cTxt_, 1, _nO_) != pcOpen return _cTxt_ ok
+		_nT_ = This._EngineCount(_cTxt_)
+		if This._EngineSliceFrom(_cTxt_, _nT_ - _nC_ + 1) != pcClose
+			return _cTxt_
+		ok
+		return This._EngineSlice(_cTxt_, _nO_ + 1, _nT_ - _nO_ - _nC_)
+
+	def TheseBoundsRemovedQ(pcOpen, pcClose)
+		return new stzString( This.TheseBoundsRemoved(pcOpen, pcClose) )
+
+	# RemoveEmptyLines / RemoveEmptyLinesQ: drop lines that are empty
+	# (after trim).
+	def RemoveEmptyLines()
+		_aLines_ = This.Lines()
+		_aRes_ = []
+		_nL_ = ring_len(_aLines_)
+		for _i_ = 1 to _nL_
+			_cLine_ = trim(_aLines_[_i_])
+			if ring_len(_cLine_) > 0
+				_aRes_ + _aLines_[_i_]
+			ok
+		next
+		_cOut_ = ""
+		_nRL_ = ring_len(_aRes_)
+		for _i_ = 1 to _nRL_
+			_cOut_ += _aRes_[_i_]
+			if _i_ < _nRL_ _cOut_ += NL ok
+		next
+		This.Update(_cOut_)
+
+		def RemoveEmptyLinesQ()
+			This.RemoveEmptyLines()
+			return This
+
+	# FindTheseBoundsZZ(pcOpen, pcClose): [openStart..openEnd] +
+	# [closeStart..closeEnd] sections for each bounded match.
+	def FindTheseBoundsZZ(pcOpen, pcClose)
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nOLen_ = This._EngineCount(pcOpen)
+		_nCLen_ = This._EngineCount(pcClose)
+		_nPos_ = StzEngineStringFindFirstFromCS(@pEngine, pcOpen, 1, 1)
+		while _nPos_ > 0
+			_nClosePos_ = StzEngineStringFindFirstFromCS(@pEngine,
+			              pcClose, _nPos_ + _nOLen_, 1)
+			if _nClosePos_ < 1 exit ok
+			_aRes_ + [ _nPos_, _nPos_ + _nOLen_ - 1 ]
+			_aRes_ + [ _nClosePos_, _nClosePos_ + _nCLen_ - 1 ]
+			_nPos_ = StzEngineStringFindFirstFromCS(@pEngine, pcOpen,
+			         _nClosePos_ + _nCLen_, 1)
+		end
+		return _aRes_
+
+	# FindSubStringBoundsZZ(pcSub): the [start, end] sections of any
+	# substring surrounding the (first) occurrence of pcSub. Returns
+	# [leftSec, rightSec] where leftSec = the part before pcSub and
+	# rightSec = the part after.
+	def FindSubStringBoundsZZ(pcSub)
+		_nPos_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, 1)
+		if _nPos_ < 1 return [] ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nTxtLen_ = This._EngineCount(This.Content())
+		_aRes_ = []
+		if _nPos_ > 1
+			_aRes_ + [ 1, _nPos_ - 1 ]
+		ok
+		if _nPos_ + _nSubLen_ <= _nTxtLen_
+			_aRes_ + [ _nPos_ + _nSubLen_, _nTxtLen_ ]
+		ok
+		return _aRes_
+
+	# IsScript(): TRUE if the content is a known Unicode script name
+	# (delegates to the existing IsScriptName above).
+	def IsScript()
+		return This.IsScriptName()
+
+	# RemoveAt -- two shapes:
+	#   RemoveAt(n)             -- remove single char at position n
+	#   RemoveAt(n, pcSub)      -- remove pcSub at position n
+	def RemoveAt(n, pcSub)
+		if NOT isString(pcSub) or pcSub = ""
+			# Single-char remove
+			_cTxt_ = This.Content()
+			_nLen_ = This._EngineCount(_cTxt_)
+			if n < 1 or n > _nLen_ return ok
+			_cBefore_ = ""
+			if n > 1 _cBefore_ = This._EngineSlice(_cTxt_, 1, n - 1) ok
+			_cAfter_ = This._EngineSliceFrom(_cTxt_, n + 1)
+			This.Update(_cBefore_ + _cAfter_)
+			return
+		ok
+		# Two-arg form: remove pcSub at position n if it matches.
+		_cTxt_ = This.Content()
+		_nSubLen_ = This._EngineCount(pcSub)
+		if This._EngineSlice(_cTxt_, n, _nSubLen_) != pcSub return ok
+		_cBefore_ = ""
+		if n > 1 _cBefore_ = This._EngineSlice(_cTxt_, 1, n - 1) ok
+		_cAfter_ = This._EngineSliceFrom(_cTxt_, n + _nSubLen_)
+		This.Update(_cBefore_ + _cAfter_)
+
+	def RemoveAtQ(n, pcSub)
+		This.RemoveAt(n, pcSub)
+		return This
+
+	# LeadingSubString: longest leading non-letter prefix.
+	# (Narrative semantic: the "prefix" before the alphabetic body.)
+	def LeadingSubString()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_n_ = 0
+		while _n_ < _nLen_ and (NOT isAlpha(_aChars_[_n_ + 1]))
+			_n_++
+		end
+		if _n_ = 0 return "" ok
+		return This._EngineSlice(This.Content(), 1, _n_)
+
+	def LeadingSubStringZZ()
+		_nLeadLen_ = This._EngineCount(This.LeadingSubString())
+		if _nLeadLen_ = 0 return [] ok
+		return [ 1, _nLeadLen_ ]
+
+	def TrailingSubString()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_n_ = 0
+		while _n_ < _nLen_ and (NOT isAlpha(_aChars_[_nLen_ - _n_]))
+			_n_++
+		end
+		if _n_ = 0 return "" ok
+		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
+
+	# IsQuietEqualTo(pcOther): "quiet" equality -- accept up to ~30%
+	# char-level mismatches. Useful for fuzzy comparisons. Uses
+	# Levenshtein-style distance with simple thresholding.
+	def IsQuietEqualTo(pcOther)
+		if NOT isString(pcOther) return FALSE ok
+		_a_ = This.Content()
+		_b_ = pcOther
+		_la_ = This._EngineCount(_a_)
+		_lb_ = This._EngineCount(_b_)
+		_max_ = _la_
+		if _lb_ > _max_ _max_ = _lb_ ok
+		if _max_ = 0 return TRUE ok
+		# Allow up to 30% of the longest length as mismatch budget.
+		_budget_ = floor(_max_ * 0.3)
+		if _budget_ < 1 _budget_ = 1 ok
+		# Quick distance via char-walk + dynamic budget.
+		_aA_ = This.Chars()
+		_oB_ = new stzString(_b_)
+		_aB_ = _oB_.Chars()
+		# DP-lite: just count positional mismatches when lengths match;
+		# otherwise charge each length difference + char swap.
+		if _la_ = _lb_
+			_n_ = 0
+			for _i_ = 1 to _la_
+				if lower(_aA_[_i_]) != lower(_aB_[_i_]) _n_++ ok
+				if _n_ > _budget_ return FALSE ok
+			next
+			return TRUE
+		ok
+		# Length mismatch -- conservative: only accept if difference is
+		# within budget and the shorter is a substring (case-insens.).
+		if (_la_ - _lb_) > _budget_ and (_lb_ - _la_) > _budget_
+			return FALSE
+		ok
+		# Loose containment.
+		_short_ = lower(_a_); _long_ = lower(_b_)
+		if _lb_ < _la_
+			_short_ = lower(_b_); _long_ = lower(_a_)
+		ok
+		return substr(_long_, _short_) > 0
+
+	# NextOccurrence(pcSub, nFrom): position of the next occurrence
+	# of pcSub strictly after nFrom.
+	def NextOccurrence(pcSub, nFrom)
+		if isList(nFrom) and ring_len(nFrom) = 2 and isString(nFrom[1]) and
+		   lower(nFrom[1]) = "startingat"
+			nFrom = nFrom[2]
+		ok
+		return StzEngineStringFindFirstFromCS(@pEngine, pcSub,
+		       nFrom + 1, 1)
+
+	def PreviousOccurrence(pcSub, nFrom)
+		if isList(nFrom) and ring_len(nFrom) = 2 and isString(nFrom[1]) and
+		   lower(nFrom[1]) = "startingat"
+			nFrom = nFrom[2]
+		ok
+		_aAll_ = This.AllPositionsOf(pcSub)
+		_nL_ = ring_len(_aAll_)
+		_nBest_ = 0
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] < nFrom _nBest_ = _aAll_[_i_] ok
+		next
+		return _nBest_
+
+	# PartsUsingZZ(pcSep): split by pcSep, return each piece as
+	# [start, end] section.
+	def PartsUsingZZ(pcSep)
+		_aPos_ = This.AllPositionsOf(pcSep)
+		_nSepLen_ = This._EngineCount(pcSep)
+		_nTxtLen_ = This._EngineCount(This.Content())
+		_aRes_ = []
+		_nStart_ = 1
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			if _p_ > _nStart_
+				_aRes_ + [ _nStart_, _p_ - 1 ]
+			ok
+			_nStart_ = _p_ + _nSepLen_
+		next
+		if _nStart_ <= _nTxtLen_
+			_aRes_ + [ _nStart_, _nTxtLen_ ]
+		ok
+		return _aRes_
+
+	# RepeatedLeadingChar(): the single char that begins a leading
+	# run of repeated chars (or "" if no run).
+	def RepeatedLeadingChar()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ < 2 return "" ok
+		if _aChars_[1] = _aChars_[2] return _aChars_[1] ok
+		return ""
+
+	def RepeatedTrailingChar()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ < 2 return "" ok
+		if _aChars_[_nLen_] = _aChars_[_nLen_ - 1] return _aChars_[_nLen_] ok
+		return ""
+
+	def NumberOfRepeatedLeadingChars()
+		return This.HowManyOccurrenceOfCharLeftSide(This.RepeatedLeadingChar())
+
+	def NumberOfRepeatedTrailingChars()
+		return This.HowManyOccurrenceOfCharRightSide(This.RepeatedTrailingChar())
+
+	# FindExceptZZ(pcSub): the sections of content that do NOT
+	# contain pcSub -- the complement of FindSubString positions.
+	def FindExceptZZ(pcSub)
+		_aPos_ = This.AllPositionsOf(pcSub)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nTxtLen_ = This._EngineCount(This.Content())
+		_aRes_ = []
+		_nStart_ = 1
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			if _p_ > _nStart_
+				_aRes_ + [ _nStart_, _p_ - 1 ]
+			ok
+			_nStart_ = _p_ + _nSubLen_
+		next
+		if _nStart_ <= _nTxtLen_
+			_aRes_ + [ _nStart_, _nTxtLen_ ]
+		ok
+		return _aRes_
+
+	# ReplaceAllExcept(pcKeep, pcWith): replace every char that is
+	# NOT pcKeep with pcWith.
+	def ReplaceAllExcept(pcKeep, pcWith)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			if _aChars_[_i_] = pcKeep
+				_cOut_ += _aChars_[_i_]
+			else
+				_cOut_ += pcWith
+			ok
+		next
+		This.Update(_cOut_)
+
+		def ReplaceAllExceptQ(pcKeep, pcWith)
+			This.ReplaceAllExcept(pcKeep, pcWith)
+			return This
+
+	# SectionsOfSameItems(): contiguous runs of equal chars as
+	# [start, end] sections.
+	def SectionsOfSameItems()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		if _nLen_ = 0 return _aRes_ ok
+		_nStart_ = 1
+		for _i_ = 2 to _nLen_
+			if _aChars_[_i_] != _aChars_[_i_ - 1]
+				_aRes_ + [ _nStart_, _i_ - 1 ]
+				_nStart_ = _i_
+			ok
+		next
+		_aRes_ + [ _nStart_, _nLen_ ]
+		return _aRes_
+
+	# ReplaceAnyBoundedBy(pacBounds, pcNew): wrapper over the
+	# substrings-bounded-by-replace family.
+	def ReplaceAnyBoundedBy(pacBounds, pcNew)
+		This.ReplaceSubStringsBoundedBy(pacBounds, pcNew)
+
+	def ReplaceAnyBoundedByIB(pacBounds, pcNew)
+		# Replace the entire bounded block (including bounds).
+		_aOpen_ = pacBounds
+		_aClose_ = NULL
+		if isList(pacBounds) and ring_len(pacBounds) = 2
+			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
+		but isString(pacBounds)
+			_aClose_ = pacBounds
+		ok
+		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
+
+		_cTxt_ = This.Content()
+		_nOLen_ = This._EngineCount(_aOpen_)
+		_nCLen_ = This._EngineCount(_aClose_)
+		_nNLen_ = This._EngineCount(pcNew)
+		_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
+		while _nStart_ > 0
+			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nStart_ + _nOLen_)
+			if _nEnd_ = 0 exit ok
+			_cBefore_ = ""
+			if _nStart_ > 1
+				_cBefore_ = This._EngineSlice(_cTxt_, 1, _nStart_ - 1)
+			ok
+			_cAfter_ = This._EngineSliceFrom(_cTxt_, _nEnd_ + _nCLen_)
+			_cTxt_ = _cBefore_ + pcNew + _cAfter_
+			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nStart_ + _nNLen_)
+		end
+		This.Update(_cTxt_)
+
+	# (ReplaceMany 2-list form: per-index pcOld[i] -> pcNew[i] via the
+	# existing ReplaceMany above.)
+	def ReplaceManyPairs(paOld, paNew)
+		if NOT (isList(paOld) and isList(paNew)) return ok
+		_nL_ = ring_len(paOld)
+		_nN_ = ring_len(paNew)
+		for _i_ = 1 to _nL_
+			if _i_ > _nN_ exit ok
+			This.Replace(paOld[_i_], paNew[_i_])
+		next
+
+		def ReplaceManyPairsQ(paOld, paNew)
+			This.ReplaceManyPairs(paOld, paNew)
+			return This
+
+	# AntiFindAsSection: alias for the singular form (just first
+	# section from AntiFindAsSections, or [] if none).
+	def AntiFindAsSection(pcSub)
+		_aSec_ = This.FindBoundedByAsSectionsCS([ pcSub, pcSub ], 1)
+		if ring_len(_aSec_) = 0 return [] ok
+		return _aSec_[1]
 
 	# StringCase(): return :Lowercase, :Uppercase, :TitleCase, or :Mixed.
 	def StringCase()
