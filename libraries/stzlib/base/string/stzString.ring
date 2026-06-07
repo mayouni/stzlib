@@ -7689,6 +7689,258 @@ class stzString from stzObject
 
 	# FindConsecutiveSubStringsOfNChars(n): positions of each
 	# back-to-back n-char identical pair.
+	# RemoveNthChar(n): remove the char at codepoint position n.
+	def RemoveNthChar(n)
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		if n < 1 or n > _nLen_ return ok
+		_cBefore_ = ""
+		if n > 1 _cBefore_ = This._EngineSlice(_cTxt_, 1, n - 1) ok
+		_cAfter_ = This._EngineSliceFrom(_cTxt_, n + 1)
+		This.Update(_cBefore_ + _cAfter_)
+
+		def RemoveNthCharQ(n)
+			This.RemoveNthChar(n)
+			return This
+
+	# Antifind on stzString: synonyms of AntiFindAsSections / AntiFind.
+	# AntiFind(pcSub) here returns the positions of every char that is
+	# NOT inside pcSub's occurrences -- the complement walk.
+	def AntiFind(pcSub)
+		_aRes_ = []
+		_aOcc_ = This.AllPositionsOf(pcSub)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nLen_ = This._EngineCount(This.Content())
+		# Build a "covered" predicate via positions [p .. p+sublen-1].
+		for _i_ = 1 to _nLen_
+			_bCov_ = FALSE
+			_nOL_ = ring_len(_aOcc_)
+			for _j_ = 1 to _nOL_
+				if _i_ >= _aOcc_[_j_] and _i_ < _aOcc_[_j_] + _nSubLen_
+					_bCov_ = TRUE
+					exit
+				ok
+			next
+			if NOT _bCov_ _aRes_ + _i_ ok
+		next
+		return _aRes_
+
+	def AntiFindZZ(pcSub)
+		# Group consecutive anti-positions into sections.
+		_aPos_ = This.AntiFind(pcSub)
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		if _nL_ = 0 return _aRes_ ok
+		_nStart_ = _aPos_[1]; _nPrev_ = _aPos_[1]
+		for _i_ = 2 to _nL_
+			if _aPos_[_i_] = _nPrev_ + 1
+				_nPrev_ = _aPos_[_i_]
+			else
+				_aRes_ + [ _nStart_, _nPrev_ ]
+				_nStart_ = _aPos_[_i_]; _nPrev_ = _aPos_[_i_]
+			ok
+		next
+		_aRes_ + [ _nStart_, _nPrev_ ]
+		return _aRes_
+
+	# (AntiFindAsSections already exists earlier as nested alias.)
+
+	# NthSTDZ / NthSTDZZ: nth-occurrence directional variants.
+	def NthSTDZ(n, pcSub, nStartAt, pDir)
+		return This.FindNthSTD(n, pcSub, nStartAt, pDir)
+
+	def NthSTDZZ(n, pcSub, nStartAt, pDir)
+		return This.FindNthSTDZZ(n, pcSub, nStartAt, pDir)
+
+	# FindSTZ / FindSTDZZ: aliases.
+	def FindSTZ(pcSub, nStartAt)
+		return This.FindFirstST(pcSub, nStartAt)
+
+	def FindSTDZZ(pcSub, nStartAt, pDir)
+		return This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
+
+	# TheseSubstringsZZ(pacSubStr): sections of first occurrences.
+	def TheseSubstringsZZ(pacSubStr)
+		_aPos_ = This.TheseSubstringsZ(pacSubStr)
+		_aRes_ = []
+		_nPL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nPL_
+			if i <= ring_len(pacSubStr)
+				_n_ = This._EngineCount(pacSubStr[_i_])
+				_aRes_ + [ _aPos_[_i_], _aPos_[_i_] + _n_ - 1 ]
+			ok
+		next
+		return _aRes_
+
+	# SplitAroundCS alias delegating to existing.
+	def SplitAroundCSNamed(pcSub, pNamed)
+		_bCase_ = 1
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1]) and
+		   lower(pNamed[1]) = "cs"
+			if pNamed[2] = FALSE or pNamed[2] = 0 _bCase_ = 0 ok
+		ok
+		return This.SplitAroundCS(pcSub, _bCase_)
+
+	# ReplaceW(pcCondition, pcNew): replace every char matching the
+	# predicate with pcNew (alias of ReplaceCharsWXT).
+	def ReplaceW(pcCondition, pcNew)
+		This.ReplaceCharsWXT(pcCondition, pcNew)
+
+		def ReplaceWQ(pcCondition, pcNew)
+			This.ReplaceCharsWXT(pcCondition, pcNew)
+			return This
+
+	# SubStringsOccuringNTimes(n): substrings that appear EXACTLY n
+	# times in the content.
+	def SubStringsOccuringNTimes(n)
+		_aAll_ = This.SubStrings()
+		_aRes_ = []
+		# Dedup first.
+		_aUniq_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			_s_ = _aAll_[_i_]
+			_bD_ = FALSE
+			_nUL_ = ring_len(_aUniq_)
+			for _j_ = 1 to _nUL_
+				if _aUniq_[_j_] = _s_ _bD_ = TRUE exit ok
+			next
+			if NOT _bD_ _aUniq_ + _s_ ok
+		next
+		_nUL_ = ring_len(_aUniq_)
+		for _i_ = 1 to _nUL_
+			_s_ = _aUniq_[_i_]
+			if ring_len(_s_) > 0 and This.HowMany(_s_) = n
+				_aRes_ + _s_
+			ok
+		next
+		return _aRes_
+
+	def SubStringsOccurringOnlyNTimes(n)
+		return This.SubStringsOccuringNTimes(n)
+
+	# (NumbersComingAfter already exists earlier; just add the Q form.)
+	def NumbersComingAfterQ(pcAnchor)
+		return new stzList( This.NumbersComingAfter(pcAnchor) )
+
+	# StartingNumber / EndingNumber.
+	def StartingNumber()
+		return This.LeadingNumber()
+
+	def EndingNumber()
+		return This.TrailingNumber()
+
+	def EndsWithThisNumber(pcNum)
+		return This.EndsWithNumberN(pcNum)
+
+	# YieldCharsWXT(pcYielder): transform every char by the eval'd
+	# expression. @char binding. Returns the transformed list.
+	def YieldCharsWXT(pcYielder)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		for _i_ = 1 to _nLen_
+			@char = _aChars_[_i_]
+			@Char = @char
+			@position = _i_
+			_xVal_ = NULL
+			try
+				eval("_xVal_ = " + pcYielder)
+			catch
+				_xVal_ = NULL
+			done
+			_aRes_ + _xVal_
+		next
+		return _aRes_
+
+	# SplitToPartsOfNChars(n): split into pieces of length n
+	# (last piece may be shorter).
+	def SplitToPartsOfNChars(n)
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_nPos_ = 1
+		while _nPos_ <= _nLen_
+			_nTake_ = n
+			if _nPos_ + _nTake_ - 1 > _nLen_
+				_nTake_ = _nLen_ - _nPos_ + 1
+			ok
+			_aRes_ + This._EngineSlice(_cTxt_, _nPos_, _nTake_)
+			_nPos_ += n
+		end
+		return _aRes_
+
+	# PreviousNChars / NextNChars: the n chars before / after the
+	# first occurrence of a delimiter substring.
+	def NextNChars(pcAnchor, n)
+		_nP_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
+		if _nP_ < 1 return "" ok
+		return This._EngineSlice(This.Content(),
+		       _nP_ + This._EngineCount(pcAnchor), n)
+
+	def PreviousNChars(pcAnchor, n)
+		_nP_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
+		if _nP_ < 1 return "" ok
+		_nS_ = _nP_ - n
+		if _nS_ < 1 _nS_ = 1 ok
+		return This._EngineSlice(This.Content(), _nS_, _nP_ - _nS_)
+
+	def NextNItems(pcAnchor, n)
+		return This.NextNChars(pcAnchor, n)
+
+	def PreviousNItems(pcAnchor, n)
+		return This.PreviousNChars(pcAnchor, n)
+
+	# FindMadeOf(pcChar): synonym for FindSubStringsMadeOf.
+	def FindMadeOf(pcChar)
+		return This.FindSubStringsMadeOf(pcChar)
+
+	# FindNumbers(): start positions of every number-run.
+	def FindNumbers()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		_i_ = 1
+		while _i_ <= _nLen_
+			if isDigit(_aChars_[_i_])
+				_aRes_ + _i_
+				while _i_ <= _nLen_ and isDigit(_aChars_[_i_])
+					_i_++
+				end
+			else
+				_i_++
+			ok
+		end
+		return _aRes_
+
+	# UniqueNumbers(): the distinct numbers in the content.
+	def UniqueNumbers()
+		_aAll_ = This.ExtractNumbers()
+		_aRes_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			_n_ = _aAll_[_i_]
+			_bD_ = FALSE
+			_nRL_ = ring_len(_aRes_)
+			for _j_ = 1 to _nRL_
+				if _aRes_[_j_] = _n_ _bD_ = TRUE exit ok
+			next
+			if NOT _bD_ _aRes_ + _n_ ok
+		next
+		return _aRes_
+
+	# FindConsecutiveSubStringsOfNCharsZZ(n): sectional form of
+	# FindConsecutiveSubStringsOfNChars.
+	def FindConsecutiveSubStringsOfNCharsZZ(n)
+		_aPos_ = This.FindConsecutiveSubStringsOfNChars(n)
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			_aRes_ + [ _p_, _p_ + n - 1 ]
+		next
+		return _aRes_
+
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
