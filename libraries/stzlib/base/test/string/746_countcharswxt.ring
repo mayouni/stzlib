@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #746.
-#ERR Error (R14) : Calling Method without definition: countcharswxt
 
 load "../../stzBase.ring"
 

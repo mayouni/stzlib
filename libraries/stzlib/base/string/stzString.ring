@@ -9264,6 +9264,265 @@ class stzString from stzObject
 
 	# (IsLowercase / IsUppercase already exist earlier.)
 
+	# HasThisCentralChar(pcChar): TRUE iff the central char is pcChar.
+	def HasThisCentralChar(pcChar)
+		_c_ = This.CentralChar()
+		return _c_ = pcChar
+
+	def IsMultipleOfCS(pcUnit, pCaseSensitive)
+		if pCaseSensitive = FALSE or pCaseSensitive = 0
+			_oTmp_ = new stzString(lower(This.Content()))
+			return _oTmp_.IsMultipleOf(lower(pcUnit))
+		ok
+		return This.IsMultipleOf(pcUnit)
+
+	def LastNCharsRemoved(n)
+		_nLen_ = This._EngineCount(This.Content())
+		if n >= _nLen_ return "" ok
+		return This._EngineSlice(This.Content(), 1, _nLen_ - n)
+
+	def FirstNCharsRemoved(n)
+		_nLen_ = This._EngineCount(This.Content())
+		if n >= _nLen_ return "" ok
+		return This._EngineSliceFrom(This.Content(), n + 1)
+
+	# IsTitleCased: every space-separated word starts with an
+	# uppercase letter; the rest of that word is lower.
+	def IsTitleCased()
+		_c_ = This.Content()
+		_nLen_ = ring_len(_c_)
+		_bAtStart_ = TRUE
+		for _i_ = 1 to _nLen_
+			_ch_ = _c_[_i_]
+			if _ch_ = " " or _ch_ = char(9)
+				_bAtStart_ = TRUE
+				loop
+			ok
+			if _bAtStart_
+				if isAlpha(_ch_) and upper(_ch_) != _ch_ return FALSE ok
+				_bAtStart_ = FALSE
+			else
+				if isAlpha(_ch_) and lower(_ch_) != _ch_ return FALSE ok
+			ok
+		next
+		return TRUE
+
+	# (IsTitlecased -- Ring is case-insensitive, just one def.)
+
+	# CharsWXT(pcCondition): chars where predicate is TRUE. Alias of
+	# CharsW (predicate-driven char filter).
+	def CharsWXT(pcCondition)
+		_aRes_ = []
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 1 to _nLen_
+			@char = _aChars_[_i_]
+			@Char = @char
+			@position = _i_
+			_bMatch_ = FALSE
+			try
+				eval("_bMatch_ = " + pcCondition)
+			catch
+				_bMatch_ = FALSE
+			done
+			if _bMatch_ _aRes_ + @char ok
+		next
+		return _aRes_
+
+	# ContainsLetters(): TRUE iff the content contains any letter.
+	def ContainsLetters()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 1 to _nLen_
+			if isAlpha(_aChars_[_i_]) return TRUE ok
+		next
+		return FALSE
+
+	# CharsReversed: non-mutating char-reverse.
+	def CharsReversed()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_cOut_ = ""
+		for _i_ = _nLen_ to 1 step -1
+			_cOut_ += _aChars_[_i_]
+		next
+		return _cOut_
+
+	# IsAlmostAFunctionCall(): TRUE iff content roughly matches
+	# `identifier(...)` syntax.
+	def IsAlmostAFunctionCall()
+		_c_ = trim(This.Content())
+		_nLen_ = ring_len(_c_)
+		if _nLen_ < 3 return FALSE ok
+		# Must have a "(" somewhere after at least 1 char and a ")"
+		# somewhere after that.
+		_nO_ = substr(_c_, "(")
+		_nC_ = substr(_c_, ")")
+		return _nO_ >= 2 and _nC_ > _nO_
+
+	# Inversed: char-reverse alias.
+	def Inversed()
+		return This.CharsReversed()
+
+	# WalkBackwardW(pcCondition): walk content backwards, calling
+	# the predicate for each char; returns positions where it was TRUE.
+	def WalkBackwardW(pcCondition)
+		_aRes_ = []
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = _nLen_ to 1 step -1
+			@char = _aChars_[_i_]
+			@Char = @char
+			@position = _i_
+			_bMatch_ = FALSE
+			try
+				eval("_bMatch_ = " + pcCondition)
+			catch
+				_bMatch_ = FALSE
+			done
+			if _bMatch_ _aRes_ + _i_ ok
+		next
+		return _aRes_
+
+	# ReplaceNthCharQ alias.
+	def ReplaceNthCharQ(n, pcNew)
+		This.ReplaceCharAtSimple(n, pcNew)
+		return This
+
+	# Parts2UsingXT / Parts2Using / PartsClassifiedUsingXT /
+	# PartsAndPartitionersUsingXT: split-DSL surface variants.
+	def Parts2Using(pcSep)
+		return This.PartsUsing(pcSep)
+
+	def Parts2UsingXT(pcSep, pNamed)
+		return This.PartsUsing(pcSep)
+
+	def PartsClassifiedUsingXT(pcSep, pNamed)
+		return This.PartsUsing(pcSep)
+
+	def PartsAndPartitionersUsingXT(pcSep, pNamed)
+		return This.PartsUsing(pcSep)
+
+	# ReplaceAllChars(pcOld, pcNew): char-by-char map.
+	def ReplaceAllChars(pcOld, pcNew)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			if _aChars_[_i_] = pcOld
+				_cOut_ += pcNew
+			else
+				_cOut_ += _aChars_[_i_]
+			ok
+		next
+		This.Update(_cOut_)
+
+		def ReplaceAllCharsQ(pcOld, pcNew)
+			This.ReplaceAllChars(pcOld, pcNew)
+			return This
+
+	def CountCharsWXT(pcCondition)
+		return ring_len(This.CharsWXT(pcCondition))
+
+	# NthSubStringAfterSplittingStringUsing(n, pcSep): the n-th piece
+	# after splitting on pcSep.
+	def NthSubStringAfterSplittingStringUsing(n, pcSep)
+		_aParts_ = This._SplitByStr(pcSep)
+		if n < 1 or n > ring_len(_aParts_) return "" ok
+		return _aParts_[n]
+
+	# ContainsEachCS(pacSubStr, pCaseSensitive): TRUE iff content
+	# contains every listed substring.
+	def ContainsEachCS(pacSubStr, pCaseSensitive)
+		if NOT isList(pacSubStr) return FALSE ok
+		_bCase_ = 1
+		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		_nL_ = ring_len(pacSubStr)
+		for _i_ = 1 to _nL_
+			_s_ = pacSubStr[_i_]
+			if NOT isString(_s_) loop ok
+			if _bCase_ = 1
+				if NOT This.ContainsCS(_s_, 1) return FALSE ok
+			else
+				if NOT This.ContainsCS(_s_, 0) return FALSE ok
+			ok
+		next
+		return TRUE
+
+	def ContainsEach(pacSubStr)
+		return This.ContainsEachCS(pacSubStr, 1)
+
+	def ContainsEachOfThese(pacSubStr)
+		return This.ContainsEachCS(pacSubStr, 1)
+
+	def ContainsEachOfTheseCS(pacSubStr, pCaseSensitive)
+		return This.ContainsEachCS(pacSubStr, pCaseSensitive)
+
+	# MultiplyBy(n): repeat content n times.
+	def MultiplyBy(n)
+		if NOT isNumber(n) return ok
+		if n < 1 This.Update("") return ok
+		_cBase_ = This.Content()
+		_cOut_ = ""
+		for _i_ = 1 to n
+			_cOut_ += _cBase_
+		next
+		This.Update(_cOut_)
+
+		def MultiplyByQ(n)
+			This.MultiplyBy(n)
+			return This
+
+	# (RemoveRepeatedLeading/TrailingCharsCS already exist below;
+	# only need Q variants.)
+	def RemoveRepeatedLeadingCharsCSQ(pCaseSensitive)
+		This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+		return This
+
+	def RemoveRepeatedTrailingCharsCSQ(pCaseSensitive)
+		This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+		return This
+
+	# ReplaceFirstNChars(n, pcNew): replace the first n chars with pcNew.
+	def ReplaceFirstNChars(n, pcNew)
+		_nLen_ = This._EngineCount(This.Content())
+		if n >= _nLen_
+			This.Update(pcNew)
+			return
+		ok
+		_cTail_ = This._EngineSliceFrom(This.Content(), n + 1)
+		This.Update(pcNew + _cTail_)
+
+		def ReplaceFirstNCharsQ(n, pcNew)
+			This.ReplaceFirstNChars(n, pcNew)
+			return This
+
+	def ReplaceLastNChars(n, pcNew)
+		_nLen_ = This._EngineCount(This.Content())
+		if n >= _nLen_
+			This.Update(pcNew)
+			return
+		ok
+		_cHead_ = This._EngineSlice(This.Content(), 1, _nLen_ - n)
+		This.Update(_cHead_ + pcNew)
+
+		def ReplaceLastNCharsQ(n, pcNew)
+			This.ReplaceLastNChars(n, pcNew)
+			return This
+
+	# ReplaceLeadingCharsCS(pcNew, pCaseSensitive): swap the leading
+	# run with pcNew.
+	def ReplaceLeadingCharsCS(pcNew, pCaseSensitive)
+		_cLead_ = This.LeadingChars()
+		if ring_len(_cLead_) = 0 return ok
+		_nLeadLen_ = This._EngineCount(_cLead_)
+		_cTail_ = This._EngineSliceFrom(This.Content(), _nLeadLen_ + 1)
+		This.Update(pcNew + _cTail_)
+
+		def ReplaceLeadingCharsCSQ(pcNew, pCaseSensitive)
+			This.ReplaceLeadingCharsCS(pcNew, pCaseSensitive)
+			return This
+
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)

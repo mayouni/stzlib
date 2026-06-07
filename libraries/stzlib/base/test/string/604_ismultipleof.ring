@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #604.
-#ERR Error (R14) : Calling Method without definition: ismultipleof
 
 load "../../stzBase.ring"
 
