@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #291.
-#ERR Error (R14) : Calling Method without definition: numberofconsecutivesubstringsofnchars
 
 load "../../stzBase.ring"
 

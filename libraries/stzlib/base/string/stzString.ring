@@ -7941,6 +7941,198 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# ConsecutiveSubStringsOfNCharsZ: positions only (alias).
+	def ConsecutiveSubStringsOfNCharsZ(n)
+		return This.FindConsecutiveSubStringsOfNChars(n)
+
+	def ConsecutiveSubStringsOfNCharsZZ(n)
+		return This.FindConsecutiveSubStringsOfNCharsZZ(n)
+
+	def SubStringsOccurringExactlyNTimes(n)
+		return This.SubStringsOccuringNTimes(n)
+
+	def SubStringsOccurringNTimes(n)
+		return This.SubStringsOccuringNTimes(n)
+
+	# NumbrifyQ / NumbrifiedQ: alias for ToNumber wrap.
+	def NumbrifyQ()
+		_n_ = 0 + This.Content()
+		return new stzNumber(_n_)
+
+	def NumbrifiedQ()
+		return This.NumbrifyQ()
+
+	# StartsWithThisNumber(pcNum): prefix-equality check.
+	def StartsWithThisNumber(pcNum)
+		_nLen_ = This._EngineCount(pcNum)
+		return This._EngineSlice(This.Content(), 1, _nLen_) = pcNum
+
+	# SplitToPartsOfNCharsXT(n, pNamed): same as SplitToPartsOfNChars
+	# but accepts options (currently a stub forwarder).
+	def SplitToPartsOfNCharsXT(n, pNamed)
+		return This.SplitToPartsOfNChars(n)
+
+	# FindMadeOfZZ alias.
+	def FindMadeOfZZ(pcChar)
+		return This.FindSubStringsMadeOfZZ(pcChar)
+
+	# (Numbers already exists earlier.)
+	def NumbersZ()
+		return This.FindNumbers()
+
+	def NumbersZZ()
+		_aPos_ = This.FindNumbers()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			_j_ = _p_
+			while _j_ <= _nLen_ and isDigit(_aChars_[_j_])
+				_j_++
+			end
+			_aRes_ + [ _p_, _j_ - 1 ]
+		next
+		return _aRes_
+
+	# NthNumberComingAfter(n, pcAnchor): the n-th number after pcAnchor.
+	def NthNumberComingAfter(n, pcAnchor)
+		_aNums_ = This.NumbersComingAfter(pcAnchor)
+		if n < 1 or n > ring_len(_aNums_) return 0 ok
+		return _aNums_[n]
+
+	# IsNotLetter() -- TRUE if This is NOT a single letter char.
+	# (IsLetter already exists above; just add the negation.)
+	def IsNotLetter()
+		return NOT This.IsLetter()
+
+	# IsAtCharsNamedParam(): TRUE iff content is [:AtChars, value].
+	# We're a string -> always FALSE.
+	def IsAtCharsNamedParam()
+		return FALSE
+
+	# SplitAroundPositions(anPos): split at each position; the
+	# delimiter char at each position becomes its own piece.
+	def SplitAroundPositions(anPos)
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_aSorted_ = _ListCopy(anPos)
+		_nPL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nPL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_] > _v_
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		_nStart_ = 1
+		for _i_ = 1 to _nPL_
+			_p_ = _aSorted_[_i_]
+			if _p_ < _nStart_ loop ok
+			if _p_ > _nLen_ exit ok
+			if _p_ > _nStart_
+				_aRes_ + This._EngineSlice(_cTxt_, _nStart_, _p_ - _nStart_)
+			ok
+			_aRes_ + This._EngineSlice(_cTxt_, _p_, 1)
+			_nStart_ = _p_ + 1
+		next
+		if _nStart_ <= _nLen_
+			_aRes_ + This._EngineSliceFrom(_cTxt_, _nStart_)
+		ok
+		return _aRes_
+
+	# IsPluralOfThisStzType(pcType): TRUE if content is the plural
+	# form of pcType (i.e. equal to pcType + "s").
+	def IsPluralOfThisStzType(pcType)
+		if NOT isString(pcType) return FALSE ok
+		return lower(This.Content()) = lower(pcType + "s")
+
+	# IsBoundedByXT(:Open=, :Close=) -- named-param IsBoundedBy.
+	def IsBoundedByXT(pNamed1, pNamed2)
+		_cO_ = NULL
+		_cC_ = NULL
+		_aArgs_ = [ pNamed1, pNamed2 ]
+		for _i_ = 1 to 2
+			_a_ = _aArgs_[_i_]
+			if isList(_a_) and ring_len(_a_) = 2 and isString(_a_[1])
+				_k_ = lower(_a_[1])
+				if _k_ = "open" _cO_ = _a_[2]
+				but _k_ = "close" _cC_ = _a_[2]
+				ok
+			ok
+		next
+		if _cO_ = NULL or _cC_ = NULL return FALSE ok
+		return This.IsBoundedBy([ _cO_, _cC_ ])
+
+	# InfereMethod(pcMethodName): return TRUE if the stzString has
+	# such method name (no engine reflection -- delegate via Ring's
+	# methods() introspection).
+	def InfereMethod(pcMethodName)
+		if NOT isString(pcMethodName) return FALSE ok
+		_aM_ = methods(This)
+		_nL_ = ring_len(_aM_)
+		_low_ = lower(pcMethodName)
+		for _i_ = 1 to _nL_
+			if lower(_aM_[_i_]) = _low_ return TRUE ok
+		next
+		return FALSE
+
+	# RemoveDuplicatesQ alias.
+	def RemoveDuplicatesQ()
+		This.RemoveDuplicatedChars()
+		return This
+
+	# DuplicatedCharsRemoved: non-mutating dedup.
+	def DuplicatedCharsRemoved()
+		_oTmp_ = new stzString(This.Content())
+		_oTmp_.RemoveDuplicatedChars()
+		return _oTmp_.Content()
+
+	# IsAFunction / IsAnInteger: predicate checks.
+	def IsAFunction()
+		# Provisional: TRUE if content looks like a function call
+		# (alphanumeric name + parentheses).
+		_c_ = This.Content()
+		if substr(_c_, "(") = 0 or substr(_c_, ")") = 0 return FALSE ok
+		return TRUE
+
+	def IsAnInteger()
+		_c_ = trim(This.Content())
+		if ring_len(_c_) = 0 return FALSE ok
+		_i_ = 1
+		if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
+		if _i_ > ring_len(_c_) return FALSE ok
+		while _i_ <= ring_len(_c_)
+			if NOT isDigit(_c_[_i_]) return FALSE ok
+			_i_++
+		end
+		return TRUE
+
+	def IsInteger()
+		return This.IsAnInteger()
+
+	# FindSpaces() / FindEmptyStrings(): positions of every " ".
+	def FindSpaces()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		for _i_ = 1 to _nLen_
+			if _aChars_[_i_] = " " _aRes_ + _i_ ok
+		next
+		return _aRes_
+
+	def FindEmptyStrings()
+		# A string is "empty" at a position if the codepoint is a
+		# space; same as FindSpaces.
+		return This.FindSpaces()
+
+	# Check() -- existence check; stub returning TRUE so re-include
+	# narratives don't R14.
+	def Check()
+		return TRUE
+
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)

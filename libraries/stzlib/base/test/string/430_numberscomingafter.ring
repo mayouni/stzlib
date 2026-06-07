@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #430.
-#ERR Error (R14) : Calling Method without definition: nthnumbercomingafter
 
 load "../../stzBase.ring"
 

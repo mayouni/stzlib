@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #450.
-#ERR Error (R14) : Calling Method without definition: inferemethod
 
 load "../../stzBase.ring"
 
