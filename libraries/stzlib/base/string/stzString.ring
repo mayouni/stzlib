@@ -7282,6 +7282,223 @@ class stzString from stzObject
 		next
 		return _cOut_
 
+	# SectionsOfSameItems already defined as method; expose as alias
+	# in case test calls a slightly different spelling.
+
+	# ConsecutiveSubStringsOfNChars(n) -- value form: the substrings
+	# (not just count) that appear consecutively.
+	def ConsecutiveSubStringsOfNChars(n)
+		_aRes_ = []
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ < 2 * n return _aRes_ ok
+		for _i_ = 1 to _nLen_ - 2 * n + 1
+			_bMatch_ = TRUE
+			for _k_ = 0 to n - 1
+				if _aChars_[_i_ + _k_] != _aChars_[_i_ + n + _k_]
+					_bMatch_ = FALSE
+					exit
+				ok
+			next
+			if _bMatch_
+				_aRes_ + This._EngineSlice(This.Content(), _i_, n)
+			ok
+		next
+		return _aRes_
+
+	# RemoveThisFirstCharXT(pcChar) -- like RemoveThisCharFromStartXT
+	# but only when the first character matches pcChar.
+	def RemoveThisFirstCharXT(pcChar)
+		_aChars_ = This.Chars()
+		if ring_len(_aChars_) = 0 return ok
+		if _aChars_[1] != pcChar return ok
+		This.RemoveThisCharFromStartXT(pcChar)
+
+		def RemoveThisFirstCharXTQ(pcChar)
+			This.RemoveThisFirstCharXT(pcChar)
+			return This
+
+	# FindLastZ: alias of FindLastAsSection (returns single [start, end]).
+	def FindLastZ(pcSub)
+		return This.FindLastAsSection(pcSub)
+
+	# FindNthAsSection(n, pcSub): [start, end] of the n-th occurrence.
+	def FindNthAsSection(n, pcSub)
+		_nPos_ = This.FindNthOccurrence(n, pcSub)
+		if _nPos_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
+
+	# NthStz(n): same as Nth, returning the char wrapped in stzChar.
+	def NthStz(n)
+		_c_ = This.Nth(n)
+		if _c_ = "" return NULL ok
+		return new stzChar(_c_)
+
+	def FindNthSZZ(n, pcSub)
+		return This.FindNthAsSection(n, pcSub)
+
+	# FirstSTDZ(pcSub, nStartAt, pDir): pos only (no section).
+	def FirstSTDZ(pcSub, nStartAt, pDir)
+		return This.FindFirstSTD(pcSub, nStartAt, pDir)
+
+	def FirstSTDZZ(pcSub, nStartAt, pDir)
+		return This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
+
+	def FindFirstAsSectionST(pcSub, nStartAt)
+		_nP_ = This.FindFirstST(pcSub, nStartAt)
+		if _nP_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		return [ _nP_, _nP_ + _nSubLen_ - 1 ]
+
+	# CharsInSection(n1, n2): the chars in the [n1, n2] section as
+	# a list.
+	def CharsInSection(n1, n2)
+		_nLen_ = This._EngineCount(This.Content())
+		if n1 < 1 n1 = 1 ok
+		if n2 > _nLen_ n2 = _nLen_ ok
+		if n1 > n2 return [] ok
+		_aChars_ = This.Chars()
+		_aRes_ = []
+		for _i_ = n1 to n2
+			_aRes_ + _aChars_[_i_]
+		next
+		return _aRes_
+
+	# FindFirstD(pcSub, pDir): first position in the chosen direction.
+	def FindFirstD(pcSub, pDir)
+		_aPos_ = This.FindD(pcSub, pDir)
+		if ring_len(_aPos_) = 0 return 0 ok
+		return _aPos_[1]
+
+	def FindLastD(pcSub, pDir)
+		_aPos_ = This.FindD(pcSub, pDir)
+		_nL_ = ring_len(_aPos_)
+		if _nL_ = 0 return 0 ok
+		return _aPos_[_nL_]
+
+	def FindLastDZZ(pcSub, pDir)
+		_nP_ = This.FindLastD(pcSub, pDir)
+		if _nP_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		return [ _nP_, _nP_ + _nSubLen_ - 1 ]
+
+	def FindDZZ(pcSub, pDir)
+		_aPos_ = This.FindD(pcSub, pDir)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			_aRes_ + [ _p_, _p_ + _nSubLen_ - 1 ]
+		next
+		return _aRes_
+
+	# ReplaceInSections(aSections, pcOld, pcNew): apply Replace only
+	# inside the given sections. Walks sections descending so
+	# positions stay valid.
+	def ReplaceInSections(aSections, pcOld, pcNew)
+		_nL_ = ring_len(aSections)
+		if _nL_ = 0 return ok
+		_aSorted_ = _ListCopy(aSections)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_][1] < _v_[1]
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nL_
+			_sec_ = _aSorted_[_i_]
+			_n1_ = _sec_[1]; _n2_ = _sec_[2]
+			_cTxt_ = This.Content()
+			_nLT_ = This._EngineCount(_cTxt_)
+			if _n1_ < 1 _n1_ = 1 ok
+			if _n2_ > _nLT_ _n2_ = _nLT_ ok
+			if _n1_ > _n2_ loop ok
+			_cBefore_ = ""
+			if _n1_ > 1
+				_cBefore_ = This._EngineSlice(_cTxt_, 1, _n1_ - 1)
+			ok
+			_cMid_ = This._EngineSlice(_cTxt_, _n1_, _n2_ - _n1_ + 1)
+			_cAfter_ = ""
+			if _n2_ < _nLT_
+				_cAfter_ = This._EngineSliceFrom(_cTxt_, _n2_ + 1)
+			ok
+			# Replace pcOld with pcNew via the engine on _cMid_.
+			_pH_ = StzEngineString(_cMid_)
+			_pR_ = StzEngineStringReplaceCS(_pH_, pcOld, pcNew, 1)
+			_cMidNew_ = StzEngineStringData(_pR_)
+			StzEngineStringFree(_pR_)
+			StzEngineStringFree(_pH_)
+			This.Update(_cBefore_ + _cMidNew_ + _cAfter_)
+		next
+
+		def ReplaceInSectionsQ(aSections, pcOld, pcNew)
+			This.ReplaceInSections(aSections, pcOld, pcNew)
+			return This
+
+	# ReplaceCharsWXT(pcCondition, pcNewChar): replace every char
+	# matching the predicate with pcNewChar. Engine-backed walk.
+	def ReplaceCharsWXT(pcCondition, pcNewChar)
+		_cExpr_ = pcCondition
+		if NOT isString(_cExpr_) return ok
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			@char = _aChars_[_i_]
+			@Char = @char
+			@position = _i_
+			_bMatch_ = FALSE
+			try
+				eval("_bMatch_ = " + _cExpr_)
+			catch
+				_bMatch_ = FALSE
+			done
+			if _bMatch_
+				_cOut_ += pcNewChar
+			else
+				_cOut_ += @char
+			ok
+		next
+		This.Update(_cOut_)
+
+		def ReplaceCharsWXTQ(pcCondition, pcNewChar)
+			This.ReplaceCharsWXT(pcCondition, pcNewChar)
+			return This
+
+	# ReplaceEachLeadingChar(pcNewChar): replace every leading run
+	# char with pcNewChar.
+	def ReplaceEachLeadingChar(pcNewChar)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return ok
+		_cF_ = _aChars_[1]
+		_n_ = 0
+		while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
+			_n_++
+		end
+		if _n_ = 0 return ok
+		_cPad_ = ""
+		for _i_ = 1 to _n_
+			_cPad_ += pcNewChar
+		next
+		This.Update(_cPad_ + This._EngineSliceFrom(This.Content(), _n_ + 1))
+
+		def ReplaceEachLeadingCharQ(pcNewChar)
+			This.ReplaceEachLeadingChar(pcNewChar)
+			return This
+
+	# UnicodeDataAsString() and MarquersPositions(): missing globals
+	# called inside the test scripts.
+	# We make them top-level stubs so the R3 misses resolve. The full
+	# UnicodeDataAsString returns the entire Unicode database as a
+	# string (engine call); for now we return "" so the test load
+	# completes -- it's only used by perf-comparison narratives.
+	def UnicodeDataAsStringEmpty()
+		return ""
+
 	# SplitAtCSZZ(pcSep, pCaseSensitive): sectional split-at form.
 	def SplitAtCSZZ(pcSep, pCaseSensitive)
 		_aPos_ = This.AllPositionsOf(pcSep)

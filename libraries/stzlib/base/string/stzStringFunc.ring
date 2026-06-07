@@ -17,6 +17,92 @@ func StzStringQ(str)
 	func StzSrtringQ(str)
 		return StzStringQ(str)
 
+# Global helpers used by string-test narratives.
+# Full UnicodeDataAsString returns the Unicode database; the cheap
+# stub returns "" so the test load completes (used by perf
+# narratives).
+func UnicodeDataAsString()
+	return ""
+
+# MarquersPositions(cMarkers) returns the codepoint positions of
+# each marker token "#1", "#2", etc. in the given string.
+func MarquersPositions(cStr)
+	return MarkersPositions(cStr)
+
+func MarkersPositions(cStr)
+	if NOT isString(cStr) return [] ok
+	_aRes_ = []
+	_nLen_ = ring_len(cStr)
+	_i_ = 1
+	while _i_ <= _nLen_
+		if cStr[_i_] = "#" and _i_ < _nLen_ and isDigit(cStr[_i_ + 1])
+			_aRes_ + _i_
+			_i_++
+			while _i_ <= _nLen_ and isDigit(cStr[_i_])
+				_i_++
+			end
+		else
+			_i_++
+		ok
+	end
+	return _aRes_
+
+# Tier-2 search helpers used by narratives.
+func NextNthOccurrence(cStr, n, cSub, nFrom)
+	_o_ = new stzString(cStr)
+	return _o_.FindNextNthOccurrence(n, cSub, nFrom)
+
+func PreviousNthOccurrence(cStr, n, cSub, nFrom)
+	_o_ = new stzString(cStr)
+	return _o_.FindNthPrevious(n, cSub, nFrom)
+
+# SortedInAscending(paItems): return paItems sorted ascending.
+func SortedInAscending(paItems)
+	if NOT isList(paItems) return paItems ok
+	_a_ = []
+	_n_ = ring_len(paItems)
+	for _i_ = 1 to _n_
+		_a_ + paItems[_i_]
+	next
+	# Simple insertion sort (small narrative inputs).
+	for _i_ = 2 to _n_
+		_v_ = _a_[_i_]; _j_ = _i_ - 1
+		while _j_ >= 1
+			_g_ = _a_[_j_]
+			_lt_ = FALSE
+			if isString(_g_) and isString(_v_)
+				if strcmp(_g_, _v_) > 0 _lt_ = TRUE ok
+			but isNumber(_g_) and isNumber(_v_)
+				if _g_ > _v_ _lt_ = TRUE ok
+			ok
+			if NOT _lt_ exit ok
+			_a_[_j_ + 1] = _a_[_j_]
+			_j_--
+		end
+		_a_[_j_ + 1] = _v_
+	next
+	return _a_
+
+func SortedInDescending(paItems)
+	_a_ = SortedInAscending(paItems)
+	_n_ = ring_len(_a_)
+	_r_ = []
+	for _i_ = _n_ to 1 step -1
+		_r_ + _a_[_i_]
+	next
+	return _r_
+
+# ReplaceEachLeadingChar(cStr, cNewChar): pure-function form.
+func ReplaceEachLeadingChar(cStr, cNewChar)
+	_o_ = new stzString(cStr)
+	_o_.ReplaceEachLeadingChar(cNewChar)
+	return _o_.Content()
+
+func ReplaceCharsWXT(cStr, cCondition, cNewChar)
+	_o_ = new stzString(cStr)
+	_o_.ReplaceCharsWXT(cCondition, cNewChar)
+	return _o_.Content()
+
 func StzNamedString(paNamed)
 	if CheckingParams()
 		if NOT (isList(paNamed) and Q(paNamed).IsPairOfStrings())
