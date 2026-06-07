@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #626.
-#ERR Error (R14) : Calling Method without definition: marquerssortedindescendingzz
 
 load "../../stzBase.ring"
 
