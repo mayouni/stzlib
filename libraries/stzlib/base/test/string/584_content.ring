@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #584.
-#ERR Error (R14) : Calling Method without definition: removenthoccurrencecs
 
 load "../../stzBase.ring"
 

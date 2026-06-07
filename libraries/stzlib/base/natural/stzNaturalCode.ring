@@ -166,11 +166,13 @@ func ExecuteActions(pActions, pStzObj)
 		if NOT ( isList(pActions) and @IsHashList(pActions) )
 			StzRaise("Incorrect param type! pActions must be a hashlist.")
 		ok
+? ">> " + @@(pStzObj)
+		if isList(pStzObj) and len(pStzObj) = 2 and
+		   isString(pStzObj[1]) and ( pStzObj[1] = "on" or pStzObj[1] = "of" )
 
-		if isList(pStzObj) and IsOnOrOfNamedParamList(pStzObj)
 			pStzObj = pStzObj[2]
 		ok
-
+? ">> " + @@(pStzObj)
 		if NOT ( isObject(pStzObj) and @IsStzObject(pStzObj) )
 			StzRaise("Incorrect param type! pActionsOnObj must be a list of the form [ aList, obj ].")
 		ok			

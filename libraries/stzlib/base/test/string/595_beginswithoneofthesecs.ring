@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #595.
-#ERR Error (R14) : Calling Method without definition: beginswithoneofthesecs
 
 load "../../stzBase.ring"
 
