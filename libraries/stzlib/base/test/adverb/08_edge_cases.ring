@@ -3,6 +3,7 @@
 # Edge cases
 #
 # Extracted from stzadverbtest.ring, block #8.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

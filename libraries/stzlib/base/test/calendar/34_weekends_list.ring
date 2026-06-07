@@ -3,6 +3,7 @@
 # #  Weekends list                 #
 #
 # Extracted from stzcalendartest.ring, block #34.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

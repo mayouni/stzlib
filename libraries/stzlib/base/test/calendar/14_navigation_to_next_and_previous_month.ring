@@ -3,6 +3,7 @@
 # Navigation to next and previous month
 #
 # Extracted from stzcalendartest.ring, block #14.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #  ToJSON and ToCSV export       #
 #
 # Extracted from stzcalendartest.ring, block #41.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

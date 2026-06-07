@@ -3,6 +3,7 @@
 # #  Test 5: Capacity calculations          #
 #
 # Extracted from stzcalendartest.ring, block #6.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

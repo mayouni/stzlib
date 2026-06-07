@@ -3,6 +3,7 @@
 # Navigating to a given date #TODO
 #
 # Extracted from stzcalendartest.ring, block #17.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

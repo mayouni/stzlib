@@ -3,6 +3,7 @@
 # #  Test 1: Basic calendar creation        #
 #
 # Extracted from stzcalendartest.ring, block #2.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
