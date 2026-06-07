@@ -6065,10 +6065,8 @@ class stzString from stzObject
 	def FindStD(pcSub, nStartAt, pDir)
 		return This.FindFirstSTD(pcSub, nStartAt, pDir)
 
+	# (Ring is case-insensitive; one method name covers StD / STD.)
 	def FindAsSectionsStD(pcSub, nStartAt, pDir)
-		return This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
-
-	def FindAsSectionsSTD(pcSub, nStartAt, pDir)
 		return This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
 
 	def FindTheseOccurrencesAsSectionsD(anN, pNamedOf, pDir)
