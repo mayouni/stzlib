@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #569.
-#ERR Error (R14) : Calling Method without definition: removeboundedsubstring
 
 load "../../stzBase.ring"
 
