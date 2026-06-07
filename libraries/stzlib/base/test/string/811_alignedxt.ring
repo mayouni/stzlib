@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #811.
-#ERR Error (R14) : Calling Method without definition: alignedxt
 
 load "../../stzBase.ring"
 

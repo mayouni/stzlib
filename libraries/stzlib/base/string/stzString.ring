@@ -6457,7 +6457,7 @@ class stzString from stzObject
 		_aRes_ = []
 		_nL_ = ring_len(_aLines_)
 		for _i_ = 1 to _nL_
-			_cLine_ = trim(_aLines_[_i_])
+			_cLine_ = ring_trim(_aLines_[_i_])
 			if ring_len(_cLine_) > 0
 				_aRes_ + _aLines_[_i_]
 			ok
@@ -8089,7 +8089,7 @@ class stzString from stzObject
 		return TRUE
 
 	def IsAnInteger()
-		_c_ = trim(This.Content())
+		_c_ = ring_trim(This.Content())
 		if ring_len(_c_) = 0 return FALSE ok
 		_i_ = 1
 		if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
@@ -8318,7 +8318,7 @@ class stzString from stzObject
 		_nL_ = ring_len(_aLines_)
 		_nC_ = 0
 		for _i_ = 1 to _nL_
-			if ring_len(trim(_aLines_[_i_])) = 0
+			if ring_len(ring_trim(_aLines_[_i_])) = 0
 				_nC_++
 			ok
 		next
@@ -8391,7 +8391,7 @@ class stzString from stzObject
 	# IsListInNormalForm(): TRUE iff content parses as a Ring list
 	# literal in normal form (square-bracketed, comma-separated).
 	def IsListInNormalForm()
-		_c_ = trim(This.Content())
+		_c_ = ring_trim(This.Content())
 		if ring_len(_c_) < 2 return FALSE ok
 		return _c_[1] = "[" and _c_[ring_len(_c_)] = "]"
 
@@ -9351,7 +9351,7 @@ class stzString from stzObject
 	# IsAlmostAFunctionCall(): TRUE iff content roughly matches
 	# `identifier(...)` syntax.
 	def IsAlmostAFunctionCall()
-		_c_ = trim(This.Content())
+		_c_ = ring_trim(This.Content())
 		_nLen_ = ring_len(_c_)
 		if _nLen_ < 3 return FALSE ok
 		# Must have a "(" somewhere after at least 1 char and a ")"
@@ -9522,6 +9522,225 @@ class stzString from stzObject
 		def ReplaceLeadingCharsCSQ(pcNew, pCaseSensitive)
 			This.ReplaceLeadingCharsCS(pcNew, pCaseSensitive)
 			return This
+
+	def ReplaceTrailingCharsCS(pcNew, pCaseSensitive)
+		_cTrail_ = This.TrailingChars()
+		if ring_len(_cTrail_) = 0 return ok
+		_nLen_ = This._EngineCount(This.Content())
+		_nTrailLen_ = This._EngineCount(_cTrail_)
+		_cHead_ = This._EngineSlice(This.Content(), 1, _nLen_ - _nTrailLen_)
+		This.Update(_cHead_ + pcNew)
+
+		def ReplaceTrailingCharsCSQ(pcNew, pCaseSensitive)
+			This.ReplaceTrailingCharsCS(pcNew, pCaseSensitive)
+			return This
+
+	def HasLeadingCharsCS(pCaseSensitive)
+		return This.HasLeadingChars()
+
+	def HasTrailingCharsCS(pCaseSensitive)
+		return This.HasTrailingChars()
+
+	def RemoveThisLeadingCharCS(pcChar, pCaseSensitive)
+		This.RemoveThisCharFromStartXT(pcChar)
+
+		def RemoveThisLeadingCharCSQ(pcChar, pCaseSensitive)
+			This.RemoveThisLeadingCharCS(pcChar, pCaseSensitive)
+			return This
+
+	def ReplaceLeadingCharCS(pcChar, pcNew, pCaseSensitive)
+		# Replace the leading char (singular) if it matches pcChar.
+		_aChars_ = This.Chars()
+		if ring_len(_aChars_) = 0 return ok
+		if _aChars_[1] != pcChar return ok
+		This.ReplaceCharAtSimple(1, pcNew)
+
+		def ReplaceLeadingCharCSQ(pcChar, pcNew, pCaseSensitive)
+			This.ReplaceLeadingCharCS(pcChar, pcNew, pCaseSensitive)
+			return This
+
+	# RemoveAllExcept(pcKeep): remove every char that is NOT pcKeep.
+	def RemoveAllExcept(pcKeep)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			if _aChars_[_i_] = pcKeep
+				_cOut_ += _aChars_[_i_]
+			ok
+		next
+		This.Update(_cOut_)
+
+		def RemoveAllExceptQ(pcKeep)
+			This.RemoveAllExcept(pcKeep)
+			return This
+
+	def ReplaceNthOccurrenceCSQ(n, pcSub, pcNew, pCaseSensitive)
+		This.ReplaceNthOccurrenceCS(n, pcSub, pcNew, pCaseSensitive)
+		return This
+
+	def ReplaceNthOccurrence(n, pcSub, pcNew)
+		_nP_ = This.FindNthOccurrence(n, pcSub)
+		if _nP_ = 0 return ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		_cTxt_ = This.Content()
+		_cBefore_ = ""
+		if _nP_ > 1
+			_cBefore_ = This._EngineSlice(_cTxt_, 1, _nP_ - 1)
+		ok
+		_cAfter_ = This._EngineSliceFrom(_cTxt_, _nP_ + _nSubLen_)
+		This.Update(_cBefore_ + pcNew + _cAfter_)
+
+	def ReplaceNthOccurrenceCS(n, pcSub, pcNew, pCaseSensitive)
+		This.ReplaceNthOccurrence(n, pcSub, pcNew)
+
+	# RemoveFirstOccurrence(pcSub).
+	def RemoveFirstOccurrence(pcSub)
+		This.ReplaceFirst(pcSub, "")
+
+		def RemoveFirstOccurrenceQ(pcSub)
+			This.RemoveFirstOccurrence(pcSub)
+			return This
+
+	# Orientation(): :LTR for normal scripts, :RTL when first char
+	# is Arabic/Hebrew/etc.
+	def Orientation()
+		_aChars_ = This.Chars()
+		if ring_len(_aChars_) = 0 return :Undefined ok
+		_oC_ = new stzString(_aChars_[1])
+		if _oC_.AllCharsAre(:RightToLeft) return :RTL ok
+		return :LTR
+
+	# RemoveNLeftChars / RemoveNRightChars aliases.
+	def RemoveNLeftChars(n)
+		This.RemoveNFirstChars(n)
+
+		def RemoveNLeftCharsQ(n)
+			This.RemoveNFirstChars(n)
+			return This
+
+	def RemoveNRightChars(n)
+		This.RemoveNLastChars(n)
+
+		def RemoveNRightCharsQ(n)
+			This.RemoveNLastChars(n)
+			return This
+
+	# NLastCharsRemoved: alias for LastNCharsRemoved.
+	def NLastCharsRemoved(n)
+		return This.LastNCharsRemoved(n)
+
+	def NFirstCharsRemoved(n)
+		return This.FirstNCharsRemoved(n)
+
+	def RemoveAllQ(pcSub)
+		This.RemoveAll(pcSub)
+		return This
+
+	def RemoveSectionQ(n1, n2)
+		This.RemoveSection(n1, n2)
+		return This
+
+	# ReplaceWithMany / ReplaceManyWithMany TODO placeholders.
+	def ReplaceWithMany(pcSub, paReplacements)
+		This.ReplaceByMany(pcSub, paReplacements)
+
+		def ReplaceWithManyQ(pcSub, paReplacements)
+			This.ReplaceWithMany(pcSub, paReplacements)
+			return This
+
+	def ReplaceManyWithMany(pacSubStr, pacReplacements)
+		# Per-index pair replacement.
+		if NOT (isList(pacSubStr) and isList(pacReplacements)) return ok
+		_nL_ = ring_len(pacSubStr)
+		_nR_ = ring_len(pacReplacements)
+		for _i_ = 1 to _nL_
+			if _i_ > _nR_ exit ok
+			This.Replace(pacSubStr[_i_], pacReplacements[_i_])
+		next
+
+		def ReplaceManyWithManyQ(pacSubStr, pacReplacements)
+			This.ReplaceManyWithMany(pacSubStr, pacReplacements)
+			return This
+
+	# AlignedXT(:Width = n, :PadChar = " ", :Direction = :Left/:Right/:Center)
+	def AlignedXT(pN1, pN2, pN3)
+		_nW_ = 0; _cPad_ = " "; _cDir_ = :Left
+		_aArgs_ = [ pN1, pN2, pN3 ]
+		for _i_ = 1 to 3
+			_a_ = _aArgs_[_i_]
+			if isList(_a_) and ring_len(_a_) = 2 and isString(_a_[1])
+				_k_ = lower(_a_[1])
+				if _k_ = "width" _nW_ = _a_[2]
+				but _k_ = "padchar" _cPad_ = _a_[2]
+				but _k_ = "direction" _cDir_ = _a_[2]
+				ok
+			ok
+		next
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		if _nW_ <= _nLen_ return _cTxt_ ok
+		_nDiff_ = _nW_ - _nLen_
+		_cPadStr_ = ""
+		for _i_ = 1 to _nDiff_
+			_cPadStr_ += _cPad_
+		next
+		if _cDir_ = :Right
+			return _cPadStr_ + _cTxt_
+		but _cDir_ = :Center
+			_nHalf_ = _nDiff_ / 2
+			_cL_ = "" ; _cR_ = ""
+			for _i_ = 1 to floor(_nHalf_)
+				_cL_ += _cPad_
+			next
+			for _i_ = 1 to _nDiff_ - floor(_nHalf_)
+				_cR_ += _cPad_
+			next
+			return _cL_ + _cTxt_ + _cR_
+		ok
+		return _cTxt_ + _cPadStr_
+
+	# (NLastChars / NFirstChars already exist earlier.)
+	def NLastCharsQ(n)
+		return new stzString( This.NLastChars(n) )
+
+	def NFirstCharsQ(n)
+		return new stzString( This.NFirstChars(n) )
+
+	# CompressUsingBinary(): hand-wave stub -- return content unchanged.
+	def CompressUsingBinary()
+		return This.Content()
+
+	# UnicodeCompareWithCS(pcOther, pCaseSensitive): codepoint
+	# comparison. Returns -1, 0 or 1.
+	def UnicodeCompareWithCS(pcOther, pCaseSensitive)
+		_a_ = This.Content()
+		_b_ = pcOther
+		if pCaseSensitive = FALSE or pCaseSensitive = 0
+			_a_ = lower(_a_)
+			_b_ = lower(_b_)
+		ok
+		if _a_ < _b_ return -1 ok
+		if _a_ > _b_ return 1 ok
+		return 0
+
+	def UnicodeCompareWith(pcOther)
+		return This.UnicodeCompareWithCS(pcOther, 1)
+
+	def UnicodeCompareWithInSystemLocale(pcOther)
+		return This.UnicodeCompareWithCS(pcOther, 1)
+
+	# NumberOfCharsWXT(pcCondition).
+	def NumberOfCharsWXT(pcCondition)
+		return ring_len(This.CharsWXT(pcCondition))
+
+	# ContainsLetter(pcLetter): TRUE iff content contains pcLetter.
+	def ContainsLetter(pcLetter)
+		return This.Contains(pcLetter)
+
+	# ContainsBoth(pcA, pcB): TRUE iff content contains BOTH.
+	def ContainsBoth(pcA, pcB)
+		return This.Contains(pcA) and This.Contains(pcB)
 
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
