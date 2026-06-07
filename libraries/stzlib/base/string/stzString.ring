@@ -8673,6 +8673,352 @@ class stzString from stzObject
 	def EndsWithOneOfThese(pacSubStr)
 		return This.EndsWithOneOfTheseCS(pacSubStr, 1)
 
+	# FindNthXT(n, pcSub, pNamed): :StartingAt/:CS for n-th occurrence.
+	def FindNthXT(n, pcSub, pNamed)
+		_nFrom_ = 1; _bCase_ = 1
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1])
+			_k_ = lower(pNamed[1])
+			if _k_ = "startingat" _nFrom_ = pNamed[2]
+			but _k_ = "cs"
+				if pNamed[2] = FALSE or pNamed[2] = 0 _bCase_ = 0 ok
+			ok
+		ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nPos_ = _nFrom_; _nCount_ = 0
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
+			           _nPos_, _bCase_)
+			if _nFound_ < 1 return 0 ok
+			_nCount_++
+			if _nCount_ = n return _nFound_ ok
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+		return 0
+
+	# HasCentralChar(): TRUE iff content length is odd.
+	def HasCentralChar()
+		_nLen_ = This._EngineCount(This.Content())
+		return _nLen_ > 0 and (_nLen_ % 2) = 1
+
+	def CentralChar()
+		_nLen_ = This._EngineCount(This.Content())
+		if NOT This.HasCentralChar() return "" ok
+		_nMid_ = (_nLen_ + 1) / 2
+		return This._EngineSlice(This.Content(), _nMid_, 1)
+
+	# IsMultipleOf(pcUnit): TRUE iff content is pcUnit repeated.
+	def IsMultipleOf(pcUnit)
+		if NOT isString(pcUnit) or ring_len(pcUnit) = 0 return FALSE ok
+		_cTxt_ = This.Content()
+		_nT_ = This._EngineCount(_cTxt_)
+		_nU_ = This._EngineCount(pcUnit)
+		if _nT_ = 0 or _nU_ = 0 return FALSE ok
+		if _nT_ % _nU_ != 0 return FALSE ok
+		_nRep_ = _nT_ / _nU_
+		_cExpect_ = ""
+		for _i_ = 1 to _nRep_
+			_cExpect_ += pcUnit
+		next
+		return _cTxt_ = _cExpect_
+
+	# Marquer / Marker: the FIRST marker number.
+	def Marquer()
+		_aM_ = This.Markers()
+		if ring_len(_aM_) = 0 return 0 ok
+		return _aM_[1]
+
+	def Marker()
+		return This.Marquer()
+
+	def ContainsMarquers()
+		return ring_len(This.Markers()) > 0
+
+	def ContainsMarkers()
+		return This.ContainsMarquers()
+
+	def IsIncludedIn(pcOther)
+		if NOT isString(pcOther) return FALSE ok
+		return substr(pcOther, This.Content()) > 0
+
+	# ReplaceSubStringAtPositions(anPos, pcOld, pcNew).
+	def ReplaceSubStringAtPositions(anPos, pcOld, pcNew)
+		if NOT isList(anPos) return ok
+		_aSorted_ = _ListCopy(anPos)
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_] < _v_
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nL_
+			This.ReplaceSubStringAtPosition(_aSorted_[_i_], pcOld, pcNew)
+		next
+
+		def ReplaceSubStringAtPositionsQ(anPos, pcOld, pcNew)
+			This.ReplaceSubStringAtPositions(anPos, pcOld, pcNew)
+			return This
+
+	# MarquersSortedInDescendingZZ.
+	def MarquersSortedInDescendingZZ()
+		_aPos_ = MarkersPositions(This.Content())
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 2 to _nL_
+			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aPos_[_j_] < _v_
+				_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
+			end
+			_aPos_[_j_ + 1] = _v_
+		next
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] ]
+		next
+		return _aRes_
+
+	def MarquersZZ()
+		_aPos_ = MarkersPositions(This.Content())
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] ]
+		next
+		return _aRes_
+
+	def MarkersZZ()
+		return This.MarquersZZ()
+
+	# ReplaceOccurrencesByMany: alias of ReplaceByMany.
+	def ReplaceOccurrencesByMany(pcSubStr, paReplacements)
+		This.ReplaceByMany(pcSubStr, paReplacements)
+
+		def ReplaceOccurrencesByManyQ(pcSubStr, paReplacements)
+			This.ReplaceByMany(pcSubStr, paReplacements)
+			return This
+
+	# MarkTheseSubStringsCS: wrap each occurrence in [|...|].
+	def MarkTheseSubStringsCS(pacSubStr, pCaseSensitive)
+		if NOT isList(pacSubStr) return ok
+		_nL_ = ring_len(pacSubStr)
+		for _i_ = 1 to _nL_
+			_s_ = pacSubStr[_i_]
+			if isString(_s_)
+				This.ReplaceCS(_s_, "[|" + _s_ + "|]", pCaseSensitive)
+			ok
+		next
+
+	def RemoveCharQ(n)
+		This.RemoveCharAt(n)
+		return This
+
+	def IsSortedInAscending()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 2 to _nLen_
+			if _aChars_[_i_] < _aChars_[_i_ - 1] return FALSE ok
+		next
+		return TRUE
+
+	def IsSortedInDescending()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 2 to _nLen_
+			if _aChars_[_i_] > _aChars_[_i_ - 1] return FALSE ok
+		next
+		return TRUE
+
+	def RemoveManySections(aSections)
+		if NOT isList(aSections) return ok
+		_aSorted_ = _ListCopy(aSections)
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_][1] < _v_[1]
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nL_
+			_sec_ = _aSorted_[_i_]
+			This.RemoveSection(_sec_[1], _sec_[2])
+		next
+
+		def RemoveManySectionsQ(aSections)
+			This.RemoveManySections(aSections)
+			return This
+
+	def ReplaceNextNthOccurrence(n, pcSub, pcNew, nFrom)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nPos_ = nFrom; _nCount_ = 0
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
+			           _nPos_, 1)
+			if _nFound_ < 1 return ok
+			_nCount_++
+			if _nCount_ = n
+				_cTxt_ = This.Content()
+				_cBefore_ = ""
+				if _nFound_ > 1
+					_cBefore_ = This._EngineSlice(_cTxt_, 1, _nFound_ - 1)
+				ok
+				_cAfter_ = This._EngineSliceFrom(_cTxt_,
+				           _nFound_ + _nSubLen_)
+				This.Update(_cBefore_ + pcNew + _cAfter_)
+				return
+			ok
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+
+		def ReplaceNextNthOccurrenceQ(n, pcSub, pcNew, nFrom)
+			This.ReplaceNextNthOccurrence(n, pcSub, pcNew, nFrom)
+			return This
+
+	def ReplacePreviousNthOccurrence(n, pcSub, pcNew, nFrom)
+		_aAll_ = This.AllPositionsOf(pcSub)
+		_aBefore_ = []
+		_nAL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nAL_
+			if _aAll_[_i_] < nFrom _aBefore_ + _aAll_[_i_] ok
+		next
+		_nBL_ = ring_len(_aBefore_)
+		if n < 1 or n > _nBL_ return ok
+		_nP_ = _aBefore_[_nBL_ - n + 1]
+		_nSubLen_ = This._EngineCount(pcSub)
+		_cTxt_ = This.Content()
+		_cBefore_ = ""
+		if _nP_ > 1
+			_cBefore_ = This._EngineSlice(_cTxt_, 1, _nP_ - 1)
+		ok
+		_cAfter_ = This._EngineSliceFrom(_cTxt_, _nP_ + _nSubLen_)
+		This.Update(_cBefore_ + pcNew + _cAfter_)
+
+		def ReplacePreviousNthOccurrenceQ(n, pcSub, pcNew, nFrom)
+			This.ReplacePreviousNthOccurrence(n, pcSub, pcNew, nFrom)
+			return This
+
+	def IsLowercaseOf(pcOther)
+		if NOT isString(pcOther) return FALSE ok
+		return This.Content() = lower(pcOther)
+
+	def IsUppercaseOf(pcOther)
+		if NOT isString(pcOther) return FALSE ok
+		return This.Content() = upper(pcOther)
+
+	# UppercasedInLocale / LowercasedInLocale -- locale-neutral fallback.
+	def UppercasedInLocale(pcLocale)
+		return upper(This.Content())
+
+	def LowercasedInLocale(pcLocale)
+		return lower(This.Content())
+
+	def CharCase()
+		_c_ = This.Content()
+		if This._EngineCount(_c_) != 1 return :Mixed ok
+		if _c_ = upper(_c_) and _c_ != lower(_c_) return :Uppercase ok
+		if _c_ = lower(_c_) and _c_ != upper(_c_) return :Lowercase ok
+		return :Mixed
+
+	def CountInSections(pcSub, aSections)
+		_nT_ = 0
+		_nL_ = ring_len(aSections)
+		for _i_ = 1 to _nL_
+			_s_ = aSections[_i_]
+			if isList(_s_) and ring_len(_s_) = 2
+				_cMid_ = This._EngineSlice(This.Content(),
+				         _s_[1], _s_[2] - _s_[1] + 1)
+				_oT_ = new stzString(_cMid_)
+				_nT_ += _oT_.HowMany(pcSub)
+			ok
+		next
+		return _nT_
+
+	def Splits()
+		return This.Words()
+
+	def FindWords()
+		_aRes_ = []
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_bIn_ = FALSE
+		for _i_ = 1 to _nLen_
+			_c_ = _aChars_[_i_]
+			if _c_ = " " or _c_ = char(9) or _c_ = char(10) or _c_ = char(13)
+				_bIn_ = FALSE
+			else
+				if NOT _bIn_
+					_aRes_ + _i_
+					_bIn_ = TRUE
+				ok
+			ok
+		next
+		return _aRes_
+
+	# HasThisTrailingChar(pcChar, pCS): TRUE iff content ends with
+	# a run of pcChar. (Distinct from HasTrailingChars() which is
+	# the 0-arg "has any trailing run" predicate above.)
+	def HasThisTrailingCharCS(pcChar, pCaseSensitive)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return FALSE ok
+		if pCaseSensitive = FALSE or pCaseSensitive = 0
+			return lower(_aChars_[_nLen_]) = lower(pcChar)
+		ok
+		return _aChars_[_nLen_] = pcChar
+
+	def HasThisTrailingChar(pcChar)
+		return This.HasThisTrailingCharCS(pcChar, 1)
+
+	def HasThisLeadingCharCS(pcChar, pCaseSensitive)
+		_aChars_ = This.Chars()
+		if ring_len(_aChars_) = 0 return FALSE ok
+		if pCaseSensitive = FALSE or pCaseSensitive = 0
+			return lower(_aChars_[1]) = lower(pcChar)
+		ok
+		return _aChars_[1] = pcChar
+
+	def HasThisLeadingChar(pcChar)
+		return This.HasThisLeadingCharCS(pcChar, 1)
+
+	def FindTrailingChars()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return [] ok
+		_cL_ = _aChars_[_nLen_]
+		_n_ = 0
+		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
+			_n_++
+		end
+		_aRes_ = []
+		for _i_ = _nLen_ - _n_ + 1 to _nLen_
+			_aRes_ + _i_
+		next
+		return _aRes_
+
+	def FindLeadingChars()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return [] ok
+		_cF_ = _aChars_[1]
+		_n_ = 0
+		while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
+			_n_++
+		end
+		_aRes_ = []
+		for _i_ = 1 to _n_
+			_aRes_ + _i_
+		next
+		return _aRes_
+
+	def TrailingCharIs(pcChar)
+		_c_ = This.TrailingChar()
+		return _c_ = pcChar
+
+	def LeadingCharIs(pcChar)
+		_c_ = This.LeadingChar()
+		return _c_ = pcChar
+
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)

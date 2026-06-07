@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #541.
-#ERR Error (R14) : Calling Method without definition: findnthboundedby
 
 load "../../stzBase.ring"
 

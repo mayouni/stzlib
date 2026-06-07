@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #63.
-#ERR Error (R14) : Calling Method without definition: removemanysections
 
 load "../../stzBase.ring"
 
