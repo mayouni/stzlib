@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #522.
-#ERR Error (R14) : Calling Method without definition: nthtolast
 
 load "../../stzBase.ring"
 

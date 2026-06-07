@@ -8337,6 +8337,213 @@ class stzString from stzObject
 	def NumberOfNonEmptyLines()
 		return This.NumberOfLines() - This.NumberOfEmptyLines()
 
+	# BoundsXT(pacBounds, n): the bounds of the n-th bounded match.
+	def BoundsXT(pacBounds, n)
+		_aSec_ = This.FindBoundedByAsSections(pacBounds)
+		if n < 1 or n > ring_len(_aSec_) return [] ok
+		return _aSec_[n]
+
+	# Move(n1, n2): move char from position n1 to position n2.
+	def Move(n1, n2)
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		if n1 < 1 or n1 > _nLen_ or n2 < 1 or n2 > _nLen_ return ok
+		if n1 = n2 return ok
+		_cChar_ = This._EngineSlice(_cTxt_, n1, 1)
+		# Remove the char at n1 first.
+		_cBefore1_ = ""
+		if n1 > 1 _cBefore1_ = This._EngineSlice(_cTxt_, 1, n1 - 1) ok
+		_cAfter1_ = This._EngineSliceFrom(_cTxt_, n1 + 1)
+		_cTmp_ = _cBefore1_ + _cAfter1_
+		# Adjust n2 if it was after n1.
+		_n2adj_ = n2
+		if n2 > n1 _n2adj_ = n2 - 1 ok
+		# Insert at adjusted position.
+		_cBefore2_ = ""
+		if _n2adj_ > 1
+			_cBefore2_ = This._EngineSlice(_cTmp_, 1, _n2adj_ - 1)
+		ok
+		_cAfter2_ = This._EngineSliceFrom(_cTmp_, _n2adj_)
+		This.Update(_cBefore2_ + _cChar_ + _cAfter2_)
+
+		def MoveQ(n1, n2)
+			This.Move(n1, n2)
+			return This
+
+	# Swap(n1, n2): swap chars at positions n1 and n2.
+	def Swap(n1, n2)
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		if n1 < 1 or n1 > _nLen_ or n2 < 1 or n2 > _nLen_ return ok
+		if n1 = n2 return ok
+		_c1_ = This._EngineSlice(_cTxt_, n1, 1)
+		_c2_ = This._EngineSlice(_cTxt_, n2, 1)
+		_aChars_ = This.Chars()
+		_aChars_[n1] = _c2_
+		_aChars_[n2] = _c1_
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cOut_ += _aChars_[_i_]
+		next
+		This.Update(_cOut_)
+
+		def SwapQ(n1, n2)
+			This.Swap(n1, n2)
+			return This
+
+	# NthToLast(n): the n-th-to-last char ("1st to last" = last).
+	def NthToLast(n)
+		_nLen_ = This._EngineCount(This.Content())
+		_p_ = _nLen_ - n + 1
+		if _p_ < 1 return "" ok
+		return This._EngineSlice(This.Content(), _p_, 1)
+
+	# IsListInNormalForm(): TRUE iff content parses as a Ring list
+	# literal in normal form (square-bracketed, comma-separated).
+	def IsListInNormalForm()
+		_c_ = trim(This.Content())
+		if ring_len(_c_) < 2 return FALSE ok
+		return _c_[1] = "[" and _c_[ring_len(_c_)] = "]"
+
+	# SubStringsBoundedByU: case-insensitive variant.
+	def SubStringsBoundedByU(pacBounds)
+		return This.BoundedByCS(pacBounds, 0)
+
+	# Positions(pcSub): all positions of pcSub (alias of AllPositionsOf).
+	def Positions(pcSub)
+		return This.AllPositionsOf(pcSub)
+
+	def FindPositions(pcSub)
+		return This.AllPositionsOf(pcSub)
+
+	# FindNthBoundedBy(n, pacBounds, pcSub): position of the n-th
+	# occurrence of pcSub inside any bounded section.
+	def FindNthBoundedBy(n, pacBounds, pcSub)
+		_aAll_ = This.FindSubStringBoundedBy(pcSub, pacBounds)
+		if n < 1 or n > ring_len(_aAll_) return 0 ok
+		return _aAll_[n]
+
+	# Ranges(): contiguous-character ranges (e.g. "abc123" -> [[a,c],[1,3]]).
+	def Ranges()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		if _nLen_ = 0 return _aRes_ ok
+		_cStart_ = _aChars_[1]
+		_cPrev_ = _aChars_[1]
+		for _i_ = 2 to _nLen_
+			_cN_ = StzCharToUnicode(_aChars_[_i_])
+			_cPN_ = StzCharToUnicode(_cPrev_)
+			if _cN_ = _cPN_ + 1
+				_cPrev_ = _aChars_[_i_]
+			else
+				_aRes_ + [ _cStart_, _cPrev_ ]
+				_cStart_ = _aChars_[_i_]
+				_cPrev_ = _aChars_[_i_]
+			ok
+		next
+		_aRes_ + [ _cStart_, _cPrev_ ]
+		return _aRes_
+
+	# FindFirstXT(pcSub, pNamed): :StartingAt/:CS named-param shim.
+	def FindFirstXT(pcSub, pNamed)
+		_bCase_ = 1
+		_nFrom_ = 1
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1])
+			_k_ = lower(pNamed[1])
+			if _k_ = "startingat"
+				_nFrom_ = pNamed[2]
+			but _k_ = "cs"
+				if pNamed[2] = FALSE or pNamed[2] = 0 _bCase_ = 0 ok
+			ok
+		ok
+		return StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nFrom_, _bCase_)
+
+	# RemoveBoundedSubString(pacBounds): remove the entire bounded
+	# section (including bounds) of the FIRST match.
+	def RemoveBoundedSubString(pacBounds)
+		_aOpen_ = pacBounds
+		_aClose_ = NULL
+		if isList(pacBounds) and ring_len(pacBounds) = 2
+			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
+		but isString(pacBounds)
+			_aClose_ = pacBounds
+		ok
+		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
+		_cTxt_ = This.Content()
+		_nOLen_ = This._EngineCount(_aOpen_)
+		_nCLen_ = This._EngineCount(_aClose_)
+		_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
+		if _nStart_ < 1 return ok
+		_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nStart_ + _nOLen_)
+		if _nEnd_ < 1 return ok
+		_cBefore_ = ""
+		if _nStart_ > 1
+			_cBefore_ = This._EngineSlice(_cTxt_, 1, _nStart_ - 1)
+		ok
+		_cAfter_ = This._EngineSliceFrom(_cTxt_, _nEnd_ + _nCLen_)
+		This.Update(_cBefore_ + _cAfter_)
+
+		def RemoveBoundedSubStringQ(pacBounds)
+			This.RemoveBoundedSubString(pacBounds)
+			return This
+
+	def RemoveAnySubStringBoundedBy(pacBounds)
+		# Remove EVERY bounded section.
+		_aOpen_ = pacBounds
+		_aClose_ = NULL
+		if isList(pacBounds) and ring_len(pacBounds) = 2
+			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
+		but isString(pacBounds)
+			_aClose_ = pacBounds
+		ok
+		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
+		while This.Contains(_aOpen_) and This.Contains(_aClose_)
+			This.RemoveBoundedSubString([ _aOpen_, _aClose_ ])
+		end
+
+		def RemoveAnySubStringBoundedByQ(pacBounds)
+			This.RemoveAnySubStringBoundedBy(pacBounds)
+			return This
+
+	def RemoveAnySubStringBoundedByIB(pacBounds)
+		# Same as above (inclusive bounds is the default for Remove*).
+		This.RemoveAnySubStringBoundedBy(pacBounds)
+
+		def RemoveAnySubStringBoundedByIBQ(pacBounds)
+			This.RemoveAnySubStringBoundedBy(pacBounds)
+			return This
+
+	# SubStringBounds(pcSub): the chars immediately before / after
+	# the first occurrence of pcSub (single chars each).
+	def SubStringBounds(pcSub)
+		_nP_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, 1)
+		if _nP_ < 1 return [] ok
+		_nLen_ = This._EngineCount(This.Content())
+		_nSubLen_ = This._EngineCount(pcSub)
+		_cBefore_ = ""
+		if _nP_ > 1
+			_cBefore_ = This._EngineSlice(This.Content(), _nP_ - 1, 1)
+		ok
+		_cAfter_ = ""
+		if _nP_ + _nSubLen_ <= _nLen_
+			_cAfter_ = This._EngineSlice(This.Content(),
+			           _nP_ + _nSubLen_, 1)
+		ok
+		return [ _cBefore_, _cAfter_ ]
+
+	# FindTheseSubStringBounds(pacSubStr): per substring, the
+	# [before, after] single-char bounds.
+	def FindTheseSubStringBounds(pacSubStr)
+		_aRes_ = []
+		_nL_ = ring_len(pacSubStr)
+		for _i_ = 1 to _nL_
+			if isString(pacSubStr[_i_])
+				_aRes_ + This.SubStringBounds(pacSubStr[_i_])
+			ok
+		next
+		return _aRes_
+
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
