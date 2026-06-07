@@ -3,7 +3,6 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #581.
-#ERR Error (R14) : Calling Method without definition: nrightcharsassubstring
 
 load "../../stzBase.ring"
 
