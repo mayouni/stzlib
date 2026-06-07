@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #756.
-#ERR Error (R14) : Calling Method without definition: containseachcs
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #512.
-#ERR Error (R14) : Calling Method without definition: removeemptylinesq
 
 load "../../stzBase.ring"
 

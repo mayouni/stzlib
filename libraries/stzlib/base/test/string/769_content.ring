@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #769.
-#ERR Error (R3) : Calling Function without definition: removenleftchars
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # TODO: Maybe this should move to stzText
 #
 # Extracted from stzStringTest.ring, block #798.
-#ERR Error (R14) : Calling Method without definition: orientation
 
 load "../../stzBase.ring"
 
