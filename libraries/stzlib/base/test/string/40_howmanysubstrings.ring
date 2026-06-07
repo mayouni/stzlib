@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #40.
-#ERR Error (R14) : Calling Method without definition: howmanysubstrings
 
 load "../../stzBase.ring"
 
