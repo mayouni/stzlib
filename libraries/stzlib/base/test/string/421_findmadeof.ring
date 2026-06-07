@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #421.
-#ERR Error (R14) : Calling Method without definition: findmadeof
 
 load "../../stzBase.ring"
 

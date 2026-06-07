@@ -8133,6 +8133,128 @@ class stzString from stzObject
 	def Check()
 		return TRUE
 
+	# SubStringsOccurringNoMoreThanNTimes / LessThanNTimes: bounded
+	# count predicates.
+	def SubStringsOccurringNoMoreThanNTimes(n)
+		_aAll_ = This.SubStrings()
+		_aUniq_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			_s_ = _aAll_[_i_]
+			_bD_ = FALSE
+			_nUL_ = ring_len(_aUniq_)
+			for _j_ = 1 to _nUL_
+				if _aUniq_[_j_] = _s_ _bD_ = TRUE exit ok
+			next
+			if NOT _bD_ _aUniq_ + _s_ ok
+		next
+		_aRes_ = []
+		_nUL_ = ring_len(_aUniq_)
+		for _i_ = 1 to _nUL_
+			_s_ = _aUniq_[_i_]
+			if ring_len(_s_) > 0 and This.HowMany(_s_) <= n
+				_aRes_ + _s_
+			ok
+		next
+		return _aRes_
+
+	def SubStringsOccurringLessThanNTimes(n)
+		_aAll_ = This.SubStrings()
+		_aUniq_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			_s_ = _aAll_[_i_]
+			_bD_ = FALSE
+			_nUL_ = ring_len(_aUniq_)
+			for _j_ = 1 to _nUL_
+				if _aUniq_[_j_] = _s_ _bD_ = TRUE exit ok
+			next
+			if NOT _bD_ _aUniq_ + _s_ ok
+		next
+		_aRes_ = []
+		_nUL_ = ring_len(_aUniq_)
+		for _i_ = 1 to _nUL_
+			_s_ = _aUniq_[_i_]
+			if ring_len(_s_) > 0 and This.HowMany(_s_) < n
+				_aRes_ + _s_
+			ok
+		next
+		return _aRes_
+
+	# SubStringsMadeOfZZ alias (no Find prefix).
+	def SubStringsMadeOfZZ(pcChar)
+		return This.FindSubStringsMadeOfZZ(pcChar)
+
+	# Removed() -- mutating-then-return removal of pcWhat.
+	def Removed(pcWhat)
+		_oTmp_ = new stzString(This.Content())
+		_oTmp_.Remove(pcWhat)
+		return _oTmp_.Content()
+
+	# IsBoundOfXT(:Open=, :Close=) -- TRUE iff the content equals one
+	# of the bounds (i.e. it IS the opening or closing string).
+	def IsBoundOfXT(pNamed1, pNamed2)
+		_cO_ = NULL
+		_cC_ = NULL
+		_aArgs_ = [ pNamed1, pNamed2 ]
+		for _i_ = 1 to 2
+			_a_ = _aArgs_[_i_]
+			if isList(_a_) and ring_len(_a_) = 2 and isString(_a_[1])
+				_k_ = lower(_a_[1])
+				if _k_ = "open" _cO_ = _a_[2]
+				but _k_ = "close" _cC_ = _a_[2]
+				ok
+			ok
+		next
+		if NOT (isString(_cO_) and isString(_cC_)) return FALSE ok
+		_c_ = This.Content()
+		return _c_ = _cO_ or _c_ = _cC_
+
+	# IsAClass(): TRUE if content is a Ring class name (lookup via
+	# Ring's classes() introspection).
+	def IsAClass()
+		_c_ = lower(This.Content())
+		_aC_ = classes()
+		_nL_ = ring_len(_aC_)
+		for _i_ = 1 to _nL_
+			if lower(_aC_[_i_]) = _c_ return TRUE ok
+		next
+		return FALSE
+
+	# Combinations(n): every n-char combination from the content.
+	def Combinations(n)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		if n < 1 or n > _nLen_ return _aRes_ ok
+		_anIdx_ = []
+		for _i_ = 1 to n
+			_anIdx_ + _i_
+		next
+		while TRUE
+			_cComb_ = ""
+			for _i_ = 1 to n
+				_cComb_ += _aChars_[_anIdx_[_i_]]
+			next
+			_aRes_ + _cComb_
+			# Increment index list.
+			_iPos_ = n
+			while _iPos_ >= 1 and _anIdx_[_iPos_] = _nLen_ - (n - _iPos_)
+				_iPos_--
+			end
+			if _iPos_ < 1 exit ok
+			_anIdx_[_iPos_]++
+			for _i_ = _iPos_ + 1 to n
+				_anIdx_[_i_] = _anIdx_[_i_ - 1] + 1
+			next
+		end
+		return _aRes_
+
+	# IsNotAString(): TRUE iff content is NOT a string. We're a
+	# stzString -- always FALSE.
+	def IsNotAString()
+		return FALSE
+
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
