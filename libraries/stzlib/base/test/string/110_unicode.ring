@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #110.
-#ERR Error (R14) : Calling Method without definition: hexunicode
+#ERR Error (R14) : Calling Method without definition: hexunicodes
 
 load "../../stzBase.ring"
 

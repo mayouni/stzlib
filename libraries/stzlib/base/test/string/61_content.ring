@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #61.
-#ERR Error (R14) : Calling Method without definition: replacesubstringatpositions
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

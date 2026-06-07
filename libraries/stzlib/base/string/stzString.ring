@@ -9903,8 +9903,8 @@ class stzString from stzObject
 	def BoxifyChars()
 		return This.BoxifyCharsXT([])
 
-	def FindAnyBoundedByAsSectionss(pacBounds)
-		return This.FindAnyBoundedByAsSections(pacBounds)
+	def FindAnyBoundedByAsSectionss(p1, p2, p3)
+		return This.FindAnyBoundedByAsSections([ p1, p2 ])
 
 	def ReplaceOccurrences(pcOld, pcNew)
 		This.Replace(pcOld, pcNew)

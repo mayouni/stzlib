@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #952.
-#ERR Error (R11) : Error in class name, class not found: stzlistofchars
+#ERR Error (R14) : Calling Method without definition: boxify
 
 load "../../stzBase.ring"
 

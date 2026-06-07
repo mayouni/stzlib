@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #924.
-#ERR Error (R14) : Calling Method without definition: issortedindescending
+#ERR Error (R41) : Invalid numeric string
 
 load "../../stzBase.ring"
 

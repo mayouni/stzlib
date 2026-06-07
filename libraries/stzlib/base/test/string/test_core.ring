@@ -3,6 +3,7 @@
 # Run from the test/ directory: ring test_core.ring
 
 ? "Step 1: Loading stubs + DLL"
+#ERR Error (R3) : Calling Function without definition: stzenginestring
 
 load "test_stubs.ring"
 

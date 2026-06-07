@@ -3,6 +3,7 @@
 # #narration NAMED OBJECTS EQuALiTY
 #
 # Extracted from stzlisttest.ring, block #605.
+#ERR exit 1: 1
 
 load "../../stzBase.ring"
 

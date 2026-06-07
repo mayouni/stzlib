@@ -3,7 +3,7 @@
 # STRING COMPARAISON
 #
 # Extracted from stzStringTest.ring, block #826.
-#ERR Error (R14) : Calling Method without definition: unicodecomparewithcs
+#ERR Error (R41) : Invalid numeric string
 
 load "../../stzBase.ring"
 

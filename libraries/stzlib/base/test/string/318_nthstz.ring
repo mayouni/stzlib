@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #318.
-#ERR Error (R14) : Calling Method without definition: nthstz
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

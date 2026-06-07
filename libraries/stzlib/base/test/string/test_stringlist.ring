@@ -1,5 +1,5 @@
 
-#ERR Error (R3) : Calling Function without definition: ring_len
+#ERR Error (R3) : Calling Function without definition: stzengineunicodecasefold
 
 load "test_stubs.ring"
 load "../../string/stzString.ring"

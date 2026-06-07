@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #902.
-#ERR Error (R14) : Calling Method without definition: boxeachcharq
 
 load "../../stzBase.ring"
 

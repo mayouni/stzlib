@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #945.
-#ERR Error (R14) : Calling Method without definition: spacifycharsxt
+#ERR Error (R2) : Array Access (Index out of range)
 
 load "../../stzBase.ring"
 

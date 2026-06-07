@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #354.
-#ERR Error (R14) : Calling Method without definition: thesesubstringsz
+#ERR Error (R24) : Using uninitialized variable: i
 
 load "../../stzBase.ring"
 

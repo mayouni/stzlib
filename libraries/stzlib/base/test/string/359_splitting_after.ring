@@ -3,6 +3,7 @@
 # SPLITTING AFTER
 #
 # Extracted from stzStringTest.ring, block #359.
+#ERR exit 1: [ "__a", "__A", "__" ]
 
 load "../../stzBase.ring"
 

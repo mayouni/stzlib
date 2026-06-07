@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #62.
-#ERR Error (R14) : Calling Method without definition: replaceoccurrencesbymany
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

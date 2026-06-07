@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #371.
-#ERR Error (R14) : Calling Method without definition: removethisfirstcharcs
+#ERR Error (R41) : Invalid numeric string
 
 load "../../stzBase.ring"
 

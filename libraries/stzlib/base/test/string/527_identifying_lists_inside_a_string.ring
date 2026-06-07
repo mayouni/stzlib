@@ -3,7 +3,7 @@
 # #narration IDENTIFYING LISTS INSIDE A STRING
 #
 # Extracted from stzStringTest.ring, block #527.
-#ERR Error (R14) : Calling Method without definition: islistinnormalform
+#ERR Error (R14) : Calling Method without definition: iscontiguouslistinstring
 
 load "../../stzBase.ring"
 

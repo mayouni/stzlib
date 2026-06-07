@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #546.
-#ERR Error (R14) : Calling Method without definition: sectionq
+#ERR Error (R14) : Calling Method without definition: lastnitemsqrt
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #25.
-#ERR Error (R14) : Calling Method without definition: rightcharremoved
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

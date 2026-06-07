@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #777.
-#ERR Error (R3) : Calling Function without definition: replaceeachleadingchar
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

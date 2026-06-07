@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #844.
-#ERR Error (R14) : Calling Method without definition: isshortlanguageabbreviation
+#ERR Error (R14) : Calling Method without definition: islonglanguageabbreviation
 
 load "../../stzBase.ring"
 

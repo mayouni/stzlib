@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #729.
-#ERR Error (R14) : Calling Method without definition: replacenthcharq
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 
