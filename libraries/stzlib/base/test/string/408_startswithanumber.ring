@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #408.
-#ERR Error (R14) : Calling Method without definition: startingnumber
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #449.
-#ERR Error (R14) : Calling Method without definition: ispluralofastztype
 
 load "../../stzBase.ring"
 
