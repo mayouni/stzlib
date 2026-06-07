@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #715.
-#ERR Error (R14) : Calling Method without definition: charsreversed
 
 load "../../stzBase.ring"
 
