@@ -3,6 +3,7 @@
 # #  Test 6: Task fitting                   #
 #
 # Extracted from stzcalendartest.ring, block #7.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

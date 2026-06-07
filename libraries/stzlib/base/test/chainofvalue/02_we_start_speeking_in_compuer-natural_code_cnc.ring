@@ -3,6 +3,7 @@
 # # we start speeking in Compuer-natural Code (CnC)...
 #
 # Extracted from stzchainofvaluetest.ring, block #2.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

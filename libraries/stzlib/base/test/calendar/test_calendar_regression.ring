@@ -4,6 +4,7 @@
 # MonthNumber, MonthName), Start / End, and working-day arithmetic.
 #
 # Run from base/datetime/test/.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

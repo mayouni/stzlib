@@ -3,6 +3,7 @@
 # Morphological patterns (priority 4)
 #
 # Extracted from stzadverbtest.ring, block #1.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

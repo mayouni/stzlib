@@ -3,6 +3,7 @@
 # #  DateInfo variations           #
 #
 # Extracted from stzcalendartest.ring, block #43.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

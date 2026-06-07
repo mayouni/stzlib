@@ -1,26 +1,26 @@
-== chainoftruth  PASS 7  ERR 18  TIMEOUT 0  (44.7s) ==
-[ERR]     01_profon.ring :: Error (R3) : Calling Function without definition: @isfruit
-[PASS]    02_profon.ring
-[ERR]     03_profon.ring :: Error (R14) : Calling Method without definition: inuppercaseq
-[PASS]    04_ok.ring
-[ERR]     05_ok.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     06_error.ring :: Error (C28) : Expression is expected!
-[PASS]    07_ok.ring
-[ERR]     08_ok.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     09_ok.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     10_these_return_1.ring :: Error (C28) : Expression is expected!
-[PASS]    11_ok.ring
-[ERR]     12_ok.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     13_erro.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     14_error.ring :: Error (C28) : Expression is expected!
-[ERR]     15_ok.ring :: Error (R20) : Calling function with extra number of parameters
-[PASS]    16_all_these_return_1.ring
-[ERR]     17_error.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     18_error.ring :: Error (R24) : Using uninitialized variable: pthing
-[ERR]     19_error.ring :: Error (C28) : Expression is expected!
-[ERR]     20_error.ring :: Error (C28) : Expression is expected!
-[ERR]     21_all_these_return_1.ring :: Error (C28) : Expression is expected!
-[ERR]     22_isnotastring__--_false.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     25_gisthelowercaseofg.ring :: Error (R13) : Object is required
-[PASS]    26_ringisastringcontainingtheletterginlowercase.ring
-[PASS]    27_block_27.ring
+== chainoftruth  PASS 0  ERR 25  TIMEOUT 0  (42.5s) ==
+[ERR]     01_profon.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_profon.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_profon.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_ok.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_ok.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_error.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_ok.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_ok.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_ok.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_these_return_1.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_ok.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_ok.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_erro.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_error.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_ok.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_all_these_return_1.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_error.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_error.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_error.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_error.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_all_these_return_1.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_isnotastring__--_false.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     25_gisthelowercaseofg.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     26_ringisastringcontainingtheletterginlowercase.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     27_block_27.ring :: Error (C22) : Function redefinition, function is already defined!

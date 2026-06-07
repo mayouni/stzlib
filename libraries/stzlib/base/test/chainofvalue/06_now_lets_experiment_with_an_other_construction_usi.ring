@@ -3,6 +3,7 @@
 # # Now, let's experiment with an other construction, using Until():
 #
 # Extracted from stzchainofvaluetest.ring, block #6.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

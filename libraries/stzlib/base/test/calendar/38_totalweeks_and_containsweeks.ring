@@ -3,6 +3,7 @@
 # #  TotalWeeks and ContainsWeeks  #
 #
 # Extracted from stzcalendartest.ring, block #38.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

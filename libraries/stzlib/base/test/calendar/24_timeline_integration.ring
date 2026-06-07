@@ -3,6 +3,7 @@
 # #  TimeLine Integration  #
 #
 # Extracted from stzcalendartest.ring, block #24.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -1,4 +1,4 @@
-== appserver  PASS 1  ERR 2  TIMEOUT 0  (5.5s) ==
-[ERR]     01_basic_web_application.ring :: Error (R3) : Calling Function without definition: uv_defaulloop
-[ERR]     02_advanced_computational_api.ring :: Error (R3) : Calling Function without definition: uv_defaulloop
-[PASS]    test_appserver_regression.ring
+== appserver  PASS 0  ERR 3  TIMEOUT 0  (4.9s) ==
+[ERR]     01_basic_web_application.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_advanced_computational_api.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_appserver_regression.ring :: Error (C22) : Function redefinition, function is already defined!

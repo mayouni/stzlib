@@ -3,6 +3,7 @@
 # #  Available days list           #
 #
 # Extracted from stzcalendartest.ring, block #35.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

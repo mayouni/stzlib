@@ -3,6 +3,7 @@
 # #  Real world example : sprint planning  #
 #
 # Extracted from stzcalendartest.ring, block #25.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -1,10 +1,10 @@
-== appservercluster  PASS 0  ERR 9  TIMEOUT 0  (14.7s) ==
-[ERR]     01_example_1_basic_cluster_setup_3_lines_to_create_en.ring :: Error (R3) : Calling Function without definition: init
-[ERR]     02_example_2_financial_services_platform.ring :: Error (R3) : Calling Function without definition: init
-[ERR]     03_example_3_healthcare_document_processing.ring :: Error (R3) : Calling Function without definition: init
-[ERR]     04_example_4_e-commerce_intelligence_platform.ring :: Error (R3) : Calling Function without definition: init
-[ERR]     05_example_5_advanced_custom_domain_cluster.ring :: Error (R3) : Calling Function without definition: init
-[ERR]     06_example_6_real-time_monitoring_and_management.ring :: Error (R24) : Using uninitialized variable: ocluster
-[ERR]     07_example_7_production-ready_setup_with_all_domains.ring :: Error (R3) : Calling Function without definition: init
-[ERR]     08_example_8_testing_cluster_performance.ring :: Error (R13) : Object is required
+== appservercluster  PASS 0  ERR 9  TIMEOUT 0  (13.0s) ==
+[ERR]     01_example_1_basic_cluster_setup_3_lines_to_create_en.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_example_2_financial_services_platform.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_example_3_healthcare_document_processing.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_example_4_e-commerce_intelligence_platform.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_example_5_advanced_custom_domain_cluster.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_example_6_real-time_monitoring_and_management.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_example_7_production-ready_setup_with_all_domains.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_example_8_testing_cluster_performance.ring :: Error (C22) : Function redefinition, function is already defined!
 [ERR]     09_usage_examples_summary.ring :: exit 1: Error (S1) In file: 09_usage_examples_summary.ring

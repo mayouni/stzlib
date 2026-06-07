@@ -3,6 +3,7 @@
 # #  SetVizWidth and SetVizHeight  #
 #
 # Extracted from stzcalendartest.ring, block #48.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # #  Alias methods verification    #
 #
 # Extracted from stzcalendartest.ring, block #46.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

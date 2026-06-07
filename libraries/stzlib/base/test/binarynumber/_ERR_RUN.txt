@@ -1,6 +1,6 @@
-== binarynumber  PASS 5  ERR 0  TIMEOUT 0  (9.0s) ==
-[PASS]    01_fractionalparttodecimalform.ring
-[PASS]    02_binarynumber.ring
-[PASS]    03_binarynumber.ring
-[PASS]    04_binarynumber.ring
-[PASS]    05_todecimal.ring
+== binarynumber  PASS 0  ERR 5  TIMEOUT 0  (8.1s) ==
+[ERR]     01_fractionalparttodecimalform.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_binarynumber.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_binarynumber.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_binarynumber.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_todecimal.ring :: Error (C22) : Function redefinition, function is already defined!

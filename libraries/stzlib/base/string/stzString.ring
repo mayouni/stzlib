@@ -9742,6 +9742,177 @@ class stzString from stzObject
 	def ContainsBoth(pcA, pcB)
 		return This.Contains(pcA) and This.Contains(pcB)
 
+	# NumericValue(): content as a number.
+	def NumericValue()
+		return 0 + This.Content()
+
+	def NumberValue()
+		return 0 + This.Content()
+
+	# LinesQRT(pcType): typed lines wrapper.
+	def LinesQRT(pcType)
+		return This.Lines()
+
+	# IsListInShortForm: rough check for `a:b` short-form list literal.
+	def IsListInShortForm()
+		_c_ = ring_trim(This.Content())
+		return substr(_c_, ":") > 0 and ring_len(_c_) >= 3
+
+	def IncludedIn(pcOther)
+		return This.IsIncludedIn(pcOther)
+
+	def TrailingCharCS(pCaseSensitive)
+		return This.TrailingChar()
+
+	def LeadingCharCS(pCaseSensitive)
+		return This.LeadingChar()
+
+	# IsALetterOf(pcOther): TRUE iff single-char This appears in pcOther.
+	def IsALetterOf(pcOther)
+		if NOT isString(pcOther) return FALSE ok
+		_c_ = This.Content()
+		if ring_len(_c_) = 0 return FALSE ok
+		return substr(pcOther, _c_) > 0
+
+	def RemoveLeftOccurrenceQ(pcSub)
+		This.RemoveFirstOccurrence(pcSub)
+		return This
+
+	def RemoveLeftOccurrence(pcSub)
+		This.RemoveFirstOccurrence(pcSub)
+
+	# NumberForm(): :Integer, :Decimal, :Hex, :Binary, or :Other.
+	def NumberForm()
+		_c_ = ring_trim(This.Content())
+		if This.IsAnInteger() return :Integer ok
+		if substr(_c_, ".") > 0 return :Decimal ok
+		if ring_left(_c_, 2) = "0x" return :Hex ok
+		if ring_left(_c_, 2) = "0b" return :Binary ok
+		return :Other
+
+	# PositionAfter(pcSub): position right after first occurrence.
+	def PositionAfter(pcSub)
+		_nP_ = This._FindFrom(This.Content(), pcSub, 1)
+		if _nP_ < 1 return 0 ok
+		return _nP_ + This._EngineCount(pcSub)
+
+	def PositionBefore(pcSub)
+		_nP_ = This._FindFrom(This.Content(), pcSub, 1)
+		if _nP_ < 1 return 0 ok
+		return _nP_ - 1
+
+	# InsertSubStrings(anPos, pacStr): insert pacStr[i] at anPos[i],
+	# processed from highest position down so earlier positions stay valid.
+	def InsertSubStrings(anPos, pacStr)
+		if NOT (isList(anPos) and isList(pacStr)) return ok
+		_aPairs_ = []
+		_nPL_ = ring_len(anPos); _nSL_ = ring_len(pacStr)
+		_nMax_ = _nPL_
+		if _nSL_ < _nMax_ _nMax_ = _nSL_ ok
+		for _i_ = 1 to _nMax_
+			_aPairs_ + [ anPos[_i_], pacStr[_i_] ]
+		next
+		_nAL_ = ring_len(_aPairs_)
+		for _i_ = 2 to _nAL_
+			_v_ = _aPairs_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aPairs_[_j_][1] < _v_[1]
+				_aPairs_[_j_ + 1] = _aPairs_[_j_]; _j_--
+			end
+			_aPairs_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nAL_
+			_pr_ = _aPairs_[_i_]
+			This.InsertBefore(_pr_[1], _pr_[2])
+		next
+
+		def InsertSubStringsQ(anPos, pacStr)
+			This.InsertSubStrings(anPos, pacStr)
+			return This
+
+	def InsertSubStringsXT(anPos, pacStr, pNamed)
+		This.InsertSubStrings(anPos, pacStr)
+
+	def ItemsWhere(pcCondition)
+		return This.CharsWXT(pcCondition)
+
+	# IsShortLanguageAbbreviation(): 2-letter ISO 639-1-style alpha code.
+	def IsShortLanguageAbbreviation()
+		_c_ = This.Content()
+		if ring_len(_c_) != 2 return FALSE ok
+		return isAlpha(_c_[1]) and isAlpha(_c_[2])
+
+	# IsLatin(): TRUE iff every char is ASCII-Latin.
+	def IsLatin()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return FALSE ok
+		for _i_ = 1 to _nLen_
+			if NOT isAlpha(_aChars_[_i_]) return FALSE ok
+		next
+		return TRUE
+
+	def ContainsNOccurrences(n, pcSub)
+		return This.HowMany(pcSub) = n
+
+	def ContainsNOccurrencesCS(n, pcSub, pCaseSensitive)
+		return This.HowManyCS(pcSub, pCaseSensitive) = n
+
+	def OnlyNumbers()
+		return This.IsMadeOfNumbers()
+
+	def OnlyDigits()
+		return This.IsMadeOfNumbers()
+
+	def ExtendTo(n)
+		This.ExtendToWith(n, " ")
+
+		def ExtendToQ(n)
+			This.ExtendToWith(n, " ")
+			return This
+
+	def RemoveSubStringBoundedBy(pcSub, pacBounds)
+		This.ReplaceSubStringBoundedBy(pcSub, pacBounds, "")
+
+		def RemoveSubStringBoundedByQ(pcSub, pacBounds)
+			This.RemoveSubStringBoundedBy(pcSub, pacBounds)
+			return This
+
+	def RemoveNCharsLeft(n)
+		This.RemoveNFirstChars(n)
+
+		def RemoveNCharsLeftQ(n)
+			This.RemoveNFirstChars(n)
+			return This
+
+	def RemoveNCharsRight(n)
+		This.RemoveNLastChars(n)
+
+		def RemoveNCharsRightQ(n)
+			This.RemoveNLastChars(n)
+			return This
+
+	def BoxEachChar()
+		return This.BoxifyCharsXT([])
+
+	def BoxEachCharQ()
+		return new stzString( This.BoxEachChar() )
+
+	def CharsBoxed()
+		return This.BoxifyCharsXT([])
+
+	def BoxifyChars()
+		return This.BoxifyCharsXT([])
+
+	def FindAnyBoundedByAsSectionss(pacBounds)
+		return This.FindAnyBoundedByAsSections(pacBounds)
+
+	def ReplaceOccurrences(pcOld, pcNew)
+		This.Replace(pcOld, pcNew)
+
+		def ReplaceOccurrencesQ(pcOld, pcNew)
+			This.ReplaceOccurrences(pcOld, pcNew)
+			return This
+
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)

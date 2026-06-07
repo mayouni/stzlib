@@ -3,6 +3,7 @@
 # #TODO chech output!
 #
 # Extracted from stzccodetest.ring, block #10.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

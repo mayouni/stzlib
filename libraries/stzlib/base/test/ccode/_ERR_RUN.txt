@@ -1,15 +1,15 @@
-== ccode  PASS 11  ERR 3  TIMEOUT 0  (26.7s) ==
-[PASS]    02_numbersafter.ring
-[PASS]    03_executablesection.ring
-[PASS]    04_between_vs_boundedby.ring
-[PASS]    05_findsubstringsboundedbyibzz.ring
-[PASS]    06_numbersafter.ring
-[PASS]    07_executablesection.ring
-[PASS]    08_numbersafter.ring
-[PASS]    09_executablesection.ring
-[PASS]    10_chech_output.ring
-[PASS]    11_executablesection.ring
-[PASS]    12_executablesection.ring
-[ERR]     13_transpiled.ring :: panic: @memcpy arguments alias
-[ERR]     14_check_output.ring :: panic: @memcpy arguments alias
-[ERR]     15_check_output.ring :: exit 1
+== ccode  PASS 0  ERR 14  TIMEOUT 0  (23.8s) ==
+[ERR]     02_numbersafter.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_executablesection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_between_vs_boundedby.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_findsubstringsboundedbyibzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_numbersafter.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_executablesection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_numbersafter.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_executablesection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_chech_output.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_executablesection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_executablesection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_transpiled.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_check_output.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_check_output.ring :: Error (C22) : Function redefinition, function is already defined!

@@ -3,6 +3,7 @@
 # # Now, what if you want the chain to execute randomly?
 #
 # Extracted from stzchainofvaluetest.ring, block #4.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

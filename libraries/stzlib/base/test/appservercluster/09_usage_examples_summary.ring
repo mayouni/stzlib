@@ -3,6 +3,7 @@
 # Usage Examples Summary:
 #
 # Extracted from stzappserverclustertest.ring, block #9.
+#ERR exit 1: Error (S1) In file: 09_usage_examples_summary.ring
 
 load "../../stzBase.ring"
 
