@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #214.
-#ERR Error (R14) : Calling Method without definition: boundedbyz
 
 load "../../stzBase.ring"
 

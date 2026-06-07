@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #250.
-#ERR Error (R14) : Calling Method without definition: capitalcased
 
 load "../../stzBase.ring"
 
