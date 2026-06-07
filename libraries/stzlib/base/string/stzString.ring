@@ -5456,16 +5456,6 @@ class stzString from stzObject
 	def StartsWithAny(pcPrefixes)
 		return This.StartsWithAnyCS(pcPrefixes, 1)
 
-	# Aliases: StartsWithOneOfThese{,CS} mirror the Softanza
-	# universal naming when a list-of-candidates phrasing reads
-	# more naturally than "Any".
-
-	def StartsWithOneOfTheseCS(pcPrefixes, pCaseSensitive)
-		return This.StartsWithAnyCS(pcPrefixes, pCaseSensitive)
-
-	def StartsWithOneOfThese(pcPrefixes)
-		return This.StartsWithAnyCS(pcPrefixes, 1)
-
 	# StartsWithXT: extended startswith. Accepts a single prefix or
 	# a list of prefixes. Convenience dispatcher.
 	def StartsWithXT(pVal)
@@ -8543,6 +8533,145 @@ class stzString from stzObject
 			ok
 		next
 		return _aRes_
+
+	# FindNthBoundedByZZ: sectional form of FindNthBoundedBy.
+	def FindNthBoundedByZZ(n, pacBounds, pcSub)
+		_nP_ = This.FindNthBoundedBy(n, pacBounds, pcSub)
+		if _nP_ = 0 return [] ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		return [ _nP_, _nP_ + _nSubLen_ - 1 ]
+
+	# RemoveBoundedSubStringIB: inclusive-bounds remove (same as
+	# RemoveBoundedSubString since both already include the bounds).
+	def RemoveBoundedSubStringIB(pacBounds)
+		This.RemoveBoundedSubString(pacBounds)
+
+		def RemoveBoundedSubStringIBQ(pacBounds)
+			This.RemoveBoundedSubString(pacBounds)
+			return This
+
+	# NRightCharsAsSubString(n) / NLeftCharsAsSubString(n).
+	def NRightCharsAsSubString(n)
+		return This.LastNChars(n)
+
+	def NLeftCharsAsSubString(n)
+		return This.FirstNChars(n)
+
+	# RemoveNthOccurrence(n, pcSub): remove the n-th occurrence of
+	# pcSub.
+	def RemoveNthOccurrence(n, pcSub)
+		_nP_ = This.FindNthOccurrence(n, pcSub)
+		if _nP_ = 0 return ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		_cTxt_ = This.Content()
+		_cBefore_ = ""
+		if _nP_ > 1
+			_cBefore_ = This._EngineSlice(_cTxt_, 1, _nP_ - 1)
+		ok
+		_cAfter_ = This._EngineSliceFrom(_cTxt_, _nP_ + _nSubLen_)
+		This.Update(_cBefore_ + _cAfter_)
+
+		def RemoveNthOccurrenceQ(n, pcSub)
+			This.RemoveNthOccurrence(n, pcSub)
+			return This
+
+	def RemoveNthOccurrenceCS(n, pcSub, pCaseSensitive)
+		# Permissiveness -- ignore case flag (per stzString narrative).
+		This.RemoveNthOccurrence(n, pcSub)
+
+		def RemoveNthOccurrenceCSQ(n, pcSub, pCaseSensitive)
+			This.RemoveNthOccurrenceCS(n, pcSub, pCaseSensitive)
+			return This
+
+	# AddBounds(pcOpen, pcClose): wrap the content with bounds.
+	def AddBounds(pcOpen, pcClose)
+		This.Update(pcOpen + This.Content() + pcClose)
+
+		def AddBoundsQ(pcOpen, pcClose)
+			This.AddBounds(pcOpen, pcClose)
+			return This
+
+	# FirstBoundsOf(pcSub): the first [before, after] bounds (same
+	# as SubStringBounds).
+	def FirstBoundsOf(pcSub)
+		return This.SubStringBounds(pcSub)
+
+	def LastBoundsOf(pcSub)
+		# Find last occurrence then return its single-char bounds.
+		_nLast_ = 0
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nPos_ = 1
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
+			           _nPos_, 1)
+			if _nFound_ < 1 exit ok
+			_nLast_ = _nFound_
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+		if _nLast_ = 0 return [] ok
+		_nLen_ = This._EngineCount(This.Content())
+		_cBefore_ = ""
+		if _nLast_ > 1
+			_cBefore_ = This._EngineSlice(This.Content(), _nLast_ - 1, 1)
+		ok
+		_cAfter_ = ""
+		if _nLast_ + _nSubLen_ <= _nLen_
+			_cAfter_ = This._EngineSlice(This.Content(),
+			           _nLast_ + _nSubLen_, 1)
+		ok
+		return [ _cBefore_, _cAfter_ ]
+
+	# BeginsWithOneOfTheseCS(pacSubStr, pCaseSensitive): TRUE if the
+	# content starts with any of the listed substrings.
+	def BeginsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
+		_bCase_ = 1
+		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		_cTxt_ = This.Content()
+		_nL_ = ring_len(pacSubStr)
+		for _i_ = 1 to _nL_
+			_cS_ = pacSubStr[_i_]
+			if NOT isString(_cS_) loop ok
+			_nSLen_ = This._EngineCount(_cS_)
+			_cHead_ = This._EngineSlice(_cTxt_, 1, _nSLen_)
+			if _bCase_ = 1
+				if _cHead_ = _cS_ return TRUE ok
+			else
+				if lower(_cHead_) = lower(_cS_) return TRUE ok
+			ok
+		next
+		return FALSE
+
+	def BeginsWithOneOfThese(pacSubStr)
+		return This.BeginsWithOneOfTheseCS(pacSubStr, 1)
+
+	def StartsWithOneOfThese(pacSubStr)
+		return This.BeginsWithOneOfThese(pacSubStr)
+
+	def StartsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
+		return This.BeginsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
+
+	def EndsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
+		_bCase_ = 1
+		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		_cTxt_ = This.Content()
+		_nTLen_ = This._EngineCount(_cTxt_)
+		_nL_ = ring_len(pacSubStr)
+		for _i_ = 1 to _nL_
+			_cS_ = pacSubStr[_i_]
+			if NOT isString(_cS_) loop ok
+			_nSLen_ = This._EngineCount(_cS_)
+			if _nSLen_ > _nTLen_ loop ok
+			_cTail_ = This._EngineSliceFrom(_cTxt_, _nTLen_ - _nSLen_ + 1)
+			if _bCase_ = 1
+				if _cTail_ = _cS_ return TRUE ok
+			else
+				if lower(_cTail_) = lower(_cS_) return TRUE ok
+			ok
+		next
+		return FALSE
+
+	def EndsWithOneOfThese(pacSubStr)
+		return This.EndsWithOneOfTheseCS(pacSubStr, 1)
 
 	def FindConsecutiveSubStringsOfNChars(n)
 		_aChars_ = This.Chars()
