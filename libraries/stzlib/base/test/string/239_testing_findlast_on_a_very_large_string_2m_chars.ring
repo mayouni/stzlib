@@ -3,7 +3,6 @@
 # # Testing FindLast() on a very large string (~2M chars)
 #
 # Extracted from stzStringTest.ring, block #239.
-#ERR Error (R3) : Calling Function without definition: unicodedataasstring
 
 load "../../stzBase.ring"
 
