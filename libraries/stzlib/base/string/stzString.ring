@@ -7100,6 +7100,188 @@ class stzString from stzObject
 	def First3CharsAsString()
 		return This.First3Chars()
 
+	# More codepoint convenience slices.
+	def Next3Chars()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ < 4 return "" ok
+		return This._EngineSlice(This.Content(), 2, 3)
+
+	# CharRemovedFromLeft / FromRight: non-mutating singular form.
+	def CharRemovedFromLeft()
+		return This.LeftCharRemoved()
+
+	def CharRemovedFromRight()
+		return This.RightCharRemoved()
+
+	# RemoveCharFromLeftXT(pcChar): peel leading run of pcChar
+	# (alias of RemoveThisCharFromStartXT for char-narrative spelling).
+	def RemoveCharFromLeftXT(pcChar)
+		This.RemoveThisCharFromStartXT(pcChar)
+
+		def RemoveCharFromLeftXTQ(pcChar)
+			This.RemoveCharFromLeftXT(pcChar)
+			return This
+
+	def RemoveCharFromRightXT(pcChar)
+		This.RemoveThisCharFromEndXT(pcChar)
+
+		def RemoveCharFromRightXTQ(pcChar)
+			This.RemoveCharFromRightXT(pcChar)
+			return This
+
+	# NumberOfConsecutiveSubStrings(pcSub): count of back-to-back
+	# identical occurrences (e.g. "...♥♥♥..." has 2 consecutive ♥♥).
+	def NumberOfConsecutiveSubStrings(pcSub)
+		return ring_len(This.FindDupSecutiveSubString(pcSub))
+
+	def NumberOfConsecutiveSubStringsOfNChars(n)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_nC_ = 0
+		if _nLen_ < 2 * n return 0 ok
+		for _i_ = 1 to _nLen_ - 2 * n + 1
+			_bMatch_ = TRUE
+			for _k_ = 0 to n - 1
+				if _aChars_[_i_ + _k_] != _aChars_[_i_ + n + _k_]
+					_bMatch_ = FALSE
+					exit
+				ok
+			next
+			if _bMatch_ _nC_++ ok
+		next
+		return _nC_
+
+	# Unspacify(): strip every space.
+	def Unspacify()
+		This.RemoveSpaces()
+
+		def UnspacifyQ()
+			This.Unspacify()
+			return This
+
+	def Unspacified()
+		_oTmp_ = new stzString(This.Content())
+		_oTmp_.RemoveSpaces()
+		return _oTmp_.Content()
+
+	# (SpacesRemoved already exists below; Unspacified is the new alias.)
+
+	# SubStringsBoundedByIBZZ: inclusive-bounds sectional substrings.
+	def SubStringsBoundedByIBZZ(pacBounds)
+		return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+	# Substrongs / Substrinks: deliberate Softanza misspellings of
+	# SubStrings -- accept and route through.
+	def Substrongs()
+		return This.SubStrings()
+
+	def Substrinks()
+		return This.SubStrings()
+
+	# InsertXT(:After=pcAnchor, :With=pcStr) / (:Before=, :With=) etc.
+	def InsertXT(p1, p2)
+		_cWhat_ = NULL
+		_cAnchor_ = NULL
+		_bAfter_ = TRUE
+		_aArgs_ = [ p1, p2 ]
+		for _i_ = 1 to 2
+			_a_ = _aArgs_[_i_]
+			if isList(_a_) and ring_len(_a_) = 2 and isString(_a_[1])
+				_k_ = lower(_a_[1])
+				if _k_ = "after" or _k_ = "to"
+					_cAnchor_ = _a_[2]
+					_bAfter_ = TRUE
+				but _k_ = "before"
+					_cAnchor_ = _a_[2]
+					_bAfter_ = FALSE
+				but _k_ = "with"
+					_cWhat_ = _a_[2]
+				ok
+			ok
+		next
+		if _cWhat_ = NULL or _cAnchor_ = NULL return ok
+		# Use the existing AddXT path.
+		if _bAfter_
+			This.AddXT(_cWhat_, [ "after", _cAnchor_ ])
+		else
+			This.AddXT(_cWhat_, [ "before", _cAnchor_ ])
+		ok
+
+		def InsertXTQ(p1, p2)
+			This.InsertXT(p1, p2)
+			return This
+
+	# FindNthPrevious / FindNthNext on stzString.
+	def FindNthPrevious(n, pcSub, nFrom)
+		if isList(nFrom) and ring_len(nFrom) = 2 and isString(nFrom[1]) and
+		   lower(nFrom[1]) = "startingat"
+			nFrom = nFrom[2]
+		ok
+		_aAll_ = This.AllPositionsOf(pcSub)
+		_aBefore_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] < nFrom _aBefore_ + _aAll_[_i_] ok
+		next
+		_nBL_ = ring_len(_aBefore_)
+		if n < 1 or n > _nBL_ return 0 ok
+		return _aBefore_[_nBL_ - n + 1]
+
+	# FirstZ / LastZ -- sectional first / last char.
+	def FirstZ()
+		if This._EngineCount(This.Content()) = 0 return [] ok
+		return [ 1, 1 ]
+
+	def LastZ()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return [] ok
+		return [ _nLen_, _nLen_ ]
+
+	# FindLasteAsSection -- typo-tolerant alias.
+	def FindLasteAsSection(pcSub)
+		return This.FindLastAsSection(pcSub)
+
+	# SectionsOfSameItems already defined; add Q form.
+	def SectionsOfSameItemsQ()
+		return new stzList( This.SectionsOfSameItems() )
+
+	# VizFind / VizFindCSXT / VizFindXT -- visualization (returns a
+	# rendered string showing match positions). Provisional: just
+	# return the content with matched chars highlighted via ASCII.
+	def VizFind(pcSub)
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_aPos_ = This.AllPositionsOf(pcSub)
+		# Build a position marker line.
+		_cMark_ = ""
+		for _i_ = 1 to _nLen_
+			_bMark_ = FALSE
+			_nP_ = ring_len(_aPos_)
+			for _j_ = 1 to _nP_
+				if _aPos_[_j_] = _i_ _bMark_ = TRUE exit ok
+			next
+			if _bMark_ _cMark_ += "^" else _cMark_ += " " ok
+		next
+		return _cTxt_ + NL + _cMark_
+
+	def VizFindCSXT(pcSub, pCaseSensitive, pOpts)
+		return This.VizFind(pcSub)
+
+	def VizFindXT(pcSub, pOpts)
+		return This.VizFind(pcSub)
+
+	# BoxifyCharsXT(opts): provisional -- return each char on its own
+	# line within an ASCII box. Not a full grid renderer.
+	def BoxifyCharsXT(pOpts)
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cOut_ += "+---+" + NL + "| " + _aChars_[_i_] + " |" + NL +
+			           "+---+" + NL
+		next
+		return _cOut_
+
 	# SplitAtCSZZ(pcSep, pCaseSensitive): sectional split-at form.
 	def SplitAtCSZZ(pcSep, pCaseSensitive)
 		_aPos_ = This.AllPositionsOf(pcSep)
