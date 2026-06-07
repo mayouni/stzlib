@@ -2159,7 +2159,7 @@ class stzString from stzObject
 	# pcNew only at character position n (so pcOld must start at n).
 	def ReplaceSubStringAtPosition(n, pcOld, pcNew)
 		if isList(pcNew) and ring_len(pcNew) = 2 and isString(pcNew[1]) and
-		   lower(pcNew[1]) = "with"
+		   (lower(pcNew[1]) = "with" or lower(pcNew[1]) = "by")
 			pcNew = pcNew[2]
 		ok
 		_cTxt_ = This.Content()
@@ -7461,6 +7461,10 @@ class stzString from stzObject
 	# ReplaceEachLeadingChar(pcNewChar): replace every leading run
 	# char with pcNewChar.
 	def ReplaceEachLeadingChar(pcNewChar)
+		if isList(pcNewChar) and ring_len(pcNewChar) = 2 and isString(pcNewChar[1]) and
+		   (lower(pcNewChar[1]) = "with" or lower(pcNewChar[1]) = "by")
+			pcNewChar = pcNewChar[2]
+		ok
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
 		if _nLen_ = 0 return ok
@@ -7479,6 +7483,48 @@ class stzString from stzObject
 		def ReplaceEachLeadingCharQ(pcNewChar)
 			This.ReplaceEachLeadingChar(pcNewChar)
 			return This
+
+	def ReplaceEachTrailingChar(pcNewChar)
+		if isList(pcNewChar) and ring_len(pcNewChar) = 2 and isString(pcNewChar[1]) and
+		   (lower(pcNewChar[1]) = "with" or lower(pcNewChar[1]) = "by")
+			pcNewChar = pcNewChar[2]
+		ok
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return ok
+		_cL_ = _aChars_[_nLen_]
+		_n_ = 0
+		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
+			_n_++
+		end
+		if _n_ = 0 return ok
+		_cPad_ = ""
+		for _i_ = 1 to _n_
+			_cPad_ += pcNewChar
+		next
+		This.Update(This._EngineSlice(This.Content(), 1, _nLen_ - _n_) + _cPad_)
+
+		def ReplaceEachTrailingCharQ(pcNewChar)
+			This.ReplaceEachTrailingChar(pcNewChar)
+			return This
+
+	def ReplaceEachLeadingAndTrailingChar(pcNewChar)
+		This.ReplaceEachLeadingChar(pcNewChar)
+		This.ReplaceEachTrailingChar(pcNewChar)
+
+		def ReplaceEachLeadingAndTrailingCharQ(pcNewChar)
+			This.ReplaceEachLeadingAndTrailingChar(pcNewChar)
+			return This
+
+	def ReplaceSubStringsWithMarquers(paReplacements)
+		This.ReplaceMarquers(paReplacements)
+
+		def ReplaceSubStringsWithMarquersQ(paReplacements)
+			This.ReplaceMarquers(paReplacements)
+			return This
+
+	def ReplaceSubStringsWithMarkers(paReplacements)
+		This.ReplaceMarquers(paReplacements)
 
 	# UnicodeDataAsString() and MarquersPositions(): missing globals
 	# called inside the test scripts.
@@ -8741,7 +8787,12 @@ class stzString from stzObject
 		return substr(pcOther, This.Content()) > 0
 
 	# ReplaceSubStringAtPositions(anPos, pcOld, pcNew).
+	# pcNew accepts :By = "..." named-param form.
 	def ReplaceSubStringAtPositions(anPos, pcOld, pcNew)
+		if isList(pcNew) and ring_len(pcNew) = 2 and
+		   isString(pcNew[1]) and lower(pcNew[1]) = "by"
+			pcNew = pcNew[2]
+		ok
 		if NOT isList(anPos) return ok
 		_aSorted_ = _ListCopy(anPos)
 		_nL_ = ring_len(_aSorted_)
@@ -8759,6 +8810,37 @@ class stzString from stzObject
 		def ReplaceSubStringAtPositionsQ(anPos, pcOld, pcNew)
 			This.ReplaceSubStringAtPositions(anPos, pcOld, pcNew)
 			return This
+
+	# SortMarquersInDescending(): list of marker positions sorted desc.
+	def SortMarquersInDescending()
+		_aPos_ = MarkersPositions(This.Content())
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 2 to _nL_
+			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aPos_[_j_] < _v_
+				_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
+			end
+			_aPos_[_j_ + 1] = _v_
+		next
+		return _aPos_
+
+	def SortMarkersInDescending()
+		return This.SortMarquersInDescending()
+
+	def SortMarquersInAscending()
+		_aPos_ = MarkersPositions(This.Content())
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 2 to _nL_
+			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aPos_[_j_] > _v_
+				_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
+			end
+			_aPos_[_j_ + 1] = _v_
+		next
+		return _aPos_
+
+	def SortMarkersInAscending()
+		return This.SortMarquersInAscending()
 
 	# MarquersSortedInDescendingZZ.
 	def MarquersSortedInDescendingZZ()
@@ -9043,6 +9125,13 @@ class stzString from stzObject
 	# ReplaceMarquers(paReplacements): replace #1, #2, ... in order
 	# with paReplacements[1], [2], ... (engine-replace).
 	def ReplaceMarquers(paReplacements)
+		# Accept :With = list / :By = list named-param form.
+		if isList(paReplacements) and ring_len(paReplacements) = 2 and
+		   isString(paReplacements[1]) and
+		   (lower(paReplacements[1]) = "with" or lower(paReplacements[1]) = "by") and
+		   isList(paReplacements[2])
+			paReplacements = paReplacements[2]
+		ok
 		if NOT isList(paReplacements) return ok
 		_aPos_ = MarkersPositions(This.Content())
 		_nL_ = ring_len(_aPos_)
