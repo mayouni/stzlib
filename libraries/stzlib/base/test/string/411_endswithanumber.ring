@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #411.
-#ERR Error (R14) : Calling Method without definition: endswithnumbern
 
 load "../../stzBase.ring"
 

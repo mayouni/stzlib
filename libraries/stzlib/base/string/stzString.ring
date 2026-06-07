@@ -6801,6 +6801,325 @@ class stzString from stzObject
 		if ring_len(_aSec_) = 0 return [] ok
 		return _aSec_[1]
 
+	# Trailing/leading number helpers.
+	def TrailingNumber()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_n_ = 0
+		while _n_ < _nLen_ and isDigit(_aChars_[_nLen_ - _n_])
+			_n_++
+		end
+		if _n_ = 0 return "" ok
+		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
+
+	def LeadingNumber()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_n_ = 0
+		while _n_ < _nLen_ and isDigit(_aChars_[_n_ + 1])
+			_n_++
+		end
+		if _n_ = 0 return "" ok
+		return This._EngineSlice(This.Content(), 1, _n_)
+
+	def NumberOfTrailingNumberDigits()
+		return This._EngineCount(This.TrailingNumber())
+
+	def NumberOfLeadingNumberDigits()
+		return This._EngineCount(This.LeadingNumber())
+
+	# Bounds(pcOpen, pcClose): the [open, close] positions of the
+	# first bounded match. Two-arg form.
+	def Bounds(pcOpen, pcClose)
+		_nO_ = StzEngineStringFindFirstFromCS(@pEngine, pcOpen, 1, 1)
+		if _nO_ < 1 return [] ok
+		_nC_ = StzEngineStringFindFirstFromCS(@pEngine, pcClose,
+		       _nO_ + This._EngineCount(pcOpen), 1)
+		if _nC_ < 1 return [] ok
+		return [ _nO_, _nC_ ]
+
+	# HasRepeatedLeadingChars(): TRUE if the content begins with a
+	# run of identical chars (length >= 2).
+	def HasRepeatedLeadingChars()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ < 2 return FALSE ok
+		return _aChars_[1] = _aChars_[2]
+
+	def HasRepeatedTrailingChars()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ < 2 return FALSE ok
+		return _aChars_[_nLen_] = _aChars_[_nLen_ - 1]
+
+	# Except(pcSub): the content with all occurrences of pcSub removed.
+	def Except(pcSub)
+		_pH_ = StzEngineString(This.Content())
+		_pR_ = StzEngineStringReplaceCS(_pH_, pcSub, "", 1)
+		_cR_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
+		StzEngineStringFree(_pH_)
+		return _cR_
+
+	# Nth(n): the n-th char (1-based, codepoint-aware). Negative n
+	# counts from the end (-1 = last).
+	def Nth(n)
+		_nLen_ = This._EngineCount(This.Content())
+		if n < 0 n = _nLen_ + n + 1 ok
+		if n < 1 or n > _nLen_ return "" ok
+		return This._EngineSlice(This.Content(), n, 1)
+
+	# (NthChar already exists earlier; just expose Nth alias above.)
+
+	# LastNItemsQRT(n, pcType): the last n items wrapped in pcType.
+	# stzString surface: forward to LastNChars + appropriate wrapper.
+	def LastNItemsQRT(n, pcType)
+		_cTail_ = This.LastNChars(n)
+		if isString(pcType) and lower(pcType) = ":stzstring"
+			return new stzString( _cTail_ )
+		ok
+		return _cTail_
+
+	def FirstNItemsQRT(n, pcType)
+		_cHead_ = This.FirstNChars(n)
+		if isString(pcType) and lower(pcType) = ":stzstring"
+			return new stzString( _cHead_ )
+		ok
+		return _cHead_
+
+	# BoundedByZ: the flat list of starting positions for each bounded
+	# substring (alias over BoundedBy + reduce-to-positions).
+	def BoundedByZ(pacBounds)
+		_aSec_ = This.FindBoundedByAsSections(pacBounds)
+		_aRes_ = []
+		_nL_ = ring_len(_aSec_)
+		for _i_ = 1 to _nL_
+			_aRes_ + _aSec_[_i_][1]
+		next
+		return _aRes_
+
+	# FindLastAsSection: [start, end] of the last occurrence of pcSub.
+	def FindLastAsSection(pcSub)
+		_nT_ = This._EngineCount(This.Content())
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nLast_ = 0
+		_nPos_ = 1
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
+			           _nPos_, 1)
+			if _nFound_ < 1 exit ok
+			_nLast_ = _nFound_
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+		if _nLast_ = 0 return [] ok
+		return [ _nLast_, _nLast_ + _nSubLen_ - 1 ]
+
+	# FindPrevious(pcSub, nFrom): mirror of NextOccurrence -- highest
+	# position strictly before nFrom.
+	def FindPrevious(pcSub, nFrom)
+		if isList(nFrom) and ring_len(nFrom) = 2 and isString(nFrom[1]) and
+		   lower(nFrom[1]) = "startingat"
+			nFrom = nFrom[2]
+		ok
+		return This.PreviousOccurrence(pcSub, nFrom)
+
+	# ExtractNumbers(): every contiguous run of digits as a list of
+	# numbers. e.g. "abc12def345" -> [12, 345].
+	def ExtractNumbers()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = []
+		_cCur_ = ""
+		for _i_ = 1 to _nLen_
+			if isDigit(_aChars_[_i_])
+				_cCur_ += _aChars_[_i_]
+			else
+				if ring_len(_cCur_) > 0
+					_aRes_ + (0 + _cCur_)
+					_cCur_ = ""
+				ok
+			ok
+		next
+		if ring_len(_cCur_) > 0
+			_aRes_ + (0 + _cCur_)
+		ok
+		return _aRes_
+
+	# FirstHalfXTZ / SecondHalfXTZ -- sectional XT variants.
+	def FirstHalfXTZ()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return [] ok
+		_nMid_ = ceil(_nLen_ / 2)
+		return [ 1, _nMid_ ]
+
+	def SecondHalfXTZ()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return [] ok
+		_nMid_ = ceil(_nLen_ / 2) + 1
+		return [ _nMid_, _nLen_ ]
+
+	# FindNthW(n, pcCondition): n-th position where the predicate is
+	# TRUE (predicate runs over chars with @char binding).
+	def FindNthW(n, pcCondition)
+		_aPos_ = This.FindWXT(pcCondition)
+		if n < 1 or n > ring_len(_aPos_) return 0 ok
+		return _aPos_[n]
+
+	# LeftCharRemoved / RightCharRemoved: non-mutating singular.
+	def LeftCharRemoved()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ <= 1 return "" ok
+		return This._EngineSliceFrom(This.Content(), 2)
+
+	def RightCharRemoved()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ <= 1 return "" ok
+		return This._EngineSlice(This.Content(), 1, _nLen_ - 1)
+
+	# CapitalCased(): first char uppercase, rest lowercase.
+	def CapitalCased()
+		_c_ = This.Content()
+		if This._EngineCount(_c_) = 0 return "" ok
+		return upper(This._EngineSlice(_c_, 1, 1)) +
+		       lower(This._EngineSliceFrom(_c_, 2))
+
+	def CapitalCase()
+		This.Update(This.CapitalCased())
+
+		def CapitalCaseQ()
+			This.CapitalCase()
+			return This
+
+	# IsMadeOfNumbers(): TRUE if EVERY char is a digit.
+	def IsMadeOfNumbers()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return FALSE ok
+		for _i_ = 1 to _nLen_
+			if NOT isDigit(_aChars_[_i_]) return FALSE ok
+		next
+		return TRUE
+
+	def IsMadeOfDigits()
+		return This.IsMadeOfNumbers()
+
+	def IsMadeOfLetters()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return FALSE ok
+		for _i_ = 1 to _nLen_
+			if NOT isAlpha(_aChars_[_i_]) return FALSE ok
+		next
+		return TRUE
+
+	# ReplaceManyCSQ alias.
+	def ReplaceManyCSQ(pacSubStrings, pcNewSubStr, pCaseSensitive)
+		This.ReplaceManyCS(pacSubStrings, pcNewSubStr, pCaseSensitive)
+		return This
+
+	# SplitToPartsOfSizes(anSizes): split into pieces of the given sizes.
+	def SplitToPartsOfSizes(anSizes)
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nTxtLen_ = This._EngineCount(_cTxt_)
+		_nPos_ = 1
+		_nL_ = ring_len(anSizes)
+		for _i_ = 1 to _nL_
+			_n_ = anSizes[_i_]
+			if _nPos_ > _nTxtLen_ exit ok
+			_aRes_ + This._EngineSlice(_cTxt_, _nPos_, _n_)
+			_nPos_ += _n_
+		next
+		if _nPos_ <= _nTxtLen_
+			_aRes_ + This._EngineSliceFrom(_cTxt_, _nPos_)
+		ok
+		return _aRes_
+
+	# IsStepNamedParam(): TRUE if content is [:step, value]. Used by
+	# parser narratives.
+	def IsStepNamedParam()
+		# We're a string; named-param check applies to lists. False.
+		return FALSE
+
+	# UpdateWith(pcNew): replace content with pcNew. Alias of Update.
+	def UpdateWith(pcNew)
+		This.Update(pcNew)
+
+		def UpdateWithQ(pcNew)
+			This.Update(pcNew)
+			return This
+
+	# RemoveCharFromLeft(pcChar): drop leading chars matching pcChar.
+	def RemoveCharFromLeft(pcChar)
+		This.RemoveThisCharFromStartXT(pcChar)
+
+		def RemoveCharFromLeftQ(pcChar)
+			This.RemoveCharFromLeft(pcChar)
+			return This
+
+	def RemoveCharFromRight(pcChar)
+		This.RemoveThisCharFromEndXT(pcChar)
+
+		def RemoveCharFromRightQ(pcChar)
+			This.RemoveCharFromRight(pcChar)
+			return This
+
+	# NumberOfOccurrenceOfCharLeftSide -- already added; just alias.
+	def NumberOfOccurrenceOfCharLeftSide(pcChar)
+		return This.HowManyOccurrenceOfCharLeftSide(pcChar)
+
+	def NumberOfOccurrenceOfCharRightSide(pcChar)
+		return This.HowManyOccurrenceOfCharRightSide(pcChar)
+
+	# ItemsAndTheirNumberOfOccurrence(): per-char occurrence count
+	# returned as [ [char, count], ... ].
+	def ItemsAndTheirNumberOfOccurrence()
+		_aChars_ = This.Chars()
+		_aRes_ = []
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 1 to _nLen_
+			_c_ = _aChars_[_i_]
+			# Skip if already counted.
+			_bSeen_ = FALSE
+			_nRL_ = ring_len(_aRes_)
+			for _j_ = 1 to _nRL_
+				if _aRes_[_j_][1] = _c_ _bSeen_ = TRUE exit ok
+			next
+			if NOT _bSeen_
+				_aRes_ + [ _c_, This.HowMany(_c_) ]
+			ok
+		next
+		return _aRes_
+
+	def HexUnicodes_alias()
+		return This.HexUnicodes()
+
+	def Last3CharsAsString()
+		return This.Last3Chars()
+
+	def First3CharsAsString()
+		return This.First3Chars()
+
+	# SplitAtCSZZ(pcSep, pCaseSensitive): sectional split-at form.
+	def SplitAtCSZZ(pcSep, pCaseSensitive)
+		_aPos_ = This.AllPositionsOf(pcSep)
+		_nSepLen_ = This._EngineCount(pcSep)
+		_nTxtLen_ = This._EngineCount(This.Content())
+		_aRes_ = []
+		_nStart_ = 1
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			if _p_ >= _nStart_
+				_aRes_ + [ _nStart_, _p_ - 1 ]
+				_nStart_ = _p_ + _nSepLen_
+			ok
+		next
+		if _nStart_ <= _nTxtLen_
+			_aRes_ + [ _nStart_, _nTxtLen_ ]
+		ok
+		return _aRes_
+
 	# StringCase(): return :Lowercase, :Uppercase, :TitleCase, or :Mixed.
 	def StringCase()
 		_c_ = This.Content()

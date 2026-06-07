@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #768.
-#ERR Error (R3) : Calling Function without definition: hasrepeatedleadingchars
 
 load "../../stzBase.ring"
 
