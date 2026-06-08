@@ -3869,6 +3869,40 @@ class stzString from stzObject
 	def EachCharBoxedQ()
 		return new stzString( This.EachCharBoxed() )
 
+	# BoxRoundEachChar: surround each char with a rounded-corner box.
+	def BoxRoundEachChar()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		if _nLen_ = 0 return ok
+		_top_ = char(0x256D)   # u+256D round corner
+		_bot_ = char(0x2570)
+		_tr_  = char(0x256E)
+		_br_  = char(0x256F)
+		_h_   = char(0x2500)
+		_v_   = char(0x2502)
+		_tdn_ = char(0x252C)
+		_bup_ = char(0x2534)
+		# Build top, middle, bottom lines.
+		_topL_ = _top_
+		_midL_ = _v_
+		_botL_ = _bot_
+		for _i_ = 1 to _nLen_
+			_topL_ += _h_ + _h_ + _h_
+			_botL_ += _h_ + _h_ + _h_
+			_midL_ += " " + _aChars_[_i_] + " " + _v_
+			if _i_ < _nLen_
+				_topL_ += _tdn_
+				_botL_ += _bup_
+			ok
+		next
+		_topL_ += _tr_
+		_botL_ += _br_
+		This.Update(_topL_ + char(10) + _midL_ + char(10) + _botL_)
+
+		def BoxRoundEachCharQ()
+			This.BoxRoundEachChar()
+			return This
+
 	def BoxedXT(paBoxOptions)
 		_oBxCopy_ = This.Copy()
 		_oBxCopy_.BoxXT(paBoxOptions)
@@ -10461,7 +10495,28 @@ class stzString from stzObject
 	def SortingOrder()
 		if This.IsSortedInAscending() return :Ascending ok
 		if This.IsSortedInDescending() return :Descending ok
-		return :None
+		return :Unsorted
+
+	def Sort()
+		This.Update( This.SortedInAscending() )
+
+		def SortQ()
+			This.Sort()
+			return This
+
+	def SortInAscending()
+		This.Update( This.SortedInAscending() )
+
+		def SortInAscendingQ()
+			This.SortInAscending()
+			return This
+
+	def SortInDescending()
+		This.Update( This.SortedInDescending() )
+
+		def SortInDescendingQ()
+			This.SortInDescending()
+			return This
 
 	def LeadingSubStringRemove()
 		# Mutating: drop the leading non-letter prefix.
