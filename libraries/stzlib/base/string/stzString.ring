@@ -562,12 +562,25 @@ class stzString from stzObject
 			return This
 
 	def Sections(aSections)
+		# Accept :Of = pcSub / :OfSubString = pcSub named-param: returns
+		# every occurrence's [n1, n2] section.
+		if isList(aSections) and ring_len(aSections) = 2 and
+		   isString(aSections[1]) and
+		   (lower(aSections[1]) = "of" or lower(aSections[1]) = "ofsubstring")
+			return This.FindAsSections(aSections[2])
+		ok
+		if NOT isList(aSections) return [] ok
 		acResult = []
 		nCharCount = This.NumberOfChars()
 		nLen = ring_len(aSections)
 		for i = 1 to nLen
-			n1 = aSections[i][1]
-			n2 = aSections[i][2]
+			_sec_ = aSections[i]
+			if NOT (isList(_sec_) and ring_len(_sec_) >= 2 and
+			        isNumber(_sec_[1]) and isNumber(_sec_[2]))
+				loop
+			ok
+			n1 = _sec_[1]
+			n2 = _sec_[2]
 			if n1 >= 1 and n2 >= n1 and n2 <= nCharCount
 				acResult + This.Section(n1, n2)
 			ok
@@ -2014,6 +2027,20 @@ class stzString from stzObject
 		StzEngineStringFree(_pH_)
 		return _cRes_
 
+	# Helper: resolve a symbolic position (:First/:Last/:LastChar/:Middle)
+	# or numeric value to a 1-based codepoint index. Returns the input
+	# unchanged when it cannot be resolved so callers can decide.
+	def _ResolveSymPos(p, nLen)
+		if isNumber(p) return p ok
+		if isString(p)
+			_kw_ = lower(p)
+			if substr(_kw_, 1, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if _kw_ = "first" or _kw_ = "firstchar" return 1 ok
+			if _kw_ = "last" or _kw_ = "lastchar" return nLen ok
+			if _kw_ = "middle" or _kw_ = "middlechar" return floor((nLen + 1) / 2) ok
+		ok
+		return p
+
 	# Helper: count codepoints in pcStr.
 	def _EngineCount(pcStr)
 		_pH_ = StzEngineString(pcStr)
@@ -3407,6 +3434,10 @@ class stzString from stzObject
 	#========================================#
 
 	def RemoveSection(n1, n2)
+		_nLen_ = This.NumberOfChars()
+		n1 = This._ResolveSymPos(n1, _nLen_)
+		n2 = This._ResolveSymPos(n2, _nLen_)
+		if NOT (isNumber(n1) and isNumber(n2)) return ok
 		pH = This.Engine()
 		pR = StzEngineStringRemoveRange(pH, n1, n2 - n1 + 1)
 		if pR != 0
@@ -7366,12 +7397,23 @@ class stzString from stzObject
 			nFrom = nFrom[2]
 		ok
 		_aAll_ = This.AllPositionsOf(pcSub)
-		_aBefore_ = []
 		_nL_ = ring_len(_aAll_)
+		nFrom = This._ResolveSymPos(nFrom, This.NumberOfChars())
+		if NOT isNumber(nFrom) return 0 ok
+		_aBefore_ = []
 		for _i_ = 1 to _nL_
 			if _aAll_[_i_] < nFrom _aBefore_ + _aAll_[_i_] ok
 		next
 		_nBL_ = ring_len(_aBefore_)
+		# Symbolic n: :First / :Last
+		if isString(n)
+			_kw_ = lower(n)
+			if substr(_kw_, 1, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if _kw_ = "last" n = 1
+			but _kw_ = "first" n = _nBL_
+			ok
+		ok
+		if NOT isNumber(n) return 0 ok
 		if n < 1 or n > _nBL_ return 0 ok
 		return _aBefore_[_nBL_ - n + 1]
 
@@ -8088,9 +8130,23 @@ class stzString from stzObject
 	# FindConsecutiveSubStringsOfNChars(n): positions of each
 	# back-to-back n-char identical pair.
 	# RemoveNthChar(n): remove the char at codepoint position n.
+	# Accepts :First / :Last / :Middle symbolic positions.
 	def RemoveNthChar(n)
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
+		if isString(n)
+			_kw_ = lower(n)
+			if _kw_ = ":first" or _kw_ = "first"
+				n = 1
+			but _kw_ = ":last" or _kw_ = "last"
+				n = _nLen_
+			but _kw_ = ":middle" or _kw_ = "middle"
+				n = floor((_nLen_ + 1) / 2)
+			else
+				return
+			ok
+		ok
+		if NOT isNumber(n) return ok
 		if n < 1 or n > _nLen_ return ok
 		_cBefore_ = ""
 		if n > 1 _cBefore_ = This._EngineSlice(_cTxt_, 1, n - 1) ok
@@ -8793,9 +8849,28 @@ class stzString from stzObject
 			return This
 
 	# Swap(n1, n2): swap chars at positions n1 and n2.
+	# Also accepts Swap(pcA, :And = pcB) to swap two substrings.
 	def Swap(n1, n2)
+		# Substring-swap form: Swap("TWO", :And = "ONE")
+		if isString(n1) and isList(n2) and ring_len(n2) = 2 and
+		   isString(n2[1]) and lower(n2[1]) = "and" and isString(n2[2])
+			_cA_ = n1
+			_cB_ = n2[2]
+			_p1_ = This._FindFrom(This.Content(), _cA_, 1)
+			_p2_ = This._FindFrom(This.Content(), _cB_, 1)
+			if _p1_ < 1 or _p2_ < 1 return ok
+			# Use sentinels to avoid clobbering.
+			_sent1_ = char(1) + char(2) + char(1)
+			_sent2_ = char(2) + char(1) + char(2)
+			This.Replace(_cA_, _sent1_)
+			This.Replace(_cB_, _sent2_)
+			This.Replace(_sent1_, _cB_)
+			This.Replace(_sent2_, _cA_)
+			return
+		ok
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
+		if NOT (isNumber(n1) and isNumber(n2)) return ok
 		if n1 < 1 or n1 > _nLen_ or n2 < 1 or n2 > _nLen_ return ok
 		if n1 = n2 return ok
 		_c1_ = This._EngineSlice(_cTxt_, n1, 1)
@@ -9278,14 +9353,91 @@ class stzString from stzObject
 		next
 
 	def RemoveCharQ(n)
-		This.RemoveCharAt(n)
+		# Accept a single-char string: remove every occurrence.
+		if isString(n)
+			This.Replace(n, "")
+		but isNumber(n)
+			This.RemoveCharAt(n)
+		ok
 		return This
+
+	def RemoveChar(n)
+		if isString(n)
+			This.Replace(n, "")
+		but isNumber(n)
+			This.RemoveCharAt(n)
+		ok
+
+	def CharRemoved(n)
+		_o_ = new stzString(This.Content())
+		_o_.RemoveChar(n)
+		return _o_.Content()
+
+	def RemoveThisNthChar(n, pcChar)
+		# 1-arg: remove the n-th char. 2-arg: remove the n-th occurrence
+		# of pcChar (a string).
+		if isString(pcChar) and pcChar != ""
+			_p_ = This.FindNth(n, pcChar)
+			if _p_ < 1 return ok
+			_nSubLen_ = This._EngineCount(pcChar)
+			This.RemoveSection(_p_, _p_ + _nSubLen_ - 1)
+			return
+		ok
+		This.RemoveNthChar(n)
+
+		def RemoveThisNthCharQ(n, pcChar)
+			This.RemoveThisNthChar(n, pcChar)
+			return This
+
+	def NumberOfOccurrenceXT(pNamed, pNamed2)
+		_cSub_ = ""
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1])
+			_kw_ = lower(pNamed[1])
+			if _kw_ = "ofsubstring" or _kw_ = "of" _cSub_ = pNamed[2] ok
+		ok
+		if _cSub_ = "" return 0 ok
+		# Optional :BoundedBy = ["<<", :and = ">>"] - return count only
+		# of occurrences that fall inside any bounded section.
+		if isList(pNamed2) and ring_len(pNamed2) = 2 and isString(pNamed2[1]) and
+		   (lower(pNamed2[1]) = "boundedby" or lower(pNamed2[1]) = "boundedbysubstrings")
+			_aBnd_ = pNamed2[2]
+			if isList(_aBnd_) and ring_len(_aBnd_) >= 2
+				_cOpen_ = _aBnd_[1]
+				_cClose_ = ""
+				_v2_ = _aBnd_[2]
+				if isList(_v2_) and ring_len(_v2_) = 2 and isString(_v2_[1]) and
+				   lower(_v2_[1]) = "and"
+					_cClose_ = _v2_[2]
+				but isString(_v2_)
+					_cClose_ = _v2_
+				ok
+				_aSec_ = This.FindBoundedByAsSections([ _cOpen_, _cClose_ ])
+				_n_ = 0
+				_aPos_ = This.AllPositionsOf(_cSub_)
+				_nP_ = ring_len(_aPos_)
+				_nS_ = ring_len(_aSec_)
+				for _i_ = 1 to _nP_
+					for _j_ = 1 to _nS_
+						_sec_ = _aSec_[_j_]
+						if _aPos_[_i_] >= _sec_[1] and _aPos_[_i_] <= _sec_[2]
+							_n_++
+							exit
+						ok
+					next
+				next
+				return _n_
+			ok
+		ok
+		return This.HowMany(_cSub_)
+
+	def NumberOfOccurrencesXT(pNamed, pNamed2)
+		return This.NumberOfOccurrenceXT(pNamed, pNamed2)
 
 	def IsSortedInAscending()
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
 		for _i_ = 2 to _nLen_
-			if _aChars_[_i_] < _aChars_[_i_ - 1] return FALSE ok
+			if strcmp(_aChars_[_i_], _aChars_[_i_ - 1]) < 0 return FALSE ok
 		next
 		return TRUE
 
@@ -9293,7 +9445,7 @@ class stzString from stzObject
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
 		for _i_ = 2 to _nLen_
-			if _aChars_[_i_] > _aChars_[_i_ - 1] return FALSE ok
+			if strcmp(_aChars_[_i_], _aChars_[_i_ - 1]) > 0 return FALSE ok
 		next
 		return TRUE
 
@@ -10189,14 +10341,20 @@ class stzString from stzObject
 	# UnicodeCompareWithCS(pcOther, pCaseSensitive): codepoint
 	# comparison. Returns -1, 0 or 1.
 	def UnicodeCompareWithCS(pcOther, pCaseSensitive)
+		# Accept :CaseSensitive = TRUE/FALSE named-param.
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and lower(pCaseSensitive[1]) = "casesensitive"
+			pCaseSensitive = pCaseSensitive[2]
+		ok
 		_a_ = This.Content()
 		_b_ = pcOther
 		if pCaseSensitive = FALSE or pCaseSensitive = 0
 			_a_ = lower(_a_)
 			_b_ = lower(_b_)
 		ok
-		if _a_ < _b_ return -1 ok
-		if _a_ > _b_ return 1 ok
+		_n_ = strcmp(_a_, _b_)
+		if _n_ < 0 return -1 ok
+		if _n_ > 0 return 1 ok
 		return 0
 
 	def UnicodeCompareWith(pcOther)
@@ -11504,6 +11662,7 @@ class stzString from stzObject
 		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
 			nStartAt = nStartAt[2]
 		ok
+		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
 		# pDir can be the bare :Backward / :Forward symbol or the
 		# :Direction = :Forward/:Backward named-param shape.
 		_bBackward_ = FALSE
