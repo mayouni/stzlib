@@ -182,6 +182,12 @@ class stzStringText
 	def NumberOfScripts()
 		return ring_len(This.Scripts())
 
+	def CountScripts()
+		return ring_len(This.Scripts())
+
+	def NumberOfDistinctScripts()
+		return ring_len(This.Scripts())
+
 	def ScriptIs(cScript)
 		return This.Script() = cScript
 
@@ -1074,3 +1080,29 @@ class stzStringText
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
+
+	# Delegate-thin wrappers so stzText/stzStringText consumers can
+	# reach common stzString helpers without juggling .ToStzString().
+	def DiacriticsRemoved()
+		return @oString.DiacriticsRemoved()
+
+	def RemoveDiacritics()
+		@oString.RemoveDiacritics()
+
+	def Lowercase()
+		return @oString.Lowercase()
+
+	def Uppercase()
+		return @oString.Uppercase()
+
+	def Chars()
+		return @oString.Chars()
+
+	def NumberOfChars2()
+		return @oString.NumberOfChars()
+
+
+# stzText: narrative-text class. Thin subclass of stzStringText so
+# tests that write 'new stzText("...")' resolve to the same behaviour.
+class stzText from stzStringText
+

@@ -2632,6 +2632,44 @@ class stzList from stzObject
 		def FindAllOccurrences(pItem)
 			return This.FindAllOccurrencesCS(pItem, 1)
 
+	# LastNItemsQRT(n, pcType): the last n items wrapped per pcType.
+	# pcType examples: :stzList, :stzListOfStrings, :stzListOfNumbers.
+	def LastNItemsQRT(n, pcType)
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		if n < 1 return [] ok
+		if n > _nL_ n = _nL_ ok
+		_a_ = []
+		for _i_ = _nL_ - n + 1 to _nL_
+			_a_ + _l_[_i_]
+		next
+		return _a_
+
+	def LastNItems(n)
+		return This.LastNItemsQRT(n, :stzList)
+
+	def LastNItemsQ(n)
+		return new stzList( This.LastNItems(n) )
+
+	# SectionsOfSameItems(): group consecutive equal items into runs.
+	# "AABBCCAA" -> [["A","A"], ["B","B"], ["C","C"], ["A","A"]]
+	def SectionsOfSameItems()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aRes_ = []
+		if _nL_ = 0 return _aRes_ ok
+		_grp_ = [ _l_[1] ]
+		for _i_ = 2 to _nL_
+			if _l_[_i_] = _l_[_i_ - 1]
+				_grp_ + _l_[_i_]
+			else
+				_aRes_ + _grp_
+				_grp_ = [ _l_[_i_] ]
+			ok
+		next
+		_aRes_ + _grp_
+		return _aRes_
+
 	# FindInSections(pItem, aSections): absolute-position occurrences of
 	# pItem inside any of the given sections.
 	def FindInSections(pItem, aSections)
