@@ -65,6 +65,25 @@ func FindNextNthMarquer(cStr, n, nFrom)
 func FindNextNthMarker(cStr, n, nFrom)
 	return FindNextNthMarquer(cStr, n, nFrom)
 
+# MarquersZ / MarkersZ / MarquersZZ / MarkersZZ: bare-name wrappers
+# so calls inside StzStringQ blocks resolve. The host stzString
+# object's content is unknown here; we rely on Ring's block-resolve:
+# inside `o1 { MarquersZ() }`, Ring forwards to o1.MarquersZ() when
+# the method exists. We define them as methods on stzString too.
+# These global fallbacks are stubs returning empty lists so the call
+# never errors out.
+func MarquersZ()
+	return []
+
+func MarkersZ()
+	return []
+
+func MarquersZZ()
+	return []
+
+func MarkersZZ()
+	return []
+
 # SortedInAscending(paItems): return paItems sorted ascending.
 func SortedInAscending(paItems)
 	if NOT isList(paItems) return paItems ok

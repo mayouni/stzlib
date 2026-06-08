@@ -9612,6 +9612,123 @@ class stzString from stzObject
 	def MarkersZZ()
 		return This.MarquersZZ()
 
+	# MarquersZ / MarkersZ: flat-position alternatives (returns just
+	# the start position list of every marker).
+	def MarquersZ()
+		return This.MarquersPositions()
+
+	def MarkersZ()
+		return This.MarquersPositions()
+
+	# NFirstOccurrences(n, :Of = pcSub): the first n positions of pcSub.
+	def NFirstOccurrences(n, pNamedOf)
+		_cSub_ = ""
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and isString(pNamedOf[1]) and
+		   lower(pNamedOf[1]) = "of"
+			_cSub_ = pNamedOf[2]
+		but isString(pNamedOf)
+			_cSub_ = pNamedOf
+		ok
+		if _cSub_ = "" return [] ok
+		_aAll_ = This.AllPositionsOf(_cSub_)
+		_nL_ = ring_len(_aAll_)
+		if n < 1 return [] ok
+		if n > _nL_ n = _nL_ ok
+		_aR_ = []
+		for _i_ = 1 to n
+			_aR_ + _aAll_[_i_]
+		next
+		return _aR_
+
+	def NFirstOccurrencesST(n, pNamedOf, pStartingAt)
+		_cSub_ = ""
+		_nFrom_ = 1
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and isString(pNamedOf[1]) and
+		   lower(pNamedOf[1]) = "of"
+			_cSub_ = pNamedOf[2]
+		ok
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt)
+			_nFrom_ = pStartingAt
+		ok
+		if _cSub_ = "" return [] ok
+		_aAll_ = This.AllPositionsOf(_cSub_)
+		_aR_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] >= _nFrom_
+				_aR_ + _aAll_[_i_]
+				if ring_len(_aR_) = n exit ok
+			ok
+		next
+		return _aR_
+
+	def LastNOccurrences(n, pNamedOf)
+		_aR_ = This.NFirstOccurrences(99999, pNamedOf)
+		_nL_ = ring_len(_aR_)
+		if n < 1 return [] ok
+		if n > _nL_ n = _nL_ ok
+		_aS_ = []
+		for _i_ = _nL_ - n + 1 to _nL_
+			_aS_ + _aR_[_i_]
+		next
+		return _aS_
+
+	def LastNOccurrencesST(n, pNamedOf, pStartingAt)
+		_cSub_ = ""
+		_nFrom_ = 1
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and isString(pNamedOf[1]) and
+		   lower(pNamedOf[1]) = "of"
+			_cSub_ = pNamedOf[2]
+		ok
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt)
+			_nFrom_ = pStartingAt
+		ok
+		if _cSub_ = "" return [] ok
+		_aAll_ = This.AllPositionsOf(_cSub_)
+		_aR_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] >= _nFrom_ _aR_ + _aAll_[_i_] ok
+		next
+		_nRL_ = ring_len(_aR_)
+		if n < 1 return [] ok
+		if n > _nRL_ n = _nRL_ ok
+		_aS_ = []
+		for _i_ = _nRL_ - n + 1 to _nRL_
+			_aS_ + _aR_[_i_]
+		next
+		return _aS_
+
+	def MarquersAndSections()
+		_aP_ = This.MarquersPositions()
+		_aR_ = []
+		_nL_ = ring_len(_aP_)
+		_aChars_ = This.Chars()
+		_nCL_ = ring_len(_aChars_)
+		for _i_ = 1 to _nL_
+			_p_ = _aP_[_i_]
+			_j_ = _p_ + 1
+			while _j_ <= _nCL_ and isDigit(_aChars_[_j_])
+				_j_++
+			end
+			_end_ = _j_ - 1
+			_cNum_ = ""
+			for _k_ = _p_ to _end_
+				_cNum_ += _aChars_[_k_]
+			next
+			_aR_ + [ _cNum_, [ _p_, _end_ ] ]
+		next
+		return _aR_
+
+	def MarkersAndSections()
+		return This.MarquersAndSections()
+
 	# ReplaceOccurrencesByMany:
 	#   (pcSubStr, paReplacements)               : alias of ReplaceByMany
 	#   (anN, pcSubStr, :By = paReplacements)    : replace n-th selected
