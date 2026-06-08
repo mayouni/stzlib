@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #952.
-#ERR Error (R14) : Calling Method without definition: boxify
+#ERR TIMEOUT (>25s)
 
 load "../../stzBase.ring"
 

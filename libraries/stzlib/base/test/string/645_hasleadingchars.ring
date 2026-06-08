@@ -3,7 +3,7 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #645.
-#ERR Error (R21) : Using operator with values of incorrect type
+#ERR Error (R3) : Calling Function without definition: hasleadingitems
 
 load "../../stzBase.ring"
 

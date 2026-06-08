@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #592.
-#ERR Error (R19) : Calling function with less number of parameters
+#ERR Error (R14) : Calling Method without definition: leftbound
 
 load "../../stzBase.ring"
 

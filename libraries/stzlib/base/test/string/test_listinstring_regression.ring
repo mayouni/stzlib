@@ -4,6 +4,7 @@
 # accessors, ListQ + ListQRT, and edges.
 #
 # Run from base/list/test/.
+#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

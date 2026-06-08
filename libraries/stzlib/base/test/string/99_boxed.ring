@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #99.
-#ERR Error (R3) : Calling Function without definition: eachcharboxed
+#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stznamedvarstest.ring, block #14.
-#ERR exit 1: stzstring
+#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

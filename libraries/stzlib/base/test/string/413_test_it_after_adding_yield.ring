@@ -3,7 +3,6 @@
 # #TODO Test it after adding Yield()
 #
 # Extracted from stzStringTest.ring, block #413.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

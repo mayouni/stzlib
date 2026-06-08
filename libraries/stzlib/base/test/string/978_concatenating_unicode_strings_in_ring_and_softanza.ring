@@ -3,7 +3,7 @@
 # #narration #perf #ring CONCATENATING UNICODE STRINGS IN RING AND SOFTANZA
 #
 # Extracted from stzStringTest.ring, block #978.
-#ERR Error (R24) : Using uninitialized variable: _time0
+#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

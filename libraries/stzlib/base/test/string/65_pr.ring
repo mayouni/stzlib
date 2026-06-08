@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #65.
-#ERR exit 1: [ 2, 3, 7, 8, 12, 13 ]
 
 load "../../stzBase.ring"
 

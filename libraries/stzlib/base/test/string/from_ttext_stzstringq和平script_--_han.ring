@@ -3,7 +3,7 @@
 # ? StzStringQ("和平").Script() #--> :Han
 #
 # Extracted from stzTtexttest.ring, block #6.
-#ERR Error (E9) : Can't open file from_ttext_stzstringq??script_--_han.ring
+#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #349.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (R14) : Calling Method without definition: findtheseoccurrencesstzz
 
 load "../../stzBase.ring"
 

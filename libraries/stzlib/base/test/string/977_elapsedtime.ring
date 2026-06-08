@@ -3,7 +3,7 @@
 # #perf #ring #unicode
 #
 # Extracted from stzStringTest.ring, block #977.
-#ERR Error (R24) : Using uninitialized variable: _time0
+#ERR exit 3221225794
 
 load "../../stzBase.ring"
 
