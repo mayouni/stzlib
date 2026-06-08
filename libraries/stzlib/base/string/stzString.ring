@@ -6244,11 +6244,32 @@ class stzString from stzObject
 		return FALSE
 
 	# Shrink(): trim leading + trailing whitespace.
-	def Shrink()
-		This.Trim()
-
-		def ShrinkQ()
+	# Shrink([p1]):
+	#   Shrink()                      : Trim
+	#   Shrink(:ToPosition = N)       : keep first N chars
+	#   Shrink(N)                     : keep first N chars
+	# Implemented as 1-arg with optional sentinel NULL/empty for trim.
+	def Shrink(p1)
+		_n_ = 0
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1])
+			_kw_ = lower(p1[1])
+			if _kw_ = "toposition" or _kw_ = "to" or _kw_ = "n"
+				_n_ = p1[2]
+			ok
+		but isNumber(p1)
+			_n_ = p1
+		ok
+		if _n_ < 1
 			This.Trim()
+			return
+		ok
+		_cAll_ = This.Content()
+		_nL_ = This._EngineCount(_cAll_)
+		if _n_ >= _nL_ return ok
+		This.Update( This._EngineSlice(_cAll_, 1, _n_) )
+
+		def ShrinkQ(p1)
+			This.Shrink(p1)
 			return This
 
 	# ShortenN(n): same as ShortenedN but mutates in place.
@@ -6921,9 +6942,20 @@ class stzString from stzObject
 		StzEngineStringFree(_pH_)
 		return _cR_
 
-	# Nth(n): the n-th char (1-based, codepoint-aware). Negative n
-	# counts from the end (-1 = last).
-	def Nth(n)
+	# Nth(n[, pcSub]):
+	#   Nth(n)        : the n-th char (1-based, codepoint-aware)
+	#   Nth(n, pcSub) : position of the n-th occurrence of pcSub
+	# Negative n counts from the end (-1 = last).
+	def Nth(n, pcSub)
+		if isString(pcSub) and pcSub != ""
+			return This.FindNth(n, pcSub)
+		ok
+		_nLen_ = This._EngineCount(This.Content())
+		if n < 0 n = _nLen_ + n + 1 ok
+		if n < 1 or n > _nLen_ return "" ok
+		return This._EngineSlice(This.Content(), n, 1)
+
+	def NthChar1(n)
 		_nLen_ = This._EngineCount(This.Content())
 		if n < 0 n = _nLen_ + n + 1 ok
 		if n < 1 or n > _nLen_ return "" ok
@@ -7161,16 +7193,25 @@ class stzString from stzObject
 		return This.First3Chars()
 
 	# More codepoint convenience slices.
-	def Next3Chars()
+	def Next3Chars(p1)
+		_nStart_ = 2
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		   lower(p1[1]) = "startingat"
+			_nStart_ = p1[2]
+		but isNumber(p1) and p1 >= 1
+			_nStart_ = p1
+		ok
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ < 4 return "" ok
-		return This._EngineSlice(This.Content(), 2, 3)
+		if _nStart_ + 2 > _nLen_ return "" ok
+		return This._EngineSlice(This.Content(), _nStart_, 3)
 
 	# CharRemovedFromLeft / FromRight: non-mutating singular form.
-	def CharRemovedFromLeft()
+	# Accepts a one-arg call (param ignored) for narrative-friendly
+	# spellings like CharRemovedFromLeft("*").
+	def CharRemovedFromLeft(p1)
 		return This.LeftCharRemoved()
 
-	def CharRemovedFromRight()
+	def CharRemovedFromRight(p1)
 		return This.RightCharRemoved()
 
 	# RemoveCharFromLeftXT(pcChar): peel leading run of pcChar
@@ -7334,8 +7375,14 @@ class stzString from stzObject
 		if n < 1 or n > _nBL_ return 0 ok
 		return _aBefore_[_nBL_ - n + 1]
 
-	# FirstZ / LastZ -- sectional first / last char.
-	def FirstZ()
+	# FirstZ / LastZ -- sectional first / last char (0-arg) or first
+	# occurrence section of pcSub (1-arg).
+	def FirstZ(pcSub)
+		if isString(pcSub) and pcSub != ""
+			_n_ = This._FindFrom(This.Content(), pcSub, 1)
+			if _n_ < 1 return [] ok
+			return [ _n_, _n_ + This._EngineCount(pcSub) - 1 ]
+		ok
 		if This._EngineCount(This.Content()) = 0 return [] ok
 		return [ 1, 1 ]
 
@@ -7436,14 +7483,56 @@ class stzString from stzObject
 		_nSubLen_ = This._EngineCount(pcSub)
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
 
-	# NthStz(n): same as Nth, returning the char wrapped in stzChar.
-	def NthStz(n)
-		_c_ = This.Nth(n)
+	# NthStz(n[, pcSub, :StartingAt = N]):
+	#   1-arg : the n-th char wrapped in stzChar
+	#   3-arg : start position of n-th occurrence of pcSub, optionally
+	#           from a given position
+	def NthStz(n, pcSub, pStartingAt)
+		if isString(pcSub) and pcSub != ""
+			_nFrom_ = 1
+			if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+			   lower(pStartingAt[1]) = "startingat"
+				_nFrom_ = pStartingAt[2]
+			but isNumber(pStartingAt) and pStartingAt >= 1
+				_nFrom_ = pStartingAt
+			ok
+			_iCount_ = 0
+			_pos_ = _nFrom_
+			while TRUE
+				_p_ = This._FindFrom(This.Content(), pcSub, _pos_)
+				if _p_ < 1 return 0 ok
+				_iCount_++
+				if _iCount_ = n return _p_ ok
+				_pos_ = _p_ + 1
+			end
+			return 0
+		ok
+		_c_ = This.NthChar1(n)
 		if _c_ = "" return NULL ok
 		return new stzChar(_c_)
 
-	def FindNthSZZ(n, pcSub)
-		return This.FindNthAsSection(n, pcSub)
+	def FindNthSZZ(n, pcSub, pStartingAt)
+		# Accept optional :StartingAt = N (or bare N) as 3rd arg.
+		_nFrom_ = 1
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt) and pStartingAt >= 1
+			_nFrom_ = pStartingAt
+		ok
+		if _nFrom_ <= 1 return This.FindNthAsSection(n, pcSub) ok
+		# n-th occurrence at/after _nFrom_.
+		_iCount_ = 0
+		_pos_ = _nFrom_
+		_subLen_ = This._EngineCount(pcSub)
+		while TRUE
+			_p_ = This._FindFrom(This.Content(), pcSub, _pos_)
+			if _p_ < 1 return [] ok
+			_iCount_++
+			if _iCount_ = n return [ _p_, _p_ + _subLen_ - 1 ] ok
+			_pos_ = _p_ + 1
+		end
+		return []
 
 	# FirstSTDZ(pcSub, nStartAt, pDir): pos only (no section).
 	def FirstSTDZ(pcSub, nStartAt, pDir)
@@ -7676,8 +7765,14 @@ class stzString from stzObject
 	def FindLastZZ(pcSub)
 		return This.FindLastAsSection(pcSub)
 
-	# NthZ: single-position section of nth char.
-	def NthZ(n)
+	# NthZ: single-position section of nth char (1-arg) or section of
+	# the n-th occurrence of pcSub (2-arg).
+	def NthZ(n, pcSub)
+		if isString(pcSub) and pcSub != ""
+			_p_ = This.FindNth(n, pcSub)
+			if _p_ < 1 return [] ok
+			return [ _p_, _p_ + This._EngineCount(pcSub) - 1 ]
+		ok
 		_nLen_ = This._EngineCount(This.Content())
 		if n < 0 n = _nLen_ + n + 1 ok
 		if n < 1 or n > _nLen_ return [] ok
@@ -7710,9 +7805,29 @@ class stzString from stzObject
 	def FindSTDZ(pcSub, nStartAt, pDir)
 		return This.FindFirstSTD(pcSub, nStartAt, pDir)
 
-	# FindOccurrences(pcSub): all positions (synonym for AllPositionsOf).
-	def FindOccurrences(pcSub)
-		return This.AllPositionsOf(pcSub)
+	# FindOccurrences(pcSub | anN, :Of = pcSub): all positions, or
+	# select positions of nth-occurrences from a list.
+	def FindOccurrences(p1, pNamedOf)
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and isString(pNamedOf[1]) and
+		   lower(pNamedOf[1]) = "of"
+			_cSub_ = pNamedOf[2]
+			_aAll_ = This.AllPositionsOf(_cSub_)
+			if NOT isList(p1) return _aAll_ ok
+			_aRes_ = []
+			_nAL_ = ring_len(_aAll_)
+			_nIL_ = ring_len(p1)
+			for _i_ = 1 to _nIL_
+				_idx_ = p1[_i_]
+				if isNumber(_idx_) and _idx_ >= 1 and _idx_ <= _nAL_
+					_aRes_ + _aAll_[_idx_]
+				ok
+			next
+			return _aRes_
+		ok
+		return This.AllPositionsOf(p1)
+
+	def FindAllOccurrences(p1, pNamedOf)
+		return This.FindOccurrences(p1, pNamedOf)
 
 	def FindOccurrencesCS(pcSub, pCaseSensitive)
 		_bCase_ = 1
@@ -7729,10 +7844,140 @@ class stzString from stzObject
 		end
 		return _aRes_
 
-	# FindTheseOccurrencesSD(anN, :Of=pcSub, pDir): typo-tolerant
-	# alias of FindTheseOccurrencesD with extra "S".
-	def FindTheseOccurrencesSD(anN, pNamedOf, pDir)
+	# FindTheseOccurrencesSD(anN, :Of=pcSub, :StartingAt=N, pDir):
+	# typo-tolerant alias accepting optional :StartingAt.
+	def FindTheseOccurrencesSD(anN, pNamedOf, pStartingAt, pDir)
 		return This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
+
+	def FindTheseOccurrencesSDXT(anN, pNamedOf, pDir)
+		return This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
+
+	# NthStzS(n, pcSub[, :StartingAt = N]): start position of the n-th
+	# occurrence of pcSub, optionally starting from a given position.
+	# (Spelled NthStzS to avoid case-insensitive collision with NthStz.)
+	def NthStzS(n, pcSub, pStartingAt)
+		_nFrom_ = 1
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt) and pStartingAt >= 1
+			_nFrom_ = pStartingAt
+		ok
+		_iCount_ = 0
+		_pos_ = _nFrom_
+		while TRUE
+			_p_ = This._FindFrom(This.Content(), pcSub, _pos_)
+			if _p_ < 1 return 0 ok
+			_iCount_++
+			if _iCount_ = n return _p_ ok
+			_pos_ = _p_ + 1
+		end
+		return 0
+
+	def NthStzSZ(n, pcSub, pStartingAt)
+		_p_ = This.NthStzS(n, pcSub, pStartingAt)
+		if _p_ < 1 return [] ok
+		return [ _p_, _p_ + This._EngineCount(pcSub) - 1 ]
+
+	def Next3CharsAsString(p1)
+		return This.Next3Chars(p1)
+
+	def CharRemovedFromLeftXT(pcChar)
+		_o_ = new stzString(This.Content())
+		_o_.RemoveThisCharFromStartXT(pcChar)
+		return _o_.Content()
+
+	def CharRemovedFromRightXT(pcChar)
+		_o_ = new stzString(This.Content())
+		_o_.RemoveThisCharFromEndXT(pcChar)
+		return _o_.Content()
+
+	def FirstZZ(pcSub)
+		return This.FirstZ(pcSub)
+
+	def FindNthZZ(n, pcSub)
+		return This.NthZ(n, pcSub)
+
+	def FirstStz(pcSub, pStartingAt)
+		_nFrom_ = 1
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt) and pStartingAt >= 1
+			_nFrom_ = pStartingAt
+		ok
+		_n_ = This._FindFrom(This.Content(), pcSub, _nFrom_)
+		if _n_ < 1 return 0 ok
+		return _n_
+
+	def LastStz(pcSub, pStartingAt)
+		_nEnd_ = This._EngineCount(This.Content())
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nEnd_ = pStartingAt[2]
+		but isNumber(pStartingAt) and pStartingAt >= 1
+			_nEnd_ = pStartingAt
+		ok
+		_aAll_ = This.AllPositionsOf(pcSub)
+		_nL_ = ring_len(_aAll_)
+		_last_ = 0
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] <= _nEnd_ _last_ = _aAll_[_i_] ok
+		next
+		return _last_
+
+	def CharTrimmedFromLeft(pcChar)
+		return This.CharRemovedFromLeftXT(pcChar)
+
+	def CharTrimmedFromRight(pcChar)
+		return This.CharRemovedFromRightXT(pcChar)
+
+	def FindLastSZZ(pcSub, pStartingAt)
+		_p_ = This.LastStz(pcSub, pStartingAt)
+		if _p_ < 1 return [] ok
+		return [ _p_, _p_ + This._EngineCount(pcSub) - 1 ]
+
+	def FindTheseOccurrencesZZ(p1, pNamedOf)
+		return This.FindTheseOccurrencesAsSections(p1, pNamedOf)
+
+	def FindTheseOccurrencesAsSectionsSTD(anN, pNamedOf, pStartingAt, pDir)
+		return This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
+
+	def FindTheseOccurrencesST(anN, pNamedOf, pStartingAt)
+		return This.FindTheseOccurrences(anN, pNamedOf)
+
+	def FindFirstSZZ(pcSub, pStartingAt)
+		_nFrom_ = 1
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt) and pStartingAt >= 1
+			_nFrom_ = pStartingAt
+		ok
+		_n_ = This._FindFrom(This.Content(), pcSub, _nFrom_)
+		if _n_ < 1 return [] ok
+		return [ _n_, _n_ + This._EngineCount(pcSub) - 1 ]
+
+	def FindTheseOccurrences(p1, pNamedOf)
+		return This.FindOccurrences(p1, pNamedOf)
+
+	def FindTheseOccurrencesAsS(p1, pNamedOf)
+		return This.FindOccurrences(p1, pNamedOf)
+
+	def FindTheseOccurrencesAsSections(p1, pNamedOf)
+		_aPos_ = This.FindOccurrences(p1, pNamedOf)
+		_cSub_ = ""
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and isString(pNamedOf[2])
+			_cSub_ = pNamedOf[2]
+		ok
+		_nSubLen_ = This._EngineCount(_cSub_)
+		_aRes_ = []
+		_nL_ = ring_len(_aPos_)
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			_aRes_ + [ _p_, _p_ + _nSubLen_ - 1 ]
+		next
+		return _aRes_
 
 	# TheseSubstringsZ(pacSubStr): start positions of any listed
 	# substring's first occurrence.
@@ -7988,7 +8233,13 @@ class stzString from stzObject
 
 	# YieldCharsWXT(pcYielder): transform every char by the eval'd
 	# expression. @char binding. Returns the transformed list.
-	def YieldCharsWXT(pcYielder)
+	def YieldCharsWXT(pcYielder, pNamedWhere)
+		# Optional :Where = predicate filter.
+		_cFilter_ = ""
+		if isList(pNamedWhere) and ring_len(pNamedWhere) = 2 and isString(pNamedWhere[1]) and
+		   lower(pNamedWhere[1]) = "where"
+			_cFilter_ = pNamedWhere[2]
+		ok
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
 		_aRes_ = []
@@ -7996,6 +8247,15 @@ class stzString from stzObject
 			@char = _aChars_[_i_]
 			@Char = @char
 			@position = _i_
+			if _cFilter_ != ""
+				_bKeep_ = FALSE
+				try
+					eval("_bKeep_ = " + _cFilter_)
+				catch
+					_bKeep_ = FALSE
+				done
+				if NOT _bKeep_ loop ok
+			ok
 			_xVal_ = NULL
 			try
 				eval("_xVal_ = " + pcYielder)
