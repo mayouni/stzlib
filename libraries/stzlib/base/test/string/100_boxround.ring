@@ -24,20 +24,8 @@ pr()
 	Box("AWOSME!")
 )
 #-->
-'
-╭───────────────────────────────────╮
-│ ╭───┬───┬───┬───┬───┬───┬───┬───╮ │
-│ │ S │ O │ F │ T │ A │ N │ Z │ A │ │
-│ ╰───┴───┴───┴───┴───┴───┴───┴───╯ │
-│       ╭───────────────────╮       │
-│       │ I S   G R E A T ! │       │
-│       ╰───────────────────╯       │
-│         ACTUALLY, IT'S...         │
-│            ┌─────────┐            │
-│            │ AWOSME! │            │
-│            └─────────┘            │
-╰───────────────────────────────────╯
-'
+#  Box-drawn output here -- omitted; the single quote in "IT'S"
+#  used to break Ring's literal parser.
 
 pf()
 # Executed in 0.06 second(s) in Ring 1.23

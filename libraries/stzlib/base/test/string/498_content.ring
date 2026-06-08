@@ -14,6 +14,6 @@ o1 = new stzString("__Ri__ng__")
 o1.@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
 
 ? o1.Content()
-"--> RING
+#--> RING
 
 pf()
