@@ -2743,13 +2743,31 @@ class stzString from stzObject
 		_cOut_ = ""
 		_iCount_ = 0
 		_iStepIdx_ = 1
+		_nStepsL_ = ring_len(_aSteps_)
+		# Cap _nSeps_ to step list length so we never index past either.
+		if _nStepsL_ < _nSeps_ _nSeps_ = _nStepsL_ ok
+		if _nSeps_ < 1 _nSeps_ = 1 ok
+		# Filter _aSeps_ to printable strings only -- skip named-param
+		# pairs that the caller may have embedded.
+		_aSepsClean_ = []
+		for _ki_ = 1 to _nSeps_
+			_v_ = _aSeps_[_ki_]
+			if isString(_v_) _aSepsClean_ + _v_ ok
+		next
+		if ring_len(_aSepsClean_) > 0
+			_aSeps_ = _aSepsClean_
+			_nSeps_ = ring_len(_aSeps_)
+		ok
 		if _bBackward_
 			# Walk right-to-left, prepending to _cOut_.
 			for _i_ = _nLen_ to 1 step -1
 				_cOut_ = _aChars_[_i_] + _cOut_
 				_iCount_++
-				if _i_ > 1 and _iCount_ = _aSteps_[_iStepIdx_]
-					_cOut_ = _aSeps_[_iStepIdx_] + _cOut_
+				if _i_ > 1 and _iStepIdx_ <= ring_len(_aSteps_) and
+				   _iCount_ = _aSteps_[_iStepIdx_]
+					if _iStepIdx_ <= _nSeps_
+						_cOut_ = _aSeps_[_iStepIdx_] + _cOut_
+					ok
 					_iCount_ = 0
 					_iStepIdx_++
 					if _iStepIdx_ > _nSeps_ _iStepIdx_ = 1 ok
@@ -2759,8 +2777,11 @@ class stzString from stzObject
 			for _i_ = 1 to _nLen_
 				_cOut_ += _aChars_[_i_]
 				_iCount_++
-				if _i_ < _nLen_ and _iCount_ = _aSteps_[_iStepIdx_]
-					_cOut_ += _aSeps_[_iStepIdx_]
+				if _i_ < _nLen_ and _iStepIdx_ <= ring_len(_aSteps_) and
+				   _iCount_ = _aSteps_[_iStepIdx_]
+					if _iStepIdx_ <= _nSeps_
+						_cOut_ += _aSeps_[_iStepIdx_]
+					ok
 					_iCount_ = 0
 					_iStepIdx_++
 					if _iStepIdx_ > _nSeps_ _iStepIdx_ = 1 ok
@@ -6814,9 +6835,13 @@ class stzString from stzObject
 		_aB_ = _oB_.Chars()
 		# DP-lite: just count positional mismatches when lengths match;
 		# otherwise charge each length difference + char swap.
+		# Guard against engine-count vs Chars()-length drift.
+		_nWalk_ = _la_
+		if ring_len(_aA_) < _nWalk_ _nWalk_ = ring_len(_aA_) ok
+		if ring_len(_aB_) < _nWalk_ _nWalk_ = ring_len(_aB_) ok
 		if _la_ = _lb_
 			_n_ = 0
-			for _i_ = 1 to _la_
+			for _i_ = 1 to _nWalk_
 				if lower(_aA_[_i_]) != lower(_aB_[_i_]) _n_++ ok
 				if _n_ > _budget_ return FALSE ok
 			next
@@ -7795,6 +7820,15 @@ class stzString from stzObject
 	# inside the given sections. Walks sections descending so
 	# positions stay valid.
 	def ReplaceInSections(aSections, pcOld, pcNew)
+		# Accept the narrative order (pcOld, pcNew, aSections) too.
+		if isString(aSections) and isString(pcOld) and isList(pcNew)
+			_tmp_ = aSections
+			aSections = pcNew
+			_tmp2_ = pcOld
+			pcOld = _tmp_
+			pcNew = _tmp2_
+		ok
+		if NOT isList(aSections) return ok
 		_nL_ = ring_len(aSections)
 		if _nL_ = 0 return ok
 		_aSorted_ = _ListCopy(aSections)

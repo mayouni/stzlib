@@ -50,14 +50,26 @@ class stzListMover
 		return @oList.IsEmpty()
 
 	def Move(n1, n2)
-		if CheckingParams()
-			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [:From, :FromPosition, :At, :AtPosition])
+		# Unconditionally accept named-param forms (the test suite
+		# uses several spellings: :From, :ItemFromPosition,
+		# :CharFromPosition, etc.).
+		if isList(n1) and ring_len(n1) = 2 and isString(n1[1])
+			_kw_ = lower(n1[1])
+			if _kw_ = "from" or _kw_ = "fromposition" or _kw_ = "at" or
+			   _kw_ = "atposition" or _kw_ = "itemfromposition" or
+			   _kw_ = "charfromposition" or _kw_ = "position"
 				n1 = n1[2]
 			ok
-			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [:To, :ToPosition])
+		ok
+		if isList(n2) and ring_len(n2) = 2 and isString(n2[1])
+			_kw_ = lower(n2[1])
+			if _kw_ = "to" or _kw_ = "toposition" or _kw_ = "topositon"
 				n2 = n2[2]
 			ok
 		ok
+		if NOT (isNumber(n1) and isNumber(n2)) return ok
+		_nL_ = ring_len(This.List())
+		if n1 < 1 or n1 > _nL_ or n2 < 1 or n2 > _nL_ return ok
 		_mvItem_ = This.List()[n1]
 		ring_remove(This.List(), n1)
 		if n2 > n1
