@@ -2632,6 +2632,33 @@ class stzList from stzObject
 		def FindAllOccurrences(pItem)
 			return This.FindAllOccurrencesCS(pItem, 1)
 
+	# FindInSections(pItem, aSections): absolute-position occurrences of
+	# pItem inside any of the given sections.
+	def FindInSections(pItem, aSections)
+		_aRes_ = []
+		if NOT isList(aSections) return _aRes_ ok
+		_aAll_ = This.FindAllOccurrencesCS(pItem, 1)
+		_nP_ = ring_len(_aAll_)
+		_nS_ = ring_len(aSections)
+		for _i_ = 1 to _nP_
+			_pos_ = _aAll_[_i_]
+			for _j_ = 1 to _nS_
+				_s_ = aSections[_j_]
+				if isList(_s_) and ring_len(_s_) >= 2 and isNumber(_s_[1]) and isNumber(_s_[2]) and
+				   _pos_ >= _s_[1] and _pos_ <= _s_[2]
+					_aRes_ + _pos_
+					exit
+				ok
+			next
+		next
+		return _aRes_
+
+	def CountInSections(pItem, aSections)
+		return ring_len(This.FindInSections(pItem, aSections))
+
+	def NumberOfOccurrencesInSections(pItem, aSections)
+		return This.CountInSections(pItem, aSections)
+
 	  #-- NumberOfOccurrenceCS: count occurrences
 
 	def NumberOfOccurrenceCS(pItem, pCaseSensitive)
