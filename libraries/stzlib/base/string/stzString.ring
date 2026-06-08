@@ -9439,7 +9439,7 @@ class stzString from stzObject
 
 	# SortMarquersInDescending(): list of marker positions sorted desc.
 	def SortMarquersInDescending()
-		_aPos_ = MarkersPositions(This.Content())
+		_aPos_ = This.MarquersPositions()
 		_nL_ = ring_len(_aPos_)
 		for _i_ = 2 to _nL_
 			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
@@ -9454,7 +9454,7 @@ class stzString from stzObject
 		return This.SortMarquersInDescending()
 
 	def SortMarquersInAscending()
-		_aPos_ = MarkersPositions(This.Content())
+		_aPos_ = This.MarquersPositions()
 		_nL_ = ring_len(_aPos_)
 		for _i_ = 2 to _nL_
 			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
@@ -9470,7 +9470,7 @@ class stzString from stzObject
 
 	# MarquersSortedInDescendingZZ.
 	def MarquersSortedInDescendingZZ()
-		_aPos_ = MarkersPositions(This.Content())
+		_aPos_ = This.MarquersPositions()
 		_nL_ = ring_len(_aPos_)
 		for _i_ = 2 to _nL_
 			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
@@ -9487,7 +9487,7 @@ class stzString from stzObject
 		return _aRes_
 
 	def MarquersZZ()
-		_aPos_ = MarkersPositions(This.Content())
+		_aPos_ = This.MarquersPositions()
 		_aRes_ = []
 		_nL_ = ring_len(_aPos_)
 		for _i_ = 1 to _nL_
@@ -9853,7 +9853,7 @@ class stzString from stzObject
 			paReplacements = paReplacements[2]
 		ok
 		if NOT isList(paReplacements) return ok
-		_aPos_ = MarkersPositions(This.Content())
+		_aPos_ = This.MarquersPositions()
 		_nL_ = ring_len(_aPos_)
 		# Sort positions descending so earlier replacements remain valid.
 		for _i_ = 2 to _nL_
