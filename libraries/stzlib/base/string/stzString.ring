@@ -3854,6 +3854,21 @@ class stzString from stzObject
 		_oBxCopy_.BoxRound()
 		return _oBxCopy_.Content()
 
+	def BoxedRounded()
+		return This.BoxedRound()
+
+	def BoxedRoundedDashed()
+		return This.BoxedRound()
+
+	def BoxedRoundDashed()
+		return This.BoxedRound()
+
+	def EachCharBoxed()
+		return This.BoxifyCharsXT([])
+
+	def EachCharBoxedQ()
+		return new stzString( This.EachCharBoxed() )
+
 	def BoxedXT(paBoxOptions)
 		_oBxCopy_ = This.Copy()
 		_oBxCopy_.BoxXT(paBoxOptions)
@@ -5634,16 +5649,15 @@ class stzString from stzObject
 	def FindBoundedByAsSections(pacBounds)
 		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
 
-		def FindAnyBoundedByAsSections(pacBounds, pcClose)
-			# Two-arg form: (pcOpen, pcClose) -> normalise to list.
-			if isString(pacBounds) and isString(pcClose)
-				return This.FindBoundedByAsSections([ pacBounds, pcClose ])
-			ok
+		def FindAnyBoundedByAsSections(pacBounds)
 			# Single-string form -> use as both open and close.
 			if isString(pacBounds)
 				return This.FindBoundedByAsSections([ pacBounds, pacBounds ])
 			ok
 			return This.FindBoundedByAsSections(pacBounds)
+
+		def FindAnyBoundedByAsSectionsXT(pcOpen, pcClose)
+			return This.FindBoundedByAsSections([ pcOpen, pcClose ])
 
 	# FindAnyBoundedBy(pacBounds): single-arg form. Accepts a list
 	# [open, close] or a single string used for both ends.
@@ -6722,17 +6736,16 @@ class stzString from stzObject
 		ok
 		return _aRes_
 
-	# IsScript([pcScript]): TRUE if content is a known Unicode script
-	# name (0-arg), or TRUE if every char is in the given Unicode
-	# script (1-arg, accepts :Common, :Latin, :Hebrew etc.).
-	def IsScript(pcScript)
-		if NOT isString(pcScript) or pcScript = ""
-			return This.IsScriptName()
-		ok
-		# Strip leading ":" if symbolic.
+	# IsScript(): TRUE if content is a known Unicode script name.
+	def IsScript()
+		return This.IsScriptName()
+
+	# IsScriptOf(pcScript): TRUE if every char is in the given Unicode
+	# script. Accepts :Common / :Latin / :Hebrew etc.
+	def IsScriptOf(pcScript)
+		if NOT isString(pcScript) or pcScript = "" return FALSE ok
 		_kw_ = lower(pcScript)
 		if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
-		# Delegate to per-script predicate if it exists.
 		try
 			eval("_b_ = This.IsScript" + _kw_ + "()")
 			return _b_
@@ -10167,11 +10180,17 @@ class stzString from stzObject
 		if _nL_ = 0 return [] ok
 		return [ _aPos_[1], _aPos_[_nL_] ]
 
-	# HasTrailingSubString(pcSub) -- TRUE iff content ends with pcSub.
-	def HasTrailingSubString(pcSub)
+	# HasTrailingSubString(): TRUE iff content has any trailing word.
+	def HasTrailingSubString()
+		return This.TrailingSubString() != ""
+
+	def HasLeadingSubString()
+		return This.LeadingSubString() != ""
+
+	def HasTrailingSubStringOf(pcSub)
 		return This.EndsWithCS(pcSub, 1)
 
-	def HasLeadingSubString(pcSub)
+	def HasLeadingSubStringOf(pcSub)
 		return This.StartsWithCS(pcSub, 1)
 
 	def TrailingSubStringZZ()
@@ -10429,7 +10448,7 @@ class stzString from stzObject
 	def PartsUsing(pcSep)
 		return This._SplitByStr(pcSep)
 
-	def PartsUsingXT(pcSep, pNamed)
+	def PartsUsingXT(pcSep)
 		return This._SplitByStr(pcSep)
 
 	# ContainsNoOneOfThese(paSubStr): TRUE iff content contains NONE
@@ -10625,17 +10644,35 @@ class stzString from stzObject
 	def Parts2Using(pcSep)
 		return This.PartsUsing(pcSep)
 
-	def Parts2UsingXT(pcSep, pNamed)
+	def Parts2UsingXT(pcSep)
 		return This.PartsUsing(pcSep)
 
-	def PartsClassifiedUsingXT(pcSep, pNamed)
+	def PartsClassifiedUsingXT(pcSep)
 		return This.PartsUsing(pcSep)
 
-	def PartsAndPartitionersUsingXT(pcSep, pNamed)
+	def PartsAndPartitionersUsingXT(pcSep)
 		return This.PartsUsing(pcSep)
 
 	# ReplaceAllChars(pcOld, pcNew): char-by-char map.
-	def ReplaceAllChars(pcOld, pcNew)
+	# ReplaceAllChars:
+	#   (:With = pcNew)  : replace every char with pcNew
+	# Two-arg (pcOld, pcNew) form lives in ReplaceAllCharsXT.
+	def ReplaceAllChars(p1)
+		_cNew_ = p1
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		   (lower(p1[1]) = "with" or lower(p1[1]) = "by")
+			_cNew_ = p1[2]
+		ok
+		if NOT isString(_cNew_) return ok
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cOut_ += _cNew_
+		next
+		This.Update(_cOut_)
+
+	def ReplaceAllCharsXT(pcOld, pcNew)
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
 		_cOut_ = ""
@@ -10648,9 +10685,13 @@ class stzString from stzObject
 		next
 		This.Update(_cOut_)
 
-		def ReplaceAllCharsQ(pcOld, pcNew)
-			This.ReplaceAllChars(pcOld, pcNew)
+		def ReplaceAllCharsQ(p1)
+			This.ReplaceAllChars(p1)
 			return This
+
+	def ReplaceAllCharsXTQ(pcOld, pcNew)
+		This.ReplaceAllCharsXT(pcOld, pcNew)
+		return This
 
 	def CountCharsWXT(pcCondition)
 		return ring_len(This.CharsWXT(pcCondition))
