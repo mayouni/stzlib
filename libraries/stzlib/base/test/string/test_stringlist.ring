@@ -1,5 +1,5 @@
 
-#ERR Error (R3) : Calling Function without definition: stzengineunicodecasefold
+#ERR exit 3221225794
 
 load "test_stubs.ring"
 load "../../string/stzString.ring"

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #686.
-#ERR exit 1: 0
+#ERR Error (R2) : Array Access (Index out of range)
 
 load "../../stzBase.ring"
 

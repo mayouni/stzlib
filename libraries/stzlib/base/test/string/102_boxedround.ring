@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #102.
-#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

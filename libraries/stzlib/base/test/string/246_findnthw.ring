@@ -3,7 +3,6 @@
 # #perf
 #
 # Extracted from stzStringTest.ring, block #246.
-#ERR exit 1: Line 98 Bad parameters value, error in length!
 
 load "../../stzBase.ring"
 

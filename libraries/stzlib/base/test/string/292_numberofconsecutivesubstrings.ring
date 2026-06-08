@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #292.
-#ERR Error (R19) : Calling function with less number of parameters
+#ERR Error (R14) : Calling Method without definition: consecutivesubstringsz
 
 load "../../stzBase.ring"
 

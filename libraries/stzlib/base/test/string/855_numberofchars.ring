@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #855.
-#ERR exit 1: 7
+#ERR Error (R14) : Calling Method without definition: unicodesxt
 
 load "../../stzBase.ring"
 

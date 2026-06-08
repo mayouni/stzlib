@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #97.
-#ERR Error (R14) : Calling Method without definition: sectionbounds
+#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

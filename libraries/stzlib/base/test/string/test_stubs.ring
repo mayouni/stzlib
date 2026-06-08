@@ -1,3 +1,4 @@
+#ERR exit 3221225794
 # Stub functions needed by stzString
 # This file also handles portable DLL discovery so test files
 # don't need hardcoded absolute paths.

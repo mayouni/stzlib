@@ -3,7 +3,7 @@
 # // TODO - FUTURE //
 #
 # Extracted from stzStringTest.ring, block #981.
-#ERR Error (R3) : Calling Function without definition: defineconstraints
+#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

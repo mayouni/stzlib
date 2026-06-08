@@ -1,4 +1,5 @@
 
+#ERR exit 3221225794
 
 load "test_stubs.ring"
 # Load stz_bytes.dll

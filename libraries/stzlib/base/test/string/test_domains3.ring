@@ -2,7 +2,7 @@
 # Run from the test/ directory: ring test_domains3.ring
 
 ? "Loading stubs + DLL"
-#ERR Error (R3) : Calling Function without definition: stzenginestring
+#ERR exit 3221225794
 
 load "test_stubs.ring"
 

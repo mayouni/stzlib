@@ -1,4 +1,4 @@
-== string  PASS 750  ERR 250  TIMEOUT 1  (1699.3s) ==
+== string  PASS 776  ERR 220  TIMEOUT 5  (35858.8s) ==
 [PASS]    01_findthesebounds.ring
 [PASS]    02_content.ring
 [PASS]    03_findzz.ring
@@ -10,13 +10,13 @@
 [ERR]     09_xmlhtml_tag_analysis.ring :: Error (R14) : Calling Method without definition: itemsandtheirnumberofoccurrence
 [ERR]     100_boxround.ring :: exit 1: Error (S1) In file: 100_boxround.ring
 [PASS]    101_box.ring
-[ERR]     102_boxedround.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    102_boxedround.ring
 [PASS]    103_containsxt.ring
 [PASS]    104_containsinsection.ring
 [PASS]    105_unicode.ring
 [PASS]    106_type.ring
 [PASS]    107_hexprefix.ring
-[ERR]     108_script.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    108_script.ring
 [PASS]    109_ishexunicode.ring
 [PASS]    10_aligncenter.ring
 [ERR]     110_unicode.ring :: Error (R14) : Calling Method without definition: hexunicodes
@@ -28,7 +28,7 @@
 [PASS]    116_shortenedn.ring
 [PASS]    117_shortened.ring
 [PASS]    118_content.ring
-[ERR]     119_shortenedusing.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    119_shortenedusing.ring
 [PASS]    11_pr.ring
 [PASS]    120_isboundedbycs.ring
 [PASS]    121_boundedby.ring
@@ -43,7 +43,7 @@
 [PASS]    12_containseither.ring
 [PASS]    130_pr.ring
 [PASS]    131_pr.ring
-[ERR]     132_content.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    132_content.ring
 [PASS]    133_content.ring
 [PASS]    134_ispluralofastztype.ring
 [PASS]    135_pr.ring
@@ -58,12 +58,12 @@
 [PASS]    143_pr.ring
 [PASS]    144_pr.ring
 [PASS]    145_pr.ring
-[ERR]     146_pr.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    146_pr.ring
 [PASS]    147_substringswxt.ring
 [PASS]    148_findsubstringsassectionswxt.ring
-[ERR]     149_findwxt.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    149_findwxt.ring
 [PASS]    14_isreverseof.ring
-[ERR]     150_first2chars.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    150_first2chars.ring
 [PASS]    151_findcs.ring
 [PASS]    152_section.ring
 [PASS]    153_section.ring
@@ -101,7 +101,7 @@
 [PASS]    182_findassectionsxt.ring
 [PASS]    184_containssubstringboundedby.ring
 [PASS]    185_betweenib.ring
-[ERR]     186_boundedby.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[ERR]     186_boundedby.ring :: Error (R14) : Calling Method without definition: boundedbyu
 [PASS]    187_boundedbyib.ring
 [PASS]    188_content.ring
 [PASS]    189_content.ring
@@ -156,15 +156,15 @@
 [PASS]    23_content.ring
 [PASS]    240_firsthalf.ring
 [ERR]     241_firsthalf.ring :: Error (R14) : Calling Method without definition: firsthalfxtzz
-[ERR]     242_howmany.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    242_howmany.ring
 [PASS]    243_findlast.ring
 [PASS]    244_findall.ring
 [PASS]    245_contains.ring
-[ERR]     246_findnthw.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    246_findnthw.ring
 [PASS]    247_stringcase.ring
 [PASS]    248_uppercased.ring
 [PASS]    249_lowercased.ring
-[ERR]     24_leftcharremoved.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    24_leftcharremoved.ring
 [PASS]    250_capitalcased.ring
 [PASS]    251_content.ring
 [PASS]    252_content.ring
@@ -175,7 +175,7 @@
 [PASS]    257_pr.ring
 [ERR]     258_issue_in_replacing_empty_substrings.ring :: exit 1: Ruby language
 [PASS]    259_block_259.ring
-[ERR]     25_rightcharremoved.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    25_rightcharremoved.ring
 [PASS]    260_findzz.ring
 [PASS]    261_content.ring
 [PASS]    262_replacemanycs.ring
@@ -208,10 +208,10 @@
 [PASS]    287_finddupsecutivechars.ring
 [PASS]    288_finddupsecutivesubstring.ring
 [PASS]    289_content.ring
-[ERR]     28_numberofoccurrenceofcharleftside.ring :: exit 1: 3
+[ERR]     28_numberofoccurrenceofcharleftside.ring :: Error (R14) : Calling Method without definition: numberofoccurrenceofcharstartside
 [PASS]    290_content.ring
 [PASS]    291_numberofconsecutivesubstringsofnchars.ring
-[ERR]     292_numberofconsecutivesubstrings.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     292_numberofconsecutivesubstrings.ring :: Error (R14) : Calling Method without definition: consecutivesubstringsz
 [PASS]    293_content.ring
 [ERR]     294_spacesremoved.ring :: Error (R14) : Calling Method without definition: spacesremoved
 [PASS]    295_unspacified.ring
@@ -226,24 +226,24 @@
 [PASS]    303_findanyboundedbyibzz.ring
 [PASS]    304_isstringorlist.ring
 [ERR]     305_substrongs_substrinks.ring :: Error (R14) : Calling Method without definition: substrongs
-[ERR]     306_content.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     307_content.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    306_content.ring
+[PASS]    307_content.ring
 [PASS]    308_content.ring
 [PASS]    309_content.ring
 [PASS]    30_content.ring
 [PASS]    310_pr.ring
 [PASS]    311_todo.ring
-[ERR]     312_findnthprevious.ring :: Error (R41) : Invalid numeric string
-[ERR]     313_using_z_and_zz_extensions.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    312_findnthprevious.ring
+[PASS]    313_using_z_and_zz_extensions.ring
 [PASS]    314_findlast.ring
-[ERR]     315_findnth.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    315_findnth.ring
 [PASS]    316_findnthst.ring
 [PASS]    317_using_st_and_std_extension.ring
-[ERR]     318_nthstz.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     319_using_st_d_zz_prefixes.ring :: Error (R41) : Invalid numeric string
+[PASS]    318_nthstz.ring
+[PASS]    319_using_st_d_zz_prefixes.ring
 [PASS]    31_content.ring
-[ERR]     320_howmanyst.ring :: exit 1: 3
-[ERR]     321_findnthszz.ring :: Error (R20) : Calling function with extra number of parameters
+[ERR]     320_howmanyst.ring :: Error (R14) : Calling Method without definition: howmanyst
+[PASS]    321_findnthszz.ring
 [PASS]    322_findnthstdzz.ring
 [PASS]    323_findfirstst.ring
 [PASS]    324_findfirststzz.ring
@@ -272,18 +272,18 @@
 [PASS]    346_findsubstringsboundedby.ring
 [PASS]    347_findanyboundedbyassectionsib.ring
 [PASS]    348_findd.ring
-[ERR]     349_findoccurrences.ring :: Error (R20) : Calling function with extra number of parameters
+[ERR]     349_findoccurrences.ring :: Error (R14) : Calling Method without definition: findtheseoccurrencesstzz
 [PASS]    34_content.ring
-[ERR]     350_findd.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    350_findd.ring
 [PASS]    351_findfirstst.ring
 [PASS]    352_findboundedby.ring
 [PASS]    353_findboundedbyib.ring
 [ERR]     354_find.ring :: Error (R24) : Using uninitialized variable: i
 [ERR]     355_the_art_of_splitting_things_in_softanza.ring :: Error (C27) : Syntax Error!
-[ERR]     356_splitbeforecs.ring :: exit 1: [ "__", "a__", "A__" ]
+[PASS]    356_splitbeforecs.ring
 [PASS]    357_findassections.ring
 [PASS]    358_splitting_at.ring
-[ERR]     359_splitting_after.ring :: exit 1: [ "__a", "__A", "__" ]
+[PASS]    359_splitting_after.ring
 [PASS]    35_content.ring
 [ERR]     360_splitaroundsections.ring :: Error (R14) : Calling Method without definition: findantisectionszz
 [PASS]    361_splitatsection.ring
@@ -297,7 +297,7 @@
 [PASS]    369_substringxt.ring
 [PASS]    36_content.ring
 [ERR]     370_isisboundedbynamedparam.ring :: Error (R14) : Calling Method without definition: isisboundedbynamedparam
-[ERR]     371_content.ring :: Error (R41) : Invalid numeric string
+[PASS]    371_content.ring
 [PASS]    372_content.ring
 [PASS]    373_content.ring
 [PASS]    374_content.ring
@@ -323,7 +323,7 @@
 [PASS]    392_commonsubstrings.ring
 [ERR]     393_commonitems.ring :: Error (R14) : Calling Method without definition: commonitems
 [PASS]    394_commonsubstrings.ring
-[ERR]     395_content.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    395_content.ring
 [ERR]     396_o1_new_stzstring.ring :: Error (R14) : Calling Method without definition: thesecharsz
 [ERR]     397_o1_new_stzstring12345.ring :: panic: integer part of floating point value out of bounds
 [PASS]    398_numberofsubstrings.ring
@@ -343,8 +343,8 @@
 [PASS]    410_endswithanumber.ring
 [PASS]    411_endswithanumber.ring
 [PASS]    412_findwxt.ring
-[ERR]     413_test_it_after_adding_yield.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     414_splittopartsofnchars.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    413_test_it_after_adding_yield.ring
+[PASS]    414_splittopartsofnchars.ring
 [PASS]    415_substrings.ring
 [PASS]    416_numberofsubstrings.ring
 [ERR]     417_nextnitems.ring :: Error (R14) : Calling Method without definition: previousnitems
@@ -394,7 +394,7 @@
 [PASS]    457_duplicatedcharsremoved.ring
 [PASS]    458_isnumberinstring.ring
 [PASS]    459_content.ring
-[ERR]     45_theseboundsremoved.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    45_theseboundsremoved.ring
 [PASS]    460_pr.ring
 [PASS]    461_isnumberinstring.ring
 [PASS]    462_replacecs.ring
@@ -413,10 +413,10 @@
 [PASS]    474_inverted.ring
 [PASS]    475_turned.ring
 [PASS]    476_isastring.ring
-[ERR]     477_allcharsare.ring :: exit 1: 1
+[ERR]     477_allcharsare.ring :: Error (R14) : Calling Method without definition: charsinverted
 [PASS]    478_isanumber.ring
-[ERR]     479_iscirclednumber.ring :: exit 1: Line 98 Bad parameters value, error in length!
-[ERR]     480_allcharsare.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    479_iscirclednumber.ring
+[PASS]    480_allcharsare.ring
 [ERR]     481_check_after_reincluding_check.ring :: Error (R20) : Calling function with extra number of parameters
 [PASS]    483_splitted.ring
 [PASS]    484_repeated.ring
@@ -452,12 +452,12 @@
 [PASS]    512_removeemptylines.ring
 [PASS]    513_uppercased.ring
 [ERR]     514_-cleansing_-transformation.ring :: Error (R13) : Object is required
-[ERR]     515_boundsxt.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    515_boundsxt.ring
 [ERR]     516_content.ring :: Error (R21) : Using operator with values of incorrect type
 [ERR]     517_content.ring :: Error (R2) : Array Access (Index out of range)
-[ERR]     518_content.ring :: Error (R41) : Invalid numeric string
+[PASS]    518_content.ring
 [PASS]    519_content.ring
-[ERR]     51_tolist.ring :: exit 1: ABC
+[PASS]    51_tolist.ring
 [PASS]    520_find.ring
 [PASS]    521_section.ring
 [PASS]    522_nthtolast.ring
@@ -466,7 +466,7 @@
 [PASS]    526_todo_future.ring
 [ERR]     527_identifying_lists_inside_a_string.ring :: Error (R14) : Calling Method without definition: iscontiguouslistinstring
 [PASS]    528_substringsboundedby.ring
-[ERR]     529_numberofoccurrence.ring :: Error (R41) : Invalid numeric string
+[PASS]    529_numberofoccurrence.ring
 [PASS]    52_copy.ring
 [PASS]    530_section.ring
 [PASS]    531_section.ring
@@ -479,7 +479,7 @@
 [PASS]    538_todofuture_charsbeforew.ring
 [PASS]    539_findpositions.ring
 [PASS]    53_content.ring
-[ERR]     540_nth.ring :: Error (R20) : Calling function with extra number of parameters
+[ERR]     540_nth.ring :: Error (R14) : Calling Method without definition: nthassection
 [PASS]    541_findnthboundedby.ring
 [PASS]    542_sections.ring
 [ERR]     543_ranges.ring :: Error (R20) : Calling function with extra number of parameters
@@ -522,7 +522,7 @@
 [PASS]    577_content.ring
 [PASS]    578_content.ring
 [PASS]    579_removebetween_removeat.ring
-[PASS]    57_content.ring
+[TIMEOUT] 57_content.ring
 [PASS]    580_theseboundsremoved.ring
 [PASS]    581_content.ring
 [PASS]    582_content.ring
@@ -536,7 +536,7 @@
 [PASS]    58_content.ring
 [PASS]    590_boundsof.ring
 [PASS]    591_boundsof.ring
-[ERR]     592_bounds.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     592_bounds.ring :: Error (R14) : Calling Method without definition: leftbound
 [PASS]    593_stzraise.ring
 [PASS]    594_recheck_it_when_adding_checkwxt.ring
 [PASS]    595_beginswithoneofthesecs.ring
@@ -566,7 +566,7 @@
 [ERR]     617_findnthpreviousmarquer.ring :: Error (R3) : Calling Function without definition: findnthpreviousmarquer
 [ERR]     618_findmarquersassections.ring :: Error (R3) : Calling Function without definition: findmarquersassections
 [PASS]    619_marquersaresortedinascending.ring
-[ERR]     61_content.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    61_content.ring
 [PASS]    620_marquersaresortedindescending.ring
 [PASS]    621_marquersaresorted.ring
 [PASS]    622_marquersaresorted.ring
@@ -576,15 +576,15 @@
 [PASS]    626_marquerssortedindescendingzz.ring
 [ERR]     627_marquerssortedz.ring :: Error (R3) : Calling Function without definition: marquerssortedz
 [ERR]     628_marquerssorteduz.ring :: Error (R3) : Calling Function without definition: marquerssorteduz
-[ERR]     629_content.ring :: Error (R3) : Calling Function without definition: sortmarquersinascending
+[PASS]    629_content.ring
 [ERR]     62_content.ring :: Error (R20) : Calling function with extra number of parameters
 [ERR]     630_content.ring :: Error (R21) : Using operator with values of incorrect type
-[ERR]     631_marquerszz.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    631_marquerszz.ring
 [ERR]     632_sortedinascending.ring :: Error (R19) : Calling function with less number of parameters
 [ERR]     633_sortingorder.ring :: Error (R19) : Calling function with less number of parameters
 [PASS]    634_findmanycs.ring
 [PASS]    635_generalisation_of____ring_syntax.ring
-[ERR]     636_removechar.ring :: Error (R41) : Invalid numeric string
+[PASS]    636_removechar.ring
 [PASS]    637_reversed.ring
 [ERR]     638_sortedinascending.ring :: Error (R19) : Calling function with less number of parameters
 [PASS]    639_issortedinascending.ring
@@ -594,7 +594,7 @@
 [PASS]    642_transpiled.ring
 [PASS]    643_findcharswxt.ring
 [ERR]     644_nextoccurrence.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     645_hasleadingchars.ring :: Error (R21) : Using operator with values of incorrect type
+[ERR]     645_hasleadingchars.ring :: Error (R3) : Calling Function without definition: hasleadingitems
 [PASS]    646_content.ring
 [PASS]    647_content.ring
 [PASS]    648_ischarname.ring
@@ -603,14 +603,14 @@
 [PASS]    650_todo_review_some_stzlocale_outputs.ring
 [PASS]    651_isequalto.ring
 [PASS]    652_islowercase.ring
-[ERR]     653_script.ring :: exit 1: Line 98 Bad parameters value, error in length!
-[ERR]     654_script.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    653_script.ring
+[PASS]    654_script.ring
 [PASS]    655_uppercasedinlocale.ring
 [PASS]    656_block_656.ring
 [PASS]    657_todo_logical_error_in_qt.ring
 [PASS]    658_pr.ring
 [PASS]    659_logical_error_in_qt_revist_after_fixing_stzlocale.ring
-[ERR]     65_pr.ring :: exit 1: [ 2, 3, 7, 8, 12, 13 ]
+[PASS]    65_pr.ring
 [ERR]     660_words.ring :: Error (R11) : Error in class name, class not found: stztext
 [ERR]     661_countinsections.ring :: Error (R21) : Using operator with values of incorrect type
 [ERR]     662_splits.ring :: Error (R20) : Calling function with extra number of parameters
@@ -639,7 +639,7 @@
 [PASS]    683_content.ring
 [PASS]    684_isequalto.ring
 [ERR]     685_quiet-equality_of_two_strings.ring :: Error (R24) : Using uninitialized variable: $
-[ERR]     686_isequalto.ring :: exit 1: 0
+[ERR]     686_isequalto.ring :: Error (R2) : Array Access (Index out of range)
 [ERR]     688_countscripts.ring :: Error (R11) : Error in class name, class not found: stztext
 [PASS]    689_isquietequalto.ring
 [PASS]    68_content.ring
@@ -657,7 +657,7 @@
 [PASS]    700_substringsboundedby.ring
 [PASS]    701_containstheletters.ring
 [PASS]    702_findsubstringbetween.ring
-[ERR]     704_tostztext.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    704_tostztext.ring
 [ERR]     705_partsusingxt.ring :: Error (R19) : Calling function with less number of parameters
 [PASS]    706_partsusing.ring
 [PASS]    707_partsusingzz.ring
@@ -670,10 +670,10 @@
 [ERR]     713_charswxt.ring :: Error (C27) : Syntax Error!
 [PASS]    714_containsletters.ring
 [PASS]    715_charsreversed.ring
-[ERR]     716_script.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    716_script.ring
 [PASS]    717_isalmostafunctioncall.ring
 [PASS]    718_isletter.ring
-[ERR]     719_chars_bytes_unicode_codepoints_and_bytcodes.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[ERR]     719_chars_bytes_unicode_codepoints_and_bytcodes.ring :: Error (R3) : Calling Function without definition: unicodesperchar
 [PASS]    71_content.ring
 [PASS]    720_stringislowercase.ring
 [PASS]    721_replaceall.ring
@@ -714,9 +714,9 @@
 [PASS]    760_split.ring
 [PASS]    761_islowercase.ring
 [ERR]     762_findall.ring :: Error (R3) : Calling Function without definition: findnextoccurrence
-[ERR]     763_uniquechars.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    763_uniquechars.ring
 [PASS]    764_content.ring
-[ERR]     765_hasrepeatedleadingchars.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    765_hasrepeatedleadingchars.ring
 [PASS]    766_repeatedleadingchar.ring
 [PASS]    767_repeatedleadingchar.ring
 [PASS]    768_hasrepeatedleadingchars.ring
@@ -725,11 +725,11 @@
 [ERR]     770_content.ring :: Error (R14) : Calling Method without definition: removerepeatedleadingcharscs
 [PASS]    771_section.ring
 [PASS]    772_content.ring
-[ERR]     773_content.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    773_content.ring
 [PASS]    774_content.ring
 [ERR]     775_todo_future.ring :: Error (R3) : Calling Function without definition: removerepeatedleadingcharsw
 [PASS]    776_repeatedleadingchars.ring
-[ERR]     777_content.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    777_content.ring
 [ERR]     778_content.ring :: Error (R21) : Using operator with values of incorrect type
 [PASS]    779_content.ring
 [PASS]    77_findexceptzz.ring
@@ -752,7 +752,7 @@
 [PASS]    795_replacenthoccurrencecs.ring
 [PASS]    796_content.ring
 [PASS]    797_pr.ring
-[ERR]     798_todo_maybe_this_should_move_to_stztext.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[ERR]     798_todo_maybe_this_should_move_to_stztext.ring :: Error (R14) : Calling Method without definition: containshybridorientation
 [ERR]     79_content.ring :: Error (R21) : Using operator with values of incorrect type
 [PASS]    800_content.ring
 [PASS]    801_nlastcharsremoved.ring
@@ -763,7 +763,7 @@
 [PASS]    806_findthesebounds.ring
 [PASS]    807_replace.ring
 [PASS]    808_content.ring
-[ERR]     809_content.ring :: Error (R41) : Invalid numeric string
+[PASS]    809_content.ring
 [PASS]    80_todo.ring
 [PASS]    810_content.ring
 [PASS]    811_alignedxt.ring
@@ -782,8 +782,8 @@
 [ERR]     823_content.ring :: Error (C27) : Syntax Error!
 [PASS]    824_content.ring
 [PASS]    825_findall.ring
-[ERR]     826_string_comparaison.ring :: Error (R41) : Invalid numeric string
-[ERR]     827_unicodecomparewithinsystemlocale.ring :: Error (R41) : Invalid numeric string
+[PASS]    826_string_comparaison.ring
+[PASS]    827_unicodecomparewithinsystemlocale.ring
 [PASS]    828_trimmed.ring
 [PASS]    829_content.ring
 [ERR]     82_-code.ring :: Error (R21) : Using operator with values of incorrect type
@@ -801,7 +801,7 @@
 [PASS]    840_name.ring
 [PASS]    842_islocaleabbreviation.ring
 [ERR]     844_islanguageabbreviation.ring :: Error (R14) : Calling Method without definition: islonglanguageabbreviation
-[ERR]     845_islatin.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[PASS]    845_islatin.ring
 [PASS]    846_block_846.ring
 [PASS]    847_ismadeof.ring
 [PASS]    848_ismadeofsome.ring
@@ -811,7 +811,7 @@
 [PASS]    851_representsnumberinhexform.ring
 [PASS]    852_ismadeof.ring
 [PASS]    854_uniquechars.ring
-[ERR]     855_numberofchars.ring :: exit 1: 7
+[ERR]     855_numberofchars.ring :: Error (R14) : Calling Method without definition: unicodesxt
 [PASS]    856_onlynumbers.ring
 [PASS]    857_representsnumberindecimalform.ring
 [PASS]    859_numberofchars.ring
@@ -870,7 +870,7 @@
 [PASS]    907_boxifiedxt.ring
 [PASS]    908_findmany.ring
 [PASS]    909_findmany.ring
-[ERR]     90_findanyboundedbyassectionss.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    90_findanyboundedbyassectionss.ring
 [PASS]    910_boxxt.ring
 [PASS]    911_boxifyxt.ring
 [PASS]    912_content.ring
@@ -886,7 +886,7 @@
 [PASS]    921_o1_new_stzstringab3de6gh9.ring
 [PASS]    922_content.ring
 [ERR]     923_content.ring :: Error (R14) : Calling Method without definition: replaceitemsatpositionsbymany
-[ERR]     924_issortedstring.ring :: Error (R41) : Invalid numeric string
+[PASS]    924_issortedstring.ring
 [PASS]    925_content.ring
 [PASS]    926_content.ring
 [PASS]    927_content.ring
@@ -917,12 +917,12 @@
 [ERR]     94_ss_the_start_and_end_of_a_section.ring :: Error (R14) : Calling Method without definition: findsszz
 [PASS]    950_tostzlistofchars.ring
 [PASS]    951_box.ring
-[ERR]     952_boxify.ring :: Error (R14) : Calling Method without definition: boxify
+[TIMEOUT] 952_boxify.ring
 [ERR]     953_vizfindcs.ring :: Error (R14) : Calling Method without definition: vizfindcs
 [PASS]    954_vizfindcsxt.ring
-[ERR]     955_vizfindboxedcsxt.ring :: Error (R14) : Calling Method without definition: vizfindboxedcsxt
+[TIMEOUT] 955_vizfindboxedcsxt.ring
 [PASS]    956_spacify.ring
-[PASS]    957_content.ring
+[TIMEOUT] 957_content.ring
 [PASS]    958_cardsxt.ring
 [PASS]    959_sections.ring
 [ERR]     95_digits.ring :: Error (R14) : Calling Method without definition: isadigitinstring
@@ -944,59 +944,59 @@
 [ERR]     974_todo.ring :: Error (R14) : Calling Method without definition: vizfindmany
 [ERR]     975_todo.ring :: Error (R14) : Calling Method without definition: vizfindmanyxt
 [TIMEOUT] 976_concatenating_strings_in_ring_and_softanza.ring
-[ERR]     977_elapsedtime.ring :: Error (R24) : Using uninitialized variable: _time0
-[ERR]     978_concatenating_unicode_strings_in_ring_and_softanza.ring :: Error (R24) : Using uninitialized variable: _time0
-[PASS]    979_string_append_historical_--_qt_removed_engine-base.ring
-[ERR]     97_sectionbounds.ring :: Error (R14) : Calling Method without definition: sectionbounds
-[ERR]     981_todo_-_future.ring :: Error (R3) : Calling Function without definition: defineconstraints
-[ERR]     982_todo_-_fix_this_revisit_this_after_completing_stzw.ring :: Error (R14) : Calling Method without definition: walkuntil
-[PASS]    98_using_section_or_slice_to_get_a_part_of_a_list.ring
-[ERR]     99_boxed.ring :: Error (R3) : Calling Function without definition: eachcharboxed
-[ERR]     from_global_some_features_come_to_empower_metaprogramming.ring :: Error (R14) : Calling Method without definition: stringsw
-[ERR]     from_list_361_pr.ring :: Error (R14) : Calling Method without definition: insert
-[PASS]    from_list_everything_is_findable.ring
-[PASS]    from_list_find_and_antifind_in_stzstring.ring
-[ERR]     from_list_named_objects_equality.ring :: exit 1: 1
-[PASS]    from_list_removing_duplicates.ring
-[ERR]     from_namedvars_14_pr.ring :: exit 1: stzstring
-[ERR]     from_namedvars_naming_unnamed_objects_and_making_them_findable.ring :: Error (R14) : Calling Method without definition: findobjects
-[PASS]    from_natural_empty_value_protection.ring
-[PASS]    from_object_29_pr.ring
-[ERR]     from_regexuter_03_pr.ring :: Error (R3) : Calling Function without definition: multiplybyn
-[ERR]     from_table_stzstring_first_and_last_non-space_chars.ring :: Error (R14) : Calling Method without definition: firstnonspacechar
-[ERR]     from_ttext_is_this_arabic_word_diacriticized.ring :: exit 1: 1
-[PASS]    from_ttext_now_lets_see_how_diacritics_can_be_removed_from_a_.ring
-[ERR]     from_ttext_stzstringq_4_isscripthybrid_--_true.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     from_ttext_stzstringq_4_scripts_--_common_inherited.ring :: exit 1: Line 98 Bad parameters value, error in length!
-[ERR]     from_ttext_stzstringqسلامscriptisarabic_--_true.ring :: Error (E9) : Can't open file from_ttext_stzstringq????scriptisarabic_--_true.ring
-[ERR]     from_ttext_stzstringq和平script_--_han.ring :: Error (E9) : Can't open file from_ttext_stzstringq??script_--_han.ring
-[PASS]    test_between_semantics.ring
-[PASS]    test_bytes_engine.ring
-[ERR]     test_checker.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_core.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_domains.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_domains2.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_domains3.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_domains4.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_domains5.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_engine_case.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_engine_charclass.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_finder.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_finder_extended.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[ERR]     test_inserter.ring :: Error (R3) : Calling Function without definition: stzenginestring
-[PASS]    test_listinstring_regression.ring
-[PASS]    test_show_recursion_stress.ring
-[PASS]    test_string_between.ring
-[PASS]    test_string_between_ib.ring
-[PASS]    test_string_between_ops.ring
-[PASS]    test_string_delegations.ring
-[PASS]    test_string_delegations2.ring
-[PASS]    test_string_regex_delegation.ring
-[PASS]    test_string_regression.ring
-[PASS]    test_string_splitter.ring
-[ERR]     test_stringlist.ring :: Error (R3) : Calling Function without definition: stzengineunicodecasefold
-[PASS]    test_stringlist_regression.ring
-[PASS]    test_stubs.ring
-[PASS]    test_stzstring_audit.ring
-[PASS]    test_submodules_regression4.ring
-[ERR]     test_wiring_batch2.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     977_elapsedtime.ring :: exit 3221225794
+[ERR]     978_concatenating_unicode_strings_in_ring_and_softanza.ring :: exit 3221225794
+[ERR]     979_string_append_historical_--_qt_removed_engine-base.ring :: exit 3221225794
+[ERR]     97_sectionbounds.ring :: exit 3221225794
+[ERR]     981_todo_-_future.ring :: exit 3221225794
+[ERR]     982_todo_-_fix_this_revisit_this_after_completing_stzw.ring :: exit 3221225794
+[ERR]     98_using_section_or_slice_to_get_a_part_of_a_list.ring :: exit 3221225794
+[ERR]     99_boxed.ring :: exit 3221225794
+[ERR]     from_global_some_features_come_to_empower_metaprogramming.ring :: exit 3221225794
+[ERR]     from_list_361_pr.ring :: exit 3221225794
+[ERR]     from_list_everything_is_findable.ring :: exit 3221225794
+[ERR]     from_list_find_and_antifind_in_stzstring.ring :: exit 3221225794
+[ERR]     from_list_named_objects_equality.ring :: exit 3221225794
+[ERR]     from_list_removing_duplicates.ring :: exit 3221225794
+[ERR]     from_namedvars_14_pr.ring :: exit 3221225794
+[ERR]     from_namedvars_naming_unnamed_objects_and_making_them_findable.ring :: exit 3221225794
+[ERR]     from_natural_empty_value_protection.ring :: exit 3221225794
+[ERR]     from_object_29_pr.ring :: exit 3221225794
+[ERR]     from_regexuter_03_pr.ring :: exit 3221225794
+[ERR]     from_table_stzstring_first_and_last_non-space_chars.ring :: exit 3221225794
+[ERR]     from_ttext_is_this_arabic_word_diacriticized.ring :: exit 3221225794
+[ERR]     from_ttext_now_lets_see_how_diacritics_can_be_removed_from_a_.ring :: exit 3221225794
+[ERR]     from_ttext_stzstringq_4_isscripthybrid_--_true.ring :: exit 3221225794
+[ERR]     from_ttext_stzstringq_4_scripts_--_common_inherited.ring :: exit 3221225794
+[ERR]     from_ttext_stzstringqسلامscriptisarabic_--_true.ring :: exit 3221225794
+[ERR]     from_ttext_stzstringq和平script_--_han.ring :: exit 3221225794
+[ERR]     test_between_semantics.ring :: exit 3221225794
+[ERR]     test_bytes_engine.ring :: exit 3221225794
+[ERR]     test_checker.ring :: exit 3221225794
+[ERR]     test_core.ring :: exit 3221225794
+[ERR]     test_domains.ring :: exit 3221225794
+[ERR]     test_domains2.ring :: exit 3221225794
+[ERR]     test_domains3.ring :: exit 3221225794
+[ERR]     test_domains4.ring :: exit 3221225794
+[ERR]     test_domains5.ring :: exit 3221225794
+[ERR]     test_engine_case.ring :: exit 3221225794
+[ERR]     test_engine_charclass.ring :: exit 3221225794
+[ERR]     test_finder.ring :: exit 3221225794
+[ERR]     test_finder_extended.ring :: exit 3221225794
+[ERR]     test_inserter.ring :: exit 3221225794
+[ERR]     test_listinstring_regression.ring :: exit 3221225794
+[ERR]     test_show_recursion_stress.ring :: exit 3221225794
+[ERR]     test_string_between.ring :: exit 3221225794
+[ERR]     test_string_between_ib.ring :: exit 3221225794
+[ERR]     test_string_between_ops.ring :: exit 3221225794
+[ERR]     test_string_delegations.ring :: exit 3221225794
+[ERR]     test_string_delegations2.ring :: exit 3221225794
+[ERR]     test_string_regex_delegation.ring :: exit 3221225794
+[ERR]     test_string_regression.ring :: exit 3221225794
+[ERR]     test_string_splitter.ring :: exit 3221225794
+[ERR]     test_stringlist.ring :: exit 3221225794
+[ERR]     test_stringlist_regression.ring :: exit 3221225794
+[ERR]     test_stubs.ring :: exit 3221225794
+[ERR]     test_stzstring_audit.ring :: exit 3221225794
+[ERR]     test_submodules_regression4.ring :: exit 3221225794
+[ERR]     test_wiring_batch2.ring :: exit 3221225794

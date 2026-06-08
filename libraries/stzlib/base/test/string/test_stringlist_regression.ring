@@ -7,6 +7,7 @@
 # Filter, edges.
 #
 # Run from base/string/test/.
+#ERR exit 3221225794
 
 load "../../stzBase.ring"
 
