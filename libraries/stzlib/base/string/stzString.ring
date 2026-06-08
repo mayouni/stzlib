@@ -2055,6 +2055,19 @@ class stzString from stzObject
 			paReplacements = paReplacements[2]
 		ok
 		if NOT isList(paReplacements) return ok
+		# Flatten any inline :And = value pairs into bare values.
+		_aFlat_ = []
+		_nIL_ = ring_len(paReplacements)
+		for _ix_ = 1 to _nIL_
+			_v_ = paReplacements[_ix_]
+			if isList(_v_) and ring_len(_v_) = 2 and isString(_v_[1]) and
+			   (lower(_v_[1]) = "and" or lower(_v_[1]) = "with" or lower(_v_[1]) = "by")
+				_aFlat_ + ""+ _v_[2]
+			but isString(_v_) or isNumber(_v_)
+				_aFlat_ + ""+ _v_
+			ok
+		next
+		paReplacements = _aFlat_
 		_nRepLen_ = ring_len(paReplacements)
 		if _nRepLen_ = 0 return ok
 
@@ -2307,6 +2320,10 @@ class stzString from stzObject
 	# ReplaceCharAt(n, pcNew) -- single-char-at-position form.
 	# (Named-param :Position/:By form lives at ReplaceCharAt2 above.)
 	def ReplaceCharAtSimple(n, pcNew)
+		if isList(pcNew) and ring_len(pcNew) = 2 and isString(pcNew[1]) and
+		   (lower(pcNew[1]) = "with" or lower(pcNew[1]) = "by")
+			pcNew = pcNew[2]
+		ok
 		_cTxt_ = This.Content()
 		_nTxtLen_ = This._EngineCount(_cTxt_)
 		if n < 1 or n > _nTxtLen_ return ok
@@ -6622,8 +6639,27 @@ class stzString from stzObject
 	#   RemoveAt(n)             -- remove single char at position n
 	#   RemoveAt(n, pcSub)      -- remove pcSub at position n
 	def RemoveAt(n, pcSub)
+		# List-of-positions form: remove pcSub at each of the listed
+		# codepoint positions. Process from high to low so earlier
+		# positions stay valid.
+		if isList(n) and isString(pcSub) and pcSub != ""
+			_aSorted_ = _ListCopy(n)
+			_nNL_ = ring_len(_aSorted_)
+			for _i_ = 2 to _nNL_
+				_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+				while _j_ >= 1 and _aSorted_[_j_] < _v_
+					_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+				end
+				_aSorted_[_j_ + 1] = _v_
+			next
+			for _i_ = 1 to _nNL_
+				This.RemoveAt(_aSorted_[_i_], pcSub)
+			next
+			return
+		ok
 		if NOT isString(pcSub) or pcSub = ""
 			# Single-char remove
+			if NOT isNumber(n) return ok
 			_cTxt_ = This.Content()
 			_nLen_ = This._EngineCount(_cTxt_)
 			if n < 1 or n > _nLen_ return ok
@@ -6801,14 +6837,53 @@ class stzString from stzObject
 		ok
 		return _aRes_
 
-	# ReplaceAllExcept(pcKeep, pcWith): replace every char that is
-	# NOT pcKeep with pcWith.
+	# ReplaceAllExcept(pcKeep, :With = pcWith): replace every char that
+	# is NOT pcKeep (or NOT in the list pcKeep) with pcWith.
 	def ReplaceAllExcept(pcKeep, pcWith)
+		if isList(pcWith) and ring_len(pcWith) = 2 and isString(pcWith[1]) and
+		   (lower(pcWith[1]) = "with" or lower(pcWith[1]) = "by")
+			pcWith = pcWith[2]
+		ok
+		_aKeep_ = []
+		if isList(pcKeep)
+			_nKL_ = ring_len(pcKeep)
+			for _k_ = 1 to _nKL_
+				if isString(pcKeep[_k_]) _aKeep_ + pcKeep[_k_] ok
+			next
+		but isString(pcKeep)
+			_aKeep_ + pcKeep
+		ok
+		_cTxt_ = This.Content()
+		_nKL_ = ring_len(_aKeep_)
+		# Find all occurrences (sections) of any keep-item.
+		_aPositions_ = []   # list of [start, end]
+		for _k_ = 1 to _nKL_
+			_w_ = _aKeep_[_k_]
+			_wlen_ = This._EngineCount(_w_)
+			_pos_ = 1
+			while TRUE
+				_p_ = This._FindFrom(_cTxt_, _w_, _pos_)
+				if _p_ < 1 exit ok
+				_aPositions_ + [ _p_, _p_ + _wlen_ - 1 ]
+				_pos_ = _p_ + _wlen_
+			end
+		next
+		# Walk chars: if codepoint is inside any keep section, keep it;
+		# else emit pcWith.
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
+		_nPL_ = ring_len(_aPositions_)
 		_cOut_ = ""
 		for _i_ = 1 to _nLen_
-			if _aChars_[_i_] = pcKeep
+			_bKeep_ = FALSE
+			for _j_ = 1 to _nPL_
+				_sec_ = _aPositions_[_j_]
+				if _i_ >= _sec_[1] and _i_ <= _sec_[2]
+					_bKeep_ = TRUE
+					exit
+				ok
+			next
+			if _bKeep_
 				_cOut_ += _aChars_[_i_]
 			else
 				_cOut_ += pcWith
@@ -8822,7 +8897,17 @@ class stzString from stzObject
 		return _aSec_[n]
 
 	# Move(n1, n2): move char from position n1 to position n2.
+	# Accepts named-param form Move(:CharFromPosition = N, :To = M).
 	def Move(n1, n2)
+		if isList(n1) and ring_len(n1) = 2 and isString(n1[1]) and
+		   (lower(n1[1]) = "charfromposition" or lower(n1[1]) = "fromposition" or lower(n1[1]) = "from")
+			n1 = n1[2]
+		ok
+		if isList(n2) and ring_len(n2) = 2 and isString(n2[1]) and
+		   (lower(n2[1]) = "to" or lower(n2[1]) = "toposition")
+			n2 = n2[2]
+		ok
+		if NOT (isNumber(n1) and isNumber(n2)) return ok
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
 		if n1 < 1 or n1 > _nLen_ or n2 < 1 or n2 > _nLen_ return ok
@@ -9658,6 +9743,23 @@ class stzString from stzObject
 	# MarkSubStringsCS(pcSubStr, pCaseSensitive): mark every
 	# occurrence of pcSubStr with [|...|] (single-substring form).
 	def MarkSubStringsCS(pcSubStr, pCaseSensitive)
+		# Accept :CS = TRUE/FALSE / :CaseSensitive = TRUE/FALSE named-params.
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and
+		   (lower(pCaseSensitive[1]) = "cs" or lower(pCaseSensitive[1]) = "casesensitive")
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		# pcSubStr may be a list of substrings to mark.
+		if isList(pcSubStr)
+			_nL_ = ring_len(pcSubStr)
+			for _i_ = 1 to _nL_
+				if isString(pcSubStr[_i_])
+					This.ReplaceCS(pcSubStr[_i_],
+						"[|" + pcSubStr[_i_] + "|]", pCaseSensitive)
+				ok
+			next
+			return
+		ok
 		This.ReplaceCS(pcSubStr, "[|" + pcSubStr + "|]", pCaseSensitive)
 
 	# ReplaceMarquers(paReplacements): replace #1, #2, ... in order
@@ -9717,6 +9819,15 @@ class stzString from stzObject
 		return This.IsLowercaseOf(pcOther)
 
 	# FindInSections(pcSub, aSections): positions of pcSub inside
+	# CountInSections(pcSub, aSections): count of occurrences whose
+	# starting position falls inside any of aSections.
+	def CountInSections(pcSub, aSections)
+		return ring_len(This.FindInSections(pcSub, aSections))
+
+	# NumberOfOccurrencesInSections alias.
+	def NumberOfOccurrencesInSections(pcSub, aSections)
+		return ring_len(This.FindInSections(pcSub, aSections))
+
 	# the given sections (codepoint absolute positions).
 	def FindInSections(pcSub, aSections)
 		_aRes_ = []
@@ -9730,7 +9841,7 @@ class stzString from stzObject
 				_aLocal_ = _oT_.AllPositionsOf(pcSub)
 				_nLL_ = ring_len(_aLocal_)
 				for _k_ = 1 to _nLL_
-					_aRes_ + _s_[1] + _aLocal_[_k_] - 1
+					_aRes_ + (_s_[1] + _aLocal_[_k_] - 1)
 				next
 			ok
 		next
@@ -9827,6 +9938,12 @@ class stzString from stzObject
 		return 0
 
 	def NthPreviousOccurrence(n, pcSub, nFrom)
+		if isList(nFrom) and ring_len(nFrom) = 2 and isString(nFrom[1]) and
+		   lower(nFrom[1]) = "startingat"
+			nFrom = nFrom[2]
+		ok
+		nFrom = This._ResolveSymPos(nFrom, This.NumberOfChars())
+		if NOT isNumber(nFrom) return 0 ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_aB_ = []
 		_nAL_ = ring_len(_aAll_)
@@ -10112,6 +10229,10 @@ class stzString from stzObject
 
 	# ReplaceFirstNChars(n, pcNew): replace the first n chars with pcNew.
 	def ReplaceFirstNChars(n, pcNew)
+		if isList(pcNew) and ring_len(pcNew) = 2 and isString(pcNew[1]) and
+		   (lower(pcNew[1]) = "with" or lower(pcNew[1]) = "by")
+			pcNew = pcNew[2]
+		ok
 		_nLen_ = This._EngineCount(This.Content())
 		if n >= _nLen_
 			This.Update(pcNew)
@@ -10125,6 +10246,10 @@ class stzString from stzObject
 			return This
 
 	def ReplaceLastNChars(n, pcNew)
+		if isList(pcNew) and ring_len(pcNew) = 2 and isString(pcNew[1]) and
+		   (lower(pcNew[1]) = "with" or lower(pcNew[1]) = "by")
+			pcNew = pcNew[2]
+		ok
 		_nLen_ = This._EngineCount(This.Content())
 		if n >= _nLen_
 			This.Update(pcNew)
