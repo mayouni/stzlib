@@ -9819,14 +9819,9 @@ class stzString from stzObject
 		return This.IsLowercaseOf(pcOther)
 
 	# FindInSections(pcSub, aSections): positions of pcSub inside
-	# CountInSections(pcSub, aSections): count of occurrences whose
-	# starting position falls inside any of aSections.
-	def CountInSections(pcSub, aSections)
-		return ring_len(This.FindInSections(pcSub, aSections))
-
-	# NumberOfOccurrencesInSections alias.
+	# NumberOfOccurrencesInSections alias for CountInSections.
 	def NumberOfOccurrencesInSections(pcSub, aSections)
-		return ring_len(This.FindInSections(pcSub, aSections))
+		return This.CountInSections(pcSub, aSections)
 
 	# the given sections (codepoint absolute positions).
 	def FindInSections(pcSub, aSections)
