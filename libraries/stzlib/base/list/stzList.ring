@@ -2697,6 +2697,125 @@ class stzList from stzObject
 	def NumberOfOccurrencesInSections(pItem, aSections)
 		return This.CountInSections(pItem, aSections)
 
+	# HexUnicodes(): hex code-points of every char of every string-item.
+	def HexUnicodes()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isString(_v_)
+				_o_ = new stzString(_v_)
+				_aR_ + _o_.HexUnicodes()
+			ok
+		next
+		return _aR_
+
+	# CommonItems(:With = otherList): items present in both lists.
+	def CommonItems(pNamedWith)
+		if NOT (isList(pNamedWith) and ring_len(pNamedWith) = 2 and
+		       isString(pNamedWith[1]) and lower(pNamedWith[1]) = "with")
+			return []
+		ok
+		_other_ = pNamedWith[2]
+		if NOT isList(_other_) return [] ok
+		_a_ = This.List()
+		_nL_ = ring_len(_a_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _a_[_i_]
+			_nB_ = ring_len(_other_)
+			for _j_ = 1 to _nB_
+				if _v_ = _other_[_j_] _aR_ + _v_ exit ok
+			next
+		next
+		return _aR_
+
+	# PreviousNItems(pcAnchor, n): the n items appearing before pcAnchor.
+	def PreviousNItems(pcAnchor, n)
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_pos_ = 0
+		for _i_ = 1 to _nL_
+			if _l_[_i_] = pcAnchor _pos_ = _i_ exit ok
+		next
+		if _pos_ <= 1 return [] ok
+		_start_ = _pos_ - n
+		if _start_ < 1 _start_ = 1 ok
+		_aR_ = []
+		for _i_ = _start_ to _pos_ - 1
+			_aR_ + _l_[_i_]
+		next
+		return _aR_
+
+	def HowManyST(pItem, pStartingAt)
+		_nFrom_ = 1
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt)
+			_nFrom_ = pStartingAt
+		ok
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_n_ = 0
+		for _i_ = _nFrom_ to _nL_
+			if _l_[_i_] = pItem _n_++ ok
+		next
+		return _n_
+
+	def NumberOfOccurrenceST(pItem, pStartingAt)
+		return This.HowManyST(pItem, pStartingAt)
+
+	def CountST(pItem, pStartingAt)
+		return This.HowManyST(pItem, pStartingAt)
+
+	def SplitAround(pItem)
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aRes_ = []
+		_grp_ = []
+		for _i_ = 1 to _nL_
+			if _l_[_i_] = pItem
+				_aRes_ + _grp_
+				_grp_ = []
+			else
+				_grp_ + _l_[_i_]
+			ok
+		next
+		_aRes_ + _grp_
+		return _aRes_
+
+	# TheseCharsZ(pacChars): positions of every listed char in the list.
+	def TheseCharsZ(pacChars)
+		if NOT isList(pacChars) return [] ok
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_nP_ = ring_len(pacChars)
+			for _j_ = 1 to _nP_
+				if _l_[_i_] = pacChars[_j_] _aR_ + _i_ exit ok
+			next
+		next
+		return _aR_
+
+	def NextNItemsAfter(pcAnchor, n)
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_pos_ = 0
+		for _i_ = 1 to _nL_
+			if _l_[_i_] = pcAnchor _pos_ = _i_ exit ok
+		next
+		if _pos_ = 0 or _pos_ >= _nL_ return [] ok
+		_end_ = _pos_ + n
+		if _end_ > _nL_ _end_ = _nL_ ok
+		_aR_ = []
+		for _i_ = _pos_ + 1 to _end_
+			_aR_ + _l_[_i_]
+		next
+		return _aR_
+
 	  #-- NumberOfOccurrenceCS: count occurrences
 
 	def NumberOfOccurrenceCS(pItem, pCaseSensitive)

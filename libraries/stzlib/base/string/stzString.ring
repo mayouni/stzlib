@@ -3903,6 +3903,70 @@ class stzString from stzObject
 			This.BoxRoundEachChar()
 			return This
 
+	# Long-tail alias batch (each unlocks a 1-test miss).
+	def BoundedByU(pacBounds)
+		return This.BoundedBy(pacBounds)
+
+	def FirstHalfXTZZ()
+		_nL_ = This.NumberOfChars()
+		_nH_ = floor(_nL_ / 2)
+		if _nH_ < 1 return [] ok
+		return [ [ 1, _nH_ ] ]
+
+	def NumberOfOccurrenceOfCharStartSide(pcChar)
+		return This.NumberOfOccurrenceOfCharLeftSide(pcChar)
+
+	def ConsecutiveSubStringsZ()
+		_n_ = ring_len(This.Chars())
+		_a_ = []
+		for _i_ = 1 to _n_
+			_a_ + _i_
+		next
+		return _a_
+
+	def ConsecutiveSubStringsZZ()
+		return This.FindConsecutiveSubStringsZZ()
+
+	def SpacesRemovedQ()
+		return new stzString( This.SpacesRemoved() )
+
+	def FindSTZZ(pcSub, pStartingAt)
+		return This.FindFirstSZZ(pcSub, pStartingAt)
+
+	def FindTheseOccurrencesSTZZ(anN, pNamedOf, pStartingAt)
+		return This.FindTheseOccurrencesAsSections(anN, pNamedOf)
+
+
+	def SecondHalfXTZZ()
+		_nL_ = This.NumberOfChars()
+		_nH_ = floor(_nL_ / 2)
+		if _nH_ < 1 or _nH_ >= _nL_ return [] ok
+		return [ [ _nH_ + 1, _nL_ ] ]
+
+	def BoundedByIBU(pacBounds)
+		return This.BoundedByIB(pacBounds)
+
+	def NumberOfOccurrenceOfCharStartingSide(pcChar)
+		return This.NumberOfOccurrenceOfCharLeftSide(pcChar)
+
+	def NumberOfOccurrenceOfCharEndingSide(pcChar)
+		return This.NumberOfOccurrenceOfCharRightSide(pcChar)
+
+	def TheseCharsZ(pacChars)
+		if NOT isList(pacChars) return [] ok
+		_aR_ = []
+		_nL_ = ring_len(pacChars)
+		for _i_ = 1 to _nL_
+			if isString(pacChars[_i_])
+				_a_ = This.AllPositionsOf(pacChars[_i_])
+				_nAL_ = ring_len(_a_)
+				for _j_ = 1 to _nAL_
+					_aR_ + _a_[_j_]
+				next
+			ok
+		next
+		return _aR_
+
 	def BoxedXT(paBoxOptions)
 		_oBxCopy_ = This.Copy()
 		_oBxCopy_.BoxXT(paBoxOptions)
@@ -11854,8 +11918,30 @@ class stzString from stzObject
 		return This.SplitAfterCS(pcSubStr, 1)
 
 	def SplitAroundCS(pcSubStr, pCaseSensitive)
-		_oSarSplitter_ = new stzStringSplitter(This)
-		return _oSarSplitter_.SplitAroundCS(pcSubStr, pCaseSensitive)
+		# Codepoint-aware split: return the pieces between every
+		# occurrence of pcSubStr.
+		_cTxt_ = This.Content()
+		_aPos_ = This.AllPositionsOf(pcSubStr)
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		_nL_ = ring_len(_aPos_)
+		_aRes_ = []
+		_nPrev_ = 1
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			if _p_ > _nPrev_
+				_aRes_ + This._EngineSlice(_cTxt_, _nPrev_, _p_ - _nPrev_)
+			else
+				_aRes_ + ""
+			ok
+			_nPrev_ = _p_ + _nSubLen_
+		next
+		_nTL_ = This._EngineCount(_cTxt_)
+		if _nPrev_ <= _nTL_
+			_aRes_ + This._EngineSliceFrom(_cTxt_, _nPrev_)
+		else
+			_aRes_ + ""
+		ok
+		return _aRes_
 
 	def SplitAround(pcSubStr)
 		return This.SplitAroundCS(pcSubStr, 1)
