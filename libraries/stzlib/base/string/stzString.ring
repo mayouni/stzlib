@@ -5613,7 +5613,11 @@ class stzString from stzObject
 	def FindBoundedByAsSections(pacBounds)
 		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
 
-		def FindAnyBoundedByAsSections(pacBounds)
+		def FindAnyBoundedByAsSections(pacBounds, pcClose)
+			# Two-arg form: (pcOpen, pcClose) -> normalise to list.
+			if isString(pacBounds) and isString(pcClose)
+				return This.FindBoundedByAsSections([ pacBounds, pcClose ])
+			ok
 			# Single-string form -> use as both open and close.
 			if isString(pacBounds)
 				return This.FindBoundedByAsSections([ pacBounds, pacBounds ])
@@ -6697,10 +6701,23 @@ class stzString from stzObject
 		ok
 		return _aRes_
 
-	# IsScript(): TRUE if the content is a known Unicode script name
-	# (delegates to the existing IsScriptName above).
-	def IsScript()
-		return This.IsScriptName()
+	# IsScript([pcScript]): TRUE if content is a known Unicode script
+	# name (0-arg), or TRUE if every char is in the given Unicode
+	# script (1-arg, accepts :Common, :Latin, :Hebrew etc.).
+	def IsScript(pcScript)
+		if NOT isString(pcScript) or pcScript = ""
+			return This.IsScriptName()
+		ok
+		# Strip leading ":" if symbolic.
+		_kw_ = lower(pcScript)
+		if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+		# Delegate to per-script predicate if it exists.
+		try
+			eval("_b_ = This.IsScript" + _kw_ + "()")
+			return _b_
+		catch
+			return FALSE
+		done
 
 	# RemoveAt -- two shapes:
 	#   RemoveAt(n)             -- remove single char at position n
@@ -8742,9 +8759,25 @@ class stzString from stzObject
 		# space; same as FindSpaces.
 		return This.FindSpaces()
 
-	# Check() -- existence check; stub returning TRUE so re-include
-	# narratives don't R14.
-	def Check()
+	# Check([pcExpr]) -- evaluate pcExpr per char (@char in scope) and
+	# return TRUE if it holds for every char. 0-arg form is the
+	# existence-check stub used by re-include narratives.
+	def Check(pcExpr)
+		if NOT isString(pcExpr) or pcExpr = "" return TRUE ok
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 1 to _nLen_
+			@char = _aChars_[_i_]
+			@Char = @char
+			@position = _i_
+			_b_ = FALSE
+			try
+				eval("_b_ = " + pcExpr)
+			catch
+				_b_ = FALSE
+			done
+			if NOT _b_ return FALSE ok
+		next
 		return TRUE
 
 	# SubStringsOccurringNoMoreThanNTimes / LessThanNTimes: bounded
@@ -9072,8 +9105,21 @@ class stzString from stzObject
 		if n < 1 or n > ring_len(_aAll_) return 0 ok
 		return _aAll_[n]
 
-	# Ranges(): contiguous-character ranges (e.g. "abc123" -> [[a,c],[1,3]]).
-	def Ranges()
+	# Ranges([aRanges]): contiguous-character ranges, or section-text
+	# extraction when given a list of [start, count] ranges.
+	# Test 543: o1.Ranges([[1,2],[8,3],...]) -> sliced sections.
+	def Ranges(p1)
+		if isList(p1)
+			_aRes_ = []
+			_nL_ = ring_len(p1)
+			for _i_ = 1 to _nL_
+				_r_ = p1[_i_]
+				if isList(_r_) and ring_len(_r_) >= 2 and isNumber(_r_[1]) and isNumber(_r_[2])
+					_aRes_ + This._EngineSlice(This.Content(), _r_[1], _r_[2])
+				ok
+			next
+			return _aRes_
+		ok
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
 		_aRes_ = []
@@ -9181,10 +9227,31 @@ class stzString from stzObject
 		ok
 		return [ _cBefore_, _cAfter_ ]
 
-	# FindTheseSubStringBounds(pacSubStr): per substring, the
-	# [before, after] single-char bounds.
-	def FindTheseSubStringBounds(pacSubStr)
+	# FindTheseSubStringBounds(pcSub|pacSubStr [, pacBounds]):
+	# - 1-arg list: per substring, the [before, after] single-char bounds
+	# - 2-arg (string, list): the bounds of pcSub when found inside any
+	#   of the explicit pacBounds [open, close] pair
+	def FindTheseSubStringBounds(pacSubStr, pacBounds)
+		if isString(pacSubStr) and isList(pacBounds) and ring_len(pacBounds) = 2
+			# Treat as: find pcSub inside the bounded regions and return
+			# each region's bounds when pcSub is present.
+			_aSec_ = This.FindBoundedByAsSections(pacBounds)
+			_aRes_ = []
+			_nL_ = ring_len(_aSec_)
+			for _i_ = 1 to _nL_
+				_s_ = _aSec_[_i_]
+				if isList(_s_) and ring_len(_s_) = 2
+					_cMid_ = This._EngineSlice(This.Content(),
+					         _s_[1], _s_[2] - _s_[1] + 1)
+					if substr(_cMid_, pacSubStr) > 0
+						_aRes_ + pacBounds
+					ok
+				ok
+			next
+			return _aRes_
+		ok
 		_aRes_ = []
+		if NOT isList(pacSubStr) return _aRes_ ok
 		_nL_ = ring_len(pacSubStr)
 		for _i_ = 1 to _nL_
 			if isString(pacSubStr[_i_])
@@ -9498,12 +9565,21 @@ class stzString from stzObject
 	def MarkersZZ()
 		return This.MarquersZZ()
 
-	# ReplaceOccurrencesByMany: alias of ReplaceByMany.
-	def ReplaceOccurrencesByMany(pcSubStr, paReplacements)
-		This.ReplaceByMany(pcSubStr, paReplacements)
+	# ReplaceOccurrencesByMany:
+	#   (pcSubStr, paReplacements)               : alias of ReplaceByMany
+	#   (anN, pcSubStr, :By = paReplacements)    : replace n-th selected
+	#                                              occurrences with each
+	#                                              replacement in turn
+	def ReplaceOccurrencesByMany(p1, p2, p3)
+		if isList(p1) and isString(p2)
+			# 3-arg select-by-index form: dispatch via ReplaceOccurrences.
+			This.ReplaceOccurrences(p1, [ "of", p2 ], p3)
+			return
+		ok
+		This.ReplaceByMany(p1, p2)
 
-		def ReplaceOccurrencesByManyQ(pcSubStr, paReplacements)
-			This.ReplaceByMany(pcSubStr, paReplacements)
+		def ReplaceOccurrencesByManyQ(p1, p2, p3)
+			This.ReplaceOccurrencesByMany(p1, p2, p3)
 			return This
 
 	# MarkTheseSubStringsCS: wrap each occurrence in [|...|].
@@ -9719,8 +9795,130 @@ class stzString from stzObject
 		next
 		return _nT_
 
-	def Splits()
-		return This.Words()
+	# Splits([pcSep]): split-on-separator words; 0-arg uses whitespace.
+	def Splits(pcSep)
+		if NOT isString(pcSep) or pcSep = "" return This.Words() ok
+		return This.Split(pcSep)
+
+	def SplitsZ(pcSep)
+		# Start positions of each split, in absolute codepoint coords.
+		if NOT isString(pcSep) or pcSep = "" return [] ok
+		_aRes_ = [ 1 ]
+		_aP_ = This.AllPositionsOf(pcSep)
+		_nSL_ = This._EngineCount(pcSep)
+		_nL_ = ring_len(_aP_)
+		for _i_ = 1 to _nL_
+			_aRes_ + (_aP_[_i_] + _nSL_)
+		next
+		return _aRes_
+
+	def SplitsZZ(pcSep)
+		_aS_ = This.SplitsZ(pcSep)
+		_aRes_ = []
+		_nL_ = ring_len(_aS_)
+		_nTL_ = This.NumberOfChars()
+		_nSL_ = This._EngineCount(pcSep)
+		for _i_ = 1 to _nL_
+			_start_ = _aS_[_i_]
+			_end_ = _nTL_
+			if _i_ < _nL_ _end_ = _aS_[_i_ + 1] - _nSL_ - 1 ok
+			_aRes_ + [ _start_, _end_ ]
+		next
+		return _aRes_
+
+	def RemoveRanges(p1)
+		# Removes the sliced sections returned by Ranges(p1) from content.
+		if NOT isList(p1) return ok
+		# Sort ranges by start desc so earlier ranges stay valid.
+		_a_ = _ListCopy(p1)
+		_n_ = ring_len(_a_)
+		for _i_ = 2 to _n_
+			_v_ = _a_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and isList(_a_[_j_]) and isList(_v_) and _a_[_j_][1] < _v_[1]
+				_a_[_j_ + 1] = _a_[_j_]; _j_--
+			end
+			_a_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _n_
+			_r_ = _a_[_i_]
+			if isList(_r_) and ring_len(_r_) >= 2 and isNumber(_r_[1]) and isNumber(_r_[2])
+				This.RemoveSection(_r_[1], _r_[1] + _r_[2] - 1)
+			ok
+		next
+
+		def RemoveRangesQ(p1)
+			This.RemoveRanges(p1)
+			return This
+
+	def FindTheseSubStringBoundsZZ(pacSubStr, pacBounds)
+		return This.FindTheseSubStringBounds(pacSubStr, pacBounds)
+
+	# RemoveTheseSubStringBounds(pcSub, pacBounds): strip the bounds
+	# surrounding every occurrence of pcSub inside the bounded regions.
+	def RemoveTheseSubStringBounds(pcSub, pacBounds)
+		if NOT (isString(pcSub) and isList(pacBounds) and ring_len(pacBounds) = 2)
+			return
+		ok
+		_cOpen_ = pacBounds[1]; _cClose_ = pacBounds[2]
+		# Replace "<<word>>" -> "word" anywhere it appears.
+		_marker_ = _cOpen_ + pcSub + _cClose_
+		This.Replace(_marker_, pcSub)
+
+		def RemoveTheseSubStringBoundsQ(pcSub, pacBounds)
+			This.RemoveTheseSubStringBounds(pcSub, pacBounds)
+			return This
+
+	def WalkForwardW(pcCondition, pNamedUntil)
+		# Mirror of WalkBackwardW but walking forward.
+		if isList(pcCondition) and ring_len(pcCondition) = 2 and isString(pcCondition[1]) and
+		   lower(pcCondition[1]) = "startingat"
+			_nFrom_ = pcCondition[2]
+			_cExpr_ = ""
+			if isList(pNamedUntil) and ring_len(pNamedUntil) = 2 and isString(pNamedUntil[1]) and
+			   (lower(pNamedUntil[1]) = "untilbefore" or lower(pNamedUntil[1]) = "until")
+				_cExpr_ = pNamedUntil[2]
+			ok
+			if NOT isString(_cExpr_) or _cExpr_ = "" return 0 ok
+			_e_ = ring_trim(_cExpr_)
+			if ring_left(_e_, 1) = "{" and ring_right(_e_, 1) = "}"
+				_e_ = ring_trim(substr(_e_, 2, ring_len(_e_) - 2))
+			ok
+			_aChars_ = This.Chars()
+			_nLen_ = ring_len(_aChars_)
+			_nFrom_ = This._ResolveSymPos(_nFrom_, _nLen_)
+			if NOT isNumber(_nFrom_) return 0 ok
+			if _nFrom_ < 1 _nFrom_ = 1 ok
+			for _i_ = _nFrom_ to _nLen_
+				@char = _aChars_[_i_]
+				@Char = @char
+				@position = _i_
+				_bMatch_ = FALSE
+				try
+					eval("_bMatch_ = " + _e_)
+				catch
+					_bMatch_ = FALSE
+				done
+				if _bMatch_ return _i_ - 1 ok
+			next
+			return 0
+		ok
+		# String-condition form: collect positions where pcCondition holds.
+		_aRes_ = []
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		for _i_ = 1 to _nLen_
+			@char = _aChars_[_i_]
+			@Char = @char
+			@position = _i_
+			_bMatch_ = FALSE
+			try
+				eval("_bMatch_ = " + pcCondition)
+			catch
+				_bMatch_ = FALSE
+			done
+			if _bMatch_ _aRes_ + _i_ ok
+		next
+		return _aRes_
 
 	def FindWords()
 		_aRes_ = []
@@ -10326,9 +10524,46 @@ class stzString from stzObject
 	def Inversed()
 		return This.CharsReversed()
 
-	# WalkBackwardW(pcCondition): walk content backwards, calling
-	# the predicate for each char; returns positions where it was TRUE.
-	def WalkBackwardW(pcCondition)
+	# WalkBackwardW(pcCondition | :StartingAt = N, :UntilBefore = expr):
+	# walk content backwards from a starting position; returns the
+	# first position where the :UntilBefore predicate is TRUE
+	# (named-param form), or all positions where pcCondition is TRUE
+	# (string form).
+	def WalkBackwardW(pcCondition, pNamedUntil)
+		# Named-param form: (:StartingAt = N, :UntilBefore = expr)
+		if isList(pcCondition) and ring_len(pcCondition) = 2 and isString(pcCondition[1]) and
+		   lower(pcCondition[1]) = "startingat"
+			_nFrom_ = pcCondition[2]
+			_cExpr_ = ""
+			if isList(pNamedUntil) and ring_len(pNamedUntil) = 2 and isString(pNamedUntil[1]) and
+			   (lower(pNamedUntil[1]) = "untilbefore" or lower(pNamedUntil[1]) = "until")
+				_cExpr_ = pNamedUntil[2]
+			ok
+			if NOT isString(_cExpr_) or _cExpr_ = "" return 0 ok
+			# Strip braces if the expression came as "{ ... }".
+			_e_ = ring_trim(_cExpr_)
+			if ring_left(_e_, 1) = "{" and ring_right(_e_, 1) = "}"
+				_e_ = ring_trim(substr(_e_, 2, ring_len(_e_) - 2))
+			ok
+			_aChars_ = This.Chars()
+			_nLen_ = ring_len(_aChars_)
+			_nFrom_ = This._ResolveSymPos(_nFrom_, _nLen_)
+			if NOT isNumber(_nFrom_) return 0 ok
+			if _nFrom_ > _nLen_ _nFrom_ = _nLen_ ok
+			for _i_ = _nFrom_ to 1 step -1
+				@char = _aChars_[_i_]
+				@Char = @char
+				@position = _i_
+				_bMatch_ = FALSE
+				try
+					eval("_bMatch_ = " + _e_)
+				catch
+					_bMatch_ = FALSE
+				done
+				if _bMatch_ return _i_ + 1 ok
+			next
+			return 0
+		ok
 		_aRes_ = []
 		_aChars_ = This.Chars()
 		_nLen_ = ring_len(_aChars_)
@@ -10677,8 +10912,9 @@ class stzString from stzObject
 	def NFirstCharsQ(n)
 		return new stzString( This.NFirstChars(n) )
 
-	# CompressUsingBinary(): hand-wave stub -- return content unchanged.
-	def CompressUsingBinary()
+	# CompressUsingBinary([pcMask]): hand-wave stub -- return content
+	# unchanged regardless of optional binary mask.
+	def CompressUsingBinary(pcMask)
 		return This.Content()
 
 	# UnicodeCompareWithCS(pcOther, pCaseSensitive): codepoint
@@ -10882,11 +11118,82 @@ class stzString from stzObject
 	def FindAnyBoundedByAsSectionss(p1, p2, p3)
 		return This.FindAnyBoundedByAsSections([ p1, p2 ])
 
-	def ReplaceOccurrences(pcOld, pcNew)
-		This.Replace(pcOld, pcNew)
+	# ReplaceOccurrences:
+	#   (pcOld, pcNew)                                       : every-occurrence replace
+	#   (anN, :Of = pcOld, :By = pcNew | listOfReplacements)  : selected n-th occurrences
+	def ReplaceOccurrences(p1, p2, p3)
+		# 3-arg select-by-index form.
+		if isList(p1) and isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and
+		   lower(p2[1]) = "of"
+			_cOld_ = p2[2]
+			# Flatten p1 (may contain :and = ... pairs).
+			_aIdx_ = []
+			_nIL_ = ring_len(p1)
+			for _ii_ = 1 to _nIL_
+				_v_ = p1[_ii_]
+				if isNumber(_v_) _aIdx_ + _v_
+				but isList(_v_) and ring_len(_v_) = 2 and isString(_v_[1]) and
+				   (lower(_v_[1]) = "and" or lower(_v_[1]) = "with") and isNumber(_v_[2])
+					_aIdx_ + _v_[2]
+				ok
+			next
+			# Resolve :By value.
+			_xNew_ = ""
+			if isList(p3) and ring_len(p3) = 2 and isString(p3[1]) and
+			   (lower(p3[1]) = "by" or lower(p3[1]) = "with")
+				_xNew_ = p3[2]
+			ok
+			# If _xNew_ is a list, treat as replacement-per-index; else
+			# scalar to apply to every selected occurrence.
+			_aAll_ = This.AllPositionsOf(_cOld_)
+			_nAL_ = ring_len(_aAll_)
+			_aSel_ = []
+			_nXL_ = ring_len(_aIdx_)
+			for _ii_ = 1 to _nXL_
+				_k_ = _aIdx_[_ii_]
+				if _k_ >= 1 and _k_ <= _nAL_
+					_aSel_ + [ _aAll_[_k_], _ii_ ]
+				ok
+			next
+			# Sort descending by position.
+			_nSL_ = ring_len(_aSel_)
+			for _ii_ = 2 to _nSL_
+				_v_ = _aSel_[_ii_]; _jj_ = _ii_ - 1
+				while _jj_ >= 1 and _aSel_[_jj_][1] < _v_[1]
+					_aSel_[_jj_ + 1] = _aSel_[_jj_]; _jj_--
+				end
+				_aSel_[_jj_ + 1] = _v_
+			next
+			_nOldLen_ = This._EngineCount(_cOld_)
+			for _ii_ = 1 to _nSL_
+				_pair_ = _aSel_[_ii_]
+				_p_ = _pair_[1]; _idx_ = _pair_[2]
+				if isList(_xNew_)
+					# Flatten any :and = "..." in _xNew_ on demand.
+					_aFlat_ = []
+					_nFL_ = ring_len(_xNew_)
+					for _jj_ = 1 to _nFL_
+						_vv_ = _xNew_[_jj_]
+						if isString(_vv_) _aFlat_ + _vv_
+						but isList(_vv_) and ring_len(_vv_) = 2 and isString(_vv_[1]) and
+						   (lower(_vv_[1]) = "and" or lower(_vv_[1]) = "with")
+							_aFlat_ + _vv_[2]
+						ok
+					next
+					if _idx_ >= 1 and _idx_ <= ring_len(_aFlat_)
+						This.ReplaceSubStringAtPosition(_p_, _cOld_, _aFlat_[_idx_])
+					ok
+				but isString(_xNew_)
+					This.ReplaceSubStringAtPosition(_p_, _cOld_, _xNew_)
+				ok
+			next
+			return
+		ok
+		# 2-arg every-occurrence form.
+		if isString(p1) and isString(p2) This.Replace(p1, p2) ok
 
-		def ReplaceOccurrencesQ(pcOld, pcNew)
-			This.ReplaceOccurrences(pcOld, pcNew)
+		def ReplaceOccurrencesQ(p1, p2, p3)
+			This.ReplaceOccurrences(p1, p2, p3)
 			return This
 
 	def FindConsecutiveSubStringsOfNChars(n)
