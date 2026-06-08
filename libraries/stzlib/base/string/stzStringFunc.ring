@@ -56,6 +56,15 @@ func PreviousNthOccurrence(cStr, n, cSub, nFrom)
 	_o_ = new stzString(cStr)
 	return _o_.FindNthPrevious(n, cSub, nFrom)
 
+# FindNextNthMarquer(cStr, n, nFrom): position of the n-th marker
+# (the `#N` placeholder pattern) after nFrom in cStr.
+func FindNextNthMarquer(cStr, n, nFrom)
+	_o_ = new stzString(cStr)
+	return _o_.FindNextNthMarquer(n, nFrom)
+
+func FindNextNthMarker(cStr, n, nFrom)
+	return FindNextNthMarquer(cStr, n, nFrom)
+
 # SortedInAscending(paItems): return paItems sorted ascending.
 func SortedInAscending(paItems)
 	if NOT isList(paItems) return paItems ok

@@ -6098,11 +6098,78 @@ class stzString from stzObject
 	# FindBoundedSubString(pcOpen, pcClose): the substring(s) found
 	# between pcOpen and pcClose. (Returns the content strings, not
 	# positions; that's FindSubStringBoundedBy.)
-	def FindBoundedSubString(pcOpen, pcClose)
+	# FindBoundedSubString: 1-arg form finds occurrences of pcSub that
+	# sit inside any auto-detected bounded section; 2-arg form takes
+	# explicit bounds.
+	def FindBoundedSubString(pcSubOrOpen)
+		if isList(pcSubOrOpen) and ring_len(pcSubOrOpen) = 2
+			return This.BoundedBy(pcSubOrOpen)
+		ok
+		# pcSubOrOpen treated as the substring to locate -- return
+		# every occurrence's section.
+		return This.FindAsSections(pcSubOrOpen)
+
+	def FindBoundedSubStringXT(pcOpen, pcClose)
 		return This.BoundedBy([ pcOpen, pcClose ])
 
-	def FindBoundedSubStrings(pcOpen, pcClose)
+	def FindBoundedSubStrings(pcSubOrOpen)
+		if isList(pcSubOrOpen) and ring_len(pcSubOrOpen) = 2
+			return This.BoundedBy(pcSubOrOpen)
+		ok
+		return This.FindAsSections(pcSubOrOpen)
+
+	def FindBoundedSubStringsXT(pcOpen, pcClose)
 		return This.BoundedBy([ pcOpen, pcClose ])
+
+	# Z / ZZ / IB variants for narrative API parity.
+	def FindBoundedSubStringZ(pcSubOrOpen)
+		_a_ = This.FindBoundedSubString(pcSubOrOpen)
+		_nL_ = ring_len(_a_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_x_ = _a_[_i_]
+			if isList(_x_) and ring_len(_x_) >= 1 _aR_ + _x_[1] but isNumber(_x_) _aR_ + _x_ ok
+		next
+		return _aR_
+
+	def FindBoundedSubStringZZ(pcSubOrOpen)
+		return This.FindBoundedSubString(pcSubOrOpen)
+
+	def FindBoundedSubStringIB(pcSubOrOpen)
+		return This.FindBoundedSubString(pcSubOrOpen)
+
+	def FindBoundedSubStringIBZZ(pcSubOrOpen)
+		return This.FindBoundedSubString(pcSubOrOpen)
+
+	def FindSubStringBounds(pcSub)
+		return This.FindSubStringBoundsZZ(pcSub)
+
+	def FindSubStringBoundsUpToNChars(pcSub, n)
+		return This.FindSubStringBoundsUpToNCharsAsSections(pcSub, n)
+
+	def RemoveTrailingSubString()
+		_z_ = This.TrailingSubStringZZ()
+		if ring_len(_z_) = 2
+			This.RemoveSection(_z_[1], _z_[2])
+		ok
+
+		def RemoveTrailingSubStringQ()
+			This.RemoveTrailingSubString()
+			return This
+
+	# Find the position of the next n-th marker after nFrom.
+	def FindNextNthMarquer(n, nFrom)
+		_aP_ = This.MarquersPositions()
+		_aA_ = []
+		_nL_ = ring_len(_aP_)
+		for _i_ = 1 to _nL_
+			if _aP_[_i_] > nFrom _aA_ + _aP_[_i_] ok
+		next
+		if n < 1 or n > ring_len(_aA_) return 0 ok
+		return _aA_[n]
+
+	def FindNextNthMarker(n, nFrom)
+		return This.FindNextNthMarquer(n, nFrom)
 
 	# SubStringBoundsXT(pcSub, n): per occurrence, the [startBefore,
 	# endBefore] + [startAfter, endAfter] cap-n-char sections (alias
@@ -9175,12 +9242,25 @@ class stzString from stzObject
 			This.RemoveNthOccurrenceCS(n, pcSub, pCaseSensitive)
 			return This
 
-	# AddBounds(pcOpen, pcClose): wrap the content with bounds.
-	def AddBounds(pcOpen, pcClose)
+	# AddBounds([pcOpen, pcClose]): wrap content with bounds.
+	# 1-arg list form accepted: AddBounds(["<<", ">>"]).
+	def AddBounds(p1)
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and isString(p1[2])
+			This.Update(p1[1] + This.Content() + p1[2])
+		ok
+
+	def AddBoundsXT(pcOpen, pcClose)
 		This.Update(pcOpen + This.Content() + pcClose)
 
-		def AddBoundsQ(pcOpen, pcClose)
-			This.AddBounds(pcOpen, pcClose)
+		def AddBoundsQ(p1)
+			This.AddBounds(p1)
+			return This
+
+	def BoundWith(p1)
+		This.AddBounds(p1)
+
+		def BoundWithQ(p1)
+			This.AddBounds(p1)
 			return This
 
 	# FirstBoundsOf(pcSub): the first [before, after] bounds (same
@@ -9862,7 +9942,22 @@ class stzString from stzObject
 	def HasLeadingSubString(pcSub)
 		return This.StartsWithCS(pcSub, 1)
 
-	def TrailingSubStringZZ(pcSub)
+	def TrailingSubStringZZ()
+		# Bounds of the trailing-substring auto-detected from the
+		# last word of the content.
+		_cSub_ = This.TrailingSubString()
+		if _cSub_ = "" return [] ok
+		_nLen_ = This._EngineCount(This.Content())
+		_nSubLen_ = This._EngineCount(_cSub_)
+		if _nSubLen_ > _nLen_ return [] ok
+		if This._EngineSliceFrom(This.Content(),
+		                         _nLen_ - _nSubLen_ + 1) != _cSub_
+			return []
+		ok
+		return [ _nLen_ - _nSubLen_ + 1, _nLen_ ]
+
+	def TrailingSubStringZZOf(pcSub)
+		if NOT isString(pcSub) or pcSub = "" return [] ok
 		_nLen_ = This._EngineCount(This.Content())
 		_nSubLen_ = This._EngineCount(pcSub)
 		if _nSubLen_ > _nLen_ return [] ok
@@ -9871,6 +9966,134 @@ class stzString from stzObject
 			return []
 		ok
 		return [ _nLen_ - _nSubLen_ + 1, _nLen_ ]
+
+	# Object wrappers around stzStringFunc global helpers so they
+	# resolve inside StzStringQ(){...} blocks. Inline rather than
+	# delegate to avoid same-name recursion.
+	def MarquersPositions()
+		_cStr_ = This.Content()
+		_aRes_ = []
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_i_ = 1
+		while _i_ <= _nLen_
+			if _aChars_[_i_] = "#" and _i_ < _nLen_ and isDigit(_aChars_[_i_ + 1])
+				_aRes_ + _i_
+			ok
+			_i_++
+		end
+		return _aRes_
+
+	def MarkersPositions()
+		return This.MarquersPositions()
+
+	def FindMarquers()
+		return This.MarquersPositions()
+
+	def FindMarkers()
+		return This.MarquersPositions()
+
+	def MarquersPositionsSortedInAscending()
+		_a_ = This.MarquersPositions()
+		_n_ = ring_len(_a_)
+		_r_ = _ListCopy(_a_)
+		for _i_ = 2 to _n_
+			_v_ = _r_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _r_[_j_] > _v_
+				_r_[_j_ + 1] = _r_[_j_]; _j_--
+			end
+			_r_[_j_ + 1] = _v_
+		next
+		return _r_
+
+	def MarquersPositionsSortedInDescending()
+		_a_ = This.MarquersPositions()
+		_n_ = ring_len(_a_)
+		_r_ = _ListCopy(_a_)
+		for _i_ = 2 to _n_
+			_v_ = _r_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _r_[_j_] < _v_
+				_r_[_j_ + 1] = _r_[_j_]; _j_--
+			end
+			_r_[_j_ + 1] = _v_
+		next
+		return _r_
+
+	def MarkersPositionsSortedInAscending()
+		return This.MarquersPositionsSortedInAscending()
+
+	def MarkersPositionsSortedInDescending()
+		return This.MarquersPositionsSortedInDescending()
+
+	def NextNthOccurrence(n, pNamedOf, pStartingAt)
+		_cSub_ = ""
+		_nFrom_ = 1
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and isString(pNamedOf[1]) and
+		   lower(pNamedOf[1]) = "of"
+			_cSub_ = pNamedOf[2]
+		but isString(pNamedOf)
+			_cSub_ = pNamedOf
+		ok
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt) and pStartingAt >= 1
+			_nFrom_ = pStartingAt
+		ok
+		if _cSub_ = "" return 0 ok
+		_iCount_ = 0
+		_pos_ = _nFrom_
+		while TRUE
+			_p_ = This._FindFrom(This.Content(), _cSub_, _pos_)
+			if _p_ < 1 return 0 ok
+			_iCount_++
+			if _iCount_ = n return _p_ ok
+			_pos_ = _p_ + 1
+		end
+		return 0
+
+	def SortedInAscending()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = _ListCopy(_aChars_)
+		# Insertion sort, codepoint-aware via strcmp.
+		for _i_ = 2 to _nLen_
+			_v_ = _aRes_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and strcmp(_aRes_[_j_], _v_) > 0
+				_aRes_[_j_ + 1] = _aRes_[_j_]; _j_--
+			end
+			_aRes_[_j_ + 1] = _v_
+		next
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cOut_ += _aRes_[_i_]
+		next
+		return _cOut_
+
+	def SortedInDescending()
+		_aChars_ = This.Chars()
+		_nLen_ = ring_len(_aChars_)
+		_aRes_ = _ListCopy(_aChars_)
+		for _i_ = 2 to _nLen_
+			_v_ = _aRes_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and strcmp(_aRes_[_j_], _v_) < 0
+				_aRes_[_j_ + 1] = _aRes_[_j_]; _j_--
+			end
+			_aRes_[_j_ + 1] = _v_
+		next
+		_cOut_ = ""
+		for _i_ = 1 to _nLen_
+			_cOut_ += _aRes_[_i_]
+		next
+		return _cOut_
+
+	def IsSorted()
+		return This.IsSortedInAscending() or This.IsSortedInDescending()
+
+	def SortingOrder()
+		if This.IsSortedInAscending() return :Ascending ok
+		if This.IsSortedInDescending() return :Descending ok
+		return :None
 
 	def LeadingSubStringRemove()
 		# Mutating: drop the leading non-letter prefix.
