@@ -2860,6 +2860,71 @@ class stzList from stzObject
 		_l_ = This.List()
 		return ring_len(_l_) > 0
 
+	def FindSpaces()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			if isString(_l_[_i_]) and _l_[_i_] = " " _aR_ + _i_ ok
+		next
+		return _aR_
+
+	def IsNotAString()
+		return NOT isString(This.List())
+
+	def IsAString()
+		return isString(This.List())
+
+	def IsNotInLowercase()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isString(_v_) and _v_ != lower(_v_) return TRUE ok
+		next
+		return FALSE
+
+	def IsInLowercase()
+		return NOT This.IsNotInLowercase()
+
+	def DoesNotContain(p)
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		for _i_ = 1 to _nL_
+			if _l_[_i_] = p return FALSE ok
+		next
+		return TRUE
+
+	def NumberOfChars()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_n_ = 0
+		for _i_ = 1 to _nL_
+			if isString(_l_[_i_]) _n_ += ring_len(_l_[_i_]) ok
+		next
+		return _n_
+
+	def NumberOfCharsQ()
+		# Char-count of every string item summed; wrap in stzNumber.
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_n_ = 0
+		for _i_ = 1 to _nL_
+			if isString(_l_[_i_]) _n_ += ring_len(_l_[_i_]) ok
+		next
+		return new stzNumber(_n_)
+
+	def Combinations()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_ - 1
+			for _j_ = _i_ + 1 to _nL_
+				_aR_ + [ _l_[_i_], _l_[_j_] ]
+			next
+		next
+		return _aR_
+
 	def IsAtCharsNamedParam()
 		_l_ = This.List()
 		if ring_len(_l_) != 2 return FALSE ok

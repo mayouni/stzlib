@@ -7574,6 +7574,129 @@ class stzString from stzObject
 
 	# ItemsAndTheirNumberOfOccurrence(): per-char occurrence count
 	# returned as [ [char, count], ... ].
+	# NthAsSection(n, pcSub): [start, end] of the n-th occurrence
+	# of pcSub.
+	def NthAsSection(n, pcSub)
+		_p_ = This.FindNth(n, pcSub)
+		if _p_ < 1 return [] ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		return [ _p_, _p_ + _nSubLen_ - 1 ]
+
+	def LeftBound()
+		_a_ = This.Bounds()
+		if ring_len(_a_) >= 1 return _a_[1] ok
+		return ""
+
+	def RightBound()
+		_a_ = This.Bounds()
+		if ring_len(_a_) >= 2 return _a_[2] ok
+		return ""
+
+	# CharsInverted: each char's case toggled.
+	def CharsInverted()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_c_ = _aChars_[_i_]
+			if _c_ = upper(_c_) and _c_ != lower(_c_)
+				_aR_ + lower(_c_)
+			but _c_ = lower(_c_) and _c_ != upper(_c_)
+				_aR_ + upper(_c_)
+			else
+				_aR_ + _c_
+			ok
+		next
+		return _aR_
+
+	def InvertCharsCase()
+		_o_ = ""
+		_aR_ = This.CharsInverted()
+		_nL_ = ring_len(_aR_)
+		for _i_ = 1 to _nL_
+			_o_ += _aR_[_i_]
+		next
+		This.Update(_o_)
+
+	# ToStzTable: stub returning content as a single-cell table.
+	def ToStzTable()
+		return new stzList([ [ This.Content() ] ])
+
+	# IsContiguousListInString: TRUE if content roughly matches
+	# `a:b` short-form list literal.
+	# FindNextOccurrences(:Of = pcSub, :StartingAt = N): positions of
+	# every occurrence of pcSub after position N.
+	def FindNextOccurrences(pNamedOf, pNamedStartingAt)
+		_cSub_ = ""
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and isString(pNamedOf[1]) and
+		   lower(pNamedOf[1]) = "of"
+			_cSub_ = pNamedOf[2]
+		but isString(pNamedOf)
+			_cSub_ = pNamedOf
+		ok
+		_nFrom_ = 1
+		if isList(pNamedStartingAt) and ring_len(pNamedStartingAt) = 2 and
+		   isString(pNamedStartingAt[1]) and lower(pNamedStartingAt[1]) = "startingat"
+			_nFrom_ = pNamedStartingAt[2]
+		but isNumber(pNamedStartingAt)
+			_nFrom_ = pNamedStartingAt
+		ok
+		_aAll_ = This.AllPositionsOf(_cSub_)
+		_aR_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] > _nFrom_ _aR_ + _aAll_[_i_] ok
+		next
+		return _aR_
+
+	def FindPreviousOccurrences(pNamedOf, pNamedStartingAt)
+		_cSub_ = ""
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and isString(pNamedOf[1]) and
+		   lower(pNamedOf[1]) = "of"
+			_cSub_ = pNamedOf[2]
+		but isString(pNamedOf)
+			_cSub_ = pNamedOf
+		ok
+		_nUntil_ = This.NumberOfChars()
+		if isList(pNamedStartingAt) and ring_len(pNamedStartingAt) = 2 and
+		   isString(pNamedStartingAt[1]) and lower(pNamedStartingAt[1]) = "startingat"
+			_nUntil_ = pNamedStartingAt[2]
+		but isNumber(pNamedStartingAt)
+			_nUntil_ = pNamedStartingAt
+		ok
+		_aAll_ = This.AllPositionsOf(_cSub_)
+		_aR_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] < _nUntil_ _aR_ + _aAll_[_i_] ok
+		next
+		return _aR_
+
+	def IsContiguousListInNormalForm()
+		_c_ = ring_trim(This.Content())
+		# Normal form `[a,b,c,...]` -- bracketed.
+		if ring_left(_c_, 1) != "[" or ring_right(_c_, 1) != "]" return FALSE ok
+		return TRUE
+
+	def IsContiguousListInShortForm()
+		_c_ = ring_trim(This.Content())
+		# Short form `a:b` -- with colon, no brackets.
+		if substr(_c_, ":") = 0 return FALSE ok
+		if substr(_c_, "[") > 0 or substr(_c_, "]") > 0 return FALSE ok
+		return TRUE
+
+	def IsContiguousListInString()
+		_c_ = ring_trim(This.Content())
+		if substr(_c_, ":") = 0 return FALSE ok
+		# Trim outer quote-pair if any.
+		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
+		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
+			_c_ = substr(_c_, 2, ring_len(_c_) - 2)
+		ok
+		# Require non-bracketed form (so `[1,3]` returns FALSE).
+		if substr(_c_, "[") > 0 or substr(_c_, "]") > 0 return FALSE ok
+		return TRUE
+
 	def ItemsAndTheirNumberOfOccurrence()
 		_aChars_ = This.Chars()
 		_aRes_ = []
