@@ -2914,6 +2914,92 @@ class stzList from stzObject
 		next
 		return new stzNumber(_n_)
 
+	def NumberOfLeadingItems()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		if _nL_ = 0 return 0 ok
+		_n_ = 1
+		for _i_ = 2 to _nL_
+			if _l_[_i_] = _l_[1] _n_++ else exit ok
+		next
+		return _n_
+
+	def NumberOfTrailingItems()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		if _nL_ = 0 return 0 ok
+		_n_ = 1
+		for _i_ = _nL_ - 1 to 1 step -1
+			if _l_[_i_] = _l_[_nL_] _n_++ else exit ok
+		next
+		return _n_
+
+	def ReplaceLeadingItems(p1)
+		_new_ = p1
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		   (lower(p1[1]) = "with" or lower(p1[1]) = "by")
+			_new_ = p1[2]
+		ok
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		if _nL_ = 0 return ok
+		_first_ = _l_[1]
+		for _i_ = 1 to _nL_
+			if _l_[_i_] = _first_ _l_[_i_] = _new_ else exit ok
+		next
+		@aContent = _l_
+
+	def ReplaceTrailingItems(p1)
+		_new_ = p1
+		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		   (lower(p1[1]) = "with" or lower(p1[1]) = "by")
+			_new_ = p1[2]
+		ok
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		if _nL_ = 0 return ok
+		_last_ = _l_[_nL_]
+		for _i_ = _nL_ to 1 step -1
+			if _l_[_i_] = _last_ _l_[_i_] = _new_ else exit ok
+		next
+		@aContent = _l_
+
+	def ReplaceLeadingAndTrailingItems(p1)
+		This.ReplaceLeadingItems(p1)
+		This.ReplaceTrailingItems(p1)
+
+	def LeadingItems()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		if _nL_ = 0 return [] ok
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			if _l_[_i_] = _l_[1] _aR_ + _l_[_i_] else exit ok
+		next
+		return _aR_
+
+	def TrailingItems()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		if _nL_ = 0 return [] ok
+		_aR_ = []
+		for _i_ = _nL_ to 1 step -1
+			if _l_[_i_] = _l_[_nL_] _aR_ + _l_[_i_] else exit ok
+		next
+		return _aR_
+
+	def HasLeadingItems()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		if _nL_ < 2 return FALSE ok
+		return _l_[1] = _l_[2]
+
+	def HasTrailingItems()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		if _nL_ < 2 return FALSE ok
+		return _l_[_nL_] = _l_[_nL_ - 1]
+
 	def Combinations()
 		_l_ = This.List()
 		_nL_ = ring_len(_l_)

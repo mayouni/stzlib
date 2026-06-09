@@ -3004,3 +3004,19 @@ func @Section(pStrOrList, n1, n2) #TODO // Review the naming of Section() in stz
 //func @Range(pStrOrList, nStart, nRange) #TODO //Review the naming of Range in stzExtinPyhton
 
 
+
+# Long-tail global wrappers used by tests inside StzStringQ() blocks.
+func CapitalisedInLocale(pcStr, pcLocale)
+	if NOT isString(pcStr) return "" ok
+	return new stzString(pcStr).Titlecased()
+
+func CapitalizedInLocale(pcStr, pcLocale)
+	return CapitalisedInLocale(pcStr, pcLocale)
+
+func NumberOfLeadingItems(pcStr)
+	if NOT isString(pcStr) return 0 ok
+	return new stzString(pcStr).NumberOfLeadingItems()
+
+func NumberOfTrailingItems(pcStr)
+	if NOT isString(pcStr) return 0 ok
+	return new stzString(pcStr).NumberOfTrailingItems()

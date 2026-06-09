@@ -11026,6 +11026,152 @@ class stzString from stzObject
 	def MarkersSortedUZZ()
 		return This.MarquersSortedUZZ()
 
+	# More long-tail aliases.
+	def SubStringIsBoundedBy(pcSub, pacBounds)
+		_aSec_ = This.FindBoundedByAsSections(pacBounds)
+		_nL_ = ring_len(_aSec_)
+		for _i_ = 1 to _nL_
+			_s_ = _aSec_[_i_]
+			if isList(_s_) and ring_len(_s_) = 2
+				_cMid_ = This._EngineSlice(This.Content(),
+				         _s_[1], _s_[2] - _s_[1] + 1)
+				if substr(_cMid_, pcSub) > 0 return TRUE ok
+			ok
+		next
+		return FALSE
+
+	def ToListInShortForm()
+		_c_ = ring_trim(This.Content())
+		# Strip outer quotes if symmetric.
+		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
+		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
+			_c_ = substr(_c_, 2, ring_len(_c_) - 2)
+		ok
+		_nP_ = substr(_c_, ":")
+		if _nP_ = 0 return [] ok
+		_a_ = ring_trim(substr(_c_, 1, _nP_ - 1))
+		_b_ = ring_trim(substr(_c_, _nP_ + 1))
+		return [ _a_, ":", _b_ ]
+
+	def FindNextOccurrence(pcSub, pStartingAt)
+		_nFrom_ = 1
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt)
+			_nFrom_ = pStartingAt
+		ok
+		return This._FindFrom(This.Content(), pcSub, _nFrom_ + 1)
+
+	def UnicodesPerChar()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_aR_ + [ _aChars_[_i_], This.UnicodeOfChar(_aChars_[_i_]) ]
+		next
+		return _aR_
+
+	def UnicodeOfChar(c)
+		if NOT isString(c) or ring_len(c) = 0 return 0 ok
+		try
+			return ascii(c)
+		catch
+			return 0
+		done
+
+	def Hash(pAlgo)
+		# Naive per-char hash; ignores algo selection (stub).
+		_c_ = This.Content()
+		_n_ = 0
+		_nL_ = ring_len(_c_)
+		for _i_ = 1 to _nL_
+			_n_ = (_n_ * 31 + ascii(_c_[_i_])) % 2147483647
+		next
+		return _n_
+
+		def HashQ(pAlgo)
+			This.Update("" + This.Hash(pAlgo))
+			return This
+
+	def EachCharBoxedRounded()
+		_o_ = new stzString(This.Content())
+		_o_.BoxRoundEachChar()
+		return _o_.Content()
+
+	def TitlecasedInLocale(pcLocale)
+		# Locale-aware titlecase is non-trivial; fall back to plain.
+		return This.Titlecased()
+
+	def CapitalisedInLocale(pcLocale)
+		return This.Titlecased()
+
+	def CapitalizedInLocale(pcLocale)
+		return This.Titlecased()
+
+	def FindPreviousOccurrence(pcSub, pStartingAt)
+		_nUntil_ = This.NumberOfChars()
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nUntil_ = pStartingAt[2]
+		but isNumber(pStartingAt)
+			_nUntil_ = pStartingAt
+		ok
+		_aAll_ = This.AllPositionsOf(pcSub)
+		_aR_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] < _nUntil_ _aR_ + _aAll_[_i_] ok
+		next
+		_nRL_ = ring_len(_aR_)
+		if _nRL_ < 1 return 0 ok
+		return _aR_[_nRL_]
+
+	def ToListInNormalForm()
+		_c_ = ring_trim(This.Content())
+		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
+		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
+			_c_ = substr(_c_, 2, ring_len(_c_) - 2)
+		ok
+		# Strip wrapping brackets if present.
+		if ring_left(_c_, 1) = "[" and ring_right(_c_, 1) = "]"
+			_c_ = substr(_c_, 2, ring_len(_c_) - 2)
+		ok
+		# Naive comma-split.
+		_aR_ = []
+		_buf_ = ""
+		_nL_ = ring_len(_c_)
+		for _i_ = 1 to _nL_
+			if _c_[_i_] = ","
+				_aR_ + ring_trim(_buf_)
+				_buf_ = ""
+			else
+				_buf_ += _c_[_i_]
+			ok
+		next
+		if ring_len(_buf_) > 0 _aR_ + ring_trim(_buf_) ok
+		return _aR_
+
+	def NumberOfLeadingItems()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		if _nL_ = 0 return 0 ok
+		_n_ = 1
+		for _i_ = 2 to _nL_
+			if _aChars_[_i_] = _aChars_[1] _n_++ else exit ok
+		next
+		return _n_
+
+	def NumberOfTrailingItems()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		if _nL_ = 0 return 0 ok
+		_n_ = 1
+		for _i_ = _nL_ - 1 to 1 step -1
+			if _aChars_[_i_] = _aChars_[_nL_] _n_++ else exit ok
+		next
+		return _n_
+
 	def MarquersPositionsSortedInAscending()
 		_a_ = This.MarquersPositions()
 		_n_ = ring_len(_a_)
