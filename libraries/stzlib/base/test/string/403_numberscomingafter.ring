@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #403.
-#ERR Error (R14) : Calling Method without definition: numbrifyq
 
 load "../../stzBase.ring"
 
