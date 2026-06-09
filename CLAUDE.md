@@ -75,6 +75,22 @@ When systematically reducing `#ERR` count under
 The `/grind-err` skill in `.claude/skills/grind-err/` packages this
 loop.
 
+## Background tasks: prefer direct grep over `run_in_background`
+
+For ring-test sweeps that take >5 minutes, **don't** use
+`run_in_background: true` -- it leaves zombie shells in the
+harness UI that look like work-in-progress but produce nothing
+once their state-of-the-world is stale. Use synchronous Bash with
+a short timeout, or just `grep -l "^#ERR" tests/<topic>/*.ring`
+to read the live state directly.
+
+Background tasks are useful for genuine async work (an annotate
+that returns a summary, a long-running compile). They're harmful
+for "sweep all tests and print a status table" loops -- by the
+time the table arrives I've already moved on, and the state has
+changed under it. One session leaked 6 such shells running for
+15+ hours each.
+
 ## Push protocol
 
 Two remotes, always:
