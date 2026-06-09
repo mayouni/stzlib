@@ -8631,7 +8631,7 @@ class stzString from stzObject
 		_aRes_ = []
 		_nPL_ = ring_len(_aPos_)
 		for _i_ = 1 to _nPL_
-			if i <= ring_len(pacSubStr)
+			if _i_ <= ring_len(pacSubStr)
 				_n_ = This._EngineCount(pacSubStr[_i_])
 				_aRes_ + [ _aPos_[_i_], _aPos_[_i_] + _n_ - 1 ]
 			ok
