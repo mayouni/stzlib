@@ -2748,6 +2748,55 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# SpacesRemoved (non-mutating): every string item stripped of spaces.
+	def SpacesRemoved()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isString(_v_)
+				_o_ = new stzString(_v_)
+				_aR_ + _o_.SpacesRemoved()
+			else
+				_aR_ + _v_
+			ok
+		next
+		return _aR_
+
+	def WithoutSpaces()
+		return This.SpacesRemoved()
+
+	def WithoutSapces()
+		return This.SpacesRemoved()
+
+	def SubStrongs()
+		return This.List()
+
+	def SubStrinks()
+		return This.List()
+
+	def ConcatenateXT(p1)
+		_sep_ = ""
+		if isString(p1)
+			_sep_ = p1
+		but isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		   (lower(p1[1]) = "using" or lower(p1[1]) = "with" or lower(p1[1]) = "by")
+			_sep_ = p1[2]
+		ok
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_c_ = ""
+		for _i_ = 1 to _nL_
+			if NOT isString(_l_[_i_]) loop ok
+			if _i_ > 1 _c_ += _sep_ ok
+			_c_ += _l_[_i_]
+		next
+		return _c_
+
+	def Concatenate()
+		return This.ConcatenateXT("")
+
 	def IsOneOfTheseNamedParams(pacNames)
 		if NOT isList(pacNames) return FALSE ok
 		_l_ = This.List()
@@ -5587,5 +5636,3 @@ class stzList from stzObject
 		ok
 
 		StzRaise("operator: unsupported operator '" + pOp + "' on stzList.")
-
-
