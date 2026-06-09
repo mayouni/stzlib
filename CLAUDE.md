@@ -38,6 +38,26 @@ that defines methods/aliases/primitives:
    parsed as three list-appends, not arithmetic. Always
    parenthesise: `_aRes_ + (_x_ + _y_ - 1)`.
 
+6. **Single-clause `if` inside method bodies can no-op.** In Ring 1.25,
+   a method-body `if isString(p); p = [p]; ok` (the type-widening
+   pattern) sometimes does not fire — the wrap is unreached, and the
+   downstream validation rejects the original type. Force the branch
+   with `if .. but .. else .. ok` and build the result in a fresh
+   variable instead of reassigning the param:
+   ```ring
+   def Foo(acArg)
+       _arg_ = []
+       if isString(acArg)
+           _arg_ + acArg
+       but isList(acArg)
+           # copy
+       else
+           return FALSE
+       ok
+       ...
+   ```
+   See the `IsMadeOfCS` change for the canonical fix shape.
+
 ## Test-error grind workflow
 
 When systematically reducing `#ERR` count under
