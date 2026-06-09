@@ -3,7 +3,6 @@
 # # Is this arabic word diacriticized?
 #
 # Extracted from stzTtexttest.ring, block #8.
-#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

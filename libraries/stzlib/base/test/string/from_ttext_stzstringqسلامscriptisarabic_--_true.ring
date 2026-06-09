@@ -3,7 +3,7 @@
 # ? StzStringQ("سلام").ScriptIs(:Arabic) #--> TRUE
 #
 # Extracted from stzTtexttest.ring, block #7.
-#ERR exit 3221225794
+#ERR Error (E9) : Can't open file from_ttext_stzstringq????scriptisarabic_--_true.ring
 
 load "../../stzBase.ring"
 

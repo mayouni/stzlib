@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #917.
-#ERR Error (R14) : Calling Method without definition: sectionsofsameitems
 
 load "../../stzBase.ring"
 

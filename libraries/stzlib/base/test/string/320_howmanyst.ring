@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #320.
-#ERR Error (R14) : Calling Method without definition: howmanyst
 
 load "../../stzBase.ring"
 

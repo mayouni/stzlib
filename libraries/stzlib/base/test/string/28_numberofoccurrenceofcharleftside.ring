@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #28.
-#ERR Error (R14) : Calling Method without definition: numberofoccurrenceofcharstartside
 
 load "../../stzBase.ring"
 

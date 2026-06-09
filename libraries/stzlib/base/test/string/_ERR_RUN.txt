@@ -1,14 +1,14 @@
-== string  PASS 776  ERR 220  TIMEOUT 5  (35858.8s) ==
+== string  PASS 707  ERR 293  TIMEOUT 1  (1804.3s) ==
 [PASS]    01_findthesebounds.ring
 [PASS]    02_content.ring
 [PASS]    03_findzz.ring
-[ERR]     04_findzz.ring :: Error (R2) : Array Access (Index out of range)
+[PASS]    04_findzz.ring
 [PASS]    05_urlencoded.ring
 [PASS]    06_sizeinbytes.ring
 [PASS]    07_managing_a_big_text.ring
 [ERR]     08_write_a.ring :: panic: integer does not fit in destination type
 [ERR]     09_xmlhtml_tag_analysis.ring :: Error (R14) : Calling Method without definition: itemsandtheirnumberofoccurrence
-[ERR]     100_boxround.ring :: exit 1: Error (S1) In file: 100_boxround.ring
+[PASS]    100_boxround.ring
 [PASS]    101_box.ring
 [PASS]    102_boxedround.ring
 [PASS]    103_containsxt.ring
@@ -19,7 +19,7 @@
 [PASS]    108_script.ring
 [PASS]    109_ishexunicode.ring
 [PASS]    10_aligncenter.ring
-[ERR]     110_unicode.ring :: Error (R14) : Calling Method without definition: hexunicodes
+[PASS]    110_unicode.ring
 [ERR]     111_cname_gary.ring :: Error (R19) : Calling function with less number of parameters
 [PASS]    112_repeatedntimes.ring
 [PASS]    113_localescripts.ring
@@ -38,53 +38,53 @@
 [PASS]    125_numberofsubstrings.ring
 [PASS]    126_numberofsubstringsu.ring
 [PASS]    127_numberofsubstringscs.ring
-[PASS]    128_numberofsubstringscs.ring
-[PASS]    129_duplicates.ring
-[PASS]    12_containseither.ring
-[PASS]    130_pr.ring
-[PASS]    131_pr.ring
-[PASS]    132_content.ring
-[PASS]    133_content.ring
-[PASS]    134_ispluralofastztype.ring
-[PASS]    135_pr.ring
-[PASS]    136_pr.ring
-[PASS]    137_pr.ring
-[PASS]    138_pr.ring
-[PASS]    139_pr.ring
-[PASS]    13_containsoneofthese.ring
-[PASS]    140_pr.ring
-[PASS]    141_pr.ring
-[PASS]    142_pr.ring
-[PASS]    143_pr.ring
-[PASS]    144_pr.ring
-[PASS]    145_pr.ring
-[PASS]    146_pr.ring
-[PASS]    147_substringswxt.ring
-[PASS]    148_findsubstringsassectionswxt.ring
-[PASS]    149_findwxt.ring
-[PASS]    14_isreverseof.ring
-[PASS]    150_first2chars.ring
-[PASS]    151_findcs.ring
-[PASS]    152_section.ring
-[PASS]    153_section.ring
-[PASS]    154_findinsection.ring
-[PASS]    155_findbetweenassections.ring
-[PASS]    156_content.ring
-[PASS]    157_numberofduplicates.ring
-[PASS]    158_script.ring
-[PASS]    159_numberofduplicates.ring
-[PASS]    15_content.ring
-[PASS]    160_containsduplicates.ring
-[PASS]    161_findbetweenassections.ring
-[PASS]    162_pr.ring
-[PASS]    163_boundedbyuz.ring
-[PASS]    164_findnth.ring
-[PASS]    165_listcontainscs.ring
-[PASS]    166_boundedbyzz.ring
-[PASS]    167_substringsboundedby.ring
-[PASS]    168_section.ring
-[PASS]    169_section.ring
-[PASS]    16_content.ring
+[ERR]     128_numberofsubstringscs.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     129_duplicates.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_containseither.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     130_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     131_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     132_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     133_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     134_ispluralofastztype.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     135_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     136_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     137_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     138_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     139_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_containsoneofthese.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     140_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     141_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     142_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     143_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     144_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     145_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     146_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     147_substringswxt.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     148_findsubstringsassectionswxt.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     149_findwxt.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_isreverseof.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     150_first2chars.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     151_findcs.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     152_section.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     153_section.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     154_findinsection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     155_findbetweenassections.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     156_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     157_numberofduplicates.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     158_script.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     159_numberofduplicates.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     160_containsduplicates.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     161_findbetweenassections.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     162_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     163_boundedbyuz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     164_findnth.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     165_listcontainscs.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     166_boundedbyzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     167_substringsboundedby.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     168_section.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     169_section.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_content.ring :: Error (C22) : Function redefinition, function is already defined!
 [PASS]    170_containsat.ring
 [PASS]    171_containsinsection.ring
 [ERR]     172_containsbefore.ring :: exit 1: 0
@@ -101,7 +101,7 @@
 [PASS]    182_findassectionsxt.ring
 [PASS]    184_containssubstringboundedby.ring
 [PASS]    185_betweenib.ring
-[ERR]     186_boundedby.ring :: Error (R14) : Calling Method without definition: boundedbyu
+[PASS]    186_boundedby.ring
 [PASS]    187_boundedbyib.ring
 [PASS]    188_content.ring
 [PASS]    189_content.ring
@@ -144,123 +144,123 @@
 [PASS]    229_numbers.ring
 [PASS]    22_content.ring
 [PASS]    230_numbers.ring
-[PASS]    231_extractnumbers.ring
-[PASS]    232_numberofchars.ring
-[PASS]    233_reverse.ring
-[PASS]    234_post_it_in_the_ring-group_for_correction.ring
-[PASS]    235_contains.ring
-[PASS]    236_findnext.ring
-[PASS]    237_testing_findnthnextfindnthprevious.ring
-[PASS]    238_testing_findlast_on_a_small_string.ring
-[PASS]    239_testing_findlast_on_a_very_large_string_2m_chars.ring
-[PASS]    23_content.ring
-[PASS]    240_firsthalf.ring
-[ERR]     241_firsthalf.ring :: Error (R14) : Calling Method without definition: firsthalfxtzz
-[PASS]    242_howmany.ring
-[PASS]    243_findlast.ring
-[PASS]    244_findall.ring
-[PASS]    245_contains.ring
-[PASS]    246_findnthw.ring
-[PASS]    247_stringcase.ring
-[PASS]    248_uppercased.ring
-[PASS]    249_lowercased.ring
-[PASS]    24_leftcharremoved.ring
-[PASS]    250_capitalcased.ring
-[PASS]    251_content.ring
-[PASS]    252_content.ring
-[PASS]    253_content.ring
-[PASS]    254_ismadeof.ring
-[PASS]    255_lines.ring
-[PASS]    256_trim.ring
-[PASS]    257_pr.ring
-[ERR]     258_issue_in_replacing_empty_substrings.ring :: exit 1: Ruby language
-[PASS]    259_block_259.ring
-[PASS]    25_rightcharremoved.ring
-[PASS]    260_findzz.ring
-[PASS]    261_content.ring
-[PASS]    262_replacemanycs.ring
-[ERR]     263_content.ring :: panic: @memcpy arguments alias
-[PASS]    264_findwxt.ring
-[PASS]    265_trim.ring
-[PASS]    266_findanyboundedby.ring
-[PASS]    267_deepfindboundedbyzz.ring
-[PASS]    268_content.ring
-[PASS]    269_spacified.ring
-[PASS]    26_content.ring
-[PASS]    270_content.ring
-[PASS]    271_content.ring
-[PASS]    272_tosections.ring
-[PASS]    273_tosections.ring
-[PASS]    274_splittopartsofsizes.ring
-[PASS]    275_content.ring
-[PASS]    276_content.ring
-[PASS]    277_content.ring
-[ERR]     278_isstepnamedparam.ring :: Error (R14) : Calling Method without definition: isstepnamedparam
-[PASS]    279_content.ring
-[PASS]    27_content.ring
-[PASS]    280_content.ring
-[PASS]    281_spacifiedxt.ring
-[ERR]     282_content.ring :: Error (R2) : Array Access (Index out of range)
-[ERR]     283_content.ring :: Error (R21) : Using operator with values of incorrect type
-[PASS]    284_content.ring
-[PASS]    285_content.ring
-[PASS]    286_contigtosections.ring
-[PASS]    287_finddupsecutivechars.ring
-[PASS]    288_finddupsecutivesubstring.ring
-[PASS]    289_content.ring
-[ERR]     28_numberofoccurrenceofcharleftside.ring :: Error (R14) : Calling Method without definition: numberofoccurrenceofcharstartside
-[PASS]    290_content.ring
-[PASS]    291_numberofconsecutivesubstringsofnchars.ring
-[ERR]     292_numberofconsecutivesubstrings.ring :: Error (R14) : Calling Method without definition: consecutivesubstringsz
-[PASS]    293_content.ring
-[ERR]     294_spacesremoved.ring :: Error (R14) : Calling Method without definition: spacesremoved
-[PASS]    295_unspacified.ring
-[PASS]    296_splitatsections.ring
-[PASS]    297_splitatsections.ring
-[PASS]    298_findzz.ring
-[PASS]    299_findzz.ring
-[PASS]    29_extended_form_of_removefirstchar.ring
-[PASS]    300_sections.ring
-[PASS]    301_findzz.ring
-[PASS]    302_pr.ring
-[PASS]    303_findanyboundedbyibzz.ring
-[PASS]    304_isstringorlist.ring
-[ERR]     305_substrongs_substrinks.ring :: Error (R14) : Calling Method without definition: substrongs
-[PASS]    306_content.ring
-[PASS]    307_content.ring
-[PASS]    308_content.ring
-[PASS]    309_content.ring
-[PASS]    30_content.ring
-[PASS]    310_pr.ring
-[PASS]    311_todo.ring
-[PASS]    312_findnthprevious.ring
-[PASS]    313_using_z_and_zz_extensions.ring
-[PASS]    314_findlast.ring
-[PASS]    315_findnth.ring
-[PASS]    316_findnthst.ring
-[PASS]    317_using_st_and_std_extension.ring
-[PASS]    318_nthstz.ring
-[PASS]    319_using_st_d_zz_prefixes.ring
-[PASS]    31_content.ring
-[ERR]     320_howmanyst.ring :: Error (R14) : Calling Method without definition: howmanyst
-[PASS]    321_findnthszz.ring
-[PASS]    322_findnthstdzz.ring
-[PASS]    323_findfirstst.ring
-[PASS]    324_findfirststzz.ring
-[PASS]    325_findfirststd.ring
-[PASS]    326_firststdz.ring
-[PASS]    327_findfirststdzz.ring
-[PASS]    328_firststdzz.ring
-[PASS]    329_findfirstassection.ring
-[PASS]    32_section_and_charsinsection.ring
-[PASS]    330_findfirstdzz.ring
-[PASS]    331_findfirstd.ring
-[PASS]    333_findfirstdzz.ring
-[PASS]    334_find.ring
-[PASS]    335_findd.ring
-[ERR]     336_findst.ring :: Error (R14) : Calling Method without definition: findstzz
-[PASS]    337_findstd.ring
-[PASS]    338_split.ring
+[ERR]     231_extractnumbers.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     232_numberofchars.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     233_reverse.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     234_post_it_in_the_ring-group_for_correction.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     235_contains.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     236_findnext.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     237_testing_findnthnextfindnthprevious.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     238_testing_findlast_on_a_small_string.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     239_testing_findlast_on_a_very_large_string_2m_chars.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     23_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     240_firsthalf.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     241_firsthalf.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     242_howmany.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     243_findlast.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     244_findall.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     245_contains.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     246_findnthw.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     247_stringcase.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     248_uppercased.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     249_lowercased.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     24_leftcharremoved.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     250_capitalcased.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     251_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     252_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     253_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     254_ismadeof.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     255_lines.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     256_trim.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     257_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     258_issue_in_replacing_empty_substrings.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     259_block_259.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     25_rightcharremoved.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     260_findzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     261_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     262_replacemanycs.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     263_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     264_findwxt.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     265_trim.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     266_findanyboundedby.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     267_deepfindboundedbyzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     268_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     269_spacified.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     26_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     270_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     271_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     272_tosections.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     273_tosections.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     274_splittopartsofsizes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     275_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     276_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     277_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     278_isstepnamedparam.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     279_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     27_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     280_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     281_spacifiedxt.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     282_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     283_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     284_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     285_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     286_contigtosections.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     287_finddupsecutivechars.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     288_finddupsecutivesubstring.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     289_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     28_numberofoccurrenceofcharleftside.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     290_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     291_numberofconsecutivesubstringsofnchars.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     292_numberofconsecutivesubstrings.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     293_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     294_spacesremoved.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     295_unspacified.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     296_splitatsections.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     297_splitatsections.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     298_findzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     299_findzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     29_extended_form_of_removefirstchar.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     300_sections.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     301_findzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     302_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     303_findanyboundedbyibzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     304_isstringorlist.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     305_substrongs_substrinks.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     306_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     307_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     308_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     309_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     30_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     310_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     311_todo.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     312_findnthprevious.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     313_using_z_and_zz_extensions.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     314_findlast.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     315_findnth.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     316_findnthst.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     317_using_st_and_std_extension.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     318_nthstz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     319_using_st_d_zz_prefixes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     31_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     320_howmanyst.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     321_findnthszz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     322_findnthstdzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     323_findfirstst.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     324_findfirststzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     325_findfirststd.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     326_firststdz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     327_findfirststdzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     328_firststdzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     329_findfirstassection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     32_section_and_charsinsection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     330_findfirstdzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     331_findfirstd.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     333_findfirstdzz.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     334_find.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     335_findd.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     336_findst.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     337_findstd.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     338_split.ring :: Error (C22) : Function redefinition, function is already defined!
 [PASS]    339_split.ring
 [PASS]    33_leadingchars_and_leadingcharsasstring.ring
 [PASS]    340_findanyboundedby.ring
@@ -272,7 +272,7 @@
 [PASS]    346_findsubstringsboundedby.ring
 [PASS]    347_findanyboundedbyassectionsib.ring
 [PASS]    348_findd.ring
-[ERR]     349_findoccurrences.ring :: Error (R14) : Calling Method without definition: findtheseoccurrencesstzz
+[PASS]    349_findoccurrences.ring
 [PASS]    34_content.ring
 [PASS]    350_findd.ring
 [PASS]    351_findfirstst.ring
@@ -288,7 +288,7 @@
 [ERR]     360_splitaroundsections.ring :: Error (R14) : Calling Method without definition: findantisectionszz
 [PASS]    361_splitatsection.ring
 [PASS]    362_splitaround.ring
-[ERR]     363_splitaround.ring :: Error (R14) : Calling Method without definition: splitaroundcs
+[ERR]     363_splitaround.ring :: Error (R14) : Calling Method without definition: splitaroundsection
 [PASS]    364_sections.ring
 [ERR]     365_findsubstringswxt.ring :: Error (C27) : Syntax Error!
 [ERR]     366_findsubstringswxt.ring :: Error (C27) : Syntax Error!
@@ -296,7 +296,7 @@
 [PASS]    368_boundsof.ring
 [PASS]    369_substringxt.ring
 [PASS]    36_content.ring
-[ERR]     370_isisboundedbynamedparam.ring :: Error (R14) : Calling Method without definition: isisboundedbynamedparam
+[ERR]     370_isisboundedbynamedparam.ring :: Error (R14) : Calling Method without definition: substringisboundedby
 [PASS]    371_content.ring
 [PASS]    372_content.ring
 [PASS]    373_content.ring
@@ -321,10 +321,10 @@
 [ERR]     390_content.ring :: panic: @memcpy arguments alias
 [ERR]     391_concatenatext.ring :: Error (R14) : Calling Method without definition: concatenatext
 [PASS]    392_commonsubstrings.ring
-[ERR]     393_commonitems.ring :: Error (R14) : Calling Method without definition: commonitems
+[PASS]    393_commonitems.ring
 [PASS]    394_commonsubstrings.ring
 [PASS]    395_content.ring
-[ERR]     396_o1_new_stzstring.ring :: Error (R14) : Calling Method without definition: thesecharsz
+[PASS]    396_o1_new_stzstring.ring
 [ERR]     397_o1_new_stzstring12345.ring :: panic: integer part of floating point value out of bounds
 [PASS]    398_numberofsubstrings.ring
 [PASS]    399_numberofsubstrings.ring
@@ -347,8 +347,8 @@
 [PASS]    414_splittopartsofnchars.ring
 [PASS]    415_substrings.ring
 [PASS]    416_numberofsubstrings.ring
-[ERR]     417_nextnitems.ring :: Error (R14) : Calling Method without definition: previousnitems
-[ERR]     418_nextnchars.ring :: exit 1
+[PASS]    417_nextnitems.ring
+[PASS]    418_nextnchars.ring
 [PASS]    419_sectioned.ring
 [PASS]    41_chars.ring
 [PASS]    420_content.ring
@@ -417,7 +417,7 @@
 [PASS]    478_isanumber.ring
 [PASS]    479_iscirclednumber.ring
 [PASS]    480_allcharsare.ring
-[ERR]     481_check_after_reincluding_check.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    481_check_after_reincluding_check.ring
 [PASS]    483_splitted.ring
 [PASS]    484_repeated.ring
 [PASS]    485_repeat.ring
@@ -434,7 +434,7 @@
 [PASS]    495_substring.ring
 [PASS]    496_content.ring
 [PASS]    497_andthen.ring
-[ERR]     498_content.ring :: exit 1: Error (S1) In file: 498_content.ring
+[ERR]     498_content.ring :: Error (R14) : Calling Method without definition: @
 [PASS]    499_content.ring
 [PASS]    49_section.ring
 [ERR]     500_pr.ring :: Error (R14) : Calling Method without definition: @
@@ -443,7 +443,7 @@
 [PASS]    504_content.ring
 [ERR]     505_pr.ring :: panic: @memcpy arguments alias
 [PASS]    506_pr.ring
-[ERR]     507_containsmorethenn.ring :: exit 1
+[PASS]    507_containsmorethenn.ring
 [PASS]    508_findfirst.ring
 [PASS]    509_findfirstnoccurrences.ring
 [PASS]    50_ismarquer.ring
@@ -453,8 +453,8 @@
 [PASS]    513_uppercased.ring
 [ERR]     514_-cleansing_-transformation.ring :: Error (R13) : Object is required
 [PASS]    515_boundsxt.ring
-[ERR]     516_content.ring :: Error (R21) : Using operator with values of incorrect type
-[ERR]     517_content.ring :: Error (R2) : Array Access (Index out of range)
+[PASS]    516_content.ring
+[PASS]    517_content.ring
 [PASS]    518_content.ring
 [PASS]    519_content.ring
 [PASS]    51_tolist.ring
@@ -482,11 +482,11 @@
 [ERR]     540_nth.ring :: Error (R14) : Calling Method without definition: nthassection
 [PASS]    541_findnthboundedby.ring
 [PASS]    542_sections.ring
-[ERR]     543_ranges.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    543_ranges.ring
 [ERR]     544_content.ring :: Error (C27) : Syntax Error!
 [PASS]    545_findsubstringboundedbycs.ring
-[ERR]     546_findall.ring :: Error (R14) : Calling Method without definition: lastnitemsqrt
-[ERR]     547_findall.ring :: Error (R14) : Calling Method without definition: lastnitemsqrt
+[PASS]    546_findall.ring
+[ERR]     547_findall.ring :: Error (R13) : Object is required
 [PASS]    548_findsubstringsboundedby.ring
 [PASS]    549_findmany.ring
 [ERR]     54_pr.ring :: Error (R19) : Calling function with less number of parameters
@@ -508,21 +508,21 @@
 [PASS]    564_findfirstxt.ring
 [PASS]    565_findsubstringboundedby.ring
 [PASS]    566_content.ring
-[ERR]     567_findboundedsubstring_vs_findsubstringbounds.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     568_findboundedsubstring.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    567_findboundedsubstring_vs_findsubstringbounds.ring
+[PASS]    568_findboundedsubstring.ring
 [PASS]    569_content.ring
 [ERR]     56_content.ring :: panic: @memcpy arguments alias
 [PASS]    570_substringbounds.ring
 [PASS]    571_findthesebounds.ring
 [PASS]    572_findsubstringboundszz.ring
-[ERR]     573_findsubstringboundszz.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    573_findsubstringboundszz.ring
 [PASS]    574_content.ring
 [PASS]    575_replacesubstringboundedby.ring
 [PASS]    576_replacesubstringboundedib.ring
 [PASS]    577_content.ring
 [PASS]    578_content.ring
 [PASS]    579_removebetween_removeat.ring
-[TIMEOUT] 57_content.ring
+[PASS]    57_content.ring
 [PASS]    580_theseboundsremoved.ring
 [PASS]    581_content.ring
 [PASS]    582_content.ring
@@ -531,7 +531,7 @@
 [PASS]    585_content.ring
 [PASS]    586_content.ring
 [PASS]    587_isboundedby.ring
-[ERR]     588_content.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    588_content.ring
 [PASS]    589_boundsof.ring
 [PASS]    58_content.ring
 [PASS]    590_boundsof.ring
@@ -543,7 +543,7 @@
 [PASS]    596_containsoneofthesecs.ring
 [ERR]     597_pr.ring :: Error (R3) : Calling Function without definition: fromurl
 [ERR]     598_findalloccurrencescs.ring :: Error (R3) : Calling Function without definition: findalloccurrencescs
-[ERR]     599_nextnthoccurrence.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    599_nextnthoccurrence.ring
 [PASS]    59_content.ring
 [ERR]     600_findall.ring :: Error (R3) : Calling Function without definition: findnextoccurrences
 [PASS]    601_content.ring
@@ -553,7 +553,7 @@
 [PASS]    605_marquer.ring
 [PASS]    606_working_with_marquers.ring
 [PASS]    607_marquers.ring
-[ERR]     608_marquers.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    608_marquers.ring
 [ERR]     609_numberofmarquers.ring :: Error (R3) : Calling Function without definition: firstmarquer
 [PASS]    60_content.ring
 [ERR]     610_nthmarquer.ring :: Error (R3) : Calling Function without definition: nthmarquer
@@ -571,29 +571,29 @@
 [PASS]    621_marquersaresorted.ring
 [PASS]    622_marquersaresorted.ring
 [PASS]    623_marquersareunsorted.ring
-[ERR]     624_numberofmarquers.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     625_marquers.ring :: Error (R3) : Calling Function without definition: marquersz
+[PASS]    624_numberofmarquers.ring
+[PASS]    625_marquers.ring
 [PASS]    626_marquerssortedindescendingzz.ring
 [ERR]     627_marquerssortedz.ring :: Error (R3) : Calling Function without definition: marquerssortedz
 [ERR]     628_marquerssorteduz.ring :: Error (R3) : Calling Function without definition: marquerssorteduz
 [PASS]    629_content.ring
-[ERR]     62_content.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     630_content.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    62_content.ring
+[PASS]    630_content.ring
 [PASS]    631_marquerszz.ring
-[ERR]     632_sortedinascending.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     633_sortingorder.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    632_sortedinascending.ring
+[PASS]    633_sortingorder.ring
 [PASS]    634_findmanycs.ring
 [PASS]    635_generalisation_of____ring_syntax.ring
 [PASS]    636_removechar.ring
 [PASS]    637_reversed.ring
-[ERR]     638_sortedinascending.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    638_sortedinascending.ring
 [PASS]    639_issortedinascending.ring
 [PASS]    63_sections.ring
 [PASS]    640_isanagramofcs.ring
 [PASS]    641_content.ring
 [PASS]    642_transpiled.ring
 [PASS]    643_findcharswxt.ring
-[ERR]     644_nextoccurrence.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    644_nextoccurrence.ring
 [ERR]     645_hasleadingchars.ring :: Error (R3) : Calling Function without definition: hasleadingitems
 [PASS]    646_content.ring
 [PASS]    647_content.ring
@@ -611,9 +611,9 @@
 [PASS]    658_pr.ring
 [PASS]    659_logical_error_in_qt_revist_after_fixing_stzlocale.ring
 [PASS]    65_pr.ring
-[ERR]     660_words.ring :: Error (R11) : Error in class name, class not found: stztext
-[ERR]     661_countinsections.ring :: Error (R21) : Using operator with values of incorrect type
-[ERR]     662_splits.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    660_words.ring
+[PASS]    661_countinsections.ring
+[PASS]    662_splits.ring
 [PASS]    663_findwords.ring
 [ERR]     664_titlecasedinlocale.ring :: Error (R3) : Calling Function without definition: titlecasedinlocale
 [PASS]    665_isscript.ring
@@ -624,9 +624,9 @@
 [PASS]    66_content.ring
 [PASS]    670_hastrailingchars.ring
 [PASS]    671_content.ring
-[ERR]     672_trailing_char_trailing_chars_and_trailing_substrin.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     673_trailingsubstring.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     674_hasleadingsubstring.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    672_trailing_char_trailing_chars_and_trailing_substrin.ring
+[PASS]    673_trailingsubstring.ring
+[PASS]    674_hasleadingsubstring.ring
 [PASS]    675_leadingsubstring.ring
 [PASS]    676_hasleadingchars.ring
 [PASS]    677_leadingchar.ring
@@ -639,8 +639,8 @@
 [PASS]    683_content.ring
 [PASS]    684_isequalto.ring
 [ERR]     685_quiet-equality_of_two_strings.ring :: Error (R24) : Using uninitialized variable: $
-[ERR]     686_isequalto.ring :: Error (R2) : Array Access (Index out of range)
-[ERR]     688_countscripts.ring :: Error (R11) : Error in class name, class not found: stztext
+[PASS]    686_isequalto.ring
+[PASS]    688_countscripts.ring
 [PASS]    689_isquietequalto.ring
 [PASS]    68_content.ring
 [PASS]    690_pr.ring
@@ -650,15 +650,15 @@
 [PASS]    694_content.ring
 [PASS]    695_findnthoccurrencecs.ring
 [PASS]    696_findnextnthoccurrence.ring
-[ERR]     697_nextoccurrence.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    697_nextoccurrence.ring
 [ERR]     698_section.ring :: panic: integer part of floating point value out of bounds
 [PASS]    699_substringsboundedby.ring
-[ERR]     69_content.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    69_content.ring
 [PASS]    700_substringsboundedby.ring
 [PASS]    701_containstheletters.ring
 [PASS]    702_findsubstringbetween.ring
 [PASS]    704_tostztext.ring
-[ERR]     705_partsusingxt.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    705_partsusingxt.ring
 [PASS]    706_partsusing.ring
 [PASS]    707_partsusingzz.ring
 [PASS]    709_containsnooneofthese.ring
@@ -682,17 +682,17 @@
 [PASS]    724_inverted.ring
 [PASS]    725_turned.ring
 [PASS]    726_inversed.ring
-[ERR]     727_walkbackwardw.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     729_replacenthchar.ring :: Error (R21) : Using operator with values of incorrect type
-[ERR]     72_content.ring :: panic: @memcpy arguments alias
+[PASS]    727_walkbackwardw.ring
+[PASS]    729_replacenthchar.ring
+[ERR]     72_content.ring :: exit 1
 [ERR]     730_content.ring :: Error (R3) : Calling Function without definition: hash
 [PASS]    731_stringcase.ring
 [PASS]    733_partsusingzz.ring
-[ERR]     734_partsclassifiedusingxt.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     735_partsandpartitionersusingxt.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     736_parts2usingxt.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    734_partsclassifiedusingxt.ring
+[PASS]    735_partsandpartitionersusingxt.ring
+[PASS]    736_parts2usingxt.ring
 [PASS]    738_parts2using.ring
-[ERR]     739_content.ring :: Error (R19) : Calling function with less number of parameters
+[PASS]    739_content.ring
 [PASS]    73_content.ring
 [PASS]    744_content.ring
 [ERR]     746_countcharswxt.ring :: Error (C27) : Syntax Error!
@@ -701,7 +701,7 @@
 [PASS]    749_boxedxt.ring
 [PASS]    74_content.ring
 [PASS]    750_boxedxt.ring
-[ERR]     751_content.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     751_content.ring :: Error (R3) : Calling Function without definition: eachcharboxedrounded
 [PASS]    752_content.ring
 [PASS]    753_boxedxt.ring
 [PASS]    754_boxedxt.ring
@@ -730,7 +730,7 @@
 [ERR]     775_todo_future.ring :: Error (R3) : Calling Function without definition: removerepeatedleadingcharsw
 [PASS]    776_repeatedleadingchars.ring
 [PASS]    777_content.ring
-[ERR]     778_content.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    778_content.ring
 [PASS]    779_content.ring
 [PASS]    77_findexceptzz.ring
 [PASS]    780_content.ring
@@ -753,7 +753,7 @@
 [PASS]    796_content.ring
 [PASS]    797_pr.ring
 [ERR]     798_todo_maybe_this_should_move_to_stztext.ring :: Error (R14) : Calling Method without definition: containshybridorientation
-[ERR]     79_content.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    79_content.ring
 [PASS]    800_content.ring
 [PASS]    801_nlastcharsremoved.ring
 [ERR]     802_removeall.ring :: Error (R14) : Calling Method without definition: removerightoccurrenceq
@@ -770,7 +770,7 @@
 [PASS]    812_stringalignxt.ring
 [PASS]    813_stringalignxt.ring
 [PASS]    814_nlastchars.ring
-[ERR]     815_content.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    815_content.ring
 [PASS]    816_ismadeof.ring
 [PASS]    817_ismadeof.ring
 [PASS]    818_getpairsfrompositions.ring
@@ -786,7 +786,7 @@
 [PASS]    827_unicodecomparewithinsystemlocale.ring
 [PASS]    828_trimmed.ring
 [PASS]    829_content.ring
-[ERR]     82_-code.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    82_-code.ring
 [PASS]    830_content.ring
 [ERR]     831_representsnumber.ring :: Error (R3) : Calling Function without definition: representscalculableinteger
 [PASS]    832_representsrealnumber.ring
@@ -875,10 +875,10 @@
 [PASS]    911_boxifyxt.ring
 [PASS]    912_content.ring
 [ERR]     913_pr.ring :: panic: @memcpy arguments alias
-[ERR]     914_content.ring :: Error (R21) : Using operator with values of incorrect type
-[ERR]     915_content.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     916_sectionsofsameitems.ring :: Error (R14) : Calling Method without definition: sectionsofsameitems
-[ERR]     917_sectionsofsameitems.ring :: Error (R14) : Calling Method without definition: sectionsofsameitems
+[PASS]    914_content.ring
+[PASS]    915_content.ring
+[PASS]    916_sectionsofsameitems.ring
+[PASS]    917_sectionsofsameitems.ring
 [ERR]     918_content.ring :: Error (R14) : Calling Method without definition: replacesubstringatpositionsbymany
 [PASS]    919_issortedlistofpairsofnumbers.ring
 [ERR]     91_substringcomesbetween.ring :: Error (R14) : Calling Method without definition: substringcomesbetween
@@ -909,7 +909,7 @@
 [ERR]     942_content.ring :: exit 1
 [PASS]    943_content.ring
 [PASS]    944_content.ring
-[ERR]     945_content.ring :: Error (R2) : Array Access (Index out of range)
+[PASS]    945_content.ring
 [PASS]    946_content.ring
 [PASS]    947_vizfind.ring
 [PASS]    948_flexible_options_syntax.ring
@@ -917,12 +917,12 @@
 [ERR]     94_ss_the_start_and_end_of_a_section.ring :: Error (R14) : Calling Method without definition: findsszz
 [PASS]    950_tostzlistofchars.ring
 [PASS]    951_box.ring
-[TIMEOUT] 952_boxify.ring
+[ERR]     952_boxify.ring :: Error (R14) : Calling Method without definition: boxify
 [ERR]     953_vizfindcs.ring :: Error (R14) : Calling Method without definition: vizfindcs
 [PASS]    954_vizfindcsxt.ring
-[TIMEOUT] 955_vizfindboxedcsxt.ring
+[ERR]     955_vizfindboxedcsxt.ring :: Error (R14) : Calling Method without definition: vizfindboxedcsxt
 [PASS]    956_spacify.ring
-[TIMEOUT] 957_content.ring
+[PASS]    957_content.ring
 [PASS]    958_cardsxt.ring
 [PASS]    959_sections.ring
 [ERR]     95_digits.ring :: Error (R14) : Calling Method without definition: isadigitinstring
@@ -944,59 +944,59 @@
 [ERR]     974_todo.ring :: Error (R14) : Calling Method without definition: vizfindmany
 [ERR]     975_todo.ring :: Error (R14) : Calling Method without definition: vizfindmanyxt
 [TIMEOUT] 976_concatenating_strings_in_ring_and_softanza.ring
-[ERR]     977_elapsedtime.ring :: exit 3221225794
-[ERR]     978_concatenating_unicode_strings_in_ring_and_softanza.ring :: exit 3221225794
-[ERR]     979_string_append_historical_--_qt_removed_engine-base.ring :: exit 3221225794
-[ERR]     97_sectionbounds.ring :: exit 3221225794
-[ERR]     981_todo_-_future.ring :: exit 3221225794
-[ERR]     982_todo_-_fix_this_revisit_this_after_completing_stzw.ring :: exit 3221225794
-[ERR]     98_using_section_or_slice_to_get_a_part_of_a_list.ring :: exit 3221225794
-[ERR]     99_boxed.ring :: exit 3221225794
-[ERR]     from_global_some_features_come_to_empower_metaprogramming.ring :: exit 3221225794
-[ERR]     from_list_361_pr.ring :: exit 3221225794
-[ERR]     from_list_everything_is_findable.ring :: exit 3221225794
-[ERR]     from_list_find_and_antifind_in_stzstring.ring :: exit 3221225794
-[ERR]     from_list_named_objects_equality.ring :: exit 3221225794
-[ERR]     from_list_removing_duplicates.ring :: exit 3221225794
-[ERR]     from_namedvars_14_pr.ring :: exit 3221225794
-[ERR]     from_namedvars_naming_unnamed_objects_and_making_them_findable.ring :: exit 3221225794
-[ERR]     from_natural_empty_value_protection.ring :: exit 3221225794
-[ERR]     from_object_29_pr.ring :: exit 3221225794
-[ERR]     from_regexuter_03_pr.ring :: exit 3221225794
-[ERR]     from_table_stzstring_first_and_last_non-space_chars.ring :: exit 3221225794
-[ERR]     from_ttext_is_this_arabic_word_diacriticized.ring :: exit 3221225794
-[ERR]     from_ttext_now_lets_see_how_diacritics_can_be_removed_from_a_.ring :: exit 3221225794
-[ERR]     from_ttext_stzstringq_4_isscripthybrid_--_true.ring :: exit 3221225794
-[ERR]     from_ttext_stzstringq_4_scripts_--_common_inherited.ring :: exit 3221225794
-[ERR]     from_ttext_stzstringqسلامscriptisarabic_--_true.ring :: exit 3221225794
-[ERR]     from_ttext_stzstringq和平script_--_han.ring :: exit 3221225794
-[ERR]     test_between_semantics.ring :: exit 3221225794
-[ERR]     test_bytes_engine.ring :: exit 3221225794
-[ERR]     test_checker.ring :: exit 3221225794
-[ERR]     test_core.ring :: exit 3221225794
-[ERR]     test_domains.ring :: exit 3221225794
-[ERR]     test_domains2.ring :: exit 3221225794
-[ERR]     test_domains3.ring :: exit 3221225794
-[ERR]     test_domains4.ring :: exit 3221225794
-[ERR]     test_domains5.ring :: exit 3221225794
-[ERR]     test_engine_case.ring :: exit 3221225794
-[ERR]     test_engine_charclass.ring :: exit 3221225794
-[ERR]     test_finder.ring :: exit 3221225794
-[ERR]     test_finder_extended.ring :: exit 3221225794
-[ERR]     test_inserter.ring :: exit 3221225794
-[ERR]     test_listinstring_regression.ring :: exit 3221225794
-[ERR]     test_show_recursion_stress.ring :: exit 3221225794
-[ERR]     test_string_between.ring :: exit 3221225794
-[ERR]     test_string_between_ib.ring :: exit 3221225794
-[ERR]     test_string_between_ops.ring :: exit 3221225794
-[ERR]     test_string_delegations.ring :: exit 3221225794
-[ERR]     test_string_delegations2.ring :: exit 3221225794
-[ERR]     test_string_regex_delegation.ring :: exit 3221225794
-[ERR]     test_string_regression.ring :: exit 3221225794
-[ERR]     test_string_splitter.ring :: exit 3221225794
-[ERR]     test_stringlist.ring :: exit 3221225794
-[ERR]     test_stringlist_regression.ring :: exit 3221225794
-[ERR]     test_stubs.ring :: exit 3221225794
-[ERR]     test_stzstring_audit.ring :: exit 3221225794
-[ERR]     test_submodules_regression4.ring :: exit 3221225794
-[ERR]     test_wiring_batch2.ring :: exit 3221225794
+[ERR]     977_elapsedtime.ring :: Error (R24) : Using uninitialized variable: _time0
+[ERR]     978_concatenating_unicode_strings_in_ring_and_softanza.ring :: Error (R24) : Using uninitialized variable: _time0
+[PASS]    979_string_append_historical_--_qt_removed_engine-base.ring
+[ERR]     97_sectionbounds.ring :: Error (R14) : Calling Method without definition: sectionbounds
+[ERR]     981_todo_-_future.ring :: Error (R3) : Calling Function without definition: defineconstraints
+[ERR]     982_todo_-_fix_this_revisit_this_after_completing_stzw.ring :: Error (R14) : Calling Method without definition: walkuntil
+[PASS]    98_using_section_or_slice_to_get_a_part_of_a_list.ring
+[ERR]     99_boxed.ring :: Error (R3) : Calling Function without definition: eachcharboxrounded
+[ERR]     from_global_some_features_come_to_empower_metaprogramming.ring :: Error (R14) : Calling Method without definition: stringsw
+[ERR]     from_list_361_pr.ring :: Error (R14) : Calling Method without definition: insert
+[PASS]    from_list_everything_is_findable.ring
+[PASS]    from_list_find_and_antifind_in_stzstring.ring
+[ERR]     from_list_named_objects_equality.ring :: exit 1: 1
+[PASS]    from_list_removing_duplicates.ring
+[ERR]     from_namedvars_14_pr.ring :: exit 1: stzstring
+[ERR]     from_namedvars_naming_unnamed_objects_and_making_them_findable.ring :: Error (R14) : Calling Method without definition: findobjects
+[PASS]    from_natural_empty_value_protection.ring
+[PASS]    from_object_29_pr.ring
+[ERR]     from_regexuter_03_pr.ring :: Error (R3) : Calling Function without definition: multiplybyn
+[ERR]     from_table_stzstring_first_and_last_non-space_chars.ring :: Error (R14) : Calling Method without definition: firstnonspacechar
+[PASS]    from_ttext_is_this_arabic_word_diacriticized.ring
+[PASS]    from_ttext_now_lets_see_how_diacritics_can_be_removed_from_a_.ring
+[ERR]     from_ttext_stzstringq_4_isscripthybrid_--_true.ring :: Error (R20) : Calling function with extra number of parameters
+[PASS]    from_ttext_stzstringq_4_scripts_--_common_inherited.ring
+[ERR]     from_ttext_stzstringqسلامscriptisarabic_--_true.ring :: Error (E9) : Can't open file from_ttext_stzstringq????scriptisarabic_--_true.ring
+[ERR]     from_ttext_stzstringq和平script_--_han.ring :: Error (E9) : Can't open file from_ttext_stzstringq??script_--_han.ring
+[PASS]    test_between_semantics.ring
+[PASS]    test_bytes_engine.ring
+[ERR]     test_checker.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_core.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_domains.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_domains2.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_domains3.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_domains4.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_domains5.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_engine_case.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_engine_charclass.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_finder.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_finder_extended.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[ERR]     test_inserter.ring :: Error (R3) : Calling Function without definition: stzenginestring
+[PASS]    test_listinstring_regression.ring
+[PASS]    test_show_recursion_stress.ring
+[PASS]    test_string_between.ring
+[PASS]    test_string_between_ib.ring
+[PASS]    test_string_between_ops.ring
+[PASS]    test_string_delegations.ring
+[PASS]    test_string_delegations2.ring
+[PASS]    test_string_regex_delegation.ring
+[PASS]    test_string_regression.ring
+[PASS]    test_string_splitter.ring
+[ERR]     test_stringlist.ring :: Error (R3) : Calling Function without definition: stzengineunicodecasefold
+[PASS]    test_stringlist_regression.ring
+[PASS]    test_stubs.ring
+[PASS]    test_stzstring_audit.ring
+[PASS]    test_submodules_regression4.ring
+[ERR]     test_wiring_batch2.ring :: Error (R3) : Calling Function without definition: stzenginestring

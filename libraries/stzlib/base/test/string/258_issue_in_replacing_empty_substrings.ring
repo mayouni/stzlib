@@ -3,7 +3,7 @@
 # #qt Issue in replacing empty substrings
 #
 # Extracted from stzStringTest.ring, block #258.
-#ERR exit 1: Ruby language
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

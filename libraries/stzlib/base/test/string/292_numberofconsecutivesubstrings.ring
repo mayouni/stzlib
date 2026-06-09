@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #292.
-#ERR Error (R14) : Calling Method without definition: consecutivesubstringsz
 
 load "../../stzBase.ring"
 

@@ -1,7 +1,6 @@
 # Regression test covering core stzString operations and the
 # composition-pattern submodules. Mirrors what was done for stzList
 # during M-S2.
-#ERR exit 3221225794
 
 load "../../stzBase.ring"
 
