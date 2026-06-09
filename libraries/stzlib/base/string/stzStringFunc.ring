@@ -3020,3 +3020,43 @@ func NumberOfLeadingItems(pcStr)
 func NumberOfTrailingItems(pcStr)
 	if NOT isString(pcStr) return 0 ok
 	return new stzString(pcStr).NumberOfTrailingItems()
+
+func RepresentsSignedRealNumber(pcStr)
+	if NOT isString(pcStr) return FALSE ok
+	_c_ = ring_trim(pcStr)
+	if ring_len(_c_) = 0 return FALSE ok
+	_i_ = 1
+	if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
+	if _i_ > ring_len(_c_) return FALSE ok
+	_bDot_ = FALSE
+	while _i_ <= ring_len(_c_)
+		if _c_[_i_] = "."
+			if _bDot_ return FALSE ok
+			_bDot_ = TRUE
+		but NOT isDigit(_c_[_i_])
+			return FALSE
+		ok
+		_i_++
+	end
+	return TRUE
+
+func RepresentsUnsignedRealNumber(pcStr)
+	if NOT isString(pcStr) return FALSE ok
+	_c_ = ring_trim(pcStr)
+	if ring_len(_c_) = 0 return FALSE ok
+	_bDot_ = FALSE
+	_i_ = 1
+	while _i_ <= ring_len(_c_)
+		if _c_[_i_] = "."
+			if _bDot_ return FALSE ok
+			_bDot_ = TRUE
+		but NOT isDigit(_c_[_i_])
+			return FALSE
+		ok
+		_i_++
+	end
+	return TRUE
+
+func RepresentsCalculableInteger(pcStr)
+	if NOT isString(pcStr) return FALSE ok
+	return new stzString(pcStr).RepresentsCalculableInteger()
