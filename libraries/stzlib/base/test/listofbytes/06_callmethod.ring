@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlistofbytestest.ring, block #6.
-#ERR Error (R14) : Calling Method without definition: updatewith
 
 load "../../stzBase.ring"
 

@@ -1,8 +1,8 @@
-== counter  PASS 6  ERR 0  TIMEOUT 1  (24.7s) ==
-[PASS]    01_skip_after_9_restart_at_0.ring
-[PASS]    02_restart_at_1.ring
-[PASS]    03_restart_at_2.ring
-[PASS]    04_raw_ring_1M_perf.ring
-[TIMEOUT] 05_softanza_1M_perf.ring
-[PASS]    06_intseq_engine_1m.ring
-[PASS]    test_counter_regression.ring
+== counter  PASS 0  ERR 7  TIMEOUT 0  (10.5s) ==
+[ERR]     01_skip_after_9_restart_at_0.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_restart_at_1.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_restart_at_2.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_raw_ring_1M_perf.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_softanza_1M_perf.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_intseq_engine_1m.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_counter_regression.ring :: Error (C22) : Function redefinition, function is already defined!

@@ -4,6 +4,7 @@
 # After the first cycle 1,2,3,4 the counter wraps to 2,3,4 and keeps
 # cycling on the shorter range. The 7th element of the 9-step run is
 # the 4th member of the second cycle (2,3,4,2) = 4.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzObjectTest.ring, block #15.
+#ERR Error (R14) : Calling Method without definition: startswitheithercs
 
 load "../../stzBase.ring"
 

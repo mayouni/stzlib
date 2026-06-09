@@ -3,6 +3,7 @@
 # Specialized Search Methods
 #
 # Extracted from stzfoldertest.ring, block #14.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

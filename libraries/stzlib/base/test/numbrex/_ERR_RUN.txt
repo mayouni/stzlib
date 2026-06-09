@@ -1,4 +1,4 @@
-== numbrex  PASS 44  ERR 0  TIMEOUT 1  (860.6s) ==
+== numbrex  PASS 45  ERR 0  TIMEOUT 0  (76.9s) ==
 [PASS]    02_basic_property_matching.ring
 [PASS]    03_perfect_numbers.ring
 [PASS]    04_fibonacci_sequence_members.ring
@@ -21,7 +21,7 @@
 [PASS]    21_negation_not_even_odd.ring
 [PASS]    22_relation_divisible_by_5.ring
 [PASS]    23_relation_specific_remainder.ring
-[TIMEOUT] 24_relation_divisible_by_10.ring
+[PASS]    24_relation_divisible_by_10.ring
 [PASS]    25_extracting_digit_list.ring
 [PASS]    26_extracting_factor_list.ring
 [PASS]    27_extracting_properties.ring

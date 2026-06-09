@@ -3,6 +3,7 @@
 # EXAMPLE 8: Smart Plan Selection
 #
 # Extracted from stzdatasettest.ring, block #50.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

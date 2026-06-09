@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #641.
-#ERR Error (R14) : Calling Method without definition: isreverseof
 
 load "../../stzBase.ring"
 

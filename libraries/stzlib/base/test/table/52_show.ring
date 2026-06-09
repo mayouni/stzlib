@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #52.
-#ERR Error (R14) : Calling Method without definition: fill
+#ERR Error (R14) : Calling Method without definition: replaceallcols
 
 load "../../stzBase.ring"
 

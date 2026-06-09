@@ -3,6 +3,7 @@
 # Finding best candidates programmatically
 #
 # Extracted from stzgraphtest.ring, block #72.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

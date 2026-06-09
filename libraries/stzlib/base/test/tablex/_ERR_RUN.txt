@@ -1,4 +1,4 @@
-== tablex  PASS 32  ERR 7  TIMEOUT 0  (61.4s) ==
+== tablex  PASS 32  ERR 7  TIMEOUT 0  (72.6s) ==
 [PASS]    01_matching_exact_column_count.ring
 [PASS]    02_matching_column_count_with_comparisons.ring
 [PASS]    03_matching_exact_row_count.ring

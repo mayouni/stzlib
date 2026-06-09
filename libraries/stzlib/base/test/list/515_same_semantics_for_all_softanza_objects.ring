@@ -3,7 +3,7 @@
 # #narration Same semantics for all softanza objects
 #
 # Extracted from stzlisttest.ring, block #515.
-#ERR Error (R14) : Calling Method without definition: theseboundsremoved
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

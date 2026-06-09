@@ -1,5 +1,5 @@
-== func  PASS 4  ERR 0  TIMEOUT 0  (6.2s) ==
-[PASS]    01_softanza_nulliness.ring
-[PASS]    02_softanza_emptiness.ring
-[PASS]    03_softanza_truthness.ring
-[PASS]    04_softanza_falsiness.ring
+== func  PASS 0  ERR 4  TIMEOUT 0  (5.6s) ==
+[ERR]     01_softanza_nulliness.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_softanza_emptiness.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_softanza_truthness.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_softanza_falsiness.ring :: Error (C22) : Function redefinition, function is already defined!

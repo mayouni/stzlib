@@ -1,4 +1,4 @@
-== timex  PASS 11  ERR 0  TIMEOUT 0  (18.6s) ==
+== timex  PASS 11  ERR 0  TIMEOUT 0  (19.8s) ==
 [PASS]    03_example_3_event_sequences_-_match_vs_matchpartial.ring
 [PASS]    04_example_4_complete_sequence_matching.ring
 [PASS]    05_example_5_gap_duration_constraints.ring

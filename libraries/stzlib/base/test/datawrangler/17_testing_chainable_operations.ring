@@ -3,6 +3,7 @@
 # Testing chainable operations
 #
 # Extracted from stzdatawranglertest.ring, block #17.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

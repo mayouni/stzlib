@@ -4,6 +4,7 @@
 #
 # Extracted from stzdatetest.ring, block #7.
 # @clock 2025-09-27 14:30:25
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

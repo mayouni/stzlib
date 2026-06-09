@@ -3,6 +3,7 @@
 # Testing different layout configurations
 #
 # Extracted from stzdiagramtest.ring, block #16.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

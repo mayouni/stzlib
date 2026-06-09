@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "C", "B", "A" ])
 #
 # Extracted from stzlistofstringstest.ring, block #26.
+#ERR Error (R14) : Calling Method without definition: move
 
 load "../../stzBase.ring"
 

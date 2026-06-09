@@ -3,6 +3,7 @@
 # Getting Folder Names and Paths
 #
 # Extracted from stzfoldertest.ring, block #2.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

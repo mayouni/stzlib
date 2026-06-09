@@ -3,6 +3,7 @@
 # Createing a date object from a hashlist in any order
 #
 # Extracted from stzdatetest.ring, block #5.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

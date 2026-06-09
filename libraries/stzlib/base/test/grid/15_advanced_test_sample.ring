@@ -3,6 +3,7 @@
 # #  ADVANCED TEST SAMPLE  #
 #
 # Extracted from stzGridTest.ring, block #15.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

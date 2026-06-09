@@ -3,6 +3,7 @@
 # Testing painting a grid on the background #TODO fix it!
 #
 # Extracted from stzdotcodetest.ring, block #1.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

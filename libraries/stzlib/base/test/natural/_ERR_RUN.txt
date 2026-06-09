@@ -1,7 +1,7 @@
-== natural  PASS 30  ERR 3  TIMEOUT 0  (51.2s) ==
+== natural  PASS 33  ERR 0  TIMEOUT 0  (56.1s) ==
 [PASS]    01_code.ring
-[ERR]     02_block_2.ring :: Error (C27) : Syntax Error!
-[ERR]     03_block_3.ring :: Error (C31) : Parentheses '(' is expected
+[PASS]    02_block_2.ring
+[PASS]    03_block_3.ring
 [PASS]    04_result.ring
 [PASS]    05_boxing_with_modifiers.ring
 [PASS]    06_raising_error_when_object_type_is_not_supported.ring
@@ -15,7 +15,7 @@
 [PASS]    14_reverse_operations.ring
 [PASS]    15_case_transformations.ring
 [PASS]    16_substitute_operation.ring
-[ERR]     17_change_operation.ring :: Error (C8) : Parentheses ')' is missing
+[PASS]    17_change_operation.ring
 [PASS]    18_multiple_modifiers.ring
 [PASS]    19_frame_alternative.ring
 [PASS]    20_print_alternative.ring

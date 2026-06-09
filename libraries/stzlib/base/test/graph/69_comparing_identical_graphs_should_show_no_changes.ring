@@ -3,6 +3,7 @@
 # Comparing identical graphs should show no changes
 #
 # Extracted from stzgraphtest.ring, block #69.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

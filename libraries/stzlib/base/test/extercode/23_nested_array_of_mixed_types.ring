@@ -3,6 +3,7 @@
 # Nested Array of Mixed Types
 #
 # Extracted from stzextercodetest.ring, block #23.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

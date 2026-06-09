@@ -3,6 +3,7 @@
 # Shape Measures
 #
 # Extracted from stzdatasettest.ring, block #13.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -1,2 +1,2 @@
-== extincode  PASS 1  ERR 0  TIMEOUT 0  (1.5s) ==
-[PASS]    test_extincode_regression.ring
+== extincode  PASS 0  ERR 1  TIMEOUT 0  (1.5s) ==
+[ERR]     test_extincode_regression.ring :: Error (C22) : Function redefinition, function is already defined!

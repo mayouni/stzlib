@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #60.
-#ERR Error (R14) : Calling Method without definition: colname
+#ERR Error (R41) : Invalid numeric string
 
 load "../../stzBase.ring"
 

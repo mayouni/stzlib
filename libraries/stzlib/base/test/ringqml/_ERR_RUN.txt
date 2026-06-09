@@ -1,4 +1,4 @@
-== ringqml  PASS 46  ERR 0  TIMEOUT 0  (76.1s) ==
+== ringqml  PASS 46  ERR 0  TIMEOUT 0  (72.4s) ==
 [PASS]    01_sample_11_the_absolute_minimum_-_hello_ringqml.ring
 [PASS]    02_sample_12_understanding_the_rectangle_-_the_buildi.ring
 [PASS]    03_sample_13_anchoring_system_-_relative_positioning.ring

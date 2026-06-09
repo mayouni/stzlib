@@ -3,6 +3,7 @@
 # Example 12: Duration counting from specific origin
 #
 # Extracted from stzdatetimetest.ring, block #73.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

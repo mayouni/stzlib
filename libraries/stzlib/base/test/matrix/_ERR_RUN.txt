@@ -1,4 +1,4 @@
-== matrix  PASS 46  ERR 8  TIMEOUT 0  (85.3s) ==
+== matrix  PASS 46  ERR 8  TIMEOUT 0  (93.8s) ==
 [ERR]     01_basic_examples.ring :: Error (R14) : Calling Method without definition: addtocol
 [PASS]    02_test_global_matrix_creation_functions.ring
 [PASS]    03_pr.ring

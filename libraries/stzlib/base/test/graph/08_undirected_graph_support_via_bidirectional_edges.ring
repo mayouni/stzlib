@@ -3,6 +3,7 @@
 # Undirected Graph Support (via bidirectional edges)
 #
 # Extracted from stzgraphtest.ring, block #8.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

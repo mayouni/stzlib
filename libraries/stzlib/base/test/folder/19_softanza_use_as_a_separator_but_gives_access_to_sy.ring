@@ -3,6 +3,7 @@
 # Softanza use "/" as a separator but gives access to system separaor
 #
 # Extracted from stzfoldertest.ring, block #19.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

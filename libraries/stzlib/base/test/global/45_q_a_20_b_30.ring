@@ -3,7 +3,7 @@
 # Q([ "A", 20, "B", 30 ]) {
 #
 # Extracted from stzGlobalTest.ring, block #45.
-#ERR Error (C27) : Syntax Error!
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

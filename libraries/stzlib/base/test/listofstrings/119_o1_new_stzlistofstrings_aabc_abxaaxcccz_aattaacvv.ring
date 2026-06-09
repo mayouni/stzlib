@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "aabc", "abxaaxcccz", "aattaacvv" ])
 #
 # Extracted from stzlistofstringstest.ring, block #119.
+#ERR Error (R14) : Calling Method without definition: containssubstringineachstring
 
 load "../../stzBase.ring"
 

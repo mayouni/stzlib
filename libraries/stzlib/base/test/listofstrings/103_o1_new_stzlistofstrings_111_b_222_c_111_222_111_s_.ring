@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "111", "b", "222", "c", "111", "222", "111", "s", "222" ])
 #
 # Extracted from stzlistofstringstest.ring, block #103.
+#ERR Error (R14) : Calling Method without definition: removeduplicatesofthisstring
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Select DISTINCT
 #
 # Extracted from stzgraphquerytest.ring, block #15.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

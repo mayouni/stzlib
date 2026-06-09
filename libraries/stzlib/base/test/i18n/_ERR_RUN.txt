@@ -1,4 +1,4 @@
-== i18n  PASS 5  ERR 0  TIMEOUT 0  (5.0s) ==
+== i18n  PASS 5  ERR 0  TIMEOUT 0  (4.8s) ==
 [PASS]    from_string_843_pr.ring
 [PASS]    test_country_regression.ring
 [PASS]    test_language_regression.ring

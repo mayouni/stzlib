@@ -3,6 +3,7 @@
 # Real-world network analysis
 #
 # Extracted from stzgraphtest.ring, block #57.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

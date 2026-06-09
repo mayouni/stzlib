@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings(  [ "Tunis", "gatufsa", "tunis", "gabes", "tunis", "regueb", "tuta", "regueb" ])
 #
 # Extracted from stzlistofstringstest.ring, block #107.
+#ERR Error (R14) : Calling Method without definition: findnthoccurrencecs
 
 load "../../stzBase.ring"
 

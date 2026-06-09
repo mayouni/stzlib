@@ -3,6 +3,7 @@
 # Example 2: Duration Constraints with Steps
 #
 # Extracted from stztimextest.ring, block #2.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

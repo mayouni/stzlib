@@ -3,6 +3,7 @@
 # Example 20.3: Complex Multi-Constraint Filtering
 #
 # Extracted from stzgraphplannertest.ring, block #38.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -2,6 +2,7 @@
 # --------
 #
 # Extracted from stzdiagramtest.ring, block #58.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

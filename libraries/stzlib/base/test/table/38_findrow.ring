@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #38.
-#ERR Error (R14) : Calling Method without definition: findrow
+#ERR Error (R14) : Calling Method without definition: findmanyrows
 
 load "../../stzBase.ring"
 

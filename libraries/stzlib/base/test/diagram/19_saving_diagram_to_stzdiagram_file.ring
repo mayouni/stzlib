@@ -3,6 +3,7 @@
 # Saving diagram to .stzdiagram file
 #
 # Extracted from stzdiagramtest.ring, block #19.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

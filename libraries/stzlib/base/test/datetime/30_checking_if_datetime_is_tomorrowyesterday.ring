@@ -3,6 +3,7 @@
 # Checking if datetime is tomorrow/yesterday
 #
 # Extracted from stzdatetimetest.ring, block #30.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

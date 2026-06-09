@@ -2,6 +2,7 @@
 # Builder-pattern query over stzGraph: define, configure, execute.
 #
 # Run from base/graph/test/.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

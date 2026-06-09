@@ -1,4 +1,4 @@
-== currency  PASS 3  ERR 0  TIMEOUT 0  (4.8s) ==
-[PASS]    01_localecurrenciesxteurope.ring
-[PASS]    04_block_4.ring
-[PASS]    test_currency_regression.ring
+== currency  PASS 0  ERR 3  TIMEOUT 0  (4.2s) ==
+[ERR]     01_localecurrenciesxteurope.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_block_4.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_currency_regression.ring :: Error (C22) : Function redefinition, function is already defined!

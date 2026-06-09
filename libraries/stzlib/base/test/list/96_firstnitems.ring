@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #96.
-#ERR Error (R14) : Calling Method without definition: stringifyandreplace
+#ERR Error (R14) : Calling Method without definition: firstnitems
 
 load "../../stzBase.ring"
 

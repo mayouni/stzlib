@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #344.
-#ERR Error (R3) : Calling Function without definition: tq
+#ERR Error (R14) : Calling Method without definition: isarabic
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Testing with empty dataset
 #
 # Extracted from stzdatawranglertest.ring, block #20.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

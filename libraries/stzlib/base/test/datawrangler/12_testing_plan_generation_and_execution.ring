@@ -3,6 +3,7 @@
 # Testing plan generation and execution
 #
 # Extracted from stzdatawranglertest.ring, block #12.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

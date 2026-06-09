@@ -3,6 +3,7 @@
 # Using the @() wildcard to read and set properties
 #
 # Extracted from stzentitytest.ring, block #3.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

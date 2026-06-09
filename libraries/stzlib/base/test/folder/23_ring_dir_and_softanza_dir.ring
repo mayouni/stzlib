@@ -3,6 +3,7 @@
 # Ring dir() and Softanza @dir()
 #
 # Extracted from stzfoldertest.ring, block #23.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

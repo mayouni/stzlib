@@ -3,6 +3,7 @@
 # Using operator overloading for addition
 #
 # Extracted from stzdatetimetest.ring, block #13.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Mixed Data Types
 #
 # Extracted from stzdatasettest.ring, block #39.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

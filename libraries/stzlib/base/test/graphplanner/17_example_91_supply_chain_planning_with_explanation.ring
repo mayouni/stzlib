@@ -3,6 +3,7 @@
 # Example 9.1: Supply Chain Planning with Explanation
 #
 # Extracted from stzgraphplannertest.ring, block #17.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

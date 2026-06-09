@@ -3,6 +3,7 @@
 # Date validation
 #
 # Extracted from stzdatetest.ring, block #25.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # GraphML export #TODO Check GraphML correctness
 #
 # Extracted from stzgraphtest.ring, block #32.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

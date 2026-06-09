@@ -3,6 +3,7 @@
 # Example 20.1: Finding Plans Within Budget
 #
 # Extracted from stzgraphplannertest.ring, block #36.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

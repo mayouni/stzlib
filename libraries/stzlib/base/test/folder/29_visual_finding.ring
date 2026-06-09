@@ -3,7 +3,7 @@
 # VISUAL FINDING
 #
 # Extracted from stzfoldertest.ring, block #29.
-#ERR Error (R14) : Calling Method without definition: vizsearchfiles
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

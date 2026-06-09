@@ -4,5 +4,5 @@
 [PASS]    03_negation_and_alternation.ring
 [PASS]    04_explicit_sets_and_nested_patterns.ring
 [PASS]    05_advanced_combining_multiple_listex_features.ring
-[PASS]    06_real-world_json_configuration_validation.ring
-[ERR]     07_data_structure_transformation_tree_processing.ring :: Error (C27) : Syntax Error!
+[ERR]     06_real-world_json_configuration_validation.ring :: Error (C8) : Parentheses ')' is missing
+[PASS]    07_data_structure_transformation_tree_processing.ring

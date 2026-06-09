@@ -1,5 +1,5 @@
-== chardata  PASS 4  ERR 0  TIMEOUT 0  (7.2s) ==
-[PASS]    01_invisible_unicodes.ring
-[PASS]    02_circled_chars_merge.ring
-[PASS]    03_numberofpunctuationchars.ring
-[PASS]    04_unicode_directions.ring
+== chardata  PASS 0  ERR 4  TIMEOUT 0  (5.6s) ==
+[ERR]     01_invisible_unicodes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_circled_chars_merge.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_numberofpunctuationchars.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_unicode_directions.ring :: Error (C22) : Function redefinition, function is already defined!

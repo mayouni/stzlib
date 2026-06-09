@@ -1,2 +1,2 @@
-== cluster  PASS 1  ERR 0  TIMEOUT 0  (1.8s) ==
-[PASS]    test_cluster_regression.ring
+== cluster  PASS 0  ERR 1  TIMEOUT 0  (1.4s) ==
+[ERR]     test_cluster_regression.ring :: Error (C22) : Function redefinition, function is already defined!

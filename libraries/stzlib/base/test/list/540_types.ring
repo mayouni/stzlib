@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #540.
-#ERR Error (R14) : Calling Method without definition: types
+#ERR Error (R14) : Calling Method without definition: uniquetypes
 
 load "../../stzBase.ring"
 

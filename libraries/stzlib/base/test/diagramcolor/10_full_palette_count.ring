@@ -3,6 +3,7 @@
 # Full Palette Count
 #
 # Extracted from stzdiagramcolortest.ring, block #10.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

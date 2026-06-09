@@ -3,6 +3,7 @@
 # Example 8.1: Spatial Heuristics - Smarter Search
 #
 # Extracted from stzgraphplannertest.ring, block #15.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

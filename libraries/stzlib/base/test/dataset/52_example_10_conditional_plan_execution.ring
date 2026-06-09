@@ -3,6 +3,7 @@
 # EXAMPLE 10: Conditional Plan Execution
 #
 # Extracted from stzdatasettest.ring, block #52.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

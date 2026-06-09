@@ -3,6 +3,7 @@
 # Example 1.2: Path with Choice - A* Picks Optimal
 #
 # Extracted from stzgraphplannertest.ring, block #3.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

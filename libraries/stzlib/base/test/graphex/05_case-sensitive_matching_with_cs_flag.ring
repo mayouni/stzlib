@@ -3,6 +3,7 @@
 # Case-sensitive matching with @cs: flag
 #
 # Extracted from stzgraphextest.ring, block #5.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Example 3.2: Multi-Stop Delivery
 #
 # Extracted from stzgraphplannertest.ring, block #8.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

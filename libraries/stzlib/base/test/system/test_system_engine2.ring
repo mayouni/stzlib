@@ -1,4 +1,5 @@
 
+#ERR Error (R3) : Calling Function without definition: stzenginestring
 
 load "../string/test_stubs.ring"
 # Load stz_system.dll

@@ -3,6 +3,7 @@
 # Country / FractionalUnit / Base.
 #
 # Run from base/i18n/test/.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

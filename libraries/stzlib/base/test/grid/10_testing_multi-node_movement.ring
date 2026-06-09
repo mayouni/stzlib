@@ -3,6 +3,7 @@
 # Testing multi-node movement
 #
 # Extracted from stzGridTest.ring, block #10.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

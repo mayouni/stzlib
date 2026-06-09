@@ -3,6 +3,7 @@
 # Data Processing with Modern JavaScript
 #
 # Extracted from stzextercodetest.ring, block #37.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

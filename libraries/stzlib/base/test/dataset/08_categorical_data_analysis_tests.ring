@@ -3,6 +3,7 @@
 # Categorical Data Analysis Tests
 #
 # Extracted from stzdatasettest.ring, block #8.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

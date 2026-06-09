@@ -3,6 +3,7 @@
 # Creating structs with key pairs
 #
 # Extracted from stzextercodetest.ring, block #22.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

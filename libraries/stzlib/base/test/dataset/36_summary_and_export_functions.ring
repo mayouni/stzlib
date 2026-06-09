@@ -3,6 +3,7 @@
 # Summary and Export Functions
 #
 # Extracted from stzdatasettest.ring, block #36.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #66.
-#ERR Error (R14) : Calling Method without definition: findinsections
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

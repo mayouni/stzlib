@@ -3,6 +3,7 @@
 # Node properties
 #
 # Extracted from stzgraphtest.ring, block #39.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

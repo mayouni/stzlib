@@ -1,4 +1,4 @@
-== knowledgegraph  PASS 18  ERR 0  TIMEOUT 0  (32.3s) ==
+== knowledgegraph  PASS 18  ERR 0  TIMEOUT 0  (29.7s) ==
 [PASS]    01_adding_facts_triples.ring
 [PASS]    02_removing_facts.ring
 [PASS]    03_query_with_variable_subject.ring

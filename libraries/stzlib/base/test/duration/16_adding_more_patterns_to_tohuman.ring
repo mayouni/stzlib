@@ -3,6 +3,7 @@
 # Adding more patterns to ToHuman()
 #
 # Extracted from stzdurationtest.ring, block #16.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

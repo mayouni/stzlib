@@ -3,7 +3,7 @@
 # Folder creation and navigation logic
 #
 # Extracted from stzfoldertest.ring, block #32.
-#ERR Error (C27) : Syntax Error!
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #401.
-#ERR Error (R50) : Object does not support operator overloading
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

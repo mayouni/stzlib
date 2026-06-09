@@ -1,3 +1,3 @@
-== extinphp  PASS 2  ERR 0  TIMEOUT 0  (3.0s) ==
-[PASS]    01_using_a_php_code_inside_ring.ring
-[PASS]    02_php.ring
+== extinphp  PASS 0  ERR 2  TIMEOUT 0  (2.9s) ==
+[ERR]     01_using_a_php_code_inside_ring.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_php.ring :: Error (C22) : Function redefinition, function is already defined!

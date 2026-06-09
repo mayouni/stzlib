@@ -3,6 +3,7 @@
 # Example 2.1: RPG Quest - Find ANY Treasure Worth 1000+ Gold
 #
 # Extracted from stzgraphplannertest.ring, block #5.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

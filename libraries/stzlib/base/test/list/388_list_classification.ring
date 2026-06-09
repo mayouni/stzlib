@@ -3,7 +3,7 @@
 # #narration LIST CLASSIFICATION
 #
 # Extracted from stzlisttest.ring, block #388.
-#ERR Error (R3) : Calling Function without definition: @@sp
+#ERR Error (R14) : Calling Method without definition: klass
 
 load "../../stzBase.ring"
 

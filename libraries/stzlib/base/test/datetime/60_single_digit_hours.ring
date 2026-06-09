@@ -3,6 +3,7 @@
 # Single digit hours
 #
 # Extracted from stzdatetimetest.ring, block #60.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

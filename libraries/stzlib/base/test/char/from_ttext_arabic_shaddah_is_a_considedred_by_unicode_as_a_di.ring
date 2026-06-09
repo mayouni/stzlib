@@ -3,7 +3,7 @@
 # # Arabic Shaddah ("ّ ") is a considedred by Unicode as a diacritic,
 #
 # Extracted from stzTtexttest.ring, block #2.
-#ERR Error (R14) : Calling Method without definition: isarabicdiacritic
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

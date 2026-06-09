@@ -3,6 +3,7 @@
 # Using comparison methods (string param) #TODO #ERR
 #
 # Extracted from stzdatetimetest.ring, block #21.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Business scenario: Downsizing
 #
 # Extracted from stzgraphtest.ring, block #75.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

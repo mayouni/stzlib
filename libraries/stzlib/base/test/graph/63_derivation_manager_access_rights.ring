@@ -3,6 +3,7 @@
 # DERIVATION: Manager Access Rights
 #
 # Extracted from stzgraphtest.ring, block #63.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

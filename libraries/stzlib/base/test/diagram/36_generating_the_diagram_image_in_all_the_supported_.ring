@@ -3,6 +3,7 @@
 # Generating the diagram image in all the supported themes
 #
 # Extracted from stzdiagramtest.ring, block #36.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

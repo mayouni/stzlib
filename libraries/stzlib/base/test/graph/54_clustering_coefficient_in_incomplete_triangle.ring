@@ -3,6 +3,7 @@
 # Clustering coefficient in incomplete triangle
 #
 # Extracted from stzgraphtest.ring, block #54.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

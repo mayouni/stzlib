@@ -3,6 +3,7 @@
 # Short and long folders and files names
 #
 # Extracted from stzfoldertest.ring, block #20.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

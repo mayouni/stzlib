@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #552.
-#ERR Error (R14) : Calling Method without definition: itemswxt
+#ERR Error (R14) : Calling Method without definition: firstitemwxt
 
 load "../../stzBase.ring"
 

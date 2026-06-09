@@ -3,6 +3,7 @@
 # Example 4.1: Production Line Optimization
 #
 # Extracted from stzgraphplannertest.ring, block #9.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

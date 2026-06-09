@@ -1,22 +1,22 @@
-== diagrambuilder  PASS 0  ERR 21  TIMEOUT 0  (28.6s) ==
-[ERR]     02_simple_process_flow_with_theme_and_layout.ring :: Error (R11) : Error in class name, class not found: stzdiagrammaker
-[ERR]     03_state_machine_demonstrating_all_state_transitions.ring :: Error (R24) : Using uninitialized variable: with
-[ERR]     04_same_state_machine_with_dark_professional_theme.ring :: Error (R24) : Using uninitialized variable: showing
-[ERR]     05_multi-tier_database_architecture_with_storage_node.ring :: Error (R24) : Using uninitialized variable: demonstrating
-[ERR]     06_event_emitter_publishing_to_multiple_subscribers.ring :: Error (C27) : Syntax Error!
-[ERR]     07_multi-level_decision_logic_for_user_authentication.ring :: Error (R24) : Using uninitialized variable: demonstrating
-[ERR]     08_microservices_architecture_using_clusters_to_group.ring :: Error (R24) : Using uninitialized variable: related
-[ERR]     09_etl_pipeline_showcasing_all_node_types_start_proce.ring :: Error (C27) : Syntax Error!
-[ERR]     10_linear_process_flow_using_topdown_layout.ring :: Error (C27) : Syntax Error!
-[ERR]     11_same_process_flow_using_leftright_layout.ring :: Error (C27) : Syntax Error!
-[ERR]     12_hierarchical_organization_with_ceo_directors_manag.ring :: Error (C27) : Syntax Error!
-[ERR]     13_cross-functional_matrix_organization_showing_both.ring :: Error (R24) : Using uninitialized variable: functional
-[ERR]     14_flat_organizational_structure_for_startups.ring :: Error (R24) : Using uninitialized variable: showing
-[ERR]     15_complete_order_processing_workflow_from_receipt_to.ring :: Error (C27) : Syntax Error!
-[ERR]     16_banking_workflow_with_comprehensive_validation_sta.ring :: Error (R11) : Error in class name, class not found: stzdiagrammaker
-[ERR]     17_insurance_claims_processing_with_fraud_detection.ring :: Error (C27) : Syntax Error!
-[ERR]     18_hr_workflow_for_employee_leave_approval.ring :: Error (C27) : Syntax Error!
-[ERR]     19_editorial_pipeline_with_review_fact-checking.ring :: Error (C27) : Syntax Error!
-[ERR]     20_complete_hiring_pipeline_from_job_requisition_thro.ring :: Error (C27) : Syntax Error!
-[ERR]     21_support_ticket_lifecycle_with_categorization_routi.ring :: Error (C27) : Syntax Error!
-[ERR]     22_all_20_comprehensive_examples_generated_with_full.ring :: Error (R24) : Using uninitialized variable: documentation
+== diagrambuilder  PASS 0  ERR 21  TIMEOUT 0  (29.7s) ==
+[ERR]     02_simple_process_flow_with_theme_and_layout.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_state_machine_demonstrating_all_state_transitions.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_same_state_machine_with_dark_professional_theme.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_multi-tier_database_architecture_with_storage_node.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_event_emitter_publishing_to_multiple_subscribers.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_multi-level_decision_logic_for_user_authentication.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_microservices_architecture_using_clusters_to_group.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_etl_pipeline_showcasing_all_node_types_start_proce.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_linear_process_flow_using_topdown_layout.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_same_process_flow_using_leftright_layout.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_hierarchical_organization_with_ceo_directors_manag.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_cross-functional_matrix_organization_showing_both.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_flat_organizational_structure_for_startups.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_complete_order_processing_workflow_from_receipt_to.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_banking_workflow_with_comprehensive_validation_sta.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_insurance_claims_processing_with_fraud_detection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_hr_workflow_for_employee_leave_approval.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_editorial_pipeline_with_review_fact-checking.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_complete_hiring_pipeline_from_job_requisition_thro.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_support_ticket_lifecycle_with_categorization_routi.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_all_20_comprehensive_examples_generated_with_full.ring :: Error (C22) : Function redefinition, function is already defined!

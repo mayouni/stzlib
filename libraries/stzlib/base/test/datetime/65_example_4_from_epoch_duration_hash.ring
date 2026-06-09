@@ -3,6 +3,7 @@
 # Example 4: From epoch duration hash
 #
 # Extracted from stzdatetimetest.ring, block #65.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # #INTERNAL #TODO Write a document about it
 #
 # Extracted from stzlisttest.ring, block #303.
-#ERR Error (R14) : Calling Method without definition: findnext
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

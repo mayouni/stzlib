@@ -3,6 +3,7 @@
 # Copy and Clone
 #
 # Extracted from stzdurationtest.ring, block #14.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

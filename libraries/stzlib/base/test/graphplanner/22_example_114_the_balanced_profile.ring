@@ -3,6 +3,7 @@
 # Example 11.4: The :balanced Profile
 #
 # Extracted from stzgraphplannertest.ring, block #22.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

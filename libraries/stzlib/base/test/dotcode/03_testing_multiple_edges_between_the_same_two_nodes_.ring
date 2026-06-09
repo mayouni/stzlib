@@ -3,6 +3,7 @@
 # Testing multiple edges between the same two nodes (multigraph)
 #
 # Extracted from stzdotcodetest.ring, block #3.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

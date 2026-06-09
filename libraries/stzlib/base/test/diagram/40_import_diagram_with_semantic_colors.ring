@@ -3,6 +3,7 @@
 # Import Diagram with Semantic Colors
 #
 # Extracted from stzdiagramtest.ring, block #40.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

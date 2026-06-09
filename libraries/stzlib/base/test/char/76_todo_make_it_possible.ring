@@ -3,6 +3,7 @@
 # TODO: Make it possible...
 #
 # Extracted from stzchartest.ring, block #76.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Calculating days, months and years between dates
 #
 # Extracted from stzdatetest.ring, block #18.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

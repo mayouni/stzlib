@@ -3,6 +3,7 @@
 # Basic Import on Empty Diagram
 #
 # Extracted from stzdiagramtest.ring, block #39.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

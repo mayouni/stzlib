@@ -2,6 +2,7 @@
 # Color-table lookups, hex<->RGB conversions, attenuate/intensify.
 #
 # Run from base/graph/test/.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

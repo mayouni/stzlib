@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #15.
-#ERR Error (R14) : Calling Method without definition: charsq
+#ERR Error (R14) : Calling Method without definition: numberified
 
 load "../../stzBase.ring"
 

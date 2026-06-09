@@ -3,6 +3,7 @@
 # Graph Explanation #TODO #ERR
 #
 # Extracted from stzgraphtest.ring, block #33.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

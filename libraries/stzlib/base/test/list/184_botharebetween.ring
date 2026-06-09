@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #184.
-#ERR Error (R14) : Calling Method without definition: isstzclassname
+#ERR Error (R14) : Calling Method without definition: botharenumbers
 
 load "../../stzBase.ring"
 

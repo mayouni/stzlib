@@ -3,6 +3,7 @@
 # CI/CD with case sensitivity
 #
 # Extracted from stzgraphextest.ring, block #20.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

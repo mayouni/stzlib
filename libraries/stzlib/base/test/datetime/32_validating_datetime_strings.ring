@@ -3,6 +3,7 @@
 # Validating datetime strings
 #
 # Extracted from stzdatetimetest.ring, block #32.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

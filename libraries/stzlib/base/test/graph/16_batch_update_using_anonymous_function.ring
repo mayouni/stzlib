@@ -3,6 +3,7 @@
 # Batch Update Using Anonymous function
 #
 # Extracted from stzgraphtest.ring, block #16.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

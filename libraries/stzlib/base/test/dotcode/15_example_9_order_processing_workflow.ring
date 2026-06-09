@@ -3,6 +3,7 @@
 # #  Example 9: Order Processing Workflow  #
 #
 # Extracted from stzdotcodetest.ring, block #15.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

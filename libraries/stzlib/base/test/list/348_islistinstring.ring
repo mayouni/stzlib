@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #348.
-#ERR Error (R11) : Error in class name, class not found: stztext
 
 load "../../stzBase.ring"
 

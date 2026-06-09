@@ -3,6 +3,7 @@
 # CONSTRAINT: Cycle Prevention in Directed Graphs (DAG)
 #
 # Extracted from stzgraphtest.ring, block #62.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

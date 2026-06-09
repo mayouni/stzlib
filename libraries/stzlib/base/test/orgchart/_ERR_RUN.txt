@@ -1,4 +1,4 @@
-== orgchart  PASS 37  ERR 3  TIMEOUT 0  (71.2s) ==
+== orgchart  PASS 40  ERR 0  TIMEOUT 0  (77.3s) ==
 [PASS]    01_creating_positions_and_hierarchy.ring
 [PASS]    02_accessing_position_data.ring
 [PASS]    03_direct_reports.ring
@@ -24,13 +24,13 @@
 [PASS]    23_succession_report.ring
 [PASS]    24_succession_report.ring
 [PASS]    25_succession_report.ring
-[ERR]     26_path_finding.ring :: panic: integer part of floating point value out of bounds
+[PASS]    26_path_finding.ring
 [PASS]    27_reachability.ring
 [PASS]    28_connectivity.ring
 [PASS]    29_property_queries.ring
-[ERR]     30_property_range_queries.ring :: Error (R3) : Calling Function without definition: nodeswithpropertyxt
+[PASS]    30_property_range_queries.ring
 [PASS]    31_graph_metrics.ring
-[ERR]     32_color_high_performers.ring :: Error (R11) : Error in class name, class not found: stzgraphrule
+[PASS]    32_color_high_performers.ring
 [PASS]    33_reporting_line_changes.ring
 [PASS]    34_position_removal.ring
 [PASS]    35_export_to_stzorg.ring

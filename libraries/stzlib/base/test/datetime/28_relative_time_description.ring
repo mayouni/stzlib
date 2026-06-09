@@ -3,6 +3,7 @@
 # Relative time description
 #
 # Extracted from stzdatetimetest.ring, block #28.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

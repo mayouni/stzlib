@@ -3,6 +3,7 @@
 # Negative integer
 #
 # Extracted from stzdecimaltobinarytest.ring, block #4.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

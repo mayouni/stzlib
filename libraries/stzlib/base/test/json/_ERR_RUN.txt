@@ -1,6 +1,6 @@
-== json  PASS 28  ERR 2  TIMEOUT 0  (48.0s) ==
-[ERR]     01_qbytearraytostring.ring :: Error (R11) : Error in class name, class not found: qbytearray
-[ERR]     02_isqbytearray.ring :: Error (R3) : Calling Function without definition: isqbytearray
+== json  PASS 30  ERR 0  TIMEOUT 0  (49.0s) ==
+[PASS]    01_qbytearraytostring.ring
+[PASS]    02_isqbytearray.ring
 [PASS]    03_isjsonlist.ring
 [PASS]    04_listtojsonxt.ring
 [PASS]    05_ishashlist.ring

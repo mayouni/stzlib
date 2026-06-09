@@ -3,6 +3,7 @@
 # Testing direction changes and movement combinations
 #
 # Extracted from stzGridTest.ring, block #9.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

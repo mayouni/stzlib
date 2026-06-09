@@ -1,10 +1,10 @@
-== common  PASS 9  ERR 0  TIMEOUT 0  (11.1s) ==
+== common  PASS 2  ERR 7  TIMEOUT 0  (9.9s) ==
 [PASS]    test_bytes.ring
-[PASS]    test_item_regression.ring
-[PASS]    test_listofpairs_regression.ring
+[ERR]     test_item_regression.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_listofpairs_regression.ring :: Error (C22) : Function redefinition, function is already defined!
 [PASS]    test_meta_engine.ring
-[PASS]    test_sliding_window_anti_sections.ring
-[PASS]    test_splitter_regression.ring
-[PASS]    test_statemachine_regression.ring
-[PASS]    test_strict_eq.ring
-[PASS]    test_validator_regression.ring
+[ERR]     test_sliding_window_anti_sections.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_splitter_regression.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_statemachine_regression.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_strict_eq.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_validator_regression.ring :: Error (C22) : Function redefinition, function is already defined!

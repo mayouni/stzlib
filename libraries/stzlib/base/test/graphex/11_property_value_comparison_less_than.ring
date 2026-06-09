@@ -3,7 +3,7 @@
 # Property value comparison (less than)
 #
 # Extracted from stzgraphextest.ring, block #11.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

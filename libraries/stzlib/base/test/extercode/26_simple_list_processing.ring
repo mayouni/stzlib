@@ -3,6 +3,7 @@
 # Simple List Processing
 #
 # Extracted from stzextercodetest.ring, block #26.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

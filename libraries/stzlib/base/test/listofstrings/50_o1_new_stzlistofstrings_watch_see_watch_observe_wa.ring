@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "WATCH", "see", "Watch", "Observe", "watch" ])
 #
 # Extracted from stzlistofstringstest.ring, block #50.
+#ERR Error (R14) : Calling Method without definition: stringsw
 
 load "../../stzBase.ring"
 

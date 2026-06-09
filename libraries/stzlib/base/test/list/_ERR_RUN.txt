@@ -1,8 +1,8 @@
-== list  PASS 213  ERR 416  TIMEOUT 47  (1759.0s) ==
+== list  PASS 364  ERR 312  TIMEOUT 0  (1164.6s) ==
 [PASS]    01_content.ring
 [PASS]    02_haspath.ring
 [ERR]     03_eachitemisa.ring :: Error (R14) : Calling Method without definition: itemsare
-[ERR]     04_findnextnthitem.ring :: Error (R14) : Calling Method without definition: findnextnthitem
+[PASS]    04_findnextnthitem.ring
 [PASS]    05_containsemptystrings.ring
 [ERR]     06_manyremoved.ring :: Error (R14) : Calling Method without definition: manyremoved
 [ERR]     07_containseither.ring :: Error (R20) : Calling function with extra number of parameters
@@ -10,13 +10,13 @@
 [PASS]    09_content.ring
 [PASS]    100_performance_tip.ring
 [PASS]    101_performance_tip.ring
-[TIMEOUT] 102_pr.ring
+[PASS]    102_pr.ring
 [PASS]    103_check_it.ring
 [PASS]    104_pr.ring
 [PASS]    105_tocode.ring
 [ERR]     106_deepcontains.ring :: Error (R14) : Calling Method without definition: deepfind
-[TIMEOUT] 107_findnext.ring
-[TIMEOUT] 108_pr.ring
+[PASS]    107_findnext.ring
+[PASS]    108_pr.ring
 [ERR]     109_nlistified.ring :: Error (R14) : Calling Method without definition: nlistified
 [PASS]    10_content.ring
 [ERR]     110_singles_and_singlified.ring :: Error (R14) : Calling Method without definition: containssingles
@@ -28,96 +28,96 @@
 [ERR]     116_islistofchars.ring :: Error (R14) : Calling Method without definition: islistofchars
 [PASS]    117_unicodes.ring
 [PASS]    118_replace_and_deepreplace.ring
-[ERR]     119_content.ring :: Error (R14) : Calling Method without definition: deepreplace
+[PASS]    119_content.ring
 [PASS]    11_stringifying_the_items_of_a_list.ring
 [ERR]     120_content.ring :: Error (R14) : Calling Method without definition: sortby
-[TIMEOUT] 121_pr.ring
+[PASS]    121_pr.ring
 [PASS]    122_pr.ring
-[TIMEOUT] 123_shortened.ring
-[TIMEOUT] 124_content.ring
-[TIMEOUT] 125_content.ring
-[TIMEOUT] 126_content.ring
-[TIMEOUT] 127_containsduplicates.ring
-[TIMEOUT] 128_allitemsareduplicated.ring
+[PASS]    123_shortened.ring
+[PASS]    124_content.ring
+[PASS]    125_content.ring
+[PASS]    126_content.ring
+[PASS]    127_containsduplicates.ring
+[PASS]    128_allitemsareduplicated.ring
 [ERR]     129_noitemsareduplicated.ring :: Error (R14) : Calling Method without definition: noitemsareduplicated
 [PASS]    130_containsduplicates.ring
-[ERR]     131_containsduplicates.ring :: Error (R14) : Calling Method without definition: numberofduplicates
+[ERR]     131_containsduplicates.ring :: Error (R14) : Calling Method without definition: findduplicatesorigins
 [PASS]    132_content.ring
-[TIMEOUT] 133_pr.ring
+[PASS]    133_pr.ring
 [PASS]    134_withoutduplication.ring
 [ERR]     135_content.ring :: Error (R14) : Calling Method without definition: removenonduplicates
 [PASS]    136_block_136.ring
 [ERR]     137_containsdupsecutiveitems.ring :: Error (R14) : Calling Method without definition: containsdupsecutiveitems
 [ERR]     138_containsdupsecutiveitems.ring :: Error (R14) : Calling Method without definition: containsdupsecutiveitems
 [ERR]     139_finddupsecutiveitems.ring :: Error (R14) : Calling Method without definition: finddupsecutiveitems
-[TIMEOUT] 13_perf.ring
+[PASS]    13_perf.ring
 [ERR]     140_duporigins.ring :: Error (R14) : Calling Method without definition: duporigins
-[TIMEOUT] 141_duplicatesz.ring
-[ERR]     142_sensor_readings_with_duplicate_values.ring :: Error (R14) : Calling Method without definition: findduplicates
-[ERR]     143_duplicates.ring :: Error (R14) : Calling Method without definition: duplicates
+[PASS]    141_duplicatesz.ring
+[PASS]    142_sensor_readings_with_duplicate_values.ring
+[PASS]    143_duplicates.ring
 [ERR]     145_o1_q0.ring :: Error (R24) : Using uninitialized variable: o1
-[ERR]     146_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     147_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     148_pr.ring :: Error (R50) : Object does not support operator overloading
-[TIMEOUT] 149_nlastitems.ring
-[TIMEOUT] 14_perf.ring
-[TIMEOUT] 150_pr.ring
+[PASS]    146_pr.ring
+[PASS]    147_pr.ring
+[PASS]    148_pr.ring
+[PASS]    149_nlastitems.ring
+[PASS]    14_perf.ring
+[PASS]    150_pr.ring
 [PASS]    151_pr.ring
 [PASS]    152_pr.ring
 [PASS]    153_pr.ring
 [PASS]    154_pr.ring
 [ERR]     155_pr.ring :: Error (R14) : Calling Method without definition: extendtowithitemsrepeated
 [ERR]     156_pr.ring :: Error (R14) : Calling Method without definition: extendtowithitemsin
-[ERR]     157_pr.ring :: Error (R14) : Calling Method without definition: extendxt
-[ERR]     158_pr.ring :: Error (R14) : Calling Method without definition: extendxt
-[ERR]     159_pr.ring :: Error (R14) : Calling Method without definition: extendxt
-[TIMEOUT] 15_perf.ring
-[ERR]     160_pr.ring :: Error (R14) : Calling Method without definition: extendxt
-[ERR]     161_pr.ring :: Error (R14) : Calling Method without definition: extendxt
+[PASS]    157_pr.ring
+[PASS]    158_pr.ring
+[PASS]    159_pr.ring
+[PASS]    15_perf.ring
+[PASS]    160_pr.ring
+[PASS]    161_pr.ring
 [ERR]     162_pr.ring :: Error (R14) : Calling Method without definition: shrink
-[ERR]     163_pr.ring :: Error (R3) : Calling Function without definition: extendxt
+[PASS]    163_pr.ring
 [PASS]    164_tocode.ring
 [PASS]    165_tocode.ring
 [PASS]    166_numberofoccurrence.ring
-[ERR]     167_numberofduplicates.ring :: Error (R14) : Calling Method without definition: numberofduplicates
+[PASS]    167_numberofduplicates.ring
 [PASS]    168_content.ring
 [ERR]     169_numberofchars.ring :: Error (R14) : Calling Method without definition: numberofchars
 [PASS]    16_association.ring
 [PASS]    170_ring_list2code_vs_softanza_listtocode.ring
 [PASS]    171_findlast.ring
 [PASS]    172_findfirst.ring
-[ERR]     173_findnext.ring :: Error (R14) : Calling Method without definition: findnext
+[PASS]    173_findnext.ring
 [PASS]    174_find.ring
-[TIMEOUT] 175_block_175.ring
-[TIMEOUT] 176_islistofnumbers.ring
-[ERR]     177_find.ring :: Error (R14) : Calling Method without definition: findnext
+[PASS]    175_block_175.ring
+[PASS]    176_islistofnumbers.ring
+[PASS]    177_find.ring
 [PASS]    178_content.ring
 [ERR]     179_content.ring :: Error (C27) : Syntax Error!
-[TIMEOUT] 180_content.ring
+[PASS]    180_content.ring
 [ERR]     181_section.ring :: Error (R14) : Calling Method without definition: tocodeq
 [PASS]    182_section.ring
-[TIMEOUT] 183_pr.ring
-[ERR]     184_botharebetween.ring :: Error (R14) : Calling Method without definition: isstzclassname
-[ERR]     185_findnext.ring :: Error (R14) : Calling Method without definition: findnext
+[PASS]    183_pr.ring
+[ERR]     184_botharebetween.ring :: Error (R14) : Calling Method without definition: botharenumbers
+[PASS]    185_findnext.ring
 [PASS]    186_numberofoccurrence.ring
-[TIMEOUT] 187_contains.ring
+[PASS]    187_contains.ring
 [PASS]    188_find.ring
 [PASS]    189_find.ring
-[ERR]     18_these.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    18_these.ring
 [PASS]    190_onlynumbers.ring
 [ERR]     191_numbersandstrings.ring :: Error (R14) : Calling Method without definition: numbersandstrings
 [ERR]     192_elapsedtime.ring :: Error (R24) : Using uninitialized variable: _time0
 [ERR]     193_elapsedtime.ring :: Error (R24) : Using uninitialized variable: _time0
-[TIMEOUT] 194_onlynumbers.ring
-[TIMEOUT] 195_findfirst.ring
-[TIMEOUT] 196_section.ring
-[TIMEOUT] 197_findnext.ring
-[TIMEOUT] 198_find.ring
-[TIMEOUT] 199_find.ring
+[PASS]    194_onlynumbers.ring
+[PASS]    195_findfirst.ring
+[PASS]    196_section.ring
+[PASS]    197_findnext.ring
+[PASS]    198_find.ring
+[PASS]    199_find.ring
 [ERR]     19_finditems.ring :: Error (R3) : Calling Function without definition: finditems
-[TIMEOUT] 200_find.ring
+[PASS]    200_find.ring
 [ERR]     201_botharenumbers.ring :: Error (R14) : Calling Method without definition: botharenumbers
-[ERR]     202_sectionxt.ring :: Error (R14) : Calling Method without definition: sectionxt
+[PASS]    202_sectionxt.ring
 [PASS]    203_section.ring
 [PASS]    204_association.ring
 [ERR]     205_isapair.ring :: Error (R14) : Calling Method without definition: isapairq
@@ -140,7 +140,7 @@
 [PASS]    220_extractall.ring
 [ERR]     221_extractat.ring :: Error (R14) : Calling Method without definition: extractat
 [PASS]    222_findnth.ring
-[ERR]     223_findnthoccurrence.ring :: Error (R14) : Calling Method without definition: findnthoccurrence
+[PASS]    223_findnthoccurrence.ring
 [ERR]     224_extractfirst.ring :: Error (R20) : Calling function with extra number of parameters
 [ERR]     225_extractlast.ring :: Error (R20) : Calling function with extra number of parameters
 [ERR]     226_extractwxt.ring :: Error (R14) : Calling Method without definition: extractwxt
@@ -152,105 +152,105 @@
 [ERR]     231_itemshavext.ring :: Error (R14) : Calling Method without definition: itemshavext
 [ERR]     232_ismadeofuniformlists.ring :: Error (R14) : Calling Method without definition: ismadeofuniformlists
 [ERR]     233_ismadeofitem.ring :: Error (R14) : Calling Method without definition: ismadeofitem
-[ERR]     234_containsduplicates.ring :: Error (R14) : Calling Method without definition: findduplicates
+[PASS]    234_containsduplicates.ring
 [PASS]    235_tocode.ring
 [PASS]    236_tocode.ring
-[ERR]     237_stringifyandreplace.ring :: Error (R14) : Calling Method without definition: stringifyandreplaceq
+[PASS]    237_stringifyandreplace.ring
 [ERR]     238_stringifyandreplace.ring :: Error (R24) : Using uninitialized variable: alarge
-[TIMEOUT] 239_containsduplicates.ring
+[PASS]    239_containsduplicates.ring
 [ERR]     23_indexcs.ring :: Error (R14) : Calling Method without definition: indexcs
-[TIMEOUT] 240_containsduplicates.ring
-[TIMEOUT] 241_containsduplicatescs.ring
+[PASS]    240_containsduplicates.ring
+[PASS]    241_containsduplicatescs.ring
 [ERR]     242_historical_qt-based_sorting_tests_qt_removed_from_.ring :: Error (R11) : Error in class name, class not found: qstringlist
 [ERR]     243_containsduplicates.ring :: Error (R14) : Calling Method without definition: howmanyduplicates
 [ERR]     244_draft.ring :: Error (R11) : Error in class name, class not found: qstringlist
 [ERR]     245_itemsz.ring :: Error (R14) : Calling Method without definition: itemsz
 [ERR]     246_block_246.ring :: Error (R14) : Calling Method without definition: itemsz
-[ERR]     247_pr.ring :: Error (R14) : Calling Method without definition: stringifylowercaseandreplacext
+[PASS]    247_pr.ring
 [PASS]    248_pr.ring
 [PASS]    249_findnext.ring
 [PASS]    24_index.ring
 [PASS]    250_block_250.ring
 [ERR]     251_code_draft.ring :: Error (R11) : Error in class name, class not found: qstringlist
-[ERR]     252_duplicatesz.ring :: Error (R14) : Calling Method without definition: duplicatesz
-[ERR]     253_duplicatesz.ring :: Error (R14) : Calling Method without definition: duplicatesz
-[TIMEOUT] 254_profiling_the_duplicates_function_--_reasonable_pe.ring
-[TIMEOUT] 255_duplicatesz.ring
+[PASS]    252_duplicatesz.ring
+[ERR]     253_duplicatesz.ring :: Error (R14) : Calling Method without definition: duplicatesxtz
+[PASS]    254_profiling_the_duplicates_function_--_reasonable_pe.ring
+[PASS]    255_duplicatesz.ring
 [ERR]     256_duplicatescsz.ring :: Error (R14) : Calling Method without definition: duplicatescsz
 [ERR]     257_o1_new_stzlist.ring :: Error (C27) : Syntax Error!
-[ERR]     258_managing_duplicated_items_check_errros.ring :: Error (R14) : Calling Method without definition: duplicates
+[PASS]    258_managing_duplicated_items_check_errros.ring
 [ERR]     25_itemsoccuringntimescs.ring :: Error (R14) : Calling Method without definition: itemsoccuringntimescs
-[ERR]     260_numberofduplicates.ring :: Error (R14) : Calling Method without definition: numberofduplicates
-[ERR]     261_content.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    260_numberofduplicates.ring
+[PASS]    261_content.ring
 [PASS]    262_findantisections.ring
 [ERR]     263_commonitems.ring :: Error (R14) : Calling Method without definition: commonitems
 [PASS]    264_contains.ring
 [PASS]    265_containscs.ring
-[ERR]     266_findduplicates.ring :: Error (R14) : Calling Method without definition: findduplicates
+[PASS]    266_findduplicates.ring
 [ERR]     267_intersection.ring :: Error (R14) : Calling Method without definition: intersection
-[ERR]     268_findprevious.ring :: Error (R14) : Calling Method without definition: findprevious
-[TIMEOUT] 269_findnth.ring
+[PASS]    268_findprevious.ring
+[PASS]    269_findnth.ring
 [ERR]     26_itemsoccurringntimes.ring :: Error (R14) : Calling Method without definition: itemsoccurringntimes
-[ERR]     270_findnth.ring :: Error (R14) : Calling Method without definition: findnth
-[TIMEOUT] 271_findnth.ring
-[TIMEOUT] 272_findnth.ring
-[TIMEOUT] 273_findlast.ring
-[TIMEOUT] 274_findnext.ring
-[ERR]     275_findprevious.ring :: Error (R14) : Calling Method without definition: findprevious
-[ERR]     276_findprevious.ring :: Error (R14) : Calling Method without definition: findprevious
-[TIMEOUT] 277_findprevious.ring
+[PASS]    270_findnth.ring
+[PASS]    271_findnth.ring
+[PASS]    272_findnth.ring
+[PASS]    273_findlast.ring
+[PASS]    274_findnext.ring
+[PASS]    275_findprevious.ring
+[PASS]    276_findprevious.ring
+[PASS]    277_findprevious.ring
 [PASS]    278_block_278.ring
 [ERR]     279_findfirst.ring :: Error (R3) : Calling Function without definition: @findprevious
 [PASS]    280_findallcs.ring
 [PASS]    281_findnthst.ring
-[ERR]     282_findfirst.ring :: Error (R14) : Calling Method without definition: findnext
-[TIMEOUT] 283_findfirst.ring
-[TIMEOUT] 284_numberofoccurrence.ring
+[PASS]    282_findfirst.ring
+[PASS]    283_findfirst.ring
+[PASS]    284_numberofoccurrence.ring
 [PASS]    285_antipositions.ring
-[ERR]     286_findduplicates.ring :: Error (R14) : Calling Method without definition: findduplicates
-[ERR]     287_findnth.ring :: Error (R14) : Calling Method without definition: findnth
-[ERR]     288_findnth.ring :: Error (R14) : Calling Method without definition: findnth
-[ERR]     289_findnthprevious.ring :: Error (R14) : Calling Method without definition: findnthprevious
+[PASS]    286_findduplicates.ring
+[PASS]    287_findnth.ring
+[PASS]    288_findnth.ring
+[ERR]     289_findnthprevious.ring :: Error (R21) : Using operator with values of incorrect type
 [ERR]     28_content.ring :: Error (R14) : Calling Method without definition: replaceatbymanyxt
-[ERR]     290_findnthprevious.ring :: Error (R14) : Calling Method without definition: findnthprevious
-[TIMEOUT] 291_findnth.ring
-[ERR]     292_findfirst.ring :: Error (R14) : Calling Method without definition: findnth
-[TIMEOUT] 293_findfirst.ring
+[ERR]     290_findnthprevious.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    291_findnth.ring
+[PASS]    292_findfirst.ring
+[PASS]    293_findfirst.ring
 [ERR]     294_findpreviousnthoccurrence.ring :: Error (R14) : Calling Method without definition: findpreviousnthoccurrence
 [PASS]    295_numberofoccurrence.ring
-[TIMEOUT] 296_numberofoccurrence.ring
-[TIMEOUT] 297_findall.ring
+[PASS]    296_numberofoccurrence.ring
+[PASS]    297_findall.ring
 [PASS]    298_findall.ring
 [ERR]     299_this_is_a_draft_note_i_made_while_refactoring_the_.ring :: Error (C27) : Syntax Error!
-[ERR]     29_findnumbersassections.ring :: Error (R14) : Calling Method without definition: findnumbersassections
+[PASS]    29_findnumbersassections.ring
 [PASS]    300_findlast.ring
 [PASS]    301_findnext.ring
 [PASS]    302_findall.ring
-[ERR]     303_write_a_document_about_it.ring :: Error (R14) : Calling Method without definition: findnext
+[ERR]     303_write_a_document_about_it.ring :: Error (R21) : Using operator with values of incorrect type
 [PASS]    304_findnext.ring
-[ERR]     305_findnext.ring :: Error (R14) : Calling Method without definition: findnext
+[ERR]     305_findnext.ring :: Error (R14) : Calling Method without definition: findnextnth
 [PASS]    307_findnext.ring
 [ERR]     308_distanceto.ring :: Error (R14) : Calling Method without definition: distanceto
 [ERR]     309_distanceto.ring :: Error (R14) : Calling Method without definition: distanceto
-[ERR]     30_findnumbersassections.ring :: Error (R14) : Calling Method without definition: findnumbersassections
-[ERR]     310_findboundedbyzz.ring :: Error (R14) : Calling Method without definition: deepfindboundedbyzz
+[ERR]     30_findnumbersassections.ring :: Error (R14) : Calling Method without definition: findstringszz
+[PASS]    310_findboundedbyzz.ring
 [PASS]    311_a_draft_for_a_code_used_inside_softanza.ring
-[ERR]     312_neighborsof.ring :: Error (R14) : Calling Method without definition: tosetq
-[ERR]     313_these.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    312_neighborsof.ring
+[PASS]    313_these.ring
 [ERR]     314_a_draft_for_a_code_using_inside_softanza.ring :: Error (R14) : Calling Method without definition: manyremoved
-[ERR]     315_findboundedbyzz.ring :: Error (R14) : Calling Method without definition: deepfindboundedbyzz
+[ERR]     315_findboundedbyzz.ring :: Error (R14) : Calling Method without definition: deepboundedby
 [ERR]     316_deepfindsubstringsboundedbyzz.ring :: Error (R14) : Calling Method without definition: deepfindsubstringsboundedbyzz
-[ERR]     317_findanyboundedbyzz.ring :: Error (R14) : Calling Method without definition: findanyboundedbyzz
+[ERR]     317_findanyboundedbyzz.ring :: Error (R14) : Calling Method without definition: substringsboundedbyzz
 [PASS]    318_substringsboundedby.ring
 [PASS]    319_findantisections.ring
 [ERR]     31_typesu.ring :: Error (R14) : Calling Method without definition: typesu
 [ERR]     320_simplify.ring :: Error (R14) : Calling Method without definition: nestedsubstringsib
 [ERR]     321_nestedsubstrings.ring :: Error (R14) : Calling Method without definition: nestedsubstrings
 [PASS]    322_findsubstringsboundedbyibzz.ring
-[ERR]     323_content.ring :: Error (R14) : Calling Method without definition: replaceanyboundedby
+[PASS]    323_content.ring
 [ERR]     324_content.ring :: Error (R14) : Calling Method without definition: removesubstringsboundedbyib
 [ERR]     325_numberoflevels.ring :: Error (R14) : Calling Method without definition: numberoflevels
-[ERR]     326_findfirst.ring :: Error (R14) : Calling Method without definition: findnth
+[ERR]     326_findfirst.ring :: Error (R14) : Calling Method without definition: deepcontainsmany
 [ERR]     328_content.ring :: Error (R14) : Calling Method without definition: removethisnthitem
 [ERR]     329_index.ring :: Error (R14) : Calling Method without definition: index
 [ERR]     32_activating_and_deactivating_checkparams.ring :: Error (R14) : Calling Method without definition: replacetheseitemsatpositions
@@ -265,17 +265,17 @@
 [PASS]    338_pr.ring
 [PASS]    339_yield.ring
 [ERR]     33_content.ring :: Error (R14) : Calling Method without definition: replaceanyitematpositionsbymanyxt
-[ERR]     340_script.ring :: exit 1: Line 79 Bad parameters value, error in length!
-[ERR]     341_pr.ring :: Error (R14) : Calling Method without definition: isstzclassname
+[ERR]     340_script.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[ERR]     341_pr.ring :: Error (R11) : Error in class name, class not found: stztext
 [ERR]     342_inferetype.ring :: Error (R14) : Calling Method without definition: inferetype
 [PASS]    343_are.ring
-[ERR]     344_isarabic.ring :: Error (R3) : Calling Function without definition: tq
+[ERR]     344_isarabic.ring :: Error (R14) : Calling Method without definition: isarabic
 [PASS]    345_are.ring
-[ERR]     346_type.ring :: Error (R11) : Error in class name, class not found: stztext
-[ERR]     347_type.ring :: Error (R11) : Error in class name, class not found: stztext
-[ERR]     348_islistinstring.ring :: Error (R11) : Error in class name, class not found: stztext
+[PASS]    346_type.ring
+[PASS]    347_type.ring
+[PASS]    348_islistinstring.ring
 [ERR]     349_ishanscript.ring :: Error (R14) : Calling Method without definition: ishanscript
-[ERR]     34_find_and_antifind_in_stzlist.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    34_find_and_antifind_in_stzlist.ring
 [PASS]    350_pr.ring
 [PASS]    351_are.ring
 [ERR]     352_inferetype.ring :: Error (R14) : Calling Method without definition: inferetype
@@ -286,17 +286,17 @@
 [ERR]     357_islistofnumbersandpairsofnumbers.ring :: Error (R14) : Calling Method without definition: islistofnumbersandpairsofnumbers
 [ERR]     358_deep_finding_items_at_any_level.ring :: Error (R14) : Calling Method without definition: numberoflevels
 [PASS]    359_replace_and_deepreplace.ring
-[ERR]     360_content.ring :: Error (R14) : Calling Method without definition: deepreplace
+[PASS]    360_content.ring
 [PASS]    362_content.ring
 [ERR]     364_content.ring :: Error (R14) : Calling Method without definition: insertafter
 [PASS]    365_moving_and_swapping.ring
 [ERR]     367_writablilty_vs_readablility_vs_both_of_them.ring :: Error (R14) : Calling Method without definition: swapitems
-[ERR]     368_pr.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    368_pr.ring
 [ERR]     369_hassamecontent.ring :: Error (R14) : Calling Method without definition: hassamecontent
 [ERR]     36_content.ring :: Error (R14) : Calling Method without definition: replaceitematpositionsbymany
 [ERR]     370_semantic_precision.ring :: Error (R14) : Calling Method without definition: islargerthan
 [ERR]     371_islarger.ring :: Error (R14) : Calling Method without definition: islarger
-[ERR]     372_findall.ring :: Error (R14) : Calling Method without definition: findnth
+[PASS]    372_findall.ring
 [ERR]     373_nthtolast.ring :: Error (R14) : Calling Method without definition: nthtolast
 [PASS]    374_section.ring
 [PASS]    375_findall.ring
@@ -308,13 +308,13 @@
 [PASS]    380_findall.ring
 [PASS]    381_content.ring
 [PASS]    382_islistinstring.ring
-[ERR]     383_tolist.ring :: Error (R14) : Calling Method without definition: tolist
+[ERR]     383_tolist.ring :: exit 1: "
 [PASS]    384_generalisation_of_the_ring_ab_syntax.ring
 [PASS]    385_use_of_the_l_small_function.ring
-[ERR]     386_classify.ring :: Error (R3) : Calling Function without definition: @@sp
-[ERR]     387_classify.ring :: Error (R3) : Calling Function without definition: @@sp
-[ERR]     388_list_classification.ring :: Error (R3) : Calling Function without definition: @@sp
-[ERR]     389_isstzclassname.ring :: Error (R14) : Calling Method without definition: isstzclassname
+[PASS]    386_classify.ring
+[PASS]    387_classify.ring
+[ERR]     388_list_classification.ring :: Error (R14) : Calling Method without definition: klass
+[ERR]     389_isstzclassname.ring :: Error (R14) : Calling Method without definition: isoneofthesenamedparams
 [ERR]     38_content.ring :: Error (R14) : Calling Method without definition: replaceanyitemsatpositions
 [PASS]    390_islistofstrings.ring
 [PASS]    391_hashlist_syntax_key_value.ring
@@ -323,46 +323,46 @@
 [ERR]     394_nonnumbers.ring :: Error (R14) : Calling Method without definition: nonnumbers
 [ERR]     395_findfirstcs.ring :: Error (R14) : Calling Method without definition: findfirstcs
 [ERR]     396_contains.ring :: Error (R14) : Calling Method without definition: containsno
-[ERR]     397_itemswxt.ring :: Error (R14) : Calling Method without definition: itemswxt
-[ERR]     398_pr.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    397_itemswxt.ring
+[PASS]    398_pr.ring
 [ERR]     399_itemremoved.ring :: Error (R14) : Calling Method without definition: itemremoved
 [ERR]     39_content.ring :: Error (R14) : Calling Method without definition: replaceitematpositionsbymanyxt
-[ERR]     400_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     401_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     402_pr.ring :: Error (R50) : Object does not support operator overloading
+[ERR]     400_pr.ring :: Error (R13) : Object is required
+[ERR]     401_pr.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    402_pr.ring
 [ERR]     403_content.ring :: Error (R14) : Calling Method without definition: multiplyby
-[ERR]     404_pr.ring :: Error (R3) : Calling Function without definition: @@sp
+[PASS]    404_pr.ring
 [PASS]    405_pr.ring
-[ERR]     406_content.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    406_content.ring
 [PASS]    407_type.ring
-[ERR]     408_pr.ring :: Error (R50) : Object does not support operator overloading
+[ERR]     408_pr.ring :: Error (R13) : Object is required
 [ERR]     409_isstzobject.ring :: Error (E3) : Deleting scope while no scope!
 [ERR]     40_content.ring :: Error (R14) : Calling Method without definition: replaceanyitematpositionsbymanyxt
-[ERR]     410_content.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     411_use_of_asobject_with_operator.ring :: Error (R50) : Object does not support operator overloading
+[ERR]     410_content.ring :: Error (R13) : Object is required
+[ERR]     411_use_of_asobject_with_operator.ring :: Error (R13) : Object is required
 [PASS]    412_how_to_retrive_a_named_object_using_v.ring
 [PASS]    413_pr.ring
 [PASS]    414_pr.ring
 [PASS]    415_pr.ring
 [PASS]    416_pr.ring
 [PASS]    417_pr.ring
-[ERR]     418_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     419_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     420_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     421_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     422_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     423_basmalah.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     424_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     425_these.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     426_itemsw.ring :: Error (R14) : Calling Method without definition: itemsw
+[ERR]     418_pr.ring :: Error (R13) : Object is required
+[ERR]     419_pr.ring :: Error (R13) : Object is required
+[PASS]    420_pr.ring
+[ERR]     421_pr.ring :: Error (R13) : Object is required
+[ERR]     422_pr.ring :: Error (R13) : Object is required
+[PASS]    423_basmalah.ring
+[ERR]     424_pr.ring :: Error (R21) : Using operator with values of incorrect type
+[PASS]    425_these.ring
+[PASS]    426_itemsw.ring
 [ERR]     427_ismadeofoneormoreofthese.ring :: Error (R3) : Calling Function without definition: ismadeofoneormoreofthese
 [PASS]    428_isboolean.ring
 [ERR]     429_ismadeofthese.ring :: Error (R14) : Calling Method without definition: ismadeofthese
 [ERR]     42_content.ring :: Error (R14) : Calling Method without definition: replaceitematpositionsbymanyxt
 [PASS]    430_tocode.ring
-[ERR]     431_listcontains.ring :: Error (R14) : Calling Method without definition: hassamecontentas
+[PASS]    431_listcontains.ring
 [PASS]    432_listcontains.ring
-[ERR]     433_these.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    433_these.ring
 [PASS]    434_islistofstrings.ring
 [ERR]     435_vizfind.ring :: Error (R3) : Calling Function without definition: vizfind
 [ERR]     436_todo_add_this_function_future.ring :: Error (R3) : Calling Function without definition: vizfindxt
@@ -384,17 +384,17 @@
 [ERR]     450_findnextoccurrences.ring :: Error (R3) : Calling Function without definition: findnextoccurrences
 [ERR]     451_findpreviousnthoccurrences.ring :: Error (R3) : Calling Function without definition: findpreviousnthoccurrences
 [ERR]     452_content.ring :: Error (R3) : Calling Function without definition: replacemany
-[ERR]     453_findnthoccurrence.ring :: Error (R14) : Calling Method without definition: findnthoccurrence
-[ERR]     454_findnthoccurrence.ring :: Error (R3) : Calling Function without definition: findnthoccurrence
+[PASS]    453_findnthoccurrence.ring
+[ERR]     454_findnthoccurrence.ring :: Error (R3) : Calling Function without definition: replacenthoccurrence
 [ERR]     455_sortedinascending.ring :: Error (R14) : Calling Method without definition: sortedinascending
 [PASS]    456_duplicatesremoved.ring
-[ERR]     457_isstrictlyequalto.ring :: Error (R14) : Calling Method without definition: hassamecontentas
-[ERR]     458_these.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     459_these.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    457_isstrictlyequalto.ring
+[PASS]    458_these.ring
+[PASS]    459_these.ring
 [ERR]     45_content.ring :: Error (R14) : Calling Method without definition: replacetheseitemsatpositionsbymanyxt
 [ERR]     460_findmany.ring :: Error (R14) : Calling Method without definition: theseitemsz
-[ERR]     461_findmany.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     462_isequalto.ring :: Error (R14) : Calling Method without definition: hassamecontentas
+[PASS]    461_findmany.ring
+[PASS]    462_isequalto.ring
 [PASS]    463_isstrictlyequalto.ring
 [PASS]    464_flattened.ring
 [PASS]    465_simplified.ring
@@ -406,11 +406,11 @@
 [ERR]     470_itemshavesametype.ring :: Error (R14) : Calling Method without definition: itemshavesametype
 [PASS]    471_content.ring
 [PASS]    472_content.ring
-[ERR]     473_itemswxt.ring :: Error (R14) : Calling Method without definition: itemswxt
+[PASS]    473_itemswxt.ring
 [ERR]     474_findfirstoccurrence.ring :: Error (R14) : Calling Method without definition: findfirstoccurrence
 [ERR]     475_findwxt.ring :: exit 1
 [ERR]     476_findwxt.ring :: exit 1
-[ERR]     477_itemswxt.ring :: Error (R14) : Calling Method without definition: itemswxt
+[ERR]     477_itemswxt.ring :: exit 1
 [ERR]     478_itemspositionswxt.ring :: Error (R14) : Calling Method without definition: itemspositionswxt
 [ERR]     479_allitemsexcept.ring :: Error (R14) : Calling Method without definition: allitemsexcept
 [ERR]     47_content.ring :: Error (R14) : Calling Method without definition: replaceanyitematpositions
@@ -443,29 +443,29 @@
 [ERR]     504_islistof.ring :: Error (R14) : Calling Method without definition: islistof
 [ERR]     505_nthitemw.ring :: Error (R14) : Calling Method without definition: nthitemw
 [ERR]     506_nthitemwxt.ring :: Error (R14) : Calling Method without definition: nthitemwxt
-[ERR]     507_list_equality_and_strict_equality_in_softanza.ring :: Error (R14) : Calling Method without definition: hassamecontentas
+[ERR]     507_list_equality_and_strict_equality_in_softanza.ring :: Error (R14) : Calling Method without definition: hassamenumberofitemsas
 [ERR]     508_list_approximate_comparison_in_softanza.ring :: Error (R14) : Calling Method without definition: isquietequalto
-[ERR]     509_sortinascending.ring :: Error (R14) : Calling Method without definition: sortinascendingq
+[PASS]    509_sortinascending.ring
 [ERR]     50_content.ring :: Error (R14) : Calling Method without definition: replacethisitemat
 [PASS]    50_l_descending_range.ring
-[ERR]     510_pr.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    510_pr.ring
 [ERR]     511_content.ring :: Error (R14) : Calling Method without definition: remove
 [ERR]     512_findall.ring :: Error (R14) : Calling Method without definition: removemany
 [ERR]     513_findall.ring :: Error (R14) : Calling Method without definition: findobjects
 [ERR]     514_findall.ring :: Error (R14) : Calling Method without definition: sortedinascending
-[ERR]     515_same_semantics_for_all_softanza_objects.ring :: Error (R14) : Calling Method without definition: theseboundsremoved
+[ERR]     515_same_semantics_for_all_softanza_objects.ring :: Error (R20) : Calling function with extra number of parameters
 [ERR]     516_isboundedby.ring :: Error (R20) : Calling function with extra number of parameters
 [PASS]    517_boundsuptonitems.ring
 [ERR]     518_theseboundsremoved.ring :: Error (R14) : Calling Method without definition: theseboundsremoved
 [ERR]     519_containseach.ring :: Error (R14) : Calling Method without definition: containseachoneofthese
 [ERR]     51_content.ring :: Error (R14) : Calling Method without definition: replacethisitemat
-[ERR]     51_q_list_times_scalar.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    51_q_list_times_scalar.ring
 [ERR]     520_eachitemexistsin.ring :: Error (R14) : Calling Method without definition: eachitemexistsin
-[ERR]     521_islistofhashlists.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     522_itemswxt.ring :: Error (R14) : Calling Method without definition: itemswxtq
+[PASS]    521_islistofhashlists.ring
+[PASS]    522_itemswxt.ring
 [ERR]     523_reversed.ring :: Error (R14) : Calling Method without definition: itemsreversed
 [ERR]     524_numberofitemswxt.ring :: Error (R14) : Calling Method without definition: numberofitemswxt
-[ERR]     525_itemswxt.ring :: Error (R14) : Calling Method without definition: itemswxt
+[PASS]    525_itemswxt.ring
 [PASS]    526_tocode.ring
 [PASS]    527_content.ring
 [PASS]    528_content.ring
@@ -480,22 +480,22 @@
 [ERR]     536_content.ring :: Error (R3) : Calling Function without definition: replaceitemswxt
 [ERR]     537_allitemsexcept.ring :: Error (R14) : Calling Method without definition: allitemsexcept
 [PASS]    538_merge.ring
-[ERR]     539_list.ring :: Error (R14) : Calling Method without definition: itemswxt
+[PASS]    539_list.ring
 [ERR]     53_content.ring :: Error (R14) : Calling Method without definition: replacebymany
-[ERR]     540_types.ring :: Error (R14) : Calling Method without definition: types
+[ERR]     540_types.ring :: Error (R14) : Calling Method without definition: uniquetypes
 [ERR]     541_content.ring :: Error (R3) : Calling Function without definition: replaceitematposition
 [ERR]     542_content.ring :: Error (R3) : Calling Function without definition: replacewxt
-[ERR]     543_content.ring :: Error (R14) : Calling Method without definition: removewxt
+[PASS]    543_content.ring
 [ERR]     544_onlystrings.ring :: Error (R14) : Calling Method without definition: onlyobjects
 [ERR]     545_onlywherext.ring :: Error (R3) : Calling Function without definition: onlywherext
-[ERR]     546_content.ring :: Error (R3) : Calling Function without definition: removewxt
-[ERR]     547_content.ring :: Error (R3) : Calling Function without definition: removewxt
+[PASS]    546_content.ring
+[PASS]    547_content.ring
 [ERR]     548_findwxt.ring :: exit 1
 [ERR]     549_findwherext.ring :: Error (R14) : Calling Method without definition: findwherext
 [ERR]     54_content.ring :: Error (R14) : Calling Method without definition: replaceitembymanyxt
 [ERR]     550_findallwxt.ring :: Error (R14) : Calling Method without definition: findallwxt
 [ERR]     551_content.ring :: Error (R14) : Calling Method without definition: insertafterwxt
-[ERR]     552_itemswxt.ring :: Error (R14) : Calling Method without definition: itemswxt
+[ERR]     552_itemswxt.ring :: Error (R14) : Calling Method without definition: firstitemwxt
 [ERR]     553_countwxt.ring :: Error (R14) : Calling Method without definition: countwxt
 [PASS]    554_splittopartsofnitemsxt.ring
 [ERR]     555_splittedtopartsofnitemsxt.ring :: Error (R14) : Calling Method without definition: splittedtopartsofnitemsxt
@@ -505,7 +505,7 @@
 [PASS]    559_splitbefore.ring
 [ERR]     55_content.ring :: Error (R14) : Calling Method without definition: replacebymany
 [PASS]    560_splitafter.ring
-[ERR]     561_splittopartsofnchars.ring :: Error (R14) : Calling Method without definition: splittopartsofnchars
+[ERR]     561_splittopartsofnchars.ring :: Error (R19) : Calling function with less number of parameters
 [ERR]     562_find.ring :: Error (R14) : Calling Method without definition: finditem
 [ERR]     563_content.ring :: Error (R14) : Calling Method without definition: removeoccurrences
 [ERR]     564_findallw.ring :: Error (R14) : Calling Method without definition: findallwxt
@@ -517,25 +517,25 @@
 [ERR]     56_content.ring :: Error (R14) : Calling Method without definition: replaceanyitemsatpositions
 [ERR]     570_content.ring :: Error (R14) : Calling Method without definition: insertbeforemanypositions
 [ERR]     571_content.ring :: Error (R14) : Calling Method without definition: sortup
-[ERR]     572_content.ring :: Error (R14) : Calling Method without definition: sortinascending
-[ERR]     573_content.ring :: Error (R14) : Calling Method without definition: sortinascending
-[ERR]     574_content.ring :: Error (R14) : Calling Method without definition: sortinascending
+[PASS]    572_content.ring
+[PASS]    573_content.ring
+[PASS]    574_content.ring
 [PASS]    575_issortedinascending.ring
-[ERR]     576_content.ring :: Error (R14) : Calling Method without definition: sortinascending
-[ERR]     577_content.ring :: Error (R14) : Calling Method without definition: removew
+[PASS]    576_content.ring
+[PASS]    577_content.ring
 [PASS]    578_splittonparts.ring
-[ERR]     579_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     57_pr.ring :: exit 1: Line 79 Bad parameters value, error in length!
-[ERR]     580_-_operator_never_changes_the_object.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     581_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     582_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     583_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     585_pr.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    579_pr.ring
+[ERR]     57_pr.ring :: exit 1: Line 98 Bad parameters value, error in length!
+[ERR]     580_-_operator_never_changes_the_object.ring :: Error (R13) : Object is required
+[PASS]    581_pr.ring
+[PASS]    582_pr.ring
+[PASS]    583_pr.ring
+[PASS]    585_pr.ring
 [ERR]     586_containsmany.ring :: Error (R14) : Calling Method without definition: containsboth
 [PASS]    587_listreverse.ring
-[ERR]     588_content.ring :: Error (R14) : Calling Method without definition: numberofduplicates
-[ERR]     589_these.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     590_content.ring :: Error (R14) : Calling Method without definition: extendxt
+[ERR]     588_content.ring :: Error (R14) : Calling Method without definition: numberofduplicatesof
+[PASS]    589_these.ring
+[PASS]    590_content.ring
 [ERR]     591_containsno.ring :: Error (R14) : Calling Method without definition: containsno
 [ERR]     592_containsno.ring :: Error (R14) : Calling Method without definition: containsno
 [ERR]     593_deeplists.ring :: Error (R14) : Calling Method without definition: deeplists
@@ -544,12 +544,12 @@
 [PASS]    596_isbetween.ring
 [ERR]     597_todo_refactor_it_to_use_stzwalker.ring :: Error (R24) : Using uninitialized variable: @awalkers
 [ERR]     598_todo_refactor_it_to_use_stzwalker.ring :: Error (R3) : Calling Function without definition: named
-[ERR]     599_distributing_items_over_the_items_of_an_other_list.ring :: Error (R3) : Calling Function without definition: @@sp
+[ERR]     599_distributing_items_over_the_items_of_an_other_list.ring :: Error (R14) : Calling Method without definition: distributeover
 [PASS]    59_use_of_the_l_small_function.ring
-[ERR]     600_pr.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    600_pr.ring
 [ERR]     601_distributeover.ring :: Error (R14) : Calling Method without definition: distributeover
 [PASS]    602_pr.ring
-[ERR]     603_pr.ring :: Error (R3) : Calling Function without definition: @@sp
+[PASS]    603_pr.ring
 [PASS]    604_isnamedobject.ring
 [PASS]    606_areequal.ring
 [PASS]    607_content.ring
@@ -564,7 +564,7 @@
 [ERR]     615_containsitemsatw.ring :: Error (R14) : Calling Method without definition: containsitemsatw
 [ERR]     616_checkitemsatw.ring :: Error (R14) : Calling Method without definition: checkitemsatw
 [PASS]    617_yielder.ring
-[ERR]     618_yieldwxt.ring :: Error (R14) : Calling Method without definition: yieldwxt
+[ERR]     618_yieldwxt.ring :: Error (R20) : Calling function with extra number of parameters
 [ERR]     619_yieldatw.ring :: Error (R14) : Calling Method without definition: yieldatw
 [PASS]    61_pr.ring
 [ERR]     620_yieldatwxt.ring :: Error (R14) : Calling Method without definition: yieldatwxt
@@ -582,15 +582,15 @@
 [ERR]     631_isincludedin.ring :: Error (R14) : Calling Method without definition: isincludedin
 [ERR]     632_differencewith.ring :: Error (R14) : Calling Method without definition: commonitemswith
 [ERR]     633_unionwith.ring :: Error (R14) : Calling Method without definition: intersectionwith
-[ERR]     634_pr.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    634_pr.ring
 [PASS]    635_content.ring
 [PASS]    636_differencewith.ring
 [PASS]    637_ishashlist.ring
-[ERR]     638_hassamecontentas.ring :: Error (R14) : Calling Method without definition: hassamecontentas
+[PASS]    638_hassamecontentas.ring
 [PASS]    639_numberofoccurrence.ring
 [PASS]    63_isbynamedparam.ring
 [ERR]     640_itemshavesameorderas.ring :: Error (R14) : Calling Method without definition: itemshavesameorderas
-[ERR]     641_isreverseof.ring :: Error (R14) : Calling Method without definition: isreverseof
+[PASS]    641_isreverseof.ring
 [PASS]    642_isequalto.ring
 [ERR]     643_itemshavesameorderas.ring :: Error (R14) : Calling Method without definition: itemshavesameorderas
 [ERR]     644_containsoneormorelists.ring :: Error (R14) : Calling Method without definition: containsoneormorelists
@@ -603,11 +603,11 @@
 [ERR]     65_content.ring :: Error (R14) : Calling Method without definition: removeanyitemfromstart
 [ERR]     66_content.ring :: Error (R14) : Calling Method without definition: removeanycharfromleft
 [PASS]    67_content.ring
-[ERR]     68_content.ring :: exit 1: Line 79 Bad parameters value, error in length!
+[ERR]     68_content.ring :: exit 1: Line 98 Bad parameters value, error in length!
 [ERR]     69_understanding_the_ed_and_q_function_forms.ring :: Error (R14) : Calling Method without definition: itemsreversed
 [PASS]    70_reversed.ring
 [ERR]     71_revrsing_items_in_pairs_and_more_generally_in_list.ring :: Error (R14) : Calling Method without definition: reverseitemsinpairs
-[ERR]     72_pr.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    72_pr.ring
 [ERR]     73_findstznumbers.ring :: Error (R14) : Calling Method without definition: findstznumbers
 [PASS]    74_name.ring
 [ERR]     75_a_softanza_narration_about_one_of_the_many_uses_of.ring :: Error (R14) : Calling Method without definition: botharenumbers
@@ -625,14 +625,14 @@
 [ERR]     87_findallexcept.ring :: Error (R14) : Calling Method without definition: findallexcept
 [ERR]     88_allitemsareemptylists.ring :: Error (R14) : Calling Method without definition: allitemsareemptylists
 [PASS]    89_itemsatpositions.ring
-[ERR]     90_firstnitems.ring :: Error (R14) : Calling Method without definition: stringifylowercaseandreplace
-[ERR]     91_content.ring :: Error (R14) : Calling Method without definition: stringifyandreplacext
-[ERR]     92_content.ring :: Error (R14) : Calling Method without definition: stringifyandreplace
-[TIMEOUT] 93_content.ring
-[ERR]     94_pr.ring :: Error (R14) : Calling Method without definition: stringifylowercaseandreplacext
-[ERR]     95_pr.ring :: Error (R14) : Calling Method without definition: stringifylowercaseandreplace
-[ERR]     96_firstnitems.ring :: Error (R14) : Calling Method without definition: stringifyandreplace
-[ERR]     97_content.ring :: Error (R14) : Calling Method without definition: stringifyandreplacext
+[ERR]     90_firstnitems.ring :: Error (R14) : Calling Method without definition: firstnitems
+[PASS]    91_content.ring
+[PASS]    92_content.ring
+[PASS]    93_content.ring
+[PASS]    94_pr.ring
+[PASS]    95_pr.ring
+[ERR]     96_firstnitems.ring :: Error (R14) : Calling Method without definition: firstnitems
+[PASS]    97_content.ring
 [PASS]    98_content.ring
 [PASS]    99_content.ring
 [PASS]    from_listoflists_58_pr.ring
@@ -640,8 +640,8 @@
 [ERR]     from_listoflists_63_pr.ring :: Error (R14) : Calling Method without definition: tolistinastring
 [PASS]    from_listofstrings_90_pr.ring
 [ERR]     from_listofstrings_91_pr.ring :: Error (R14) : Calling Method without definition: findduplicationsofitemcs
-[ERR]     from_random_02_pr.ring :: Error (R14) : Calling Method without definition: findnumbersassections
-[ERR]     from_random_10_pr.ring :: Error (R14) : Calling Method without definition: findnumbersassections
+[PASS]    from_random_02_pr.ring
+[PASS]    from_random_10_pr.ring
 [ERR]     from_string_501_pr.ring :: Error (R14) : Calling Method without definition: rnditems
 [PASS]    from_string_case_sensitivity_in_softanza.ring
 [ERR]     from_string_todofuture_after_constraint_implemented.ring :: Error (R3) : Calling Function without definition: tostzhashlist

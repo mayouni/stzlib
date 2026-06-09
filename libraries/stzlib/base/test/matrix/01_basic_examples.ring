@@ -3,6 +3,7 @@
 # # BASIC EXAMPLES  #
 #
 # Extracted from stzmatrixtest.ring, block #1.
+#ERR Error (R14) : Calling Method without definition: addtocol
 
 load "../../stzBase.ring"
 

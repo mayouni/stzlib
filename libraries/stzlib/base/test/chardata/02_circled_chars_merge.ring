@@ -4,6 +4,7 @@
 # CircledDigitUnicodes() (codepoints 9312..) and CircledLatinLetterUnicodes()
 # -- using the Q() / MergedWith() fluent chain, then displayed via
 # ShowShort() for a compact head/tail preview.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

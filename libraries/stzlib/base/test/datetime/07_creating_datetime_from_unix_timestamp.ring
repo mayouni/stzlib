@@ -3,6 +3,7 @@
 # Creating datetime from unix timestamp
 #
 # Extracted from stzdatetimetest.ring, block #7.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

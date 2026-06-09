@@ -1,10 +1,10 @@
-== reactive  PASS 5  ERR 3  TIMEOUT 1  (33.4s) ==
+== reactive  PASS 9  ERR 0  TIMEOUT 0  (18.7s) ==
 [PASS]    01_making_a_regular_function_reactive.ring
 [PASS]    02_reactive_functions_with_complex_data_processing.ring
-[ERR]     03_basic_stream_creation_and_consumption.ring :: Error (R3) : Calling Function without definition: onrecieve
+[PASS]    03_basic_stream_creation_and_consumption.ring
 [PASS]    04_stream_transformation_and_filtering.ring
 [PASS]    05_same_example_as_above_with_a_reduce_function.ring
 [PASS]    06_basic_timer_operations_check_output.ring
-[TIMEOUT] 07_timer-based_data_generation.ring
-[ERR]     08_basic_http_requests.ring :: Error (R3) : Calling Function without definition: download
-[ERR]     09_http_request_pipeline_with_stream_processing.ring :: Error (R3) : Calling Function without definition: download
+[PASS]    07_timer-based_data_generation.ring
+[PASS]    08_basic_http_requests.ring
+[PASS]    09_http_request_pipeline_with_stream_processing.ring

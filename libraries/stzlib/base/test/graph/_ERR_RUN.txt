@@ -1,95 +1,95 @@
-== graph  PASS 89  ERR 5  TIMEOUT 0  (144.0s) ==
-[PASS]    01_creating_simple_graph.ring
-[PASS]    02_label_automatic_normalization.ring
-[PASS]    03_node_and_edge_existence.ring
-[ERR]     04_path_finding.ring :: panic: integer part of floating point value out of bounds
-[PASS]    05_enforcing_well_formed_node_ids_one_string_without_.ring
-[PASS]    06_reachability.ring
-[PASS]    07_neighbors_and_incoming.ring
-[PASS]    08_undirected_graph_support_via_bidirectional_edges.ring
-[PASS]    09_nodesids.ring
-[PASS]    10_node_navigation.ring
-[PASS]    11_node_properties.ring
-[PASS]    12_node_removal.ring
-[PASS]    13_node_copy_and_duplicate.ring
-[PASS]    14_node_merge.ring
-[PASS]    15_insert_nodes.ring
-[PASS]    16_batch_update_using_anonymous_function.ring
-[PASS]    17_node_splitting_merge_inverse_split_one_node_into_t.ring
-[PASS]    18_find.ring
-[PASS]    19_cycle_detection.ring
-[PASS]    20_bottleneck_detection.ring
-[PASS]    21_graph_metrics.ring
-[PASS]    22_parallelizable_branches.ring
-[PASS]    23_impact_analysis.ring
-[PASS]    24_weighted_edges_and_operations.ring
-[PASS]    25_multi-edges_between_same_nodes_raises_an_error.ring
-[PASS]    26_edgecountbetween.ring
-[PASS]    27_density_and_sparsity_metrics.ring
-[PASS]    28_density.ring
-[PASS]    29_dot_export.ring
-[PASS]    30_json_export.ring
-[PASS]    31_ascii_visualization.ring
-[PASS]    32_graphml_export_check_graphml_correctness.ring
-[PASS]    33_graph_explanation.ring
-[ERR]     34_path_explanation.ring :: panic: integer part of floating point value out of bounds
-[PASS]    35_query_by_pattern.ring
-[ERR]     36_find_node_paths.ring :: panic: integer part of floating point value out of bounds
-[PASS]    37_path_matching.ring
-[PASS]    38_edge_property_queries.ring
-[PASS]    39_node_properties.ring
-[PASS]    40_edge_props.ring
-[PASS]    41_edge_properties.ring
-[PASS]    42_batch_edge_updates_using_anonymous_functions.ring
-[PASS]    43_yaml_format.ring
-[PASS]    44_shortest_path_in_linear_graph.ring
-[PASS]    45_shortest_path_with_multiple_routes.ring
-[PASS]    46_no_path_exists.ring
-[PASS]    47_connected_graph.ring
-[PASS]    48_multiple_components.ring
-[PASS]    49_articulation_points.ring
-[PASS]    50_betweenness_centrality.ring
-[PASS]    51_betweennesscentrality.ring
-[PASS]    52_closeness_centrality.ring
-[PASS]    53_clustering_coefficient.ring
-[PASS]    54_clustering_coefficient_in_incomplete_triangle.ring
-[PASS]    55_diameter_of_graph.ring
-[PASS]    56_average_path_length.ring
-[PASS]    57_real-world_network_analysis.ring
-[PASS]    58_workflow_dependency_analysis.ring
-[PASS]    59_basic_self-loop_operations.ring
-[PASS]    60_self-loops_in_cycles_and_reachability.ring
-[PASS]    61_constraint_block_invalid_ops_rule_runs_before_oper.ring
-[PASS]    62_constraint_cycle_prevention_in_directed_graphs_dag.ring
-[PASS]    63_derivation_manager_access_rights.ring
-[PASS]    64_validation_orphan_task_detection.ring
-[PASS]    65_rule_management_introspection.ring
-[PASS]    66_complete_dev_project_workflow.ring
-[PASS]    67_built-in_transitivity_derivation.ring
-[PASS]    68_validation_history_tracking.ring
-[PASS]    69_comparing_identical_graphs_should_show_no_changes.ring
-[PASS]    70_business_analyst_exploring_3_restructuring_options.ring
-[PASS]    71_converting_comparison_to_table_for_further_analysi.ring
-[PASS]    72_finding_best_candidates_programmatically.ring
-[PASS]    73_complete_business_decision_workflow.ring
-[PASS]    74_business_scenario_adding_new_departments.ring
-[PASS]    75_business_scenario_downsizing.ring
-[PASS]    76_business_scenario_budget_adjustments.ring
-[PASS]    77_business_scenario_relieving_bottleneck_by_adding_c.ring
-[PASS]    78_business_scenario_creating_circular_dependency_war.ring
-[PASS]    79_business_scenario_organizational_restructuring.ring
-[PASS]    80_business_scenario_department_becomes_isolated.ring
-[PASS]    81_business_scenario_comparing_sparse_vs_dense_struct.ring
-[PASS]    82_using_diffwith_alias_for_brevity.ring
-[PASS]    83_how_to_use_stzgraf_file_format.ring
-[ERR]     84_how_to_use_stzrulz_file_format.ring :: Error (R24) : Using uninitialized variable: @arules
-[ERR]     85_how_to_use_stzrulf_file_format.ring :: Error (E9) : Can't open file custom_functions.stzrulf
-[PASS]    86_example_1_query-triggered_constraint_rules.ring
-[PASS]    87_example_2_query-triggered_derivation_rules.ring
-[PASS]    88_example_3_graph_projection_tograph.ring
-[PASS]    89_example_4_graph_views_toview.ring
-[PASS]    90_example_5_combined_workflow.ring
-[PASS]    from_graphex_cache_with_different_graphs.ring
-[PASS]    test_diagramcolor_regression.ring
-[PASS]    test_graph_regression.ring
-[PASS]    test_workflow_regression.ring
+== graph  PASS 0  ERR 94  TIMEOUT 0  (132.2s) ==
+[ERR]     01_creating_simple_graph.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_label_automatic_normalization.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_node_and_edge_existence.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_path_finding.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_enforcing_well_formed_node_ids_one_string_without_.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_reachability.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_neighbors_and_incoming.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_undirected_graph_support_via_bidirectional_edges.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_nodesids.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_node_navigation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_node_properties.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_node_removal.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_node_copy_and_duplicate.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_node_merge.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_insert_nodes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_batch_update_using_anonymous_function.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_node_splitting_merge_inverse_split_one_node_into_t.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_find.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_cycle_detection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_bottleneck_detection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_graph_metrics.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_parallelizable_branches.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     23_impact_analysis.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     24_weighted_edges_and_operations.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     25_multi-edges_between_same_nodes_raises_an_error.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     26_edgecountbetween.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     27_density_and_sparsity_metrics.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     28_density.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     29_dot_export.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     30_json_export.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     31_ascii_visualization.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     32_graphml_export_check_graphml_correctness.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     33_graph_explanation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     34_path_explanation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     35_query_by_pattern.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     36_find_node_paths.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     37_path_matching.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     38_edge_property_queries.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     39_node_properties.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     40_edge_props.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     41_edge_properties.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     42_batch_edge_updates_using_anonymous_functions.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     43_yaml_format.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     44_shortest_path_in_linear_graph.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     45_shortest_path_with_multiple_routes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     46_no_path_exists.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     47_connected_graph.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     48_multiple_components.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     49_articulation_points.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     50_betweenness_centrality.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     51_betweennesscentrality.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     52_closeness_centrality.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     53_clustering_coefficient.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     54_clustering_coefficient_in_incomplete_triangle.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     55_diameter_of_graph.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     56_average_path_length.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     57_real-world_network_analysis.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     58_workflow_dependency_analysis.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     59_basic_self-loop_operations.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     60_self-loops_in_cycles_and_reachability.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     61_constraint_block_invalid_ops_rule_runs_before_oper.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     62_constraint_cycle_prevention_in_directed_graphs_dag.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     63_derivation_manager_access_rights.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     64_validation_orphan_task_detection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     65_rule_management_introspection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     66_complete_dev_project_workflow.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     67_built-in_transitivity_derivation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     68_validation_history_tracking.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     69_comparing_identical_graphs_should_show_no_changes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     70_business_analyst_exploring_3_restructuring_options.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     71_converting_comparison_to_table_for_further_analysi.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     72_finding_best_candidates_programmatically.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     73_complete_business_decision_workflow.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     74_business_scenario_adding_new_departments.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     75_business_scenario_downsizing.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     76_business_scenario_budget_adjustments.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     77_business_scenario_relieving_bottleneck_by_adding_c.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     78_business_scenario_creating_circular_dependency_war.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     79_business_scenario_organizational_restructuring.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     80_business_scenario_department_becomes_isolated.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     81_business_scenario_comparing_sparse_vs_dense_struct.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     82_using_diffwith_alias_for_brevity.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     83_how_to_use_stzgraf_file_format.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     84_how_to_use_stzrulz_file_format.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     85_how_to_use_stzrulf_file_format.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     86_example_1_query-triggered_constraint_rules.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     87_example_2_query-triggered_derivation_rules.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     88_example_3_graph_projection_tograph.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     89_example_4_graph_views_toview.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     90_example_5_combined_workflow.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_graphex_cache_with_different_graphs.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_diagramcolor_regression.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_graph_regression.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_workflow_regression.ring :: Error (C22) : Function redefinition, function is already defined!

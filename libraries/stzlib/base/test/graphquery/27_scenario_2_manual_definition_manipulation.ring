@@ -3,6 +3,7 @@
 # Scenario 2: Manual definition manipulation
 #
 # Extracted from stzgraphquerytest.ring, block #27.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

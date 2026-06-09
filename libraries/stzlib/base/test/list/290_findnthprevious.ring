@@ -3,7 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #290.
-#ERR Error (R14) : Calling Method without definition: findnthprevious
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Example 12.1: Understanding Where Cost Comes From
 #
 # Extracted from stzgraphplannertest.ring, block #23.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -1,4 +1,4 @@
-== reactivestream  PASS 21  ERR 0  TIMEOUT 0  (53.1s) ==
+== reactivestream  PASS 21  ERR 0  TIMEOUT 0  (53.3s) ==
 [PASS]    01_softanza_typical_code_for_programming_reactive_str.ring
 [PASS]    02_basic_stream_operations.ring
 [PASS]    03_stream_transformations_-_map_filter.ring

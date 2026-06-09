@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzbaturalcodetest.ring, block #2.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -20,7 +19,7 @@ AddFuture(:Replace = [ "I", "♥" ])
 #	[ "replace", [ "I", "♥" ] ]
 # ]
 
-ExecuteActions( Future(), :on = oStr )
+ExecuteActions( Future(), :on = oStr ) // #ERR Check why using :on = oStr returns nothing!
 ? oStr.Content()
 #--> R♥NG
 

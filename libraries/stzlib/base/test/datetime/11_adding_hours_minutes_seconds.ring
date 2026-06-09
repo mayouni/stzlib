@@ -3,6 +3,7 @@
 # Adding hours, minutes, seconds
 #
 # Extracted from stzdatetimetest.ring, block #11.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

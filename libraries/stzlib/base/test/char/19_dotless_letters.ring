@@ -3,6 +3,7 @@
 # Dotless letters
 #
 # Extracted from stzchartest.ring, block #19.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # EXAMPLE 5: Combined Workflow
 #
 # Extracted from stzgraphtest.ring, block #90.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

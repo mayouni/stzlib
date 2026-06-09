@@ -3,6 +3,7 @@
 # EXAMPLE 4: Graph Views (ToView)
 #
 # Extracted from stzgraphtest.ring, block #89.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

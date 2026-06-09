@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "php", "ring php ring python ring", "python" ])
 #
 # Extracted from stzlistofstringstest.ring, block #45.
+#ERR Error (R14) : Calling Method without definition: replaceinstringnthefirstoccurrence
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Default 24-hour behavior
 #
 # Extracted from stzdatetimetest.ring, block #41.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

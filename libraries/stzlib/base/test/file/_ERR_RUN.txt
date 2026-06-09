@@ -1,12 +1,12 @@
-== file  PASS 8  ERR 3  TIMEOUT 0  (10.8s) ==
-[PASS]    01_getting_information_about_files.ring
-[ERR]     02_reading_files_pure_intent.ring :: Error (R13) : Object is required
-[PASS]    03_appending_to_files_read_append_intent.ring
-[PASS]    04_creating_new_files_read_create_intent.ring
-[ERR]     05_overwriting_files_read_overwrite_intent.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     06_updating_files_read_sophisticated_update_intent.ring :: Error (R19) : Calling function with less number of parameters
+== file  PASS 3  ERR 8  TIMEOUT 0  (10.2s) ==
+[ERR]     01_getting_information_about_files.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_reading_files_pure_intent.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_appending_to_files_read_append_intent.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_creating_new_files_read_create_intent.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_overwriting_files_read_overwrite_intent.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_updating_files_read_sophisticated_update_intent.ring :: Error (C22) : Function redefinition, function is already defined!
 [PASS]    stzFileTest.ring
 [PASS]    test_file_engine.ring
-[PASS]    test_file_regression.ring
+[ERR]     test_file_regression.ring :: Error (C22) : Function redefinition, function is already defined!
 [PASS]    test_json_engine.ring
-[PASS]    test_json_stz.ring
+[ERR]     test_json_stz.ring :: Error (R3) : Calling Function without definition: stzenginestring

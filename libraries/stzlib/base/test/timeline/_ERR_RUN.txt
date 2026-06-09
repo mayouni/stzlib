@@ -1,4 +1,4 @@
-== timeline  PASS 54  ERR 0  TIMEOUT 0  (95.2s) ==
+== timeline  PASS 54  ERR 0  TIMEOUT 0  (96.2s) ==
 [PASS]    01_creating_timeline_with_start_and_end_boundaries.ring
 [PASS]    02_creating_timeline_onject_with_a_date_containing_no.ring
 [PASS]    03_point.ring

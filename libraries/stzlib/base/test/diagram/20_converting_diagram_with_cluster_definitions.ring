@@ -3,6 +3,7 @@
 # Converting diagram with cluster definitions
 #
 # Extracted from stzdiagramtest.ring, block #20.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

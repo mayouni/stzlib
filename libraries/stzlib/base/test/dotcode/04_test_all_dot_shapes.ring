@@ -3,6 +3,7 @@
 # Test all DOT shapes
 #
 # Extracted from stzdotcodetest.ring, block #4.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Example 20.2: Finding Plans Within Percentage of Optimal
 #
 # Extracted from stzgraphplannertest.ring, block #37.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

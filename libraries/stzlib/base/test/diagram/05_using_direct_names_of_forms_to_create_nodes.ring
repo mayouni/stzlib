@@ -3,6 +3,7 @@
 # Using direct names of forms to create nodes
 #
 # Extracted from stzdiagramtest.ring, block #5.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

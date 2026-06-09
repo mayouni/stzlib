@@ -3,6 +3,7 @@
 # Testing with single column data
 #
 # Extracted from stzdatawranglertest.ring, block #21.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

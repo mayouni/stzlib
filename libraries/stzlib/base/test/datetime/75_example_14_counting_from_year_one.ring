@@ -3,6 +3,7 @@
 # Example 14: Counting from Year One
 #
 # Extracted from stzdatetimetest.ring, block #75.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

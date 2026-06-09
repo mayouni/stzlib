@@ -1,4 +1,4 @@
-== namedvars  PASS 15  ERR 0  TIMEOUT 0  (23.4s) ==
+== namedvars  PASS 15  ERR 0  TIMEOUT 0  (25.7s) ==
 [PASS]    01_dynamic_construction_of_variable_names.ring
 [PASS]    02_block_2.ring
 [PASS]    03_pr.ring

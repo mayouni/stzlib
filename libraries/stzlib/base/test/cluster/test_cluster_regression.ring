@@ -2,6 +2,7 @@
 # Tests construction + builder API without actually starting servers.
 #
 # Run from base/cluster/test/.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

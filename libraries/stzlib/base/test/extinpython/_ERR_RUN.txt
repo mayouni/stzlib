@@ -1,13 +1,13 @@
-== extinpython  PASS 4  ERR 8  TIMEOUT 0  (18.0s) ==
-[ERR]     01_using_a_python_code_inside_ring.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     02_pr.ring :: Error (R50) : Object does not support operator overloading
-[PASS]    03_pr.ring
-[ERR]     04_pr.ring :: Error (R14) : Calling Method without definition: numberofoccurrenceq
-[ERR]     05_pr.ring :: Error (R14) : Calling Method without definition: sectionq
-[ERR]     06_join.ring :: Error (R14) : Calling Method without definition: join
-[PASS]    07_block_7.ring
-[ERR]     08_pr.ring :: Error (R14) : Calling Method without definition: isupper
-[PASS]    09_pr.ring
-[PASS]    10_pr.ring
-[ERR]     11_pr.ring :: Error (R14) : Calling Method without definition: interpolated
-[ERR]     12_pr.ring :: Error (R14) : Calling Method without definition: appendedwith
+== extinpython  PASS 0  ERR 12  TIMEOUT 0  (17.6s) ==
+[ERR]     01_using_a_python_code_inside_ring.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_join.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_block_7.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_pr.ring :: Error (C22) : Function redefinition, function is already defined!

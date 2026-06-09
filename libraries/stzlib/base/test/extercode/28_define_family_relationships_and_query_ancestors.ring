@@ -3,6 +3,7 @@
 # Define family relationships and query ancestors
 #
 # Extracted from stzextercodetest.ring, block #28.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

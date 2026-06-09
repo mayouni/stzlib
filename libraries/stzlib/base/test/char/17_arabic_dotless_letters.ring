@@ -3,6 +3,7 @@
 # Arabic dotless letters
 #
 # Extracted from stzchartest.ring, block #17.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

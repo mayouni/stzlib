@@ -1,7 +1,7 @@
-== locale  PASS 80  ERR 11  TIMEOUT 0  (184.7s) ==
+== locale  PASS 81  ERR 10  TIMEOUT 0  (187.0s) ==
 [PASS]    01_lowercase.ring
 [PASS]    02_abbreviation.ring
-[ERR]     03_replace_with_setcurrentlocale.ring :: Error (R3) : Calling Function without definition: setdefaultlocale
+[PASS]    03_replace_with_setcurrentlocale.ring
 [PASS]    04_abbreviation.ring
 [PASS]    05_profon.ring
 [PASS]    06_historical_qt-based_locale_tests_qt_removed.ring

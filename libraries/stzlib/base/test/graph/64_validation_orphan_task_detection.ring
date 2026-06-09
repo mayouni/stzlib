@@ -3,6 +3,7 @@
 # VALIDATION: Orphan Task Detection
 #
 # Extracted from stzgraphtest.ring, block #64.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

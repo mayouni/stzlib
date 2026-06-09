@@ -3,6 +3,7 @@
 # #  Professional BPMN Order Processing Workflow  #
 #
 # Extracted from stzdotcodetest.ring, block #30.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

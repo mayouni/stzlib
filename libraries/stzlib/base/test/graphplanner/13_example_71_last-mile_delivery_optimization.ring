@@ -3,6 +3,7 @@
 # Example 7.1: Last-Mile Delivery Optimization
 #
 # Extracted from stzgraphplannertest.ring, block #13.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Example 13.1: Why Was This Route Chosen?
 #
 # Extracted from stzgraphplannertest.ring, block #25.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

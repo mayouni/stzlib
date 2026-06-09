@@ -3,6 +3,7 @@
 # CONSTRAINT: Block Invalid Ops (Rule runs BEFORE operations)
 #
 # Extracted from stzgraphtest.ring, block #61.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

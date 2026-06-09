@@ -1,10 +1,10 @@
-== hashlist  PASS 30  ERR 0  TIMEOUT 0  (46.0s) ==
-[PASS]    01_write_a_small_narration_about_haskey_haskeys.ring
-[PASS]    02_write_a_narration_about_it.ring
-[PASS]    03_adjust_lines_under_titles.ring
-[PASS]    04_name.ring
-[PASS]    05_name.ring
-[PASS]    06_findvalues.ring
+== hashlist  PASS 24  ERR 6  TIMEOUT 0  (49.3s) ==
+[ERR]     01_write_a_small_narration_about_haskey_haskeys.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_write_a_narration_about_it.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_adjust_lines_under_titles.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_findvalues.ring :: Error (C22) : Function redefinition, function is already defined!
 [PASS]    07_findvalues.ring
 [PASS]    08_todo.ring
 [PASS]    09_finding_items_inside_values_that_are_lists.ring

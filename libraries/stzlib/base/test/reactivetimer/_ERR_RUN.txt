@@ -1,13 +1,13 @@
-== reactivetimer  PASS 8  ERR 3  TIMEOUT 1  (50.7s) ==
-[ERR]     01_what_you_learned_with_these_examples.ring :: Error (C27) : Syntax Error!
+== reactivetimer  PASS 12  ERR 0  TIMEOUT 0  (37.8s) ==
+[PASS]    01_what_you_learned_with_these_examples.ring
 [PASS]    02_understanding_runafter_-_one-time_delayed_executio.ring
 [PASS]    03_understanding_runevery_-_repeating_execution.ring
 [PASS]    04_multiple_timers_working_together.ring
 [PASS]    05_timer-driven_data_streams_using_timers_to_create_r.ring
 [PASS]    06_real-world_example_simulating_a_download_progress.ring
-[TIMEOUT] 07_this_code_blocks_and_prevents_auto-conclude_from_w.ring
+[PASS]    07_this_code_blocks_and_prevents_auto-conclude_from_w.ring
 [PASS]    08_this_works_perfectly_because_timers_are_non-blocki.ring
-[ERR]     09_understanding_the_technical_reason.ring :: Error (C27) : Syntax Error!
+[PASS]    09_understanding_the_technical_reason.ring
 [PASS]    11_simple_countdown_timer_with_stoptimer.ring
 [PASS]    12_emergency_shutdown_with_stopalltimers.ring
-[ERR]     13_critical_guidelines_for_reactive_programming.ring :: Error (C21) : Unclosed control structure, 'again' is missing
+[PASS]    13_critical_guidelines_for_reactive_programming.ring

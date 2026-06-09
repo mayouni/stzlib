@@ -3,6 +3,7 @@
 # #  Example 4: Process Flow with Clusters  #
 #
 # Extracted from stzdotcodetest.ring, block #10.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

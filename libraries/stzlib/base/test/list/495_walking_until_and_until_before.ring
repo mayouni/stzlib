@@ -3,6 +3,7 @@
 # WALKING UNTIL (AND UNTIL BEFORE)
 #
 # Extracted from stzlisttest.ring, block #495.
+#ERR exit 1: 1
 
 load "../../stzBase.ring"
 

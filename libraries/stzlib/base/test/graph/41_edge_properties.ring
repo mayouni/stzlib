@@ -3,6 +3,7 @@
 # Edge Properties
 #
 # Extracted from stzgraphtest.ring, block #41.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

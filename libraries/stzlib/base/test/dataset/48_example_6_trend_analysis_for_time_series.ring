@@ -3,6 +3,7 @@
 # EXAMPLE 6: Trend Analysis for Time Series
 #
 # Extracted from stzdatasettest.ring, block #48.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

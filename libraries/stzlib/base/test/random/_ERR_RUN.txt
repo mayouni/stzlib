@@ -1,4 +1,4 @@
-== random  PASS 24  ERR 10  TIMEOUT 0  (53.9s) ==
+== random  PASS 24  ERR 10  TIMEOUT 0  (58.8s) ==
 [ERR]     01_pr.ring :: Error (R19) : Calling function with less number of parameters
 [PASS]    03_pr.ring
 [PASS]    04_arandomnumberbetween.ring

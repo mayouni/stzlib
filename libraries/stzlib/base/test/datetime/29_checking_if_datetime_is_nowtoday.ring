@@ -3,6 +3,7 @@
 # Checking if datetime is now/today
 #
 # Extracted from stzdatetimetest.ring, block #29.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

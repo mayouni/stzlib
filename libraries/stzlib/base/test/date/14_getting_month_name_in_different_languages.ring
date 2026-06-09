@@ -3,6 +3,7 @@
 # Getting month name in different languages
 #
 # Extracted from stzdatetest.ring, block #14.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

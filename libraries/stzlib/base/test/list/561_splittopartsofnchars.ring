@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #561.
-#ERR Error (R14) : Calling Method without definition: splittopartsofnchars
+#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 

@@ -14,6 +14,7 @@
 # Compares directly against block 04 (raw Ring) and block 05
 # (stzCounter materialised path). This block completes N = 1,000,000
 # stat queries in ~7 ms.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

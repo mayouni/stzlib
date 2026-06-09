@@ -3,6 +3,7 @@
 # Example 17.1: Teaching A* Through Exploration
 #
 # Extracted from stzgraphplannertest.ring, block #31.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

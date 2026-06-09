@@ -1,37 +1,37 @@
-== ttext  PASS 2  ERR 34  TIMEOUT 0  (48.4s) ==
-[ERR]     00_findallcs_basic.ring :: Error (R11) : Error in class name, class not found: stztext
-[ERR]     01_chars_vs_letters.ring :: exit 1: Line 79 Bad parameters value, error in length!
+== ttext  PASS 33  ERR 3  TIMEOUT 0  (58.0s) ==
+[PASS]    00_findallcs_basic.ring
+[PASS]    01_chars_vs_letters.ring
 [PASS]    03_retest_after_adding_replaceallcharsw_in_stzstring.ring
-[ERR]     04_retest_after_adding_replaceallcharsw_in_stzstring.ring :: exit 1: Line 79 Bad parameters value, error in length!
-[ERR]     05_stringisstzclassnamestzlist.ring :: Error (R14) : Calling Method without definition: isstzclassname
-[ERR]     12_o1_new_stzstringlatin_4.ring :: Error (R24) : Using uninitialized variable: o1
+[PASS]    04_retest_after_adding_replaceallcharsw_in_stzstring.ring
+[PASS]    05_stringisstzclassnamestzlist.ring
+[PASS]    12_o1_new_stzstringlatin_4.ring
 [ERR]     13_o1_new_stzstringabc285xyمن.ring :: Error (E9) : Can't open file 13_o1_new_stzstringabc285xy??.ring
-[ERR]     14_stztextqprogramming_without_code_technology.ring :: Error (C27) : Syntax Error!
-[ERR]     15_str.ring :: exit 1: Error (S1) In file: 15_str.ring
-[ERR]     16_str.ring :: exit 1: Error (S1) In file: 16_str.ring
-[ERR]     17_punctuations.ring :: Error (R14) : Calling Method without definition: fromurl
+[PASS]    14_stztextqprogramming_without_code_technology.ring
+[PASS]    15_str.ring
+[PASS]    16_str.ring
+[PASS]    17_punctuations.ring
 [PASS]    18_softanza_makes_its_best_to_accurately_identify_wor.ring
-[ERR]     19_in_rality_this_word_identification_process_is_time.ring :: Error (R3) : Calling Function without definition: identifiywordsinquickmode
-[ERR]     20_todo.ring :: Error (R3) : Calling Function without definition: charsallowedinstartofword
-[ERR]     21_possibleinstancesofword.ring :: Error (R3) : Calling Function without definition: possibleinstancesofword
-[ERR]     22_stztextqmahmoud_ahmed_mohamed_mahmoud_mahmoud_ahme.ring :: Error (C27) : Syntax Error!
-[ERR]     23_o1_new_stztextlets_meet_in_tunis_next_month.ring :: Error (R24) : Using uninitialized variable: o1
-[ERR]     24_replaceword_--_replacewords_--_replacewordswithmar.ring :: Error (R3) : Calling Function without definition: replacewordswithmarquers
-[ERR]     25_stztextqmahmoud_ahmed_mohamed_mahmoud_mahmoud_ahme.ring :: Error (C27) : Syntax Error!
-[ERR]     26_o1_new_stztextring_is_not_the_ring_you_ware_but_th.ring :: Error (R24) : Using uninitialized variable: o1
-[ERR]     27_ctext_john_is_the_son_of_john_second.ring :: exit 1: Error (S1) In file: 27_ctext_john_is_the_son_of_john_second.ring
-[ERR]     28_ctext_john_is_the_son_of_john_second.ring :: Error (C27) : Syntax Error!
-[ERR]     29_back_here.ring :: Error (R3) : Calling Function without definition: wordsandtheirfrequencies
-[ERR]     30_stopwordsinenglish.ring :: Error (R14) : Calling Method without definition: isstopwordin
-[ERR]     31_qthatlanguageifstopword_--_english.ring :: Error (R14) : Calling Method without definition: languageifstopword
+[PASS]    19_in_rality_this_word_identification_process_is_time.ring
+[PASS]    20_todo.ring
+[PASS]    21_possibleinstancesofword.ring
+[PASS]    22_stztextqmahmoud_ahmed_mohamed_mahmoud_mahmoud_ahme.ring
+[PASS]    23_o1_new_stztextlets_meet_in_tunis_next_month.ring
+[PASS]    24_replaceword_--_replacewords_--_replacewordswithmar.ring
+[PASS]    25_stztextqmahmoud_ahmed_mohamed_mahmoud_mahmoud_ahme.ring
+[PASS]    26_o1_new_stztextring_is_not_the_ring_you_ware_but_th.ring
+[PASS]    27_ctext_john_is_the_son_of_john_second.ring
+[PASS]    28_ctext_john_is_the_son_of_john_second.ring
+[PASS]    29_back_here.ring
+[PASS]    30_stopwordsinenglish.ring
+[PASS]    31_qthatlanguageifstopword_--_english.ring
 [ERR]     32_stztextqkırşehirdiacriticsremoved_--_kirsehir_turk.ring :: Error (E9) : Can't open file 32_stztextqkirsehirdiacriticsremoved_--_kirsehir_turk.ring
-[ERR]     33_errror.ring :: Error (R3) : Calling Function without definition: stztextgq
-[ERR]     34_o1_new_stztexta_la_recherche_du_temps_perdu.ring :: Error (R24) : Using uninitialized variable: o1
-[ERR]     35_ok.ring :: Error (R3) : Calling Function without definition: onlyarabic
-[ERR]     36_refactored_fixing_is_in_progress.ring :: Error (R11) : Error in class name, class not found: stztext
+[PASS]    33_errror.ring
+[PASS]    34_o1_new_stztexta_la_recherche_du_temps_perdu.ring
+[PASS]    35_ok.ring
+[PASS]    36_refactored_fixing_is_in_progress.ring
 [ERR]     37_o1_new_stzstringthis_is_just_عربي_latin_script.ring :: Error (E9) : Can't open file 37_o1_new_stzstringthis_is_just_????_latin_script.ring
-[ERR]     38_error_fixing_in_progress.ring :: Error (R11) : Error in class name, class not found: stztext
-[ERR]     39_o1_new_stztextsoftanza.ring :: Error (R24) : Using uninitialized variable: o1
-[ERR]     40_o1_new_stztextpython_ruby_ring_julia.ring :: Error (R24) : Using uninitialized variable: o1
-[ERR]     41_o1_new_stztextring_python_ruby_julia.ring :: Error (R24) : Using uninitialized variable: o1
-[ERR]     from_string_728_pr.ring :: Error (R14) : Calling Method without definition: containsscript
+[PASS]    38_error_fixing_in_progress.ring
+[PASS]    39_o1_new_stztextsoftanza.ring
+[PASS]    40_o1_new_stztextpython_ruby_ring_julia.ring
+[PASS]    41_o1_new_stztextring_python_ruby_julia.ring
+[PASS]    from_string_728_pr.ring

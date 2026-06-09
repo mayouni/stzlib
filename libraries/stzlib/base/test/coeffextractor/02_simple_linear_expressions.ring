@@ -3,6 +3,7 @@
 # Simple linear expressions
 #
 # Extracted from stzcoeffextractortest.ring, block #2.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

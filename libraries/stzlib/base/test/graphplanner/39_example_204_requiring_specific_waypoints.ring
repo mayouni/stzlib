@@ -3,6 +3,7 @@
 # Example 20.4: Requiring Specific Waypoints
 #
 # Extracted from stzgraphplannertest.ring, block #39.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

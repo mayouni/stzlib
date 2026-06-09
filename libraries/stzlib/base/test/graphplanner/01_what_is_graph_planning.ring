@@ -3,6 +3,7 @@
 # WHAT IS GRAPH PLANNING?
 #
 # Extracted from stzgraphplannertest.ring, block #1.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

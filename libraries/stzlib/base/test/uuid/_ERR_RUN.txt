@@ -1,4 +1,4 @@
-== uuid  PASS 8  ERR 0  TIMEOUT 0  (13.5s) ==
+== uuid  PASS 8  ERR 0  TIMEOUT 0  (14.1s) ==
 [PASS]    01_basic_generation.ring
 [PASS]    02_format_variations.ring
 [PASS]    03_version_and_variant.ring

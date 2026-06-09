@@ -1,140 +1,140 @@
-== char  PASS 93  ERR 45  TIMEOUT 1  (250.7s) ==
-[PASS]    01_name.ring
-[PASS]    02_block_2.ring
-[PASS]    03_nthchar.ring
-[PASS]    04_basmalah.ring
-[PASS]    05_allah.ring
-[PASS]    06_smile.ring
-[ERR]     07_todo_logical_errors.ring :: Error (R14) : Calling Method without definition: charname
-[PASS]    08_turnable_numbers.ring
-[ERR]     09_turned_numbers.ring :: Error (R14) : Calling Method without definition: names
-[PASS]    100_arabicnumberfractions.ring
-[PASS]    101_isarabicfraction.ring
-[PASS]    102_ismandarinnumber.ring
-[PASS]    103_content.ring
-[PASS]    104_content.ring
-[PASS]    105_unicode.ring
-[PASS]    106_romantodecimalnumber.ring
-[PASS]    107_unicode.ring
-[PASS]    108_pr.ring
-[PASS]    109_name.ring
-[PASS]    10_turnable_chars.ring
-[PASS]    110_isempty.ring
-[PASS]    111_charsnames.ring
-[PASS]    112_pr.ring
-[PASS]    113_unicode.ring
-[ERR]     114_content.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     115_content.ring :: Error (R14) : Calling Method without definition: orientation
-[ERR]     116_numberofchars.ring :: Error (R50) : Object does not support operator overloading
-[PASS]    117_unicode.ring
-[ERR]     118_numberofbytes.ring :: Error (R14) : Calling Method without definition: bytes
-[PASS]    119_isanumber.ring
-[ERR]     11_reverted.ring :: Error (R14) : Calling Method without definition: reverted
-[PASS]    120_block_120.ring
-[ERR]     12_isturned.ring :: Error (R14) : Calling Method without definition: isturned
-[ERR]     13_isturned.ring :: Error (R14) : Calling Method without definition: isturned
-[ERR]     14_boxedrounded.ring :: Error (R14) : Calling Method without definition: boxedrounded
-[PASS]    15_arabicdotlessunicodes.ring
-[PASS]    16_content.ring
-[PASS]    17_arabic_dotless_letters.ring
-[PASS]    18_latin_dotless_letters.ring
-[PASS]    19_dotless_letters.ring
-[PASS]    20_maxunicodenumber.ring
-[PASS]    21_numberofunicodechars.ring
-[TIMEOUT] 22_acharotherthan.ring
-[PASS]    23_maxunicode.ring
-[ERR]     24_charname.ring :: Error (R14) : Calling Method without definition: charname
-[PASS]    25_name.ring
-[PASS]    26_unicode.ring
-[PASS]    27_content.ring
-[PASS]    28_content.ring
-[PASS]    29_content.ring
-[PASS]    30_content.ring
-[PASS]    31_unicodecategory.ring
-[PASS]    32_isunicodehex.ring
-[PASS]    33_content.ring
-[PASS]    34_unicode.ring
-[ERR]     35_name.ring :: Error (R14) : Calling Method without definition: charname
-[PASS]    36_name.ring
-[ERR]     37_charsnames.ring :: Error (R14) : Calling Method without definition: charsnames
-[ERR]     38_charsnames.ring :: Error (R14) : Calling Method without definition: charsnames
-[ERR]     39_firstcharof.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     40_ischarof.ring :: Error (R14) : Calling Method without definition: ischarof
-[PASS]    41_unicodecategorynumber.ring
-[PASS]    42_iswordnonletterchar.ring
-[ERR]     43_removediacritic.ring :: Error (R14) : Calling Method without definition: diacriticremoved
-[ERR]     44_diacriticremoved.ring :: Error (R14) : Calling Method without definition: diacriticremoved
-[PASS]    45_arabicdiacriticsxt.ring
-[ERR]     46_isdiacricised.ring :: Error (R14) : Calling Method without definition: isdiacricised
-[PASS]    47_showshortxtnl.ring
-[ERR]     48_islatindiacritic.ring :: Error (R14) : Calling Method without definition: islatindiacritic
-[PASS]    49_pr.ring
-[ERR]     50_isinvertible.ring :: Error (R14) : Calling Method without definition: isinvertible
-[ERR]     51_inverted.ring :: Error (R14) : Calling Method without definition: inverted
-[ERR]     52_pr.ring :: Error (R14) : Calling Method without definition: inverted
-[ERR]     53_inverted.ring :: Error (R14) : Calling Method without definition: inverted
-[PASS]    54_unicodetochar.ring
-[PASS]    55_stringrepresentsnumberinunicodehexform.ring
-[PASS]    56_content.ring
-[ERR]     57_unicode.ring :: Error (R14) : Calling Method without definition: charname
-[PASS]    58_name.ring
-[PASS]    59_isvisible.ring
-[PASS]    60_arabic7araket.ring
-[PASS]    61_isasciiletter.ring
-[ERR]     62_isdiacritic.ring :: Error (R14) : Calling Method without definition: isdiacritic
-[ERR]     63_diacriticremoved.ring :: Error (R14) : Calling Method without definition: diacriticremoved
-[PASS]    64_showshortnl.ring
-[ERR]     65_diacriticdescription.ring :: Error (R14) : Calling Method without definition: isdiacritic
-[PASS]    66_diacriticsofasciiletter.ring
-[PASS]    67_showshortnl.ring
-[ERR]     68_isturnedchar.ring :: Error (R14) : Calling Method without definition: isturnedchar
-[ERR]     69_isletter.ring :: Error (R14) : Calling Method without definition: isarabicshaddah
-[PASS]    70_scriptis.ring
-[ERR]     71_unicode.ring :: Error (R14) : Calling Method without definition: isarabic7arakah
-[PASS]    72_iswordseparator.ring
-[ERR]     73_asciicode.ring :: Error (R3) : Calling Function without definition: stzcharerror
-[PASS]    74_isspace.ring
-[PASS]    75_script.ring
-[PASS]    76_todo_make_it_possible.ring
-[PASS]    77_unicode.ring
-[PASS]    78_currentunicodeversion.ring
-[PASS]    79_languagesinscript.ring
-[PASS]    80_languagesinscript.ring
-[ERR]     81_name.ring :: Error (R14) : Calling Method without definition: isturnedchar
-[PASS]    82_commonlanguagesinscripts.ring
-[PASS]    83_commonlanguagesinscripts.ring
-[PASS]    84_showshort.ring
-[PASS]    85_languages.ring
-[PASS]    86_scriptsforlanguage.ring
-[PASS]    87_charscript.ring
-[PASS]    88_name.ring
-[PASS]    89_content.ring
-[PASS]    90_showshort.ring
-[PASS]    91_currentunicodeversion.ring
-[PASS]    92_mandarinnumbersxt.ring
-[PASS]    93_romannumbersxt.ring
-[PASS]    94_lowercased.ring
-[PASS]    95_circleddigits.ring
-[PASS]    96_islowercase.ring
-[PASS]    97_content.ring
-[PASS]    98_quranicsigns.ring
-[PASS]    99_content.ring
-[ERR]     from_string_482_pr.ring :: Error (R14) : Calling Method without definition: isinvertible
-[PASS]    from_string_687_pr.ring
-[PASS]    from_string_708_pr.ring
-[ERR]     from_string_737_pr.ring :: Error (R14) : Calling Method without definition: parts2using
-[ERR]     from_string_740_pr.ring :: exit 1
-[ERR]     from_string_741_pr.ring :: Error (R14) : Calling Method without definition: replacecharsw
-[PASS]    from_string_742_pr.ring
-[ERR]     from_string_743_pr.ring :: Error (R14) : Calling Method without definition: removecharswhereq
-[PASS]    from_string_745_pr.ring
-[ERR]     from_string_799_pr.ring :: Error (R14) : Calling Method without definition: partsusingxt
-[ERR]     from_string_analyzing_the_scripts_forming_a_string.ring :: Error (R3) : Calling Function without definition: containslettersinscript
-[ERR]     from_string_internal_implementation_of_unicode_function.ring :: Error (R3) : Calling Function without definition: stzcharerror
-[ERR]     from_string_string_parts.ring :: Error (R14) : Calling Method without definition: partsusingxt
-[ERR]     from_string_write_a_narration_about_it.ring :: Error (R14) : Calling Method without definition: partsusingxt
-[ERR]     from_ttext_arabic_shaddah_is_a_considedred_by_unicode_as_a_di.ring :: Error (R14) : Calling Method without definition: isarabicdiacritic
-[PASS]    from_unicodedata_07_pr.ring
-[PASS]    from_unicodedata_block_1.ring
-[PASS]    test_char_quick.ring
-[ERR]     test_unicode.ring :: Error (R3) : Calling Function without definition: ring_len
+== char  PASS 0  ERR 139  TIMEOUT 0  (200.5s) ==
+[ERR]     01_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_block_2.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_nthchar.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_basmalah.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_allah.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_smile.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_todo_logical_errors.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_turnable_numbers.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_turned_numbers.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     100_arabicnumberfractions.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     101_isarabicfraction.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     102_ismandarinnumber.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     103_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     104_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     105_unicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     106_romantodecimalnumber.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     107_unicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     108_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     109_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_turnable_chars.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     110_isempty.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     111_charsnames.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     112_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     113_unicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     114_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     115_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     116_numberofchars.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     117_unicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     118_numberofbytes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     119_isanumber.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_reverted.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     120_block_120.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_isturned.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_isturned.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_boxedrounded.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_arabicdotlessunicodes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_arabic_dotless_letters.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_latin_dotless_letters.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_dotless_letters.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_maxunicodenumber.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_numberofunicodechars.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_acharotherthan.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     23_maxunicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     24_charname.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     25_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     26_unicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     27_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     28_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     29_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     30_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     31_unicodecategory.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     32_isunicodehex.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     33_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     34_unicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     35_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     36_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     37_charsnames.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     38_charsnames.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     39_firstcharof.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     40_ischarof.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     41_unicodecategorynumber.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     42_iswordnonletterchar.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     43_removediacritic.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     44_diacriticremoved.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     45_arabicdiacriticsxt.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     46_isdiacricised.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     47_showshortxtnl.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     48_islatindiacritic.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     49_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     50_isinvertible.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     51_inverted.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     52_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     53_inverted.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     54_unicodetochar.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     55_stringrepresentsnumberinunicodehexform.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     56_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     57_unicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     58_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     59_isvisible.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     60_arabic7araket.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     61_isasciiletter.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     62_isdiacritic.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     63_diacriticremoved.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     64_showshortnl.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     65_diacriticdescription.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     66_diacriticsofasciiletter.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     67_showshortnl.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     68_isturnedchar.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     69_isletter.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     70_scriptis.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     71_unicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     72_iswordseparator.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     73_asciicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     74_isspace.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     75_script.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     76_todo_make_it_possible.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     77_unicode.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     78_currentunicodeversion.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     79_languagesinscript.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     80_languagesinscript.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     81_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     82_commonlanguagesinscripts.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     83_commonlanguagesinscripts.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     84_showshort.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     85_languages.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     86_scriptsforlanguage.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     87_charscript.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     88_name.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     89_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     90_showshort.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     91_currentunicodeversion.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     92_mandarinnumbersxt.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     93_romannumbersxt.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     94_lowercased.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     95_circleddigits.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     96_islowercase.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     97_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     98_quranicsigns.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     99_content.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_482_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_687_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_708_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_737_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_740_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_741_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_742_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_743_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_745_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_799_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_analyzing_the_scripts_forming_a_string.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_internal_implementation_of_unicode_function.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_string_parts.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_string_write_a_narration_about_it.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_ttext_arabic_shaddah_is_a_considedred_by_unicode_as_a_di.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_unicodedata_07_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_unicodedata_block_1.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_char_quick.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_unicode.ring :: Error (C22) : Function redefinition, function is already defined!

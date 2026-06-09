@@ -3,6 +3,7 @@
 # BUILT-IN: Transitivity Derivation
 #
 # Extracted from stzgraphtest.ring, block #67.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

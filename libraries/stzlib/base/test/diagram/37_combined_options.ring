@@ -3,6 +3,7 @@
 # Combined options
 #
 # Extracted from stzdiagramtest.ring, block #37.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

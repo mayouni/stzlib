@@ -3,6 +3,7 @@
 # High Precision Duration
 #
 # Extracted from stzdurationtest.ring, block #12.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # # EXAMPLE 21: Decision Tree                     #
 #
 # Extracted from stzdotcodetest.ring, block #28.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -4,6 +4,7 @@
 # stzExtJSCode wrapper -- see base/extercode/. Illustrative-only.
 #
 #SKIP retired -- see header
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

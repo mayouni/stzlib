@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stznumbertest.ring, block #3.
-#ERR Error (R14) : Calling Method without definition: howmany
 
 load "../../stzBase.ring"
 

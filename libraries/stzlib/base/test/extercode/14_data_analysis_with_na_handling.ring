@@ -3,6 +3,7 @@
 # Data analysis with NA handling
 #
 # Extracted from stzextercodetest.ring, block #14.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

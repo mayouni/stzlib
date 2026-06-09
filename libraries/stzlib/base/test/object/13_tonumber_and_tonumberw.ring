@@ -3,7 +3,6 @@
 # ToNumber() and ToNumberW()
 #
 # Extracted from stzObjectTest.ring, block #13.
-#ERR Error (R14) : Calling Method without definition: numericvalue
 
 load "../../stzBase.ring"
 

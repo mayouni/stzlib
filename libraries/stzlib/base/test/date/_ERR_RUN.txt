@@ -1,34 +1,34 @@
-== date  PASS 33  ERR 0  TIMEOUT 0  (53.5s) ==
-[PASS]    01_calling_today_and_creating_a_date_object_from_toda.ring
-[PASS]    02_creating_an_empty_stzdate_object_and_then_setting_.ring
-[PASS]    03_creating_a_date_from_string.ring
-[PASS]    04_creating_a_date_objectfrom_list_of_numbers.ring
-[PASS]    05_createing_a_date_object_from_a_hashlist_in_any_ord.ring
-[PASS]    06_today.ring
-[PASS]    07_getting_current_date_and_time.ring
-[PASS]    08_adding_days_to_a_date.ring
-[PASS]    09_using_operator_overloading_to_add_days.ring
-[PASS]    10_adding_months_and_years.ring
-[PASS]    11_subtracting_days_using_operator.ring
-[PASS]    12_using_string_operations_for_date_arithmetic.ring
-[PASS]    13_getting_day_name_in_different_languages.ring
-[PASS]    14_getting_month_name_in_different_languages.ring
-[PASS]    15_getting_various_date_components.ring
-[PASS]    16_checking_if_year_is_leap_year.ring
-[PASS]    17_getting_days_in_month_and_year.ring
-[PASS]    18_calculating_days_months_and_years_between_dates.ring
-[PASS]    19_checking_if_a_date_is_between_two_other_dates.ring
-[PASS]    20_comparing_dates.ring
-[PASS]    21_match.ring
-[PASS]    22_formatting_dates_in_different_styles.ring
-[PASS]    23_using_named_formats.ring
-[PASS]    24_getting_week_number.ring
-[PASS]    25_date_validation.ring
-[PASS]    26_calculating_age.ring
-[PASS]    27_date.ring
-[PASS]    28_day.ring
-[PASS]    30_convert_current_date_to_julian_day_number.ring
-[PASS]    31_create_a_date_from_a_julian_day_number.ring
-[PASS]    32_navigation_methods.ring
-[PASS]    from_duration_add_this_feature_to_stzdate.ring
-[PASS]    test_datetime_regression.ring
+== date  PASS 0  ERR 33  TIMEOUT 0  (47.5s) ==
+[ERR]     01_calling_today_and_creating_a_date_object_from_toda.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_creating_an_empty_stzdate_object_and_then_setting_.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_creating_a_date_from_string.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_creating_a_date_objectfrom_list_of_numbers.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_createing_a_date_object_from_a_hashlist_in_any_ord.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_today.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_getting_current_date_and_time.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_adding_days_to_a_date.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_using_operator_overloading_to_add_days.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_adding_months_and_years.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_subtracting_days_using_operator.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_using_string_operations_for_date_arithmetic.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_getting_day_name_in_different_languages.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_getting_month_name_in_different_languages.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_getting_various_date_components.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_checking_if_year_is_leap_year.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_getting_days_in_month_and_year.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_calculating_days_months_and_years_between_dates.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_checking_if_a_date_is_between_two_other_dates.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_comparing_dates.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_match.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_formatting_dates_in_different_styles.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     23_using_named_formats.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     24_getting_week_number.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     25_date_validation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     26_calculating_age.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     27_date.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     28_day.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     30_convert_current_date_to_julian_day_number.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     31_create_a_date_from_a_julian_day_number.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     32_navigation_methods.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_duration_add_this_feature_to_stzdate.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_datetime_regression.ring :: Error (C22) : Function redefinition, function is already defined!

@@ -1,27 +1,27 @@
-== datawrangler  PASS 10  ERR 15  TIMEOUT 1  (53.1s) ==
-[PASS]    01_testing_basic_initialization_with_simple_list_data.ring
-[ERR]     02_testing_initialization_with_2d_table_data.ring :: exit 1: +--------------------+
-[PASS]    03_testing_duplicate_removal.ring
-[PASS]    04_testing_missing_value_handling_with_different_stra.ring
-[PASS]    05_testing_whitespace_trimming_and_case_normalization.ring
-[ERR]     06_testing_data_type_validation.ring :: exit 1: +----------------------+
-[PASS]    07_testing_range_validation.ring
-[PASS]    08_testing_outlier_detection.ring
-[ERR]     09_testing_data_type_conversion.ring :: exit 1: BEFORE TYPE CONVERSION:
-[PASS]    10_testing_numeric_normalization.ring
+== datawrangler  PASS 0  ERR 26  TIMEOUT 0  (35.1s) ==
+[ERR]     01_testing_basic_initialization_with_simple_list_data.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_testing_initialization_with_2d_table_data.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_testing_duplicate_removal.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_testing_missing_value_handling_with_different_stra.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_testing_whitespace_trimming_and_case_normalization.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_testing_data_type_validation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_testing_range_validation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_testing_outlier_detection.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_testing_data_type_conversion.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_testing_numeric_normalization.ring :: Error (C22) : Function redefinition, function is already defined!
 [ERR]     11_testing_categorical_encoding.ring :: exit 1: Error (S1) In file: 11_testing_categorical_encoding.ring
-[ERR]     12_testing_plan_generation_and_execution.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     13_testing_different_plan_templates.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     14_testing_goal-based_plan_execution.ring :: Error (R24) : Using uninitialized variable: amesydataset
-[ERR]     15_testing_export_to_different_softanza_classes.ring :: Error (R21) : Using operator with values of incorrect type
-[PASS]    16_testing_quick_operation_methods.ring
-[ERR]     17_testing_chainable_operations.ring :: exit 1: +----------------------+
-[ERR]     18_testing_comprehensive_reporting.ring :: exit 1: Line 868 Bad parameter type!
-[ERR]     19_testing_after_applying_transformations.ring :: exit 1: +---------------------------+
-[PASS]    20_testing_with_empty_dataset.ring
-[ERR]     21_testing_with_single_column_data.ring :: exit 1: Line 868 Bad parameter type!
-[PASS]    22_testing_with_all_missing_values.ring
-[TIMEOUT] 23_testing_with_larger_dataset.ring
-[ERR]     24_customer_database_cleanup_scenario.ring :: exit 1: Initial customer database analysis:
-[ERR]     25_sales_data_preparation_for_analysis.ring :: Error (R19) : Calling function with less number of parameters
-[ERR]     26_survey_response_data_standardization.ring :: Error (R19) : Calling function with less number of parameters
+[ERR]     12_testing_plan_generation_and_execution.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_testing_different_plan_templates.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_testing_goal-based_plan_execution.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_testing_export_to_different_softanza_classes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_testing_quick_operation_methods.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_testing_chainable_operations.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_testing_comprehensive_reporting.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_testing_after_applying_transformations.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_testing_with_empty_dataset.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_testing_with_single_column_data.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_testing_with_all_missing_values.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     23_testing_with_larger_dataset.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     24_customer_database_cleanup_scenario.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     25_sales_data_preparation_for_analysis.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     26_survey_response_data_standardization.ring :: Error (C22) : Function redefinition, function is already defined!
