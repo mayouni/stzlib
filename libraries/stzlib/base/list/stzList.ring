@@ -2634,19 +2634,52 @@ class stzList from stzObject
 
 	# LastNItemsQRT(n, pcType): the last n items wrapped per pcType.
 	# pcType examples: :stzList, :stzListOfStrings, :stzListOfNumbers.
+	# Returns an object wrapping the last-n slice so callers can
+	# chain .AddedToEach() etc. without first wrapping themselves.
 	def LastNItemsQRT(n, pcType)
 		_l_ = This.List()
 		_nL_ = ring_len(_l_)
-		if n < 1 return [] ok
+		if n < 1 return new stzList([]) ok
 		if n > _nL_ n = _nL_ ok
 		_a_ = []
 		for _i_ = _nL_ - n + 1 to _nL_
 			_a_ + _l_[_i_]
 		next
-		return _a_
+		# Wrap the slice so callers can chain methods.
+		if isString(pcType)
+			_kw_ = lower(pcType)
+			if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if _kw_ = "stzlistofstrings" return new stzListOfStrings(_a_) ok
+		ok
+		return new stzList(_a_)
 
 	def LastNItems(n)
-		return This.LastNItemsQRT(n, :stzList)
+		_o_ = This.LastNItemsQRT(n, :stzList)
+		if isObject(_o_) return _o_.List() ok
+		return _o_
+
+	# AddedToEach(n): add n to every numeric item; return a new list.
+	def AddedToEach(n)
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isNumber(_v_)
+				_aR_ + (_v_ + n)
+			else
+				_aR_ + _v_
+			ok
+		next
+		return _aR_
+
+	def AddToEach(n)
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		for _i_ = 1 to _nL_
+			if isNumber(_l_[_i_]) _l_[_i_] = _l_[_i_] + n ok
+		next
+		@aContent = _l_
 
 	def LastNItemsQ(n)
 		return new stzList( This.LastNItems(n) )
