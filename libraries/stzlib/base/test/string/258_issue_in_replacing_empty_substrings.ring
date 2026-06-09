@@ -3,7 +3,6 @@
 # #qt Issue in replacing empty substrings
 #
 # Extracted from stzStringTest.ring, block #258.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -21,7 +20,11 @@ cStr = substr(cStr, "ing", "uby")
 # ? substr(cStr, "", "any")
 
 str = "Ring Language"
-? substr(str, "", "any")
+try
+	? substr(str, "", "any")
+catch
+	? "(expected Ring error: 'Bad parameter value!')"
+done
 #--> ring message: Bad paramater value!
 
 pf()

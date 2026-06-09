@@ -3,7 +3,6 @@
 # #todo #narration THE ART OF SPLITTING THINGS IN SOFTANZA
 #
 # Extracted from stzStringTest.ring, block #355.
-#ERR Error (C27) : Syntax Error!
 
 load "../../stzBase.ring"
 
