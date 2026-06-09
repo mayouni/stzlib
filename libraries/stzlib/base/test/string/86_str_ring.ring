@@ -3,10 +3,10 @@
 # str = "ring"
 #
 # Extracted from stzStringTest.ring, block #86.
-#ERR Error (R24) : Using uninitialized variable: str
 
 load "../../stzBase.ring"
 
+str = ""
 for i = 1 to 10000
 	str += "ring"
 next

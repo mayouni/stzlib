@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #432.
-#ERR Error (R24) : Using uninitialized variable: $softanzalogo
 
 load "../../stzBase.ring"
 

@@ -10,9 +10,15 @@
 #TODO // Add the ring_...() form of all Ring functions
 
 func SoftanzaLogo()
+	if NOT isGlobal(:$SOFTANZALOGO)
+		$SOFTANZALOGO = "Softanza"
+	ok
 	return $SOFTANZALOGO
 
 	func Softanza()
+		if NOT isGlobal(:$SOFTANZALOGO)
+			$SOFTANZALOGO = "Softanza"
+		ok
 		return $SOFTANZALOGO
 
 func StzVersion()
