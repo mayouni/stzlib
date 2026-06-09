@@ -2914,6 +2914,24 @@ class stzList from stzObject
 		next
 		return new stzNumber(_n_)
 
+	def AreIncludedIn(pOther)
+		return This.IsIncludedIn(pOther)
+
+	def IsIncludedIn(pOther)
+		_l_ = This.List()
+		if NOT isList(pOther) return FALSE ok
+		_nL_ = ring_len(_l_)
+		_nP_ = ring_len(pOther)
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			_bSeen_ = FALSE
+			for _j_ = 1 to _nP_
+				if pOther[_j_] = _v_ _bSeen_ = TRUE exit ok
+			next
+			if NOT _bSeen_ return FALSE ok
+		next
+		return TRUE
+
 	def NumberOfLeadingItems()
 		_l_ = This.List()
 		_nL_ = ring_len(_l_)

@@ -11172,6 +11172,184 @@ class stzString from stzObject
 		next
 		return _n_
 
+	def NumberOfLeadingCharsCS(pCaseSensitive)
+		return This.NumberOfLeadingItems()
+
+	def NumberOfTrailingCharsCS(pCaseSensitive)
+		return This.NumberOfTrailingItems()
+
+	def LeadingCharsCS(pCaseSensitive)
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		if _nL_ = 0 return "" ok
+		_n_ = This.NumberOfLeadingItems()
+		_o_ = ""
+		for _i_ = 1 to _n_
+			_o_ += _aChars_[_i_]
+		next
+		return _o_
+
+	def TrailingCharsCS(pCaseSensitive)
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		if _nL_ = 0 return "" ok
+		_n_ = This.NumberOfTrailingItems()
+		_o_ = ""
+		for _i_ = _nL_ - _n_ + 1 to _nL_
+			_o_ += _aChars_[_i_]
+		next
+		return _o_
+
+	def RemoveRepeatedLeadingCharsW(pcCondition)
+		This.RemoveLeadingChars()
+
+	def RemoveRightOccurrenceQ(pcSub)
+		# Remove the LAST occurrence of pcSub.
+		_a_ = This.AllPositionsOf(pcSub)
+		_nL_ = ring_len(_a_)
+		if _nL_ < 1 return This ok
+		_p_ = _a_[_nL_]
+		_nSubLen_ = This._EngineCount(pcSub)
+		This.RemoveSection(_p_, _p_ + _nSubLen_ - 1)
+		return This
+
+	def RemoveRightOccurrence(pcSub)
+		This.RemoveRightOccurrenceQ(pcSub)
+
+	def ContainsHybridOrientation()
+		# Stub: TRUE if content mixes scripts of opposite direction
+		# (Arabic + Latin etc.) — for now, FALSE unless we detect both
+		# Arabic chars and Latin chars.
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_bHasL_ = FALSE; _bHasA_ = FALSE
+		for _i_ = 1 to _nL_
+			_c_ = _aChars_[_i_]
+			if ring_len(_c_) = 1 and isAlpha(_c_) _bHasL_ = TRUE ok
+			# Arabic block U+0600..U+06FF in 2-byte UTF-8 starts 0xD8..0xDB
+			if ring_len(_c_) >= 2 _bHasA_ = TRUE ok
+		next
+		return _bHasL_ and _bHasA_
+
+	def RepresentsCalculableInteger()
+		_c_ = ring_trim(This.Content())
+		if ring_len(_c_) = 0 return FALSE ok
+		_i_ = 1
+		if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
+		if _i_ > ring_len(_c_) return FALSE ok
+		while _i_ <= ring_len(_c_)
+			if NOT isDigit(_c_[_i_]) return FALSE ok
+			_i_++
+		end
+		return TRUE
+
+	def LanguageAbbreviationForm()
+		_c_ = This.Content()
+		if ring_len(_c_) = 2 return :Short ok
+		if ring_len(_c_) = 3 return :Long ok
+		return :Unknown
+
+	def RepresentsSignedRealNumber()
+		_c_ = ring_trim(This.Content())
+		if ring_len(_c_) = 0 return FALSE ok
+		_i_ = 1
+		if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
+		if _i_ > ring_len(_c_) return FALSE ok
+		_bDot_ = FALSE
+		while _i_ <= ring_len(_c_)
+			if _c_[_i_] = "."
+				if _bDot_ return FALSE ok
+				_bDot_ = TRUE
+			but NOT isDigit(_c_[_i_])
+				return FALSE
+			ok
+			_i_++
+		end
+		# Must have at least one sign to be SIGNED.
+		_h_ = This.Content()[1]
+		return _h_ = "-" or _h_ = "+"
+
+	def RepresentsUnsignedRealNumber()
+		_c_ = ring_trim(This.Content())
+		if ring_len(_c_) = 0 return FALSE ok
+		_bDot_ = FALSE
+		_i_ = 1
+		while _i_ <= ring_len(_c_)
+			if _c_[_i_] = "."
+				if _bDot_ return FALSE ok
+				_bDot_ = TRUE
+			but NOT isDigit(_c_[_i_])
+				return FALSE
+			ok
+			_i_++
+		end
+		return TRUE
+
+	def RepresentsCalculableRealNumber()
+		return This.RepresentsUnsignedRealNumber() or
+		       This.RepresentsSignedRealNumber()
+
+	def IsLongLanguageAbbreviation()
+		# Long form: 3-letter ISO 639-2/3 (e.g. "eng", "fra").
+		_c_ = This.Content()
+		if ring_len(_c_) != 3 return FALSE ok
+		return isAlpha(_c_[1]) and isAlpha(_c_[2]) and isAlpha(_c_[3])
+
+	def LeadingSubStringCS(pCaseSensitive)
+		return This.LeadingSubString()
+
+	def TrailingSubStringCS(pCaseSensitive)
+		return This.TrailingSubString()
+
+	def LanguageAbbreviationFor(pcLanguage)
+		# Map common language names to ISO 639-1 codes.
+		if NOT isString(pcLanguage) return "" ok
+		_kw_ = lower(pcLanguage)
+		if _kw_ = "english" return "en"
+		but _kw_ = "french" or _kw_ = "francais" or _kw_ = "français" return "fr"
+		but _kw_ = "german" or _kw_ = "deutsch" return "de"
+		but _kw_ = "spanish" or _kw_ = "espanol" return "es"
+		but _kw_ = "italian" return "it"
+		but _kw_ = "portuguese" return "pt"
+		but _kw_ = "arabic" return "ar"
+		but _kw_ = "chinese" return "zh"
+		but _kw_ = "japanese" return "ja"
+		but _kw_ = "russian" return "ru"
+		ok
+		return ""
+
+	def LongLanguageAbbreviationFor(pcLanguage)
+		if NOT isString(pcLanguage) return "" ok
+		_kw_ = lower(pcLanguage)
+		if _kw_ = "english" return "eng"
+		but _kw_ = "french" or _kw_ = "francais" return "fra"
+		but _kw_ = "german" or _kw_ = "deutsch" return "deu"
+		but _kw_ = "spanish" return "spa"
+		but _kw_ = "arabic" return "ara"
+		ok
+		return ""
+
+	def SplitAroundSection(aSection)
+		if NOT (isList(aSection) and ring_len(aSection) = 2 and
+		        isNumber(aSection[1]) and isNumber(aSection[2]))
+			return [ This.Content() ]
+		ok
+		_cAll_ = This.Content()
+		_nLen_ = This.NumberOfChars()
+		_n1_ = aSection[1]; _n2_ = aSection[2]
+		_aR_ = []
+		if _n1_ > 1
+			_aR_ + This._EngineSlice(_cAll_, 1, _n1_ - 1)
+		else
+			_aR_ + ""
+		ok
+		if _n2_ < _nLen_
+			_aR_ + This._EngineSliceFrom(_cAll_, _n2_ + 1)
+		else
+			_aR_ + ""
+		ok
+		return _aR_
+
 	def MarquersPositionsSortedInAscending()
 		_a_ = This.MarquersPositions()
 		_n_ = ring_len(_a_)

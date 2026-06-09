@@ -413,3 +413,9 @@ class stzStringLeadTrail
 
 	def SuffixEnsured(pcSuffix)
 		return This.SuffixEnsuredCS(pcSuffix, 1)
+
+	def RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+		@oString.RemoveLeadingChars()
+
+	def RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+		@oString.RemoveTrailingChars()

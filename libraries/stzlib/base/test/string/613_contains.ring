@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #613.
-#ERR Error (R14) : Calling Method without definition: isincludedin
 
 load "../../stzBase.ring"
 
