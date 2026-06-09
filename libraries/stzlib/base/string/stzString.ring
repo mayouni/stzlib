@@ -3952,6 +3952,37 @@ class stzString from stzObject
 	def NumberOfOccurrenceOfCharEndingSide(pcChar)
 		return This.NumberOfOccurrenceOfCharRightSide(pcChar)
 
+	def HalvesXTZ()
+		_nL_ = This.NumberOfChars()
+		_nH_ = floor(_nL_ / 2)
+		_aRes_ = [ 1 ]
+		if _nH_ + 1 <= _nL_ _aRes_ + (_nH_ + 1) ok
+		return _aRes_
+
+	def HalvesXTZZ()
+		_nL_ = This.NumberOfChars()
+		_nH_ = floor(_nL_ / 2)
+		_aRes_ = []
+		if _nH_ >= 1 _aRes_ + [ 1, _nH_ ] ok
+		if _nH_ + 1 <= _nL_ _aRes_ + [ _nH_ + 1, _nL_ ] ok
+		return _aRes_
+
+	def NumberOfOccurrenceOfCharEndSide(pcChar)
+		return This.NumberOfOccurrenceOfCharRightSide(pcChar)
+
+	def SplitAroundIB(pcSubStr)
+		return This.SplitAroundCS(pcSubStr, 1)
+
+	# SplitAroundPosition(n): two pieces around codepoint position n.
+	def SplitAroundPosition(n)
+		_nL_ = This.NumberOfChars()
+		if n < 1 or n > _nL_ return [ This.Content() ] ok
+		_aRes_ = []
+		if n > 1 _aRes_ + This._EngineSlice(This.Content(), 1, n - 1) else _aRes_ + "" ok
+		if n < _nL_ _aRes_ + This._EngineSliceFrom(This.Content(), n + 1) else _aRes_ + "" ok
+		return _aRes_
+
+
 	def TheseCharsZ(pacChars)
 		if NOT isList(pacChars) return [] ok
 		_aR_ = []
