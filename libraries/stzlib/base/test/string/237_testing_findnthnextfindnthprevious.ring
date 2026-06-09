@@ -3,6 +3,7 @@
 # # Testing FindNthNext()/FindNthPrevious
 #
 # Extracted from stzStringTest.ring, block #237.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

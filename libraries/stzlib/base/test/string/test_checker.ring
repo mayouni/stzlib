@@ -1,5 +1,5 @@
 
-#ERR exit 3221225794
+#ERR Error (R3) : Calling Function without definition: stzenginestring
 
 load "test_stubs.ring"
 load "../../string/stzString.ring"

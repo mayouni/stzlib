@@ -3,7 +3,7 @@
 # ? StzStringQ(" 4  ُ  ").IsScript(:Hybrid) #--> TRUE
 #
 # Extracted from stzTtexttest.ring, block #11.
-#ERR exit 3221225794
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,6 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #186.
-#ERR Error (R14) : Calling Method without definition: boundedbyu
 
 load "../../stzBase.ring"
 

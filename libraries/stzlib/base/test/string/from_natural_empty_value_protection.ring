@@ -3,7 +3,6 @@
 # EMPTY VALUE PROTECTION
 #
 # Extracted from stznaturaltest.ring, block #27.
-#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

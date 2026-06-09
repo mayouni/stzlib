@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #547.
-#ERR Error (R14) : Calling Method without definition: lastnitemsqrt
+#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
 

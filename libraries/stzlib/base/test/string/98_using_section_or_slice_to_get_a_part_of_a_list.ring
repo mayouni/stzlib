@@ -3,7 +3,6 @@
 # # Using Section() (or Slice()) to get a part of a list
 #
 # Extracted from stzStringTest.ring, block #98.
-#ERR exit 3221225794
 
 load "../../stzBase.ring"
 

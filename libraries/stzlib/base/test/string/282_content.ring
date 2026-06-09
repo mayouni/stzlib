@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #282.
-#ERR Error (R2) : Array Access (Index out of range)
 
 load "../../stzBase.ring"
 
