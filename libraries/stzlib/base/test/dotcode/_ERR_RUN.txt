@@ -1,33 +1,33 @@
-== dotcode  PASS 32  ERR 0  TIMEOUT 0  (71.4s) ==
-[PASS]    01_testing_painting_a_grid_on_the_background_fix_it.ring
-[PASS]    02_personalizing_the_background_color_of_the_dot_diag.ring
-[PASS]    03_testing_multiple_edges_between_the_same_two_nodes_.ring
-[PASS]    04_test_all_dot_shapes.ring
-[PASS]    05_pr.ring
-[PASS]    06_pr.ring
-[PASS]    07_example_1_basic.ring
-[PASS]    08_example_2_styled_graph.ring
-[PASS]    09_example_3_system_architecture.ring
-[PASS]    10_example_4_process_flow_with_clusters.ring
-[PASS]    11_example_5_modern_design.ring
-[PASS]    12_example_6_html-like_table_inside_the_diagram.ring
-[PASS]    13_example_7_error_handling.ring
-[PASS]    14_example_8_oraganization_chart.ring
-[PASS]    15_example_9_order_processing_workflow.ring
-[PASS]    16_example_10_bpmn_process_customer_onboarding_workfl.ring
-[PASS]    17_example_11_sales_funnel_decision_tree_hybrid_analy.ring
-[PASS]    18_example_12_dsequence_diagram.ring
-[PASS]    19_example_12_bis_dsequence_diagram.ring
-[PASS]    20_example_13_node_shapes_gallery.ring
-[PASS]    21_example_14_edge_styles_and_arrows.ring
-[PASS]    22_example_15_rank_and_ordering_control.ring
-[PASS]    23_example_16_clusters_subgraphs.ring
-[PASS]    24_example_17_record_shapes_tables.ring
-[PASS]    25_example_18_color_schemes.ring
-[PASS]    26_example_19_state_machine.ring
-[PASS]    27_example_20_network_topology.ring
-[PASS]    28_example_21_decision_tree.ring
-[PASS]    29_example_22_timelinegantt-style.ring
-[PASS]    30_professional_bpmn_order_processing_workflow.ring
-[PASS]    31_bpmn_order_processing_with_lane_colors.ring
-[PASS]    test_with_stzdotcode_class.ring
+== dotcode  PASS 0  ERR 32  TIMEOUT 0  (45.4s) ==
+[ERR]     01_testing_painting_a_grid_on_the_background_fix_it.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_personalizing_the_background_color_of_the_dot_diag.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_testing_multiple_edges_between_the_same_two_nodes_.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_test_all_dot_shapes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_example_1_basic.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_example_2_styled_graph.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_example_3_system_architecture.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_example_4_process_flow_with_clusters.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_example_5_modern_design.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_example_6_html-like_table_inside_the_diagram.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_example_7_error_handling.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_example_8_oraganization_chart.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_example_9_order_processing_workflow.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_example_10_bpmn_process_customer_onboarding_workfl.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_example_11_sales_funnel_decision_tree_hybrid_analy.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_example_12_dsequence_diagram.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_example_12_bis_dsequence_diagram.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_example_13_node_shapes_gallery.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_example_14_edge_styles_and_arrows.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_example_15_rank_and_ordering_control.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     23_example_16_clusters_subgraphs.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     24_example_17_record_shapes_tables.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     25_example_18_color_schemes.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     26_example_19_state_machine.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     27_example_20_network_topology.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     28_example_21_decision_tree.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     29_example_22_timelinegantt-style.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     30_professional_bpmn_order_processing_workflow.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     31_bpmn_order_processing_with_lane_colors.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_with_stzdotcode_class.ring :: Error (C22) : Function redefinition, function is already defined!

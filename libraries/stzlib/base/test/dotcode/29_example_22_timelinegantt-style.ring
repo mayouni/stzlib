@@ -3,6 +3,7 @@
 # # EXAMPLE 22: Timeline/Gantt-style         #
 #
 # Extracted from stzdotcodetest.ring, block #29.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -1,2 +1,2 @@
-== globalsystem  PASS 1  ERR 0  TIMEOUT 0  (1.6s) ==
-[PASS]    01_ring_state_pointers.ring
+== globalsystem  PASS 0  ERR 1  TIMEOUT 0  (1.4s) ==
+[ERR]     01_ring_state_pointers.ring :: Error (C22) : Function redefinition, function is already defined!

@@ -1,4 +1,4 @@
-== regexdata  PASS 11  ERR 0  TIMEOUT 0  (17.1s) ==
+== regexdata  PASS 11  ERR 0  TIMEOUT 0  (17.5s) ==
 [PASS]    01_matches.ring
 [PASS]    02_matches.ring
 [PASS]    03_pattern.ring

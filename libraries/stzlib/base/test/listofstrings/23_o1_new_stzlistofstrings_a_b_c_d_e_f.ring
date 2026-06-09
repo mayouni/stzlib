@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "A", "B", "C", "D", "E", "F"])
 #
 # Extracted from stzlistofstringstest.ring, block #23.
+#ERR Error (R14) : Calling Method without definition: replacemanyonebyonecs
 
 load "../../stzBase.ring"
 

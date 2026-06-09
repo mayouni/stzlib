@@ -3,6 +3,7 @@
 # Example 7.2: Emergency Response - Every Second Counts
 #
 # Extracted from stzgraphplannertest.ring, block #14.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

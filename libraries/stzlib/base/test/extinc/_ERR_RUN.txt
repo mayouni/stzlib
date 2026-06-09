@@ -1,6 +1,6 @@
-== extinc  PASS 5  ERR 0  TIMEOUT 0  (7.4s) ==
-[PASS]    01_pr.ring
-[PASS]    02_pr.ring
-[PASS]    03_block_3.ring
-[PASS]    04_pr.ring
-[PASS]    05_pr.ring
+== extinc  PASS 0  ERR 5  TIMEOUT 0  (7.4s) ==
+[ERR]     01_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_block_3.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_pr.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_pr.ring :: Error (C22) : Function redefinition, function is already defined!

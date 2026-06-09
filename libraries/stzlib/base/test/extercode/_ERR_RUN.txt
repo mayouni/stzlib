@@ -1,43 +1,43 @@
-== extercode  PASS 40  ERR 1  TIMEOUT 1  (79.3s) ==
-[PASS]    02_basic_example.ring
-[PASS]    03_different_number_types.ring
-[PASS]    04_string_variations_with_proper_escaping.ring
-[PASS]    05_nested_lists_and_mixed_types.ring
-[PASS]    06_complex_nested_structure.ring
-[PASS]    08_data_analysis_with_pandas.ring
-[PASS]    09_text_processing.ring
-[PASS]    10_machine_learning_integration.ring
-[PASS]    12_basic_numeric_data.ring
-[PASS]    13_simple_nested_list_with_different_data_types.ring
-[PASS]    14_data_analysis_with_na_handling.ring
-[PASS]    15_statistical_calculations.ring
-[PASS]    16_nested_calculations_with_custom_functions.ring
-[PASS]    17_time_series_data_with_aggregation.ring
-[PASS]    18_graphic_dataviz_-_complex_scatter_plot_with_densit.ring
-[PASS]    19_julia_language_examples.ring
-[PASS]    21_basic_example.ring
-[PASS]    22_creating_structs_with_key_pairs.ring
-[PASS]    23_nested_array_of_mixed_types.ring
-[PASS]    24_complex_nested_structure_with_arrays_and_structs.ring
-[PASS]    26_simple_list_processing.ring
-[PASS]    27_list_of_factorials_in_prolog.ring
-[PASS]    28_define_family_relationships_and_query_ancestors.ring
-[PASS]    29_graph_traversal.ring
-[PASS]    30_family_relationships_database_err.ring
-[PASS]    31_n-queens_problem_err.ring
-[PASS]    32_natural_language_processing.ring
-[PASS]    33_a_simple_array.ring
-[PASS]    34_mixed_data_types.ring
-[PASS]    35_scientific_notation.ring
-[PASS]    36_asynchronous_operations_with_promises.ring
-[PASS]    37_data_processing_with_modern_javascript.ring
-[PASS]    38_basic_web_api_concepts.ring
-[TIMEOUT] 40_benchmark_for_ring_langauge.ring
-[ERR]     41_benchmark_for_c_langauge_todo_check_error.ring :: Error (R31) : Trying to destroy the object using the self reference
-[PASS]    42_benchmark_for_python_langauge.ring
-[PASS]    43_benchmark_for_r_langauge.ring
-[PASS]    44_benchmark_for_julia_langauge.ring
-[PASS]    45_benchmark_for_nodejs_langauge.ring
-[PASS]    46_benchmark_for_swi-prolog_langauge.ring
-[PASS]    test_extercode_regression.ring
-[PASS]    test_lang_wrappers_regression.ring
+== extercode  PASS 0  ERR 42  TIMEOUT 0  (63.0s) ==
+[ERR]     02_basic_example.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_different_number_types.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_string_variations_with_proper_escaping.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_nested_lists_and_mixed_types.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_complex_nested_structure.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_data_analysis_with_pandas.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_text_processing.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_machine_learning_integration.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_basic_numeric_data.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_simple_nested_list_with_different_data_types.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_data_analysis_with_na_handling.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_statistical_calculations.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_nested_calculations_with_custom_functions.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_time_series_data_with_aggregation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_graphic_dataviz_-_complex_scatter_plot_with_densit.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_julia_language_examples.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_basic_example.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_creating_structs_with_key_pairs.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     23_nested_array_of_mixed_types.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     24_complex_nested_structure_with_arrays_and_structs.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     26_simple_list_processing.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     27_list_of_factorials_in_prolog.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     28_define_family_relationships_and_query_ancestors.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     29_graph_traversal.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     30_family_relationships_database_err.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     31_n-queens_problem_err.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     32_natural_language_processing.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     33_a_simple_array.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     34_mixed_data_types.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     35_scientific_notation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     36_asynchronous_operations_with_promises.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     37_data_processing_with_modern_javascript.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     38_basic_web_api_concepts.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     40_benchmark_for_ring_langauge.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     41_benchmark_for_c_langauge_todo_check_error.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     42_benchmark_for_python_langauge.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     43_benchmark_for_r_langauge.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     44_benchmark_for_julia_langauge.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     45_benchmark_for_nodejs_langauge.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     46_benchmark_for_swi-prolog_langauge.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_extercode_regression.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     test_lang_wrappers_regression.ring :: Error (C22) : Function redefinition, function is already defined!

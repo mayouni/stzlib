@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofliststest.ring, block #47.
-#ERR Error (R14) : Calling Method without definition: istoortoposition
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

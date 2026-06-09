@@ -3,6 +3,7 @@
 # #narration: chars looking similar but are different!
 #
 # Extracted from stzGlobalTest.ring, block #52.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

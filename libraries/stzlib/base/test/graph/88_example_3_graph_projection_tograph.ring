@@ -3,6 +3,7 @@
 # EXAMPLE 3: Graph Projection (ToGraph)
 #
 # Extracted from stzgraphtest.ring, block #88.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

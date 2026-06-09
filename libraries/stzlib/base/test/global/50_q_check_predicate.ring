@@ -9,7 +9,7 @@
 # section. Was missed by the initial extraction sweep because the
 # original used a "/*=============" delimiter the splitter didn't
 # recognise.
-#ERR Error (R14) : Calling Method without definition: check
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

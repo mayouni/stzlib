@@ -3,6 +3,7 @@
 # Multi-Edges Between Same Nodes : Raises an error
 #
 # Extracted from stzgraphtest.ring, block #25.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

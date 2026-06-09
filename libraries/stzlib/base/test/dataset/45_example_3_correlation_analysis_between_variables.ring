@@ -3,6 +3,7 @@
 # EXAMPLE 3: Correlation Analysis Between Variables
 #
 # Extracted from stzdatasettest.ring, block #45.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

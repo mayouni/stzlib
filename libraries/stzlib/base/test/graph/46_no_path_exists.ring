@@ -3,6 +3,7 @@
 # No path exists
 #
 # Extracted from stzgraphtest.ring, block #46.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

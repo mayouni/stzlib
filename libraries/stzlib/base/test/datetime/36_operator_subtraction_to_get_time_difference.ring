@@ -3,6 +3,7 @@
 # Operator subtraction to get time difference
 #
 # Extracted from stzdatetimetest.ring, block #36.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

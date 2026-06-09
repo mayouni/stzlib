@@ -3,6 +3,7 @@
 # Example 3: Natural language string (auto-detected - must include "from epoch")
 #
 # Extracted from stzdatetimetest.ring, block #64.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

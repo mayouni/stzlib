@@ -3,7 +3,7 @@
 # How to use .stzrulz file format?
 #
 # Extracted from stzgraphtest.ring, block #84.
-#ERR Error (R24) : Using uninitialized variable: @arules
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

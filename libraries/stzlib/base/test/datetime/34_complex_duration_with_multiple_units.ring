@@ -3,6 +3,7 @@
 # Complex duration with multiple units
 #
 # Extracted from stzdatetimetest.ring, block #34.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

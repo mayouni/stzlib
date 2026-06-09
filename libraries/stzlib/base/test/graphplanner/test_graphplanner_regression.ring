@@ -2,6 +2,7 @@
 # Builds plans (route optimization profiles) on top of stzGraph.
 #
 # Run from base/graph/test/.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

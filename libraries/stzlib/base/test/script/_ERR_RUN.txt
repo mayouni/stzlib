@@ -1,4 +1,4 @@
-== script  PASS 3  ERR 0  TIMEOUT 0  (5.4s) ==
+== script  PASS 3  ERR 0  TIMEOUT 0  (4.9s) ==
 [PASS]    01_you_can_create_a_script_object_bu_specifying_its_n.ring
 [PASS]    02_you_can_access_to_serveral_data_returned_by_the_st.ring
 [PASS]    test_script_regression.ring

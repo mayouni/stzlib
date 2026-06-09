@@ -3,6 +3,7 @@
 # Building workflow diagram with node types and theme
 #
 # Extracted from stzdiagramtest.ring, block #9.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

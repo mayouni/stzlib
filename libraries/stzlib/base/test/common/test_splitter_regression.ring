@@ -3,6 +3,7 @@
 # section descriptors when splitting at one or many positions.
 #
 # Run from base/common/test/.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

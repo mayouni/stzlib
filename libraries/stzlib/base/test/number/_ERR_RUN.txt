@@ -1,7 +1,7 @@
-== number  PASS 64  ERR 12  TIMEOUT 2  (156.1s) ==
+== number  PASS 68  ERR 8  TIMEOUT 2  (182.6s) ==
 [PASS]    01_pr.ring
 [PASS]    02_npercentof.ring
-[ERR]     03_howmany.ring :: Error (R14) : Calling Method without definition: howmany
+[PASS]    03_howmany.ring
 [PASS]    04_primedividors.ring
 [PASS]    05_isprime.ring
 [ERR]     06_wxt.ring :: Error (R14) : Calling Method without definition: wxt
@@ -35,7 +35,7 @@
 [PASS]    34_content.ring
 [PASS]    35_repeatedntimes.ring
 [PASS]    36_value.ring
-[ERR]     37_repeatxt.ring :: Error (R14) : Calling Method without definition: fillq
+[PASS]    37_repeatxt.ring
 [PASS]    38_repeatxt.ring
 [PASS]    39_number.ring
 [PASS]    40_repeatedinapair.ring
@@ -62,8 +62,8 @@
 [PASS]    61_roundedto.ring
 [ERR]     62_isdividableby.ring :: Error (R14) : Calling Method without definition: isdecimalnumberinstring
 [PASS]    63_modulo.ring
-[ERR]     64_o1_new_stzbinarynumber0b00101011000011.ring :: Error (R24) : Using uninitialized variable: o1
-[ERR]     67_o1_new_stznumber12500.ring :: Error (R24) : Using uninitialized variable: o1
+[PASS]    64_o1_new_stzbinarynumber0b00101011000011.ring
+[PASS]    67_o1_new_stznumber12500.ring
 [PASS]    68_error.ring
 [PASS]    69_substruct.ring
 [ERR]     70_review_implementation.ring :: Error (R14) : Calling Method without definition: repeatedtrailingcharis

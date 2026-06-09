@@ -1,2 +1,2 @@
-== system  PASS 1  ERR 0  TIMEOUT 0  (0.1s) ==
-[PASS]    test_system_engine2.ring
+== system  PASS 0  ERR 1  TIMEOUT 0  (0.0s) ==
+[ERR]     test_system_engine2.ring :: Error (R3) : Calling Function without definition: stzenginestring

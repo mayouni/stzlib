@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 #
 # Extracted from stzlistofstringstest.ring, block #16.
+#ERR Error (R14) : Calling Method without definition: findall
 
 load "../../stzBase.ring"
 

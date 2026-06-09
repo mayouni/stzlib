@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #618.
-#ERR Error (R14) : Calling Method without definition: yieldwxt
+#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

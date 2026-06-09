@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #22.
-#ERR TIMEOUT (>15s)
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

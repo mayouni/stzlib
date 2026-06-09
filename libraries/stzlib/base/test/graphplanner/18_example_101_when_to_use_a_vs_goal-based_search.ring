@@ -3,6 +3,7 @@
 # Example 10.1: When to Use A* vs Goal-Based Search
 #
 # Extracted from stzgraphplannertest.ring, block #18.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

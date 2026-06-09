@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofcharstest.ring, block #8.
-#ERR Error (R24) : Using uninitialized variable: palist
+#ERR Error (R14) : Calling Method without definition: boxedxt
 
 load "../../stzBase.ring"
 

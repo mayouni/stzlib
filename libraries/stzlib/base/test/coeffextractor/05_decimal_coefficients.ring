@@ -3,6 +3,7 @@
 # Decimal coefficients
 #
 # Extracted from stzcoeffextractortest.ring, block #5.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

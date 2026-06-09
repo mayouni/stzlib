@@ -3,6 +3,7 @@
 # Example 11 : Seconds counting from Unix start
 #
 # Extracted from stzdatetimetest.ring, block #72.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -1,82 +1,82 @@
-== datetime  PASS 81  ERR 0  TIMEOUT 0  (132.7s) ==
-[PASS]    01_getting_current_datetime_with_nowxt.ring
-[PASS]    02_creating_datetime_from_standard_format.ring
-[PASS]    03_creating_datetime_from_european_format.ring
-[PASS]    04_creating_datetime_from_american_format.ring
-[PASS]    05_creating_datetime_from_iso8601_format.ring
-[PASS]    06_creating_datetime_from_hash_format.ring
-[PASS]    07_creating_datetime_from_unix_timestamp.ring
-[PASS]    08_extracting_date_and_time_components.ring
-[PASS]    09_adding_days_to_datetime.ring
-[PASS]    10_adding_months_and_years.ring
-[PASS]    11_adding_hours_minutes_seconds.ring
-[PASS]    12_subtracting_time_units.ring
-[PASS]    13_using_operator_overloading_for_addition.ring
-[PASS]    14_using_operator_overloading_for_subtraction.ring
-[PASS]    15_calculating_duration_between_two_datetimes_string_.ring
-[PASS]    16_calculating_duration_between_two_datetimes_object_.ring
-[PASS]    17_duration_string_param.ring
-[PASS]    18_duration_object_param.ring
-[PASS]    19_comparing_datetimes_with_operators_string.ring
-[PASS]    20_comparing_datetimes_with_operators_object.ring
-[PASS]    21_using_comparison_methods_string_param.ring
-[PASS]    22_using_comparison_methods_object_param.ring
-[PASS]    23_checking_if_datetime_is_between_two_others_string_.ring
-[PASS]    24_checking_if_datetime_is_between_two_others_object_.ring
-[PASS]    25_formatting_datetime_with_named_formats.ring
-[PASS]    26_converting_to_utc_and_local_time.ring
-[PASS]    27_human-readable_datetime.ring
-[PASS]    28_relative_time_description.ring
-[PASS]    29_checking_if_datetime_is_nowtoday.ring
-[PASS]    30_checking_if_datetime_is_tomorrowyesterday.ring
-[PASS]    31_working_with_milliseconds.ring
-[PASS]    32_validating_datetime_strings.ring
-[PASS]    33_chaining_operations_with_q_methods.ring
-[PASS]    34_complex_duration_with_multiple_units.ring
-[PASS]    35_date_time_components.ring
-[PASS]    36_operator_subtraction_to_get_time_difference.ring
-[PASS]    37_simple_datetime_formatting.ring
-[PASS]    38_adding_seconds_directly_with_operator.ring
-[PASS]    39_natural_language_time_addition.ring
-[PASS]    40_natural_language_time_subtraction.ring
-[PASS]    41_default_24-hour_behavior.ring
-[PASS]    42_named_format_configs.ring
-[PASS]    43_explicit_12-hour_methods.ring
-[PASS]    44_isonormalized_formats_safe_for_storageinterchange.ring
-[PASS]    45_compact_formats.ring
-[PASS]    46_standard_formats_region-aware.ring
-[PASS]    47_verbose_formats.ring
-[PASS]    48_custom_format_strings.ring
-[PASS]    49_named_formats.ring
-[PASS]    50_toeuropean.ring
-[PASS]    51_custom_12-hour_format_strings.ring
-[PASS]    52_morning_times_am.ring
-[PASS]    53_morning_times_am.ring
-[PASS]    54_midnight_and_noon_edge_cases.ring
-[PASS]    55_hour_boundaries.ring
-[PASS]    56_format_consistency_across_operations.ring
-[PASS]    58_parsing_preserves_original_hour.ring
-[PASS]    59_integration_with_tohuman.ring
-[PASS]    60_single_digit_hours.ring
-[PASS]    61_error_handling.ring
-[PASS]    62_example_1_from_epoch_seconds.ring
-[PASS]    63_example_2_from_epoch_days.ring
-[PASS]    64_example_3_natural_language_string_auto-detected_-_.ring
-[PASS]    65_example_4_from_epoch_duration_hash.ring
-[PASS]    66_example_5_from_epoch_weeks.ring
-[PASS]    67_example_6_complex_natural_language_auto-detected_-.ring
-[PASS]    68_example_7_from_epoch_milliseconds.ring
-[PASS]    69_example_8_natural_epoch_via_hash.ring
-[PASS]    70_example_9_from_epoch_hours.ring
-[PASS]    71_example_10_from_epoch_years.ring
-[PASS]    72_example_11_seconds_counting_from_unix_start.ring
-[PASS]    73_example_12_duration_counting_from_specific_origin.ring
-[PASS]    74_example_13_natural_language_with_origin.ring
-[PASS]    75_example_14_counting_from_year_one.ring
-[PASS]    76_example_15_counting_from_islamic_calendar.ring
-[PASS]    77_example_16_query_methods.ring
-[PASS]    78_example_17_us_independence_reference.ring
-[PASS]    79_example_18_natural_with_atomic_age.ring
-[PASS]    from_timex_example_1_basic_instant_matching.ring
+== datetime  PASS 2  ERR 79  TIMEOUT 0  (111.1s) ==
+[ERR]     01_getting_current_datetime_with_nowxt.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_creating_datetime_from_standard_format.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_creating_datetime_from_european_format.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_creating_datetime_from_american_format.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_creating_datetime_from_iso8601_format.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_creating_datetime_from_hash_format.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_creating_datetime_from_unix_timestamp.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_extracting_date_and_time_components.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_adding_days_to_datetime.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_adding_months_and_years.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_adding_hours_minutes_seconds.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_subtracting_time_units.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_using_operator_overloading_for_addition.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_using_operator_overloading_for_subtraction.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_calculating_duration_between_two_datetimes_string_.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_calculating_duration_between_two_datetimes_object_.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_duration_string_param.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_duration_object_param.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_comparing_datetimes_with_operators_string.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_comparing_datetimes_with_operators_object.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_using_comparison_methods_string_param.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_using_comparison_methods_object_param.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     23_checking_if_datetime_is_between_two_others_string_.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     24_checking_if_datetime_is_between_two_others_object_.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     25_formatting_datetime_with_named_formats.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     26_converting_to_utc_and_local_time.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     27_human-readable_datetime.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     28_relative_time_description.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     29_checking_if_datetime_is_nowtoday.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     30_checking_if_datetime_is_tomorrowyesterday.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     31_working_with_milliseconds.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     32_validating_datetime_strings.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     33_chaining_operations_with_q_methods.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     34_complex_duration_with_multiple_units.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     35_date_time_components.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     36_operator_subtraction_to_get_time_difference.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     37_simple_datetime_formatting.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     38_adding_seconds_directly_with_operator.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     39_natural_language_time_addition.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     40_natural_language_time_subtraction.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     41_default_24-hour_behavior.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     42_named_format_configs.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     43_explicit_12-hour_methods.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     44_isonormalized_formats_safe_for_storageinterchange.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     45_compact_formats.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     46_standard_formats_region-aware.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     47_verbose_formats.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     48_custom_format_strings.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     49_named_formats.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     50_toeuropean.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     51_custom_12-hour_format_strings.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     52_morning_times_am.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     53_morning_times_am.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     54_midnight_and_noon_edge_cases.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     55_hour_boundaries.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     56_format_consistency_across_operations.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     58_parsing_preserves_original_hour.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     59_integration_with_tohuman.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     60_single_digit_hours.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     61_error_handling.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     62_example_1_from_epoch_seconds.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     63_example_2_from_epoch_days.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     64_example_3_natural_language_string_auto-detected_-_.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     65_example_4_from_epoch_duration_hash.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     66_example_5_from_epoch_weeks.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     67_example_6_complex_natural_language_auto-detected_-.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     68_example_7_from_epoch_milliseconds.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     69_example_8_natural_epoch_via_hash.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     70_example_9_from_epoch_hours.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     71_example_10_from_epoch_years.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     72_example_11_seconds_counting_from_unix_start.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     73_example_12_duration_counting_from_specific_origin.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     74_example_13_natural_language_with_origin.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     75_example_14_counting_from_year_one.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     76_example_15_counting_from_islamic_calendar.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     77_example_16_query_methods.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     78_example_17_us_independence_reference.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     79_example_18_natural_with_atomic_age.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     from_timex_example_1_basic_instant_matching.ring :: Error (C22) : Function redefinition, function is already defined!
 [PASS]    test_datetime_bridge.ring
 [PASS]    test_datetime_engine.ring

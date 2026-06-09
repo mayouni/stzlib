@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([
 #
 # Extracted from stzlistofstringstest.ring, block #38.
+#ERR Error (R14) : Calling Method without definition: numberofoccurrenceofmanysubstrings
 
 load "../../stzBase.ring"
 

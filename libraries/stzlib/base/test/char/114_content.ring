@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #114.
-#ERR Error (R19) : Calling function with less number of parameters
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

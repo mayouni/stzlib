@@ -3,6 +3,7 @@
 # Articulation points
 #
 # Extracted from stzgraphtest.ring, block #49.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

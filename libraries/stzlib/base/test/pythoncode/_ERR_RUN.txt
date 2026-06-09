@@ -1,4 +1,4 @@
-== pythoncode  PASS 10  ERR 0  TIMEOUT 0  (16.2s) ==
+== pythoncode  PASS 10  ERR 0  TIMEOUT 0  (16.1s) ==
 [PASS]    01_pr.ring
 [PASS]    02_simple_python_code.ring
 [PASS]    03_data_analysis_with_pandas.ring

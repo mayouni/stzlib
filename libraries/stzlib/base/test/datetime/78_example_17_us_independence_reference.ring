@@ -3,6 +3,7 @@
 # Example 17: US Independence reference
 #
 # Extracted from stzdatetimetest.ring, block #78.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

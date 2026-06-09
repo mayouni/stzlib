@@ -3,6 +3,7 @@
 # INFERRING TYPES: Q() & QQ()
 #
 # Extracted from stzGlobalTest.ring, block #40.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

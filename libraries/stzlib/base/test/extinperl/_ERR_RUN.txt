@@ -1,2 +1,2 @@
-== extinperl  PASS 1  ERR 0  TIMEOUT 0  (1.5s) ==
-[PASS]    01_pr.ring
+== extinperl  PASS 0  ERR 1  TIMEOUT 0  (1.5s) ==
+[ERR]     01_pr.ring :: Error (C22) : Function redefinition, function is already defined!

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofnumberstest.ring, block #69.
-#ERR Error (R14) : Calling Method without definition: findxt
+#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 

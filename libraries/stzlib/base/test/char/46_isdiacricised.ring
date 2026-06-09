@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #46.
-#ERR Error (R14) : Calling Method without definition: isdiacricised
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

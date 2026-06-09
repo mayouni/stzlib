@@ -1,16 +1,16 @@
-== systemcalldata  PASS 0  ERR 15  TIMEOUT 0  (21.8s) ==
-[ERR]     01_example_1_list_files_like_rx_pattern.ring :: Error (C27) : Syntax Error!
-[ERR]     02_example_2_with_braces_syntax.ring :: Error (C27) : Syntax Error!
-[ERR]     03_example_3_copy_file_with_parameters.ring :: Error (C27) : Syntax Error!
-[ERR]     04_example_4_fluent_style_with_params.ring :: Error (C27) : Syntax Error!
-[ERR]     05_example_5_multiple_params_at_once.ring :: Error (C27) : Syntax Error!
-[ERR]     06_example_6_ping_host.ring :: Error (C27) : Syntax Error!
-[ERR]     07_example_7_get_datetime.ring :: Error (C27) : Syntax Error!
-[ERR]     08_example_8_create_directory.ring :: Error (C27) : Syntax Error!
-[ERR]     09_example_9_download_file.ring :: Error (C27) : Syntax Error!
-[ERR]     10_example_10_check_disk_space.ring :: Error (C27) : Syntax Error!
-[ERR]     12_example_12_calculate_checksum.ring :: Error (C27) : Syntax Error!
-[ERR]     13_example_13_reuse_same_object.ring :: Error (C27) : Syntax Error!
-[ERR]     14_example_14_direct_program_call_original_style.ring :: Error (C27) : Syntax Error!
-[ERR]     16_image_batch_processing.ring :: Error (C27) : Syntax Error!
-[ERR]     21_database_backup.ring :: Error (C27) : Syntax Error!
+== systemcalldata  PASS 15  ERR 0  TIMEOUT 0  (25.8s) ==
+[PASS]    01_example_1_list_files_like_rx_pattern.ring
+[PASS]    02_example_2_with_braces_syntax.ring
+[PASS]    03_example_3_copy_file_with_parameters.ring
+[PASS]    04_example_4_fluent_style_with_params.ring
+[PASS]    05_example_5_multiple_params_at_once.ring
+[PASS]    06_example_6_ping_host.ring
+[PASS]    07_example_7_get_datetime.ring
+[PASS]    08_example_8_create_directory.ring
+[PASS]    09_example_9_download_file.ring
+[PASS]    10_example_10_check_disk_space.ring
+[PASS]    12_example_12_calculate_checksum.ring
+[PASS]    13_example_13_reuse_same_object.ring
+[PASS]    14_example_14_direct_program_call_original_style.ring
+[PASS]    16_image_batch_processing.ring
+[PASS]    21_database_backup.ring

@@ -3,7 +3,7 @@
 # Testing goal-based plan execution
 #
 # Extracted from stzdatawranglertest.ring, block #14.
-#ERR Error (R24) : Using uninitialized variable: amesydataset
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

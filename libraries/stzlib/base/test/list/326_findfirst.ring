@@ -3,7 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #326.
-#ERR Error (R14) : Calling Method without definition: findnth
+#ERR Error (R14) : Calling Method without definition: deepcontainsmany
 
 load "../../stzBase.ring"
 

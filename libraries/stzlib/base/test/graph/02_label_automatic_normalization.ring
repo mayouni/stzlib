@@ -3,6 +3,7 @@
 # Label automatic normalization
 #
 # Extracted from stzgraphtest.ring, block #2.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

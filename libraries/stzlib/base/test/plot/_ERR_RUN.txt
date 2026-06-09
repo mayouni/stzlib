@@ -1,7 +1,7 @@
-== plot  PASS 51  ERR 22  TIMEOUT 0  (118.6s) ==
-[ERR]     01_tocompactform.ring :: Error (R14) : Calling Method without definition: removedfromend
+== plot  PASS 73  ERR 0  TIMEOUT 0  (115.3s) ==
+[PASS]    01_tocompactform.ring
 [PASS]    02_ishashlist.ring
-[ERR]     03_ishashlist.ring :: Error (R4) : Stack Overflow
+[PASS]    03_ishashlist.ring
 [PASS]    04_pr.ring
 [PASS]    05_block_5.ring
 [PASS]    06_block_6.ring
@@ -20,7 +20,7 @@
 [PASS]    19_zero_values.ring
 [PASS]    20_single_bar.ring
 [PASS]    21_large_values_with_scaling.ring
-[ERR]     22_test_1_basic_horizontal_bar_chart_with_percent_val.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    22_test_1_basic_horizontal_bar_chart_with_percent_val.ring
 [PASS]    23_test_2_custom_width.ring
 [PASS]    24_test_3_custom_bar_character.ring
 [PASS]    25_test_4_x-axis_disabled.ring
@@ -37,32 +37,32 @@
 [PASS]    36_using_the_short_form_stzcharq.ring
 [PASS]    37_pr.ring
 [PASS]    38_pr.ring
-[ERR]     39_pr.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    39_pr.ring
 [PASS]    40_pr.ring
 [PASS]    41_pr.ring
-[ERR]     42_pr.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    42_pr.ring
 [PASS]    43_pr.ring
 [PASS]    44_pr.ring
 [PASS]    45_pr.ring
 [PASS]    46_pr.ring
-[ERR]     47_pr.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    47_pr.ring
 [PASS]    48_setting_the_legend_layout_to_vertical.ring
-[ERR]     49_basic_histogram_with_student_test_scores.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     50_histogram_with_frequency_display_and_statistics.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     51_histogram_with_percentage_display.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     52_simple_histogram_without_axes.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     53_compact_histogram_with_custom_bin_width.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     54_basic_4-item_test_with_percentages.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     55_2-item_comparison_test.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     56_3-item_test_with_values_and_percentages.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     57_5-item_test_recursive_division.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     58_large_dataset_6_items.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     59_equal_values_test.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     60_custom_size_test.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     61_values_only_no_percentages.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     62_single_item_test.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     63_large_numbers_test.ring :: Error (R14) : Calling Method without definition: removedfromend
-[ERR]     64_8-item_complex_test.ring :: Error (R14) : Calling Method without definition: removedfromend
+[PASS]    49_basic_histogram_with_student_test_scores.ring
+[PASS]    50_histogram_with_frequency_display_and_statistics.ring
+[PASS]    51_histogram_with_percentage_display.ring
+[PASS]    52_simple_histogram_without_axes.ring
+[PASS]    53_compact_histogram_with_custom_bin_width.ring
+[PASS]    54_basic_4-item_test_with_percentages.ring
+[PASS]    55_2-item_comparison_test.ring
+[PASS]    56_3-item_test_with_values_and_percentages.ring
+[PASS]    57_5-item_test_recursive_division.ring
+[PASS]    58_large_dataset_6_items.ring
+[PASS]    59_equal_values_test.ring
+[PASS]    60_custom_size_test.ring
+[PASS]    61_values_only_no_percentages.ring
+[PASS]    62_single_item_test.ring
+[PASS]    63_large_numbers_test.ring
+[PASS]    64_8-item_complex_test.ring
 [PASS]    65_test_1_basic_scatter_plot_with_coordinate_pairs.ring
 [PASS]    66_test_2_named_data_points_with_labels.ring
 [PASS]    67_test_4_xy_hashlist_format_with_coordinate_values.ring

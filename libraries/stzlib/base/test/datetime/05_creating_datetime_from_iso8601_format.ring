@@ -3,6 +3,7 @@
 # Creating datetime from ISO8601 format
 #
 # Extracted from stzdatetimetest.ring, block #5.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

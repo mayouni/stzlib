@@ -3,6 +3,7 @@
 # Business scenario: Budget adjustments
 #
 # Extracted from stzgraphtest.ring, block #76.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

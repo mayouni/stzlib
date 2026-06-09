@@ -3,6 +3,7 @@
 # Build, Edit, Import, and Visualize
 #
 # Extracted from stzdiagramtest.ring, block #51.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

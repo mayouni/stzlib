@@ -3,6 +3,7 @@
 # EXAMPLE 1: Query-Triggered Constraint Rules
 #
 # Extracted from stzgraphtest.ring, block #86.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

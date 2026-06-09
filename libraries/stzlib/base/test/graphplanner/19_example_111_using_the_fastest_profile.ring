@@ -3,6 +3,7 @@
 # Example 11.1: Using the :fastest Profile
 #
 # Extracted from stzgraphplannertest.ring, block #19.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

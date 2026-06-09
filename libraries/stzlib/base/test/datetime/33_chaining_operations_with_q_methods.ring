@@ -3,6 +3,7 @@
 # Chaining operations with Q methods
 #
 # Extracted from stzdatetimetest.ring, block #33.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # COMBINED VALIDATION + VISUAL
 #
 # Extracted from stzdiagramtest.ring, block #53.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

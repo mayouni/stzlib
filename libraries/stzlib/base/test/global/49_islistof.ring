@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzGlobalTest.ring, block #49.
-#ERR Error (R14) : Calling Method without definition: islistof
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

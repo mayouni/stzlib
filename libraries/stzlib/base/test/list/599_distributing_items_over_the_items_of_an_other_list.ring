@@ -3,7 +3,7 @@
 # DISTRIBUTING ITEMS OVER THE ITEMS OF AN OTHER LIST
 #
 # Extracted from stzlisttest.ring, block #599.
-#ERR Error (R3) : Calling Function without definition: @@sp
+#ERR Error (R14) : Calling Method without definition: distributeover
 
 load "../../stzBase.ring"
 

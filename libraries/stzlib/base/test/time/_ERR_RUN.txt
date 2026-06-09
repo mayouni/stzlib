@@ -1,4 +1,4 @@
-== time  PASS 33  ERR 0  TIMEOUT 0  (51.8s) ==
+== time  PASS 33  ERR 0  TIMEOUT 0  (56.0s) ==
 [PASS]    01_getting_current_time_with_nowtime.ring
 [PASS]    02_creating_time_from_string.ring
 [PASS]    03_creating_time_from_hash_list.ring

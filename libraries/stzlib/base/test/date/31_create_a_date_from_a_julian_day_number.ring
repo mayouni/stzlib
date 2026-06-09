@@ -3,6 +3,7 @@
 # Create a date from a Julian day number
 #
 # Extracted from stzdatetest.ring, block #31.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Business scenario: Adding new departments
 #
 # Extracted from stzgraphtest.ring, block #74.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

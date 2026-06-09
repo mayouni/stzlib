@@ -1,23 +1,23 @@
-== grid  PASS 21  ERR 1  TIMEOUT 0  (34.2s) ==
-[PASS]    01_testing_basic_grid_initialization_and_movement.ring
-[PASS]    02_testing_hitting_the_right_boundary.ring
-[PASS]    03_testing_different_movement_directions.ring
-[PASS]    04_testing_forwardbackward_movement.ring
-[PASS]    05_testing_distance_calculations.ring
-[PASS]    06_testing_edge_cases_and_boundary_conditions.ring
-[PASS]    07_position.ring
-[PASS]    08_position.ring
-[PASS]    09_testing_direction_changes_and_movement_combination.ring
-[PASS]    10_testing_multi-node_movement.ring
-[PASS]    11_testing_hitting_the_right_boundary.ring
-[PASS]    12_testing_direction-specific_movements.ring
-[PASS]    13_testing_nextprevious_nth_node_methods.ring
-[PASS]    14_testing_boundary_cases_and_error_handling.ring
-[ERR]     15_advanced_test_sample.ring :: Error (C27) : Syntax Error!
-[PASS]    16_testing_obstacles_management.ring
-[PASS]    17_testing_path_management.ring
-[PASS]    18_testing_path_finding_algorithms.ring
-[PASS]    19_testing_path_analysis_and_display_utilities.ring
-[PASS]    20_testing_region_management_and_connectivity.ring
-[PASS]    21_testing_maze_generation.ring
-[PASS]    22_testing_moving_and_hitting_an_obstacle.ring
+== grid  PASS 0  ERR 22  TIMEOUT 0  (31.6s) ==
+[ERR]     01_testing_basic_grid_initialization_and_movement.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_testing_hitting_the_right_boundary.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_testing_different_movement_directions.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_testing_forwardbackward_movement.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_testing_distance_calculations.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_testing_edge_cases_and_boundary_conditions.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_position.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_position.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     09_testing_direction_changes_and_movement_combination.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_testing_multi-node_movement.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_testing_hitting_the_right_boundary.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_testing_direction-specific_movements.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_testing_nextprevious_nth_node_methods.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_testing_boundary_cases_and_error_handling.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_advanced_test_sample.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_testing_obstacles_management.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_testing_path_management.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_testing_path_finding_algorithms.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_testing_path_analysis_and_display_utilities.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_testing_region_management_and_connectivity.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_testing_maze_generation.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_testing_moving_and_hitting_an_obstacle.ring :: Error (C22) : Function redefinition, function is already defined!

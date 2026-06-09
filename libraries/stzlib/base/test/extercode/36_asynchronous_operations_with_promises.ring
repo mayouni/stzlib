@@ -3,6 +3,7 @@
 # Asynchronous Operations with Promises
 #
 # Extracted from stzextercodetest.ring, block #36.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

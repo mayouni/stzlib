@@ -1,11 +1,11 @@
-== ssplitter  PASS 6  ERR 4  TIMEOUT 0  (14.6s) ==
+== splitter  PASS 10  ERR 0  TIMEOUT 0  (17.3s) ==
 [PASS]    01_isequalto.ring
-[ERR]     02_splitatsection.ring :: Error (R14) : Calling Method without definition: isatibnamedparam
-[ERR]     03_splitat.ring :: Error (R14) : Calling Method without definition: isstzclassname
+[PASS]    02_splitatsection.ring
+[PASS]    03_splitat.ring
 [PASS]    04_splitbefore.ring
 [PASS]    05_splitafter.ring
-[ERR]     06_split.ring :: Error (R14) : Calling Method without definition: istopartsofnitemsnamedparam
+[PASS]    06_split.ring
 [PASS]    07_splittonparts.ring
 [PASS]    08_splittopartsofnpositions.ring
-[ERR]     09_splittedwxt.ring :: Error (R14) : Calling Method without definition: splittedwxt
+[PASS]    09_splittedwxt.ring
 [PASS]    10_getpairsfrompositions.ring

@@ -3,6 +3,7 @@
 # Adding performance properties to nodes
 #
 # Extracted from stzdiagramtest.ring, block #11.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

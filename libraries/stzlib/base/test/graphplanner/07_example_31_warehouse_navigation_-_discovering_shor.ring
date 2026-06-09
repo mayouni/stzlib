@@ -3,6 +3,7 @@
 # Example 3.1: Warehouse Navigation - Discovering Shortcuts
 #
 # Extracted from stzgraphplannertest.ring, block #7.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #477.
+#ERR exit 1
 
 load "../../stzBase.ring"
 

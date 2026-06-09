@@ -3,6 +3,7 @@
 # Getting days in month and year
 #
 # Extracted from stzdatetest.ring, block #17.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

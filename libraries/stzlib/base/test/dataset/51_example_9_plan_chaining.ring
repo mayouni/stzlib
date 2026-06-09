@@ -3,6 +3,7 @@
 # EXAMPLE 9: Plan Chaining
 #
 # Extracted from stzdatasettest.ring, block #51.
+#ERR exit 1: Error (S1) In file: 51_example_9_plan_chaining.ring
 
 load "../../stzBase.ring"
 

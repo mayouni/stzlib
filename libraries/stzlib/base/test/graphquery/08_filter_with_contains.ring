@@ -3,6 +3,7 @@
 # Filter with contains
 #
 # Extracted from stzgraphquerytest.ring, block #8.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

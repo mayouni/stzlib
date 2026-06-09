@@ -3,7 +3,7 @@
 # Testing export to different Softanza classes
 #
 # Extracted from stzdatawranglertest.ring, block #15.
-#ERR Error (R21) : Using operator with values of incorrect type
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

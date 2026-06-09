@@ -3,6 +3,7 @@
 # #  Example 6: HTML-like Table inside the diagram  #
 #
 # Extracted from stzdotcodetest.ring, block #12.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

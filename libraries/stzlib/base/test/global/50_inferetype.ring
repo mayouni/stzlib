@@ -2,7 +2,7 @@
 # --------
 #
 # Extracted from stzGlobalTest.ring, block #50.
-#ERR Error (R14) : Calling Method without definition: inferetype
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

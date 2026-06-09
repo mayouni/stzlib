@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofcharstest.ring, block #4.
-#ERR Error (R24) : Using uninitialized variable: palist
+#ERR Error (R14) : Calling Method without definition: iscontiguous
 
 load "../../stzBase.ring"
 

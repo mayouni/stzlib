@@ -3,6 +3,7 @@
 # Alternation with enhancement tracking
 #
 # Extracted from stzgraphextest.ring, block #19.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #71.
-#ERR Error (R14) : Calling Method without definition: isarabic7arakah
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

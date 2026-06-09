@@ -3,6 +3,7 @@
 # EXAMPLE 2: Query-Triggered Derivation Rules
 #
 # Extracted from stzgraphtest.ring, block #87.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

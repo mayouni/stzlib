@@ -3,6 +3,7 @@
 # Testing numeric normalization
 #
 # Extracted from stzdatawranglertest.ring, block #10.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -8,6 +8,7 @@
 #   - UnicodesNames()            : map codepoints to their formal names
 # The random sample is seeded so the same 5 codepoints are returned on
 # every run.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

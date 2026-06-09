@@ -5,6 +5,7 @@
 # value. Here: count starts at 1, advance until 9 inclusive (skip after
 # emitting 9), then resume at 0. CountingXT can return the Nth or Last
 # element of the sequence without producing the whole list.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

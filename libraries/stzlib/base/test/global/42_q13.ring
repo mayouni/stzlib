@@ -3,7 +3,7 @@
 # Q(1:3) {
 #
 # Extracted from stzGlobalTest.ring, block #42.
-#ERR Error (C27) : Syntax Error!
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

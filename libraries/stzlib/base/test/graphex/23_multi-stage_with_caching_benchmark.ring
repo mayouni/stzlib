@@ -3,6 +3,7 @@
 # Multi-stage with caching benchmark
 #
 # Extracted from stzgraphextest.ring, block #23.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

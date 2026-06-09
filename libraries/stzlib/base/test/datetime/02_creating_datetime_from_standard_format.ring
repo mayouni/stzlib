@@ -3,6 +3,7 @@
 # Creating datetime from standard format
 #
 # Extracted from stzdatetimetest.ring, block #2.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

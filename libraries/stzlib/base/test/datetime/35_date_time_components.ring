@@ -3,6 +3,7 @@
 # Date time components
 #
 # Extracted from stzdatetimetest.ring, block #35.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

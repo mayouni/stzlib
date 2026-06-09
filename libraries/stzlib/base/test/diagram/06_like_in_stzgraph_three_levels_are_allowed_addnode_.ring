@@ -3,6 +3,7 @@
 # Like in stzGraph, three levels are allowed: AddNode(), AddNodeXT() and AddNodeXTT()
 #
 # Extracted from stzdiagramtest.ring, block #6.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

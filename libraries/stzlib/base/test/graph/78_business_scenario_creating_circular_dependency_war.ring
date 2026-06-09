@@ -3,6 +3,7 @@
 # Business scenario: Creating circular dependency (warning)
 #
 # Extracted from stzgraphtest.ring, block #78.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

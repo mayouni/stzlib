@@ -1,7 +1,7 @@
-== decimaltobinary  PASS 6  ERR 0  TIMEOUT 0  (10.6s) ==
-[PASS]    01_tobinaryform.ring
-[PASS]    02_positive_integer.ring
-[PASS]    03_positive_decimal_number.ring
-[PASS]    04_negative_integer.ring
-[PASS]    05_zero.ring
-[PASS]    06_test_5_negative_decimal_number.ring
+== decimaltobinary  PASS 0  ERR 6  TIMEOUT 0  (8.5s) ==
+[ERR]     01_tobinaryform.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_positive_integer.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_positive_decimal_number.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_negative_integer.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_zero.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_test_5_negative_decimal_number.ring :: Error (C22) : Function redefinition, function is already defined!

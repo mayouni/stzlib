@@ -3,6 +3,7 @@
 # #  Example 12 bis: DSEQUENCE DIAGRAM  #
 #
 # Extracted from stzdotcodetest.ring, block #19.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

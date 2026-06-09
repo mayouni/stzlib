@@ -3,6 +3,7 @@
 # Performance baseline: cycle 1..4 a million times using raw Ring loops
 # (no Softanza). Establishes the floor cost against which the Softanza
 # stzCounter implementation in block 05 is measured.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

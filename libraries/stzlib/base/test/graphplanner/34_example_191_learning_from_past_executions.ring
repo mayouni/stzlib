@@ -3,6 +3,7 @@
 # Example 19.1: Learning from Past Executions
 #
 # Extracted from stzgraphplannertest.ring, block #34.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

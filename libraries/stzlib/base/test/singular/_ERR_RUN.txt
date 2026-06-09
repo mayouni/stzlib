@@ -1,4 +1,4 @@
-== singular  PASS 8  ERR 0  TIMEOUT 0  (11.9s) ==
+== singular  PASS 8  ERR 0  TIMEOUT 0  (14.0s) ==
 [PASS]    01_test_regular_plurals.ring
 [PASS]    02_test_morphological_patterns.ring
 [PASS]    03_test_irregular_plurals.ring

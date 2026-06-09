@@ -3,6 +3,7 @@
 # Testing initialization with 2D table data
 #
 # Extracted from stzdatawranglertest.ring, block #2.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

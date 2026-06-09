@@ -5,6 +5,7 @@
 # under stzList_monolithic intermediate code paths).
 #
 #SKIP retired -- see header
+#ERR Error (E9) : Can't open file 13_o1_new_stzstringabc285xy??.ring
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # #narration #flexibility
 #
 # Extracted from stztabletest.ring, block #68.
-#ERR Error (R14) : Calling Method without definition: colname
+#ERR Error (R14) : Calling Method without definition: replacecolname
 
 load "../../stzBase.ring"
 

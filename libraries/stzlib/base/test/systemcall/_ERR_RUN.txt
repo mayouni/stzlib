@@ -1,4 +1,4 @@
-== systemcall  PASS 22  ERR 12  TIMEOUT 0  (58.5s) ==
+== systemcall  PASS 33  ERR 1  TIMEOUT 0  (66.0s) ==
 [PASS]    01_setup_create_test_files_in_systest.ring
 [PASS]    02_test_1_basic_command_execution.ring
 [PASS]    03_test_2_file_operations_with_parameters.ring
@@ -21,15 +21,15 @@
 [PASS]    20_test_16_error_states.ring
 [PASS]    21_test_17_chaining_with_q_methods.ring
 [PASS]    22_test_18_complex_file_operations.ring
-[ERR]     from_systemcalldata_batch_file_operations.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_docker_deployment.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_document_conversion.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_example_11_open_fileurl.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_file_security.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_git_workflow.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_package_installation.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_system_monitoring.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_text_processing_pipeline.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_video_processing.ring :: Error (C27) : Syntax Error!
-[ERR]     from_systemcalldata_web_scraping.ring :: Error (C27) : Syntax Error!
-[ERR]     test_system_engine.ring :: Error (R3) : Calling Function without definition: ring_len
+[PASS]    from_systemcalldata_batch_file_operations.ring
+[PASS]    from_systemcalldata_docker_deployment.ring
+[PASS]    from_systemcalldata_document_conversion.ring
+[PASS]    from_systemcalldata_example_11_open_fileurl.ring
+[PASS]    from_systemcalldata_file_security.ring
+[PASS]    from_systemcalldata_git_workflow.ring
+[PASS]    from_systemcalldata_package_installation.ring
+[PASS]    from_systemcalldata_system_monitoring.ring
+[PASS]    from_systemcalldata_text_processing_pipeline.ring
+[PASS]    from_systemcalldata_video_processing.ring
+[PASS]    from_systemcalldata_web_scraping.ring
+[ERR]     test_system_engine.ring :: Error (R3) : Calling Function without definition: stzenginestring

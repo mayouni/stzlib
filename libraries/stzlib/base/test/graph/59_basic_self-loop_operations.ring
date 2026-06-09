@@ -3,6 +3,7 @@
 # Basic Self-Loop Operations
 #
 # Extracted from stzgraphtest.ring, block #59.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

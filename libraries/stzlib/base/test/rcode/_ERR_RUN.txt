@@ -1,4 +1,4 @@
-== rcode  PASS 13  ERR 0  TIMEOUT 0  (21.8s) ==
+== rcode  PASS 13  ERR 0  TIMEOUT 0  (21.7s) ==
 [PASS]    01_debugging_external_code_execution.ring
 [PASS]    02_basic_numeric_data.ring
 [PASS]    03_simple_nested_list_with_different_data_types.ring

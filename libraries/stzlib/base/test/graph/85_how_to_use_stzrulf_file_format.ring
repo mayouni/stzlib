@@ -3,7 +3,7 @@
 # How to use .stzrulf file format?
 #
 # Extracted from stzgraphtest.ring, block #85.
-#ERR Error (E9) : Can't open file custom_functions.stzrulf
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

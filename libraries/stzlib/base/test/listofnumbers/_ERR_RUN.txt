@@ -1,4 +1,4 @@
-== listofnumbers  PASS 69  ERR 20  TIMEOUT 1  (161.7s) ==
+== listofnumbers  PASS 70  ERR 19  TIMEOUT 1  (183.2s) ==
 [PASS]    01_diffs.ring
 [PASS]    02_diffwith.ring
 [PASS]    03_classifybynearestto.ring
@@ -12,7 +12,7 @@
 [PASS]    11_min.ring
 [PASS]    12_association.ring
 [ERR]     13_nsmallestnumbers.ring :: Error (R14) : Calling Method without definition: sortupq
-[ERR]     15_integers.ring :: Error (R14) : Calling Method without definition: charsq
+[ERR]     15_integers.ring :: Error (R14) : Calling Method without definition: numberified
 [PASS]    16_type.ring
 [PASS]    17_write_a.ring
 [ERR]     18_pr.ring :: Error (R13) : Object is required
@@ -25,8 +25,8 @@
 [PASS]    25_splittedtonparts.ring
 [PASS]    26_pr.ring
 [PASS]    27_pr.ring
-[ERR]     28_pr.ring :: Error (R50) : Object does not support operator overloading
-[ERR]     29_pr.ring :: Error (R50) : Object does not support operator overloading
+[ERR]     28_pr.ring :: Error (R13) : Object is required
+[PASS]    29_pr.ring
 [PASS]    30_numbersgreaterthan.ring
 [ERR]     31_pr.ring :: Error (R3) : Calling Function without definition: 3randomnumbersin
 [PASS]    32_nrandomnumbersin.ring
@@ -35,7 +35,7 @@
 [PASS]    35_anynumberbeforeposition.ring
 [PASS]    36_anynumberbefore.ring
 [PASS]    37_anynumberafterposition.ring
-[PASS]    39_anynumberbeforeorafter.ring
+[ERR]     39_anynumberbeforeorafter.ring :: Error (R13) : Object is required
 [ERR]     40_anumberotherthan.ring :: Error (R13) : Object is required
 [ERR]     41_neighbors.ring :: Error (R2) : Array Access (Index out of range)
 [PASS]    42_nearest.ring
@@ -62,10 +62,10 @@
 [PASS]    63_executablesection.ring
 [PASS]    64_findw.ring
 [PASS]    65_content.ring
-[ERR]     66_findinsections.ring :: Error (R14) : Calling Method without definition: findinsections
+[ERR]     66_findinsections.ring :: Error (R21) : Using operator with values of incorrect type
 [ERR]     67_findinsection.ring :: Error (R14) : Calling Method without definition: findinsectionassections
-[ERR]     68_findinsection.ring :: Error (R14) : Calling Method without definition: findxt
-[ERR]     69_findxt.ring :: Error (R14) : Calling Method without definition: findxt
+[PASS]    68_findinsection.ring
+[ERR]     69_findxt.ring :: Error (R21) : Using operator with values of incorrect type
 [ERR]     70_content.ring :: Error (R14) : Calling Method without definition: sortbyindescending
 [ERR]     71_findmanyzz.ring :: Error (R14) : Calling Method without definition: findmanyzz
 [PASS]    72_pr.ring

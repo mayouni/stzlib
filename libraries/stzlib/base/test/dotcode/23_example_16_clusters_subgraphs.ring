@@ -3,6 +3,7 @@
 # # EXAMPLE 16: Clusters (Subgraphs)            #
 #
 # Extracted from stzdotcodetest.ring, block #23.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Comparing datetimes with operators (string)
 #
 # Extracted from stzdatetimetest.ring, block #19.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

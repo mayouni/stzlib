@@ -3,6 +3,7 @@
 # Adding days to a date
 #
 # Extracted from stzdatetest.ring, block #8.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

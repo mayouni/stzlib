@@ -3,6 +3,7 @@
 # Example 18.2: Ranking All Plans
 #
 # Extracted from stzgraphplannertest.ring, block #33.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

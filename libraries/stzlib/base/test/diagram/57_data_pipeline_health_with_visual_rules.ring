@@ -3,6 +3,7 @@
 # Data pipeline health with visual rules
 #
 # Extracted from stzdiagramtest.ring, block #57.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Checking if datetime is between two others (string params) #TODO #ERR
 #
 # Extracted from stzdatetimetest.ring, block #23.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Scenario 3: Serialization (future)
 #
 # Extracted from stzgraphquerytest.ring, block #28.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

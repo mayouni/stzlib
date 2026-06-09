@@ -5,6 +5,7 @@
 # under stzList_monolithic intermediate code paths).
 #
 #SKIP retired -- see header
+#ERR Error (E9) : Can't open file 32_stztextqkirsehirdiacriticsremoved_--_kirsehir_turk.ring
 
 load "../../stzBase.ring"
 

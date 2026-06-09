@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #149.
-#ERR Error (R14) : Calling Method without definition: numberofoccurrenceincol
+#ERR Error (R14) : Calling Method without definition: findnthincol
 
 load "../../stzBase.ring"
 

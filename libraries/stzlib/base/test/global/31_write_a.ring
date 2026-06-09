@@ -3,7 +3,7 @@
 # #todo write a #narration
 #
 # Extracted from stzGlobalTest.ring, block #31.
-#ERR Error (R14) : Calling Method without definition: thesesubstringszz
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

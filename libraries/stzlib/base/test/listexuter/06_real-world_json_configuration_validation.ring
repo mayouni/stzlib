@@ -3,6 +3,7 @@
 # Real-world: JSON Configuration Validation
 #
 # Extracted from stzlistexutertest.ring, block #6.
+#ERR Error (C8) : Parentheses ')' is missing
 
 load "../../stzBase.ring"
 

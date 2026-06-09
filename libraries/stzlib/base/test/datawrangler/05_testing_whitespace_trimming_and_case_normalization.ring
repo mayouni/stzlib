@@ -3,6 +3,7 @@
 # Testing whitespace trimming and case normalization
 #
 # Extracted from stzdatawranglertest.ring, block #5.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

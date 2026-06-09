@@ -3,6 +3,7 @@
 # Example 16: Query methods
 #
 # Extracted from stzdatetimetest.ring, block #77.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

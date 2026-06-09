@@ -3,6 +3,7 @@
 # BUILDING NEW HTML DOCUMENTS (create intent)
 #
 # Extracted from stzHtmlTest.ring, block #5.
+#ERR exit 1: pnode: [This Attribute Contains A List]
 
 load "../../stzBase.ring"
 

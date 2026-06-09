@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #323.
-#ERR Error (R14) : Calling Method without definition: replaceanyboundedby
 
 load "../../stzBase.ring"
 

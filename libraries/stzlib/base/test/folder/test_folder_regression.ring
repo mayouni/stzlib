@@ -3,6 +3,7 @@
 # path inside/outside checks.
 #
 # Run from base/file/test/.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

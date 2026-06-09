@@ -5,6 +5,7 @@
 # the canonical lowercase name "europeannumberterminator" (Unicode class
 # ET). The XT variant adds metadata columns over the base list returned
 # by UnicodeDirections().
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,7 +3,7 @@
 # #narration Use of AsObject() with + operator
 #
 # Extracted from stzlisttest.ring, block #411.
-#ERR Error (R50) : Object does not support operator overloading
+#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
 

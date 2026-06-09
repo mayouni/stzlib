@@ -3,6 +3,7 @@
 # Example 18.1: Comparing 4 Different Strategies
 #
 # Extracted from stzgraphplannertest.ring, block #32.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

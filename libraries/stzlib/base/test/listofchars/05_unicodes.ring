@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlistofcharstest.ring, block #5.
-#ERR Error (R11) : Error in class name, class not found: stzlistofchars
+#ERR Error (R3) : Calling Function without definition: charsunicodes
 
 load "../../stzBase.ring"
 

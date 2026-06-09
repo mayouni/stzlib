@@ -1,4 +1,4 @@
-== matrex  PASS 48  ERR 0  TIMEOUT 0  (71.5s) ==
+== matrex  PASS 48  ERR 0  TIMEOUT 0  (82.1s) ==
 [PASS]    01_matching_exact_size.ring
 [PASS]    02_matching_wrong_size.ring
 [PASS]    03_matching_any_size_mxn_notation.ring

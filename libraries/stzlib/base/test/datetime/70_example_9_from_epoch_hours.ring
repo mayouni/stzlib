@@ -3,6 +3,7 @@
 # Example 9: From epoch hours
 #
 # Extracted from stzdatetimetest.ring, block #70.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Natural language time addition
 #
 # Extracted from stzdatetimetest.ring, block #39.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

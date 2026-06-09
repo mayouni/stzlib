@@ -1,4 +1,4 @@
-== list2d  PASS 5  ERR 0  TIMEOUT 0  (8.2s) ==
+== list2d  PASS 5  ERR 0  TIMEOUT 0  (8.8s) ==
 [PASS]    01_content.ring
 [PASS]    02_pr.ring
 [PASS]    03_transpose.ring

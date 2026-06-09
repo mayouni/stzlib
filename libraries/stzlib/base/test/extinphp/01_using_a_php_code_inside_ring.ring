@@ -3,6 +3,7 @@
 # Using a PHP code inside Ring  #===
 #
 # Extracted from stzextinphptest.ring, block #1.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Example 12.2: Profile Cost Breakdown
 #
 # Extracted from stzgraphplannertest.ring, block #24.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

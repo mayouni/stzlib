@@ -3,6 +3,7 @@
 # Custom 12-hour format strings
 #
 # Extracted from stzdatetimetest.ring, block #51.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

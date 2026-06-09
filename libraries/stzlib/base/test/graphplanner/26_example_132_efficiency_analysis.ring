@@ -3,6 +3,7 @@
 # Example 13.2: Efficiency Analysis
 #
 # Extracted from stzgraphplannertest.ring, block #26.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

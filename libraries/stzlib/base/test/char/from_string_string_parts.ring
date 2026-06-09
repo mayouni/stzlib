@@ -3,7 +3,7 @@
 # STRING PARTS ===========
 #
 # Extracted from stzStringTest.ring, block #732.
-#ERR Error (R14) : Calling Method without definition: partsusingxt
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

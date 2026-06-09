@@ -3,6 +3,7 @@
 # Business scenario: Relieving bottleneck by adding cache layer
 #
 # Extracted from stzgraphtest.ring, block #77.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

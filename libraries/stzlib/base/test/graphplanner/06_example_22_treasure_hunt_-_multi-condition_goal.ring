@@ -3,6 +3,7 @@
 # Example 2.2: Treasure Hunt - Multi-Condition Goal
 #
 # Extracted from stzgraphplannertest.ring, block #6.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

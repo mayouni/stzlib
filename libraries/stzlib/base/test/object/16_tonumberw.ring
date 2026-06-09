@@ -3,6 +3,7 @@
 # pr()
 #
 # Extracted from stzObjectTest.ring, block #16.
+#ERR Error (R14) : Calling Method without definition: startswitheithercs
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Average path length
 #
 # Extracted from stzgraphtest.ring, block #56.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

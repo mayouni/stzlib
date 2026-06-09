@@ -3,6 +3,7 @@
 # Testing moving and hitting an obstacle
 #
 # Extracted from stzGridTest.ring, block #22.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

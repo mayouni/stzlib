@@ -3,6 +3,7 @@
 # Example 1.3: Complex Grid - Finding Optimal Path in Maze
 #
 # Extracted from stzgraphplannertest.ring, block #4.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

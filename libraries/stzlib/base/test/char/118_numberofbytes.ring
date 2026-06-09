@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #118.
-#ERR Error (R14) : Calling Method without definition: bytes
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

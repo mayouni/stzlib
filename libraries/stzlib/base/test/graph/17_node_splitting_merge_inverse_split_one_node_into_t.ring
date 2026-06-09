@@ -3,6 +3,7 @@
 # Node Splitting (merge inverse: split one node into two with property division)
 #
 # Extracted from stzgraphtest.ring, block #17.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

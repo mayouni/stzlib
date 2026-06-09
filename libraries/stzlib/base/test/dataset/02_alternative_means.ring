@@ -3,6 +3,7 @@
 # Alternative Means
 #
 # Extracted from stzdatasettest.ring, block #2.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

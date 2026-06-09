@@ -1,10 +1,10 @@
-== misc  PASS 7  ERR 2  TIMEOUT 0  (16.1s) ==
+== misc  PASS 9  ERR 0  TIMEOUT 0  (16.0s) ==
 [PASS]    01_pr.ring
 [PASS]    02_pr.ring
 [PASS]    03_pr.ring
 [PASS]    04_stzextcode_quick-narration.ring
 [PASS]    05_ismadeofnumbersorstrings.ring
 [PASS]    06_block_6.ring
-[ERR]     07_listoflists.ring :: Error (R13) : Object is required
+[PASS]    07_listoflists.ring
 [PASS]    08_min.ring
-[ERR]     09_show.ring :: Error (R13) : Object is required
+[PASS]    09_show.ring

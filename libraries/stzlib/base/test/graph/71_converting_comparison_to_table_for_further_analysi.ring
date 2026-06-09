@@ -3,6 +3,7 @@
 # Converting comparison to table for further analysis
 #
 # Extracted from stzgraphtest.ring, block #71.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

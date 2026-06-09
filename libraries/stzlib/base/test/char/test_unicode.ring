@@ -3,7 +3,7 @@
 # Run from the test/ directory: ring test_unicode.ring
 
 ? "Loading stubs + DLL"
-#ERR Error (R3) : Calling Function without definition: ring_len
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../string/test_stubs.ring"
 

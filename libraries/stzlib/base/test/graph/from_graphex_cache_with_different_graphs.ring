@@ -3,6 +3,7 @@
 # Cache with different graphs
 #
 # Extracted from stzgraphextest.ring, block #9.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

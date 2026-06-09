@@ -3,6 +3,7 @@
 # What you learned with these examples:
 #
 # Extracted from stzreactivehttptest.ring, block #6.
+#ERR exit 1: Error (S1) In file: 06_what_you_learned_with_these_examples.ring
 
 load "../../stzBase.ring"
 

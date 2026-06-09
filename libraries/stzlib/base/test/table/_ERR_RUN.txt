@@ -1,9 +1,9 @@
-== table  PASS 61  ERR 183  TIMEOUT 1  (498.5s) ==
+== table  PASS 95  ERR 150  TIMEOUT 0  (448.3s) ==
 [PASS]    01_checking_if_table_is_sorted.ring
 [PASS]    02_isequalto.ring
 [PASS]    03_col.ring
 [PASS]    04_issorted.ring
-[ERR]     05_issortedinascending.ring :: Error (R14) : Calling Method without definition: sortinascending
+[PASS]    05_issortedinascending.ring
 [ERR]     06_testing_erase_and_fill_sections_in_stzstring.ring :: Error (R14) : Calling Method without definition: fillsections
 [ERR]     07_ishtmltable.ring :: Error (R14) : Calling Method without definition: ishtmltable
 [ERR]     08_containshtmltable.ring :: Error (R14) : Calling Method without definition: containshtmltable
@@ -15,8 +15,8 @@
 [PASS]    105_firstcolname.ring
 [PASS]    106_col.ring
 [PASS]    107_row.ring
-[ERR]     108_findcol.ring :: Error (R14) : Calling Method without definition: findrow
-[ERR]     109_write_a.ring :: Error (R14) : Calling Method without definition: findincol
+[PASS]    108_findcol.ring
+[PASS]    109_write_a.ring
 [ERR]     10_json.ring :: Error (R14) : Calling Method without definition: tojsonxt
 [ERR]     110_colsection.ring :: Error (R14) : Calling Method without definition: colsection
 [ERR]     111_rowsection.ring :: Error (R14) : Calling Method without definition: rowsection
@@ -25,17 +25,17 @@
 [ERR]     114_cellsincol.ring :: Error (R14) : Calling Method without definition: cellsincol
 [ERR]     115_rowz.ring :: Error (R14) : Calling Method without definition: rowz
 [ERR]     116_cellsinrow.ring :: Error (R14) : Calling Method without definition: cellsinrow
-[ERR]     117_findincol.ring :: Error (R14) : Calling Method without definition: findincol
+[PASS]    117_findincol.ring
 [ERR]     118_cell.ring :: Error (R14) : Calling Method without definition: findincell
 [ERR]     119_colcellsaspositions.ring :: Error (R14) : Calling Method without definition: colcellsaspositions
 [ERR]     11_isjson.ring :: Error (R14) : Calling Method without definition: fromjson
 [ERR]     120_findincells.ring :: Error (R14) : Calling Method without definition: findincells
-[ERR]     121_findincol.ring :: Error (R14) : Calling Method without definition: findincol
+[PASS]    121_findincol.ring
 [ERR]     122_findinrow.ring :: Error (R14) : Calling Method without definition: findinrow
 [ERR]     123_cell.ring :: Error (R14) : Calling Method without definition: cellq
 [ERR]     124_cellcontainssubvalue.ring :: Error (R14) : Calling Method without definition: cellcontainssubvalue
-[ERR]     125_numberofoccurrenceincol.ring :: Error (R14) : Calling Method without definition: numberofoccurrenceincol
-[ERR]     126_numberofoccurrenceincols.ring :: Error (R14) : Calling Method without definition: numberofoccurrenceincols
+[PASS]    125_numberofoccurrenceincol.ring
+[ERR]     126_numberofoccurrenceincols.ring :: Error (R14) : Calling Method without definition: findincols
 [ERR]     127_findincols.ring :: Error (R14) : Calling Method without definition: findincols
 [ERR]     128_findincols.ring :: Error (R14) : Calling Method without definition: findincols
 [ERR]     129_colcontains.ring :: Error (R14) : Calling Method without definition: colcontains
@@ -43,7 +43,7 @@
 [ERR]     130_rowaspositions.ring :: Error (R14) : Calling Method without definition: rowaspositions
 [ERR]     131_rowcontains.ring :: Error (R14) : Calling Method without definition: rowcontains
 [ERR]     132_findcol.ring :: Error (R14) : Calling Method without definition: findcell
-[ERR]     133_find.ring :: Error (R14) : Calling Method without definition: findincol
+[ERR]     133_find.ring :: Error (R14) : Calling Method without definition: findinrow
 [PASS]    134_section.ring
 [ERR]     135_findinsection.ring :: Error (R14) : Calling Method without definition: findinsection
 [PASS]    136_sectionz.ring
@@ -55,17 +55,17 @@
 [ERR]     141_sectioncontains.ring :: Error (R14) : Calling Method without definition: sectioncontains
 [ERR]     142_adjustedtoright.ring :: Error (R14) : Calling Method without definition: adjustedtoright
 [ERR]     143_alignedtoright.ring :: Error (R14) : Calling Method without definition: alignedtoright
-[ERR]     144_showxt.ring :: Error (R14) : Calling Method without definition: showxt
-[ERR]     145_showxt.ring :: Error (R14) : Calling Method without definition: showxt
+[PASS]    144_showxt.ring
+[PASS]    145_showxt.ring
 [ERR]     146_findcell.ring :: Error (R14) : Calling Method without definition: findcell
 [ERR]     147_numberofoccurrence.ring :: Error (R14) : Calling Method without definition: findnthcell
-[ERR]     148_numberofoccurrence.ring :: Error (R14) : Calling Method without definition: findnthoccurrence
-[ERR]     149_numberofoccurrence.ring :: Error (R14) : Calling Method without definition: numberofoccurrenceincol
+[PASS]    148_numberofoccurrence.ring
+[ERR]     149_numberofoccurrence.ring :: Error (R14) : Calling Method without definition: findnthincol
 [ERR]     14_testing_csv_tables_in_stzstring.ring :: Error (R14) : Calling Method without definition: iscsvtable
-[ERR]     150_numberofoccurrence.ring :: Error (R14) : Calling Method without definition: numberofoccurrenceinrow
+[ERR]     150_numberofoccurrence.ring :: Error (R14) : Calling Method without definition: findinrow
 [PASS]    151_col.ring
 [ERR]     152_row.ring :: Error (R14) : Calling Method without definition: addrow
-[ERR]     153_colnames.ring :: Error (R14) : Calling Method without definition: addcol
+[PASS]    153_colnames.ring
 [ERR]     154_coltocolname.ring :: Error (R14) : Calling Method without definition: coltocolname
 [ERR]     155_coltocolnumber.ring :: Error (R14) : Calling Method without definition: thesecolstocolsnumbers
 [ERR]     156_show.ring :: Error (R14) : Calling Method without definition: erasecol
@@ -75,19 +75,19 @@
 [PASS]    15_month.ring
 [PASS]    160_cell.ring
 [PASS]    161_show.ring
-[ERR]     162_show.ring :: Error (R14) : Calling Method without definition: removecols
-[ERR]     164_col.ring :: Error (R14) : Calling Method without definition: addcol
-[ERR]     165_col.ring :: Error (R14) : Calling Method without definition: addcol
-[ERR]     166_col.ring :: Error (R14) : Calling Method without definition: addcol
-[ERR]     167_lastcolname.ring :: Error (R14) : Calling Method without definition: addcol
+[PASS]    162_show.ring
+[PASS]    164_col.ring
+[PASS]    165_col.ring
+[PASS]    166_col.ring
+[ERR]     167_lastcolname.ring :: Error (R14) : Calling Method without definition: lastcol
 [ERR]     168_cols.ring :: Error (R14) : Calling Method without definition: addcols
-[ERR]     169_showxt.ring :: Error (R14) : Calling Method without definition: showxt
+[ERR]     169_showxt.ring :: Error (R14) : Calling Method without definition: subtable
 [PASS]    16_block_16.ring
 [ERR]     170_cellsaspositions.ring :: Error (R14) : Calling Method without definition: cellsaspositions
 [PASS]    171_findinlists.ring
 [PASS]    172_findinlists.ring
 [ERR]     173_contains.ring :: Error (R14) : Calling Method without definition: findcellcs
-[ERR]     174_findnth.ring :: Error (R14) : Calling Method without definition: findnth
+[PASS]    174_findnth.ring
 [ERR]     175_count.ring :: Error (R14) : Calling Method without definition: countofcell
 [PASS]    176_count.ring
 [ERR]     177_cell.ring :: Error (R14) : Calling Method without definition: cellz
@@ -102,14 +102,14 @@
 [ERR]     185_row_findinrow_countinrow_containsinrow.ring :: Error (R14) : Calling Method without definition: findinrow
 [ERR]     186_finding_nth_occurrence_of_a_value_in_a_row.ring :: Error (R14) : Calling Method without definition: findnthinrow
 [ERR]     187_findnthincol.ring :: Error (R14) : Calling Method without definition: findnthincol
-[ERR]     188_findincol.ring :: Error (R14) : Calling Method without definition: findincol
+[ERR]     188_findincol.ring :: Error (R14) : Calling Method without definition: findnthincol
 [ERR]     189_countincol.ring :: Error (R14) : Calling Method without definition: countincol
 [PASS]    18_pr.ring
 [ERR]     190_containsincol.ring :: Error (R14) : Calling Method without definition: containsincol
 [PASS]    191_cell.ring
 [PASS]    192_cell.ring
 [ERR]     193_pr.ring :: Error (R14) : Calling Method without definition: replacecellsbymany
-[ERR]     194_content.ring :: Error (R14) : Calling Method without definition: extendxt
+[PASS]    194_content.ring
 [ERR]     195_pr.ring :: Error (R14) : Calling Method without definition: replacecellsbymanyxt
 [ERR]     196_pr.ring :: Error (R14) : Calling Method without definition: replaceall
 [ERR]     197_write_a.ring :: Error (R14) : Calling Method without definition: replacenthcol
@@ -144,56 +144,56 @@
 [ERR]     223_aggregation.ring :: Error (R14) : Calling Method without definition: aggregate
 [ERR]     224_multiple_aggregations.ring :: Error (R14) : Calling Method without definition: aggregate
 [ERR]     225_group_by_aggregate_--_groupbyxt.ring :: Error (R14) : Calling Method without definition: groupbyxt
-[ERR]     226_grouping_data_by_a_column_containing_lists.ring :: Error (R14) : Calling Method without definition: showxt
+[PASS]    226_grouping_data_by_a_column_containing_lists.ring
 [ERR]     227_make_a_narration.ring :: Error (R14) : Calling Method without definition: fromcsv
 [ERR]     228_transposing_a_table_swapping_columns_and_rows.ring :: Error (R14) : Calling Method without definition: transposext
 [ERR]     229_testing_html_tables_in_stzstring.ring :: Error (R14) : Calling Method without definition: containshtmltable
-[TIMEOUT] 22_way_6_creating_a_table_from_an_external_text_file_.ring
+[PASS]    22_way_6_creating_a_table_from_an_external_text_file_.ring
 [PASS]    23_show.ring
 [ERR]     25_colnames.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     26_showxt.ring :: Error (R14) : Calling Method without definition: showxt
-[ERR]     27_show.ring :: Error (R14) : Calling Method without definition: showxt
+[PASS]    26_showxt.ring
+[PASS]    27_show.ring
 [ERR]     28_pr.ring :: Error (R20) : Calling function with extra number of parameters
 [PASS]    29_show.ring
 [ERR]     30_pr.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     31_pr.ring :: Error (R14) : Calling Method without definition: showxt
+[PASS]    31_pr.ring
 [PASS]    32_rows.ring
 [PASS]    33_findmany.ring
 [ERR]     34_pr.ring :: Error (R14) : Calling Method without definition: findcolsexcept
-[ERR]     35_pr.ring :: Error (R14) : Calling Method without definition: removecols
+[PASS]    35_pr.ring
 [ERR]     36_pr.ring :: Error (R19) : Calling function with less number of parameters
 [ERR]     37_findcolbyname.ring :: Error (R14) : Calling Method without definition: findcolsbyname
-[ERR]     38_findrow.ring :: Error (R14) : Calling Method without definition: findrow
+[ERR]     38_findrow.ring :: Error (R14) : Calling Method without definition: findmanyrows
 [ERR]     39_pr.ring :: Error (R14) : Calling Method without definition: removerow
-[ERR]     40_findrow.ring :: Error (R14) : Calling Method without definition: findrow
+[ERR]     40_findrow.ring :: Error (R14) : Calling Method without definition: removerow
 [ERR]     41_pr.ring :: Error (R14) : Calling Method without definition: removerows
 [ERR]     42_findrowsexceptat.ring :: Error (R14) : Calling Method without definition: findrowsexceptat
-[ERR]     43_a_softanza_showing_one_of_the_uses_of_the_xt.ring :: Error (R14) : Calling Method without definition: showxt
+[PASS]    43_a_softanza_showing_one_of_the_uses_of_the_xt.ring
 [PASS]    44_show.ring
 [ERR]     45_isstzobject.ring :: Error (R14) : Calling Method without definition: @
 [PASS]    46_containscs.ring
 [ERR]     47_show.ring :: Error (R2) : Array Access (Index out of range)
 [PASS]    48_cell.ring
-[ERR]     49_show.ring :: Error (R14) : Calling Method without definition: fill
-[ERR]     50_show.ring :: Error (R14) : Calling Method without definition: fill
-[ERR]     51_show.ring :: Error (R14) : Calling Method without definition: fill
-[ERR]     52_show.ring :: Error (R14) : Calling Method without definition: fill
-[ERR]     53_show.ring :: Error (R14) : Calling Method without definition: fill
+[ERR]     49_show.ring :: Error (R2) : Array Access (Index out of range)
+[ERR]     50_show.ring :: Error (R14) : Calling Method without definition: replaceallrows
+[ERR]     51_show.ring :: Error (R2) : Array Access (Index out of range)
+[ERR]     52_show.ring :: Error (R14) : Calling Method without definition: replaceallcols
+[PASS]    53_show.ring
 [PASS]    54_pr.ring
 [PASS]    55_pr.ring
 [ERR]     56_filled.ring :: Error (R14) : Calling Method without definition: filled
-[ERR]     57_pr.ring :: Error (R3) : Calling Function without definition: fill
-[ERR]     58_show.ring :: Error (R14) : Calling Method without definition: fill
+[PASS]    57_pr.ring
+[PASS]    58_show.ring
 [ERR]     59_row.ring :: Error (R2) : Array Access (Index out of range)
-[ERR]     60_colname.ring :: Error (R14) : Calling Method without definition: colname
+[ERR]     60_colname.ring :: Error (R41) : Invalid numeric string
 [ERR]     61_colnumber.ring :: Error (R14) : Calling Method without definition: colnumber
 [ERR]     62_pr.ring :: Error (R14) : Calling Method without definition: moverow
 [ERR]     63_show.ring :: Error (R14) : Calling Method without definition: swaprows
 [ERR]     64_pr.ring :: Error (R14) : Calling Method without definition: movecol
-[ERR]     65_pr.ring :: Error (R14) : Calling Method without definition: addcol
+[PASS]    65_pr.ring
 [ERR]     66_pr.ring :: Error (R14) : Calling Method without definition: swapcolums
 [ERR]     67_colname.ring :: Error (R14) : Calling Method without definition: replacecolname
-[ERR]     68_col.ring :: Error (R14) : Calling Method without definition: colname
+[ERR]     68_col.ring :: Error (R14) : Calling Method without definition: replacecolname
 [ERR]     69_show.ring :: Error (R14) : Calling Method without definition: sortdown
 [PASS]    70_content.ring
 [ERR]     71_issortedonby.ring :: Error (R14) : Calling Method without definition: issortedonby
@@ -204,20 +204,20 @@
 [ERR]     76_containscol.ring :: Error (R14) : Calling Method without definition: containscol
 [ERR]     77_sectionaspositions.ring :: Error (R14) : Calling Method without definition: sectionaspositions
 [ERR]     78_cells.ring :: Error (R14) : Calling Method without definition: cells
-[ERR]     79_numberofcolumns.ring :: Error (R14) : Calling Method without definition: colname
+[PASS]    79_numberofcolumns.ring
 [PASS]    80_cell.ring
 [PASS]    81_numberofrows.ring
 [PASS]    82_header.ring
-[ERR]     83_content.ring :: Error (R14) : Calling Method without definition: addcol
+[PASS]    83_content.ring
 [PASS]    84_isempty.ring
 [ERR]     85_nthcol.ring :: Error (R14) : Calling Method without definition: nthcol
 [ERR]     86_firstcolxt.ring :: Error (R14) : Calling Method without definition: firstcolxt
 [PASS]    87_row.ring
-[ERR]     88_show.ring :: Error (R14) : Calling Method without definition: addcol
-[ERR]     89_show.ring :: Error (R14) : Calling Method without definition: addcol
-[ERR]     90_content.ring :: Error (R14) : Calling Method without definition: removecols
+[PASS]    88_show.ring
+[PASS]    89_show.ring
+[PASS]    90_content.ring
 [ERR]     91_colnames.ring :: Error (R14) : Calling Method without definition: cols
-[ERR]     92_col.ring :: Error (R14) : Calling Method without definition: colname
+[PASS]    92_col.ring
 [ERR]     93_thesecolumnsxt.ring :: Error (R14) : Calling Method without definition: thesecolumnsxt
 [ERR]     94_colz.ring :: Error (R14) : Calling Method without definition: colz
 [PASS]    95_colnames.ring
@@ -225,7 +225,7 @@
 [ERR]     97_colnumberstonames.ring :: Error (R14) : Calling Method without definition: colnumberstonames
 [ERR]     98_thesecolnames.ring :: Error (R14) : Calling Method without definition: thesecolnames
 [ERR]     99_allitemsarenull.ring :: Error (R14) : Calling Method without definition: allitemsarenull
-[ERR]     from_extinsql_sql_support_in_softanza_external_code.ring :: Error (R3) : Calling Function without definition: @
+[PASS]    from_extinsql_sql_support_in_softanza_external_code.ring
 [ERR]     from_pivottable_using_multiple_dimensions_for_rows_and_columns.ring :: Error (C18) : Missing closing brace for the block opened!
 [ERR]     from_tablex_case-insensitive_contains_default.ring :: Error (R14) : Calling Method without definition: containscellcs
 [ERR]     from_tablex_case-sensitive_matching_across_tables.ring :: Error (R14) : Calling Method without definition: containscellcs

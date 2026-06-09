@@ -3,6 +3,7 @@
 # external interpreters (those need real Python/R/etc. installed).
 #
 # Run from base/extercode/test/.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

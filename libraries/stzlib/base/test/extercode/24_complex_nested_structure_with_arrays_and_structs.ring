@@ -3,6 +3,7 @@
 # Complex Nested Structure with Arrays and Structs
 #
 # Extracted from stzextercodetest.ring, block #24.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

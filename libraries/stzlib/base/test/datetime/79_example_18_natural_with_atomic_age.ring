@@ -3,6 +3,7 @@
 # Example 18: Natural with atomic age
 #
 # Extracted from stzdatetimetest.ring, block #79.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

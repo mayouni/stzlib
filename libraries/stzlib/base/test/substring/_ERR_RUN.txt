@@ -1,13 +1,13 @@
-== substring  PASS 0  ERR 12  TIMEOUT 0  (19.7s) ==
-[ERR]     01_comesbeforesubstring.ring :: Error (R3) : Calling Function without definition: substringq
-[ERR]     02_todo.ring :: Error (C27) : Syntax Error!
-[ERR]     03_substringin.ring :: Error (R14) : Calling Method without definition: substringinq
-[ERR]     04_in.ring :: Error (R14) : Calling Method without definition: inq
-[ERR]     05_words.ring :: Error (R14) : Calling Method without definition: substringisaword
-[ERR]     06_in.ring :: Error (R14) : Calling Method without definition: inq
-[ERR]     07_in.ring :: Error (R3) : Calling Function without definition: only
-[ERR]     08_achar_in_softanza_uppercased.ring :: Error (R3) : Calling Function without definition: somechars
-[ERR]     09_substringin.ring :: Error (R14) : Calling Method without definition: substringin
-[ERR]     10_substring.ring :: Error (R14) : Calling Method without definition: substring
-[ERR]     11_substring.ring :: Error (R11) : Error in class name, class not found: stzsubstring
-[ERR]     12_lowercased.ring :: Error (R11) : Error in class name, class not found: stzsubstring
+== substring  PASS 12  ERR 0  TIMEOUT 0  (18.8s) ==
+[PASS]    01_comesbeforesubstring.ring
+[PASS]    02_todo.ring
+[PASS]    03_substringin.ring
+[PASS]    04_in.ring
+[PASS]    05_words.ring
+[PASS]    06_in.ring
+[PASS]    07_in.ring
+[PASS]    08_achar_in_softanza_uppercased.ring
+[PASS]    09_substringin.ring
+[PASS]    10_substring.ring
+[PASS]    11_substring.ring
+[PASS]    12_lowercased.ring

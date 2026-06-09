@@ -3,6 +3,7 @@
 # Example 8.2: Understanding How A* Works Internally
 #
 # Extracted from stzgraphplannertest.ring, block #16.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

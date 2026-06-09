@@ -3,6 +3,7 @@
 # #TODO Add this feature to stzDate
 #
 # Extracted from stzdurationtest.ring, block #7.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

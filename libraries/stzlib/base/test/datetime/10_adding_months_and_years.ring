@@ -3,6 +3,7 @@
 # Adding months and years
 #
 # Extracted from stzdatetimetest.ring, block #10.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

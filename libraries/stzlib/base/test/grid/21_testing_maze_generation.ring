@@ -3,6 +3,7 @@
 # Testing maze generation
 #
 # Extracted from stzGridTest.ring, block #21.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

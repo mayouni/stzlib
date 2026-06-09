@@ -1,9 +1,9 @@
-== regexuter  PASS 6  ERR 2  TIMEOUT 0  (12.9s) ==
+== regexuter  PASS 8  ERR 0  TIMEOUT 0  (12.7s) ==
 [PASS]    01_pr.ring
-[ERR]     02_solve_confusion_between_matches_and_allmatches.ring :: Error (C27) : Syntax Error!
+[PASS]    02_solve_confusion_between_matches_and_allmatches.ring
 [PASS]    04_processing_numbers_in_text.ring
 [PASS]    05_finding_and_processing_emails.ring
 [PASS]    06_computing_multiple_triggers.ring
 [PASS]    07_matches.ring
-[ERR]     08_data_validation_pipeline.ring :: Error (C27) : Syntax Error!
+[PASS]    08_data_validation_pipeline.ring
 [PASS]    09_example_3_code_analysis_pipeline.ring

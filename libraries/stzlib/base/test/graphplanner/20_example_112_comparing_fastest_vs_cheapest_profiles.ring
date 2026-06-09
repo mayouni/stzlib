@@ -3,6 +3,7 @@
 # Example 11.2: Comparing :fastest vs :cheapest Profiles
 #
 # Extracted from stzgraphplannertest.ring, block #20.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

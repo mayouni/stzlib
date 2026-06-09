@@ -1,11 +1,11 @@
-== listofbytes  PASS 8  ERR 9  TIMEOUT 0  (26.8s) ==
+== listofbytes  PASS 10  ERR 7  TIMEOUT 0  (30.5s) ==
 [PASS]    01_tohex.ring
 [ERR]     02_bytes.ring :: exit 1: [ "s", "", "" ]
 [ERR]     03_bytes.ring :: exit 1: [ "", "", "", "", "" ]
 [PASS]    04_unicodesperchar.ring
 [ERR]     05_qbytearraytolistofbytecodes.ring :: Error (R11) : Error in class name, class not found: qbytearray
-[ERR]     06_callmethod.ring :: Error (R14) : Calling Method without definition: updatewith
-[ERR]     07_numberofbytes.ring :: Error (R50) : Object does not support operator overloading
+[PASS]    06_callmethod.ring
+[PASS]    07_numberofbytes.ring
 [ERR]     08_range.ring :: Error (R41) : Invalid numeric string
 [ERR]     09_containsno.ring :: Error (R14) : Calling Method without definition: containsno
 [PASS]    10_representsnumber.ring

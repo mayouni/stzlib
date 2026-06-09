@@ -3,6 +3,7 @@
 # #  Example 7: Error Handling  #
 #
 # Extracted from stzdotcodetest.ring, block #13.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

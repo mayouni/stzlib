@@ -3,6 +3,7 @@
 # Integration with ToHuman()
 #
 # Extracted from stzdatetimetest.ring, block #59.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

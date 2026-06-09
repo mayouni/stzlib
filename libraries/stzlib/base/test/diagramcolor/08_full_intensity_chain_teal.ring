@@ -3,6 +3,7 @@
 # Full Intensity Chain: Teal
 #
 # Extracted from stzdiagramcolortest.ring, block #8.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

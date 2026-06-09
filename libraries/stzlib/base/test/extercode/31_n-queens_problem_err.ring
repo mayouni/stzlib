@@ -3,6 +3,7 @@
 # N-Queens Problem ERR
 #
 # Extracted from stzextercodetest.ring, block #31.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

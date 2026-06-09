@@ -3,6 +3,7 @@
 # Calculating duration between two datetimes (object param)
 #
 # Extracted from stzdatetimetest.ring, block #16.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

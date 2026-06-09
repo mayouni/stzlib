@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stztabletest.ring, block #51.
-#ERR Error (R14) : Calling Method without definition: fill
+#ERR Error (R2) : Array Access (Index out of range)
 
 load "../../stzBase.ring"
 

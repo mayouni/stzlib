@@ -1,5 +1,5 @@
 
-#ERR Error (R3) : Calling Function without definition: ring_len
+#ERR Error (R3) : Calling Function without definition: stzenginestring
 
 load "../string/test_stubs.ring"
 

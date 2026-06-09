@@ -3,6 +3,7 @@
 # Time series data with aggregation
 #
 # Extracted from stzextercodetest.ring, block #17.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

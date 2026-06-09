@@ -1,2 +1,2 @@
 == extinjs  PASS 0  ERR 1  TIMEOUT 0  (1.5s) ==
-[ERR]     01_using_a_js_code_inside_ring.ring :: Error (R24) : Using uninitialized variable: console
+[ERR]     01_using_a_js_code_inside_ring.ring :: Error (C22) : Function redefinition, function is already defined!

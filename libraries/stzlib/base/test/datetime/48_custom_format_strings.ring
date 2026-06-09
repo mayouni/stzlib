@@ -3,6 +3,7 @@
 # Custom format strings
 #
 # Extracted from stzdatetimetest.ring, block #48.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

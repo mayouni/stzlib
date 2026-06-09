@@ -1,24 +1,24 @@
-== graphex  PASS 14  ERR 9  TIMEOUT 0  (39.4s) ==
-[ERR]     01_test_longer_token_prefixes_parsed_correctly.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     02_test_edgeproperty_vs_edge.ring :: Error (R20) : Calling function with extra number of parameters
-[PASS]    03_test_nodecount_vs_node.ring
-[PASS]    04_case-insensitive_matching_default.ring
-[PASS]    05_case-sensitive_matching_with_cs_flag.ring
-[PASS]    06_mixed_case_sensitivity_in_pattern.ring
-[PASS]    07_cache_performance_test.ring
-[PASS]    08_cache_stats_and_management.ring
-[ERR]     10_property_value_comparison_greater_than.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     11_property_value_comparison_less_than.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     12_property_equality_constraint.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     13_multiple_property_constraints.ring :: Error (R20) : Calling function with extra number of parameters
-[ERR]     14_property_constraint_with_flow.ring :: Error (R20) : Calling function with extra number of parameters
-[PASS]    15_explain_method_usage.ring
-[PASS]    16_standardized_debug_output.ring
-[PASS]    17_preserved_case_in_labels.ring
-[PASS]    18_parentheses_content_before_lowercasing.ring
-[PASS]    19_alternation_with_enhancement_tracking.ring
-[PASS]    20_cicd_with_case_sensitivity.ring
-[ERR]     21_state_machine_with_properties.ring :: Error (R20) : Calling function with extra number of parameters
-[PASS]    22_negation_with_case_sensitivity.ring
-[PASS]    23_multi-stage_with_caching_benchmark.ring
-[ERR]     24_all_enhancements_together.ring :: Error (R20) : Calling function with extra number of parameters
+== graphex  PASS 0  ERR 23  TIMEOUT 0  (32.5s) ==
+[ERR]     01_test_longer_token_prefixes_parsed_correctly.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     02_test_edgeproperty_vs_edge.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     03_test_nodecount_vs_node.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     04_case-insensitive_matching_default.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     05_case-sensitive_matching_with_cs_flag.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     06_mixed_case_sensitivity_in_pattern.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     07_cache_performance_test.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     08_cache_stats_and_management.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     10_property_value_comparison_greater_than.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     11_property_value_comparison_less_than.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     12_property_equality_constraint.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     13_multiple_property_constraints.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     14_property_constraint_with_flow.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     15_explain_method_usage.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     16_standardized_debug_output.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     17_preserved_case_in_labels.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     18_parentheses_content_before_lowercasing.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     19_alternation_with_enhancement_tracking.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     20_cicd_with_case_sensitivity.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     21_state_machine_with_properties.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     22_negation_with_case_sensitivity.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     23_multi-stage_with_caching_benchmark.ring :: Error (C22) : Function redefinition, function is already defined!
+[ERR]     24_all_enhancements_together.ring :: Error (C22) : Function redefinition, function is already defined!

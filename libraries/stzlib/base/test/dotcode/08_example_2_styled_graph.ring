@@ -3,6 +3,7 @@
 # #  Example 2: Styled Graph  #
 #
 # Extracted from stzdotcodetest.ring, block #8.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

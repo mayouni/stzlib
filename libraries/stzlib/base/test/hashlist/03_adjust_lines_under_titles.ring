@@ -3,6 +3,7 @@
 # #TODO adjust lines under titles
 #
 # Extracted from stzhashlisttest.ring, block #3.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

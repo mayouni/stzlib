@@ -3,6 +3,7 @@
 # Converting diagram to hashlist representation
 #
 # Extracted from stzdiagramtest.ring, block #17.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

@@ -3,6 +3,7 @@
 # Verifying Mermaid node type shapes
 #
 # Extracted from stzdiagramtest.ring, block #27.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

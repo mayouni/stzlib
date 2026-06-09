@@ -3,7 +3,7 @@
 # State machine with properties
 #
 # Extracted from stzgraphextest.ring, block #21.
-#ERR Error (R20) : Calling function with extra number of parameters
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

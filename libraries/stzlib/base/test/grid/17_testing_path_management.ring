@@ -3,6 +3,7 @@
 # Testing path management
 #
 # Extracted from stzGridTest.ring, block #17.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

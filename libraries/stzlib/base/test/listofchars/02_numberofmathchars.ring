@@ -2,7 +2,7 @@
 # --------
 #
 # Extracted from stzlistofcharstest.ring, block #2.
-#ERR Error (R24) : Using uninitialized variable: $anmathunicodes
+#ERR Error (R14) : Calling Method without definition: charsandtheirnames
 
 load "../../stzBase.ring"
 

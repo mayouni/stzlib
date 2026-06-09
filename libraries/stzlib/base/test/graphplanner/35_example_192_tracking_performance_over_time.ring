@@ -3,6 +3,7 @@
 # Example 19.2: Tracking Performance Over Time
 #
 # Extracted from stzgraphplannertest.ring, block #35.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

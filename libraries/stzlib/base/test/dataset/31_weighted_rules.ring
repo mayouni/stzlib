@@ -3,6 +3,7 @@
 # Weighted Rules
 #
 # Extracted from stzdatasettest.ring, block #31.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

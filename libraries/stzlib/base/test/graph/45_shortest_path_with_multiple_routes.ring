@@ -3,6 +3,7 @@
 # Shortest path with multiple routes
 #
 # Extracted from stzgraphtest.ring, block #45.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

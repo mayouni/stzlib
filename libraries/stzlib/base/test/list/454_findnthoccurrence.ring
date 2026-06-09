@@ -3,7 +3,7 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #454.
-#ERR Error (R3) : Calling Function without definition: findnthoccurrence
+#ERR Error (R3) : Calling Function without definition: replacenthoccurrence
 
 load "../../stzBase.ring"
 

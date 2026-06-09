@@ -3,6 +3,7 @@
 # StartProfiler()
 #
 # Extracted from stzlistofstringstest.ring, block #12.
+#ERR exit 1: Line 156 Bad parameter type!
 
 load "../../stzBase.ring"
 

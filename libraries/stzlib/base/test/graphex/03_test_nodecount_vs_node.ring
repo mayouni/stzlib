@@ -3,6 +3,7 @@
 # Test @NodeCount vs @Node
 #
 # Extracted from stzgraphextest.ring, block #3.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

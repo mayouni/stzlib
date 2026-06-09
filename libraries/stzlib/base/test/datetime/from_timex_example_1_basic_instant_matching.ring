@@ -3,6 +3,7 @@
 # Example 1: Basic Instant Matching
 #
 # Extracted from stztimextest.ring, block #1.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

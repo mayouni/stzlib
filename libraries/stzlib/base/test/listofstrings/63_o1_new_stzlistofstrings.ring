@@ -3,6 +3,7 @@
 # o1 = new stzListOfStrings([
 #
 # Extracted from stzlistofstringstest.ring, block #63.
+#ERR Error (R14) : Calling Method without definition: findsubstringcs
 
 load "../../stzBase.ring"
 

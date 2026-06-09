@@ -3,6 +3,7 @@
 # Testing distance calculations
 #
 # Extracted from stzGridTest.ring, block #5.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

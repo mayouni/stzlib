@@ -1,23 +1,23 @@
-== stringart  PASS 1  ERR 21  TIMEOUT 0  (36.4s) ==
-[ERR]     01_stringartxt_does_not_alter_default_c.ring :: Error (R3) : Calling Function without definition: defaultstringartstyle
-[ERR]     02_stringartstyles.ring :: Error (R3) : Calling Function without definition: setstringartstyle
-[ERR]     03_style.ring :: Error (R11) : Error in class name, class not found: stzstringart
-[ERR]     04_o1_new_stzstringartantonio.ring :: Error (R24) : Using uninitialized variable: o1
-[ERR]     05_stringartstz-core_nl.ring :: Error (R3) : Calling Function without definition: stringartboxified
-[ERR]     06_stringart224_nl.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     07_stringartboxifiedring_121.ring :: Error (R3) : Calling Function without definition: stringartboxified
-[ERR]     09_text_paintings_in_collectibles_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     10_text_paintings_in_environment_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     11_text_paintings_in_game_elements_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     12_text_paintings_in_transportation_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     13_text_paintings_in_animals_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     14_text_paintings_in_persons_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     15_text_paintings_in_buildings_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     16_text_paintings_in_special_effects_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     17_text_paintings_in_weapons_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     18_text_paintings_in_human_body_parts_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     19_text_paintings_in_misc_category.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     20_welcome_to_our_coding_adventure.ring :: Error (R3) : Calling Function without definition: stringart
-[ERR]     21_checkweather35.ring :: Error (R3) : Calling Function without definition: stringart
+== stringart  PASS 22  ERR 0  TIMEOUT 0  (35.2s) ==
+[PASS]    01_stringartxt_does_not_alter_default_c.ring
+[PASS]    02_stringartstyles.ring
+[PASS]    03_style.ring
+[PASS]    04_o1_new_stzstringartantonio.ring
+[PASS]    05_stringartstz-core_nl.ring
+[PASS]    06_stringart224_nl.ring
+[PASS]    07_stringartboxifiedring_121.ring
+[PASS]    09_text_paintings_in_collectibles_category.ring
+[PASS]    10_text_paintings_in_environment_category.ring
+[PASS]    11_text_paintings_in_game_elements_category.ring
+[PASS]    12_text_paintings_in_transportation_category.ring
+[PASS]    13_text_paintings_in_animals_category.ring
+[PASS]    14_text_paintings_in_persons_category.ring
+[PASS]    15_text_paintings_in_buildings_category.ring
+[PASS]    16_text_paintings_in_special_effects_category.ring
+[PASS]    17_text_paintings_in_weapons_category.ring
+[PASS]    18_text_paintings_in_human_body_parts_category.ring
+[PASS]    19_text_paintings_in_misc_category.ring
+[PASS]    20_welcome_to_our_coding_adventure.ring
+[PASS]    21_checkweather35.ring
 [PASS]    22_encountermonster.ring
-[ERR]     23_customlogo.ring :: exit 1: Error (S1) In file: 23_customlogo.ring
+[PASS]    23_customlogo.ring

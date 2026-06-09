@@ -5,6 +5,7 @@
 # Extracted from stzglobalsystemtest.ring (single-block file; the
 # original used no `/*---` delimiters, so the whole body
 # is preserved verbatim as one modular block).
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 pr()

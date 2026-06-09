@@ -3,6 +3,7 @@
 # Remove Single Node
 #
 # Extracted from stzdiagramtest.ring, block #43.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 

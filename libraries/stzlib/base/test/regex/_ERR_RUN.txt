@@ -1,4 +1,4 @@
-== regex  PASS 53  ERR 0  TIMEOUT 0  (86.9s) ==
+== regex  PASS 53  ERR 0  TIMEOUT 0  (82.8s) ==
 [PASS]    01_geeting_all_the_matches_in_a_string.ring
 [PASS]    03_partial_match_form_validation_as_user_types.ring
 [PASS]    04_partial_match_real-time_search.ring

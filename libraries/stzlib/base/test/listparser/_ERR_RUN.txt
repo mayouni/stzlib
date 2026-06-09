@@ -1,4 +1,4 @@
-== listparser  PASS 3  ERR 0  TIMEOUT 0  (5.4s) ==
+== listparser  PASS 3  ERR 0  TIMEOUT 0  (5.0s) ==
 [PASS]    01_list.ring
 [PASS]    02_parsedpositions.ring
 [PASS]    03_parsedpositions.ring

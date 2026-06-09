@@ -3,6 +3,7 @@
 # Generating .stzdiag native text format
 #
 # Extracted from stzdiagramtest.ring, block #18.
+#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
