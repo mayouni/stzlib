@@ -2748,6 +2748,22 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	def IsOneOfTheseNamedParams(pacNames)
+		if NOT isList(pacNames) return FALSE ok
+		_l_ = This.List()
+		if ring_len(_l_) != 2 return FALSE ok
+		if NOT isString(_l_[1]) return FALSE ok
+		_kw_ = lower(_l_[1])
+		if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+		_nNL_ = ring_len(pacNames)
+		for _iN_ = 1 to _nNL_
+			if NOT isString(pacNames[_iN_]) loop ok
+			_target_ = lower(pacNames[_iN_])
+			if ring_left(_target_, 1) = ":" _target_ = substr(_target_, 2) ok
+			if _kw_ = _target_ return TRUE ok
+		next
+		return FALSE
+
 	def IsStepNamedParam()
 		_l_ = This.List()
 		return ring_len(_l_) = 2 and isString(_l_[1]) and lower(_l_[1]) = "step"
