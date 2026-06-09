@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #493.
-#ERR Error (R14) : Calling Method without definition: combinations
 
 load "../../stzBase.ring"
 

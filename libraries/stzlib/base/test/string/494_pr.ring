@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #494.
-#ERR Error (R14) : Calling Method without definition: isnotastring
 
 load "../../stzBase.ring"
 

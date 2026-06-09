@@ -7411,13 +7411,27 @@ func ComputableFormNLQ(pValue)
 #---
 
 func IsContiguous(paList)
-	return IsContiguous(paList)
+	if NOT isList(paList) return FALSE ok
+	_nL_ = ring_len(paList)
+	if _nL_ < 2 return _nL_ = 1 ok
+	for _i_ = 2 to _nL_
+		_a_ = paList[_i_ - 1]
+		_b_ = paList[_i_]
+		if isNumber(_a_) and isNumber(_b_)
+			if _b_ != _a_ + 1 return FALSE ok
+		but isString(_a_) and isString(_b_) and ring_len(_a_) = 1 and ring_len(_b_) = 1
+			if ascii(_b_) != ascii(_a_) + 1 return FALSE ok
+		else
+			return FALSE
+		ok
+	next
+	return TRUE
 
-	func IsContinuous()
-		return IsContiguous()
+	func IsContinuous(paList)
+		return IsContiguous(paList)
 
-	func IsConsecutive()
-			return IsContiguous()
+	func IsConsecutive(paList)
+		return IsContiguous(paList)
 
 	#--
 
