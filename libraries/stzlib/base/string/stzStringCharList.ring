@@ -587,3 +587,57 @@ class stzListOfChars from stzStringCharList
 			ok
 		ok
 		super.init(pValue)
+
+	# Long-tail aliases used by Q("...").CharsQ() chains.
+	def NumbrifyQ()
+		_l_ = This.Content()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isString(_v_)
+				_aR_ + (0 + _v_)
+			but isNumber(_v_)
+				_aR_ + _v_
+			ok
+		next
+		return new stzList(_aR_)
+
+	def NumbrifiedQ()
+		return This.NumbrifyQ()
+
+	def NumberifiedQ()
+		return This.NumbrifyQ()
+
+	def NumberifyQ()
+		return This.NumbrifyQ()
+
+	def RemoveDuplicatesQ()
+		_l_ = This.Content()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			_bSeen_ = FALSE
+			_nRL_ = ring_len(_aR_)
+			for _j_ = 1 to _nRL_
+				if _aR_[_j_] = _v_ _bSeen_ = TRUE exit ok
+			next
+			if NOT _bSeen_ _aR_ + _v_ ok
+		next
+		return new stzListOfChars(_aR_)
+
+	def ToStzListOfStrings()
+		return new stzList( This.Content() )
+
+	def Concatenated()
+		_l_ = This.Content()
+		_nL_ = ring_len(_l_)
+		_c_ = ""
+		for _i_ = 1 to _nL_
+			if isString(_l_[_i_]) _c_ += _l_[_i_] ok
+		next
+		return _c_
+
+	def Are(p)
+		return ring_len(This.Content()) > 0
