@@ -5079,8 +5079,21 @@ class stzString from stzObject
 	# --- IsMadeOf ---
 
 	def IsMadeOfCS(acSubStr, pCaseSensitive)
+		# Accept a single string OR a list of substrings.
+		# Force-list: build a fresh list, no isString check.
+		_imoArg_ = []
+		if isString(acSubStr)
+			_imoArg_ + acSubStr
+		but isList(acSubStr)
+			_nIL_ = ring_len(acSubStr)
+			for _iI_ = 1 to _nIL_
+				if isString(acSubStr[_iI_]) _imoArg_ + acSubStr[_iI_] ok
+			next
+		else
+			return FALSE
+		ok
 		_oImoChk_ = new stzStringChecker(This)
-		return _oImoChk_.IsMadeOfCS(acSubStr, pCaseSensitive)
+		return _oImoChk_.IsMadeOfCS(_imoArg_, pCaseSensitive)
 
 	def IsMadeOf(acSubStr)
 		return This.IsMadeOfCS(acSubStr, 1)
