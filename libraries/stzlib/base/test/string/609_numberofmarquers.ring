@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #609.
-#ERR Error (R3) : Calling Function without definition: firstmarquer
 
 load "../../stzBase.ring"
 

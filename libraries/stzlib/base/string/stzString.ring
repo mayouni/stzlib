@@ -10744,6 +10744,288 @@ class stzString from stzObject
 	def FindMarkers()
 		return This.MarquersPositions()
 
+	# Marker family: a "marquer" is a `#N` placeholder in content.
+	# These wrappers expose Find/First/Nth/Previous variants used
+	# by the StzStringQ block tests (609-628).
+
+	def FirstMarquer()
+		_a_ = This.MarquersPositions()
+		if ring_len(_a_) < 1 return 0 ok
+		return _a_[1]
+
+	def FirstMarker()
+		return This.FirstMarquer()
+
+	def FindFirstMarquer()
+		return This.FirstMarquer()
+
+	def NthMarquer(n)
+		_a_ = This.MarquersPositions()
+		if n < 1 or n > ring_len(_a_) return 0 ok
+		return _a_[n]
+
+	def NthMarker(n)
+		return This.NthMarquer(n)
+
+	def FindNthMarquer(n)
+		return This.NthMarquer(n)
+
+	def LastMarquer()
+		_a_ = This.MarquersPositions()
+		_nL_ = ring_len(_a_)
+		if _nL_ < 1 return 0 ok
+		return _a_[_nL_]
+
+	def FindLastMarquer()
+		return This.LastMarquer()
+
+	def NextNthMarquerST(n, pStartingAt)
+		_nFrom_ = 1
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt)
+			_nFrom_ = pStartingAt
+		ok
+		return This.FindNextNthMarquer(n, _nFrom_)
+
+	def PreviousMarquers(pStartingAt)
+		_nUntil_ = This.NumberOfChars()
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nUntil_ = pStartingAt[2]
+		but isNumber(pStartingAt)
+			_nUntil_ = pStartingAt
+		ok
+		_a_ = This.MarquersPositions()
+		_aR_ = []
+		_nL_ = ring_len(_a_)
+		for _i_ = 1 to _nL_
+			if _a_[_i_] < _nUntil_ _aR_ + _a_[_i_] ok
+		next
+		return _aR_
+
+	def NextMarquers(pStartingAt)
+		_nFrom_ = 1
+		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			_nFrom_ = pStartingAt[2]
+		but isNumber(pStartingAt)
+			_nFrom_ = pStartingAt
+		ok
+		_a_ = This.MarquersPositions()
+		_aR_ = []
+		_nL_ = ring_len(_a_)
+		for _i_ = 1 to _nL_
+			if _a_[_i_] > _nFrom_ _aR_ + _a_[_i_] ok
+		next
+		return _aR_
+
+	def PreviousNthMarquer(n, pStartingAt)
+		_a_ = This.PreviousMarquers(pStartingAt)
+		_nL_ = ring_len(_a_)
+		if n < 1 or n > _nL_ return 0 ok
+		return _a_[_nL_ - n + 1]
+
+	def FindNthPreviousMarquer(n, pStartingAt)
+		return This.PreviousNthMarquer(n, pStartingAt)
+
+	def FindMarquersAsSections()
+		_a_ = This.MarquersAndSections()
+		_aR_ = []
+		_nL_ = ring_len(_a_)
+		for _i_ = 1 to _nL_
+			if isList(_a_[_i_]) and ring_len(_a_[_i_]) >= 2
+				_aR_ + _a_[_i_][2]
+			ok
+		next
+		return _aR_
+
+	def FindMarkersAsSections()
+		return This.FindMarquersAsSections()
+
+	def FindMarquer(pcMarker)
+		# Positions of every occurrence of the literal marker string.
+		return This.AllPositionsOf(pcMarker)
+
+	def FindMarker(pcMarker)
+		return This.FindMarquer(pcMarker)
+
+	def OccurrencesOfMarquer(pcMarker)
+		return This.AllPositionsOf(pcMarker)
+
+	def MarquersUZ()
+		# Unique markers and their first position: list of [text, pos].
+		_a_ = This.MarquersAndSections()
+		_aR_ = []
+		_nL_ = ring_len(_a_)
+		for _i_ = 1 to _nL_
+			_pair_ = _a_[_i_]
+			if isList(_pair_) and ring_len(_pair_) >= 2
+				_txt_ = _pair_[1]
+				_pos_ = _pair_[2][1]
+				_bSeen_ = FALSE
+				_nRL_ = ring_len(_aR_)
+				for _j_ = 1 to _nRL_
+					if _aR_[_j_][1] = _txt_ _bSeen_ = TRUE exit ok
+				next
+				if NOT _bSeen_ _aR_ + [ _txt_, _pos_ ] ok
+			ok
+		next
+		return _aR_
+
+	def UniqueMarquersAndTheirPositions()
+		return This.MarquersUZ()
+
+	def MarkersUZ()
+		return This.MarquersUZ()
+
+	def MarquersUZZ()
+		_a_ = This.MarquersAndSections()
+		_aR_ = []
+		_nL_ = ring_len(_a_)
+		for _i_ = 1 to _nL_
+			_pair_ = _a_[_i_]
+			if isList(_pair_) and ring_len(_pair_) >= 2
+				_txt_ = _pair_[1]
+				_sec_ = _pair_[2]
+				_bSeen_ = FALSE
+				_nRL_ = ring_len(_aR_)
+				for _j_ = 1 to _nRL_
+					if _aR_[_j_][1] = _txt_ _bSeen_ = TRUE exit ok
+				next
+				if NOT _bSeen_ _aR_ + [ _txt_, _sec_ ] ok
+			ok
+		next
+		return _aR_
+
+	def UniqueMarquersAndTheirSections()
+		return This.MarquersUZZ()
+
+	def MarkersUZZ()
+		return This.MarquersUZZ()
+
+	def MarquersSortedZ()
+		_a_ = This.MarquersPositions()
+		_aSorted_ = _ListCopy(_a_)
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_] > _v_
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		return _aSorted_
+
+	def MarkersSortedZ()
+		return This.MarquersSortedZ()
+
+	def MarquersSortedZZ()
+		_a_ = This.MarquersSortedZ()
+		_aR_ = []
+		_nL_ = ring_len(_a_)
+		for _i_ = 1 to _nL_
+			_aR_ + [ _a_[_i_], _a_[_i_] ]
+		next
+		return _aR_
+
+	def MarkersSortedZZ()
+		return This.MarquersSortedZZ()
+
+	def FindNextNthMarquerST(n, pStartingAt)
+		return This.NextNthMarquerST(n, pStartingAt)
+
+	def FindNextNthMarkerST(n, pStartingAt)
+		return This.NextNthMarquerST(n, pStartingAt)
+
+	def MarquerByPosition(pos)
+		_a_ = This.MarquersAndSections()
+		_nL_ = ring_len(_a_)
+		for _i_ = 1 to _nL_
+			_pair_ = _a_[_i_]
+			if isList(_pair_) and ring_len(_pair_) >= 2 and isList(_pair_[2]) and
+			   _pair_[2][1] = pos
+				return _pair_[1]
+			ok
+		next
+		return ""
+
+	def MarkerByPosition(pos)
+		return This.MarquerByPosition(pos)
+
+	def FindPreviousNthMarquer(n, pStartingAt)
+		return This.PreviousNthMarquer(n, pStartingAt)
+
+	def FindPreviousNthMarker(n, pStartingAt)
+		return This.PreviousNthMarquer(n, pStartingAt)
+
+	def PreviousMarquerZ(pStartingAt)
+		_a_ = This.PreviousMarquers(pStartingAt)
+		_nL_ = ring_len(_a_)
+		if _nL_ < 1 return 0 ok
+		return _a_[_nL_]
+
+	def PreviousMarkerZ(pStartingAt)
+		return This.PreviousMarquerZ(pStartingAt)
+
+	def MarquersSortedUZ()
+		_a_ = This.MarquersUZ()
+		_aSorted_ = _ListCopy(_a_)
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and isList(_aSorted_[_j_]) and isList(_v_) and
+			      _aSorted_[_j_][2] > _v_[2]
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		return _aSorted_
+
+	def MarkersSortedUZ()
+		return This.MarquersSortedUZ()
+
+	def MarquersByPositions(positions)
+		return This.MarquerByPositions(positions)
+
+	def MarkersByPositions(positions)
+		return This.MarquerByPositions(positions)
+
+	def MarquerByPositions(positions)
+		if NOT isList(positions) return [] ok
+		_aR_ = []
+		_nL_ = ring_len(positions)
+		for _i_ = 1 to _nL_
+			_aR_ + This.MarquerByPosition(positions[_i_])
+		next
+		return _aR_
+
+	def MarkerByPositions(positions)
+		return This.MarquerByPositions(positions)
+
+	def PreviousNthMarquerZ(n, pStartingAt)
+		_p_ = This.PreviousNthMarquer(n, pStartingAt)
+		return _p_
+
+	def MarquersSortedUZZ()
+		_a_ = This.MarquersUZZ()
+		_aSorted_ = _ListCopy(_a_)
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and isList(_aSorted_[_j_]) and isList(_v_) and
+			      isList(_aSorted_[_j_][2]) and isList(_v_[2]) and
+			      _aSorted_[_j_][2][1] > _v_[2][1]
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		return _aSorted_
+
+	def MarkersSortedUZZ()
+		return This.MarquersSortedUZZ()
+
 	def MarquersPositionsSortedInAscending()
 		_a_ = This.MarquersPositions()
 		_n_ = ring_len(_a_)

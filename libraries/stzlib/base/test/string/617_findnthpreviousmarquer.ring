@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #617.
-#ERR Error (R3) : Calling Function without definition: findnthpreviousmarquer
 
 load "../../stzBase.ring"
 
