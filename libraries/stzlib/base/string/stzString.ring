@@ -8646,12 +8646,59 @@ class stzString from stzObject
 	# PreviousNChars / NextNChars: the n chars before / after the
 	# first occurrence of a delimiter substring.
 	def NextNChars(pcAnchor, n)
+		# Numeric-anchor form: NextNChars(n, :StartingAt = pos)
+		# returns the n chars right after position pos as a list.
+		if isNumber(pcAnchor)
+			_nN_ = pcAnchor
+			_nFrom_ = 1
+			if isList(n) and ring_len(n) = 2 and isString(n[1]) and
+			   lower(n[1]) = "startingat"
+				_nFrom_ = n[2]
+			but isNumber(n)
+				_nFrom_ = n
+			ok
+			if NOT (isNumber(_nFrom_) and isNumber(_nN_)) return [] ok
+			_aChars_ = This.Chars()
+			_nL_ = ring_len(_aChars_)
+			_aRes_ = []
+			_start_ = _nFrom_ + 1
+			_end_ = _start_ + _nN_ - 1
+			if _end_ > _nL_ _end_ = _nL_ ok
+			for _i_ = _start_ to _end_
+				_aRes_ + _aChars_[_i_]
+			next
+			return _aRes_
+		ok
+		if NOT isString(pcAnchor) return "" ok
 		_nP_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
 		if _nP_ < 1 return "" ok
 		return This._EngineSlice(This.Content(),
 		       _nP_ + This._EngineCount(pcAnchor), n)
 
 	def PreviousNChars(pcAnchor, n)
+		# Numeric-anchor form: PreviousNChars(n, :StartingAt = pos)
+		if isNumber(pcAnchor)
+			_nN_ = pcAnchor
+			_nFrom_ = This.NumberOfChars()
+			if isList(n) and ring_len(n) = 2 and isString(n[1]) and
+			   (lower(n[1]) = "startingat" or lower(n[1]) = "startingatposition")
+				_nFrom_ = n[2]
+			but isNumber(n)
+				_nFrom_ = n
+			ok
+			if NOT (isNumber(_nFrom_) and isNumber(_nN_)) return [] ok
+			_aChars_ = This.Chars()
+			_aRes_ = []
+			_start_ = _nFrom_ - _nN_
+			if _start_ < 1 _start_ = 1 ok
+			_end_ = _nFrom_ - 1
+			if _end_ > ring_len(_aChars_) _end_ = ring_len(_aChars_) ok
+			for _i_ = _start_ to _end_
+				_aRes_ + _aChars_[_i_]
+			next
+			return _aRes_
+		ok
+		if NOT isString(pcAnchor) return "" ok
 		_nP_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
 		if _nP_ < 1 return "" ok
 		_nS_ = _nP_ - n
@@ -9087,12 +9134,19 @@ class stzString from stzObject
 		return StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 		       nStartAt + 1, _bCase_)
 
-	# ContainsMoreThenN(pcSub, n): TRUE iff content contains pcSub
-	# strictly more than n times.
+	# ContainsMoreThenN(n, pcSub) or (pcSub, n): TRUE iff content
+	# contains pcSub strictly more than n times.
 	def ContainsMoreThenN(pcSub, n)
+		# Auto-swap if caller passed (n, pcSub).
+		if isNumber(pcSub) and isString(n)
+			_tmp_ = pcSub; pcSub = n; n = _tmp_
+		ok
 		return This.HowMany(pcSub) > n
 
 	def ContainsMoreThanN(pcSub, n)
+		if isNumber(pcSub) and isString(n)
+			_tmp_ = pcSub; pcSub = n; n = _tmp_
+		ok
 		return This.HowMany(pcSub) > n
 
 	def ContainsAtLeastN(pcSub, n)
