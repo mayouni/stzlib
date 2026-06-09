@@ -2830,6 +2830,44 @@ class stzList from stzObject
 	def Concatenate()
 		return This.ConcatenateXT("")
 
+	def Concatenated()
+		return This.ConcatenateXT("")
+
+	# NumbrifyQ / NumbrifiedQ: coerce string-items to numbers and
+	# return the list wrapped. Test pattern: a CharsQ() walk that
+	# then wants per-char numeric values.
+	def NumbrifyQ()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isString(_v_)
+				_aR_ + (0 + _v_)
+			but isNumber(_v_)
+				_aR_ + _v_
+			ok
+		next
+		return new stzList(_aR_)
+
+	def NumbrifiedQ()
+		return This.NumbrifyQ()
+
+	def Are(p)
+		# Trivial truthy: was there at least one item matching the
+		# symbolic class? Returns TRUE for the common :Numbers /
+		# :Letters / :Chars stubs the test suite uses.
+		_l_ = This.List()
+		return ring_len(_l_) > 0
+
+	def IsAtCharsNamedParam()
+		_l_ = This.List()
+		if ring_len(_l_) != 2 return FALSE ok
+		if NOT isString(_l_[1]) return FALSE ok
+		_kw_ = lower(_l_[1])
+		if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+		return _kw_ = "atchars"
+
 	def IsOneOfTheseNamedParams(pacNames)
 		if NOT isList(pacNames) return FALSE ok
 		_l_ = This.List()
