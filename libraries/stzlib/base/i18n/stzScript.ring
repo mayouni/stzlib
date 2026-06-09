@@ -332,6 +332,21 @@ class stzScript
 			StzRaise("Not implemented yet!")
 
 		else
+			# Last-chance: treat input as text and look up the script
+			# of its first char via stzChar.Script() (e.g. Han for 鶊).
+			_oFirstChar_ = new stzChar(pcScriptIdentifier)
+			_cDetected_ = _oFirstChar_.Script()
+			if isString(_cDetected_) and _cDetected_ != ""
+				_aLocS_ = LocaleScriptsXT()
+				_nLSL_ = ring_len(_aLocS_)
+				for _iLS_ = 1 to _nLSL_
+					_aSI_ = _aLocS_[_iLS_]
+					if StzLower(_aSI_[2]) = StzLower(_cDetected_)
+						@aScriptInfo@ = _aSI_
+						return
+					ok
+				next
+			ok
 			StzRaise("Unsupported script identifier!")
 		ok
 

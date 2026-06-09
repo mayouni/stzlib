@@ -17,7 +17,7 @@ o1.InsertBefore("language", "programming ")
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
-*------
+#------
 
 pr()
 

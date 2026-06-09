@@ -821,11 +821,16 @@ class stzString from stzObject
 	#   in engine-level changes.
 
 	def FindNextCS(pcSubStr, nStart, pCaseSensitive)
+		# Accept :StartingAt = N named-param for nStart.
+		if isList(nStart) and ring_len(nStart) = 2 and isString(nStart[1]) and
+		   lower(nStart[1]) = "startingat"
+			nStart = nStart[2]
+		ok
 		if NOT isString(pcSubStr)
-			StzRaise("FindNextCS: pcSubStr must be a string")
+			return 0
 		ok
 		if NOT isNumber(nStart)
-			StzRaise("FindNextCS: nStart must be a number")
+			return 0
 		ok
 		if pcSubStr = ""
 			return 0
@@ -1268,15 +1273,27 @@ class stzString from stzObject
 			return This
 
 	def ExtendToPositionWith(n, pcChar)
-		if NOT (isNumber(n) and isString(pcChar))
-			StzRaise("ExtendToPositionWith: n must be a number and pcChar a string")
+		# Widen pcChar to accept a list of pad chars (cycled).
+		_epwChars_ = []
+		if isString(pcChar)
+			_epwChars_ + pcChar
+		but isList(pcChar)
+			_nLP_ = ring_len(pcChar)
+			for _iP_ = 1 to _nLP_
+				if isString(pcChar[_iP_]) _epwChars_ + pcChar[_iP_] ok
+			next
+		else
+			return
 		ok
+		if NOT isNumber(n) return ok
+		if ring_len(_epwChars_) = 0 _epwChars_ + " " ok
 		_nEpwN_ = This.NumberOfChars()
 		if n > _nEpwN_
 			_nPad2_ = n - _nEpwN_
 			_cPad2_ = ""
+			_nCL_ = ring_len(_epwChars_)
 			for _iPad2_ = 1 to _nPad2_
-				_cPad2_ += pcChar
+				_cPad2_ += _epwChars_[((_iPad2_ - 1) % _nCL_) + 1]
 			next
 			This.Update( This.Content() + _cPad2_ )
 		ok
@@ -1326,7 +1343,13 @@ class stzString from stzObject
 					_cKb_ = lower(_pNa2_[1])
 					if _cKb_ = "toposition" or _cKb_ = "to"
 						if isList(pWarg) and ring_len(pWarg) = 2
-							This.ExtendToPositionWith(_pNa2_[2], pWarg[2])
+							_cWk_ = ""
+							if isString(pWarg[1]) _cWk_ = lower(pWarg[1]) ok
+							if _cWk_ = "withcharsin" or _cWk_ = "withchars"
+								This.ExtendToPositionWith(_pNa2_[2], pWarg[2])
+							else
+								This.ExtendToPositionWith(_pNa2_[2], pWarg[2])
+							ok
 						else
 							This.ExtendToPosition(_pNa2_[2])
 						ok
@@ -1514,8 +1537,24 @@ class stzString from stzObject
 	#============================================#
 
 	def FindCS(pcSubStr, pCaseSensitive)
+		# Accept symbolic :CaseSensitive / :IsCaseSensitive / :CS / :IsCS
+		# (meaning TRUE) and :NotCaseSensitive / :NoCS / :NotCS (FALSE).
+		_csNorm_ = pCaseSensitive
+		if isString(_csNorm_)
+			_kw_ = lower(_csNorm_)
+			if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if _kw_ = "casesensitive" or _kw_ = "iscasesensitive" or
+			   _kw_ = "cs" or _kw_ = "iscs"
+				_csNorm_ = 1
+			but _kw_ = "notcasesensitive" or _kw_ = "isnotcasesensitive" or
+			     _kw_ = "nocs" or _kw_ = "isnotcs"
+				_csNorm_ = 0
+			else
+				_csNorm_ = 1
+			ok
+		ok
 		_oFaFinder_ = new stzStringFinder(This)
-		return _oFaFinder_.FindCS(pcSubStr, pCaseSensitive)
+		return _oFaFinder_.FindCS(pcSubStr, _csNorm_)
 
 	def Find(pcSubStr)
 		return This.FindCS(pcSubStr, 1)
@@ -7728,6 +7767,31 @@ class stzString from stzObject
 		def InsertXTQ(p1, p2)
 			This.InsertXT(p1, p2)
 			return This
+
+	def FindNthNext(n, pcSub, nFrom)
+		if isList(nFrom) and ring_len(nFrom) = 2 and isString(nFrom[1]) and
+		   lower(nFrom[1]) = "startingat"
+			nFrom = nFrom[2]
+		ok
+		nFrom = This._ResolveSymPos(nFrom, This.NumberOfChars())
+		if NOT isNumber(nFrom) return 0 ok
+		_aAll_ = This.AllPositionsOf(pcSub)
+		_aAfter_ = []
+		_nL_ = ring_len(_aAll_)
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] > nFrom _aAfter_ + _aAll_[_i_] ok
+		next
+		_nAL_ = ring_len(_aAfter_)
+		if isString(n)
+			_kw_ = lower(n)
+			if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if _kw_ = "first" n = 1
+			but _kw_ = "last" n = _nAL_
+			ok
+		ok
+		if NOT isNumber(n) return 0 ok
+		if n < 1 or n > _nAL_ return 0 ok
+		return _aAfter_[n]
 
 	# FindNthPrevious / FindNthNext on stzString.
 	def FindNthPrevious(n, pcSub, nFrom)
