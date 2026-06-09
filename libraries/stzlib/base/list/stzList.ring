@@ -2748,6 +2748,30 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	def IsStepNamedParam()
+		_l_ = This.List()
+		return ring_len(_l_) = 2 and isString(_l_[1]) and lower(_l_[1]) = "step"
+
+	def IsIsBoundedByNamedParam()
+		_l_ = This.List()
+		return ring_len(_l_) = 2 and isString(_l_[1]) and
+		       (lower(_l_[1]) = "isboundedby" or lower(_l_[1]) = "boundedby")
+
+	def ItemsAndTheirNumberOfOccurrence()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aRes_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			_bSeen_ = FALSE
+			_nRL_ = ring_len(_aRes_)
+			for _j_ = 1 to _nRL_
+				if _aRes_[_j_][1] = _v_ _aRes_[_j_][2] = _aRes_[_j_][2] + 1 _bSeen_ = TRUE exit ok
+			next
+			if NOT _bSeen_ _aRes_ + [ _v_, 1 ] ok
+		next
+		return _aRes_
+
 	def HowManyST(pItem, pStartingAt)
 		_nFrom_ = 1
 		if isList(pStartingAt) and ring_len(pStartingAt) = 2 and isString(pStartingAt[1]) and
