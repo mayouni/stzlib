@@ -641,3 +641,21 @@ class stzListOfChars from stzStringCharList
 
 	def Are(p)
 		return ring_len(This.Content()) > 0
+
+	# Boxify (delegates to stzString via concat).
+	def Boxify()
+		_l_ = This.Content()
+		_nL_ = ring_len(_l_)
+		_c_ = ""
+		for _i_ = 1 to _nL_
+			if isString(_l_[_i_]) _c_ += _l_[_i_] ok
+		next
+		_o_ = new stzString(_c_)
+		_o_.BoxRoundEachChar()
+		return _o_.Content()
+
+	def Box()
+		return This.Boxify()
+
+	def BoxDash()
+		return This.Boxify()

@@ -3,7 +3,6 @@
 # narration #visiality VIZ-FINDING A RECURRING SUBSTRING
 #
 # Extracted from stzStringTest.ring, block #972.
-#ERR Error (R14) : Calling Method without definition: vizfindzz
 
 load "../../stzBase.ring"
 
