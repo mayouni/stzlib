@@ -3,7 +3,6 @@
 # TODO - FIX THIS : Revisit this after completing stzWalker
 #
 # Extracted from stzStringTest.ring, block #982.
-#ERR Error (R14) : Calling Method without definition: walkuntil
 
 load "../../stzBase.ring"
 

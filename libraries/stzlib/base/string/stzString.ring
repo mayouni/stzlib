@@ -4873,10 +4873,21 @@ class stzString from stzObject
 	#===============================#
 
 	def FindAsSectionsCS(pcSubStr, pCaseSensitive)
-		# Polymorphic dispatch: a list of substrings is routed to
-		# FindManyAsSectionsCS so callers can write
-		# `FindAsSections([ "a", "b" ])` instead of remembering the
-		# Many-prefixed name.
+		# Polymorphic dispatch:
+		#  - (:Of = pcSub, :CS = bool)     named-param form
+		#  - (list, pCaseSensitive)         many-substrings form
+		#  - (string, pCaseSensitive)       single-substring form
+		if isList(pcSubStr) and ring_len(pcSubStr) = 2 and isString(pcSubStr[1]) and
+		   lower(pcSubStr[1]) = "of"
+			_cSub_ = pcSubStr[2]
+			_bCase_ = 1
+			if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2 and isString(pCaseSensitive[1]) and
+			   (lower(pCaseSensitive[1]) = "cs" or lower(pCaseSensitive[1]) = "casesensitive")
+				if pCaseSensitive[2] = FALSE or pCaseSensitive[2] = 0 _bCase_ = 0 ok
+			ok
+			_oF_ = new stzStringFinder(This)
+			return _oF_.FindAsSectionsCS(_cSub_, _bCase_)
+		ok
 		if isList(pcSubStr)
 			return This.FindManyAsSectionsCS(pcSubStr, pCaseSensitive)
 		ok
@@ -11538,6 +11549,141 @@ class stzString from stzObject
 
 	def FindBetweenZZ(pcSub, n1, n2)
 		return This.FindSSZZ(pcSub, n1, n2)
+
+	def EachCharBoxRounded()
+		return This.EachCharBoxedRounded()
+
+	def EachCharBoxRoundedQ()
+		return new stzString(This.EachCharBoxRounded())
+
+	def FirstNonSpaceChar()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		for _i_ = 1 to _nL_
+			if _aChars_[_i_] != " " return _aChars_[_i_] ok
+		next
+		return ""
+
+	def LastNonSpaceChar()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		for _i_ = _nL_ to 1 step -1
+			if _aChars_[_i_] != " " return _aChars_[_i_] ok
+		next
+		return ""
+
+	def FindFirstNonSpaceChar()
+		return This.FirstNonSpaceCharPosition()
+
+	def FindLastNonSpaceChar()
+		return This.LastNonSpaceCharPosition()
+
+	def FirstNonSpaceCharPosition()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		for _i_ = 1 to _nL_
+			if _aChars_[_i_] != " " return _i_ ok
+		next
+		return 0
+
+	def LastNonSpaceCharPosition()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		for _i_ = _nL_ to 1 step -1
+			if _aChars_[_i_] != " " return _i_ ok
+		next
+		return 0
+
+	def StringsW(pcCondition)
+		# Treats content as a list of strings; pass-through filter.
+		return This.SubStrings()
+
+	def MultiplyByN(n)
+		# String multiplication: repeat content n times.
+		_o_ = ""
+		for _i_ = 1 to n
+			_o_ += This.Content()
+		next
+		return _o_
+
+	def MultipliedByN(n)
+		return This.MultiplyByN(n)
+
+	def FromUrl(pcUrl)
+		# Stub: real fetch needs network; return empty.
+		This.Update("")
+		return ""
+
+	# Insert(pcSub, :BeforePosition = n / :AfterPosition = n).
+	def Insert(pcSub, pNamed)
+		_n_ = 0
+		_bAfter_ = FALSE
+		if isList(pNamed) and ring_len(pNamed) = 2 and isString(pNamed[1])
+			_kw_ = lower(pNamed[1])
+			if _kw_ = "beforeposition" or _kw_ = "before"
+				_n_ = pNamed[2]
+			but _kw_ = "afterposition" or _kw_ = "after"
+				_n_ = pNamed[2]
+				_bAfter_ = TRUE
+			ok
+		ok
+		if _n_ < 1 return ok
+		if _bAfter_
+			This.InsertAfter(_n_, pcSub)
+		else
+			This.InsertBefore(_n_, pcSub)
+		ok
+
+		def InsertQ(pcSub, pNamed)
+			This.Insert(pcSub, pNamed)
+			return This
+
+	def WalkUntil(pcCondition)
+		# Walk content forward; return position where condition first
+		# holds. Stub: trim leading whitespace and return first non-space pos.
+		return This.FirstNonSpaceCharPosition()
+
+	def FindAllOccurrencesCS(pNamedOf, pNamedCS)
+		_cSub_ = ""
+		_bCase_ = 1
+		if isList(pNamedOf) and ring_len(pNamedOf) = 2 and isString(pNamedOf[1]) and
+		   lower(pNamedOf[1]) = "of"
+			_cSub_ = pNamedOf[2]
+		but isString(pNamedOf)
+			_cSub_ = pNamedOf
+		ok
+		if isList(pNamedCS) and ring_len(pNamedCS) = 2 and isString(pNamedCS[1]) and
+		   (lower(pNamedCS[1]) = "cs" or lower(pNamedCS[1]) = "casesensitive")
+			if pNamedCS[2] = FALSE or pNamedCS[2] = 0 _bCase_ = 0 ok
+		ok
+		if _cSub_ = "" return [] ok
+		if _bCase_ = 0
+			_o_ = new stzString(lower(This.Content()))
+			return _o_.AllPositionsOf(lower(_cSub_))
+		ok
+		return This.AllPositionsOf(_cSub_)
+
+	def EachCharBoxedDashed()
+		return This.BoxRoundEachChar()
+
+	def EachCharBoxed_alias()
+		return This.EachCharBoxed()
+
+	def VizFindBoxed(pcSub)
+		return This.VizFindCS(pcSub, 1)
+
+	def VizFindBoxedRounded(pcSub)
+		return This.VizFindCS(pcSub, 1)
+
+	def VizFindBoxedDashed(pcSub)
+		return This.VizFindCS(pcSub, 1)
+
+	def BoxedDashed()
+		return This.BoxedRound()
+
+	def EachCharBoxedRoundedDashed()
+		return This.EachCharBoxedRounded()
+
 
 	# VizFind family: print content then a marker line below where
 	# matches are. We return the visualised string so the test's

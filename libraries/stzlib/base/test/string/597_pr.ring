@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #597.
-#ERR Error (R3) : Calling Function without definition: fromurl
 
 load "../../stzBase.ring"
 

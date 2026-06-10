@@ -2917,6 +2917,31 @@ class stzList from stzObject
 	def AreIncludedIn(pOther)
 		return This.IsIncludedIn(pOther)
 
+	def FindObjects(pcExpr)
+		# Eval pcExpr per item (@item bound) and return matching items.
+		return This.ItemsWhere(pcExpr)
+
+	def StringsW(pcExpr)
+		# Filter to string items matching pcExpr.
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if NOT isString(_v_) loop ok
+			@string = _v_
+			@item = _v_
+			@i = _i_
+			_b_ = FALSE
+			try
+				eval("_b_ = " + pcExpr)
+			catch
+				_b_ = FALSE
+			done
+			if _b_ _aR_ + _v_ ok
+		next
+		return _aR_
+
 	def ItemsWhere(pcExpr)
 		if NOT isString(pcExpr) return [] ok
 		_l_ = This.List()
