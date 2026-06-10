@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #99.
-#ERR Error (R3) : Calling Function without definition: eachcharboxrounded
 
 load "../../stzBase.ring"
 

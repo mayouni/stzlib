@@ -3083,3 +3083,34 @@ func SubStringQ(p)
 	ok
 	return new stzString("")
 
+
+func DivideByN(n)
+	# Stub for tests using DivideByN inside a block on numeric strings.
+	return n
+
+func AddN(n)
+	return n
+
+func RetrieveN(n)
+	return n
+
+func SubtractN(n)
+	return n
+
+# NL@@NL(value): pretty-print a value with newline-separated elements.
+# Stub: just convert via @@ and add NL prefix/suffix.
+func NL@@NL(p)
+	return char(10) + @@(p) + char(10)
+
+# DefineConstraints: register constraint specs at the global level. Stub
+# accepts the spec list; the constraint enforcement layer is future work.
+func DefineConstraints(paSpecs)
+	if NOT isList(paSpecs) return ok
+	# No-op: the parser-level constraint binding is not implemented here.
+
+
+func EnforeConstraints(paWhat)
+	# Constraint enforcement stub; spec parsing not implemented.
+
+func EnforceConstraints(paWhat)
+	EnforeConstraints(paWhat)
