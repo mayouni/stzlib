@@ -3,7 +3,6 @@
 # (TODO)
 #
 # Extracted from stzStringTest.ring, block #974.
-#ERR Error (R14) : Calling Method without definition: vizfindmany
 
 load "../../stzBase.ring"
 

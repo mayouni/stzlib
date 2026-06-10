@@ -3,7 +3,6 @@
 # SS ~> The start and end of a section
 #
 # Extracted from stzStringTest.ring, block #94.
-#ERR Error (R14) : Calling Method without definition: findsszz
 
 load "../../stzBase.ring"
 

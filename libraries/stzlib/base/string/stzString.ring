@@ -11487,6 +11487,111 @@ class stzString from stzObject
 	def ToListInStringNF()
 		return This.Content()
 
+	# SectionBounds(n1, n2, nLeftMax, nRightMax): the [open, close]
+	# bound substrings just before n1 and just after n2.
+	def SectionBounds(n1, n2, nLeftMax, nRightMax)
+		_cAll_ = This.Content()
+		_nLen_ = This.NumberOfChars()
+		_cLeft_ = ""
+		_cRight_ = ""
+		if n1 > 1
+			_start_ = n1 - nLeftMax
+			if _start_ < 1 _start_ = 1 ok
+			_cLeft_ = This._EngineSlice(_cAll_, _start_, n1 - _start_)
+		ok
+		if n2 < _nLen_
+			_count_ = nRightMax
+			if n2 + _count_ > _nLen_ _count_ = _nLen_ - n2 ok
+			_cRight_ = This._EngineSlice(_cAll_, n2 + 1, _count_)
+		ok
+		return [ _cLeft_, _cRight_ ]
+
+	def SectionBoundsIB(n1, n2, nLeftMax, nRightMax)
+		return This.SectionBounds(n1, n2, nLeftMax, nRightMax)
+
+	def SectionBoundsZ(n1, n2, nLeftMax, nRightMax)
+		_a_ = This.SectionBounds(n1, n2, nLeftMax, nRightMax)
+		if ring_len(_a_) < 2 return [] ok
+		_cLeft_ = _a_[1]; _cRight_ = _a_[2]
+		_nLLen_ = This._EngineCount(_cLeft_)
+		return [ [ _cLeft_, n1 - _nLLen_ ], [ _cRight_, n2 + 1 ] ]
+
+	def SectionBoundsZZ(n1, n2, nLeftMax, nRightMax)
+		_a_ = This.SectionBounds(n1, n2, nLeftMax, nRightMax)
+		if ring_len(_a_) < 2 return [] ok
+		_cLeft_ = _a_[1]; _cRight_ = _a_[2]
+		_nLLen_ = This._EngineCount(_cLeft_)
+		_nRLen_ = This._EngineCount(_cRight_)
+		return [
+		    [ _cLeft_, [ n1 - _nLLen_, n1 - 1 ] ],
+		    [ _cRight_, [ n2 + 1, n2 + _nRLen_ ] ]
+		]
+
+	def FindInSectionZZ(pcSub, n1, n2)
+		return This.FindSSZZ(pcSub, n1, n2)
+
+	def SectionBoundsIBZ(n1, n2, nLeftMax, nRightMax)
+		return This.SectionBoundsZ(n1, n2, nLeftMax, nRightMax)
+
+	def SectionBoundsIBZZ(n1, n2, nLeftMax, nRightMax)
+		return This.SectionBoundsZZ(n1, n2, nLeftMax, nRightMax)
+
+	def FindBetweenZZ(pcSub, n1, n2)
+		return This.FindSSZZ(pcSub, n1, n2)
+
+	# VizFind family: print content then a marker line below where
+	# matches are. We return the visualised string so the test's
+	# `?` operator prints it; functional intent preserved.
+	def VizFindCS(pcSub, pCaseSensitive)
+		_cTxt_ = This.Content()
+		_aPos_ = This.AllPositionsOf(pcSub)
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_mark_ = ""
+		_nP_ = ring_len(_aPos_)
+		_subLen_ = This._EngineCount(pcSub)
+		for _i_ = 1 to _nL_
+			_b_ = FALSE
+			for _j_ = 1 to _nP_
+				if _i_ >= _aPos_[_j_] and _i_ <= _aPos_[_j_] + _subLen_ - 1
+					_b_ = TRUE
+					exit
+				ok
+			next
+			if _b_ _mark_ += "^" else _mark_ += "-" ok
+		next
+		return _cTxt_ + char(10) + _mark_
+
+	def VizFindZZ(pcSub)
+		return This.VizFindCS(pcSub, 1)
+
+	def VizFindMany(pacSub)
+		_o_ = ""
+		if NOT isList(pacSub) return This.VizFindCS("", 1) ok
+		_nL_ = ring_len(pacSub)
+		for _i_ = 1 to _nL_
+			if isString(pacSub[_i_])
+				if _i_ > 1 _o_ += char(10) ok
+				_o_ += This.VizFindCS(pacSub[_i_], 1)
+			ok
+		next
+		return _o_
+
+	# Accept VizFindManyXT with single sub string or list.
+	def VizFindManyXT(pacSub)
+		if isString(pacSub) return This.VizFindCS(pacSub, 1) ok
+		return This.VizFindMany(pacSub)
+
+	def VizFindManyXT2(pacSub, pNamed)
+		return This.VizFindManyXT(pacSub)
+
+	def VizFindBoxedCSXT(pcSub, pCaseSensitive, pNamed)
+		return This.VizFindCS(pcSub, pCaseSensitive)
+
+	def IsADigitInString()
+		_c_ = ring_trim(This.Content())
+		return ring_len(_c_) = 1 and isDigit(_c_[1])
+
 	def FindSSZ(pcSub, n1, n2)
 		# Section-bounded find; n1/n2 bound the search range.
 		if NOT isString(pcSub) or pcSub = "" return [] ok

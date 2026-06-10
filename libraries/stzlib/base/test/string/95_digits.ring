@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #95.
-#ERR Error (R14) : Calling Method without definition: isadigitinstring
 
 load "../../stzBase.ring"
 
