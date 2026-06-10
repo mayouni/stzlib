@@ -3060,3 +3060,25 @@ func RepresentsUnsignedRealNumber(pcStr)
 func RepresentsCalculableInteger(pcStr)
 	if NOT isString(pcStr) return FALSE ok
 	return new stzString(pcStr).RepresentsCalculableInteger()
+
+# SubStringQ(p): narrative-style wrapper. Accepts either a string or
+# a [ "subst", :In = "host" ] pair. Returns the host string wrapped
+# in stzString so the narrative .Comes* chain has an object to land on.
+func SubStringQ(p)
+	if isString(p) return new stzString(p) ok
+	if isList(p) and ring_len(p) >= 2
+		_host_ = ""
+		_sub_ = ""
+		if isString(p[1]) _sub_ = p[1] ok
+		for _i_ = 2 to ring_len(p)
+			_v_ = p[_i_]
+			if isList(_v_) and ring_len(_v_) = 2 and isString(_v_[1]) and
+			   lower(_v_[1]) = "in" and isString(_v_[2])
+				_host_ = _v_[2]
+			ok
+		next
+		_o_ = new stzString(_host_)
+		_o_._SetNarrativeSub(_sub_)
+		return _o_
+	ok
+	return new stzString("")

@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #918.
-#ERR Error (R14) : Calling Method without definition: replacesubstringatpositionsbymany
 
 load "../../stzBase.ring"
 

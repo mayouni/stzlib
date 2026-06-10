@@ -328,3 +328,13 @@ func StzSplitCS(cStr, cSubStr, bCaseSensitive)
 func StzSplit(cStr, cSubStr)
 	return StkSplit(cStr, cSubStr)
 
+
+#-- Global _ListCopy helper (was previously only a method on stzString).
+func _ListCopy(paList)
+	if NOT isList(paList) return paList ok
+	_aR_ = []
+	_nL_ = ring_len(paList)
+	for _i_ = 1 to _nL_
+		_aR_ + paList[_i_]
+	next
+	return _aR_

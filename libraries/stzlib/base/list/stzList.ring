@@ -2917,6 +2917,74 @@ class stzList from stzObject
 	def AreIncludedIn(pOther)
 		return This.IsIncludedIn(pOther)
 
+	def ItemsWhere(pcExpr)
+		if NOT isString(pcExpr) return [] ok
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			@item = _l_[_i_]
+			@Item = @item
+			@i = _i_
+			@position = _i_
+			_b_ = FALSE
+			try
+				eval("_b_ = " + pcExpr)
+			catch
+				_b_ = FALSE
+			done
+			if _b_ _aR_ + _l_[_i_] ok
+		next
+		return _aR_
+
+	def InsertAfterPositions(panPositions, pItem)
+		if NOT isList(panPositions) return ok
+		_aSorted_ = _ListCopy(panPositions)
+		_nL_ = ring_len(_aSorted_)
+		# Sort descending so earlier inserts stay valid.
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aSorted_[_j_] < _v_
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nL_
+			_p_ = _aSorted_[_i_]
+			if isNumber(_p_) and _p_ >= 1 and _p_ <= ring_len(@aContent)
+				ring_insert(@aContent, _p_, pItem)
+			ok
+		next
+
+	def ReplaceItemsAtPositionsByMany(anPos, paNewList)
+		if NOT (isList(anPos) and isList(paNewList)) return ok
+		# Flatten :And.
+		_aNew_ = []
+		_nNL_ = ring_len(paNewList)
+		for _i_ = 1 to _nNL_
+			_v_ = paNewList[_i_]
+			if isList(_v_) and ring_len(_v_) = 2 and isString(_v_[1]) and
+			   (lower(_v_[1]) = "and" or lower(_v_[1]) = "with")
+				_aNew_ + _v_[2]
+			else
+				_aNew_ + _v_
+			ok
+		next
+		_nPL_ = ring_len(anPos)
+		_nAL_ = ring_len(_aNew_)
+		_nMax_ = _nPL_
+		if _nAL_ < _nMax_ _nMax_ = _nAL_ ok
+		_l_ = This.List()
+		_nLL_ = ring_len(_l_)
+		for _i_ = 1 to _nMax_
+			_p_ = anPos[_i_]
+			if isNumber(_p_) and _p_ >= 1 and _p_ <= _nLL_
+				_l_[_p_] = _aNew_[_i_]
+			ok
+		next
+		@aContent = _l_
+
+
 	def IsIncludedIn(pOther)
 		_l_ = This.List()
 		if NOT isList(pOther) return FALSE ok

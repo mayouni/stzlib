@@ -11295,8 +11295,250 @@ class stzString from stzObject
 		if ring_len(_c_) != 3 return FALSE ok
 		return isAlpha(_c_[1]) and isAlpha(_c_[2]) and isAlpha(_c_[3])
 
-	def LeadingSubStringCS(pCaseSensitive)
-		return This.LeadingSubString()
+	def LeadingCharIsCS(pcChar, pCaseSensitive)
+		_l_ = This.LeadingChar()
+		if pCaseSensitive = FALSE or pCaseSensitive = 0
+			return lower(_l_) = lower(pcChar)
+		ok
+		return _l_ = pcChar
+
+	def TrailingCharIsCS(pcChar, pCaseSensitive)
+		_l_ = This.TrailingChar()
+		if pCaseSensitive = FALSE or pCaseSensitive = 0
+			return lower(_l_) = lower(pcChar)
+		ok
+		return _l_ = pcChar
+
+	def RemoveLeadingAndTrailingChars()
+		This.RemoveLeadingChars()
+		This.RemoveTrailingChars()
+
+		def RemoveLeadingAndTrailingCharsQ()
+			This.RemoveLeadingAndTrailingChars()
+			return This
+
+	def UnicodesXT()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_c_ = _aChars_[_i_]
+			_u_ = 0
+			if ring_len(_c_) = 1 _u_ = ascii(_c_) ok
+			_aR_ + [ _c_, _u_ ]
+		next
+		return _aR_
+
+	def SubStringComesBetween(pcSub, pcLeft, pcRight)
+		# TRUE if pcSub has pcLeft just before it and pcRight just after.
+		_p_ = This._FindFrom(This.Content(), pcSub, 1)
+		if _p_ < 1 return FALSE ok
+		_subLen_ = This._EngineCount(pcSub)
+		# pcLeft must end right at position _p_ - 1.
+		if isString(pcLeft) and pcLeft != ""
+			_lLen_ = This._EngineCount(pcLeft)
+			if _p_ - _lLen_ < 1 return FALSE ok
+			_before_ = This._EngineSlice(This.Content(), _p_ - _lLen_, _lLen_)
+			if _before_ != pcLeft return FALSE ok
+		ok
+		if isString(pcRight) and pcRight != ""
+			_rLen_ = This._EngineCount(pcRight)
+			_after_ = This._EngineSlice(This.Content(), _p_ + _subLen_, _rLen_)
+			if _after_ != pcRight return FALSE ok
+		ok
+		return TRUE
+
+	def SubStringComesBefore(pcSub, pcOther)
+		# TRUE if pcSub appears before pcOther in content.
+		_p1_ = This._FindFrom(This.Content(), pcSub, 1)
+		_p2_ = This._FindFrom(This.Content(), pcOther, 1)
+		if _p1_ < 1 or _p2_ < 1 return FALSE ok
+		return _p1_ < _p2_
+
+	def SubStringComesAfter(pcSub, pcOther)
+		_p1_ = This._FindFrom(This.Content(), pcSub, 1)
+		_p2_ = This._FindFrom(This.Content(), pcOther, 1)
+		if _p1_ < 1 or _p2_ < 1 return FALSE ok
+		return _p1_ > _p2_
+
+	def SubStringComesBeforePos(pcSub, nPos)
+		_p_ = This._FindFrom(This.Content(), pcSub, 1)
+		if _p_ < 1 or NOT isNumber(nPos) return FALSE ok
+		return _p_ < nPos
+
+	def SubStringComesBeforePosition(pcSub, nPos)
+		return This.SubStringComesBeforePos(pcSub, nPos)
+
+	def SubStringComesAfterPos(pcSub, nPos)
+		_p_ = This._FindFrom(This.Content(), pcSub, 1)
+		if _p_ < 1 or NOT isNumber(nPos) return FALSE ok
+		return _p_ > nPos
+
+	def SubStringComesAfterPosition(pcSub, nPos)
+		return This.SubStringComesAfterPos(pcSub, nPos)
+
+	def SubStringComesBeforeSubString(pcSub, pcOther)
+		return This.SubStringComesBefore(pcSub, pcOther)
+
+	def SubStringComesAfterSubString(pcSub, pcOther)
+		return This.SubStringComesAfter(pcSub, pcOther)
+
+	def SubStringComesBetweenPositions(pcSub, n1, n2)
+		_p_ = This._FindFrom(This.Content(), pcSub, 1)
+		if _p_ < 1 return FALSE ok
+		if NOT (isNumber(n1) and isNumber(n2)) return FALSE ok
+		return _p_ >= n1 and _p_ <= n2
+
+	# Narrative-sub accessor used by SubStringQ(["sub", :In = "host"]).
+	# Stored as the LAST line of the wrapped content separated by
+	# char(1), so we don't need a class-level attribute that Ring
+	# would require declaring with the other @aContent slots.
+	# InQ(host): the host becomes the new content; the prior content
+	# is kept as the narrative sub.
+	def InQ(pcHost)
+		if NOT isString(pcHost) return This ok
+		_oldSub_ = This.Content()
+		This.Update(pcHost)
+		This._SetNarrativeSub(_oldSub_)
+		return This
+
+	def SubStringQ(pcSub)
+		_o_ = new stzString(This.Content())
+		_o_._SetNarrativeSub(pcSub)
+		return _o_
+
+	def _SetNarrativeSub(pcSub)
+		if NOT isString(pcSub) return ok
+		_cur_ = This.Content()
+		# Avoid double-tagging.
+		_p_ = substr(_cur_, char(1))
+		if _p_ > 0 _cur_ = substr(_cur_, 1, _p_ - 1) ok
+		This.Update(_cur_ + char(1) + pcSub)
+
+	def _NarrativeSubAndHost()
+		_c_ = This.Content()
+		_p_ = substr(_c_, char(1))
+		if _p_ < 1 return [ "", _c_ ] ok
+		return [ substr(_c_, _p_ + 1), substr(_c_, 1, _p_ - 1) ]
+
+	def _NarrativeSub()
+		_pair_ = This._NarrativeSubAndHost()
+		return _pair_[1]
+
+	def ComesBeforeSubString(pcOther)
+		_pair_ = This._NarrativeSubAndHost()
+		_o_ = new stzString(_pair_[2])
+		return _o_.SubStringComesBefore(_pair_[1], pcOther)
+
+	def ComesAfterSubString(pcOther)
+		_pair_ = This._NarrativeSubAndHost()
+		_o_ = new stzString(_pair_[2])
+		return _o_.SubStringComesAfter(_pair_[1], pcOther)
+
+	def ComesBetweenPositions(n1, n2)
+		_pair_ = This._NarrativeSubAndHost()
+		_o_ = new stzString(_pair_[2])
+		return _o_.SubStringComesBetweenPositions(_pair_[1], n1, n2)
+
+	def ComesBeforePosition(n)
+		_pair_ = This._NarrativeSubAndHost()
+		_o_ = new stzString(_pair_[2])
+		return _o_.SubStringComesBeforePos(_pair_[1], n)
+
+	def ComesAfterPosition(n)
+		_pair_ = This._NarrativeSubAndHost()
+		_o_ = new stzString(_pair_[2])
+		return _o_.SubStringComesAfterPos(_pair_[1], n)
+
+	def SubStringComesBetweenSubStrings(pcSub, pNamedSub, pNamedAnd)
+		# (pNamedSub, pNamedAnd) -> :SubStrings = pcLeft, :And = pcRight.
+		_cL_ = pNamedSub
+		_cR_ = pNamedAnd
+		if isList(pNamedSub) and ring_len(pNamedSub) = 2 and isString(pNamedSub[1]) and
+		   (lower(pNamedSub[1]) = "substrings" or lower(pNamedSub[1]) = "between")
+			_cL_ = pNamedSub[2]
+		ok
+		if isList(pNamedAnd) and ring_len(pNamedAnd) = 2 and isString(pNamedAnd[1]) and
+		   (lower(pNamedAnd[1]) = "and" or lower(pNamedAnd[1]) = "with")
+			_cR_ = pNamedAnd[2]
+		ok
+		_p_ = This._FindFrom(This.Content(), pcSub, 1)
+		_pL_ = This._FindFrom(This.Content(), _cL_, 1)
+		_pR_ = This._FindFrom(This.Content(), _cR_, 1)
+		if _p_ < 1 or _pL_ < 1 or _pR_ < 1 return FALSE ok
+		return _p_ > _pL_ and _p_ < _pR_
+
+	def FindSSZZ(pcSub, n1, n2)
+		_a_ = This.FindSSZ(pcSub, n1, n2)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_aR_ = []
+		_nL_ = ring_len(_a_)
+		for _i_ = 1 to _nL_
+			_aR_ + [ _a_[_i_], _a_[_i_] + _nSubLen_ - 1 ]
+		next
+		return _aR_
+
+	def CharsAndTheirUnicodes()
+		return This.UnicodesXT()
+
+	def ToListInStringSF()
+		return This.Content()
+
+	def ToListInStringNF()
+		return This.Content()
+
+	def FindSSZ(pcSub, n1, n2)
+		# Section-bounded find; n1/n2 bound the search range.
+		if NOT isString(pcSub) or pcSub = "" return [] ok
+		_a_ = This.AllPositionsOf(pcSub)
+		_aR_ = []
+		_nL_ = ring_len(_a_)
+		for _i_ = 1 to _nL_
+			_p_ = _a_[_i_]
+			if isNumber(n1) and isNumber(n2) and n2 >= n1 and n1 >= 1
+				if _p_ < n1 or _p_ > n2 loop ok
+			ok
+			_aR_ + _p_
+		next
+		return _aR_
+
+	def ReplaceSubStringAtPositionsByMany(anPos, pcOld, paNewList)
+		if NOT isList(anPos) or NOT isList(paNewList) return ok
+		# Flatten :And inside paNewList.
+		_aNew_ = []
+		_nIL_ = ring_len(paNewList)
+		for _i_ = 1 to _nIL_
+			_v_ = paNewList[_i_]
+			if isString(_v_) _aNew_ + _v_
+			but isList(_v_) and ring_len(_v_) = 2 and isString(_v_[1]) and
+			   (lower(_v_[1]) = "and" or lower(_v_[1]) = "with")
+				_aNew_ + _v_[2]
+			ok
+		next
+		# Pair positions with replacements; sort positions desc.
+		_aPairs_ = []
+		_nPL_ = ring_len(anPos)
+		_nNL_ = ring_len(_aNew_)
+		_nMax_ = _nPL_
+		if _nNL_ < _nMax_ _nMax_ = _nNL_ ok
+		for _i_ = 1 to _nMax_
+			_aPairs_ + [ anPos[_i_], _aNew_[_i_] ]
+		next
+		_nAL_ = ring_len(_aPairs_)
+		for _i_ = 2 to _nAL_
+			_v_ = _aPairs_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _aPairs_[_j_][1] < _v_[1]
+				_aPairs_[_j_ + 1] = _aPairs_[_j_]; _j_--
+			end
+			_aPairs_[_j_ + 1] = _v_
+		next
+		for _i_ = 1 to _nAL_
+			_pair_ = _aPairs_[_i_]
+			This.ReplaceSubStringAtPosition(_pair_[1], pcOld, _pair_[2])
+		next
+
+	def ToListInString()
+		return This.Content()
 
 	def TrailingSubStringCS(pCaseSensitive)
 		return This.TrailingSubString()
