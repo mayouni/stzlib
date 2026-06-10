@@ -449,3 +449,21 @@ class stzListSplits
 		end
 
 		return This.SplittedAtPositions(_anSdpcrPos_)
+
+	# SplitAtCSZZ(pItem, pCaseSensitive): each split-section as [start, end].
+	def SplitAtCSZZ(pItem, pCaseSensitive)
+		_l_ = @oList.List()
+		_nL_ = ring_len(_l_)
+		_aPos_ = []
+		for _i_ = 1 to _nL_
+			if _l_[_i_] = pItem _aPos_ + _i_ ok
+		next
+		_aR_ = []
+		_nPL_ = ring_len(_aPos_)
+		_prev_ = 0
+		for _i_ = 1 to _nPL_
+			_aR_ + [ _prev_ + 1, _aPos_[_i_] - 1 ]
+			_prev_ = _aPos_[_i_]
+		next
+		_aR_ + [ _prev_ + 1, _nL_ ]
+		return _aR_
