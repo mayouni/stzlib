@@ -3,7 +3,6 @@
 # #narration CHARS, BYTES, UNICODE CODEPOINTS, AND BYTCODES
 #
 # Extracted from stzStringTest.ring, block #719.
-#ERR Error (R3) : Calling Function without definition: unicodesperchar
 
 load "../../stzBase.ring"
 
