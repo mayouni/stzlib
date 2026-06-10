@@ -3,7 +3,6 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #83.
-#ERR Error (R14) : Calling Method without definition: itemswhere
 
 load "../../stzBase.ring"
 
