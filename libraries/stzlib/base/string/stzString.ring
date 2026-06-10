@@ -4462,6 +4462,79 @@ class stzString from stzObject
 			This.RemoveThisLastChar(pcChar)
 			return This
 
+	def Bytes()
+		_c_ = This.Content()
+		_nL_ = ring_len(_c_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_aR_ + _c_[_i_]
+		next
+		return _aR_
+
+	def BytesPerChar()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_c_ = _aChars_[_i_]
+			_aB_ = []
+			_nCB_ = ring_len(_c_)
+			for _j_ = 1 to _nCB_
+				_aB_ + _c_[_j_]
+			next
+			_aR_ + [ _c_, _aB_ ]
+		next
+		return _aR_
+
+	def NumberOfBytesPerChar()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_aR_ + [ _aChars_[_i_], ring_len(_aChars_[_i_]) ]
+		next
+		return _aR_
+
+	def NumberOfBytes()
+		return ring_len(This.Content())
+
+	def Bytecodes()
+		_c_ = This.Content()
+		_nL_ = ring_len(_c_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_n_ = ascii(_c_[_i_])
+			if _n_ > 127 _n_ = _n_ - 256 ok
+			_aR_ + _n_
+		next
+		return _aR_
+
+	def BytecodesPerChar()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_c_ = _aChars_[_i_]
+			_aB_ = []
+			_nCB_ = ring_len(_c_)
+			for _j_ = 1 to _nCB_
+				_n_ = ascii(_c_[_j_])
+				if _n_ > 127 _n_ = _n_ - 256 ok
+				_aB_ + _n_
+			next
+			_aR_ + [ _c_, _aB_ ]
+		next
+		return _aR_
+
+	def SizeInBytesPerChar()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_aR_ + [ _aChars_[_i_], ring_len(_aChars_[_i_]) ]
+		next
+		return _aR_
+
 	def SizeInBytes()
 		return ring_len(This.Content())
 
