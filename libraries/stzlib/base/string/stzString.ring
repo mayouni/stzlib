@@ -11822,6 +11822,69 @@ class stzString from stzObject
 		ok
 		return ""
 
+	def SplitAroundSections(aSections)
+		if NOT isList(aSections) return [ This.Content() ] ok
+		# Sort sections ascending by start.
+		_aSorted_ = _ListCopy(aSections)
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and isList(_aSorted_[_j_]) and isList(_v_) and _aSorted_[_j_][1] > _v_[1]
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		_cAll_ = This.Content()
+		_nTL_ = This.NumberOfChars()
+		_aRes_ = []
+		_nPrev_ = 0
+		for _i_ = 1 to _nL_
+			_s_ = _aSorted_[_i_]
+			if isList(_s_) and ring_len(_s_) = 2
+				if _s_[1] > _nPrev_ + 1
+					_aRes_ + This._EngineSlice(_cAll_, _nPrev_ + 1, _s_[1] - _nPrev_ - 1)
+				ok
+				_nPrev_ = _s_[2]
+			ok
+		next
+		if _nPrev_ < _nTL_
+			_aRes_ + This._EngineSliceFrom(_cAll_, _nPrev_ + 1)
+		ok
+		return _aRes_
+
+	def SplitAroundSectionsIB(aSections)
+		# Inclusive-bounds variant: each piece includes the bound char.
+		if NOT isList(aSections) return [ This.Content() ] ok
+		_aSorted_ = _ListCopy(aSections)
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and isList(_aSorted_[_j_]) and isList(_v_) and _aSorted_[_j_][1] > _v_[1]
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		_cAll_ = This.Content()
+		_nTL_ = This.NumberOfChars()
+		_aRes_ = []
+		_nPrev_ = 0
+		for _i_ = 1 to _nL_
+			_s_ = _aSorted_[_i_]
+			if isList(_s_) and ring_len(_s_) = 2
+				_start_ = _nPrev_ + 1
+				_end_ = _s_[1]
+				if _end_ > _nTL_ _end_ = _nTL_ ok
+				if _end_ >= _start_
+					_aRes_ + This._EngineSlice(_cAll_, _start_, _end_ - _start_ + 1)
+				ok
+				_nPrev_ = _s_[2] - 1
+			ok
+		next
+		if _nPrev_ < _nTL_
+			_aRes_ + This._EngineSliceFrom(_cAll_, _nPrev_ + 1)
+		ok
+		return _aRes_
+
 	def SplitAroundSection(aSection)
 		if NOT (isList(aSection) and ring_len(aSection) = 2 and
 		        isNumber(aSection[1]) and isNumber(aSection[2]))

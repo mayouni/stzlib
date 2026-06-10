@@ -5318,6 +5318,31 @@ class stzList from stzObject
 	 #  INSERTER DELEGATIONS         #
 	#-------------------------------#
 
+	# AreBoundsOfXT(pcSub, :In = host): TRUE if This (as [open,close])
+	# bounds pcSub somewhere in host.
+	def AreBoundsOfXT(pcSub, pNamedIn)
+		if NOT (isString(pcSub) and isList(pNamedIn) and ring_len(pNamedIn) = 2 and
+		        isString(pNamedIn[1]) and lower(pNamedIn[1]) = "in" and
+		        isString(pNamedIn[2]))
+			return FALSE
+		ok
+		_l_ = This.List()
+		if ring_len(_l_) != 2 or NOT (isString(_l_[1]) and isString(_l_[2]))
+			return FALSE
+		ok
+		_cOpen_ = _l_[1]; _cClose_ = _l_[2]
+		_o_ = new stzString(pNamedIn[2])
+		_aSec_ = _o_.FindBoundedByAsSections([ _cOpen_, _cClose_ ])
+		_nL_ = ring_len(_aSec_)
+		for _i_ = 1 to _nL_
+			_s_ = _aSec_[_i_]
+			if isList(_s_) and ring_len(_s_) = 2
+				_cMid_ = _o_._EngineSlice(pNamedIn[2], _s_[1], _s_[2] - _s_[1] + 1)
+				if substr(_cMid_, pcSub) > 0 return TRUE ok
+			ok
+		next
+		return FALSE
+
 	def Insert(pItem, pWhere)
 		_oIIns_ = new stzListInserter(This)
 		_oIIns_.Insert(pItem, pWhere)

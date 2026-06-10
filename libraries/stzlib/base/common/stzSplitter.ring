@@ -1724,8 +1724,37 @@ class stzSplitter from stzListOfNumbers
 	#-----------------------------#
 
 	def SplitAroundSections(paSections)
-		aResult = This.FindAntiSectionsZZ(paSections)
+		aResult = This.FindAntiSectionsZZ_local(paSections)
 		return aResult
+
+	def FindAntiSectionsZZ_local(paSections)
+		if NOT isList(paSections) return [] ok
+		_aSorted_ = _ListCopy(paSections)
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 2 to _nL_
+			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and isList(_aSorted_[_j_]) and isList(_v_) and _aSorted_[_j_][1] > _v_[1]
+				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
+			end
+			_aSorted_[_j_ + 1] = _v_
+		next
+		_aRes_ = []
+		_nPrev_ = 0
+		_nTotal_ = @nNumberOfPositions
+		if NOT isNumber(_nTotal_) _nTotal_ = 0 ok
+		for _i_ = 1 to _nL_
+			_s_ = _aSorted_[_i_]
+			if isList(_s_) and ring_len(_s_) >= 2
+				if _s_[1] > _nPrev_ + 1
+					_aRes_ + [ _nPrev_ + 1, _s_[1] - 1 ]
+				ok
+				_nPrev_ = _s_[2]
+			ok
+		next
+		if _nTotal_ > _nPrev_
+			_aRes_ + [ _nPrev_ + 1, _nTotal_ ]
+		ok
+		return _aRes_
 
 		def SplitsAroundSections(paSections)
 			return This.SplitAroundSections(paSections)
