@@ -6067,6 +6067,28 @@ class stzString from stzObject
 		ok
 		return 0
 
+	def StartsWithXTQ(pVal)
+		_o_ = new stzString(This.Content())
+		_v_ = 0
+		if isString(pVal)
+			_v_ = _o_.StartsWith(pVal)
+		but isList(pVal)
+			_v_ = _o_.StartsWithAny(pVal)
+		ok
+		_o_._SetNarrativeSub("" + _v_)
+		return _o_
+
+	def EndsWithXTQ(pVal)
+		_o_ = new stzString(This.Content())
+		_v_ = 0
+		if isString(pVal)
+			_v_ = _o_.EndsWith(pVal)
+		but isList(pVal)
+			_v_ = _o_.EndsWithAny(pVal)
+		ok
+		_o_._SetNarrativeSub("" + _v_)
+		return _o_
+
 	def EndsWithAnyCS(pcSuffixes, pCaseSensitive)
 		_oEwFinder_ = new stzStringFinder(This)
 		return _oEwFinder_.EndsWithAnyCS(pcSuffixes, pCaseSensitive)
@@ -11736,6 +11758,54 @@ class stzString from stzObject
 		_o_ = new stzString(This.Content())
 		_o_._SetNarrativeSub(pcSub)
 		return _o_
+
+	# @(pcSub): narrative-set the subject substring; returns self.
+	def @(pcSub)
+		if isString(pcSub) This._SetNarrativeSub(pcSub) ok
+		return This
+
+	# @RemoveItQ(): remove every occurrence of the narrative sub.
+	def @RemoveItQ()
+		_pair_ = This._NarrativeSubAndHost()
+		_sub_ = _pair_[1]; _host_ = _pair_[2]
+		if _sub_ != ""
+			_o_ = new stzString(_host_)
+			_o_.Replace(_sub_, "")
+			This.Update(_o_.Content())
+		ok
+		return This
+
+	def AndThenQ()
+		return This
+
+	def TheString()
+		return This.Content()
+
+	def TheStringQ()
+		return new stzString(This.Content())
+
+	def AndQ()
+		return This
+
+	def SpacifyItQ()
+		_aChars_ = This.Chars()
+		_nL_ = ring_len(_aChars_)
+		_o_ = ""
+		for _i_ = 1 to _nL_
+			if _i_ > 1 _o_ += " " ok
+			_o_ += _aChars_[_i_]
+		next
+		This.Update(_o_)
+		return This
+
+	def SpacifyItR()
+		return This.SpacifyItQ()
+
+	def AsWell()
+		return This.Content()
+
+	def @0(p)
+		return This.Content()
 
 	def _SetNarrativeSub(pcSub)
 		if NOT isString(pcSub) return ok

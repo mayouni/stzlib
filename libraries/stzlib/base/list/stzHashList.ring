@@ -404,6 +404,26 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def init(p)
 
+		# Auto-normalize: a list of pairs is also accepted as a
+		# hashlist with stringified keys (used by tests piping
+		# section lists into QRT(:stzHashList)).
+		if isList(p) and NOT @IsHashList(p)
+			_nL_ = ring_len(p)
+			_bPairs_ = (_nL_ > 0)
+			for _iC_ = 1 to _nL_
+				if NOT (isList(p[_iC_]) and ring_len(p[_iC_]) = 2)
+					_bPairs_ = FALSE
+					exit
+				ok
+			next
+			if _bPairs_
+				for _iC_ = 1 to _nL_
+					_k_ = p[_iC_][1]
+					if NOT isString(_k_) p[_iC_][1] = "" + _k_ ok
+				next
+			ok
+		ok
+
 		if CheckParams()
 			if NOT ( isList(p) and @IsHashList(p) )
 				StzRaise("Can't create the stzHashList object! You must provide a well formed hashlist.")

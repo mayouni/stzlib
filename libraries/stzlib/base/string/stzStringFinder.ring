@@ -535,16 +535,47 @@ class stzStringFinder
 
 	def StartsWithAnyCS(pcPrefixes, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		return StzEngineStringBeginsWithAnyXCS(pH, pcPrefixes, _bCase_)
+		if NOT isList(pcPrefixes) return 0 ok
+		_cIn_ = @oString.Content()
+		_nL_ = ring_len(pcPrefixes)
+		for _i_ = 1 to _nL_
+			_s_ = pcPrefixes[_i_]
+			if NOT isString(_s_) loop ok
+			_sl_ = ring_len(_s_)
+			if _sl_ = 0 loop ok
+			if _sl_ > ring_len(_cIn_) loop ok
+			_head_ = substr(_cIn_, 1, _sl_)
+			if _bCase_
+				if _head_ = _s_ return 1 ok
+			else
+				if lower(_head_) = lower(_s_) return 1 ok
+			ok
+		next
+		return 0
 
 	def StartsWithAny(pcPrefixes)
 		return This.StartsWithAnyCS(pcPrefixes, 1)
 
 	def EndsWithAnyCS(pcSuffixes, pCaseSensitive)
+		# Ring-side rebuild to dodge engine integer-OOB panic.
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		pH = @oString.Engine()
-		return StzEngineStringFinishesWithAnyXCS(pH, pcSuffixes, _bCase_)
+		if NOT isList(pcSuffixes) return 0 ok
+		_cIn_ = @oString.Content()
+		_nL_ = ring_len(pcSuffixes)
+		for _i_ = 1 to _nL_
+			_s_ = pcSuffixes[_i_]
+			if NOT isString(_s_) loop ok
+			_sl_ = ring_len(_s_)
+			if _sl_ = 0 loop ok
+			if _sl_ > ring_len(_cIn_) loop ok
+			_tail_ = substr(_cIn_, ring_len(_cIn_) - _sl_ + 1)
+			if _bCase_
+				if _tail_ = _s_ return 1 ok
+			else
+				if lower(_tail_) = lower(_s_) return 1 ok
+			ok
+		next
+		return 0
 
 	def EndsWithAny(pcSuffixes)
 		return This.EndsWithAnyCS(pcSuffixes, 1)
