@@ -50,13 +50,31 @@ that defines methods/aliases/primitives:
      - `ring_len(cStr)` — alias for `len()`, byte count. Avoid;
        prefer `len()` for clarity.
 
-8. **Don't wrap to find/contain.** Don't write
-   `new stzString(host).Contains(sub)` when you mean `substr(host, sub) > 0`.
-   Don't write `new stzList(aList).Contains(x)` when you mean
-   `ring_find(aList, x) > 0`. Wrapping has allocation cost and
-   obscures intent. Reserve `new stz…(…)` for cases where you
-   genuinely need the method surface (chaining, engine helpers,
-   codepoint walks).
+8. **Don't wrap to find/contain. AND don't use Ring's `substr()`.**
+   Use the engine-backed globals instead:
+   - **`StzFind(needle, haystack)`** — position of first occurrence
+     of `needle` in `haystack` (returns 0 if not found). Polymorphic:
+     also works as `StzFind(item, list)` and `StzFind(item, [:in, list])`.
+   - **`StzFindCS(needle, haystack, bCaseSensitive)`** — returns the
+     list of all positions; check `len(_) > 0` for "contains".
+   - **`StzReplace(host, old, new)`** — engine-backed,
+     codepoint-safe replace. Use this instead of Ring's 3-arg
+     `substr(s, old, new)` which is byte-oriented.
+   - **`StzReplaceCS(host, old, new, bCaseSensitive)`** for the
+     case-sensitivity dial.
+   - **`StzSplit(host, sep)` / `StzSplitCS(host, sep, bCase)`** —
+     codepoint-aware split.
+
+   BAD: `new stzString(host).Contains(sub)` — wrapping to call
+        a contains.
+   BAD: `substr(host, sub) > 0` — Ring's byte-oriented find.
+   BAD: `substr(host, old, new)` — Ring's byte-oriented replace.
+   GOOD: `StzFind(sub, host) > 0`.
+   GOOD: `host = StzReplace(host, old, new)`.
+
+   Ring's `substr()`, `len()` (for strings), `upper()`, `lower()`
+   are byte-oriented and break on UTF-8 (Hebrew, Arabic, CJK,
+   emoji). The Stz* engine helpers are the canonical path.
 
 9. **Prefer the engine over Ring loops for find/replace/case/scan.**
    The Zig engine is Unicode-correct AND faster than the
