@@ -3,7 +3,6 @@
 # #narration #perf CONCATENATING STRINGS IN RING AND SOFTANZA
 #
 # Extracted from stzStringTest.ring, block #976.
-#ERR TIMEOUT (>25s)
 
 load "../../stzBase.ring"
 

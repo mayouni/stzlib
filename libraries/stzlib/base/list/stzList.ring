@@ -1401,6 +1401,14 @@ class stzList from stzObject
 	def DuplicatesRemoved()
 		return This.WithoutDuplicationCS(1)
 
+	def ToStzListOfCharsQ()
+		if NOT @IsListOfChars(@aContent)
+			StzRaise("Can't cast the list into a stzListOfChars object! The list must be a list of chars.")
+		ok
+
+		_oResult_ = StzListOfCharsQ(@aContent)
+		return _oResult_
+				
 	# ToSet / ToSetQ / ToSetOfItems: set-style aliases that return
 	# the deduplicated list. Routed through the existing engine-backed
 	# DuplicatesRemoved so the heavy lifting stays on the Zig side.
@@ -2917,9 +2925,84 @@ class stzList from stzObject
 	def AreIncludedIn(pOther)
 		return This.IsIncludedIn(pOther)
 
-	def FindObjects(pcExpr)
-		# Eval pcExpr per item (@item bound) and return matching items.
-		return This.ItemsWhere(pcExpr)
+	# FindObjects([pcExpr]): 0-arg = positions of every object item;
+	# 1-arg = ItemsWhere(pcExpr).
+	def FindObjects()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			if isObject(_l_[_i_]) _aR_ + _i_ ok
+		next
+		return _aR_
+
+	def ObjectsZ()
+		return This.FindObjects()
+
+	def ObjectsZZ()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			if isObject(_l_[_i_]) _aR_ + [ _i_, _i_ ] ok
+		next
+		return _aR_
+
+	def FindUnnamedObjects()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isObject(_v_)
+				_bNamed_ = FALSE
+				try
+					_n_ = _v_.ObjectName()
+					if isString(_n_) and _n_ != "" and _n_ != "@noname"
+						_bNamed_ = TRUE
+					ok
+				catch
+				done
+				if NOT _bNamed_ _aR_ + _i_ ok
+			ok
+		next
+		return _aR_
+
+	def FindNamedObjects()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isObject(_v_)
+				try
+					_n_ = _v_.ObjectName()
+					if isString(_n_) and _n_ != "" and _n_ != "@noname"
+						_aR_ + _i_
+					ok
+				catch
+				done
+			ok
+		next
+		return _aR_
+
+	def FindObject(pObj)
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			if _l_[_i_] = pObj _aR_ + _i_ ok
+		next
+		return _aR_
+
+	def ObjectsAndTheirPositions()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			if isObject(_l_[_i_]) _aR_ + [ _l_[_i_], _i_ ] ok
+		next
+		return _aR_
 
 	def StringsW(pcExpr)
 		# Filter to string items matching pcExpr.
@@ -5834,6 +5917,13 @@ class stzList from stzObject
 			ok
 		next
 		return _aUcResult_
+
+	def Names()
+		if @IsListOfChars(This.Content())
+			return This.ToStzListOfCharsQ().Names()
+		else
+			StzRaise("Can't proceed! In order to return names, the list must be a list of chars.")
+		ok
 
 	# SortOnDown / SortedOnDown for stzList: when the list is flat
 	# (numbers / strings), forwards to descending sort on the
