@@ -70,16 +70,15 @@ class stzString from stzObject
 		if pOp = "-"
 			# Subtract: remove every occurrence of pValue (a string)
 			# or each item in pValue (a list of strings) from content.
-			# Use Ring's 3-arg substr (REPLACE) directly — no need to
-			# wrap in stzString for a simple replace-with-empty.
+			# Use StzReplace (engine-backed, Unicode-safe).
 			_cOut_ = This.Content()
 			if isString(pValue)
-				_cOut_ = substr(_cOut_, pValue, "")
+				_cOut_ = StzReplace(_cOut_, pValue, "")
 			but isList(pValue)
 				_nLP_ = len(pValue)
 				for _iP_ = 1 to _nLP_
 					if isString(pValue[_iP_])
-						_cOut_ = substr(_cOut_, pValue[_iP_], "")
+						_cOut_ = StzReplace(_cOut_, pValue[_iP_], "")
 					ok
 				next
 			but isObject(pValue)
@@ -89,7 +88,7 @@ class stzString from stzObject
 						_nLI_ = len(_inner_)
 						for _iI_ = 1 to _nLI_
 							if isString(_inner_[_iI_])
-								_cOut_ = substr(_cOut_, _inner_[_iI_], "")
+								_cOut_ = StzReplace(_cOut_, _inner_[_iI_], "")
 							ok
 						next
 					ok
@@ -1094,16 +1093,13 @@ class stzString from stzObject
 	# ContainsInSection: does pcSubStr appear within the substring
 	# bounded by positions [n1, n2] (inclusive)?
 	def ContainsInSection(pcSubStr, n1, n2)
-		# Section(n1, n2) returns the section content; check via
-		# Ring's substr directly — no need to wrap in stzString.
-		return substr(This.Section(n1, n2), pcSubStr) > 0
+		# Engine-backed substring search.
+		return StzFind(pcSubStr, This.Section(n1, n2)) > 0
 
 		def ContainsInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
 			_cSec_ = This.Section(n1, n2)
-			if pCaseSensitive = FALSE or pCaseSensitive = 0
-				return substr(lower(_cSec_), lower(pcSubStr)) > 0
-			ok
-			return substr(_cSec_, pcSubStr) > 0
+			_aP_ = StzFindCS(pcSubStr, _cSec_, pCaseSensitive)
+			return isList(_aP_) and len(_aP_) > 0
 
 	# ReplaceInSection: replace occurrences of pSubStr within the
 	# section [n1, n2] with pNew. Polymorphic on argument order:
