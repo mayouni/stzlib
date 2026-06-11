@@ -35,5 +35,5 @@ pr()
 #--> [ "ⷶ", "ⷷ", "ⷸ", "...", "⹽", "⹾", "⹿" ]
 
 pf()
-# Executed in 0.05 second(s) in Ring 1.26 (Backed by StzEngine)
+# Executed in 0.04 second(s) in Ring 1.26 (Backed by StzEngine)
 # Executed in 1.85 second(s) in Ring 1.23

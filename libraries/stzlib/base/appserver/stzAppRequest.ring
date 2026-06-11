@@ -38,7 +38,7 @@ class stzAppRequest
 	def ParseQuery()
 		nQuestion = StzFind(cPath, "?")
 		if nQuestion > 0
-			cQueryString = @substr(cPath, nQuestion + 1)
+			cQueryString = @StzMidToEnd(cPath, nQuestion + 1)
 			cPath = StzLeft(cPath, nQuestion - 1)
 			
 			aPairs = @split(cQueryString, "&")
@@ -48,7 +48,7 @@ class stzAppRequest
 				nEqual = StzFind(cPair, "=")
 				if nEqual > 0
 					cKey = StzLeft(cPair, nEqual - 1)
-					cValue = @substr(cPair, nEqual + 1)
+					cValue = @StzMidToEnd(cPair, nEqual + 1)
 					aQuery + [cKey, cValue]
 				ok
 			next

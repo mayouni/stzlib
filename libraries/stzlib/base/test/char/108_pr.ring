@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #108.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -20,9 +19,10 @@ o1 = new stzChar("۲")
 ? ""
 o1 = new stzChar("٢")
 ? o1.Name() #--> ARABIC-INDIC DIGIT TWO
-? o1.Unicode() # 1634
+? o1.Unicode() #--> 1634
 ? o1.UnicodeCategory() #--> number_decimaldigit
 ? o1.IsIndianDigit() #--> TRUE
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.27
 # Executed in 0.04 second(s) in Ring 1.23

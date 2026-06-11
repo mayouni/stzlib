@@ -51,7 +51,7 @@ class stzNumbrex from stzObject
 	
 	def ParsePattern(cPattern)
 
-		cInner = @substr(cPattern, 2, ring_len(cPattern) - 1)
+		cInner = @StzMid(cPattern, 2, ring_len(cPattern) - 1)
 		cInner = trim(cInner)
 		
 		if @bDebugMode
@@ -92,7 +92,7 @@ class stzNumbrex from stzObject
 		nOpLen = ring_len(cOperator)
 		
 		for i = 1 to nLen
-			cChar = @substr(cStr, i, i)
+			cChar = @StzMid(cStr, i, i)
 			
 			if cChar = "(" or cChar = "{"
 				nDepth++
@@ -100,7 +100,7 @@ class stzNumbrex from stzObject
 			but cChar = ")" or cChar = "}"
 				nDepth--
 				cCurrent += cChar
-			but nDepth = 0 and @substr(cStr, i, i + nOpLen - 1) = cOperator
+			but nDepth = 0 and @StzMid(cStr, i, i + nOpLen - 1) = cOperator
 				aParts + trim(cCurrent)
 				cCurrent = ""
 				i += nOpLen - 1
@@ -117,7 +117,7 @@ class stzNumbrex from stzObject
 	
 	def ParseAlternation(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @substr(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
 		ok
 		
 		aParts = This.SplitByOperator(cTokenStr, "|")
@@ -142,7 +142,7 @@ class stzNumbrex from stzObject
 	
 	def ParseConjunction(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @substr(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
 		ok
 		
 		aParts = This.SplitByOperator(cTokenStr, "&")
@@ -177,7 +177,7 @@ def ParseSingleToken(cTokenStr)
 	
 	if startsWith(StzLower(cTokenStr), "@!")
 		bNegated = 1
-		cTokenStr = @substr(cTokenStr, 3, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
 
 		if @bDebugMode
 			? "Negation detected! Remaining: " + cTokenStr
@@ -194,81 +194,81 @@ def ParseSingleToken(cTokenStr)
 
 	if startsWith(cTokenStr, "@digit")
 		cType = "digit"
-		cTokenStr = @substr(cTokenStr, 7, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
 
 	but startsWith(cTokenStr, "digit")
 		cType = "digit"
-		cTokenStr = @substr(cTokenStr, 6, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 6, ring_len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@factor")
 		cType = "factor"
-		cTokenStr = @substr(cTokenStr, 8, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 8, ring_len(cTokenStr))
 
 	but startsWith(cTokenStr, "factor")
 		cType = "factor"
-		cTokenStr = @substr(cTokenStr, 7, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@property")
 		cType = "property"
-		cTokenStr = @substr(cTokenStr, 10, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
 
 	but StartsWith(cTokenStr, "property")
 		cType = "property"
-		cTokenStr = @substr(cTokenStr, 9, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@part")
 		cType = "part"
-		cTokenStr = @substr(cTokenStr, 6, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 6, ring_len(cTokenStr))
 
 	but startsWith(cTokenStr, "part")
 		cType = "part"
-		cTokenStr = @substr(cTokenStr, 5, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@relation")
 		cType = "relation"
-		cTokenStr = @substr(cTokenStr, 10, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
 
 	but startsWith(cTokenStr, "relation")
 		cType = "relation"
-		cTokenStr = @substr(cTokenStr, 9, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@approx")
 		cType = "approx"
-		cTokenStr = @substr(cTokenStr, 8, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 8, ring_len(cTokenStr))
 
 	but startsWith(cTokenStr, "approx")
 		cType = "approx"
-		cTokenStr = @substr(cTokenStr, 7, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@divisor")
 		cType = "divisor"
-		cTokenStr = @substr(cTokenStr, 9, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
 
 	but startsWith(cTokenStr, "divisor")
 		cType = "divisor"
-		cTokenStr = @substr(cTokenStr, 8, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 8, ring_len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@multiple")
 		cType = "multiple"
-		cTokenStr = @substr(cTokenStr, 10, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
 
 	but startsWith(cTokenStr, "multiple")
 		cType = "multiple"
-		cTokenStr = @substr(cTokenStr, 9, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
 
 	#--
 
@@ -285,7 +285,7 @@ def ParseSingleToken(cTokenStr)
 	if nOpenParen > 0
 		nCloseParen = StzFind(cTokenStr, ")")
 		if nCloseParen > nOpenParen
-			cContent = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+			cContent = @StzMid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 
 			if @bDebugMode
 				? ">> cContent: " + cContent
@@ -309,7 +309,7 @@ def ParseSingleToken(cTokenStr)
 	if nCloseParen > 0
 		# Extract everything after closing parenthesis
 		if nCloseParen < ring_len(cTokenStr)
-			cQuantPart = @substr(cTokenStr, nCloseParen + 1, ring_len(cTokenStr))
+			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, ring_len(cTokenStr))
 		ok
 	else
 		# No parentheses - extract after token type name from original string
@@ -356,7 +356,7 @@ def ParseSingleToken(cTokenStr)
 		ok
 		
 		if nTypeLen > 0 and nTypeLen < ring_len(cOriginal)
-			cQuantPart = @substr(cOriginal, nTypeLen + 1, ring_len(cOriginal))
+			cQuantPart = @StzMid(cOriginal, nTypeLen + 1, ring_len(cOriginal))
 		ok
 	ok
 	
@@ -370,8 +370,8 @@ def ParseSingleToken(cTokenStr)
 		# Check for colon (constraints like :unique)
 		if StzFind(cQuantPart, ":") > 0
 			nColon = StzFind(cQuantPart, ":")
-			cBeforeColon = @substr(cQuantPart, 1, nColon - 1)
-			cAfterColon = @substr(cQuantPart, nColon + 1, ring_len(cQuantPart))
+			cBeforeColon = @StzMid(cQuantPart, 1, nColon - 1)
+			cAfterColon = @StzMid(cQuantPart, nColon + 1, ring_len(cQuantPart))
 			
 			if @bDebugMode
 				? "Before colon: [" + cBeforeColon + "]"
@@ -469,14 +469,14 @@ def ParseSingleToken(cTokenStr)
 			but StzFind(cConstraintStr, "{") > 0
 				nStart = StzFind(cConstraintStr, "{")
 				nEnd = StzFind(cConstraintStr, "}")
-				cSet = @substr(cConstraintStr, nStart + 1, nEnd - 1)
+				cSet = @StzMid(cConstraintStr, nStart + 1, nEnd - 1)
 				aValues = @split(cSet, ";")
 				aConstraints + [
 					["type", "set"],
 					["values", aValues]
 				]
 			but StzFind(cConstraintStr, ":step") > 0
-				cStep = @substr(cConstraintStr, 6, ring_len(cConstraintStr))
+				cStep = @StzMid(cConstraintStr, 6, ring_len(cConstraintStr))
 				aConstraints + [
 					["type", "step"],
 					["value", 0 + cStep]
@@ -741,7 +741,7 @@ def ParseSingleToken(cTokenStr)
 		cReversed = ""
 		nLen = ring_len(cStr)
 		for i = nLen to 1 step -1
-			cReversed += @substr(cStr, i, i)
+			cReversed += @StzMid(cStr, i, i)
 		next
 		return cStr = cReversed
 	
@@ -894,7 +894,7 @@ def CheckDigits(aToken, nNum)
 		aDigits = []
 		nLen = ring_len(cStr)
 		for i = 1 to nLen
-			cChar = @substr(cStr, i, i)
+			cChar = @StzMid(cStr, i, i)
 			if isDigit(cChar)
 				aDigits + (0 + cChar)
 			ok
@@ -999,11 +999,11 @@ def CheckDigits(aToken, nNum)
 	
 	def CheckRelation(cRelation, nNum)
 		if StzFind(StzLower(cRelation), "mod:") > 0
-			cRest = @substr(cRelation, 5, ring_len(cRelation))
+			cRest = @StzMid(cRelation, 5, ring_len(cRelation))
 			nEquals = StzFind(cRest, "=")
 			if nEquals > 0
-				cMod = @substr(cRest, 1, nEquals - 1)
-				cExpected = @substr(cRest, nEquals + 1, ring_len(cRest))
+				cMod = @StzMid(cRest, 1, nEquals - 1)
+				cExpected = @StzMid(cRest, nEquals + 1, ring_len(cRest))
 				nMod = 0 + cMod
 				nExpected = 0 + cExpected
 				return (nNum % nMod) = nExpected
@@ -1013,7 +1013,7 @@ def CheckDigits(aToken, nNum)
 	
 	def CheckApprox(cApprox, nNum)
 		if startsWith(cApprox, "~")
-			cValue = @substr(cApprox, 2, ring_len(cApprox))
+			cValue = @StzMid(cApprox, 2, ring_len(cApprox))
 			nDecimals = 2
 			
 			if StzFind(cValue, ":") > 0
@@ -1022,8 +1022,8 @@ def CheckDigits(aToken, nNum)
 				if ring_len(aParts) > 1 and StzFind(StzLower(aParts[2]), "decimal") > 0
 					nLenPart = ring_len(aParts[2])
 					for i = 1 to nLenPart
-						if isDigit(@substr(aParts[2], i, i))
-							nDecimals = 0 + @substr(aParts[2], i, i)
+						if isDigit(@StzMid(aParts[2], i, i))
+							nDecimals = 0 + @StzMid(aParts[2], i, i)
 							exit
 						ok
 					next
@@ -1050,13 +1050,13 @@ def CheckDigits(aToken, nNum)
 			return not (nFrac >= -0.0000001 and nFrac <= 0.0000001)
 		
 		but startsWith(cPart, "integer:")
-			cPattern = @substr(cPart, 9, ring_len(cPart))
+			cPattern = @StzMid(cPart, 9, ring_len(cPart))
 			nIntPart = floor(nNum)
 			oNx = new stzNumbrex("{" + cPattern + "}")
 			return oNx.Match(nIntPart)
 		
 		but startsWith(cPart, "fractional:")
-			cPattern = @substr(cPart, 12, ring_len(cPart))
+			cPattern = @StzMid(cPart, 12, ring_len(cPart))
 			nFracPart = nNum - floor(nNum)
 			nFracInt = floor(nFracPart * 1000000)
 			oNx = new stzNumbrex("{" + cPattern + "}")
@@ -1319,7 +1319,7 @@ def CheckDigits(aToken, nNum)
 		
 		nLen = ring_len(cStr)
 		for i = 1 to nLen
-			cChar = @substr(cStr, i, i)
+			cChar = @StzMid(cStr, i, i)
 			if not isDigit(cChar) and cChar != "-"
 				return FALSE
 			ok

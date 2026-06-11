@@ -898,11 +898,11 @@ class stzString from stzObject
 		ok
 		# Take tail of string starting AFTER nStart, search there,
 		# then offset back to the full-string position.
-		_cTail_ = substr(_cFull_, nStart + 1)
+		_cTail_ = StzMidToEnd(_cFull_, nStart + 1)
 		if _bCase_
-			_nPos_ = substr(_cTail_, pcSubStr)
+			_nPos_ = StzFind(pcSubStr, _cTail_)
 		else
-			_nPos_ = substr(lower(_cTail_), lower(pcSubStr))
+			_nPos_ = StzFind(lower(pcSubStr), lower(_cTail_))
 		ok
 		if _nPos_ = 0
 			return 0
@@ -961,35 +961,35 @@ class stzString from stzObject
 				_j_ = _iNca_ + _nNcaSubLen_
 
 				# Skip whitespace
-				while _j_ <= _nNcaLen_ and (substr(_cNcaStr_,_j_,1) = " " or substr(_cNcaStr_,_j_,1) = char(9))
+				while _j_ <= _nNcaLen_ and (StzMid(_cNcaStr_, _j_, 1) = " " or StzMid(_cNcaStr_, _j_, 1) = char(9))
 					_j_++
 				end
 
 				# Optional sign
 				_cNum_ = ""
-				if _j_ <= _nNcaLen_ and (substr(_cNcaStr_,_j_,1) = "+" or substr(_cNcaStr_,_j_,1) = "-")
-					_cNum_ += substr(_cNcaStr_,_j_,1)
+				if _j_ <= _nNcaLen_ and (StzMid(_cNcaStr_, _j_, 1) = "+" or StzMid(_cNcaStr_, _j_, 1) = "-")
+					_cNum_ += StzMid(_cNcaStr_, _j_, 1)
 					_j_++
 					# Allow whitespace between sign and digits
-					while _j_ <= _nNcaLen_ and (substr(_cNcaStr_,_j_,1) = " " or substr(_cNcaStr_,_j_,1) = char(9))
+					while _j_ <= _nNcaLen_ and (StzMid(_cNcaStr_, _j_, 1) = " " or StzMid(_cNcaStr_, _j_, 1) = char(9))
 						_j_++
 					end
 				ok
 
 				# Integer digits
 				_bHasDigit_ = 0
-				while _j_ <= _nNcaLen_ and ring_find(_acDigits_, substr(_cNcaStr_,_j_,1)) > 0
-					_cNum_ += substr(_cNcaStr_,_j_,1)
+				while _j_ <= _nNcaLen_ and ring_find(_acDigits_, StzMid(_cNcaStr_, _j_, 1)) > 0
+					_cNum_ += StzMid(_cNcaStr_, _j_, 1)
 					_j_++
 					_bHasDigit_ = 1
 				end
 
 				# Optional decimal part
-				if _j_ <= _nNcaLen_ and substr(_cNcaStr_,_j_,1) = "."
+				if _j_ <= _nNcaLen_ and StzMid(_cNcaStr_, _j_, 1) = "."
 					_cNum_ += "."
 					_j_++
-					while _j_ <= _nNcaLen_ and ring_find(_acDigits_, substr(_cNcaStr_,_j_,1)) > 0
-						_cNum_ += substr(_cNcaStr_,_j_,1)
+					while _j_ <= _nNcaLen_ and ring_find(_acDigits_, StzMid(_cNcaStr_, _j_, 1)) > 0
+						_cNum_ += StzMid(_cNcaStr_, _j_, 1)
 						_j_++
 					end
 				ok
@@ -1037,9 +1037,9 @@ class stzString from stzObject
 
 	def HtmlEscaped()
 		_cHesContent_ = This.Content()
-		_cHesR_ = substr(_cHesContent_, "&", "&amp;")
-		_cHesR_ = substr(_cHesR_, "<", "&lt;")
-		_cHesR_ = substr(_cHesR_, ">", "&gt;")
+		_cHesR_ = StzReplace(_cHesContent_, "&", "&amp;")
+		_cHesR_ = StzReplace(_cHesR_, "<", "&lt;")
+		_cHesR_ = StzReplace(_cHesR_, ">", "&gt;")
 		_cHesR_ = substr(_cHesR_, char(34), "&quot;")
 		_cHesR_ = substr(_cHesR_, char(39), "&#39;")
 		return _cHesR_
@@ -1120,14 +1120,14 @@ class stzString from stzObject
 		_cAll_ = This.Content()
 		_cBefore_ = ""
 		if _n1_ > 1
-			_cBefore_ = substr(_cAll_, 1, _n1_ - 1)
+			_cBefore_ = StzMid(_cAll_, 1, _n1_ - 1)
 		ok
 		_cMid_ = substr(_cAll_, _n1_, _n2_ - _n1_ + 1)
 		_cAfter_ = ""
 		if _n2_ < ring_len(_cAll_)
-			_cAfter_ = substr(_cAll_, _n2_ + 1)
+			_cAfter_ = StzMidToEnd(_cAll_, _n2_ + 1)
 		ok
-		_cMid_ = substr(_cMid_, _cSub_, _cNew_)
+		_cMid_ = StzReplace(_cMid_, _cSub_, _cNew_)
 		This.Update( _cBefore_ + _cMid_ + _cAfter_ )
 
 		def ReplaceInSectionQ(pA, pB, pC, pD)
@@ -1225,7 +1225,7 @@ class stzString from stzObject
 			if ring_len(_cStr2_) <= n
 				return _cStr2_
 			ok
-			return substr(_cStr2_, 1, n - ring_len(pcSuffix)) + pcSuffix
+			return StzMid(_cStr2_, 1, n - ring_len(pcSuffix)) + pcSuffix
 
 		def _ShortenedUsingMid(pcEllipsis, nFromEnd)
 			_cAll_ = This.Content()
@@ -1233,8 +1233,8 @@ class stzString from stzObject
 			if _nTL_ <= 2 * nFromEnd + ring_len(pcEllipsis)
 				return _cAll_
 			ok
-			return substr(_cAll_, 1, nFromEnd) + pcEllipsis +
-			       substr(_cAll_, _nTL_ - nFromEnd + 1)
+			return StzMid(_cAll_, 1, nFromEnd) + pcEllipsis +
+			       StzMidToEnd(_cAll_, _nTL_ - nFromEnd + 1)
 
 	# Boxify: surround the content with a simple ASCII box drawn
 	# with `+` corners, `-` horizontals, `|` verticals.
@@ -1258,7 +1258,7 @@ class stzString from stzObject
 			_cVoCh_ = substr(_cVoStr_, _iVo_, 1)
 			_nVoB_ = ascii(_cVoCh_)
 			if _nVoB_ < 128
-				if substr(_cVoVo_, _cVoCh_) > 0
+				if StzFind(_cVoCh_, _cVoVo_) > 0
 					_acVoR_ + _cVoCh_
 				ok
 				_iVo_ += 1
@@ -1456,7 +1456,7 @@ class stzString from stzObject
 			_nFnasStart_ = _iFnas_
 			_bFnasSign_ = 0
 			if _cFnasCh_ = "+" or _cFnasCh_ = "-"
-				if _iFnas_ + 1 <= _nFnasLen_ and ring_find(_acDigits_, substr(_cFnasStr_, _iFnas_+1, 1)) > 0
+				if _iFnas_ + 1 <= _nFnasLen_ and ring_find(_acDigits_, StzMid(_cFnasStr_, _iFnas_+1, 1)) > 0
 					_bFnasSign_ = 1
 					_iFnas_++
 					_cFnasCh_ = substr(_cFnasStr_, _iFnas_, 1)
@@ -1594,7 +1594,7 @@ class stzString from stzObject
 		_csNorm_ = pCaseSensitive
 		if isString(_csNorm_)
 			_kw_ = lower(_csNorm_)
-			if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 			if _kw_ = "casesensitive" or _kw_ = "iscasesensitive" or
 			   _kw_ = "cs" or _kw_ = "iscs"
 				_csNorm_ = 1
@@ -2027,16 +2027,16 @@ class stzString from stzObject
 		if nPos < 1 or nPos + _nSubLen_ - 1 > ring_len(_cStr_)
 			return
 		ok
-		if substr(_cStr_, nPos, _nSubLen_) != pcSubStr
+		if StzMid(_cStr_, nPos, _nSubLen_) != pcSubStr
 			return
 		ok
 		_cBefore_ = ""
 		if nPos > 1
-			_cBefore_ = substr(_cStr_, 1, nPos - 1)
+			_cBefore_ = StzMid(_cStr_, 1, nPos - 1)
 		ok
 		_cAfter_ = ""
 		if nPos + _nSubLen_ - 1 < ring_len(_cStr_)
-			_cAfter_ = substr(_cStr_, nPos + _nSubLen_)
+			_cAfter_ = StzMidToEnd(_cStr_, nPos + _nSubLen_)
 		ok
 		This.Update(_cBefore_ + _cAfter_)
 
@@ -2079,13 +2079,13 @@ class stzString from stzObject
 		_subLen_ = ring_len(pcSubStr)
 		_pos_ = 0
 		if _bRfCase_
-			_pos_ = substr(_cIn_, pcSubStr)
+			_pos_ = StzFind(pcSubStr, _cIn_)
 		else
-			_pos_ = substr(lower(_cIn_), lower(pcSubStr))
+			_pos_ = StzFind(lower(pcSubStr), lower(_cIn_))
 		ok
 		if _pos_ < 1 return ok
-		_cOut_ = substr(_cIn_, 1, _pos_ - 1) + pcNewSubStr +
-		         substr(_cIn_, _pos_ + _subLen_)
+		_cOut_ = StzMid(_cIn_, 1, _pos_ - 1) + pcNewSubStr +
+		         StzMidToEnd(_cIn_, _pos_ + _subLen_)
 		This.Update(_cOut_)
 
 		def ReplaceFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -2114,10 +2114,10 @@ class stzString from stzObject
 		while TRUE
 			if _bRlCase_
 				_p_ = substr(_cIn_, _pos_, ring_len(_cIn_) - _pos_ + 1)
-				_pf_ = substr(_p_, pcSubStr)
+				_pf_ = StzFind(pcSubStr, _p_)
 			else
 				_p_ = substr(lower(_cIn_), _pos_, ring_len(_cIn_) - _pos_ + 1)
-				_pf_ = substr(_p_, lower(pcSubStr))
+				_pf_ = StzFind(lower(pcSubStr), _p_)
 			ok
 			if _pf_ < 1 exit ok
 			_lastPos_ = _pos_ + _pf_ - 1
@@ -2125,8 +2125,8 @@ class stzString from stzObject
 			if _pos_ > ring_len(_cIn_) exit ok
 		end
 		if _lastPos_ < 1 return ok
-		_cOut_ = substr(_cIn_, 1, _lastPos_ - 1) + pcNewSubStr +
-		         substr(_cIn_, _lastPos_ + _subLen_)
+		_cOut_ = StzMid(_cIn_, 1, _lastPos_ - 1) + pcNewSubStr +
+		         StzMidToEnd(_cIn_, _lastPos_ + _subLen_)
 		This.Update(_cOut_)
 
 		def ReplaceLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -2202,7 +2202,7 @@ class stzString from stzObject
 		if isNumber(p) return p ok
 		if isString(p)
 			_kw_ = lower(p)
-			if substr(_kw_, 1, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if StzMid(_kw_, 1, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 			if _kw_ = "first" or _kw_ = "firstchar" return 1 ok
 			if _kw_ = "last" or _kw_ = "lastchar" return nLen ok
 			if _kw_ = "middle" or _kw_ = "middlechar" return floor((nLen + 1) / 2) ok
@@ -2778,7 +2778,7 @@ class stzString from stzObject
 				_cCtx_ = _xAnchorV_
 				_cNewCtx_ = substr(_cCtx_, p1, _pWith_)
 				_cTxt_ = This.Content()
-				_cNewTxt_ = substr(_cTxt_, _cCtx_, _cNewCtx_)
+				_cNewTxt_ = StzReplace(_cTxt_, _cCtx_, _cNewCtx_)
 				This.Update(_cNewTxt_)
 				return
 			but _cAnchor_ = "boundedby"
@@ -3560,7 +3560,7 @@ class stzString from stzObject
 				_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 1)
 				_iDrindex_++
 			but _bDr1_ >= 192 and _bDr1_ < 224 and _iDrindex_ + 1 <= _nDrlength_
-				_bDr2_ = ascii( substr(_cDrnfdstr_, _iDrindex_ + 1, 1) )
+				_bDr2_ = ascii( StzMid(_cDrnfdstr_, _iDrindex_ + 1, 1) )
 				_nDrcp_ = ((_bDr1_ - 192) * 64) + (_bDr2_ - 128)
 				if (_nDrcp_ >= 768 and _nDrcp_ <= 879) or
 				   (_nDrcp_ >= 1552 and _nDrcp_ <= 1562) or
@@ -3857,7 +3857,7 @@ class stzString from stzObject
 			_n_++
 		end
 		if _n_ < 2 return ok       # no run, leave alone
-		This.Update(pWith + substr(_cTxt_, _n_ + 1))
+		This.Update(pWith + StzMidToEnd(_cTxt_, _n_ + 1))
 
 		def ReplaceLeadingCharsQ(pWith)
 			This.ReplaceLeadingChars(pWith)
@@ -3878,7 +3878,7 @@ class stzString from stzObject
 			_n_++
 		end
 		if _n_ < 2 return ok
-		This.Update(substr(_cTxt_, 1, _nLen_ - _n_) + pWith)
+		This.Update(StzMid(_cTxt_, 1, _nLen_ - _n_) + pWith)
 
 		def ReplaceTrailingCharsQ(pWith)
 			This.ReplaceTrailingChars(pWith)
@@ -7257,7 +7257,7 @@ class stzString from stzObject
 	def IsScriptOf(pcScript)
 		if NOT isString(pcScript) or pcScript = "" return FALSE ok
 		_kw_ = lower(pcScript)
-		if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 		try
 			eval("_b_ = This.IsScript" + _kw_ + "()")
 			return _b_
@@ -7964,7 +7964,7 @@ class stzString from stzObject
 		   lower(pNamedInA[1]) = "ina"
 			_shape_ = pNamedInA[2]
 			if isString(_shape_) and ring_left(_shape_, 1) = ":"
-				_shape_ = substr(_shape_, 2)
+				_shape_ = StzMidToEnd(_shape_, 2)
 			ok
 		ok
 		if isList(pNamedOfSize) and ring_len(pNamedOfSize) = 2 and isString(pNamedOfSize[1]) and
@@ -8055,20 +8055,20 @@ class stzString from stzObject
 	def IsContiguousListInShortForm()
 		_c_ = ring_trim(This.Content())
 		# Short form `a:b` -- with colon, no brackets.
-		if substr(_c_, ":") = 0 return FALSE ok
-		if substr(_c_, "[") > 0 or substr(_c_, "]") > 0 return FALSE ok
+		if StzFind(":", _c_) = 0 return FALSE ok
+		if StzFind("[", _c_) > 0 or StzFind("]", _c_) > 0 return FALSE ok
 		return TRUE
 
 	def IsContiguousListInString()
 		_c_ = ring_trim(This.Content())
-		if substr(_c_, ":") = 0 return FALSE ok
+		if StzFind(":", _c_) = 0 return FALSE ok
 		# Trim outer quote-pair if any.
 		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
-			_c_ = substr(_c_, 2, ring_len(_c_) - 2)
+			_c_ = StzMid(_c_, 2, ring_len(_c_) - 2)
 		ok
 		# Require non-bracketed form (so `[1,3]` returns FALSE).
-		if substr(_c_, "[") > 0 or substr(_c_, "]") > 0 return FALSE ok
+		if StzFind("[", _c_) > 0 or StzFind("]", _c_) > 0 return FALSE ok
 		return TRUE
 
 	def ItemsAndTheirNumberOfOccurrence()
@@ -8178,7 +8178,7 @@ class stzString from stzObject
 		_cAll_ = This.Content()
 		_cLead_ = _aB_[1]; _cTrail_ = _aB_[2]
 		if ring_left(_cAll_, ring_len(_cLead_)) = _cLead_
-			_cAll_ = substr(_cAll_, ring_len(_cLead_) + 1)
+			_cAll_ = StzMidToEnd(_cAll_, ring_len(_cLead_) + 1)
 		ok
 		if ring_right(_cAll_, ring_len(_cTrail_)) = _cTrail_
 			_cAll_ = ring_left(_cAll_, ring_len(_cAll_) - ring_len(_cTrail_))
@@ -8281,7 +8281,7 @@ class stzString from stzObject
 		_nAL_ = ring_len(_aAfter_)
 		if isString(n)
 			_kw_ = lower(n)
-			if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 			if _kw_ = "first" n = 1
 			but _kw_ = "last" n = _nAL_
 			ok
@@ -8308,7 +8308,7 @@ class stzString from stzObject
 		# Symbolic n: :First / :Last
 		if isString(n)
 			_kw_ = lower(n)
-			if substr(_kw_, 1, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if StzMid(_kw_, 1, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 			if _kw_ = "last" n = 1
 			but _kw_ = "first" n = _nBL_
 			ok
@@ -9523,7 +9523,7 @@ class stzString from stzObject
 		# Provisional: TRUE if content looks like a function call
 		# (alphanumeric name + parentheses).
 		_c_ = This.Content()
-		if substr(_c_, "(") = 0 or substr(_c_, ")") = 0 return FALSE ok
+		if StzFind("(", _c_) = 0 or StzFind(")", _c_) = 0 return FALSE ok
 		return TRUE
 
 	def IsAnInteger()
@@ -10802,7 +10802,7 @@ class stzString from stzObject
 			if NOT isString(_cExpr_) or _cExpr_ = "" return 0 ok
 			_e_ = ring_trim(_cExpr_)
 			if ring_left(_e_, 1) = "{" and ring_right(_e_, 1) = "}"
-				_e_ = ring_trim(substr(_e_, 2, ring_len(_e_) - 2))
+				_e_ = ring_trim(StzMid(_e_, 2, ring_len(_e_) - 2))
 			ok
 			_aChars_ = This.Chars()
 			_nLen_ = ring_len(_aChars_)
@@ -11418,7 +11418,7 @@ class stzString from stzObject
 			if isList(_s_) and ring_len(_s_) = 2
 				_cMid_ = This._EngineSlice(This.Content(),
 				         _s_[1], _s_[2] - _s_[1] + 1)
-				if substr(_cMid_, pcSub) > 0 return TRUE ok
+				if StzFind(pcSub, _cMid_) > 0 return TRUE ok
 			ok
 		next
 		return FALSE
@@ -11428,12 +11428,12 @@ class stzString from stzObject
 		# Strip outer quotes if symmetric.
 		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
-			_c_ = substr(_c_, 2, ring_len(_c_) - 2)
+			_c_ = StzMid(_c_, 2, ring_len(_c_) - 2)
 		ok
-		_nP_ = substr(_c_, ":")
+		_nP_ = StzFind(":", _c_)
 		if _nP_ = 0 return [] ok
-		_a_ = ring_trim(substr(_c_, 1, _nP_ - 1))
-		_b_ = ring_trim(substr(_c_, _nP_ + 1))
+		_a_ = ring_trim(StzMid(_c_, 1, _nP_ - 1))
+		_b_ = ring_trim(StzMidToEnd(_c_, _nP_ + 1))
 		return [ _a_, ":", _b_ ]
 
 	def FindNextOccurrence(pcSub, pStartingAt)
@@ -11514,11 +11514,11 @@ class stzString from stzObject
 		_c_ = ring_trim(This.Content())
 		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
-			_c_ = substr(_c_, 2, ring_len(_c_) - 2)
+			_c_ = StzMid(_c_, 2, ring_len(_c_) - 2)
 		ok
 		# Strip wrapping brackets if present.
 		if ring_left(_c_, 1) = "[" and ring_right(_c_, 1) = "]"
-			_c_ = substr(_c_, 2, ring_len(_c_) - 2)
+			_c_ = StzMid(_c_, 2, ring_len(_c_) - 2)
 		ok
 		# Naive comma-split.
 		_aR_ = []
@@ -11843,14 +11843,14 @@ class stzString from stzObject
 		_cur_ = This.Content()
 		# Avoid double-tagging.
 		_p_ = substr(_cur_, char(1))
-		if _p_ > 0 _cur_ = substr(_cur_, 1, _p_ - 1) ok
+		if _p_ > 0 _cur_ = StzMid(_cur_, 1, _p_ - 1) ok
 		This.Update(_cur_ + char(1) + pcSub)
 
 	def _NarrativeSubAndHost()
 		_c_ = This.Content()
 		_p_ = substr(_c_, char(1))
 		if _p_ < 1 return [ "", _c_ ] ok
-		return [ substr(_c_, _p_ + 1), substr(_c_, 1, _p_ - 1) ]
+		return [ StzMidToEnd(_c_, _p_ + 1), StzMid(_c_, 1, _p_ - 1) ]
 
 	def _NarrativeSub()
 		_pair_ = This._NarrativeSubAndHost()
@@ -12810,8 +12810,8 @@ class stzString from stzObject
 		if _nLen_ < 3 return FALSE ok
 		# Must have a "(" somewhere after at least 1 char and a ")"
 		# somewhere after that.
-		_nO_ = substr(_c_, "(")
-		_nC_ = substr(_c_, ")")
+		_nO_ = StzFind("(", _c_)
+		_nC_ = StzFind(")", _c_)
 		return _nO_ >= 2 and _nC_ > _nO_
 
 	# Inversed: char-reverse alias.
@@ -12837,7 +12837,7 @@ class stzString from stzObject
 			# Strip braces if the expression came as "{ ... }".
 			_e_ = ring_trim(_cExpr_)
 			if ring_left(_e_, 1) = "{" and ring_right(_e_, 1) = "}"
-				_e_ = ring_trim(substr(_e_, 2, ring_len(_e_) - 2))
+				_e_ = ring_trim(StzMid(_e_, 2, ring_len(_e_) - 2))
 			ok
 			_aChars_ = This.Chars()
 			_nLen_ = ring_len(_aChars_)
@@ -13286,7 +13286,7 @@ class stzString from stzObject
 	# IsListInShortForm: rough check for `a:b` short-form list literal.
 	def IsListInShortForm()
 		_c_ = ring_trim(This.Content())
-		return substr(_c_, ":") > 0 and ring_len(_c_) >= 3
+		return StzFind(":", _c_) > 0 and ring_len(_c_) >= 3
 
 	def IncludedIn(pcOther)
 		return This.IsIncludedIn(pcOther)
@@ -13302,7 +13302,7 @@ class stzString from stzObject
 		if NOT isString(pcOther) return FALSE ok
 		_c_ = This.Content()
 		if ring_len(_c_) = 0 return FALSE ok
-		return substr(pcOther, _c_) > 0
+		return StzFind(_c_, pcOther) > 0
 
 	def RemoveLeftOccurrenceQ(pcSub)
 		This.RemoveFirstOccurrence(pcSub)
@@ -13315,7 +13315,7 @@ class stzString from stzObject
 	def NumberForm()
 		_c_ = ring_trim(This.Content())
 		if This.IsAnInteger() return :Integer ok
-		if substr(_c_, ".") > 0 return :Decimal ok
+		if StzFind(".", _c_) > 0 return :Decimal ok
 		if ring_left(_c_, 2) = "0x" return :Hex ok
 		if ring_left(_c_, 2) = "0b" return :Binary ok
 		return :Other
@@ -14156,7 +14156,7 @@ class stzString from stzObject
 
 	def SpacesRemoved()
 		_cSrStr_ = This.Content()
-		return substr(_cSrStr_, " ", "")
+		return StzReplace(_cSrStr_, " ", "")
 
 		def WithoutSpaces()
 			return This.SpacesRemoved()
@@ -14188,7 +14188,7 @@ class stzString from stzObject
 			for _iLoopPacSubStr2_ = 1 to _nPacSubStr2Len_
 				_cSub_ = pacSubStr[_iLoopPacSubStr2_]
 				if _cSub_ != ""
-					_cSscRes_ = substr(_cSscRes_, _cSub_, " " + _cSub_ + " ")
+					_cSscRes_ = StzReplace(_cSscRes_, _cSub_, " " + _cSub_ + " ")
 				ok
 			next
 		else
@@ -14359,7 +14359,7 @@ class stzString from stzObject
 					_cSub_ = _xVal_[_iAx_]
 					if NOT isString(_cSub_) or _cSub_ = "" loop ok
 					if _bAfter_
-						_cTxt_ = substr(_cTxt_, _cSub_, _cSub_ + p1)
+						_cTxt_ = StzReplace(_cTxt_, _cSub_, _cSub_ + p1)
 					else
 						_cTxt_ = substr(_cTxt_, _cSub_, p1 + _cSub_)
 					ok
@@ -14419,7 +14419,7 @@ class stzString from stzObject
 			_aSibPair_ = _aSibZZ_[_iLoop_aSibZZ1_]
 			_nA_ = _aSibPair_[1]
 			_nB_ = _aSibPair_[2]
-			_acSibR_ + substr(_cSibStr_, _nA_, _nB_ - _nA_ + 1)
+			_acSibR_ + StzMid(_cSibStr_, _nA_, _nB_ - _nA_ + 1)
 		next
 		return _acSibR_
 
@@ -14558,7 +14558,7 @@ class stzString from stzObject
 		ok
 		_cStr_ = This.Content()
 		while ring_len(_cStr_) > 0 and left(_cStr_, 1) = c
-			_cStr_ = substr(_cStr_, 2)
+			_cStr_ = StzMidToEnd(_cStr_, 2)
 		end
 		This.Update(_cStr_)
 

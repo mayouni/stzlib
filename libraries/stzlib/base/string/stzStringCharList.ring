@@ -142,6 +142,27 @@ func StzCharsToUnicodes(paList)
 	func CharsToUnicodes(paList)
 		return StzCharsToUnicodes(paList)
 
+
+func CharsNames(acChars)
+	_anUnicodes_ = Unicodes(acChars)
+	_nLen_ = len(_anUnicodes_)
+	_acResult_ = []
+
+	for i = 1 to _nLen_
+		_acResult_ + CharName(_anUnicodes_[i])
+	next
+
+	return _acResult_
+
+	func @CharsNames(acChars)
+		return CharsNames(acChars)
+
+	func StzCharsNames(acChars)
+		return CharsNames(acChars)
+
+	func @StzCharsNames(acChars)
+		return CharsNames(acChars)
+
 func StzListOfChars(paList)
 	if @IsListOfChars(paList)
 		return paList
@@ -164,10 +185,20 @@ func StzListOfLetters(paList)
 	func ListOfLetters(paList)
 		return StzListOfLetters(paList)
 
+	func UnicodesNames(anUnicodes)
+		_nLen_ = len(anUnicodes)
+		_aResult_ = []
+		for _i_ = 1 to _nLen_
+			_aResult_ + StzCharNameByUnicode(anUnicodes[_i_])
+		next
+		return _aResult_
+
 
   /////////////////
  ///   CLASS   ///
 /////////////////
+
+class stzListOfChars from stzStringCharList
 
 class stzStringCharList
 
@@ -215,6 +246,17 @@ class stzStringCharList
 
 		def Chars()
 			return @acChars
+
+	def Names()
+		_acResult_ = []
+		_anUnicodes_ = This.Unicodes()
+		_nLen_ = ring_len(_anUnicodes_)
+
+		for i = 1 to _nLen_
+			_acResult_ + StzCharNameByUnicode(_anUnicodes_[i])
+		next
+
+		return _acResult_
 
 	# RemoveSpaces / RemoveSpacesQ: drop every " " char from the list.
 	def RemoveSpaces()
@@ -272,7 +314,10 @@ class stzStringCharList
 	def NumberOfChars()
 		return ring_len(@acChars)
 
-		def Len()
+		def Count()
+			return ring_len(@acChars)
+
+		def Size()
 			return ring_len(@acChars)
 
 		def Length()
@@ -329,12 +374,12 @@ class stzStringCharList
 		return new stzStringCharList(@acChars)
 
 	def Concatenated()
-		cResult = ""
-		nLen = ring_len(@acChars)
+		_cResult_ = ""
+		_nLen_ = len(@acChars)
 		for i = 1 to nLen
-			cResult += @acChars[i]
+			_cResult_ += @acChars[i]
 		next
-		return cResult
+		return _cResult_
 
 	  #===============================#
 	 #   CONTAINS / FIND             #
@@ -551,42 +596,9 @@ class stzStringCharList
 
 	# _SplitNullDelimited() is provided globally by stzStringFunc.ring
 
-  /////////////////////////////
- ///   ALIAS CLASS HOST    ///
-/////////////////////////////
-
-# stzListOfChars -- alias the rest of the library + every narrative
-# test reaches for. It IS-A stzStringCharList; constructor accepts:
-#   - a list of single-char strings:   new stzListOfChars(["a","b"])
-#   - a list of unicode codepoints:    new stzListOfChars([945,946])
-#     (auto-converted via StzChar(n) per item)
-# Falls back to the parent constructor for string-with-content and
-# other shapes the parent already supports.
-class stzListOfChars from stzStringCharList
-
-	def init(pValue)
-		if isList(pValue)
-			_nLen_ = ring_len(pValue)
-			# If all items are numbers, convert to chars via StzChar.
-			# Otherwise hand off to the parent init unchanged.
-			if _nLen_ > 0
-				_bAllNum_ = TRUE
-				for _i_ = 1 to _nLen_
-					if NOT isNumber(pValue[_i_])
-						_bAllNum_ = FALSE
-						exit
-					ok
-				next
-				if _bAllNum_
-					_aChars_ = []
-					for _i_ = 1 to _nLen_
-						_aChars_ + StzChar(pValue[_i_])
-					next
-					pValue = _aChars_
-				ok
-			ok
-		ok
-		super.init(pValue)
+	#-------#
+	# MISC. #
+	#-------#
 
 	# Long-tail aliases used by Q("...").CharsQ() chains.
 	def NumbrifyQ()
@@ -630,15 +642,6 @@ class stzListOfChars from stzStringCharList
 	def ToStzListOfStrings()
 		return new stzList( This.Content() )
 
-	def Concatenated()
-		_l_ = This.Content()
-		_nL_ = ring_len(_l_)
-		_c_ = ""
-		for _i_ = 1 to _nL_
-			if isString(_l_[_i_]) _c_ += _l_[_i_] ok
-		next
-		return _c_
-
 	def Are(p)
 		return ring_len(This.Content()) > 0
 
@@ -659,3 +662,4 @@ class stzListOfChars from stzStringCharList
 
 	def BoxDash()
 		return This.Boxify()
+

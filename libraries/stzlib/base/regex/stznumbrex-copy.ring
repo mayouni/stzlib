@@ -54,7 +54,7 @@ class stzNumberex
 	def ParsePattern(cPattern)
 		# Remove outer brackets
 		cPattern = @trim(cPattern)
-		cInner = @substr(cPattern, 2, ring_len(cPattern) - 1)
+		cInner = @StzMid(cPattern, 2, ring_len(cPattern) - 1)
 		cInner = @trim(cInner)
 
 		# Split at commas
@@ -103,7 +103,7 @@ class stzNumberex
 		# Check for negation
 		if StartsWith(cTokenStr, "@!")
 			bNegated = true
-			cTokenStr = @substr(cTokenStr, 3, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
 		ok
 	
 		# Ensure token starts with @
@@ -115,15 +115,15 @@ class stzNumberex
 		cKeyword = ""
 		cRemainder = ""
 		
-		if @substr(cTokenStr, 1, 4) = "@DIV"
+		if @StzMid(cTokenStr, 1, 4) = "@DIV"
 			cKeyword = "@DIV"
-			cRemainder = @substr(cTokenStr, 5, ring_len(cTokenStr))
-		but @substr(cTokenStr, 1, 3) = "@PR"
+			cRemainder = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
+		but @StzMid(cTokenStr, 1, 3) = "@PR"
 			cKeyword = "@PR"
-			cRemainder = @substr(cTokenStr, 4, ring_len(cTokenStr))
+			cRemainder = @StzMid(cTokenStr, 4, ring_len(cTokenStr))
 		else
-			cKeyword = @substr(cTokenStr, 1, 2)
-			cRemainder = @substr(cTokenStr, 3, ring_len(cTokenStr))
+			cKeyword = @StzMid(cTokenStr, 1, 2)
+			cRemainder = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
 		ok
 	
 		# Check if remainder has constraints (starts with parenthesis or brace)
@@ -168,19 +168,19 @@ class stzNumberex
 			if cStr[1] = "+"
 				nMin = 1
 				nMax = 999999999
-				cRemainder = @substr(cStr, 2, ring_len(cStr))
+				cRemainder = @StzMid(cStr, 2, ring_len(cStr))
 				return [nMin, nMax, nQuantifier, cRemainder]
 	
 			but cStr[1] = "*"
 				nMin = 0
 				nMax = 999999999
-				cRemainder = @substr(cStr, 2, ring_len(cStr))
+				cRemainder = @StzMid(cStr, 2, ring_len(cStr))
 				return [nMin, nMax, nQuantifier, cRemainder]
 	
 			but cStr[1] = "?"
 				nMin = 0
 				nMax = 1
-				cRemainder = @substr(cStr, 2, ring_len(cStr))
+				cRemainder = @StzMid(cStr, 2, ring_len(cStr))
 				return [nMin, nMax, nQuantifier, cRemainder]
 			ok
 		ok
@@ -197,7 +197,7 @@ class stzNumberex
 			ok
 			
 			nMatchLen = ring_len(aMatches[1]) + 1 + ring_len(aMatches[2])
-			cRemainder = @substr(cStr, nMatchLen + 1, ring_len(cStr))
+			cRemainder = @StzMid(cStr, nMatchLen + 1, ring_len(cStr))
 			return [nMin, nMax, nQuantifier, cRemainder]
 		ok
 	
@@ -208,7 +208,7 @@ class stzNumberex
 			nQuantifier = 0+ aMatches[1]
 			nMin = nQuantifier
 			nMax = nQuantifier
-			cRemainder = @substr(cStr, ring_len(aMatches[1]) + 1, ring_len(cStr))
+			cRemainder = @StzMid(cStr, ring_len(aMatches[1]) + 1, ring_len(cStr))
 		ok
 	
 		return [nMin, nMax, nQuantifier, cRemainder]
@@ -223,7 +223,7 @@ class stzNumberex
 			aMatches = oSectionMatch.Matches()
 			# Extract the content without parentheses and split on ".."
 			cSectionStr = aMatches[1]
-			cSectionContent = @substr(cSectionStr, 2, ring_len(cSectionStr) - 1)  # Remove ( and )
+			cSectionContent = @StzMid(cSectionStr, 2, ring_len(cSectionStr) - 1)  # Remove ( and )
 			aParts = @split(cSectionContent, "..")
 			aConstraints + ["section", [0+ aParts[1], 0+ aParts[2]]]
 		ok
@@ -234,7 +234,7 @@ class stzNumberex
 			aMatches = oSetMatch.Matches()
 			# Extract content without braces
 			cSetStr = aMatches[1]
-			cSetContent = substr(cSetStr, 2, ring_len(cSetStr) - 2)  # Remove { and }
+			cSetContent = StzMid(cSetStr, 2, ring_len(cSetStr) - 2)  # Remove { and }
 			aParts = @split(cSetContent, ";")
 			
 			aValues = []
@@ -255,7 +255,7 @@ class stzNumberex
 			if oDivMatch.Match(cStr)
 				aMatches = oDivMatch.Matches()
 				cDivStr = aMatches[1]
-				cDivNum = substr(cDivStr, 2, ring_len(cDivStr) - 2)  # Remove ( and )
+				cDivNum = StzMid(cDivStr, 2, ring_len(cDivStr) - 2)  # Remove ( and )
 				aConstraints + ["divisor", 0+ cDivNum]
 			ok
 		ok
@@ -266,7 +266,7 @@ class stzNumberex
 			if oDigitMatch.Match(cStr)
 				aMatches = oDigitMatch.Matches()
 				cDigitStr = aMatches[1]
-				cDigitNum = substr(cDigitStr, 2, ring_len(cDigitStr) - 2)  # Remove ( and )
+				cDigitNum = StzMid(cDigitStr, 2, ring_len(cDigitStr) - 2)  # Remove ( and )
 				aConstraints + ["digits", 0+ cDigitNum]
 			ok
 		ok
@@ -290,7 +290,7 @@ class stzNumberex
 			oSimpleMatch = rx('^\(\d+\)')
 			if oSimpleMatch.Match(cRemainder)
 				aMatches = oSimpleMatch.Matches()
-				cRemainder = @substr(cRemainder, ring_len(aMatches[1]) + 1, ring_len(cRemainder))
+				cRemainder = @StzMid(cRemainder, ring_len(aMatches[1]) + 1, ring_len(cRemainder))
 			ok
 		ok
 		
@@ -298,14 +298,14 @@ class stzNumberex
 		oSectionMatch = rx('^\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
 		if oSectionMatch.Match(cRemainder)
 			aMatches = oSectionMatch.Matches()
-			cRemainder = @substr(cRemainder, ring_len(aMatches[1]) + 1, ring_len(cRemainder))
+			cRemainder = @StzMid(cRemainder, ring_len(aMatches[1]) + 1, ring_len(cRemainder))
 		ok
 		
 		# 3. Remove set constraints: {val1;val2;val3}
 		oSetMatch = rx('^\{([^}]+)\}')
 		if oSetMatch.Match(cRemainder)
 			aMatches = oSetMatch.Matches()
-			cRemainder = @substr(cRemainder, ring_len(aMatches[1]) + 1, ring_len(cRemainder))
+			cRemainder = @StzMid(cRemainder, ring_len(aMatches[1]) + 1, ring_len(cRemainder))
 		ok
 		
 		# Now parse quantifier from remainder

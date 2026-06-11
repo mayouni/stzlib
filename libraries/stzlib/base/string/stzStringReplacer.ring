@@ -156,12 +156,12 @@ class stzStringReplacer
 			_cNew_ = pacNewSubStr[_iApp_]
 			_cBefore_ = ""
 			if _nP_ > 1
-				_cBefore_ = substr(_cContent_, 1, _nP_ - 1)
+				_cBefore_ = StzMid(_cContent_, 1, _nP_ - 1)
 			ok
 			_cAfter_ = ""
 			_nAfter_ = _nP_ + _nSubLen_
 			if _nAfter_ <= _nContentLen_
-				_cAfter_ = substr(_cContent_, _nAfter_)
+				_cAfter_ = StzMidToEnd(_cContent_, _nAfter_)
 			ok
 			_cContent_ = _cBefore_ + _cNew_ + _cAfter_
 			_nContentLen_ = ring_len(_cContent_)

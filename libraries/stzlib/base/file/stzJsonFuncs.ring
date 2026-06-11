@@ -596,7 +596,7 @@ func _TrimJson(cJson)
         return ""
     ok
     
-    return substr(cJson, nStart, nEnd - nStart + 1)
+    return StzMid(cJson, nStart, nEnd - nStart + 1)
 
 func _JsonHashToList(cJson)
     aResult = []
@@ -776,7 +776,7 @@ func _ParseJsonValueAt(cJson, nStartPos)
             nPos++
         end
         
-        cHashJson = substr(cJson, nStartHash, nPos - nStartHash)
+        cHashJson = StzMid(cJson, nStartHash, nPos - nStartHash)
         return [_JsonHashToList(cHashJson), nPos]
         
     but cChar = "["  # Array
@@ -817,7 +817,7 @@ func _ParseJsonValueAt(cJson, nStartPos)
             nPos++
         end
         
-        cArrJson = substr(cJson, nStartArr, nPos - nStartArr)
+        cArrJson = StzMid(cJson, nStartArr, nPos - nStartArr)
         return [_JsonArrayToList(cArrJson), nPos]
         
     else  # Number, boolean, or null

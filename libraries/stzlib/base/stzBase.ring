@@ -269,7 +269,7 @@ ok
 
     load "system/stzPointer.ring"
 
-    load "system/stzUUID.ring"
+//   load "system/stzUUID.ring" #TODO Implement it engine-side (in Zig)
 
 # Loading files related to the FILE module
 
@@ -280,8 +280,10 @@ ok
 
     load "file/stzJson.ring"
     load "file/stzCSV.ring"
-    load "file/stzHtml.ring"
+//  load "file/stzHtml.ring" #TODO Implement it engine-side (in Zig)
+
     # NOTE: stzFolderWatcher.ring is a demo script, not a loadable module
+    #TODO // Implement it engine-side (in Zig)
 
 # Loading the YIELDER module (functional map/filter/reduce)
 

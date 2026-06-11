@@ -8,7 +8,7 @@
    
    Ring does NOT have substr(str, position, length) form, nor it has a substr(str, n) form!
    
-   That's why Softanza provides @substr(str, nStart, nEnd) which extracts
+   That's why Softanza provides @StzMid(str, nStart, nEnd) which extracts
    a substring from position nStart to position nEnd (both inclusive).
 */
 
@@ -81,7 +81,7 @@ class stzTimex
 	
 	def ParsePattern(cPattern)
 		# Remove outer braces
-		cInner = @substr(cPattern, 2, ring_len(cPattern)-1)
+		cInner = @StzMid(cPattern, 2, ring_len(cPattern)-1)
 		cInner = trim(cInner)
 		
 		if @bDebugMode
@@ -133,7 +133,7 @@ class stzTimex
 				nDepth--
 				cCurrent += cChar
 
-			but nDepth = 0 and @substr(cStr, i, i + nOpLen - 1) = cOperator
+			but nDepth = 0 and @StzMid(cStr, i, i + nOpLen - 1) = cOperator
 				aParts + @trim(cCurrent)
 				cCurrent = ""
 				i += nOpLen - 1  # Skip operator
@@ -152,7 +152,7 @@ class stzTimex
 		# Handle (A | B | C) patterns
 		# Strip outer parentheses if present
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @substr(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
 		ok
 		
 		# Split by |
@@ -187,7 +187,7 @@ class stzTimex
 		bNegated = FALSE
 		if startsWith(cTokenStr, "@!")
 			bNegated = TRUE
-			cTokenStr = @substr(cTokenStr, 3, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
 		ok
 		
 		# Initialize token properties
@@ -201,23 +201,23 @@ class stzTimex
 		# Identify token type
 		if startsWith(cTokenStr, "@Instant")
 			cType = "instant"
-			cTokenStr = @substr(cTokenStr, 9, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
 	
 		but startsWith(cTokenStr, "@Duration")
 			cType = "duration"
-			cTokenStr = @substr(cTokenStr, 10, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
 	
 		but startsWith(cTokenStr, "@Event")
 			cType = "event"
-			cTokenStr = @substr(cTokenStr, 7, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
 	
 		but startsWith(cTokenStr, "@Sequence")
 			cType = "sequence"
-			cTokenStr = @substr(cTokenStr, 10, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
 	
 		but startsWith(cTokenStr, "@Frame")
 			cType = "frame"
-			cTokenStr = @substr(cTokenStr, 7, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
 	
 		else
 			if @bDebugMode
@@ -231,7 +231,7 @@ class stzTimex
 		if nOpenParen > 0
 			nCloseParen = StzFind(cTokenStr, ")")
 			if nCloseParen > nOpenParen
-				cContent = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+				cContent = @StzMid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 				
 				# For Event type: check if label contains duration constraint (Label:Duration)
 				if cType = "event" and contains(cContent, ":")
@@ -272,9 +272,9 @@ class stzTimex
 			nLenTokenStr = ring_len(cTokenStr)
 	
 			for i = nLenTokenStr to 1 step -1
-				cChar = @substr(cTokenStr, i, i+1)
+				cChar = @StzMid(cTokenStr, i, i+1)
 				if not isDigit(cChar) and cChar != "-"
-					cQuantPart = @substr(cTokenStr, i + 1, nLenTokenStr)
+					cQuantPart = @StzMid(cTokenStr, i + 1, nLenTokenStr)
 					if contains(cQuantPart, "-")
 						aRange = @split(cQuantPart, "-")
 						if ring_len(aRange) = 2
@@ -349,7 +349,7 @@ class stzTimex
 		if nBraceStart > 0
 			nBraceEnd = StzFind(cConstraintStr, "}")
 			if nBraceEnd > nBraceStart
-				cSetContent = @substr(cConstraintStr, nBraceStart + 1, nBraceEnd - 1)
+				cSetContent = @StzMid(cConstraintStr, nBraceStart + 1, nBraceEnd - 1)
 				aSetValues = @split(cSetContent, ";")
 				
 				aConstraints + [
@@ -371,12 +371,12 @@ class stzTimex
 		if nHPos > 0
 			cHours = StzLeft(cDuration, nHPos - 1)
 			nMinutes = (0 + cHours) * 60
-			cDuration = @substr(cDuration, nHPos + 1, ring_len(cDuration))
+			cDuration = @StzMid(cDuration, nHPos + 1, ring_len(cDuration))
 		ok
 		
 		# Extract minutes
 		if contains(cDuration, "min")
-			cMinutes = @substr(cDuration, 1, StzFind(cDuration, "min") - 1)
+			cMinutes = @StzMid(cDuration, 1, StzFind(cDuration, "min") - 1)
 			nMinutes += (0 + StzStringQ(cDuration).Numbers()[1])  # ADD @trim() here
 		but ring_len(cDuration) > 0  # CHANGE: was cDuration != ""
 			# Just a number, assume minutes

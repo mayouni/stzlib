@@ -160,7 +160,7 @@ class stzCoeffExtractor from stzObject
 					# Extract coefficient before *
 					nPos = ring_substr1(cTerm, "*")
 
-					cCoeff = trim(@substr(cTerm, 1, nPos-1))
+					cCoeff = trim(@StzMid(cTerm, 1, nPos-1))
 					if cCoeff = "" or cCoeff = "+"
 						return 1
 					ok

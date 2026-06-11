@@ -3,6 +3,7 @@
 # #perf managing a big text
 #
 # Extracted from stzStringTest.ring, block #7.
+#ERR TIMEOUT (>25s)
 
 load "../../stzBase.ring"
 

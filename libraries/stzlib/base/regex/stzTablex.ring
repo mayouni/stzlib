@@ -60,7 +60,7 @@ class stzTablex from stzObject
 
 	def ParsePattern(cPattern)
 		# Remove outer braces
-		cInner = @substr(cPattern, 2, ring_len(cPattern) - 1)
+		cInner = @StzMid(cPattern, 2, ring_len(cPattern) - 1)
 		cInner = trim(cInner)
 
 		if @bDebugMode
@@ -102,7 +102,7 @@ class stzTablex from stzObject
 		nOpLen = ring_len(cOperator)
 
 		for i = 1 to nLen
-			cChar = @substr(cStr, i, i)
+			cChar = @StzMid(cStr, i, i)
 	
 			if cChar = "(" or cChar = "{"
 				nDepth++
@@ -110,7 +110,7 @@ class stzTablex from stzObject
 			but cChar = ")" or cChar = "}"
 				nDepth--
 				cCurrent += cChar
-			but nDepth = 0 and @substr(cStr, i, i + nOpLen - 1) = cOperator
+			but nDepth = 0 and @StzMid(cStr, i, i + nOpLen - 1) = cOperator
 				aParts + trim(cCurrent)
 				cCurrent = ""
 				i += nOpLen - 1
@@ -127,7 +127,7 @@ class stzTablex from stzObject
 
 	def ParseAlternation(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @substr(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
 		ok
 
 		aParts = This.SplitByOperator(cTokenStr, "|")
@@ -152,7 +152,7 @@ class stzTablex from stzObject
 
 	def ParseConjunction(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @substr(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
 		ok
 
 		aParts = This.SplitByOperator(cTokenStr, "&")
@@ -190,13 +190,13 @@ class stzTablex from stzObject
 		# Check for negation
 		if startsWith(StzLower(cTokenStr), "@!")
 			bNegated = TRUE
-			cTokenStr = @substr(cTokenStr, 3, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
 		ok
 
 		# Check for case sensitivity flag
 		if startsWith(StzLower(cTokenStr), "@cs:")
 			bCaseSensitive = TRUE
-			cTokenStr = @substr(cTokenStr, 5, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
 		ok
 
 		cType = ""
@@ -211,7 +211,7 @@ class stzTablex from stzObject
 		if nOpenParen > 0
 			nCloseParen = StzFind(cTokenStr, ")")
 			if nCloseParen > nOpenParen
-				cPreservedValue = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+				cPreservedValue = @StzMid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 				if @bDebugMode
 					? "Preserved value: " + cPreservedValue
 				ok
@@ -385,7 +385,7 @@ class stzTablex from stzObject
 		# Parse quantifiers (same as before...)
 		cQuantPart = ""
 		if nCloseParen > 0 and nCloseParen < ring_len(cTokenStr)
-			cQuantPart = @substr(cTokenStr, nCloseParen + 1, ring_len(cTokenStr))
+			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, ring_len(cTokenStr))
 		ok
 
 		cQuantPart = trim(cQuantPart)
@@ -435,7 +435,7 @@ class stzTablex from stzObject
 		nLen = ring_len(aPrefixes)
 		for i = 1 to nLen
 			if startsWith(cStr, aPrefixes[i])
-				return @substr(cStr, ring_len(aPrefixes[i]) + 1, ring_len(cStr))
+				return @StzMid(cStr, ring_len(aPrefixes[i]) + 1, ring_len(cStr))
 			ok
 		next
 		return cStr
@@ -458,12 +458,12 @@ class stzTablex from stzObject
 			but startsWith(cConstraintStr, ">")
 				aConstraints + [
 					["type", "greater"],
-					["value", 0 + @substr(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				aConstraints + [
 					["type", "less"],
-					["value", 0 + @substr(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
 				]
 			ok
 
@@ -476,12 +476,12 @@ class stzTablex from stzObject
 			but startsWith(cConstraintStr, ">")
 				aConstraints + [
 					["type", "greater"],
-					["value", 0 + @substr(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				aConstraints + [
 					["type", "less"],
-					["value", 0 + @substr(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
 				]
 			ok
 
@@ -498,7 +498,7 @@ class stzTablex from stzObject
 			but StzFind(cConstraintStr, "{") > 0
 				nStart = StzFind(cConstraintStr, "{")
 				nEnd = StzFind(cConstraintStr, "}")
-				cSet = @substr(cConstraintStr, nStart + 1, nEnd - 1)
+				cSet = @StzMid(cConstraintStr, nStart + 1, nEnd - 1)
 				aValues = @split(cSet, ";")
 				aConstraints + [
 					["type", "set"],
@@ -1171,9 +1171,9 @@ class stzTablex from stzObject
 						next
 
 						if startsWith(cConstraint, ">")
-							return nSum > (0 + @substr(cConstraint, 2, ring_len(cConstraint)))
+							return nSum > (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
 						but startsWith(cConstraint, "<")
-							return nSum < (0 + @substr(cConstraint, 2, ring_len(cConstraint)))
+							return nSum < (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
 						but This.IsNumeric(cConstraint)
 							return nSum = (0 + cConstraint)
 						ok
@@ -1208,9 +1208,9 @@ class stzTablex from stzObject
 							nAvg = nSum / nCount
 							
 							if startsWith(cConstraint, ">")
-								return nAvg > (0 + @substr(cConstraint, 2, ring_len(cConstraint)))
+								return nAvg > (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
 							but startsWith(cConstraint, "<")
-								return nAvg < (0 + @substr(cConstraint, 2, ring_len(cConstraint)))
+								return nAvg < (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
 							but This.IsNumeric(cConstraint)
 								return nAvg = (0 + cConstraint)
 							ok
@@ -1245,9 +1245,9 @@ class stzTablex from stzObject
 
 						if nMin != NULL
 							if startsWith(cConstraint, ">")
-								return nMin > (0 + @substr(cConstraint, 2, ring_len(cConstraint)))
+								return nMin > (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
 							but startsWith(cConstraint, "<")
-								return nMin < (0 + @substr(cConstraint, 2, ring_len(cConstraint)))
+								return nMin < (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
 							but This.IsNumeric(cConstraint)
 								return nMin = (0 + cConstraint)
 							ok
@@ -1283,9 +1283,9 @@ class stzTablex from stzObject
 
 						if nMax != NULL
 							if startsWith(cConstraint, ">")
-								return nMax > (0 + @substr(cConstraint, 2, ring_len(cConstraint)))
+								return nMax > (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
 							but startsWith(cConstraint, "<")
-								return nMax < (0 + @substr(cConstraint, 2, ring_len(cConstraint)))
+								return nMax < (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
 							but This.IsNumeric(cConstraint)
 								return nMax = (0 + cConstraint)
 							ok
@@ -1537,7 +1537,7 @@ class stzTablex from stzObject
 
 		nLen = ring_len(cStr)
 		for i = 1 to nLen
-			cChar = @substr(cStr, i, i)
+			cChar = @StzMid(cStr, i, i)
 			if not isDigit(cChar) and cChar != "-" and cChar != "."
 				return FALSE
 			ok
@@ -1555,9 +1555,9 @@ class stzTablex from stzObject
 		ok
 
 		cCombined = "{" + 
-		            @substr(@cPattern, 2, ring_len(@cPattern) - 1) + 
+		            @StzMid(@cPattern, 2, ring_len(@cPattern) - 1) + 
 		            " & " + 
-		            @substr(oOtherTablex.Pattern(), 2, ring_len(oOtherTablex.Pattern()) - 1) +
+		            @StzMid(oOtherTablex.Pattern(), 2, ring_len(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
 		return new stzTablex(cCombined)
@@ -1568,15 +1568,15 @@ class stzTablex from stzObject
 		ok
 
 		cCombined = "{" + 
-		            @substr(@cPattern, 2, ring_len(@cPattern) - 1) + 
+		            @StzMid(@cPattern, 2, ring_len(@cPattern) - 1) + 
 		            " | " + 
-		            @substr(oOtherTablex.Pattern(), 2, ring_len(oOtherTablex.Pattern()) - 1) +
+		            @StzMid(oOtherTablex.Pattern(), 2, ring_len(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
 		return new stzTablex(cCombined)
 
 	def Not_()
-		cInner = @substr(@cPattern, 2, ring_len(@cPattern) - 1)
+		cInner = @StzMid(@cPattern, 2, ring_len(@cPattern) - 1)
 		cNegated = "{@!" + cInner + "}"
 		return new stzTablex(cNegated)
 

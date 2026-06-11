@@ -2682,7 +2682,7 @@ class stzList from stzObject
 		# Wrap the slice so callers can chain methods.
 		if isString(pcType)
 			_kw_ = lower(pcType)
-			if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 			if _kw_ = "stzlistofstrings" return new stzListOfStrings(_a_) ok
 		ok
 		return new stzList(_a_)
@@ -2988,7 +2988,7 @@ class stzList from stzObject
 			_target_ = pacNames[_j_]
 			if NOT isString(_target_) loop ok
 			_kw_ = _target_
-			if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 			_kw_ = lower(_kw_)
 			_aPos_ = []
 			for _i_ = 1 to _nL_
@@ -3392,7 +3392,7 @@ class stzList from stzObject
 		if ring_len(_l_) != 2 return FALSE ok
 		if NOT isString(_l_[1]) return FALSE ok
 		_kw_ = lower(_l_[1])
-		if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 		return _kw_ = "atchars"
 
 	def IsOneOfTheseNamedParams(pacNames)
@@ -3401,12 +3401,12 @@ class stzList from stzObject
 		if ring_len(_l_) != 2 return FALSE ok
 		if NOT isString(_l_[1]) return FALSE ok
 		_kw_ = lower(_l_[1])
-		if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 		_nNL_ = ring_len(pacNames)
 		for _iN_ = 1 to _nNL_
 			if NOT isString(pacNames[_iN_]) loop ok
 			_target_ = lower(pacNames[_iN_])
-			if ring_left(_target_, 1) = ":" _target_ = substr(_target_, 2) ok
+			if ring_left(_target_, 1) = ":" _target_ = StzMidToEnd(_target_, 2) ok
 			if _kw_ = _target_ return TRUE ok
 		next
 		return FALSE
@@ -5603,7 +5603,7 @@ class stzList from stzObject
 			_s_ = _aSec_[_i_]
 			if isList(_s_) and ring_len(_s_) = 2
 				_cMid_ = _o_._EngineSlice(pNamedIn[2], _s_[1], _s_[2] - _s_[1] + 1)
-				if substr(_cMid_, pcSub) > 0 return TRUE ok
+				if StzFind(pcSub, _cMid_) > 0 return TRUE ok
 			ok
 		next
 		return FALSE

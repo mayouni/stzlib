@@ -204,6 +204,24 @@ func StzMid(cStr, nStart, nLen)
 	StzEngineStringFree(pH)
 	return c
 
+# StzMidToEnd(cStr, nStart): codepoint-correct equivalent of
+# Ring's `substr(cStr, nStart)`. One handle-reuse round (count +
+# slice) instead of a StzMid + separate StzLen.
+func StzMidToEnd(cStr, nStart)
+	if NOT isString(cStr) cStr = "" + cStr ok
+	pH = StzEngineString(cStr)
+	nLen = StzEngineStringCount(pH)
+	if nStart < 1 nStart = 1 ok
+	if nStart > nLen
+		StzEngineStringFree(pH)
+		return ""
+	ok
+	pR = StzEngineStringMid(pH, nStart - 1, nLen - nStart + 1)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
   #------------------------------------------------------#
  #  PADDING, CENTERING, CAPITALIZING                    #
 #------------------------------------------------------#

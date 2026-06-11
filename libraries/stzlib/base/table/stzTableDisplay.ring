@@ -252,11 +252,11 @@ class stzTableDisplay from stzTable
 							ok
 						but isString(pParams[i])
 							cParam = pParams[i]
-							if @substr(cParam, 1, 9) = "rownumber"
+							if @StzMid(cParam, 1, 9) = "rownumber"
 								bRowNumber = TRUE
-							but @substr(cParam, 1, 8) = "subtotal"
+							but @StzMid(cParam, 1, 8) = "subtotal"
 								bSubTotal = TRUE
-							but @substr(cParam, 1, 10) = "grandtotal"
+							but @StzMid(cParam, 1, 10) = "grandtotal"
 								bGrandTotal = TRUE
 							ok
 						ok

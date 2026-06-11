@@ -53,17 +53,14 @@ class stzIntSeq
 
 	  #--- Read accessors (all O(1) or O(N) in engine, no Ring loops) ---
 
-	def Len()
+	def NumberOfItems()
 		return StzEngineIntSeqLen(@pHandle)
 
-		def NumberOfItems()
-			return This.Len()
-
 		def Count()
-			return This.Len()
+			return This.NumberOfItems()
 
 		def Size()
-			return This.Len()
+			return This.NumberOfItems()
 
 	# 1-based access to match Ring/Softanza convention; engine is 0-based.
 	def At(n)

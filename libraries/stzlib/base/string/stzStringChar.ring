@@ -686,8 +686,8 @@ func StzCharByName(cName)
   /////////////////
  ///   CLASS   ///
 /////////////////
-
-class stzStringChar from stzObject
+class stzChar from stzStringChar
+class stzStringChar from stzString
 
 	@oString	# Composition: wraps a 1-char stzString
 
@@ -906,35 +906,6 @@ class stzStringChar from stzObject
 			StzRaise(stzCharError(:CanNotGetAsciiCodeForNonAsciiChar))
 		end
 
-	  #===================#
-	 #   SIZE & BYTES    #
-	#===================#
-
-	def NumberOfBytes()
-		return @SizeInBytes(This.Content())
-
-		def HowManyBytes()
-			return This.NumberOfBytes()
-
-		def HowManyByte()
-			return This.NumberOfBytes()
-
-		def SizeInBytes()
-			return This.NumberOfBytes()
-
-		def CountBytes()
-			return This.NumberOfBytes()
-
-	def Bytes()
-		oStzBinStr = new stzListOfBytes(This.Content())
-		return oStzBinStr.Bytes()
-
-	def SizeInChars()
-		return @oString.NumberOfChars()
-
-		def NumberOfChars()
-			return This.SizeInChars()
-
 	  #=====================================#
 	 #   ORIENTATION & UNICODE DIRECTION   #
 	#=====================================#
@@ -946,9 +917,9 @@ class stzStringChar from stzObject
 		_aUnicodeDirectionsXT1_ = UnicodeDirectionsXT()
 		_nUnicodeDirectionsXT1Len_ = ring_len(_aUnicodeDirectionsXT1_)
 		for _iLoopUnicodeDirectionsXT1_ = 1 to _nUnicodeDirectionsXT1Len_
-			aLine = _aUnicodeDirectionsXT1_[_iLoopUnicodeDirectionsXT1_]
-			if aLine[1] = This.UnicodeDirectionNumber()
-				return aLine[3]
+			_aLine_ = _aUnicodeDirectionsXT1_[_iLoopUnicodeDirectionsXT1_]
+			if _aLine_[1] = This.UnicodeDirectionNumber()
+				return _aLine_[3]
 			ok
 		next
 
@@ -972,8 +943,7 @@ class stzStringChar from stzObject
 		return This.UnicodeDirectionNumber() = "13"
 
 	def IsArabicFraction()
-		oList = new stzList(ArabicFractionsUnicodes())
-		return oList.Contains(This.Unicode())
+		return ring_find(ArabicFractionsUnicodes(), This.Unicode()) > 0
 
 	def IsEuropeanDigit()
 		return This.IsEuropeanNumber()
@@ -1189,33 +1159,22 @@ class stzStringChar from stzObject
 		return StzEngineCharIsDigit(This.Unicode()) = 1
 
 	def IsArabicNumber()
-		oStzList = new stzList( ArabicDigits() )
-		return oStzList.Contains(This.Content())
+		if NOT This.IsANumber()
+			return 0
+		ok
+		return ring_find( ArabicDigits(), 0+This.Content() ) > 0
 
 	def IsANumber()
 		return This.IsDigit() or This.IsCircledDigit()
 
 	def IsIndianNumber()
-		_aIndianDigits1_ = IndianDigits()
-		_nIndianDigits1Len_ = ring_len(_aIndianDigits1_)
-		for _iLoopIndianDigits1_ = 1 to _nIndianDigits1Len_
-			c = _aIndianDigits1_[_iLoopIndianDigits1_]
-			if c = This.Content()
-				return 1
-			ok
-		next
-		return 0
+		return ring_find(IndianNumbers(), This.Content()) > 0
 
 	def IsRomanNumber()
-		if Q(This.Content()).ExistsIn( RomanNumbers() )
-			return 1
-		else
-			return 0
-		ok
+		return ring_find(RomanNumbers(), This.Content()) > 0
 
 	def IsMandarinNumber()
-		oList = new stzList( MandarinNumbers() )
-		return oList.Contains(This.Content())
+		return ring_find( MandarinNumbers(), This.Conten() ) > 0
 
 	def IsAscii()
 		try
@@ -1330,36 +1289,28 @@ class stzStringChar from stzObject
 		return StzEngineUnicodeIsLetter(nCp) AND StzEngineUnicodeIsLatin(nCp)
 
 	def IsBasicLatin()
-		oList = new stzList(_anBasicLatinUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anBasicLatinUnicodes, This.Unicode()) > 0
 
 	def IsLatin1Supplement()
-		oList = new stzList(_anLatin1SupplementUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anLatin1SupplementUnicodes, This.Unicode()) > 0
 
 	def IsLatinExtendedA()
-		oList = new stzList(_anLatinExtendedAUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anLatinExtendedAUnicodes, This.Unicode()) > 0
 
 	def IsLatinExtendedB()
-		oList = new stzList(_anLatinExtendedBUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anLatinExtendedBUnicodes, This.Unicode()) > 0
 
 	def IsLatinExtendedAdditional()
-		oList = new stzList(_anLatinExtendedAdditionalUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anLatinExtendedAdditionalUnicodes, This.Unicode()) > 0
 
 	def IsLatinExtendedC()
-		oList = new stzList(_anLatinExtendedCUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anLatinExtendedCUnicodes, This.Unicode()) > 0
 
 	def IsLatinExtendedD()
-		oList = new stzList(_anLatinExtendedDUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anLatinExtendedDUnicodes, This.Unicode()) > 0
 
 	def IsLatinExtendedE()
-		oList = new stzList(_anLatinExtendedEUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anLatinExtendedEUnicodes, This.Unicode()) > 0
 
 	  #=========================#
 	 #   ARABIC CHAR VARIANTS  #
@@ -1373,78 +1324,62 @@ class stzStringChar from stzObject
 		return StzEngineUnicodeIsLetter(nCp) AND StzEngineUnicodeIsArabic(nCp)
 
 	def IsBasicArabic()
-		oList = new stzList(_anBasicArabicUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anBasicArabicUnicodes, This.Unicode()) > 0
 
 	def IsArabicSupplement()
-		oList = new stzList(_anArabicSupplementUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anArabicSupplementUnicodes, This.Unicode()) > 0
 
 	def IsArabicExtendedA()
-		oList = new stzList(_anArabicExtendedAUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anArabicExtendedAUnicodes, This.Unicode()) > 0
 
 	def IsArabicExtended()
 		return IsArabicExtendedA()
 
 	def IsArabicPresentationForm()
-		oList = new stzList(_anArabicPresentationFormUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anArabicPresentationFormUnicodes, This.Unicode()) > 0
 
 	def IsArabicPresentationFormA()
-		oList = new stzList(_anArabicPresentationFormAUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anArabicPresentationFormAUnicodes, This.Unicode()) > 0
 
 	def IsArabicPresentationFormB()
-		oList = new stzList(_anArabicPresentationFormBUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anArabicPresentationFormBUnicodes, This.Unicode()) > 0
 
 	def IsArabicMathAlphabeticSymbol()
-		oList = new stzList(_anArabicMathAlphabeticSymbolUnicodes)
-		return oList.Contains(This.Unicode())
+		return ring_find(_anArabicMathAlphabeticSymbolUnicodes, This.Unicode()) > 0
 
 	def IsQuranicSign()
-		oTempList = new stzList(QuranicSignUnicodes())
-		return oTempList.Contains(This.Unicode())
+		return ring_find(QuranicSignUnicodes(), This.Unicode()) > 0
 
 	def IsTurnedNumber()
-		oTempList = new stzList(TurnedDigitUnicodes())
-		return oTempList.Contains(This.Unicode())
+		return ring_find(TurnedDigitUnicodes(), This.Unicode()) > 0
 
 	  #=============================#
 	 #   CIRCLED CHAR VARIANTS     #
 	#=============================#
 
 	def IsCircled()
-		oTempList = new stzList(CircledCharUnicodes())
-		return oTempList.contains(This.Unicode())
+		return ring_find(CircledCharUnicodes(), This.Unicode()) > 0
 
 		def IsCircledChar()
 			return This.IsCircled()
 
 	def IsCircledNumber()
-		oTempList = new stzList(CircledNumberUnicodes())
-		return oTempList.Contains(This.Unicode())
+		return ring_find(CircledNumberUnicodes(), This.Unicode()) > 0
 
 	def IsCircledDigit()
-		oTempList = new stzList(CircledDigitUnicodes())
-		return oTempList.Contains(This.Unicode())
+		return ring_find(CircledDigitUnicodes(), This.Unicode()) > 0
 
 	def IsCircledLatinLetter()
-		oTempList = new stzList(CircledLatinLetterUnicodes())
-		return oTempList.contains(This.Unicode())
+		return ring_find(CircledLatinLetterUnicodes(), This.Unicode()) > 0
 
 	def IsCircledLatinSmallLetter()
-		oTempList = new stzList(CircledLatinSmallLetterUnicodes())
-		return oTempList.contains(This.Unicode())
+		return ring_find(CircledLatinSmallLetterUnicodes(), This.Unicode()) > 0
 
 	def IsCircledLatinCapitalLetter()
-		oTempList = new stzList(CircledLatinCapitalLetterUnicodes())
-		return oTempList.contains(This.Unicode())
+		return ring_find(CircledLatinCapitalLetterUnicodes(), This.Unicode()) > 0
 
 	def IsOtherCircledChar()
-		oTempList = new stzList(OtherCircledCharUnicodes())
-		return oTempList.contains(This.Unicode())
+		return ring_find(OtherCircledCharUnicodes(), This.Unicode()) > 0
 
 	  #==============================#
 	 #   PRINTABLE / VISIBLE CHAR   #
@@ -1461,7 +1396,7 @@ class stzStringChar from stzObject
 		return NOT This.IsPrintable()
 
 	def IsInvisible()
-		return StzFind( InvisibleUnicodes(), This.Unicode() ) > 0
+		return ring_find( InvisibleUnicodes(), This.Unicode() ) > 0
 
 	def IsVisible()
 		return NOT This.IsInvisible()
@@ -1471,11 +1406,7 @@ class stzStringChar from stzObject
 	#========================#
 
 	def IsLocaleSeparator()
-		if This.Content() = "-" or This.Content() = "_"
-			return 1
-		else
-			return 0
-		ok
+		return ring_find([ "-", "_" ], This.Content())
 
 		def IsLocaleSeperator()
 			return This.IsLocaleSeparator()
@@ -2002,17 +1933,3 @@ class stzStringChar from stzObject
 			_aDtResult_ + StzCharQ(_nDtI_).Content()
 		next
 		return _aDtResult_
-
-
-  /////////////////////////////
- ///  stzChar = stzStringChar  ///
-/////////////////////////////
-
-# stzChar is the shorter Softanza alias for stzStringChar.
-# The narrative tests (and a lot of user-facing examples) refer
-# to `new stzChar(...)` directly; before this alias the modular
-# build only exposed stzStringChar so those tests crashed with
-# R11 (class not found). Direct inheritance keeps the full API
-# while making `new stzChar(...)` syntactically valid.
-
-class stzChar from stzStringChar

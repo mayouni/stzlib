@@ -752,7 +752,7 @@ class stzRegex
 		_i_ = 1
 		_bInClass_ = 0
 		while _i_ <= _nPat_
-			_cCh_ = substr(_cPat_, _i_, 1)
+			_cCh_ = StzMid(_cPat_, _i_, 1)
 			if _cCh_ = "\" and _i_ < _nPat_
 				_i_ += 2
 				loop
@@ -772,24 +772,24 @@ class stzRegex
 				loop
 			ok
 			# Try to match (?<NAME> or (?P<NAME>
-			if _cCh_ = "(" and _i_ + 2 <= _nPat_ and substr(_cPat_, _i_+1, 1) = "?"
+			if _cCh_ = "(" and _i_ + 2 <= _nPat_ and StzMid(_cPat_, _i_+1, 1) = "?"
 				_nNameStart_ = 0
-				if substr(_cPat_, _i_+2, 1) = "<" and _i_+3 <= _nPat_ and substr(_cPat_,_i_+3,1) != "="
+				if StzMid(_cPat_, _i_+2, 1) = "<" and _i_+3 <= _nPat_ and StzMid(_cPat_, _i_+3, 1) != "="
 					# Skip "(?<" but reject "(?<=" lookbehind. Also skip "(?<!" .
-					if substr(_cPat_, _i_+3, 1) != "!"
+					if StzMid(_cPat_, _i_+3, 1) != "!"
 						_nNameStart_ = _i_ + 3
 					ok
-				but _i_ + 3 <= _nPat_ and substr(_cPat_, _i_+2, 2) = "P<"
+				but _i_ + 3 <= _nPat_ and StzMid(_cPat_, _i_+2, 2) = "P<"
 					_nNameStart_ = _i_ + 4
 				ok
 				if _nNameStart_ > 0
 					# Read up to '>'
 					_j_ = _nNameStart_
-					while _j_ <= _nPat_ and substr(_cPat_, _j_, 1) != ">"
+					while _j_ <= _nPat_ and StzMid(_cPat_, _j_, 1) != ">"
 						_j_++
 					end
 					if _j_ <= _nPat_ and _j_ > _nNameStart_
-						_acCnp_ + substr(_cPat_, _nNameStart_, _j_ - _nNameStart_)
+						_acCnp_ + StzMid(_cPat_, _nNameStart_, _j_ - _nNameStart_)
 						_i_ = _j_ + 1
 						loop
 					ok

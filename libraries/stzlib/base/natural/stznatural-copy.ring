@@ -518,7 +518,7 @@ class stzNaturalEngine
 		bRecall = right(cLower, 1) = "@"
 		
 		if bDefine
-			cLower = @substr(cLower, 2, stzlen(cLower))
+			cLower = @StzMid(cLower, 2, stzlen(cLower))
 		but bRecall
 			cLower = left(cLower, stzlen(cLower)-1)
 		ok
@@ -551,7 +551,7 @@ class stzNaturalEngine
 				
 				# Define pattern
 				if left(cSemantic, 1) = "@"
-					cClean = @substr(cSemantic, 2, stzlen(cSemantic))
+					cClean = @StzMid(cSemantic, 2, stzlen(cSemantic))
 					@aDefineRecallState + [:semantic = cClean, :index = i]
 					i++
 					loop
@@ -656,7 +656,7 @@ class stzNaturalEngine
 						cListStr += @@(cValue[k])
 					next
 					cListStr += "]"
-					cConstructor = substr(cConstructor, "@", cListStr)
+					cConstructor = StzReplace(cConstructor, "@", cListStr)
 				else
 					cConstructor = substr(cConstructor, "@", @@(cValue))
 				ok
@@ -687,7 +687,7 @@ class stzNaturalEngine
 			for i = 1 to nLen
 				cPlaceholder = "@param" + i
 				cParamValue = @@(aParams[i])
-				cCode = substr(cCode, cPlaceholder, cParamValue)
+				cCode = StzReplace(cCode, cPlaceholder, cParamValue)
 			next
 			
 			return [:code = cCode, :next_index = nNextIndex]
@@ -742,7 +742,7 @@ class stzNaturalEngine
 						aMod = aOp[:modifiers][j]
 						if aMod[:semantic_id] = aToken[:value]
 							cCode = substr(cCode, aOp[:stz_method], aMod[:stz_method])
-							cCode = substr(cCode, "()", "([" + aMod[:stz_param] + "])")
+							cCode = StzReplace(cCode, "()", "([" + aMod[:stz_param] + "])")
 							exit 2
 						ok
 					next
