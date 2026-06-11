@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzregexutertest.ring, block #3.
-#ERR Error (R3) : Calling Function without definition: multiplybyn
 
 load "../../stzBase.ring"
 
