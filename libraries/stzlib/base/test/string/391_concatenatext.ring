@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #391.
-#ERR Error (R14) : Calling Method without definition: concatenatext
 
 load "../../stzBase.ring"
 
