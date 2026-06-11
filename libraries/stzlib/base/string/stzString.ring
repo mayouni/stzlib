@@ -70,30 +70,26 @@ class stzString from stzObject
 		if pOp = "-"
 			# Subtract: remove every occurrence of pValue (a string)
 			# or each item in pValue (a list of strings) from content.
+			# Use Ring's 3-arg substr (REPLACE) directly — no need to
+			# wrap in stzString for a simple replace-with-empty.
 			_cOut_ = This.Content()
 			if isString(pValue)
-				_oTmp_ = new stzString(_cOut_)
-				_oTmp_.Replace(pValue, "")
-				_cOut_ = _oTmp_.Content()
+				_cOut_ = substr(_cOut_, pValue, "")
 			but isList(pValue)
-				_nLP_ = ring_len(pValue)
+				_nLP_ = len(pValue)
 				for _iP_ = 1 to _nLP_
 					if isString(pValue[_iP_])
-						_oTmp_ = new stzString(_cOut_)
-						_oTmp_.Replace(pValue[_iP_], "")
-						_cOut_ = _oTmp_.Content()
+						_cOut_ = substr(_cOut_, pValue[_iP_], "")
 					ok
 				next
 			but isObject(pValue)
 				try
 					_inner_ = pValue.List()
 					if isList(_inner_)
-						_nLI_ = ring_len(_inner_)
+						_nLI_ = len(_inner_)
 						for _iI_ = 1 to _nLI_
 							if isString(_inner_[_iI_])
-								_oTmp_ = new stzString(_cOut_)
-								_oTmp_.Replace(_inner_[_iI_], "")
-								_cOut_ = _oTmp_.Content()
+								_cOut_ = substr(_cOut_, _inner_[_iI_], "")
 							ok
 						next
 					ok
@@ -1098,14 +1094,16 @@ class stzString from stzObject
 	# ContainsInSection: does pcSubStr appear within the substring
 	# bounded by positions [n1, n2] (inclusive)?
 	def ContainsInSection(pcSubStr, n1, n2)
-		_cSec_ = This.Section(n1, n2)
-		_oTmp_ = new stzString(_cSec_)
-		return _oTmp_.Contains(pcSubStr)
+		# Section(n1, n2) returns the section content; check via
+		# Ring's substr directly — no need to wrap in stzString.
+		return substr(This.Section(n1, n2), pcSubStr) > 0
 
 		def ContainsInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
 			_cSec_ = This.Section(n1, n2)
-			_oTmp_ = new stzString(_cSec_)
-			return _oTmp_.ContainsCS(pcSubStr, pCaseSensitive)
+			if pCaseSensitive = FALSE or pCaseSensitive = 0
+				return substr(lower(_cSec_), lower(pcSubStr)) > 0
+			ok
+			return substr(_cSec_, pcSubStr) > 0
 
 	# ReplaceInSection: replace occurrences of pSubStr within the
 	# section [n1, n2] with pNew. Polymorphic on argument order:

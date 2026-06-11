@@ -38,6 +38,41 @@ that defines methods/aliases/primitives:
    parsed as three list-appends, not arithmetic. Always
    parenthesise: `_aRes_ + (_x_ + _y_ - 1)`.
 
+7. **`len()` vs `ring_len()` vs `StzLen()`** — pick by intent, never alias:
+   - **Lists:** use `len(aList)` directly. Never `ring_len(aList)`.
+     Never define a `len()` method on a class — it shadows Ring's
+     builtin and breaks every caller that expects the builtin.
+   - **Strings:**
+     - `StzLen(cStr)` — engine-backed, Unicode codepoint count.
+       Use whenever multibyte correctness matters.
+     - `len(cStr)` — raw byte count. Use when you genuinely want
+       bytes (e.g. checking against a byte-buffer size).
+     - `ring_len(cStr)` — alias for `len()`, byte count. Avoid;
+       prefer `len()` for clarity.
+
+8. **Don't wrap to find/contain.** Don't write
+   `new stzString(host).Contains(sub)` when you mean `substr(host, sub) > 0`.
+   Don't write `new stzList(aList).Contains(x)` when you mean
+   `ring_find(aList, x) > 0`. Wrapping has allocation cost and
+   obscures intent. Reserve `new stz…(…)` for cases where you
+   genuinely need the method surface (chaining, engine helpers,
+   codepoint walks).
+
+9. **Prefer the engine over Ring loops for find/replace/case/scan.**
+   The Zig engine is Unicode-correct AND faster than the
+   equivalent Ring loop in almost every case. Reach for the
+   engine when:
+   - finding any occurrence: `StzEngineStringFindFirstFromCS(...)`
+     beats walking chars
+   - replacing: `StzEngineStringReplaceCS(...)` is faster — BUT
+     the @memcpy alias panic workaround in `ReplaceCS` is the
+     exception (single-/multi-byte src/dst cases route through
+     Ring `substr` rebuild because the engine panics on Windows
+     builds)
+   - codepoint count / case detection / script detection
+   Use Ring loops only when the engine helper doesn't exist or
+   it's a one-shot prototype path.
+
 6. **Single-clause `if` inside method bodies can no-op.** In Ring 1.25,
    a method-body `if isString(p); p = [p]; ok` (the type-widening
    pattern) sometimes does not fire — the wrap is unreached, and the

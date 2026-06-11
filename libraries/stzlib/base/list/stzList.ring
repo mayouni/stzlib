@@ -2823,8 +2823,8 @@ class stzList from stzObject
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
 			if isString(_v_)
-				_o_ = new stzString(_v_)
-				_aR_ + _o_.SpacesRemoved()
+				# Ring substr 3-arg form: REPLACE.
+				_aR_ + substr(_v_, " ", "")
 			else
 				_aR_ + _v_
 			ok
