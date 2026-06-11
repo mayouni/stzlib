@@ -1,0 +1,71 @@
+libraries/stzlib/base/common/stzSmallFuncs.ring:814	# Global StzSubStr() -- thin alias for Ring's substr() with the
+libraries/stzlib/base/natural/stznatural-copy.ring:590	cCode = substr(aOp[:stz_signature], "@var", @cCurrentVariable)
+libraries/stzlib/base/natural/stznatural-copy.ring:661	cConstructor = substr(cConstructor, "@", @@(cValue))
+libraries/stzlib/base/natural/stznatural-copy.ring:679	cCode = substr(aOp[:stz_signature], "@var", @cCurrentVariable)
+libraries/stzlib/base/natural/stznatural-copy.ring:733	cCode = substr(aOp[:stz_signature], "@var", @cCurrentVariable)
+libraries/stzlib/base/natural/stznatural-copy.ring:744	cCode = substr(cCode, aOp[:stz_method], aMod[:stz_method])
+libraries/stzlib/base/regex/stzListex.ring:959	cList = @substr(cList, Char(9), "")
+libraries/stzlib/base/regex/stzListex.ring:960	cList = @substr(cList, Char(10), "")
+libraries/stzlib/base/regex/stzListex.ring:961	cList = @substr(cList, Char(13), "")
+libraries/stzlib/base/regex/stzTimex.ring:5	IMPORTANT: Ring's substr() function has only TWO forms:
+libraries/stzlib/base/regex/stzTimex.ring:6	1. substr(str, substring)           ? finds position of substring in str
+libraries/stzlib/base/regex/stzTimex.ring:7	2. substr(str, substr1, substr2)    ? replaces substr1 with substr2 in str
+libraries/stzlib/base/regex/stzTimex.ring:9	Ring does NOT have substr(str, position, length) form, nor it has a substr(str, n) form!
+libraries/stzlib/base/regex/stzTimex.ring:9	Ring does NOT have substr(str, position, length) form, nor it has a substr(str, n) form!
+libraries/stzlib/base/string/stzString.ring:872	#   Ring's substr() with start-position support so it works for
+libraries/stzlib/base/string/stzString.ring:972	if substr(_cNcaHay_, _iNca_, _nNcaSubLen_) = _cNcaNeedle_
+libraries/stzlib/base/string/stzString.ring:1055	_cHesR_ = substr(_cHesR_, char(34), "&quot;")
+libraries/stzlib/base/string/stzString.ring:1056	_cHesR_ = substr(_cHesR_, char(39), "&#39;")
+libraries/stzlib/base/string/stzString.ring:1137	_cMid_ = substr(_cAll_, _n1_, _n2_ - _n1_ + 1)
+libraries/stzlib/base/string/stzString.ring:1274	_cVoCh_ = substr(_cVoStr_, _iVo_, 1)
+libraries/stzlib/base/string/stzString.ring:1470	_cFnasCh_ = substr(_cFnasStr_, _iFnas_, 1)
+libraries/stzlib/base/string/stzString.ring:1478	_cFnasCh_ = substr(_cFnasStr_, _iFnas_, 1)
+libraries/stzlib/base/string/stzString.ring:1483	while _jFnas_ <= _nFnasLen_ and ring_find(_acDigits_, substr(_cFnasStr_, _jFnas_, 1)) > 0
+libraries/stzlib/base/string/stzString.ring:1486	if _jFnas_ <= _nFnasLen_ and substr(_cFnasStr_, _jFnas_, 1) = "."
+libraries/stzlib/base/string/stzString.ring:1488	while _jFnas_ <= _nFnasLen_ and ring_find(_acDigits_, substr(_cFnasStr_, _jFnas_, 1)) > 0
+libraries/stzlib/base/string/stzString.ring:1856	substr(_cIn_, _pos_, _subLen_) = pcSubStr
+libraries/stzlib/base/string/stzString.ring:1861	lower(substr(_cIn_, _pos_, _subLen_)) = _lcSub_
+libraries/stzlib/base/string/stzString.ring:2132	_p_ = substr(_cIn_, _pos_, ring_len(_cIn_) - _pos_ + 1)
+libraries/stzlib/base/string/stzString.ring:2135	_p_ = substr(lower(_cIn_), _pos_, ring_len(_cIn_) - _pos_ + 1)
+libraries/stzlib/base/string/stzString.ring:2795	_cNewCtx_ = substr(_cCtx_, p1, _pWith_)
+libraries/stzlib/base/string/stzString.ring:3430	_aPartsR_ + substr(_cSrc_, _iStart_, _iEnd_ - _iStart_ + 1)
+libraries/stzlib/base/string/stzString.ring:3574	_bDr1_ = ascii( substr(_cDrnfdstr_, _iDrindex_, 1) )
+libraries/stzlib/base/string/stzString.ring:3576	_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 1)
+libraries/stzlib/base/string/stzString.ring:3587	_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 2)
+libraries/stzlib/base/string/stzString.ring:3591	_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 3)
+libraries/stzlib/base/string/stzString.ring:3594	_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 4)
+libraries/stzlib/base/string/stzString.ring:3597	_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 1)
+libraries/stzlib/base/string/stzString.ring:3621	_cDrR_ = substr(_cDrContent_, "i", char(305))     # U+0131 ?
+libraries/stzlib/base/string/stzString.ring:3622	_cDrR_ = substr(_cDrR_, "j", char(567))           # U+0237 ?
+libraries/stzlib/base/string/stzString.ring:3623	_cDrR_ = substr(_cDrR_, "I", char(304))           # U+0130 ? -> dotted; keep as I? actually I has no dot
+libraries/stzlib/base/string/stzString.ring:5730	substr(_cInuTxt_, _iInu_, _nInuO_) = pcOpen
+libraries/stzlib/base/string/stzString.ring:5737	substr(_cInuTxt_, _iInu_, _nInuC_) = pcClose
+libraries/stzlib/base/string/stzString.ring:7404	return substr(_long_, _short_) > 0
+libraries/stzlib/base/string/stzString.ring:10082	if substr(_cMid_, pacSubStr) > 0
+libraries/stzlib/base/string/stzString.ring:10316	return substr(pcOther, This.Content()) > 0
+libraries/stzlib/base/string/stzString.ring:11877	_p_ = substr(_cur_, char(1))
+libraries/stzlib/base/string/stzString.ring:11883	_p_ = substr(_c_, char(1))
+libraries/stzlib/base/string/stzString.ring:14240	if _iSsc_ + _nSscSub_ - 1 <= _nSscLen_ and substr(_cSscHay_, _iSsc_, _nSscSub_) = _cSscNdl_
+libraries/stzlib/base/string/stzString.ring:14241	_cSscOut_ += " " + substr(_cSscRes_, _iSsc_, _nSscSub_) + " "
+libraries/stzlib/base/string/stzString.ring:14244	_cSscOut_ += substr(_cSscRes_, _iSsc_, 1)
+libraries/stzlib/base/string/stzString.ring:14301	substr(_cHayLow_, _iC_, _nSubLen_) = _cNdlLow_
+libraries/stzlib/base/string/stzString.ring:14302	_cOut_ += pcSep + substr(_cHay_, _iC_, _nSubLen_) + pcSep
+libraries/stzlib/base/string/stzString.ring:14305	_cOut_ += substr(_cHay_, _iC_, 1)
+libraries/stzlib/base/string/stzString.ring:14357	_cTxt_ = substr(_cTxt_, _xVal0_, _xVal0_ + p1)
+libraries/stzlib/base/string/stzString.ring:14362	_cTxt_ = substr(_cTxt_, _xVal0_, p1 + _xVal0_)
+libraries/stzlib/base/string/stzString.ring:14367	_cTxt_ = substr(_cTxt_, _xVal0_, _xVal0_ + p1)
+libraries/stzlib/base/string/stzString.ring:14372	_cTxt_ = substr(_cTxt_, _xVal0_, p1 + _xVal0_)
+libraries/stzlib/base/string/stzString.ring:14396	_cTxt_ = substr(_cTxt_, _cSub_, p1 + _cSub_)
+libraries/stzlib/base/string/stzString.ring:14409	_cTxt_ = substr(_cTxt_, p2[2], p1[1] + p2[2] + p1[2])
+libraries/stzlib/base/string/stzString.ring:14418	_cTxt_ = substr(_cTxt_, p2[2], p1 + p2[2] + p1)
+libraries/stzlib/base/string/stzString.ring:14524	if substr(_cFsibHay_, _iFsib_, _nFsibO_) = _cFsibO2_
+libraries/stzlib/base/string/stzString.ring:14528	if substr(_cFsibHay_, _jFsib_, _nFsibC_) = _cFsibC2_
+libraries/stzlib/base/string/stzStringFinder.ring:547	_head_ = substr(_cIn_, 1, _sl_)
+libraries/stzlib/base/string/stzStringFunc.ring:536	#~> Solves the problem where substr() function in Ring returns 1
+libraries/stzlib/base/string/stzStringFunc.ring:2567	func @substr(str, p1, p2) #TODO // Move to stzExtCode
+libraries/stzlib/base/string/stzStringFunc.ring:2586	return substr(str, p1, p2)
+libraries/stzlib/base/string/stzStringFunc.ring:2620	return @substr(paParams[1], paParams[2], paParams[3])
+libraries/stzlib/base/string/stzStringReplacer.ring:139	if substr(_cHay_, _iScan_, _nSubLen_) = _cNeedle_
+libraries/stzlib/base/table/stzTable.ring:1106	if substr(_cell_, _pValue_) > 0 _bMatch_ = TRUE ok
+libraries/stzlib/base/table/stzTable.ring:1160	if substr(_cell_, _pVal_) > 0 _nCount_++ ok
+libraries/stzlib/base/table/stzTable.ring:1182	if isString(_cell_) and isString(_pVal_) and substr(_cell_, _pVal_) > 0

@@ -956,9 +956,9 @@ class stzListex
 	def NormalizeListString(xList)
 		cList = "" + xList
 		cList = @StzReplace(cList, " ", "")
-		cList = @substr(cList, Char(9), "")
-		cList = @substr(cList, Char(10), "")
-		cList = @substr(cList, Char(13), "")
+		cList = StzReplace(cList, Char(9), "")
+		cList = StzReplace(cList, Char(10), "")
+		cList = StzReplace(cList, Char(13), "")
 		return cList
 
 	def ConvertToType(cValue, cType)
