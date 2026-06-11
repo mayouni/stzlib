@@ -915,6 +915,18 @@ class stzString from stzObject
 		def FindNextSubString(pcSubStr, nStart)
 			return This.FindNext(pcSubStr, nStart)
 
+	def FindNextNthCS(n, pcSubStr, nStart, pCaseSensitive)
+		_pos_ = nStart
+		for _k_ = 1 to n
+			_pos_ = This.FindNextCS(pcSubStr, _pos_, pCaseSensitive)
+			if _pos_ = 0 return 0 ok
+			if _k_ < n _pos_++ ok
+		next
+		return _pos_
+
+	def FindNextNth(n, pcSubStr, nStart)
+		return This.FindNextNthCS(n, pcSubStr, nStart, 1)
+
 	#-- Numbers: extract every number literal embedded in the string
 	#   as a list of strings, preserving signs and decimal points.
 	#   Example: "book: 12.34, watch: -56.30, glasses: 77." ->
@@ -1222,10 +1234,14 @@ class stzString from stzObject
 				return This.Content()
 			ok
 			_cStr2_ = This.Content()
-			if ring_len(_cStr2_) <= n
+			if len(_cStr2_) <= n
 				return _cStr2_
 			ok
-			return StzMid(_cStr2_, 1, n - ring_len(pcSuffix)) + pcSuffix
+			_keep_ = n - len(pcSuffix)
+			if _keep_ < 1
+				return pcSuffix
+			ok
+			return StzMid(_cStr2_, 1, _keep_) + pcSuffix
 
 		def _ShortenedUsingMid(pcEllipsis, nFromEnd)
 			_cAll_ = This.Content()
@@ -3560,7 +3576,7 @@ class stzString from stzObject
 				_cDrresult_ += substr(_cDrnfdstr_, _iDrindex_, 1)
 				_iDrindex_++
 			but _bDr1_ >= 192 and _bDr1_ < 224 and _iDrindex_ + 1 <= _nDrlength_
-				_bDr2_ = ascii( StzMid(_cDrnfdstr_, _iDrindex_ + 1, 1) )
+				_bDr2_ = ascii( substr(_cDrnfdstr_, _iDrindex_ + 1, 1) )
 				_nDrcp_ = ((_bDr1_ - 192) * 64) + (_bDr2_ - 128)
 				if (_nDrcp_ >= 768 and _nDrcp_ <= 879) or
 				   (_nDrcp_ >= 1552 and _nDrcp_ <= 1562) or
@@ -7324,6 +7340,9 @@ class stzString from stzObject
 		if _n_ = 0 return "" ok
 		return This._EngineSlice(This.Content(), 1, _n_)
 
+		def LeadingSubStringCS(pCaseSensitive)
+			return This.LeadingSubString()
+
 	def LeadingSubStringZZ()
 		_nLeadLen_ = This._EngineCount(This.LeadingSubString())
 		if _nLeadLen_ = 0 return [] ok
@@ -7760,6 +7779,19 @@ class stzString from stzObject
 			nFrom = nFrom[2]
 		ok
 		return This.PreviousOccurrence(pcSub, nFrom)
+
+	def FindPreviousNth(n, pcSub, nFrom)
+		if isList(nFrom) and ring_len(nFrom) = 2 and isString(nFrom[1]) and
+		   lower(nFrom[1]) = "startingat"
+			nFrom = nFrom[2]
+		ok
+		_pos_ = nFrom
+		for _k_ = 1 to n
+			_pos_ = This.PreviousOccurrence(pcSub, _pos_)
+			if _pos_ = 0 return 0 ok
+			if _k_ < n _pos_-- ok
+		next
+		return _pos_
 
 	# ExtractNumbers(): every contiguous run of digits as a list of
 	# numbers. e.g. "abc12def345" -> [12, 345].
