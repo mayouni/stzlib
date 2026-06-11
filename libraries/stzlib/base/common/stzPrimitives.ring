@@ -197,7 +197,22 @@ func StzRight(cStr, n)
 	return c
 
 func StzMid(cStr, nStart, nLen)
+	# Defensive bounds: Ring's substr returns "" silently on degenerate
+	# inputs; the engine panics with an integer-OOB. Match the lenient
+	# Ring behaviour.
+	if NOT isString(cStr) cStr = "" + cStr ok
+	if NOT (isNumber(nStart) and isNumber(nLen)) return "" ok
+	if nLen <= 0 return "" ok
 	pH = StzEngineString(cStr)
+	nTotal = StzEngineStringCount(pH)
+	if nStart < 1 nStart = 1 ok
+	if nStart > nTotal
+		StzEngineStringFree(pH)
+		return ""
+	ok
+	if nStart - 1 + nLen > nTotal
+		nLen = nTotal - nStart + 1
+	ok
 	pR = StzEngineStringMid(pH, nStart - 1, nLen)
 	c = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
