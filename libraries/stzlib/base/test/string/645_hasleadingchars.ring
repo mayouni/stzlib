@@ -3,7 +3,6 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #645.
-#ERR Error (R3) : Calling Function without definition: hasleadingitems
 
 load "../../stzBase.ring"
 

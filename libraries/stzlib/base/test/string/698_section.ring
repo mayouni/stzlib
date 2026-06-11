@@ -3,7 +3,6 @@
 # *
 #
 # Extracted from stzStringTest.ring, block #698.
-#ERR panic: integer part of floating point value out of bounds
 
 load "../../stzBase.ring"
 

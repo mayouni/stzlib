@@ -3,7 +3,6 @@
 # o1 = new stzString("12345")
 #
 # Extracted from stzStringTest.ring, block #397.
-#ERR panic: integer part of floating point value out of bounds
 
 load "../../stzBase.ring"
 

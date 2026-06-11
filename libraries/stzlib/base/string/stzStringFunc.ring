@@ -3114,3 +3114,9 @@ func EnforeConstraints(paWhat)
 
 func EnforceConstraints(paWhat)
 	EnforeConstraints(paWhat)
+
+func Undo()
+	# History stub.
+
+func Redo()
+	# History stub.

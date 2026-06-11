@@ -67,6 +67,44 @@ class stzString from stzObject
 			return _cOut_
 		ok
 
+		if pOp = "-"
+			# Subtract: remove every occurrence of pValue (a string)
+			# or each item in pValue (a list of strings) from content.
+			_cOut_ = This.Content()
+			if isString(pValue)
+				_oTmp_ = new stzString(_cOut_)
+				_oTmp_.Replace(pValue, "")
+				_cOut_ = _oTmp_.Content()
+			but isList(pValue)
+				_nLP_ = ring_len(pValue)
+				for _iP_ = 1 to _nLP_
+					if isString(pValue[_iP_])
+						_oTmp_ = new stzString(_cOut_)
+						_oTmp_.Replace(pValue[_iP_], "")
+						_cOut_ = _oTmp_.Content()
+					ok
+				next
+			but isObject(pValue)
+				try
+					_inner_ = pValue.List()
+					if isList(_inner_)
+						_nLI_ = ring_len(_inner_)
+						for _iI_ = 1 to _nLI_
+							if isString(_inner_[_iI_])
+								_oTmp_ = new stzString(_cOut_)
+								_oTmp_.Replace(_inner_[_iI_], "")
+								_cOut_ = _oTmp_.Content()
+							ok
+						next
+					ok
+				catch
+					# Object doesn't expose .List() -- nothing to remove.
+				done
+			ok
+			This.Update(_cOut_)
+			return This
+		ok
+
 		return ""
 
 	  #===================#
@@ -409,11 +447,21 @@ class stzString from stzObject
 			ok
 		ok
 		nLen = This.NumberOfChars()
+		# Symbolic positions: :First / :Last / :LastChar / :Middle.
+		n1 = This._ResolveSymPos(n1, nLen)
+		n2 = This._ResolveSymPos(n2, nLen)
 		if NOT isNumber(n1) return "" ok
 		if NOT isNumber(n2) return "" ok
+		# Negative indices count from end.
+		if n1 < 0 n1 = nLen + n1 + 1 ok
+		if n2 < 0 n2 = nLen + n2 + 1 ok
 		if n1 < 1
 			n1 = 1
 		ok
+		if n2 < 1
+			n2 = 1
+		ok
+		if n1 > nLen n1 = nLen ok
 		if n2 > nLen
 			n2 = nLen
 		ok
@@ -1773,7 +1821,42 @@ class stzString from stzObject
 	#============================================#
 
 	def ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		# Accept :With / :By for the second arg.
+		if isList(pcNewSubStr) and ring_len(pcNewSubStr) = 2 and isString(pcNewSubStr[1]) and
+		   (lower(pcNewSubStr[1]) = "with" or lower(pcNewSubStr[1]) = "by")
+			pcNewSubStr = pcNewSubStr[2]
+		ok
+		if NOT (isString(pcSubStr) and isString(pcNewSubStr)) return ok
 		_bRpCase_ = @CaseSensitive(pCaseSensitive)
+		# Engine-side replace panics with @memcpy alias on some inputs
+		# (single ASCII char source); fall back to a Ring-side rebuild
+		# when the source is single byte AND the replacement is also
+		# single byte. This is a stopgap until the engine is fixed.
+		if ring_len(pcSubStr) = 1 and ring_len(pcNewSubStr) = 1
+			_cIn_ = This.Content()
+			_nIL_ = ring_len(_cIn_)
+			_cOut_ = ""
+			if _bRpCase_
+				for _iR_ = 1 to _nIL_
+					if _cIn_[_iR_] = pcSubStr
+						_cOut_ += pcNewSubStr
+					else
+						_cOut_ += _cIn_[_iR_]
+					ok
+				next
+			else
+				_lcSub_ = lower(pcSubStr)
+				for _iR_ = 1 to _nIL_
+					if lower(_cIn_[_iR_]) = _lcSub_
+						_cOut_ += pcNewSubStr
+					else
+						_cOut_ += _cIn_[_iR_]
+					ok
+				next
+			ok
+			This.Update(_cOut_)
+			return
+		ok
 		StzEngineStringReplaceCS(@pEngine, pcSubStr, pcNewSubStr, _bRpCase_)
 
 		def ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -2632,10 +2715,10 @@ class stzString from stzObject
 				This.ReplaceNth(_xAnchorV_, p1, _pWith_)
 				return
 			but _cAnchor_ = "atpositions"
-				if NOT isList(_xAnchorV_)
-					StzRaise("ReplaceXT: :AtPositions expects a list.")
-				ok
-				# Walk descending so earlier positions still map.
+				if NOT isList(_xAnchorV_) return ok
+				# Treat values as ABSOLUTE codepoint positions: replace
+				# the pcSub starting at each, walking descending so
+				# earlier positions stay valid.
 				_aPos_ = _ListCopy(_xAnchorV_)
 				_nP_ = ring_len(_aPos_)
 				for _i_ = 2 to _nP_
@@ -2647,7 +2730,9 @@ class stzString from stzObject
 				next
 				_nP_ = ring_len(_aPos_)
 				for _i_ = 1 to _nP_
-					This.ReplaceNth(_aPos_[_i_], p1, _pWith_)
+					if isNumber(_aPos_[_i_])
+						This.ReplaceSubStringAtPosition(_aPos_[_i_], p1, _pWith_)
+					ok
 				next
 				return
 			but _cAnchor_ = "in"
@@ -7223,10 +7308,16 @@ class stzString from stzObject
 	# NextOccurrence(pcSub, nFrom): position of the next occurrence
 	# of pcSub strictly after nFrom.
 	def NextOccurrence(pcSub, nFrom)
+		# Accept :Of = pcSub for the first arg.
+		if isList(pcSub) and ring_len(pcSub) = 2 and isString(pcSub[1]) and
+		   lower(pcSub[1]) = "of"
+			pcSub = pcSub[2]
+		ok
 		if isList(nFrom) and ring_len(nFrom) = 2 and isString(nFrom[1]) and
 		   lower(nFrom[1]) = "startingat"
 			nFrom = nFrom[2]
 		ok
+		if NOT isString(pcSub) or NOT isNumber(nFrom) return 0 ok
 		return StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 		       nFrom + 1, 1)
 
