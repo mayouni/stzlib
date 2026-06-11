@@ -765,7 +765,14 @@ Dotless LETTERS
 
 	_acRomanNumbers = [
 		"Ⅰ", "ⅰ", "Ⅱ", "ⅱ", "Ⅲ", "ⅲ", "Ⅳ", "ⅳ", "Ⅴ", "ⅴ",
-		"Ⅵ", "ⅵ", "Ⅶ", "ⅶ", "Ⅷ", "ⅷ", "Ⅸ", "ⅺ", "Ⅹ", "ⅹ"
+		"Ⅵ", "ⅵ", "Ⅶ", "ⅶ", "Ⅷ", "ⅷ", "Ⅸ", "ⅺ", "Ⅹ", "ⅹ",
+
+		"Ⅺ", "ⅺ", "Ⅻ", "ⅻ", "Ⅼ", "ⅼ", "Ⅽ", "ⅽ",
+		"Ↄ", "ↄ", "Ⅾ",	"ⅾ",
+
+		"Ⅿ", "ⅿ", "ↀ", "ↁ",
+		"ↂ", "ↅ", "ↆ", "ↇ",
+		"ↈ"	
 	]
 
 	_aRomanNumbersXT = [
@@ -775,9 +782,11 @@ Dotless LETTERS
 
 		["Ⅶ" , 7],	["ⅶ" , 7],	["Ⅷ" , 8],	["ⅷ" , 8],
 		["Ⅸ" , 9],	["ⅸ" , 9],	["Ⅹ" , 10],	["ⅹ" , 10],
+
 		["Ⅺ" , 11],	["ⅺ" , 11],	["Ⅻ" , 12],	["ⅻ" , 12],
 		["Ⅼ" , 50],	["ⅼ" , 50],	["Ⅽ" , 100],	["ⅽ" , 100],
 		["Ↄ" , 100],	["ↄ" , 100],	["Ⅾ" , 500],	["ⅾ" , 500],
+
 		["Ⅿ" , 1_000],	["ⅿ" , 1_000],	["ↀ" , 1_000],	["ↁ" , 5_000],
 		["ↂ" , 10_000],	["ↅ" , 6],	["ↆ" , 50],	["ↇ" , 50_000],
 		["ↈ" , 100_000]	
@@ -2192,7 +2201,7 @@ _cMarquerChar = "#"
 		return aResult
 
 	func TurnableNumbers()
-		return Unicodes(_anTurnableNumbersUnicodes)
+		return _anTurnableNumbersUnicodes
 
 		func ReversibleNumbers()
 			return TurnableNumbers()
@@ -2649,37 +2658,42 @@ _cMarquerChar = "#"
 	func InvisibleUnicodes()
 		return _anInvisibleUnicodes
 
+		def InvisibleCharsUnicodes()
+			return _anInvisibleCharsUnicodes
+
+		func @InvisibleUnicodes()
+			return _anInvisibleCharsUnicodes
+
+		func @InvisibleCharsUnicodes()
+			return _anInvisibleCharsUnicodes
+
 	func InvisibleChars()
-		return UnicodesToChars( InvisibleUnicodes() )
+		_anUnicodes_ = InvisibleUnicodes()
+		_nLen_ = len(_anUnicodes_)
+		_acResult_ = []
+
+		for i = 1 to _nLen_
+			_acResult_ + Char(_anUnicodes_[i])
+		next
+
+		return _acResult_
 
 		func @InvisibleChars()
 			return InvisibleChars()
 
 	func InvisibleCharsNames()
-		return CharsNames(InvisibleChars())
+		_anUnicodes_ = InvisibleUnicodes()
+		_nLen_ = len(_anUnicodes_)
+		_acResult_ = []
+
+		for i = 1 to _nLen_
+			_acResult_ + CharName(_anUnicodes_[i])
+		next
+
+		return _acResult_
 
 		func @InvisibleCharsNames()
 			return InvisibleCharsNames()
-
-	#---------------------------------------------------------#
-	#  GETTING THE UNICODE NAMES OF A LIST OF CHARS/UNICODES  #
-	#---------------------------------------------------------#
-
-	func CharsNames(acChars)
-		_nLen_ = len(acChars)
-		_aResult_ = []
-		for _i_ = 1 to _nLen_
-			_aResult_ + StzCharNameByUnicode(StzUnicode(acChars[_i_]))
-		next
-		return _aResult_
-
-	func UnicodesNames(anUnicodes)
-		_nLen_ = len(anUnicodes)
-		_aResult_ = []
-		for _i_ = 1 to _nLen_
-			_aResult_ + StzCharNameByUnicode(anUnicodes[_i_])
-		next
-		return _aResult_
 
 	#---
 

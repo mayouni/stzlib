@@ -1,4 +1,4 @@
-﻿/*
+/*
 	stzTimeLine - Timeline Management in Softanza
 	Manages sequential time data: points, spans, and temporal relationships
 	String-first design: methods accept/return strings, ...Q() returns objects

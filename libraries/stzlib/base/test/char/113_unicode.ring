@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #113.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -13,3 +12,4 @@ pr()
 #-- 8238
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.27

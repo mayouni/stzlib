@@ -340,13 +340,13 @@ class stzNaturalEngine
 		i = 1
 		
 		while i <= nLen
-			if @substr(cCode, i, i) = "{"
+			if @StzMid(cCode, i, i) = "{"
 				# Find closing }
 				nEnd = i + 1
 				nDepth = 1
 				
 				while nEnd <= nLen and nDepth > 0
-					cChar = @substr(cCode, nEnd, nEnd)
+					cChar = @StzMid(cCode, nEnd, nEnd)
 					if cChar = "{"
 						nDepth++
 					but cChar = "}"
@@ -356,7 +356,7 @@ class stzNaturalEngine
 				end
 				
 				if nDepth = 0
-					cPlaceholder = @substr(cCode, i, nEnd - i)
+					cPlaceholder = @StzMid(cCode, i, nEnd - i)
 					aResult + cPlaceholder
 					i = nEnd
 				else
@@ -406,7 +406,7 @@ class stzNaturalEngine
 		ok
 		
 		# Capitalize first letter, lowercase rest
-		return StzUpper(@substr(cKey, 1, 1)) + StzLower(StzMid(cKey, 2, stzlen(cKey) - 1))
+		return StzUpper(@StzMid(cKey, 1, 1)) + StzLower(StzMid(cKey, 2, stzlen(cKey) - 1))
 	
 	def FindInList(aList, cKey) #TODO// Review it
 		nLen = ring_len(aList)
@@ -528,7 +528,7 @@ class stzNaturalEngine
 
 	        else  # string
 	            # Remove quotes
-	            aResult + @substr(cSection, 2, stzlen(cSection) - 1)
+	            aResult + @StzMid(cSection, 2, stzlen(cSection) - 1)
 	        ok
 	    next
 	    
@@ -647,7 +647,7 @@ class stzNaturalEngine
 		bRecall = StzRight(cLower, 1) = "@"
 		
 		if bDefine
-			cLower = @substr(cLower, 2, stzlen(cLower) - 1)
+			cLower = @StzMid(cLower, 2, stzlen(cLower) - 1)
 		but bRecall
 			cLower = StzLeft(cLower, stzlen(cLower) - 1)
 		ok
@@ -681,7 +681,7 @@ class stzNaturalEngine
 				nLenSem = stzLen(cSemantic)
 
 				if StzLeft(cSemantic, 1) = "@"
-					cClean = @substr(cSemantic, 2, nLenSem - 1)
+					cClean = @StzMid(cSemantic, 2, nLenSem - 1)
 					@aDefineRecallState + [:semantic = cClean, :index = i]
 					i++
 					loop

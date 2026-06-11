@@ -7,7 +7,13 @@
 
 load "../../stzBase.ring"
 
+
 pr()
+
+o1 = new stzString("Ring")
+? @@(InvisibleChars())
+
+pf()
 
 ? StzCharQ("⚝").Name()
 #--> OUTLINED WHITE STAR
@@ -22,5 +28,6 @@ pr()
 #--> ⚝
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.27 (Backed by StzEngine)
 # Executed in 0.13 second(s) in Ring 1.22
 # Executed in 0.17 second(s) in Ring 1.21

@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #109.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -20,4 +19,5 @@ o1 = new stzChar("Ο")
 ? o1.UnicodeCategory() #--> letter_uppercase
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.27
 # Executed in 0.06 second(s) in Ring 1.23

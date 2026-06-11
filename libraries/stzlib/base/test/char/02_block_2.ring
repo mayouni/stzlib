@@ -8,6 +8,8 @@ load "../../stzBase.ring"
 
 pr()
 
+# All the fellowing functions return TRUE
+
 ? isvowel("a") 		# Ring function
 
 ? @IsVowel("a") 	# Softanza alternative
@@ -18,4 +20,5 @@ pr()
 ? AreVowels([ "a", "i", "e" ])
 
 pf()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.27 (Backed by StzEngine)
+# Executed in 0.02 second(s) in older Ring version

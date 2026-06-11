@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #107.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -18,4 +17,5 @@ o1 = new stzChar(3572)
 ? o1.Name() #--> SINHALA PUNCTUATION KUNDDALIYA
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.27 (Backed by StzEngine)
 # Executed in 0.04 second(s) in Ring 1.23

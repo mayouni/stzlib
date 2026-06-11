@@ -843,7 +843,7 @@ func StzSubStr(cStr, nStart, nLen)
 	if nLen <= 0 or nStart < 1
 		return ""
 	ok
-	return substr(cStr, nStart, nLen)
+	return StzMid(cStr, nStart, nLen)
 
 	func JoinXT(paList, pcSep)
 		if NOT isList(paList)

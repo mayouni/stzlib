@@ -30,4 +30,5 @@ o1 = new stzChar(_cRightToLeftOverride)
 ? o1.Name() #--> RIGHT-TO-LEFT OVERRIDE
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.27
 # Executed in 0.03 second(s) in Ring 1.23

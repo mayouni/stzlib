@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzchartest.ring, block #112.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -20,10 +19,8 @@ txt = "dear ‮friends!"
 
 # Trying to get it in pure Ring
 
-_nTxt1Len_ = ring_len(txt)
-for _iLoopTxt1_ = 1 to _nTxt1Len_
-	c = txt[_iLoopTxt1_]
-	? c
+for i = 1 to len(txt)
+	? txt[i]
 next
 #-->
 '
@@ -45,7 +42,27 @@ s
 !
 '
 
-# Trying to know it in Softanza
-? ""
+# Trying to know it in Softanza's Chars() function
+
+? "---"
+
+? Chars(txt)
+#-->
+'
+d
+e
+a
+r
+ 
+f
+r
+i
+e
+n
+d
+s
+!
+'
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27

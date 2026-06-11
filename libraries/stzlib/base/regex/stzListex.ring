@@ -59,7 +59,7 @@ class stzListex
 	def ParsePattern(cPattern)
 		This.DebugLog("ParsePattern", "Input: " + cPattern)
 		
-		cInner = @trim( @substr( @trim(cPattern), 2, ring_len(cPattern)-1 ) )
+		cInner = @trim( @StzMid(@trim(cPattern), 2, ring_len(cPattern)-1) )
 		aParts = SplitAtTopLevelCommas(cInner)
 
 		aTokens = []
@@ -72,7 +72,7 @@ class stzListex
 		return aTokens
 
 	def ParseNestedPattern(cNestedPattern, bNegated, bCaseSensitive)
-		cInner = @substr(cNestedPattern, 2, ring_len(cNestedPattern)-1)
+		cInner = @StzMid(cNestedPattern, 2, ring_len(cNestedPattern)-1)
 		aNestedTokens = []
 		aParts = SplitAtTopLevelCommas(cInner)
 
@@ -182,7 +182,7 @@ class stzListex
 		# Check for case-sensitive prefix @cs:
 		if StartsWith(StzLower(cTokenStr), "@cs:")
 			bCaseSensitive = TRUE
-			cTokenStr = @substr(cTokenStr, 5, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
 		ok
 
 		# Extract set values BEFORE case conversion to preserve original values
@@ -191,7 +191,7 @@ class stzListex
 		if nSetStart > 0
 			nSetEnd = StzFind(cTokenStr, "}")
 			if nSetEnd > nSetStart
-				cPreservedSet = @substr(cTokenStr, nSetStart, nSetEnd - nSetStart + 1)
+				cPreservedSet = @StzMid(cTokenStr, nSetStart, nSetEnd - nSetStart + 1)
 			ok
 		ok
 
@@ -217,7 +217,7 @@ class stzListex
 		ok
     
 		# Extract keyword (first two characters)
-		cKeyword = @substr(cTokenStr, 1, 2)
+		cKeyword = @StzMid(cTokenStr, 1, 2)
 		
 		nMin = 1
 		nMax = 1
@@ -229,7 +229,7 @@ class stzListex
 		nLenToken = stzlen(cTokenStr)
 
 		if nLenToken > 2
-			cRemainder = @substr(cTokenStr, 3, nLenToken)
+			cRemainder = @StzMid(cTokenStr, 3, nLenToken)
 		ok
 
 		# Range and quantifier processing
@@ -423,7 +423,7 @@ class stzListex
 				# Don't call RemoveQuotes - just normalize quotes
 				if (StartsWith(cValue, "'") and EndsWith(cValue, "'"))
 					# Single quotes - convert to double
-					cUnquoted = @substr(cValue, 2, ring_len(cValue) - 1)
+					cUnquoted = @StzMid(cValue, 2, ring_len(cValue) - 1)
 					cNormalizedValue = '"' + cUnquoted + '"'
 				but (StartsWith(cValue, '"') and EndsWith(cValue, '"'))
 					# Already double quoted
@@ -435,10 +435,10 @@ class stzListex
 
 				if bCheckUnique
 					# For uniqueness check, compare unquoted values
-					cCheck1 = @substr(cNormalizedValue, 2, ring_len(cNormalizedValue) - 1)
+					cCheck1 = @StzMid(cNormalizedValue, 2, ring_len(cNormalizedValue) - 1)
 					_nValuesLen_2 = ring_len(aValues)
 					for j = 1 to _nValuesLen_2
-						cCheck2 = @substr(aValues[j], 2, ring_len(aValues[j]) - 1)
+						cCheck2 = @StzMid(aValues[j], 2, ring_len(aValues[j]) - 1)
 						if cCheck1 = cCheck2
 							raise("Error: Duplicate value in unique set: " + cValue)
 						ok
@@ -475,7 +475,7 @@ class stzListex
 	def RemoveQuotes(cStr)
 		if (StartsWith(cStr, "'") and EndsWith(cStr, "'")) or
 		   (StartsWith(cStr, '"') and EndsWith(cStr, '"'))
-			cResult = @substr(cStr, 2, ring_len(cStr)-1)
+			cResult = @StzMid(cStr, 2, ring_len(cStr)-1)
 			return cResult
 		ok
 		return cStr
@@ -955,7 +955,7 @@ class stzListex
 
 	def NormalizeListString(xList)
 		cList = "" + xList
-		cList = @substr(cList, " ", "")
+		cList = @StzReplace(cList, " ", "")
 		cList = @substr(cList, Char(9), "")
 		cList = @substr(cList, Char(10), "")
 		cList = @substr(cList, Char(13), "")

@@ -568,7 +568,7 @@ class stzStringFinder
 			_sl_ = ring_len(_s_)
 			if _sl_ = 0 loop ok
 			if _sl_ > ring_len(_cIn_) loop ok
-			_tail_ = substr(_cIn_, ring_len(_cIn_) - _sl_ + 1)
+			_tail_ = StzMidToEnd(_cIn_, ring_len(_cIn_) - _sl_ + 1)
 			if _bCase_
 				if _tail_ = _s_ return 1 ok
 			else

@@ -1,11 +1,11 @@
 #---------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V0.9) - StzListOfNumbers          #
-#		An accelerative library for Ring applications           #
+# 		    SOFTANZA LIBRARY (V0.9) - StzListOfNumbers  #
+#		An accelerative library for Ring applications   #
 #---------------------------------------------------------------#
 #                                                               #
-# 	Description	: The class for managing lists of numbers       #
-#	Version		: V0.9 (2020-2024)                              #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)         #
+#   Description	: The class for managing lists of numbers       #
+#   Version	: V0.9 (2020-2024)                              #
+#   Author	: Mansour Ayouni (kalidianow@gmail.com)         #
 #                                                               #
 #---------------------------------------------------------------#
 
@@ -1587,6 +1587,7 @@ func IsListOfNonZeroPositiveNumbers(paList)
 
 	func @IsListOfStrictlyPositiveNumbers(paList)
 		return IsListOfNonZeroPositiveNumbers(paList)
+
 
   ////////////////
  ///  CLASS   ///

@@ -188,7 +188,7 @@ class stzGraphex from stzGraph
 			# Strip outer parentheses first, then check for pipe
 			if startsWith(cPart, "(") and endsWith(cPart, ")")
 				# Strip outer parentheses to get the inner content
-				cInnerPart = @substr(cPart, 2, ring_len(cPart) - 1)
+				cInnerPart = @StzMid(cPart, 2, ring_len(cPart) - 1)
 				
 				? "  Stripped parentheses: [" + cInnerPart + "]"
 				
@@ -272,7 +272,7 @@ class stzGraphex from stzGraph
 		bNegated = StartsWith(cTokenStr, "@!")
 		if bNegated
 			# Remove @! (positions 1-2), keep from position 3 onwards
-			cTokenStr = "@" + @substr(cTokenStr, 3, ring_len(cTokenStr))
+			cTokenStr = "@" + @StzMid(cTokenStr, 3, ring_len(cTokenStr))
 		ok
 			
 		# Now process cTokenStr normally with bNegated flag set...
@@ -307,14 +307,14 @@ class stzGraphex from stzGraph
 			nBraceEnd = StzFind(cTokenStr, "}")
 			if nBraceEnd > nBraceStart
 	
-				cSetContent = @substr(cTokenStr, nBraceStart + 1, nBraceEnd)
+				cSetContent = @StzMid(cTokenStr, nBraceStart + 1, nBraceEnd)
 				
 				# Check for U after closing brace
-				if nBraceEnd < ring_len(cTokenStr) and @substr(cTokenStr, nBraceEnd + 1, nBraceEnd + 2) = "U"
+				if nBraceEnd < ring_len(cTokenStr) and @StzMid(cTokenStr, nBraceEnd + 1, nBraceEnd + 2) = "U"
 					bRequireUnique = TRUE
-					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 2, ring_len(cTokenStr))
+					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @StzMid(cTokenStr, nBraceEnd + 2, ring_len(cTokenStr))
 				else
-					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 1, ring_len(cTokenStr))
+					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @StzMid(cTokenStr, nBraceEnd + 1, ring_len(cTokenStr))
 				ok
 				
 				# Parse set values
@@ -338,7 +338,7 @@ class stzGraphex from stzGraph
 			if nParenStart > 0
 				nParenEnd = StzFind(cTokenStr, ")")
 				if nParenEnd > nParenStart
-					cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
+					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - 1)
 				ok
 			ok
 
@@ -365,7 +365,7 @@ class stzGraphex from stzGraph
 			if nParenStart > 0
 				nParenEnd = StzFind(cTokenStr, ")")
 				if nParenEnd > nParenStart
-					cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
+					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - 1)
 				ok
 			ok
 
@@ -722,7 +722,7 @@ class stzGraphex from stzGraph
 				if nParenPos > 0
 					nClosePos = StzFind(cToken, ")")
 					if nClosePos > nParenPos
-						cLabel = @substr(cToken, nParenPos + 1, nClosePos - 1)
+						cLabel = @StzMid(cToken, nParenPos + 1, nClosePos - 1)
 					ok
 				ok
 
@@ -876,7 +876,7 @@ class stzGraphex from stzGraph
 				if nParenPos > 0
 					nClosePos = StzFind(cToken, ")")
 					if nClosePos > nParenPos
-						cLabel = @substr(cToken, nParenPos + 1, nClosePos - nParenPos - 1)
+						cLabel = @StzMid(cToken, nParenPos + 1, nClosePos - nParenPos - 1)
 						aPattern + cLabel
 					else
 						aPattern + :Any

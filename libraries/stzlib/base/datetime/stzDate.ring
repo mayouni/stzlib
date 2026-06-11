@@ -308,13 +308,13 @@ func StzFreezeClock(cTimestamp)
 		return
 	ok
 	_acStzFcParts_ = split(cTimestamp, " ")
-	if len(_acStzFcParts_) >= 1 and len(_acStzFcParts_[1]) >= 8 and substr(_acStzFcParts_[1], 5, 1) = "-"
+	if len(_acStzFcParts_) >= 1 and len(_acStzFcParts_[1]) >= 8 and StzMid(_acStzFcParts_[1], 5, 1) = "-"
 		# Date half -- convert from ISO YYYY-MM-DD to Ring's DD/MM/YYYY.
-		_cStzFcY_ = substr(_acStzFcParts_[1], 1, 4)
-		_cStzFcM_ = substr(_acStzFcParts_[1], 6, 2)
-		_cStzFcD_ = substr(_acStzFcParts_[1], 9, 2)
+		_cStzFcY_ = StzMid(_acStzFcParts_[1], 1, 4)
+		_cStzFcM_ = StzMid(_acStzFcParts_[1], 6, 2)
+		_cStzFcD_ = StzMid(_acStzFcParts_[1], 9, 2)
 		$cStzFrozenDate = _cStzFcD_ + "/" + _cStzFcM_ + "/" + _cStzFcY_
-	but len(_acStzFcParts_) >= 1 and substr(_acStzFcParts_[1], 3, 1) = ":"
+	but len(_acStzFcParts_) >= 1 and StzMid(_acStzFcParts_[1], 3, 1) = ":"
 		# First half is actually a time
 		$cStzFrozenTime = _acStzFcParts_[1]
 		return

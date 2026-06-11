@@ -13,4 +13,5 @@ pr()
 #--> n
 
 pf()
-# Executed in 0.01 second(s)
+# Executed in almost 0 second(s) in Ring 1.27 (Backed by StzEngine)
+# Executed in 0.01 second(s) in older version of Ring

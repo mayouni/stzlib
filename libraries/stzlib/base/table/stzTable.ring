@@ -1105,7 +1105,7 @@ Class stzTable from stzList
 					if pCaseSensitive
 						if substr(_cell_, _pValue_) > 0 _bMatch_ = TRUE ok
 					else
-						if substr(upper(_cell_), upper(_pValue_)) > 0 _bMatch_ = TRUE ok
+						if StzFind(upper(_pValue_), upper(_cell_)) > 0 _bMatch_ = TRUE ok
 					ok
 				ok
 			else

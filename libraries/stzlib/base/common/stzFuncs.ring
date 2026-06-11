@@ -3024,8 +3024,38 @@ func StzFindCS(pThing, paIn, pCaseSensitive)
 		paIn = paIn[2]
 	ok
 
-	anPos = Q(paIn).FindAllCS(pThing, pCaseSensitive)
-	return anPos
+	# String haystack -> engine-backed walk (no Q() wrap).
+	if isString(paIn) and isString(pThing) and pThing != ""
+		_bCase_ = CaseSensitive(pCaseSensitive)
+		_pH_ = StzEngineString(paIn)
+		_pS_ = StzEngineString(pThing)
+		_nSubLen_ = StzEngineStringCount(_pS_)
+		StzEngineStringFree(_pS_)
+		_aResult_ = []
+		_nPos_ = 1
+		while TRUE
+			_nFound_ = StzEngineStringFindFirstFromCS(_pH_, pThing, _nPos_, _bCase_)
+			if _nFound_ < 1 exit ok
+			_aResult_ + _nFound_
+			_nPos_ = _nFound_ + _nSubLen_
+		end
+		StzEngineStringFree(_pH_)
+		return _aResult_
+	ok
+
+	# List haystack -> linear search.
+	if isList(paIn)
+		_aResult_ = []
+		_nIL_ = len(paIn)
+		for _iF_ = 1 to _nIL_
+			if paIn[_iF_] = pThing
+				_aResult_ + _iF_
+			ok
+		next
+		return _aResult_
+	ok
+
+	return []
 
 func StzFind(p1, p2)
 	# Named param support: StzFind(x, [:in, list])

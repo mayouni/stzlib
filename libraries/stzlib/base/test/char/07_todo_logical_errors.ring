@@ -1,36 +1,35 @@
 # Narrative
 # --------
-# TODO : LOGICAL ERRORS
 #
 # Extracted from stzchartest.ring, block #7.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
 
 pr()
 
-? StzCharQ("0x10481").Content() #--> TODO: ERR, should be "𐒁"
-#--> ҁ
+? StzCharQ(dec("0x10481")).Content()
+#--> 𐒁
 
 ? Q("Schöne Grüße").Length() # means "Kind Regards" in german
 #--> 12
 
-? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA") #ERRor! Should be 𐒁
-#--> ҁ
+? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA")
+#--> 𐒁
 
 ? StzCharQ("ҁ").Name()
 #--> CYRILLIC SMALL LETTER KOPPA
 
-//? StzCharQ("𐒁") #TODO-ERROR
-#--> Can't create char object!
+? StzCharQ("𐒁").Content()
+#--> 𐒁
 
-? Q("𐒁").CharName() #TODO-ERROR: correct it to be OSMANYA LETTER BA
-#--> QUESTION MARK
+? Q("𐒁").CharName()
+#--> OSMANYA LETTER BA
 
 ? StzCharQ("OSMANYA LETTER BA").Content()
-#--> ҁ
+#--> 𐒁
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.27 (Backed by StzEngine)
 # Executed in 0.28 second(s) in Ring 1.23
 # Executed in 1.93 second(s) in Ring 1.20

@@ -82,7 +82,7 @@ class stzNaturalMarkup from stzObject
                     ok
 
                     if nPos > 2
-                        cType = @substr(acParts[j][1], 2, nPos-1)
+                        cType = @StzMid(acParts[j][1], 2, nPos-1)
                         cStzType = "stz" + cType
                         acParts[j] + cStzType
                     ok

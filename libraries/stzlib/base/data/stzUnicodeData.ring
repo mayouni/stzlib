@@ -785,7 +785,7 @@ class stzUnicodeData
 		if ring_len(_cHex_) > 2
 			_cPfx_ = ring_left(_cHex_, 2)
 			if _cPfx_ = "0x" or _cPfx_ = "0X"
-				_cHex_ = substr(_cHex_, 3)
+				_cHex_ = StzMidToEnd(_cHex_, 3)
 			ok
 		ok
 		_nUnicode_ = dec("0x" + _cHex_)
@@ -803,7 +803,7 @@ class stzUnicodeData
 		if ring_len(_cHex_) > 2
 			_cPfx_ = ring_left(_cHex_, 2)
 			if _cPfx_ = "0x" or _cPfx_ = "0X"
-				_cHex_ = substr(_cHex_, 3)
+				_cHex_ = StzMidToEnd(_cHex_, 3)
 			ok
 		ok
 		if _cHex_ = ""
@@ -863,7 +863,7 @@ class stzUnicodeData
 					if _nSemicolon_ > 0
 						# ring_substr2(str, old, new) was the wrong
 						# spelling -- we want the from-N tail.
-						_acResult_ + substr(_aLines_[_i_], _nSemicolon_ + 1)
+						_acResult_ + StzMidToEnd(_aLines_[_i_], _nSemicolon_ + 1)
 					ok
 				ok
 			next

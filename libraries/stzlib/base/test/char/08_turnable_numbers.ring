@@ -3,7 +3,6 @@
 # TURNABLE NUMBERS
 #
 # Extracted from stzchartest.ring, block #8.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
@@ -23,5 +22,6 @@ pr()
 #--> [ [ 2, "↊" ], [ 3, "↋" ] ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27 (Backed by StzEngine)
 # Executed in 0.03 second(s) in Ring 1.23
 # Executed in 0.11 second(s) in Ring 1.20

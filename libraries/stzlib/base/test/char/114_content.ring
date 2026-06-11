@@ -9,6 +9,7 @@ load "../../stzBase.ring"
 
 pr()
 
+
 txt = "dear ‮friends!"
 
 o1 = new stzString(txt)
@@ -18,10 +19,10 @@ o1 {
 
 	? @@NL(CharsNames()) + NL
 
-	? ContainsInvisibleChars()
+	? ContainsInvisibleChars() #TODO
 	#-- TRUE
 
-	? @@(o1.FindInvisibleChars())
+	? @@(o1.FindInvisibleChars()) #TODO
 	#-- [ 6 ]
 
 	? @@(o1.InvisibleChars())
@@ -32,6 +33,9 @@ o1 {
 # It's an inivisble char and turn the text after it right-to-left
 
 # All insible chars
+? InvisibleCharsNames()
+
+/*
 
 ? InvisibleCharsNames()
 #-->
@@ -64,6 +68,6 @@ HANGUL FILLER
 HANGUL CHOSEONG FILLER
 HALFWIDTH HANGUL FILLER
 '
-
+*/
 pf()
 # Executed in 3.97 second(s) in Ring 1.23
