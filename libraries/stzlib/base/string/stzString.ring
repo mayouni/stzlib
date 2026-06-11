@@ -277,9 +277,6 @@ class stzString from stzObject
 		def LengthQ()
 			return new stzNumber( This.NumberOfChars() )
 
-		def Len()
-			return This.NumberOfChars()
-
 	  #=======================================#
 	 #  CHECKING IF THE STRING IS EMPTY      #
 	#=======================================#
@@ -371,6 +368,19 @@ class stzString from stzObject
 			# Fluent form: return the char list wrapped in stzListOfChars
 			# so .Section(:From, :To) etc. resolve on the list class.
 			return new stzListOfChars( This.Chars() )
+
+	def CharsNames()
+		_acResult_ = []
+		_acChars_ = This.Chars()
+		_nLen_ = len(_acChars_)
+
+		for i = 1 to _nLen_
+			_acResult + @CharName(@acChar[i])
+		next
+
+		return _acResult_
+
+		return @CharsNames(This.Content())
 
 	def Section(n1, n2)
 		# Narrative aliases: Section(:From = pcA, :To = pcB) where
@@ -5688,6 +5698,48 @@ class stzString from stzObject
 	def ContainsOnlyChars(pcChars)
 		return This.ContainsOnlyCharsCS(pcChars, 1)
 
+	#--- Invisible chars
+
+	def FindInvisibleChars()
+		_acInvChars_ = @InvisibleChars()
+		_nLen_ = This.NumberOfChars()
+
+		_anResult_ = []
+		for i = 1 to _nLen_
+			if This.Contains(_acInvChars_[i])
+				_anResult_ + i
+			ok
+		next
+
+		return _anResult_
+
+	def InvisibleChars()
+		_acInvChars_ = @InvisibleChars()
+		_nLen_ = This.NumberOfChars()
+
+		_acResult_ = []
+		for i = 1 to _nLen_
+			if This.Contains(_acInvChars_[i])
+				_acResult_ + _acInvChars_[i]
+			ok
+		next
+
+		return _acResult_
+
+	def ContainsInvisibleChars()
+		_acInvChars_ = @InvisibleChars()
+		_nLen_ = This.NumberOfChars()
+
+		_nResult_ = 1
+		for i = 1 to _nLen_
+			if This.Contains(_acInvChars_[i])
+				_nResult_ = 0
+				exit
+			ok
+		next
+
+		return _nResult_
+
 	# --- Control/Mark checks ---
 
 	def IsControl()
@@ -6716,20 +6768,48 @@ class stzString from stzObject
 	def ContainsBetweenPositions(pcSub, n1, n2)
 		return This.ContainsInSection(pcSub, n1, n2)
 
-	# ContainsBefore(pcSub, pcAnchor): TRUE iff pcSub appears in the
-	# content BEFORE the first occurrence of pcAnchor.
+	# ContainsBefore(pcSub, pcAnchor | :Position = n | :SubString = s):
+	# TRUE iff pcSub appears in the content BEFORE the anchor.
 	def ContainsBefore(pcSub, pcAnchor)
-		_nAnchor_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
+		_nAnchor_ = 0
+		if isList(pcAnchor) and ring_len(pcAnchor) = 2 and isString(pcAnchor[1])
+			_kw_ = lower(pcAnchor[1])
+			if _kw_ = "position" or _kw_ = "atposition"
+				_nAnchor_ = pcAnchor[2]
+			but _kw_ = "substring"
+				_nAnchor_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor[2], 1, 1)
+			ok
+		but isString(pcAnchor)
+			_nAnchor_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
+		but isNumber(pcAnchor)
+			_nAnchor_ = pcAnchor
+		ok
 		if _nAnchor_ < 1 return FALSE ok
 		_nSub_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, 1)
 		if _nSub_ < 1 return FALSE ok
 		return _nSub_ < _nAnchor_
 
 	def ContainsAfter(pcSub, pcAnchor)
-		_nAnchor_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
+		_nAnchor_ = 0
+		_nFrom_ = 0
+		if isList(pcAnchor) and ring_len(pcAnchor) = 2 and isString(pcAnchor[1])
+			_kw_ = lower(pcAnchor[1])
+			if _kw_ = "position" or _kw_ = "atposition"
+				_nAnchor_ = pcAnchor[2]
+				_nFrom_ = _nAnchor_ + 1
+			but _kw_ = "substring"
+				_nAnchor_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor[2], 1, 1)
+				_nFrom_ = _nAnchor_ + This._EngineCount(pcAnchor[2])
+			ok
+		but isString(pcAnchor)
+			_nAnchor_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
+			_nFrom_ = _nAnchor_ + This._EngineCount(pcAnchor)
+		but isNumber(pcAnchor)
+			_nAnchor_ = pcAnchor
+			_nFrom_ = _nAnchor_ + 1
+		ok
 		if _nAnchor_ < 1 return FALSE ok
-		_nSub_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
-		         _nAnchor_ + This._EngineCount(pcAnchor), 1)
+		_nSub_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nFrom_, 1)
 		return _nSub_ >= 1
 
 	# ContainsOnlyOneOfThese(paSubStr): TRUE iff EXACTLY ONE of the
@@ -11115,7 +11195,16 @@ class stzString from stzObject
 
 	# More long-tail aliases.
 	def SubStringIsBoundedBy(pcSub, pacBounds)
-		_aSec_ = This.FindBoundedByAsSections(pacBounds)
+		# Accept single string (used as both open and close) or a pair.
+		_aBnd_ = pacBounds
+		if isString(pacBounds)
+			_aBnd_ = [ pacBounds, pacBounds ]
+		ok
+		if NOT (isList(_aBnd_) and ring_len(_aBnd_) = 2 and
+		        isString(_aBnd_[1]) and isString(_aBnd_[2]))
+			return FALSE
+		ok
+		_aSec_ = This.FindBoundedByAsSections(_aBnd_)
 		_nL_ = ring_len(_aSec_)
 		for _i_ = 1 to _nL_
 			_s_ = _aSec_[_i_]
