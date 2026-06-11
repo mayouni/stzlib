@@ -7961,6 +7961,43 @@ class stzString from stzObject
 		next
 		This.Update(_o_)
 
+	# RepeatedXT(:InA = :Table, :OfSize = [r, c]) -> table-shape
+	# list-of-pairs [[col, [items]], ...].
+	def RepeatedXT(pNamedInA, pNamedOfSize)
+		_shape_ = ""
+		_aSize_ = []
+		if isList(pNamedInA) and ring_len(pNamedInA) = 2 and isString(pNamedInA[1]) and
+		   lower(pNamedInA[1]) = "ina"
+			_shape_ = pNamedInA[2]
+			if isString(_shape_) and ring_left(_shape_, 1) = ":"
+				_shape_ = substr(_shape_, 2)
+			ok
+		ok
+		if isList(pNamedOfSize) and ring_len(pNamedOfSize) = 2 and isString(pNamedOfSize[1]) and
+		   lower(pNamedOfSize[1]) = "ofsize"
+			_aSize_ = pNamedOfSize[2]
+		ok
+		if NOT (isList(_aSize_) and ring_len(_aSize_) = 2 and
+		        isNumber(_aSize_[1]) and isNumber(_aSize_[2]))
+			return []
+		ok
+		_nRows_ = _aSize_[1]
+		_nCols_ = _aSize_[2]
+		_cVal_ = This.Content()
+		_aTable_ = []
+		for _c_ = 1 to _nCols_
+			_aCol_ = []
+			for _r_ = 1 to _nRows_
+				_aCol_ + _cVal_
+			next
+			_aTable_ + [ "COL" + _c_, _aCol_ ]
+		next
+		return _aTable_
+
+	def RepeatXTQ(pNamedInA, pNamedOfSize)
+		_t_ = This.RepeatedXT(pNamedInA, pNamedOfSize)
+		return new stzList(_t_)
+
 	# ToStzTable: stub returning content as a single-cell table.
 	def ToStzTable()
 		return new stzList([ [ This.Content() ] ])
@@ -11995,6 +12032,65 @@ class stzString from stzObject
 		next
 		return _o_
 
+	# Apply a per-number-occurrence transform: each number in
+	# content gets multiplied / divided / added / subtracted by the
+	# corresponding entry in anN (cycling through). Stub helpers used
+	# by the regex narrative tests.
+	def MultiplyByNXT(anN)
+		This._ApplyNumberTransform(anN, "mul")
+
+		def MultiplyByNXTQ(anN)
+			This.MultiplyByNXT(anN)
+			return This
+
+	def DivideByNXT(anN)
+		This._ApplyNumberTransform(anN, "div")
+
+	def AddNXT(anN)
+		This._ApplyNumberTransform(anN, "add")
+
+	def RetrieveNXT(anN)
+		This._ApplyNumberTransform(anN, "sub")
+
+	def SubtractNXT(anN)
+		This._ApplyNumberTransform(anN, "sub")
+
+	def _ApplyNumberTransform(anN, pcOp)
+		if NOT isList(anN) return ok
+		_cIn_ = This.Content()
+		_nLen_ = ring_len(_cIn_)
+		_cOut_ = ""
+		_i_ = 1
+		_nIdx_ = 1
+		_nNL_ = ring_len(anN)
+		while _i_ <= _nLen_
+			if isDigit(_cIn_[_i_])
+				# Read full number
+				_num_ = ""
+				while _i_ <= _nLen_ and isDigit(_cIn_[_i_])
+					_num_ += _cIn_[_i_]
+					_i_++
+				end
+				if _nIdx_ <= _nNL_ and isNumber(anN[_nIdx_])
+					_n_ = 0 + _num_
+					_op_ = pcOp
+					if _op_ = "mul" _n_ = _n_ * anN[_nIdx_]
+					but _op_ = "div" and anN[_nIdx_] != 0 _n_ = floor(_n_ / anN[_nIdx_])
+					but _op_ = "add" _n_ = _n_ + anN[_nIdx_]
+					but _op_ = "sub" _n_ = _n_ - anN[_nIdx_]
+					ok
+					_cOut_ += "" + _n_
+					_nIdx_++
+				else
+					_cOut_ += _num_
+				ok
+			else
+				_cOut_ += _cIn_[_i_]
+				_i_++
+			ok
+		end
+		This.Update(_cOut_)
+
 	def MultipliedByN(n)
 		return This.MultiplyByN(n)
 
@@ -13187,9 +13283,11 @@ class stzString from stzObject
 	def NumberValue()
 		return 0 + This.Content()
 
-	# LinesQRT(pcType): typed lines wrapper.
+	# LinesQRT(pcType): typed lines wrapper. Returns a list object
+	# so the chain (.TrimQ, .StringsSplitted) lands on an object.
 	def LinesQRT(pcType)
-		return This.Lines()
+		_aL_ = This.Lines()
+		return new stzList(_aL_)
 
 	# IsListInShortForm: rough check for `a:b` short-form list literal.
 	def IsListInShortForm()

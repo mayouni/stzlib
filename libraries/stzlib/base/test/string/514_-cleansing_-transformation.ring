@@ -3,7 +3,6 @@
 # #narration #data-cleansing #data-transformation
 #
 # Extracted from stzStringTest.ring, block #514.
-#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
 

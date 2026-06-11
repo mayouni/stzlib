@@ -3,7 +3,6 @@
 # #narration NAMING UNNAMED OBJECTS AND MAKING THEM FINDABLE
 #
 # Extracted from stznamedvarstest.ring, block #13.
-#ERR Error (R14) : Calling Method without definition: findobjects
 
 load "../../stzBase.ring"
 

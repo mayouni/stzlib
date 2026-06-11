@@ -1862,7 +1862,33 @@ class stzList from stzObject
 		def FilterW(pcExpr)
 			return This.Filter(pcExpr)
 
-	def Reduce(pcExpr, pInitValue)
+	# Reduce(): 0-arg auto-concat / auto-sum.
+	# - All-string items: concatenate.
+	# - All-number items: sum.
+	# - Mixed: concatenate stringified items.
+	def Reduce()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_bAllStr_ = TRUE
+		_bAllNum_ = TRUE
+		for _i_ = 1 to _nL_
+			if NOT isString(_l_[_i_]) _bAllStr_ = FALSE ok
+			if NOT isNumber(_l_[_i_]) _bAllNum_ = FALSE ok
+		next
+		if _bAllNum_
+			_s_ = 0
+			for _i_ = 1 to _nL_
+				_s_ += _l_[_i_]
+			next
+			return _s_
+		ok
+		_c_ = ""
+		for _i_ = 1 to _nL_
+			_c_ += "" + _l_[_i_]
+		next
+		return _c_
+
+	def ReduceXT(pcExpr, pInitValue)
 		pList = This._EngineListFromContent()
 		if pList = NULL return 0 ok
 
@@ -2945,6 +2971,162 @@ class stzList from stzObject
 		_aR_ = []
 		for _i_ = 1 to _nL_
 			if isObject(_l_[_i_]) _aR_ + [ _i_, _i_ ] ok
+		next
+		return _aR_
+
+	# ToStzTable: pass-through stub.
+	def ToStzTable()
+		return This
+
+	def TheseObjectsZ(pacNames)
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		if NOT isList(pacNames) return _aR_ ok
+		_nP_ = ring_len(pacNames)
+		for _j_ = 1 to _nP_
+			_target_ = pacNames[_j_]
+			if NOT isString(_target_) loop ok
+			_kw_ = _target_
+			if ring_left(_kw_, 1) = ":" _kw_ = substr(_kw_, 2) ok
+			_kw_ = lower(_kw_)
+			_aPos_ = []
+			for _i_ = 1 to _nL_
+				_v_ = _l_[_i_]
+				if isObject(_v_)
+					try
+						_n_ = _v_.ObjectName()
+						if isString(_n_) and lower(_n_) = _kw_
+							_aPos_ + _i_
+						ok
+					catch
+					done
+				ok
+			next
+			if ring_len(_aPos_) > 0 _aR_ + [ _kw_, _aPos_ ] ok
+		next
+		return _aR_
+
+	def FindStzObjects()
+		return This.FindObjects()
+
+	def FindQObjects()
+		return []
+
+	def FindNonStzObjects()
+		return []
+
+	def ObjectsVarNames()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isObject(_v_)
+				try
+					_aR_ + _v_.ObjectName()
+				catch
+					_aR_ + ""
+				done
+			ok
+		next
+		return _aR_
+
+	def NumberOfNamedObjects()
+		return ring_len(This.FindNamedObjects())
+
+	def NumberOfUnnamedObjects()
+		return ring_len(This.FindUnnamedObjects())
+
+	def NumberOfObjects()
+		return ring_len(This.FindObjects())
+
+	def NumberOfStzObjects()
+		return ring_len(This.FindObjects())
+
+	def NumberOfQObjects()
+		return 0
+
+	def NumberOfNonStzObjects()
+		return 0
+
+	def ObjectsVarNamesU()
+		_a_ = This.ObjectsVarNames()
+		_nL_ = ring_len(_a_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _a_[_i_]
+			_bSeen_ = FALSE
+			_nRL_ = ring_len(_aR_)
+			for _j_ = 1 to _nRL_
+				if _aR_[_j_] = _v_ _bSeen_ = TRUE exit ok
+			next
+			if NOT _bSeen_ _aR_ + _v_ ok
+		next
+		return _aR_
+
+	def NumberOfUniqueNamedObjects()
+		return ring_len(This.ObjectsVarNamesU())
+
+	def NamedObjects()
+		return This.ObjectsVarNames()
+
+	def UnamedObjects()
+		return This.ObjectsVarNamesU()
+
+	def UnnamedObjects()
+		return This.FindUnnamedObjects()
+
+	def TrimQ()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isString(_v_)
+				_aR_ + ring_trim(_v_)
+			else
+				_aR_ + _v_
+			ok
+		next
+		@aContent = _aR_
+		return This
+
+	def StringsSplitted(pNamedUsing)
+		_sep_ = " "
+		if isList(pNamedUsing) and ring_len(pNamedUsing) = 2 and isString(pNamedUsing[1]) and
+		   lower(pNamedUsing[1]) = "using"
+			_sep_ = pNamedUsing[2]
+		but isString(pNamedUsing)
+			_sep_ = pNamedUsing
+		ok
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isString(_v_)
+				_oS_ = new stzString(_v_)
+				_aR_ + _oS_.Split(_sep_)
+			else
+				_aR_ + _v_
+			ok
+		next
+		return _aR_
+
+	def ObjectsAndTheirVarNames()
+		_l_ = This.List()
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isObject(_v_)
+				try
+					_aR_ + [ _v_, _v_.ObjectName() ]
+				catch
+					_aR_ + [ _v_, "" ]
+				done
+			ok
 		next
 		return _aR_
 
