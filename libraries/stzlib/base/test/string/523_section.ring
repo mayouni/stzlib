@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #523.
-#ERR panic: integer part of floating point value out of bounds
 
 load "../../stzBase.ring"
 
