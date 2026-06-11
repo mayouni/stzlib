@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #363.
-#ERR Error (R14) : Calling Method without definition: splitaroundsection
 
 load "../../stzBase.ring"
 

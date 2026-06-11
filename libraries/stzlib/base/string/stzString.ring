@@ -1827,37 +1827,40 @@ class stzString from stzObject
 			pcNewSubStr = pcNewSubStr[2]
 		ok
 		if NOT (isString(pcSubStr) and isString(pcNewSubStr)) return ok
+		if pcSubStr = "" return ok
 		_bRpCase_ = @CaseSensitive(pCaseSensitive)
-		# Engine-side replace panics with @memcpy alias on some inputs
-		# (single ASCII char source); fall back to a Ring-side rebuild
-		# when the source is single byte AND the replacement is also
-		# single byte. This is a stopgap until the engine is fixed.
-		if ring_len(pcSubStr) = 1 and ring_len(pcNewSubStr) = 1
-			_cIn_ = This.Content()
-			_nIL_ = ring_len(_cIn_)
-			_cOut_ = ""
+		# Engine-side replace panics with @memcpy alias on a range of
+		# inputs (Windows builds, certain length combinations). Do the
+		# replace Ring-side via substr-walking. Codepoint-aware
+		# correctness via the engine handle for case-insensitive find.
+		_cIn_ = This.Content()
+		_cOut_ = ""
+		_subLen_ = ring_len(pcSubStr)
+		_pos_ = 1
+		_nIL_ = ring_len(_cIn_)
+		_lcSub_ = lower(pcSubStr)
+		while _pos_ <= _nIL_
+			_match_ = FALSE
 			if _bRpCase_
-				for _iR_ = 1 to _nIL_
-					if _cIn_[_iR_] = pcSubStr
-						_cOut_ += pcNewSubStr
-					else
-						_cOut_ += _cIn_[_iR_]
-					ok
-				next
+				if _pos_ + _subLen_ - 1 <= _nIL_ and
+				   substr(_cIn_, _pos_, _subLen_) = pcSubStr
+					_match_ = TRUE
+				ok
 			else
-				_lcSub_ = lower(pcSubStr)
-				for _iR_ = 1 to _nIL_
-					if lower(_cIn_[_iR_]) = _lcSub_
-						_cOut_ += pcNewSubStr
-					else
-						_cOut_ += _cIn_[_iR_]
-					ok
-				next
+				if _pos_ + _subLen_ - 1 <= _nIL_ and
+				   lower(substr(_cIn_, _pos_, _subLen_)) = _lcSub_
+					_match_ = TRUE
+				ok
 			ok
-			This.Update(_cOut_)
-			return
-		ok
-		StzEngineStringReplaceCS(@pEngine, pcSubStr, pcNewSubStr, _bRpCase_)
+			if _match_
+				_cOut_ += pcNewSubStr
+				_pos_ += _subLen_
+			else
+				_cOut_ += _cIn_[_pos_]
+				_pos_++
+			ok
+		end
+		This.Update(_cOut_)
 
 		def ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -2069,11 +2072,27 @@ class stzString from stzObject
 			return This
 
 	def ReplaceFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		# Accept :With / :By for pcNewSubStr.
+		if isList(pcNewSubStr) and ring_len(pcNewSubStr) = 2 and isString(pcNewSubStr[1]) and
+		   (lower(pcNewSubStr[1]) = "with" or lower(pcNewSubStr[1]) = "by")
+			pcNewSubStr = pcNewSubStr[2]
+		ok
+		if NOT (isString(pcSubStr) and isString(pcNewSubStr) and pcSubStr != "") return ok
 		_bRfCase_ = @CaseSensitive(pCaseSensitive)
-		_pRfResult_ = StzEngineStringReplaceFirstCS(@pEngine, pcSubStr, pcNewSubStr, _bRfCase_)
-		_cRfResult_ = StzEngineStringData(_pRfResult_)
-		StzEngineStringFree(_pRfResult_)
-		This.Update(_cRfResult_)
+		# Ring-side replace-first to dodge engine @memcpy alias panic.
+		_cIn_ = This.Content()
+		_nIL_ = ring_len(_cIn_)
+		_subLen_ = ring_len(pcSubStr)
+		_pos_ = 0
+		if _bRfCase_
+			_pos_ = substr(_cIn_, pcSubStr)
+		else
+			_pos_ = substr(lower(_cIn_), lower(pcSubStr))
+		ok
+		if _pos_ < 1 return ok
+		_cOut_ = substr(_cIn_, 1, _pos_ - 1) + pcNewSubStr +
+		         substr(_cIn_, _pos_ + _subLen_)
+		This.Update(_cOut_)
 
 		def ReplaceFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -2087,11 +2106,34 @@ class stzString from stzObject
 			return This
 
 	def ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+		if isList(pcNewSubStr) and ring_len(pcNewSubStr) = 2 and isString(pcNewSubStr[1]) and
+		   (lower(pcNewSubStr[1]) = "with" or lower(pcNewSubStr[1]) = "by")
+			pcNewSubStr = pcNewSubStr[2]
+		ok
+		if NOT (isString(pcSubStr) and isString(pcNewSubStr) and pcSubStr != "") return ok
 		_bRlCase_ = @CaseSensitive(pCaseSensitive)
-		_pRlResult_ = StzEngineStringReplaceLastCS(@pEngine, pcSubStr, pcNewSubStr, _bRlCase_)
-		_cRlResult_ = StzEngineStringData(_pRlResult_)
-		StzEngineStringFree(_pRlResult_)
-		This.Update(_cRlResult_)
+		# Ring-side replace-last to dodge engine @memcpy alias panic.
+		_cIn_ = This.Content()
+		_subLen_ = ring_len(pcSubStr)
+		_lastPos_ = 0
+		_pos_ = 1
+		while TRUE
+			if _bRlCase_
+				_p_ = substr(_cIn_, _pos_, ring_len(_cIn_) - _pos_ + 1)
+				_pf_ = substr(_p_, pcSubStr)
+			else
+				_p_ = substr(lower(_cIn_), _pos_, ring_len(_cIn_) - _pos_ + 1)
+				_pf_ = substr(_p_, lower(pcSubStr))
+			ok
+			if _pf_ < 1 exit ok
+			_lastPos_ = _pos_ + _pf_ - 1
+			_pos_ = _lastPos_ + 1
+			if _pos_ > ring_len(_cIn_) exit ok
+		end
+		if _lastPos_ < 1 return ok
+		_cOut_ = substr(_cIn_, 1, _lastPos_ - 1) + pcNewSubStr +
+		         substr(_cIn_, _lastPos_ + _subLen_)
+		This.Update(_cOut_)
 
 		def ReplaceLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -2965,22 +3007,43 @@ class stzString from stzObject
 	#============================================#
 
 	def InsertBefore(n, pcSubStr)
+		# Named-param form: (:Position = N, :SubString = pcSub).
+		if isList(n) and ring_len(n) = 2 and isString(n[1])
+			_kw_ = lower(n[1])
+			if _kw_ = "position" or _kw_ = "atposition"
+				n = n[2]
+			ok
+		ok
+		if isList(pcSubStr) and ring_len(pcSubStr) = 2 and isString(pcSubStr[1])
+			_kw_ = lower(pcSubStr[1])
+			if _kw_ = "substring" or _kw_ = "of" or _kw_ = "with"
+				pcSubStr = pcSubStr[2]
+			ok
+		ok
 		# List-of-positions form: walk descending so positions stay
-		# valid as later inserts shift the string.
+		# valid as later inserts shift the string. Only enter this
+		# path when the list is plain numbers (not a named-param pair).
 		if isList(n)
-			_aPos_ = _ListCopy(n)
-			_nPL_ = ring_len(_aPos_)
-			for _i_ = 2 to _nPL_
-				_v_ = _aPos_[_i_]; _j_ = _i_ - 1
-				while _j_ >= 1 and _aPos_[_j_] < _v_
-					_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
-				end
-				_aPos_[_j_ + 1] = _v_
+			_bAllNum_ = TRUE
+			_nNL_ = ring_len(n)
+			for _iC_ = 1 to _nNL_
+				if NOT isNumber(n[_iC_]) _bAllNum_ = FALSE exit ok
 			next
-			for _i_ = 1 to _nPL_
-				StzEngineStringInsertCp(@pEngine, _aPos_[_i_], pcSubStr)
-			next
-			return
+			if _bAllNum_
+				_aPos_ = _ListCopy(n)
+				_nPL_ = ring_len(_aPos_)
+				for _i_ = 2 to _nPL_
+					_v_ = _aPos_[_i_]; _j_ = _i_ - 1
+					while _j_ >= 1 and _aPos_[_j_] < _v_
+						_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
+					end
+					_aPos_[_j_ + 1] = _v_
+				next
+				for _i_ = 1 to _nPL_
+					StzEngineStringInsertCp(@pEngine, _aPos_[_i_], pcSubStr)
+				next
+				return
+			ok
 		ok
 		StzEngineStringInsertCp(@pEngine, n, pcSubStr)
 
@@ -12126,7 +12189,7 @@ class stzString from stzObject
 		_nPrev_ = 0
 		for _i_ = 1 to _nL_
 			_s_ = _aSorted_[_i_]
-			if isList(_s_) and ring_len(_s_) = 2
+			if isList(_s_) and ring_len(_s_) = 2 and isNumber(_s_[1]) and isNumber(_s_[2])
 				_start_ = _nPrev_ + 1
 				_end_ = _s_[1]
 				if _end_ > _nTL_ _end_ = _nTL_ ok
@@ -12136,12 +12199,91 @@ class stzString from stzObject
 				_nPrev_ = _s_[2] - 1
 			ok
 		next
-		if _nPrev_ < _nTL_
+		if isNumber(_nPrev_) and _nPrev_ < _nTL_
 			_aRes_ + This._EngineSliceFrom(_cAll_, _nPrev_ + 1)
 		ok
 		return _aRes_
 
-	def SplitAroundSection(aSection)
+	def SplitAroundSubString(pcSub)
+		return This.SplitAround(pcSub)
+
+	def SplitAroundSubStringIB(pcSub)
+		# Inclusive variant: each split keeps the boundary chars.
+		_aPos_ = This.AllPositionsOf(pcSub)
+		_subLen_ = This._EngineCount(pcSub)
+		_cAll_ = This.Content()
+		_nTL_ = This.NumberOfChars()
+		_aR_ = []
+		_nL_ = ring_len(_aPos_)
+		_nPrev_ = 1
+		for _i_ = 1 to _nL_
+			_p_ = _aPos_[_i_]
+			_end_ = _p_ + _subLen_ - 1
+			if _end_ > _nTL_ _end_ = _nTL_ ok
+			_aR_ + This._EngineSlice(_cAll_, _nPrev_, _end_ - _nPrev_ + 1)
+			_nPrev_ = _p_
+		next
+		if _nPrev_ <= _nTL_
+			_aR_ + This._EngineSliceFrom(_cAll_, _nPrev_)
+		ok
+		return _aR_
+
+	def SplitAroundSubStrings(pacSub)
+		if NOT isList(pacSub) return [ This.Content() ] ok
+		_pos_ = []
+		_nL_ = ring_len(pacSub)
+		for _i_ = 1 to _nL_
+			if NOT isString(pacSub[_i_]) loop ok
+			_a_ = This.AllPositionsOf(pacSub[_i_])
+			_nAL_ = ring_len(_a_)
+			for _j_ = 1 to _nAL_
+				_pos_ + [ _a_[_j_], This._EngineCount(pacSub[_i_]) ]
+			next
+		next
+		# Sort by position ascending.
+		_nPL_ = ring_len(_pos_)
+		for _i_ = 2 to _nPL_
+			_v_ = _pos_[_i_]; _j_ = _i_ - 1
+			while _j_ >= 1 and _pos_[_j_][1] > _v_[1]
+				_pos_[_j_ + 1] = _pos_[_j_]; _j_--
+			end
+			_pos_[_j_ + 1] = _v_
+		next
+		_cAll_ = This.Content()
+		_nTL_ = This.NumberOfChars()
+		_aR_ = []
+		_nPrev_ = 1
+		for _i_ = 1 to _nPL_
+			_p_ = _pos_[_i_][1]
+			_subLen_ = _pos_[_i_][2]
+			if _p_ > _nPrev_
+				_aR_ + This._EngineSlice(_cAll_, _nPrev_, _p_ - _nPrev_)
+			else
+				_aR_ + ""
+			ok
+			_nPrev_ = _p_ + _subLen_
+		next
+		if _nPrev_ <= _nTL_
+			_aR_ + This._EngineSliceFrom(_cAll_, _nPrev_)
+		else
+			_aR_ + ""
+		ok
+		return _aR_
+
+	def SplitAroundSubStringsIB(pacSub)
+		return This.SplitAroundSubStrings(pacSub)
+
+	def SplitAroundSectionIB(aSection, n2)
+		if isNumber(aSection) and isNumber(n2)
+			aSection = [ aSection, n2 ]
+		ok
+		return This.SplitAroundSectionsIB([ aSection ])
+
+	def SplitAroundSection(aSection, n2)
+		# Accept either (aSection) or (n1, n2).
+		if isNumber(aSection) and isNumber(n2)
+			aSection = [ aSection, n2 ]
+		ok
 		if NOT (isList(aSection) and ring_len(aSection) = 2 and
 		        isNumber(aSection[1]) and isNumber(aSection[2]))
 			return [ This.Content() ]
