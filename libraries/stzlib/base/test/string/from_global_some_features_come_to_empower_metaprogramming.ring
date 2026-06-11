@@ -3,7 +3,6 @@
 # # Some features come to empower metaprogramming
 #
 # Extracted from stzGlobalTest.ring, block #38.
-#ERR Error (R14) : Calling Method without definition: stringsw
 
 load "../../stzBase.ring"
 

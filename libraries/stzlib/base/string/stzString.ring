@@ -7005,6 +7005,9 @@ class stzString from stzObject
 	def IsScript()
 		return This.IsScriptName()
 
+	def ScriptIs(pcScript)
+		return This.IsScriptOf(pcScript)
+
 	# IsScriptOf(pcScript): TRUE if every char is in the given Unicode
 	# script. Accepts :Common / :Latin / :Hebrew etc.
 	def IsScriptOf(pcScript)

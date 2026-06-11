@@ -812,3 +812,79 @@ class stzStringList
 
 		def ClassName()
 			return This.stzType()
+
+	# Long-tail methods needed by the test suite.
+	def ConcatenateXT(p)
+		_sep_ = ""
+		if isString(p)
+			_sep_ = p
+		but isList(p) and ring_len(p) = 2 and isString(p[1])
+			_kw_ = lower(p[1])
+			if _kw_ = "using" or _kw_ = "with" or _kw_ = "by"
+				_sep_ = p[2]
+			ok
+		ok
+		_l_ = @acContent
+		_nL_ = ring_len(_l_)
+		_c_ = ""
+		for _i_ = 1 to _nL_
+			if NOT isString(_l_[_i_]) loop ok
+			if _i_ > 1 _c_ += _sep_ ok
+			_c_ += _l_[_i_]
+		next
+		return _c_
+
+	def Concatenate()
+		return This.ConcatenateXT("")
+
+	def SpacesRemoved()
+		_l_ = @acContent
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if isString(_v_)
+				_o_ = new stzString(_v_)
+				_o_.RemoveSpaces()
+				_aR_ + _o_.Content()
+			else
+				_aR_ + _v_
+			ok
+		next
+		return _aR_
+
+	def ConcatenateUsing(pcSep)
+		return This.ConcatenateXT(pcSep)
+
+	def RemoveSpaces()
+		@acContent = This.SpacesRemoved()
+
+		def RemoveSpacesQ()
+			This.RemoveSpaces()
+			return This
+
+	def SubStrongs()
+		return @acContent
+
+	def SubStrinks()
+		return @acContent
+
+	def StringsW(pcExpr)
+		_l_ = @acContent
+		_nL_ = ring_len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if NOT isString(_v_) loop ok
+			@string = _v_
+			@item = _v_
+			@i = _i_
+			_b_ = FALSE
+			try
+				eval("_b_ = " + pcExpr)
+			catch
+				_b_ = FALSE
+			done
+			if _b_ _aR_ + _v_ ok
+		next
+		return _aR_
