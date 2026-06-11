@@ -1052,8 +1052,8 @@ class stzString from stzObject
 		_cHesR_ = StzReplace(_cHesContent_, "&", "&amp;")
 		_cHesR_ = StzReplace(_cHesR_, "<", "&lt;")
 		_cHesR_ = StzReplace(_cHesR_, ">", "&gt;")
-		_cHesR_ = substr(_cHesR_, char(34), "&quot;")
-		_cHesR_ = substr(_cHesR_, char(39), "&#39;")
+		_cHesR_ = StzReplace(_cHesR_, char(34), "&quot;")
+		_cHesR_ = StzReplace(_cHesR_, char(39), "&#39;")
 		return _cHesR_
 
 		def EscapedHtml()
@@ -3618,9 +3618,9 @@ class stzString from stzObject
 
 	def DotsRemoved()
 		_cDrContent_ = This.Content()
-		_cDrR_ = substr(_cDrContent_, "i", char(305))     # U+0131 ı
-		_cDrR_ = substr(_cDrR_, "j", char(567))           # U+0237 ȷ
-		_cDrR_ = substr(_cDrR_, "I", char(304))           # U+0130 İ -> dotted; keep as I? actually I has no dot
+		_cDrR_ = StzReplace(_cDrContent_, "i", char(305))     # U+0131
+		_cDrR_ = StzReplace(_cDrR_, "j", char(567))           # U+0237
+		_cDrR_ = StzReplace(_cDrR_, "I", char(304))           # U+0130
 		return _cDrR_
 
 		def Dotless()
@@ -7401,7 +7401,7 @@ class stzString from stzObject
 		if _lb_ < _la_
 			_short_ = lower(_b_); _long_ = lower(_a_)
 		ok
-		return substr(_long_, _short_) > 0
+		return StzFind(_short_, _long_) > 0
 
 	# NextOccurrence(pcSub, nFrom): position of the next occurrence
 	# of pcSub strictly after nFrom.
@@ -10313,7 +10313,7 @@ class stzString from stzObject
 
 	def IsIncludedIn(pcOther)
 		if NOT isString(pcOther) return FALSE ok
-		return substr(pcOther, This.Content()) > 0
+		return StzFind(This.Content(), pcOther) > 0
 
 	# ReplaceSubStringAtPositions(anPos, pcOld, pcNew).
 	# pcNew accepts :By = "..." named-param form.
@@ -11874,13 +11874,13 @@ class stzString from stzObject
 		if NOT isString(pcSub) return ok
 		_cur_ = This.Content()
 		# Avoid double-tagging.
-		_p_ = substr(_cur_, char(1))
+		_p_ = StzFind(char(1), _cur_)
 		if _p_ > 0 _cur_ = StzMid(_cur_, 1, _p_ - 1) ok
 		This.Update(_cur_ + char(1) + pcSub)
 
 	def _NarrativeSubAndHost()
 		_c_ = This.Content()
-		_p_ = substr(_c_, char(1))
+		_p_ = StzFind(char(1), _c_)
 		if _p_ < 1 return [ "", _c_ ] ok
 		return [ StzMidToEnd(_c_, _p_ + 1), StzMid(_c_, 1, _p_ - 1) ]
 

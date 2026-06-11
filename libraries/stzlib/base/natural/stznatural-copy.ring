@@ -587,7 +587,7 @@ class stzNaturalEngine
 				but cSemantic = "OUTPUT_DISPLAY"
 					aOp = This.GetSemanticOperation(cSemantic)
 					if ring_len(aOp) > 0
-						cCode = substr(aOp[:stz_signature], "@var", @cCurrentVariable)
+						cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 						aCodeLines + cCode
 					ok
 					i++
@@ -658,7 +658,7 @@ class stzNaturalEngine
 					cListStr += "]"
 					cConstructor = StzReplace(cConstructor, "@", cListStr)
 				else
-					cConstructor = substr(cConstructor, "@", @@(cValue))
+					cConstructor = StzReplace(cConstructor, "@", @@(cValue))
 				ok
 				
 				cCode = @cCurrentVariable + " = " + cConstructor
@@ -676,7 +676,7 @@ class stzNaturalEngine
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = substr(aOp[:stz_signature], "@var", @cCurrentVariable)
+		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 		
 		if HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
 			aResult = This.ExtractMethodParameters(nIndex, aOp[:requires_params])
@@ -730,7 +730,7 @@ class stzNaturalEngine
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = substr(aOp[:stz_signature], "@var", @cCurrentVariable)
+		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 		
 		if HasKey(aOp, :supports_modifiers) and aOp[:supports_modifiers] = 1
 			nLen = ring_len(@aSemanticTokens)
@@ -741,7 +741,7 @@ class stzNaturalEngine
 					for j = 1 to nModLen
 						aMod = aOp[:modifiers][j]
 						if aMod[:semantic_id] = aToken[:value]
-							cCode = substr(cCode, aOp[:stz_method], aMod[:stz_method])
+							cCode = StzReplace(cCode, aOp[:stz_method], aMod[:stz_method])
 							cCode = StzReplace(cCode, "()", "([" + aMod[:stz_param] + "])")
 							exit 2
 						ok
