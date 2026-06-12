@@ -8353,9 +8353,8 @@ class stzString from stzObject
 	# RemoveThisFirstCharXT(pcChar) -- like RemoveThisCharFromStartXT
 	# but only when the first character matches pcChar.
 	def RemoveThisFirstCharXT(pcChar)
-		_aChars_ = This.Chars()
-		if ring_len(_aChars_) = 0 return ok
-		if _aChars_[1] != pcChar return ok
+		if This._EngineCount(This.Content()) = 0 return ok
+		if StzEngineStringCharAt(@pEngine, 1) != StzCodepoint(pcChar) return ok
 		This.RemoveThisCharFromStartXT(pcChar)
 
 		def RemoveThisFirstCharXTQ(pcChar)
@@ -8620,10 +8619,9 @@ class stzString from stzObject
 
 	# Last-char trim mirror of RemoveThisFirstCharXT.
 	def RemoveThisLastCharXT(pcChar)
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return ok
-		if _aChars_[_nLen_] != pcChar return ok
+		if StzEngineStringCharAt(@pEngine, _nLen_) != StzCodepoint(pcChar) return ok
 		This.RemoveThisCharFromEndXT(pcChar)
 
 		def RemoveThisLastCharXTQ(pcChar)
@@ -8633,9 +8631,8 @@ class stzString from stzObject
 	def RemoveThisFirstCharCS(pcChar, pCaseSensitive)
 		# Permissiveness: ignore case-sens flag (per narrative #37
 		# style); just route to the position-aware singular form.
-		_aChars_ = This.Chars()
-		if ring_len(_aChars_) = 0 return ok
-		if _aChars_[1] != pcChar return ok
+		if This._EngineCount(This.Content()) = 0 return ok
+		if StzEngineStringCharAt(@pEngine, 1) != StzCodepoint(pcChar) return ok
 		This.RemoveThisCharFromStartXT(pcChar)
 
 	# FindLastZZ alias.
@@ -12960,9 +12957,8 @@ class stzString from stzObject
 	# Orientation(): :LTR for normal scripts, :RTL when first char
 	# is Arabic/Hebrew/etc.
 	def Orientation()
-		_aChars_ = This.Chars()
-		if ring_len(_aChars_) = 0 return :Undefined ok
-		_oC_ = new stzString(_aChars_[1])
+		if This._EngineCount(This.Content()) = 0 return :Undefined ok
+		_oC_ = new stzString(StzChar(StzEngineStringCharAt(@pEngine, 1)))
 		if _oC_.AllCharsAre(:RightToLeft) return :RTL ok
 		return :LTR
 
