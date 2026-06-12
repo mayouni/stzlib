@@ -94,8 +94,8 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 30,
-    .last_updated = "2026-05-28",
+    .last_session = 50,
+    .last_updated = "2026-06-12",
 };
 
 // ============================================================
@@ -435,5 +435,12 @@ pub const milestones = [_]Milestone{
         .title = "Documentation Reimagining",
         .status = .planned,
         .summary = "6 doc types (API reference / how-to / tutorials / paradigm narrations / architecture / quick-ref cards); 60+ existing narrations to curate; top-10 class API references to generate",
+    },
+    .{
+        .id = "M-S4",
+        .track = "stzlib",
+        .title = "Engine-First String Refactor",
+        .status = .partial,
+        .summary = "Sessions 50+: Ring substr/loop -> Zig engine rewrite. Phase A (done 2026-06-12, commits b658c08e/fd16e0ef/234f69f1/603499d9): 354 string ERR -> 0; ~300 automated substr->StzReplace/StzFind/StzMid + 20 manual unknowns + 3 trivial Chars-len sites converted. StzMid made defensive (silent on bad input, matches Ring substr). StzMidToEnd added (one-handle-reuse). FindNextNth/FindPreviousNth/LeadingSubStringCS restored. 51 residual substr calls are intentional (byte-walks in DiacriticsRemoved, LHS-assignment mutation, comments, ambiguous needles). Phase B (pending): ~117 _aChars_=This.Chars() walk-loop sites -- per-method analysis to map to engine primitives by semantic family (predicate-walks / find-walks / count-walks / transform-walks).",
     },
 };
