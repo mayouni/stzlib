@@ -8079,11 +8079,10 @@ class stzString from stzObject
 		return _aR_
 
 	def FindConsecutiveSubStringsZZ()
-		_aChars_ = This.Chars()
-		_n_ = len(_aChars_)
+		_n_ = This._EngineCount(This.Content())
 		_aR_ = []
 		for _i_ = 1 to _n_
-			_aR_ + [ _aChars_[_i_], [ _i_, _i_ ] ]
+			_aR_ + [ StzChar(StzEngineStringCharAt(@pEngine, _i_)), [ _i_, _i_ ] ]
 		next
 		return _aR_
 
@@ -8109,14 +8108,14 @@ class stzString from stzObject
 			return new stzString( This.BoundsRemoved() )
 
 	def NumberOfConsecutiveSubStringsOfNChars(n)
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_nC_ = 0
 		if _nLen_ < 2 * n return 0 ok
 		for _i_ = 1 to _nLen_ - 2 * n + 1
 			_bMatch_ = TRUE
 			for _k_ = 0 to n - 1
-				if _aChars_[_i_ + _k_] != _aChars_[_i_ + n + _k_]
+				if StzEngineStringCharAt(@pEngine, _i_ + _k_) !=
+				   StzEngineStringCharAt(@pEngine, _i_ + n + _k_)
 					_bMatch_ = FALSE
 					exit
 				ok
@@ -8305,13 +8304,13 @@ class stzString from stzObject
 	# (not just count) that appear consecutively.
 	def ConsecutiveSubStringsOfNChars(n)
 		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 * n return _aRes_ ok
 		for _i_ = 1 to _nLen_ - 2 * n + 1
 			_bMatch_ = TRUE
 			for _k_ = 0 to n - 1
-				if _aChars_[_i_ + _k_] != _aChars_[_i_ + n + _k_]
+				if StzEngineStringCharAt(@pEngine, _i_ + _k_) !=
+				   StzEngineStringCharAt(@pEngine, _i_ + n + _k_)
 					_bMatch_ = FALSE
 					exit
 				ok
@@ -10359,19 +10358,17 @@ class stzString from stzObject
 		_aP_ = This.MarquersPositions()
 		_aR_ = []
 		_nL_ = len(_aP_)
-		_aChars_ = This.Chars()
-		_nCL_ = len(_aChars_)
+		_nCL_ = This._EngineCount(This.Content())
 		for _i_ = 1 to _nL_
 			_p_ = _aP_[_i_]
 			_j_ = _p_ + 1
-			while _j_ <= _nCL_ and isDigit(_aChars_[_j_])
+			while _j_ <= _nCL_
+				_nC_ = StzEngineStringCharAt(@pEngine, _j_)
+				if _nC_ < 48 or _nC_ > 57 exit ok
 				_j_++
 			end
 			_end_ = _j_ - 1
-			_cNum_ = ""
-			for _k_ = _p_ to _end_
-				_cNum_ += _aChars_[_k_]
-			next
+			_cNum_ = This._EngineSlice(This.Content(), _p_, _end_ - _p_ + 1)
 			_aR_ + [ _cNum_, [ _p_, _end_ ] ]
 		next
 		return _aR_
@@ -12021,8 +12018,7 @@ class stzString from stzObject
 	def VizFindCS(pcSub, pCaseSensitive)
 		_cTxt_ = This.Content()
 		_aPos_ = This.AllPositionsOf(pcSub)
-		_aChars_ = This.Chars()
-		_nL_ = len(_aChars_)
+		_nL_ = This._EngineCount(_cTxt_)
 		_mark_ = ""
 		_nP_ = len(_aPos_)
 		_subLen_ = This._EngineCount(pcSub)
@@ -12621,10 +12617,9 @@ class stzString from stzObject
 
 	# ContainsLetters(): TRUE iff the content contains any letter.
 	def ContainsLetters()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		for _i_ = 1 to _nLen_
-			if isAlpha(_aChars_[_i_]) return TRUE ok
+			if isAlpha(StzChar(StzEngineStringCharAt(@pEngine, _i_))) return TRUE ok
 		next
 		return FALSE
 
@@ -12880,9 +12875,8 @@ class stzString from stzObject
 
 	def ReplaceLeadingCharCS(pcChar, pcNew, pCaseSensitive)
 		# Replace the leading char (singular) if it matches pcChar.
-		_aChars_ = This.Chars()
-		if len(_aChars_) = 0 return ok
-		if _aChars_[1] != pcChar return ok
+		if This._EngineCount(This.Content()) = 0 return ok
+		if StzEngineStringCharAt(@pEngine, 1) != StzCodepoint(pcChar) return ok
 		This.ReplaceCharAtSimple(1, pcNew)
 
 		def ReplaceLeadingCharCSQ(pcChar, pcNew, pCaseSensitive)
@@ -13311,14 +13305,14 @@ class stzString from stzObject
 			return This
 
 	def FindConsecutiveSubStringsOfNChars(n)
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
 		if _nLen_ < 2 * n return _aRes_ ok
 		for _i_ = 1 to _nLen_ - 2 * n + 1
 			_bMatch_ = TRUE
 			for _k_ = 0 to n - 1
-				if _aChars_[_i_ + _k_] != _aChars_[_i_ + n + _k_]
+				if StzEngineStringCharAt(@pEngine, _i_ + _k_) !=
+				   StzEngineStringCharAt(@pEngine, _i_ + n + _k_)
 					_bMatch_ = FALSE
 					exit
 				ok
@@ -14529,16 +14523,15 @@ class stzString from stzObject
 	# Returns the 2nd+ occurrence positions (so the FIRST occurrence
 	# is not reported, matching stzList.FindDuplicates semantics).
 	def FindDuplicates()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
-		_aSeen_ = []
+		_anSeen_ = []
 		for _i_ = 1 to _nLen_
-			_c_ = _aChars_[_i_]
-			if ring_find(_aSeen_, _c_) > 0
+			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+			if ring_find(_anSeen_, _nC_) > 0
 				_aRes_ + _i_
 			else
-				_aSeen_ + _c_
+				_anSeen_ + _nC_
 			ok
 		next
 		return _aRes_
@@ -14680,10 +14673,9 @@ class stzString from stzObject
 	# backed: filters the codepoint list by IsLetter() (Unicode-aware).
 	def Letters()
 		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		for _i_ = 1 to _nLen_
-			_c_ = _aChars_[_i_]
+			_c_ = StzChar(StzEngineStringCharAt(@pEngine, _i_))
 			if isalpha(_c_)
 				_aRes_ + _c_
 			ok
@@ -14827,24 +14819,22 @@ class stzString from stzObject
 	# AllCharsAre extension: :Even / :Odd / :Positive for digits.
 	# Augment the existing kind list via inline checks.
 	def AllCharsAreEven()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return FALSE ok
+		if StzEngineStringIsDigit(@pEngine) != 1 return FALSE ok
 		for _i_ = 1 to _nLen_
-			if NOT isDigit(_aChars_[_i_]) return FALSE ok
-			_n_ = 0 + _aChars_[_i_]
-			if _n_ % 2 != 0 return FALSE ok
+			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+			if (_nC_ - 48) % 2 != 0 return FALSE ok
 		next
 		return TRUE
 
 	def AllCharsAreOdd()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return FALSE ok
+		if StzEngineStringIsDigit(@pEngine) != 1 return FALSE ok
 		for _i_ = 1 to _nLen_
-			if NOT isDigit(_aChars_[_i_]) return FALSE ok
-			_n_ = 0 + _aChars_[_i_]
-			if _n_ % 2 = 0 return FALSE ok
+			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+			if (_nC_ - 48) % 2 = 0 return FALSE ok
 		next
 		return TRUE
 
