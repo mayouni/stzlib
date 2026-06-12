@@ -7497,16 +7497,18 @@ class stzString from stzObject
 	# SectionsOfSameItems(): contiguous runs of equal chars as
 	# [start, end] sections.
 	def SectionsOfSameItems()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
 		if _nLen_ = 0 return _aRes_ ok
 		_nStart_ = 1
+		_nPrev_ = StzEngineStringCharAt(@pEngine, 1)
 		for _i_ = 2 to _nLen_
-			if _aChars_[_i_] != _aChars_[_i_ - 1]
+			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+			if _nC_ != _nPrev_
 				_aRes_ + [ _nStart_, _i_ - 1 ]
 				_nStart_ = _i_
 			ok
+			_nPrev_ = _nC_
 		next
 		_aRes_ + [ _nStart_, _nLen_ ]
 		return _aRes_
