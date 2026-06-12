@@ -7893,29 +7893,17 @@ class stzString from stzObject
 
 	# CharsInverted: each char's case toggled.
 	def CharsInverted()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
-		_aR_ = []
-		for _i_ = 1 to _nL_
-			_c_ = _aChars_[_i_]
-			if _c_ = upper(_c_) and _c_ != lower(_c_)
-				_aR_ + lower(_c_)
-			but _c_ = lower(_c_) and _c_ != upper(_c_)
-				_aR_ + upper(_c_)
-			else
-				_aR_ + _c_
-			ok
-		next
-		return _aR_
+		_pSw_ = StzEngineStringSwapCase(@pEngine)
+		_cSw_ = StzEngineStringData(_pSw_)
+		StzEngineStringFree(_pSw_)
+		_oSw_ = new stzString(_cSw_)
+		return _oSw_.Chars()
 
 	def InvertCharsCase()
-		_o_ = ""
-		_aR_ = This.CharsInverted()
-		_nL_ = ring_len(_aR_)
-		for _i_ = 1 to _nL_
-			_o_ += _aR_[_i_]
-		next
-		This.Update(_o_)
+		_pSw_ = StzEngineStringSwapCase(@pEngine)
+		_cSw_ = StzEngineStringData(_pSw_)
+		StzEngineStringFree(_pSw_)
+		This.Update(_cSw_)
 
 	# RepeatedXT(:InA = :Table, :OfSize = [r, c]) -> table-shape
 	# list-of-pairs [[col, [items]], ...].
@@ -8034,20 +8022,16 @@ class stzString from stzObject
 		return TRUE
 
 	def ItemsAndTheirNumberOfOccurrence()
-		_aChars_ = This.Chars()
+		_pU_ = StzEngineStringUniqueChars(@pEngine)
+		_cU_ = StzEngineStringData(_pU_)
+		StzEngineStringFree(_pU_)
+		_oU_ = new stzString(_cU_)
+		_aUC_ = _oU_.Chars()
 		_aRes_ = []
-		_nLen_ = ring_len(_aChars_)
-		for _i_ = 1 to _nLen_
-			_c_ = _aChars_[_i_]
-			# Skip if already counted.
-			_bSeen_ = FALSE
-			_nRL_ = ring_len(_aRes_)
-			for _j_ = 1 to _nRL_
-				if _aRes_[_j_][1] = _c_ _bSeen_ = TRUE exit ok
-			next
-			if NOT _bSeen_
-				_aRes_ + [ _c_, This.HowMany(_c_) ]
-			ok
+		_nU_ = ring_len(_aUC_)
+		for _i_ = 1 to _nU_
+			_c_ = _aUC_[_i_]
+			_aRes_ + [ _c_, This.HowMany(_c_) ]
 		next
 		return _aRes_
 
