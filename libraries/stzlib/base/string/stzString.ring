@@ -7396,17 +7396,17 @@ class stzString from stzObject
 	# RepeatedLeadingChar(): the single char that begins a leading
 	# run of repeated chars (or "" if no run).
 	def RepeatedLeadingChar()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return "" ok
-		if _aChars_[1] = _aChars_[2] return _aChars_[1] ok
+		_n1_ = StzEngineStringCharAt(@pEngine, 1)
+		if _n1_ = StzEngineStringCharAt(@pEngine, 2) return StzChar(_n1_) ok
 		return ""
 
 	def RepeatedTrailingChar()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return "" ok
-		if _aChars_[_nLen_] = _aChars_[_nLen_ - 1] return _aChars_[_nLen_] ok
+		_nL_ = StzEngineStringCharAt(@pEngine, _nLen_)
+		if _nL_ = StzEngineStringCharAt(@pEngine, _nLen_ - 1) return StzChar(_nL_) ok
 		return ""
 
 	def NumberOfRepeatedLeadingChars()
@@ -7627,10 +7627,10 @@ class stzString from stzObject
 	# HasRepeatedLeadingChars(): TRUE if the content begins with a
 	# run of identical chars (length >= 2).
 	def HasRepeatedLeadingChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return FALSE ok
-		return _aChars_[1] = _aChars_[2]
+		return StzEngineStringCharAt(@pEngine, 1) =
+		       StzEngineStringCharAt(@pEngine, 2)
 
 	def HasRepeatedTrailingChars()
 		_nLen_ = This._EngineCount(This.Content())
