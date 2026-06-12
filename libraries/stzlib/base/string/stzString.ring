@@ -10811,37 +10811,36 @@ class stzString from stzObject
 	# a run of pcChar. (Distinct from HasTrailingChars() which is
 	# the 0-arg "has any trailing run" predicate above.)
 	def HasThisTrailingCharCS(pcChar, pCaseSensitive)
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return FALSE ok
+		_nLast_ = StzEngineStringCharAt(@pEngine, _nLen_)
+		_nNeed_ = StzCodepoint(pcChar)
 		if pCaseSensitive = FALSE or pCaseSensitive = 0
-			return lower(_aChars_[_nLen_]) = lower(pcChar)
+			return StzCodepoint(StzLower(StzChar(_nLast_))) =
+			       StzCodepoint(StzLower(StzChar(_nNeed_)))
 		ok
-		return _aChars_[_nLen_] = pcChar
+		return _nLast_ = _nNeed_
 
 	def HasThisTrailingChar(pcChar)
 		return This.HasThisTrailingCharCS(pcChar, 1)
 
 	def HasThisLeadingCharCS(pcChar, pCaseSensitive)
-		_aChars_ = This.Chars()
-		if ring_len(_aChars_) = 0 return FALSE ok
+		if This._EngineCount(This.Content()) = 0 return FALSE ok
+		_nFirst_ = StzEngineStringCharAt(@pEngine, 1)
+		_nNeed_ = StzCodepoint(pcChar)
 		if pCaseSensitive = FALSE or pCaseSensitive = 0
-			return lower(_aChars_[1]) = lower(pcChar)
+			return StzCodepoint(StzLower(StzChar(_nFirst_))) =
+			       StzCodepoint(StzLower(StzChar(_nNeed_)))
 		ok
-		return _aChars_[1] = pcChar
+		return _nFirst_ = _nNeed_
 
 	def HasThisLeadingChar(pcChar)
 		return This.HasThisLeadingCharCS(pcChar, 1)
 
 	def FindTrailingChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return [] ok
-		_cL_ = _aChars_[_nLen_]
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
-			_n_++
-		end
+		_n_ = StzEngineStringCountTrailingChar(@pEngine, StzEngineStringCharAt(@pEngine, _nLen_))
 		_aRes_ = []
 		for _i_ = _nLen_ - _n_ + 1 to _nLen_
 			_aRes_ + _i_
@@ -10849,14 +10848,9 @@ class stzString from stzObject
 		return _aRes_
 
 	def FindLeadingChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return [] ok
-		_cF_ = _aChars_[1]
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
-			_n_++
-		end
+		_n_ = StzEngineStringCountLeadingChar(@pEngine, StzEngineStringCharAt(@pEngine, 1))
 		_aRes_ = []
 		for _i_ = 1 to _n_
 			_aRes_ + _i_
