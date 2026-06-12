@@ -28,7 +28,7 @@ nTtl = 0
 aDeep = [10]
 for i = 9 to 1 step -1
 	aCopy = []
-	_nDeepLen_ = ring_len(aDeep)
+	_nDeepLen_ = len(aDeep)
 	for j = 1 to _nDeepLen_
 		add(aCopy, aDeep[j])
 	next

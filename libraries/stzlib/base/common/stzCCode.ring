@@ -364,7 +364,7 @@ class stzCCode
 		rx.Match(Join(acsubStr))
 
 		acNumbersAfter = rx.Matches()
-		nLenAfter = ring_len(acNumbersAfter)
+		nLenAfter = len(acNumbersAfter)
 
 		if nLenAfter = 0
 			return [ 1, :Last ]
@@ -467,7 +467,7 @@ class stzCCode
 		rx.Match(Join(acsubStr))
 
 		acNumbersAfter = rx.Matches()
-		nLenAfter = ring_len(acNumbersAfter)
+		nLenAfter = len(acNumbersAfter)
 
 		if nLenAfter = 0
 			return [ 1, :Last ]

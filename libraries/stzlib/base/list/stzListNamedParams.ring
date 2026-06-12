@@ -957,7 +957,7 @@ class stzListNamedParams
 			ok
 		ok
 
-		nLen = ring_len(pacParamNames)
+		nLen = len(pacParamNames)
 		bResult = 0
 
 		for i = 1 to nLen
@@ -1098,7 +1098,7 @@ class stzListNamedParams
 
 		nLen = This.NumberOfItems()
 
-		if nLen >= 1 and nLen < ring_len(aListOfBoxOptions)
+		if nLen >= 1 and nLen < len(aListOfBoxOptions)
 
 			if This.IsHashList() and
 			   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
@@ -1138,7 +1138,7 @@ class stzListNamedParams
 
 		nLen = This.NumberOfItems()
 		   
-		if nLen >= 1 and nLen <= ring_len(aListOfBoxOptions) and
+		if nLen >= 1 and nLen <= len(aListOfBoxOptions) and
 		   This.IsHashList() and
 		   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
 		
@@ -2369,7 +2369,7 @@ class stzListNamedParams
 
 	def IsCaseSensitiveNamedParam()
 		aContent = This.Content()
-		nLen = ring_len(aContent)
+		nLen = len(aContent)
 
 		if NOT nLen = 2
 			return 0
@@ -6779,7 +6779,7 @@ class stzListNamedParams
 			return This.IsWithOrByNamedParam()
 
 	def IsUsingNamedParam()
-		if ring_len(This.Content()) = 2 and ( isString(This.Item(1)) and
+		if len(This.Content()) = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :Using or This.Item(1) = :Using@ ) )
 
 			return 1

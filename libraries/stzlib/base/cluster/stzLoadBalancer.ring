@@ -28,7 +28,7 @@ class stzLoadBalancer
         ]
 
     def RegisterCluster(cType, aNodes)
-        _nClusters2Len_ = ring_len(aClusters)
+        _nClusters2Len_ = len(aClusters)
         for _iLoopClusters2_ = 1 to _nClusters2Len_
         	aCluster = aClusters[_iLoopClusters2_]
             if aCluster[:type] = cType
@@ -61,7 +61,7 @@ class stzLoadBalancer
     def ClassifyRequest(oRequest)
         # Check explicit routing rules first
         cPath = oRequest.Path()
-        _nRoutingRules1Len_ = ring_len(aRoutingRules)
+        _nRoutingRules1Len_ = len(aRoutingRules)
         for _iLoopRoutingRules1_ = 1 to _nRoutingRules1Len_
         	aRule = aRoutingRules[_iLoopRoutingRules1_]
             if StzFind(cPath, aRule[:pattern]) > 0
@@ -73,7 +73,7 @@ class stzLoadBalancer
         return oRequestClassifier.ClassifyComputationalDomain(oRequest)
 
     def FindCluster(cType)
-        _nClusters1Len_ = ring_len(aClusters)
+        _nClusters1Len_ = len(aClusters)
         for _iLoopClusters1_ = 1 to _nClusters1Len_
         	aCluster = aClusters[_iLoopClusters1_]
             if aCluster[:type] = cType
@@ -87,7 +87,7 @@ class stzLoadBalancer
         oSelected = NULL
         nBestScore = 1000
         
-        _nNodes1Len_ = ring_len(aNodes)
+        _nNodes1Len_ = len(aNodes)
         for _iLoopNodes1_ = 1 to _nNodes1Len_
         	oNode = aNodes[_iLoopNodes1_]
             if not oNode.bIsHealthy loop ok
@@ -103,6 +103,6 @@ class stzLoadBalancer
     def GetRoutingStats()
         return [
             :total_requests = nTotalRequests,
-            :clusters_count = ring_len(aClusters),
-            :routing_rules = ring_len(aRoutingRules)
+            :clusters_count = len(aClusters),
+            :routing_rules = len(aRoutingRules)
         ]

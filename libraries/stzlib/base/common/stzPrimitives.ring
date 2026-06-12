@@ -120,7 +120,7 @@ func _ParseCSVNumbers(cCSV)
 	ok
 	_anPcsvResult_ = []
 	_cPcsvCurrent_ = ""
-	_nPcsvLen_ = ring_len(cCSV)
+	_nPcsvLen_ = len(cCSV)
 	for _iPcsv_ = 1 to _nPcsvLen_
 		_cPcsvChar_ = cCSV[_iPcsv_]
 		if _cPcsvChar_ = ","
@@ -376,7 +376,7 @@ func StzSplit(cStr, cSubStr)
 func _ListCopy(paList)
 	if NOT isList(paList) return paList ok
 	_aR_ = []
-	_nL_ = ring_len(paList)
+	_nL_ = len(paList)
 	for _i_ = 1 to _nL_
 		_aR_ + paList[_i_]
 	next

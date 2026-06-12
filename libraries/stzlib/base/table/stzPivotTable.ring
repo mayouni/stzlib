@@ -203,13 +203,13 @@ class stzPivotTable from stzList
 	#-----------------------------#
 
 	def Generate()
-		if ring_len(@aRowLabels) = 0
+		if len(@aRowLabels) = 0
 			stzRaise("You must specify at least one row label")
 		ok
-		if ring_len(@aColLabels) = 0
+		if len(@aColLabels) = 0
 			stzRaise("You must specify at least one column label")
 		ok
-		if ring_len(@aValues) = 0
+		if len(@aValues) = 0
 			stzRaise("You must specify at least one value column")
 		ok
 
@@ -245,13 +245,13 @@ class stzPivotTable from stzList
 	#-----------------------------------------#
 
 	def _CanUseEngine()
-		if ring_len(@aColLabels) != 1
+		if len(@aColLabels) != 1
 			return FALSE
 		ok
-		if ring_len(@aRowLabels) < 1 or ring_len(@aRowLabels) > 2
+		if len(@aRowLabels) < 1 or len(@aRowLabels) > 2
 			return FALSE
 		ok
-		if ring_len(@aValues) != 1
+		if len(@aValues) != 1
 			return FALSE
 		ok
 		return TRUE
@@ -290,7 +290,7 @@ class stzPivotTable from stzList
 		_nIncColTotal = 0
 		if @bShowTotalRow _nIncColTotal = 1 ok
 
-		_nRowLabels = ring_len(@aRowLabels)
+		_nRowLabels = len(@aRowLabels)
 
 		if _nRowLabels = 1
 			_pResult = StzEnginePivotCrossTab1(
@@ -353,7 +353,7 @@ class stzPivotTable from stzList
 
 		# Get unique combinations of values for specified fields
 
-		nLenFields = ring_len(paFields)
+		nLenFields = len(paFields)
 		if nLenFields = 0
 			return []
 		ok
@@ -377,11 +377,11 @@ class stzPivotTable from stzList
 			next
 
 			aUniqueValues = U(aCells)
-			nLenU = ring_len(aUniqueValues)
+			nLenU = len(aUniqueValues)
 
 			# Apply custom ordering if available and this is a column field
 
-			nLenColOrder = ring_len(@aColumnOrder)
+			nLenColOrder = len(@aColumnOrder)
 
 			if paFields = @aColLabels and nLenColOrder > 0
 				aOrdered = []
@@ -406,7 +406,7 @@ class stzPivotTable from stzList
 				aUniqueValues = aOrdered
 			ok
 
-			nLenU = ring_len(aUniqueValues)
+			nLenU = len(aUniqueValues)
 			aResult = []
 
 			for i = 1 to nLenU
@@ -430,7 +430,7 @@ class stzPivotTable from stzList
 			ok
 			aFieldIndices + nColIndex
 		next
-		nLenFieldIndices = ring_len(aFieldIndices)
+		nLenFieldIndices = len(aFieldIndices)
 
 		# Collect all combinations
 
@@ -443,7 +443,7 @@ class stzPivotTable from stzList
 
 			# Check for duplicates
 			bExists = FALSE
-			nLenCombos = ring_len(aAllCombos)
+			nLenCombos = len(aAllCombos)
 
 			for i = 1 to nLenCombos
 				if _arraysEqual(aAllCombos[i], aCombination)
@@ -461,11 +461,11 @@ class stzPivotTable from stzList
 
 	def _arraysEqual(a1, a2)
 		# Compare two arrays for equality
-		if ring_len(a1) != ring_len(a2)
+		if len(a1) != len(a2)
 			return FALSE
 		ok
 		
-		_nA1Len_ = ring_len(a1)
+		_nA1Len_ = len(a1)
 		for i = 1 to _nA1Len_
 			if a1[i] != a2[i]
 				return FALSE
@@ -480,13 +480,13 @@ class stzPivotTable from stzList
 		
 		# Initialize first row with empty cells for row labels
 		aFirstRow = []
-		_nRowLabelsLen_ = ring_len(@aRowLabels)
+		_nRowLabelsLen_ = len(@aRowLabels)
 		for i = 1 to _nRowLabelsLen_
 			aFirstRow + ""
 		next
 		
 		# Add column combinations
-		_nColCombos1Len_ = ring_len(aColCombos)
+		_nColCombos1Len_ = len(aColCombos)
 		for _iLoopColCombos1_ = 1 to _nColCombos1Len_
 			combo = aColCombos[_iLoopColCombos1_]
 			aFirstRow + _combineLabels(combo)
@@ -502,12 +502,12 @@ class stzPivotTable from stzList
 
 	def _combineLabels(aLabels)
 		# Combine multiple labels with separator
-		if ring_len(aLabels) = 1
+		if len(aLabels) = 1
 			return aLabels[1]
 		ok
 		
 		cResult = ""
-		_nLabelsLen_ = ring_len(aLabels)
+		_nLabelsLen_ = len(aLabels)
 		for i = 1 to _nLabelsLen_
 			if i > 1
 				cResult += @cRowLabelsSeparator
@@ -521,8 +521,8 @@ class stzPivotTable from stzList
 
 		# Generate data rows for pivot table
 
-		nLenRows = ring_len(aRowCombos)
-		nLenRowsLabels = ring_len(@aRowLabels)
+		nLenRows = len(aRowCombos)
+		nLenRowsLabels = len(@aRowLabels)
 		nRawTotalForCount = 0
 
 		for i = 1 to nLenRows
@@ -533,7 +533,7 @@ class stzPivotTable from stzList
 			
 			# Add row labels
 
-			nLenFlat = ring_len(aFlatRowCombo)
+			nLenFlat = len(aFlatRowCombo)
 
 			for j = 1 to nLenFlat
 				if j <= nLenRowsLabels
@@ -543,7 +543,7 @@ class stzPivotTable from stzList
 			
 			# Fill missing labels
 
-			while ring_len(aRow) < nLenRowsLabels
+			while len(aRow) < nLenRowsLabels
 				aRow + ""
 			end
 			
@@ -551,7 +551,7 @@ class stzPivotTable from stzList
 			
 			# Add values for each column combination
 
-			nLenCols = ring_len(aColCombos)
+			nLenCols = len(aColCombos)
 
 			for j = 1 to nLenCols
 
@@ -585,7 +585,7 @@ class stzPivotTable from stzList
 	def _addTotalRow()
 		# Add total row to pivot table
 		aTotalRow = []
-		nLenRows = ring_len(@aRowLabels)
+		nLenRows = len(@aRowLabels)
 
 		# Add total label
 		for i = 1 to nLenRows
@@ -597,8 +597,8 @@ class stzPivotTable from stzList
 		next
 		
 		# Calculate column totals
-		nColCount = ring_len(@aPivotData[1])
-		nRowCount = ring_len(@aPivotData)
+		nColCount = len(@aPivotData[1])
+		nRowCount = len(@aPivotData)
 		
 		for c = nLenRows + 1 to nColCount
 			aColValues = []
@@ -635,8 +635,8 @@ class stzPivotTable from stzList
 		aFlatRowValues = _flattenArray(aRowValues)
 		aFlatColValues = _flattenArray(aColValues)
 
-		nLenFlatRows = ring_len(aFlatRowValues)
-		nLenFlatCols = ring_len(aFlatColValues)
+		nLenFlatRows = len(aFlatRowValues)
+		nLenFlatCols = len(aFlatColValues)
 
 		# Check cache
 		cCacheKey = _getCacheKey(aFlatRowValues, aFlatColValues)
@@ -655,7 +655,7 @@ class stzPivotTable from stzList
 		
 		# Get indices for row and column fields
 		aRowIndices = []
-		nLenRows = ring_len(@aRowLabels)
+		nLenRows = len(@aRowLabels)
 
 		for i = 1 to nLenRows
 
@@ -670,7 +670,7 @@ class stzPivotTable from stzList
 		next
 		
 		aColIndices = []
-		nLenCols = ring_len(@aColLabels)
+		nLenCols = len(@aColLabels)
 
 		for i = 1 to nLenCols 
 
@@ -689,7 +689,7 @@ class stzPivotTable from stzList
 			bColMatch = TRUE
 			
 			# Check row matches
-			nLenRows = ring_len(aRowIndices)
+			nLenRows = len(aRowIndices)
 
 			for i = 1 to nLenRows
 
@@ -747,18 +747,18 @@ class stzPivotTable from stzList
 		cKey = ""
 		
 		if isList(aRowValues) 
-			if ring_len(aRowValues) > 0 and isList(aRowValues[1])
-				_nRowValues2Len_ = ring_len(aRowValues)
+			if len(aRowValues) > 0 and isList(aRowValues[1])
+				_nRowValues2Len_ = len(aRowValues)
 				for _iLoopRowValues2_ = 1 to _nRowValues2Len_
 					subArr = aRowValues[_iLoopRowValues2_]
-					_nSubArr3Len_ = ring_len(subArr)
+					_nSubArr3Len_ = len(subArr)
 					for _iLoopSubArr3_ = 1 to _nSubArr3Len_
 						value = subArr[_iLoopSubArr3_]
 						cKey += "R:" + value + ";"
 					next
 				next
 			else
-				_nRowValues1Len_ = ring_len(aRowValues)
+				_nRowValues1Len_ = len(aRowValues)
 				for _iLoopRowValues1_ = 1 to _nRowValues1Len_
 					value = aRowValues[_iLoopRowValues1_]
 					cKey += "R:" + value + ";"
@@ -767,18 +767,18 @@ class stzPivotTable from stzList
 		ok
 		
 		if isList(aColValues)
-			if ring_len(aColValues) > 0 and isList(aColValues[1])
-				_nColValues2Len_ = ring_len(aColValues)
+			if len(aColValues) > 0 and isList(aColValues[1])
+				_nColValues2Len_ = len(aColValues)
 				for _iLoopColValues2_ = 1 to _nColValues2Len_
 					subArr = aColValues[_iLoopColValues2_]
-					_nSubArr2Len_ = ring_len(subArr)
+					_nSubArr2Len_ = len(subArr)
 					for _iLoopSubArr2_ = 1 to _nSubArr2Len_
 						value = subArr[_iLoopSubArr2_]
 						cKey += "C:" + value + ";"
 					next
 				next
 			else
-				_nColValues1Len_ = ring_len(aColValues)
+				_nColValues1Len_ = len(aColValues)
 				for _iLoopColValues1_ = 1 to _nColValues1Len_
 					value = aColValues[_iLoopColValues1_]
 					cKey += "C:" + value + ";"
@@ -790,7 +790,7 @@ class stzPivotTable from stzList
 
 	def _checkCache(cKey)
 		# Check if cache contains key
-		_nCellCache2Len_ = ring_len(@aCellCache)
+		_nCellCache2Len_ = len(@aCellCache)
 		for _iLoopCellCache2_ = 1 to _nCellCache2Len_
 			item = @aCellCache[_iLoopCellCache2_]
 			if item[1] = cKey
@@ -801,7 +801,7 @@ class stzPivotTable from stzList
 
 	def _getFromCache(cKey)
 		# Retrieve value from cache
-		_nCellCache1Len_ = ring_len(@aCellCache)
+		_nCellCache1Len_ = len(@aCellCache)
 		for _iLoopCellCache1_ = 1 to _nCellCache1Len_
 			item = @aCellCache[_iLoopCellCache1_]
 			if item[1] = cKey
@@ -820,7 +820,7 @@ class stzPivotTable from stzList
 	
 	def _applyAggregateFunction(aValues)
 		# Apply configured aggregation function to values
-		if ring_len(aValues) = 0
+		if len(aValues) = 0
 			return @cCellNullValue
 		ok
 
@@ -841,7 +841,7 @@ class stzPivotTable from stzList
 			on "sum"
 
 				nResult = 0
-				nLen = ring_len(aValues)
+				nLen = len(aValues)
 
 				for i = 1 to nLen
 					nResult += aValues[i]
@@ -852,7 +852,7 @@ class stzPivotTable from stzList
 			on "average"
 
 				nResult = 0
-				nLen = ring_len(aValues)
+				nLen = len(aValues)
 
 				for i = 1 to nLen
 					nResult += aValues[i]
@@ -861,7 +861,7 @@ class stzPivotTable from stzList
 				return nResult / nLen
 
 			on "count"
-				return ring_len(aValues)
+				return len(aValues)
 				
 			on "min"
 				return Min(aValues)
@@ -876,7 +876,7 @@ class stzPivotTable from stzList
 				return aValues[1]
 				
 			on "last"
-				return aValues[ring_len(aValues)]
+				return aValues[len(aValues)]
 				
 			other
 				stzRaise("Unsupported aggregation function: " + @cAggFunc)
@@ -892,17 +892,17 @@ class stzPivotTable from stzList
 			return [aArray]
 		ok
 		
-		if ring_len(aArray) = 0
+		if len(aArray) = 0
 			return []
 		ok
 		
 		if isList(aArray[1])
 			aResult = []
-			_nArray1Len_ = ring_len(aArray)
+			_nArray1Len_ = len(aArray)
 			for _iLoopArray1_ = 1 to _nArray1Len_
 				subArr = aArray[_iLoopArray1_]
 				if isList(subArr)
-					_nSubArr1Len_ = ring_len(subArr)
+					_nSubArr1Len_ = len(subArr)
 					for _iLoopSubArr1_ = 1 to _nSubArr1Len_
 						item = subArr[_iLoopSubArr1_]
 						aResult + item
@@ -924,10 +924,10 @@ class stzPivotTable from stzList
 		
 		aFlatRowValues = _flattenArray(paRowValues)
 		aFlatColValues = _flattenArray(paColValues)
-		nLenFlatRows = ring_len(aFlatRowValues)
+		nLenFlatRows = len(aFlatRowValues)
 
-		nLen = ring_len(@aPivotData)
-		nRowLabels = ring_len(@aRowLabels)
+		nLen = len(@aPivotData)
+		nRowLabels = len(@aRowLabels)
 
 		# Find row index
 		nRowIndex = 0
@@ -955,7 +955,7 @@ class stzPivotTable from stzList
 		nColIndex = 0
 		cColLabel = _combineLabels(aFlatColValues)
 
-		nLen1 = ring_len(@aPivotData[1])
+		nLen1 = len(@aPivotData[1])
 
 		for c =  nRowLabels+ 1 to nLen1
 			if @aPivotData[1][c] = cColLabel
@@ -981,13 +981,13 @@ class stzPivotTable from stzList
 		ok
 		
 		aFlatRowValues = _flattenArray(paRowValues)
-		nLenFlat = ring_len(aFlatRowValues)
+		nLenFlat = len(aFlatRowValues)
 
-		nRowLabels = ring_len(@aRowLabels)
+		nRowLabels = len(@aRowLabels)
 
 		# Find row
 		nRowIndex = 0
-		nLen = ring_len(@aPivotData)
+		nLen = len(@aPivotData)
 		for r = 2 to nLen
 			bMatch = TRUE
 			
@@ -1008,7 +1008,7 @@ class stzPivotTable from stzList
 			return NULL
 		ok
 		
-		return @aPivotData[nRowIndex][ring_len(@aPivotData[1])]
+		return @aPivotData[nRowIndex][len(@aPivotData[1])]
 
 	def ColumnTotal(paColValues)
 		# Get total for specific column
@@ -1026,8 +1026,8 @@ class stzPivotTable from stzList
 		nColIndex = 0
 		cColLabel = _combineLabels(aFlatColValues)
 		
-		_nPivotData1Len_ = ring_len(@aPivotData[1])
-		for c = ring_len(@aRowLabels) + 1 to _nPivotData1Len_
+		_nPivotData1Len_ = len(@aPivotData[1])
+		for c = len(@aRowLabels) + 1 to _nPivotData1Len_
 			if @aPivotData[1][c] = cColLabel
 				nColIndex = c
 				exit
@@ -1038,7 +1038,7 @@ class stzPivotTable from stzList
 			return NULL
 		ok
 		
-		return @aPivotData[ring_len(@aPivotData)][nColIndex]
+		return @aPivotData[len(@aPivotData)][nColIndex]
 
 	def GrandTotal()
 		# Get grand total
@@ -1050,7 +1050,7 @@ class stzPivotTable from stzList
 			return NULL
 		ok
 		
-		return @aPivotData[ring_len(@aPivotData)][ring_len(@aPivotData[1])]
+		return @aPivotData[len(@aPivotData)][len(@aPivotData[1])]
 
 	  #-----------------------------#
 	 #  SERIALIZATION METHODS      #
@@ -1122,16 +1122,16 @@ class stzPivotTable from stzList
 			Generate()
 		ok
 
-		if ring_len(@aCollabels) = 1 and ring_len(@aRowlabels) = 1
+		if len(@aCollabels) = 1 and len(@aRowlabels) = 1
 			_showFormattedPivotTable1D()
 	
-		but ring_len(@aCollabels) = 1 and ring_len(@aRowlabels) = 2
+		but len(@aCollabels) = 1 and len(@aRowlabels) = 2
 			_showFormattedPivotTable2DRows1DCols()  
 	
-		but ring_len(@aCollabels) = 2 and ring_len(@aRowlabels) = 1
+		but len(@aCollabels) = 2 and len(@aRowlabels) = 1
 			_showFormattedPivotTable1DRows2DCols()
 	
-		but ring_len(@aCollabels) = 2 and ring_len(@aRowlabels) = 2
+		but len(@aCollabels) = 2 and len(@aRowlabels) = 2
 			_showFormattedPivotTable2D()
 	
 		else
@@ -1145,10 +1145,10 @@ class stzPivotTable from stzList
 		ok
 
 	
-		if ring_len(@aCollabels) = 2 and ring_len(@aRowlabels) = 1
+		if len(@aCollabels) = 2 and len(@aRowlabels) = 1
 			_showFormattedPivotTable1DRows2DColsXT(pbSubTotal, pbGrandTotal)
 	
-		but ring_len(@aCollabels) = 2 and ring_len(@aRowlabels) = 2
+		but len(@aCollabels) = 2 and len(@aRowlabels) = 2
 			_showFormattedPivotTable2DXT(pbSubTotal, pbGrandTotal)
 	
 		else
@@ -1178,7 +1178,7 @@ class stzPivotTable from stzList
 		aRowLabelCols + 1
 	
 		# Process data columns
-		nHeaderLen = ring_len(aHeaderRow)
+		nHeaderLen = len(aHeaderRow)
 		for i = 2 to nHeaderLen
 			if aHeaderRow[i] = cTotalLabel
 				nTotalColIndex = i
@@ -1188,12 +1188,12 @@ class stzPivotTable from stzList
 		next
 	
 		# Calculate row label width
-		maxLabelWidth = ring_len(aRowDims[1])
-		nPivotLen = ring_len(aPivotData)
+		maxLabelWidth = len(aRowDims[1])
+		nPivotLen = len(aPivotData)
 		for r = 2 to nPivotLen - 1
 			cellValue = "" + aPivotData[r][1]
-			if ring_len(cellValue) > maxLabelWidth
-				maxLabelWidth = ring_len(cellValue)
+			if len(cellValue) > maxLabelWidth
+				maxLabelWidth = len(cellValue)
 			ok
 		next
 		nRowLabelWidth = maxLabelWidth + 2
@@ -1201,17 +1201,17 @@ class stzPivotTable from stzList
 		# Calculate data column widths
 		aDataColWidths = []
 		nMinDataWidth = 10
-		nDataColsLen = ring_len(aDataCols)
+		nDataColsLen = len(aDataCols)
 	
 		for i = 1 to nDataColsLen
 			colIdx = aDataCols[i]
-			maxWidth = ring_len(aHeaderRow[colIdx])
+			maxWidth = len(aHeaderRow[colIdx])
 		
 			for r = 2 to nPivotLen
-				if colIdx <= ring_len(aPivotData[r])
+				if colIdx <= len(aPivotData[r])
 					cellValue = "" + aPivotData[r][colIdx]
-					if ring_len(cellValue) > maxWidth
-						maxWidth = ring_len(cellValue)
+					if len(cellValue) > maxWidth
+						maxWidth = len(cellValue)
 					ok
 				ok
 			next
@@ -1220,12 +1220,12 @@ class stzPivotTable from stzList
 		next
 	
 		# Calculate total column width
-		nTotalColWidth = ring_len(cTotalLabel)
+		nTotalColWidth = len(cTotalLabel)
 		for r = 2 to nPivotLen
-			if nTotalColIndex <= ring_len(aPivotData[r])
+			if nTotalColIndex <= len(aPivotData[r])
 				cellValue = "" + aPivotData[r][nTotalColIndex]
-				if ring_len(cellValue) > nTotalColWidth
-					nTotalColWidth = ring_len(cellValue)
+				if len(cellValue) > nTotalColWidth
+					nTotalColWidth = len(cellValue)
 				ok
 			ok
 		next
@@ -1233,7 +1233,7 @@ class stzPivotTable from stzList
 	
 		# Calculate experience column width (sum of data column widths)
 		nExpWidth = 0
-		nDataColWidthsLen = ring_len(aDataColWidths)
+		nDataColWidthsLen = len(aDataColWidths)
 		for i = 1 to nDataColWidthsLen
 			nExpWidth += aDataColWidths[i]
 		next
@@ -1326,13 +1326,13 @@ class stzPivotTable from stzList
 		
 			# Row label
 			rowValue = aPivotData[r][1]
-			cLine += " " + rowValue + StrFill(nRowLabelWidth - ring_len(rowValue) - 1, " ") + @aBorder[:Vertical]
+			cLine += " " + rowValue + StrFill(nRowLabelWidth - len(rowValue) - 1, " ") + @aBorder[:Vertical]
 		
 			# Data cells
 			for i = 1 to nDataColsLen
 				colIdx = aDataCols[i]
 				value = ""
-				if colIdx <= ring_len(aPivotData[r])
+				if colIdx <= len(aPivotData[r])
 					value = aPivotData[r][colIdx]
 				ok
 			
@@ -1349,7 +1349,7 @@ class stzPivotTable from stzList
 		
 			# Total column
 			totalValue = ""
-			if nTotalColIndex <= ring_len(aPivotData[r])
+			if nTotalColIndex <= len(aPivotData[r])
 				totalValue = aPivotData[r][nTotalColIndex]
 			ok
 
@@ -1387,7 +1387,7 @@ class stzPivotTable from stzList
 			for i = 1 to nDataColsLen
 				colIdx = aDataCols[i]
 				value = ""
-				if colIdx <= ring_len(totalRow)
+				if colIdx <= len(totalRow)
 					value = totalRow[colIdx]
 				ok
 			
@@ -1403,7 +1403,7 @@ class stzPivotTable from stzList
 			next
 		
 			grandTotal = ""
-			if nTotalColIndex <= ring_len(totalRow)
+			if nTotalColIndex <= len(totalRow)
 				grandTotal = totalRow[nTotalColIndex]
 			ok
 
@@ -1451,13 +1451,13 @@ class stzPivotTable from stzList
 		aHeaderRow = aPivotData[1]
 		
 		# Process row dimensions
-		nRowDimsLen = ring_len(aRowDims)
+		nRowDimsLen = len(aRowDims)
 		for i = 1 to nRowDimsLen
 			aRowLabelCols + i
 		next
 		
 		# Process data columns
-		nHeaderLen = ring_len(aHeaderRow)
+		nHeaderLen = len(aHeaderRow)
 		for i = nRowDimsLen + 1 to nHeaderLen
 			if aHeaderRow[i] = cTotalLabel
 				nTotalColIndex = i
@@ -1471,7 +1471,7 @@ class stzPivotTable from stzList
 		aColDim2Values = []
 		aColGroups = []
 		
-		nDataColsLen = ring_len(aDataCols)
+		nDataColsLen = len(aDataCols)
 		for i = 1 to nDataColsLen
 			colIdx = aDataCols[i]
 			colHeader = aHeaderRow[colIdx]
@@ -1497,13 +1497,13 @@ class stzPivotTable from stzList
 		# Calculate row label widths
 		aRowLabelWidths = []
 		for i = 1 to nRowDimsLen
-			maxWidth = ring_len(aRowDims[i])
-			nPivotLen = ring_len(aPivotData)
+			maxWidth = len(aRowDims[i])
+			nPivotLen = len(aPivotData)
 			
 			for r = 2 to nPivotLen - 1
 				cellValue = "" + aPivotData[r][i]
-				if ring_len(cellValue) > maxWidth
-					maxWidth = ring_len(cellValue)
+				if len(cellValue) > maxWidth
+					maxWidth = len(cellValue)
 				ok
 			next
 			
@@ -1513,9 +1513,9 @@ class stzPivotTable from stzList
 		# Calculate data column widths
 		aDataColWidths = []
 		nMinDataWidth = 10
-		nColDim1ValuesLen = ring_len(aColDim1Values)
-		nColDim2ValuesLen = ring_len(aColDim2Values)
-		nPivotLen = ring_len(aPivotData)
+		nColDim1ValuesLen = len(aColDim1Values)
+		nColDim2ValuesLen = len(aColDim2Values)
+		nPivotLen = len(aPivotData)
 		
 		for i1 = 1 to nColDim1ValuesLen
 			dim1Value = aColDim1Values[i1]
@@ -1525,13 +1525,13 @@ class stzPivotTable from stzList
 				colIdx = aColGroups[key]
 				
 				if colIdx != NULL
-					maxWidth = ring_len(dim2Value)
+					maxWidth = len(dim2Value)
 					
 					for r = 2 to nPivotLen
-						if colIdx <= ring_len(aPivotData[r])
+						if colIdx <= len(aPivotData[r])
 							cellValue = "" + aPivotData[r][colIdx]
-							if ring_len(cellValue) > maxWidth
-								maxWidth = ring_len(cellValue)
+							if len(cellValue) > maxWidth
+								maxWidth = len(cellValue)
 							ok
 						ok
 					next
@@ -1542,13 +1542,13 @@ class stzPivotTable from stzList
 		next
 		
 		# Calculate total column width
-		nTotalColWidth = ring_len(cTotalLabel)
+		nTotalColWidth = len(cTotalLabel)
 		
 		for r = 2 to nPivotLen
-			if nTotalColIndex <= ring_len(aPivotData[r])
+			if nTotalColIndex <= len(aPivotData[r])
 				cellValue = "" + aPivotData[r][nTotalColIndex]
-				if ring_len(cellValue) > nTotalColWidth
-					nTotalColWidth = ring_len(cellValue)
+				if len(cellValue) > nTotalColWidth
+					nTotalColWidth = len(cellValue)
 				ok
 			ok
 		next
@@ -1557,7 +1557,7 @@ class stzPivotTable from stzList
 		
 		# Calculate row label section width
 		nRowLabelSectionWidth = 0
-		nRowLabelWidthsLen = ring_len(aRowLabelWidths)
+		nRowLabelWidthsLen = len(aRowLabelWidths)
 		for i = 1 to nRowLabelWidthsLen
 			nRowLabelSectionWidth += aRowLabelWidths[i]
 		next
@@ -1760,7 +1760,7 @@ class stzPivotTable from stzList
 			
 			# First dimension
 			if cCurrentRowDim1 != aPivotData[r-1][1] or r = 2
-				cLine += " " + cCurrentRowDim1 + StrFill(aRowLabelWidths[1] - ring_len(cCurrentRowDim1) - 1, " ")
+				cLine += " " + cCurrentRowDim1 + StrFill(aRowLabelWidths[1] - len(cCurrentRowDim1) - 1, " ")
 			else
 				cLine += StrFill(aRowLabelWidths[1], " ")
 			ok
@@ -1768,7 +1768,7 @@ class stzPivotTable from stzList
 			cLine += @aBorder[:Vertical]
 			
 			# Second dimension
-			cLine += " " + aPivotData[r][2] + StrFill(aRowLabelWidths[2] - ring_len(aPivotData[r][2]) - 1, " ")
+			cLine += " " + aPivotData[r][2] + StrFill(aRowLabelWidths[2] - len(aPivotData[r][2]) - 1, " ")
 			cLine += @aBorder[:Vertical]
 			
 			# Data cells
@@ -1782,7 +1782,7 @@ class stzPivotTable from stzList
 					colIdx = aColGroups[key]
 					
 					if colIdx != NULL
-						value = @if(colIdx <= ring_len(aPivotData[r]), aPivotData[r][colIdx], "")
+						value = @if(colIdx <= len(aPivotData[r]), aPivotData[r][colIdx], "")
 						
 						if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
 							cLine += " " + PadLeft(value, aDataColWidths[key] - 2) + " "
@@ -1802,7 +1802,7 @@ class stzPivotTable from stzList
 			next
 			
 			# Total column
-			totalValue = @if(nTotalColIndex <= ring_len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
+			totalValue = @if(nTotalColIndex <= len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
 			
 			if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + value))
 				cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
@@ -1889,7 +1889,7 @@ class stzPivotTable from stzList
 
 		if nPivotLen > 1 and aPivotData[nPivotLen][1] = cTotalLabel
 			totalRow = aPivotData[nPivotLen]
-			nLenTotalRow = ring_len(totalRow)
+			nLenTotalRow = len(totalRow)
 
 			cLine = " " + PadLeft(Upper(totalRow[1]+" "), nRowLabelSectionWidth) + @aBorder[:Vertical]
 			
@@ -1938,7 +1938,7 @@ class stzPivotTable from stzList
 		ok
 
 		cTrimmed = trim(cOutput)
-		? StzLeft(cTrimmed, ring_len(cTrimmed) - 1) + NL
+		? StzLeft(cTrimmed, len(cTrimmed) - 1) + NL
 
 	#-------------------------------------#
 	#  2D PIVOT TABLE DISPLAY - eXTended  #
@@ -1973,13 +1973,13 @@ class stzPivotTable from stzList
 		aHeaderRow = aPivotData[1]
 		
 		# Process row dimensions
-		nRowDimsLen = ring_len(aRowDims)
+		nRowDimsLen = len(aRowDims)
 		for i = 1 to nRowDimsLen
 			aRowLabelCols + i
 		next
 		
 		# Process data columns
-		nHeaderLen = ring_len(aHeaderRow)
+		nHeaderLen = len(aHeaderRow)
 		for i = nRowDimsLen + 1 to nHeaderLen
 			if aHeaderRow[i] = cTotalLabel
 				nTotalColIndex = i
@@ -1993,7 +1993,7 @@ class stzPivotTable from stzList
 		aColDim2Values = []
 		aColGroups = []
 		
-		nDataColsLen = ring_len(aDataCols)
+		nDataColsLen = len(aDataCols)
 		for i = 1 to nDataColsLen
 			colIdx = aDataCols[i]
 			colHeader = aHeaderRow[colIdx]
@@ -2019,27 +2019,27 @@ class stzPivotTable from stzList
 		# Calculate row label widths
 		aRowLabelWidths = []
 		for i = 1 to nRowDimsLen
-			maxWidth = ring_len(aRowDims[i])
-			nPivotLen = ring_len(aPivotData)
+			maxWidth = len(aRowDims[i])
+			nPivotLen = len(aPivotData)
 			
 			# Account for "Sub-total" text if needed
 			if pSubTotal and i = 1
-				if maxWidth < ring_len("Sub-total")
-					maxWidth = ring_len("Sub-total")
+				if maxWidth < len("Sub-total")
+					maxWidth = len("Sub-total")
 				ok
 			ok
 			
 			# Account for "GRAND-TOTAL" text if needed
 			if pGrandTotal and i = 1
-				if maxWidth < ring_len("GRAND-TOTAL")
-					maxWidth = ring_len("GRAND-TOTAL")
+				if maxWidth < len("GRAND-TOTAL")
+					maxWidth = len("GRAND-TOTAL")
 				ok
 			ok
 			
 			for r = 2 to nPivotLen - 1
 				cellValue = "" + aPivotData[r][i]
-				if ring_len(cellValue) > maxWidth
-					maxWidth = ring_len(cellValue)
+				if len(cellValue) > maxWidth
+					maxWidth = len(cellValue)
 				ok
 			next
 			
@@ -2049,9 +2049,9 @@ class stzPivotTable from stzList
 		# Calculate data column widths
 		aDataColWidths = []
 		nMinDataWidth = 10
-		nColDim1ValuesLen = ring_len(aColDim1Values)
-		nColDim2ValuesLen = ring_len(aColDim2Values)
-		nPivotLen = ring_len(aPivotData)
+		nColDim1ValuesLen = len(aColDim1Values)
+		nColDim2ValuesLen = len(aColDim2Values)
+		nPivotLen = len(aPivotData)
 		
 		for i1 = 1 to nColDim1ValuesLen
 			dim1Value = aColDim1Values[i1]
@@ -2061,13 +2061,13 @@ class stzPivotTable from stzList
 				colIdx = aColGroups[key]
 				
 				if colIdx != NULL
-					maxWidth = ring_len(dim2Value)
+					maxWidth = len(dim2Value)
 					
 					for r = 2 to nPivotLen
-						if colIdx <= ring_len(aPivotData[r])
+						if colIdx <= len(aPivotData[r])
 							cellValue = "" + aPivotData[r][colIdx]
-							if ring_len(cellValue) > maxWidth
-								maxWidth = ring_len(cellValue)
+							if len(cellValue) > maxWidth
+								maxWidth = len(cellValue)
 							ok
 						ok
 					next
@@ -2078,13 +2078,13 @@ class stzPivotTable from stzList
 		next
 		
 		# Calculate total column width
-		nTotalColWidth = ring_len(cTotalLabel)
+		nTotalColWidth = len(cTotalLabel)
 		
 		for r = 2 to nPivotLen
-			if nTotalColIndex <= ring_len(aPivotData[r])
+			if nTotalColIndex <= len(aPivotData[r])
 				cellValue = "" + aPivotData[r][nTotalColIndex]
-				if ring_len(cellValue) > nTotalColWidth
-					nTotalColWidth = ring_len(cellValue)
+				if len(cellValue) > nTotalColWidth
+					nTotalColWidth = len(cellValue)
 				ok
 			ok
 		next
@@ -2093,7 +2093,7 @@ class stzPivotTable from stzList
 		
 		# Calculate row label section width
 		nRowLabelSectionWidth = 0
-		nRowLabelWidthsLen = ring_len(aRowLabelWidths)
+		nRowLabelWidthsLen = len(aRowLabelWidths)
 		for i = 1 to nRowLabelWidthsLen
 			nRowLabelSectionWidth += aRowLabelWidths[i]
 		next
@@ -2151,7 +2151,7 @@ class stzPivotTable from stzList
 						key = dim1Value + "_" + dim2Value
 						colIdx = aColGroups[key]
 						
-						if colIdx != NULL and colIdx <= ring_len(aPivotData[r])
+						if colIdx != NULL and colIdx <= len(aPivotData[r])
 							cellValue = aPivotData[r][colIdx]
 							
 							if isNumber(cellValue) or (isString(cellValue) and cellValue != "" and @IsNumberInString(cellValue))
@@ -2166,7 +2166,7 @@ class stzPivotTable from stzList
 				next
 				
 				# Update totals for the total column
-				if nTotalColIndex <= ring_len(aPivotData[r])
+				if nTotalColIndex <= len(aPivotData[r])
 					totalValue = aPivotData[r][nTotalColIndex]
 					
 					if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and @IsNumberInString(totalValue))
@@ -2379,7 +2379,7 @@ class stzPivotTable from stzList
 			
 			# First dimension
 			if cCurrentRowDim1 != aPivotData[r-1][1] or r = 2
-				cLine += " " + cCurrentRowDim1 + StrFill(aRowLabelWidths[1] - ring_len(cCurrentRowDim1) - 1, " ")
+				cLine += " " + cCurrentRowDim1 + StrFill(aRowLabelWidths[1] - len(cCurrentRowDim1) - 1, " ")
 			else
 				cLine += StrFill(aRowLabelWidths[1], " ")
 			ok
@@ -2387,7 +2387,7 @@ class stzPivotTable from stzList
 			cLine += @aBorder[:Vertical]
 			
 			# Second dimension
-			cLine += " " + aPivotData[r][2] + StrFill(aRowLabelWidths[2] - ring_len(aPivotData[r][2]) - 1, " ")
+			cLine += " " + aPivotData[r][2] + StrFill(aRowLabelWidths[2] - len(aPivotData[r][2]) - 1, " ")
 			cLine += @aBorder[:Vertical]
 			
 			# Data cells
@@ -2401,7 +2401,7 @@ class stzPivotTable from stzList
 					colIdx = aColGroups[key]
 					
 					if colIdx != NULL
-						value = @if(colIdx <= ring_len(aPivotData[r]), aPivotData[r][colIdx], "")
+						value = @if(colIdx <= len(aPivotData[r]), aPivotData[r][colIdx], "")
 						
 						if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
 							cLine += " " + PadLeft(value, aDataColWidths[key] - 2) + " "
@@ -2421,7 +2421,7 @@ class stzPivotTable from stzList
 			next
 			
 			# Total column
-			totalValue = @if(nTotalColIndex <= ring_len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
+			totalValue = @if(nTotalColIndex <= len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
 			
 			if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + totalValue))
 				cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
@@ -2583,7 +2583,7 @@ class stzPivotTable from stzList
 		# Totals row
 		if nPivotLen > 1 and aPivotData[nPivotLen][1] = cTotalLabel
 			totalRow = aPivotData[nPivotLen]
-			nLenTotalRow = ring_len(totalRow)
+			nLenTotalRow = len(totalRow)
 	
 			cLine = " " + PadLeft(Upper(totalRow[1]+" "), nRowLabelSectionWidth) + @aBorder[:Vertical]
 			
@@ -2628,7 +2628,7 @@ class stzPivotTable from stzList
 		ok
 	
 		cTrimmed = trim(cOutput)
-		? StzLeft(cTrimmed, ring_len(cTrimmed) - 1) + NL
+		? StzLeft(cTrimmed, len(cTrimmed) - 1) + NL
 	
 	  #------------------------------------------#
 	 #  1D Rows 2D Columns Pivot Table Display  #
@@ -2655,7 +2655,7 @@ class stzPivotTable from stzList
 		aRowLabelCols = aRowLabelCols + 1  # We only use the first row dimension
 	
 		# Process data columns
-		nHeaderLen = ring_len(aHeaderRow)
+		nHeaderLen = len(aHeaderRow)
 		for i = 2 to nHeaderLen  # Start from 2 since we only have 1 row dimension
 
 			if aHeaderRow[i] = cTotalLabel
@@ -2672,7 +2672,7 @@ class stzPivotTable from stzList
 		aColDim2Values = []
 		aColGroups = []
 	
-		nDataColsLen = ring_len(aDataCols)
+		nDataColsLen = len(aDataCols)
 
 		for i = 1 to nDataColsLen
 
@@ -2700,15 +2700,15 @@ class stzPivotTable from stzList
 	
 		# Calculate row label width
 
-		nRowLabelWidth = ring_len(aRowDims[1])  # This is the first (and only) row dimension
-		nLenPivotData = ring_len(aPivotData)
+		nRowLabelWidth = len(aRowDims[1])  # This is the first (and only) row dimension
+		nLenPivotData = len(aPivotData)
 
 		for r = 2 to nLenPivotData - 1
 
 			cellValue = "" + aPivotData[r][1]
 
-			if ring_len(cellValue) > nRowLabelWidth
-				nRowLabelWidth = ring_len(cellValue)
+			if len(cellValue) > nRowLabelWidth
+				nRowLabelWidth = len(cellValue)
 			ok
 
 		next
@@ -2720,8 +2720,8 @@ class stzPivotTable from stzList
 		aDataColWidths = []
 		nMinDataWidth = 10
 		
-		nColDim1Len = ring_len(aColDim1Values)
-		nColDim2Len = ring_len(aColDim2Values)
+		nColDim1Len = len(aColDim1Values)
+		nColDim2Len = len(aColDim2Values)
 	
 		for i = 1 to nColDim1Len
 			dim1Value = aColDim1Values[i]
@@ -2733,16 +2733,16 @@ class stzPivotTable from stzList
 				colIdx = aColGroups[key]
 			
 				if colIdx != NULL
-					maxWidth = ring_len(dim2Value)
+					maxWidth = len(dim2Value)
 				
 					for r = 2 to nLenPivotData
 
-						if colIdx <= ring_len(aPivotData[r])
+						if colIdx <= len(aPivotData[r])
 
 							cellValue = "" + aPivotData[r][colIdx]
 
-							if ring_len(cellValue) > maxWidth
-								maxWidth = ring_len(cellValue)
+							if len(cellValue) > maxWidth
+								maxWidth = len(cellValue)
 							ok
 
 						ok
@@ -2758,16 +2758,16 @@ class stzPivotTable from stzList
 	
 		# Calculate total column width
 
-		nTotalColWidth = ring_len(cTotalLabel)
+		nTotalColWidth = len(cTotalLabel)
 	
 		for r = 2 to nLenPivotData
 
-			if nTotalColIndex <= ring_len(aPivotData[r])
+			if nTotalColIndex <= len(aPivotData[r])
 
 				cellValue = "" + aPivotData[r][nTotalColIndex]
 
-				if ring_len(cellValue) > nTotalColWidth
-					nTotalColWidth = ring_len(cellValue)
+				if len(cellValue) > nTotalColWidth
+					nTotalColWidth = len(cellValue)
 				ok
 
 			ok
@@ -2963,7 +2963,7 @@ class stzPivotTable from stzList
 
 		for r = 2 to nLenPivotData - 1
 
-			cLine = @aBorder[:Vertical] + " " + aPivotData[r][1] + StrFill(nRowLabelWidth - ring_len(aPivotData[r][1]) - 1, " ") + @aBorder[:Vertical]
+			cLine = @aBorder[:Vertical] + " " + aPivotData[r][1] + StrFill(nRowLabelWidth - len(aPivotData[r][1]) - 1, " ") + @aBorder[:Vertical]
 		
 			# Data cells
 
@@ -2977,7 +2977,7 @@ class stzPivotTable from stzList
 					colIdx = aColGroups[key]
 				
 					if colIdx != NULL
-						value = @if(colIdx <= ring_len(aPivotData[r]), aPivotData[r][colIdx], "")
+						value = @if(colIdx <= len(aPivotData[r]), aPivotData[r][colIdx], "")
 					
 						if isNumber(value) or (isString(value) and value != "" and isNumber(0 + value))
 							cLine += " " + PadLeft(value, aDataColWidths[key] - 2) + " "
@@ -3000,7 +3000,7 @@ class stzPivotTable from stzList
 		
 			# Total column
 
-			totalValue = @if(nTotalColIndex <= ring_len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
+			totalValue = @if(nTotalColIndex <= len(aPivotData[r]), aPivotData[r][nTotalColIndex], "")
 
 			if isNumber(totalValue) or (isString(totalValue) and totalValue != "" and isNumber(0 + value))
 				cLine += @aBorder[:Vertical] + " " + PadLeft(totalValue, nTotalColWidth - 2) + " " + @aBorder[:Vertical]
@@ -3050,7 +3050,7 @@ class stzPivotTable from stzList
 		if nLenPivotData > 1 and aPivotData[nLenPivotData][1] = cTotalLabel
 
 			totalRow = aPivotData[nLenPivotData]
-			nLenTotalRow = ring_len(totalRow)
+			nLenTotalRow = len(totalRow)
 		
 			# Format the AVERAGE label with right alignment followed by a space
 
@@ -3105,7 +3105,7 @@ class stzPivotTable from stzList
 		ok
 
 		cTrimmed = trim(cOutput)
-		? StzLeft(cTrimmed, ring_len(cTrimmed) - 1) + NL
+		? StzLeft(cTrimmed, len(cTrimmed) - 1) + NL
 
 	  #------------------------------------------#
 	 #  2D Rows 1D Columns Pivot Table Display  #
@@ -3118,7 +3118,7 @@ class stzPivotTable from stzList
 		aRowDims = @aRowLabels
 		aColDims = @aColLabels
 		cTotalLabel = @cTotalLabel
-		nLenPivotData = ring_len(aPivotData)
+		nLenPivotData = len(aPivotData)
 	
 		# Initialize column tracking
 
@@ -3135,7 +3135,7 @@ class stzPivotTable from stzList
 	
 		# Process data columns
 
-		nHeaderLen = ring_len(aHeaderRow)
+		nHeaderLen = len(aHeaderRow)
 		for i = 3 to nHeaderLen
 			if aHeaderRow[i] = cTotalLabel
 				nTotalColIndex = i
@@ -3150,7 +3150,7 @@ class stzPivotTable from stzList
 	
 		# First dimension
 
-		maxLabelWidth = ring_len(aRowDims[1])
+		maxLabelWidth = len(aRowDims[1])
 
 		for r = 2 to nLenPivotData - 1
 			if r = 2  # Skip header row
@@ -3159,8 +3159,8 @@ class stzPivotTable from stzList
 
 			cellValue = "" + aPivotData[r][1]
 
-			if ring_len(cellValue) > maxLabelWidth
-				maxLabelWidth = ring_len(cellValue)
+			if len(cellValue) > maxLabelWidth
+				maxLabelWidth = len(cellValue)
 			ok
 		next
 
@@ -3168,7 +3168,7 @@ class stzPivotTable from stzList
 	
 		# Second dimension
 
-		maxLabelWidth = ring_len(aRowDims[2])
+		maxLabelWidth = len(aRowDims[2])
 
 		for r = 2 to nLenPivotData - 1
 			if r = 2  # Skip header row
@@ -3177,8 +3177,8 @@ class stzPivotTable from stzList
 
 			cellValue = "" + aPivotData[r][2]
 
-			if ring_len(cellValue) > maxLabelWidth
-				maxLabelWidth = ring_len(cellValue)
+			if len(cellValue) > maxLabelWidth
+				maxLabelWidth = len(cellValue)
 			ok
 		next
 
@@ -3188,20 +3188,20 @@ class stzPivotTable from stzList
 
 		aDataColWidths = []
 		nMinDataWidth = 10
-		nDataColsLen = ring_len(aDataCols)
+		nDataColsLen = len(aDataCols)
 	
 		for i = 1 to nDataColsLen
 			colIdx = aDataCols[i]
-			maxWidth = ring_len(aHeaderRow[colIdx])
+			maxWidth = len(aHeaderRow[colIdx])
 		
 			for r = 2 to nLenPivotData
 
-				if colIdx <= ring_len(aPivotData[r])
+				if colIdx <= len(aPivotData[r])
 
 					cellValue = "" + aPivotData[r][colIdx]
 
-					if ring_len(cellValue) > maxWidth
-						maxWidth = ring_len(cellValue)
+					if len(cellValue) > maxWidth
+						maxWidth = len(cellValue)
 					ok
 				ok
 
@@ -3211,16 +3211,16 @@ class stzPivotTable from stzList
 		next
 	
 		# Calculate total column width
-		nTotalColWidth = ring_len(cTotalLabel)
+		nTotalColWidth = len(cTotalLabel)
 
 		for r = 2 to nLenPivotData
 
-			if nTotalColIndex <= ring_len(aPivotData[r])
+			if nTotalColIndex <= len(aPivotData[r])
 
 				cellValue = "" + aPivotData[r][nTotalColIndex]
 
-				if ring_len(cellValue) > nTotalColWidth
-					nTotalColWidth = ring_len(cellValue)
+				if len(cellValue) > nTotalColWidth
+					nTotalColWidth = len(cellValue)
 				ok
 
 			ok
@@ -3235,7 +3235,7 @@ class stzPivotTable from stzList
 		# Top border
 
 		cLine = @aBorder[:TopLeft]
-		nRowLabelWidthsLen = ring_len(aRowLabelWidths)
+		nRowLabelWidthsLen = len(aRowLabelWidths)
 
 		for i = 1 to nRowLabelWidthsLen
 			cLine += StrFill(aRowLabelWidths[i], @aBorder[:Horizontal])
@@ -3250,7 +3250,7 @@ class stzPivotTable from stzList
 		# Calculate combined width of data columns
 
 		nCombinedDataWidth = 0
-		nDataColWidthsLen = ring_len(aDataColWidths)
+		nDataColWidthsLen = len(aDataColWidths)
 
 		for i = 1 to nDataColWidthsLen
 			nCombinedDataWidth += aDataColWidths[i]
@@ -3316,7 +3316,7 @@ class stzPivotTable from stzList
 		# Second header row with dimension names
 
 		cLine = @aBorder[:Vertical]
-		nRowDimsLen = ring_len(aRowDims)
+		nRowDimsLen = len(aRowDims)
 	
 		# Columns for row dimensions
 
@@ -3393,14 +3393,14 @@ class stzPivotTable from stzList
 			if dim1Value = lastDim1Value
 				cLine += " " + StrFill(aRowLabelWidths[1] - 2, " ") + " " + @aBorder[:Vertical]
 			else
-				cLine += " " + dim1Value + StrFill(aRowLabelWidths[1] - ring_len(dim1Value) - 1, " ") + @aBorder[:Vertical]
+				cLine += " " + dim1Value + StrFill(aRowLabelWidths[1] - len(dim1Value) - 1, " ") + @aBorder[:Vertical]
 				lastDim1Value = dim1Value
 			ok
 		
 			# Second dimension
 
 			dim2Value = ''+ aPivotData[r][2]
-			cLine += " " + dim2Value + StrFill(aRowLabelWidths[2] - ring_len(dim2Value) - 1, " ") + @aBorder[:Vertical]
+			cLine += " " + dim2Value + StrFill(aRowLabelWidths[2] - len(dim2Value) - 1, " ") + @aBorder[:Vertical]
 		
 			# Data cells
 
@@ -3408,7 +3408,7 @@ class stzPivotTable from stzList
 				colIdx = aDataCols[i]
 				value = ""
 
-				if colIdx <= ring_len(aPivotData[r])
+				if colIdx <= len(aPivotData[r])
 					value = aPivotData[r][colIdx]
 				ok
 			
@@ -3429,7 +3429,7 @@ class stzPivotTable from stzList
 
 			totalValue = ""
 
-			if nTotalColIndex <= ring_len(aPivotData[r])
+			if nTotalColIndex <= len(aPivotData[r])
 				totalValue = aPivotData[r][nTotalColIndex]
 			ok
 		
@@ -3497,7 +3497,7 @@ class stzPivotTable from stzList
 			colIdx = aDataCols[i]
 			value = ""
 
-			if colIdx <= ring_len(totalRow)
+			if colIdx <= len(totalRow)
 				value = totalRow[colIdx]
 			ok
 
@@ -3516,7 +3516,7 @@ class stzPivotTable from stzList
 	
 		grandTotal = ""
 
-		if nTotalColIndex <= ring_len(totalRow)
+		if nTotalColIndex <= len(totalRow)
 			grandTotal = totalRow[nTotalColIndex]
 		ok
 	
@@ -3538,7 +3538,7 @@ class stzPivotTable from stzList
 	def PadRight(text, width)
 		# Pad text to the right
 		cStr = "" + text
-		nPad = width - ring_len(cStr)
+		nPad = width - len(cStr)
 		if nPad > 0
 			return cStr + RepeatChar(" ", nPad)
 		else
@@ -3548,7 +3548,7 @@ class stzPivotTable from stzList
 	def PadLeft(text, width)
 		# Pad text to the left
 		cStr = "" + text
-		nPad = width - ring_len(cStr)
+		nPad = width - len(cStr)
 		if nPad > 0
 			return RepeatChar(" ", nPad) + cStr
 		else
@@ -3558,7 +3558,7 @@ class stzPivotTable from stzList
 	def CenterText(text, width)
 		# Center text within width
 		cStr = "" + text
-		nPadTotal = width - ring_len(cStr)
+		nPadTotal = width - len(cStr)
 		if nPadTotal <= 0
 			return cStr
 		ok

@@ -57,7 +57,7 @@ def init(paData)
 	# contains no labels ~> Added automatically as :1, :2, etc.
 	if IsListOfNumbers(paData)
 		aTemp = []
-		nLen = ring_len(paData)
+		nLen = len(paData)
 
 		for i = 1 to nLen
 			aTemp + [ ""+i, paData[i] ]
@@ -80,7 +80,7 @@ def init(paData)
 
 	def Sum(anNumbers)
 		nResult = 0
-		_nAnNumbers1Len_ = ring_len(anNumbers)
+		_nAnNumbers1Len_ = len(anNumbers)
 		for _iLoopAnNumbers1_ = 1 to _nAnNumbers1Len_
 			n = anNumbers[_iLoopAnNumbers1_]
 			nResult += n
@@ -88,7 +88,7 @@ def init(paData)
 		return nResult
 
 	def IsListOfNumbers(aList)
-		_nList3Len_ = ring_len(aList)
+		_nList3Len_ = len(aList)
 		for _iLoopList3_ = 1 to _nList3Len_
 			item = aList[_iLoopList3_]
 			if NOT isNumber(item)
@@ -98,7 +98,7 @@ def init(paData)
 		return TRUE
 
 	def IsListOfPositiveNumbers(aList)
-		_nList2Len_ = ring_len(aList)
+		_nList2Len_ = len(aList)
 		for _iLoopList2_ = 1 to _nList2Len_
 			item = aList[_iLoopList2_]
 			if NOT (isNumber(item) and item > 0)
@@ -108,13 +108,13 @@ def init(paData)
 		return TRUE
 
 	def IsHashList(aList)
-		if ring_len(aList) = 0
+		if len(aList) = 0
 			return FALSE
 		ok
-		_nList1Len_ = ring_len(aList)
+		_nList1Len_ = len(aList)
 		for _iLoopList1_ = 1 to _nList1Len_
 			item = aList[_iLoopList1_]
-			if NOT (isList(item) and ring_len(item) = 2)
+			if NOT (isList(item) and len(item) = 2)
 				return FALSE
 			ok
 		next
@@ -242,7 +242,7 @@ def init(paData)
 	def _autoResize()
 		# Calculate minimum size needed for labels
 		nMaxLabelLen = 0
-		nLen = ring_len(@acLabels)
+		nLen = len(@acLabels)
 		for i = 1 to nLen
 			nLenLabel = StzLen(@acLabels[i])
 			if nLenLabel > nMaxLabelLen
@@ -280,7 +280,7 @@ def init(paData)
 
 	def _calculateSquaremap()
 		@aRectangles = []
-		nValues = ring_len(@anValues)
+		nValues = len(@anValues)
 		
 		if nValues = 0
 			return
@@ -293,7 +293,7 @@ def init(paData)
 		next
 		
 		# Simple bubble sort (descending)
-		nLenSorted = ring_len(aSorted)
+		nLenSorted = len(aSorted)
 		for i = 1 to nLenSorted - 1
 			for j = i + 1 to nLenSorted
 				if aSorted[i][1] < aSorted[j][1]
@@ -320,7 +320,7 @@ def init(paData)
 
 	def _squarifyLayout(aSorted, nH, nV, nWidth, nHeight, nTotalArea)
 		
-		nLen = ring_len(aSorted)
+		nLen = len(aSorted)
 		if nLen = 0
 			return
 		ok
@@ -345,7 +345,7 @@ def init(paData)
 		ok
 
 	def _createGridLayout(aSorted, nH, nV, nWidth, nHeight)
-		nLen = ring_len(aSorted)
+		nLen = len(aSorted)
 		
 		if nLen = 2
 			# Two rectangles - divide by larger dimension
@@ -461,7 +461,7 @@ def init(paData)
 
 	def _recursiveDivision(aSorted, nH, nV, nWidth, nHeight)
 		# For larger numbers, use simple recursive division
-		nLen = ring_len(aSorted)
+		nLen = len(aSorted)
 		nMid = floor(nLen / 2)
 		
 		# Calculate sum for first half
@@ -575,7 +575,7 @@ def init(paData)
 
 	def _drawInternalBorders()
 	    
-	    nLen = ring_len(@aRectangles)
+	    nLen = len(@aRectangles)
 	    
 	    # First pass: draw all borders without intersections
 	    for i = 1 to nLen
@@ -703,7 +703,7 @@ def init(paData)
 
 	def _drawContent()
 	    
-	    nLen = ring_len(@aRectangles)
+	    nLen = len(@aRectangles)
 	    
 	    for i = 1 to nLen
 	        aRect = @aRectangles[i]
@@ -810,10 +810,10 @@ def init(paData)
 	        ok
 	        
 			# Draw content lines centered in available space
-			nLenLines = ring_len(aContentLines)
+			nLenLines = len(aContentLines)
 	        if nLenLines > 0
 	            # Vertical centering
-	            nStartV = nContentV + max([0, floor((nContentHt - ring_len(aContentLines)) / 2)])
+	            nStartV = nContentV + max([0, floor((nContentHt - len(aContentLines)) / 2)])
 	
 	            for k = 1 to nLenLines
 	                cLine = aContentLines[k]

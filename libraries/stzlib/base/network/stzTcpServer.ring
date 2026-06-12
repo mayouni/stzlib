@@ -88,14 +88,14 @@ class stzTcpServer from stzNetwork
         return clients
     
     def ClientCount()
-        return ring_len(clients)
+        return len(clients)
     
     def BroadcastTo(aClients, cData)
-        _nClients2Len_ = ring_len(aClients)
+        _nClients2Len_ = len(aClients)
         for _iLoopClients2_ = 1 to _nClients2Len_
         	client = aClients[_iLoopClients2_]
             buf = new_uv_buf_t()
-            set_uv_buf_t_len(buf, ring_len(cData))
+            set_uv_buf_t_len(buf, len(cData))
             set_uv_buf_t_base(buf, varptr("cData", :char))
             
             write_req = new_uv_write_t()
@@ -109,7 +109,7 @@ class stzTcpServer from stzNetwork
     def KickClient(oClient)
         # Remove client from list and close connection
         new_clients = []
-        _nClients1Len_ = ring_len(clients)
+        _nClients1Len_ = len(clients)
         for _iLoopClients1_ = 1 to _nClients1Len_
         	client = clients[_iLoopClients1_]
             if client != oClient

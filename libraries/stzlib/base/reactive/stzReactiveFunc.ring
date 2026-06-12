@@ -43,11 +43,11 @@ class stzFunctionTask from stzReactiveTask
 	def Execute()
 		try
 			status = TASK_RUNNING
-			if ring_len(params) = NO_PARAMS
+			if len(params) = NO_PARAMS
 				result = call @f()
 			else
 				# Handle parameters - Ring requires individual params
-				switch ring_len(params)
+				switch len(params)
 				case 1
 					result = call @f(params[1])
 				case 2

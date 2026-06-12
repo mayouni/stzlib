@@ -36,7 +36,7 @@ Rs {
         
         # Rapid price updates
         prices = [150.25, 150.30, 150.15, 150.45, 150.60, 150.55]
-        _nPricesLen_ = ring_len(prices)
+        _nPricesLen_ = len(prices)
         for i = 1 to _nPricesLen_
             ? "Price update: $" + prices[i]
             Recieve(prices[i])

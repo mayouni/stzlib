@@ -915,7 +915,7 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-		nLen = ring_len(acPaths)
+		nLen = len(acPaths)
 
 		for i = 1 to nLen
 	        if NOT This.IsFile(acPaths[i])
@@ -935,7 +935,7 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-		nLen = ring_len(acPaths)
+		nLen = len(acPaths)
 
 		for i = 1 to nLen
 	        if NOT This.IsFolder(acPaths[i])
@@ -955,7 +955,7 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-		nLen = ring_len(acPaths)
+		nLen = len(acPaths)
 
 		for i = 1 to nLen
 	        if NOT This.Exists(acPaths[i])
@@ -977,7 +977,7 @@ class stzFolder from stzObject
 	    
 	    acResult = []
 	
-		nLen = ring_len(acPaths)
+		nLen = len(acPaths)
 
 		for i = 1 to nLen
 	        if This.Exists(acPaths[i])
@@ -999,7 +999,7 @@ class stzFolder from stzObject
 		ok
 	    
 	    acMissing = []
-		nLen = ring_len(acPaths)
+		nLen = len(acPaths)
 
 		for i = 1 to nLen
 	        if NOT This.Exists(acPaths[i])
@@ -1103,7 +1103,7 @@ class stzFolder from stzObject
 		_aList_ = @dir(@cCurrentPath)
 		aResult = []
 
-		nLen = ring_len(_aList_)
+		nLen = len(_aList_)
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 0
@@ -1118,7 +1118,7 @@ class stzFolder from stzObject
 		_aList_ = @dir(@cCurrentPath)
 		aResult = []
 
-		nLen = ring_len(_aList_)
+		nLen = len(_aList_)
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
@@ -1133,7 +1133,7 @@ class stzFolder from stzObject
 		_aList_ = @dir(@cCurrentPath)
 		aResult = []
 
-		nLen = ring_len(_aList_)
+		nLen = len(_aList_)
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 0
@@ -1148,7 +1148,7 @@ class stzFolder from stzObject
 		_aList_ = @dir(@cCurrentPath)
 		aResult = []
 
-		nLen = ring_len(_aList_)
+		nLen = len(_aList_)
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _alist_[i][1] != ".."
@@ -1162,25 +1162,25 @@ class stzFolder from stzObject
 			return This.Folders()
 
 	def CountFiles()
-		return ring_len(This.Files())
+		return len(This.Files())
 
 		def NumberOfFiles()
-			return ring_len(This.Files())
+			return len(This.Files())
 
 		def HowManyFiles()
-			return ring_len(This.Files())
+			return len(This.Files())
 
 	def CountFile(cFileName)
-		return ring_len(This.FindFile(cFileName))
+		return len(This.FindFile(cFileName))
 
 	def CountFolders()
-		return ring_len(This.Folders())
+		return len(This.Folders())
 
 		def CountDirs()
 			return This.CountFolders()
 
 	def CountFolder(cFolderName)
-		return ring_len(This.FindFolder(cFolderName))
+		return len(This.FindFolder(cFolderName))
 
 	#---
 
@@ -1267,7 +1267,7 @@ class stzFolder from stzObject
 		ok
 
 		acList = @dir(cPath)
-		nLen = ring_len(acList)
+		nLen = len(acList)
 
 		acResult = []
 
@@ -1293,7 +1293,7 @@ class stzFolder from stzObject
 		ok
 
 		acList = @dir(cPath)
-		nLen = ring_len(acList)
+		nLen = len(acList)
 
 		acResult = []
 
@@ -1310,25 +1310,25 @@ class stzFolder from stzObject
 	#===========================#
 
 	def DeepCountFiles()
-		return ring_len(This.DeepFiles())
+		return len(This.DeepFiles())
 
 		def NumberOfDeepFiles()
-			return ring_len(This.DeepFiles())
+			return len(This.DeepFiles())
 
 		def HowManyDeepFiles()
-			return ring_len(This.DeepFiles())
+			return len(This.DeepFiles())
 
 	def DeepCountFile(cFileName)
-		return ring_len(This.DeepFindFile(cFileName))
+		return len(This.DeepFindFile(cFileName))
 
 	def DeepCountFolders()
-		return ring_len(This.DeepFolders())
+		return len(This.DeepFolders())
 
 		def DeepCountDirs()
 			return This.DeepCountFolders()
 
 	def DeepCountFolder(cFolderName)
-		return ring_len(This.DeepFindFolder(cFolderName))
+		return len(This.DeepFindFolder(cFolderName))
 
 	def DeepFiles() # With simplified paths
 
@@ -1336,14 +1336,14 @@ class stzFolder from stzObject
 		aToProcess = [@cCurrentPath]
 		cBasePath = @cCurrentPath
 		
-		while ring_len(aToProcess) > 0
+		while len(aToProcess) > 0
 
 			cCurrentPath = aToProcess[1]
 			del(aToProcess, 1)
 			
 			_aList_ = @dir(cCurrentPath)
 
-			nLen = ring_len(_aList_)
+			nLen = len(_aList_)
 	
 			for i = 1 to nLen
 
@@ -1374,14 +1374,14 @@ class stzFolder from stzObject
 		aToProcess = [@cCurrentPath]
 		cBasePath = @cCurrentPath
 		
-		while ring_len(aToProcess) > 0
+		while len(aToProcess) > 0
 
 			cCurrentPath = aToProcess[1]
 			del(aToProcess, 1)
 			
 			_aList_ = @dir(cCurrentPath)
 
-			nLen = ring_len(_aList_)
+			nLen = len(_aList_)
 	
 			for i = 1 to nLen
 
@@ -1408,14 +1408,14 @@ class stzFolder from stzObject
 		aResult = []
 		aToProcess = [@cCurrentPath]
 		
-		while ring_len(aToProcess) > 0
+		while len(aToProcess) > 0
 
 			cCurrentPath = aToProcess[1]
 			del(aToProcess, 1)
 			
 			_aList_ = @dir(cCurrentPath)
 
-			nLen = ring_len(_aList_)
+			nLen = len(_aList_)
 	
 			for i = 1 to nLen
 
@@ -1438,14 +1438,14 @@ class stzFolder from stzObject
 		aResult = []
 		aToProcess = [@cCurrentPath]
 		
-		while ring_len(aToProcess) > 0
+		while len(aToProcess) > 0
 
 			cCurrentPath = aToProcess[1]
 			del(aToProcess, 1)
 			
 			_aList_ = @dir(cCurrentPath)
 
-			nLen = ring_len(_aList_)
+			nLen = len(_aList_)
 	
 			for i = 1 to nLen
 
@@ -1472,10 +1472,10 @@ class stzFolder from stzObject
 			return This.DeepCount()
 
 	def DeepCountFileIn(cFileName, cPath)
-		return ring_len(This.FindFileIn(cFileName, cPath))
+		return len(This.FindFileIn(cFileName, cPath))
 
 	def DeepCountTheseFiles(acFilesNames)
-		return ring_len(This.DeepCountTheseFilesIn(acFilesNames, cPath))
+		return len(This.DeepCountTheseFilesIn(acFilesNames, cPath))
 
 	def DeepCountTheseFilesIn(acFilesNames, cPath)
 		if CheckParams()
@@ -1488,7 +1488,7 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		return ring_len(This.SearchTheseFilesIn(acFilesNames, cPath))
+		return len(This.SearchTheseFilesIn(acFilesNames, cPath))
 
 	def DeepCountFilesIn(cPath)
 		if CheckParams()
@@ -1499,7 +1499,7 @@ class stzFolder from stzObject
 
 		nCount = 0
 		aList = @dir(cPath)
-		nLen = ring_len(aList)
+		nLen = len(aList)
 
 		for i = 1 to nLen
 
@@ -1527,7 +1527,7 @@ class stzFolder from stzObject
 
 		nCount = 0
 		aList = @dir(cPath)
-		nLen = ring_len(aList)
+		nLen = len(aList)
 
 		for i = 1 to nLen
 
@@ -1554,10 +1554,10 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		return ring_len(This.FindFolderIn(cFolderName, cPath))
+		return len(This.FindFolderIn(cFolderName, cPath))
 
 	def DeepCountTheseFoldersIn(acFoldersNames, cPath)
-		return ring_len(This.SearchTheseFoldersIn(acFoldersNames, cPath))
+		return len(This.SearchTheseFoldersIn(acFoldersNames, cPath))
 
 	def DeepCountFoldersIn(cPath)
 		if CheckParams()
@@ -1568,7 +1568,7 @@ class stzFolder from stzObject
 
 		nCount = 0
 		aList = @dir(cPath)
-		nLen = ring_len(aList)
+		nLen = len(aList)
 
 		for i = 1 to nLen
 
@@ -1626,7 +1626,7 @@ class stzFolder from stzObject
 		ok
 
 		aList = @dir(cPath)
-		nLen = ring_len(aList)
+		nLen = len(aList)
 
 		for i = 1 to nLen
 
@@ -1660,7 +1660,7 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = ring_len(acFilesNames)
+		nLen = len(acFilesNames)
 		bResult = TRUE
 
 		for i = 1 to nLen
@@ -1690,7 +1690,7 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = ring_len(acFilesNames)
+		nLen = len(acFilesNames)
 		bResult = FALSE
 
 		for i = 1 to nLen
@@ -1721,7 +1721,7 @@ class stzFolder from stzObject
 		ok
 
 		aList = @dir(cPath)
-		nLen = ring_len(aList)
+		nLen = len(aList)
 
 		for i = 1 to nLen
 
@@ -1755,7 +1755,7 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = ring_len(acFoldersNames)
+		nLen = len(acFoldersNames)
 		bResult = TRUE
 
 		for i = 1 to nLen
@@ -1780,7 +1780,7 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = ring_len(acFoldersNames)
+		nLen = len(acFoldersNames)
 		bResult = FALSE
 
 		for i = 1 to nLen
@@ -1881,12 +1881,12 @@ class stzFolder from stzObject
 			return This.GoHome()
 
 	def GoBack()
-		if ring_len(@acPathHistory) = 0
+		if len(@acPathHistory) = 0
 			raise("No previous location in history!")
 		end
 		
-		cPreviousPath = @acPathHistory[ring_len(@acPathHistory)]
-		del(@acPathHistory, ring_len(@acPathHistory))  # Remove last item
+		cPreviousPath = @acPathHistory[len(@acPathHistory)]
+		del(@acPathHistory, len(@acPathHistory))  # Remove last item
 		
 		@cCurrentPath = cPreviousPath
 		
@@ -1928,7 +1928,7 @@ class stzFolder from stzObject
 			return 0
 		end
 		
-		return ring_len(split(cRelPath, This.Separator()))
+		return len(split(cRelPath, This.Separator()))
 
 	def NavigationInfo()
 		return [
@@ -2026,7 +2026,7 @@ class stzFolder from stzObject
 	        # Delete all files
 
 	        acFiles = This.FilesXT()
-			nLen = ring_len(acFiles)
+			nLen = len(acFiles)
 
 	        for i = 1 to nLen
 	            if NOT StzEngineFileDelete(acFiles[i])
@@ -2035,7 +2035,7 @@ class stzFolder from stzObject
 	        next
 
 	        acFolders = This.FoldersXT()
-			nLen = ring_len(acFolders)
+			nLen = len(acFolders)
 
 	        for i = 1 to nLen
 	            if NOT RemoveFolderRecursive(acFolders[i])
@@ -2086,7 +2086,7 @@ class stzFolder from stzObject
 	def Erase()
 	    nDeleted = 0
 	    acFiles = This.FilesXT()
-		nLen = ring_len(acFiles)
+		nLen = len(acFiles)
 
 	    for i = 1 to nLen
 	        if StzEngineFileDelete(acFiles[i])
@@ -2104,7 +2104,7 @@ class stzFolder from stzObject
 	def DeepErase()
 	    nDeleted = 0
 	    acFiles = This.DeepFilesXT()
-	    nLen = ring_len(acFiles)
+	    nLen = len(acFiles)
 
 	    for i = 1 to nLen
 	        if StzEngineFileDelete(acFiles[i])
@@ -2127,7 +2127,7 @@ class stzFolder from stzObject
 	    ok
 	
 	    acFilePaths = This.DeepFindFile(cFileName)
-		nLen = ring_len(acFilePaths)
+		nLen = len(acFilePaths)
 	    nDeleted = 0
 	
 	    for i = 1 to nLen
@@ -2159,19 +2159,19 @@ class stzFolder from stzObject
 		ok
 
 	    acFolderPaths = This.DeepFindFolder(cFolderName)
-		nLen = ring_len(acFolderPaths)
+		nLen = len(acFolderPaths)
 
 	    # Sort by depth (deepest first) using Ring's sort
 	    aSortedPaths = []
 	    for i = 1 to nLen
-	        nDepth = ring_len(@split(acFolderPaths[i], This.Separator()))
+	        nDepth = len(@split(acFolderPaths[i], This.Separator()))
 	        aSortedPaths + [nDepth, acFolderPaths[i]]
 	    next
 
 	    # Sort by depth descending (deepest first)
 	    aSortedPaths = @sorton(aSortedPaths, 1)
 	    aSortedPaths = reverse(aSortedPaths)
-		nLen = ring_len(aSortedPaths)
+		nLen = len(aSortedPaths)
 
 	    # Delete folders
 		bResult = TRUE
@@ -2391,7 +2391,7 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		nLen = ring_len(acFileNames)
+		nLen = len(acFileNames)
 		acCreated = []
 		acFailed = []
 		cLastSuccessfulDir = ""
@@ -2951,7 +2951,7 @@ class stzFolder from stzObject
 
 		cPattern = This.NormalizeFilePath(cPattern)
 		acFiles = This.Files()
-		nLen = ring_len(acFiles)
+		nLen = len(acFiles)
 
 		acResult = []
 
@@ -2992,7 +2992,7 @@ class stzFolder from stzObject
 
 		cPattern = This.NormalizeFilePath(cPattern)
 		acFolders = This.Folders()
-		nLen = ring_len(acFolders)
+		nLen = len(acFolders)
 
 		acResult = []
 
@@ -3036,7 +3036,7 @@ class stzFolder from stzObject
 		ok
 		acFound = []
 		acAllFiles = This.Files()
-		nLen = ring_len(acAllFiles)
+		nLen = len(acAllFiles)
 
 		for i = 1 to nLen
 			if StzRight(StzLower(acAllFiles[i]), StzLen(cExt)) = StzLower(cExt)
@@ -3053,11 +3053,11 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param type! acFilesNames must be a list.")
 		ok
 		acFound = []
-		nLen = ring_len(acFilesNames)
+		nLen = len(acFilesNames)
 
 		for i = 1 to nLen
 			acFileResults = This.FindFiles(acFilesNames[i])
-			nLenR = ring_len(acFileResult)
+			nLenR = len(acFileResult)
 
 			for j = 1 to nLenR
 				if find(acFound, acFileResults[j]) = 0
@@ -3073,12 +3073,12 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param type! acFoldersNames must be a list.")
 		ok
 		acFound = []
-		nLen = ring_len(acFoldersNames)
+		nLen = len(acFoldersNames)
 
 		for i = 1 to nLen
 
 			acFolderResults = This.FindFolders(acFoldersNames[i])
-			nLenR = ring_len(acFolderResults)
+			nLenR = len(acFolderResults)
 
 			for j = 1 to nLenR
 				if find(acFound, acFolderResults[j]) = 0
@@ -3108,12 +3108,12 @@ class stzFolder from stzObject
 			cPattern = StzReplace(cPattern, "*", "")
 		ok
 
-		nLen = ring_len(acAllDirs)
+		nLen = len(acAllDirs)
 
 		for i = 1 to nLen
 
 			aEntries = @dir(acAllDirs[i])
-			nLenE = ring_len(aEntries)
+			nLenE = len(aEntries)
 
 			for j = 1 to nLenE
 
@@ -3157,12 +3157,12 @@ class stzFolder from stzObject
 			cPattern = StzReplace(cPattern, "*", "")
 		ok
 
-		nLen = ring_len(acAllDirs)
+		nLen = len(acAllDirs)
 
 		for i = 1 to nLen
 
 			aEntries = @dir(acAllDirs[i])
-			nLenE = ring_len(aEntries)
+			nLenE = len(aEntries)
 
 			for j = 1 to nLenE
 
@@ -3197,12 +3197,12 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param type! acFilesNames must be a list.")
 		ok
 		acFound = []
-		nLen = ring_len(acFilesNames)
+		nLen = len(acFilesNames)
 
 		for i = 1 to nLen
 
 			acFileResults = This.DeepFindFiles(acFilesNames[i])
-			nLenR = ring_len(acFileResults)
+			nLenR = len(acFileResults)
 
 			for j = 1 to nLenR
 				if StzFind(acFound, acFileResults[j]) = 0
@@ -3218,12 +3218,12 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param type! acFoldersNames must be a list.")
 		ok
 		acFound = []
-		nLen = ring_len(acFoldersNames)
+		nLen = len(acFoldersNames)
 
 		for i = 1 to nLen
 
 			acFolderResults = This.DeepFindFolders(acFoldersNames[i])
-			nLenR = ring_len(acFolderResults)
+			nLenR = len(acFolderResults)
 
 			for j = 1 to nLenR
 				if StzFind(acFound, acFolderResults[j]) = 0
@@ -3268,7 +3268,7 @@ class stzFolder from stzObject
 			cFileContent = read(cFullPath)
 			acLines = @split(cFileContent, NL)
 
-			nLen = ring_len(acLines)
+			nLen = len(acLines)
 			for i = 1 to nLen
 				if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
 					acLineNumbers + i
@@ -3286,11 +3286,11 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param types! acFiles must be a list and cContent must be a string.")
 		ok
 		acResults = []
-		nLen = ring_len(acFiles)
+		nLen = len(acFiles)
 
 		for i = 1 to nLen
 			acLineNumbers = This.SearchInFile(acFiles[i], cContent)
-			if ring_len(acLineNumbers) > 0
+			if len(acLineNumbers) > 0
 				acResults + [acFiles[i], acLineNumbers]
 			ok
 		next
@@ -3315,7 +3315,7 @@ class stzFolder from stzObject
 		if isdir(cFolderPath)
 
 			aEntries = @dir(cFolderPath)
-			nLen = ring_len(aEntries)
+			nLen = len(aEntries)
 
 			for i = 1 to nLen
 
@@ -3327,7 +3327,7 @@ class stzFolder from stzObject
 
 						cFileContent = read(cFilePath)
 						acLines = @split(cFileContent, NL)
-						nLenL = ring_len(acLines)
+						nLenL = len(acLines)
 						acLineNumbers = []
 
 						for i = 1 to nLenL
@@ -3336,7 +3336,7 @@ class stzFolder from stzObject
 							ok
 						next
 
-						if ring_len(acLineNumbers) > 0
+						if len(acLineNumbers) > 0
 							acResults + [aEntries[i][1], acLineNumbers]
 						ok
 					ok
@@ -3355,12 +3355,12 @@ class stzFolder from stzObject
 		ok
 
 		acResults = []
-		nLen = ring_len(acFolders)
+		nLen = len(acFolders)
 
 		for i = 1 to nLen
 
 			acFolderResults = This.SearchInFolder(acFolders[i], cContent)
-			nLenR = ring_len(acFoldersResults)
+			nLenR = len(acFoldersResults)
 
 			for j = 1 to nLenR
 				acResults + acFolderResults[j]
@@ -3378,7 +3378,7 @@ class stzFolder from stzObject
 
 		acAllDirs = [ This.RootXT() ]
 		acDeepFolders = This.DeepFoldersXT()
-		nLen = ring_len(acDeepFolders)
+		nLen = len(acDeepFolders)
 
 		for i = 1 to nLen
 			acAllDirs + acDeepFolders[i]
@@ -3389,7 +3389,7 @@ class stzFolder from stzObject
 		for i = 1 to nLen
 
 			aEntries = @dir(acAllDirs[i])
-			nLenE = ring_len(aEntries)
+			nLenE = len(aEntries)
 
 			for j = 1 to nLenE
 
@@ -3401,7 +3401,7 @@ class stzFolder from stzObject
 
 						cFileContent = read(cFilePath)
 						acLines = @split(cFileContent, NL)
-						nLenL = ring_len(acLines)
+						nLenL = len(acLines)
 						acLineNumbers = []
 
 						for i = 1 to nLenL
@@ -3410,7 +3410,7 @@ class stzFolder from stzObject
 							ok
 						next
 
-						if ring_len(acLineNumbers) > 0
+						if len(acLineNumbers) > 0
 							acResult + [cFilePath, acLineNumbers]
 						ok
 					ok
@@ -3429,7 +3429,7 @@ class stzFolder from stzObject
 
 		acResults = []
 		acFilePaths = This.DeepFindFiles(cFile)
-		nLen = ring_len(acFilePaths)
+		nLen = len(acFilePaths)
 
 		for i = 1 to nLen
 
@@ -3437,7 +3437,7 @@ class stzFolder from stzObject
 
 				cFileContent = read(acFilePaths[i])
 				acLines = @split(cFileContent, NL)
-				nLenL = ring_len(acLines)
+				nLenL = len(acLines)
 				acLineNumbers = []
 				
 				for i = 1 to nLenL
@@ -3446,7 +3446,7 @@ class stzFolder from stzObject
 					ok
 				next
 
-				if ring_len(acLineNumbers) > 0
+				if len(acLineNumbers) > 0
 					acResults + [acFilePaths[i], acLineNumbers]
 				ok
 
@@ -3465,11 +3465,11 @@ class stzFolder from stzObject
 
 		acResults = []
 
-		nLen = ring_len(acFiles)
+		nLen = len(acFiles)
 		for i = 1 to nLen
 
 			acFileResults = This.DeepSearchInFile(acFiles[i], cContent)
-			nLenR = ring_len(acFileResuls)
+			nLenR = len(acFileResuls)
 
 			for j = 1 to nLenR
 				acResults + acFileResults[j]
@@ -3487,13 +3487,13 @@ class stzFolder from stzObject
 
 		acResults = []
 		acFolderPaths = This.DeepFindFolders(cFolder)
-		nLen = ring_len(acFolderPaths)
+		nLen = len(acFolderPaths)
 
 		for i = 1 to nLen
 
 			if isdir(acFolderPaths[i])
 				aEntries = @dir(acFolderPaths[i])
-				nLenE = ring_len(aEntries)
+				nLenE = len(aEntries)
 
 				for j = 1 to nLenE
 
@@ -3504,7 +3504,7 @@ class stzFolder from stzObject
 						if fexists(acFolderPaths[i])
 							cFileContent = read(acFolderPaths[i])
 							acLines = @split(cFileContent, NL)
-							nLenL = ring_len(acLines)
+							nLenL = len(acLines)
 							acLineNumbers = []
 
 							for i = 1 to nLenL
@@ -3513,7 +3513,7 @@ class stzFolder from stzObject
 								ok
 							next
 
-							if ring_len(acLineNumbers) > 0
+							if len(acLineNumbers) > 0
 								acResults + [acFolderPaths[i], acLineNumbers]
 							ok
 						ok
@@ -3532,12 +3532,12 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param types! acFolders must be a list and cContent must be string.")
 		ok
 		acResults = []
-		nLen = ring_len(acFolders)
+		nLen = len(acFolders)
 
 		for i = 1 to nLen
 
 			acFolderResults = This.DeepSearchInFolder(acFolders[i], cContent)
-			nLenR = ring_len(acFolderResults)
+			nLenR = len(acFolderResults)
 
 			for j = 1 to nLenR
 				acResults + acFolderResults[j]
@@ -3581,14 +3581,14 @@ class stzFolder from stzObject
 	def GetFoldersContainingFileMatches(cPath, cPattern)
 
 		aAllPaths = This.CollectFoldersWithFileMatches(cPath, cPattern, aAllPaths)
-		nLen = ring_len(aAllPaths)
+		nLen = len(aAllPaths)
 
 		aFolderNames = []
 
 		for i = 1 to nLen
 
 			acPathParts = This.GetPathHierarchy(aAllPaths[i])
-			nLenP = ring_len(acPathParts)
+			nLenP = len(acPathParts)
 
 			for j = 1 to nLenP
 				if StzFind(aFolderNames, acPathParts[j]) = 0
@@ -3604,7 +3604,7 @@ class stzFolder from stzObject
 	def CountFileMatches(cPath, cPattern)
 		nCount = 0
 		aList = @dir(cPath)
-		nLen = ring_len(aList)
+		nLen = len(aList)
 
 		for i = 1 to nLen
 			if aList[i][2] = 0
@@ -3619,7 +3619,7 @@ class stzFolder from stzObject
 	def CountFolderMatches(cPath, cPattern)
 		nCount = 0
 		aList = @dir(cPath)
-		nLen = ring_len(aList)
+		nLen = len(aList)
 		for i = 1 to nLen
 			if aList[i][2] = 1 and aList[i][1] != "." and aList[i][1] != ".."
 				if This.Matches(cPattern, aList[i][1])
@@ -3654,7 +3654,7 @@ class stzFolder from stzObject
 
 		nModified = 0
 
-		nLen = ring_len(acFiles)
+		nLen = len(acFiles)
 		for i = 1 to nLen
 			if This.ModifyInFile(acFiles[i], cContent, cNewContent)
 				nModified++
@@ -3675,7 +3675,7 @@ class stzFolder from stzObject
 
 		if isdir(cFolderPath)
 			aEntries = @dir(cFolderPath)
-			nLen = ring_len(aEntries)
+			nLen = len(aEntries)
 
 			for i = 1 to nLen
 	
@@ -3704,7 +3704,7 @@ class stzFolder from stzObject
 		ok
 
 		nModified = 0
-		nLen = ring_len(acFolders)
+		nLen = len(acFolders)
 
 		for i = 1 to nLen
 			nModified += This.ModifyInFolder(acFolders[i], cContent, cNewContent)
@@ -3721,7 +3721,7 @@ class stzFolder from stzObject
 
 		nModified = 0
 		acFiles = This.Files()
-		nLen = ring_len(acFiles)
+		nLen = len(acFiles)
 
 		for i = 1 to nLen
 			if This.ModifyInFile(acFiles[i], cContent, cNewContent)
@@ -3739,7 +3739,7 @@ class stzFolder from stzObject
 
 		nModified = 0
 		acFilePaths = This.DeepFindFile(cFile)
-		nLen = ring_len(acFilePaths)
+		nLen = len(acFilePaths)
 
 		for i = 1 to nLen
 	
@@ -3765,7 +3765,7 @@ class stzFolder from stzObject
 		ok
 
 		nModified = 0
-		nLen = ring_len(acFiles)
+		nLen = len(acFiles)
 
 		for i = 1 to nLen
 			nModified += This.DeepModifyInFile(acFiles[i], cContent, cNewContent)
@@ -3782,14 +3782,14 @@ class stzFolder from stzObject
 
 		nModified = 0
 		acFolderPaths = This.DeepFindFolder(cFolder)
-		nLen = ring_len(acFolderPaths)
+		nLen = len(acFolderPaths)
 
 		for i = 1 to nLen
 
 			if isdir(acFolderPaths[i])
 
 				aEntries = @dir(cFolderPath)
-				nLenE = ring_len(aEntries)
+				nLenE = len(aEntries)
 
 				for j = 1 to nLenE
 					if aEntries[j][2] = 0
@@ -3822,7 +3822,7 @@ class stzFolder from stzObject
 		ok
 
 		nModified = 0
-		nLen = ring_len(acFolders)
+		nLen = len(acFolders)
 
 		for i = 1 to nlen
 			nModified += This.DeepModifyInFolder(acFolders[i], cContent, cNewContent)
@@ -3838,11 +3838,11 @@ class stzFolder from stzObject
 
 		nModified = 0
 		acAllDirs = This.DeepFolders()
-		nLen = ring_len(acAllDirs)
+		nLen = len(acAllDirs)
 
 		for i = 1 to nLen
 			aEntries = @dir(acAllDirs[i])
-			nLenE = ring_len(aEntries)
+			nLenE = len(aEntries)
 
 			for j = 1 to nLenE
 
@@ -3929,7 +3929,7 @@ class stzFolder from stzObject
 		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + nTotalMatches + " file matches for '" + cPattern + "')" + nl
 		This.CollapseAll()
 		acFoldersWithMatches = This.GetFoldersContainingFileMatches(This.Path(), cPattern)
-		if ring_len(acFoldersWithMatches) > 0
+		if len(acFoldersWithMatches) > 0
 			This.ExpandFolders(acFoldersWithMatches)
 		end
 		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "files", 0, This.MaxDisplayLevel())
@@ -4014,7 +4014,7 @@ class stzFolder from stzObject
 	        ok
 	    ok
 	
-		nLen = ring_len(acFolders)
+		nLen = len(acFolders)
 
 		for i = 1 to nLen
 			cPath = This.NormalizeFolderPath(acFolders[i])
@@ -4139,7 +4139,7 @@ class stzFolder from stzObject
 
 		cPattern = StzLower(cpattern)
 		acKeywords = This.StatKeywords()
-		nLen = ring_len(acKeywords)
+		nLen = len(acKeywords)
 		bResult = 0
 
 		for i = 1 to nLen
@@ -4222,7 +4222,7 @@ class stzFolder from stzObject
 			return []
 		end
 		acSegments = @split(cRelativePath, This.Separator())
-		nLen = ring_len(acSegments)
+		nLen = len(acSegments)
 
 		for i = 1 to nLen
 			if acSegments[i] != ""
@@ -4236,7 +4236,7 @@ class stzFolder from stzObject
 
 		_aList_ = @dir(cPath)
 		bHasFileMatches = 0
-		nLen = ring_len(_aList_)
+		nLen = len(_aList_)
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 0
@@ -4284,7 +4284,7 @@ class stzFolder from stzObject
 			case "systemorder"
 
 				aRingEntries = dir(cPath)
-				nLen = ring_len(aRingEntries)
+				nLen = len(aRingEntries)
 				for i = 1 to nLen
 					cEntryName = aRingEntries[i][1]
 					if cEntryName != "." and cEntryName != ".."
@@ -4301,13 +4301,13 @@ class stzFolder from stzObject
 
 				acFilesSorted = sort(acFiles)
 				acFoldersSorted = sort(acFolders)
-				nLen = ring_len(acFilesSorted)
+				nLen = len(acFilesSorted)
 
 				for i = 1 to nLen
 					aItems + [acFilesSorted[i], "file"]
 				next
 
-				nLen = ring_len(acFoldersSorted)
+				nLen = len(acFoldersSorted)
 				for i = 1 to nLen
 					aItems + [acFoldersSorted[i], "folder"]
 				next
@@ -4317,12 +4317,12 @@ class stzFolder from stzObject
 				acFilesSorted = reverse(sort(acFiles))
 				acFoldersSorted = reverse(sort(acFolders))
 
-				nLen = ring_len(acFilesSorted)
+				nLen = len(acFilesSorted)
 				for i = 1 to nLen
 					aItems + [acFilesSorted[i], "file"]
 				next
 
-				nLen = ring_len(acFoldersSorted)
+				nLen = len(acFoldersSorted)
 				for i = 1 to nLen
 					aItems + [acFoldersSorted[i], "folder"]
 				next
@@ -4332,12 +4332,12 @@ class stzFolder from stzObject
 				acFilesSorted = sort(acFiles)
 				acFoldersSorted = sort(acFolders)
 
-				nLen = ring_len(acFoldersSorted)
+				nLen = len(acFoldersSorted)
 				for i = 1 to nLen
 					aItems + [acFoldersSorted[i], "folder"]
 				next
 
-				nLen = ring_len(acFilesSorted)
+				nLen = len(acFilesSorted)
 				for i = 1 to nLen
 					aItems + [acFilesSorted[i], "file"]
 				next
@@ -4347,12 +4347,12 @@ class stzFolder from stzObject
 				acFilesSorted = reverse(sort(acFiles))
 				acFoldersSorted = reverse(sort(acFolders))
 
-				nLen = ring_len(acFoldersSorted)
+				nLen = len(acFoldersSorted)
 				for i = 1 to nLen
 					aItems + [acFoldersSorted[i], "folder"]
 				next
 
-				nLen = ring_len(acFilesSorted)
+				nLen = len(acFilesSorted)
 				for  i = 1 to nLen
 					aItems + [acFilesSorted[i], "file"]
 				next
@@ -4365,12 +4365,12 @@ class stzFolder from stzObject
 
 		aResult = []
 
-		nLen = ring_len(acFiles)
+		nLen = len(acFiles)
 		for i = 1 to nLen
 			aResult + [:name = acFiles[i], :type = "file"]
 		next
 
-		nLen = ring_len(acFolders)
+		nLen = len(acFolders)
 		for i = 1 to nLen
 			aResult + [:name = acFolders[i], :type = "folder"]
 		next
@@ -4382,12 +4382,12 @@ class stzFolder from stzObject
 
 		aResult = []
 
-		nLen = ring_len(acFolders)
+		nLen = len(acFolders)
 		for i = 1 to nLen
 			aResult + [:name = acFolders[i], :type = "folder"]
 		next
 
-		nLen = ring_len(acFiles)
+		nLen = len(acFiles)
 		for i = 1 to nLen
 			aResult + [:name = acFiles[i], :type = "file"]
 		next
@@ -4398,7 +4398,7 @@ class stzFolder from stzObject
 	def GetPhysicalOrder(cPath)
 
 		_aList_ = @dir(cPath)
-		nLen = ring_len(_aList_)
+		nLen = len(_aList_)
 
 		aResult = []
 
@@ -4466,7 +4466,7 @@ class stzFolder from stzObject
 			# Split by comma and filter out zero values
 
 			aTokens = @split(cResult, ",")
-			nLen = ring_len(aTokens)
+			nLen = len(aTokens)
 			acFiltered = []
 
 			for i = 1 to nLen
@@ -4483,7 +4483,7 @@ class stzFolder from stzObject
 			# Rebuild the result
 
 			cResult = "("
-			nLenF = ring_len(acFiltered)
+			nLenF = len(acFiltered)
 
 			for i = 1 to nLenF
 				cResult += acFiltered[i]
@@ -4565,7 +4565,7 @@ class stzFolder from stzObject
 			end
 			
 			nCount = 0
-			nLen = ring_len(_aList_)
+			nLen = len(_aList_)
 
 			for i = 1 to nLen
 				if _aList_[i][1] != "." and _aList_[i][1] != ".."
@@ -4631,7 +4631,7 @@ class stzFolder from stzObject
 			return 0
 		end
 
-		nLen = ring_len(aList)
+		nLen = len(aList)
 
 		for i = 1 to nLen
 
@@ -4657,7 +4657,7 @@ class stzFolder from stzObject
 			return 0
 		end
 
-		nLen = ring_len(aList)
+		nLen = len(aList)
 
 		for i = 1 to nLen
 
@@ -4696,7 +4696,7 @@ class stzFolder from stzObject
 
 		if @bExpand
 
-			nLen = ring_len(@acCollapseFolders)
+			nLen = len(@acCollapseFolders)
 			for i = 1 to nLen
 				if This.Matches(@acCollapseFolders[i], cFolderName)
 					return 0
@@ -4711,7 +4711,7 @@ class stzFolder from stzObject
 
 		end
 
-		nLen = ring_len(@acExpandFolders)
+		nLen = len(@acExpandFolders)
 		for i = 1 to nLen 
 			if This.Matches(@acExpandFolders[i], cFolderName)
 				return 1
@@ -4755,7 +4755,7 @@ class stzFolder from stzObject
 	    # Separate files and folders
 	    aFiles = []
 	    aFolders = []
-	    nLen = ring_len(_aList_)
+	    nLen = len(_aList_)
 
 		for i = 1 to nLen
 
@@ -4770,7 +4770,7 @@ class stzFolder from stzObject
 	    
 	    # Apply sorting based on display order
 	    aItems = This.SortItemsByDisplayOrder(aFiles, aFolders, cPath)
-	    nTotalItems = ring_len(aItems)
+	    nTotalItems = len(aItems)
 	    
 	    # Display items in sorted order
 	    for i = 1 to nTotalItems
@@ -4891,7 +4891,7 @@ class stzFolder from stzObject
 			return 0
 		end
 		
-		nLen = ring_len(@acDeepExpandFolders)
+		nLen = len(@acDeepExpandFolders)
 
 		for i = 1 to nLen
 			# Check if current folder is under a deep expand folder

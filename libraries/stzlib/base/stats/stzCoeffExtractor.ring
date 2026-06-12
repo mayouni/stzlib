@@ -149,7 +149,7 @@ class stzCoeffExtractor from stzObject
 	def extractLinearCoefficient(cExpression, cVarName)
 		cExpr = StzReplace(cExpression, "-", "+-")  # Handle negative terms
 		acTerms = @split(cExpr, "+")
-		nLen = ring_len(acTerms)
+		nLen = len(acTerms)
 
 		for i = 1 to nLen
 			cTerm = @trim(acTerms[i])
@@ -203,7 +203,7 @@ class stzCoeffExtractor from stzObject
 
 	def createTestValues()
 		aValues = []
-		_nVars2Len_ = ring_len(@aVars)
+		_nVars2Len_ = len(@aVars)
 		for _iLoopVars2_ = 1 to _nVars2Len_
 			cVarName = @aVars[_iLoopVars2_]
 			aValues[cVarName] = 10.0  # Use 10.0 to avoid min() saturation
@@ -216,7 +216,7 @@ class stzCoeffExtractor from stzObject
 	    acSubStr = []
 		acNewSubStr = []
 
-	    _nVars1Len_ = ring_len(@aVars)
+	    _nVars1Len_ = len(@aVars)
 	    for _iLoopVars1_ = 1 to _nVars1Len_
 	    	cVarName = @aVars[_iLoopVars1_]
 	        if ring_substr1(cExpression, cVarName)
@@ -249,7 +249,7 @@ class stzCoeffExtractor from stzObject
 	
 
 	def VarNames()
-		nLen = ring_len(@aVars)
+		nLen = len(@aVars)
 		acResult = []
 
 		for i = 1 to nLen
@@ -266,7 +266,7 @@ class stzCoeffExtractor from stzObject
 		aCoeffs = []
 		acVarNames = This.VarNames()
 
-		_nAcVarNames1Len_ = ring_len(acVarNames)
+		_nAcVarNames1Len_ = len(acVarNames)
 		for _iLoopAcVarNames1_ = 1 to _nAcVarNames1Len_
 			cVarName = acVarNames[_iLoopAcVarNames1_]
 			aCoeffs + This.extractCoefficient(cExpression, cVarName)

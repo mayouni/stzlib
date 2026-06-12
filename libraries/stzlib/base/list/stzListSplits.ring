@@ -54,21 +54,21 @@ class stzListSplits
 
 		if isList(pItemOrPos)
 
-			if ring_len(pItemOrPos) = 2 and isString(pItemOrPos[1]) and
+			if len(pItemOrPos) = 2 and isString(pItemOrPos[1]) and
 			   ( pItemOrPos[1] = :At or
 			     pItemOrPos[1] = :AtPosition )
 
 				return This.SplitAtCS(pItemOrPos[2], pCaseSensitive)
 			ok
 
-			if ring_len(pItemOrPos) = 2 and isString(pItemOrPos[1]) and
+			if len(pItemOrPos) = 2 and isString(pItemOrPos[1]) and
 			   ( pItemOrPos[1] = :Before or
 			     pItemOrPos[1] = :BeforePosition )
 
 				return This.SplitBeforeCS(pItemOrPos[2], pCaseSensitive)
 			ok
 
-			if ring_len(pItemOrPos) = 2 and isString(pItemOrPos[1]) and
+			if len(pItemOrPos) = 2 and isString(pItemOrPos[1]) and
 			   ( pItemOrPos[1] = :After or
 			     pItemOrPos[1] = :AfterPosition )
 
@@ -96,7 +96,7 @@ class stzListSplits
 		# Engine-backed: marshal list + positions, call split_at
 		# INDEX_BASE=1: convert 1-based positions to 0-based for engine
 		_aSapAdj_ = []
-		_nPanPosLen_2 = ring_len(panPos)
+		_nPanPosLen_2 = len(panPos)
 		for _iSap_ = 1 to _nPanPosLen_2
 			_aSapAdj_ + (panPos[_iSap_] - 1)
 		next
@@ -125,7 +125,7 @@ class stzListSplits
 	def SplittedAtPositions(panPos)
 		# INDEX_BASE=1: convert to 0-based for engine
 		_aSadAdj_ = []
-		_nPanPosLen_ = ring_len(panPos)
+		_nPanPosLen_ = len(panPos)
 		for _iSad_ = 1 to _nPanPosLen_
 			_aSadAdj_ + (panPos[_iSad_] - 1)
 		next
@@ -179,7 +179,7 @@ class stzListSplits
 			This.SplitBeforePosition(pItem)
 		else
 			_anSbcPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
-			if ring_len(_anSbcPos_) > 0
+			if len(_anSbcPos_) > 0
 				This.SplitAtPositions(_anSbcPos_)
 			ok
 		ok
@@ -231,9 +231,9 @@ class stzListSplits
 			This.SplitAfterPosition(pItem)
 		else
 			_anSacPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
-			if ring_len(_anSacPos_) > 0
+			if len(_anSacPos_) > 0
 				# Split after the last occurrence found
-				This.SplitAfterPosition(_anSacPos_[ring_len(_anSacPos_)])
+				This.SplitAfterPosition(_anSacPos_[len(_anSacPos_)])
 			ok
 		ok
 
@@ -453,13 +453,13 @@ class stzListSplits
 	# SplitAtCSZZ(pItem, pCaseSensitive): each split-section as [start, end].
 	def SplitAtCSZZ(pItem, pCaseSensitive)
 		_l_ = @oList.List()
-		_nL_ = ring_len(_l_)
+		_nL_ = len(_l_)
 		_aPos_ = []
 		for _i_ = 1 to _nL_
 			if _l_[_i_] = pItem _aPos_ + _i_ ok
 		next
 		_aR_ = []
-		_nPL_ = ring_len(_aPos_)
+		_nPL_ = len(_aPos_)
 		_prev_ = 0
 		for _i_ = 1 to _nPL_
 			_aR_ + [ _prev_ + 1, _aPos_[_i_] - 1 ]

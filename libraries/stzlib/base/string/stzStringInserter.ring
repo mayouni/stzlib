@@ -346,7 +346,7 @@ class stzStringInserter
 		ok
 
 		aSorted = new stzList(panPos).SortedInDescending()
-		_nSorted2Len_ = ring_len(aSorted)
+		_nSorted2Len_ = len(aSorted)
 		for _iLoopSorted2_ = 1 to _nSorted2Len_
 			n = aSorted[_iLoopSorted2_]
 			This.InsertAfter(n, pcSubStr)
@@ -367,7 +367,7 @@ class stzStringInserter
 		ok
 
 		aSorted = new stzList(panPos).SortedInDescending()
-		_nSorted1Len_ = ring_len(aSorted)
+		_nSorted1Len_ = len(aSorted)
 		for _iLoopSorted1_ = 1 to _nSorted1Len_
 			n = aSorted[_iLoopSorted1_]
 			This.InsertBefore(n, pcSubStr)

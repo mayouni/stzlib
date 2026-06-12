@@ -312,7 +312,7 @@ class stzNaturalEngine
 		ok
 	
 	def InterpolateContext(cCode, aContext)
-		if ring_len(aContext) = 0
+		if len(aContext) = 0
 			return cCode
 		ok
 		
@@ -322,7 +322,7 @@ class stzNaturalEngine
 
 		aMatches = StzStringQ(cCode).SubstringsBoundedBy([ "{", "}" ])
 
-		_nMatchesLen_ = ring_len(aMatches)
+		_nMatchesLen_ = len(aMatches)
 		for i = 1 to _nMatchesLen_
 			cKey = aMatches[i]
 			cValue = @@(This.GetContextValue(cKey, aContext))
@@ -375,7 +375,7 @@ class stzNaturalEngine
 			aParts = @split(cKey, ".")
 			xCurrent = aContext
 			
-			_nPartsLen_ = ring_len(aParts)
+			_nPartsLen_ = len(aParts)
 			for i = 1 to _nPartsLen_
 				cPart = trim(aParts[i])
 				
@@ -409,9 +409,9 @@ class stzNaturalEngine
 		return StzUpper(@StzMid(cKey, 1, 1)) + StzLower(StzMid(cKey, 2, stzlen(cKey) - 1))
 	
 	def FindInList(aList, cKey) #TODO// Review it
-		nLen = ring_len(aList)
+		nLen = len(aList)
 		for i = 1 to nLen
-			if isList(aList[i]) and ring_len(aList[i]) = 2
+			if isList(aList[i]) and len(aList[i]) = 2
 				if isString(aList[i][1])
 					cNormalized = This.NormalizeKey(aList[i][1])
 					if cNormalized = cKey
@@ -434,7 +434,7 @@ class stzNaturalEngine
 		
 		This.TokenizeCode(cCode)
 	
-		This.AddToDebugLog("Raw values: " + ring_len(@aValues) + " items")
+		This.AddToDebugLog("Raw values: " + len(@aValues) + " items")
 		
 		This.Process()
 	
@@ -459,11 +459,11 @@ class stzNaturalEngine
 	    
 	    # Filter out quote sections that are inside list sections
 	    aStringSections = []
-	    _nAllQuoteSections1Len_ = ring_len(aAllQuoteSections)
+	    _nAllQuoteSections1Len_ = len(aAllQuoteSections)
 	    for _iLoopAllQuoteSections1_ = 1 to _nAllQuoteSections1Len_
 	    	aQuoteSection = aAllQuoteSections[_iLoopAllQuoteSections1_]
 	        bInsideList = FALSE
-	        _nListSections1Len_ = ring_len(aListSections)
+	        _nListSections1Len_ = len(aListSections)
 	        for _iLoopListSections1_ = 1 to _nListSections1Len_
 	        	aListSection = aListSections[_iLoopListSections1_]
 	            if aQuoteSection[1] >= aListSection[1] and aQuoteSection[2] <= aListSection[2]
@@ -484,26 +484,26 @@ class stzNaturalEngine
 	    # Merge and sort by position
 	    aAllSections = []
 
-	    nLen = ring_len(aSplittableSections)
+	    nLen = len(aSplittableSections)
 	    for i = 1 to nLen
 		aPair = aSplittableSections[i]
 	        aAllSections + [:pos = aPair[1], :type = "splittable", :pair = aPair]
 	    next
 
-	    nLen = ring_len(aListSections)
+	    nLen = len(aListSections)
 	    for i = 1 to nLen
 		aPair = aListSections[i]
 	        aAllSections + [:pos = aPair[1], :type = "list", :pair = aPair]
 	    next
 
-	    nLen = ring_len(aStringSections)
+	    nLen = len(aStringSections)
 	    for i = 1 to nLen
 		aPair = aStringSections[i]
 	        aAllSections + [:pos = aPair[1], :type = "string", :pair = aPair]
 	    next
 	    
 	    aAllSections = SortListsOn(aAllSections, 1)
-	    nLen = ring_len(aAllSections)
+	    nLen = len(aAllSections)
 
 	    # Process in order
 
@@ -514,7 +514,7 @@ class stzNaturalEngine
 	        
 	        if aSection[:type] = "splittable"
 	            acWords = @split(cSection, " ")
-		    nLenWords = ring_len(acWords)
+		    nLenWords = len(acWords)
 
 		    for j = 1 to nLenWords
 	                if trim(acWords[j]) != ""
@@ -536,13 +536,13 @@ class stzNaturalEngine
 	
 	def LoadLanguageData()
 		aLangDef = This.FindLanguageDefinition(@cLanguage)
-		if ring_len(aLangDef) > 0
+		if len(aLangDef) > 0
 			@aIgnoredWords = aLangDef[:ignored_words]
 			@aMappings = aLangDef[:semantic_mappings]
 		ok
 	
 	def FindLanguageDefinition(cCode)
-		nLen = ring_len($aLanguageDefinitions)
+		nLen = len($aLanguageDefinitions)
 		for i = 1 to nLen
 			aLang = $aLanguageDefinitions[i]
 			if aLang[:code] = cCode or aLang[:name] = cCode
@@ -553,7 +553,7 @@ class stzNaturalEngine
 	
 	def Process()
 		@aSemanticTokens = This.ConvertToSemanticTokens()
-		This.AddToDebugLog("Tokens: " + ring_len(@aSemanticTokens))
+		This.AddToDebugLog("Tokens: " + len(@aSemanticTokens))
 		
 		cCode = This.GenerateCodeFromSemantics()
 
@@ -567,7 +567,7 @@ class stzNaturalEngine
 	def ConvertToSemanticTokens()
 		aTokens = []
 
-		nLen = ring_len(@aValues)
+		nLen = len(@aValues)
 		This.AddToDebugLog("Converting to semantic tokens")
 		
 		for i = 1 to nLen
@@ -614,7 +614,7 @@ class stzNaturalEngine
 		return aTokens
 	
 	def ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
-		nLen = ring_len(aTokens)
+		nLen = len(aTokens)
 		if nLen = 0
 			return 0
 		ok
@@ -629,7 +629,7 @@ class stzNaturalEngine
 			aBeforeLast = aTokens[nLen-1]
 			if aBeforeLast[:type] = "semantic" and StzLeft(aBeforeLast[:value], 7) = "METHOD_"
 				aOp = This.GetSemanticOperation(aBeforeLast[:value])
-				if ring_len(aOp) > 0 and HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
+				if len(aOp) > 0 and HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
 					return 1
 				ok
 			ok
@@ -652,7 +652,7 @@ class stzNaturalEngine
 			cLower = StzLeft(cLower, stzlen(cLower) - 1)
 		ok
 		
-		nLen = ring_len(@aMappings)
+		nLen = len(@aMappings)
 		for i = 1 to nLen
 			aMap = @aMappings[i]
 			if aMap[:natural] = cLower
@@ -669,7 +669,7 @@ class stzNaturalEngine
 	
 	def GenerateCodeFromSemantics()
 		aCodeLines = []
-		nLen = ring_len(@aSemanticTokens)
+		nLen = len(@aSemanticTokens)
 
 		i = 1
 
@@ -713,7 +713,7 @@ class stzNaturalEngine
 					
 				but cSemantic = "OUTPUT_DISPLAY"
 					aOp = This.GetSemanticOperation(cSemantic)
-					if ring_len(aOp) > 0
+					if len(aOp) > 0
 						cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 						aCodeLines + cCode
 					ok
@@ -734,7 +734,7 @@ class stzNaturalEngine
 		return cCode
 	
 	def FindDefineIndex(cSemantic)
-		nLen = ring_len(@aDefineRecallState)
+		nLen = len(@aDefineRecallState)
 		for i = 1 to nLen
 			if @aDefineRecallState[i][:semantic] = cSemantic
 				return @aDefineRecallState[i][:index]
@@ -744,7 +744,7 @@ class stzNaturalEngine
 	
 	def ProcessObjectCreation(nIndex)
 
-		nLen = ring_len(@aSemanticTokens)
+		nLen = len(@aSemanticTokens)
 		cObjectType = ""
 		cValue = ""
 		nNextIndex = nIndex + 1
@@ -768,7 +768,7 @@ class stzNaturalEngine
 		if cObjectType != ""
 			aOp = This.GetSemanticOperation(cObjectType)
 
-			if ring_len(aOp) > 0
+			if len(aOp) > 0
 				@cCurrentObject = aOp[:object_type]
 				@cCurrentVariable = aOp[:variable]
 				cConstructor = aOp[:constructor]
@@ -792,7 +792,7 @@ class stzNaturalEngine
 		This.AddToDebugLog("Processing method: " + cSemantic)
 		
 		aOp = This.GetSemanticOperation(cSemantic)
-		if ring_len(aOp) = 0
+		if len(aOp) = 0
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
@@ -802,7 +802,7 @@ class stzNaturalEngine
 			aResult = This.ExtractMethodParameters(nIndex, aOp[:requires_params])
 			aParams = aResult[:params]
 			nNextIndex = aResult[:next_index]
-			nLen = ring_len(aParams)
+			nLen = len(aParams)
 
 			for i = 1 to nLen
 				cPlaceholder = "@param" + i
@@ -821,7 +821,7 @@ class stzNaturalEngine
 	
 	def ExtractMethodParameters(nIndex, nParamCount)
 		aParams = []
-		nLen = ring_len(@aSemanticTokens)
+		nLen = len(@aSemanticTokens)
 		nLastIndex = nIndex
 		
 		for i = nIndex+1 to nLen
@@ -834,7 +834,7 @@ class stzNaturalEngine
 			
 			if aToken[:type] = "literal"
 				aParams + aToken[:value]
-				if ring_len(aParams) = nParamCount
+				if len(aParams) = nParamCount
 					exit
 				ok
 			ok
@@ -850,18 +850,18 @@ class stzNaturalEngine
 	
 	def ProcessMethodWithModifiers(nIndex, cSemantic)
 		aOp = This.GetSemanticOperation(cSemantic)
-		if ring_len(aOp) = 0
+		if len(aOp) = 0
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
 		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 
 		if HasKey(aOp, :supports_modifiers) and aOp[:supports_modifiers] = 1
-			nLen = ring_len(@aSemanticTokens)
+			nLen = len(@aSemanticTokens)
 			for i = nIndex+1 to nLen
 				aToken = @aSemanticTokens[i]
 				if aToken[:type] = "semantic"
-					nModLen = ring_len(aOp[:modifiers])
+					nModLen = len(aOp[:modifiers])
 					for j = 1 to nModLen
 						aMod = aOp[:modifiers][j]
 						if aMod[:semantic_id] = aToken[:value]
@@ -877,7 +877,7 @@ class stzNaturalEngine
 		return [:code = cCode, :next_index = nIndex+1]
 	
 	def GetSemanticOperation(cSemanticId)
-		nLen = ring_len($aSemanticOperations)
+		nLen = len($aSemanticOperations)
 		for i = 1 to nLen
 			aOp = $aSemanticOperations[i]
 			if aOp[:semantic_id] = cSemanticId

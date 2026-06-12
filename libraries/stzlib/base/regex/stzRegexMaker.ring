@@ -116,7 +116,7 @@ class stzRegexMaker
 
 		# case of named param like :And = [3, :Times]
 
-		but isList(nTimes2) and ring_len(nTimes2) = 2 and isString(nTimes2[1]) and nTimes2[1] = "and"
+		but isList(nTimes2) and len(nTimes2) = 2 and isString(nTimes2[1]) and nTimes2[1] = "and"
 			if isNumber(nTimes2[2])
 				nTimes2 = nTimes2[2]
 
@@ -226,7 +226,7 @@ class stzRegexMaker
 	def Pattern()
 		cResult = ""
 
-		_nAcFragments1Len_ = ring_len(acFragments)
+		_nAcFragments1Len_ = len(acFragments)
 		for _iLoopAcFragments1_ = 1 to _nAcFragments1Len_
 			cFrag = acFragments[_iLoopAcFragments1_]
 			cResult += cFrag
@@ -245,7 +245,7 @@ class stzRegexMaker
 			return This.Fragments()
 
 	def NumberOfFragements()
-		return ring_len(acFragments)
+		return len(acFragments)
 
 		#< @FunctionAlternativeForms
 
@@ -332,7 +332,7 @@ class stzRegexMaker
 			return This.Sequences()
 
 	def NumberOfSequences()
-		return ring_len(acSequences)
+		return len(acSequences)
 
 		#< @FunctionAlternativeForms
 
@@ -499,11 +499,11 @@ class stzRegexMaker
 
 		but isList(_between_)
 
-			if ring_len(_between_) = 2
+			if len(_between_) = 2
 
 				_c1_ = _between_[1]
 
-				if isList(_between_[2]) and ring_len(_between_[2]) = 2 and
+				if isList(_between_[2]) and len(_between_[2]) = 2 and
 				   isString(_between_[2][1]) and
 				   (_between_[2][1] = "and" or _between_[2][1] = "to")
 
@@ -625,11 +625,11 @@ class stzRegexMaker
 
 		but isList(_between_)
 
-			if ring_len(_between_) = 2
+			if len(_between_) = 2
 
 				_cDigit1_ = _between_[1]
 
-				if isList(_between_[2]) and ring_len(_between_[2]) = 2 and
+				if isList(_between_[2]) and len(_between_[2]) = 2 and
 				   isString(_between_[2][1]) and
 				   (_between_[2][1] = "and" or _between_[2][1] = "to")
 
@@ -926,7 +926,7 @@ class stzRegexMaker
 		switch pcMode
 		on :and
 			cResult = ""
-			_nPatterns1Len_ = ring_len(paPatterns)
+			_nPatterns1Len_ = len(paPatterns)
 			for _iLoopPatterns1_ = 1 to _nPatterns1Len_
 				cPattern = paPatterns[_iLoopPatterns1_]
 				cResult += "(?=" + cPattern + ")"
@@ -958,7 +958,7 @@ class stzRegexMaker
 
 		aGroups + [pcName, pcPattern]
 		acFragments + "(?P<" + pcName + ">" + pcPattern + ")"
-		return ring_len(aGroups)
+		return len(aGroups)
 
 	def ReuseGroupPattern(pcGroupName)
 		# Reuses the pattern of a previously defined group
@@ -1034,7 +1034,7 @@ class stzRegexMaker
 	def FindGroup(pcName)
 		# Returns index of named group or 0 if not found
 
-		_nGroupsLen_ = ring_len(aGroups)
+		_nGroupsLen_ = len(aGroups)
 		for i = 1 to _nGroupsLen_
 			if aGroups[i][1] = pcName
 				return i
@@ -1060,7 +1060,7 @@ class stzRegexMaker
 	
 		# Checking the repetition type
 	
-		if NOT ( isList(pRepeat) and ring_len(pRepeat) = 2 and isString(pRepeat[1]) )
+		if NOT ( isList(pRepeat) and len(pRepeat) = 2 and isString(pRepeat[1]) )
 			StzRaise("Incorrect param type! pRepeat must be a pair starting by a string.")
 		ok
 	
@@ -1079,7 +1079,7 @@ class stzRegexMaker
 	
 		# Checking the quantifier
 	
-		if NOT ( isNumber(pRepeat[2]) or ( isList(pRepeat[2]) and ring_len(pRepeat[2]) = 2 and
+		if NOT ( isNumber(pRepeat[2]) or ( isList(pRepeat[2]) and len(pRepeat[2]) = 2 and
 			 isNumber(pRepeat[2][1]) and isNumber(pRepeat[2][2]) ) )
 	
 			StzRaise("Incorrect param type! pRepeat must be a pair of numbers.")
@@ -1123,7 +1123,7 @@ class stzRecursiveRegexMaker
 			:quant   = ""
 		]
 
-		nParentIndex = ring_len(aParentStack)
+		nParentIndex = len(aParentStack)
 
 	def AddChildLevel(cParentName, cChildName, cPattern)
 		nParent = pvtFindLevelByName(cParentName)
@@ -1134,7 +1134,7 @@ class stzRecursiveRegexMaker
 
 		AddLevel(cChildName, cPattern)
 		
-		nChild = ring_len(aLevels)
+		nChild = len(aLevels)
 		aLevels[nChild][:parent] = nParent
 		aLevels[nParent][:children] + nChild
 
@@ -1154,7 +1154,7 @@ class stzRecursiveRegexMaker
 		bNamedRecursion = FALSE
 
 	def Pattern()
-		if ring_len(aLevels) = 0
+		if len(aLevels) = 0
 			return ""
 		ok
 
@@ -1162,7 +1162,7 @@ class stzRecursiveRegexMaker
 		
 		# Process all root levels (those without parents)
 
-		_nLevelsLen_2 = ring_len(aLevels)
+		_nLevelsLen_2 = len(aLevels)
 		for i = 1 to _nLevelsLen_2
 			if aLevels[i][:parent] = NULL
 				cPattern += pvtBuildPattern(i)
@@ -1182,7 +1182,7 @@ class stzRecursiveRegexMaker
 
 	def LevelNames()
 		aResult = []
-		_nLevels2Len_ = ring_len(aLevels)
+		_nLevels2Len_ = len(aLevels)
 		for _iLoopLevels2_ = 1 to _nLevels2Len_
 			level = aLevels[_iLoopLevels2_]
 			aResult + level[:name]
@@ -1190,7 +1190,7 @@ class stzRecursiveRegexMaker
 		return aResult
 
 	def NumberOfLevels()
-		return ring_len(aLevels)
+		return len(aLevels)
 
 	def HasLevel(cName)
 		return pvtFindLevelByName(cName) > 0
@@ -1217,7 +1217,7 @@ class stzRecursiveRegexMaker
 		aResult = []
 
 		_aLevelsnLevelchildren1_ = aLevels[nLevel][:children]
-		_nLevelsnLevelchildren1Len_ = ring_len(_aLevelsnLevelchildren1_)
+		_nLevelsnLevelchildren1Len_ = len(_aLevelsnLevelchildren1_)
 		for _iLoopLevelsnLevelchildren1_ = 1 to _nLevelsnLevelchildren1Len_
 			nChild = _aLevelsnLevelchildren1_[_iLoopLevelsnLevelchildren1_]
 			aResult + aLevels[nChild][:name]
@@ -1229,7 +1229,7 @@ class stzRecursiveRegexMaker
 
 		aResult = []
 
-		_nLevels1Len_ = ring_len(aLevels)
+		_nLevels1Len_ = len(aLevels)
 		for _iLoopLevels1_ = 1 to _nLevels1Len_
 			level = aLevels[_iLoopLevels1_]
 			aInfo = [
@@ -1253,7 +1253,7 @@ class stzRecursiveRegexMaker
 
 	def pvtFindLevelByName(cName)
 
-		_nLevelsLen_ = ring_len(aLevels)
+		_nLevelsLen_ = len(aLevels)
 		for i = 1 to _nLevelsLen_
 			if aLevels[i][:name] = cName
 				return i
@@ -1264,7 +1264,7 @@ class stzRecursiveRegexMaker
 
 	def pvtBuildPattern(nLevel)
 
-		if nLevel < 1 or nLevel > ring_len(aLevels)
+		if nLevel < 1 or nLevel > len(aLevels)
 			return ""
 		ok
 
@@ -1276,7 +1276,7 @@ class stzRecursiveRegexMaker
 		cChildrenPattern = ""
 
 		_aLevelchildren1_ = level[:children]
-		_nLevelchildren1Len_ = ring_len(_aLevelchildren1_)
+		_nLevelchildren1Len_ = len(_aLevelchildren1_)
 		for _iLoopLevelchildren1_ = 1 to _nLevelchildren1Len_
 			nChild = _aLevelchildren1_[_iLoopLevelchildren1_]
 			cChildPattern = pvtBuildPattern(nChild)
@@ -1341,7 +1341,7 @@ class stzConditionalRegexMaker
 	#------------------#
 
 	def IfMatch(pcPattern)
-		if isList(pcPattern) and ring_len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1353,7 +1353,7 @@ class stzConditionalRegexMaker
 		return This
 
 	def IfNotMatch(pcPattern)
-		if isList(pcPattern) and ring_len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1365,7 +1365,7 @@ class stzConditionalRegexMaker
 		return This
 
 	def IfCaptured(pcGroupName)
-		if isList(pcGroupName) and ring_len(pcGroupName) = 2 and isString(pcGroupName[1]) and pcGroupName[1] = "group"
+		if isList(pcGroupName) and len(pcGroupName) = 2 and isString(pcGroupName[1]) and pcGroupName[1] = "group"
 			cGroupName = pGroupName[2]
 		ok
 
@@ -1381,7 +1381,7 @@ class stzConditionalRegexMaker
 	#------------------#
 
 	def ThenMatch(pcPattern)
-		if isList(pcPattern) and ring_len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1397,7 +1397,7 @@ class stzConditionalRegexMaker
 	#------------------#
 
 	def ElseMatch(pcPattern)
-		if isList(pcPattern) and ring_len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1519,7 +1519,7 @@ class stzRegexLookaroundMaker
 	#--------------------------#
 
 	def MustBeFollowedBy(pcPattern)
-		if isList(pcPattern) and ring_len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1540,7 +1540,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def MustBePrecededBy(pcPattern)
-		if isList(pcPattern) and ring_len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1565,7 +1565,7 @@ class stzRegexLookaroundMaker
 	#--------------------------#
 
 	def CantBeFollowedBy(pcPattern)
-		if isList(pcPattern) and ring_len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1586,7 +1586,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def CantBePrecededBy(pcPattern)
-		if isList(pcPattern) and ring_len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1611,7 +1611,7 @@ class stzRegexLookaroundMaker
 	#------------------#
 
 	def ThenMatch(pcPattern)
-		if isList(pcPattern) and ring_len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1627,7 +1627,7 @@ class stzRegexLookaroundMaker
 	#------------------#
 
 	def MustBeFollowedByWord(pcWord)
-		if isList(pcWord) and ring_len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
+		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
 		ok
 
@@ -1645,7 +1645,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def MustBePrecededByWord(pcWord)
-		if isList(pcWord) and ring_len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
+		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
 		ok
 
@@ -1663,7 +1663,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def CantBeFollowedByWord(pcWord)
-		if isList(pcWord) and ring_len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
+		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
 		ok
 
@@ -1681,7 +1681,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def CantBePrecededByWord(pcWord)
-		if isList(pcWord) and ring_len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
+		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
 		ok
 

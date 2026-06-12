@@ -37,7 +37,7 @@ Rs {
         
         # Simulate sensor burst
         sensorReadings = [23.5, 23.7, 24.1, 24.3, 24.5, 24.8, 25.0]
-        _nSensorReadingsLen_ = ring_len(sensorReadings)
+        _nSensorReadingsLen_ = len(sensorReadings)
         for i = 1 to _nSensorReadingsLen_
             ? "Reading: " + sensorReadings[i]
             Recieve(sensorReadings[i])

@@ -68,7 +68,7 @@ class stzListInString from stzString
 
 		aoStzStr = StzListOfStringsQ(This.Items()).ToListOfStzStrings()
 
-		_nAoStzStr2Len_ = ring_len(aoStzStr)
+		_nAoStzStr2Len_ = len(aoStzStr)
 		for _iLoopAoStzStr2_ = 1 to _nAoStzStr2Len_
 			oStzStr = aoStzStr[_iLoopAoStzStr2_]
 			if oStzStr.IsBoundedBy('"') or
@@ -114,7 +114,7 @@ class stzListInString from stzString
 		aResult = []
 
 		aItems = This.ItemsXT()
-		_nItems1Len_ = ring_len(aItems)
+		_nItems1Len_ = len(aItems)
 		for _iLoopItems1_ = 1 to _nItems1Len_
 			aItem = aItems[_iLoopItems1_]
 			if aItem[2] = :IsValue
@@ -130,7 +130,7 @@ class stzListInString from stzString
 
 		aoStzStr = StzListOfStringsQ(This.Items()).ToListOfStzStrings()
 
-		_nAoStzStr1Len_ = ring_len(aoStzStr)
+		_nAoStzStr1Len_ = len(aoStzStr)
 		for _iLoopAoStzStr1_ = 1 to _nAoStzStr1Len_
 			oStzStr = aoStzStr[_iLoopAoStzStr1_]
 			if NOT ( oStzStr.IsBoundedBy('"') or
@@ -161,7 +161,7 @@ class stzListInString from stzString
 	def Types()
 		acResult = []
 		_aThisVarNames1_ = This.VarNames()
-		_nThisVarNames1Len_ = ring_len(_aThisVarNames1_)
+		_nThisVarNames1Len_ = len(_aThisVarNames1_)
 		for _iLoopThisVarNames1_ = 1 to _nThisVarNames1Len_
 			cVarName = _aThisVarNames1_[_iLoopThisVarNames1_]
 			cCode = 'cType = ring_type('+ cVarName +')'

@@ -35,7 +35,7 @@ class stzNumbrex from stzObject
 		if @bDebugMode
 			? "=== stzNumbrex Init ==="
 			? "Pattern: " + @cPattern
-			? "Tokens parsed: " + ring_len(@aTokens)
+			? "Tokens parsed: " + len(@aTokens)
 		ok
 	
 	def NormalizePattern(cPattern)
@@ -51,7 +51,7 @@ class stzNumbrex from stzObject
 	
 	def ParsePattern(cPattern)
 
-		cInner = @StzMid(cPattern, 2, ring_len(cPattern) - 1)
+		cInner = @StzMid(cPattern, 2, len(cPattern) - 1)
 		cInner = trim(cInner)
 		
 		if @bDebugMode
@@ -61,7 +61,7 @@ class stzNumbrex from stzObject
 		aParts = This.SplitByOperator(cInner, "->")
 
 		aTokens = []
-		nLenParts = ring_len(aParts)
+		nLenParts = len(aParts)
 		
 		for i = 1 to nLenParts
 			cPart = trim(aParts[i])
@@ -77,7 +77,7 @@ class stzNumbrex from stzObject
 				aToken = This.ParseSingleToken(cPart)
 			ok
 			
-			if ring_len(aToken) > 0
+			if len(aToken) > 0
 				aTokens + aToken
 			ok
 		next
@@ -88,8 +88,8 @@ class stzNumbrex from stzObject
 		aParts = []
 		cCurrent = ""
 		nDepth = 0
-		nLen = ring_len(cStr)
-		nOpLen = ring_len(cOperator)
+		nLen = len(cStr)
+		nOpLen = len(cOperator)
 		
 		for i = 1 to nLen
 			cChar = @StzMid(cStr, i, i)
@@ -109,7 +109,7 @@ class stzNumbrex from stzObject
 			ok
 		next
 		
-		if ring_len(cCurrent) > 0
+		if len(cCurrent) > 0
 			aParts + trim(cCurrent)
 		ok
 		
@@ -117,18 +117,18 @@ class stzNumbrex from stzObject
 	
 	def ParseAlternation(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
 		ok
 		
 		aParts = This.SplitByOperator(cTokenStr, "|")
 		aAlternatives = []
-		nLenParts = ring_len(aParts)
+		nLenParts = len(aParts)
 		
 		for i = 1 to nLenParts
 			cPart = trim(aParts[i])
 			if cPart != ""
 				aToken = This.ParseSingleToken(cPart)
-				if ring_len(aToken) > 0
+				if len(aToken) > 0
 					aAlternatives + aToken
 				ok
 			ok
@@ -142,18 +142,18 @@ class stzNumbrex from stzObject
 	
 	def ParseConjunction(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
 		ok
 		
 		aParts = This.SplitByOperator(cTokenStr, "&")
 		aConditions = []
-		nLenParts = ring_len(aParts)
+		nLenParts = len(aParts)
 		
 		for i = 1 to nLenParts
 			cPart = trim(aParts[i])
 			if cPart != ""
 				aToken = This.ParseSingleToken(cPart)
-				if ring_len(aToken) > 0
+				if len(aToken) > 0
 					aConditions + aToken
 				ok
 			ok
@@ -177,7 +177,7 @@ def ParseSingleToken(cTokenStr)
 	
 	if startsWith(StzLower(cTokenStr), "@!")
 		bNegated = 1
-		cTokenStr = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 3, len(cTokenStr))
 
 		if @bDebugMode
 			? "Negation detected! Remaining: " + cTokenStr
@@ -194,81 +194,81 @@ def ParseSingleToken(cTokenStr)
 
 	if startsWith(cTokenStr, "@digit")
 		cType = "digit"
-		cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 7, len(cTokenStr))
 
 	but startsWith(cTokenStr, "digit")
 		cType = "digit"
-		cTokenStr = @StzMid(cTokenStr, 6, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 6, len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@factor")
 		cType = "factor"
-		cTokenStr = @StzMid(cTokenStr, 8, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 8, len(cTokenStr))
 
 	but startsWith(cTokenStr, "factor")
 		cType = "factor"
-		cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 7, len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@property")
 		cType = "property"
-		cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 10, len(cTokenStr))
 
 	but StartsWith(cTokenStr, "property")
 		cType = "property"
-		cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@part")
 		cType = "part"
-		cTokenStr = @StzMid(cTokenStr, 6, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 6, len(cTokenStr))
 
 	but startsWith(cTokenStr, "part")
 		cType = "part"
-		cTokenStr = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@relation")
 		cType = "relation"
-		cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 10, len(cTokenStr))
 
 	but startsWith(cTokenStr, "relation")
 		cType = "relation"
-		cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@approx")
 		cType = "approx"
-		cTokenStr = @StzMid(cTokenStr, 8, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 8, len(cTokenStr))
 
 	but startsWith(cTokenStr, "approx")
 		cType = "approx"
-		cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 7, len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@divisor")
 		cType = "divisor"
-		cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
 
 	but startsWith(cTokenStr, "divisor")
 		cType = "divisor"
-		cTokenStr = @StzMid(cTokenStr, 8, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 8, len(cTokenStr))
 
 	#--
 
 	but startsWith(cTokenStr, "@multiple")
 		cType = "multiple"
-		cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 10, len(cTokenStr))
 
 	but startsWith(cTokenStr, "multiple")
 		cType = "multiple"
-		cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
+		cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
 
 	#--
 
@@ -308,8 +308,8 @@ def ParseSingleToken(cTokenStr)
 	cQuantPart = ""
 	if nCloseParen > 0
 		# Extract everything after closing parenthesis
-		if nCloseParen < ring_len(cTokenStr)
-			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, ring_len(cTokenStr))
+		if nCloseParen < len(cTokenStr)
+			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, len(cTokenStr))
 		ok
 	else
 		# No parentheses - extract after token type name from original string
@@ -355,8 +355,8 @@ def ParseSingleToken(cTokenStr)
 			nTypeLen += 2
 		ok
 		
-		if nTypeLen > 0 and nTypeLen < ring_len(cOriginal)
-			cQuantPart = @StzMid(cOriginal, nTypeLen + 1, ring_len(cOriginal))
+		if nTypeLen > 0 and nTypeLen < len(cOriginal)
+			cQuantPart = @StzMid(cOriginal, nTypeLen + 1, len(cOriginal))
 		ok
 	ok
 	
@@ -366,12 +366,12 @@ def ParseSingleToken(cTokenStr)
 		? "Quantifier part: [" + cQuantPart + "]"
 	ok
 	
-	if ring_len(cQuantPart) > 0
+	if len(cQuantPart) > 0
 		# Check for colon (constraints like :unique)
 		if StzFind(cQuantPart, ":") > 0
 			nColon = StzFind(cQuantPart, ":")
 			cBeforeColon = @StzMid(cQuantPart, 1, nColon - 1)
-			cAfterColon = @StzMid(cQuantPart, nColon + 1, ring_len(cQuantPart))
+			cAfterColon = @StzMid(cQuantPart, nColon + 1, len(cQuantPart))
 			
 			if @bDebugMode
 				? "Before colon: [" + cBeforeColon + "]"
@@ -379,10 +379,10 @@ def ParseSingleToken(cTokenStr)
 			ok
 			
 			cBeforeColon = trim(cBeforeColon)
-			if ring_len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
+			if len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
 				if StzFind(cBeforeColon, "-") > 0
 					aSection = @split(cBeforeColon, "-")
-					if ring_len(aSection) = 2
+					if len(aSection) = 2
 						nMin = 0 + trim(aSection[1])
 						nMax = 0 + trim(aSection[2])
 					ok
@@ -393,7 +393,7 @@ def ParseSingleToken(cTokenStr)
 			ok
 			
 			aMoreConstraints = This.ParseConstraints(":" + cAfterColon, cType)
-			nLenMore = ring_len(aMoreConstraints)
+			nLenMore = len(aMoreConstraints)
 			for i = 1 to nLenMore
 				aConstraints + aMoreConstraints[i]
 			next
@@ -402,8 +402,8 @@ def ParseSingleToken(cTokenStr)
 			cLastChar = StzRight(cQuantPart, 1)
 			if cLastChar = "+"
 				# Check if there's a number before the +
-				cBeforePlus = StzLeft(cQuantPart, ring_len(cQuantPart) - 1)
-				if ring_len(cBeforePlus) > 0 and This.IsNumeric(cBeforePlus)
+				cBeforePlus = StzLeft(cQuantPart, len(cQuantPart) - 1)
+				if len(cBeforePlus) > 0 and This.IsNumeric(cBeforePlus)
 					nMin = 0 + cBeforePlus
 					nMax = 999999
 				else
@@ -412,8 +412,8 @@ def ParseSingleToken(cTokenStr)
 				ok
 			but cLastChar = "*"
 				# Check if there's a number before the *
-				cBeforeStar = StzLeft(cQuantPart, ring_len(cQuantPart) - 1)
-				if ring_len(cBeforeStar) > 0 and This.IsNumeric(cBeforeStar)
+				cBeforeStar = StzLeft(cQuantPart, len(cQuantPart) - 1)
+				if len(cBeforeStar) > 0 and This.IsNumeric(cBeforeStar)
 					nMin = 0 + cBeforeStar
 					nMax = 999999
 				else
@@ -426,7 +426,7 @@ def ParseSingleToken(cTokenStr)
 			but This.IsNumeric(cQuantPart)
 				if StzFind(cQuantPart, "-") > 0
 					aSection = @split(cQuantPart, "-")
-					if ring_len(aSection) = 2
+					if len(aSection) = 2
 						nMin = 0 + trim(aSection[1])
 						nMax = 0 + trim(aSection[2])
 					ok
@@ -459,7 +459,7 @@ def ParseSingleToken(cTokenStr)
 				aConstraints + [["type", "unique"]]
 			but StzFind(cConstraintStr, "..") > 0
 				aParts = @split(cConstraintStr, "..")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					aConstraints + [
 						["type", "Section"],
 						["start", 0 + trim(aParts[1])],
@@ -476,7 +476,7 @@ def ParseSingleToken(cTokenStr)
 					["values", aValues]
 				]
 			but StzFind(cConstraintStr, ":step") > 0
-				cStep = @StzMid(cConstraintStr, 6, ring_len(cConstraintStr))
+				cStep = @StzMid(cConstraintStr, 6, len(cConstraintStr))
 				aConstraints + [
 					["type", "step"],
 					["value", 0 + cStep]
@@ -488,7 +488,7 @@ def ParseSingleToken(cTokenStr)
 				]
 			but StzFind(cConstraintStr, "-") > 0
 				aParts = @split(cConstraintStr, "-")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					aConstraints + [
 						["type", "Section"],
 						["start", 0 + trim(aParts[1])],
@@ -541,14 +541,14 @@ def ParseSingleToken(cTokenStr)
 		return bResult
 	
 	def MatchTokens(aTokens, nNum)
-		nLenTokens = ring_len(aTokens)
+		nLenTokens = len(aTokens)
 		for i = 1 to nLenTokens
 			aToken = aTokens[i]
 			
 			if HasKey(aToken, "type") and aToken["type"] = "alternation"
 				bMatched = FALSE
 				if HasKey(aToken, "alternatives")
-					nLenAlt = ring_len(aToken["alternatives"])
+					nLenAlt = len(aToken["alternatives"])
 					for j = 1 to nLenAlt
 						if This.MatchSingleToken(aToken["alternatives"][j], nNum)
 							bMatched = TRUE
@@ -562,7 +562,7 @@ def ParseSingleToken(cTokenStr)
 			
 			but HasKey(aToken, "type") and aToken["type"] = "conjunction"
 				if HasKey(aToken, "conditions")
-					nLenCond = ring_len(aToken["conditions"])
+					nLenCond = len(aToken["conditions"])
 					for j = 1 to nLenCond
 						if not This.MatchSingleToken(aToken["conditions"][j], nNum)
 							return FALSE
@@ -739,7 +739,7 @@ def ParseSingleToken(cTokenStr)
 	def IsPalindrome(nNum)
 		cStr = "" + abs(nNum)
 		cReversed = ""
-		nLen = ring_len(cStr)
+		nLen = len(cStr)
 		for i = nLen to 1 step -1
 			cReversed += @StzMid(cStr, i, i)
 		next
@@ -751,7 +751,7 @@ def ParseSingleToken(cTokenStr)
 		ok
 		aFactors = This.GetProperDivisors(nNum)
 		nSum = 0
-		nLen = ring_len(aFactors)
+		nLen = len(aFactors)
 		for i = 1 to nLen
 			nSum += aFactors[i]
 		next
@@ -763,7 +763,7 @@ def ParseSingleToken(cTokenStr)
 		ok
 		aFactors = This.GetProperDivisors(nNum)
 		nSum = 0
-		nLen = ring_len(aFactors)
+		nLen = len(aFactors)
 		for i = 1 to nLen
 			nSum += aFactors[i]
 		next
@@ -788,7 +788,7 @@ def ParseSingleToken(cTokenStr)
 	def GetProperDivisors(nNum)
 		aFactors = This.GetFactors(nNum)
 		aResult = []
-		nLen = ring_len(aFactors)
+		nLen = len(aFactors)
 		for i = 1 to nLen
 			if aFactors[i] != nNum
 				aResult + aFactors[i]
@@ -802,7 +802,7 @@ def ParseSingleToken(cTokenStr)
 	
 def CheckDigits(aToken, nNum)
 	aDigits = This.GetDigits(nNum)
-	nCount = ring_len(aDigits)
+	nCount = len(aDigits)
 	nMin = 1
 	nMax = 1
 	
@@ -822,7 +822,7 @@ def CheckDigits(aToken, nNum)
 	ok
 	
 	if HasKey(aToken, "constraints")
-		nLenConstr = ring_len(aToken["constraints"])
+		nLenConstr = len(aToken["constraints"])
 		for i = 1 to nLenConstr
 			aConstraint = aToken["constraints"][i]
 			
@@ -830,7 +830,7 @@ def CheckDigits(aToken, nNum)
 				cConstrType = aConstraint["type"]
 				
 				if cConstrType = "Section"
-					nLenDigits = ring_len(aDigits)
+					nLenDigits = len(aDigits)
 					for j = 1 to nLenDigits
 						nDigit = aDigits[j]
 						nStart = 0
@@ -850,10 +850,10 @@ def CheckDigits(aToken, nNum)
 				
 				but cConstrType = "set"
 					if HasKey(aConstraint, "values")
-						nLenDigits = ring_len(aDigits)
+						nLenDigits = len(aDigits)
 						for j = 1 to nLenDigits
 							bFound = FALSE
-							nLenValues = ring_len(aConstraint["values"])
+							nLenValues = len(aConstraint["values"])
 							for k = 1 to nLenValues
 								if aDigits[j] = (0 + trim(aConstraint["values"][k]))
 									bFound = TRUE
@@ -867,7 +867,7 @@ def CheckDigits(aToken, nNum)
 					ok
 				
 				but cConstrType = "unique"
-					nLenDigits = ring_len(aDigits)
+					nLenDigits = len(aDigits)
 					for j = 1 to nLenDigits
 						for k = j + 1 to nLenDigits
 							if aDigits[j] = aDigits[k]
@@ -892,7 +892,7 @@ def CheckDigits(aToken, nNum)
 	def GetDigits(nNum)
 		cStr = "" + abs(nNum)
 		aDigits = []
-		nLen = ring_len(cStr)
+		nLen = len(cStr)
 		for i = 1 to nLen
 			cChar = @StzMid(cStr, i, i)
 			if isDigit(cChar)
@@ -907,7 +907,7 @@ def CheckDigits(aToken, nNum)
 	
 	def CheckFactors(aToken, nNum)
 		aFactors = This.GetFactors(nNum)
-		nCount = ring_len(aFactors)
+		nCount = len(aFactors)
 		nMin = 1
 		nMax = 1
 		
@@ -923,7 +923,7 @@ def CheckDigits(aToken, nNum)
 		ok
 		
 		if HasKey(aToken, "constraints")
-			nLenConstr = ring_len(aToken["constraints"])
+			nLenConstr = len(aToken["constraints"])
 			for i = 1 to nLenConstr
 				aConstraint = aToken["constraints"][i]
 				
@@ -931,7 +931,7 @@ def CheckDigits(aToken, nNum)
 					cConstrType = aConstraint["type"]
 					
 					if cConstrType = "prime"
-						nLenFactors = ring_len(aFactors)
+						nLenFactors = len(aFactors)
 						for j = 1 to nLenFactors
 							if not This.IsPrime(aFactors[j])
 								return FALSE
@@ -939,7 +939,7 @@ def CheckDigits(aToken, nNum)
 						next
 					
 					but cConstrType = "unique"
-						nLenFactors = ring_len(aFactors)
+						nLenFactors = len(aFactors)
 						for j = 1 to nLenFactors
 							for k = j + 1 to nLenFactors
 								if aFactors[j] = aFactors[k]
@@ -980,7 +980,7 @@ def CheckDigits(aToken, nNum)
 		next
 		
 		# Sort factors
-		nLen = ring_len(aFactors)
+		nLen = len(aFactors)
 		for i = 1 to nLen - 1
 			for j = i + 1 to nLen
 				if aFactors[i] > aFactors[j]
@@ -999,11 +999,11 @@ def CheckDigits(aToken, nNum)
 	
 	def CheckRelation(cRelation, nNum)
 		if StzFind(StzLower(cRelation), "mod:") > 0
-			cRest = @StzMid(cRelation, 5, ring_len(cRelation))
+			cRest = @StzMid(cRelation, 5, len(cRelation))
 			nEquals = StzFind(cRest, "=")
 			if nEquals > 0
 				cMod = @StzMid(cRest, 1, nEquals - 1)
-				cExpected = @StzMid(cRest, nEquals + 1, ring_len(cRest))
+				cExpected = @StzMid(cRest, nEquals + 1, len(cRest))
 				nMod = 0 + cMod
 				nExpected = 0 + cExpected
 				return (nNum % nMod) = nExpected
@@ -1013,14 +1013,14 @@ def CheckDigits(aToken, nNum)
 	
 	def CheckApprox(cApprox, nNum)
 		if startsWith(cApprox, "~")
-			cValue = @StzMid(cApprox, 2, ring_len(cApprox))
+			cValue = @StzMid(cApprox, 2, len(cApprox))
 			nDecimals = 2
 			
 			if StzFind(cValue, ":") > 0
 				aParts = @split(cValue, ":")
 				cValue = aParts[1]
-				if ring_len(aParts) > 1 and StzFind(StzLower(aParts[2]), "decimal") > 0
-					nLenPart = ring_len(aParts[2])
+				if len(aParts) > 1 and StzFind(StzLower(aParts[2]), "decimal") > 0
+					nLenPart = len(aParts[2])
 					for i = 1 to nLenPart
 						if isDigit(@StzMid(aParts[2], i, i))
 							nDecimals = 0 + @StzMid(aParts[2], i, i)
@@ -1050,13 +1050,13 @@ def CheckDigits(aToken, nNum)
 			return not (nFrac >= -0.0000001 and nFrac <= 0.0000001)
 		
 		but startsWith(cPart, "integer:")
-			cPattern = @StzMid(cPart, 9, ring_len(cPart))
+			cPattern = @StzMid(cPart, 9, len(cPart))
 			nIntPart = floor(nNum)
 			oNx = new stzNumbrex("{" + cPattern + "}")
 			return oNx.Match(nIntPart)
 		
 		but startsWith(cPart, "fractional:")
-			cPattern = @StzMid(cPart, 12, ring_len(cPart))
+			cPattern = @StzMid(cPart, 12, len(cPart))
 			nFracPart = nNum - floor(nNum)
 			nFracInt = floor(nFracPart * 1000000)
 			oNx = new stzNumbrex("{" + cPattern + "}")
@@ -1183,7 +1183,7 @@ def CheckDigits(aToken, nNum)
 	def Explain()
 		aExplanation = [
 			["Pattern", @cPattern],
-			["TokenCount", ring_len(@aTokens)],
+			["TokenCount", len(@aTokens)],
 			["Tokens", @aTokens]
 		]
 		
@@ -1191,7 +1191,7 @@ def CheckDigits(aToken, nNum)
 			aExplanation + ["Target", @nNumber]
 		ok
 		
-		if ring_len(@aMatchedParts) > 0
+		if len(@aMatchedParts) > 0
 			aExplanation + ["MatchedParts", @aMatchedParts]
 		ok
 		
@@ -1239,7 +1239,7 @@ def CheckDigits(aToken, nNum)
 				StzRaise("Incorrect param type! nStart mustr be a number.")
 			ok
 
-			if isList(nEnd) and ring_len(nEnd) = 2 and isString(nEnd[1]) and StzLower(nEnd[1]) = "and"
+			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and StzLower(nEnd[1]) = "and"
 				nEnd = nEnd[2]
 			ok
 
@@ -1267,7 +1267,7 @@ def CheckDigits(aToken, nNum)
 				StzRaise("Incorrect param type! nStart mustr be a number.")
 			ok
 
-			if isList(nEnd) and ring_len(nEnd) = 2 and isString(nEnd[1]) and StzLower(nEnd[1]) = "and"
+			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and StzLower(nEnd[1]) = "and"
 				nEnd = nEnd[2]
 			ok
 
@@ -1317,7 +1317,7 @@ def CheckDigits(aToken, nNum)
 			return FALSE
 		ok
 		
-		nLen = ring_len(cStr)
+		nLen = len(cStr)
 		for i = 1 to nLen
 			cChar = @StzMid(cStr, i, i)
 			if not isDigit(cChar) and cChar != "-"

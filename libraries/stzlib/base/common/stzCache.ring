@@ -123,7 +123,7 @@ class stzCache from stzObject
 		n = 0
 		aTemp = CacheFileLines()
 	
-		_nTemp1Len_ = ring_len(aTemp)
+		_nTemp1Len_ = len(aTemp)
 		for _iLoopTemp1_ = 1 to _nTemp1Len_
 			aLine = aTemp[_iLoopTemp1_]
 			n++
@@ -157,7 +157,7 @@ class stzCache from stzObject
 		aResult = []
 		cLine = ""
 		i = 0
-		_nCache1Len_ = ring_len(cCache)
+		_nCache1Len_ = len(cCache)
 		for _iLoopCache1_ = 1 to _nCache1Len_
 			c = cCache[_iLoopCache1_]
 			i++
@@ -175,7 +175,7 @@ class stzCache from stzObject
 		return CacheFileLines()[n]
 	
 	func CacheFileNumberOfLines()
-		return ring_len(CacheFileLines())
+		return len(CacheFileLines())
 
 	def ComposeLine(paParts)
 		return TransformListToString(paParts, ["|",","])

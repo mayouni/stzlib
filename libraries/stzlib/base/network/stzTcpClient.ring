@@ -52,7 +52,7 @@ class stzTcpClient from stzNetwork
         ok
         
         buf = new_uv_buf_t()
-        set_uv_buf_t_len(buf, ring_len(cData))
+        set_uv_buf_t_len(buf, len(cData))
         set_uv_buf_t_base(buf, varptr("cData", :char))
         
         write_req = new_uv_write_t()

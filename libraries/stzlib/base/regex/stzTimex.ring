@@ -61,7 +61,7 @@ class stzTimex
 		if @bDebugMode
 			? "=== stzTimex Init ==="
 			? "Pattern: " + @cPattern
-			? "Tokens parsed: " + ring_len(@aTokens)
+			? "Tokens parsed: " + len(@aTokens)
 		ok
 
 	
@@ -81,7 +81,7 @@ class stzTimex
 	
 	def ParsePattern(cPattern)
 		# Remove outer braces
-		cInner = @StzMid(cPattern, 2, ring_len(cPattern)-1)
+		cInner = @StzMid(cPattern, 2, len(cPattern)-1)
 		cInner = trim(cInner)
 		
 		if @bDebugMode
@@ -92,7 +92,7 @@ class stzTimex
 		aParts = This.SplitByOperator(cInner, "->")
 		
 		aTokens = []
-		nLen = ring_len(aParts)
+		nLen = len(aParts)
 		for i = 1 to nLen
 			cPart = @trim(aParts[i])
 			
@@ -107,7 +107,7 @@ class stzTimex
 				aToken = This.ParseSingleToken(cPart)
 			ok
 			
-			if ring_len(aToken) > 0
+			if len(aToken) > 0
 				aTokens + aToken
 			ok
 		next
@@ -119,8 +119,8 @@ class stzTimex
 		aParts = []
 		cCurrent = ""
 		nDepth = 0
-		nLen = ring_len(cStr)
-		nOpLen = ring_len(cOperator)
+		nLen = len(cStr)
+		nOpLen = len(cOperator)
 		
 		for i = 1 to nLen
 			cChar = StzMid(cStr, i, 1)
@@ -142,7 +142,7 @@ class stzTimex
 			ok
 		next
 		
-		if ring_len(cCurrent) > 0
+		if len(cCurrent) > 0
 			aParts + @trim(cCurrent)
 		ok
 		
@@ -152,19 +152,19 @@ class stzTimex
 		# Handle (A | B | C) patterns
 		# Strip outer parentheses if present
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
 		ok
 		
 		# Split by |
 		aParts = This.SplitByOperator(cTokenStr, "|")
-		nLenParts = ring_len(aParts)
+		nLenParts = len(aParts)
 		aAlternatives = []
 		
 		for i = 1 to nLenParts
 			cPart = @trim(aParts[i])
 			if cPart != ""
 				aToken = This.ParseSingleToken(cPart)
-				if ring_len(aToken) > 0
+				if len(aToken) > 0
 					aAlternatives + aToken
 				ok
 			ok
@@ -187,7 +187,7 @@ class stzTimex
 		bNegated = FALSE
 		if startsWith(cTokenStr, "@!")
 			bNegated = TRUE
-			cTokenStr = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 3, len(cTokenStr))
 		ok
 		
 		# Initialize token properties
@@ -201,23 +201,23 @@ class stzTimex
 		# Identify token type
 		if startsWith(cTokenStr, "@Instant")
 			cType = "instant"
-			cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
 	
 		but startsWith(cTokenStr, "@Duration")
 			cType = "duration"
-			cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 10, len(cTokenStr))
 	
 		but startsWith(cTokenStr, "@Event")
 			cType = "event"
-			cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 7, len(cTokenStr))
 	
 		but startsWith(cTokenStr, "@Sequence")
 			cType = "sequence"
-			cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 10, len(cTokenStr))
 	
 		but startsWith(cTokenStr, "@Frame")
 			cType = "frame"
-			cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 7, len(cTokenStr))
 	
 		else
 			if @bDebugMode
@@ -237,7 +237,7 @@ class stzTimex
 				if cType = "event" and contains(cContent, ":")
 					aParts = @split(cContent, ":")
 					cLabel = @trim(aParts[1])
-					if ring_len(aParts) > 1
+					if len(aParts) > 1
 						cDurationPart = @trim(aParts[2])
 						aConstraints = This.ParseConstraints(cDurationPart)
 					ok
@@ -269,7 +269,7 @@ class stzTimex
 		
 		# Check for numeric quantifiers
 		if isDigit(cLastChar)
-			nLenTokenStr = ring_len(cTokenStr)
+			nLenTokenStr = len(cTokenStr)
 	
 			for i = nLenTokenStr to 1 step -1
 				cChar = @StzMid(cTokenStr, i, i+1)
@@ -277,7 +277,7 @@ class stzTimex
 					cQuantPart = @StzMid(cTokenStr, i + 1, nLenTokenStr)
 					if contains(cQuantPart, "-")
 						aRange = @split(cQuantPart, "-")
-						if ring_len(aRange) = 2
+						if len(aRange) = 2
 							nMin = 0 + aRange[1]
 							nMax = 0 + aRange[2]
 						ok
@@ -315,7 +315,7 @@ class stzTimex
 		if contains(cConstraintStr, ":")
 			aParts = @split(cConstraintStr, ":")
 			cWorkingStr = @trim(aParts[1])
-			if ring_len(aParts) > 1
+			if len(aParts) > 1
 				cStep = @trim(aParts[2])
 			ok
 		ok
@@ -323,7 +323,7 @@ class stzTimex
 		# Now check for range in the working string
 		if contains(cWorkingStr, "..")
 			aParts = @split(cWorkingStr, "..")
-			if ring_len(aParts) = 2
+			if len(aParts) = 2
 				cStart = @trim(aParts[1])
 				cEnd = @trim(aParts[2])
 				
@@ -335,7 +335,7 @@ class stzTimex
 				]
 			ok
 		# Check for single duration (e.g., "1h", "30m")
-		but ring_len(cWorkingStr) > 0
+		but len(cWorkingStr) > 0
 			# Single duration - treat as exact match
 			nMinutes = This.ParseDurationToMinutes(cWorkingStr)
 			aConstraints + [
@@ -371,14 +371,14 @@ class stzTimex
 		if nHPos > 0
 			cHours = StzLeft(cDuration, nHPos - 1)
 			nMinutes = (0 + cHours) * 60
-			cDuration = @StzMid(cDuration, nHPos + 1, ring_len(cDuration))
+			cDuration = @StzMid(cDuration, nHPos + 1, len(cDuration))
 		ok
 		
 		# Extract minutes
 		if contains(cDuration, "min")
 			cMinutes = @StzMid(cDuration, 1, StzFind(cDuration, "min") - 1)
 			nMinutes += (0 + StzStringQ(cDuration).Numbers()[1])  # ADD @trim() here
-		but ring_len(cDuration) > 0  # CHANGE: was cDuration != ""
+		but len(cDuration) > 0  # CHANGE: was cDuration != ""
 			# Just a number, assume minutes
 			nMinutes += (0 + StzStringQ(cDuration).Numbers()[1])  # ADD @trim() here
 		ok
@@ -411,7 +411,7 @@ class stzTimex
 		aNormalized = This.NormalizeTarget(@oTarget)
 		
 		# Try matching from each position
-		nLen = ring_len(aNormalized)
+		nLen = len(aNormalized)
 		for nStart = 1 to nLen
 			bResult = This.BacktrackMatchPartial(@aTokens, aNormalized, 1, nStart, [])
 			if bResult
@@ -437,7 +437,7 @@ class stzTimex
 	
 	
 	def SortByDateTime(aItems)
-		nLen = ring_len(aItems)
+		nLen = len(aItems)
 		for i = 1 to nLen - 1
 			for j = i + 1 to nLen
 				cTime1 = ""
@@ -465,8 +465,8 @@ class stzTimex
 		return aItems
 		
 	def BacktrackMatch(aTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
-		nLenTokens = ring_len(aTokens)
-		nLenData = ring_len(aNormalized)
+		nLenTokens = len(aTokens)
+		nLenData = len(aNormalized)
 		
 		# Base case: all tokens processed
 		if nTokenIdx > nLenTokens
@@ -477,7 +477,7 @@ class stzTimex
 		
 		# Handle alternation - try each alternative as a separate path
 		if aToken[:type] = "alternation"
-			nLen = ring_len(aToken[:alternatives])
+			nLen = len(aToken[:alternatives])
 			for i = 1 to nLen
 				aAlt = aToken[:alternatives][i]
 				
@@ -509,7 +509,7 @@ class stzTimex
 			aLocalMatched = []
 			
 			# Copy existing matches
-			nLenMatched = ring_len(aMatched)
+			nLenMatched = len(aMatched)
 			for i = 1 to nLenMatched
 				aLocalMatched + aMatched[i]
 			next
@@ -587,8 +587,8 @@ class stzTimex
 
 
 	def BacktrackMatchPartial(aTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
-		nLenTokens = ring_len(aTokens)
-		nLenData = ring_len(aNormalized)
+		nLenTokens = len(aTokens)
+		nLenData = len(aNormalized)
 		
 		# Base case: all tokens processed - PARTIAL match succeeds
 		if nTokenIdx > nLenTokens
@@ -610,7 +610,7 @@ class stzTimex
 		
 		# Handle alternation
 		if aToken[:type] = "alternation"
-			nLen = ring_len(aToken[:alternatives])
+			nLen = len(aToken[:alternatives])
 			for i = 1 to nLen
 				aAlt = aToken[:alternatives][i]
 				
@@ -668,7 +668,7 @@ class stzTimex
 			aLocalMatched = []
 			nMatched = 0
 			
-			nLenMatched = ring_len(aMatched)
+			nLenMatched = len(aMatched)
 			for i = 1 to nLenMatched
 				aLocalMatched + aMatched[i]
 			next
@@ -744,7 +744,7 @@ class stzTimex
 			
 			# Collect points as instants
 			aPoints = oTarget.Points()
-			nLenPoints = ring_len(aPoints)
+			nLenPoints = len(aPoints)
 			for i = 1 to nLenPoints
 				aPoint = aPoints[i]
 				aItems + [
@@ -757,7 +757,7 @@ class stzTimex
 			
 			# Collect spans as events
 			aSpans = oTarget.Spans()
-			nLenSpans = ring_len(aSpans)
+			nLenSpans = len(aSpans)
 			for i = 1 to nLenSpans
 				aSpan = aSpans[i]
 				oStart = new stzDateTime(aSpan[2])
@@ -778,7 +778,7 @@ class stzTimex
 			aItems = This.SortByDateTime(aItems)
 			
 			# Build sequence with gaps
-			nLen = ring_len(aItems)
+			nLen = len(aItems)
 			for i = 1 to nLen
 				aNormalized + aItems[i]
 				
@@ -818,7 +818,7 @@ class stzTimex
 		
 		but @IsStzCalendar(oTarget)
 			aWorkDays = oTarget.WorkingDays()
-			nLen = ring_len(aWorkDays)
+			nLen = len(aWorkDays)
 			for i = 1 to nLen
 				aNormalized + [
 					["type", "instant"],
@@ -829,7 +829,7 @@ class stzTimex
 			next
 		
 		but isList(oTarget)
-			nLen = ring_len(oTarget)
+			nLen = len(oTarget)
 			for i = 1 to nLen
 				xItem = oTarget[i]
 				
@@ -882,7 +882,7 @@ class stzTimex
 	
 
 	def CheckConstraints(aConstraints, aData)
-		nLen = ring_len(aConstraints)
+		nLen = len(aConstraints)
 		
 		if @bDebugMode
 			? "CheckConstraints: type=" + aData[:type] + ", label=" + aData[:label] + ", constraints=" + nLen
@@ -938,7 +938,7 @@ class stzTimex
 			
 			but aConstraint[:type] = "set"
 				bInSet = FALSE
-				nLenTemp = ring_len(aConstraint[:values])
+				nLenTemp = len(aConstraint[:values])
 				for j = 1 to nLenTemp
 					if StzLower(aData[:label]) = StzLower(@trim(aConstraint[:values][j]))
 						bInSet = TRUE
@@ -956,7 +956,7 @@ class stzTimex
 		def ExtractMatches(aNormalized)
 			# Extract matched parts for later retrieval
 			@aMatchedParts = []
-			nLen = ring_len(aNormalized)
+			nLen = len(aNormalized)
 	
 			for i = 1 to nLen
 				aData = aNormalized[i]
@@ -980,7 +980,7 @@ class stzTimex
 	def TokensXT()
 		# Return detailed token information
 		aInfo = []
-		nLen = ring_len(@aTokens)
+		nLen = len(@aTokens)
 
 		for i = 1 to nLen
 			aToken = @aTokens[i]
@@ -995,7 +995,7 @@ class stzTimex
 				aTokenInfo + ["quantifier", "" + aToken[:min] + "-" + aToken[:max]]
 			ok
 			
-			if ring_len(aToken[:constraints]) > 0
+			if len(aToken[:constraints]) > 0
 				aTokenInfo + ["constraints", aToken[:constraints]]
 			ok
 			
@@ -1018,10 +1018,10 @@ class stzTimex
 		# Return structured explanation
 		return [
 			["Pattern", @cPattern],
-			["TokenCount", ring_len(@aTokens)],
+			["TokenCount", len(@aTokens)],
 			["Tokens", This.TokensXT()],
 			["TargetSet", @oTarget != NULL],
-			["LastMatch", ring_len(@aMatchedParts) > 0]
+			["LastMatch", len(@aMatchedParts) > 0]
 		]
 	
 	  #----------------------#
@@ -1075,7 +1075,7 @@ class stzTimex
 	
 	def @Min(aValues)
 		nMin = aValues[1]
-		nLen = ring_len(aValues)
+		nLen = len(aValues)
 
 		for i = 2 to nLen
 			if aValues[i] < nMin

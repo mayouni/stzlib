@@ -44,7 +44,7 @@ class stzTablex from stzObject
 		if @bDebugMode
 			? "=== stzTablex Init ==="
 			? "Pattern: " + @cPattern
-			? "Tokens parsed: " + ring_len(@aTokens)
+			? "Tokens parsed: " + len(@aTokens)
 		ok
 
 	def NormalizePattern(cPattern)
@@ -60,7 +60,7 @@ class stzTablex from stzObject
 
 	def ParsePattern(cPattern)
 		# Remove outer braces
-		cInner = @StzMid(cPattern, 2, ring_len(cPattern) - 1)
+		cInner = @StzMid(cPattern, 2, len(cPattern) - 1)
 		cInner = trim(cInner)
 
 		if @bDebugMode
@@ -70,7 +70,7 @@ class stzTablex from stzObject
 		# Split by logical operators -> (sequence), & (and), | (or)
 		aParts = This.SplitByOperator(cInner, "->")
 		aTokens = []
-		nLen = ring_len(aParts)
+		nLen = len(aParts)
 
 		for i = 1 to nLen
 			cPart = trim(aParts[i])
@@ -98,8 +98,8 @@ class stzTablex from stzObject
 		aParts = []
 		cCurrent = ""
 		nDepth = 0
-		nLen = ring_len(cStr)
-		nOpLen = ring_len(cOperator)
+		nLen = len(cStr)
+		nOpLen = len(cOperator)
 
 		for i = 1 to nLen
 			cChar = @StzMid(cStr, i, i)
@@ -119,7 +119,7 @@ class stzTablex from stzObject
 			ok
 		next
 
-		if ring_len(cCurrent) > 0
+		if len(cCurrent) > 0
 			aParts + trim(cCurrent)
 		ok
 
@@ -127,18 +127,18 @@ class stzTablex from stzObject
 
 	def ParseAlternation(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
 		ok
 
 		aParts = This.SplitByOperator(cTokenStr, "|")
 		aAlternatives = []
-		nLen = ring_len(aParts)
+		nLen = len(aParts)
 
 		for i = 1 to nLen
 			cPart = trim(aParts[i])
 			if cPart != ""
 				aToken = This.ParseSingleToken(cPart)
-				if ring_len(aToken) > 0
+				if len(aToken) > 0
 					aAlternatives + aToken
 				ok
 			ok
@@ -152,11 +152,11 @@ class stzTablex from stzObject
 
 	def ParseConjunction(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
 		ok
 
 		aParts = This.SplitByOperator(cTokenStr, "&")
-		nLen = ring_len(aParts)
+		nLen = len(aParts)
 		aConditions = []
 
 		for i = 1 to nLen
@@ -190,13 +190,13 @@ class stzTablex from stzObject
 		# Check for negation
 		if startsWith(StzLower(cTokenStr), "@!")
 			bNegated = TRUE
-			cTokenStr = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 3, len(cTokenStr))
 		ok
 
 		# Check for case sensitivity flag
 		if startsWith(StzLower(cTokenStr), "@cs:")
 			bCaseSensitive = TRUE
-			cTokenStr = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
 		ok
 
 		cType = ""
@@ -384,16 +384,16 @@ class stzTablex from stzObject
 
 		# Parse quantifiers (same as before...)
 		cQuantPart = ""
-		if nCloseParen > 0 and nCloseParen < ring_len(cTokenStr)
-			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, ring_len(cTokenStr))
+		if nCloseParen > 0 and nCloseParen < len(cTokenStr)
+			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, len(cTokenStr))
 		ok
 
 		cQuantPart = trim(cQuantPart)
 
-		if ring_len(cQuantPart) > 0
+		if len(cQuantPart) > 0
 			if StzFind(cQuantPart, "-") > 0
 				aSection = @split(cQuantPart, "-")
-				if ring_len(aSection) = 2
+				if len(aSection) = 2
 					nMin = 0 + trim(aSection[1])
 					nMax = 0 + trim(aSection[2])
 				ok
@@ -432,10 +432,10 @@ class stzTablex from stzObject
 		return aResult
 
 	def RemovePrefix(cStr, aPrefixes)
-		nLen = ring_len(aPrefixes)
+		nLen = len(aPrefixes)
 		for i = 1 to nLen
 			if startsWith(cStr, aPrefixes[i])
-				return @StzMid(cStr, ring_len(aPrefixes[i]) + 1, ring_len(cStr))
+				return @StzMid(cStr, len(aPrefixes[i]) + 1, len(cStr))
 			ok
 		next
 		return cStr
@@ -458,12 +458,12 @@ class stzTablex from stzObject
 			but startsWith(cConstraintStr, ">")
 				aConstraints + [
 					["type", "greater"],
-					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				aConstraints + [
 					["type", "less"],
-					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			ok
 
@@ -476,19 +476,19 @@ class stzTablex from stzObject
 			but startsWith(cConstraintStr, ">")
 				aConstraints + [
 					["type", "greater"],
-					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				aConstraints + [
 					["type", "less"],
-					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			ok
 
 		on "cell"
 			if StzFind(cConstraintStr, "..") > 0
 				aParts = @split(cConstraintStr, "..")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					aConstraints + [
 						["type", "range"],
 						["start", trim(aParts[1])],
@@ -521,7 +521,7 @@ class stzTablex from stzObject
 		# Check cache
 		cTableSig = This.TableSignature(poTable)
 		cCacheKey = @cPattern + "|" + cTableSig
-		nLen = ring_len(@aMatchCache)
+		nLen = len(@aMatchCache)
 
 		for i = 1 to nLen
 			if @aMatchCache[i][1] = cCacheKey
@@ -542,14 +542,14 @@ class stzTablex from stzObject
 
 		# Store in cache
 		@aMatchCache + [cCacheKey, bResult]
-		if ring_len(@aMatchCache) > @nMaxCacheSize
+		if len(@aMatchCache) > @nMaxCacheSize
 			del(@aMatchCache, 1)  # Remove oldest
 		ok
 
 		return bResult
 
 	def MatchTokens(aTokens, oTable)
-		nLen = ring_len(aTokens)
+		nLen = len(aTokens)
 		for i = 1 to nLen
 			aToken = aTokens[i]
 
@@ -557,7 +557,7 @@ class stzTablex from stzObject
 				bMatched = FALSE
 				if HasKey(aToken, "alternatives")
 					aAlternatives = aToken["alternatives"]
-					nLenAlt = ring_len(aAlternatives)
+					nLenAlt = len(aAlternatives)
 
 					for j = 1 to nLenAlt
 						if This.MatchSingleToken(aAlternatives[j], oTable)
@@ -573,7 +573,7 @@ class stzTablex from stzObject
 			but HasKey(aToken, "type") and aToken["type"] = "conjunction"
 				if HasKey(aToken, "conditions")
 					aConditions = aToken["conditions"]
-					nLenCond = ring_len(aConditions)
+					nLenCond = len(aConditions)
 
 					for j = 1 to nLenCond
 						if not This.MatchSingleToken(aConditions[j], oTable)
@@ -699,7 +699,7 @@ class stzTablex from stzObject
 
 		if HasKey(aToken, "constraints")
 			aConstraints = aToken["constraints"]
-			nLen = ring_len(aConstraints)
+			nLen = len(aConstraints)
 
 			for i = 1 to nLen
 				aConstraint = aConstraints[i]
@@ -728,7 +728,7 @@ class stzTablex from stzObject
 	def CheckRows(aToken, oTable)
 		nRows = oTable.NumberOfRows()
 		aConstraints = aToken["constraints"]
-		nLen = ring_len(aConstraints)
+		nLen = len(aConstraints)
 
 		if HasKey(aToken, "constraints")
 			for i = 1 to nLen
@@ -775,7 +775,7 @@ class stzTablex from stzObject
 		# Check cell value constraints across table
 		if HasKey(aToken, "constraints")
 			aConstraints = aToken["constraints"]
-			nLen = ring_len(aConstraints)
+			nLen = len(aConstraints)
 
 			for i = 1 to nLen
 				aConstraint = aConstraints[i]
@@ -816,7 +816,7 @@ class stzTablex from stzObject
 
 			on "calculated"
 				# Check if has calculated columns
-				return ring_len(oTable.FindCalculatedCols()) > 0
+				return len(oTable.FindCalculatedCols()) > 0
 			off
 		ok
 		return TRUE
@@ -865,7 +865,7 @@ class stzTablex from stzObject
 				ok
 
 				aCol = oTable.Col(cColName)
-				nLen = ring_len(aCol)
+				nLen = len(aCol)
 
 				# Check if sorted ascending
 				for i = 1 to nLen - 1
@@ -906,11 +906,11 @@ class stzTablex from stzObject
 				aCol = oTable.Col(cColName)
 
 				if bCaseSensitive
-					return ring_len(aCol) = ring_len(U(aCol))
+					return len(aCol) = len(U(aCol))
 				else
 					# Case-insensitive: lowercase all values first
 					aLower = []
-					nLen = ring_len(aCol)
+					nLen = len(aCol)
 					for i = 1 to nLen
 						if isString(aCol[i])
 							aLower + StzLower(aCol[i])
@@ -918,7 +918,7 @@ class stzTablex from stzObject
 							aLower + aCol[i]
 						ok
 					next
-					return ring_len(aLower) = ring_len(U(aLower))
+					return len(aLower) = len(U(aLower))
 				ok
 			ok
 		ok
@@ -935,11 +935,11 @@ class stzTablex from stzObject
 
 				aCol = oTable.Col(cColName)
 				if bCaseSensitive
-					return ring_len(aCol) > ring_len(U(aCol))
+					return len(aCol) > len(U(aCol))
 				else
 					# Case-insensitive duplicates check
 					aLower = []
-					nLen = ring_len(aCol)
+					nLen = len(aCol)
 					for i = 1 to nLen
 						if isString(aCol[i])
 							aLower + StzLower(aCol[i])
@@ -947,7 +947,7 @@ class stzTablex from stzObject
 							aLower + aCol[i]
 						ok
 					next
-					return ring_len(aLower) > ring_len(U(aLower))
+					return len(aLower) > len(U(aLower))
 				ok
 			ok
 		ok
@@ -979,7 +979,7 @@ class stzTablex from stzObject
 
 				aCol = oTable.Col(cColName)
 				nConsecutiveDups = 0
-				nLen = ring_len(aCol)
+				nLen = len(aCol)
 
 				if @bDebugMode
 					? "Column data: " + @@(aCol)
@@ -1024,7 +1024,7 @@ class stzTablex from stzObject
 			cColName = aToken["value"]
 			if oTable.HasColumn(cColName)
 				aCol = oTable.Col(cColName)
-				nLen = ring_len(aCol)
+				nLen = len(aCol)
 
 				# Check for gaps in numeric sequence
 				if nLen > 1
@@ -1046,8 +1046,8 @@ class stzTablex from stzObject
 
 	def CheckAggregated(aToken, oTable)
 		# Check if table contains aggregated data (calculated rows/cols)
-		return ring_len(oTable.FindCalculatedRows()) > 0 or 
-		       ring_len(oTable.FindCalculatedCols()) > 0
+		return len(oTable.FindCalculatedRows()) > 0 or 
+		       len(oTable.FindCalculatedCols()) > 0
 
 	def CheckTransposed(aToken, oTable)
 		# Check if table structure suggests it's transposed (more cols than rows)
@@ -1063,7 +1063,7 @@ class stzTablex from stzObject
 			ok
 		else
 			# Check if any calculated columns exist
-			return ring_len(oTable.FindCalculatedCols()) > 0
+			return len(oTable.FindCalculatedCols()) > 0
 		ok
 		return FALSE
 
@@ -1081,13 +1081,13 @@ class stzTablex from stzObject
 			cValue = aToken["value"]
 			if StzFind(cValue, ":") > 0
 				aParts = @split(cValue, ":")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cType = StzLower(trim(aParts[2]))
 					
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)
-						nLen = ring_len(aCol)
+						nLen = len(aCol)
 
 						switch cType
 						on "number"
@@ -1126,13 +1126,13 @@ class stzTablex from stzObject
 			cValue = aToken["value"]
 			if StzFind(cValue, ":") > 0
 				aParts = @split(cValue, ":")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cPattern = trim(aParts[2])
 					
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)
-						nLen = ring_len(aCol)
+						nLen = len(aCol)
 
 						# Check if all values match the pattern
 						for i = 1 to nLen
@@ -1155,14 +1155,14 @@ class stzTablex from stzObject
 			cValue = aToken["value"]
 			if StzFind(cValue, ":") > 0
 				aParts = @split(cValue, ":")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cConstraint = trim(aParts[2])
 					
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)
 						nSum = 0
-						nLen = ring_len(aCol)
+						nLen = len(aCol)
 
 						for i = 1 to nLen
 							if isNumber(aCol[i])
@@ -1171,9 +1171,9 @@ class stzTablex from stzObject
 						next
 
 						if startsWith(cConstraint, ">")
-							return nSum > (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
+							return nSum > (0 + @StzMid(cConstraint, 2, len(cConstraint)))
 						but startsWith(cConstraint, "<")
-							return nSum < (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
+							return nSum < (0 + @StzMid(cConstraint, 2, len(cConstraint)))
 						but This.IsNumeric(cConstraint)
 							return nSum = (0 + cConstraint)
 						ok
@@ -1188,7 +1188,7 @@ class stzTablex from stzObject
 			cValue = aToken["value"]
 			if StzFind(cValue, ":") > 0
 				aParts = @split(cValue, ":")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cConstraint = trim(aParts[2])
 
@@ -1196,7 +1196,7 @@ class stzTablex from stzObject
 						aCol = oTable.Col(cColName)
 						nSum = 0
 						nCount = 0
-						nLen = ring_len(aCol)
+						nLen = len(aCol)
 						for i = 1 to nLen
 							if isNumber(aCol[i])
 								nSum += aCol[i]
@@ -1208,9 +1208,9 @@ class stzTablex from stzObject
 							nAvg = nSum / nCount
 							
 							if startsWith(cConstraint, ">")
-								return nAvg > (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
+								return nAvg > (0 + @StzMid(cConstraint, 2, len(cConstraint)))
 							but startsWith(cConstraint, "<")
-								return nAvg < (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
+								return nAvg < (0 + @StzMid(cConstraint, 2, len(cConstraint)))
 							but This.IsNumeric(cConstraint)
 								return nAvg = (0 + cConstraint)
 							ok
@@ -1225,14 +1225,14 @@ class stzTablex from stzObject
 		if HasKey(aToken, "value")
 			if StzFind(aToken["value"], ":") > 0
 				aParts = @split(aToken["value"], ":")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cConstraint = trim(aParts[2])
 
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)
 						nMin = NULL
-						nLen = ring_len(aCol)
+						nLen = len(aCol)
 						for i = 1 to nLen
 							if isNumber(aCol[i])
 								if nMin = NULL
@@ -1245,9 +1245,9 @@ class stzTablex from stzObject
 
 						if nMin != NULL
 							if startsWith(cConstraint, ">")
-								return nMin > (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
+								return nMin > (0 + @StzMid(cConstraint, 2, len(cConstraint)))
 							but startsWith(cConstraint, "<")
-								return nMin < (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
+								return nMin < (0 + @StzMid(cConstraint, 2, len(cConstraint)))
 							but This.IsNumeric(cConstraint)
 								return nMin = (0 + cConstraint)
 							ok
@@ -1263,14 +1263,14 @@ class stzTablex from stzObject
 			cValue = aToken["value"]
 			if StzFind(cValue, ":") > 0
 				aParts = @split(cValue, ":")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cConstraint = trim(aParts[2])
 
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)
 						nMax = NULL
-						nLen = ring_len(aCol)
+						nLen = len(aCol)
 						for i = 1 to nLen
 							if isNumber(aCol[i])
 								if nMax = NULL
@@ -1283,9 +1283,9 @@ class stzTablex from stzObject
 
 						if nMax != NULL
 							if startsWith(cConstraint, ">")
-								return nMax > (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
+								return nMax > (0 + @StzMid(cConstraint, 2, len(cConstraint)))
 							but startsWith(cConstraint, "<")
-								return nMax < (0 + @StzMid(cConstraint, 2, ring_len(cConstraint)))
+								return nMax < (0 + @StzMid(cConstraint, 2, len(cConstraint)))
 							but This.IsNumeric(cConstraint)
 								return nMax = (0 + cConstraint)
 							ok
@@ -1301,7 +1301,7 @@ class stzTablex from stzObject
 			cColName = aToken["value"]
 			if oTable.HasColumn(cColName)
 				aCol = oTable.Col(cColName)
-				nLen = ring_len(aCol)
+				nLen = len(aCol)
 				for i = 1 to nLen
 					if aCol[i] = NULL or aCol[i] = "" or aCol[i] = 0
 						return TRUE
@@ -1317,14 +1317,14 @@ class stzTablex from stzObject
 			cValue = aToken["value"]
 			if StzFind(cValue, ":") > 0
 				aParts = @split(cValue, ":")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cPercent = trim(aParts[2])
 
 					if oTable.HasColumn(cColName) and This.IsNumeric(cPercent)
 						aCol = oTable.Col(cColName)
 						nNonEmpty = 0
-						nLenCol = ring_len(aCol)
+						nLenCol = len(aCol)
 						for i = 1 to nLenCol
 							if aCol[i] != NULL and aCol[i] != "" and aCol[i] != 0
 								nNonEmpty++
@@ -1343,7 +1343,7 @@ class stzTablex from stzObject
 			cColName = aToken["value"]
 			if oTable.HasColumn(cColName)
 				aCol = oTable.Col(cColName)
-				nLen = ring_len(aCol)
+				nLen = len(aCol)
 				for i = 1 to nLen
 					if NOT isNumber(aCol[i])
 						return FALSE
@@ -1359,7 +1359,7 @@ class stzTablex from stzObject
 			cColName = aToken["value"]
 			if oTable.HasColumn(cColName)
 				aCol = oTable.Col(cColName)
-				nLen = ring_len(aCol)
+				nLen = len(aCol)
 				for i = 1 to nLen
 					if isString(aCol[i])
 						if NOT Q(aCol[i]).IsAlphabetic()
@@ -1380,13 +1380,13 @@ class stzTablex from stzObject
 			cValue = aToken["value"]
 			if StzFind(cValue, ":") > 0
 				aParts = @split(cValue, ":")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cFormat = trim(aParts[2])
 
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)
-						nLen = ring_len(aCol)
+						nLen = len(aCol)
 						# Check if values match the format pattern
 						for i = 1 to nLen
 							if isString(aCol[i])
@@ -1430,7 +1430,7 @@ class stzTablex from stzObject
 			aProps + "nonempty"
 		ok
 
-		if ring_len(oTable.FindCalculatedCols()) > 0
+		if len(oTable.FindCalculatedCols()) > 0
 			aProps + "hasclculated"
 		ok
 
@@ -1444,25 +1444,25 @@ class stzTablex from stzObject
 		return @aMatchedParts
 
 	def NumberOfMatchedParts()
-		return ring_len(@aMatchedParts)
+		return len(@aMatchedParts)
 
 		def CountMatchedParts()
-			return ring_len(@MatchedParts)
+			return len(@MatchedParts)
 
 		def HowManyMatchedParts()
-			return ring_len(@MatchedParts)
+			return len(@MatchedParts)
 
 	def Tokens()
 		return @aTokens
 
 	def NumberOfTokens()
-		return ring_len(@aTokens)
+		return len(@aTokens)
 
 		def CountTokens()
-			return ring_len(@aTokens)
+			return len(@aTokens)
 
 		def HowManyTokens()
-			return ring_len(@aTokens)
+			return len(@aTokens)
 
 	def Pattern()
 		return @cPattern
@@ -1470,7 +1470,7 @@ class stzTablex from stzObject
 	def Explain()
 		return [
 			["pattern", @cPattern],
-			["tokencount", ring_len(@aTokens)],
+			["tokencount", len(@aTokens)],
 			["tokens", @aTokens],
 			["matchedparts", @aMatchedParts]
 		]
@@ -1485,7 +1485,7 @@ class stzTablex from stzObject
 		ok
 
 		aMatching = []
-		nLen = ring_len(paTables)
+		nLen = len(paTables)
 		for i = 1 to nLen
 			if This.Match(paTables[i])
 				aMatching + paTables[i]
@@ -1502,7 +1502,7 @@ class stzTablex from stzObject
 		ok
 
 		nCount = 0
-		nLen = ring_len(paTables)
+		nLen = len(paTables)
 		for i = 1 to nLen
 			if This.Match(paTables[i])
 				nCount++
@@ -1535,7 +1535,7 @@ class stzTablex from stzObject
 			return FALSE
 		ok
 
-		nLen = ring_len(cStr)
+		nLen = len(cStr)
 		for i = 1 to nLen
 			cChar = @StzMid(cStr, i, i)
 			if not isDigit(cChar) and cChar != "-" and cChar != "."
@@ -1555,9 +1555,9 @@ class stzTablex from stzObject
 		ok
 
 		cCombined = "{" + 
-		            @StzMid(@cPattern, 2, ring_len(@cPattern) - 1) + 
+		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " & " + 
-		            @StzMid(oOtherTablex.Pattern(), 2, ring_len(oOtherTablex.Pattern()) - 1) +
+		            @StzMid(oOtherTablex.Pattern(), 2, len(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
 		return new stzTablex(cCombined)
@@ -1568,15 +1568,15 @@ class stzTablex from stzObject
 		ok
 
 		cCombined = "{" + 
-		            @StzMid(@cPattern, 2, ring_len(@cPattern) - 1) + 
+		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " | " + 
-		            @StzMid(oOtherTablex.Pattern(), 2, ring_len(oOtherTablex.Pattern()) - 1) +
+		            @StzMid(oOtherTablex.Pattern(), 2, len(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
 		return new stzTablex(cCombined)
 
 	def Not_()
-		cInner = @StzMid(@cPattern, 2, ring_len(@cPattern) - 1)
+		cInner = @StzMid(@cPattern, 2, len(@cPattern) - 1)
 		cNegated = "{@!" + cInner + "}"
 		return new stzTablex(cNegated)
 
@@ -1588,7 +1588,7 @@ class stzTablex from stzObject
 		# Use content checksum for efficiency
 		cContent = @@(poTable.Content())
 		nChecksum = 0
-		nLen = ring_len(cContent)
+		nLen = len(cContent)
 
 		for i = 1 to nLen
 			nChecksum += ascii(cContent[i])

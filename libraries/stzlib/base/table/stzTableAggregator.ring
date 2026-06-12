@@ -170,7 +170,7 @@ class stzTableAggregator from stzTable
 			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
 		ok
 
-		nLen = ring_len(paCols)
+		nLen = len(paCols)
 		acResult = []
 
 		for i = 1 to nLen
@@ -295,7 +295,7 @@ class stzTableAggregator from stzTable
 			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
 		ok
 
-		nLen = ring_len(paCols)
+		nLen = len(paCols)
 		anResult = []
 
 		for i = 1 to nLen
@@ -382,7 +382,7 @@ class stzTableAggregator from stzTable
 			StzRaise("Incorrect param type! paRows must be a list of lists.")
 		ok
 
-		nLen = ring_len(paRows)
+		nLen = len(paRows)
 		aResult = []
 
 		for i = 1 to nLen
@@ -439,7 +439,7 @@ class stzTableAggregator from stzTable
 			ok
 		ok
 
-		nLen = ring_len(pacColNames)
+		nLen = len(pacColNames)
 		acColNames = []
 
 		if Q(pacColNames).IsListOfStrings()
@@ -591,7 +591,7 @@ class stzTableAggregator from stzTable
 		ok
 
 		aRowData = []
-		nLen = ring_len(pacFormulas)
+		nLen = len(pacFormulas)
 		nCols = This.NumberOfCols()
 		nRows = This.NumberOfRows()
 		nMin = @Min([ nRows, nLen ])
@@ -662,7 +662,7 @@ class stzTableAggregator from stzTable
 			return 0
 		ok
 
-		nLen = ring_len(aCells)
+		nLen = len(aCells)
 
 		nResult = 0
 
@@ -679,7 +679,7 @@ class stzTableAggregator from stzTable
 			return 0
 		ok
 
-		nLen = ring_len(aCells)
+		nLen = len(aCells)
 
 		nResult = 1
 
@@ -696,7 +696,7 @@ class stzTableAggregator from stzTable
 			return 0
 		ok
 
-		nLen = ring_len(aCells)
+		nLen = len(aCells)
 
 		nSum = 0
 
@@ -711,7 +711,7 @@ class stzTableAggregator from stzTable
 			return AVERAGE(paCell1, paCell2)
 
 	def KOUNT(paCell1, paCell2)
-		nResult = ring_len( This.CellsInSection(paCell1, paCell2) )
+		nResult = len( This.CellsInSection(paCell1, paCell2) )
 		return nResult
 
 	def MAX(paCell1, paCell2)
@@ -826,7 +826,7 @@ class stzTableAggregator from stzTable
 
         # Validate column existence and prepare filtering
 
-		nLen = ring_len(paColValues)
+		nLen = len(paColValues)
 
 		for i = 1 to nLen
             cColName = paColValues[i][1]
@@ -846,7 +846,7 @@ class stzTableAggregator from stzTable
 
         for nRow = 1 to nRows
             bKeepRow = 1
-			nLenValues = ring_len(paColValues)
+			nLenValues = len(paColValues)
 
 			for v = 1 to nLenValues
                 cColName = paColValues[v][1]
@@ -864,7 +864,7 @@ class stzTableAggregator from stzTable
                 if isList(aFilterValues)
 
                     bValueMatches = 0
-					nLenFilterValues = ring_len(aFilterValues)
+					nLenFilterValues = len(aFilterValues)
 
 					for j = 1 to nLenFilterValues
 
@@ -903,7 +903,7 @@ class stzTableAggregator from stzTable
             cColName = This.ColName(nCol)
             colData = []
 
-			nLenRowsToKeep = ring_len(aRowsToKeep)
+			nLenRowsToKeep = len(aRowsToKeep)
             for nRow = 1 to nLenRowsToKeep
                 colData + aRowsToKeep[nRow][nCol]
             next
@@ -988,7 +988,7 @@ class stzTableAggregator from stzTable
 				aRowsToKeep + This.Row(nRow)
 			ok
 		next
-		nLenRowsToKeep = ring_len(aRowsToKeep)
+		nLenRowsToKeep = len(aRowsToKeep)
 
 		# Rebuild the table with filtered rows
 		aResult = []
@@ -1054,7 +1054,7 @@ class stzTableAggregator from stzTable
 
 		oConditionTemp = new stzString(pcCondition)
 		acColNames = This.ColNames()
-		nLenCols = ring_len(acColNames)
+		nLenCols = len(acColNames)
 
 		for i = 1 to nLenCols
 
@@ -1113,7 +1113,7 @@ class stzTableAggregator from stzTable
 
 			cColName = This.ColName(nCol)
 			colData = []
-			nLenRowsToKeep = ring_len(aRowsToKeep)
+			nLenRowsToKeep = len(aRowsToKeep)
 
 			for nRow = 1 to nLenRowsToKeep
 				colData + aRowsToKeep[nRow][nCol]
@@ -1174,7 +1174,7 @@ class stzTableAggregator from stzTable
 
 		# Validate and process aggregations
 		aProcessedAggs = []
-		nLen = ring_len(paAggregations)
+		nLen = len(paAggregations)
 
 		for i = 1 to nLen
 			cColName = paAggregations[i][1]
@@ -1198,7 +1198,7 @@ class stzTableAggregator from stzTable
 		aResult = []
 
 		# Add columns for aggregation results
-		nLen = ring_len(aProcessedAggs)
+		nLen = len(aProcessedAggs)
 
 		for i = 1 to nLen
 			cColName = aProcessedAggs[i][1]
@@ -1210,7 +1210,7 @@ class stzTableAggregator from stzTable
 			# Perform aggregation
 			nColIndex = This.FindCol(cColName)
 			aColData = This.Col(nColIndex)
-			nLenData = ring_len(aColData)
+			nLenData = len(aColData)
 
 			nResult = 0
 
@@ -1303,12 +1303,12 @@ class stzTableAggregator from stzTable
 		ok
 
 		# Validate input is a list of column names
-		if NOT (isList(paCols) and ring_len(paCols) > 0)
+		if NOT (isList(paCols) and len(paCols) > 0)
 			StzRaise("GroupBy requires a non-empty list of column names")
 		ok
 
 		# Validate column existence
-		nLen = ring_len(paCols)
+		nLen = len(paCols)
 		for i = 1 to nLen
 			if This.FindCol(paCols[i]) = 0
 				StzRaise("Column '" + paCols[i] + "' not found in the table")
@@ -1322,7 +1322,7 @@ class stzTableAggregator from stzTable
 		aUniqueGroups = []
 
 		# Iterate through rows to create groups
-		nLenCols = ring_len(paCols)
+		nLenCols = len(paCols)
 		for nRow = 1 to nRows
 			# Create group key from specified columns
 			aGroupKey = []
@@ -1333,7 +1333,7 @@ class stzTableAggregator from stzTable
 
 			# Convert group key to string for easy comparison
 			cGroupKey = ""
-			_nGroupKeyLen_ = ring_len(aGroupKey)
+			_nGroupKeyLen_ = len(aGroupKey)
 			for i = 1 to _nGroupKeyLen_
 				cGroupKey += ""+ aGroupKey[i] + '|'
 			next
@@ -1356,20 +1356,20 @@ class stzTableAggregator from stzTable
 		acColNames = This.ColNames()
 
 		# Add all columns to result
-		_nColNamesLen_3 = ring_len(acColNames)
+		_nColNamesLen_3 = len(acColNames)
 		for i = 1 to _nColNamesLen_3
 			aResult + [ acColNames[i], [] ]
 		next
 
 		# Add rows from each group to result
-		nLenGroups = ring_len(aUniqueGroups)
+		nLenGroups = len(aUniqueGroups)
 		for i = 1 to nLenGroups
 			aRows = aGroupedRows[i]
-			_nRowsLen_ = ring_len(aRows)
+			_nRowsLen_ = len(aRows)
 			for j = 1 to _nRowsLen_
 				aRow = aRows[j]
 				# Add each value to its column
-				_nRowLen_ = ring_len(aRow)
+				_nRowLen_ = len(aRow)
 				for k = 1 to _nRowLen_
 					aResult[k][2] + aRow[k]
 				next
@@ -1399,13 +1399,13 @@ class stzTableAggregator from stzTable
 
 		# Validate input is a list of column names
 
-		if NOT (isList(paCols) and ring_len(paCols) > 0)
+		if NOT (isList(paCols) and len(paCols) > 0)
 			StzRaise("GroupBy requires a non-empty list of column names")
 		ok
 
 		# Validate column existence
 
-		nLen = ring_len(paCols)
+		nLen = len(paCols)
 
 		for i = 1 to nLen
 			if This.FindCol(paCols[i]) = 0
@@ -1421,7 +1421,7 @@ class stzTableAggregator from stzTable
 
 		# Default aggregation if none provided: First value for non-grouped columns
 
-		nLenAgg = ring_len(paAggregations)
+		nLenAgg = len(paAggregations)
 
 		if nLenAgg = 0
 
@@ -1481,7 +1481,7 @@ class stzTableAggregator from stzTable
 
 	# Iterate through rows to create groups
 
-	nLenCols = ring_len(paCols)
+	nLenCols = len(paCols)
 
 	for nRow = 1 to nRows
 
@@ -1493,7 +1493,7 @@ class stzTableAggregator from stzTable
 			nColIndex = This.FindCol(paCols[i])
 			aGroupKey + This.Cell(nColIndex, nRow)
 		next
-		nLenKeys = ring_len(aGroupKey)
+		nLenKeys = len(aGroupKey)
 
 		# Convert group key to string for easy comparison
 
@@ -1543,13 +1543,13 @@ class stzTableAggregator from stzTable
 
 	# Perform aggregations for each group
 
-	nLenGroups = ring_len(aUniqueGroups)
+	nLenGroups = len(aUniqueGroups)
 
 	for i = 1 to nLenGroups
 
 		aGroupKey = aUniqueGroups[i]
 		aRows = aGroupedRows[i]
-		nLenRows = ring_len(aRows)
+		nLenRows = len(aRows)
 
 		# Add group key values to result
 
@@ -1578,7 +1578,7 @@ class stzTableAggregator from stzTable
 			# Apply aggregation method
 
 			nResult = NULL
-			nLenVal = ring_len(aValues)
+			nLenVal = len(aValues)
 
 			switch cAggMethod
 
@@ -1668,12 +1668,12 @@ class stzTableAggregator from stzTable
 			paCols = aTemp
 		ok
 	    # Validate input is a list of column names
-	    if NOT (isList(paCols) and ring_len(paCols) > 0)
+	    if NOT (isList(paCols) and len(paCols) > 0)
 	        StzRaise("GroupByListItems requires a non-empty list of column names")
 	    ok
 
 	    # Validate column existence
-	    nLen = ring_len(paCols)
+	    nLen = len(paCols)
 	    for i = 1 to nLen
 	        if This.FindCol(paCols[i]) = 0
 	            StzRaise("Column '" + paCols[i] + "' not found in the table")
@@ -1698,13 +1698,13 @@ class stzTableAggregator from stzTable
 	        ok
 
 	        # Process each hobby in the list
-	        _nVCellValueLen_ = ring_len(vCellValue)
+	        _nVCellValueLen_ = len(vCellValue)
 	        for j = 1 to _nVCellValueLen_
 	            cHobby = vCellValue[j]
 
 	            # Find this hobby in our map
 	            nHobbyIndex = 0
-	            _nHobbyMapLen_2 = ring_len(aHobbyMap)
+	            _nHobbyMapLen_2 = len(aHobbyMap)
 	            for k = 1 to _nHobbyMapLen_2
 	                if aHobbyMap[k][1] = cHobby
 	                    nHobbyIndex = k
@@ -1718,7 +1718,7 @@ class stzTableAggregator from stzTable
 	            else
 	                # Existing hobby, check if row already exists
 	                bFound = FALSE
-	                _nHobbyMapnHobbyIndex2Len_ = ring_len(aHobbyMap[nHobbyIndex][2])
+	                _nHobbyMapnHobbyIndex2Len_ = len(aHobbyMap[nHobbyIndex][2])
 	                for r = 1 to _nHobbyMapnHobbyIndex2Len_
 	                    if aHobbyMap[nHobbyIndex][2][r] = nRow
 	                        bFound = TRUE
@@ -1739,7 +1739,7 @@ class stzTableAggregator from stzTable
 	    acColNames = This.ColNames()
 
 	    # Add all other columns except the list column
-	    _nColNamesLen_2 = ring_len(acColNames)
+	    _nColNamesLen_2 = len(acColNames)
 	    for i = 1 to _nColNamesLen_2
 	        if acColNames[i] != cListColumn
 	            aNewColumns + acColNames[i]
@@ -1748,19 +1748,19 @@ class stzTableAggregator from stzTable
 
 	    # Create the result table structure
 	    aResult = []
-	    _nNewColumnsLen_ = ring_len(aNewColumns)
+	    _nNewColumnsLen_ = len(aNewColumns)
 	    for i = 1 to _nNewColumnsLen_
 	        aResult + [aNewColumns[i], []]
 	    next
 
 	    # Fill in the data for each hobby group
-	    _nHobbyMapLen_ = ring_len(aHobbyMap)
+	    _nHobbyMapLen_ = len(aHobbyMap)
 	    for i = 1 to _nHobbyMapLen_
 	        cHobby = aHobbyMap[i][1]
 	        aRowIndices = aHobbyMap[i][2]
 
 	        # For each row that has this hobby
-	        _nRowIndicesLen_ = ring_len(aRowIndices)
+	        _nRowIndicesLen_ = len(aRowIndices)
 	        for j = 1 to _nRowIndicesLen_
 	            nRowIndex = aRowIndices[j]
 
@@ -1769,7 +1769,7 @@ class stzTableAggregator from stzTable
 
 	            # Add all other columns from the original row
 	            nColOffset = 2  # Start from second column
-	            _nColNamesLen_ = ring_len(acColNames)
+	            _nColNamesLen_ = len(acColNames)
 	            for k = 1 to _nColNamesLen_
 	                if acColNames[k] != cListColumn
 	                    nColIndex = This.FindCol(acColNames[k])

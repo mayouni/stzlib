@@ -42,7 +42,7 @@ class stzListParser from stzParser
 			StzRaise("Can't create the stzListParser object! You should provide a list.")
 		ok
 
-		if ring_len(paList) = 0
+		if len(paList) = 0
 			StzRaise("Can't create the stzListParser object! The list you provided is empty.")
 		ok
 
@@ -91,7 +91,7 @@ class stzListParser from stzParser
 		if isList(pnEnd) and IsToNamedParamList(pnEnd)
 
 			if pnEnd[2] = :Last or pnEnd[2] = :End
-				pnEnd = ring_len(This.List())
+				pnEnd = len(This.List())
 			else
 				pnEnd = pnEnd[2]
 			ok
@@ -107,7 +107,7 @@ class stzListParser from stzParser
 		ok
 
 		if pnEnd = :Last or pnEnd = :End
-			pnEnd = ring_len(This.List())
+			pnEnd = len(This.List())
 		ok
 
 		@nStart = pnStart
@@ -206,7 +206,7 @@ class stzListParser from stzParser
 		aResult = []
 
 		_aThisParsedPositions1_ = This.ParsedPositions()
-		_nThisParsedPositions1Len_ = ring_len(_aThisParsedPositions1_)
+		_nThisParsedPositions1Len_ = len(_aThisParsedPositions1_)
 		for _iLoopThisParsedPositions1_ = 1 to _nThisParsedPositions1Len_
 			nPosition = _aThisParsedPositions1_[_iLoopThisParsedPositions1_]
 			aResult + This.List()[ nPosition ]

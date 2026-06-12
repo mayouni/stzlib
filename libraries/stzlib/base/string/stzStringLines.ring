@@ -143,11 +143,11 @@ class stzStringLines
 		return c
 
 	def NumberOfEmptyLines()
-		return This.NumberOfLines() - ring_len(This.EmptyLinesRemoved())
+		return This.NumberOfLines() - len(This.EmptyLinesRemoved())
 
 	def HasEmptyLines()
 		acLines = This.Lines()
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 		for i = 1 to nLen
 			if trim(acLines[i]) = ""
 				return 1
@@ -161,7 +161,7 @@ class stzStringLines
 
 	def NFirstLines(n)
 		acLines = This.Lines()
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 		acResult = []
 
 		nLimit = n
@@ -177,7 +177,7 @@ class stzStringLines
 
 	def NLastLines(n)
 		acLines = This.Lines()
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 		acResult = []
 
 		nStart = nLen - n + 1
@@ -197,7 +197,7 @@ class stzStringLines
 
 	def LongestLine()
 		acLines = This.Lines()
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 		if nLen = 0
 			return ""
 		ok
@@ -217,7 +217,7 @@ class stzStringLines
 
 	def ShortestLine()
 		acLines = This.Lines()
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 		if nLen = 0
 			return ""
 		ok
@@ -249,7 +249,7 @@ class stzStringLines
 
 	def AverageLineLength()
 		acLines = This.Lines()
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 		if nLen = 0
 			return 0
 		ok
@@ -376,7 +376,7 @@ class stzStringLines
 
 	def LineContainingCS(pcSubStr, pCaseSensitive)
 		acLines = This.Lines()
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 
 		for i = 1 to nLen
 			if StringContainsCS(acLines[i], pcSubStr, pCaseSensitive)
@@ -388,7 +388,7 @@ class stzStringLines
 
 	def LinesContainingCS(pcSubStr, pCaseSensitive)
 		acLines = This.Lines()
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 		acResult = []
 
 		for i = 1 to nLen

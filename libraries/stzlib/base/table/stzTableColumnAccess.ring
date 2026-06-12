@@ -136,7 +136,7 @@ class stzTableColumnAccess from stzTable
 			StzRaise("Incorrect param type! paCols must be a list of string containing existing columns names.")
 		ok
 
-		nLen = ring_len(paCols)
+		nLen = len(paCols)
 
 		aResult = []
 		for i = 1 to nLen
@@ -154,7 +154,7 @@ class stzTableColumnAccess from stzTable
 		aResult = [ This.ColName(p) ]
 
 		aCells = This.Col(p)
-		nLen = ring_len(aCells)
+		nLen = len(aCells)
 
 		for i = 1 to nLen
 			aResult + aCells[i]
@@ -390,7 +390,7 @@ class stzTableColumnAccess from stzTable
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nLenCols = ring_len(@aContent)
+		nLenCols = len(@aContent)
 
 		if n < 1 or n > nLenCols
 			StzRaise("Index out of range! n must is not a valid number of column.")
@@ -574,13 +574,13 @@ class stzTableColumnAccess from stzTable
 	#--------------------------------------------------------#
 
 	def ColsAsPositions(paCols)
-		nLen = ring_len(paCols)
+		nLen = len(paCols)
 		anColNumbers = This.TheseColsAsNumbers(paCols)
 		aResult = []
 
 		for i = 1 to nLen
 			aCellsPos = This.CellsInColAsPositions(anColNumbers[i])
-			nLenCells = ring_len(aCellsPos)
+			nLenCells = len(aCellsPos)
 
 			for j = 1 to nLenCells
 				aResult + aCellsPos[j]

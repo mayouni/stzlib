@@ -15,7 +15,7 @@ func NumberOfCurrencies()
 func Currencies()
 	aResult = []
 	_aLocaleCountriesXT6_ = LocaleCountriesXT()
-	_nLocaleCountriesXT6Len_ = ring_len(_aLocaleCountriesXT6_)
+	_nLocaleCountriesXT6Len_ = len(_aLocaleCountriesXT6_)
 	for _iLoopLocaleCountriesXT6_ = 1 to _nLocaleCountriesXT6Len_
 		aCountryInfo = _aLocaleCountriesXT6_[_iLoopLocaleCountriesXT6_]
 		aResult + aCountryInfo[7][1]
@@ -29,7 +29,7 @@ func LocaleCurrencies()
 func CountriesOrRegionsAndTheirCurrenciesXT()
 	aResult = []
 	_aLocaleCountriesXT5_ = LocaleCountriesXT()
-	_nLocaleCountriesXT5Len_ = ring_len(_aLocaleCountriesXT5_)
+	_nLocaleCountriesXT5Len_ = len(_aLocaleCountriesXT5_)
 	for _iLoopLocaleCountriesXT5_ = 1 to _nLocaleCountriesXT5Len_
 		aCountryInfo = _aLocaleCountriesXT5_[_iLoopLocaleCountriesXT5_]
 		aResult + [ aCountryInfo[2], aCountryInfo[7] ]
@@ -40,7 +40,7 @@ func CountriesOrRegionsAndTheirCurrenciesXT()
 func CountriesOrRegionsAndTheirCurrencies()
 		aResult = []
 		_aLocaleCountriesXT4_ = LocaleCountriesXT()
-		_nLocaleCountriesXT4Len_ = ring_len(_aLocaleCountriesXT4_)
+		_nLocaleCountriesXT4Len_ = len(_aLocaleCountriesXT4_)
 		for _iLoopLocaleCountriesXT4_ = 1 to _nLocaleCountriesXT4Len_
 			aCountryInfo = _aLocaleCountriesXT4_[_iLoopLocaleCountriesXT4_]
 			aResult + [ aCountryInfo[2], aCountryInfo[7][1] ]
@@ -51,7 +51,7 @@ func CountriesOrRegionsAndTheirCurrencies()
 func CurrenciesAndTheirCountriesOrRegionsXT()
 	aResult = []
 	_aLocaleCountriesXT3_ = LocaleCountriesXT()
-	_nLocaleCountriesXT3Len_ = ring_len(_aLocaleCountriesXT3_)
+	_nLocaleCountriesXT3Len_ = len(_aLocaleCountriesXT3_)
 	for _iLoopLocaleCountriesXT3_ = 1 to _nLocaleCountriesXT3Len_
 		aCountryInfo = _aLocaleCountriesXT3_[_iLoopLocaleCountriesXT3_]
 		aResult + [ aCountryInfo[7], aCountryInfo[2] ]
@@ -62,7 +62,7 @@ func CurrenciesAndTheirCountriesOrRegionsXT()
 func CurrenciesAndTheirCountriesOrRegions()
 	aResult = []
 	_aLocaleCountriesXT2_ = LocaleCountriesXT()
-	_nLocaleCountriesXT2Len_ = ring_len(_aLocaleCountriesXT2_)
+	_nLocaleCountriesXT2Len_ = len(_aLocaleCountriesXT2_)
 	for _iLoopLocaleCountriesXT2_ = 1 to _nLocaleCountriesXT2Len_
 		aCountryInfo = _aLocaleCountriesXT2_[_iLoopLocaleCountriesXT2_]
 		aResult + [ aCountryInfo[7][1], aCountryInfo[2] ]
@@ -85,7 +85,7 @@ class stzCurrency
 		if StzStringQ(pcCurrencyIdentifier).IsCountryName()
 
 			_aCountriesOrRegionsAndThe1_ = CountriesOrRegionsAndTheirCurrenciesXT()
-			_nCountriesOrRegionsAndThe1Len_ = ring_len(_aCountriesOrRegionsAndThe1_)
+			_nCountriesOrRegionsAndThe1Len_ = len(_aCountriesOrRegionsAndThe1_)
 			for _iLoopCountriesOrRegionsAndThe1_ = 1 to _nCountriesOrRegionsAndThe1Len_
 				aCountryInfo = _aCountriesOrRegionsAndThe1_[_iLoopCountriesOrRegionsAndThe1_]
 				if StzLower(aCountryInfo[1]) = StzLower(pcCurrencyIdentifier)
@@ -98,7 +98,7 @@ class stzCurrency
 		but StzStringQ(pcCurrencyIdentifier).IsCurrencyName()
 
 			_aCurrenciesXT1_ = CurrenciesXT()
-			_nCurrenciesXT1Len_ = ring_len(_aCurrenciesXT1_)
+			_nCurrenciesXT1Len_ = len(_aCurrenciesXT1_)
 			for _iLoopCurrenciesXT1_ = 1 to _nCurrenciesXT1Len_
 				aCurrencyInfo = _aCurrenciesXT1_[_iLoopCurrenciesXT1_]
 				if StzLower(aCurrencyInfo[1]) = StzLower(pcCurrencyIdentifier)
@@ -167,7 +167,7 @@ class stzCurrency
 
 	def Country()
 		_aLocaleCountriesXT1_ = LocaleCountriesXT()
-		_nLocaleCountriesXT1Len_ = ring_len(_aLocaleCountriesXT1_)
+		_nLocaleCountriesXT1Len_ = len(_aLocaleCountriesXT1_)
 		for _iLoopLocaleCountriesXT1_ = 1 to _nLocaleCountriesXT1Len_
 			aCountryInfo = _aLocaleCountriesXT1_[_iLoopLocaleCountriesXT1_]
 			if StzLower(aCountryInfo[7][1]) = StzLower(This.Currency())

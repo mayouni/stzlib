@@ -75,7 +75,7 @@ class stzListTrimmer
 
 	def TrimLeftCS(pCaseSensitive)
 		_aTlcContent_ = This.Content()
-		_nTlcLen_ = ring_len(_aTlcContent_)
+		_nTlcLen_ = len(_aTlcContent_)
 		if _nTlcLen_ < 1
 			return
 		ok
@@ -105,7 +105,7 @@ class stzListTrimmer
 
 	def TrimRightCS(pCaseSensitive)
 		_aTrcContent_ = This.Content()
-		_nTrcLen_ = ring_len(_aTrcContent_)
+		_nTrcLen_ = len(_aTrcContent_)
 		if _nTrcLen_ < 1
 			return
 		ok
@@ -163,7 +163,7 @@ class stzListTrimmer
 			ok
 		ok
 		_aTilContent_ = This.Content()
-		_nTilLen_ = ring_len(_aTilContent_)
+		_nTilLen_ = len(_aTilContent_)
 		_nTilStart_ = 0
 		for _iTil_ = 1 to _nTilLen_
 			if BothAreEqualCS(_aTilContent_[_iTil_], pItem, pCaseSensitive)
@@ -190,7 +190,7 @@ class stzListTrimmer
 			ok
 		ok
 		_aTirContent_ = This.Content()
-		_nTirLen_ = ring_len(_aTirContent_)
+		_nTirLen_ = len(_aTirContent_)
 		_nTirEnd_ = 0
 		for _iTir_ = _nTirLen_ to 1 step -1
 			if BothAreEqualCS(_aTirContent_[_iTir_], pItem, pCaseSensitive)
@@ -212,7 +212,7 @@ class stzListTrimmer
 
 	def Compact()
 		_aCpContent_ = This.Content()
-		_nCpLen_ = ring_len(_aCpContent_)
+		_nCpLen_ = len(_aCpContent_)
 		_aCpResult_ = []
 
 		for _iCp_ = 1 to _nCpLen_
@@ -221,7 +221,7 @@ class stzListTrimmer
 					@AddItem(_aCpResult_, _aCpContent_[_iCp_])
 				ok
 			but isList(_aCpContent_[_iCp_])
-				if ring_len(_aCpContent_[_iCp_]) > 0
+				if len(_aCpContent_[_iCp_]) > 0
 					@AddItem(_aCpResult_, _aCpContent_[_iCp_])
 				ok
 			else
@@ -246,7 +246,7 @@ class stzListTrimmer
 
 	def Squeeze()
 		_aSqContent_ = This.Content()
-		_nSqLen_ = ring_len(_aSqContent_)
+		_nSqLen_ = len(_aSqContent_)
 		if _nSqLen_ < 2
 			return
 		ok
@@ -277,7 +277,7 @@ class stzListTrimmer
 
 	def StripNulls()
 		_aSnContent_ = This.Content()
-		_nSnLen_ = ring_len(_aSnContent_)
+		_nSnLen_ = len(_aSnContent_)
 		_aSnResult_ = []
 
 		for _iSn_ = 1 to _nSnLen_
@@ -309,7 +309,7 @@ class stzListTrimmer
 
 	def TrimToSize(n)
 		_aTtsContent_ = This.Content()
-		_nTtsLen_ = ring_len(_aTtsContent_)
+		_nTtsLen_ = len(_aTtsContent_)
 		if n >= _nTtsLen_
 			return
 		ok
@@ -327,7 +327,7 @@ class stzListTrimmer
 
 	def TrimmedToSize(n)
 		_aTtdsContent_ = This.Content()
-		_nTtdsLen_ = ring_len(_aTtdsContent_)
+		_nTtdsLen_ = len(_aTtdsContent_)
 		if n >= _nTtdsLen_
 			return _aTtdsContent_
 		ok

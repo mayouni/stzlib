@@ -187,11 +187,11 @@ class stzGraphQuery
 		
 		if isList(paParams)
 			# Check for simple [:nodes] or first element patterns
-			if ring_len(paParams) > 0 and (paParams[1] = :nodes or paParams[1] = :node)
+			if len(paParams) > 0 and (paParams[1] = :nodes or paParams[1] = :node)
 				# Look for :where, :labeled, :props in subsequent elements
-				_nParamsLen_3 = ring_len(paParams)
+				_nParamsLen_3 = len(paParams)
 				for i = 2 to _nParamsLen_3
-					if isList(paParams[i]) and ring_len(paParams[i]) >= 2
+					if isList(paParams[i]) and len(paParams[i]) >= 2
 						if paParams[i][1] = :where
 							aWhere = paParams[i][2]
 							aInternalCond = This._NormalizeCondition(aWhere, aInternal["alias"])
@@ -253,9 +253,9 @@ class stzGraphQuery
 		
 		if isList(paParams)
 			# Extract from list format
-			_nParamsLen_2 = ring_len(paParams)
+			_nParamsLen_2 = len(paParams)
 			for i = 1 to _nParamsLen_2
-				if isList(paParams[i]) and ring_len(paParams[i]) >= 2
+				if isList(paParams[i]) and len(paParams[i]) >= 2
 					if paParams[i][1] = :from
 						aInternal["from"] = paParams[i][2]
 					but paParams[i][1] = :to
@@ -282,8 +282,8 @@ class stzGraphQuery
 	def Where(paCondition)
 		if @IsFunction(paCondition)
 			# Add to last pattern if exists, otherwise global
-			if ring_len(@aDefinition["match_patterns"]) > 0
-				nLast = ring_len(@aDefinition["match_patterns"])
+			if len(@aDefinition["match_patterns"]) > 0
+				nLast = len(@aDefinition["match_patterns"])
 				@aDefinition["match_patterns"][nLast]["where"] = paCondition
 			else
 				@aDefinition["where_conditions"] + paCondition
@@ -295,8 +295,8 @@ class stzGraphQuery
 		aInternalCond = This._NormalizeCondition(paCondition, "node")
 		
 		# Add to last pattern if exists, otherwise global
-		if ring_len(@aDefinition["match_patterns"]) > 0
-			nLast = ring_len(@aDefinition["match_patterns"])
+		if len(@aDefinition["match_patterns"]) > 0
+			nLast = len(@aDefinition["match_patterns"])
 			# Get variable name from last pattern
 			cVar = "node"
 			if HasKey(@aDefinition["match_patterns"][nLast], "alias")
@@ -329,7 +329,7 @@ class stzGraphQuery
 		ok
 		
 		# Simple condition: [prop, op, value]
-		if ring_len(paCondition) = 3
+		if len(paCondition) = 3
 			cProp = paCondition[1]
 			cOp = paCondition[2]
 			pValue = paCondition[3]
@@ -346,9 +346,9 @@ class stzGraphQuery
 		ok
 		
 		# Compound condition
-		if ring_len(paCondition) > 3
+		if len(paCondition) > 3
 			nLogicPos = 0
-			nLen = ring_len(paCondition)
+			nLen = len(paCondition)
 			for i = 1 to nLen
 				if paCondition[i] = :and or paCondition[i] = :or
 					nLogicPos = i
@@ -421,7 +421,7 @@ class stzGraphQuery
 	    if paFields = "*"
 	        # Collect all variable names from match patterns
 	        acVars = []
-	        nLen = ring_len(@aDefinition["match_patterns"])
+	        nLen = len(@aDefinition["match_patterns"])
 	        for i = 1 to nLen
 	            aPattern = @aDefinition["match_patterns"][i]
 	            if aPattern["type"] = :node
@@ -442,7 +442,7 @@ class stzGraphQuery
 	        next
 	        
 	        # Add all variables to select fields
-	        nLen = ring_len(acVars)
+	        nLen = len(acVars)
 	        for i = 1 to nLen
 	            @aDefinition["select_fields"] + acVars[i]
 	        next
@@ -463,7 +463,7 @@ class stzGraphQuery
 	    ok
 	    
 	    # Check for :as syntax
-	    if ring_len(paFields) = 2 and isList(paFields[2]) and ring_len(paFields[2]) = 2
+	    if len(paFields) = 2 and isList(paFields[2]) and len(paFields[2]) = 2
 	        if paFields[2][1] = :as
 	            cField = paFields[1]
 	            cAlias = paFields[2][2]
@@ -475,7 +475,7 @@ class stzGraphQuery
 	    ok
 	    
 	    # List of field names
-	    nLen = ring_len(paFields)
+	    nLen = len(paFields)
 	    for i = 1 to nLen
 	        pField = paFields[i]
 	        if isString(pField)
@@ -588,9 +588,9 @@ class stzGraphQuery
 			]
 			
 			# Extract from list format
-			_nParamsLen_ = ring_len(paParams)
+			_nParamsLen_ = len(paParams)
 			for i = 2 to _nParamsLen_
-				if isList(paParams[i]) and ring_len(paParams[i]) >= 2
+				if isList(paParams[i]) and len(paParams[i]) >= 2
 					if paParams[i][1] = :from
 						aInternal["from"] = paParams[i][2]
 					but paParams[i][1] = :to
@@ -615,7 +615,7 @@ class stzGraphQuery
 			@aDefinition["delete_targets"] + paTargets
 
 		but isList(paTargets)
-			nLen = ring_len(paTargets)
+			nLen = len(paTargets)
 			for i = 1 to nLen
 				@aDefinition["delete_targets"] + paTargets[i]
 			next
@@ -649,34 +649,34 @@ class stzGraphQuery
 		@aResult = []
 		aBindings = []
 		
-		if ring_len(@aDefinition["match_patterns"]) > 0
+		if len(@aDefinition["match_patterns"]) > 0
 			aBindings = This._ExecuteMatch()
 		ok
 	
 		@aBindings = aBindings  # NEW - store for ToGraph()
 		
-		if ring_len(@aDefinition["create_patterns"]) > 0
+		if len(@aDefinition["create_patterns"]) > 0
 			This._ExecuteCreate(aBindings)
 		ok
 		
-		if ring_len(@aDefinition["set_operations"]) > 0
+		if len(@aDefinition["set_operations"]) > 0
 			This._ExecuteSet(aBindings)
 		ok
 	
 		# NEW - Execute rule triggers
-		if ring_len(@aDefinition["rule_triggers"]) > 0
+		if len(@aDefinition["rule_triggers"]) > 0
 			This._ExecuteRuleTriggers(aBindings)
 		ok
 		
-		if ring_len(@aDefinition["delete_targets"]) > 0
+		if len(@aDefinition["delete_targets"]) > 0
 			This._ExecuteDelete(aBindings)
 		ok
 		
-		if ring_len(@aDefinition["select_fields"]) > 0
+		if len(@aDefinition["select_fields"]) > 0
 			aBindings = This._ExecuteSelect(aBindings)
 		ok
 		
-		if ring_len(@aDefinition["order_by"]) > 0
+		if len(@aDefinition["order_by"]) > 0
 			aBindings = This._ApplyOrderBy(aBindings)
 		ok
 		
@@ -699,7 +699,7 @@ class stzGraphQuery
 	#--------------------------#
 	
 	def _ExecuteRuleTriggers(aBindings)
-		nLen = ring_len(@aDefinition["rule_triggers"])
+		nLen = len(@aDefinition["rule_triggers"])
 		
 		for i = 1 to nLen
 			aTrigger = @aDefinition["rule_triggers"][i]
@@ -737,7 +737,7 @@ class stzGraphQuery
 		paParams = aRule[:params]
 		aNewEdges = call pFunc(oSubgraph, paParams)
 		
-		nLen = ring_len(aNewEdges)
+		nLen = len(aNewEdges)
 		for i = 1 to nLen
 			aEdge = aNewEdges[i]
 			@oGraph.AddEdgeXTT(aEdge[1], aEdge[2], aEdge[3], aEdge[4])
@@ -757,7 +757,7 @@ class stzGraphQuery
 		pFunc = aRule[:function]
 		paParams = aRule[:params]
 		
-		nLen = ring_len(aBindings)
+		nLen = len(aBindings)
 		for i = 1 to nLen
 			aBinding = aBindings[i]
 			aOpParams = This._BuildOpParamsFromBinding(aBinding)
@@ -775,7 +775,7 @@ class stzGraphQuery
 		
 		if aResult[:status] = "fail"
 			cMsg = "Validation failed:" + NL
-			nLen = ring_len(aResult[:issues])
+			nLen = len(aResult[:issues])
 			for i = 1 to nLen
 				cMsg += "  - " + aResult[:issues][i] + NL
 			next
@@ -794,10 +794,10 @@ class stzGraphQuery
 			@oGraph.@aValidationRules
 		]
 		
-		nListLen = ring_len(aLists)
+		nListLen = len(aLists)
 		for i = 1 to nListLen
 			aRules = aLists[i]
-			nLen = ring_len(aRules)
+			nLen = len(aRules)
 			for j = 1 to nLen
 				if aRules[j][:name] = pcRuleName
 					return aRules[j]
@@ -810,12 +810,12 @@ class stzGraphQuery
 	def _ExtractNodeIdsFromBindings(aBindings)
 		acNodeIds = []
 		
-		nLen = ring_len(aBindings)
+		nLen = len(aBindings)
 		for i = 1 to nLen
 			aBinding = aBindings[i]
 			acKeys = keys(aBinding)
 			
-			nKeyLen = ring_len(acKeys)
+			nKeyLen = len(acKeys)
 			for j = 1 to nKeyLen
 				pValue = aBinding[acKeys[j]]
 				
@@ -834,7 +834,7 @@ class stzGraphQuery
 		aOpParams = []
 		
 		acKeys = keys(aBinding)
-		nLen = ring_len(acKeys)
+		nLen = len(acKeys)
 		
 		for i = 1 to nLen
 			cKey = acKeys[i]
@@ -864,12 +864,12 @@ class stzGraphQuery
 		oResultGraph = new stzGraph("query_result_" + UUID())
 		aSeenNodes = []
 		
-		nLen = ring_len(@aBindings)
+		nLen = len(@aBindings)
 		for i = 1 to nLen
 			aBinding = @aBindings[i]
 			acKeys = keys(aBinding)
 			
-			nKeyLen = ring_len(acKeys)
+			nKeyLen = len(acKeys)
 			for j = 1 to nKeyLen
 				pValue = aBinding[acKeys[j]]
 				
@@ -900,7 +900,7 @@ class stzGraphQuery
 		next
 		
 		aEdges = @oGraph.Edges()
-		nEdgeLen = ring_len(aEdges)
+		nEdgeLen = len(aEdges)
 		
 		for i = 1 to nEdgeLen
 			aEdge = aEdges[i]
@@ -948,7 +948,7 @@ class stzGraphQuery
 	def _ExecuteMatch()
 		aAllBindings = []
 		
-		nLen = ring_len(@aDefinition["match_patterns"])
+		nLen = len(@aDefinition["match_patterns"])
 		for i = 1 to nLen
 			aPattern = @aDefinition["match_patterns"][i]
 			cPatternType = aPattern["type"]
@@ -985,7 +985,7 @@ class stzGraphQuery
 		
 		aBindings = []
 		aNodes = @oGraph.Nodes()
-		nLen = ring_len(aNodes)
+		nLen = len(aNodes)
 		
 		for i = 1 to nLen
 			aNode = aNodes[i]
@@ -999,9 +999,9 @@ class stzGraphQuery
 			ok
 			
 			# Check properties
-			if isList(aProps) and ring_len(aProps) > 0
+			if isList(aProps) and len(aProps) > 0
 				acKeys = keys(aProps)
-				nKeyLen = ring_len(acKeys)
+				nKeyLen = len(acKeys)
 				
 				for j = 1 to nKeyLen
 					cKey = acKeys[j]
@@ -1050,7 +1050,7 @@ class stzGraphQuery
 		
 		aBindings = []
 		aEdges = @oGraph.Edges()
-		nLen = ring_len(aEdges)
+		nLen = len(aEdges)
 		
 		for i = 1 to nLen
 			aEdge = aEdges[i]
@@ -1064,9 +1064,9 @@ class stzGraphQuery
 			ok
 			
 			# Check properties
-			if isList(aProps) and ring_len(aProps) > 0
+			if isList(aProps) and len(aProps) > 0
 				acKeys = keys(aProps)
-				nKeyLen = ring_len(acKeys)
+				nKeyLen = len(acKeys)
 				
 				for j = 1 to nKeyLen
 					cKey = acKeys[j]
@@ -1102,17 +1102,17 @@ class stzGraphQuery
 		return aBindings
 	
 	def _MergeBindings(aExisting, aNew)
-		if ring_len(aExisting) = 0
+		if len(aExisting) = 0
 			return aNew
 		ok
 		
-		if ring_len(aNew) = 0
+		if len(aNew) = 0
 			return aExisting
 		ok
 		
 		aMerged = []
-		nExistLen = ring_len(aExisting)
-		nNewLen = ring_len(aNew)
+		nExistLen = len(aExisting)
+		nNewLen = len(aNew)
 		
 		for i = 1 to nExistLen
 			aExistBinding = aExisting[i]
@@ -1126,14 +1126,14 @@ class stzGraphQuery
 					
 					# Add existing bindings
 					acExistKeys = keys(aExistBinding)
-					nKeyLen = ring_len(acExistKeys)
+					nKeyLen = len(acExistKeys)
 					for k = 1 to nKeyLen
 						aCombined + [acExistKeys[k], aExistBinding[acExistKeys[k]]]
 					next
 					
 					# Add new bindings (avoid duplicates)
 					acNewKeys = keys(aNewBinding)
-					nKeyLen = ring_len(acNewKeys)
+					nKeyLen = len(acNewKeys)
 					for k = 1 to nKeyLen
 						if NOT HasKey(aCombined, acNewKeys[k])
 							aCombined + [acNewKeys[k], aNewBinding[acNewKeys[k]]]
@@ -1151,7 +1151,7 @@ class stzGraphQuery
 		acKeys1 = keys(aBinding1)
 		acKeys2 = keys(aBinding2)
 		
-		nLen1 = ring_len(acKeys1)
+		nLen1 = len(acKeys1)
 		for i = 1 to nLen1
 			cKey = acKeys1[i]
 			if HasKey(aBinding2, cKey)
@@ -1226,12 +1226,12 @@ class stzGraphQuery
 		but cOp = :startswith
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			pRight = This._ResolveValue(pCondition["right"], aBinding)
-			return isString(pLeft) and isString(pRight) and StzLeft(StzLower(pLeft), ring_len(pRight)) = StzLower(pRight)
+			return isString(pLeft) and isString(pRight) and StzLeft(StzLower(pLeft), len(pRight)) = StzLower(pRight)
 
 		but cOp = :endswith
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			pRight = This._ResolveValue(pCondition["right"], aBinding)
-			return isString(pLeft) and isString(pRight) and StzRight(StzLower(pLeft), ring_len(pRight)) = StzLower(pRight)
+			return isString(pLeft) and isString(pRight) and StzRight(StzLower(pLeft), len(pRight)) = StzLower(pRight)
 			
 		but cOp = :and
 			return This._EvaluateCondition(pCondition["left"], aBinding) and
@@ -1269,7 +1269,7 @@ class stzGraphQuery
 					aEdge = aBinding["edge_data"]
 					if HasKey(aEdge, :properties)
 						aProps = aEdge[:properties]
-						if isList(aProps) and ring_len(aProps) > 0
+						if isList(aProps) and len(aProps) > 0
 							if HasKey(aProps, cProp)
 								return aProps[cProp]
 							ok
@@ -1287,7 +1287,7 @@ class stzGraphQuery
 				
 				if HasKey(aNode, :properties)
 					aProps = aNode[:properties]
-					if isList(aProps) and ring_len(aProps) > 0
+					if isList(aProps) and len(aProps) > 0
 						if HasKey(aProps, cProp)
 							return aProps[cProp]
 						ok
@@ -1300,7 +1300,7 @@ class stzGraphQuery
 				aEdge = aBinding["edge_data"]
 				if HasKey(aEdge, :properties)
 					aProps = aEdge[:properties]
-					if isList(aProps) and ring_len(aProps) > 0
+					if isList(aProps) and len(aProps) > 0
 						if HasKey(aProps, cProp)
 							return aProps[cProp]
 						ok
@@ -1324,13 +1324,13 @@ class stzGraphQuery
 
 def _ExecuteSelect(aBindings)
 	aResults = []
-	nLen = ring_len(aBindings)
+	nLen = len(aBindings)
 	
 	for i = 1 to nLen
 		aBinding = aBindings[i]
 		aResult = []
 		
-		nFieldLen = ring_len(@aDefinition["select_fields"])
+		nFieldLen = len(@aDefinition["select_fields"])
 		
 		for j = 1 to nFieldLen
 			pField = @aDefinition["select_fields"][j]
@@ -1358,13 +1358,13 @@ def _ExecuteSelect(aBindings)
 
 def _ApplyDistinct(aResults)
 	aUnique = []
-	nLen = ring_len(aResults)
+	nLen = len(aResults)
 	
 	for i = 1 to nLen
 		aResult = aResults[i]
 		bFound = FALSE
 		
-		nUniqueLen = ring_len(aUnique)
+		nUniqueLen = len(aUnique)
 		for j = 1 to nUniqueLen
 			if This._ResultsEqual(aResult, aUnique[j])
 				bFound = TRUE
@@ -1383,11 +1383,11 @@ def _ResultsEqual(aResult1, aResult2)
 	acKeys1 = keys(aResult1)
 	acKeys2 = keys(aResult2)
 	
-	if ring_len(acKeys1) != ring_len(acKeys2)
+	if len(acKeys1) != len(acKeys2)
 		return FALSE
 	ok
 	
-	nLen = ring_len(acKeys1)
+	nLen = len(acKeys1)
 	for i = 1 to nLen
 		cKey = acKeys1[i]
 		if NOT HasKey(aResult2, cKey)
@@ -1415,7 +1415,7 @@ def _ResultsEqual(aResult1, aResult2)
 #------------------#
 
 def _ExecuteCreate(aBindings)
-	nLen = ring_len(@aDefinition["create_patterns"])
+	nLen = len(@aDefinition["create_patterns"])
 	for i = 1 to nLen
 		aPattern = @aDefinition["create_patterns"][i]
 		cPatternType = aPattern["type"]
@@ -1433,7 +1433,7 @@ def _CreateNode(aPattern)
 	
 	cNodeId = "node_" + UUID()
 	
-	if isList(aProps) and ring_len(aProps) > 0
+	if isList(aProps) and len(aProps) > 0
 		@oGraph.AddNodeXTT(cNodeId, cLabel, aProps)
 	else
 		@oGraph.AddNodeXT(cNodeId, cLabel)
@@ -1445,7 +1445,7 @@ def _CreateEdge(aPattern, aBindings)
 	cLabel = aPattern["label"]
 	aProps = aPattern["props"]
 	
-	nLen = ring_len(aBindings)
+	nLen = len(aBindings)
 	for i = 1 to nLen
 		aBinding = aBindings[i]
 		
@@ -1456,7 +1456,7 @@ def _CreateEdge(aPattern, aBindings)
 			cFromId = aFromNode[:id]
 			cToId = aToNode[:id]
 			
-			if isList(aProps) and ring_len(aProps) > 0
+			if isList(aProps) and len(aProps) > 0
 				@oGraph.AddEdgeXTT(cFromId, cToId, cLabel, aProps)
 			else
 				@oGraph.AddEdgeXT(cFromId, cToId, cLabel)
@@ -1465,7 +1465,7 @@ def _CreateEdge(aPattern, aBindings)
 	next
 
 def _ExecuteSet(aBindings)
-	nLen = ring_len(@aDefinition["set_operations"])
+	nLen = len(@aDefinition["set_operations"])
 	
 	for i = 1 to nLen
 		aOp = @aDefinition["set_operations"][i]
@@ -1480,7 +1480,7 @@ def _ExecuteSetProperty(aOp, aBindings)
 	cTarget = aOp["property"]
 	pValue = aOp["value"]
 	
-	nLen = ring_len(aBindings)
+	nLen = len(aBindings)
 	for i = 1 to nLen
 		aBinding = aBindings[i]
 		
@@ -1499,11 +1499,11 @@ def _ExecuteSetProperty(aOp, aBindings)
 def _ExecuteDelete(aBindings)
 	acToDelete = []
 	
-	nLen = ring_len(aBindings)
+	nLen = len(aBindings)
 	for i = 1 to nLen
 		aBinding = aBindings[i]
 		
-		nTargetLen = ring_len(@aDefinition["delete_targets"])
+		nTargetLen = len(@aDefinition["delete_targets"])
 		for j = 1 to nTargetLen
 			cTarget = @aDefinition["delete_targets"][j]
 			
@@ -1517,7 +1517,7 @@ def _ExecuteDelete(aBindings)
 		next
 	next
 	
-	nLen = ring_len(acToDelete)
+	nLen = len(acToDelete)
 	for i = 1 to nLen
 		@oGraph.RemoveThisNode(acToDelete[i])
 	next
@@ -1527,7 +1527,7 @@ def _ExecuteDelete(aBindings)
 #------------------#
 
 def _ApplyOrderBy(aResults)
-	if ring_len(@aDefinition["order_by"]) = 0
+	if len(@aDefinition["order_by"]) = 0
 		return aResults
 	ok
 	
@@ -1537,7 +1537,7 @@ def _ApplyOrderBy(aResults)
 	
 	# Extract values for sorting
 	aValues = []
-	nLen = ring_len(aResults)
+	nLen = len(aResults)
 	for i = 1 to nLen
 		pVal = This._GetResultValue(aResults[i], cField)
 		aValues + [i, pVal]
@@ -1553,7 +1553,7 @@ def _ApplyOrderBy(aResults)
 	
 	# Rebuild results in sorted order
 	aSorted = []
-	nLen = ring_len(aValues)
+	nLen = len(aValues)
 	for i = 1 to nLen
 		nOrigIndex = aValues[i][1]
 		aSorted + aResults[nOrigIndex]
@@ -1586,12 +1586,12 @@ def _GetResultValue(aResult, cField)
 	return NULL
 
 def _ApplySkip(aResults)
-	if @aDefinition["skip"] = 0 or @aDefinition["skip"] >= ring_len(aResults)
+	if @aDefinition["skip"] = 0 or @aDefinition["skip"] >= len(aResults)
 		return []
 	ok
 	
 	aSkipped = []
-	nLen = ring_len(aResults)
+	nLen = len(aResults)
 	for i = @aDefinition["skip"] + 1 to nLen
 		aSkipped + aResults[i]
 	next
@@ -1599,7 +1599,7 @@ def _ApplySkip(aResults)
 	return aSkipped
 
 def _ApplyLimit(aResults)
-	if @aDefinition["limit"] = 0 or @aDefinition["limit"] >= ring_len(aResults)
+	if @aDefinition["limit"] = 0 or @aDefinition["limit"] >= len(aResults)
 		return aResults
 	ok
 	
@@ -1646,9 +1646,9 @@ def Explain()
 	aExplanation = []
 	
 	# Match patterns
-	if ring_len(@aDefinition["match_patterns"]) > 0
+	if len(@aDefinition["match_patterns"]) > 0
 		acMatch = []
-		nLen = ring_len(@aDefinition["match_patterns"])
+		nLen = len(@aDefinition["match_patterns"])
 		for i = 1 to nLen
 			aPattern = @aDefinition["match_patterns"][i]
 			cType = aPattern["type"]
@@ -1664,7 +1664,7 @@ def Explain()
 				ok
 				
 				aProps = aPattern["props"]
-				if isList(aProps) and ring_len(aProps) > 0
+				if isList(aProps) and len(aProps) > 0
 					cDesc += " with properties " + This._FormatProps(aProps)
 				ok
 				
@@ -1698,9 +1698,9 @@ def Explain()
 	ok
 	
 	# Global Where conditions (only if any exist)
-	if ring_len(@aDefinition["where_conditions"]) > 0
+	if len(@aDefinition["where_conditions"]) > 0
 		acWhere = []
-		nLen = ring_len(@aDefinition["where_conditions"])
+		nLen = len(@aDefinition["where_conditions"])
 		for i = 1 to nLen
 			cCondDesc = This._ExplainCondition(@aDefinition["where_conditions"][i], "")
 			acWhere + ("Filter bindings using: " + cCondDesc)
@@ -1709,9 +1709,9 @@ def Explain()
 	ok
 	
 	# Create patterns
-	if ring_len(@aDefinition["create_patterns"]) > 0
+	if len(@aDefinition["create_patterns"]) > 0
 		acCreate = []
-		nLen = ring_len(@aDefinition["create_patterns"])
+		nLen = len(@aDefinition["create_patterns"])
 		for i = 1 to nLen
 			aPattern = @aDefinition["create_patterns"][i]
 			cType = aPattern["type"]
@@ -1726,9 +1726,9 @@ def Explain()
 	ok
 	
 	# Set operations
-	if ring_len(@aDefinition["set_operations"]) > 0
+	if len(@aDefinition["set_operations"]) > 0
 		acSet = []
-		nLen = ring_len(@aDefinition["set_operations"])
+		nLen = len(@aDefinition["set_operations"])
 		for i = 1 to nLen
 			aOp = @aDefinition["set_operations"][i]
 			cProp = aOp["property"]
@@ -1739,9 +1739,9 @@ def Explain()
 	ok
 	
 	# Delete targets
-	if ring_len(@aDefinition["delete_targets"]) > 0
+	if len(@aDefinition["delete_targets"]) > 0
 		acDelete = []
-		nLen = ring_len(@aDefinition["delete_targets"])
+		nLen = len(@aDefinition["delete_targets"])
 		for i = 1 to nLen
 			acDelete + ("Delete node: " + @aDefinition["delete_targets"][i])
 		next
@@ -1749,7 +1749,7 @@ def Explain()
 	ok
 	
 	# Select fields
-	if ring_len(@aDefinition["select_fields"]) > 0
+	if len(@aDefinition["select_fields"]) > 0
 		acSelect = []
 		
 		if @aDefinition["distinct"]
@@ -1757,7 +1757,7 @@ def Explain()
 		ok
 		
 		cFields = "Project fields: "
-		nLen = ring_len(@aDefinition["select_fields"])
+		nLen = len(@aDefinition["select_fields"])
 		for i = 1 to nLen
 			pField = @aDefinition["select_fields"][i]
 			
@@ -1777,7 +1777,7 @@ def Explain()
 	ok
 	
 	# Order by
-	if ring_len(@aDefinition["order_by"]) > 0
+	if len(@aDefinition["order_by"]) > 0
 		aOrder = @aDefinition["order_by"][1]
 		cField = aOrder["field"]
 		cDir = StzUpper(aOrder["direction"])
@@ -1857,13 +1857,13 @@ def _ExplainCondition(pCondition, pcVarName)
 	return "Unknown condition"
 
 def _FormatProps(aProps)
-	if NOT isList(aProps) or ring_len(aProps) = 0
+	if NOT isList(aProps) or len(aProps) = 0
 		return "{}"
 	ok
 	
 	cResult = "{"
 	acKeys = keys(aProps)
-	nLen = ring_len(acKeys)
+	nLen = len(acKeys)
 	
 	for i = 1 to nLen
 		cKey = acKeys[i]
@@ -1884,7 +1884,7 @@ def _FormatValue(pValue)
 		return "" + pValue
 	but isList(pValue)
 		cResult = "["
-		nLen = ring_len(pValue)
+		nLen = len(pValue)
 		for i = 1 to nLen
 			cResult += This._FormatValue(pValue[i])
 			if i < nLen
@@ -1904,9 +1904,9 @@ def ToOpenCypher()
 	cCypher = ""
 	
 	# MATCH clause
-	if ring_len(@aDefinition["match_patterns"]) > 0
+	if len(@aDefinition["match_patterns"]) > 0
 		cCypher += "MATCH "
-		nLen = ring_len(@aDefinition["match_patterns"])
+		nLen = len(@aDefinition["match_patterns"])
 		
 		for i = 1 to nLen
 			aPattern = @aDefinition["match_patterns"][i]
@@ -1923,8 +1923,8 @@ def ToOpenCypher()
 	acWhereConditions = []
 	
 	# Collect WHERE from patterns
-	if ring_len(@aDefinition["match_patterns"]) > 0
-		nLen = ring_len(@aDefinition["match_patterns"])
+	if len(@aDefinition["match_patterns"]) > 0
+		nLen = len(@aDefinition["match_patterns"])
 		for i = 1 to nLen
 			aPattern = @aDefinition["match_patterns"][i]
 			if HasKey(aPattern, "where")
@@ -1934,15 +1934,15 @@ def ToOpenCypher()
 	ok
 	
 	# Add global WHERE conditions
-	nLen = ring_len(@aDefinition["where_conditions"])
+	nLen = len(@aDefinition["where_conditions"])
 	for i = 1 to nLen
 		acWhereConditions + This._ConditionToCypher(@aDefinition["where_conditions"][i])
 	next
 	
 	# Output WHERE clause if any conditions exist
-	if ring_len(acWhereConditions) > 0
+	if len(acWhereConditions) > 0
 		cCypher += "WHERE "
-		nLen = ring_len(acWhereConditions)
+		nLen = len(acWhereConditions)
 		for i = 1 to nLen
 			cCypher += acWhereConditions[i]
 			if i < nLen
@@ -1953,9 +1953,9 @@ def ToOpenCypher()
 	ok
 	
 	# CREATE clause
-	if ring_len(@aDefinition["create_patterns"]) > 0
+	if len(@aDefinition["create_patterns"]) > 0
 		cCypher += "CREATE "
-		nLen = ring_len(@aDefinition["create_patterns"])
+		nLen = len(@aDefinition["create_patterns"])
 		
 		for i = 1 to nLen
 			aPattern = @aDefinition["create_patterns"][i]
@@ -1969,9 +1969,9 @@ def ToOpenCypher()
 	ok
 	
 	# SET clause
-	if ring_len(@aDefinition["set_operations"]) > 0
+	if len(@aDefinition["set_operations"]) > 0
 		cCypher += "SET "
-		nLen = ring_len(@aDefinition["set_operations"])
+		nLen = len(@aDefinition["set_operations"])
 		
 		for i = 1 to nLen
 			aOp = @aDefinition["set_operations"][i]
@@ -1987,20 +1987,20 @@ def ToOpenCypher()
 	ok
 	
 	# DELETE clause
-	if ring_len(@aDefinition["delete_targets"]) > 0
+	if len(@aDefinition["delete_targets"]) > 0
 		cCypher += "DELETE "
 		cCypher += JoinXT(@aDefinition["delete_targets"], ", ")
 		cCypher += NL
 	ok
 	
 	# RETURN clause
-	if ring_len(@aDefinition["select_fields"]) > 0
+	if len(@aDefinition["select_fields"]) > 0
 		cCypher += "RETURN "
 		if @aDefinition["distinct"]
 			cCypher += "DISTINCT "
 		ok
 		
-		nLen = ring_len(@aDefinition["select_fields"])
+		nLen = len(@aDefinition["select_fields"])
 		for i = 1 to nLen
 			pField = @aDefinition["select_fields"][i]
 			
@@ -2018,7 +2018,7 @@ def ToOpenCypher()
 	ok
 	
 	# ORDER BY clause
-	if ring_len(@aDefinition["order_by"]) > 0
+	if len(@aDefinition["order_by"]) > 0
 		cCypher += "ORDER BY "
 		aOrder = @aDefinition["order_by"][1]
 		cCypher += aOrder["field"] + " " + UPPER(aOrder["direction"])
@@ -2051,7 +2051,7 @@ def _PatternToCypher(aPattern)
 			cResult += ":" + cLabel
 		ok
 		
-		if isList(aProps) and ring_len(aProps) > 0
+		if isList(aProps) and len(aProps) > 0
 			cResult += " " + This._PropsToCypher(aProps)
 		ok
 		
@@ -2070,7 +2070,7 @@ def _PatternToCypher(aPattern)
 			cResult += ":" + cLabel
 		ok
 		
-		if isList(aProps) and ring_len(aProps) > 0
+		if isList(aProps) and len(aProps) > 0
 			cResult += " " + This._PropsToCypher(aProps)
 		ok
 		
@@ -2137,7 +2137,7 @@ def _ConditionToCypher(pCondition)
 def _PropsToCypher(aProps)
 	cResult = "{"
 	acKeys = keys(aProps)
-	nLen = ring_len(acKeys)
+	nLen = len(acKeys)
 	
 	for i = 1 to nLen
 		cKey = acKeys[i]
@@ -2158,7 +2158,7 @@ def _ValueToCypher(pValue)
 		return "" + pValue
 	but isList(pValue)
 		cResult = "["
-		nLen = ring_len(pValue)
+		nLen = len(pValue)
 		for i = 1 to nLen
 			cResult += This._ValueToCypher(pValue[i])
 			if i < nLen

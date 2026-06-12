@@ -94,7 +94,7 @@ class stzStateMachine
 			ok
 		ok
 
-		nLen = ring_len(paStates)
+		nLen = len(paStates)
 		for i = 1 to nLen
 			This.AddState(paStates[i])
 		next
@@ -126,7 +126,7 @@ class stzStateMachine
 			ok
 		ok
 
-		nLen = ring_len(paTransitions)
+		nLen = len(paTransitions)
 		for i = 1 to nLen
 			aTr = paTransitions[i]
 			This.AddTransition(aTr[1], aTr[2], aTr[3])

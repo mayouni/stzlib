@@ -64,7 +64,7 @@ class stzListMerger
 		_aMrgResult_ = []
 		for _iMrg_ = 1 to _nMrgLen_
 			if isList(_aMrgContent_[_iMrg_])
-				_nMrgLenList_ = ring_len(_aMrgContent_[_iMrg_])
+				_nMrgLenList_ = len(_aMrgContent_[_iMrg_])
 				for _jMrg_ = 1 to _nMrgLenList_
 					@AddItem(_aMrgResult_, _aMrgContent_[_iMrg_][_jMrg_])
 				next
@@ -83,7 +83,7 @@ class stzListMerger
 		return aResult
 
 	def MergeWith(paOtherList)
-		_nMwLen_ = ring_len(paOtherList)
+		_nMwLen_ = len(paOtherList)
 		for _iMw_ = 1 to _nMwLen_
 			This.Add(paOtherList[_iMw_])
 		next
@@ -99,7 +99,7 @@ class stzListMerger
 	def AssociateWith(paOtherList)
 		_aAwContent_ = This.Content()
 		_nAwLen_ = This.NumberOfItems()
-		_nAwLenOther_ = ring_len(paOtherList)
+		_nAwLenOther_ = len(paOtherList)
 		_aAwResult_ = []
 		for _iAw_ = 1 to _nAwLen_
 			if _iAw_ <= _nAwLenOther_
@@ -130,7 +130,7 @@ class stzListMerger
 			return This
 
 	def _FlattenHelper(aList, aResult)
-		_nFhLen_ = ring_len(aList)
+		_nFhLen_ = len(aList)
 		for _iFh_ = 1 to _nFhLen_
 			if isList(aList[_iFh_])
 				This._FlattenHelper(aList[_iFh_], aResult)
@@ -147,7 +147,7 @@ class stzListMerger
 	#======================================================#
 
 	def MergeWithMany(paLists)
-		_nMwmLen_ = ring_len(paLists)
+		_nMwmLen_ = len(paLists)
 		for _iMwm_ = 1 to _nMwmLen_
 			This.MergeWith(paLists[_iMwm_])
 		next
@@ -208,11 +208,11 @@ class stzListMerger
 
 	def Unzip()
 		_aUzContent_ = This.Content()
-		_nUzLen_ = ring_len(_aUzContent_)
+		_nUzLen_ = len(_aUzContent_)
 		_aUzFirst_ = []
 		_aUzSecond_ = []
 		for _iUz_ = 1 to _nUzLen_
-			if isList(_aUzContent_[_iUz_]) and ring_len(_aUzContent_[_iUz_]) >= 2
+			if isList(_aUzContent_[_iUz_]) and len(_aUzContent_[_iUz_]) >= 2
 				@AddItem(_aUzFirst_, _aUzContent_[_iUz_][1])
 				@AddItem(_aUzSecond_, _aUzContent_[_iUz_][2])
 			ok
@@ -230,13 +230,13 @@ class stzListMerger
 	#======================================================#
 
 	def PrependWith(paOtherList)
-		_nPwLen_ = ring_len(paOtherList)
+		_nPwLen_ = len(paOtherList)
 		_aPwContent_ = This.Content()
 		_aPwResult_ = []
 		for _iPw_ = 1 to _nPwLen_
 			@AddItem(_aPwResult_, paOtherList[_iPw_])
 		next
-		_nPwLen2_ = ring_len(_aPwContent_)
+		_nPwLen2_ = len(_aPwContent_)
 		for _jPw_ = 1 to _nPwLen2_
 			@AddItem(_aPwResult_, _aPwContent_[_jPw_])
 		next

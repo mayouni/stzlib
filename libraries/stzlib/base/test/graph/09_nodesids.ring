@@ -121,7 +121,7 @@ while nIdx <= len(acQueue)
     ? "  Neighbors: " + @@(acNeighbors)
     ? "  Incoming: " + @@(acIncoming)
     
-    _nNeighborsLen_ = ring_len(acNeighbors)
+    _nNeighborsLen_ = len(acNeighbors)
     for i = 1 to _nNeighborsLen_
         cNext = acNeighbors[i]
         if find(acVisited, cNext) = 0
@@ -131,7 +131,7 @@ while nIdx <= len(acQueue)
         ok
     end
     
-    _nIncomingLen_ = ring_len(acIncoming)
+    _nIncomingLen_ = len(acIncoming)
     for i = 1 to _nIncomingLen_
         cNext = acIncoming[i]
         if find(acVisited, cNext) = 0

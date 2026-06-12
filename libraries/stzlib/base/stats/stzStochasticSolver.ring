@@ -52,12 +52,12 @@ class stzStochasticSolver
 
     def addIntegerVariable(varName, lowerBound, upperBound)
         This.addVariable(varName, lowerBound, upperBound)
-        @aVariables[ring_len(@aVariables)][:type] = "integer"
+        @aVariables[len(@aVariables)][:type] = "integer"
         return this
 
     def addBinaryVariable(varName)
         This.addVariable(varName, 0, 1)
-        @aVariables[ring_len(@aVariables)][:type] = "binary"
+        @aVariables[len(@aVariables)][:type] = "binary"
         return this
 
     def variables()
@@ -65,7 +65,7 @@ class stzStochasticSolver
 
     def variableNames()
         aNames = []
-        _nVariables3Len_ = ring_len(@aVariables)
+        _nVariables3Len_ = len(@aVariables)
         for _iLoopVariables3_ = 1 to _nVariables3Len_
         	var = @aVariables[_iLoopVariables3_]
             aNames + var[:name]
@@ -95,7 +95,7 @@ class stzStochasticSolver
 
     def validateScenarios()
         nTotalProb = 0
-        _nScenarios14Len_ = ring_len(@aScenarios)
+        _nScenarios14Len_ = len(@aScenarios)
         for _iLoopScenarios14_ = 1 to _nScenarios14Len_
         	scenario = @aScenarios[_iLoopScenarios14_]
             nTotalProb += scenario[:probability]
@@ -185,7 +185,7 @@ class stzStochasticSolver
         # Handle multiplication
         if ring_substr1(cExpr, "*")
             acParts = split(cExpr, "*")
-            if ring_len(acParts) = 2
+            if len(acParts) = 2
                 nLeft = 0+ trim(acParts[1])
                 nRight = 0+ trim(acParts[2])
                 return nLeft * nRight
@@ -195,7 +195,7 @@ class stzStochasticSolver
         # Handle division
         if ring_substr1(cExpr, "/")
             acParts = split(cExpr, "/")
-            if ring_len(acParts) = 2
+            if len(acParts) = 2
                 nLeft = 0+ trim(acParts[1])
                 nRight = 0+ trim(acParts[2])
                 if nRight != 0
@@ -209,7 +209,7 @@ class stzStochasticSolver
         # Handle addition
         if ring_substr1(cExpr, "+")
             acParts = split(cExpr, "+")
-            if ring_len(acParts) = 2
+            if len(acParts) = 2
                 nLeft = 0+ trim(acParts[1])
                 nRight = 0+ trim(acParts[2])
                 return nLeft + nRight
@@ -219,7 +219,7 @@ class stzStochasticSolver
         # Handle subtraction
         if ring_substr1(cExpr, "-")
             acParts = split(cExpr, "-")
-            if ring_len(acParts) = 2
+            if len(acParts) = 2
                 nLeft = 0+ trim(acParts[1])
                 nRight = 0+ trim(acParts[2])
                 return nLeft - nRight
@@ -232,9 +232,9 @@ class stzStochasticSolver
     # Main Solving Methods
     def solve()
         nStartTime = clock()
-        if ring_len(@aVariables) = 0 stzRaise("No variables defined!") ok
+        if len(@aVariables) = 0 stzRaise("No variables defined!") ok
         if @cObjective = "" stzRaise("No objective function defined!") ok
-        if ring_len(@aScenarios) = 0 stzRaise("No scenarios defined! Use addScenario() to model uncertainty.") ok
+        if len(@aScenarios) = 0 stzRaise("No scenarios defined! Use addScenario() to model uncertainty.") ok
 
         This.validateScenarios()
 
@@ -255,23 +255,23 @@ class stzStochasticSolver
 
     # Expected Value Method
     def solveExpectedValue()
-        @nIterations = ring_len(@aVariables)
+        @nIterations = len(@aVariables)
         aVarNames = This.variableNames()
         aSolution = []
 
         # Initialize solution
-        _nVariablesLen_4 = ring_len(@aVariables)
+        _nVariablesLen_4 = len(@aVariables)
         for i = 1 to _nVariablesLen_4
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
 
         # Calculate expected objective coefficients
         aExpectedCoeffs = []
-        _nVarNames2Len_ = ring_len(aVarNames)
+        _nVarNames2Len_ = len(aVarNames)
         for _iLoopVarNames2_ = 1 to _nVarNames2Len_
         	varName = aVarNames[_iLoopVarNames2_]
             nExpectedCoeff = 0
-            _nScenarios13Len_ = ring_len(@aScenarios)
+            _nScenarios13Len_ = len(@aScenarios)
             for _iLoopScenarios13_ = 1 to _nScenarios13Len_
             	scenario = @aScenarios[_iLoopScenarios13_]
                 cModifiedObjective = This.applyScenarioParameters(@cObjective, scenario[:parameters])
@@ -284,7 +284,7 @@ class stzStochasticSolver
 
         # Calculate efficiency for each variable
         aEfficiency = []
-        _nVarNamesLen_4 = ring_len(aVarNames)
+        _nVarNamesLen_4 = len(aVarNames)
         for i = 1 to _nVarNamesLen_4
             nCoeff = aExpectedCoeffs[i]
             nResourceCost = This.calculateExpectedResourceCost(aVarNames[i])
@@ -301,7 +301,7 @@ class stzStochasticSolver
         aEfficiency = reverse(aEfficiency)
 
         # Assign maximum feasible values
-        _nEfficiency3Len_ = ring_len(aEfficiency)
+        _nEfficiency3Len_ = len(aEfficiency)
         for _iLoopEfficiency3_ = 1 to _nEfficiency3Len_
         	eff = aEfficiency[_iLoopEfficiency3_]
             cVarName = eff[1]
@@ -309,7 +309,7 @@ class stzStochasticSolver
             nMaxPossible = This.calculateExpectedMaxValue(cVarName, aSolution)
             nUpperBound = @aVariables[nVarIndex][:upperBound]
             nValue = min([nMaxPossible, nUpperBound])
-            _nSolution6Len_ = ring_len(aSolution)
+            _nSolution6Len_ = len(aSolution)
             for _iLoopSolution6_ = 1 to _nSolution6Len_
             	sol = aSolution[_iLoopSolution6_]
                 if sol[1] = cVarName
@@ -327,7 +327,7 @@ class stzStochasticSolver
         aSolution = []
 
         # Initialize solution
-        _nVariablesLen_3 = ring_len(@aVariables)
+        _nVariablesLen_3 = len(@aVariables)
         for i = 1 to _nVariablesLen_3
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
@@ -338,7 +338,7 @@ class stzStochasticSolver
 
         # Calculate efficiency using worst-case
         aEfficiency = []
-        _nVarNamesLen_3 = ring_len(aVarNames)
+        _nVarNamesLen_3 = len(aVarNames)
         for i = 1 to _nVarNamesLen_3
             nCoeff = aCoeffs[i]
             nResourceCost = This.calculateWorstCaseResourceCost(aVarNames[i])
@@ -350,7 +350,7 @@ class stzStochasticSolver
         aEfficiency = reverse(aEfficiency)
 
         # Assign values using robust constraints
-        _nEfficiency2Len_ = ring_len(aEfficiency)
+        _nEfficiency2Len_ = len(aEfficiency)
         for _iLoopEfficiency2_ = 1 to _nEfficiency2Len_
         	eff = aEfficiency[_iLoopEfficiency2_]
             cVarName = eff[1]
@@ -358,7 +358,7 @@ class stzStochasticSolver
             nMaxPossible = This.calculateRobustMaxValue(cVarName, aSolution)
             nUpperBound = @aVariables[nVarIndex][:upperBound]
             nValue = min([nMaxPossible, nUpperBound])
-            _nSolution5Len_ = ring_len(aSolution)
+            _nSolution5Len_ = len(aSolution)
             for _iLoopSolution5_ = 1 to _nSolution5Len_
             	sol = aSolution[_iLoopSolution5_]
                 if sol[1] = cVarName
@@ -378,18 +378,18 @@ class stzStochasticSolver
         aSolution = []
 
         # Initialize solution
-        _nVariablesLen_2 = ring_len(@aVariables)
+        _nVariablesLen_2 = len(@aVariables)
         for i = 1 to _nVariablesLen_2
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
 
         # Use expected objective but confidence-adjusted constraints
         aExpectedCoeffs = []
-        _nVarNames1Len_ = ring_len(aVarNames)
+        _nVarNames1Len_ = len(aVarNames)
         for _iLoopVarNames1_ = 1 to _nVarNames1Len_
         	varName = aVarNames[_iLoopVarNames1_]
             nExpectedCoeff = 0
-            _nScenarios12Len_ = ring_len(@aScenarios)
+            _nScenarios12Len_ = len(@aScenarios)
             for _iLoopScenarios12_ = 1 to _nScenarios12Len_
             	scenario = @aScenarios[_iLoopScenarios12_]
                 cModifiedObjective = This.applyScenarioParameters(@cObjective, scenario[:parameters])
@@ -402,7 +402,7 @@ class stzStochasticSolver
 
         # Calculate efficiency with chance constraints
         aEfficiency = []
-        _nVarNamesLen_2 = ring_len(aVarNames)
+        _nVarNamesLen_2 = len(aVarNames)
         for i = 1 to _nVarNamesLen_2
             nCoeff = aExpectedCoeffs[i]
             nResourceCost = This.calculateChanceResourceCost(aVarNames[i])
@@ -414,7 +414,7 @@ class stzStochasticSolver
         aEfficiency = reverse(aEfficiency)
 
         # Assign values respecting chance constraints
-        _nEfficiency1Len_ = ring_len(aEfficiency)
+        _nEfficiency1Len_ = len(aEfficiency)
         for _iLoopEfficiency1_ = 1 to _nEfficiency1Len_
         	eff = aEfficiency[_iLoopEfficiency1_]
             cVarName = eff[1]
@@ -422,7 +422,7 @@ class stzStochasticSolver
             nMaxPossible = This.calculateChanceMaxValue(cVarName, aSolution)
             nUpperBound = @aVariables[nVarIndex][:upperBound]
             nValue = min([nMaxPossible, nUpperBound])
-            _nSolution4Len_ = ring_len(aSolution)
+            _nSolution4Len_ = len(aSolution)
             for _iLoopSolution4_ = 1 to _nSolution4Len_
             	sol = aSolution[_iLoopSolution4_]
                 if sol[1] = cVarName
@@ -445,7 +445,7 @@ class stzStochasticSolver
             nRand = random(100) / 100.0
             nCumProb = 0
             selectedScenario = @aScenarios[1]
-            _nScenarios11Len_ = ring_len(@aScenarios)
+            _nScenarios11Len_ = len(@aScenarios)
             for _iLoopScenarios11_ = 1 to _nScenarios11Len_
             	scenario = @aScenarios[_iLoopScenarios11_]
                 nCumProb += scenario[:probability]
@@ -472,7 +472,7 @@ class stzStochasticSolver
     # Helper Methods
     def applyScenarioParameters(cExpression, aParameters)
         cResult = cExpression
-        _nParameters1Len_ = ring_len(aParameters)
+        _nParameters1Len_ = len(aParameters)
         for _iLoopParameters1_ = 1 to _nParameters1Len_
         	param = aParameters[_iLoopParameters1_]
             cResult = StzStringQ(cResult).ReplaceAllQ(param[1], string(param[2])).Content()
@@ -489,11 +489,11 @@ class stzStochasticSolver
 
     def calculateExpectedResourceCost(cVarName)
         nExpectedCost = 0
-        _nScenarios10Len_ = ring_len(@aScenarios)
+        _nScenarios10Len_ = len(@aScenarios)
         for _iLoopScenarios10_ = 1 to _nScenarios10Len_
         	scenario = @aScenarios[_iLoopScenarios10_]
             nScenarioCost = 0
-            _nConstraints6Len_ = ring_len(@aConstraints)
+            _nConstraints6Len_ = len(@aConstraints)
             for _iLoopConstraints6_ = 1 to _nConstraints6Len_
             	const = @aConstraints[_iLoopConstraints6_]
                 if const[:scenario] = "all" or const[:scenario] = scenario[:name]
@@ -508,11 +508,11 @@ class stzStochasticSolver
 
     def calculateWorstCaseResourceCost(cVarName)
         nWorstCost = 0
-        _nScenarios9Len_ = ring_len(@aScenarios)
+        _nScenarios9Len_ = len(@aScenarios)
         for _iLoopScenarios9_ = 1 to _nScenarios9Len_
         	scenario = @aScenarios[_iLoopScenarios9_]
             nScenarioCost = 0
-            _nConstraints5Len_ = ring_len(@aConstraints)
+            _nConstraints5Len_ = len(@aConstraints)
             for _iLoopConstraints5_ = 1 to _nConstraints5Len_
             	const = @aConstraints[_iLoopConstraints5_]
                 if const[:scenario] = "all" or const[:scenario] = scenario[:name]
@@ -528,11 +528,11 @@ class stzStochasticSolver
     def calculateChanceResourceCost(cVarName)
         # Use confidence level to weight resource costs
         nWeightedCost = 0
-        _nScenarios8Len_ = ring_len(@aScenarios)
+        _nScenarios8Len_ = len(@aScenarios)
         for _iLoopScenarios8_ = 1 to _nScenarios8Len_
         	scenario = @aScenarios[_iLoopScenarios8_]
             nScenarioCost = 0
-            _nConstraints4Len_ = ring_len(@aConstraints)
+            _nConstraints4Len_ = len(@aConstraints)
             for _iLoopConstraints4_ = 1 to _nConstraints4Len_
             	const = @aConstraints[_iLoopConstraints4_]
                 if const[:scenario] = "all" or const[:scenario] = scenario[:name]
@@ -548,7 +548,7 @@ class stzStochasticSolver
 
     def calculateExpectedMaxValue(cVarName, aSolution)
         nMinLimit = 999999
-        _nScenarios7Len_ = ring_len(@aScenarios)
+        _nScenarios7Len_ = len(@aScenarios)
         for _iLoopScenarios7_ = 1 to _nScenarios7Len_
         	scenario = @aScenarios[_iLoopScenarios7_]
             nScenarioLimit = This.calculateScenarioMaxValue(cVarName, aSolution, scenario)
@@ -559,7 +559,7 @@ class stzStochasticSolver
 
     def calculateRobustMaxValue(cVarName, aSolution)
         nMinLimit = 999999
-        _nScenarios6Len_ = ring_len(@aScenarios)
+        _nScenarios6Len_ = len(@aScenarios)
         for _iLoopScenarios6_ = 1 to _nScenarios6Len_
         	scenario = @aScenarios[_iLoopScenarios6_]
             nScenarioLimit = This.calculateScenarioMaxValue(cVarName, aSolution, scenario)
@@ -570,7 +570,7 @@ class stzStochasticSolver
 
     def calculateChanceMaxValue(cVarName, aSolution)
         aLimits = []
-        _nScenarios5Len_ = ring_len(@aScenarios)
+        _nScenarios5Len_ = len(@aScenarios)
         for _iLoopScenarios5_ = 1 to _nScenarios5Len_
         	scenario = @aScenarios[_iLoopScenarios5_]
             nScenarioLimit = This.calculateScenarioMaxValue(cVarName, aSolution, scenario)
@@ -580,7 +580,7 @@ class stzStochasticSolver
         # Sort limits and find confidence level cutoff
         aLimits = sorton(aLimits, 1)
         nCumProb = 0
-        _nLimits1Len_ = ring_len(aLimits)
+        _nLimits1Len_ = len(aLimits)
         for _iLoopLimits1_ = 1 to _nLimits1Len_
         	limit = aLimits[_iLoopLimits1_]
             nCumProb += limit[2]
@@ -588,11 +588,11 @@ class stzStochasticSolver
                 return max([0, limit[1]])
             ok
         next
-        return max([0, aLimits[ring_len(aLimits)][1]])
+        return max([0, aLimits[len(aLimits)][1]])
 
     def calculateScenarioMaxValue(cVarName, aSolution, scenario)
         nMinLimit = 999999
-        _nConstraints3Len_ = ring_len(@aConstraints)
+        _nConstraints3Len_ = len(@aConstraints)
         for _iLoopConstraints3_ = 1 to _nConstraints3Len_
         	const = @aConstraints[_iLoopConstraints3_]
             if const[:scenario] = "all" or const[:scenario] = scenario[:name]
@@ -602,7 +602,7 @@ class stzStochasticSolver
                 if nCoeff != 0
                     nUsedResources = 0
                     _aThisvariableNames2_ = This.variableNames()
-                    _nThisvariableNames2Len_ = ring_len(_aThisvariableNames2_)
+                    _nThisvariableNames2Len_ = len(_aThisvariableNames2_)
                     for _iLoopThisvariableNames2_ = 1 to _nThisvariableNames2Len_
                     	var = _aThisvariableNames2_[_iLoopThisvariableNames2_]
                         if var != cVarName
@@ -628,7 +628,7 @@ class stzStochasticSolver
         cWorstObjective = @cObjective
         nWorstValue = iff(@cObjectiveType = "maximize", -999999, 999999)
         
-        _nScenarios4Len_ = ring_len(@aScenarios)
+        _nScenarios4Len_ = len(@aScenarios)
         for _iLoopScenarios4_ = 1 to _nScenarios4Len_
         	scenario = @aScenarios[_iLoopScenarios4_]
             cScenarioObjective = This.applyScenarioParameters(@cObjective, scenario[:parameters])
@@ -645,7 +645,7 @@ class stzStochasticSolver
         aSolution = []
         
         # Initialize solution
-        _nVariablesLen_ = ring_len(@aVariables)
+        _nVariablesLen_ = len(@aVariables)
         for i = 1 to _nVariablesLen_
             aSolution + [aVarNames[i], @aVariables[i][:lowerBound]]
         next
@@ -655,7 +655,7 @@ class stzStochasticSolver
         aCoeffs = This.parseObjectiveCoefficients(cScenarioObjective)
         
         # Simple greedy assignment
-        _nVarNamesLen_ = ring_len(aVarNames)
+        _nVarNamesLen_ = len(aVarNames)
         for i = 1 to _nVarNamesLen_
             cVarName = aVarNames[i]
             nMaxPossible = This.calculateScenarioMaxValue(cVarName, aSolution, scenario)
@@ -669,7 +669,7 @@ class stzStochasticSolver
     def calculateScenarioObjectiveValue(aSolution, scenario)
         cScenarioObjective = This.applyScenarioParameters(@cObjective, scenario[:parameters])
         nResult = 0
-        _nVariables2Len_ = ring_len(@aVariables)
+        _nVariables2Len_ = len(@aVariables)
         for _iLoopVariables2_ = 1 to _nVariables2Len_
         	var = @aVariables[_iLoopVariables2_]
             nValue = This.getSolutionValue(aSolution, var[:name])
@@ -679,7 +679,7 @@ class stzStochasticSolver
         return nResult
 
     def getSolutionValue(aSolution, cVarName)
-        _nSolution3Len_ = ring_len(aSolution)
+        _nSolution3Len_ = len(aSolution)
         for _iLoopSolution3_ = 1 to _nSolution3Len_
         	sol = aSolution[_iLoopSolution3_]
             if sol[1] = cVarName return sol[2] ok
@@ -688,10 +688,10 @@ class stzStochasticSolver
 
     # Analysis Methods
     def analyzeScenarios()
-        if ring_len(@aSolution) = 0 stzRaise("No solution available! Call solve() first.") ok
+        if len(@aSolution) = 0 stzRaise("No solution available! Call solve() first.") ok
         
         aScenarioResults = []
-        _nScenarios3Len_ = ring_len(@aScenarios)
+        _nScenarios3Len_ = len(@aScenarios)
         for _iLoopScenarios3_ = 1 to _nScenarios3Len_
         	scenario = @aScenarios[_iLoopScenarios3_]
             nObjectiveValue = This.calculateScenarioObjectiveValue(@aSolution, scenario)
@@ -702,7 +702,7 @@ class stzStochasticSolver
         return aScenarioResults
 
     def checkScenarioFeasibility(aSolution, scenario)
-        _nConstraints2Len_ = ring_len(@aConstraints)
+        _nConstraints2Len_ = len(@aConstraints)
         for _iLoopConstraints2_ = 1 to _nConstraints2Len_
         	const = @aConstraints[_iLoopConstraints2_]
             if const[:scenario] = "all" or const[:scenario] = scenario[:name]
@@ -711,7 +711,7 @@ class stzStochasticSolver
                 
                 nLHS = 0
                 _aThisvariableNames1_ = This.variableNames()
-                _nThisvariableNames1Len_ = ring_len(_aThisvariableNames1_)
+                _nThisvariableNames1Len_ = len(_aThisvariableNames1_)
                 for _iLoopThisvariableNames1_ = 1 to _nThisvariableNames1Len_
                 	var = _aThisvariableNames1_[_iLoopThisvariableNames1_]
                     nCoeff = This.extractCoefficient(cModifiedExpression, var)
@@ -733,10 +733,10 @@ class stzStochasticSolver
         return true
 
     def expectedObjectiveValue()
-        if ring_len(@aSolution) = 0 return 0 ok
+        if len(@aSolution) = 0 return 0 ok
         
         nExpectedValue = 0
-        _nScenarios2Len_ = ring_len(@aScenarios)
+        _nScenarios2Len_ = len(@aScenarios)
         for _iLoopScenarios2_ = 1 to _nScenarios2Len_
         	scenario = @aScenarios[_iLoopScenarios2_]
             nScenarioValue = This.calculateScenarioObjectiveValue(@aSolution, scenario)
@@ -765,7 +765,7 @@ class stzStochasticSolver
 
         ? BoxRound("Stochastic Programming Problem")
         ? "• Variables:"
-        _nVariables1Len_ = ring_len(@aVariables)
+        _nVariables1Len_ = len(@aVariables)
         for _iLoopVariables1_ = 1 to _nVariables1Len_
         	var = @aVariables[_iLoopVariables1_]
             ? " ─ " + var[:name] + " ∈ [" + var[:lowerBound] + ", " + var[:upperBound] + "] (" + var[:type] + ")"
@@ -777,12 +777,12 @@ class stzStochasticSolver
 
 		? ""
         ? "• Scenarios:"
-        _nScenarios1Len_ = ring_len(@aScenarios)
+        _nScenarios1Len_ = len(@aScenarios)
         for _iLoopScenarios1_ = 1 to _nScenarios1Len_
         	scenario = @aScenarios[_iLoopScenarios1_]
             ? " ─ " + scenario[:name] + ": " + scenario[:description] + " (p=" + scenario[:probability] + ")"
             _aScenarioparameters1_ = scenario[:parameters]
-            _nScenarioparameters1Len_ = ring_len(_aScenarioparameters1_)
+            _nScenarioparameters1Len_ = len(_aScenarioparameters1_)
             for _iLoopScenarioparameters1_ = 1 to _nScenarioparameters1Len_
             	param = _aScenarioparameters1_[_iLoopScenarioparameters1_]
                 ? " ╰─> " + param[1] + " = " + param[2]
@@ -791,7 +791,7 @@ class stzStochasticSolver
         next
 
         ? "• Constraints:"
-        _nConstraints1Len_ = ring_len(@aConstraints)
+        _nConstraints1Len_ = len(@aConstraints)
         for _iLoopConstraints1_ = 1 to _nConstraints1Len_
         	const = @aConstraints[_iLoopConstraints1_]
             cScenarioInfo = iff(const[:scenario] != "all", " [" + const[:scenario] + "]", "")
@@ -808,7 +808,7 @@ class stzStochasticSolver
 
 			? ""
             ? "• Variable Values:"
-            _nSolution2Len_ = ring_len(@aSolution)
+            _nSolution2Len_ = len(@aSolution)
             for _iLoopSolution2_ = 1 to _nSolution2Len_
             	sol = @aSolution[_iLoopSolution2_]
                 ? " ─ " + sol[1] + " = " + sol[2]
@@ -820,7 +820,7 @@ class stzStochasticSolver
 			? ""
             ? "• Scenario Analysis:"
             aResults = This.analyzeScenarios()
-            _nResults2Len_ = ring_len(aResults)
+            _nResults2Len_ = len(aResults)
             for _iLoopResults2_ = 1 to _nResults2Len_
             	result = aResults[_iLoopResults2_]
                 cFeasible = iff(result[:feasible], "✓", "✗")
@@ -831,7 +831,7 @@ class stzStochasticSolver
     def exportToCSV(cFileName)
         oFile = new stzFile(cFileName)
         cContent = "Variable,Value" + nl
-        _nSolution1Len_ = ring_len(@aSolution)
+        _nSolution1Len_ = len(@aSolution)
         for _iLoopSolution1_ = 1 to _nSolution1Len_
         	sol = @aSolution[_iLoopSolution1_]
             cContent += sol[1] + "," + sol[2] + nl
@@ -843,7 +843,7 @@ class stzStochasticSolver
         cContent = "Scenario,Probability,ObjectiveValue,Feasible" + nl
         
         aResults = This.analyzeScenarios()
-        _nResults1Len_ = ring_len(aResults)
+        _nResults1Len_ = len(aResults)
         for _iLoopResults1_ = 1 to _nResults1Len_
         	result = aResults[_iLoopResults1_]
             cFeasible = iff(result[:feasible], "Yes", "No")

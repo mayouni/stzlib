@@ -53,7 +53,7 @@ class stzListMover
 		# Unconditionally accept named-param forms (the test suite
 		# uses several spellings: :From, :ItemFromPosition,
 		# :CharFromPosition, etc.).
-		if isList(n1) and ring_len(n1) = 2 and isString(n1[1])
+		if isList(n1) and len(n1) = 2 and isString(n1[1])
 			_kw_ = lower(n1[1])
 			if _kw_ = "from" or _kw_ = "fromposition" or _kw_ = "at" or
 			   _kw_ = "atposition" or _kw_ = "itemfromposition" or
@@ -61,14 +61,14 @@ class stzListMover
 				n1 = n1[2]
 			ok
 		ok
-		if isList(n2) and ring_len(n2) = 2 and isString(n2[1])
+		if isList(n2) and len(n2) = 2 and isString(n2[1])
 			_kw_ = lower(n2[1])
 			if _kw_ = "to" or _kw_ = "toposition" or _kw_ = "topositon"
 				n2 = n2[2]
 			ok
 		ok
 		if NOT (isNumber(n1) and isNumber(n2)) return ok
-		_nL_ = ring_len(This.List())
+		_nL_ = len(This.List())
 		if n1 < 1 or n1 > _nL_ or n2 < 1 or n2 > _nL_ return ok
 		_mvItem_ = This.List()[n1]
 		ring_remove(This.List(), n1)
@@ -143,7 +143,7 @@ class stzListMover
 	#======================================================#
 
 	def MoveMany(panPositions, nTo)
-		_nMmLen_ = ring_len(panPositions)
+		_nMmLen_ = len(panPositions)
 		_oMmTemp_ = new stzList(panPositions)
 		_pMmTmp_ = _oMmTemp_._EngineListFromContent()
 		StzEngineListSortDescendingCS(_pMmTmp_, 1)
@@ -163,7 +163,7 @@ class stzListMover
 		if _nMmInsert_ > This.NumberOfItems()
 			_nMmInsert_ = This.NumberOfItems() + 1
 		ok
-		_n_aMmItemsLen_ = ring_len(_aMmItems_)
+		_n_aMmItemsLen_ = len(_aMmItems_)
 		for _jMm_ = 1 to _n_aMmItemsLen_
 			ring_insert(This.List(), _nMmInsert_ - 1, _aMmItems_[_jMm_])
 			_nMmInsert_++
@@ -187,7 +187,7 @@ class stzListMover
 		ok
 
 		_aRevContent_ = This.Content()
-		_nRevLen_ = ring_len(_aRevContent_)
+		_nRevLen_ = len(_aRevContent_)
 		_aRevResult_ = []
 		for _iRev_ = _nRevLen_ to 1 step -1
 			@AddItem(_aRevResult_, _aRevContent_[_iRev_])
@@ -251,7 +251,7 @@ class stzListMover
 		ok
 
 		_aShufContent_ = This.Content()
-		_nShufLen_ = ring_len(_aShufContent_)
+		_nShufLen_ = len(_aShufContent_)
 		for _iShuf_ = _nShufLen_ to 2 step -1
 			_jShuf_ = random(_iShuf_ - 1) + 1
 			_shufTemp_ = _aShufContent_[_iShuf_]
@@ -275,12 +275,12 @@ class stzListMover
 
 	def MoveItemToStart(pItem)
 		_anMisPos_ = @oList.FindAll(pItem)
-		if ring_len(_anMisPos_) > 0
+		if len(_anMisPos_) > 0
 			This.MoveToStart(_anMisPos_[1])
 		ok
 
 	def MoveItemToEnd(pItem)
 		_anMiePos_ = @oList.FindAll(pItem)
-		if ring_len(_anMiePos_) > 0
+		if len(_anMiePos_) > 0
 			This.MoveToEnd(_anMiePos_[1])
 		ok

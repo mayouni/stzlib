@@ -171,7 +171,7 @@ func StzIsChar(pStrOrNbr)
 	if isString(pStrOrNbr)
 		# A char is a single Unicode codepoint
 		# Quick check: must be 1-4 bytes and produce exactly 1 codepoint
-		_nIcByteLen_ = ring_len(pStrOrNbr)
+		_nIcByteLen_ = len(pStrOrNbr)
 		if _nIcByteLen_ < 1 or _nIcByteLen_ > 4
 			return 0
 		ok
@@ -915,7 +915,7 @@ class stzStringChar from stzString
 
 	def UnicodeDirection()
 		_aUnicodeDirectionsXT1_ = UnicodeDirectionsXT()
-		_nUnicodeDirectionsXT1Len_ = ring_len(_aUnicodeDirectionsXT1_)
+		_nUnicodeDirectionsXT1Len_ = len(_aUnicodeDirectionsXT1_)
 		for _iLoopUnicodeDirectionsXT1_ = 1 to _nUnicodeDirectionsXT1Len_
 			_aLine_ = _aUnicodeDirectionsXT1_[_iLoopUnicodeDirectionsXT1_]
 			if _aLine_[1] = This.UnicodeDirectionNumber()
@@ -959,7 +959,7 @@ class stzStringChar from stzString
 
 	def IsIndianDigit()
 		_aIndianDigits2_ = IndianDigits()
-		_nIndianDigits2Len_ = ring_len(_aIndianDigits2_)
+		_nIndianDigits2Len_ = len(_aIndianDigits2_)
 		for _iLoopIndianDigits2_ = 1 to _nIndianDigits2Len_
 			cDigit = _aIndianDigits2_[_iLoopIndianDigits2_]
 			if cDigit = This.Content()
@@ -1417,7 +1417,7 @@ class stzStringChar from stzString
 
 	def IntroducedInUnicodeVersion()
 		n = _CharUnicodeVersion(This.Unicode())
-		if n > 0 and n <= ring_len(_acUnicodeVersions)
+		if n > 0 and n <= len(_acUnicodeVersions)
 			return _acUnicodeVersions[ n ]
 		else
 			StzRaise(stzCharError(:CanNotDefineUnicodeVersion))
@@ -1484,7 +1484,7 @@ class stzStringChar from stzString
 
 	def Script()
 		nCode = _CharScriptCode(This.Unicode())
-		nLen = ring_len(_aUnicodeScriptsXT)
+		nLen = len(_aUnicodeScriptsXT)
 
 		cResult = :Undefined
 

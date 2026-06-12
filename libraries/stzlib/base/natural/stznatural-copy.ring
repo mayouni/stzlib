@@ -312,7 +312,7 @@ class stzNaturalEngine
 		cLower = lower(cStr)
 		
 		# Check against known language codes
-		nLen = ring_len($aLanguageDefinitions)
+		nLen = len($aLanguageDefinitions)
 		for i = 1 to nLen
 			aLang = $aLanguageDefinitions[i]
 			if aLang[:code] = cLower or aLang[:name] = cLower
@@ -334,8 +334,8 @@ class stzNaturalEngine
 		# Tokenize the code
 		This.TokenizeCode(cCode)
 	
-		This.AddToDebugLog("Raw values: " + ring_len(@aValues) + " items")
-		nLen = ring_len(@aValues)
+		This.AddToDebugLog("Raw values: " + len(@aValues) + " items")
+		nLen = len(@aValues)
 		for i = 1 to nLen
 			val = @aValues[i]
 			This.AddToDebugLog("Value[" + i + "]: type=" + type(val) + ", content=" + @@(val))
@@ -361,7 +361,7 @@ class stzNaturalEngine
 	    cQuoteChar = ""
 	
 	    acChars = Chars(cCode)
-	    nLen = ring_len(acChars)
+	    nLen = len(acChars)
 	    
 	    for i = 1 to nLen
 	        cChar = acChars[i]
@@ -405,13 +405,13 @@ class stzNaturalEngine
 	
 	def LoadLanguageData()
 		aLangDef = This.FindLanguageDefinition(@cLanguage)
-		if ring_len(aLangDef) > 0
+		if len(aLangDef) > 0
 			@aIgnoredWords = aLangDef[:ignored_words]
 			@aMappings = aLangDef[:semantic_mappings]
 		ok
 	
 	def FindLanguageDefinition(cCode)
-		nLen = ring_len($aLanguageDefinitions)
+		nLen = len($aLanguageDefinitions)
 		for i = 1 to nLen
 			aLang = $aLanguageDefinitions[i]
 			if aLang[:code] = cCode or aLang[:name] = cCode
@@ -422,7 +422,7 @@ class stzNaturalEngine
 	
 	def Process()
 		@aSemanticTokens = This.ConvertToSemanticTokens()
-		This.AddToDebugLog("Tokens: " + ring_len(@aSemanticTokens))
+		This.AddToDebugLog("Tokens: " + len(@aSemanticTokens))
 		
 		cCode = This.GenerateCodeFromSemantics()
 		This.AddToDebugLog("Generated code:")
@@ -434,7 +434,7 @@ class stzNaturalEngine
 	
 	def ConvertToSemanticTokens()
 		aTokens = []
-		nLen = ring_len(@aValues)
+		nLen = len(@aValues)
 		
 		This.AddToDebugLog("Converting to semantic tokens")
 		
@@ -483,7 +483,7 @@ class stzNaturalEngine
 		return aTokens
 	
 	def ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
-		nLen = ring_len(aTokens)
+		nLen = len(aTokens)
 		if nLen = 0
 			return 0
 		ok
@@ -500,7 +500,7 @@ class stzNaturalEngine
 			aBeforeLast = aTokens[nLen-1]
 			if aBeforeLast[:type] = "semantic" and left(aBeforeLast[:value], 7) = "METHOD_"
 				aOp = This.GetSemanticOperation(aBeforeLast[:value])
-				if ring_len(aOp) > 0 and HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
+				if len(aOp) > 0 and HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
 					return 1
 				ok
 			ok
@@ -523,7 +523,7 @@ class stzNaturalEngine
 			cLower = left(cLower, stzlen(cLower)-1)
 		ok
 		
-		nLen = ring_len(@aMappings)
+		nLen = len(@aMappings)
 		for i = 1 to nLen
 			aMap = @aMappings[i]
 			if aMap[:natural] = cLower
@@ -540,7 +540,7 @@ class stzNaturalEngine
 	
 	def GenerateCodeFromSemantics()
 		aCodeLines = []
-		nLen = ring_len(@aSemanticTokens)
+		nLen = len(@aSemanticTokens)
 		i = 1
 
 		while i <= nLen
@@ -586,7 +586,7 @@ class stzNaturalEngine
 					
 				but cSemantic = "OUTPUT_DISPLAY"
 					aOp = This.GetSemanticOperation(cSemantic)
-					if ring_len(aOp) > 0
+					if len(aOp) > 0
 						cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 						aCodeLines + cCode
 					ok
@@ -607,7 +607,7 @@ class stzNaturalEngine
 		return cCode
 	
 	def FindDefineIndex(cSemantic)
-		nLen = ring_len(@aDefineRecallState)
+		nLen = len(@aDefineRecallState)
 		for i = 1 to nLen
 			if @aDefineRecallState[i][:semantic] = cSemantic
 				return @aDefineRecallState[i][:index]
@@ -616,7 +616,7 @@ class stzNaturalEngine
 		return 0
 	
 	def ProcessObjectCreation(nIndex)
-		nLen = ring_len(@aSemanticTokens)
+		nLen = len(@aSemanticTokens)
 		cObjectType = ""
 		cValue = ""
 		nNextIndex = nIndex + 1
@@ -640,7 +640,7 @@ class stzNaturalEngine
 		if cObjectType != ""
 			aOp = This.GetSemanticOperation(cObjectType)
 
-			if ring_len(aOp) > 0
+			if len(aOp) > 0
 				@cCurrentObject = aOp[:object_type]
 				@cCurrentVariable = aOp[:variable]
 				cConstructor = aOp[:constructor]
@@ -672,7 +672,7 @@ class stzNaturalEngine
 		This.AddToDebugLog("Processing method: " + cSemantic)
 		
 		aOp = This.GetSemanticOperation(cSemantic)
-		if ring_len(aOp) = 0
+		if len(aOp) = 0
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
@@ -682,7 +682,7 @@ class stzNaturalEngine
 			aResult = This.ExtractMethodParameters(nIndex, aOp[:requires_params])
 			aParams = aResult[:params]
 			nNextIndex = aResult[:next_index]
-			nLen = ring_len(aParams)
+			nLen = len(aParams)
 
 			for i = 1 to nLen
 				cPlaceholder = "@param" + i
@@ -697,7 +697,7 @@ class stzNaturalEngine
 	
 	def ExtractMethodParameters(nIndex, nParamCount)
 		aParams = []
-		nLen = ring_len(@aSemanticTokens)
+		nLen = len(@aSemanticTokens)
 		nLastIndex = nIndex
 		
 		for i = nIndex+1 to nLen
@@ -710,7 +710,7 @@ class stzNaturalEngine
 			
 			if aToken[:type] = "literal"
 				aParams + aToken[:value]
-				if ring_len(aParams) = nParamCount
+				if len(aParams) = nParamCount
 					exit
 				ok
 			ok
@@ -726,18 +726,18 @@ class stzNaturalEngine
 	
 	def ProcessMethodWithModifiers(nIndex, cSemantic)
 		aOp = This.GetSemanticOperation(cSemantic)
-		if ring_len(aOp) = 0
+		if len(aOp) = 0
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
 		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 		
 		if HasKey(aOp, :supports_modifiers) and aOp[:supports_modifiers] = 1
-			nLen = ring_len(@aSemanticTokens)
+			nLen = len(@aSemanticTokens)
 			for i = nIndex+1 to nLen
 				aToken = @aSemanticTokens[i]
 				if aToken[:type] = "semantic"
-					nModLen = ring_len(aOp[:modifiers])
+					nModLen = len(aOp[:modifiers])
 					for j = 1 to nModLen
 						aMod = aOp[:modifiers][j]
 						if aMod[:semantic_id] = aToken[:value]
@@ -753,7 +753,7 @@ class stzNaturalEngine
 		return [:code = cCode, :next_index = nIndex+1]
 	
 	def GetSemanticOperation(cSemanticId)
-		nLen = ring_len($aSemanticOperations)
+		nLen = len($aSemanticOperations)
 		for i = 1 to nLen
 			aOp = $aSemanticOperations[i]
 			if aOp[:semantic_id] = cSemanticId

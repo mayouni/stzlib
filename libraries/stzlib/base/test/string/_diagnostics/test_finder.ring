@@ -17,7 +17,7 @@ ok
 oFinder2 = new stzStringFinder(new stzString("abab"))
 acDups = oFinder2.DuplicatesCS(1)
 ? "  DuplicatesCS count: " + len(acDups)
-_nAcDups1Len_ = ring_len(acDups)
+_nAcDups1Len_ = len(acDups)
 for _iLoopAcDups1_ = 1 to _nAcDups1Len_
 	item = acDups[_iLoopAcDups1_]
 	? "    dup: '" + item + "'"
@@ -41,7 +41,7 @@ ok
 oFinder4 = new stzStringFinder(new stzString("AbAb"))
 acDupsCI = oFinder4.DuplicatesCS(0)
 ? "  DuplicatesCS CI count: " + len(acDupsCI)
-_nAcDupsCI1Len_ = ring_len(acDupsCI)
+_nAcDupsCI1Len_ = len(acDupsCI)
 for _iLoopAcDupsCI1_ = 1 to _nAcDupsCI1Len_
 	item = acDupsCI[_iLoopAcDupsCI1_]
 	? "    dup: '" + item + "'"

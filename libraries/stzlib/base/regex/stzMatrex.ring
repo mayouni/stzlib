@@ -42,7 +42,7 @@ class stzMatrex from stzObject
 		if @bDebugMode
 			? "=== stzMatrex Init ==="
 			? "Pattern: " + @cPattern
-			? "Tokens parsed: " + ring_len(@aTokens)
+			? "Tokens parsed: " + len(@aTokens)
 		ok
 	
 	def NormalizePattern(cPattern)
@@ -57,7 +57,7 @@ class stzMatrex from stzObject
 	#--------------------#
 	
 def ParsePattern(cPattern)
-	cInner = @StzMid(cPattern, 2, ring_len(cPattern) - 1)
+	cInner = @StzMid(cPattern, 2, len(cPattern) - 1)
 	cInner = trim(cInner)
 	
 	if @bDebugMode
@@ -66,7 +66,7 @@ def ParsePattern(cPattern)
 	
 	aParts = This.SplitByOperator(cInner, "->")
 	aTokens = []
-	nLenParts = ring_len(aParts)
+	nLenParts = len(aParts)
 	
 	for i = 1 to nLenParts
 		cPart = trim(aParts[i])
@@ -98,7 +98,7 @@ def ParsePattern(cPattern)
 		
 		if @bDebugMode
 			? ">>> Token result: " + @@(aToken)
-			? ">>> Token length: " + ring_len(aToken)
+			? ">>> Token length: " + len(aToken)
 		ok
 		
 		# Remove this condition - ALWAYS add tokens
@@ -106,7 +106,7 @@ def ParsePattern(cPattern)
 	next
 	
 	if @bDebugMode
-		? ">>> Final token count: " + ring_len(aTokens)
+		? ">>> Final token count: " + len(aTokens)
 	ok
 	
 	return aTokens
@@ -115,8 +115,8 @@ def ParsePattern(cPattern)
 		aParts = []
 		cCurrent = ""
 		nDepth = 0
-		nLen = ring_len(cStr)
-		nOpLen = ring_len(cOperator)
+		nLen = len(cStr)
+		nOpLen = len(cOperator)
 		
 		for i = 1 to nLen
 			cChar = @StzMid(cStr, i, i)
@@ -136,7 +136,7 @@ def ParsePattern(cPattern)
 			ok
 		next
 		
-		if ring_len(cCurrent) > 0
+		if len(cCurrent) > 0
 			aParts + trim(cCurrent)
 		ok
 		
@@ -144,18 +144,18 @@ def ParsePattern(cPattern)
 	
 	def ParseAlternation(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
+			cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
 		ok
 		
 		aParts = This.SplitByOperatOr(cTokenStr, "|")
 		aAlternatives = []
-		nLenParts = ring_len(aParts)
+		nLenParts = len(aParts)
 		
 		for i = 1 to nLenParts
 			cPart = trim(aParts[i])
 			if cPart != ""
 				aToken = This.ParseSingleToken(cPart)
-				if ring_len(aToken) > 0
+				if len(aToken) > 0
 					aAlternatives + aToken
 				ok
 			ok
@@ -169,12 +169,12 @@ def ParsePattern(cPattern)
 	
 def ParseConjunction(cTokenStr)
 	if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-		cTokenStr = @StzMid(cTokenStr, 2, ring_len(cTokenStr) - 1)
+		cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
 	ok
 	
 	aParts = This.SplitByOperatOr(cTokenStr, "&")
 	aConditions = []
-	nLenParts = ring_len(aParts)
+	nLenParts = len(aParts)
 	
 	if @bDebugMode
 		? ">>>> ParseConjunction: " + nLenParts + " parts"
@@ -216,7 +216,7 @@ def ParseConjunction(cTokenStr)
 		
 		if startsWith(StzLower(cTokenStr), "@!")
 			bNegated = 1
-			cTokenStr = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 3, len(cTokenStr))
 			
 			if @bDebugMode
 				? "Negation detected! Remaining: " + cTokenStr
@@ -234,73 +234,73 @@ def ParseConjunction(cTokenStr)
 		# Parse token types
 		if startsWith(cTokenStr, "@size")
 			cType = "size"
-			cTokenStr = @StzMid(cTokenStr, 6, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 6, len(cTokenStr))
 		but startsWith(cTokenStr, "size")
 			cType = "size"
-			cTokenStr = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@shape")
 			cType = "shape"
-			cTokenStr = @StzMid(cTokenStr, 7, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 7, len(cTokenStr))
 		but startsWith(cTokenStr, "shape")
 			cType = "shape"
-			cTokenStr = @StzMid(cTokenStr, 6, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 6, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@element")
 			cType = "element"
-			cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
 		but startsWith(cTokenStr, "element")
 			cType = "element"
-			cTokenStr = @StzMid(cTokenStr, 8, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 8, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@row")
 			cType = "row"
-			cTokenStr = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
 		but startsWith(cTokenStr, "row")
 			cType = "row"
-			cTokenStr = @StzMid(cTokenStr, 4, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 4, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@col")
 			cType = "col"
-			cTokenStr = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
 		but startsWith(cTokenStr, "col")
 			cType = "col"
-			cTokenStr = @StzMid(cTokenStr, 4, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 4, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@diagonal")
 			cType = "diagonal"
-			cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 10, len(cTokenStr))
 		but startsWith(cTokenStr, "diagonal")
 			cType = "diagonal"
-			cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@property")
 			cType = "property"
-			cTokenStr = @StzMid(cTokenStr, 10, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 10, len(cTokenStr))
 		but startsWith(cTokenStr, "property")
 			cType = "property"
-			cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@pattern")
 			cType = "pattern"
-			cTokenStr = @StzMid(cTokenStr, 9, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
 		but startsWith(cTokenStr, "pattern")
 			cType = "pattern"
-			cTokenStr = @StzMid(cTokenStr, 8, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 8, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@determinant")
 			cType = "determinant"
-			cTokenStr = @StzMid(cTokenStr, 13, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 13, len(cTokenStr))
 		but startsWith(cTokenStr, "determinant")
 			cType = "determinant"
-			cTokenStr = @StzMid(cTokenStr, 12, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 12, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@sum")
 			cType = "sum"
-			cTokenStr = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
 		but startsWith(cTokenStr, "sum")
 			cType = "sum"
-			cTokenStr = @StzMid(cTokenStr, 4, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 4, len(cTokenStr))
 			
 		else
 			# UNKNOWN TOKEN - return error marker
@@ -339,23 +339,23 @@ def ParseConjunction(cTokenStr)
 		
 		# Parse quantifiers
 		cQuantPart = ""
-		if nCloseParen > 0 and nCloseParen < ring_len(cTokenStr)
-			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, ring_len(cTokenStr))
+		if nCloseParen > 0 and nCloseParen < len(cTokenStr)
+			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, len(cTokenStr))
 		ok
 		
 		cQuantPart = trim(cQuantPart)
 		
-		if ring_len(cQuantPart) > 0
+		if len(cQuantPart) > 0
 			if StzFind(cQuantPart, ":") > 0
 				nColon = StzFind(cQuantPart, ":")
 				cBeforeColon = @StzMid(cQuantPart, 1, nColon - 1)
-				cAfterColon = @StzMid(cQuantPart, nColon + 1, ring_len(cQuantPart))
+				cAfterColon = @StzMid(cQuantPart, nColon + 1, len(cQuantPart))
 				
 				cBeforeColon = trim(cBeforeColon)
-				if ring_len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
+				if len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
 					if StzFind(cBeforeColon, "-") > 0
 						aSection = @split(cBeforeColon, "-")
-						if ring_len(aSection) = 2
+						if len(aSection) = 2
 							nMin = 0 + trim(aSection[1])
 							nMax = 0 + trim(aSection[2])
 						ok
@@ -366,7 +366,7 @@ def ParseConjunction(cTokenStr)
 				ok
 				
 				aMoreConstraints = This.ParseConstraints(":" + cAfterColon, cType)
-				nLenMore = ring_len(aMoreConstraints)
+				nLenMore = len(aMoreConstraints)
 				for i = 1 to nLenMore
 					aConstraints + aMoreConstraints[i]
 				next
@@ -384,7 +384,7 @@ def ParseConjunction(cTokenStr)
 				but This.IsNumeric(cQuantPart)
 					if StzFind(cQuantPart, "-") > 0
 						aSection = @split(cQuantPart, "-")
-						if ring_len(aSection) = 2
+						if len(aSection) = 2
 							nMin = 0 + trim(aSection[1])
 							nMax = 0 + trim(aSection[2])
 						ok
@@ -415,7 +415,7 @@ def ParseConjunction(cTokenStr)
 		if cType = "element"
 			if StzFind(cConstraintStr, "..") > 0
 				aParts = @split(cConstraintStr, "..")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					aConstraints + [
 						["type", "range"],
 						["start", 0 + trim(aParts[1])],
@@ -442,7 +442,7 @@ def ParseConjunction(cTokenStr)
 			# Handle size constraints like "3x3", "mxn", ">4"
 			if StzFind(cConstraintStr, "x") > 0
 				aParts = @split(cConstraintStr, "x")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					aConstraints + [
 						["type", "dimensions"],
 						["rows", trim(aParts[1])],
@@ -452,12 +452,12 @@ def ParseConjunction(cTokenStr)
 			but startsWith(cConstraintStr, ">")
 				aConstraints + [
 					["type", "greater"],
-					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				aConstraints + [
 					["type", "less"],
-					["value", 0 + @StzMid(cConstraintStr, 2, ring_len(cConstraintStr))]
+					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			ok
 		ok
@@ -477,7 +477,7 @@ def ParseConjunction(cTokenStr)
 		
 		if @bDebugMode
 			? "=== Matching Matrix ==="
-			? "Size: " + ring_len(paMatrix) + "x" + ring_len(paMatrix[1])
+			? "Size: " + len(paMatrix) + "x" + len(paMatrix[1])
 		ok
 		
 		bResult = This.MatchTokens(@aTokens, @aMatrix)
@@ -493,14 +493,14 @@ def ParseConjunction(cTokenStr)
 		return bResult
 	
 	def MatchTokens(aTokens, aMatrix)
-		nLenTokens = ring_len(aTokens)
+		nLenTokens = len(aTokens)
 		for i = 1 to nLenTokens
 			aToken = aTokens[i]
 			
 			if HasKey(aToken, "type") and aToken["type"] = "alternation"
 				bMatched = FALSE
 				if HasKey(aToken, "alternatives")
-					nLenAlt = ring_len(aToken["alternatives"])
+					nLenAlt = len(aToken["alternatives"])
 					for j = 1 to nLenAlt
 						if This.MatchSingleToken(aToken["alternatives"][j], aMatrix)
 							bMatched = TRUE
@@ -514,7 +514,7 @@ def ParseConjunction(cTokenStr)
 			
 			but HasKey(aToken, "type") and aToken["type"] = "conjunction"
 				if HasKey(aToken, "conditions")
-					nLenCond = ring_len(aToken["conditions"])
+					nLenCond = len(aToken["conditions"])
 					for j = 1 to nLenCond
 						if not This.MatchSingleToken(aToken["conditions"][j], aMatrix)
 							return FALSE
@@ -604,15 +604,15 @@ def ParseConjunction(cTokenStr)
 	#------------------------#
 	
 	def CheckSize(aToken, aMatrix)
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		
 		if HasKey(aToken, "value")
 			cValue = aToken["value"]
 			
 			if StzFind(cValue, "x") > 0
 				aParts = @split(cValue, "x")
-				if ring_len(aParts) = 2
+				if len(aParts) = 2
 					cRowSpec = trim(aParts[1])
 					cColSpec = trim(aParts[2])
 					
@@ -626,7 +626,7 @@ def ParseConjunction(cTokenStr)
 		ok
 		
 		if HasKey(aToken, "constraints")
-			nLenConstr = ring_len(aToken["constraints"])
+			nLenConstr = len(aToken["constraints"])
 			for i = 1 to nLenConstr
 				aConstraint = aToken["constraints"][i]
 				
@@ -669,8 +669,8 @@ def ParseConjunction(cTokenStr)
 	
 	def CheckShape(cShape, aMatrix)
 		cShape = StzLower(trim(cShape))
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		
 		if cShape = "square"
 			return nRows = nCols
@@ -689,11 +689,11 @@ def ParseConjunction(cTokenStr)
 		return FALSE
 	
 	def CheckElements(aToken, aMatrix)
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		
 		if HasKey(aToken, "constraints")
-			nLenConstr = ring_len(aToken["constraints"])
+			nLenConstr = len(aToken["constraints"])
 			for i = 1 to nLenConstr
 				aConstraint = aToken["constraints"][i]
 				
@@ -719,7 +719,7 @@ def ParseConjunction(cTokenStr)
 							for c = 1 to nCols
 								bFound = FALSE
 								nVal = aMatrix[r][c]
-								nLenValues = ring_len(aValues)
+								nLenValues = len(aValues)
 								for k = 1 to nLenValues
 									if nVal = (0 + trim(aValues[k]))
 										bFound = TRUE
@@ -757,8 +757,8 @@ def ParseConjunction(cTokenStr)
 		return TRUE
 	
 	def CheckDiagonal(aToken, aMatrix)
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		
 		if nRows != nCols
 			return FALSE  # Only square matrices have proper diagonals
@@ -774,8 +774,8 @@ def ParseConjunction(cTokenStr)
 	
 	def CheckProperty(cProperty, aMatrix)
 		cProperty = StzLower(trim(cProperty))
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		
 		if cProperty = "symmetric"
 			if nRows != nCols
@@ -866,8 +866,8 @@ def ParseConjunction(cTokenStr)
 		return TRUE
 	
 	def CheckDeterminant(aToken, aMatrix)
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		
 		if nRows != nCols
 			return FALSE
@@ -878,8 +878,8 @@ def ParseConjunction(cTokenStr)
 	
 	def CheckSum(aToken, aMatrix)
 		nSum = 0
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		
 		for i = 1 to nRows
 			for j = 1 to nCols
@@ -900,8 +900,8 @@ def ParseConjunction(cTokenStr)
 	def ExtractParts(aMatrix)
 		@aMatchedParts = []
 		
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		
 		@aMatchedParts + ["Size", [nRows, nCols]]
 		@aMatchedParts + ["Matrix", aMatrix]
@@ -926,8 +926,8 @@ def ParseConjunction(cTokenStr)
 		@aMatchedParts + ["Properties", aProps]
 	
 	def IsSymmetric(aMatrix)
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		if nRows != nCols
 			return FALSE
 		ok
@@ -941,8 +941,8 @@ def ParseConjunction(cTokenStr)
 		return TRUE
 	
 	def IsDiagonal(aMatrix)
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		if nRows != nCols
 			return FALSE
 		ok
@@ -956,8 +956,8 @@ def ParseConjunction(cTokenStr)
 		return TRUE
 	
 	def IsIdentity(aMatrix)
-		nRows = ring_len(aMatrix)
-		nCols = ring_len(aMatrix[1])
+		nRows = len(aMatrix)
+		nCols = len(aMatrix[1])
 		if nRows != nCols
 			return FALSE
 		ok
@@ -1013,15 +1013,15 @@ def ParseConjunction(cTokenStr)
 	def Explain()
 		aExplanation = [
 			["Pattern", @cPattern],
-			["TokenCount", ring_len(@aTokens)],
+			["TokenCount", len(@aTokens)],
 			["Tokens", @aTokens]
 		]
 		
-		if ring_len(@aMatrix) > 0
+		if len(@aMatrix) > 0
 			aExplanation + ["Target", @aMatrix]
 		ok
 		
-		if ring_len(@aMatchedParts) > 0
+		if len(@aMatchedParts) > 0
 			aExplanation + ["MatchedParts", @aMatchedParts]
 		ok
 		
@@ -1032,7 +1032,7 @@ def ParseConjunction(cTokenStr)
 	#---------------------------#
 	
 	def MatchingMatrices(paMatrices)
-		if CheckParams() and isList(paMatrices) and ring_len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1042,7 +1042,7 @@ def ParseConjunction(cTokenStr)
 
 		# Find all matrices in a list that match the pattern
 		aMatching = []
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			if This.Match(paMatrices[i])
@@ -1059,7 +1059,7 @@ def ParseConjunction(cTokenStr)
 		# Find all matrices in a list that match the pattern
 		# and retyurning their positions in paMatrices
 
-		if CheckParams() and isList(paMatrices) and ring_len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1068,7 +1068,7 @@ def ParseConjunction(cTokenStr)
 		ok
 
 		anMatching = []
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			if This.Match(paMatrices[i])
@@ -1083,7 +1083,7 @@ def ParseConjunction(cTokenStr)
 
 	def CountMatchingMatrices(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and ring_len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1092,7 +1092,7 @@ def ParseConjunction(cTokenStr)
 		ok
 
 		nCount = 0
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			if This.Match(paMatrices[i])
@@ -1107,7 +1107,7 @@ def ParseConjunction(cTokenStr)
 
 	def FirstMatchingMatrix(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and ring_len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1115,7 +1115,7 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of matrices.")
 		ok
 
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			if This.Match(paMatrices[i])
@@ -1130,7 +1130,7 @@ def ParseConjunction(cTokenStr)
 
 	def FindFirstMatchingMatrix(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and ring_len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1138,7 +1138,7 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of matrices.")
 		ok
 
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			if This.Match(paMatrices[i])
@@ -1153,7 +1153,7 @@ def ParseConjunction(cTokenStr)
 
 	def MatchesNone(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and ring_len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1161,7 +1161,7 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of matrices.")
 		ok
 
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			if This.Match(paMatrices[i])
@@ -1176,7 +1176,7 @@ def ParseConjunction(cTokenStr)
 
 	def MatchesAll(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and ring_len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1184,7 +1184,7 @@ def ParseConjunction(cTokenStr)
 			StzRaise("Incorrect param type! paMatrices must be a list of lists of numbers.")
 		ok
 
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			if not This.Match(paMatrices[i])
@@ -1203,8 +1203,8 @@ def ParseConjunction(cTokenStr)
 	
 	def AddConstraint(cConstraint)
 		# Add a new constraint to existing pattern
-		cInner = @StzMid(@cPattern, 2, ring_len(@cPattern) - 1)
-		if ring_len(cInner) > 0
+		cInner = @StzMid(@cPattern, 2, len(@cPattern) - 1)
+		if len(cInner) > 0
 			cInner += " -> " + cConstraint
 		else
 			cInner = cConstraint
@@ -1214,7 +1214,7 @@ def ParseConjunction(cTokenStr)
 	
 	def RemoveConstraint(nIndex)
 		# Remove a constraint by index
-		if nIndex > 0 and nIndex <= ring_len(@aTokens)
+		if nIndex > 0 and nIndex <= len(@aTokens)
 			del(@aTokens, nIndex)
 		ok
 	
@@ -1225,10 +1225,10 @@ def ParseConjunction(cTokenStr)
 	def SimilarityScore(aMatrix1, aMatrix2)
 
 		if CheckParams()
-			if isList(aMatrix1) and ring_len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "between"
+			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "between"
 				aMatix1 = aMatrix1[2]
 			ok
-			if isList(aMatrix1) and ring_len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "and"
+			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "and"
 				aMatix1 = aMatrix1[2]
 			ok
 		ok
@@ -1239,10 +1239,10 @@ def ParseConjunction(cTokenStr)
 
 		# Calculate similarity between two matrices (0-1 scale)
 		
-		nRows1 = ring_len(aMatrix1)
-		nCols1 = ring_len(aMatrix1[1])
-		nRows2 = ring_len(aMatrix2)
-		nCols2 = ring_len(aMatrix2[1])
+		nRows1 = len(aMatrix1)
+		nCols1 = len(aMatrix1[1])
+		nRows2 = len(aMatrix2)
+		nCols2 = len(aMatrix2[1])
 		
 		# Different sizes = low similarity
 		if nRows1 != nRows2 or nCols1 != nCols2
@@ -1270,10 +1270,10 @@ def ParseConjunction(cTokenStr)
 		# Get the matrix in the list most similar to target
 		
 		if CheckParams()
-			if isList(aTargetMatrix) and ring_len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and StzLower(aTargetMatrix[1]) = "to"
+			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and StzLower(aTargetMatrix[1]) = "to"
 				aTargetMatrix = aTargetMatrix[2]
 			ok
-			if isList(paMatrices) and ring_len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
+			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 				paMatrices = paMatrices[2]
 			ok
 		ok
@@ -1288,7 +1288,7 @@ def ParseConjunction(cTokenStr)
 
 		nBestScore = -1
 		aBestMatrix = []
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			nScore = This.SimilarityScore(aTargetMatrix, paMatrices[i])
@@ -1298,7 +1298,7 @@ def ParseConjunction(cTokenStr)
 			ok
 		next
 		
-		if ring_len(aBestMAtrix) = 0
+		if len(aBestMAtrix) = 0
 			StzRaise("No simular matrix found!")
 		ok
 
@@ -1309,10 +1309,10 @@ def ParseConjunction(cTokenStr)
 		# and return its position in paMatrices
 		
 		if CheckParams()
-			if isList(aTargetMatrix) and ring_len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and StzLower(aTargetMatrix[1]) = "to"
+			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and StzLower(aTargetMatrix[1]) = "to"
 				aTargetMatrix = aTargetMatrix[2]
 			ok
-			if isList(paMatrices) and ring_len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
+			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 				paMatrices = paMatrices[2]
 			ok
 		ok
@@ -1327,7 +1327,7 @@ def ParseConjunction(cTokenStr)
 
 		nBestScore = -1
 		nBestMatrix = 0
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			nScore = This.SimilarityScore(aTargetMatrix, paMatrices[i])
@@ -1358,7 +1358,7 @@ def ParseConjunction(cTokenStr)
 		aMatching = []
 		aNonMatching = []
 		
-		nLen = ring_len(paMatrices)
+		nLen = len(paMatrices)
 		
 		for i = 1 to nLen
 			if This.Match(paMatrices[i])
@@ -1370,9 +1370,9 @@ def ParseConjunction(cTokenStr)
 		
 		aAnalysis + ["pattern", @cPattern]
 		aAnalysis + ["totalmatrices", nLen]
-		aAnalysis + ["matchingcount", ring_len(aMatching)]
-		aAnalysis + ["nonmatchingcount", ring_len(aNonMatching)]
-		aAnalysis + ["matchrate", (ring_len(aMatching) * 1.0) / nLen]
+		aAnalysis + ["matchingcount", len(aMatching)]
+		aAnalysis + ["nonmatchingcount", len(aNonMatching)]
+		aAnalysis + ["matchrate", (len(aMatching) * 1.0) / nLen]
 		aAnalysis + ["matching", aMatching]
 		aAnalysis + ["nonmatching", aNonMatching]
 		
@@ -1385,13 +1385,13 @@ def ParseConjunction(cTokenStr)
 		aAllProps = ["square", "symmetric", "diagonal", "identity", 
 		             "zero", "upper", "lower"]
 		
-		nLenProps = ring_len(aAllProps)
+		nLenProps = len(aAllProps)
 		
 		for i = 1 to nLenProps
 			cProp = aAllProps[i]
 			bAll = TRUE
 			
-			nLen = ring_len(paMatrices)
+			nLen = len(paMatrices)
 			for j = 1 to nLen
 				if This.Match(paMatrices[j])
 					if not This.CheckProperty(cProp, paMatrices[j])
@@ -1431,7 +1431,7 @@ def ParseConjunction(cTokenStr)
 			return FALSE
 		ok
 		
-		nLen = ring_len(cStr)
+		nLen = len(cStr)
 		for i = 1 to nLen
 			cChar = @StzMid(cStr, i, i)
 			if not isDigit(cChar) and cChar != "-" and cChar != "."
@@ -1452,9 +1452,9 @@ def ParseConjunction(cTokenStr)
 
 		# Combine two patterns with AND logic
 		cCombined = "{" + 
-		            @StzMid(@cPattern, 2, ring_len(@cPattern) - 1) + 
+		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " & " + 
-		            @StzMid(oOtherMatrex.Pattern(), 2, ring_len(oOtherMatrex.Pattern()) - 1) +
+		            @StzMid(oOtherMatrex.Pattern(), 2, len(oOtherMatrex.Pattern()) - 1) +
 		            "}"
 
 		return new stzMatrex(cCombined)
@@ -1469,16 +1469,16 @@ def ParseConjunction(cTokenStr)
 
 		# Combine two patterns with OR logic
 		cCombined = "{" + 
-		            @StzMid(@cPattern, 2, ring_len(@cPattern) - 1) + 
+		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " | " + 
-		            @StzMid(oOtherMatrex.Pattern(), 2, ring_len(oOtherMatrex.Pattern()) - 1) +
+		            @StzMid(oOtherMatrex.Pattern(), 2, len(oOtherMatrex.Pattern()) - 1) +
 		            "}"
 
 		return new stzMatrex(cCombined)
 	
 	def Not_()
 		# Negate the entire pattern
-		cInner = @StzMid(@cPattern, 2, ring_len(@cPattern) - 1)
+		cInner = @StzMid(@cPattern, 2, len(@cPattern) - 1)
 		cNegated = "{@!" + cInner + "}"
 		return new stzMatrex(cNegated)
 	
@@ -1498,7 +1498,7 @@ def ParseConjunction(cTokenStr)
 	def TokensToJSON()
 		# Convert tokens to JSON array
 		cJSON = '['
-		nLen = ring_len(@aTokens)
+		nLen = len(@aTokens)
 		for i = 1 to nLen
 			if i > 1
 				cJSON += ','
@@ -1511,7 +1511,7 @@ def ParseConjunction(cTokenStr)
 	def TokenToJSON(aToken)
 		# Convert single token to JSON
 		cJSON = '{'
-		nLen = ring_len(aToken)
+		nLen = len(aToken)
 		for i = 1 to nLen step 2
 			if i > 1
 				cJSON += ','

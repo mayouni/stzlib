@@ -108,7 +108,7 @@ class stzCalendar from stzObject
 		ok
 		
 		# Check if it's a year-month (e.g., "2024-10")
-		if stzStringQ(cParam).Contains("-") and ring_len(stzStringQ(cParam).Split("-")) = 2
+		if stzStringQ(cParam).Contains("-") and len(stzStringQ(cParam).Split("-")) = 2
 			aParts = stzStringQ(cParam).Split("-")
 			nYear = val(aParts[1])
 			nMonth = val(aParts[2])
@@ -172,7 +172,7 @@ class stzCalendar from stzObject
 		nMonth = 0
 		cQuarter = ""
 		
-		nLen = ring_len(aParams)
+		nLen = len(aParams)
 		
 		# Check if first element is a number (year)
 		if isNumber(aParams[1])
@@ -204,7 +204,7 @@ class stzCalendar from stzObject
 		# Handle named parameters format: [["Start", "2024-10-01"], ["End", "2024-10-31"]]
 		i = 1
 		while i <= nLen
-			if isList(aParams[i]) and ring_len(aParams[i]) = 2
+			if isList(aParams[i]) and len(aParams[i]) = 2
 				cKey = "" + StzLower(aParams[i][1])
 				cValue = "" + aParams[i][2]
 				
@@ -384,7 +384,7 @@ class stzCalendar from stzObject
 			@aWorkingDays = [1, 2, 3, 4, 5]  # Mon-Fri
 		but isList(pDays)
 			@aWorkingDays = []
-			nLen = ring_len(pDays)
+			nLen = len(pDays)
 			for i = 1 to nLen
 				cDay = StzUpper("" + pDays[i])
 				nDayNum = _dayNameToNumber(cDay)
@@ -397,29 +397,29 @@ class stzCalendar from stzObject
 		This.InvalidateCache()
 
 	def ContainsWorkingDays()
-		return ring_len(@aWorkingDays) > 0
+		return len(@aWorkingDays) > 0
 
 		def HasWorkingDays()
-			return ring_len(@aWorkingDays) > 0
+			return len(@aWorkingDays) > 0
 
 	def WorkingDaysN()
-		return ring_len(@aWorkingDays)
+		return len(@aWorkingDays)
 
 		def NumberOfWorkingDays()
-			return ring_len(@aWorkingDays)
+			return len(@aWorkingDays)
 
 		def HowManyWorkingDays()
-			return ring_len(@aWorkingDays)
+			return len(@aWorkingDays)
 
 		def CountWorkingDays()
-			return ring_len(@aWorkingDays)
+			return len(@aWorkingDays)
 
 	def IsWorkingDay(pDate)
 		cDate = _toDateString(pDate)
 		# Get day of week number (1-7, where 1=Monday, 7=Sunday)
 		nDayOfWeek = _getDayOfWeek(cDate)
 		
-		if ring_len(@aWorkingDays) = 0
+		if len(@aWorkingDays) = 0
 			SetWorkingDays("DEFAULT")
 		ok
 		
@@ -447,7 +447,7 @@ class stzCalendar from stzObject
 		cEnd = _toDateString(pEnd)
 		aResult = []
 		
-		nLen = ring_len(@aWorkingDays)
+		nLen = len(@aWorkingDays)
 		for i = 1 to nLen
 			oWorkingDayDate = new stzDate(@aWorkingDays[i][1])
 			if oWorkingDayDate >= cStart and oWorkingDayDate <= cEnd
@@ -458,7 +458,7 @@ class stzCalendar from stzObject
 		return aResult
 
 	def WorkingDaysBetweenN(pStart, pEnd)
-		return ring_len(This.WorkingDaysBetween(pStart, pEnd))
+		return len(This.WorkingDaysBetween(pStart, pEnd))
 
 		def NumberOfWorkingDaysBetween(pStart, pEnd)
 			return This.WorkingDaysBetweenN(pStart, pEnd)
@@ -470,17 +470,17 @@ class stzCalendar from stzObject
 			return This.WorkingDaysBetweenN(pStart, pEnd)
 
 	def ContainsWorkingDaysBetween(pStart, pEnd)
-		return ring_len(This.WorkingDaysBetween(pStart, pEnd)) > 0
+		return len(This.WorkingDaysBetween(pStart, pEnd)) > 0
 
 		def HasWorkingDaysBetween(pStart, pEnd)
-			return ring_len(This.WorkingDaysBetween(pStart, pEnd))
+			return len(This.WorkingDaysBetween(pStart, pEnd))
 
 	# Holiday management
 	def AddHoliday(pHolidayOrLabel, pName)
 		if isList(pHolidayOrLabel)
-			nLen = ring_len(pHolidayOrLabel)
+			nLen = len(pHolidayOrLabel)
 			for i = 1 to nLen
-				if isList(pHolidayOrLabel[i]) and ring_len(pHolidayOrLabel[i]) = 2
+				if isList(pHolidayOrLabel[i]) and len(pHolidayOrLabel[i]) = 2
 					@aHolidays + pHolidayOrLabel[i]
 				ok
 			next
@@ -497,14 +497,14 @@ class stzCalendar from stzObject
 		This.InvalidateCache()
 
 	def ContainsHolidays()
-		return ring_len(@aHolidays) > 0
+		return len(@aHolidays) > 0
 
 		def HasHolidays()
-			return ring_len(@aHolidays)
+			return len(@aHolidays)
 
 	def IsHoliday(pDate)
 		cDate = _toDateString(pDate)
-		nLen = ring_len(@aHolidays)
+		nLen = len(@aHolidays)
 		for i = 1 to nLen
 			if @aHolidays[i][1] = cDate
 				return TRUE
@@ -514,7 +514,7 @@ class stzCalendar from stzObject
 	
 	def HolidayName(pDate)
 		cDate = _toDateString(pDate)
-		nLen = ring_len(@aHolidays)
+		nLen = len(@aHolidays)
 		for i = 1 to nLen
 			if @aHolidays[i][1] = cDate
 				return @aHolidays[i][2]
@@ -526,20 +526,20 @@ class stzCalendar from stzObject
 		return @aHolidays
 	
 	def HolidaysN()
-		return ring_len(@aHolidays)
+		return len(@aHolidays)
 
 		def NumberOfHolidays()
-			return ring_len(@aHolidays)
+			return len(@aHolidays)
 
 		def CountHolidays()
-			return ring_len(@aHolidays)
+			return len(@aHolidays)
 
 	def HolidaysBetween(pStart, pEnd)
 		cStart = _toDateString(pStart)
 		cEnd = _toDateString(pEnd)
 		aResult = []
 		
-		nLen = ring_len(@aHolidays)
+		nLen = len(@aHolidays)
 		for i = 1 to nLen
 			oHolidayDate = new stzDate(@aHolidays[i][1])
 			if oHolidayDate >= cStart and oHolidayDate <= cEnd
@@ -550,27 +550,27 @@ class stzCalendar from stzObject
 		return aResult
 
 	def HolidaysBetweenN(pStart, pEnd)
-		return ring_len(This.HolidaysBetween(pStart, pEnd))
+		return len(This.HolidaysBetween(pStart, pEnd))
 
 		def NumberOfHolidaysBetween(pStart, pEnd)
-			return ring_len(This.HolidaysBetween(pStart, pEnd))
+			return len(This.HolidaysBetween(pStart, pEnd))
 
 		def CountHolidaysBetween(pStart, pEnd)
-			return ring_len(This.HolidaysBetween(pStart, pEnd))
+			return len(This.HolidaysBetween(pStart, pEnd))
 
 	def ContainsHolidaysBetween(pStart, pEnd)
-		return ring_len(This.HolidaysBetween(pStart, pEnd)) > 0
+		return len(This.HolidaysBetween(pStart, pEnd)) > 0
 
 		def HasHolidaysBetween(pStart, pEnd)
-			return ring_len(This.HolidaysBetween(pStart, pEnd)) > 0
+			return len(This.HolidaysBetween(pStart, pEnd)) > 0
 
 	# Business hours
 	def SetBusinessHours(pStart, pEnd)
 		if isList(pStart)
-			if ring_len(pStart) >= 2
+			if len(pStart) >= 2
 				@cBusinessStart = "" + pStart[2]
 			ok
-			if isList(pEnd) and ring_len(pEnd) >= 2
+			if isList(pEnd) and len(pEnd) >= 2
 				@cBusinessEnd = "" + pEnd[2]
 			ok
 		else
@@ -592,9 +592,9 @@ class stzCalendar from stzObject
 	# Breaks management
 	def AddBreak(pBreakStart, pBreakEnd, pLabel)
 		if isList(pBreakStart)
-			nLen = ring_len(pBreakStart)
+			nLen = len(pBreakStart)
 			for i = 1 to nLen
-				if isList(pBreakStart[i]) and ring_len(pBreakStart[i]) >= 2
+				if isList(pBreakStart[i]) and len(pBreakStart[i]) >= 2
 					@aBreaks + pBreakStart[i]
 				ok
 			next
@@ -613,26 +613,26 @@ class stzCalendar from stzObject
 		return @aBreaks
 
 	def BreaksN()
-		return ring_len(@aBreaks)
+		return len(@aBreaks)
 
 		def NumberOfBreaks()
-			return ring_len(@aBreaks)
+			return len(@aBreaks)
 
 		def CountBreaks()
-			return ring_len(@aBreaks)
+			return len(@aBreaks)
 
 	def ContainsBreaks()
-		return ring_len(@aBreaks) > 0
+		return len(@aBreaks) > 0
 
 		def HasBreaks()
-			return ring_len(@aBreaks)
+			return len(@aBreaks)
 
 	def  BreaksBetween(pStart, pEnd)
 		cStart = _toDateString(pStart)
 		cEnd = _toDateString(pEnd)
 		aResult = []
 		
-		nLen = ring_len(@aBreaks)
+		nLen = len(@aBreaks)
 		for i = 1 to nLen
 			oBreakDate = new stzDate(@aBreaks[i][1])
 			if oBreakDate >= cStart and oBreakDate <= cEnd
@@ -643,19 +643,19 @@ class stzCalendar from stzObject
 		return aResult
 
 	def BreaksBetweenN(pStart, pEnd)
-		return ring_len(This.BreaksBetween(pStart, pEnd))
+		return len(This.BreaksBetween(pStart, pEnd))
 
 		def HowManyBreaksBetween(pStart, pEnd)
-			return ring_len(This.BreaksBetween(pStart, pEnd))
+			return len(This.BreaksBetween(pStart, pEnd))
 
 		def CountBreaksBetween(pStart, pEnd)
-			return ring_len(This.BreaksBetween(pStart, pEnd))
+			return len(This.BreaksBetween(pStart, pEnd))
 
 	def ContainsBreaksBetween(pStart, pEnd)
-		return ring_len(This. reaksBetween(pStart, pEnd)) > 0
+		return len(This. reaksBetween(pStart, pEnd)) > 0
 
 		def HasBreaksBetween(pStart, pEnd)
-			return ring_len(This.BreaksBetween(pStart, pEnd))
+			return len(This.BreaksBetween(pStart, pEnd))
 
 	# Capacity calculations
 
@@ -713,7 +713,7 @@ class stzCalendar from stzObject
 		return This.AvailableHoursBetweenN(pStart, pEnd)
 
 	def CountAvailableHoursBetween(pStart, pEnd)
-		return ring_len(This.BreaksBetween(pStart, pEnd))
+		return len(This.BreaksBetween(pStart, pEnd))
 
 	def ContainsAvailableHoursBetween(pStart, pEnd)
 		return This.AvailableHoursBetweenN(pStart, pEnd) > 0
@@ -741,7 +741,7 @@ class stzCalendar from stzObject
 		nEndMinutes = val(aEndParts[1]) * 60 + val(aEndParts[2])
 		nTotalMinutes = nEndMinutes - nStartMinutes
 		
-		nLen = ring_len(@aBreaks)
+		nLen = len(@aBreaks)
 		for i = 1 to nLen
 			aBreakStart = @split(@aBreaks[i][1], ":")
 			aBreakEnd = @split(@aBreaks[i][2], ":")
@@ -823,7 +823,7 @@ class stzCalendar from stzObject
 		# returns a list of dates
 	
 	def AvailableDaysBetweenN(pStart, pEnd)
-		return ring_len(This.AvailabelDaysBetween(pStart, pEnd))
+		return len(This.AvailabelDaysBetween(pStart, pEnd))
 
 	def HowManyAvailableDaysBetween(pStart, pEnd)
 		return This.AvailableDaysBetweenN(pStart, pEnd)
@@ -938,7 +938,7 @@ class stzCalendar from stzObject
 		#>
 
 	def ConsecutiveWorkingDaysAvailableN(pDate)
-		return ring_len(This.ConsecutiveWorkingDaysAvailable(pDate))
+		return len(This.ConsecutiveWorkingDaysAvailable(pDate))
 
 		#< @FunctionAlternativeForms
 
@@ -1228,7 +1228,7 @@ def RangeInfo(pStart, pEnd)
 		_aYmd_ = _TodayYMD()
 		_nMonth_ = _aYmd_[2]
 		_aNames_ = $aMonthNames[1][2]   # English (default)
-		if _nMonth_ >= 1 and _nMonth_ <= ring_len(_aNames_)
+		if _nMonth_ >= 1 and _nMonth_ <= len(_aNames_)
 			return _aNames_[_nMonth_]
 		ok
 		return "" + _nMonth_
@@ -1305,7 +1305,7 @@ def RangeInfo(pStart, pEnd)
 		return aResult
 	
 	def WeekendsN()
-		return ring_len(This.Weekends())
+		return len(This.Weekends())
 
 		def HowManyWeekends()
 			return THis.WeekendsN()
@@ -1314,7 +1314,7 @@ def RangeInfo(pStart, pEnd)
 			return THis.WeekendsN()
 
 	def ContainsWeekends()
-		return ring_len(This.Weekends()) > 0
+		return len(This.Weekends()) > 0
 
 		def HasWeekends()
 
@@ -1323,7 +1323,7 @@ def RangeInfo(pStart, pEnd)
 		#TODO// Returns a list days as datestrings
 
 	def WeekendsBetweenN(pStart, pEnd)
-		return ring_len(This.WeekendsBetween(pStart, pEnd))
+		return len(This.WeekendsBetween(pStart, pEnd))
 
 		def HowManyWeekendsBetween(pStart, pEnd)
 			return This.WeekendsBetweenN(pStart, pEnd)
@@ -1349,19 +1349,19 @@ def RangeInfo(pStart, pEnd)
 		return aResult
 	
 	def FreeDaysN()
-		return ring_len(This.FreeDays())
+		return len(This.FreeDays())
 
 		def HowManyFreeDays()
-			return ring_len(This.FreeDays())
+			return len(This.FreeDays())
 
 		def CountFreeDays()
-			return ring_len(This.FreeDays())
+			return len(This.FreeDays())
 
 	def ContainsFreeDays()
-		return ring_len(This.FreeDays()) > 0
+		return len(This.FreeDays()) > 0
 
 		def HasFreeDays()
-			return ring_len(This.FreeDays()) > 0
+			return len(This.FreeDays()) > 0
 
 
 	def DateInfo(pDate)
@@ -1426,17 +1426,17 @@ def TimelineEventsXT()
 	aSpans = @oTimeline.Spans()
 	aBlockedSpans = @oTimeline.BlockedSpans()
 	
-	nPointCount = ring_len(aPoints)
+	nPointCount = len(aPoints)
 	if nPointCount > 0
 		aResult + ["Points", nPointCount, "â€”", 0]
 	ok
 	
-	nSpanCount = ring_len(aSpans)
+	nSpanCount = len(aSpans)
 	if nSpanCount > 0
 		aResult + ["Spans", nSpanCount, "â€”", 0]
 	ok
 	
-	nBlockedCount = ring_len(aBlockedSpans)
+	nBlockedCount = len(aBlockedSpans)
 	if nBlockedCount > 0
 		aResult + ["Blocked", nBlockedCount, "â€”", 0]
 	ok
@@ -1476,7 +1476,7 @@ def TimeLinePoints()
 		return This.TimeLinePoints()
 
 def ContainsTimeLinePoints()
-	return ring_len(This.TimeLinePoints()) > 0
+	return len(This.TimeLinePoints()) > 0
 
 	def ContainsTimeLineMoments()
 		return THis.ContainsTimeLinePoints()
@@ -1498,7 +1498,7 @@ def TimeLineSpans()
 		return This.TimeLineSpans()
 
 def ContainsTimeLineSpans()
-	return ring_len(This.TimeLineSpans()) > 0
+	return len(This.TimeLineSpans()) > 0
 
 	def ContainsTimeLinePeriods()
 		return THis.ContainsTimeLineSpans()
@@ -1549,7 +1549,7 @@ def TimeLineEvents()
 		return This.TimeLineEvents()
 
 def ContainsTimeLineEvents()
-	return ring_len(This.TimeLineEvents()) > 0
+	return len(This.TimeLineEvents()) > 0
 
 	#< @FunctionAlternativeForms
 
@@ -1618,7 +1618,7 @@ def ConflictsWith(oTimeLine)
 	aPoints = oTimeLine.Points()
 	aSpans = oTimeLine.Spans()
 	
-	nLen = ring_len(aPoints)
+	nLen = len(aPoints)
 	for i = 1 to nLen
 		cDate = aPoints[i][2]
 		aParts = @split(cDate, " ")
@@ -1629,7 +1629,7 @@ def ConflictsWith(oTimeLine)
 		ok
 	next
 	
-	nLen = ring_len(aSpans)
+	nLen = len(aSpans)
 	for i = 1 to nLen
 		cStart = aSpans[i][2]
 		cEnd = aSpans[i][3]
@@ -1660,7 +1660,7 @@ def ConflictsWithSpan(cLabel, aParams)
 	aSpans = @oTimeline.Spans()
 	aConflicts = []
 	
-	nLen = ring_len(aSpans)
+	nLen = len(aSpans)
 	for i = 1 to nLen
 		if aSpans[i][1] = cLabel
 			cStart = aSpans[i][2]
@@ -1703,13 +1703,13 @@ def ApplyConstraints(pDate)
 	cDate = _toDateString(pDate)
 	nAvailableHours = This.AvailableHoursOnN(cDate)
 	
-	nLen = ring_len(@aConstraints)
+	nLen = len(@aConstraints)
 	for i = 1 to nLen
 		cConstraintName = @aConstraints[i][1]
 		aConstraintDef = @aConstraints[i][2]
 		
 		# Check constraint type
-		if isList(aConstraintDef) and ring_len(aConstraintDef) >= 2
+		if isList(aConstraintDef) and len(aConstraintDef) >= 2
 			cType = aConstraintDef[1]
 			
 			if cType = :Every
@@ -1718,7 +1718,7 @@ def ApplyConstraints(pDate)
 				oDate = new stzDate(cDate)
 				
 				if StzUpper(oDate.DayName()) = StzUpper(cDay)
-					if ring_len(aConstraintDef) >= 6
+					if len(aConstraintDef) >= 6
 						cFrom = aConstraintDef[4]
 						cTo = aConstraintDef[6]
 						nConstraintMinutes = _timeWindowMinutes(cFrom, cTo)
@@ -1765,8 +1765,8 @@ def CompareWith(oOtherCal)
 	nOtherHours = oOtherCal.AvailableHoursN()
 	aResult + ["Available Hours", nThisHours, nOtherHours, nThisHours - nOtherHours]
 	
-	nThisHolidays = ring_len(@aHolidays)
-	nOtherHolidays = ring_len(oOtherCal.Holidays())
+	nThisHolidays = len(@aHolidays)
+	nOtherHolidays = len(oOtherCal.Holidays())
 	aResult + ["Holidays", nThisHolidays, nOtherHolidays, nThisHolidays - nOtherHolidays]
 	
 	nThisWeeks = This.TotalWeeks()
@@ -1859,7 +1859,7 @@ def CompareWith(oOtherCal)
 	def ToJSON()
 		aHash = This.ToHash()
 		cJSON = "{"
-		nLen = ring_len(aHash)
+		nLen = len(aHash)
 		
 		for i = 1 to nLen
 			cKey = "" + aHash[i][1]
@@ -1887,7 +1887,7 @@ def CompareWith(oOtherCal)
 	
 	def _listToJSON(aList)
 		cJSON = "["
-		nLen = ring_len(aList)
+		nLen = len(aList)
 		
 		for i = 1 to nLen
 			cItem = aList[i]
@@ -1926,12 +1926,12 @@ def CompareWith(oOtherCal)
 		cCSV += "Business Start" + cSep + @cBusinessStart + nl
 		cCSV += "Business End" + cSep + @cBusinessEnd + nl
 		
-		nLen = ring_len(@aHolidays)
+		nLen = len(@aHolidays)
 		for i = 1 to nLen
 			cCSV += "Holiday" + cSep + @aHolidays[i][1] + cSep + @aHolidays[i][2] + nl
 		next
 		
-		nLen = ring_len(@aBreaks)
+		nLen = len(@aBreaks)
 		for i = 1 to nLen
 			cCSV += "Break" + cSep + @aBreaks[i][1] + cSep + @aBreaks[i][2] + cSep + @aBreaks[i][3] + nl
 		next
@@ -1978,9 +1978,9 @@ def CompareWith(oOtherCal)
 		bShowTable = TRUE
 		
 		if isList(paParams)
-			nLen = ring_len(paParams)
+			nLen = len(paParams)
 			for i = 1 to nLen
-				if isList(paParams[i]) and ring_len(paParams[i]) = 2
+				if isList(paParams[i]) and len(paParams[i]) = 2
 					if paParams[i][1] = :ShowTable
 						bShowTable = paParams[i][2]
 					ok
@@ -2060,7 +2060,7 @@ def CompareWith(oOtherCal)
 				nDay++
 			end
 			
-			while ring_len(aWeek) < 7
+			while len(aWeek) < 7
 				aWeek + " "
 			end
 			
@@ -2088,7 +2088,7 @@ def CompareWith(oOtherCal)
 		cResult = "Legend:" + NL
 	
 		aLegend = This.Legend()
-		nLen = ring_len(aLegend)
+		nLen = len(aLegend)
 	
 		for i = 1 to nLen
 			cResult += ("  " + aLegend[i][2] + " = " + Capitalise(aLegend[i][1]) )
@@ -2135,7 +2135,7 @@ def CompareWith(oOtherCal)
 		aSpans = @oTimeline.Spans()
 		
 		# Check points
-		nLen = ring_len(aPoints)
+		nLen = len(aPoints)
 		for i = 1 to nLen
 			aParts = stzStringQ(aPoints[i][2]).Split(" ")
 			cPointDate = aParts[1]
@@ -2146,7 +2146,7 @@ def CompareWith(oOtherCal)
 		
 		# Check spans
 		_oDate_ = new stzDate(cDate)
-		nLen = ring_len(aSpans)
+		nLen = len(aSpans)
 		for i = 1 to nLen
 			cStart = aSpans[i][2]
 			cEnd = aSpans[i][3]
@@ -2181,7 +2181,7 @@ def CompareWith(oOtherCal)
 				[10, 12, "Q4"]
 			]
 			
-			nLen = ring_len(aQuarters)
+			nLen = len(aQuarters)
 			for i = 1 to nLen
 				nStartMonth = aQuarters[i][1]
 				nEndMonth = aQuarters[i][2]
@@ -2218,8 +2218,8 @@ def CompareWith(oOtherCal)
 		
 		aTableData + ["Total Days", This.TotalDays()]
 		aTableData + ["Working Days", This.AvailableDaysN()]
-		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDaysN() - ring_len(@aHolidays)]
-		aTableData + ["Holidays", ring_len(@aHolidays)]
+		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDaysN() - len(@aHolidays)]
+		aTableData + ["Holidays", len(@aHolidays)]
 		aTableData + ["Total Available Hours", ''+ This.AvailableHoursN()]
 		
 		if This.AvailableDaysN() > 0
@@ -2230,9 +2230,9 @@ def CompareWith(oOtherCal)
 		aTableData + ["Last Working Day", This.LastWorkingDay()]
 		aTableData + ["Business Hours", @cBusinessStart + " - " + @cBusinessEnd]
 		
-		if ring_len(@aHolidays) > 0
+		if len(@aHolidays) > 0
 			cHolidaysList = ""
-			nLen = ring_len(@aHolidays)
+			nLen = len(@aHolidays)
 			for i = 1 to nLen
 				if i > 1
 					cHolidaysList += ", "
@@ -2242,9 +2242,9 @@ def CompareWith(oOtherCal)
 			aTableData + ["Holidays Listed", cHolidaysList]
 		ok
 		
-		if ring_len(@aBreaks) > 0
+		if len(@aBreaks) > 0
 			cBreaksList = ""
-			nLen = ring_len(@aBreaks)
+			nLen = len(@aBreaks)
 			for i = 1 to nLen
 				if i > 1
 					cBreaksList += " | "
@@ -2355,7 +2355,7 @@ def CompareWith(oOtherCal)
 			else
 				cBizHours = @cBusinessStart + "-" + @cBusinessEnd
 				
-				if ring_len(@aBreaks) > 0
+				if len(@aBreaks) > 0
 					cBreaks = @aBreaks[1][1] + "-" + @aBreaks[1][2]
 				else
 					cBreaks = "â”€"
@@ -2401,8 +2401,8 @@ def CompareWith(oOtherCal)
 		
 		aTableData + ["Total Days", This.TotalDays()]
 		aTableData + ["Working Days", This.AvailableDaysN()]
-		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDaysN() - ring_len(@aHolidays)]
-		aTableData + ["Holidays", ring_len(@aHolidays)]
+		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDaysN() - len(@aHolidays)]
+		aTableData + ["Holidays", len(@aHolidays)]
 		aTableData + ["Total Available Hours", This.AvailableHoursN()]
 		
 		if This.AvailableDaysN() > 0

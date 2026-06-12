@@ -152,7 +152,7 @@ class stzListExtractor
 		ok
 
 		_aEdParts_ = StzSplit(_cEdResult_, ",")
-		_nEdLen_ = ring_len(_aEdParts_)
+		_nEdLen_ = len(_aEdParts_)
 		_anEdDupPos_ = []
 		for _iEd_ = 1 to _nEdLen_
 			@AddItem(_anEdDupPos_, 0 + _aEdParts_[_iEd_])
@@ -182,7 +182,7 @@ class stzListExtractor
 		# to keep indices valid. `ring_remove(This.List(), ...)` was a
 		# no-op (List() returns a copy), and ListReversed wasnt defined.
 		_aEsContent_ = This.Content()
-		_nEsLen_ = ring_len(_aEsContent_)
+		_nEsLen_ = len(_aEsContent_)
 		_aEsResult_ = []
 		_anEsPos_ = []
 		for _iEs_ = 1 to _nEsLen_
@@ -191,14 +191,14 @@ class stzListExtractor
 				@AddItem(_anEsPos_, _iEs_)
 			ok
 		next
-		for _jEs_ = ring_len(_anEsPos_) to 1 step -1
+		for _jEs_ = len(_anEsPos_) to 1 step -1
 			@oList.RemoveItemAtPosition(_anEsPos_[_jEs_])
 		next
 		return _aEsResult_
 
 	def ExtractNumbers()
 		_aEnContent_ = This.Content()
-		_nEnLen_ = ring_len(_aEnContent_)
+		_nEnLen_ = len(_aEnContent_)
 		_aEnResult_ = []
 		_anEnPos_ = []
 		for _iEn_ = 1 to _nEnLen_
@@ -207,14 +207,14 @@ class stzListExtractor
 				@AddItem(_anEnPos_, _iEn_)
 			ok
 		next
-		for _jEn_ = ring_len(_anEnPos_) to 1 step -1
+		for _jEn_ = len(_anEnPos_) to 1 step -1
 			@oList.RemoveItemAtPosition(_anEnPos_[_jEn_])
 		next
 		return _aEnResult_
 
 	def ExtractLists()
 		_aElContent_ = This.Content()
-		_nElLen_ = ring_len(_aElContent_)
+		_nElLen_ = len(_aElContent_)
 		_aElResult_ = []
 		_anElPos_ = []
 		for _iEl_ = 1 to _nElLen_
@@ -223,7 +223,7 @@ class stzListExtractor
 				@AddItem(_anElPos_, _iEl_)
 			ok
 		next
-		for _jEl_ = ring_len(_anElPos_) to 1 step -1
+		for _jEl_ = len(_anElPos_) to 1 step -1
 			@oList.RemoveItemAtPosition(_anElPos_[_jEl_])
 		next
 		return _aElResult_

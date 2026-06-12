@@ -83,7 +83,7 @@ class stzStringExtractor
 		ok
 
 		acResult = []
-		nLen = ring_len(paSubStr)
+		nLen = len(paSubStr)
 		for i = 1 to nLen
 			acResult + paSubStr[i]
 			_oReplacer_ = new stzStringReplacer(@oString)
@@ -175,7 +175,7 @@ class stzStringExtractor
 		_oFinder_ = new stzStringFinder(@oString)
 		anPos = _oFinder_.FindCharsWCS(pcCondition, pCaseSensitive)
 		acResult = []
-		for i = ring_len(anPos) to 1 step -1
+		for i = len(anPos) to 1 step -1
 			acResult + This.ExtractAt(anPos[i])
 		next
 		return ListReversed(acResult)

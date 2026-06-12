@@ -120,7 +120,7 @@ class stzEntity
 	def ContainsValue(pValue)
 		bResult = 0
 		_aThisEntity3_ = This.Entity()
-		_nThisEntity3Len_ = ring_len(_aThisEntity3_)
+		_nThisEntity3Len_ = len(_aThisEntity3_)
 		for _iLoopThisEntity3_ = 1 to _nThisEntity3Len_
 			aPair = _aThisEntity3_[_iLoopThisEntity3_]
 			if @AreEqual([ aPair[2], pValue ])
@@ -152,12 +152,12 @@ class stzEntity
 			return This.Property(p)
 
 		but isList(p)
-			if ring_len(p) = 2 and isString(p[1])
+			if len(p) = 2 and isString(p[1])
 				This.SetProperty(p[1], p[2])
 				return
 
 			but IsListOfPairs(p)
-				nLen = ring_len(p)
+				nLen = len(p)
 				for i = 1 to nLen
 					This.SetProperty(p[i][1], p[i][2])
 				next
@@ -198,7 +198,7 @@ class stzEntity
 		if NOT HasKey(@aEntity, pcProp)
 			return 0
 		else
-			nLen = ring_len(@aEntity)
+			nLen = len(@aEntity)
 			for i = 1 to nLen
 				if @aEntity[i][1] = pcProp
 					return i
@@ -239,7 +239,7 @@ class stzEntity
 	def Properties()
 		aResult = []
 		_aThisEntity2_ = This.Entity()
-		_nThisEntity2Len_ = ring_len(_aThisEntity2_)
+		_nThisEntity2Len_ = len(_aThisEntity2_)
 		for _iLoopThisEntity2_ = 1 to _nThisEntity2Len_
 			aProp = _aThisEntity2_[_iLoopThisEntity2_]
 			aResult + aProp[1]
@@ -262,7 +262,7 @@ class stzEntity
 		return new stzEntity( This.Content() )
 
 	def Size()
-		return ring_len( This.Properties() )
+		return len( This.Properties() )
 
 		def NumberOfProperties()
 			return This.Size()
@@ -273,7 +273,7 @@ class stzEntity
 	def Show()
 		? "Entity: " + This.Name() + " (Type: " + This.Type() + ")"
 		_aThisEntity1_ = This.Entity()
-		_nThisEntity1Len_ = ring_len(_aThisEntity1_)
+		_nThisEntity1Len_ = len(_aThisEntity1_)
 		for _iLoopThisEntity1_ = 1 to _nThisEntity1Len_
 			aProp = _aThisEntity1_[_iLoopThisEntity1_]
 			if aProp[1] != "name" and aProp[1] != "type"

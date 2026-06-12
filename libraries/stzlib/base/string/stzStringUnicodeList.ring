@@ -56,7 +56,7 @@ class stzStringUnicodeList
 		ok
 
 		# Validate: all items must be numbers in unicode range
-		nLen = ring_len(aList)
+		nLen = len(aList)
 		for i = 1 to nLen
 			if NOT isNumber(aList[i])
 				StzRaise("Can't create stzStringUnicodeList! All items must be numbers.")
@@ -76,10 +76,10 @@ class stzStringUnicodeList
 		return @anUnicodes
 
 	def NumberOfItems()
-		return ring_len(@anUnicodes)
+		return len(@anUnicodes)
 
 	def NthUnicode(n)
-		if n < 1 or n > ring_len(@anUnicodes)
+		if n < 1 or n > len(@anUnicodes)
 			StzRaise("Out of range!")
 		ok
 		return @anUnicodes[n]
@@ -93,7 +93,7 @@ class stzStringUnicodeList
 
 	def Chars()
 		aResult = []
-		_nAnUnicodes6Len_ = ring_len(@anUnicodes)
+		_nAnUnicodes6Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes6_ = 1 to _nAnUnicodes6Len_
 			n = @anUnicodes[_iLoopAnUnicodes6_]
 			aResult + StzChar(n)
@@ -105,7 +105,7 @@ class stzStringUnicodeList
 
 	def ToString()
 		cResult = ""
-		_nAnUnicodes5Len_ = ring_len(@anUnicodes)
+		_nAnUnicodes5Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes5_ = 1 to _nAnUnicodes5Len_
 			n = @anUnicodes[_iLoopAnUnicodes5_]
 			cResult += StzChar(n)
@@ -117,7 +117,7 @@ class stzStringUnicodeList
 
 	def UnicodesAndChars()
 		aResult = []
-		_nAnUnicodes4Len_ = ring_len(@anUnicodes)
+		_nAnUnicodes4Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes4_ = 1 to _nAnUnicodes4Len_
 			n = @anUnicodes[_iLoopAnUnicodes4_]
 			aResult + [ n, StzChar(n) ]
@@ -126,7 +126,7 @@ class stzStringUnicodeList
 
 	def CharsAndUnicodes()
 		aResult = []
-		_nAnUnicodes3Len_ = ring_len(@anUnicodes)
+		_nAnUnicodes3Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes3_ = 1 to _nAnUnicodes3Len_
 			n = @anUnicodes[_iLoopAnUnicodes3_]
 			aResult + [ StzChar(n), n ]
@@ -138,10 +138,10 @@ class stzStringUnicodeList
 	#===============================#
 
 	def IsEmpty()
-		return ring_len(@anUnicodes) = 0
+		return len(@anUnicodes) = 0
 
 	def Contains(nUnicode)
-		_nAnUnicodes2Len_ = ring_len(@anUnicodes)
+		_nAnUnicodes2Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes2_ = 1 to _nAnUnicodes2Len_
 			n = @anUnicodes[_iLoopAnUnicodes2_]
 			if n = nUnicode
@@ -261,11 +261,11 @@ class stzStringUnicodeList
 
 	def Unique()
 		aResult = []
-		_nAnUnicodes1Len_ = ring_len(@anUnicodes)
+		_nAnUnicodes1Len_ = len(@anUnicodes)
 		for _iLoopAnUnicodes1_ = 1 to _nAnUnicodes1Len_
 			n = @anUnicodes[_iLoopAnUnicodes1_]
 			bFound = 0
-			_nResult1Len_ = ring_len(aResult)
+			_nResult1Len_ = len(aResult)
 			for _iLoopResult1_ = 1 to _nResult1Len_
 				existing = aResult[_iLoopResult1_]
 				if existing = n
@@ -281,7 +281,7 @@ class stzStringUnicodeList
 
 	def Sorted()
 		aResult = @anUnicodes
-		nLen = ring_len(aResult)
+		nLen = len(aResult)
 		for i = 1 to nLen - 1
 			for j = 1 to nLen - i
 				if aResult[j] > aResult[j+1]
@@ -295,7 +295,7 @@ class stzStringUnicodeList
 
 	def Reversed()
 		aResult = []
-		for i = ring_len(@anUnicodes) to 1 step -1
+		for i = len(@anUnicodes) to 1 step -1
 			aResult + @anUnicodes[i]
 		next
 		return aResult

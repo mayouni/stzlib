@@ -41,7 +41,7 @@ aFinalProfile = o1.GetDataProfile()
 ? ""
 ? BoxRound("DETAILED TRANSFORMATION LOG")
 aTransformLog = o1.GetTransformationLog()
-_nTransformLog1Len_ = ring_len(aTransformLog)
+_nTransformLog1Len_ = len(aTransformLog)
 for _iLoopTransformLog1_ = 1 to _nTransformLog1Len_
 	transform = aTransformLog[_iLoopTransformLog1_]
     ? "• [" + transform[:timestamp] + "] " + transform[:operation] + " - " + transform[:details]

@@ -13,7 +13,7 @@ pr()
 aList = [ "5", "7", "5", "5", "4", "7" ]
 
 o1 = new QStringList()
-_nListLen_ = ring_len(aList)
+_nListLen_ = len(aList)
 for i = 1 to _nListLen_
 	o1.append(aList[i])
 next

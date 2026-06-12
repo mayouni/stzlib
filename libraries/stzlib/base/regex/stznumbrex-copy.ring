@@ -54,7 +54,7 @@ class stzNumberex
 	def ParsePattern(cPattern)
 		# Remove outer brackets
 		cPattern = @trim(cPattern)
-		cInner = @StzMid(cPattern, 2, ring_len(cPattern) - 1)
+		cInner = @StzMid(cPattern, 2, len(cPattern) - 1)
 		cInner = @trim(cInner)
 
 		# Split at commas
@@ -62,7 +62,7 @@ class stzNumberex
 
 		# Parse each token
 		aTokens = []
-		nLen = ring_len(aParts)
+		nLen = len(aParts)
 		for i = 1 to nLen
 			aTokens + This.ParseToken(@trim(aParts[i]))
 		next
@@ -73,7 +73,7 @@ class stzNumberex
 		aParts = []
 		cCurrent = ""
 		acChars = Chars(cStr)
-		nLen = ring_len(acChars)
+		nLen = len(acChars)
 		
 		for i = 1 to nLen
 			cChar = acChars[i]
@@ -86,7 +86,7 @@ class stzNumberex
 			ok
 		next
 		
-		if ring_len(cCurrent) > 0
+		if len(cCurrent) > 0
 			aParts + @trim(cCurrent)
 		ok
 		
@@ -103,7 +103,7 @@ class stzNumberex
 		# Check for negation
 		if StartsWith(cTokenStr, "@!")
 			bNegated = true
-			cTokenStr = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
+			cTokenStr = @StzMid(cTokenStr, 3, len(cTokenStr))
 		ok
 	
 		# Ensure token starts with @
@@ -117,18 +117,18 @@ class stzNumberex
 		
 		if @StzMid(cTokenStr, 1, 4) = "@DIV"
 			cKeyword = "@DIV"
-			cRemainder = @StzMid(cTokenStr, 5, ring_len(cTokenStr))
+			cRemainder = @StzMid(cTokenStr, 5, len(cTokenStr))
 		but @StzMid(cTokenStr, 1, 3) = "@PR"
 			cKeyword = "@PR"
-			cRemainder = @StzMid(cTokenStr, 4, ring_len(cTokenStr))
+			cRemainder = @StzMid(cTokenStr, 4, len(cTokenStr))
 		else
 			cKeyword = @StzMid(cTokenStr, 1, 2)
-			cRemainder = @StzMid(cTokenStr, 3, ring_len(cTokenStr))
+			cRemainder = @StzMid(cTokenStr, 3, len(cTokenStr))
 		ok
 	
 		# Check if remainder has constraints (starts with parenthesis or brace)
 		bHasConstraints = false
-		if ring_len(cRemainder) > 0
+		if len(cRemainder) > 0
 			if cRemainder[1] = "(" or cRemainder[1] = "{"
 				bHasConstraints = true
 			ok
@@ -143,7 +143,7 @@ class stzNumberex
 			nQuantifier = aResult[4]
 		else
 			# Parse quantifier directly (no constraints)
-			if ring_len(cRemainder) > 0
+			if len(cRemainder) > 0
 				aQuantInfo = This.ParseQuantifier(cRemainder)
 				nMin = aQuantInfo[1]
 				nMax = aQuantInfo[2]
@@ -164,23 +164,23 @@ class stzNumberex
 		cRemainder = cStr
 	
 		# Check for +, *, ? FIRST
-		if ring_len(cStr) > 0
+		if len(cStr) > 0
 			if cStr[1] = "+"
 				nMin = 1
 				nMax = 999999999
-				cRemainder = @StzMid(cStr, 2, ring_len(cStr))
+				cRemainder = @StzMid(cStr, 2, len(cStr))
 				return [nMin, nMax, nQuantifier, cRemainder]
 	
 			but cStr[1] = "*"
 				nMin = 0
 				nMax = 999999999
-				cRemainder = @StzMid(cStr, 2, ring_len(cStr))
+				cRemainder = @StzMid(cStr, 2, len(cStr))
 				return [nMin, nMax, nQuantifier, cRemainder]
 	
 			but cStr[1] = "?"
 				nMin = 0
 				nMax = 1
-				cRemainder = @StzMid(cStr, 2, ring_len(cStr))
+				cRemainder = @StzMid(cStr, 2, len(cStr))
 				return [nMin, nMax, nQuantifier, cRemainder]
 			ok
 		ok
@@ -196,8 +196,8 @@ class stzNumberex
 				stzraise("Error: Invalid section - min > max")
 			ok
 			
-			nMatchLen = ring_len(aMatches[1]) + 1 + ring_len(aMatches[2])
-			cRemainder = @StzMid(cStr, nMatchLen + 1, ring_len(cStr))
+			nMatchLen = len(aMatches[1]) + 1 + len(aMatches[2])
+			cRemainder = @StzMid(cStr, nMatchLen + 1, len(cStr))
 			return [nMin, nMax, nQuantifier, cRemainder]
 		ok
 	
@@ -208,7 +208,7 @@ class stzNumberex
 			nQuantifier = 0+ aMatches[1]
 			nMin = nQuantifier
 			nMax = nQuantifier
-			cRemainder = @StzMid(cStr, ring_len(aMatches[1]) + 1, ring_len(cStr))
+			cRemainder = @StzMid(cStr, len(aMatches[1]) + 1, len(cStr))
 		ok
 	
 		return [nMin, nMax, nQuantifier, cRemainder]
@@ -223,7 +223,7 @@ class stzNumberex
 			aMatches = oSectionMatch.Matches()
 			# Extract the content without parentheses and split on ".."
 			cSectionStr = aMatches[1]
-			cSectionContent = @StzMid(cSectionStr, 2, ring_len(cSectionStr) - 1)  # Remove ( and )
+			cSectionContent = @StzMid(cSectionStr, 2, len(cSectionStr) - 1)  # Remove ( and )
 			aParts = @split(cSectionContent, "..")
 			aConstraints + ["section", [0+ aParts[1], 0+ aParts[2]]]
 		ok
@@ -234,14 +234,14 @@ class stzNumberex
 			aMatches = oSetMatch.Matches()
 			# Extract content without braces
 			cSetStr = aMatches[1]
-			cSetContent = StzMid(cSetStr, 2, ring_len(cSetStr) - 2)  # Remove { and }
+			cSetContent = StzMid(cSetStr, 2, len(cSetStr) - 2)  # Remove { and }
 			aParts = @split(cSetContent, ";")
 			
 			aValues = []
-			nLen = ring_len(aParts)
+			nLen = len(aParts)
 			for i = 1 to nLen
 				cVal = @trim(aParts[i])
-				if ring_len(cVal) > 0
+				if len(cVal) > 0
 					aValues + (0+ cVal)
 				ok
 			next
@@ -255,7 +255,7 @@ class stzNumberex
 			if oDivMatch.Match(cStr)
 				aMatches = oDivMatch.Matches()
 				cDivStr = aMatches[1]
-				cDivNum = StzMid(cDivStr, 2, ring_len(cDivStr) - 2)  # Remove ( and )
+				cDivNum = StzMid(cDivStr, 2, len(cDivStr) - 2)  # Remove ( and )
 				aConstraints + ["divisor", 0+ cDivNum]
 			ok
 		ok
@@ -266,7 +266,7 @@ class stzNumberex
 			if oDigitMatch.Match(cStr)
 				aMatches = oDigitMatch.Matches()
 				cDigitStr = aMatches[1]
-				cDigitNum = StzMid(cDigitStr, 2, ring_len(cDigitStr) - 2)  # Remove ( and )
+				cDigitNum = StzMid(cDigitStr, 2, len(cDigitStr) - 2)  # Remove ( and )
 				aConstraints + ["digits", 0+ cDigitNum]
 			ok
 		ok
@@ -290,7 +290,7 @@ class stzNumberex
 			oSimpleMatch = rx('^\(\d+\)')
 			if oSimpleMatch.Match(cRemainder)
 				aMatches = oSimpleMatch.Matches()
-				cRemainder = @StzMid(cRemainder, ring_len(aMatches[1]) + 1, ring_len(cRemainder))
+				cRemainder = @StzMid(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
 			ok
 		ok
 		
@@ -298,18 +298,18 @@ class stzNumberex
 		oSectionMatch = rx('^\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
 		if oSectionMatch.Match(cRemainder)
 			aMatches = oSectionMatch.Matches()
-			cRemainder = @StzMid(cRemainder, ring_len(aMatches[1]) + 1, ring_len(cRemainder))
+			cRemainder = @StzMid(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
 		ok
 		
 		# 3. Remove set constraints: {val1;val2;val3}
 		oSetMatch = rx('^\{([^}]+)\}')
 		if oSetMatch.Match(cRemainder)
 			aMatches = oSetMatch.Matches()
-			cRemainder = @StzMid(cRemainder, ring_len(aMatches[1]) + 1, ring_len(cRemainder))
+			cRemainder = @StzMid(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
 		ok
 		
 		# Now parse quantifier from remainder
-		if ring_len(cRemainder) > 0
+		if len(cRemainder) > 0
 			aQuantInfo = This.ParseQuantifier(cRemainder)
 			nMin = aQuantInfo[1]
 			nMax = aQuantInfo[2]
@@ -361,7 +361,7 @@ class stzNumberex
 
 	def OptimizeTokens()
 		# Merge adjacent compatible tokens
-		nLen = ring_len(@aTokens)
+		nLen = len(@aTokens)
 		
 		if nLen <= 1
 			return
@@ -373,8 +373,8 @@ class stzNumberex
 			
 			# Can merge if same type and no constraints
 			if aToken1[:keyword] = aToken2[:keyword] and
-			   ring_len(aToken1[:constraints]) = 0 and
-			   ring_len(aToken2[:constraints]) = 0
+			   len(aToken1[:constraints]) = 0 and
+			   len(aToken2[:constraints]) = 0
 				
 				nNewMin = @Min([aToken1[:min], aToken2[:min]])
 				nNewMax = aToken1[:max] + aToken2[:max]
@@ -395,7 +395,7 @@ class stzNumberex
 		ok
 
 		# Ensure all elements are numbers
-		nLen = ring_len(paNumbers)
+		nLen = len(paNumbers)
 		for i = 1 to nLen
 			if NOT isNumber(paNumbers[i])
 				return false
@@ -417,8 +417,8 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 	# DEBUG
 	? "BacktrackMatch: token " + nTokenIndex + ", number " + nNumberIndex
 
-	nLenTokens = ring_len(aTokens)
-	nLenNumbers = ring_len(aNumbers)
+	nLenTokens = len(aTokens)
+	nLenNumbers = len(aNumbers)
 
 	# Base case: processed all tokens
 	if nTokenIndex > nLenTokens
@@ -480,8 +480,8 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 	return false
 */
 def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
-	nLenTokens = ring_len(aTokens)
-	nLenNumbers = ring_len(aNumbers)
+	nLenTokens = len(aTokens)
+	nLenNumbers = len(aNumbers)
 
 	# Base case: processed all tokens
 	if nTokenIndex > nLenTokens
@@ -584,7 +584,7 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 		ok
 	
 		# Check constraints - any failure means no match
-		nLen = ring_len(aToken[:constraints])
+		nLen = len(aToken[:constraints])
 		bConstraintsMet = true
 		
 		for i = 1 to nLen
@@ -602,7 +602,7 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 			on "set"
 				aSet = aConstraint[2]
 				bInSet = false
-				nSetLen = ring_len(aSet)
+				nSetLen = len(aSet)
 				for j = 1 to nSetLen
 					if nNumber = aSet[j]
 						bInSet = true
@@ -705,7 +705,7 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 
 	def Tokens()
 		acResult = []
-		nLen = ring_len(@aTokens)
+		nLen = len(@aTokens)
 
 		for i = 1 to nLen
 			acResult + @aTokens[i][:keyword]
@@ -722,7 +722,7 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 	def TokensInfo()
 		aInfo = []
 		
-		_nTokensLen_ = ring_len(@aTokens)
+		_nTokensLen_ = len(@aTokens)
 		for i = 1 to _nTokensLen_
 			aToken = @aTokens[i]
 			cInfo = "Token #" + i + ": " + aToken[:keyword]
@@ -733,8 +733,8 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 				cInfo += aToken[:min]
 			ok
 
-			if ring_len(aToken[:constraints]) > 0
-				cInfo += " [constraints: " + ring_len(aToken[:constraints]) + "]"
+			if len(aToken[:constraints]) > 0
+				cInfo += " [constraints: " + len(aToken[:constraints]) + "]"
 			ok
 
 			if aToken[:negated]

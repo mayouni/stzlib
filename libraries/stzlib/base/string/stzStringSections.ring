@@ -66,7 +66,7 @@ class stzStringSections
 
 	def Sections(paSections)
 		aResult = []
-		nLen = ring_len(paSections)
+		nLen = len(paSections)
 		for i = 1 to nLen
 			aResult + This.Section(paSections[i][1], paSections[i][2])
 		next
@@ -79,7 +79,7 @@ class stzStringSections
 	def AntiSections(paSections)
 		nLen = @oString.NumberOfChars()
 		aCovered = []
-		nSLen = ring_len(paSections)
+		nSLen = len(paSections)
 		for i = 1 to nSLen
 			n1 = paSections[i][1]
 			n2 = paSections[i][2]
@@ -97,7 +97,7 @@ class stzStringSections
 		nStart = 0
 		for i = 1 to nLen
 			bCovered = 0
-			_nCoveredLen_ = ring_len(aCovered)
+			_nCoveredLen_ = len(aCovered)
 			for k = 1 to _nCoveredLen_
 				if aCovered[k] = i
 					bCovered = 1
@@ -159,7 +159,7 @@ class stzStringSections
 	#======================================================#
 
 	def RemoveSections(paSections)
-		nLen = ring_len(paSections)
+		nLen = len(paSections)
 		for i = nLen to 1 step -1
 			This.RemoveSection(paSections[i][1], paSections[i][2])
 		next

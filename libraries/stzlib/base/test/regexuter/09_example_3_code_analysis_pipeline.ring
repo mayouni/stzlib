@@ -46,7 +46,7 @@ rxu.Process(codeText)
 See "Code Analysis:" + NL + NL
 
 _aRxuState1_ = rxu.State()
-_nRxuState1Len_ = ring_len(_aRxuState1_)
+_nRxuState1Len_ = len(_aRxuState1_)
 for _iLoopRxuState1_ = 1 to _nRxuState1Len_
 	entry = _aRxuState1_[_iLoopRxuState1_]
     ? "Found " + entry[:triggerName] + " at position " + entry[:position] + ":"

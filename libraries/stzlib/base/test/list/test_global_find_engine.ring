@@ -9,7 +9,7 @@ pr()
 aList = ["apple", "banana", "cherry", "banana", "date"]
 anPos = @FindAllCS(aList, "banana", 1)
 ? "FindAll 'banana': " + len(anPos) + " found"
-_nAnPos1Len_ = ring_len(anPos)
+_nAnPos1Len_ = len(anPos)
 for _iLoopAnPos1_ = 1 to _nAnPos1Len_
 	p = anPos[_iLoopAnPos1_]
 	? "  pos: " + p
@@ -38,7 +38,7 @@ anPos2 = @FindAllCS(aList2, "hello", 0)
 aNumbers = [10, 20, 30, 20, 40]
 anPos3 = @FindAllCS(aNumbers, 20, 1)
 ? "FindAll 20 in numbers: " + len(anPos3) + " found"
-_nAnPos31Len_ = ring_len(anPos3)
+_nAnPos31Len_ = len(anPos3)
 for _iLoopAnPos31_ = 1 to _nAnPos31Len_
 	p = anPos3[_iLoopAnPos31_]
 	? "  pos: " + p

@@ -172,7 +172,7 @@ class stzSet from stzList
 	#---------------------------------------#
 
 	def NumberOfElements()
-		return ring_len( This.Set() )
+		return len( This.Set() )
 
 	def Element(i)
 		return This.Set()[i]
@@ -220,10 +220,10 @@ class stzSet from stzList
 
 		aUnion = this.Content()
 		oTempSet = this
-		_nListOfLists1Len_ = ring_len(paListOfLists)
+		_nListOfLists1Len_ = len(paListOfLists)
 		for _iLoopListOfLists1_ = 1 to _nListOfLists1Len_
 			lst = paListOfLists[_iLoopListOfLists1_]
-			_nLst1Len_ = ring_len(lst)
+			_nLst1Len_ = len(lst)
 			for _iLoopLst1_ = 1 to _nLst1Len_
 				item = lst[_iLoopLst1_]
 				if not ItemExists(item,aUnion)
@@ -310,7 +310,7 @@ class stzSet from stzList
 
 		# A is included in B iff A-B is empty (engine-backed)
 		aDiff = This.DifferenceWith(paOtherSet)
-		return ring_len(aDiff) = 0
+		return len(aDiff) = 0
 
 	  #-------------------------------------------#
 	 #    INCLUSION OF AN OTHER SET IN THE SET   #
@@ -326,7 +326,7 @@ class stzSet from stzList
 		# B is included in A iff B-A is empty (engine-backed)
 		oOtherSet = new stzSet(paOtherSet)
 		aDiff = oOtherSet.DifferenceWith(This.Content())
-		return ring_len(aDiff) = 0
+		return len(aDiff) = 0
 
 	def Contains(paOtherSet)
 		return This.Includes(paOtherSet)
@@ -342,4 +342,4 @@ class stzSet from stzList
 		// TODO
 
 	def NumberOfSubsets()
-		return ring_len( This.Subsets() )
+		return len( This.Subsets() )

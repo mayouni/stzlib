@@ -50,7 +50,7 @@ class stzStringSplitter
 
 	def SplitCS(pSubStrOrPos, pCaseSensitive)
 
-		if isList(pSubStrOrPos) and ring_len(pSubStrOrPos) = 2 and isString(pSubStrOrPos[1])
+		if isList(pSubStrOrPos) and len(pSubStrOrPos) = 2 and isString(pSubStrOrPos[1])
 			cParamName = StzCaseFold(pSubStrOrPos[1])
 
 			if cParamName = "with" or cParamName = "by" or cParamName = "using"
@@ -158,7 +158,7 @@ class stzStringSplitter
 		cResult = This.Content()
 		cSep = "<<<SEP>>>"
 
-		nLen = ring_len(pacSubStrings)
+		nLen = len(pacSubStrings)
 		for i = 1 to nLen
 			cResult = @ReplaceCS(cResult, pacSubStrings[i], cSep, pCaseSensitive)
 		next
@@ -220,7 +220,7 @@ class stzStringSplitter
 		_aSapResult_ = []
 		_nSapPrev_ = 1
 
-		_n_anSapsortedLen_ = ring_len(_anSapsorted_)
+		_n_anSapsortedLen_ = len(_anSapsorted_)
 		for _iSap_ = 1 to _n_anSapsortedLen_
 			_nSapPos_ = _anSapsorted_[_iSap_]
 			if _nSapPos_ >= _nSapPrev_ and _nSapPos_ <= _nSapLen_
@@ -273,7 +273,7 @@ class stzStringSplitter
 	def SplitBeforeSubStringCS(pcSubStr, pCaseSensitive)
 		oFinder = new stzStringFinder(@oString)
 		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
-		if ring_len(anPos) = 0
+		if len(anPos) = 0
 			return [ This.Content() ]
 		ok
 		return This.SplitBeforePositions(anPos)
@@ -292,7 +292,7 @@ class stzStringSplitter
 		_aSbpResult_ = []
 		_nSbpPrev_ = 1
 
-		_n_anSbpSortedLen_ = ring_len(_anSbpSorted_)
+		_n_anSbpSortedLen_ = len(_anSbpSorted_)
 		for _iSbp_ = 1 to _n_anSbpSortedLen_
 			_nSbpPos_ = _anSbpSorted_[_iSbp_]
 			if _nSbpPos_ > _nSbpPrev_ and _nSbpPos_ <= _nSbpLen_
@@ -343,13 +343,13 @@ class stzStringSplitter
 	def SplitAfterSubStringCS(pcSubStr, pCaseSensitive)
 		oFinder = new stzStringFinder(@oString)
 		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
-		if ring_len(anPos) = 0
+		if len(anPos) = 0
 			return [ This.Content() ]
 		ok
 
 		nLenSub = StzLen(pcSubStr)
 		anAfterPos = []
-		_nAnPos1Len_ = ring_len(anPos)
+		_nAnPos1Len_ = len(anPos)
 		for _iLoopAnPos1_ = 1 to _nAnPos1Len_
 			nPos = anPos[_iLoopAnPos1_]
 			anAfterPos + (nPos + nLenSub - 1)
@@ -371,7 +371,7 @@ class stzStringSplitter
 		_aSapResult_ = []
 		_nSapPrev_ = 1
 
-		_n_anSapSortedLen_ = ring_len(_anSapSorted_)
+		_n_anSapSortedLen_ = len(_anSapSorted_)
 		for _iSap_ = 1 to _n_anSapSortedLen_
 			_nSapPos_ = _anSapSorted_[_iSap_]
 			if _nSapPos_ >= _nSapPrev_ and _nSapPos_ <= _nSapLen_

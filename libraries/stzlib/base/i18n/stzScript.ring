@@ -215,7 +215,7 @@ func LocaleScriptsXT()
 func LocaleScripts()
 	aResult = []
 	_aLocaleScriptsXT4_ = LocaleScriptsXT()
-	_nLocaleScriptsXT4Len_ = ring_len(_aLocaleScriptsXT4_)
+	_nLocaleScriptsXT4Len_ = len(_aLocaleScriptsXT4_)
 	for _iLoopLocaleScriptsXT4_ = 1 to _nLocaleScriptsXT4Len_
 		aScriptInfo = _aLocaleScriptsXT4_[_iLoopLocaleScriptsXT4_]
 		aResult + aScriptInfo[2]
@@ -297,7 +297,7 @@ class stzScript
 
 		if oStr.IsScriptName()
 			_aLocaleScriptsXT3_ = LocaleScriptsXT()
-			_nLocaleScriptsXT3Len_ = ring_len(_aLocaleScriptsXT3_)
+			_nLocaleScriptsXT3Len_ = len(_aLocaleScriptsXT3_)
 			for _iLoopLocaleScriptsXT3_ = 1 to _nLocaleScriptsXT3Len_
 				aScriptInfo = _aLocaleScriptsXT3_[_iLoopLocaleScriptsXT3_]
 				if StzLower(aScriptInfo[2]) = StzLower(pcScriptIdentifier)
@@ -308,7 +308,7 @@ class stzScript
 
 		but oStr.IsScriptCode()
 			_aLocaleScriptsXT2_ = LocaleScriptsXT()
-			_nLocaleScriptsXT2Len_ = ring_len(_aLocaleScriptsXT2_)
+			_nLocaleScriptsXT2Len_ = len(_aLocaleScriptsXT2_)
 			for _iLoopLocaleScriptsXT2_ = 1 to _nLocaleScriptsXT2Len_
 				aScriptInfo = _aLocaleScriptsXT2_[_iLoopLocaleScriptsXT2_]
 				if StzLower(aScriptInfo[1]) = StzLower(pcScriptIdentifier)
@@ -319,7 +319,7 @@ class stzScript
 
 		but oStr.IsScriptAbbreviation()
 			_aLocaleScriptsXT1_ = LocaleScriptsXT()
-			_nLocaleScriptsXT1Len_ = ring_len(_aLocaleScriptsXT1_)
+			_nLocaleScriptsXT1Len_ = len(_aLocaleScriptsXT1_)
 			for _iLoopLocaleScriptsXT1_ = 1 to _nLocaleScriptsXT1Len_
 				aScriptInfo = _aLocaleScriptsXT1_[_iLoopLocaleScriptsXT1_]
 				if StzLower(aScriptInfo[3]) = StzLower(pcScriptIdentifier)
@@ -338,7 +338,7 @@ class stzScript
 			_cDetected_ = _oFirstChar_.Script()
 			if isString(_cDetected_) and _cDetected_ != ""
 				_aLocS_ = LocaleScriptsXT()
-				_nLSL_ = ring_len(_aLocS_)
+				_nLSL_ = len(_aLocS_)
 				for _iLS_ = 1 to _nLSL_
 					_aSI_ = _aLocS_[_iLS_]
 					if StzLower(_aSI_[2]) = StzLower(_cDetected_)
@@ -400,7 +400,7 @@ class stzScript
 		cLanguage = This.DefaultLanguage()
 
 		_aLocaleLanguagesXT3_ = LocaleLanguagesXT()
-		_nLocaleLanguagesXT3Len_ = ring_len(_aLocaleLanguagesXT3_)
+		_nLocaleLanguagesXT3Len_ = len(_aLocaleLanguagesXT3_)
 		for _iLoopLocaleLanguagesXT3_ = 1 to _nLocaleLanguagesXT3Len_
 			aLanguageInfo = _aLocaleLanguagesXT3_[_iLoopLocaleLanguagesXT3_]
 			if aLanguageInfo[2] = cLanguage
@@ -431,7 +431,7 @@ class stzScript
 		cLanguage = This.DefaultLanguage()
 
 		_aLocaleLanguagesXT2_ = LocaleLanguagesXT()
-		_nLocaleLanguagesXT2Len_ = ring_len(_aLocaleLanguagesXT2_)
+		_nLocaleLanguagesXT2Len_ = len(_aLocaleLanguagesXT2_)
 		for _iLoopLocaleLanguagesXT2_ = 1 to _nLocaleLanguagesXT2Len_
 			aLanguageInfo = _aLocaleLanguagesXT2_[_iLoopLocaleLanguagesXT2_]
 			if aLanguageInfo[2] = cLanguage
@@ -463,7 +463,7 @@ class stzScript
 		cLanguageQtNumber = This.DefaultLanguageQtNumber()
 
 		_aLocaleLanguagesXT1_ = LocaleLanguagesXT()
-		_nLocaleLanguagesXT1Len_ = ring_len(_aLocaleLanguagesXT1_)
+		_nLocaleLanguagesXT1Len_ = len(_aLocaleLanguagesXT1_)
 		for _iLoopLocaleLanguagesXT1_ = 1 to _nLocaleLanguagesXT1Len_
 			aLanguageInfo = _aLocaleLanguagesXT1_[_iLoopLocaleLanguagesXT1_]
 			if aLanguageInfo[1] = cLanguageQtNumber
@@ -485,7 +485,7 @@ class stzScript
 		cCountry = This.DefaultCountry()
 
 		_aLocaleCountriesXT1_ = LocaleCountriesXT()
-		_nLocaleCountriesXT1Len_ = ring_len(_aLocaleCountriesXT1_)
+		_nLocaleCountriesXT1Len_ = len(_aLocaleCountriesXT1_)
 		for _iLoopLocaleCountriesXT1_ = 1 to _nLocaleCountriesXT1Len_
 			aCountryInfo = _aLocaleCountriesXT1_[_iLoopLocaleCountriesXT1_]
 			if aCountryInfo[2] = cCountry

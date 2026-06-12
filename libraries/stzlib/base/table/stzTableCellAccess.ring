@@ -163,7 +163,7 @@ class stzTableCellAccess from stzTable
 		*/
 
 		aResult = []
-		nLen =  ring_len(paCellsPos)
+		nLen =  len(paCellsPos)
 
 		for i = 1 to nLen
 
@@ -365,7 +365,7 @@ class stzTableCellAccess from stzTable
 
 	def TheseCellsZ(paCells)
 		aResult = []
-		nCells = ring_len(paCells)
+		nCells = len(paCells)
 
 		for i = 1 to nCells
 			aCell = paCells[i]
@@ -385,7 +385,7 @@ class stzTableCellAccess from stzTable
 
 	def PositionsAndTheseCells(paCells)
 		aResult = []
-		nCells = ring_len(paCells)
+		nCells = len(paCells)
 
 		for i = 1 to nCells
 			aCell = paCells[i]
@@ -438,7 +438,7 @@ class stzTableCellAccess from stzTable
 		#TODO // check if paCells are really cells and belong to the table!
 
 		aResult = []
-		nLen = ring_len(paCellsPos)
+		nLen = len(paCellsPos)
 
 		for i = 1 to nLen
 			cellPos = paCellsPos[i]
@@ -485,7 +485,7 @@ class stzTableCellAccess from stzTable
 
 	def Section( panCellPos1, panCellPos2 )
 		aCells = This.SectionAsPositions( panCellPos1, panCellPos2 )
-		nCells = ring_len(aCells)
+		nCells = len(aCells)
 		aResult = []
 
 		for i = 1 to nCells
@@ -713,7 +713,7 @@ class stzTableCellAccess from stzTable
 			aResult + [ nCol1, j ]
 		next
 
-		nCols = ring_len( @aContent )
+		nCols = len( @aContent )
 		if nCols = 1
 			return
 		ok

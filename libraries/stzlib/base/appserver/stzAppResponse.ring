@@ -36,8 +36,8 @@ class stzAppResponse
 		cResponse = "HTTP/1.1 " + nStatusCode + " " + cStatusText + nl
 		
 		# Add headers
-		This.Header("Content-Length", ring_len(cContent))
-		_nHeaders1Len_ = ring_len(aHeaders)
+		This.Header("Content-Length", len(cContent))
+		_nHeaders1Len_ = len(aHeaders)
 		for _iLoopHeaders1_ = 1 to _nHeaders1Len_
 			aHeader = aHeaders[_iLoopHeaders1_]
 			cResponse += aHeader[1] + ": " + aHeader[2] + nl
@@ -70,12 +70,12 @@ class stzAppResponse
 		if isstring(obj) return '"' + obj + '"' ok
 		if isnumber(obj) return "" + obj ok
 		if islist(obj)
-			if ring_len(obj) = 0 return "[]" ok
+			if len(obj) = 0 return "[]" ok
 			
 			# Check if it's an associative array (object)
 			if isstring(obj[1])
 				cJson = "{"
-				_nObjLen_2 = ring_len(obj)
+				_nObjLen_2 = len(obj)
 				for i = 1 to _nObjLen_2 step 2
 					if i > 1 cJson += "," ok
 					cJson += '"' + obj[i] + '":' + This.ObjectToJson(obj[i+1])
@@ -85,7 +85,7 @@ class stzAppResponse
 			else
 				# Regular array
 				cJson = "["
-				_nObjLen_ = ring_len(obj)
+				_nObjLen_ = len(obj)
 				for i = 1 to _nObjLen_
 					if i > 1 cJson += "," ok
 					cJson += This.ObjectToJson(obj[i])

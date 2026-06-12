@@ -61,7 +61,7 @@ class stzStringComparator
 	#======================================================#
 
 	def IsEqualToOneOfTheseCS(pacOtherStr, pCaseSensitive)
-		nLen = ring_len(pacOtherStr)
+		nLen = len(pacOtherStr)
 		for i = 1 to nLen
 			if This.IsEqualToCS(pacOtherStr[i], pCaseSensitive)
 				return 1
@@ -140,7 +140,7 @@ class stzStringComparator
 		return This.ContainsCS(pcSubStr, 1)
 
 	def ContainsOneOfTheseCS(pacSubStr, pCaseSensitive)
-		nLen = ring_len(pacSubStr)
+		nLen = len(pacSubStr)
 		for i = 1 to nLen
 			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
 				return 1
@@ -152,7 +152,7 @@ class stzStringComparator
 		return This.ContainsOneOfTheseCS(pacSubStr, 1)
 
 	def ContainsAllOfTheseCS(pacSubStr, pCaseSensitive)
-		nLen = ring_len(pacSubStr)
+		nLen = len(pacSubStr)
 		for i = 1 to nLen
 			if NOT This.ContainsCS(pacSubStr[i], pCaseSensitive)
 				return 0

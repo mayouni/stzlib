@@ -52,7 +52,7 @@ class stzListCounter
 
 	def CountItemsW(pCondition)
 		aItems = @oList.FindW(pCondition)
-		nResult = ring_len(aItems)
+		nResult = len(aItems)
 		return nResult
 
 		def CountW(pCondition)
@@ -68,7 +68,7 @@ class stzListCounter
 			return This.CountItemsW(pCondition)
 
 	def NumberOfUniqueItemsW(pCondition)
-		return ring_len( @oList.UniqueItemsW(pCondition) )
+		return len( @oList.UniqueItemsW(pCondition) )
 
 		def CountUniqueItemsW(pCondition)
 			return This.NumberOfUniqueItemsW(pCondition)
@@ -85,7 +85,7 @@ class stzListCounter
 
 	def CountItemsWXT(pCondition)
 		aItems = @oList.FindWXT(pCondition)
-		nResult = ring_len(aItems)
+		nResult = len(aItems)
 		return nResult
 
 		def CountWXT(pCondition)
@@ -101,7 +101,7 @@ class stzListCounter
 			return This.CountItemsWXT(pCondition)
 
 	def NumberOfUniqueItemsWXT(pCondition)
-		return ring_len( @oList.UniqueItemsWXT(pCondition) )
+		return len( @oList.UniqueItemsWXT(pCondition) )
 
 		def CountUniqueItemsWXT(pCondition)
 			return This.NumberOfUniqueItemsWXT(pCondition)
@@ -170,7 +170,7 @@ class stzListCounter
 
 	def CountStrings()
 		aContent = This.Content()
-		nLen = ring_len(aContent)
+		nLen = len(aContent)
 		nCount = 0
 		for i = 1 to nLen
 			if isString(aContent[i])
@@ -184,7 +184,7 @@ class stzListCounter
 
 	def CountNumbers()
 		aContent = This.Content()
-		nLen = ring_len(aContent)
+		nLen = len(aContent)
 		nCount = 0
 		for i = 1 to nLen
 			if isNumber(aContent[i])
@@ -198,7 +198,7 @@ class stzListCounter
 
 	def CountLists()
 		aContent = This.Content()
-		nLen = ring_len(aContent)
+		nLen = len(aContent)
 		nCount = 0
 		for i = 1 to nLen
 			if isList(aContent[i])
@@ -225,7 +225,7 @@ class stzListCounter
 		ok
 
 		aContent = This.Content()
-		nLen = ring_len(aContent)
+		nLen = len(aContent)
 		nCount = 0
 		for i = 1 to nLen
 			if BothAreEqualCS(aContent[i], pItem, pCaseSensitive)
@@ -259,7 +259,7 @@ class stzListCounter
 
 	def CountEmptyItems()
 		aContent = This.Content()
-		nLen = ring_len(aContent)
+		nLen = len(aContent)
 		nCount = 0
 		for i = 1 to nLen
 			if isString(aContent[i]) and aContent[i] = ""

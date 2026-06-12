@@ -22,7 +22,7 @@ lxu() {
         @list[1] = lower(@list[1])
         
         # Validate endpoints begin with "/"
-        _nList3Len_ = ring_len(@list[3])
+        _nList3Len_ = len(@list[3])
         for i = 1 to _nList3Len_
             if not beginswith(@list[3][i], "/")
                 @list[3][i] = "/" + @list[3][i]
@@ -69,7 +69,7 @@ lxu() {
     ]
     
     # Process each section of the configuration
-    _nConfigData1Len_ = ring_len(configData)
+    _nConfigData1Len_ = len(configData)
     for _iLoopConfigData1_ = 1 to _nConfigData1Len_
     	section = configData[_iLoopConfigData1_]
         sectionName = section[1]
@@ -81,7 +81,7 @@ lxu() {
     # Display validated configurations
     ? "=== Validated Configuration ==="
     
-    _nResultsLen_ = ring_len(Results()
+    _nResultsLen_ = len(Results()
     for i = 1 to _nResultsLen_)
         ? NL + "Section result " + i + ":"
         ? @@NL(Results()[i])
@@ -91,7 +91,7 @@ lxu() {
     ? NL + "=== Validation Summary ==="
     
     _aState1_ = State()
-    _nState1Len_ = ring_len(_aState1_)
+    _nState1Len_ = len(_aState1_)
     for _iLoopState1_ = 1 to _nState1Len_
     	entry = _aState1_[_iLoopState1_]
         ? "- " + entry[:triggerName] + " validated successfully"

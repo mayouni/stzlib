@@ -153,7 +153,7 @@ class stzTimerManager
 		timers + timer
 		
 	def RemoveTimer(timerId)
-	    for i = ring_len(timers) to 1 step -1  # Iterate backwards
+	    for i = len(timers) to 1 step -1  # Iterate backwards
 	        if timers[i].timerId = timerId
 	            timers[i].Stop()
 	            del(timers, i)
@@ -162,7 +162,7 @@ class stzTimerManager
 	    next
 	    
 	    # Stop run loop if no active timers
-	    if ring_len(timers) = 0
+	    if len(timers) = 0
 	        isRunning = false
 	    ok
 
@@ -175,7 +175,7 @@ class stzTimerManager
 
 	        # Process timers safely by collecting completed ones first
 	        completedIndices = []
-	        nLenTimers = ring_len(timers)
+	        nLenTimers = len(timers)
 
 	        for i = 1 to nLenTimers
 	            timer = timers[i]
@@ -190,9 +190,9 @@ class stzTimerManager
 	        next
 	        
 	        # Remove completed timers in reverse order to maintain indices
-	        for i = ring_len(completedIndices) to 1 step -1
+	        for i = len(completedIndices) to 1 step -1
 	            index = completedIndices[i]
-	            if index >= 1 and index <= ring_len(timers)
+	            if index >= 1 and index <= len(timers)
 	                del(timers, index)
 	            ok
 	        next
@@ -202,7 +202,7 @@ class stzTimerManager
 	        sleep(sleepTime)
 	        
 	        # Don't exit immediately if no timers - wait based on patience level
-	        if ring_len(timers) = 0
+	        if len(timers) = 0
 	            emptyLoopCount++
 	            if emptyLoopCount > emptyLoopPatience
 	                isRunning = false
@@ -220,7 +220,7 @@ class stzTimerManager
 	def Stop()
 		shouldStop = true
 		isRunning = false
-		_nTimers1Len_ = ring_len(timers)
+		_nTimers1Len_ = len(timers)
 		for _iLoopTimers1_ = 1 to _nTimers1Len_
 			timer = timers[_iLoopTimers1_]
 			timer.Stop()
@@ -228,7 +228,7 @@ class stzTimerManager
 
 	def StopAllTimers()
 	    # Stop all timers and clear the list
-	    nLen = ring_len(timers)
+	    nLen = len(timers)
 	    for i = 1 to nLen
 	        timers[i].Stop()
 	    next

@@ -49,7 +49,7 @@ oRs {
     # Process multiple images with different transformations
     images = ["photo1.jpg", "photo2.png", "document.pdf"]  # Last one will fail
     
-    _nImagesLen_ = ring_len(images)
+    _nImagesLen_ = len(images)
     for i = 1 to _nImagesLen_
         imageName = images[i]
         ? "Starting pipeline for: " + imageName

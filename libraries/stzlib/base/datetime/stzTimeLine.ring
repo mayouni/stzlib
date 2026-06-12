@@ -204,7 +204,7 @@ class stzTimeLine from stzObject
 				return This.AddPointQ(pcLabel, pDateTime)
 
 	def AddPoints(paPoints)
-		nLen = ring_len(paPoints)
+		nLen = len(paPoints)
 		for i = 1 to nLen
 			This.AddPoint(paPoints[i][1], paPoints[i][2])
 		next
@@ -228,7 +228,7 @@ class stzTimeLine from stzObject
 		#--
 
 		acResult = []
-		nLen = ring_len(@aPoints)
+		nLen = len(@aPoints)
 
 		for i = 1 to nLen
 			if @aPoints[i][1] = pcLabel
@@ -256,7 +256,7 @@ class stzTimeLine from stzObject
 		#--
 
 		aResult = []
-		nLen = ring_len(@aPoints)
+		nLen = len(@aPoints)
 
 		for i = 1 to nLen
 			if @aPoints[i][1] = pcLabel
@@ -279,7 +279,7 @@ class stzTimeLine from stzObject
 		
 		def PointsQ()
 			aResult = []
-			nLen = ring_len(@aPoints)
+			nLen = len(@aPoints)
 			for i = 1 to nLen
 				aResult + [@aPoints[i][1], new stzDateTime(@aPoints[i][2])]
 			next
@@ -307,7 +307,7 @@ class stzTimeLine from stzObject
 		# Return unique names only
 		acResult = []
 		acSeen = []
-		nLen = ring_len(@aPoints)
+		nLen = len(@aPoints)
 
 		for i = 1 to nLen
 			cLabel = @aPoints[i][1]
@@ -330,13 +330,13 @@ class stzTimeLine from stzObject
 		aResult = []
 		aCounts = []
 	
-		nLen = ring_len(@aPoints)
+		nLen = len(@aPoints)
 		for i = 1 to nLen
 			cLabel = @aPoints[i][1]
 			nPos = 0
 	
 			# Find if name already counted
-			_nCountsLen_2 = ring_len(aCounts)
+			_nCountsLen_2 = len(aCounts)
 			for j = 1 to _nCountsLen_2
 				if aCounts[j][1] = cLabel
 					nPos = j
@@ -360,7 +360,7 @@ class stzTimeLine from stzObject
 		# Return unique names only
 		acResult = []
 		acSeen = []
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 
 		for i = 1 to nLen
 			cLabel = @aSpans[i][1]
@@ -380,13 +380,13 @@ class stzTimeLine from stzObject
 		aResult = []
 		aCounts = []
 	
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 		for i = 1 to nLen
 			cLabel = @aSpans[i][1]
 			nPos = 0
 	
 			# Find if name already counted
-			_nCountsLen_ = ring_len(aCounts)
+			_nCountsLen_ = len(aCounts)
 			for j = 1 to _nCountsLen_
 				if aCounts[j][1] = cLabel
 					nPos = j
@@ -425,7 +425,7 @@ class stzTimeLine from stzObject
 
 		cLabel = StzUpper(pcLabelOrDateTime)
 
-		nLen = ring_len(@aPoints)
+		nLen = len(@aPoints)
 		for i = 1 to nLen
 			if @aPoints[i][1] = cLabel
 				return @aPoints[i][2] # A datetime string
@@ -452,7 +452,7 @@ class stzTimeLine from stzObject
 	# Checking if a point exists
 
 	def HasPoint(pcLabelOrDateTime)
-		if ring_len(This.FindPoint(pcLabelOrDateTime)) > 0
+		if len(This.FindPoint(pcLabelOrDateTime)) > 0
 			return 1
 		else
 			return 0
@@ -477,7 +477,7 @@ class stzTimeLine from stzObject
 
 	def RemovePoint(pcLabelOrDateTime)
 		aPos = This.FindPointXT(pcLabelOrDateTime)
-		if ring_len(aPos) > 0
+		if len(aPos) > 0
 			del(@aPoints, aPos[1][2])
 		ok
 
@@ -523,7 +523,7 @@ class stzTimeLine from stzObject
 		pcLabel = StzUpper(pcLabel)
 		pcNewLabel = StzUpper(pcNewLabel)
 	
-		nLen = ring_len(@aPoints)
+		nLen = len(@aPoints)
 	
 		for i = 1 to nLen
 			if @aPoints[i][1] = pcLabel
@@ -556,7 +556,7 @@ class stzTimeLine from stzObject
 		pcLabel = StzUpper(pcLabel)
 		pcNewLabel = StzUpper(pcNewLabel)
 	
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 	
 		for i = 1 to nLen
 			if @aSpans[i][1] = pcLabel
@@ -567,7 +567,7 @@ class stzTimeLine from stzObject
 	# How many points
 
 	def CountPoints()
-		return ring_len(@aPoints)
+		return len(@aPoints)
 		
 		def NumberOfPoints()
 			return This.CountPoints()
@@ -600,7 +600,7 @@ class stzTimeLine from stzObject
 	# Span Management (time periods with start and end)
 
 	def AddSpans(paSpans)
-		nLen = ring_len(paSpans)
+		nLen = len(paSpans)
 		for i = 1 to nLen
 			This.AddSpan(paSpans[i][1], paSpans[i][2], paSpans[i][3])
 		next
@@ -658,7 +658,7 @@ class stzTimeLine from stzObject
 		ok
 
 		acResult = []
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 
 		pcLabel = StzUpper(pcLabel)
 	
@@ -682,7 +682,7 @@ class stzTimeLine from stzObject
 		ok
 
 		aResult = []
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 
 		pcLabel = StzUpper(pcLabel)
 
@@ -703,7 +703,7 @@ class stzTimeLine from stzObject
 
 		def SpansQ()
 			aResult = []
-			nLen = ring_len(@aSpans)
+			nLen = len(@aSpans)
 			for i = 1 to nLen
 				aResult + [
 					@aSpans[i][1],
@@ -725,7 +725,7 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcLabel must be a string.")
 		ok
 
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 		for i = 1 to nLen
 			if @aSpans[i][1] = pcLabel
 				return [@aSpans[i][2], @aSpans[i][3]]
@@ -756,7 +756,7 @@ class stzTimeLine from stzObject
 			return new stzDuration(This.SpanDuration(pcLabel))
 
 	def HasSpan(pcLabel)
-		return ring_len( This.FindSpan(pcLabel) ) > 0
+		return len( This.FindSpan(pcLabel) ) > 0
 		
 	def RemoveSpan(pcLabel)
 		if NOT isString(pcLabel)
@@ -766,7 +766,7 @@ class stzTimeLine from stzObject
 		pcLabel = StzUpper(pcLabel)
 
 		nPos = 0
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 
 		for i = 1 to nLen
 			if @aSpans[i][1] = pcLabel
@@ -784,7 +784,7 @@ class stzTimeLine from stzObject
 			return This
 		
 	def CountSpans()
-		return ring_len(@aSpans)
+		return len(@aSpans)
 		
 		def NumberOfSpans()
 			return This.CountSpans()
@@ -824,14 +824,14 @@ class stzTimeLine from stzObject
 		if bDateOnly
 			# Match all times on this date
 			oDate = new stzDate(cDateTime)
-			nLen = ring_len(@aPoints)
+			nLen = len(@aPoints)
 			for i = 1 to nLen
 				if StzLeft(@aPoints[i][2], 10) = cDateTime
 					aResult + [@aPoints[i][1], :Point]
 				ok
 			next
 	
-			nLen = ring_len(@aSpans)
+			nLen = len(@aSpans)
 			for i = 1 to nLen
 				oSpanStart = new stzDate(StzLeft(@aSpans[i][2], 10))
 				oSpanEnd = new stzDate(StzLeft(@aSpans[i][3], 10))
@@ -843,7 +843,7 @@ class stzTimeLine from stzObject
 		but bTimeOnly
 			# Match this time on all dates
 			cTime = cDateTime
-			nLen = ring_len(@aPoints)
+			nLen = len(@aPoints)
 			for i = 1 to nLen
 				if StzRight(@aPoints[i][2], 8) = cTime
 					aResult + [@aPoints[i][1], :Point]
@@ -851,7 +851,7 @@ class stzTimeLine from stzObject
 			next
 
 	
-			nLen = ring_len(@aSpans)
+			nLen = len(@aSpans)
 			for i = 1 to nLen
 				oTime = new stzTime(cTime)
 				oStart = new stzDateTime(@aSpans[i][2])
@@ -871,14 +871,14 @@ class stzTimeLine from stzObject
 			# Exact datetime match
 			oDateTime = new stzDateTime(cDateTime)
 	
-			nLen = ring_len(@aPoints)
+			nLen = len(@aPoints)
 			for i = 1 to nLen
 				if StzDateTimeQ(@aPoints[i][2]).IsEqualTo(oDateTime)
 					aResult + [@aPoints[i][1], :Point]
 				ok
 			next
 	
-			nLen = ring_len(@aSpans)
+			nLen = len(@aSpans)
 			for i = 1 to nLen
 				oStart = new stzDateTime(@aSpans[i][2])
 				oEnd = new stzDateTime(@aSpans[i][3])
@@ -904,7 +904,7 @@ class stzTimeLine from stzObject
 		ok
 
 		cMode = :Exact
-		if isList(pMode) and ring_len(pMode) = 2
+		if isList(pMode) and len(pMode) = 2
 			cMode = pMode[2]
 		ok
 	
@@ -913,14 +913,14 @@ class stzTimeLine from stzObject
 		switch cMode
 		on :DateOnly
 			cDate = StzLeft(cDateTime, 10)
-			nLen = ring_len(@aPoints)
+			nLen = len(@aPoints)
 			for i = 1 to nLen
 				if StzLeft(@aPoints[i][2], 10) = cDate
 					aResult + [@aPoints[i][1], :Point]
 				ok
 			next
 	
-			nLen = ring_len(@aSpans)
+			nLen = len(@aSpans)
 			for i = 1 to nLen
 				cSpanStart = StzLeft(@aSpans[i][2], 10)
 				cSpanEnd = StzLeft(@aSpans[i][3], 10)
@@ -931,14 +931,14 @@ class stzTimeLine from stzObject
 	
 		on :TimeOnly
 			cTime = StzRight(cDateTime, 8)
-			nLen = ring_len(@aPoints)
+			nLen = len(@aPoints)
 			for i = 1 to nLen
 				if StzRight(@aPoints[i][2], 8) = cTime
 					aResult + [@aPoints[i][1], :Point]
 				ok
 			next
 	        
-			nLen = ring_len(@aSpans)
+			nLen = len(@aSpans)
 			for i = 1 to nLen
 				cSpanStartTime = StzRight(@aSpans[i][2], 8)
 				cSpanEndTime = StzRight(@aSpans[i][3], 8)
@@ -996,7 +996,7 @@ class stzTimeLine from stzObject
 		oEnd = new stzDateTime(cEnd)
 		
 		aResult = []
-		nLen = ring_len(@aPoints)
+		nLen = len(@aPoints)
 
 		for i = 1 to nLen
 			oPoint = new stzDateTime(@aPoints[i][2])
@@ -1048,7 +1048,7 @@ class stzTimeLine from stzObject
 		oEnd = new stzDateTime(cEnd)
 		
 		aResult = []
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 
 		for i = 1 to nLen
 			oSpanStart = new stzDateTime(@aSpans[i][2])
@@ -1079,7 +1079,7 @@ class stzTimeLine from stzObject
 		oDateTime = new stzDateTime(cDateTime)
 		
 		aResult = []
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 
 		for i = 1 to nLen
 			oStart = new stzDateTime(@aSpans[i][2])
@@ -1107,7 +1107,7 @@ class stzTimeLine from stzObject
 	
 	def HasOverlaps()
 
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 
 		for i = 1 to nLen - 1
 			for j = i + 1 to nLen
@@ -1128,7 +1128,7 @@ class stzTimeLine from stzObject
 	def OverlappingSpans()
 
 		aResult = []
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 		
 		for i = 1 to nLen - 1
 			for j = i + 1 to nLen
@@ -1173,13 +1173,13 @@ class stzTimeLine from stzObject
 	# Gap Analysis
 	
 	def Gaps()
-		if ring_len(@aSpans) = 0
+		if len(@aSpans) = 0
 			return []
 		ok
 		
 		# Sort spans by start time
 		aSorted = This.SortedSpans()
-		nLen = ring_len(aSorted)
+		nLen = len(aSorted)
 	
 		aGaps = []
 		for i = 1 to nLen - 1
@@ -1199,12 +1199,12 @@ class stzTimeLine from stzObject
 		return aGaps
 		
 	def UncoveredPeriods()
-		if ring_len(@aSpans) = 0
+		if len(@aSpans) = 0
 			return []
 		ok
 		
 		aSorted = This.SortedSpans()
-		nLen = ring_len(aSorted)
+		nLen = len(aSorted)
 		aUncovered = []
 		
 		oStart = This.StartQ()
@@ -1297,10 +1297,10 @@ class stzTimeLine from stzObject
 		def Distance(cLabel1, cLabel2)
 			# Accept either positional (start, end) or named-param
 			# (:From = "start", :To = "end") forms.
-			if isList(cLabel1) and ring_len(cLabel1) = 2 and isString(cLabel1[1]) and lower(cLabel1[1]) = "from"
+			if isList(cLabel1) and len(cLabel1) = 2 and isString(cLabel1[1]) and lower(cLabel1[1]) = "from"
 				cLabel1 = cLabel1[2]
 			ok
-			if isList(cLabel2) and ring_len(cLabel2) = 2 and isString(cLabel2[1]) and lower(cLabel2[1]) = "to"
+			if isList(cLabel2) and len(cLabel2) = 2 and isString(cLabel2[1]) and lower(cLabel2[1]) = "to"
 				cLabel2 = cLabel2[2]
 			ok
 			return This.DurationXT(cLabel1, cLabel2)
@@ -1320,7 +1320,7 @@ class stzTimeLine from stzObject
 	def SortedSpans()
 		# Simple bubble sort by start time
 		aSorted = @aSpans
-		nLen = ring_len(aSorted)
+		nLen = len(aSorted)
 		
 		for i = 1 to nLen - 1
 			for j = 1 to nLen - i
@@ -1342,7 +1342,7 @@ class stzTimeLine from stzObject
 	def SortedPoints()
 		# Simple bubble sort by time
 		aSorted = @aPoints
-		nLen = ring_len(aSorted)
+		nLen = len(aSorted)
 		
 		for i = 1 to nLen - 1
 			for j = 1 to nLen - i
@@ -1380,10 +1380,10 @@ class stzTimeLine from stzObject
 			[ "countspans", This.CountSpans() ]
 		
 		# Add sorted points
-		if ring_len(@aPoints) > 0
+		if len(@aPoints) > 0
 			aPoints = []
 			aSorted = This.SortedPoints()
-			nLen = ring_len(aSorted)
+			nLen = len(aSorted)
 			for i = 1 to nLen
 				aPoints + [ "name", aSorted[i][1] ] +
 					[ "datetime", aSorted[i][2] ]
@@ -1392,11 +1392,11 @@ class stzTimeLine from stzObject
 		ok
 		
 		# Add sorted spans with durations
-		if ring_len(@aSpans) > 0
+		if len(@aSpans) > 0
 
 			aSpans = []
 			aSorted = This.SortedSpans()
-			nLen = ring_len(aSorted)
+			nLen = len(aSorted)
 
 			for i = 1 to nLen
 				oStart = new stzDateTime(aSorted[i][2])
@@ -1467,10 +1467,10 @@ class stzTimeLine from stzObject
 	
 		# Process parameters
 		if isList(paParams)
-			nLen = ring_len(paParams)
+			nLen = len(paParams)
 	
 			for i = 1 to nLen
-				if isList(paParams[i]) and ring_len(paParams[i]) = 2
+				if isList(paParams[i]) and len(paParams[i]) = 2
 					switch paParams[i][1]
 					on :Width
 						nRequestedWidth = max([30, paParams[i][2]])
@@ -1607,7 +1607,7 @@ class stzTimeLine from stzObject
 	    
 	    # Get uncovered periods
 	    aUncovered = This.UncoveredPeriods()
-	    if ring_len(aUncovered) = 0
+	    if len(aUncovered) = 0
 	        return "Timeline is fully covered by spans"
 	    ok
 	    
@@ -1661,7 +1661,7 @@ class stzTimeLine from stzObject
 			return This
 	
 	def AddBlockedPoints(paDateTimes)
-		nLen = ring_len(paDateTimes)
+		nLen = len(paDateTimes)
 		for i = 1 to nLen
 			This.AddBlockedPoint(paDateTimes[i])
 		next
@@ -1682,7 +1682,7 @@ class stzTimeLine from stzObject
 
 	def BlockedPointsQ()
 		aResult = []
-		nLen = ring_len(@aBlockedPoints)
+		nLen = len(@aBlockedPoints)
 		for i = 1 to nLen
 			aResult + new stzDateTime(@aBlockedPoints[i])
 		next
@@ -1696,7 +1696,7 @@ class stzTimeLine from stzObject
 		ok
 	
 		oDateTime = new stzDateTime(cDateTime)
-		nLen = ring_len(@aBlockedPoints)
+		nLen = len(@aBlockedPoints)
 	
 		for i = 1 to nLen
 			oBlocked = new stzDateTime(@aBlockedPoints[i])
@@ -1708,7 +1708,7 @@ class stzTimeLine from stzObject
 		return FALSE
 
 	def IsBlocked(pDateTime)
-		if isList(pDateTime) and ring_len(pDateTime) = 2
+		if isList(pDateTime) and len(pDateTime) = 2
 			return This.IsSectionBlocked(pDateTime[1], pDateTime[2])
 		ok
 	
@@ -1724,7 +1724,7 @@ class stzTimeLine from stzObject
 		ok
 	
 		oDateTime = new stzDateTime(cDateTime)
-		nLen = ring_len(@aBlockedSpans)
+		nLen = len(@aBlockedSpans)
 	
 		for i = 1 to nLen
 			oStart = new stzDateTime(@aBlockedSpans[i][2])
@@ -1751,7 +1751,7 @@ class stzTimeLine from stzObject
 	
 		oStart = new stzDateTime(cStart)
 		oEnd = new stzDateTime(cEnd)
-		nLen = ring_len(@aBlockedSpans)
+		nLen = len(@aBlockedSpans)
 	
 		for i = 1 to nLen
 			oBlockStart = new stzDateTime(@aBlockedSpans[i][2])
@@ -1762,7 +1762,7 @@ class stzTimeLine from stzObject
 		next
 	
 		# Also check blocked points within range
-		nLen = ring_len(@aBlockedPoints)
+		nLen = len(@aBlockedPoints)
 		for i = 1 to nLen
 			oPoint = new stzDateTime(@aBlockedPoints[i])
 			if oPoint >= oStart and oPoint <= oEnd
@@ -1811,7 +1811,7 @@ class stzTimeLine from stzObject
 	
 		pcLabel = StzUpper(pcLabel)
 		nPos = 0
-		nLen = ring_len(@aBlockedSpans)
+		nLen = len(@aBlockedSpans)
 	
 		for i = 1 to nLen
 			if @aBlockedSpans[i][1] = pcLabel
@@ -1833,7 +1833,7 @@ class stzTimeLine from stzObject
 	
 		def BlockedSpansQ()
 			aResult = []
-			nLen = ring_len(@aBlockedSpans)
+			nLen = len(@aBlockedSpans)
 			for i = 1 to nLen
 				aResult + [
 					@aBlockedSpans[i][1],
@@ -1860,8 +1860,8 @@ class stzTimeLine from stzObject
 		next
 		
 	def _setVizChar(nRow, nCol, cChar)
-		if nRow >= 1 and nRow <= ring_len(@acVizCanvas) and
-		   nCol >= 1 and nCol <= ring_len(@acVizCanvas[1])
+		if nRow >= 1 and nRow <= len(@acVizCanvas) and
+		   nCol >= 1 and nCol <= len(@acVizCanvas[1])
 			@acVizCanvas[nRow][nCol] = cChar
 		ok
 	
@@ -1879,7 +1879,7 @@ class stzTimeLine from stzObject
 	
 		# Calculate needed span rows dynamically
 		nSpanRows = 0
-		if ring_len(@aSpans) > 0
+		if len(@aSpans) > 0
 			# Auto-calculate required height
 			nRequiredHeight = This._calculateRequiredVizHeight()
 			@nVizHeight = max([@nVizHeight, nRequiredHeight])
@@ -1895,7 +1895,7 @@ class stzTimeLine from stzObject
 		
 		# Point labels row (above axis, separate from spans)
 		nPointLabelsRow = 0
-		if ring_len(@aPoints) > 0
+		if len(@aPoints) > 0
 			nPointLabelsRow = nTotalRows + 1
 			nTotalRows += 1
 		ok
@@ -1906,7 +1906,7 @@ class stzTimeLine from stzObject
 		
 		# Numbers row (only if there are points or spans)
 		nNumbersRow = 0
-		if ring_len(@aPoints) > 0 or ring_len(@aSpans) > 0
+		if len(@aPoints) > 0 or len(@aSpans) > 0
 			nNumbersRow = nTotalRows + 1
 			nTotalRows += 1
 		ok
@@ -1935,7 +1935,7 @@ class stzTimeLine from stzObject
 			
 			nTimeDuration = oStart.DurationTo(cDateTime, :InSeconds)
 			
-			nCanvasWidth = ring_len(@acVizCanvas[1])
+			nCanvasWidth = len(@acVizCanvas[1])
 			nPosition = ceil((nTimeDuration * (nCanvasWidth - 2)) / nTotalDuration) + 1
 			
 			return max([1, min([nPosition, nCanvasWidth])])
@@ -1951,13 +1951,13 @@ class stzTimeLine from stzObject
 		aSorted = []
 		
 		# Add points
-		nLen = ring_len(@aPoints)
+		nLen = len(@aPoints)
 		for i = 1 to nLen
 			aSorted + ["point", @aPoints[i][1], @aPoints[i][2], @aPoints[i][1]]
 		next
 	
 		# Add span starts and ends
-		nLen = ring_len(@aSpans)
+		nLen = len(@aSpans)
 		for i = 1 to nLen
 			aSorted + ["span_start", @aSpans[i][1], @aSpans[i][2], @aSpans[i][1]]
 			aSorted + ["span_end", @aSpans[i][1], @aSpans[i][3], @aSpans[i][1]]
@@ -1968,7 +1968,7 @@ class stzTimeLine from stzObject
 		
 		# Add to timepoints with indices (starting from 1)
 		nIndex = 1
-		nLen = ring_len(aSorted)
+		nLen = len(aSorted)
 		for i = 1 to nLen
 			cType = aSorted[i][1]
 			cLabel = aSorted[i][2]
@@ -1996,7 +1996,7 @@ class stzTimeLine from stzObject
 		
 	def _sortTimepointsByDate(aItems)
 		# Manual bubble sort by datetime (index 3 in the array)
-		nLen = ring_len(aItems)
+		nLen = len(aItems)
 		
 		for i = 1 to nLen - 1
 			for j = 1 to nLen - i
@@ -2017,7 +2017,7 @@ class stzTimeLine from stzObject
 		
 	def _drawAxis(oLayout)
 	    nRow = oLayout[:axis_row]
-	    nCanvasWidth = ring_len(@acVizCanvas[1])
+	    nCanvasWidth = len(@acVizCanvas[1])
 	    
 	    # Draw start boundary
 	    _setVizChar(nRow, 1, @cBoundaryStartChar)
@@ -2038,7 +2038,7 @@ class stzTimeLine from stzObject
 		nLabelEnd = nLabelStart + nLabelLen - 1
 		
 		# Don't place if overlaps with blocked regions
-		nLen = ring_len(@aBlockedSpans)
+		nLen = len(@aBlockedSpans)
 		for i = 1 to nLen
 			nBlockStart = _timeToPosition(@aBlockedSpans[i][2])
 			nBlockEnd = _timeToPosition(@aBlockedSpans[i][3])
@@ -2048,7 +2048,7 @@ class stzTimeLine from stzObject
 		next
 		
 		# Don't place if overlaps with blocked points
-		nLen = ring_len(@aBlockedPoints)
+		nLen = len(@aBlockedPoints)
 		for i = 1 to nLen
 			nBlockPos = _timeToPosition(@aBlockedPoints[i])
 			if nBlockPos >= nLabelStart and nBlockPos <= nLabelEnd
@@ -2066,7 +2066,7 @@ class stzTimeLine from stzObject
 		ok
 		
 		aLabelsToPlace = []
-		nLen = ring_len(aTimepoints)
+		nLen = len(aTimepoints)
 	
 		for i = 1 to nLen
 			cType = aTimepoints[i][5]
@@ -2084,7 +2084,7 @@ class stzTimeLine from stzObject
 		next
 		
 		aPlaced = []
-		nLen = ring_len(aLabelsToPlace)
+		nLen = len(aLabelsToPlace)
 	
 		for i = 1 to nLen
 			nPos = aLabelsToPlace[i][1]
@@ -2095,7 +2095,7 @@ class stzTimeLine from stzObject
 			nLabelEnd = nLabelStart + nLabelLen - 1
 			
 			bCollides = FALSE
-			nLenJ = ring_len(aPlaced)
+			nLenJ = len(aPlaced)
 	
 			for j = 1 to nLenJ
 				nPlacedStart = aPlaced[j][1]
@@ -2123,7 +2123,7 @@ class stzTimeLine from stzObject
 		
 		# Count non-boundary timepoints
 		nCount = 0
-		nLen = ring_len(aTimepoints)
+		nLen = len(aTimepoints)
 		for i = 1 to nLen
 			if aTimepoints[i][1] != NULL
 				nCount++
@@ -2151,7 +2151,7 @@ class stzTimeLine from stzObject
 			
 			# Find if this position already has indices
 			nGroupPos = 0
-			nLenGroups = ring_len(aPositionGroups)
+			nLenGroups = len(aPositionGroups)
 			for j = 1 to nLenGroups
 				if aPositionGroups[j][1] = nPos
 					nGroupPos = j
@@ -2170,9 +2170,9 @@ class stzTimeLine from stzObject
 		
 		# Calculate how many extra rows we need for stacked numbers
 		nMaxIndices = 0
-		nLenGroups = ring_len(aPositionGroups)
+		nLenGroups = len(aPositionGroups)
 		for i = 1 to nLenGroups
-			nIndicesCount = ring_len(aPositionGroups[i][2])
+			nIndicesCount = len(aPositionGroups[i][2])
 			if nIndicesCount > nMaxIndices
 				nMaxIndices = nIndicesCount
 			ok
@@ -2182,10 +2182,10 @@ class stzTimeLine from stzObject
 		nRowsNeeded = ceil(nMaxIndices / 2.0)
 		
 		# Ensure canvas has enough rows
-		nCanvasHeight = ring_len(@acVizCanvas)
+		nCanvasHeight = len(@acVizCanvas)
 		nRowsToAdd = (nRow + nRowsNeeded - 1) - nCanvasHeight
 		if nRowsToAdd > 0
-			nCanvasWidth = ring_len(@acVizCanvas[1])
+			nCanvasWidth = len(@acVizCanvas[1])
 			for i = 1 to nRowsToAdd
 				aNewRow = []
 				for j = 1 to nCanvasWidth
@@ -2200,7 +2200,7 @@ class stzTimeLine from stzObject
 			nPos = aPositionGroups[i][1]
 			aIndices = aPositionGroups[i][2]
 			
-			nLenIndices = ring_len(aIndices)
+			nLenIndices = len(aIndices)
 			
 			if nLenIndices = 1
 				# Single number - draw on first row
@@ -2231,7 +2231,7 @@ class stzTimeLine from stzObject
 
 	def _drawPoints(oLayout, aTimepoints)
 	    nAxisRow = oLayout[:axis_row]
-	    nLen = ring_len(aTimepoints)
+	    nLen = len(aTimepoints)
 	
 	    # First, count ALL events at each position
 	    aPositionCounts = []  # [[position, count], ...]
@@ -2250,7 +2250,7 @@ class stzTimeLine from stzObject
 	            
 	            # Find if position already counted
 	            nFoundAt = 0
-	            nLenCounts = ring_len(aPositionCounts)
+	            nLenCounts = len(aPositionCounts)
 	            for j = 1 to nLenCounts
 	                if aPositionCounts[j][1] = nPos
 	                    nFoundAt = j
@@ -2281,7 +2281,7 @@ class stzTimeLine from stzObject
 	
 	            # Find count at this position
 	            nCount = 1
-	            nLenCounts = ring_len(aPositionCounts)
+	            nLenCounts = len(aPositionCounts)
 	            for j = 1 to nLenCounts
 	                if aPositionCounts[j][1] = nPos
 	                    nCount = aPositionCounts[j][2]
@@ -2316,7 +2316,7 @@ class stzTimeLine from stzObject
 	    
 	    # Group span starts and ends
 	    aSpanRanges = []
-	    nLen = ring_len(@aSpans)
+	    nLen = len(@aSpans)
 	
 	    for i = 1 to nLen
 	        cLabel = @aSpans[i][1]
@@ -2337,7 +2337,7 @@ class stzTimeLine from stzObject
 	        aRowUsed + []
 	    next
 	
-	    nLen = ring_len(aSpanRanges)
+	    nLen = len(aSpanRanges)
 	    for i = 1 to nLen
 	        cLabel = aSpanRanges[i][1]
 	        nStartPos = aSpanRanges[i][2]
@@ -2413,11 +2413,11 @@ class stzTimeLine from stzObject
 		
 		def _vizCanvasToString()
 			cResult = ""
-			nRows = ring_len(@acVizCanvas)
+			nRows = len(@acVizCanvas)
 			
 			for i = 1 to nRows
 				cLine = ""
-				nLen = ring_len(@acVizCanvas[i])
+				nLen = len(@acVizCanvas[i])
 				for j = 1 to nLen
 					cLine += @acVizCanvas[i][j]
 				next
@@ -2436,7 +2436,7 @@ class stzTimeLine from stzObject
 			[:NO, :TIMEPOINT, :LABEL, :DESCRIPTION]
 		]
 	
-		nLen = ring_len(aTimepoints)
+		nLen = len(aTimepoints)
 		for i = 1 to nLen
 			nIndex = aTimepoints[i][1]
 			cDateTime = aTimepoints[i][2]
@@ -2457,13 +2457,13 @@ class stzTimeLine from stzObject
 
 	def _calculateRequiredVizHeight()
 	    # Calculate maximum span overlap depth
-	    if ring_len(@aSpans) = 0
+	    if len(@aSpans) = 0
 	        return 3  # Minimum height for axis, labels, numbers
 	    ok
 	    
 	    # Sort spans by start time
 	    aSorted = This.SortedSpans()
-	    nLen = ring_len(aSorted)
+	    nLen = len(aSorted)
 	    
 	    # Track concurrent spans at each point
 	    nMaxOverlap = 0
@@ -2506,7 +2506,7 @@ class stzTimeLine from stzObject
 	     aStats + ["Timeline Duration", oDuration.ToHuman()]
 	    
 	    # Coverage calculation
-	    nLenSpans = ring_len(@aSpans)
+	    nLenSpans = len(@aSpans)
 
 	    if nLenSpans > 0
 	        nTotalDuration = This.Duration()
@@ -2542,16 +2542,16 @@ class stzTimeLine from stzObject
 	    
 	    # Gaps count
 	    aGaps = This.Gaps()
-	    aStats + ["Gaps Between Spans", ring_len(aGaps)]
+	    aStats + ["Gaps Between Spans", len(aGaps)]
 	    
 	    # Overlaps
 	    aOverlaps = This.OverlappingSpans()
-	    aStats + ["Overlapping Spans", ring_len(aOverlaps)]
+	    aStats + ["Overlapping Spans", len(aOverlaps)]
 	    
 	    # Build table
 	    aTableData = [[:METRIC, :VALUE]]
 
-	    nLen = ring_len(aStats)
+	    nLen = len(aStats)
 	    for i = 1 to nLen
 	        aTableData + [ aStats[i][1], aStats[i][2] ]
 	    next
@@ -2561,12 +2561,12 @@ class stzTimeLine from stzObject
 
 	def _drawUncoveredRegions(oLayout, aUncovered)
 	    nAxisRow = oLayout[:axis_row]
-	    nLen = ring_len(aUncovered)
-	    nCanvasWidth = ring_len(@acVizCanvas[1])
+	    nLen = len(aUncovered)
+	    nCanvasWidth = len(@acVizCanvas[1])
 	    
 	    # Collect span boundary positions to avoid
 	    aSpanPositions = []
-	    nLenSpans = ring_len(@aSpans)
+	    nLenSpans = len(@aSpans)
 	    for i = 1 to nLenSpans
 	        aSpanPositions + _timeToPosition(@aSpans[i][2])
 	        aSpanPositions + _timeToPosition(@aSpans[i][3])
@@ -2590,7 +2590,7 @@ class stzTimeLine from stzObject
 
 	def _drawBlockedSpans(oLayout, aTimepoints)
 		nAxisRow = oLayout[:axis_row]
-		nLen = ring_len(@aBlockedSpans)
+		nLen = len(@aBlockedSpans)
 		
 		for i = 1 to nLen
 			cStart = @aBlockedSpans[i][2]
@@ -2606,7 +2606,7 @@ class stzTimeLine from stzObject
 	
 	def _drawBlockedPoints(oLayout, aTimepoints)
 		nAxisRow = oLayout[:axis_row]
-		nLen = ring_len(@aBlockedPoints)
+		nLen = len(@aBlockedPoints)
 		
 		for i = 1 to nLen
 			nPos = _timeToPosition(@aBlockedPoints[i])

@@ -586,7 +586,7 @@ aExplain = oLx.Explain()
 ? "Token details:"
 
 aTokens = aExplain[4][2]
-_nTokensLen_ = ring_len(aTokens)
+_nTokensLen_ = len(aTokens)
 for i = 1 to _nTokensLen_
 	aToken = aTokens[i]
 	? "  Token #" + aToken[1][2] + ":"
@@ -669,7 +669,7 @@ oLx.DisableDebug()
 oLx = new stzListex('[@cs:@N+{1;2;3}, @S{"test"}U, @L?]')
 aInfo = oLx.TokensInfo()
 
-_nInfoLen_ = ring_len(aInfo)
+_nInfoLen_ = len(aInfo)
 for i = 1 to _nInfoLen_
 	? aInfo[i]
 next

@@ -199,7 +199,7 @@ func FastProUpdate(paList, paCommand)
 
 			anIndices = paCommand[2][1][2]
 			nValue = paCommand[2][2][2]
-			nLen = ring_len(anIndices)
+			nLen = len(anIndices)
 
 			if paCommand[2][1][1] = :Rows
 				for _i_ = 1 to nLen

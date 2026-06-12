@@ -26,7 +26,7 @@ class stzClusterMonitor
         end
 
     def CheckClusterHealth()
-        _nClusters3Len_ = ring_len(aClusters)
+        _nClusters3Len_ = len(aClusters)
         for _iLoopClusters3_ = 1 to _nClusters3Len_
         	aCluster = aClusters[_iLoopClusters3_]
             This.MonitorCluster(aCluster)
@@ -37,7 +37,7 @@ class stzClusterMonitor
         nUnhealthyNodes = 0
         
         _aClusternodes2_ = aCluster[:nodes]
-        _nClusternodes2Len_ = ring_len(_aClusternodes2_)
+        _nClusternodes2Len_ = len(_aClusternodes2_)
         for _iLoopClusternodes2_ = 1 to _nClusternodes2Len_
         	oNode = _aClusternodes2_[_iLoopClusternodes2_]
             # Update node metrics (simplified)
@@ -53,7 +53,7 @@ class stzClusterMonitor
         next
         
         # Auto-scaling logic
-        if nOverloadedNodes > ring_len(aCluster[:nodes]) / 2
+        if nOverloadedNodes > len(aCluster[:nodes]) / 2
             This.ScaleUpCluster(aCluster[:type])
         ok
 
@@ -72,7 +72,7 @@ class stzClusterMonitor
         oNewNode = new stzClusterNode(cType, cNodeId)
         
         # Add to existing cluster
-        _nClusters2Len_ = ring_len(aClusters)
+        _nClusters2Len_ = len(aClusters)
         for _iLoopClusters2_ = 1 to _nClusters2Len_
         	aCluster = aClusters[_iLoopClusters2_]
             if aCluster[:type] = cType
@@ -83,14 +83,14 @@ class stzClusterMonitor
 
     def GetHealthReport()
         aReport = []
-        _nClusters1Len_ = ring_len(aClusters)
+        _nClusters1Len_ = len(aClusters)
         for _iLoopClusters1_ = 1 to _nClusters1Len_
         	aCluster = aClusters[_iLoopClusters1_]
             nHealthy = 0
             nOverloaded = 0
             
             _aClusternodes1_ = aCluster[:nodes]
-            _nClusternodes1Len_ = ring_len(_aClusternodes1_)
+            _nClusternodes1Len_ = len(_aClusternodes1_)
             for _iLoopClusternodes1_ = 1 to _nClusternodes1Len_
             	oNode = _aClusternodes1_[_iLoopClusternodes1_]
                 if oNode.bIsHealthy nHealthy++ ok
@@ -99,10 +99,10 @@ class stzClusterMonitor
             
             aReport + [
                 :cluster_type = aCluster[:type],
-                :total_nodes = ring_len(aCluster[:nodes]),
+                :total_nodes = len(aCluster[:nodes]),
                 :healthy_nodes = nHealthy,
                 :overloaded_nodes = nOverloaded,
-                :health_percentage = (nHealthy * 100) / ring_len(aCluster[:nodes])
+                :health_percentage = (nHealthy * 100) / len(aCluster[:nodes])
             ]
         next
         
