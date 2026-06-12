@@ -9871,24 +9871,22 @@ class stzString from stzObject
 			next
 			return _aRes_
 		ok
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
 		if _nLen_ = 0 return _aRes_ ok
-		_cStart_ = _aChars_[1]
-		_cPrev_ = _aChars_[1]
+		_nStart_ = StzEngineStringCharAt(@pEngine, 1)
+		_nPrev_ = _nStart_
 		for _i_ = 2 to _nLen_
-			_cN_ = StzCharToUnicode(_aChars_[_i_])
-			_cPN_ = StzCharToUnicode(_cPrev_)
-			if _cN_ = _cPN_ + 1
-				_cPrev_ = _aChars_[_i_]
+			_nN_ = StzEngineStringCharAt(@pEngine, _i_)
+			if _nN_ = _nPrev_ + 1
+				_nPrev_ = _nN_
 			else
-				_aRes_ + [ _cStart_, _cPrev_ ]
-				_cStart_ = _aChars_[_i_]
-				_cPrev_ = _aChars_[_i_]
+				_aRes_ + [ StzChar(_nStart_), StzChar(_nPrev_) ]
+				_nStart_ = _nN_
+				_nPrev_ = _nN_
 			ok
 		next
-		_aRes_ + [ _cStart_, _cPrev_ ]
+		_aRes_ + [ StzChar(_nStart_), StzChar(_nPrev_) ]
 		return _aRes_
 
 	# FindFirstXT(pcSub, pNamed): :StartingAt/:CS named-param shim.
@@ -10796,12 +10794,11 @@ class stzString from stzObject
 
 	def FindWords()
 		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_bIn_ = FALSE
 		for _i_ = 1 to _nLen_
-			_c_ = _aChars_[_i_]
-			if _c_ = " " or _c_ = char(9) or _c_ = char(10) or _c_ = char(13)
+			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+			if _nC_ = 32 or _nC_ = 9 or _nC_ = 10 or _nC_ = 13
 				_bIn_ = FALSE
 			else
 				if NOT _bIn_
