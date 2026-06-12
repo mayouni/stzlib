@@ -11389,11 +11389,11 @@ class stzString from stzObject
 		return This._FindFrom(This.Content(), pcSub, _nFrom_ + 1)
 
 	def UnicodesPerChar()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
+		_nL_ = This._EngineCount(This.Content())
 		_aR_ = []
 		for _i_ = 1 to _nL_
-			_aR_ + [ _aChars_[_i_], This.UnicodeOfChar(_aChars_[_i_]) ]
+			_cp_ = StzEngineStringCharAt(@pEngine, _i_)
+			_aR_ + [ StzChar(_cp_), _cp_ ]
 		next
 		return _aR_
 
@@ -11494,26 +11494,10 @@ class stzString from stzObject
 		return This.NumberOfTrailingItems()
 
 	def LeadingCharsCS(pCaseSensitive)
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
-		if _nL_ = 0 return "" ok
-		_n_ = This.NumberOfLeadingItems()
-		_o_ = ""
-		for _i_ = 1 to _n_
-			_o_ += _aChars_[_i_]
-		next
-		return _o_
+		return This.LeadingChars()
 
 	def TrailingCharsCS(pCaseSensitive)
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
-		if _nL_ = 0 return "" ok
-		_n_ = This.NumberOfTrailingItems()
-		_o_ = ""
-		for _i_ = _nL_ - _n_ + 1 to _nL_
-			_o_ += _aChars_[_i_]
-		next
-		return _o_
+		return This.TrailingChars()
 
 	def RemoveRepeatedLeadingCharsW(pcCondition)
 		This.RemoveLeadingChars()
@@ -11623,14 +11607,11 @@ class stzString from stzObject
 			return This
 
 	def UnicodesXT()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
+		_nL_ = This._EngineCount(This.Content())
 		_aR_ = []
 		for _i_ = 1 to _nL_
-			_c_ = _aChars_[_i_]
-			_u_ = 0
-			if ring_len(_c_) = 1 _u_ = ascii(_c_) ok
-			_aR_ + [ _c_, _u_ ]
+			_cp_ = StzEngineStringCharAt(@pEngine, _i_)
+			_aR_ + [ StzChar(_cp_), _cp_ ]
 		next
 		return _aR_
 
