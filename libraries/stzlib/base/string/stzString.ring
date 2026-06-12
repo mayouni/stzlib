@@ -11899,20 +11899,26 @@ class stzString from stzObject
 		return new stzString(This.EachCharBoxRounded())
 
 	def FirstNonSpaceChar()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
-		for _i_ = 1 to _nL_
-			if _aChars_[_i_] != " " return _aChars_[_i_] ok
-		next
-		return ""
+		_pTl_ = StzEngineStringTrimLeft(@pEngine)
+		_n_ = StzEngineStringCount(_pTl_)
+		if _n_ = 0
+			StzEngineStringFree(_pTl_)
+			return ""
+		ok
+		_cp_ = StzEngineStringCharAt(_pTl_, 1)
+		StzEngineStringFree(_pTl_)
+		return StzChar(_cp_)
 
 	def LastNonSpaceChar()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
-		for _i_ = _nL_ to 1 step -1
-			if _aChars_[_i_] != " " return _aChars_[_i_] ok
-		next
-		return ""
+		_pTr_ = StzEngineStringTrimRight(@pEngine)
+		_n_ = StzEngineStringCount(_pTr_)
+		if _n_ = 0
+			StzEngineStringFree(_pTr_)
+			return ""
+		ok
+		_cp_ = StzEngineStringCharAt(_pTr_, _n_)
+		StzEngineStringFree(_pTr_)
+		return StzChar(_cp_)
 
 	def FindFirstNonSpaceChar()
 		return This.FirstNonSpaceCharPosition()
@@ -11921,12 +11927,12 @@ class stzString from stzObject
 		return This.LastNonSpaceCharPosition()
 
 	def FirstNonSpaceCharPosition()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
-		for _i_ = 1 to _nL_
-			if _aChars_[_i_] != " " return _i_ ok
-		next
-		return 0
+		_pTl_ = StzEngineStringTrimLeft(@pEngine)
+		_nT_ = StzEngineStringCount(_pTl_)
+		StzEngineStringFree(_pTl_)
+		_nLen_ = This._EngineCount(This.Content())
+		if _nT_ = 0 return 0 ok
+		return _nLen_ - _nT_ + 1
 
 	def LastNonSpaceCharPosition()
 		_pTr_ = StzEngineStringTrimRight(@pEngine)
