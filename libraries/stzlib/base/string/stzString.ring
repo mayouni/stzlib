@@ -6718,11 +6718,10 @@ class stzString from stzObject
 
 	# HexUnicodes(): hex codepoints for every char, returned as a list.
 	def HexUnicodes()
-		_aChars_ = This.Chars()
+		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
-		_nLen_ = ring_len(_aChars_)
 		for _i_ = 1 to _nLen_
-			_n_ = StzCharToUnicode(_aChars_[_i_])
+			_n_ = StzEngineStringCharAt(@pEngine, _i_)
 			_cHex_ = upper(hex(_n_))
 			while ring_len(_cHex_) < 4
 				_cHex_ = "0" + _cHex_
@@ -6965,27 +6964,14 @@ class stzString from stzObject
 	# pcOther (codepoint-by-codepoint).
 	def IsReverseOf(pcOther)
 		if NOT isString(pcOther) return FALSE ok
-		if This._EngineCount(This.Content()) != This._EngineCount(pcOther)
-			return FALSE
-		ok
-		_aChars_ = This.Chars()
-		_oOther_ = new stzString(pcOther)
-		_aOther_ = _oOther_.Chars()
-		_nLen_ = ring_len(_aChars_)
-		for _i_ = 1 to _nLen_
-			if _aChars_[_i_] != _aOther_[_nLen_ - _i_ + 1]
-				return FALSE
-			ok
-		next
-		return TRUE
+		return This.Content() = StzReverse(pcOther)
 
 	# HexUnicode(): hex form of the codepoint (e.g. "A" -> "0041").
 	# When the content is a single char, returns its codepoint hex;
 	# otherwise the codepoint of the first char.
 	def HexUnicode()
-		_aChars_ = This.Chars()
-		if ring_len(_aChars_) = 0 return "" ok
-		_n_ = StzCharToUnicode(_aChars_[1])
+		if This._EngineCount(This.Content()) = 0 return "" ok
+		_n_ = StzEngineStringCharAt(@pEngine, 1)
 		_cHex_ = upper(hex(_n_))
 		while ring_len(_cHex_) < 4
 			_cHex_ = "0" + _cHex_
