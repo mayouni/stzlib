@@ -2855,12 +2855,11 @@ class stzString from stzObject
 			return This
 
 	def SpacifyCharsUsing(pcSep)
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return ok
 		_cOut_ = ""
 		for _i_ = 1 to _nLen_
-			_cOut_ += _aChars_[_i_]
+			_cOut_ += StzChar(StzEngineStringCharAt(@pEngine, _i_))
 			if _i_ < _nLen_ _cOut_ += pcSep ok
 		next
 		This.Update(_cOut_)
@@ -3270,12 +3269,11 @@ class stzString from stzObject
 	# characters, walking from start by default. :StartingFrom = :End
 	# walks from the right.
 	def InsertAfterEachNChars(n, pcStr)
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if n < 1 or _nLen_ < n return ok
 		_cOut_ = ""
 		for _i_ = 1 to _nLen_
-			_cOut_ += _aChars_[_i_]
+			_cOut_ += StzChar(StzEngineStringCharAt(@pEngine, _i_))
 			if _i_ < _nLen_ and _i_ % n = 0 _cOut_ += pcStr ok
 		next
 		This.Update(_cOut_)
@@ -3296,20 +3294,10 @@ class stzString from stzObject
 			This.InsertAfterEachNChars(n, "")
 			return
 		ok
-		# Walk from the right: count chars from end, insert before
-		# each (n+1)-th to keep the "from end" intuition.
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		if n < 1 or _nLen_ < n return ok
-		_cOut_ = ""
-		for _i_ = _nLen_ to 1 step -1
-			_cOut_ = _aChars_[_i_] + _cOut_
-			if _i_ > 1 and (_nLen_ - _i_ + 1) % n = 0
-				# Nothing to insert in the bare 2-arg semantic; this
-				# remains as a forwarder for the test surface.
-			ok
-		next
-		This.Update(_cOut_)
+		# Walk from the right: no insertion in the bare 2-arg
+		# semantic; equivalent to leaving the content unchanged
+		# beyond the forward branch above.
+		return
 
 	  #============================================#
 	 #     WORDS                                   #
