@@ -555,9 +555,8 @@ class stzString from stzObject
 	# IsCircledNumber / IsCircledDigit -- Unicode-aware single-char
 	# predicates (Enclosed Alphanumerics block etc.).
 	def IsCircledNumber()
-		_aChars_ = This.Chars()
-		if ring_len(_aChars_) != 1 return FALSE ok
-		_n_ = StzCharToUnicode(_aChars_[1])
+		if This._EngineCount(This.Content()) != 1 return FALSE ok
+		_n_ = StzEngineStringCharAt(@pEngine, 1)
 		# 0x2460..0x2473 = circled 1..20
 		# 0x24EA..0x24FF = circled 0, negative-circled digits
 		# 0x2776..0x2793 = dingbat negative-circled digits
@@ -7681,10 +7680,10 @@ class stzString from stzObject
 		return _aChars_[1] = _aChars_[2]
 
 	def HasRepeatedTrailingChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return FALSE ok
-		return _aChars_[_nLen_] = _aChars_[_nLen_ - 1]
+		return StzEngineStringCharAt(@pEngine, _nLen_) =
+		       StzEngineStringCharAt(@pEngine, _nLen_ - 1)
 
 	# Except(pcSub): the content with all occurrences of pcSub removed.
 	def Except(pcSub)
@@ -7850,25 +7849,15 @@ class stzString from stzObject
 
 	# IsMadeOfNumbers(): TRUE if EVERY char is a digit.
 	def IsMadeOfNumbers()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		if _nLen_ = 0 return FALSE ok
-		for _i_ = 1 to _nLen_
-			if NOT isDigit(_aChars_[_i_]) return FALSE ok
-		next
-		return TRUE
+		if This._EngineCount(This.Content()) = 0 return FALSE ok
+		return StzEngineStringIsDigit(@pEngine) = 1
 
 	def IsMadeOfDigits()
 		return This.IsMadeOfNumbers()
 
 	def IsMadeOfLetters()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		if _nLen_ = 0 return FALSE ok
-		for _i_ = 1 to _nLen_
-			if NOT isAlpha(_aChars_[_i_]) return FALSE ok
-		next
-		return TRUE
+		if This._EngineCount(This.Content()) = 0 return FALSE ok
+		return StzEngineStringIsAlpha(@pEngine) = 1
 
 	# ReplaceManyCSQ alias.
 	def ReplaceManyCSQ(pacSubStrings, pcNewSubStr, pCaseSensitive)
@@ -11610,19 +11599,9 @@ class stzString from stzObject
 		This.RemoveRightOccurrenceQ(pcSub)
 
 	def ContainsHybridOrientation()
-		# Stub: TRUE if content mixes scripts of opposite direction
-		# (Arabic + Latin etc.) — for now, FALSE unless we detect both
-		# Arabic chars and Latin chars.
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
-		_bHasL_ = FALSE; _bHasA_ = FALSE
-		for _i_ = 1 to _nL_
-			_c_ = _aChars_[_i_]
-			if ring_len(_c_) = 1 and isAlpha(_c_) _bHasL_ = TRUE ok
-			# Arabic block U+0600..U+06FF in 2-byte UTF-8 starts 0xD8..0xDB
-			if ring_len(_c_) >= 2 _bHasA_ = TRUE ok
-		next
-		return _bHasL_ and _bHasA_
+		# TRUE iff content mixes a Latin script and an Arabic script.
+		return StzEngineStringContainsLatin(@pEngine) = 1 and
+		       StzEngineStringContainsArabic(@pEngine) = 1
 
 	def RepresentsCalculableInteger()
 		_c_ = ring_trim(This.Content())
@@ -13383,13 +13362,8 @@ class stzString from stzObject
 
 	# IsLatin(): TRUE iff every char is ASCII-Latin.
 	def IsLatin()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		if _nLen_ = 0 return FALSE ok
-		for _i_ = 1 to _nLen_
-			if NOT isAlpha(_aChars_[_i_]) return FALSE ok
-		next
-		return TRUE
+		if This._EngineCount(This.Content()) = 0 return FALSE ok
+		return StzEngineStringIsAlpha(@pEngine) = 1
 
 	def ContainsNOccurrences(n, pcSub)
 		return This.HowMany(pcSub) = n
@@ -15067,15 +15041,8 @@ class stzString from stzObject
 		return TRUE
 
 	def AllCharsArePositive()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		if _nLen_ = 0 return FALSE ok
-		for _i_ = 1 to _nLen_
-			if NOT isDigit(_aChars_[_i_]) return FALSE ok
-			_n_ = 0 + _aChars_[_i_]
-			if _n_ < 0 return FALSE ok
-		next
-		return TRUE
+		if This._EngineCount(This.Content()) = 0 return FALSE ok
+		return StzEngineStringIsDigit(@pEngine) = 1
 
 	# FindNthSTZZ / FindNthSTD / FindNthSTDZZ -- sectional / directional
 	# variants used by narratives. Reuse the singular forms.
