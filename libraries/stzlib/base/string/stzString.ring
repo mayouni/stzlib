@@ -4415,14 +4415,9 @@ class stzString from stzObject
 	# first (resp. last) char of the current content. Equivalent to the
 	# "trim run" interpretation in narrative tests.
 	def RemoveLeadingChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return ok
-		_cF_ = _aChars_[1]
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
-			_n_++
-		end
+		_n_ = StzEngineStringCountLeadingChar(@pEngine, StzEngineStringCharAt(@pEngine, 1))
 		if _n_ > 0
 			This.Update(This._EngineSliceFrom(This.Content(), _n_ + 1))
 		ok
@@ -4435,14 +4430,9 @@ class stzString from stzObject
 	# trailing) RUN of identical chars as a single string. e.g.
 	# "----Ring" -> "----". Used by narrative leading-char analysis.
 	def LeadingChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return "" ok
-		_cF_ = _aChars_[1]
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
-			_n_++
-		end
+		_n_ = StzEngineStringCountLeadingChar(@pEngine, StzEngineStringCharAt(@pEngine, 1))
 		if _n_ = 0 return "" ok
 		return This._EngineSlice(This.Content(), 1, _n_)
 
@@ -4455,14 +4445,9 @@ class stzString from stzObject
 			return ring_len(This.LeadingChars())
 
 	def TrailingChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return "" ok
-		_cL_ = _aChars_[_nLen_]
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
-			_n_++
-		end
+		_n_ = StzEngineStringCountTrailingChar(@pEngine, StzEngineStringCharAt(@pEngine, _nLen_))
 		if _n_ = 0 return "" ok
 		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
 
@@ -4515,14 +4500,9 @@ class stzString from stzObject
 			return This
 
 	def RemoveTrailingChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return ok
-		_cL_ = _aChars_[_nLen_]
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
-			_n_++
-		end
+		_n_ = StzEngineStringCountTrailingChar(@pEngine, StzEngineStringCharAt(@pEngine, _nLen_))
 		if _n_ > 0
 			This.Update(This._EngineSlice(This.Content(), 1, _nLen_ - _n_))
 		ok
