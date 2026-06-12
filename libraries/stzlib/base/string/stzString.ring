@@ -3084,15 +3084,13 @@ class stzString from stzObject
 	def ExtendToWithCharsRepeated(n)
 		# Pad out to total length n by cycling through the current
 		# content (so "abc" -> "abc abc a" when n = 8).
-		# Engine-backed: walk by codepoints so Unicode chars count as 1.
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 or n <= _nLen_ return ok
 		_cOut_ = This.Content()
 		_nOutLen_ = _nLen_
 		_iSrc_ = 1
 		while _nOutLen_ < n
-			_cOut_ += _aChars_[_iSrc_]
+			_cOut_ += StzChar(StzEngineStringCharAt(@pEngine, _iSrc_))
 			_nOutLen_++
 			_iSrc_++
 			if _iSrc_ > _nLen_ _iSrc_ = 1 ok
@@ -6192,13 +6190,14 @@ class stzString from stzObject
 	# with pcChar="_" -> [4, 8].
 	def FindSubStringsMadeOf(pcChar)
 		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
+		_nNeed_ = StzCodepoint(pcChar)
 		_i_ = 1
 		while _i_ <= _nLen_
-			if _aChars_[_i_] = pcChar
+			if StzEngineStringCharAt(@pEngine, _i_) = _nNeed_
 				_aRes_ + _i_
-				while _i_ <= _nLen_ and _aChars_[_i_] = pcChar
+				while _i_ <= _nLen_ and
+				      StzEngineStringCharAt(@pEngine, _i_) = _nNeed_
 					_i_++
 				end
 			else
@@ -6211,13 +6210,14 @@ class stzString from stzObject
 	# maximal run.
 	def FindSubStringsMadeOfZZ(pcChar)
 		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
+		_nNeed_ = StzCodepoint(pcChar)
 		_i_ = 1
 		while _i_ <= _nLen_
-			if _aChars_[_i_] = pcChar
+			if StzEngineStringCharAt(@pEngine, _i_) = _nNeed_
 				_nS_ = _i_
-				while _i_ <= _nLen_ and _aChars_[_i_] = pcChar
+				while _i_ <= _nLen_ and
+				      StzEngineStringCharAt(@pEngine, _i_) = _nNeed_
 					_i_++
 				end
 				_aRes_ + [ _nS_, _i_ - 1 ]
