@@ -9491,13 +9491,7 @@ class stzString from stzObject
 
 	# FindSpaces() / FindEmptyStrings(): positions of every " ".
 	def FindSpaces()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_aRes_ = []
-		for _i_ = 1 to _nLen_
-			if _aChars_[_i_] = " " _aRes_ + _i_ ok
-		next
-		return _aRes_
+		return This.FindAll(" ")
 
 	def FindEmptyStrings()
 		# A string is "empty" at a position if the codepoint is a
@@ -10544,18 +10538,24 @@ class stzString from stzObject
 		return This.NumberOfOccurrenceXT(pNamed, pNamed2)
 
 	def IsSortedInAscending()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ < 2 return TRUE ok
+		_nPrev_ = StzEngineStringCharAt(@pEngine, 1)
 		for _i_ = 2 to _nLen_
-			if strcmp(_aChars_[_i_], _aChars_[_i_ - 1]) < 0 return FALSE ok
+			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+			if _nC_ < _nPrev_ return FALSE ok
+			_nPrev_ = _nC_
 		next
 		return TRUE
 
 	def IsSortedInDescending()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ < 2 return TRUE ok
+		_nPrev_ = StzEngineStringCharAt(@pEngine, 1)
 		for _i_ = 2 to _nLen_
-			if strcmp(_aChars_[_i_], _aChars_[_i_ - 1]) > 0 return FALSE ok
+			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+			if _nC_ > _nPrev_ return FALSE ok
+			_nPrev_ = _nC_
 		next
 		return TRUE
 
