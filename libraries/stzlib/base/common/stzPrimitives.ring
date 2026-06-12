@@ -142,6 +142,16 @@ func _ParseCSVNumbers(cCSV)
 func StzChar(nCodepoint)
 	return StzEngineUnicodeEncode(nCodepoint)
 
+#-- Codepoint of the first character (inverse of StzChar). Unicode-aware
+#   replacement for byte-only Ring ascii() when the char may be multi-byte.
+
+func StzCodepoint(cChar)
+	if NOT isString(cChar) or cChar = "" return 0 ok
+	pH = StzEngineString(cChar)
+	n = StzEngineStringCharAt(pH, 1)
+	StzEngineStringFree(pH)
+	return n
+
 #-- String reverse (codepoint-aware, not byte-reverse)
 
 func StzReverse(cStr)
