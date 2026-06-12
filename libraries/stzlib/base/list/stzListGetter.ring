@@ -97,7 +97,7 @@ class stzListGetter
 
 	def ItemsAtPositions(panPositions)
 		_aIapResult_ = []
-		_nIapLen_ = ring_len(panPositions)
+		_nIapLen_ = len(panPositions)
 		for _iIap_ = 1 to _nIapLen_
 			@AddItem(_aIapResult_, This.List()[panPositions[_iIap_]])
 		next
@@ -175,7 +175,7 @@ class stzListGetter
 			StzEngineListFree(_pNriList_)
 		ok
 		_aNriContent_ = This.Content()
-		_nNriLen_ = ring_len(_aNriContent_)
+		_nNriLen_ = len(_aNriContent_)
 		if n >= _nNriLen_
 			_aNriAll_ = []
 			for _iNri_ = 1 to _nNriLen_
@@ -212,7 +212,7 @@ class stzListGetter
 
 	def EveryNthItem(n)
 		_aEniContent_ = This.Content()
-		_nEniLen_ = ring_len(_aEniContent_)
+		_nEniLen_ = len(_aEniContent_)
 		_aEniResult_ = []
 		for _iEni_ = n to _nEniLen_ step n
 			@AddItem(_aEniResult_, _aEniContent_[_iEni_])
@@ -247,7 +247,7 @@ class stzListGetter
 
 	def OnlyStrings()
 		_aOsContent_ = This.Content()
-		_nOsLen_ = ring_len(_aOsContent_)
+		_nOsLen_ = len(_aOsContent_)
 		_aOsResult_ = []
 		for _iOs_ = 1 to _nOsLen_
 			if isString(_aOsContent_[_iOs_])
@@ -258,7 +258,7 @@ class stzListGetter
 
 	def OnlyNumbers()
 		_aOnContent_ = This.Content()
-		_nOnLen_ = ring_len(_aOnContent_)
+		_nOnLen_ = len(_aOnContent_)
 		_aOnResult_ = []
 		for _iOn_ = 1 to _nOnLen_
 			if isNumber(_aOnContent_[_iOn_])
@@ -269,7 +269,7 @@ class stzListGetter
 
 	def OnlyLists()
 		_aOlContent_ = This.Content()
-		_nOlLen_ = ring_len(_aOlContent_)
+		_nOlLen_ = len(_aOlContent_)
 		_aOlResult_ = []
 		for _iOl_ = 1 to _nOlLen_
 			if isList(_aOlContent_[_iOl_])
@@ -280,10 +280,10 @@ class stzListGetter
 
 	def OnlyChars()
 		_aOcContent_ = This.Content()
-		_nOcLen_ = ring_len(_aOcContent_)
+		_nOcLen_ = len(_aOcContent_)
 		_aOcResult_ = []
 		for _iOc_ = 1 to _nOcLen_
-			if isString(_aOcContent_[_iOc_]) and ring_len(_aOcContent_[_iOc_]) = 1
+			if isString(_aOcContent_[_iOc_]) and len(_aOcContent_[_iOc_]) = 1
 				@AddItem(_aOcResult_, _aOcContent_[_iOc_])
 			ok
 		next
@@ -295,7 +295,7 @@ class stzListGetter
 
 	def Pairs()
 		_aPrContent_ = This.Content()
-		_nPrLen_ = ring_len(_aPrContent_)
+		_nPrLen_ = len(_aPrContent_)
 		_aPrResult_ = []
 		for _iPr_ = 1 to _nPrLen_ - 1
 			@AddItem(_aPrResult_, [_aPrContent_[_iPr_], _aPrContent_[_iPr_ + 1]])
@@ -307,7 +307,7 @@ class stzListGetter
 
 	def Triplets()
 		_aTrContent_ = This.Content()
-		_nTrLen_ = ring_len(_aTrContent_)
+		_nTrLen_ = len(_aTrContent_)
 		_aTrResult_ = []
 		for _iTr_ = 1 to _nTrLen_ - 2
 			@AddItem(_aTrResult_, [_aTrContent_[_iTr_], _aTrContent_[_iTr_ + 1], _aTrContent_[_iTr_ + 2]])

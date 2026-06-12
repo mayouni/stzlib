@@ -14,7 +14,7 @@ oLists = new stzListOfLists([
 ])
 aCommon = oLists.CommonItems()
 ? "CommonItems of 3 lists: " + len(aCommon) + " items"
-_nCommon1Len_ = ring_len(aCommon)
+_nCommon1Len_ = len(aCommon)
 for _iLoopCommon1_ = 1 to _nCommon1Len_
 	item = aCommon[_iLoopCommon1_]
 	? "  " + item

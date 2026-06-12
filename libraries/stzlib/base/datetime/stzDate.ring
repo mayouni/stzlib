@@ -226,7 +226,7 @@ func StzGetDayNameXT(nDayOfWeek, cLanguage)
         cLanguage = $cCurrentLanguage
     ok
 
-    _nDayNames2Len_ = ring_len($aDayNames)
+    _nDayNames2Len_ = len($aDayNames)
     for _iLoopDayNames2_ = 1 to _nDayNames2Len_
     	aLang = $aDayNames[_iLoopDayNames2_]
         if aLang[1] = cLanguage
@@ -234,7 +234,7 @@ func StzGetDayNameXT(nDayOfWeek, cLanguage)
         ok
     next
 
-    _nDayNames1Len_ = ring_len($aDayNames)
+    _nDayNames1Len_ = len($aDayNames)
     for _iLoopDayNames1_ = 1 to _nDayNames1Len_
     	aLang = $aDayNames[_iLoopDayNames1_]
         if aLang[1] = :English
@@ -262,7 +262,7 @@ func StzGetMonthNameInLanguage(nMonth, cLanguage)
         cLanguage = $cCurrentLanguage
     ok
 
-    _nMonthNames2Len_ = ring_len($aMonthNames)
+    _nMonthNames2Len_ = len($aMonthNames)
     for _iLoopMonthNames2_ = 1 to _nMonthNames2Len_
     	aLang = $aMonthNames[_iLoopMonthNames2_]
         if aLang[1] = cLanguage
@@ -270,7 +270,7 @@ func StzGetMonthNameInLanguage(nMonth, cLanguage)
         ok
     next
 
-    _nMonthNames1Len_ = ring_len($aMonthNames)
+    _nMonthNames1Len_ = len($aMonthNames)
     for _iLoopMonthNames1_ = 1 to _nMonthNames1Len_
     	aLang = $aMonthNames[_iLoopMonthNames1_]
         if aLang[1] = :English
@@ -429,7 +429,7 @@ class stzDate from stzObject
 		This.SetDate(pcDate)
 
 	def SetDate(pcDate)
-	    if isList(pcDate) and ring_len(pcDate) = 3
+	    if isList(pcDate) and len(pcDate) = 3
 	        if IsListOfNumbers(pcDate)
 		    @nYear = pcDate[1]
 		    @nMonth = pcDate[2]
@@ -449,7 +449,7 @@ class stzDate from stzObject
 	    ok
 
 	    cDate = StzLower(trim(pcDate))
-	    nLenDate = ring_len(cDate)
+	    nLenDate = len(cDate)
 
 
 	    if cDate = ''
@@ -597,12 +597,12 @@ class stzDate from stzObject
         cDate = trim(cDate)
 
         aSeparators = ["/", "-", "."]
-        _nSeparators1Len_ = ring_len(aSeparators)
+        _nSeparators1Len_ = len(aSeparators)
         for _iLoopSeparators1_ = 1 to _nSeparators1Len_
         	cSep = aSeparators[_iLoopSeparators1_]
             if StzFind(cDate, cSep) > 0
                 aParts = @split(cDate, cSep)
-                if ring_len(aParts) = 3
+                if len(aParts) = 3
                     nA = 0 + aParts[1]
                     nB = 0 + aParts[2]
                     nC = 0 + aParts[3]
@@ -1088,7 +1088,7 @@ def LastWeekdayOfMonth()
 
     def DaysTo(oOtherDate)
 
-	if isList(oOtherDate) and ring_len(oOtherDate) = 3
+	if isList(oOtherDate) and len(oOtherDate) = 3
 		if IsListOfNumbers(oOtherDate)
 			cOtherDate = '' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3]
 			oOtherDate = cOtherDate
@@ -1140,7 +1140,7 @@ def LastWeekdayOfMonth()
 		return this.WeeksTo(oOtherDate)
 
     def MonthsTo(oOtherDate)
-        if isList(oOtherDate) and ring_len(oOtherDate) = 3
+        if isList(oOtherDate) and len(oOtherDate) = 3
 	        if IsListOfNumbers(oOtherDate)
 	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
 	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
@@ -1167,7 +1167,7 @@ def LastWeekdayOfMonth()
 		return This.MonthsTo(oOtherDate)
 
     def YearsTo(oOtherDate)
-        if isList(oOtherDate) and ring_len(oOtherDate) = 3
+        if isList(oOtherDate) and len(oOtherDate) = 3
 	        if IsListOfNumbers(oOtherDate)
 	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
 	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
@@ -1204,7 +1204,7 @@ def LastWeekdayOfMonth()
 			return This.DaysTo(oOtherDate) = 0
 
     def IsSameWeek(oOtherDate)
-	    if isList(oOtherDate) and ring_len(oOtherDate) = 3
+	    if isList(oOtherDate) and len(oOtherDate) = 3
 	        if IsListOfNumbers(oOtherDate)
 	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
 	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
@@ -1218,7 +1218,7 @@ def LastWeekdayOfMonth()
         return This.WeekNumber() = oOtherDate.WeekNumber() and This.YearN() = oOtherDate.YearN()
 
     def IsSameMonth(oOtherDate)
-	    if isList(oOtherDate) and ring_len(oOtherDate) = 3
+	    if isList(oOtherDate) and len(oOtherDate) = 3
 	        if IsListOfNumbers(oOtherDate)
 	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
 	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
@@ -1232,7 +1232,7 @@ def LastWeekdayOfMonth()
         return This.MonthN() = oOtherDate.MonthN() and This.YearN() = oOtherDate.YearN()
 
     def IsSameYear(oOtherDate)
-	    if isList(oOtherDate) and ring_len(oOtherDate) = 3
+	    if isList(oOtherDate) and len(oOtherDate) = 3
 	        if IsListOfNumbers(oOtherDate)
 	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
 	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
@@ -1490,7 +1490,7 @@ def LastWeekdayOfMonth()
         ok
 
         cLowerFormat = StzLower(cFormat)
-        _nDateFormats1Len_ = ring_len($aDateFormats)
+        _nDateFormats1Len_ = len($aDateFormats)
         for _iLoopDateFormats1_ = 1 to _nDateFormats1Len_
         	aFormat = $aDateFormats[_iLoopDateFormats1_]
             if StzLower(aFormat[1]) = cLowerFormat
@@ -1548,7 +1548,7 @@ def LastWeekdayOfMonth()
 		ok
 	ok
 
-        if isList(oStartDate) and ring_len(oStartDate) = 3
+        if isList(oStartDate) and len(oStartDate) = 3
 	        if IsListOfNumbers(oStartDate)
 	            oStartDate = new stzDate('' + oStartDate[1] + "-" + oStartDate[2] + "-" + oStartDate[3])
 	        but IsHashList(oStartDate) and HasKeys(oStartDate, [ :Year, :Month, :Day ])
@@ -1556,7 +1556,7 @@ def LastWeekdayOfMonth()
 	        ok
         ok
 
-        if isList(oEndDate) and ring_len(oEndDate) = 3
+        if isList(oEndDate) and len(oEndDate) = 3
 	        if IsListOfNumbers(oEndDate)
 	            oEndDate = new stzDate('' + oEndDate[1] + "-" + oEndDate[2] + "-" + oEndDate[3])
 	        but IsHashList(oEndDate) and HasKeys(oEndDate, [ :Year, :Month, :Day ])
@@ -1580,7 +1580,7 @@ def LastWeekdayOfMonth()
     #--- UTILITY METHODS ---#
 
     def SetComponents(aDate)
-        if isList(aDate) and ring_len(aDate) = 3
+        if isList(aDate) and len(aDate) = 3
             @nYear = aDate[1]
             @nMonth = aDate[2]
             @nDay = aDate[3]
@@ -1606,7 +1606,7 @@ def LastWeekdayOfMonth()
    func ExtractValueAndUnit(cExpression)
 	    cExpression = StzLower(trim(cExpression))
 	    acWords = @split(cExpression, " ")
-	    if ring_len(acWords) < 2
+	    if len(acWords) < 2
 
 	        return NULL
 	    ok

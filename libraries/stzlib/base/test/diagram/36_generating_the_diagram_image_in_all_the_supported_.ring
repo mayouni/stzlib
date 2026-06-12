@@ -14,7 +14,7 @@ pr()
 acThemes = [ "neutral", "light", "dark", "vibrant", "pro",
 	     "access", "print", "gray", "lightgray", "darkgray"]
 
-_nAcThemes1Len_ = ring_len(acThemes)
+_nAcThemes1Len_ = len(acThemes)
 for _iLoopAcThemes1_ = 1 to _nAcThemes1Len_
 	cTheme = acThemes[_iLoopAcThemes1_]
 	oDiag = new stzDiagram("Theme_" + cTheme)

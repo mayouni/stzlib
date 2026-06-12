@@ -42,7 +42,7 @@ func StzIsTime(str)
         ok
     ok
 
-    _nPartsLen_ = ring_len(aParts)
+    _nPartsLen_ = len(aParts)
     for i = 1 to _nPartsLen_
         cPart = aParts[i]
         if i = len(aParts) and StzFind(cPart, ".")
@@ -153,7 +153,7 @@ class stzTime from stzObject
         ok
 
         aParts = split(cTime, ":")
-        if ring_len(aParts) < 2 or ring_len(aParts) > 3
+        if len(aParts) < 2 or len(aParts) > 3
             StzRaise("Cannot parse time string: " + cTime)
         ok
 
@@ -162,12 +162,12 @@ class stzTime from stzObject
         nS = 0
         nMs = 0
 
-        if ring_len(aParts) = 3
+        if len(aParts) = 3
             cSecPart = aParts[3]
             if StzFind(cSecPart, ".")
                 aSubParts = split(cSecPart, ".")
                 nS = 0+ aSubParts[1]
-                if ring_len(aSubParts) > 1
+                if len(aSubParts) > 1
                     nMs = 0+ aSubParts[2]
                 ok
             else
@@ -588,7 +588,7 @@ class stzTime from stzObject
 
 		ok
 
-        _nTimeFormats1Len_ = ring_len($aTimeFormats)
+        _nTimeFormats1Len_ = len($aTimeFormats)
         for _iLoopTimeFormats1_ = 1 to _nTimeFormats1Len_
         	aFormat = $aTimeFormats[_iLoopTimeFormats1_]
             if StzLower(aFormat[1]) = cLowerFormat

@@ -152,7 +152,7 @@ Class stzTable from stzList
 			# 	:SALARY   = []
 			#    ]
 
-			_nTableLen_ = ring_len(paTable)
+			_nTableLen_ = len(paTable)
 			for r = 2 to _nTableLen_
 				i = 0
 				nLen = len(paTable[r])
@@ -184,7 +184,7 @@ Class stzTable from stzList
 			aTempTable = []
 
 			acColNames = []
-			_nTable1Len_ = ring_len(paTable[1])
+			_nTable1Len_ = len(paTable[1])
 			for i = 1 to _nTable1Len_
 				acColNames + ("col" + i)
 			next
@@ -286,7 +286,7 @@ Class stzTable from stzList
 		ok
 		for i = 1 to nLen
 			aCol = @aContent[i][2]
-			_nColLen_ = ring_len(aCol)
+			_nColLen_ = len(aCol)
 			for j = 1 to _nColLen_
 				if aCol[j] != NULL
 					return 0
@@ -1017,7 +1017,7 @@ Class stzTable from stzList
 
 	def AddColumn(pacColNameAndData)
 		if NOT ( isList(pacColNameAndData) and
-			 ring_len(pacColNameAndData) = 2 and
+			 len(pacColNameAndData) = 2 and
 			 isString(pacColNameAndData[1]) and
 			 isList(pacColNameAndData[2]) )
 			StzRaise("Incorrect column format! pacColNameAndData must be [:cColName = [...]].")
@@ -1025,7 +1025,7 @@ Class stzTable from stzList
 		if This.IsColName(pacColNameAndData[1])
 			StzRaise("Can't add the column! The name you provided already exists.")
 		ok
-		nLen = ring_len(pacColNameAndData[2])
+		nLen = len(pacColNameAndData[2])
 		nRows = This.NumberOfRows()
 		if nLen < nRows
 			for i = nLen+1 to nRows
@@ -1044,7 +1044,7 @@ Class stzTable from stzList
 
 	# Word-order alias used by narrative tests.
 	def ColName(n)
-		if n < 1 or n > ring_len(@aContent)
+		if n < 1 or n > len(@aContent)
 			StzRaise("Column index out of range.")
 		ok
 		return @aContent[n][1]
@@ -1056,7 +1056,7 @@ Class stzTable from stzList
 	# array. Forwarded version of stzTableFinder.FindRow.
 	def FindRowCS(paRow, pCaseSensitive)
 		_aRowsLocal_ = This.Rows()
-		_nLenRowsLocal_ = ring_len(_aRowsLocal_)
+		_nLenRowsLocal_ = len(_aRowsLocal_)
 		_aResultLocal_ = []
 		for _iFrLocal_ = 1 to _nLenRowsLocal_
 			if _aRowsLocal_[_iFrLocal_] = paRow
@@ -1078,7 +1078,7 @@ Class stzTable from stzList
 		# Strip a trailing :CS=... if the caller bundled three args.
 		_pValue_ = pValueOrNamed
 		_bSub_ = FALSE
-		if isList(_pValue_) and ring_len(_pValue_) = 2 and isString(_pValue_[1])
+		if isList(_pValue_) and len(_pValue_) = 2 and isString(_pValue_[1])
 			_cKey_ = lower(_pValue_[1])
 			if _cKey_ = "value"
 				_pValue_ = _pValue_[2]
@@ -1087,7 +1087,7 @@ Class stzTable from stzList
 				_bSub_ = TRUE
 			ok
 		ok
-		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2 and
+		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and
 		   isString(pCaseSensitive[1]) and lower(pCaseSensitive[1]) = "cs"
 			pCaseSensitive = pCaseSensitive[2]
 		ok
@@ -1095,7 +1095,7 @@ Class stzTable from stzList
 		_nColIdx_ = This.FindCol(pCol)
 		if _nColIdx_ = 0 return [] ok
 		_aColData_ = @aContent[_nColIdx_][2]
-		_nLenCol_ = ring_len(_aColData_)
+		_nLenCol_ = len(_aColData_)
 		_aRes_ = []
 		for _iFcLocal_ = 1 to _nLenCol_
 			_cell_ = _aColData_[_iFcLocal_]
@@ -1126,7 +1126,7 @@ Class stzTable from stzList
 	# ContainsCell(pCol, pValue) -- TRUE if any cell in column pCol
 	# equals pValue.
 	def ContainsCell(pCol, pValue)
-		return ring_len(This.FindInCol(pCol, pValue)) > 0
+		return len(This.FindInCol(pCol, pValue)) > 0
 
 		def ContainsCellInCol(pCol, pValue)
 			return This.ContainsCell(pCol, pValue)
@@ -1134,7 +1134,7 @@ Class stzTable from stzList
 	# NumberOfOccurrenceInCol -- count cells in column pCol matching
 	# pValueOrNamed. Accepts bare value / :Value / :OfValue / :OfSubValue.
 	def NumberOfOccurrenceInCol(pCol, pValueOrNamed)
-		return ring_len(This.FindInCol(pCol, _NormalizeColLookupKey(pValueOrNamed)))
+		return len(This.FindInCol(pCol, _NormalizeColLookupKey(pValueOrNamed)))
 
 		def NumberOfOccurrencesInCol(pCol, pValueOrNamed)
 			return This.NumberOfOccurrenceInCol(pCol, pValueOrNamed)
@@ -1147,7 +1147,7 @@ Class stzTable from stzList
 	def NumberOfOccurrenceInRow(nRow, pValue)
 		_pVal_ = _NormalizeColLookupKey(pValue)
 		_bSub_ = FALSE
-		if isList(pValue) and ring_len(pValue) = 2 and isString(pValue[1]) and
+		if isList(pValue) and len(pValue) = 2 and isString(pValue[1]) and
 		   lower(pValue[1]) = "ofsubvalue"
 			_bSub_ = TRUE
 		ok
@@ -1173,7 +1173,7 @@ Class stzTable from stzList
 	def NumberOfOccurrenceInCell(nCol, nRow, pValue)
 		_pVal_ = _NormalizeColLookupKey(pValue)
 		_bSub_ = FALSE
-		if isList(pValue) and ring_len(pValue) = 2 and isString(pValue[1]) and
+		if isList(pValue) and len(pValue) = 2 and isString(pValue[1]) and
 		   lower(pValue[1]) = "ofsubvalue"
 			_bSub_ = TRUE
 		ok
@@ -1191,7 +1191,7 @@ Class stzTable from stzList
 	# listed columns.
 	def NumberOfOccurrenceInCols(acCols, pValue)
 		_nTot_ = 0
-		_nLen_ = ring_len(acCols)
+		_nLen_ = len(acCols)
 		for _i_ = 1 to _nLen_
 			_nTot_ += This.NumberOfOccurrenceInCol(acCols[_i_], pValue)
 		next
@@ -1202,8 +1202,8 @@ Class stzTable from stzList
 
 	# NumberOfOccurrenceXT(:InCol/:InRow/:InCell/:InCols + :OfValue/:OfSubValue)
 	def NumberOfOccurrenceXT(p1, p2)
-		if NOT (isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
-		        isList(p2) and ring_len(p2) = 2 and isString(p2[1]))
+		if NOT (isList(p1) and len(p1) = 2 and isString(p1[1]) and
+		        isList(p2) and len(p2) = 2 and isString(p2[1]))
 			StzRaise("NumberOfOccurrenceXT: expects two named-param lists.")
 		ok
 		_cWhere_ = lower(p1[1])
@@ -1213,7 +1213,7 @@ Class stzTable from stzList
 		but _cWhere_ = "inrow"
 			return This.NumberOfOccurrenceInRow(_xTgt_, p2)
 		but _cWhere_ = "incell"
-			if NOT (isList(_xTgt_) and ring_len(_xTgt_) = 2)
+			if NOT (isList(_xTgt_) and len(_xTgt_) = 2)
 				StzRaise(":InCell expects [nCol, nRow].")
 			ok
 			return This.NumberOfOccurrenceInCell(_xTgt_[1], _xTgt_[2], p2)
@@ -1232,7 +1232,7 @@ Class stzTable from stzList
 	def Fill(pValue)
 		_nCols_ = This.NumberOfCols()
 		for _i_ = 1 to _nCols_
-			_nRows_ = ring_len(@aContent[_i_][2])
+			_nRows_ = len(@aContent[_i_][2])
 			for _j_ = 1 to _nRows_
 				@aContent[_i_][2][_j_] = pValue
 			next
@@ -1247,17 +1247,17 @@ Class stzTable from stzList
 	# given [colIdx, rowIdx] section pairs. Accepts the :With named
 	# param or a bare value as 2nd arg.
 	def FillSections(aSections, pWith)
-		if isList(pWith) and ring_len(pWith) = 2 and isString(pWith[1]) and
+		if isList(pWith) and len(pWith) = 2 and isString(pWith[1]) and
 		   lower(pWith[1]) = "with"
 			pWith = pWith[2]
 		ok
-		_nLen_ = ring_len(aSections)
+		_nLen_ = len(aSections)
 		for _i_ = 1 to _nLen_
 			_sec_ = aSections[_i_]
-			if isList(_sec_) and ring_len(_sec_) = 2
+			if isList(_sec_) and len(_sec_) = 2
 				_c_ = _sec_[1]; _r_ = _sec_[2]
-				if _c_ >= 1 and _c_ <= ring_len(@aContent) and
-				   _r_ >= 1 and _r_ <= ring_len(@aContent[_c_][2])
+				if _c_ >= 1 and _c_ <= len(@aContent) and
+				   _r_ >= 1 and _r_ <= len(@aContent[_c_][2])
 					@aContent[_c_][2][_r_] = pWith
 				ok
 			ok
@@ -1267,7 +1267,7 @@ Class stzTable from stzList
 	# RemoveCols(acColsOrNumbers) -- remove every column whose name
 	# or 1-based number is listed.
 	def RemoveCols(acCols)
-		_nLen_ = ring_len(acCols)
+		_nLen_ = len(acCols)
 		# Remove in two passes: resolve to indices first (since removal
 		# shifts subsequent indices), then sort descending so we delete
 		# from the right.
@@ -1278,7 +1278,7 @@ Class stzTable from stzList
 		next
 		# Sort descending
 		_aSorted_ = _anIdx_
-		_nSL_ = ring_len(_aSorted_)
+		_nSL_ = len(_aSorted_)
 		for _i_ = 2 to _nSL_
 			_v_ = _aSorted_[_i_]
 			_j_ = _i_ - 1
@@ -1299,7 +1299,7 @@ Class stzTable from stzList
 # Helper: normalise a column lookup key. Accepts bare value, :Value=...,
 # :OfValue=..., :OfSubValue=...
 func _NormalizeColLookupKey(pVal)
-	if isList(pVal) and ring_len(pVal) = 2 and isString(pVal[1])
+	if isList(pVal) and len(pVal) = 2 and isString(pVal[1])
 		_k_ = lower(pVal[1])
 		if _k_ = "value" or _k_ = "ofvalue" or _k_ = "subvalue" or _k_ = "ofsubvalue"
 			return pVal[2]

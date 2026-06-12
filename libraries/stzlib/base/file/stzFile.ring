@@ -973,7 +973,7 @@ class stzFileInfo from stzObject
 
     def IsHidden()
         cBase = StzEnginePathBasename(@cFileName)
-        if ring_len(cBase) > 0 and StzLeft(cBase, 1) = "."
+        if len(cBase) > 0 and StzLeft(cBase, 1) = "."
             return 1
         ok
         return 0
@@ -1070,13 +1070,13 @@ class stzFileReadingMixin from stzObject
         return aLines[StzLen(aLines)]
     
     def NumberOfLines()
-        return ring_len(This.Lines())
+        return len(This.Lines())
     
 		def HowManyLine()
-			return ring_len(This.Lines())
+			return len(This.Lines())
 
 		def CountLines()
-			return ring_len(This.Lines())
+			return len(This.Lines())
 
     def ContentAsBytes()
         return StzListOfBytesQ(This.Content())
@@ -1113,7 +1113,7 @@ class stzFileReadingMixin from stzObject
     def LinesContaining(cSearchText)
         aLines = This.Lines()
         aResult = []
-	   nLen = ring_len(aLines)
+	   nLen = len(aLines)
         for i = 1 to nLen
             if StzFind(aLines[i], cSearchText) > 0
                 aResult + [i, aLines[i]]
@@ -1124,7 +1124,7 @@ class stzFileReadingMixin from stzObject
     def LineNumber(cSearchText)
         # Returns line number containing the text
         aLines = This.Lines()
-	   nLen = ring_len(aLines)
+	   nLen = len(aLines)
         for i = 1 to nLen
             if StzFind(aLines[i], cSearchText) > 0
                 return i
@@ -1229,7 +1229,7 @@ class stzFileAppender from stzFileReadingMixin
 			return This
 
     def WriteLines(aLines)
-	   nLen = ring_len(aLines)
+	   nLen = len(aLines)
         for i = 1 to nLen
             This.WriteLine(aLines[i])
         next
@@ -1355,7 +1355,7 @@ class stzFileCreator from stzFileReadingMixin
 		return This
 
     def WriteLines(aLines)
-	   	nLen = ring_len(aLines)
+	   	nLen = len(aLines)
         for i = 1 to nLen
             This.WriteLine(aLines[i])
         next
@@ -1471,13 +1471,13 @@ class stzFileOverwriter from stzFileReadingMixin
         return @Lines(@cOriginalContent)
 
     def OriginalSize()
-        return ring_len(@cOriginalContent)
+        return len(@cOriginalContent)
 
 		def OriginalSizeInBytes()
 			return This.OriginalSize()
 
     def OriginalLineCount()
-        return ring_len(This.OriginalLines())
+        return len(This.OriginalLines())
 
 		def OriginalNumberOfLines()
 			return This.OriginalLineCount()
@@ -1505,7 +1505,7 @@ class stzFileOverwriter from stzFileReadingMixin
 			return This
 
     def WriteLines(aLines)
-		nLen = ring_len(aLines)
+		nLen = len(aLines)
         for i = 1 to nLen
             This.WriteLine(aLines[i])
         next
@@ -1518,7 +1518,7 @@ class stzFileOverwriter from stzFileReadingMixin
     def WriteHeader(cTitle)
         This.WriteLine("# " + cTitle)
         This.WriteLine("# Updated: " + StzTimeStamp())
-        This.WriteLine("#" + RepeatChar("=", ring_len(cTitle) + 2))
+        This.WriteLine("#" + RepeatChar("=", len(cTitle) + 2))
         This.WriteBlankLine()
     	return 1
 
@@ -1591,13 +1591,13 @@ class stzFileEaraser from stzObject
         return @Lines(@cOriginalContent)
 
     def OriginalSize()
-        return ring_len(@cOriginalContent)
+        return len(@cOriginalContent)
 
 		def OriginalSizeInBytes()
 			return This.OriginalSize()
 
     def OriginalLineCount()
-        return ring_len(This.OriginalLines())
+        return len(This.OriginalLines())
 
 		def OriginalNumberOfLines()
 			return This.OriginalLineCount()
@@ -1635,7 +1635,7 @@ class stzFileModifier from stzFileReadingMixin
         @cFileName = cFileName
         @cOriginalContent = read(cFileName)
 
-        if @cOriginalContent = NULL or ring_len(@cOriginalContent) = 0
+        if @cOriginalContent = NULL or len(@cOriginalContent) = 0
             @cOriginalContent = ""
             @aOriginalLines = []
         else
@@ -1669,13 +1669,13 @@ class stzFileModifier from stzFileReadingMixin
         return @aOriginalLines
     
     def OriginalSize()
-        return ring_len(@cOriginalContent)
+        return len(@cOriginalContent)
     
     def OriginalSizeInBytes()
         return This.OriginalSize()
 
     def OriginalLineCount()
-        return ring_len(@aOriginalLines)
+        return len(@aOriginalLines)
     
     def NumberOfOriginalLines()
         return This.OriginalLineCount()
@@ -1722,7 +1722,7 @@ class stzFileModifier from stzFileReadingMixin
 
 	def InsertLineAt(nPos, cNewLine)
 	    aLines = @aOriginalLines
-	    nLen = ring_len(aLines)
+	    nLen = len(aLines)
 
 	    # Handle empty file case
 	    if nLen = 0
@@ -1768,11 +1768,11 @@ class stzFileModifier from stzFileReadingMixin
 	    aLines = @aOriginalLines
   
 	    # Handle empty file case
-	    if ring_len(aLines) = 0
+	    if len(aLines) = 0
 	        StzRaise("Cannot insert line in empty file - use ReplaceAllContent() instead")
 	    ok
 	    
-	    This.InsertLineAt(ring_len(aLines) + 1, cNewLine)
+	    This.InsertLineAt(len(aLines) + 1, cNewLine)
 		return 1
 
 		#< @FunctionFluentForm
@@ -1811,7 +1811,7 @@ class stzFileModifier from stzFileReadingMixin
 
     def RemoveLine(nLineNumber)
         aLines = @aOriginalLines
-        if nLineNumber >= 1 and nLineNumber <= ring_len(aLines)
+        if nLineNumber >= 1 and nLineNumber <= len(aLines)
             del(aLines, nLineNumber)
             cNewContent = JoinXT(aLines, NL)
             This.ModifyAllContent(cNewContent)
@@ -1844,7 +1844,7 @@ class stzFileModifier from stzFileReadingMixin
 			return This.RemoveFirstLineQ()
 
     def RemoveLastLine()
-        This.RemoveLine(ring_len(@aOriginalLines))
+        This.RemoveLine(len(@aOriginalLines))
     	return 1
 
 	    def RemoveLastLineQ()
@@ -1859,7 +1859,7 @@ class stzFileModifier from stzFileReadingMixin
 
 	def FindLinesContaining(cSearchText)
         aLines = @aOriginalLines
-        nLen = ring_len(aLines)
+        nLen = len(aLines)
 
         anResult = []
         for i = 1 to nLen
@@ -1872,7 +1872,7 @@ class stzFileModifier from stzFileReadingMixin
 
 	def LinesContaining(cSearchText)
         acLines = @aOriginalLines
-        nLen = ring_len(acLines)
+        nLen = len(acLines)
 
         acResult = []
         for i = 1 to nLen
@@ -1886,7 +1886,7 @@ class stzFileModifier from stzFileReadingMixin
 
     def RemoveLinesContaining(cSearchText)
         aLines = @aOriginalLines
-        nLen = ring_len(aLines)
+        nLen = len(aLines)
 
         aNewLines = []
         for i = 1 to nLen
@@ -1950,7 +1950,7 @@ class stzFileModifier from stzFileReadingMixin
 	def ReplaceLineContaining(cSubstr, cNewLine)
 	    # Update first line that contains the substring
 	    aLines = @aOriginalLines
-	    nLen = ring_len(aLines)
+	    nLen = len(aLines)
 
 	    for i = 1 to nLen
 	        if StzFind(aLines[i], cSubstr) > 0
@@ -2118,7 +2118,7 @@ class stzFileManager from stzObject
         aLines = oReader.Lines()
         oReader.Close()
         
-        nTotalLines = ring_len(aLines)
+        nTotalLines = len(aLines)
         nFileCount = ceil(nTotalLines / nLinesPerFile)
         
         cBaseName = _FileCompleteBaseName(@cFileName)
@@ -2154,7 +2154,7 @@ class stzFileManager from stzObject
         cContent = oReader.Content()
         oReader.Close()
 
-        nTotalSize = ring_len(cContent)
+        nTotalSize = len(cContent)
         nFileCount = ceil(nTotalSize / nBytesPerFile)
 
         cBaseName = _FileCompleteBaseName(@cFileName)
@@ -2198,14 +2198,14 @@ class stzFileManager from stzObject
         aCurrentChunk = []
         nFileNum = 1
 
-        nLen = ring_len(aLines)
+        nLen = len(aLines)
         for i = 1 to nLen
-            if StzFind(aLines[i], cPattern) > 0 and ring_len(aCurrentChunk) > 0
+            if StzFind(aLines[i], cPattern) > 0 and len(aCurrentChunk) > 0
                 cNewFileName = cBaseName + "_" + nFileNum + "." + cSuffix
                 cFullPath = cDirPath + "/" + cNewFileName
                 
                 oCreator = StzFileCreate(cFullPath)
-                nChunkLen = ring_len(aCurrentChunk)
+                nChunkLen = len(aCurrentChunk)
                 for j = 1 to nChunkLen
                     oCreator.WriteLine(aCurrentChunk[j])
                 next
@@ -2219,12 +2219,12 @@ class stzFileManager from stzObject
             aCurrentChunk + aLines[i]
         next
         
-        if ring_len(aCurrentChunk) > 0
+        if len(aCurrentChunk) > 0
             cNewFileName = cBaseName + "_" + nFileNum + "." + cSuffix
             cFullPath = cDirPath + "/" + cNewFileName
             
             oCreator = StzFileCreate(cFullPath)
-            nChunkLen = ring_len(aCurrentChunk)
+            nChunkLen = len(aCurrentChunk)
             for j = 1 to nChunkLen
                 oCreator.WriteLine(aCurrentChunk[j])
             next

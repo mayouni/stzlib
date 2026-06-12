@@ -40,8 +40,8 @@ class stzPairOfLists from stzListOfLists
 	def Alternate()
 		aResult = []
 
-		nLen1 = ring_len( This.FirstList() )
-		nlen2 = ring_len( This.SecondList() )
+		nLen1 = len( This.FirstList() )
+		nlen2 = len( This.SecondList() )
 
 		nMax = @Max([ nLen1, nLen2 ])
 
@@ -61,9 +61,9 @@ class stzPairOfLists from stzListOfLists
 		cOtherList += "()"
 
 		cCode =
-			"for i = 1 to ring_len(This." + cBiggerList + ")" + NL +
+			"for i = 1 to len(This." + cBiggerList + ")" + NL +
 			"	aResult + This." + cBiggerList + "[i]" + NL +
-			"	if i <= ring_len(This." + cOtherList + ")" + NL +
+			"	if i <= len(This." + cOtherList + ")" + NL +
 			"		aResult + " + cOtherList + "[i]" + NL +
 			"	ok" + NL +
 			"next"
@@ -77,8 +77,8 @@ class stzPairOfLists from stzListOfLists
 
 	def Associate()
 		aResult = []
-		nLen1 = ring_len( This.FirstList() )
-		nLen2 = ring_len( This.SecondList() )
+		nLen1 = len( This.FirstList() )
+		nLen2 = len( This.SecondList() )
 
 		for i = 1 to nLen1
 			if i <= nLen2

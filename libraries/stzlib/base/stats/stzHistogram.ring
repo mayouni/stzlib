@@ -74,7 +74,7 @@ class stzHistogram
 
 	def _calculateBins()
 		
-		if ring_len(@anRawData) = 0
+		if len(@anRawData) = 0
 			return
 		ok
 
@@ -83,7 +83,7 @@ class stzHistogram
 		
 		# Auto-calculate bin count using Sturges' rule if not set
 		if @nBinCount = 0
-			@nBinCount = max([5, ceil(1 + log(ring_len(@anRawData)) / log(2))])
+			@nBinCount = max([5, ceil(1 + log(len(@anRawData)) / log(2))])
 		ok
 		
 		# Calculate bin width
@@ -116,7 +116,7 @@ class stzHistogram
 		next
 
 	def _findBinIndex(nValue)
-		nLen = ring_len(@aBinRanges)
+		nLen = len(@aBinRanges)
 		for i = 1 to nLen
 			nMin = @aBinRanges[i][1]
 			nMax = @aBinRanges[i][2]
@@ -332,7 +332,7 @@ class stzHistogram
 
 	# Statistical methods for histogram
 	def Mean()
-		nLen = ring_len(@anRawData)
+		nLen = len(@anRawData)
 
 		if nLen = 0
 			return 0
@@ -347,7 +347,7 @@ class stzHistogram
 		return nSum / nlen
 
 	def StandardDeviation()
-		nLen = ring_len(@anRawData)
+		nLen = len(@anRawData)
 
 		if nLen <= 1
 			return 0
@@ -363,7 +363,7 @@ class stzHistogram
 		return sqrt(nSumSquares / (nLen - 1))
 
 	def Median()
-		nLen = ring_len(@anRawData)
+		nLen = len(@anRawData)
 		if nLen = 0
 			return 0
 		ok
@@ -391,7 +391,7 @@ class stzHistogram
 		ok
 
 	def DataCount()
-		return ring_len(@anRawData)
+		return len(@anRawData)
 
 		def DataSize()
 			return This.DataCount()
@@ -426,7 +426,7 @@ class stzHistogram
 		next
 
 		# Process each data point
-		nLen = ring_len(@anRawData)
+		nLen = len(@anRawData)
 		for i = 1 to nLen
 
 			nBinIndex = _findBinIndex(@anRawData[i])
@@ -481,7 +481,7 @@ class stzHistogram
 	def _getFrequencyForBin(nBinIndex)
 
 		nCount = 0
-		nLen = ring_len(@anRawData)
+		nLen = len(@anRawData)
 
 		for i = 1 to nLen
 			if _findBinIndex(@anRawData[i]) = nBinIndex
@@ -504,10 +504,10 @@ class stzHistogram
 
 	def _finalizeCanvas()
 		cResult = ""
-		nLen = ring_len(@acCanvas)
+		nLen = len(@acCanvas)
 		for i = 1 to nLen
 			cLine = ""
-			nLenCurrent = ring_len(@acCanvas[i])
+			nLenCurrent = len(@acCanvas[i])
 			for j = 1 to nLenCurrent
 				cLine += @acCanvas[i][j]
 			next
@@ -602,7 +602,7 @@ class stzHistogram
 
 	def _calculateLayout()
 		# Calculate layout for histogram display
-		nBars = ring_len(@anValues)
+		nBars = len(@anValues)
 		oLayout = new stzHashList([])
 		
 		# First calculate all element widths
@@ -614,7 +614,7 @@ class stzHistogram
 		    nLabelWidth = 0
 		    nValueWidth = 0
 		    
-		    if @bShowLabels and i <= ring_len(@acLabels)
+		    if @bShowLabels and i <= len(@acLabels)
 		        # Calculate width for two-line labels (use the longer of the two values)
 		        cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
 		        cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
@@ -643,12 +643,12 @@ class stzHistogram
 		next
 		
 		nBarsAreaWidth = 0
-		nLen = ring_len(aElementWidths)
+		nLen = len(aElementWidths)
 		for i = 1 to nLen
 			nBarsAreaWidth += aElementWidths[i]
 		next
 
-		nLen = ring_len(aBarSpacing)
+		nLen = len(aBarSpacing)
 		for i = 1 to nLen
 			nBarsAreaWidth += aBarSpacing[i]
 		next
@@ -764,7 +764,7 @@ class stzHistogram
 
 	def _drawBars(oLayout)
 		# Same logic as bar chart but with improved height calculation for histograms
-		nBars = ring_len(@anValues)
+		nBars = len(@anValues)
 		nBarsStartCol = oLayout[:bars_start_col] 
 		nAxisRow = oLayout[:h_axis_row]
 		nBarsAreaHeight = oLayout[:bars_area_height]
@@ -816,7 +816,7 @@ class stzHistogram
 	# Helper method to calculate actual required height
 	def _getRequiredHeight(nBarsAreaHeight)
 		nMaxBarHeight = 0
-		nLen = ring_len(@anValues)
+		nLen = len(@anValues)
 		for i = 1 to nLen
 			nVal = @anValues[i]
 			if nVal > 0
@@ -838,7 +838,7 @@ class stzHistogram
 		return nRequiredHeight
 
 	def _drawValues(oLayout)
-		nBars = ring_len(@anValues)
+		nBars = len(@anValues)
 		nBarsStartCol = oLayout[:bars_start_col]
 		nAxisRow = oLayout[:h_axis_row] 
 		nBarsAreaHeight = oLayout[:bars_area_height]
@@ -902,7 +902,7 @@ class stzHistogram
 		next
 
 	def _drawPercent(oLayout)
-		nBars = ring_len(@anValues)
+		nBars = len(@anValues)
 		nBarsStartCol = oLayout[:bars_start_col]
 		nAxisRow = oLayout[:h_axis_row] 
 		nBarsAreaHeight = oLayout[:bars_area_height]
@@ -959,17 +959,17 @@ class stzHistogram
 
 	def _drawLabels(oLayout)
 		# Draw bin range labels in two rows
-		nBars = ring_len(@anValues)
+		nBars = len(@anValues)
 		nBarsStartCol = oLayout[:bars_start_col]
 		nLabelsRow = oLayout[:labels_row]
 		aElementWidths = oLayout[:element_widths]
 		aBarSpacing = oLayout[:bar_spacing]
 	
 		nCurrentX = nBarsStartCol
-		nLenCanvas = ring_len(@acCanvas)
+		nLenCanvas = len(@acCanvas)
 	
 		for i = 1 to nBars
-			if i <= ring_len(@aBinRanges)
+			if i <= len(@aBinRanges)
 				nElementWidth = aElementWidths[i]
 				
 				# First row: start values

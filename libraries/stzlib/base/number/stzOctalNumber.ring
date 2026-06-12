@@ -22,7 +22,7 @@ func OctalPrefix()
 func SetOctalPrefix(cPrefix)
 	bFound = 0
 	_aOctalPrefixes1_ = OctalPrefixes()
-	_nOctalPrefixes1Len_ = ring_len(_aOctalPrefixes1_)
+	_nOctalPrefixes1Len_ = len(_aOctalPrefixes1_)
 	for _iLoopOctalPrefixes1_ = 1 to _nOctalPrefixes1Len_
 		_item = _aOctalPrefixes1_[_iLoopOctalPrefixes1_]
 		if StzLower(_item) = StzLower(cPrefix)

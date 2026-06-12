@@ -46,7 +46,7 @@ class stzGraphView from stzGraph
 	
 	def Commit()
 		# Update node properties
-		nLen = ring_len(@aNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
 			cId = aNode[:id]
@@ -71,7 +71,7 @@ class stzGraphView from stzGraph
 		next
 		
 		# Sync edges
-		nLen = ring_len(@aEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
 			cFrom = aEdge[:from]
@@ -104,7 +104,7 @@ class stzGraphView from stzGraph
 			:nodesAdded = []
 		]
 		
-		nLen = ring_len(@aNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
 			cId = aNode[:id]
@@ -123,7 +123,7 @@ class stzGraphView from stzGraph
 	
 	def _FilteredNodes()
 		aResult = []
-		nLen = ring_len(@acIncludedNodes)
+		nLen = len(@acIncludedNodes)
 		
 		for i = 1 to nLen
 			cNodeId = @acIncludedNodes[i]
@@ -139,7 +139,7 @@ class stzGraphView from stzGraph
 				
 				if HasKey(aNode, :properties)
 					acKeys = keys(aNode[:properties])
-					nKeyLen = ring_len(acKeys)
+					nKeyLen = len(acKeys)
 					
 					for j = 1 to nKeyLen
 						cKey = acKeys[j]
@@ -156,7 +156,7 @@ class stzGraphView from stzGraph
 	def _FilteredEdges()
 		aResult = []
 		aEdges = @oParentGraph.Edges()
-		nLen = ring_len(aEdges)
+		nLen = len(aEdges)
 		
 		for i = 1 to nLen
 			aEdge = aEdges[i]
@@ -175,7 +175,7 @@ class stzGraphView from stzGraph
 				
 				if HasKey(aEdge, :properties)
 					acKeys = keys(aEdge[:properties])
-					nKeyLen = ring_len(acKeys)
+					nKeyLen = len(acKeys)
 					
 					for j = 1 to nKeyLen
 						cKey = acKeys[j]
@@ -207,11 +207,11 @@ class stzGraphView from stzGraph
 		
 		acKeys1 = keys(aProps1)
 		
-		if ring_len(acKeys1) != ring_len(keys(aProps2))
+		if len(acKeys1) != len(keys(aProps2))
 			return TRUE
 		ok
 		
-		nLen = ring_len(acKeys1)
+		nLen = len(acKeys1)
 		for i = 1 to nLen
 			cKey = acKeys1[i]
 			

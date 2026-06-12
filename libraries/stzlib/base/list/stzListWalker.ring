@@ -66,7 +66,7 @@ class stzListWalker
 		ok
 
 		_aWalkers_ = This.Walkers()
-		_nLenWalkers_ = ring_len(_aWalkers_)
+		_nLenWalkers_ = len(_aWalkers_)
 
 		_bNewName_ = 1
 
@@ -159,7 +159,7 @@ class stzListWalker
 		_anWfbBwd_ = This.WalkNBackward(n)
 
 		_aWfbResult_ = _anWfbFwd_
-		_nWfbLen_ = ring_len(_anWfbBwd_)
+		_nWfbLen_ = len(_anWfbBwd_)
 		for _iWfb_ = 1 to _nWfbLen_
 			@AddItem(_aWfbResult_, _anWfbBwd_[_iWfb_])
 		next

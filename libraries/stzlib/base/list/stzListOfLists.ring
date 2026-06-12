@@ -278,7 +278,7 @@ class stzListOfLists from stzList
 			ok
 
 			_bInitOk_ = 1
-			_nInitLen_ = ring_len(paList)
+			_nInitLen_ = len(paList)
 
 			for _iInit_ = 1 to _nInitLen_
 				if NOT isList(paList[_iInit_])
@@ -292,7 +292,7 @@ class stzListOfLists from stzList
 
 		ok
 
-		if ring_len(paList) = 0
+		if len(paList) = 0
 			StzRaise("Can't create the stzListOfLists object! You must provide a non empty list.")
 		ok
 
@@ -319,7 +319,7 @@ class stzListOfLists from stzList
 		return This.Content()
 
 	def NumberOfLists()
-		return ring_len(@aContent)
+		return len(@aContent)
 
 	  #-------------------------------#
 	 #   UPDATING THE LIST OF LISTS  #
@@ -388,7 +388,7 @@ class stzListOfLists from stzList
 
 		_aAmContent_ = This.Content()
 
-		_nAmLen_ = ring_len(paListOfLists)
+		_nAmLen_ = len(paListOfLists)
 		for _iAm_ = 1 to _nAmLen_
 			@AddItem(_aAmContent_, paListOfLists[_iAm_])
 		next
@@ -463,12 +463,12 @@ class stzListOfLists from stzList
 			return This.FindManyInListsCS(pItem, pCaseSensitive)
 		ok
 
-		_nFilLen_ = ring_len(@aContent)
+		_nFilLen_ = len(@aContent)
 		_aFilResult_ = []
 
 		for _iFil_ = 1 to _nFilLen_
 			_anFilPos_ = @FindAllCS( @aContent[_iFil_], pItem, pCaseSensitive)
-			_nFilLenPos_ = ring_len(_anFilPos_)
+			_nFilLenPos_ = len(_anFilPos_)
 			for _jFil_ = 1 to _nFilLenPos_
 				@AddItem(_aFilResult_, [ _iFil_, _anFilPos_[_jFil_] ])
 			next
@@ -521,13 +521,13 @@ class stzListOfLists from stzList
 
 		_aFmilItems_ = U(paItems)  # dedup -- kept for backward-compat (was computed-then-discarded)
 
-		_nFmilLen_ = ring_len(@aContent)
+		_nFmilLen_ = len(@aContent)
 		_aoFmilLists_ = This.ToListOfStzLists()
 		_aFmilResult_ = []
 
 		for _iFmil_ = 1 to _nFmilLen_
 			_anFmilPos_ = _aoFmilLists_[_iFmil_].FindManyCS(paItems, pCaseSensitive)
-			_nFmilLenPos_ = ring_len(_anFmilPos_)
+			_nFmilLenPos_ = len(_anFmilPos_)
 			for _jFmil_ = 1 to _nFmilLenPos_
 				@AddItem(_aFmilResult_, [ _iFmil_, _anFmilPos_[_jFmil_] ])
 			next
@@ -573,7 +573,7 @@ class stzListOfLists from stzList
 		aResult = []  # MUST stay bare -- referenced by user-supplied eval(cCode) below
 
 		_aPwLists_ = This.ListOfLists()
-		_nPwLen_ = ring_len(_aPwLists_)
+		_nPwLen_ = len(_aPwLists_)
 
 		for @i = 1 to _nPwLen_
 			@list = _aPwLists_[@i]
@@ -641,7 +641,7 @@ class stzListOfLists from stzList
 		aResult = []  # MUST stay bare -- referenced by user-supplied eval(cCode) below
 
 		_aLwLists_ = This.ListOfLists()
-		_nLwLen_ = ring_len(_aLwLists_)
+		_nLwLen_ = len(_aLwLists_)
 
 		for @i = 1 to _nLwLen_
 			@list = _aLwLists_[@i]
@@ -715,12 +715,12 @@ class stzListOfLists from stzList
 	def Sizes()
 
 		_aSzContent_ = This.ListOfLists()
-		_nSzLen_ = ring_len(_aSzContent_)
+		_nSzLen_ = len(_aSzContent_)
 
 		_anSzResult_ = []
 
 		for _iSz_ = 1 to _nSzLen_
-			@AddItem(_anSzResult_, ring_len(_aSzContent_[_iSz_]))
+			@AddItem(_anSzResult_, len(_aSzContent_[_iSz_]))
 		next
 
 		return _anSzResult_
@@ -753,7 +753,7 @@ class stzListOfLists from stzList
 	def ListsHaveSameNumberOfItems()
 
 		_aLhsContent_ = This.Content()
-		_nLhsLen_ = ring_len(_aLhsContent_)
+		_nLhsLen_ = len(_aLhsContent_)
 
 		if _nLhsLen_ = 0
 			StzRaise("Can't check inner lists! Because the list is empty.")
@@ -762,11 +762,11 @@ class stzListOfLists from stzList
 			return 1
 		ok
 
-		_nLhsInner_ = ring_len(_aLhsContent_[1])
+		_nLhsInner_ = len(_aLhsContent_[1])
 		_bLhsResult_ = 1
 
 		for _iLhs_ = 2 to _nLhsLen_
-			if ring_len( _aLhsContent_[_iLhs_] ) != _nLhsInner_
+			if len( _aLhsContent_[_iLhs_] ) != _nLhsInner_
 				_bLhsResult_ = 0
 				exit
 			ok
@@ -847,14 +847,14 @@ class stzListOfLists from stzList
 	def FindSmallestLists()
 
 		_aFslContent_ = This.Content()
-		_nFslLen_ = ring_len(_aFslContent_)
+		_nFslLen_ = len(_aFslContent_)
 
 		_anFslResult_ = []
 		_nFslMin_ = This.SmallestSize()
 
 		for _iFsl_ = 1 to _nFslLen_
 
-			if ring_len(_aFslContent_[_iFsl_]) = _nFslMin_
+			if len(_aFslContent_[_iFsl_]) = _nFslMin_
 				@AddItem(_anFslResult_, _iFsl_)
 			ok
 
@@ -894,13 +894,13 @@ class stzListOfLists from stzList
 	def FindBiggestLists()
 
 		_aFblContent_ = This.Content()
-		_nFblLen_ = ring_len(_aFblContent_)
+		_nFblLen_ = len(_aFblContent_)
 		_nFblMax_ = This.BiggestSize()
 
 		_anFblResult_ = []
 
 		for _iFbl_ = 1 to _nFblLen_
-			if ring_len(_aFblContent_[_iFbl_]) = _nFblMax_
+			if len(_aFblContent_[_iFbl_]) = _nFblMax_
 				@AddItem(_anFblResult_, _iFbl_)
 			ok
 		next
@@ -995,12 +995,12 @@ class stzListOfLists from stzList
 	def FindListsOfSizeN(n)
 
 		_aFlsContent_ = This.Content()
-		_nFlsLen_ = ring_len(_aFlsContent_)
+		_nFlsLen_ = len(_aFlsContent_)
 
 		_anFlsResult_ = []
 
 		for _iFls_ = 1 to _nFlsLen_
-			if ring_len(_aFlsContent_[_iFls_]) = n
+			if len(_aFlsContent_[_iFls_]) = n
 				@AddItem(_anFlsResult_, _iFls_)
 			ok
 		next
@@ -1042,11 +1042,11 @@ class stzListOfLists from stzList
 		_nFmiMax_ = This.MaxSize()
 
 		_aFmiContent_ = This.Content()
-		_nFmiLen_ = ring_len(_aFmiContent_)
+		_nFmiLen_ = len(_aFmiContent_)
 
 		_aFmiResult_ = []
 		for _iFmi_ = 1 to _nFmiLen_
-			_nFmiInner_ = ring_len(_aFmiContent_[_iFmi_])
+			_nFmiInner_ = len(_aFmiContent_[_iFmi_])
 			if _nFmiInner_ < _nFmiMax_
 				for _jFmi_ = _nFmiInner_ + 1 to _nFmiMax_
 					@AddItem(_aFmiResult_, [ _iFmi_, _jFmi_ ])
@@ -1079,11 +1079,11 @@ class stzListOfLists from stzList
 		_nNmiMax_ = This.MaxSize()
 
 		_aNmiContent_ = This.Content()
-		_nNmiLen_ = ring_len(_aNmiContent_)
+		_nNmiLen_ = len(_aNmiContent_)
 
 		_nNmiResult_ = 0
 		for _iNmi_ = 1 to _nNmiLen_
-			_nNmiInner_ = ring_len(_aNmiContent_[_iNmi_])
+			_nNmiInner_ = len(_aNmiContent_[_iNmi_])
 			if _nNmiInner_ < _nNmiMax_
 				_nNmiResult_ += (_nNmiMax_ - _nNmiInner_)
 			ok
@@ -1115,11 +1115,11 @@ class stzListOfLists from stzList
 		_aIapnResult_ = []
 
 		_aIapnLists_ = This.ListOfLists()
-		_nIapnLen_ = ring_len(_aIapnLists_)
+		_nIapnLen_ = len(_aIapnLists_)
 
 		for _iIapn_ = 1 to _nIapnLen_
 			_aIapnList_ = _aIapnLists_[_iIapn_]
-			if ring_len(_aIapnList_) >= n
+			if len(_aIapnList_) >= n
 				@AddItem(_aIapnResult_, _aIapnList_[n])
 			ok
 		next
@@ -1220,7 +1220,7 @@ class stzListOfLists from stzList
 
 		_nFslResult_ = 1
 		for _iFsl_ = 2 to _nFslLen_
-			if ring_len( This.NthList(_iFsl_) ) < ring_len( This.NthList(_nFslResult_) )
+			if len( This.NthList(_iFsl_) ) < len( This.NthList(_nFslResult_) )
 				_nFslResult_ = _iFsl_
 			ok
 		next
@@ -1253,7 +1253,7 @@ class stzListOfLists from stzList
 
 		_nSltPos_ = 1
 		for _iSlt_ = 2 to _nSltLen_
-			if ring_len( This.NthList(_iSlt_) ) < ring_len( This.NthList(_nSltPos_) )
+			if len( This.NthList(_iSlt_) ) < len( This.NthList(_nSltPos_) )
 				_nSltPos_ = _iSlt_
 			ok
 		next
@@ -1293,7 +1293,7 @@ class stzListOfLists from stzList
 	#-------------------------#
 
 	def SizeOfSmallestList()
-		_nSosResult_ = ring_len( This.SmallestList() )
+		_nSosResult_ = len( This.SmallestList() )
 		return _nSosResult_
 
 		#< @FunctionAlternativeForms
@@ -1324,7 +1324,7 @@ class stzListOfLists from stzList
 
 		_nFllResult_ = 1
 		for _iFll_ = 2 to _nFllLen_
-			if ring_len( This.NthList(_iFll_) ) > ring_len( This.NthList(_nFllResult_) )
+			if len( This.NthList(_iFll_) ) > len( This.NthList(_nFllResult_) )
 				_nFllResult_ = _iFll_
 			ok
 		next
@@ -1353,7 +1353,7 @@ class stzListOfLists from stzList
 
 		_nLgPos_ = 1
 		for _iLg_ = 2 to _nLgLen_
-			if ring_len( This.NthList(_iLg_) ) > ring_len( This.NthList(_nLgPos_) )
+			if len( This.NthList(_iLg_) ) > len( This.NthList(_nLgPos_) )
 				_nLgPos_ = _iLg_
 			ok
 		next
@@ -1419,7 +1419,7 @@ class stzListOfLists from stzList
 	#------------------------#
 
 	def SizeOfLargestList()
-		_nSolResult_ = ring_len( This.LargestList() )
+		_nSolResult_ = len( This.LargestList() )
 		return _nSolResult_
 
 		#< @FunctionAlternativeForms
@@ -1458,7 +1458,7 @@ class stzListOfLists from stzList
 	#---------------------#
 
 	def SizeOfList(n)
-		_nSolnResult_ = ring_len( This.NthList(n) )
+		_nSolnResult_ = len( This.NthList(n) )
 		return _nSolnResult_
 
 		def Size(n)
@@ -1897,7 +1897,7 @@ class stzListOfLists from stzList
 
 	def ExtendToByRepeatingItems(n)
 		_aEtbrContent_ = This.Content()
-		_nEtbrLen_ = ring_len(_aEtbrContent_)
+		_nEtbrLen_ = len(_aEtbrContent_)
 
 		_aEtbrResult_ = []
 
@@ -1946,12 +1946,12 @@ class stzListOfLists from stzList
 	# an empty section.
 	def FindExtraItems()
 		_aData_ = This.Content()
-		_nRows_ = ring_len(_aData_)
+		_nRows_ = len(_aData_)
 		if _nRows_ = 0 return [] ok
-		_nBase_ = ring_len(_aData_[1])
+		_nBase_ = len(_aData_[1])
 		_aRes_ = []
 		for _i_ = 1 to _nRows_
-			_nLen_ = ring_len(_aData_[_i_])
+			_nLen_ = len(_aData_[_i_])
 			_aPositions_ = []
 			if _nLen_ > _nBase_
 				for _j_ = _nBase_ + 1 to _nLen_
@@ -1964,13 +1964,13 @@ class stzListOfLists from stzList
 
 	def ExtraItems()
 		_aData_ = This.Content()
-		_nRows_ = ring_len(_aData_)
+		_nRows_ = len(_aData_)
 		if _nRows_ = 0 return [] ok
-		_nBase_ = ring_len(_aData_[1])
+		_nBase_ = len(_aData_[1])
 		_aRes_ = []
 		for _i_ = 1 to _nRows_
 			_aRow_ = _aData_[_i_]
-			_nLen_ = ring_len(_aRow_)
+			_nLen_ = len(_aRow_)
 			_aExtra_ = []
 			if _nLen_ > _nBase_
 				for _j_ = _nBase_ + 1 to _nLen_
@@ -2040,7 +2040,7 @@ class stzListOfLists from stzList
 
 	def ExtendToWithItemsIn(n, paItems)
 		_aEtwiContent_ = This.Content()
-		_nEtwiLen_ = ring_len(_aEtwiContent_)
+		_nEtwiLen_ = len(_aEtwiContent_)
 
 		_aEtwiResult_ = []
 
@@ -2220,13 +2220,13 @@ class stzListOfLists from stzList
 		ok
 
 		_aSkwContent_ = This.Content()
-		_nSkwLen_ = ring_len(_aSkwContent_)
+		_nSkwLen_ = len(_aSkwContent_)
 		_nSkwLargest_ = This.SizeOfLargestList()
 
 		_aSkwResult_ = []
 
 		for _iSkw_ = 1 to _nSkwLen_
-			_nSkwInner_ = ring_len(_aSkwContent_[_iSkw_])
+			_nSkwInner_ = len(_aSkwContent_[_iSkw_])
 
 			if n > _nSkwLargest_
 				loop
@@ -2308,14 +2308,14 @@ class stzListOfLists from stzList
 		ok
 
 		_aAdwContent_ = This.Content()
-		_nAdwLen_ = ring_len(_aAdwContent_)
+		_nAdwLen_ = len(_aAdwContent_)
 		_nAdwLargest_ = This.SizeOfLargestList()
 
 		_aAdwResult_ = []
 
 		for _iAdw_ = 1 to _nAdwLen_
 
-			_nAdwInner_ = ring_len(_aAdwContent_[_iAdw_])
+			_nAdwInner_ = len(_aAdwContent_[_iAdw_])
 
 			if _nAdwInner_ = _nAdwLargest_
 				@AddItem(_aAdwResult_, _aAdwContent_[_iAdw_])
@@ -2408,13 +2408,13 @@ class stzListOfLists from stzList
 		ok
 
 		_aAdxContent_ = This.Content()
-		_nAdxLen_ = ring_len(_aAdxContent_)
+		_nAdxLen_ = len(_aAdxContent_)
 
 		_aAdxResult_ = []
 
 		for _iAdx_ = 1 to _nAdxLen_
 
-			_nAdxInner_ = ring_len(_aAdxContent_[_iAdx_])
+			_nAdxInner_ = len(_aAdxContent_[_iAdx_])
 
 			if _nAdxInner_ = n
 				@AddItem(_aAdxResult_, _aAdxContent_[_iAdx_])
@@ -2559,7 +2559,7 @@ class stzListOfLists from stzList
 
 	def ReverseItemsInLists()
 		_aRiilLists_ = This.ListOfLists()
-		_nRiilLen_ = ring_len(_aRiilLists_)
+		_nRiilLen_ = len(_aRiilLists_)
 
 		_aRiilReversed_ = This.Content()
 
@@ -2606,7 +2606,7 @@ class stzListOfLists from stzList
 			_aIxLists_ = This.Lowercased()
 		ok
 
-		_nIxLenLists_ = ring_len(_aIxLists_)
+		_nIxLenLists_ = len(_aIxLists_)
 
 		# Early cheks
 
@@ -2617,7 +2617,7 @@ class stzListOfLists from stzList
 		# Doing the job
 
 		_aIxItems_ = This.FlattenedQ().WithoutDuplicationCS(pCaseSensitive)
-		_nIxLenItems_ = ring_len(_aIxItems_)
+		_nIxLenItems_ = len(_aIxItems_)
 
 		_aIxResult_ = []
 
@@ -2625,7 +2625,7 @@ class stzListOfLists from stzList
 			_anIxPos_ = []
 
 			for _jIx_ = 1 to _nIxLenLists_
-				_nIxInnerLen_ = ring_len(_aIxLists_[_jIx_])
+				_nIxInnerLen_ = len(_aIxLists_[_jIx_])
 				for _wIx_ = 1 to _nIxInnerLen_
 					if ring_type(_aIxLists_[_jIx_][_wIx_]) = ring_type(_aIxItems_[_iIx_]) and
 					   _aIxLists_[_jIx_][_wIx_] = _aIxItems_[_iIx_]
@@ -2695,7 +2695,7 @@ class stzListOfLists from stzList
 			_aIxxLists_ = This.Lowercased()
 		ok
 
-		_nIxxLenLists_ = ring_len(_aIxxLists_)
+		_nIxxLenLists_ = len(_aIxxLists_)
 
 		# Early cheks
 
@@ -2706,7 +2706,7 @@ class stzListOfLists from stzList
 		# Doing the job
 
 		_aIxxItems_ = This.FlattenedQ().WithoutDuplicationCS(pCaseSensitive)
-		_nIxxLenItems_ = ring_len(_aIxxItems_)
+		_nIxxLenItems_ = len(_aIxxItems_)
 
 		_aIxxResult_ = []
 
@@ -2714,7 +2714,7 @@ class stzListOfLists from stzList
 			_aIxxPos_ = []
 
 			for _jIxx_ = 1 to _nIxxLenLists_
-				_nIxxInnerLen_ = ring_len(_aIxxLists_[_jIxx_])
+				_nIxxInnerLen_ = len(_aIxxLists_[_jIxx_])
 				for _wIxx_ = 1 to _nIxxInnerLen_
 					if ring_type(_aIxxLists_[_jIxx_][_wIxx_]) = ring_type(_aIxxItems_[_iIxx_]) and
 					   _aIxxLists_[_jIxx_][_wIxx_] = _aIxxItems_[_iIxx_]
@@ -2791,16 +2791,16 @@ class stzListOfLists from stzList
 	#-----------------------------------------#
 
 	def NumberOfOccurrenceOfEntry(pEntry)
-		return ring_len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1
+		return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1
 
 		def NumberOfOccurrencesOfEntry(pEntry)
 			return This.NumberOfOccurrenceOfEntry(pEntry)
 
 		def HowManyEntry(pEntry)
-			return ring_len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1 + missing pEntry param
+			return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1 + missing pEntry param
 
 		def HowManyEntries(pEntry)
-			return ring_len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1 + missing pEntry param
+			return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1 + missing pEntry param
 
 	def NthOccurrenceOfEntry(n, pEntry)
 		return This.IndexOn(:Position)[pEntry][n] ### Fixed: was bare o1
@@ -2821,7 +2821,7 @@ class stzListOfLists from stzList
 	def ContainsItemCS(pItem, pCaseSensitive)
 		_bCicResult_ = 0
 		_aCicLists_ = This.ListOfLists()
-		_nCicLen_ = ring_len(_aCicLists_)
+		_nCicLen_ = len(_aCicLists_)
 
 		for _iCic_ = 1 to _nCicLen_
 			_oCicList_ = new stzList( _aCicLists_[_iCic_] )
@@ -2845,7 +2845,7 @@ class stzListOfLists from stzList
 	def ListsContainingItemCS(pItem, pCaseSensitive)
 		_aLciResult_ = []
 		_aLciLists_ = This.ListOfLists()
-		_nLciLen_ = ring_len(_aLciLists_)
+		_nLciLen_ = len(_aLciLists_)
 
 		for _iLci_ = 1 to _nLciLen_
 			_oLciList_ = new stzList(_aLciLists_[_iLci_])
@@ -2867,7 +2867,7 @@ class stzListOfLists from stzList
 	def EachListContainsCS(pItem, pCaseSensitive)
 		_bElcResult_ = 1
 		_aElcLists_ = This.Content()
-		_nElcLen_ = ring_len(_aElcLists_)
+		_nElcLen_ = len(_aElcLists_)
 
 		for _iElc_ = 1 to _nElcLen_
 			if NOT Q(_aElcLists_[_iElc_]).ContainsCS(pItem, pCaseSensitive)
@@ -2957,12 +2957,12 @@ class stzListOfLists from stzList
 
 	def SizeOfEach@Is(n)
 		_aSeContent_ = This.Content()
-		_nSeLen_ = ring_len(_aSeContent_)
+		_nSeLen_ = len(_aSeContent_)
 
 		_bSeResult_ = 1 ### Fixed: was nResult=1 but inner branch set bResult=0 (different var)
 
 		for _iSe_ = 1 to _nSeLen_
-			if ring_len(_aSeContent_[_iSe_]) != n
+			if len(_aSeContent_[_iSe_]) != n
 				_bSeResult_ = 0
 				exit
 			ok
@@ -3135,14 +3135,14 @@ class stzListOfLists from stzList
 	def CommonItemsCS(pCaseSensitive)
 
 		_aCiContent_ = This.Content()
-		if ring_len(_aCiContent_) = 0 return [] ok
-		if ring_len(_aCiContent_) = 1 return _aCiContent_[1] ok
+		if len(_aCiContent_) = 0 return [] ok
+		if len(_aCiContent_) = 1 return _aCiContent_[1] ok
 
 		# Engine-backed pairwise intersection (O(n log n) per pair)
 		_nCiCsFlag_ = CaseSensitive(pCaseSensitive)
 
 		_aCiCommon_ = _aCiContent_[1]
-		_nCiLen_ = ring_len(_aCiContent_)
+		_nCiLen_ = len(_aCiContent_)
 
 		for _iCi_ = 2 to _nCiLen_
 			_pCiListA_ = StzEngineMarshalList(_aCiCommon_)
@@ -3153,7 +3153,7 @@ class stzListOfLists from stzList
 			StzEngineListFree(_pCiListB_)
 			StzEngineListFree(_pCiListA_)
 
-			if ring_len(_aCiCommon_) = 0
+			if len(_aCiCommon_) = 0
 				return []
 			ok
 		next
@@ -3219,7 +3219,7 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		_nNcxLen_ = ring_len(@aContent)
+		_nNcxLen_ = len(@aContent)
 
 		if EarlyCheck()
 			if _nNcxLen_ = 0
@@ -3236,7 +3236,7 @@ class stzListOfLists from stzList
 		_aNcxResult_ = []
 
 		for _iNcx_ = 1 to _nNcxLen_
-			_nNcxInner_ = ring_len(@aContent[_iNcx_])
+			_nNcxInner_ = len(@aContent[_iNcx_])
 			if _nNcxInner_ >= n
 				@AddItem(_aNcxResult_, @aContent[_iNcx_][n])
 			else
@@ -3276,7 +3276,7 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		_nNcLen_ = ring_len(@aContent)
+		_nNcLen_ = len(@aContent)
 
 		if EarlyCheck()
 			if _nNcLen_ = 0
@@ -3293,7 +3293,7 @@ class stzListOfLists from stzList
 		_aNcResult_ = []
 
 		for _iNc_ = 1 to _nNcLen_
-			_nNcInner_ = ring_len(@aContent[_iNc_])
+			_nNcInner_ = len(@aContent[_iNc_])
 			if n <= _nNcInner_
 				@AddItem(_aNcResult_, @aContent[_iNc_][n])
 			ok
@@ -3411,15 +3411,15 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		_nAcLenList_ = ring_len(paList)
+		_nAcLenList_ = len(paList)
 		if _nAcLenList_ = 0
 			return
 		ok
 
 		_aAcContent_ = This.Content()
-		_nAcLenContent_ = ring_len(_aAcContent_)
+		_nAcLenContent_ = len(_aAcContent_)
 
-		if _nAcLenList_ > 1 and _nAcLenContent_ = 1 and ring_len(_aAcContent_[1]) = 0
+		if _nAcLenList_ > 1 and _nAcLenContent_ = 1 and len(_aAcContent_[1]) = 0
 
 			for _iAc1_ = 1 to _nAcLenList_ - 1 ### Fixed: was `nLen - 1` -- undefined nLen
 				@AddItem(_aAcContent_, [])
@@ -3467,7 +3467,7 @@ class stzListOfLists from stzList
 		This.Justify()
 
 		_aAcxContent_ = This.Content()
-		_nAcxLen_ = ring_len(_aAcxContent_)
+		_nAcxLen_ = len(_aAcxContent_)
 
 		for _iAcx_ = 1 to _nAcxLen_
 			_aAcxContent_[_iAcx_] + paList[_iAcx_]
@@ -3836,10 +3836,10 @@ class stzListOfLists from stzList
 	def SortOnBy(nCol, pcExpr)
 
 		_aSobContent_ = This.Content()
-		_nSobLen_ = ring_len(_aSobContent_)
+		_nSobLen_ = len(_aSobContent_)
 
 		_aSobCol_ = This.Col(nCol)
-		_nSobLenCol_ = ring_len(_aSobCol_)
+		_nSobLenCol_ = len(_aSobCol_)
 
 		_cSobCode_ = 'value = (' + _StzStripBraces(pcExpr) + ')'
 
@@ -3944,7 +3944,7 @@ class stzListOfLists from stzList
 
 	def RemoveDuplicatesInLists()
 		_aRdlContent_ = This.Content()
-		_nRdlLen_ = ring_len(_aRdlContent_)
+		_nRdlLen_ = len(_aRdlContent_)
 
 		for _iRdl_ = 1 to _nRdlLen_
 			_aRdlContent_[_iRdl_] = @WithoutDuplicates(@aContent[_iRdl_])
@@ -3985,7 +3985,7 @@ class stzListOfLists from stzList
 	def Classify()
 		_acClContent_ = This.FirstColQ().StringifyNamedObjectsQ().Lowercased()
 
-		_nClLen_ = ring_len(_acClContent_)
+		_nClLen_ = len(_acClContent_)
 		_anClPosU_ = []
 		_acClSeen_ = []
 
@@ -4003,7 +4003,7 @@ class stzListOfLists from stzList
 					loop
 				ok
 
-				_nClInner_ = ring_len(@aContent[_iCl_])
+				_nClInner_ = len(@aContent[_iCl_])
 
 				if StzFind(_acClSeen_, _acClContent_[_iCl_]) = 0
 					@AddItem(_aClResult_, [ _acClContent_[_iCl_], [] ])
@@ -4026,13 +4026,13 @@ class stzListOfLists from stzList
 			ok
 		next
 
-		_nClLenU_ = ring_len(_anClPosU_)
+		_nClLenU_ = len(_anClPosU_)
 		if _nClLenU_ > 0
 			@AddItem(_aClResult_, [ :@Undefined, [] ])
 
 			for _kCl_ = 1 to _nClLenU_
 				_nClPos_ = _anClPosU_[_kCl_]
-				_nClInnerU_ = ring_len(@aContent[_nClPos_])
+				_nClInnerU_ = len(@aContent[_nClPos_])
 
 				for _wCl_ = 2 to _nClInnerU_
 					_aClResult_[ :@Undefined ] + @aContent[_nClPos_][_wCl_]
@@ -4183,7 +4183,7 @@ class stzListOfLists from stzList
 		_aCobContent_ = This.Content()
 
 		_aCobCol_ = This.Col(nCol)
-		_nCobLenCol_ = ring_len(_aCobCol_)
+		_nCobLenCol_ = len(_aCobCol_)
 
 		for @i = 1 to _nCobLenCol_
 			@item = _aCobCol_[@i]
@@ -4228,10 +4228,10 @@ class stzListOfLists from stzList
 		# Doing the job
 
 		_aMcContent_ = This.Content()
-		_nMcLen_ = ring_len(_aMcContent_)
+		_nMcLen_ = len(_aMcContent_)
 
 		for _iMc_ = 1 to _nMcLen_
-			_nMcInner_ = ring_len(_aMcContent_[_iMc_])
+			_nMcInner_ = len(_aMcContent_[_iMc_])
 			if n1 <= _nMcInner_ and n2 <= _nMcInner_
 				@Move(_aMcContent_[_iMc_], n1, n2)
 			ok
@@ -4318,10 +4318,10 @@ class stzListOfLists from stzList
 		# Doing the job
 
 		_aScContent_ = This.Content()
-		_nScLen_ = ring_len(_aScContent_)
+		_nScLen_ = len(_aScContent_)
 
 		for _iSc_ = 1 to _nScLen_
-			_nScInner_ = ring_len(_aScContent_[_iSc_])
+			_nScInner_ = len(_aScContent_[_iSc_])
 			if n1 <= _nScInner_ and n2 <= _nScInner_
 				# Inline swap -- ring_swap calls swap() which is shadowed
 				# by user-defined func Swap(p1, p2) in stzFuncs.ring
@@ -4401,11 +4401,11 @@ class stzListOfLists from stzList
 		# Doing the job
 
 		_aIcContent_ = This.Content()
-		_nIcLen_ = ring_len(_aIcContent_)
-		_nIcLenCol_ = ring_len(paColData)
+		_nIcLen_ = len(_aIcContent_)
+		_nIcLenCol_ = len(paColData)
 
 		for _iIc_ = 1 to _nIcLen_
-			_nIcInner_ = ring_len(_aIcContent_[_iIc_])
+			_nIcInner_ = len(_aIcContent_[_iIc_])
 
 			_icItem_ = ""
 			if _iIc_ <= _nIcLenCol_
@@ -4457,7 +4457,7 @@ class stzListOfLists from stzList
 		# Early Check
 
 		_aRcContent_ = This.Content()
-		_nRcLen_ = ring_len(_aRcContent_)
+		_nRcLen_ = len(_aRcContent_)
 
 		if n < 1 or n > _nRcLen_
 			return
@@ -4466,7 +4466,7 @@ class stzListOfLists from stzList
 		# Doing the job
 
 		for _iRc_ = 1 to _nRcLen_
-			_nRcInner_ = ring_len(_aRcContent_[_iRc_])
+			_nRcInner_ = len(_aRcContent_[_iRc_])
 			if n <= _nRcInner_
 				ring_remove(_aRcContent_[_iRc_], n)
 			ok
@@ -4547,17 +4547,17 @@ class stzListOfLists from stzList
 		ok
 
 		_aRcsContent_ = This.Content()
-		_nRcsLen_ = ring_len(_aRcsContent_)
+		_nRcsLen_ = len(_aRcsContent_)
 
 		_oChain_ = new stzList(anColNumbers)
 
 		anColNumbers = _oChain_.Sorted()
-		_nRcsLenCols_ = ring_len(anColNumbers)
+		_nRcsLenCols_ = len(anColNumbers)
 
 		for _iRcs_ = _nRcsLenCols_ to 1 step -1
 			_nRcsN_ = anColNumbers[_iRcs_]
 			for _jRcs_ = 1 to _nRcsLen_
-				_nRcsInner_ = ring_len(_aRcsContent_[_jRcs_])
+				_nRcsInner_ = len(_aRcsContent_[_jRcs_])
 				if _nRcsN_ <= _nRcsInner_
 					ring_remove(_aRcsContent_[_jRcs_], _nRcsN_)
 				ok
@@ -4668,11 +4668,11 @@ class stzListOfLists from stzList
 		# Doing the job
 
 		_aRpcContent_ = This.Content()
-		_nRpcLen_ = ring_len(_aRpcContent_)
-		_nRpcLenCol_ = ring_len(paColData)
+		_nRpcLen_ = len(_aRpcContent_)
+		_nRpcLenCol_ = len(paColData)
 
 		for _iRpc_ = 1 to _nRpcLen_
-			_nRpcInner_ = ring_len(_aRpcContent_[_iRpc_])
+			_nRpcInner_ = len(_aRpcContent_[_iRpc_])
 
 			_rpcItem_ = ""
 			if _iRpc_ <= _nRpcLenCol_
@@ -4718,7 +4718,7 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		_nRpsLen_ = ring_len(panColNumbers)
+		_nRpsLen_ = len(panColNumbers)
 
 		for _iRps_ = 1 to _nRpsLen_
 			this.ReplaceCol(panColNumbers[_iRps_], paColData)
@@ -4734,7 +4734,7 @@ class stzListOfLists from stzList
 	def ToListOfStzLists()
 
 		_aoTlsResult_ = []
-		_nTlsLen_ = ring_len(@aContent)
+		_nTlsLen_ = len(@aContent)
 
 		for _iTls_ = 1 to _nTlsLen_
 			@AddItem(_aoTlsResult_, new stzList(@aContent[_iTls_]))
@@ -4745,7 +4745,7 @@ class stzListOfLists from stzList
 	def ToListsInString()
 		_acTlisResult_ = []
 		_aTlisLists_ = This.ListOfLists()
-		_nTlisLen_ = ring_len(_aTlisLists_)
+		_nTlisLen_ = len(_aTlisLists_)
 
 		for _iTlis_ = 1 to _nTlisLen_
 			@AddItem(_acTlisResult_, @@(_aTlisLists_[_iTlis_]))
@@ -4798,7 +4798,7 @@ class stzListOfLists from stzList
 	def ToListOfStrings() #TODO // Do we need it? compare with stzList.Stringified()
 		_aTosResult_ = []
 		_aTosLists_ = This.ListOfLists()
-		_nTosLen_ = ring_len(_aTosLists_)
+		_nTosLen_ = len(_aTosLists_)
 
 		for _iTos_ = 1 to _nTosLen_
 			@AddItem(_aTosResult_, @@( _aTosLists_[_iTos_] )) # @@ --> ComputableForm( list )
@@ -4809,12 +4809,12 @@ class stzListOfLists from stzList
 
 	def IsListOfPairs()
 		_aIlpContent_ = This.Content()
-		_nIlpLen_ = ring_len(_aIlpContent_)
+		_nIlpLen_ = len(_aIlpContent_)
 
 		_bIlpResult_ = 1
 
 		for _iIlp_ = 1 to _nIlpLen_
-			if NOT (isList(_aIlpContent_[_iIlp_]) and ring_len(_aIlpContent_[_iIlp_]) = 2)
+			if NOT (isList(_aIlpContent_[_iIlp_]) and len(_aIlpContent_[_iIlp_]) = 2)
 				_bIlpResult_ = 0
 				exit
 			ok
@@ -4877,12 +4877,12 @@ class stzListOfLists from stzList
 	func AreContiguous()
 
 		_bAcResult_ = 1
-		_nAcLen_ = ring_len(@aContent)
+		_nAcLen_ = len(@aContent)
 
 		for _iAc_ = 1 to _nAcLen_
 
 			_aAcList_ = @aContent[_iAc_]
-			_nAcInner_ = ring_len(_aAcList_)
+			_nAcInner_ = len(_aAcList_)
 
 			if _nAcInner_ > 2
 
@@ -4940,13 +4940,13 @@ class stzListOfLists from stzList
 				StzRaise("Incorrect param type! paItems must be a list.")
 			ok
 
-			if ring_len(paItems) < 2
+			if len(paItems) < 2
 				StzRaise("Incorrect param value! paItems must contain at least two items.")
 			ok
 		ok
 
 		_aFslAdj_ = This.Adjusted()
-		_nFslLen_ = ring_len(_aFslAdj_)
+		_nFslLen_ = len(_aFslAdj_)
 
 		_aFslResult_ = []
 
@@ -4954,7 +4954,7 @@ class stzListOfLists from stzList
 
 			_anFslPos_ = StzListQ(_aFslAdj_[_iFsl_]).FindSubListCS(paItems, pCaseSensitive)
 
-			if ring_len(_anFslPos_) > 0
+			if len(_anFslPos_) > 0
 				@AddItem(_aFslResult_, [ _iFsl_, _anFslPos_ ])
 			ok
 
@@ -4979,7 +4979,7 @@ class stzListOfLists from stzList
 
 	def SortLists()
 		_aSltContent_ = This.Content()
-		_nSltLen_ = ring_len(_aSltContent_)
+		_nSltLen_ = len(_aSltContent_)
 
 		_aSltResult_ = []
 

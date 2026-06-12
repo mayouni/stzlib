@@ -7,7 +7,7 @@ class stzAppRouter
 		aRoutes + [cMethod, cPath, fHandler]
 
 	def HasRoute(cMethod, cPath)
-		_nRoutes2Len_ = ring_len(aRoutes)
+		_nRoutes2Len_ = len(aRoutes)
 		for _iLoopRoutes2_ = 1 to _nRoutes2Len_
 			aRoute = aRoutes[_iLoopRoutes2_]
 			if aRoute[1] = cMethod and aRoute[2] = cPath
@@ -17,7 +17,7 @@ class stzAppRouter
 		return False
 
 	def GetHandler(cMethod, cPath)
-		_nRoutes1Len_ = ring_len(aRoutes)
+		_nRoutes1Len_ = len(aRoutes)
 		for _iLoopRoutes1_ = 1 to _nRoutes1Len_
 			aRoute = aRoutes[_iLoopRoutes1_]
 			if aRoute[1] = cMethod and aRoute[2] = cPath

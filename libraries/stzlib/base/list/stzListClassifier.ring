@@ -57,7 +57,7 @@ class stzListClassifier
 		_aClRaw_ = StzEngineContentFromList(_pClResult_)
 		StzEngineListFree(_pClResult_)
 
-		_nClLen_ = ring_len(_aClRaw_)
+		_nClLen_ = len(_aClRaw_)
 		_aClResult_ = []
 		_iCl_ = 1
 		for _kCl_ = 1 to _nClLen_ / 2
@@ -65,7 +65,7 @@ class stzListClassifier
 			_cClPositions_ = _aClRaw_[_iCl_ + 1]
 			_aClParts_ = StzSplit(_cClPositions_, ",")
 			_anClPos_ = []
-			_nClParts_ = ring_len(_aClParts_)
+			_nClParts_ = len(_aClParts_)
 			for _jCl_ = 1 to _nClParts_
 				@AddItem(_anClPos_, 0 + _aClParts_[_jCl_])
 			next
@@ -82,7 +82,7 @@ class stzListClassifier
 
 	def Classes()
 		_aClsClassified_ = This.Classify()
-		_nClsLen_ = ring_len(_aClsClassified_)
+		_nClsLen_ = len(_aClsClassified_)
 		_aClsResult_ = []
 		for _iCls_ = 1 to _nClsLen_
 			@AddItem(_aClsResult_, _aClsClassified_[_iCls_][1])
@@ -101,7 +101,7 @@ class stzListClassifier
 		_aCbRaw_ = StzEngineContentFromList(_pCbResult_)
 		StzEngineListFree(_pCbResult_)
 
-		_nCbLen_ = ring_len(_aCbRaw_)
+		_nCbLen_ = len(_aCbRaw_)
 		_aCbResult_ = []
 		_iCb_ = 1
 		for _kCb_ = 1 to _nCbLen_ / 2
@@ -109,7 +109,7 @@ class stzListClassifier
 			_cCbPositions_ = _aCbRaw_[_iCb_ + 1]
 			_aCbParts_ = StzSplit(_cCbPositions_, ",")
 			_anCbPos_ = []
-			_nCbParts_ = ring_len(_aCbParts_)
+			_nCbParts_ = len(_aCbParts_)
 			for _jCb_ = 1 to _nCbParts_
 				@AddItem(_anCbPos_, 0 + _aCbParts_[_jCb_])
 			next
@@ -129,7 +129,7 @@ class stzListClassifier
 	#======================================================#
 
 	def NumberOfClasses()
-		return ring_len(This.Classes())
+		return len(This.Classes())
 
 	  #======================================================#
 	 #   FREQUENCY OF EACH ITEM                             #
@@ -143,7 +143,7 @@ class stzListClassifier
 		_aFrRaw_ = StzEngineContentFromList(_pFrFreqs_)
 		StzEngineListFree(_pFrFreqs_)
 
-		_nFrLen_ = ring_len(_aFrRaw_)
+		_nFrLen_ = len(_aFrRaw_)
 		_aFrResult_ = []
 		_iFr_ = 1
 		for _kFr_ = 1 to _nFrLen_ / 2
@@ -158,7 +158,7 @@ class stzListClassifier
 
 	def MostFrequent()
 		_aMfFreqs_ = This.Frequencies()
-		_nMfLen_ = ring_len(_aMfFreqs_)
+		_nMfLen_ = len(_aMfFreqs_)
 		if _nMfLen_ = 0
 			return NULL
 		ok
@@ -174,7 +174,7 @@ class stzListClassifier
 
 	def LeastFrequent()
 		_aLfFreqs_ = This.Frequencies()
-		_nLfLen_ = ring_len(_aLfFreqs_)
+		_nLfLen_ = len(_aLfFreqs_)
 		if _nLfLen_ = 0
 			return NULL
 		ok
@@ -204,7 +204,7 @@ class stzListClassifier
 
 	def Partition(n)
 		_aPartContent_ = This.Content()
-		_nPartLen_ = ring_len(_aPartContent_)
+		_nPartLen_ = len(_aPartContent_)
 		_aPartResult_ = []
 		_nPartGroupSize_ = ceil(_nPartLen_ / n)
 		_nPartStart_ = 1
@@ -217,7 +217,7 @@ class stzListClassifier
 			for _jPart_ = _nPartStart_ to _nPartEnd_
 				@AddItem(_aPartGroup_, _aPartContent_[_jPart_])
 			next
-			if ring_len(_aPartGroup_) > 0
+			if len(_aPartGroup_) > 0
 				@AddItem(_aPartResult_, _aPartGroup_)
 			ok
 			_nPartStart_ = _nPartEnd_ + 1
@@ -243,7 +243,7 @@ class stzListClassifier
 
 	def ItemsAppearingNTimes(n)
 		_aIntFreqs_ = This.Frequencies()
-		_nIntLen_ = ring_len(_aIntFreqs_)
+		_nIntLen_ = len(_aIntFreqs_)
 		_aIntResult_ = []
 		for _iInt_ = 1 to _nIntLen_
 			if _aIntFreqs_[_iInt_][2] = n
@@ -261,7 +261,7 @@ class stzListClassifier
 
 	def ItemsAppearingMoreThanNTimes(n)
 		_aImtFreqs_ = This.Frequencies()
-		_nImtLen_ = ring_len(_aImtFreqs_)
+		_nImtLen_ = len(_aImtFreqs_)
 		_aImtResult_ = []
 		for _iImt_ = 1 to _nImtLen_
 			if _aImtFreqs_[_iImt_][2] > n
@@ -272,7 +272,7 @@ class stzListClassifier
 
 	def ItemsAppearingLessThanNTimes(n)
 		_aIltFreqs_ = This.Frequencies()
-		_nIltLen_ = ring_len(_aIltFreqs_)
+		_nIltLen_ = len(_aIltFreqs_)
 		_aIltResult_ = []
 		for _iIlt_ = 1 to _nIltLen_
 			if _aIltFreqs_[_iIlt_][2] < n
@@ -297,7 +297,7 @@ class stzListClassifier
 
 	def Mode()
 		_aMdFreqs_ = This.Frequencies()
-		_nMdLen_ = ring_len(_aMdFreqs_)
+		_nMdLen_ = len(_aMdFreqs_)
 		if _nMdLen_ = 0
 			return []
 		ok
@@ -321,7 +321,7 @@ class stzListClassifier
 
 	def Bisect()
 		_aBsContent_ = This.Content()
-		_nBsLen_ = ring_len(_aBsContent_)
+		_nBsLen_ = len(_aBsContent_)
 		_nBsMid_ = ceil(_nBsLen_ / 2)
 
 		_aBsFirst_ = []
@@ -357,7 +357,7 @@ class stzListClassifier
 
 	def PartitionW(pcCondition)
 		_aPwContent_ = This.Content()
-		_nPwLen_ = ring_len(_aPwContent_)
+		_nPwLen_ = len(_aPwContent_)
 		_aPwTrue_ = []
 		_aPwFalse_ = []
 

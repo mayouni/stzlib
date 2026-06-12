@@ -222,7 +222,7 @@ class stzStringCharList
 
 		but isList(pValue) and Q(pValue).IsListOfNumbers()
 			# List of unicode codepoints
-			nLen = ring_len(pValue)
+			nLen = len(pValue)
 			for i = 1 to nLen
 				@acChars + StzCharQ(pValue[i]).Content()
 			next
@@ -250,7 +250,7 @@ class stzStringCharList
 	def Names()
 		_acResult_ = []
 		_anUnicodes_ = This.Unicodes()
-		_nLen_ = ring_len(_anUnicodes_)
+		_nLen_ = len(_anUnicodes_)
 
 		for i = 1 to _nLen_
 			_acResult_ + StzCharNameByUnicode(_anUnicodes_[i])
@@ -261,7 +261,7 @@ class stzStringCharList
 	# RemoveSpaces / RemoveSpacesQ: drop every " " char from the list.
 	def RemoveSpaces()
 		_aOut_ = []
-		_nLen_ = ring_len(@acChars)
+		_nLen_ = len(@acChars)
 		for _i_ = 1 to _nLen_
 			if @acChars[_i_] != " "
 				_aOut_ + @acChars[_i_]
@@ -275,7 +275,7 @@ class stzStringCharList
 
 	# Uppercase / UppercaseQ / Lowercase / LowercaseQ: case-map.
 	def Uppercase()
-		_nLen_ = ring_len(@acChars)
+		_nLen_ = len(@acChars)
 		for _i_ = 1 to _nLen_
 			if isString(@acChars[_i_])
 				@acChars[_i_] = upper(@acChars[_i_])
@@ -287,7 +287,7 @@ class stzStringCharList
 			return This
 
 	def Lowercase()
-		_nLen_ = ring_len(@acChars)
+		_nLen_ = len(@acChars)
 		for _i_ = 1 to _nLen_
 			if isString(@acChars[_i_])
 				@acChars[_i_] = lower(@acChars[_i_])
@@ -302,7 +302,7 @@ class stzStringCharList
 	# wrapped in stzString for the Q form.
 	def Join()
 		_cOut_ = ""
-		_nLen_ = ring_len(@acChars)
+		_nLen_ = len(@acChars)
 		for _i_ = 1 to _nLen_
 			_cOut_ += @acChars[_i_]
 		next
@@ -312,25 +312,25 @@ class stzStringCharList
 			return new stzString( This.Join() )
 
 	def NumberOfChars()
-		return ring_len(@acChars)
+		return len(@acChars)
 
 		def Count()
-			return ring_len(@acChars)
+			return len(@acChars)
 
 		def Size()
-			return ring_len(@acChars)
+			return len(@acChars)
 
 		def Length()
-			return ring_len(@acChars)
+			return len(@acChars)
 
 	# Section(:From = pcA, :To = pcB) -- return the slice of chars
 	# between the first occurrence of pcA and the first occurrence of
 	# pcB (both inclusive). Also accepts numeric positions
 	# Section(n1, n2). Returns a plain list of chars.
 	def Section(p1, p2)
-		_nLen_ = ring_len(@acChars)
+		_nLen_ = len(@acChars)
 		_n1_ = p1; _n2_ = p2
-		if isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
 		   lower(p1[1]) = "from"
 			_vF_ = p1[2]
 			if isString(_vF_)
@@ -342,7 +342,7 @@ class stzStringCharList
 				_n1_ = _vF_
 			ok
 		ok
-		if isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and
+		if isList(p2) and len(p2) = 2 and isString(p2[1]) and
 		   lower(p2[1]) = "to"
 			_vT_ = p2[2]
 			if isString(_vT_)
@@ -365,7 +365,7 @@ class stzStringCharList
 		return _aRes_
 
 	def NthChar(n)
-		if n < 1 or n > ring_len(@acChars)
+		if n < 1 or n > len(@acChars)
 			StzRaise("Index out of range!")
 		ok
 		return @acChars[n]
@@ -386,7 +386,7 @@ class stzStringCharList
 	#===============================#
 
 	def Contains(cChar)
-		nLen = ring_len(@acChars)
+		nLen = len(@acChars)
 		for i = 1 to nLen
 			if @acChars[i] = cChar
 				return 1
@@ -396,7 +396,7 @@ class stzStringCharList
 
 	def Find(cChar)
 		anResult = []
-		nLen = ring_len(@acChars)
+		nLen = len(@acChars)
 		for i = 1 to nLen
 			if @acChars[i] = cChar
 				anResult + i
@@ -484,7 +484,7 @@ class stzStringCharList
 	#===============================#
 
 	def Reverse()
-		nLen = ring_len(@acChars)
+		nLen = len(@acChars)
 		acNew = []
 		for i = nLen to 1 step -1
 			acNew + @acChars[i]
@@ -547,7 +547,7 @@ class stzStringCharList
 	#===============================#
 
 	def Unicodes()
-		nLen = ring_len(@acChars)
+		nLen = len(@acChars)
 		anResult = []
 		for i = 1 to nLen
 			anResult + StzEngineCharUnicode(@acChars[i])
@@ -603,7 +603,7 @@ class stzStringCharList
 	# Long-tail aliases used by Q("...").CharsQ() chains.
 	def NumbrifyQ()
 		_l_ = This.Content()
-		_nL_ = ring_len(_l_)
+		_nL_ = len(_l_)
 		_aR_ = []
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
@@ -626,12 +626,12 @@ class stzStringCharList
 
 	def RemoveDuplicatesQ()
 		_l_ = This.Content()
-		_nL_ = ring_len(_l_)
+		_nL_ = len(_l_)
 		_aR_ = []
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
 			_bSeen_ = FALSE
-			_nRL_ = ring_len(_aR_)
+			_nRL_ = len(_aR_)
 			for _j_ = 1 to _nRL_
 				if _aR_[_j_] = _v_ _bSeen_ = TRUE exit ok
 			next
@@ -643,12 +643,12 @@ class stzStringCharList
 		return new stzList( This.Content() )
 
 	def Are(p)
-		return ring_len(This.Content()) > 0
+		return len(This.Content()) > 0
 
 	# Boxify (delegates to stzString via concat).
 	def Boxify()
 		_l_ = This.Content()
-		_nL_ = ring_len(_l_)
+		_nL_ = len(_l_)
 		_c_ = ""
 		for _i_ = 1 to _nL_
 			if isString(_l_[_i_]) _c_ += _l_[_i_] ok

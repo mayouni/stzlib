@@ -221,7 +221,7 @@ class stzListSections
 
 	def Sections(paSections)
 		_aSsResult_ = []
-		_nSsLen_ = ring_len(paSections)
+		_nSsLen_ = len(paSections)
 
 		for _iSs_ = 1 to _nSsLen_
 			@AddItem(_aSsResult_, This.Section(paSections[_iSs_][1], paSections[_iSs_][2]))
@@ -362,7 +362,7 @@ class stzListSections
 	def Ranges(paRanges)
 		_aRgsResult_ = []
 
-		_nRanges1Len_ = ring_len(paRanges)
+		_nRanges1Len_ = len(paRanges)
 		for _iLoopRanges1_ = 1 to _nRanges1Len_
 			_aRgsRange_ = paRanges[_iLoopRanges1_]
 			@AddItem(_aRgsResult_, This.Range( _aRgsRange_[1], _aRgsRange_[2] ))

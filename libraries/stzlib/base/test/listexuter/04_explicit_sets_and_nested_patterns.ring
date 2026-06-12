@@ -21,7 +21,7 @@ lxu() {
             500, "Server Error"
         ]
         
-        _nCodeMapLen_ = ring_len(codeMap)
+        _nCodeMapLen_ = len(codeMap)
         for i = 1 to _nCodeMapLen_ step 2
             if @list = codeMap[i]
                 @list = [ @list, codeMap[i+1] ]

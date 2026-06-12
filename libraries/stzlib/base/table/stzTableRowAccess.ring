@@ -156,10 +156,10 @@ class stzTableRowAccess from stzTable
 	#--------------------------------#
 
 	def NumberOfRows()
-		if ring_len(@aContent) = 0
+		if len(@aContent) = 0
 			return 0
 		else
-			return ring_len(@aContent[1][2])
+			return len(@aContent[1][2])
 		ok
 
 		def Size()
@@ -428,7 +428,7 @@ class stzTableRowAccess from stzTable
 
 	def RowsAsPositions(panRows)
 		nNumberOfCols = This.NumberOfCols()
-		nLenRows = ring_len(panRows)
+		nLenRows = len(panRows)
 
 		aResult = []
 

@@ -198,7 +198,7 @@ func StzIsDateTime(str)
 
 func StzGetDateTimeFormat(cFormatNameOrString)
     if isString(cFormatNameOrString)
-        _nDateTimeFormats1Len_ = ring_len($aDateTimeFormats)
+        _nDateTimeFormats1Len_ = len($aDateTimeFormats)
         for _iLoopDateTimeFormats1_ = 1 to _nDateTimeFormats1Len_
         	aFormat = $aDateTimeFormats[_iLoopDateTimeFormats1_]
             if aFormat[1] = cFormatNameOrString
@@ -348,7 +348,7 @@ class stzDateTime from stzObject
 	        @nMs = aComps[7]
 
 	    but isList(pDateTime)
-	        if ring_len(pDateTime) = 2 and
+	        if len(pDateTime) = 2 and
 	           isObject(pDateTime[1]) and isObject(pDateTime[2])
 	            if pDateTime[1].IsAStzDate()
 	                @nYear = pDateTime[1].Year()
@@ -527,7 +527,7 @@ class stzDateTime from stzObject
             aDateParts = split(cDatePart, "-")
         ok
 
-        if ring_len(aDateParts) != 3
+        if len(aDateParts) != 3
             StzRaise("Cannot parse date part: " + cDatePart)
         ok
 
@@ -555,7 +555,7 @@ class stzDateTime from stzObject
         ok
 
         aTimeParts = split(cTimePart, ":")
-        if ring_len(aTimeParts) < 2
+        if len(aTimeParts) < 2
             @nHour = 0
             @nMinute = 0
             @nSecond = 0
@@ -568,12 +568,12 @@ class stzDateTime from stzObject
         @nSecond = 0
         @nMs = 0
 
-        if ring_len(aTimeParts) >= 3
+        if len(aTimeParts) >= 3
             cSecPart = aTimeParts[3]
             if StzFind(cSecPart, ".") > 0
                 aSecParts = split(cSecPart, ".")
                 @nSecond = 0+ aSecParts[1]
-                if ring_len(aSecParts) >= 2
+                if len(aSecParts) >= 2
                     @nMs = 0+ aSecParts[2]
                 ok
             else
@@ -621,15 +621,15 @@ class stzDateTime from stzObject
 	    cTimePart = ""
 	    cAMPM = ""
 
-	    if ring_len(aParts) >= 2
+	    if len(aParts) >= 2
 	        cTimePart = aParts[2]
-	        if ring_len(aParts) >= 3
+	        if len(aParts) >= 3
 	            cAMPM = " AP"
 	        ok
 	    ok
 
 	    aDateParts = split(cDatePart, cDateSep)
-	    if ring_len(aDateParts) != 3
+	    if len(aDateParts) != 3
 	        return NULL
 	    ok
 
@@ -644,9 +644,9 @@ class stzDateTime from stzObject
 	        aTimeParts = split(cTimePart, ":")
 	        cTimeFormat = ""
 
-	        if ring_len(aTimeParts) >= 3
+	        if len(aTimeParts) >= 3
 	            cTimeFormat = "HH:mm:ss"
-	        but ring_len(aTimeParts) = 2
+	        but len(aTimeParts) = 2
 	            cTimeFormat = "HH:mm"
 	        ok
 
@@ -688,7 +688,7 @@ class stzDateTime from stzObject
 	        return FALSE
 	    ok
 
-	    if ring_len(aDateParts) != 3
+	    if len(aDateParts) != 3
 	        return FALSE
 	    ok
 
@@ -707,7 +707,7 @@ class stzDateTime from stzObject
 	    ok
 
 	    aTimeParts = split(cTimePart, ":")
-	    if ring_len(aTimeParts) < 2
+	    if len(aTimeParts) < 2
 	        return FALSE
 	    ok
 
@@ -716,12 +716,12 @@ class stzDateTime from stzObject
 	    nSecond = 0
 	    nMs = 0
 
-	    if ring_len(aTimeParts) >= 3
+	    if len(aTimeParts) >= 3
 	        cSecPart = aTimeParts[3]
 	        if StzFind(cSecPart, ".") > 0
 	            aSecParts = split(cSecPart, ".")
 	            nSecond = 0+ aSecParts[1]
-	            if ring_len(aSecParts) >= 2
+	            if len(aSecParts) >= 2
 	                nMs = 0+ aSecParts[2]
 	            ok
 	        else
@@ -762,7 +762,7 @@ class stzDateTime from stzObject
 	        return FALSE
 	    ok
 
-	    if ring_len(aDateParts) != 3
+	    if len(aDateParts) != 3
 	        return FALSE
 	    ok
 
@@ -1127,10 +1127,10 @@ class stzDateTime from stzObject
 	    aParts = split(cExpr, " ")
 
 	    i = 1
-	    while i <= ring_len(aParts)
+	    while i <= len(aParts)
 	        if isNumber(0+ aParts[i])
 	            nValue = 0+ aParts[i]
-	            if i < ring_len(aParts)
+	            if i < len(aParts)
 	                cUnit = StzLower(aParts[i+1])
 
 	                if cUnit = "day" or cUnit = "days"
@@ -1174,10 +1174,10 @@ class stzDateTime from stzObject
 	    aParts = split(cExpr, " ")
 
 	    i = 1
-	    while i <= ring_len(aParts)
+	    while i <= len(aParts)
 	        if isNumber(0+ aParts[i])
 	            nValue = 0+ aParts[i]
-	            if i < ring_len(aParts)
+	            if i < len(aParts)
 	                cUnit = StzLower(aParts[i+1])
 
 	                if cUnit = "day" or cUnit = "days"
@@ -1910,14 +1910,14 @@ class stzDateTime from stzObject
         return oNewDateTime
 
     def SetComponents(aComponents)
-        if isList(aComponents) and ring_len(aComponents) >= 6
+        if isList(aComponents) and len(aComponents) >= 6
             @nYear = aComponents[1]
             @nMonth = aComponents[2]
             @nDay = aComponents[3]
             @nHour = aComponents[4]
             @nMinute = aComponents[5]
             @nSecond = aComponents[6]
-            if ring_len(aComponents) >= 7
+            if len(aComponents) >= 7
                 @nMs = aComponents[7]
             else
                 @nMs = 0
@@ -2001,7 +2001,7 @@ class stzDateTime from stzObject
 	        [:ms, 1]
 	    ]
 
-	    _nUnits2Len_ = ring_len(aUnits)
+	    _nUnits2Len_ = len(aUnits)
 	    for _iLoopUnits2_ = 1 to _nUnits2Len_
 	    	aUnit = aUnits[_iLoopUnits2_]
 	        cUnit = aUnit[1]
@@ -2015,8 +2015,8 @@ class stzDateTime from stzObject
 	            cBefore = trim(cBefore)
 
 	            aTokens = split(cBefore, " ")
-	            if ring_len(aTokens) > 0
-	                cNumber = aTokens[ring_len(aTokens)]
+	            if len(aTokens) > 0
+	                cNumber = aTokens[len(aTokens)]
 	                nValue = 0+ cNumber
 	                nTotalMilliseconds += (nValue * nMultiplier)
 	            ok
@@ -2157,7 +2157,7 @@ class stzDateTime from stzObject
         ok
 
     def GetOriginBase(cOrigin)
-        _nTimeOrigins1Len_ = ring_len(aTimeOrigins)
+        _nTimeOrigins1Len_ = len(aTimeOrigins)
         for _iLoopTimeOrigins1_ = 1 to _nTimeOrigins1Len_
         	aOrigin = aTimeOrigins[_iLoopTimeOrigins1_]
             if aOrigin[1] = cOrigin
@@ -2197,13 +2197,13 @@ class stzDateTime from stzObject
 
         aTokens = split(cDuration, " ")
 
-        _nUnits1Len_ = ring_len(aUnits)
+        _nUnits1Len_ = len(aUnits)
         for _iLoopUnits1_ = 1 to _nUnits1Len_
         	aUnit = aUnits[_iLoopUnits1_]
             cUnit = aUnit[1]
             nMultiplier = aUnit[2]
 
-            _nTokensLen_ = ring_len(aTokens)
+            _nTokensLen_ = len(aTokens)
             for i = 1 to _nTokensLen_
                 if StzLower(aTokens[i]) = cUnit and i > 1
                     nValue = 0+ aTokens[i-1]

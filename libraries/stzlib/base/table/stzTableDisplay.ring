@@ -52,16 +52,16 @@ class stzTableDisplay from stzTable
 
         # Calculate column widths
         aColWidths = []
-        nCols = ring_len(acColNames)
+        nCols = len(acColNames)
 
         # First pass: calculate max width for each column header
         for i = 1 to nCols
-            nMaxWidth = ring_len(acColNames[i])
+            nMaxWidth = len(acColNames[i])
 
             # Check column values
 
             aColData = aContent[i][2]
-			nLenCol = ring_len(aColData)
+			nLenCol = len(aColData)
 
             for j = 1 to nLenCol
 
@@ -233,14 +233,14 @@ class stzTableDisplay from stzTable
 			# Use defaults
 		else
 			if isList(pParams)
-				if ring_len(pParams) = 0
+				if len(pParams) = 0
 					# Use defaults
 				else
-					nLenP = ring_len(pParams)
+					nLenP = len(pParams)
 					for i = 1 to nLenP
 						if isList(pParams[i])
 							cParamName = StzLower(string(pParams[i][1]))
-							if ring_len(pParams[i]) >= 2
+							if len(pParams[i]) >= 2
 								if StzLower(cParamName) = "rownumber"
 									bRowNumber = pParams[i][2]
 								but StzLower(cParamName) = "subtotal"
@@ -286,12 +286,12 @@ class stzTableDisplay from stzTable
 	# Submethod to calculate column widths
 	def calculateColumnWidths(acColNames, aContent, bRowNumber, bGrandTotal)
 		aColWidths = []
-		nCols = ring_len(acColNames)
+		nCols = len(acColNames)
 
 		for i = 1 to nCols
-			nMaxWidth = ring_len(acColNames[i])
+			nMaxWidth = len(acColNames[i])
 			aColData = aContent[i][2]
-			nLenCol = ring_len(aColData)
+			nLenCol = len(aColData)
 
 			for j = 1 to nLenCol
 				if isString(aColData[j]) or isNumber(aColData[j])
@@ -305,14 +305,14 @@ class stzTableDisplay from stzTable
 				ok
 			next
 
-			nLenTemp = ring_len("Product X Total")
+			nLenTemp = len("Product X Total")
 			if i = 1
 				if nMaxWidth < nLenTemp
 					nMaxWidth = nLenTemp
 				ok
 			ok
 
-			nLenTemp = ring_len("GRAND-TOTAL")
+			nLenTemp = len("GRAND-TOTAL")
 			if i = 1 and bGrandTotal
 				if nMaxWidth < nLenTemp
 					nMaxWidth = nLenTemp
@@ -328,7 +328,7 @@ class stzTableDisplay from stzTable
 	def adjustForRowNumbers(bRowNumber, aColWidths, acColNames)
 
 		if bRowNumber
-			nRowNumWidth = ring_len("" + This.NumberOfRows()) + 2
+			nRowNumWidth = len("" + This.NumberOfRows()) + 2
 			aColWidths = ring_insert(aColWidths, 1, nRowNumWidth)
 			acColNames = ring_insert(acColNames, 1, "#")
 		ok
@@ -336,7 +336,7 @@ class stzTableDisplay from stzTable
 	# Submethod to build the output string
 	def buildOutput(acColNames, aContent, aColWidths, bRowNumber, bSubTotal, bGrandTotal)
 		cOutput = ""
-		nCols = ring_len(acColNames)
+		nCols = len(acColNames)
 
 		# Top border
 		cLine = @aBorder[:TopLeft]
@@ -423,7 +423,7 @@ class stzTableDisplay from stzTable
 					loop
 				ok
 				nDataCol = @if(bRowNumber, i - 1, i)
-				if nDataCol > 0 and nDataCol <= ring_len(aContent)
+				if nDataCol > 0 and nDataCol <= len(aContent)
 					cellValue = aContent[nDataCol][2][r]
 					if not (isNumber(cellValue) or isString(cellValue))
 						cellValue = @@(cellValue)
@@ -452,7 +452,7 @@ class stzTableDisplay from stzTable
 					cLine += " " + PadLeft("" + r, aColWidths[i] - 2) + " " + @aBorder[:Vertical]
 				else
 					nDataCol = @if(bRowNumber, i - 1, i)
-					if nDataCol > 0 and nDataCol <= ring_len(aContent)
+					if nDataCol > 0 and nDataCol <= len(aContent)
 						cellValue = aContent[nDataCol][2][r]
 						if NOT (isNumber(cellValue) or isString(cellValue))
 							cellValue = @@(cellValue)
@@ -553,11 +553,11 @@ class stzTableDisplay from stzTable
 	def Transpose()
 
 	    # Get dimensions directly from @aContent
-	    nCols = ring_len(@aContent)
+	    nCols = len(@aContent)
 	    if nCols = 0
 	        return
 	    ok
-	    nRows = ring_len(@aContent[1][2])
+	    nRows = len(@aContent[1][2])
 
 	    # Set internal flag to track header preservation
 	    @bTransposedWithHeaders = FALSE
@@ -613,11 +613,11 @@ class stzTableDisplay from stzTable
 	def TransposeXT() # Keeps original colnames
 
 	    # Get dimensions and column names directly from @aContent
-	    nCols = ring_len(@aContent)
+	    nCols = len(@aContent)
 	    if nCols = 0
 	        return
 	    ok
-	    nRows = ring_len(@aContent[1][2])
+	    nRows = len(@aContent[1][2])
 
 	    # Set internal flag to track header preservation
 	    @bTransposedWithHeaders = True
@@ -662,20 +662,20 @@ class stzTableDisplay from stzTable
 
 	def TransposeBack()
 	    # Only works if table was transposed with headers
-	    if ring_len(@aOriginalColNames) = 0
+	    if len(@aOriginalColNames) = 0
 	        raise("Cannot transpose back: no header information found")
 	    ok
 
 	    # Get data columns (skip first column which contains headers)
 	    aDataColumns = []
-	    _nContentLen_ = ring_len(@aContent)
+	    _nContentLen_ = len(@aContent)
 	    for i = 2 to _nContentLen_
 	        aDataColumns + @aContent[i][2]
 	    next
 
 	    # Transpose back
-	    nOriginalCols = ring_len(@aOriginalColNames)
-	    nOriginalRows = ring_len(aDataColumns)
+	    nOriginalCols = len(@aOriginalColNames)
+	    nOriginalRows = len(aDataColumns)
 
 	    aNewContent = []
 	    for i = 1 to nOriginalCols
@@ -816,23 +816,23 @@ class stzTableDisplay from stzTable
 
 	def ToHtmlXT()
 	    aContent = @aContent
-	    if ring_len(aContent) = 0
+	    if len(aContent) = 0
 	        return '<table class="data"><thead><tr></tr></thead><tbody></tbody></table>'
 	    ok
 
 	    # Ensure all columns have exactly the same number of values
 	    # This is critical for the buggy parser
-	    nLen = ring_len(aContent)
+	    nLen = len(aContent)
 	    nRows = 0
 	    for i = 1 to nLen
-	        if ring_len(aContent[i][2]) > nRows
-	            nRows = ring_len(aContent[i][2])
+	        if len(aContent[i][2]) > nRows
+	            nRows = len(aContent[i][2])
 	        ok
 	    next
 
 	    # Pad shorter columns with empty strings to match longest column
 	    for i = 1 to nLen
-	        while ring_len(aContent[i][2]) < nRows
+	        while len(aContent[i][2]) < nRows
 	            aContent[i][2] + ""
 	        end
 	    next

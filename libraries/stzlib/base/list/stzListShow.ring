@@ -88,7 +88,7 @@ func ComputableShortFormXT(pValue, nItems)
     if isNumber(nItems)
         _nHead_ = nItems
         _nTail_ = nItems
-    but isList(nItems) and ring_len(nItems) = 2 and
+    but isList(nItems) and len(nItems) = 2 and
         isNumber(nItems[1]) and isNumber(nItems[2])
         _nHead_ = nItems[1]
         _nTail_ = nItems[2]
@@ -227,7 +227,7 @@ func CalculateComplexity(aList)
     ok
 
     # Score for long strings
-    _nList8Len_ = ring_len(aList)
+    _nList8Len_ = len(aList)
     for _iLoopList8_ = 1 to _nList8Len_
     	_itemCcStr_ = aList[_iLoopList8_]
         if isString(_itemCcStr_) and len(_itemCcStr_) > 30
@@ -236,7 +236,7 @@ func CalculateComplexity(aList)
     next
 
     # Score for wide nested lists (lists with many items)
-    _nList7Len_ = ring_len(aList)
+    _nList7Len_ = len(aList)
     for _iLoopList7_ = 1 to _nList7Len_
     	_itemCcLst_ = aList[_iLoopList7_]
         if isList(_itemCcLst_) and len(_itemCcLst_) > 5
@@ -249,7 +249,7 @@ func CalculateComplexity(aList)
 func GetMaxDepth(aList)
     _nGmdMaxDepth_ = 1
 
-    _nList6Len_ = ring_len(aList)
+    _nList6Len_ = len(aList)
     for _iLoopList6_ = 1 to _nList6Len_
     	_itemGmd_ = aList[_iLoopList6_]
         if isList(_itemGmd_)
@@ -327,7 +327,7 @@ func FormatListSmartNL(aList, cSep, cIndent)
 
     # Expand if contains nested lists (visual complexity)
     if NOT _bFlsnlExpand_
-        _nList5Len_ = ring_len(aList)
+        _nList5Len_ = len(aList)
         for _iLoopList5_ = 1 to _nList5Len_
         	_itemFlsnlNest_ = aList[_iLoopList5_]
             if isList(_itemFlsnlNest_) and len(_itemFlsnlNest_) > 0
@@ -396,7 +396,7 @@ func FormatItemForNL(pValue, cBaseIndent)
 
 # Check if a list contains nested lists
 func ContainsNestedLists(aList)
-    _nList4Len_ = ring_len(aList)
+    _nList4Len_ = len(aList)
     for _iLoopList4_ = 1 to _nList4Len_
     	_itemCnl_ = aList[_iLoopList4_]
         if isList(_itemCnl_)
@@ -421,7 +421,7 @@ func CanCompactList(aList)
     ok
 
     # Don't compact if it contains nested lists (adds visual complexity)
-    _nList3Len_ = ring_len(aList)
+    _nList3Len_ = len(aList)
     for _iLoopList3_ = 1 to _nList3Len_
     	_itemCcl_ = aList[_iLoopList3_]
         if isList(_itemCcl_) and len(_itemCcl_) > 0
@@ -514,7 +514,7 @@ func ShouldExpandList(aList)
     ok
 
     # Expand if contains nested lists
-    _nList2Len_ = ring_len(aList)
+    _nList2Len_ = len(aList)
     for _iLoopList2_ = 1 to _nList2Len_
     	_itemSelNest_ = aList[_iLoopList2_]
         if isList(_itemSelNest_)
@@ -523,7 +523,7 @@ func ShouldExpandList(aList)
     next
 
     # Expand if contains long strings
-    _nList1Len_ = ring_len(aList)
+    _nList1Len_ = len(aList)
     for _iLoopList1_ = 1 to _nList1Len_
     	_itemSelStr_ = aList[_iLoopList1_]
         if isString(_itemSelStr_) and len(_itemSelStr_) > 20
@@ -603,7 +603,7 @@ func FormatListNL(aList, cSep, cIndent)
 
 func FormatShortList(aList, nItems)
     _aFslShort_ = []
-    _nFslLen_ = ring_len(aList)
+    _nFslLen_ = len(aList)
 
     # Accept symmetric (number) or asymmetric ([nHead, nTail]) request.
     _nFslHead_ = 0
@@ -611,7 +611,7 @@ func FormatShortList(aList, nItems)
     if isNumber(nItems)
         _nFslHead_ = nItems
         _nFslTail_ = nItems
-    but isList(nItems) and ring_len(nItems) = 2
+    but isList(nItems) and len(nItems) = 2
         _nFslHead_ = nItems[1]
         _nFslTail_ = nItems[2]
     ok

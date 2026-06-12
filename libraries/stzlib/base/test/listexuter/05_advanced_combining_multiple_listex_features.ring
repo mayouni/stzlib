@@ -23,7 +23,7 @@ lxu() {
         nMin = 999
         nMax = 0
         
-        _nNumbers1Len_ = ring_len(aNumbers)
+        _nNumbers1Len_ = len(aNumbers)
         for _iLoopNumbers1_ = 1 to _nNumbers1Len_
         	num = aNumbers[_iLoopNumbers1_]
             nSum += num

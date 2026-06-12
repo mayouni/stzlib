@@ -178,7 +178,7 @@ class stzRegex
 	def MatchTypeXT()
 		_acResult_ = [ This.MatchType() ]
 		_acOptions_ = This.MatchOptions()
-		_nLen_ = ring_len(_acOptions_)
+		_nLen_ = len(_acOptions_)
 
 		for @i = 1 to _nLen_
 			_acResult_ + _acOptions_[@i]
@@ -224,7 +224,7 @@ class stzRegex
 		ok
 
 		@nFlags = 0
-		nLen = ring_len(pacOptions)
+		nLen = len(pacOptions)
 
 		for i = 1 to nLen
 			switch pacOptions[i]
@@ -361,7 +361,7 @@ class stzRegex
 		ok
 
 		_bResult_ = 1
-		_nLen_ = ring_len(pacStr)
+		_nLen_ = len(pacStr)
 
 		for @i = 1 to _nLen_
 			if NOT This.Match(pacStr[@i])
@@ -378,7 +378,7 @@ class stzRegex
 		ok
 
 		_abResult_ = []
-		_nLen_ = ring_len(pacStr)
+		_nLen_ = len(pacStr)
 
 		for @i = 1 to _nLen_
 			_abResult_ + This.Match(pacStr[@i])
@@ -454,7 +454,7 @@ class stzRegex
 		#>
 
 	def NumberOfMatches()
-		return ring_len(AllMatches())
+		return len(AllMatches())
 
 		def NumberOfMatchingValues()
 			return This.NumberOfMatches()
@@ -705,7 +705,7 @@ class stzRegex
 		#>
 
 	def HasValues()
-		return ring_len(This.MatchedValues()) > 0
+		return len(This.MatchedValues()) > 0
 
 		def HasMatches()
 			return This.HasValues()
@@ -725,7 +725,7 @@ class stzRegex
 		# expect pattern order. Two named-group syntaxes are
 		# accepted: (?<name>...) and (?P<name>...).
 		_acResult_ = This._CaptureNamesFromPattern()
-		if ring_len(_acResult_) > 0
+		if len(_acResult_) > 0
 			return _acResult_
 		ok
 
@@ -748,7 +748,7 @@ class stzRegex
 			return _acCnp_
 		ok
 		_cPat_ = @cPattern
-		_nPat_ = ring_len(_cPat_)
+		_nPat_ = len(_cPat_)
 		_i_ = 1
 		_bInClass_ = 0
 		while _i_ <= _nPat_
@@ -839,7 +839,7 @@ class stzRegex
 
 		_acNames_ = This.CaptureNames()
 		_aResult_ = []
-		_nLen_ = ring_len(_acNames_)
+		_nLen_ = len(_acNames_)
 
 		for @i = 1 to _nLen_
 			_cVal_ = StzEngineRegexCaptureByName(@pRegexHandle, _acNames_[@i])
@@ -862,7 +862,7 @@ class stzRegex
 
 	def FindCapture()
 		_aPosZZ_ = This.FindMatchesZZ()
-		_nLen_ = ring_len(_aPosZZ_)
+		_nLen_ = len(_aPosZZ_)
 
 		_anResult_ = []
 
@@ -939,7 +939,7 @@ class stzRegex
 
 		_aResult_ = []
 		_aInfo_ = This.CaptureZZ()
-		_nLen_ = ring_len(_aInfo_)
+		_nLen_ = len(_aInfo_)
 
 		for @i = 1 to _nLen_
 			_aResult_ + _aInfo_[@i][2]
@@ -1219,7 +1219,7 @@ class stzRegex
 		ok
 
 		_bResult_ = 1
-		_nLen_ = ring_len(pacStr)
+		_nLen_ = len(pacStr)
 
 		for @i = 1 to _nLen_
 			if NOT This.MatchRecursive(pacStr[@i])
@@ -1239,7 +1239,7 @@ class stzRegex
 		ok
 
 		_abResult_ = []
-		_nLen_ = ring_len(pacStr)
+		_nLen_ = len(pacStr)
 
 		for @i = 1 to _nLen_
 			_abResult_ + This.MatchRecursive(pacStr[@i])
@@ -1276,7 +1276,7 @@ class stzRegex
 
 	def RecursiveSubStrings()
 		_aTemp_ = This.RecursiveMatchInfo()[3][2]
-		_nLen_ = ring_len(_aTemp_)
+		_nLen_ = len(_aTemp_)
 
 		_acResult_ = []
 
@@ -1309,7 +1309,7 @@ class stzRegex
 
 	def RecursiveSubStringsZ()
 		_aTemp_ = This.RecursiveMatchInfo()[3][2]
-		_nLen_ = ring_len(_aTemp_)
+		_nLen_ = len(_aTemp_)
 
 		_acResult_ = []
 
@@ -1342,7 +1342,7 @@ class stzRegex
 
 	def FindRecursiveSubStringsZZ()
 		_aTemp_ = This.RecursiveMatchInfo()[3][2]
-		_nLen_ = ring_len(_aTemp_)
+		_nLen_ = len(_aTemp_)
 
 		_acResult_ = []
 
@@ -1381,7 +1381,7 @@ class stzRegex
 
 	def FindRecursiveSubStrings()
 		_aTemp_ = This.RecursiveMatchInfo()[3][2]
-		_nLen_ = ring_len(_aTemp_)
+		_nLen_ = len(_aTemp_)
 
 		_acResult_ = []
 

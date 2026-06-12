@@ -37,7 +37,7 @@ aRangeIssues = o1.ValidateRanges(aRangeRules)
 
 ? "Range violations found: " + len(aRangeIssues)
 
-_nRangeIssues1Len_ = ring_len(aRangeIssues)
+_nRangeIssues1Len_ = len(aRangeIssues)
 for _iLoopRangeIssues1_ = 1 to _nRangeIssues1Len_
 	issue = aRangeIssues[_iLoopRangeIssues1_]
     ? "  • " + issue

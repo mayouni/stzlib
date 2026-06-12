@@ -32,7 +32,7 @@ func Assemble(pcPart1, pcPart2, pcPart3)
 	# <MetaCode> : The function becomes aware of its local variables names, types, and values
 		aLocals = locals()
 		aVars = []
-		_nLocalsLen_ = ring_len(aLocals)
+		_nLocalsLen_ = len(aLocals)
 		for v = len(aMeta[:params])+3 to _nLocalsLen_-4
 			cCode = "aVars + [ aLocals[v], [ :type = ring_type(" + aLocals[v] + "), :value = " + aLocals[v] + " ] ]"
 			eval(cCode)
@@ -57,7 +57,7 @@ func CacheFunc(cFunc, aParams, pResult, nSeconds)
 	cCacheLine +=  '"' + stzTimeStamp() + '" , '
 	cCacheLine += "[ "
 	n = 0
-	_nParams1Len_ = ring_len(aParams)
+	_nParams1Len_ = len(aParams)
 	for _iLoopParams1_ = 1 to _nParams1Len_
 		value = aParams[_iLoopParams1_]
 		n++

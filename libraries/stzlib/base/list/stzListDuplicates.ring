@@ -75,7 +75,7 @@ class stzListDuplicates
 		ok
 
 		_aFdParts_ = StzSplit(_cFdResult_, ",")
-		_nFdLen_ = ring_len(_aFdParts_)
+		_nFdLen_ = len(_aFdParts_)
 		_anFdResult_ = []
 		for _iFd_ = 1 to _nFdLen_
 			@AddItem(_anFdResult_, 0 + _aFdParts_[_iFd_])
@@ -92,7 +92,7 @@ class stzListDuplicates
 	def DuplicatedItemsCS(pCaseSensitive)
 		_anDiPos_ = This.FindDuplicatesCS(pCaseSensitive)
 		_aDiContent_ = This.Content()
-		_nDiLen_ = ring_len(_anDiPos_)
+		_nDiLen_ = len(_anDiPos_)
 
 		_aDiResult_ = []
 		for _iDi_ = 1 to _nDiLen_
@@ -146,7 +146,7 @@ class stzListDuplicates
 
 	def HasDuplicatesCS(pCaseSensitive)
 		anPos = This.FindDuplicatesCS(pCaseSensitive)
-		return ring_len(anPos) > 0
+		return len(anPos) > 0
 
 	def HasDuplicates()
 		return This.HasDuplicatesCS(1)
@@ -165,7 +165,7 @@ class stzListDuplicates
 	#========================================#
 
 	def NumberOfDuplicatesCS(pCaseSensitive)
-		return ring_len(This.FindDuplicatesCS(pCaseSensitive))
+		return len(This.FindDuplicatesCS(pCaseSensitive))
 
 	def NumberOfDuplicates()
 		return This.NumberOfDuplicatesCS(1)
@@ -176,7 +176,7 @@ class stzListDuplicates
 
 	def FindDuplicatesOfCS(pItem, pCaseSensitive)
 		_anFdoPos_ = This.FindAllCS(pItem, pCaseSensitive)
-		_nFdoLen_ = ring_len(_anFdoPos_)
+		_nFdoLen_ = len(_anFdoPos_)
 
 		if _nFdoLen_ <= 1
 			return []
@@ -219,7 +219,7 @@ class stzListDuplicates
 		ok
 
 		_aFndParts_ = StzSplit(_cFndResult_, ",")
-		_nFndLen_ = ring_len(_aFndParts_)
+		_nFndLen_ = len(_aFndParts_)
 		_anFndResult_ = []
 		for _iFnd_ = 1 to _nFndLen_
 			@AddItem(_anFndResult_, 0 + _aFndParts_[_iFnd_])
@@ -236,7 +236,7 @@ class stzListDuplicates
 	def NonDuplicatedItemsCS(pCaseSensitive)
 		_anNdiPos_ = This.FindNonDuplicatedItemsCS(pCaseSensitive)
 		_aNdiContent_ = This.Content()
-		_nNdiLen_ = ring_len(_anNdiPos_)
+		_nNdiLen_ = len(_anNdiPos_)
 		_aNdiResult_ = []
 		for _iNdi_ = 1 to _nNdiLen_
 			@AddItem(_aNdiResult_, _aNdiContent_[_anNdiPos_[_iNdi_]])
@@ -258,7 +258,7 @@ class stzListDuplicates
 		_aIdnRaw_ = StzEngineContentFromList(_pIdnFreqs_)
 		StzEngineListFree(_pIdnFreqs_)
 
-		_nIdnLen_ = ring_len(_aIdnRaw_)
+		_nIdnLen_ = len(_aIdnRaw_)
 		_aIdnResult_ = []
 		_iIdn_ = 1
 		for _kIdn_ = 1 to _nIdnLen_ / 2
@@ -286,7 +286,7 @@ class stzListDuplicates
 		_aMdiRaw_ = StzEngineContentFromList(_pMdiFreqs_)
 		StzEngineListFree(_pMdiFreqs_)
 
-		_nMdiLen_ = ring_len(_aMdiRaw_)
+		_nMdiLen_ = len(_aMdiRaw_)
 		_nMdiMax_ = 0
 		_cMdiResult_ = ""
 		_iMdi_ = 1
@@ -310,7 +310,7 @@ class stzListDuplicates
 
 	def RemoveNthDuplicateCS(n, pItem, pCaseSensitive)
 		anPos = This.FindDuplicatesOfCS(pItem, pCaseSensitive)
-		if n >= 1 and n <= ring_len(anPos)
+		if n >= 1 and n <= len(anPos)
 			ring_remove(This.List(), anPos[n])
 		ok
 

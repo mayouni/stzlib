@@ -48,7 +48,7 @@ class stzListexuter
             return
         ok
         
-        if NOT (isList(aTrigger) and ring_len(aTrigger) = 2 and 
+        if NOT (isList(aTrigger) and len(aTrigger) = 2 and 
                 isString(aTrigger[1]) and isString(aTrigger[2]))
             StzRaise("Incorrect parameter format! Expected [name, pattern]")
         ok
@@ -60,7 +60,7 @@ class stzListexuter
         aTriggers + aTrigger
         
     def TriggerNameExists(cName)
-        _nTriggers2Len_ = ring_len(aTriggers)
+        _nTriggers2Len_ = len(aTriggers)
         for _iLoopTriggers2_ = 1 to _nTriggers2Len_
         	trigger = aTriggers[_iLoopTriggers2_]
             if trigger[1] = cName
@@ -90,7 +90,7 @@ class stzListexuter
         # Clean code
         cCode = trim(cCode)
         if StzLeft(cCode, 1) = "{" and StzRight(cCode, 1) = "}"
-            cCode = StzMid(cCode, 2, ring_len(cCode)-2)
+            cCode = StzMid(cCode, 2, len(cCode)-2)
         ok
         
         aCodesPerTrigger + [cTriggerName, cCode]
@@ -104,7 +104,7 @@ class stzListexuter
             StzRaise("Invalid input! Expected list to analyze.")
         ok
         
-        if ring_len(aList) = 0
+        if len(aList) = 0
             ResetState()
             return
         ok
@@ -115,7 +115,7 @@ class stzListexuter
         aLastTriggers = []
         aActiveComputations = []
         
-        _nTriggers1Len_ = ring_len(aTriggers)
+        _nTriggers1Len_ = len(aTriggers)
         for _iLoopTriggers1_ = 1 to _nTriggers1Len_
         	trigger = aTriggers[_iLoopTriggers1_]
             cTriggerName = trigger[1]
@@ -127,10 +127,10 @@ class stzListexuter
             # Find all sublists that match the pattern
             aMatches = FindAllMatches(aList, oListex)
             
-            if ring_len(aMatches) > 0
+            if len(aMatches) > 0
                 aActiveComputations + cTriggerName
                 
-                _nMatchesLen_ = ring_len(aMatches)
+                _nMatchesLen_ = len(aMatches)
                 for i = 1 to _nMatchesLen_
                     match = aMatches[i]
                     
@@ -147,7 +147,7 @@ class stzListexuter
                     ok
                 next
                 
-                del(aActiveComputations, ring_len(aActiveComputations))
+                del(aActiveComputations, len(aActiveComputations))
             ok
         next
         
@@ -165,13 +165,13 @@ class stzListexuter
         ok
         
         # Check parts of the list recursively
-        if ring_len(aList) > 0
-            _nListLen_3 = ring_len(aList)
+        if len(aList) > 0
+            _nListLen_3 = len(aList)
             for i = 1 to _nListLen_3
                 if isList(aList[i])
                     # Recursively check nested list
                     aSubMatches = FindAllMatches(aList[i], oListex)
-                    _nSubMatches1Len_ = ring_len(aSubMatches)
+                    _nSubMatches1Len_ = len(aSubMatches)
                     for _iLoopSubMatches1_ = 1 to _nSubMatches1Len_
                     	match = aSubMatches[_iLoopSubMatches1_]
                         aResult + match
@@ -180,15 +180,15 @@ class stzListexuter
             next
             
             # Check for matching sublists at this level
-            _nListLen_2 = ring_len(aList)
+            _nListLen_2 = len(aList)
             for i = 1 to _nListLen_2
-                _nListLen_ = ring_len(aList)
+                _nListLen_ = len(aList)
                 for j = i to _nListLen_
                     aSubList = []
                     for _k = i to j
                         aSubList + aList[_k]
                     next
-                    if oListex.Match(aSubList) and ring_len(aSubList) > 0
+                    if oListex.Match(aSubList) and len(aSubList) > 0
                         aResult + aSubList
                     ok
                 next
@@ -209,7 +209,7 @@ class stzListexuter
         # Create state entry
         entry = [
             :timeStamp = date() + " " + time(),
-            :computationOrder = ring_len(aState) + 1,
+            :computationOrder = len(aState) + 1,
             
             :triggerName = cTriggerName,
             :pattern = cPattern,
@@ -282,7 +282,7 @@ class stzListexuter
 	    aAffected = []
 	    
 	    # Look through state history for triggers affected by this one
-	    _nState2Len_ = ring_len(aState)
+	    _nState2Len_ = len(aState)
 	    for _iLoopState2_ = 1 to _nState2Len_
 	    	entry = aState[_iLoopState2_]
 	        if find(entry[:dependsOn], cTriggerName) > 0
@@ -295,14 +295,14 @@ class stzListexuter
 	def GetDependencyChain(cTriggerName)
 	    aChain = []
 	    
-	    _nState1Len_ = ring_len(aState)
+	    _nState1Len_ = len(aState)
 	    for _iLoopState1_ = 1 to _nState1Len_
 	    	entry = aState[_iLoopState1_]
 	        if entry[:triggerName] = cTriggerName
 	            aChain + entry[:dependsOn]
 	            
 	            _aEntrydependsOn1_ = entry[:dependsOn]
-	            _nEntrydependsOn1Len_ = ring_len(_aEntrydependsOn1_)
+	            _nEntrydependsOn1Len_ = len(_aEntrydependsOn1_)
 	            for _iLoopEntrydependsOn1_ = 1 to _nEntrydependsOn1Len_
 	            	depTrigger = _aEntrydependsOn1_[_iLoopEntrydependsOn1_]
 	                aChain + This.GetDependencyChain(depTrigger)
@@ -332,7 +332,7 @@ class stzListexuter
     def executeComputation(aMatchedValue, cTriggerName)
         # Find computation code for this trigger
         cCode = ""
-        _nCodesPerTrigger1Len_ = ring_len(aCodesPerTrigger)
+        _nCodesPerTrigger1Len_ = len(aCodesPerTrigger)
         for _iLoopCodesPerTrigger1_ = 1 to _nCodesPerTrigger1Len_
         	pair = aCodesPerTrigger[_iLoopCodesPerTrigger1_]
             if pair[1] = cTriggerName

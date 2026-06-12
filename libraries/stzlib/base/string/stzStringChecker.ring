@@ -152,7 +152,7 @@ class stzStringChecker
 		ok
 
 		cCopy = @oString.Content()
-		nLen = ring_len(acSubStr)
+		nLen = len(acSubStr)
 
 		for i = 1 to nLen
 			cCopy = @ReplaceCS(cCopy, acSubStr[i], "", pCaseSensitive)
@@ -185,7 +185,7 @@ class stzStringChecker
 		ok
 
 		cCopy = @oString.Content()
-		nLen = ring_len(acSubStr)
+		nLen = len(acSubStr)
 
 		for i = 1 to nLen
 			oFinder = new stzStringFinder(cCopy)
@@ -266,8 +266,8 @@ class stzStringChecker
 		# field value should be eval'd back into a Ring list).
 		_cIisContent_ = @oString.Content()
 		_cIisTrim_ = trim(_cIisContent_)
-		if ring_len(_cIisTrim_) < 2 return 0 ok
-		if _cIisTrim_[1] = "[" and _cIisTrim_[ring_len(_cIisTrim_)] = "]"
+		if len(_cIisTrim_) < 2 return 0 ok
+		if _cIisTrim_[1] = "[" and _cIisTrim_[len(_cIisTrim_)] = "]"
 			return 1
 		ok
 		return 0

@@ -45,7 +45,7 @@ Rs {
             [ :severity = "CRITICAL", :message = "Network down" ]
         ]
         
-        _nEventsLen_ = ring_len(events)
+        _nEventsLen_ = len(events)
         for i = 1 to _nEventsLen_
             ? "Event: " + events[i][:severity] + " - " + events[i][:message]
             Recieve(events[i])

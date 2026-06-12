@@ -16,7 +16,7 @@ def dist(a,b):
     s = 0.0
     n = len(a)
     _aRangen1_ = range(n):
-    _nRangen1Len_ = ring_len(_aRangen1_)
+    _nRangen1Len_ = len(_aRangen1_)
     for _iLoopRangen1_ = 1 to _nRangen1Len_
     	i = _aRangen1_[_iLoopRangen1_]
         dist = a[i] - b[i]
@@ -50,7 +50,7 @@ s = 0.0
 n = len(a)
 
 _aRange1n1_ = range1(n)':'
-_nRange1n1Len_ = ring_len(_aRange1n1_)
+_nRange1n1Len_ = len(_aRange1n1_)
 for _iLoopRange1n1_ = 1 to _nRange1n1Len_
 	i = _aRange1n1_[_iLoopRange1n1_]
 # We use range1() to make it start from 1

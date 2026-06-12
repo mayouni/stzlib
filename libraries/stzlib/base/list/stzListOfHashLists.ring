@@ -40,11 +40,11 @@ class stzListOfHashLists from stzList
 	# defined as Ring's '=' on the underlying list shapes.
 	def ToSetOfHashLists()
 		_aRes_ = []
-		_nLen_ = ring_len(@aContent)
+		_nLen_ = len(@aContent)
 		for _iSo_ = 1 to _nLen_
 			_aHl_ = @aContent[_iSo_]
 			_bSeen_ = 0
-			_nResLen_ = ring_len(_aRes_)
+			_nResLen_ = len(_aRes_)
 			for _jSo_ = 1 to _nResLen_
 				if _aRes_[_jSo_] = _aHl_
 					_bSeen_ = 1
@@ -65,7 +65,7 @@ class stzListOfHashLists from stzList
 
 	def ToListOfStzHashLists()
 		aResult = []
-		nLen = ring_len(@aContent)
+		nLen = len(@aContent)
 
 		for i = 1 to nLen
 			aResult + new stzHashList(@aContent[i])
@@ -76,12 +76,12 @@ class stzListOfHashLists from stzList
 	def Show()
 
 		cResult = ""
-		nLen = ring_len(@aContent)
+		nLen = len(@aContent)
 
 		for i = 1 to nLen
 
 			aHashList = @aContent[i]
-			nLenHash = ring_len(aHashList)
+			nLenHash = len(aHashList)
 
 			for j = 1 to nLenHash
 				cLine = aHashList[j][1] + " : " + aHashList[j][2]

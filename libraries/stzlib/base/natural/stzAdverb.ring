@@ -135,7 +135,7 @@ func LoadAdverbRulesFromFile(filename)
     
 func GetAdverbRulesByCategory(category) 
     result = []
-    _nAdverbRules1Len_ = ring_len(AdverbRules)
+    _nAdverbRules1Len_ = len(AdverbRules)
     for _iLoopAdverbRules1_ = 1 to _nAdverbRules1Len_
     	rule = AdverbRules[_iLoopAdverbRules1_]
         if rule[5] = category

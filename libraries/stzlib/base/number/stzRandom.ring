@@ -1166,11 +1166,11 @@ func RandomNumber()
 		return _ARandomNumberBetweenAnd(p1, p2, 1)   # exclusive
 
 	func _ARandomNumberBetweenAnd(p1, p2, bStrict)
-		if NOT (isList(p1) and ring_len(p1) = 2 and isString(p1[1]) and
+		if NOT (isList(p1) and len(p1) = 2 and isString(p1[1]) and
 		        lower(p1[1]) = "between" and isNumber(p1[2]))
 			StzRaise("ARandomNumber: first arg must be :Between = <number>.")
 		ok
-		if NOT (isList(p2) and ring_len(p2) = 2 and isString(p2[1]) and
+		if NOT (isList(p2) and len(p2) = 2 and isString(p2[1]) and
 		        lower(p2[1]) = "and" and isNumber(p2[2]))
 			StzRaise("ARandomNumber: second arg must be :And = <number>.")
 		ok

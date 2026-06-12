@@ -195,7 +195,7 @@ func Sys(cCommand)
 	acArgs = aPlatformCmd[2]
 	
 	cResult = cProgram
-	_nAcArgs1Len_ = ring_len(acArgs)
+	_nAcArgs1Len_ = len(acArgs)
 	for _iLoopAcArgs1_ = 1 to _nAcArgs1Len_
 		cArg = acArgs[_iLoopAcArgs1_]
 		cResult += " " + cArg

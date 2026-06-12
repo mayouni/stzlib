@@ -46,10 +46,10 @@ class stzStringDuplicates
 		return _SplitNullDelimited(cDups)
 
 	def HasDuplicatedChars()
-		return ring_len(This.DuplicatedChars()) > 0
+		return len(This.DuplicatedChars()) > 0
 
 	def NumberOfDuplicatedChars()
-		return ring_len(This.DuplicatedChars())
+		return len(This.DuplicatedChars())
 
 	  #===============================#
 	 #     UNIQUE CHARS              #
@@ -81,7 +81,7 @@ class stzStringDuplicates
 
 	def HasConsecutiveDuplicates()
 		acChars = @oString.Chars()
-		nLen = ring_len(acChars)
+		nLen = len(acChars)
 		if nLen < 2
 			return 0
 		ok
@@ -141,14 +141,14 @@ class stzStringDuplicates
 	def RemoveDuplicateSubStringCS(pcSubStr, pCaseSensitive)
 		oFinder = new stzStringFinder(@oString)
 		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
-		if ring_len(anPos) <= 1
+		if len(anPos) <= 1
 			return
 		ok
 
 		nLenSub = StzLen(pcSubStr)
 
 		# Remove from end to start to preserve earlier positions
-		for i = ring_len(anPos) to 2 step -1
+		for i = len(anPos) to 2 step -1
 			nPos = anPos[i]
 			@oString.RemoveSection(nPos, nPos + nLenSub - 1)
 		next

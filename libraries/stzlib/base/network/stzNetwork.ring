@@ -27,7 +27,7 @@ func StzHex2Dec(cHex)
 
 func StzStr2Hex(cStr)
     result = ""
-    _nStr1Len_ = ring_len(cStr)
+    _nStr1Len_ = len(cStr)
     for _iLoopStr1_ = 1 to _nStr1Len_
     	char = cStr[_iLoopStr1_]
         hex = StzDec2Hex(ascii(char))

@@ -25,7 +25,7 @@ class stzPair from stzList
 	def init(paList)
 		// Control: paList must contain just 2 items
 		@aContent = []
-		_nList1Len_ = ring_len(paList)
+		_nList1Len_ = len(paList)
 		for _iLoopList1_ = 1 to _nList1Len_
 			item = paList[_iLoopList1_]
 			@aContent + item
@@ -49,7 +49,7 @@ class stzPair from stzList
 
 	def Update(paPair)
 		if CheckingParams()
-			if NOT ( isList(paPair) and ring_len(panPair) = 2 )
+			if NOT ( isList(paPair) and len(panPair) = 2 )
 				StzRaise("Incorrect param type! paPair must be a list of 2 items.")
 			ok
 		ok

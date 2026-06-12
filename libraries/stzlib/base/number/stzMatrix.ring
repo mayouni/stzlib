@@ -208,9 +208,9 @@ class stzMatrix
 		# Disambiguate: [n, m] (two numbers) -> zero-matrix of those
 		# dims; anything else is a 2D list of rows. The earlier
 		# implementation checked `isList` first and crashed on
-		# `ring_len(paInput[1])` for the dim-pair form (paInput[1] is a
+		# `len(paInput[1])` for the dim-pair form (paInput[1] is a
 		# number, not a list).
-		if ring_len(paInput) = 2 and isNumber(paInput[1]) and isNumber(paInput[2])
+		if len(paInput) = 2 and isNumber(paInput[1]) and isNumber(paInput[2])
 
 			# Zero matrix of given dimensions
 			@nRows = paInput[1]
@@ -228,8 +228,8 @@ class stzMatrix
 		else
 			# 2D matrix list
 			@aMatrix = paInput
-			@nRows = ring_len(paInput)
-			@nCols = ring_len(paInput[1])
+			@nRows = len(paInput)
+			@nCols = len(paInput[1])
 		ok
 
 	def _EnsureEngineMatrix()
@@ -288,7 +288,7 @@ class stzMatrix
 
 	def Add(p)
 
-		if isList(p) and ring_len(p) = 2 and
+		if isList(p) and len(p) = 2 and
 		   isList(p[2]) and IsToOrToColOrToRowNamedParamList(p[2])
 
 			_aTemp_ = []
@@ -310,13 +310,13 @@ class stzMatrix
 		ok
 
 		# Using RingFastPro
-		if isList(p) and ring_len(p) = 2
+		if isList(p) and len(p) = 2
 
 			if isNumber(p[1]) and isNumber(p[2])
 				This.AddInRow(p[1], p[2])
 				return
 	
-			but isNumber(p[1]) and isList(p[2]) and ring_len(p[2]) = 2 and
+			but isNumber(p[1]) and isList(p[2]) and len(p[2]) = 2 and
 			    isString(p[2][1]) and isNumber(p[2][2])
 	
 
@@ -430,13 +430,13 @@ class stzMatrix
 
 		 # Case: AddInCols(8, [ :From = 1, :To = 3 ])
 
-		if ring_len(paColumns) = 2 and
+		if len(paColumns) = 2 and
 
-		   isList(paColumns[1]) and ring_len(paColumns[1]) = 2 and
+		   isList(paColumns[1]) and len(paColumns[1]) = 2 and
 		   isString(paColumns[1][1]) and paColumns[1][1] = :From and
 		   isNumber(paColumns[1][2]) and
 
-		   isList(paColumns[2]) and ring_len(paColumns[2]) = 2 and
+		   isList(paColumns[2]) and len(paColumns[2]) = 2 and
 		   isString(paColumns[2][1]) and paColumns[2][1] = :To and
 		   isNumber(paColumns[2][2])
 
@@ -446,7 +446,7 @@ class stzMatrix
 
 		#-- Other cases
 
-		_nColumns1Len_ = ring_len(paColumns)
+		_nColumns1Len_ = len(paColumns)
 		for _iLoopColumns1_ = 1 to _nColumns1Len_
 			nCol = paColumns[_iLoopColumns1_]
 			for i = 1 to @nRows
@@ -470,13 +470,13 @@ class stzMatrix
 
 		 # Case: AddInRows(8, [ :From = 1, :To = 3 ])
 
-		if ring_len(paColumns) = 2 and
+		if len(paColumns) = 2 and
 
-		   isList(paColumns[1]) and ring_len(paColumns[1]) = 2 and
+		   isList(paColumns[1]) and len(paColumns[1]) = 2 and
 		   isString(paColumns[1][1]) and paColumns[1][1] = :From and
 		   isNumber(paColumns[1][2]) and
 
-		   isList(paColumns[2]) and ring_len(paColumns[2]) = 2 and
+		   isList(paColumns[2]) and len(paColumns[2]) = 2 and
 		   isString(paColumns[2][1]) and paColumns[2][1] = :To and
 		   isNumber(paColumns[2][2])
 
@@ -486,7 +486,7 @@ class stzMatrix
 
 		#-- Other cases
 
-		nLen = ring_len(panRows)
+		nLen = len(panRows)
 
 		for i = 1 to nLen
 			for j = 1 to @nCols
@@ -530,16 +530,16 @@ class stzMatrix
 			return
 		ok
 
-		if isList(p) and ring_len(p) = 2
+		if isList(p) and len(p) = 2
 
 			if isNumber(p[1]) and isNumber(p[2])
 				This.MultiplyRow(p[1], p[2])
 				return
 
-			but isList(p[1]) and ring_len(p[1]) = 2 and
+			but isList(p[1]) and len(p[1]) = 2 and
 			    isString(p[1][1]) and isNumber(p[1][2]) and
 
-			    isList(p[2]) and ring_len(p[2]) = 2 and
+			    isList(p[2]) and len(p[2]) = 2 and
 			    isString(p[2][1]) and p[2][1] = :By and
 			    isNumber(p[2][2])
 
@@ -629,13 +629,13 @@ class stzMatrix
 
 		# Early check for the case: MultiplyCols([:from = 2, :to = 3], :By = 2)
 
-		if isList(panCols) and ring_len(panCols) = 2 and
+		if isList(panCols) and len(panCols) = 2 and
 
-		   isList(panCols[1]) and ring_len(panCols[1]) = 2 and
+		   isList(panCols[1]) and len(panCols[1]) = 2 and
 		   isString(panCols[1][1]) and panCols[1][1] = :From and
 		   isNumber(panCols[1][2]) and
 
-		   isList(panCols[2]) and ring_len(panCols[2]) = 2 and
+		   isList(panCols[2]) and len(panCols[2]) = 2 and
 		   isString(panCols[2][1]) and panCols[2][1] = :To and
 		   isNumber(panCols[2][2])
 
@@ -653,7 +653,7 @@ class stzMatrix
 
 		# Doing the job
 
-		nLen = ring_len(panCols)
+		nLen = len(panCols)
 
 		aCommands = []
 		cCode = 'updateColumn(@aMatrix, '
@@ -720,13 +720,13 @@ class stzMatrix
 
 		# Early check for the case: MultiplyRows([:from = 2, :to = 3], :By = 2)
 
-		if isList(panRows) and ring_len(panRows) = 2 and
+		if isList(panRows) and len(panRows) = 2 and
 
-		   isList(panRows[1]) and ring_len(panRows[1]) = 2 and
+		   isList(panRows[1]) and len(panRows[1]) = 2 and
 		   isString(panRows[1][1]) and panRows[1][1] = :From and
 		   isNumber(panRows[1][2]) and
 
-		   isList(panRows[2]) and ring_len(panRows[2]) = 2 and
+		   isList(panRows[2]) and len(panRows[2]) = 2 and
 		   isString(panRows[2][1]) and panRows[2][1] = :To and
 		   isNumber(panRows[2][2])
 
@@ -744,7 +744,7 @@ class stzMatrix
 
 		# Doing the job
 
-		nLen = ring_len(panRows)
+		nLen = len(panRows)
 
 		for i = 1 to nLen
 		 	updateList(@aMatrix, :mul, :row, panRows[i], pnValue)
@@ -810,8 +810,8 @@ class stzMatrix
 			raise("Input must be a valid matrix")
 		ok
 
-		nInputRows = ring_len(paMatrix)
-		nInputCols = ring_len(paMatrix[1])
+		nInputRows = len(paMatrix)
+		nInputCols = len(paMatrix[1])
 
 		if @nRows != nInputRows or @nCols != nInputCols
 			raise("Matrices must have the same dimensions")
@@ -836,8 +836,8 @@ class stzMatrix
 
 		# Check matrix multiplication dimensions
 
-		nInputRows = ring_len(paMatrix)
-		nInputCols = ring_len(paMatrix[1])
+		nInputRows = len(paMatrix)
+		nInputCols = len(paMatrix[1])
 
 		if @nCols != nInputRows
 			raise("Matrices cannot be multiplied: incompatible dimensions")
@@ -1015,12 +1015,12 @@ class stzMatrix
 	def FindElements(panElms)
 
 		aResult = []
-		nLen = ring_len(panElms)
+		nLen = len(panElms)
 
 		for i = 1 to nLen
 
 			aPositions = This.FindElement(panElms[i])
-			nLen2 = ring_len(aPositions)
+			nLen2 = len(aPositions)
 
 			for j = 1 to nLen2
 				aResult + aPositions[j]
@@ -1052,13 +1052,13 @@ class stzMatrix
 
 	def FindCols(panCols)
 		
-		nLen = ring_len(panCols)
+		nLen = len(panCols)
 		anResult = []
 
 		for i = 1 to nLen
 
 			anPos = This.FindCol(panCols[i])
-			nLenPos = ring_len(anPos)
+			nLenPos = len(anPos)
 
 			for j = 1 to nLenPos
 				anResult + anPos[j]
@@ -1089,13 +1089,13 @@ class stzMatrix
 
 	def FindRows(panRows)
 
-		nLen = ring_len(panRows)
+		nLen = len(panRows)
 		anResult = []
 
 		for i = 1 to nLen
 
 			anPos = This.FindRow(panRows[i])
-			nLenPos = ring_len(anPos)
+			nLenPos = len(anPos)
 
 			for j = 1 to nLenPos
 				anResult + anPos[j]
@@ -1115,7 +1115,7 @@ class stzMatrix
 				panStart = panStart[2]
 			ok
 
-			if NOT (isList(panStart) and ring_len(panStart) = 2 and
+			if NOT (isList(panStart) and len(panStart) = 2 and
 				isNumber(panStart[1]) and isNumber(panStart[2]))
 	
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
@@ -1125,7 +1125,7 @@ class stzMatrix
 				panEnd = panEnd[2]
 			ok
 
-			if NOT (isList(panEnd) and ring_len(panEnd) = 2 and
+			if NOT (isList(panEnd) and len(panEnd) = 2 and
 				isNumber(panEnd[1]) and isNumber(panEnd[2]))
 	
 				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
@@ -1141,7 +1141,7 @@ class stzMatrix
 				aRow + [j, i]
 			next
 
-			nLen = ring_len(aRow)
+			nLen = len(aRow)
 			for j = 1 to nLen
 				aResult + aRow[j]
 			next
@@ -1175,7 +1175,7 @@ class stzMatrix
 				panStart = panStart[2]
 			ok
 
-			if NOT ( isList(panStart) and ring_len(panStart) = 2 and
+			if NOT ( isList(panStart) and len(panStart) = 2 and
 				 isNumber(panStart[1]) and isNumber(panStart[2]))
 
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
@@ -1185,7 +1185,7 @@ class stzMatrix
 				panEnd = panEnd[2]
 			ok
 
-			if NOT ( isList(panEnd) and ring_len(panEnd) = 2 and
+			if NOT ( isList(panEnd) and len(panEnd) = 2 and
 				isNumber(panEnd[1]) and isNumber(panEnd[2]))
 
 				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
@@ -1232,7 +1232,7 @@ class stzMatrix
 				panStart = panStart[2]
 			ok
 
-			if NOT (isList(panStart) and ring_len(panStart) = 2 and
+			if NOT (isList(panStart) and len(panStart) = 2 and
 				isNumber(panStart[1]) and isNumber(panStart[2]))
 
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
@@ -1242,7 +1242,7 @@ class stzMatrix
 				panEnd = panEnd[2]
 			ok
 
-			if NOT (isList(panEnd) and ring_len(panEnd) = 2 and
+			if NOT (isList(panEnd) and len(panEnd) = 2 and
 				isNumber(panEnd[1]) and isNumber(panEnd[2]))
 
 				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
@@ -1278,7 +1278,7 @@ class stzMatrix
 				panStart = panStart[2]
 			ok
 
-			if NOT (isList(panStart) and ring_len(panStart) = 2 and
+			if NOT (isList(panStart) and len(panStart) = 2 and
 				isNumber(panStart[1]) and isNumber(panStart[2]))
 	
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
@@ -1288,7 +1288,7 @@ class stzMatrix
 				panEnd = panEnd[2]
 			ok
 
-			if NOT (isList(panEnd) and ring_len(panEnd) = 2 and
+			if NOT (isList(panEnd) and len(panEnd) = 2 and
 				isNumber(panEnd[1]) and isNumber(panEnd[2]))
 	
 				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
@@ -1357,13 +1357,13 @@ class stzMatrix
 
 		if CheckParams()
 
-			if NOT (isList(panStart) and ring_len(panStart) = 2 and
+			if NOT (isList(panStart) and len(panStart) = 2 and
 				isNumber(panStart[1]) and isNumber(panStart[2]))
 	
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
 			ok
 
-			if NOT (isList(panEnd) and ring_len(panEnd) = 2 and
+			if NOT (isList(panEnd) and len(panEnd) = 2 and
 				isNumber(panEnd[1]) and isNumber(panEnd[2]))
 	
 				stzraise("Incorrect param type! panEnd must be a pair of numbers.")
@@ -1410,7 +1410,7 @@ class stzMatrix
 
 		ok
 
-		if ring_len(panNewCol) != @nRows
+		if len(panNewCol) != @nRows
 			stzraise("Can't proceed! Column replacement must match matrix rows.")
 		ok
 		
@@ -1438,15 +1438,15 @@ class stzMatrix
 
 		# Logical cheks
 
-		nLenNewCols = ring_len(panNewCols)
+		nLenNewCols = len(panNewCols)
 
-		if ring_len(panNewCols[1]) != @nRows
+		if len(panNewCols[1]) != @nRows
 			raise("Can't proceed! Replacement columns must match matrix rows")
 		ok
 
-		nLenCols = ring_len(panCols)
+		nLenCols = len(panCols)
 
-		if nLenCols != ring_len(panNewCols)
+		if nLenCols != len(panNewCols)
 			raise("Can't proceed! Number of columns to replace must match new columns")
 		ok
 
@@ -1483,7 +1483,7 @@ class stzMatrix
 			ok
 		ok
 
-		if ring_len(panNewRow) != @nCols
+		if len(panNewRow) != @nCols
 			raise("Can't proceed! New row must match matrix columns.")
 		ok
 
@@ -1507,9 +1507,9 @@ class stzMatrix
 			ok
 		ok
 
-		nLenRows = ring_len(panRows)
+		nLenRows = len(panRows)
 
-		if nLenRows != ring_len(paNewRows)
+		if nLenRows != len(paNewRows)
 			raise("Number of rows to replace must match new rows")
 		ok
 
@@ -1517,7 +1517,7 @@ class stzMatrix
 
 			nRow = panRows[k]
 
-			if ring_len(paNewRows[k]) != @nCols
+			if len(paNewRows[k]) != @nCols
 				raise("Replacement row must match matrix columns")
 			ok
 
@@ -1604,7 +1604,7 @@ class stzMatrix
 
 		if CheckParams()
 
-			if NOT (isList(panRowCol) and ring_len(panRowCol) = 2 and
+			if NOT (isList(panRowCol) and len(panRowCol) = 2 and
 				isNumber(panRowCol[1]) and isNumber(panRowCol[2]) )
 
 				stzraise("Incorrect param types! panRowCol must be a pair of numbers.")
@@ -1635,7 +1635,7 @@ class stzMatrix
 
 		if CheckParams()
 
-			if NOT (isList(panRowCol) and ring_len(panRowCol) = 2 and
+			if NOT (isList(panRowCol) and len(panRowCol) = 2 and
 				isNumber(panRowCol[1]) and isNumber(panRowCol[2]) )
 
 				stzraise("Incorrect param types! panRowCol must be a pair of numbers.")
@@ -1686,14 +1686,14 @@ class stzMatrix
 			ok
 		ok
 
-		nLen = ring_len(panPos)
+		nLen = len(panPos)
 	
 		for i = 1 to nLen
 			nRow = panPos[i][1]
 			nCol = panPos[i][2]
 	
 			if nRow <= @nRows and nCol <= @nCols
-				if i <= ring_len(panElms)
+				if i <= len(panElms)
 					if @aMatrix[nRow][nCol] = panElms[i]
 						@aMatrix[nRow][nCol] = pnNewElm
 					ok
@@ -1723,8 +1723,8 @@ class stzMatrix
 		ok
 
 		aPositions = This.FindElement(pnElm)
-		nLen = ring_len(aPositions)
-		nNewElmsLen = ring_len(panNewElms)
+		nLen = len(aPositions)
+		nNewElmsLen = len(panNewElms)
     
 		# Consider the minimum of occurrences and replacement values
 
@@ -1755,8 +1755,8 @@ class stzMatrix
 		ok
 
 		aPositions = This.FindElement(pnElm)
-		nLen = ring_len(aPositions)
-		nNewElmsLen = ring_len(panNewElms)
+		nLen = len(aPositions)
+		nNewElmsLen = len(panNewElms)
 
 		# If no replacement values, exit
 
@@ -1799,9 +1799,9 @@ class stzMatrix
 			ok
 		ok
 
-		nLen = ring_len(panPos)
-		nElmsLen = ring_len(panElms)
-		nNewElmsLen = ring_len(panNewElms)
+		nLen = len(panPos)
+		nElmsLen = len(panElms)
+		nNewElmsLen = len(panNewElms)
 
 		# Consider minimum of occurrences, elements, and replacement values
 
@@ -1842,9 +1842,9 @@ class stzMatrix
 
 		ok
 
-		nLen = ring_len(panPos)
-		nElmsLen = ring_len(panElms)
-		nNewElmsLen = ring_len(panNewElms)
+		nLen = len(panPos)
+		nElmsLen = len(panElms)
+		nNewElmsLen = len(panNewElms)
 
 		# If no replacement values, exit
 
@@ -1903,7 +1903,7 @@ class stzMatrix
 
 		# Doing the job
 
-		nLen = ring_len(panPos)
+		nLen = len(panPos)
 
 		for i = 1 to nLen
 			@aMatrix[ panPos[i][1] ][ panPos[i][2] ] = pBy
@@ -1917,7 +1917,7 @@ class stzMatrix
 			ok
 		ok
 
-		_nMin_ = @Min([ ring_len(panPos), ring_len(panMany) ])
+		_nMin_ = @Min([ len(panPos), len(panMany) ])
 
 		for i = 1 to _nMin_
 			@aMatrix[ panPos[i][1] ][ panPos[i][2] ] = panMany[i]
@@ -1925,8 +1925,8 @@ class stzMatrix
 		
 	def ReplaceElementsAtByManyXT(panPos, panByMany)
 
-		nLen = ring_len(panPos)
-		nNewElmsLen = ring_len(panByMany)
+		nLen = len(panPos)
+		nNewElmsLen = len(panByMany)
 
 		# If no replacement values, exit
 

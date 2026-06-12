@@ -87,7 +87,7 @@ class stzStringCounter
 			return StzEngineStringCount(@oString.Engine())
 		else
 			oGetter = new stzStringGetter(@oString)
-			return ring_len(oGetter.UniqueCharsCS(0))
+			return len(oGetter.UniqueCharsCS(0))
 		ok
 
 	  #======================================================#

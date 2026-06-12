@@ -26,7 +26,7 @@ aTasks = [
 ]
 
 nRequired = 0
-_nTasks1Len_ = ring_len(aTasks)
+_nTasks1Len_ = len(aTasks)
 for _iLoopTasks1_ = 1 to _nTasks1Len_
 	aTask = aTasks[_iLoopTasks1_]
     nRequired += aTask[2]

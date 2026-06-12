@@ -136,7 +136,7 @@ class stzListRandom
 		ok
 
 		_nRpepLen_ = This.NumberOfItems()
-		_nRpepLenPos_ = ring_len(panPos)
+		_nRpepLenPos_ = len(panPos)
 
 		if _nRpepLen_ - _nRpepLenPos_ <= 0
 			return 0
@@ -361,7 +361,7 @@ class stzListRandom
 			ok
 		ok
 
-		_nRssLen_ = ring_len(panSections)
+		_nRssLen_ = len(panSections)
 		for _iRss_ = 1 to _nRssLen_
 			This.RandomizeSection(panSections[_iRss_][1], panSections[_iRss_][2])
 		next

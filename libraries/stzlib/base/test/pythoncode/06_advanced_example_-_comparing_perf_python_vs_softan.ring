@@ -18,7 +18,7 @@ py() {
 def traverse_and_replace(lst, target, replacement):
     count = 0
     _aRangelenlst1_ = range(len(lst)):
-    _nRangelenlst1Len_ = ring_len(_aRangelenlst1_)
+    _nRangelenlst1Len_ = len(_aRangelenlst1_)
     for _iLoopRangelenlst1_ = 1 to _nRangelenlst1Len_
     	i = _aRangelenlst1_[_iLoopRangelenlst1_]
         if isinstance(lst[i], list):

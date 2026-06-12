@@ -680,10 +680,10 @@ func CharsAndNames(pacChars)
 		return []
 	ok
 	_aResult_ = []
-	_nLen_ = ring_len(pacChars)
+	_nLen_ = len(pacChars)
 	for _i_ = 1 to _nLen_
 		_c_ = pacChars[_i_]
-		if isString(_c_) and ring_len(_c_) >= 1
+		if isString(_c_) and len(_c_) >= 1
 			_n_ = StzCharToUnicode(_c_)
 			_aResult_ + [ _c_, StzCharNameByUnicode(_n_) ]
 		ok
@@ -782,7 +782,7 @@ class stzUnicodeData
 	def CharByHexCode(pcHex)
 		_cHex_ = pcHex
 		# Strip prefix if present
-		if ring_len(_cHex_) > 2
+		if len(_cHex_) > 2
 			_cPfx_ = ring_left(_cHex_, 2)
 			if _cPfx_ = "0x" or _cPfx_ = "0X"
 				_cHex_ = StzMidToEnd(_cHex_, 3)
@@ -800,7 +800,7 @@ class stzUnicodeData
 	def CharNameByHexCode(pcHex)
 		# Strip hex prefix if present
 		_cHex_ = pcHex
-		if ring_len(_cHex_) > 2
+		if len(_cHex_) > 2
 			_cPfx_ = ring_left(_cHex_, 2)
 			if _cPfx_ = "0x" or _cPfx_ = "0X"
 				_cHex_ = StzMidToEnd(_cHex_, 3)
@@ -829,7 +829,7 @@ class stzUnicodeData
 			return []
 		ok
 		_aLines_ = split(_cResult_, nl)
-		_nLen_ = ring_len(_aLines_)
+		_nLen_ = len(_aLines_)
 		_anResult_ = []
 		for _i_ = 1 to _nLen_
 			if _aLines_[_i_] != ""
@@ -855,7 +855,7 @@ class stzUnicodeData
 				return []
 			ok
 			_aLines_ = split(_cResult_, nl)
-			_nLen_ = ring_len(_aLines_)
+			_nLen_ = len(_aLines_)
 			_acResult_ = []
 			for _i_ = 1 to _nLen_
 				if _aLines_[_i_] != ""

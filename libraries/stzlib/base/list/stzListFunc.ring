@@ -43,7 +43,7 @@
 				StzEngineValueFree(pItem)
 			but isList(item)
 				aCopy = []
-				_nItemLen_ = ring_len(item)
+				_nItemLen_ = len(item)
 				for j = 1 to _nItemLen_
 					aCopy + item[j]
 				next
@@ -5513,7 +5513,7 @@ func FirstListIn(paList)
 func GenerateListAccessCode_FromNameAndPath(pcListName, paPath)
 	// Warining: aPath must contain only numbers!!!
 	cCode = pcListName
-	_nPath1Len_ = ring_len(paPath)
+	_nPath1Len_ = len(paPath)
 	for _iLoopPath1_ = 1 to _nPath1Len_
 		n = paPath[_iLoopPath1_]
 		cCode += ("["+ n + ']')
@@ -5568,7 +5568,7 @@ func CallMethod( pcMethod, paOnObjects )
 
 	aResult = []
 	_aOnObjects21_ = paOnObjects[2]
-	_nOnObjects21Len_ = ring_len(_aOnObjects21_)
+	_nOnObjects21Len_ = len(_aOnObjects21_)
 	for _iLoopOnObjects21_ = 1 to _nOnObjects21Len_
 		cObjName = _aOnObjects21_[_iLoopOnObjects21_]
 		cCode = "aResult + " + cObjName + "." + pcMethod
@@ -5910,7 +5910,7 @@ func HaveSameContent(paItems)
 	ok
 
 	bResult = 1
-	_nItemsLen_ = ring_len(paItems)
+	_nItemsLen_ = len(paItems)
 	for i = 2 to _nItemsLen_
 		bOk = Q( @@( paItems[i] ) ).IsEqualTo( @@( paItems[1] ) )
 		if NOT bOk
@@ -6153,7 +6153,7 @@ func AllTheseAreNull(paList)
 
 func AllOfTheseAreNotNull(paList)
 	bResult = 1
-	_nList2Len_ = ring_len(paList)
+	_nList2Len_ = len(paList)
 	for _iLoopList2_ = 1 to _nList2Len_
 		item = paList[_iLoopList2_]
 		if isString(item) and isNull(item)
@@ -6195,7 +6195,7 @@ func BothAreNotNull(p1, p2)
 
 func NoOneOfTheseIsAString(paList)
 	bResult = 1
-	_nList1Len_ = ring_len(paList)
+	_nList1Len_ = len(paList)
 	for _iLoopList1_ = 1 to _nList1Len_
 		item = paList[_iLoopList1_]
 		if isString(item)
@@ -7412,14 +7412,14 @@ func ComputableFormNLQ(pValue)
 
 func IsContiguous(paList)
 	if NOT isList(paList) return FALSE ok
-	_nL_ = ring_len(paList)
+	_nL_ = len(paList)
 	if _nL_ < 2 return _nL_ = 1 ok
 	for _i_ = 2 to _nL_
 		_a_ = paList[_i_ - 1]
 		_b_ = paList[_i_]
 		if isNumber(_a_) and isNumber(_b_)
 			if _b_ != _a_ + 1 return FALSE ok
-		but isString(_a_) and isString(_b_) and ring_len(_a_) = 1 and ring_len(_b_) = 1
+		but isString(_a_) and isString(_b_) and len(_a_) = 1 and len(_b_) = 1
 			if ascii(_b_) != ascii(_a_) + 1 return FALSE ok
 		else
 			return FALSE

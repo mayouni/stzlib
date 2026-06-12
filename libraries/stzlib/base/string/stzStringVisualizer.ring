@@ -93,7 +93,7 @@ class stzStringVisualizer
 		cViz = " "
 		for i = 1 to nChars
 			bMarked = 0
-			nPosLen = ring_len(anPos)
+			nPosLen = len(anPos)
 			for j = 1 to nPosLen
 				if i >= anPos[j] and i < anPos[j] + nSubLen
 					bMarked = 1
@@ -129,10 +129,10 @@ class stzStringVisualizer
 		cVLine = "|"
 
 		if isList(paOptions)
-			nOptLen = ring_len(paOptions)
+			nOptLen = len(paOptions)
 			for i = 1 to nOptLen
 				if isList(paOptions[i])
-					if ring_len(paOptions[i]) = 2
+					if len(paOptions[i]) = 2
 						if paOptions[i][1] = :AllCorners
 							if paOptions[i][2] = :Round
 								cCorner = "."

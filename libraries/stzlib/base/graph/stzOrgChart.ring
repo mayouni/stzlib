@@ -76,7 +76,7 @@ class stzOrgChart from stzDiagram
 			:id = pcId,
 			:title = pcTitle
 		]
-		nLen = ring_len(paAttributes)
+		nLen = len(paAttributes)
 		for i = 1 to nLen
 			aPosition + paAttributes[i]
 		next
@@ -90,9 +90,9 @@ class stzOrgChart from stzDiagram
 		])
 
 	    # Ensure attributes flow to node properties
-	    if isList(paAttributes) and ring_len(paAttributes) > 0
+	    if isList(paAttributes) and len(paAttributes) > 0
 	        acKeys = keys(paAttributes)
-	        nKeyLen = ring_len(acKeys)
+	        nKeyLen = len(acKeys)
 	        for i = 1 to nKeyLen
 	            This.SetNodeProperty(pcId, acKeys[i], paAttributes[acKeys[i]])
 	        end
@@ -166,7 +166,7 @@ class stzOrgChart from stzDiagram
 	#---
 
 	def ReportsTo(pcSubordinate, pcSupervisor)
-	    nPosCount = ring_len(@aPositions)
+	    nPosCount = len(@aPositions)
 	    for i = 1 to nPosCount
 	        if @aPositions[i][:id] = pcSubordinate
 	            @aPositions[i][:reportsTo] = pcSupervisor
@@ -186,7 +186,7 @@ class stzOrgChart from stzDiagram
 	#---
 
 	def SetPositionDepartment(pcPositionId, pcDepartment)
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			if @aPositions[i][:id] = pcPositionId
 				@aPositions[i][:department] = pcDepartment
@@ -198,7 +198,7 @@ class stzOrgChart from stzDiagram
 	#---
 
 	def Position(pcId)
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			if @aPositions[i][:id] = pcId
 				return @aPositions[i]
@@ -214,7 +214,7 @@ class stzOrgChart from stzDiagram
 
 	def VacantPositions()
 		acVacant = []
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			aPos = @aPositions[i]
 			bIsVacant = TRUE
@@ -238,7 +238,7 @@ class stzOrgChart from stzDiagram
 
 	def NonVacantPositions()
 		acNonVacant = []
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			aPos = @aPositions[i]
 			bIsVacant = TRUE
@@ -292,7 +292,7 @@ class stzOrgChart from stzDiagram
 			ok
 		ok
 
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			if @aPositions[i][:id] = pcPositionId
 				@aPositions[i][:incumbent] = pcPersonId
@@ -301,7 +301,7 @@ class stzOrgChart from stzDiagram
 			ok
 		end
 		
-		nPplCount = ring_len(@aPeople)
+		nPplCount = len(@aPeople)
 		for i = 1 to nPplCount
 			if @aPeople[i][:id] = pcPersonId
 				@aPeople[i][:position] = pcPositionId
@@ -334,7 +334,7 @@ class stzOrgChart from stzDiagram
 			This.AssignPerson(pcPersonId, pcPositionId)
 
 	def Person(pcPersonId)
-		nPplCount = ring_len(@aPeople)
+		nPplCount = len(@aPeople)
 		for i = 1 to nPplCount
 			if @aPeople[i][:id] = pcPersonId
 				return @aPeople[i]
@@ -370,12 +370,12 @@ class stzOrgChart from stzDiagram
 		]
 		@aDepartments + aDept
 		
-		if ring_len(paPositions) > 0
+		if len(paPositions) > 0
 			This.AddClusterXTT(pcId, pcName, paPositions, @cClusterColor)
 		ok
 
 	def Department(pcId)
-		nDeptCount = ring_len(@aDepartments)
+		nDeptCount = len(@aDepartments)
 		for i = 1 to nDeptCount
 			if @aDepartments[i][:id] = pcId
 				return @aDepartments[i]
@@ -411,14 +411,14 @@ class stzOrgChart from stzDiagram
 			nTotalIssues = 0
 			acAllAffected = []
 			
-			nLen = ring_len(pValidator)
+			nLen = len(pValidator)
 			for i = 1 to nLen
 				aResult = This._ValidateSingle(pValidator[i])
 				aResults + aResult
 				if aResult[:status] = "fail"
 					nFailed++
 					nTotalIssues += aResult[:issueCount]
-					nAffLen = ring_len(aResult[:affectedNodes])
+					nAffLen = len(aResult[:affectedNodes])
 					for j = 1 to nAffLen
 						if StzFind(acAllAffected, aResult[:affectedNodes][j]) = 0
 							acAllAffected + aResult[:affectedNodes][j]
@@ -429,7 +429,7 @@ class stzOrgChart from stzDiagram
 			
 			return [
 				:status = iif(nFailed = 0, "pass", "fail"),
-				:validatorsRun = ring_len(pValidator),
+				:validatorsRun = len(pValidator),
 				:validatorsFailed = nFailed,
 				:totalIssues = nTotalIssues,
 				:results = aResults,
@@ -496,7 +496,7 @@ class stzOrgChart from stzDiagram
 
 	def ValidateSpanOfControl()
 		aIssues = []
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			cPosId = @aPositions[i][:id]
 			nDirectReports = This.DirectReportsCount(cPosId)
@@ -507,7 +507,7 @@ class stzOrgChart from stzDiagram
 		end
 		
 		return [
-			:status = iif(ring_len(aIssues) = 0, "pass", "fail"),
+			:status = iif(len(aIssues) = 0, "pass", "fail"),
 			:domain = "span_of_control",
 			:issues = aIssues
 		]
@@ -520,10 +520,10 @@ class stzOrgChart from stzDiagram
 		acVacant = This.VacantPositions()
 		
 		return [
-			:status = iif(ring_len(acVacant) = 0, "pass", "fail"),
+			:status = iif(len(acVacant) = 0, "pass", "fail"),
 			:domain = "vacancy",
-			:issueCount = ring_len(acVacant),
-			:issues = iif(ring_len(acVacant) > 0, ["Vacant positions: " + ring_len(acVacant)], []),
+			:issueCount = len(acVacant),
+			:issues = iif(len(acVacant) > 0, ["Vacant positions: " + len(acVacant)], []),
 			:affectedNodes = acVacant
 		]
 	
@@ -531,25 +531,25 @@ class stzOrgChart from stzDiagram
 		acVacant = This.NonVacantPositions()
 		
 		return [
-			:status = iif(ring_len(acVacant) = 0, "pass", "fail"),
+			:status = iif(len(acVacant) = 0, "pass", "fail"),
 			:domain = "vacancy",
-			:issueCount = ring_len(acVacant),
-			:issues = iif(ring_len(acVacant) > 0, ["Vacant positions: " + ring_len(acVacant)], []),
+			:issueCount = len(acVacant),
+			:issues = iif(len(acVacant) > 0, ["Vacant positions: " + len(acVacant)], []),
 			:affectedNodes = acVacant
 		]
 
 	def ValidateSuccession()
 		acRisk = This.SuccessionRisk()
 		aIssues = []
-		nLen = ring_len(acRisk)
+		nLen = len(acRisk)
 		for i = 1 to nLen
 			aIssues + ("No successor: " + acRisk[i])
 		end
 		
 		return [
-			:status = iif(ring_len(aIssues) = 0, "pass", "fail"),
+			:status = iif(len(aIssues) = 0, "pass", "fail"),
 			:domain = "succession",
-			:issueCount = ring_len(aIssues),
+			:issueCount = len(aIssues),
 			:issues = aIssues,
 			:affectedNodes = acRisk
 		]
@@ -567,14 +567,14 @@ class stzOrgChart from stzDiagram
 		return This.ValidateBCEAOGovernance()
 
 	def DirectReportsCount(pcPositionId)
-		return ring_len(This.DirectReports(pcPositionId))
+		return len(This.DirectReports(pcPositionId))
 
 		def DirectReportsN(pcPositionId)
 			return This.DirectReportsCount(pcPositionId)
 
 	def DirectReports(pcPositionId)
 		acReports = []
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			if @aPositions[i][:reportsTo] = pcPositionId
 				acReports + @aPositions[i][:id]
@@ -589,7 +589,7 @@ class stzOrgChart from stzDiagram
 	def AverageSpanOfControl()
 		nTotal = 0
 		nManagers = 0
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			cPosId = @aPositions[i][:id]
 			nReports = This.DirectReportsCount(cPosId)
@@ -604,7 +604,7 @@ class stzOrgChart from stzDiagram
 		return nTotal / nManagers
 
 	def VacancyRate()	
-		nResult = ( ring_len(This.Vacant()) / ring_len(This.Positions()) ) * 100
+		nResult = ( len(This.Vacant()) / len(This.Positions()) ) * 100
 		return nResult
 
 	def PositionsByLevel()
@@ -614,7 +614,7 @@ class stzOrgChart from stzDiagram
 			:staff = []
 		]
 
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			cLevel = "staff"
 			if HasKey(@aPositions[i], "level")
@@ -633,7 +633,7 @@ class stzOrgChart from stzDiagram
 			:staff = 0
 		]
 
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			cLevel = "staff"
 			if HasKey(@aPositions[i], "level")
@@ -653,7 +653,7 @@ class stzOrgChart from stzDiagram
 
 	def SuccessionRisk()
 	    acRisk = []
-	    nPosCount = ring_len(@aPositions)
+	    nPosCount = len(@aPositions)
 	    for i = 1 to nPosCount
 	        aPos = @aPositions[i]
 	        bVacant = TRUE
@@ -790,7 +790,7 @@ class stzOrgChart from stzDiagram
 		cOldPosition = aPerson[:position]
 		
 		if cOldPosition != ""
-			nPosCount = ring_len(@aPositions)
+			nPosCount = len(@aPositions)
 			for i = 1 to nPosCount
 				if @aPositions[i][:id] = cOldPosition
 					@aPositions[i][:incumbent] = ""
@@ -806,7 +806,7 @@ class stzOrgChart from stzDiagram
 			This.ReassignPerson(pcPersonId, pcNewPositionId)
 
 	def RemovePosition(pcPositionId)
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		nIndex = 0
 		
 		for i = 1 to nPosCount
@@ -819,7 +819,7 @@ class stzOrgChart from stzDiagram
 		if nIndex > 0
 			if NOT @aPositions[nIndex][:isVacant]
 				cPersonId = @aPositions[nIndex][:incumbent]
-				nPplCount = ring_len(@aPeople)
+				nPplCount = len(@aPeople)
 				for j = 1 to nPplCount
 					if @aPeople[j][:id] = cPersonId
 						@aPeople[j][:position] = ""
@@ -832,7 +832,7 @@ class stzOrgChart from stzDiagram
 		ok
 
 	def ChangeReportingLine(pcSubordinate, pcNewSupervisor)
-		nPosCount = ring_len(@aPositions)
+		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			if @aPositions[i][:id] = pcSubordinate
 				cOldSupervisor = @aPositions[i][:reportsTo]
@@ -858,7 +858,7 @@ class stzOrgChart from stzDiagram
 	
 	def ResetAllNodeColors()
 	    aNodes = This.Nodes()
-	    nLen = ring_len(aNodes)
+	    nLen = len(aNodes)
 	    for i = 1 to nLen
 	        cNodeId = aNodes[i]["id"]
 	        aPos = This.Position(cNodeId)
@@ -884,7 +884,7 @@ class stzOrgChart from stzDiagram
 	    This.ResetAllNodeColors()
 	    
 	    # Apply focus to specified nodes
-	    nLen = ring_len(acNodeIds)
+	    nLen = len(acNodeIds)
 	    for i = 1 to nLen
 	        This.SetNodeProperty(acNodeIds[i], "color", @cFocusColor)
 	    end
@@ -958,7 +958,7 @@ class stzOrgChart from stzDiagram
 
 	    acHigh = []
 	    aNodes = This.Nodes()
-	    nLen = ring_len(aNodes)
+	    nLen = len(aNodes)
 	    
 	    for i = 1 to nLen
 	        aNode = aNodes[i]
@@ -984,7 +984,7 @@ class stzOrgChart from stzDiagram
 
 	    acLow = []
 	    aNodes = This.Nodes()
-	    nLen = ring_len(aNodes)
+	    nLen = len(aNodes)
 	    
 	    for i = 1 to nLen
 	        aNode = aNodes[i]
@@ -1012,7 +1012,7 @@ class stzOrgChart from stzDiagram
 
 	    acMedium = []
 	    aNodes = This.Nodes()
-	    nLen = ring_len(aNodes)
+	    nLen = len(aNodes)
 	    
 	    for i = 1 to nLen
 	        aNode = aNodes[i]
@@ -1044,7 +1044,7 @@ class stzOrgChart from stzDiagram
 	        if aResult = 1
 	            acAll = []
 	            aNodes = This.Nodes()
-	            nLen = ring_len(aNodes)
+	            nLen = len(aNodes)
 	            for i = 1 to nLen
 	                acAll + aNodes[i]["id"]
 	            end
@@ -1059,7 +1059,7 @@ class stzOrgChart from stzDiagram
 	    if aResult[:status] = "pass"
 	        acAll = []
 	        aNodes = This.Nodes()
-	        nLen = ring_len(aNodes)
+	        nLen = len(aNodes)
 	        for i = 1 to nLen
 	            acAll + aNodes[i]["id"]
 	        end
@@ -1067,11 +1067,11 @@ class stzOrgChart from stzDiagram
 	    else
 	        # For failures, only show focused nodes if issues mention specific nodes
 	        acIssueNodes = This._ExtractNodesFromIssues(aResult[:issues])
-	        if ring_len(acIssueNodes) > 0
+	        if len(acIssueNodes) > 0
 	            # Show compliant nodes (not in issues)
 	            acAll = []
 	            aNodes = This.Nodes()
-	            nLen = ring_len(aNodes)
+	            nLen = len(aNodes)
 	            for i = 1 to nLen
 	                cNodeId = aNodes[i]["id"]
 	                if StzFind(acIssueNodes, cNodeId) = 0
@@ -1103,7 +1103,7 @@ class stzOrgChart from stzDiagram
 	        if aResult = 0  # FALSE = all non-compliant
 	            acAll = []
 	            aNodes = This.Nodes()
-	            nLen = ring_len(aNodes)
+	            nLen = len(aNodes)
 	            for i = 1 to nLen
 	                acAll + aNodes[i]["id"]
 	            end
@@ -1130,7 +1130,7 @@ class stzOrgChart from stzDiagram
 
 	def _ExtractNodesFromIssues(acIssues)
 	    acNodes = []
-	    nLen = ring_len(acIssues)
+	    nLen = len(acIssues)
 	    
 	    for i = 1 to nLen
 	        cIssue = acIssues[i]
@@ -1139,7 +1139,7 @@ class stzOrgChart from stzDiagram
 	        # or: "SOC-001: Position X has excessive span"
 	        
 	        aWords = @split(cIssue, " ")
-	        nWordLen = ring_len(aWords)
+	        nWordLen = len(aWords)
 	        for j = 1 to nWordLen
 	            cWord = aWords[j]
 	            # Check if this word is a node ID
@@ -1177,7 +1177,7 @@ class stzOrgChart from stzDiagram
 	    acRisk = This.SuccessionRisk()
 	    acAll = []
 	    aNodes = This.Nodes()
-	    nLen = ring_len(aNodes)
+	    nLen = len(aNodes)
 	    
 	    for i = 1 to nLen
 	        cNodeId = aNodes[i]["id"]
@@ -1198,7 +1198,7 @@ class stzOrgChart from stzDiagram
 	    ok
 
 	    acDeptNodes = []
-	    nPosCount = ring_len(@aPositions)
+	    nPosCount = len(@aPositions)
 	    
 	    for i = 1 to nPosCount
 	        if @aPositions[i][:department] = pcDepartmentId
@@ -1245,7 +1245,7 @@ class stzOrgChart from stzDiagram
 
 	    acMatching = []
 	    aNodes = This.Nodes()
-	    nLen = ring_len(aNodes)
+	    nLen = len(aNodes)
 	    
 	    for i = 1 to nLen
 	        aNode = aNodes[i]
@@ -1270,7 +1270,7 @@ class stzOrgChart from stzDiagram
 
 	    acMatching = []
 	    aNodes = This.Nodes()
-	    nLen = ring_len(aNodes)
+	    nLen = len(aNodes)
 	    
 	    for i = 1 to nLen
 	        aNode = aNodes[i]
@@ -1291,7 +1291,7 @@ class stzOrgChart from stzDiagram
 
 	def ColorByDepartment()
 
-	    nPosCount = ring_len(@aPositions)
+	    nPosCount = len(@aPositions)
 	    for i = 1 to nPosCount
 	        cDept = @aPositions[i][:department]
 	        if cDept != "" and HasKey($aOrgColors, cDept)
@@ -1316,18 +1316,18 @@ class stzOrgChart from stzDiagram
 		]
 		
 		# Structure overview
-		nPos = ring_len(@aPositions)
-		nPeople = ring_len(@aPeople)
-		nDepts = ring_len(@aDepartments)
+		nPos = len(@aPositions)
+		nPeople = len(@aPeople)
+		nDepts = len(@aDepartments)
 		aExplanation[:structure] = "Organization '" + @cId + "' has " + nPos + 
 		                           " positions, " + nPeople + " people, and " + 
 		                           nDepts + " departments."
 		
 		# Hierarchy analysis
 		aLevels = This.PositionsByLevel()
-		nLvlLen = ring_len(aLevels)
+		nLvlLen = len(aLevels)
 		for i = 1 to nLvlLen
-			aExplanation[:hierarchy] + ( aLevels[i][1] + ": " + ring_len(aLevels[i][2]) + " positions")
+			aExplanation[:hierarchy] + ( aLevels[i][1] + ": " + len(aLevels[i][2]) + " positions")
 		end
 		
 		nAvgSpan = This.AverageSpanOfControl()
@@ -1338,7 +1338,7 @@ class stzOrgChart from stzDiagram
 		aExplanation[:staffing] + ("Vacancy rate: " + nVacRate + "%")
 		
 		acVacant = This.VacantPositions()
-		if ring_len(acVacant) > 0
+		if len(acVacant) > 0
 			aExplanation[:staffing] + ("Vacant positions: " + JoinXT(acVacant, ", "))
 		else
 			aExplanation[:staffing] + "All positions filled"
@@ -1346,8 +1346,8 @@ class stzOrgChart from stzDiagram
 		
 		# Succession risk
 		acRisk = This.SuccessionRisk()
-		if ring_len(acRisk) > 0
-			aExplanation[:risks] + ("Succession risk: " + ring_len(acRisk) + " positions without successor")
+		if len(acRisk) > 0
+			aExplanation[:risks] + ("Succession risk: " + len(acRisk) + " positions without successor")
 			aExplanation[:risks] + ("At-risk positions: " + JoinXT(acRisk, ", "))
 		else
 			aExplanation[:risks] + "No succession risks identified"
@@ -1360,13 +1360,13 @@ class stzOrgChart from stzDiagram
 		
 		nIssues = 0
 		if aBCEAO[:status] = "fail"
-			nIssues += ring_len(aBCEAO[:issues])
+			nIssues += len(aBCEAO[:issues])
 		ok
 		if aSOC[:status] = "fail"
-			nIssues += ring_len(aSOC[:issues])
+			nIssues += len(aSOC[:issues])
 		ok
 		if aSOD[:status] = "fail"
-			nIssues += ring_len(aSOD[:issues])
+			nIssues += len(aSOD[:issues])
 		ok
 		
 		if nIssues = 0
@@ -1414,7 +1414,7 @@ class stzOrgChart from stzDiagram
 		# Positions
 		cResult += "positions" + NL
 		aPositions = This.Positions()
-		nPosLen = ring_len(aPositions)
+		nPosLen = len(aPositions)
 		for i = 1 to nPosLen
 			aPos = aPositions[i]
 			cResult += "    " + aPos[:id] + NL
@@ -1428,7 +1428,7 @@ class stzOrgChart from stzDiagram
 		# People
 		cResult += "people" + NL
 		aPeople = This.People()
-		nPplLen = ring_len(aPeople)
+		nPplLen = len(aPeople)
 		for i = 1 to nPplLen
 			aPerson = aPeople[i]
 			cResult += "    " + aPerson[:id] + NL
@@ -1449,7 +1449,7 @@ class stzOrgChart from stzDiagram
 		# Departments
 		cResult += "departments" + NL
 		aDepts = This.Departments()
-		nDeptLen = ring_len(aDepts)
+		nDeptLen = len(aDepts)
 		for i = 1 to nDeptLen
 			aDept = aDepts[i]
 			cResult += "    " + aDept[:id] + NL
@@ -1484,7 +1484,7 @@ class stzOrgChart from stzDiagram
 		aCurrent = []
 		cTitle = ""
 	
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
 			if cLine = '' or StzLeft(cLine, 1) = "#"
@@ -1666,7 +1666,7 @@ class stzOrgChart from stzDiagram
 					cPosStr = replace(cPosStr, "[", "")
 					cPosStr = replace(cPosStr, "]", "")
 					aCurrent[:positions] = @split(cPosStr, ",")
-					nPosLen = ring_len(aCurrent[:positions])
+					nPosLen = len(aCurrent[:positions])
 					for j = 1 to nPosLen
 						aCurrent[:positions][j] = trim(aCurrent[:positions][j])
 					end
@@ -1793,7 +1793,7 @@ class stzOrgChartBCEAOValidator
 		
 		# Rule 1: Board required
 		bHasBoard = FALSE
-		nPosCount = ring_len(@oOrgChart.@aPositions)
+		nPosCount = len(@oOrgChart.@aPositions)
 		for i = 1 to nPosCount
 			aPos = @oOrgChart.@aPositions[i]
 			if HasKey(aPos, :title)
@@ -1825,7 +1825,7 @@ class stzOrgChartBCEAOValidator
 				
 				if cReportsTo != ""
 					aSuperPos = @oOrgChart.Position(cReportsTo)
-					if ring_len(aSuperPos) > 0 and HasKey(aSuperPos, :department)
+					if len(aSuperPos) > 0 and HasKey(aSuperPos, :department)
 						if aSuperPos[:department] != "board"
 							aIssues + "BCEAO-002: Audit reports to non-board position"
 						ok
@@ -1851,9 +1851,9 @@ class stzOrgChartBCEAOValidator
 		ok
 		
 		return [
-			:status = iif(ring_len(aIssues) = 0, "pass", "fail"),
+			:status = iif(len(aIssues) = 0, "pass", "fail"),
 			:domain = "BCEAO_governance",
-			:issueCount = ring_len(aIssues),
+			:issueCount = len(aIssues),
 			:issues = aIssues
 		]
 
@@ -1873,7 +1873,7 @@ class stzOrgChartSODValidator
 		aIssues = []
 		
 		# SOD: Operations cannot report to Treasury
-		nPosCount = ring_len(@oOrgChart.@aPositions)
+		nPosCount = len(@oOrgChart.@aPositions)
 		for i = 1 to nPosCount
 			aPos = @oOrgChart.@aPositions[i]
 			cDept = ""
@@ -1889,7 +1889,7 @@ class stzOrgChartSODValidator
 				
 				if cReportsTo != ""
 					aSuperPos = @oOrgChart.Position(cReportsTo)
-					if ring_len(aSuperPos) > 0 and HasKey(aSuperPos, :department)
+					if len(aSuperPos) > 0 and HasKey(aSuperPos, :department)
 						if aSuperPos[:department] = "treasury"
 							aIssues + "SOD-001: Operations reports through Treasury"
 						ok
@@ -1899,9 +1899,9 @@ class stzOrgChartSODValidator
 		end
 		
 		return [
-			:status = iif(ring_len(aIssues) = 0, "pass", "fail"),
+			:status = iif(len(aIssues) = 0, "pass", "fail"),
 			:domain = "segregation_of_duties",
-			:issueCount = ring_len(aIssues),
+			:issueCount = len(aIssues),
 			:issues = aIssues
 		]
 
@@ -1961,8 +1961,8 @@ class stzOrgChartReporter
 			:title = "Organizational Summary",
 			:date = Date(),
 			:metrics = [
-				:totalPositions = ring_len(@oOrgChart.@aPositions),
-				:filledPositions = ring_len(@oOrgChart.@aPositions) - ring_len(@oOrgChart.VacantPositions()),
+				:totalPositions = len(@oOrgChart.@aPositions),
+				:filledPositions = len(@oOrgChart.@aPositions) - len(@oOrgChart.VacantPositions()),
 				:vacancyRate = @oOrgChart.VacancyRate(),
 				:avgSpan = @oOrgChart.AverageSpanOfControl(),
 				:levels = @oOrgChart.PositionsByLevel()
@@ -1976,11 +1976,11 @@ class stzOrgChartReporter
 		acVacant = @oOrgChart.VacantPositions()
 		aDetails = []
 		
-		nVacCount = ring_len(acVacant)
+		nVacCount = len(acVacant)
 		
 		for iVac = 1 to nVacCount
 			aPos = @oOrgChart.Position(acVacant[iVac])
-			if ring_len(aPos) = 0 loop ok
+			if len(aPos) = 0 loop ok
 			
 			cLevel = "staff"
 			cDept = ""
@@ -2027,10 +2027,10 @@ class stzOrgChartReporter
 		acRisk = @oOrgChart.SuccessionRisk()
 		aDetails = []
 		
-		nRiskCount = ring_len(acRisk)
+		nRiskCount = len(acRisk)
 		for iRisk = 1 to nRiskCount
 			aPos = @oOrgChart.Position(acRisk[iRisk])
-			if ring_len(aPos) = 0 loop ok
+			if len(aPos) = 0 loop ok
 			
 			cPersonId = ""
 			cPersonName = ""
@@ -2043,7 +2043,7 @@ class stzOrgChartReporter
 			
 			if cPersonId != ""
 				aPerson = @oOrgChart.PersonData(cPersonId)
-				if ring_len(aPerson) > 0 and HasKey(aPerson, :name)
+				if len(aPerson) > 0 and HasKey(aPerson, :name)
 					cPersonName = aPerson[:name]
 				ok
 			ok
@@ -2088,7 +2088,7 @@ class stzOrgChartReporter
 		aReport[:checks] + @oOrgChart.ValidateSegregationOfDuties()
 		
 		nFail = 0
-		nCheckCount = ring_len(aReport[:checks])
+		nCheckCount = len(aReport[:checks])
 		for iCheck = 1 to nCheckCount
 			if aReport[:checks][iCheck][:status] = "fail"
 				nFail++
@@ -2110,7 +2110,7 @@ class stzOrgChartReporter
 			:details = []
 		]
 		
-		nPosCount = ring_len(@oOrgChart.@aPositions)
+		nPosCount = len(@oOrgChart.@aPositions)
 		for iPos = 1 to nPosCount
 			aPos = @oOrgChart.@aPositions[iPos]
 			cPosId = ""
@@ -2125,7 +2125,7 @@ class stzOrgChartReporter
 			ok
 			
 			if cPosId != ""
-				nReports = ring_len(@oOrgChart.DirectReports(cPosId))
+				nReports = len(@oOrgChart.DirectReports(cPosId))
 				
 				if nReports > 0
 					cStatus = "optimal"
@@ -2175,7 +2175,7 @@ class stzOrgChartSimulation
 	def ApplyChanges(paChanges)
 		@aChanges = paChanges
 		
-		nChangeCount = ring_len(paChanges)
+		nChangeCount = len(paChanges)
 		for iChange = 1 to nChangeCount
 			aChange = paChanges[iChange]
 			

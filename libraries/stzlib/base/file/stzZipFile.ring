@@ -59,7 +59,7 @@ class stzZipFile from stzObject
             StzRaise("Cannot create zip file: " + @cZipFileName)
         ok
         
-        nLen = ring_len(aFiles)
+        nLen = len(aFiles)
         for i = 1 to nLen
             if StzFileExists(aFiles[i])
                 zip_addfile(oZip, aFiles[i])
@@ -88,7 +88,7 @@ class stzZipFile from stzObject
         ok
         
         aFiles = FilesInDir(cDirPath)
-        nLen = ring_len(aFiles)
+        nLen = len(aFiles)
         for i = 1 to nLen
             aFiles[i] = cDirPath + "/" + aFiles[i]
         next
@@ -130,7 +130,7 @@ class stzZipFile from stzObject
             StzRaise("Cannot open zip file for appending: " + @cZipFileName)
         ok
         
-        nLen = ring_len(aFiles)
+        nLen = len(aFiles)
         for i = 1 to nLen
             if StzFileExists(aFiles[i])
                 zip_addfile(oZip, aFiles[i])
@@ -239,7 +239,7 @@ class stzZipFile from stzObject
     def Contains(cFileName)
         # Check if zip contains specific file
         aContents = This.ListContents()
-        nLen = ring_len(aContents)
+        nLen = len(aContents)
         for i = 1 to nLen
             if aContents[i] = cFileName
                 return 1

@@ -119,7 +119,7 @@ class stzGraphPlanner
 			stzraise("Inexistant plan (" + pcPlanName + ")!")
 		ok
 
-		nLen = ring_len(@aPlans)
+		nLen = len(@aPlans)
 		if nLen = 1
 			stzraise("Can't remove the only plan we have!")
 		ok
@@ -297,7 +297,7 @@ class stzGraphPlanner
 				cProfile = StzRight(cProfile, StzLen(cProfile) - 1)
 			ok
 			aProfileCriteria = This.Profile(cProfile)
-			if ring_len(aProfileCriteria) = 0
+			if len(aProfileCriteria) = 0
 				stzraise("Unknown profile: " + pProfile)
 			ok
 		but isList(pProfile)
@@ -667,7 +667,7 @@ class stzGraphPlanner
 			:actions = aResult[1],
 			:total_cost = aResult[2],
 			:route = aResult[3],
-			:steps = ring_len(aResult[1])
+			:steps = len(aResult[1])
 		]
 	
 		def ExplainPlan(pcPlanName)
@@ -689,7 +689,7 @@ class stzGraphPlanner
 		aOptimize = @aPlans[nPos][2][4]
 		
 		aBreakdown = []
-		nLen = ring_len(aActions)
+		nLen = len(aActions)
 		for i = 1 to nLen
 			aAction = aActions[i]
 			aStep = [
@@ -700,8 +700,8 @@ class stzGraphPlanner
 			]
 			
 			nStepTotal = 0
-			if ring_len(aOptimize) > 0
-				nLen2 = ring_len(aOptimize)
+			if len(aOptimize) > 0
+				nLen2 = len(aOptimize)
 				for j = 1 to nLen2
 					aCriterion = aOptimize[j]
 					cProp = aCriterion[:property]
@@ -755,7 +755,7 @@ class stzGraphPlanner
 		aOptimize = aPlanData[4]
 		
 		aCriteria = []
-		nLen = ring_len(aOptimize)
+		nLen = len(aOptimize)
 		for i = 1 to nLen
 			aCrit = aOptimize[i]
 			aCriteria + [
@@ -767,7 +767,7 @@ class stzGraphPlanner
 		return [
 			:plan = pcPlanName,
 			:total_cost = aResult[2],
-			:nodes_explored = ring_len(aExplored),
+			:nodes_explored = len(aExplored),
 			:optimized_for = aCriteria,
 			:route = aResult[3]
 		]
@@ -806,8 +806,8 @@ class stzGraphPlanner
 		aResult = aPlanData[6]
 		aExplored = aPlanData[7]
 		
-		nPathLength = ring_len(aResult[3])
-		nExplored = ring_len(aExplored)
+		nPathLength = len(aResult[3])
+		nExplored = len(aExplored)
 		nRatio = nExplored / nPathLength
 		
 		cAssessment = ""
@@ -1038,7 +1038,7 @@ class stzGraphPlanner
 			ok
 		
 			aAllResults = []
-			nLen = ring_len(acPlanNames)
+			nLen = len(acPlanNames)
 			for i = 1 to nLen
 				cPlan = acPlanNames[i]
 				# Check if plan was executed
@@ -1064,7 +1064,7 @@ class stzGraphPlanner
 		acPlanNames = []
 		
 		if isString(pPlans) and StzLower(pPlans) = "all"
-			nLen = ring_len(@aPlans)
+			nLen = len(@aPlans)
 			for i = 1 to nLen
 				cPlanName = @aPlans[i][1]
 				# Only include executed plans
@@ -1077,7 +1077,7 @@ class stzGraphPlanner
 			acPlanNames = pPlans
 		ok
 	
-		if ring_len(acPlanNames) = 0
+		if len(acPlanNames) = 0
 			return []
 		ok
 	
@@ -1092,10 +1092,10 @@ class stzGraphPlanner
 		return @aHistory
 
 	def HistoryCount()
-		return ring_len(@aHistory)
+		return len(@aHistory)
 
 		def HistorySize()
-			return ring_len(@aHistory)
+			return len(@aHistory)
 
 	def CompareWithHistory()
 		return This.CompareWithHistoryXT(This.CurrentPlan())
@@ -1109,14 +1109,14 @@ class stzGraphPlanner
 		def CompareWithHistoryXTQ(pcPlanName)
 			aCurrentResult = This._GetResult(pcPlanName)
 			
-			if ring_len(@aHistory) = 0
+			if len(@aHistory) = 0
 				return "No historical data available for comparison."
 			ok
 	
 			return new stzHistoricalComparison(This, pcPlanName, aCurrentResult, @aHistory)
 	
 	def HistoricalAverage(cCriterion)
-		if ring_len(@aHistory) = 0
+		if len(@aHistory) = 0
 			return 0
 		ok
 
@@ -1124,7 +1124,7 @@ class stzGraphPlanner
 		nSum = 0
 		nCount = 0
 
-		nLen = ring_len(@aHistory)
+		nLen = len(@aHistory)
 		for i = 1 to nLen
 			aHistItem = @aHistory[i]
 			aResult = aHistItem[2]
@@ -1133,7 +1133,7 @@ class stzGraphPlanner
 				nSum += aResult[2]
 				nCount++
 			but cCriterion = "steps" or cCriterion = "length"
-				nSum += ring_len(aResult[3])
+				nSum += len(aResult[3])
 				nCount++
 			ok
 		next
@@ -1148,7 +1148,7 @@ class stzGraphPlanner
 			return This.HistoricalAverage()
 
 	def BestHistoricalPlan(cCriterion)
-		if ring_len(@aHistory) = 0
+		if len(@aHistory) = 0
 			return ""
 		ok
 
@@ -1156,7 +1156,7 @@ class stzGraphPlanner
 		cBestPlan = ""
 		nBestValue = 999999
 
-		nLen = ring_len(@aHistory)
+		nLen = len(@aHistory)
 		for i = 1 to nLen
 			aHistItem = @aHistory[i]
 			cPlanName = aHistItem[1]
@@ -1166,7 +1166,7 @@ class stzGraphPlanner
 			if cCriterion = "cost"
 				nValue = aResult[2]
 			but cCriterion = "steps" or cCriterion = "length"
-				nValue = ring_len(aResult[3])
+				nValue = len(aResult[3])
 			ok
 
 			if nValue < nBestValue
@@ -1181,7 +1181,7 @@ class stzGraphPlanner
 			return This.BestHistoricalPlan(cCriterion)
 
 	def WorstHistoricalPlan(cCriterion)
-		if ring_len(@aHistory) = 0
+		if len(@aHistory) = 0
 			return ""
 		ok
 	
@@ -1189,7 +1189,7 @@ class stzGraphPlanner
 		cWorstPlan = ""
 		nWorstValue = -999999
 	
-		nLen = ring_len(@aHistory)
+		nLen = len(@aHistory)
 		for i = 1 to nLen
 			aHistItem = @aHistory[i]
 			cPlanName = aHistItem[1]
@@ -1199,7 +1199,7 @@ class stzGraphPlanner
 			if cCriterion = "cost"
 				nValue = aResult[2]
 			but cCriterion = "steps" or cCriterion = "length"
-				nValue = ring_len(aResult[3])
+				nValue = len(aResult[3])
 			ok
 	
 			if nValue > nWorstValue
@@ -1225,7 +1225,7 @@ class stzGraphPlanner
 
 		def FilterPlansQ(paConstraints)
 			acAllPlans = []
-			nLen = ring_len(@aPlans)
+			nLen = len(@aPlans)
 			for i = 1 to nLen
 				acAllPlans + @aPlans[i][1]
 			next
@@ -1238,7 +1238,7 @@ class stzGraphPlanner
 		def FilterPlansXTQ(acPlanNames, paConstraints)
 			acFiltered = []
 	
-			nLen = ring_len(acPlanNames)
+			nLen = len(acPlanNames)
 			for i = 1 to nLen
 				cPlan = acPlanNames[i]
 				
@@ -1304,10 +1304,10 @@ class stzGraphPlanner
 			aResult = This._GetResult(pcPlanName)
 			? "Plan: " + pcPlanName
 			? "  Total Cost: " + aResult[2]
-			? "  Steps: " + ring_len(aResult[1])
+			? "  Steps: " + len(aResult[1])
 			? ""
 			? "Actions:"
-			nLen = ring_len(aResult[1])
+			nLen = len(aResult[1])
 			for i = 1 to nLen
 				aAction = aResult[1][i]
 				? "  " + aAction[:from] + " -> " + aAction[:to]
@@ -1331,7 +1331,7 @@ class stzGraphPlanner
 	
 	def _FindPlan(pcPlanName)
 		pcPlanName = StzLower(pcPlanName)
-		nLen = ring_len(@aPlans)
+		nLen = len(@aPlans)
 		for i = 1 to nLen
 			if StzLower(@aPlans[i][1]) = pcPlanName
 				return i
@@ -1362,10 +1362,10 @@ class stzGraphPlanner
 		aExplored = []
 		aAlternatives = []
 		
-		while ring_len(aOpen) > 0
+		while len(aOpen) > 0
 			nMinIdx = 1
 			nMinF = aOpen[1][3]
-			nLen = ring_len(aOpen)
+			nLen = len(aOpen)
 			for i = 2 to nLen
 				if aOpen[i][3] < nMinF
 					nMinF = aOpen[i][3]
@@ -1387,7 +1387,7 @@ class stzGraphPlanner
 			aClosedSet + cCurrent
 			
 			aNeighbors = @oGraph.Neighbors(cCurrent)
-			nLen = ring_len(aNeighbors)
+			nLen = len(aNeighbors)
 			
 			if nLen > 1
 				aAlternatives + [:node = cCurrent, :chosen = aNeighbors[1], :total_options = nLen]
@@ -1412,7 +1412,7 @@ class stzGraphPlanner
 					This._SetParent(aParent, cNeighbor, cCurrent)
 					
 					bInOpen = FALSE
-					nLen2 = ring_len(aOpen)
+					nLen2 = len(aOpen)
 					for j = 1 to nLen2
 						aNode = aOpen[j]
 						if aNode[1] = cNeighbor
@@ -1441,10 +1441,10 @@ class stzGraphPlanner
 		aExplored = []
 		aAlternatives = []
 		
-		while ring_len(aOpen) > 0
+		while len(aOpen) > 0
 			nMinIdx = 1
 			nMinCost = aOpen[1][2]
-			nLen = ring_len(aOpen)
+			nLen = len(aOpen)
 			for i = 2 to nLen
 				if aOpen[i][2] < nMinCost
 					nMinCost = aOpen[i][2]
@@ -1467,7 +1467,7 @@ class stzGraphPlanner
 			aClosedSet + cCurrent
 			
 			aNeighbors = @oGraph.Neighbors(cCurrent)
-			nLen = ring_len(aNeighbors)
+			nLen = len(aNeighbors)
 			
 			if nLen > 1
 				aAlternatives + [:node = cCurrent, :chosen = aNeighbors[1], :total_options = nLen]
@@ -1489,7 +1489,7 @@ class stzGraphPlanner
 					This._SetParent(aParent, cNeighbor, cCurrent)
 					
 					bInOpen = FALSE
-					nLen2 = ring_len(aOpen)
+					nLen2 = len(aOpen)
 					for j = 1 to nLen2
 						aNode = aOpen[j]
 						if aNode[1] = cNeighbor
@@ -1530,7 +1530,7 @@ class stzGraphPlanner
 	    end
 	    
 	    acReversed = []
-	    nLen = ring_len(acPath)
+	    nLen = len(acPath)
 	    for i = nLen to 1 step -1
 	        acReversed + acPath[i]
 	    next
@@ -1540,7 +1540,7 @@ class stzGraphPlanner
 	    
 	    # Build action list with individual transition costs
 	    aActions = []
-	    nLen = ring_len(acReversed)
+	    nLen = len(acReversed)
 	    for i = 1 to nLen - 1
 	        cFrom = acReversed[i]
 	        cTo = acReversed[i + 1]
@@ -1556,12 +1556,12 @@ class stzGraphPlanner
 	    return [aActions, nTotalCost, acReversed, cExplanation]
 
 	def _CalculateTransitionCost(cFrom, cTo, aOptimize)
-		if ring_len(aOptimize) = 0
+		if len(aOptimize) = 0
 			return 1
 		ok
 		
 		nCost = 0
-		nLen = ring_len(aOptimize)
+		nLen = len(aOptimize)
 		for i = 1 to nLen
 			aCriterion = aOptimize[i]
 			cProperty = aCriterion[:property]
@@ -1612,12 +1612,12 @@ class stzGraphPlanner
 		}
 	
 	def _GenerateExplanation(aActions)
-		if ring_len(aActions) = 0
+		if len(aActions) = 0
 			return "No actions required"
 		ok
 		
 		cExplanation = ""
-		nLen = ring_len(aActions)
+		nLen = len(aActions)
 		for i = 1 to nLen
 			aAction = aActions[i]
 			cExplanation += "Step " + i + ": " + aAction[:from] + " -> " + aAction[:to]
@@ -1630,7 +1630,7 @@ class stzGraphPlanner
 		return trim(cExplanation)
 	
 	def _GetScore(aScores, cNode)
-		nLen = ring_len(aScores)
+		nLen = len(aScores)
 		for i = 1 to nLen
 			aScore = aScores[i]
 			if aScore[1] = cNode
@@ -1640,7 +1640,7 @@ class stzGraphPlanner
 		return -1
 	
 	def _SetScore(aScores, cNode, nValue)
-		nLen = ring_len(aScores)
+		nLen = len(aScores)
 		for i = 1 to nLen
 			if aScores[i][1] = cNode
 				aScores[i][2] = nValue
@@ -1650,7 +1650,7 @@ class stzGraphPlanner
 		aScores + [cNode, nValue]
 	
 	def _GetParent(aParent, cNode)
-		nLen = ring_len(aParent)
+		nLen = len(aParent)
 		for i = 1 to nLen
 			aEntry = aParent[i]
 			if aEntry[1] = cNode
@@ -1660,7 +1660,7 @@ class stzGraphPlanner
 		return ""
 	
 	def _SetParent(aParent, cNode, cParentNode)
-		nLen = ring_len(aParent)
+		nLen = len(aParent)
 		for i = 1 to nLen
 			if aParent[i][1] = cNode
 				aParent[i][2] = cParentNode
@@ -1681,7 +1681,7 @@ class stzGraphPlanner
 			return FALSE
 		done
 ? @@NL(paConstraints)	
-		nLen = ring_len(paConstraints)
+		nLen = len(paConstraints)
 		for i = 1 to nLen
 			aConstraint = paConstraints[i]
 			
@@ -1705,7 +1705,7 @@ class stzGraphPlanner
 			but cKey = "avoid"
 				acStates = aResult[3]
 				cNodeToAvoid = StzLower(pValue)
-				nLen3 = ring_len(acStates)
+				nLen3 = len(acStates)
 				for k = 1 to nLen3
 					if StzLower(acStates[k]) = cNodeToAvoid
 						return FALSE
@@ -1720,7 +1720,7 @@ class stzGraphPlanner
 				ok
 	
 			but cKey = "maxsteps"
-				if ring_len(aResult[3]) > pValue
+				if len(aResult[3]) > pValue
 					return FALSE
 				ok
 			ok
@@ -1754,7 +1754,7 @@ class stzPlanComparison
 		nDivergeStep = 0
 		
 		if NOT bSamePath
-			nLen = @Min([ ring_len(aStates1), ring_len(aStates2) ])
+			nLen = @Min([ len(aStates1), len(aStates2) ])
 			for i = 1 to nLen
 				if aStates1[i] != aStates2[i]
 					nDivergeStep = i
@@ -1787,8 +1787,8 @@ class stzPlanComparison
 	def Tradeoffs()
 		nCost1 = @aResult1[2]
 		nCost2 = @aResult2[2]
-		nLen1 = ring_len(@aResult1[3])
-		nLen2 = ring_len(@aResult2[3])
+		nLen1 = len(@aResult1[3])
+		nLen2 = len(@aResult2[3])
 		
 		cCostWinner = ""
 		nCostSaving = 0
@@ -1863,13 +1863,13 @@ class stzPlanComparison
 			return This.CostSaving()
 
 	def PathLengthDifference()
-		return abs(ring_len(@aResult1[3]) - ring_len(@aResult2[3]))
+		return abs(len(@aResult1[3]) - len(@aResult2[3]))
 
 		def PathLenDiff()
-			return abs(ring_len(@aResult1[3]) - ring_len(@aResult2[3]))
+			return abs(len(@aResult1[3]) - len(@aResult2[3]))
 
 		def PathLengthDiff()
-			return abs(ring_len(@aResult1[3]) - ring_len(@aResult2[3]))
+			return abs(len(@aResult1[3]) - len(@aResult2[3]))
 
 #======================================#
 #  stzMultiPlanComparison Class        #
@@ -1889,7 +1889,7 @@ class stzMultiPlanComparison
 		cCriterion = StzLower(cCriterion)
 		aRanking = []
 		
-		nLen = ring_len(@aResults)
+		nLen = len(@aResults)
 		for i = 1 to nLen
 			cPlan = @aResults[i][1]      # First element of pair
 			aResult = @aResults[i][2]    # Second element of pair
@@ -1898,14 +1898,14 @@ class stzMultiPlanComparison
 			if cCriterion = "cost"
 				nValue = aResult[2]
 			but cCriterion = "steps" or cCriterion = "length"
-				nValue = ring_len(aResult[3])
+				nValue = len(aResult[3])
 			ok
 	
 			aRanking + [cPlan, nValue]
 		next
 	
 		# Sort ascending
-		nLen = ring_len(aRanking)
+		nLen = len(aRanking)
 		for i = 1 to nLen-1
 			for j = i+1 to nLen
 				if aRanking[j][2] < aRanking[i][2]
@@ -1926,7 +1926,7 @@ class stzMultiPlanComparison
 		add(aTable, ["Rank", "Plan", "Cost", "Steps"])
 		
 		aRankedByCost = This.RankBy("cost")
-		nLen = ring_len(aRankedByCost)
+		nLen = len(aRankedByCost)
 		
 		for i = 1 to nLen
 			
@@ -1935,10 +1935,10 @@ class stzMultiPlanComparison
 			
 			# Find steps
 			nSteps = 0
-			nLen2 = ring_len(@aResults)
+			nLen2 = len(@aResults)
 			for j = 1 to nLen2
 				if @aResults[j][1] = cPlan
-					nSteps = ring_len(@aResults[j][2][3])
+					nSteps = len(@aResults[j][2][3])
 					exit
 				ok
 			next
@@ -1955,14 +1955,14 @@ class stzMultiPlanComparison
 	
 	def BestBy(cCriterion)
 		aRanking = This.RankBy(cCriterion)
-		if ring_len(aRanking) > 0
+		if len(aRanking) > 0
 			return aRanking[1][1]
 		ok
 		stzraise("No ranks returned by this criterion : " + cCriterion + "!")
 	
 	def WorstBy(cCriterion)
 		aRanking = This.RankBy(cCriterion)
-		nLen = ring_len(aRanking)
+		nLen = len(aRanking)
 		if nLen > 0
 			return aRanking[nLen][1]
 		ok
@@ -1971,7 +1971,7 @@ class stzMultiPlanComparison
 	def CompareAll()
 		aAllPlans = []
 		
-		nLen = ring_len(@aResults)
+		nLen = len(@aResults)
 		for i = 1 to nLen
 			cPlan = @aResults[i][1]
 			aResult = @aResults[i][2]
@@ -1979,13 +1979,13 @@ class stzMultiPlanComparison
 			aAllPlans + [
 				:plan = cPlan,
 				:cost = aResult[2],
-				:steps = ring_len(aResult[3]),
+				:steps = len(aResult[3]),
 				:route = aResult[3]
 			]
 		next
 		
 		return [
-			:total_plans = ring_len(@acPlanNames),
+			:total_plans = len(@acPlanNames),
 			:plans = aAllPlans,
 			:best_by_cost = This.BestBy("cost"),
 			:best_by_steps = This.BestBy("steps")
@@ -2011,7 +2011,7 @@ class stzHistoricalComparison
 		nAvgCost = @oPlanner.HistoricalAverage("cost")
 		nAvgSteps = @oPlanner.HistoricalAverage("steps")
 		nCurrentCost = @aCurrentResult[2]
-		nCurrentSteps = ring_len(@aCurrentResult[3])
+		nCurrentSteps = len(@aCurrentResult[3])
 		
 		cObservation = ""
 		nPercentDiff = 0
@@ -2081,25 +2081,25 @@ class stzPlanFilter
 			return @acFilteredPlans
 
 	def Count()
-		return ring_len(@acFilteredPlans)
+		return len(@acFilteredPlans)
 
 		def NumberOfPlans()
-			return ring_len(@acFilteredPlans)
+			return len(@acFilteredPlans)
 
 		def NumberOfFilteredPlans()
-			return ring_len(@acFilteredPlans)
+			return len(@acFilteredPlans)
 
 		def HowManyPlans()
-			return ring_len(@acFilteredPlans)
+			return len(@acFilteredPlans)
 
 		def HowManyFilteredPlans()
-			return ring_len(@acFilteredPlans)
+			return len(@acFilteredPlans)
 
 	def PlansXT()
 
 		aDetails = []
 
-		nLen = ring_len(@acFilteredPlans)
+		nLen = len(@acFilteredPlans)
 		for i = 1 to nLen
 			cPlan = @acFilteredPlans[i]
 			aPlanResult = @oPlanner._GetResult(cPlan)
@@ -2107,7 +2107,7 @@ class stzPlanFilter
 			aPlanInfo = []
 			aPlanInfo + [ "plan", cPlan ]
 			aPlanInfo + [ "cost", aPlanResult[2] ]
-			aPlanInfo + [ "steps", ring_len(aPlanResult[3]) ]
+			aPlanInfo + [ "steps", len(aPlanResult[3]) ]
 			aPlanInfo + [ "route", aPlanResult[3] ]
 
 			aDetails + aPlanInfo
@@ -2116,7 +2116,7 @@ class stzPlanFilter
 
 		aResult = [
 			:constrains_applied = @aConstraints,
-			:plans_matching_count = ring_len(@acFilteredPlans),
+			:plans_matching_count = len(@acFilteredPlans),
 			:plans_matching_details = aDetails
 		]
 
@@ -2130,7 +2130,7 @@ class stzPlanFilter
 
 
 	def BestBy(cCriterion)
-		if ring_len(@acFilteredPlans) = 0
+		if len(@acFilteredPlans) = 0
 			return ""
 		ok
 
@@ -2138,7 +2138,7 @@ class stzPlanFilter
 		return oMultiComp.BestBy(cCriterion)
 
 	def RankingTable()
-		if ring_len(@acFilteredPlans) = 0
+		if len(@acFilteredPlans) = 0
 			? "No plans match the filters."
 			return
 		ok

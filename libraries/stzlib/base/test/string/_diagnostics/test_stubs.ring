@@ -5,7 +5,7 @@
 # Bare-len alias so library code rewrites (ring_len) link
 # cleanly in this minimal stub. Must live BEFORE any class
 # definition so it stays a top-level function, not a method.
-func ring_len(p)
+func len(p)
     return len(p)
 
 $aStzLibConfig = []
@@ -53,7 +53,7 @@ func _stzFindDll(cDllName)
 		ok
 		# Also try with backslashes (Windows)
 		cTryWin = ""
-		_nTryLen_ = ring_len(cTry)
+		_nTryLen_ = len(cTry)
 		for k = 1 to _nTryLen_
 			if cTry[k] = "/"
 				cTryWin += "\"
@@ -182,11 +182,11 @@ func ring_sort(aList)
 func U(aList)
 	# Unique: remove duplicates
 	aResult = []
-	_nList1Len_ = ring_len(aList)
+	_nList1Len_ = len(aList)
 	for _iLoopList1_ = 1 to _nList1Len_
 		item = aList[_iLoopList1_]
 		bFound = 0
-		_nResult1Len_ = ring_len(aResult)
+		_nResult1Len_ = len(aResult)
 		for _iLoopResult1_ = 1 to _nResult1Len_
 			existing = aResult[_iLoopResult1_]
 			if existing = item
@@ -294,7 +294,7 @@ func StzFind(p, pItem)
 		return nPos
 	ok
 	if isList(p)
-		_nPLen_ = ring_len(p)
+		_nPLen_ = len(p)
 		for i = 1 to _nPLen_
 			if p[i] = pItem
 				return i
@@ -372,7 +372,7 @@ func IsOneOfTheseNamedParamsList(p, paNames)
 	if len(p) != 2 return 0 ok
 	if NOT isString(p[1]) return 0 ok
 	cName = StzCaseFold(p[1])
-	_nNames1Len_ = ring_len(paNames)
+	_nNames1Len_ = len(paNames)
 	for _iLoopNames1_ = 1 to _nNames1Len_
 		cN = paNames[_iLoopNames1_]
 		if StzCaseFold(cN) = cName

@@ -44,7 +44,7 @@ class stzMBarPlot from stzBarPlot
 
 		oData = new stzHashList(paData)
 		@acSeriesNames = oData.Keys()
-		@nSeries = ring_len(@acSeriesNames)
+		@nSeries = len(@acSeriesNames)
 
 		# Process each series
 		for i = 1 to @nSeries
@@ -60,7 +60,7 @@ class stzMBarPlot from stzBarPlot
 			aValues = oSeriesData.Values()
 
 			# Validate all values are positive numbers
-			_nValues1Len_ = ring_len(aValues)
+			_nValues1Len_ = len(aValues)
 			for _iLoopValues1_ = 1 to _nValues1Len_
 				nVal = aValues[_iLoopValues1_]
 				if not isNumber(nVal) or nVal < 0
@@ -71,11 +71,11 @@ class stzMBarPlot from stzBarPlot
 			# Set categories from first series
 			if i = 1
 				@acCategories = aCategories
-				@nCategories = ring_len(@acCategories)
+				@nCategories = len(@acCategories)
 			ok
 
 			# Assign default character
-			cChar = @acDefaultSeriesChars[((i-1) % ring_len(@acDefaultSeriesChars)) + 1]
+			cChar = @acDefaultSeriesChars[((i-1) % len(@acDefaultSeriesChars)) + 1]
 
 			@aSeriesData + [
 				:SeriesName = cSeriesName,
@@ -91,7 +91,7 @@ class stzMBarPlot from stzBarPlot
 		@nSum = 0
 		nTotalValues = 0
 
-		_nSeriesData1Len_ = ring_len(@aSeriesData)
+		_nSeriesData1Len_ = len(@aSeriesData)
 		for _iLoopSeriesData1_ = 1 to _nSeriesData1Len_
 			aSeriesInfo = @aSeriesData[_iLoopSeriesData1_]
 			aValues = aSeriesInfo[:Values]
@@ -100,7 +100,7 @@ class stzMBarPlot from stzBarPlot
 			
 			@nMaxValue = max([@nMaxValue, nSeriesMax])
 			@nSum += nSeriesSum
-			nTotalValues += ring_len(aValues)
+			nTotalValues += len(aValues)
 		next
 
 		@nAverage = iff(nTotalValues > 0, @nSum / nTotalValues, 0)
@@ -112,7 +112,7 @@ class stzMBarPlot from stzBarPlot
 			return
 		ok
 
-		for i = 1 to min([ring_len(acChars), @nSeries])
+		for i = 1 to min([len(acChars), @nSeries])
 			if IsChar(acChars[i])
 				@aSeriesData[i][:Char] = acChars[i]
 			ok
@@ -190,23 +190,23 @@ class stzMBarPlot from stzBarPlot
 			nMaxWidth = nCategoryGroupWidth
 			
 			# Check category label width
-			if @bShowLabels and @bShowAxisLabels and i <= ring_len(@acCategories)
-				nLabelWidth = min([ring_len(@acCategories[i]), @nMaxLabelWidth])
+			if @bShowLabels and @bShowAxisLabels and i <= len(@acCategories)
+				nLabelWidth = min([len(@acCategories[i]), @nMaxLabelWidth])
 				nMaxWidth = max([nMaxWidth, nLabelWidth])
 			ok
 			
 			# Check values width for this category
 			if @bShowValues or @bShowPercent
 				for j = 1 to @nSeries
-					if i <= ring_len(@aSeriesData[j][:Values])
+					if i <= len(@aSeriesData[j][:Values])
 						nValue = @aSeriesData[j][:Values][i]
 						
 						if @bShowValues
-							nValueWidth = ring_len("" + nValue)
+							nValueWidth = len("" + nValue)
 							nMaxWidth = max([nMaxWidth, nValueWidth])
 						but @bShowPercent and @nSum > 0
 							nPercent = (nValue * 100) / @nSum
-							nValueWidth = ring_len('' + RoundN(nPercent, 1) + "%")
+							nValueWidth = len('' + RoundN(nPercent, 1) + "%")
 							nMaxWidth = max([nMaxWidth, nValueWidth])
 						ok
 					ok
@@ -222,7 +222,7 @@ class stzMBarPlot from stzBarPlot
 		
 		# Add space for average value if shown
 		if @bShowAverage
-			nAvgValueWidth = ring_len("" + RoundN(@nAverage, 1))
+			nAvgValueWidth = len("" + RoundN(@nAverage, 1))
 			nTotalWidth += 2 + nAvgValueWidth
 		ok
 		
@@ -235,7 +235,7 @@ class stzMBarPlot from stzBarPlot
 				# Calculate total legend width: "â–ˆâ–ˆ SeriesName   â–’â–’ SeriesName   ..."
 				nLegendWidth = 0
 				for i = 1 to @nSeries
-					nLegendWidth += 3 + ring_len(@acSeriesNames[i])  # "â–ˆâ–ˆ SeriesName"
+					nLegendWidth += 3 + len(@acSeriesNames[i])  # "â–ˆâ–ˆ SeriesName"
 					if i < @nSeries
 						nLegendWidth += 3  # "   " spacing
 					ok
@@ -243,10 +243,10 @@ class stzMBarPlot from stzBarPlot
 			else  # Vertical
 				nLegendHeight = @nSeries
 				nLegendWidth = 0
-				_nAcSeriesNames1Len_ = ring_len(@acSeriesNames)
+				_nAcSeriesNames1Len_ = len(@acSeriesNames)
 				for _iLoopAcSeriesNames1_ = 1 to _nAcSeriesNames1Len_
 					cName = @acSeriesNames[_iLoopAcSeriesNames1_]
-					nLegendWidth = max([nLegendWidth, 3 + ring_len(cName)])
+					nLegendWidth = max([nLegendWidth, 3 + len(cName)])
 				next
 			ok
 		ok
@@ -345,7 +345,7 @@ class stzMBarPlot from stzBarPlot
 				aValues = aSeriesInfo[:Values]
 				cBarChar = aSeriesInfo[:Char]
 				
-				if nCat <= ring_len(aValues)
+				if nCat <= len(aValues)
 					nValue = aValues[nCat]
 					
 					# Calculate bar height
@@ -399,7 +399,7 @@ class stzMBarPlot from stzBarPlot
 				aSeriesInfo = @aSeriesData[nSer]
 				aValues = aSeriesInfo[:Values]
 				
-				if nCat <= ring_len(aValues)
+				if nCat <= len(aValues)
 					nValue = aValues[nCat]
 					
 					# Format value
@@ -433,10 +433,10 @@ class stzMBarPlot from stzBarPlot
 					ok
 					
 					# Center value over bar
-					nValueStart = nBarH + floor((@nBarWidth - ring_len(cValue)) / 2)
+					nValueStart = nBarH + floor((@nBarWidth - len(cValue)) / 2)
 					
 					# Draw value
-					nLen = ring_len(cValue)
+					nLen = len(cValue)
 					for j = 1 to nLen
 						if nValueStart + j - 1 <= oLayout[:total_width]
 							_setChar(nValueRow, nValueStart + j - 1, cValue[j])
@@ -468,20 +468,20 @@ class stzMBarPlot from stzBarPlot
 		
 		# Draw category labels
 		for i = 1 to @nCategories
-			if i <= ring_len(@acCategories)
+			if i <= len(@acCategories)
 				cLabel = Capitalise(@acCategories[i])
 				nElementWidth = aElementWidths[i]
 				
 				# Truncate if needed
-				if ring_len(cLabel) > @nMaxLabelWidth
+				if len(cLabel) > @nMaxLabelWidth
 					cLabel = Left(cLabel, @nMaxLabelWidth - 2) + ".."
 				ok
 				
 				# Center label
-				nLabelStart = nCurrentH + floor((nElementWidth - ring_len(cLabel)) / 2)
+				nLabelStart = nCurrentH + floor((nElementWidth - len(cLabel)) / 2)
 				
 				# Draw label
-				nLen = ring_len(cLabel)
+				nLen = len(cLabel)
 				for j = 1 to nLen
 					_setChar(nLabelsRow, nLabelStart + j - 1, cLabel[j])
 				next
@@ -515,7 +515,7 @@ class stzMBarPlot from stzBarPlot
 				
 				# Draw space and name
 				_setChar(nStartRow, nCol + 2, " ")
-				nLen = ring_len(cName)
+				nLen = len(cName)
 				for j = 1 to nLen
 					_setChar(nStartRow, nCol + 2 + j, cName[j])
 				next
@@ -539,7 +539,7 @@ class stzMBarPlot from stzBarPlot
 				
 				# Draw space and name
 				_setChar(nRow, 3, " ")
-				nLen = ring_len(cName)
+				nLen = len(cName)
 				for j = 1 to nLen
 					_setChar(nRow, 3 + j, cName[j])
 				next

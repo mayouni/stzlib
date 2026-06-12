@@ -38,7 +38,7 @@ aDetailedProfile = o1.GetDataProfile()
 ? BoxRound("ISSUES BREAKDOWN")
 aIssues = o1.GetIssues()
 if len(aIssues) > 0
-    _nIssues1Len_ = ring_len(aIssues)
+    _nIssues1Len_ = len(aIssues)
     for _iLoopIssues1_ = 1 to _nIssues1Len_
     	issue = aIssues[_iLoopIssues1_]
         ? "• [" + issue[:type] + "] " + issue[:description]

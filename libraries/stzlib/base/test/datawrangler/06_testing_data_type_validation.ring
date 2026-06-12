@@ -28,7 +28,7 @@ o1 = new stzDataWrangler(aCustomerData, aCustomerHeaders)
 aTypeIssues = o1.ValidateDataTypes()
 
 ? "Type inconsistencies found: " + len(aTypeIssues)
-_nTypeIssues1Len_ = ring_len(aTypeIssues)
+_nTypeIssues1Len_ = len(aTypeIssues)
 for _iLoopTypeIssues1_ = 1 to _nTypeIssues1Len_
 	issue = aTypeIssues[_iLoopTypeIssues1_]
     ? "  • " + issue

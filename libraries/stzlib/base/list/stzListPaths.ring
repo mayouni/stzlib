@@ -589,7 +589,7 @@ func LongestPath(aPaths)
     aLongest = aPaths[1]
     nMaxLen = len(aLongest)
     
-    _nPathsLen_2 = ring_len(aPaths)
+    _nPathsLen_2 = len(aPaths)
     for i = 2 to _nPathsLen_2
         if len(aPaths[i]) > nMaxLen
             aLongest = aPaths[i]
@@ -612,7 +612,7 @@ func ShortestPath(aPaths)
     aShortest = aPaths[1]
     nMinLen = len(aShortest)
     
-    _nPathsLen_ = ring_len(aPaths)
+    _nPathsLen_ = len(aPaths)
     for i = 2 to _nPathsLen_
         if len(aPaths[i]) < nMinLen
             aShortest = aPaths[i]
@@ -630,7 +630,7 @@ func ShortestPath(aPaths)
 func PathsWithDepth(aPaths, nDepth)
     aResult = []
     
-    _nPaths2Len_ = ring_len(aPaths)
+    _nPaths2Len_ = len(aPaths)
     for _iLoopPaths2_ = 1 to _nPaths2Len_
     	path = aPaths[_iLoopPaths2_]
         if len(path) = nDepth
@@ -648,7 +648,7 @@ func PathsWithDepth(aPaths, nDepth)
 func SuperPathsOf(aPaths, aBasePath)
     aResult = []
     
-    _nPaths1Len_ = ring_len(aPaths)
+    _nPaths1Len_ = len(aPaths)
     for _iLoopPaths1_ = 1 to _nPaths1Len_
     	path = aPaths[_iLoopPaths1_]
         if IsSubPathOf(aBasePath, path) and aBasePath != path

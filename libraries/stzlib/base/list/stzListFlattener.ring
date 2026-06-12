@@ -25,7 +25,7 @@ func _DeepFlattenHelper(paList)
 	for _iDfh_ = 1 to _nDfhLen_
 		if isList(paList[_iDfh_])
 			_aDfhTemp_ = _DeepFlattenHelper(paList[_iDfh_])
-			_n_aDfhTempLen_ = ring_len(_aDfhTemp_)
+			_n_aDfhTempLen_ = len(_aDfhTemp_)
 			for _jDfh_ = 1 to _n_aDfhTempLen_
 				add(_aDfhResult_, _aDfhTemp_[_jDfh_])
 			next
@@ -44,7 +44,7 @@ func _FlattenDepthHelper(paList, nDepth)
 	for _iFdh_ = 1 to _nFdhLen_
 		if isList(paList[_iFdh_])
 			_aFdhTemp_ = _FlattenDepthHelper(paList[_iFdh_], nDepth - 1)
-			_n_aFdhTempLen_ = ring_len(_aFdhTemp_)
+			_n_aFdhTempLen_ = len(_aFdhTemp_)
 			for _jFdh_ = 1 to _n_aFdhTempLen_
 				add(_aFdhResult_, _aFdhTemp_[_jFdh_])
 			next
@@ -120,7 +120,7 @@ class stzListFlattener
 			if isList(_aFlContent_[_iFl_])
 
 				_aFlTemp_ = Q(_aFlContent_[_iFl_]).Flattened()
-				_nFlLenTemp_ = ring_len(_aFlTemp_)
+				_nFlLenTemp_ = len(_aFlTemp_)
 
 				for _jFl_ = 1 to _nFlLenTemp_
 					@AddItem(_aFlResult_, _aFlTemp_[_jFl_])
@@ -152,7 +152,7 @@ class stzListFlattener
 
 		_aAwResult_ = []
 		_nAwLen_  = This.NumberOfItems()
-		_nAwLenOther_ = ring_len(paOtherList)
+		_nAwLenOther_ = len(paOtherList)
 
 		_aAwContent_ = This.Content()
 
@@ -209,7 +209,7 @@ class stzListFlattener
 
 	def Stringify()
 		_aSfContent_ = This.Content()
-		_nSfLen_ = ring_len(_aSfContent_)
+		_nSfLen_ = len(_aSfContent_)
 
 		_acSfResult_ = []
 		for _iSf_ = 1 to _nSfLen_
@@ -228,7 +228,7 @@ class stzListFlattener
 	def HasRepeatedLeadingItemsCS(pCaseSensitive)
 		_aHrlLead_ = This.RepeatedLeadingItemsCS(pCaseSensitive)
 
-		if ring_len(_aHrlLead_) > 0
+		if len(_aHrlLead_) > 0
 			return 1
 		else
 			return 0
@@ -239,7 +239,7 @@ class stzListFlattener
 
 	def RepeatedLeadingItemsCS(pCaseSensitive)
 		_aRliContent_ = This.Content()
-		_nRliLen_ = ring_len(_aRliContent_)
+		_nRliLen_ = len(_aRliContent_)
 
 		if _nRliLen_ <= 1
 			return []
@@ -272,7 +272,7 @@ class stzListFlattener
 	def HasRepeatedTrailingItemsCS(pCaseSensitive)
 		_aHrtTrail_ = This.RepeatedTrailingItemsCS(pCaseSensitive)
 
-		if ring_len(_aHrtTrail_) > 0
+		if len(_aHrtTrail_) > 0
 			return 1
 		else
 			return 0
@@ -280,7 +280,7 @@ class stzListFlattener
 
 	def RepeatedTrailingItemsCS(pCaseSensitive)
 		_aRtiContent_ = This.Content()
-		_nRtiLen_ = ring_len(_aRtiContent_)
+		_nRtiLen_ = len(_aRtiContent_)
 
 		if _nRtiLen_ <= 1
 			return []
@@ -391,8 +391,8 @@ class stzListFlattener
 
 	def InterleavedWith(paOther)
 		_aIwContent_ = This.Content()
-		_nIwLen1_ = ring_len(_aIwContent_)
-		_nIwLen2_ = ring_len(paOther)
+		_nIwLen1_ = len(_aIwContent_)
+		_nIwLen2_ = len(paOther)
 		_nIwMax_ = _nIwLen1_
 		if _nIwLen2_ > _nIwMax_
 			_nIwMax_ = _nIwLen2_
@@ -416,7 +416,7 @@ class stzListFlattener
 
 	def Objectified()
 		_aObContent_ = This.Content()
-		_nObLen_ = ring_len(_aObContent_)
+		_nObLen_ = len(_aObContent_)
 		_aoObResult_ = []
 
 		for _iOb_ = 1 to _nObLen_

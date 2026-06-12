@@ -230,7 +230,7 @@ class stzBinaryNumber from stzObject
 		nCurrentTotal = 0
 		
 		_aThisFractionalPartRevers1_ = This.FractionalPartReversed()
-		_nThisFractionalPartRevers1Len_ = ring_len(_aThisFractionalPartRevers1_)
+		_nThisFractionalPartRevers1Len_ = len(_aThisFractionalPartRevers1_)
 		for _iLoopThisFractionalPartRevers1_ = 1 to _nThisFractionalPartRevers1Len_
 			bit = _aThisFractionalPartRevers1_[_iLoopThisFractionalPartRevers1_]
 			nCurrentTotal = ( nCurrentTotal + (0+ bit) ) / 2

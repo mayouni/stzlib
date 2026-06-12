@@ -153,7 +153,7 @@ class stzSystemCall
 
 		oRest = new stzString(cRest)
 		acChars = oRest.Chars()
-		nLen = ring_len(acChars)
+		nLen = len(acChars)
 
 		for i = 1 to nLen
 			c = acChars[i]
@@ -286,10 +286,10 @@ class stzSystemCall
 
 	def _BuildCommandLine()
 		cCmd = ""
-		if @cProgram = "cmd.exe" and ring_len(@acArgs) > 1 and @acArgs[1] = "/c"
+		if @cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[1] = "/c"
 			cCmd = "cmd.exe /c "
 			cCommand = ""
-			_nArgsLen_3 = ring_len(@acArgs)
+			_nArgsLen_3 = len(@acArgs)
 			for i = 2 to _nArgsLen_3
 				cArg = @acArgs[i]
 				if i > 2
@@ -316,7 +316,7 @@ class stzSystemCall
 			else
 				cCmd = @cProgram
 			ok
-			_nArgsLen_2 = ring_len(@acArgs)
+			_nArgsLen_2 = len(@acArgs)
 			for i = 1 to _nArgsLen_2
 				if StzFind(@acArgs[i], " ") > 0
 					cCmd += ' "' + @acArgs[i] + '"'
@@ -346,7 +346,7 @@ class stzSystemCall
 
 		acLines = split(@cOutput, NL)
 		aResult = []
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
@@ -364,7 +364,7 @@ class stzSystemCall
 		cOut = trim(@cOutput)
 		oOut = new stzString(cOut)
 		acChars = oOut.Chars()
-		nLen = ring_len(acChars)
+		nLen = len(acChars)
 
 		# Try to extract first number from output
 		for i = 1 to nLen
@@ -426,13 +426,13 @@ class stzSystemCall
 			cValue = StzReplace(cValue, "/", "\")
 		ok
 
-		_nArgsLen_ = ring_len(@acArgs)
+		_nArgsLen_ = len(@acArgs)
 		for i = 1 to _nArgsLen_
 			@acArgs[i] = StzReplace(@acArgs[i], "{" + cParam + "}", cValue)
 		next
 
 	def SetParams(aParams)
-		nLen = ring_len(aParams)
+		nLen = len(aParams)
 		for i = 1 to nLen
 			This.SetParam(aParams[i][1], aParams[i][2])
 		next
@@ -591,7 +591,7 @@ class stzSystemCall
 		acLines = split(@cOutput, NL)
 		# Remove empty lines
 		aResult = []
-		nLen = ring_len(acLines)
+		nLen = len(acLines)
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
@@ -732,7 +732,7 @@ class stzSystemCall
 
 		# Check for shell built-in commands
 		aWords = split(cCmd, " ")
-		if ring_len(aWords) > 0
+		if len(aWords) > 0
 			cFirstWord = StzLower(trim(aWords[1]))
 			if find(ShellBuiltInCommands, cFirstWord) > 0
 				bNeedsShell = TRUE

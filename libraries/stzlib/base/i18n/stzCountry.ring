@@ -331,7 +331,7 @@ func LocaleCountries()
 	aResult = []
 	
 	_aLocaleCountriesXT8_ = LocaleCountriesXT()
-	_nLocaleCountriesXT8Len_ = ring_len(_aLocaleCountriesXT8_)
+	_nLocaleCountriesXT8Len_ = len(_aLocaleCountriesXT8_)
 	for _iLoopLocaleCountriesXT8_ = 1 to _nLocaleCountriesXT8Len_
 		aCountry = _aLocaleCountriesXT8_[_iLoopLocaleCountriesXT8_]
 		aResult + aCountry[2]
@@ -345,7 +345,7 @@ func LocaleCountries()
 func CountriesAndTheirDefaultLanguages()
 	aResult = []
 	_aLocaleCountriesXT7_ = LocaleCountriesXT()
-	_nLocaleCountriesXT7Len_ = ring_len(_aLocaleCountriesXT7_)
+	_nLocaleCountriesXT7Len_ = len(_aLocaleCountriesXT7_)
 	for _iLoopLocaleCountriesXT7_ = 1 to _nLocaleCountriesXT7Len_
 		aCountryInfo = _aLocaleCountriesXT7_[_iLoopLocaleCountriesXT7_]
 		aResult + [ aCountryInfo[2], aCountryInfo[6] ]
@@ -356,7 +356,7 @@ func CountriesforWhichDefaultLanguageIs(cLangCode)
 	aResult = []
 	cLangName = StzLanguageQ(cLangCode).Name()
 	_aLocaleCountriesXT6_ = LocaleCountriesXT()
-	_nLocaleCountriesXT6Len_ = ring_len(_aLocaleCountriesXT6_)
+	_nLocaleCountriesXT6Len_ = len(_aLocaleCountriesXT6_)
 	for _iLoopLocaleCountriesXT6_ = 1 to _nLocaleCountriesXT6Len_
 		aCountryInfo = _aLocaleCountriesXT6_[_iLoopLocaleCountriesXT6_]
 		if StzLower(aCountryInfo[6]) = StzLower(cLangName)
@@ -394,7 +394,7 @@ class stzCountry
 
 		if oStr.IsCountryCode()
 			_aLocaleCountriesXT5_ = LocaleCountriesXT()
-			_nLocaleCountriesXT5Len_ = ring_len(_aLocaleCountriesXT5_)
+			_nLocaleCountriesXT5Len_ = len(_aLocaleCountriesXT5_)
 			for _iLoopLocaleCountriesXT5_ = 1 to _nLocaleCountriesXT5Len_
 				aCountryInfo = _aLocaleCountriesXT5_[_iLoopLocaleCountriesXT5_]
 				if StzLower(aCountryInfo[1]) = StzLower(pcCountryIdentifier)
@@ -406,7 +406,7 @@ class stzCountry
 	
 		but oStr.IsCountryAbbreviation()
 			_aLocaleCountriesXT4_ = LocaleCountriesXT()
-			_nLocaleCountriesXT4Len_ = ring_len(_aLocaleCountriesXT4_)
+			_nLocaleCountriesXT4Len_ = len(_aLocaleCountriesXT4_)
 			for _iLoopLocaleCountriesXT4_ = 1 to _nLocaleCountriesXT4Len_
 				aCountryInfo = _aLocaleCountriesXT4_[_iLoopLocaleCountriesXT4_]
 				if StzLower(aCountryInfo[3])  = StzLower(pcCountryIdentifier) OR
@@ -419,7 +419,7 @@ class stzCountry
 	
 		but oStr.IsCountryName()
 			_aLocaleCountriesXT3_ = LocaleCountriesXT()
-			_nLocaleCountriesXT3Len_ = ring_len(_aLocaleCountriesXT3_)
+			_nLocaleCountriesXT3Len_ = len(_aLocaleCountriesXT3_)
 			for _iLoopLocaleCountriesXT3_ = 1 to _nLocaleCountriesXT3Len_
 				aCountryInfo = _aLocaleCountriesXT3_[_iLoopLocaleCountriesXT3_]
 				if StzLower(aCountryInfo[2]) = StzLower(pcCountryIdentifier)
@@ -436,7 +436,7 @@ class stzCountry
 			//cCountryCode = DefaultCountryCodeForLanguage(pcCountryIdentifier)
 
 			_aLocaleCountriesXT2_ = LocaleCountriesXT()
-			_nLocaleCountriesXT2Len_ = ring_len(_aLocaleCountriesXT2_)
+			_nLocaleCountriesXT2Len_ = len(_aLocaleCountriesXT2_)
 			for _iLoopLocaleCountriesXT2_ = 1 to _nLocaleCountriesXT2Len_
 				aCountryInfo = _aLocaleCountriesXT2_[_iLoopLocaleCountriesXT2_]
 				if StzLower(aCountryInfo[1]) = StzLower(cCountryNumber)
@@ -450,7 +450,7 @@ class stzCountry
 			cCountryPhoneCode = oStr.Content()
 
 			_aLocaleCountriesXT1_ = LocaleCountriesXT()
-			_nLocaleCountriesXT1Len_ = ring_len(_aLocaleCountriesXT1_)
+			_nLocaleCountriesXT1Len_ = len(_aLocaleCountriesXT1_)
 			for _iLoopLocaleCountriesXT1_ = 1 to _nLocaleCountriesXT1Len_
 				aCountryInfo = _aLocaleCountriesXT1_[_iLoopLocaleCountriesXT1_]
 				if StzLower(aCountryInfo[5]) = StzLower(cCountryPhoneCode)
@@ -509,7 +509,7 @@ class stzCountry
 		cLanguage = This.DefaultLanguage()
 
 		_aLocaleLanguagesXT3_ = LocaleLanguagesXT()
-		_nLocaleLanguagesXT3Len_ = ring_len(_aLocaleLanguagesXT3_)
+		_nLocaleLanguagesXT3Len_ = len(_aLocaleLanguagesXT3_)
 		for _iLoopLocaleLanguagesXT3_ = 1 to _nLocaleLanguagesXT3Len_
 			aLanguageInfo = _aLocaleLanguagesXT3_[_iLoopLocaleLanguagesXT3_]
 			if aLanguageInfo[2] = cLanguage
@@ -574,7 +574,7 @@ class stzCountry
 	def Languages()
 		aResult = []
 		_aLocaleLanguagesXT2_ = LocaleLanguagesXT()
-		_nLocaleLanguagesXT2Len_ = ring_len(_aLocaleLanguagesXT2_)
+		_nLocaleLanguagesXT2Len_ = len(_aLocaleLanguagesXT2_)
 		for _iLoopLocaleLanguagesXT2_ = 1 to _nLocaleLanguagesXT2Len_
 			aLangInfo = _aLocaleLanguagesXT2_[_iLoopLocaleLanguagesXT2_]
 			if StzLower(aLangInfo[5]) = StzLower(This.Country())
@@ -599,7 +599,7 @@ class stzCountry
 		aResult = []
 
 		_aLocaleLanguagesXT1_ = LocaleLanguagesXT()
-		_nLocaleLanguagesXT1Len_ = ring_len(_aLocaleLanguagesXT1_)
+		_nLocaleLanguagesXT1Len_ = len(_aLocaleLanguagesXT1_)
 		for _iLoopLocaleLanguagesXT1_ = 1 to _nLocaleLanguagesXT1Len_
 			aLangInfo = _aLocaleLanguagesXT1_[_iLoopLocaleLanguagesXT1_]
 			if StzLower(aLangInfo[5]) = StzLower(This.Country())
@@ -625,7 +625,7 @@ class stzCountry
 		cLanguage = This.DefaultLanguage()
 
 		_aLocaleScriptsXT2_ = LocaleScriptsXT()
-		_nLocaleScriptsXT2Len_ = ring_len(_aLocaleScriptsXT2_)
+		_nLocaleScriptsXT2Len_ = len(_aLocaleScriptsXT2_)
 		for _iLoopLocaleScriptsXT2_ = 1 to _nLocaleScriptsXT2Len_
 			aScriptInfo = _aLocaleScriptsXT2_[_iLoopLocaleScriptsXT2_]
 			if aScriptInfo[2] = cLanguage
@@ -640,7 +640,7 @@ class stzCountry
 		cLanguage = This.DefaultLanguage()
 
 		_aLocaleScriptsXT1_ = LocaleScriptsXT()
-		_nLocaleScriptsXT1Len_ = ring_len(_aLocaleScriptsXT1_)
+		_nLocaleScriptsXT1Len_ = len(_aLocaleScriptsXT1_)
 		for _iLoopLocaleScriptsXT1_ = 1 to _nLocaleScriptsXT1Len_
 			aScriptInfo = _aLocaleScriptsXT1_[_iLoopLocaleScriptsXT1_]
 			if aScriptInfo[2] = cLanguage

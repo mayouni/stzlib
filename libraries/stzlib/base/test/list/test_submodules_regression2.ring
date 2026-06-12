@@ -351,7 +351,7 @@ ok
 
 # Bounds check on returned positions
 bValid = 1
-_nRposLen_ = ring_len(aRpos)
+_nRposLen_ = len(aRpos)
 for i = 1 to _nRposLen_
 	if aRpos[i] < 1 or aRpos[i] > 5
 		bValid = 0

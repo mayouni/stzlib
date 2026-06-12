@@ -88,7 +88,7 @@ class stzStringList
 			StzRaise("Can't create stzStringList! Parameter must be a list of strings.")
 		ok
 
-		nLen = ring_len(paList)
+		nLen = len(paList)
 		for i = 1 to nLen
 			if NOT isString(paList[i])
 				StzRaise("Can't create stzStringList! All items must be strings.")
@@ -107,7 +107,7 @@ class stzStringList
 		return new stzStringList(@acContent)
 
 	def NumberOfStrings()
-		return ring_len(@acContent)
+		return len(@acContent)
 
 		def Size()
 			return This.NumberOfStrings()
@@ -126,7 +126,7 @@ class stzStringList
 		return @acContent[1]
 
 	def LastString()
-		return @acContent[ring_len(@acContent)]
+		return @acContent[len(@acContent)]
 
 	  #===============================#
 	 #     ADD / REMOVE              #
@@ -185,7 +185,7 @@ class stzStringList
 		# Engine-backed: build result by concatenating
 		# engine handles pairwise
 
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		if nLen = 0
 			return ""
 		ok
@@ -215,7 +215,7 @@ class stzStringList
 	#------------------------------------------------------#
 
 	def ConcatUsing(pcSep)
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		if nLen = 0
 			return ""
 		ok
@@ -259,7 +259,7 @@ class stzStringList
 	def ContainsCS(pcStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		if _bCase_
 			for i = 1 to nLen
 				if @acContent[i] = pcStr
@@ -286,7 +286,7 @@ class stzStringList
 	def ContainsSubStringCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		for i = 1 to nLen
 			pH = StzEngineString(@acContent[i])
 			nFound = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
@@ -308,7 +308,7 @@ class stzStringList
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		anResult = []
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 
 		if _bCase_
 			# Case-sensitive: direct string comparison (no FFI needed)
@@ -333,14 +333,14 @@ class stzStringList
 
 	def FindFirst(pcStr)
 		anAll = This.Find(pcStr)
-		if ring_len(anAll) > 0
+		if len(anAll) > 0
 			return anAll[1]
 		ok
 		return 0
 
 	def FindLast(pcStr)
 		anAll = This.Find(pcStr)
-		nLen = ring_len(anAll)
+		nLen = len(anAll)
 		if nLen > 0
 			return anAll[nLen]
 		ok
@@ -352,7 +352,7 @@ class stzStringList
 
 	def SortInAscendingCS(pCaseSensitive)
 		# Engine-backed O(n log n) sort via null-delimited items
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		if nLen < 2
 			return
 		ok
@@ -413,11 +413,11 @@ class stzStringList
 	# from each string item.
 	def WithoutSpaces()
 		_aRes_ = []
-		_nLen_ = ring_len(@acContent)
+		_nLen_ = len(@acContent)
 		for _i_ = 1 to _nLen_
 			_s_ = @acContent[_i_]
 			_cClean_ = ""
-			_nSLen_ = ring_len(_s_)
+			_nSLen_ = len(_s_)
 			for _j_ = 1 to _nSLen_
 				if _s_[_j_] != " " _cClean_ += _s_[_j_] ok
 			next
@@ -460,7 +460,7 @@ class stzStringList
 	# insertion-sort over (key, value) pairs.
 	def SortBy(pcExpr)
 		_aData_ = This.Content() + []
-		_nLen_ = ring_len(_aData_)
+		_nLen_ = len(_aData_)
 		if _nLen_ < 2 return ok
 		_aKeys_ = list(_nLen_)
 		for _i_ = 1 to _nLen_
@@ -512,7 +512,7 @@ class stzStringList
 
 	def UniqueCS(pCaseSensitive)
 		# Engine-backed O(n) dedup via null-delimited items
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		if nLen < 2
 			return
 		ok
@@ -567,7 +567,7 @@ class stzStringList
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		acResult = []
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		for i = 1 to nLen
 			pH = StzEngineString(@acContent[i])
 			nFound = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
@@ -589,7 +589,7 @@ class stzStringList
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		acResult = []
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		nPrefixLen = StzLen(pcPrefix)
 		if _bCase_
 			for i = 1 to nLen
@@ -615,7 +615,7 @@ class stzStringList
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		acResult = []
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		nSuffixLen = StzLen(pcSuffix)
 		if _bCase_
 			for i = 1 to nLen
@@ -643,7 +643,7 @@ class stzStringList
 
 	def ToUpper()
 		acResult = []
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		for i = 1 to nLen
 			acResult + StzUpper(@acContent[i])
 		next
@@ -660,7 +660,7 @@ class stzStringList
 
 	def ToLower()
 		acResult = []
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		for i = 1 to nLen
 			acResult + StzLower(@acContent[i])
 		next
@@ -683,7 +683,7 @@ class stzStringList
 		# Returns the string from the list most similar to pcTarget
 		# Uses engine JaroWinkler for best results
 
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		if nLen = 0
 			return ""
 		ok
@@ -712,7 +712,7 @@ class stzStringList
 		# nThreshold is 0..1000 (engine returns integer scaled)
 
 		acResult = []
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 
 		pTarget = StzEngineString(pcTarget)
 
@@ -740,7 +740,7 @@ class stzStringList
 
 	def ToListOfStzStrings()
 		aResult = []
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		for i = 1 to nLen
 			aResult + new stzString(@acContent[i])
 		next
@@ -754,13 +754,13 @@ class stzStringList
 	#======================================================#
 
 	def Split(cSep)
-		if isList(cSep) and ring_len(cSep) = 2 and isString(cSep[1]) and
+		if isList(cSep) and len(cSep) = 2 and isString(cSep[1]) and
 		   (StzCaseFold(cSep[1]) = "using" or StzCaseFold(cSep[1]) = "with" or StzCaseFold(cSep[1]) = "by")
 			cSep = cSep[2]
 		ok
 
 		aResult = []
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		for i = 1 to nLen
 			oStr = new stzString(@acContent[i])
 			aResult + oStr.Split(cSep)
@@ -772,7 +772,7 @@ class stzStringList
 	#======================================================#
 
 	def Trim()
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		for i = 1 to nLen
 			oStr = new stzString(@acContent[i])
 			@acContent[i] = oStr.Trimmed()
@@ -792,7 +792,7 @@ class stzStringList
 	#======================================================#
 
 	def Matches(pcRegexPatt)
-		nLen = ring_len(@acContent)
+		nLen = len(@acContent)
 		for i = 1 to nLen
 			if rx(pcRegexPatt).Match(@acContent[i]) = 0
 				return 0
@@ -818,14 +818,14 @@ class stzStringList
 		_sep_ = ""
 		if isString(p)
 			_sep_ = p
-		but isList(p) and ring_len(p) = 2 and isString(p[1])
+		but isList(p) and len(p) = 2 and isString(p[1])
 			_kw_ = lower(p[1])
 			if _kw_ = "using" or _kw_ = "with" or _kw_ = "by"
 				_sep_ = p[2]
 			ok
 		ok
 		_l_ = @acContent
-		_nL_ = ring_len(_l_)
+		_nL_ = len(_l_)
 		_c_ = ""
 		for _i_ = 1 to _nL_
 			if NOT isString(_l_[_i_]) loop ok
@@ -839,7 +839,7 @@ class stzStringList
 
 	def SpacesRemoved()
 		_l_ = @acContent
-		_nL_ = ring_len(_l_)
+		_nL_ = len(_l_)
 		_aR_ = []
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
@@ -871,7 +871,7 @@ class stzStringList
 
 	def StringsW(pcExpr)
 		_l_ = @acContent
-		_nL_ = ring_len(_l_)
+		_nL_ = len(_l_)
 		_aR_ = []
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]

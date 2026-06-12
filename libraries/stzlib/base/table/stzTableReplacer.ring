@@ -62,7 +62,7 @@ class stzTableReplacer from stzTable
 
 		ok
 
-		_nCellsPosLen_ = ring_len(paCellsPos)
+		_nCellsPosLen_ = len(paCellsPos)
 		for i = 1 to _nCellsPosLen_
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewCellValue)
 		next
@@ -282,8 +282,8 @@ class stzTableReplacer from stzTable
 
 		ok
 
-		nLenCells  = ring_len(paCellsPos)
-		nLenValues = ring_len(paNewValues)
+		nLenCells  = len(paCellsPos)
+		nLenValues = len(paNewValues)
 		nMin = @Min([ nLenCells, nLenValues ])
 
 		for i = 1 to nMin
@@ -503,8 +503,8 @@ class stzTableReplacer from stzTable
 
 		ok
 
-		nLenPos = ring_len(paCellsPos)
-		nLenNew = ring_len(paNewValues)
+		nLenPos = len(paCellsPos)
+		nLenNew = len(paNewValues)
 
 		if nLenNew < nLenPos
 			paNewValues = Q(paNewValues).ExtendXTQ(:To = nLenPos, :ByRepeatingItems).Content()
@@ -913,7 +913,7 @@ class stzTableReplacer from stzTable
 		ok
 
 		nRows = This.NumberOfRows()
-		nLen = ring_len(paCol)
+		nLen = len(paCol)
 
 		if nLen > nRows
 			nLen = nRows
@@ -989,7 +989,7 @@ class stzTableReplacer from stzTable
 		ok
 
 		nRows = This.NumberOfRows()
-		nLen = ring_len(paCol)
+		nLen = len(paCol)
 
 		if nLen > nRows
 			nLen = nRows
@@ -1051,7 +1051,7 @@ class stzTableReplacer from stzTable
 		ok
 
 		anPosU = U(panPos)
-		nLen = ring_len(anPosU)
+		nLen = len(anPosU)
 
 		for i = 1 to nLen
 			This.ReplaceColAt(anPosU[i], paCol)
@@ -1086,7 +1086,7 @@ class stzTableReplacer from stzTable
 		ok
 
 		anPosU = U(panPos)
-		nLen = ring_len(anPosU)
+		nLen = len(anPosU)
 
 		for i = 1 to nLen
 			This.ReplaceColAtXT(anPosU[i], paCol)
@@ -1181,7 +1181,7 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		nMin = @Min([ ring_len(paColData), This.NumberOfRows() ])
+		nMin = @Min([ len(paColData), This.NumberOfRows() ])
 		aTemp = []
 		for i = 1 to nMin
 			aTemp + paColData[i]
@@ -1442,7 +1442,7 @@ class stzTableReplacer from stzTable
 	#-- EXTENDED FORM
 
 	def ReplaceRowXT(pnRow, paNewRow)
-		nNew  = ring_len(paNewRow)
+		nNew  = len(paNewRow)
 		nRows = This.NumberOfRows()
 
 		n = 0
@@ -1497,7 +1497,7 @@ class stzTableReplacer from stzTable
 			ok
 		ok
 
-		nLenCols = @Min([ ring_len(paNewRow), ring_len(@aContent) ])
+		nLenCols = @Min([ len(paNewRow), len(@aContent) ])
 		nLenRows = This.NumberOfRows()
 		aContent = @aContent
 
@@ -1556,7 +1556,7 @@ class stzTableReplacer from stzTable
 		ok
 
 		anPosU = U(panPos)
-		nLen = ring_len(anPosU)
+		nLen = len(anPosU)
 
 		for i = 1 to nLen
 			This.ReplaceRowAt(anPosU[i], paRow)
@@ -1591,7 +1591,7 @@ class stzTableReplacer from stzTable
 		ok
 
 		anPosU = U(panPos)
-		nLen = ring_len(anPosU)
+		nLen = len(anPosU)
 
 		for i = 1 to nLen
 			This.ReplaceRowAtXT(anPosU[i], paRow)

@@ -46,7 +46,7 @@ class stzStringLeadTrail
 
 	def RepeatedLeadingCharsCS(pCaseSensitive)
 		acChars = @oString.Chars()
-		nLen = ring_len(acChars)
+		nLen = len(acChars)
 		if nLen < 2
 			return ""
 		ok
@@ -97,7 +97,7 @@ class stzStringLeadTrail
 
 	def RepeatedTrailingCharsCS(pCaseSensitive)
 		acChars = @oString.Chars()
-		nLen = ring_len(acChars)
+		nLen = len(acChars)
 		if nLen < 2
 			return ""
 		ok
@@ -183,7 +183,7 @@ class stzStringLeadTrail
 
 	def RemoveThisLeadingCharCS(c, pCaseSensitive)
 		acChars = @oString.Chars()
-		nLen = ring_len(acChars)
+		nLen = len(acChars)
 		nStart = 1
 		for i = 1 to nLen
 			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
@@ -215,7 +215,7 @@ class stzStringLeadTrail
 
 	def RemoveThisTrailingCharCS(c, pCaseSensitive)
 		acChars = @oString.Chars()
-		nLen = ring_len(acChars)
+		nLen = len(acChars)
 		nEnd = nLen
 		for i = nLen to 1 step -1
 			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)

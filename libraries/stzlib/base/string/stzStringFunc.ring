@@ -32,7 +32,7 @@ func MarquersPositions(cStr)
 func MarkersPositions(cStr)
 	if NOT isString(cStr) return [] ok
 	_aRes_ = []
-	_nLen_ = ring_len(cStr)
+	_nLen_ = len(cStr)
 	_i_ = 1
 	while _i_ <= _nLen_
 		if cStr[_i_] = "#" and _i_ < _nLen_ and isDigit(cStr[_i_ + 1])
@@ -88,7 +88,7 @@ func MarkersZZ()
 func SortedInAscending(paItems)
 	if NOT isList(paItems) return paItems ok
 	_a_ = []
-	_n_ = ring_len(paItems)
+	_n_ = len(paItems)
 	for _i_ = 1 to _n_
 		_a_ + paItems[_i_]
 	next
@@ -113,7 +113,7 @@ func SortedInAscending(paItems)
 
 func SortedInDescending(paItems)
 	_a_ = SortedInAscending(paItems)
-	_n_ = ring_len(_a_)
+	_n_ = len(_a_)
 	_r_ = []
 	for _i_ = _n_ to 1 step -1
 		_r_ + _a_[_i_]
@@ -3024,12 +3024,12 @@ func NumberOfTrailingItems(pcStr)
 func RepresentsSignedRealNumber(pcStr)
 	if NOT isString(pcStr) return FALSE ok
 	_c_ = ring_trim(pcStr)
-	if ring_len(_c_) = 0 return FALSE ok
+	if len(_c_) = 0 return FALSE ok
 	_i_ = 1
 	if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
-	if _i_ > ring_len(_c_) return FALSE ok
+	if _i_ > len(_c_) return FALSE ok
 	_bDot_ = FALSE
-	while _i_ <= ring_len(_c_)
+	while _i_ <= len(_c_)
 		if _c_[_i_] = "."
 			if _bDot_ return FALSE ok
 			_bDot_ = TRUE
@@ -3043,10 +3043,10 @@ func RepresentsSignedRealNumber(pcStr)
 func RepresentsUnsignedRealNumber(pcStr)
 	if NOT isString(pcStr) return FALSE ok
 	_c_ = ring_trim(pcStr)
-	if ring_len(_c_) = 0 return FALSE ok
+	if len(_c_) = 0 return FALSE ok
 	_bDot_ = FALSE
 	_i_ = 1
-	while _i_ <= ring_len(_c_)
+	while _i_ <= len(_c_)
 		if _c_[_i_] = "."
 			if _bDot_ return FALSE ok
 			_bDot_ = TRUE
@@ -3066,13 +3066,13 @@ func RepresentsCalculableInteger(pcStr)
 # in stzString so the narrative .Comes* chain has an object to land on.
 func SubStringQ(p)
 	if isString(p) return new stzString(p) ok
-	if isList(p) and ring_len(p) >= 2
+	if isList(p) and len(p) >= 2
 		_host_ = ""
 		_sub_ = ""
 		if isString(p[1]) _sub_ = p[1] ok
-		for _i_ = 2 to ring_len(p)
+		for _i_ = 2 to len(p)
 			_v_ = p[_i_]
-			if isList(_v_) and ring_len(_v_) = 2 and isString(_v_[1]) and
+			if isList(_v_) and len(_v_) = 2 and isString(_v_[1]) and
 			   lower(_v_[1]) = "in" and isString(_v_[2])
 				_host_ = _v_[2]
 			ok

@@ -37,7 +37,7 @@ func Plural(str)
 
     cWord = StzLower(trim(str))
     aSortedRules = SortPluralRulesByPriority(PluralRules)
-    _nSortedRules1Len_ = ring_len(aSortedRules)
+    _nSortedRules1Len_ = len(aSortedRules)
     for _iLoopSortedRules1_ = 1 to _nSortedRules1Len_
     	rule = aSortedRules[_iLoopSortedRules1_]
         if rule[3] = "exact"
@@ -96,7 +96,7 @@ func AddPluralRule(pattern, replacement, type, priority, category)
 
 func GetPluralRulesByCategory(category)
     result = []
-    _nPluralRules1Len_ = ring_len(PluralRules)
+    _nPluralRules1Len_ = len(PluralRules)
     for _iLoopPluralRules1_ = 1 to _nPluralRules1Len_
     	rule = PluralRules[_iLoopPluralRules1_]
         if rule[5] = category

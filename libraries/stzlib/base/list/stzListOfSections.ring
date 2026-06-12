@@ -69,7 +69,7 @@ class stzListOfSections from stzLists
 		*/
 
     		aContent = This.Content()
-    		nLen = ring_len(aContent)
+    		nLen = len(aContent)
 
     		if nLen = 0
         		return
@@ -140,7 +140,7 @@ class stzListOfSections from stzLists
 	def MergeIncluded() #ClaudeAI
 
 		aSections = This.Content()
-		nLen = ring_len(aSections)
+		nLen = len(aSections)
 
 		# If the list is empty or has only one section, nothing to merge
 		if nLen <= 1
@@ -209,7 +209,7 @@ class stzListOfSections from stzLists
 	def MergeOverlapping() #ClaudeAI
 
 		aSections = This.Content()
-		nLen = ring_len(aSections)
+		nLen = len(aSections)
 
 		# If the list is empty or has only one section, nothing to merge
 		if nLen <= 1

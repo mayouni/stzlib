@@ -48,7 +48,7 @@ class stzListLeadTrail
 
 	def HasRepeatedLeadingItemsCS(pCaseSensitive)
 		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
-		if ring_len(aLead) > 0
+		if len(aLead) > 0
 			return 1
 		else
 			return 0
@@ -80,7 +80,7 @@ class stzListLeadTrail
 		ok
 
 		aContent = This.Content()
-		nLen = ring_len(aContent)
+		nLen = len(aContent)
 		if nLen < 2
 			return []
 		ok
@@ -93,7 +93,7 @@ class stzListLeadTrail
 				exit
 			ok
 		next
-		if ring_len(aResult) < 2
+		if len(aResult) < 2
 			return []
 		ok
 		return aResult
@@ -103,7 +103,7 @@ class stzListLeadTrail
 
 	def RepeatedLeadingItemCS(pCaseSensitive)
 		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
-		if ring_len(aLead) > 0
+		if len(aLead) > 0
 			return aLead[1]
 		else
 			return ""
@@ -113,14 +113,14 @@ class stzListLeadTrail
 		return This.RepeatedLeadingItemCS(1)
 
 	def NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
-		return ring_len(This.RepeatedLeadingItemsCS(pCaseSensitive))
+		return len(This.RepeatedLeadingItemsCS(pCaseSensitive))
 
 	def NumberOfRepeatedLeadingItems()
 		return This.NumberOfRepeatedLeadingItemsCS(1)
 
 	def HasRepeatedTrailingItemsCS(pCaseSensitive)
 		aTrail = This.RepeatedTrailingItemsCS(pCaseSensitive)
-		if ring_len(aTrail) > 0
+		if len(aTrail) > 0
 			return 1
 		else
 			return 0
@@ -144,7 +144,7 @@ class stzListLeadTrail
 				return []
 			ok
 			aContent = This.Content()
-			nLen = ring_len(aContent)
+			nLen = len(aContent)
 			aResult = []
 			for i = nLen - _nCount2 + 1 to nLen
 				aResult + aContent[i]
@@ -153,7 +153,7 @@ class stzListLeadTrail
 		ok
 
 		aContent = This.Content()
-		nLen = ring_len(aContent)
+		nLen = len(aContent)
 		if nLen < 2
 			return []
 		ok
@@ -166,7 +166,7 @@ class stzListLeadTrail
 				exit
 			ok
 		next
-		if ring_len(aResult) < 2
+		if len(aResult) < 2
 			return []
 		ok
 		return ListReversed(aResult)
@@ -190,7 +190,7 @@ class stzListLeadTrail
 		ok
 
 		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
-		nToRemove = ring_len(aLead) - 1
+		nToRemove = len(aLead) - 1
 		if nToRemove > 0
 			@oList.RemoveSection(1, nToRemove)
 		ok
@@ -214,7 +214,7 @@ class stzListLeadTrail
 		ok
 
 		aTrail = This.RepeatedTrailingItemsCS(pCaseSensitive)
-		nToRemove = ring_len(aTrail) - 1
+		nToRemove = len(aTrail) - 1
 		nLen = This.NumberOfItems()
 		if nToRemove > 0
 			@oList.RemoveSection(nLen - nToRemove + 1, nLen)

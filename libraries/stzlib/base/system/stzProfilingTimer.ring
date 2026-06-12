@@ -11,7 +11,7 @@ _time0 = clock()
 # used by perf-narration tests; not living in a more specific file.
 func Concat(aList)
 	if NOT isList(aList) return "" + aList ok
-	_nL_ = ring_len(aList)
+	_nL_ = len(aList)
 	_c_ = ""
 	for _i_ = 1 to _nL_
 		if isString(aList[_i_]) _c_ += aList[_i_] ok

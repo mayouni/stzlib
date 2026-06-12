@@ -39,7 +39,7 @@ class stzStringSubStringCS
 	@bCaseSensitive
 
 	def init(pcSubStr, pcStr, pCaseSensitive)
-		if isList(pcStr) and ring_len(pcStr) = 2 and isString(pcStr[1])
+		if isList(pcStr) and len(pcStr) = 2 and isString(pcStr[1])
 			cPN = StzCaseFold(pcStr[1])
 			if cPN = "in" or cPN = "instring"
 				pcStr = pcStr[2]
@@ -201,13 +201,13 @@ class stzStringSubStringCS
 	#===============================#
 
 	def IsBoundedBy(pacBounds)
-		if NOT (isList(pacBounds) and ring_len(pacBounds) = 2)
+		if NOT (isList(pacBounds) and len(pacBounds) = 2)
 			return 0
 		ok
 		oStr = new stzString(@cStr)
 		oFinder = new stzStringFinder(oStr)
 		aSections = oFinder.FindAnyBoundedByAsSectionsCS(pacBounds, @bCaseSensitive)
-		nLen = ring_len(aSections)
+		nLen = len(aSections)
 		for i = 1 to nLen
 			cFound = oStr.Section(aSections[i][1], aSections[i][2])
 			if cFound = @cSubStr

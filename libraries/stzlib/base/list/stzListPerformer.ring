@@ -71,10 +71,10 @@ class stzListPerformer
 	def PerformOn(panPos, pcAction)
 		_aPoAll_ = @oList.Map(pcAction)
 		_aPoContent_ = @oList.Content()
-		_nPoLen_ = ring_len(panPos)
+		_nPoLen_ = len(panPos)
 		for _iPo_ = 1 to _nPoLen_
 			_nPoPos_ = panPos[_iPo_]
-			if _nPoPos_ >= 1 and _nPoPos_ <= ring_len(_aPoContent_)
+			if _nPoPos_ >= 1 and _nPoPos_ <= len(_aPoContent_)
 				_aPoContent_[_nPoPos_] = _aPoAll_[_nPoPos_]
 			ok
 		next
@@ -114,11 +114,11 @@ class stzListPerformer
 
 	def YieldOn(panPos, pcYielder)
 		_aYoAll_ = @oList.Map(pcYielder)
-		_nYoLen_ = ring_len(panPos)
+		_nYoLen_ = len(panPos)
 		_aYoResult_ = []
 		for _iYo_ = 1 to _nYoLen_
 			_nYoPos_ = panPos[_iYo_]
-			if _nYoPos_ >= 1 and _nYoPos_ <= ring_len(_aYoAll_)
+			if _nYoPos_ >= 1 and _nYoPos_ <= len(_aYoAll_)
 				@AddItem(_aYoResult_, _aYoAll_[_nYoPos_])
 			ok
 		next

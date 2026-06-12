@@ -97,7 +97,7 @@ class stzListOfEntities from stzList
 		ok
 
 		def AddEntities(paEntities)
-			_nEntities1Len_ = ring_len(paEntities)
+			_nEntities1Len_ = len(paEntities)
 			for _iLoopEntities1_ = 1 to _nEntities1Len_
 				aEntity = paEntities[_iLoopEntities1_]
 				This.AddEntity(aEntity)
@@ -106,7 +106,7 @@ class stzListOfEntities from stzList
 	def EntitiesNames()
 		aResult = []
 		_aThisEntities9_ = This.Entities()
-		_nThisEntities9Len_ = ring_len(_aThisEntities9_)
+		_nThisEntities9Len_ = len(_aThisEntities9_)
 		for _iLoopThisEntities9_ = 1 to _nThisEntities9Len_
 			aEntity = _aThisEntities9_[_iLoopThisEntities9_]
 			aResult + aEntity[:name]
@@ -119,7 +119,7 @@ class stzListOfEntities from stzList
 	def EntitiesTypes()
 		aResult = []
 		_aThisEntities8_ = This.Entities()
-		_nThisEntities8Len_ = ring_len(_aThisEntities8_)
+		_nThisEntities8Len_ = len(_aThisEntities8_)
 		for _iLoopThisEntities8_ = 1 to _nThisEntities8Len_
 			aEntity = _aThisEntities8_[_iLoopThisEntities8_]
 			aResult + aEntity[:type]
@@ -163,7 +163,7 @@ class stzListOfEntities from stzList
 		ok
 
 	def NumberOfEntities()
-		return ring_len( This.Entities() )
+		return len( This.Entities() )
 
 		def Size()
 			return This.NumberOfEntities()
@@ -192,7 +192,7 @@ class stzListOfEntities from stzList
 	def FindEntityByName(pcName)
 		n = 0
 		_aThisEntities7_ = This.Entities()
-		_nThisEntities7Len_ = ring_len(_aThisEntities7_)
+		_nThisEntities7Len_ = len(_aThisEntities7_)
 		for _iLoopThisEntities7_ = 1 to _nThisEntities7Len_
 			aEntity = _aThisEntities7_[_iLoopThisEntities7_]
 			n++
@@ -206,7 +206,7 @@ class stzListOfEntities from stzList
 		aResult = []
 		n = 0
 		_aThisEntities6_ = This.Entities()
-		_nThisEntities6Len_ = ring_len(_aThisEntities6_)
+		_nThisEntities6Len_ = len(_aThisEntities6_)
 		for _iLoopThisEntities6_ = 1 to _nThisEntities6Len_
 			aEntity = _aThisEntities6_[_iLoopThisEntities6_]
 			n++
@@ -219,7 +219,7 @@ class stzListOfEntities from stzList
 	def EntitiesOfType(pcType)
 		aResult = []
 		_aThisEntities5_ = This.Entities()
-		_nThisEntities5Len_ = ring_len(_aThisEntities5_)
+		_nThisEntities5Len_ = len(_aThisEntities5_)
 		for _iLoopThisEntities5_ = 1 to _nThisEntities5Len_
 			aEntity = _aThisEntities5_[_iLoopThisEntities5_]
 			if aEntity[:type] = StzLower(pcType)
@@ -237,7 +237,7 @@ class stzListOfEntities from stzList
 	def ContainsName(pcName)
 		bResult = 0
 		_aThisEntities4_ = This.Entities()
-		_nThisEntities4Len_ = ring_len(_aThisEntities4_)
+		_nThisEntities4Len_ = len(_aThisEntities4_)
 		for _iLoopThisEntities4_ = 1 to _nThisEntities4Len_
 			aEntity = _aThisEntities4_[_iLoopThisEntities4_]
 			if aEntity[:name] = StzLower(pcName)
@@ -253,7 +253,7 @@ class stzListOfEntities from stzList
 	def ContainsType(pcType)
 		bResult = 0
 		_aThisEntities3_ = This.Entities()
-		_nThisEntities3Len_ = ring_len(_aThisEntities3_)
+		_nThisEntities3Len_ = len(_aThisEntities3_)
 		for _iLoopThisEntities3_ = 1 to _nThisEntities3Len_
 			aEntity = _aThisEntities3_[_iLoopThisEntities3_]
 			if aEntity[:type] = StzLower(pcType)
@@ -269,7 +269,7 @@ class stzListOfEntities from stzList
 	def CountByType(pcType)
 		nCount = 0
 		_aThisEntities2_ = This.Entities()
-		_nThisEntities2Len_ = ring_len(_aThisEntities2_)
+		_nThisEntities2Len_ = len(_aThisEntities2_)
 		for _iLoopThisEntities2_ = 1 to _nThisEntities2Len_
 			aEntity = _aThisEntities2_[_iLoopThisEntities2_]
 			if aEntity[:type] = StzLower(pcType)
@@ -286,7 +286,7 @@ class stzListOfEntities from stzList
 		# do it inline with a hoisted-length pass + insertion sort over
 		# the small entity list (usually < a few hundred items).
 		_aData_ = @aListOfEntities
-		_nLen_ = ring_len(_aData_)
+		_nLen_ = len(_aData_)
 		for _i_ = 2 to _nLen_
 			_oCur_ = _aData_[_i_]
 			_j_ = _i_ - 1
@@ -300,7 +300,7 @@ class stzListOfEntities from stzList
 
 	def SortByType()
 		_aData_ = @aListOfEntities
-		_nLen_ = ring_len(_aData_)
+		_nLen_ = len(_aData_)
 		for _i_ = 2 to _nLen_
 			_oCur_ = _aData_[_i_]
 			_j_ = _i_ - 1
@@ -324,7 +324,7 @@ class stzListOfEntities from stzList
 		else
 			n = 0
 			_aThisEntities1_ = This.Entities()
-			_nThisEntities1Len_ = ring_len(_aThisEntities1_)
+			_nThisEntities1Len_ = len(_aThisEntities1_)
 			for _iLoopThisEntities1_ = 1 to _nThisEntities1Len_
 				aEntity = _aThisEntities1_[_iLoopThisEntities1_]
 				n++

@@ -14,7 +14,7 @@ RegisterRuleInGroup(:PROJECT_RULES_GROUP, "TASKS_HAVE_NO_WONERS", [
 	:type = :Validation,
 	:function = func(oGraph, paRuleParams) {
 		aNodes = oGraph.Nodes()
-		_nNodes1Len_ = ring_len(aNodes)
+		_nNodes1Len_ = len(aNodes)
 		for _iLoopNodes1_ = 1 to _nNodes1Len_
 			aNode = aNodes[_iLoopNodes1_]
 			if oGraph.NodeProperty(aNode[:id], "type") = "task"

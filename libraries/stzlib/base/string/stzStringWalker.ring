@@ -57,7 +57,7 @@ class stzStringWalker
 			return This
 
 	def Walker(pcWalkerName)
-		nLen = ring_len(@aWalkers)
+		nLen = len(@aWalkers)
 		for i = 1 to nLen
 			if @aWalkers[i][1] = pcWalkerName
 				return @aWalkers[i][2].Walkables()
@@ -66,7 +66,7 @@ class stzStringWalker
 		StzRaise("Incorrect param value! pcWalkerName must be a valid walker name.")
 
 	def WalkerQ(pcWalkerName)
-		nLen = ring_len(@aWalkers)
+		nLen = len(@aWalkers)
 		for i = 1 to nLen
 			if @aWalkers[i][1] = pcWalkerName
 				return @aWalkers[i][2]
@@ -78,7 +78,7 @@ class stzStringWalker
 		return @aWalkers
 
 	def RemoveWalker(pcWalkerName)
-		nLen = ring_len(@aWalkers)
+		nLen = len(@aWalkers)
 		nPos = 0
 		for i = 1 to nLen
 			if @aWalkers[i][1] = pcWalkerName
@@ -107,11 +107,11 @@ class stzStringWalker
 	def UniqueChars()
 		acAll = This.Chars()
 		acResult = []
-		nLen = ring_len(acAll)
+		nLen = len(acAll)
 
 		for i = 1 to nLen
 			bFound = 0
-			nResLen = ring_len(acResult)
+			nResLen = len(acResult)
 			for j = 1 to nResLen
 				if acResult[j] = acAll[i]
 					bFound = 1
