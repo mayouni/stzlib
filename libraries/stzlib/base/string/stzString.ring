@@ -3201,22 +3201,9 @@ class stzString from stzObject
 
 	# RemoveDuplicatedChars: dedup chars in-place (keep first occurrence).
 	def RemoveDuplicatedChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_aSeen_ = []
-		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			_c_ = _aChars_[_i_]
-			_bDup_ = FALSE
-			_nSL_ = ring_len(_aSeen_)
-			for _j_ = 1 to _nSL_
-				if _aSeen_[_j_] = _c_ _bDup_ = TRUE exit ok
-			next
-			if NOT _bDup_
-				_aSeen_ + _c_
-				_cOut_ += _c_
-			ok
-		next
+		_pU_ = StzEngineStringUniqueChars(@pEngine)
+		_cOut_ = StzEngineStringData(_pU_)
+		StzEngineStringFree(_pU_)
 		This.Update(_cOut_)
 
 		def RemoveDuplicatedCharsQ()
@@ -11996,12 +11983,10 @@ class stzString from stzObject
 		return 0
 
 	def LastNonSpaceCharPosition()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
-		for _i_ = _nL_ to 1 step -1
-			if _aChars_[_i_] != " " return _i_ ok
-		next
-		return 0
+		_pTr_ = StzEngineStringTrimRight(@pEngine)
+		_n_ = StzEngineStringCount(_pTr_)
+		StzEngineStringFree(_pTr_)
+		return _n_
 
 	def StringsW(pcCondition)
 		# Treats content as a list of strings; pass-through filter.
