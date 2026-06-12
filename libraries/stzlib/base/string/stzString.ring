@@ -9265,14 +9265,16 @@ class stzString from stzObject
 
 	# FindNumbers(): start positions of every number-run.
 	def FindNumbers()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
 		_i_ = 1
 		while _i_ <= _nLen_
-			if isDigit(_aChars_[_i_])
+			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+			if _nC_ >= 48 and _nC_ <= 57
 				_aRes_ + _i_
-				while _i_ <= _nLen_ and isDigit(_aChars_[_i_])
+				while _i_ <= _nLen_
+					_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+					if _nC_ < 48 or _nC_ > 57 exit ok
 					_i_++
 				end
 			else
@@ -9288,12 +9290,7 @@ class stzString from stzObject
 		_nL_ = ring_len(_aAll_)
 		for _i_ = 1 to _nL_
 			_n_ = _aAll_[_i_]
-			_bD_ = FALSE
-			_nRL_ = ring_len(_aRes_)
-			for _j_ = 1 to _nRL_
-				if _aRes_[_j_] = _n_ _bD_ = TRUE exit ok
-			next
-			if NOT _bD_ _aRes_ + _n_ ok
+			if ring_find(_aRes_, _n_) = 0 _aRes_ + _n_ ok
 		next
 		return _aRes_
 
@@ -9801,14 +9798,27 @@ class stzString from stzObject
 		if n1 = n2 return ok
 		_c1_ = This._EngineSlice(_cTxt_, n1, 1)
 		_c2_ = This._EngineSlice(_cTxt_, n2, 1)
-		_aChars_ = This.Chars()
-		_aChars_[n1] = _c2_
-		_aChars_[n2] = _c1_
-		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			_cOut_ += _aChars_[_i_]
-		next
-		This.Update(_cOut_)
+		_lo_ = n1
+		_hi_ = n2
+		_cLo_ = _c2_
+		_cHi_ = _c1_
+		if n1 > n2
+			_lo_ = n2
+			_hi_ = n1
+			_cLo_ = _c1_
+			_cHi_ = _c2_
+		ok
+		_cBefore_ = ""
+		if _lo_ > 1 _cBefore_ = This._EngineSlice(_cTxt_, 1, _lo_ - 1) ok
+		_cMid_ = ""
+		if _hi_ > _lo_ + 1
+			_cMid_ = This._EngineSlice(_cTxt_, _lo_ + 1, _hi_ - _lo_ - 1)
+		ok
+		_cAfter_ = ""
+		if _hi_ < _nLen_
+			_cAfter_ = This._EngineSlice(_cTxt_, _hi_ + 1, _nLen_ - _hi_)
+		ok
+		This.Update(_cBefore_ + _cLo_ + _cMid_ + _cHi_ + _cAfter_)
 
 		def SwapQ(n1, n2)
 			This.Swap(n1, n2)
