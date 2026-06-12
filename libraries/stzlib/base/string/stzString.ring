@@ -12407,37 +12407,22 @@ class stzString from stzObject
 		return 0
 
 	def SortedInAscending()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_aRes_ = _ListCopy(_aChars_)
-		# Insertion sort, codepoint-aware via strcmp.
-		for _i_ = 2 to _nLen_
-			_v_ = _aRes_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and strcmp(_aRes_[_j_], _v_) > 0
-				_aRes_[_j_ + 1] = _aRes_[_j_]; _j_--
-			end
-			_aRes_[_j_ + 1] = _v_
-		next
+		_oList_ = new stzList(This.Chars())
+		_aSorted_ = _oList_.Sorted()
 		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			_cOut_ += _aRes_[_i_]
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 1 to _nL_
+			_cOut_ += _aSorted_[_i_]
 		next
 		return _cOut_
 
 	def SortedInDescending()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_aRes_ = _ListCopy(_aChars_)
-		for _i_ = 2 to _nLen_
-			_v_ = _aRes_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and strcmp(_aRes_[_j_], _v_) < 0
-				_aRes_[_j_ + 1] = _aRes_[_j_]; _j_--
-			end
-			_aRes_[_j_ + 1] = _v_
-		next
+		_oList_ = new stzList(This.Chars())
+		_aSorted_ = _oList_.SortedInDescending()
 		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			_cOut_ += _aRes_[_i_]
+		_nL_ = ring_len(_aSorted_)
+		for _i_ = 1 to _nL_
+			_cOut_ += _aSorted_[_i_]
 		next
 		return _cOut_
 
