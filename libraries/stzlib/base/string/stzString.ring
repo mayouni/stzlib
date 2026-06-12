@@ -6418,25 +6418,13 @@ class stzString from stzObject
 	# HowManyOccurrenceOfCharRightSide(pcChar) / EndSide: count the
 	# trailing run of pcChar.
 	def HowManyOccurrenceOfCharRightSide(pcChar)
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = pcChar
-			_n_++
-		end
-		return _n_
+		return StzEngineStringCountTrailingChar(@pEngine, StzCodepoint(pcChar))
 
 	def HowManyOccurrenceOfCharEndSide(pcChar)
 		return This.HowManyOccurrenceOfCharRightSide(pcChar)
 
 	def HowManyOccurrenceOfCharLeftSide(pcChar)
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_n_ + 1] = pcChar
-			_n_++
-		end
-		return _n_
+		return StzEngineStringCountLeadingChar(@pEngine, StzCodepoint(pcChar))
 
 	def HowManyOccurrenceOfCharStartSide(pcChar)
 		return This.HowManyOccurrenceOfCharLeftSide(pcChar)
@@ -11568,24 +11556,14 @@ class stzString from stzObject
 		return _aR_
 
 	def NumberOfLeadingItems()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
+		_nL_ = This._EngineCount(This.Content())
 		if _nL_ = 0 return 0 ok
-		_n_ = 1
-		for _i_ = 2 to _nL_
-			if _aChars_[_i_] = _aChars_[1] _n_++ else exit ok
-		next
-		return _n_
+		return StzEngineStringCountLeadingChar(@pEngine, StzEngineStringCharAt(@pEngine, 1))
 
 	def NumberOfTrailingItems()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
+		_nL_ = This._EngineCount(This.Content())
 		if _nL_ = 0 return 0 ok
-		_n_ = 1
-		for _i_ = _nL_ - 1 to 1 step -1
-			if _aChars_[_i_] = _aChars_[_nL_] _n_++ else exit ok
-		next
-		return _n_
+		return StzEngineStringCountTrailingChar(@pEngine, StzEngineStringCharAt(@pEngine, _nL_))
 
 	def NumberOfLeadingCharsCS(pCaseSensitive)
 		return This.NumberOfLeadingItems()
