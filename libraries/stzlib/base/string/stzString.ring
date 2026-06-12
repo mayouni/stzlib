@@ -4124,7 +4124,7 @@ class stzString from stzObject
 		return This.NumberOfOccurrenceOfCharLeftSide(pcChar)
 
 	def ConsecutiveSubStringsZ()
-		_n_ = ring_len(This.Chars())
+		_n_ = This._EngineCount(This.Content())
 		_a_ = []
 		for _i_ = 1 to _n_
 			_a_ + _i_
@@ -8171,7 +8171,7 @@ class stzString from stzObject
 	# NumberOfConsecutiveSubStrings([pcSub]): count of back-to-back
 	# identical occurrences. 0-arg form returns total char count.
 	def NumberOfConsecutiveSubStrings()
-		return ring_len(This.Chars())
+		return This._EngineCount(This.Content())
 
 	def NumberOfConsecutiveSubStringsOf(pcSub)
 		return ring_len(This.FindDupSecutiveSubString(pcSub))
@@ -8183,7 +8183,7 @@ class stzString from stzObject
 		return This.Chars()
 
 	def FindConsecutiveSubStringsZ()
-		_n_ = ring_len(This.Chars())
+		_n_ = This._EngineCount(This.Content())
 		_aR_ = []
 		for _i_ = 1 to _n_
 			_aR_ + _i_
