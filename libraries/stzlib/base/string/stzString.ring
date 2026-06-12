@@ -11038,17 +11038,17 @@ class stzString from stzObject
 	# resolve inside StzStringQ(){...} blocks. Inline rather than
 	# delegate to avoid same-name recursion.
 	def MarquersPositions()
-		_cStr_ = This.Content()
 		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_i_ = 1
-		while _i_ <= _nLen_
-			if _aChars_[_i_] = "#" and _i_ < _nLen_ and isDigit(_aChars_[_i_ + 1])
-				_aRes_ + _i_
+		_aHash_ = This.FindAll("#")
+		_nLen_ = This._EngineCount(This.Content())
+		_nHL_ = ring_len(_aHash_)
+		for _k_ = 1 to _nHL_
+			_p_ = _aHash_[_k_]
+			if _p_ < _nLen_
+				_nNext_ = StzEngineStringCharAt(@pEngine, _p_ + 1)
+				if _nNext_ >= 48 and _nNext_ <= 57 _aRes_ + _p_ ok
 			ok
-			_i_++
-		end
+		next
 		return _aRes_
 
 	def MarkersPositions()
@@ -12714,13 +12714,7 @@ class stzString from stzObject
 
 	# CharsReversed: non-mutating char-reverse.
 	def CharsReversed()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_cOut_ = ""
-		for _i_ = _nLen_ to 1 step -1
-			_cOut_ += _aChars_[_i_]
-		next
-		return _cOut_
+		return StzReverse(This.Content())
 
 	# IsAlmostAFunctionCall(): TRUE iff content roughly matches
 	# `identifier(...)` syntax.
