@@ -7541,20 +7541,22 @@ class stzString from stzObject
 
 	# Trailing/leading number helpers.
 	def TrailingNumber()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_n_ = 0
-		while _n_ < _nLen_ and isDigit(_aChars_[_nLen_ - _n_])
+		while _n_ < _nLen_
+			_nC_ = StzEngineStringCharAt(@pEngine, _nLen_ - _n_)
+			if _nC_ < 48 or _nC_ > 57 exit ok
 			_n_++
 		end
 		if _n_ = 0 return "" ok
 		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
 
 	def LeadingNumber()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_n_ = 0
-		while _n_ < _nLen_ and isDigit(_aChars_[_n_ + 1])
+		while _n_ < _nLen_
+			_nC_ = StzEngineStringCharAt(@pEngine, _n_ + 1)
+			if _nC_ < 48 or _nC_ > 57 exit ok
 			_n_++
 		end
 		if _n_ = 0 return "" ok
