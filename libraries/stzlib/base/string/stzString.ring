@@ -12797,26 +12797,10 @@ class stzString from stzObject
 			_cNew_ = p1[2]
 		ok
 		if NOT isString(_cNew_) return ok
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			_cOut_ += _cNew_
-		next
-		This.Update(_cOut_)
+		This.Update(StzRepeatStr(_cNew_, This._EngineCount(This.Content())))
 
 	def ReplaceAllCharsXT(pcOld, pcNew)
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			if _aChars_[_i_] = pcOld
-				_cOut_ += pcNew
-			else
-				_cOut_ += _aChars_[_i_]
-			ok
-		next
-		This.Update(_cOut_)
+		This.Update(StzReplace(This.Content(), pcOld, pcNew))
 
 		def ReplaceAllCharsQ(p1)
 			This.ReplaceAllChars(p1)
@@ -12867,12 +12851,7 @@ class stzString from stzObject
 	def MultiplyBy(n)
 		if NOT isNumber(n) return ok
 		if n < 1 This.Update("") return ok
-		_cBase_ = This.Content()
-		_cOut_ = ""
-		for _i_ = 1 to n
-			_cOut_ += _cBase_
-		next
-		This.Update(_cOut_)
+		This.Update(StzRepeatStr(This.Content(), n))
 
 		def MultiplyByQ(n)
 			This.MultiplyBy(n)
@@ -12974,15 +12953,8 @@ class stzString from stzObject
 
 	# RemoveAllExcept(pcKeep): remove every char that is NOT pcKeep.
 	def RemoveAllExcept(pcKeep)
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
-		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			if _aChars_[_i_] = pcKeep
-				_cOut_ += _aChars_[_i_]
-			ok
-		next
-		This.Update(_cOut_)
+		_nN_ = This.NumberOfOccurrence(pcKeep)
+		This.Update(StzRepeatStr(pcKeep, _nN_))
 
 		def RemoveAllExceptQ(pcKeep)
 			This.RemoveAllExcept(pcKeep)
