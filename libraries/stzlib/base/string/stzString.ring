@@ -14708,12 +14708,7 @@ class stzString from stzObject
 		_aSeen_ = []
 		for _i_ = 1 to _nLen_
 			_c_ = _aChars_[_i_]
-			_bDup_ = FALSE
-			_nSL_ = ring_len(_aSeen_)
-			for _j_ = 1 to _nSL_
-				if _aSeen_[_j_] = _c_ _bDup_ = TRUE exit ok
-			next
-			if _bDup_
+			if ring_find(_aSeen_, _c_) > 0
 				_aRes_ + _i_
 			else
 				_aSeen_ + _c_
@@ -14725,13 +14720,14 @@ class stzString from stzObject
 	# previous one in the codepoint walk (i.e. immediate-duplicates).
 	# Returns the 2nd+ position of each run.
 	def FindDupSecutiveChars()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
+		if _nLen_ < 2 return _aRes_ ok
+		_nPrev_ = StzEngineStringCharAt(@pEngine, 1)
 		for _i_ = 2 to _nLen_
-			if _aChars_[_i_] = _aChars_[_i_ - 1]
-				_aRes_ + _i_
-			ok
+			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
+			if _nC_ = _nPrev_ _aRes_ + _i_ ok
+			_nPrev_ = _nC_
 		next
 		return _aRes_
 
