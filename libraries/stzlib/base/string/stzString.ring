@@ -8444,12 +8444,8 @@ class stzString from stzObject
 		if n1 < 1 n1 = 1 ok
 		if n2 > _nLen_ n2 = _nLen_ ok
 		if n1 > n2 return [] ok
-		_aChars_ = This.Chars()
-		_aRes_ = []
-		for _i_ = n1 to n2
-			_aRes_ + _aChars_[_i_]
-		next
-		return _aRes_
+		_cSlice_ = This._EngineSlice(This.Content(), n1, n2 - n1 + 1)
+		return (new stzString(_cSlice_)).Chars()
 
 	# FindFirstD(pcSub, pDir): first position in the chosen direction.
 	def FindFirstD(pcSub, pDir)
@@ -8570,20 +8566,11 @@ class stzString from stzObject
 		   (lower(pcNewChar[1]) = "with" or lower(pcNewChar[1]) = "by")
 			pcNewChar = pcNewChar[2]
 		ok
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return ok
-		_cF_ = _aChars_[1]
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
-			_n_++
-		end
+		_n_ = StzEngineStringCountLeadingChar(@pEngine, StzEngineStringCharAt(@pEngine, 1))
 		if _n_ = 0 return ok
-		_cPad_ = ""
-		for _i_ = 1 to _n_
-			_cPad_ += pcNewChar
-		next
-		This.Update(_cPad_ + This._EngineSliceFrom(This.Content(), _n_ + 1))
+		This.Update(StzRepeatStr(pcNewChar, _n_) + This._EngineSliceFrom(This.Content(), _n_ + 1))
 
 		def ReplaceEachLeadingCharQ(pcNewChar)
 			This.ReplaceEachLeadingChar(pcNewChar)
@@ -8594,20 +8581,11 @@ class stzString from stzObject
 		   (lower(pcNewChar[1]) = "with" or lower(pcNewChar[1]) = "by")
 			pcNewChar = pcNewChar[2]
 		ok
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return ok
-		_cL_ = _aChars_[_nLen_]
-		_n_ = 0
-		while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
-			_n_++
-		end
+		_n_ = StzEngineStringCountTrailingChar(@pEngine, StzEngineStringCharAt(@pEngine, _nLen_))
 		if _n_ = 0 return ok
-		_cPad_ = ""
-		for _i_ = 1 to _n_
-			_cPad_ += pcNewChar
-		next
-		This.Update(This._EngineSlice(This.Content(), 1, _nLen_ - _n_) + _cPad_)
+		This.Update(This._EngineSlice(This.Content(), 1, _nLen_ - _n_) + StzRepeatStr(pcNewChar, _n_))
 
 		def ReplaceEachTrailingCharQ(pcNewChar)
 			This.ReplaceEachTrailingChar(pcNewChar)
