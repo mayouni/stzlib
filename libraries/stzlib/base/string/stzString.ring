@@ -9211,16 +9211,13 @@ class stzString from stzObject
 				_nFrom_ = n
 			ok
 			if NOT (isNumber(_nFrom_) and isNumber(_nN_)) return [] ok
-			_aChars_ = This.Chars()
-			_nL_ = ring_len(_aChars_)
-			_aRes_ = []
+			_nL_ = This._EngineCount(This.Content())
 			_start_ = _nFrom_ + 1
+			if _start_ > _nL_ return [] ok
 			_end_ = _start_ + _nN_ - 1
 			if _end_ > _nL_ _end_ = _nL_ ok
-			for _i_ = _start_ to _end_
-				_aRes_ + _aChars_[_i_]
-			next
-			return _aRes_
+			_cSlice_ = This._EngineSlice(This.Content(), _start_, _end_ - _start_ + 1)
+			return (new stzString(_cSlice_)).Chars()
 		ok
 		if NOT isString(pcAnchor) return "" ok
 		_nP_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
@@ -9240,16 +9237,14 @@ class stzString from stzObject
 				_nFrom_ = n
 			ok
 			if NOT (isNumber(_nFrom_) and isNumber(_nN_)) return [] ok
-			_aChars_ = This.Chars()
-			_aRes_ = []
+			_nL_ = This._EngineCount(This.Content())
 			_start_ = _nFrom_ - _nN_
 			if _start_ < 1 _start_ = 1 ok
 			_end_ = _nFrom_ - 1
-			if _end_ > ring_len(_aChars_) _end_ = ring_len(_aChars_) ok
-			for _i_ = _start_ to _end_
-				_aRes_ + _aChars_[_i_]
-			next
-			return _aRes_
+			if _end_ > _nL_ _end_ = _nL_ ok
+			if _start_ > _end_ return [] ok
+			_cSlice_ = This._EngineSlice(This.Content(), _start_, _end_ - _start_ + 1)
+			return (new stzString(_cSlice_)).Chars()
 		ok
 		if NOT isString(pcAnchor) return "" ok
 		_nP_ = StzEngineStringFindFirstFromCS(@pEngine, pcAnchor, 1, 1)
@@ -11722,14 +11717,10 @@ class stzString from stzObject
 		return This
 
 	def SpacifyItQ()
-		_aChars_ = This.Chars()
-		_nL_ = ring_len(_aChars_)
-		_o_ = ""
-		for _i_ = 1 to _nL_
-			if _i_ > 1 _o_ += " " ok
-			_o_ += _aChars_[_i_]
-		next
-		This.Update(_o_)
+		_pSp_ = StzEngineStringSpacify(@pEngine)
+		_cSp_ = StzEngineStringData(_pSp_)
+		StzEngineStringFree(_pSp_)
+		This.Update(_cSp_)
 		return This
 
 	def SpacifyItR()
