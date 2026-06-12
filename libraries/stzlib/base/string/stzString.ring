@@ -2635,29 +2635,23 @@ class stzString from stzObject
 	# Markers(): return the list of marker numbers as they appear,
 	# left-to-right. e.g. "#1 #3 #2" -> [1, 3, 2].
 	def Markers()
-		# Engine-backed: scan the codepoint list for "#" followed by
-		# digits. Markers like #1, #12 are pure-ASCII so per-char
-		# equality on the codepoint list is correct.
 		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_i_ = 1
-		while _i_ <= _nLen_
-			if _aChars_[_i_] = "#" and _i_ < _nLen_ and isDigit(_aChars_[_i_ + 1])
-				_j_ = _i_ + 1
-				while _j_ <= _nLen_ and isDigit(_aChars_[_j_])
-					_j_++
-				end
-				_cNum_ = ""
-				for _k_ = _i_ + 1 to _j_ - 1
-					_cNum_ += _aChars_[_k_]
-				next
-				_aRes_ + 0 + _cNum_
-				_i_ = _j_
-			else
-				_i_++
+		_aHash_ = This.FindAll("#")
+		_nLen_ = This._EngineCount(This.Content())
+		_nHL_ = len(_aHash_)
+		for _k_ = 1 to _nHL_
+			_p_ = _aHash_[_k_]
+			if _p_ >= _nLen_ loop ok
+			_j_ = _p_ + 1
+			while _j_ <= _nLen_
+				_nC_ = StzEngineStringCharAt(@pEngine, _j_)
+				if _nC_ < 48 or _nC_ > 57 exit ok
+				_j_++
+			end
+			if _j_ > _p_ + 1
+				_aRes_ + (0 + This._EngineSlice(This.Content(), _p_ + 1, _j_ - _p_ - 1))
 			ok
-		end
+		next
 		return _aRes_
 
 		def Marquers()
@@ -4382,16 +4376,9 @@ class stzString from stzObject
 		# with no arg, peel any same-first-char run. Test narratives
 		# use this as a one-shot "trim run" form.
 		def RemoveFirstCharXT()
-			# Engine-backed: take the codepoint list, count the run of
-			# same-leading chars, then slice the remainder.
-			_aChars_ = This.Chars()
-			_nLen_ = len(_aChars_)
+			_nLen_ = This._EngineCount(This.Content())
 			if _nLen_ = 0 return ok
-			_cF_ = _aChars_[1]
-			_n_ = 0
-			while _n_ < _nLen_ and _aChars_[_n_ + 1] = _cF_
-				_n_++
-			end
+			_n_ = StzEngineStringCountLeadingChar(@pEngine, StzEngineStringCharAt(@pEngine, 1))
 			if _n_ > 0
 				This.Update(This._EngineSliceFrom(This.Content(), _n_ + 1))
 			ok
@@ -4547,14 +4534,9 @@ class stzString from stzObject
 		# RemoveLastCharXT() -- peel every trailing char that matches
 		# the last one (symmetric to RemoveFirstCharXT). Engine-backed.
 		def RemoveLastCharXT()
-			_aChars_ = This.Chars()
-			_nLen_ = len(_aChars_)
+			_nLen_ = This._EngineCount(This.Content())
 			if _nLen_ = 0 return ok
-			_cL_ = _aChars_[_nLen_]
-			_n_ = 0
-			while _n_ < _nLen_ and _aChars_[_nLen_ - _n_] = _cL_
-				_n_++
-			end
+			_n_ = StzEngineStringCountTrailingChar(@pEngine, StzEngineStringCharAt(@pEngine, _nLen_))
 			if _n_ > 0
 				This.Update(This._EngineSlice(This.Content(), 1, _nLen_ - _n_))
 			ok
