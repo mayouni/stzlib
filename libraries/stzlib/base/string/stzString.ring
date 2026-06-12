@@ -9325,14 +9325,15 @@ class stzString from stzObject
 
 	def NumbersZZ()
 		_aPos_ = This.FindNumbers()
-		_aChars_ = This.Chars()
-		_nLen_ = ring_len(_aChars_)
+		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
 		_nL_ = ring_len(_aPos_)
 		for _i_ = 1 to _nL_
 			_p_ = _aPos_[_i_]
 			_j_ = _p_
-			while _j_ <= _nLen_ and isDigit(_aChars_[_j_])
+			while _j_ <= _nLen_
+				_nC_ = StzEngineStringCharAt(@pEngine, _j_)
+				if _nC_ < 48 or _nC_ > 57 exit ok
 				_j_++
 			end
 			_aRes_ + [ _p_, _j_ - 1 ]
@@ -10905,17 +10906,15 @@ class stzString from stzObject
 		for _i_ = 1 to _nL_
 			_p_ = _aPos_[_i_]
 			# Find the end of the digit run after the "#".
-			_aChars_ = This.Chars()
-			_nLen_ = ring_len(_aChars_)
+			_nLen_ = This._EngineCount(This.Content())
 			_j_ = _p_ + 1
-			while _j_ <= _nLen_ and isDigit(_aChars_[_j_])
+			while _j_ <= _nLen_
+				_nC_ = StzEngineStringCharAt(@pEngine, _j_)
+				if _nC_ < 48 or _nC_ > 57 exit ok
 				_j_++
 			end
 			# Marker number used to map paReplacements (1-based).
-			_cNum_ = ""
-			for _k_ = _p_ + 1 to _j_ - 1
-				_cNum_ += _aChars_[_k_]
-			next
+			_cNum_ = This._EngineSlice(This.Content(), _p_ + 1, _j_ - _p_ - 1)
 			_iRep_ = 0 + _cNum_
 			if _iRep_ < 1 or _iRep_ > _nRL_ loop ok
 			_cNew_ = "" + paReplacements[_iRep_]
