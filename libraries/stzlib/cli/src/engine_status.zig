@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 52,
+    .last_session = 53,
     .last_updated = "2026-06-13",
 };
 
@@ -404,7 +404,7 @@ pub const milestones = [_]Milestone{
         .track = "engine",
         .title = "CLI Polish + Ring Bridge Completion",
         .status = .partial,
-        .summary = "softanza status/coverage/roadmap/next DONE (this CLI); 125/125 Ring classes bridged; narrated test runner + skills assessment pending",
+        .summary = "softanza status/coverage/roadmap/next DONE (this CLI); 125/125 Ring classes bridged. Narrated GIVEN/WHEN/THEN runner SHIPPED 2026-06-13 (session 53) as Ring-side helper at libraries/stzlib/base/test/_narrated.ring -- Scenario/Given/When/Then/EndScenario/Summary primitives, pass/fail tally, structured output. Four suites (extercode + extincode + cluster + appserver, 53 assertions) demonstrate adoption. Pending: skills assessment, reactive async harness.",
     },
     .{
         .id = "M-E11",
