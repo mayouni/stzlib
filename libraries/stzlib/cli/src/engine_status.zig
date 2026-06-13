@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 60,
+    .last_session = 61,
     .last_updated = "2026-06-13",
 };
 
@@ -446,9 +446,9 @@ pub const milestones = [_]Milestone{
     .{
         .id = "M-DEP4",
         .track = "depcleanup",
-        .title = "Replace libuv.ring with polling fallback / Zig Async Loop",
-        .status = .partial,
-        .summary = "Slice 1 LANDED 2026-06-13 (session 60). Pragmatic path: drop libuv where a synchronous polling fallback works. reactive/stzReactive.ring -- `load \"libuv.ring\"` REMOVED; uv_default_loop replaced with NULL sentinel; uv_buf2str/uv_buf_init become identity (Ring buffers ARE strings). reactive/stzReactiveTimer.ring -- uv_timer_* calls replaced with clock()-based polling pattern (CheckAndTick from the manager loop). file/stzFolderWatcher.ring (demo, not class) archived. stzNetwork.ring's residual libuv load already dropped in M-DEP3. Test 52_reactive_polling_narrated: 4 scenarios / 8 assertions, all green; 51_reactive_harness (20/20) still green. NOT YET (slice 2 -- multi-month): network/stzTcpClient + stzTcpServer still call uv_* in method bodies (construction works, calls would fail); folder watcher Zig-polled rewrite; true preemptive async via cross-platform IOCP/epoll/kqueue wrapper. The libuv.ring extension is no longer required for stzBase to load.",
+        .title = "Replace libuv.ring with engine TCP + polling timer",
+        .status = .done,
+        .summary = "CLOSED 2026-06-13 (sessions 60-61). Slice 1: libuv removed from reactive runtime (uv_default_loop -> NULL sentinel; uv_buf2str/init -> identity; stzReactiveTimer rewritten to clock()-based polling). Slice 2: new engine domain stz_tcp (~200 LOC, std.net-backed) ships Connect/Send/Recv/Close + Listen/Accept/ServerClose. stzTcpClient + stzTcpServer fully rewired; uv_* calls gone everywhere. stzFolderWatcher demo archived. Tests 52_reactive_polling (8/8) + 54_stztcp_engine (15/15) green; cross-checks 51_reactive_harness (20/20) + 53_stzhttpclient (17/17) + 53_stzhtml (21/21) all still green. Ring gotcha pinned: isPointer(null-handle) returns TRUE; must cross-check via StzEngineTcpLastError() = \"\". Future arc (multi-month, NOT an M-DEP): cross-platform Zig event loop for real preemptive async (parallel HTTP, async TCP server, async file watch).",
     },
 
     // ---- stzlib redesign track ----

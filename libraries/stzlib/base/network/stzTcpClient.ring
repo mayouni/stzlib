@@ -1,134 +1,122 @@
 # =============================================================================
-# TCP CLIENT - libuv-based async TCP
+# TCP CLIENT -- engine-backed synchronous TCP (M-DEP4 slice 2).
+# Previously a libuv async wrapper; rewired 2026-06-13 to the in-tree
+# Zig engine (libraries/stzlib/engine/src/tcp.zig) which uses std.net
+# for blocking connect / send / recv / close.
+#
+# The public surface (Connect/Send/Receive/Close + OnX callback
+# setters) is preserved so callers do not need to change. Callbacks
+# now fire synchronously after the corresponding operation returns;
+# the async libuv loop is gone.
 # =============================================================================
 
 class stzTcpClient from stzNetwork
-    socket = NULL
-    @loop = NULL
+    @hClient = NULL              # opaque engine TCP handle
     is_connected = False
     on_connect_callback = ""
     on_receive_callback = ""
     on_close_callback = ""
     on_error_callback = ""
-    
+    received_data = ""
+
     def init()
-        super.init()
-        @loop = uv_defaulLoop()
-        socket = new_uv_tcp_t()
-        uv_tcp_init(@loop, socket)
-    
+        # stzNetwork.init takes no args; nothing more to wire up.
+
     def Connect(cHost, nPort)
-        addr = new_sockaddr_in()
-        uv_ip4_addr(cHost, nPort, addr)
-        
-        connect_req = new_uv_connect_t()
-        uv_tcp_connect(connect_req, socket, addr, "HandleConnect()")
-        
-        uv_run(@loop, UV_RUN_DEFAULT)
-        return This
-    
-    def HandleConnect()
-        aPara = uv_Eventpara(connect_req, :connect)
-        nStatus = aPara[2]
-        
-        if nStatus = 0
+        @hClient = StzEngineTcpConnect(cHost, nPort)
+        # The engine returns a null-pointer (not literal NULL) on
+        # failure. Cross-check via LastError -- empty means success.
+        if StzEngineTcpLastError() = ""
             is_connected = True
             ClearErrors()
             if on_connect_callback != ""
                 call on_connect_callback()
             ok
         else
-            last_error = "Connection failed"
-            error_code = nStatus
+            is_connected = False
+            last_error = StzEngineTcpLastError()
+            error_code = -1
             if on_error_callback != ""
                 call on_error_callback()
             ok
         ok
-    
+        return This
+
     def Send(cData)
         if not is_connected
             last_error = "Not connected"
             return This
         ok
-        
-        buf = new_uv_buf_t()
-        set_uv_buf_t_len(buf, len(cData))
-        set_uv_buf_t_base(buf, varptr("cData", :char))
-        
-        write_req = new_uv_write_t()
-        uv_write(write_req, socket, buf, 1, "HandleWrite()")
-        return This
-    
-    def HandleWrite()
-        # Write completion handler
-        aPara = uv_Eventpara(socket, :write)
-        nStatus = aPara[2]
-        if nStatus < 0
-            last_error = "Write failed"
-            error_code = nStatus
-        ok
-    
-    def Receive()
-        if not is_connected
-            last_error = "Not connected"
-            return This
-        ok
-        
-        uv_read_start(socket, uv_myalloccallback(), "HandleRead()")
-        return This
-    
-    def HandleRead()
-        aPara = uv_Eventpara(socket, :read)
-        nRead = aPara[2]
-        buf = aPara[3]
-        
-        if nRead > 0
-            received_data = uv_buf2str(buf)
-            ClearErrors()
-            if on_receive_callback != ""
-                call on_receive_callback()
-            ok
-        elseif nRead < 0
-            last_error = "Read error"
-            error_code = nRead
+        nSent = StzEngineTcpSend(@hClient, cData)
+        if nSent < 0
+            last_error = StzEngineTcpLastError()
+            error_code = nSent
             if on_error_callback != ""
                 call on_error_callback()
             ok
         ok
-    
+        return This
+
+    def Receive()
+        return This.ReceiveWithMax(8192)
+
+    def ReceiveWithMax(nMaxBytes)
+        if not is_connected
+            last_error = "Not connected"
+            return This
+        ok
+        received_data = StzEngineTcpRecv(@hClient, nMaxBytes)
+        if received_data = ""
+            # Either EOF or error -- LastError lets the caller decide.
+            last_error = StzEngineTcpLastError()
+            if last_error != "" and on_error_callback != ""
+                call on_error_callback()
+            ok
+        else
+            ClearErrors()
+            if on_receive_callback != ""
+                call on_receive_callback()
+            ok
+        ok
+        return This
+
+    def ReceivedData()
+        return received_data
+
     def Close()
-        if is_connected and socket != NULL
-            # Close the socket
+        if is_connected and @hClient != NULL
+            StzEngineTcpClose(@hClient)
+            @hClient = NULL
             is_connected = False
             if on_close_callback != ""
                 call on_close_callback()
             ok
         ok
         return This
-    
+
     def OnConnect(cCallback)
         on_connect_callback = cCallback
         return This
-    
+
     def OnReceive(cCallback)
         on_receive_callback = cCallback
         return This
-    
+
     def OnClose(cCallback)
         on_close_callback = cCallback
         return This
-    
+
     def OnError(cCallback)
         on_error_callback = cCallback
         return This
-    
+
     def IsConnected()
         return is_connected
-    
+
     def LocalAddress()
-        # Would implement getting local socket address
+        # std.net doesn't yet expose this through the bridge; engine
+        # slice 3 can add it if a caller needs it.
         return "127.0.0.1"
-    
+
     def RemoteAddress()
-        # Would implement getting remote socket address
         return "0.0.0.0"
