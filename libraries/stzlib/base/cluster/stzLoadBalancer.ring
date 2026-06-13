@@ -28,11 +28,14 @@ class stzLoadBalancer
         ]
 
     def RegisterCluster(cType, aNodes)
+        # Ring copies a list-of-lists slot on index read, so
+        # `aCluster = aClusters[i]; aCluster[:nodes] = ...` mutates
+        # the copy and discards the change. Mutate in-place via the
+        # index instead.
         _nClusters2Len_ = len(aClusters)
         for _iLoopClusters2_ = 1 to _nClusters2Len_
-        	aCluster = aClusters[_iLoopClusters2_]
-            if aCluster[:type] = cType
-                aCluster[:nodes] = aNodes
+            if aClusters[_iLoopClusters2_][:type] = cType
+                aClusters[_iLoopClusters2_][:nodes] = aNodes
                 return
             ok
         next
