@@ -186,6 +186,53 @@ pub fn pool_inflight(pool_opt: ?*Pool) callconv(.c) i32 {
     return n;
 }
 
+/// pool_poll_with_deadline -- wait up to `deadline_ms` for the job to
+/// finish. Returns -4 if the deadline expires while the job is still
+/// running. deadline_ms == 0 means "no waiting" (legacy poll behaviour).
+///
+/// IMPORTANT: this is a CALLER-SIDE timeout. The pool worker continues
+/// running the job to completion. A hung downstream still ties up the
+/// worker; the caller just gets a timely response and can drain the
+/// (eventual) result with another poll later, or abandon the id.
+///
+/// For engine-enforced socket-level timeouts (so that a hung request
+/// actually frees the worker), we need a custom HTTP/1.1 implementation
+/// on raw std.net.Stream sockets with SO_RCVTIMEO / SO_SNDTIMEO. That's
+/// the next item in the gap-analysis Tier 1 list -- deferred to its own
+/// session because doing it half-right (e.g. detaching a watchdog thread
+/// that frees memory racy with the fetch thread) leaks resources.
+/// Non-draining peek -- returns:
+///   -2 = job id not found
+///   -1 = job not yet done (still pending or running)
+///    0 = job is done (result waiting to be polled)
+fn jobPeekDone(pool_opt: ?*Pool, job_id: u64) i32 {
+    const p = pool_opt orelse return -2;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    const job = p.jobs_by_id.get(job_id) orelse return -2;
+    return if (job.status == .done) 0 else -1;
+}
+
+pub fn pool_poll_with_deadline(
+    pool_opt: ?*Pool,
+    job_id: u64,
+    deadline_ms: u64,
+    out: [*]u8,
+    max: usize,
+) callconv(.c) i32 {
+    if (deadline_ms == 0) return pool_poll(pool_opt, job_id, out, max);
+    const start_ns = std.time.nanoTimestamp();
+    const deadline_ns: i128 = start_ns + @as(i128, @intCast(deadline_ms)) * 1_000_000;
+    while (true) {
+        const peek = jobPeekDone(pool_opt, job_id);
+        if (peek == -2) return -2;
+        if (peek == 0) return pool_poll(pool_opt, job_id, out, max);
+        const now = std.time.nanoTimestamp();
+        if (now >= deadline_ns) return -4;
+        std.Thread.sleep(2 * std.time.ns_per_ms);
+    }
+}
+
 /// pool_poll returns:
 ///   -1 = job still running
 ///   -2 = job id not found (already drained or never submitted)
