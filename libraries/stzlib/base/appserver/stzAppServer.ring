@@ -332,7 +332,7 @@ class stzAppServer from stzNetwork
 			nColon = StzFind(aLines[i], ":")
 			if nColon > 0
 				cName = trim(StzLeft(aLines[i], nColon - 1))
-				cValue = trim(@StzMidToEnd(aLines[i], nColon + 1))
+				cValue = trim(StzMidToEnd(aLines[i], nColon + 1))
 				aHeaders + [cName, cValue]
 			ok
 		next

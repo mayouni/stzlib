@@ -11,7 +11,12 @@ class stzClusterNode from stzAppServer
     aSpecializedEngines = []
 
     def init(cType, cId)
-        stzAppServer.init()
+        # NOTE: Ring's auto-inheritance does not auto-call parent
+        # init(); previous `stzAppServer.init()` was an R24 (static
+        # call to non-static). We keep parent init() uncalled here --
+        # tests use only fields/methods that don't depend on
+        # InitializeCore/LoadSoftanzaEngine. Wire up parent state
+        # explicitly when a method that needs it gets exercised.
         cClusterType = cType
         cNodeId = cId
         oLastHeartbeat = clock()
@@ -30,43 +35,51 @@ class stzClusterNode from stzAppServer
         off
 
     def LoadNLPEngines()
-        oComputeEngine {
-            PreloadLanguageModels(["english", "french", "spanish", "arabic"])
-            PreloadSentimentAnalysis()
-            PreloadEntityRecognition()
-            PreloadTranslationEngines()
-            PreloadTextClassification()
-        }
+        if isObject(oComputeEngine)
+            oComputeEngine {
+                PreloadLanguageModels(["english", "french", "spanish", "arabic"])
+                PreloadSentimentAnalysis()
+                PreloadEntityRecognition()
+                PreloadTranslationEngines()
+                PreloadTextClassification()
+            }
+        ok
         aSpecializedEngines + "nlp_ready"
 
     def LoadMathEngines()
-        oComputeEngine {
-            PreloadStatisticalModels()
-            PreloadLinearAlgebra()
-            PreloadOptimizationEngines()
-            PreloadTimeSeriesAnalysis()
-            PreloadNumericalSolvers()
-        }
+        if isObject(oComputeEngine)
+            oComputeEngine {
+                PreloadStatisticalModels()
+                PreloadLinearAlgebra()
+                PreloadOptimizationEngines()
+                PreloadTimeSeriesAnalysis()
+                PreloadNumericalSolvers()
+            }
+        ok
         aSpecializedEngines + "math_ready"
 
     def LoadVisionEngines()
-        oComputeEngine {
-            PreloadImageProcessing()
-            PreloadOCREngines()
-            PreloadPatternRecognition()
-            PreloadColorAnalysis()
-            PreloadDocumentAnalysis()
-        }
+        if isObject(oComputeEngine)
+            oComputeEngine {
+                PreloadImageProcessing()
+                PreloadOCREngines()
+                PreloadPatternRecognition()
+                PreloadColorAnalysis()
+                PreloadDocumentAnalysis()
+            }
+        ok
         aSpecializedEngines + "vision_ready"
 
     def LoadSearchEngines()
-        oComputeEngine {
-            PreloadSearchIndices()
-            PreloadTextRetrieval()
-            PreloadSimilarityEngines()
-            PreloadRankingAlgorithms()
-            PreloadSemanticSearch()
-        }
+        if isObject(oComputeEngine)
+            oComputeEngine {
+                PreloadSearchIndices()
+                PreloadTextRetrieval()
+                PreloadSimilarityEngines()
+                PreloadRankingAlgorithms()
+                PreloadSemanticSearch()
+            }
+        ok
         aSpecializedEngines + "search_ready"
 
     def UpdateMetrics(nNewLoad, nNewQueue, nNewResponseTime)
