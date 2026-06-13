@@ -13,7 +13,7 @@ already covers, and what remains as a milestone arc.
 |--------------------|-------------------------------------------------------------|---------------------------------------------|
 | `uuid.ring`        | `system/stzUUID.ring`                                       | **REPLACED** with engine (commit 9f9bed5f)  |
 | `fastpro.ring`     | `number/stzFastPro.ring`                                    | **DROPPED** -- deprecated (M-DEP1)           |
-| `html.ring` (lexbor)| `file/stzHtml.ring`                                         | Pending -- M-DEP2                            |
+| `html.ring` (lexbor)| `file/stzHtml.ring`                                         | **REPLACED** with engine (M-DEP2 slice 2)   |
 | `libcurl.ring`     | `network/stzNetwork.ring`                                   | Pending -- M-DEP3                            |
 | `libuv.ring`       | `file/stzFolderWatcher.ring`, `network/stzNetwork.ring`, `reactive/stzReactive.ring` | Pending -- M-DEP4 |
 
@@ -103,9 +103,36 @@ Not yet (next slices):
 * Mutation API (setAttribute / appendChild / setInnerText)
 
 Ring smoke test `52_html_dom_engine_narrated.ring`: 5 scenarios, 15
-assertions, all green. This is a foundation -- `stzHtml.ring` is
-NOT yet rewired to use the engine; that's slice 2 once CSS selectors
-land.
+assertions, all green.
+
+**Slice 2 also landed 2026-06-13** -- ID/class lookup + tree walking.
+Six more bridge functions:
+
+* `StzEngineHtmlFindById(pDoc, cId)` -> 1-based element index
+* `StzEngineHtmlCountByClass(pDoc, cClass)` -> class match count
+* `StzEngineHtmlFindByClass(pDoc, cClass, n)` -> n-th match index
+* `StzEngineHtmlChildrenCount(pDoc, n)` -> direct-children count
+* `StzEngineHtmlChildAt(pDoc, n, k)` -> k-th child index
+* `StzEngineHtmlParentOf(pDoc, n)` -> parent index (0 if root)
+
+`stzHtml.ring` rewritten to use the engine -- `load "html.ring"`
+removed. The new Ring class provides:
+
+* `HtmlQ(cHtml)` constructor + `Content()` / `Reload()`
+* `Text()` -- engine text extraction (suppresses scripts/styles)
+* `Find(selector)` -- supports `tag`, `#id`, `.class`
+* `FindFirst()` / `FindAll()`
+* `NumberOfElements()` / `CountByTag(tag)`
+* Node accessors: `Tag()`, `Text()`, `Attr(name)`, `HasAttr`, `Id`,
+  `Klass`, `HasKlass`
+
+Integration test `53_stzhtml_engine_narrated.ring`: 7 scenarios, 21
+assertions, all green. `stzBase.ring` now loads `file/stzHtml.ring`
+unconditionally (was TODO-gated for engine-side reimplementation).
+
+Not yet (slice 3 if needed): CSS selector parser (descendant/child
+combinators), DOM mutation, stzHtmlBuilder. The current surface
+covers the typical "scrape data from HTML" use case.
 
 ## 4. libcurl -- M-DEP3 (Pending)
 

@@ -165,6 +165,138 @@ pub fn html_tag_of(doc_opt: ?*Doc, n: i32, out: [*]u8, max: usize) callconv(.c) 
     return @intCast(e.tag_len);
 }
 
+/// Find the first element whose `id` attribute equals `cid` (case-sensitive,
+/// per HTML5 spec). Returns 1-based element index, or 0 if not found.
+pub fn html_find_by_id(
+    doc_opt: ?*Doc,
+    id_ptr: [*]const u8,
+    id_len: usize,
+) callconv(.c) i32 {
+    const doc = doc_opt orelse return 0;
+    if (id_len == 0) return 0;
+    const id = id_ptr[0..id_len];
+    for (doc.elements, 0..) |e, idx| {
+        var i: u32 = 0;
+        while (i < e.attrs_count) : (i += 1) {
+            const a = doc.attrs[e.attrs_off + i];
+            if (eqIgnoreCase(doc.source[a.name_off .. a.name_off + a.name_len], "id")) {
+                if (std.mem.eql(u8, doc.source[a.val_off .. a.val_off + a.val_len], id)) {
+                    return @intCast(idx + 1);
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+/// Count elements whose `class` attribute's space-separated list contains
+/// `cclass` (case-sensitive class token match).
+pub fn html_count_by_class(
+    doc_opt: ?*Doc,
+    class_ptr: [*]const u8,
+    class_len: usize,
+) callconv(.c) i32 {
+    const doc = doc_opt orelse return 0;
+    if (class_len == 0) return 0;
+    const class = class_ptr[0..class_len];
+    var n: i32 = 0;
+    for (doc.elements) |e| {
+        if (elementHasClass(doc, e, class)) n += 1;
+    }
+    return n;
+}
+
+/// 1-based index of the n-th element with the given class.
+pub fn html_find_by_class(
+    doc_opt: ?*Doc,
+    class_ptr: [*]const u8,
+    class_len: usize,
+    n: i32,
+) callconv(.c) i32 {
+    const doc = doc_opt orelse return 0;
+    if (class_len == 0 or n < 1) return 0;
+    const class = class_ptr[0..class_len];
+    var hit: i32 = 0;
+    for (doc.elements, 0..) |e, idx| {
+        if (elementHasClass(doc, e, class)) {
+            hit += 1;
+            if (hit == n) return @intCast(idx + 1);
+        }
+    }
+    return 0;
+}
+
+fn elementHasClass(doc: *Doc, e: Element, class: []const u8) bool {
+    var i: u32 = 0;
+    while (i < e.attrs_count) : (i += 1) {
+        const a = doc.attrs[e.attrs_off + i];
+        if (eqIgnoreCase(doc.source[a.name_off .. a.name_off + a.name_len], "class")) {
+            const list = doc.source[a.val_off .. a.val_off + a.val_len];
+            var it = std.mem.tokenizeAny(u8, list, " \t\n\r");
+            while (it.next()) |tok| {
+                if (std.mem.eql(u8, tok, class)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+/// Number of direct children of the n-th element (1-based).
+pub fn html_children_count(doc_opt: ?*Doc, n: i32) callconv(.c) i32 {
+    const doc = doc_opt orelse return -1;
+    if (n < 1 or @as(usize, @intCast(n)) > doc.elements.len) return -1;
+    const parent_idx: usize = @intCast(n - 1);
+    const p = doc.elements[parent_idx];
+    const content_end = p.content_off + p.content_len;
+    var count: i32 = 0;
+    for (doc.elements[parent_idx + 1 ..]) |e| {
+        if (e.tag_off >= content_end) break;
+        if (e.depth == p.depth + 1) count += 1;
+    }
+    return count;
+}
+
+/// 1-based index of the k-th direct child of the n-th element.
+pub fn html_child_at(doc_opt: ?*Doc, n: i32, k: i32) callconv(.c) i32 {
+    const doc = doc_opt orelse return 0;
+    if (n < 1 or k < 1 or @as(usize, @intCast(n)) > doc.elements.len) return 0;
+    const parent_idx: usize = @intCast(n - 1);
+    const p = doc.elements[parent_idx];
+    const content_end = p.content_off + p.content_len;
+    var hit: i32 = 0;
+    for (doc.elements[parent_idx + 1 ..], parent_idx + 1..) |e, abs_idx| {
+        if (e.tag_off >= content_end) break;
+        if (e.depth == p.depth + 1) {
+            hit += 1;
+            if (hit == k) return @intCast(abs_idx + 1);
+        }
+    }
+    return 0;
+}
+
+/// 1-based parent index of the n-th element, or 0 if root.
+pub fn html_parent_of(doc_opt: ?*Doc, n: i32) callconv(.c) i32 {
+    const doc = doc_opt orelse return 0;
+    if (n < 1 or @as(usize, @intCast(n)) > doc.elements.len) return 0;
+    const target_idx: usize = @intCast(n - 1);
+    const t = doc.elements[target_idx];
+    if (t.depth == 0) return 0;
+    // Walk backwards: the nearest preceding element with depth == t.depth - 1
+    // and whose content range contains t is the parent.
+    var i: usize = target_idx;
+    while (i > 0) {
+        i -= 1;
+        const e = doc.elements[i];
+        if (e.depth == t.depth - 1) {
+            const content_end = e.content_off + e.content_len;
+            if (t.tag_off >= e.content_off and t.tag_off < content_end) {
+                return @intCast(i + 1);
+            }
+        }
+    }
+    return 0;
+}
+
 // ── parser internals ─────────────────────────────────────────
 
 fn parseInner(input: []const u8) !*Doc {
@@ -483,4 +615,60 @@ test "html_dom: bare attribute" {
     var buf: [64]u8 = undefined;
     const n = html_attr_of_tag(doc, "input", 5, 1, "type", 4, &buf, 64);
     try std.testing.expectEqualStrings("checkbox", buf[0..@intCast(n)]);
+}
+
+test "html_dom: find by id" {
+    const src = "<div id=\"a\">A</div><div id=\"b\">B</div>";
+    const doc = html_parse(src.ptr, src.len).?;
+    defer html_free(doc);
+    const ai = html_find_by_id(doc, "a", 1);
+    const bi = html_find_by_id(doc, "b", 1);
+    const mi = html_find_by_id(doc, "missing", 7);
+    try std.testing.expect(ai > 0 and bi > 0);
+    try std.testing.expect(ai != bi);
+    try std.testing.expectEqual(@as(i32, 0), mi);
+}
+
+test "html_dom: find by class (single)" {
+    const src = "<p class=\"foo\">one</p><p class=\"foo bar\">two</p><p>three</p>";
+    const doc = html_parse(src.ptr, src.len).?;
+    defer html_free(doc);
+    try std.testing.expectEqual(@as(i32, 2), html_count_by_class(doc, "foo", 3));
+    try std.testing.expectEqual(@as(i32, 1), html_count_by_class(doc, "bar", 3));
+    try std.testing.expectEqual(@as(i32, 0), html_count_by_class(doc, "baz", 3));
+    var buf: [64]u8 = undefined;
+    const first = html_find_by_class(doc, "foo", 3, 1);
+    const len = html_text_of_tag(doc, "p", 1, 1, &buf, 64);
+    try std.testing.expect(first > 0);
+    try std.testing.expectEqualStrings("one", buf[0..@intCast(len)]);
+}
+
+test "html_dom: children count" {
+    const src = "<ul><li>a</li><li>b</li><li>c</li></ul>";
+    const doc = html_parse(src.ptr, src.len).?;
+    defer html_free(doc);
+    try std.testing.expectEqual(@as(i32, 3), html_children_count(doc, 1));
+    // a child <li> has 0 children of its own
+    try std.testing.expectEqual(@as(i32, 0), html_children_count(doc, 2));
+}
+
+test "html_dom: child at" {
+    const src = "<ul><li>a</li><li>b</li><li>c</li></ul>";
+    const doc = html_parse(src.ptr, src.len).?;
+    defer html_free(doc);
+    const c1 = html_child_at(doc, 1, 1);
+    const c2 = html_child_at(doc, 1, 2);
+    const c3 = html_child_at(doc, 1, 3);
+    try std.testing.expect(c1 == 2 and c2 == 3 and c3 == 4);
+    try std.testing.expectEqual(@as(i32, 0), html_child_at(doc, 1, 4));
+}
+
+test "html_dom: parent of" {
+    const src = "<ul><li>a</li><li>b</li></ul>";
+    const doc = html_parse(src.ptr, src.len).?;
+    defer html_free(doc);
+    // ul at index 1, first li at 2, second at 3.
+    try std.testing.expectEqual(@as(i32, 0), html_parent_of(doc, 1)); // ul is root
+    try std.testing.expectEqual(@as(i32, 1), html_parent_of(doc, 2));
+    try std.testing.expectEqual(@as(i32, 1), html_parent_of(doc, 3));
 }
