@@ -249,6 +249,7 @@ ok
     load "common/stzRelation.ring"
     load "number/stzSimilarity.ring"
     load "common/stzEngineTimeline.ring"
+    load "common/stzCancelToken.ring"
     load "graph/stzGridNav.ring"
 
 # Loading files related to the VISUAL module

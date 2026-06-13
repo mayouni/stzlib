@@ -22,9 +22,22 @@
 > Any new timeout work must stay caller-side, not rely on the socket
 > option alone.
 >
-> **Next session starts at item 3** (DNS cache). Items 1+2 below are
-> kept for reference; skip to item 3 and proceed 3-8 in order. The
-> recommended grouping is session B = items 3 + 4.
+> **Items 3+4 are also DONE (session 66).** Item 3: DNS cache
+> `engine/src/dns.zig` (host|port key, 60s positive / 5s negative TTL,
+> atomic resolve/hit counters) wired into `httpcore.connect` +
+> `tcp.tcp_connect`; diagnostics `StzEngineDnsResolve`/`DnsStats`/
+> `DnsCacheClear`. Item 4: cancellation tokens `engine/src/cancel.zig`
+> (atomic-flag `CancelToken`), `pool.zig` Job carries an optional token,
+> `StzEnginePoolSubmitWithCancel` + worker checkpoint returns `-5`
+> (JOB_CANCELLED) when signalled before the job runs; Ring class
+> `stzCancelToken` (lazy-init -- paren-less `new` skips `init()` in Ring,
+> see memory `feedback-ring-parenless-new-skips-init`). Tests: dns.zig
+> 3/3 + cancel.zig 2/2 Zig; `65_dns_cache_narrated` 4/4 +
+> `54_cancel_narrated` 5/5 Ring. All network+reactive suites green.
+>
+> **Next session starts at item 5** (retry budget). Items 1-4 below are
+> kept for reference; skip to item 5 and proceed 5-8 in order. The
+> recommended grouping is session C = items 5 + 6.
 
 ## Context (read these first)
 

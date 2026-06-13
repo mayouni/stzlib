@@ -22,6 +22,7 @@
 // the harness.
 
 const std = @import("std");
+const dns = @import("dns.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -66,7 +67,12 @@ pub fn tcp_connect(
         return null;
     }
     const host = host_ptr[0..host_len];
-    const stream = std.net.tcpConnectToHost(gpa, host, port) catch |err| {
+    // Resolve through the shared DNS cache (item 3), then connect.
+    const addr = dns.lookup(host, port) catch {
+        setError("connect failed: dns resolution failed");
+        return null;
+    };
+    const stream = std.net.tcpConnectToAddress(addr) catch |err| {
         var fbuf: [200]u8 = undefined;
         const msg = std.fmt.bufPrint(&fbuf, "connect failed: {s}", .{@errorName(err)}) catch "connect failed";
         setError(msg);

@@ -28,8 +28,13 @@
 //   (extend with more verbs as callers need them)
 
 const std = @import("std");
+const cancel = @import("cancel.zig");
 
 const gpa = std.heap.c_allocator;
+
+/// Result status a poll returns for a job that was cancelled before the
+/// worker ran it (item 4). Distinct from -1 (running) / -2 (not found).
+pub const JOB_CANCELLED: i32 = -5;
 
 var last_error_buf: [512]u8 = undefined;
 var last_error_len: usize = 0;
@@ -60,6 +65,10 @@ pub const Job = struct {
     status: JobStatus,
     result_status: i32,
     result_body: std.ArrayList(u8),
+    /// Optional cancellation token (item 4). When set and signalled
+    /// before the worker picks the job up, the job is skipped and polls
+    /// return JOB_CANCELLED. Owned by the caller, not the pool.
+    cancel_token: ?*cancel.CancelToken,
 };
 
 pub const Pool = struct {
@@ -119,6 +128,29 @@ pub fn pool_submit(
     arg_ptr: [*]const u8,
     arg_len: usize,
 ) callconv(.c) i64 {
+    return submitInternal(pool_opt, kind, arg_ptr, arg_len, null);
+}
+
+/// Like pool_submit but attaches an optional cancellation token (item 4).
+/// If the token is already signalled when the worker dequeues the job,
+/// the job is skipped and polls return JOB_CANCELLED.
+pub fn pool_submit_with_cancel(
+    pool_opt: ?*Pool,
+    kind: u32,
+    arg_ptr: [*]const u8,
+    arg_len: usize,
+    token: ?*cancel.CancelToken,
+) callconv(.c) i64 {
+    return submitInternal(pool_opt, kind, arg_ptr, arg_len, token);
+}
+
+fn submitInternal(
+    pool_opt: ?*Pool,
+    kind: u32,
+    arg_ptr: [*]const u8,
+    arg_len: usize,
+    token: ?*cancel.CancelToken,
+) i64 {
     last_error_len = 0;
     const p = pool_opt orelse {
         setError("null pool");
@@ -153,6 +185,7 @@ pub fn pool_submit(
         .status = .pending,
         .result_status = 0,
         .result_body = .{},
+        .cancel_token = token,
     };
     p.next_id += 1;
     p.queue.append(gpa, job) catch {
@@ -316,6 +349,20 @@ fn workerLoop(p: *Pool) void {
         const job = p.queue.orderedRemove(0);
         job.status = .running;
         p.mutex.unlock();
+
+        // Cancellation check point (item 4). A single blocking fetch has
+        // one safe checkpoint -- before it starts. If the token is set,
+        // skip the work and surface a cancellation result.
+        if (job.cancel_token) |tok| {
+            if (cancel.cancel_is_cancelled(tok) != 0) {
+                job.result_status = JOB_CANCELLED;
+                job.result_body.appendSlice(gpa, "cancelled") catch {};
+                p.mutex.lock();
+                job.status = .done;
+                p.mutex.unlock();
+                continue;
+            }
+        }
 
         runJob(job);
 

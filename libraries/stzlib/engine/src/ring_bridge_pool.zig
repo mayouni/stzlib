@@ -1,4 +1,5 @@
 const pool = @import("pool.zig");
+const cancel = @import("cancel.zig");
 const R = @import("ring_api.zig");
 
 const gs = R.ring_vm_api_getstring;
@@ -9,9 +10,17 @@ const rs = R.ring_vm_api_retstring;
 const rn = R.ring_vm_api_retnumber;
 
 const POOL_HANDLE: [*:0]const u8 = "StzPool";
+const CANCEL_HANDLE: [*:0]const u8 = "StzCancelToken";
 
 fn getPool(p: *anyopaque, n: c_int) ?*pool.Pool {
     const raw = R.ring_vm_api_getcpointer(p, n, POOL_HANDLE) orelse return null;
+    const addr = @intFromPtr(raw);
+    if (addr == 0) return null;
+    return @ptrFromInt(addr);
+}
+
+fn getCancel(p: *anyopaque, n: c_int) ?*cancel.CancelToken {
+    const raw = R.ring_vm_api_getcpointer(p, n, CANCEL_HANDLE) orelse return null;
     const addr = @intFromPtr(raw);
     if (addr == 0) return null;
     return @ptrFromInt(addr);
@@ -57,6 +66,42 @@ fn ring_PoolSubmit(p: *anyopaque) callconv(.c) void {
     const arg_len: usize = @intCast(gss(p, 3));
     const id = pool.pool_submit(pp, kind, arg_ptr, arg_len);
     rn(p, @floatFromInt(id));
+}
+
+/// StzEnginePoolSubmitWithCancel(pool, nKind, cArg, hToken) -> job id
+fn ring_PoolSubmitWithCancel(p: *anyopaque) callconv(.c) void {
+    const pp = getPool(p, 1);
+    const kind: u32 = @intFromFloat(gn(p, 2));
+    const arg_ptr: [*]const u8 = @ptrCast(gs(p, 3));
+    const arg_len: usize = @intCast(gss(p, 3));
+    const tok = getCancel(p, 4);
+    const id = pool.pool_submit_with_cancel(pp, kind, arg_ptr, arg_len, tok);
+    rn(p, @floatFromInt(id));
+}
+
+// ── cancellation tokens (item 4) ─────────────────────────────
+
+fn ring_CancelCreate(p: *anyopaque) callconv(.c) void {
+    const handle = cancel.cancel_create();
+    if (handle) |h| {
+        R.ring_vm_api_retcpointer(p, @ptrCast(h), CANCEL_HANDLE);
+    } else {
+        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), CANCEL_HANDLE);
+    }
+}
+
+fn ring_CancelSignal(p: *anyopaque) callconv(.c) void {
+    cancel.cancel_signal(getCancel(p, 1));
+    rn(p, 0);
+}
+
+fn ring_CancelIsCancelled(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(cancel.cancel_is_cancelled(getCancel(p, 1))));
+}
+
+fn ring_CancelDestroy(p: *anyopaque) callconv(.c) void {
+    cancel.cancel_destroy(getCancel(p, 1));
+    rn(p, 0);
 }
 
 fn ring_PoolPoll(p: *anyopaque) callconv(.c) void {
@@ -110,6 +155,12 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginepoollasterror", .func = ring_PoolLastError },
     .{ .name = "stzenginepoolpending", .func = ring_PoolPending },
     .{ .name = "stzenginepoolinflight", .func = ring_PoolInflight },
+    // Tier 1 item 4 -- cancellation tokens + cancel-aware submit
+    .{ .name = "stzenginepoolsubmitwithcancel", .func = ring_PoolSubmitWithCancel },
+    .{ .name = "stzenginecancelcreate", .func = ring_CancelCreate },
+    .{ .name = "stzenginecancelsignal", .func = ring_CancelSignal },
+    .{ .name = "stzenginecanceliscancelled", .func = ring_CancelIsCancelled },
+    .{ .name = "stzenginecanceldestroy", .func = ring_CancelDestroy },
 };
 
 pub fn registerAll(state: *anyopaque) void {
