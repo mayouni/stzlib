@@ -427,7 +427,7 @@ pub const milestones = [_]Milestone{
         .track = "stzlib",
         .title = "Ring-Side Test Hardening",
         .status = .partial,
-        .summary = "Sessions 38-52: 45 regression suites, ~1500 assertions, 94 cumulative latent bugs. Session 52 (2026-06-13) closed the previously-pending external-domain coverage gap: extercode/extincode/cluster/appserver smoke suites land + 5 latent bugs fixed (stzExterCode.Code() read non-existent file; stzClusterNode.init() called parent init as static; LoadXEngines crashed on NULL oComputeEngine; stzLoadBalancer.RegisterCluster copy-on-list-index mutation lost; @StzMidToEnd undefined-fn in 3 sites). Bug-pattern catalogue: 17 families (added Ring-auto-inheritance-no-parent-init). Still pending: narrated GIVEN/WHEN/THEN runner, reactive async harness.",
+        .summary = "Sessions 38-54: 48 regression suites, ~1593 assertions, 95 cumulative latent bugs. Sessions 52-54 (2026-06-13) closed the external-domain coverage gap + the previously-pending narrated runner + reactive harness items. Bug-pattern catalogue: 17 families. Remaining: incremental conversion of older 41 classic-format suites (`? expr  #--> expected`) to narrated GIVEN/WHEN/THEN form -- best done domain by domain as those domains see other work.",
     },
     .{
         .id = "M-S3",
