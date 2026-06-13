@@ -148,6 +148,143 @@ fn methodFromCode(code: i32) ?std.http.Method {
     };
 }
 
+// ── Parallel GET ─────────────────────────────────────────────
+// std.Thread per URL; each worker runs a blocking client.fetch.
+// All results are concatenated into `out` separated by RECORD_SEP
+// (ASCII 0x1E). Each record is "<status>:<body>". Ring side splits
+// on RECORD_SEP and parses the prefix.
+
+const RECORD_SEP: u8 = 0x1E;
+const MAX_PARALLEL: usize = 32;
+
+const ParallelJob = struct {
+    url: []const u8,
+    status: i32,
+    body: std.ArrayList(u8),
+    err: ?[]u8,
+    done: bool,
+};
+
+fn parallelWorker(job: *ParallelJob) void {
+    var client = std.http.Client{ .allocator = gpa };
+    defer client.deinit();
+    var allocating = std.io.Writer.Allocating.init(gpa);
+    defer allocating.deinit();
+
+    const res = client.fetch(.{
+        .method = .GET,
+        .location = .{ .url = job.url },
+        .response_writer = &allocating.writer,
+    }) catch |err| {
+        job.status = -1;
+        const fbuf = std.fmt.allocPrint(gpa, "{s}", .{@errorName(err)}) catch null;
+        job.err = fbuf;
+        job.done = true;
+        return;
+    };
+    job.status = @intCast(@intFromEnum(res.status));
+    const buffered = allocating.writer.buffered();
+    job.body.appendSlice(gpa, buffered) catch {
+        job.status = -1;
+        job.err = gpa.dupe(u8, "oom") catch null;
+    };
+    job.done = true;
+}
+
+/// http_parallel_get -- fire N GETs in parallel, write
+/// "<status>:<body><RS>"... into `out`. `urls_blob` is a `\n`-
+/// separated list of URLs. Returns total bytes written, or -2 on
+/// overflow, -1 on argument error.
+pub fn http_parallel_get(
+    urls_ptr: [*]const u8,
+    urls_len: usize,
+    out: [*]u8,
+    out_max: usize,
+) callconv(.c) i32 {
+    clearError();
+    if (urls_len == 0) {
+        setError("empty URL list");
+        return -1;
+    }
+    const urls_slice = urls_ptr[0..urls_len];
+
+    // Split.
+    var url_buf: [MAX_PARALLEL][]const u8 = undefined;
+    var n: usize = 0;
+    var it = std.mem.splitScalar(u8, urls_slice, '\n');
+    while (it.next()) |raw| {
+        if (raw.len == 0) continue;
+        if (n >= MAX_PARALLEL) {
+            setError("too many URLs (max 32)");
+            return -1;
+        }
+        url_buf[n] = raw;
+        n += 1;
+    }
+    if (n == 0) {
+        setError("empty URL list");
+        return -1;
+    }
+
+    const jobs = gpa.alloc(ParallelJob, n) catch {
+        setError("oom (jobs)");
+        return -1;
+    };
+    defer {
+        for (jobs) |*j| {
+            j.body.deinit(gpa);
+            if (j.err) |e| gpa.free(e);
+        }
+        gpa.free(jobs);
+    }
+
+    const threads = gpa.alloc(std.Thread, n) catch {
+        setError("oom (threads)");
+        return -1;
+    };
+    defer gpa.free(threads);
+
+    for (jobs, 0..) |*j, i| {
+        j.* = .{
+            .url = url_buf[i],
+            .status = 0,
+            .body = .{},
+            .err = null,
+            .done = false,
+        };
+        threads[i] = std.Thread.spawn(.{}, parallelWorker, .{j}) catch {
+            j.status = -1;
+            j.err = gpa.dupe(u8, "spawn failed") catch null;
+            j.done = true;
+            // Leave the thread slot uninitialised; we'll detect via
+            // the done flag and skip the join below.
+            continue;
+        };
+    }
+
+    for (jobs, 0..) |*j, i| {
+        if (!j.done) threads[i].join();
+    }
+
+    var written: usize = 0;
+    for (jobs) |*j| {
+        var status_buf: [16]u8 = undefined;
+        const status_str = std.fmt.bufPrint(&status_buf, "{d}:", .{j.status}) catch "?:";
+        if (written + status_str.len + j.body.items.len + 1 > out_max) {
+            setError("parallel response exceeds output buffer");
+            return -2;
+        }
+        @memcpy(out[written .. written + status_str.len], status_str);
+        written += status_str.len;
+        @memcpy(out[written .. written + j.body.items.len], j.body.items);
+        written += j.body.items.len;
+        out[written] = RECORD_SEP;
+        written += 1;
+    }
+    last_body_len = written;
+    return @intCast(written);
+}
+
 fn parseHeaderBlob(blob: []const u8, out: []std.http.Header) error{TooMany}![]const std.http.Header {
     if (blob.len == 0) return out[0..0];
     var n: usize = 0;

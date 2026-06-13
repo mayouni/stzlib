@@ -285,8 +285,7 @@ ok
     load "file/stzCSV.ring"
     load "file/stzHtml.ring"     # Engine-backed HTML parser (Zig)
 
-    # NOTE: stzFolderWatcher.ring is a demo script, not a loadable module
-    #TODO // Implement it engine-side (in Zig)
+    load "file/stzFolderWatcher.ring"  # Engine-backed folder watcher (Zig)
 
 # Loading the YIELDER module (functional map/filter/reduce)
 
