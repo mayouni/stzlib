@@ -1,5 +1,15 @@
 # Next Session -- Implement Reactive Engine Gap Analysis Tier 1
 
+> **Status as of 2026-06-13 (session 64 end).** Item 1's caller-side
+> half is shipped (`StzEnginePoolPollWithDeadline`, commit 85a6adb5,
+> test `62_http_timeouts_narrated.ring` 5/5). The engine-side half
+> (socket-level `SO_RCVTIMEO` / `SO_SNDTIMEO` so a hung downstream
+> actually frees the pool worker) is pending and should be done
+> together with item 2 (connection pooling) -- they share the same
+> infrastructure (a custom HTTP/1.1 client on raw `std.net.Stream`).
+> Start with items 1+2 fused as a single arc; items 3-8 then proceed
+> in order.
+
 ## Context (read these first)
 
 * `libraries/stzlib/base/doc/design/REACTIVE_ENGINE_GAP_ANALYSIS.md` --
@@ -32,73 +42,107 @@ run all narrated suites in `libraries/stzlib/base/test/network/` and
 `libraries/stzlib/base/test/reactive/`, push both remotes, update
 the CLI's `engine_status.zig` and the macroplan log.
 
-### 1. Hierarchical HTTP timeouts
+### 1+2 (fused arc). Custom HTTP/1.1 client on raw std.net.Stream + connection pool + per-layer timeouts
 
-Currently `StzEngineHttpRequest` blocks indefinitely. Production needs
-configurable timeouts.
+These two items share infrastructure: doing connection pooling well
+requires controlling the socket lifecycle, which is the same control
+needed for socket-level timeouts. Doing them together means writing
+a small HTTP/1.1 client once, with pooling and timeouts built in
+from day one, instead of re-plumbing later.
 
-**Engine change** -- extend `engine/src/http.zig`:
-* Add a `Timeouts` struct: `connect_ms`, `request_ms`, `idle_ms`.
-* Wrap each request in a watchdog thread: when the deadline expires,
-  the watchdog calls `client.deinit()` to force the in-flight fetch to
-  fail. Set a clean error code (e.g. -4 = `timeout`).
-* Expose `http_request_with_timeout(...method_code, url, headers,
-  ct, body, connect_ms, request_ms, out, max)` and a global default
-  via `http_set_default_timeout_ms(connect_ms, request_ms)`.
+**Item 1 caller-side half: DONE in session 64.**
+`StzEnginePoolPollWithDeadline(pool, job_id, deadline_ms, out, max)`
+returns `-4` if the job hasn't finished by the deadline. Test
+`62_http_timeouts_narrated.ring` (5/5). The pool worker keeps
+running the underlying fetch -- this is purely a caller-side
+deadline. A hung downstream still ties up the worker; the engine-
+side half below is what frees it.
 
-**Bridge** -- add `StzEngineHttpRequestWithTimeout` and
-`StzEngineHttpSetDefaultTimeout` to `ring_bridge_http.zig`.
+**Item 1 engine-side half + item 2 (fused):**
 
-**Ring rewire** -- `stzHttpClient.SetTimeout(nSeconds)` already exists;
-make it actually configure the engine timeout for subsequent calls.
+* **Why custom HTTP/1.1.** Zig 0.15 `std.http.Client.fetch` does not
+  expose per-socket timeouts and does not pool connections beyond
+  its internal `connection_pool` (which has limited control). To get
+  both timeouts and pooling correct, the cleanest path is to skip
+  `std.http.Client` and build a small HTTP/1.1 client directly on
+  `std.net.Stream` (with TLS layered via `std.crypto.tls.Client`
+  when scheme == "https"). ~300-400 LOC of focused code.
 
-**Test** -- new suite
-`libraries/stzlib/base/test/network/62_http_timeouts_narrated.ring`:
-* timeout fires before a deadline-exceeding request completes
-* default timeout takes effect when none is set per-request
-* zero timeout means infinite (legacy behaviour preserved)
+* **New module `engine/src/httpcore.zig`** (replaces the
+  `std.http.Client` path inside `http.zig`):
+  * Connection struct: scheme, host, port, stream, tls_client, last_used_ns
+  * `connect(host, port, scheme, connect_timeout_ms)` -- opens TCP
+    with `std.posix.setsockopt(... SO_RCVTIMEO ...)` for connect
+    deadline, then layers TLS for https
+  * `sendRequest(conn, method, path, headers, body, request_timeout_ms)`
+  * `readResponse(conn, out_status, out_headers, out_body, request_timeout_ms)`
+    -- chunked + Content-Length aware
+  * `close(conn)`
 
-### 2. HTTP connection pooling + keep-alive
+* **New module `engine/src/http_pool.zig`**:
+  * Keyed by `(scheme, host, port)`
+  * Each slot: list of idle Connection structs + `last_used_ns`
+  * Acquire: pop newest idle slot or open new (subject to per-host
+    + global max-conns caps)
+  * Release: push back to idle list with refreshed `last_used_ns`
+  * Eviction worker thread (or eviction-on-acquire): close
+    connections idle longer than `idle_timeout_ms`
+  * Stats counters: `total_opens`, `total_reuses`, `current_idle`,
+    `current_active`
 
-Biggest single perf win in the analysis. Reduces per-call cost from
-50-300ms (TLS handshake) to <1ms (just send the request).
+* **Wire-up in `http.zig`**:
+  * `doRequest` switches to `httpPool.acquire` + `httpcore.send` +
+    `httpcore.read` + `httpPool.release`
+  * `parallelWorker` does the same
+  * Defaults: connect 5s, request 30s, idle 60s, max 16/host, 256
+    total (all settable)
 
-**Engine change** -- new module `engine/src/http_pool.zig`:
-* Keyed by `(scheme, host, port)`.
-* Each entry holds a `std.http.Client` plus an `idle_since_ns`
-  timestamp.
-* Eviction: idle entries past `idle_ms` are closed.
-* Cap: per-host max-conns, global max-conns.
+* **Bridge** -- new functions in `ring_bridge_http.zig`:
+  * `StzEngineHttpSetDefaultTimeouts(connect_ms, request_ms, idle_ms)`
+  * `StzEngineHttpRequestWithTimeouts(method, url, headers, ct,
+    body, connect_ms, request_ms)` -- per-request override
+  * `StzEngineHttpPoolStats()` -- returns "opens=N\treuses=N\t
+    idle=N\tactive=N"
 
-**Bridge** -- replace the `std.http.Client{}` ad-hoc construction
-inside `http_request` and `parallelWorker` with `httpPool.acquire(uri)`
-+ `httpPool.release(client)`.
+* **Ring rewire**:
+  * `stzHttpClient.SetTimeout(nSeconds)` actually drives the engine
+  * `stzHttpClient.SetConnectTimeout(nMs)` / `SetRequestTimeout(nMs)`
+  * `stzHttpClient.PoolStats()` returns a Ring list
 
-**Ring** -- no API change; transparent perf upgrade.
+* **Tests** -- new suites:
+  * `63_http_pool_narrated.ring` -- two same-host requests reuse
+    connection (stats counter increments `reuses`); third request
+    after eviction window opens a new one (`opens` increments).
+  * `64_http_timeouts_engine_narrated.ring` -- connect timeout
+    fires on an unreachable host within the deadline; request
+    timeout interrupts a slow read; deadlines below the connect
+    floor still surface a clean error.
 
-**Test** -- new suite
-`libraries/stzlib/base/test/network/63_http_pool_narrated.ring`:
-* Two consecutive same-host requests reuse the same client handle
-  (use a stats hook or a tiny counter exposed by the pool).
-* Eviction fires after idle TTL.
-* Pool respects per-host cap.
+**Combined budget: 1-2 focused sessions.** This is the highest-ROI
+work in the entire Tier 1 list; do it first.
 
-### 3. DNS cache with TTL
+### 3. DNS cache with TTL (depends on items 1+2)
 
-Caching DNS keyed by hostname; entries expire after `ttl_ms` (default
-60s).
+Once items 1+2 land, every connection open in `httpcore.connect`
+resolves the host. Caching saves a syscall (typically 1-10ms) per
+miss. Caching DNS keyed by hostname; entries expire after `ttl_ms`
+(default 60s).
 
 **Engine change** -- new module `engine/src/dns.zig`:
 * `dns_lookup(host, port) -> std.net.Address` with cache check first.
 * Cache miss falls through to `std.net.getAddressList(...)` and stores
   the first result.
+* Negative caching: cache failures briefly (5s default) to avoid
+  hammering a broken resolver.
 
-**Bridge** -- the http_pool and tcp.zig both call into this; no Ring
-side direct calls needed. Optionally expose
-`StzEngineDnsResolve(host)` for diagnostics.
+**Wire-up** -- `httpcore.connect` and `tcp.zig` route through here.
+
+**Bridge** -- optionally expose `StzEngineDnsResolve(host)` for
+diagnostics; nothing required for the hot path.
 
 **Test** -- in `engine/src/dns.zig` directly (Zig test). Confirm
-cache hit doesn't re-resolve; confirm expiry forces re-resolve.
+cache hit doesn't re-resolve; confirm expiry forces re-resolve;
+confirm negative cache short-circuits failed lookups.
 
 ### 4. Context-style cancellation
 
@@ -272,9 +316,24 @@ remaining workers.
   * Rebuild the CLI: `cd libraries/stzlib/cli && zig build`.
   * Commit + push both remotes.
 
+## Recommended session boundaries
+
+The 8 items split naturally into 4 sessions of focused work:
+
+| Session | Items | Why grouped |
+|---|---|---|
+| A | 1+2 fused | Custom HTTP/1.1 + pool + timeouts share infrastructure |
+| B | 3 + 4 | DNS cache is small; cancellation tokens are small. Both land cleanly in one session. |
+| C | 5 + 6 | Retry budget reuses rate limiter; histograms are isolated. Both small. |
+| D | 7 + 8 | Outlier ejection extends circuit breaker; graceful shutdown extends pool. Both small. |
+
+If a session has time after its primary items, pick up the next
+session's lighter item.
+
 ## Done criteria
 
-* Tier 1 items 1-8 all shipped, each with its own commit.
+* Tier 1 items 1-8 all shipped, each with its own commit (1+2 may
+  share a commit if landed in the same session).
 * Engine builds with `zig build` clean.
 * Engine tests pass with `zig build test` clean.
 * All narrated suites in
@@ -302,8 +361,15 @@ remaining workers.
 * Bounded thread pool to extend: `engine/src/pool.zig`.
 * Existing resilience primitives to reuse:
   `engine/src/resilience.zig`.
+* Existing TCP module to mirror for httpcore.zig:
+  `engine/src/tcp.zig` (std.net.Stream usage pattern).
+* Caller-side deadline pattern already shipped:
+  `engine/src/pool.zig` -- look at `pool_poll_with_deadline` +
+  `jobPeekDone`. Use the same non-draining-peek idiom in httpcore
+  for connection-state checks.
 * Narrated test helper: `base/test/_narrated.ring`.
 * Existing hardening tests as templates: `56_http_hardening_narrated
   .ring`, `58_pool_hardening_narrated.ring`, `59_resilience_narrated
   .ring`, `60_pool_scale_narrated.ring`, `61_agentic_loop_narrated
-  .ring`.
+  .ring`, `62_http_timeouts_narrated.ring` (caller-side deadline,
+  shipped session 64).
