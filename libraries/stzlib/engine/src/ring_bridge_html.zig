@@ -119,6 +119,47 @@ fn ring_HtmlTagOf(p: *anyopaque) callconv(.c) void {
     if (out_len > 0) rs2(p, &buf, @intCast(out_len)) else rs(p, @constCast(""));
 }
 
+fn ring_HtmlFindById(p: *anyopaque) callconv(.c) void {
+    const doc = getDoc(p, 1);
+    const id_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const id_len: usize = @intCast(gss(p, 2));
+    rn(p, @floatFromInt(dom.html_find_by_id(doc, id_ptr, id_len)));
+}
+
+fn ring_HtmlCountByClass(p: *anyopaque) callconv(.c) void {
+    const doc = getDoc(p, 1);
+    const class_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const class_len: usize = @intCast(gss(p, 2));
+    rn(p, @floatFromInt(dom.html_count_by_class(doc, class_ptr, class_len)));
+}
+
+fn ring_HtmlFindByClass(p: *anyopaque) callconv(.c) void {
+    const doc = getDoc(p, 1);
+    const class_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const class_len: usize = @intCast(gss(p, 2));
+    const n: i32 = @intFromFloat(gn(p, 3));
+    rn(p, @floatFromInt(dom.html_find_by_class(doc, class_ptr, class_len, n)));
+}
+
+fn ring_HtmlChildrenCount(p: *anyopaque) callconv(.c) void {
+    const doc = getDoc(p, 1);
+    const n: i32 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(dom.html_children_count(doc, n)));
+}
+
+fn ring_HtmlChildAt(p: *anyopaque) callconv(.c) void {
+    const doc = getDoc(p, 1);
+    const n: i32 = @intFromFloat(gn(p, 2));
+    const k: i32 = @intFromFloat(gn(p, 3));
+    rn(p, @floatFromInt(dom.html_child_at(doc, n, k)));
+}
+
+fn ring_HtmlParentOf(p: *anyopaque) callconv(.c) void {
+    const doc = getDoc(p, 1);
+    const n: i32 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(dom.html_parent_of(doc, n)));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginehtmlencode", .func = ring_HtmlEncode },
     .{ .name = "stzenginehtmldecode", .func = ring_HtmlDecode },
@@ -133,6 +174,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginehtmlattroftag", .func = ring_HtmlAttrOfTag },
     .{ .name = "stzenginehtmlalltext", .func = ring_HtmlAllText },
     .{ .name = "stzenginehtmltagof", .func = ring_HtmlTagOf },
+    // slice 2 -- id / class lookup + tree walking
+    .{ .name = "stzenginehtmlfindbyid", .func = ring_HtmlFindById },
+    .{ .name = "stzenginehtmlcountbyclass", .func = ring_HtmlCountByClass },
+    .{ .name = "stzenginehtmlfindbyclass", .func = ring_HtmlFindByClass },
+    .{ .name = "stzenginehtmlchildrencount", .func = ring_HtmlChildrenCount },
+    .{ .name = "stzenginehtmlchildat", .func = ring_HtmlChildAt },
+    .{ .name = "stzenginehtmlparentof", .func = ring_HtmlParentOf },
 };
 
 pub fn registerAll(state: *anyopaque) void {

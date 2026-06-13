@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 56,
+    .last_session = 57,
     .last_updated = "2026-06-13",
 };
 
@@ -433,8 +433,8 @@ pub const milestones = [_]Milestone{
         .id = "M-DEP2",
         .track = "depcleanup",
         .title = "Replace html.ring (lexbor) with Zig HTML5 Parser",
-        .status = .partial,
-        .summary = "Slice 1 LANDED 2026-06-13 (session 56): html_dom.zig (~370 LOC, 8 Zig unit tests) ships pragmatic tokenizer + flat element index. Bridge exposes StzEngineHtmlParse/Free/Count/CountByTag/TextOfTag/AttrOfTag/AllText/TagOf. Covers tag/attribute parsing (quoted, single-quoted, bare, attr-only), self-closing + void elements, script/style raw-text suppression, comments, doctype, case-insensitive lookup. Ring smoke 52_html_dom_engine_narrated: 5 scenarios, 15 assertions, all green. PENDING: CSS selectors (find-by-id, find-by-class, descendant selectors), nested DOM tree walking (children/parent), mutation API (setAttribute/appendChild/setInnerText). Slice 2 = CSS selectors -- then stzHtml.ring gets rewired to use the engine. See EXTERNAL_DEPENDENCY_AUDIT.md.",
+        .status = .done,
+        .summary = "CLOSED 2026-06-13 (sessions 56-57). Slice 1: html_dom.zig (~450 LOC) ships tokenizer + flat element index with 14 Zig unit tests. Bridge exposes 14 functions (Parse/Free/Count/CountByTag/TextOfTag/AttrOfTag/AllText/TagOf + FindById/CountByClass/FindByClass/ChildrenCount/ChildAt/ParentOf). Slice 2: stzHtml.ring rewritten to use engine -- `load \"html.ring\"` REMOVED. Supports tag/#id/.class selectors via Find(), Node API with Tag/Text/Attr/Id/Klass/HasKlass. Tests 52+53 narrated_html: 36 assertions, all green. NOT YET (slice 3, only if needed): CSS combinator selectors, DOM mutation, stzHtmlBuilder. Current surface covers typical scrape-data-from-HTML use case.",
     },
     .{
         .id = "M-DEP3",

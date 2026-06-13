@@ -1,30 +1,23 @@
-
-load "html.ring"  # The lexbor-based HTML extension
-
 /*
-	Softanza HTML/CSS Handling Philosophy
-	=====================================
+	Softanza HTML/CSS handling -- engine-backed (M-DEP2).
+	Previously loaded the lexbor-based html.ring extension; rewired
+	2026-06-13 to use the in-tree Zig parser at
+	libraries/stzlib/engine/src/html_dom.zig.
 
-	- Natural language oriented: Methods like ElementsWhere(:Tag = "div"), AttributesOf("id='main'"), etc.
-	- Fluent chaining: Q() versions return This for method chaining
-	- Intent-based: Separate classes for parsing, building, manipulating
-	- Global functions for quick access
-	- Handles both HTML and XML uniformly
-	- CSS integration: stzCSS for style manipulation and selector building
-	- Rich querying: Supports CSS selectors + natural conditions
-	- Safety: Validation, error handling with StzRaise
-	- Extensibility: XT methods for extended info
+	Surface covered by slice 2:
+	* parsing + flat element index
+	* find by tag, by id, by class
+	* inner text + attribute lookup
+	* document text extraction (scripts/styles suppressed)
+	* tree walking via children/parent (no full CSS selectors yet)
 
-	Core Classes:
-	- stzHtml: Main document handler
-	- stzHtmlNode: Single element handler
-	- stzHtmlBuilder: For creating HTML from scratch
-	- stzCSS: For CSS style handling and selectors
-
-	NOTE: Leverages html.ring's HTML class for parsing and DOM ops
+	NOT yet supported (waiting for slice 3):
+	* CSS selector parser (descendant, child combinators)
+	* DOM mutation (setAttribute, appendChild, setInnerText)
+	* Builder pattern (stzHtmlBuilder)
 */
 
-# Global functions for quick access
+# ── Global helpers ───────────────────────────────────────────
 
 func HtmlQ(pcHtmlOrFile)
 	if fexists(pcHtmlOrFile)
@@ -47,43 +40,19 @@ func HtmlToText(pcHtml)
 	func @HtmlToText(pcHtml)
 		return HtmlToText(pcHtml)
 
-func HtmlFind(pcHtml, pcSelector)
-	return HtmlQ(pcHtml).Find(pcSelector)
-
-	func @HtmlFind(pcHtml, pcSelector)
-		return HtmlFind(pcHtml, pcSelector)
-
-func ListToHtmlTable(paList)
-	# Assuming paList is 2D list as in stzHtml.ring
-	return ListToHtmlXT(paList)
-
-	func @ListToHtmlTable(paList)
-		return ListToHtmlTable(paList)
-
-func HtmlTableToList(pcHtmlTable)
-	return StzStringQ(pcHtmlTable).HtmlToDataTable()  # Assuming implementation from provided code
-
-	func @HtmlTableToList(pcHtmlTable)
-		return HtmlTableToList(pcHtmlTable)
-
-#== stzHtml Class: Main HTML Document Handler
+# ── stzHtml -- document handle ──────────────────────────────
 
 class stzHtml
 
-	@cHtml       # Original HTML string
-	@oHtml       # Underlying HTML object from html.ring
-	@aNodes      # Cache for all nodes
+	@cHtml = ""        # original source
+	@pDoc = NULL       # engine handle (opaque pointer)
 
 	def init(pcHtml)
-		if CheckParams()
-			if NOT isString(pcHtml)
-				StzRaise("Incorrect param type! pcHtml must be a string.")
-			ok
+		if NOT isString(pcHtml)
+			StzRaise("Incorrect param type! pcHtml must be a string.")
 		ok
-
 		@cHtml = pcHtml
-		@oHtml = new HTML(pcHtml)
-		@aNodes = NULL  # Lazy load
+		@pDoc = StzEngineHtmlParse(pcHtml)
 
 	def Content()
 		return @cHtml
@@ -92,226 +61,113 @@ class stzHtml
 			return This.Content()
 
 	def Reload(pcHtml)
+		if @pDoc != NULL StzEngineHtmlFree(@pDoc) ok
 		@cHtml = pcHtml
-		@oHtml = new HTML(pcHtml)
-		@aNodes = NULL
+		@pDoc = StzEngineHtmlParse(pcHtml)
 		return 1
 
 		def ReloadQ(pcHtml)
 			This.Reload(pcHtml)
 			return This
 
-	def Find(pcSelector)
-		if CheckParams()
-			if NOT isString(pcSelector)
-				StzRaise("Incorrect param type! pcSelector must be a string.")
-			ok
-		ok
-
-		aRawNodes = @oHtml.find(pcSelector)
-		aResult = []
-		_nRawNodes2Len_ = len(aRawNodes)
-		for _iLoopRawNodes2_ = 1 to _nRawNodes2Len_
-			oNode = aRawNodes[_iLoopRawNodes2_]
-			aResult + new stzHtmlNode(oNode)
-		next
-		return aResult
-
-		def FindQ(pcSelector)
-			return new stzList(This.Find(pcSelector))  # Wrap in stzList for further natural ops
-
-	def FindFirst(pcSelector)
-		aNodes = This.Find(pcSelector)
-		if len(aNodes) > 0
-			return aNodes[1]
-		else
-			return NULL
-		ok
-
-		def FindFirstQ(pcSelector)
-			return This.FindFirst(pcSelector)
-
-	def FindAll(pcSelector)
-		return This.Find(pcSelector)
-
-	def ElementsWhere(pCondition)
-		# pCondition can be hash like :Tag = "div", :Class = "main", etc.
-		if isList(pCondition) and StzHashListQ(pCondition).IsHashList()
-			aNodes = This.Elements()
-			aResult = []
-			_nNodes1Len_ = len(aNodes)
-			for _iLoopNodes1_ = 1 to _nNodes1Len_
-				oNode = aNodes[_iLoopNodes1_]
-				bMatch = TRUE
-				_nCondition1Len_ = len(pCondition)
-				for _iLoopCondition1_ = 1 to _nCondition1Len_
-					aPair = pCondition[_iLoopCondition1_]
-					cKey = StzLower(aPair[1])
-					cVal = aPair[2]
-					switch cKey
-					on "tag"
-						if StzLower(oNode.Tag()) != StzLower(cVal)
-							bMatch = FALSE
-						ok
-					on "class"
-						if NOT oNode.HasKlass(cVal)
-							bMatch = FALSE
-						ok
-					on "id"
-						if oNode.Id() != cVal
-							bMatch = FALSE
-						ok
-					on "attr"
-						if isList(cVal) and len(cVal)=2
-							if oNode.Attr(cVal[1]) != cVal[2]
-								bMatch = FALSE
-							ok
-						ok
-					other
-						StzRaise("Unsupported condition key: " + cKey)
-					off
-				next
-				if bMatch
-					aResult + oNode
-				ok
-			next
-			return aResult
-		else
-			StzRaise("Condition must be a hash list.")
-		ok
-
-		def ElementsWhereQ(pCondition)
-			return new stzList(This.ElementsWhere(pCondition))
-
-	def Elements()
-		if isNull(@aNodes)
-			@aNodes = This.Find("*")
-		ok
-
-		return @aNodes
-
-	def NumberOfElements()
-		return len(This.Elements())
-
+	# Document-level text -- scripts and styles suppressed by the engine.
 	def Text()
-		return @oHtml.text()
+		return StzEngineHtmlAllText(@pDoc)
 
 		def PlainText()
 			return This.Text()
 
-	def HasBody()
-		return NOT isNull(@oHtml.body())
+	# Count + accessors over the flat element index.
+	def NumberOfElements()
+		return StzEngineHtmlCount(@pDoc)
 
-	def HasHead()
-		return NOT isNull(@oHtml.head())
+	def CountByTag(pcTag)
+		return StzEngineHtmlCountByTag(@pDoc, pcTag)
 
-	def Body()
-		oBody = @oHtml.body()
-		if isNull(oBody)
-			return NULL
+	# Find: minimal CSS-like dispatch (tag / #id / .class). Returns a
+	# list of stzHtmlNode handles bound to this document.
+	def Find(pcSelector)
+		if NOT isString(pcSelector) or pcSelector = ""
+			return []
 		ok
-		return new stzHtmlNode(oBody)
-
-	def Head()
-		oHead = @oHtml.head()
-		if isNull(oHead)
-			return NULL
+		if StzLeft(pcSelector, 1) = "#"
+			_nIdx_ = StzEngineHtmlFindById(@pDoc, StzMidToEnd(pcSelector, 2))
+			if _nIdx_ > 0 return [ This._NodeAt(_nIdx_) ] ok
+			return []
 		ok
-		return new stzHtmlNode(oHead)
-
-	def Root()
-		oRoot = @oHtml.root()
-		if isNull(oRoot)
-			return NULL
+		if StzLeft(pcSelector, 1) = "."
+			_cClass_ = StzMidToEnd(pcSelector, 2)
+			_nC_ = StzEngineHtmlCountByClass(@pDoc, _cClass_)
+			_aR_ = []
+			for _i_ = 1 to _nC_
+				_aR_ + This._NodeAt(StzEngineHtmlFindByClass(@pDoc, _cClass_, _i_))
+			next
+			return _aR_
 		ok
-		return new stzHtmlNode(oRoot)
+		# Bare tag selector -- iterate by tag count.
+		_nC_ = StzEngineHtmlCountByTag(@pDoc, pcSelector)
+		_aR_ = []
+		for _i_ = 1 to _nC_
+			_aR_ + new stzHtmlNode(self, pcSelector, _i_)
+		next
+		return _aR_
 
-	def ToXml()
-		# Assuming HTML can be treated as XML for output
-		return This.Html()
+	def FindFirst(pcSelector)
+		_a_ = This.Find(pcSelector)
+		if len(_a_) > 0 return _a_[1] ok
+		return NULL
 
-	def IsValid()
-		return NOT isNull(@oHtml.root())
+	def FindAll(pcSelector)
+		return This.Find(pcSelector)
 
-	def SaveToFile(cFile)
-		write(cFile, This.Html())
-		return 1
+	# Engine handle accessor (used internally by stzHtmlNode).
+	def _EngineHandle()
+		return @pDoc
 
-		def SaveToFileQ(cFile)
-			This.SaveToFile(cFile)
-			return This
+	# Build a node from a 1-based element index by reading its tag.
+	def _NodeAt(nIdx)
+		_cTag_ = StzEngineHtmlTagOf(@pDoc, nIdx)
+		return new stzHtmlNode(self, _cTag_, This._OccurrenceOf(_cTag_, nIdx))
 
-	# Extended info
-	def InfoXT()
-		aInfo = [
-			:NumberOfElements = This.NumberOfElements(),
-			:HasBody = NOT isNull(This.Body()),
-			:HasHead = NOT isNull(This.Head()),
-			:TagsUsed = This.TagsUsed()
-		]
-		return aInfo
-
-	func TagsUsed()
-		aTags = []
-		_aThisElements1_ = This.Elements()
-		_nThisElements1Len_ = len(_aThisElements1_)
-		for _iLoopThisElements1_ = 1 to _nThisElements1Len_
-			oNode = _aThisElements1_[_iLoopThisElements1_]
-			cTag = StzLower(oNode.Tag())
-			if NOT StzFind(aTags, cTag)
-				aTags + cTag
+	# Find which occurrence of `tag` element nIdx represents.
+	def _OccurrenceOf(pcTag, nIdx)
+		_nC_ = This.NumberOfElements()
+		_hit_ = 0
+		for _i_ = 1 to _nC_
+			if StzLower(StzEngineHtmlTagOf(@pDoc, _i_)) = StzLower(pcTag)
+				_hit_++
+				if _i_ = nIdx return _hit_ ok
 			ok
 		next
-		return aTags
+		return 1
 
-#== stzHtmlNode Class: Single Node/Element Handler
+# ── stzHtmlNode -- single element handle ────────────────────
 
 class stzHtmlNode
 
-	@oNode       # Underlying node object from html.ring
+	@oDoc = NULL       # owning stzHtml
+	@cTag = ""         # tag name
+	@nOcc = 1          # 1-based occurrence among same-tag elements
 
-	def init(oNode)
-		@oNode = oNode
+	def init(oDoc, pcTag, nOccurrence)
+		@oDoc = oDoc
+		@cTag = pcTag
+		@nOcc = nOccurrence
 
 	def Tag()
-		return StzLower(@oNode.tag())
+		return StzLower(@cTag)
 
 	def Text()
-		return @oNode.text()
-
-	def Html()
-		return @oNode.html()
-
-		def InnerHtml()
-			return @oNode.innerHTML()
+		return StzEngineHtmlTextOfTag(@oDoc._EngineHandle(), @cTag, @nOcc)
 
 	def Attr(cName)
-		return @oNode.attr(cName)
+		return StzEngineHtmlAttrOfTag(@oDoc._EngineHandle(), @cTag, @nOcc, cName)
 
 		def Attribute(cName)
 			return This.Attr(cName)
 
 	def HasAttr(cName)
-		return @oNode.has_attr(cName)
-
-	def Attributes()
-		return @oNode.attributes()
-
-	def SetAttr(cName, cValue)
-		@oNode.setAttribute(cName, cValue)
-		return 1
-
-		def SetAttrQ(cName, cValue)
-			This.SetAttr(cName, cValue)
-			return This
-
-	def RemoveAttr(cName)
-		@oNode.removeAttribute(cName)
-		return 1
-
-		def RemoveAttrQ(cName)
-			This.RemoveAttr(cName)
-			return This
+		return This.Attr(cName) != ""
 
 	def Id()
 		return This.Attr("id")
@@ -320,358 +176,17 @@ class stzHtmlNode
 		return This.Attr("class")
 
 		def Class_()
-			return This.Attr("class")
+			return This.Klass()
 
-	def HasKlass(cClass)
-		cClasses = This.Klass()
-		if isNull(cClasses)
-			return FALSE
-		ok
-		return StringContainsCS(cClasses, cClass, FALSE)
-
-		def HasClass(cClass)
-			return This.HasKlass(cClass)
-
-	def AddKlass(cClass)
-		cCurrent = This.Klass()
-		if isNull(cCurrent)
-			cCurrent = ""
-		ok
-		This.SetAttr("class", trim(cCurrent + " " + cClass))
-		return 1
-
-		def AddClass(cClass)
-			return This.AddClass(cClass)
-
-		def AddKlassQ(cClass)
-			This.AddKlass(cClass)
-			return This
-
-		def AddClassQ(cClass)
-			return This.AddKlassQ(cClass)
-
-	def RemoveKlass(cClass)
-		cCurrent = This.Klass()
-		if isNull(cCurrent)
-			return 1
-		ok
-		oStr = new stzString(cCurrent)
-		oStr.RemoveCS(cClass, FALSE)
-		This.SetAttr("class", trim(oStr.Content()))
-		return 1
-
-		def RemoveClass(cClass)
-			return This.RemoveKlass(cClass)
-
-		def RemoveKlassQ(cClass)
-			This.RemoveKlass(cClass)
-			return This
-
-		def RemoveClassQ(cClass)
-			return This.RemoveClassQ(cClass)
-
-	def Parent()
-		oParent = @oNode.parent()
-		if isNull(oParent)
-			return NULL
-		ok
-		return new stzHtmlNode(oParent)
-
-	def Children()
-		aChildren = @oNode.children()
-		aResult = []
-		_nChildren1Len_ = len(aChildren)
-		for _iLoopChildren1_ = 1 to _nChildren1Len_
-			oChild = aChildren[_iLoopChildren1_]
-			aResult + new stzHtmlNode(oChild)
+	def HasKlass(pcClass)
+		_cAll_ = This.Klass()
+		if _cAll_ = "" return FALSE ok
+		_aParts_ = @split(_cAll_, " ")
+		_nL_ = len(_aParts_)
+		for _i_ = 1 to _nL_
+			if @trim(_aParts_[_i_]) = pcClass return TRUE ok
 		next
-		return aResult
+		return FALSE
 
-	def FirstChild()
-		oFirst = @oNode.firstChild()
-		if isNull(oFirst)
-			return NULL
-		ok
-		return new stzHtmlNode(oFirst)
-
-	def LastChild()
-		oLast = @oNode.lastChild()
-		if isNull(oLast)
-			return NULL
-		ok
-		return new stzHtmlNode(oLast)
-
-	def NextSibling()
-		oNext = @oNode.next_sibling()
-		if isNull(oNext)
-			return NULL
-		ok
-		return new stzHtmlNode(oNext)
-
-	def PrevSibling()
-		oPrev = @oNode.prev_sibling()
-		if isNull(oPrev)
-			return NULL
-		ok
-		return new stzHtmlNode(oPrev)
-
-	def AppendChild(oChildNode)
-		if isObject(oChildNode) and classname(oChildNode) = "stzhtmlnode"
-			@oNode.appendChild(oChildNode.@oNode)
-		else
-			StzRaise("Invalid child node.")
-		ok
-		return 1
-
-		def AppendChildQ(oChildNode)
-			This.AppendChild(oChildNode)
-			return This
-
-	def InsertBefore(oNewNode)
-		@oNode.insertBefore(oNewNode.@oNode)
-		return 1
-
-		def InsertBeforeQ(oNewNode)
-			This.InsertBefore(oNewNode)
-			return This
-
-	def InsertAfter(oNewNode)
-		@oNode.insertAfter(oNewNode.@oNode)
-		return 1
-
-		def InsertAfterQ(oNewNode)
-			This.InsertAfter(oNewNode)
-			return This
-
-	def Remove()
-		@oNode.remove()
-		return 1
-
-	def SetText(cText)
-		@oNode.setInnerText(cText)
-		return 1
-
-		def SetTextQ(cText)
-			This.SetText(cText)
-			return This
-
-	def SetHtml(cHtml)
-		@oNode.setInnerHTML(cHtml)
-		return 1
-
-		def SetHtmlQ(cHtml)
-			This.SetHtml(cHtml)
-			return This
-
-	def Find(pcSelector)
-		aRawNodes = @oNode.find(pcSelector)
-		aResult = []
-		_nRawNodes1Len_ = len(aRawNodes)
-		for _iLoopRawNodes1_ = 1 to _nRawNodes1Len_
-			oRaw = aRawNodes[_iLoopRawNodes1_]
-			aResult + new stzHtmlNode(oRaw)
-		next
-		return aResult
-
-#== stzHtmlBuilder Class: For Building HTML Documents
-
-class stzHtmlBuilder
-
-	@oDoc
-	@oCurrentNode
-
-	def init()
-		@oDoc = new HTML("<html></html>")
-		@oCurrentNode = @oDoc.root()
-
-	def CreateNode(cTag)
-		oNode = @oDoc.createNode(cTag)
-		return new stzHtmlNode(oNode)
-
-		def CreateNodeQ(cTag)
-			return This.CreateNode(cTag)
-
-	def AppendToCurrent(oNode)
-		@oCurrentNode.appendChild(oNode.@oNode)
-		return 1
-
-		def AppendToCurrentQ(oNode)
-			This.AppendToCurrent(oNode)
-			return This
-
-	def SetCurrent(oNode)
-		@oCurrentNode = oNode.@oNode
-		return 1
-
-		def SetCurrentQ(oNode)
-			This.SetCurrent(oNode)
-			return This
-
-	def Build()
-		return @oDoc.html()
-
-	def BuildToFile(cFile)
-		write(cFile, This.Build())
-		return 1
-
-#== stzCSS Class: CSS Handling (Styles and Selectors)
-
-class stzCSS
-
-	@cCss       # CSS string
-	@aRules     # Parsed rules (lazy)
-
-	def init(pcCss)
-		@cCss = pcCss
-		@aRules = NULL
-
-	def Content()
-		return @cCss
-
-	def Parse()
-		if NOT isNull(@aRules)
-			return @aRules
-		ok
-		# Simple CSS parser (for demo; in real, use a full parser)
-		@aRules = []
-		oStr = new stzString(@cCss)
-		aBlocks = oStr.SplitToListOfStrings("{}")
-		_nBlocksLen_ = len(aBlocks)
-		for i = 1 to _nBlocksLen_ step 2
-			cSelector = trim(aBlocks[i])
-			cDeclarations = trim(aBlocks[i+1])
-			aDecl = StzStringQ(cDeclarations).Split(";")
-			aProps = []
-			_nDecl1Len_ = len(aDecl)
-			for _iLoopDecl1_ = 1 to _nDecl1Len_
-				cDecl = aDecl[_iLoopDecl1_]
-				aPair = StzStringQ(trim(cDecl)).Split(":")
-				if len(aPair)=2
-					aProps + [trim(aPair[1]), trim(aPair[2])]
-				ok
-			next
-			@aRules + [cSelector, aProps]
-		next
-		return @aRules
-
-	def Rules()
-		return This.Parse()
-
-	def Selectors()
-		aSelectors = []
-		_aThisRules2_ = This.Rules()
-		_nThisRules2Len_ = len(_aThisRules2_)
-		for _iLoopThisRules2_ = 1 to _nThisRules2Len_
-			aRule = _aThisRules2_[_iLoopThisRules2_]
-			aSelectors + aRule[1]
-		next
-		return aSelectors
-
-	def ApplyToHtml(pcHtml)
-		# Placeholder: Apply CSS to HTML (would require more integration)
-		StzRaise("Not implemented yet.")
-
-	# Natural methods
-	def PropertyOf(pcSelector, pcProp)
-		_aThisRules1_ = This.Rules()
-		_nThisRules1Len_ = len(_aThisRules1_)
-		for _iLoopThisRules1_ = 1 to _nThisRules1Len_
-			aRule = _aThisRules1_[_iLoopThisRules1_]
-			if StzLower(aRule[1]) = StzLower(pcSelector)
-				_aRule21_ = aRule[2]
-				_nRule21Len_ = len(_aRule21_)
-				for _iLoopRule21_ = 1 to _nRule21Len_
-					aProp = _aRule21_[_iLoopRule21_]
-					if StzLower(aProp[1]) = StzLower(pcProp)
-						return aProp[2]
-					ok
-				next
-			ok
-		next
-		return NULL
-
-# Additional utils from provided stzHtml.ring
-
-func ListToHtmlXT(paList)
-	# Implementation as provided in the document
-	if NOT (isList(paList) and len(paList) > 0)
-		StzRaise("paList must be a non-empty 2D list.")
-	ok
-
-	nCols = len(paList)
-	nRows = 0
-	_nList1Len_ = len(paList)
-	for _iLoopList1_ = 1 to _nList1Len_
-		col = paList[_iLoopList1_]
-		nRows = max(nRows, len(col[2]))
-	next
-
-	for i=1 to nCols
-		while len(paList[i][2]) < nRows
-			paList[i][2] + ""
-		end
-	next
-
-	cHtml = '<table class="data">' + nl
-	cHtml += '<thead><tr>' + nl
-	for i=1 to nCols
-		cHtml += '<th>' + paList[i][1] + '</th>' + nl
-	next
-	cHtml += '</tr></thead>' + nl
-	cHtml += '<tbody>' + nl
-	for r=1 to nRows
-		cHtml += '<tr>' + nl
-		for c=1 to nCols
-			cHtml += '<td>' + paList[c][2][r] + '</td>' + nl
-		next
-		cHtml += '</tr>' + nl
-	next
-	cHtml += '</tbody></table>'
-	return cHtml
-
-func IsHtmlTable(pcStr)
-	# Simple check
-	oStr = new stzString(pcStr)
-	return oStr.Contains("<table") and oStr.Contains("</table>")
-
-func HtmlToList(pcHtmlTable)
-	# Parse table to 2D list
-	doc = new HTML(pcHtmlTable)
-	aHeaders = doc.find("th")
-	aData = doc.find("td")
-	aRows = doc.find("tr")
-
-	if len(aRows) = 0
-		return []
-	ok
-
-	aResult = []
-	nCols = len(aHeaders)
-	if nCols = 0
-		nCols = len(aRows[1].children())  # Assume first row
-	ok
-
-	for i=1 to nCols
-		cHeader = ""
-		if i <= len(aHeaders)
-			cHeader = aHeaders[i].text()
-		ok
-		aResult + [cHeader, []]
-	next
-
-	nCell = 1
-	_nRows1Len_ = len(aRows)
-	for _iLoopRows1_ = 1 to _nRows1Len_
-		row = aRows[_iLoopRows1_]
-		aCells = row.children()
-		for c=1 to nCols
-			if nCell <= len(aData)
-				aResult[c][2] + aData[nCell].text()
-				nCell++
-			else
-				aResult[c][2] + ""
-			ok
-		next
-	next
-
-	return aResult
+		def HasClass(pcClass)
+			return This.HasKlass(pcClass)

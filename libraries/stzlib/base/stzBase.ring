@@ -283,7 +283,7 @@ ok
 
     load "file/stzJson.ring"
     load "file/stzCSV.ring"
-//  load "file/stzHtml.ring" #TODO Implement it engine-side (in Zig)
+    load "file/stzHtml.ring"     # Engine-backed HTML parser (Zig)
 
     # NOTE: stzFolderWatcher.ring is a demo script, not a loadable module
     #TODO // Implement it engine-side (in Zig)
