@@ -94,8 +94,8 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 50,
-    .last_updated = "2026-06-12",
+    .last_session = 52,
+    .last_updated = "2026-06-13",
 };
 
 // ============================================================
@@ -427,7 +427,7 @@ pub const milestones = [_]Milestone{
         .track = "stzlib",
         .title = "Ring-Side Test Hardening",
         .status = .partial,
-        .summary = "Sessions 38-49: 41 regression suites pin 89 latent bugs, ~1450 cumulative assertions. Quality sweep wave 1-6 (session 49) per user 'fix all potential bugs' directive raised coverage from 19 suites/70 bugs to 41 suites/89 bugs across list-family standalone, graph family, datetime family, common utilities, i18n, file domain. Highlights: stzListOfTimeLines had 4 major bugs (3 empty-stub helpers + case-mismatched lanes + mutation-via-copy); IsLocaleList was a self-recursive R4-stack-overflow stub; stzCounter validator missing :WhenYouReach; stzOrgChart 3 typos; 22 stzString modularization-gap methods restored (Country/Language/Currency/Script identifier checkers + ContainsNTimes family). Bug-pattern catalogue at 16 families. Still pending: extercode/extincode/cluster/appserver domains (lower-priority external-tool wrappers), narrated GIVEN/WHEN/THEN runner, reactive async harness",
+        .summary = "Sessions 38-52: 45 regression suites, ~1500 assertions, 94 cumulative latent bugs. Session 52 (2026-06-13) closed the previously-pending external-domain coverage gap: extercode/extincode/cluster/appserver smoke suites land + 5 latent bugs fixed (stzExterCode.Code() read non-existent file; stzClusterNode.init() called parent init as static; LoadXEngines crashed on NULL oComputeEngine; stzLoadBalancer.RegisterCluster copy-on-list-index mutation lost; @StzMidToEnd undefined-fn in 3 sites). Bug-pattern catalogue: 17 families (added Ring-auto-inheritance-no-parent-init). Still pending: narrated GIVEN/WHEN/THEN runner, reactive async harness.",
     },
     .{
         .id = "M-S3",
