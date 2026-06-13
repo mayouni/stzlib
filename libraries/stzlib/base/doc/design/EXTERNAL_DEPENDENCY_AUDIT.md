@@ -134,15 +134,36 @@ Not yet (slice 3 if needed): CSS selector parser (descendant/child
 combinators), DOM mutation, stzHtmlBuilder. The current surface
 covers the typical "scrape data from HTML" use case.
 
-## 4. libcurl -- M-DEP3 (Pending)
+## 4. libcurl -- M-DEP3 (Slice 1 LANDED 2026-06-13)
 
-`stzNetwork.ring` uses Ring's `libcurl.ring` for HTTP client work.
-Engine has no HTTP module. Replacement needs a Zig HTTP client with
-TLS support across Windows / Linux / macOS. Zig std has `std.http`
-but it pulls in cross-platform TLS (BearSSL / native APIs) which is
-itself a significant arc.
+`stzNetwork.ring` and `stzHttpClient.ring` use Ring's `libcurl.ring`
+for HTTP. Engine module **stz_http** added 2026-06-13 backed by
+`std.http.Client` + `std.crypto.tls` -- HTTP and HTTPS work without
+an external TLS lib.
 
-**Interim:** keep the dep, mark as optional, document the path.
+**Slice 1 surface** (`libraries/stzlib/engine/src/http.zig`,
+`ring_bridge_http.zig`, ~180 LOC):
+
+* `StzEngineHttpGet(cUrl)` -> response body string
+* `StzEngineHttpGetStatus(cUrl)` -> HTTP status code (or -1 on transport error)
+* `StzEngineHttpPost(cUrl, cContentType, cBody)` -> response body
+* `StzEngineHttpLastError()` -> last error message
+
+Ring smoke `52_http_engine_narrated.ring`: 3 scenarios, 7 assertions,
+all green. Network IO is NOT exercised in the suite per the L99 /
+Windows test-loop guardrail; live HTTP tests run outside CI.
+
+NOT YET (slice 2 -- size-driven by real callers):
+* Per-request custom headers
+* Cookies + redirect policy
+* Auth (basic / bearer)
+* PUT / DELETE / HEAD / OPTIONS
+* Form POST helper
+* Streaming for large bodies
+
+`stzNetwork.ring` and `stzHttpClient.ring` NOT YET rewired -- slice 2
+extends the surface, then those classes get swapped. The
+`load "libcurl.ring"` line stays for now.
 
 ## 5. libuv -- M-DEP4 (Pending)
 
