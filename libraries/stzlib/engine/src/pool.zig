@@ -67,12 +67,19 @@ pub const Pool = struct {
     queue: std.ArrayList(*Job),
     jobs_by_id: std.AutoHashMap(u64, *Job),
     next_id: u64,
+    max_queue: usize,
     mutex: std.Thread.Mutex,
     cond: std.Thread.Condition,
     stop_flag: std.atomic.Value(bool),
 };
 
 pub fn pool_create(num_workers: u32) callconv(.c) ?*Pool {
+    return pool_create_xt(num_workers, 0);
+}
+
+/// Extended ctor with explicit queue cap.
+/// max_queue == 0 means unbounded (legacy behaviour).
+pub fn pool_create_xt(num_workers: u32, max_queue: u32) callconv(.c) ?*Pool {
     last_error_len = 0;
     const n = if (num_workers == 0) 4 else @min(num_workers, 256);
 
@@ -90,6 +97,7 @@ pub fn pool_create(num_workers: u32) callconv(.c) ?*Pool {
         .queue = .{},
         .jobs_by_id = std.AutoHashMap(u64, *Job).init(gpa),
         .next_id = 1,
+        .max_queue = max_queue,
         .mutex = .{},
         .cond = .{},
         .stop_flag = std.atomic.Value(bool).init(false),
@@ -128,6 +136,16 @@ pub fn pool_submit(
 
     p.mutex.lock();
     defer p.mutex.unlock();
+
+    // Backpressure: refuse submissions when the queue is full so the
+    // caller can retry / shed load instead of OOMing the engine.
+    if (p.max_queue != 0 and p.queue.items.len >= p.max_queue) {
+        gpa.free(arg_copy);
+        gpa.destroy(job);
+        setError("queue full (backpressure)");
+        return -2;
+    }
+
     job.* = .{
         .id = p.next_id,
         .kind = kind,
@@ -146,6 +164,26 @@ pub fn pool_submit(
     p.jobs_by_id.put(job.id, job) catch {};
     p.cond.signal();
     return @intCast(job.id);
+}
+
+/// Snapshot of pool state for ops dashboards + tests.
+pub fn pool_pending(pool_opt: ?*Pool) callconv(.c) i32 {
+    const p = pool_opt orelse return -1;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    return @intCast(p.queue.items.len);
+}
+
+pub fn pool_inflight(pool_opt: ?*Pool) callconv(.c) i32 {
+    const p = pool_opt orelse return -1;
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    var n: i32 = 0;
+    var it = p.jobs_by_id.iterator();
+    while (it.next()) |e| {
+        if (e.value_ptr.*.status == .running) n += 1;
+    }
+    return n;
 }
 
 /// pool_poll returns:
