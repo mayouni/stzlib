@@ -91,10 +91,10 @@ pub const macro = MacroStats{
     .engine_tests = 1593,
     .dlls_shipping = 87,
     .qt_dependencies = 0,
-    .ring_bridge_regs = 1034,
+    .ring_bridge_regs = 1037,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 64,
+    .last_session = 65,
     .last_updated = "2026-06-13",
 };
 
@@ -449,6 +449,15 @@ pub const milestones = [_]Milestone{
         .title = "Replace libuv.ring with engine TCP + polling timer",
         .status = .done,
         .summary = "FULLY CLOSED 2026-06-13 (sessions 60-62). Slice 1: libuv removed from reactive runtime + stzReactiveTimer rewritten to clock()-based polling. Slice 2: new engine domain stz_tcp (std.net-backed sync TCP) -- stzTcp{Client,Server} fully rewired. Slice 3 (session 62): REAL ASYNC SHIPPED -- parallel HTTP fetch via std.Thread per URL (StzEngineHttpParallelGet, GetMany restored on stzHttpClient) + engine fswatch module via background polling worker thread (StzEngineFsWatch* + new stzFolderWatcher class). Real ADD event detected from a live FS test. Five test suites cover the arc: 52_reactive_polling 8/8, 54_stztcp_engine 15/15, 55_http_parallel 7/7, 54_fswatch_engine 10/10, cross-checks 51_reactive (20/20), 53_stzhttpclient (17/17), 53_stzhtml (21/21). 98 assertions across the reactive engine work, all green. The libuv era's three documented use cases (timers, parallel HTTP, FS watch) are all engine-backed now -- no IOCP/epoll/kqueue wrapper needed for these.",
+    },
+
+    // ---- reactive-engine hardening track (gap analysis Tier 1) ----
+    .{
+        .id = "M-RX1",
+        .track = "engine",
+        .title = "Reactive Engine Hardening -- Tier 1 (web/cloud/agentic)",
+        .status = .partial,
+        .summary = "Closing the Tier 1 gaps from REACTIVE_ENGINE_GAP_ANALYSIS.md (vs libuv/libcurl/nginx/Go/Tokio/Envoy). Item 1 caller-side deadline shipped session 64 (StzEnginePoolPollWithDeadline). Session 65 landed items 1+2 fused: a custom HTTP/1.1 client on raw std.net.Stream (engine/src/httpcore.zig) with TLS via std.crypto.tls.Client for https, replacing the std.http.Client path inside http.zig; plus a connection pool keyed by (scheme,host,port) (engine/src/http_pool.zig) with idle eviction + per-host/global caps + opens/reuses/idle/active stats. Per-layer timeouts: connect via non-blocking connect + poll(POLLOUT) deadline (fails fast on unreachable hosts -- ~ms not ~21s); request via SO_RCVTIMEO/SO_SNDTIMEO (honoured on POSIX, best-effort on Windows where std uses overlapped WSARecv -- the caller-side deadline remains the cross-platform guarantee). New bridge fns StzEngineHttpSetDefaultTimeouts/RequestWithTimeouts/PoolStats; stzHttpClient gains SetTimeout/SetConnectTimeout/SetRequestTimeout/SetDefaultTimeouts/PoolStats. Live-verified: connection REUSE (reuses increments, opens flat), HTTPS round-trip, fast connect-timeout. Tests 63_http_pool (6/6) + 64_http_timeouts_engine (7/7); 52/53/55/56/62 still green. Remaining Tier 1: 3 DNS cache, 4 cancellation tokens, 5 retry budget, 6 latency histograms, 7 outlier ejection, 8 graceful pool drain.",
     },
 
     // ---- stzlib redesign track ----
