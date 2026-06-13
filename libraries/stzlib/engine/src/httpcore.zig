@@ -29,6 +29,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 const posix = std.posix;
 const tls = std.crypto.tls;
+const dns = @import("dns.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -123,20 +124,10 @@ pub fn connect(
     is_tls: bool,
     connect_timeout_ms: u32,
 ) ConnectError!*Connection {
-    const list = std.net.getAddressList(gpa, host, port) catch return error.DnsFailed;
-    defer list.deinit();
-    if (list.addrs.len == 0) return error.DnsFailed;
-
-    var stream: ?std.net.Stream = null;
-    var last_err: ConnectError = error.ConnectRefused;
-    for (list.addrs) |addr| {
-        stream = connectAddr(addr, connect_timeout_ms) catch |err| {
-            last_err = err;
-            continue;
-        };
-        break;
-    }
-    const s = stream orelse return last_err;
+    // Resolve through the DNS cache (item 3) -- a warm cache skips the
+    // resolver syscall on repeat connects to the same host.
+    const addr = dns.lookup(host, port) catch return error.DnsFailed;
+    const s = connectAddr(addr, connect_timeout_ms) catch |err| return err;
     errdefer s.close();
 
     const c = gpa.create(Connection) catch return error.OutOfMemory;

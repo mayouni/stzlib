@@ -91,10 +91,10 @@ pub const macro = MacroStats{
     .engine_tests = 1593,
     .dlls_shipping = 87,
     .qt_dependencies = 0,
-    .ring_bridge_regs = 1037,
-    .ring_classes_bridged = 125,
+    .ring_bridge_regs = 1045,
+    .ring_classes_bridged = 126,
     .ring_engine_calls = 3482,
-    .last_session = 65,
+    .last_session = 66,
     .last_updated = "2026-06-13",
 };
 
@@ -457,7 +457,7 @@ pub const milestones = [_]Milestone{
         .track = "engine",
         .title = "Reactive Engine Hardening -- Tier 1 (web/cloud/agentic)",
         .status = .partial,
-        .summary = "Closing the Tier 1 gaps from REACTIVE_ENGINE_GAP_ANALYSIS.md (vs libuv/libcurl/nginx/Go/Tokio/Envoy). Item 1 caller-side deadline shipped session 64 (StzEnginePoolPollWithDeadline). Session 65 landed items 1+2 fused: a custom HTTP/1.1 client on raw std.net.Stream (engine/src/httpcore.zig) with TLS via std.crypto.tls.Client for https, replacing the std.http.Client path inside http.zig; plus a connection pool keyed by (scheme,host,port) (engine/src/http_pool.zig) with idle eviction + per-host/global caps + opens/reuses/idle/active stats. Per-layer timeouts: connect via non-blocking connect + poll(POLLOUT) deadline (fails fast on unreachable hosts -- ~ms not ~21s); request via SO_RCVTIMEO/SO_SNDTIMEO (honoured on POSIX, best-effort on Windows where std uses overlapped WSARecv -- the caller-side deadline remains the cross-platform guarantee). New bridge fns StzEngineHttpSetDefaultTimeouts/RequestWithTimeouts/PoolStats; stzHttpClient gains SetTimeout/SetConnectTimeout/SetRequestTimeout/SetDefaultTimeouts/PoolStats. Live-verified: connection REUSE (reuses increments, opens flat), HTTPS round-trip, fast connect-timeout. Tests 63_http_pool (6/6) + 64_http_timeouts_engine (7/7); 52/53/55/56/62 still green. Remaining Tier 1: 3 DNS cache, 4 cancellation tokens, 5 retry budget, 6 latency histograms, 7 outlier ejection, 8 graceful pool drain.",
+        .summary = "Closing the Tier 1 gaps from REACTIVE_ENGINE_GAP_ANALYSIS.md (vs libuv/libcurl/nginx/Go/Tokio/Envoy). Item 1 caller-side deadline shipped session 64 (StzEnginePoolPollWithDeadline). Session 65 landed items 1+2 fused: a custom HTTP/1.1 client on raw std.net.Stream (engine/src/httpcore.zig) with TLS via std.crypto.tls.Client for https, replacing the std.http.Client path inside http.zig; plus a connection pool keyed by (scheme,host,port) (engine/src/http_pool.zig) with idle eviction + per-host/global caps + opens/reuses/idle/active stats. Per-layer timeouts: connect via non-blocking connect + poll(POLLOUT) deadline (fails fast on unreachable hosts -- ~ms not ~21s); request via SO_RCVTIMEO/SO_SNDTIMEO (honoured on POSIX, best-effort on Windows where std uses overlapped WSARecv -- the caller-side deadline remains the cross-platform guarantee). New bridge fns StzEngineHttpSetDefaultTimeouts/RequestWithTimeouts/PoolStats; stzHttpClient gains SetTimeout/SetConnectTimeout/SetRequestTimeout/SetDefaultTimeouts/PoolStats. Live-verified: connection REUSE (reuses increments, opens flat), HTTPS round-trip, fast connect-timeout. Tests 63_http_pool (6/6) + 64_http_timeouts_engine (7/7). **Session 66 added items 3+4:** (3) DNS cache `engine/src/dns.zig` -- lookup keyed by host|port, positive TTL 60s + negative TTL 5s, atomic resolve/hit counters, wired into httpcore.connect + tcp.tcp_connect; diagnostics StzEngineDnsResolve/Stats/CacheClear. (4) Cancellation tokens `engine/src/cancel.zig` -- atomic-flag CancelToken create/signal/is_cancelled/destroy; pool Job carries an optional token; new StzEnginePoolSubmitWithCancel + worker checkpoint returns -5 (JOB_CANCELLED) when signalled before run; Ring class stzCancelToken (lazy-init guard since paren-less `new` skips init). Tests: dns.zig 3/3 Zig + 65_dns_cache 4/4 Ring; cancel.zig 2/2 Zig + 54_cancel 5/5 Ring. All network+reactive suites green; zig build + test clean. Remaining Tier 1: 5 retry budget, 6 latency histograms, 7 outlier ejection, 8 graceful pool drain.",
     },
 
     // ---- stzlib redesign track ----

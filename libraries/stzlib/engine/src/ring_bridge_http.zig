@@ -1,4 +1,6 @@
 const http = @import("http.zig");
+const dns = @import("dns.zig");
+const std = @import("std");
 const R = @import("ring_api.zig");
 
 const gs = R.ring_vm_api_getstring;
@@ -164,6 +166,45 @@ fn ring_HttpPoolStats(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, @constCast(""));
 }
 
+// ── DNS cache diagnostics (item 3) ───────────────────────────
+
+/// StzEngineDnsResolve(cHost, nPort) -> "ip:port" string (cached), or ""
+/// on failure. Primes / exercises the cache; mainly for diagnostics.
+fn ring_DnsResolve(p: *anyopaque) callconv(.c) void {
+    const host_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const host_len: usize = @intCast(gss(p, 1));
+    const port: u16 = @intFromFloat(gn(p, 2));
+    const addr = dns.lookup(host_ptr[0..host_len], port) catch {
+        rs(p, @constCast(""));
+        return;
+    };
+    var buf: [64]u8 = undefined;
+    const text = std.fmt.bufPrint(&buf, "{f}", .{addr}) catch {
+        rs(p, @constCast(""));
+        return;
+    };
+    rs2(p, &buf, @intCast(text.len));
+}
+
+/// StzEngineDnsStats() -> "resolves=N\thits=N"
+fn ring_DnsStats(p: *anyopaque) callconv(.c) void {
+    var buf: [64]u8 = undefined;
+    const text = std.fmt.bufPrint(&buf, "resolves={d}\thits={d}", .{
+        dns.resolve_count.load(.monotonic),
+        dns.hit_count.load(.monotonic),
+    }) catch {
+        rs(p, @constCast(""));
+        return;
+    };
+    rs2(p, &buf, @intCast(text.len));
+}
+
+/// StzEngineDnsCacheClear() -> drops every cached entry.
+fn ring_DnsCacheClear(p: *anyopaque) callconv(.c) void {
+    dns.clear();
+    rn(p, 0);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginehttpget", .func = ring_HttpGet },
     .{ .name = "stzenginehttpgetstatus", .func = ring_HttpGetStatus },
@@ -178,6 +219,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginehttpsetdefaulttimeouts", .func = ring_HttpSetDefaultTimeouts },
     .{ .name = "stzenginehttprequestwithtimeouts", .func = ring_HttpRequestWithTimeouts },
     .{ .name = "stzenginehttppoolstats", .func = ring_HttpPoolStats },
+    // Tier 1 item 3 -- DNS cache diagnostics
+    .{ .name = "stzenginednsresolve", .func = ring_DnsResolve },
+    .{ .name = "stzenginednsstats", .func = ring_DnsStats },
+    .{ .name = "stzenginednscacheclear", .func = ring_DnsCacheClear },
 };
 
 pub fn registerAll(state: *anyopaque) void {
