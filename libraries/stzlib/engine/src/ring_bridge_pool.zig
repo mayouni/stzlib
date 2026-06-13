@@ -71,6 +71,19 @@ fn ring_PoolPoll(p: *anyopaque) callconv(.c) void {
     }
 }
 
+fn ring_PoolPollWithDeadline(p: *anyopaque) callconv(.c) void {
+    const pp = getPool(p, 1);
+    const id: u64 = @intFromFloat(gn(p, 2));
+    const deadline_ms: u64 = @intFromFloat(gn(p, 3));
+    const code = pool.pool_poll_with_deadline(pp, id, deadline_ms, &poll_buf, POLL_CAP);
+    last_pool_status = code;
+    if (code >= 0) {
+        rs2(p, &poll_buf, @intCast(pool.pool_last_body_len()));
+    } else {
+        rs(p, @constCast(""));
+    }
+}
+
 fn ring_PoolLastStatus(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(last_pool_status));
 }
@@ -91,6 +104,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginepoolcreatext", .func = ring_PoolCreateXT },
     .{ .name = "stzenginepoolsubmit", .func = ring_PoolSubmit },
     .{ .name = "stzenginepoolpoll", .func = ring_PoolPoll },
+    .{ .name = "stzenginepoolpollwithdeadline", .func = ring_PoolPollWithDeadline },
     .{ .name = "stzenginepoollaststatus", .func = ring_PoolLastStatus },
     .{ .name = "stzenginepooldestroy", .func = ring_PoolDestroy },
     .{ .name = "stzenginepoollasterror", .func = ring_PoolLastError },
