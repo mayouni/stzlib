@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 59,
+    .last_session = 60,
     .last_updated = "2026-06-13",
 };
 
@@ -446,9 +446,9 @@ pub const milestones = [_]Milestone{
     .{
         .id = "M-DEP4",
         .track = "depcleanup",
-        .title = "Replace libuv.ring with Zig Async Loop",
-        .status = .planned,
-        .summary = "Used by stzReactive, stzNetwork, stzFolderWatcher. Heaviest dep -- needs cross-platform IOCP/epoll/kqueue wrapper. 2-3 months. Synchronous test harness already covers the non-async surface; async tests stay outside CI. See EXTERNAL_DEPENDENCY_AUDIT.md.",
+        .title = "Replace libuv.ring with polling fallback / Zig Async Loop",
+        .status = .partial,
+        .summary = "Slice 1 LANDED 2026-06-13 (session 60). Pragmatic path: drop libuv where a synchronous polling fallback works. reactive/stzReactive.ring -- `load \"libuv.ring\"` REMOVED; uv_default_loop replaced with NULL sentinel; uv_buf2str/uv_buf_init become identity (Ring buffers ARE strings). reactive/stzReactiveTimer.ring -- uv_timer_* calls replaced with clock()-based polling pattern (CheckAndTick from the manager loop). file/stzFolderWatcher.ring (demo, not class) archived. stzNetwork.ring's residual libuv load already dropped in M-DEP3. Test 52_reactive_polling_narrated: 4 scenarios / 8 assertions, all green; 51_reactive_harness (20/20) still green. NOT YET (slice 2 -- multi-month): network/stzTcpClient + stzTcpServer still call uv_* in method bodies (construction works, calls would fail); folder watcher Zig-polled rewrite; true preemptive async via cross-platform IOCP/epoll/kqueue wrapper. The libuv.ring extension is no longer required for stzBase to load.",
     },
 
     // ---- stzlib redesign track ----

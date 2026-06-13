@@ -1,7 +1,11 @@
 
-# Thin wrapper around libuv timer system
-# ~> Delegates to Ring callbacks but leverages
-# libuv's event loop integration
+# Polling-based timer (formerly a libuv wrapper).
+# M-DEP4 slice 1 (2026-06-13): the libuv integration has been removed
+# and the class is now backed by Ring's `clock()` + `clocksPerSecond()`
+# polling -- the same paradigm stzRingTimer uses. CheckAndTick() must
+# be called by the manager to advance the timer; there is no
+# preemptive thread today. Real async will arrive when the
+# cross-platform Zig event loop ships in a later slice.
 
 class stzReactiveTimer
 
@@ -9,9 +13,11 @@ class stzReactiveTimer
 	interval = ONE_SECOND  # milliseconds
 	callback = NULL
 	engine = NULL
-	timerHandle = NULL
+	timerHandle = NULL     # kept as NULL sentinel for API parity
 	isActive = false
 	isOneTime = false
+	startTime = 0
+	lastTick = 0
 
 	def Init(id, intervalMs, f, engine, oneTime)
 		timerId = id
@@ -19,56 +25,51 @@ class stzReactiveTimer
 		callback = f
 		this.engine = engine
 
-		# Was `if isOneTime = NULL ... isOneTime = false` -- the
-		# parameter `oneTime` was never assigned to the class
-		# attribute `isOneTime`, so all timers were treated as
-		# repeating regardless of the constructor arg. Fixed:
-		# coerce missing/NULL to false, otherwise honour the param.
+		# Honor the constructor's oneTime arg (default FALSE on NULL).
 		if oneTime = NULL
 			isOneTime = false
 		else
 			isOneTime = oneTime
 		ok
 
-	#NOTE // Internal mechanism regarding isOneTime attribute
-
-	# The timer manager checks isOneTime and automatically
-	# removes completed one-time timers from the active list,
-	# while repeating timers continue running.
-
-	# So it's both - users control it via the CreateTimer() method parameter,
-	# and the system handles cleanup automatically.
-
 	def Start()
 		if not isActive
-			timerHandle = new_uv_timer_t()
-			uv_timer_init(engine.LibUVLoop(), timerHandle)
-			uv_timer_start(timerHandle, Method(:Tick), TIMER_NO_DELAY, interval)
 			isActive = true
+			startTime = clock()
+			lastTick = startTime
 		ok
-		
+
 	def Stop()
-		if isActive and timerHandle != NULL
-			uv_timer_stop(timerHandle)
-			isActive = false
-		ok
-		
+		isActive = false
+
 	def Tick()
 		if callback != NULL
 			call callback()
 		ok
 
+	# Drive the timer from the manager's poll loop. Returns isActive
+	# so the manager can prune completed one-shot timers.
 	def CheckAndTick()
-	    # For libuv timers, they handle their own timing
-	    # Just return if still active
-	    return isActive
+		if not isActive
+			return false
+		ok
+		currentTime = clock()
+		elapsed = (currentTime - lastTick) * CLOCKS_TO_MS_MULTIPLIER / clocksPerSecond()
+		if elapsed >= interval
+			if callback != NULL
+				call callback()
+			ok
+			if isOneTime
+				Stop()
+				return false
+			else
+				lastTick = currentTime
+			ok
+		ok
+		return isActive
 
 	def Cleanup()
 		Stop()
-		if timerHandle != NULL
-			destroy_uv_timer_t(timerHandle)
-			timerHandle = NULL
-		ok
 
 # Pure Ring timer using clock()
 # Direct object method access, handles timing logic in Ring's native paradigm
