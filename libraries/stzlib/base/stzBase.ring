@@ -65,7 +65,10 @@ ok
     load "number/stzRandom.ring"
     load "number/stzSciNumber.ring"
 
-    load "number/stzFastPro.ring"
+    # stzFastPro deprecated 2026-06-13 (M-DEP1): wrapped the RingFastPro
+    # C++ extension whose only consumer was its own test suite. Engine
+    # stzMatrix covers the hot paths; the file is preserved under
+    # base/archive/number/ for reference.
     load "number/stzMatrix.ring"
 
 # Loading files related to the STRING module
