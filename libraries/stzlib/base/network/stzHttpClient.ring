@@ -1,619 +1,232 @@
-# =============================================================================
-# HTTP CLIENT - cURL-based, fluent HTTP operations  
-# =============================================================================
+/*
+	Softanza HTTP Client -- engine-backed (M-DEP3 slice 2).
+	Previously layered over libcurl.ring + libuv.ring; rewired
+	2026-06-13 to the in-tree Zig HTTP module
+	(libraries/stzlib/engine/src/http.zig) which uses
+	std.http.Client + std.crypto.tls. HTTPS works without any
+	external TLS library.
 
-# Global variables for parallel requests
-parallel_results = []
-parallel_completed = 0  
-parallel_total = 0
-parallel_loop = NULL
+	The synchronous public surface (Get_, Post, Put_, Delete, Head,
+	Options, PostForm, PostJson, Response..., SetHeader..., SetCookie...)
+	is preserved so callers do not need to change.
 
-func CreateParallelRequest(cUrl, nIndex)
-    # Parse URL
-    url_parts = StzParseUrl(cUrl)
+	Settings that the libcurl backend exposed but std.http does not
+	cover at engine slice 2 (custom UA via setopt, basic auth, proxy,
+	SSL verify toggle, follow-redirects) are kept as fluent setters
+	but only stored for future slices; they do not change request
+	behaviour today. Most callers only need Get_/Post + headers/
+	cookies.
 
-    # Create connection
-    tcp_handle = new_uv_tcp_t()
-    connect_req = new_uv_connect_t()
-    addr = new_sockaddr_in()
-    
-    uv_tcp_init(parallel_loop, tcp_handle)
-    uv_ip4_addr(url_parts[1], url_parts[2], addr)  # host, port
-    
-    # Store request index in TCP handle for later retrieval
-    set_uv_tcp_data(tcp_handle, nIndex)
+	The libuv-based parallel GetMany() is dropped; sequential
+	GetManySequential() is the supported path until M-DEP4 lands.
+*/
 
-    # Build HTTP request
-    http_request = "GET " + url_parts[3] + " HTTP/1.1" + StzChar(13) + StzChar(10) +
-                   "Host: " + url_parts[1] + StzChar(13) + StzChar(10) +
-                   "User-Agent: Softanza-HTTP/1.0" + StzChar(13) + StzChar(10) +
-                   "Connection: close" + StzChar(13) + StzChar(10) +
-                   StzChar(13) + StzChar(10)
-    
-    # Store request data globally indexed by handle
-    set_request_data(tcp_handle, [
-        :index = nIndex,
-        :url = cUrl,
-        :request = http_request,
-        :response = "",
-        :connected = false
-    ])
+# ── Method codes shared with engine/src/http.zig methodFromCode ─
 
-    uv_tcp_connect(connect_req, tcp_handle, addr, "OnParallelConnect()")
-    destroy_sockaddr_in(addr)
+$STZ_HTTP_METHOD_GET     = 0
+$STZ_HTTP_METHOD_POST    = 1
+$STZ_HTTP_METHOD_PUT     = 2
+$STZ_HTTP_METHOD_DELETE  = 3
+$STZ_HTTP_METHOD_HEAD    = 4
+$STZ_HTTP_METHOD_OPTIONS = 5
+$STZ_HTTP_METHOD_PATCH   = 6
 
-func OnParallelConnect()
-    connect_req = get_uv_event_handle()
-    tcp_handle = get_uv_connect_t_handle(connect_req)
-    nIndex = get_uv_tcp_data(tcp_handle)
-    request_data = get_request_data(tcp_handle)
-    
-    # Check connection status
-    if get_uv_event_status() < 0
-        CompleteParallelRequest(nIndex, "", 0, "Connection failed")
-        cleanup_handle(tcp_handle)
-        return
-    ok
-    
-    # Mark as connected and send HTTP request
-    request_data[:connected] = true
-    set_request_data(tcp_handle, request_data)
-    
-    # Create write buffer
-    write_req = new_uv_write_t()
-    buf = new_uv_buf_t()
-    http_req = request_data[:request]
-    set_uv_buf_t_len(buf, StzLen(http_req))
-    set_uv_buf_t_base(buf, varptr("http_req", :char))
-    
-    uv_write(write_req, tcp_handle, buf, 1, "OnParallelWrite()")
-
-func OnParallelWrite()
-    write_req = get_uv_event_handle()
-    tcp_handle = get_uv_write_t_handle(write_req)
-    
-    if get_uv_event_status() < 0
-        nIndex = get_uv_tcp_data(tcp_handle)
-        CompleteParallelRequest(nIndex, "", 0, "Write failed")
-        cleanup_handle(tcp_handle)
-        return
-    ok
-    
-    # Start reading response
-    uv_read_start(tcp_handle, uv_myalloccallback(), "OnParallelRead()")
-    destroy_uv_write_t(write_req)
-
-func OnParallelRead()
-    tcp_handle = get_uv_event_handle()
-    nRead = get_uv_event_nread()
-    buf = get_uv_event_buf()
-    
-    nIndex = get_uv_tcp_data(tcp_handle)
-    request_data = get_request_data(tcp_handle)
-    
-    if nRead > 0
-        # Append data to response
-        data_chunk = uv_buf2str(uv_buf_init(get_uv_buf_t_base(buf), nRead))
-        request_data[:response] += data_chunk
-        set_request_data(tcp_handle, request_data)
-    elseif nRead < 0
-        # Connection closed - parse response and complete
-        response_parts = StzParseHttpResponse(request_data[:response])
-        CompleteParallelRequest(nIndex, response_parts[3], response_parts[1], "")
-        cleanup_handle(tcp_handle)
-    ok
-
-func CompleteParallelRequest(nIndex, cBody, nCode, cError)
-    parallel_results[nIndex] = [
-        :body = cBody,
-        :code = nCode, 
-        :headers = "",
-        :error = cError
-    ]
-    
-    parallel_completed++
-    
-    if parallel_completed >= parallel_total
-        uv_stop(parallel_loop)
-    ok
-
-func StzCleanupHandle(tcp_handle)
-    uv_close(tcp_handle, NULL)
-
-    func cleanup_handle(tcp_handle)
-        StzCleanupHandle(tcp_handle)
-
-func StzParseUrl(cUrl)
-    url = cUrl
-    port = 80
-
-    # Remove protocol
-    if StzLeft(url, 7) = "http://"
-        url = StzMid(url, 8, StzLen(url) - 7)
-    elseif StzLeft(url, 8) = "https://"
-        url = StzMid(url, 9, StzLen(url) - 8)
-        port = 443
-    ok
-
-    # Extract host and path
-    slash_pos = StzFind(url, "/")
-    if slash_pos > 0
-        host = StzLeft(url, slash_pos - 1)
-        path = StzMid(url, slash_pos, StzLen(url) - slash_pos + 1)
-    else
-        host = url
-        path = "/"
-    ok
-
-    # Extract port
-    colon_pos = StzFind(host, ":")
-    if colon_pos > 0
-        port = 0 + StzMid(host, colon_pos + 1, StzLen(host) - colon_pos)
-        host = StzLeft(host, colon_pos - 1)
-    ok
-
-    return [host, port, path]
-
-	func ParseUrl(cUrl)
-		return StzParseUrl(cUrl)
-
-func StzParseHttpResponse(cResponse)
-    if StzLen(cResponse) = 0
-        return [0, "", "", ""]
-    ok
-
-    # Find headers/body separator
-    double_crlf = StzChar(13) + StzChar(10) + StzChar(13) + StzChar(10)
-    body_start = StzFind(cResponse, double_crlf)
-
-    if body_start > 0
-        headers_part = StzLeft(cResponse, body_start - 1)
-        body_part = StzMid(cResponse, body_start + 4, StzLen(cResponse) - body_start - 3)
-    else
-        headers_part = cResponse
-        body_part = ""
-    ok
-
-    # Extract status code
-    status_code = 200
-    first_line_end = StzFind(headers_part, StzChar(13) + StzChar(10))
-    if first_line_end > 0
-        status_line = StzLeft(headers_part, first_line_end - 1)
-        parts = split(status_line, " ")
-        if len(parts) >= 2
-            status_code = 0 + parts[2]
-        ok
-    ok
-
-    return [status_code, headers_part, body_part]
-
-	func ParseHttpResponse(cResponse)
-		return StzParseHttpResponse(cResponse)
+# ── stzHttpClient ─────────────────────────────────────────────
+# URLEncode is provided by stzNetworkUtils.ring (loaded earlier).
 
 class stzHttpClient from stzNetwork
-    headers_list = []
-    cookies_list = []
-    last_response = ""
-    last_response_code = 0
-    last_response_headers = ""
-    
-    def init()
-        super.init()
-        curl_handle = curl_easy_init()
-        if curl_handle = NULL
-            last_error = "Failed to initialize curl handle"
-            error_code = -1
-            return
-        ok
-        This.SetDefaults()
-    
-    def SetDefaults()
-        curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, timeout_seconds)
-        curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1)
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 1)
-        curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "Softanza-HTTP/1.0")
-        return This
-    
-    def SetUserAgent(cAgent)
-        curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, cAgent)
-        return This
-    
-    def SetHeader(cName, cValue)
-        headers_list + (cName + ": " + cValue)
-        This.ApplyHeaders()
-        return This
-    
-    def SetHeaders(aHeaders)
-        headers_list = aHeaders
-        This.ApplyHeaders()
-        return This
-    
-    def ApplyHeaders()
-        if len(headers_list) = 0 return ok
-        header_slist = NULL
-        _nHeaders_list1Len_ = len(headers_list)
-        for _iLoopHeaders_list1_ = 1 to _nHeaders_list1Len_
-        	header = headers_list[_iLoopHeaders_list1_]
-            header_slist = curl_slist_append(header_slist, header)
-        next
-        curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, header_slist)
-    
-    def SetCookie(cName, cValue)
-        cookies_list + (cName + "=" + cValue)
-        This.ApplyCookies()
-        return This
-    
-    def SetCookies(aCookies)
-        cookies_list = aCookies
-        This.ApplyCookies()
-        return This
-    
-    def ApplyCookies()
-        if len(cookies_list) = 0 return ok
-        cookie_string = ""
-        _nCookies_listLen_ = len(cookies_list)
-        for i = 1 to _nCookies_listLen_
-            cookie_string += cookies_list[i]
-            if i < len(cookies_list)
-                cookie_string += "; "
-            ok
-        next
-        curl_easy_setopt(curl_handle, CURLOPT_COOKIE, cookie_string)
-    
-    def FollowRedirects(bFollow)
-        curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, iff(bFollow, 1, 0))
-        return This
-    
-    def VerifySSL(bVerify)
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, iff(bVerify, 1, 0))
-        return This
-    
-    def SetProxy(cProxy)
-        curl_easy_setopt(curl_handle, CURLOPT_PROXY, cProxy)
-        return This
-    
-    def SetAuth(cUser, cPass)
-        curl_easy_setopt(curl_handle, CURLOPT_USERNAME, cUser)
-        curl_easy_setopt(curl_handle, CURLOPT_PASSWORD, cPass)
-        return This
-    
-    def Get_(cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_URL, cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_HTTPGET, 1)
-        return This.PerformRequest()
-    
-    def Post(cUrl, cData)
-        curl_easy_setopt(curl_handle, CURLOPT_URL, cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, cData)
-        curl_easy_setopt(curl_handle, CURLOPT_POST, 1)
-        return This.PerformRequest()
-    
-    def Put_(cUrl, cData)
-        curl_easy_setopt(curl_handle, CURLOPT_URL, cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, cData)
-        curl_easy_setopt(curl_handle, CURLOPT_CUSTOMREQUEST, "PUT")
-        return This.PerformRequest()
-    
-    def Delete(cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_URL, cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_CUSTOMREQUEST, "DELETE")
-        return This.PerformRequest()
-    
-    def Head(cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_URL, cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_NOBODY, 1)
-        return This.PerformRequest()
-    
-    def Options(cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_URL, cUrl)
-        curl_easy_setopt(curl_handle, CURLOPT_CUSTOMREQUEST, "OPTIONS")
-        return This.PerformRequest()
-    
-    def PerformRequest()
-        try
-            last_response = curl_easy_perform_silent(curl_handle)
-            last_response_code = curl_getResponseCode(curl_handle)
-            ClearErrors()
-            return This
-        catch
-            last_error = "Request failed"
-            error_code = -1
-            return This
-        done
-    
-    def Response()
-        return [
-            :body = last_response,
-            :code = last_response_code,
-            :headers = last_response_headers,
-            :info = This.ConnectionInfo()
-        ]
-    
-    def ResponseCode()
-        return last_response_code
-    
-    def ResponseBody()
-        return last_response
-    
-    def ResponseHeaders()
-        return last_response_headers
-    
-    def ResponseTime()
-        if curl_handle = NULL return 0 ok
-        return curl_getTotalTime(curl_handle)
-    
-    def PostForm(cUrl, aFormData)
-        form_string = ""
-        _nFormDataLen_ = len(aFormData)
-        for i = 1 to _nFormDataLen_ step 2
-            if i > 1 form_string += "&" ok
-            form_string += URLEncode(aFormData[i]) + "=" + URLEncode(aFormData[i+1])
-        next
-        return This.Post(cUrl, form_string)
-    
-    def PostJson(cUrl, cJson)
-        This.SetHeader("Content-Type", "application/json")
-        return This.Post(cUrl, cJson)
-    
-    def DownloadFile(cUrl, cLocalPath)
-        #TODO // Implementation would use CURLOPT_WRITEDATA for file writing
-        # Simplified version using response body
-	if not HasError()
-            This.Get_(cUrl)
-            write(cLocalPath, ResponseBody())
-        ok
-        return This
-    
-    def GetMany(aUrls)
-	    # Initialize global state
-	    parallel_results = []
-	    parallel_completed = 0
-	    parallel_total = len(aUrls)
-	    parallel_loop = uv_default_loop()
-	    
-	    # Resize results array
-	    for i = 1 to parallel_total
-	        parallel_results + [:body = "", :code = 0, :headers = "", :error = ""]
-	    next
-	    
-	    # Create parallel requests
-	    _nUrlsLen_3 = len(aUrls)
-	    for i = 1 to _nUrlsLen_3
-	        CreateParallelRequest(aUrls[i], i)
-	    next
-	    
-	    # Run event loop until all complete
-	    uv_run(parallel_loop, UV_RUN_DEFAULT)
-	    
-	    return parallel_results
-    
-    # Alternative simpler sequential implementation if LibUV is not available
-    def GetManySequential(aUrls)
-        results = []
-        _nUrlsLen_2 = len(aUrls)
-        for i = 1 to _nUrlsLen_2
-            This.Get_(aUrls[i])
-            results + This.Response()
-        next
-        return results
 
+	# Request-state
+	headers_list = []           # accumulated "Name: Value" strings
+	cookies_list = []           # accumulated "k=v" strings
+	user_agent = "Softanza-HTTP/1.0"
 
-#=========================#
-#  stzHttpParallelClient  #
-#=========================#
+	# Response state
+	last_response = ""
+	last_response_code = 0
+	last_response_headers = ""   # std.http does not yet expose these
 
-# Based on LibUV extension
-# Made specifically to be used by GetMany() in stzNetwork class
-# As a replacement to the lacking curl_multi_ini() and curl_multi_perform()
-# functions form RingCurl extensions (#TODO Inform Mahmoud to add them)
+	# Cosmetic settings (not yet enforced by the engine)
+	bFollowRedirects = TRUE
+	bVerifySSL = TRUE
+	cProxy = ""
+	cAuthUser = ""
+	cAuthPass = ""
 
-class stzHttpParallelClient
+	def init()
+		# stzNetwork.init handles its own fields.
 
-    results = []
-    completed_requests = 0
-    total_requests = 0
-    myloop = NULL
-    
-    def GetMany(aUrls)
-        results = []
-        completed_requests = 0
-        total_requests = len(aUrls)
-        myloop = uv_default_loop()
-        
-        # Create parallel requests
-        _nUrlsLen_ = len(aUrls)
-        for i = 1 to _nUrlsLen_
-            url = aUrls[i]
-            This.CreateHttpRequest(url, i)
-        next
-        
-        # Run event loop until all requests complete
-        uv_run(myloop, UV_RUN_DEFAULT)
-        
-        return results
-    
-    def CreateHttpRequest(cUrl, nIndex)
-        # Parse URL components
-        url_parts = This.ParseUrl(cUrl)
-        
-        # Create TCP connection
-        tcp_handle = new_uv_tcp_t()
-        connect_req = new_uv_connect_t()
-        addr = new_sockaddr_in()
-        
-        uv_tcp_init(myloop, tcp_handle)
-        uv_ip4_addr(url_parts[:host], url_parts[:port], addr)
-        
-        # Store request context
-        request_data = [
-            :index = nIndex,
-            :url = cUrl,
-            :host = url_parts[:host],
-            :path = url_parts[:path],
-            :tcp = tcp_handle,
-            :connect = connect_req,
-            :response = "",
-            :headers_sent = false
-        ]
-        
-        # Store context for callback access
-        set_uv_connect_context(connect_req, request_data)
-        
-        uv_tcp_connect(connect_req, tcp_handle, addr, "OnConnect()")
-        
-        destroy_sockaddr_in(addr)
-    
-    def OnConnect()
-        aPara = uv_Eventpara(connect_req, :connect)
-        req = aPara[1]
-        nStatus = aPara[2]
-        
-        request_data = get_uv_connect_context(req)
-        
-        if nStatus < 0
-            This.CompleteRequest(request_data[:index], "", nStatus)
-            return
-        ok
-        
-        # Send HTTP request
-        http_request = "GET " + request_data[:path] + " HTTP/1.1" + StzChar(13) + StzChar(10) +
-                      "Host: " + request_data[:host] + StzChar(13) + StzChar(10) +
-                      "User-Agent: Softanza-HTTP/1.0" + StzChar(13) + StzChar(10) +
-                      "Connection: close" + StzChar(13) + StzChar(10) +
-                      StzChar(13) + StzChar(10)
-        
-        # Create write request
-        write_req = new_uv_write_t()
-        buf = new_uv_buf_t()
-        set_uv_buf_t_len(buf, StzLen(http_request))
-        set_uv_buf_t_base(buf, varptr("http_request", :char))
-        
-        tcp = get_uv_connect_t_handle(req)
-        set_uv_write_context(write_req, request_data)
-        
-        uv_write(write_req, tcp, buf, 1, "OnWrite()")
-    
-    def OnWrite()
-        aPara = uv_Eventpara(write_req, :write)
-        req = aPara[1]
-        nStatus = aPara[2]
-        
-        request_data = get_uv_write_context(req)
-        
-        if nStatus < 0
-            This.CompleteRequest(request_data[:index], "", nStatus)
-            return
-        ok
-        
-        # Start reading response
-        uv_read_start(request_data[:tcp], uv_myalloccallback(), "OnRead()")
-        destroy_uv_write_t(req)
-    
-    def OnRead()
-        aPara = uv_Eventpara(tcp_handle, :read)
-        nRead = aPara[2]
-        buf = aPara[3]
-        
-        # Get request data from TCP handle context
-        request_data = get_uv_tcp_context(tcp_handle)
-        
-        if nRead > 0
-            # Append data to response
-            data = uv_buf2str(uv_buf_init(get_uv_buf_t_base(buf), nRead))
-            request_data[:response] += data
-        elseif nRead < 0
-            # Connection closed or error - complete request
-            This.CompleteRequest(request_data[:index], request_data[:response], 0)
-            This.CleanupRequest(request_data)
-        ok
-    
-    def CompleteRequest(nIndex, cResponse, nStatus)
-        # Parse response to extract status code and body
-        response_parts = This.ParseHttpResponse(cResponse)
-        
-        results[nIndex] = [
-            :body = response_parts[:body],
-            :code = response_parts[:status_code],
-            :headers = response_parts[:headers],
-            :error_code = nStatus
-        ]
-        
-        completed_requests++
-        
-        # Stop event loop when all requests complete
-        if completed_requests >= total_requests
-            uv_stop(myloop)
-        ok
-    
-    def CleanupRequest(request_data)
-        if HasKey(request_data, :tcp)
-            uv_close(request_data[:tcp], NULL)
-            destroy_uv_tcp_t(request_data[:tcp])
-        ok
-        
-        if HasKey(request_data, :connect)
-            destroy_uv_connect_t(request_data[:connect])
-        ok
-    
-    def ParseUrl(cUrl)
-        # Simple URL parser - extend as needed
-        url = cUrl
-        protocol = "http"
-        port = 80
+	# ── headers / cookies ────────────────────────────────────
 
-        if StzLeft(url, 7) = "http://"
-            url = StzMid(url, 8, StzLen(url) - 7)
-        elseif StzLeft(url, 8) = "https://"
-            url = StzMid(url, 9, StzLen(url) - 8)
-            port = 443
-        ok
+	def SetUserAgent(cAgent)
+		user_agent = cAgent
+		return This
 
-        # Extract host and path
-        slash_pos = StzFind(url, "/")
-        if slash_pos > 0
-            host = StzLeft(url, slash_pos - 1)
-            path = StzMid(url, slash_pos, StzLen(url) - slash_pos + 1)
-        else
-            host = url
-            path = "/"
-        ok
+	def SetHeader(cName, cValue)
+		headers_list + (cName + ": " + cValue)
+		return This
 
-        # Extract port if specified
-        colon_pos = StzFind(host, ":")
-        if colon_pos > 0
-            port = 0 + StzMid(host, colon_pos + 1, StzLen(host) - colon_pos)
-            host = StzLeft(host, colon_pos - 1)
-        ok
+	def SetHeaders(aHeaders)
+		headers_list = aHeaders
+		return This
 
-        return [:host = host, :port = port, :path = path]
-    
-    def ParseHttpResponse(cResponse)
-        if StzLen(cResponse) = 0
-            return [:status_code = 0, :headers = "", :body = ""]
-        ok
+	def SetCookie(cName, cValue)
+		cookies_list + (cName + "=" + cValue)
+		return This
 
-        # Split headers and body
-        double_crlf = StzChar(13) + StzChar(10) + StzChar(13) + StzChar(10)
-        body_start = StzFind(cResponse, double_crlf)
+	def SetCookies(aCookies)
+		cookies_list = aCookies
+		return This
 
-        if body_start > 0
-            headers_part = StzLeft(cResponse, body_start - 1)
-            body_part = StzMid(cResponse, body_start + 4, StzLen(cResponse) - body_start - 3)
-        else
-            headers_part = cResponse
-            body_part = ""
-        ok
+	# Compose the engine's headers blob from user agent + cookies +
+	# custom headers. Each "Name: Value" pair separated by newline.
+	def _ComposeHeaderBlob()
+		_aLines_ = []
+		if user_agent != ""
+			_aLines_ + ("User-Agent: " + user_agent)
+		ok
+		if len(cookies_list) > 0
+			_cCookie_ = ""
+			_nC_ = len(cookies_list)
+			for _i_ = 1 to _nC_
+				if _i_ > 1 _cCookie_ += "; " ok
+				_cCookie_ += cookies_list[_i_]
+			next
+			_aLines_ + ("Cookie: " + _cCookie_)
+		ok
+		_nH_ = len(headers_list)
+		for _i_ = 1 to _nH_
+			_aLines_ + headers_list[_i_]
+		next
+		_cOut_ = ""
+		_nL_ = len(_aLines_)
+		for _i_ = 1 to _nL_
+			if _i_ > 1 _cOut_ += char(10) ok
+			_cOut_ += _aLines_[_i_]
+		next
+		return _cOut_
 
-        # Extract status code from first line
-        status_code = 200
-        first_line_end = StzFind(headers_part, StzChar(13) + StzChar(10))
-        if first_line_end > 0
-            status_line = StzLeft(headers_part, first_line_end - 1)
-            # Extract status code (format: HTTP/1.1 200 OK)
-            parts = split(status_line, " ")
-            if len(parts) >= 2
-                status_code = 0 + parts[2]
-            ok
-        ok
+	# ── settings (no-ops at engine slice 2 -- kept for API parity) ─
 
-        return [:status_code = status_code, :headers = headers_part, :body = body_part]
+	def FollowRedirects(bFollow)
+		bFollowRedirects = bFollow
+		return This
+
+	def VerifySSL(bVerify)
+		bVerifySSL = bVerify
+		return This
+
+	def SetProxy(cProxy_)
+		cProxy = cProxy_
+		return This
+
+	def SetAuth(cUser, cPass)
+		cAuthUser = cUser
+		cAuthPass = cPass
+		# Basic auth header is the most commonly needed shape.
+		if cUser != "" or cPass != ""
+			# Trivial Base64-free fallback: engine slice 2 doesn't
+			# implement encoding yet; record and warn the caller.
+			? "WARNING: SetAuth recorded but not yet sent (engine slice 2)"
+		ok
+		return This
+
+	# ── verbs ────────────────────────────────────────────────
+
+	def Get_(cUrl)
+		return This._Perform($STZ_HTTP_METHOD_GET, cUrl, "", "")
+
+	def Post(cUrl, cData)
+		return This._Perform($STZ_HTTP_METHOD_POST, cUrl, "application/octet-stream", cData)
+
+	def Put_(cUrl, cData)
+		return This._Perform($STZ_HTTP_METHOD_PUT, cUrl, "application/octet-stream", cData)
+
+	def Delete(cUrl)
+		return This._Perform($STZ_HTTP_METHOD_DELETE, cUrl, "", "")
+
+	def Head(cUrl)
+		return This._Perform($STZ_HTTP_METHOD_HEAD, cUrl, "", "")
+
+	def Options(cUrl)
+		return This._Perform($STZ_HTTP_METHOD_OPTIONS, cUrl, "", "")
+
+	# ── unified perform ──────────────────────────────────────
+
+	def _Perform(nMethodCode, cUrl, cContentType, cBody)
+		_cHeaders_ = This._ComposeHeaderBlob()
+		last_response = StzEngineHttpRequest(nMethodCode, cUrl, _cHeaders_, cContentType, cBody)
+		last_response_code = StzEngineHttpLastStatus()
+		This._RecordRequest(cUrl, last_response_code)
+		if last_response_code <= 0
+			# Transport / engine error -- LastError already captured
+			# by _RecordRequest via StzEngineHttpLastError().
+			return This
+		ok
+		ClearErrors()
+		return This
+
+	def PerformRequest()
+		# Compatibility shim -- legacy code expects this method to
+		# exist. Without state on which verb to send, it is a no-op.
+		return This
+
+	# ── response accessors ───────────────────────────────────
+
+	def Response()
+		return [
+			:body    = last_response,
+			:code    = last_response_code,
+			:headers = last_response_headers,
+			:info    = This.ConnectionInfo()
+		]
+
+	def ResponseCode()
+		return last_response_code
+
+	def ResponseBody()
+		return last_response
+
+	def ResponseHeaders()
+		return last_response_headers
+
+	def ResponseTime()
+		# Engine slice 2 does not yet expose per-request timing.
+		return 0
+
+	# ── form helpers ─────────────────────────────────────────
+
+	def PostForm(cUrl, aFormData)
+		_cForm_ = ""
+		_nL_ = len(aFormData)
+		for _i_ = 1 to _nL_ step 2
+			if _i_ > 1 _cForm_ += "&" ok
+			_cForm_ += URLEncode(aFormData[_i_]) + "=" + URLEncode(aFormData[_i_ + 1])
+		next
+		return This._Perform($STZ_HTTP_METHOD_POST, cUrl, "application/x-www-form-urlencoded", _cForm_)
+
+	def PostJson(cUrl, cJson)
+		return This._Perform($STZ_HTTP_METHOD_POST, cUrl, "application/json", cJson)
+
+	# ── files ────────────────────────────────────────────────
+
+	def DownloadFile(cUrl, cLocalPath)
+		This.Get_(cUrl)
+		if This.HasError() return This ok
+		write(cLocalPath, This.ResponseBody())
+		return This
+
+	# ── batched GET (sequential only; libuv-backed parallel form
+	#    dropped with M-DEP3 slice 2; M-DEP4 will revisit) ─────
+
+	def GetMany(aUrls)
+		return This.GetManySequential(aUrls)
+
+	def GetManySequential(aUrls)
+		_aR_ = []
+		_nL_ = len(aUrls)
+		for _i_ = 1 to _nL_
+			This.Get_(aUrls[_i_])
+			_aR_ + This.Response()
+		next
+		return _aR_
