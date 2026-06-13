@@ -7,6 +7,7 @@ const Domain = struct {
     needs_pcre2: bool = false,
     needs_ring: bool = false,
     needs_sqlite: bool = false,
+    needs_libuv: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -54,6 +55,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_pool", .entry = "src/stz_pool_entry.zig", .needs_ring = true },
     .{ .name = "stz_resilience", .entry = "src/stz_resilience_entry.zig", .needs_ring = true },
     .{ .name = "stz_histogram", .entry = "src/stz_histogram_entry.zig", .needs_ring = true },
+    .{ .name = "stz_reactor", .entry = "src/stz_reactor_entry.zig", .needs_ring = true, .needs_libuv = true },
     .{ .name = "stz_geo", .entry = "src/stz_geo_entry.zig", .needs_ring = true },
     .{ .name = "stz_compress", .entry = "src/stz_compress_entry.zig", .needs_ring = true },
     .{ .name = "stz_solver", .entry = "src/stz_solver_entry.zig", .needs_ring = true },
@@ -147,6 +149,105 @@ fn addPcre2(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build)
     });
 }
 
+// Vendored libuv (Tier 2 reactor backbone) -- compiled from source like
+// utf8proc / pcre2 / sqlite. File lists + defines + system libs mirror
+// libuv's own CMakeLists.txt (v1.52.1).
+fn addLibuv(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build, os_tag: std.Target.Os.Tag) void {
+    const uv = "vendor/libuv";
+    mod.addIncludePath(b.path(uv ++ "/include"));
+    mod.addIncludePath(b.path(uv ++ "/src"));
+
+    const common = [_][]const u8{
+        uv ++ "/src/fs-poll.c",
+        uv ++ "/src/idna.c",
+        uv ++ "/src/inet.c",
+        uv ++ "/src/random.c",
+        uv ++ "/src/strscpy.c",
+        uv ++ "/src/strtok.c",
+        uv ++ "/src/thread-common.c",
+        uv ++ "/src/threadpool.c",
+        uv ++ "/src/timer.c",
+        uv ++ "/src/uv-common.c",
+        uv ++ "/src/uv-data-getter-setters.c",
+        uv ++ "/src/version.c",
+    };
+
+    const win_sources = [_][]const u8{
+        uv ++ "/src/win/async.c",        uv ++ "/src/win/core.c",
+        uv ++ "/src/win/detect-wakeup.c", uv ++ "/src/win/dl.c",
+        uv ++ "/src/win/error.c",        uv ++ "/src/win/fs.c",
+        uv ++ "/src/win/fs-event.c",     uv ++ "/src/win/getaddrinfo.c",
+        uv ++ "/src/win/getnameinfo.c",  uv ++ "/src/win/handle.c",
+        uv ++ "/src/win/loop-watcher.c", uv ++ "/src/win/pipe.c",
+        uv ++ "/src/win/poll.c",         uv ++ "/src/win/process.c",
+        uv ++ "/src/win/process-stdio.c", uv ++ "/src/win/signal.c",
+        uv ++ "/src/win/snprintf.c",     uv ++ "/src/win/stream.c",
+        uv ++ "/src/win/tcp.c",          uv ++ "/src/win/thread.c",
+        uv ++ "/src/win/tty.c",          uv ++ "/src/win/udp.c",
+        uv ++ "/src/win/util.c",         uv ++ "/src/win/winapi.c",
+        uv ++ "/src/win/winsock.c",
+    };
+
+    const unix_common = [_][]const u8{
+        uv ++ "/src/unix/async.c",       uv ++ "/src/unix/core.c",
+        uv ++ "/src/unix/dl.c",          uv ++ "/src/unix/fs.c",
+        uv ++ "/src/unix/getaddrinfo.c", uv ++ "/src/unix/getnameinfo.c",
+        uv ++ "/src/unix/loop-watcher.c", uv ++ "/src/unix/loop.c",
+        uv ++ "/src/unix/pipe.c",        uv ++ "/src/unix/poll.c",
+        uv ++ "/src/unix/process.c",     uv ++ "/src/unix/random-devurandom.c",
+        uv ++ "/src/unix/signal.c",      uv ++ "/src/unix/stream.c",
+        uv ++ "/src/unix/tcp.c",         uv ++ "/src/unix/thread.c",
+        uv ++ "/src/unix/tty.c",         uv ++ "/src/unix/udp.c",
+        uv ++ "/src/unix/proctitle.c",
+    };
+    const linux_sources = [_][]const u8{
+        uv ++ "/src/unix/linux.c",
+        uv ++ "/src/unix/procfs-exepath.c",
+        uv ++ "/src/unix/random-getrandom.c",
+        uv ++ "/src/unix/random-sysctl-linux.c",
+    };
+    const darwin_sources = [_][]const u8{
+        uv ++ "/src/unix/bsd-ifaddrs.c",
+        uv ++ "/src/unix/darwin.c",
+        uv ++ "/src/unix/darwin-proctitle.c",
+        uv ++ "/src/unix/fsevents.c",
+        uv ++ "/src/unix/kqueue.c",
+        uv ++ "/src/unix/random-getentropy.c",
+    };
+
+    const win_flags = [_][]const u8{ "-DWIN32_LEAN_AND_MEAN", "-D_WIN32_WINNT=0x0A00", "-D_CRT_DECLARE_NONSTDC_NAMES=0" };
+    const linux_flags = [_][]const u8{ "-D_GNU_SOURCE", "-D_POSIX_C_SOURCE=200112", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE" };
+    const darwin_flags = [_][]const u8{ "-D_DARWIN_USE_64_BIT_INODE=1", "-D_DARWIN_UNLIMITED_SELECT=1" };
+
+    const flags: []const []const u8 = switch (os_tag) {
+        .windows => &win_flags,
+        .macos => &darwin_flags,
+        else => &linux_flags,
+    };
+
+    lib.addCSourceFiles(.{ .files = &common, .flags = flags });
+    switch (os_tag) {
+        .windows => {
+            lib.addCSourceFiles(.{ .files = &win_sources, .flags = flags });
+            const win_libs = [_][]const u8{ "psapi", "user32", "advapi32", "iphlpapi", "userenv", "ws2_32", "dbghelp", "ole32", "shell32" };
+            for (win_libs) |l| lib.linkSystemLibrary(l);
+        },
+        .macos => {
+            lib.addCSourceFiles(.{ .files = &unix_common, .flags = flags });
+            lib.addCSourceFiles(.{ .files = &darwin_sources, .flags = flags });
+            lib.linkFramework("CoreFoundation");
+            lib.linkFramework("CoreServices");
+        },
+        else => {
+            lib.addCSourceFiles(.{ .files = &unix_common, .flags = flags });
+            lib.addCSourceFiles(.{ .files = &linux_sources, .flags = flags });
+            lib.linkSystemLibrary("pthread");
+            lib.linkSystemLibrary("dl");
+            lib.linkSystemLibrary("rt");
+        },
+    }
+}
+
 fn addRing(mod: *std.Build.Module, lib: *std.Build.Step.Compile) void {
     mod.addIncludePath(.{ .cwd_relative = "D:/Ring126/language/include" });
     lib.addLibraryPath(.{ .cwd_relative = "D:/Ring126/lib" });
@@ -206,6 +307,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_pcre2) addPcre2(mod, lib, b);
         if (dom.needs_ring) addRing(mod, lib);
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
+        if (dom.needs_libuv) addLibuv(mod, lib, b, target.result.os.tag);
         b.installArtifact(lib);
     }
 

@@ -89,12 +89,12 @@ pub const macro = MacroStats{
     .modules_built = 85,
     .design_principles = 19,
     .engine_tests = 1593,
-    .dlls_shipping = 88,
+    .dlls_shipping = 89,
     .qt_dependencies = 0,
-    .ring_bridge_regs = 1060,
+    .ring_bridge_regs = 1062,
     .ring_classes_bridged = 128,
     .ring_engine_calls = 3482,
-    .last_session = 68,
+    .last_session = 69,
     .last_updated = "2026-06-14",
 };
 
@@ -458,6 +458,14 @@ pub const milestones = [_]Milestone{
         .title = "Reactive Engine Hardening -- Tier 1 (web/cloud/agentic)",
         .status = .done,
         .summary = "Closing the Tier 1 gaps from REACTIVE_ENGINE_GAP_ANALYSIS.md (vs libuv/libcurl/nginx/Go/Tokio/Envoy). Item 1 caller-side deadline shipped session 64 (StzEnginePoolPollWithDeadline). Session 65 landed items 1+2 fused: a custom HTTP/1.1 client on raw std.net.Stream (engine/src/httpcore.zig) with TLS via std.crypto.tls.Client for https, replacing the std.http.Client path inside http.zig; plus a connection pool keyed by (scheme,host,port) (engine/src/http_pool.zig) with idle eviction + per-host/global caps + opens/reuses/idle/active stats. Per-layer timeouts: connect via non-blocking connect + poll(POLLOUT) deadline (fails fast on unreachable hosts -- ~ms not ~21s); request via SO_RCVTIMEO/SO_SNDTIMEO (honoured on POSIX, best-effort on Windows where std uses overlapped WSARecv -- the caller-side deadline remains the cross-platform guarantee). New bridge fns StzEngineHttpSetDefaultTimeouts/RequestWithTimeouts/PoolStats; stzHttpClient gains SetTimeout/SetConnectTimeout/SetRequestTimeout/SetDefaultTimeouts/PoolStats. Live-verified: connection REUSE (reuses increments, opens flat), HTTPS round-trip, fast connect-timeout. Tests 63_http_pool (6/6) + 64_http_timeouts_engine (7/7). **Session 66 added items 3+4:** (3) DNS cache `engine/src/dns.zig` -- lookup keyed by host|port, positive TTL 60s + negative TTL 5s, atomic resolve/hit counters, wired into httpcore.connect + tcp.tcp_connect; diagnostics StzEngineDnsResolve/Stats/CacheClear. (4) Cancellation tokens `engine/src/cancel.zig` -- atomic-flag CancelToken create/signal/is_cancelled/destroy; pool Job carries an optional token; new StzEnginePoolSubmitWithCancel + worker checkpoint returns -5 (JOB_CANCELLED) when signalled before run; Ring class stzCancelToken (lazy-init guard since paren-less `new` skips init). Tests: dns.zig 3/3 Zig + 65_dns_cache 4/4 Ring; cancel.zig 2/2 Zig + 54_cancel 5/5 Ring. **Session 67 added items 5+6:** (5) retry budget -- Ring class `base/common/stzRetryBudget.ring` over the existing token-bucket rate limiter (no engine change); budget=N retries / window=W sec, refill floor(N/W) tokens/sec min 1; Allow()/Spend()/AllowN()/Available() (named Allow not Try -- `try` is a Ring keyword). (6) latency histograms -- new DLL `engine/src/histogram.zig` (log-scale ms buckets 0.1..10000, create/record/percentile/reset/count/destroy) + `StzEngineHistogram*` bridge + Ring class `stzLatencyHistogram` (P50/P95/P99); HTTP path now records every request's latency, queryable via StzEngineHttpLatencyPercentile/Count/Reset. Tests: histogram.zig 4/4 Zig + 66_retry_budget 10/10 + 67_histogram 10/10 Ring. DLLs 87->88, regs 1045->1054, classes 126->128. **Session 68 CLOSED Tier 1 with items 7+8:** (7) outlier ejection per host -- resilience.zig OutlierDetector (consecutive-failure threshold + cooldown readmit + reset-on-success); http_pool.acquire refuses ejected hosts, http.zig records each outcome; StzEngineOutlierConfig/Record/ShouldEject/Reset registered in stz_http (same instance as the pool). (8) graceful pool drain -- pool.zig gains an `accepting` flag + `pool_drain(timeout_ms)` returning the residual (queued+running) count; submit returns -4 'pool draining' once draining; StzEnginePoolDrain bridge; stzHttpClient.Shutdown() releases idle pooled sockets via StzEngineHttpPoolShutdown. Tests: resilience.zig 8/8 (incl. 2 outlier) + pool.zig drain Zig; new 68_outlier 5/5 + 69_pool_drain 6/6 Ring. regs 1054->1060. **M-RX1 DONE -- all 8 Tier 1 gaps closed (sessions 64-68).** Full network(52..69)+reactive(51..54) green; zig build + test clean. Tier 2 (IOCP/epoll/kqueue cooperative scheduler, HTTP/2, TraceContext propagation, work-stealing) remains the deferred 3-5 session arc, gated on Zig 0.16 std.Io.",
+    },
+
+    .{
+        .id = "M-RX2",
+        .track = "engine",
+        .title = "Reactive Engine -- Tier 2 (libuv reactor backbone)",
+        .status = .partial,
+        .summary = "Industry-strength cross-platform async I/O, built on vendored libuv instead of hand-rolling per-OS reactors (user directive: build with libuv, avoid reinventing wheels). Vendoring C is the utf8proc/pcre2/sqlite pattern -- it does NOT reintroduce the M-DEP Ring-extension dependency (that rule is about Ring-side `load`, not C compiled into the engine). FOUNDATION LANDED (session 69): engine/vendor/libuv (v1.52.1, include+src, ~2MB) compiles from source via addLibuv in build.zig (per-OS file lists/defines/syslibs mirror libuv CMakeLists; Windows IOCP path); new stz_reactor DLL with reactor.zig (@cImport uv.h) exposing StzEngineReactorVersion/SelfTest; loader + stzRingLibs wired. Verified end-to-end on Windows: zig build clean (libuv compiled first try), Ring smoke reports libuv 1.52.1 and self-test=1 (real loop ran, one-shot timer fired). DLLs 88->89, regs 1060->1062. Design + plan in base/doc/design/TIER2_REACTOR_DIRECTION.md. NEXT slices: reactor core (loop on an engine worker thread; async timers + TCP via the submit/poll handle idiom so Ring stays synchronous), then the OPEN DECISION -- keep custom httpcore over the reactor + nghttp2 for HTTP/2, or adopt vendored libcurl (multi/socket_action on libuv: h1/h2/h3 + TLS via Schannel + pooling/DNS/proxy) retiring httpcore. Then TraceContext + multi-loop work-stealing. Requirement check pending: confirm 10k-conn-per-worker is actually needed before the full multi-loop scheduler.",
     },
 
     // ---- stzlib redesign track ----
