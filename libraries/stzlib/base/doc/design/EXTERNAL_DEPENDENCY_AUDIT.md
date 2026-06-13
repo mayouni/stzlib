@@ -14,7 +14,7 @@ already covers, and what remains as a milestone arc.
 | `uuid.ring`        | `system/stzUUID.ring`                                       | **REPLACED** with engine (commit 9f9bed5f)  |
 | `fastpro.ring`     | `number/stzFastPro.ring`                                    | **DROPPED** -- deprecated (M-DEP1)           |
 | `html.ring` (lexbor)| `file/stzHtml.ring`                                         | **REPLACED** with engine (M-DEP2 slice 2)   |
-| `libcurl.ring`     | `network/stzNetwork.ring`                                   | Pending -- M-DEP3                            |
+| `libcurl.ring`     | `network/stzNetwork.ring`, `network/stzHttpClient.ring`     | **REPLACED** with engine (M-DEP3 slice 2)   |
 | `libuv.ring`       | `file/stzFolderWatcher.ring`, `network/stzNetwork.ring`, `reactive/stzReactive.ring` | Pending -- M-DEP4 |
 
 ## 1. UUID -- CLOSED 2026-06-13
@@ -161,9 +161,54 @@ NOT YET (slice 2 -- size-driven by real callers):
 * Form POST helper
 * Streaming for large bodies
 
-`stzNetwork.ring` and `stzHttpClient.ring` NOT YET rewired -- slice 2
-extends the surface, then those classes get swapped. The
-`load "libcurl.ring"` line stays for now.
+**Slice 2 also landed 2026-06-13** -- generic request entry +
+header-blob propagation + `stzNetwork.ring` / `stzHttpClient.ring`
+rewired off libcurl.
+
+New engine entry: `StzEngineHttpRequest(nMethodCode, cUrl,
+cHeadersBlob, cContentType, cBody)` -> body. Method codes 0..6 cover
+GET/POST/PUT/DELETE/HEAD/OPTIONS/PATCH. Headers blob is a newline-
+separated `Name: Value` list. Engine merges caller headers with
+Content-Type (only if the caller did not set one). Companion
+accessor `StzEngineHttpLastStatus()` returns the most recent HTTP
+status (or -1 on transport error).
+
+Ring rewires:
+
+* `stzNetwork.ring` -- `load "libcurl.ring"` + `load "libuv.ring"`
+  REMOVED. Connection state (cLastUrl, nLastStatus, last_error)
+  tracked as plain instance attrs; `_RecordRequest()` fed by the
+  client class.
+* `stzHttpClient.ring` -- full rewrite. Verbs (Get_/Post/Put_/
+  Delete/Head/Options), form helpers (PostForm, PostJson), header
+  list, cookie list (translated to `Cookie:` header), user-agent
+  setter all route through `_Perform()` which calls
+  `StzEngineHttpRequest`. `URLEncode` helper removed (already
+  provided by `stzNetworkUtils.UrlEncode`).
+* Libuv-backed parallel `GetMany()` dropped (was the only libuv
+  consumer in this module); sequential `GetManySequential()` is the
+  supported path until M-DEP4 lands.
+* Settings the libcurl backend supported but std.http doesn't yet
+  (SetAuth, SetProxy, FollowRedirects toggle, VerifySSL toggle,
+  custom UA via setopt) are stored as fluent setters but do not
+  yet alter request behaviour. They warn or no-op as appropriate.
+
+Tests:
+
+* `52_http_engine_narrated.ring` (slice 1): 3 scenarios, 7 assertions
+* `53_stzhttpclient_engine_narrated.ring` (slice 2): 5 scenarios,
+  17 assertions
+
+All 24 assertions green. Network IO stays out of CI per L99; live
+HTTP tests run outside the test harness.
+
+Not yet (slice 3 -- only if real callers need it):
+* Per-request response headers + cookies extraction
+* Auth (Basic / Bearer) via Authorization header builder
+* Proxy honouring SetProxy
+* Streaming download (for large files)
+* PATCH wired through to a verb-specific Ring method
+* Per-request timing (`ResponseTime()`)
 
 ## 5. libuv -- M-DEP4 (Pending)
 

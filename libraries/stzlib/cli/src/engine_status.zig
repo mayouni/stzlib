@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 58,
+    .last_session = 59,
     .last_updated = "2026-06-13",
 };
 
@@ -440,8 +440,8 @@ pub const milestones = [_]Milestone{
         .id = "M-DEP3",
         .track = "depcleanup",
         .title = "Replace libcurl.ring with Zig HTTP Client",
-        .status = .partial,
-        .summary = "Slice 1 LANDED 2026-06-13 (session 58): engine module stz_http (~180 LOC) ships GET/POST + status + last-error via Zig std.http.Client + std.crypto.tls. HTTPS works without an external TLS lib. Bridge exposes StzEngineHttpGet/GetStatus/Post/LastError. Smoke 52_http_engine_narrated: 3 scenarios, 7 assertions, all green. NOT YET (slice 2): custom headers, cookies, redirect policy, auth, PUT/DELETE/HEAD/OPTIONS, form POST helper, streaming. stzNetwork.ring + stzHttpClient.ring still load libcurl.ring -- rewire happens in slice 2 after the surface grows to match real callers.",
+        .status = .done,
+        .summary = "CLOSED 2026-06-13 (sessions 58-59). Engine module stz_http ships GET/POST + generic StzEngineHttpRequest (method codes 0..6 for GET/POST/PUT/DELETE/HEAD/OPTIONS/PATCH) with caller-supplied headers blob. std.http.Client + std.crypto.tls handle HTTP+HTTPS without an external TLS library. stzNetwork.ring + stzHttpClient.ring fully rewritten -- `load \"libcurl.ring\"` + `load \"libuv.ring\"` REMOVED from network/. Verbs, form helpers (PostForm/PostJson), header list, cookie list, user-agent setter all route through the engine. libuv-backed parallel GetMany() dropped; sequential GetManySequential() supported. Tests 52+53 narrated: 24 assertions, all green. Slice 3 deferred (response headers extraction, Basic/Bearer auth, proxy, streaming download, per-request timing) -- not driven by current callers.",
     },
     .{
         .id = "M-DEP4",

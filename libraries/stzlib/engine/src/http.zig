@@ -59,7 +59,7 @@ pub fn http_get(
         setError("empty URL");
         return -1;
     }
-    return doRequest(.GET, url_ptr[0..url_len], null, null, body_out, body_max) catch |err| {
+    return doRequest(.GET, url_ptr[0..url_len], null, null, &.{}, body_out, body_max) catch |err| {
         var fbuf: [200]u8 = undefined;
         const msg = std.fmt.bufPrint(&fbuf, "GET failed: {s}", .{@errorName(err)}) catch "GET failed";
         setError(msg);
@@ -86,12 +86,84 @@ pub fn http_post(
     }
     const ct = if (ct_len == 0) "application/octet-stream" else ct_ptr[0..ct_len];
     const payload = body_ptr[0..body_len];
-    return doRequest(.POST, url_ptr[0..url_len], ct, payload, out, out_max) catch |err| {
+    return doRequest(.POST, url_ptr[0..url_len], ct, payload, &.{}, out, out_max) catch |err| {
         var fbuf: [200]u8 = undefined;
         const msg = std.fmt.bufPrint(&fbuf, "POST failed: {s}", .{@errorName(err)}) catch "POST failed";
         setError(msg);
         return -1;
     };
+}
+
+/// Generic request entry. `method_code` is one of:
+/// 0=GET 1=POST 2=PUT 3=DELETE 4=HEAD 5=OPTIONS 6=PATCH
+/// `headers_blob` is a newline-separated `Name: Value` block (may be empty).
+/// `body` may be empty for verbs that don't carry one.
+pub fn http_request(
+    method_code: i32,
+    url_ptr: [*]const u8,
+    url_len: usize,
+    headers_ptr: [*]const u8,
+    headers_len: usize,
+    ct_ptr: [*]const u8,
+    ct_len: usize,
+    body_ptr: [*]const u8,
+    body_len: usize,
+    out: [*]u8,
+    out_max: usize,
+) callconv(.c) i32 {
+    clearError();
+    if (url_len == 0) {
+        setError("empty URL");
+        return -1;
+    }
+    const method = methodFromCode(method_code) orelse {
+        setError("unsupported HTTP method code");
+        return -1;
+    };
+    var hdrs_buf: [32]std.http.Header = undefined;
+    const headers = parseHeaderBlob(headers_ptr[0..headers_len], &hdrs_buf) catch {
+        setError("too many headers (max 32)");
+        return -1;
+    };
+    const ct_slice: ?[]const u8 = if (ct_len > 0) ct_ptr[0..ct_len] else null;
+    const payload: ?[]const u8 = if (body_len > 0) body_ptr[0..body_len] else null;
+    return doRequest(method, url_ptr[0..url_len], ct_slice, payload, headers, out, out_max) catch |err| {
+        var fbuf: [200]u8 = undefined;
+        const msg = std.fmt.bufPrint(&fbuf, "{s} failed: {s}", .{ @tagName(method), @errorName(err) }) catch "request failed";
+        setError(msg);
+        return -1;
+    };
+}
+
+fn methodFromCode(code: i32) ?std.http.Method {
+    return switch (code) {
+        0 => .GET,
+        1 => .POST,
+        2 => .PUT,
+        3 => .DELETE,
+        4 => .HEAD,
+        5 => .OPTIONS,
+        6 => .PATCH,
+        else => null,
+    };
+}
+
+fn parseHeaderBlob(blob: []const u8, out: []std.http.Header) error{TooMany}![]const std.http.Header {
+    if (blob.len == 0) return out[0..0];
+    var n: usize = 0;
+    var it = std.mem.splitScalar(u8, blob, '\n');
+    while (it.next()) |raw_line| {
+        var line = raw_line;
+        if (line.len > 0 and line[line.len - 1] == '\r') line = line[0 .. line.len - 1];
+        if (line.len == 0) continue;
+        const colon = std.mem.indexOfScalar(u8, line, ':') orelse continue;
+        if (n >= out.len) return error.TooMany;
+        var value = line[colon + 1 ..];
+        while (value.len > 0 and (value[0] == ' ' or value[0] == '\t')) value = value[1..];
+        out[n] = .{ .name = line[0..colon], .value = value };
+        n += 1;
+    }
+    return out[0..n];
 }
 
 // ── internal ─────────────────────────────────────────────────
@@ -101,6 +173,7 @@ fn doRequest(
     url: []const u8,
     content_type: ?[]const u8,
     payload: ?[]const u8,
+    user_headers: []const std.http.Header,
     out: [*]u8,
     max: usize,
 ) !i32 {
@@ -110,18 +183,27 @@ fn doRequest(
     var allocating = std.io.Writer.Allocating.init(gpa);
     defer allocating.deinit();
 
-    const ct = std.http.Header{
-        .name = "Content-Type",
-        .value = content_type orelse "application/octet-stream",
+    // Build the extra-headers slice: user headers + (optional Content-Type
+    // if not already supplied by the caller).
+    var merged: [40]std.http.Header = undefined;
+    var n: usize = 0;
+    var ct_already = false;
+    for (user_headers) |h| {
+        if (std.ascii.eqlIgnoreCase(h.name, "content-type")) ct_already = true;
+        if (n >= merged.len) break;
+        merged[n] = h;
+        n += 1;
+    }
+    if (content_type) |ct| if (!ct_already and n < merged.len) {
+        merged[n] = .{ .name = "Content-Type", .value = ct };
+        n += 1;
     };
-    const extra_with_ct = [_]std.http.Header{ct};
-    const extra: []const std.http.Header = if (content_type != null) extra_with_ct[0..] else &[_]std.http.Header{};
 
     const res = try client.fetch(.{
         .method = method,
         .location = .{ .url = url },
         .response_writer = &allocating.writer,
-        .extra_headers = extra,
+        .extra_headers = merged[0..n],
         .payload = payload,
     });
 
