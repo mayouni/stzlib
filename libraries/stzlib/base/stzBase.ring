@@ -250,6 +250,8 @@ ok
     load "number/stzSimilarity.ring"
     load "common/stzEngineTimeline.ring"
     load "common/stzCancelToken.ring"
+    load "common/stzRetryBudget.ring"
+    load "common/stzLatencyHistogram.ring"
     load "graph/stzGridNav.ring"
 
 # Loading files related to the VISUAL module

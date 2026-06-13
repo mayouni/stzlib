@@ -22,6 +22,7 @@
 const std = @import("std");
 const httpcore = @import("httpcore.zig");
 const http_pool = @import("http_pool.zig");
+const histogram = @import("histogram.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -82,6 +83,38 @@ pub fn http_set_default_timeouts(connect_ms: u32, request_ms: u32, idle_ms: u32)
         if (default_pool) |p| p.idle_timeout_ms = idle_ms;
         pool_mutex.unlock();
     }
+}
+
+// ── request-latency histogram (item 6 wire-up) ───────────────
+// Every completed round-trip records its wall-clock latency here, so
+// p50/p95/p99 of real HTTP traffic are queryable without the caller
+// instrumenting each call.
+
+var latency_hist: ?*histogram.Histogram = null;
+var latency_mutex: std.Thread.Mutex = .{};
+
+fn latencyHist() ?*histogram.Histogram {
+    latency_mutex.lock();
+    defer latency_mutex.unlock();
+    if (latency_hist) |h| return h;
+    latency_hist = histogram.histogram_create();
+    return latency_hist;
+}
+
+/// http_latency_percentile -- ms upper bound for percentile p (0..100)
+/// of recorded request latencies.
+pub fn http_latency_percentile(p: f64) callconv(.c) f64 {
+    return histogram.histogram_percentile(latencyHist(), p);
+}
+
+/// http_latency_count -- number of requests recorded.
+pub fn http_latency_count() callconv(.c) u64 {
+    return histogram.histogram_count(latencyHist());
+}
+
+/// http_latency_reset -- clear the request-latency histogram.
+pub fn http_latency_reset() callconv(.c) void {
+    histogram.histogram_reset(latencyHist());
 }
 
 /// http_pool_stats -- write "opens=N\treuses=N\tidle=N\tactive=N" into
@@ -321,6 +354,7 @@ fn doRequest(
         return -1;
     };
 
+    const t0_ms = std.time.milliTimestamp();
     const conn = http_pool.acquire(pool, parsed.host, parsed.port, parsed.is_tls, connect_ms) orelse {
         var ebuf: [256]u8 = undefined;
         const n = http_pool.pool_last_error(&ebuf, ebuf.len);
@@ -358,6 +392,8 @@ fn doRequest(
 
     http_pool.release(pool, conn, resp.keep_alive);
     last_body_len = resp.body_len;
+    const dt_ms = std.time.milliTimestamp() - t0_ms;
+    histogram.histogram_record(latencyHist(), @floatFromInt(dt_ms));
     return resp.status;
 }
 
