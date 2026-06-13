@@ -35,7 +35,9 @@ class stzReactiveTimer
 	def Start()
 		if not isActive
 			isActive = true
-			startTime = clock()
+			# Engine-side monotonic clock so every host language
+			# observes identical semantics (M-DEP4 hardening).
+			startTime = StzEngineTimeNowMs()
 			lastTick = startTime
 		ok
 
@@ -53,8 +55,10 @@ class stzReactiveTimer
 		if not isActive
 			return false
 		ok
-		currentTime = clock()
-		elapsed = (currentTime - lastTick) * CLOCKS_TO_MS_MULTIPLIER / clocksPerSecond()
+		# Engine clock returns milliseconds directly -- no
+		# clocksPerSecond conversion needed.
+		currentTime = StzEngineTimeNowMs()
+		elapsed = currentTime - lastTick
 		if elapsed >= interval
 			if callback != NULL
 				call callback()
@@ -101,7 +105,9 @@ class stzRingTimer
 	def Start()
 		if not isActive
 			isActive = true
-			startTime = clock()
+			# Engine-side monotonic clock so every host language
+			# observes identical semantics (M-DEP4 hardening).
+			startTime = StzEngineTimeNowMs()
 			lastTick = startTime
 		ok
 		
