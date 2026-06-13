@@ -1,136 +1,103 @@
 # =============================================================================
-# TCP SERVER - libuv-based async TCP server
+# TCP SERVER -- engine-backed synchronous TCP (M-DEP4 slice 2).
+# Previously a libuv async server; rewired 2026-06-13 to the in-tree
+# Zig engine (libraries/stzlib/engine/src/tcp.zig). Listen / Accept /
+# Close are blocking std.net operations.
+#
+# Listen(nPort, cHost) starts the listener and returns immediately.
+# AcceptOne() blocks until a client connects and returns a wrapped
+# stzTcpClient. The legacy async-loop driving Listen() is dropped --
+# real preemptive server work needs the cross-platform Zig event
+# loop (multi-month future arc); for now you call AcceptOne() in a
+# Ring loop yourself.
 # =============================================================================
 
 class stzTcpServer from stzNetwork
-    server = NULL
-    @loop = NULL
-    clients = []
+    @hServer = NULL              # opaque engine TCP server handle
+    clients = []                 # accepted clients (stzTcpClient instances)
     is_listening = False
     on_client_connect_callback = ""
     on_client_disconnect_callback = ""
     on_client_message_callback = ""
     on_error_callback = ""
-    
-    def init()
-        super.init()
-        @loop = uv_defaulLoop()
-        server = new_uv_tcp_t()
-        uv_tcp_init(@loop, server)
-    
-    def Listen(nPort, cHost)
-	if cHost = ""
-		cHost = "127.0.0.1"
-	ok
 
-        addr = new_sockaddr_in()
-        uv_ip4_addr(cHost, nPort, addr)
-        uv_tcp_bind(server, addr, 0)
-        
-        result = uv_listen(server, 128, "HandleNewConnection()")
-        if result = 0
+    def init()
+        # stzNetwork.init takes no args; nothing to wire up here.
+
+    def Listen(nPort, cHost)
+        if cHost = "" cHost = "0.0.0.0" ok
+        @hServer = StzEngineTcpListen(cHost, nPort)
+        # Engine returns a null-pointer on failure; LastError tells.
+        if StzEngineTcpLastError() = ""
             is_listening = True
             ClearErrors()
-            uv_run(@loop, UV_RUN_DEFAULT)
         else
-            last_error = "Failed to listen on port " + nPort
-            error_code = result
-        ok
-        return This
-    
-    def HandleNewConnection()
-        aPara = uv_Eventpara(server, :connect)
-        nStatus = aPara[2]
-        
-        if nStatus < 0
-            last_error = "New connection error"
-            error_code = nStatus
-            return
-        ok
-        
-        client = new_uv_tcp_t()
-        uv_tcp_init(@loop, client)
-        
-        if uv_accept(server, client) = 0
-            clients + client
-            uv_read_start(client, uv_myalloccallback(), "HandleClientMessage()")
-            
-            if on_client_connect_callback != ""
-                call on_client_connect_callback()
+            is_listening = False
+            last_error = StzEngineTcpLastError()
+            error_code = -1
+            if on_error_callback != ""
+                call on_error_callback()
             ok
         ok
-    
-    def HandleClientMessage()
-        # Implementation similar to TCP client's HandleRead
-        aPara = uv_Eventpara(client, :read)
-        nRead = aPara[2]
-        buf = aPara[3]
-        
-        if nRead > 0
-            received_data = uv_buf2str(buf)
-            if on_client_message_callback != ""
-                call on_client_message_callback()
-            ok
+        return This
+
+    # Blocks until a client connects; returns the wrapped stzTcpClient
+    # (or NULL on listener error). Caller is responsible for closing
+    # the client when done.
+    def AcceptOne()
+        if not is_listening
+            last_error = "Not listening"
+            return NULL
         ok
-    
-    def Stop_()
-        is_listening = False
-        if server != NULL
-            # Stop server and cleanup
-            clients = []
+        pClient = StzEngineTcpAccept(@hServer)
+        if StzEngineTcpLastError() != ""
+            last_error = StzEngineTcpLastError()
+            error_code = -1
+            if on_error_callback != ""
+                call on_error_callback()
+            ok
+            return NULL
+        ok
+        oClient = new stzTcpClient
+        # Patch the engine handle into the client wrapper so the
+        # caller can Send/Receive/Close through the normal API.
+        oClient.@hClient = pClient
+        oClient.is_connected = True
+        clients + oClient
+        if on_client_connect_callback != ""
+            call on_client_connect_callback()
+        ok
+        return oClient
+
+    def StopListening()
+        if is_listening and @hServer != NULL
+            StzEngineTcpServerClose(@hServer)
+            @hServer = NULL
+            is_listening = False
         ok
         return This
-    
-    def IsListening()
-        return is_listening
-    
-    def Clients()
-        return clients
-    
-    def ClientCount()
-        return len(clients)
-    
-    def BroadcastTo(aClients, cData)
-        _nClients2Len_ = len(aClients)
-        for _iLoopClients2_ = 1 to _nClients2Len_
-        	client = aClients[_iLoopClients2_]
-            buf = new_uv_buf_t()
-            set_uv_buf_t_len(buf, len(cData))
-            set_uv_buf_t_base(buf, varptr("cData", :char))
-            
-            write_req = new_uv_write_t()
-            uv_write(write_req, client, buf, 1, "HandleWrite()")
-        next
-        return This
-    
-    def BroadcastToAll(cData)
-        return This.BroadcastTo(clients, cData)
-    
-    def KickClient(oClient)
-        # Remove client from list and close connection
-        new_clients = []
-        _nClients1Len_ = len(clients)
-        for _iLoopClients1_ = 1 to _nClients1Len_
-        	client = clients[_iLoopClients1_]
-            if client != oClient
-                new_clients + client
-            ok
-        next
-        clients = new_clients
-        return This
-    
+
+    def Close()
+        return This.StopListening()
+
     def OnClientConnect(cCallback)
         on_client_connect_callback = cCallback
         return This
-    
+
     def OnClientDisconnect(cCallback)
         on_client_disconnect_callback = cCallback
         return This
-    
+
     def OnClientMessage(cCallback)
         on_client_message_callback = cCallback
         return This
-    
+
     def OnError(cCallback)
         on_error_callback = cCallback
         return This
+
+    def IsListening()
+        return is_listening
+
+    def NumberOfClients()
+        return len(clients)
