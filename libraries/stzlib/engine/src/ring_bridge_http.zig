@@ -97,6 +97,19 @@ fn ring_HttpLastStatus(p: *anyopaque) callconv(.c) void {
 
 var last_request_status: i32 = 0;
 
+/// StzEngineHttpParallelGet(cUrlsBlob) -> joined "<status>:<body>\x1E..."
+/// Ring side splits on \x1E and parses the prefix.
+fn ring_HttpParallelGet(p: *anyopaque) callconv(.c) void {
+    const urls_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const urls_len: usize = @intCast(gss(p, 1));
+    const n = http.http_parallel_get(urls_ptr, urls_len, &body_buf, BODY_CAP);
+    if (n > 0) {
+        rs2(p, &body_buf, @intCast(n));
+    } else {
+        rs(p, @constCast(""));
+    }
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginehttpget", .func = ring_HttpGet },
     .{ .name = "stzenginehttpgetstatus", .func = ring_HttpGetStatus },
@@ -105,6 +118,8 @@ const regs = [_]R.Reg{
     // slice 2 -- generic request + last-status accessor
     .{ .name = "stzenginehttprequest", .func = ring_HttpRequest },
     .{ .name = "stzenginehttplaststatus", .func = ring_HttpLastStatus },
+    // slice 3 -- parallel GET (threaded)
+    .{ .name = "stzenginehttpparallelget", .func = ring_HttpParallelGet },
 };
 
 pub fn registerAll(state: *anyopaque) void {

@@ -216,13 +216,44 @@ class stzHttpClient from stzNetwork
 		write(cLocalPath, This.ResponseBody())
 		return This
 
-	# ── batched GET (sequential only; libuv-backed parallel form
-	#    dropped with M-DEP3 slice 2; M-DEP4 will revisit) ─────
+	# ── batched GET ─────────────────────────────────────────
+	# GetMany uses the engine's threaded parallel-GET path (one
+	# std.Thread per URL, blocking client.fetch in each). The
+	# engine joins all threads before returning, so from Ring's
+	# perspective the call is synchronous; the win is wall-clock,
+	# not concurrency model. Up to 32 URLs per batch.
 
 	def GetMany(aUrls)
-		return This.GetManySequential(aUrls)
+		_cBlob_ = ""
+		_nL_ = len(aUrls)
+		for _i_ = 1 to _nL_
+			if _i_ > 1 _cBlob_ += char(10) ok
+			_cBlob_ += aUrls[_i_]
+		next
+		_cJoined_ = StzEngineHttpParallelGet(_cBlob_)
+		# Split on the RECORD_SEPARATOR (ASCII 0x1E).
+		_aRaw_ = @split(_cJoined_, char(30))
+		_aR_ = []
+		_nR_ = len(_aRaw_)
+		for _i_ = 1 to _nR_
+			_rec_ = _aRaw_[_i_]
+			if _rec_ = "" loop ok
+			_nC_ = StzFind(_rec_, ":")
+			if _nC_ < 1 loop ok
+			_cStatus_ = StzLeft(_rec_, _nC_ - 1)
+			_cBody_ = StzMidToEnd(_rec_, _nC_ + 1)
+			_aR_ + [
+				:body    = _cBody_,
+				:code    = 0 + _cStatus_,
+				:headers = "",
+				:info    = []
+			]
+		next
+		return _aR_
 
 	def GetManySequential(aUrls)
+		# Kept as a backup for callers that need strictly sequential
+		# semantics. The default GetMany above is parallel.
 		_aR_ = []
 		_nL_ = len(aUrls)
 		for _i_ = 1 to _nL_

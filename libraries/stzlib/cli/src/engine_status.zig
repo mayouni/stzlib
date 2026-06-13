@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 61,
+    .last_session = 62,
     .last_updated = "2026-06-13",
 };
 
@@ -448,7 +448,7 @@ pub const milestones = [_]Milestone{
         .track = "depcleanup",
         .title = "Replace libuv.ring with engine TCP + polling timer",
         .status = .done,
-        .summary = "CLOSED 2026-06-13 (sessions 60-61). Slice 1: libuv removed from reactive runtime (uv_default_loop -> NULL sentinel; uv_buf2str/init -> identity; stzReactiveTimer rewritten to clock()-based polling). Slice 2: new engine domain stz_tcp (~200 LOC, std.net-backed) ships Connect/Send/Recv/Close + Listen/Accept/ServerClose. stzTcpClient + stzTcpServer fully rewired; uv_* calls gone everywhere. stzFolderWatcher demo archived. Tests 52_reactive_polling (8/8) + 54_stztcp_engine (15/15) green; cross-checks 51_reactive_harness (20/20) + 53_stzhttpclient (17/17) + 53_stzhtml (21/21) all still green. Ring gotcha pinned: isPointer(null-handle) returns TRUE; must cross-check via StzEngineTcpLastError() = \"\". Future arc (multi-month, NOT an M-DEP): cross-platform Zig event loop for real preemptive async (parallel HTTP, async TCP server, async file watch).",
+        .summary = "FULLY CLOSED 2026-06-13 (sessions 60-62). Slice 1: libuv removed from reactive runtime + stzReactiveTimer rewritten to clock()-based polling. Slice 2: new engine domain stz_tcp (std.net-backed sync TCP) -- stzTcp{Client,Server} fully rewired. Slice 3 (session 62): REAL ASYNC SHIPPED -- parallel HTTP fetch via std.Thread per URL (StzEngineHttpParallelGet, GetMany restored on stzHttpClient) + engine fswatch module via background polling worker thread (StzEngineFsWatch* + new stzFolderWatcher class). Real ADD event detected from a live FS test. Five test suites cover the arc: 52_reactive_polling 8/8, 54_stztcp_engine 15/15, 55_http_parallel 7/7, 54_fswatch_engine 10/10, cross-checks 51_reactive (20/20), 53_stzhttpclient (17/17), 53_stzhtml (21/21). 98 assertions across the reactive engine work, all green. The libuv era's three documented use cases (timers, parallel HTTP, FS watch) are all engine-backed now -- no IOCP/epoll/kqueue wrapper needed for these.",
     },
 
     // ---- stzlib redesign track ----
