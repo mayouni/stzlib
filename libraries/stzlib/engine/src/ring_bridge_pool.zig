@@ -31,6 +31,25 @@ fn ring_PoolCreate(p: *anyopaque) callconv(.c) void {
     }
 }
 
+fn ring_PoolCreateXT(p: *anyopaque) callconv(.c) void {
+    const n: u32 = @intFromFloat(gn(p, 1));
+    const max_queue: u32 = @intFromFloat(gn(p, 2));
+    const handle = pool.pool_create_xt(n, max_queue);
+    if (handle) |h| {
+        R.ring_vm_api_retcpointer(p, @ptrCast(h), POOL_HANDLE);
+    } else {
+        R.ring_vm_api_retcpointer(p, @ptrFromInt(0), POOL_HANDLE);
+    }
+}
+
+fn ring_PoolPending(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(pool.pool_pending(getPool(p, 1))));
+}
+
+fn ring_PoolInflight(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(pool.pool_inflight(getPool(p, 1))));
+}
+
 fn ring_PoolSubmit(p: *anyopaque) callconv(.c) void {
     const pp = getPool(p, 1);
     const kind: u32 = @intFromFloat(gn(p, 2));
@@ -69,11 +88,14 @@ fn ring_PoolLastError(p: *anyopaque) callconv(.c) void {
 
 const regs = [_]R.Reg{
     .{ .name = "stzenginepoolcreate", .func = ring_PoolCreate },
+    .{ .name = "stzenginepoolcreatext", .func = ring_PoolCreateXT },
     .{ .name = "stzenginepoolsubmit", .func = ring_PoolSubmit },
     .{ .name = "stzenginepoolpoll", .func = ring_PoolPoll },
     .{ .name = "stzenginepoollaststatus", .func = ring_PoolLastStatus },
     .{ .name = "stzenginepooldestroy", .func = ring_PoolDestroy },
     .{ .name = "stzenginepoollasterror", .func = ring_PoolLastError },
+    .{ .name = "stzenginepoolpending", .func = ring_PoolPending },
+    .{ .name = "stzenginepoolinflight", .func = ring_PoolInflight },
 };
 
 pub fn registerAll(state: *anyopaque) void {

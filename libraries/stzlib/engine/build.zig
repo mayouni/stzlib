@@ -52,6 +52,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_fswatch", .entry = "src/stz_fswatch_entry.zig", .needs_ring = true },
     .{ .name = "stz_time", .entry = "src/stz_time_entry.zig", .needs_ring = true },
     .{ .name = "stz_pool", .entry = "src/stz_pool_entry.zig", .needs_ring = true },
+    .{ .name = "stz_resilience", .entry = "src/stz_resilience_entry.zig", .needs_ring = true },
     .{ .name = "stz_geo", .entry = "src/stz_geo_entry.zig", .needs_ring = true },
     .{ .name = "stz_compress", .entry = "src/stz_compress_entry.zig", .needs_ring = true },
     .{ .name = "stz_solver", .entry = "src/stz_solver_entry.zig", .needs_ring = true },
