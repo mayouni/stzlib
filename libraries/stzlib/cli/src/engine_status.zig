@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 54,
+    .last_session = 55,
     .last_updated = "2026-06-13",
 };
 
@@ -412,6 +412,43 @@ pub const milestones = [_]Milestone{
         .title = "Repository Split",
         .status = .planned,
         .summary = "Extract softanza-engine as standalone repo; ship C headers + CLI + language-neutral docs. Deferred until API stable",
+    },
+
+    // ---- external-dependency track (M-DEP*) ----
+    .{
+        .id = "M-DEP1",
+        .track = "depcleanup",
+        .title = "Drop FastPro Extension",
+        .status = .done,
+        .summary = "Closed 2026-06-13 (session 55). stzFastPro.ring wrapped the RingFastPro C++ extension's updateList() for fast batch list/matrix mutations. Only consumer was its own test suite; no production code in base/ called it. Engine stzMatrix covers the hot paths. stzFastPro.ring moved to base/archive/number/; test/fastpro/ moved to base/archive/test/fastpro/; `load \"number/stzFastPro.ring\"` removed from stzBase.ring.",
+    },
+    .{
+        .id = "M-DEP-UUID",
+        .track = "depcleanup",
+        .title = "Drop uuid.ring Extension",
+        .status = .done,
+        .summary = "Closed 2026-06-13 (session 55). stzUUID.ring previously loaded the C++ uuid.ring extension. Engine module libraries/stzlib/engine/src/uuid.zig already provided V4/V4Compact/IsValid/Version/Nil/Compare via StzEngineUUID* bridge. Rewrote stzUUID.ring to use engine; uncommented `load \"system/stzUUID.ring\"` in stzBase.ring; ToBytes() hex-decodes pure-Ring. Test 52_uuid_engine_narrated.ring: 14 assertions green. Commit 9f9bed5f.",
+    },
+    .{
+        .id = "M-DEP2",
+        .track = "depcleanup",
+        .title = "Replace html.ring (lexbor) with Zig HTML5 Parser",
+        .status = .planned,
+        .summary = "stzHtml.ring uses lexbor-based html.ring for full HTML5 parsing + DOM. Engine has only encode/decode/striptags. Replacement needs HTML5 tokenizer + tree builder + CSS selector engine in Zig (~4000-6000 LOC). Multi-week arc; see EXTERNAL_DEPENDENCY_AUDIT.md.",
+    },
+    .{
+        .id = "M-DEP3",
+        .track = "depcleanup",
+        .title = "Replace libcurl.ring with Zig HTTP Client",
+        .status = .planned,
+        .summary = "stzNetwork.ring uses Ring's libcurl.ring for HTTP. Replacement needs cross-platform Zig HTTP client with TLS (BearSSL or native). 2-3 weeks; see EXTERNAL_DEPENDENCY_AUDIT.md.",
+    },
+    .{
+        .id = "M-DEP4",
+        .track = "depcleanup",
+        .title = "Replace libuv.ring with Zig Async Loop",
+        .status = .planned,
+        .summary = "Used by stzReactive, stzNetwork, stzFolderWatcher. Heaviest dep -- needs cross-platform IOCP/epoll/kqueue wrapper. 2-3 months. Synchronous test harness already covers the non-async surface; async tests stay outside CI. See EXTERNAL_DEPENDENCY_AUDIT.md.",
     },
 
     // ---- stzlib redesign track ----

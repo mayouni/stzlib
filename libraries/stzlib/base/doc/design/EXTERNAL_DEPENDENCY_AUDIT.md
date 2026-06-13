@@ -11,8 +11,8 @@ already covers, and what remains as a milestone arc.
 
 | Dep                | Sites                                                       | Status                                      |
 |--------------------|-------------------------------------------------------------|---------------------------------------------|
-| `uuid.ring`        | `system/stzUUID.ring`                                       | **REPLACED** with engine (commit ...)       |
-| `fastpro.ring`     | `number/stzFastPro.ring`                                    | Pending -- M-DEP1                            |
+| `uuid.ring`        | `system/stzUUID.ring`                                       | **REPLACED** with engine (commit 9f9bed5f)  |
+| `fastpro.ring`     | `number/stzFastPro.ring`                                    | **DROPPED** -- deprecated (M-DEP1)           |
 | `html.ring` (lexbor)| `file/stzHtml.ring`                                         | Pending -- M-DEP2                            |
 | `libcurl.ring`     | `network/stzNetwork.ring`                                   | Pending -- M-DEP3                            |
 | `libuv.ring`       | `file/stzFolderWatcher.ring`, `network/stzNetwork.ring`, `reactive/stzReactive.ring` | Pending -- M-DEP4 |
@@ -30,7 +30,7 @@ already covers, and what remains as a milestone arc.
   (previously commented out with a TODO).
 * Test suite `52_uuid_engine_narrated.ring`: 14 assertions, all green.
 
-## 2. FastPro -- M-DEP1 (Pending)
+## 2. FastPro -- CLOSED 2026-06-13 (M-DEP1)
 
 `stzFastPro.ring` wraps the RingFastPro C++ extension's `updateList(...)`
 for fast batch list/matrix mutations. Surface: 32 `updateList(...)` call
@@ -57,6 +57,14 @@ c. **Drop FastPro entirely**: deprecate `stzFastPro.ring`, remove
 
 Recommended: **(c)** -- it has no production users and existing
 `stzMatrix` covers the same ground engine-side.
+
+**Action taken 2026-06-13:**
+* `stzFastPro.ring` moved to `base/archive/number/stzFastPro.ring`
+* `test/fastpro/` moved to `base/archive/test/fastpro/`
+* `load "number/stzFastPro.ring"` removed from `stzBase.ring`
+* All non-FastPro test suites continue to pass (UUID 14/14, extercode
+  11/11, reactive 20/20 spot-checked)
+* The `fastpro.ring` extension is no longer required for `stzBase`.
 
 ## 3. HTML -- M-DEP2 (Pending)
 
@@ -105,10 +113,11 @@ non-async surface. Async testing happens outside CI.
 
 | ID      | Scope                                  | Effort      | Order |
 |---------|----------------------------------------|-------------|-------|
-| M-DEP1  | Drop FastPro (deprecate or pure-Ring)  | 1 session   | Next  |
-| M-DEP2  | HTML5 parser + DOM in Zig              | 2-4 weeks   | Later |
+| M-DEP1  | Drop FastPro (deprecated)              | DONE        | --    |
+| M-DEP2  | HTML5 parser + DOM in Zig              | 2-4 weeks   | Next  |
 | M-DEP3  | HTTP client + TLS in Zig               | 2-3 weeks   | Later |
 | M-DEP4  | Cross-platform async loop in Zig       | 2-3 months  | Last  |
 
-The current session closes UUID. M-DEP1 (FastPro) is the natural
-next-session target.
+This session closes UUID + FastPro (M-DEP1). M-DEP2 (HTML) is the
+next significant arc but is genuinely multi-week and warrants its
+own milestone planning.
