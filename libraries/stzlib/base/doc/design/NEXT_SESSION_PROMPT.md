@@ -1,14 +1,30 @@
 # Next Session -- Implement Reactive Engine Gap Analysis Tier 1
 
-> **Status as of 2026-06-13 (session 64 end).** Item 1's caller-side
-> half is shipped (`StzEnginePoolPollWithDeadline`, commit 85a6adb5,
-> test `62_http_timeouts_narrated.ring` 5/5). The engine-side half
-> (socket-level `SO_RCVTIMEO` / `SO_SNDTIMEO` so a hung downstream
-> actually frees the pool worker) is pending and should be done
-> together with item 2 (connection pooling) -- they share the same
-> infrastructure (a custom HTTP/1.1 client on raw `std.net.Stream`).
-> Start with items 1+2 fused as a single arc; items 3-8 then proceed
-> in order.
+> **Status as of 2026-06-13 (session 65 end). Items 1+2 are DONE.**
+> The custom HTTP/1.1 client on raw `std.net.Stream`
+> (`engine/src/httpcore.zig`, TLS via `std.crypto.tls.Client`), the
+> connection pool (`engine/src/http_pool.zig`, keyed by
+> scheme/host/port with idle eviction + caps + opens/reuses/idle/active
+> stats), and per-layer timeouts (connect via non-blocking connect +
+> `poll(POLLOUT)`; request via `SO_RCVTIMEO`/`SO_SNDTIMEO`) all shipped
+> and replaced the `std.http.Client` path inside `http.zig`. New bridge
+> fns `StzEngineHttpSetDefaultTimeouts`/`RequestWithTimeouts`/
+> `PoolStats`; `stzHttpClient` rewired with the timeout + pool-stats
+> surface. Live-verified connection reuse + HTTPS + fast connect-
+> timeout. Tests `63_http_pool_narrated.ring` (6/6) +
+> `64_http_timeouts_engine_narrated.ring` (7/7); 52/53/55/56/62 still
+> green. Milestone **M-RX1** (partial) tracks this in the CLI.
+>
+> **Windows caveat (carry forward):** `SO_RCVTIMEO`/`SO_SNDTIMEO` are
+> best-effort on Windows because std's `std.net.Stream.Reader` uses
+> overlapped `WSARecv`; the caller-side `StzEnginePoolPollWithDeadline`
+> (session 64) remains the cross-platform "free the worker" guarantee.
+> Any new timeout work must stay caller-side, not rely on the socket
+> option alone.
+>
+> **Next session starts at item 3** (DNS cache). Items 1+2 below are
+> kept for reference; skip to item 3 and proceed 3-8 in order. The
+> recommended grouping is session B = items 3 + 4.
 
 ## Context (read these first)
 

@@ -110,6 +110,60 @@ fn ring_HttpParallelGet(p: *anyopaque) callconv(.c) void {
     }
 }
 
+/// StzEngineHttpSetDefaultTimeouts(nConnectMs, nRequestMs, nIdleMs)
+/// Each 0 leaves that default unchanged.
+fn ring_HttpSetDefaultTimeouts(p: *anyopaque) callconv(.c) void {
+    const connect_ms: u32 = @intFromFloat(gn(p, 1));
+    const request_ms: u32 = @intFromFloat(gn(p, 2));
+    const idle_ms: u32 = @intFromFloat(gn(p, 3));
+    http.http_set_default_timeouts(connect_ms, request_ms, idle_ms);
+    rn(p, 0);
+}
+
+/// StzEngineHttpRequestWithTimeouts(method_code, cUrl, cHeaders,
+/// cContentType, cBody, nConnectMs, nRequestMs) -> body
+fn ring_HttpRequestWithTimeouts(p: *anyopaque) callconv(.c) void {
+    const method_code: i32 = @intFromFloat(gn(p, 1));
+    const url_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const url_len: usize = @intCast(gss(p, 2));
+    const hdr_ptr: [*]const u8 = @ptrCast(gs(p, 3));
+    const hdr_len: usize = @intCast(gss(p, 3));
+    const ct_ptr: [*]const u8 = @ptrCast(gs(p, 4));
+    const ct_len: usize = @intCast(gss(p, 4));
+    const body_ptr: [*]const u8 = @ptrCast(gs(p, 5));
+    const body_len: usize = @intCast(gss(p, 5));
+    const connect_ms: u32 = @intFromFloat(gn(p, 6));
+    const request_ms: u32 = @intFromFloat(gn(p, 7));
+    const status = http.http_request_with_timeouts(
+        method_code,
+        url_ptr,
+        url_len,
+        hdr_ptr,
+        hdr_len,
+        ct_ptr,
+        ct_len,
+        body_ptr,
+        body_len,
+        connect_ms,
+        request_ms,
+        &body_buf,
+        BODY_CAP,
+    );
+    last_request_status = status;
+    if (status > 0) {
+        rs2(p, &body_buf, @intCast(http.http_last_body_len()));
+    } else {
+        rs(p, @constCast(""));
+    }
+}
+
+/// StzEngineHttpPoolStats() -> "opens=N\treuses=N\tidle=N\tactive=N"
+fn ring_HttpPoolStats(p: *anyopaque) callconv(.c) void {
+    var buf: [256]u8 = undefined;
+    const n = http.http_pool_stats(&buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginehttpget", .func = ring_HttpGet },
     .{ .name = "stzenginehttpgetstatus", .func = ring_HttpGetStatus },
@@ -120,6 +174,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginehttplaststatus", .func = ring_HttpLastStatus },
     // slice 3 -- parallel GET (threaded)
     .{ .name = "stzenginehttpparallelget", .func = ring_HttpParallelGet },
+    // Tier 1 items 1+2 -- timeouts + connection pool
+    .{ .name = "stzenginehttpsetdefaulttimeouts", .func = ring_HttpSetDefaultTimeouts },
+    .{ .name = "stzenginehttprequestwithtimeouts", .func = ring_HttpRequestWithTimeouts },
+    .{ .name = "stzenginehttppoolstats", .func = ring_HttpPoolStats },
 };
 
 pub fn registerAll(state: *anyopaque) void {

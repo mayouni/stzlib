@@ -53,6 +53,12 @@ class stzHttpClient from stzNetwork
 	cAuthUser = ""
 	cAuthPass = ""
 
+	# Per-layer timeouts in milliseconds (0 = use the engine default:
+	# connect 5s, request 30s). Wired to the custom HTTP/1.1 client +
+	# connection pool (engine/src/httpcore.zig + http_pool.zig).
+	connect_timeout_ms = 0
+	request_timeout_ms = 0
+
 	def init()
 		# stzNetwork.init handles its own fields.
 
@@ -106,6 +112,61 @@ class stzHttpClient from stzNetwork
 		next
 		return _cOut_
 
+	# ── timeouts (engine-backed) ─────────────────────────────
+	# These now drive the custom HTTP/1.1 client's per-socket and
+	# connect deadlines via the engine, replacing the slice-2 no-ops.
+
+	def SetTimeout(nSeconds)
+		# Overall request timeout, expressed in seconds for API parity
+		# with stzNetwork.SetTimeout. Stored in ms for the engine.
+		timeout_seconds = nSeconds
+		request_timeout_ms = nSeconds * 1000
+		return This
+
+	def SetConnectTimeout(nMs)
+		connect_timeout_ms = nMs
+		return This
+
+	def SetRequestTimeout(nMs)
+		request_timeout_ms = nMs
+		return This
+
+	def ConnectTimeout()
+		return connect_timeout_ms
+
+	def RequestTimeout()
+		return request_timeout_ms
+
+	# Set the process-wide engine defaults (connect / request / idle in
+	# ms). 0 leaves a field unchanged. Affects every client.
+	def SetDefaultTimeouts(nConnectMs, nRequestMs, nIdleMs)
+		StzEngineHttpSetDefaultTimeouts(nConnectMs, nRequestMs, nIdleMs)
+		return This
+
+	# ── connection pool ──────────────────────────────────────
+
+	def PoolStats()
+		# Engine returns "opens=N\treuses=N\tidle=N\tactive=N".
+		_cRaw_ = StzEngineHttpPoolStats()
+		_aR_ = [ :opens = 0, :reuses = 0, :idle = 0, :active = 0 ]
+		if _cRaw_ = "" return _aR_ ok
+		_aParts_ = @split(_cRaw_, char(9))
+		_nP_ = len(_aParts_)
+		for _i_ = 1 to _nP_
+			_cKV_ = _aParts_[_i_]
+			_nEq_ = StzFind(_cKV_, "=")
+			if _nEq_ < 1 loop ok
+			_cKey_ = StzLeft(_cKV_, _nEq_ - 1)
+			_cVal_ = StzMidToEnd(_cKV_, _nEq_ + 1)
+			switch _cKey_
+			on "opens"  _aR_[:opens]  = 0 + _cVal_
+			on "reuses" _aR_[:reuses] = 0 + _cVal_
+			on "idle"   _aR_[:idle]   = 0 + _cVal_
+			on "active" _aR_[:active] = 0 + _cVal_
+			off
+		next
+		return _aR_
+
 	# ── settings (no-ops at engine slice 2 -- kept for API parity) ─
 
 	def FollowRedirects(bFollow)
@@ -155,7 +216,12 @@ class stzHttpClient from stzNetwork
 
 	def _Perform(nMethodCode, cUrl, cContentType, cBody)
 		_cHeaders_ = This._ComposeHeaderBlob()
-		last_response = StzEngineHttpRequest(nMethodCode, cUrl, _cHeaders_, cContentType, cBody)
+		if connect_timeout_ms > 0 or request_timeout_ms > 0
+			last_response = StzEngineHttpRequestWithTimeouts(nMethodCode, cUrl,
+				_cHeaders_, cContentType, cBody, connect_timeout_ms, request_timeout_ms)
+		else
+			last_response = StzEngineHttpRequest(nMethodCode, cUrl, _cHeaders_, cContentType, cBody)
+		ok
 		last_response_code = StzEngineHttpLastStatus()
 		This._RecordRequest(cUrl, last_response_code)
 		if last_response_code <= 0

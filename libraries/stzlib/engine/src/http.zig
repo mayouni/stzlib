@@ -1,18 +1,27 @@
-// HTTP client backed by std.http.Client.
+// HTTP client -- custom HTTP/1.1 on raw std.net.Stream, pooled.
 //
-// M-DEP3 slice 1: minimal GET / POST surface so stzNetwork can stop
-// loading libcurl.ring. std.crypto.tls handles HTTPS out of the box
-// for Zig 0.15, so we get http + https without a separate TLS lib.
+// Gap-analysis Tier 1 items 1+2. Previously this wrapped
+// std.http.Client; that gave no per-socket timeouts and limited pool
+// control. It now drives a small in-tree HTTP/1.1 client (httpcore.zig)
+// over a connection pool (http_pool.zig):
 //
-// Surface:
-//   http_get(url, body_out, body_max) -> status (>=0) or -1 on error
-//   http_post(url, content_type, body, body_len, out, max) -> status
-//   http_last_error_len() / http_last_error(buf, max)
+//   * Connections are reused per (scheme, host, port) -- the TCP+TLS
+//     handshake is paid once per host, not once per request.
+//   * connect_timeout_ms makes an unreachable host fail fast.
+//   * request_timeout_ms drives SO_RCVTIMEO / SO_SNDTIMEO (honoured on
+//     POSIX; best-effort on Windows -- see httpcore.zig).
 //
-// All operations are blocking. Async streaming + cookies + redirects
-// past the std default + per-request headers are deferred to slice 2.
+// Surface (unchanged for existing callers):
+//   http_get / http_post / http_request / http_parallel_get
+//   http_last_error_len / http_last_error / http_last_body_len
+// New:
+//   http_set_default_timeouts(connect_ms, request_ms, idle_ms)
+//   http_request_with_timeouts(...)  -- per-request timeout override
+//   http_pool_stats(out, max)        -- "opens=N\treuses=N\tidle=N\tactive=N"
 
 const std = @import("std");
+const httpcore = @import("httpcore.zig");
+const http_pool = @import("http_pool.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -45,9 +54,59 @@ pub fn http_last_error(out: [*]u8, max: usize) callconv(.c) i32 {
     return @intCast(n);
 }
 
-/// GET `url`, write response body into `body_out[..body_max]`.
-/// Returns HTTP status on success, -1 on transport error,
-/// -2 on body-overflow (the response did not fit in body_max).
+// ── pool + default timeouts (all milliseconds) ───────────────
+
+var default_pool: ?*http_pool.Pool = null;
+var pool_mutex: std.Thread.Mutex = .{};
+
+var def_connect_ms: u32 = 5_000;
+var def_request_ms: u32 = 30_000;
+var def_idle_ms: u32 = 60_000;
+
+fn getPool() ?*http_pool.Pool {
+    pool_mutex.lock();
+    defer pool_mutex.unlock();
+    if (default_pool) |p| return p;
+    default_pool = http_pool.create(def_idle_ms, 16, 256);
+    return default_pool;
+}
+
+/// http_set_default_timeouts -- set process-wide default connect /
+/// request / idle timeouts in milliseconds. 0 leaves a field unchanged.
+pub fn http_set_default_timeouts(connect_ms: u32, request_ms: u32, idle_ms: u32) callconv(.c) void {
+    if (connect_ms != 0) def_connect_ms = connect_ms;
+    if (request_ms != 0) def_request_ms = request_ms;
+    if (idle_ms != 0) {
+        def_idle_ms = idle_ms;
+        pool_mutex.lock();
+        if (default_pool) |p| p.idle_timeout_ms = idle_ms;
+        pool_mutex.unlock();
+    }
+}
+
+/// http_pool_stats -- write "opens=N\treuses=N\tidle=N\tactive=N" into
+/// out[0..max]. Returns bytes written (or 0 if no pool yet).
+pub fn http_pool_stats(out: [*]u8, max: usize) callconv(.c) i32 {
+    pool_mutex.lock();
+    const p = default_pool;
+    pool_mutex.unlock();
+    const s: http_pool.Stats = if (p) |pp| http_pool.stats(pp) else .{
+        .opens = 0,
+        .reuses = 0,
+        .idle = 0,
+        .active = 0,
+    };
+    const text = std.fmt.bufPrint(out[0..max], "opens={d}\treuses={d}\tidle={d}\tactive={d}", .{
+        s.opens, s.reuses, s.idle, s.active,
+    }) catch {
+        setError("pool stats buffer too small");
+        return 0;
+    };
+    return @intCast(text.len);
+}
+
+// ── public verbs ─────────────────────────────────────────────
+
 pub fn http_get(
     url_ptr: [*]const u8,
     url_len: usize,
@@ -59,16 +118,9 @@ pub fn http_get(
         setError("empty URL");
         return -1;
     }
-    return doRequest(.GET, url_ptr[0..url_len], null, null, &.{}, body_out, body_max) catch |err| {
-        var fbuf: [200]u8 = undefined;
-        const msg = std.fmt.bufPrint(&fbuf, "GET failed: {s}", .{@errorName(err)}) catch "GET failed";
-        setError(msg);
-        return -1;
-    };
+    return doRequest("GET", url_ptr[0..url_len], null, null, &.{}, body_out, body_max, def_connect_ms, def_request_ms);
 }
 
-/// POST `url` with `body[..body_len]` payload. `content_type` may be
-/// empty (defaults to application/octet-stream).
 pub fn http_post(
     url_ptr: [*]const u8,
     url_len: usize,
@@ -86,18 +138,12 @@ pub fn http_post(
     }
     const ct = if (ct_len == 0) "application/octet-stream" else ct_ptr[0..ct_len];
     const payload = body_ptr[0..body_len];
-    return doRequest(.POST, url_ptr[0..url_len], ct, payload, &.{}, out, out_max) catch |err| {
-        var fbuf: [200]u8 = undefined;
-        const msg = std.fmt.bufPrint(&fbuf, "POST failed: {s}", .{@errorName(err)}) catch "POST failed";
-        setError(msg);
-        return -1;
-    };
+    return doRequest("POST", url_ptr[0..url_len], ct, payload, &.{}, out, out_max, def_connect_ms, def_request_ms);
 }
 
-/// Generic request entry. `method_code` is one of:
+/// Generic request. `method_code`:
 /// 0=GET 1=POST 2=PUT 3=DELETE 4=HEAD 5=OPTIONS 6=PATCH
-/// `headers_blob` is a newline-separated `Name: Value` block (may be empty).
-/// `body` may be empty for verbs that don't carry one.
+/// `headers_blob` is a newline-separated "Name: Value" block.
 pub fn http_request(
     method_code: i32,
     url_ptr: [*]const u8,
@@ -111,90 +157,244 @@ pub fn http_request(
     out: [*]u8,
     out_max: usize,
 ) callconv(.c) i32 {
+    return requestImpl(
+        method_code,
+        url_ptr,
+        url_len,
+        headers_ptr,
+        headers_len,
+        ct_ptr,
+        ct_len,
+        body_ptr,
+        body_len,
+        out,
+        out_max,
+        def_connect_ms,
+        def_request_ms,
+    );
+}
+
+/// Per-request timeout override. Same as http_request but takes explicit
+/// connect / request millisecond deadlines (0 = use the default).
+pub fn http_request_with_timeouts(
+    method_code: i32,
+    url_ptr: [*]const u8,
+    url_len: usize,
+    headers_ptr: [*]const u8,
+    headers_len: usize,
+    ct_ptr: [*]const u8,
+    ct_len: usize,
+    body_ptr: [*]const u8,
+    body_len: usize,
+    connect_ms: u32,
+    request_ms: u32,
+    out: [*]u8,
+    out_max: usize,
+) callconv(.c) i32 {
+    const cms = if (connect_ms == 0) def_connect_ms else connect_ms;
+    const rms = if (request_ms == 0) def_request_ms else request_ms;
+    return requestImpl(
+        method_code,
+        url_ptr,
+        url_len,
+        headers_ptr,
+        headers_len,
+        ct_ptr,
+        ct_len,
+        body_ptr,
+        body_len,
+        out,
+        out_max,
+        cms,
+        rms,
+    );
+}
+
+fn requestImpl(
+    method_code: i32,
+    url_ptr: [*]const u8,
+    url_len: usize,
+    headers_ptr: [*]const u8,
+    headers_len: usize,
+    ct_ptr: [*]const u8,
+    ct_len: usize,
+    body_ptr: [*]const u8,
+    body_len: usize,
+    out: [*]u8,
+    out_max: usize,
+    connect_ms: u32,
+    request_ms: u32,
+) i32 {
     clearError();
     if (url_len == 0) {
         setError("empty URL");
         return -1;
     }
-    const method = methodFromCode(method_code) orelse {
+    const method = methodStr(method_code) orelse {
         setError("unsupported HTTP method code");
         return -1;
     };
-    var hdrs_buf: [32]std.http.Header = undefined;
-    const headers = parseHeaderBlob(headers_ptr[0..headers_len], &hdrs_buf) catch {
-        setError("too many headers (max 32)");
-        return -1;
-    };
+    const headers_blob = headers_ptr[0..headers_len];
     const ct_slice: ?[]const u8 = if (ct_len > 0) ct_ptr[0..ct_len] else null;
     const payload: ?[]const u8 = if (body_len > 0) body_ptr[0..body_len] else null;
-    return doRequest(method, url_ptr[0..url_len], ct_slice, payload, headers, out, out_max) catch |err| {
-        var fbuf: [200]u8 = undefined;
-        const msg = std.fmt.bufPrint(&fbuf, "{s} failed: {s}", .{ @tagName(method), @errorName(err) }) catch "request failed";
-        setError(msg);
-        return -1;
-    };
+    return doRequest(method, url_ptr[0..url_len], ct_slice, payload, headers_blob, out, out_max, connect_ms, request_ms);
 }
 
-fn methodFromCode(code: i32) ?std.http.Method {
+fn methodStr(code: i32) ?[]const u8 {
     return switch (code) {
-        0 => .GET,
-        1 => .POST,
-        2 => .PUT,
-        3 => .DELETE,
-        4 => .HEAD,
-        5 => .OPTIONS,
-        6 => .PATCH,
+        0 => "GET",
+        1 => "POST",
+        2 => "PUT",
+        3 => "DELETE",
+        4 => "HEAD",
+        5 => "OPTIONS",
+        6 => "PATCH",
         else => null,
     };
 }
 
-// ── Parallel GET ─────────────────────────────────────────────
-// std.Thread per URL; each worker runs a blocking client.fetch.
-// All results are concatenated into `out` separated by RECORD_SEP
-// (ASCII 0x1E). Each record is "<status>:<body>". Ring side splits
-// on RECORD_SEP and parses the prefix.
+// ── URL parsing ──────────────────────────────────────────────
+
+const ParsedUrl = struct {
+    is_tls: bool,
+    host: []const u8,
+    port: u16,
+    target: []const u8, // points into target_buf
+};
+
+fn compStr(c: std.Uri.Component) []const u8 {
+    return switch (c) {
+        .raw => |s| s,
+        .percent_encoded => |s| s,
+    };
+}
+
+fn parseUrl(url: []const u8, target_buf: []u8) ?ParsedUrl {
+    const uri = std.Uri.parse(url) catch return null;
+    const is_tls = std.ascii.eqlIgnoreCase(uri.scheme, "https");
+    const host_comp = uri.host orelse return null;
+    const host = compStr(host_comp);
+    if (host.len == 0) return null;
+    const port: u16 = uri.port orelse (if (is_tls) @as(u16, 443) else @as(u16, 80));
+
+    // Build the request-target: path + "?" + query.
+    const path = compStr(uri.path);
+    const p = if (path.len == 0) "/" else path;
+    var n: usize = 0;
+    if (p.len > target_buf.len) return null;
+    @memcpy(target_buf[0..p.len], p);
+    n = p.len;
+    if (uri.query) |q| {
+        const qs = compStr(q);
+        if (n + 1 + qs.len > target_buf.len) return null;
+        target_buf[n] = '?';
+        n += 1;
+        @memcpy(target_buf[n .. n + qs.len], qs);
+        n += qs.len;
+    }
+    return .{ .is_tls = is_tls, .host = host, .port = port, .target = target_buf[0..n] };
+}
+
+// ── core round-trip ──────────────────────────────────────────
+
+fn doRequest(
+    method: []const u8,
+    url: []const u8,
+    content_type: ?[]const u8,
+    payload: ?[]const u8,
+    headers_blob: []const u8,
+    out: [*]u8,
+    max: usize,
+    connect_ms: u32,
+    request_ms: u32,
+) i32 {
+    var target_buf: [8192]u8 = undefined;
+    const parsed = parseUrl(url, &target_buf) orelse {
+        var fbuf: [200]u8 = undefined;
+        const msg = std.fmt.bufPrint(&fbuf, "{s} failed: invalid URL", .{method}) catch "request failed: invalid URL";
+        setError(msg);
+        return -1;
+    };
+
+    const pool = getPool() orelse {
+        setError("pool unavailable");
+        return -1;
+    };
+
+    const conn = http_pool.acquire(pool, parsed.host, parsed.port, parsed.is_tls, connect_ms) orelse {
+        var ebuf: [256]u8 = undefined;
+        const n = http_pool.pool_last_error(&ebuf, ebuf.len);
+        if (n > 0) setError(ebuf[0..@intCast(n)]) else setError("acquire failed");
+        last_body_len = 0;
+        return -1;
+    };
+
+    httpcore.setIoTimeout(conn, request_ms);
+
+    const resp = httpcore.request(
+        conn,
+        method,
+        parsed.target,
+        parsed.host,
+        headers_blob,
+        content_type,
+        payload,
+        out,
+        max,
+    ) catch |err| {
+        // A failed request leaves the connection in an unknown state --
+        // do not return it to the idle list.
+        http_pool.release(pool, conn, false);
+        last_body_len = 0;
+        if (err == error.BodyOverflow) {
+            setError("response body exceeds output buffer");
+            return -2;
+        }
+        var fbuf: [200]u8 = undefined;
+        const msg = std.fmt.bufPrint(&fbuf, "{s} failed: {s}", .{ method, @errorName(err) }) catch "request failed";
+        setError(msg);
+        return -1;
+    };
+
+    http_pool.release(pool, conn, resp.keep_alive);
+    last_body_len = resp.body_len;
+    return resp.status;
+}
+
+// ── parallel GET ─────────────────────────────────────────────
+// std.Thread per URL; each worker does a pooled round-trip. Results are
+// concatenated into `out` separated by RECORD_SEP (0x1E); each record is
+// "<status>:<body>". Ring splits on RECORD_SEP and parses the prefix.
 
 const RECORD_SEP: u8 = 0x1E;
 const MAX_PARALLEL: usize = 32;
+const PARALLEL_BODY_CAP: usize = 2 * 1024 * 1024; // 2 MiB per URL
 
 const ParallelJob = struct {
     url: []const u8,
     status: i32,
     body: std.ArrayList(u8),
-    err: ?[]u8,
     done: bool,
 };
 
 fn parallelWorker(job: *ParallelJob) void {
-    var client = std.http.Client{ .allocator = gpa };
-    defer client.deinit();
-    var allocating = std.io.Writer.Allocating.init(gpa);
-    defer allocating.deinit();
-
-    const res = client.fetch(.{
-        .method = .GET,
-        .location = .{ .url = job.url },
-        .response_writer = &allocating.writer,
-    }) catch |err| {
+    const buf = gpa.alloc(u8, PARALLEL_BODY_CAP) catch {
         job.status = -1;
-        const fbuf = std.fmt.allocPrint(gpa, "{s}", .{@errorName(err)}) catch null;
-        job.err = fbuf;
         job.done = true;
         return;
     };
-    job.status = @intCast(@intFromEnum(res.status));
-    const buffered = allocating.writer.buffered();
-    job.body.appendSlice(gpa, buffered) catch {
-        job.status = -1;
-        job.err = gpa.dupe(u8, "oom") catch null;
-    };
+    defer gpa.free(buf);
+    const status = doRequest("GET", job.url, null, null, &.{}, buf.ptr, buf.len, def_connect_ms, def_request_ms);
+    job.status = status;
+    if (status > 0) {
+        const n = last_body_len;
+        job.body.appendSlice(gpa, buf[0..n]) catch {
+            job.status = -1;
+        };
+    }
     job.done = true;
 }
 
-/// http_parallel_get -- fire N GETs in parallel, write
-/// "<status>:<body><RS>"... into `out`. `urls_blob` is a `\n`-
-/// separated list of URLs. Returns total bytes written, or -2 on
-/// overflow, -1 on argument error.
 pub fn http_parallel_get(
     urls_ptr: [*]const u8,
     urls_len: usize,
@@ -208,7 +408,6 @@ pub fn http_parallel_get(
     }
     const urls_slice = urls_ptr[0..urls_len];
 
-    // Split.
     var url_buf: [MAX_PARALLEL][]const u8 = undefined;
     var n: usize = 0;
     var it = std.mem.splitScalar(u8, urls_slice, '\n');
@@ -231,10 +430,7 @@ pub fn http_parallel_get(
         return -1;
     };
     defer {
-        for (jobs) |*j| {
-            j.body.deinit(gpa);
-            if (j.err) |e| gpa.free(e);
-        }
+        for (jobs) |*j| j.body.deinit(gpa);
         gpa.free(jobs);
     }
 
@@ -245,19 +441,10 @@ pub fn http_parallel_get(
     defer gpa.free(threads);
 
     for (jobs, 0..) |*j, i| {
-        j.* = .{
-            .url = url_buf[i],
-            .status = 0,
-            .body = .{},
-            .err = null,
-            .done = false,
-        };
+        j.* = .{ .url = url_buf[i], .status = 0, .body = .{}, .done = false };
         threads[i] = std.Thread.spawn(.{}, parallelWorker, .{j}) catch {
             j.status = -1;
-            j.err = gpa.dupe(u8, "spawn failed") catch null;
             j.done = true;
-            // Leave the thread slot uninitialised; we'll detect via
-            // the done flag and skip the join below.
             continue;
         };
     }
@@ -285,88 +472,28 @@ pub fn http_parallel_get(
     return @intCast(written);
 }
 
-fn parseHeaderBlob(blob: []const u8, out: []std.http.Header) error{TooMany}![]const std.http.Header {
-    if (blob.len == 0) return out[0..0];
-    var n: usize = 0;
-    var it = std.mem.splitScalar(u8, blob, '\n');
-    while (it.next()) |raw_line| {
-        var line = raw_line;
-        if (line.len > 0 and line[line.len - 1] == '\r') line = line[0 .. line.len - 1];
-        if (line.len == 0) continue;
-        const colon = std.mem.indexOfScalar(u8, line, ':') orelse continue;
-        if (n >= out.len) return error.TooMany;
-        var value = line[colon + 1 ..];
-        while (value.len > 0 and (value[0] == ' ' or value[0] == '\t')) value = value[1..];
-        out[n] = .{ .name = line[0..colon], .value = value };
-        n += 1;
-    }
-    return out[0..n];
-}
-
-// ── internal ─────────────────────────────────────────────────
-
-fn doRequest(
-    method: std.http.Method,
-    url: []const u8,
-    content_type: ?[]const u8,
-    payload: ?[]const u8,
-    user_headers: []const std.http.Header,
-    out: [*]u8,
-    max: usize,
-) !i32 {
-    var client = std.http.Client{ .allocator = gpa };
-    defer client.deinit();
-
-    var allocating = std.io.Writer.Allocating.init(gpa);
-    defer allocating.deinit();
-
-    // Build the extra-headers slice: user headers + (optional Content-Type
-    // if not already supplied by the caller).
-    var merged: [40]std.http.Header = undefined;
-    var n: usize = 0;
-    var ct_already = false;
-    for (user_headers) |h| {
-        if (std.ascii.eqlIgnoreCase(h.name, "content-type")) ct_already = true;
-        if (n >= merged.len) break;
-        merged[n] = h;
-        n += 1;
-    }
-    if (content_type) |ct| if (!ct_already and n < merged.len) {
-        merged[n] = .{ .name = "Content-Type", .value = ct };
-        n += 1;
-    };
-
-    const res = try client.fetch(.{
-        .method = method,
-        .location = .{ .url = url },
-        .response_writer = &allocating.writer,
-        .extra_headers = merged[0..n],
-        .payload = payload,
-    });
-
-    const status: i32 = @intCast(@intFromEnum(res.status));
-
-    const written = allocating.writer.buffered();
-    if (written.len > max) {
-        setError("response body exceeds output buffer");
-        last_body_len = 0;
-        return -2;
-    }
-    @memcpy(out[0..written.len], written);
-    last_body_len = written.len;
-
-    return status;
-}
-
 // ── tests ────────────────────────────────────────────────────
-
-// Network tests require a live server and are excluded from the
-// default Windows test loop (per the L99 guardrail). They run only
-// when `STZ_NET_TESTS=1` is set at build/test time.
 
 test "http: URL parse rejection surface" {
     var body_buf: [256]u8 = undefined;
     const rc = http_get("not a url", 9, &body_buf, 256);
     try std.testing.expect(rc < 0);
     try std.testing.expect(http_last_error_len() > 0);
+}
+
+test "http: parseUrl splits scheme/host/port/target" {
+    var tbuf: [256]u8 = undefined;
+    const p = parseUrl("https://example.com/a/b?x=1", &tbuf).?;
+    try std.testing.expect(p.is_tls);
+    try std.testing.expectEqualStrings("example.com", p.host);
+    try std.testing.expectEqual(@as(u16, 443), p.port);
+    try std.testing.expectEqualStrings("/a/b?x=1", p.target);
+}
+
+test "http: parseUrl default http port + root path" {
+    var tbuf: [256]u8 = undefined;
+    const p = parseUrl("http://localhost:8080", &tbuf).?;
+    try std.testing.expect(!p.is_tls);
+    try std.testing.expectEqual(@as(u16, 8080), p.port);
+    try std.testing.expectEqualStrings("/", p.target);
 }
