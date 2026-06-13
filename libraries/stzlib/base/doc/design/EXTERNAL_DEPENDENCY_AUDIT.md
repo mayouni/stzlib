@@ -66,7 +66,7 @@ Recommended: **(c)** -- it has no production users and existing
   11/11, reactive 20/20 spot-checked)
 * The `fastpro.ring` extension is no longer required for `stzBase`.
 
-## 3. HTML -- M-DEP2 (Pending)
+## 3. HTML -- M-DEP2 (Slice 1 LANDED 2026-06-13)
 
 `stzHtml.ring` uses the lexbor-based `html.ring` extension's
 `HTML` class for HTML5 parsing + DOM. The Ring code calls:
@@ -76,16 +76,36 @@ a full DOM API.
 
 **What the engine already has** (`ring_bridge_html.zig`): `StzEngine
 HtmlEncode`, `HtmlDecode`, `HtmlStripTags`, `HtmlEncodeAttribute`.
-Only encode/decode/strip. **No parser, no DOM, no CSS selectors.**
 
-**Replacement requires:** an HTML5 tokenizer + tree builder + CSS
-selector engine in Zig. Realistically 4000-6000 LOC of focused
-parser work, plus the Ring bridge for every DOM operation. This is
-its own multi-week milestone, not a session task.
+**Slice 1 added 2026-06-13** -- pragmatic tokenizer + flat element
+index in `libraries/stzlib/engine/src/html_dom.zig` (~370 LOC, 8 Zig
+unit tests). New bridge functions exposed:
 
-**Interim:** mark `stzHtml.ring` as "requires html.ring extension"
-in user docs; do not auto-load it from `stzBase.ring`. Users who
-need HTML parsing can opt in explicitly.
+* `StzEngineHtmlParse(cHtml)` -> opaque doc handle
+* `StzEngineHtmlFree(pDoc)`
+* `StzEngineHtmlCount(pDoc)` -> total elements
+* `StzEngineHtmlCountByTag(pDoc, cTag)` -> count of `cTag` elements
+* `StzEngineHtmlTextOfTag(pDoc, cTag, n)` -> inner text of n-th match
+* `StzEngineHtmlAttrOfTag(pDoc, cTag, n, cAttr)` -> attribute value
+* `StzEngineHtmlAllText(pDoc)` -> document text (strips scripts/styles)
+* `StzEngineHtmlTagOf(pDoc, n)` -> tag of n-th element
+
+Covered:
+* tag/attribute parsing (`name="v"`, `name='v'`, `name=bare`, `name`)
+* self-closing (`<br/>`) and void elements (img/br/hr/...)
+* `<script>` / `<style>` raw text suppression in text extraction
+* Comments and `<!DOCTYPE>` skipped
+* Case-insensitive tag/attr lookup
+
+Not yet (next slices):
+* CSS selectors (only find-by-tag for now)
+* Nested DOM tree walking (children/parent navigation)
+* Mutation API (setAttribute / appendChild / setInnerText)
+
+Ring smoke test `52_html_dom_engine_narrated.ring`: 5 scenarios, 15
+assertions, all green. This is a foundation -- `stzHtml.ring` is
+NOT yet rewired to use the engine; that's slice 2 once CSS selectors
+land.
 
 ## 4. libcurl -- M-DEP3 (Pending)
 
