@@ -269,7 +269,7 @@ ok
 
     load "system/stzPointer.ring"
 
-//   load "system/stzUUID.ring" #TODO Implement it engine-side (in Zig)
+    load "system/stzUUID.ring"     # Engine-backed UUID v4 (Zig)
 
 # Loading files related to the FILE module
 
