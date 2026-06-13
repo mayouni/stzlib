@@ -19,8 +19,15 @@ class stzReactiveTimer
 		callback = f
 		this.engine = engine
 
-		if isOneTime = NULL
+		# Was `if isOneTime = NULL ... isOneTime = false` -- the
+		# parameter `oneTime` was never assigned to the class
+		# attribute `isOneTime`, so all timers were treated as
+		# repeating regardless of the constructor arg. Fixed:
+		# coerce missing/NULL to false, otherwise honour the param.
+		if oneTime = NULL
 			isOneTime = false
+		else
+			isOneTime = oneTime
 		ok
 
 	#NOTE // Internal mechanism regarding isOneTime attribute
