@@ -35,9 +35,22 @@
 > 3/3 + cancel.zig 2/2 Zig; `65_dns_cache_narrated` 4/4 +
 > `54_cancel_narrated` 5/5 Ring. All network+reactive suites green.
 >
-> **Next session starts at item 5** (retry budget). Items 1-4 below are
-> kept for reference; skip to item 5 and proceed 5-8 in order. The
-> recommended grouping is session C = items 5 + 6.
+> **Items 5+6 are also DONE (session 67).** Item 5: retry budget Ring
+> class `base/common/stzRetryBudget.ring` over the existing token-bucket
+> rate limiter (no engine change); `(budget, window_sec)`, `Allow()`/
+> `Spend()`/`AllowN()`/`Available()` -- named Allow not Try because
+> `try` is a Ring keyword (see memory
+> `feedback-ring-reserved-words-as-methods`). Item 6: latency histograms
+> -- new DLL `engine/src/histogram.zig` (log-scale ms buckets,
+> create/record/percentile/reset/count/destroy), `StzEngineHistogram*`
+> bridge, Ring class `stzLatencyHistogram` (P50/P95/P99); http.zig
+> records request latency, exposed via `StzEngineHttpLatencyPercentile/
+> Count/Reset`. Tests: histogram.zig 4/4 Zig; `66_retry_budget_narrated`
+> 10/10 + `67_histogram_narrated` 10/10 Ring. All suites green.
+>
+> **Next session starts at item 7** (outlier ejection). Items 1-6 below
+> are kept for reference; skip to item 7 and proceed 7-8. The
+> recommended grouping is session D = items 7 + 8.
 
 ## Context (read these first)
 

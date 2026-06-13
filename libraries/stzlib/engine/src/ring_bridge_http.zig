@@ -205,6 +205,24 @@ fn ring_DnsCacheClear(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// ── HTTP request-latency histogram (item 6 wire-up) ──────────
+
+/// StzEngineHttpLatencyPercentile(nP) -> ms upper bound for percentile.
+fn ring_HttpLatencyPercentile(p: *anyopaque) callconv(.c) void {
+    rn(p, http.http_latency_percentile(gn(p, 1)));
+}
+
+/// StzEngineHttpLatencyCount() -> number of requests recorded.
+fn ring_HttpLatencyCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(http.http_latency_count()));
+}
+
+/// StzEngineHttpLatencyReset() -> clear the request-latency histogram.
+fn ring_HttpLatencyReset(p: *anyopaque) callconv(.c) void {
+    http.http_latency_reset();
+    rn(p, 0);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginehttpget", .func = ring_HttpGet },
     .{ .name = "stzenginehttpgetstatus", .func = ring_HttpGetStatus },
@@ -223,6 +241,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginednsresolve", .func = ring_DnsResolve },
     .{ .name = "stzenginednsstats", .func = ring_DnsStats },
     .{ .name = "stzenginednscacheclear", .func = ring_DnsCacheClear },
+    // Tier 1 item 6 -- request-latency histogram
+    .{ .name = "stzenginehttplatencypercentile", .func = ring_HttpLatencyPercentile },
+    .{ .name = "stzenginehttplatencycount", .func = ring_HttpLatencyCount },
+    .{ .name = "stzenginehttplatencyreset", .func = ring_HttpLatencyReset },
 };
 
 pub fn registerAll(state: *anyopaque) void {
