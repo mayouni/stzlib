@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 57,
+    .last_session = 58,
     .last_updated = "2026-06-13",
 };
 
@@ -440,8 +440,8 @@ pub const milestones = [_]Milestone{
         .id = "M-DEP3",
         .track = "depcleanup",
         .title = "Replace libcurl.ring with Zig HTTP Client",
-        .status = .planned,
-        .summary = "stzNetwork.ring uses Ring's libcurl.ring for HTTP. Replacement needs cross-platform Zig HTTP client with TLS (BearSSL or native). 2-3 weeks; see EXTERNAL_DEPENDENCY_AUDIT.md.",
+        .status = .partial,
+        .summary = "Slice 1 LANDED 2026-06-13 (session 58): engine module stz_http (~180 LOC) ships GET/POST + status + last-error via Zig std.http.Client + std.crypto.tls. HTTPS works without an external TLS lib. Bridge exposes StzEngineHttpGet/GetStatus/Post/LastError. Smoke 52_http_engine_narrated: 3 scenarios, 7 assertions, all green. NOT YET (slice 2): custom headers, cookies, redirect policy, auth, PUT/DELETE/HEAD/OPTIONS, form POST helper, streaming. stzNetwork.ring + stzHttpClient.ring still load libcurl.ring -- rewire happens in slice 2 after the surface grows to match real callers.",
     },
     .{
         .id = "M-DEP4",
