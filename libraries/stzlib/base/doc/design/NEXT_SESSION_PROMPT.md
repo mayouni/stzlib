@@ -1,56 +1,46 @@
-# Next Session -- Implement Reactive Engine Gap Analysis Tier 1
+# Next Session -- Reactive Engine: Tier 1 DONE, Tier 2 is next
 
-> **Status as of 2026-06-13 (session 65 end). Items 1+2 are DONE.**
-> The custom HTTP/1.1 client on raw `std.net.Stream`
-> (`engine/src/httpcore.zig`, TLS via `std.crypto.tls.Client`), the
-> connection pool (`engine/src/http_pool.zig`, keyed by
-> scheme/host/port with idle eviction + caps + opens/reuses/idle/active
-> stats), and per-layer timeouts (connect via non-blocking connect +
-> `poll(POLLOUT)`; request via `SO_RCVTIMEO`/`SO_SNDTIMEO`) all shipped
-> and replaced the `std.http.Client` path inside `http.zig`. New bridge
-> fns `StzEngineHttpSetDefaultTimeouts`/`RequestWithTimeouts`/
-> `PoolStats`; `stzHttpClient` rewired with the timeout + pool-stats
-> surface. Live-verified connection reuse + HTTPS + fast connect-
-> timeout. Tests `63_http_pool_narrated.ring` (6/6) +
-> `64_http_timeouts_engine_narrated.ring` (7/7); 52/53/55/56/62 still
-> green. Milestone **M-RX1** (partial) tracks this in the CLI.
+> **TIER 1 IS COMPLETE (milestone M-RX1, sessions 64-68).** All 8
+> gap-analysis Tier 1 items shipped, each with engine code + Ring rewire
+> + narrated tests, all green, both remotes pushed:
+> 1. HTTP timeouts -- caller-side deadline (`StzEnginePoolPollWithDeadline`)
+>    + engine-side connect (`poll(POLLOUT)`) / request (`SO_RCVTIMEO`).
+> 2. Connection pool + keep-alive -- `httpcore.zig` (custom HTTP/1.1 on
+>    `std.net.Stream`, TLS via `std.crypto.tls.Client`) + `http_pool.zig`,
+>    replacing the `std.http.Client` path.
+> 3. DNS cache with TTL -- `dns.zig` (positive 60s / negative 5s).
+> 4. Cancellation tokens -- `cancel.zig` + `stzCancelToken`;
+>    `StzEnginePoolSubmitWithCancel`, worker returns -5 when cancelled.
+> 5. Retry budget -- `stzRetryBudget` over the token-bucket rate limiter.
+> 6. Latency histograms -- `histogram.zig` + `stzLatencyHistogram`
+>    (P50/P95/P99); http.zig records request latency.
+> 7. Outlier ejection -- `resilience.zig` OutlierDetector; `http_pool`
+>    refuses ejected hosts; `StzEngineOutlier*`.
+> 8. Graceful pool drain -- `pool.zig` `accepting` + `pool_drain`;
+>    `stzHttpClient.Shutdown()`.
 >
-> **Windows caveat (carry forward):** `SO_RCVTIMEO`/`SO_SNDTIMEO` are
-> best-effort on Windows because std's `std.net.Stream.Reader` uses
-> overlapped `WSARecv`; the caller-side `StzEnginePoolPollWithDeadline`
-> (session 64) remains the cross-platform "free the worker" guarantee.
-> Any new timeout work must stay caller-side, not rely on the socket
-> option alone.
+> Tests live in `base/test/network/` (62..69) + `base/test/reactive/`
+> (54). `softanza next` is the source of truth.
 >
-> **Items 3+4 are also DONE (session 66).** Item 3: DNS cache
-> `engine/src/dns.zig` (host|port key, 60s positive / 5s negative TTL,
-> atomic resolve/hit counters) wired into `httpcore.connect` +
-> `tcp.tcp_connect`; diagnostics `StzEngineDnsResolve`/`DnsStats`/
-> `DnsCacheClear`. Item 4: cancellation tokens `engine/src/cancel.zig`
-> (atomic-flag `CancelToken`), `pool.zig` Job carries an optional token,
-> `StzEnginePoolSubmitWithCancel` + worker checkpoint returns `-5`
-> (JOB_CANCELLED) when signalled before the job runs; Ring class
-> `stzCancelToken` (lazy-init -- paren-less `new` skips `init()` in Ring,
-> see memory `feedback-ring-parenless-new-skips-init`). Tests: dns.zig
-> 3/3 + cancel.zig 2/2 Zig; `65_dns_cache_narrated` 4/4 +
-> `54_cancel_narrated` 5/5 Ring. All network+reactive suites green.
+> **Two carry-forward gotchas (both in memory):**
+> * Windows `SO_RCVTIMEO`/`SO_SNDTIMEO` are best-effort (std uses
+>   overlapped `WSARecv`); caller-side deadlines remain the
+>   cross-platform guarantee.
+> * Per-DLL module-global instances: a feature whose state is shared
+>   between an internal consumer (e.g. `http_pool`) and a Ring bridge
+>   must register its bridge fns from the SAME DLL that imports the
+>   module (true for `dns.zig`, the OutlierDetector, cancel tokens).
 >
-> **Items 5+6 are also DONE (session 67).** Item 5: retry budget Ring
-> class `base/common/stzRetryBudget.ring` over the existing token-bucket
-> rate limiter (no engine change); `(budget, window_sec)`, `Allow()`/
-> `Spend()`/`AllowN()`/`Available()` -- named Allow not Try because
-> `try` is a Ring keyword (see memory
-> `feedback-ring-reserved-words-as-methods`). Item 6: latency histograms
-> -- new DLL `engine/src/histogram.zig` (log-scale ms buckets,
-> create/record/percentile/reset/count/destroy), `StzEngineHistogram*`
-> bridge, Ring class `stzLatencyHistogram` (P50/P95/P99); http.zig
-> records request latency, exposed via `StzEngineHttpLatencyPercentile/
-> Count/Reset`. Tests: histogram.zig 4/4 Zig; `66_retry_budget_narrated`
-> 10/10 + `67_histogram_narrated` 10/10 Ring. All suites green.
->
-> **Next session starts at item 7** (outlier ejection). Items 1-6 below
-> are kept for reference; skip to item 7 and proceed 7-8. The
-> recommended grouping is session D = items 7 + 8.
+> **NEXT: Tier 2 -- the genuine 3-5 session arc, NOT started.**
+> Cooperative scheduling via a unified IOCP / epoll / kqueue reactor
+> (10k+ concurrent connections per worker via non-blocking I/O), HTTP/2,
+> W3C TraceContext propagation, work-stealing scheduler. The hard part
+> is the cross-platform async abstraction, gated on Zig 0.16's `std.Io`
+> direction stabilising -- decide the async API shape FIRST. Until then,
+> everything web/cloud/agentic-scale that does NOT need 10k-conn-per-
+> worker concurrency already ships. The Tier 1 reference notes below are
+> kept for context; the new work is scoped in
+> `REACTIVE_ENGINE_GAP_ANALYSIS.md` (Tier 2 section).
 
 ## Context (read these first)
 

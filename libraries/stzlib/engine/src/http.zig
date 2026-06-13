@@ -23,6 +23,7 @@ const std = @import("std");
 const httpcore = @import("httpcore.zig");
 const http_pool = @import("http_pool.zig");
 const histogram = @import("histogram.zig");
+const resilience = @import("resilience.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -115,6 +116,16 @@ pub fn http_latency_count() callconv(.c) u64 {
 /// http_latency_reset -- clear the request-latency histogram.
 pub fn http_latency_reset() callconv(.c) void {
     histogram.histogram_reset(latencyHist());
+}
+
+/// http_pool_shutdown -- close all idle pooled connections (item 8).
+/// Returns the number closed. Active in-flight requests are unaffected.
+pub fn http_pool_shutdown() callconv(.c) i32 {
+    pool_mutex.lock();
+    const p = default_pool;
+    pool_mutex.unlock();
+    if (p) |pp| return @intCast(http_pool.shutdown(pp));
+    return 0;
 }
 
 /// http_pool_stats -- write "opens=N\treuses=N\tidle=N\tactive=N" into
@@ -359,6 +370,11 @@ fn doRequest(
         var ebuf: [256]u8 = undefined;
         const n = http_pool.pool_last_error(&ebuf, ebuf.len);
         if (n > 0) setError(ebuf[0..@intCast(n)]) else setError("acquire failed");
+        // A genuine connect failure counts toward outlier ejection; an
+        // already-ejected host does not (it is reported, not re-counted).
+        if (resilience.outlier_should_eject(parsed.host.ptr, parsed.host.len) == 0) {
+            resilience.outlier_record(parsed.host.ptr, parsed.host.len, 0, 0);
+        }
         last_body_len = 0;
         return -1;
     };
@@ -379,6 +395,7 @@ fn doRequest(
         // A failed request leaves the connection in an unknown state --
         // do not return it to the idle list.
         http_pool.release(pool, conn, false);
+        resilience.outlier_record(parsed.host.ptr, parsed.host.len, 0, 0);
         last_body_len = 0;
         if (err == error.BodyOverflow) {
             setError("response body exceeds output buffer");
@@ -394,6 +411,9 @@ fn doRequest(
     last_body_len = resp.body_len;
     const dt_ms = std.time.milliTimestamp() - t0_ms;
     histogram.histogram_record(latencyHist(), @floatFromInt(dt_ms));
+    // A completed response (any HTTP status) is a healthy host: reset its
+    // outlier failure run.
+    resilience.outlier_record(parsed.host.ptr, parsed.host.len, 1, @floatFromInt(dt_ms));
     return resp.status;
 }
 
