@@ -403,10 +403,15 @@ class stzExterCode
         return This.LogFile()
 
     def Code()
-        if NOT fexists(@cSourceFile)
-            return ""
+        # In-memory source-of-truth. The source file is only written
+        # at Prepare()/Execute() time; until then @cCode is canonical.
+        if @cCode != ""
+            return @cCode
         ok
-        return This.ReadFile(@cSourceFile)
+        if fexists(@cSourceFile)
+            return This.ReadFile(@cSourceFile)
+        ok
+        return ""
 
     #====== PRIVATE METHODS ======#
 
