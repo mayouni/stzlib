@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1034,
     .ring_classes_bridged = 125,
     .ring_engine_calls = 3482,
-    .last_session = 55,
+    .last_session = 56,
     .last_updated = "2026-06-13",
 };
 
@@ -433,8 +433,8 @@ pub const milestones = [_]Milestone{
         .id = "M-DEP2",
         .track = "depcleanup",
         .title = "Replace html.ring (lexbor) with Zig HTML5 Parser",
-        .status = .planned,
-        .summary = "stzHtml.ring uses lexbor-based html.ring for full HTML5 parsing + DOM. Engine has only encode/decode/striptags. Replacement needs HTML5 tokenizer + tree builder + CSS selector engine in Zig (~4000-6000 LOC). Multi-week arc; see EXTERNAL_DEPENDENCY_AUDIT.md.",
+        .status = .partial,
+        .summary = "Slice 1 LANDED 2026-06-13 (session 56): html_dom.zig (~370 LOC, 8 Zig unit tests) ships pragmatic tokenizer + flat element index. Bridge exposes StzEngineHtmlParse/Free/Count/CountByTag/TextOfTag/AttrOfTag/AllText/TagOf. Covers tag/attribute parsing (quoted, single-quoted, bare, attr-only), self-closing + void elements, script/style raw-text suppression, comments, doctype, case-insensitive lookup. Ring smoke 52_html_dom_engine_narrated: 5 scenarios, 15 assertions, all green. PENDING: CSS selectors (find-by-id, find-by-class, descendant selectors), nested DOM tree walking (children/parent), mutation API (setAttribute/appendChild/setInnerText). Slice 2 = CSS selectors -- then stzHtml.ring gets rewired to use the engine. See EXTERNAL_DEPENDENCY_AUDIT.md.",
     },
     .{
         .id = "M-DEP3",
