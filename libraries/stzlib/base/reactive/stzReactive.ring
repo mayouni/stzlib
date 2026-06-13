@@ -1,4 +1,9 @@
-load "libuv.ring"
+# load "libuv.ring" -- removed 2026-06-13 (M-DEP4 slice 1).
+# The libuv-driven async runtime has been replaced with the
+# pure-Ring poll-based fallback (stzRingTimer + clock()). The few
+# uv_* call sites below are stubbed inline so the public surface
+# stays stable; full async I/O lands in a later slice once the
+# cross-platform Zig event loop is built.
 
 
 #=====================#
@@ -42,8 +47,10 @@ class stzReactiveSystem
 
 	def init()
 
-		# Initiates the reactive system and runs the event loop.
-		@libuvLoop = uv_default_loop()
+		# libuv default loop is no longer used; the polling timer
+		# manager is the runtime now. We keep @libuvLoop as a NULL
+		# sentinel so legacy callers that read the handle don't crash.
+		@libuvLoop = NULL
 
 		timerManager = new stzTimerManager()
 		http = new stzReactiveHttp(self)
@@ -55,6 +62,7 @@ class stzReactiveSystem
 
 
 	def LibuvLoop()
+		# Compatibility: returns NULL since libuv is no longer wired.
 		return @libuvLoop
 
 	#----------------------------------------------------------#
@@ -421,12 +429,12 @@ class stzReactiveSystem
 	# easier data processing in network operations.
 
 	def LibUVBufferToString(buffer)
-		# Converts a libuv buffer to a string.
-		return uv_buf2str(buffer)
+		# libuv is gone; Ring buffers ARE strings, so this is identity.
+		return buffer
 
 	def StringToLibUVBuffer(str)
-		# Converts a string to a libuv buffer for writing.
-		return uv_buf_init(str, len(str))
+		# libuv is gone; Ring buffers ARE strings, so this is identity.
+		return str
 
 	#--------------------#
 	#  INTERNAL METHODS  #

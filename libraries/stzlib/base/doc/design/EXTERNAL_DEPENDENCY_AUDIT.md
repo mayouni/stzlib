@@ -15,7 +15,7 @@ already covers, and what remains as a milestone arc.
 | `fastpro.ring`     | `number/stzFastPro.ring`                                    | **DROPPED** -- deprecated (M-DEP1)           |
 | `html.ring` (lexbor)| `file/stzHtml.ring`                                         | **REPLACED** with engine (M-DEP2 slice 2)   |
 | `libcurl.ring`     | `network/stzNetwork.ring`, `network/stzHttpClient.ring`     | **REPLACED** with engine (M-DEP3 slice 2)   |
-| `libuv.ring`       | `file/stzFolderWatcher.ring`, `network/stzNetwork.ring`, `reactive/stzReactive.ring` | Pending -- M-DEP4 |
+| `libuv.ring`       | `reactive/stzReactive.ring` + TCP classes                   | **Slice 1**: removed from reactive + folder watcher (M-DEP4) |
 
 ## 1. UUID -- CLOSED 2026-06-13
 
@@ -210,27 +210,63 @@ Not yet (slice 3 -- only if real callers need it):
 * PATCH wired through to a verb-specific Ring method
 * Per-request timing (`ResponseTime()`)
 
-## 5. libuv -- M-DEP4 (Pending)
+## 5. libuv -- M-DEP4 (Slice 1 LANDED 2026-06-13)
 
 `libuv.ring` is the heaviest dep: it ships an entire async event
-loop, used by `stzReactive`, `stzNetwork`, and `stzFolderWatcher`.
-Replacing it requires a Zig event-loop wrapper that handles IOCP
-(Windows), epoll (Linux), kqueue (macOS) under one API. This is
-foundational engineering -- months of work to reach feature parity.
+loop. A full cross-platform Zig replacement (IOCP / epoll / kqueue
+under one API) is months of work and properly its own multi-session
+arc.
 
-**Interim:** keep the dep. The synchronous data-layer harness
-(`51_reactive_harness_narrated.ring`) already covers the testable
-non-async surface. Async testing happens outside CI.
+**Slice 1 ships the pragmatic path:** drop `libuv.ring` everywhere
+that has a workable synchronous fallback. The reactive runtime now
+uses Ring's `clock()` + polling (the same approach `stzRingTimer`
+was already using as a fallback). `stzNetwork.ring` had the load but
+never made libuv calls -- removed cleanly in M-DEP3. The standalone
+`stzFolderWatcher.ring` demo (sample script, not a class) is moved
+to `base/archive/`.
+
+Engine-side rewires:
+* `reactive/stzReactive.ring` -- `load "libuv.ring"` REMOVED.
+  `uv_default_loop()` replaced with NULL sentinel; `uv_buf2str` /
+  `uv_buf_init` become identity (Ring buffers are strings).
+* `reactive/stzReactiveTimer.ring` -- `uv_timer_*` calls replaced
+  with the polling-based pattern (Start records `clock()`; the
+  manager drives via `CheckAndTick()`).
+* `file/stzFolderWatcher.ring` -- moved to
+  `archive/file_stzFolderWatcher_libuv_demo.ring`.
+
+NOT YET (slice 2 -- requires real engine work):
+* `network/stzTcpClient.ring` and `network/stzTcpServer.ring` still
+  contain `uv_*` function calls inside method bodies. Construction
+  works; method invocation would fail at runtime. Mark as deprecated
+  or rewrite via Zig std.net once the async-loop foundation lands.
+* `stzFolderWatcher` rewrite via a polling-based watcher backed by
+  Zig std.fs (stat + diff loop).
+* Real preemptive async (TCP server, parallel HTTP) needs the
+  cross-platform Zig event loop -- still a multi-month arc.
+
+Ring smoke `52_reactive_polling_narrated.ring`: 4 scenarios, 8
+assertions, all green. Existing `51_reactive_harness_narrated`
+(20/20) still green -- the API surface for stzReactiveTimer didn't
+change, only its internal mechanism.
+
+The `libuv.ring` extension is no longer required for `stzBase` to
+load. Code that constructs `stzTcpClient` / `stzTcpServer` directly
+or runs the archived folder-watcher demo still needs it; in practice
+neither path is the documented entry point.
 
 ## Roadmap
 
 | ID      | Scope                                  | Effort      | Order |
 |---------|----------------------------------------|-------------|-------|
 | M-DEP1  | Drop FastPro (deprecated)              | DONE        | --    |
-| M-DEP2  | HTML5 parser + DOM in Zig              | 2-4 weeks   | Next  |
-| M-DEP3  | HTTP client + TLS in Zig               | 2-3 weeks   | Later |
-| M-DEP4  | Cross-platform async loop in Zig       | 2-3 months  | Last  |
+| M-DEP2  | HTML5 parser + DOM in Zig              | DONE        | --    |
+| M-DEP3  | HTTP client + TLS in Zig               | DONE        | --    |
+| M-DEP4  | libuv removed where polling fallback works | SLICE 1 DONE | --   |
+| M-DEP4  | Cross-platform Zig async loop (TCP, real async) | Multi-month | Future |
 
-This session closes UUID + FastPro (M-DEP1). M-DEP2 (HTML) is the
-next significant arc but is genuinely multi-week and warrants its
-own milestone planning.
+Four of five external Ring deps are eliminated for stzBase:
+uuid, fastpro, html, libcurl. The libuv dep is removed from the
+reactive runtime and folder watcher; what remains is TCP code that
+needs a real async loop to function, which is properly a multi-month
+arc and tracked separately.
