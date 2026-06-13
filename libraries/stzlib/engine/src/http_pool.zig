@@ -19,6 +19,7 @@
 
 const std = @import("std");
 const httpcore = @import("httpcore.zig");
+const resilience = @import("resilience.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -167,6 +168,13 @@ pub fn acquire(
 ) ?*httpcore.Connection {
     clearError();
 
+    // Outlier ejection (item 7): refuse to hand out a connection to a
+    // host that is currently ejected for flapping.
+    if (resilience.outlier_should_eject(host.ptr, host.len) != 0) {
+        setError("host ejected by outlier detector");
+        return null;
+    }
+
     p.mutex.lock();
     _ = evictLocked(p);
 
@@ -259,6 +267,18 @@ pub fn evict(p: *Pool) usize {
     p.mutex.lock();
     defer p.mutex.unlock();
     return evictLocked(p);
+}
+
+/// Graceful client shutdown (item 8): close every idle connection now,
+/// regardless of TTL. Active (checked-out) connections are untouched.
+/// Returns the number of idle connections closed.
+pub fn shutdown(p: *Pool) usize {
+    p.mutex.lock();
+    defer p.mutex.unlock();
+    const n = p.idle.items.len;
+    for (p.idle.items) |c| httpcore.close(c);
+    p.idle.clearRetainingCapacity();
+    return n;
 }
 
 pub fn destroy(p: *Pool) void {

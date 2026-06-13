@@ -1,5 +1,6 @@
 const http = @import("http.zig");
 const dns = @import("dns.zig");
+const resilience = @import("resilience.zig");
 const std = @import("std");
 const R = @import("ring_api.zig");
 
@@ -166,6 +167,11 @@ fn ring_HttpPoolStats(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, @constCast(""));
 }
 
+/// StzEngineHttpPoolShutdown() -> number of idle connections closed.
+fn ring_HttpPoolShutdown(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(http.http_pool_shutdown()));
+}
+
 // ── DNS cache diagnostics (item 3) ───────────────────────────
 
 /// StzEngineDnsResolve(cHost, nPort) -> "ip:port" string (cached), or ""
@@ -223,6 +229,43 @@ fn ring_HttpLatencyReset(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// ── outlier ejection per host (item 7) ───────────────────────
+// Registered here (not in stz_resilience) so these operate on the SAME
+// resilience instance the HTTP pool's acquire() consults.
+
+/// StzEngineOutlierConfig(nThreshold, nCooldownMs) -- 0 leaves unchanged.
+fn ring_OutlierConfig(p: *anyopaque) callconv(.c) void {
+    const threshold: u32 = @intFromFloat(gn(p, 1));
+    const cooldown_ms: u64 = @intFromFloat(gn(p, 2));
+    resilience.outlier_config(threshold, cooldown_ms);
+    rn(p, 0);
+}
+
+/// StzEngineOutlierRecord(cHost, nOk, nLatencyMs)
+fn ring_OutlierRecord(p: *anyopaque) callconv(.c) void {
+    const host_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const host_len: usize = @intCast(gss(p, 1));
+    const ok: i32 = @intFromFloat(gn(p, 2));
+    const latency_ms: f64 = gn(p, 3);
+    resilience.outlier_record(host_ptr, host_len, ok, latency_ms);
+    rn(p, 0);
+}
+
+/// StzEngineOutlierShouldEject(cHost) -> 1 if ejected, else 0.
+fn ring_OutlierShouldEject(p: *anyopaque) callconv(.c) void {
+    const host_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const host_len: usize = @intCast(gss(p, 1));
+    rn(p, @floatFromInt(resilience.outlier_should_eject(host_ptr, host_len)));
+}
+
+/// StzEngineOutlierReset(cHost)
+fn ring_OutlierReset(p: *anyopaque) callconv(.c) void {
+    const host_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const host_len: usize = @intCast(gss(p, 1));
+    resilience.outlier_reset(host_ptr, host_len);
+    rn(p, 0);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginehttpget", .func = ring_HttpGet },
     .{ .name = "stzenginehttpgetstatus", .func = ring_HttpGetStatus },
@@ -237,6 +280,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginehttpsetdefaulttimeouts", .func = ring_HttpSetDefaultTimeouts },
     .{ .name = "stzenginehttprequestwithtimeouts", .func = ring_HttpRequestWithTimeouts },
     .{ .name = "stzenginehttppoolstats", .func = ring_HttpPoolStats },
+    .{ .name = "stzenginehttppoolshutdown", .func = ring_HttpPoolShutdown },
     // Tier 1 item 3 -- DNS cache diagnostics
     .{ .name = "stzenginednsresolve", .func = ring_DnsResolve },
     .{ .name = "stzenginednsstats", .func = ring_DnsStats },
@@ -245,6 +289,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginehttplatencypercentile", .func = ring_HttpLatencyPercentile },
     .{ .name = "stzenginehttplatencycount", .func = ring_HttpLatencyCount },
     .{ .name = "stzenginehttplatencyreset", .func = ring_HttpLatencyReset },
+    // Tier 1 item 7 -- outlier ejection per host (same instance as the pool)
+    .{ .name = "stzengineoutlierconfig", .func = ring_OutlierConfig },
+    .{ .name = "stzengineoutlierrecord", .func = ring_OutlierRecord },
+    .{ .name = "stzengineoutliershouldeject", .func = ring_OutlierShouldEject },
+    .{ .name = "stzengineoutlierreset", .func = ring_OutlierReset },
 };
 
 pub fn registerAll(state: *anyopaque) void {

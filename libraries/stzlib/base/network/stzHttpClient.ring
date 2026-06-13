@@ -145,6 +145,13 @@ class stzHttpClient from stzNetwork
 
 	# ── connection pool ──────────────────────────────────────
 
+	# Graceful shutdown -- release pooled (idle keep-alive) connections.
+	# Returns the number of idle sockets closed. In-flight synchronous
+	# requests are unaffected. (The thread pool's drain is the separate
+	# StzEnginePoolDrain primitive.)
+	def Shutdown()
+		return StzEngineHttpPoolShutdown()
+
 	def PoolStats()
 		# Engine returns "opens=N\treuses=N\tidle=N\tactive=N".
 		_cRaw_ = StzEngineHttpPoolStats()

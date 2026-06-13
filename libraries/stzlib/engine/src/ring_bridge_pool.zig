@@ -133,6 +133,13 @@ fn ring_PoolLastStatus(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(last_pool_status));
 }
 
+/// StzEnginePoolDrain(pool, nTimeoutMs) -> residual job count (0 = clean)
+fn ring_PoolDrain(p: *anyopaque) callconv(.c) void {
+    const pp = getPool(p, 1);
+    const timeout_ms: u64 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(pool.pool_drain(pp, timeout_ms)));
+}
+
 fn ring_PoolDestroy(p: *anyopaque) callconv(.c) void {
     const pp = getPool(p, 1);
     pool.pool_destroy(pp);
@@ -151,6 +158,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginepoolpoll", .func = ring_PoolPoll },
     .{ .name = "stzenginepoolpollwithdeadline", .func = ring_PoolPollWithDeadline },
     .{ .name = "stzenginepoollaststatus", .func = ring_PoolLastStatus },
+    .{ .name = "stzenginepooldrain", .func = ring_PoolDrain },
     .{ .name = "stzenginepooldestroy", .func = ring_PoolDestroy },
     .{ .name = "stzenginepoollasterror", .func = ring_PoolLastError },
     .{ .name = "stzenginepoolpending", .func = ring_PoolPending },

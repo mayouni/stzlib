@@ -80,6 +80,9 @@ pub const Pool = struct {
     mutex: std.Thread.Mutex,
     cond: std.Thread.Condition,
     stop_flag: std.atomic.Value(bool),
+    /// Graceful-shutdown gate (item 8). When false, submit is rejected
+    /// with -4; in-flight + queued jobs still run to completion.
+    accepting: std.atomic.Value(bool),
 };
 
 pub fn pool_create(num_workers: u32) callconv(.c) ?*Pool {
@@ -110,6 +113,7 @@ pub fn pool_create_xt(num_workers: u32, max_queue: u32) callconv(.c) ?*Pool {
         .mutex = .{},
         .cond = .{},
         .stop_flag = std.atomic.Value(bool).init(false),
+        .accepting = std.atomic.Value(bool).init(true),
     };
 
     for (p.workers) |*t| {
@@ -156,6 +160,11 @@ fn submitInternal(
         setError("null pool");
         return -1;
     };
+    // Graceful shutdown (item 8): refuse new work once draining.
+    if (!p.accepting.load(.acquire)) {
+        setError("pool draining");
+        return -4;
+    }
     const job = gpa.create(Job) catch {
         setError("oom (job)");
         return -1;
@@ -217,6 +226,33 @@ pub fn pool_inflight(pool_opt: ?*Pool) callconv(.c) i32 {
         if (e.value_ptr.*.status == .running) n += 1;
     }
     return n;
+}
+
+/// pool_drain -- graceful shutdown (item 8). Stops accepting new
+/// submissions, then waits up to `timeout_ms` for queued + in-flight
+/// jobs to finish. Returns 0 if everything drained, or the residual
+/// count (queued + running) still outstanding at the timeout.
+///
+/// Zig threads cannot be preempted, so a job still running at the
+/// timeout is reported in the residual count and continues to
+/// completion in the background; pool_destroy later joins the workers.
+pub fn pool_drain(pool_opt: ?*Pool, timeout_ms: u64) callconv(.c) i32 {
+    const p = pool_opt orelse return -1;
+    p.accepting.store(false, .release);
+    const deadline = std.time.nanoTimestamp() + @as(i128, @intCast(timeout_ms)) * 1_000_000;
+    while (true) {
+        p.mutex.lock();
+        const pending = p.queue.items.len;
+        var running: usize = 0;
+        var it = p.jobs_by_id.iterator();
+        while (it.next()) |e| {
+            if (e.value_ptr.*.status == .running) running += 1;
+        }
+        p.mutex.unlock();
+        if (pending == 0 and running == 0) return 0;
+        if (std.time.nanoTimestamp() >= deadline) return @intCast(pending + running);
+        std.Thread.sleep(5 * std.time.ns_per_ms);
+    }
 }
 
 /// pool_poll_with_deadline -- wait up to `deadline_ms` for the job to
@@ -431,4 +467,13 @@ test "pool: unknown id" {
     defer pool_destroy(p);
     var buf: [16]u8 = undefined;
     try std.testing.expectEqual(@as(i32, -2), pool_poll(p, 99999, &buf, 16));
+}
+
+test "pool: drain rejects new submissions" {
+    const p = pool_create(1).?;
+    defer pool_destroy(p);
+    // No jobs in flight -> drains immediately with 0 residual.
+    try std.testing.expectEqual(@as(i32, 0), pool_drain(p, 1000));
+    // After draining, submit is refused with -4.
+    try std.testing.expectEqual(@as(i64, -4), pool_submit(p, 0, "x".ptr, 1));
 }

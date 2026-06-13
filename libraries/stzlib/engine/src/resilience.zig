@@ -245,7 +245,137 @@ pub fn circuit_reset(c_opt: ?*CircuitBreaker) callconv(.c) void {
     c.last_change_ns = std.time.nanoTimestamp();
 }
 
+// ── Outlier ejection per (host, port) ───────────────────────
+// Gap-analysis Tier 1 item 7. A process-wide registry keyed by host
+// tracks consecutive failures; once a host crosses the failure
+// threshold it is ejected for a cooldown window, then auto-readmitted
+// (half-open: it gets a fresh chance). A success resets the failure
+// count. The HTTP pool consults outlier_should_eject before handing out
+// a connection, so a flapping downstream stops receiving traffic.
+//
+// This slice ejects on consecutive failures (error-based). The
+// latency_ms argument is recorded for a future latency-p99-based
+// ejection refinement; it does not affect ejection today.
+
+const Outlier = struct {
+    consecutive_failures: u32,
+    ejected_until_ns: i128, // 0 = not ejected
+};
+
+var outlier_map: std.StringHashMap(Outlier) = undefined;
+var outlier_init: bool = false;
+var outlier_mutex: std.Thread.Mutex = .{};
+var outlier_threshold: u32 = 10;
+var outlier_cooldown_ms: u64 = 30_000;
+
+fn outlierEnsure() void {
+    if (!outlier_init) {
+        outlier_map = std.StringHashMap(Outlier).init(gpa);
+        outlier_init = true;
+    }
+}
+
+/// Set the ejection threshold (consecutive failures) and cooldown (ms).
+/// A 0 leaves that field unchanged.
+pub fn outlier_config(threshold: u32, cooldown_ms: u64) callconv(.c) void {
+    outlier_mutex.lock();
+    defer outlier_mutex.unlock();
+    if (threshold != 0) outlier_threshold = threshold;
+    if (cooldown_ms != 0) outlier_cooldown_ms = cooldown_ms;
+}
+
+/// Record the outcome of a call to `host`. ok != 0 resets the failure
+/// run (and clears any ejection); ok == 0 increments it and ejects once
+/// the threshold is crossed.
+pub fn outlier_record(
+    host_ptr: [*]const u8,
+    host_len: usize,
+    ok: i32,
+    latency_ms: f64,
+) callconv(.c) void {
+    _ = latency_ms; // reserved for latency-based ejection
+    const host = host_ptr[0..host_len];
+    outlier_mutex.lock();
+    defer outlier_mutex.unlock();
+    outlierEnsure();
+    const gop = outlier_map.getOrPut(host) catch return;
+    if (!gop.found_existing) {
+        const owned = gpa.dupe(u8, host) catch {
+            _ = outlier_map.remove(host);
+            return;
+        };
+        gop.key_ptr.* = owned;
+        gop.value_ptr.* = .{ .consecutive_failures = 0, .ejected_until_ns = 0 };
+    }
+    if (ok != 0) {
+        gop.value_ptr.*.consecutive_failures = 0;
+        gop.value_ptr.*.ejected_until_ns = 0;
+    } else {
+        gop.value_ptr.*.consecutive_failures += 1;
+        if (gop.value_ptr.*.consecutive_failures >= outlier_threshold) {
+            const now = std.time.nanoTimestamp();
+            gop.value_ptr.*.ejected_until_ns = now + @as(i128, @intCast(outlier_cooldown_ms)) * 1_000_000;
+        }
+    }
+}
+
+/// 1 if `host` is currently ejected, else 0. Once the cooldown elapses
+/// the host is readmitted (half-open) and this returns 0.
+pub fn outlier_should_eject(host_ptr: [*]const u8, host_len: usize) callconv(.c) i32 {
+    const host = host_ptr[0..host_len];
+    outlier_mutex.lock();
+    defer outlier_mutex.unlock();
+    outlierEnsure();
+    const e = outlier_map.getPtr(host) orelse return 0;
+    if (e.ejected_until_ns == 0) return 0;
+    const now = std.time.nanoTimestamp();
+    if (now >= e.ejected_until_ns) {
+        // Cooldown elapsed -- give the host a fresh chance.
+        e.ejected_until_ns = 0;
+        e.consecutive_failures = 0;
+        return 0;
+    }
+    return 1;
+}
+
+/// Clear all state for `host`.
+pub fn outlier_reset(host_ptr: [*]const u8, host_len: usize) callconv(.c) void {
+    const host = host_ptr[0..host_len];
+    outlier_mutex.lock();
+    defer outlier_mutex.unlock();
+    outlierEnsure();
+    if (outlier_map.getPtr(host)) |e| {
+        e.* = .{ .consecutive_failures = 0, .ejected_until_ns = 0 };
+    }
+}
+
 // ── tests ────────────────────────────────────────────────────
+
+test "outlier: consecutive failures eject; success resets" {
+    outlier_reset("h1", 2);
+    outlier_config(10, 30_000);
+    var i: u32 = 0;
+    while (i < 9) : (i += 1) outlier_record("h1", 2, 0, 0);
+    try std.testing.expectEqual(@as(i32, 0), outlier_should_eject("h1", 2)); // 9 < 10
+    outlier_record("h1", 2, 1, 0); // success resets the run
+    i = 0;
+    while (i < 9) : (i += 1) outlier_record("h1", 2, 0, 0);
+    try std.testing.expectEqual(@as(i32, 0), outlier_should_eject("h1", 2)); // still 9
+    outlier_record("h1", 2, 0, 0); // 10th failure
+    try std.testing.expectEqual(@as(i32, 1), outlier_should_eject("h1", 2));
+}
+
+test "outlier: readmit after cooldown" {
+    outlier_reset("h2", 2);
+    outlier_config(3, 150); // low threshold + short cooldown for the test
+    outlier_record("h2", 2, 0, 0);
+    outlier_record("h2", 2, 0, 0);
+    outlier_record("h2", 2, 0, 0);
+    try std.testing.expectEqual(@as(i32, 1), outlier_should_eject("h2", 2));
+    std.Thread.sleep(220 * std.time.ns_per_ms);
+    try std.testing.expectEqual(@as(i32, 0), outlier_should_eject("h2", 2)); // readmitted
+    outlier_config(10, 30_000); // restore defaults for other tests
+}
 
 test "retry: zero base => zero delay" {
     try std.testing.expectEqual(@as(u64, 0), retry_delay_ms(0, 0, 1000, 1));
