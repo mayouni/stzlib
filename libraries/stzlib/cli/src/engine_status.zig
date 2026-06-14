@@ -91,10 +91,10 @@ pub const macro = MacroStats{
     .engine_tests = 1593,
     .dlls_shipping = 89,
     .qt_dependencies = 0,
-    .ring_bridge_regs = 1062,
+    .ring_bridge_regs = 1068,
     .ring_classes_bridged = 128,
     .ring_engine_calls = 3482,
-    .last_session = 69,
+    .last_session = 70,
     .last_updated = "2026-06-14",
 };
 
@@ -465,7 +465,7 @@ pub const milestones = [_]Milestone{
         .track = "engine",
         .title = "Reactive Engine -- Tier 2 (libuv reactor backbone)",
         .status = .partial,
-        .summary = "Industry-strength cross-platform async I/O, built on vendored libuv instead of hand-rolling per-OS reactors (user directive: build with libuv, avoid reinventing wheels). Vendoring C is the utf8proc/pcre2/sqlite pattern -- it does NOT reintroduce the M-DEP Ring-extension dependency (that rule is about Ring-side `load`, not C compiled into the engine). FOUNDATION LANDED (session 69): engine/vendor/libuv (v1.52.1, include+src, ~2MB) compiles from source via addLibuv in build.zig (per-OS file lists/defines/syslibs mirror libuv CMakeLists; Windows IOCP path); new stz_reactor DLL with reactor.zig (@cImport uv.h) exposing StzEngineReactorVersion/SelfTest; loader + stzRingLibs wired. Verified end-to-end on Windows: zig build clean (libuv compiled first try), Ring smoke reports libuv 1.52.1 and self-test=1 (real loop ran, one-shot timer fired). DLLs 88->89, regs 1060->1062. Design + plan in base/doc/design/TIER2_REACTOR_DIRECTION.md. NEXT slices: reactor core (loop on an engine worker thread; async timers + TCP via the submit/poll handle idiom so Ring stays synchronous), then the OPEN DECISION -- keep custom httpcore over the reactor + nghttp2 for HTTP/2, or adopt vendored libcurl (multi/socket_action on libuv: h1/h2/h3 + TLS via Schannel + pooling/DNS/proxy) retiring httpcore. Then TraceContext + multi-loop work-stealing. Requirement check pending: confirm 10k-conn-per-worker is actually needed before the full multi-loop scheduler.",
+        .summary = "Industry-strength cross-platform async I/O, built on vendored libuv instead of hand-rolling per-OS reactors (user directive: build with libuv, avoid reinventing wheels). Vendoring C is the utf8proc/pcre2/sqlite pattern -- it does NOT reintroduce the M-DEP Ring-extension dependency (that rule is about Ring-side `load`, not C compiled into the engine). FOUNDATION LANDED (session 69): engine/vendor/libuv (v1.52.1, include+src, ~2MB) compiles from source via addLibuv in build.zig (per-OS file lists/defines/syslibs mirror libuv CMakeLists; Windows IOCP path); new stz_reactor DLL with reactor.zig (@cImport uv.h) exposing StzEngineReactorVersion/SelfTest; loader + stzRingLibs wired. Verified end-to-end on Windows: zig build clean (libuv compiled first try), Ring smoke reports libuv 1.52.1 and self-test=1 (real loop ran, one-shot timer fired). DLLs 88->89, regs 1060->1062. Design + plan in base/doc/design/TIER2_REACTOR_DIRECTION.md. SLICE 1 LANDED (session 70): reactor core -- a uv_loop running on a dedicated worker thread, cross-thread submission via uv_async_send + a mutex-guarded job table, and the standard libuv two-phase handle-lifetime handshake (free a job only once its handle's uv_close callback fired AND the caller polled). First async op = timer; Ring stays synchronous via the submit/poll idiom (StzEngineReactorCreate/SubmitTimer/Poll/Await/Pending/Destroy). Verified: reactor.zig Zig tests 5/5 (incl. 32 concurrent timers + clean destroy with in-flight/undrained jobs) and narrated reactive/56_reactor_core 6/6. regs 1062->1068. NEXT slices: async TCP (connect/read/write) on the same machinery, then the OPEN DECISION -- keep custom httpcore over the reactor + nghttp2 for HTTP/2, or adopt vendored libcurl (multi/socket_action on libuv: h1/h2/h3 + TLS via Schannel + pooling/DNS/proxy) retiring httpcore. Then TraceContext + multi-loop work-stealing. Requirement check pending: confirm 10k-conn-per-worker is actually needed before the full multi-loop scheduler.",
     },
 
     // ---- stzlib redesign track ----
