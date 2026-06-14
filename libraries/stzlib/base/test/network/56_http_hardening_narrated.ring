@@ -81,11 +81,14 @@ EndScenario()
 # ── performance ──────────────────────────────────────────────
 
 Scenario("Parallel GET wall-clock is bounded for N bogus URLs")
-    Given("ten bogus URLs (engine cap is 32)")
+    Given("ten malformed URLs, no host (engine cap is 32)")
+    # Use URLs libcurl rejects at parse time (no host part) so they
+    # fast-fail without a DNS lookup -- a single-label name like "bad1"
+    # would otherwise trigger a real (slow) resolver attempt.
     cBlob = ""
     for _i_ = 1 to 10
         if _i_ > 1 cBlob += char(10) ok
-        cBlob += "bad" + _i_
+        cBlob += "http://"
     next
     When("the parallel call runs")
     n1 = StzEngineTimeNowMs()
