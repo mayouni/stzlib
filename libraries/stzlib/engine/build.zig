@@ -8,6 +8,7 @@ const Domain = struct {
     needs_ring: bool = false,
     needs_sqlite: bool = false,
     needs_libuv: bool = false,
+    needs_libcurl: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -48,7 +49,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_codec", .entry = "src/stz_codec_entry.zig", .needs_ring = true },
     .{ .name = "stz_bits", .entry = "src/stz_bits_entry.zig", .needs_ring = true },
     .{ .name = "stz_html", .entry = "src/stz_html_entry.zig", .needs_ring = true },
-    .{ .name = "stz_http", .entry = "src/stz_http_entry.zig", .needs_ring = true },
+    .{ .name = "stz_http", .entry = "src/stz_http_entry.zig", .needs_ring = true, .needs_libcurl = true },
     .{ .name = "stz_tcp", .entry = "src/stz_tcp_entry.zig", .needs_ring = true },
     .{ .name = "stz_fswatch", .entry = "src/stz_fswatch_entry.zig", .needs_ring = true },
     .{ .name = "stz_time", .entry = "src/stz_time_entry.zig", .needs_ring = true },
@@ -249,6 +250,58 @@ fn addLibuv(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build,
     }
 }
 
+// Vendored libcurl (Tier 2 HTTP stack -- HTTP/1.1+2, TLS, pooling, DNS).
+// Compiled from source like our other C deps. On Windows, curl_setup.h
+// pulls in lib/config-win32.h automatically (HAVE_CONFIG_H is NOT
+// defined), giving a CMake-free build; TLS is native Schannel (no extra
+// dependency). Sources are globbed from the 6 lib dirs at configure time
+// so the list tracks the vendored tree. POSIX needs a generated
+// curl_config.h (future work); Windows is the supported target today.
+fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build, os_tag: std.Target.Os.Tag) void {
+    const cu = "vendor/curl";
+    mod.addIncludePath(b.path(cu ++ "/include"));
+    mod.addIncludePath(b.path(cu ++ "/lib"));
+
+    if (os_tag != .windows) {
+        std.debug.panic("libcurl vendoring is currently Windows-only (POSIX needs a generated curl_config.h)", .{});
+    }
+
+    var files: std.ArrayList([]const u8) = .{};
+    const subdirs = [_][]const u8{ "lib", "lib/vauth", "lib/vtls", "lib/vquic", "lib/vssh", "lib/curlx" };
+    for (subdirs) |sd| {
+        const dirpath = b.fmt("{s}/{s}", .{ cu, sd });
+        var dir = std.fs.cwd().openDir(dirpath, .{ .iterate = true }) catch |e|
+            std.debug.panic("libcurl: cannot open {s}: {s}", .{ dirpath, @errorName(e) });
+        defer dir.close();
+        var it = dir.iterate();
+        while (it.next() catch null) |entry| {
+            if (entry.kind != .file) continue;
+            if (!std.mem.endsWith(u8, entry.name, ".c")) continue;
+            files.append(b.allocator, b.fmt("{s}/{s}", .{ dirpath, entry.name })) catch @panic("oom");
+        }
+    }
+
+    const flags = [_][]const u8{
+        "-DBUILDING_LIBCURL",
+        "-DCURL_STATICLIB",
+        "-DUSE_WINDOWS_SSPI",
+        "-DUSE_SCHANNEL",
+        // Trim to HTTP(S): drop protocols we don't ship (also avoids
+        // pulling optional third-party deps).
+        "-DCURL_DISABLE_LDAP",   "-DCURL_DISABLE_LDAPS",
+        "-DCURL_DISABLE_DICT",   "-DCURL_DISABLE_FILE",
+        "-DCURL_DISABLE_FTP",    "-DCURL_DISABLE_GOPHER",
+        "-DCURL_DISABLE_IMAP",   "-DCURL_DISABLE_MQTT",
+        "-DCURL_DISABLE_POP3",   "-DCURL_DISABLE_RTSP",
+        "-DCURL_DISABLE_SMB",    "-DCURL_DISABLE_SMTP",
+        "-DCURL_DISABLE_TELNET", "-DCURL_DISABLE_TFTP",
+    };
+    lib.addCSourceFiles(.{ .files = files.items, .flags = &flags });
+
+    const win_libs = [_][]const u8{ "ws2_32", "crypt32", "secur32", "advapi32", "bcrypt", "normaliz" };
+    for (win_libs) |l| lib.linkSystemLibrary(l);
+}
+
 fn addRing(mod: *std.Build.Module, lib: *std.Build.Step.Compile) void {
     mod.addIncludePath(.{ .cwd_relative = "D:/Ring126/language/include" });
     lib.addLibraryPath(.{ .cwd_relative = "D:/Ring126/lib" });
@@ -309,6 +362,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_ring) addRing(mod, lib);
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
         if (dom.needs_libuv) addLibuv(mod, lib, b, target.result.os.tag);
+        if (dom.needs_libcurl) addLibcurl(mod, lib, b, target.result.os.tag);
         b.installArtifact(lib);
     }
 

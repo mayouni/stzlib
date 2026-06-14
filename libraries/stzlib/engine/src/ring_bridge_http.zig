@@ -1,6 +1,7 @@
 const http = @import("http.zig");
 const dns = @import("dns.zig");
 const resilience = @import("resilience.zig");
+const curlcore = @import("curlcore.zig");
 const std = @import("std");
 const R = @import("ring_api.zig");
 
@@ -266,7 +267,40 @@ fn ring_OutlierReset(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// ── libcurl adoption (slice A smoke -- proves the vendored build) ──
+
+/// StzEngineHttpEngineVersion() -> the underlying HTTP engine version
+/// (libcurl + TLS backend).
+fn ring_HttpEngineVersion(p: *anyopaque) callconv(.c) void {
+    const v = curlcore.version();
+    if (v == null) {
+        rs(p, @constCast(""));
+        return;
+    }
+    const s = std.mem.span(v);
+    rs2(p, @constCast(s.ptr), @intCast(s.len));
+}
+
+/// StzEngineHttpCurlSmoke(cUrl) -> HTTP status from a live libcurl GET
+/// (validates Schannel TLS end-to-end). Temporary; removed once http.zig
+/// is rewired onto libcurl.
+fn ring_HttpCurlSmoke(p: *anyopaque) callconv(.c) void {
+    const url_ptr: [*]const u8 = @ptrCast(gs(p, 1));
+    const url_len: usize = @intCast(gss(p, 1));
+    var url_buf: [2048]u8 = undefined;
+    if (url_len >= url_buf.len) {
+        rn(p, -1);
+        return;
+    }
+    @memcpy(url_buf[0..url_len], url_ptr[0..url_len]);
+    url_buf[url_len] = 0;
+    const status = curlcore.smoke_get(@ptrCast(&url_buf), &body_buf, BODY_CAP);
+    rn(p, @floatFromInt(status));
+}
+
 const regs = [_]R.Reg{
+    .{ .name = "stzenginehttpengineversion", .func = ring_HttpEngineVersion },
+    .{ .name = "stzenginehttpcurlsmoke", .func = ring_HttpCurlSmoke },
     .{ .name = "stzenginehttpget", .func = ring_HttpGet },
     .{ .name = "stzenginehttpgetstatus", .func = ring_HttpGetStatus },
     .{ .name = "stzenginehttppost", .func = ring_HttpPost },
