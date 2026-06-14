@@ -376,7 +376,7 @@ class stzStringCharList
 	def Concatenated()
 		_cResult_ = ""
 		_nLen_ = len(@acChars)
-		for i = 1 to nLen
+		for i = 1 to _nLen_
 			_cResult_ += @acChars[i]
 		next
 		return _cResult_
