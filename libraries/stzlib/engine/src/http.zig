@@ -114,7 +114,7 @@ fn hostOf(url: []const u8) ?[]const u8 {
 // ── public verbs ─────────────────────────────────────────────
 
 pub fn http_get(url_ptr: [*]const u8, url_len: usize, out: [*]u8, max: usize) callconv(.c) i32 {
-    return doRequest(0, url_ptr[0..url_len], "", "", "", out, max, def_connect_ms, def_request_ms);
+    return doRequest(0, url_ptr[0..url_len], "", "", "", out, max, def_connect_ms, def_request_ms, "");
 }
 
 pub fn http_post(
@@ -128,7 +128,7 @@ pub fn http_post(
     out_max: usize,
 ) callconv(.c) i32 {
     const ct = if (ct_len == 0) "application/octet-stream" else ct_ptr[0..ct_len];
-    return doRequest(1, url_ptr[0..url_len], ct, body_ptr[0..body_len], "", out, out_max, def_connect_ms, def_request_ms);
+    return doRequest(1, url_ptr[0..url_len], ct, body_ptr[0..body_len], "", out, out_max, def_connect_ms, def_request_ms, "");
 }
 
 pub fn http_request(
@@ -144,7 +144,7 @@ pub fn http_request(
     out: [*]u8,
     out_max: usize,
 ) callconv(.c) i32 {
-    return doRequest(method_code, url_ptr[0..url_len], ct_ptr[0..ct_len], body_ptr[0..body_len], headers_ptr[0..headers_len], out, out_max, def_connect_ms, def_request_ms);
+    return doRequest(method_code, url_ptr[0..url_len], ct_ptr[0..ct_len], body_ptr[0..body_len], headers_ptr[0..headers_len], out, out_max, def_connect_ms, def_request_ms, "");
 }
 
 pub fn http_request_with_timeouts(
@@ -164,7 +164,40 @@ pub fn http_request_with_timeouts(
 ) callconv(.c) i32 {
     const cms = if (connect_ms == 0) def_connect_ms else connect_ms;
     const rms = if (request_ms == 0) def_request_ms else request_ms;
-    return doRequest(method_code, url_ptr[0..url_len], ct_ptr[0..ct_len], body_ptr[0..body_len], headers_ptr[0..headers_len], out, out_max, cms, rms);
+    return doRequest(method_code, url_ptr[0..url_len], ct_ptr[0..ct_len], body_ptr[0..body_len], headers_ptr[0..headers_len], out, out_max, cms, rms, "");
+}
+
+/// http_request_ex -- like http_request_with_timeouts but also takes an
+/// `opts_blob` (newline "key=value" extra options: proxy/auth/mTLS/
+/// cookies/verifyssl/followredirects/acceptencoding).
+pub fn http_request_ex(
+    method_code: i32,
+    url_ptr: [*]const u8,
+    url_len: usize,
+    headers_ptr: [*]const u8,
+    headers_len: usize,
+    ct_ptr: [*]const u8,
+    ct_len: usize,
+    body_ptr: [*]const u8,
+    body_len: usize,
+    connect_ms: u32,
+    request_ms: u32,
+    opts_ptr: [*]const u8,
+    opts_len: usize,
+    out: [*]u8,
+    out_max: usize,
+) callconv(.c) i32 {
+    const cms = if (connect_ms == 0) def_connect_ms else connect_ms;
+    const rms = if (request_ms == 0) def_request_ms else request_ms;
+    return doRequest(method_code, url_ptr[0..url_len], ct_ptr[0..ct_len], body_ptr[0..body_len], headers_ptr[0..headers_len], out, out_max, cms, rms, opts_ptr[0..opts_len]);
+}
+
+/// Response headers captured from the last request (raw "Name: Value" lines).
+pub fn http_last_headers(out: [*]u8, max: usize) callconv(.c) i32 {
+    return curlcore.curl_last_headers(out, max);
+}
+pub fn http_last_headers_len() callconv(.c) usize {
+    return curlcore.curl_last_headers_len();
 }
 
 // ── core round-trip ──────────────────────────────────────────
@@ -179,6 +212,7 @@ fn doRequest(
     max: usize,
     connect_ms: u32,
     request_ms: u32,
+    opts: []const u8,
 ) i32 {
     last_error_len = 0;
     if (url.len == 0) {
@@ -209,6 +243,8 @@ fn doRequest(
         max,
         connect_ms,
         request_ms,
+        opts.ptr,
+        opts.len,
     );
     const dt_ms = std.time.milliTimestamp() - t0_ms;
     histogram.histogram_record(latencyHist(), @floatFromInt(dt_ms));
@@ -248,7 +284,7 @@ fn parallelWorker(job: *ParallelJob) void {
         return;
     };
     defer gpa.free(buf);
-    const status = doRequest(0, job.url, "", "", "", buf.ptr, buf.len, def_connect_ms, def_request_ms);
+    const status = doRequest(0, job.url, "", "", "", buf.ptr, buf.len, def_connect_ms, def_request_ms, "");
     job.status = status;
     if (status > 0) {
         job.body.appendSlice(gpa, buf[0..last_body_len_v]) catch {
