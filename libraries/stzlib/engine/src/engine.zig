@@ -75,6 +75,7 @@ pub const validator_mod = @import("validator.zig");
 pub const sequence = @import("sequence.zig");
 pub const relations = @import("relations.zig");
 pub const statemachine = @import("statemachine.zig");
+pub const tracectx = @import("tracectx.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -679,4 +680,5 @@ test {
     _ = sequence;
     _ = relations;
     _ = statemachine;
+    _ = tracectx;
 }

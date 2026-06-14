@@ -84,6 +84,21 @@ class stzHttpClient from stzNetwork
 		cookies_list = aCookies
 		return This
 
+	# ── distributed tracing (W3C Trace Context) ──────────────
+	# Inject a `traceparent` header so downstream services can correlate
+	# this request into a single distributed trace (Tier 2 observability).
+
+	def SetTraceParent(cTraceParent)
+		This.SetHeader("traceparent", cTraceParent)
+		return This
+
+	# Generate a fresh sampled trace and attach it; returns the header
+	# value so the caller can record / correlate it.
+	def StartTrace()
+		_cTP_ = StzEngineTraceNew()
+		This.SetHeader("traceparent", _cTP_)
+		return _cTP_
+
 	# Compose the engine's headers blob from user agent + cookies +
 	# custom headers. Each "Name: Value" pair separated by newline.
 	def _ComposeHeaderBlob()
