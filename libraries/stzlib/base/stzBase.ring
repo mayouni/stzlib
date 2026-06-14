@@ -253,6 +253,7 @@ ok
     load "common/stzRetryBudget.ring"
     load "common/stzLatencyHistogram.ring"
     load "common/stzReactor.ring"
+    load "common/stzReactorPool.ring"
     load "common/stzTraceContext.ring"
     load "graph/stzGridNav.ring"
 

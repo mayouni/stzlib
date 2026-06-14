@@ -73,24 +73,47 @@ push callbacks into Ring. Instead:
 ## Build-or-buy ladder (planned slices)
 
 1. **Foundation (DONE, s69)** -- vendor libuv, prove build/link/run.
-2. **Reactor core (timer op DONE, s70)** -- a `uv_loop` on a dedicated
-   worker thread, cross-thread submission via `uv_async_send` + a
-   mutex-guarded job table, and the libuv two-phase handle-lifetime
-   handshake (free a job only once its `uv_close` callback fired AND the
-   caller polled). First async op is a timer; Ring stays synchronous via
+2. **Reactor core (DONE, s70)** -- a `uv_loop` on a dedicated worker
+   thread, cross-thread submission via `uv_async_send` + a mutex-guarded
+   job table, and the libuv two-phase handle-lifetime handshake. Async
+   timer op; Ring stays synchronous via
    `StzEngineReactorCreate/SubmitTimer/Poll/Await/Pending/Destroy`.
-   Tests: reactor.zig 5/5 Zig (incl. 32 concurrent timers + clean
-   destroy with in-flight/undrained jobs), reactive/56_reactor_core 6/6.
-   **Remaining in this slice:** async TCP connect/read/write on the same
-   machinery, then migrate the blocking `tcp.zig` server + polling timer
-   onto the loop.
+2b. **Async TCP (DONE, s71)** -- `tcp_request` job: a per-job state
+   machine `uv_getaddrinfo -> uv_tcp_connect -> uv_write ->
+   uv_read_start`-to-EOF on the loop thread, response drained via
+   `reactor_tcp_poll/await`. Worked around Zig translate-c's libuv
+   `uv_stream_t <-> uv_read_cb` dependency loop with opaque handle/req
+   buffers (`uv_handle_size`/`uv_req_size`) + hand-written `extern`s and
+   `data` at offset 0. Ring class `stzReactor` (+ `stzReactorPool` for N
+   loops, round-robin). Tests: reactor.zig 7/7 incl. live round-trip;
+   reactive/56 6/6, 57 6/6, 58 4/4.
+5. **TraceContext (DONE, s71)** -- W3C `traceparent` generate/child/
+   parse (`tracectx.zig`, in the default sweep), `stzTraceContext`,
+   `stzHttpClient.StartTrace`. reactive... network/70 10/10.
+6. **Multi-loop scale (DONE, s71)** -- `stzReactorPool` runs N reactors
+   (libuv's recommended multi-loop model); a request batch is
+   round-robined and runs concurrently. Confirm the real concurrency
+   requirement before sizing large (see below).
+
+### Deliberate non-goal: migrating the existing tcp.zig / polling timer
+
+The blocking `tcp.zig` (stz_tcp, std.net) and the clock()-polling
+`stzReactiveTimer` both work and are covered by green suites. Rewriting
+them onto the reactor is a refactor of working code with marginal upside
+and real regression risk, so it is **intentionally not done**. The
+reactor is the forward path for *new* async work; the old paths stay
+until there's a concrete reason (a measured need) to move them.
 3. **Scale HTTP** -- the open decision below.
 4. **HTTP/2** -- vendor **nghttp2** (the standard; what curl/nginx use).
 5. **TraceContext** -- W3C `traceparent` propagation (pure code).
 6. **Work-stealing / multi-loop** -- N loops on N threads (libuv's
    model), balanced submission.
 
-## OPEN DECISION (before slice 3)
+## THE ONE REMAINING DECISION (HTTP/2 + HTTP/3)
+
+The libuv reactor feature is complete (async timer/TCP, Ring classes,
+TraceContext, multi-loop scale). The only Tier 2 items left are HTTP/2
+and HTTP/3, and both hinge on a single strategic call:
 
 **HTTP stack: keep the custom `httpcore.zig` over the reactor, or adopt
 vendored libcurl?**
