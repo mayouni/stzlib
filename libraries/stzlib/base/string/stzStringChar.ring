@@ -927,11 +927,11 @@ class stzStringChar from stzString
 		return "" + _CharBidiClass(This.Unicode())
 
 	def IsVowel()
-		if StzFind( Vowels(), This.Content() ) > 0
-			return 1
-		else
-			return 0
-		ok
+		# NOTE: do NOT call Vowels() here -- it resolves to the inherited
+		# stzString.Vowels() (vowels CONTAINED in the content), which
+		# returns [] for a single-char object, so IsVowel always answered
+		# FALSE. Test the codepoint directly (ASCII vowels, both cases).
+		return ring_find([ 65, 69, 73, 79, 85, 97, 101, 105, 111, 117 ], This.Unicode()) > 0
 
 		def IsAVowel()
 			return This.IsVowel()
