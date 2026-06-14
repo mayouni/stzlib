@@ -185,6 +185,7 @@ class stzGrid From stzObject
 			This.MoveToNode(nCol, nRow)
 
 		def MoveToCell(nCol, nRow)
+			This.MoveToNode(nCol, nRow)
 
 	def MoveToFirstNode()
 		This.MoveToNode(1, 1)
