@@ -64,6 +64,7 @@ fn ensureInit() void {
 
 var total_opens = std.atomic.Value(u64).init(0);
 var total_reuses = std.atomic.Value(u64).init(0);
+var last_http_version: i32 = 0; // 1 = HTTP/1.x, 2 = HTTP/2, 3 = HTTP/3
 var last_body_len: usize = 0;
 var last_error_buf: [512]u8 = undefined;
 var last_error_len: usize = 0;
@@ -87,6 +88,12 @@ pub fn curl_last_error(out: [*]u8, max: usize) callconv(.c) i32 {
     if (n == 0) return 0;
     @memcpy(out[0..n], last_error_buf[0..n]);
     return @intCast(n);
+}
+
+/// Negotiated HTTP version of the last request: 1 (HTTP/1.x), 2 (HTTP/2),
+/// 3 (HTTP/3), or 0 if none yet.
+pub fn curl_last_http_version() callconv(.c) i32 {
+    return last_http_version;
 }
 
 pub fn curl_total_opens() callconv(.c) u64 {
@@ -206,6 +213,8 @@ pub fn curl_request(
     _ = c.curl_easy_setopt(h, c.CURLOPT_MAXREDIRS, @as(c_long, 10));
     _ = c.curl_easy_setopt(h, c.CURLOPT_NOSIGNAL, @as(c_long, 1));
     _ = c.curl_easy_setopt(h, c.CURLOPT_USERAGENT, "Softanza-HTTP/2.0");
+    // Prefer HTTP/2 over TLS (ALPN); falls back to 1.1 automatically.
+    _ = c.curl_easy_setopt(h, c.CURLOPT_HTTP_VERSION, @as(c_long, c.CURL_HTTP_VERSION_2TLS));
     if (connect_ms > 0) _ = c.curl_easy_setopt(h, c.CURLOPT_CONNECTTIMEOUT_MS, @as(c_long, @intCast(connect_ms)));
     if (request_ms > 0) _ = c.curl_easy_setopt(h, c.CURLOPT_TIMEOUT_MS, @as(c_long, @intCast(request_ms)));
 
@@ -272,6 +281,13 @@ pub fn curl_request(
 
     var code: c_long = 0;
     _ = c.curl_easy_getinfo(h, c.CURLINFO_RESPONSE_CODE, &code);
+    var http_ver: c_long = 0;
+    _ = c.curl_easy_getinfo(h, c.CURLINFO_HTTP_VERSION, &http_ver);
+    last_http_version = switch (http_ver) {
+        c.CURL_HTTP_VERSION_2_0 => 2,
+        c.CURL_HTTP_VERSION_3 => 3,
+        else => 1,
+    };
     var num_connects: c_long = 0;
     _ = c.curl_easy_getinfo(h, c.CURLINFO_NUM_CONNECTS, &num_connects);
     if (num_connects > 0) {

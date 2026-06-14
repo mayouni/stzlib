@@ -281,11 +281,19 @@ fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
         }
     }
 
+    // HTTP/2 via vendored nghttp2 (compiled below); tell curl to use it
+    // and to treat nghttp2 symbols as static (not dllimport).
+    const ng = "vendor/nghttp2";
+    mod.addIncludePath(b.path(ng ++ "/lib/includes"));
+    mod.addIncludePath(b.path(ng ++ "/lib"));
+
     const flags = [_][]const u8{
         "-DBUILDING_LIBCURL",
         "-DCURL_STATICLIB",
         "-DUSE_WINDOWS_SSPI",
         "-DUSE_SCHANNEL",
+        "-DUSE_NGHTTP2",
+        "-DNGHTTP2_STATICLIB",
         // Trim to HTTP(S): drop protocols we don't ship (also avoids
         // pulling optional third-party deps).
         "-DCURL_DISABLE_LDAP",   "-DCURL_DISABLE_LDAPS",
@@ -297,6 +305,24 @@ fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
         "-DCURL_DISABLE_TELNET", "-DCURL_DISABLE_TFTP",
     };
     lib.addCSourceFiles(.{ .files = files.items, .flags = &flags });
+
+    // Compile vendored nghttp2 (HTTP/2) into the same DLL. No config.h
+    // needed (ssize_t comes from the MinGW headers zig cc uses).
+    var ngfiles: std.ArrayList([]const u8) = .{};
+    {
+        const dirpath = ng ++ "/lib";
+        var dir = std.fs.cwd().openDir(dirpath, .{ .iterate = true }) catch |e|
+            std.debug.panic("nghttp2: cannot open {s}: {s}", .{ dirpath, @errorName(e) });
+        defer dir.close();
+        var it = dir.iterate();
+        while (it.next() catch null) |entry| {
+            if (entry.kind != .file) continue;
+            if (!std.mem.endsWith(u8, entry.name, ".c")) continue;
+            ngfiles.append(b.allocator, b.fmt("{s}/{s}", .{ dirpath, entry.name })) catch @panic("oom");
+        }
+    }
+    const ng_flags = [_][]const u8{ "-DNGHTTP2_STATICLIB", "-DBUILDING_NGHTTP2" };
+    lib.addCSourceFiles(.{ .files = ngfiles.items, .flags = &ng_flags });
 
     const win_libs = [_][]const u8{ "ws2_32", "crypt32", "secur32", "advapi32", "bcrypt", "normaliz" };
     for (win_libs) |l| lib.linkSystemLibrary(l);

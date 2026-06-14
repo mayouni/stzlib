@@ -281,8 +281,15 @@ fn ring_HttpEngineVersion(p: *anyopaque) callconv(.c) void {
     rs2(p, @constCast(s.ptr), @intCast(s.len));
 }
 
+/// StzEngineHttpLastVersion() -> negotiated HTTP version of the last
+/// request: 1 (HTTP/1.x), 2 (HTTP/2), 3 (HTTP/3), 0 if none yet.
+fn ring_HttpLastVersion(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(curlcore.curl_last_http_version()));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginehttpengineversion", .func = ring_HttpEngineVersion },
+    .{ .name = "stzenginehttplastversion", .func = ring_HttpLastVersion },
     .{ .name = "stzenginehttpget", .func = ring_HttpGet },
     .{ .name = "stzenginehttpgetstatus", .func = ring_HttpGetStatus },
     .{ .name = "stzenginehttppost", .func = ring_HttpPost },
