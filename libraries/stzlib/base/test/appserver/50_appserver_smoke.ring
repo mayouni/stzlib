@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 
+pr()
+
 # stzAppRequest: simple construction + accessors
 oReq = new stzAppRequest("GET", "/api/echo", [ [ "Host", "localhost" ] ], "")
 ? oReq.Method() = "GET"
@@ -33,3 +35,5 @@ oResp2.Send("body")
 ? oResp2.bSent = TRUE
 
 ? "DONE 14"
+
+pf()
