@@ -109,14 +109,28 @@ until there's a concrete reason (a measured need) to move them.
 6. **Work-stealing / multi-loop** -- N loops on N threads (libuv's
    model), balanced submission.
 
-## THE ONE REMAINING DECISION (HTTP/2 + HTTP/3)
+## HTTP-STACK DECISION -- RESOLVED: adopted vendored libcurl (s72)
 
-The libuv reactor feature is complete (async timer/TCP, Ring classes,
-TraceContext, multi-loop scale). The only Tier 2 items left are HTTP/2
-and HTTP/3, and both hinge on a single strategic call:
+Decision taken: **adopt vendored libcurl.** `engine/vendor/curl` (8.20.0,
+CMake-free via config-win32.h, native Schannel TLS) + `engine/vendor/
+nghttp2` (1.69.0) deliver HTTP/1.1 + HTTP/2 + TLS + connection pooling +
+DNS cache + redirects in one battle-tested stack. `httpcore.zig` and
+`http_pool.zig` are retired; `http.zig` drives `curl_easy` over a
+thread-safe `CURLSH` share. Same C-ABI -> Ring API + the whole network
+suite stayed green. HTTP/2 negotiates over ALPN (verified live).
 
-**HTTP stack: keep the custom `httpcore.zig` over the reactor, or adopt
-vendored libcurl?**
+**Schannel ALPN gotcha (fixed):** curl's `global_init` runs
+`Curl_ssl_init` (schannel reads the OS version for its ALPN gate) before
+`Curl_win32_init` (which installs the accurate `RtlVerifyVersionInfo`),
+so Schannel fell back to the manifest-lying `VerifyVersionInfoW` and
+silently disabled HTTP/2 for an unmanifested host. One-line vendored
+patch to `lib/easy.c` reorders win32_init before ssl_init.
+
+**Deferred:** HTTP/3 (needs the ngtcp2/nghttp3 or quiche QUIC stack --
+a separate vendoring effort) and a true work-stealing scheduler. The
+historical decision context is kept below for the record.
+
+### (historical) the choice that was made
 
 * **Keep httpcore + reactor + nghttp2** -- preserves the Tier 1 HTTP
   client; we make it async over the loop and add h2 via nghttp2.

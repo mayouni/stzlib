@@ -140,6 +140,17 @@ static CURLcode global_init(long flags, bool memoryfuncs)
     goto fail;
   }
 
+  /* Softanza patch: run Curl_win32_init (which sets up the accurate
+     RtlVerifyVersionInfo-based OS version check) BEFORE Curl_ssl_init, so
+     the Schannel backend's ALPN gate -- and thus HTTP/2 negotiation --
+     sees the real Windows version even from an unmanifested host process.
+     Upstream order has ssl_init first, which makes Schannel fall back to
+     the manifest-lying VerifyVersionInfoW and silently disable ALPN. */
+  if(Curl_win32_init(flags)) {
+    DEBUGF(curl_mfprintf(stderr, "Error: win32_init failed\n"));
+    goto fail;
+  }
+
   if(!Curl_ssl_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_ssl_init failed\n"));
     goto fail;
@@ -147,11 +158,6 @@ static CURLcode global_init(long flags, bool memoryfuncs)
 
   if(!Curl_vquic_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_vquic_init failed\n"));
-    goto fail;
-  }
-
-  if(Curl_win32_init(flags)) {
-    DEBUGF(curl_mfprintf(stderr, "Error: win32_init failed\n"));
     goto fail;
   }
 
