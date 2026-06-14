@@ -263,22 +263,37 @@ class stzHexNumber from stzObject
 		return This.ToStzNumber().ToBytes()
 
 	def FromDecimalForm(n)
-		@cHexNumber = StzNumberQ(n).ToHexForm()
+		# ToHexForm() returns the PREFIXED form ("0x..."), but @cHexNumber
+		# must hold the content WITHOUT prefix (Content()/WithPrefix() add
+		# it back). Strip the leading prefix so WithPrefix() doesn't double.
+		@cHexNumber = This._StripHexPrefix( StzNumberQ(n).ToHexForm() )
 
 		def FromDecimal(n)
 			This.FromDecimalForm(n)
 
 	def FromOctalForm(n)
-		@cHexNumber = StzOctalNumberQ(n).ToHexForm()
+		@cHexNumber = This._StripHexPrefix( StzOctalNumberQ(n).ToHexForm() )
 
 		def FromOctal(n)
 			This.FromOctalForm(n)
 
 	def FromBinaryForm(n)
-		@cHexNumber = StzBinaryNumberQ(n).ToHexForm()
+		@cHexNumber = This._StripHexPrefix( StzBinaryNumberQ(n).ToHexForm() )
 
 		def FromBinary(n)
 			This.FromBinaryForm(n)
+
+	def _StripHexPrefix(cHex)
+		acHexPrefix = HexPrefixes()
+		nLen = len(acHexPrefix)
+		for i = 1 to nLen
+			nPrefLen = StzLen(acHexPrefix[i])
+			if StzLeft(cHex, nPrefLen) = acHexPrefix[i]
+				cHex = StzMid(cHex, nPrefLen + 1, StzLen(cHex) - nPrefLen)
+				exit
+			ok
+		next
+		return cHex
 
 	  #-----------#
 	 #   MISC.   #
