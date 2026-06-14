@@ -126,9 +126,27 @@ so Schannel fell back to the manifest-lying `VerifyVersionInfoW` and
 silently disabled HTTP/2 for an unmanifested host. One-line vendored
 patch to `lib/easy.c` reorders win32_init before ssl_init.
 
-**Deferred:** HTTP/3 (needs the ngtcp2/nghttp3 or quiche QUIC stack --
-a separate vendoring effort) and a true work-stealing scheduler. The
-historical decision context is kept below for the record.
+**HTTP/3 -- DEFERRED (decision, s72).** Every viable h3 path here is a
+bad trade today: curl 8.20's h3 backends are ngtcp2+nghttp3 or quiche,
+and **Schannel cannot serve curl's QUIC**, so h3 forces a replacement
+TLS backend. The only from-source path (wolfSSL + ngtcp2 + nghttp3)
+would rip out the working Schannel h1/h2 stack, lose automatic Windows
+cert-store verification (must ship a CA bundle), and is the biggest
+vendor yet; the Windows-native path (msh3 + msquic) needs a curl bump
+*and* a prebuilt binary, breaking the from-source rule. Meanwhile h3
+degrades to h2 with zero functional loss (h3 is discovered via Alt-Svc
+on an h2/h1 response), and h2 already covers essentially all real
+traffic. **Revisit when** a real h3-only driver appears, OR curl
+restores msh3 so we can reuse Schannel via msquic cleanly, OR OpenSSL
+3.5+ QUIC matures into a zig-cc-buildable form. A true work-stealing
+scheduler is likewise deferred (the multi-loop pool covers scale today).
+
+**Tier 2 is COMPLETE** for the shipped scope: libuv reactor (async
+timer/TCP, multi-loop scale), W3C TraceContext, and the libcurl HTTP
+stack through HTTP/2 with Schannel TLS -- all vendored from source, all
+green.
+
+The historical decision context is kept below for the record.
 
 ### (historical) the choice that was made
 
