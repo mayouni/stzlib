@@ -75,20 +75,76 @@ pub fn reactor_selftest() callconv(.c) i32 {
 
 const gpa = std.heap.c_allocator;
 
-const JobKind = enum(u32) { timer = 0 };
+// libuv's stream types (uv_stream_t / uv_tcp_t) are mutually recursive
+// with uv_read_cb, which Zig's translate-c cannot build ("dependency
+// loop"). We therefore treat TCP handles + requests as OPAQUE buffers
+// (sized at runtime via uv_handle_size / uv_req_size) and declare the
+// stream functions ourselves with `*anyopaque` pointers. Every libuv
+// handle and request begins with `void* data`, so we read/write the
+// user pointer at offset 0 regardless of the concrete struct.
+const ConnectCb = *const fn (*anyopaque, c_int) callconv(.c) void;
+const WriteCb = *const fn (*anyopaque, c_int) callconv(.c) void;
+const AllocCb = *const fn (*anyopaque, usize, [*c]c.uv_buf_t) callconv(.c) void;
+const ReadCb = *const fn (*anyopaque, isize, [*c]const c.uv_buf_t) callconv(.c) void;
+const GaiCb = *const fn (*anyopaque, c_int, ?*c.struct_addrinfo) callconv(.c) void;
+
+extern fn uv_handle_size(handle_type: c.uv_handle_type) usize;
+extern fn uv_req_size(req_type: c.uv_req_type) usize;
+extern fn uv_tcp_init(loop: *c.uv_loop_t, handle: *anyopaque) c_int;
+extern fn uv_tcp_connect(req: *anyopaque, handle: *anyopaque, addr: *const c.struct_sockaddr, cb: ConnectCb) c_int;
+extern fn uv_read_start(stream: *anyopaque, alloc_cb: AllocCb, read_cb: ReadCb) c_int;
+extern fn uv_read_stop(stream: *anyopaque) c_int;
+extern fn uv_write(req: *anyopaque, stream: *anyopaque, bufs: [*]const c.uv_buf_t, nbufs: c_uint, cb: WriteCb) c_int;
+extern fn uv_getaddrinfo(loop: *c.uv_loop_t, req: *anyopaque, cb: GaiCb, node: [*:0]const u8, service: [*:0]const u8, hints: ?*const c.struct_addrinfo) c_int;
+
+fn setData(p: *anyopaque, job: *Job) void {
+    const slot: *?*anyopaque = @ptrCast(@alignCast(p));
+    slot.* = job;
+}
+fn getJob(p: *anyopaque) *Job {
+    const slot: *?*anyopaque = @ptrCast(@alignCast(p));
+    return @ptrCast(@alignCast(slot.*.?));
+}
+
+const JobKind = enum(u32) { timer = 0, tcp_request = 1 };
 
 const Job = struct {
     id: u64,
     kind: JobKind,
-    delay_ms: u64,
-    timer: c.uv_timer_t,
     reactor: *Reactor,
+
+    // timer op
+    delay_ms: u64 = 0,
+    timer: c.uv_timer_t = undefined,
+
+    // tcp_request op (connect -> write -> read-to-EOF). The uv handle +
+    // request are opaque buffers (see note above). One request buffer is
+    // reused across the sequential getaddrinfo -> connect -> write phases.
+    host: ?[]u8 = null,
+    port: u16 = 0,
+    payload: ?[]u8 = null,
+    scratch: ?[]u8 = null, // per-read buffer libuv fills
+    resp: std.ArrayList(u8) = .{},
+    tcp_buf: ?[]u8 = null, // opaque uv_tcp_t
+    req_buf: ?[]u8 = null, // opaque uv request (gai/connect/write)
+    tcp_inited: bool = false, // whether the handle needs uv_close
+
     // state (all guarded by Reactor.mutex)
-    result_ready: bool, // op finished; status valid
-    handle_closed: bool, // uv_close callback fired
-    drained: bool, // caller polled the result
-    status: i32,
+    result_ready: bool = false, // op finished; status valid
+    handle_closed: bool = false, // uv_close callback fired (or no handle)
+    drained: bool = false, // caller polled the result
+    status: i32 = 0, // 0 ok, negative = uv/engine error
 };
+
+fn freeJob(job: *Job) void {
+    if (job.host) |h| gpa.free(h);
+    if (job.payload) |pl| gpa.free(pl);
+    if (job.scratch) |s| gpa.free(s);
+    if (job.tcp_buf) |t| gpa.free(t);
+    if (job.req_buf) |rq| gpa.free(rq);
+    job.resp.deinit(gpa);
+    gpa.destroy(job);
+}
 
 pub const Reactor = struct {
     loop: c.uv_loop_t,
@@ -142,7 +198,132 @@ fn startJob(job: *Job) void {
             job.timer.data = job;
             _ = c.uv_timer_start(&job.timer, onTimer, job.delay_ms, 0);
         },
+        .tcp_request => startTcpRequest(job),
     }
+}
+
+// ── async TCP request: connect -> write -> read-to-EOF ───────
+
+fn startTcpRequest(job: *Job) void {
+    const r = job.reactor;
+    const req = job.req_buf.?.ptr;
+    setData(req, job);
+    var hints: c.struct_addrinfo = std.mem.zeroes(c.struct_addrinfo);
+    hints.ai_family = c.AF_UNSPEC;
+    hints.ai_socktype = c.SOCK_STREAM;
+    var port_buf: [8]u8 = undefined;
+    const port_str = std.fmt.bufPrintZ(&port_buf, "{d}", .{job.port}) catch {
+        finishTcp(job, -1);
+        return;
+    };
+    const host_z = gpa.dupeZ(u8, job.host.?) catch {
+        finishTcp(job, -1);
+        return;
+    };
+    defer gpa.free(host_z);
+    const rc = uv_getaddrinfo(&r.loop, req, onResolved, host_z.ptr, port_str.ptr, &hints);
+    if (rc != 0) finishTcp(job, rc);
+}
+
+fn onResolved(req: *anyopaque, status: c_int, res: ?*c.struct_addrinfo) callconv(.c) void {
+    const job = getJob(req);
+    const r = job.reactor;
+    const ai = res orelse {
+        finishTcp(job, if (status != 0) @intCast(status) else -1);
+        return;
+    };
+    if (status != 0) {
+        c.uv_freeaddrinfo(@ptrCast(ai));
+        finishTcp(job, @intCast(status));
+        return;
+    }
+    const tcp = job.tcp_buf.?.ptr;
+    _ = uv_tcp_init(&r.loop, tcp);
+    setData(tcp, job);
+    job.tcp_inited = true;
+    setData(req, job); // reuse the request buffer for the connect phase
+    const rc = uv_tcp_connect(req, tcp, @ptrCast(ai.ai_addr), onConnect);
+    c.uv_freeaddrinfo(@ptrCast(ai));
+    if (rc != 0) finishTcp(job, rc);
+}
+
+fn onConnect(req: *anyopaque, status: c_int) callconv(.c) void {
+    const job = getJob(req);
+    if (status != 0) {
+        finishTcp(job, status);
+        return;
+    }
+    const payload = job.payload orelse "";
+    var buf = c.uv_buf_init(@constCast(payload.ptr), @intCast(payload.len));
+    setData(req, job); // reuse the request buffer for the write phase
+    const rc = uv_write(req, job.tcp_buf.?.ptr, @ptrCast(&buf), 1, onWrite);
+    if (rc != 0) finishTcp(job, rc);
+}
+
+fn onWrite(req: *anyopaque, status: c_int) callconv(.c) void {
+    const job = getJob(req);
+    if (status != 0) {
+        finishTcp(job, status);
+        return;
+    }
+    const rc = uv_read_start(job.tcp_buf.?.ptr, onAlloc, onRead);
+    if (rc != 0) finishTcp(job, rc);
+}
+
+fn onAlloc(stream: *anyopaque, suggested: usize, buf: [*c]c.uv_buf_t) callconv(.c) void {
+    _ = suggested;
+    const job = getJob(stream);
+    const s = job.scratch orelse {
+        buf.*.base = null;
+        buf.*.len = 0;
+        return;
+    };
+    buf.*.base = s.ptr;
+    buf.*.len = @intCast(s.len);
+}
+
+fn onRead(stream: *anyopaque, nread: isize, buf: [*c]const c.uv_buf_t) callconv(.c) void {
+    _ = buf;
+    const job = getJob(stream);
+    if (nread > 0) {
+        const s = job.scratch.?;
+        job.resp.appendSlice(gpa, s[0..@intCast(nread)]) catch {
+            _ = uv_read_stop(stream);
+            finishTcp(job, -1);
+            return;
+        };
+        return;
+    }
+    if (nread < 0) {
+        // UV_EOF is the normal end of a response; anything else is an error.
+        _ = uv_read_stop(stream);
+        finishTcp(job, if (nread == c.UV_EOF) 0 else @intCast(nread));
+    }
+    // nread == 0 means EAGAIN -- nothing to do.
+}
+
+// Mark the tcp job done with `status`, then close its handle (if any) so
+// the lifetime handshake can reap it.
+fn finishTcp(job: *Job, status: c_int) void {
+    const r = job.reactor;
+    r.mutex.lock();
+    if (!job.result_ready) {
+        job.status = @intCast(status);
+        job.result_ready = true;
+    }
+    r.mutex.unlock();
+    if (job.tcp_inited) {
+        const tcp = job.tcp_buf.?.ptr;
+        if (c.uv_is_closing(@ptrCast(@alignCast(tcp))) == 0) {
+            c.uv_close(@ptrCast(@alignCast(tcp)), onHandleClosed);
+            return;
+        }
+    }
+    // No handle created (e.g. DNS failure) -- nothing to close.
+    r.mutex.lock();
+    job.handle_closed = true;
+    reapLocked(r, job);
+    r.mutex.unlock();
 }
 
 fn onTimer(handle: [*c]c.uv_timer_t) callconv(.c) void {
@@ -170,7 +351,7 @@ fn onHandleClosed(handle: [*c]c.uv_handle_t) callconv(.c) void {
 fn reapLocked(r: *Reactor, job: *Job) void {
     if (job.handle_closed and job.drained) {
         _ = r.jobs.remove(job.id);
-        gpa.destroy(job);
+        freeJob(job);
     }
 }
 
@@ -270,6 +451,133 @@ pub fn reactor_await(r_opt: ?*Reactor, job_id: u64, timeout_ms: u64) callconv(.c
     }
 }
 
+const TCP_SCRATCH: usize = 16 * 1024;
+var tcp_last_status: i32 = 0;
+var tcp_last_len: usize = 0;
+
+/// Result status of the last reactor_tcp_poll/await that reported done
+/// (0 = ok, negative = uv/engine error code).
+pub fn reactor_tcp_last_status() callconv(.c) i32 {
+    return tcp_last_status;
+}
+
+pub fn reactor_tcp_last_len() callconv(.c) usize {
+    return tcp_last_len;
+}
+
+/// Submit an async TCP request: connect to host:port, write `payload`,
+/// read the response to EOF. Returns a job id (>0) or -1.
+pub fn reactor_submit_tcp_request(
+    r_opt: ?*Reactor,
+    host_ptr: [*]const u8,
+    host_len: usize,
+    port: u16,
+    payload_ptr: [*]const u8,
+    payload_len: usize,
+) callconv(.c) i64 {
+    const r = r_opt orelse return -1;
+    if (r.stopping.load(.acquire)) return -1;
+    const job = gpa.create(Job) catch return -1;
+    const host = gpa.dupe(u8, host_ptr[0..host_len]) catch {
+        gpa.destroy(job);
+        return -1;
+    };
+    const payload = gpa.dupe(u8, payload_ptr[0..payload_len]) catch {
+        gpa.free(host);
+        gpa.destroy(job);
+        return -1;
+    };
+    const scratch = gpa.alloc(u8, TCP_SCRATCH) catch {
+        gpa.free(host);
+        gpa.free(payload);
+        gpa.destroy(job);
+        return -1;
+    };
+    // Opaque uv handle + request buffers (malloc is 16-byte aligned, which
+    // satisfies libuv's handle alignment). One request buffer, sized to
+    // the largest of the phases we reuse it for.
+    const req_size = @max(uv_req_size(c.UV_GETADDRINFO), @max(uv_req_size(c.UV_CONNECT), uv_req_size(c.UV_WRITE)));
+    const tcp_buf = gpa.alloc(u8, uv_handle_size(c.UV_TCP)) catch {
+        gpa.free(host);
+        gpa.free(payload);
+        gpa.free(scratch);
+        gpa.destroy(job);
+        return -1;
+    };
+    const req_buf = gpa.alloc(u8, req_size) catch {
+        gpa.free(host);
+        gpa.free(payload);
+        gpa.free(scratch);
+        gpa.free(tcp_buf);
+        gpa.destroy(job);
+        return -1;
+    };
+    r.mutex.lock();
+    job.* = .{
+        .id = r.next_id,
+        .kind = .tcp_request,
+        .reactor = r,
+        .host = host,
+        .port = port,
+        .payload = payload,
+        .scratch = scratch,
+        .tcp_buf = tcp_buf,
+        .req_buf = req_buf,
+    };
+    r.next_id += 1;
+    const id = job.id;
+    r.jobs.put(id, job) catch {
+        r.mutex.unlock();
+        freeJob(job);
+        return -1;
+    };
+    r.pending.append(gpa, job) catch {
+        _ = r.jobs.remove(id);
+        r.mutex.unlock();
+        freeJob(job);
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    return @intCast(id);
+}
+
+/// Poll a tcp_request job: -2 not found, -1 running, -3 overflow, else
+/// the number of response bytes written into out[0..max]. The op status
+/// is reported via reactor_tcp_last_status().
+pub fn reactor_tcp_poll(r_opt: ?*Reactor, job_id: u64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const job = r.jobs.get(job_id) orelse return -2;
+    if (!job.result_ready) return -1;
+    tcp_last_status = job.status;
+    const body = job.resp.items;
+    job.drained = true;
+    if (body.len > max) {
+        tcp_last_len = 0;
+        reapLocked(r, job);
+        return -3;
+    }
+    @memcpy(out[0..body.len], body);
+    tcp_last_len = body.len;
+    reapLocked(r, job);
+    return @intCast(body.len);
+}
+
+/// Block up to `timeout_ms` for a tcp_request to finish. Same return
+/// codes as reactor_tcp_poll, plus -1 on timeout.
+pub fn reactor_tcp_await(r_opt: ?*Reactor, job_id: u64, timeout_ms: u64, out: [*]u8, max: usize) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    const deadline = std.time.nanoTimestamp() + @as(i128, @intCast(timeout_ms)) * 1_000_000;
+    while (true) {
+        const rc = reactor_tcp_poll(r, job_id, out, max);
+        if (rc != -1) return rc;
+        if (std.time.nanoTimestamp() >= deadline) return -1;
+        std.Thread.sleep(2 * std.time.ns_per_ms);
+    }
+}
+
 /// Number of jobs submitted but not yet started on the loop.
 pub fn reactor_pending(r_opt: ?*Reactor) callconv(.c) i32 {
     const r = r_opt orelse return -1;
@@ -286,7 +594,7 @@ pub fn reactor_destroy(r_opt: ?*Reactor) callconv(.c) void {
     _ = c.uv_loop_close(&r.loop);
     // No callbacks run after uv_run returns: free any jobs that survived.
     var it = r.jobs.iterator();
-    while (it.next()) |e| gpa.destroy(e.value_ptr.*);
+    while (it.next()) |e| freeJob(e.value_ptr.*);
     r.jobs.deinit();
     r.pending.deinit(gpa);
     gpa.destroy(r);
@@ -335,4 +643,30 @@ test "reactor core: destroy with in-flight + undrained jobs leaks nothing" {
     const id = reactor_submit_timer(r, 5);
     _ = reactor_await(r, @intCast(id), 2000);
     reactor_destroy(r); // must close handles + free all jobs cleanly
+}
+
+// Live network -- run manually (not in CI). Proves the full async TCP
+// state machine (resolve -> connect -> write -> read-to-EOF).
+test "reactor core: async tcp request round-trip (LIVE NETWORK)" {
+    const r = reactor_create().?;
+    defer reactor_destroy(r);
+    const req = "GET / HTTP/1.0\r\nHost: example.com\r\nConnection: close\r\n\r\n";
+    const id = reactor_submit_tcp_request(r, "example.com", 11, 80, req, req.len);
+    try std.testing.expect(id > 0);
+    var buf: [65536]u8 = undefined;
+    const n = reactor_tcp_await(r, @intCast(id), 15000, &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expectEqual(@as(i32, 0), reactor_tcp_last_status());
+    try std.testing.expect(std.mem.startsWith(u8, buf[0..@intCast(n)], "HTTP/"));
+}
+
+test "reactor core: tcp connect to unreachable surfaces an error, no leak" {
+    const r = reactor_create().?;
+    defer reactor_destroy(r);
+    const id = reactor_submit_tcp_request(r, "192.0.2.1", 9, 80, "x", 1);
+    try std.testing.expect(id > 0);
+    var buf: [256]u8 = undefined;
+    // Either connect refused/timed out (status<0, 0 bytes) or our await
+    // times out (-1). Both are acceptable; the point is no crash/leak.
+    _ = reactor_tcp_await(r, @intCast(id), 3000, &buf, buf.len);
 }
