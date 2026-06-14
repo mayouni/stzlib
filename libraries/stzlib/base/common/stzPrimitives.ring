@@ -229,6 +229,12 @@ func StzMid(cStr, nStart, nLen)
 	StzEngineStringFree(pH)
 	return c
 
+	# @-prefixed alias (stzMatrex.ParsePattern and friends call @StzMid;
+	# only the bare StzMid existed, so the class crashed at construction
+	# with R3 "Calling Function without definition: @stzmid").
+	func @StzMid(cStr, nStart, nLen)
+		return StzMid(cStr, nStart, nLen)
+
 # StzMidToEnd(cStr, nStart): codepoint-correct equivalent of
 # Ring's `substr(cStr, nStart)`. One handle-reuse round (count +
 # slice) instead of a StzMid + separate StzLen.
