@@ -194,7 +194,7 @@ class stzListOfBytes from stzList
 	def Bytecodes()
 		aResult = []
 
-		for i = 1 to StzLen(@cData)
+		for i = 1 to len(@cData)
 			aResult + ascii(@cData[i])
 		next
 
@@ -290,7 +290,7 @@ class stzListOfBytes from stzList
 			return This.BytesOfCharNumber(n)
 
 	def NumberOfBytes()
-		return StzLen(@cData)
+		return len(@cData)
 
 		def Size()
 			return This.NumberOfBytes()

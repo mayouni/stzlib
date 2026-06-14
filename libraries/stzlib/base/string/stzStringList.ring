@@ -459,9 +459,17 @@ class stzStringList
 	# aliases the per-item string. Pre-compute keys once, then
 	# insertion-sort over (key, value) pairs.
 	def SortBy(pcExpr)
-		_aData_ = This.Content() + []
-		_nLen_ = len(_aData_)
+		# NOTE: `This.Content() + []` does NOT copy -- Ring's `+`
+		# appends the empty list as a nested element, which then
+		# sorts to the front (its key len([]) = 0). Build a real
+		# shallow copy with a loop instead.
+		_aSrc_ = This.Content()
+		_nLen_ = len(_aSrc_)
 		if _nLen_ < 2 return ok
+		_aData_ = []
+		for _i_ = 1 to _nLen_
+			_aData_ + _aSrc_[_i_]
+		next
 		_aKeys_ = list(_nLen_)
 		for _i_ = 1 to _nLen_
 			@string = _aData_[_i_]
