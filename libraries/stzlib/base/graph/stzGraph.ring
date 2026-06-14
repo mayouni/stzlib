@@ -497,6 +497,13 @@ class stzGraph
 			ok
 		ok
 
+		# Node ids (and edge from/to) are stored StzLower-normalised --
+		# match the same way the rest of stzGraph does (AddEdge, the
+		# edge-exists check), else a caller passing original casing
+		# (e.g. stzKnowledgeGraph.RemoveFact) removes nothing.
+		pcFromNodeId = StzLower(pcFromNodeId)
+		pcToNodeId = StzLower(pcToNodeId)
+
 		acNew = []
 		nLen = len(@aEdges)
 		for i = 1 to nLen
