@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1084,
     .ring_classes_bridged = 131,
     .ring_engine_calls = 3482,
-    .last_session = 75,
+    .last_session = 76,
     .last_updated = "2026-06-14",
 };
 
@@ -481,7 +481,7 @@ pub const milestones = [_]Milestone{
         .track = "stzlib",
         .title = "Ring-Side Test Hardening",
         .status = .partial,
-        .summary = "Sessions 38-54: 48 regression suites, ~1593 assertions, 95 cumulative latent bugs. Sessions 52-54 (2026-06-13) closed the external-domain coverage gap + the previously-pending narrated runner + reactive harness items. Bug-pattern catalogue: 17 families. Remaining: incremental conversion of older 41 classic-format suites (`? expr  #--> expected`) to narrated GIVEN/WHEN/THEN form -- best done domain by domain as those domains see other work.",
+        .summary = "Sessions 38-54: 48 regression suites, ~1593 assertions, 95 cumulative latent bugs. Sessions 52-54 (2026-06-13) closed the external-domain coverage gap + the previously-pending narrated runner + reactive harness items. Bug-pattern catalogue: 17 families. **Classic->narrated conversion resumed (session 76)** -- each new suite RUN for real + fixed, randomness scenarios run 6-8x to confirm no flakiness: listofnumbers/00_listofnumbers_narrated (28/28; surfaced + fixed a latent bug -- NSmallestNumbers/NLargestNumbers chained .SortUpQ()/.FirstNItems() which don't exist on stzList -> R14; now .SortInAscendingQ()/.Section(1,n)/.LastNItems()), uuid/00_uuid_narrated (17/17; format+version+variant+validity + 500-generation uniqueness invariant). Pattern for random ops: assert length/range/uniqueness invariants, NOT the stale one-off #--> sample values. Remaining: more domains, incrementally.",
     },
     .{
         .id = "M-S3",
