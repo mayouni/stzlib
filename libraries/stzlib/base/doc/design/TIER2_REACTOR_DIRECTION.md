@@ -72,10 +72,18 @@ push callbacks into Ring. Instead:
 
 ## Build-or-buy ladder (planned slices)
 
-1. **Foundation (DONE)** -- vendor libuv, prove build/link/run.
-2. **Reactor core** -- a loop owned by an engine thread; async timers +
-   TCP connect/read/write exposed through submit/poll. Migrate the
-   blocking `tcp.zig` server and the polling timer onto it.
+1. **Foundation (DONE, s69)** -- vendor libuv, prove build/link/run.
+2. **Reactor core (timer op DONE, s70)** -- a `uv_loop` on a dedicated
+   worker thread, cross-thread submission via `uv_async_send` + a
+   mutex-guarded job table, and the libuv two-phase handle-lifetime
+   handshake (free a job only once its `uv_close` callback fired AND the
+   caller polled). First async op is a timer; Ring stays synchronous via
+   `StzEngineReactorCreate/SubmitTimer/Poll/Await/Pending/Destroy`.
+   Tests: reactor.zig 5/5 Zig (incl. 32 concurrent timers + clean
+   destroy with in-flight/undrained jobs), reactive/56_reactor_core 6/6.
+   **Remaining in this slice:** async TCP connect/read/write on the same
+   machinery, then migrate the blocking `tcp.zig` server + polling timer
+   onto the loop.
 3. **Scale HTTP** -- the open decision below.
 4. **HTTP/2** -- vendor **nghttp2** (the standard; what curl/nginx use).
 5. **TraceContext** -- W3C `traceparent` propagation (pure code).
