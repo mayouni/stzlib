@@ -66,6 +66,34 @@ var total_opens = std.atomic.Value(u64).init(0);
 var total_reuses = std.atomic.Value(u64).init(0);
 var last_http_version: i32 = 0; // 1 = HTTP/1.x, 2 = HTTP/2, 3 = HTTP/3
 var last_body_len: usize = 0;
+
+// Response headers captured per request (raw "Name: Value\r\n" lines).
+const HDR_CAP: usize = 64 * 1024;
+var hdr_buf: [HDR_CAP]u8 = undefined;
+var hdr_len: usize = 0;
+
+pub fn curl_last_headers_len() callconv(.c) usize {
+    return hdr_len;
+}
+
+pub fn curl_last_headers(out: [*]u8, max: usize) callconv(.c) i32 {
+    const n = @min(hdr_len, max);
+    if (n == 0) return 0;
+    @memcpy(out[0..n], hdr_buf[0..n]);
+    return @intCast(n);
+}
+
+fn headerCb(ptr: [*c]u8, size: usize, nitems: usize, userdata: ?*anyopaque) callconv(.c) usize {
+    _ = userdata;
+    const total = size * nitems;
+    const room = HDR_CAP - hdr_len;
+    const n = @min(total, room);
+    if (n > 0) {
+        @memcpy(hdr_buf[hdr_len .. hdr_len + n], ptr[0..n]);
+        hdr_len += n;
+    }
+    return total;
+}
 var last_error_buf: [512]u8 = undefined;
 var last_error_len: usize = 0;
 
@@ -162,9 +190,80 @@ fn methodName(code: i32) ?[]const u8 {
     };
 }
 
+fn eqk(key: []const u8, name: []const u8) bool {
+    return std.mem.eql(u8, key, name);
+}
+
+// CURLAUTH_* are unsigned bitmasks (CURLAUTH_ANY ~= 0xFFFFFFEF) that
+// don't fit c_long directly; bitcast through c_ulong (same width as
+// c_long on every platform) to pass them to CURLOPT_HTTPAUTH.
+fn am(v: c_ulong) c_long {
+    return @bitCast(v);
+}
+fn authMask(val: []const u8) c_long {
+    if (eqk(val, "basic")) return am(c.CURLAUTH_BASIC);
+    if (eqk(val, "digest")) return am(c.CURLAUTH_DIGEST);
+    if (eqk(val, "bearer")) return am(c.CURLAUTH_BEARER);
+    if (eqk(val, "ntlm")) return am(c.CURLAUTH_NTLM);
+    if (eqk(val, "negotiate")) return am(c.CURLAUTH_NEGOTIATE);
+    return am(c.CURLAUTH_ANY);
+}
+
+// Apply an extra-options blob: newline-separated "key=value" lines that
+// map to libcurl easy options. Lets stzHttpClient expose proxy / auth /
+// mTLS / cookies / verify / redirect without exploding the C-ABI arity.
+fn applyOpts(h: ?*c.CURL, opts: []const u8) void {
+    if (opts.len == 0) return;
+    var scratch: [4096]u8 = undefined;
+    var it = std.mem.splitScalar(u8, opts, '\n');
+    while (it.next()) |raw| {
+        var line = raw;
+        if (line.len > 0 and line[line.len - 1] == '\r') line = line[0 .. line.len - 1];
+        if (line.len == 0) continue;
+        const eq = std.mem.indexOfScalar(u8, line, '=') orelse continue;
+        const key = line[0..eq];
+        const val = line[eq + 1 ..];
+        if (val.len + 1 > scratch.len) continue;
+        @memcpy(scratch[0..val.len], val);
+        scratch[val.len] = 0;
+        const vz: [*:0]const u8 = @ptrCast(&scratch);
+        if (eqk(key, "proxy")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_PROXY, vz);
+        } else if (eqk(key, "proxyuserpwd")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_PROXYUSERPWD, vz);
+        } else if (eqk(key, "userpwd")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_USERPWD, vz);
+            _ = c.curl_easy_setopt(h, c.CURLOPT_HTTPAUTH, @as(c_long, c.CURLAUTH_BASIC));
+        } else if (eqk(key, "bearer")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_XOAUTH2_BEARER, vz);
+            _ = c.curl_easy_setopt(h, c.CURLOPT_HTTPAUTH, @as(c_long, c.CURLAUTH_BEARER));
+        } else if (eqk(key, "authtype")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_HTTPAUTH, authMask(val));
+        } else if (eqk(key, "sslcert")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_SSLCERT, vz);
+        } else if (eqk(key, "sslkey")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_SSLKEY, vz);
+        } else if (eqk(key, "cookiefile")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_COOKIEFILE, vz);
+        } else if (eqk(key, "cookiejar")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_COOKIEJAR, vz);
+        } else if (eqk(key, "acceptencoding")) {
+            _ = c.curl_easy_setopt(h, c.CURLOPT_ACCEPT_ENCODING, vz);
+        } else if (eqk(key, "verifyssl")) {
+            if (eqk(val, "0")) {
+                _ = c.curl_easy_setopt(h, c.CURLOPT_SSL_VERIFYPEER, @as(c_long, 0));
+                _ = c.curl_easy_setopt(h, c.CURLOPT_SSL_VERIFYHOST, @as(c_long, 0));
+            }
+        } else if (eqk(key, "followredirects")) {
+            if (eqk(val, "0")) _ = c.curl_easy_setopt(h, c.CURLOPT_FOLLOWLOCATION, @as(c_long, 0));
+        }
+    }
+}
+
 /// Perform an HTTP request. Returns HTTP status (>0), -1 on transport
 /// error (message in curl_last_error), or -2 on response overflow.
-/// `headers_blob` is a newline-separated "Name: Value" block.
+/// `headers_blob` is a newline-separated "Name: Value" block; `opts_blob`
+/// is a newline-separated "key=value" block of extra request options.
 pub fn curl_request(
     method_code: i32,
     url_ptr: [*]const u8,
@@ -179,9 +278,12 @@ pub fn curl_request(
     max: usize,
     connect_ms: u32,
     request_ms: u32,
+    opts_ptr: [*]const u8,
+    opts_len: usize,
 ) callconv(.c) i64 {
     last_error_len = 0;
     last_body_len = 0;
+    hdr_len = 0;
     ensureInit();
 
     const method = methodName(method_code) orelse {
@@ -215,6 +317,9 @@ pub fn curl_request(
     _ = c.curl_easy_setopt(h, c.CURLOPT_USERAGENT, "Softanza-HTTP/2.0");
     // Prefer HTTP/2 over TLS (ALPN); falls back to 1.1 automatically.
     _ = c.curl_easy_setopt(h, c.CURLOPT_HTTP_VERSION, @as(c_long, c.CURL_HTTP_VERSION_2TLS));
+    // Capture response headers.
+    _ = c.curl_easy_setopt(h, c.CURLOPT_HEADERFUNCTION, &headerCb);
+    _ = c.curl_easy_setopt(h, c.CURLOPT_HEADERDATA, @as(?*anyopaque, null));
     if (connect_ms > 0) _ = c.curl_easy_setopt(h, c.CURLOPT_CONNECTTIMEOUT_MS, @as(c_long, @intCast(connect_ms)));
     if (request_ms > 0) _ = c.curl_easy_setopt(h, c.CURLOPT_TIMEOUT_MS, @as(c_long, @intCast(request_ms)));
 
@@ -263,6 +368,10 @@ pub fn curl_request(
         }
     }
     if (slist != null) _ = c.curl_easy_setopt(h, c.CURLOPT_HTTPHEADER, slist);
+
+    // Extra options (proxy/auth/mTLS/cookies/verify/redirect) -- applied
+    // last so they can override the defaults set above.
+    applyOpts(h, opts_ptr[0..opts_len]);
 
     const rc = c.curl_easy_perform(h);
     if (rc != c.CURLE_OK) {

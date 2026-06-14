@@ -287,6 +287,10 @@ fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
     mod.addIncludePath(b.path(ng ++ "/lib/includes"));
     mod.addIncludePath(b.path(ng ++ "/lib"));
 
+    // gzip/deflate auto-decompression via vendored zlib.
+    const zl = "vendor/zlib";
+    mod.addIncludePath(b.path(zl));
+
     const flags = [_][]const u8{
         "-DBUILDING_LIBCURL",
         "-DCURL_STATICLIB",
@@ -294,6 +298,8 @@ fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
         "-DUSE_SCHANNEL",
         "-DUSE_NGHTTP2",
         "-DNGHTTP2_STATICLIB",
+        "-DHAVE_LIBZ",
+        "-DHAVE_ZLIB_H",
         // Trim to HTTP(S): drop protocols we don't ship (also avoids
         // pulling optional third-party deps).
         "-DCURL_DISABLE_LDAP",   "-DCURL_DISABLE_LDAPS",
@@ -323,6 +329,22 @@ fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
     }
     const ng_flags = [_][]const u8{ "-DNGHTTP2_STATICLIB", "-DBUILDING_NGHTTP2" };
     lib.addCSourceFiles(.{ .files = ngfiles.items, .flags = &ng_flags });
+
+    // Compile vendored zlib (flat .c list; zconf.h is committed -- no gen).
+    var zfiles: std.ArrayList([]const u8) = .{};
+    {
+        var dir = std.fs.cwd().openDir(zl, .{ .iterate = true }) catch |e|
+            std.debug.panic("zlib: cannot open {s}: {s}", .{ zl, @errorName(e) });
+        defer dir.close();
+        var it = dir.iterate();
+        while (it.next() catch null) |entry| {
+            if (entry.kind != .file) continue;
+            if (!std.mem.endsWith(u8, entry.name, ".c")) continue;
+            zfiles.append(b.allocator, b.fmt("{s}/{s}", .{ zl, entry.name })) catch @panic("oom");
+        }
+    }
+    const zl_flags = [_][]const u8{"-DHAVE_UNISTD_H=0"};
+    lib.addCSourceFiles(.{ .files = zfiles.items, .flags = &zl_flags });
 
     const win_libs = [_][]const u8{ "ws2_32", "crypt32", "secur32", "advapi32", "bcrypt", "normaliz" };
     for (win_libs) |l| lib.linkSystemLibrary(l);
