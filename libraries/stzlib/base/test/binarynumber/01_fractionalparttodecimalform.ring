@@ -13,7 +13,7 @@ decimals(10)
 
 	# Creating a binary number from a binary form
 
-	o1 = new stzBinaryNumber("0b01110111100111010.11101111")
+	o1 = new stzBinaryNumber("01110111100111010.11101111")
 
 	? o1.FractionalPartToDecimalForm()
 	#--> 0.93359375

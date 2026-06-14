@@ -1746,7 +1746,7 @@ class stzListOfNumbers from stzList
 	#================================#
 
 	def NLowestNumbers(n)
-		anResult = This.ToStzList().RemoveDuplicatesQ().SortUpQ().FirstNItems(n)
+		anResult = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().Section(1, n)
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -2119,7 +2119,7 @@ class stzListOfNumbers from stzList
 	#=================================#
 
 	def NLargestNumbers(n)
-		anResult = This.ToStzList().RemoveDuplicatesQ().SortUpQ().LastNItems(n)
+		anResult = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().LastNItems(n)
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -5606,7 +5606,24 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = StzFind( new stzList(This.Content()).Reversed(), n )
+		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
+
+		if _nLen_ = 0
+			StzRaise("Can't proceed! The list of numbers is empty.")
+		ok
+
+		if ring_find(_anContent_, n) = 0
+			stzRaise("Can't proceed! The number you provided does not exist in the list.")
+		ok
+
+		_anReverse_ = []
+
+		for i = _nLen_ to 1 step -1
+			_anReverse_ + _anContent_[i]
+		next
+
+		_nPos_ = ring_find( _anReverse_, n )
 		nResult = This.AnyNumberAfterPosition(nPos)
 
 		return nResult
