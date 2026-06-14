@@ -35,6 +35,16 @@ Scenario("Sort and deduplicate")
     Then("RemoveDuplicates keeps first occurrences", ListEq(o.Content(), [ "aa", "b", "ccc" ]), TRUE)
 EndScenario()
 
+Scenario("Sort by a custom key expression")
+    Given("strings of varying length and a len(@string) key")
+    s = Sl([ "a", "abcde", "abc", "ab", "abcd" ])
+    s.SortBy('len(@string)')
+    Then("SortBy orders by length with no spurious empty element", ListEq(s.Content(), [ "a", "ab", "abc", "abcd", "abcde" ]), TRUE)
+    s2 = Sl([ "bbb", "a", "cc" ])
+    s2.SortBy('len(@string)')
+    Then("SortBy is stable on a 3-element list", ListEq(s2.Content(), [ "a", "cc", "bbb" ]), TRUE)
+EndScenario()
+
 Summary()
 
 func Sl aList
