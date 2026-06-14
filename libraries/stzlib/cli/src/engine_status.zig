@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1084,
     .ring_classes_bridged = 131,
     .ring_engine_calls = 3482,
-    .last_session = 76,
+    .last_session = 77,
     .last_updated = "2026-06-14",
 };
 
@@ -481,7 +481,7 @@ pub const milestones = [_]Milestone{
         .track = "stzlib",
         .title = "Ring-Side Test Hardening",
         .status = .partial,
-        .summary = "Sessions 38-54: 48 regression suites, ~1593 assertions, 95 cumulative latent bugs. Sessions 52-54 (2026-06-13) closed the external-domain coverage gap + the previously-pending narrated runner + reactive harness items. Bug-pattern catalogue: 17 families. **Classic->narrated conversion resumed (session 76)** -- each new suite RUN for real + fixed, randomness scenarios run 6-8x to confirm no flakiness: listofnumbers/00_listofnumbers_narrated (28/28; surfaced + fixed a latent bug -- NSmallestNumbers/NLargestNumbers chained .SortUpQ()/.FirstNItems() which don't exist on stzList -> R14; now .SortInAscendingQ()/.Section(1,n)/.LastNItems()), uuid/00_uuid_narrated (17/17; format+version+variant+validity + 500-generation uniqueness invariant). Pattern for random ops: assert length/range/uniqueness invariants, NOT the stale one-off #--> sample values. Remaining: more domains, incrementally.",
+        .summary = "Sessions 38-54: 48 regression suites, ~1593 assertions, 95 cumulative latent bugs. Sessions 52-54 (2026-06-13) closed the external-domain coverage gap + the previously-pending narrated runner + reactive harness items. Bug-pattern catalogue: 17 families. **Classic->narrated conversion resumed (session 76)** -- each new suite RUN for real + fixed, randomness scenarios run 6-8x to confirm no flakiness: listofnumbers/00_listofnumbers_narrated (28/28; surfaced + fixed a latent bug -- NSmallestNumbers/NLargestNumbers chained .SortUpQ()/.FirstNItems() which don't exist on stzList -> R14; now .SortInAscendingQ()/.Section(1,n)/.LastNItems()), uuid/00_uuid_narrated (17/17; format+version+variant+validity + 500-generation uniqueness invariant). Pattern for random ops: assert length/range/uniqueness invariants, NOT the stale one-off #--> sample values. **Session 77 added 6 more domain suites** (each run for real): counter/00 9/9, random/00 7/7 (run 5x; ARandomNumberBetween/random01 bounds, Some() subset, Randomize permutation+actually-shuffles), ordinal/00 12/12 (en+fr), octalnumber/00 7/7 (fixed stale formats: ctor needs 0o, FromHex/FromBinary need 0x/0b), decimaltobinary/00 4/4, binarynumber/00 5/5. Skipped plural/singular -- their morphological rule pipeline is incomplete (function defect, not test work; won't lock in broken behavior). 8 domains converted total this arc + 1 latent bug fixed. Remaining: many more domains, incrementally.",
     },
     .{
         .id = "M-S3",
