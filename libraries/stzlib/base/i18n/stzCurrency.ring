@@ -18,7 +18,8 @@ func Currencies()
 	_nLocaleCountriesXT6Len_ = len(_aLocaleCountriesXT6_)
 	for _iLoopLocaleCountriesXT6_ = 1 to _nLocaleCountriesXT6Len_
 		aCountryInfo = _aLocaleCountriesXT6_[_iLoopLocaleCountriesXT6_]
-		aResult + aCountryInfo[7][1]
+		# Column layout: [7]=currency name, [8]=fractional unit, [9]=base.
+		aResult + aCountryInfo[7]
 	next
 
 	return aResult
@@ -32,7 +33,9 @@ func CountriesOrRegionsAndTheirCurrenciesXT()
 	_nLocaleCountriesXT5Len_ = len(_aLocaleCountriesXT5_)
 	for _iLoopLocaleCountriesXT5_ = 1 to _nLocaleCountriesXT5Len_
 		aCountryInfo = _aLocaleCountriesXT5_[_iLoopLocaleCountriesXT5_]
-		aResult + [ aCountryInfo[2], aCountryInfo[7] ]
+		# Currency info is the triple [ name, fractional unit, base ]
+		# built from columns [7],[8],[9] of the country row.
+		aResult + [ aCountryInfo[2], [ aCountryInfo[7], aCountryInfo[8], aCountryInfo[9] ] ]
 	next
 	
 	return aResult
@@ -43,7 +46,7 @@ func CountriesOrRegionsAndTheirCurrencies()
 		_nLocaleCountriesXT4Len_ = len(_aLocaleCountriesXT4_)
 		for _iLoopLocaleCountriesXT4_ = 1 to _nLocaleCountriesXT4Len_
 			aCountryInfo = _aLocaleCountriesXT4_[_iLoopLocaleCountriesXT4_]
-			aResult + [ aCountryInfo[2], aCountryInfo[7][1] ]
+			aResult + [ aCountryInfo[2], aCountryInfo[7] ]
 		next
 	
 		return aResult
@@ -54,7 +57,7 @@ func CurrenciesAndTheirCountriesOrRegionsXT()
 	_nLocaleCountriesXT3Len_ = len(_aLocaleCountriesXT3_)
 	for _iLoopLocaleCountriesXT3_ = 1 to _nLocaleCountriesXT3Len_
 		aCountryInfo = _aLocaleCountriesXT3_[_iLoopLocaleCountriesXT3_]
-		aResult + [ aCountryInfo[7], aCountryInfo[2] ]
+		aResult + [ [ aCountryInfo[7], aCountryInfo[8], aCountryInfo[9] ], aCountryInfo[2] ]
 	next
 	
 	return aResult
@@ -65,7 +68,7 @@ func CurrenciesAndTheirCountriesOrRegions()
 	_nLocaleCountriesXT2Len_ = len(_aLocaleCountriesXT2_)
 	for _iLoopLocaleCountriesXT2_ = 1 to _nLocaleCountriesXT2Len_
 		aCountryInfo = _aLocaleCountriesXT2_[_iLoopLocaleCountriesXT2_]
-		aResult + [ aCountryInfo[7][1], aCountryInfo[2] ]
+		aResult + [ aCountryInfo[7], aCountryInfo[2] ]
 	next
 	
 	return aResult
@@ -91,18 +94,26 @@ class stzCurrency
 				if StzLower(aCountryInfo[1]) = StzLower(pcCurrencyIdentifier)
 
 					@aCurrencyInfo@ = aCountryInfo[2]
+					# Remember the originating country so Country() and the
+					# locale-abbreviation lookup stay exact. Without this,
+					# Country() reverse-maps currency->country, which is
+					# ambiguous for shared currencies (e.g. euro -> many
+					# countries) and crashed Abbreviation() with R2.
+					@cCountry@ = StzLower(aCountryInfo[1])
 					exit
 				ok
 			next
 
 		but StzStringQ(pcCurrencyIdentifier).IsCurrencyName()
 
-			_aCurrenciesXT1_ = CurrenciesXT()
-			_nCurrenciesXT1Len_ = len(_aCurrenciesXT1_)
-			for _iLoopCurrenciesXT1_ = 1 to _nCurrenciesXT1Len_
-				aCurrencyInfo = _aCurrenciesXT1_[_iLoopCurrenciesXT1_]
-				if StzLower(aCurrencyInfo[1]) = StzLower(pcCurrencyIdentifier)
-					@aCurrencyInfo@ = aCurrencyInfo
+			# Match on the currency name (column [7]) directly and build
+			# the [ name, fractional unit, base ] triple from [7],[8],[9].
+			_aLocaleCountriesXTCur_ = LocaleCountriesXT()
+			_nLocaleCountriesXTCurLen_ = len(_aLocaleCountriesXTCur_)
+			for _iLoopCur_ = 1 to _nLocaleCountriesXTCurLen_
+				aCountryInfo = _aLocaleCountriesXTCur_[_iLoopCur_]
+				if StzLower(aCountryInfo[7]) = StzLower(pcCurrencyIdentifier)
+					@aCurrencyInfo@ = [ aCountryInfo[7], aCountryInfo[8], aCountryInfo[9] ]
 					exit
 				ok
 			next
@@ -166,11 +177,16 @@ class stzCurrency
 		return @aCurrencyInfo@[3]
 
 	def Country()
+		# Exact when the object was built from a country name.
+		if @cCountry@ != ""
+			return @cCountry@
+		ok
+		# Otherwise reverse-map currency -> first matching country.
 		_aLocaleCountriesXT1_ = LocaleCountriesXT()
 		_nLocaleCountriesXT1Len_ = len(_aLocaleCountriesXT1_)
 		for _iLoopLocaleCountriesXT1_ = 1 to _nLocaleCountriesXT1Len_
 			aCountryInfo = _aLocaleCountriesXT1_[_iLoopLocaleCountriesXT1_]
-			if StzLower(aCountryInfo[7][1]) = StzLower(This.Currency())
+			if StzLower(aCountryInfo[7]) = StzLower(This.Currency())
 				return aCountryInfo[2]
 			ok
 		next
@@ -183,5 +199,6 @@ class stzCurrency
 	PRIVATE
 
 	@aCurrencyInfo@
+	@cCountry@ = ""
 
 
