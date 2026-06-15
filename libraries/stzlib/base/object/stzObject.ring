@@ -402,17 +402,22 @@ func StzIsTrueXT(p)
 		ok
 
 	but isObject(p)
-		if IsTrueObject()
+		# NOTE: these sentinel predicates take the object as a param --
+		# calling them bare raised R19 (less params), making IsTrueXT/
+		# IsFalseXT crash on every object. Pass p.
+		if IsTrueObject(p)
 			return 1
 
-		but IsFalseObject()
+		but IsFalseObject(p)
 			return 0
 
-		but IsNullObject()
+		but IsNullObject(p)
+			# inverted: when the null object is configured as FALSE,
+			# IsTrue must be 0 (not 1).
 			if NullObjectIsFalse()
-				return 1
-			else
 				return 0
+			else
+				return 1
 			ok
 
 		else
@@ -1913,7 +1918,9 @@ func IsStzFalseObject(pObject)
 	#>
 
 func IsStzTrueObject(pObject)
-	if isObject(pObject) and classname(pObject) = "stzfalseobject"
+	# was checking "stzfalseobject" (copy-paste bug) -- so IsTrueObject
+	# answered TRUE for a FalseObject and FALSE for a TrueObject.
+	if isObject(pObject) and classname(pObject) = "stztrueobject"
 		return 1
 	else
 		return 0
