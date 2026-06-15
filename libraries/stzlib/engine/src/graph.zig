@@ -139,7 +139,7 @@ pub fn stz_graph_neighbors(g: ?*const StzGraph, id_ptr: [*]const u8, id_len: usi
     var pos: usize = 0;
     for (gr.nodes.items[nid].edges.items, 0..) |e, ei| {
         if (ei > 0 and pos < buf_len) {
-            buf[pos] = ',';
+            buf[pos] = '\n';
             pos += 1;
         }
         const name = gr.nodes.items[e.to].id_ptr[0..gr.nodes.items[e.to].id_len];
@@ -235,7 +235,7 @@ pub fn stz_graph_shortest_path(g: ?*const StzGraph, from_ptr: [*]const u8, from_
     while (i > 0) {
         i -= 1;
         if (pos > 0 and pos < buf_len) {
-            buf[pos] = ',';
+            buf[pos] = '\n';
             pos += 1;
         }
         const node = gr.nodes.items[path_buf[i]];
@@ -315,7 +315,7 @@ pub fn stz_graph_reachable(g: ?*const StzGraph, id_ptr: [*]const u8, id_len: usi
     for (0..n) |i| {
         if (visited[i] and i != start) {
             if (pos > 0 and pos < buf_len) {
-                buf[pos] = ',';
+                buf[pos] = '\n';
                 pos += 1;
             }
             const node = gr.nodes.items[i];

@@ -9,6 +9,12 @@ load "../_narrated.ring"
 # against lowercased edge endpoints, so Neighbors("A") found nothing while
 # Neighbors("a") worked; fixed to lowercase the query.
 
+Scenario("The Zig graph engine is the active backend")
+    Given("a stzGraph")
+    g = Gr()
+    Then("the engine backend is available + active", g._EnsureEngine(), TRUE)
+EndScenario()
+
 Scenario("Nodes and edges")
     Given("A->B, B->C, A->D over 4 nodes")
     g = Gr()

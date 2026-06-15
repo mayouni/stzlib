@@ -105,7 +105,12 @@ class stzGraph
 	#--------------------------#
 
 	def _EngineAvailable()
-		return isFunction("stzenginegraphcreate")
+		# The engine functions are registered NATIVELY by the DLL's
+		# ringlib_init (not as Ring funcs), so isFunction() can't see them
+		# -- using it here silently disabled the ENTIRE engine graph path
+		# and forced every op onto the slow pure-Ring fallbacks. Detect via
+		# the loader handle ($pStzGraphHandle, set in engine/stz_graph.ring).
+		return isPointer($pStzGraphHandle)
 
 	def _EngineHandle()
 		return @pEngineGraph
