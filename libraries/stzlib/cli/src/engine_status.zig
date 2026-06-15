@@ -94,7 +94,7 @@ pub const macro = MacroStats{
     .ring_bridge_regs = 1500,
     .ring_classes_bridged = 131,
     .ring_engine_calls = 3482,
-    .last_session = 104,
+    .last_session = 105,
     .last_updated = "2026-06-15",
 };
 
