@@ -54,12 +54,14 @@ func Singular(str)
             rx = new stzRegex(rule[1])
             if rx.Match(cWord)
                 aCaptured = rx.CapturedValues()
+                # \1 maps to the first CAPTURE GROUP (aCaptured[2]), not the
+                # full match (aCaptured[1]). See stzPlural for the same fix.
                 nLen = len(aCaptured)
-                if nLen > 0
+                if nLen > 1
                     cResult = rule[2]
-                    for j = 1 to nLen
+                    for j = 1 to nLen - 1
                         cPlaceholder = "\\" + j
-                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j])
+                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j+1])
                     next
                     return cResult
                 else
