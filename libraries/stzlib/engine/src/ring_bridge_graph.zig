@@ -340,6 +340,45 @@ fn ring_AStar(p: *anyopaque) callconv(.c) void {
     retLines(p, buf[0..len]);
 }
 
+fn ring_SetEdgeWeight(p: *anyopaque) callconv(.c) void {
+    const from = gs(p, 2);
+    const from_len: usize = @intCast(gss(p, 2));
+    const to = gs(p, 3);
+    const to_len: usize = @intCast(gss(p, 3));
+    const w = g(p, 4);
+    rn(p, @floatFromInt(graph.stz_graph_set_edge_weight(getMutH(p, 1), from, from_len, to, to_len, w)));
+}
+
+// Split a '\n'-joined buffer into an existing Ring sublist (Zig-side).
+fn addSplit(lst: *anyopaque, buf: []const u8) void {
+    if (buf.len == 0) return;
+    var it = std.mem.splitScalar(u8, buf, '\n');
+    while (it.next()) |seg| {
+        R.ring_list_addstring2(lst, seg.ptr, @intCast(seg.len));
+    }
+}
+
+// A* for the planner: returns [ routeList, exploredList ] -- one engine search
+// builds both ready Ring lists. mode is arg 4 (0 = Dijkstra/UCS, optimal for
+// any non-negative cost).
+fn ring_AStarPlan(p: *anyopaque) callconv(.c) void {
+    const outer = R.ring_vm_api_newlist(p) orelse return;
+    const from = gs(p, 2);
+    const from_len: usize = @intCast(gss(p, 2));
+    const to = gs(p, 3);
+    const to_len: usize = @intCast(gss(p, 3));
+    const mode: i32 = @intFromFloat(g(p, 4));
+    var pbuf: [8192]u8 = undefined;
+    var ebuf: [16384]u8 = undefined;
+    var elen: usize = 0;
+    const plen = graph.stz_graph_astar_full(getH(p, 1), from, from_len, to, to_len, mode, &pbuf, 8192, &ebuf, 16384, &elen);
+    const routeSub = R.ring_list_newlist(outer) orelse { R.ring_vm_api_retlist(p, outer); return; };
+    addSplit(routeSub, pbuf[0..plen]);
+    const expSub = R.ring_list_newlist(outer) orelse { R.ring_vm_api_retlist(p, outer); return; };
+    addSplit(expSub, ebuf[0..elen]);
+    R.ring_vm_api_retlist(p, outer);
+}
+
 fn ring_CoreNumbersAll(p: *anyopaque) callconv(.c) void {
     retCentralityAll(p, &graph.stz_graph_core_numbers);
 }
@@ -438,6 +477,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphpagerankof", .func = &ring_PageRankOf },
     .{ .name = "stzenginegraphsetcoords", .func = &ring_SetCoords },
     .{ .name = "stzenginegraphastar", .func = &ring_AStar },
+    .{ .name = "stzenginegraphsetedgeweight", .func = &ring_SetEdgeWeight },
+    .{ .name = "stzenginegraphastarplan", .func = &ring_AStarPlan },
     .{ .name = "stzenginegraphreachable", .func = &ring_Reachable },
     .{ .name = "stzenginegraphhascycle", .func = &ring_HasCycle },
     .{ .name = "stzenginegraphindegree", .func = &ring_InDegree },

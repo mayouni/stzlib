@@ -1354,84 +1354,62 @@ class stzGraphPlanner
 	#  A* ALGORITHM         #
 	#-----------------------#
 	
+	# A* now runs IN THE ENGINE (stzGraph.AStarPlan -> Zig). The planner's cost
+	# model is dynamic (per-optimisation transition costs over Ring-side edge
+	# properties), so we first push each edge's effective cost into the engine
+	# as its weight, then let the engine do the search. Heuristic mode 0
+	# (Dijkstra/UCS) guarantees an optimal path for any non-negative cost --
+	# the coordinate heuristic isn't admissible against arbitrary cost units.
+	# The engine returns [ route, exploredOrder ] in one search, keeping the
+	# explainability metrics (nodes_explored / efficiency) honest. pHeuristic
+	# and aConstraints are kept for signature compatibility.
 	def _AStar(cStart, cGoal, pHeuristic, aOptimize, aConstraints)
-		aOpen = [[cStart, 0, call pHeuristic(@oGraph, cStart, cGoal)]]
-		aClosedSet = []
-		aGScore = [[cStart, 0]]
-		aParent = []
-		aExplored = []
+		# 1) push per-optimisation transition costs as engine edge weights
+		aEdges = @oGraph.Edges()
+		nE = len(aEdges)
+		for i = 1 to nE
+			cF = aEdges[i][:from]
+			cT = aEdges[i][:to]
+			@oGraph.SetEdgeWeight(cF, cT, This._CalculateTransitionCost(cF, cT, aOptimize))
+		next
+
+		# 2) engine A* search (mode 0 = Dijkstra/UCS, optimal)
+		aPlan = @oGraph.AStarPlan(cStart, cGoal, 0)
+		acRoute = aPlan[1]
+		aExplored = aPlan[2]
+
+		# 3) decision points along the explored order (explainability metadata)
 		aAlternatives = []
-		
-		while len(aOpen) > 0
-			nMinIdx = 1
-			nMinF = aOpen[1][3]
-			nLen = len(aOpen)
-			for i = 2 to nLen
-				if aOpen[i][3] < nMinF
-					nMinF = aOpen[i][3]
-					nMinIdx = i
-				ok
-			next
-			
-			cCurrent = aOpen[nMinIdx][1]
-			del(aOpen, nMinIdx)
-			
-			aExplored + cCurrent
-			
-			if cCurrent = cGoal
-				aResult = This._ReconstructPlan(aParent, cCurrent, aGScore, aOptimize)
-				This._StoreExplorationData(cStart, cGoal, aExplored, aAlternatives)
-				return aResult
+		nX = len(aExplored)
+		for i = 1 to nX
+			aNb = @oGraph.Neighbors(aExplored[i])
+			nNb = len(aNb)
+			if nNb > 1
+				aAlternatives + [:node = aExplored[i], :chosen = aNb[1], :total_options = nNb]
 			ok
-			
-			aClosedSet + cCurrent
-			
-			aNeighbors = @oGraph.Neighbors(cCurrent)
-			nLen = len(aNeighbors)
-			
-			if nLen > 1
-				aAlternatives + [:node = cCurrent, :chosen = aNeighbors[1], :total_options = nLen]
-			ok
-			
-			for i = 1 to nLen
-				cNeighbor = aNeighbors[i]
-				if StzFind(aClosedSet, cNeighbor) > 0
-					loop
-				ok
-				
-				nCurrentG = This._GetScore(aGScore, cCurrent)
-				nTransitionCost = This._CalculateTransitionCost(cCurrent, cNeighbor, aOptimize)
-				nTentativeG = nCurrentG + nTransitionCost
-				
-				nNeighborG = This._GetScore(aGScore, cNeighbor)
-				if nNeighborG = -1 or nTentativeG < nNeighborG
-					This._SetScore(aGScore, cNeighbor, nTentativeG)
-					nH = call pHeuristic(@oGraph, cNeighbor, cGoal)
-					nF = nTentativeG + nH
-					
-					This._SetParent(aParent, cNeighbor, cCurrent)
-					
-					bInOpen = FALSE
-					nLen2 = len(aOpen)
-					for j = 1 to nLen2
-						aNode = aOpen[j]
-						if aNode[1] = cNeighbor
-							bInOpen = TRUE
-							aNode[2] = nTentativeG
-							aNode[3] = nF
-							exit
-						ok
-					next
-					
-					if NOT bInOpen
-						aOpen + [cNeighbor, nTentativeG, nF]
-					ok
-				ok
-			next
-		end
-		
+		next
+
+		if len(acRoute) = 0
+			This._StoreExplorationData(cStart, cGoal, aExplored, aAlternatives)
+			return [[], 0, [], "No path found"]
+		ok
+
+		# 4) reconstruct the planner's action list + total cost from the route
+		aActions = []
+		nTotalCost = 0
+		nR = len(acRoute)
+		for i = 1 to nR - 1
+			cFrom = acRoute[i]
+			cTo = acRoute[i + 1]
+			nTransitionCost = This._CalculateTransitionCost(cFrom, cTo, aOptimize)
+			nTotalCost += nTransitionCost
+			aActions + [:from = cFrom, :to = cTo, :cost = nTransitionCost]
+		next
+
+		cExplanation = This._GenerateExplanation(aActions)
+
 		This._StoreExplorationData(cStart, cGoal, aExplored, aAlternatives)
-		return [[], 0, [], "No path found"]
+		return [aActions, nTotalCost, acRoute, cExplanation]
 	
 	def _GoalSearch(cStart, pGoalFunc, aOptimize, aConstraints)
 		aOpen = [[cStart, 0]]
