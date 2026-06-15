@@ -379,6 +379,13 @@ fn ring_AStarPlan(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, outer);
 }
 
+fn ring_ClusteringAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_clustering);
+}
+fn ring_ClusteringOf(p: *anyopaque) callconv(.c) void {
+    retCentralityOf(p, &graph.stz_graph_clustering);
+}
+
 fn ring_Diameter(p: *anyopaque) callconv(.c) void {
     rn(p, graph.stz_graph_diameter(getH(p, 1)));
 }
@@ -487,6 +494,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphclosenessof", .func = &ring_ClosenessOf },
     .{ .name = "stzenginegraphbetweennessall", .func = &ring_BetweennessAll },
     .{ .name = "stzenginegraphbetweennessof", .func = &ring_BetweennessOf },
+    .{ .name = "stzenginegraphclusteringall", .func = &ring_ClusteringAll },
+    .{ .name = "stzenginegraphclusteringof", .func = &ring_ClusteringOf },
     .{ .name = "stzenginegraphdiameter", .func = &ring_Diameter },
     .{ .name = "stzenginegraphradius", .func = &ring_Radius },
     .{ .name = "stzenginegraphaveragepathlength", .func = &ring_AveragePathLength },

@@ -185,6 +185,17 @@ Scenario("Distance metrics (engine all-pairs BFS)")
     Then("Eccentricities lists every node", ListEq(dg.Eccentricities(), [ [ "a",4 ],[ "b",3 ],[ "c",2 ],[ "d",1 ],[ "e",0 ] ]), TRUE)
 EndScenario()
 
+Scenario("Clustering coefficient (engine, undirected view)")
+    Given("a triangle A-B-C with a pendant D off A")
+    cl = new stzGraph("cl")
+    cl.AddNode("A") cl.AddNode("B") cl.AddNode("C") cl.AddNode("D")
+    cl.AddEdge("A", "B") cl.AddEdge("B", "C") cl.AddEdge("C", "A") cl.AddEdge("A", "D")
+    Then("B's two neighbours are linked -> coeff 1", cl.ClusteringCoefficient("B"), 1)
+    Then("A has B,C,D; only B-C linked -> coeff 1/3", Rnd2(cl.ClusteringCoefficient("A")), 0.33)
+    Then("D has one neighbour -> coeff 0", cl.ClusteringCoefficient("D"), 0)
+    Then("ClusteringCoefficients lists every node", ListEq(PrIds(cl.ClusteringCoefficients()), [ "a", "b", "c", "d" ]), TRUE)
+EndScenario()
+
 Summary()
 
 func Rnd2 n

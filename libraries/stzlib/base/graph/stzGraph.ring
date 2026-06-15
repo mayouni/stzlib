@@ -2913,51 +2913,30 @@ class stzGraph
 		ok
 		return 0
 
+	# Local clustering coefficient (engine, undirected view): edges among a
+	# node's neighbours / possible such edges. Replaces the old O(k^2)
+	# pure-Ring EdgeExists double loop.
 	def ClusteringCoefficient(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
 		ok
-
 		if NOT _IsWellFormedId(pcNodeId)
 			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
-
-		_acOutgoing_ = This.Neighbors(pcNodeId)
-		_acIncoming_ = This.Incoming(pcNodeId)
-		_acAllNeighbors_ = []
-		
-		_nLen_ = len(_acOutgoing_)
-		for _i_ = 1 to _nLen_
-			_acAllNeighbors_ + _acOutgoing_[_i_]
-		end
-		_nLen_ = len(_acIncoming_)
-		for _i_ = 1 to _nLen_
-			if StzFind(_acAllNeighbors_, _acIncoming_[_i_]) = 0
-				_acAllNeighbors_ + _acIncoming_[_i_]
-			ok
-		end
-		
-		_nNeighborCount_ = len(_acAllNeighbors_)
-		
-		if _nNeighborCount_ < 2
-			return 0
+		if This._EnsureEngine()
+			return StzEngineGraphClusteringOf(@pEngineGraph, StzLower(pcNodeId))
 		ok
-
-		_nConnections_ = 0
-		for _i_ = 1 to _nNeighborCount_
-			for _j_ = _i_ + 1 to _nNeighborCount_
-				if This.EdgeExists(_acAllNeighbors_[_i_], _acAllNeighbors_[_j_]) or
-				   This.EdgeExists(_acAllNeighbors_[_j_], _acAllNeighbors_[_i_])
-					_nConnections_++
-				ok
-			end
-		end
-		
-		_nPossible_ = (_nNeighborCount_ * (_nNeighborCount_ - 1)) / 2
-		return _nConnections_ / _nPossible_
+		return 0
 
 		def ClusteringCoeff(pcNodeId)
 			return This.ClusteringCoefficient(pcNodeId)
+
+	# Local clustering coefficient for every node as [ id, value ] pairs.
+	def ClusteringCoefficients()
+		if This._EnsureEngine()
+			return StzEngineGraphClusteringAll(@pEngineGraph)
+		ok
+		return []
 
 	def PathWeight(pacPath)
 		nTotal = 0
