@@ -144,6 +144,12 @@ class stzGraph
 		_nNodeLen_ = len(@aNodes)
 		for _iEng_ = 1 to _nNodeLen_
 			StzEngineGraphAddNode(@pEngineGraph, @aNodes[_iEng_][:id])
+			# Push (x,y) coordinates to the engine when the node carries them
+			# in its properties -- this powers the engine A* heuristic.
+			_aNP_ = @aNodes[_iEng_][:properties]
+			if isList(_aNP_) and HasKey(_aNP_, "x") and HasKey(_aNP_, "y")
+				StzEngineGraphSetCoords(@pEngineGraph, @aNodes[_iEng_][:id], _aNP_[:x], _aNP_[:y])
+			ok
 		next
 
 		_nEdgeLen_ = len(@aEdges)
@@ -2818,6 +2824,32 @@ class stzGraph
 	def PageRankAll()
 		if This._EnsureEngine()
 			return StzEngineGraphPageRankAll(@pEngineGraph)
+		ok
+		return []
+
+	# A* shortest path (engine-backed). Uses edge weights plus a coordinate
+	# heuristic when nodes carry :x and :y properties (Euclidean by default);
+	# with no coordinates it degrades gracefully to a Dijkstra-equivalent.
+	# Returns the path as a list of node ids ([] if none).
+	def AStarPath(pcStart, pcGoal)
+		return This._AStarMode(pcStart, pcGoal, 1)
+
+		def AStar(pcStart, pcGoal)
+			return This.AStarPath(pcStart, pcGoal)
+
+		def AStarShortestPath(pcStart, pcGoal)
+			return This.AStarPath(pcStart, pcGoal)
+
+	# A* with the Manhattan (taxicab) heuristic.
+	def AStarPathManhattan(pcStart, pcGoal)
+		return This._AStarMode(pcStart, pcGoal, 2)
+
+	def _AStarMode(pcStart, pcGoal, nMode)
+		if NOT (This.NodeExists(pcStart) and This.NodeExists(pcGoal))
+			return []
+		ok
+		if This._EnsureEngine()
+			return StzEngineGraphAStar(@pEngineGraph, StzLower(pcStart), StzLower(pcGoal), nMode)
 		ok
 		return []
 

@@ -14,6 +14,8 @@ const Node = struct {
     id_ptr: [*]const u8,
     id_len: usize,
     edges: EdgeList,
+    x: f64 = std.math.nan(f64), // optional coordinate for the A* heuristic
+    y: f64 = std.math.nan(f64),
 };
 
 pub const StzGraph = struct {
@@ -52,6 +54,8 @@ pub const StzGraph = struct {
             .id_ptr = dup.ptr,
             .id_len = id.len,
             .edges = .{},
+            .x = std.math.nan(f64),
+            .y = std.math.nan(f64),
         });
         return @intCast(self.nodes.items.len - 1);
     }
@@ -1307,7 +1311,136 @@ pub fn stz_graph_pagerank_default(g: ?*const StzGraph, out: [*]f64, cap: usize) 
     return stz_graph_pagerank(g, out, cap, 0.85, 100);
 }
 
+// ─── A* (coordinate heuristic) ───
+
+// Attach (x,y) coordinates to a node for the A* heuristic. Returns 1 on
+// success, 0 if the node is unknown.
+pub fn stz_graph_set_coords(g: ?*StzGraph, id_ptr: [*]const u8, id_len: usize, x: f64, y: f64) callconv(.c) i32 {
+    const gr = g orelse return 0;
+    const idx = gr.findNode(id_ptr[0..id_len]) orelse return 0;
+    gr.nodes.items[idx].x = x;
+    gr.nodes.items[idx].y = y;
+    return 1;
+}
+
+// Heuristic between two nodes given a mode: 1=Euclidean, 2=Manhattan,
+// anything else (or missing coords) => 0 (admissible; A* degrades to Dijkstra).
+fn heuristic(gr: *const StzGraph, a: NodeId, b: NodeId, mode: i32) f64 {
+    const na = gr.nodes.items[a];
+    const nb = gr.nodes.items[b];
+    if (std.math.isNan(na.x) or std.math.isNan(na.y) or std.math.isNan(nb.x) or std.math.isNan(nb.y)) return 0;
+    const dx = na.x - nb.x;
+    const dy = na.y - nb.y;
+    return switch (mode) {
+        1 => @sqrt(dx * dx + dy * dy),
+        2 => @abs(dx) + @abs(dy),
+        else => 0,
+    };
+}
+
+// A* shortest path using edge weights + a coordinate heuristic (mode as in
+// `heuristic`). Writes the node-name path '\n'-joined into buf; returns its
+// byte length (0 if no path / unknown endpoints).
+pub fn stz_graph_astar(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize, mode: i32, buf: [*]u8, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    const src = gr.findNode(from_ptr[0..from_len]) orelse return 0;
+    const dst = gr.findNode(to_ptr[0..to_len]) orelse return 0;
+
+    const gscore = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(gscore);
+    const fscore = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(fscore);
+    const came = allocator.alloc(i64, n) catch return 0;
+    defer allocator.free(came);
+    const open = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(open);
+    const closed = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(closed);
+    const inf = std.math.inf(f64);
+    for (0..n) |i| {
+        gscore[i] = inf;
+        fscore[i] = inf;
+        came[i] = -1;
+        open[i] = false;
+        closed[i] = false;
+    }
+    gscore[src] = 0;
+    fscore[src] = heuristic(gr, src, dst, mode);
+    open[src] = true;
+
+    while (true) {
+        // pick the open node with the lowest fscore (linear scan)
+        var cur: i64 = -1;
+        var best: f64 = inf;
+        for (0..n) |i| {
+            if (open[i] and fscore[i] < best) {
+                best = fscore[i];
+                cur = @intCast(i);
+            }
+        }
+        if (cur < 0) return 0; // open set empty -> no path
+        const c: NodeId = @intCast(cur);
+        if (c == dst) break;
+        open[c] = false;
+        closed[c] = true;
+        for (gr.nodes.items[c].edges.items) |e| {
+            if (closed[e.to]) continue;
+            const w = if (e.weight > 0) e.weight else 1.0;
+            const tentative = gscore[c] + w;
+            if (tentative < gscore[e.to]) {
+                came[e.to] = @intCast(c);
+                gscore[e.to] = tentative;
+                fscore[e.to] = tentative + heuristic(gr, e.to, dst, mode);
+                open[e.to] = true;
+            }
+        }
+    }
+
+    // reconstruct dst..src then emit forward
+    var path = std.ArrayListUnmanaged(NodeId){};
+    defer path.deinit(allocator);
+    var w: i64 = @intCast(dst);
+    while (w >= 0) : (w = came[@intCast(w)]) {
+        path.append(allocator, @intCast(w)) catch return 0;
+    }
+    var pos: usize = 0;
+    var k: usize = path.items.len;
+    while (k > 0) {
+        k -= 1;
+        const id = gr.nodes.items[path.items[k]];
+        if (pos != 0) {
+            if (pos >= cap) break;
+            buf[pos] = '\n';
+            pos += 1;
+        }
+        const remaining = cap - pos;
+        const take = @min(id.id_len, remaining);
+        @memcpy(buf[pos .. pos + take], id.id_ptr[0..take]);
+        pos += take;
+    }
+    return pos;
+}
+
 // ─── Tests ───
+
+test "graph A* with euclidean heuristic" {
+    // grid-ish: S->A->G (cheap) and S->B->G (expensive); coords steer it
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "S", 1, "A", 1, 1.0);
+    _ = stz_graph_add_edge(g, "A", 1, "G", 1, 1.0);
+    _ = stz_graph_add_edge(g, "S", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "G", 1, 5.0);
+    _ = stz_graph_set_coords(g, "S", 1, 0, 0);
+    _ = stz_graph_set_coords(g, "A", 1, 1, 0);
+    _ = stz_graph_set_coords(g, "B", 1, 0, 1);
+    _ = stz_graph_set_coords(g, "G", 1, 2, 0);
+    var buf: [64]u8 = undefined;
+    const len = stz_graph_astar(g, "S", 1, "G", 1, 1, &buf, 64);
+    try std.testing.expectEqualStrings("S\nA\nG", buf[0..len]);
+}
 
 test "graph k-core core numbers" {
     // triangle A-B-C (each core 2) plus a pendant D off A (core 1)
