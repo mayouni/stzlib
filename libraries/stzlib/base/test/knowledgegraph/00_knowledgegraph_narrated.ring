@@ -47,7 +47,20 @@ Scenario("Predicates and relations of an entity")
     Then("Relations pairs predicate with object", ListEq(o.Relations("Dogs"), [ [ "isa", "Mammals" ], [ "eats", "Food" ] ]), TRUE)
 EndScenario()
 
+Scenario("Entity lookup folds multibyte case")
+    Given("a fact whose subject is an UPPERCASE accented entity")
+    k = new stzKnowledgeGraph("K")
+    k.AddFact("Caf" + KgUpE(), :Serves, "coffee")
+    Then("Predicates of the lowercase accented form still match", ListEq(k.Predicates("caf" + KgLowE()), [ "serves" ]), TRUE)
+EndScenario()
+
 Summary()
+
+func KgLowE
+    return char(195) + char(169)
+
+func KgUpE
+    return char(195) + char(137)
 
 func ListEq aA, aE
     if len(aA) != len(aE) return FALSE ok

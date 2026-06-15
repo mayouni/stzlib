@@ -108,18 +108,20 @@ class stzKnowledgeGraph from stzGraph
 		_bSubjVar_ = (isString(_cSubject_) and StzLeft(_cSubject_, 1) = "?")
 		_bObjVar_ = (isString(_cObject_) and StzLeft(_cObject_, 1) = "?")
 
-		# Lowercase any bound terms once, up front.
+		# Lowercase any bound terms once, up front. StzLower is codepoint-aware
+		# (byte lower() doesn't fold multibyte case, so a 'Café' fact wouldn't
+		# match a 'CAFÉ' query).
 		_cSubjLow_ = ""
 		if isString(_cSubject_) and NOT _bSubjVar_
-			_cSubjLow_ = lower(_cSubject_)
+			_cSubjLow_ = StzLower(_cSubject_)
 		ok
 		_cObjLow_ = ""
 		if isString(_cObject_) and NOT _bObjVar_
-			_cObjLow_ = lower(_cObject_)
+			_cObjLow_ = StzLower(_cObject_)
 		ok
 		_cPredLow_ = _cPredicate_
 		if isString(_cPredicate_)
-			_cPredLow_ = lower(_cPredicate_)
+			_cPredLow_ = StzLower(_cPredicate_)
 		ok
 
 		if _bSubjVar_ and _bObjVar_
@@ -188,7 +190,7 @@ class stzKnowledgeGraph from stzGraph
 	def Predicates(pcEntity)
 		# Edge :from / :label are stored lowercased; lowercase the
 		# query term once so case-insensitive lookups still match.
-		_cPenE_ = lower(pcEntity)
+		_cPenE_ = StzLower(pcEntity)
 		_acPredicates_ = []
 		_aEdges_ = This.Edges()
 
@@ -207,7 +209,7 @@ class stzKnowledgeGraph from stzGraph
 			return This.Predicates(pcEntity)
 
 	def Relations(pcEntity)
-		_cRelE_ = lower(pcEntity)
+		_cRelE_ = StzLower(pcEntity)
 		_aRelations_ = []
 		_aEdges_ = This.Edges()
 
@@ -227,7 +229,7 @@ class stzKnowledgeGraph from stzGraph
 
 	def SimilarTo(pcEntity)
 		_aMyPredicates_ = This.Predicates(pcEntity)
-		_cSimE_ = lower(pcEntity)
+		_cSimE_ = StzLower(pcEntity)
 		_acSimilar_ = []
 		_aNodes_ = This.Nodes()
 
