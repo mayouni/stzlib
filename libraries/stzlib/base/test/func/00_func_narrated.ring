@@ -49,4 +49,18 @@ Scenario("Falsiness of primitives")
     Then("IsFalse([]) is TRUE (empty is falsy)", IsFalse([]), TRUE)
 EndScenario()
 
+# The sentinel-aware extended predicates (regression: IsTrueXT/IsFalseXT
+# used to crash R19 on any object; IsTrueObject was inverted via a
+# copy-paste classname; the null branch was inverted -- all fixed).
+Scenario("Extended truthiness recognises the sentinel objects")
+    Then("IsTrueXT(TrueObject()) is TRUE", IsTrueXT(TrueObject()), TRUE)
+    Then("IsTrueXT(FalseObject()) is FALSE", IsTrueXT(FalseObject()), FALSE)
+    Then("IsTrueXT(NullObject()) is FALSE", IsTrueXT(NullObject()), FALSE)
+    Then("IsFalseXT(FalseObject()) is TRUE", IsFalseXT(FalseObject()), TRUE)
+    Then("IsFalseXT(TrueObject()) is FALSE", IsFalseXT(TrueObject()), FALSE)
+    Then("IsTrueXT('Hello') is TRUE", IsTrueXT("Hello"), TRUE)
+    Then("IsTrueXT('') is FALSE", IsTrueXT(""), FALSE)
+    Then("IsTrueXT([]) is FALSE", IsTrueXT([]), FALSE)
+EndScenario()
+
 Summary()
