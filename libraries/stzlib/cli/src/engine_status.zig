@@ -91,10 +91,10 @@ pub const macro = MacroStats{
     .engine_tests = 1593,
     .dlls_shipping = 91,
     .qt_dependencies = 0,
-    .ring_bridge_regs = 1500,
+    .ring_bridge_regs = 1509,
     .ring_classes_bridged = 131,
     .ring_engine_calls = 3482,
-    .last_session = 116,
+    .last_session = 117,
     .last_updated = "2026-06-15",
 };
 
@@ -180,10 +180,10 @@ pub const domains = [_]Domain{
         .engine_module = "engine/src/graph.zig",
         .ring_class = "base/list/stzGraph.ring",
         .bridge = "engine/src/ring_bridge_graph.zig",
-        .engine_fns = 38,
-        .ring_methods_bridged = 44,
+        .engine_fns = 42,
+        .ring_methods_bridged = 49,
         .status = .done,
-        .notes = "engine ACTIVE; BFS/DFS, SCC (Kosaraju), MST weight+edges (Kruskal), articulation points + bridges (Tarjan), weighted Dijkstra, is_bipartite, closeness + betweenness centrality (Brandes), k-core (Batagelj-Zaversnik), PageRank, A* (coordinate heuristic) + astar_full (path+explored) for the engine-backed stzGraphPlanner, set_edge_weight, shortest-path/reachable/components/topo-sort/cycle/degrees. All list-returning bridges build Ring lists Zig-side (sessions 100-104)",
+        .notes = "engine ACTIVE; BFS/DFS, SCC (Kosaraju), MST weight+edges (Kruskal), articulation points + bridges (Tarjan), weighted Dijkstra, is_bipartite, closeness + betweenness centrality (Brandes), k-core (Batagelj-Zaversnik), PageRank, A* (coordinate heuristic) + astar_full for the engine-backed stzGraphPlanner, all-pairs distance metrics (diameter/radius/eccentricity/avg-path, replacing slow pure-Ring), set_edge_weight, shortest-path/reachable/components/topo-sort/cycle/degrees. All list-returning bridges build Ring lists Zig-side (sessions 100-117)",
     },
     .{
         .name = "matrix",
