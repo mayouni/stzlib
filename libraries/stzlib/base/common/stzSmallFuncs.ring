@@ -873,9 +873,11 @@ func StzSubStr(cStr, nStart, nLen)
 func CenterText(cText, nWidth)
 	if NOT (isString(cText) and isNumber(nWidth)) return cText ok
 	if nWidth < 1 return "" ok
-	nLen = len(cText)
+	# Visible columns = codepoint count, not bytes; byte len()/left() over-
+	# counted and could split a multibyte char ('café' is 4 cols, 5 bytes).
+	nLen = StzLen(cText)
 	if nLen >= nWidth
-		return left(cText, nWidth)
+		return StzLeft(cText, nWidth)
 	ok
 	nLeft = floor((nWidth - nLen) / 2)
 	nRight = nWidth - nLen - nLeft
