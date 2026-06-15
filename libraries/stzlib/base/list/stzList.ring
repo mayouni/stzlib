@@ -1493,9 +1493,17 @@ class stzList from stzObject
 			return This.NumberOfDuplicatedItems()
 
 	def FindDuplicates()
-		# Return the positions of duplicated items. Build by walking the
-		# content once with a small "seen" map so we count each item's
-		# 2nd+ occurrence as a duplicate, not the 1st.
+		# Positions of each item's 2nd+ occurrence (case-sensitive).
+		# Engine path: O(n) hashing in Zig + correct on nested-list items
+		# (Ring's `=` can't compare sublists, so the old O(n^2) loop
+		# silently returned [] for them). Ring loop kept as a fallback
+		# when the content can't be marshalled into an engine list.
+		_pFdList_ = This._EngineListFromContent()
+		if _pFdList_ != NULL
+			_aFdRes_ = StzEngineListFindDuplicatesCS(_pFdList_, 1)
+			StzEngineListFree(_pFdList_)
+			return _aFdRes_
+		ok
 		_aRes_ = []
 		_aData_ = This.Content()
 		_nDataLen_ = len(_aData_)

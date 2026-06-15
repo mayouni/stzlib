@@ -22,6 +22,8 @@ Scenario("Reverse, sort, dedup")
     Then("Reversed([1,2,3]) is [3,2,1]", ListEq(Q([1,2,3]).Reversed(), [ 3, 2, 1 ]), TRUE)
     Then("Sorted([3,1,2]) is [1,2,3]", ListEq(Q([3,1,2]).Sorted(), [ 1, 2, 3 ]), TRUE)
     Then("RemoveDuplicates keeps first occurrences", ListEq(Q([1,2,1,3,2]).RemoveDuplicatesQ().Content(), [ 1, 2, 3 ]), TRUE)
+    Then("FindDuplicates returns 2nd+ occurrence positions", ListEq(Q([ "a","b","a","c","b","a" ]).FindDuplicates(), [ 3, 5, 6 ]), TRUE)
+    Then("FindDuplicates is correct on nested-list items (engine-backed)", ListEq(Q([ [1,2], [3], [1,2], [3] ]).FindDuplicates(), [ 3, 4 ]), TRUE)
 EndScenario()
 
 Scenario("Add and slice")
