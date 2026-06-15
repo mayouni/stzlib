@@ -27,20 +27,24 @@ AdverbRules = [
     [ "(business).*", "business-wise", "regex", 3, "domain" ],
     [ "(account).*", "from an accounting perspective", "regex", 3, "domain" ],
     
-    # Language/location patterns (priority 4)
-    [ "(english|britain|uk)", "english", "regex", 4, "language" ],
-    [ "(spanish|spain)", "spanish", "regex", 4, "language" ],
-    [ "(french|france)", "french", "regex", 4, "language" ],
-    [ "(arabic|arab)", "arabic", "regex", 4, "language" ],
-    [ "(american?|usa?)", "american", "regex", 4, "geographic" ],
-    [ "(european?)", "european", "regex", 4, "geographic" ],
-	[ "(africa?)", "african", "regex", "4", "goegraphic"],
-	[ "(asia?)", "asian", "regex", "4", "geographic"],
-	[ "(australia?)","australian", "regex", "4", "geographic"],
-	[ "(north?)","northern", "regex", "4", "geographic"],
-    [ "(south?)","southern", "regex", "4", "geographic"],
-	[ "(east)","eastern", "regex", "4", "geographic"],
-	[ "(west?)","western", "regex", "4", "geographic"],
+    # Language/location patterns (priority 4). Anchored to the WHOLE word
+    # (^...$) so a place/language name only matches when it IS the word -- the
+    # old unanchored forms matched substrings, e.g. "(asia?)" hit the "asi" in
+    # "basic" and returned "asian" instead of letting morphology make
+    # "basically".
+    [ "^(english|britain|uk)$", "english", "regex", 4, "language" ],
+    [ "^(spanish|spain)$", "spanish", "regex", 4, "language" ],
+    [ "^(french|france)$", "french", "regex", 4, "language" ],
+    [ "^(arabic|arab)$", "arabic", "regex", 4, "language" ],
+    [ "^(american?|usa?)$", "american", "regex", 4, "geographic" ],
+    [ "^(european?)$", "european", "regex", 4, "geographic" ],
+	[ "^(africa?)$", "african", "regex", 4, "geographic"],
+	[ "^(asia?)$", "asian", "regex", 4, "geographic"],
+	[ "^(australia?)$","australian", "regex", 4, "geographic"],
+	[ "^(north?)$","northern", "regex", 4, "geographic"],
+    [ "^(south?)$","southern", "regex", 4, "geographic"],
+	[ "^(east)$","eastern", "regex", 4, "geographic"],
+	[ "^(west?)$","western", "regex", 4, "geographic"],
 
     # Morphological patterns (priority 5)
     [ "(.+[aeiou])y$", "\\1ily", "regex", 5, "morphology" ],
@@ -82,13 +86,14 @@ func Adverb(str)
             rx = new stzRegex(rule[1])
             if rx.Match(cWord)
                 aCaptured = rx.CapturedValues()
+                # \1 maps to the first CAPTURE GROUP (aCaptured[2]), not the
+                # full match (aCaptured[1]). See stzPlural for the same fix.
                 nLen = len(aCaptured)
-                
-                if nLen > 0
+                if nLen > 1
                     cResult = rule[2]
-                    for j = 1 to nLen
+                    for j = 1 to nLen - 1
                         cPlaceholder = "\\" + j
-                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j])
+                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j+1])
                     next
                     return cResult
                 else

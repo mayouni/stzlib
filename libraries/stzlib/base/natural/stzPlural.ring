@@ -50,12 +50,17 @@ func Plural(str)
             rx = new stzRegex(rule[1])
             if rx.Match(cWord)
                 aCaptured = rx.CapturedValues()
+                # CapturedValues() returns [ fullMatch, group1, group2, ... ];
+                # the \1 placeholder maps to the first CAPTURE GROUP, i.e.
+                # aCaptured[2]. The old code mapped \1 -> aCaptured[1] (the
+                # full match), so "city" + "ies" became "cityies" instead of
+                # replacing the stem -> "cities".
                 nLen = len(aCaptured)
-                if nLen > 0
+                if nLen > 1
                     cResult = rule[2]
-                    for j = 1 to nLen
+                    for j = 1 to nLen - 1
                         cPlaceholder = "\\" + j
-                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j])
+                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j+1])
                     next
                     return cResult
                 else
