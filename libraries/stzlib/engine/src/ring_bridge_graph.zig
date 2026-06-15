@@ -118,6 +118,44 @@ fn ring_PathExists(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(graph.stz_graph_path_exists(getH(p, 1), from, from_len, to, to_len)));
 }
 
+fn ring_BFS(p: *anyopaque) callconv(.c) void {
+    const id = gs(p, 2);
+    const id_len: usize = @intCast(gss(p, 2));
+    var buf: [8192]u8 = undefined;
+    const len = graph.stz_graph_bfs(getH(p, 1), id, id_len, &buf, 8192);
+    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+}
+
+fn ring_DFS(p: *anyopaque) callconv(.c) void {
+    const id = gs(p, 2);
+    const id_len: usize = @intCast(gss(p, 2));
+    var buf: [8192]u8 = undefined;
+    const len = graph.stz_graph_dfs(getH(p, 1), id, id_len, &buf, 8192);
+    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+}
+
+fn ring_Dijkstra(p: *anyopaque) callconv(.c) void {
+    const from = gs(p, 2);
+    const from_len: usize = @intCast(gss(p, 2));
+    const to = gs(p, 3);
+    const to_len: usize = @intCast(gss(p, 3));
+    var buf: [8192]u8 = undefined;
+    const len = graph.stz_graph_dijkstra(getH(p, 1), from, from_len, to, to_len, &buf, 8192);
+    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+}
+
+fn ring_DijkstraDistance(p: *anyopaque) callconv(.c) void {
+    const from = gs(p, 2);
+    const from_len: usize = @intCast(gss(p, 2));
+    const to = gs(p, 3);
+    const to_len: usize = @intCast(gss(p, 3));
+    rn(p, graph.stz_graph_dijkstra_distance(getH(p, 1), from, from_len, to, to_len));
+}
+
+fn ring_IsBipartite(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(graph.stz_graph_is_bipartite(getH(p, 1))));
+}
+
 fn ring_Reachable(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
@@ -192,6 +230,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphneighborcount", .func = &ring_NeighborCount },
     .{ .name = "stzenginegraphshortestpath", .func = &ring_ShortestPath },
     .{ .name = "stzenginegraphpathexists", .func = &ring_PathExists },
+    .{ .name = "stzenginegraphbfs", .func = &ring_BFS },
+    .{ .name = "stzenginegraphdfs", .func = &ring_DFS },
+    .{ .name = "stzenginegraphdijkstra", .func = &ring_Dijkstra },
+    .{ .name = "stzenginegraphdijkstradistance", .func = &ring_DijkstraDistance },
+    .{ .name = "stzenginegraphisbipartite", .func = &ring_IsBipartite },
     .{ .name = "stzenginegraphreachable", .func = &ring_Reachable },
     .{ .name = "stzenginegraphhascycle", .func = &ring_HasCycle },
     .{ .name = "stzenginegraphindegree", .func = &ring_InDegree },

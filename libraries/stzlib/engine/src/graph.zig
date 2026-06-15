@@ -477,7 +477,279 @@ pub fn stz_graph_in_degree(g: ?*const StzGraph, id_ptr: [*]const u8, id_len: usi
     return count;
 }
 
+// ─── BFS / DFS traversal order ───
+
+// Writes node ids[0..count] as a newline-separated name list into buf.
+fn writeNames(gr: *const StzGraph, ids: []const u32, count: usize, buf: [*]u8, buf_len: usize) usize {
+    var pos: usize = 0;
+    var i: usize = 0;
+    while (i < count) : (i += 1) {
+        if (i > 0 and pos < buf_len) {
+            buf[pos] = '\n';
+            pos += 1;
+        }
+        const node = gr.nodes.items[ids[i]];
+        const cl = @min(node.id_len, buf_len - pos);
+        if (cl > 0) {
+            @memcpy(buf[pos .. pos + cl], node.id_ptr[0..cl]);
+            pos += cl;
+        }
+    }
+    return pos;
+}
+
+// Breadth-first visit order starting at the given node (newline-separated).
+pub fn stz_graph_bfs(g: ?*const StzGraph, id_ptr: [*]const u8, id_len: usize, buf: [*]u8, buf_len: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const start = gr.findNode(id_ptr[0..id_len]) orelse return 0;
+    const n = gr.nodes.items.len;
+    const visited = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(visited);
+    @memset(visited, false);
+    const order = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(order);
+    const queue = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(queue);
+    var qh: usize = 0;
+    var qt: usize = 0;
+    var oc: usize = 0;
+    queue[qt] = start;
+    qt += 1;
+    visited[start] = true;
+    while (qh < qt) {
+        const cur = queue[qh];
+        qh += 1;
+        order[oc] = cur;
+        oc += 1;
+        for (gr.nodes.items[cur].edges.items) |e| {
+            if (!visited[e.to]) {
+                visited[e.to] = true;
+                if (qt < n) {
+                    queue[qt] = e.to;
+                    qt += 1;
+                }
+            }
+        }
+    }
+    return writeNames(gr, order, oc, buf, buf_len);
+}
+
+// Depth-first visit order starting at the given node (newline-separated).
+pub fn stz_graph_dfs(g: ?*const StzGraph, id_ptr: [*]const u8, id_len: usize, buf: [*]u8, buf_len: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const start = gr.findNode(id_ptr[0..id_len]) orelse return 0;
+    const n = gr.nodes.items.len;
+    const visited = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(visited);
+    @memset(visited, false);
+    const order = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(order);
+    const stack = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(stack);
+    var sp: usize = 0;
+    var oc: usize = 0;
+    stack[sp] = start;
+    sp += 1;
+    while (sp > 0) {
+        sp -= 1;
+        const cur = stack[sp];
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        order[oc] = cur;
+        oc += 1;
+        // push neighbours in reverse so the first edge is explored first
+        const edges = gr.nodes.items[cur].edges.items;
+        var k: usize = edges.len;
+        while (k > 0) {
+            k -= 1;
+            if (!visited[edges[k].to] and sp < n) {
+                stack[sp] = edges[k].to;
+                sp += 1;
+            }
+        }
+    }
+    return writeNames(gr, order, oc, buf, buf_len);
+}
+
+// ─── Weighted shortest path (Dijkstra, non-negative weights) ───
+
+fn dijkstra(gr: *const StzGraph, from: NodeId, dist: []f64, prev: []u32) void {
+    const n = gr.nodes.items.len;
+    const visited = allocator.alloc(bool, n) catch return;
+    defer allocator.free(visited);
+    @memset(visited, false);
+    @memset(prev, std.math.maxInt(u32));
+    for (dist) |*d| d.* = std.math.inf(f64);
+    dist[from] = 0;
+    var done: usize = 0;
+    while (done < n) : (done += 1) {
+        var u: ?usize = null;
+        var best: f64 = std.math.inf(f64);
+        for (0..n) |i| {
+            if (!visited[i] and dist[i] < best) {
+                best = dist[i];
+                u = i;
+            }
+        }
+        const cur = u orelse break;
+        visited[cur] = true;
+        for (gr.nodes.items[cur].edges.items) |e| {
+            const nd = dist[cur] + e.weight;
+            if (nd < dist[e.to]) {
+                dist[e.to] = nd;
+                prev[e.to] = @intCast(cur);
+            }
+        }
+    }
+}
+
+// Minimum-weight path from->to as newline-separated node names ("" if none).
+pub fn stz_graph_dijkstra(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize, buf: [*]u8, buf_len: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const from_id = gr.findNode(from_ptr[0..from_len]) orelse return 0;
+    const to_id = gr.findNode(to_ptr[0..to_len]) orelse return 0;
+    const n = gr.nodes.items.len;
+    const dist = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(dist);
+    const prev = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(prev);
+    dijkstra(gr, from_id, dist, prev);
+    if (from_id != to_id and prev[to_id] == std.math.maxInt(u32)) return 0;
+    const path = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(path);
+    var plen: usize = 0;
+    var cur: u32 = to_id;
+    while (true) {
+        path[plen] = cur;
+        plen += 1;
+        if (cur == from_id) break;
+        cur = prev[cur];
+        if (plen >= n) break;
+    }
+    // reverse into order array
+    const order = allocator.alloc(u32, plen) catch return 0;
+    defer allocator.free(order);
+    var i: usize = 0;
+    while (i < plen) : (i += 1) order[i] = path[plen - 1 - i];
+    return writeNames(gr, order, plen, buf, buf_len);
+}
+
+// Total minimum weight from->to (-1.0 if unreachable, 0.0 if from==to).
+pub fn stz_graph_dijkstra_distance(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize) callconv(.c) f64 {
+    const gr = g orelse return -1.0;
+    const from_id = gr.findNode(from_ptr[0..from_len]) orelse return -1.0;
+    const to_id = gr.findNode(to_ptr[0..to_len]) orelse return -1.0;
+    const n = gr.nodes.items.len;
+    const dist = allocator.alloc(f64, n) catch return -1.0;
+    defer allocator.free(dist);
+    const prev = allocator.alloc(u32, n) catch return -1.0;
+    defer allocator.free(prev);
+    dijkstra(gr, from_id, dist, prev);
+    if (std.math.isInf(dist[to_id])) return -1.0;
+    return dist[to_id];
+}
+
+// 2-colourability: 1 if the graph is bipartite, 0 otherwise. Treats edges
+// as undirected for colouring purposes.
+pub fn stz_graph_is_bipartite(g: ?*const StzGraph) callconv(.c) i32 {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 1;
+    const color = allocator.alloc(i8, n) catch return 0;
+    defer allocator.free(color);
+    @memset(color, -1);
+    const queue = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(queue);
+    // incoming adjacency (so colouring respects undirected reachability even
+    // in a directed graph)
+    for (0..n) |s| {
+        if (color[s] != -1) continue;
+        color[s] = 0;
+        var qh: usize = 0;
+        var qt: usize = 0;
+        queue[qt] = @intCast(s);
+        qt += 1;
+        while (qh < qt) {
+            const cur = queue[qh];
+            qh += 1;
+            // out-edges
+            for (gr.nodes.items[cur].edges.items) |e| {
+                if (color[e.to] == -1) {
+                    color[e.to] = 1 - color[cur];
+                    if (qt < n) {
+                        queue[qt] = e.to;
+                        qt += 1;
+                    }
+                } else if (color[e.to] == color[cur]) {
+                    return 0;
+                }
+            }
+            // in-edges (undirected colouring)
+            for (gr.nodes.items, 0..) |node, ni| {
+                for (node.edges.items) |e| {
+                    if (e.to == cur) {
+                        const v: u32 = @intCast(ni);
+                        if (color[v] == -1) {
+                            color[v] = 1 - color[cur];
+                            if (qt < n) {
+                                queue[qt] = v;
+                                qt += 1;
+                            }
+                        } else if (color[v] == color[cur]) {
+                            return 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 1;
+}
+
 // ─── Tests ───
+
+test "graph bfs/dfs order" {
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "A", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "D", 1, 1.0);
+    var buf: [64]u8 = undefined;
+    const bl = stz_graph_bfs(g, "A", 1, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..bl], "A\nB\nC\nD"));
+    const dl = stz_graph_dfs(g, "A", 1, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..dl], "A\nB\nD\nC"));
+}
+
+test "graph dijkstra weighted" {
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    // A-B-D = 5+5 = 10 ; A-C-D = 1+20 = 21 -> Dijkstra picks A,B,D
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 5.0);
+    _ = stz_graph_add_edge(g, "B", 1, "D", 1, 5.0);
+    _ = stz_graph_add_edge(g, "A", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "D", 1, 20.0);
+    var buf: [64]u8 = undefined;
+    const len = stz_graph_dijkstra(g, "A", 1, "D", 1, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..len], "A\nB\nD"));
+    try std.testing.expectEqual(@as(f64, 10.0), stz_graph_dijkstra_distance(g, "A", 1, "D", 1));
+    try std.testing.expectEqual(@as(f64, -1.0), stz_graph_dijkstra_distance(g, "D", 1, "A", 1));
+}
+
+test "graph is bipartite" {
+    const g1 = stz_graph_create(0) orelse return error.CreateFailed;
+    defer stz_graph_free(g1);
+    _ = stz_graph_add_edge(g1, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g1, "B", 1, "C", 1, 1.0);
+    try std.testing.expectEqual(@as(i32, 1), stz_graph_is_bipartite(g1)); // path = bipartite
+
+    const g2 = stz_graph_create(0) orelse return error.CreateFailed;
+    defer stz_graph_free(g2);
+    _ = stz_graph_add_edge(g2, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g2, "B", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g2, "C", 1, "A", 1, 1.0);
+    try std.testing.expectEqual(@as(i32, 0), stz_graph_is_bipartite(g2)); // triangle = odd cycle
+}
 
 test "graph create and basic ops" {
     const g = stz_graph_create(1) orelse return error.CreateFailed;
@@ -517,7 +789,7 @@ test "graph shortest path" {
     const len = stz_graph_shortest_path(g, "A", 1, "C", 1, &buf, 64);
     try std.testing.expect(len > 0);
     const path = buf[0..len];
-    try std.testing.expect(std.mem.eql(u8, path, "A,B,C") or std.mem.eql(u8, path, "A,D,C"));
+    try std.testing.expect(std.mem.eql(u8, path, "A\nB\nC") or std.mem.eql(u8, path, "A\nD\nC"));
 }
 
 test "graph path exists" {

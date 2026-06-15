@@ -148,7 +148,15 @@ class stzGraph
 
 		_nEdgeLen_ = len(@aEdges)
 		for _iEng_ = 1 to _nEdgeLen_
-			StzEngineGraphAddEdge(@pEngineGraph, @aEdges[_iEng_][:from], @aEdges[_iEng_][:to], 1.0)
+			# Pass a real edge weight when the edge carries one in its
+			# properties (:weight); default 1.0. This lets the engine's
+			# Dijkstra reflect weighted edges, not just hop count.
+			_nW_ = 1.0
+			_aEP_ = @aEdges[_iEng_][:properties]
+			if isList(_aEP_) and HasKey(_aEP_, "weight")
+				_nW_ = _aEP_[:weight]
+			ok
+			StzEngineGraphAddEdge(@pEngineGraph, @aEdges[_iEng_][:from], @aEdges[_iEng_][:to], _nW_)
 		next
 
 		@bEngineStale = FALSE
@@ -2464,6 +2472,84 @@ class stzGraph
 		end
 	
 		return []
+
+	# Breadth-first visit order from a node (engine-backed).
+	def BFS(pcNodeId)
+		if isList(pcNodeId) and IsFromNamedParamList(pcNodeId)
+			pcNodeId = pcNodeId[2]
+		ok
+		if NOT This.NodeExists(pcNodeId)
+			return []
+		ok
+		if This._EnsureEngine()
+			return This._SplitNewline(StzEngineGraphBFS(@pEngineGraph, StzLower(pcNodeId)))
+		ok
+		return []
+
+		def BreadthFirst(pcNodeId)
+			return This.BFS(pcNodeId)
+
+	# Depth-first visit order from a node (engine-backed).
+	def DFS(pcNodeId)
+		if isList(pcNodeId) and IsFromNamedParamList(pcNodeId)
+			pcNodeId = pcNodeId[2]
+		ok
+		if NOT This.NodeExists(pcNodeId)
+			return []
+		ok
+		if This._EnsureEngine()
+			return This._SplitNewline(StzEngineGraphDFS(@pEngineGraph, StzLower(pcNodeId)))
+		ok
+		return []
+
+		def DepthFirst(pcNodeId)
+			return This.DFS(pcNodeId)
+
+	# TRUE if the graph is 2-colourable (bipartite). Engine-backed.
+	def IsBipartite()
+		if This._EnsureEngine()
+			return StzEngineGraphIsBipartite(@pEngineGraph) = 1
+		ok
+		return FALSE
+
+	# Weighted shortest path (Dijkstra over edge :weight properties,
+	# default 1.0). Returns the node-id path; [] if unreachable.
+	def WeightedShortestPath(pcFromNodeId, pcToNodeId)
+		if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
+			pcFromNodeId = pcFromNodeId[2]
+		ok
+		if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
+			pcToNodeId = pcToNodeId[2]
+		ok
+		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcToNodeId)
+			return []
+		ok
+		if This._EnsureEngine()
+			return This._SplitNewline(StzEngineGraphDijkstra(@pEngineGraph, StzLower(pcFromNodeId), StzLower(pcToNodeId)))
+		ok
+		return This.ShortestPath(pcFromNodeId, pcToNodeId)
+
+		def DijkstraPath(pcFromNodeId, pcToNodeId)
+			return This.WeightedShortestPath(pcFromNodeId, pcToNodeId)
+
+	# Total weight of the minimum-weight path (-1 if unreachable).
+	def WeightedShortestPathLength(pcFromNodeId, pcToNodeId)
+		if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
+			pcFromNodeId = pcFromNodeId[2]
+		ok
+		if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
+			pcToNodeId = pcToNodeId[2]
+		ok
+		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcToNodeId)
+			return -1
+		ok
+		if This._EnsureEngine()
+			return StzEngineGraphDijkstraDistance(@pEngineGraph, StzLower(pcFromNodeId), StzLower(pcToNodeId))
+		ok
+		return -1
+
+		def DijkstraDistance(pcFromNodeId, pcToNodeId)
+			return This.WeightedShortestPathLength(pcFromNodeId, pcToNodeId)
 
 	def ShortestPathLength(pcFromNodeId, pcToNodeId)
 
