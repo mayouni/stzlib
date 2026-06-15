@@ -68,6 +68,10 @@ fn ring_AddScalar(p: *anyopaque) callconv(.c) void {
 fn ring_MultiplyScalar(p: *anyopaque) callconv(.c) void {
     matrix.stz_matrix_multiply_scalar(getM(p, 1), g(p, 2));
 }
+// args: handle, op(0=add,1=mul), r1, r2, c1, c2, val  (rows/cols 1-based, inclusive)
+fn ring_UpdateRegion(p: *anyopaque) callconv(.c) void {
+    matrix.stz_matrix_update_region(getM(p, 1), @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), @intFromFloat(g(p, 6)), g(p, 7));
+}
 fn ring_AddMatrix(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(matrix.stz_matrix_add_matrix(getM(p, 1), getMC(p, 2))));
 }
@@ -140,6 +144,7 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixmean", .func = &ring_Mean },
         .{ .name = "stzengine" ++ "matrixaddscalar", .func = &ring_AddScalar },
         .{ .name = "stzengine" ++ "matrixmultiplyscalar", .func = &ring_MultiplyScalar },
+        .{ .name = "stzengine" ++ "matrixupdateregion", .func = &ring_UpdateRegion },
         .{ .name = "stzengine" ++ "matrixaddmatrix", .func = &ring_AddMatrix },
         .{ .name = "stzengine" ++ "matrixmultiply", .func = &ring_Multiply },
         .{ .name = "stzengine" ++ "matrixtranspose", .func = &ring_Transpose },

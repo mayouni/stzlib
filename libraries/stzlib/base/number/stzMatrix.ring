@@ -11,19 +11,14 @@
 
 #--
 
-#NOTE : RingFastPro Extension Usage in this class
+#NOTE : Bulk element operations go through the Softanza Zig engine
 
-# The RingFastPro extension provides high-performance list
-# of numbers manipulation functions that are most effective
-# for bulk operations on lists of numbers and matrices.
-
-# Therefore, in this class, we use updateList() from RingFastPro
-# for uniform transformations like adding/multiplying all elements,
-# updating entire rows/columns, or performing serial operations.
-
-# While we avoid using FastPro for complex computational
-# logic or methods requiring individual element inspection,
-# as traditional iteration remains more readable and flexible.
+# Uniform transformations -- adding/multiplying all elements, or a
+# whole row/column/range -- are delegated to the matrix engine via
+# _UpdateRegion() -> StzEngineMatrixUpdateRegion (see stz_matrix.dll).
+# This replaces the former RingFastPro updateList() dependency, which
+# was removed along with every non-engine third-party dependency: the
+# engine is now the single backend.
 
 #-- Global functions
 
@@ -261,6 +256,19 @@ class stzMatrix
 			@aMatrix + _aRow
 		next
 
+	# Engine-backed in-place region update (replaces the removed RingFastPro
+	# updateList dependency). Applies +nVal (:add) or *nVal (:mul) to the cells
+	# in rows nR1..nR2 x cols nC1..nC2 (1-based, inclusive) inside the Zig
+	# matrix engine, then syncs @aMatrix back.
+	def _UpdateRegion(cOp, nR1, nR2, nC1, nC2, nVal)
+		nOp = 0
+		if cOp = :mul
+			nOp = 1
+		ok
+		This._EnsureEngineMatrix()
+		StzEngineMatrixUpdateRegion(@pEngineMatrix, nOp, nR1, nR2, nC1, nC2, nVal)
+		This._SyncFromEngine()
+
 	# Raw matrix access
 
 	def Content()
@@ -301,7 +309,7 @@ class stzMatrix
 			This.AddMatrix(p)
 
 		but isNumber(p)
-			updateList(@aMatrix, :add, :manyrows, 1, @nRows, p)
+			This._UpdateRegion(:add, 1, @nRows, 1, @nCols, p)
 			return
 
 		but isList(p) and @IsMatrix(p)
@@ -392,7 +400,7 @@ class stzMatrix
 
 		# Using RingFastPro
 
-		updateList(@aMatrix, :add, :col, pnCol, pnValue)
+		This._UpdateRegion(:add, 1, @nRows, pnCol, pnCol, pnValue)
 
 		# Instead of this:
 
@@ -406,7 +414,7 @@ class stzMatrix
 
 		# Using RingFastPro
 
-		updateList(@aMatrix, :add, :row, pnRow, pnValue)
+		This._UpdateRegion(:add, pnRow, pnRow, 1, @nCols, pnValue)
 
 		# Instead of this:
 
@@ -440,7 +448,7 @@ class stzMatrix
 		   isString(paColumns[2][1]) and paColumns[2][1] = :To and
 		   isNumber(paColumns[2][2])
 
-			updateList(@aMatrix, :add, :manycols, paColumns[1][2], paColumns[2][2], pnValue)
+			This._UpdateRegion(:add, 1, @nRows, paColumns[1][2], paColumns[2][2], pnValue)
 			return
 		ok
 
@@ -480,7 +488,7 @@ class stzMatrix
 		   isString(paColumns[2][1]) and paColumns[2][1] = :To and
 		   isNumber(paColumns[2][2])
 
-			updateList(@aMatrix, :add, :manyrows, paColumns[1][2], paColumns[2][2], pnValue)
+			This._UpdateRegion(:add, paColumns[1][2], paColumns[2][2], 1, @nCols, pnValue)
 			return
 		ok
 
@@ -576,7 +584,7 @@ class stzMatrix
 			return
 		ok
 
-		updateList(@aMatrix, :mul, :manyrows, 1, @nRows, pnValue)
+		This._UpdateRegion(:mul, 1, @nRows, 1, @nCols, pnValue)
 
 		def MultiplyByQ(pnValue)
 			This.MultiplyBy(pnValue)
@@ -601,7 +609,7 @@ class stzMatrix
 			ok
 		ok
 
-		updatelist(@aMatrix, :mul, :col, pnCol, pnValue)
+		This._UpdateRegion(:mul, 1, @nRows, pnCol, pnCol, pnValue)
 
 		def MultiplyColBy(pnCol, pnValue)
 			if NOT isNumber(pnValue)
@@ -639,7 +647,7 @@ class stzMatrix
 		   isString(panCols[2][1]) and panCols[2][1] = :To and
 		   isNumber(panCols[2][2])
 
-			updateList(@aMatrix, :mul, :manycols, panCols[1][2], panCols[2][2], pnValue)
+			This._UpdateRegion(:mul, 1, @nRows, panCols[1][2], panCols[2][2], pnValue)
 			return
 		ok
 
@@ -692,7 +700,7 @@ class stzMatrix
 			ok
 		ok
 
-		updatelist(@aMatrix, :mul, :row, pnRow, pnValue)
+		This._UpdateRegion(:mul, pnRow, pnRow, 1, @nCols, pnValue)
 
 		def MultiplyRowBy(pnRow, pnValue)
 			if NOT isNumber(pnValue)
@@ -730,7 +738,7 @@ class stzMatrix
 		   isString(panRows[2][1]) and panRows[2][1] = :To and
 		   isNumber(panRows[2][2])
 
-			updateList(@aMatrix, :mul, :manyrows, panRows[1][2], panRows[2][2], pnValue)
+			This._UpdateRegion(:mul, panRows[1][2], panRows[2][2], 1, @nCols, pnValue)
 			return
 		ok
 
@@ -747,7 +755,7 @@ class stzMatrix
 		nLen = len(panRows)
 
 		for i = 1 to nLen
-		 	updateList(@aMatrix, :mul, :row, panRows[i], pnValue)
+		 	This._UpdateRegion(:mul, panRows[i], panRows[i], 1, @nCols, pnValue)
 		next
 
 	# Multiply main diagonal elements by a value
