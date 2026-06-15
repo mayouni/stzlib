@@ -37,6 +37,12 @@ Scenario("Vowel detection")
     Then("'5' is not a vowel", Chr("5").IsVowel(), FALSE)
 EndScenario()
 
+Scenario("Numeric-script classification (IsMandarinNumber typo fix)")
+    Given("a Mandarin numeral and a digit")
+    Then("'5' is not a Mandarin number (was R14 crash via Conten())", Chr("5").IsMandarinNumber(), FALSE)
+    Then("the Mandarin numeral one is a Mandarin number", Chr(char(228) + char(184) + char(128)).IsMandarinNumber(), TRUE)
+EndScenario()
+
 Summary()
 
 func Chr p
