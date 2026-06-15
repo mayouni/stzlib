@@ -144,19 +144,14 @@ class stzListExtractor
 
 	def ExtractDuplicatesCS(pCaseSensitive)
 		_pEdList_ = @oList._EngineListFromContent()
-		_cEdResult_ = StzEngineListFindDuplicatesCS(_pEdList_, pCaseSensitive)
+		# Engine returns a ready list of 1-based positions (built Zig-side).
+		_anEdDupPos_ = StzEngineListFindDuplicatesCS(_pEdList_, pCaseSensitive)
 		StzEngineListFree(_pEdList_)
 
-		if _cEdResult_ = ""
+		_nEdLen_ = len(_anEdDupPos_)
+		if _nEdLen_ = 0
 			return []
 		ok
-
-		_aEdParts_ = StzSplit(_cEdResult_, ",")
-		_nEdLen_ = len(_aEdParts_)
-		_anEdDupPos_ = []
-		for _iEd_ = 1 to _nEdLen_
-			@AddItem(_anEdDupPos_, 0 + _aEdParts_[_iEd_])
-		next
 
 		_aEdContent_ = This.Content()
 		_aEdDups_ = []

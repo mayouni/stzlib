@@ -67,19 +67,9 @@ class stzListDuplicates
 
 	def FindDuplicatesCS(pCaseSensitive)
 		_pFdList_ = @oList._EngineListFromContent()
-		_cFdResult_ = StzEngineListFindDuplicatesCS(_pFdList_, pCaseSensitive)
+		# Engine returns a ready list of 1-based positions (built Zig-side).
+		_anFdResult_ = StzEngineListFindDuplicatesCS(_pFdList_, pCaseSensitive)
 		StzEngineListFree(_pFdList_)
-
-		if _cFdResult_ = ""
-			return []
-		ok
-
-		_aFdParts_ = StzSplit(_cFdResult_, ",")
-		_nFdLen_ = len(_aFdParts_)
-		_anFdResult_ = []
-		for _iFd_ = 1 to _nFdLen_
-			@AddItem(_anFdResult_, 0 + _aFdParts_[_iFd_])
-		next
 		return _anFdResult_
 
 	def FindDuplicates()
@@ -211,19 +201,9 @@ class stzListDuplicates
 
 	def FindNonDuplicatedItemsCS(pCaseSensitive)
 		_pFndList_ = @oList._EngineListFromContent()
-		_cFndResult_ = StzEngineListFindNonDuplicatedCS(_pFndList_, pCaseSensitive)
+		# Engine returns a ready list of 1-based positions (built Zig-side).
+		_anFndResult_ = StzEngineListFindNonDuplicatedCS(_pFndList_, pCaseSensitive)
 		StzEngineListFree(_pFndList_)
-
-		if _cFndResult_ = ""
-			return []
-		ok
-
-		_aFndParts_ = StzSplit(_cFndResult_, ",")
-		_nFndLen_ = len(_aFndParts_)
-		_anFndResult_ = []
-		for _iFnd_ = 1 to _nFndLen_
-			@AddItem(_anFndResult_, 0 + _aFndParts_[_iFnd_])
-		next
 		return _anFndResult_
 
 	def FindNonDuplicatedItems()

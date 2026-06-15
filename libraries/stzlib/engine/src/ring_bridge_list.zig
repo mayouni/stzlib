@@ -40,6 +40,16 @@ fn getV(p: *anyopaque, n: c_int) ?*const value.StzValue {
     return null;
 }
 
+// Build & return a ready Ring list of 1-based positions from a raw 0-based
+// i64 slice -- the split/loop happens here (Zig side), never in Ring.
+fn retPositions(p: *anyopaque, positions: []const i64) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (positions) |v| {
+        R.ring_list_adddouble(out, @floatFromInt(v + 1));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 // Lifecycle
 fn ring_New(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_new()), HL);
@@ -265,22 +275,7 @@ fn ring_FindW(p: *anyopaque) callconv(.c) void {
 fn ring_FindAllCS(p: *anyopaque) callconv(.c) void {
     var positions: [65536]i64 = undefined;
     const count = list.stz_list_find_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)), &positions, 65536);
-    if (count == 0) {
-        rs(p, "");
-        return;
-    }
-    var buf: [65536 * 12]u8 = undefined;
-    var pos: usize = 0;
-    for (0..count) |ci| {
-        const val_1based = positions[ci] + 1;
-        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{val_1based}) catch break;
-        pos += slice.len;
-        if (ci + 1 < count) {
-            buf[pos] = ',';
-            pos += 1;
-        }
-    }
-    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+    retPositions(p, positions[0..count]);
 }
 fn ring_FindAllStringCS(p: *anyopaque) callconv(.c) void {
     const l = getLC(p, 1) orelse {
@@ -341,22 +336,7 @@ fn ring_ContainsStringCS(p: *anyopaque) callconv(.c) void {
 fn ring_FindAllW(p: *anyopaque) callconv(.c) void {
     var positions: [65536]i64 = undefined;
     const count = list.stz_list_find_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), &positions, 65536);
-    if (count == 0) {
-        rs(p, "");
-        return;
-    }
-    var buf: [65536 * 12]u8 = undefined;
-    var pos: usize = 0;
-    for (0..count) |ci| {
-        const val_1based = positions[ci] + 1;
-        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{val_1based}) catch break;
-        pos += slice.len;
-        if (ci + 1 < count) {
-            buf[pos] = ',';
-            pos += 1;
-        }
-    }
-    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+    retPositions(p, positions[0..count]);
 }
 fn ring_CountW(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_count_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)))));
@@ -468,52 +448,29 @@ fn ring_StringCountCharsW(p: *anyopaque) callconv(.c) void {
 }
 
 // Duplicate analysis
-fn ring_FindDuplicatesCS(p: *anyopaque) callconv(.c) void {
-    const dup_list = list.stz_list_find_duplicates_cs(getLC(p, 1), @intFromFloat(g(p, 2)));
-    if (dup_list == null or list.stz_list_len(dup_list) == 0) {
-        if (dup_list) |dl| list.stz_list_free(dl);
-        rs(p, "");
+// Build & return a ready Ring list of 1-based positions from an engine
+// StzList of 0-based ints (Zig-side), freeing the temporary StzList.
+fn retPositionsFromList(p: *anyopaque, maybe_list: ?*list.StzList) void {
+    const out = R.ring_vm_api_newlist(p) orelse {
+        if (maybe_list) |l| list.stz_list_free(l);
         return;
-    }
-    const dl = dup_list.?;
-    defer list.stz_list_free(dl);
-    const count = list.stz_list_len(dl);
-    var buf: [65536 * 12]u8 = undefined;
-    var pos: usize = 0;
-    for (0..count) |ci| {
-        const val_1based = list.stz_list_get_int(dl, ci) + 1;
-        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{val_1based}) catch break;
-        pos += slice.len;
-        if (ci + 1 < count) {
-            buf[pos] = ',';
-            pos += 1;
+    };
+    if (maybe_list) |l| {
+        defer list.stz_list_free(l);
+        const count = list.stz_list_len(l);
+        for (0..count) |ci| {
+            R.ring_list_adddouble(out, @floatFromInt(list.stz_list_get_int(l, ci) + 1));
         }
     }
-    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_FindDuplicatesCS(p: *anyopaque) callconv(.c) void {
+    retPositionsFromList(p, list.stz_list_find_duplicates_cs(getLC(p, 1), @intFromFloat(g(p, 2))));
 }
 
 fn ring_FindNonDuplicatedCS(p: *anyopaque) callconv(.c) void {
-    const nd_list = list.stz_list_find_non_duplicated_cs(getLC(p, 1), @intFromFloat(g(p, 2)));
-    if (nd_list == null or list.stz_list_len(nd_list) == 0) {
-        if (nd_list) |nl| list.stz_list_free(nl);
-        rs(p, "");
-        return;
-    }
-    const nl = nd_list.?;
-    defer list.stz_list_free(nl);
-    const count = list.stz_list_len(nl);
-    var buf: [65536 * 12]u8 = undefined;
-    var pos: usize = 0;
-    for (0..count) |ci| {
-        const val_1based = list.stz_list_get_int(nl, ci) + 1;
-        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{val_1based}) catch break;
-        pos += slice.len;
-        if (ci + 1 < count) {
-            buf[pos] = ',';
-            pos += 1;
-        }
-    }
-    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+    retPositionsFromList(p, list.stz_list_find_non_duplicated_cs(getLC(p, 1), @intFromFloat(g(p, 2))));
 }
 
 fn ring_AllUniqueCS(p: *anyopaque) callconv(.c) void {
