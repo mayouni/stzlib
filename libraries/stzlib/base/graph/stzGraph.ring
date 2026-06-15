@@ -1747,11 +1747,15 @@ class stzGraph
 			return This._SplitNewline(_cEngResult_)
 		ok
 
+		# Edge from/to are StzLower-normalised; the engine path above
+		# already lowercases, so the pure-Ring fallback must too -- else
+		# Neighbors("A") finds nothing while Neighbors("a") works.
+		_cFrom_ = StzLower(pcNodeId)
 		acNeighbors = []
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = pcNodeId
+			if aEdge["from"] = _cFrom_
 				acNeighbors + aEdge["to"]
 			ok
 		end
