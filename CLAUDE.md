@@ -82,11 +82,12 @@ that defines methods/aliases/primitives:
    engine when:
    - finding any occurrence: `StzEngineStringFindFirstFromCS(...)`
      beats walking chars
-   - replacing: `StzEngineStringReplaceCS(...)` is faster — BUT
-     the @memcpy alias panic workaround in `ReplaceCS` is the
-     exception (single-/multi-byte src/dst cases route through
-     Ring `substr` rebuild because the engine panics on Windows
-     builds)
+   - replacing: `StzEngineStringReplaceCS(...)` is faster AND
+     codepoint-correct. `ReplaceCS` now delegates to it (the old
+     @memcpy-alias panic is gone — the engine builds a fresh result
+     buffer; verified across ASCII / case-insensitive / multibyte /
+     60 length-combos with no panic). The previous byte-oriented
+     Ring `substr` workaround was removed (it corrupted UTF-8).
    - codepoint count / case detection / script detection
    Use Ring loops only when the engine helper doesn't exist or
    it's a one-shot prototype path.
