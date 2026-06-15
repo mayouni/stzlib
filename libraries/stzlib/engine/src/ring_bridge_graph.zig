@@ -379,6 +379,37 @@ fn ring_AStarPlan(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, outer);
 }
 
+fn ring_MaxFlow(p: *anyopaque) callconv(.c) void {
+    const s = gs(p, 2);
+    const sl: usize = @intCast(gss(p, 2));
+    const t = gs(p, 3);
+    const tl: usize = @intCast(gss(p, 3));
+    rn(p, graph.stz_graph_max_flow(getH(p, 1), s, sl, t, tl));
+}
+
+// Min cut as a ready list of [uName, vName] cut-edge pairs (Zig-side).
+fn ring_MinCut(p: *anyopaque) callconv(.c) void {
+    const outer = R.ring_vm_api_newlist(p) orelse return;
+    const gr = getH(p, 1) orelse { R.ring_vm_api_retlist(p, outer); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n == 0) { R.ring_vm_api_retlist(p, outer); return; }
+    const s = gs(p, 2);
+    const sl: usize = @intCast(gss(p, 2));
+    const t = gs(p, 3);
+    const tl: usize = @intCast(gss(p, 3));
+    const eu = gpa.alloc(u32, n * n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(eu);
+    const ev = gpa.alloc(u32, n * n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(ev);
+    const c = graph.stz_graph_min_cut(gr, s, sl, t, tl, eu.ptr, ev.ptr, n * n);
+    for (0..c) |i| {
+        const sub = R.ring_list_newlist(outer) orelse continue;
+        addName(sub, gr, eu[i]);
+        addName(sub, gr, ev[i]);
+    }
+    R.ring_vm_api_retlist(p, outer);
+}
+
 fn ring_ClusteringAll(p: *anyopaque) callconv(.c) void {
     retCentralityAll(p, &graph.stz_graph_clustering);
 }
@@ -494,6 +525,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphclosenessof", .func = &ring_ClosenessOf },
     .{ .name = "stzenginegraphbetweennessall", .func = &ring_BetweennessAll },
     .{ .name = "stzenginegraphbetweennessof", .func = &ring_BetweennessOf },
+    .{ .name = "stzenginegraphmaxflow", .func = &ring_MaxFlow },
+    .{ .name = "stzenginegraphmincut", .func = &ring_MinCut },
     .{ .name = "stzenginegraphclusteringall", .func = &ring_ClusteringAll },
     .{ .name = "stzenginegraphclusteringof", .func = &ring_ClusteringOf },
     .{ .name = "stzenginegraphdiameter", .func = &ring_Diameter },

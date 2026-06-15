@@ -2913,6 +2913,34 @@ class stzGraph
 		ok
 		return 0
 
+	# Maximum flow from pcSource to pcSink (Edmonds-Karp, engine). Edge :weight
+	# is the capacity (default 1). Returns the flow value.
+	def MaxFlow(pcSource, pcSink)
+		if NOT (This.NodeExists(pcSource) and This.NodeExists(pcSink))
+			return 0
+		ok
+		if This._EnsureEngine()
+			return StzEngineGraphMaxFlow(@pEngineGraph, StzLower(pcSource), StzLower(pcSink))
+		ok
+		return 0
+
+		def MaximumFlow(pcSource, pcSink)
+			return This.MaxFlow(pcSource, pcSink)
+
+	# Minimum cut between pcSource and pcSink: the saturated edges crossing the
+	# cut, as a list of [from, to] id pairs (max-flow / min-cut). Engine.
+	def MinCut(pcSource, pcSink)
+		if NOT (This.NodeExists(pcSource) and This.NodeExists(pcSink))
+			return []
+		ok
+		if This._EnsureEngine()
+			return StzEngineGraphMinCut(@pEngineGraph, StzLower(pcSource), StzLower(pcSink))
+		ok
+		return []
+
+		def MinimumCut(pcSource, pcSink)
+			return This.MinCut(pcSource, pcSink)
+
 	# Local clustering coefficient (engine, undirected view): edges among a
 	# node's neighbours / possible such edges. Replaces the old O(k^2)
 	# pure-Ring EdgeExists double loop.

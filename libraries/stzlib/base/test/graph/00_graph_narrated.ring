@@ -196,6 +196,19 @@ Scenario("Clustering coefficient (engine, undirected view)")
     Then("ClusteringCoefficients lists every node", ListEq(PrIds(cl.ClusteringCoefficients()), [ "a", "b", "c", "d" ]), TRUE)
 EndScenario()
 
+Scenario("Max-flow / min-cut (engine, Edmonds-Karp)")
+    Given("a flow network s->a(3),s->b(2),a->b(1),a->t(2),b->t(3)")
+    fn = new stzGraph("fn")
+    fn.AddNode("s") fn.AddNode("a") fn.AddNode("b") fn.AddNode("t")
+    fn.AddEdgeXTT("s", "a", "", [ :weight = 3 ])
+    fn.AddEdgeXTT("s", "b", "", [ :weight = 2 ])
+    fn.AddEdgeXTT("a", "b", "", [ :weight = 1 ])
+    fn.AddEdgeXTT("a", "t", "", [ :weight = 2 ])
+    fn.AddEdgeXTT("b", "t", "", [ :weight = 3 ])
+    Then("MaxFlow(s,t) is 5", fn.MaxFlow("s", "t"), 5)
+    Then("the min cut saturates s's out-edges -> [s,a],[s,b]", ListEq(fn.MinCut("s", "t"), [ [ "s", "a" ], [ "s", "b" ] ]), TRUE)
+EndScenario()
+
 Summary()
 
 func Rnd2 n
