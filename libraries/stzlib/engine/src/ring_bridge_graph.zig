@@ -34,6 +34,20 @@ fn getMutH(p: *anyopaque, n: c_int) ?*graph.StzGraph {
     return null;
 }
 
+// Build & return a Ring list from a '\n'-joined buffer. The split happens
+// here (Zig side) so the Ring caller receives a ready list -- no Ring-side
+// looping/splitting.
+fn retLines(p: *anyopaque, buf: []const u8) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (buf.len > 0) {
+        var it = std.mem.splitScalar(u8, buf, '\n');
+        while (it.next()) |seg| {
+            R.ring_list_addstring2(out, seg.ptr, @intCast(seg.len));
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_Create(p: *anyopaque) callconv(.c) void {
     const directed: i32 = @intFromFloat(g(p, 1));
     rcp(p, @ptrCast(graph.stz_graph_create(directed)), H);
@@ -91,7 +105,7 @@ fn ring_Neighbors(p: *anyopaque) callconv(.c) void {
     const id_len: usize = @intCast(gss(p, 2));
     var buf: [8192]u8 = undefined;
     const len = graph.stz_graph_neighbors(getH(p, 1), id, id_len, &buf, 8192);
-    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+    retLines(p, buf[0..len]);
 }
 
 fn ring_NeighborCount(p: *anyopaque) callconv(.c) void {
@@ -107,7 +121,7 @@ fn ring_ShortestPath(p: *anyopaque) callconv(.c) void {
     const to_len: usize = @intCast(gss(p, 3));
     var buf: [8192]u8 = undefined;
     const len = graph.stz_graph_shortest_path(getH(p, 1), from, from_len, to, to_len, &buf, 8192);
-    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+    retLines(p, buf[0..len]);
 }
 
 fn ring_PathExists(p: *anyopaque) callconv(.c) void {
@@ -123,7 +137,7 @@ fn ring_BFS(p: *anyopaque) callconv(.c) void {
     const id_len: usize = @intCast(gss(p, 2));
     var buf: [8192]u8 = undefined;
     const len = graph.stz_graph_bfs(getH(p, 1), id, id_len, &buf, 8192);
-    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+    retLines(p, buf[0..len]);
 }
 
 fn ring_DFS(p: *anyopaque) callconv(.c) void {
@@ -131,7 +145,7 @@ fn ring_DFS(p: *anyopaque) callconv(.c) void {
     const id_len: usize = @intCast(gss(p, 2));
     var buf: [8192]u8 = undefined;
     const len = graph.stz_graph_dfs(getH(p, 1), id, id_len, &buf, 8192);
-    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+    retLines(p, buf[0..len]);
 }
 
 fn ring_Dijkstra(p: *anyopaque) callconv(.c) void {
@@ -141,7 +155,7 @@ fn ring_Dijkstra(p: *anyopaque) callconv(.c) void {
     const to_len: usize = @intCast(gss(p, 3));
     var buf: [8192]u8 = undefined;
     const len = graph.stz_graph_dijkstra(getH(p, 1), from, from_len, to, to_len, &buf, 8192);
-    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+    retLines(p, buf[0..len]);
 }
 
 fn ring_DijkstraDistance(p: *anyopaque) callconv(.c) void {
@@ -167,40 +181,27 @@ fn ring_NumberOfSCC(p: *anyopaque) callconv(.c) void {
 
 // Grouped SCCs: one line per component (newline-separated), node names
 // within a component comma-separated.
+// Returns the SCCs as a Ring list of lists of node names -- built entirely
+// here (Zig side), so the Ring caller gets a ready nested list.
 fn ring_StronglyConnectedComponents(p: *anyopaque) callconv(.c) void {
-    const gr = getH(p, 1) orelse { rs(p, ""); return; };
+    const outer = R.ring_vm_api_newlist(p) orelse return;
+    const gr = getH(p, 1) orelse { R.ring_vm_api_retlist(p, outer); return; };
     const n = graph.stz_graph_node_count(gr);
-    if (n == 0) { rs(p, ""); return; }
-    const labels = gpa.alloc(u32, n) catch { rs(p, ""); return; };
+    if (n == 0) { R.ring_vm_api_retlist(p, outer); return; }
+    const labels = gpa.alloc(u32, n) catch { R.ring_vm_api_retlist(p, outer); return; };
     defer gpa.free(labels);
     const nc = graph.stz_graph_strongly_connected_components(gr, labels.ptr, n);
-    if (nc == 0) { rs(p, ""); return; }
-    var buf: [16384]u8 = undefined;
-    var out: usize = 0;
     var name_buf: [256]u8 = undefined;
     var comp: u32 = 0;
     while (comp < nc) : (comp += 1) {
-        if (comp > 0) {
-            if (out >= buf.len) { rs(p, ""); return; }
-            buf[out] = '\n';
-            out += 1;
-        }
-        var first = true;
+        const sub = R.ring_list_newlist(outer) orelse continue;
         for (0..n) |i| {
             if (labels[i] != comp) continue;
-            if (!first) {
-                if (out >= buf.len) { rs(p, ""); return; }
-                buf[out] = ',';
-                out += 1;
-            }
-            first = false;
             const nlen = graph.stz_graph_node_name(gr, i, &name_buf, 256);
-            if (out + nlen > buf.len) { rs(p, ""); return; }
-            @memcpy(buf[out..][0..nlen], name_buf[0..nlen]);
-            out += nlen;
+            R.ring_list_addstring2(sub, &name_buf, @intCast(nlen));
         }
     }
-    if (out > 0) rs2(p, &buf, @intCast(out)) else rs(p, "");
+    R.ring_vm_api_retlist(p, outer);
 }
 
 fn ring_MSTWeight(p: *anyopaque) callconv(.c) void {
@@ -212,7 +213,7 @@ fn ring_Reachable(p: *anyopaque) callconv(.c) void {
     const id_len: usize = @intCast(gss(p, 2));
     var buf: [16384]u8 = undefined;
     const len = graph.stz_graph_reachable(getH(p, 1), id, id_len, &buf, 16384);
-    if (len > 0) rs2(p, &buf, @intCast(len)) else rs(p, "");
+    retLines(p, buf[0..len]);
 }
 
 fn ring_HasCycle(p: *anyopaque) callconv(.c) void {
@@ -232,29 +233,19 @@ fn ring_OutDegree(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_TopologicalSort(p: *anyopaque) callconv(.c) void {
-    const gr = getH(p, 1) orelse { rs(p, ""); return; };
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const gr = getH(p, 1) orelse { R.ring_vm_api_retlist(p, out); return; };
     const n = graph.stz_graph_node_count(gr);
-    if (n <= 0) { rs(p, ""); return; }
-    const nu: usize = @intCast(n);
-    const result = gpa.alloc(u32, nu) catch { rs(p, ""); return; };
+    if (n == 0) { R.ring_vm_api_retlist(p, out); return; }
+    const result = gpa.alloc(u32, n) catch { R.ring_vm_api_retlist(p, out); return; };
     defer gpa.free(result);
-    const count = graph.stz_graph_topological_sort(gr, result.ptr, nu);
-    if (count == 0) { rs(p, ""); return; }
-    var buf: [16384]u8 = undefined;
-    var out: usize = 0;
+    const count = graph.stz_graph_topological_sort(gr, result.ptr, n);
     var name_buf: [256]u8 = undefined;
     for (0..count) |i| {
-        if (i > 0) {
-            if (out >= buf.len) { rs(p, ""); return; }
-            buf[out] = '\n';
-            out += 1;
-        }
         const nlen = graph.stz_graph_node_name(gr, result[i], &name_buf, 256);
-        if (out + nlen > buf.len) { rs(p, ""); return; }
-        @memcpy(buf[out..][0..nlen], name_buf[0..nlen]);
-        out += nlen;
+        R.ring_list_addstring2(out, &name_buf, @intCast(nlen));
     }
-    if (out > 0) rs2(p, &buf, @intCast(out)) else rs(p, "");
+    R.ring_vm_api_retlist(p, out);
 }
 
 fn ring_ConnectedComponents(p: *anyopaque) callconv(.c) void {
