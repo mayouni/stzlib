@@ -91,10 +91,10 @@ pub const macro = MacroStats{
     .engine_tests = 1593,
     .dlls_shipping = 91,
     .qt_dependencies = 0,
-    .ring_bridge_regs = 1084,
+    .ring_bridge_regs = 1089,
     .ring_classes_bridged = 131,
     .ring_engine_calls = 3482,
-    .last_session = 99,
+    .last_session = 100,
     .last_updated = "2026-06-15",
 };
 
@@ -179,11 +179,11 @@ pub const domains = [_]Domain{
         .name = "graph",
         .engine_module = "engine/src/graph.zig",
         .ring_class = "base/list/stzGraph.ring",
-        .bridge = "engine/src/ring_bridge_stats.zig",
-        .engine_fns = 18,
-        .ring_methods_bridged = 22,
+        .bridge = "engine/src/ring_bridge_graph.zig",
+        .engine_fns = 23,
+        .ring_methods_bridged = 28,
         .status = .done,
-        .notes = "BFS/DFS/Dijkstra/topo-sort/components; lazy engine sync (M-E3)",
+        .notes = "engine now ACTIVE (was dead via isFunction guard); BFS/DFS order, weighted Dijkstra (path+distance), is_bipartite, shortest-path/path-exists/reachable/components/topo-sort/cycle/degrees (M-E3)",
     },
     .{
         .name = "matrix",
