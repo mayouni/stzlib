@@ -1194,7 +1194,151 @@ pub fn stz_graph_betweenness(g: ?*const StzGraph, out: [*]f64, cap: usize) callc
     return n;
 }
 
+// ─── k-core & PageRank ───
+
+// Core number of every node (Batagelj-Zaversnik, O(V+E)) over the undirected
+// view: out[v] = largest k such that v survives in the k-core. Fills out[];
+// returns n.
+pub fn stz_graph_core_numbers(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    var u = buildUndirected(gr) orelse return 0;
+    defer u.deinit();
+
+    const deg = allocator.alloc(usize, n) catch return 0;
+    defer allocator.free(deg);
+    var md: usize = 0;
+    for (0..n) |i| {
+        deg[i] = u.start[i + 1] - u.start[i];
+        if (deg[i] > md) md = deg[i];
+    }
+    const bin = allocator.alloc(usize, md + 1) catch return 0;
+    defer allocator.free(bin);
+    @memset(bin, 0);
+    for (0..n) |i| bin[deg[i]] += 1;
+    var acc: usize = 0;
+    for (0..md + 1) |d| {
+        const tmp = bin[d];
+        bin[d] = acc;
+        acc += tmp;
+    }
+    const vert = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(vert);
+    const pos = allocator.alloc(usize, n) catch return 0;
+    defer allocator.free(pos);
+    for (0..n) |i| {
+        pos[i] = bin[deg[i]];
+        vert[pos[i]] = @intCast(i);
+        bin[deg[i]] += 1;
+    }
+    // restore bin to bucket starts
+    var d = md;
+    while (d >= 1) : (d -= 1) bin[d] = bin[d - 1];
+    bin[0] = 0;
+    // peel
+    for (0..n) |ii| {
+        const v = vert[ii];
+        const s = u.start[v];
+        const e = u.start[v + 1];
+        for (s..e) |k| {
+            const w = u.adj[k];
+            if (deg[w] > deg[v]) {
+                const dw = deg[w];
+                const pw = pos[w];
+                const pf = bin[dw];
+                const fv = vert[pf];
+                if (w != fv) {
+                    pos[w] = pf;
+                    vert[pw] = fv;
+                    pos[fv] = pw;
+                    vert[pf] = w;
+                }
+                bin[dw] += 1;
+                deg[w] -= 1;
+            }
+        }
+    }
+    for (0..n) |i| out[i] = @floatFromInt(deg[i]);
+    return n;
+}
+
+// PageRank via power iteration over directed out-edges. damping<=0 -> 0.85,
+// iters<=0 -> 100. Dangling nodes redistribute their mass uniformly. Fills
+// out[]; returns n.
+pub fn stz_graph_pagerank(g: ?*const StzGraph, out: [*]f64, cap: usize, damping: f64, iters: i32) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    const dmp: f64 = if (damping > 0 and damping < 1) damping else 0.85;
+    const rounds: usize = if (iters > 0) @intCast(iters) else 100;
+    const nf: f64 = @floatFromInt(n);
+
+    const tmp = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(tmp);
+    const outdeg = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(outdeg);
+    for (0..n) |i| {
+        out[i] = 1.0 / nf;
+        outdeg[i] = @floatFromInt(gr.nodes.items[i].edges.items.len);
+    }
+    var r: usize = 0;
+    while (r < rounds) : (r += 1) {
+        var dangling: f64 = 0;
+        for (0..n) |i| {
+            tmp[i] = (1.0 - dmp) / nf;
+            if (outdeg[i] == 0) dangling += out[i];
+        }
+        const dshare = dmp * dangling / nf;
+        for (0..n) |i| tmp[i] += dshare;
+        for (0..n) |uu| {
+            if (outdeg[uu] == 0) continue;
+            const share = dmp * out[uu] / outdeg[uu];
+            for (gr.nodes.items[uu].edges.items) |edge| tmp[edge.to] += share;
+        }
+        for (0..n) |i| out[i] = tmp[i];
+    }
+    return n;
+}
+
+// Signature-compatible wrapper (default damping/iters) so the bridge can reuse
+// the generic per-node centrality plumbing.
+pub fn stz_graph_pagerank_default(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    return stz_graph_pagerank(g, out, cap, 0.85, 100);
+}
+
 // ─── Tests ───
+
+test "graph k-core core numbers" {
+    // triangle A-B-C (each core 2) plus a pendant D off A (core 1)
+    const g = stz_graph_create(0) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "A", 1, 1.0);
+    _ = stz_graph_add_edge(g, "A", 1, "D", 1, 1.0);
+    var core: [4]f64 = undefined;
+    _ = stz_graph_core_numbers(g, &core, 4);
+    try std.testing.expectEqual(@as(f64, 2.0), core[0]); // A
+    try std.testing.expectEqual(@as(f64, 2.0), core[1]); // B
+    try std.testing.expectEqual(@as(f64, 2.0), core[2]); // C
+    try std.testing.expectEqual(@as(f64, 1.0), core[3]); // D
+}
+
+test "graph pagerank sums to one" {
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "A", 1, 1.0);
+    var pr: [3]f64 = undefined;
+    _ = stz_graph_pagerank(g, &pr, 3, 0.85, 100);
+    // symmetric cycle => all equal ~1/3
+    try std.testing.expectApproxEqAbs(@as(f64, 1.0 / 3.0), pr[0], 1e-6);
+    var sum: f64 = 0;
+    for (pr) |x| sum += x;
+    try std.testing.expectApproxEqAbs(@as(f64, 1.0), sum, 1e-6);
+}
 
 test "graph centrality (closeness + betweenness)" {
     // directed path A->B->C->D->E
