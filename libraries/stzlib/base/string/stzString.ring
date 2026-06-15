@@ -888,25 +888,15 @@ class stzString from stzObject
 			return 0
 		ok
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_cFull_ = This.Content()
 		if nStart < 0
 			nStart = 0
 		ok
-		if nStart >= len(_cFull_)
-			return 0
-		ok
-		# Take tail of string starting AFTER nStart, search there,
-		# then offset back to the full-string position.
-		_cTail_ = StzMidToEnd(_cFull_, nStart + 1)
-		if _bCase_
-			_nPos_ = StzFind(pcSubStr, _cTail_)
-		else
-			_nPos_ = StzFind(lower(pcSubStr), lower(_cTail_))
-		ok
-		if _nPos_ = 0
-			return 0
-		ok
-		return _nPos_ + nStart
+		# First occurrence at a codepoint position > nStart. Delegate to the
+		# engine find-from primitive (codepoint-aware + correct case folding,
+		# incl. multibyte). The old Ring body mixed byte len()/lower() with a
+		# StzMidToEnd tail walk and returned 0 even for ASCII
+		# (FindNextCS("abc",2) on "abcabc" missed the match at 4).
+		return This._FindSubStr(pcSubStr, nStart + 1, _bCase_)
 
 	def FindNext(pcSubStr, nStart)
 		return This.FindNextCS(pcSubStr, nStart, 1)
