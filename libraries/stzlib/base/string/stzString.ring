@@ -1155,7 +1155,9 @@ class stzString from stzObject
 	#   - UppercaseSubString([n1, n2])        : 1-arg list form
 	def UppercaseSubString(p1)
 		if isString(p1)
-			This.Replace(p1, upper(p1))
+			# StzUpper (codepoint-aware) -- upper() is byte-oriented and left
+			# accented letters lowercased (cafe-acute stayed cafe-acute).
+			This.Replace(p1, StzUpper(p1))
 			return
 		ok
 		if isList(p1) and len(p1) = 2 and isNumber(p1[1]) and isNumber(p1[2])
@@ -14296,11 +14298,13 @@ class stzString from stzObject
 		if len(c) = 0
 			return
 		ok
+		# Codepoint-aware: right()/left() are byte-oriented, so removing a
+		# multibyte trailing char (e.g. an accented letter) was a no-op.
 		_cStr_ = This.Content()
-		_nLen_ = len(_cStr_)
-		while _nLen_ > 0 and right(_cStr_, 1) = c
-			_cStr_ = left(_cStr_, _nLen_ - 1)
-			_nLen_--
+		_nC_ = StzLen(_cStr_)
+		while _nC_ > 0 and This._EngineSlice(_cStr_, _nC_, 1) = c
+			_cStr_ = This._EngineSlice(_cStr_, 1, _nC_ - 1)
+			_nC_--
 		end
 		This.Update(_cStr_)
 
@@ -14329,9 +14333,11 @@ class stzString from stzObject
 		if len(c) = 0
 			return
 		ok
+		# Codepoint-aware: left() is byte-oriented, so the first-char compare
+		# missed a multibyte leading char while the skip advanced a codepoint.
 		_cStr_ = This.Content()
-		while len(_cStr_) > 0 and left(_cStr_, 1) = c
-			_cStr_ = StzMidToEnd(_cStr_, 2)
+		while StzLen(_cStr_) > 0 and This._EngineSlice(_cStr_, 1, 1) = c
+			_cStr_ = This._EngineSliceFrom(_cStr_, 2)
 		end
 		This.Update(_cStr_)
 
