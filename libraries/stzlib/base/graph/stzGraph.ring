@@ -2853,6 +2853,27 @@ class stzGraph
 		ok
 		return []
 
+	# Override the (engine) weight of a directed edge. Used by stzGraphPlanner
+	# to push per-optimisation transition costs before an engine A* search.
+	# Returns 1 on success, 0 if the edge is unknown.
+	def SetEdgeWeight(pcFrom, pcTo, nWeight)
+		if This._EnsureEngine()
+			return StzEngineGraphSetEdgeWeight(@pEngineGraph, StzLower(pcFrom), StzLower(pcTo), nWeight)
+		ok
+		return 0
+
+	# Engine A* for planners: one search returns [ routeList, exploredList ]
+	# (the explored/closed order powers explainability metrics). nMode 0 is
+	# Dijkstra/UCS -- optimal for any non-negative edge cost.
+	def AStarPlan(pcStart, pcGoal, nMode)
+		if NOT (This.NodeExists(pcStart) and This.NodeExists(pcGoal))
+			return [ [], [] ]
+		ok
+		if This._EnsureEngine()
+			return StzEngineGraphAStarPlan(@pEngineGraph, StzLower(pcStart), StzLower(pcGoal), nMode)
+		ok
+		return [ [], [] ]
+
 	def Diameter()
 		_nMaxDist_ = 0
 		_aNodes_ = This.Nodes()

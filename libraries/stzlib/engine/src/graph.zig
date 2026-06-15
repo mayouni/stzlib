@@ -1423,7 +1423,150 @@ pub fn stz_graph_astar(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usi
     return pos;
 }
 
+// Override the weight of the directed edge from->to (used by the planner to
+// push per-optimisation transition costs before an engine A* search).
+// Returns 1 on success, 0 if the edge/endpoints are unknown.
+pub fn stz_graph_set_edge_weight(g: ?*StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize, w: f64) callconv(.c) i32 {
+    const gr = g orelse return 0;
+    const f = gr.findNode(from_ptr[0..from_len]) orelse return 0;
+    const t = gr.findNode(to_ptr[0..to_len]) orelse return 0;
+    for (gr.nodes.items[f].edges.items) |*e| {
+        if (e.to == t) {
+            e.weight = w;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// A* that also records the explored (closed) order -- used by stzGraphPlanner
+// so its explainability metrics (nodes_explored / efficiency) stay honest
+// while the search itself runs in the engine. Writes the path into path_buf
+// ('\n'-joined, returned length) and the explored order into exp_buf
+// ('\n'-joined, length via exp_len_ptr).
+pub fn stz_graph_astar_full(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize, mode: i32, path_buf: [*]u8, path_cap: usize, exp_buf: [*]u8, exp_cap: usize, exp_len_ptr: *usize) callconv(.c) usize {
+    exp_len_ptr.* = 0;
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    const src = gr.findNode(from_ptr[0..from_len]) orelse return 0;
+    const dst = gr.findNode(to_ptr[0..to_len]) orelse return 0;
+
+    const gscore = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(gscore);
+    const fscore = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(fscore);
+    const came = allocator.alloc(i64, n) catch return 0;
+    defer allocator.free(came);
+    const open = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(open);
+    const closed = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(closed);
+    var explored = std.ArrayListUnmanaged(NodeId){};
+    defer explored.deinit(allocator);
+    const inf = std.math.inf(f64);
+    for (0..n) |i| {
+        gscore[i] = inf;
+        fscore[i] = inf;
+        came[i] = -1;
+        open[i] = false;
+        closed[i] = false;
+    }
+    gscore[src] = 0;
+    fscore[src] = heuristic(gr, src, dst, mode);
+    open[src] = true;
+
+    var found = false;
+    while (true) {
+        var cur: i64 = -1;
+        var best: f64 = inf;
+        for (0..n) |i| {
+            if (open[i] and fscore[i] < best) {
+                best = fscore[i];
+                cur = @intCast(i);
+            }
+        }
+        if (cur < 0) break;
+        const c: NodeId = @intCast(cur);
+        open[c] = false;
+        closed[c] = true;
+        explored.append(allocator, c) catch return 0;
+        if (c == dst) {
+            found = true;
+            break;
+        }
+        for (gr.nodes.items[c].edges.items) |e| {
+            if (closed[e.to]) continue;
+            const w = if (e.weight > 0) e.weight else 1.0;
+            const tentative = gscore[c] + w;
+            if (tentative < gscore[e.to]) {
+                came[e.to] = @intCast(c);
+                gscore[e.to] = tentative;
+                fscore[e.to] = tentative + heuristic(gr, e.to, dst, mode);
+                open[e.to] = true;
+            }
+        }
+    }
+
+    // emit explored order
+    var epos: usize = 0;
+    for (explored.items) |nid| {
+        const id = gr.nodes.items[nid];
+        if (epos != 0) {
+            if (epos >= exp_cap) break;
+            exp_buf[epos] = '\n';
+            epos += 1;
+        }
+        const take = @min(id.id_len, exp_cap - epos);
+        @memcpy(exp_buf[epos .. epos + take], id.id_ptr[0..take]);
+        epos += take;
+    }
+    exp_len_ptr.* = epos;
+
+    if (!found) return 0;
+
+    // reconstruct path dst..src then emit forward
+    var path = std.ArrayListUnmanaged(NodeId){};
+    defer path.deinit(allocator);
+    var w: i64 = @intCast(dst);
+    while (w >= 0) : (w = came[@intCast(w)]) {
+        path.append(allocator, @intCast(w)) catch return 0;
+    }
+    var pos: usize = 0;
+    var k: usize = path.items.len;
+    while (k > 0) {
+        k -= 1;
+        const id = gr.nodes.items[path.items[k]];
+        if (pos != 0) {
+            if (pos >= path_cap) break;
+            path_buf[pos] = '\n';
+            pos += 1;
+        }
+        const take = @min(id.id_len, path_cap - pos);
+        @memcpy(path_buf[pos .. pos + take], id.id_ptr[0..take]);
+        pos += take;
+    }
+    return pos;
+}
+
 // ─── Tests ───
+
+test "graph A* full (path + explored order)" {
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 5.0);
+    _ = stz_graph_add_edge(g, "B", 1, "D", 1, 5.0);
+    _ = stz_graph_add_edge(g, "A", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "D", 1, 20.0);
+    // override C->D weight to prove set_edge_weight works
+    try std.testing.expectEqual(@as(i32, 1), stz_graph_set_edge_weight(g, "C", 1, "D", 1, 99.0));
+    var pbuf: [64]u8 = undefined;
+    var ebuf: [64]u8 = undefined;
+    var elen: usize = 0;
+    const plen = stz_graph_astar_full(g, "A", 1, "D", 1, 0, &pbuf, 64, &ebuf, 64, &elen);
+    try std.testing.expectEqualStrings("A\nB\nD", pbuf[0..plen]);
+    try std.testing.expect(elen > 0); // explored some nodes
+}
 
 test "graph A* with euclidean heuristic" {
     // grid-ish: S->A->G (cheap) and S->B->G (expensive); coords steer it

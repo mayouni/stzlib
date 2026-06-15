@@ -19,6 +19,16 @@ Scenario("A* picks the cheaper branch")
     Then("Route goes through B, not C", ListEq(o.Route(), [ "a", "b", "d" ]), TRUE)
 EndScenario()
 
+Scenario("Engine A* still populates explainability data")
+    Given("the diamond plan (A->B->D over A->C->D)")
+    o = DiamondPlan()
+    aWhy = o.Why("cost")
+    Then("nodes_explored counts the engine's closed set (4: a,c,b,d)", aWhy[:nodes_explored], 4)
+    Then("the explained route matches the optimal a-b-d", ListEq(aWhy[:route], [ "a", "b", "d" ]), TRUE)
+    aEff = o.Efficiency()
+    Then("efficiency path_length is 3", aEff[:path_length], 3)
+EndScenario()
+
 Summary()
 
 func LinearPlan()
