@@ -172,45 +172,37 @@ fn ring_FilterRows(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(table.stz_table_filter_rows(getTC(p, 1), @intFromFloat(g(p, 2)), getV(p, 3))), HT);
 }
 
-// Find cell: returns comma-separated "col,row;col,row;..." (1-based) positions
+// Find cell: returns a ready Ring list of [col, row] (1-based) pairs, built
+// Zig-side -- no Ring splitting.
 fn ring_FindCellStringCS(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
     const t = getTC(p, 1) orelse {
-        rs(p, "");
+        R.ring_vm_api_retlist(p, out);
         return;
     };
     const needle_ptr = gs(p, 2);
     const needle_len: usize = @intCast(gss(p, 2));
     const cs: i32 = @intFromFloat(g(p, 3));
     const needle_val = value.stz_value_new_string(needle_ptr, needle_len) orelse {
-        rs(p, "");
+        R.ring_vm_api_retlist(p, out);
         return;
     };
     defer value.stz_value_free(needle_val);
     var positions: [32768]i64 = undefined;
     const count = table.stz_table_find_cell_cs(t, needle_val, cs, &positions, 16384);
-    if (count == 0) {
-        rs(p, "");
-        return;
-    }
-    var buf: [32768 * 12]u8 = undefined;
-    var pos: usize = 0;
     for (0..count) |ci| {
-        const col_1 = positions[ci * 2] + 1;
-        const row_1 = positions[ci * 2 + 1] + 1;
-        const slice = std.fmt.bufPrint(buf[pos..], "{d},{d}", .{ col_1, row_1 }) catch break;
-        pos += slice.len;
-        if (ci + 1 < count) {
-            buf[pos] = ';';
-            pos += 1;
-        }
+        const sub = R.ring_list_newlist(out) orelse continue;
+        R.ring_list_adddouble(sub, @floatFromInt(positions[ci * 2] + 1)); // col
+        R.ring_list_adddouble(sub, @floatFromInt(positions[ci * 2 + 1] + 1)); // row
     }
-    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+    R.ring_vm_api_retlist(p, out);
 }
 
-// Find in column: returns comma-separated 1-based row positions
+// Find in column: returns a ready Ring list of 1-based row positions.
 fn ring_FindInColStringCS(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
     const t = getTC(p, 1) orelse {
-        rs(p, "");
+        R.ring_vm_api_retlist(p, out);
         return;
     };
     const col: i64 = @intFromFloat(g(p, 2));
@@ -218,28 +210,16 @@ fn ring_FindInColStringCS(p: *anyopaque) callconv(.c) void {
     const needle_len: usize = @intCast(gss(p, 3));
     const cs: i32 = @intFromFloat(g(p, 4));
     const needle_val = value.stz_value_new_string(needle_ptr, needle_len) orelse {
-        rs(p, "");
+        R.ring_vm_api_retlist(p, out);
         return;
     };
     defer value.stz_value_free(needle_val);
     var positions: [65536]i64 = undefined;
     const count = table.stz_table_find_in_col_cs(t, col, needle_val, cs, &positions, 65536);
-    if (count == 0) {
-        rs(p, "");
-        return;
-    }
-    var buf: [65536 * 12]u8 = undefined;
-    var pos: usize = 0;
     for (0..count) |ci| {
-        const row_1 = positions[ci] + 1;
-        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{row_1}) catch break;
-        pos += slice.len;
-        if (ci + 1 < count) {
-            buf[pos] = ',';
-            pos += 1;
-        }
+        R.ring_list_adddouble(out, @floatFromInt(positions[ci] + 1));
     }
-    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+    R.ring_vm_api_retlist(p, out);
 }
 
 // Pivot: multi group by (table, col1, col2, value_col, agg_func)

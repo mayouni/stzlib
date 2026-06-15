@@ -3735,18 +3735,9 @@ class stzList from stzObject
 		if pList = NULL return [] ok
 
 		pcCondition = _StzStripBraces(pcCondition)
-		cRaw = StzEngineListFindAllW(pList, pcCondition)
+		# Engine returns a ready list of 1-based positions (built Zig-side).
+		anResult = StzEngineListFindAllW(pList, pcCondition)
 		StzEngineListFree(pList)
-
-		if len(cRaw) = 0
-			return []
-		ok
-
-		anResult = StzSplit(cRaw, ",")
-		nLen = len(anResult)
-		for i = 1 to nLen
-			anResult[i] = 0 + anResult[i]
-		next
 		return anResult
 
 		def FindW(pcCondition)
