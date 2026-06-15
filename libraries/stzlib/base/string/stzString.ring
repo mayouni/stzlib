@@ -1129,14 +1129,18 @@ class stzString from stzObject
 			_cNew_ = pD
 		ok
 		_cAll_ = This.Content()
+		# Codepoint-aware section slicing: _n1_/_n2_ are codepoint positions,
+		# so the byte-oriented substr()/len() (and StzMid, which returns ""
+		# on multibyte here) corrupted multibyte content. Use the engine
+		# slice helpers like _UppercaseSubStringRange does.
 		_cBefore_ = ""
 		if _n1_ > 1
-			_cBefore_ = StzMid(_cAll_, 1, _n1_ - 1)
+			_cBefore_ = This._EngineSlice(_cAll_, 1, _n1_ - 1)
 		ok
-		_cMid_ = substr(_cAll_, _n1_, _n2_ - _n1_ + 1)
+		_cMid_ = This._EngineSlice(_cAll_, _n1_, _n2_ - _n1_ + 1)
 		_cAfter_ = ""
-		if _n2_ < len(_cAll_)
-			_cAfter_ = StzMidToEnd(_cAll_, _n2_ + 1)
+		if _n2_ < StzLen(_cAll_)
+			_cAfter_ = This._EngineSliceFrom(_cAll_, _n2_ + 1)
 		ok
 		_cMid_ = StzReplace(_cMid_, _cSub_, _cNew_)
 		This.Update( _cBefore_ + _cMid_ + _cAfter_ )
@@ -1165,7 +1169,11 @@ class stzString from stzObject
 
 	def _UppercaseSubStringRange(n1, n2)
 		_cAll_ = This.Content()
-		_nTL_ = len(_cAll_)
+		# Codepoint length + codepoint-aware uppercase: n1/n2 are codepoint
+		# positions, and Ring's len()/upper() are byte-oriented (wrong on
+		# multibyte -- 'café'.UppercaseSubStringXT(1,4) left the e accent
+		# lowercased). Use StzLen + StzUpper.
+		_nTL_ = StzLen(_cAll_)
 		_cBefore_ = ""
 		if n1 > 1
 			_cBefore_ = This._EngineSlice(_cAll_, 1, n1 - 1)
@@ -1175,7 +1183,7 @@ class stzString from stzObject
 		if n2 < _nTL_
 			_cAfter_ = This._EngineSliceFrom(_cAll_, n2 + 1)
 		ok
-		This.Update( _cBefore_ + upper(_cMid_) + _cAfter_ )
+		This.Update( _cBefore_ + StzUpper(_cMid_) + _cAfter_ )
 
 		def UppercaseSubStringQ(p1)
 			This.UppercaseSubString(p1)
