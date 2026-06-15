@@ -38,7 +38,29 @@ Scenario("Trim, equality and slicing")
     Then("LastNChars(3) of 'softanza' is 'nza'", Q("softanza").LastNChars(3), "nza")
 EndScenario()
 
+Scenario("Section ops are codepoint-correct (multibyte)")
+    Given("strings with accented characters")
+    u = new stzString("café x")
+    u.UppercaseSubStringXT(1, 4)
+    Then("UppercaseSubString uppercases the accented section -> CAFE-acute x", u.Content(), "CAF" + Chr0xC9() + " x")
+    r = new stzString("déjà xx")
+    r.ReplaceInSection(1, 7, "x", "Y")
+    Then("ReplaceInSection rewrites within a codepoint range", r.Content(), "d" + Chr0xE9() + "j" + Chr0xE0() + " YY")
+    a = new stzString("abcdef")
+    a.ReplaceInSection(1, 3, "b", "Z")
+    Then("ReplaceInSection still correct on ASCII", a.Content(), "aZcdef")
+EndScenario()
+
 Summary()
+
+func Chr0xC9   # 'É' U+00C9
+    return char(195) + char(137)
+
+func Chr0xE9   # 'é' U+00E9
+    return char(195) + char(169)
+
+func Chr0xE0   # 'à' U+00E0
+    return char(195) + char(160)
 
 func ListEq aA, aE
     if len(aA) != len(aE) return FALSE ok
