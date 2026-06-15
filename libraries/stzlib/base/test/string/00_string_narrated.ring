@@ -24,6 +24,8 @@ Scenario("Reverse and search")
     Then("FindFirst('a') is position 5", Q("softanza").FindFirst("a"), 5)
     Then("FindNext('a',5) finds the next 'a' at 8", Q("softanza").FindNext("a", 5), 8)
     Then("FindNext('abc',2) on 'abcabc' is 4 (was broken)", Q("abcabc").FindNext("abc", 2), 4)
+    Then("StartsWithAny is case-insensitive over multibyte", Q(Chr0xC9() + "cole").StartsWithAnyCS([ Chr0xE9() + "cole" ], FALSE), 1)
+    Then("EndsWithAny matches a multibyte suffix (was broken even CS)", Q("caf" + Chr0xE9()).EndsWithAnyCS([ "f" + Chr0xE9() ], TRUE), 1)
 EndScenario()
 
 Scenario("Replace and split")

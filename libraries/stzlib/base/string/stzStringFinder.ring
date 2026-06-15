@@ -534,21 +534,15 @@ class stzStringFinder
 	#===============================#
 
 	def StartsWithAnyCS(pcPrefixes, pCaseSensitive)
-		_bCase_ = @CaseSensitive(pCaseSensitive)
+		# Delegate per-prefix to the engine-backed StartsWithCS (codepoint +
+		# case-correct). The old byte-oriented substr()/lower() compare failed
+		# case-insensitively on multibyte (E-acute vs e-acute).
 		if NOT isList(pcPrefixes) return 0 ok
-		_cIn_ = @oString.Content()
 		_nL_ = len(pcPrefixes)
 		for _i_ = 1 to _nL_
 			_s_ = pcPrefixes[_i_]
-			if NOT isString(_s_) loop ok
-			_sl_ = len(_s_)
-			if _sl_ = 0 loop ok
-			if _sl_ > len(_cIn_) loop ok
-			_head_ = substr(_cIn_, 1, _sl_)
-			if _bCase_
-				if _head_ = _s_ return 1 ok
-			else
-				if lower(_head_) = lower(_s_) return 1 ok
+			if isString(_s_) and _s_ != "" and @oString.StartsWithCS(_s_, pCaseSensitive)
+				return 1
 			ok
 		next
 		return 0
@@ -557,22 +551,16 @@ class stzStringFinder
 		return This.StartsWithAnyCS(pcPrefixes, 1)
 
 	def EndsWithAnyCS(pcSuffixes, pCaseSensitive)
-		# Ring-side rebuild to dodge engine integer-OOB panic.
-		_bCase_ = @CaseSensitive(pCaseSensitive)
+		# Delegate per-suffix to the engine-backed EndsWithCS (codepoint +
+		# case-correct). The old byte-oriented tail extraction
+		# (StzMidToEnd by a byte position) + lower() was wrong on multibyte
+		# even case-sensitively ('café'.EndsWithAny(['fé']) returned 0).
 		if NOT isList(pcSuffixes) return 0 ok
-		_cIn_ = @oString.Content()
 		_nL_ = len(pcSuffixes)
 		for _i_ = 1 to _nL_
 			_s_ = pcSuffixes[_i_]
-			if NOT isString(_s_) loop ok
-			_sl_ = len(_s_)
-			if _sl_ = 0 loop ok
-			if _sl_ > len(_cIn_) loop ok
-			_tail_ = StzMidToEnd(_cIn_, len(_cIn_) - _sl_ + 1)
-			if _bCase_
-				if _tail_ = _s_ return 1 ok
-			else
-				if lower(_tail_) = lower(_s_) return 1 ok
+			if isString(_s_) and _s_ != "" and @oString.EndsWithCS(_s_, pCaseSensitive)
+				return 1
 			ok
 		next
 		return 0
