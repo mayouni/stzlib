@@ -2512,6 +2512,47 @@ class stzGraph
 		ok
 		return FALSE
 
+	# Strongly connected components (directed) as a list of node-id groups.
+	# Two nodes share a group iff each is reachable from the other. Engine
+	# (Kosaraju). Returns [] if the engine is unavailable.
+	def StronglyConnectedComponents()
+		if This._EnsureEngine()
+			_cSccRes_ = StzEngineGraphStronglyConnectedComponents(@pEngineGraph)
+			if _cSccRes_ = ""
+				return []
+			ok
+			_aGroups_ = []
+			for _cLine_ in StzSplit(_cSccRes_, nl)
+				_aGroups_ + StzSplit(_cLine_, ",")
+			next
+			return _aGroups_
+		ok
+		return []
+
+		def SCC()
+			return This.StronglyConnectedComponents()
+
+	# Number of strongly connected components. Engine-backed.
+	def NumberOfStronglyConnectedComponents()
+		if This._EnsureEngine()
+			return StzEngineGraphNumberOfSCC(@pEngineGraph)
+		ok
+		return 0
+
+		def NumberOfSCC()
+			return This.NumberOfStronglyConnectedComponents()
+
+	# Total weight of a minimum spanning tree over the undirected version
+	# of the graph (-1 if empty or not connected). Engine (Kruskal).
+	def MSTWeight()
+		if This._EnsureEngine()
+			return StzEngineGraphMSTWeight(@pEngineGraph)
+		ok
+		return -1
+
+		def MinimumSpanningTreeWeight()
+			return This.MSTWeight()
+
 	# Weighted shortest path (Dijkstra over edge :weight properties,
 	# default 1.0). Returns the node-id path; [] if unreachable.
 	def WeightedShortestPath(pcFromNodeId, pcToNodeId)
