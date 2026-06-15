@@ -305,8 +305,11 @@ Class stzTable from stzList
 			StzRaise("Incorrect param type! pcName must be a string.")
 		ok
 
-		cName = StzLower(pcName)
-		bResult = This.ColNamesQ().Contains(cName)
+		# Column names are stored as given (often upper-cased). The old
+		# code lowercased the query then did a case-SENSITIVE Contains,
+		# so it never matched -- HasCol always returned FALSE. Compare
+		# case-insensitively against the stored names instead.
+		bResult = This.ColNamesQ().ContainsCS(pcName, FALSE)
 
 		return bResult
 
