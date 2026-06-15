@@ -1083,7 +1083,139 @@ pub fn stz_graph_bridges(g: ?*const StzGraph, out_u: [*]u32, out_v: [*]u32, cap:
     return ctx.br_count;
 }
 
+// ─── Centrality ───
+
+// Closeness per node: reachable / sum(distances) over out-edge BFS (matches
+// the historical stzGraph semantics). Fills out[]; returns n.
+pub fn stz_graph_closeness(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    const dist = allocator.alloc(i64, n) catch return 0;
+    defer allocator.free(dist);
+    const queue = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(queue);
+    for (0..n) |s| {
+        @memset(dist, -1);
+        dist[s] = 0;
+        var qh: usize = 0;
+        var qt: usize = 0;
+        queue[qt] = @intCast(s);
+        qt += 1;
+        var total: i64 = 0;
+        var reachable: i64 = 0;
+        while (qh < qt) {
+            const w = queue[qh];
+            qh += 1;
+            for (gr.nodes.items[w].edges.items) |e| {
+                if (dist[e.to] < 0) {
+                    dist[e.to] = dist[w] + 1;
+                    total += dist[e.to];
+                    reachable += 1;
+                    queue[qt] = e.to;
+                    qt += 1;
+                }
+            }
+        }
+        out[s] = if (total > 0) @as(f64, @floatFromInt(reachable)) / @as(f64, @floatFromInt(total)) else 0.0;
+    }
+    return n;
+}
+
+// Betweenness centrality (Brandes, unweighted). Unnormalised; for undirected
+// graphs the per-source accumulation is halved. Fills out[]; returns n.
+pub fn stz_graph_betweenness(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    for (0..n) |i| out[i] = 0.0;
+
+    const sigma = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(sigma);
+    const dist = allocator.alloc(i64, n) catch return 0;
+    defer allocator.free(dist);
+    const delta = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(delta);
+    const order = allocator.alloc(u32, n) catch return 0; // BFS finish stack
+    defer allocator.free(order);
+    const queue = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(queue);
+    const preds = allocator.alloc(std.ArrayListUnmanaged(u32), n) catch return 0;
+    for (0..n) |i| preds[i] = .{};
+    defer {
+        for (0..n) |i| preds[i].deinit(allocator);
+        allocator.free(preds);
+    }
+
+    for (0..n) |s| {
+        for (0..n) |i| {
+            sigma[i] = 0;
+            dist[i] = -1;
+            delta[i] = 0;
+            preds[i].clearRetainingCapacity();
+        }
+        sigma[s] = 1;
+        dist[s] = 0;
+        var qh: usize = 0;
+        var qt: usize = 0;
+        var oc: usize = 0;
+        queue[qt] = @intCast(s);
+        qt += 1;
+        while (qh < qt) {
+            const w = queue[qh];
+            qh += 1;
+            order[oc] = w;
+            oc += 1;
+            for (gr.nodes.items[w].edges.items) |e| {
+                if (dist[e.to] < 0) {
+                    dist[e.to] = dist[w] + 1;
+                    queue[qt] = e.to;
+                    qt += 1;
+                }
+                if (dist[e.to] == dist[w] + 1) {
+                    sigma[e.to] += sigma[w];
+                    preds[e.to].append(allocator, w) catch return 0;
+                }
+            }
+        }
+        var i = oc;
+        while (i > 0) {
+            i -= 1;
+            const w = order[i];
+            for (preds[w].items) |pv| {
+                delta[pv] += (sigma[pv] / sigma[w]) * (1.0 + delta[w]);
+            }
+            if (w != s) out[w] += delta[w];
+        }
+    }
+    if (!gr.directed) {
+        for (0..n) |i| out[i] /= 2.0;
+    }
+    return n;
+}
+
 // ─── Tests ───
+
+test "graph centrality (closeness + betweenness)" {
+    // directed path A->B->C->D->E
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "D", 1, 1.0);
+    _ = stz_graph_add_edge(g, "D", 1, "E", 1, 1.0);
+    var bc: [5]f64 = undefined;
+    _ = stz_graph_betweenness(g, &bc, 5);
+    // path betweenness: A=0,B=3,C=4,D=3,E=0
+    try std.testing.expectEqual(@as(f64, 0.0), bc[0]);
+    try std.testing.expectEqual(@as(f64, 3.0), bc[1]);
+    try std.testing.expectEqual(@as(f64, 4.0), bc[2]);
+    try std.testing.expectEqual(@as(f64, 3.0), bc[3]);
+    var cc: [5]f64 = undefined;
+    _ = stz_graph_closeness(g, &cc, 5);
+    // A reaches B,C,D,E at 1,2,3,4 => 4/10 = 0.4
+    try std.testing.expectApproxEqAbs(@as(f64, 0.4), cc[0], 1e-9);
+}
 
 test "graph mst edges" {
     const g = stz_graph_create(0) orelse return error.CreateFailed;
