@@ -1333,6 +1333,154 @@ pub fn stz_graph_clustering(g: ?*const StzGraph, out: [*]f64, cap: usize) callco
     return n;
 }
 
+// ─── Max-flow / min-cut (Edmonds-Karp) ───
+
+// Build the n*n residual-capacity matrix from edge weights (capacities);
+// parallel edges sum. Returns null on alloc failure. Caller frees.
+fn buildCapacity(gr: *const StzGraph, n: usize) ?[]f64 {
+    const cap = allocator.alloc(f64, n * n) catch return null;
+    @memset(cap, 0);
+    for (gr.nodes.items, 0..) |node, u| {
+        for (node.edges.items) |e| {
+            const c = if (e.weight > 0) e.weight else 1.0;
+            cap[u * n + e.to] += c;
+        }
+    }
+    return cap;
+}
+
+// BFS in the residual graph from src; fills parent[] (parent[src] = src,
+// -1 if unreached). Returns true if sink is reachable.
+fn residualBfs(cap: []f64, n: usize, src: usize, sink: usize, parent: []i64, queue: []u32) bool {
+    for (0..n) |i| parent[i] = -1;
+    parent[src] = @intCast(src);
+    var qh: usize = 0;
+    var qt: usize = 0;
+    queue[qt] = @intCast(src);
+    qt += 1;
+    while (qh < qt) {
+        const u = queue[qh];
+        qh += 1;
+        for (0..n) |v| {
+            if (parent[v] < 0 and cap[@as(usize, u) * n + v] > 0) {
+                parent[v] = @intCast(u);
+                if (v == sink) return true;
+                queue[qt] = @intCast(v);
+                qt += 1;
+            }
+        }
+    }
+    return false;
+}
+
+// Maximum flow from src to sink using edge weights as capacities
+// (Edmonds-Karp). Returns the flow value (0 if src==sink or unknown nodes).
+pub fn stz_graph_max_flow(g: ?*const StzGraph, src_ptr: [*]const u8, src_len: usize, sink_ptr: [*]const u8, sink_len: usize) callconv(.c) f64 {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    const src = gr.findNode(src_ptr[0..src_len]) orelse return 0;
+    const sink = gr.findNode(sink_ptr[0..sink_len]) orelse return 0;
+    if (src == sink) return 0;
+    const cap = buildCapacity(gr, n) orelse return 0;
+    defer allocator.free(cap);
+    const parent = allocator.alloc(i64, n) catch return 0;
+    defer allocator.free(parent);
+    const queue = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(queue);
+
+    var total: f64 = 0;
+    while (residualBfs(cap, n, src, sink, parent, queue)) {
+        // bottleneck along the augmenting path
+        var pf = std.math.inf(f64);
+        var v: usize = sink;
+        while (v != src) {
+            const u: usize = @intCast(parent[v]);
+            const c = cap[u * n + v];
+            if (c < pf) pf = c;
+            v = u;
+        }
+        // apply along the path
+        v = sink;
+        while (v != src) {
+            const u: usize = @intCast(parent[v]);
+            cap[u * n + v] -= pf;
+            cap[v * n + u] += pf;
+            v = u;
+        }
+        total += pf;
+    }
+    return total;
+}
+
+// Minimum cut edges (max-flow/min-cut): after running max flow, the source
+// side S = nodes reachable from src in the residual graph; the cut edges are
+// the ORIGINAL edges (u in S, v not in S). Fills out_u/out_v; returns count.
+pub fn stz_graph_min_cut(g: ?*const StzGraph, src_ptr: [*]const u8, src_len: usize, sink_ptr: [*]const u8, sink_len: usize, out_u: [*]u32, out_v: [*]u32, max: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    const src = gr.findNode(src_ptr[0..src_len]) orelse return 0;
+    const sink = gr.findNode(sink_ptr[0..sink_len]) orelse return 0;
+    if (src == sink) return 0;
+    const cap = buildCapacity(gr, n) orelse return 0;
+    defer allocator.free(cap);
+    const parent = allocator.alloc(i64, n) catch return 0;
+    defer allocator.free(parent);
+    const queue = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(queue);
+
+    while (residualBfs(cap, n, src, sink, parent, queue)) {
+        var pf = std.math.inf(f64);
+        var v: usize = sink;
+        while (v != src) {
+            const u: usize = @intCast(parent[v]);
+            if (cap[u * n + v] < pf) pf = cap[u * n + v];
+            v = u;
+        }
+        v = sink;
+        while (v != src) {
+            const u: usize = @intCast(parent[v]);
+            cap[u * n + v] -= pf;
+            cap[v * n + u] += pf;
+            v = u;
+        }
+    }
+    // S = reachable from src in the final residual graph
+    const inS = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(inS);
+    @memset(inS, false);
+    inS[src] = true;
+    var qh: usize = 0;
+    var qt: usize = 0;
+    queue[0] = @intCast(src);
+    qt = 1;
+    while (qh < qt) {
+        const u = queue[qh];
+        qh += 1;
+        for (0..n) |w| {
+            if (!inS[w] and cap[@as(usize, u) * n + w] > 0) {
+                inS[w] = true;
+                queue[qt] = @intCast(w);
+                qt += 1;
+            }
+        }
+    }
+    // cut edges: original edges from S to (not S)
+    var count: usize = 0;
+    for (gr.nodes.items, 0..) |node, u| {
+        if (!inS[u]) continue;
+        for (node.edges.items) |e| {
+            if (!inS[e.to] and count < max) {
+                out_u[count] = @intCast(u);
+                out_v[count] = e.to;
+                count += 1;
+            }
+        }
+    }
+    return count;
+}
+
 // ─── k-core & PageRank ───
 
 // Core number of every node (Batagelj-Zaversnik, O(V+E)) over the undirected
@@ -1749,6 +1897,30 @@ test "graph pagerank sums to one" {
     var sum: f64 = 0;
     for (pr) |x| sum += x;
     try std.testing.expectApproxEqAbs(@as(f64, 1.0), sum, 1e-6);
+}
+
+test "graph max flow / min cut" {
+    // classic CLRS-style network: s->a(3) s->b(2) a->b(1) a->t(2) b->t(3)
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "s", 1, "a", 1, 3.0);
+    _ = stz_graph_add_edge(g, "s", 1, "b", 1, 2.0);
+    _ = stz_graph_add_edge(g, "a", 1, "b", 1, 1.0);
+    _ = stz_graph_add_edge(g, "a", 1, "t", 1, 2.0);
+    _ = stz_graph_add_edge(g, "b", 1, "t", 1, 3.0);
+    // max flow s->t: out of s is 5, into t is 5, bottlenecks give 5
+    try std.testing.expectEqual(@as(f64, 5.0), stz_graph_max_flow(g, "s", 1, "t", 1));
+    var cu: [8]u32 = undefined;
+    var cv: [8]u32 = undefined;
+    const nc = stz_graph_min_cut(g, "s", 1, "t", 1, &cu, &cv, 8);
+    // min-cut value = sum of cut-edge capacities must equal max flow (5)
+    var cutval: f64 = 0;
+    for (0..nc) |i| {
+        for (g.nodes.items[cu[i]].edges.items) |e| {
+            if (e.to == cv[i]) cutval += e.weight;
+        }
+    }
+    try std.testing.expectEqual(@as(f64, 5.0), cutval);
 }
 
 test "graph clustering coefficient" {
