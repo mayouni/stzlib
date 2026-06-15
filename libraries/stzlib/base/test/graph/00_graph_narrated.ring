@@ -132,10 +132,38 @@ Scenario("Centrality (engine-backed: Brandes betweenness + closeness)")
     Then("closeness of D is 1/1 = 1 (only reaches E)", cg.ClosenessCentrality("D"), 1)
 EndScenario()
 
+Scenario("k-core core numbers (engine, Batagelj-Zaversnik)")
+    Given("a triangle A-B-C with a pendant D off A")
+    kg = new stzGraph("kg")
+    kg.AddNode("A") kg.AddNode("B") kg.AddNode("C") kg.AddNode("D")
+    kg.AddEdge("A", "B") kg.AddEdge("B", "C") kg.AddEdge("C", "A") kg.AddEdge("A", "D")
+    Then("the triangle nodes have core number 2", kg.CoreNumber("A"), 2)
+    Then("the pendant D has core number 1", kg.CoreNumber("D"), 1)
+    Then("CoreNumbers lists all four", ListEq(kg.CoreNumbers(), [ [ "a",2 ],[ "b",2 ],[ "c",2 ],[ "d",1 ] ]), TRUE)
+EndScenario()
+
+Scenario("PageRank (engine, power iteration, d=0.85)")
+    Given("a symmetric directed cycle A->B->C->A")
+    pg = new stzGraph("pg")
+    pg.AddNode("A") pg.AddNode("B") pg.AddNode("C")
+    pg.AddEdge("A", "B") pg.AddEdge("B", "C") pg.AddEdge("C", "A")
+    Then("every node has PageRank ~1/3", Rnd2(pg.PageRank("A")), 0.33)
+    Then("PageRankAll covers all three nodes", ListEq(PrIds(pg.PageRankAll()), [ "a", "b", "c" ]), TRUE)
+    Then("PageRankAll's a-value rounds to 0.33", Rnd2(pg.PageRankAll()[1][2]), 0.33)
+EndScenario()
+
 Summary()
 
 func Rnd2 n
     return 0.01 * floor(n * 100 + 0.5)
+
+func PrIds aPairs
+    aOut = []
+    nLen = len(aPairs)
+    for i = 1 to nLen
+        aOut + aPairs[i][1]
+    next
+    return aOut
 
 func Gr()
     g = new stzGraph("g")

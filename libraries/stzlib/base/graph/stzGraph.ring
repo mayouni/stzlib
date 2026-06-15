@@ -2780,6 +2780,47 @@ class stzGraph
 		ok
 		return []
 
+	# k-core: core number of pcNodeId -- the largest k for which the node
+	# survives in the k-core of the undirected view. Engine (Batagelj-Zaversnik).
+	def CoreNumber(pcNodeId)
+		if NOT This.NodeExists(pcNodeId)
+			return 0
+		ok
+		if This._EnsureEngine()
+			return StzEngineGraphCoreNumberOf(@pEngineGraph, StzLower(pcNodeId))
+		ok
+		return 0
+
+		def KCoreNumber(pcNodeId)
+			return This.CoreNumber(pcNodeId)
+
+	# Core number for every node as a list of [ id, value ] pairs.
+	def CoreNumbers()
+		if This._EnsureEngine()
+			return StzEngineGraphCoreNumbersAll(@pEngineGraph)
+		ok
+		return []
+
+		def CoreNumbersAll()
+			return This.CoreNumbers()
+
+	# PageRank (power iteration, damping 0.85) of pcNodeId. Engine-backed.
+	def PageRank(pcNodeId)
+		if NOT This.NodeExists(pcNodeId)
+			return 0
+		ok
+		if This._EnsureEngine()
+			return StzEngineGraphPageRankOf(@pEngineGraph, StzLower(pcNodeId))
+		ok
+		return 0
+
+	# PageRank for every node as a list of [ id, value ] pairs.
+	def PageRankAll()
+		if This._EnsureEngine()
+			return StzEngineGraphPageRankAll(@pEngineGraph)
+		ok
+		return []
+
 	def Diameter()
 		_nMaxDist_ = 0
 		_aNodes_ = This.Nodes()

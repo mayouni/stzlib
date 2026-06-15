@@ -321,6 +321,19 @@ fn ring_BetweennessOf(p: *anyopaque) callconv(.c) void {
     retCentralityOf(p, &graph.stz_graph_betweenness);
 }
 
+fn ring_CoreNumbersAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_core_numbers);
+}
+fn ring_CoreNumberOf(p: *anyopaque) callconv(.c) void {
+    retCentralityOf(p, &graph.stz_graph_core_numbers);
+}
+fn ring_PageRankAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_pagerank_default);
+}
+fn ring_PageRankOf(p: *anyopaque) callconv(.c) void {
+    retCentralityOf(p, &graph.stz_graph_pagerank_default);
+}
+
 fn ring_Reachable(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
@@ -400,6 +413,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphclosenessof", .func = &ring_ClosenessOf },
     .{ .name = "stzenginegraphbetweennessall", .func = &ring_BetweennessAll },
     .{ .name = "stzenginegraphbetweennessof", .func = &ring_BetweennessOf },
+    .{ .name = "stzenginegraphcorenumbersall", .func = &ring_CoreNumbersAll },
+    .{ .name = "stzenginegraphcorenumberof", .func = &ring_CoreNumberOf },
+    .{ .name = "stzenginegraphpagerankall", .func = &ring_PageRankAll },
+    .{ .name = "stzenginegraphpagerankof", .func = &ring_PageRankOf },
     .{ .name = "stzenginegraphreachable", .func = &ring_Reachable },
     .{ .name = "stzenginegraphhascycle", .func = &ring_HasCycle },
     .{ .name = "stzenginegraphindegree", .func = &ring_InDegree },
