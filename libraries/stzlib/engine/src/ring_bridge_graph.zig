@@ -208,6 +208,68 @@ fn ring_MSTWeight(p: *anyopaque) callconv(.c) void {
     rn(p, graph.stz_graph_mst_weight(getH(p, 1)));
 }
 
+fn addName(sub: *anyopaque, gr: *const graph.StzGraph, idx: usize) void {
+    var nb: [256]u8 = undefined;
+    const nlen = graph.stz_graph_node_name(gr, idx, &nb, 256);
+    R.ring_list_addstring2(sub, &nb, @intCast(nlen));
+}
+
+// MST edges as a list of [fromName, toName, weight] triples (built Zig-side).
+fn ring_MSTEdges(p: *anyopaque) callconv(.c) void {
+    const outer = R.ring_vm_api_newlist(p) orelse return;
+    const gr = getH(p, 1) orelse { R.ring_vm_api_retlist(p, outer); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n < 2) { R.ring_vm_api_retlist(p, outer); return; }
+    const ou = gpa.alloc(u32, n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(ou);
+    const ov = gpa.alloc(u32, n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(ov);
+    const ow = gpa.alloc(f64, n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(ow);
+    const m = graph.stz_graph_mst_edges(gr, ou.ptr, ov.ptr, ow.ptr, n);
+    for (0..m) |i| {
+        const sub = R.ring_list_newlist(outer) orelse continue;
+        addName(sub, gr, ou[i]);
+        addName(sub, gr, ov[i]);
+        R.ring_list_adddouble(sub, ow[i]);
+    }
+    R.ring_vm_api_retlist(p, outer);
+}
+
+// Articulation points as a flat list of node names.
+fn ring_ArticulationPoints(p: *anyopaque) callconv(.c) void {
+    const outer = R.ring_vm_api_newlist(p) orelse return;
+    const gr = getH(p, 1) orelse { R.ring_vm_api_retlist(p, outer); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n == 0) { R.ring_vm_api_retlist(p, outer); return; }
+    const out = gpa.alloc(u32, n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(out);
+    const c = graph.stz_graph_articulation_points(gr, out.ptr, n);
+    for (0..c) |i| addName(outer, gr, out[i]);
+    R.ring_vm_api_retlist(p, outer);
+}
+
+// Bridge edges as a list of [uName, vName] pairs.
+fn ring_Bridges(p: *anyopaque) callconv(.c) void {
+    const outer = R.ring_vm_api_newlist(p) orelse return;
+    const gr = getH(p, 1) orelse { R.ring_vm_api_retlist(p, outer); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n == 0) { R.ring_vm_api_retlist(p, outer); return; }
+    // up to n-1 bridges in a tree; cap at n to be safe
+    const bu = gpa.alloc(u32, n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(bu);
+    const bv = gpa.alloc(u32, n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(bv);
+    const c = graph.stz_graph_bridges(gr, bu.ptr, bv.ptr, n);
+    var i: usize = 0;
+    while (i < c and i < n) : (i += 1) {
+        const sub = R.ring_list_newlist(outer) orelse continue;
+        addName(sub, gr, bu[i]);
+        addName(sub, gr, bv[i]);
+    }
+    R.ring_vm_api_retlist(p, outer);
+}
+
 fn ring_Reachable(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
@@ -280,6 +342,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphnumberofscc", .func = &ring_NumberOfSCC },
     .{ .name = "stzenginegraphstronglyconnectedcomponents", .func = &ring_StronglyConnectedComponents },
     .{ .name = "stzenginegraphmstweight", .func = &ring_MSTWeight },
+    .{ .name = "stzenginegraphmstedges", .func = &ring_MSTEdges },
+    .{ .name = "stzenginegrapharticulationpoints", .func = &ring_ArticulationPoints },
+    .{ .name = "stzenginegraphbridges", .func = &ring_Bridges },
     .{ .name = "stzenginegraphreachable", .func = &ring_Reachable },
     .{ .name = "stzenginegraphhascycle", .func = &ring_HasCycle },
     .{ .name = "stzenginegraphindegree", .func = &ring_InDegree },

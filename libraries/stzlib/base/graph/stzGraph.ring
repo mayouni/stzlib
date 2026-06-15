@@ -2541,6 +2541,39 @@ class stzGraph
 		def MinimumSpanningTreeWeight()
 			return This.MSTWeight()
 
+	# Minimum spanning tree as a list of [fromNode, toNode, weight] edges.
+	# Engine (Kruskal); built Zig-side. [] if not connected/empty.
+	def MSTEdges()
+		if This._EnsureEngine()
+			return StzEngineGraphMSTEdges(@pEngineGraph)
+		ok
+		return []
+
+		def MinimumSpanningTreeEdges()
+			return This.MSTEdges()
+
+	# Articulation points (cut vertices) -- nodes whose removal disconnects
+	# the (undirected) graph. Engine (Tarjan low-link). List of node ids.
+	def ArticulationPoints()
+		if This._EnsureEngine()
+			return StzEngineGraphArticulationPoints(@pEngineGraph)
+		ok
+		return []
+
+		def CutVertices()
+			return This.ArticulationPoints()
+
+	# Bridges (cut edges) -- edges whose removal disconnects the (undirected)
+	# graph. Engine (Tarjan low-link). List of [u, v] node-id pairs.
+	def Bridges()
+		if This._EnsureEngine()
+			return StzEngineGraphBridges(@pEngineGraph)
+		ok
+		return []
+
+		def CutEdges()
+			return This.Bridges()
+
 	# Weighted shortest path (Dijkstra over edge :weight properties,
 	# default 1.0). Returns the node-id path; [] if unreachable.
 	def WeightedShortestPath(pcFromNodeId, pcToNodeId)
@@ -2703,47 +2736,7 @@ class stzGraph
 		
 		return len(acVisited) = len(@aNodes)
 
-	def ArticulationPoints()
-		_acArticulation_ = []
-		_aNodes_ = This.Nodes()
-		
-		_nOriginalComponents_ = len(This.ConnectedComponents())
-		
-		_nNodeLen_ = len(_aNodes_)
-		for _i_ = 1 to _nNodeLen_
-			_cNodeId_ = _aNodes_[_i_][:id]
-			
-			_aIncoming_ = This.Incoming(_cNodeId_)
-			_aOutgoing_ = This.Neighbors(_cNodeId_)
-			_aSavedEdges_ = []
-			
-			_aEdges_ = This.Edges()
-			_nEdgeLen_ = len(_aEdges_)
-			for _j_ = 1 to _nEdgeLen_
-				_aEdge_ = _aEdges_[_j_]
-				if _aEdge_[:from] = _cNodeId_ or _aEdge_[:to] = _cNodeId_
-					_aSavedEdges_ + _aEdge_
-				ok
-			end
-			
-			_aNode_ = This.Node(_cNodeId_)
-			This.RemoveThisNode(_cNodeId_)
-			
-			_nNewComponents_ = len(This.ConnectedComponents())
-			
-			This.AddNodeXTT(_cNodeId_, _aNode_[:label], _aNode_[:properties])
-			_nSavedLen_ = len(_aSavedEdges_)
-			for _j_ = 1 to _nSavedLen_
-				_aEdge_ = _aSavedEdges_[_j_]
-				This.AddEdgeXTT(_aEdge_[:from], _aEdge_[:to], _aEdge_[:label], _aEdge_[:properties])
-			end
-			
-			if _nNewComponents_ > _nOriginalComponents_
-				_acArticulation_ + _cNodeId_
-			ok
-		end
-		
-		return _acArticulation_
+	# (ArticulationPoints is now engine-backed -- see the def above.)
 
 	def BetweennessCentrality(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
