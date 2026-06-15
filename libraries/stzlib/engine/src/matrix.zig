@@ -111,6 +111,32 @@ pub fn stz_matrix_multiply_scalar(m: ?*StzMatrix, val: f64) callconv(.c) void {
     for (mat.data) |*v| v.* *= val;
 }
 
+// Apply +val (op=0) or *val (op=1) to every cell in the rectangular region
+// rows r1..r2 x cols c1..c2 (1-based, inclusive). Coords are clamped to the
+// matrix bounds. Covers add/mul on a single row/col, a row/col range, or the
+// whole matrix -- the operation the Ring stzMatrix used to delegate to the
+// (now-removed) RingFastPro updateList().
+pub fn stz_matrix_update_region(m: ?*StzMatrix, op: i32, r1: i32, r2: i32, c1: i32, c2: i32, val: f64) callconv(.c) void {
+    const mat = m orelse return;
+    const nrows: i32 = @intCast(mat.rows);
+    const ncols: i32 = @intCast(mat.cols);
+    var rr1 = if (r1 < 1) 1 else r1;
+    const cc1 = if (c1 < 1) 1 else c1;
+    const rr2 = if (r2 > nrows) nrows else r2;
+    const cc2 = if (c2 > ncols) ncols else c2;
+    while (rr1 <= rr2) : (rr1 += 1) {
+        var c = cc1;
+        while (c <= cc2) : (c += 1) {
+            const idx: usize = @intCast((rr1 - 1) * ncols + (c - 1));
+            if (op == 1) {
+                mat.data[idx] *= val;
+            } else {
+                mat.data[idx] += val;
+            }
+        }
+    }
+}
+
 pub fn stz_matrix_add_matrix(a: ?*StzMatrix, b: ?*const StzMatrix) callconv(.c) i32 {
     const ma = a orelse return -1;
     const mb = b orelse return -1;
