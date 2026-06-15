@@ -31,6 +31,12 @@ Scenario("@Min and @Max")
     Then("@Max([5,2,8,1]) is 8", @Max([ 5, 2, 8, 1 ]), 8)
 EndScenario()
 
+Scenario("CenterText pads by visible columns (codepoint-correct)")
+    Then("'ab' centered in 6 cols", CenterText("ab", 6), "  ab  ")
+    Then("an accented word centers to its codepoint width (8)", StzLen(CenterText("caf" + char(195) + char(169), 8)), 8)
+    Then("truncation does not split a multibyte char", CenterText("caf" + char(195) + char(169), 2), "ca")
+EndScenario()
+
 Summary()
 
 func ListEq aA, aE
