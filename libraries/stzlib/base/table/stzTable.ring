@@ -1108,7 +1108,9 @@ Class stzTable from stzList
 					if pCaseSensitive
 						if StzFind(_pValue_, _cell_) > 0 _bMatch_ = TRUE ok
 					else
-						if StzFind(upper(_pValue_), upper(_cell_)) > 0 _bMatch_ = TRUE ok
+						# StzCaseFold is codepoint-aware; upper() is byte-oriented
+						# and missed multibyte case (accented cells).
+						if StzFind(StzCaseFold(_pValue_), StzCaseFold(_cell_)) > 0 _bMatch_ = TRUE ok
 					ok
 				ok
 			else
@@ -1116,7 +1118,7 @@ Class stzTable from stzList
 					if _cell_ = _pValue_ _bMatch_ = TRUE ok
 				else
 					if isString(_cell_) and isString(_pValue_)
-						if upper(_cell_) = upper(_pValue_) _bMatch_ = TRUE ok
+						if StzCaseFold(_cell_) = StzCaseFold(_pValue_) _bMatch_ = TRUE ok
 					else
 						if _cell_ = _pValue_ _bMatch_ = TRUE ok
 					ok

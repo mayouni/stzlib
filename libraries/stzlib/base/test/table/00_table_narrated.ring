@@ -44,7 +44,20 @@ Scenario("Copy is independent")
     Then("the original still has 3 columns", o.NumberOfCols(), 3)
 EndScenario()
 
+Scenario("Case-insensitive cell find is codepoint-correct (multibyte)")
+    Given("a column with accented cells")
+    m = new stzTable([ [ "city", [ "Cafe" + AccE(), AccE() + "cole", "bar" ] ] ])
+    Then("FindInColCS folds case across multibyte (cafe-acute)", ListEq(m.FindInColCS("city", "cafe" + AccE(), FALSE), [ 1 ]), TRUE)
+    Then("FindInColCS matches an accented value case-insensitively", ListEq(m.FindInColCS("city", AccCapE() + "COLE", FALSE), [ 2 ]), TRUE)
+EndScenario()
+
 Summary()
+
+func AccE
+    return char(195) + char(169)
+
+func AccCapE
+    return char(195) + char(137)
 
 func Tbl()
     return new stzTable([
