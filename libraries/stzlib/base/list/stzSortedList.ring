@@ -22,24 +22,20 @@ class stzSortedList from stzList
 	def Add(pItem)
 		_pSlAdd = This._EngineListFromContent()
 		if _pSlAdd != NULL
+			# Type-specific sorted insert -- builds the value inside the list
+			# DLL. (A StzValue handle minted by the value DLL does NOT resolve
+			# in the list DLL's handle table, so the old handle-based
+			# StzEngineListSortedInsert read garbage and was a silent no-op.)
 			if isNumber(pItem)
 				if floor(pItem) = pItem
-					_pSlVal2 = StzEngineValueNewInt(pItem)
+					StzEngineListSortedInsertInt(_pSlAdd, pItem)
 				else
-					_pSlVal2 = StzEngineValueNewFloat(pItem)
+					StzEngineListSortedInsertFloat(_pSlAdd, pItem)
 				ok
 			else
-				_pSlVal2 = StzEngineValueNewString("" + pItem)
+				StzEngineListSortedInsertString(_pSlAdd, "" + pItem)
 			ok
-			if _pSlVal2 != NULL
-				StzEngineListSortedInsert(_pSlAdd, _pSlVal2)
-				@aContent = This._ContentFromEngineList(_pSlAdd)
-				StzEngineValueFree(_pSlVal2)
-			else
-				@aContent + pItem
-				StzEngineListSort(_pSlAdd)
-				@aContent = This._ContentFromEngineList(_pSlAdd)
-			ok
+			@aContent = This._ContentFromEngineList(_pSlAdd)
 			StzEngineListFree(_pSlAdd)
 		else
 			@aContent + pItem
