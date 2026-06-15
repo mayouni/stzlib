@@ -393,11 +393,11 @@ class stzString from stzObject
 		return This.LastChar()
 
 	def Chars()
-		pH = This.Engine()
-		pR = StzEngineStringCharsSplit(pH)
-		cJoined = StzEngineStringData(pR)
-		StzEngineStringFree(pR)
-		return _SplitNullDelimited(cJoined)
+		# Engine returns a ready list of 1-codepoint strings (built Zig-side).
+		# The old NUL-delimited-buffer + _SplitNullDelimited round-trip dropped
+		# trailing multibyte chars and intermittently crashed (R31) on a
+		# leading multibyte char.
+		return StzEngineStringCharsList(This.Engine())
 
 		def CharsQ()
 			# Fluent form: return the char list wrapped in stzListOfChars
