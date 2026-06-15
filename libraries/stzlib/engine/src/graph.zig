@@ -1292,6 +1292,47 @@ pub fn stz_graph_average_path_length(g: ?*const StzGraph) callconv(.c) f64 {
     return st.sum / st.count;
 }
 
+// Local clustering coefficient per node over the undirected view: for node v
+// with k neighbours, links = edges among those neighbours; coeff = links /
+// (k*(k-1)/2), 0 if k<2. Fills out[]; returns n.
+pub fn stz_graph_clustering(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    var u = buildUndirected(gr) orelse return 0;
+    defer u.deinit();
+    const isNbr = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(isNbr);
+    @memset(isNbr, false);
+    for (0..n) |v| {
+        const vs = u.start[v];
+        const ve = u.start[v + 1];
+        const k = ve - vs;
+        if (k < 2) {
+            out[v] = 0;
+            continue;
+        }
+        // mark v's neighbours
+        for (vs..ve) |i| isNbr[u.adj[i]] = true;
+        // count links among them (each undirected link counted twice)
+        var links: usize = 0;
+        for (vs..ve) |i| {
+            const nb = u.adj[i];
+            const ns = u.start[nb];
+            const ne = u.start[nb + 1];
+            for (ns..ne) |j| {
+                const w = u.adj[j];
+                if (w != v and isNbr[w]) links += 1;
+            }
+        }
+        // unmark for the next node
+        for (vs..ve) |i| isNbr[u.adj[i]] = false;
+        const kf: f64 = @floatFromInt(k);
+        out[v] = (@as(f64, @floatFromInt(links)) / 2.0) / (kf * (kf - 1.0) / 2.0);
+    }
+    return n;
+}
+
 // ─── k-core & PageRank ───
 
 // Core number of every node (Batagelj-Zaversnik, O(V+E)) over the undirected
@@ -1708,6 +1749,22 @@ test "graph pagerank sums to one" {
     var sum: f64 = 0;
     for (pr) |x| sum += x;
     try std.testing.expectApproxEqAbs(@as(f64, 1.0), sum, 1e-6);
+}
+
+test "graph clustering coefficient" {
+    // triangle A-B-C (each node's 2 neighbours are linked -> coeff 1) plus a
+    // pendant D off A (A now has neighbours B,C,D; only B-C linked -> 1/3).
+    const g = stz_graph_create(0) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "A", 1, 1.0);
+    _ = stz_graph_add_edge(g, "A", 1, "D", 1, 1.0);
+    var cc: [4]f64 = undefined;
+    _ = stz_graph_clustering(g, &cc, 4);
+    try std.testing.expectApproxEqAbs(@as(f64, 1.0 / 3.0), cc[0], 1e-9); // A: B,C,D, only B-C
+    try std.testing.expectEqual(@as(f64, 1.0), cc[1]); // B: A,C linked
+    try std.testing.expectEqual(@as(f64, 0.0), cc[3]); // D: 1 neighbour
 }
 
 test "graph distance metrics (diameter / radius / avg path)" {
