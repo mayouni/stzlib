@@ -706,7 +706,215 @@ pub fn stz_graph_is_bipartite(g: ?*const StzGraph) callconv(.c) i32 {
     return 1;
 }
 
+// ─── Strongly connected components (Kosaraju, directed) ───
+
+// Fills labels[i] with the SCC id (0-based) of node i; returns the number
+// of strongly connected components. Two nodes share an id iff each is
+// reachable from the other.
+pub fn stz_graph_strongly_connected_components(g: ?*const StzGraph, labels: [*]u32, labels_len: usize) callconv(.c) u32 {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or labels_len < n) return 0;
+
+    const visited = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(visited);
+    @memset(visited, false);
+
+    // 1. iterative post-order (finish order) over the forward graph
+    const order = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(order);
+    var oc: usize = 0;
+    const st_node = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(st_node);
+    const st_ci = allocator.alloc(usize, n) catch return 0;
+    defer allocator.free(st_ci);
+    for (0..n) |s| {
+        if (visited[s]) continue;
+        var sp: usize = 0;
+        st_node[sp] = @intCast(s);
+        st_ci[sp] = 0;
+        sp += 1;
+        visited[s] = true;
+        while (sp > 0) {
+            const u = st_node[sp - 1];
+            const edges = gr.nodes.items[u].edges.items;
+            if (st_ci[sp - 1] < edges.len) {
+                const e = edges[st_ci[sp - 1]];
+                st_ci[sp - 1] += 1;
+                if (!visited[e.to]) {
+                    visited[e.to] = true;
+                    st_node[sp] = e.to;
+                    st_ci[sp] = 0;
+                    sp += 1;
+                }
+            } else {
+                order[oc] = u;
+                oc += 1;
+                sp -= 1;
+            }
+        }
+    }
+
+    // 2. reverse adjacency (CSR): count, prefix, fill
+    const rstart = allocator.alloc(usize, n + 1) catch return 0;
+    defer allocator.free(rstart);
+    @memset(rstart, 0);
+    var total: usize = 0;
+    for (gr.nodes.items) |node| {
+        for (node.edges.items) |e| {
+            rstart[e.to + 1] += 1;
+            total += 1;
+        }
+    }
+    for (0..n) |i| rstart[i + 1] += rstart[i];
+    const radj = allocator.alloc(u32, total) catch return 0;
+    defer allocator.free(radj);
+    const fillpos = allocator.alloc(usize, n) catch return 0;
+    defer allocator.free(fillpos);
+    for (0..n) |i| fillpos[i] = rstart[i];
+    for (gr.nodes.items, 0..) |node, u| {
+        for (node.edges.items) |e| {
+            radj[fillpos[e.to]] = @intCast(u);
+            fillpos[e.to] += 1;
+        }
+    }
+
+    // 3. assign components in reverse finish order, DFS on the transpose
+    @memset(labels[0..n], std.math.maxInt(u32));
+    var comp: u32 = 0;
+    const stack = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(stack);
+    var i = oc;
+    while (i > 0) {
+        i -= 1;
+        const root = order[i];
+        if (labels[root] != std.math.maxInt(u32)) continue;
+        var sp: usize = 0;
+        stack[sp] = root;
+        sp += 1;
+        labels[root] = comp;
+        while (sp > 0) {
+            sp -= 1;
+            const u = stack[sp];
+            var k = rstart[u];
+            while (k < rstart[u + 1]) : (k += 1) {
+                const v = radj[k];
+                if (labels[v] == std.math.maxInt(u32)) {
+                    labels[v] = comp;
+                    stack[sp] = v;
+                    sp += 1;
+                }
+            }
+        }
+        comp += 1;
+    }
+    return comp;
+}
+
+// ─── Minimum spanning tree weight (Kruskal, edges treated as undirected) ───
+
+const KEdge = struct { u: u32, v: u32, w: f64 };
+
+fn ufFind(parent: []u32, x: u32) u32 {
+    var r = x;
+    while (parent[r] != r) r = parent[r];
+    var cur = x;
+    while (parent[cur] != r) {
+        const nxt = parent[cur];
+        parent[cur] = r;
+        cur = nxt;
+    }
+    return r;
+}
+
+// Total weight of a minimum spanning tree over the undirected version of the
+// graph. Returns -1.0 if the graph is empty or not connected (no spanning
+// tree). Uses the edge weights set via add_edge.
+pub fn stz_graph_mst_weight(g: ?*const StzGraph) callconv(.c) f64 {
+    const gr = g orelse return -1.0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return -1.0;
+    if (n == 1) return 0.0;
+
+    // collect undirected edges once (u < v)
+    var edges = std.ArrayListUnmanaged(KEdge){};
+    defer edges.deinit(allocator);
+    for (gr.nodes.items, 0..) |node, u| {
+        for (node.edges.items) |e| {
+            const uu: u32 = @intCast(u);
+            if (uu < e.to) {
+                edges.append(allocator, .{ .u = uu, .v = e.to, .w = e.weight }) catch return -1.0;
+            } else if (e.to < uu and !gr.directed) {
+                // undirected graphs store both directions; the u<v guard
+                // already captured this edge from the other endpoint
+            } else if (gr.directed and e.to < uu) {
+                // directed edge v->u with no u->v: still include undirected
+                edges.append(allocator, .{ .u = e.to, .v = uu, .w = e.weight }) catch return -1.0;
+            }
+        }
+    }
+    std.mem.sort(KEdge, edges.items, {}, struct {
+        fn lt(_: void, a: KEdge, b: KEdge) bool {
+            return a.w < b.w;
+        }
+    }.lt);
+
+    const parent = allocator.alloc(u32, n) catch return -1.0;
+    defer allocator.free(parent);
+    for (0..n) |i| parent[i] = @intCast(i);
+
+    var total: f64 = 0.0;
+    var used: usize = 0;
+    for (edges.items) |e| {
+        const ru = ufFind(parent, e.u);
+        const rv = ufFind(parent, e.v);
+        if (ru != rv) {
+            parent[ru] = rv;
+            total += e.w;
+            used += 1;
+            if (used == n - 1) break;
+        }
+    }
+    if (used != n - 1) return -1.0; // not connected
+    return total;
+}
+
 // ─── Tests ───
+
+test "graph strongly connected components" {
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    // SCC1 {A,B,C} cycle ; D separate ; C->D bridge
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "A", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "D", 1, 1.0);
+    var labels: [4]u32 = undefined;
+    const nc = stz_graph_strongly_connected_components(g, &labels, 4);
+    try std.testing.expectEqual(@as(u32, 2), nc);
+    // A,B,C share a label; D differs
+    try std.testing.expect(labels[0] == labels[1] and labels[1] == labels[2]);
+    try std.testing.expect(labels[3] != labels[0]);
+}
+
+test "graph mst weight" {
+    const g = stz_graph_create(0) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    // square with a diagonal: A-B 1, B-C 2, C-D 3, D-A 4, A-C 5
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 2.0);
+    _ = stz_graph_add_edge(g, "C", 1, "D", 1, 3.0);
+    _ = stz_graph_add_edge(g, "D", 1, "A", 1, 4.0);
+    _ = stz_graph_add_edge(g, "A", 1, "C", 1, 5.0);
+    // MST = A-B(1)+B-C(2)+C-D(3) = 6
+    try std.testing.expectEqual(@as(f64, 6.0), stz_graph_mst_weight(g));
+
+    const g2 = stz_graph_create(0) orelse return error.CreateFailed;
+    defer stz_graph_free(g2);
+    _ = stz_graph_add_edge(g2, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_node(g2, "X", 1); // disconnected
+    try std.testing.expectEqual(@as(f64, -1.0), stz_graph_mst_weight(g2));
+}
 
 test "graph bfs/dfs order" {
     const g = stz_graph_create(1) orelse return error.CreateFailed;

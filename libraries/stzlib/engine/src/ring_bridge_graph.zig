@@ -156,6 +156,57 @@ fn ring_IsBipartite(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(graph.stz_graph_is_bipartite(getH(p, 1))));
 }
 
+fn ring_NumberOfSCC(p: *anyopaque) callconv(.c) void {
+    const gr = getH(p, 1) orelse { rn(p, 0); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n == 0) { rn(p, 0); return; }
+    const labels = gpa.alloc(u32, n) catch { rn(p, 0); return; };
+    defer gpa.free(labels);
+    rn(p, @floatFromInt(graph.stz_graph_strongly_connected_components(gr, labels.ptr, n)));
+}
+
+// Grouped SCCs: one line per component (newline-separated), node names
+// within a component comma-separated.
+fn ring_StronglyConnectedComponents(p: *anyopaque) callconv(.c) void {
+    const gr = getH(p, 1) orelse { rs(p, ""); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n == 0) { rs(p, ""); return; }
+    const labels = gpa.alloc(u32, n) catch { rs(p, ""); return; };
+    defer gpa.free(labels);
+    const nc = graph.stz_graph_strongly_connected_components(gr, labels.ptr, n);
+    if (nc == 0) { rs(p, ""); return; }
+    var buf: [16384]u8 = undefined;
+    var out: usize = 0;
+    var name_buf: [256]u8 = undefined;
+    var comp: u32 = 0;
+    while (comp < nc) : (comp += 1) {
+        if (comp > 0) {
+            if (out >= buf.len) { rs(p, ""); return; }
+            buf[out] = '\n';
+            out += 1;
+        }
+        var first = true;
+        for (0..n) |i| {
+            if (labels[i] != comp) continue;
+            if (!first) {
+                if (out >= buf.len) { rs(p, ""); return; }
+                buf[out] = ',';
+                out += 1;
+            }
+            first = false;
+            const nlen = graph.stz_graph_node_name(gr, i, &name_buf, 256);
+            if (out + nlen > buf.len) { rs(p, ""); return; }
+            @memcpy(buf[out..][0..nlen], name_buf[0..nlen]);
+            out += nlen;
+        }
+    }
+    if (out > 0) rs2(p, &buf, @intCast(out)) else rs(p, "");
+}
+
+fn ring_MSTWeight(p: *anyopaque) callconv(.c) void {
+    rn(p, graph.stz_graph_mst_weight(getH(p, 1)));
+}
+
 fn ring_Reachable(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
@@ -235,6 +286,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphdijkstra", .func = &ring_Dijkstra },
     .{ .name = "stzenginegraphdijkstradistance", .func = &ring_DijkstraDistance },
     .{ .name = "stzenginegraphisbipartite", .func = &ring_IsBipartite },
+    .{ .name = "stzenginegraphnumberofscc", .func = &ring_NumberOfSCC },
+    .{ .name = "stzenginegraphstronglyconnectedcomponents", .func = &ring_StronglyConnectedComponents },
+    .{ .name = "stzenginegraphmstweight", .func = &ring_MSTWeight },
     .{ .name = "stzenginegraphreachable", .func = &ring_Reachable },
     .{ .name = "stzenginegraphhascycle", .func = &ring_HasCycle },
     .{ .name = "stzenginegraphindegree", .func = &ring_InDegree },
