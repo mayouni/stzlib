@@ -278,7 +278,9 @@ class stzStringCharList
 		_nLen_ = len(@acChars)
 		for _i_ = 1 to _nLen_
 			if isString(@acChars[_i_])
-				@acChars[_i_] = upper(@acChars[_i_])
+				# StzUpper is codepoint-aware; upper() is byte-oriented and
+				# left multibyte chars (accented letters) unchanged.
+				@acChars[_i_] = StzUpper(@acChars[_i_])
 			ok
 		next
 
@@ -290,7 +292,8 @@ class stzStringCharList
 		_nLen_ = len(@acChars)
 		for _i_ = 1 to _nLen_
 			if isString(@acChars[_i_])
-				@acChars[_i_] = lower(@acChars[_i_])
+				# StzLower is codepoint-aware (see Uppercase).
+				@acChars[_i_] = StzLower(@acChars[_i_])
 			ok
 		next
 

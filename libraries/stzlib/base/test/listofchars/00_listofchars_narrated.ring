@@ -27,7 +27,23 @@ Scenario("Count unique characters")
     Then("NumberOfUniqueChars counts distinct (3)", d.NumberOfUniqueChars(), 3)
 EndScenario()
 
+Scenario("Case mapping is codepoint-correct (multibyte)")
+    Given("the chars [a, e-acute, b]")
+    u = new stzListOfChars([ "a", LowE(), "b" ])
+    u.Uppercase()
+    Then("Uppercase maps the accented char too", ListEq(u.Content(), [ "A", UpE(), "B" ]), TRUE)
+    l = new stzListOfChars([ "A", UpE(), "B" ])
+    l.Lowercase()
+    Then("Lowercase maps the accented char too", ListEq(l.Content(), [ "a", LowE(), "b" ]), TRUE)
+EndScenario()
+
 Summary()
+
+func LowE   # e-acute U+00E9
+    return char(195) + char(169)
+
+func UpE   # E-acute U+00C9
+    return char(195) + char(137)
 
 func Lchr aList
     return new stzListOfChars(aList)

@@ -1174,7 +1174,7 @@ class stzStringChar from stzString
 		return ring_find(RomanNumbers(), This.Content()) > 0
 
 	def IsMandarinNumber()
-		return ring_find( MandarinNumbers(), This.Conten() ) > 0
+		return ring_find( MandarinNumbers(), This.Content() ) > 0
 
 	def IsAscii()
 		try
