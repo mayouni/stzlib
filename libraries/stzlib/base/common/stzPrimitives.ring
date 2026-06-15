@@ -91,23 +91,25 @@ func _SplitNullDelimited(cJoined)
 		return []
 	ok
 	acResult = []
-	cCurrent = ""
+	# NUL-delimited BYTE buffer whose segments are UTF-8 chars (possibly
+	# multibyte). Walk byte positions and cut each segment with a single
+	# byte-range substr(). The old code used StzMid(cJoined, i, 1) -- a
+	# CODEPOINT slice indexed by a BYTE counter -- which dropped trailing
+	# multibyte chars and returned "" on multibyte; char-by-char accumulation
+	# of a multibyte segment then also tripped an R31 GC error. Extracting the
+	# whole byte range at once avoids both.
 	nLen = len(cJoined)
+	nStart = 1
 	for i = 1 to nLen
-		c = StzMid(cJoined, i, 1)
-		# Multi-byte (UTF-8) chars are never NULL; ascii() would fail
-		# on them, so skip the NULL test for any non-single-byte char.
-		if len(c) = 1 and ascii(c) = 0
-			if cCurrent != ""
-				acResult + cCurrent
-				cCurrent = ""
+		if ascii(substr(cJoined, i, 1)) = 0
+			if i > nStart
+				acResult + substr(cJoined, nStart, i - nStart)
 			ok
-		else
-			cCurrent += c
+			nStart = i + 1
 		ok
 	next
-	if cCurrent != ""
-		acResult + cCurrent
+	if nLen >= nStart
+		acResult + substr(cJoined, nStart, nLen - nStart + 1)
 	ok
 	return acResult
 

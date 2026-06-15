@@ -9,6 +9,7 @@
 // IDs (via retnumber/getnumber). This eliminates all pointer alignment
 // issues because Ring never touches the actual pointers.
 
+const std = @import("std");
 const string = @import("string.zig");
 const char_mod = @import("char.zig");
 const R = @import("ring_api.zig");
@@ -2624,6 +2625,30 @@ fn ring_StringCharsSplit(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_chars_split(h)), STZ_HANDLE);
 }
 
+// Return the string's characters as a ready Ring list of 1-codepoint strings,
+// built entirely Zig-side. This replaces the fragile NUL-delimited-buffer +
+// Ring _SplitNullDelimited round-trip (which dropped trailing multibyte chars
+// and intermittently corrupted/crashed on a leading multibyte char).
+fn ring_StringCharsList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const h = getHandle(p, 1);
+    if (h) |s| {
+        const data = string.str_data(s);
+        const size = string.str_size(s);
+        if (data != null and size > 0) {
+            const buf = data[0..size];
+            var off: usize = 0;
+            while (off < buf.len) {
+                const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch 1;
+                const end = @min(off + cp_len, buf.len);
+                R.ring_list_addstring2(out, buf.ptr + off, @intCast(end - off));
+                off = end;
+            }
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 // ─── Substrings and unique chars ───
 
 fn ring_StringAllSubstringsCS(p: *anyopaque) callconv(.c) void {
@@ -3565,6 +3590,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtoordinal", .func = &ring_StringToOrdinal },
     .{ .name = "stzenginestringcpcount", .func = &ring_StringCpCount },
     .{ .name = "stzenginestringcharssplit", .func = &ring_StringCharsSplit },
+    .{ .name = "stzenginestringcharslist", .func = &ring_StringCharsList },
     .{ .name = "stzenginestringleft", .func = &ring_StringLeft },
     .{ .name = "stzenginestringright", .func = &ring_StringRight },
     .{ .name = "stzenginestringcontainslatin", .func = &ring_StringContainsLatin },

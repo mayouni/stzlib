@@ -28,6 +28,8 @@ EndScenario()
 
 Scenario("Replace and split")
     Then("Replaced swaps all occurrences", Q("aXbXc").Replaced("X", "-"), "a-b-c")
+    Then("Chars() keeps a trailing multibyte char (was dropped)", len(Q("caf" + Chr0xE9()).Chars()), 4)
+    Then("Chars()[4] is the accented codepoint 233", StzCharQ(Q("caf" + Chr0xE9()).Chars()[4]).Unicode(), 233)
     Then("Replaced is codepoint-correct on multibyte input", Q("naïve").Replaced("ï", "i"), "naive")
     Then("Replaced rewrites a multibyte target char", Q("café").Replaced("é", "e"), "cafe")
     Then("Split on ',' yields the parts", ListEq(Q("a,b,c").Split(","), [ "a", "b", "c" ]), TRUE)

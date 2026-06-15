@@ -627,6 +627,13 @@ pub fn str_extract_emails(handle: ?*StzString) callconv(.c) ?*StzString {
 }
 
 /// Extract alphabetic words from text, separated by spaces.
+// A "word byte": ASCII letter, or any byte >= 0x80 (a UTF-8 lead/continuation
+// byte of a multibyte letter). Keeps accented/CJK words intact while leaving
+// ASCII punctuation/whitespace as separators.
+fn isWordByte(b: u8) bool {
+    return (b >= 'a' and b <= 'z') or (b >= 'A' and b <= 'Z') or b >= 0x80;
+}
+
 pub fn str_extract_words(handle: ?*StzString) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
@@ -634,11 +641,15 @@ pub fn str_extract_words(handle: ?*StzString) callconv(.c) ?*StzString {
     var pos: usize = 0;
     var first = true;
     while (pos < src.len) {
-        // Skip non-alpha
-        while (pos < src.len and !((src[pos] >= 'a' and src[pos] <= 'z') or (src[pos] >= 'A' and src[pos] <= 'Z'))) pos += 1;
+        // Skip non-word bytes (ASCII punctuation/whitespace). A word byte is
+        // an ASCII letter OR any byte >= 0x80 -- the lead/continuation bytes
+        // of a multibyte UTF-8 letter -- so accented/CJK words stay intact
+        // ('café' was being split into 'caf'). ASCII punctuation still
+        // separates, matching the previous behaviour.
+        while (pos < src.len and !isWordByte(src[pos])) pos += 1;
         if (pos >= src.len) break;
         const start_off = pos;
-        while (pos < src.len and ((src[pos] >= 'a' and src[pos] <= 'z') or (src[pos] >= 'A' and src[pos] <= 'Z') or src[pos] == '\'')) pos += 1;
+        while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
         if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
         result.data.appendSlice(gpa, src[start_off..pos]) catch { setError(.out_of_memory); };
         first = false;
