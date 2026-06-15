@@ -2365,29 +2365,56 @@ pub fn stz_list_split_to_parts_of_n(list_arg: ?*const StzList, n: usize) callcon
 
 // ─── C ABI: Sorted Insert ───
 
-pub fn stz_list_sorted_insert(list_arg: ?*StzList, v: ?*const StzValue) callconv(.c) i32 {
-    const l = list_arg orelse return -1;
-    const val = v orelse return -1;
+// Insert an already-owned StzValue at its sorted position (binary search).
+// Takes ownership of new_val; on failure frees it. Returns the index.
+fn sortedInsertOwned(l: *StzList, new_val: *StzValue) i32 {
     const n = l.len();
-
     var lo: usize = 0;
     var hi: usize = n;
     while (lo < hi) {
         const mid = lo + (hi - lo) / 2;
-        if (valueCompareCS(l.items.items[mid], val, true) < 0) {
+        if (valueCompareCS(l.items.items[mid], new_val, true) < 0) {
             lo = mid + 1;
         } else {
             hi = mid;
         }
     }
-
-    const new_val = val.clone() catch return -1;
     l.items.insert(allocator, lo, new_val) catch {
         new_val.deinit();
         allocator.destroy(new_val);
         return -1;
     };
     return @intCast(lo);
+}
+
+pub fn stz_list_sorted_insert(list_arg: ?*StzList, v: ?*const StzValue) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const val = v orelse return -1;
+    const new_val = val.clone() catch return -1;
+    return sortedInsertOwned(l, new_val);
+}
+
+// Type-specific sorted inserts that BUILD the value inside this DLL. The
+// handle-based stz_list_sorted_insert above cannot be used cross-DLL: a
+// StzValue handle minted by stz_value.dll does not resolve in stz_list.dll's
+// own handle table, so the value reads back as garbage (panic / wrong result).
+// These avoid the cross-DLL handle entirely.
+pub fn stz_list_sorted_insert_int(list_arg: ?*StzList, n: i64) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const new_val = value_mod.stz_value_new_int(n) orelse return -1;
+    return sortedInsertOwned(l, new_val);
+}
+
+pub fn stz_list_sorted_insert_float(list_arg: ?*StzList, f: f64) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const new_val = value_mod.stz_value_new_float(f) orelse return -1;
+    return sortedInsertOwned(l, new_val);
+}
+
+pub fn stz_list_sorted_insert_string(list_arg: ?*StzList, ptr: [*c]const u8, slen: usize) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const new_val = value_mod.stz_value_new_string(ptr, slen) orelse return -1;
+    return sortedInsertOwned(l, new_val);
 }
 
 // ─── Numeric Aggregates ───

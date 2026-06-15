@@ -587,6 +587,17 @@ fn ring_EndsWithListCS(p: *anyopaque) callconv(.c) void {
 fn ring_SortedInsert(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sorted_insert(getL(p, 1), getV(p, 2))));
 }
+// Type-specific sorted inserts -- build the value inside this DLL (no
+// cross-DLL value handle, which doesn't resolve in the list DLL).
+fn ring_SortedInsertInt(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_sorted_insert_int(getL(p, 1), @intFromFloat(g(p, 2)))));
+}
+fn ring_SortedInsertFloat(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_sorted_insert_float(getL(p, 1), g(p, 2))));
+}
+fn ring_SortedInsertString(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_sorted_insert_string(getL(p, 1), gs(p, 2), @intCast(gss(p, 2)))));
+}
 fn ring_Sum(p: *anyopaque) callconv(.c) void {
     rn(p, list.stz_list_sum(getLC(p, 1)));
 }
@@ -885,6 +896,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistsplitafter", .func = &ring_SplitAfter },
     .{ .name = "stzenginelistsplittopartsofn", .func = &ring_SplitToPartsOfN },
     .{ .name = "stzenginelistsortedinsert", .func = &ring_SortedInsert },
+    .{ .name = "stzenginelistsortedinsertint", .func = &ring_SortedInsertInt },
+    .{ .name = "stzenginelistsortedinsertfloat", .func = &ring_SortedInsertFloat },
+    .{ .name = "stzenginelistsortedinsertstring", .func = &ring_SortedInsertString },
     .{ .name = "stzenginelistjoin", .func = &ring_Join },
     .{ .name = "stzenginelistsum", .func = &ring_Sum },
     .{ .name = "stzenginelistmin", .func = &ring_Min },

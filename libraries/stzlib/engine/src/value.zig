@@ -162,6 +162,24 @@ pub const StzValue = struct {
 
     pub fn compare(a: *const StzValue, b: *const StzValue) i32 {
         if (a.tag != b.tag) {
+            // Mixed int/float: compare by numeric value, not by tag order,
+            // so a sorted list keeps numeric order across int and float
+            // items (e.g. inserting 2.5 into [1, 3] -> [1, 2.5, 3]).
+            const an: ?f64 = switch (a.tag) {
+                .int_val => @floatFromInt(a.data.int_val),
+                .float_val => a.data.float_val,
+                else => null,
+            };
+            const bn: ?f64 = switch (b.tag) {
+                .int_val => @floatFromInt(b.data.int_val),
+                .float_val => b.data.float_val,
+                else => null,
+            };
+            if (an != null and bn != null) {
+                if (an.? < bn.?) return -1;
+                if (an.? > bn.?) return 1;
+                return 0;
+            }
             return @as(i32, @intCast(@intFromEnum(a.tag))) - @as(i32, @intCast(@intFromEnum(b.tag)));
         }
         return switch (a.tag) {
