@@ -44,7 +44,14 @@ class stzMatrex from stzObject
 			? "Pattern: " + @cPattern
 			? "Tokens parsed: " + len(@aTokens)
 		ok
-	
+
+	# End-based substring helper. The parser was written assuming
+	# Mid(str, start, END) but the global @StzMid is COUNT-based -- so
+	# pattern tokens never parsed and Match() answered FALSE for every
+	# input. Route all calls through here, converting end -> count.
+	def _Mid(s, n1, n2)
+		return @StzMid(s, n1, n2 - n1 + 1)
+
 	def NormalizePattern(cPattern)
 		cPattern = trim(cPattern)
 		if NOT (startsWith(cPattern, "{") and endsWith(cPattern, "}"))
@@ -57,7 +64,7 @@ class stzMatrex from stzObject
 	#--------------------#
 	
 def ParsePattern(cPattern)
-	cInner = @StzMid(cPattern, 2, len(cPattern) - 1)
+	cInner = This._Mid(cPattern, 2, len(cPattern) - 1)
 	cInner = trim(cInner)
 	
 	if @bDebugMode
@@ -119,7 +126,7 @@ def ParsePattern(cPattern)
 		nOpLen = len(cOperator)
 		
 		for i = 1 to nLen
-			cChar = @StzMid(cStr, i, i)
+			cChar = This._Mid(cStr, i, i)
 			
 			if cChar = "(" or cChar = "{"
 				nDepth++
@@ -127,7 +134,7 @@ def ParsePattern(cPattern)
 			but cChar = ")" or cChar = "}"
 				nDepth--
 				cCurrent += cChar
-			but nDepth = 0 and @StzMid(cStr, i, i + nOpLen - 1) = cOperator
+			but nDepth = 0 and This._Mid(cStr, i, i + nOpLen - 1) = cOperator
 				aParts + trim(cCurrent)
 				cCurrent = ""
 				i += nOpLen - 1
@@ -144,7 +151,7 @@ def ParsePattern(cPattern)
 	
 	def ParseAlternation(cTokenStr)
 		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-			cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
+			cTokenStr = This._Mid(cTokenStr, 2, len(cTokenStr) - 1)
 		ok
 		
 		aParts = This.SplitByOperatOr(cTokenStr, "|")
@@ -169,7 +176,7 @@ def ParsePattern(cPattern)
 	
 def ParseConjunction(cTokenStr)
 	if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
-		cTokenStr = @StzMid(cTokenStr, 2, len(cTokenStr) - 1)
+		cTokenStr = This._Mid(cTokenStr, 2, len(cTokenStr) - 1)
 	ok
 	
 	aParts = This.SplitByOperatOr(cTokenStr, "&")
@@ -216,7 +223,7 @@ def ParseConjunction(cTokenStr)
 		
 		if startsWith(StzLower(cTokenStr), "@!")
 			bNegated = 1
-			cTokenStr = @StzMid(cTokenStr, 3, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 3, len(cTokenStr))
 			
 			if @bDebugMode
 				? "Negation detected! Remaining: " + cTokenStr
@@ -234,73 +241,73 @@ def ParseConjunction(cTokenStr)
 		# Parse token types
 		if startsWith(cTokenStr, "@size")
 			cType = "size"
-			cTokenStr = @StzMid(cTokenStr, 6, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 6, len(cTokenStr))
 		but startsWith(cTokenStr, "size")
 			cType = "size"
-			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 5, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@shape")
 			cType = "shape"
-			cTokenStr = @StzMid(cTokenStr, 7, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 7, len(cTokenStr))
 		but startsWith(cTokenStr, "shape")
 			cType = "shape"
-			cTokenStr = @StzMid(cTokenStr, 6, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 6, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@element")
 			cType = "element"
-			cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
 		but startsWith(cTokenStr, "element")
 			cType = "element"
-			cTokenStr = @StzMid(cTokenStr, 8, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 8, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@row")
 			cType = "row"
-			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 5, len(cTokenStr))
 		but startsWith(cTokenStr, "row")
 			cType = "row"
-			cTokenStr = @StzMid(cTokenStr, 4, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 4, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@col")
 			cType = "col"
-			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 5, len(cTokenStr))
 		but startsWith(cTokenStr, "col")
 			cType = "col"
-			cTokenStr = @StzMid(cTokenStr, 4, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 4, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@diagonal")
 			cType = "diagonal"
-			cTokenStr = @StzMid(cTokenStr, 10, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 10, len(cTokenStr))
 		but startsWith(cTokenStr, "diagonal")
 			cType = "diagonal"
-			cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@property")
 			cType = "property"
-			cTokenStr = @StzMid(cTokenStr, 10, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 10, len(cTokenStr))
 		but startsWith(cTokenStr, "property")
 			cType = "property"
-			cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@pattern")
 			cType = "pattern"
-			cTokenStr = @StzMid(cTokenStr, 9, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 9, len(cTokenStr))
 		but startsWith(cTokenStr, "pattern")
 			cType = "pattern"
-			cTokenStr = @StzMid(cTokenStr, 8, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 8, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@determinant")
 			cType = "determinant"
-			cTokenStr = @StzMid(cTokenStr, 13, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 13, len(cTokenStr))
 		but startsWith(cTokenStr, "determinant")
 			cType = "determinant"
-			cTokenStr = @StzMid(cTokenStr, 12, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 12, len(cTokenStr))
 			
 		but startsWith(cTokenStr, "@sum")
 			cType = "sum"
-			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 5, len(cTokenStr))
 		but startsWith(cTokenStr, "sum")
 			cType = "sum"
-			cTokenStr = @StzMid(cTokenStr, 4, len(cTokenStr))
+			cTokenStr = This._Mid(cTokenStr, 4, len(cTokenStr))
 			
 		else
 			# UNKNOWN TOKEN - return error marker
@@ -321,7 +328,7 @@ def ParseConjunction(cTokenStr)
 		if nOpenParen > 0
 			nCloseParen = StzFind(cTokenStr, ")")
 			if nCloseParen > nOpenParen
-				cContent = @StzMid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+				cContent = This._Mid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 				
 				if @bDebugMode
 					? ">> cContent: " + cContent
@@ -340,7 +347,7 @@ def ParseConjunction(cTokenStr)
 		# Parse quantifiers
 		cQuantPart = ""
 		if nCloseParen > 0 and nCloseParen < len(cTokenStr)
-			cQuantPart = @StzMid(cTokenStr, nCloseParen + 1, len(cTokenStr))
+			cQuantPart = This._Mid(cTokenStr, nCloseParen + 1, len(cTokenStr))
 		ok
 		
 		cQuantPart = trim(cQuantPart)
@@ -348,8 +355,8 @@ def ParseConjunction(cTokenStr)
 		if len(cQuantPart) > 0
 			if StzFind(cQuantPart, ":") > 0
 				nColon = StzFind(cQuantPart, ":")
-				cBeforeColon = @StzMid(cQuantPart, 1, nColon - 1)
-				cAfterColon = @StzMid(cQuantPart, nColon + 1, len(cQuantPart))
+				cBeforeColon = This._Mid(cQuantPart, 1, nColon - 1)
+				cAfterColon = This._Mid(cQuantPart, nColon + 1, len(cQuantPart))
 				
 				cBeforeColon = trim(cBeforeColon)
 				if len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
@@ -425,7 +432,7 @@ def ParseConjunction(cTokenStr)
 			but StzFind(cConstraintStr, "{") > 0
 				nStart = StzFind(cConstraintStr, "{")
 				nEnd = StzFind(cConstraintStr, "}")
-				cSet = @StzMid(cConstraintStr, nStart + 1, nEnd - 1)
+				cSet = This._Mid(cConstraintStr, nStart + 1, nEnd - 1)
 				aValues = @split(cSet, ";")
 				aConstraints + [
 					["type", "set"],
@@ -452,12 +459,12 @@ def ParseConjunction(cTokenStr)
 			but startsWith(cConstraintStr, ">")
 				aConstraints + [
 					["type", "greater"],
-					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
+					["value", 0 + This._Mid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				aConstraints + [
 					["type", "less"],
-					["value", 0 + @StzMid(cConstraintStr, 2, len(cConstraintStr))]
+					["value", 0 + This._Mid(cConstraintStr, 2, len(cConstraintStr))]
 				]
 			ok
 		ok
@@ -1203,7 +1210,7 @@ def ParseConjunction(cTokenStr)
 	
 	def AddConstraint(cConstraint)
 		# Add a new constraint to existing pattern
-		cInner = @StzMid(@cPattern, 2, len(@cPattern) - 1)
+		cInner = This._Mid(@cPattern, 2, len(@cPattern) - 1)
 		if len(cInner) > 0
 			cInner += " -> " + cConstraint
 		else
@@ -1433,7 +1440,7 @@ def ParseConjunction(cTokenStr)
 		
 		nLen = len(cStr)
 		for i = 1 to nLen
-			cChar = @StzMid(cStr, i, i)
+			cChar = This._Mid(cStr, i, i)
 			if not isDigit(cChar) and cChar != "-" and cChar != "."
 				return FALSE
 			ok
@@ -1452,9 +1459,9 @@ def ParseConjunction(cTokenStr)
 
 		# Combine two patterns with AND logic
 		cCombined = "{" + 
-		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
+		            This._Mid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " & " + 
-		            @StzMid(oOtherMatrex.Pattern(), 2, len(oOtherMatrex.Pattern()) - 1) +
+		            This._Mid(oOtherMatrex.Pattern(), 2, len(oOtherMatrex.Pattern()) - 1) +
 		            "}"
 
 		return new stzMatrex(cCombined)
@@ -1469,16 +1476,16 @@ def ParseConjunction(cTokenStr)
 
 		# Combine two patterns with OR logic
 		cCombined = "{" + 
-		            @StzMid(@cPattern, 2, len(@cPattern) - 1) + 
+		            This._Mid(@cPattern, 2, len(@cPattern) - 1) + 
 		            " | " + 
-		            @StzMid(oOtherMatrex.Pattern(), 2, len(oOtherMatrex.Pattern()) - 1) +
+		            This._Mid(oOtherMatrex.Pattern(), 2, len(oOtherMatrex.Pattern()) - 1) +
 		            "}"
 
 		return new stzMatrex(cCombined)
 	
 	def Not_()
 		# Negate the entire pattern
-		cInner = @StzMid(@cPattern, 2, len(@cPattern) - 1)
+		cInner = This._Mid(@cPattern, 2, len(@cPattern) - 1)
 		cNegated = "{@!" + cInner + "}"
 		return new stzMatrex(cNegated)
 	
