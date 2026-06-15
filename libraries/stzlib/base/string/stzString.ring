@@ -246,8 +246,10 @@ class stzString from stzObject
 			_aB_ = This.BoundsOf(pcSub)
 			if len(_aB_) = 0 return [] ok
 			_cBefore_ = _aB_[1]; _cAfter_ = _aB_[2]
-			if len(_cBefore_) > p2[1] _cBefore_ = right(_cBefore_, p2[1]) ok
-			if len(_cAfter_)  > p2[2] _cAfter_  = left(_cAfter_, p2[2])  ok
+			# Cap by codepoints, not bytes: keep the last p2[1] chars of the
+			# prefix and the first p2[2] chars of the suffix.
+			if StzLen(_cBefore_) > p2[1] _cBefore_ = This._EngineSliceFrom(_cBefore_, StzLen(_cBefore_) - p2[1] + 1) ok
+			if StzLen(_cAfter_)  > p2[2] _cAfter_  = This._EngineSlice(_cAfter_, 1, p2[2]) ok
 			return [ _cBefore_, _cAfter_ ]
 		ok
 
@@ -1255,7 +1257,9 @@ class stzString from stzObject
 	# with `+` corners, `-` horizontals, `|` verticals.
 	def Boxify()
 		_cStr_ = This.Content()
-		_nLen_ = len(_cStr_)
+		# Box width = codepoint count (byte len() over-sizes the bar on
+		# multibyte content).
+		_nLen_ = StzLen(_cStr_)
 		_cHbar_ = "+"
 		for _iB_ = 1 to _nLen_ + 2
 			_cHbar_ += "-"
