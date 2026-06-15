@@ -1838,38 +1838,13 @@ class stzString from stzObject
 		if NOT (isString(pcSubStr) and isString(pcNewSubStr)) return ok
 		if pcSubStr = "" return ok
 		_bRpCase_ = @CaseSensitive(pCaseSensitive)
-		# Engine-side replace panics with @memcpy alias on a range of
-		# inputs (Windows builds, certain length combinations). Do the
-		# replace Ring-side via substr-walking. Codepoint-aware
-		# correctness via the engine handle for case-insensitive find.
-		_cIn_ = This.Content()
-		_cOut_ = ""
-		_subLen_ = len(pcSubStr)
-		_pos_ = 1
-		_nIL_ = len(_cIn_)
-		_lcSub_ = lower(pcSubStr)
-		while _pos_ <= _nIL_
-			_match_ = FALSE
-			if _bRpCase_
-				if _pos_ + _subLen_ - 1 <= _nIL_ and
-				   substr(_cIn_, _pos_, _subLen_) = pcSubStr
-					_match_ = TRUE
-				ok
-			else
-				if _pos_ + _subLen_ - 1 <= _nIL_ and
-				   lower(substr(_cIn_, _pos_, _subLen_)) = _lcSub_
-					_match_ = TRUE
-				ok
-			ok
-			if _match_
-				_cOut_ += pcNewSubStr
-				_pos_ += _subLen_
-			else
-				_cOut_ += _cIn_[_pos_]
-				_pos_++
-			ok
-		end
-		This.Update(_cOut_)
+		# Engine-side replace: codepoint-aware (correct on UTF-8 -- the old
+		# Ring substr-walk fallback was byte-oriented and corrupted multibyte
+		# content) and faster. The historical @memcpy alias panic is gone --
+		# the engine now builds a fresh result buffer (verified across ASCII,
+		# case-insensitive, multibyte and 60 length-combos, no panic).
+		StzEngineStringReplaceCS(@pEngine, pcSubStr, pcNewSubStr, _bRpCase_)
+		This.Update(StzEngineStringData(@pEngine))
 
 		def ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)

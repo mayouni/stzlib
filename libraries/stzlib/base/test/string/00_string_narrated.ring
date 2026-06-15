@@ -26,6 +26,8 @@ EndScenario()
 
 Scenario("Replace and split")
     Then("Replaced swaps all occurrences", Q("aXbXc").Replaced("X", "-"), "a-b-c")
+    Then("Replaced is codepoint-correct on multibyte input", Q("naïve").Replaced("ï", "i"), "naive")
+    Then("Replaced rewrites a multibyte target char", Q("café").Replaced("é", "e"), "cafe")
     Then("Split on ',' yields the parts", ListEq(Q("a,b,c").Split(","), [ "a", "b", "c" ]), TRUE)
 EndScenario()
 
