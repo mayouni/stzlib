@@ -879,7 +879,248 @@ pub fn stz_graph_mst_weight(g: ?*const StzGraph) callconv(.c) f64 {
     return total;
 }
 
+// Fills the chosen MST edges into parallel arrays (node indices + weight);
+// returns the edge count (n-1 if connected, else a partial forest). Same
+// Kruskal selection as stz_graph_mst_weight.
+pub fn stz_graph_mst_edges(g: ?*const StzGraph, out_u: [*]u32, out_v: [*]u32, out_w: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n < 2) return 0;
+    var edges = std.ArrayListUnmanaged(KEdge){};
+    defer edges.deinit(allocator);
+    for (gr.nodes.items, 0..) |node, u| {
+        for (node.edges.items) |e| {
+            const uu: u32 = @intCast(u);
+            if (uu < e.to) {
+                edges.append(allocator, .{ .u = uu, .v = e.to, .w = e.weight }) catch return 0;
+            } else if (gr.directed and e.to < uu) {
+                edges.append(allocator, .{ .u = e.to, .v = uu, .w = e.weight }) catch return 0;
+            }
+        }
+    }
+    std.mem.sort(KEdge, edges.items, {}, struct {
+        fn lt(_: void, a: KEdge, b: KEdge) bool {
+            return a.w < b.w;
+        }
+    }.lt);
+    const parent = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(parent);
+    for (0..n) |i| parent[i] = @intCast(i);
+    var used: usize = 0;
+    for (edges.items) |e| {
+        const ru = ufFind(parent, e.u);
+        const rv = ufFind(parent, e.v);
+        if (ru != rv) {
+            parent[ru] = rv;
+            if (used < cap) {
+                out_u[used] = e.u;
+                out_v[used] = e.v;
+                out_w[used] = e.w;
+            }
+            used += 1;
+            if (used == n - 1) break;
+        }
+    }
+    return used;
+}
+
+// ─── Undirected adjacency (CSR), deduped — for articulation pts / bridges / k-core ───
+
+const Undirected = struct {
+    start: []usize, // length n+1
+    adj: []u32, // length 2*m
+    fn deinit(self: *Undirected) void {
+        allocator.free(self.start);
+        allocator.free(self.adj);
+    }
+};
+
+// Builds a deduped undirected adjacency: each distinct unordered pair {u,v}
+// appears once in adj[u] and once in adj[v], regardless of whether the graph
+// stored it directed or both-ways. Caller must deinit().
+fn buildUndirected(gr: *const StzGraph) ?Undirected {
+    const n = gr.nodes.items.len;
+    // unique unordered pairs via a seen-set keyed by min*n+max
+    var seen = std.AutoHashMapUnmanaged(u64, void){};
+    defer seen.deinit(allocator);
+    var pu = std.ArrayListUnmanaged(u32){};
+    defer pu.deinit(allocator);
+    var pv = std.ArrayListUnmanaged(u32){};
+    defer pv.deinit(allocator);
+    for (gr.nodes.items, 0..) |node, u| {
+        for (node.edges.items) |e| {
+            const a: u64 = @min(@as(u64, @intCast(u)), @as(u64, e.to));
+            const b: u64 = @max(@as(u64, @intCast(u)), @as(u64, e.to));
+            if (a == b) continue;
+            const key = a * @as(u64, n) + b;
+            if (seen.contains(key)) continue;
+            seen.put(allocator, key, {}) catch return null;
+            pu.append(allocator, @intCast(a)) catch return null;
+            pv.append(allocator, @intCast(b)) catch return null;
+        }
+    }
+    const start = allocator.alloc(usize, n + 1) catch return null;
+    @memset(start, 0);
+    for (pu.items, pv.items) |x, y| {
+        start[x + 1] += 1;
+        start[y + 1] += 1;
+    }
+    for (0..n) |i| start[i + 1] += start[i];
+    const adj = allocator.alloc(u32, pu.items.len * 2) catch {
+        allocator.free(start);
+        return null;
+    };
+    const fillpos = allocator.alloc(usize, n) catch {
+        allocator.free(start);
+        allocator.free(adj);
+        return null;
+    };
+    defer allocator.free(fillpos);
+    for (0..n) |i| fillpos[i] = start[i];
+    for (pu.items, pv.items) |x, y| {
+        adj[fillpos[x]] = y;
+        fillpos[x] += 1;
+        adj[fillpos[y]] = x;
+        fillpos[y] += 1;
+    }
+    return Undirected{ .start = start, .adj = adj };
+}
+
+// ─── Articulation points & bridges (Tarjan low-link, undirected) ───
+
+const APCtx = struct {
+    u: Undirected,
+    disc: []u32,
+    low: []u32,
+    timer: u32,
+    is_ap: []bool,
+    // bridge output
+    br_u: ?[*]u32,
+    br_v: ?[*]u32,
+    br_cap: usize,
+    br_count: usize,
+};
+
+fn apDfs(ctx: *APCtx, node: u32, parent: i64) void {
+    ctx.timer += 1;
+    ctx.disc[node] = ctx.timer;
+    ctx.low[node] = ctx.timer;
+    var children: u32 = 0;
+    var k = ctx.u.start[node];
+    while (k < ctx.u.start[node + 1]) : (k += 1) {
+        const v = ctx.u.adj[k];
+        if (ctx.disc[v] == 0) {
+            children += 1;
+            apDfs(ctx, v, @intCast(node));
+            if (ctx.low[v] < ctx.low[node]) ctx.low[node] = ctx.low[v];
+            // articulation (non-root)
+            if (parent != -1 and ctx.low[v] >= ctx.disc[node]) ctx.is_ap[node] = true;
+            // bridge
+            if (ctx.low[v] > ctx.disc[node]) {
+                if (ctx.br_u) |bu| {
+                    if (ctx.br_count < ctx.br_cap) {
+                        bu[ctx.br_count] = node;
+                        ctx.br_v.?[ctx.br_count] = v;
+                    }
+                }
+                ctx.br_count += 1;
+            }
+        } else if (v != parent) {
+            if (ctx.disc[v] < ctx.low[node]) ctx.low[node] = ctx.disc[v];
+        }
+    }
+    if (parent == -1 and children > 1) ctx.is_ap[node] = true;
+}
+
+// Fills out[] with the node indices that are articulation points; returns count.
+pub fn stz_graph_articulation_points(g: ?*const StzGraph, out: [*]u32, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    var u = buildUndirected(gr) orelse return 0;
+    defer u.deinit();
+    const disc = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(disc);
+    const low = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(low);
+    const is_ap = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(is_ap);
+    @memset(disc, 0);
+    @memset(is_ap, false);
+    var ctx = APCtx{ .u = u, .disc = disc, .low = low, .timer = 0, .is_ap = is_ap, .br_u = null, .br_v = null, .br_cap = 0, .br_count = 0 };
+    for (0..n) |s| {
+        if (disc[s] == 0) apDfs(&ctx, @intCast(s), -1);
+    }
+    var count: usize = 0;
+    for (0..n) |i| {
+        if (is_ap[i]) {
+            if (count < cap) out[count] = @intCast(i);
+            count += 1;
+        }
+    }
+    return count;
+}
+
+// Fills out_u/out_v with the bridge edges (node indices); returns count.
+pub fn stz_graph_bridges(g: ?*const StzGraph, out_u: [*]u32, out_v: [*]u32, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    var u = buildUndirected(gr) orelse return 0;
+    defer u.deinit();
+    const disc = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(disc);
+    const low = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(low);
+    const is_ap = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(is_ap);
+    @memset(disc, 0);
+    @memset(is_ap, false);
+    var ctx = APCtx{ .u = u, .disc = disc, .low = low, .timer = 0, .is_ap = is_ap, .br_u = out_u, .br_v = out_v, .br_cap = cap, .br_count = 0 };
+    for (0..n) |s| {
+        if (disc[s] == 0) apDfs(&ctx, @intCast(s), -1);
+    }
+    return ctx.br_count;
+}
+
 // ─── Tests ───
+
+test "graph mst edges" {
+    const g = stz_graph_create(0) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 2.0);
+    _ = stz_graph_add_edge(g, "C", 1, "D", 1, 3.0);
+    _ = stz_graph_add_edge(g, "D", 1, "A", 1, 4.0);
+    _ = stz_graph_add_edge(g, "A", 1, "C", 1, 5.0);
+    var ou: [8]u32 = undefined;
+    var ov: [8]u32 = undefined;
+    var ow: [8]f64 = undefined;
+    const m = stz_graph_mst_edges(g, &ou, &ov, &ow, 8);
+    try std.testing.expectEqual(@as(usize, 3), m);
+    var sum: f64 = 0;
+    for (0..m) |i| sum += ow[i];
+    try std.testing.expectEqual(@as(f64, 6.0), sum);
+}
+
+test "graph articulation points and bridges" {
+    // A-B-C with B central, plus C-D-E triangle: B and C are articulation pts;
+    // A-B and B-C are bridges (D-E-C triangle has none).
+    const g = stz_graph_create(0) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "D", 1, 1.0);
+    _ = stz_graph_add_edge(g, "D", 1, "E", 1, 1.0);
+    _ = stz_graph_add_edge(g, "E", 1, "C", 1, 1.0);
+    var ap: [8]u32 = undefined;
+    const nap = stz_graph_articulation_points(g, &ap, 8);
+    try std.testing.expectEqual(@as(usize, 2), nap); // B and C
+    var bu: [8]u32 = undefined;
+    var bv: [8]u32 = undefined;
+    const nbr = stz_graph_bridges(g, &bu, &bv, 8);
+    try std.testing.expectEqual(@as(usize, 2), nbr); // A-B and B-C
+}
 
 test "graph strongly connected components" {
     const g = stz_graph_create(1) orelse return error.CreateFailed;
