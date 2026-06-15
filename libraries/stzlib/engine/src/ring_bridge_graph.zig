@@ -379,6 +379,22 @@ fn ring_AStarPlan(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, outer);
 }
 
+fn ring_Diameter(p: *anyopaque) callconv(.c) void {
+    rn(p, graph.stz_graph_diameter(getH(p, 1)));
+}
+fn ring_Radius(p: *anyopaque) callconv(.c) void {
+    rn(p, graph.stz_graph_radius(getH(p, 1)));
+}
+fn ring_AveragePathLength(p: *anyopaque) callconv(.c) void {
+    rn(p, graph.stz_graph_average_path_length(getH(p, 1)));
+}
+fn ring_EccentricitiesAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_eccentricities);
+}
+fn ring_EccentricityOf(p: *anyopaque) callconv(.c) void {
+    retCentralityOf(p, &graph.stz_graph_eccentricities);
+}
+
 fn ring_CoreNumbersAll(p: *anyopaque) callconv(.c) void {
     retCentralityAll(p, &graph.stz_graph_core_numbers);
 }
@@ -471,6 +487,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphclosenessof", .func = &ring_ClosenessOf },
     .{ .name = "stzenginegraphbetweennessall", .func = &ring_BetweennessAll },
     .{ .name = "stzenginegraphbetweennessof", .func = &ring_BetweennessOf },
+    .{ .name = "stzenginegraphdiameter", .func = &ring_Diameter },
+    .{ .name = "stzenginegraphradius", .func = &ring_Radius },
+    .{ .name = "stzenginegraphaveragepathlength", .func = &ring_AveragePathLength },
+    .{ .name = "stzenginegrapheccentricitiesall", .func = &ring_EccentricitiesAll },
+    .{ .name = "stzenginegrapheccentricityof", .func = &ring_EccentricityOf },
     .{ .name = "stzenginegraphcorenumbersall", .func = &ring_CoreNumbersAll },
     .{ .name = "stzenginegraphcorenumberof", .func = &ring_CoreNumberOf },
     .{ .name = "stzenginegraphpagerankall", .func = &ring_PageRankAll },

@@ -172,6 +172,19 @@ Scenario("A* with a coordinate heuristic (engine)")
     Then("A* still works (degrades to Dijkstra): x-y-z", ListEq(ng.AStarPath("X", "Z"), [ "x", "y", "z" ]), TRUE)
 EndScenario()
 
+Scenario("Distance metrics (engine all-pairs BFS)")
+    Given("a directed path A->B->C->D->E")
+    dg = new stzGraph("dg")
+    dg.AddNode("A") dg.AddNode("B") dg.AddNode("C") dg.AddNode("D") dg.AddNode("E")
+    dg.AddEdge("A", "B") dg.AddEdge("B", "C") dg.AddEdge("C", "D") dg.AddEdge("D", "E")
+    Then("Diameter is 4 (A reaches E in 4 hops)", dg.Diameter(), 4)
+    Then("Radius is 1 (D reaches only E)", dg.Radius(), 1)
+    Then("Eccentricity of A is 4", dg.Eccentricity("A"), 4)
+    Then("Eccentricity of C is 2", dg.Eccentricity("C"), 2)
+    Then("AveragePathLength is 2 (sum 20 / 10 reachable pairs)", dg.AveragePathLength(), 2)
+    Then("Eccentricities lists every node", ListEq(dg.Eccentricities(), [ [ "a",4 ],[ "b",3 ],[ "c",2 ],[ "d",1 ],[ "e",0 ] ]), TRUE)
+EndScenario()
+
 Summary()
 
 func Rnd2 n

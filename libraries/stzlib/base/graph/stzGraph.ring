@@ -2874,43 +2874,44 @@ class stzGraph
 		ok
 		return [ [], [] ]
 
+	# Diameter = longest shortest path over all reachable pairs (engine,
+	# all-pairs BFS). Replaces the old O(V^2 * BFS) pure-Ring double loop.
 	def Diameter()
-		_nMaxDist_ = 0
-		_aNodes_ = This.Nodes()
-		_nNodeLen_ = len(_aNodes_)
-		
-		for _i_ = 1 to _nNodeLen_
-			for _j_ = _i_ + 1 to _nNodeLen_
-				_nDist_ = This.ShortestPathLength(_aNodes_[_i_][:id], _aNodes_[_j_][:id])
-				if _nDist_ > _nMaxDist_
-					_nMaxDist_ = _nDist_
-				ok
-			end
-		end
-		
-		return _nMaxDist_
+		if This._EnsureEngine()
+			return StzEngineGraphDiameter(@pEngineGraph)
+		ok
+		return 0
 
-	def AveragePathLength()
-		_nTotalDist_ = 0
-		_nPairs_ = 0
-		_aNodes_ = This.Nodes()
-		_nNodeLen_ = len(_aNodes_)
-		
-		for _i_ = 1 to _nNodeLen_
-			for _j_ = _i_ + 1 to _nNodeLen_
-				_nDist_ = This.ShortestPathLength(_aNodes_[_i_][:id], _aNodes_[_j_][:id])
-				if _nDist_ > 0
-					_nTotalDist_ += _nDist_
-					_nPairs_++
-				ok
-			end
-		end
-		
-		if _nPairs_ = 0
+	# Radius = smallest eccentricity among nodes that reach others.
+	def Radius()
+		if This._EnsureEngine()
+			return StzEngineGraphRadius(@pEngineGraph)
+		ok
+		return 0
+
+	# Eccentricity of a node = its longest shortest path to any reachable node.
+	def Eccentricity(pcNodeId)
+		if NOT This.NodeExists(pcNodeId)
 			return 0
 		ok
-		
-		return _nTotalDist_ / _nPairs_
+		if This._EnsureEngine()
+			return StzEngineGraphEccentricityOf(@pEngineGraph, StzLower(pcNodeId))
+		ok
+		return 0
+
+	# Eccentricity for every node as a list of [ id, value ] pairs.
+	def Eccentricities()
+		if This._EnsureEngine()
+			return StzEngineGraphEccentricitiesAll(@pEngineGraph)
+		ok
+		return []
+
+	# Mean shortest-path length over all reachable pairs (engine, all-pairs BFS).
+	def AveragePathLength()
+		if This._EnsureEngine()
+			return StzEngineGraphAveragePathLength(@pEngineGraph)
+		ok
+		return 0
 
 	def ClusteringCoefficient(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)

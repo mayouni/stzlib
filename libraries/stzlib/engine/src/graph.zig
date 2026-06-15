@@ -1198,6 +1198,100 @@ pub fn stz_graph_betweenness(g: ?*const StzGraph, out: [*]f64, cap: usize) callc
     return n;
 }
 
+// ─── Distance metrics (all-pairs BFS over out-edges) ───
+
+const EccStats = struct { sum: f64, count: f64 };
+
+// Fill ecc[v] = eccentricity of v (max BFS hop-distance to any node reachable
+// from v; 0 if v reaches nothing) and accumulate sum/count over all reachable
+// ordered pairs. Returns null on allocation failure.
+fn eccAndStats(gr: *const StzGraph, ecc: []f64) ?EccStats {
+    const n = gr.nodes.items.len;
+    const dist = allocator.alloc(i64, n) catch return null;
+    defer allocator.free(dist);
+    const queue = allocator.alloc(u32, n) catch return null;
+    defer allocator.free(queue);
+    var sum: f64 = 0;
+    var count: f64 = 0;
+    for (0..n) |s| {
+        @memset(dist, -1);
+        dist[s] = 0;
+        var qh: usize = 0;
+        var qt: usize = 0;
+        queue[qt] = @intCast(s);
+        qt += 1;
+        var maxd: i64 = 0;
+        while (qh < qt) {
+            const w = queue[qh];
+            qh += 1;
+            for (gr.nodes.items[w].edges.items) |e| {
+                if (dist[e.to] < 0) {
+                    dist[e.to] = dist[w] + 1;
+                    if (dist[e.to] > maxd) maxd = dist[e.to];
+                    sum += @floatFromInt(dist[e.to]);
+                    count += 1;
+                    queue[qt] = e.to;
+                    qt += 1;
+                }
+            }
+        }
+        ecc[s] = @floatFromInt(maxd);
+    }
+    return EccStats{ .sum = sum, .count = count };
+}
+
+// Eccentricity per node. Fills out[]; returns n.
+pub fn stz_graph_eccentricities(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    _ = eccAndStats(gr, out[0..n]) orelse return 0;
+    return n;
+}
+
+// Diameter = max eccentricity (longest shortest path over reachable pairs).
+pub fn stz_graph_diameter(g: ?*const StzGraph) callconv(.c) f64 {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    const ecc = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(ecc);
+    _ = eccAndStats(gr, ecc) orelse return 0;
+    var mx: f64 = 0;
+    for (ecc) |e| {
+        if (e > mx) mx = e;
+    }
+    return mx;
+}
+
+// Radius = min eccentricity over nodes that reach something (ecc > 0); 0 if
+// none do.
+pub fn stz_graph_radius(g: ?*const StzGraph) callconv(.c) f64 {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    const ecc = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(ecc);
+    _ = eccAndStats(gr, ecc) orelse return 0;
+    var mn: f64 = -1;
+    for (ecc) |e| {
+        if (e > 0 and (mn < 0 or e < mn)) mn = e;
+    }
+    return if (mn < 0) 0 else mn;
+}
+
+// Average shortest-path length over all reachable ordered pairs; 0 if none.
+pub fn stz_graph_average_path_length(g: ?*const StzGraph) callconv(.c) f64 {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    const ecc = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(ecc);
+    const st = eccAndStats(gr, ecc) orelse return 0;
+    if (st.count == 0) return 0;
+    return st.sum / st.count;
+}
+
 // ─── k-core & PageRank ───
 
 // Core number of every node (Batagelj-Zaversnik, O(V+E)) over the undirected
@@ -1614,6 +1708,24 @@ test "graph pagerank sums to one" {
     var sum: f64 = 0;
     for (pr) |x| sum += x;
     try std.testing.expectApproxEqAbs(@as(f64, 1.0), sum, 1e-6);
+}
+
+test "graph distance metrics (diameter / radius / avg path)" {
+    // directed path A->B->C->D->E
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "D", 1, 1.0);
+    _ = stz_graph_add_edge(g, "D", 1, "E", 1, 1.0);
+    // A reaches E at distance 4 -> diameter 4; A's ecc 4, B's 3, ...
+    try std.testing.expectEqual(@as(f64, 4.0), stz_graph_diameter(g));
+    // smallest non-zero ecc is D (reaches only E, ecc 1)
+    try std.testing.expectEqual(@as(f64, 1.0), stz_graph_radius(g));
+    var ecc: [5]f64 = undefined;
+    _ = stz_graph_eccentricities(g, &ecc, 5);
+    try std.testing.expectEqual(@as(f64, 4.0), ecc[0]); // A
+    try std.testing.expectEqual(@as(f64, 0.0), ecc[4]); // E reaches nothing
 }
 
 test "graph centrality (closeness + betweenness)" {
