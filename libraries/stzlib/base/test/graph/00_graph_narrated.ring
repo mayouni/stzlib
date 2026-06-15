@@ -119,7 +119,23 @@ Scenario("Articulation points and bridges")
     Then("bridges are b-c and a-b (triangle has none)", ListEq(g.Bridges(), [ [ "b","c" ], [ "a","b" ] ]), TRUE)
 EndScenario()
 
+Scenario("Centrality (engine-backed: Brandes betweenness + closeness)")
+    Given("a directed path A->B->C->D->E")
+    cg = new stzGraph("cg")
+    cg.AddNode("A") cg.AddNode("B") cg.AddNode("C") cg.AddNode("D") cg.AddNode("E")
+    cg.AddEdge("A", "B") cg.AddEdge("B", "C") cg.AddEdge("C", "D") cg.AddEdge("D", "E")
+    Then("betweenness of C is 4 (on a-d, a-e, b-d, b-e)", cg.BetweennessCentrality("C"), 4)
+    Then("betweenness of B is 3", cg.BetweennessCentrality("B"), 3)
+    Then("the endpoint A has betweenness 0", cg.BetweennessCentrality("A"), 0)
+    Then("BetweennessAll lists every node", ListEq(cg.BetweennessCentralityAll(), [ [ "a",0 ],[ "b",3 ],[ "c",4 ],[ "d",3 ],[ "e",0 ] ]), TRUE)
+    Then("closeness of A is 4/10 = 0.4", Rnd2(cg.ClosenessCentrality("A")), 0.4)
+    Then("closeness of D is 1/1 = 1 (only reaches E)", cg.ClosenessCentrality("D"), 1)
+EndScenario()
+
 Summary()
+
+func Rnd2 n
+    return 0.01 * floor(n * 100 + 0.5)
 
 func Gr()
     g = new stzGraph("g")

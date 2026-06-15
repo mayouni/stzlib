@@ -270,6 +270,57 @@ fn ring_Bridges(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, outer);
 }
 
+// Compute a per-node centrality vector with `fnc`, then build a Ring list of
+// [nodeName, value] pairs (Zig-side -- no Ring looping).
+fn retCentralityAll(p: *anyopaque, fnc: *const fn (?*const graph.StzGraph, [*]f64, usize) callconv(.c) usize) void {
+    const outer = R.ring_vm_api_newlist(p) orelse return;
+    const gr = getH(p, 1) orelse { R.ring_vm_api_retlist(p, outer); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n == 0) { R.ring_vm_api_retlist(p, outer); return; }
+    const vals = gpa.alloc(f64, n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(vals);
+    _ = fnc(gr, vals.ptr, n);
+    for (0..n) |i| {
+        const sub = R.ring_list_newlist(outer) orelse continue;
+        addName(sub, gr, i);
+        R.ring_list_adddouble(sub, vals[i]);
+    }
+    R.ring_vm_api_retlist(p, outer);
+}
+
+// Compute the centrality vector with `fnc`, return the value for the node
+// whose (already-normalised) name matches arg 2; 0 if not found.
+fn retCentralityOf(p: *anyopaque, fnc: *const fn (?*const graph.StzGraph, [*]f64, usize) callconv(.c) usize) void {
+    const gr = getH(p, 1) orelse { rn(p, 0); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n == 0) { rn(p, 0); return; }
+    const query = gs(p, 2);
+    const qlen: usize = @intCast(gss(p, 2));
+    const qslice = query[0..qlen];
+    const vals = gpa.alloc(f64, n) catch { rn(p, 0); return; };
+    defer gpa.free(vals);
+    _ = fnc(gr, vals.ptr, n);
+    var nb: [256]u8 = undefined;
+    for (0..n) |i| {
+        const nlen = graph.stz_graph_node_name(gr, i, &nb, 256);
+        if (std.mem.eql(u8, nb[0..nlen], qslice)) { rn(p, vals[i]); return; }
+    }
+    rn(p, 0);
+}
+
+fn ring_ClosenessAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_closeness);
+}
+fn ring_ClosenessOf(p: *anyopaque) callconv(.c) void {
+    retCentralityOf(p, &graph.stz_graph_closeness);
+}
+fn ring_BetweennessAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_betweenness);
+}
+fn ring_BetweennessOf(p: *anyopaque) callconv(.c) void {
+    retCentralityOf(p, &graph.stz_graph_betweenness);
+}
+
 fn ring_Reachable(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
@@ -345,6 +396,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphmstedges", .func = &ring_MSTEdges },
     .{ .name = "stzenginegrapharticulationpoints", .func = &ring_ArticulationPoints },
     .{ .name = "stzenginegraphbridges", .func = &ring_Bridges },
+    .{ .name = "stzenginegraphclosenessall", .func = &ring_ClosenessAll },
+    .{ .name = "stzenginegraphclosenessof", .func = &ring_ClosenessOf },
+    .{ .name = "stzenginegraphbetweennessall", .func = &ring_BetweennessAll },
+    .{ .name = "stzenginegraphbetweennessof", .func = &ring_BetweennessOf },
     .{ .name = "stzenginegraphreachable", .func = &ring_Reachable },
     .{ .name = "stzenginegraphhascycle", .func = &ring_HasCycle },
     .{ .name = "stzenginegraphindegree", .func = &ring_InDegree },

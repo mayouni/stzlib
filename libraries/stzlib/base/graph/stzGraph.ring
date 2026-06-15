@@ -2738,90 +2738,47 @@ class stzGraph
 
 	# (ArticulationPoints is now engine-backed -- see the def above.)
 
+	# Betweenness centrality (Brandes, unweighted) -- computed entirely in the
+	# Zig engine. Returns the value for pcNodeId (0 if absent).
 	def BetweennessCentrality(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
 		ok
-	
 		if NOT _IsWellFormedId(pcNodeId)
 			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
-
-		_nCentrality_ = 0
-		_aNodes_ = This.Nodes()
-		_nNodeCount_ = len(_aNodes_)
-		
-		for _i_ = 1 to _nNodeCount_
-			_cSource_ = _aNodes_[_i_][:id]
-			if _cSource_ = pcNodeId
-				loop
-			ok
-			
-			for _j_ = 1 to _nNodeCount_
-				_cTarget_ = _aNodes_[_j_][:id]
-				if _cTarget_ = pcNodeId or _cTarget_ = _cSource_
-					loop
-				ok
-				
-				_acPath_ = This.ShortestPath(_cSource_, _cTarget_)
-				
-				if len(_acPath_) = 0
-					loop
-				ok
-				
-				_bInPath_ = FALSE
-				_nPathLen_ = len(_acPath_)
-				for _k_ = 2 to _nPathLen_ - 1
-					if _acPath_[_k_] = pcNodeId
-						_bInPath_ = TRUE
-						exit
-					ok
-				end
-				
-				if _bInPath_
-					_nCentrality_++
-				ok
-			end
-		end
-		
-		_nTotalPairs_ = (_nNodeCount_ - 1) * (_nNodeCount_ - 2)
-		
-		if _nTotalPairs_ = 0
-			return 0
+		if This._EnsureEngine()
+			return StzEngineGraphBetweennessOf(@pEngineGraph, StzLower(pcNodeId))
 		ok
-		
-		return _nCentrality_ / _nTotalPairs_
-	
+		return 0
+
+	# Betweenness for every node as a list of [ id, value ] pairs.
+	def BetweennessCentralityAll()
+		if This._EnsureEngine()
+			return StzEngineGraphBetweennessAll(@pEngineGraph)
+		ok
+		return []
+
+	# Closeness centrality (engine-backed): reachable / sum(distances).
+	# Returns the value for pcNodeId (0 if absent or isolated).
 	def ClosenessCentrality(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
 		ok
-
 		if NOT _IsWellFormedId(pcNodeId)
 			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
-
-		_nTotalDistance_ = 0
-		_nReachable_ = 0
-		_aNodes_ = This.Nodes()
-		
-		_nNodeLen_ = len(_aNodes_)
-		for _i_ = 1 to _nNodeLen_
-			_cTarget_ = _aNodes_[_i_][:id]
-			if _cTarget_ != pcNodeId
-				_nDist_ = This.ShortestPathLength(pcNodeId, _cTarget_)
-				if _nDist_ > 0
-					_nTotalDistance_ += _nDist_
-					_nReachable_++
-				ok
-			ok
-		end
-		
-		if _nReachable_ = 0
-			return 0
+		if This._EnsureEngine()
+			return StzEngineGraphClosenessOf(@pEngineGraph, StzLower(pcNodeId))
 		ok
-		
-		return _nReachable_ / _nTotalDistance_
+		return 0
+
+	# Closeness for every node as a list of [ id, value ] pairs.
+	def ClosenessCentralityAll()
+		if This._EnsureEngine()
+			return StzEngineGraphClosenessAll(@pEngineGraph)
+		ok
+		return []
 
 	def Diameter()
 		_nMaxDist_ = 0
