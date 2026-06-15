@@ -162,12 +162,6 @@ class stzGraph
 		@bEngineStale = FALSE
 		return TRUE
 
-	def _SplitNewline(cStr)
-		if cStr = ""
-			return []
-		ok
-		return StzSplit(cStr, nl)
-
 	def Copy()
 		_oCopy_ = This
 		return _oCopy_
@@ -1757,7 +1751,7 @@ class stzGraph
 
 		if This._EnsureEngine()
 			_cEngResult_ = StzEngineGraphNeighbors(@pEngineGraph, StzLower(pcNodeId))
-			return This._SplitNewline(_cEngResult_)
+			return _cEngResult_
 		ok
 
 		# Edge from/to are StzLower-normalised; the engine path above
@@ -1867,7 +1861,7 @@ class stzGraph
 
 		if This._EnsureEngine()
 			_cEngResult_ = StzEngineGraphReachable(@pEngineGraph, StzLower(pcNodeId))
-			return This._SplitNewline(_cEngResult_)
+			return _cEngResult_
 		ok
 
 		acReachable = []
@@ -2406,7 +2400,7 @@ class stzGraph
 
 		if This._EnsureEngine()
 			_cEngResult_ = StzEngineGraphShortestPath(@pEngineGraph, StzLower(pcFromNodeId), StzLower(pcToNodeId))
-			_aEngPath_ = This._SplitNewline(_cEngResult_)
+			_aEngPath_ = _cEngResult_
 			if len(_aEngPath_) > 0
 				return _aEngPath_
 			ok
@@ -2482,7 +2476,7 @@ class stzGraph
 			return []
 		ok
 		if This._EnsureEngine()
-			return This._SplitNewline(StzEngineGraphBFS(@pEngineGraph, StzLower(pcNodeId)))
+			return StzEngineGraphBFS(@pEngineGraph, StzLower(pcNodeId))
 		ok
 		return []
 
@@ -2498,7 +2492,7 @@ class stzGraph
 			return []
 		ok
 		if This._EnsureEngine()
-			return This._SplitNewline(StzEngineGraphDFS(@pEngineGraph, StzLower(pcNodeId)))
+			return StzEngineGraphDFS(@pEngineGraph, StzLower(pcNodeId))
 		ok
 		return []
 
@@ -2517,15 +2511,9 @@ class stzGraph
 	# (Kosaraju). Returns [] if the engine is unavailable.
 	def StronglyConnectedComponents()
 		if This._EnsureEngine()
-			_cSccRes_ = StzEngineGraphStronglyConnectedComponents(@pEngineGraph)
-			if _cSccRes_ = ""
-				return []
-			ok
-			_aGroups_ = []
-			for _cLine_ in StzSplit(_cSccRes_, nl)
-				_aGroups_ + StzSplit(_cLine_, ",")
-			next
-			return _aGroups_
+			# The engine bridge builds the grouped list (list of node-id
+			# lists) entirely Zig-side -- returned ready, no Ring looping.
+			return StzEngineGraphStronglyConnectedComponents(@pEngineGraph)
 		ok
 		return []
 
@@ -2566,7 +2554,7 @@ class stzGraph
 			return []
 		ok
 		if This._EnsureEngine()
-			return This._SplitNewline(StzEngineGraphDijkstra(@pEngineGraph, StzLower(pcFromNodeId), StzLower(pcToNodeId)))
+			return StzEngineGraphDijkstra(@pEngineGraph, StzLower(pcFromNodeId), StzLower(pcToNodeId))
 		ok
 		return This.ShortestPath(pcFromNodeId, pcToNodeId)
 
@@ -2654,7 +2642,7 @@ class stzGraph
 	def TopologicalSort()
 		if This._EnsureEngine()
 			_cEngResult_ = StzEngineGraphTopologicalSort(@pEngineGraph)
-			return This._SplitNewline(_cEngResult_)
+			return _cEngResult_
 		ok
 		return []
 
