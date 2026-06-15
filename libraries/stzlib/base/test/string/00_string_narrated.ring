@@ -22,6 +22,8 @@ Scenario("Reverse and search")
     Then("Contains('tan') in 'softanza'", Q("softanza").Contains("tan"), TRUE)
     Then("Contains('xyz') is FALSE", Q("softanza").Contains("xyz"), FALSE)
     Then("FindFirst('a') is position 5", Q("softanza").FindFirst("a"), 5)
+    Then("FindNext('a',5) finds the next 'a' at 8", Q("softanza").FindNext("a", 5), 8)
+    Then("FindNext('abc',2) on 'abcabc' is 4 (was broken)", Q("abcabc").FindNext("abc", 2), 4)
 EndScenario()
 
 Scenario("Replace and split")
