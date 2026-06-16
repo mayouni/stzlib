@@ -91,10 +91,10 @@ pub const macro = MacroStats{
     .engine_tests = 1593,
     .dlls_shipping = 91,
     .qt_dependencies = 0,
-    .ring_bridge_regs = 1518,
+    .ring_bridge_regs = 1513,
     .ring_classes_bridged = 131,
     .ring_engine_calls = 3482,
-    .last_session = 122,
+    .last_session = 123,
     .last_updated = "2026-06-16",
 };
 
