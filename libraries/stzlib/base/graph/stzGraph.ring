@@ -2941,6 +2941,23 @@ class stzGraph
 		def MinimumCut(pcSource, pcSink)
 			return This.MinCut(pcSource, pcSink)
 
+	# Community detection (label propagation, engine, undirected view).
+	# Returns a list of communities, each a list of node ids.
+	def Communities()
+		if This._EnsureEngine()
+			return StzEngineGraphCommunities(@pEngineGraph)
+		ok
+		return []
+
+		def DetectCommunities()
+			return This.Communities()
+
+	def NumberOfCommunities()
+		if This._EnsureEngine()
+			return StzEngineGraphNumberOfCommunities(@pEngineGraph)
+		ok
+		return 0
+
 	# Local clustering coefficient (engine, undirected view): edges among a
 	# node's neighbours / possible such edges. Replaces the old O(k^2)
 	# pure-Ring EdgeExists double loop.
