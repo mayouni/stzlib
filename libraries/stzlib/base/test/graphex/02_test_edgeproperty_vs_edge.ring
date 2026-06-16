@@ -14,7 +14,7 @@ oGraph = new stzGraph("EdgeProps")
 oGraph {
 	AddNodeXT(:a, "A")
 	AddNodeXT(:b, "B")
-	AddEdgeXT(:a, :b, "connects", ["weight" = 5])
+	AddEdgeXTT(:a, :b, "connects", [:weight = 5])
 }
 
 oGx = new stzGraphex("{@Node -> @EdgeProperty(weight) -> @Node}", oGraph)

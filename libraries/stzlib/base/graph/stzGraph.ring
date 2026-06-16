@@ -1738,11 +1738,24 @@ class stzGraph
 			aEdge = @aEdges[i]
 			if aEdge["from"] = pcCurrent
 				cNext = aEdge["to"]
-				
+
 				if StzFind(pacCurrentPath, cNext) = 0
-					pacCurrentPath + cNext
-					This._FindAllPathsDFS(cNext, pcTarget, pacCurrentPath, pacAllPaths, pnDepth + 1)
-					pacCurrentPath = stzleft(pacCurrentPath, len(pacCurrentPath) - 1)
+					# Thread a fresh copy down the branch instead of
+					# mutate-then-backtrack. Two reasons:
+					#  (1) the old backtrack used stzleft() -- a STRING
+					#      op -- on a list, which panicked the string
+					#      engine (@intFromFloat out of bounds);
+					#  (2) Ring passes lists by reference, so appending
+					#      to the shared path and later storing it in
+					#      pacAllPaths aliased every stored path. A
+					#      per-branch copy makes each stored path its own.
+					aNextPath = []
+					_nCur_ = len(pacCurrentPath)
+					for _j_ = 1 to _nCur_
+						aNextPath + pacCurrentPath[_j_]
+					next
+					aNextPath + cNext
+					This._FindAllPathsDFS(cNext, pcTarget, aNextPath, pacAllPaths, pnDepth + 1)
 				ok
 			ok
 		end

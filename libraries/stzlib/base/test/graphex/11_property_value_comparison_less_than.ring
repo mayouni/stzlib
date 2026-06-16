@@ -12,9 +12,9 @@ pr()
 
 oGraph = new stzGraph("Products")
 oGraph {
-	AddNodeXT(:p1, "ItemA", ["price" = 10])
-	AddNodeXT(:p2, "ItemB", ["price" = 50])
-	AddNodeXT(:p3, "ItemC", ["price" = 5])
+	AddNodeXTT(:p1, "ItemA", [:price = 10])
+	AddNodeXTT(:p2, "ItemB", [:price = 50])
+	AddNodeXTT(:p3, "ItemC", [:price = 5])
 }
 
 # Match items with price < 15

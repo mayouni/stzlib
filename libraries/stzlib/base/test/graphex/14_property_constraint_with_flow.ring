@@ -12,8 +12,8 @@ pr()
 
 oGraph = new stzGraph("Workflow")
 oGraph {
-	AddNodeXT(:a, "Task1", ["priority" = 1])
-	AddNodeXT(:b, "Task2", ["priority" = 5])
+	AddNodeXTT(:a, "Task1", [:priority = 1])
+	AddNodeXTT(:b, "Task2", [:priority = 5])
 	AddEdgeXT(:a, :b, "depends")
 }
 

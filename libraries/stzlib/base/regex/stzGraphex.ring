@@ -8,6 +8,7 @@ class stzGraphex from stzGraph
 	# Match-result cache, keyed by target-graph signature.
 	@aMatchCache = []	# list of [ signature, result ] pairs
 	@nCacheHits = 0
+	@nMaxCacheSize = 100	# bound; oldest entry evicted past this
 
 	# Patterns for parsing tokens
 	@cNodePattern = '@Node(?:\((.*?)\))?(?:\{(.*?)\})?'
@@ -83,8 +84,9 @@ class stzGraphex from stzGraph
 					cAltNodeId = ":p" + nNodeCounter
 					aAltToken = aToken[:alternatives][j]
 					cLabel = aAltToken[:type] + iff(HasKey(aAltToken, :label) and aAltToken[:label] != "", "(" + aAltToken[:label] + ")", "")
-					acProps = [ :min = aAltToken[:min], :max = aAltToken[:max], 
-							:negated = iff(aAltToken[:negated], "TRUE", "FALSE") ]
+					acProps = [ :min = aAltToken[:min], :max = aAltToken[:max],
+							:negated = iff(aAltToken[:negated], "TRUE", "FALSE"),
+							:cs = iff(HasKey(aAltToken, :cs) and aAltToken[:cs], "TRUE", "FALSE") ]
 					if HasKey(aAltToken, :setvalues) and len(aAltToken[:setvalues]) > 0
 						acProps + [ "set", "{" + JoinXT(aAltToken[:setvalues], ";") + "}" + iff(aAltToken[:unique], "U", "") ]
 					ok
@@ -110,8 +112,9 @@ class stzGraphex from stzGraph
 				if HasKey(aToken, :label) and aToken[:label] != ""
 					cLabel += "(" + aToken[:label] + ")"
 				ok
-				acProps = [ :min = aToken[:min], :max = aToken[:max], 
-						:negated = iff(aToken[:negated], "TRUE", "FALSE") ]
+				acProps = [ :min = aToken[:min], :max = aToken[:max],
+						:negated = iff(aToken[:negated], "TRUE", "FALSE"),
+						:cs = iff(HasKey(aToken, :cs) and aToken[:cs], "TRUE", "FALSE") ]
 				if HasKey(aToken, :setvalues) and len(aToken[:setvalues]) > 0
 					acProps + [ "set", "{" + JoinXT(aToken[:setvalues], ";") + "}" + iff(aToken[:unique], "U", "") ]
 				ok
@@ -232,7 +235,17 @@ class stzGraphex from stzGraph
 			# Remove @! (positions 1-2), keep from position 3 onwards
 			cTokenStr = "@" + @StzMid(cTokenStr, 3, len(cTokenStr))
 		ok
-			
+
+		# Per-token case-sensitivity marker: a leading "@cs:" makes this
+		# token match the target label case-sensitively. Default (no
+		# marker) is case-insensitive. Strip it before type detection,
+		# else startsWith(.., "@node") never fires on "@cs:@Node(..)".
+		bCaseSensitive = FALSE
+		if StartsWith(StzLower(cTokenStr), "@cs:")
+			bCaseSensitive = TRUE
+			cTokenStr = @StzMid(cTokenStr, 5, len(cTokenStr))
+		ok
+
 		# Now process cTokenStr normally with bNegated flag set...
 		
 		nMin = 1
@@ -265,10 +278,12 @@ class stzGraphex from stzGraph
 			nBraceEnd = StzFind(cTokenStr, "}")
 			if nBraceEnd > nBraceStart
 	
-				cSetContent = @StzMid(cTokenStr, nBraceStart + 1, nBraceEnd)
-				
-				# Check for U after closing brace
-				if nBraceEnd < len(cTokenStr) and @StzMid(cTokenStr, nBraceEnd + 1, nBraceEnd + 2) = "U"
+				# span BETWEEN the braces, not the absolute end index
+				# (the old nBraceEnd count leaked the '}' into the set).
+				cSetContent = @StzMid(cTokenStr, nBraceStart + 1, nBraceEnd - nBraceStart - 1)
+
+				# Check for U after closing brace (single char lookahead)
+				if nBraceEnd < len(cTokenStr) and @StzMid(cTokenStr, nBraceEnd + 1, 1) = "U"
 					bRequireUnique = TRUE
 					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @StzMid(cTokenStr, nBraceEnd + 2, len(cTokenStr))
 				else
@@ -309,7 +324,8 @@ class stzGraphex from stzGraph
 				[ "max", nMax ],
 				[ "setvalues", aSetValues ],
 				[ "unique", bRequireUnique ],
-				[ "negated", bNegated ]
+				[ "negated", bNegated ],
+				[ "cs", bCaseSensitive ]
 			]
 			
 		but startsWith(cTokenLower, "@edge")
@@ -332,7 +348,8 @@ class stzGraphex from stzGraph
 				[ "max", nMax ],
 				[ "setvalues", aSetValues ],
 				[ "unique", bRequireUnique ],
-				[ "negated", bNegated ]
+				[ "negated", bNegated ],
+				[ "cs", bCaseSensitive ]
 			]
 			
 		but startsWith(cTokenLower, "@cycle")
@@ -344,7 +361,8 @@ class stzGraphex from stzGraph
 				[ "max", nMax ],
 				[ "setvalues", aSetValues ],
 				[ "unique", bRequireUnique ],
-				[ "negated", bNegated ]
+				[ "negated", bNegated ],
+				[ "cs", bCaseSensitive ]
 			]
 			
 		but startsWith(cTokenLower, "@path")
@@ -356,7 +374,8 @@ class stzGraphex from stzGraph
 				[ "max", nMax ],
 				[ "setvalues", aSetValues ],
 				[ "unique", bRequireUnique ],
-				[ "negated", bNegated ]
+				[ "negated", bNegated ],
+				[ "cs", bCaseSensitive ]
 			]
 			
 		else
@@ -522,6 +541,18 @@ class stzGraphex from stzGraph
 		ok
 
 		_result_ = This.MatchBranches(aPatternBranches, aTargetBranches)
+
+		# Property constraints (e.g. @Node{age:>:25}) are not expressible
+		# as label subsequences -- enforce them on the actual target nodes
+		# once the structural match holds.
+		if _result_
+			_result_ = This._CheckPropertyConstraints(oTargetGraph)
+		ok
+
+		# Store, evicting the oldest entry when the cache is full (FIFO).
+		if @nMaxCacheSize > 0 and len(@aMatchCache) >= @nMaxCacheSize
+			del(@aMatchCache, 1)
+		ok
 		@aMatchCache + [ _cSig_, _result_ ]
 		return _result_
 
@@ -546,6 +577,17 @@ class stzGraphex from stzGraph
 		def ClearCache()
 			@aMatchCache = []
 			@nCacheHits = 0
+
+		# Bound the match cache; 0 or negative disables eviction.
+		def SetCacheSize(nSize)
+			if isNumber(nSize)
+				@nMaxCacheSize = nSize
+			ok
+			return self
+
+		def CacheInfo()
+			return [ :entries = len(@aMatchCache), :maxsize = @nMaxCacheSize, :hits = @nCacheHits ]
+
 	# Special listification for pattern graph that handles alternations
 	def ListifyPatternGraph()
 		aBranches = []
@@ -675,64 +717,76 @@ class stzGraphex from stzGraph
 			if @bDebugMode
 			ok
 			
-			# Extract labels and check for negations
+			# Extract labels with per-token case-sensitivity + negation.
+			# aPatternCS[j] / aForbiddenCS[j] carry whether that label
+			# must match case-sensitively (the token had a @cs: marker).
 			aPatternLabels = []
+			aPatternCS = []
 			aForbiddenLabels = []
+			aForbiddenCS = []
 			nLenPattern = len(aPatternBranch)
-			
+
 			for j = 1 to nLenPattern
 				cToken = aPatternBranch[j]
 				cLabel = ""
-				
+
 				nParenPos = StzFind(cToken, "(")
 				if nParenPos > 0
 					nClosePos = StzFind(cToken, ")")
 					if nClosePos > nParenPos
-						cLabel = @StzMid(cToken, nParenPos + 1, nClosePos - 1)
+						# count is the span BETWEEN the parens, not nClosePos-1
+						# (which leaked the ')' into the label -> "start)").
+						cLabel = @StzMid(cToken, nParenPos + 1, nClosePos - nParenPos - 1)
 					ok
 				ok
 
-				# Check if negated
-				aNodeFromPattern = This.Node(":p" + j)
+				# Read the pattern node's :negated / :cs flags from its
+				# properties hashlist (the props are [ :min, :max,
+				# :negated, :cs ], not "key=value" strings).
 				bIsNegated = FALSE
-				if aNodeFromPattern != ""
+				bIsCS = FALSE
+				aNodeFromPattern = This.Node(":p" + j)
+				if isList(aNodeFromPattern) and HasKey(aNodeFromPattern, :properties)
 					acProps = aNodeFromPattern[:properties]
-					_nPropsLen_ = len(acProps)
-					for k = 1 to _nPropsLen_
-						if acProps[k] = "negated=TRUE"
+					if isList(acProps)
+						if HasKey(acProps, :negated) and acProps[:negated] = "TRUE"
 							bIsNegated = TRUE
-							exit
 						ok
-					next
+						if HasKey(acProps, :cs) and acProps[:cs] = "TRUE"
+							bIsCS = TRUE
+						ok
+					ok
 				ok
-				
+
 				if cLabel != ""
 					if bIsNegated
 						aForbiddenLabels + cLabel
+						aForbiddenCS + bIsCS
 					else
 						aPatternLabels + cLabel
+						aPatternCS + bIsCS
 					ok
 				ok
 			next
-			
+
 			if @bDebugMode
 			ok
-			
+
 			# Check each target branch
 			nLenTargetBranches = len(aTargetBranches)
 			for k = 1 to nLenTargetBranches
 				aTargetBranch = aTargetBranches[k]
-				
+
 				if @bDebugMode
 				ok
-				
+
 				# First check forbidden labels - if any exist in target, skip this branch
 				bHasForbidden = FALSE
 				_nForbiddenLabelsLen_ = len(aForbiddenLabels)
 				for m = 1 to _nForbiddenLabelsLen_
 					_nTargetBranchLen_ = len(aTargetBranch)
 					for n = 1 to _nTargetBranchLen_
-						if aForbiddenLabels[m] = aTargetBranch[n]
+						if This._LabelEq(aForbiddenLabels[m], aTargetBranch[n], aForbiddenCS[m])
 							bHasForbidden = TRUE
 							exit
 						ok
@@ -741,41 +795,226 @@ class stzGraphex from stzGraph
 						exit
 					ok
 				next
-				
+
 				if bHasForbidden
 					if @bDebugMode
 					ok
 					loop
 				ok
-				
+
 				# Check if pattern labels appear as subsequence in target
-				if This.IsSubsequenceSimple(aPatternLabels, aTargetBranch)
+				if This.IsSubsequenceCS(aPatternLabels, aPatternCS, aTargetBranch)
 					if @bDebugMode
 					ok
 					return TRUE
 				ok
 			next
 		next
-		
+
 		if @bDebugMode
 		ok
-		
+
 		return FALSE
-	
-	def IsSubsequenceSimple(aPattern, aTarget)
+
+	# Codepoint-safe label equality. Case-sensitive when bCS is TRUE
+	# (Ring's = is already case-sensitive); otherwise fold both sides
+	# with StzLower (engine-backed, Unicode-correct).
+	def _LabelEq(c1, c2, bCS)
+		if bCS
+			return (c1 = c2)
+		ok
+		return (StzLower(c1) = StzLower(c2))
+
+	#-- Property-constraint evaluation -----------------------------------
+	# Pattern nodes may carry set constraints like {age:>:25;score:>:80}.
+	# A structural (label) match must additionally satisfy them on the
+	# real target nodes: every constrained pattern node needs at least
+	# one target node (matching its label, if any) that obeys all of its
+	# constraints.
+
+	def _CheckPropertyConstraints(oTargetGraph)
+		aPatNodes = This.Nodes()
+		aTgtNodes = oTargetGraph.Nodes()
+		nLenPat = len(aPatNodes)
+
+		for i = 1 to nLenPat
+			aPat = aPatNodes[i]
+			if NOT (isList(aPat) and HasKey(aPat, :properties))
+				loop
+			ok
+			aProps = aPat[:properties]
+			if NOT (isList(aProps) and HasKey(aProps, :set))
+				loop
+			ok
+
+			aConstraints = This._ParseSetConstraints(aProps[:set])
+			if len(aConstraints) = 0
+				loop
+			ok
+
+			cPatLabel = This._BareLabel(aPat[:label])
+			bCS = (HasKey(aProps, :cs) and aProps[:cs] = "TRUE")
+
+			bFound = FALSE
+			nLenTgt = len(aTgtNodes)
+			for j = 1 to nLenTgt
+				aTgt = aTgtNodes[j]
+				if cPatLabel != "" and NOT This._LabelEq(cPatLabel, aTgt[:label], bCS)
+					loop
+				ok
+				if This._NodeSatisfiesConstraints(aTgt[:properties], aConstraints)
+					bFound = TRUE
+					exit
+				ok
+			next
+
+			if NOT bFound
+				return FALSE
+			ok
+		next
+
+		return TRUE
+
+	# "node(Alice)" -> "Alice"; "node" (no parens) -> "".
+	def _BareLabel(cLabel)
+		if NOT isString(cLabel)
+			return ""
+		ok
+		np = StzFind(cLabel, "(")
+		if np > 0
+			nc = StzFind(cLabel, ")")
+			if nc > np
+				return @StzMid(cLabel, np + 1, nc - np - 1)
+			ok
+		ok
+		return ""
+
+	# "{age:>:25;score:>:80}U" -> [ ["age",">","25"], ["score",">","80"] ]
+	def _ParseSetConstraints(cSet)
+		aOut = []
+		if NOT isString(cSet)
+			return aOut
+		ok
+		c = cSet
+		if StartsWith(c, "{")
+			c = @StzMid(c, 2, len(c))
+		ok
+		if EndsWith(c, "U")
+			c = StzLeft(c, len(c) - 1)
+		ok
+		if EndsWith(c, "}")
+			c = StzLeft(c, len(c) - 1)
+		ok
+		if c = ""
+			return aOut
+		ok
+
+		aParts = StzSplit(c, ";")
+		nP = len(aParts)
+		for i = 1 to nP
+			aC = This._ParseOneConstraint(aParts[i])
+			if len(aC) > 0
+				aOut + aC
+			ok
+		next
+		return aOut
+
+	# "age:>:25" -> ["age",">","25"]; a plain value (no comparator) -> [].
+	def _ParseOneConstraint(cPart)
+		if len(StzFindCS(":", cPart, TRUE)) = 0
+			return []
+		ok
+		aSeg = StzSplit(cPart, ":")
+		if len(aSeg) < 3
+			return []
+		ok
+		return [ aSeg[1], aSeg[2], aSeg[3] ]
+
+	def _NodeSatisfiesConstraints(aNodeProps, aConstraints)
+		if NOT isList(aNodeProps)
+			return FALSE
+		ok
+		nC = len(aConstraints)
+		for i = 1 to nC
+			aC = aConstraints[i]
+			cKey = aC[1]
+			cOp  = aC[2]
+			cVal = aC[3]
+			if NOT HasKey(aNodeProps, cKey)
+				return FALSE
+			ok
+			if NOT This._CompareValues(aNodeProps[cKey], cOp, cVal)
+				return FALSE
+			ok
+		next
+		return TRUE
+
+	def _CompareValues(vActual, cOp, cExpected)
+		# Node property values are stored as real numbers (e.g. [:age = 30]);
+		# do a numeric compare when the actual value is numeric, else fall
+		# back to (case-insensitive) string (in)equality.
+		if isNumber(vActual)
+			nA = vActual
+			nE = number("" + cExpected)
+			switch cOp
+			on ">"  return nA > nE
+			on "<"  return nA < nE
+			on "="  return nA = nE
+			on ">=" return nA >= nE
+			on "<=" return nA <= nE
+			on "!=" return nA != nE
+			off
+			return FALSE
+		ok
+
+		cA = "" + vActual
+		switch cOp
+		on "="  return This._LabelEq(cA, cExpected, FALSE)
+		on "!=" return NOT This._LabelEq(cA, cExpected, FALSE)
+		off
+		return FALSE
+
+	# Subsequence test with a parallel per-element case-sensitivity
+	# vector. Default graphex matching is case-insensitive.
+	def IsSubsequenceCS(aPattern, aPatternCS, aTarget)
 		nPatternLen = len(aPattern)
 		nTargetLen = len(aTarget)
-		
+
 		if nPatternLen = 0
 			return TRUE
 		ok
-		
+
 		if nPatternLen > nTargetLen
 			return FALSE
 		ok
-		
+
 		nPatternIdx = 1
-		
+
+		for i = 1 to nTargetLen
+			if This._LabelEq(aPattern[nPatternIdx], aTarget[i], aPatternCS[nPatternIdx])
+				nPatternIdx++
+				if nPatternIdx > nPatternLen
+					return TRUE
+				ok
+			ok
+		next
+
+		return FALSE
+
+	def IsSubsequenceSimple(aPattern, aTarget)
+		nPatternLen = len(aPattern)
+		nTargetLen = len(aTarget)
+
+		if nPatternLen = 0
+			return TRUE
+		ok
+
+		if nPatternLen > nTargetLen
+			return FALSE
+		ok
+
+		nPatternIdx = 1
+
 		for i = 1 to nTargetLen
 			if aPattern[nPatternIdx] = aTarget[i]
 				nPatternIdx++
@@ -784,7 +1023,7 @@ class stzGraphex from stzGraph
 				ok
 			ok
 		next
-		
+
 		return FALSE
 	
 	def IsSubsequence(aPattern, aTarget, aPatternNegations)
