@@ -1481,6 +1481,101 @@ pub fn stz_graph_min_cut(g: ?*const StzGraph, src_ptr: [*]const u8, src_len: usi
     return count;
 }
 
+// ─── Community detection (Louvain, one level) ───
+
+// Detect communities by single-level Louvain modularity optimisation over the
+// undirected view: every node starts in its own community, then is greedily
+// moved to the neighbouring community giving the best modularity gain
+// (gain(c) = k_i_in(c) - Sigma_tot(c)*deg_i/2m), in a fixed node order, until
+// no move improves. Ties keep the current community, else smallest id.
+// Label propagation was rejected here -- it collapsed clearly-separate
+// communities joined by a single bridge into one. Fills labels[] with
+// community ids remapped to 0..k-1 (order of first appearance); returns k.
+pub fn stz_graph_communities(g: ?*const StzGraph, labels: [*]u32, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    var u = buildUndirected(gr) orelse return 0;
+    defer u.deinit();
+
+    const comm = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(comm);
+    const deg = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(deg);
+    const sigma = allocator.alloc(f64, n) catch return 0; // Sigma_tot per community
+    defer allocator.free(sigma);
+    for (0..n) |i| {
+        comm[i] = @intCast(i);
+        deg[i] = @floatFromInt(u.start[i + 1] - u.start[i]);
+        sigma[i] = deg[i];
+    }
+    const m2: f64 = @floatFromInt(u.adj.len); // = 2*m (each edge twice)
+    if (m2 == 0) {
+        for (0..n) |i| labels[i] = @intCast(i);
+        return n;
+    }
+
+    // k_i_in tallies per candidate community
+    const kin = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(kin);
+    @memset(kin, 0);
+    const touched = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(touched);
+
+    var pass: usize = 0;
+    var improved = true;
+    while (improved and pass < 100) : (pass += 1) {
+        improved = false;
+        for (0..n) |v| {
+            const s = u.start[v];
+            const e = u.start[v + 1];
+            if (e == s) continue;
+            const ci = comm[v];
+            // tally neighbour-community weights (k_i_in)
+            var nt: usize = 0;
+            for (s..e) |k| {
+                const c = comm[u.adj[k]];
+                if (kin[c] == 0) {
+                    touched[nt] = c;
+                    nt += 1;
+                }
+                kin[c] += 1;
+            }
+            // remove v from its current community
+            sigma[ci] -= deg[v];
+            // best gain among candidate communities (incl. staying in ci)
+            var best: u32 = ci;
+            var bestGain: f64 = kin[ci] - sigma[ci] * deg[v] / m2;
+            for (0..nt) |ti| {
+                const c = touched[ti];
+                const gain = kin[c] - sigma[c] * deg[v] / m2;
+                if (gain > bestGain or (gain == bestGain and c < best)) {
+                    bestGain = gain;
+                    best = c;
+                }
+                kin[c] = 0; // reset
+            }
+            sigma[best] += deg[v];
+            comm[v] = best;
+            if (best != ci) improved = true;
+        }
+    }
+
+    const remap = allocator.alloc(i64, n) catch return 0;
+    defer allocator.free(remap);
+    @memset(remap, -1);
+    var k: usize = 0;
+    for (0..n) |i| {
+        const raw = comm[i];
+        if (remap[raw] < 0) {
+            remap[raw] = @intCast(k);
+            k += 1;
+        }
+        labels[i] = @intCast(remap[raw]);
+    }
+    return k;
+}
+
 // ─── k-core & PageRank ───
 
 // Core number of every node (Batagelj-Zaversnik, O(V+E)) over the undirected
@@ -1897,6 +1992,29 @@ test "graph pagerank sums to one" {
     var sum: f64 = 0;
     for (pr) |x| sum += x;
     try std.testing.expectApproxEqAbs(@as(f64, 1.0), sum, 1e-6);
+}
+
+test "graph communities (Louvain one level)" {
+    // two triangles {A,B,C} and {D,E,F} joined by a single bridge C-D:
+    // label propagation should find 2 communities.
+    const g = stz_graph_create(0) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "A", 1, "B", 1, 1.0);
+    _ = stz_graph_add_edge(g, "B", 1, "C", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "A", 1, 1.0);
+    _ = stz_graph_add_edge(g, "D", 1, "E", 1, 1.0);
+    _ = stz_graph_add_edge(g, "E", 1, "F", 1, 1.0);
+    _ = stz_graph_add_edge(g, "F", 1, "D", 1, 1.0);
+    _ = stz_graph_add_edge(g, "C", 1, "D", 1, 1.0);
+    var lab: [6]u32 = undefined;
+    const k = stz_graph_communities(g, &lab, 6);
+    try std.testing.expectEqual(@as(usize, 2), k);
+    // A,B,C share a community; D,E,F share the other
+    try std.testing.expectEqual(lab[0], lab[1]);
+    try std.testing.expectEqual(lab[1], lab[2]);
+    try std.testing.expectEqual(lab[3], lab[4]);
+    try std.testing.expectEqual(lab[4], lab[5]);
+    try std.testing.expect(lab[0] != lab[3]);
 }
 
 test "graph max flow / min cut" {

@@ -379,6 +379,34 @@ fn ring_AStarPlan(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, outer);
 }
 
+fn ring_NumberOfCommunities(p: *anyopaque) callconv(.c) void {
+    const gr = getH(p, 1) orelse { rn(p, 0); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n == 0) { rn(p, 0); return; }
+    const labels = gpa.alloc(u32, n) catch { rn(p, 0); return; };
+    defer gpa.free(labels);
+    rn(p, @floatFromInt(graph.stz_graph_communities(gr, labels.ptr, n)));
+}
+
+// Communities as a Ring list of lists of node names (built Zig-side).
+fn ring_Communities(p: *anyopaque) callconv(.c) void {
+    const outer = R.ring_vm_api_newlist(p) orelse return;
+    const gr = getH(p, 1) orelse { R.ring_vm_api_retlist(p, outer); return; };
+    const n = graph.stz_graph_node_count(gr);
+    if (n == 0) { R.ring_vm_api_retlist(p, outer); return; }
+    const labels = gpa.alloc(u32, n) catch { R.ring_vm_api_retlist(p, outer); return; };
+    defer gpa.free(labels);
+    const k = graph.stz_graph_communities(gr, labels.ptr, n);
+    var comp: u32 = 0;
+    while (comp < k) : (comp += 1) {
+        const sub = R.ring_list_newlist(outer) orelse continue;
+        for (0..n) |i| {
+            if (labels[i] == comp) addName(sub, gr, i);
+        }
+    }
+    R.ring_vm_api_retlist(p, outer);
+}
+
 fn ring_MaxFlow(p: *anyopaque) callconv(.c) void {
     const s = gs(p, 2);
     const sl: usize = @intCast(gss(p, 2));
@@ -525,6 +553,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphclosenessof", .func = &ring_ClosenessOf },
     .{ .name = "stzenginegraphbetweennessall", .func = &ring_BetweennessAll },
     .{ .name = "stzenginegraphbetweennessof", .func = &ring_BetweennessOf },
+    .{ .name = "stzenginegraphnumberofcommunities", .func = &ring_NumberOfCommunities },
+    .{ .name = "stzenginegraphcommunities", .func = &ring_Communities },
     .{ .name = "stzenginegraphmaxflow", .func = &ring_MaxFlow },
     .{ .name = "stzenginegraphmincut", .func = &ring_MinCut },
     .{ .name = "stzenginegraphclusteringall", .func = &ring_ClusteringAll },

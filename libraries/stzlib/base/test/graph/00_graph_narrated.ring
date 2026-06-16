@@ -209,6 +209,18 @@ Scenario("Max-flow / min-cut (engine, Edmonds-Karp)")
     Then("the min cut saturates s's out-edges -> [s,a],[s,b]", ListEq(fn.MinCut("s", "t"), [ [ "s", "a" ], [ "s", "b" ] ]), TRUE)
 EndScenario()
 
+Scenario("Community detection (engine, Louvain one level)")
+    Given("two triangles A-B-C and D-E-F joined by a single bridge C-D")
+    cm = new stzGraph("cm")
+    cm.AddNode("A") cm.AddNode("B") cm.AddNode("C")
+    cm.AddNode("D") cm.AddNode("E") cm.AddNode("F")
+    cm.AddEdge("A", "B") cm.AddEdge("B", "C") cm.AddEdge("C", "A")
+    cm.AddEdge("D", "E") cm.AddEdge("E", "F") cm.AddEdge("F", "D")
+    cm.AddEdge("C", "D")
+    Then("there are 2 communities", cm.NumberOfCommunities(), 2)
+    Then("the communities are {a,b,c} and {d,e,f}", ListEq(cm.Communities(), [ [ "a","b","c" ], [ "d","e","f" ] ]), TRUE)
+EndScenario()
+
 Summary()
 
 func Rnd2 n
