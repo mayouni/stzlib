@@ -1323,18 +1323,6 @@ class stzList from stzObject
 		def ItemsSortedInAscending()
 			return This.SortedInAscending()
 
-	def SortedInDescending()
-		aRes = This.Sorted()
-		# reverse the ascending result
-		aOut = []
-		for _i_ = len(aRes) to 1 step -1
-			aOut + aRes[_i_]
-		next
-		return aOut
-
-		def ItemsSortedInDescending()
-			return This.SortedInDescending()
-
 	# Every item except those equal to p (p may be a single item).
 	def AllItemsExcept(p)
 		aResult = []
@@ -1359,21 +1347,6 @@ class stzList from stzObject
 		ok
 		aResult = []
 		for _i_ = 1 to n
-			aResult + @aContent[_i_]
-		next
-		return aResult
-
-	# Last n items (clamped).
-	def LastNItems(n)
-		nLen = len(@aContent)
-		if NOT isNumber(n) or n <= 0
-			return []
-		ok
-		if n > nLen
-			n = nLen
-		ok
-		aResult = []
-		for _i_ = nLen - n + 1 to nLen
 			aResult + @aContent[_i_]
 		next
 		return aResult
