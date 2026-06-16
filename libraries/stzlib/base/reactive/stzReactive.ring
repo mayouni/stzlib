@@ -76,8 +76,10 @@ class stzReactiveSystem
 	    # Initiates the reactive system and runs the event loop.
 	    if isRunning = ENGINE_STOPPED
 	        isRunning = ENGINE_RUNNING
-	        sleep(0.1)
-	
+
+	        # (Removed an unconditional sleep(0.1) here -- it added a flat
+	        # 100ms to every RunLoop with no functional purpose.)
+
 	        # Execute any pending chunked tasks
 	        nLenTasks = len(tasks)
 	        for i = 1 to nLenTasks
@@ -310,11 +312,14 @@ class stzReactiveSystem
 			cUnit = "milliseconds"
 		ok
 
+		# Convert to milliseconds (the timer's native unit). seconds and
+		# minutes scale UP, not down -- the old code divided, so
+		# RunAfterXT(1, :seconds) asked for 0.001ms and fired instantly.
 		if cUnit = "seconds" or cUnit = "second"
-			nDelay = nDelay / 1000
+			nDelay = nDelay * 1000
 
 		but cUnit = "minutes" or cUnit = "minute"
-			nDelay = nDelay / 60000
+			nDelay = nDelay * 60000
 		ok
 
 		return This.RunAfter(nDelay, callback)
@@ -349,11 +354,12 @@ class stzReactiveSystem
 			cUnit = "milliseconds"
 		ok
 
+		# Convert to milliseconds (see RunAfterXT) -- scale up, not down.
 		if cUnit = "seconds" or cUnit = "second"
-			nInterval = nInterval / 1000
+			nInterval = nInterval * 1000
 
 		but cUnit = "minutes" or cUnit = "minute"
-			nInterval = nInterval / 60000
+			nInterval = nInterval * 60000
 		ok
 
 		return This.RunEvery(nInterval, callback)

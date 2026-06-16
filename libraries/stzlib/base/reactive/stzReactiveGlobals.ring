@@ -439,7 +439,14 @@ DNS_RESOLVE_PTR = "PTR"
 DEFAULT_STREAM_SOURCE = STREAM_MANUAL
 DEFAULT_TIMER_DELAY = MEDIUM_DELAY
 DEFAULT_TIMER_CHECK = CHECK_NORMAL
-DEFAULT_PATIENCE = PATIENCE_NORMAL
+# PATIENCE_NONE mirrors libuv's uv_run: return as soon as there are no
+# active handles (timers). In Ring's synchronous setup model every timer
+# is registered before RunLoop() and new ones only appear from inside a
+# timer callback (checked in the same iteration), so there is nothing to
+# "wait for" once the timer list is empty. The old PATIENCE_NORMAL (50)
+# idled 50 x 10ms = 500ms after all work completed -- the bulk of the
+# reactive perf regression vs the old Ring-libuv backend.
+DEFAULT_PATIENCE = PATIENCE_NONE
 
 # Reactive defaults  
 DEFAULT_REACTIVE_MODE = REACTIVE_ON
