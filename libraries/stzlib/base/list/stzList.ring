@@ -1312,6 +1312,72 @@ class stzList from stzObject
 		StzEngineListFree(pList)
 		return aResult
 
+		def ItemsReversed()
+			return This.Reversed()
+
+	# Non-mutating sorted copies (the SortInAscending/Descending family
+	# mutates; these return a fresh list).
+	def SortedInAscending()
+		return This.Sorted()
+
+		def ItemsSortedInAscending()
+			return This.SortedInAscending()
+
+	def SortedInDescending()
+		aRes = This.Sorted()
+		# reverse the ascending result
+		aOut = []
+		for _i_ = len(aRes) to 1 step -1
+			aOut + aRes[_i_]
+		next
+		return aOut
+
+		def ItemsSortedInDescending()
+			return This.SortedInDescending()
+
+	# Every item except those equal to p (p may be a single item).
+	def AllItemsExcept(p)
+		aResult = []
+		nLen = len(@aContent)
+		for _i_ = 1 to nLen
+			if @aContent[_i_] != p
+				aResult + @aContent[_i_]
+			ok
+		next
+		return aResult
+
+		def ItemsExcept(p)
+			return This.AllItemsExcept(p)
+
+	# First n items (clamped to the list length; n<=0 -> empty).
+	def FirstNItems(n)
+		if NOT isNumber(n) or n <= 0
+			return []
+		ok
+		if n > len(@aContent)
+			n = len(@aContent)
+		ok
+		aResult = []
+		for _i_ = 1 to n
+			aResult + @aContent[_i_]
+		next
+		return aResult
+
+	# Last n items (clamped).
+	def LastNItems(n)
+		nLen = len(@aContent)
+		if NOT isNumber(n) or n <= 0
+			return []
+		ok
+		if n > nLen
+			n = nLen
+		ok
+		aResult = []
+		for _i_ = nLen - n + 1 to nLen
+			aResult + @aContent[_i_]
+		next
+		return aResult
+
 	  #----------------------------------------------#
 	 #  FINDING ITEMS (engine-backed, first match)  #
 	#----------------------------------------------#
