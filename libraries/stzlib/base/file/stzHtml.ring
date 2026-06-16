@@ -120,6 +120,86 @@ class stzHtml
 	def FindAll(pcSelector)
 		return This.Find(pcSelector)
 
+		def FindQ(pcSelector)
+			return new stzList(This.Find(pcSelector))
+
+	# A document is valid if it parsed and yielded at least one element.
+	def IsValid()
+		return @pDoc != NULL and This.NumberOfElements() > 0
+
+		def IsWellFormed()
+			return This.IsValid()
+
+	# All element nodes, in document order.
+	def Elements()
+		_aR_ = []
+		_n_ = This.NumberOfElements()
+		for _i_ = 1 to _n_
+			_aR_ + This._NodeAt(_i_)
+		next
+		return _aR_
+
+	def HasTag(pcTag)
+		return This.CountByTag(pcTag) > 0
+
+		def HasBody()
+			return This.HasTag("body")
+
+		def HasHead()
+			return This.HasTag("head")
+
+	# Distinct tag names used, in first-seen order (lowercased).
+	def TagsUsed()
+		_aR_ = []
+		_n_ = This.NumberOfElements()
+		for _i_ = 1 to _n_
+			_t_ = StzLower(StzEngineHtmlTagOf(@pDoc, _i_))
+			# Manual membership: bare find() inside this class resolves to
+			# the Find() METHOD (1 arg) -> R20, not the list builtin.
+			_seen_ = FALSE
+			_m_ = len(_aR_)
+			for _j_ = 1 to _m_
+				if _aR_[_j_] = _t_
+					_seen_ = TRUE
+					exit
+				ok
+			next
+			if NOT _seen_
+				_aR_ + _t_
+			ok
+		next
+		return _aR_
+
+	# Natural-condition query: a hashlist of [ :Tag, :Class, :Id ]
+	# constraints (any subset); returns the element nodes matching ALL
+	# given constraints.
+	def ElementsWhere(paCriteria)
+		if NOT isList(paCriteria)
+			return []
+		ok
+		_cTag_ = "" _cClass_ = "" _cId_ = ""
+		if HasKey(paCriteria, :Tag)   _cTag_   = paCriteria[:Tag]   ok
+		if HasKey(paCriteria, :Class) _cClass_ = paCriteria[:Class] ok
+		if HasKey(paCriteria, :Id)    _cId_    = paCriteria[:Id]    ok
+
+		_aAll_ = This.Elements()
+		_aR_ = []
+		_n_ = len(_aAll_)
+		for _i_ = 1 to _n_
+			_oEl_ = _aAll_[_i_]
+			if _cTag_ != "" and _oEl_.Tag() != StzLower(_cTag_)
+				loop
+			ok
+			if _cClass_ != "" and NOT _oEl_.HasKlass(_cClass_)
+				loop
+			ok
+			if _cId_ != "" and _oEl_.Id() != _cId_
+				loop
+			ok
+			_aR_ + _oEl_
+		next
+		return _aR_
+
 	# Engine handle accessor (used internally by stzHtmlNode).
 	def _EngineHandle()
 		return @pDoc
@@ -190,3 +270,120 @@ class stzHtmlNode
 
 		def HasClass(pcClass)
 			return This.HasKlass(pcClass)
+
+# ── stzHtmlBuilder -- programmatic HTML construction ─────────
+# A pure-Ring builder (the parser engine is read-only -- no DOM
+# mutation bridges), building a tree of stzHtmlBuildNode and
+# serialising to an HTML string.
+
+class stzHtmlBuilder
+
+	@oRoot    = NULL   # document fragment (tag-less container)
+	@oCurrent = NULL   # node new children are appended to
+
+	def init()
+		@oRoot    = new stzHtmlBuildNode("")
+		@oCurrent = @oRoot
+
+	# Detached node; attach it later via AppendToCurrent[Q].
+	def CreateNode(pcTag)
+		return new stzHtmlBuildNode(pcTag)
+
+		def Node(pcTag)
+			return This.CreateNode(pcTag)
+
+	def AppendToCurrent(poNode)
+		@oCurrent.AppendChild(poNode)
+		return self
+
+		# Chainable form (returns self so .AppendToCurrentQ(a).AppendToCurrentQ(b))
+		def AppendToCurrentQ(poNode)
+			This.AppendToCurrent(poNode)
+			return self
+
+	def SetCurrent(poNode)
+		@oCurrent = poNode
+		return self
+
+		def SetCurrentQ(poNode)
+			This.SetCurrent(poNode)
+			return self
+
+	def Current()
+		return @oCurrent
+
+	def Root()
+		return @oRoot
+
+	# Serialise the whole document to an HTML string.
+	def Build()
+		return @oRoot.ChildrenHtml()
+
+		def ToHtml()
+			return This.Build()
+
+	def BuildToFile(pcPath)
+		write(pcPath, This.Build())
+		return self
+
+# ── stzHtmlBuildNode -- a node in a builder tree ────────────
+
+class stzHtmlBuildNode
+
+	@cTag      = ""
+	@cText     = ""
+	@aChildren = []
+	@aAttrs    = []   # list of [name, value]
+
+	def init(pcTag)
+		@cTag      = pcTag
+		@cText     = ""
+		@aChildren = []
+		@aAttrs    = []
+
+	def Tag()
+		return @cTag
+
+	def SetText(pcText)
+		@cText = pcText
+		return self
+
+		def SetTextQ(pcText)
+			return This.SetText(pcText)
+
+	def Text()
+		return @cText
+
+	def SetAttr(pcName, pcValue)
+		@aAttrs + [ pcName, pcValue ]
+		return self
+
+	def AppendChild(poNode)
+		@aChildren + poNode
+		return self
+
+		def Append(poNode)
+			return This.AppendChild(poNode)
+
+	def Children()
+		return @aChildren
+
+	# Serialise this node (tag, attrs, text then children) to HTML.
+	def ToHtml()
+		if @cTag = ""
+			return This.ChildrenHtml()
+		ok
+		_cAttrs_ = ""
+		_nA_ = len(@aAttrs)
+		for _i_ = 1 to _nA_
+			_cAttrs_ += " " + @aAttrs[_i_][1] + '="' + @aAttrs[_i_][2] + '"'
+		next
+		return "<" + @cTag + _cAttrs_ + ">" + @cText + This.ChildrenHtml() + "</" + @cTag + ">"
+
+	def ChildrenHtml()
+		_c_ = ""
+		_n_ = len(@aChildren)
+		for _i_ = 1 to _n_
+			_c_ += @aChildren[_i_].ToHtml()
+		next
+		return _c_
