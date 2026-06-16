@@ -232,6 +232,19 @@ Scenario("Min-cost max-flow (engine, successive shortest paths)")
     Then("flow 4 at min total cost 10 (cheap s-a-t first)", ListEq(mc.MinCostMaxFlow("s", "t"), [ 4, 10 ]), TRUE)
 EndScenario()
 
+Scenario("A* with an admissible-scaled heuristic (weighted coordinates)")
+    Given("coords spread wide but cheap edges: s-a(1),a-t(1) optimal, s-t(3) dearer")
+    wa = new stzGraph("wa")
+    wa.AddNodeXTT("s", "s", [ :x = 0, :y = 0 ])
+    wa.AddNodeXTT("a", "a", [ :x = 5, :y = 0 ])
+    wa.AddNodeXTT("t", "t", [ :x = 2, :y = 0 ])
+    wa.AddEdgeXTT("s", "a", "", [ :weight = 1 ])
+    wa.AddEdgeXTT("a", "t", "", [ :weight = 1 ])
+    wa.AddEdgeXTT("s", "t", "", [ :weight = 3 ])
+    Then("plain Euclidean A* overestimates -> suboptimal s-t", ListEq(wa.AStarPath("s", "t"), [ "s", "t" ]), TRUE)
+    Then("weighted A* (scaled) finds the optimal s-a-t", ListEq(wa.AStarPathWeighted("s", "t", 1), [ "s", "a", "t" ]), TRUE)
+EndScenario()
+
 Summary()
 
 func Rnd2 n
