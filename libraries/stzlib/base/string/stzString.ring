@@ -145,6 +145,17 @@ class stzString from stzObject
 		def StringQ()
 			return new stzString(This.String())
 
+	# Infer the canonical Softanza type named by this string. Used by the
+	# global InfereType(cType). Scalars collapse to :Number/:String/:Char
+	# (Stz-prefixed to :StzNumber/...); non-stz list/pair types collapse to
+	# the generic :List; stz-prefixed list types keep their (de-pluralised)
+	# canonical name (e.g. StzListsOfNumbers -> :StzListOfNumbers).
+	# Delegates to a file-scope helper: inside this class StartsWith /
+	# StzFind / StzReplaceCS resolve to stzString METHODS (wrong arity ->
+	# R20); at file scope they resolve to the global funcs.
+	def InfereType()
+		return @StzInfereTypeName(This.Content())
+
 	# Show -- print the content to stdout (terminated by NL).
 	# Convenience alias used by narrative tests of the form
 	# `o.Show()` instead of `? o.Content()`.
