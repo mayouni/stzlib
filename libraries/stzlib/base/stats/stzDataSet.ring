@@ -1032,7 +1032,13 @@ class stzDataSet
         if isNull(item)
             return TRUE
         ok
-        
+
+        # A nested list/object is data, never a missing-value marker --
+        # and "" + aList raises R21 (operator on incorrect type).
+        if isList(item) or isObject(item)
+            return FALSE
+        ok
+
         cStr = "" + item
         return StzFind($aSTAT_MISSING_VALUES, cStr) > 0
 
@@ -3689,7 +3695,12 @@ class stzDataSet
             return "Normality p-value: " + @@(vResult[2])
 
         on "TrendAnalysis"
-            return "Trend: " + vResult
+            # TrendAnalysis returns a list of [trend, length] segments;
+            # "string + list" raises R21, so summarise the segment count.
+            if isList(vResult)
+                return "Trend: " + len(vResult) + " segment(s)"
+            ok
+            return "Trend: " + @@(vResult)
 
         other
 
