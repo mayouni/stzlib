@@ -1378,6 +1378,77 @@ class stzList from stzObject
 		next
 		return aResult
 
+	# Max nesting depth (a flat list is 1 level).
+	def NumberOfLevels()
+		return This._DepthOf(@aContent)
+
+		def NestingDepth()
+			return This.NumberOfLevels()
+
+	def _DepthOf(aList)
+		nMax = 1
+		nLen = len(aList)
+		for _i_ = 1 to nLen
+			if isList(aList[_i_])
+				_nD_ = 1 + This._DepthOf(aList[_i_])
+				if _nD_ > nMax
+					nMax = _nD_
+				ok
+			ok
+		next
+		return nMax
+
+	# TRUE if any two adjacent items are equal.
+	def ContainsDupSecutiveItems()
+		nLen = len(@aContent)
+		for _i_ = 2 to nLen
+			if @aContent[_i_] = @aContent[_i_ - 1]
+				return TRUE
+			ok
+		next
+		return FALSE
+
+		def ContainsConsecutiveDuplicates()
+			return This.ContainsDupSecutiveItems()
+
+	# A fresh copy with every occurrence of any item in paItems removed.
+	def ManyRemoved(paItems)
+		if NOT isList(paItems)
+			paItems = [ paItems ]
+		ok
+		aResult = []
+		nLen = len(@aContent)
+		nP = len(paItems)
+		for _i_ = 1 to nLen
+			bRemove = FALSE
+			for _j_ = 1 to nP
+				if @aContent[_i_] = paItems[_j_]
+					bRemove = TRUE
+					exit
+				ok
+			next
+			if NOT bRemove
+				aResult + @aContent[_i_]
+			ok
+		next
+		return aResult
+
+	# TRUE if this list's items appear inside paOther in the same relative
+	# order (i.e. this list is an order-preserving subsequence of paOther).
+	def ItemsHaveSameOrderAs(paOther)
+		if NOT isList(paOther)
+			return FALSE
+		ok
+		nThis = len(@aContent)
+		nOther = len(paOther)
+		nIdx = 1
+		for _i_ = 1 to nOther
+			if nIdx <= nThis and paOther[_i_] = @aContent[nIdx]
+				nIdx++
+			ok
+		next
+		return nIdx > nThis
+
 	  #----------------------------------------------#
 	 #  FINDING ITEMS (engine-backed, first match)  #
 	#----------------------------------------------#
