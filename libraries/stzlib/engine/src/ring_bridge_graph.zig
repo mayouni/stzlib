@@ -379,6 +379,29 @@ fn ring_AStarPlan(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, outer);
 }
 
+fn ring_SetEdgeCost(p: *anyopaque) callconv(.c) void {
+    const from = gs(p, 2);
+    const from_len: usize = @intCast(gss(p, 2));
+    const to = gs(p, 3);
+    const to_len: usize = @intCast(gss(p, 3));
+    const c = g(p, 4);
+    rn(p, @floatFromInt(graph.stz_graph_set_edge_cost(getMutH(p, 1), from, from_len, to, to_len, c)));
+}
+
+// Min-cost max-flow: returns a 2-element Ring list [ flow, cost ].
+fn ring_MinCostMaxFlow(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const s = gs(p, 2);
+    const sl: usize = @intCast(gss(p, 2));
+    const t = gs(p, 3);
+    const tl: usize = @intCast(gss(p, 3));
+    var cost: f64 = 0;
+    const flow = graph.stz_graph_min_cost_max_flow(getH(p, 1), s, sl, t, tl, &cost);
+    R.ring_list_adddouble(out, flow);
+    R.ring_list_adddouble(out, cost);
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_NumberOfCommunities(p: *anyopaque) callconv(.c) void {
     const gr = getH(p, 1) orelse { rn(p, 0); return; };
     const n = graph.stz_graph_node_count(gr);
@@ -553,6 +576,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphclosenessof", .func = &ring_ClosenessOf },
     .{ .name = "stzenginegraphbetweennessall", .func = &ring_BetweennessAll },
     .{ .name = "stzenginegraphbetweennessof", .func = &ring_BetweennessOf },
+    .{ .name = "stzenginegraphsetedgecost", .func = &ring_SetEdgeCost },
+    .{ .name = "stzenginegraphmincostmaxflow", .func = &ring_MinCostMaxFlow },
     .{ .name = "stzenginegraphnumberofcommunities", .func = &ring_NumberOfCommunities },
     .{ .name = "stzenginegraphcommunities", .func = &ring_Communities },
     .{ .name = "stzenginegraphmaxflow", .func = &ring_MaxFlow },
