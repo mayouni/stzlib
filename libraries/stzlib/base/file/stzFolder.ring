@@ -1975,6 +1975,32 @@ class stzFolder from stzObject
 		def FolderCreate()
 			return This.CreateFolder()
 
+	# Create several sub-folders under this folder in one call; returns a
+	# list of stzFolder handles (so callers can chain .Name() etc.).
+	# Creates siblings directly (no GoTo side effect that CreateFolder has).
+	def CreateFolders(paNames)
+		if NOT isList(paNames)
+			raise("Incorrect param type! paNames must be a list of folder names.")
+		ok
+		aResult = []
+		cBase = This.Path()
+		nLen = len(paNames)
+		for i = 1 to nLen
+			cName = "" + paNames[i]
+			# Pass the RAW joined path to the constructor (its _CleanPath
+			# handles separators correctly). Do NOT pre-run it through
+			# NormalizeFolderPath -- that helper lowercases and strips the
+			# last char, yielding an invalid path like "/d:/.../doc/".
+			aResult + new stzFolder(cBase + "/" + cName)
+		next
+		return aResult
+
+		def MakeFolders(paNames)
+			return This.CreateFolders(paNames)
+
+		def CreateSubFolders(paNames)
+			return This.CreateFolders(paNames)
+
 
 	def DeleteFolder(cFolder)
 
@@ -2082,6 +2108,18 @@ class stzFolder from stzObject
 			return This.DeleteAll()
 
 		#>
+
+	# Remove this folder ENTIRELY -- its contents AND the folder itself,
+	# recursively (RemoveAll/DeleteAll only empties the contents). Returns
+	# TRUE on success.
+	def DeepRemoveAll()
+		return RemoveFolderRecursive(This.Path())
+
+		def DeepRemove()
+			return This.DeepRemoveAll()
+
+		def RemoveTree()
+			return This.DeepRemoveAll()
 
 	def Erase()
 	    nDeleted = 0
@@ -3881,6 +3919,9 @@ class stzFolder from stzObject
 		cResult = @acDisplayChars[:FolderRoot] + " " + cFolderName + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + nTotalMatches + " matches for '" + cPattern + "')" + nl
 		cResult += This.GenerateVizTreeString(This.Path(), '', 1, cPattern, "both", 0, 1)
 		return cResult
+
+		def VizSearchFiles(cPattern)
+			return This.VizFindFiles(cPattern)
 
 	def VizFindFiles(cPattern)
 		nTotalMatches = This.CountFileMatches(This.Path(), cPattern)
