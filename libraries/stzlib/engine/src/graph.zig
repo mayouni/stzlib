@@ -8,6 +8,7 @@ const NodeList = std.ArrayListUnmanaged(Node);
 const Edge = struct {
     to: NodeId,
     weight: f64,
+    cost: f64 = 0, // optional per-unit cost for min-cost-max-flow
 };
 
 const Node = struct {
@@ -1481,6 +1482,117 @@ pub fn stz_graph_min_cut(g: ?*const StzGraph, src_ptr: [*]const u8, src_len: usi
     return count;
 }
 
+// Minimum-cost maximum flow from src to sink (successive shortest paths with
+// SPFA). Edge :weight is capacity, edge :cost is per-unit cost. Returns the
+// max-flow value and writes the minimum total cost to out_cost.
+pub fn stz_graph_min_cost_max_flow(g: ?*const StzGraph, src_ptr: [*]const u8, src_len: usize, sink_ptr: [*]const u8, sink_len: usize, out_cost: *f64) callconv(.c) f64 {
+    out_cost.* = 0;
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0) return 0;
+    const src = gr.findNode(src_ptr[0..src_len]) orelse return 0;
+    const sink = gr.findNode(sink_ptr[0..sink_len]) orelse return 0;
+    if (src == sink) return 0;
+
+    // residual edge-list (forward at even index, reverse at odd; pair = e^1)
+    var ne: usize = 0;
+    for (gr.nodes.items) |node| ne += node.edges.items.len;
+    const cap2 = ne * 2;
+    const eto = allocator.alloc(u32, cap2) catch return 0;
+    defer allocator.free(eto);
+    const ecap = allocator.alloc(f64, cap2) catch return 0;
+    defer allocator.free(ecap);
+    const ecost = allocator.alloc(f64, cap2) catch return 0;
+    defer allocator.free(ecost);
+    const enext = allocator.alloc(i64, cap2) catch return 0;
+    defer allocator.free(enext);
+    const head = allocator.alloc(i64, n) catch return 0;
+    defer allocator.free(head);
+    @memset(head, -1);
+    var ec: usize = 0;
+    for (gr.nodes.items, 0..) |node, uidx| {
+        for (node.edges.items) |e| {
+            const c = if (e.weight > 0) e.weight else 1.0;
+            eto[ec] = e.to;
+            ecap[ec] = c;
+            ecost[ec] = e.cost;
+            enext[ec] = head[uidx];
+            head[uidx] = @intCast(ec);
+            ec += 1;
+            eto[ec] = @intCast(uidx);
+            ecap[ec] = 0;
+            ecost[ec] = -e.cost;
+            enext[ec] = head[e.to];
+            head[e.to] = @intCast(ec);
+            ec += 1;
+        }
+    }
+
+    const dist = allocator.alloc(f64, n) catch return 0;
+    defer allocator.free(dist);
+    const inq = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(inq);
+    const preve = allocator.alloc(i64, n) catch return 0;
+    defer allocator.free(preve);
+    var q = std.ArrayListUnmanaged(u32){};
+    defer q.deinit(allocator);
+    const inf = std.math.inf(f64);
+
+    var total_flow: f64 = 0;
+    var total_cost: f64 = 0;
+    while (true) {
+        for (0..n) |i| {
+            dist[i] = inf;
+            inq[i] = false;
+            preve[i] = -1;
+        }
+        dist[src] = 0;
+        q.clearRetainingCapacity();
+        q.append(allocator, @intCast(src)) catch return 0;
+        inq[src] = true;
+        var qh: usize = 0;
+        while (qh < q.items.len) {
+            const uq = q.items[qh];
+            qh += 1;
+            inq[uq] = false;
+            var e = head[uq];
+            while (e >= 0) : (e = enext[@intCast(e)]) {
+                const ei: usize = @intCast(e);
+                if (ecap[ei] > 0 and dist[uq] + ecost[ei] < dist[eto[ei]]) {
+                    dist[eto[ei]] = dist[uq] + ecost[ei];
+                    preve[eto[ei]] = e;
+                    if (!inq[eto[ei]]) {
+                        q.append(allocator, eto[ei]) catch return 0;
+                        inq[eto[ei]] = true;
+                    }
+                }
+            }
+        }
+        if (dist[sink] == inf) break; // no augmenting path
+
+        // bottleneck along the path
+        var f = inf;
+        var v: usize = sink;
+        while (v != src) {
+            const ei: usize = @intCast(preve[v]);
+            if (ecap[ei] < f) f = ecap[ei];
+            v = eto[ei ^ 1];
+        }
+        // augment
+        v = sink;
+        while (v != src) {
+            const ei: usize = @intCast(preve[v]);
+            ecap[ei] -= f;
+            ecap[ei ^ 1] += f;
+            v = eto[ei ^ 1];
+        }
+        total_flow += f;
+        total_cost += f * dist[sink];
+    }
+    out_cost.* = total_cost;
+    return total_flow;
+}
+
 // ─── Community detection (Louvain, one level) ───
 
 // Detect communities by single-level Louvain modularity optimisation over the
@@ -1801,6 +1913,21 @@ pub fn stz_graph_astar(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usi
     return pos;
 }
 
+// Attach a per-unit cost to the directed edge from->to (for
+// min-cost-max-flow). Returns 1 on success, 0 if the edge is unknown.
+pub fn stz_graph_set_edge_cost(g: ?*StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize, c: f64) callconv(.c) i32 {
+    const gr = g orelse return 0;
+    const f = gr.findNode(from_ptr[0..from_len]) orelse return 0;
+    const t = gr.findNode(to_ptr[0..to_len]) orelse return 0;
+    for (gr.nodes.items[f].edges.items) |*e| {
+        if (e.to == t) {
+            e.cost = c;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 // Override the weight of the directed edge from->to (used by the planner to
 // push per-optimisation transition costs before an engine A* search).
 // Returns 1 on success, 0 if the edge/endpoints are unknown.
@@ -1992,6 +2119,26 @@ test "graph pagerank sums to one" {
     var sum: f64 = 0;
     for (pr) |x| sum += x;
     try std.testing.expectApproxEqAbs(@as(f64, 1.0), sum, 1e-6);
+}
+
+test "graph min-cost max-flow" {
+    // s->a cap2 cost1, s->b cap2 cost2, a->t cap2 cost1, b->t cap2 cost1.
+    // max flow 4; cheap path s-a-t (cost 2/unit) carries 2, then s-b-t
+    // (cost 3/unit) carries 2 -> total cost 2*2 + 2*3 = 10.
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "s", 1, "a", 1, 2.0);
+    _ = stz_graph_add_edge(g, "s", 1, "b", 1, 2.0);
+    _ = stz_graph_add_edge(g, "a", 1, "t", 1, 2.0);
+    _ = stz_graph_add_edge(g, "b", 1, "t", 1, 2.0);
+    _ = stz_graph_set_edge_cost(g, "s", 1, "a", 1, 1.0);
+    _ = stz_graph_set_edge_cost(g, "s", 1, "b", 1, 2.0);
+    _ = stz_graph_set_edge_cost(g, "a", 1, "t", 1, 1.0);
+    _ = stz_graph_set_edge_cost(g, "b", 1, "t", 1, 1.0);
+    var cost: f64 = 0;
+    const flow = stz_graph_min_cost_max_flow(g, "s", 1, "t", 1, &cost);
+    try std.testing.expectEqual(@as(f64, 4.0), flow);
+    try std.testing.expectEqual(@as(f64, 10.0), cost);
 }
 
 test "graph communities (Louvain one level)" {

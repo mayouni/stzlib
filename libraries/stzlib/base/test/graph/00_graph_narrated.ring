@@ -221,6 +221,17 @@ Scenario("Community detection (engine, Louvain one level)")
     Then("the communities are {a,b,c} and {d,e,f}", ListEq(cm.Communities(), [ [ "a","b","c" ], [ "d","e","f" ] ]), TRUE)
 EndScenario()
 
+Scenario("Min-cost max-flow (engine, successive shortest paths)")
+    Given("s->a(cap2,cost1),s->b(cap2,cost2),a->t(cap2,cost1),b->t(cap2,cost1)")
+    mc = new stzGraph("mc")
+    mc.AddNode("s") mc.AddNode("a") mc.AddNode("b") mc.AddNode("t")
+    mc.AddEdgeXTT("s", "a", "", [ :weight = 2, :cost = 1 ])
+    mc.AddEdgeXTT("s", "b", "", [ :weight = 2, :cost = 2 ])
+    mc.AddEdgeXTT("a", "t", "", [ :weight = 2, :cost = 1 ])
+    mc.AddEdgeXTT("b", "t", "", [ :weight = 2, :cost = 1 ])
+    Then("flow 4 at min total cost 10 (cheap s-a-t first)", ListEq(mc.MinCostMaxFlow("s", "t"), [ 4, 10 ]), TRUE)
+EndScenario()
+
 Summary()
 
 func Rnd2 n

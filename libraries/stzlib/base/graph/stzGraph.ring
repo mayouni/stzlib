@@ -163,6 +163,10 @@ class stzGraph
 				_nW_ = _aEP_[:weight]
 			ok
 			StzEngineGraphAddEdge(@pEngineGraph, @aEdges[_iEng_][:from], @aEdges[_iEng_][:to], _nW_)
+			# Push an edge :cost (for min-cost-max-flow) when present.
+			if isList(_aEP_) and HasKey(_aEP_, "cost")
+				StzEngineGraphSetEdgeCost(@pEngineGraph, @aEdges[_iEng_][:from], @aEdges[_iEng_][:to], _aEP_[:cost])
+			ok
 		next
 
 		@bEngineStale = FALSE
@@ -2957,6 +2961,21 @@ class stzGraph
 			return StzEngineGraphNumberOfCommunities(@pEngineGraph)
 		ok
 		return 0
+
+	# Min-cost max-flow from pcSource to pcSink. Edge :weight is capacity,
+	# edge :cost is per-unit cost. Returns [ flowValue, totalCost ]. Engine
+	# (successive shortest paths).
+	def MinCostMaxFlow(pcSource, pcSink)
+		if NOT (This.NodeExists(pcSource) and This.NodeExists(pcSink))
+			return [ 0, 0 ]
+		ok
+		if This._EnsureEngine()
+			return StzEngineGraphMinCostMaxFlow(@pEngineGraph, StzLower(pcSource), StzLower(pcSink))
+		ok
+		return [ 0, 0 ]
+
+		def MinCostFlow(pcSource, pcSink)
+			return This.MinCostMaxFlow(pcSource, pcSink)
 
 	# Local clustering coefficient (engine, undirected view): edges among a
 	# node's neighbours / possible such edges. Replaces the old O(k^2)
