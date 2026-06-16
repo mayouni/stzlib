@@ -361,6 +361,17 @@ fn addSplit(lst: *anyopaque, buf: []const u8) void {
 // A* for the planner: returns [ routeList, exploredList ] -- one engine search
 // builds both ready Ring lists. mode is arg 4 (0 = Dijkstra/UCS, optimal for
 // any non-negative cost).
+fn ring_AStarWeighted(p: *anyopaque) callconv(.c) void {
+    const from = gs(p, 2);
+    const from_len: usize = @intCast(gss(p, 2));
+    const to = gs(p, 3);
+    const to_len: usize = @intCast(gss(p, 3));
+    const mode: i32 = @intFromFloat(g(p, 4));
+    var buf: [8192]u8 = undefined;
+    const len = graph.stz_graph_astar_weighted(getH(p, 1), from, from_len, to, to_len, mode, &buf, 8192);
+    retLines(p, buf[0..len]);
+}
+
 fn ring_AStarPlan(p: *anyopaque) callconv(.c) void {
     const outer = R.ring_vm_api_newlist(p) orelse return;
     const from = gs(p, 2);
@@ -595,6 +606,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphpagerankof", .func = &ring_PageRankOf },
     .{ .name = "stzenginegraphsetcoords", .func = &ring_SetCoords },
     .{ .name = "stzenginegraphastar", .func = &ring_AStar },
+    .{ .name = "stzenginegraphastarweighted", .func = &ring_AStarWeighted },
     .{ .name = "stzenginegraphsetedgeweight", .func = &ring_SetEdgeWeight },
     .{ .name = "stzenginegraphastarplan", .func = &ring_AStarPlan },
     .{ .name = "stzenginegraphreachable", .func = &ring_Reachable },

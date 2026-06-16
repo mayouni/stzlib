@@ -1815,7 +1815,9 @@ pub fn stz_graph_set_coords(g: ?*StzGraph, id_ptr: [*]const u8, id_len: usize, x
 
 // Heuristic between two nodes given a mode: 1=Euclidean, 2=Manhattan,
 // anything else (or missing coords) => 0 (admissible; A* degrades to Dijkstra).
-fn heuristic(gr: *const StzGraph, a: NodeId, b: NodeId, mode: i32) f64 {
+// Coordinate distance between two nodes for the given mode (1=Euclidean,
+// 2=Manhattan, else 0). Returns 0 if either node lacks coordinates.
+fn coordDist(gr: *const StzGraph, a: NodeId, b: NodeId, mode: i32) f64 {
     const na = gr.nodes.items[a];
     const nb = gr.nodes.items[b];
     if (std.math.isNan(na.x) or std.math.isNan(na.y) or std.math.isNan(nb.x) or std.math.isNan(nb.y)) return 0;
@@ -1828,16 +1830,38 @@ fn heuristic(gr: *const StzGraph, a: NodeId, b: NodeId, mode: i32) f64 {
     };
 }
 
-// A* shortest path using edge weights + a coordinate heuristic (mode as in
-// `heuristic`). Writes the node-name path '\n'-joined into buf; returns its
-// byte length (0 if no path / unknown endpoints).
-pub fn stz_graph_astar(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize, mode: i32, buf: [*]u8, cap: usize) callconv(.c) usize {
-    const gr = g orelse return 0;
-    const n = gr.nodes.items.len;
-    if (n == 0) return 0;
-    const src = gr.findNode(from_ptr[0..from_len]) orelse return 0;
-    const dst = gr.findNode(to_ptr[0..to_len]) orelse return 0;
+fn heuristicScaled(gr: *const StzGraph, a: NodeId, b: NodeId, mode: i32, scale: f64) f64 {
+    return coordDist(gr, a, b, mode) * scale;
+}
 
+fn heuristic(gr: *const StzGraph, a: NodeId, b: NodeId, mode: i32) f64 {
+    return coordDist(gr, a, b, mode);
+}
+
+// Largest heuristic scale that keeps the coordinate heuristic ADMISSIBLE when
+// edge weights aren't unit geometric distance: min over edges (with coords and
+// dist>0) of weight/dist. Then scale*coordDist(n,goal) <= true path cost
+// (each edge costs >= scale*its-distance; distances satisfy the triangle
+// inequality). Returns 1.0 if no usable edge.
+fn admissibleScale(gr: *const StzGraph, mode: i32) f64 {
+    var best: f64 = std.math.inf(f64);
+    for (gr.nodes.items, 0..) |node, u| {
+        for (node.edges.items) |e| {
+            const d = coordDist(gr, @intCast(u), e.to, mode);
+            if (d > 0) {
+                const w = if (e.weight > 0) e.weight else 1.0;
+                const r = w / d;
+                if (r < best) best = r;
+            }
+        }
+    }
+    return if (std.math.isInf(best)) 1.0 else best;
+}
+
+// A* core shared by the plain and weighted entry points. Writes the
+// '\n'-joined node-name path into buf; returns its byte length.
+fn astarRun(gr: *const StzGraph, src: NodeId, dst: NodeId, mode: i32, scale: f64, buf: [*]u8, cap: usize) usize {
+    const n = gr.nodes.items.len;
     const gscore = allocator.alloc(f64, n) catch return 0;
     defer allocator.free(gscore);
     const fscore = allocator.alloc(f64, n) catch return 0;
@@ -1857,11 +1881,10 @@ pub fn stz_graph_astar(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usi
         closed[i] = false;
     }
     gscore[src] = 0;
-    fscore[src] = heuristic(gr, src, dst, mode);
+    fscore[src] = heuristicScaled(gr, src, dst, mode, scale);
     open[src] = true;
 
     while (true) {
-        // pick the open node with the lowest fscore (linear scan)
         var cur: i64 = -1;
         var best: f64 = inf;
         for (0..n) |i| {
@@ -1870,7 +1893,7 @@ pub fn stz_graph_astar(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usi
                 cur = @intCast(i);
             }
         }
-        if (cur < 0) return 0; // open set empty -> no path
+        if (cur < 0) return 0;
         const c: NodeId = @intCast(cur);
         if (c == dst) break;
         open[c] = false;
@@ -1882,13 +1905,12 @@ pub fn stz_graph_astar(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usi
             if (tentative < gscore[e.to]) {
                 came[e.to] = @intCast(c);
                 gscore[e.to] = tentative;
-                fscore[e.to] = tentative + heuristic(gr, e.to, dst, mode);
+                fscore[e.to] = tentative + heuristicScaled(gr, e.to, dst, mode, scale);
                 open[e.to] = true;
             }
         }
     }
 
-    // reconstruct dst..src then emit forward
     var path = std.ArrayListUnmanaged(NodeId){};
     defer path.deinit(allocator);
     var w: i64 = @intCast(dst);
@@ -1905,12 +1927,35 @@ pub fn stz_graph_astar(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usi
             buf[pos] = '\n';
             pos += 1;
         }
-        const remaining = cap - pos;
-        const take = @min(id.id_len, remaining);
+        const take = @min(id.id_len, cap - pos);
         @memcpy(buf[pos .. pos + take], id.id_ptr[0..take]);
         pos += take;
     }
     return pos;
+}
+
+// A* shortest path using edge weights + a coordinate heuristic (mode as in
+// `heuristic`). Writes the node-name path '\n'-joined into buf; returns its
+// byte length (0 if no path / unknown endpoints).
+pub fn stz_graph_astar(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize, mode: i32, buf: [*]u8, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    if (gr.nodes.items.len == 0) return 0;
+    const src = gr.findNode(from_ptr[0..from_len]) orelse return 0;
+    const dst = gr.findNode(to_ptr[0..to_len]) orelse return 0;
+    return astarRun(gr, src, dst, mode, 1.0, buf, cap);
+}
+
+// A* with an auto-scaled (admissible) coordinate heuristic -- for graphs whose
+// edge weights are NOT unit geometric distance. The heuristic is scaled by the
+// minimum edge cost-per-distance ratio so it stays a lower bound (admissible)
+// while remaining informative, giving optimal paths the plain mode-1/2
+// heuristic could miss when weights and coordinates use different units.
+pub fn stz_graph_astar_weighted(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize, mode: i32, buf: [*]u8, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    if (gr.nodes.items.len == 0) return 0;
+    const src = gr.findNode(from_ptr[0..from_len]) orelse return 0;
+    const dst = gr.findNode(to_ptr[0..to_len]) orelse return 0;
+    return astarRun(gr, src, dst, mode, admissibleScale(gr, mode), buf, cap);
 }
 
 // Attach a per-unit cost to the directed edge from->to (for
@@ -2119,6 +2164,25 @@ test "graph pagerank sums to one" {
     var sum: f64 = 0;
     for (pr) |x| sum += x;
     try std.testing.expectApproxEqAbs(@as(f64, 1.0), sum, 1e-6);
+}
+
+test "graph A* weighted (admissible-scaled heuristic)" {
+    // Coords spread wide but edges cheap: s(0,0) a(5,0) t(2,0).
+    // s->a 1, a->t 1 (optimal s-a-t cost 2); s->t 3 (direct, dearer).
+    // Raw Euclidean h OVERESTIMATES (h(a->t)=3 > true 1) -> plain A* can
+    // return the cost-3 direct edge; the admissible-scaled heuristic finds
+    // the optimal s-a-t.
+    const g = stz_graph_create(1) orelse return error.CreateFailed;
+    defer stz_graph_free(g);
+    _ = stz_graph_add_edge(g, "s", 1, "a", 1, 1.0);
+    _ = stz_graph_add_edge(g, "a", 1, "t", 1, 1.0);
+    _ = stz_graph_add_edge(g, "s", 1, "t", 1, 3.0);
+    _ = stz_graph_set_coords(g, "s", 1, 0, 0);
+    _ = stz_graph_set_coords(g, "a", 1, 5, 0);
+    _ = stz_graph_set_coords(g, "t", 1, 2, 0);
+    var buf: [32]u8 = undefined;
+    const len = stz_graph_astar_weighted(g, "s", 1, "t", 1, 1, &buf, 32);
+    try std.testing.expectEqualStrings("s\na\nt", buf[0..len]);
 }
 
 test "graph min-cost max-flow" {

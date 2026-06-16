@@ -2848,6 +2848,19 @@ class stzGraph
 	def AStarPathManhattan(pcStart, pcGoal)
 		return This._AStarMode(pcStart, pcGoal, 2)
 
+	# A* with an auto-scaled ADMISSIBLE coordinate heuristic -- use when edge
+	# weights are not unit geometric distance (the heuristic is scaled by the
+	# minimum edge cost-per-distance ratio so the path stays optimal). nMode
+	# 1 = Euclidean coords, 2 = Manhattan.
+	def AStarPathWeighted(pcStart, pcGoal, nMode)
+		if NOT (This.NodeExists(pcStart) and This.NodeExists(pcGoal))
+			return []
+		ok
+		if This._EnsureEngine()
+			return StzEngineGraphAStarWeighted(@pEngineGraph, StzLower(pcStart), StzLower(pcGoal), nMode)
+		ok
+		return []
+
 	def _AStarMode(pcStart, pcGoal, nMode)
 		if NOT (This.NodeExists(pcStart) and This.NodeExists(pcGoal))
 			return []
