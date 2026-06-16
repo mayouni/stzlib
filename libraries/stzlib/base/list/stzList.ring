@@ -2077,6 +2077,89 @@ class stzList from stzObject
 		def IsAListOfNumbers()
 			return This.IsListOfNumbers()
 
+	def IsListOfChars()
+		return @IsListOfChars(@aContent)
+
+		def IsAListOfChars()
+			return This.IsListOfChars()
+
+	# Polymorphic membership test: IsListOf(:Numbers/:Strings/:Chars/
+	# :Lists/:StzNumbers/:StzStrings/:ListsOfNumbers/:PairsOfNumbers).
+	def IsListOf(pType)
+		cType = StzLower("" + pType)
+		switch cType
+		on "numbers"
+			return This.IsListOfNumbers()
+		on "number"
+			return This.IsListOfNumbers()
+		on "strings"
+			return This.IsListOfStrings()
+		on "string"
+			return This.IsListOfStrings()
+		on "chars"
+			return This.IsListOfChars()
+		on "char"
+			return This.IsListOfChars()
+		on "lists"
+			return This.IsListOfLists()
+		on "stznumbers"
+			return This._AllItemsHaveStzType("stznumber")
+		on "stzstrings"
+			return This._AllItemsHaveStzType("stzstring")
+		on "listsofnumbers"
+			return This._AllItemsAreNumberLists(FALSE)
+		on "listofnumbers"
+			return This._AllItemsAreNumberLists(FALSE)
+		on "pairsofnumbers"
+			return This._AllItemsAreNumberLists(TRUE)
+		on "pairofnumbers"
+			return This._AllItemsAreNumberLists(TRUE)
+		other
+			return FALSE
+		off
+
+		def IsAListOf(pType)
+			return This.IsListOf(pType)
+
+	# All items are stz objects whose StzType() matches (e.g. stznumber).
+	def _AllItemsHaveStzType(cStzType)
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+		for i = 1 to nLen
+			if NOT isObject(@aContent[i])
+				return FALSE
+			ok
+			if StzLower("" + @aContent[i].StzType()) != StzLower(cStzType)
+				return FALSE
+			ok
+		next
+		return TRUE
+
+	# All items are lists of numbers (optionally each a 2-element pair).
+	def _AllItemsAreNumberLists(bPairsOnly)
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+		for i = 1 to nLen
+			_it_ = @aContent[i]
+			if NOT isList(_it_)
+				return FALSE
+			ok
+			if bPairsOnly and len(_it_) != 2
+				return FALSE
+			ok
+			_m_ = len(_it_)
+			for j = 1 to _m_
+				if NOT isNumber(_it_[j])
+					return FALSE
+				ok
+			next
+		next
+		return TRUE
+
 	def IsListOfLists()
 		nLen = len(@aContent)
 		for i = 1 to nLen

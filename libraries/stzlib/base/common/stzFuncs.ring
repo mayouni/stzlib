@@ -5516,6 +5516,31 @@ func StzInfereType(cType)
 	func @InfereType(cType)
 		return StzInfereType(cType)
 
+# File-scope worker for stzString.InfereType() (kept out of the class so
+# StartsWith / StzFind / StzReplaceCS resolve to globals, not methods).
+func @StzInfereTypeName(cStr)
+	c = StzLower(cStr)
+
+	if c = "number" or c = "numbers"   return :Number ok
+	if c = "string" or c = "strings"   return :String ok
+	if c = "char"   or c = "chars"     return :Char   ok
+
+	if c = "stznumber" or c = "stznumbers" return :StzNumber ok
+	if c = "stzstring" or c = "stzstrings" return :StzString ok
+	if c = "stzchar"   or c = "stzchars"   return :StzChar   ok
+
+	if StartsWith(c, "stzlist")
+		cR = StzReplaceCS(cStr, "Lists", "List", TRUE)
+		cR = StzReplaceCS(cR, "lists", "list", TRUE)
+		return cR
+	ok
+
+	if StzFind(c, "list") > 0 or StzFind(c, "pair") > 0
+		return :List
+	ok
+
+	return :Unknown
+
 #---
 
 # Viewing a file in the default program in the system
