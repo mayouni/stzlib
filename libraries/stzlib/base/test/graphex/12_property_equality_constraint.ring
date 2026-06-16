@@ -12,9 +12,9 @@ pr()
 
 oGraph = new stzGraph("Roles")
 oGraph {
-	AddNodeXT(:u1, "User1", ["role" = "admin"])
-	AddNodeXT(:u2, "User2", ["role" = "user"])
-	AddNodeXT(:u3, "User3", ["role" = "admin"])
+	AddNodeXTT(:u1, "User1", [:role = "admin"])
+	AddNodeXTT(:u2, "User2", [:role = "user"])
+	AddNodeXTT(:u3, "User3", [:role = "admin"])
 }
 
 # Match admin users

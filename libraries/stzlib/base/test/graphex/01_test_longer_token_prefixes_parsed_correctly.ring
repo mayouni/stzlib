@@ -12,8 +12,8 @@ pr()
 
 oGraph = new stzGraph("Props")
 oGraph {
-	AddNodeXT(:a, "Start", ["type" = "entry", "priority" = 1])
-	AddNodeXT(:b, "End", ["type" = "exit"])
+	AddNodeXTT(:a, "Start", [:type = "entry", :priority = 1])
+	AddNodeXTT(:b, "End", [:type = "exit"])
 	AddEdgeXT(:a, :b, "flows")
 }
 

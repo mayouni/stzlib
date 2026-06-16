@@ -12,9 +12,9 @@ pr()
 
 oGraph = new stzGraph("Users")
 oGraph {
-	AddNodeXT(:u1, "Alice", ["age" = 30])
-	AddNodeXT(:u2, "Bob", ["age" = 20])
-	AddNodeXT(:u3, "Charlie", ["age" = 35])
+	AddNodeXTT(:u1, "Alice", [:age = 30])
+	AddNodeXTT(:u2, "Bob", [:age = 20])
+	AddNodeXTT(:u3, "Charlie", [:age = 35])
 }
 
 # Match nodes with age > 25

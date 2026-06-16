@@ -12,9 +12,9 @@ pr()
 
 oGraph = new stzGraph("Ultimate")
 oGraph {
-	AddNodeXT(:u1, "UserA", ["age" = 30, "role" = "admin"])
-	AddNodeXT(:u2, "USERB", ["age" = 25, "role" = "user"])
-	AddNodeXT(:u3, "userC", ["age" = 35, "role" = "ADMIN"])
+	AddNodeXTT(:u1, "UserA", [:age = 30, :role = "admin"])
+	AddNodeXTT(:u2, "USERB", [:age = 25, :role = "user"])
+	AddNodeXTT(:u3, "userC", [:age = 35, :role = "ADMIN"])
 	AddEdgeXT(:u1, :u2, "Manages")
 	AddEdgeXT(:u2, :u3, "reports")
 }

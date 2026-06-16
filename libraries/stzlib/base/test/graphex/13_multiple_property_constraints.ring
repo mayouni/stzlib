@@ -12,9 +12,9 @@ pr()
 
 oGraph = new stzGraph("Complex")
 oGraph {
-	AddNodeXT(:u1, "Alice", ["age" = 30, "score" = 85])
-	AddNodeXT(:u2, "Bob", ["age" = 25, "score" = 90])
-	AddNodeXT(:u3, "Charlie", ["age" = 35, "score" = 75])
+	AddNodeXTT(:u1, "Alice", [:age = 30, :score = 85])
+	AddNodeXTT(:u2, "Bob", [:age = 25, :score = 90])
+	AddNodeXTT(:u3, "Charlie", [:age = 35, :score = 75])
 }
 
 # Match nodes: age > 26 AND score > 80

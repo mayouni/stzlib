@@ -12,9 +12,9 @@ pr()
 
 oGraph = new stzGraph("StateMachine")
 oGraph {
-	AddNodeXT(:idle, "Idle", ["energy" = 0])
-	AddNodeXT(:running, "Running", ["energy" = 100])
-	AddNodeXT(:paused, "Paused", ["energy" = 50])
+	AddNodeXTT(:idle, "Idle", [:energy = 0])
+	AddNodeXTT(:running, "Running", [:energy = 100])
+	AddNodeXTT(:paused, "Paused", [:energy = 50])
 	AddEdgeXT(:idle, :running, "start")
 	AddEdgeXT(:running, :paused, "pause")
 }
