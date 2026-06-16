@@ -5,6 +5,10 @@ class stzGraphex from stzGraph
 	@bDebugMode = FALSE
 	@oTargetGraph		# Target graph to match against
 
+	# Match-result cache, keyed by target-graph signature.
+	@aMatchCache = []	# list of [ signature, result ] pairs
+	@nCacheHits = 0
+
 	# Patterns for parsing tokens
 	@cNodePattern = '@Node(?:\((.*?)\))?(?:\{(.*?)\})?'
 	@cEdgePattern = '@Edge(?:\((.*?)\))?(?:\{(.*?)\})?'
@@ -23,25 +27,12 @@ class stzGraphex from stzGraph
 		
 		@cPattern = This.NormalizePattern(cPattern)
 		@oTargetGraph = oTargetGraph
-		
-//		try
-			? "=== INIT DEBUG ==="
-			? "Input pattern: " + cPattern
-			? "Normalized pattern: " + @cPattern
-			? "Building pattern graph..."
-			
+
+		try
 			This.BuildPatternGraph(@cPattern)
-			
-			? "After BuildPatternGraph:"
-			? "Node count: " + This.NodeCount()
-			? "Edge count: " + This.EdgeCount()
-			? "All nodes: " + @@(This.Nodes())
-			
-//		catch
-			cError = cCatchError
-			? "ERROR in init: " + cError
-			raise("Pattern initialization failed: " + cError)
-//		done
+		catch
+			raise("Pattern initialization failed: " + cCatchError)
+		done
 
 
 	def NormalizePattern(cPattern)
@@ -56,17 +47,12 @@ class stzGraphex from stzGraph
 	# Build the pattern as a graph: Nodes = tokens, Edges = sequences or alternates
 	def BuildPatternGraph(cPattern)
 
-		? "=== BuildPatternGraph Debug ==="
-		? "Calling ParsePattern..."
 		
 		@aPendingAlternationBranches = []
 		aTokens = This.ParsePattern(cPattern)
 		
-		? "ParsePattern returned: " + @@(aTokens)
-		? "Number of tokens: " + len(aTokens)
 		
 		if len(aTokens) = 0
-			? "WARNING: No tokens parsed!"
 			return
 		ok
 		
@@ -77,17 +63,14 @@ class stzGraphex from stzGraph
 		for i = 1 to nLenTokens
 			aToken = aTokens[i]
 			
-			? "Processing token #" + i + ": " + @@(aToken)
 			
 			# Check if token is valid before accessing [:type]
 			if NOT isList(aToken) or len(aToken) = 0
-				? "Invalid token at position " + i
 				loop
 			ok
 			
 			# Safe key access using HasKey
 			if NOT HasKey(aToken, :type)
-				? "Token missing :type key at position " + i
 				loop
 			ok
 			
@@ -100,10 +83,10 @@ class stzGraphex from stzGraph
 					cAltNodeId = ":p" + nNodeCounter
 					aAltToken = aToken[:alternatives][j]
 					cLabel = aAltToken[:type] + iff(HasKey(aAltToken, :label) and aAltToken[:label] != "", "(" + aAltToken[:label] + ")", "")
-					acProps = [ "min=" + aAltToken[:min], "max=" + aAltToken[:max], 
-							"negated=" + iff(aAltToken[:negated], "TRUE", "FALSE") ]
+					acProps = [ :min = aAltToken[:min], :max = aAltToken[:max], 
+							:negated = iff(aAltToken[:negated], "TRUE", "FALSE") ]
 					if HasKey(aAltToken, :setvalues) and len(aAltToken[:setvalues]) > 0
-						acProps + "set={" + JoinXT(aAltToken[:setvalues], ";") + "}" + iff(aAltToken[:unique], "U", "")
+						acProps + [ "set", "{" + JoinXT(aAltToken[:setvalues], ";") + "}" + iff(aAltToken[:unique], "U", "") ]
 					ok
 					This.AddNodeXTT(cAltNodeId, cLabel, acProps)
 					
@@ -127,10 +110,10 @@ class stzGraphex from stzGraph
 				if HasKey(aToken, :label) and aToken[:label] != ""
 					cLabel += "(" + aToken[:label] + ")"
 				ok
-				acProps = [ "min=" + aToken[:min], "max=" + aToken[:max], 
-						"negated=" + iff(aToken[:negated], "TRUE", "FALSE") ]
+				acProps = [ :min = aToken[:min], :max = aToken[:max], 
+						:negated = iff(aToken[:negated], "TRUE", "FALSE") ]
 				if HasKey(aToken, :setvalues) and len(aToken[:setvalues]) > 0
-					acProps + "set={" + JoinXT(aToken[:setvalues], ";") + "}" + iff(aToken[:unique], "U", "")
+					acProps + [ "set", "{" + JoinXT(aToken[:setvalues], ";") + "}" + iff(aToken[:unique], "U", "") ]
 				ok
 				This.AddNodeXTT(cNodeId, cLabel, acProps)
 				
@@ -152,23 +135,17 @@ class stzGraphex from stzGraph
 			ok
 		next
 		
-		? "Pattern graph built with " + This.NodeCount() + " nodes"
 
 	# FIXED: Alternation parsing now correctly strips outer parentheses
 	# before processing alternation groups
 	def ParsePattern(cPattern)
-		? "=== ParsePattern Debug ==="
-		? "Input pattern: " + cPattern
 		
 		oPattern = new stzString(cPattern)
 		cInner = oPattern.RemoveFirstAndLastCharsQ().Content()
 		
-		? "After removing {}: " + cInner
 		
 		aParts = split(cInner, "->")
 		
-		? "Parts after split: " + @@(aParts)
-		? "Number of parts: " + len(aParts)
 		
 		aTokens = []
 		nLenParts = len(aParts)
@@ -176,11 +153,9 @@ class stzGraphex from stzGraph
 		for i = 1 to nLenParts
 			cPart = trim(aParts[i])
 			
-			? "Processing part #" + i + ": [" + cPart + "]"
 			
 			# Skip empty parts
 			if cPart = ""
-				? "  Skipping empty part"
 				loop
 			ok
 			
@@ -190,11 +165,9 @@ class stzGraphex from stzGraph
 				# Strip outer parentheses to get the inner content
 				cInnerPart = @StzMid(cPart, 2, len(cPart) - 1)
 				
-				? "  Stripped parentheses: [" + cInnerPart + "]"
 				
 				# Now check if the inner content contains alternation
 				if contains(cInnerPart, "|")
-					? "  Detected alternation"
 					# Process as alternation without outer parentheses
 					aAltTokens = []
 					aAltParts = @split(cInnerPart, "|")
@@ -203,27 +176,21 @@ class stzGraphex from stzGraph
 					
 					for j = 1 to nLenAltParts
 						cAlt = trim(aAltParts[j])
-						? "    Alternation part #" + j + ": [" + cAlt + "]"
 						if cAlt != ""
 							aToken = This.ParseSingleToken(cAlt)
 							if isList(aToken) and len(aToken) > 0
 								aAltTokens + aToken
-								? "      Token parsed successfully"
 							else
-								? "      WARNING: Invalid alternation part: " + cAlt
 								bValidAlt = FALSE
 								exit
 							ok
 						else
-							? "      WARNING: Empty alternation part"
 						ok
 					next
 					
 					if bValidAlt and len(aAltTokens) > 0
-						? "  Adding alternation token with " + len(aAltTokens) + " alternatives"
 						aTokens + [ [ "type", "alternation" ], [ "alternatives", aAltTokens ] ]
 					else
-						? "  Alternation invalid, using fallback"
 						if len(aAltTokens) > 0
 							aTokens + aAltTokens[1]
 						else
@@ -234,38 +201,29 @@ class stzGraphex from stzGraph
 						ok
 					ok
 				else
-					? "  No alternation, parsing as single token"
 					aResult = This.ParseSingleToken(cInnerPart)
 					if isList(aResult) and len(aResult) > 0
 						aTokens + aResult
-						? "    Token added"
 					else
-						? "    WARNING: Failed to parse token"
 					ok
 				ok
 			else
-				? "  No parentheses, parsing as single token"
 				aResult = This.ParseSingleToken(cPart)
 				if isList(aResult) and len(aResult) > 0
 					aTokens + aResult
-					? "    Token added"
 				else
-					? "    WARNING: Failed to parse token"
 				ok
 			ok
 		next
 		
-		? "ParsePattern returning " + len(aTokens) + " tokens"
 		return aTokens
 
 
 	def ParseSingleToken(cTokenStr)
 		cTokenStr = @trim(cTokenStr)
 		
-		? "  ==> ParseSingleToken: [" + cTokenStr + "]"
 		
 		if cTokenStr = ""
-			? "      Empty token"
 			return []
 		ok
 		
@@ -328,23 +286,20 @@ class stzGraphex from stzGraph
 	
 		# Parse token type
 		cTokenLower = StzLower(cTokenStr)
-		? "      cTokenLower = [" + cTokenLower + "]"
 		
 		if startsWith(cTokenLower, "@node")
-			? "      Parsing as @Node"
 			
 			# Manual extraction: @Node(label){props}
 			nParenStart = StzFind(cTokenStr, "(")
 			if nParenStart > 0
 				nParenEnd = StzFind(cTokenStr, ")")
 				if nParenEnd > nParenStart
-					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - 1)
+					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - nParenStart - 1)
 				ok
 			ok
 
 			# Props already handled above in set constraints
 
-			? "      Matched: label=[" + cLabel + "]"
 
 			return [
 				[ "type", "node" ],
@@ -358,18 +313,16 @@ class stzGraphex from stzGraph
 			]
 			
 		but startsWith(cTokenLower, "@edge")
-			? "      Parsing as @Edge"
 			
 			# Manual extraction: @Edge(label){props}
 			nParenStart = StzFind(cTokenStr, "(")
 			if nParenStart > 0
 				nParenEnd = StzFind(cTokenStr, ")")
 				if nParenEnd > nParenStart
-					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - 1)
+					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - nParenStart - 1)
 				ok
 			ok
 
-			? "      Matched: label=[" + cLabel + "]"
 
 			return [
 				[ "type", "edge" ],
@@ -383,7 +336,6 @@ class stzGraphex from stzGraph
 			]
 			
 		but startsWith(cTokenLower, "@cycle")
-			? "      Parsing as @Cycle"
 			return [
 				[ "type", "cycle" ],
 				[ "label", "" ],
@@ -396,7 +348,6 @@ class stzGraphex from stzGraph
 			]
 			
 		but startsWith(cTokenLower, "@path")
-			? "      Parsing as @Path"
 			return [
 				[ "type", "path" ],
 				[ "label", "" ],
@@ -409,7 +360,6 @@ class stzGraphex from stzGraph
 			]
 			
 		else
-			? "      WARNING: Invalid token type"
 			return []
 		ok
 
@@ -441,7 +391,7 @@ class stzGraphex from stzGraph
 			for j = 1 to nLenReachable
 				cEndId = acReachable[j]
 				if cEndId != cStartId
-					acPaths = oGraph.FindAllPaths(cStartId, cEndId)
+					acPaths = oGraph.PathsXT(cStartId, cEndId)
 					nLenPaths = len(acPaths)
 					for k = 1 to nLenPaths
 						aPath = acPaths[k]
@@ -488,13 +438,13 @@ class stzGraphex from stzGraph
 		next
 		
 		# Handle cycles
-		if oGraph.CyclicDependencies()
-			acCyclicNodes = oGraph._GetCyclicNodes()
+		if oGraph.HasCyclicDependencies()
+			acCyclicNodes = oGraph.CyclicNodes()
 			nLenCyclic = len(acCyclicNodes)
 
 			for i = 1 to nLenCyclic
 				cNode = acCyclicNodes[i]
-				acCyclePaths = oGraph.FindAllPaths(cNode, cNode)
+				acCyclePaths = oGraph.PathsXT(cNode, cNode)
 				nLenCyclePaths = len(acCyclePaths)
 
 				for j = 1 to nLenCyclePaths
@@ -553,27 +503,49 @@ class stzGraphex from stzGraph
 
 	def Match(oTargetGraph)
 		@oTargetGraph = oTargetGraph
-//		try
-			# For pattern graph, use special traversal
-			aPatternBranches = This.ListifyPatternGraph()
-			# For target graph, use normal listification
-			aTargetBranches = This.ListifyGraph(oTargetGraph)
-			
-			if @bDebugMode
-				? "Pattern branches:"
-				? @@(aPatternBranches)
-				? "Target branches:"
-				? @@(aTargetBranches)
+
+		# Return a cached result when this target graph's signature was seen
+		# before; otherwise compute, cache and return.
+		_cSig_ = This._GraphSignature(oTargetGraph)
+		_nLenCache_ = len(@aMatchCache)
+		for _iC_ = 1 to _nLenCache_
+			if @aMatchCache[_iC_][1] = _cSig_
+				@nCacheHits++
+				return @aMatchCache[_iC_][2]
 			ok
-			
-			return This.MatchBranches(aPatternBranches, aTargetBranches)
-/*		catch
-			if @bDebugMode
-				? "Error during matching: " + cCatchError
-			ok
-			return FALSE
-		done
-*/
+		next
+
+		aPatternBranches = This.ListifyPatternGraph()
+		aTargetBranches = This.ListifyGraph(oTargetGraph)
+
+		if @bDebugMode
+		ok
+
+		_result_ = This.MatchBranches(aPatternBranches, aTargetBranches)
+		@aMatchCache + [ _cSig_, _result_ ]
+		return _result_
+
+	# Signature of a target graph for cache keying: node + edge counts plus
+	# the (insertion-order) node ids.
+	def _GraphSignature(oGraph)
+		_cSig_ = "" + oGraph.NumberOfNodes() + ":" + oGraph.NumberOfEdges()
+		_aIds_ = oGraph.NodesIds()
+		_nLenIds_ = len(_aIds_)
+		for _iS_ = 1 to _nLenIds_
+			_cSig_ += "|" + _aIds_[_iS_]
+		next
+		return _cSig_
+
+	# Cache statistics: number of distinct cached graph signatures + hits.
+	def CacheStats()
+		return [ :entries = len(@aMatchCache), :hits = @nCacheHits ]
+
+		def CacheEntries()
+			return len(@aMatchCache)
+
+		def ClearCache()
+			@aMatchCache = []
+			@nCacheHits = 0
 	# Special listification for pattern graph that handles alternations
 	def ListifyPatternGraph()
 		aBranches = []
@@ -599,8 +571,6 @@ class stzGraphex from stzGraph
 		ok
 		
 		if @bDebugMode
-			? "Pattern graph roots: " + @@(acRoots)
-			? "Pattern graph nodes: " + nLenNodes
 		ok
 		
 		# Traverse from each root
@@ -697,16 +667,12 @@ class stzGraphex from stzGraph
 		nLenPatternBranches = len(aPatternBranches)
 		
 		if @bDebugMode
-			? "=== MatchBranches Debug ==="
-			? "Number of pattern branches: " + nLenPatternBranches
-			? "Number of target branches: " + len(aTargetBranches)
 		ok
 		
 		for i = 1 to nLenPatternBranches
 			aPatternBranch = aPatternBranches[i]
 			
 			if @bDebugMode
-				? "Pattern branch #" + i + ": " + @@(aPatternBranch)
 			ok
 			
 			# Extract labels and check for negations
@@ -750,8 +716,6 @@ class stzGraphex from stzGraph
 			next
 			
 			if @bDebugMode
-				? "Pattern labels: " + @@(aPatternLabels)
-				? "Forbidden labels: " + @@(aForbiddenLabels)
 			ok
 			
 			# Check each target branch
@@ -760,7 +724,6 @@ class stzGraphex from stzGraph
 				aTargetBranch = aTargetBranches[k]
 				
 				if @bDebugMode
-					? "  Testing against target branch #" + k + ": " + @@(aTargetBranch)
 				ok
 				
 				# First check forbidden labels - if any exist in target, skip this branch
@@ -781,7 +744,6 @@ class stzGraphex from stzGraph
 				
 				if bHasForbidden
 					if @bDebugMode
-						? "  Forbidden label found, skipping"
 					ok
 					loop
 				ok
@@ -789,7 +751,6 @@ class stzGraphex from stzGraph
 				# Check if pattern labels appear as subsequence in target
 				if This.IsSubsequenceSimple(aPatternLabels, aTargetBranch)
 					if @bDebugMode
-						? "  MATCH FOUND!"
 					ok
 					return TRUE
 				ok
@@ -797,7 +758,6 @@ class stzGraphex from stzGraph
 		next
 		
 		if @bDebugMode
-			? "No matches found"
 		ok
 		
 		return FALSE
