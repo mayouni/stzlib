@@ -119,24 +119,43 @@ class stzRingTimer
 	        return false
 	    ok
 	    
-	    currentTime = clock()
-	    elapsed = (currentTime - lastTick) * CLOCKS_TO_MS_MULTIPLIER / clocksPerSecond()
+	    # Start() seeds startTime/lastTick from StzEngineTimeNowMs() (a
+	    # wall-clock ms value). CheckAndTick MUST read the same clock --
+	    # the old code used clock() (CPU ticks), so currentTime - lastTick
+	    # was hugely negative and the timer NEVER fired: every RunAfter/
+	    # RunEvery test hung forever. clock() also doesn't advance during
+	    # the poll loop's sleep() (it measures CPU, not wall time).
+	    currentTime = StzEngineTimeNowMs()
+	    elapsed = currentTime - lastTick
 
-	    if elapsed >= interval
-	        if callback != NULL
-	            call callback()
-	        ok
-	        
-	        if isOneTime
-	            Stop()
-	            return false
-	        else
-	            lastTick = currentTime
-	        ok
+	    if elapsed < interval
+	        return true   # still active, just not due yet
 	    ok
-	    
-	    return isActive
-		
+
+	    # The callback may re-enter the timer system (StopTimer / Stop /
+	    # StopAllTimers), which clears `timers` and leaves Ring's object
+	    # scope invalid -- ANY attribute read after `call callback()`
+	    # (even This.isActive) then raises R24/R13. So decide everything
+	    # BEFORE the call: snapshot one-time-ness, advance lastTick (fixed
+	    # rate), stop one-shots up front, and return a value that needs no
+	    # post-callback attribute read. A repeating timer reports "active";
+	    # if the callback stopped the system, the manager loop sees its own
+	    # isRunning flag drop and exits.
+	    bOnce = isOneTime
+	    lastTick = currentTime
+	    if bOnce
+	        Stop()
+	    ok
+
+	    if callback != NULL
+	        call callback()
+	    ok
+
+	    if bOnce
+	        return false
+	    ok
+	    return true
+
 	def Cleanup()
 		Stop()
 
@@ -192,14 +211,28 @@ class stzTimerManager
 	        nLenTimers = len(timers)
 
 	        for i = 1 to nLenTimers
-	            timer = timers[i]
-	            if timer.CheckAndTick()
+	            # A callback may have removed timers (StopAllTimers clears
+	            # the list mid-iteration), so re-check the bound each step.
+	            if i > len(timers)
+	                exit
+	            ok
+	            # Call through the index, NOT a `timer = timers[i]` copy:
+	            # Ring returns a COPY on list-element assignment, so a copy
+	            # would never persist CheckAndTick's lastTick update -- the
+	            # repeating timer then re-fired every poll (~10ms) instead
+	            # of every interval. (One-shot timers happened to survive.)
+	            if timers[i].CheckAndTick()
 	                activeCount++
 	            else
 	                # Mark for removal if it's a one-time timer
-	                if timer.isOneTime
+	                if timers[i].isOneTime
 	                    completedIndices + i
 	                ok
+	            ok
+	            # A callback may have stopped the whole system; bail now
+	            # rather than index into a cleared list.
+	            if not isRunning or shouldStop
+	                exit
 	            ok
 	        next
 	        
