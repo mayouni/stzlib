@@ -192,6 +192,12 @@ class stzMatrix
 	@nCols       # Number of columns
 	@pEngineMatrix = NULL
 
+	def ClassName()
+		return "stzmatrix"
+
+		def StzClassName()
+			return This.ClassName()
+
 	# Constructor with flexible initialization
 
 	def init(paInput)

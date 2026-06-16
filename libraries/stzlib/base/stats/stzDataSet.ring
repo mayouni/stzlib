@@ -1003,6 +1003,12 @@ class stzDataSet
     @nMinSampleSize = 3  # Minimum for advanced statistics
     @pEngineStats = NULL
 
+    def ClassName()
+        return "stzdataset"
+
+        def StzClassName()
+            return This.ClassName()
+
     def init(paData)
         if CheckParams()
             if NOT isList(paData)
