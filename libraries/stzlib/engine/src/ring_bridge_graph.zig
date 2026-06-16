@@ -67,14 +67,6 @@ fn ring_AddNode(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(graph.stz_graph_add_node(getMutH(p, 1), id, id_len)));
 }
 
-fn ring_NodeCount(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(graph.stz_graph_node_count(getH(p, 1))));
-}
-
-fn ring_EdgeCount(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(graph.stz_graph_edge_count(getH(p, 1))));
-}
-
 fn ring_AddEdge(p: *anyopaque) callconv(.c) void {
     const from = gs(p, 2);
     const from_len: usize = @intCast(gss(p, 2));
@@ -84,34 +76,12 @@ fn ring_AddEdge(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(graph.stz_graph_add_edge(getMutH(p, 1), from, from_len, to, to_len, weight)));
 }
 
-fn ring_HasEdge(p: *anyopaque) callconv(.c) void {
-    const from = gs(p, 2);
-    const from_len: usize = @intCast(gss(p, 2));
-    const to = gs(p, 3);
-    const to_len: usize = @intCast(gss(p, 3));
-    rn(p, @floatFromInt(graph.stz_graph_has_edge(getH(p, 1), from, from_len, to, to_len)));
-}
-
-fn ring_RemoveEdge(p: *anyopaque) callconv(.c) void {
-    const from = gs(p, 2);
-    const from_len: usize = @intCast(gss(p, 2));
-    const to = gs(p, 3);
-    const to_len: usize = @intCast(gss(p, 3));
-    rn(p, @floatFromInt(graph.stz_graph_remove_edge(getMutH(p, 1), from, from_len, to, to_len)));
-}
-
 fn ring_Neighbors(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
     var buf: [8192]u8 = undefined;
     const len = graph.stz_graph_neighbors(getH(p, 1), id, id_len, &buf, 8192);
     retLines(p, buf[0..len]);
-}
-
-fn ring_NeighborCount(p: *anyopaque) callconv(.c) void {
-    const id = gs(p, 2);
-    const id_len: usize = @intCast(gss(p, 2));
-    rn(p, @floatFromInt(graph.stz_graph_neighbor_count(getH(p, 1), id, id_len)));
 }
 
 fn ring_ShortestPath(p: *anyopaque) callconv(.c) void {
@@ -563,13 +533,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphcreate", .func = &ring_Create },
     .{ .name = "stzenginegraphfree", .func = &ring_Free },
     .{ .name = "stzenginegraphaddnode", .func = &ring_AddNode },
-    .{ .name = "stzenginegraphnodecount", .func = &ring_NodeCount },
-    .{ .name = "stzenginegraphedgecount", .func = &ring_EdgeCount },
     .{ .name = "stzenginegraphaddedge", .func = &ring_AddEdge },
-    .{ .name = "stzenginegraphhasedge", .func = &ring_HasEdge },
-    .{ .name = "stzenginegraphremoveedge", .func = &ring_RemoveEdge },
     .{ .name = "stzenginegraphneighbors", .func = &ring_Neighbors },
-    .{ .name = "stzenginegraphneighborcount", .func = &ring_NeighborCount },
     .{ .name = "stzenginegraphshortestpath", .func = &ring_ShortestPath },
     .{ .name = "stzenginegraphpathexists", .func = &ring_PathExists },
     .{ .name = "stzenginegraphbfs", .func = &ring_BFS },
