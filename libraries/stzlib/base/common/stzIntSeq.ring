@@ -5,7 +5,7 @@
 #   Description  : Lightweight Ring-side wrapper around the    #
 #                  engine IntSeq feature. Holds a handle to a  #
 #                  Zig-allocated []i64 backing store; exposes  #
-#                  list-shape access (Len, At, First, Last,    #
+#                  list-shape access (Count, At, First, Last,  #
 #                  Sum, Min, Max, ToList) via O(1) / O(N)      #
 #                  engine calls.                                #
 #                                                              #

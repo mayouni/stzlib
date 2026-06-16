@@ -3,7 +3,7 @@
 # Engine-first 1M cycle: the same 1..4 cycle as blocks 04 and 05, but
 # kept on the engine side instead of materialising to a Ring list.
 # CountToQ returns an stzIntSeq wrapping a Zig-allocated []i64 backing
-# store; queries (Len, At, Sum, Min, Max) stay engine-fast (no per-item
+# store; queries (Count, At, Sum, Min, Max) stay engine-fast (no per-item
 # FFI roundtrip and no Ring-list construction).
 #
 # CountTo() itself always returns a plain Ring list (engine-built,
@@ -28,7 +28,7 @@ oCounter = new stzCounter([
 
 oSeq = oCounter.CountToQ(1000000)
 
-? oSeq.Len()
+? oSeq.Count()
 #--> 1000000
 
 ? oSeq.First()
