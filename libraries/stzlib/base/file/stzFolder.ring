@@ -378,13 +378,13 @@ class stzFolder from stzObject
 		:ClosingChar = char(226)+char(149)+char(176),
 		:File = " " + char(240)+char(159)+char(151)+char(139),
 		:FileFound = char(240)+char(159)+char(147)+char(132),
-		:FolderRoot = char(240)+char(159)+char(147)+char(129),
-		:FolderRootXT = char(240)+char(159)+char(147)+char(130),
+		:FolderRoot = char(240)+char(159)+char(151)+char(128),   # U+1F5C0 folder (Show root)
+		:FolderRootXT = char(240)+char(159)+char(147)+char(129), # U+1F4C1 folder (ShowXT root)
 		:FolderOpened = char(240)+char(159)+char(151)+char(129),
-		:FolderOpenedFound = char(240)+char(159)+char(151)+char(130),
+		:FolderOpenedFound = char(240)+char(159)+char(147)+char(130), # U+1F4C2 open folder (may contain matches)
 		:FolderClosedEmpty = char(240)+char(159)+char(151)+char(128),
 		:FolderClosedFull = char(240)+char(159)+char(150)+char(191),
-		:FolderRootSearchSymbol = char(240)+char(159)+char(148)+char(141),
+		:FolderRootSearchSymbol = char(240)+char(159)+char(142)+char(175), # U+1F3AF target
 		:FileFoundSymbol = char(240)+char(159)+char(145)+char(137)
 	]
 

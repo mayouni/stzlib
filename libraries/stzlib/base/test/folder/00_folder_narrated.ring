@@ -42,9 +42,60 @@ Scenario("DeepRemoveAll removes the folder and its whole subtree")
     Then("the folder no longer exists", dirExists(cSbx), 0)
 EndScenario()
 
+# --- Visual exploration (matches stzfolder-visual-exploration-and-search.md) ---
+# Builds the documented "testarea" fixture and asserts the visual surface:
+# Show/ShowXT icons + counts, deep stats, expansion, and viz search markers.
+# Guards the engine StzLower 64-byte truncation fix (the deep-stat pattern is
+# 74 chars) and the case-preserving navigation fixes.
+
+cTA = CurrentDir() + "/_tanar"
+if dirExists(cTA) RemoveFolderRecursive(cTA) ok
+QMkdir(cTA + "/docs")  QMkdir(cTA + "/images/more")  QMkdir(cTA + "/images/notes")
+QMkdir(cTA + "/music")  QMkdir(cTA + "/tempo")  QMkdir(cTA + "/videos")
+write(cTA + "/test.txt", "program")
+write(cTA + "/images/image1.png", "x")  write(cTA + "/images/image2.png", "x")
+write(cTA + "/images/notes/howto.txt", "x")  write(cTA + "/images/notes/sources.txt", "x")
+write(cTA + "/tempo/temp1.txt", "x")  write(cTA + "/tempo/temp2.txt", "x")
+
+Scenario("Surface vs deep counts")
+    Given("the documented testarea fixture")
+    t = new stzFolder(cTA)
+    Then("CountFiles is 1 (root)", t.CountFiles(), 1)
+    Then("CountFolders is 5 (root)", t.CountFolders(), 5)
+    Then("DeepCountFiles is 7", t.DeepCountFiles(), 7)
+    Then("DeepCountFolders is 7", t.DeepCountFolders(), 7)
+EndScenario()
+
+Scenario("Show renders the tree (ToString returns it; Show prints it)")
+    Given("the fixture")
+    t = new stzFolder(cTA)
+    cS = t.ToString()
+    Then("the root folder name appears", StzFind(cS, "_tanar") > 0, TRUE)
+    Then("the docs sub-folder appears", StzFind(cS, "docs") > 0, TRUE)
+    Then("the images sub-folder appears", StzFind(cS, "images") > 0, TRUE)
+EndScenario()
+
+Scenario("Custom deep statistics (guards the StzLower 64-byte fix)")
+    Given("a 74-char deep-count display pattern")
+    t = new stzFolder(cTA)
+    t.SetDisplayStat('@CountFiles:@DeepCountFiles files, @CountFolders:@DeepCountFolders folders')
+    cX = t.ToStringXT()
+    Then("the root deep stat reads 1:7 files, 5:7 folders (not truncated)",
+        StzFind(cX, "1:7 files, 5:7 folders") > 0, TRUE)
+EndScenario()
+
+Scenario("VizDeepSearch marks every match")
+    Given("the fixture searched for *.txt")
+    t = new stzFolder(cTA)
+    cV = t.VizDeepSearch("*.txt")
+    Then("the root shows the target marker + total 5", StzFind(cV, "5 matches") > 0, TRUE)
+    Then("howto.txt is found deep in images/notes", StzFind(cV, "howto.txt") > 0, TRUE)
+EndScenario()
+
+if dirExists(cTA) RemoveFolderRecursive(cTA) ok
+
 Summary()
 
-# Safety net: ensure the sandbox is gone even if an assertion bailed early.
-if dirExists(cSbx)
-    RemoveFolderRecursive(cSbx)
-ok
+# Safety net: ensure the sandboxes are gone even if an assertion bailed early.
+if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
+if dirExists(CurrentDir() + "/_tanar") RemoveFolderRecursive(CurrentDir() + "/_tanar") ok
