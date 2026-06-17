@@ -25,17 +25,16 @@ pub fn str_to_upper(handle: StzStringHandle) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
         const r = str_new() orelse return null;
+        if (src.len == 0) return r;
+        // Heap buffer (max UTF-8 expansion). The old [64]u8 fast path
+        // truncated any string >64 bytes: stz_unicode_to_upper_str caps its
+        // return at the buffer size, so the `len <= 64` overflow check never
+        // fired and the big-buffer fallback was unreachable.
         r.data.ensureTotalCapacity(gpa, src.len * 2) catch { setError(.out_of_memory); };
-        var buf: [64]u8 = undefined;
-        const len = unicode.stz_unicode_to_upper_str(src.ptr, src.len, &buf, 64);
-        if (len > 0 and len <= 64) {
-            r.data.appendSlice(gpa, buf[0..len]) catch { setError(.out_of_memory); };
-        } else if (src.len > 0) {
-            const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
-            defer gpa.free(big_buf);
-            const big_len = unicode.stz_unicode_to_upper_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
-            if (big_len > 0) r.data.appendSlice(gpa, big_buf[0..big_len]) catch { setError(.out_of_memory); };
-        }
+        const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
+        defer gpa.free(big_buf);
+        const len = unicode.stz_unicode_to_upper_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
+        if (len > 0) r.data.appendSlice(gpa, big_buf[0..len]) catch { setError(.out_of_memory); };
         return r;
     }
     return str_new();
@@ -47,17 +46,16 @@ pub fn str_to_lower(handle: StzStringHandle) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
         const r = str_new() orelse return null;
+        if (src.len == 0) return r;
+        // Heap buffer (max UTF-8 expansion). The old [64]u8 fast path
+        // truncated any string >64 bytes: stz_unicode_to_lower_str caps its
+        // return at the buffer size, so the `len <= 64` overflow check never
+        // fired and the big-buffer fallback was unreachable.
         r.data.ensureTotalCapacity(gpa, src.len * 2) catch { setError(.out_of_memory); };
-        var buf: [64]u8 = undefined;
-        const len = unicode.stz_unicode_to_lower_str(src.ptr, src.len, &buf, 64);
-        if (len > 0 and len <= 64) {
-            r.data.appendSlice(gpa, buf[0..len]) catch { setError(.out_of_memory); };
-        } else if (src.len > 0) {
-            const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
-            defer gpa.free(big_buf);
-            const big_len = unicode.stz_unicode_to_lower_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
-            if (big_len > 0) r.data.appendSlice(gpa, big_buf[0..big_len]) catch { setError(.out_of_memory); };
-        }
+        const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
+        defer gpa.free(big_buf);
+        const len = unicode.stz_unicode_to_lower_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
+        if (len > 0) r.data.appendSlice(gpa, big_buf[0..len]) catch { setError(.out_of_memory); };
         return r;
     }
     return str_new();
