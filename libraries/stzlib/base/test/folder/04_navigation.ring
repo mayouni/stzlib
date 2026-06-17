@@ -12,7 +12,7 @@ pr()
 
 cSbx = CurrentDir() + "/_t04"
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
-QMkdir(cSbx + "/Public/Shared")
+StzMakeDir(cSbx + "/Public/Shared")
 
 o1 = new stzFolder(cSbx)
 o1 {

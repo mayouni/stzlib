@@ -11,7 +11,7 @@ pr()
 
 cSbx = CurrentDir() + "/_t12"
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
-QMkdir(cSbx + "/Level1/Level2/Level3")
+StzMakeDir(cSbx + "/Level1/Level2/Level3")
 write(cSbx + "/Level1/a.txt", "x")
 write(cSbx + "/Level1/Level2/b.txt", "x")
 

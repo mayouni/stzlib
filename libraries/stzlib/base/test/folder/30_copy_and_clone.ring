@@ -25,7 +25,7 @@ o2 = o1.Copy() # Or Clone()
 ? o2.Path()
 #--> <testarea>
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23

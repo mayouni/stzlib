@@ -11,8 +11,8 @@ pr()
 
 cSbx = CurrentDir() + "/_t17"
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
-QMkdir(cSbx + "/common")
-QMkdir(cSbx + "/data")
+StzMakeDir(cSbx + "/common")
+StzMakeDir(cSbx + "/data")
 write(cSbx + "/common/memory.ring", "x")
 write(cSbx + "/common/cache.ring", "x")
 write(cSbx + "/notes.txt", "x")

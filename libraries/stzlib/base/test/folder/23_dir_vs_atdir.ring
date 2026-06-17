@@ -28,7 +28,7 @@ BuildTestArea(cTA)
 
 # NOTE: 1 means the entry is a folder, 0 means it is a file.
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23

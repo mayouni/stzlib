@@ -24,7 +24,7 @@ o1 = new stzFolder(cTA)
 ? o1.VizSearchFolders("*i*")
 #--> a tree highlighting folders whose name contains 'i' (images, videos)
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23

@@ -11,7 +11,7 @@ pr()
 
 # Ensure systest exists
 if NOT isdir("systest")
-	QMkdir("systest")
+	StzMakeDir("systest")
 ok
 
 # Create test files

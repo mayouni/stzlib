@@ -11,8 +11,8 @@ pr()
 
 cSbx = CurrentDir() + "/_t31"
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
-QMkdir(cSbx + "/A")  QMkdir(cSbx + "/B")  QMkdir(cSbx + "/C")
-QMkdir(cSbx + "/D")  QMkdir(cSbx + "/E")
+StzMakeDir(cSbx + "/A")  StzMakeDir(cSbx + "/B")  StzMakeDir(cSbx + "/C")
+StzMakeDir(cSbx + "/D")  StzMakeDir(cSbx + "/E")
 
 o1 = new stzFolder(cSbx)
 o1 {
