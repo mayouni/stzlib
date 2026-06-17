@@ -3656,11 +3656,18 @@ class stzDataSet
     def _ExecutePlanStep(aStep)
         cFunction = aStep[:function]
         aArgs = []
-        
+
         if HasKey(aStep, :args)
             aArgs = aStep[:args]
         ok
-        
+
+        # Correlation/pairwise steps need a SECOND dataset. A single-dataset
+        # ExecutePlan can't supply one, so skip them gracefully instead of
+        # eval-calling a 1-arg method with 0 args (R19, "too few params").
+        if len(aArgs) = 0 and This._NeedsPairedDataset(cFunction)
+            return "skipped (needs a second dataset)"
+        ok
+
         # Build execution code
         cCode = "result = " + cFunction + "("
         if len(aArgs) > 0
@@ -3676,7 +3683,19 @@ class stzDataSet
         
         eval(cCode)
         return result
-    
+
+    # Functions that require a second/paired dataset as an argument.
+    def _NeedsPairedDataset(cFunction)
+        aPaired = [ "CorrelationWith", "RankCorrelationWith", "PartialCorrelation",
+                    "CovarianceWith", "CompareWith", "CompareTo" ]
+        nLen = len(aPaired)
+        for i = 1 to nLen
+            if cFunction = aPaired[i]
+                return TRUE
+            ok
+        next
+        return FALSE
+
     def _FormatStepResult(cFunction, vResult)
         switch cFunction
         on "DataType"

@@ -27,6 +27,40 @@ Scenario("Alternative means")
     Then("HarmonicMean ~ 4.57", Rnd2(o.HarmonicMean()), 4.57)
 EndScenario()
 
+# --- Regression guards added this session ---
+
+Scenario("Data-type detection")
+    Given("a numeric and a categorical dataset")
+    Then("all-numbers -> numeric", Ds([ 1, 2, 3 ]).DataType(), "numeric")
+    Then("all-strings -> categorical", Ds([ "a", "b", "a" ]).DataType(), "categorical")
+EndScenario()
+
+Scenario("Missing-value detection is list-safe (R21 guard)")
+    Given("a dataset")
+    o = Ds([ 2, 4, 6 ])
+    Then("an empty string is missing", o._IsMissing(""), TRUE)
+    Then("a number is not missing", o._IsMissing(5), FALSE)
+    Then("a nested list is NOT a missing marker", o._IsMissing([ 1, 2 ]), FALSE)
+EndScenario()
+
+Scenario("Construction tolerates nested-list items (R21 guard)")
+    Given("data containing a sublist: [1,[2,3],4]")
+    Then("it constructs without crashing (count 3)", Ds([ 1, [ 2, 3 ], 4 ]).Count(), 3)
+EndScenario()
+
+Scenario("TrendAnalysis returns a list of segments (formatter R21 guard)")
+    Given("a numeric sample")
+    Then("the result is a list", isList(Ds([ 1, 3, 2, 5, 4 ]).TrendAnalysis()), TRUE)
+EndScenario()
+
+Scenario("Single-dataset plans skip pairwise steps gracefully (R19 guard)")
+    Given("a dataset with no paired second dataset")
+    o = Ds([ 1, 2, 3 ])
+    Then("CorrelationWith needs a paired dataset", o._NeedsPairedDataset("CorrelationWith"), TRUE)
+    Then("RankCorrelationWith needs a paired dataset", o._NeedsPairedDataset("RankCorrelationWith"), TRUE)
+    Then("Mean does NOT need a paired dataset", o._NeedsPairedDataset("Mean"), FALSE)
+EndScenario()
+
 Summary()
 
 func Ds aList
