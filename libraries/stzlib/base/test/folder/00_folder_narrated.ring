@@ -102,6 +102,42 @@ Scenario("Finders match by name list, surface glob, and deep recursion")
     Then("DeepFindFiles(howto.txt) finds the nested file", len(t.DeepFindFiles("howto.txt")), 1)
 EndScenario()
 
+Scenario("DeepFindFolders matches folders anywhere in the subtree")
+    Given("the fixture with a deeper src/views folder")
+    t = new stzFolder(cTA)
+    QMkdir(cTA + "/src/views")
+    t.Refresh()
+    Then("DeepFindFolders(*view*) finds the nested views folder",
+        StzFind(@@(t.DeepFindFolders("*view*")), "views") > 0, TRUE)
+    Then("DeepFindFolders(notes) finds the nested notes folder",
+        StzFind(@@(t.DeepFindFolders("notes")), "notes") > 0, TRUE)
+EndScenario()
+
+Scenario("File ops: create, size, copy, delete, exists")
+    Given("a fresh file sandbox")
+    cFx = CurrentDir() + "/_tfops"
+    if dirExists(cFx) RemoveFolderRecursive(cFx) ok
+    QMkdir(cFx)
+    write(cFx + "/seed.txt", "hello world")  # 11 bytes
+    f = new stzFolder(cFx)
+    f.SetBatchMode(TRUE)
+    When("a file is created")
+    f.CreateFile("new.txt")
+    f.Refresh()
+    Then("the created file exists", f.FileExists("new.txt"), 1)
+    Then("FileSize reports the byte length", f.FileSize("seed.txt"), 11)
+    When("the seed file is copied")
+    f.CopyFile("seed.txt", "copy.txt")
+    f.Refresh()
+    Then("the copy exists", f.FileExists("copy.txt"), 1)
+    When("the created file is deleted")
+    f.DeleteFile("new.txt")
+    f.Refresh()
+    Then("the deleted file is gone", f.FileExists("new.txt"), 0)
+    f = 0
+    if dirExists(cFx) RemoveFolderRecursive(cFx) ok
+EndScenario()
+
 if dirExists(cTA) RemoveFolderRecursive(cTA) ok
 
 Summary()
