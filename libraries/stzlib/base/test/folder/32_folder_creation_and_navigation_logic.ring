@@ -7,9 +7,9 @@
 
 load "../../stzBase.ring"
 
-   Demonstrates how to use the stzFolder class to navigate the file system,
-   create folders, and track the current path. Highlights support for
-   both sequential navigation and scoped (block-based) folder creation.
+# Demonstrates how to use the stzFolder class to navigate the file system,
+# create folders, and track the current path. Highlights support for
+# both sequential navigation and scoped (block-based) folder creation.
 
 pr()
 

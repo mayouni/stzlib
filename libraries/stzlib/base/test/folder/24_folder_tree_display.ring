@@ -52,7 +52,17 @@ pr()
 
 # Here is an example:
 
-o1 = new stzFolder("d:/ring124")
+# Use a small LOCAL sandbox tree instead of a machine-specific path like
+# "d:/ring124" (which would walk a whole Ring install and appear to hang).
+cTreeSbx = CurrentDir() + "/_fx_tree"
+if dirExists(cTreeSbx) RemoveFolderRecursive(cTreeSbx) ok
+QMkdir(cTreeSbx + "/Docs")
+QMkdir(cTreeSbx + "/Images")
+QMkdir(cTreeSbx + "/Music")
+QMkdir(cTreeSbx + "/Videos")
+write(cTreeSbx + "/test.txt", "x")
+write(cTreeSbx + "/Images/photo.png", "x")
+o1 = new stzFolder(cTreeSbx)
 
 # Showing the tree structure (first level folders collapsed by default)
 
@@ -302,5 +312,6 @@ o1.CollapseAll() # Same as collapse()
 "
 
 
+if dirExists(cTreeSbx) RemoveFolderRecursive(cTreeSbx) ok
 pf()
 # Executed in 0.24 second(s) in Ring 1.22
