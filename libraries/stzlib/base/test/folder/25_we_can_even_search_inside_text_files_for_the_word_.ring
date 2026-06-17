@@ -9,9 +9,19 @@ load "../../stzBase.ring"
 
 pr()
 
-# (restults return the path of the file and the numbers of lines)
+# Self-contained sandbox fixture (the extraction dropped the o1 setup and
+# assumed a machine-specific c:/testarea/test.txt).
+cSrchSbx = CurrentDir() + "/_fx_srch"
+if dirExists(cSrchSbx) RemoveFolderRecursive(cSrchSbx) ok
+QMkdir(cSrchSbx)
+write(cSrchSbx + "/test.txt", "program starts here" + nl + "second line" + nl + "program ends")
+o1 = new stzFolder(cSrchSbx)
+
+# (results return the path of the file and the numbers of lines)
 
 ? @@NL( o1.DeepSearchInFiles("program") )
+
+if dirExists(cSrchSbx) RemoveFolderRecursive(cSrchSbx) ok
 #-->
 '
 [

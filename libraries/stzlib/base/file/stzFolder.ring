@@ -3933,6 +3933,9 @@ class stzFolder from stzObject
 		cResult += This.GenerateVizTreeString(This.Path(), "", 1, cPattern, "files", 0, 1)
 		return cResult
 
+		def VizSearchFolders(cPattern)
+			return This.VizFindFolders(cPattern)
+
 	def VizFindFolders(cPattern)
 		nTotalMatches = This.CountFolderMatches(This.Path(), cPattern)
 		cFolderName = This.Name()
