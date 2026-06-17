@@ -371,19 +371,21 @@ class stzFolder from stzObject
 	@acCollapseFolders = []
 
 	@acDisplayChars = [
-		:VerticlalChar = "ââ€‚",
-		:VerticalCharTick = "ââ€œ",
-		:ClosingChar = "ââ€¢°",
-		:File = " ðÅ¸â€”â€¹",
-		:FileFound = "ðÅ¸â€œâ€ž",
-		:FolderRoot = "ðÅ¸â€”â‚¬",
-		:FolderRootXT = "ðÅ¸â€œ",
-		:FolderOpened = "ðÅ¸â€”",
-		:FolderOpenedFound = "ðÅ¸â€œâ€š",
-		:FolderClosedEmpty = "ðÅ¸â€”â‚¬",
-		:FolderClosedFull = "ðÅ¸â€“¿",
-		:FolderRootSearchSymbol = "ðÅ¸Å½¯",
-		:FileFoundSymbol = "ðÅ¸â€˜â€°"
+		# Tree glyphs built from raw UTF-8 bytes via char() so the source
+		# stays pure-ASCII and cannot be double-encoded by an editor.
+		:VerticlalChar = char(226)+char(148)+char(130),
+		:VerticalCharTick = char(226)+char(148)+char(156),
+		:ClosingChar = char(226)+char(149)+char(176),
+		:File = " " + char(240)+char(159)+char(151)+char(139),
+		:FileFound = char(240)+char(159)+char(147)+char(132),
+		:FolderRoot = char(240)+char(159)+char(147)+char(129),
+		:FolderRootXT = char(240)+char(159)+char(147)+char(130),
+		:FolderOpened = char(240)+char(159)+char(151)+char(129),
+		:FolderOpenedFound = char(240)+char(159)+char(151)+char(130),
+		:FolderClosedEmpty = char(240)+char(159)+char(151)+char(128),
+		:FolderClosedFull = char(240)+char(159)+char(150)+char(191),
+		:FolderRootSearchSymbol = char(240)+char(159)+char(148)+char(141),
+		:FileFoundSymbol = char(240)+char(159)+char(145)+char(137)
 	]
 
 	@bBacthMode = FALSE
@@ -4835,14 +4837,14 @@ class stzFolder from stzObject
 	            
 	            # Add found indicator if file matches
 	            if bFileMatches
-	                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets ðÅ¸â€˜â€°ðÅ¸â€œâ€ž
+	                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets the found-file marker
 	            end
 	            
 	            # Use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "ââ€€" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + cIcon + " " + cItemName + nl
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "ââ€€" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + cIcon + " " + cItemName + nl
 	            end
 	            
 	        else  # folder
@@ -4907,10 +4909,10 @@ class stzFolder from stzObject
 	            
 	            # Build the line - use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "ââ€€" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + "  "  # No vertical line continuation for last item
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "ââ€€" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + @acDisplayChars[:VerticlalChar] + " "  # Continue vertical line
 	            end
 	            
