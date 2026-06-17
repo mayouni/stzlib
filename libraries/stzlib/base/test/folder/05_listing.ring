@@ -33,7 +33,7 @@ o1 {
     #--> [ "/docs/", "/images/", "/music/", "/tempo/", "/videos/" ]
 }
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23

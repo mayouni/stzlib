@@ -42,7 +42,7 @@ o1 = new stzFolder(cTA)
 ? @@NL( o1.DeepFilesXT() )
 #--> the same deep files, each prefixed with the full <testarea> path
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23

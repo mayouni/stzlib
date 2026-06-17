@@ -26,12 +26,12 @@
 
 func BuildTestArea(cBase)
 	if dirExists(cBase) RemoveFolderRecursive(cBase) ok
-	QMkdir(cBase + "/Docs")
-	QMkdir(cBase + "/Images/more")
-	QMkdir(cBase + "/Images/notes")
-	QMkdir(cBase + "/Music")
-	QMkdir(cBase + "/tempo")
-	QMkdir(cBase + "/Videos")
+	StzMakeDir(cBase + "/Docs")
+	StzMakeDir(cBase + "/Images/more")
+	StzMakeDir(cBase + "/Images/notes")
+	StzMakeDir(cBase + "/Music")
+	StzMakeDir(cBase + "/tempo")
+	StzMakeDir(cBase + "/Videos")
 	write(cBase + "/test.txt", "program starts here" + nl + "second line" + nl + "program ends")
 	write(cBase + "/Images/image1.png", "x")
 	write(cBase + "/Images/image2.png", "x")
@@ -41,5 +41,5 @@ func BuildTestArea(cBase)
 	write(cBase + "/tempo/temp2.txt", "alpha" + nl + "program beta")
 	return cBase
 
-func KillTestArea(cBase)
+func RemoveTestArea(cBase)
 	if dirExists(cBase) RemoveFolderRecursive(cBase) ok

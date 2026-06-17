@@ -216,11 +216,15 @@ func RemoveFolderRecursive(cPath)
 	RemoveFolderXT(cPath)
 		return This.RemoveFolderRecursive()
 
-func QMkdir(cPath) #TODO //Hormonize with CreateFolder!!!
+# Create a directory path (all missing intermediates) via the Softanza Zig
+# engine. The old name QMkdir carried the Qt lineage (Qt's QDir::mkdir);
+# Softanza has no Qt dependency, so the Q is gone. (Plain MakeDir is already a
+# Ring stdlib name, so the Stz-prefixed StzMakeDir is the Softanza form.)
+func StzMakeDir(cPath)
 	return StzEngineDirCreatePath(cPath)
 
 	func mkdir(cPath)
-		return QMkdir(cPath)
+		return StzMakeDir(cPath)
 
 func NormalizePath(cPath)
 	if CheckParams()

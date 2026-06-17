@@ -27,7 +27,7 @@ o1 {
     #--> [ "/test.txt" ]
 }
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23

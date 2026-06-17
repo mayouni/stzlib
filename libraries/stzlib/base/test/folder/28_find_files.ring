@@ -15,8 +15,8 @@ pr()
 
 cTA = CurrentDir() + "/_fx28"
 if dirExists(cTA) RemoveFolderRecursive(cTA) ok
-QMkdir(cTA + "/docs")  QMkdir(cTA + "/images/more")  QMkdir(cTA + "/images/notes")
-QMkdir(cTA + "/music")  QMkdir(cTA + "/tempo")  QMkdir(cTA + "/videos")
+StzMakeDir(cTA + "/docs")  StzMakeDir(cTA + "/images/more")  StzMakeDir(cTA + "/images/notes")
+StzMakeDir(cTA + "/music")  StzMakeDir(cTA + "/tempo")  StzMakeDir(cTA + "/videos")
 write(cTA + "/test.txt", "program")
 write(cTA + "/images/image1.png", "x")  write(cTA + "/images/image2.png", "x")
 write(cTA + "/images/notes/howto.txt", "x")  write(cTA + "/images/notes/sources.txt", "x")

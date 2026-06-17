@@ -18,7 +18,7 @@ ok
 
 Scenario("CreateFolders creates several sub-folders at once")
     Given("a fresh sandbox folder")
-    QMkdir(cSbx)
+    StzMakeDir(cSbx)
     o = new stzFolder(cSbx)
     When("CreateFolders([Alpha, Beta, Gamma]) is called")
     a = o.CreateFolders([ "Alpha", "Beta", "Gamma" ])
@@ -50,8 +50,8 @@ EndScenario()
 
 cTA = CurrentDir() + "/_tanar"
 if dirExists(cTA) RemoveFolderRecursive(cTA) ok
-QMkdir(cTA + "/docs")  QMkdir(cTA + "/images/more")  QMkdir(cTA + "/images/notes")
-QMkdir(cTA + "/music")  QMkdir(cTA + "/tempo")  QMkdir(cTA + "/videos")
+StzMakeDir(cTA + "/docs")  StzMakeDir(cTA + "/images/more")  StzMakeDir(cTA + "/images/notes")
+StzMakeDir(cTA + "/music")  StzMakeDir(cTA + "/tempo")  StzMakeDir(cTA + "/videos")
 write(cTA + "/test.txt", "program")
 write(cTA + "/images/image1.png", "x")  write(cTA + "/images/image2.png", "x")
 write(cTA + "/images/notes/howto.txt", "x")  write(cTA + "/images/notes/sources.txt", "x")
@@ -105,7 +105,7 @@ EndScenario()
 Scenario("DeepFindFolders matches folders anywhere in the subtree")
     Given("the fixture with a deeper src/views folder")
     t = new stzFolder(cTA)
-    QMkdir(cTA + "/src/views")
+    StzMakeDir(cTA + "/src/views")
     t.Refresh()
     Then("DeepFindFolders(*view*) finds the nested views folder",
         StzFind(@@(t.DeepFindFolders("*view*")), "views") > 0, TRUE)
@@ -117,7 +117,7 @@ Scenario("File ops: create, size, copy, delete, exists")
     Given("a fresh file sandbox")
     cFx = CurrentDir() + "/_tfops"
     if dirExists(cFx) RemoveFolderRecursive(cFx) ok
-    QMkdir(cFx)
+    StzMakeDir(cFx)
     write(cFx + "/seed.txt", "hello world")  # 11 bytes
     f = new stzFolder(cFx)
     f.SetBatchMode(TRUE)

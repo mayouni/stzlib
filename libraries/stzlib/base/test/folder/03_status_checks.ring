@@ -28,7 +28,7 @@ o1 {
     #--> 1
 }
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23

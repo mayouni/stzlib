@@ -33,7 +33,7 @@ o1 = new stzFolder(cTA)
 ? @@( o1.FindFile("\test.txt") )
 #--> [ "/test.txt" ]
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23

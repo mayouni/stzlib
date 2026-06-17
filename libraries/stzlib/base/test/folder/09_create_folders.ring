@@ -11,7 +11,7 @@ pr()
 
 cSbx = CurrentDir() + "/_t09"
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
-QMkdir(cSbx)
+StzMakeDir(cSbx)
 
 o1 = new stzFolder(cSbx)
 o1 {

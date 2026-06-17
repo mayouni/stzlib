@@ -19,8 +19,8 @@ pr()
 
 cSbx = CurrentDir() + "/_fx_nav"
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
-QMkdir(cSbx + "/Windows/System32")
-QMkdir(cSbx + "/Windows/Temp")
+StzMakeDir(cSbx + "/Windows/System32")
+StzMakeDir(cSbx + "/Windows/Temp")
 
 o1 = new stzFolder(cSbx)  # Start from the sandbox root
 o1 {

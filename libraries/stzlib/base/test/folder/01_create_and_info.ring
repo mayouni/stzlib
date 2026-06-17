@@ -11,7 +11,7 @@ pr()
 
 cSbx = CurrentDir() + "/_t01"
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
-QMkdir(cSbx)
+StzMakeDir(cSbx)
 write(cSbx + "/a.txt", "x")  write(cSbx + "/b.txt", "x")  write(cSbx + "/c.txt", "x")
 
 o1 = new stzFolder(cSbx)

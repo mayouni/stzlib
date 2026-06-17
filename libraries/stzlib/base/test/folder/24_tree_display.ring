@@ -98,7 +98,7 @@ o1.CollapseAll() # Same as Collapse()
 ? o1.VizDeepSearch("*.txt")
 #--> 🗀 root (🎯 5 matches ...) with every .txt marked 👉 across the tree
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in 0.24 second(s) in Ring 1.23

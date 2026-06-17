@@ -41,7 +41,7 @@ o1 = new stzFolder(cTA)
 ? o1.IsFolderPath("images")
 #--> 1
 
-KillTestArea(cTA)
+RemoveTestArea(cTA)
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
