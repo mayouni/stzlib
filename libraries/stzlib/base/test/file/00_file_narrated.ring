@@ -85,6 +85,17 @@ Scenario("FileUpdate makes targeted edits")
     oUpdater.Close()
 EndScenario()
 
+Scenario("FileManage: Delete auto-closes the manager")
+    Given("a file to manage")
+    write(cSbx + "/doomed.txt", "x")
+    oMgr = FileManageQ(cSbx + "/doomed.txt")
+    Then("the manager starts open", oMgr.IsClosed(), 0)
+    When("the file is deleted")
+    oMgr.Delete()
+    Then("the manager is auto-closed after Delete (Close() then redundant)", oMgr.IsClosed(), 1)
+    Then("the file is gone", fexists(cSbx + "/doomed.txt"), 0)
+EndScenario()
+
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
 
 Summary()
