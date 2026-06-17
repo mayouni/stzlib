@@ -416,7 +416,10 @@ class stzFolder from stzObject
 			cPath = _CleanPath(pcDirPath)
 		ok
 
-		if NOT dirExists(cPath)
+		# A drive/filesystem root (C:, C:/, /) always exists -- _CleanPath
+		# strips its trailing slash to "C:", which dirExists() does not
+		# recognise, so guard against trying to mkdir the drive itself.
+		if NOT dirExists(cPath) and NOT _IsRootPath(cPath)
 			if NOT StzEngineDirCreatePath(cPath)
 				StzRaise("Cannot create directory: " + cPath)
 			ok
@@ -3004,38 +3007,49 @@ class stzFolder from stzObject
 	#  Finding Operations  #
 	#======================#
 
-	def FindFiles(cPattern)
+	def FindFiles(pPattern)
 
-		if CheckParams()
-			if NOT ( isString(cPattern) and trim(cPattern) != "" )
-				StzRaise("Incorrect param type! cPattern must be a non-empty string.")
+		# Polymorphic: a string pattern (with optional "*" wildcard) OR a
+		# list of explicit file names to look for. A list returns the names
+		# (from the list) that actually exist in this folder.
+		acNames = []
+		if isList(pPattern)
+			nN = len(pPattern)
+			for k = 1 to nN
+				acNames + ("" + pPattern[k])
+			next
+		but isString(pPattern) and trim(pPattern) != ""
+			acNames + pPattern
+		else
+			if CheckParams()
+				StzRaise("Incorrect param type! pPattern must be a non-empty string or a list of names.")
 			ok
+			return []
 		ok
 
-		cPattern = This.NormalizeFilePath(cPattern)
 		acFiles = This.Files()
 		nLen = len(acFiles)
-
 		acResult = []
 
-		if StzFind(cPattern, "*") > 0
-			cPattern = StzReplace(cPattern, "*", "")
+		nNames = len(acNames)
+		for j = 1 to nNames
+			cPattern = This.NormalizeFilePath(acNames[j])
 
-			for i = 1 to nLen
-				if StzFind(StzLower(acFiles[i]), StzLower(cPattern)) > 0
-					acResult + acFiles[i]
-				ok
-			next
-
-		else
-
-			for i = 1 to nLen
-				if StzLower(acFiles[i]) = StzLower(cPattern)
-					acResult + acFiles[i]
-				ok
-			next
-
-		ok
+			if StzFind(cPattern, "*") > 0
+				cPattern = StzReplace(cPattern, "*", "")
+				for i = 1 to nLen
+					if StzFind(StzLower(acFiles[i]), StzLower(cPattern)) > 0
+						acResult + acFiles[i]
+					ok
+				next
+			else
+				for i = 1 to nLen
+					if StzLower(acFiles[i]) = StzLower(cPattern)
+						acResult + acFiles[i]
+					ok
+				next
+			ok
+		next
 
 		return acResult
 
