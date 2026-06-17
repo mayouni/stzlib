@@ -17,7 +17,7 @@ if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
 StzMakeDir(cSbx)
 write(cSbx + "/output.txt", "old line one")   # 1 original line
 
-oWriter = FileOverwriter(cSbx + "/output.txt")
+oWriter = FileOverwriteQ(cSbx + "/output.txt")
     # Access original content before overwriting
     aOriginalLines = oWriter.OriginalLines()
 

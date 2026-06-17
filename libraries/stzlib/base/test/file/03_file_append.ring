@@ -19,9 +19,9 @@ if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
 StzMakeDir(cSbx)
 cLog = cSbx + "/app.log"
 
-# FileAppendQ(file, "") opens the file for appending (creating it if needed)
-# and returns the appender object; "" appends nothing yet.
-oLog = FileAppendQ(cLog, "")
+# FileAppend is OBJECT-ONLY: FileAppend(file) and FileAppendQ(file) both
+# return the appender object (creating the file if needed).
+oLog = FileAppend(cLog)
 
 if oLog.IsEmpty()
     oLog.WriteLine("=== Log Started ===")
