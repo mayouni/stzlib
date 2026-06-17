@@ -1,50 +1,55 @@
 # Narrative
 # --------
+# Finding files and folders by name or wildcard.
 #
 # Extracted from stzfoldertest.ring, block #28.
-#ERR Error (C22) : Function redefinition, function is already defined!
+# Made portable + self-contained: builds the documented "testarea" fixture
+# in a local sandbox instead of assuming a machine-specific C:\TestArea.
+# The original #--> blocks were inconsistent (a *.txt search listed .png
+# files; a surface FindFolders listed nested paths); the values below are
+# the VERIFIED outputs of the now-fixed surface/deep finders.
 
 load "../../stzBase.ring"
 
-
 pr()
 
-o1 = new stzFolder("C:\TestArea")
+cTA = CurrentDir() + "/_fx28"
+if dirExists(cTA) RemoveFolderRecursive(cTA) ok
+QMkdir(cTA + "/docs")  QMkdir(cTA + "/images/more")  QMkdir(cTA + "/images/notes")
+QMkdir(cTA + "/music")  QMkdir(cTA + "/tempo")  QMkdir(cTA + "/videos")
+write(cTA + "/test.txt", "program")
+write(cTA + "/images/image1.png", "x")  write(cTA + "/images/image2.png", "x")
+write(cTA + "/images/notes/howto.txt", "x")  write(cTA + "/images/notes/sources.txt", "x")
+write(cTA + "/tempo/temp1.txt", "x")  write(cTA + "/tempo/temp2.txt", "x")
 
+o1 = new stzFolder(cTA)
+
+# FindFiles accepts a list of explicit names (returns those present)...
 ? @@( o1.FindFiles(["test.txt"]) )
-#--> [ "test.txt" ]
+#--> [ "/test.txt" ]
 
-? @@NL( o1.FindFiles("*.txt") )
+# ...or a wildcard pattern (surface level only -- root holds just test.txt).
+? @@( o1.FindFiles("*.txt") )
+#--> [ "/test.txt" ]
+
+# FindFolders matches surface sub-folders (images, music, tempo all carry 'm').
+? @@( o1.FindFolders("*m*") )
+#--> [ "/images/", "/music/", "/tempo/" ]
+
+# The deep variant recurses the whole subtree.
+? @@NL( o1.DeepFindFiles("*.txt") )
 #-->
 '
 [
-	"../Images/image1.png",
-	"../Images/image2.png",
-	"../Images/notes/howto.txt",
-	"../Images/notes/sources.txt",
-	"../tempo/temp1.txt",
-	"../tempo/temp2.txt",
-	"../test.txt"
+	"/test.txt",
+	"/tempo/temp1.txt",
+	"/tempo/temp2.txt",
+	"/images/notes/howto.txt",
+	"/images/notes/sources.txt"
 ]
 '
-? @@NL( o1.FindFolders("*m*") )
-#-->
-'[
-	"../Images/",
-	"../Images/more/",
-	"../Music/",
-	"../tempo/"
-]'
 
-/*
-FindFolders
-SearchFolders
-
-Find
-Search
-*/
-
-
+if dirExists(cTA) RemoveFolderRecursive(cTA) ok
 
 pf()
-# Executed in 0.07 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.23

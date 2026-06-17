@@ -92,6 +92,16 @@ Scenario("VizDeepSearch marks every match")
     Then("howto.txt is found deep in images/notes", StzFind(cV, "howto.txt") > 0, TRUE)
 EndScenario()
 
+Scenario("Finders match by name list, surface glob, and deep recursion")
+    Given("the fixture")
+    t = new stzFolder(cTA)
+    Then("FindFiles([test.txt]) matches the root file",
+        StzFind(@@(t.FindFiles([ "test.txt" ])), "test.txt") > 0, TRUE)
+    Then("surface FindFiles(*.txt) finds only the root file", len(t.FindFiles("*.txt")), 1)
+    Then("DeepFindFiles(*.txt) finds all 5 deep", len(t.DeepFindFiles("*.txt")), 5)
+    Then("DeepFindFiles(howto.txt) finds the nested file", len(t.DeepFindFiles("howto.txt")), 1)
+EndScenario()
+
 if dirExists(cTA) RemoveFolderRecursive(cTA) ok
 
 Summary()
