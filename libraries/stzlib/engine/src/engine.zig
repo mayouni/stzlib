@@ -195,6 +195,7 @@ comptime {
     // ─── Tier 2: File operations ───
     @export(&file.stz_file_exists, .{ .name = "stz_file_exists" });
     @export(&file.stz_file_size, .{ .name = "stz_file_size" });
+    @export(&file.stz_file_mtime, .{ .name = "stz_file_mtime" });
     @export(&file.stz_file_read, .{ .name = "stz_file_read" });
     @export(&file.stz_file_read_free, .{ .name = "stz_file_read_free" });
     @export(&file.stz_file_write, .{ .name = "stz_file_write" });
