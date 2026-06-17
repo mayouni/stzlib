@@ -139,7 +139,16 @@ func @dir(cPath) # Same as Ring dir() but in lowercase
 
 	#TODO // Add security checks
 
-	aRingResult = dir(cPath)
+	# Ring's dir() RAISES "Couldn't open the directory" on an inaccessible
+	# path (permission denied, reparse point, vanished mid-walk). A deep
+	# traversal over a real filesystem (C:\Program Files, C:\Windows) WILL
+	# hit such a subdir, so swallow the failure and treat it as empty rather
+	# than aborting the whole walk.
+	aRingResult = []
+	try
+		aRingResult = dir(cPath)
+	catch
+	done
 	nLen = len(aRingResult)
 
 	aResult = []
