@@ -805,12 +805,12 @@ class stzFolder from stzObject
 	        cCleanName = _CleanPath(cBasePath + "/" + cCleanName)
 	    ok
 	    
+	    # A FILE path must NOT end with a separator -- appending one here (the
+	    # old behaviour) produced ".../test.txt/", so @FileCreate/@FileDelete/
+	    # read/write/size/copy all operated on a malformed path and silently
+	    # did nothing. The folder variant (NormalizeFolderPathXT) adds its own
+	    # trailing separator on top of this, so it is unaffected.
 	    cResult = _CleanPath(cCleanName)   # preserve case (was StzLower)
-		cSeparator = This.Separator()
-		if StzRight(cResult, 1) != cSeparator
-			cResult += cSeparator
-		ok
-
 		cResult = StzReplace(cResult, "//", "/")
 		return cResult
 
@@ -2385,7 +2385,7 @@ class stzFolder from stzObject
 
 		cFile = This.NormaliseFilePathXT(cFile)
 
-		if NOT This.Inside(cFile)
+		if NOT This.IsInside(cFile)
 			raise("Can't navigate outside the folder!")
 		ok
 
@@ -2415,7 +2415,7 @@ class stzFolder from stzObject
 
 			cFile = This.NormaliseFilePathXT(cFile)
 	
-			if NOT This.Inside(cFile)
+			if NOT This.IsInside(cFile)
 				raise("Can't navigate outside the folder!")
 			ok
 	
@@ -2564,7 +2564,7 @@ class stzFolder from stzObject
 
 		cFile = This.NormaliseFilePathXT(cFile)
 
-		if NOT This.Inside(cFile)
+		if NOT This.IsInside(cFile)
 			raise("Can't navigate outside the folder!")
 		ok
 
@@ -2594,7 +2594,7 @@ class stzFolder from stzObject
 	
 			cFile = This.NormaliseFilePathXT(cFile)
 	
-			if NOT This.Inside(cFile)
+			if NOT This.IsInside(cFile)
 				raise("Can't navigate outside the folder!")
 			ok
 	
@@ -2624,7 +2624,7 @@ class stzFolder from stzObject
 
 		cFile = This.NormaliseFilePathXT(cFile)
 
-		if NOT This.Inside(cFile)
+		if NOT This.IsInside(cFile)
 			raise("Can't navigate outside the folder!")
 		ok
 
@@ -2654,7 +2654,7 @@ class stzFolder from stzObject
 
 			cFile = This.NormaliseFilePathXT(cFile)
 	
-			if NOT This.Inside(cFile)
+			if NOT This.IsInside(cFile)
 				raise("Can't navigate outside the folder!")
 			ok
 	
@@ -2685,7 +2685,7 @@ class stzFolder from stzObject
 
 		cFile = This.NormaliseFilePathXT(cFile)
 
-		if NOT This.Inside(cFile)
+		if NOT This.IsInside(cFile)
 			raise("Can't navigate outside the folder!")
 		ok
 
@@ -2712,7 +2712,7 @@ class stzFolder from stzObject
 
 			cFile = This.NormaliseFilePathXT(cFile)
 	
-			if NOT This.Inside(cFile)
+			if NOT This.IsInside(cFile)
 				raise("Can't navigate outside the folder!")
 			ok
 	
@@ -2829,7 +2829,7 @@ class stzFolder from stzObject
 
 		cFile = This.NormaliseFilePathXT(cFile)
 
-		if NOT This.Inside(cFile)
+		if NOT This.IsInside(cFile)
 			raise("Can't navigate outside the folder!")
 		ok
 
@@ -2859,7 +2859,7 @@ class stzFolder from stzObject
 
 		cFile = This.NormaliseFilePathXT(cFile)
 
-		if NOT This.Inside(cFile)
+		if NOT This.IsInside(cFile)
 			raise("Can't navigate outside the folder!")
 		ok
 
@@ -2979,7 +2979,7 @@ class stzFolder from stzObject
 
 		cFile = This.NormaliseFilePathXT(cFile)
 
-		if NOT This.Inside(cFile)
+		if NOT This.IsInside(cFile)
 			raise("Can't navigate outside the folder!")
 		ok
 
@@ -2993,7 +2993,11 @@ class stzFolder from stzObject
 			This.GoTo(cFileDir)
 		ok
 
-		return @FileSize(cFile)
+		# No @FileSize global exists; the byte size is the length of the file
+		# content (the codebase's established pattern). ring_len() -- not bare
+		# len() -- because a bare len() inside a class method resolves to a
+		# method and raises R20.
+		return ring_len(read(cFile))
 
 		def FileSizeInBytes(cFile)
 			return this.FileSize(cFile)
@@ -3008,7 +3012,7 @@ class stzFolder from stzObject
 
 		cFile = This.NormaliseFilePathXT(cFile)
 
-		if NOT This.Inside(cFile)
+		if NOT This.IsInside(cFile)
 			raise("Can't navigate outside the folder!")
 		ok
 
@@ -3027,7 +3031,7 @@ class stzFolder from stzObject
 		def FileInfoQ(cFile)
 			cFile = This.NormaliseFilePathXT(cFile)
 	
-			if NOT This.Inside(cFile)
+			if NOT This.IsInside(cFile)
 				raise("Can't navigate outside the folder!")
 			ok
 	
@@ -3053,7 +3057,7 @@ class stzFolder from stzObject
 
 		cFile = This.NormaliseFilePathXT(cFile)
 
-		if NOT This.Inside(cFile)
+		if NOT This.IsInside(cFile)
 			raise("Can't navigate outside the folder!")
 		ok
 
@@ -3286,39 +3290,29 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param type! cPattern must be a string.")
 		ok
 
+		# Filter the (already-correct) recursive folder listing. The previous
+		# version fed DeepFolders()'s simplified relative paths to @dir()
+		# (which needs absolute paths) -> empty result. DeepFolders() already
+		# returns every folder in the subtree as "/a/b/".
+		acAll = This.DeepFolders()
+		nLen = len(acAll)
 		acFound = []
-		acAllDirs = This.DeepFolders()
-		bWildcard = (StzFind(cPattern, "*") > 0)
 
+		bWildcard = (StzFind(cPattern, "*") > 0)
 		if bWildcard
 			cPattern = StzReplace(cPattern, "*", "")
 		ok
 
-		nLen = len(acAllDirs)
-
 		for i = 1 to nLen
-
-			aEntries = @dir(acAllDirs[i])
-			nLenE = len(aEntries)
-
-			for j = 1 to nLenE
-
-				if aEntries[j][2] = 1 and aEntries[j][1] != "." and aEntries[j][1] != ".."
-
-					if bWildcard
-						if StzFind(StzLower(aEntries[j][1]), StzLower(cPattern)) > 0
-							acFound + (acAllDirs[i] + This.Separator() + aEntries[j][1])
-						ok
-
-					else
-						if StzLower(aEntries[j][1]) = StzLower(cPattern)
-							acFound + (acAllDirs[i] + This.Separator() + aEntries[j][1])
-						ok
-
-					ok
+			if bWildcard
+				if StzFind(StzLower(acAll[i]), StzLower(cPattern)) > 0
+					acFound + acAll[i]
 				ok
-
-			next
+			else
+				if StzLower(_DirName(_CleanPath(acAll[i]))) = StzLower(cPattern)
+					acFound + acAll[i]
+				ok
+			ok
 		next
 
 		return acFound
