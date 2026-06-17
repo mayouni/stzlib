@@ -3,23 +3,29 @@
 # Copy and Clone
 #
 # Extracted from stzfoldertest.ring, block #30.
-#ERR Error (C22) : Function redefinition, function is already defined!
+# Portable: runs against the local testarea fixture (the original cloned a
+# handle on C:\Windows\System32).
 
 load "../../stzBase.ring"
-
+load "_fixture.ring"
 
 pr()
 
-o1 = new stzFolder("C:\Windows\System32")
+cTA = CurrentDir() + "/_t30"
+BuildTestArea(cTA)
+
+o1 = new stzFolder(cTA)
 o2 = o1.Copy() # Or Clone()
 
 # Original path
 ? o1.Path()
-#--> C:\Windows\System32
+#--> <testarea>
 
-# Copy path
+# Copy points at the same path
 ? o2.Path()
-#--> C:\Windows\System32
+#--> <testarea>
+
+KillTestArea(cTA)
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.23

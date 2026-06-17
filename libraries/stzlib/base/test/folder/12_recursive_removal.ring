@@ -3,29 +3,34 @@
 # Recursive Removal
 #
 # Extracted from stzfoldertest.ring, block #12.
-#ERR Error (C22) : Function redefinition, function is already defined!
+# Portable + non-destructive: anchored in a local sandbox.
 
 load "../../stzBase.ring"
 
-
 pr()
 
-o1 = new stzFolder("C:\TestArea\Level1")
+cSbx = CurrentDir() + "/_t12"
+if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
+QMkdir(cSbx + "/Level1/Level2/Level3")
+write(cSbx + "/Level1/a.txt", "x")
+write(cSbx + "/Level1/Level2/b.txt", "x")
+
+o1 = new stzFolder(cSbx + "/Level1")
 o1 {
     # Current path before removal
-	? Path()
-    #--> C:\TestArea\Level1
-    
-    # Removing all the folder and its subfolders (recursively)
+    ? Path()
+    #--> <sandbox>/Level1
 
+    # Removing the whole folder and its subfolders (recursively)
     bSuccess = DeepRemoveAll()
     ? bSuccess
-    #--> Removal successful: TRUE
+    #--> 1 (removal successful)
 }
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+? dirExists(cSbx + "/Level1")
+#--> 0
 
-#======================#
-#  SEARCH & FILTERING  #
-#======================#
+if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
