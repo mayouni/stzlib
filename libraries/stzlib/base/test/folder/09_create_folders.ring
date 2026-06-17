@@ -29,6 +29,10 @@ o1 {
     #    Music
 }
 
+# NOTE: on Windows a live stzFolder object keeps its directory open, so the
+# four child handles in aCreated block deleting them in THIS process. The
+# sandbox is therefore cleared at the START of each run (a fresh process has
+# no live handles), which is self-healing across runs.
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
 
 pf()
