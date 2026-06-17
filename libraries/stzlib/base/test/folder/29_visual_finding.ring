@@ -1,37 +1,30 @@
 # Narrative
 # --------
-# VISUAL FINDING
+# Visual Finding
 #
 # Extracted from stzfoldertest.ring, block #29.
-#ERR Error (C22) : Function redefinition, function is already defined!
+# Portable: runs against the local testarea fixture.
 
 load "../../stzBase.ring"
+load "_fixture.ring"
 
 pr()
 
-o1 = new stzFolder("C:\TestArea")
+cTA = CurrentDir() + "/_t29"
+BuildTestArea(cTA)
 
-# VizSearching images in png format
-o1.SetDisplayOrder(:FileFirstAscending)
-? o1.VizSearchFiles("*.png") + NL
-#-->
-"
-📁 TestArea (🔍 0 file matches for '*.png')
-├─📁 Docs
-├─🔍📁 Images
-│  ╰─🎯📄 image.png
-├─📁 Music
-├─📁 NewlyAdded
-├─📁 Videos
-╰─📄 test.txt
-"
+o1 = new stzFolder(cTA)
 
-# VizSearching folders with an 'i' letter in their name
+# Visual deep-search for png images
+? o1.VizDeepSearch("*.png") + NL
+#--> a tree marking the two png files deep under images/, with a
+#    target stat label at the root.
 
+# Visual search for folders whose name contains 'i'
 ? o1.VizSearchFolders("*i*")
+#--> a tree highlighting folders whose name contains 'i' (images, videos)
+
+KillTestArea(cTA)
 
 pf()
-
-#===================#
-#  UTILITY METHODS  #
-#===================#
+# Executed in 0.01 second(s) in Ring 1.23

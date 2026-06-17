@@ -151,9 +151,14 @@ func @dir(cPath) # Same as Ring dir() but in lowercase
 	done
 	nLen = len(aRingResult)
 
+	# Softanza listing convention: child names are presented in lowercase
+	# (Ring's dir() keeps the on-disk case; @dir lowercases it). The folder's
+	# own path/name keep their real case -- only the ENUMERATED children are
+	# folded. Windows' case-insensitive FS means the lowercased names still
+	# resolve when fed back to dir()/read() during a deep walk.
 	aResult = []
 	for i = 1 to nLen
-		aResult + [ aRingResult[i][1], aRingResult[i][2] ]
+		aResult + [ StzLower(aRingResult[i][1]), aRingResult[i][2] ]
 	next
 
 	return aResult
@@ -506,6 +511,21 @@ class stzFolder from stzObject
 			return This.IsOutside(cPath)
 	
 	
+	# TRUE if cName (any slash form: "name", "/name", "/name/", or a full
+	# path) names a surface entry of aList. Listing entries are "/name" for
+	# files and "/name/" for folders, all lowercased; the query may be any
+	# case/slash form. Compares the bare basename, case-insensitively, so
+	# membership is robust to the slash convention and the lowercase listing.
+	def _NameInListCI(cName, aList)
+		cTarget = StzLower(_DirName(_CleanPath(cName)))
+		nLen = len(aList)
+		for i = 1 to nLen
+			if StzLower(_DirName(_CleanPath(aList[i]))) = cTarget
+				return 1
+			ok
+		next
+		return 0
+
 	def IsFile(cPath)
 	    # Checks if cPath represents a valid existing file within the folder scope
 	
@@ -515,7 +535,7 @@ class stzFolder from stzObject
 	
 	    cNormalizedPath = This.NormalizePathXT(cPath)
 	
-		if StzFind(This.FilesXT(), cNormalizedPath) > 0
+		if This._NameInListCI(cPath, This.Files())
 			return 1
 		else
 			return 0
@@ -536,7 +556,7 @@ class stzFolder from stzObject
 	
 		cPath = This.NormalizeFolderPath(cPath)
 	
-		if StzFind(This.Folders(), cPath) > 0
+		if This._NameInListCI(cPath, This.Folders())
 			return 1
 		else
 			return 0
@@ -574,7 +594,7 @@ class stzFolder from stzObject
 		
 		cPath = This.NormaliseFolderPath(cPath)
 	
-		if StzFind( This.Files(), cPath ) > 0
+		if This._NameInListCI(cPath, This.Files())
 			return 1
 		else
 			return 0
@@ -594,7 +614,7 @@ class stzFolder from stzObject
 			raise("Insecure path with potential injection risks!")
 		ok
 		
-		if StzFind( This.Folders(), cPath ) > 0
+		if This._NameInListCI(cPath, This.Folders())
 			return 1
 		else
 			return 0
@@ -828,7 +848,29 @@ class stzFolder from stzObject
 
 		def NormaliseFolderPathXT(cName)
 			return This.NormalizeFolderPathXT(cName)
-	
+
+	# Listing-form normalisers: produce the exact shape the Files()/Folders()
+	# listings use -- "/name" for a file, "/name/" for a folder -- with the
+	# child name lowercased (the listing convention). Handy for building a
+	# value to match against those listings.
+	def NormalizeFileName(cName)
+		if NOT ( isString(cName) and trim(cName) != "" )
+			StzRaise("Incorrect param type! cName must be a non-empty string.")
+		ok
+		return "/" + StzLower(_DirName(_CleanPath(trim(cName))))
+
+		def NormaliseFileName(cName)
+			return This.NormalizeFileName(cName)
+
+	def NormalizeFolderName(cName)
+		if NOT ( isString(cName) and trim(cName) != "" )
+			StzRaise("Incorrect param type! cName must be a non-empty string.")
+		ok
+		return "/" + StzLower(_DirName(_CleanPath(trim(cName)))) + "/"
+
+		def NormaliseFolderName(cName)
+			return This.NormalizeFolderName(cName)
+
 	#==========================#
 	#  DETAILED PATH ANALYSIS  #
 	#==========================#
@@ -1216,7 +1258,7 @@ class stzFolder from stzObject
 		aFiles = This.Files()
 		aFolders = This.Folders()
 
-		return (StzFind(aFiles, cName) > 0) or (StzFind(aFolders, cName) > 0)
+		return This._NameInListCI(cName, aFiles) or This._NameInListCI(cName, aFolders)
 
 
 		def Has(cName)
@@ -1236,10 +1278,7 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		cFile = This.NormalizeFilePath(cFileName)
-		aFiles = This.Files()
-
-		return StzFind(aFiles, cFileName) > 0
+		return This._NameInListCI(cFileName, This.Files())
 
 	def ContainsFolder(cFolderName)
 		if CheckParams()
@@ -1248,10 +1287,7 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		cFolderName = NormalizeFolderPath(cFolderName)
-		aFolders = This.Folders()
-
-		return StzFind(aFolders, cFolderName) > 0
+		return This._NameInListCI(cFolderName, This.Folders())
 
 		def ContainsDir(cFolderName)
 			return This.ContainsFolder(cFolderName)
@@ -3461,7 +3497,7 @@ class stzFolder from stzObject
 		for i = 1 to nLen
 
 			acFolderResults = This.SearchInFolder(acFolders[i], cContent)
-			nLenR = len(acFoldersResults)
+			nLenR = len(acFolderResults)
 
 			for j = 1 to nLenR
 				acResults + acFolderResults[j]
@@ -3477,46 +3513,33 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param type! cContent must be a string.")
 		ok
 
-		acAllDirs = [ This.RootXT() ]
-		acDeepFolders = This.DeepFoldersXT()
-		nLen = len(acDeepFolders)
-
-		for i = 1 to nLen
-			acAllDirs + acDeepFolders[i]
-		next
-
+		# Scan every file in the whole subtree (absolute paths from
+		# DeepFilesXT) and collect the 1-based line numbers where the content
+		# appears. The previous walk reused the OUTER loop counter `i` for the
+		# inner line scan (clobbering iteration -> [] result) and iterated its
+		# dir list with an off-by-one. Distinct counters (f / k) fix both.
+		acAll = This.DeepFilesXT()
+		nFiles = len(acAll)
 		acResult = []
 
-		for i = 1 to nLen
+		for f = 1 to nFiles
+			cFilePath = acAll[f]
+			if fexists(cFilePath)
+				cFileContent = read(cFilePath)
+				acLines = @split(cFileContent, NL)
+				nLines = len(acLines)
+				acLineNumbers = []
 
-			aEntries = @dir(acAllDirs[i])
-			nLenE = len(aEntries)
-
-			for j = 1 to nLenE
-
-				if aEntries[j][2] = 0
-
-					cFilePath = StzReplace( acAllDirs[i] + This.Separator() + aEntries[j][1], "//", "/")
-
-					if fexists(cFilePath)
-
-						cFileContent = read(cFilePath)
-						acLines = @split(cFileContent, NL)
-						nLenL = len(acLines)
-						acLineNumbers = []
-
-						for i = 1 to nLenL
-							if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
-								acLineNumbers + i
-							ok
-						next
-
-						if len(acLineNumbers) > 0
-							acResult + [cFilePath, acLineNumbers]
-						ok
+				for k = 1 to nLines
+					if StzFind(StzLower(acLines[k]), StzLower(cContent)) > 0
+						acLineNumbers + k
 					ok
+				next
+
+				if len(acLineNumbers) > 0
+					acResult + [cFilePath, acLineNumbers]
 				ok
-			next
+			ok
 		next
 
 		return acResult
@@ -3528,27 +3551,31 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
 
+		# Match files by name across the subtree, then collect line numbers.
+		# Uses DeepFilesXT (absolute paths) so read()/fexists() work -- the
+		# old version fed DeepFindFiles' relative paths to fexists (never
+		# found) and reused the outer counter `i` for the inner line scan.
 		acResults = []
-		acFilePaths = This.DeepFindFiles(cFile)
-		nLen = len(acFilePaths)
+		acAll = This.DeepFilesXT()
+		nFiles = len(acAll)
 
-		for i = 1 to nLen
+		for f = 1 to nFiles
 
-			if fexists(acFilePaths[i])
+			if StzLower(_DirName(acAll[f])) = StzLower(_DirName(cFile)) and fexists(acAll[f])
 
-				cFileContent = read(acFilePaths[i])
+				cFileContent = read(acAll[f])
 				acLines = @split(cFileContent, NL)
-				nLenL = len(acLines)
+				nLines = len(acLines)
 				acLineNumbers = []
-				
-				for i = 1 to nLenL
-					if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
-						acLineNumbers + i
+
+				for k = 1 to nLines
+					if StzFind(StzLower(acLines[k]), StzLower(cContent)) > 0
+						acLineNumbers + k
 					ok
 				next
 
 				if len(acLineNumbers) > 0
-					acResults + [acFilePaths[i], acLineNumbers]
+					acResults + [acAll[f], acLineNumbers]
 				ok
 
 			ok
@@ -3570,7 +3597,7 @@ class stzFolder from stzObject
 		for i = 1 to nLen
 
 			acFileResults = This.DeepSearchInFile(acFiles[i], cContent)
-			nLenR = len(acFileResuls)
+			nLenR = len(acFileResults)
 
 			for j = 1 to nLenR
 				acResults + acFileResults[j]
