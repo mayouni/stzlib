@@ -22,7 +22,7 @@ write(cSbx + "/settings.txt",
     "DebugMode=true" + nl +
     "ObsoleteSetting=remove_me")
 
-oUpdater = FileModifier(cSbx + "/settings.txt")
+oUpdater = FileUpdateQ(cSbx + "/settings.txt")
 
     # Replace a line containing a given text
     if oUpdater.ContainsText("DatabaseHost")

@@ -256,45 +256,44 @@ func StzFileModifTime(cFile)
 	func filemtime(cFile)
 		return StzFileModifTime(cFile)
 
-# Appending an exsistant file
-# Intent to create new - can read + write (fails if file does not exist)
+# Appending to a file -- OBJECT-ONLY intent (per the unified Q convention):
+# you need the returned appender to be usable, so the bare FileAppend() and
+# FileAppendQ() do the SAME thing -- both return the appender object. The file
+# is created if it does not exist (append-or-create). For a one-shot raw
+# append use the low-level StzFileAppend(file, text) further below.
 
-func FileAppend(cFileName, cAdditionalText)
-	return StzFileAppend(cFileName, cAdditionalText)
+func FileAppend(cFileName)
+	return StzFileAppendQ(cFileName)
 
 	#< @FunctionFluentForm
 
-	func StzFileAppendQ(cFileName, cAdditionalText)
+	func StzFileAppendQ(cFileName)
 		# Append-or-create (the constructor creates the file if missing).
-		oFile = new stzFileAppender(cFileName)
-		if cAdditionalText != ""
-			oFile.Write(cAdditionalText)
-		ok
-		return oFile
+		return new stzFileAppender(cFileName)
 
-	func FileAppendQ(cFileName, cAdditionalText)
-		return StzFileAppendQ(cFileName, cAdditionalText)
+	func FileAppendQ(cFileName)
+		return StzFileAppendQ(cFileName)
 
 	#>
 
 	#< @FunctionAlternativeForms
 
 	func AppendFile(cFileName)
-		return StzFileAppend(cFileName)
+		return StzFileAppendQ(cFileName)
 
 	func AppendFileQ(cFileName)
 		return StzFileAppendQ(cFileName)
 
 	#--
 
-	func @FileAppend(cFileName, cAdditionalText)
-		return StzFileAppend(cFileName, cAdditionalText)
+	func @FileAppend(cFileName)
+		return StzFileAppendQ(cFileName)
 
-		func @FileAppendQ(cFileName, cAdditionalText)
-			return StzFileAppendQ(cFileName, cAdditionalText)
+		func @FileAppendQ(cFileName)
+			return StzFileAppendQ(cFileName)
 
 	func @AppendFile(cFileName)
-		return StzFileAppend(cFileName)
+		return StzFileAppendQ(cFileName)
 
 		func @AppendFileQ(cFileName)
 			return StzFileAppendQ(cFileName)
@@ -386,51 +385,37 @@ func StzFileOverwiteQ(cFileName, cNewContent)
     StzEngineFileWrite(cFileName, cNewContent)
     return NULL
 
-	#< #< @FunctionAlternativeForms
-
-	func FileOverwiteQ(cFileName, cNewContent)
-		return StzFileOverwiteQ(cFileName, cNewContent)
-
-	func FileOverwriteQ(cFileName, cNewContent)
-		return StzFileOverwiteQ(cFileName, cNewContent)
-
-	func FileOverriteQ(cFileName, cNewContent)
-		return StzFileOverwiteQ(cFileName, cNewContent)
-
-	func OverwriteFileQ(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
-
-	func OverriteFileQ(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
-
-	#--
-
-	func @FileOverwriteQ(cFileName, cNewContent)
-		return StzFileOverwiteQ(cFileName, cNewContent)
-
-	func @FileOverriteQ(cFileName, cNewContent)
-		return StzFileOverwiteQ(cFileName, cNewContent)
-
-	func @OverwriteFileQ(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
-
-	func @OverriteFileQ(cFileName, cNewContent)
-		return StzFileOverwrite(cFileName, cNewContent)
-
-	#>
+	# NOTE: the old 2-arg "Q returns a value" overwrite aliases were removed.
+	# Under the unified convention Q ALWAYS returns the object, so the only
+	# Q form is FileOverwriteQ(file) -> stzFileOverwriter (defined below). The
+	# one-shot value form stays as the bare FileOverwrite(file, content)->bool.
+	# (StzFileOverwiteQ above is internal -- used by StzFileOverwrite.)
 
 # Pure-intent overwriter: returns a stzFileOverwriter object so the
 # caller can inspect OriginalContent() / OriginalLines() before
 # committing. Test-facing 1-arg form -- companion to the 2-arg
 # StzFileOverwrite(file, content) one-shot above.
-func FileOverwriter(cFileName)
+# FileOverwrite is a VALUE intent: the bare FileOverwrite(file, content) does
+# the one-shot overwrite and returns TRUE/FALSE (above). The OBJECT lives
+# behind the Q form, FileOverwriteQ(file), for read-original-then-replace.
+func FileOverwriteQ(cFileName)
 	return new stzFileOverwriter(cFileName)
 
-# Pure-intent modifier: returns a stzFileModifier object for
-# inspection + Replace/Insert/Remove operations before Close().
-# 1-arg form -- companion to the 3-arg StzFileModify(file, old, new).
-func FileModifier(cFileName)
+	func FileOverwriter(cFileName)   # alias of FileOverwriteQ
+		return new stzFileOverwriter(cFileName)
+
+# FileUpdate is an OBJECT-ONLY intent (per the unified Q convention): you need
+# the modifier to be usable (Replace/Insert/Remove before Close), so the bare
+# FileUpdate() and FileUpdateQ() do the SAME thing -- both return the object.
+# For a one-shot raw replacement use StzFileModify(file, old, new).
+func FileUpdate(cFileName)
 	return new stzFileModifier(cFileName)
+
+	func FileUpdateQ(cFileName)
+		return new stzFileModifier(cFileName)
+
+	func FileModifier(cFileName)   # alias of FileUpdate
+		return new stzFileModifier(cFileName)
 
 	func FileUpdater(cFileName)
 		return new stzFileModifier(cFileName)
@@ -2001,6 +1986,11 @@ func StzFileManage(cFileName)
 
 	func FileManage(cFileName)
 		return StzFileManage(cFileName)
+
+		# OBJECT-ONLY intent: bare FileManage() and FileManageQ() both return
+		# the manager object (no useful scalar value for disk management).
+		func FileManageQ(cFileName)
+			return StzFileManage(cFileName)
 
 class stzFileManager from stzObject
     @cFileName
