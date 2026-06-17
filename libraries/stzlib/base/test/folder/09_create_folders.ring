@@ -16,7 +16,7 @@ StzMakeDir(cSbx)
 o1 = new stzFolder(cSbx)
 o1 {
 
-    aCreated = CreateFolders([ "Docs", "Images", "Videos", "Music" ])
+    aCreated = CreateFoldersQ([ "Docs", "Images", "Videos", "Music" ]) # Q -> list of objects
 
     nLen = len(aCreated)
     for i = 1 to nLen

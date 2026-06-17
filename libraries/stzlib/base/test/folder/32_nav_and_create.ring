@@ -40,7 +40,7 @@ o1 {
     CreateFolder("ChainTest")
     # Now positioned at Temp/ChainTest
 
-    CreateFolder("SubTest") {
+    CreateFolderQ("SubTest") {   # Q form returns the object for the block
         # Create 'SubTest' inside 'ChainTest' and *immediately* enter it
         ? Path()
         # Outputs full path from inside the 'SubTest' block

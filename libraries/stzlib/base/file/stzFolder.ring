@@ -2011,42 +2011,54 @@ class stzFolder from stzObject
 	#  Folder Operations  #
 	#=====================#
 
-	def CreateFolder(pcPath)
+	# Q-convention: CreateFolderQ() returns the new stzFolder OBJECT (keep
+	# working with it / block form); the bare CreateFolder() performs the
+	# action and returns TRUE/FALSE. Both navigate into the new folder
+	# (location-follows-action) unless batch mode is on.
+	def CreateFolderQ(pcPath)
 
 	    if CheckParams()
 	        if NOT (isString(pcPath) and pcPath != "")
 	            raise("Incorrect param type! pcPath must be a non-empty string.")
 	        ok
 	    end
-	
+
 	    # Resolve relative paths against current position
 	    if not _IsAbsolutePath(pcPath)
 	        pcPath = This.CurrentPath() + pcPath
 	    ok
-	
+
 	    cPath = This.NormalizeFolderPath(pcPath)
-	
+
 	    if NOT This.IsInside(cPath)
 	        raise("Can't navigate outside the folder!")
 	    ok
-	
+
 	    # Create the folder first
 	    StzEngineDirCreatePath(cPath)
-	
+
 	    # Then navigate there (intelligent navigation)
 	    if not this.IsBatchMode()
 	        This.GoTo(cPath)
 	    ok
-	
+
 	    return new stzFolder(cPath)
 
-		def FolderCreate()
-			return This.CreateFolder()
+	def CreateFolder(pcPath)
+	    This.CreateFolderQ(pcPath)
+	    return TRUE
 
-	# Create several sub-folders under this folder in one call; returns a
-	# list of stzFolder handles (so callers can chain .Name() etc.).
-	# Creates siblings directly (no GoTo side effect that CreateFolder has).
-	def CreateFolders(paNames)
+		def FolderCreate(pcPath)
+			return This.CreateFolder(pcPath)
+
+		def MakeFolder(pcPath)
+			return This.CreateFolder(pcPath)
+
+	# Create several sub-folders under this folder in one call. CreateFoldersQ()
+	# returns the LIST of stzFolder handles (so callers can chain .Name() etc.);
+	# the bare CreateFolders() returns TRUE/FALSE. Creates siblings directly
+	# (no GoTo side effect that CreateFolder has).
+	def CreateFoldersQ(paNames)
 		if NOT isList(paNames)
 			raise("Incorrect param type! paNames must be a list of folder names.")
 		ok
@@ -2063,6 +2075,10 @@ class stzFolder from stzObject
 		next
 		return aResult
 
+	def CreateFolders(paNames)
+		This.CreateFoldersQ(paNames)
+		return TRUE
+
 		def MakeFolders(paNames)
 			return This.CreateFolders(paNames)
 
@@ -2070,10 +2086,10 @@ class stzFolder from stzObject
 			return This.CreateFolders(paNames)
 
 	# Create a deep folder path in one call -- every missing intermediate
-	# folder along the way is created -- and return the DEEPEST folder as a
-	# stzFolder handle (so callers can chain .Name() / .Path()). A relative
-	# path resolves against the current position. Documented alias: mkpath().
-	def CreatePath(pcPath)
+	# folder along the way is created. CreatePathQ() returns the DEEPEST folder
+	# as a stzFolder handle; the bare CreatePath() returns TRUE/FALSE. A
+	# relative path resolves against the current position.
+	def CreatePathQ(pcPath)
 		if CheckParams()
 			if NOT (isString(pcPath) and trim(pcPath) != "")
 				StzRaise("Incorrect param type! pcPath must be a non-empty string.")
@@ -2092,6 +2108,16 @@ class stzFolder from stzObject
 
 		StzEngineDirCreatePath(cPath)
 		return new stzFolder(cPath)
+
+		def MkPathQ(pcPath)
+			return This.CreatePathQ(pcPath)
+
+		def CreateDeepPathQ(pcPath)
+			return This.CreatePathQ(pcPath)
+
+	def CreatePath(pcPath)
+		This.CreatePathQ(pcPath)
+		return TRUE
 
 		def MkPath(pcPath)
 			return This.CreatePath(pcPath)

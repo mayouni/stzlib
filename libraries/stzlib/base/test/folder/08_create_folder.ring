@@ -15,7 +15,7 @@ StzMakeDir(cSbx)
 
 o1 = new stzFolder(cSbx)
 o1 {
-    oNewFolder = CreateFolder("TestSubFolder") # Or mkdir() or MakeFolder()
+    oNewFolder = CreateFolderQ("TestSubFolder") # Q form returns the new folder object
     ? oNewFolder.Name()
     #--> TestSubFolder
 }
