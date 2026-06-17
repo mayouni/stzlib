@@ -2403,39 +2403,37 @@ class stzFolder from stzObject
 		def ReadFile(cFile)
 			return This.FileRead(cFile)
 
+		# Q form -> the reader OBJECT for the folder-relative file.
+		def FileReadQ(cFile)
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+			if not _IsAbsolutePath(cFile)
+				cFile = This.CurrentPath() + cFile
+			ok
+			cFile = This.NormaliseFilePathXT(cFile)
+			if This.IsPathOutside(cFile)
+				raise("Can't navigate outside the folder!")
+			ok
+			return @FileReadQ(cFile)
+
+			def ReadFileQ(cFile)
+				return This.FileReadQ(cFile)
+
 	#--
 
-	def FileAppend(cFile, cAdditionalText)
+	# OBJECT-ONLY intent (unified Q convention): both FileAppend(file) and
+	# FileAppendQ(file) return the appender OBJECT for the folder-relative
+	# file (append-or-create -- the file is created if missing).
+	def FileAppend(cFile)
+		return This.FileAppendQ(cFile)
 
-		if CheckParams()
-			if NOT ( isString(cFile) and trim(cFile) != "" )
-				StzRaise("Incorrect param type! cFile must be a non-empty string.")
-			ok
-		ok
+		def AppendFile(cFile)
+			return This.FileAppendQ(cFile)
 
-		cFile = This.NormaliseFilePathXT(cFile)
-
-		if NOT This.IsInside(cFile)
-			raise("Can't navigate outside the folder!")
-		ok
-
-		if NOT This.Exists(cFile)
-			raise("Can't append this file! cFile does not exist in the folder.")
-		ok
-
-		# Navigate to file's folder (intelligent navigation)
-		if not this.IsBatchMode()
-			cFileDir = This.GetDirectoryPath(cFile)
-			This.GoTo(cFileDir)
-		ok
-
-		return @FileAppend(cFile, cAdditionalText)
-
-		def AppendFile(cFile, cAdditionalText)
-			return FileAppend(cFile, cAdditionalText)
-
-
-		def FileAppendQ(cFile, cAdditionalText)
+		def FileAppendQ(cFile)
 
 			if CheckParams()
 				if NOT ( isString(cFile) and trim(cFile) != "" )
@@ -2443,14 +2441,13 @@ class stzFolder from stzObject
 				ok
 			ok
 
+			if not _IsAbsolutePath(cFile)
+				cFile = This.CurrentPath() + cFile
+			ok
 			cFile = This.NormaliseFilePathXT(cFile)
-	
+
 			if NOT This.IsInside(cFile)
 				raise("Can't navigate outside the folder!")
-			ok
-	
-			if NOT This.Exists(cFile)
-				raise("Can't append this file! cFile does not exist in the folder.")
 			ok
 
 			# Navigate to file's folder (intelligent navigation)
@@ -2459,11 +2456,10 @@ class stzFolder from stzObject
 				This.GoTo(cFileDir)
 			ok
 
-			return @FileAppendQ(cFile, cAdditionalText)
+			return @FileAppendQ(cFile)   # global -> appender object (append-or-create)
 
-
-			def AppendFileQ(cFile, cAdditionalText)
-				return FileAppendQ(cFile, cAdditionalText)
+			def AppendFileQ(cFile)
+				return This.FileAppendQ(cFile)
 
 	#--
 
@@ -2614,34 +2610,38 @@ class stzFolder from stzObject
 		def OverwriteFile(cFile, cNewContent)
 			return This.FileOverwrite(cFile, cNewContent)
 
-		def FileOverwriteQ(cFile, cNewContent)
+		# Q form -> the overwriter OBJECT (read OriginalContent then replace).
+		def FileOverwriteQ(cFile)
 
 			if CheckParams()
 				if NOT ( isString(cFile) and trim(cFile) != "" )
 					StzRaise("Incorrect param type! cFile must be a non-empty string.")
 				ok
 			ok
-	
+
+			if not _IsAbsolutePath(cFile)
+				cFile = This.CurrentPath() + cFile
+			ok
 			cFile = This.NormaliseFilePathXT(cFile)
-	
+
 			if NOT This.IsInside(cFile)
 				raise("Can't navigate outside the folder!")
 			ok
-	
+
 			if NOT This.Exists(cFile)
 				raise("Can't overwrite this file! cFile does not exist in the folder.")
 			ok
-	
+
 			# Navigate to file's folder (intelligent navigation)
 			if not this.IsBatchMode()
 				cFileDir = This.GetDirectoryPath(cFile)
 				This.GoTo(cFileDir)
 			ok
-	
-			return @FileOverwriteQ(cFile, cNewContent)
 
-			def OverwriteFileQ(cFile, cNewContent)
-				return This.FileOverwriteQ(cFile, cNewContent)
+			return @FileOverwriteQ(cFile)
+
+			def OverwriteFileQ(cFile)
+				return This.FileOverwriteQ(cFile)
 	
 	
 	def FileErase(cFile)
@@ -2908,6 +2908,29 @@ class stzFolder from stzObject
 		def ModifyFile(cFile, cOldContent, cNewContent)
 			return This.FileModify(cFile, cOldContent, cNewContent)
 
+	# OBJECT-ONLY intent: both FileUpdate(file) and FileUpdateQ(file) return
+	# the modifier OBJECT for the folder-relative file (Replace/Insert/Remove
+	# before Close). The one-shot value form is FileModify(file, old, new).
+	def FileUpdate(cFile)
+		return This.FileUpdateQ(cFile)
+
+		def FileUpdateQ(cFile)
+			if CheckParams()
+				if NOT ( isString(cFile) and trim(cFile) != "" )
+					StzRaise("Incorrect param type! cFile must be a non-empty string.")
+				ok
+			ok
+			if not _IsAbsolutePath(cFile)
+				cFile = This.CurrentPath() + cFile
+			ok
+			cFile = This.NormaliseFilePathXT(cFile)
+			if NOT This.IsInside(cFile)
+				raise("Can't navigate outside the folder!")
+			ok
+			if NOT This.Exists(cFile)
+				raise("Can't update this file! cFile does not exist in the folder.")
+			ok
+			return @FileUpdate(cFile)
 
 	def FileCopy(cSourceFile, cDestFile)
 	    if CheckParams()

@@ -138,6 +138,29 @@ Scenario("File ops: create, size, copy, delete, exists")
     if dirExists(cFx) RemoveFolderRecursive(cFx) ok
 EndScenario()
 
+Scenario("Folder file-op intents follow the Q convention (object forms)")
+    Given("a fresh file sandbox")
+    cFq = CurrentDir() + "/_tfq"
+    if dirExists(cFq) RemoveFolderRecursive(cFq) ok
+    StzMakeDir(cFq)
+    write(cFq + "/seed.txt", "one" + nl + "two")
+    g = new stzFolder(cFq)
+    g.SetBatchMode(TRUE)
+    Then("FileReadQ returns a reader object", g.FileReadQ("seed.txt").NumberOfLines(), 2)
+    When("FileAppend (object-only) appends to a new log")
+    oAp = g.FileAppend("app.log")
+    oAp.WriteLine("entry")
+    Then("the appended entry is present", oAp.ContainsText("entry"), 1)
+    oAp.Close()
+    When("FileUpdate (object) edits a file")
+    oUp = g.FileUpdate("seed.txt")
+    oUp.ReplaceLineContaining("one", "ONE")
+    Then("the edit took effect", StzFind(oUp.Content(), "ONE") > 0, TRUE)
+    oUp.Close()
+    g = 0  oAp = 0  oUp = 0
+    if dirExists(cFq) RemoveFolderRecursive(cFq) ok
+EndScenario()
+
 if dirExists(cTA) RemoveFolderRecursive(cTA) ok
 
 Summary()

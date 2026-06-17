@@ -404,6 +404,9 @@ func FileOverwriteQ(cFileName)
 	func FileOverwriter(cFileName)   # alias of FileOverwriteQ
 		return new stzFileOverwriter(cFileName)
 
+	func @FileOverwriteQ(cFileName)  # @-form for in-class delegation
+		return new stzFileOverwriter(cFileName)
+
 # FileUpdate is an OBJECT-ONLY intent (per the unified Q convention): you need
 # the modifier to be usable (Replace/Insert/Remove before Close), so the bare
 # FileUpdate() and FileUpdateQ() do the SAME thing -- both return the object.
@@ -419,6 +422,31 @@ func FileUpdate(cFileName)
 
 	func FileUpdater(cFileName)
 		return new stzFileModifier(cFileName)
+
+	func @FileUpdate(cFileName)   # @-forms for in-class delegation
+		return new stzFileModifier(cFileName)
+
+	func @FileUpdateQ(cFileName)
+		return new stzFileModifier(cFileName)
+
+# FileManage is an OBJECT-ONLY intent: bare FileManage() and FileManageQ() both
+# return the manager object (no useful scalar value for disk management). Kept
+# HERE in the functions region -- a func defined between two classes attaches
+# to the preceding class instead of registering as a global.
+func StzFileManage(cFileName)
+	return new stzFileManager(cFileName)
+
+	func FileManage(cFileName)
+		return StzFileManage(cFileName)
+
+	func FileManageQ(cFileName)
+		return StzFileManage(cFileName)
+
+	func @FileManage(cFileName)
+		return StzFileManage(cFileName)
+
+	func @FileManageQ(cFileName)
+		return StzFileManage(cFileName)
 
 func StzFileErase(cFileName)
     if not StzFileExists(cFileName)
@@ -1980,20 +2008,14 @@ class stzFileModifier from stzFileReadingMixin
 #=========================================#
 # MANAGER CLASS - DISK OPERATIONS INTENT  #
 #=========================================#
-
-func StzFileManage(cFileName)
-    return new stzFileManager(cFileName)
-
-	func FileManage(cFileName)
-		return StzFileManage(cFileName)
-
-		# OBJECT-ONLY intent: bare FileManage() and FileManageQ() both return
-		# the manager object (no useful scalar value for disk management).
-		func FileManageQ(cFileName)
-			return StzFileManage(cFileName)
+# NOTE: the FileManage()/FileManageQ()/StzFileManage() functions live in the
+# functions region above (before the first class) -- a Ring func placed
+# BETWEEN two classes is attached to the preceding class instead of being
+# registered as a global, which left FileManage() dead (R3).
 
 class stzFileManager from stzObject
     @cFileName
+    @bClosed = FALSE
 
     def init(cFileName)
         if not StzFileExists(cFileName)
@@ -2361,8 +2383,13 @@ class stzFileManager from stzObject
     # DELETE OPERATIONS
 
     def Delete()
-        return StzEngineFileDelete(@cFileName)
-    
+        # Deleting the file ends the management session: there is nothing left
+        # to manage, so the manager is auto-closed. A following Close() is then
+        # a harmless no-op (Close() automatic after Delete()).
+        bResult = StzEngineFileDelete(@cFileName)
+        @bClosed = TRUE
+        return bResult
+
         def DeleteQ()
             This.Delete()
             return This
@@ -2469,4 +2496,8 @@ class stzFileManager from stzObject
         return ""
 
     def Close()
+        @bClosed = TRUE
         return 1
+
+    def IsClosed()
+        return @bClosed
