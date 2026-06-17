@@ -100,7 +100,24 @@ Each intention provides:
 - **Full read access** (the universal capability, where applicable)
 - **Intent-specific write methods** (clearly named and purpose-built)
 - **Built-in safety checks** (prevent common errors)
-- **Fluent interface** (method chaining and declaratibe style for readability)
+- **Fluent interface** (method chaining and declarative style for readability)
+
+### The `Q` Convention: value vs object
+
+Softanza applies one consistent rule across the whole file (and folder) API:
+
+- **`XxxQ()` always returns the live OBJECT** — the form you keep working with
+  (dot-notation or a `{ ... }` block).
+- **The bare `Xxx()` returns a VALUE** whose meaning fits the function:
+  `FileInfo()` → an info hashlist, `FileRead()` → the content, `FileCreate()` /
+  `FileOverwrite(file, content)` → `TRUE`/`FALSE` for success.
+- **Object-only intents** (`FileAppend`, `FileUpdate`, `FileManage`) have no
+  useful scalar value, so the bare name does the *same thing* as the `Q` form —
+  both return the object.
+
+Rule of thumb: *want the object? add `Q`.* The block examples below therefore
+use the `Q` forms for `FileInfo`/`FileRead`/`FileCreate`/`FileOverwrite`, while
+`FileAppend`/`FileUpdate`/`FileManage` work the same with or without it.
 
 ## Practical Comparisons: Traditional vs Softanza
 
@@ -108,10 +125,10 @@ Each intention provides:
 
 Intent: **I want to get information about this file**
 
-Understanding a file’s state is the foundation of intent-based programming. `FileInfo()` function, and its underlining `stzFileInfo`class, provide comprehensive metadata without opening the file:
+Understanding a file’s state is the foundation of intent-based programming. `FileInfo()` function, and its underlining `stzFileInfo` class, provide comprehensive metadata without opening the file:
 
 ```ring
-FileInfo("stzFileTest.ring") {
+FileInfoQ("stzFileTest.ring") {
     ? Exists()			#--> TRUE
     ? IsWritable()		#--> TRUE
     ? SizeInBytes()		#--> 140
@@ -124,20 +141,25 @@ This metadata enables informed decisions about subsequent operations:
 
 ```ring
 # Intelligent intent selection
-FileInfo("config.txt") {
-    if Exists() and IsWritable()
-        FileUpdate("config.txt") {
-        	# Make modifications
-            ...
-            
-            Close()
-        }
+
+FileInfoQ("config.txt") {
+
+    if Exists()
+    
+    	if IsWritable()
+            FileUpdateQ("config.txt") {
+            	# Make modifications
+                ...
+                
+                Close()
+            }
         
-    but Exists() and not IsWritable()
-        ? "Configuration file is read-only"
+    	else
+        	? "Configuration file is read-only"
+        ok 
         
     else
-        FileCreate("config.txt") {
+        FileCreateQ("config.txt") {
         	# Create new configuration
             ...
             
@@ -156,7 +178,7 @@ Intent: **I want to read this file**
 Reading file content is a common task made intuitive with Softanza. `FileRead()` offers rich querying methods for natural content access:
 
 ```ring
-FileRead("data.txt") {
+FileReadQ("data.txt") {
     for cLine in Lines()
         # Process line naturally
     next
@@ -180,11 +202,14 @@ Softanza also supports advanced querying without re-reading the file. This time,
 
 ```ring
 # Rich querying capabilities
-oReader = FileRead("data.txt")
-    nTotalLines = oReader.NumberOfLines()
-    cFirstLine = oReader.FirstLine()
-    cLastLine = oReader.LastLine()
-    bContainsKeyword = oReader.ContainsText("important")
+
+oReader = FileReadQ("data.txt")
+
+nTotalLines = oReader.NumberOfLines()
+cFirstLine = oReader.FirstLine()
+cLastLine = oReader.LastLine()
+bContainsKeyword = oReader.ContainsText("important")
+
 oReader.Close()
 ```
 
@@ -197,7 +222,7 @@ Intent: **I want to add to the end of this file**
 Appending, especially for logging, is a frequent operation. `FileAppend()` simplifies adding content with _built-in_ read access:
 
 ```ring
-FileAppend("app.log") {
+FileAppendQ("app.log") {
     WriteLogEntryWithTimestamp("Application started")  # Adds timestamp and log entry
     WriteSeparator("=")  # Adds a visual separator
     WriteLogEntry("User authentication successful")  # Adds a plain log entry
@@ -220,7 +245,7 @@ fclose(file)
 For context-aware logging, Softanza leverages read capabilities:
 
 ```ring
-oLogger = FileAppend("app.log")
+oLogger = FileAppendQ("app.log")
 oLogger {
     if IsEmpty()
         WriteLine("=== Session Started ===")
@@ -242,7 +267,7 @@ Creating a new file, such as a configuration file, is streamlined with Softanza.
 
 ```ring
 try
-    FileCreate("config.ini") {
+    FileCreateQ("config.ini") {
         WriteHeader("Application Configuration")  # Adds a formatted header
         
         WriteLine("[Database]")
@@ -284,10 +309,10 @@ Softanza’s approach is safer and more expressive, with _built-in_ error handli
 
 Intent: **I want to replace this file’s contents**
 
-Overwriting a file’s content is intuitive with Softanza. `FileOverwrite()` allows reading original content _before_ replacing it:
+Overwriting a file’s content is intuitive with Softanza. `FileOverwriteQ()` allows reading original content _before_ replacing it (the bare `FileOverwrite(file, content)` is the one-shot value form that just returns success):
 
 ```ring
-FileOverwrite("data.txt") {
+FileOverwriteQ("data.txt") {
     aOriginalLines = OriginalLines()  # Access original content
     WriteHeader("Updated Data")  # Adds a formatted header
     WriteLine("New content replacing old")
@@ -359,7 +384,7 @@ Intent: **I want to manage this file on the disk**
 File system operations are streamlined with `FileManage()`. It handles tasks like copying, renaming, and splitting:
 
 ```ring
-FileManage("source.txt") {
+FileManageQ("source.txt") {
     CopyTo("backup/source.txt")  # Copies to a new location
     CopyAs("source_v2.txt")  # Copies with a new name
 	Close()
@@ -377,14 +402,14 @@ write("backup/source.txt", content)
 Advanced management tasks are equally straightforward:
 
 ```ring
-FileManage("source.txt") {
+FileManageQ("source.txt") {
     MoveTo("archive/")  # Moves the file to a new directory
     RenameAs("archived_source.txt")  # Renames the file
 
     SplitByLines(100)  # Creates source_1.txt, source_2.txt, etc.
 
-    oManager.Delete()  # Deletes the file
-	Close()
+    Delete()  # Deletes the file
+	Close() # Automatic after Delete()!
 }
 ```
 
@@ -416,7 +441,7 @@ Softanza automates error handling for clarity and reliability:
 
 ```ring
 try
-    FileCreate("important.txt") {
+    FileCreateQ("important.txt") {
         WriteHeader("Important Data")  # Adds a formatted header
         WriteLine("Critical information")
         Close()

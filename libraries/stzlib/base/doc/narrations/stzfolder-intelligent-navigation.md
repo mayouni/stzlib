@@ -43,6 +43,14 @@ oFolder.CreateFolder("assets/images")
 
 This behavior reflects how we naturally think: when we perform an action somewhere, that becomes our new "here."
 
+> **Value vs object (the `Q` convention).** Used as a statement above,
+> `CreateFolder("docs")` performs the action (and moves you there), returning
+> `TRUE`/`FALSE`. When you want the **new folder as an object** to keep working
+> with, add `Q`: `oSub = oFolder.CreateFolderQ("docs")`. The same holds for
+> `CreateFoldersQ()` (→ list of folder objects) and `CreatePathQ()` (→ the
+> deepest folder) — the bare forms return success values, the `Q` forms return
+> the object(s). This mirrors the file API's `Q` rule.
+
 ## Batch Mode: When You Want to Stay Put
 
 Sometimes you need to perform multiple operations across different locations without losing your mental position. This is where **Batch Mode** shines:
