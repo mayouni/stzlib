@@ -1,0 +1,8 @@
+# Runtime sandboxes created/destroyed by the folder examples and the
+# narrated suite. They are self-healing (cleared at each run's start), but a
+# live stzFolder handle can keep one alive on Windows past a single run; we
+# never want these committed.
+_t*/
+_fx*/
+_fnar/
+_ta/
