@@ -35,7 +35,7 @@ oProject {
     Up()
 
     # Final project tree
-    ShowXT(2)
+    ShowXT()   # (ShowXT takes no depth arg in the documented design)
     
     # 5. Get comprehensive info
     ? ""

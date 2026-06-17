@@ -144,7 +144,7 @@ func @dir(cPath) # Same as Ring dir() but in lowercase
 
 	aResult = []
 	for i = 1 to nLen
-		aResult + [ StzLower(aRingResult[i][1]), aRingResult[i][2] ]
+		aResult + [ aRingResult[i][1], aRingResult[i][2] ]
 	next
 
 	return aResult
@@ -462,11 +462,15 @@ class stzFolder from stzObject
 			cAbsolutePath += "/"
 		ok
 
-		nMainPathLen = Len(cMainPath)
+		# Case-insensitive boundary check (Windows/NTFS is case-insensitive,
+		# and we no longer lowercase the stored paths).
+		cMainLow = StzLower(cMainPath)
+		cAbsLow = StzLower(cAbsolutePath)
+		nMainPathLen = Len(cMainLow)
 
-		if Len(cAbsolutePath) >= nMainPathLen
-			if Left(cAbsolutePath, nMainPathLen) = cMainPath
-				if cAbsolutePath != cMainPath
+		if Len(cAbsLow) >= nMainPathLen
+			if Left(cAbsLow, nMainPathLen) = cMainLow
+				if cAbsLow != cMainLow
 					return True
 				ok
 			ok
@@ -742,7 +746,12 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-	    cResult = "/" + StzLower(_CleanPath(trim(cName)))
+	    # Preserve the real filesystem case AND drive letter -- only
+	    # normalise separators. (The old code did "/" + StzLower(...), which
+	    # lowercased names like "Docs"->"docs" and turned "D:/x" into
+	    # "/d:/x", breaking IsInside boundary checks and the tree display.
+	    # Case-insensitive matching is done at the comparison sites.)
+	    cResult = _CleanPath(trim(cName))
 		cResult = StzReplace(cResult, "//", "/")
 		return cResult
 
@@ -764,7 +773,7 @@ class stzFolder from stzObject
 	        cCleanName = _CleanPath(cBasePath + "/" + cCleanName)
 	    ok
 	    
-	    cResult = StzLower(_CleanPath(cCleanName))
+	    cResult = _CleanPath(cCleanName)   # preserve case (was StzLower)
 		cSeparator = This.Separator()
 		if StzRight(cResult, 1) != cSeparator
 			cResult += cSeparator
@@ -781,10 +790,9 @@ class stzFolder from stzObject
 	    cName = This.NormalizeFilePath(cName)
 	    cSeparator = This.Separator()
 
-		if cName[1] != cSeparator
-			cName = cSeparator + cName
-		ok
-
+		# (Removed a forced leading separator here -- it turned Windows
+		# drive paths "D:/x" into "/D:/x". Only the trailing separator
+		# matters for folder semantics.)
 	    if StzRight(cName, 1) != cSeparator
 	        cName += cSeparator
 	    ok
@@ -1016,13 +1024,13 @@ class stzFolder from stzObject
 	#======================#
 
 	def Name()
-		return StzLower(_DirName(@cCurrentPath))
+		return _DirName(@cCurrentPath)
 
 	def Path()
-		return StzLower(@cCurrentPath)
+		return @cCurrentPath
 
 	def AbsolutePath()
-		return StzLower(@cCurrentPath)
+		return @cCurrentPath
 
 		def FullPath()
 			return This.AbsolutePath()
@@ -1109,7 +1117,7 @@ class stzFolder from stzObject
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 0
-				aResult + (@cCurrentPath + This.Separator() + StzLower(_aList_[i][1]))
+				aResult + (@cCurrentPath + This.Separator() + _aList_[i][1])
 			end
 		next
 
@@ -1124,7 +1132,7 @@ class stzFolder from stzObject
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
-				aResult + (@cCurrentPath + This.Separator() + StzLower(_aList_[i][1]) + This.Separator())
+				aResult + (@cCurrentPath + This.Separator() + _aList_[i][1] + This.Separator())
 			end
 		next
 
@@ -1139,7 +1147,7 @@ class stzFolder from stzObject
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 0
-				aResult + (This.Separator() + StzLower(_aList_[i][1]))
+				aResult + (This.Separator() + _aList_[i][1])
 			end
 		next
 
@@ -1154,7 +1162,7 @@ class stzFolder from stzObject
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _alist_[i][1] != ".."
-				aResult + (This.Separator() + StzLower(_aList_[i][1]) + This.Separator())
+				aResult + (This.Separator() + _aList_[i][1] + This.Separator())
 			end
 		next
 
@@ -1351,7 +1359,7 @@ class stzFolder from stzObject
 
 				if _aList_[i][2] = 0  # It's a file
 
-					cFullPath = cCurrentPath + This.Separator() + StzLower(_aList_[i][1])
+					cFullPath = cCurrentPath + This.Separator() + _aList_[i][1]
 					cRelativePath = StzMid(cFullPath, StzLen(cBasePath) + 1, StzLen(cFullPath) - StzLen(cBasePath))
 
 					if StzLeft(cRelativePath, 1) != This.Separator()
@@ -1389,7 +1397,7 @@ class stzFolder from stzObject
 
 				if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."  # It's a directory
 
-					cFullPath = cCurrentPath + This.Separator() + StzLower(_aList_[i][1])
+					cFullPath = cCurrentPath + This.Separator() + _aList_[i][1]
 					cRelativePath = StzMid(cFullPath, StzLen(cBasePath) + 1, StzLen(cFullPath) - StzLen(cBasePath))
 
 					if StzLeft(cRelativePath, 1) != This.Separator()
@@ -1422,7 +1430,7 @@ class stzFolder from stzObject
 			for i = 1 to nLen
 
 				if _aList_[i][2] = 0  # It's a file
-					aResult + (cCurrentPath + This.Separator() + StzLower(_aList_[i][1]))
+					aResult + (cCurrentPath + This.Separator() + _aList_[i][1])
 
 				but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."  # It's a directory
 					aToProcess + (cCurrentPath + This.Separator() + _aList_[i][1])
@@ -1453,7 +1461,7 @@ class stzFolder from stzObject
 
 				if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."  # It's a directory
 
-					cFullPath = cCurrentPath + This.Separator() + StzLower(_aList_[i][1]) + This.Separator()
+					cFullPath = cCurrentPath + This.Separator() + _aList_[i][1] + This.Separator()
 					aResult + cFullPath
 					aToProcess + (cCurrentPath + This.Separator() + _aList_[i][1])
 
@@ -1814,6 +1822,12 @@ class stzFolder from stzObject
 		@bBacthMode = b
 
 	def CurrentPath()
+		# Presented WITH a trailing separator, per the navigation design
+		# ("/my-project/"). This also makes relative joins like
+		# CurrentPath() + "docs" produce a correct ".../docs".
+		if @cCurrentPath != "" and StzRight(@cCurrentPath, 1) != "/"
+			return @cCurrentPath + "/"
+		ok
 		return @cCurrentPath
 
 		def WorkingDirectory()
@@ -1965,14 +1979,14 @@ class stzFolder from stzObject
 	    ok
 	
 	    # Create the folder first
-	    bResult = StzEngineDirCreatePath(cPath)
+	    StzEngineDirCreatePath(cPath)
 	
 	    # Then navigate there (intelligent navigation)
 	    if not this.IsBatchMode()
 	        This.GoTo(cPath)
 	    ok
 	
-	    return bResult
+	    return new stzFolder(cPath)
 
 		def FolderCreate()
 			return This.CreateFolder()
@@ -2038,14 +2052,14 @@ class stzFolder from stzObject
 	
 	    return bResult
 
-		def FolderDelete()
-			return This.DeleteFolder()
+		def FolderDelete(cFolder)
+			return This.DeleteFolder(cFolder)
 
-		def RemoveFolder()
-			return This.DeleteFolder()
+		def RemoveFolder(cFolder)
+			return This.DeleteFolder(cFolder)
 
-		def FolderRemove()
-			return This.DeleteFolder()
+		def FolderRemove(cFolder)
+			return This.DeleteFolder(cFolder)
 
 	def DeleteAll()
 
@@ -4336,9 +4350,9 @@ class stzFolder from stzObject
 					if cEntryName != "." and cEntryName != ".."
 						cFullPath = cPath + This.Separator() + cEntryName
 						if isdir(cFullPath)
-							aItems + [StzLower(cEntryName), "folder"]
+							aItems + [cEntryName, "folder"]
 						else
-							aItems + [StzLower(cEntryName), "file"]
+							aItems + [cEntryName, "file"]
 						end
 					end
 				next
