@@ -2029,6 +2029,36 @@ class stzFolder from stzObject
 		def CreateSubFolders(paNames)
 			return This.CreateFolders(paNames)
 
+	# Create a deep folder path in one call -- every missing intermediate
+	# folder along the way is created -- and return the DEEPEST folder as a
+	# stzFolder handle (so callers can chain .Name() / .Path()). A relative
+	# path resolves against the current position. Documented alias: mkpath().
+	def CreatePath(pcPath)
+		if CheckParams()
+			if NOT (isString(pcPath) and trim(pcPath) != "")
+				StzRaise("Incorrect param type! pcPath must be a non-empty string.")
+			ok
+		ok
+
+		cPath = pcPath
+		if not _IsAbsolutePath(cPath)
+			cPath = This.Path() + "/" + cPath
+		ok
+		cPath = _CleanPath(cPath)
+
+		if NOT This.IsInside(cPath)
+			raise("Can't navigate outside the folder!")
+		ok
+
+		StzEngineDirCreatePath(cPath)
+		return new stzFolder(cPath)
+
+		def MkPath(pcPath)
+			return This.CreatePath(pcPath)
+
+		def CreateDeepPath(pcPath)
+			return This.CreatePath(pcPath)
+
 
 	def DeleteFolder(cFolder)
 
@@ -3043,8 +3073,10 @@ class stzFolder from stzObject
 					ok
 				next
 			else
+				# Files() yields "/name.ext"; compare on the basename so an
+				# exact name (or a list entry like "test.txt") still matches.
 				for i = 1 to nLen
-					if StzLower(acFiles[i]) = StzLower(cPattern)
+					if StzLower(_DirName(acFiles[i])) = StzLower(_DirName(cPattern))
 						acResult + acFiles[i]
 					ok
 				next
@@ -3177,39 +3209,31 @@ class stzFolder from stzObject
 		if NOT isString(cPattern)
 			StzRaise("Incorrect param type! cPattern must be a string.")
 		ok
-		acFound = []
-		acAllDirs = This.DeepFolders()
-		bWildcard = (StzFind(cPattern, "*") > 0)
 
+		# Filter the (already-correct) recursive file listing. The previous
+		# hand-rolled walk was doubly broken: it read an undefined var
+		# (_aEntry_[2]) so it never matched, and it fed DeepFolders()'s
+		# simplified relative paths to @dir() (which needs absolute paths)
+		# while skipping the root folder's own files.
+		acAll = This.DeepFiles()
+		nLen = len(acAll)
+		acFound = []
+
+		bWildcard = (StzFind(cPattern, "*") > 0)
 		if bWildcard
 			cPattern = StzReplace(cPattern, "*", "")
 		ok
 
-		nLen = len(acAllDirs)
-
 		for i = 1 to nLen
-
-			aEntries = @dir(acAllDirs[i])
-			nLenE = len(aEntries)
-
-			for j = 1 to nLenE
-
-				if _aEntry_[2] = 0
-
-					if bWildcard
-						if StzFind(StzLower(aEntries[j][1]), StzLower(cPattern)) > 0
-							acFound + (acAllDirs[i] + This.Separator() + aEntries[j][1])
-						ok
-
-					else
-						if StzLower(aEntries[j][1]) = StzLower(cPattern)
-							acFound + (acAllDirs[i] + This.Separator() + aEntries[j][1])
-						ok
-
-					ok
+			if bWildcard
+				if StzFind(StzLower(acAll[i]), StzLower(cPattern)) > 0
+					acFound + acAll[i]
 				ok
-
-			next
+			else
+				if StzLower(_DirName(acAll[i])) = StzLower(cPattern)
+					acFound + acAll[i]
+				ok
+			ok
 		next
 
 		return acFound
