@@ -14,6 +14,9 @@ fn ring_FileExists(p: *anyopaque) callconv(.c) void {
 fn ring_FileSize(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(f.stz_file_size(gs(p, 1), @intCast(gss(p, 1)))));
 }
+fn ring_FileMTime(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(f.stz_file_mtime(gs(p, 1), @intCast(gss(p, 1)))));
+}
 fn ring_FileRead(p: *anyopaque) callconv(.c) void {
     var out_len: usize = 0;
     const ptr = f.stz_file_read(gs(p, 1), @intCast(gss(p, 1)), &out_len);
@@ -71,6 +74,7 @@ fn ring_PathDirname(p: *anyopaque) callconv(.c) void {
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginefileexists", .func = &ring_FileExists },
     .{ .name = "stzenginefilesize", .func = &ring_FileSize },
+    .{ .name = "stzenginefilemtime", .func = &ring_FileMTime },
     .{ .name = "stzenginefileread", .func = &ring_FileRead },
     .{ .name = "stzenginefilewrite", .func = &ring_FileWrite },
     .{ .name = "stzenginefileappend", .func = &ring_FileAppend },

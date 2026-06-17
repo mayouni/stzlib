@@ -27,6 +27,16 @@ pub fn stz_file_size(path: [*c]const u8, path_len: usize) callconv(.c) i64 {
     return @intCast(stat.size);
 }
 
+// Last-modification time as Unix epoch SECONDS (-1 if the file is missing).
+// stat.mtime is nanoseconds since the epoch; Ring formats it via
+// stzDateTime([:FromEpochSeconds=...]).
+pub fn stz_file_mtime(path: [*c]const u8, path_len: usize) callconv(.c) i64 {
+    if (path == null or path_len == 0) return -1;
+    const p = path[0..path_len];
+    const stat = fs.cwd().statFile(p) catch return -1;
+    return @intCast(@divFloor(stat.mtime, std.time.ns_per_s));
+}
+
 // ─── File Read ───
 
 pub fn stz_file_read(path: [*c]const u8, path_len: usize, out_len: *usize) callconv(.c) [*c]u8 {

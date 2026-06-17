@@ -265,12 +265,11 @@ func FileAppend(cFileName, cAdditionalText)
 	#< @FunctionFluentForm
 
 	func StzFileAppendQ(cFileName, cAdditionalText)
-		if NOT StzFileExists(cFileName)
-			StzRaise("Can't append a non-existing file: " + cFileName)
-		ok
-
+		# Append-or-create (the constructor creates the file if missing).
 		oFile = new stzFileAppender(cFileName)
-		oFile.Append(cAdditionalText)
+		if cAdditionalText != ""
+			oFile.Write(cAdditionalText)
+		ok
 		return oFile
 
 	func FileAppendQ(cFileName, cAdditionalText)
@@ -945,6 +944,15 @@ class stzFileInfo from stzObject
     def Size()
         return StzEngineFileSize(@cFileName)
 
+        def SizeInBytes()
+            # Must be defined here: without it, the call resolves to an
+            # inherited stzObject method that returns the OBJECT's repr size
+            # (e.g. 553), not the file's byte size.
+            return This.Size()
+
+    def FileName()
+        return @cFileName
+
     def IsWritable()
         try
             pFile = fopen(@cFileName, "a")
@@ -982,10 +990,21 @@ class stzFileInfo from stzObject
         StzRaise("Unsupported feature!")
 
     def LastModificationTime()
-        StzRaise("Unsupported feature! Use OS-level tools for file timestamps.")
+        # Unix epoch SECONDS of the last modification (via the Softanza Zig
+        # engine's stat()). Returns 0 if the file is missing.
+        nSecs = StzEngineFileMTime(@cFileName)
+        if nSecs < 0 return 0 ok
+        return nSecs
+
+        def LastModifiedSeconds()
+            return This.LastModificationTime()
 
         def LastModified()
-            return This.LastModificationTime()
+            # Human-readable form, formatted from the epoch via stzDateTime.
+            nSecs = This.LastModificationTime()
+            if nSecs = 0 return "" ok
+            oDT = new stzDateTime([ :FromEpochSeconds = nSecs ])
+            return oDT.ToString()
 
     def LastReadingTime()
         StzRaise("Unsupported feature! Use OS-level tools for file timestamps.")
@@ -1189,8 +1208,11 @@ class stzFileAppender from stzFileReadingMixin
     @cFileName
 
     def init(cFileName)
+        # Append-or-create: appending to a not-yet-existing file (e.g. a fresh
+        # log) creates it empty rather than failing -- this is the universal,
+        # logging-friendly semantics the design intends.
         if not StzFileExists(cFileName)
-            StzRaise("Cannot append non-existent file: " + cFileName)
+            StzEngineFileWrite(cFileName, "")
         ok
         @cFileName = cFileName
 
