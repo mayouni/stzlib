@@ -45,6 +45,19 @@ Scenario("A full cleaning pipeline")
     Then("the chained transforms yield clean, unique, lowercase data", ListEq(o.GetData(), [ "john", "mary", "bob", "alice" ]), TRUE)
 EndScenario()
 
+# --- Regression guard added this session ---
+# The plan-step dispatcher called required-param methods (HandleMissingValues,
+# NormalizeCase, ValidateRanges, NormalizeNumeric, EncodeCategories, ...) with
+# no args -> R19 ("too few params"), so half of every plan's steps errored.
+# Now each is dispatched with its default arg.
+
+Scenario("Plan execution dispatches every step without arity errors")
+    Given("a table wrangler running the 'clean' plan")
+    ot = new stzDataWrangler([ [ "  John ", "25", "sales" ], [ "John", "25", "sales" ], [ "mary", "", "mkt" ] ], [ "Name", "Age", "Dept" ])
+    r = ot.ExecutePlan("clean", FALSE)
+    Then("no step fails with an arity error", StzFind(ot._GetExecutionSummary(r[:results]), ", 0 errors") > 0, TRUE)
+EndScenario()
+
 Summary()
 
 func Dw aList

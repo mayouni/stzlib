@@ -953,7 +953,7 @@ next
             return "Removed " + nRemoved + " duplicate rows"
             
         on "HandleMissingValues"
-            nFilled = This.HandleMissingValues()
+            nFilled = This.HandleMissingValues("")
             return "Processed " + nFilled + " missing values"
             
         on "TrimWhitespace"
@@ -961,7 +961,7 @@ next
             return "Cleaned " + nCleaned + " text values"
             
         on "NormalizeCase"
-            nNormalized = This.NormalizeCase()
+            nNormalized = This.NormalizeCase("")
             return "Normalized " + nNormalized + " text values"
             
         on "ValidateDataTypes"
@@ -969,26 +969,26 @@ next
             return "Found " + len(aIssues) + " type inconsistencies"
             
         on "ValidateRanges"
-            aIssues = This.ValidateRanges()
+            aIssues = This.ValidateRanges([])
             return "Validated ranges - " + len(aIssues) + " violations found"
             
         on "ValidateFormats"
             return "Format validation completed"
             
         on "DetectOutliers"
-            aOutliers = This.DetectOutliers()
+            aOutliers = This.DetectOutliers(0)
             return "Detected " + len(aOutliers) + " potential outliers"
             
         on "ConvertDataTypes"
-            nConverted = This.ConvertDataTypes()
+            nConverted = This.ConvertDataTypes([])
             return "Converted " + nConverted + " values"
             
         on "NormalizeNumeric"
-            nNormalized = This.NormalizeNumeric()
+            nNormalized = This.NormalizeNumeric("")
             return "Normalized " + nNormalized + " numeric values"
             
         on "EncodeCategories"
-            nEncoded = This.EncodeCategories()
+            nEncoded = This.EncodeCategories("")
             return "Encoded " + nEncoded + " categorical values"
             
         on "StandardizeHeaders"

@@ -10,6 +10,18 @@ load "../../stzBase.ring"
 
 pr()
 
+# (Dataset/headers setup -- the extraction dropped these; restored so the
+#  example is self-contained.)
+aMesyDataset = [
+    ["  John Doe  ", "25", "john@email.com", "50000", "sales"],
+    ["mary SMITH", '', "mary@company.com", "65000", "MARKETING"],
+    ['', "35", "invalid-email", "NULL", "Sales"],
+    ["John Doe", "25", "john@email.com", "50000", "sales"],
+    ["Bob Wilson", "-5", "bob@email.com", "999999", "engineering"],
+    ["Alice Brown", "28.5", "alice@email.com", '', "Sales"]
+]
+aMesyHeaders = ["Full_Name", "Age", "Email", "Salary", "Department"]
+
 o18 = new stzDataWrangler(aMesyDataset, aMesyHeaders)
 
 ? "=== GOAL-BASED EXECUTION ==="
