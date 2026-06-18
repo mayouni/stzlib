@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #551.
-#ERR Error (R14) : Calling Method without definition: insertafterwxt
 
 load "../../stzBase.ring"
 

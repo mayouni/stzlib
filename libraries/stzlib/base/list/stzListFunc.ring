@@ -7996,6 +7996,25 @@ func HasPath(paList, pacKeys)
 		next
 		return TRUE
 
+	#-- insert pItem after / before each position in panPos (1-based)
+	func _StzInsertAfterPositions(aContent, panPos, pItem)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			add(aRes, aContent[i])
+			if _StzHasItemTyped(panPos, i) add(aRes, pItem) ok
+		next
+		return aRes
+
+	func _StzInsertBeforePositions(aContent, panPos, pItem)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if _StzHasItemTyped(panPos, i) add(aRes, pItem) ok
+			add(aRes, aContent[i])
+		next
+		return aRes
+
 	#-- TRUE if any item is of the given type tag (number/string/list/object)
 	func _StzContainsType(aContent, cType)
 		nLen = len(aContent)
