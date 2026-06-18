@@ -107,6 +107,40 @@ Scenario("Splitting (guards the SplitAt engine-arg + SplitToPartsOf mutator fixe
         ListEq(o3.Content(), [ [1,2], [3,4], [5] ]), TRUE)
 EndScenario()
 
+Scenario("Structure ops: rotate, swap, take, remove-first")
+    Then("RotatedLeft(1) [1,2,3,4] -> [2,3,4,1]", ListEq(Q([1,2,3,4]).RotatedLeft(1), [ 2,3,4,1 ]), TRUE)
+    Then("RotatedRight(1) [1,2,3,4] -> [4,1,2,3]", ListEq(Q([1,2,3,4]).RotatedRight(1), [ 4,1,2,3 ]), TRUE)
+    Then("TakeLast(2) [1..5] -> [4,5]", ListEq(Q([1,2,3,4,5]).TakeLast(2), [ 4, 5 ]), TRUE)
+    Given("lists mutated in place")
+    os = Q([1,2,3,4])  os.Swap(1,4)
+    Then("Swap(1,4) [1,2,3,4] -> [4,2,3,1]", ListEq(os.Content(), [ 4,2,3,1 ]), TRUE)
+    orf = Q([1,2,3])  orf.RemoveFirstItem()
+    Then("RemoveFirstItem [1,2,3] -> [2,3]", ListEq(orf.Content(), [ 2, 3 ]), TRUE)
+EndScenario()
+
+Scenario("Type checks and item equality")
+    Then("IsListOfNumbers([1,2,3]) is TRUE", Q([1,2,3]).IsListOfNumbers(), TRUE)
+    Then("IsListOfStrings([a,b]) is TRUE", Q([ "a","b" ]).IsListOfStrings(), TRUE)
+    Then("AllItemsAreEqual([5,5,5]) is TRUE", Q([5,5,5]).AllItemsAreEqual(), TRUE)
+    Then("AllItemsAreEqual([5,6]) is FALSE", Q([5,6]).AllItemsAreEqual(), FALSE)
+EndScenario()
+
+Scenario("Zip, interleave and pairs")
+    Then("ZippedWith([1,2,3],[a,b,c]) -> [[1,a],[2,b],[3,c]]",
+        ListEq(Q([1,2,3]).ZippedWith([ "a","b","c" ]), [ [1,"a"], [2,"b"], [3,"c"] ]), TRUE)
+    Then("InterleavedWith([1,2,3],[a,b,c]) -> [1,a,2,b,3,c]",
+        ListEq(Q([1,2,3]).InterleavedWith([ "a","b","c" ]), [ 1,"a",2,"b",3,"c" ]), TRUE)
+    Then("Pairs([1,2,3,4]) -> [[1,2],[2,3],[3,4]]",
+        ListEq(Q([1,2,3,4]).Pairs(), [ [1,2], [2,3], [3,4] ]), TRUE)
+EndScenario()
+
+Scenario("Reduce / accumulate (guards the cross-DLL reduce-value fix)")
+    Then("Reduce() of [1,2,3,4] is 10 (numeric sum)", Q([1,2,3,4]).Reduce(), 10)
+    Then("ReduceXT('@accumulator + @item', 0) on [1..4] is 10", Q([1,2,3,4]).ReduceXT("@accumulator + @item", 0), 10)
+    Then("ReduceXT with init 100 is 110", Q([1,2,3,4]).ReduceXT("@accumulator + @item", 100), 110)
+    Then("ReduceNoInit('@accumulator * @item') on [1..4] is 24", Q([1,2,3,4]).ReduceNoInit("@accumulator * @item"), 24)
+EndScenario()
+
 Scenario("Probabilistic quantifiers")
     Given("the deterministic quantifiers")
     Then("All([A,B,C]) returns all", ListEq(All([ "A","B","C" ]), [ "A", "B", "C" ]), TRUE)

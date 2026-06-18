@@ -2007,25 +2007,16 @@ class stzList from stzObject
 		return _c_
 
 	def ReduceXT(pcExpr, pInitValue)
+		# The expression uses @accumulator and @item. The bridge builds the
+		# init value and extracts the result scalar INSIDE stz_list.dll, so no
+		# StzValue handle crosses the stz_list<->stz_value DLL boundary (which
+		# previously panicked on the init handle). Returns a plain number.
 		pList = This._EngineListFromContent()
 		if pList = NULL return 0 ok
 
 		pcExpr = _StzStripBraces(pcExpr)
-		pInit = StzEngineValueNewInt(pInitValue)
-		pResult = StzEngineListReduceExpr(pList, pcExpr, pInit)
+		result = StzEngineListReduceExpr(pList, pcExpr, pInitValue)
 
-		nType = StzEngineValueType(pResult)
-		switch nType
-		on 2
-			result = StzEngineValueGetInt(pResult)
-		on 3
-			result = StzEngineValueGetFloat(pResult)
-		other
-			result = 0
-		off
-
-		StzEngineValueFree(pInit)
-		StzEngineValueFree(pResult)
 		StzEngineListFree(pList)
 		return result
 
@@ -2034,19 +2025,8 @@ class stzList from stzObject
 		if pList = NULL return 0 ok
 
 		pcExpr = _StzStripBraces(pcExpr)
-		pResult = StzEngineListReduceExprNoInit(pList, pcExpr)
+		result = StzEngineListReduceExprNoInit(pList, pcExpr)
 
-		nType = StzEngineValueType(pResult)
-		switch nType
-		on 2
-			result = StzEngineValueGetInt(pResult)
-		on 3
-			result = StzEngineValueGetFloat(pResult)
-		other
-			result = 0
-		off
-
-		StzEngineValueFree(pResult)
 		StzEngineListFree(pList)
 		return result
 

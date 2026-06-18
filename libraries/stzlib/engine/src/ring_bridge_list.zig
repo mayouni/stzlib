@@ -262,11 +262,31 @@ fn ring_MapExpr(p: *anyopaque) callconv(.c) void {
 fn ring_FilterExpr(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_filter_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)))), HL);
 }
+// Return the reduce result as a PLAIN scalar, extracted in-DLL. Passing the
+// StzValue across the stz_list <-> stz_value DLL boundary as a handle is the
+// cross-DLL handle trap (init handle panicked; result handle read back as 0).
+fn retReduceValue(p: *anyopaque, r: ?*value.StzValue) void {
+    const v = r orelse {
+        rn(p, 0);
+        return;
+    };
+    switch (v.tag) {
+        .int_val => rn(p, @floatFromInt(v.data.int_val)),
+        .float_val => rn(p, v.data.float_val),
+        .string_val => rs2(p, @ptrCast(v.data.string_val.ptr), @intCast(v.data.string_val.len)),
+        else => rn(p, 0),
+    }
+    value.stz_value_free(v);
+}
 fn ring_ReduceExpr(p: *anyopaque) callconv(.c) void {
-    rcp(p, @constCast(@ptrCast(list.stz_list_reduce_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), getV(p, 3)))), HV);
+    // Build the init value INSIDE this DLL from a raw number (arg 3).
+    const initv = value.stz_value_new_int(@intFromFloat(g(p, 3)));
+    const r = list.stz_list_reduce_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), initv);
+    if (initv) |iv| value.stz_value_free(iv);
+    retReduceValue(p, r);
 }
 fn ring_ReduceExprNoInit(p: *anyopaque) callconv(.c) void {
-    rcp(p, @constCast(@ptrCast(list.stz_list_reduce_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), null))), HV);
+    retReduceValue(p, list.stz_list_reduce_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), null));
 }
 fn ring_FindW(p: *anyopaque) callconv(.c) void {
     const result = list.stz_list_find_first_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)));
