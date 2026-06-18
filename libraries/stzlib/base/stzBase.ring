@@ -143,6 +143,7 @@ ok
     load "list/stzHashList.ring"
     load "list/stzItem.ring"
     load "list/stzList.ring"
+    load "list/stzDeepList.ring"
     load "list/stzListInString.ring"
 
     load "list/stzListOfHashLists.ring"

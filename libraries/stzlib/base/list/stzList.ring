@@ -44,6 +44,15 @@ class stzList from stzObject
 		StartObjectTime()
 		TraceObjectHistory(This)
 
+	  #-- Deep (nested) list view: promotes to stzDeepList for the path-based
+	  #   deep API (DeepFind / Paths / ItemAtPath / ...). Kept modular -- the
+	  #   deep operations live in the stzDeepList subclass, not here.
+	def DeepList()
+		return new stzDeepList(This.Content())
+
+		def AsDeepList()
+			return This.DeepList()
+
 	  #---------------------#
 	 #     CONSTRAINTS     #
 	#---------------------#
