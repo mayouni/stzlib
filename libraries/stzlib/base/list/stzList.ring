@@ -2964,6 +2964,10 @@ class stzList from stzObject
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
 
 		def Find(pItem)
+			if isList(pItem) and len(pItem) = 2 and isString(pItem[1]) and
+			   (pItem[1] = :Item or pItem[1] = :item)
+				pItem = pItem[2]
+			ok
 			return This.FindAllOccurrencesCS(pItem, 1)
 
 		def FindAllCS(pItem, pCaseSensitive)
@@ -4690,6 +4694,62 @@ class stzList from stzObject
 
 	def FindPreviousOccurrence(pItem, pnStartingAt)
 		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, 1)
+
+	#-- Missing name-variants for the next/previous occurrence family
+	#-- (delegating to stzListFinder; strictly-after / strictly-before).
+	def FindNthNextOccurrence(n, pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindNthNextOccurrence(n, pItem, pnStartingAt)
+
+	def FindNextNth(n, pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindNextNth(n, pItem, pnStartingAt)
+
+	def FindNextOccurrences(pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindNextOccurrences(pItem, pnStartingAt)
+
+		def FindNextOccurrencesST(pItem, pnStartingAt)
+			return This.FindNextOccurrences(pItem, pnStartingAt)
+
+	def FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
+
+	def FindPreviousOccurrences(pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindPreviousOccurrences(pItem, pnStartingAt)
+
+		def FindPreviousOccurrencesST(pItem, pnStartingAt)
+			return This.FindPreviousOccurrences(pItem, pnStartingAt)
+
+	def FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
+
+	def FindFirstNext(pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindFirstNext(pItem, pnStartingAt)
+
+	def FindFirstPrevious(pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindFirstPrevious(pItem, pnStartingAt)
+
+	def FindItem(pItem)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindItem(pItem)
+
+	def FindPreviousNth(n, pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.FindPreviousNth(n, pItem, pnStartingAt)
+
+	def NthNextOccurrence(n, pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.NthNextOccurrence(n, pItem, pnStartingAt)
+
+	def NextNthOccurrence(n, pItem, pnStartingAt)
+		_oFnx_ = new stzListFinder(This)
+		return _oFnx_.NextNthOccurrence(n, pItem, pnStartingAt)
 
 	# CountItemsW/CountW already defined above
 

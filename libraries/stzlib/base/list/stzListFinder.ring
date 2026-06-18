@@ -446,6 +446,10 @@ class stzListFinder
 
 	def FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 
+		if isList(pItem) and len(pItem) = 2 and isString(pItem[1]) and lower(pItem[1]) = "of"
+			pItem = pItem[2]
+		ok
+
 		if isList(pnStartingAt) and IsStartingAtNamedParamList(pnStartingAt)
 			pnStartingAt = pnStartingAt[2]
 		ok
@@ -491,6 +495,10 @@ class stzListFinder
 	#========================================#
 
 	def FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+		if isList(pItem) and len(pItem) = 2 and isString(pItem[1]) and lower(pItem[1]) = "of"
+			pItem = pItem[2]
+		ok
 
 		if isList(pnStartingAt) and IsStartingAtNamedParamList(pnStartingAt)
 			pnStartingAt = pnStartingAt[2]
@@ -579,3 +587,119 @@ class stzListFinder
 
 	def ContainsMany(paItems)
 		return This.ContainsManyCS(paItems, 1)
+
+	  #=========================================================#
+	 #  NEXT / PREVIOUS OCCURRENCE SEARCH (from a position)    #
+	#=========================================================#
+
+	def _FnVal(p)
+		if isList(p) and len(p) = 2 and isString(p[1])
+			return p[2]
+		ok
+		return p
+
+	#-- positions of pItem strictly AFTER nStart (forward order)
+	def _FnAfter(pItem, nStart, pCaseSensitive)
+		_all_ = This.FindAllCS(pItem, pCaseSensitive)
+		_res_ = []
+		_n_ = len(_all_)
+		for _i_ = 1 to _n_
+			if _all_[_i_] > nStart
+				_res_ + _all_[_i_]
+			ok
+		next
+		return _res_
+
+	#-- positions of pItem strictly BEFORE nStart (forward order)
+	def _FnBefore(pItem, nStart, pCaseSensitive)
+		_all_ = This.FindAllCS(pItem, pCaseSensitive)
+		_res_ = []
+		_n_ = len(_all_)
+		for _i_ = 1 to _n_
+			if _all_[_i_] < nStart
+				_res_ + _all_[_i_]
+			ok
+		next
+		return _res_
+
+	#-- ALL occurrences after / before a position
+	def FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+		return This._FnAfter(This._FnVal(pItem), This._FnVal(pnStartingAt), pCaseSensitive)
+
+	def FindNextOccurrences(pItem, pnStartingAt)
+		return This.FindNextOccurrencesCS(pItem, pnStartingAt, 1)
+
+		def FindNextOccurrencesST(pItem, pnStartingAt)
+			return This.FindNextOccurrences(pItem, pnStartingAt)
+
+	def FindPreviousOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+		return This._FnBefore(This._FnVal(pItem), This._FnVal(pnStartingAt), pCaseSensitive)
+
+	def FindPreviousOccurrences(pItem, pnStartingAt)
+		return This.FindPreviousOccurrencesCS(pItem, pnStartingAt, 1)
+
+		def FindPreviousOccurrencesST(pItem, pnStartingAt)
+			return This.FindPreviousOccurrences(pItem, pnStartingAt)
+
+	#-- the n-th occurrence after a position (forward; handles :Of/:StartingAt)
+	def FindNthNextOccurrence(n, pItem, pnStartingAt)
+		_a_ = This._FnAfter(This._FnVal(pItem), This._FnVal(pnStartingAt), 1)
+		if n >= 1 and n <= len(_a_) return _a_[n] ok
+		return 0
+
+		def FindNextNth(n, pItem, pnStartingAt)
+			return This.FindNthNextOccurrence(n, pItem, pnStartingAt)
+
+	def FindNext(pItem, pnStartingAt)
+		return This.FindNthNextOccurrence(1, pItem, pnStartingAt)
+
+		def FindFirstNext(pItem, pnStartingAt)
+			return This.FindNext(pItem, pnStartingAt)
+
+	#-- nearest occurrence before a position (and its forward-indexed nth)
+	def FindPrevious(pItem, pnStartingAt)
+		_a_ = This._FnBefore(This._FnVal(pItem), This._FnVal(pnStartingAt), 1)
+		if len(_a_) > 0 return _a_[ len(_a_) ] ok
+		return 0
+
+		def FindFirstPrevious(pItem, pnStartingAt)
+			return This.FindPrevious(pItem, pnStartingAt)
+
+	#-- the listed nths (forward index) after / before a position
+	def FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
+		_a_ = This._FnAfter(This._FnVal(pItem), This._FnVal(pnStartingAt), 1)
+		_res_ = []
+		_nn_ = len(panN)
+		for _i_ = 1 to _nn_
+			if panN[_i_] >= 1 and panN[_i_] <= len(_a_)
+				_res_ + _a_[ panN[_i_] ]
+			ok
+		next
+		return _res_
+
+	def FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
+		_a_ = This._FnBefore(This._FnVal(pItem), This._FnVal(pnStartingAt), 1)
+		_res_ = []
+		_nn_ = len(panN)
+		for _i_ = 1 to _nn_
+			if panN[_i_] >= 1 and panN[_i_] <= len(_a_)
+				_res_ + _a_[ panN[_i_] ]
+			ok
+		next
+		return _res_
+
+	#-- FindItem: alias of Find (positions of the item)
+	def FindItem(pItem)
+		return This.Find(pItem)
+
+	#-- bare (no "Find") aliases used by some narrations
+	def NthNextOccurrence(n, pItem, pnStartingAt)
+		return This.FindNthNextOccurrence(n, pItem, pnStartingAt)
+
+	def NextNthOccurrence(n, pItem, pnStartingAt)
+		return This.FindNthNextOccurrence(n, pItem, pnStartingAt)
+
+	#-- FindPreviousNth: the n-th occurrence before a position, counted
+	#-- backward (nearest first) -- delegates to the canonical search.
+	def FindPreviousNth(n, pItem, pnStartingAt)
+		return This.FindPreviousNthOccurrence(n, pItem, pnStartingAt)

@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #491.
-#ERR Error (R14) : Calling Method without definition: findnthnextoccurrence
 
 load "../../stzBase.ring"
 
