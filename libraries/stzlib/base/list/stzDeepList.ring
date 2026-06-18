@@ -9,95 +9,18 @@
 #   ? @@( o.DeepFind("x") )      #--> [ [2,1], [2,3,2], [2,4] ]
 #   ? o.ItemAtPath([2,3,1])      #--> "C"
 #
-# The path-relationship UTILITIES (IsSubPathOf, CommonPath, SortPaths, ...)
-# live as globals in stzListPaths.ring; this class provides the LIST-BOUND
-# operations (Paths, DeepFind, ItemAtPath, ...) that produce/consume them.
+# ENGINE-FIRST: the heavy work -- recursive path enumeration, deep search, and
+# path navigation -- runs in the Zig engine (stz_list_deep_* in list.zig), NOT
+# in Ring loops. Each method marshals its content/path/needle to engine list
+# handles, calls the engine, and unmarshals the result. The path-relationship
+# UTILITIES (IsSubPathOf, CommonPath, SortPaths, ...) live as globals in
+# stzListPaths.ring; this class provides the LIST-BOUND operations.
 #
-# IMPLEMENTATION NOTE: all list-building is done in GLOBAL helpers below, not
-# in the class methods. Two Ring traps make this necessary inside a class:
-#   - bare add(list,x) resolves to the inherited Add() method (1 param -> R20)
-#   - bare len(x) resolves to a method (-> R20)
-# Build a path with a copy + add: aP = aPrefix (copies), add(aP, i). Append a
-# path as ONE element with add(aRes, aP). The `+` operator wraps unpredictably.
+# The only Ring-side logic kept here is trivial, non-looping glue (a single
+# value comparison for DeepFindAt, head-of-path for CollapsePath).
 
-#-- Recursion + building helpers (global scope: add()/len() are the builtins)
-
-func _DplPathsRec(aList, aPrefix)
-	aResult = []
-	nLen = len(aList)
-	for i = 1 to nLen
-		aPath = aPrefix
-		add(aPath, i)
-		add(aResult, aPath)
-		if isList(aList[i])
-			aSub = _DplPathsRec(aList[i], aPath)
-			nS = len(aSub)
-			for j = 1 to nS add(aResult, aSub[j]) next
-		ok
-	next
-	return aResult
-
-func _DplFindRec(aList, pItem, aPrefix)
-	aResult = []
-	nLen = len(aList)
-	for i = 1 to nLen
-		aPath = aPrefix
-		add(aPath, i)
-		if _DplItemsEqual(aList[i], pItem)
-			add(aResult, aPath)
-		but isList(aList[i])
-			aSub = _DplFindRec(aList[i], pItem, aPath)
-			nS = len(aSub)
-			for j = 1 to nS add(aResult, aSub[j]) next
-		ok
-	next
-	return aResult
-
-func _DplItemAt(aContent, aPath)
-	aCur = aContent
-	nLen = len(aPath)
-	for i = 1 to nLen
-		if NOT isList(aCur)
-			StzRaise("Invalid path! it goes deeper than the structure.")
-		ok
-		aCur = aCur[ aPath[i] ]
-	next
-	return aCur
-
-func _DplItemsAt(aContent, aPaths)
-	aResult = []
-	nLen = len(aPaths)
-	for i = 1 to nLen
-		add(aResult, _DplItemAt(aContent, aPaths[i]))
-	next
-	return aResult
-
-func _DplMaxPathLen(aPaths)
-	nMax = 0
-	nLen = len(aPaths)
-	for i = 1 to nLen
-		if len(aPaths[i]) > nMax nMax = len(aPaths[i]) ok
-	next
-	return nMax
-
-func _DplPathsByLen(aPaths, nWanted)
-	aResult = []
-	nLen = len(aPaths)
-	for i = 1 to nLen
-		if len(aPaths[i]) = nWanted add(aResult, aPaths[i]) ok
-	next
-	return aResult
-
-func _DplExpandPath(aContent, aPath)
-	aResult = []
-	add(aResult, aPath)
-	item = _DplItemAt(aContent, aPath)
-	if isList(item)
-		aSub = _DplPathsRec(item, aPath)
-		nS = len(aSub)
-		for j = 1 to nS add(aResult, aSub[j]) next
-	ok
-	return aResult
+#-- Value-equality helper (global scope; used only for the single comparison
+#-- in DeepFindAt -- not a loop over the structure).
 
 func _DplListEq(aA, aB)
 	if len(aA) != len(aB) return FALSE ok
@@ -130,13 +53,25 @@ func DeepListQ(paList)
 class stzDeepList from stzList
 
 	def Paths()
-		return _DplPathsRec(This.Content(), [])
+		pList = This._EngineListFromContent()
+		pRes  = StzEngineListDeepPaths(pList)
+		aResult = This._ContentFromEngineList(pRes)
+		StzEngineListFree(pList)
+		StzEngineListFree(pRes)
+		return aResult
 
 		def AllPaths()
 			return This.Paths()
 
 	def DeepFind(pItem)
-		return _DplFindRec(This.Content(), pItem, [])
+		pList   = This._EngineListFromContent()
+		pNeedle = StzEngineMarshalList([ pItem ])
+		pRes    = StzEngineListDeepFind(pList, pNeedle, 1)
+		aResult = This._ContentFromEngineList(pRes)
+		StzEngineListFree(pList)
+		StzEngineListFree(pNeedle)
+		StzEngineListFree(pRes)
+		return aResult
 
 		def DeepFindAll(pItem)
 			return This.DeepFind(pItem)
@@ -148,7 +83,8 @@ class stzDeepList from stzList
 		return ring_len(This.DeepFind(pItem)) > 0
 
 	def DeepFindAt(pItem, paPath)
-		if _DplItemsEqual(This.ItemAtPath(paPath), pItem)
+		aWrap = This._ItemWrapAtPath(paPath)
+		if ring_len(aWrap) > 0 and _DplItemsEqual(aWrap[1], pItem)
 			return paPath
 		ok
 		return []
@@ -157,20 +93,60 @@ class stzDeepList from stzList
 		if NOT isList(paPath)
 			StzRaise("Incorrect param! paPath must be a list of indices.")
 		ok
-		return _DplItemAt(This.Content(), paPath)
+		aWrap = This._ItemWrapAtPath(paPath)
+		if ring_len(aWrap) = 0
+			StzRaise("Invalid path! it goes deeper than the structure.")
+		ok
+		return aWrap[1]
+
+		#-- Returns a 0- or 1-element list wrapping the item at paPath (empty if
+		#-- the path is invalid). The engine wraps it so a nested-list item also
+		#-- round-trips cleanly through StzEngineContentFromList.
+		def _ItemWrapAtPath(paPath)
+			pList = This._EngineListFromContent()
+			pPath = StzEngineMarshalList(paPath)
+			pRes  = StzEngineListItemAtPath(pList, pPath)
+			aWrap = This._ContentFromEngineList(pRes)
+			StzEngineListFree(pList)
+			StzEngineListFree(pPath)
+			StzEngineListFree(pRes)
+			return aWrap
 
 	def ItemsAtPaths(paPaths)
-		return _DplItemsAt(This.Content(), paPaths)
+		pList  = This._EngineListFromContent()
+		pPaths = StzEngineMarshalList(paPaths)
+		pRes   = StzEngineListItemsAtPaths(pList, pPaths)
+		aResult = This._ContentFromEngineList(pRes)
+		StzEngineListFree(pList)
+		StzEngineListFree(pPaths)
+		StzEngineListFree(pRes)
+		return aResult
 
 	def LongestPaths()
-		aPaths = This.Paths()
-		return _DplPathsByLen(aPaths, _DplMaxPathLen(aPaths))
+		pList = This._EngineListFromContent()
+		pRes  = StzEngineListLongestPaths(pList)
+		aResult = This._ContentFromEngineList(pRes)
+		StzEngineListFree(pList)
+		StzEngineListFree(pRes)
+		return aResult
 
 	def PathsAtDepth(nDepth)
-		return _DplPathsByLen(This.Paths(), nDepth)
+		pList = This._EngineListFromContent()
+		pRes  = StzEngineListPathsAtDepth(pList, nDepth)
+		aResult = This._ContentFromEngineList(pRes)
+		StzEngineListFree(pList)
+		StzEngineListFree(pRes)
+		return aResult
 
 	def ExpandPath(paPath)
-		return _DplExpandPath(This.Content(), paPath)
+		pList = This._EngineListFromContent()
+		pPath = StzEngineMarshalList(paPath)
+		pRes  = StzEngineListExpandPath(pList, pPath)
+		aResult = This._ContentFromEngineList(pRes)
+		StzEngineListFree(pList)
+		StzEngineListFree(pPath)
+		StzEngineListFree(pRes)
+		return aResult
 
 	def CollapsePath(paPath)
 		if ring_len(paPath) = 0 return [] ok

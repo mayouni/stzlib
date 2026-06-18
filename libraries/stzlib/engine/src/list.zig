@@ -1820,6 +1820,183 @@ pub fn stz_list_sliding_window(list_arg: ?*const StzList, n: usize) callconv(.c)
     return result;
 }
 
+// ─── Deep (nested) list / path API ───
+//
+// A "path" is a list of 1-based indices locating an item in a nested list,
+// e.g. [2,3,2] = 2nd item of the 3rd item of the 2nd item. These power the
+// Ring stzDeepList subclass; the recursion runs HERE (engine) for speed and
+// Unicode-correct value comparison, never in a Ring loop. Each function takes
+// already-marshalled engine StzList handles and returns a fresh StzList whose
+// elements are themselves int-list paths -- Ring unmarshals via the usual
+// StzEngineContentFromList round-trip (nesting preserved).
+
+// Append `path` (a slice of 1-based indices) as one list_val element of `result`.
+fn dplAppendPath(result: *StzList, path: []const i64) void {
+    const pv = value_mod.stz_value_new_list() orelse return;
+    defer value_mod.stz_value_free(pv);
+    for (path) |idx| {
+        const iv = value_mod.stz_value_new_int(idx) orelse continue;
+        _ = value_mod.stz_value_list_append(pv, iv);
+        value_mod.stz_value_free(iv);
+    }
+    _ = stz_list_append_value(result, pv);
+}
+
+fn dplPathsRec(items: []const *StzValue, path: *std.ArrayList(i64), result: *StzList) void {
+    for (items, 0..) |item, i| {
+        path.append(allocator, @as(i64, @intCast(i + 1))) catch return;
+        dplAppendPath(result, path.items);
+        if (item.tag == .list_val) {
+            const sub = item.data.list_val;
+            dplPathsRec(sub.items[0..sub.len], path, result);
+        }
+        path.items.len -= 1;
+    }
+}
+
+// All paths of the nested list, pre-order (parent before its children).
+pub fn stz_list_deep_paths(list_arg: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const result = stz_list_new() orelse return null;
+    var path: std.ArrayList(i64) = .{};
+    defer path.deinit(allocator);
+    dplPathsRec(l.items.items, &path, result);
+    return result;
+}
+
+fn dplFindRec(items: []const *StzValue, needle: *const StzValue, cs: bool, path: *std.ArrayList(i64), result: *StzList) void {
+    for (items, 0..) |item, i| {
+        path.append(allocator, @as(i64, @intCast(i + 1))) catch return;
+        if (valueEqlCS(item, needle, cs)) {
+            dplAppendPath(result, path.items);
+        } else if (item.tag == .list_val) {
+            const sub = item.data.list_val;
+            dplFindRec(sub.items[0..sub.len], needle, cs, path, result);
+        }
+        path.items.len -= 1;
+    }
+}
+
+// Paths to every occurrence of a value. The needle is passed wrapped in a
+// 1-element list (marshalled in this DLL) -- avoids a cross-DLL value handle.
+pub fn stz_list_deep_find(list_arg: ?*const StzList, needle_list: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const result = stz_list_new() orelse return null;
+    const nl = needle_list orelse return result;
+    if (nl.len() == 0) return result;
+    const needle = nl.items.items[0];
+    var path: std.ArrayList(i64) = .{};
+    defer path.deinit(allocator);
+    dplFindRec(l.items.items, needle, case_sensitive != 0, &path, result);
+    return result;
+}
+
+// Navigate to the value at a path (slice of 1-based int values). Returns the
+// borrowed value, or null if the path is invalid / deeper than the structure.
+fn dplNavigate(l: *const StzList, path_items: []const *StzValue) ?*const StzValue {
+    if (path_items.len == 0) return null;
+    var cur: []const *StzValue = l.items.items;
+    var found: ?*const StzValue = null;
+    for (path_items, 0..) |p, depth| {
+        const idx1 = value_mod.stz_value_get_int(p);
+        if (idx1 < 1) return null;
+        const idx: usize = @intCast(idx1 - 1);
+        if (idx >= cur.len) return null;
+        const item = cur[idx];
+        if (depth + 1 == path_items.len) {
+            found = item;
+            break;
+        }
+        if (item.tag != .list_val) return null;
+        const sub = item.data.list_val;
+        cur = sub.items[0..sub.len];
+    }
+    return found;
+}
+
+// 1-element list wrapping the value at `path_list`, or an EMPTY list if the
+// path is invalid (the Ring side raises on an empty result).
+pub fn stz_list_item_at_path(list_arg: ?*const StzList, path_list: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const result = stz_list_new() orelse return null;
+    const pl = path_list orelse return result;
+    if (dplNavigate(l, pl.items.items)) |v| {
+        _ = stz_list_append_value(result, v);
+    }
+    return result;
+}
+
+// `paths_list` is a list of paths (each a sublist of ints). Returns the located
+// values in order; paths that don't resolve are skipped.
+pub fn stz_list_items_at_paths(list_arg: ?*const StzList, paths_list: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const result = stz_list_new() orelse return null;
+    const pl = paths_list orelse return result;
+    for (pl.items.items) |path_val| {
+        if (path_val.tag != .list_val) continue;
+        const sub = path_val.data.list_val;
+        if (dplNavigate(l, sub.items[0..sub.len])) |v| {
+            _ = stz_list_append_value(result, v);
+        }
+    }
+    return result;
+}
+
+// All paths whose length == depth.
+pub fn stz_list_paths_at_depth(list_arg: ?*const StzList, depth: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const all = stz_list_deep_paths(l) orelse return null;
+    defer stz_list_free(all);
+    const result = stz_list_new() orelse return null;
+    for (all.items.items) |path_val| {
+        if (path_val.tag == .list_val and path_val.data.list_val.len == depth) {
+            _ = stz_list_append_value(result, path_val);
+        }
+    }
+    return result;
+}
+
+// The deepest paths (those of maximal length).
+pub fn stz_list_longest_paths(list_arg: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const all = stz_list_deep_paths(l) orelse return null;
+    defer stz_list_free(all);
+    var max_len: usize = 0;
+    for (all.items.items) |path_val| {
+        if (path_val.tag == .list_val and path_val.data.list_val.len > max_len) {
+            max_len = path_val.data.list_val.len;
+        }
+    }
+    const result = stz_list_new() orelse return null;
+    if (max_len == 0) return result;
+    for (all.items.items) |path_val| {
+        if (path_val.tag == .list_val and path_val.data.list_val.len == max_len) {
+            _ = stz_list_append_value(result, path_val);
+        }
+    }
+    return result;
+}
+
+// The path itself, followed by every sub-path beneath it (pre-order).
+pub fn stz_list_expand_path(list_arg: ?*const StzList, path_list: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const result = stz_list_new() orelse return null;
+    const pl = path_list orelse return result;
+    var base: std.ArrayList(i64) = .{};
+    defer base.deinit(allocator);
+    for (pl.items.items) |p| {
+        base.append(allocator, value_mod.stz_value_get_int(p)) catch return result;
+    }
+    dplAppendPath(result, base.items);
+    if (dplNavigate(l, pl.items.items)) |v| {
+        if (v.tag == .list_val) {
+            const sub = v.data.list_val;
+            dplPathsRec(sub.items[0..sub.len], &base, result);
+        }
+    }
+    return result;
+}
+
 // ─── Anti-Sections ───
 
 /// Given a list of length `total` and a set of section pairs [start, end] (0-based),
