@@ -130,8 +130,10 @@ Scenario("Zip, interleave and pairs")
         ListEq(Q([1,2,3]).ZippedWith([ "a","b","c" ]), [ [1,"a"], [2,"b"], [3,"c"] ]), TRUE)
     Then("InterleavedWith([1,2,3],[a,b,c]) -> [1,a,2,b,3,c]",
         ListEq(Q([1,2,3]).InterleavedWith([ "a","b","c" ]), [ 1,"a",2,"b",3,"c" ]), TRUE)
-    Then("Pairs([1,2,3,4]) -> [[1,2],[2,3],[3,4]]",
-        ListEq(Q([1,2,3,4]).Pairs(), [ [1,2], [2,3], [3,4] ]), TRUE)
+    Then("Pairify([1,2,3,4]) -> [[1,2],[2,3],[3,4]] (sliding pairs)",
+        ListEq(Q([1,2,3,4]).Pairify(), [ [1,2], [2,3], [3,4] ]), TRUE)
+    Then("Pairs([1,[a,b],3,[c,d]]) -> [[a,b],[c,d]] (items that are pairs)",
+        ListEq(Q([ 1,["a","b"],3,["c","d"] ]).Pairs(), [ ["a","b"], ["c","d"] ]), TRUE)
 EndScenario()
 
 Scenario("Reduce / accumulate (guards the cross-DLL reduce-value fix)")
