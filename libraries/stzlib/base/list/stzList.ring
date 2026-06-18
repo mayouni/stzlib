@@ -948,6 +948,11 @@ class stzList from stzObject
 	# Mirrors AddItemAt / InsertAt / RemoveAt naming.
 
 	def ReplaceAt(n, pNewItem)
+		if isList(pNewItem) and len(pNewItem) = 2 and isString(pNewItem[1]) and
+		   (pNewItem[1] = :by or pNewItem[1] = :By or pNewItem[1] = :with or
+		    pNewItem[1] = :With or pNewItem[1] = :using or pNewItem[1] = :Using)
+			pNewItem = pNewItem[2]
+		ok
 		if n >= 1 and n <= len(@aContent)
 			@aContent[n] = pNewItem
 		ok
@@ -961,6 +966,73 @@ class stzList from stzObject
 
 		def SetItemAt(n, pNewItem)
 			This.ReplaceAt(n, pNewItem)
+
+		def ReplaceAnyItemAt(n, pNewItem)
+			This.ReplaceAt(n, pNewItem)
+
+		def ReplaceItemAtPosition(n, pNewItem)
+			This.ReplaceAt(n, pNewItem)
+
+	  #=============================================#
+	 #  POSITIONAL REPLACE DELEGATIONS (Replacer)  #
+	#=============================================#
+
+	def ReplaceAnyItemAtPositions(panPos, pNewItem)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceAnyItemAtPositions(panPos, pNewItem)
+		@aContent = _o_.Content()
+
+		def ReplaceAnyItemsAtPositions(panPos, pNewItem)
+			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
+
+		def ReplaceItemsAtPositions(panPos, pNewItem)
+			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
+
+		def ReplaceAtPositions(panPos, pNewItem)
+			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
+
+	def ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
+		@aContent = _o_.Content()
+
+	def ReplaceThisItemAt(n, pItem, pNewItem)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceThisItemAt(n, pItem, pNewItem)
+		@aContent = _o_.Content()
+
+	def ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
+		@aContent = _o_.Content()
+
+	def ReplaceMany(paItems, pNewItem)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceMany(paItems, pNewItem)
+		@aContent = _o_.Content()
+
+	def ReplaceByMany(pItem, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceByMany(pItem, paNewItems)
+		@aContent = _o_.Content()
+
+	def ReplaceByManyXT(pItem, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceByManyXT(pItem, paNewItems)
+		@aContent = _o_.Content()
+
+		def ReplaceItemByManyXT(pItem, paNewItems)
+			This.ReplaceByManyXT(pItem, paNewItems)
+
+	def ReplaceOccurrencesByMany(panPos, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceOccurrencesByMany(panPos, paNewItems)
+		@aContent = _o_.Content()
+
+	def ReplaceOccurrencesByManyXT(panPos, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceOccurrencesByManyXT(panPos, paNewItems)
+		@aContent = _o_.Content()
 
 	  #=============================================#
 	 #  STRINGIFY DELEGATION (via stzListStringify) #
