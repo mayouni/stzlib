@@ -4158,6 +4158,57 @@ class stzList from stzObject
 		def FilterWF(pFunc)
 			return This.ItemsWF(pFunc)
 
+		def ExtractWF(pFunc)
+			return This.ItemsWF(pFunc)
+
+		def StringsWF(pFunc)
+			return This.ItemsWF(pFunc)
+
+	def ContainsWF(pFunc)
+		return This.CountWF(pFunc) > 0
+
+	def NumberOfItemsWF(pFunc)
+		return This.CountWF(pFunc)
+
+		def HowManyItemsWF(pFunc)
+			return This.CountWF(pFunc)
+
+	def ItemsPositionsWF(pFunc)
+		return This.FindWF(pFunc)
+
+	def ItemsAndTheirPositionsWF(pFunc)
+		return _StzGroupItemsAtPos(This.Content(), This.FindWF(pFunc))
+
+	def CountUniqueItemsWF(pFunc)
+		return ring_len(_StzUniqueItems(This.ItemsWF(pFunc)))
+
+		def NumberOfUniqueItemsWF(pFunc)
+			return This.CountUniqueItemsWF(pFunc)
+
+	#-- WF mutators / transforms (full Ring power, no eval)
+
+	def RemoveWF(pFunc)
+		@aContent = _StzRemoveWF(This.Content(), pFunc)
+
+		def RemoveWFQ(pFunc)
+			This.RemoveWF(pFunc)
+			return This
+
+	def ReplaceWF(pFunc, pNewItem)
+		@aContent = _StzReplaceWF(This.Content(), pFunc, pNewItem)
+
+	def MapWF(pFunc)
+		return _StzMapWF(This.Content(), pFunc)
+
+		def YieldWF(pFunc)
+			return This.MapWF(pFunc)
+
+	def InsertAfterWF(pFunc, pItem)
+		@aContent = _StzInsertAfterWF(This.Content(), pFunc, pItem)
+
+	def InsertBeforeWF(pFunc, pItem)
+		@aContent = _StzInsertBeforeWF(This.Content(), pFunc, pItem)
+
 	  #-- FindWXT: find items matching condition (returns items, not positions)
 
 	def FindWXT(pcCondition)
