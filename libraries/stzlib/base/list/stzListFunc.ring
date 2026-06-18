@@ -7744,6 +7744,21 @@ func HasPath(paList, pacKeys)
 		next
 		return aRes
 
+	#-- Ring-side W-expression eval: positions where pcCondition is true.
+	#-- Used for conditions the Zig engine evaluator can't handle (e.g. those
+	#-- calling Ring methods like Q(@item).IsUppercase()). @item is substituted
+	#-- by the item's literal (mirrors PartitionW).
+	func _StzEvalWPositions(aContent, pcCondition)
+		anResult = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			cCode = StzReplace(pcCondition, "@item", @@(aContent[i]))
+			bRes = FALSE
+			eval("bRes = ( " + cCode + " )")
+			if bRes add(anResult, i) ok
+		next
+		return anResult
+
 	#-- contiguous runs of items of a given type, as [start,end] sections.
 	#-- A sentinel of a DIFFERENT type is appended so the final run closes
 	#-- (mirrors the monolith's FindNumbersAsSections trick).
