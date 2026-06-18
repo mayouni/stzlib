@@ -826,23 +826,10 @@ class stzList from stzObject
 	# every other item (i.e. all items collapse to a single value).
 	# Case-sensitivity applies only when items are strings.
 	def AllItemsAreEqualCS(pCaseSensitive)
-		_aData_ = This.Content()
-		_nLen_ = len(_aData_)
-		if _nLen_ < 2 return TRUE ok
-		_first_ = _aData_[1]
-		for _i_ = 2 to _nLen_
-			_x_ = _aData_[_i_]
-			if isString(_first_) and isString(_x_) and pCaseSensitive = 0
-				if upper(_first_) != upper(_x_)
-					return FALSE
-				ok
-			else
-				if _first_ != _x_
-					return FALSE
-				ok
-			ok
-		next
-		return TRUE
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListAllItemsEqualCS(pList, pCaseSensitive)
+		StzEngineListFree(pList)
+		return nResult
 
 		def AllItemsAreEqual()
 			return This.AllItemsAreEqualCS(1)
@@ -2260,13 +2247,11 @@ class stzList from stzObject
 		return TRUE
 
 	def IsListOfLists()
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			if NOT isList(@aContent[i])
-				return FALSE
-			ok
-		next
-		return TRUE
+		if len(@aContent) = 0 return TRUE ok		#-- vacuously true (engine returns 0 on empty)
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListIsAllLists(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def IsAListOfLists()
 			return This.IsListOfLists()
@@ -2301,19 +2286,10 @@ class stzList from stzObject
 			return This.IsListOfListsOfNumbers()
 
 	def IsListOfListsOfSameSize()
-		nLen = This.NumberOfItems()
-		if nLen = 0
-			return 0
-		ok
-		if NOT This.IsListOfLists()
-			return 0
-		ok
-		for i = 2 to nLen
-			if len(@aContent[i]) != len(@aContent[i-1])
-				return 0
-			ok
-		next
-		return 1
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListIsAllListsSameSize(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def ItemsAreListsOfSameSize()
 			return This.IsListOfListsOfSameSize()
@@ -2332,13 +2308,11 @@ class stzList from stzObject
 			return This.IsPairOfNumbers()
 
 	def IsListOfPairs()
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			if NOT (isList(@aContent[i]) and len(@aContent[i]) = 2)
-				return FALSE
-			ok
-		next
-		return TRUE
+		if len(@aContent) = 0 return TRUE ok		#-- vacuously true (engine returns 0 on empty)
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListIsAllPairs(pList)
+		StzEngineListFree(pList)
+		return nResult
 
 		def IsAListOfPairs()
 			return This.IsListOfPairs()
@@ -6336,22 +6310,10 @@ class stzList from stzObject
 			return This.IsMadeOfNumbersOrStrings()
 
 	def IsMadeOfNumbers()
-		_nImnLen_ = len(@aContent)
-		for _iImn_ = 1 to _nImnLen_
-			if NOT isNumber(@aContent[_iImn_])
-				return 0
-			ok
-		next
-		return 1
+		return This.IsListOfNumbers()		#-- engine-backed (StzEngineListIsAllNumbers)
 
 	def IsMadeOfStrings()
-		_nImsLen_ = len(@aContent)
-		for _iIms_ = 1 to _nImsLen_
-			if NOT isString(@aContent[_iIms_])
-				return 0
-			ok
-		next
-		return 1
+		return This.IsListOfStrings()		#-- engine-backed (StzEngineListIsAllStrings)
 
 	# Types(): map ring_type over the items, return the list of type
 	# tags. "STRING", "NUMBER", "LIST", "OBJECT". Used by the
