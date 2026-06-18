@@ -5053,6 +5053,49 @@ class stzList from stzObject
 	def ContainsNoStrings()
 		return NOT _StzContainsType(This.Content(), "string")
 
+	  #=========================================================#
+	 #  SINGLES (1-elem lists) and PAIRS (2-elem lists)        #
+	#=========================================================#
+
+	def IsSingle()
+		return ring_len(@aContent) = 1
+
+	def FindSingles()
+		return _StzFindListsOfLen(This.Content(), 1)
+
+	def Singles()
+		return _StzItemsAtPos(This.Content(), This.FindSingles())
+
+	def SinglesU()
+		return _StzUniqueItems(This.Singles())
+
+	def SinglesZ()
+		return _StzGroupItemsAtPos(This.Content(), This.FindSingles())
+
+	def ContainsSingles()
+		return ring_len(This.FindSingles()) > 0
+
+	def Singlified()
+		return _StzSinglified(This.Content())
+
+	def FindPairs()
+		return _StzFindListsOfLen(This.Content(), 2)
+
+	def ItemsThatArePairs()
+		return _StzItemsAtPos(This.Content(), This.FindPairs())
+
+	def PairsU()
+		return _StzUniqueItems(This.ItemsThatArePairs())
+
+	def PairsZ()
+		return _StzGroupItemsAtPos(This.Content(), This.FindPairs())
+
+	def ContainsPairs()
+		return ring_len(This.FindPairs()) > 0
+
+	def Pairified()
+		return _StzPairified(This.Content())
+
 	# CountItemsW/CountW already defined above
 
 	  #-----------------------------#
