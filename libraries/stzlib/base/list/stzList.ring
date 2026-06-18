@@ -5167,6 +5167,27 @@ class stzList from stzObject
 	def ItemsAndTheirPositionsWXT(pcCondition)
 		return _StzGroupItemsAtPos(This.Content(), This.FindAllItemsW(pcCondition))
 
+	  #=========================================================#
+	 #  INSERT after/before many positions / by W-condition    #
+	#=========================================================#
+
+	def InsertAfterManyPositions(panPos, pItem)
+		@aContent = _StzInsertAfterPositions(This.Content(), panPos, pItem)
+
+	def InsertBeforeManyPositions(panPos, pItem)
+		@aContent = _StzInsertBeforePositions(This.Content(), panPos, pItem)
+
+	#-- insert pItem after/before each item matching a W-condition (:Where ok)
+	def InsertAfterWXT(pWhere, pItem)
+		_c_ = pWhere
+		if isList(pWhere) and ring_len(pWhere) = 2 _c_ = pWhere[2] ok
+		@aContent = _StzInsertAfterPositions(This.Content(), This.FindAllItemsW(_c_), pItem)
+
+	def InsertBeforeWXT(pWhere, pItem)
+		_c_ = pWhere
+		if isList(pWhere) and ring_len(pWhere) = 2 _c_ = pWhere[2] ok
+		@aContent = _StzInsertBeforePositions(This.Content(), This.FindAllItemsW(_c_), pItem)
+
 	# CountItemsW/CountW already defined above
 
 	  #-----------------------------#
