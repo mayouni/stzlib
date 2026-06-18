@@ -1777,20 +1777,11 @@ class stzList from stzObject
 	#   used by stzHashList.Items() to coalesce list-of-lists values.
 
 	def Merge()
-		_aMgContent_ = @aContent
-		_nMgLen_ = len(_aMgContent_)
-		_aMgR_ = []
-		for _iMg_ = 1 to _nMgLen_
-			if isList(_aMgContent_[_iMg_])
-				_nMgInner_ = len(_aMgContent_[_iMg_])
-				for _jMg_ = 1 to _nMgInner_
-					_aMgR_ + _aMgContent_[_iMg_][_jMg_]
-				next
-			else
-				_aMgR_ + _aMgContent_[_iMg_]
-			ok
-		next
-		@aContent = _aMgR_
+		pList = This._EngineListFromContent()
+		pRes = StzEngineListFlattenToDepth(pList, 1)		#-- one-level flatten
+		@aContent = This._ContentFromEngineList(pRes)
+		StzEngineListFree(pList)
+		StzEngineListFree(pRes)
 
 		def MergeQ()
 			This.Merge()
@@ -3440,39 +3431,33 @@ class stzList from stzObject
 
 
 	def IsIncludedIn(pOther)
-		_l_ = This.List()
 		if NOT isList(pOther) return FALSE ok
-		_nL_ = len(_l_)
-		_nP_ = len(pOther)
-		for _i_ = 1 to _nL_
-			_v_ = _l_[_i_]
-			_bSeen_ = FALSE
-			for _j_ = 1 to _nP_
-				if pOther[_j_] = _v_ _bSeen_ = TRUE exit ok
-			next
-			if NOT _bSeen_ return FALSE ok
-		next
-		return TRUE
+		pList = This._EngineListFromContent()
+		pOth = StzEngineMarshalList(pOther)
+		nResult = StzEngineListIsSubsetCS(pList, pOth, 1)
+		StzEngineListFree(pList)
+		StzEngineListFree(pOth)
+		return nResult
 
 	def NumberOfLeadingItems()
-		_l_ = This.List()
-		_nL_ = len(_l_)
-		if _nL_ = 0 return 0 ok
-		_n_ = 1
-		for _i_ = 2 to _nL_
-			if _l_[_i_] = _l_[1] _n_++ else exit ok
-		next
-		return _n_
+		nLen = len(@aContent)
+		if nLen <= 1 return nLen ok		#-- engine reports 0 for n<2
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListLeadingCountCS(pList, 1)
+		StzEngineListFree(pList)
+		#-- engine returns 0 when the first item isn't repeated (run length 1);
+		#-- our contract counts the first item itself, so map 0 -> 1.
+		if nResult = 0 return 1 ok
+		return nResult
 
 	def NumberOfTrailingItems()
-		_l_ = This.List()
-		_nL_ = len(_l_)
-		if _nL_ = 0 return 0 ok
-		_n_ = 1
-		for _i_ = _nL_ - 1 to 1 step -1
-			if _l_[_i_] = _l_[_nL_] _n_++ else exit ok
-		next
-		return _n_
+		nLen = len(@aContent)
+		if nLen <= 1 return nLen ok		#-- engine reports 0 for n<2
+		pList = This._EngineListFromContent()
+		nResult = StzEngineListTrailingCountCS(pList, 1)
+		StzEngineListFree(pList)
+		if nResult = 0 return 1 ok
+		return nResult
 
 	def ReplaceLeadingItems(p1)
 		_new_ = p1
@@ -4361,24 +4346,12 @@ class stzList from stzObject
 		return 1
 
 	def IsMadeOfSome(paValues)
-		_aImContent_ = This.Content()
-		_nImLen_ = len(_aImContent_)
-
-		for _iIm_ = 1 to _nImLen_
-			_bImFound_ = 0
-			_nImVLen_ = len(paValues)
-			for _jIm_ = 1 to _nImVLen_
-				if _aImContent_[_iIm_] = paValues[_jIm_]
-					_bImFound_ = 1
-					exit
-				ok
-			next
-			if _bImFound_ = 0
-				return 0
-			ok
-		next
-
-		return 1
+		pList = This._EngineListFromContent()
+		pVals = StzEngineMarshalList(paValues)
+		nResult = StzEngineListIsSubsetCS(pList, pVals, 1)
+		StzEngineListFree(pList)
+		StzEngineListFree(pVals)
+		return nResult
 
 	def IsPairOfStrings()
 		_aIpContent_ = This.Content()
