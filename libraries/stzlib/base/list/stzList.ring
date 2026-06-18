@@ -4091,6 +4091,25 @@ class stzList from stzObject
 		def AllItemsWF(pFunc)
 			return This.CheckWF(pFunc)
 
+	#-- CheckW: all items satisfy a W (DSL) condition. CheckWXT is the same
+	#-- now that the DSL is engine-backed (the perf/expressiveness split is gone).
+	def CheckW(pcCondition)
+		return ring_len(This.FindAllItemsW(pcCondition)) = This.NumberOfItems()
+
+		def CheckWXT(pcCondition)
+			return This.CheckW(pcCondition)
+
+	#-- the items at panPos all satisfy a W (DSL) condition
+	def CheckItemsAtW(panPos, pcCondition)
+		return _StzAllIn(panPos, This.FindAllItemsW(pcCondition))
+
+	#-- WF variants: the items at panPos all satisfy an anonymous function
+	def CheckItemsAtWF(panPos, pFunc)
+		return _StzCheckItemsAtWF(This.Content(), panPos, pFunc)
+
+		def CheckOnWF(panPos, pFunc)
+			return This.CheckItemsAtWF(panPos, pFunc)
+
 	def CountWF(pFunc)
 		return ring_len(This.FindWF(pFunc))
 

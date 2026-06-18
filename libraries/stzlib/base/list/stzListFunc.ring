@@ -8050,6 +8050,26 @@ func HasPath(paList, pacKeys)
 		next
 		return TRUE
 
+	#-- WF check restricted to the items at the given positions
+	func _StzCheckItemsAtWF(aContent, panPos, pFunc)
+		nLen = len(panPos)
+		nC = len(aContent)
+		for i = 1 to nLen
+			p = panPos[i]
+			if p >= 1 and p <= nC
+				if NOT ( call pFunc(aContent[p]) ) return FALSE ok
+			ok
+		next
+		return TRUE
+
+	#-- TRUE iff every element of panSub is a member of panSet
+	func _StzAllIn(panSub, panSet)
+		nLen = len(panSub)
+		for i = 1 to nLen
+			if NOT _StzHasItemTyped(panSet, panSub[i]) return FALSE ok
+		next
+		return TRUE
+
 	#-- Ring-side W-expression eval: positions where pcCondition is true.
 	#-- Used for conditions the Zig engine evaluator can't handle (e.g. those
 	#-- calling Ring methods like Q(@item).IsUppercase()). @item is substituted

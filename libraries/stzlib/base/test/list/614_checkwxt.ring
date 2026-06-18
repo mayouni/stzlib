@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #614.
-#ERR Error (R14) : Calling Method without definition: checkwxt
 
 load "../../stzBase.ring"
 
@@ -12,7 +11,7 @@ pr()
 # All items are lLists having same number of items
 
 o1 = new stzList([ 1:3, 1:3, 1:3 ])
-? o1.CheckWXT('isList(@item) and len(@item) = len(o1[1])')
+? o1.CheckWF( func x { return isList(x) and len(x) = 3 } )
 #--> TRUE
 
 pf()
