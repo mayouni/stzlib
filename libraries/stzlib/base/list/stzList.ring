@@ -5654,9 +5654,19 @@ class stzList from stzObject
 		def OnlyCharsQ()
 			return new stzList( This.OnlyChars() )
 
+	#-- Pairs(): the items of the list that are themselves pairs (2-element
+	#-- lists). For the sliding/consecutive grouping use Pairify()/ToPairs().
 	def Pairs()
+		return _StzItemsAtPos(This.Content(), This.FindPairs())
+
+	#-- Pairify()/ToPairs(): group the list into consecutive (sliding) pairs,
+	#-- e.g. [1,2,3,4] -> [[1,2],[2,3],[3,4]].
+	def Pairify()
 		_oPrGt_ = new stzListGetter(This)
 		return _oPrGt_.Pairs()
+
+		def ToPairs()
+			return This.Pairify()
 
 	def Triplets()
 		_oTrGt_ = new stzListGetter(This)
