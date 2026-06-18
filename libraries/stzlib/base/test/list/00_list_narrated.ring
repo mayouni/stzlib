@@ -39,6 +39,43 @@ Scenario("Reducers and emptiness")
     Then("IsEmpty([1]) is FALSE", Q([1]).IsEmpty(), FALSE)
 EndScenario()
 
+Scenario("Indexing and slicing")
+    Then("NthItem(3) of [10,20,30,40] is 30", Q([10,20,30,40]).NthItem(3), 30)
+    Then("FirstNItems(2) of [1..5] is [1,2]", ListEq(Q([1,2,3,4,5]).FirstNItems(2), [ 1, 2 ]), TRUE)
+    Then("LastNItems(2) of [1..5] is [4,5]", ListEq(Q([1,2,3,4,5]).LastNItems(2), [ 4, 5 ]), TRUE)
+    Then("Flattened([[1,2],[3,[4,5]]]) is [1,2,3,4,5]", ListEq(Q([ [1,2],[3,[4,5]] ]).Flattened(), [ 1, 2, 3, 4, 5 ]), TRUE)
+EndScenario()
+
+Scenario("Numeric aggregates")
+    Then("Min([3,1,2]) is 1", Q([3,1,2]).Min(), 1)
+    Then("Max([3,1,2]) is 3", Q([3,1,2]).Max(), 3)
+    Then("Product([1,2,3,4]) is 24", Q([1,2,3,4]).Product(), 24)
+    Then("Average([2,4,6]) is 4", Q([2,4,6]).Average(), 4)
+EndScenario()
+
+Scenario("Set operations")
+    Then("UnionWith([1,2,3],[3,4,5]) is [1,2,3,4,5]", ListEq(Q([1,2,3]).UnionWith([3,4,5]), [ 1, 2, 3, 4, 5 ]), TRUE)
+    Then("DifferenceWith([1,2,3,4],[2,4]) is [1,3]", ListEq(Q([1,2,3,4]).DifferenceWith([2,4]), [ 1, 3 ]), TRUE)
+    Then("IntersectWith([1,2,3],[2,3,4]) is [2,3]", ListEq(Q([1,2,3]).IntersectWith([2,3,4]), [ 2, 3 ]), TRUE)
+    Then("ContainsAll([1,2,3],[1,3]) is TRUE", Q([1,2,3]).ContainsAll([1,3]), TRUE)
+    Then("ContainsMany([1,2,3],[1,9]) is FALSE (9 absent)", Q([1,2,3]).ContainsMany([1,9]), FALSE)
+EndScenario()
+
+Scenario("Sorting descending")
+    Then("SortedInDescending([1,3,2]) is [3,2,1]", ListEq(Q([1,3,2]).SortedInDescending(), [ 3, 2, 1 ]), TRUE)
+EndScenario()
+
+Scenario("Mutators modify in place")
+    Given("a list to mutate")
+    o1 = Q([ "a", "b", "c" ])
+    o1.RemoveAt(2)
+    Then("RemoveAt(2) -> [a,c]", ListEq(o1.Content(), [ "a", "c" ]), TRUE)
+    o2 = Q([ "a", "b", "c" ])
+    o2.InsertBefore(2, "X")
+    Then("InsertBefore(2,X) -> [a,X,b,c]", ListEq(o2.Content(), [ "a", "X", "b", "c" ]), TRUE)
+    Then("ReplaceAtQ(2,9) on [1,2,3] -> [1,9,3]", ListEq(Q([1,2,3]).ReplaceAtQ(2,9).Content(), [ 1, 9, 3 ]), TRUE)
+EndScenario()
+
 Summary()
 
 func ListEq aA, aE
