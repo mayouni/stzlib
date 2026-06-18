@@ -7921,6 +7921,81 @@ func HasPath(paList, pacKeys)
 		next
 		return aRes
 
+	#-- positions of items type-sensitively equal to pItem
+	func _StzPositionsOf(aContent, pItem)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if _StzItemEqTyped(aContent[i], pItem) add(aRes, i) ok
+		next
+		return aRes
+
+	#-- [[item, [positions]], ...] for each item in paItems (incl. empties)
+	func _StzTheseItemsZ(aContent, paItems)
+		aRes = []
+		nLen = len(paItems)
+		for i = 1 to nLen
+			add(aRes, [ paItems[i], _StzPositionsOf(aContent, paItems[i]) ])
+		next
+		return aRes
+
+	#-- distinct items whose occurrence count satisfies cOp vs nWant
+	#-- (cOp: "ge" >= , "gt" > , "le" <= , "lt" < , "eq" ==); first-appearance
+	func _StzItemsByCountOp(aContent, nWant, cOp)
+		aWith = _StzItemsWithPositions(aContent)
+		aRes = []
+		nLen = len(aWith)
+		for i = 1 to nLen
+			nC = len(aWith[i][2])
+			bKeep = FALSE
+			switch cOp
+			on "ge" bKeep = (nC >= nWant)
+			on "gt" bKeep = (nC >  nWant)
+			on "le" bKeep = (nC <= nWant)
+			on "lt" bKeep = (nC <  nWant)
+			on "eq" bKeep = (nC =  nWant)
+			off
+			if bKeep add(aRes, aWith[i][1]) ok
+		next
+		return aRes
+
+	func _StzAllEqualCS(aContent, pItem, bCaseSensitive)
+		nLen = len(aContent)
+		if nLen = 0 return TRUE ok
+		for i = 1 to nLen
+			if isString(aContent[i]) and isString(pItem) and bCaseSensitive = 0
+				if StzLower(aContent[i]) != StzLower(pItem) return FALSE ok
+			else
+				if NOT _StzItemEqTyped(aContent[i], pItem) return FALSE ok
+			ok
+		next
+		return TRUE
+
+	func _StzAllSameType(aContent)
+		nLen = len(aContent)
+		if nLen <= 1 return TRUE ok
+		cT = type(aContent[1])
+		for i = 2 to nLen
+			if type(aContent[i]) != cT return FALSE ok
+		next
+		return TRUE
+
+	func _StzAllEmptyLists(aContent)
+		nLen = len(aContent)
+		if nLen = 0 return FALSE ok
+		for i = 1 to nLen
+			if NOT (isList(aContent[i]) and len(aContent[i]) = 0) return FALSE ok
+		next
+		return TRUE
+
+	func _StzAllEqualTyped(aContent, pItem)
+		nLen = len(aContent)
+		if nLen = 0 return TRUE ok
+		for i = 1 to nLen
+			if NOT _StzItemEqTyped(aContent[i], pItem) return FALSE ok
+		next
+		return TRUE
+
 	#-- TRUE if any item is of the given type tag (number/string/list/object)
 	func _StzContainsType(aContent, cType)
 		nLen = len(aContent)

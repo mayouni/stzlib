@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #460.
-#ERR Error (R14) : Calling Method without definition: theseitemsz
 
 load "../../stzBase.ring"
 
