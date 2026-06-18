@@ -223,27 +223,22 @@ class stzStringText
 	#------------------------------------------#
 
 	def OnlyScript(pcScript)
-		acListOfChars = StzListQ(This.ToStzString().ToListOfChars()).CharsW('
-			StzCharQ(@item).Script() = pcScript
-		')
+		# WF (anonymous function) instead of an eval()'d textual condition --
+		# the function captures pcScript and calls the real stzChar method.
+		acListOfChars = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
+			func c { return StzCharQ(c).Script() = pcScript } )
 		cResult = StzListOfStringsQ(acListOfChars).ConcatenateQ().SimplifyQ().Content()
 		return cResult
 
 	def OnlyArabic()
-		acListOfChars = StzListQ(This.ToStzString().ToListOfChars()).ItemsW('
-			StzCharQ(@item).IsNeutral() or
-			StzCharQ(@item).IsSpace() or
-			StzCharQ(@item).IsArabic()
-		')
+		acListOfChars = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
+			func c { return StzCharQ(c).IsNeutral() or StzCharQ(c).IsSpace() or StzCharQ(c).IsArabic() } )
 		cResult = StzListOfStringsQ(acListOfChars).ConcatenateQ().SimplifyQ().Content()
 		return cResult
 
 	def OnlyLatin()
-		acListOfChars = StzListQ(This.ToStzString().ToListOfChars()).ItemsW('
-			StzCharQ(@item).IsNeutral() or
-			StzCharQ(@item).IsSpace() or
-			StzCharQ(@item).IsLatin()
-		')
+		acListOfChars = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
+			func c { return StzCharQ(c).IsNeutral() or StzCharQ(c).IsSpace() or StzCharQ(c).IsLatin() } )
 		cResult = StzListOfStringsQ(acListOfChars).ConcatenateQ().SimplifyQ().Content()
 		return cResult
 
