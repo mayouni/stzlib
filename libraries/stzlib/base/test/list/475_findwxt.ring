@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #475.
-#ERR exit 1
 
 load "../../stzBase.ring"
 
@@ -13,16 +12,16 @@ pr()
 
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 8 ])
 
-? o1.FindWXT( :Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }' )
+? o1.FindWF( func x { return Q(x).IsOneOfThese([ 2, 4, 6]) } )
 #--> [ 1, 3, 5, 8, 9, 12 ]
 
-? o1.ItemsWXT( :Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }' )
+? o1.ItemsWF( func x { return Q(x).IsOneOfThese([ 2, 4, 6]) } )
 #--> [ 2, 2, 2, 4, 2, 2 ]
 
-? o1.UniqueItemsWXT( :Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }' )
+? o1.UniqueItemsWF( func x { return Q(x).IsOneOfThese([ 2, 4, 6]) } )
 #--> [ 2, 4 ]
 
-? @@NL( o1.ItemsAndTheirPositionsWXT(:Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }') )
+? @@NL( o1.ItemsAndTheirPositionsWF( func x { return Q(x).IsOneOfThese([ 2, 4, 6]) } ) )
 #--> [
 #	[ 2, [ 1, 3, 5, 9, 12 ] ], 
 #	[ 4, [ 8 ] ]

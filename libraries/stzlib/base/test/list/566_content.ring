@@ -10,7 +10,7 @@ pr()
 
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
 
-o1.InsertAfterWXT( '{ Q(@item).IsLowercase() }', "*" )
+o1.InsertAfterWF( func x { return Q(x).IsLowercase() }, "*" )
 ? @@( o1.Content() )
 
 #--> [ "a", "*", "b", "*", "C", "D", "e", "*" ]

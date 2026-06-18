@@ -2226,6 +2226,9 @@ class stzList from stzObject
 		def NumberOfItemsW(pcCondition)
 			return This.CountW(pcCondition)
 
+		def NumberOfItemsWXT(pcCondition)
+			return This.CountW(pcCondition)
+
 	  #-------------------------------------------#
 	 #  SORTING ORDER CHECK                      #
 	#-------------------------------------------#
@@ -4184,6 +4187,25 @@ class stzList from stzObject
 
 		def NumberOfUniqueItemsWF(pFunc)
 			return This.CountUniqueItemsWF(pFunc)
+
+	def UniqueItemsWF(pFunc)
+		return _StzUniqueItems(This.ItemsWF(pFunc))
+
+	#-- the n-th / first / last item matching the function
+	def NthItemWF(n, pFunc)
+		_aWf_ = This.ItemsWF(pFunc)
+		if n >= 1 and n <= ring_len(_aWf_) return _aWf_[n] ok
+		return NULL
+
+	def FirstItemWF(pFunc)
+		_aWf_ = This.ItemsWF(pFunc)
+		if ring_len(_aWf_) > 0 return _aWf_[1] ok
+		return NULL
+
+	def LastItemWF(pFunc)
+		_aWf_ = This.ItemsWF(pFunc)
+		if ring_len(_aWf_) > 0 return _aWf_[ ring_len(_aWf_) ] ok
+		return NULL
 
 	#-- WF mutators / transforms (full Ring power, no eval)
 
@@ -6422,11 +6444,9 @@ class stzList from stzObject
 	# items for which the expression is truthy. ItemsWXTQ wraps the
 	# result in stzList for fluent chains.
 	def ItemsW(pcCondition)
-		#-- Ring-method conditions (Q(@item)...) -> position-based path
-		if substr(pcCondition, "Q(") > 0
-			return This.FindWXT(pcCondition)
-		ok
-		return This.YieldW('@item', pcCondition)
+		#-- items at the positions matching the condition (engine W DSL; the
+		#-- Q(...) path is handled inside FindAllItemsW via the legacy bridge).
+		return This.ItemsAtPositions(This.FindAllItemsW(pcCondition))
 
 		def ItemsWXT(pcCondition)
 			return This.ItemsW(pcCondition)

@@ -3,23 +3,22 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #552.
-#ERR Error (R14) : Calling Method without definition: firstitemwxt
 
 load "../../stzBase.ring"
 
 pr()
 
 o1 = new stzList( [ "c", "c++", "C#", "RING", "Python", "RUBY" ] )
-? o1.ItemsWXT('{ Q(@item).IsLowercased() }')
+? o1.ItemsWF( func x { return Q(x).IsLowercased() } )
 #--> [ "c", "c++" ]
 
-? o1.FirstItemWXT('{ Q(@item).IsLowercased() }') + NL
+? o1.FirstItemWF( func x { return Q(x).IsLowercased() } ) + NL
 #--> "c"
 
-? o1.NthItemWXT(2, '{ Q(@item).IsLowercased() }') + NL
+? o1.NthItemWF(2, func x { return Q(x).IsLowercased() } ) + NL
 #--> "c++"
 
-? o1.LastItemWXT('{ Q(@item).IsLowercased() }')
+? o1.LastItemWF( func x { return Q(x).IsLowercased() } )
 #--> "c++"
 
 pf()

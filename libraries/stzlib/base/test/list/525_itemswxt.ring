@@ -15,7 +15,7 @@ pr()
 	isString(@item) and Q(@item).IsLetter()
 ') #--> [ "A", "B", "C" ]
 
-? StzListQ([ 1, 2, 3, 4, 5, 6 ]).ItemsWXT('Q(@item).IsDividableBy(2)')
+? StzListQ([ 1, 2, 3, 4, 5, 6 ]).ItemsWF( func x { return Q(x).IsDividableBy(2) } )
 #--> [2, 4, 6]
 
 pf()

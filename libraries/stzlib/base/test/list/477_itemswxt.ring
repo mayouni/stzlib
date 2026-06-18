@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #477.
-#ERR exit 1
 
 load "../../stzBase.ring"
 
@@ -11,7 +10,7 @@ pr()
 
 o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 
-? o1.ItemsWXT( :Where = 'Q(@item).IsAnUppercase()')
+? o1.ItemsW('{ IsUppercase(@item) }')
 #--> [ "A", "B", "A", "C", "B" ]
 
 ? ElapsedTime() + NL
@@ -19,7 +18,7 @@ o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 
 # The other extended form (provides more features, like code transpilation
 # and executable section identification) takes more time ( about 0.92 second).
-? o1.ItemsWXT( :Where = 'Q(@item).IsAnUppercase()')
+? o1.ItemsW('{ IsUppercase(@item) }')
 #--> #--> [ "A", "B", "A", "C", "B" ]
 
 pf()

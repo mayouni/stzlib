@@ -115,6 +115,7 @@ pub const Op = enum(u8) {
     fn_is_odd,
     fn_is_positive,
     fn_is_negative,
+    fn_is_letter,
     fn_len,
     fn_lower,
     fn_upper,
@@ -190,6 +191,7 @@ const TTag = enum(u8) {
     fn_is_odd,
     fn_is_positive,
     fn_is_negative,
+    fn_is_letter,
     fn_len,
     fn_lower,
     fn_upper,
@@ -403,6 +405,7 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "isodd")) return .fn_is_odd;
     if (std.mem.eql(u8, w, "ispositive")) return .fn_is_positive;
     if (std.mem.eql(u8, w, "isnegative")) return .fn_is_negative;
+    if (std.mem.eql(u8, w, "isletter")) return .fn_is_letter;
     if (std.mem.eql(u8, w, "len")) return .fn_len;
     if (std.mem.eql(u8, w, "lower")) return .fn_lower;
     if (std.mem.eql(u8, w, "upper")) return .fn_upper;
@@ -585,6 +588,7 @@ const Compiler = struct {
             .fn_is_odd => .fn_is_odd,
             .fn_is_positive => .fn_is_positive,
             .fn_is_negative => .fn_is_negative,
+            .fn_is_letter => .fn_is_letter,
             .fn_len => .fn_len,
             .fn_lower => .fn_lower,
             .fn_upper => .fn_upper,
@@ -955,6 +959,18 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                 const a = pop(&stack, &sp);
                 const ok = (a.tag == .int_v or a.tag == .float_v) and a.asFloat() < 0;
                 push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_letter => {
+                const a = pop(&stack, &sp);
+                var all_alpha = false;
+                if (a.tag == .str_v and a.data.s.len > 0) {
+                    all_alpha = true;
+                    for (0..a.data.s.len) |j| {
+                        const ch = a.data.s.ptr[j];
+                        if (!((ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z') or ch >= 0x80)) { all_alpha = false; break; }
+                    }
+                }
+                push(&stack, &sp, Val.initBool(all_alpha));
             },
             .fn_len => {
                 const a = pop(&stack, &sp);

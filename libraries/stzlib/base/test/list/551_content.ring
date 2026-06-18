@@ -9,7 +9,7 @@ load "../../stzBase.ring"
 pr()
 
 o1 = new stzList(["c", "c++", "C#", "RING", "Python", "RUBY"])
-o1.InsertAfterWXT( :Where = '{ Q(@item).IsLowercase() }' , "*")
+o1.InsertAfterWF( func x { return Q(x).IsLowercase() }, "*")
 ? o1.Content()
 #--> ["c", "*", "c++", "*", "C#", "RING", "Python", "RUBY"]
 
