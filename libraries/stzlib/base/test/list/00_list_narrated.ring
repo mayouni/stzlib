@@ -76,6 +76,28 @@ Scenario("Mutators modify in place")
     Then("ReplaceAtQ(2,9) on [1,2,3] -> [1,9,3]", ListEq(Q([1,2,3]).ReplaceAtQ(2,9).Content(), [ 1, 9, 3 ]), TRUE)
 EndScenario()
 
+Scenario("Transform and conditional find")
+    Then("Map('2*@item') on [1,2,3] -> [2,4,6]", ListEq(Q([1,2,3]).Map("2*@item"), [ 2, 4, 6 ]), TRUE)
+    Then("Filter('@item > 2') on [1..4] -> [3,4]", ListEq(Q([1,2,3,4]).Filter("@item > 2"), [ 3, 4 ]), TRUE)
+    Then("CountW('@item > 2') on [1..4] is 2", Q([1,2,3,4]).CountW("@item > 2"), 2)
+    Then("FindFirst(2) in [1,2,3,2] is 2", Q([1,2,3,2]).FindFirst(2), 2)
+    Then("FindLast(2) in [1,2,3,2] is 4", Q([1,2,3,2]).FindLast(2), 4)
+    Then("IsEqualTo([1,2],[1,2]) is TRUE", Q([1,2]).IsEqualTo([1,2]), TRUE)
+    Then("IsEqualTo([1,2],[1,3]) is FALSE", Q([1,2]).IsEqualTo([1,3]), FALSE)
+EndScenario()
+
+Scenario("Splitting (guards the SplitAt engine-arg + SplitToPartsOf mutator fixes)")
+    Then("SplitAt(3) on [1..5] -> [[1,2],[3,4,5]]",
+        ListEq(Q([1,2,3,4,5]).SplitAt(3), [ [1,2], [3,4,5] ]), TRUE)
+    Then("SplittedToPartsOf(2) on [1..5] -> [[1,2],[3,4],[5]]",
+        ListEq(Q([1,2,3,4,5]).SplittedToPartsOf(2), [ [1,2], [3,4], [5] ]), TRUE)
+    Given("a list mutated in place by SplitToPartsOf")
+    o3 = Q([1,2,3,4,5])
+    o3.SplitToPartsOf(2)
+    Then("SplitToPartsOf(2) mutates -> [[1,2],[3,4],[5]]",
+        ListEq(o3.Content(), [ [1,2], [3,4], [5] ]), TRUE)
+EndScenario()
+
 Summary()
 
 func ListEq aA, aE
