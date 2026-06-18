@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #441.
-#ERR Error (R3) : Calling Function without definition: numberofitemswxt
 
 load "../../stzBase.ring"
 
@@ -11,10 +10,10 @@ pr()
 
 StzListQ([ -1 , 2, 3, 4 ]) {
 
-	? NumberOfItemsWXT("Q(@item).IsBetween(1, 4)")
+	? NumberOfItemsWF( func x { return Q(x).IsBetween(1, 4) } )
 	#--> 2
 
-	? NumberOfItemsWXT("Q(@item).IsBetweenIB(1, 4)")
+	? NumberOfItemsWF( func x { return Q(x).IsBetweenIB(1, 4) } )
 	#--> 3
 }
 
