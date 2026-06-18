@@ -8096,6 +8096,21 @@ func HasPath(paList, pacKeys)
 		next
 		return aRes
 
+	#-- Perform an action on the items matching a condition, both given as
+	#-- anonymous functions: pCond(item)->bool selects, pAction(item)->newItem
+	#-- transforms. Non-matching items are kept unchanged. (eval-free.)
+	func _StzPerformWF(aContent, pCond, pAction)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if ( call pCond(aContent[i]) )
+				add(aRes, call pAction(aContent[i]))
+			else
+				add(aRes, aContent[i])
+			ok
+		next
+		return aRes
+
 	#-- WF check restricted to the items at the given positions
 	func _StzCheckItemsAtWF(aContent, panPos, pFunc)
 		nLen = len(panPos)
@@ -8115,21 +8130,6 @@ func HasPath(paList, pacKeys)
 			if NOT _StzHasItemTyped(panSet, panSub[i]) return FALSE ok
 		next
 		return TRUE
-
-	#-- Ring-side W-expression eval: positions where pcCondition is true.
-	#-- Used for conditions the Zig engine evaluator can't handle (e.g. those
-	#-- calling Ring methods like Q(@item).IsUppercase()). @item is substituted
-	#-- by the item's literal (mirrors PartitionW).
-	func _StzEvalWPositions(aContent, pcCondition)
-		anResult = []
-		nLen = len(aContent)
-		for i = 1 to nLen
-			cCode = StzReplace(pcCondition, "@item", @@(aContent[i]))
-			bRes = FALSE
-			eval("bRes = ( " + cCode + " )")
-			if bRes add(anResult, i) ok
-		next
-		return anResult
 
 	#-- contiguous runs of items of a given type, as [start,end] sections.
 	#-- A sentinel of a DIFFERENT type is appended so the final run closes

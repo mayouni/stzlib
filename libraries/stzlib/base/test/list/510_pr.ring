@@ -24,7 +24,7 @@ o1 = new stzList([ "S","O","F","T","A","N","Z","A" ])
 
 # Getting occurrences of chars verifying a given condition
 
-? o1[ '{ Q(@item).IsOneOfThese(["A", "T", "Z"]) }' ]
+? @@( o1.FindWF( func x { return Q(x).IsOneOfThese(["A", "T", "Z"]) } ) )
 #--> [ 4, 5, 7, 8 ]
 
 pf()
