@@ -109,6 +109,12 @@ pub const Op = enum(u8) {
     fn_is_list,
     fn_is_bool,
     fn_is_null,
+    fn_is_uppercase,
+    fn_is_lowercase,
+    fn_is_even,
+    fn_is_odd,
+    fn_is_positive,
+    fn_is_negative,
     fn_len,
     fn_lower,
     fn_upper,
@@ -178,6 +184,12 @@ const TTag = enum(u8) {
     fn_is_list,
     fn_is_bool,
     fn_is_null,
+    fn_is_uppercase,
+    fn_is_lowercase,
+    fn_is_even,
+    fn_is_odd,
+    fn_is_positive,
+    fn_is_negative,
     fn_len,
     fn_lower,
     fn_upper,
@@ -385,6 +397,12 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "islist")) return .fn_is_list;
     if (std.mem.eql(u8, w, "isbool")) return .fn_is_bool;
     if (std.mem.eql(u8, w, "isnull")) return .fn_is_null;
+    if (std.mem.eql(u8, w, "isuppercase")) return .fn_is_uppercase;
+    if (std.mem.eql(u8, w, "islowercase")) return .fn_is_lowercase;
+    if (std.mem.eql(u8, w, "iseven")) return .fn_is_even;
+    if (std.mem.eql(u8, w, "isodd")) return .fn_is_odd;
+    if (std.mem.eql(u8, w, "ispositive")) return .fn_is_positive;
+    if (std.mem.eql(u8, w, "isnegative")) return .fn_is_negative;
     if (std.mem.eql(u8, w, "len")) return .fn_len;
     if (std.mem.eql(u8, w, "lower")) return .fn_lower;
     if (std.mem.eql(u8, w, "upper")) return .fn_upper;
@@ -561,6 +579,12 @@ const Compiler = struct {
             .fn_is_list => .fn_is_list,
             .fn_is_bool => .fn_is_bool,
             .fn_is_null => .fn_is_null,
+            .fn_is_uppercase => .fn_is_uppercase,
+            .fn_is_lowercase => .fn_is_lowercase,
+            .fn_is_even => .fn_is_even,
+            .fn_is_odd => .fn_is_odd,
+            .fn_is_positive => .fn_is_positive,
+            .fn_is_negative => .fn_is_negative,
             .fn_len => .fn_len,
             .fn_lower => .fn_lower,
             .fn_upper => .fn_upper,
@@ -883,6 +907,54 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                 const a = pop(&stack, &sp);
                 _ = a;
                 push(&stack, &sp, Val.initBool(false));
+            },
+            .fn_is_uppercase => {
+                const a = pop(&stack, &sp);
+                var has_upper = false;
+                var has_lower = false;
+                if (a.tag == .str_v) {
+                    const s = a.data.s;
+                    for (0..s.len) |j| {
+                        const ch = s.ptr[j];
+                        if (ch >= 'A' and ch <= 'Z') has_upper = true;
+                        if (ch >= 'a' and ch <= 'z') has_lower = true;
+                    }
+                }
+                push(&stack, &sp, Val.initBool(has_upper and !has_lower));
+            },
+            .fn_is_lowercase => {
+                const a = pop(&stack, &sp);
+                var has_upper = false;
+                var has_lower = false;
+                if (a.tag == .str_v) {
+                    const s = a.data.s;
+                    for (0..s.len) |j| {
+                        const ch = s.ptr[j];
+                        if (ch >= 'A' and ch <= 'Z') has_upper = true;
+                        if (ch >= 'a' and ch <= 'z') has_lower = true;
+                    }
+                }
+                push(&stack, &sp, Val.initBool(has_lower and !has_upper));
+            },
+            .fn_is_even => {
+                const a = pop(&stack, &sp);
+                const ok = (a.tag == .int_v or a.tag == .float_v) and @mod(a.asInt(), 2) == 0;
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_odd => {
+                const a = pop(&stack, &sp);
+                const ok = (a.tag == .int_v or a.tag == .float_v) and @mod(a.asInt(), 2) != 0;
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_positive => {
+                const a = pop(&stack, &sp);
+                const ok = (a.tag == .int_v or a.tag == .float_v) and a.asFloat() > 0;
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_negative => {
+                const a = pop(&stack, &sp);
+                const ok = (a.tag == .int_v or a.tag == .float_v) and a.asFloat() < 0;
+                push(&stack, &sp, Val.initBool(ok));
             },
             .fn_len => {
                 const a = pop(&stack, &sp);
