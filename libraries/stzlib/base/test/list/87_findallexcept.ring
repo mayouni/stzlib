@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #87.
-#ERR Error (R14) : Calling Method without definition: findallexcept
 
 load "../../stzBase.ring"
 

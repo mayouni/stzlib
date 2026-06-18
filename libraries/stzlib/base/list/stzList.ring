@@ -4892,6 +4892,24 @@ class stzList from stzObject
 		def FindObjectsZZ()
 			return This.FindObjectsAsSections()
 
+	#-- first position type-sensitively equal to pItem ("2" != 2 != [2])
+	def FindFirstOccurrence(pItem)
+		return _StzFindFirstTyped(This.Content(), pItem)
+
+	#-- positions of items NOT in paItems
+	def FindAllExcept(paItems)
+		return _StzFindAllExcept(This.Content(), paItems)
+
+		def FindItemsOtherThan(paItems)
+			return This.FindAllExcept(paItems)
+
+	#-- [[value,[repeat positions]], ...] for duplicated items
+	def FindDuplicatesOrigins()
+		return _StzFindDuplicatesOrigins(This.Content())
+
+		def FindDuplicationsOrigins()
+			return This.FindDuplicatesOrigins()
+
 	# CountItemsW/CountW already defined above
 
 	  #-----------------------------#

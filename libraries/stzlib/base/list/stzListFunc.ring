@@ -7744,6 +7744,39 @@ func HasPath(paList, pacKeys)
 		next
 		return aRes
 
+	#-- first position whose item type-sensitively equals pItem (0 if none)
+	func _StzFindFirstTyped(aContent, pItem)
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if _StzItemEqTyped(aContent[i], pItem) return i ok
+		next
+		return 0
+
+	#-- positions whose item is NOT a member of paItems (type-sensitive)
+	func _StzFindAllExcept(aContent, paItems)
+		anRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if NOT _StzHasItemTyped(paItems, aContent[i]) add(anRes, i) ok
+		next
+		return anRes
+
+	#-- [[value, [repeat positions]], ...] for items occurring more than once
+	#-- (repeat = every position after the first); first-appearance order
+	func _StzFindDuplicatesOrigins(aContent)
+		aWith = _StzItemsWithPositions(aContent)
+		aRes = []
+		nLen = len(aWith)
+		for i = 1 to nLen
+			nP = len(aWith[i][2])
+			if nP > 1
+				aRep = []
+				for j = 2 to nP add(aRep, aWith[i][2][j]) next
+				add(aRes, [ aWith[i][1], aRep ])
+			ok
+		next
+		return aRes
+
 	#-- Ring-side W-expression eval: positions where pcCondition is true.
 	#-- Used for conditions the Zig engine evaluator can't handle (e.g. those
 	#-- calling Ring methods like Q(@item).IsUppercase()). @item is substituted
