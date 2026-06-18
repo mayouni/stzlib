@@ -7744,6 +7744,39 @@ func HasPath(paList, pacKeys)
 		next
 		return aRes
 
+	#-- contiguous runs of items of a given type, as [start,end] sections.
+	#-- A sentinel of a DIFFERENT type is appended so the final run closes
+	#-- (mirrors the monolith's FindNumbersAsSections trick).
+	func _StzIsTypeTag(pItem, cType)
+		switch cType
+		on "number" return isNumber(pItem)
+		on "string" return isString(pItem)
+		on "list"   return isList(pItem)
+		on "object" return isObject(pItem)
+		off
+		return FALSE
+
+	func _StzFindTypeRuns(aContent, cType)
+		aC = []
+		nC = len(aContent)
+		for i = 1 to nC add(aC, aContent[i]) next
+		if cType = "number" add(aC, "X") else add(aC, 0) ok
+
+		nLen = len(aC)
+		if nLen <= 1 return [] ok
+
+		aResult = []
+		n1 = 1
+		for i = 2 to nLen - 1
+			if _StzIsTypeTag(aC[i], cType) and NOT _StzIsTypeTag(aC[i-1], cType)
+				n1 = i
+			ok
+			if _StzIsTypeTag(aC[i], cType) and NOT _StzIsTypeTag(aC[i+1], cType)
+				add(aResult, [ n1, i ])
+			ok
+		next
+		return aResult
+
 	#-- consistent stringification for consecutive-equality comparison
 	func _StzStringifyItem(pItem)
 		if isNumber(pItem) return "" + pItem ok
