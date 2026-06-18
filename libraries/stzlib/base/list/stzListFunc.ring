@@ -8032,6 +8032,24 @@ func HasPath(paList, pacKeys)
 		next
 		return nCount
 
+	#-- WF (anonymous-function constraint) family. pFunc is a Ring function
+	#-- f(item)->bool, called natively per item (no parsing, no eval). This is
+	#-- the full-Ring-power escape hatch alongside the sandboxed W DSL.
+	func _StzFindWF(aContent, pFunc)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if ( call pFunc(aContent[i]) ) add(aRes, i) ok
+		next
+		return aRes
+
+	func _StzCheckWF(aContent, pFunc)
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if NOT ( call pFunc(aContent[i]) ) return FALSE ok
+		next
+		return TRUE
+
 	#-- Ring-side W-expression eval: positions where pcCondition is true.
 	#-- Used for conditions the Zig engine evaluator can't handle (e.g. those
 	#-- calling Ring methods like Q(@item).IsUppercase()). @item is substituted

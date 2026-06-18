@@ -4074,6 +4074,32 @@ class stzList from stzObject
 		def PositionsWhere(pcCondition)
 			return This.FindAllItemsW(pcCondition)
 
+	  #-- WF: anonymous-function constraints (full Ring power, no eval)
+
+	def FindWF(pFunc)
+		return _StzFindWF(This.Content(), pFunc)
+
+		def FindAllWF(pFunc)
+			return This.FindWF(pFunc)
+
+		def PositionsWF(pFunc)
+			return This.FindWF(pFunc)
+
+	def CheckWF(pFunc)
+		return _StzCheckWF(This.Content(), pFunc)
+
+		def AllItemsWF(pFunc)
+			return This.CheckWF(pFunc)
+
+	def CountWF(pFunc)
+		return ring_len(This.FindWF(pFunc))
+
+	def ItemsWF(pFunc)
+		return This.ItemsAtPositions(This.FindWF(pFunc))
+
+		def FilterWF(pFunc)
+			return This.ItemsWF(pFunc)
+
 	  #-- FindWXT: find items matching condition (returns items, not positions)
 
 	def FindWXT(pcCondition)
