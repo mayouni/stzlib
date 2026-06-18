@@ -573,3 +573,146 @@ class stzListReplacer
 			ok
 		next
 		@oList.UpdateWith(_a_)
+
+	  #=========================================================#
+	 #  POSITIONS x VALUE-FILTER x MANY (distribute / cycle)   #
+	#=========================================================#
+
+	def _RpHas(paList, pVal)
+		_n_ = len(paList)
+		for _k_ = 1 to _n_
+			if paList[_k_] = pVal return TRUE ok
+		next
+		return FALSE
+
+	def _RpDedup(paList)
+		_res_ = []
+		_n_ = len(paList)
+		for _k_ = 1 to _n_
+			if NOT This._RpHas(_res_, paList[_k_])
+				_res_ + paList[_k_]
+			ok
+		next
+		return _res_
+
+	def _RpCycle(paItems, nWanted)
+		_res_ = []
+		_n_ = len(paItems)
+		if _n_ = 0 return _res_ ok
+		for _k_ = 1 to nWanted
+			_res_ + paItems[ ((_k_ - 1) % _n_) + 1 ]
+		next
+		return _res_
+
+	#-- positions of panPos that hold pItem, kept in panPos order (intersection)
+	def _RpPosWithItem(panPos, pItem, pCaseSensitive)
+		_anItem_ = @oList.FindAllCS(pItem, pCaseSensitive)
+		_res_ = []
+		_np_ = len(panPos)
+		for _i_ = 1 to _np_
+			if This._RpHas(_anItem_, panPos[_i_]) and NOT This._RpHas(_res_, panPos[_i_])
+				_res_ + panPos[_i_]
+			ok
+		next
+		return _res_
+
+	#-- At the panPos that hold pItem, replace the k-th such with paNewItems[k].
+	def ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
+		paNewItems = This._RpVal(paNewItems)
+		_anPos_ = This._RpPosWithItem(panPos, pItem, pCaseSensitive)
+		_nLen_ = len(_anPos_)
+		_nNew_ = len(paNewItems)
+		_a_ = This.Content()
+		for _i_ = 1 to _nLen_
+			if _i_ <= _nNew_
+				_a_[ _anPos_[_i_] ] = paNewItems[_i_]
+			ok
+		next
+		@oList.UpdateWith(_a_)
+
+	def ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
+		This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, 1)
+
+	#-- XT: cycle (deduplicated) paNewItems across the matched positions.
+	def ReplaceItemAtPositionsByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
+		paNewItems = This._RpVal(paNewItems)
+		_anPos_ = This._RpPosWithItem(panPos, pItem, pCaseSensitive)
+		_nLen_ = len(_anPos_)
+		if _nLen_ = 0 return ok
+		if len(paNewItems) != _nLen_
+			paNewItems = This._RpDedup(paNewItems)
+		ok
+		_cyc_ = This._RpCycle(paNewItems, _nLen_)
+		_a_ = This.Content()
+		for _i_ = 1 to _nLen_
+			_a_[ _anPos_[_i_] ] = _cyc_[_i_]
+		next
+		@oList.UpdateWith(_a_)
+
+	def ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
+		This.ReplaceItemAtPositionsByManyCSXT(panPos, pItem, paNewItems, 1)
+
+	#-- These items: apply the per-item position-replace for each item in turn.
+	def ReplaceTheseItemsAtPositionsByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
+		paNewItems = This._RpVal(paNewItems)
+		_nI_ = len(paItems)
+		for _i_ = 1 to _nI_
+			This.ReplaceItemAtPositionsByManyCS(panPos, paItems[_i_], paNewItems, pCaseSensitive)
+		next
+
+	def ReplaceTheseItemsAtPositionsByMany(panPos, paItems, paNewItems)
+		This.ReplaceTheseItemsAtPositionsByManyCS(panPos, paItems, paNewItems, 1)
+
+	def ReplaceTheseItemsAtPositionsByManyCSXT(panPos, paItems, paNewItems, pCaseSensitive)
+		paNewItems = This._RpVal(paNewItems)
+		_nI_ = len(paItems)
+		for _i_ = 1 to _nI_
+			This.ReplaceItemAtPositionsByManyCSXT(panPos, paItems[_i_], paNewItems, pCaseSensitive)
+		next
+
+	def ReplaceTheseItemsAtPositionsByManyXT(panPos, paItems, paNewItems)
+		This.ReplaceTheseItemsAtPositionsByManyCSXT(panPos, paItems, paNewItems, 1)
+
+	#-- Any item: zip positions <-> news (no value filter), truncating to shorter.
+	def ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+		paNewItems = This._RpVal(paNewItems)
+		_nMin_ = len(panPos)
+		if len(paNewItems) < _nMin_  _nMin_ = len(paNewItems)  ok
+		_a_ = This.Content()
+		_n_ = len(_a_)
+		for _i_ = 1 to _nMin_
+			if panPos[_i_] >= 1 and panPos[_i_] <= _n_
+				_a_[ panPos[_i_] ] = paNewItems[_i_]
+			ok
+		next
+		@oList.UpdateWith(_a_)
+
+	def ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+		This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, 1)
+
+		def ReplaceAnyItemsAtPositionsByMany(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+
+	#-- XT: cycle news across ALL given positions.
+	def ReplaceAnyItemAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+		paNewItems = This._RpVal(paNewItems)
+		_np_ = len(panPos)
+		if _np_ = 0 or len(paNewItems) = 0 return ok
+		_cyc_ = This._RpCycle(paNewItems, _np_)
+		_a_ = This.Content()
+		_n_ = len(_a_)
+		for _i_ = 1 to _np_
+			if panPos[_i_] >= 1 and panPos[_i_] <= _n_
+				_a_[ panPos[_i_] ] = _cyc_[_i_]
+			ok
+		next
+		@oList.UpdateWith(_a_)
+
+	def ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+		This.ReplaceAnyItemAtPositionsByManyCSXT(panPos, paNewItems, 1)
+
+		def ReplaceAnyItemsAtPositionsByManyXT(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+
+		def ReplaceAtByManyXT(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
