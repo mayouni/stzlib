@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #439.
-#ERR Error (R3) : Calling Function without definition: replacenextnthoccurrencest
 
 load "../../stzBase.ring"
 
