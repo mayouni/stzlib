@@ -4910,6 +4910,114 @@ class stzList from stzObject
 		def FindDuplicationsOrigins()
 			return This.FindDuplicatesOrigins()
 
+	  #=========================================================#
+	 #  REMOVE FAMILY (occurrences / except / runs / dups)     #
+	#=========================================================#
+
+	def Remove(pItem)
+		This.RemoveAllCS(pItem, 1)
+
+	def RemoveMany(paItems)
+		nLen = ring_len(paItems)
+		for i = 1 to nLen
+			This.RemoveAllCS(paItems[i], 1)
+		next
+
+		def RemoveTheseItems(paItems)
+			This.RemoveMany(paItems)
+
+	#-- keep only items that are members of paItems (drop everything else)
+	def RemoveAllExcept(paItems)
+		_items_ = paItems
+		if NOT isList(paItems)
+			_items_ = [ paItems ]
+		ok
+		@aContent = _StzKeepMembers(This.Content(), _items_)
+
+		def RemoveItemsOtherThan(paItems)
+			This.RemoveAllExcept(paItems)
+
+	#-- remove the panOcc-th occurrences of pItem (by occurrence index)
+	def RemoveOccurrences(panOcc, pItem)
+		_pos_ = This.FindAllCS(pItem, 1)
+		@aContent = _StzRemoveAtPositions(This.Content(), _StzPickPositions(panOcc, _pos_))
+
+	def RemoveAnyItemFromStart(pItem)
+		@aContent = _StzRemoveLeadingRun(This.Content(), pItem)
+
+	def RemoveAnyItemFromEnd(pItem)
+		@aContent = _StzRemoveTrailingRun(This.Content(), pItem)
+
+	def RemoveNonDuplicates()
+		@aContent = _StzRemoveNonDuplicates(This.Content())
+
+	#-- remove the n-th occurrence of pItem
+	def RemoveThisNthItem(n, pItem)
+		_pos_ = This.FindAllCS(pItem, 1)
+		if n >= 1 and ring_len(_pos_) >= n
+			@aContent = _StzRemoveAtPositions(This.Content(), [ _pos_[n] ])
+		ok
+
+		def RemoveNth(n, pItem)
+			This.RemoveThisNthItem(n, pItem)
+
+	#-- occurrence removal relative to a position (Next strictly after,
+	#-- Previous strictly before; the Nth index is forward into that run)
+	def RemoveNextNthOccurrence(n, pItem, pnStartingAt)
+		_p_ = This.FindNthNextOccurrence(n, pItem, pnStartingAt)
+		if _p_ > 0
+			@aContent = _StzRemoveAtPositions(This.Content(), [ _p_ ])
+		ok
+
+	def RemoveNextNthOccurrences(panN, pItem, pnStartingAt)
+		_ps_ = This.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
+		@aContent = _StzRemoveAtPositions(This.Content(), _ps_)
+
+		def NextNthOccurrencesRemoved(panN, pItem, pnStartingAt)
+			_ps_ = This.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
+			return _StzRemoveAtPositions(This.Content(), _ps_)
+
+	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
+		_ps_ = This.FindPreviousNthOccurrences([ n ], pItem, pnStartingAt)
+		if ring_len(_ps_) > 0
+			@aContent = _StzRemoveAtPositions(This.Content(), [ _ps_[1] ])
+		ok
+
+	def RemovePreviousNthOccurrences(panN, pItem, pnStartingAt)
+		_ps_ = This.FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
+		@aContent = _StzRemoveAtPositions(This.Content(), _ps_)
+
+		def PreviousNthOccurrencesRemoved(panN, pItem, pnStartingAt)
+			_ps_ = This.FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
+			return _StzRemoveAtPositions(This.Content(), _ps_)
+
+	#-- remove the first occurrence of pItem
+	def RemoveFirst(pItem)
+		This.RemoveThisNthItem(1, pItem)
+
+		def RemoveThisFirstItem(pItem)
+			This.RemoveFirst(pItem)
+
+	def RemoveThisFirstItemCS(pItem, pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		_pos_ = This.FindAllCS(pItem, pCaseSensitive)
+		if ring_len(_pos_) > 0
+			@aContent = _StzRemoveAtPositions(This.Content(), [ _pos_[1] ])
+		ok
+
+	#-- remove the item at position n; accepts :First / :Last
+	def RemoveNthItem(n)
+		if isString(n)
+			if n = :Last or n = :LastItem
+				n = This.NumberOfItems()
+			but n = :First or n = :FirstItem
+				n = 1
+			ok
+		ok
+		This.RemoveItemAtPosition(n)
+
 	# CountItemsW/CountW already defined above
 
 	  #-----------------------------#

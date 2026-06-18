@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #328.
-#ERR Error (R14) : Calling Method without definition: removethisnthitem
 
 load "../../stzBase.ring"
 
