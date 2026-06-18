@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #571.
-#ERR Error (R14) : Calling Method without definition: sortup
 
 load "../../stzBase.ring"
 

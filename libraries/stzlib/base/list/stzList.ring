@@ -1360,6 +1360,45 @@ class stzList from stzObject
 			This.SortCS(pCaseSensitive)
 			return This
 
+	#-- Sort by a key expression (engine-backed via the W DSL).
+	def SortBy(pcExpr)
+		pcExpr = _StzStripBraces(pcExpr)
+		pList = This._EngineListFromContent()
+		StzEngineListSortByExpr(pList, pcExpr, 1)
+		@aContent = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
+
+		def SortByQ(pcExpr)
+			This.SortBy(pcExpr)
+			return This
+
+	def SortByDescending(pcExpr)
+		pcExpr = _StzStripBraces(pcExpr)
+		pList = This._EngineListFromContent()
+		StzEngineListSortByExpr(pList, pcExpr, 0)
+		@aContent = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
+
+	#-- non-mutating: return the sorted-by-key copy
+	def SortedBy(pcExpr)
+		_oSb_ = new stzList(This.Content())
+		_oSb_.SortBy(pcExpr)
+		return _oSb_.Content()
+
+	def SortUp()
+		This.Sort()
+
+		def SortUpQ()
+			This.Sort()
+			return This
+
+	def SortDown()
+		This.SortInDescending()
+
+		def SortDownQ()
+			This.SortInDescending()
+			return This
+
 	def Sort()
 		This.SortCS(1)
 
