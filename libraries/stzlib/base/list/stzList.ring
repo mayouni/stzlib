@@ -5018,6 +5018,41 @@ class stzList from stzObject
 		ok
 		This.RemoveItemAtPosition(n)
 
+	  #=========================================================#
+	 #  CONTAINS predicates (no / both / each / only-one / by-type) #
+	#=========================================================#
+
+	def ContainsNo(pItem)
+		return NOT This.Contains(pItem)
+
+	def ContainsBoth(p1, p2)
+		return This.Contains(p1) and This.Contains(p2)
+
+	def ContainsEachOneOfThese(paItems)
+		return This.ContainsEach(paItems)
+
+	#-- TRUE iff exactly ONE distinct member of paItems is present
+	def ContainsOnlyOneOfThese(paItems)
+		return _StzCountMembersPresent(This.Content(), paItems) = 1
+
+	def ContainsNoObjects()
+		return NOT _StzContainsType(This.Content(), "object")
+
+	def ContainsObjects()
+		return _StzContainsType(This.Content(), "object")
+
+	def ContainsOneOrMoreLists()
+		return _StzContainsType(This.Content(), "list")
+
+		def ContainsLists()
+			return This.ContainsOneOrMoreLists()
+
+	def ContainsNoNumbers()
+		return NOT _StzContainsType(This.Content(), "number")
+
+	def ContainsNoStrings()
+		return NOT _StzContainsType(This.Content(), "string")
+
 	# CountItemsW/CountW already defined above
 
 	  #-----------------------------#

@@ -7852,6 +7852,23 @@ func HasPath(paList, pacKeys)
 		next
 		return aRes
 
+	#-- TRUE if any item is of the given type tag (number/string/list/object)
+	func _StzContainsType(aContent, cType)
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if _StzIsTypeTag(aContent[i], cType) return TRUE ok
+		next
+		return FALSE
+
+	#-- how many DISTINCT members of paItems appear in aContent (type-sensitive)
+	func _StzCountMembersPresent(aContent, paItems)
+		nCount = 0
+		nLen = len(paItems)
+		for i = 1 to nLen
+			if _StzHasItemTyped(aContent, paItems[i]) nCount++ ok
+		next
+		return nCount
+
 	#-- Ring-side W-expression eval: positions where pcCondition is true.
 	#-- Used for conditions the Zig engine evaluator can't handle (e.g. those
 	#-- calling Ring methods like Q(@item).IsUppercase()). @item is substituted

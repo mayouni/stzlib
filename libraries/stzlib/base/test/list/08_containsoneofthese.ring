@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #8.
-#ERR Error (R14) : Calling Method without definition: containsonlyoneofthese
 
 load "../../stzBase.ring"
 
