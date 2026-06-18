@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #536.
-#ERR Error (R3) : Calling Function without definition: replaceitemswxt
 
 load "../../stzBase.ring"
 

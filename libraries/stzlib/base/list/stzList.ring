@@ -4038,10 +4038,16 @@ class stzList from stzObject
 			return This.FindAllItemsWCS(pcCondition, pCaseSensitive)
 
 	def FindAllItemsW(pcCondition)
+		pcCondition = _StzStripBraces(pcCondition)
+
+		# Conditions that call Ring methods (e.g. Q(@item).IsUppercase()) can't
+		# be evaluated by the Zig engine -- eval them Ring-side instead.
+		if substr(pcCondition, "Q(") > 0
+			return _StzEvalWPositions(This.Content(), pcCondition)
+		ok
+
 		pList = This._EngineListFromContent()
 		if pList = NULL return [] ok
-
-		pcCondition = _StzStripBraces(pcCondition)
 		# Engine returns a ready list of 1-based positions (built Zig-side).
 		anResult = StzEngineListFindAllW(pList, pcCondition)
 		StzEngineListFree(pList)
@@ -4053,7 +4059,13 @@ class stzList from stzObject
 		def FindAllW(pcCondition)
 			return This.FindAllItemsW(pcCondition)
 
+		def FindAllWXT(pcCondition)
+			return This.FindAllItemsW(pcCondition)
+
 		def FindWhere(pcCondition)
+			return This.FindAllItemsW(pcCondition)
+
+		def FindWhereXT(pcCondition)
 			return This.FindAllItemsW(pcCondition)
 
 		def PositionsW(pcCondition)
@@ -5969,6 +5981,10 @@ class stzList from stzObject
 	# items for which the expression is truthy. ItemsWXTQ wraps the
 	# result in stzList for fluent chains.
 	def ItemsW(pcCondition)
+		#-- Ring-method conditions (Q(@item)...) -> position-based path
+		if substr(pcCondition, "Q(") > 0
+			return This.FindWXT(pcCondition)
+		ok
 		return This.YieldW('@item', pcCondition)
 
 		def ItemsWXT(pcCondition)
