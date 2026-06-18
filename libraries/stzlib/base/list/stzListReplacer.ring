@@ -271,10 +271,47 @@ class stzListReplacer
 	 #   REPLACING A SECTION OF ITEMS            #
 	#============================================#
 
-	def ReplaceSectionCS(n1, n2, paNewItems, pCaseSensitive)
+	#-- ReplaceSection: the section [n1..n2] is replaced by ONE new item --
+	#-- if that item is a list, it is inserted as a SINGLE element. This is
+	#-- the canonical Softanza semantics (see ReplaceSectionByMany to splice).
+	def ReplaceSection(n1, n2, pNewItem)
+		if isList(pNewItem) and len(pNewItem) = 2 and isString(pNewItem[1]) and
+		   (lower(pNewItem[1]) = "by" or lower(pNewItem[1]) = "with")
+			pNewItem = pNewItem[2]
+		ok
+
 		_aRsContent_ = This.Content()
 		_nRsLen_ = len(_aRsContent_)
+		if n1 < 1 { n1 = 1 }
+		if n2 > _nRsLen_ { n2 = _nRsLen_ }
 
+		_aRsResult_ = []
+		for _iRsPre_ = 1 to n1 - 1
+			@AddItem(_aRsResult_, _aRsContent_[_iRsPre_])
+		next
+
+		@AddItem(_aRsResult_, pNewItem)
+
+		for _iRsPost_ = n2 + 1 to _nRsLen_
+			@AddItem(_aRsResult_, _aRsContent_[_iRsPost_])
+		next
+
+		@oList.UpdateWith(_aRsResult_)
+
+		def ReplaceSectionQ(n1, n2, pNewItem)
+			This.ReplaceSection(n1, n2, pNewItem)
+			return This
+
+	#-- ReplaceSectionByMany: the section [n1..n2] is replaced by SPLICING
+	#-- the items of paNewItems in place (flattened one level into the list).
+	def ReplaceSectionByManyCS(n1, n2, paNewItems, pCaseSensitive)
+		if isList(paNewItems) and len(paNewItems) = 2 and isString(paNewItems[1]) and
+		   (lower(paNewItems[1]) = "by" or lower(paNewItems[1]) = "with")
+			paNewItems = paNewItems[2]
+		ok
+
+		_aRsContent_ = This.Content()
+		_nRsLen_ = len(_aRsContent_)
 		if n1 < 1 { n1 = 1 }
 		if n2 > _nRsLen_ { n2 = _nRsLen_ }
 
@@ -294,8 +331,17 @@ class stzListReplacer
 
 		@oList.UpdateWith(_aRsResult_)
 
-	def ReplaceSection(n1, n2, paNewItems)
-		This.ReplaceSectionCS(n1, n2, paNewItems, 1)
+	def ReplaceSectionByMany(n1, n2, paNewItems)
+		This.ReplaceSectionByManyCS(n1, n2, paNewItems, 1)
+
+		def ReplaceSectionByManyQ(n1, n2, paNewItems)
+			This.ReplaceSectionByMany(n1, n2, paNewItems)
+			return This
+
+	#-- Back-compat alias: the old ReplaceSectionCS spliced; keep that as the
+	#-- by-many CS variant so any existing caller is unaffected.
+	def ReplaceSectionCS(n1, n2, paNewItems, pCaseSensitive)
+		This.ReplaceSectionByManyCS(n1, n2, paNewItems, pCaseSensitive)
 
 	  #============================================#
 	 #   REPLACING MANY ITEMS BY MANY             #

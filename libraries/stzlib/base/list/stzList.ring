@@ -926,6 +926,24 @@ class stzList from stzObject
 		_oRplMxt_.ReplaceManyByManyXT(paItems, paNewItems)
 		@aContent = _oRplMxt_.Content()
 
+	def ReplaceSection(n1, n2, pNewItem)
+		_oRpS_ = new stzListReplacer(This)
+		_oRpS_.ReplaceSection(n1, n2, pNewItem)
+		@aContent = _oRpS_.Content()
+
+		def ReplaceSectionQ(n1, n2, pNewItem)
+			This.ReplaceSection(n1, n2, pNewItem)
+			return This
+
+	def ReplaceSectionByMany(n1, n2, paNewItems)
+		_oRpSM_ = new stzListReplacer(This)
+		_oRpSM_.ReplaceSectionByMany(n1, n2, paNewItems)
+		@aContent = _oRpSM_.Content()
+
+		def ReplaceSectionByManyQ(n1, n2, paNewItems)
+			This.ReplaceSectionByMany(n1, n2, paNewItems)
+			return This
+
 	# Positional replace: swap whatever lives at position n with pNewItem.
 	# Mirrors AddItemAt / InsertAt / RemoveAt naming.
 
