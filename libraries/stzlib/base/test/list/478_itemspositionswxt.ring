@@ -10,10 +10,10 @@ pr()
 
 o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 
-? o1.ItemsPositionsWXT('Q(@item).IsUppercase()') # Say also o1.FindItemsW(...) or .FindW(...)
+? o1.ItemsPositionsWF( func x { return Q(x).IsUppercase() } ) # Say also o1.FindItemsW(...) or .FindW(...)
 #--> [ 1, 4, 5, 7, 9 ]
 
-? @@( o1.ItemsAndTheirPositionsWXT('Q(@item).IsUppercase()') )
+? @@( o1.ItemsAndTheirPositionsWF( func x { return Q(x).IsUppercase() } ) )
 #--> [ [ "A", [ 1, 5 ] ], [ "B", [ 4, 9 ] ], [ "C", [ 7 ] ] ]
 
 StopProfiler()

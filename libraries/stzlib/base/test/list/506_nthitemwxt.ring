@@ -3,14 +3,13 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #506.
-#ERR Error (R14) : Calling Method without definition: nthitemwxt
 
 load "../../stzBase.ring"
 
 pr()
 
 o1 = new stzList([ "ami", "coupain", "CAMARADE", "compagon" ])
-? o1.NthItemWXT(3, :Where = '{ isString(@item) and Q(@item).IsLowercase() }')
+? o1.NthItemWF(3, func x { return isString(x) and Q(x).IsLowercase() } )
 #--> "compagon"
 
 pf()

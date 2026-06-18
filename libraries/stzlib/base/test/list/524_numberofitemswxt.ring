@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #524.
-#ERR Error (R14) : Calling Method without definition: numberofitemswxt
 
 load "../../stzBase.ring"
 
@@ -13,11 +12,11 @@ pr()
 #--> 3
 
 ? StzListQ([ "A", 1, "B", 2, "C", 8 ]).NumberOfItemsWXT('
-	isString(@item) and Q(@item).isLetter()
+	isString(@item) and IsLetter(@item)
 ')
 #--> 3
 
-? StzListQ([ 1, 2, 3, 4, 5, 6 ]).NumberOfItemsWXT('Q(@item).IsDividableBy(2)')
+? StzListQ([ 1, 2, 3, 4, 5, 6 ]).NumberOfItemsWF( func x { return Q(x).IsDividableBy(2) } )
 #--> 3
 
 pf()

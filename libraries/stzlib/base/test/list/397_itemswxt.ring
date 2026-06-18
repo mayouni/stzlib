@@ -9,7 +9,7 @@ load "../../stzBase.ring"
 pr()
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
-? o1.ItemsWXT('Q(@item).IsNotANumber()')
+? o1.ItemsW('{ not isNumber(@item) }')
 #--> [ "A", "B", "C", "D" ]
 
 pf()

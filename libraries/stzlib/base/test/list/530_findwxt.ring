@@ -9,7 +9,7 @@ load "../../stzBase.ring"
 pr()
 
 o1 = new stzList([ 1, "a", 2, "b", 3, "c" ])
-? o1.FindWXT('{ isString(@item) and Q(@item).isLowercase() }')
+? o1.FindWF( func x { return isString(x) and Q(x).isLowercase() } )
 #--> [2, 4, 6]
 
 StopProfiler()
