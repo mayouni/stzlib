@@ -107,6 +107,27 @@ Scenario("Splitting (guards the SplitAt engine-arg + SplitToPartsOf mutator fixe
         ListEq(o3.Content(), [ [1,2], [3,4], [5] ]), TRUE)
 EndScenario()
 
+Scenario("Probabilistic quantifiers")
+    Given("the deterministic quantifiers")
+    Then("All([A,B,C]) returns all", ListEq(All([ "A","B","C" ]), [ "A", "B", "C" ]), TRUE)
+    Then("No([A,B,C]) returns []", ListEq(No([ "A","B","C" ]), [ ]), TRUE)
+    Then("AllOf is an alias of All", ListEq(AllOf([ "A","B","C" ]), [ "A", "B", "C" ]), TRUE)
+    Then("NoOneOf is an alias of No", ListEq(NoOneOf([ "A","B","C" ]), [ ]), TRUE)
+
+    Given("a 10-item list and the proportional quantifiers (counts are stable; selection is random)")
+    aTen = [ 1,2,3,4,5,6,7,8,9,10 ]
+    Then("Few -> 2 items", len(Few(aTen)), 2)
+    Then("Some -> 3 items", len(Some(aTen)), 3)
+    Then("Half -> 5 items", len(Half(aTen)), 5)
+    Then("Most -> 9 items", len(Most(aTen)), 9)
+    Then("Few < Some < Most (the continuum holds)", (len(Few(aTen)) < len(Some(aTen))) and (len(Some(aTen)) < len(Most(aTen))), TRUE)
+    When("Some(aTen) is sampled")
+    aSample = Some(aTen)
+    bAllIn = TRUE
+    for x in aSample if ring_find(aTen, x) = 0 bAllIn = FALSE ok next
+    Then("every sampled item belongs to the source", bAllIn, TRUE)
+EndScenario()
+
 Summary()
 
 func ListEq aA, aE
