@@ -10,10 +10,10 @@ pr()
 
 o1 = new stzList(["c", "c++", "C#", "RING", "Python", "RUBY"])
 
-? o1.FindAllWXT('{ Q(@item).IsUppercase() }')
+? o1.FindAllWXT('{ IsUppercase(@item) }')
  #--> [3, 4, 6]
 
-? o1.ItemsWXT('{ Q(@item).IsUppercase() }')
+? o1.ItemsWXT('{ IsUppercase(@item) }')
   #--> ["C#", "RING", "RUBY"]
 
 pf()

@@ -13,7 +13,7 @@ pr()
 
 StzListQ( [ 1, "a", 2, "b", 3, "c" ] ) {
 	ReplaceItemsWXT(
-		:Where = '{ isString(@item) and Q(@item).isLowercase() }',
+		:Where = '{ isString(@item) and IsLowercase(@item) }',
 		:By = "*"
 	)
 
