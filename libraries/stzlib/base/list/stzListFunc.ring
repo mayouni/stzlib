@@ -7777,6 +7777,81 @@ func HasPath(paList, pacKeys)
 		next
 		return aRes
 
+	#-- content with the items at panPos (1-based) removed
+	func _StzRemoveAtPositions(aContent, panPos)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if NOT _StzHasItemTyped(panPos, i) add(aRes, aContent[i]) ok
+		next
+		return aRes
+
+	#-- keep only items that ARE members of paItems (type-sensitive)
+	func _StzKeepMembers(aContent, paItems)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if _StzHasItemTyped(paItems, aContent[i]) add(aRes, aContent[i]) ok
+		next
+		return aRes
+
+	#-- drop the leading / trailing run equal to pItem
+	func _StzRemoveLeadingRun(aContent, pItem)
+		nLen = len(aContent)
+		nStart = nLen + 1
+		bDone = FALSE
+		for i = 1 to nLen
+			if NOT bDone and _StzItemEqTyped(aContent[i], pItem)
+				# still in the leading run
+			else
+				nStart = i
+				bDone = TRUE
+				exit
+			ok
+		next
+		aRes = []
+		for i = nStart to nLen add(aRes, aContent[i]) next
+		return aRes
+
+	func _StzRemoveTrailingRun(aContent, pItem)
+		nLen = len(aContent)
+		nEnd = 0
+		for i = nLen to 1 step -1
+			if NOT _StzItemEqTyped(aContent[i], pItem)
+				nEnd = i
+				exit
+			ok
+		next
+		aRes = []
+		for i = 1 to nEnd add(aRes, aContent[i]) next
+		return aRes
+
+	#-- keep only items that occur more than once (remove the singletons)
+	func _StzRemoveNonDuplicates(aContent)
+		aWith = _StzItemsWithPositions(aContent)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			v = aContent[i]
+			nCnt = 0
+			nW = len(aWith)
+			for k = 1 to nW
+				if _StzItemEqTyped(aWith[k][1], v) nCnt = len(aWith[k][2]) exit ok
+			next
+			if nCnt > 1 add(aRes, v) ok
+		next
+		return aRes
+
+	#-- pick aAllPos[ panOcc[i] ] for each i (1-based, out-of-range skipped)
+	func _StzPickPositions(panOcc, aAllPos)
+		aRes = []
+		nLen = len(panOcc)
+		nP = len(aAllPos)
+		for i = 1 to nLen
+			if panOcc[i] >= 1 and panOcc[i] <= nP add(aRes, aAllPos[ panOcc[i] ]) ok
+		next
+		return aRes
+
 	#-- Ring-side W-expression eval: positions where pcCondition is true.
 	#-- Used for conditions the Zig engine evaluator can't handle (e.g. those
 	#-- calling Ring methods like Q(@item).IsUppercase()). @item is substituted

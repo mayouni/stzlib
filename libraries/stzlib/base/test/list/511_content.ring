@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #511.
-#ERR Error (R14) : Calling Method without definition: remove
 
 load "../../stzBase.ring"
 
