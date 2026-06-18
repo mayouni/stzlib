@@ -4334,10 +4334,17 @@ class stzList from stzObject
 	  #-- SplitAt (engine-backed)
 
 	def SplitAt(n)
+		# The engine's stz_list_split_at takes the cut positions as an ENGINE
+		# LIST handle (0-based cut indices), NOT a bare integer -- passing the
+		# integer made the bridge read a bogus handle and the engine returned
+		# NULL (so SplitAt silently fell back to [[],[]]). Build a 1-element
+		# positions list at the 0-based cut (n-1) for the 1-based SplitAt(n).
 		_pSaList_ = This._EngineListFromContent()
 		if _pSaList_ = NULL return [[], []] ok
-		_pSaResult_ = StzEngineListSplitAt(_pSaList_, n)
+		_pSaPos_ = (new stzList([ n - 1 ]))._EngineListFromContent()
+		_pSaResult_ = StzEngineListSplitAt(_pSaList_, _pSaPos_)
 		StzEngineListFree(_pSaList_)
+		if _pSaPos_ != NULL StzEngineListFree(_pSaPos_) ok
 		if _pSaResult_ = NULL return [[], []] ok
 		_aSaOut_ = This._ContentFromEngineList(_pSaResult_)
 		StzEngineListFree(_pSaResult_)
@@ -4747,11 +4754,13 @@ class stzList from stzObject
 		return _oSdtnpSplitter_.SplittedToNParts(n)
 
 	def SplitToPartsOfNItems(n)
-		_oStponiSplitter_ = new stzListSplits(This)
-		return _oStponiSplitter_.SplitToPartsOfNItems(n)
+		# Mutator: delegating to new stzListSplits(This) would mutate a COPY of
+		# This (Ring copies objects passed to a constructor), so the change was
+		# lost. Write back through This itself using the returning form.
+		This.UpdateWith( This.SplittedToPartsOfNItems(n) )
 
 		def SplitToPartsOf(n)
-			return This.SplitToPartsOfNItems(n)
+			This.SplitToPartsOfNItems(n)
 
 	def SplittedToPartsOfNItems(n)
 		_oSdtponiSplitter_ = new stzListSplits(This)
