@@ -4861,6 +4861,25 @@ class stzList from stzObject
 	def FindNthLargest(n)
 		return This.Find(This.NthLargest(n))
 
+	#-- contiguous runs of strings / lists as [start,end] sections
+	def FindStringsAsSections()
+		return _StzFindTypeRuns(This.Content(), "string")
+
+		def FindStringsZZ()
+			return This.FindStringsAsSections()
+
+	def FindListsAsSections()
+		return _StzFindTypeRuns(This.Content(), "list")
+
+		def FindListsZZ()
+			return This.FindListsAsSections()
+
+	def FindObjectsAsSections()
+		return _StzFindTypeRuns(This.Content(), "object")
+
+		def FindObjectsZZ()
+			return This.FindObjectsAsSections()
+
 	# CountItemsW/CountW already defined above
 
 	  #-----------------------------#
