@@ -86,6 +86,15 @@ Scenario("Transform and conditional find")
     Then("IsEqualTo([1,2],[1,3]) is FALSE", Q([1,2]).IsEqualTo([1,3]), FALSE)
 EndScenario()
 
+Scenario("Partition, group and chunk (guards the PartitionW missing-helper fix)")
+    Then("GroupBy('@item % 2') on [1..5] groups by parity",
+        ListEq(Q([1,2,3,4,5]).GroupBy("@item % 2"), [ [ "1", [1,3,5] ], [ "0", [2,4] ] ]), TRUE)
+    Then("PartitionW('@item > 2') on [1..4] -> [[3,4],[1,2]]",
+        ListEq(Q([1,2,3,4]).PartitionW("@item > 2"), [ [3,4], [1,2] ]), TRUE)
+    Then("Chunks(2) on [1..5] -> [[1,2],[3,4],[5]]",
+        ListEq(Q([1,2,3,4,5]).Chunks(2), [ [1,2], [3,4], [5] ]), TRUE)
+EndScenario()
+
 Scenario("Splitting (guards the SplitAt engine-arg + SplitToPartsOf mutator fixes)")
     Then("SplitAt(3) on [1..5] -> [[1,2],[3,4,5]]",
         ListEq(Q([1,2,3,4,5]).SplitAt(3), [ [1,2], [3,4,5] ]), TRUE)
