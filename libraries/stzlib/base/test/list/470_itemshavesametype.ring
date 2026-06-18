@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #470.
-#ERR Error (R14) : Calling Method without definition: itemshavesametype
 
 load "../../stzBase.ring"
 

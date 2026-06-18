@@ -5096,6 +5096,77 @@ class stzList from stzObject
 	def Pairified()
 		return _StzPairified(This.Content())
 
+	  #=========================================================#
+	 #  ITEMS / THESE-ITEMS family                             #
+	#=========================================================#
+
+	#-- [[item,[positions]],...] for each given item (includes empties)
+	def TheseItemsZ(paItems)
+		return _StzTheseItemsZ(This.Content(), paItems)
+
+	#-- distinct items by occurrence count (>= n by default)
+	def ItemsOccurringNTimes(n)
+		return _StzItemsByCountOp(This.Content(), n, "ge")
+
+		def ItemsOccuringNTimes(n)
+			return This.ItemsOccurringNTimes(n)
+
+		def ItemsOccurringNTimesOrMore(n)
+			return This.ItemsOccurringNTimes(n)
+
+	def ItemsOccurringExactlyNTimes(n)
+		return _StzItemsByCountOp(This.Content(), n, "eq")
+
+		def ItemsOccuringExactlyNTimes(n)
+			return This.ItemsOccurringExactlyNTimes(n)
+
+	def ItemsOccurringLessThanNTimes(n)
+		return _StzItemsByCountOp(This.Content(), n, "lt")
+
+	def ItemsOccurringNTimesOrLess(n)
+		return _StzItemsByCountOp(This.Content(), n, "le")
+
+	def ItemsOccurringMoreThanNTimes(n)
+		return _StzItemsByCountOp(This.Content(), n, "gt")
+
+	def ItemsHaveSameType()
+		return _StzAllSameType(This.Content())
+
+		def AllItemsHaveSameType()
+			return This.ItemsHaveSameType()
+
+	def ItemsAreEmptyLists()
+		return _StzAllEmptyLists(This.Content())
+
+	def ItemsAreEqualToCS(pItem, pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		return _StzAllEqualCS(This.Content(), pItem, pCaseSensitive)
+
+	def ItemsAreEqualTo(pItem)
+		return _StzAllEqualTyped(This.Content(), pItem)
+
+		def ContainsOnly(pItem)
+			return This.ItemsAreEqualTo(pItem)
+
+		def ContainsOnlyCS(pItem, pCaseSensitive)
+			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
+
+	#-- all items satisfy a W-condition
+	def ItemsHaveXT(pcCondition)
+		return ring_len(This.FindAllItemsW(pcCondition)) = This.NumberOfItems()
+
+		def AllItemsHaveXT(pcCondition)
+			return This.ItemsHaveXT(pcCondition)
+
+	#-- positions matching a W-condition (+ grouped form)
+	def ItemsPositionsWXT(pcCondition)
+		return This.FindAllItemsW(pcCondition)
+
+	def ItemsAndTheirPositionsWXT(pcCondition)
+		return _StzGroupItemsAtPos(This.Content(), This.FindAllItemsW(pcCondition))
+
 	# CountItemsW/CountW already defined above
 
 	  #-----------------------------#

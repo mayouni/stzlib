@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #478.
-#ERR Error (R14) : Calling Method without definition: itemspositionswxt
 
 load "../../stzBase.ring"
 
