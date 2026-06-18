@@ -109,21 +109,35 @@ o1 = new stzString("hello world")
 #--> "Hell* W*rld" (case-insensitive replacement)
 ```
 
-### Conditional Forms: Logic as Natural Language
+### Conditional Forms: Logic as Constraint
 
-The WXT() suffix combines conditional logic with extended functionality. The W() indicates "Where" conditions, while XT() provides the extended capabilities:
+The `W()` suffix ("Where") constrains a function with a per-item condition. The
+condition is a small **textual DSL** compiled and evaluated by the Zig engine —
+fast, and safe to accept even from untrusted sources (it cannot escape its
+sandbox). No `eval()` is involved.
 
 ```ring
-o1 = new stzString("Hello World 123")
-? o1.Content()  #--> "Hello World 123"
+o1 = new stzList([ 4, 7, 10, 3, 8 ])
 
-# Basic conditional form
-? o1.RemoveW('Q(@char).IsLowercase()')  #--> "H W 123"
-
-# Extended conditional form  
-? o1.RemoveWXT('Q(@char).IsLetter()', :IgnoreCase = FALSE)
-#--> " 123"
+? @@( o1.FindW('{ @item > 5 }') )       #--> [ 2, 3, 5 ]
+? @@( o1.FindW('{ IsEven(@item) }') )   #--> [ 1, 3, 5 ]
+? o1.CountW('{ @item > 5 and IsEven(@item) }')  #--> 2
 ```
+
+When you need real Ring logic (your own functions, object methods, anything the
+DSL deliberately doesn't allow), use the **`WF()`** form, which takes an
+anonymous function — full power, still no `eval()`:
+
+```ring
+o2 = new stzList([ "alpha", "BETA", "gamma", "DELTA" ])
+? @@( o2.FindWF( func x { return Q(x).IsUppercase() } ) )  #--> [ 2, 4 ]
+```
+
+> Note: the `W` DSL is both fast and fully expressive, so the older
+> `W`-vs-`WXT` split (a speed/expressiveness trade-off from the `eval()` era)
+> is gone — `WXT` is now a deprecated alias of `W`. See the dedicated
+> [Conditional Code in Softanza](stz-conditional-code-narration.md) narration
+> for the full DSL grammar, the builtin set, and the `W` / `WF` decision guide.
 
 This replaces verbose looping constructs with concise, expressive conditions that focus on intent rather than implementation mechanics.
 
