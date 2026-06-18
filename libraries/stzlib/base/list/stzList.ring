@@ -4080,14 +4080,10 @@ class stzList from stzObject
 			return This.FindAllItemsWCS(pcCondition, pCaseSensitive)
 
 	def FindAllItemsW(pcCondition)
+		#-- W is the sandboxed engine DSL (no eval). Conditions that need real
+		#-- Ring logic (calling methods, your own funcs) use the WF family
+		#-- (FindWF/ItemsWF/CheckWF/...), not a textual condition.
 		pcCondition = _StzStripBraces(pcCondition)
-
-		# Conditions that call Ring methods (e.g. Q(@item).IsUppercase()) can't
-		# be evaluated by the Zig engine -- eval them Ring-side instead.
-		if substr(pcCondition, "Q(") > 0
-			return _StzEvalWPositions(This.Content(), pcCondition)
-		ok
-
 		pList = This._EngineListFromContent()
 		if pList = NULL return [] ok
 		# Engine returns a ready list of 1-based positions (built Zig-side).
@@ -4230,6 +4226,15 @@ class stzList from stzObject
 
 	def InsertBeforeWF(pFunc, pItem)
 		@aContent = _StzInsertBeforeWF(This.Content(), pFunc, pItem)
+
+	#-- PerformWF(condFunc, actionFunc): transform each matching item with
+	#-- actionFunc; others unchanged. The eval-free form of PerformW(:if,:do).
+	def PerformWF(pCondFunc, pActionFunc)
+		@aContent = _StzPerformWF(This.Content(), pCondFunc, pActionFunc)
+
+		def PerformWFQ(pCondFunc, pActionFunc)
+			This.PerformWF(pCondFunc, pActionFunc)
+			return This
 
 	  #-- FindWXT: find items matching condition (returns items, not positions)
 
