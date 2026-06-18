@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #612.
-#ERR Error (R14) : Calling Method without definition: checkw
 
 load "../../stzBase.ring"
 
@@ -11,7 +10,7 @@ pr()
 
 o1 = new stzList([ "A", "B", "C" ])
 
-? o1.CheckW("isString(This[@i]) and @IsUppercase(This[@i])")
+? o1.CheckW('{ isString(@item) and IsUppercase(@item) }')
 #--> TRUE
 
 pf()
