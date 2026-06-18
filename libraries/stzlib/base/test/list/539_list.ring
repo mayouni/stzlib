@@ -9,7 +9,7 @@ load "../../stzBase.ring"
 pr()
 
 ? StzListQ([ "ض", "c", "س", "a", "ط", "b" ]).
-	ItemsWXT('StzCharQ(@item).IsArabic()')
+	ItemsWF( func x { return StzCharQ(x).IsArabic() } )
 
 #o--> [ "ض", "س", "ط" ]
 
