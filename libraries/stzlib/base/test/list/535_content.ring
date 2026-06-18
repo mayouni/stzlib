@@ -3,7 +3,6 @@
 # StartProfiler()
 #
 # Extracted from stzlisttest.ring, block #535.
-#ERR Error (R14) : Calling Method without definition: replaceitemsatpositions
 
 load "../../stzBase.ring"
 

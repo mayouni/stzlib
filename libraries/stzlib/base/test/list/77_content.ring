@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #77.
-#ERR Error (R14) : Calling Method without definition: replaceoccurrencesbymanyxt
 
 load "../../stzBase.ring"
 

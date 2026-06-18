@@ -3,7 +3,6 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #51.
-#ERR Error (R14) : Calling Method without definition: replacethisitemat
 
 load "../../stzBase.ring"
 

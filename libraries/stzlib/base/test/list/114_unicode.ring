@@ -8,7 +8,7 @@ load "../../stzBase.ring"
 
 pr()
 
-? Unicode("Hi")
+? Unicodes("Hi")
 #--> [ 72, 105 ]
 
 pf()

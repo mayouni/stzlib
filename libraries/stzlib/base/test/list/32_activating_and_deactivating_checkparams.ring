@@ -3,7 +3,6 @@
 # #narration: activating and deactivating CheckParams()
 #
 # Extracted from stzlisttest.ring, block #32.
-#ERR Error (R14) : Calling Method without definition: replacetheseitemsatpositions
 
 load "../../stzBase.ring"
 
