@@ -3,14 +3,13 @@
 # pr()
 #
 # Extracted from stzlisttest.ring, block #207.
-#ERR Error (R14) : Calling Method without definition: sortedby
 
 load "../../stzBase.ring"
 
 pr()
 
 o1 = new stzList([ "programming", "is" ])
-? o1.SortedBy('Q(@item).NumberOfChars()')
+? o1.SortedBy('len(@item)')
 #--> [ "is", "programming" ]
 
 pf()
