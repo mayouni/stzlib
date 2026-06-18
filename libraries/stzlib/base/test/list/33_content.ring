@@ -3,7 +3,6 @@
 # #narration
 #
 # Extracted from stzlisttest.ring, block #33.
-#ERR Error (R14) : Calling Method without definition: replaceanyitematpositionsbymanyxt
 
 load "../../stzBase.ring"
 

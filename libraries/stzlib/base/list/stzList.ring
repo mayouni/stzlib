@@ -1034,6 +1034,45 @@ class stzList from stzObject
 		_o_.ReplaceOccurrencesByManyXT(panPos, paNewItems)
 		@aContent = _o_.Content()
 
+	def ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
+		@aContent = _o_.Content()
+
+	def ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
+		@aContent = _o_.Content()
+
+	def ReplaceTheseItemsAtPositionsByMany(panPos, paItems, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceTheseItemsAtPositionsByMany(panPos, paItems, paNewItems)
+		@aContent = _o_.Content()
+
+	def ReplaceTheseItemsAtPositionsByManyXT(panPos, paItems, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceTheseItemsAtPositionsByManyXT(panPos, paItems, paNewItems)
+		@aContent = _o_.Content()
+
+	def ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+		@aContent = _o_.Content()
+
+		def ReplaceAnyItemsAtPositionsByMany(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+
+	def ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+		@aContent = _o_.Content()
+
+		def ReplaceAnyItemsAtPositionsByManyXT(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+
+		def ReplaceAtByManyXT(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+
 	  #=============================================#
 	 #  STRINGIFY DELEGATION (via stzListStringify) #
 	#=============================================#
