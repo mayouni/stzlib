@@ -124,8 +124,26 @@ o = new stzList([ "alpha", "BETA", "gamma", "DELTA" ])
 ```
 
 The `WF` set mirrors the `W` set: `FindWF`/`FindAllWF`/`PositionsWF`,
-`CheckWF`/`AllItemsWF`, `CountWF`, `ItemsWF`/`FilterWF`, and the positional
-`CheckItemsAtWF`/`CheckOnWF`.
+`CheckWF`/`AllItemsWF`, `CountWF`/`NumberOfItemsWF`, `ContainsWF`,
+`ItemsWF`/`FilterWF`/`ExtractWF`, `ItemsAndTheirPositionsWF`,
+`UniqueItemsWF`/`CountUniqueItemsWF`, `NthItemWF`/`FirstItemWF`/`LastItemWF`,
+the mutators `RemoveWF`/`ReplaceWF`/`InsertAfterWF`/`InsertBeforeWF`, the
+transform `MapWF`/`YieldWF`, and the positional `CheckItemsAtWF`/`CheckOnWF`.
+
+`PerformWF(condFunc, actionFunc)` is the function form of `PerformW` — it
+transforms each matching item with `actionFunc`, leaving the rest unchanged:
+
+```ring
+o = new stzList([ 0, 2, 0, 3, [1,2] ])
+o.PerformWF( func x { return Q(x).IsANumber() },        # which items
+             func x { return Q(x).RepeatedInAPair() } )  # how to transform
+? @@( o.Content() )
+#--> [ [ 0, 0 ], [ 2, 2 ], [ 0, 0 ], [ 3, 3 ], [ 1, 2 ] ]
+```
+
+> Operator indexing: `o['{ … }']` (a condition string in brackets) is part of
+> the **textual DSL** path, so it accepts the engine DSL only. For a constraint
+> that needs real Ring logic, use `FindWF(func …)` rather than `o[…]`.
 
 ## Choosing between them — a one-line test
 
