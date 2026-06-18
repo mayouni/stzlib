@@ -806,6 +806,29 @@ fn marshalRingList(pRingList: *anyopaque) ?*list.StzList {
     return result;
 }
 
+// Deep (nested) list / path API -- recursion runs in the engine.
+fn ring_DeepPaths(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_deep_paths(getLC(p, 1))), HL);
+}
+fn ring_DeepFind(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_deep_find(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+}
+fn ring_ItemAtPath(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_item_at_path(getLC(p, 1), getLC(p, 2))), HL);
+}
+fn ring_ItemsAtPaths(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_items_at_paths(getLC(p, 1), getLC(p, 2))), HL);
+}
+fn ring_PathsAtDepth(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_paths_at_depth(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+}
+fn ring_LongestPaths(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_longest_paths(getLC(p, 1))), HL);
+}
+fn ring_ExpandPath(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_expand_path(getLC(p, 1), getLC(p, 2))), HL);
+}
+
 fn ring_MarshalFromRingList(p: *anyopaque) callconv(.c) void {
     if (R.ring_vm_api_islist(p, 1) == 0) {
         rcp(p, @as(?*anyopaque, null), HL);
@@ -952,6 +975,13 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistantisections", .func = &ring_AntiSections },
     .{ .name = "stzengineliststartswithlistcs", .func = &ring_StartsWithListCS },
     .{ .name = "stzenginelistendswithlistcs", .func = &ring_EndsWithListCS },
+    .{ .name = "stzenginelistdeeppaths", .func = &ring_DeepPaths },
+    .{ .name = "stzenginelistdeepfind", .func = &ring_DeepFind },
+    .{ .name = "stzenginelistitematpath", .func = &ring_ItemAtPath },
+    .{ .name = "stzenginelistitemsatpaths", .func = &ring_ItemsAtPaths },
+    .{ .name = "stzenginelistpathsatdepth", .func = &ring_PathsAtDepth },
+    .{ .name = "stzenginelistlongestpaths", .func = &ring_LongestPaths },
+    .{ .name = "stzenginelistexpandpath", .func = &ring_ExpandPath },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
