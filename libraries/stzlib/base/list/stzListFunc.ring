@@ -7697,6 +7697,146 @@ func HasPath(paList, pacKeys)
 
 	return TRUE
 
+	  #============================================#
+	 #  HELPERS: items-with-positions, dup-runs   #
+	#============================================#
+
+	#-- type-sensitive item equality (distinguishes "1" from 1)
+	func _StzItemEqTyped(pA, pB)
+		if isString(pA) and isString(pB) return pA = pB ok
+		if isNumber(pA) and isNumber(pB) return pA = pB ok
+		if isList(pA) and isList(pB) return _DplListEq(pA, pB) ok
+		return FALSE
+
+	func _StzHasItemTyped(paList, pVal)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if _StzItemEqTyped(paList[i], pVal) return TRUE ok
+		next
+		return FALSE
+
+	#-- [[item, [positions...]], ...] in first-appearance order
+	func _StzItemsWithPositions(aContent)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			v = aContent[i]
+			nFound = 0
+			nR = len(aRes)
+			for j = 1 to nR
+				if _StzItemEqTyped(aRes[j][1], v) nFound = j exit ok
+			next
+			if nFound > 0
+				add(aRes[nFound][2], i)
+			else
+				add(aRes, [ v, [i] ])
+			ok
+		next
+		return aRes
+
+	#-- [[item, count], ...] in first-appearance order (type-sensitive)
+	func _StzItemsCount(aContent)
+		aWith = _StzItemsWithPositions(aContent)
+		aRes = []
+		nLen = len(aWith)
+		for i = 1 to nLen
+			add(aRes, [ aWith[i][1], len(aWith[i][2]) ])
+		next
+		return aRes
+
+	#-- consistent stringification for consecutive-equality comparison
+	func _StzStringifyItem(pItem)
+		if isNumber(pItem) return "" + pItem ok
+		return @@(pItem)
+
+	#-- [[value, [consecutive-dup positions]], ...] first-appearance order
+	func _StzDupSecutiveItemsZ(aContent, bCaseSensitive)
+		anPos = _StzFindDupSecutive(aContent, bCaseSensitive)
+		aVals = _StzDupSecutiveValues(aContent, bCaseSensitive)
+		aRes = []
+		nV = len(aVals)
+		for i = 1 to nV
+			cTarget = _StzStringifyItem(aVals[i])
+			if bCaseSensitive = 0 cTarget = StzLower(cTarget) ok
+			aP = []
+			nP = len(anPos)
+			for j = 1 to nP
+				c = _StzStringifyItem(aContent[ anPos[j] ])
+				if bCaseSensitive = 0 c = StzLower(c) ok
+				if c = cTarget add(aP, anPos[j]) ok
+			next
+			add(aRes, [ aVals[i], aP ])
+		next
+		return aRes
+
+	#-- content with the consecutive-duplicate items removed
+	func _StzRemoveDupSecutive(aContent, bCaseSensitive)
+		anPos = _StzFindDupSecutive(aContent, bCaseSensitive)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if NOT _StzHasItemTyped(anPos, i) add(aRes, aContent[i]) ok
+		next
+		return aRes
+
+	#-- content with the consecutive-duplicates of pItem removed
+	func _StzRemoveThisDupSecutive(aContent, pItem, bCaseSensitive)
+		anPos = _StzFindThisDupSecutive(aContent, pItem, bCaseSensitive)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if NOT _StzHasItemTyped(anPos, i) add(aRes, aContent[i]) ok
+		next
+		return aRes
+
+	#-- positions i where item[i] equals item[i-1] (consecutive duplicate)
+	func _StzFindDupSecutive(aContent, bCaseSensitive)
+		nLen = len(aContent)
+		if nLen <= 1 return [] ok
+		acItems = []
+		for i = 1 to nLen
+			c = _StzStringifyItem(aContent[i])
+			if bCaseSensitive = 0 c = StzLower(c) ok
+			add(acItems, c)
+		next
+		anRes = []
+		for i = 2 to nLen
+			if acItems[i-1] = acItems[i] add(anRes, i) ok
+		next
+		return anRes
+
+	#-- the distinct values (first-appearance) that occur consecutively
+	#-- duplicated; dedup honors case-sensitivity (B and b merge when CS=0)
+	func _StzDupSecutiveValues(aContent, bCaseSensitive)
+		anPos = _StzFindDupSecutive(aContent, bCaseSensitive)
+		aRes = []
+		aKeys = []
+		nLen = len(anPos)
+		for i = 1 to nLen
+			v = aContent[ anPos[i] ]
+			k = _StzStringifyItem(v)
+			if bCaseSensitive = 0 k = StzLower(k) ok
+			if NOT _StzHasItemTyped(aKeys, k)
+				add(aKeys, k)
+				add(aRes, v)
+			ok
+		next
+		return aRes
+
+	#-- positions among the consecutive-dups whose item equals pItem
+	func _StzFindThisDupSecutive(aContent, pItem, bCaseSensitive)
+		anPos = _StzFindDupSecutive(aContent, bCaseSensitive)
+		cTarget = _StzStringifyItem(pItem)
+		if bCaseSensitive = 0 cTarget = StzLower(cTarget) ok
+		aRes = []
+		nLen = len(anPos)
+		for i = 1 to nLen
+			c = _StzStringifyItem(aContent[ anPos[i] ])
+			if bCaseSensitive = 0 c = StzLower(c) ok
+			if c = cTarget add(aRes, anPos[i]) ok
+		next
+		return aRes
+
   /////////////////
  ///   CLASS   ///
 /////////////////
