@@ -7852,6 +7852,75 @@ func HasPath(paList, pacKeys)
 		next
 		return aRes
 
+	#-- positions of items that are lists of exactly nWantLen elements
+	func _StzFindListsOfLen(aContent, nWantLen)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if isList(aContent[i]) and len(aContent[i]) = nWantLen add(aRes, i) ok
+		next
+		return aRes
+
+	func _StzItemsAtPos(aContent, panPos)
+		aRes = []
+		nLen = len(panPos)
+		for i = 1 to nLen add(aRes, aContent[ panPos[i] ]) next
+		return aRes
+
+	#-- dedup a list structurally, first-appearance order
+	func _StzUniqueItems(aList)
+		aRes = []
+		nLen = len(aList)
+		for i = 1 to nLen
+			if NOT _StzHasItemTyped(aRes, aList[i]) add(aRes, aList[i]) ok
+		next
+		return aRes
+
+	#-- [[value,[positions]],...] over the given positions, first-appearance
+	func _StzGroupItemsAtPos(aContent, panPos)
+		aRes = []
+		nLen = len(panPos)
+		for i = 1 to nLen
+			v = aContent[ panPos[i] ]
+			nFound = 0
+			nr = len(aRes)
+			for j = 1 to nr
+				if _StzItemEqTyped(aRes[j][1], v) nFound = j exit ok
+			next
+			if nFound > 0
+				add(aRes[nFound][2], panPos[i])
+			else
+				add(aRes, [ v, [ panPos[i] ] ])
+			ok
+		next
+		return aRes
+
+	#-- wrap each item as a 1-element list (scalar->[x], list->[firstElem])
+	func _StzSinglified(aContent)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if isList(aContent[i])
+				if len(aContent[i]) >= 1 add(aRes, [ aContent[i][1] ]) else add(aRes, []) ok
+			else
+				add(aRes, [ aContent[i] ])
+			ok
+		next
+		return aRes
+
+	#-- pad each non-pair item into a pair [item, NULL]; keep existing pairs
+	func _StzPairified(aContent)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if isList(aContent[i]) and len(aContent[i]) = 2
+				add(aRes, aContent[i])
+			else
+				add(aRes, [ aContent[i], NULL ])
+			ok
+		next
+		return aRes
+
 	#-- TRUE if any item is of the given type tag (number/string/list/object)
 	func _StzContainsType(aContent, cType)
 		nLen = len(aContent)

@@ -3,7 +3,6 @@
 # SINGLES AND SINGLIFIED
 #
 # Extracted from stzlisttest.ring, block #110.
-#ERR Error (R14) : Calling Method without definition: containssingles
 
 load "../../stzBase.ring"
 
