@@ -8050,6 +8050,52 @@ func HasPath(paList, pacKeys)
 		next
 		return TRUE
 
+	#-- keep only items for which pFunc is FALSE (remove the matching ones)
+	func _StzRemoveWF(aContent, pFunc)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if NOT ( call pFunc(aContent[i]) ) add(aRes, aContent[i]) ok
+		next
+		return aRes
+
+	#-- replace each matching item with pNew
+	func _StzReplaceWF(aContent, pFunc, pNew)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if ( call pFunc(aContent[i]) ) add(aRes, pNew) else add(aRes, aContent[i]) ok
+		next
+		return aRes
+
+	#-- map: apply pFunc to every item, collecting the results
+	func _StzMapWF(aContent, pFunc)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			add(aRes, call pFunc(aContent[i]))
+		next
+		return aRes
+
+	#-- insert pItem after / before each matching item
+	func _StzInsertAfterWF(aContent, pFunc, pItem)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			add(aRes, aContent[i])
+			if ( call pFunc(aContent[i]) ) add(aRes, pItem) ok
+		next
+		return aRes
+
+	func _StzInsertBeforeWF(aContent, pFunc, pItem)
+		aRes = []
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if ( call pFunc(aContent[i]) ) add(aRes, pItem) ok
+			add(aRes, aContent[i])
+		next
+		return aRes
+
 	#-- WF check restricted to the items at the given positions
 	func _StzCheckItemsAtWF(aContent, panPos, pFunc)
 		nLen = len(panPos)
