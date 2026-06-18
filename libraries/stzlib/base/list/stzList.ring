@@ -4751,6 +4751,116 @@ class stzList from stzObject
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.NextNthOccurrence(n, pItem, pnStartingAt)
 
+	  #=========================================================#
+	 #  SMALLEST/LARGEST POSITIONS, ITEMS-WITH-POSITIONS, etc. #
+	#=========================================================#
+
+	def FindSmallest()
+		return This.Find(This.Smallest())
+
+		def NumberOfSmallest()
+			return ring_len(This.FindSmallest())
+
+		def NumberOfOccurrencesOfSmallestItem()
+			return ring_len(This.FindSmallest())
+
+	def FindLargest()
+		return This.Find(This.Largest())
+
+		def NumberOfLargest()
+			return ring_len(This.FindLargest())
+
+		def NumberOfOccurrencesOfLargestItem()
+			return ring_len(This.FindLargest())
+
+	#-- [[item, [positions...]], ...] in first-appearance order
+	def FindItems()
+		return _StzItemsWithPositions(This.Content())
+
+		def ItemsZ()
+			return This.FindItems()
+
+	#-- [[item, count], ...] in first-appearance order (type-sensitive)
+	def ItemsCount()
+		return _StzItemsCount(This.Content())
+
+	  #-------------------------------------------#
+	 #  CONSECUTIVE-DUPLICATE ITEMS              #
+	#-------------------------------------------#
+
+	def FindDupSecutiveItemsCS(pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		return _StzFindDupSecutive(This.Content(), pCaseSensitive)
+
+	def FindDupSecutiveItems()
+		return _StzFindDupSecutive(This.Content(), 1)
+
+	def DupSecutiveItemsCS(pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		return _StzDupSecutiveValues(This.Content(), pCaseSensitive)
+
+	def DupSecutiveItems()
+		return _StzDupSecutiveValues(This.Content(), 1)
+
+	def FindThisDupSecutiveItemCS(pItem, pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		return _StzFindThisDupSecutive(This.Content(), pItem, pCaseSensitive)
+
+	def FindThisDupSecutiveItem(pItem)
+		return _StzFindThisDupSecutive(This.Content(), pItem, 1)
+
+	def DupSecutiveItemsCSZ(pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		return _StzDupSecutiveItemsZ(This.Content(), pCaseSensitive)
+
+	def DupSecutiveItemsZ()
+		return _StzDupSecutiveItemsZ(This.Content(), 1)
+
+	def DupSecutiveItemCSZ(pItem, pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		return [ pItem, _StzFindThisDupSecutive(This.Content(), pItem, pCaseSensitive) ]
+
+	def DupSecutiveItemZ(pItem)
+		return This.DupSecutiveItemCSZ(pItem, 1)
+
+	def RemoveDupSecutiveItemsCS(pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		@aContent = _StzRemoveDupSecutive(This.Content(), pCaseSensitive)
+
+		def RemoveDupSecutiveItemsCSQ(pCaseSensitive)
+			This.RemoveDupSecutiveItemsCS(pCaseSensitive)
+			return This
+
+	def RemoveDupSecutiveItems()
+		This.RemoveDupSecutiveItemsCS(1)
+
+	def RemoveDupSecutiveItemCS(pItem, pCaseSensitive)
+		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		@aContent = _StzRemoveThisDupSecutive(This.Content(), pItem, pCaseSensitive)
+
+	def RemoveDupSecutiveItem(pItem)
+		This.RemoveDupSecutiveItemCS(pItem, 1)
+
+	def FindNthSmallest(n)
+		return This.Find(This.NthSmallest(n))
+
+	def FindNthLargest(n)
+		return This.Find(This.NthLargest(n))
+
 	# CountItemsW/CountW already defined above
 
 	  #-----------------------------#
