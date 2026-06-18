@@ -716,3 +716,64 @@ class stzListReplacer
 
 		def ReplaceAtByManyXT(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+
+	  #==================================================#
+	 #  W-EXPRESSION + NEXT-NTH-OCCURRENCE REPLACERS    #
+	#==================================================#
+
+	#-- unwrap ANY 2-element named-param ([:keyword, value] -> value)
+	def _RpNamed(p)
+		if isList(p) and len(p) = 2 and isString(p[1])
+			return p[2]
+		ok
+		return p
+
+	#-- Replace every item matching the :Where boolean expr with the :By value.
+	#-- Matching positions come from the engine-backed FindAllW (@item placeholder).
+	def ReplaceWXT(pWhere, pBy)
+		_cond_ = This._RpNamed(pWhere)
+		_val_  = This._RpNamed(pBy)
+		_pos_  = @oList.FindAllW(_cond_)
+		This.ReplaceAnyItemAtPositions(_pos_, _val_)
+
+		def ReplaceItemsWXT(pWhere, pBy)
+			This.ReplaceWXT(pWhere, pBy)
+
+		def ReplaceItemsW(pWhere, pBy)
+			This.ReplaceWXT(pWhere, pBy)
+
+		def ReplaceW(pWhere, pBy)
+			This.ReplaceWXT(pWhere, pBy)
+
+	#-- Replace the n-th occurrence of pItem at or after position pnStartingAt.
+	def ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		pItem        = This._RpNamed(pItem)
+		pNewItem     = This._RpNamed(pNewItem)
+		pnStartingAt = This._RpNamed(pnStartingAt)
+		_all_ = @oList.FindAllCS(pItem, pCaseSensitive)
+		_na_  = len(_all_)
+		_cnt_ = 0
+		_target_ = 0
+		for _i_ = 1 to _na_
+			if _all_[_i_] >= pnStartingAt
+				_cnt_++
+				if _cnt_ = n
+					_target_ = _all_[_i_]
+					exit
+				ok
+			ok
+		next
+		if _target_ > 0
+			_a_ = This.Content()
+			_a_[_target_] = pNewItem
+			@oList.UpdateWith(_a_)
+		ok
+
+	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, 1)
+
+		def ReplaceNextNthOccurrenceST(n, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+
+		def ReplaceNthNextOccurrenceST(n, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)

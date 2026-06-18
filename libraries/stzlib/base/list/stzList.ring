@@ -1073,6 +1073,31 @@ class stzList from stzObject
 		def ReplaceAtByManyXT(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
 
+	def ReplaceWXT(pWhere, pBy)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceWXT(pWhere, pBy)
+		@aContent = _o_.Content()
+
+		def ReplaceItemsWXT(pWhere, pBy)
+			This.ReplaceWXT(pWhere, pBy)
+
+		def ReplaceItemsW(pWhere, pBy)
+			This.ReplaceWXT(pWhere, pBy)
+
+		def ReplaceW(pWhere, pBy)
+			This.ReplaceWXT(pWhere, pBy)
+
+	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		_o_ = new stzListReplacer(This)
+		_o_.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		@aContent = _o_.Content()
+
+		def ReplaceNextNthOccurrenceST(n, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+
+		def ReplaceNthNextOccurrenceST(n, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+
 	  #=============================================#
 	 #  STRINGIFY DELEGATION (via stzListStringify) #
 	#=============================================#
