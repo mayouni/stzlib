@@ -917,6 +917,32 @@ class stzList from stzObject
 	def ReplaceNthOccurrence(n, pItem, pNewItem)
 		This.ReplaceNthOccurrenceCS(n, pItem, pNewItem, 1)
 
+	# Replace the nth occurrence of an item counting backward from a
+	# given position. Named form:
+	#   ReplacePreviousNthOccurrence(n, :Of=item, :By=new, :StartingAt=p)
+
+	def ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		if isList(pItem) and ring_len(pItem) = 2 and isString(pItem[1]) and
+		   (pItem[1] = :of or pItem[1] = :Of)
+			pItem = pItem[2]
+		ok
+		if isList(pNewItem) and ring_len(pNewItem) = 2 and isString(pNewItem[1]) and
+		   (pNewItem[1] = :with or pNewItem[1] = :With or pNewItem[1] = :by or
+		    pNewItem[1] = :By or pNewItem[1] = :using or pNewItem[1] = :Using)
+			pNewItem = pNewItem[2]
+		ok
+		if isList(pnStartingAt) and ring_len(pnStartingAt) = 2 and isString(pnStartingAt[1]) and
+		   (pnStartingAt[1] = :startingat or pnStartingAt[1] = :StartingAt)
+			pnStartingAt = pnStartingAt[2]
+		ok
+		oRpvSec = This.SectionQ(1, pnStartingAt)
+		anRpvPos = oRpvSec.FindAllCS(pItem, pCaseSensitive)
+		nRpvPos = anRpvPos[ ring_len(anRpvPos) - n + 1 ]
+		This.ReplaceAt(nRpvPos, pNewItem)
+
+	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, 1)
+
 	# Replace every item by a single new one:
 	# ReplaceAllItems(:With = newItem) or ReplaceAllItems(newItem).
 
