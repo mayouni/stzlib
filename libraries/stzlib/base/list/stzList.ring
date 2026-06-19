@@ -7465,6 +7465,58 @@ class stzList from stzObject
 		def NumberOfOccurrencesWXT(pCondition)
 			return This.CountItemsWXT(pCondition)
 
+	#-- EachContains: every item (string or sub-list) contains pItem.
+
+	def EachContainsCS(pItem, pCaseSensitive)
+		bResult = 1
+		aContent = This.Content()
+		nLen = ring_len(aContent)
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
+				bResult = 0
+				exit
+			else
+				oEcItm = Q(aContent[i])
+				bResult = oEcItm.ContainsCS(pItem, pCaseSensitive)
+				if bResult = 0
+					exit
+				ok
+			ok
+		next
+		return bResult
+
+		def EachContains(pItem)
+			return This.EachContainsCS(pItem, 1)
+
+		def EachItemContainsCS(pItem, pCaseSensitive)
+			return This.EachContainsCS(pItem, pCaseSensitive)
+
+		def EachItemContains(pItem)
+			return This.EachContainsCS(pItem, 1)
+
+	#-- EachContainsThese: every item contains all the given items.
+
+	def EachContainsTheseCS(paItems, pCaseSensitive)
+		bResult = 1
+		aContent = This.Content()
+		nLen = ring_len(aContent)
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) or isString(aContent[i]) )
+				bResult = 0
+				exit
+			else
+				oEctItm = Q(aContent[i])
+				bResult = oEctItm.ContainsTheseCS(paItems, pCaseSensitive)
+				if bResult = 0
+					exit
+				ok
+			ok
+		next
+		return bResult
+
+		def EachContainsThese(paItems)
+			return This.EachContainsTheseCS(paItems, 1)
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
