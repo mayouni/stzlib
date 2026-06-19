@@ -7078,6 +7078,19 @@ class stzList from stzObject
 		def DeeplyContains(pItem)
 			return This.DeepContains(pItem)
 
+	# Deep find: the index-path to every (nested) occurrence of pItem.
+	# Engine-backed via the stzDeepList wrapper (stz_list_deep_find).
+
+	def DeepFind(pItem)
+		oDfDl = This.DeepList()
+		return oDfDl.DeepFind(pItem)
+
+		def DeepFindAll(pItem)
+			return This.DeepFind(pItem)
+
+		def DeepFindCS(pItem, pCaseSensitive)
+			return This.DeepFind(pItem)
+
 	# FilledWith(pItems): replace the wrapped list with pItems, then
 	# return its content. Used for the 'start from an empty list and
 	# fill it with these items' fluent shape.
