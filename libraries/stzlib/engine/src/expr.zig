@@ -89,6 +89,7 @@ pub const Op = enum(u8) {
     load_accum,
     load_count,
     load_char,
+    load_this_at,
     add,
     sub,
     mul,
@@ -180,6 +181,7 @@ const TTag = enum(u8) {
     var_accum,
     var_count,
     var_char,
+    kw_this,
     fn_is_string,
     fn_is_number,
     fn_is_list,
@@ -230,6 +232,8 @@ const TTag = enum(u8) {
     gte,
     lparen,
     rparen,
+    lbracket,
+    rbracket,
     comma,
     eof,
     err,
@@ -288,6 +292,14 @@ fn tokenize(src: []const u8, pos: *usize) Token {
         ')' => {
             pos.* += 1;
             return .{ .tag = .rparen, .start = start, .len = 1 };
+        },
+        '[' => {
+            pos.* += 1;
+            return .{ .tag = .lbracket, .start = start, .len = 1 };
+        },
+        ']' => {
+            pos.* += 1;
+            return .{ .tag = .rbracket, .start = start, .len = 1 };
         },
         ',' => {
             pos.* += 1;
@@ -389,6 +401,7 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "@value")) return .var_accum;
     if (std.mem.eql(u8, w, "@numberofitems")) return .var_count;
     if (std.mem.eql(u8, w, "@char")) return .var_char;
+    if (std.mem.eql(u8, w, "this")) return .kw_this;
     if (std.mem.eql(u8, w, "true")) return .kw_true;
     if (std.mem.eql(u8, w, "false")) return .kw_false;
     if (std.mem.eql(u8, w, "and")) return .kw_and;
@@ -705,6 +718,14 @@ const Compiler = struct {
                 self.emit(.{ .op = .load_char });
                 self.advance();
             },
+            .kw_this => {
+                // This[<index expr>] -> the list element at that 1-based index
+                self.advance();
+                self.expect(.lbracket);
+                self.parseExpr();
+                self.expect(.rbracket);
+                self.emit(.{ .op = .load_this_at });
+            },
             .lparen => {
                 self.advance();
                 self.parseExpr();
@@ -766,6 +787,11 @@ pub const EvalCtx = struct {
     count: i64 = 0,
     accum: Val = Val.initNull(),
     char_val: Val = Val.initNull(),
+    // Optional access to the whole list, enabling This[<expr>] indexing.
+    // list_get receives list_ctx and a 0-based index and returns the Val.
+    list_ctx: ?*const anyopaque = null,
+    list_len: usize = 0,
+    list_get: ?*const fn (?*const anyopaque, usize) Val = null,
     scratch: [8192]u8 = undefined,
     scratch_pos: usize = 0,
 
@@ -822,6 +848,19 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
             .load_accum => push(&stack, &sp, ctx.accum),
             .load_count => push(&stack, &sp, Val.initInt(ctx.count)),
             .load_char => push(&stack, &sp, ctx.char_val),
+            .load_this_at => {
+                const idx_val = pop(&stack, &sp);
+                const idx1 = idx_val.asInt(); // 1-based index
+                if (ctx.list_get) |getfn| {
+                    if (idx1 >= 1 and @as(usize, @intCast(idx1)) <= ctx.list_len) {
+                        push(&stack, &sp, getfn(ctx.list_ctx, @intCast(idx1 - 1)));
+                    } else {
+                        push(&stack, &sp, Val.initNull());
+                    }
+                } else {
+                    push(&stack, &sp, Val.initNull());
+                }
+            },
 
             .add => {
                 const b = pop(&stack, &sp);
