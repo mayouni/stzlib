@@ -6050,6 +6050,30 @@ class stzList from stzObject
 		_oWaWk_ = new stzListWalker(This)
 		return _oWaWk_.WalkAccumulating(pcExpr)
 
+	def WalkWhere(pcCondition)
+		_oWhWk_ = new stzListWalker(This)
+		return _oWhWk_.WalkWhere(pcCondition)
+
+	def WalkWhereXT(pcCondition, pcDirection, pReturn)
+		_oWhxWk_ = new stzListWalker(This)
+		return _oWhxWk_.WalkWhereXT(pcCondition, pcDirection, pReturn)
+
+	def WalkWhen(pcCondition)
+		_oWnWk_ = new stzListWalker(This)
+		return _oWnWk_.WalkWhen(pcCondition)
+
+	def WalkWhenXT(pcCondition, pcDirection, pReturn)
+		_oWnxWk_ = new stzListWalker(This)
+		return _oWnxWk_.WalkWhenXT(pcCondition, pcDirection, pReturn)
+
+	def WalkUntilXT(pcCondition, pcDirection, pReturn)
+		_oWuxWk_ = new stzListWalker(This)
+		return _oWuxWk_.WalkUntilXT(pcCondition, pcDirection, pReturn)
+
+	def WalkWhileXT(pcCondition, pcDirection, pReturn)
+		_oWwxWk_ = new stzListWalker(This)
+		return _oWwxWk_.WalkWhileXT(pcCondition, pcDirection, pReturn)
+
 	  #-------------------------------#
 	 #  MOVER DELEGATIONS            #
 	#-------------------------------#

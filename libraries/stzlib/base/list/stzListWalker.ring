@@ -178,27 +178,206 @@ class stzListWalker
 	#==========================#
 
 	def WalkUntil(pcCondition)
-		_pWuList_ = @oList._EngineListFromContent()
-		if _pWuList_ = NULL return [] ok
+		# Walk forward up to AND INCLUDING the first position where the
+		# condition holds. WalkUntil(:Before = cond) stops just before it.
+		_bWuBefore_ = 0
+		if isList(pcCondition) and len(pcCondition) = 2 and isString(pcCondition[1]) and
+		   (pcCondition[1] = :Before or pcCondition[1] = :before)
+			_bWuBefore_ = 1
+			pcCondition = pcCondition[2]
+		ok
 
-		pcCondition = _StzStripBraces(pcCondition)
-		_nWuFirst_ = StzEngineListFindW(_pWuList_, pcCondition)
-		StzEngineListFree(_pWuList_)
+		_anWuMatch_ = @oList.FindAllItemsW(pcCondition)
+		_nWuLen_ = This.NumberOfItems()
 
-		if _nWuFirst_ = 0
-			_nWuLen_ = This.NumberOfItems()
-			_anWuResult_ = []
+		_anWuResult_ = []
+		if len(_anWuMatch_) = 0
 			for _iWu_ = 1 to _nWuLen_
 				@AddItem(_anWuResult_, _iWu_)
 			next
 			return _anWuResult_
 		ok
 
-		_anWuResult2_ = []
-		for _jWu_ = 1 to _nWuFirst_ - 1
-			@AddItem(_anWuResult2_, _jWu_)
+		_nWuLast_ = _anWuMatch_[1]
+		if _bWuBefore_
+			_nWuLast_ = _nWuLast_ - 1
+		ok
+		for _jWu_ = 1 to _nWuLast_
+			@AddItem(_anWuResult_, _jWu_)
 		next
-		return _anWuResult2_
+		return _anWuResult_
+
+	#-- Directional / return-type walking helpers (engine-backed via
+	#-- FindAllItemsW). pcDirection: :Forward (default) / :Backward.
+	#-- pReturn: :WalkedPositions (default) / :WalkedItems.
+
+	def _WalkDir_(pcDirection)
+		if isList(pcDirection) and len(pcDirection) = 2 and isString(pcDirection[1])
+			pcDirection = pcDirection[2]
+		ok
+		if pcDirection = :Backward or pcDirection = :Backwards or pcDirection = :Back or pcDirection = :Reverse
+			return :Backward
+		ok
+		return :Forward
+
+	def _WalkRet_(pReturn)
+		if isList(pReturn) and len(pReturn) = 2 and isString(pReturn[1])
+			pReturn = pReturn[2]
+		ok
+		if pReturn = :WalkedItems or pReturn = :WalkedItem or pReturn = :Items or
+		   pReturn = :LastWalkedItem or pReturn = :LastItem
+			return :WalkedItems
+		ok
+		return :WalkedPositions
+
+	def _WalkOut_(panPos, pReturn)
+		if This._WalkRet_(pReturn) = :WalkedItems
+			_aWoC_ = @oList.Content()
+			_aWoR_ = []
+			_nWoL_ = len(panPos)
+			for _iWo_ = 1 to _nWoL_
+				@AddItem(_aWoR_, _aWoC_[ panPos[_iWo_] ])
+			next
+			return _aWoR_
+		ok
+		return panPos
+
+	def _WalkInSet_(n, panSet)
+		_nWiL_ = len(panSet)
+		for _iWi_ = 1 to _nWiL_
+			if panSet[_iWi_] = n
+				return 1
+			ok
+		next
+		return 0
+
+	  #==========================#
+	 #  WALKING WHERE           #
+	#==========================#
+
+	def WalkWhere(pcCondition)
+		return @oList.FindAllItemsW(pcCondition)
+
+	def WalkWhereXT(pcCondition, pcDirection, pReturn)
+		_anWhPos_ = @oList.FindAllItemsW(pcCondition)
+		if This._WalkDir_(pcDirection) = :Backward
+			_anWhRev_ = []
+			for _iWh_ = len(_anWhPos_) to 1 step -1
+				@AddItem(_anWhRev_, _anWhPos_[_iWh_])
+			next
+			_anWhPos_ = _anWhRev_
+		ok
+		return This._WalkOut_(_anWhPos_, pReturn)
+
+	  #==========================#
+	 #  WALKING WHEN            #
+	#==========================#
+
+	def WalkWhen(pcCondition)
+		_anWnMatch_ = @oList.FindAllItemsW(pcCondition)
+		if len(_anWnMatch_) = 0
+			return []
+		ok
+		_nWnFirst_ = _anWnMatch_[1]
+		_nWnLen_ = This.NumberOfItems()
+		_anWnRes_ = []
+		for _iWn_ = _nWnFirst_ to _nWnLen_
+			@AddItem(_anWnRes_, _iWn_)
+		next
+		return _anWnRes_
+
+	def WalkWhenXT(pcCondition, pcDirection, pReturn)
+		_anWnMatch_ = @oList.FindAllItemsW(pcCondition)
+		if len(_anWnMatch_) = 0
+			return []
+		ok
+		_nWnFirst_ = _anWnMatch_[1]
+		_nWnLen_ = This.NumberOfItems()
+		_anWnPos_ = []
+		if This._WalkDir_(pcDirection) = :Backward
+			for _iWn_ = _nWnFirst_ to 1 step -1
+				@AddItem(_anWnPos_, _iWn_)
+			next
+		else
+			for _iWn_ = _nWnFirst_ to _nWnLen_
+				@AddItem(_anWnPos_, _iWn_)
+			next
+		ok
+		return This._WalkOut_(_anWnPos_, pReturn)
+
+	def WalkUntilXT(pcCondition, pcDirection, pReturn)
+		_bWuxBefore_ = 0
+		if isList(pcCondition) and len(pcCondition) = 2 and isString(pcCondition[1]) and
+		   (pcCondition[1] = :Before or pcCondition[1] = :before)
+			_bWuxBefore_ = 1
+			pcCondition = pcCondition[2]
+		ok
+		_anWuxMatch_ = @oList.FindAllItemsW(pcCondition)
+		_nWuxLen_ = This.NumberOfItems()
+		_anWuxPos_ = []
+		if This._WalkDir_(pcDirection) = :Backward
+			_nWuxFirst_ = 0
+			for _iWux_ = _nWuxLen_ to 1 step -1
+				if This._WalkInSet_(_iWux_, _anWuxMatch_)
+					_nWuxFirst_ = _iWux_
+					exit
+				ok
+			next
+			if _nWuxFirst_ = 0
+				for _iWux_ = _nWuxLen_ to 1 step -1
+					@AddItem(_anWuxPos_, _iWux_)
+				next
+			else
+				_nWuxStart_ = _nWuxFirst_
+				if _bWuxBefore_
+					_nWuxStart_ = _nWuxFirst_ + 1
+				ok
+				for _iWux_ = _nWuxLen_ to _nWuxStart_ step -1
+					@AddItem(_anWuxPos_, _iWux_)
+				next
+			ok
+		else
+			_nWuxFirst_ = 0
+			for _iWux_ = 1 to _nWuxLen_
+				if This._WalkInSet_(_iWux_, _anWuxMatch_)
+					_nWuxFirst_ = _iWux_
+					exit
+				ok
+			next
+			if _nWuxFirst_ = 0
+				for _iWux_ = 1 to _nWuxLen_
+					@AddItem(_anWuxPos_, _iWux_)
+				next
+			else
+				_nWuxLast_ = _nWuxFirst_
+				if _bWuxBefore_
+					_nWuxLast_ = _nWuxFirst_ - 1
+				ok
+				for _iWux_ = 1 to _nWuxLast_
+					@AddItem(_anWuxPos_, _iWux_)
+				next
+			ok
+		ok
+		return This._WalkOut_(_anWuxPos_, pReturn)
+
+	def WalkWhileXT(pcCondition, pcDirection, pReturn)
+		_anWwxMatch_ = @oList.FindAllItemsW(pcCondition)
+		_nWwxLen_ = This.NumberOfItems()
+		_anWwxPos_ = []
+		if This._WalkDir_(pcDirection) = :Backward
+			_iWwx_ = _nWwxLen_
+			while _iWwx_ >= 1 and This._WalkInSet_(_iWwx_, _anWwxMatch_)
+				@AddItem(_anWwxPos_, _iWwx_)
+				_iWwx_ = _iWwx_ - 1
+			end
+		else
+			_iWwx_ = 1
+			while _iWwx_ <= _nWwxLen_ and This._WalkInSet_(_iWwx_, _anWwxMatch_)
+				@AddItem(_anWwxPos_, _iWwx_)
+				_iWwx_ = _iWwx_ + 1
+			end
+		ok
+		return This._WalkOut_(_anWwxPos_, pReturn)
 
 	  #==========================#
 	 #  WALKING WHILE           #
