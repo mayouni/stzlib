@@ -14,10 +14,10 @@ o1 = new stzList(["c", "c++", "C#", "RING", "python", "ruby"])
 //? o1.FindW("   ")
 #--> ERROR: Can't proceed.
 
-? o1.CountWXT('{ @isLowercase(@item) }')
+? o1.CountWXT('{ IsLowercase(@item) }')
 #--> 4
 
-? o1.NumberOfOccurrenceWXT('{ @isLowercase(@item) }') #--> 6
+? o1.NumberOfOccurrenceWXT('{ IsLowercase(@item) }') #--> 6
 #--> 4
 
 pf()

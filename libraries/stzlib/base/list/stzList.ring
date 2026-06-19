@@ -7453,6 +7453,18 @@ class stzList from stzObject
 	def OnlyWhereXT(pcCondition)
 		return This.ItemsWXT(pcCondition)
 
+	def RemoveCS(pItem, pCaseSensitive)
+		This.RemoveAllCS(pItem, pCaseSensitive)
+
+		def RemoveItemCS(pItem, pCaseSensitive)
+			This.RemoveAllCS(pItem, pCaseSensitive)
+
+	def NumberOfOccurrenceWXT(pCondition)
+		return This.CountItemsWXT(pCondition)
+
+		def NumberOfOccurrencesWXT(pCondition)
+			return This.CountItemsWXT(pCondition)
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
