@@ -7195,6 +7195,64 @@ class stzList from stzObject
 			This.SwapItems(p1, p2)
 			return This
 
+	#-- A two-item list whose both items share a given type.
+
+	def BothAreNumbers()
+		if This.NumberOfItems() = 2 and
+		   isNumber(This.Item(1)) and isNumber(This.Item(2))
+			return 1
+		else
+			return 0
+		ok
+
+		def ContainsTwoNumbers()
+			return This.BothAreNumbers()
+
+		def Contains2Numbers()
+			return This.BothAreNumbers()
+
+	def BothAreStrings()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and isString(This.Item(2))
+			return 1
+		else
+			return 0
+		ok
+
+		def ContainsTwoStrings()
+			return This.BothAreStrings()
+
+		def Contains2Strings()
+			return This.BothAreStrings()
+
+	def BothAreLists()
+		if This.NumberOfItems() = 2 and
+		   isList(This.Item(1)) and isList(This.Item(2))
+			return 1
+		else
+			return 0
+		ok
+
+		def ContainsTwoLists()
+			return This.BothAreLists()
+
+		def Contains2Lists()
+			return This.BothAreLists()
+
+	def BothAreObjects()
+		if This.NumberOfItems() = 2 and
+		   isObject(This.Item(1)) and isObject(This.Item(2))
+			return 1
+		else
+			return 0
+		ok
+
+		def ContainsTwoObjects()
+			return This.BothAreObjects()
+
+		def Contains2Objects()
+			return This.BothAreObjects()
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
