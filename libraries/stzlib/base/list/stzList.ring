@@ -7674,6 +7674,53 @@ class stzList from stzObject
 		def StringsAndNumbersZ()
 			return This.NumbersAndStringsZ()
 
+	#-- Extend the list up to position n. ExtendToPosition pads with 0
+	#-- (number lists) or "" ; the WithItemsIn/Repeated forms pad by
+	#-- cycling through a given list (or the list's own items).
+
+	def ExtendToPosition(n)
+		nLen = This.NumberOfItems()
+		aContent = This.Content()
+		if n > nLen
+			value = ""
+			if This.IsListOfNumbers()
+				value = 0
+			ok
+			nExtend = n - nLen
+			for i = 1 to nExtend
+				aContent + value
+			next
+		ok
+		This.UpdateWith(aContent)
+
+	def ExtendToPositionWithItemsIn(n, paItems)
+		nLen = ring_len(paItems)
+		nTemp = n - nLen
+		aTemp = []
+		if nTemp > 0
+			j = 0
+			for i = 1 to nTemp
+				j++
+				if j > nLen
+					j = 1
+				ok
+				aTemp + paItems[j]
+			next
+		ok
+		This.ExtendWith(aTemp)
+
+		def ExtendToWithItemsIn(n, paItems)
+			This.ExtendToPositionWithItemsIn(n, paItems)
+
+	def ExtendToPositionWithItemsRepeated(n)
+		This.ExtendToPositionWithItemsIn(n, This.List())
+
+		def ExtendToWithItemsRepeated(n)
+			This.ExtendToPositionWithItemsRepeated(n)
+
+		def ExtendToByRepeatingItems(n)
+			This.ExtendToPositionWithItemsRepeated(n)
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
