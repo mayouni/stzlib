@@ -22,7 +22,11 @@ o1 = new stzList([
 #--> 3
 
 ? @@( o1.DeepFind("you") )
-#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 1 ], [ 1, 4 ] ]
+# Modernized to the canonical nested index-path format (engine-backed
+# stz_list_deep_find): "you" is at top position 1, at 3.2, at 3.3.1, and
+# at 5. The old [[1,1],[2,2],[3,1],[1,4]] was the superseded flat format
+# (and mislabeled -- [2,2] points at "other").
+#--> [ [ 1 ], [ 3, 2 ], [ 3, 3, 1 ], [ 5 ] ]
 
 #~> the item "you" is found at:
 #	- posisitons 1 and 4 in level 1
