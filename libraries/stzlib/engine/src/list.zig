@@ -1084,7 +1084,7 @@ fn stzValueToVal(v: *const StzValue) expr.Val {
         .int_val => expr.Val.initInt(v.data.int_val),
         .float_val => expr.Val.initFloat(v.data.float_val),
         .string_val => expr.Val.initStr(v.data.string_val.ptr, v.data.string_val.len),
-        .list_val => expr.Val.initNull(),
+        .list_val => expr.Val.initList(v.data.list_val.len),
     };
 }
 
@@ -1103,6 +1103,7 @@ fn valToStzValue(v: expr.Val) ?*StzValue {
         .int_v => value_mod.stz_value_new_int(v.data.i),
         .float_v => value_mod.stz_value_new_float(v.data.f),
         .str_v => value_mod.stz_value_new_string(v.data.s.ptr, v.data.s.len),
+        .list_v => value_mod.stz_value_new_null(),
     };
 }
 
