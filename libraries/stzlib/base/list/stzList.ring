@@ -7372,6 +7372,87 @@ class stzList from stzObject
 		def ContainsOnlyUniSizeLists()
 			return This.ContainsOnlyListsWithSameNumberOfItems()
 
+	#-- Thin aliases over existing methods (restored from the monolith).
+
+	# Bounds of an item: for each occurrence of pItem, the up-to-N
+	# items immediately before and after it. pUpTo is a number (same
+	# count both sides) or a [before, after] pair. Accepts the named
+	# form BoundsOf(item, :UpToNItems = n). (Bounds() no-arg already
+	# exists, so the parametered form lives under BoundsCS/BoundsOf.)
+
+	def BoundsCS(pItem, pUpTo, pCaseSensitive)
+		if isList(pItem) and len(pItem) = 2 and isString(pItem[1]) and StzLower(pItem[1]) = "of"
+			pItem = pItem[2]
+		ok
+		if isList(pUpTo) and len(pUpTo) = 2 and isString(pUpTo[1])
+			pUpTo = pUpTo[2]
+		ok
+		nLenList = ring_len(@aContent)
+		anPos = This.FindCS(pItem, pCaseSensitive)
+		nLenPos = ring_len(anPos)
+		if isNumber(pUpTo)
+			nLenBound1 = pUpTo
+			nLenBound2 = pUpTo
+		else
+			nLenBound1 = pUpTo[1]
+			nLenBound2 = pUpTo[2]
+		ok
+		aResult = []
+		for i = 1 to nLenPos
+			aBounds = []
+			if anPos[i] - nLenBound1 > 0
+				aBounds + This.Section(anPos[i] - nLenBound1, anPos[i] - 1)
+			else
+				aBounds + []
+			ok
+			if nLenList - anPos[i] >= nLenBound2
+				aBounds + This.Section(anPos[i] + 1, anPos[i] + nLenBound2)
+			else
+				aBounds + []
+			ok
+			aResult + aBounds
+		next
+		return aResult
+
+	def BoundsOf(pItem, pUpTo)
+		return This.BoundsCS(pItem, pUpTo, 1)
+
+		def NBoundsOf(pItem, pUpTo)
+			return This.BoundsCS(pItem, pUpTo, 1)
+
+	def CountWXT(pCondition)
+		return This.CountItemsWXT(pCondition)
+
+	def DupOrigins()
+		return This.Duplicates()
+
+	def FindItemsW(pCondition)
+		return This.FindAllItemsW(pCondition)
+
+	def FirstNItemsQRT(n, pcReturnType)
+		return This.NFirstItemsQRT(n, pcReturnType)
+
+	def HowManyDuplicates()
+		return This.NumberOfDuplicates()
+
+	def Index()
+		return This.FindItems()
+
+	def Extract(pItem)
+		return This.ExtractCS(pItem, 1)
+
+	def ItemsAre(p)
+		return This.Are(p)
+
+	def Klass(pcClass)
+		return This.Classify()[pcClass]
+
+	def NumberOfDuplicatesOf(pItem)
+		return This.NumberOfOccurrence(pItem)
+
+	def OnlyWhereXT(pcCondition)
+		return This.ItemsWXT(pcCondition)
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
