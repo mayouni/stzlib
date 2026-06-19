@@ -7721,6 +7721,76 @@ class stzList from stzObject
 		def ExtendToByRepeatingItems(n)
 			This.ExtendToPositionWithItemsRepeated(n)
 
+	#-- Size comparison with another list. Accept the named form
+	#-- IsLarger(:Than = otherList) or the raw list.
+
+	def HasMoreNumberOfItems(paOtherList)
+		if isList(paOtherList) and ring_len(paOtherList) = 2 and isString(paOtherList[1]) and
+		   (paOtherList[1] = :Than or paOtherList[1] = :than)
+			paOtherList = paOtherList[2]
+		ok
+		if This.NumberOfItems() > ring_len(paOtherList)
+			return 1
+		else
+			return 0
+		ok
+
+		def IsLarger(paOtherList)
+			return This.HasMoreNumberOfItems(paOtherList)
+
+		def IsLargerThan(paOtherList)
+			return This.HasMoreNumberOfItems(paOtherList)
+
+		def HasMoreItems(paOtherList)
+			return This.HasMoreNumberOfItems(paOtherList)
+
+	def HasLessNumberOfItems(paOtherList)
+		if isList(paOtherList) and ring_len(paOtherList) = 2 and isString(paOtherList[1]) and
+		   (paOtherList[1] = :Than or paOtherList[1] = :than)
+			paOtherList = paOtherList[2]
+		ok
+		if This.NumberOfItems() < ring_len(paOtherList)
+			return 1
+		else
+			return 0
+		ok
+
+		def IsSmaller(paOtherList)
+			return This.HasLessNumberOfItems(paOtherList)
+
+		def IsSmallerThan(paOtherList)
+			return This.HasLessNumberOfItems(paOtherList)
+
+		def HasLessItems(paOtherList)
+			return This.HasLessNumberOfItems(paOtherList)
+
+		def HasFewerItems(paOtherList)
+			return This.HasLessNumberOfItems(paOtherList)
+
+	#-- IsListOfEmptyLists: every item is an empty list.
+
+	def IsListOfEmptyLists()
+		aContent = This.Content()
+		nLen = ring_len(aContent)
+		bResult = 1
+		for i = 1 to nLen
+			if NOT isList(aContent[i])
+				bResult = 0
+				exit
+			ok
+			if NOT ring_len(aContent[i]) = 0
+				bResult = 0
+				exit
+			ok
+		next
+		return bResult
+
+		def AllItemsAreEmptyLists()
+			return This.IsListOfEmptyLists()
+
+		def ContainsOnlyEmptyLists()
+			return This.IsListOfEmptyLists()
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
