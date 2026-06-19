@@ -100,7 +100,7 @@ else
 	? "  FAIL: WalkNBackward(2) (got " + @@(aBwd) + ")"
 ok
 
-aBtw = oW.WalkBetween(2, 4, 1)
+aBtw = oW.WalkBetween(2, 4)
 nTtl++
 if isList(aBtw) and len(aBtw) = 3 and aBtw[1] = 2 and aBtw[3] = 4
 	nPsd++

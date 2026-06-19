@@ -280,7 +280,7 @@ else
 	nFld++
 ok
 
-aWalk2 = o.WalkBetween(2, 4, 1)
+aWalk2 = o.WalkBetween(2, 4)
 nTtl++
 if len(aWalk2) > 0
 	? "  PASS: WalkBetween(2,4,1) count=" + len(aWalk2)
