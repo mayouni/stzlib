@@ -943,6 +943,86 @@ class stzList from stzObject
 	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 		This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, 1)
 
+	# Plural "ST" forms: panList holds INDICES into the list of an
+	# item's previous/next occurrences (relative to :StartingAt). E.g.
+	# panList=[3,1] picks the 3rd and 1st previous occurrence. The
+	# rationale (from the monolith): anAllPos[panList[i]].
+
+	def FindPreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+		if isList(pItem) and ring_len(pItem) = 2 and isString(pItem[1]) and
+		   (pItem[1] = :of or pItem[1] = :Of)
+			pItem = pItem[2]
+		ok
+		if isList(pnStartingAt) and ring_len(pnStartingAt) = 2 and isString(pnStartingAt[1]) and
+		   (pnStartingAt[1] = :startingat or pnStartingAt[1] = :StartingAt)
+			pnStartingAt = pnStartingAt[2]
+		ok
+		oFpnSec = This.SectionQ(1, pnStartingAt - 1)
+		anFpnAll = oFpnSec.FindAllCS(pItem, pCaseSensitive)
+		anFpnRes = []
+		nFpnL = ring_len(panList)
+		for iFpn = 1 to nFpnL
+			anFpnRes + anFpnAll[ panList[iFpn] ]
+		next
+		return anFpnRes
+
+	def FindNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+		if isList(pItem) and ring_len(pItem) = 2 and isString(pItem[1]) and
+		   (pItem[1] = :of or pItem[1] = :Of)
+			pItem = pItem[2]
+		ok
+		if isList(pnStartingAt) and ring_len(pnStartingAt) = 2 and isString(pnStartingAt[1]) and
+		   (pnStartingAt[1] = :startingat or pnStartingAt[1] = :StartingAt)
+			pnStartingAt = pnStartingAt[2]
+		ok
+		oFnnSec = This.SectionQ(pnStartingAt + 1, This.NumberOfItems())
+		anFnnRel = oFnnSec.FindAllCS(pItem, pCaseSensitive)
+		anFnnAll = []
+		nFnnRel = ring_len(anFnnRel)
+		for iFnn = 1 to nFnnRel
+			anFnnAll + ( anFnnRel[iFnn] + pnStartingAt )
+		next
+		anFnnRes = []
+		nFnnL = ring_len(panList)
+		for iFnn = 1 to nFnnL
+			anFnnRes + anFnnAll[ panList[iFnn] ]
+		next
+		return anFnnRes
+
+	def ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
+		if isList(pNewItem) and ring_len(pNewItem) = 2 and isString(pNewItem[1]) and
+		   (pNewItem[1] = :with or pNewItem[1] = :With or pNewItem[1] = :by or pNewItem[1] = :By)
+			pNewItem = pNewItem[2]
+		ok
+		anRpnPos = This.FindPreviousNthOccurrencesCS(panList, pItem, pnStartingAt, 1)
+		This.ReplaceItemsAtPositions(anRpnPos, pNewItem)
+
+		def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+			This.ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
+
+	def ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+		if isList(pNewItem) and ring_len(pNewItem) = 2 and isString(pNewItem[1]) and
+		   (pNewItem[1] = :with or pNewItem[1] = :With or pNewItem[1] = :by or pNewItem[1] = :By)
+			pNewItem = pNewItem[2]
+		ok
+		anRnnPos = This.FindNextNthOccurrencesCS(panList, pItem, pnStartingAt, 1)
+		This.ReplaceItemsAtPositions(anRnnPos, pNewItem)
+
+		def ReplaceNextNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+
+	# Passive (non-mutating) forms: return a fresh content list.
+
+	def NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
+		oNnrCopy = This.Copy()
+		oNnrCopy.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
+		return oNnrCopy.Content()
+
+	def PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
+		oPnrCopy = This.Copy()
+		oPnrCopy.ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
+		return oPnrCopy.Content()
+
 	# Replace every item by a single new one:
 	# ReplaceAllItems(:With = newItem) or ReplaceAllItems(newItem).
 
