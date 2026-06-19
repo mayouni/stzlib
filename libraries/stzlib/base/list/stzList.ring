@@ -7112,6 +7112,10 @@ class stzList from stzObject
 	# Ring's = (deep-equal for lists, value-equal for scalars).
 
 	def DeepReplaceCS(pOld, pNew, pCaseSensitive)
+		if isList(pNew) and ring_len(pNew) = 2 and isString(pNew[1]) and
+		   (pNew[1] = :by or pNew[1] = :By or pNew[1] = :with or pNew[1] = :With)
+			pNew = pNew[2]
+		ok
 		@aContent = This._DeepReplaceCS(@aContent, pOld, pNew, pCaseSensitive)
 
 		def DeepReplaceCSQ(pOld, pNew, pCaseSensitive)
