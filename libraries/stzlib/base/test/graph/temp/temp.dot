@@ -10,7 +10,7 @@ digraph socialnetwork {
 
   alice -> bob;
   bob -> charlie;
-  bob -> diana;
   charlie -> diana;
   diana -> eve;
+  bob -> diana;
 }

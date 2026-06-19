@@ -19,6 +19,6 @@ oGraph {
 
 oGx = new stzGraphex("{@Node(Start) -> @Edge(flows) -> @Node(End)}", oGraph)
 ? "=== Pattern Explanation ==="
-? @@(oGx.Explain())
+? @@NL(oGx.Explain())
 
 pf()

@@ -7127,6 +7127,74 @@ class stzList from stzObject
 		def TypesQ()
 			return new stzList( This.Types() )
 
+	#-- Unique list of the item types (Types() with duplicates removed)
+
+	def UniqueTypes()
+		oTypes = new stzList( This.Types() )
+		return oTypes.Unique()
+
+		def TypesU()
+			return This.UniqueTypes()
+
+		def UniqueTypesQ()
+			return new stzList( This.UniqueTypes() )
+
+	#-- The items that are NOT numbers (engine DSL)
+
+	def NonNumbers()
+		return This.ItemsW('{ not isNumber(@item) }')
+
+		def NonNumbersQ()
+			return new stzList( This.NonNumbers() )
+
+	#-- A copy of the list with every numeric 0 removed (non-mutating)
+
+	def ZerosRemoved()
+		return This.ItemsW('{ not isNumber(@item) or @item != 0 }')
+
+		def ZerosRemovedQ()
+			return new stzList( This.ZerosRemoved() )
+
+	#-- The nth item counted from the end: NthToLast(1) is the item
+	#-- before the last, NthToLast(2) the one before it, and so on.
+
+	def NthToLast(n)
+		return @aContent[ ring_len(@aContent) - n ]
+
+	#-- Shrink the list down to its first n items (mutating).
+	#-- Accepts Shrink(n) or the named form Shrink(:ToPosition = n).
+
+	def Shrink(p)
+		n = p
+		if isList(p) and ring_len(p) = 2
+			n = p[2]
+		ok
+		@aContent = This.Section(1, n)
+		return This
+
+		def ShrinkQ(p)
+			This.Shrink(p)
+			return This
+
+	#-- Swap two items by position (mutating). Accepts SwapItems(n1, n2)
+	#-- or the named form SwapItems(:AtPositions = n1, :And = n2).
+
+	def SwapItems(p1, p2)
+		n1 = p1
+		n2 = p2
+		if isList(p1) and ring_len(p1) = 2
+			n1 = p1[2]
+		ok
+		if isList(p2) and ring_len(p2) = 2
+			n2 = p2[2]
+		ok
+		This.Swap(n1, n2)
+		return This
+
+		def SwapItemsQ(p1, p2)
+			This.SwapItems(p1, p2)
+			return This
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#

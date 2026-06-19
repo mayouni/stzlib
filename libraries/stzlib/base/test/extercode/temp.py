@@ -49,7 +49,10 @@ def fib(n):
         return n
     
     a, b = 0, 1
-    for i in range(2, n + 1):
+    _aRange2n11_ = range(2, n + 1):
+    _nRange2n11Len_ = len(_aRange2n11_)
+    for _iLoopRange2n11_ = 1 to _nRange2n11Len_
+    	i = _aRange2n11_[_iLoopRange2n11_]
         a, b = b, a + b
     return b
 
@@ -60,7 +63,10 @@ def quicksort(arr, low, high):
         pivot = arr[high]
         i = low - 1
         
-        for j in range(low, high):
+        _aRangelowhigh1_ = range(low, high):
+        _nRangelowhigh1Len_ = len(_aRangelowhigh1_)
+        for _iLoopRangelowhigh1_ = 1 to _nRangelowhigh1Len_
+        	j = _aRangelowhigh1_[_iLoopRangelowhigh1_]
             if arr[j] < pivot:
                 i += 1
                 arr[i], arr[j] = arr[j], arr[i]
@@ -96,7 +102,10 @@ array = []
 
 # Fill with random numbers
 random.seed(42)  # Fixed seed for reproducibility
-for i in range(array_size):
+_aRangearray_size1_ = range(array_size):
+_nRangearray_size1Len_ = len(_aRangearray_size1_)
+for _iLoopRangearray_size1_ = 1 to _nRangearray_size1Len_
+	i = _aRangearray_size1_[_iLoopRangearray_size1_]
     array.append(random.randint(0, 9999))
 
 # Sort the array
@@ -118,19 +127,34 @@ matrix1 = []
 matrix2 = []
 result_matrix = []
 
-for i in range(matrix_size):
+_aRangematrix_size5_ = range(matrix_size):
+_nRangematrix_size5Len_ = len(_aRangematrix_size5_)
+for _iLoopRangematrix_size5_ = 1 to _nRangematrix_size5Len_
+	i = _aRangematrix_size5_[_iLoopRangematrix_size5_]
     matrix1.append([0] * matrix_size)
     matrix2.append([0] * matrix_size)
     result_matrix.append([0] * matrix_size)
     
-    for j in range(matrix_size):
+    _aRangematrix_size4_ = range(matrix_size):
+    _nRangematrix_size4Len_ = len(_aRangematrix_size4_)
+    for _iLoopRangematrix_size4_ = 1 to _nRangematrix_size4Len_
+    	j = _aRangematrix_size4_[_iLoopRangematrix_size4_]
         matrix1[i][j] = random.randint(0, 99)
         matrix2[i][j] = random.randint(0, 99)
 
 # Matrix multiplication
-for i in range(matrix_size):
-    for j in range(matrix_size):
-        for k in range(matrix_size):
+_aRangematrix_size3_ = range(matrix_size):
+_nRangematrix_size3Len_ = len(_aRangematrix_size3_)
+for _iLoopRangematrix_size3_ = 1 to _nRangematrix_size3Len_
+	i = _aRangematrix_size3_[_iLoopRangematrix_size3_]
+    _aRangematrix_size2_ = range(matrix_size):
+    _nRangematrix_size2Len_ = len(_aRangematrix_size2_)
+    for _iLoopRangematrix_size2_ = 1 to _nRangematrix_size2Len_
+    	j = _aRangematrix_size2_[_iLoopRangematrix_size2_]
+        _aRangematrix_size1_ = range(matrix_size):
+        _nRangematrix_size1Len_ = len(_aRangematrix_size1_)
+        for _iLoopRangematrix_size1_ = 1 to _nRangematrix_size1Len_
+        	k = _aRangematrix_size1_[_iLoopRangematrix_size1_]
             result_matrix[i][j] += matrix1[i][k] * matrix2[k][j]
 
 end_time = time.time()
