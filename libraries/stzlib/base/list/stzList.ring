@@ -7643,6 +7643,37 @@ class stzList from stzObject
 		def OnlyObjects()
 			return This.Objects()
 
+	#-- NumbersAndStrings: the scalar items (numbers or strings).
+	#-- The Z form pairs each with its 1-based position.
+
+	def NumbersAndStrings()
+		aContent = This.Content()
+		nLen = ring_len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isNumber(aContent[i]) or isString(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+		def StringsAndNumbers()
+			return This.NumbersAndStrings()
+
+	def NumbersAndStringsZ()
+		aContent = This.Content()
+		nLen = ring_len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isNumber(aContent[i]) or isString(aContent[i])
+				aResult + [ aContent[i], i ]
+			ok
+		next
+		return aResult
+
+		def StringsAndNumbersZ()
+			return This.NumbersAndStringsZ()
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
