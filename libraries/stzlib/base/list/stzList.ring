@@ -7517,6 +7517,106 @@ class stzList from stzObject
 		def EachContainsThese(paItems)
 			return This.EachContainsTheseCS(paItems, 1)
 
+	#-- Intersection (method form): items shared with another list.
+	#-- Routes to the existing CommonItems(:With = ...).
+
+	def Intersection(pNamedWith)
+		return This.CommonItems(pNamedWith)
+
+	def CommonItemsWith(paOtherList)
+		return This.CommonItems([ :With, paOtherList ])
+
+		def IntersectionWith(paOtherList)
+			return This.CommonItems([ :With, paOtherList ])
+
+	#-- IsContainedIn(p): this list, taken as a single value, is an
+	#-- element of p (NOT element-wise -- that is AreContainedIn).
+
+	def IsContainedInCS(p, pCaseSensitive)
+		if NOT ( isString(p) or isList(p) )
+			return 0
+		ok
+		oCip = Q(p)
+		anPos = oCip.FindAllCS(This.Content(), pCaseSensitive)
+		if ring_len(anPos) > 0
+			return 1
+		else
+			return 0
+		ok
+
+		def IsContainedIn(p)
+			return This.IsContainedInCS(p, 1)
+
+		def ExistsInCS(p, pCaseSensitive)
+			return This.IsContainedInCS(p, pCaseSensitive)
+
+		def ExistsIn(p)
+			return This.IsContainedInCS(p, 1)
+
+		def IsIncludedInCS(p, pCaseSensitive)
+			return This.IsContainedInCS(p, pCaseSensitive)
+
+	#-- AreContainedIn / ExistIn: every item of this list also exists
+	#-- somewhere in the other list (element-wise membership).
+
+	def EachItemExistsInCS(paOtherList, pCaseSensitive)
+		bResult = 1
+		aContent = This.Content()
+		nLen = ring_len(aContent)
+		nOther = ring_len(paOtherList)
+		for _k = 1 to nLen
+			bFound = 0
+			for _j = 1 to nOther
+				if BothAreEqualCS(aContent[_k], paOtherList[_j], pCaseSensitive)
+					bFound = 1
+					exit
+				ok
+			next
+			if bFound = 0
+				bResult = 0
+				exit
+			ok
+		next
+		return bResult
+
+		def EachItemExistsIn(paOtherList)
+			return This.EachItemExistsInCS(paOtherList, 1)
+
+		def ExistIn(paOtherList)
+			return This.EachItemExistsInCS(paOtherList, 1)
+
+		def AreContainedIn(paOtherList)
+			return This.EachItemExistsInCS(paOtherList, 1)
+
+	#-- HasSameNumberOfItemsAs: same length as another list.
+
+	def HasSameNumberOfItemsAsCS(paOtherList, pCaseSensitive)
+		if ring_len(paOtherList) = This.NumberOfItems()
+			return 1
+		else
+			return 0
+		ok
+
+		def HasSameNumberOfItemsAs(paOtherList)
+			return This.HasSameNumberOfItemsAsCS(paOtherList, 1)
+
+		def HasSameSizeAs(paOtherList)
+			return This.HasSameNumberOfItemsAsCS(paOtherList, 1)
+
+		def HasSameWidthAs(paOtherList)
+			return This.HasSameNumberOfItemsAsCS(paOtherList, 1)
+
+	#-- Negative form of ContainsOneOfThese.
+
+	def ContainsNoOneOfThese(paItems)
+		return NOT This.ContainsOneOfThese(paItems)
+
+		def ContainsNoneOfThese(paItems)
+			return NOT This.ContainsOneOfThese(paItems)
+
+		def ContainsNoItemOfThese(paItems)
+			return NOT This.ContainsOneOfThese(paItems)
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
