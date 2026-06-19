@@ -26,7 +26,7 @@ pub const Val = struct {
     tag: Tag,
     data: Data,
 
-    pub const Tag = enum(u8) { null_v, bool_v, int_v, float_v, str_v };
+    pub const Tag = enum(u8) { null_v, bool_v, int_v, float_v, str_v, list_v };
     const Data = union { b: bool, i: i64, f: f64, s: Slice };
     const Slice = struct { ptr: [*]const u8, len: usize };
 
@@ -45,6 +45,11 @@ pub const Val = struct {
     pub fn initStr(ptr: [*]const u8, len: usize) Val {
         return .{ .tag = .str_v, .data = .{ .s = .{ .ptr = ptr, .len = len } } };
     }
+    // A list-typed value carrying only its element count (enough for
+    // isList()/len() over This[<expr>] elements in the W DSL).
+    pub fn initList(n: usize) Val {
+        return .{ .tag = .list_v, .data = .{ .i = @intCast(n) } };
+    }
 
     pub fn isTruthy(self: Val) bool {
         return switch (self.tag) {
@@ -53,6 +58,7 @@ pub const Val = struct {
             .int_v => self.data.i != 0,
             .float_v => self.data.f != 0.0,
             .str_v => self.data.s.len > 0,
+            .list_v => self.data.i != 0,
         };
     }
 
@@ -948,8 +954,7 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
             },
             .fn_is_list => {
                 const a = pop(&stack, &sp);
-                _ = a;
-                push(&stack, &sp, Val.initBool(false));
+                push(&stack, &sp, Val.initBool(a.tag == .list_v));
             },
             .fn_is_uppercase => {
                 const a = pop(&stack, &sp);
@@ -1015,6 +1020,8 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                 const a = pop(&stack, &sp);
                 if (a.tag == .str_v)
                     push(&stack, &sp, Val.initInt(@intCast(a.data.s.len)))
+                else if (a.tag == .list_v)
+                    push(&stack, &sp, Val.initInt(a.data.i))
                 else
                     push(&stack, &sp, Val.initInt(0));
             },
@@ -1057,6 +1064,7 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                     .int_v => "number",
                     .float_v => "number",
                     .str_v => "string",
+                    .list_v => "list",
                 };
                 push(&stack, &sp, Val.initStr(name.ptr, name.len));
             },
@@ -1145,6 +1153,7 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                         push(&stack, &sp, Val.initStr(s.ptr, s.len));
                     },
                     .null_v => push(&stack, &sp, Val.initStr("null".ptr, 4)),
+                    .list_v => push(&stack, &sp, Val.initStr("list".ptr, 4)),
                 }
             },
             .fn_min => {
@@ -1397,6 +1406,7 @@ fn valEq(a: Val, b: Val) bool {
             if (a.data.s.len == 0) break :blk true;
             break :blk std.mem.eql(u8, a.data.s.ptr[0..a.data.s.len], b.data.s.ptr[0..b.data.s.len]);
         },
+        .list_v => a.data.i == b.data.i,
     };
 }
 

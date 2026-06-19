@@ -7633,6 +7633,61 @@ class stzList from stzObject
 		def NumberOfOccurrencesWXT(pCondition)
 			return This.CountItemsWXT(pCondition)
 
+	#-- A copy with all occurrences of an item removed (non-mutating).
+
+	def ItemRemoved(pItem)
+		oIrCopy = This.Copy()
+		oIrCopy.RemoveAllCS(pItem, 1)
+		return oIrCopy.Content()
+
+		def AllOccurrencesOfThisItemRemoved(pItem)
+			return This.ItemRemoved(pItem)
+
+	#-- A copy with the items matching a W condition removed (engine DSL).
+
+	def ItemRemovedW(pcCondition)
+		anIrwMatch = This.FindAllItemsW(pcCondition)
+		aIrwC = This.Content()
+		nIrwLen = ring_len(aIrwC)
+		aIrwRes = []
+		for iIrw = 1 to nIrwLen
+			bIrwIn = 0
+			nIrwM = ring_len(anIrwMatch)
+			for jIrw = 1 to nIrwM
+				if anIrwMatch[jIrw] = iIrw
+					bIrwIn = 1
+					exit
+				ok
+			next
+			if bIrwIn = 0
+				aIrwRes + aIrwC[iIrw]
+			ok
+		next
+		return aIrwRes
+
+	#-- True if EVERY given position holds an item matching a W condition.
+
+	def ContainsItemsAtW(panPos, pcCondition)
+		anCiwMatch = This.FindAllItemsW(pcCondition)
+		nCiwP = ring_len(panPos)
+		for iCiw = 1 to nCiwP
+			bCiwIn = 0
+			nCiwM = ring_len(anCiwMatch)
+			for jCiw = 1 to nCiwM
+				if anCiwMatch[jCiw] = panPos[iCiw]
+					bCiwIn = 1
+					exit
+				ok
+			next
+			if bCiwIn = 0
+				return 0
+			ok
+		next
+		return 1
+
+		def ContainsAtW(panPos, pcCondition)
+			return This.ContainsItemsAtW(panPos, pcCondition)
+
 	#-- EachContains: every item (string or sub-list) contains pItem.
 
 	def EachContainsCS(pItem, pCaseSensitive)
