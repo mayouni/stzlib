@@ -897,6 +897,42 @@ class stzList from stzObject
 	def ReplaceNth(n, pItem, pNewItem)
 		This.ReplaceNthCS(n, pItem, pNewItem, 1)
 
+	# Occurrence-replace delegation, accepting the named-param call
+	# form ReplaceNthOccurrence(n, :Of = item, :With = newItem).
+
+	def ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
+		if isList(pItem) and len(pItem) = 2 and isString(pItem[1]) and
+		   (pItem[1] = :of or pItem[1] = :Of or pItem[1] = :For or pItem[1] = :for)
+			pItem = pItem[2]
+		ok
+		if isList(pNewItem) and len(pNewItem) = 2 and isString(pNewItem[1]) and
+		   (pNewItem[1] = :with or pNewItem[1] = :With or pNewItem[1] = :by or
+		    pNewItem[1] = :By or pNewItem[1] = :using or pNewItem[1] = :Using)
+			pNewItem = pNewItem[2]
+		ok
+		_oRplNO_ = new stzListReplacer(This)
+		_oRplNO_.ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
+		@aContent = _oRplNO_.Content()
+
+	def ReplaceNthOccurrence(n, pItem, pNewItem)
+		This.ReplaceNthOccurrenceCS(n, pItem, pNewItem, 1)
+
+	# Replace every item by a single new one:
+	# ReplaceAllItems(:With = newItem) or ReplaceAllItems(newItem).
+
+	def ReplaceAllItems(pNewItem)
+		if isList(pNewItem) and len(pNewItem) = 2 and isString(pNewItem[1]) and
+		   (pNewItem[1] = :with or pNewItem[1] = :With or pNewItem[1] = :by or pNewItem[1] = :By)
+			pNewItem = pNewItem[2]
+		ok
+		_oRplAI_ = new stzListReplacer(This)
+		_oRplAI_.ReplaceAllItems(pNewItem)
+		@aContent = _oRplAI_.Content()
+
+		def ReplaceAllItemsQ(pNewItem)
+			This.ReplaceAllItems(pNewItem)
+			return This
+
 	def ReplaceFirstCS(pItem, pNewItem, pCaseSensitive)
 		_oRplF_ = new stzListReplacer(This)
 		_oRplF_.ReplaceFirstOccurrenceCS(pItem, pNewItem, pCaseSensitive)
