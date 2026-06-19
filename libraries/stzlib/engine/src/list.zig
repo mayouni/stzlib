@@ -1088,6 +1088,14 @@ fn stzValueToVal(v: *const StzValue) expr.Val {
     };
 }
 
+// Bridge for expr.EvalCtx.list_get: convert the StzList element at a
+// 0-based index into an expr.Val, enabling This[<expr>] in W conditions.
+fn listGetVal(ctx_ptr: ?*const anyopaque, idx: usize) expr.Val {
+    const l: *const StzList = @ptrCast(@alignCast(ctx_ptr.?));
+    if (idx >= l.items.items.len) return expr.Val.initNull();
+    return stzValueToVal(l.items.items[idx]);
+}
+
 fn valToStzValue(v: expr.Val) ?*StzValue {
     return switch (v.tag) {
         .null_v => value_mod.stz_value_new_null(),
@@ -1109,6 +1117,9 @@ pub fn stz_list_map_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_len:
     for (l.items.items, 0..) |item, i| {
         var ctx = expr.EvalCtx{
             .item = stzValueToVal(item),
+            .list_ctx = l,
+            .list_len = l.len(),
+            .list_get = &listGetVal,
             .index = @as(i64, @intCast(i)) + 1,
             .count = count,
         };
@@ -1138,6 +1149,9 @@ pub fn stz_list_filter_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_l
     for (l.items.items, 0..) |item, i| {
         var ctx = expr.EvalCtx{
             .item = stzValueToVal(item),
+            .list_ctx = l,
+            .list_len = l.len(),
+            .list_get = &listGetVal,
             .index = @as(i64, @intCast(i)) + 1,
             .count = count,
         };
@@ -1168,6 +1182,9 @@ pub fn stz_list_reduce_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_l
     for (l.items.items[start..], start..) |item, i| {
         var ctx = expr.EvalCtx{
             .item = stzValueToVal(item),
+            .list_ctx = l,
+            .list_len = l.len(),
+            .list_get = &listGetVal,
             .index = @as(i64, @intCast(i)) + 1,
             .count = @intCast(l.len()),
             .accum = accum,
@@ -1188,6 +1205,9 @@ pub fn stz_list_find_first_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_
     for (l.items.items, 0..) |item, i| {
         var ctx = expr.EvalCtx{
             .item = stzValueToVal(item),
+            .list_ctx = l,
+            .list_len = l.len(),
+            .list_get = &listGetVal,
             .index = @as(i64, @intCast(i)) + 1,
             .count = count,
         };
@@ -1208,6 +1228,9 @@ pub fn stz_list_find_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: u
     for (l.items.items, 0..) |item, i| {
         var ctx = expr.EvalCtx{
             .item = stzValueToVal(item),
+            .list_ctx = l,
+            .list_len = l.len(),
+            .list_get = &listGetVal,
             .index = @as(i64, @intCast(i)) + 1,
             .count = count,
         };
@@ -1231,6 +1254,9 @@ pub fn stz_list_count_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: 
     for (l.items.items, 0..) |item, i| {
         var ctx = expr.EvalCtx{
             .item = stzValueToVal(item),
+            .list_ctx = l,
+            .list_len = l.len(),
+            .list_get = &listGetVal,
             .index = @as(i64, @intCast(i)) + 1,
             .count = count,
         };
@@ -1258,6 +1284,9 @@ pub fn stz_list_sort_by_expr(list: ?*StzList, expr_ptr: [*]const u8, expr_len: u
     for (l.items.items, 0..) |item, i| {
         var ctx = expr.EvalCtx{
             .item = stzValueToVal(item),
+            .list_ctx = l,
+            .list_len = l.len(),
+            .list_get = &listGetVal,
             .index = @as(i64, @intCast(i)) + 1,
             .count = count,
         };
