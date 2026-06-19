@@ -6008,13 +6008,54 @@ class stzList from stzObject
 		_oWnbWk_ = new stzListWalker(This)
 		return _oWnbWk_.WalkNBackward(n)
 
-	def WalkBetween(n1, n2, nStep)
-		_oWbWk_ = new stzListWalker(This)
-		return _oWbWk_.WalkBetween(n1, n2, nStep)
+	# Walk the inclusive range n1..n2 (descending if n1 > n2). The IB
+	# form takes a return type (:WalkedPositions default / :WalkedItems).
 
-	def WalkForthAndBack(n)
-		_oWfabWk_ = new stzListWalker(This)
-		return _oWfabWk_.WalkForthAndBack(n)
+	def WalkBetweenIB(n1, n2, pReturn)
+		anWbPos = n1 : n2
+		cWbRet = pReturn
+		if isList(pReturn) and ring_len(pReturn) = 2 and isString(pReturn[1])
+			cWbRet = pReturn[2]
+		ok
+		if cWbRet = :WalkedItems or cWbRet = :Items
+			return This.ItemsAtPositions(anWbPos)
+		ok
+		return anWbPos
+
+	def WalkBetween(n1, n2)
+		return This.WalkBetweenIB(n1, n2, :WalkedPositions)
+
+	# Walk forward 1..n then back n-1..1.
+
+	def WalkForthAndBackXT(pReturn)
+		nWfLen = This.NumberOfItems()
+		anWfPos = []
+		for iWf = 1 to nWfLen
+			anWfPos + iWf
+		next
+		for iWf = nWfLen - 1 to 1 step -1
+			anWfPos + iWf
+		next
+		cWfRet = pReturn
+		if isList(pReturn) and ring_len(pReturn) = 2 and isString(pReturn[1])
+			cWfRet = pReturn[2]
+		ok
+		if cWfRet = :WalkedItems or cWfRet = :Items
+			return This.ItemsAtPositions(anWfPos)
+		ok
+		return anWfPos
+
+	def WalkForthAndBack()
+		return This.WalkForthAndBackXT(:WalkedPositions)
+
+	# Walk forward up to and including the first occurrence of pItem.
+
+	def WalkUntilItem(pItem)
+		nWuiPos = This.FindFirst(pItem)
+		if nWuiPos > 0
+			return 1 : nWuiPos
+		ok
+		return []
 
 	def WalkW(pcCondition)
 		_oWwWk_ = new stzListWalker(This)
