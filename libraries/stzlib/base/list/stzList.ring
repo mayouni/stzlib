@@ -7617,6 +7617,32 @@ class stzList from stzObject
 		def ContainsNoItemOfThese(paItems)
 			return NOT This.ContainsOneOfThese(paItems)
 
+	#-- HowMany: number of items (alias of NumberOfItems).
+
+	def HowManyItems()
+		return This.NumberOfItems()
+
+	#-- HowMany(item): how many times the item occurs in the list.
+
+	def HowMany(pItem)
+		return This.NumberOfOccurrence(pItem)
+
+	#-- Objects: the items that are objects.
+
+	def Objects()
+		aContent = This.Content()
+		nLen = ring_len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isObject(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+		def OnlyObjects()
+			return This.Objects()
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
