@@ -62,7 +62,10 @@ function fib(n)
     end
     
     a, b = 0, 1
-    for i in 2:n
+    _a2n1_ = 2:n
+    _n2n1Len_ = len(_a2n1_)
+    for _iLoop2n1_ = 1 to _n2n1Len_
+    	i = _a2n1_[_iLoop2n1_]
         a, b = b, a + b
     end
     return b
@@ -75,7 +78,10 @@ function quicksort!(arr, low, high)
         pivot = arr[high]
         i = low - 1
         
-        for j in low:(high-1)
+        _aLowhigh11_ = low:(high-1)
+        _nLowhigh11Len_ = len(_aLowhigh11_)
+        for _iLoopLowhigh11_ = 1 to _nLowhigh11Len_
+        	j = _aLowhigh11_[_iLoopLowhigh11_]
             if arr[j] < pivot
                 i += 1
                 arr[i], arr[j] = arr[j], arr[i]
@@ -119,7 +125,10 @@ array = zeros(Int, array_size)
 
 # Fill with random numbers
 Random.seed!(42)  # Fixed seed for reproducibility
-for i in 1:array_size
+_a1array_size1_ = 1:array_size
+_n1array_size1Len_ = len(_a1array_size1_)
+for _iLoop1array_size1_ = 1 to _n1array_size1Len_
+	i = _a1array_size1_[_iLoop1array_size1_]
     array[i] = rand(0:9999)
 end
 
