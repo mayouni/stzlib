@@ -7253,6 +7253,89 @@ class stzList from stzObject
 		def Contains2Objects()
 			return This.BothAreObjects()
 
+	#-- IsMadeOf family: "the list consists of these items".
+	#-- IsMadeOf / IsMadeOfThese  -> contains ALL the given items.
+
+	def IsMadeOf(paItems)
+		return This.ContainsMany(paItems)
+
+		def IsMadeOfThese(paItems)
+			return This.ContainsMany(paItems)
+
+	#-- IsMadeOfItem  -> every item equals the given one.
+
+	def IsMadeOfItem(pItem)
+		return This.ItemsAreEqualTo(pItem)
+
+		def IsMadeOfThisItem(pItem)
+			return This.ItemsAreEqualTo(pItem)
+
+	#-- IsMadeOfOneOfThese  -> contains at least one of the given items.
+
+	def IsMadeOfOneOfThese(paItems)
+		return This.ContainsOneOfThese(paItems)
+
+		def IsMadeOfAnyOfThese(paItems)
+			return This.ContainsOneOfThese(paItems)
+
+	#-- ContainsSome / IsMadeOfSome  -> contains some (one or more) of them.
+
+	def ContainsSomeCS(paItems, pCaseSensitive)
+		if isString(paItems)
+			paItems = [ paItems ]
+		ok
+		bResult = 0
+		nLen = ring_len(paItems)
+		for i = 1 to nLen
+			if This.ContainsCS(paItems[i], pCaseSensitive)
+				bResult = 1
+				exit
+			ok
+		next
+		return bResult
+
+		def ContainsSome(paItems)
+			return This.ContainsSomeCS(paItems, 1)
+
+		def IsMadeOfSomeOfThese(paItems)
+			return This.ContainsSomeCS(paItems, 1)
+
+		def IsMadeOfOneOrMoreOfThese(paItems)
+			return This.ContainsSomeCS(paItems, 1)
+
+		def IsMadeOfOneOrMoreOf(paItems)
+			return This.ContainsSomeCS(paItems, 1)
+
+	#-- IsMadeOfUniformLists  -> all items are lists with the same size.
+
+	def ContainsOnlyListsWithSameNumberOfItems()
+		aContent = This.Content()
+		nLen = ring_len(aContent)
+		if nLen = 0
+			return 0
+		ok
+		if NOT isList(aContent[1])
+			return 0
+		ok
+		nLenFirst = ring_len(aContent[1])
+		bResult = 1
+		for i = 2 to nLen
+			if NOT ( isList(aContent[i]) and ring_len(aContent[i]) = nLenFirst )
+				bResult = 0
+				exit
+			ok
+		next
+		return bResult
+
+		def IsMadeOfUniformLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def IsMadeOfUniSizeLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def ContainsOnlyUniSizeLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
