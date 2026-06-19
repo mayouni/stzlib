@@ -80,13 +80,38 @@ class stzListDuplicates
 	#===============================#
 
 	def DuplicatedItemsCS(pCaseSensitive)
+		# The DISTINCT values that occur more than once, in their order
+		# of first appearance. FindDuplicatesCS gives 2nd+ occurrence
+		# positions (engine-backed); we map each back to the value's
+		# FIRST position (engine-backed FindFirstCS), dedupe by that
+		# position (so nested-list items work without Ring's broken `=`),
+		# then return the values at the sorted first positions.
 		_anDiPos_ = This.FindDuplicatesCS(pCaseSensitive)
 		_aDiContent_ = This.Content()
 		_nDiLen_ = len(_anDiPos_)
 
-		_aDiResult_ = []
+		_aFirstPos_ = []
 		for _iDi_ = 1 to _nDiLen_
-			@AddItem(_aDiResult_, _aDiContent_[_anDiPos_[_iDi_]])
+			_nFp_ = @oList.FindFirstCS(_aDiContent_[_anDiPos_[_iDi_]], pCaseSensitive)
+			_bSeen_ = 0
+			_nSeenLen_ = len(_aFirstPos_)
+			for _jDi_ = 1 to _nSeenLen_
+				if _aFirstPos_[_jDi_] = _nFp_
+					_bSeen_ = 1
+					exit
+				ok
+			next
+			if _bSeen_ = 0
+				_aFirstPos_ + _nFp_
+			ok
+		next
+
+		_aFirstPos_ = ring_sort(_aFirstPos_)
+
+		_aDiResult_ = []
+		_nResLen_ = len(_aFirstPos_)
+		for _kDi_ = 1 to _nResLen_
+			@AddItem(_aDiResult_, _aDiContent_[_aFirstPos_[_kDi_]])
 		next
 
 		return _aDiResult_
