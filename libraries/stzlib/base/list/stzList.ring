@@ -7791,6 +7791,41 @@ class stzList from stzObject
 		def ContainsOnlyEmptyLists()
 			return This.IsListOfEmptyLists()
 
+	#-- First-occurrence positions of the items that are duplicated
+	#-- ("duplicate origins"). Built engine-first: the duplicated VALUES
+	#-- come from the engine-backed DuplicatedItemsCS, and each value's
+	#-- first position from the engine-backed FindFirstCS -- avoiding the
+	#-- monolith's O(n^2) StzFind loop (whose arg order is ambiguous now).
+
+	def FindFirstDuplicatesCS(pCaseSensitive)
+		aDups = This.DuplicatedItemsCS(pCaseSensitive)
+		aRes = []
+		nLen = ring_len(aDups)
+		for i = 1 to nLen
+			aRes + This.FindFirstCS(aDups[i], pCaseSensitive)
+		next
+		return ring_sort(aRes)
+
+		def FindFirstDuplicates()
+			return This.FindFirstDuplicatesCS(1)
+
+		def FindFirstDuplicatedItems()
+			return This.FindFirstDuplicatesCS(1)
+
+		def FindFirstOccurrenceOfEachDuplicatedItem()
+			return This.FindFirstDuplicatesCS(1)
+
+		def FindDupOrigins()
+			return This.FindFirstDuplicatesCS(1)
+
+	#-- Remove the first occurrence of each duplicated item (mutating).
+
+	def RemoveDupOrigins()
+		This.RemoveItemsAtPositions( This.FindFirstDuplicates() )
+
+		def RemoveDuplicatesOrigins()
+			This.RemoveDupOrigins()
+
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
