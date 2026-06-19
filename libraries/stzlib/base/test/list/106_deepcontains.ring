@@ -22,8 +22,10 @@ o1 = new stzList([
 #--> TRUE
 
 ? @@( o1.DeepFind("🌞") )
-#--> [ 1, 2 ], [ 2, 2 ], [ 2, 4 ], [ 3, 2 ] ]
-# 🌞 exists in level 1 at position 2, in level 2 at positions 2 and 4, and in level 3 at position 2.
+# Modernized to the canonical nested index-path format (engine-backed):
+# top position 2, then 4.2 and 4.4, then 6.2.2. The old [[1,2],[2,2],[2,4],
+# [3,2]] was the superseded [level, position] format.
+#--> [ [ 2 ], [ 4, 2 ], [ 4, 4 ], [ 6, 2, 2 ] ]
 
 o1.DeepReplace("🌞", :By = "♥")
 ? @@( o1.Content() )
