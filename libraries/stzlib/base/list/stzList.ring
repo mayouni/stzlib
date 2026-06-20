@@ -8161,6 +8161,41 @@ class stzList from stzObject
 		def StringsAndNumbersZ()
 			return This.NumbersAndStringsZ()
 
+	#-- A copy with every string item lower/upper-cased (UTF-8 via the
+	#-- engine-backed StzLower/StzUpper); non-string items pass through.
+
+	def Lowercased()
+		aLcC = This.Content()
+		nLcL = ring_len(aLcC)
+		aLcR = []
+		for iLc = 1 to nLcL
+			if isString(aLcC[iLc])
+				aLcR + StzLower(aLcC[iLc])
+			else
+				aLcR + aLcC[iLc]
+			ok
+		next
+		return aLcR
+
+		def StringsLowercased()
+			return This.Lowercased()
+
+	def Uppercased()
+		aUcC = This.Content()
+		nUcL = ring_len(aUcC)
+		aUcR = []
+		for iUc = 1 to nUcL
+			if isString(aUcC[iUc])
+				aUcR + StzUpper(aUcC[iUc])
+			else
+				aUcR + aUcC[iUc]
+			ok
+		next
+		return aUcR
+
+		def StringsUppercased()
+			return This.Uppercased()
+
 	#-- Type-filter family: Xs() = items of type X, XsZ() = [item,pos]
 	#-- pairs, NumberOfXs() = count. Char = single-codepoint string
 	#-- (StzLen=1); Letter = a single ASCII letter.
