@@ -1,12 +1,16 @@
 # Narrative
 # --------
-# #narration : - operator never changes the object
+# The (-) operator NEVER changes the object -- it computes and returns.
+#
+# `o1 - These([...])` returns the reduced list but leaves o1 intact (so a
+# later o1.Content() is unchanged). Add the Q() elevator -- TheseQ([...]) --
+# and the result comes back as a chainable stzList object, on which you can
+# keep working: here UppercaseQ -> ToStzListOfStrings -> Joined builds
+# "ADE", all without ever touching the original o1.
 #
 # Extracted from stzlisttest.ring, block #580.
-#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
-
 
 pr()
 
@@ -17,13 +21,9 @@ o1 - These([ "b", "c" ])
 ? @@( o1.Content() )
 #--> [ "a", "b", "c", "d", "e" ]
 
-# And you get the hole list as a result, it's correct. Why?
-
-# Because using (-) operator on o1 object does not modify the
-# object itself. It just calculates the opeartion and returns
-# the result in a normal new list.
-
-# Check it by yourself by using ? command before the operation:
+# And you get the whole list as a result, it's correct. Why?
+# Because using (-) on o1 does not modify the object itself; it just
+# computes the operation and returns the result in a new list.
 
 ? @@( o1 - These([ "b", "c" ]) )
 #--> [ "a", "d", "e" ]
@@ -33,16 +33,11 @@ o1 - These([ "b", "c" ])
 ? @@( o1.Content() ) + NL
 #--> [ "a", "b", "c", "d", "e" ]
 
-# Now, what if you need to make the opeation and get a stzList
-# object instead of a normal Ring list? Easy!
-
-# Just use the Q() elevator to tell softanza that you want
-# the output to be elevated to a stzList object, like this:
+# To get a stzList object back instead of a raw list, use the Q() elevator
+# (TheseQ here) -- then chain any stzList method:
 
 ? ( o1 - TheseQ(["b", "c"]) ).Stztype()
 #--> stzlist
-
-# Of course, you can chain any other method supported by stzList:
 
 ? ( o1 - TheseQ([ "b", "c" ]) ).UppercaseQ().ToStzListOfStrings().Joined()
 #--> "ADE"

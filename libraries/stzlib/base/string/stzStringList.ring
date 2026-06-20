@@ -896,3 +896,12 @@ class stzStringList
 			if _b_ _aR_ + _v_ ok
 		next
 		return _aR_
+
+	#-- Joined / JoinedUsing: readable aliases of Concatenated /
+	#-- ConcatenatedUsing (used by ..Q() chain idioms on lists).
+
+	def Joined()
+		return This.Concatenated()
+
+	def JoinedUsing(pcSep)
+		return This.ConcatenatedUsing(pcSep)
