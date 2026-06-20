@@ -100,6 +100,33 @@ class stzString from stzObject
 			return This
 		ok
 
+		if pOp = "/"
+			# Divide the string. A RAW divisor returns a raw split list
+			# (printable via ?); a SOFTANZA-object divisor returns a
+			# chainable stzList object (Q(...)) -- the documented contract.
+			if isString(pValue)
+				if Q(pValue).IsBoundedBy([ "{", "}" ])
+					return This.SplitW(pValue)
+				ok
+				return This.Split(pValue)
+
+			but isNumber(pValue)
+				return This.SplitToNParts(pValue)
+
+			but isObject(pValue)
+				if @IsStzNumber(pValue)
+					return Q( This.SplitToNParts(pValue.NumericValue()) )
+				ok
+				_cSlashDiv_ = pValue.Content()
+				if isString(_cSlashDiv_)
+					if Q(_cSlashDiv_).IsBoundedBy([ "{", "}" ])
+						return Q( This.SplitW(_cSlashDiv_) )
+					ok
+					return Q( This.Split(_cSlashDiv_) )
+				ok
+			ok
+		ok
+
 		return ""
 
 	  #===================#
