@@ -26,7 +26,7 @@ func ItemExists(pItem, paList)
 		_nIeResult = 0
 		_nIeLen = len(paList)
 		for _iIe = 1 to _nIeLen
-			if paList[_iIe] = pItem
+			if BothAreEqualCS(paList[_iIe], pItem, 1)
 				_nIeResult = 1
 				exit
 			ok
