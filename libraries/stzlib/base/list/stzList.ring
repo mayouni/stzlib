@@ -2419,7 +2419,9 @@ class stzList from stzObject
 			_bFound_ = FALSE
 			_nOLen_ = len(_aOther_)
 			for _j_ = 1 to _nOLen_
-				if _aOther_[_j_] = _x_
+				# content compare so nested-list items match (Ring's raw `=`
+				# can't compare sub-lists)
+				if BothAreEqualCS(_aOther_[_j_], _x_, 1)
 					del(_aOther_, _j_)
 					_bFound_ = TRUE
 					exit

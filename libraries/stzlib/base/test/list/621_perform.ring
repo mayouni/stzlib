@@ -6,7 +6,8 @@
 
 load "../../stzBase.ring"
 
-
+/*--
+*/
 pr()
 
 o1 = new stzList([ 1, "ring", 3, "python", 5, "ruby" ])

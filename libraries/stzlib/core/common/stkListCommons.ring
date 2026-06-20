@@ -12,10 +12,25 @@ func ListReverse(aList)
 	func @ListReverse(aList)
 		return ListReverse(aList)
 
+# Deep value-equality for list items: Ring's `=` does NOT compare two
+# lists by content, so membership/contains on lists needs this.
+func ListsDeepEqual(pA, pB)
+	if isList(pA) and isList(pB)
+		if len(pA) != len(pB) return FALSE ok
+		_nLde_ = len(pA)
+		for _ilde_ = 1 to _nLde_
+			if NOT ListsDeepEqual(pA[_ilde_], pB[_ilde_]) return FALSE ok
+		next
+		return TRUE
+	but isList(pA) or isList(pB)
+		return FALSE
+	ok
+	return pA = pB
+
 func ListContains(aList, pItem)
 	nLen = len(aList)
 	for i = 1 to nLen
-		if aList[i] = pItem
+		if ListsDeepEqual(aList[i], pItem)
 			return TRUE
 		ok
 	next
