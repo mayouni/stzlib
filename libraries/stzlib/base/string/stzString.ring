@@ -15418,3 +15418,33 @@ class stzString from stzObject
 
 	def TrimRightChar(pcChar)
 		This.TrimRightCharCS(pcChar, 1)
+
+	#-- IsNeither: TRUE when this string equals neither argument (the
+	#-- :Nor named-param spells the second). Restored from the monolith.
+
+	def IsNeitherCS(pcStr1, pcStr2, pCaseSensitive)
+		if isList(pcStr1) and IsEqualToNamedParamList(pcStr1)
+			pcStr1 = pcStr1[2]
+		ok
+		if isList(pcStr2) and IsNorNamedParamList(pcStr2)
+			pcStr2 = pcStr2[2]
+		ok
+		bEqualToStr1 = This.IsEqualToCS(pcStr1, pCaseSensitive)
+		bEqualToStr2 = This.IsEqualToCS(pcStr2, pCaseSensitive)
+		if NOT bEqualToStr1 and NOT bEqualToStr2
+			return 1
+		else
+			return 0
+		ok
+
+	def IsNeither(pcStr1, pcStr2)
+		return This.IsNeitherCS(pcStr1, pcStr2, 1)
+
+	#-- RemoveAnyCharFromLeft/Right: strip the whole leading/trailing run
+	#-- of a given char (aliases of RemoveCharFromLeft/Right).
+
+	def RemoveAnyCharFromLeft(pcChar)
+		This.RemoveCharFromLeft(pcChar)
+
+	def RemoveAnyCharFromRight(pcChar)
+		This.RemoveCharFromRight(pcChar)
