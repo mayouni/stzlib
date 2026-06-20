@@ -1,9 +1,15 @@
 # Narrative
 # --------
-# pr()
+# The (/) and (+) operators on a stzString -- with the same Q() elevator
+# rule as lists.
+#
+# `Q("ABCDEFGHI") / 3` splits into 3 equal parts and returns a raw list;
+# wrapping the divisor as Q(3) elevates the result to a chainable stzList
+# (so .StzType() is "stzlist" and .Lowercased() works on it). Likewise
+# `Q("ABC") + "D"` concatenates to a raw string, while `+ Q("D")` returns
+# a chainable stzString.
 #
 # Extracted from stzlisttest.ring, block #418.
-#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
 
@@ -25,4 +31,4 @@ pr()
 #--> "abcd"
 
 pf()
-# Executed in 0.05 second(s).
+# Executed in 0.05 second(s)
