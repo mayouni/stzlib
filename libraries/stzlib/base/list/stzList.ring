@@ -1928,12 +1928,15 @@ class stzList from stzObject
 	def NumberOfDuplicatedItems()
 		return This.NumberOfDuplicatedItemsCS(1)
 
-		# Word-order aliases used by narrative tests.
+		# NumberOfDuplicates counts the duplicate OCCURRENCES (every 2nd+
+		# appearance), not the number of distinct duplicated items. For
+		# [ "A","B","2","A","A","B",2,2,"." ] that is 4 (A twice, B once,
+		# 2 once). NumberOfDuplicatedItems (distinct) would be 3.
 		def NumberOfDuplicates()
-			return This.NumberOfDuplicatedItems()
+			return This.NumberOfDuplicatesCS(1)
 
 		def NumberOfDuplications()
-			return This.NumberOfDuplicatedItems()
+			return This.NumberOfDuplicates()
 
 	def FindDuplicates()
 		# Positions of each item's 2nd+ occurrence (case-sensitive).
@@ -1977,37 +1980,25 @@ class stzList from stzObject
 
 	# FindDuplicatesXT: positions of ALL occurrences of items that have
 	# duplicates (i.e. include the first occurrence too, not just the
-	# 2nd+ that FindDuplicates returns).
+	# 2nd+ that FindDuplicates returns). Delegates to the CS core, which
+	# stringifies items first -- so "2" (string) and 2 (number) are kept
+	# distinct instead of being conflated by Ring's coercing `=`.
 	def FindDuplicatesXT()
-		_aDupItems_ = This.DuplicatedItems()
-		_nDupCount_ = len(_aDupItems_)
-		if _nDupCount_ = 0 return [] ok
-		_aRes_ = []
-		_aData_ = This.Content()
-		_nLen_ = len(_aData_)
-		for _i_ = 1 to _nLen_
-			_x_ = _aData_[_i_]
-			for _j_ = 1 to _nDupCount_
-				if _aDupItems_[_j_] = _x_
-					_aRes_ + _i_
-					exit
-				ok
-			next
-		next
-		return _aRes_
+		return This.FindDuplicatesCSXT(1)
 
 		def FindDuplicationsXT()
 			return This.FindDuplicatesXT()
 
-		# Z-suffix Softanza convention: positions of duplicates.
+		# Z-suffix Softanza convention: each duplicated item paired with
+		# the positions of its DUPLICATE occurrences (first one excluded).
 		def DuplicatesZ()
-			return This.FindDuplicates()
+			return This.DuplicatesCSZ(1)
 
 		def DuplicateItemsZ()
-			return This.FindDuplicates()
+			return This.DuplicatesCSZ(1)
 
 		def DuplicationsZ()
-			return This.FindDuplicates()
+			return This.DuplicatesCSZ(1)
 
 	# FindNextNthItem(n, :StartingAt = pos): return the nth item in the
 	# content starting from (and including) position pos. Returns NULL
@@ -5231,9 +5222,10 @@ class stzList from stzObject
 		def FindItemsOtherThan(paItems)
 			return This.FindAllExcept(paItems)
 
-	#-- [[value,[repeat positions]], ...] for duplicated items
+	#-- "Origins" = the position of the FIRST occurrence of each
+	#-- duplicated item (monolith authoritative semantics).
 	def FindDuplicatesOrigins()
-		return _StzFindDuplicatesOrigins(This.Content())
+		return This.FindFirstDuplicates()
 
 		def FindDuplicationsOrigins()
 			return This.FindDuplicatesOrigins()
@@ -6552,12 +6544,16 @@ class stzList from stzObject
 		return _oBsClf_.Bisect()
 
 	def FirstHalf()
-		_oFhClf_ = new stzListClassifier(This)
-		return _oFhClf_.FirstHalf()
+		# Authoritative Softanza split: the FIRST half is the floor(n/2)
+		# leading items (the middle item of an odd list goes to neither
+		# plain half -- use FirstHalfXT/SecondHalfXT to include it).
+		return This.Section(1, floor(This.NumberOfItems() / 2))
 
 	def SecondHalf()
-		_oShClf_ = new stzListClassifier(This)
-		return _oShClf_.SecondHalf()
+		# The SECOND half is everything from floor(n/2)+1 onward -- so for
+		# an odd list it carries the middle item (mirror of FirstHalf).
+		nLen = This.NumberOfItems()
+		return This.Section(floor(nLen / 2) + 1, nLen)
 
 	def PartitionW(pcCondition)
 		_oPwClf_ = new stzListClassifier(This)
@@ -8607,3 +8603,786 @@ class stzList from stzObject
 		ok
 
 		StzRaise("operator: unsupported operator '" + pOp + "' on stzList.")
+
+
+	#========================================================#
+	#  BATCH-1 RESTORE: duplicate / non-duplicate family,    #
+	#  Index, ItemsOccurring, NListify, Halves (from the     #
+	#  monolith -- split-dropped, authoritative semantics).  #
+	#========================================================#
+
+	def DuplicatesCS(pCaseSensitive)
+
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		acStr = []
+
+		if pCaseSensitive = 1
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + cItem
+			next
+		else
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + StzLower(cItem)
+			next
+		ok
+
+		acSeen = [ acStr[1] ]
+		anPos = [ [] ]
+
+		for i = 1 to nLen
+			n = StzFind(acSeen, acStr[i])
+			if n = 0
+				acSeen + acStr[i]
+				anPos + [ i ]
+			else
+				anPos[ n ] + i
+			ok
+		next
+
+		aResult = []
+		nLen = len(acSeen)
+
+		for i = 1 to nLen
+			if len(anPos[i]) > 1
+				aResult + aContent[anPos[i][1]]
+			ok
+		next
+
+		return aResult
+
+	def DuplicatesCSZ(pCaseSensitive)
+
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		acStr = []
+
+		if pCaseSensitive = 1
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + cItem
+			next
+		else
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + StzLower(cItem)
+			next
+		ok
+
+		acSeen = [ acStr[1] ]
+		anPos = [ [] ]
+
+		for i = 1 to nLen
+			n = StzFind(acSeen, acStr[i])
+			if n = 0
+				acSeen + acStr[i]
+				anPos + [ i ]
+			else
+				anPos[ n ] + i
+			ok
+		next
+
+		aResult = []
+		nLen = len(acSeen)
+
+		for i = 1 to nLen
+			del(anPos[i], 1)
+			if len(anPos[i]) > 0
+				aResult + [ aContent[anPos[i][1]], anPos[i] ]
+			ok
+		next
+
+		return aResult
+
+	def DuplicatesCSXTZ(pCaseSensitive)
+
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		acStr = []
+
+		if pCaseSensitive = 1
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + cItem
+			next
+		else
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + StzLower(cItem)
+			next
+		ok
+
+		acSeen = []
+		anSeen = []
+		anPos = []
+		aResult = []
+
+		for i = 1 to nLen
+			n = StzFind(acSeen, acStr[i])
+			if n = 0
+				acSeen + acStr[i]
+				anSeen + i
+				aResult + [ aContent[i], [i] ]
+			else
+				if StzFind(anPos, anSeen[n]) = 0
+					anPos + anSeen[n]
+				ok
+				anPos + i
+				aResult[n][2] + i
+			ok
+		next
+
+		return aResult
+
+	def DuplicatesXTZ()
+		return This.DuplicatesCSXTZ(1)
+
+	def FindDuplicatesCS(pCaseSensitive)
+
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		acStr = []
+
+		if pCaseSensitive = 1
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + cItem
+			next
+		else
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + StzLower(cItem)
+			next
+		ok
+
+		acSeen = []
+		anPos = []
+
+		for i = 1 to nLen
+			n = StzFind(acSeen, acStr[i])
+			if n = 0
+				acSeen + acStr[i]
+			else
+				anPos + i
+			ok
+		next
+
+		return anPos
+
+	def FindDuplicatesCSXT(pCaseSensitive)
+
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		acStr = []
+
+		if pCaseSensitive = 1
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + cItem
+			next
+		else
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + StzLower(cItem)
+			next
+		ok
+
+		acSeen = []
+		anSeen = []
+		anPos = []
+
+		for i = 1 to nLen
+			n = StzFind(acSeen, acStr[i])
+			if n = 0
+				acSeen + acStr[i]
+				anSeen + i
+			else
+				if StzFind(anPos, anSeen[n]) = 0
+					anPos + anSeen[n]
+				ok
+				anPos + i
+			ok
+		next
+
+		anPos = ring_sort(anPos)
+		return anPos
+
+	def NumberOfDuplicatesCS(pCaseSensitive)
+		return len( This.FindDuplicatesCS(pCaseSensitive) )
+
+	def ContainsNoDuplicatesCS(pCaseSensitive)
+
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
+		ok
+
+		return len( This.FindDuplicatesCS(pCaseSensitive) ) = 0
+
+	def ContainsNoDuplicates()
+		return This.ContainsNoDuplicatesCS(1)
+
+	def ContainsNoDuplications()
+		return This.ContainsNoDuplicates()
+
+	def NoItemsAreDuplicatedCS(pCaseSensitive)
+		return This.ContainsNoDuplicatesCS(pCaseSensitive)
+
+	def NoItemsAreDuplicated()
+		return This.ContainsNoDuplicates()
+
+	#-- NON-DUPLICATED ITEMS
+
+	def ContainsNonDuplicatedItemsCS(pCaseSensitive)
+		anPos = This.FindDuplicatesCSXT(pCaseSensitive)
+		nLen = This.NumberOfItems()
+		if NOT Q(anPos).IsEqualTo(1:nLen)
+			return 1
+		else
+			return 0
+		ok
+
+	def ContainsNonDuplicatedItems()
+		return This.ContainsNonDuplicatedItemsCS(1)
+
+	def ContainsItemsThatAreNotDuplicatedCS(pCaseSensitive)
+		return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+	def ContainsItemsNonDuplicated()
+		return This.ContainsNonDuplicatedItems()
+
+	def ContainsAtLeastOneNonDuplicatedItem()
+		return This.ContainsNonDuplicatedItems()
+
+	def NonDuplicatedItemsCS(pCaseSensitive)
+
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return 0
+		ok
+
+		acStr = []
+
+		if pCaseSensitive = 1
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + cItem
+			next
+		else
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + StzLower(cItem)
+			next
+		ok
+
+		acSeen = []
+		acResult = []
+		anPos = []
+
+		for i = 1 to nLen
+			n = StzFind(acSeen, acStr[i])
+			if n = 0
+				acSeen + acStr[i]
+				acResult + acStr[i]
+				anPos + i
+			else
+				nPos = StzFind(acResult, acStr[i])
+				if nPos > 0
+					ring_del(acResult, nPos)
+					ring_del(anPos, nPos)
+				ok
+			ok
+		next
+
+		aResult = []
+		nLen = len(anPos)
+		for i = 1 to nLen
+			aResult + aContent[anPos[i]]
+		next
+
+		return aResult
+
+	def NonDuplicatedItems()
+		return This.NonDuplicatedItemsCS(1)
+
+	def NumberOfNonDuplicatedItemsCS(pCaseSensitive)
+		return len(This.NonDuplicatedItemsCS(pCaseSensitive))
+
+	def NumberOfNonDuplicatedItems()
+		return This.NumberOfNonDuplicatedItemsCS(1)
+
+	def FindNonDuplicatedItemsCS(pCaseSensitive)
+
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return 0
+		ok
+
+		acStr = []
+
+		if pCaseSensitive = 1
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + cItem
+			next
+		else
+			for i = 1 to nLen
+				if isNumber(aContent[i])
+					cItem = "" + aContent[i]
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+				ok
+				acStr + StzLower(cItem)
+			next
+		ok
+
+		acSeen = []
+		acResult = []
+		anResult = []
+
+		for i = 1 to nLen
+			n = StzFind(acSeen, acStr[i])
+			if n = 0
+				acSeen + acStr[i]
+				acResult + acStr[i]
+				anResult + i
+			else
+				nPos = StzFind(acResult, acStr[i])
+				if nPos > 0
+					ring_del(acResult, nPos)
+					ring_del(anResult, nPos)
+				ok
+			ok
+		next
+
+		return anResult
+
+	def FindNonDuplicatedItems()
+		return This.FindNonDuplicatedItemsCS(1)
+
+	def NonDuplicatedItemsAndTheirPositionsCS(pCaseSensitive)
+		aNonDuplicated = This.NonDuplicatedItemsCS(pCaseSensitive)
+		nLen = len(aNonDuplicated)
+		aResult = []
+		for i = 1 to nLen
+			nPos = This.FindFirstCS(aNonDuplicated[i], pCaseSensitive)
+			aResult + [ aNonDuplicated[i], nPos ]
+		next
+		return aResult
+
+	def NonDuplicatedItemsAndTheirPositions()
+		return This.NonDuplicatedItemsAndTheirPositionsCS(1)
+
+	def NonDuplicatedItemsZ()
+		return This.NonDuplicatedItemsAndTheirPositions()
+
+	#-- INDEX (positions of each item)
+
+	def FindItemsCS(pCaseSensitive)
+
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = 1 or pCaseSensitive = 0 )
+			StzRaise("Incorrect param! pCaseSensitive must be a boolean (1 or 0).")
+		ok
+
+		aList = @aContent
+
+		if pCaseSensitive = 0
+			aList = This.Lowercased()
+		ok
+
+		nLenList = len(aList)
+
+		if nLenList = 0
+			return []
+		ok
+
+		acListStringified = []
+		for i = 1 to nLenList
+			acListStringified + @@(aList[i])
+		next
+
+		aResult = []
+		acSeen = []
+		for i = 1 to nLenList
+			if StzFind(acSeen, acListStringified[i])
+				loop
+			ok
+
+			anPos = []
+			for j = 1 to nLenList
+				if acListStringified[i] = acListStringified[j]
+					anPos + j
+				ok
+			next
+
+			aResult + [ aList[i], anPos ]
+			acSeen + acListStringified[i]
+		next
+
+		return aResult
+
+	def IndexCS(pCaseSensitive)
+		return This.FindItemsCS(pCaseSensitive)
+
+	#-- ITEMS OCCURRING N TIMES (case-sensitive dial)
+
+	def ItemsOccurringNTimesCS(n, pCaseSensitive)
+		aIndex = This.IndexCS(pCaseSensitive)
+		nLen = len(aIndex)
+		aResult = []
+		for i = 1 to nLen
+			if len(aIndex[i][2]) >= n
+				aResult + aIndex[i][1]
+			ok
+		next
+		return aResult
+
+	def ItemsOccuringNTimesCS(n, pCaseSensitive)
+		return This.ItemsOccurringNTimesCS(n, pCaseSensitive)
+
+	#-- N-LISTIFY (pad each item into an n-element sublist)
+
+	def NListify(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aList = []
+			if NOT isList(aContent[i])
+				aList + aContent[i]
+				if n > 1
+					for j = 1 to n-1
+						aList + ""
+					next
+				ok
+			else
+				nLenList = len(aContent[i])
+				if n = nLenList
+					aList = aContent[i]
+				but n > nLenList
+					aList = aContent[i]
+					for j = 1 to n - nLenList
+						aList + ""
+					next
+				but n < nLenList
+					for j = 1 to n
+						aList + aContent[i][j]
+					next
+				ok
+			ok
+			aResult + aList
+		next
+
+		This.UpdateWith(aResult)
+
+	def NListifyQ(n)
+		This.NListify(n)
+		return This
+
+	def NListified(n)
+		return This.Copy().NListifyQ(n).Content()
+
+	#-- IsAPairQ (alias of IsPairQ)
+
+	def IsPairQ()
+		if This.IsPair()
+			return This
+		else
+			return StzFalseObjectQ()
+		ok
+
+	def IsAPairQ()
+		return This.IsPairQ()
+
+	#-- HALVES family (XT = include the middle item on the first half)
+
+	def FirstHalfXT()
+		nPos = ceil(This.NumberOfItems() / 2)
+		return This.Section(1, nPos)
+
+	def SecondHalfXT()
+		nLen = This.NumberOfItems()
+		nPos = ceil(nLen / 2) + 1
+		return This.Section(nPos, nLen)
+
+	def FirstHalfAndPosition()
+		return [ This.FirstHalf(), 1 ]
+
+	def FirstHalfAndSection()
+		return [ This.FirstHalf(), [1, floor(This.NumberOfItems() / 2)] ]
+
+	def FirstHalfAndPositionXT()
+		return [ This.FirstHalfXT(), 1 ]
+
+	def FirstHalfAndSectionXT()
+		return [ This.FirstHalfXT(), [1, ceil(This.NumberOfItems() / 2)] ]
+
+	def SecondHalfAndPosition()
+		nLen = This.NumberOfItems()
+		nPos = floor(nLen / 2) + 1
+		return [ This.SecondHalf(), nPos ]
+
+	def SecondHalfAndSection()
+		nLen = This.NumberOfItems()
+		nPos = floor(nLen / 2) + 1
+		return [ This.SecondHalf(), [ nPos, nLen ] ]
+
+	def SecondHalfAndPositionXT()
+		nLen = This.NumberOfItems()
+		nPos = ceil(nLen / 2) + 1
+		return [ This.SecondHalfXT(), nPos ]
+
+	def SecondHalfAndSectionXT()
+		nLen = This.NumberOfItems()
+		nPos = ceil(nLen / 2) + 1
+		return [ This.SecondHalfXT(), [ nPos, nLen ] ]
+
+	def FirstHalfAndItsPosition()
+		return This.FirstHalfAndPosition()
+
+	def FirstHalfAndItsSection()
+		return This.FirstHalfAndSection()
+
+	def FirstHalfAndItsPositionXT()
+		return This.FirstHalfAndPositionXT()
+
+	def FirstHalfAndItsSectionXT()
+		return This.FirstHalfAndSectionXT()
+
+	def SecondHalfAndItsPosition()
+		return This.SecondHalfAndPosition()
+
+	def SecondHalfAndItsSection()
+		return This.SecondHalfAndSection()
+
+	def SecondHalfAndItsPositionXT()
+		return This.SecondHalfAndPositionXT()
+
+	def SecondHalfAndItsSectionXT()
+		return This.SecondHalfAndSectionXT()
+
+	def Halves()
+		acResult = []
+		acResult + This.FirstHalf() + This.SecondHalf()
+		return acResult
+
+	def HalvesXT()
+		acResult = []
+		acResult + This.FirstHalfXT() + This.SecondHalfXT()
+		return acResult
+
+	def HalvesAndPositions()
+		return [ This.FirstHalfAndPosition(), This.SecondHalfAndPosition() ]
+
+	def HalvesAndPositionsXT()
+		return [ This.FirstHalfAndPositionXT(), This.SecondHalfAndPositionXT() ]
+
+	def HalvesAndSections()
+		return [ This.FirstHalfAndSection(), This.SecondHalfAndSection() ]
+
+	def HalvesAndSectionsXT()
+		return [ This.FirstHalfAndSectionXT(), This.SecondHalfAndSectionXT() ]

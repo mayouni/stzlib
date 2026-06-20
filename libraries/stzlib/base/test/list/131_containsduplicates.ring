@@ -1,9 +1,23 @@
 # Narrative
 # --------
-# #narration
+# The full vocabulary of DUPLICATES in Softanza, on one list.
+#
+# Softanza is deliberate about the difference between:
+#   - a DUPLICATE OCCURRENCE (every 2nd+ appearance of an item), and
+#   - a DUPLICATED ITEM      (the distinct value that repeats).
+# NumberOfDuplicates counts occurrences (4 here); Duplicates lists the
+# distinct repeated values ([ "A", "B", 2 ]). FindDuplicates returns the
+# positions of the 2nd+ occurrences; FindDuplicatesXT widens that to ALL
+# occurrences of any repeated item; the "Origins" forms return where each
+# repeated item FIRST appeared. The mirror "NonDuplicated" family covers
+# the items that appear exactly once.
+#
+# A key Softanza correctness point: "2" (string) and 2 (number) are kept
+# DISTINCT -- the engine keys items by a type-aware stringification, not
+# by Ring's coercing `=`. So position 3 ("2") is never grouped with the
+# numeric 2 at positions 7-8.
 #
 # Extracted from stzlisttest.ring, block #131.
-#ERR Error (R14) : Calling Method without definition: findduplicatesorigins
 
 load "../../stzBase.ring"
 
@@ -23,7 +37,7 @@ pr()
 	? @@( o1.DuplicatesZ() ) # Or DuplicateItemsZ() or DuplicationsZ()
 	#--> [ [ "A", [ 4, 5 ] ], [ "B", [ 6 ] ], [ 2, [ 8 ] ] ]
 
-	# ~> "A" is duplicated in positions 4 and 5, "B" is duplicated in position 5,
+	# ~> "A" is duplicated in positions 4 and 5, "B" is duplicated in position 6,
 	# and 2 is duplicated in position 8
 
 	# To get the list of duplicates (or duplicated items):
@@ -37,13 +51,14 @@ pr()
 	#--> [ 4, 5, 6, 8 ]
 
 	# --> Note that the first occurrences of "A", "B" and 2 are not counted
-	# --> To get them with the positions of duplicates you can use: 
+	# --> To get them with the positions of duplicates you can use:
 	? @@( o1.FindDuplicatesXT() )
 	#--> [ 1, 2, 4, 5, 6, 7, 8 ]
 
 	# To get only the first occurrences of each duplicated item, use:
 
 	? @@( o1.FindDuplicatesOrigins() )
+	#--> [ 1, 2, 7 ]
 
 	#NOTE // There is an other alternative long name intended for near-natural
 	# lanaguage support in Softanza, not for using in normal programming:
@@ -79,5 +94,4 @@ pr()
 
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.21.
-# Executed in 0.08 second(s) in Ring 1.19
+# Executed in 0.01 second(s)
