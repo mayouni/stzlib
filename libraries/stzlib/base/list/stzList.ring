@@ -7145,6 +7145,18 @@ class stzList from stzObject
 		def DeepFindCS(pItem, pCaseSensitive)
 			return This.DeepFind(pItem)
 
+	# Paths(): the index-path to every node (containers AND leaves) of the
+	# nested list, in depth-first order. Documented Softanza feature whose
+	# wiring was dropped in the split; engine-backed (stz_list_deep_paths) --
+	# same all-node format as the reference GeneratePaths() in stzListPaths.
+
+	def Paths()
+		oPthDl = This.DeepList()
+		return oPthDl.Paths()
+
+		def AllPaths()
+			return This.Paths()
+
 	# Every list-valued item at any depth (depth-first pre-order). Objects
 	# are excluded (isList is false for them). E.g. ListsAtAnyLevel.
 
