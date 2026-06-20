@@ -8196,6 +8196,39 @@ class stzList from stzObject
 		def StringsUppercased()
 			return This.Uppercased()
 
+	#-- VizFind: a visual map of where a char occurs -- the list rendered
+	#-- as code, with a "^"/"-" marker line underneath. (Chars only, as the
+	#-- markers align to single columns; generalising is a TODO.)
+
+	def VizFindAllOccurrencesCS(pItem, pCaseSensitive)
+		if NOT @IsChar(pItem)
+			StzRaise("Can't proceed! Only chars can currently be visualised in the output.")
+		ok
+		oVfCode = new stzString(This.ToCode())
+		cVfRes = oVfCode.Simplified()
+		oVfStr = new stzString(cVfRes)
+		anVfPos = oVfStr.FindAllCS(@@(pItem), pCaseSensitive)
+		nVfLen = StzLen(cVfRes)
+		cVfViz = " "
+		for iVf = 1 to nVfLen - 2
+			if ring_find(anVfPos, iVf) > 0
+				cVfViz += "^"
+			else
+				cVfViz += "-"
+			ok
+		next
+		cVfRes += (NL + cVfViz)
+		return cVfRes
+
+	def VizFindAllOccurrences(pItem)
+		return This.VizFindAllOccurrencesCS(pItem, 1)
+
+		def VizFind(pItem)
+			return This.VizFindAllOccurrences(pItem)
+
+		def VizFindAll(pItem)
+			return This.VizFindAllOccurrences(pItem)
+
 	#-- Type-filter family: Xs() = items of type X, XsZ() = [item,pos]
 	#-- pairs, NumberOfXs() = count. Char = single-codepoint string
 	#-- (StzLen=1); Letter = a single ASCII letter.
