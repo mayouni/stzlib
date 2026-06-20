@@ -921,9 +921,39 @@ fn valueToString(v: *const StzValue, buf: []u8) usize {
             break :blk copy_len;
         },
         .list_val => blk: {
-            const s = "[list]";
-            if (s.len <= buf.len) @memcpy(buf[0..s.len], s);
-            break :blk @min(s.len, buf.len);
+            // Content-based key so distinct sub-lists classify into distinct
+            // groups (e.g. [1,2,3] vs [4,5]); recurses for nested lists.
+            // Truncates at buf.len (keys only need to disambiguate).
+            const ld = v.data.list_val;
+            if (ld.len == 0) {
+                const s = "[ ]";
+                if (s.len <= buf.len) @memcpy(buf[0..s.len], s);
+                break :blk @min(s.len, buf.len);
+            }
+            var pos: usize = 0;
+            // matches @@ rendering: "[ a, b, c ]"
+            if (pos + 2 <= buf.len) {
+                buf[pos] = '[';
+                buf[pos + 1] = ' ';
+                pos += 2;
+            }
+            var i: usize = 0;
+            while (i < ld.len) : (i += 1) {
+                if (i > 0 and pos + 2 <= buf.len) {
+                    buf[pos] = ',';
+                    buf[pos + 1] = ' ';
+                    pos += 2;
+                }
+                if (pos < buf.len) {
+                    pos += valueToString(ld.items[i], buf[pos..]);
+                }
+            }
+            if (pos + 2 <= buf.len) {
+                buf[pos] = ' ';
+                buf[pos + 1] = ']';
+                pos += 2;
+            }
+            break :blk pos;
         },
     };
 }
