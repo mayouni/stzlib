@@ -9675,3 +9675,132 @@ class stzList from stzObject
 
 		def NumberOfOccurrenceOfEachItem()
 			return This.NumberOfOccurrenceOfItems()
+
+	#========================================================#
+	#  BATCH-5 RESTORE: IsListOfNumbersAndPairsOfNumbers,    #
+	#  Split(ted)ToPartsOfNItemsXT / After / Before          #
+	#  Positions, (Find)PreviousNthOccurrence.               #
+	#========================================================#
+
+	def IsListOfNumbersAndPairsOfNumbers()
+		# Each item must be a number, or a 2-element list of two numbers.
+		# (Pair check inlined: the class also has a 0-arg IsPairOfNumbers
+		# method, which would shadow the global func form inside the class.)
+		aC = This.Content()
+		n = len(aC)
+		for i = 1 to n
+			_x_ = aC[i]
+			if isNumber(_x_)
+				loop
+			ok
+			if isList(_x_) and len(_x_) = 2 and isNumber(_x_[1]) and isNumber(_x_[2])
+				loop
+			ok
+			return FALSE
+		next
+		return TRUE
+
+	#-- Splitting into parts (mutating Split*, fluent Split*Q, and
+	#-- non-mutating Splitted* that return a fresh list of parts).
+
+	def SplitToPartsOfNItemsXT(n)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitToPartsOfNItemsXT(n)
+		This.UpdateWith( This.Sections(aSections) )
+
+	def SplitToPartsOfNItemsXTQ(n)
+		This.SplitToPartsOfNItemsXT(n)
+		return This
+
+	def SplittedToPartsOfNItemsXT(n)
+		return This.Copy().SplitToPartsOfNItemsXTQ(n).Content()
+
+	def SplitAfterPositions(panPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfterPositions(panPos)
+		This.UpdateWith( This.Sections(aSections) )
+
+	def SplitAfterPositionsQ(panPos)
+		This.SplitAfterPositions(panPos)
+		return This
+
+	def SplittedAfterPositions(panPos)
+		return This.Copy().SplitAfterPositionsQ(panPos).Content()
+
+	def SplitBeforePositions(panPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforePositions(panPos)
+		This.UpdateWith( This.Sections(aSections) )
+
+	def SplitBeforePositionsQ(panPos)
+		This.SplitBeforePositions(panPos)
+		return This
+
+	def SplittedBeforePositions(panPos)
+		return This.Copy().SplitBeforePositionsQ(panPos).Content()
+
+	#-- Nth previous occurrence (scanning backward from a start position).
+
+	def FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+		if isList(pItem) and IsOfNamedParamList(pItem)
+			pItem = pItem[2]
+		ok
+		if isList(nStart) and IsStartingAtNamedParamList(nStart)
+			nStart = nStart[2]
+		ok
+		if isString(nStart) and ( nStart = :Last or nStart = :LastItem )
+			nStart = This.NumberOfItems()
+		ok
+		if isString(n)
+			if n = :First or n = :FirstOccurrence
+				n = 1
+			but n = :Last or n = :LastOccurrence
+				n = This.SectionQ(1, nStart).NumberOfOccurrenceCS(pItem, pCaseSensitive)
+			ok
+		ok
+
+		nLen = This.NumberOfItems()
+
+		if nStart = 1
+			return 0
+		ok
+		if nStart < 0 or nStart > nLen
+			return 0
+		ok
+		if NOT This.ContainsCS(pItem, pCaseSensitive)
+			return 0
+		ok
+		if This.SectionQ(1, nStart - 1).NumberOfOccurrenceCS(pItem, pCaseSensitive) < n
+			return 0
+		ok
+
+		bCase = CaseSensitive(pCaseSensitive)
+		# Current FindPreviousCS is exclusive (strictly before nPos), so we
+		# seed nPos with nStart itself to count the occurrence at nStart-1.
+		nPos = nStart
+		nFound = 0
+		i = 0
+
+		while 1
+			i++
+			if i > nLen
+				exit
+			ok
+			nPos = This.FindPreviousCS(pItem, nPos, bCase)
+			if nPos = 0
+				exit
+			else
+				nFound++
+				if nFound = n
+					return nPos
+				ok
+			ok
+		end
+
+		return 0
+
+	def FindNthPreviousOccurrence(n, pItem, nStart)
+		return This.FindNthPreviousOccurrenceCS(n, pItem, nStart, 1)
+
+	def PreviousNthOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+		return This.FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+
+	def PreviousNthOccurrence(n, pItem, nStart)
+		return This.FindNthPreviousOccurrence(n, pItem, nStart)
