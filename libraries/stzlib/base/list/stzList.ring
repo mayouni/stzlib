@@ -518,6 +518,11 @@ class stzList from stzObject
 		def Added(pItem)
 			return This.ItemAdded(pItem)
 
+	def ManyAdded(paItems)
+		# Non-mutating: append each item of paItems to a copy.
+		aResult = This.Copy().AddManyQ(paItems).Content()
+		return aResult
+
 	  #-----------------------------------#
 	 #  MERGING WITH ANOTHER LIST        #
 	#-----------------------------------#
@@ -8540,23 +8545,100 @@ class stzList from stzObject
 
 	def operator(pOp, pValue)
 
+		# Softanza operator rules (NON-mutating -- the object is never
+		# changed; every branch returns a fresh value):
+		#   RHS raw            -> raw result
+		#   RHS Q(...) object  -> chainable stz object
+		#   These()/TheseQ()   -> operand list applied item-by-item
+		#   Obj()/ObjQ()/O()   -> operand stz object added/removed AS the
+		#                         object itself (not unwrapped)
+		# The Q/These/Obj forms are flagged by globals set in stzFuncs.
+
 		if pOp = "+"
-			# Append pValue as a single item.
-			@aContent + pValue
-			return @aContent
+
+			if isList(pValue)
+				if _bTheseQ
+					_bTheseQ = 0
+					return new stzList( This.ManyAdded(pValue) )
+				but _bThese
+					_bThese = 0
+					return This.ManyAdded(pValue)
+				else
+					return This.ItemAdded(pValue)
+				ok
+
+			but @IsStzObject(pValue)
+				if _bAsObject
+					_bAsObject = 0
+					return This.ItemAdded(pValue)
+				but _bAsObjectQ
+					_bAsObjectQ = 0
+					return new stzList( This.ItemAdded(pValue) )
+				but _bTheseQ
+					_bTheseQ = 0
+					return new stzList( This.ManyAdded(pValue.Content()) )
+				but _bThese
+					_bThese = 0
+					return This.ManyAdded(pValue.Content())
+				else
+					_vOpVal_ = pValue.Content()
+					if @IsStzNumber(pValue)
+						_vOpVal_ = pValue.NumericValue()
+					ok
+					return new stzList( This.ItemAdded(_vOpVal_) )
+				ok
+
+			else
+				return This.ItemAdded(pValue)
+			ok
 
 		but pOp = "-"
-			# Remove the first occurrence of pValue (as a single item) if
-			# present. BothAreEqualCS compares by CONTENT, so a list value is
-			# matched deep-equal (Ring's raw `=` does NOT compare sub-lists).
-			_nMinLen_ = len(@aContent)
-			for _iMin_ = 1 to _nMinLen_
-				if BothAreEqualCS(@aContent[_iMin_], pValue, 1)
-					del(@aContent, _iMin_)
-					return @aContent
+
+			if isList(pValue)
+				if _bTheseQ
+					_bTheseQ = 0
+					return new stzList( This.ManyRemoved(pValue) )
+				but _bThese
+					_bThese = 0
+					return This.ManyRemoved(pValue)
+				else
+					return This.ItemRemoved(pValue)
 				ok
-			next
-			return @aContent
+
+			but @IsStzlist(pValue)
+				if _bAsObject
+					_bAsObject = 0
+					return This.ItemRemoved(pValue)
+				but _bAsObjectQ
+					_bAsObjectQ = 0
+					return new stzList( This.ItemRemoved(pValue) )
+				but _bTheseQ
+					_bTheseQ = 0
+					return new stzList( This.ManyRemoved(pValue.Content()) )
+				but _bThese
+					_bThese = 0
+					return This.ManyRemoved(pValue.Content())
+				else
+					return new stzList( This.ItemRemoved(pValue.Content()) )
+				ok
+
+			but @IsStzObject(pValue)
+				if _bAsObject
+					_bAsObject = 0
+					return This.ItemRemoved(pValue)
+				but _bAsObjectQ
+					_bAsObjectQ = 0
+					return new stzList( This.ItemRemoved(pValue) )
+				ok
+				_vOpVal_ = pValue.Content()
+				if @IsStzNumber(pValue)
+					_vOpVal_ = pValue.NumericValue()
+				ok
+				return new stzList( This.ItemRemoved(_vOpVal_) )
+
+			else
+				return This.ItemRemoved(pValue)
+			ok
 
 		but pOp = "*"
 			# Repeat the list pValue times (integer).

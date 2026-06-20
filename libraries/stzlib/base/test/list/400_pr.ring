@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# pr()
+# The (-) operator on a stzList -- and the Q() "elevator" that decides
+# the RETURN type.
+#
+# Softanza's opinionated rule: an operator never mutates the object, and
+# the shape of the RIGHT operand decides what you get back:
+#   - a RAW operand  (3, or the list 1:3)  -> a plain Ring list
+#   - a Q()-wrapped operand (Q(3), Q(1:3)) -> a chainable stzList object
+# so you can keep calling methods (.Content() here). Either way the
+# removed value is matched by CONTENT, so the sublist [1,2,3] is removed
+# deep-equal, not by Ring's shallow `=`.
 #
 # Extracted from stzlisttest.ring, block #400.
-#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
 
@@ -22,4 +30,4 @@ pr()
 #--> [ "A", "B", "C" ]
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in 0.02 second(s)

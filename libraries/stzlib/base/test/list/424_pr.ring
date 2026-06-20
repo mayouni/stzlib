@@ -1,9 +1,16 @@
 # Narrative
 # --------
-# pr()
+# A fuller tour of the operator algebra: +, -, Q(), These(), TheseQ() --
+# and the promise that the object is never mutated.
+#
+# `o1 + [X,Y,Z]` adds the list as a single item (like Ring), and o1 stays
+# [1,2,3] afterwards. Then the chains mix elevation and item-wise ops:
+# Q() makes the running result a stzList object; These() removes/adds the
+# operand element by element (returning a raw list); TheseQ() does the
+# element-wise op AND keeps the chain elevated. Each line is independent
+# because no operator writes back to o1.
 #
 # Extracted from stzlisttest.ring, block #424.
-#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 
@@ -24,7 +31,7 @@ o1 = new stzList([ 1, 2, 3 ])
 ? o1.Content()
 #--> [ 1, 2, 3 ]
 
-? o1 + Q( "X" : "Z" ) - These([ 1, 2, 3 ]) 
+? o1 + Q( "X" : "Z" ) - These([ 1, 2, 3 ])
 # \________ ________/   \________ _______/
 #          V                     V
 #  A stzList object      Items are removed
@@ -51,4 +58,4 @@ o1 = new stzList([ 1, 2, 3 ])
 #--> [ "X", "Y", "Z" ]
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.04 second(s)
