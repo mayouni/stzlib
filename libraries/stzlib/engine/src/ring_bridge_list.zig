@@ -509,6 +509,9 @@ fn ring_FrequenciesCS(p: *anyopaque) callconv(.c) void {
 fn ring_IntersectionCS(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_intersection_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
 }
+fn ring_CommonItemsCS(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_common_items_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+}
 fn ring_UnionCS(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_union_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
 }
@@ -938,6 +941,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistclassifycs", .func = &ring_ClassifyCS },
     .{ .name = "stzenginelistfrequenciescs", .func = &ring_FrequenciesCS },
     .{ .name = "stzenginelistintersectioncs", .func = &ring_IntersectionCS },
+    .{ .name = "stzenginelistcommonitemscs", .func = &ring_CommonItemsCS },
     .{ .name = "stzenginelistunioncs", .func = &ring_UnionCS },
     .{ .name = "stzenginelistdifferencecs", .func = &ring_DifferenceCS },
     .{ .name = "stzenginelistissubsetcs", .func = &ring_IsSubsetCS },

@@ -3293,6 +3293,20 @@ class stzList from stzObject
 		ok
 		_other_ = pNamedWith[2]
 		if NOT isList(_other_) return [] ok
+		# Engine-backed multiset intersection: keeps This's order + duplicates
+		# (the stzList semantic, distinct from stzSet's deduping Intersection),
+		# content-compared (nested-list correct). O(n*m) in C, not Ring.
+		_pCiA_ = This._EngineListFromContent()
+		_pCiB_ = StzEngineMarshalList(_other_)
+		if _pCiA_ != NULL and _pCiB_ != NULL
+			_pCiR_ = StzEngineListCommonItemsCS(_pCiA_, _pCiB_, 1)
+			_aR_ = StzEngineContentFromList(_pCiR_)
+			StzEngineListFree(_pCiR_)
+			StzEngineListFree(_pCiA_)
+			StzEngineListFree(_pCiB_)
+			return _aR_
+		ok
+		# Fallback (non-marshalable content): same multiset semantics.
 		_a_ = This.List()
 		_nL_ = len(_a_)
 		_aR_ = []
@@ -3300,9 +3314,6 @@ class stzList from stzObject
 			_v_ = _a_[_i_]
 			_nB_ = len(_other_)
 			for _j_ = 1 to _nB_
-				# content compare (handles nested-list items, like the engine);
-				# keeps This's order + duplicates -- the stzList (multiset)
-				# semantics, distinct from stzSet's deduping Intersection.
 				if BothAreEqualCS(_v_, _other_[_j_], 1) _aR_ + _v_ exit ok
 			next
 		next
