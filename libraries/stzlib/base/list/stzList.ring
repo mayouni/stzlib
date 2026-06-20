@@ -1659,7 +1659,9 @@ class stzList from stzObject
 		aResult = []
 		nLen = len(@aContent)
 		for _i_ = 1 to nLen
-			if @aContent[_i_] != p
+			# content compare so a list-valued p is matched (raw != can't
+			# compare sub-lists -> would wrongly keep an equal list item).
+			if NOT BothAreEqualCS(@aContent[_i_], p, 1)
 				aResult + @aContent[_i_]
 			ok
 		next
