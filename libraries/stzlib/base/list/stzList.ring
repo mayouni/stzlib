@@ -1100,6 +1100,16 @@ class stzList from stzObject
 		    pNewItem[1] = :With or pNewItem[1] = :using or pNewItem[1] = :Using)
 			pNewItem = pNewItem[2]
 		ok
+		# A LIST of positions replaces each of those positions (ReplaceAnyAt).
+		if isList(n)
+			_nRaLen_ = len(n)
+			for _iRa_ = 1 to _nRaLen_
+				if n[_iRa_] >= 1 and n[_iRa_] <= len(@aContent)
+					@aContent[ n[_iRa_] ] = pNewItem
+				ok
+			next
+			return
+		ok
 		if n >= 1 and n <= len(@aContent)
 			@aContent[n] = pNewItem
 		ok
@@ -4449,7 +4459,9 @@ class stzList from stzObject
 	# Default filler is the empty string.
 
 	def ExtendTo(n)
-		This.ExtendToPositionXT(n, "")
+		# Type-aware padding: 0 for an all-number list, "" otherwise
+		# (ExtendToPosition decides). Use ExtendToXT(n, :With=v) to choose.
+		This.ExtendToPosition(n)
 
 		def ExtendToQ(n)
 			This.ExtendTo(n)
@@ -9905,3 +9917,91 @@ class stzList from stzObject
 
 	def TheseBoundsRemoved(pBound1, pBound2)
 		return This.Copy().RemoveTheseBoundsQ(pBound1, pBound2).Content()
+
+	#========================================================#
+	#  BATCH-8 RESTORE: MultiplyBy, ExtendToXT, TypesXT,     #
+	#  FindStzNumbers, ReplaceThisAt (split-dropped).        #
+	#========================================================#
+
+	def MultiplyBy(p)
+		switch ring_type(p)
+		on "NUMBER"
+			if p = 0
+				aResult = []
+			but p = 1
+				aResult = @aContent
+			else
+				aResult = []
+				for i = 1 to p
+					aResult + @aContent
+				next
+			ok
+			This.Update( aResult )
+
+		on "STRING"
+			nLen = len(@aContent)
+			for i = 1 to nLen
+				if isString(@aContent[i])
+					@aContent[i] += p
+				ok
+			next
+
+		on "LIST"
+			# Pair each item with the given list:
+			# [ "V1","V2" ] * [ 1,2 ] -> [ [ "V1",[1,2] ], [ "V2",[1,2] ] ]
+			nLen = len(@aContent)
+			for i = 1 to nLen
+				item = @aContent[i]
+				@aContent[i] = [ item, p ]
+			next
+
+		other
+			StzRaise("Can't multiply the list by an object!")
+		off
+
+	def ExtendToXT(n, pValue)
+		This.ExtendToPositionWith(n, pValue)
+
+	def TypesXT()
+		return This.ListQ().AssociatedWith( This.Types() )
+
+	def FindStzNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+		anResult = []
+		for i = 1 to nLen
+			if @IsStzNumber(aContent[i])
+				anResult + i
+			ok
+		next
+		return anResult
+
+	def ReplaceThisAt(n, pItem, pNewItem)
+		This.ReplaceThisItemAt(n, pItem, pNewItem)
+
+	def ReplaceAnyAt(pPos, pNewItem)
+		This.ReplaceAt(pPos, pNewItem)
+
+	#-- Positions of items that are stz objects of a given kind.
+
+	def FindStzStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+		anResult = []
+		for i = 1 to nLen
+			if @IsStzString(aContent[i])
+				anResult + i
+			ok
+		next
+		return anResult
+
+	def FindStzLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+		anResult = []
+		for i = 1 to nLen
+			if @IsStzList(aContent[i])
+				anResult + i
+			ok
+		next
+		return anResult
