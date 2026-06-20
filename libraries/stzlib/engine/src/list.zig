@@ -1473,6 +1473,33 @@ pub fn stz_list_intersection_cs(a: ?*const StzList, b: ?*const StzList, case_sen
     return result;
 }
 
+// Like intersection, but keeps the LEFT list's order AND duplicates (no
+// dedup) -- the stzList "common items" / multiset semantic, distinct from the
+// deduping set intersection above.
+pub fn stz_list_common_items_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const la = a orelse return StzList.init() catch null;
+    const lb = b orelse return StzList.init() catch null;
+    const cs = case_sensitive != 0;
+    const result = StzList.init() catch return null;
+
+    for (la.items.items) |item| {
+        var in_b = false;
+        for (lb.items.items) |bi| {
+            if (valueEqlCS(item, bi, cs)) {
+                in_b = true;
+                break;
+            }
+        }
+        if (in_b) {
+            result.appendClone(item) catch {
+                result.deinit();
+                return null;
+            };
+        }
+    }
+    return result;
+}
+
 pub fn stz_list_union_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
     const la = a orelse return if (b != null) stz_list_clone(b) else StzList.init() catch null;
     const lb = b orelse return stz_list_clone(a);
