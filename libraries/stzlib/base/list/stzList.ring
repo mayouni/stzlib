@@ -7087,6 +7087,15 @@ class stzList from stzObject
 		def DeepFindCS(pItem, pCaseSensitive)
 			return This.DeepFind(pItem)
 
+	# Every list-valued item at any depth (depth-first pre-order). Objects
+	# are excluded (isList is false for them). E.g. ListsAtAnyLevel.
+
+	def DeepLists()
+		return _StzCollectDeepLists(@aContent)
+
+		def ListsAtAnyLevel()
+			return _StzCollectDeepLists(@aContent)
+
 	# FilledWith(pItems): replace the wrapped list with pItems, then
 	# return its content. Used for the 'start from an empty list and
 	# fill it with these items' fluent shape.
