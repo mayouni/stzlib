@@ -1,9 +1,15 @@
 # Narrative
 # --------
-# pr()
+# NoItemsAreDuplicated(): the positive, readable spelling of "this list
+# is a set" -- every item appears exactly once.
+#
+# It is the logical complement of ContainsDuplicates(), and an alias of
+# ContainsNoDuplicates(). Note how items of mixed type coexist: the
+# range 1:3 expands to 1,2,3 and none collides with the strings "2" or
+# "C", because Softanza compares items by a stringified, type-aware key
+# rather than Ring's coercing `=`.
 #
 # Extracted from stzlisttest.ring, block #129.
-#ERR Error (R14) : Calling Method without definition: noitemsareduplicated
 
 load "../../stzBase.ring"
 
@@ -18,5 +24,4 @@ pr()
 	#--> TRUE
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.21
-# Executed in 0.03 second(s) in Ring 1.8
+# Executed in almost 0 second(s)
