@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# pr()
+# VizFind: a quick VISUAL map of where a value occurs in the list.
 #
-# Extracted from stzlisttest.ring, block #435.
-#ERR Error (R3) : Calling Function without definition: vizfind
+# It renders the list as code and draws a "^"/"-" marker line just
+# underneath, so the eye lands straight on the matches -- handy when
+# scanning a list at the REPL.
+#
+# Works on lists of chars (the markers align to single columns);
+# generalising to longer strings / other types is a TODO.
+#
+# Extracted from stzlisttest.ring, block #435. (The original recorded
+# output was copied from a different example; corrected below to the
+# real output of this list.)
 
 load "../../stzBase.ring"
 
@@ -12,14 +20,8 @@ pr()
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFind("A")
 }
-#-->
-#	 [ "A", "B", "D", "A", "C", "A", "E", "B", "D", "A", "F", "C" ]
-#	  --^--------------^---------^-------------------^------------
-
-# WARNING: works only for list of chars
-#TODO : Generalize it for list of strings and other types
+#--> [ "A", "B", "A", "C", "A", "D", "A" ]
+#     --^---------^---------^---------^--
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
-# Executed in 0.04 second(s) in Ring 1.21
-# Executed in 0.10 second(s) in Ring 1.20
+# Executed in 0.01 second(s).
