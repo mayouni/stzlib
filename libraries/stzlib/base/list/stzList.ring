@@ -7682,6 +7682,66 @@ class stzList from stzObject
 		def SectionsBetweenItems(pItem1, pItem2)
 			return This.SectionsBetween(pItem1, pItem2)
 
+	#-- Distribute this list's items over a list of "beneficiaries",
+	#-- returning [beneficiary, [its items]] pairs. The plain form splits
+	#-- as evenly as possible (remainder to the first ones); the XT form
+	#-- takes an explicit per-beneficiary share via :Using = [n1, n2, ...].
+
+	def DistributeOverXT(acBeneficiaryItems, anShareOfEachItem)
+		if isList(anShareOfEachItem) and ring_len(anShareOfEachItem) = 2 and
+		   isString(anShareOfEachItem[1]) and
+		   (anShareOfEachItem[1] = :using or anShareOfEachItem[1] = :Using)
+			anShareOfEachItem = anShareOfEachItem[2]
+		ok
+		if NOT ( isList(acBeneficiaryItems) and ring_len(acBeneficiaryItems) > 0 )
+			StzRaise("Can't distribute the items of the main list over the items of the provided list!")
+		ok
+		nDoSum = 0
+		nDoSL = ring_len(anShareOfEachItem)
+		for kDo = 1 to nDoSL
+			nDoSum += anShareOfEachItem[kDo]
+		next
+		if NOT nDoSum = This.NumberOfItems()
+			StzRaise("Can't distribute the items of the main list over the items of the provided list!")
+		ok
+		aDoResult = []
+		nDoLen = ring_len(acBeneficiaryItems)
+		nDo1 = 1
+		for iDo = 1 to nDoLen
+			cDoBenef = acBeneficiaryItems[iDo]
+			nDoRange = anShareOfEachItem[iDo]
+			nDo2 = nDo1 + nDoRange - 1
+			aDoShare = []
+			for jDo = nDo1 to nDo2
+				aDoShare + @aContent[jDo]
+			next
+			aDoResult + [ cDoBenef, aDoShare ]
+			nDo1 = nDo2 + 1
+		next
+		return aDoResult
+
+	def DistributeOver(acBeneficiaryItems)
+		nDoLenList = This.NumberOfItems()
+		nDoLenBenef = ring_len(acBeneficiaryItems)
+		anDoShare = []
+		if nDoLenBenef >= nDoLenList
+			for iDo = 1 to nDoLenList
+				anDoShare + 1
+			next
+		else
+			nDoN = floor( nDoLenList / nDoLenBenef )
+			for iDo = 1 to nDoLenBenef
+				anDoShare + nDoN
+			next
+			nDoRest = nDoLenList - ( nDoN * nDoLenBenef )
+			if nDoRest > 0
+				for iDo = 1 to nDoRest
+					anDoShare[iDo]++
+				next
+			ok
+		ok
+		return This.DistributeOverXT(acBeneficiaryItems, anDoShare)
+
 	#-- A copy with all occurrences of an item removed (non-mutating).
 
 	def ItemRemoved(pItem)
