@@ -7646,6 +7646,14 @@ class stzList from stzObject
 		def NumberOfOccurrencesWXT(pCondition)
 			return This.CountItemsWXT(pCondition)
 
+	#-- True if at least one item satisfies the W condition.
+
+	def ContainsW(pcCondition)
+		return ring_len(This.FindAllItemsW(pcCondition)) > 0
+
+		def ContainsAtLeastOneW(pcCondition)
+			return This.ContainsW(pcCondition)
+
 	#-- A copy with all occurrences of an item removed (non-mutating).
 
 	def ItemRemoved(pItem)
