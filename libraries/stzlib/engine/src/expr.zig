@@ -407,6 +407,10 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "@value")) return .var_accum;
     if (std.mem.eql(u8, w, "@numberofitems")) return .var_count;
     if (std.mem.eql(u8, w, "@char")) return .var_char;
+    // @-prefixed builtin form (legacy WXT syntax): the @-placeholders
+    // above are matched first; any other @word re-resolves against the
+    // builtin names, so @IsUppercase == IsUppercase, @isString == isString.
+    if (w.len > 1 and w[0] == '@') return classifyWord(word[1..]);
     if (std.mem.eql(u8, w, "this")) return .kw_this;
     if (std.mem.eql(u8, w, "true")) return .kw_true;
     if (std.mem.eql(u8, w, "false")) return .kw_false;
