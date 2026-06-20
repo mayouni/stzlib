@@ -6851,6 +6851,24 @@ func @FindNext(aList, pItem, nStart)
 	func @FindNextST(aList, pItem, nStart)
 		return @FindNext(aList, pItem, nStart)
 
+# Collects every list-valued item at any depth, in depth-first pre-order.
+# Ring objects are excluded naturally: isList() is false for an object.
+
+func _StzCollectDeepLists(paList)
+	aCdlRes = []
+	nCdlLen = len(paList)
+	for iCdl = 1 to nCdlLen
+		if isList(paList[iCdl])
+			aCdlRes + paList[iCdl]
+			aCdlSub = _StzCollectDeepLists(paList[iCdl])
+			nCdlSub = len(aCdlSub)
+			for jCdl = 1 to nCdlSub
+				aCdlRes + aCdlSub[jCdl]
+			next
+		ok
+	next
+	return aCdlRes
+
 # Functions used internally with DeepFind method
 
 func FindNumberOrStringInNestedList(pNbrOrStr, paList) #ai #claude #chat-gpt
