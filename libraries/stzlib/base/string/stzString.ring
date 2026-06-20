@@ -45,26 +45,40 @@ class stzString from stzObject
 		ok
 
 		if pOp = "+"
-			# String concat: append the stringified value.
+			# Concatenation (NON-mutating). A raw RHS returns a raw string;
+			# a Q()-wrapped (stz object) RHS returns a chainable stzString.
 			if isString(pValue)
-				This.Update(This.Content() + pValue)
+				return This.Content() + pValue
 			but isNumber(pValue)
-				This.Update(This.Content() + ("" + pValue))
+				return This.Content() + ("" + pValue)
+			but isObject(pValue)
+				_vOpAdd_ = pValue.Content()
+				if @IsStzNumber(pValue)
+					_vOpAdd_ = "" + pValue.NumericValue()
+				ok
+				return new stzString( This.Content() + _vOpAdd_ )
 			ok
 			return This.Content()
 		ok
 
 		if pOp = "*"
-			# Repeat the string pValue times.
-			if NOT isNumber(pValue) return This.Content() ok
-			_n_ = floor(pValue)
-			if _n_ < 0 _n_ = 0 ok
-			_cOut_ = ""
-			for _i_ = 1 to _n_
-				_cOut_ += This.Content()
-			next
-			This.Update(_cOut_)
-			return _cOut_
+			# A NUMBER repeats the string; a STRING is used as a separator
+			# placed after each char ("ABC" * " -> " -> "A -> B -> C -> ").
+			# Raw RHS -> raw result; Q()-wrapped RHS -> chainable stzString.
+			if isString(pValue)
+				return This._OpJoinWith(pValue)
+			but isNumber(pValue)
+				return This._OpRepeat(floor(pValue))
+			but isObject(pValue)
+				if @IsStzNumber(pValue)
+					return new stzString( This._OpRepeat(floor(pValue.NumericValue())) )
+				ok
+				_vOpSep_ = pValue.Content()
+				if isString(_vOpSep_)
+					return new stzString( This._OpJoinWith(_vOpSep_) )
+				ok
+			ok
+			return This.Content()
 		ok
 
 		if pOp = "-"
@@ -15448,3 +15462,31 @@ class stzString from stzObject
 
 	def RemoveAnyCharFromRight(pcChar)
 		This.RemoveCharFromRight(pcChar)
+
+	#-- Operator (*) helpers: non-mutating repeat and char-join.
+
+	def _OpRepeat(n)
+		_nR_ = n
+		if _nR_ < 0
+			_nR_ = 0
+		ok
+		_cOut_ = ""
+		for _iR_ = 1 to _nR_
+			_cOut_ += This.Content()
+		next
+		return _cOut_
+
+	def _OpJoinWith(pcSep)
+		_aCh_ = This.Chars()
+		_nCh_ = len(_aCh_)
+		_cOut_ = ""
+		for _iJ_ = 1 to _nCh_
+			_cOut_ += ( _aCh_[_iJ_] + pcSep )
+		next
+		return _cOut_
+
+	#-- Each Softanza class overrides StzType() to report its own type
+	#-- (the base stzObject returns :stzObject). Restored for stzString.
+
+	def StzType()
+		return :stzString
