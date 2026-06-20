@@ -6437,6 +6437,40 @@ class stzList from stzObject
 		_oClsClf_ = new stzListClassifier(This)
 		return _oClsClf_.Classes()
 
+	# Short-form classification for lists of (contiguous) number-lists:
+	# each list-class key is rendered as "min:max" (e.g. "1:5").
+
+	def ClassesSF()
+		aCsfC = This.Classes()
+		aCsfR = []
+		nCsfL = ring_len(aCsfC)
+		for iCsf = 1 to nCsfL
+			aCsfR + _StzListKeyToShortForm(aCsfC[iCsf])
+		next
+		return aCsfR
+
+	def ClassifySF()
+		aClsfC = This.Classify()
+		aClsfR = []
+		nClsfL = ring_len(aClsfC)
+		for iClsf = 1 to nClsfL
+			aClsfR + [ _StzListKeyToShortForm(aClsfC[iClsf][1]), aClsfC[iClsf][2] ]
+		next
+		return aClsfR
+
+		def ClassifiedSF()
+			return This.ClassifySF()
+
+	def KlassSF(pcShortForm)
+		aKsfC = This.ClassifySF()
+		nKsfL = ring_len(aKsfC)
+		for iKsf = 1 to nKsfL
+			if aKsfC[iKsf][1] = pcShortForm
+				return aKsfC[iKsf][2]
+			ok
+		next
+		return []
+
 	def ClassifyBy(pcExpr)
 		_oCbClf_ = new stzListClassifier(This)
 		return _oCbClf_.ClassifyBy(pcExpr)

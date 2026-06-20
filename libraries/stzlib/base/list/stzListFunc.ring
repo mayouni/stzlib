@@ -6851,6 +6851,43 @@ func @FindNext(aList, pItem, nStart)
 	func @FindNextST(aList, pItem, nStart)
 		return @FindNext(aList, pItem, nStart)
 
+# Renders a stringified list-class key ("[ 1, 2, 3, 4, 5 ]") into its
+# contiguous short form ("1:5") when the items are consecutive integers;
+# otherwise returns the key unchanged. Used by ClassesSF / ClassifySF.
+
+func _StzListKeyToShortForm(pcKey)
+	cSf = ring_trim(pcKey)
+	if ring_left(cSf, 1) = "[" and ring_right(cSf, 1) = "]"
+		cSf = ring_trim(StzMid(cSf, 2, len(cSf) - 2))
+	ok
+	if cSf = ""
+		return pcKey
+	ok
+	aSfParts = StzSplit(cSf, ",")
+	nSfN = len(aSfParts)
+	aSfNums = []
+	for iSf = 1 to nSfN
+		cSfP = ring_trim(aSfParts[iSf])
+		if NOT isNumber(0 + cSfP)
+			return pcKey
+		ok
+		aSfNums + (0 + cSfP)
+	next
+	if nSfN < 2
+		return pcKey
+	ok
+	bSfContig = 1
+	for iSf = 2 to nSfN
+		if aSfNums[iSf] != aSfNums[iSf - 1] + 1
+			bSfContig = 0
+			exit
+		ok
+	next
+	if bSfContig
+		return "" + aSfNums[1] + ":" + aSfNums[nSfN]
+	ok
+	return pcKey
+
 # Collects every list-valued item at any depth, in depth-first pre-order.
 # Ring objects are excluded naturally: isList() is false for an object.
 
