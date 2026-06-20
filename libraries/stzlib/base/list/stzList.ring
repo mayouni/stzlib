@@ -10049,3 +10049,137 @@ class stzList from stzObject
 		def LowercaseQ()
 			This.UpdateWith( This.Lowercased() )
 			return This
+
+	#========================================================#
+	#  DiffXTT family: structural diff (added / removed /    #
+	#  modified) between this list and another. Restored     #
+	#  from the monolith (split-dropped).                    #
+	#========================================================#
+
+	def AddedItemsComparedToCS(paOtherList, pCaseSensitive)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+		aResult = []
+		nLen = len(paOtherList)
+		for i = 1 to nLen
+			if NOT This.ContainsCS(paOtherList[i], pCaseSensitive)
+				aResult + paOtherList[i]
+			ok
+		next
+		return aResult
+
+	def RemovedItemsComparedToCS(paOtherList, pCaseSensitive)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+		aResult = []
+		oOtherList = new stzList(paOtherList)
+		nLen = This.NumberOfItems()
+		aContent = This.Content()
+		for i = 1 to nLen
+			if NOT oOtherList.ContainsCS(aContent[i], pCaseSensitive)
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+	def ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
+		aResult = []
+
+		aThisListU = @UniqueCS(This.Content(), pCaseSensitive)
+		aoThisListU = @Objectify(aThisListU)
+
+		# items in paOtherList that are not in aThisListU
+		_aFiltered = []
+		for _k = 1 to len(paOtherList)
+			_bInThis = 0
+			for _j = 1 to len(aThisListU)
+				if BothAreEqualCS(paOtherList[_k], aThisListU[_j], pCaseSensitive)
+					_bInThis = 1
+					exit
+				ok
+			next
+			if _bInThis = 0
+				_aFiltered + paOtherList[_k]
+			ok
+		next
+		aOtherListU = @UniqueCS(_aFiltered, pCaseSensitive)
+		aoOtherListU = @Objectify(aOtherListU)
+
+		nLenThis = len(aThisListU)
+		nLenOther = len(aOtherListU)
+
+		for i = 1 to nLenThis
+			if isString(aThisListU[i])
+				for j = 1 to nLenOther
+					if isString(aOtherListU[j])
+						if aoThisListU[i].ContainsCS(aOtherListU[j], pCaseSensitive) or
+						   aoOtherListU[j].ContainsCS(aThisListU[i], pCaseSensitive)
+							aResult + [ aThisListU[i], aOtherListU[j] ]
+						ok
+					ok
+				next
+			but isList(aThisListU[i])
+				for j = 1 to nLenOther
+					if isList(aOtherListU[j])
+						if aoThisListU[i].ContainsOneOfTheseCS(aOtherListU[j], pCaseSensitive) or
+						   aoOtherListU[j].ContainsOneOfTheseCS(aThisListU[i], pCaseSensitive)
+							aResult + [ aThisListU[i], aOtherListU[j] ]
+						ok
+					ok
+				next
+			ok
+		next
+
+		return aResult
+
+	def DifferentItemsWithCSXTT(paOtherList, pCaseSensitive)
+		_aAddedItems_ = This.AddedItemsComparedToCS(paOtherList, pCaseSensitive)
+		_aRemovedItems_ = This.RemovedItemsComparedToCS(paOtherList, pCaseSensitive)
+		_aModifiedItems_ = This.ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
+		nLen = len(_aModifiedItems_)
+
+		_oAdded_ = new stzList(_aAddedItems_)
+		_oRemoved_ = new stzList(_aRemovedItems_)
+
+		for i = 1 to nLen
+			_oRemoved_.Remove(_aModifiedItems_[i][1])
+			_oAdded_.RemoveAll(_aModifiedItems_[i][2])
+		next
+
+		return [
+			[ "added", _oAdded_.Content() ],
+			[ "removed", _oRemoved_.Content() ],
+			[ "modified", _aModifiedItems_ ]
+		]
+
+	def DifferentItemsWithXTT(paOtherList)
+		return This.DifferentItemsWithCSXTT(paOtherList, 1)
+
+	def DiffXTT(paOtherList)
+		return This.DifferentItemsWithXTT(paOtherList)
+
+	#-- Objectify: wrap each item in a Q() stz object (so per-item stz
+	#-- methods like ContainsCS can be called). Needed by DiffXTT's
+	#-- similarity matching.
+
+	def Objectify()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			aResult + Q(aContent[i])
+		next
+		This.UpdateWith(aResult)
+
+	def ObjectifyQ()
+		This.Objectify()
+		return This
+
+	def Objectified()
+		return This.Copy().ObjectifyQ().Content()
