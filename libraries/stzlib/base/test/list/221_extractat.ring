@@ -1,9 +1,14 @@
 # Narrative
 # --------
-# StartProfiler()
+# ExtractAt(n): take the item at position n OUT of the list -- returning
+# it AND removing it in one move.
+#
+# This is the destructive counterpart of ItemAt(n): where ItemAt only
+# reads, ExtractAt mutates. The whole Extract* family follows this
+# contract -- "give me X and remove it" -- which is handy for queue/stack
+# style processing.
 #
 # Extracted from stzlisttest.ring, block #221.
-#ERR Error (R14) : Calling Method without definition: extractat
 
 load "../../stzBase.ring"
 
@@ -19,5 +24,4 @@ o1 = new stzList([ "A", "_", "B", "C" ])
 StopProfiler()
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.21
-# Executed in 0.02 second(s) in Ring 1.20
+# Executed in almost 0 second(s)

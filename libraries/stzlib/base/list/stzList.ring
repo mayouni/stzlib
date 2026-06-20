@@ -5791,15 +5791,14 @@ class stzList from stzObject
 		_oEnExt_.ExtractNth(n)
 		This.UpdateWith(_oEnExt_.Content())
 
-	def ExtractFirst()
-		_oEfExt_ = new stzListExtractor(This)
-		_oEfExt_.ExtractFirst()
-		This.UpdateWith(_oEfExt_.Content())
+	def ExtractFirst(pItem)
+		# Extract = remove the FIRST occurrence of pItem from the list and
+		# return it (the destructive sibling of FindFirst).
+		return This.ExtractFirstCS(pItem, 1)
 
-	def ExtractLast()
-		_oElExt_ = new stzListExtractor(This)
-		_oElExt_.ExtractLast()
-		This.UpdateWith(_oElExt_.Content())
+	def ExtractLast(pItem)
+		# Remove the LAST occurrence of pItem and return it.
+		return This.ExtractLastCS(pItem, 1)
 
 	def ExtractSection(n1, n2)
 		_oEsExt_ = new stzListExtractor(This)
@@ -5817,9 +5816,11 @@ class stzList from stzObject
 		This.UpdateWith(_oEwExt_.Content())
 
 	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
-		_oEnocsExt_ = new stzListExtractor(This)
-		_oEnocsExt_.ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
-		This.UpdateWith(_oEnocsExt_.Content())
+		# Remove the nth occurrence of pItem and RETURN it (the extracted
+		# value), per the monolith's authoritative Extract semantics.
+		nPos = This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+		This.RemoveItemAtPosition(nPos)
+		return pItem
 
 	def ExtractNthOccurrence(n, pItem)
 		This.ExtractNthOccurrenceCS(n, pItem, 1)
@@ -9386,3 +9387,75 @@ class stzList from stzObject
 
 	def HalvesAndSectionsXT()
 		return [ This.FirstHalfAndSectionXT(), This.SecondHalfAndSectionXT() ]
+
+	#========================================================#
+	#  BATCH-2 RESTORE: Extract family (split-dropped).      #
+	#  Extract = "remove from the list AND return what was   #
+	#  removed" -- the destructive counterpart of Find.      #
+	#========================================================#
+
+	def ExtractAt(n)
+		TempItem = This.ItemAt(n)
+		This.RemoveAt(n)
+		return TempItem
+
+	def ExtractFirstCS(pItem, pCaseSensitive)
+		return This.ExtractNthOccurrenceCS(1, pItem, pCaseSensitive)
+
+	def ExtractLastCS(pItem, pCaseSensitive)
+		nLast = This.NumberOfOccurrencesCS(pItem, pCaseSensitive)
+		return This.ExtractNthOccurrenceCS(nLast, pItem, pCaseSensitive)
+
+	def ExtractWXT(pcCondition)
+		# Remove every item matching the W-condition and return them all.
+		# FindW yields the positions of the matches.
+		anPos = This.FindW(pcCondition)
+		aResult = This.ItemsAtPositions(anPos)
+		This.RemoveItemsAtPositions(anPos)
+		return aResult
+
+	def FindNextSTCS(pItem, nStart, pCaseSensitive)
+		return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+	def FindPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+	def ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+		if isList(pnStartingAt) and IsStartingAtNamedParamList(pnStartingAt)
+			pnStartingAt = pnStartingAt[2]
+		ok
+		nPos = This.FindNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+		if nPos = 0
+			return
+		ok
+		This.RemoveItemAtPosition(nPos)
+		return pItem
+
+	def ExtractNextST(item, pnStartingAt)
+		return This.ExtractNextSTCS(item, pnStartingAt, 1)
+
+	def ExtractNext(pItem, pnStartingAt)
+		return This.ExtractNextST(pItem, pnStartingAt)
+
+	def ExtractNextCS(pItem, pnStartingAt, pCaseSensitive)
+		return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+	def ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+		if isList(pnStartingAt) and IsStartingAtNamedParamList(pnStartingAt)
+			pnStartingAt = pnStartingAt[2]
+		ok
+		nPos = This.FindPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+		if nPos = 0
+			return
+		ok
+		This.RemoveItemAtPosition(nPos)
+		return pItem
+
+	def ExtractPreviousST(item, pnStartingAt)
+		return This.ExtractPreviousSTCS(item, pnStartingAt, 1)
+
+	def ExtractPrevious(pItem, pnStartingAt)
+		return This.ExtractPreviousST(pItem, pnStartingAt)
+
+	def ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
+		return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)

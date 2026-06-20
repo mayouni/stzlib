@@ -1,9 +1,13 @@
 # Narrative
 # --------
-# StartProfiler()
+# ExtractFirst(item): find the FIRST occurrence of a given value, return
+# it, and remove it from the list.
+#
+# Unlike ExtractAt (which takes a position), ExtractFirst takes the VALUE
+# to look for -- it is the destructive sibling of FindFirst. Here the
+# leading "_" sentinel is pulled off, leaving the real payload behind.
 #
 # Extracted from stzlisttest.ring, block #224.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 
@@ -12,6 +16,7 @@ pr()
 o1 = new stzList([ "_", "A", "B", "C" ])
 
 ? o1.ExtractFirst("_") + NL
+#--> "_"
 
 ? o1.Content()
 #--> [ "A", "B", "C" ]
@@ -19,5 +24,4 @@ o1 = new stzList([ "_", "A", "B", "C" ])
 StopProfiler()
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.02 second(s) in Ring 1.20
+# Executed in almost 0 second(s)
