@@ -1774,14 +1774,14 @@ class stzList from stzObject
 		if isString(pItem)
 			nResult = StzEngineListFindStringCS(pList, pItem, pCaseSensitive)
 		else
-			_aFcsContent = @aContent
-			_nFcsLen = len(_aFcsContent)
-			for _iFcs = 1 to _nFcsLen
-				if _aFcsContent[_iFcs] = pItem
-					nResult = _iFcs
-					exit
-				ok
-			next
+			# Non-string items (lists, numbers): go through the engine-backed
+			# FindAllOccurrencesCS so Contains stays CONSISTENT with Find and
+			# compares list items by content (the old raw `=` loop silently
+			# missed sub-list items -> Contains disagreed with Find).
+			_anFfe_ = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+			if ring_len(_anFfe_) > 0
+				nResult = _anFfe_[1]
+			ok
 		ok
 
 		StzEngineListFree(pList)
