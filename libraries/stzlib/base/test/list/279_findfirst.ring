@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# StartProfiler()
+# The global @Find... position helpers (used internally by stzList).
+#
+# These low-level globals locate an item's position directly on a raw Ring
+# list, in every direction:
+#   @FindFirst / @FindLast      -- first / last occurrence
+#   @FindNext   (:StartingAt=p) -- first occurrence STRICTLY AFTER p
+#   @FindPrevious(:StartingAt=p) -- nearest occurrence STRICTLY BEFORE p
+#   @FindNthNext / @FindNthPrevious -- the n-th in that direction
+# For "♥" at positions 3 and 6: next-after-3 is 6, previous-before-6 is 3,
+# and the 2nd-previous-before-7 walks back 6 then 3.
 #
 # Extracted from stzlisttest.ring, block #279.
-#ERR Error (R3) : Calling Function without definition: @findprevious
 
 load "../../stzBase.ring"
 
@@ -32,4 +40,4 @@ aList = [ "_", "_", "♥", "_", "_", "♥", "_" ]
 StopProfiler()
 
 pf()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s)
