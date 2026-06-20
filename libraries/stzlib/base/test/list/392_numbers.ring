@@ -1,9 +1,14 @@
 # Narrative
 # --------
-# pr()
+# Numbers / NonNumbers: pull just the numeric (or non-numeric) items out
+# of a mixed list -- and the RemoveNumbers mutator.
+#
+# Numbers() and NonNumbers() are NON-destructive views: they return a
+# filtered copy and leave the original list untouched (note Content() is
+# unchanged between them). RemoveNumbers(), by contrast, mutates the list
+# in place, deleting the numeric items and keeping the rest.
 #
 # Extracted from stzlisttest.ring, block #392.
-#ERR Error (R19) : Calling function with less number of parameters
 
 load "../../stzBase.ring"
 
@@ -27,8 +32,8 @@ StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
 
 	RemoveNumbers() #--> You can also say RemoveOnlyNumbers()
 	? Content()
-	#--> [ "A", "B", "C", "D" ] 
+	#--> [ "A", "B", "C", "D" ]
 }
 
 pf()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s)
