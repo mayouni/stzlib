@@ -7904,6 +7904,55 @@ class stzList from stzObject
 		def IntersectionWith(paOtherList)
 			return This.CommonItems([ :With, paOtherList ])
 
+	#-- Symmetric difference: (this items not in other) ++ (other items not
+	#-- in this). Engine-faithful element compare via BothAreEqualCS.
+
+	def DifferentItemsWithCS(paOtherList, pCaseSensitive)
+		aDiwR = []
+		aDiwThis = This.Content()
+		nDiw1 = ring_len(aDiwThis)
+		nDiwO = ring_len(paOtherList)
+		for iDiw = 1 to nDiw1
+			bDiwIn = 0
+			for jDiw = 1 to nDiwO
+				if BothAreEqualCS(aDiwThis[iDiw], paOtherList[jDiw], pCaseSensitive)
+					bDiwIn = 1
+					exit
+				ok
+			next
+			if bDiwIn = 0
+				aDiwR + aDiwThis[iDiw]
+			ok
+		next
+		for jDiw = 1 to nDiwO
+			bDiwIn = 0
+			for iDiw = 1 to nDiw1
+				if BothAreEqualCS(paOtherList[jDiw], aDiwThis[iDiw], pCaseSensitive)
+					bDiwIn = 1
+					exit
+				ok
+			next
+			if bDiwIn = 0
+				aDiwR + paOtherList[jDiw]
+			ok
+		next
+		return aDiwR
+
+	def DifferentItemsWith(paOtherList)
+		return This.DifferentItemsWithCS(paOtherList, 1)
+
+	#-- Same items as another list, regardless of order/count (set equality).
+
+	def ContainsSameItemsAsCS(paOtherList, pCaseSensitive)
+		if NOT This.EachItemExistsInCS(paOtherList, pCaseSensitive)
+			return 0
+		ok
+		oCsiOther = new stzList(paOtherList)
+		return oCsiOther.EachItemExistsInCS(This.Content(), pCaseSensitive)
+
+	def ContainsSameItemsAs(paOtherList)
+		return This.ContainsSameItemsAsCS(paOtherList, 1)
+
 	#-- IsContainedIn(p): this list, taken as a single value, is an
 	#-- element of p (NOT element-wise -- that is AreContainedIn).
 

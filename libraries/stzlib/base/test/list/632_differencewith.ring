@@ -11,8 +11,9 @@ pr()
 
 o1 = new stzList([ "green", "red" ])
 
-? o1.DifferenceWith([ "b","x", "a", "f"]) # Or DifferentItemsWith()
-#--> [ "green", "red", "b","x", "a", "f"])
+? @@( o1.DifferenceWith([ "b","x", "a", "f"]) ) # Or DifferentItemsWith()
+# (fixed a stray ")" in the recorded output) -- symmetric difference
+#--> [ "green", "red", "b", "x", "a", "f" ]
 
 ? @@( o1.CommonItemsWith([ "b","x", "a", "f"]) ) # or Intersection()
 # []
