@@ -9459,3 +9459,127 @@ class stzList from stzObject
 
 	def ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
 		return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+	#========================================================#
+	#  BATCH-3 RESTORE: IsNeither, HasSameContent,           #
+	#  ToListInString(+ShortForm)/ToCodeQ, FirstList,        #
+	#  AllItemsAreEqualTo (split-dropped / new).             #
+	#========================================================#
+
+	def IsNeither(paList1, paList2)
+		return This.IsNeitherCS(paList1, paList2, 1)
+
+	def IsNeitherCS(paList1, paList2, pCaseSensitive)
+		if isList(paList1) and IsEqualToNamedParamList(paList1)
+			paList1 = paList1[2]
+		ok
+		if isList(paList2) and IsNorNamedParamList(paList2)
+			paList2 = paList2[2]
+		ok
+
+		bEqualToList1 = This.IsEqualToCS(paList1, pCaseSensitive)
+		bEqualToList2 = This.IsEqualToCS(paList2, pCaseSensitive)
+
+		if NOT bEqualToList1 and NOT bEqualToList2
+			return 1
+		else
+			return 0
+		ok
+
+	#-- HasSameContent: order-INsensitive content equality (a multiset
+	#-- comparison). Same items, any order, optionally case-folded.
+
+	def HasSameContent(paOtherList)
+		return This.HasSameContentCS(paOtherList, 1)
+
+	def HasSameContentCS(paOtherList, pCaseSensitive)
+		if isList(paOtherList) and IsAsNamedParamList(paOtherList)
+			paOtherList = paOtherList[2]
+		ok
+		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and isString(pCaseSensitive[1])
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		if NOT isList(paOtherList)
+			return FALSE
+		ok
+
+		if pCaseSensitive = 1
+			return This.HasSameContentAs(paOtherList)
+		ok
+
+		# Case-insensitive: compare lowercased, stringified multisets.
+		aThis = This.Content()
+		n1 = len(aThis)
+		n2 = len(paOtherList)
+		if n1 != n2
+			return FALSE
+		ok
+		ac1 = []
+		for i = 1 to n1
+			ac1 + StzLower("" + aThis[i])
+		next
+		ac2 = []
+		for i = 1 to n2
+			ac2 + StzLower("" + paOtherList[i])
+		next
+		ac1 = ring_sort(ac1)
+		ac2 = ring_sort(ac2)
+		for i = 1 to n1
+			if NOT ac1[i] = ac2[i]
+				return FALSE
+			ok
+		next
+		return TRUE
+
+	#-- Rendering the list back to its Ring source-code string.
+
+	def ToCodeQ()
+		return new stzString(This.ToCode())
+
+	def ToListInString()
+		return This.ToCode()
+
+	def ToListInStringInShortForm()
+		# Compress a contiguous integer list into its "a:b" range form,
+		# e.g. [ 4, 5, 6, 7, 8 ] -> "4:8". Falls back to the full code
+		# string for non-contiguous / non-numeric lists.
+		return _StzListKeyToShortForm(This.ToCode())
+
+	#-- First sublist (item that is itself a list) and its position.
+
+	def FindFirstList()
+		aC = This.Content()
+		n = len(aC)
+		for i = 1 to n
+			if isList(aC[i])
+				return i
+			ok
+		next
+		return 0
+
+	def FirstList()
+		nPos = This.FindFirstList()
+		if nPos = 0
+			return []
+		ok
+		aC = This.Content()
+		return aC[nPos]
+
+	#-- AllItemsAreEqualTo: every item equals pItem (content-compare, so
+	#-- sublists match too).
+
+	def AllItemsAreEqualToCS(pItem, pCaseSensitive)
+		aC = This.Content()
+		n = len(aC)
+		if n = 0
+			return FALSE
+		ok
+		for i = 1 to n
+			if NOT BothAreEqualCS(aC[i], pItem, pCaseSensitive)
+				return FALSE
+			ok
+		next
+		return TRUE
+
+	def AllItemsAreEqualTo(pItem)
+		return This.AllItemsAreEqualToCS(pItem, 1)
