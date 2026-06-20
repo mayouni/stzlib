@@ -10005,3 +10005,32 @@ class stzList from stzObject
 			ok
 		next
 		return anResult
+
+	#-- Convert to a stzListOfStrings (for string-oriented chaining like
+	#-- ConcatenatedUsing / Joined). Needed by the ..Q() chain idioms.
+
+	def ToStzListOfStrings()
+		return new stzListOfStrings(This.Content())
+
+	#-- InsertAfter(:ItemAtPosition = n, item): NON-mutating -- returns the
+	#-- would-be list with item inserted after position n, leaving This as-is
+	#-- (use InsertAfterPosition for the mutating form).
+
+	def InsertAfter(pnPos, pItem)
+		if isList(pnPos) and len(pnPos) = 2 and isString(pnPos[1])
+			pnPos = pnPos[2]
+		ok
+		_oIaCopy_ = This.Copy()
+		_oIaCopy_.InsertAfterPosition(pnPos, pItem)
+		return _oIaCopy_.Content()
+
+	#-- UppercaseQ: uppercase every string item in place, return This for
+	#-- chaining (mirrors LowercaseQ; relies on Uppercased).
+
+	def UppercaseQ()
+		This.UpdateWith( This.Uppercased() )
+		return This
+
+		def LowercaseQ()
+			This.UpdateWith( This.Lowercased() )
+			return This
