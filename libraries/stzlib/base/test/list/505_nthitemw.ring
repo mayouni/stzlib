@@ -10,7 +10,10 @@ load "../../stzBase.ring"
 pr()
 
 o1 = new stzList([ "ami", "coupain", "CAMARADE", "compagon" ])
-? o1.NthItemW(3, :Where = '{ isString(This[@i]) and Q(This[@i]).IsLowercase() }')
+# Migrated to WF: the W condition called a Ring method (Q(..).IsLowercase()),
+# which the engine DSL has no dispatch for by design -> use the anonymous-
+# function form. Same result.
+? o1.NthItemWF(3, func x { return isString(x) and Q(x).IsLowercase() })
 #--> "compagon"
 
 pf()
