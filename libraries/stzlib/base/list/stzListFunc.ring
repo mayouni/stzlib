@@ -8318,9 +8318,68 @@ func HasPath(paList, pacKeys)
 		next
 		return aRes
 
+
+func @FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
+	if isList(nStart) and IsStartingAtNamedParamList(nStart)
+		nStart = nStart[2]
+	ok
+	nLen = len(aList)
+	nRevStart = nLen - nStart + 2
+	nRevPos = @FindNthSTCS(reverse(aList), nth, pItem, nRevStart, pCaseSensitive)
+	if nRevPos < 1
+		return 0
+	ok
+	return nLen - nRevPos + 1
+
+	func FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func @FindNthPreviousSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func FindNthPreviousSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthPreviousCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+func @FindNthPrevious(aList, nth, pItem, nStart)
+	return @FindNthPreviousCS(aList, nth, pItem, nStart, 1)
+
+	func FindNthPrevious(aList, nth, pItem, nStart)
+		return @FindNthPrevious(aList, nth, pItem, nStart)
+
+	func @FindNthPreviousST(aList, nth, pItem, nStart)
+		return @FindNthPrevious(aList, nth, pItem, nStart)
+
+	func FindNthPreviousST(aList, nth, pItem, nStart)
+		return @FindNthPrevious(aList, nth, pItem, nStart)
+
+func @FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
+	return @FindNthPreviousCS(aList, 1, pItem, nStart, pCaseSensitive)
+
+	func FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
+		return @FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
+
+	func @FindPreviousSTCS(aList, pItem, nStart, pCaseSensitive)
+		return @FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
+
+	func FindPreviousSTCS(aList, pItem, nStart, pCaseSensitive)
+		return @FindPreviousCS(aList, pItem, nStart, pCaseSensitive)
+
+func @FindPrevious(aList, pItem, nStart)
+	return @FindPreviousCS(aList, pItem, nStart, 1)
+
+	func FindPrevious(aList, pItem, nStart)
+		return @FindPrevious(aList, pItem, nStart)
+
+	func @FindPreviousST(aList, pItem, nStart)
+		return @FindPrevious(aList, pItem, nStart)
+
+	func FindPreviousST(aList, pItem, nStart)
+		return @FindPrevious(aList, pItem, nStart)
+
   /////////////////
  ///   CLASS   ///
 /////////////////
 
 class TempAndDumpyThing
+
 
