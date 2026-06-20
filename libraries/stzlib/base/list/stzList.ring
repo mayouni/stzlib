@@ -9804,3 +9804,22 @@ class stzList from stzObject
 
 	def PreviousNthOccurrence(n, pItem, nStart)
 		return This.FindNthPreviousOccurrence(n, pItem, nStart)
+
+	#-- Remove a matching opening/closing bound pair (e.g. "{" ... "}").
+	#-- TheseBoundsRemoved returns a fresh list; RemoveTheseBounds mutates.
+
+	def RemoveTheseBoundsCS(pBound1, pBound2, pCaseSensitive)
+		if This.IsBoundedByCS([ pBound1, pBound2 ], pCaseSensitive)
+			This.RemoveFirstItem()
+			This.RemoveLastItem()
+		ok
+
+	def RemoveTheseBounds(pBound1, pBound2)
+		This.RemoveTheseBoundsCS(pBound1, pBound2, 1)
+
+	def RemoveTheseBoundsQ(pBound1, pBound2)
+		This.RemoveTheseBounds(pBound1, pBound2)
+		return This
+
+	def TheseBoundsRemoved(pBound1, pBound2)
+		return This.Copy().RemoveTheseBoundsQ(pBound1, pBound2).Content()

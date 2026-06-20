@@ -1,9 +1,15 @@
 # Narrative
 # --------
-# pr()
+# IsBoundedBy + RemoveTheseBounds: detect and strip a matching opening /
+# closing pair around a list.
+#
+# IsBoundedBy([ open, close ]) is TRUE when the FIRST item equals open and
+# the LAST equals close -- here "{" ... "}" wrapping the payload. Once
+# confirmed, RemoveTheseBounds("{", "}") peels both ends off in place,
+# leaving just the inner items. Think of it as bracket-stripping for
+# list-shaped data.
 #
 # Extracted from stzlisttest.ring, block #516.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 
@@ -19,4 +25,4 @@ o1.RemoveTheseBounds("{", "}")
 #--> [ "A", "B", "C" ]
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s)
