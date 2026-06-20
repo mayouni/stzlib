@@ -3290,7 +3290,10 @@ class stzList from stzObject
 			_v_ = _a_[_i_]
 			_nB_ = len(_other_)
 			for _j_ = 1 to _nB_
-				if _v_ = _other_[_j_] _aR_ + _v_ exit ok
+				# content compare (handles nested-list items, like the engine);
+				# keeps This's order + duplicates -- the stzList (multiset)
+				# semantics, distinct from stzSet's deduping Intersection.
+				if BothAreEqualCS(_v_, _other_[_j_], 1) _aR_ + _v_ exit ok
 			next
 		next
 		return _aR_
@@ -7908,6 +7911,29 @@ class stzList from stzObject
 	#-- in this). Engine-faithful element compare via BothAreEqualCS.
 
 	def DifferentItemsWithCS(paOtherList, pCaseSensitive)
+		# Symmetric difference, engine-backed and consistent with the rest
+		# of Softanza: it is (this \ other) ++ (other \ this), each side the
+		# engine's asymmetric difference (same primitive stzListComparator's
+		# SymmetricDifference uses). Order = this-side items first, then
+		# other-side items -- the documented Softanza order (test 632).
+		_pDiwA_ = This._EngineListFromContent()
+		_pDiwB_ = StzEngineMarshalList(paOtherList)
+		if _pDiwA_ != NULL and _pDiwB_ != NULL
+			_pDiwD1_ = StzEngineListDifferenceCS(_pDiwA_, _pDiwB_, pCaseSensitive)
+			_pDiwD2_ = StzEngineListDifferenceCS(_pDiwB_, _pDiwA_, pCaseSensitive)
+			_aDiwR_ = StzEngineContentFromList(_pDiwD1_)
+			_aDiwT_ = StzEngineContentFromList(_pDiwD2_)
+			_nDiwT_ = ring_len(_aDiwT_)
+			for _iDiw_ = 1 to _nDiwT_
+				_aDiwR_ + _aDiwT_[_iDiw_]
+			next
+			StzEngineListFree(_pDiwD1_)
+			StzEngineListFree(_pDiwD2_)
+			StzEngineListFree(_pDiwA_)
+			StzEngineListFree(_pDiwB_)
+			return _aDiwR_
+		ok
+		# Fallback (non-marshalable content): same symmetric semantics.
 		aDiwR = []
 		aDiwThis = This.Content()
 		nDiw1 = ring_len(aDiwThis)
