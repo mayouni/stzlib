@@ -1,6 +1,16 @@
 # Narrative
 # --------
-# pr()
+# Removing items vs removing OBJECTS: the O()/Obj()/AsObject() elevator.
+#
+# This list holds a named list (oNamedList, rendered as "mylist" by @@).
+# Three subtractions show the distinction:
+#   - `o1 - [ "X","Y","Z" ]` removes that sublist by content (raw result).
+#   - `o1 - oNamedList` (bare) tries to remove the object's CONTENT, which
+#     isn't present as a plain item, so nothing is removed.
+#   - `o1 - O(oNamedList)` removes the OBJECT ITSELF -- O() (alias Obj /
+#     AsObject) says "treat the operand as the object, not its content".
+# (Basmalah() just prints the U+FDFD ligature; v(:MyList) recalls the
+# named list created with StzNamedListQ.)
 #
 # Extracted from stzlisttest.ring, block #423.
 
@@ -19,7 +29,7 @@ o1 = new stzList([ 1, 2, 3, [ "X", "Y", "Z" ], 4, oNamedList, 5 ])
 #--> [ 1, 2, 3, 4, mylist, 5 ]
 #		      |
 #	The name list called mylist
-# You can check it using the small function		
+# You can check it using the small function
 	 ? v(:MyList).Content()
 #	 #--> [ "A", "B", "C" ]
 
@@ -41,4 +51,4 @@ o1 = new stzList([ 1, 2, 3, [ "X", "Y", "Z" ], 4, oNamedList, 5 ])
 #--> [ 1, 2, 3, [ "X", "Y", "Z" ], 4, 5 ]
 
 pf()
-# Executed in 0.05 second(s).
+# Executed in 0.05 second(s)

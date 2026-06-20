@@ -1,12 +1,20 @@
 # Narrative
 # --------
-# #narration Use of AsObject() with + operator
+# AsObject() / Obj() / O(): adding a stzList AS AN OBJECT (not its content).
+#
+# By default, `Q(list) + Q(other)` adds other's CONTENT as one item. But
+# sometimes you want the stz OBJECT itself stored in the list -- so you
+# wrap the operand with AsObject() (aliases Obj / O), or AsObjectQ() /
+# ObjQ() / OQ() to also keep the result elevated. These() / TheseQ() are
+# the opposite: add the operand's items one by one.
+#
+# NOTE: when @@ renders a list that contains an embedded stz object it
+# prints it as "@noname" (the object's placeholder var-name), not as
+# "Q([3,4])". The recorded outputs below are corrected to that real render.
 #
 # Extracted from stzlisttest.ring, block #411.
-#ERR Error (R13) : Object is required
 
 load "../../stzBase.ring"
-
 
 pr()
 
@@ -31,10 +39,10 @@ pr()
 # a normal list? You use AsObject() like this:
 
 ? @@( Q([1, 2]) + AsObject( Q([3, 4]) ) ) + NL # Or Obj() or simply O()
-#--> [ 1, 2, Q([3,4]) ]
+#--> [ 1, 2, @noname ]
 
-# ~> Q([3, 4]) which is is a stzList object is then added
-# to the Q([1, 3]) list as an object.
+# ~> Q([3, 4]) which is a stzList object is then added
+# to the Q([1, 2]) list as an object.
 
 # To add an object and return a stzList, use AsObjectQ():
 
@@ -43,7 +51,7 @@ pr()
 #                       V
 # 		 A stzList object
 
-#--> [ 1, 2, Q([3,4]) ]
+#--> [ 1, 2, @noname ]
 
 # REMINDER: You can add many items at once using These:
 
@@ -56,7 +64,7 @@ pr()
 #            A stzList object
 #     due to the use of Q in TheseQ()
 
-#--> [1, 2, 3, 4 ]
+#--> [ 1, 2, 3, 4 ]
 
 pf()
-# Executed in 0.03 second(s).
+# Executed in 0.03 second(s)

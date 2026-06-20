@@ -1488,7 +1488,7 @@ func IsStzlist(pObject)
 
 	func @IsStzlist(pObject)
 		return IsStzlist(pObject)
-		
+
 	#--
 
 	func IsAStzList(pObject)

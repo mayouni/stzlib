@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# pr()
+# Chaining operators: Q() (elevate to object), These() (apply item-by-item)
+# and TheseQ() (both at once).
+#
+# Reading each chain left to right, every operator decides raw-vs-object
+# from its right operand:
+#   - `o1 - "A":"B"`  removes the sublist as ONE item -> a raw Ring list.
+#   - `Q("A":"B")` elevates, so the result is a stzList you can keep
+#     subtracting from; `These([...])` then removes those items ONE BY ONE.
+#   - These() yields a raw list; TheseQ() keeps the chain as an object.
+# The object itself is never mutated -- each step returns a fresh value.
 #
 # Extracted from stzlisttest.ring, block #401.
-#ERR Error (R21) : Using operator with values of incorrect type
 
 load "../../stzBase.ring"
 
@@ -43,4 +51,4 @@ o1 = new stzList([ 1, "A":"B", 2, 3, "X", "Y", "Z" ])
 #--> [ 1, 2, 3, 4, 5 ]
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in 0.01 second(s)
