@@ -2695,6 +2695,16 @@ class stzList from stzObject
 			return This.IsListOfPairsOfStrings()
 
 	def IsSet()
+		# Engine-backed: a set == all items unique. The engine's all-unique
+		# compares by content (UTF-8 + nested-list correct), so it matches
+		# Softanza's "no duplicates" exactly -- including sub-list items, which
+		# the old raw `=` loop could not compare. Ring fallback otherwise.
+		_pSetList_ = This._EngineListFromContent()
+		if _pSetList_ != NULL
+			_nSet_ = StzEngineListAllUniqueCS(_pSetList_, 1)
+			StzEngineListFree(_pSetList_)
+			return _nSet_
+		ok
 		nLen = len(@aContent)
 		for i = 1 to nLen
 			for j = i + 1 to nLen
