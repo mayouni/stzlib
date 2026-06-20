@@ -350,9 +350,11 @@ func _ListSortingOrder(paList)
 
 	bAsc = 1
 	bDesc = 1
+	bAnyComparable = 0
 
 	for i = 1 to nLen - 1
 		if isNumber(paList[i]) and isNumber(paList[i+1])
+			bAnyComparable = 1
 			if paList[i] > paList[i+1]
 				bAsc = 0
 			ok
@@ -360,20 +362,24 @@ func _ListSortingOrder(paList)
 				bDesc = 0
 			ok
 		but isString(paList[i]) and isString(paList[i+1])
+			bAnyComparable = 1
 			if strcmp(paList[i], paList[i+1]) > 0
 				bAsc = 0
 			ok
 			if strcmp(paList[i], paList[i+1]) < 0
 				bDesc = 0
 			ok
-		else
-			return :Unsorted
+		# incomparable pair (mixed/list items): no ordering info, skip it
 		ok
 		if bAsc = 0 and bDesc = 0
 			return :Unsorted
 		ok
 	next
 
+	# No comparable adjacent pair -> no ordering established -> Unsorted.
+	if bAnyComparable = 0
+		return :Unsorted
+	ok
 	if bAsc = 1
 		return :Ascending
 	ok
