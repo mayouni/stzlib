@@ -9583,3 +9583,95 @@ class stzList from stzObject
 
 	def AllItemsAreEqualTo(pItem)
 		return This.AllItemsAreEqualToCS(pItem, 1)
+
+	#========================================================#
+	#  BATCH-4 RESTORE: number/non-number filters, occurrence #
+	#  counts, ItemsAndTheirPositions (split-dropped).        #
+	#========================================================#
+
+	def FindNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				aResult + i
+			ok
+		next
+		return aResult
+
+	def FindNonNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if NOT isNumber(aContent[i])
+				aResult + i
+			ok
+		next
+		return aResult
+
+	def RemoveNumbers()
+		This.RemoveItemsAtPositions( This.FindNumbers() )
+
+		def RemoveOnlyNumbers()
+			This.RemoveNumbers()
+
+		def RemoveAllExceptNonNumbers()
+			This.RemoveNumbers()
+
+	def RemoveNonNumbers()
+		This.RemoveItemsAtPositions( This.FindNonNumbers() )
+
+		def RemoveOnlyNonNumbers()
+			This.RemoveNonNumbers()
+
+		def RemoveAllExceptNumbers()
+			This.RemoveNonNumbers()
+
+	def OnlyNonNumbers()
+		return This.NonNumbers()
+
+	def ItemsAndTheirPositions()
+		return This.FindItems()
+
+	#-- Occurrence counts: each distinct item paired with how many times
+	#-- it appears.
+
+	def NumberOfOccurrenceOfItemsCS(pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		aList = @aContent
+		if pCaseSensitive = 0
+			aList = This.Lowercased()
+		ok
+
+		nLenList = len(aList)
+		if nLenList = 0
+			return []
+		ok
+
+		aItems = This.WithoutDuplicationCS(pCaseSensitive)
+		nLenItems = len(aItems)
+
+		aResult = []
+		for i = 1 to nLenItems
+			n = 0
+			for j = 1 to nLenList
+				if ring_type(aItems[i]) = ring_type(aList[j]) and
+				   aItems[i] = aList[j]
+					n++
+				ok
+			next
+			aResult + [ aItems[i], n ]
+		next
+
+		return aResult
+
+	def NumberOfOccurrenceOfItems()
+		return This.NumberOfOccurrenceOfItemsCS(1)
+
+		def NumberOfOccurrenceOfEachItem()
+			return This.NumberOfOccurrenceOfItems()
