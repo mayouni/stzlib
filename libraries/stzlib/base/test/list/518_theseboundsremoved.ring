@@ -1,9 +1,13 @@
 # Narrative
 # --------
-# pr()
+# TheseBoundsRemoved(open, close): the NON-mutating bound-stripper.
+#
+# It returns a fresh list with the matching opening/closing pair removed,
+# leaving the original untouched (the mutating sibling is
+# RemoveTheseBounds, shown in block #516). If the list isn't actually
+# bounded by the given pair, it comes back unchanged.
 #
 # Extracted from stzlisttest.ring, block #518.
-#ERR Error (R14) : Calling Method without definition: theseboundsremoved
 
 load "../../stzBase.ring"
 
@@ -15,4 +19,4 @@ o1 = new stzList([ "{", "A", "B", "C", "}" ])
 #--> [ "A", "B", "C" ]
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s)

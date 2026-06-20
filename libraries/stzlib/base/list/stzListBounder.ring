@@ -232,7 +232,9 @@ class stzListBounder
 	#----------------------------------------------------------#
 
 	def IsBoundedByCS(paBounds, pCaseSensitive)
-		if isList(paBounds) and IsPair(paBounds)
+		# len()=2 inlined instead of IsPair(): the class inherits a 0-arg
+		# IsPair method that would shadow the global func here (-> R20).
+		if isList(paBounds) and len(paBounds) = 2
 			_pIbItem1_ = paBounds[1]
 			_pIbItem2_ = paBounds[2]
 		else
