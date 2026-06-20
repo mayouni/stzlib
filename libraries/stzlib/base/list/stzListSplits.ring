@@ -456,7 +456,7 @@ class stzListSplits
 		_nL_ = len(_l_)
 		_aPos_ = []
 		for _i_ = 1 to _nL_
-			if _l_[_i_] = pItem _aPos_ + _i_ ok
+			if BothAreEqualCS(_l_[_i_], pItem, pCaseSensitive) _aPos_ + _i_ ok
 		next
 		_aR_ = []
 		_nPL_ = len(_aPos_)

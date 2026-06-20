@@ -1726,7 +1726,7 @@ class stzList from stzObject
 		for _i_ = 1 to nLen
 			bRemove = FALSE
 			for _j_ = 1 to nP
-				if @aContent[_i_] = paItems[_j_]
+				if BothAreEqualCS(@aContent[_i_], paItems[_j_], 1)
 					bRemove = TRUE
 					exit
 				ok
@@ -3947,7 +3947,7 @@ class stzList from stzObject
 		_nL_ = len(_l_)
 		_n_ = 0
 		for _i_ = _nFrom_ to _nL_
-			if _l_[_i_] = pItem _n_++ ok
+			if BothAreEqualCS(_l_[_i_], pItem, 1) _n_++ ok
 		next
 		return _n_
 
@@ -3963,7 +3963,7 @@ class stzList from stzObject
 		_aRes_ = []
 		_grp_ = []
 		for _i_ = 1 to _nL_
-			if _l_[_i_] = pItem
+			if BothAreEqualCS(_l_[_i_], pItem, 1)
 				_aRes_ + _grp_
 				_grp_ = []
 			else
@@ -8454,12 +8454,12 @@ class stzList from stzObject
 			return @aContent
 
 		but pOp = "-"
-			# Remove the first occurrence of pValue (as a single item)
-			# if present. Comparison uses Ring's `=` -- for lists it's
-			# deep-equal, for scalars value-equal.
+			# Remove the first occurrence of pValue (as a single item) if
+			# present. BothAreEqualCS compares by CONTENT, so a list value is
+			# matched deep-equal (Ring's raw `=` does NOT compare sub-lists).
 			_nMinLen_ = len(@aContent)
 			for _iMin_ = 1 to _nMinLen_
-				if @aContent[_iMin_] = pValue
+				if BothAreEqualCS(@aContent[_iMin_], pValue, 1)
 					del(@aContent, _iMin_)
 					return @aContent
 				ok
