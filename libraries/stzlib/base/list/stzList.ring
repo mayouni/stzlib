@@ -3427,13 +3427,9 @@ class stzList from stzObject
 		return TRUE
 
 	def NumberOfChars()
-		_l_ = This.List()
-		_nL_ = len(_l_)
-		_n_ = 0
-		for _i_ = 1 to _nL_
-			if isString(_l_[_i_]) _n_ += len(_l_[_i_]) ok
-		next
-		return _n_
+		# Number of single-character ITEMS in the list (canonical, per
+		# the monolith: len(Chars())). Not the total length of strings.
+		return ring_len(This.Chars())
 
 	def NumberOfCharsQ()
 		# Char-count of every string item summed; wrap in stzNumber.
@@ -7913,6 +7909,143 @@ class stzList from stzObject
 
 		def StringsAndNumbersZ()
 			return This.NumbersAndStringsZ()
+
+	#-- Type-filter family: Xs() = items of type X, XsZ() = [item,pos]
+	#-- pairs, NumberOfXs() = count. Char = single-codepoint string
+	#-- (StzLen=1); Letter = a single ASCII letter.
+
+	def Numbers()
+		aTfC = This.Content()
+		nTfL = ring_len(aTfC)
+		aTfR = []
+		for iTf = 1 to nTfL
+			if isNumber(aTfC[iTf])
+				aTfR + aTfC[iTf]
+			ok
+		next
+		return aTfR
+
+		def NumbersZ()
+			aTfC = This.Content()
+			nTfL = ring_len(aTfC)
+			aTfR = []
+			for iTf = 1 to nTfL
+				if isNumber(aTfC[iTf])
+					aTfR + [ aTfC[iTf], iTf ]
+				ok
+			next
+			return aTfR
+
+		def NumberOfNumbers()
+			return ring_len(This.Numbers())
+
+	def Strings()
+		aTfC = This.Content()
+		nTfL = ring_len(aTfC)
+		aTfR = []
+		for iTf = 1 to nTfL
+			if isString(aTfC[iTf])
+				aTfR + aTfC[iTf]
+			ok
+		next
+		return aTfR
+
+		def StringsZ()
+			aTfC = This.Content()
+			nTfL = ring_len(aTfC)
+			aTfR = []
+			for iTf = 1 to nTfL
+				if isString(aTfC[iTf])
+					aTfR + [ aTfC[iTf], iTf ]
+				ok
+			next
+			return aTfR
+
+		def NumberOfStrings()
+			return ring_len(This.Strings())
+
+	def Chars()
+		aTfC = This.Content()
+		nTfL = ring_len(aTfC)
+		aTfR = []
+		for iTf = 1 to nTfL
+			if isString(aTfC[iTf]) and StzLen(aTfC[iTf]) = 1
+				aTfR + aTfC[iTf]
+			ok
+		next
+		return aTfR
+
+		def CharsZ()
+			aTfC = This.Content()
+			nTfL = ring_len(aTfC)
+			aTfR = []
+			for iTf = 1 to nTfL
+				if isString(aTfC[iTf]) and StzLen(aTfC[iTf]) = 1
+					aTfR + [ aTfC[iTf], iTf ]
+				ok
+			next
+			return aTfR
+
+	def Letters()
+		aTfC = This.Content()
+		nTfL = ring_len(aTfC)
+		aTfR = []
+		for iTf = 1 to nTfL
+			_xTf = aTfC[iTf]
+			if isString(_xTf) and ring_len(_xTf) = 1
+				_nTfA = ascii(_xTf)
+				if (_nTfA >= 97 and _nTfA <= 122) or (_nTfA >= 65 and _nTfA <= 90)
+					aTfR + _xTf
+				ok
+			ok
+		next
+		return aTfR
+
+		def LettersZ()
+			aTfC = This.Content()
+			nTfL = ring_len(aTfC)
+			aTfR = []
+			for iTf = 1 to nTfL
+				_xTf = aTfC[iTf]
+				if isString(_xTf) and ring_len(_xTf) = 1
+					_nTfA = ascii(_xTf)
+					if (_nTfA >= 97 and _nTfA <= 122) or (_nTfA >= 65 and _nTfA <= 90)
+						aTfR + [ _xTf, iTf ]
+					ok
+				ok
+			next
+			return aTfR
+
+		def NumberOfLetters()
+			return ring_len(This.Letters())
+
+	def Lists()
+		aTfC = This.Content()
+		nTfL = ring_len(aTfC)
+		aTfR = []
+		for iTf = 1 to nTfL
+			if isList(aTfC[iTf])
+				aTfR + aTfC[iTf]
+			ok
+		next
+		return aTfR
+
+		def ListsZ()
+			aTfC = This.Content()
+			nTfL = ring_len(aTfC)
+			aTfR = []
+			for iTf = 1 to nTfL
+				if isList(aTfC[iTf])
+					aTfR + [ aTfC[iTf], iTf ]
+				ok
+			next
+			return aTfR
+
+		def NumberOfLists()
+			return ring_len(This.Lists())
+
+	def NumberOfPairs()
+		return ring_len(This.Pairs())
 
 	#-- Extend the list up to position n. ExtendToPosition pads with 0
 	#-- (number lists) or "" ; the WithItemsIn/Repeated forms pad by
