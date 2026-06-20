@@ -736,6 +736,27 @@ const ITEMTYPE_STRING: c_uint = 1;
 const ITEMTYPE_NUMBER: c_uint = 2;
 const ITEMTYPE_LIST: c_uint = 4;
 
+// A Ring object is internally a list, so ring_list_gettype reports it as
+// ITEMTYPE_LIST. To keep the engine from descending into an object's
+// attribute fields during marshaling (deep-walk, DeepLists, etc.) we detect
+// the object shape: item 1 is ["self", ...] and item 2 is ["super", ...].
+fn ringSubItemFirstStringEql(pList: *anyopaque, idx: c_uint, expected: []const u8) bool {
+    if (R.ring_list_gettype_gc(null, pList, idx) != ITEMTYPE_LIST) return false;
+    const pSub = R.ring_list_getlist_gc(null, pList, idx) orelse return false;
+    if (R.ringListSize(pSub) < 1) return false;
+    if (R.ring_list_gettype_gc(null, pSub, 1) != ITEMTYPE_STRING) return false;
+    const pItem = R.ring_list_getitem_gc(null, pSub, 1) orelse return false;
+    const sPtr = R.ringItemStringPtr(pItem) orelse return false;
+    const sLen = R.ringItemStringSize(pItem);
+    return std.mem.eql(u8, sPtr[0..@intCast(sLen)], expected);
+}
+
+fn isRingObjectList(pList: *anyopaque) bool {
+    if (R.ringListSize(pList) < 2) return false;
+    return ringSubItemFirstStringEql(pList, 1, "self") and
+        ringSubItemFirstStringEql(pList, 2, "super");
+}
+
 fn marshalRingListToValue(pRingList: *anyopaque) ?*value.StzValue {
     const nSize = R.ringListSize(pRingList);
     const vList = value.stz_value_new_list() orelse return null;
@@ -764,10 +785,19 @@ fn marshalRingListToValue(pRingList: *anyopaque) ?*value.StzValue {
             }
         } else if (itemType == ITEMTYPE_LIST) {
             const pSubList = R.ring_list_getlist_gc(null, pRingList, i) orelse continue;
-            const subVal = marshalRingListToValue(pSubList);
-            if (subVal) |sv| {
-                _ = value.stz_value_list_append(vList, sv);
-                value.stz_value_free(sv);
+            if (isRingObjectList(pSubList)) {
+                // Objects are opaque leaves -- do not descend into their fields.
+                const vNull = value.stz_value_new_null();
+                if (vNull) |vn| {
+                    _ = value.stz_value_list_append(vList, vn);
+                    value.stz_value_free(vn);
+                }
+            } else {
+                const subVal = marshalRingListToValue(pSubList);
+                if (subVal) |sv| {
+                    _ = value.stz_value_list_append(vList, sv);
+                    value.stz_value_free(sv);
+                }
             }
         }
     }
@@ -796,10 +826,19 @@ fn marshalRingList(pRingList: *anyopaque) ?*list.StzList {
             _ = list.stz_list_append_string(result, sPtr, @intCast(sLen));
         } else if (itemType == ITEMTYPE_LIST) {
             const pSubList = R.ring_list_getlist_gc(null, pRingList, i) orelse continue;
-            const subVal = marshalRingListToValue(pSubList);
-            if (subVal) |sv| {
-                _ = list.stz_list_append_value(result, sv);
-                value.stz_value_free(sv);
+            if (isRingObjectList(pSubList)) {
+                // Objects are opaque leaves -- do not descend into their fields.
+                const vNull = value.stz_value_new_null();
+                if (vNull) |vn| {
+                    _ = list.stz_list_append_value(result, vn);
+                    value.stz_value_free(vn);
+                }
+            } else {
+                const subVal = marshalRingListToValue(pSubList);
+                if (subVal) |sv| {
+                    _ = list.stz_list_append_value(result, sv);
+                    value.stz_value_free(sv);
+                }
             }
         }
     }
