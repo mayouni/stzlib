@@ -7654,6 +7654,34 @@ class stzList from stzObject
 		def ContainsAtLeastOneW(pcCondition)
 			return This.ContainsW(pcCondition)
 
+	#-- Every section that starts at an occurrence of pItem1 and ends at
+	#-- a later occurrence of pItem2. Accepts SectionsBetween(a, :And = b).
+
+	def SectionsBetweenCS(pItem1, pItem2, pCaseSensitive)
+		if isList(pItem2) and ring_len(pItem2) = 2 and isString(pItem2[1]) and
+		   (pItem2[1] = :and or pItem2[1] = :And)
+			pItem2 = pItem2[2]
+		ok
+		anSbPos1 = This.FindAllCS(pItem1, pCaseSensitive)
+		anSbPos2 = This.FindAllCS(pItem2, pCaseSensitive)
+		anSbPairs = []
+		nSb1 = ring_len(anSbPos1)
+		nSb2 = ring_len(anSbPos2)
+		for iSb = 1 to nSb1
+			for jSb = 1 to nSb2
+				if anSbPos1[iSb] < anSbPos2[jSb]
+					anSbPairs + [ anSbPos1[iSb], anSbPos2[jSb] ]
+				ok
+			next
+		next
+		return This.Sections(anSbPairs)
+
+	def SectionsBetween(pItem1, pItem2)
+		return This.SectionsBetweenCS(pItem1, pItem2, 1)
+
+		def SectionsBetweenItems(pItem1, pItem2)
+			return This.SectionsBetween(pItem1, pItem2)
+
 	#-- A copy with all occurrences of an item removed (non-mutating).
 
 	def ItemRemoved(pItem)
