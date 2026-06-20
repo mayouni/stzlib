@@ -116,7 +116,16 @@ class stzListFinder
 			_nFaoLenRaw_ = len(_aFaoRawContent_)
 			_acFaoContent_ = []
 			for _kFao_ = 1 to _nFaoLenRaw_
-				@AddItem(_acFaoContent_, "" + _aFaoRawContent_[_kFao_])
+				# Type-aware stringify (mirrors the needle above): a bare
+				# "" + item throws R21 when the item is a list/object.
+				_xFao_ = _aFaoRawContent_[_kFao_]
+				if isList(_xFao_)
+					@AddItem(_acFaoContent_, @@(_xFao_))
+				but isObject(_xFao_) and @IsStzObject(_xFao_) and _xFao_.IsNamed()
+					@AddItem(_acFaoContent_, _xFao_.ObjectName())
+				else
+					@AddItem(_acFaoContent_, Q(_xFao_).Stringified())
+				ok
 			next
 			_nFaoLen2_ = len(_acFaoContent_)
 

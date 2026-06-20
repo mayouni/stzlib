@@ -1,9 +1,13 @@
 # Narrative
 # --------
-# pr()
+# ContainsEither(a, :or = b): an EXCLUSIVE either -- TRUE when exactly ONE
+# of the two items is present, FALSE when both (or neither) are.
+#
+# The first list holds BOTH "me" and "you", so ContainsEither is FALSE.
+# The second holds "me" but not "you" -- exactly one -- so it is TRUE.
+# (For an inclusive "contains any of these", use ContainsOneOfThese.)
 #
 # Extracted from stzlisttest.ring, block #7.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 
@@ -18,4 +22,3 @@ o1 = new stzlist([ "me", "and", "all", "the", "others" ])
 #--> TRUE
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22

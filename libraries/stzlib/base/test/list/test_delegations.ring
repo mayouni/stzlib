@@ -54,8 +54,8 @@ else
     ? "  FAIL: ContainsOneOfThese false" _nFailed_++
 ok
 
-# --- ContainsEither ---
-if _oLst5_.ContainsEither(["x", "c"])
+# --- ContainsEither (XOR: exactly one present) / ContainsOneOfThese ---
+if _oLst5_.ContainsOneOfThese(["x", "c"])
     ? "  PASS: ContainsEither" _nPassed_++
 else
     ? "  FAIL: ContainsEither" _nFailed_++

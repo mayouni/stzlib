@@ -1403,8 +1403,23 @@ class stzList from stzObject
 	def ContainsOneOfThese(paItems)
 		return This.ContainsOneOfTheseCS(paItems, 1)
 
-		def ContainsEither(paItems)
-			return This.ContainsOneOfThese(paItems)
+		def ContainsEither(pItem1, pItem2)
+			# XOR: TRUE when EXACTLY ONE of the two items is present
+			# (:or names the second). For "contains any of a list", use
+			# ContainsOneOfThese(paItems).
+			return This.ContainsEitherCS(pItem1, pItem2, 1)
+
+		def ContainsEitherCS(pItem1, pItem2, pCaseSensitive)
+			if isList(pItem2) and IsOrNamedParamList(pItem2)
+				pItem2 = pItem2[2]
+			ok
+			b1 = This.ContainsCS(pItem1, pCaseSensitive)
+			b2 = This.ContainsCS(pItem2, pCaseSensitive)
+			if (b1 = 1 and b2 = 0) or (b1 = 0 and b2 = 1)
+				return 1
+			else
+				return 0
+			ok
 
 	def ContainsAllOfTheseCS(paItems, pCaseSensitive)
 		_oCmpAll_ = new stzListComparator(This)
