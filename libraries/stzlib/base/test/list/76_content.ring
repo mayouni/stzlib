@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# ReplaceOccurrencesByMany: replace the items at the listed positions, one
+# replacement per position (1-to-1).
+#
+# Positions 3,5,6 receive "C","E","F" in order, filling in the placeholder
+# "*"/"=" slots to spell out [ "A","B","C","D","E","F" ]. The palette length
+# matches the position count, so each lands once. (The XT twin, block #77,
+# cycles a shorter palette instead.)
 #
 # Extracted from stzlisttest.ring, block #76.
 

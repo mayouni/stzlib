@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# ReplaceOccurrencesByManyXT: replace items at the listed positions, CYCLING
+# a shorter palette.
+#
+# Four positions (3,4,5,6) but only two replacements [ "#1", "#2" ]: the
+# palette wraps -- #1,#2,#1,#2 -- so the four "*" placeholders become
+# [ "A","B","#1","#2","#1","#2" ]. The "XT" suffix is the recycle dial
+# (contrast block #76's 1-to-1 form).
 #
 # Extracted from stzlisttest.ring, block #77.
 
