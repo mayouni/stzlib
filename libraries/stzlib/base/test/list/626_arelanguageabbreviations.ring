@@ -1,9 +1,13 @@
 # Narrative
 # --------
-# pr()
+# AreLanguageAbbreviations(): is every item a valid language abbreviation?
+#
+# A list-level predicate that holds when all items are strings AND each is
+# a recognised language code -- here :ar, :en, :fr (Arabic, English,
+# French). It delegates the per-item check to stzString's
+# IsLanguageAbbreviation (a locale-table lookup).
 #
 # Extracted from stzlisttest.ring, block #626.
-#ERR Error (R14) : Calling Method without definition: arelanguageabbreviations
 
 load "../../stzBase.ring"
 
@@ -13,4 +17,4 @@ pr()
 #--> TRUE
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s)

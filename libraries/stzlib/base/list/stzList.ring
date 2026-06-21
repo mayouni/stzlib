@@ -10294,3 +10294,100 @@ class stzList from stzObject
 
 	def DeepContainsNOfThese(n, paItems)
 		return This.DeepContainsNOfTheseCS(n, paItems, 1)
+
+	#========================================================#
+	#  Locale-shaped list predicates (i18n). Thin orchestra- #
+	#  tion over the established per-string locale lookups.   #
+	#========================================================#
+
+	def ToListOfStzStrings()
+		if NOT This.IsListOfStrings()
+			StzRaise("Can't proceed! All items must be strings.")
+		ok
+		acContent = This.Content()
+		nLen = len(acContent)
+		aoResult = []
+		for i = 1 to nLen
+			aoResult + new stzString(acContent[i])
+		next
+		return aoResult
+
+	def AreLanguageAbbreviations()
+		if NOT @IsListOfStrings(@aContent)
+			return 0
+		ok
+		nLen = len(@aContent)
+		aoStzStr = This.ToListOfStzStrings()
+		for i = 1 to nLen
+			if NOT aoStzStr[i].IsLanguageAbbreviation()
+				return 0
+			ok
+		next
+		return 1
+
+	def IsLocaleList()
+		nLen = len(@aContent)
+
+		if nLen = 1 and isString(@aContent[1]) and
+		   StzFind([ :Default, :DefaultLocale, :System, :SystemLocale, "c", "C", :CLocale ], @aContent[1]) > 0
+			return 1
+		ok
+
+		if nLen > 3
+			return 0
+		ok
+		if NOT This.IsHashList()
+			return 0
+		ok
+
+		acKeys = []
+		for i = 1 to nLen
+			acKeys + @aContent[i][1]
+		next
+		bLanguage = StzFind(acKeys, "language")
+		bScript = StzFind(acKeys, "script")
+		bCountry = StzFind(acKeys, "country")
+		if bLanguage = 0 and bScript = 0 and bCountry = 0
+			return 0
+		ok
+
+		cLanguage = @aContent[ :Language ]
+		cScript   = @aContent[ :Script   ]
+		cCountry  = @aContent[ :Country  ]
+		if NOT ( isString(cLanguage) and isString(cScript) and isString(cCountry) )
+			return 0
+		ok
+		if cLanguage = "" and cScript = "" and cCountry = ""
+			return 0
+		ok
+		if cLanguage != "" and NOT StzStringQ(cLanguage).IsLanguageIdentifier()
+			return 0
+		ok
+		if cScript != "" and NOT StzStringQ(cScript).IsScriptIdentifier()
+			return 0
+		ok
+		if cCountry != "" and NOT StzStringQ(cCountry).IsCountryIdentifier()
+			return 0
+		ok
+		return 1
+
+	def IsMultilingualString()
+		if NOT This.IsHashlist()
+			return 0
+		ok
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			if NOT isString(@aContent[i][2])
+				return 0
+			ok
+		next
+		aoKeys = []
+		for i = 1 to nLen
+			aoKeys + StzStringQ(@aContent[i][1])
+		next
+		for i = 1 to nLen
+			if NOT aoKeys[i].IsLanguageNameOrAbbreviation()
+				return 0
+			ok
+		next
+		return 1
