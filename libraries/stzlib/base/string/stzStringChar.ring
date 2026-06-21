@@ -71,18 +71,21 @@ func _CharUnicodeVersion(nUnicode)
 	return 1
 
 func _CharScriptCode(nUnicode)
-	if nUnicode <= 0x24F return 7 ok
-	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 8 ok
-	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 9 ok
-	if nUnicode >= 0x0530 and nUnicode <= 0x058F return 10 ok
-	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 11 ok
-	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 8 ok
-	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 14 ok
-	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 37 ok	# CJK Unified Ideographs -> Han (code 37), not Yi (38)
-	if nUnicode >= 0xAC00 and nUnicode <= 0xD7AF return 28 ok
-	if nUnicode >= 0x3040 and nUnicode <= 0x309F return 27 ok
-	if nUnicode >= 0x30A0 and nUnicode <= 0x30FF return 26 ok
-	if nUnicode >= 0x0E00 and nUnicode <= 0x0E7F return 33 ok
+	# Codes index _aUnicodeScriptsXT (stzCharData.ring): 3 Latin, 4 Greek,
+	# 5 Cyrillic, 6 Armenian, 7 Hebrew, 8 Arabic, 11 Devanagari, 21 Thai,
+	# 26 Hangul, 34 Hiragana, 35 Katakana, 37 Han.
+	if nUnicode <= 0x24F return 3 ok				# Basic Latin + Latin-1 + Latin Ext-A/B
+	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 4 ok		# Greek
+	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 5 ok		# Cyrillic
+	if nUnicode >= 0x0530 and nUnicode <= 0x058F return 6 ok		# Armenian
+	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 7 ok		# Hebrew
+	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 8 ok		# Arabic
+	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 11 ok	# Devanagari
+	if nUnicode >= 0x0E00 and nUnicode <= 0x0E7F return 21 ok	# Thai
+	if nUnicode >= 0x3040 and nUnicode <= 0x309F return 34 ok	# Hiragana
+	if nUnicode >= 0x30A0 and nUnicode <= 0x30FF return 35 ok	# Katakana
+	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 37 ok	# CJK Unified Ideographs -> Han
+	if nUnicode >= 0xAC00 and nUnicode <= 0xD7AF return 26 ok	# Hangul syllables
 	return 0
 
 #-- Public standalone functions
