@@ -857,13 +857,13 @@ func NumbersBetween(n1, n2)
 		anResult + n1
 
 	but n1 < n2
-		for i = 1 to n2
-			aResult + i
+		for i = n1 to n2
+			anResult + i
 		next
 
 	else
-		for i = 1 to n2 step -1
-			aResult + i
+		for i = n1 to n2 step -1
+			anResult + i
 		next
 	ok
 

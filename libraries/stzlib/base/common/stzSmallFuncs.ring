@@ -535,8 +535,24 @@ func StzL(p)
 
 	but isString(p)
 
+		# 1. A range expression like  "A" : "E"  /  "v1" : "v3"  /  1.02 : 1.05
+		#    (eval-free, codepoint- and decimal-aware).
+
+		aRange = StzParseRange(p)
+		if isList(aRange)
+			return aRange
+		ok
+
+		# 2. A Ring list literal written inside the string, e.g. "[ 1, 2, 3 ]"
+
+		if StzStringQ(p).IsListInString()
+			return StzStringQ(p).ToList()
+		ok
+
+		# 3. Fallback: split the string into its characters (codepoint-safe)
+
 		aResult = []
-		nLen = len(p)
+		nLen = StzLen(p)
 		for i = 1 to nLen
 			aResult + StzMid(p, i, 1)
 		next
@@ -565,6 +581,186 @@ func StzL(p)
 
 	func LQ(p)
 		return StzLQ(p)
+
+#--- RANGE EXPRESSION PARSER (eval-free) for L() / StzL()
+
+# Expands a textual range "lhs : rhs" into the list it denotes. Returns
+# NULL (not a list) when the string is not a recognizable range, so the
+# caller can fall through to its other interpretations. Supports:
+#   "A" : "E"          -> codepoint char range  [ "A", "B", "C", "D", "E" ]
+#   "v1" : "v3"        -> numbered tokens        [ "v1", "v2", "v3" ]   (any prefix, incl. multibyte)
+#   1 : 5              -> integer range
+#   1.02 : 1.05        -> real range at the endpoints' decimal granularity
+# It is codepoint-correct (multibyte prefixes/chars preserved) and never
+# uses Ring's byte-oriented substr on the inner content.
+
+func StzParseRange(pcStr)
+
+	cStr = ring_trim(pcStr)
+	nLen = ring_len(cStr)
+	if nLen = 0
+		return NULL
+	ok
+
+	# Locate the top-level ':' separator (not inside a double-quoted token).
+	# ':' and '"' are ASCII single bytes, and every byte of a multibyte
+	# UTF-8 char is >= 0x80, so a raw byte scan is safe here.
+
+	nColon = 0
+	bInQuote = 0
+	for i = 1 to nLen
+		c = cStr[i]
+		if c = '"'
+			if bInQuote = 0 bInQuote = 1 else bInQuote = 0 ok
+		but c = ':' and bInQuote = 0
+			nColon = i
+			exit
+		ok
+	next
+
+	if nColon = 0
+		return NULL
+	ok
+
+	cLhs = ring_trim( ring_left(cStr, nColon - 1) )
+	cRhs = ring_trim( ring_right(cStr, nLen - nColon) )
+
+	if ring_len(cLhs) = 0 or ring_len(cRhs) = 0
+		return NULL
+	ok
+
+	bLhsQuoted = _IsQuotedToken(cLhs)
+	bRhsQuoted = _IsQuotedToken(cRhs)
+
+	# --- Both sides are quoted string tokens ---
+
+	if bLhsQuoted and bRhsQuoted
+
+		cA = _Unquote(cLhs)
+		cB = _Unquote(cRhs)
+
+		# Single codepoint on each side -> char range
+		if StzLen(cA) = 1 and StzLen(cB) = 1
+			return StzCharsBetween(cA, cB)
+		ok
+
+		# Numbered tokens: shared prefix + trailing integer
+		aA = _SplitTrailingDigits(cA)
+		aB = _SplitTrailingDigits(cB)
+		if aA[2] != "" and aB[2] != "" and aA[1] = aB[1]
+			anNums = NumbersBetween(0 + aA[2], 0 + aB[2])
+			aResult = []
+			nN = len(anNums)
+			for i = 1 to nN
+				aResult + ( aA[1] + anNums[i] )
+			next
+			return aResult
+		ok
+
+		return NULL
+	ok
+
+	# --- Both sides are unquoted -> numeric range ---
+
+	if (not bLhsQuoted) and (not bRhsQuoted) and
+	   _IsNumericToken(cLhs) and _IsNumericToken(cRhs)
+
+		nDec = Max([ _DecimalsOf(cLhs), _DecimalsOf(cRhs) ])
+
+		if nDec = 0
+			return NumbersBetween(0 + cLhs, 0 + cRhs)
+		ok
+
+		nFactor = pow(10, nDec)
+		nStart = floor( (0 + cLhs) * nFactor + 0.5 )
+		if (0 + cLhs) < 0
+			nStart = ceil( (0 + cLhs) * nFactor - 0.5 )
+		ok
+		nEnd = floor( (0 + cRhs) * nFactor + 0.5 )
+		if (0 + cRhs) < 0
+			nEnd = ceil( (0 + cRhs) * nFactor - 0.5 )
+		ok
+
+		nStep = 1
+		if nStart > nEnd nStep = -1 ok
+
+		aResult = []
+		for k = nStart to nEnd step nStep
+			aResult + ( k / nFactor )
+		next
+		return aResult
+	ok
+
+	return NULL
+
+#--- range-parser local helpers
+
+func _IsQuotedToken(c)
+	n = ring_len(c)
+	if n >= 2 and c[1] = '"' and c[n] = '"'
+		return TRUE
+	ok
+	return FALSE
+
+func _Unquote(c)
+	n = ring_len(c)
+	if n >= 2 and c[1] = '"' and c[n] = '"'
+		return ring_substr2(c, 2, n - 2)   # n-2 inner bytes between the ASCII quotes; multibyte kept intact
+	ok
+	return c
+
+# Returns [ prefix, trailingDigitsAsString ]. Digits are ASCII so a
+# backward byte scan stops cleanly at the first non-digit byte, leaving
+# any multibyte prefix untouched.
+func _SplitTrailingDigits(c)
+	n = ring_len(c)
+	nCut = n
+	while nCut >= 1
+		k = ascii(c[nCut])
+		if k >= 48 and k <= 57   # ASCII '0'..'9'
+			nCut--
+		else
+			exit
+		ok
+	end
+	if nCut = n
+		return [ c, "" ]
+	ok
+	cPrefix = ""
+	if nCut >= 1 cPrefix = ring_left(c, nCut) ok
+	cDigits = ring_right(c, n - nCut)
+	return [ cPrefix, cDigits ]
+
+func _IsNumericToken(c)
+	n = ring_len(c)
+	if n = 0 return FALSE ok
+	i = 1
+	if c[1] = "-" or c[1] = "+"
+		i = 2
+	ok
+	if i > n return FALSE ok
+	bDigitSeen = FALSE
+	bDotSeen = FALSE
+	while i <= n
+		k = ascii(c[i])
+		if k >= 48 and k <= 57   # ASCII '0'..'9'
+			bDigitSeen = TRUE
+		but k = 46               # ASCII '.'
+			if bDotSeen return FALSE ok
+			bDotSeen = TRUE
+		else
+			return FALSE
+		ok
+		i++
+	end
+	return bDigitSeen
+
+func _DecimalsOf(c)
+	nDot = ring_substr1(c, ".")
+	if nDot = 0
+		return 0
+	ok
+	return ring_len(c) - nDot
 
 #---
 

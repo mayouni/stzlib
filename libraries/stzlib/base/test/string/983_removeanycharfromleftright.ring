@@ -9,7 +9,8 @@
 # the three leading hearts vanish in one call and the three trailing ones
 # in the next, leaving "123".
 #
-# Extracted from stzlisttest.ring, block #66.
+# Repositioned from test/list (stzlisttest.ring, block #66): this is a
+# stzString test, so it belongs under test/string.
 
 load "../../stzBase.ring"
 
