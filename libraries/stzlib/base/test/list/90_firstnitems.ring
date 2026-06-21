@@ -1,9 +1,15 @@
 # Narrative
 # --------
-# pr()
+# Grabbing the first and last N items of a thousand-element list.
+#
+# A 1000-item list of "R_ING" is wrapped in a stzList and normalised with
+# StringifyLowercaseAndReplace("_", "♥"): every item is stringified and
+# lowercased ("R_ING" -> "r_ing"), then the SUBSTRING "_" is replaced by
+# the multibyte heart, giving "r♥ing". FirstNItems(3) and LastNItems(3)
+# then slice just the head and tail -- the Softanza idiom for peeking at
+# the ends of a large collection without scanning the whole thing.
 #
 # Extracted from stzlisttest.ring, block #90.
-#ERR Error (R14) : Calling Method without definition: firstnitems
 
 load "../../stzBase.ring"
 

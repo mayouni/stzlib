@@ -1355,8 +1355,8 @@ class stzList from stzObject
 		_aData_ = @aContent
 		_nLen_ = len(_aData_)
 		for _i_ = 1 to _nLen_
-			if _aData_[_i_] = pItem
-				_aData_[_i_] = pWith
+			if isString(_aData_[_i_])
+				_aData_[_i_] = StzReplace(_aData_[_i_], pItem, pWith)
 			ok
 		next
 		@aContent = _aData_
@@ -1380,8 +1380,8 @@ class stzList from stzObject
 		_aData_ = @aContent
 		_nLen_ = len(_aData_)
 		for _i_ = 1 to _nLen_
-			if _aData_[_i_] = pItem
-				_aData_[_i_] = pWith
+			if isString(_aData_[_i_])
+				_aData_[_i_] = StzReplace(_aData_[_i_], pItem, pWith)
 			ok
 		next
 		@aContent = _aData_

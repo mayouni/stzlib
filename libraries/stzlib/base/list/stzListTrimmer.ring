@@ -79,9 +79,12 @@ class stzListTrimmer
 		if _nTlcLen_ < 1
 			return
 		ok
+		# An "empty" (trimmable) item is the number 0, an empty string, an
+		# empty sublist, or a false-object (monolith semantics). Stop at the
+		# last element so a fully-empty list keeps one item.
 		_nTlcStart_ = 0
-		for _iTlc_ = 1 to _nTlcLen_
-			if isString(_aTlcContent_[_iTlc_]) and ring_trim(_aTlcContent_[_iTlc_]) = ""
+		for _iTlc_ = 1 to _nTlcLen_ - 1
+			if This._TrimItemIsEmpty(_aTlcContent_[_iTlc_])
 				_nTlcStart_ = _iTlc_
 			else
 				exit
@@ -110,8 +113,8 @@ class stzListTrimmer
 			return
 		ok
 		_nTrcEnd_ = 0
-		for _iTrc_ = _nTrcLen_ to 1 step -1
-			if isString(_aTrcContent_[_iTrc_]) and ring_trim(_aTrcContent_[_iTrc_]) = ""
+		for _iTrc_ = _nTrcLen_ to 2 step -1
+			if This._TrimItemIsEmpty(_aTrcContent_[_iTrc_])
 				_nTrcEnd_ = _iTrc_
 			else
 				exit
@@ -120,6 +123,20 @@ class stzListTrimmer
 		if _nTrcEnd_ > 0
 			@oList.RemoveSection(_nTrcEnd_, _nTrcLen_)
 		ok
+
+	#-- "Empty"/trimmable test shared by TrimLeft/TrimRight (monolith parity):
+	#-- number 0, empty string, empty sublist, or a false-object.
+	def _TrimItemIsEmpty(pItem)
+		if isNumber(pItem) and pItem = 0
+			return TRUE
+		but isString(pItem) and ring_trim(pItem) = ""
+			return TRUE
+		but isList(pItem) and len(pItem) = 0
+			return TRUE
+		but isObject(pItem) and @IsFalseObject(pItem)
+			return TRUE
+		ok
+		return FALSE
 
 		def TrimRightCSQ(pCaseSensitive)
 			This.TrimRightCS(pCaseSensitive)

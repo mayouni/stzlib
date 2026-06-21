@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# pr()
+# Turning a live list back into the exact Ring source code that would recreate it.
+#
+# Q(aList).ToCode() walks the list -- including its nested sublists and
+# multibyte string items (emoji, heart) -- and returns a string that is a
+# valid Ring list literal: quoted items, bracketed groups, comma separators,
+# all spacing normalized. @@(aList) is the terse global alias for the same
+# round-trip. This is the canonical Softanza way to serialize a structure
+# for display, logging, or copy-paste back into source. Unicode codepoints
+# are preserved verbatim, and nesting is reproduced to arbitrary depth.
 #
 # Extracted from stzlisttest.ring, block #105.
 

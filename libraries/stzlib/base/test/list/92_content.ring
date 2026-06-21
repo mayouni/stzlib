@@ -1,6 +1,15 @@
 # Narrative
 # --------
-# pr()
+# StringifyAndReplace() stringifies every element of a list and then
+# substitutes one substring for another across all of them in place.
+#
+# Here a stzList holds a mix of strings, a nested sublist, and a number.
+# StringifyAndReplace("_", "heart") first coerces each item to its string
+# form (the inner list becomes a quoted bracketed literal, the bare 9
+# becomes "9"), then replaces every "_" with the heart glyph. Content()
+# returns the mutated list, and @@() renders it: note the nested list is
+# now a single string element, demonstrating that stringification flattens
+# structure into text while preserving order.
 #
 # Extracted from stzlisttest.ring, block #92.
 
