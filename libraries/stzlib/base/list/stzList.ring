@@ -2035,39 +2035,41 @@ class stzList from stzObject
 		def DuplicationsZ()
 			return This.DuplicatesCSZ(1)
 
-	# FindNextNthItem(n, :StartingAt = pos): return the nth item in the
-	# content starting from (and including) position pos. Returns NULL
-	# if the requested offset is out of range. The starting position
-	# accepts the bare integer or the :StartingAt named-param form.
+	# FindNextNthItem(n, :StartingAt = pos): the POSITION of the n-th item
+	# AFTER pos (pos+n). Find* returns the position (0 if out of range);
+	# the NextNthItem accessor returns the item there. :StartingAt accepts
+	# the bare integer or the named-param form.
 	def FindNextNthItem(n, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
 		ok
-		_aData_ = This.Content()
-		_nDataLen_ = len(_aData_)
-		_nIdx_ = pnStartingAt + n - 1
-		if _nIdx_ < 1 or _nIdx_ > _nDataLen_
-			return NULL
+		_nIdx_ = pnStartingAt + n
+		if _nIdx_ < 1 or _nIdx_ > This.NumberOfItems()
+			return 0
 		ok
-		return _aData_[_nIdx_]
+		return _nIdx_
 
 		def NextNthItem(n, pnStartingAt)
-			return This.FindNextNthItem(n, pnStartingAt)
+			_nP_ = This.FindNextNthItem(n, pnStartingAt)
+			if _nP_ = 0 return NULL ok
+			return This.Content()[_nP_]
 
+	# FindPreviousNthItem(n, :StartingAt = pos): the POSITION of the n-th
+	# item counting BACK from pos inclusive (pos-n+1).
 	def FindPreviousNthItem(n, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
 		ok
-		_aData_ = This.Content()
-		_nDataLen_ = len(_aData_)
 		_nIdx_ = pnStartingAt - n + 1
-		if _nIdx_ < 1 or _nIdx_ > _nDataLen_
-			return NULL
+		if _nIdx_ < 1 or _nIdx_ > This.NumberOfItems()
+			return 0
 		ok
-		return _aData_[_nIdx_]
+		return _nIdx_
 
 		def PreviousNthItem(n, pnStartingAt)
-			return This.FindPreviousNthItem(n, pnStartingAt)
+			_nP_ = This.FindPreviousNthItem(n, pnStartingAt)
+			if _nP_ = 0 return NULL ok
+			return This.Content()[_nP_]
 
 	# Duplicates() / DuplicateItems() / Duplications(): the duplicated
 	# items themselves (returning DuplicatedItems). The XYZ-Z forms
