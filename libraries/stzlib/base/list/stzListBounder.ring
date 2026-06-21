@@ -134,6 +134,14 @@ class stzListBounder
 		_aSxContent_ = This.Content()
 		_nSxLen_ = len(_aSxContent_)
 
+		# XT: a negative endpoint counts back from the end (-1 = last item).
+		if n1 < 0
+			n1 = _nSxLen_ + n1 + 1
+		ok
+		if n2 < 0
+			n2 = _nSxLen_ + n2 + 1
+		ok
+
 		if n1 < 1 or n1 > _nSxLen_ or n2 < 1 or n2 > _nSxLen_
 			StzRaise("Indexes out of range!")
 		ok

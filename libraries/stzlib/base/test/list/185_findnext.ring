@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# pr()
+# Locating items in a list: FindNext, Find, and FindFirst.
+#
+# FindNext(value, :StartingAt = pos) returns the position of the next
+# occurrence of the value at or after the given start index. Here 14
+# first appears at position 1, and scanning from position 1 the next
+# match is reported at position 3. Find(14) returns every position the
+# value occupies ([ 1, 3, 4 ]), and FindFirst(4) returns 0 because 4
+# is absent. Together they cover the single-step, all-positions, and
+# first-only flavours of search.
 #
 # Extracted from stzlisttest.ring, block #185.
 

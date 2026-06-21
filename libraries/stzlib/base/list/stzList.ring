@@ -858,6 +858,32 @@ class stzList from stzObject
 		def ToCode()
 			return This.Stringified()
 
+	# ToString: a plain display form -- the items rendered one per line
+	# (monolith semantics: ToStringXT(:ConcatenatedUsing = NL)). Overrides
+	# the stzObject default so a stzList stringifies to its content, not
+	# to an "@noname" object handle.
+	def ToString()
+		_aTsContent_ = This.Content()
+		_nTsLen_ = len(_aTsContent_)
+		_cTsRes_ = ""
+		for _iTs_ = 1 to _nTsLen_
+			if _iTs_ > 1
+				_cTsRes_ = _cTsRes_ + nl
+			ok
+			_xTs_ = _aTsContent_[_iTs_]
+			if isString(_xTs_)
+				_cTsRes_ = _cTsRes_ + _xTs_
+			but isNumber(_xTs_)
+				_cTsRes_ = _cTsRes_ + ("" + _xTs_)
+			else
+				_cTsRes_ = _cTsRes_ + @@(_xTs_)
+			ok
+		next
+		return _cTsRes_
+
+		def ToStringQ()
+			return new stzString(This.ToString())
+
 	def Show()
 		? @@( This.Content() )
 
@@ -2853,6 +2879,25 @@ class stzList from stzObject
 
 		def RangeQ(pnStart, pnRange)
 			return new stzList(This.Range(pnStart, pnRange))
+
+	  #-- RangeXT: like Range but the start may be negative (counts from the
+	  #-- end); delegates to SectionXT, which also normalizes negative bounds.
+
+	def RangeXT(pnStart, pnRange)
+		if NOT (isNumber(pnStart) and isNumber(pnRange))
+			StzRaise("Incorrect param types! pnStart and pnRange must be both numbers.")
+		ok
+		if pnRange < 0
+			StzRaise("Incorrect param value! pnRange must be positive.")
+		ok
+		if pnStart < 0
+			pnStart = This.NumberOfItems() + pnStart + 1
+		ok
+		_aRxSec_ = RangeToSection(pnStart, pnRange)
+		return This.SectionXT(_aRxSec_[1], _aRxSec_[2])
+
+		def RangeXTQ(pnStart, pnRange)
+			return new stzList(This.RangeXT(pnStart, pnRange))
 
 	  #-- InsertAt: insert an item at a given position
 
