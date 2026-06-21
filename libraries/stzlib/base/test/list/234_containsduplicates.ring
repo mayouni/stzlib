@@ -1,6 +1,15 @@
 # Narrative
 # --------
-# pr()
+# Detecting and resolving duplicate items in a stzList.
+#
+# A list of repeated markers is interrogated: ContainsDuplicates() answers
+# whether any value appears more than once, FindDuplicates() returns the
+# positions of the surplus occurrences, Duplicates() returns the distinct
+# values that recur, and DuplicatesZ() (alias DuplicatesAndTheirPositions())
+# pairs each recurring value with the positions of its duplicate copies.
+# RemoveDuplicates() then collapses the list in place, keeping each value's
+# first appearance and dropping the rest. Note that ContainsDuplicates()
+# is a boolean, so the ? operator prints it as 1 (Ring's TRUE).
 #
 # Extracted from stzlisttest.ring, block #234.
 

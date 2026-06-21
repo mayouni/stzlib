@@ -1,6 +1,15 @@
 # Narrative
 # --------
-# pr()
+# Mapping each distinct item to the list of positions where it occurs.
+#
+# ItemsZ() (alias ItemsAndTheirPositions()) is the Z-suffixed, "zipped"
+# inventory view of a list: it walks the list once and, for every unique
+# value, collects all 1-based positions at which that value appears. The
+# result is a list of [ value, [ positions... ] ] pairs in first-seen
+# order, so duplicates like "Ab" (at 1, 3, 6) and "Cf" (at 4, 7) are
+# folded into a single entry carrying their full position set. This is the
+# building block behind frequency/occurrence queries without losing the
+# where-it-happened detail that a plain count would discard.
 #
 # Extracted from stzlisttest.ring, block #245.
 
