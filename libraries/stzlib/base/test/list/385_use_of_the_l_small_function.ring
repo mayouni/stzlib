@@ -1,6 +1,18 @@
 # Narrative
 # --------
-# #narration : Use of the L() small function
+# Demonstrates the L() small function: a string-fed range builder that
+# generalises Ring's native ":" range operator.
+#
+# Ring's "A" : "D" elegantly yields [ "A", "B", "C", "D" ], but it only
+# walks ASCII (an Arabic "ا" : "ج" collapses to just the first char) and
+# its numeric form is integer-only ( 1.02 : 3.08 gives [ 1, 2, 3 ] ).
+# L() takes the whole range as a quoted string and expands it correctly:
+# Unicode letter ranges, ascending Unicode numbered strings, and real
+# numbers with arbitrary decimal steps ( 1.02 : 1.05 -> four reals ). If
+# the fed string is a Ring list literal, L() simply evaluates and returns
+# it. Note L() does NOT expand the numbered-string endpoints into a series:
+# "Ring1" : "Ring2" returns just the two endpoints, and Ring's own 1:5
+# already expands to the full [ 1, 2, 3, 4, 5 ].
 #
 # Extracted from stzlisttest.ring, block #385.
 
@@ -36,18 +48,18 @@ aList = "ا" : "ج"
 # Interestingly, you can get an other form of a numbered list of strings:
 
 ? @@( L(' "Ring1" : "Ring2" ') )
-#--> [ "Ring1", "Ring2", "Ring3", "Ring4", "Ring5" ]
+#--> [ "Ring1", "Ring2" ]
 
 # This works also for any unicode string:
 
 ? L(' "كلمة1" : "كلمة3" ')
-#o--> [ "كلمة3", "كلمة2", "كلمة1" ]
+#--> [ "كلمة1", "كلمة2", "كلمة3" ]
 
 # On the other hand, as you kow, the _:_ syntax in Ring
 # works also for numbers, like this:
 
 ? 1:5
-#--> [ 1, 5 ]
+#--> [ 1, 2, 3, 4, 5 ]
 
 # But it suports only integers and not real numbers (with decimals):
 

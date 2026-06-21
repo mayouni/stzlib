@@ -1,9 +1,19 @@
 # Narrative
 # --------
-# #narration LIST CLASSIFICATION
+# Classifies the members of a list of integer ranges into distinct
+# classes, grouping equal members and reporting where each class occurs.
+#
+# The list holds short-form ranges like 1:5 and 3:9, repeated at several
+# positions. Classify() expands each range to its normal form (e.g.
+# "[ 1, 2, 3, 4, 5 ]") and uses that string as a key, mapping it to the
+# list of positions where it appears (1-based). Because Ring reserves
+# "Class", the accessor is named Klass() (or Category()); Klass(cKey)
+# returns the positions for one class. The *SF variants keep the compact
+# short form "1:5" as the key instead of the expanded normal form, and
+# ClassesSF() lists just the short-form class keys. KlassSF("1:5") then
+# returns that class's positions.
 #
 # Extracted from stzlisttest.ring, block #388.
-#ERR Error (R14) : Calling Method without definition: klass
 
 load "../../stzBase.ring"
 

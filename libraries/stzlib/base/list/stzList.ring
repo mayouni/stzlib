@@ -2533,6 +2533,7 @@ class stzList from stzObject
 			return This.IsPair()
 
 	def IsListOfStrings()
+		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-strings (monolith semantics)
 		pList = This._EngineListFromContent()
 		nResult = StzEngineListIsAllStrings(pList)
 		StzEngineListFree(pList)
@@ -2542,6 +2543,7 @@ class stzList from stzObject
 			return This.IsListOfStrings()
 
 	def IsListOfNumbers()
+		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-numbers (monolith semantics)
 		pList = This._EngineListFromContent()
 		nResult = StzEngineListIsAllNumbers(pList)
 		StzEngineListFree(pList)
