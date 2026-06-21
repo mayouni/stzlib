@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# pr()
+# Shows how ToCode() serializes a stzList back into the literal Ring
+# source string you would type to recreate it.
+#
+# ToCode() round-trips a value into code: each string is quoted with a
+# delimiter that keeps its own embedded quotes intact (a string holding
+# a double quote is wrapped in single quotes and vice versa), nested
+# lists are emitted recursively with their own brackets, and numbers are
+# left unquoted. The result is a faithful, paste-able [ ... ] literal --
+# the inverse of evaluating code into a list.
 #
 # Extracted from stzlisttest.ring, block #164.
 
