@@ -10391,3 +10391,12 @@ class stzList from stzObject
 			ok
 		next
 		return 1
+
+	#-- Replace the run of repeated LEADING items with a given value
+	#-- (:with names it). Delegates to ReplaceLeadingItems.
+
+	def ReplaceRepeatedLeadingItem(pItem)
+		if isList(pItem) and IsWithNamedParamList(pItem)
+			pItem = pItem[2]
+		ok
+		This.ReplaceLeadingItems(pItem)
