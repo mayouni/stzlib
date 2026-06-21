@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# ReplaceThisItemAt: value-GUARDED single-position replace, and the no-op
+# case when the guard fails.
+#
+# First call: at position 3 the item IS "♥", so it becomes "★". Second call:
+# at position 2 the guard says "BLA" but the item is actually 2, so the
+# guard fails and nothing changes -- "This...At" demands BOTH the position
+# and the stated value to match. Contrast the unguarded "Any" form (#49).
 #
 # Extracted from stzlisttest.ring, block #50.
 
