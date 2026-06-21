@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# pr()
+# Demonstrates stzList.EachContains() -- a whole-list predicate that
+# returns TRUE only when EVERY item of the list "contains" the probe.
+#
+# For a string item, "contains" means the substring test: "ee♥ee"
+# contains "♥". For a sublist item, it means membership: ["ee","♥","ee"]
+# contains the element "♥". So a list mixing strings and sublists still
+# answers TRUE as long as each item passes its own containment check.
+# The probe here is the heart glyph; the codepoint-aware engine matches it
+# correctly inside multibyte strings. The final case fails because the
+# number 0 cannot contain "♥", so EachContains() short-circuits to FALSE.
 #
 # Extracted from stzlisttest.ring, block #113.
-#ERR Error (R14) : Calling Method without definition: eachcontains
 
 load "../../stzBase.ring"
 

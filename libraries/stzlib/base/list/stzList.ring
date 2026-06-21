@@ -7388,15 +7388,33 @@ class stzList from stzObject
 	#   stzCharData.TurnableNumbers() (and friends) crash with R14.
 
 	def Unicodes()
-		_aUcResult_ = []
-		_nContent1Len_ = len(@aContent)
-		for _iLoopContent1_ = 1 to _nContent1Len_
-			_xUcItem_ = @aContent[_iLoopContent1_]
-			if isString(_xUcItem_) and len(_xUcItem_) > 0
-				_aUcResult_ + StzCharToUnicode(_xUcItem_)
+		return This._UnicodesOf(@aContent)
+
+	# Recursive codepoint mapping (monolith semantics):
+	#  - a number is echoed as-is
+	#  - a single-codepoint string -> its scalar codepoint
+	#  - a multi-codepoint string  -> the SUBLIST of its codepoints
+	#  - a nested list             -> recurse, preserving structure
+	# (StzCharToUnicode is single-char only, so multi-char strings go via
+	#  the engine-backed stzString.Unicodes; empties/objects add nothing.)
+	def _UnicodesOf(paList)
+		_aRes_ = []
+		_nUcLen_ = len(paList)
+		for _iUc_ = 1 to _nUcLen_
+			_xUc_ = paList[_iUc_]
+			if isNumber(_xUc_)
+				_aRes_ + _xUc_
+			but isString(_xUc_)
+				if StzLen(_xUc_) = 1
+					_aRes_ + StzCharToUnicode(_xUc_)
+				but StzLen(_xUc_) > 1
+					_aRes_ + StzStringQ(_xUc_).Unicodes()
+				ok
+			but isList(_xUc_)
+				_aRes_ + This._UnicodesOf(_xUc_)
 			ok
 		next
-		return _aUcResult_
+		return _aRes_
 
 	def Names()
 		if @IsListOfChars(This.Content())
