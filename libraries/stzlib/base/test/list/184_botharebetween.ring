@@ -1,9 +1,16 @@
 # Narrative
 # --------
-# pr()
+# Checks whether BOTH numbers in a pair lie inside an inclusive range.
+#
+# A QRT-wrapped pair, typed as :stzPairOfNumbers, exposes
+# BothAreBetween(nLow, nHigh): it returns TRUE only when each member
+# of the pair satisfies nLow <= member <= nHigh. Here the upper bound
+# is computed dynamically from a host list via o1.NumberOfItems() (= 5),
+# a common Softanza idiom for bounds-checking a pair of positions
+# against the size of a collection. [2,4] fits within 1..5 -> TRUE;
+# [0,4] fails because 0 is below the low bound -> FALSE.
 #
 # Extracted from stzlisttest.ring, block #184.
-#ERR Error (R14) : Calling Method without definition: botharenumbers
 
 load "../../stzBase.ring"
 
