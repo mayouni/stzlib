@@ -1,9 +1,13 @@
 # Narrative
 # --------
-# pr()
+# EachItemIsA / ItemsAre: assert a property holds for EVERY item.
+#
+# EachItemIsA(:Number) checks a single type for all items; ItemsAre takes a
+# list of qualifiers ([ :Positive, :Even, :Numbers ]) and is TRUE only when
+# every item satisfies all of them. A compact way to validate a list's
+# shape in one expressive line.
 #
 # Extracted from stzlisttest.ring, block #3.
-#ERR Error (R14) : Calling Method without definition: itemsare
 
 load "../../stzBase.ring"
 
@@ -16,6 +20,4 @@ o1 = new stzList([ 2, 4, 8 ])
 #--> TRUE
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
-# Executed in 0.05 second(s) in Ring 1.21
-# Executed in 0.09 second(s) in Ring 1.20
+# Executed in almost 0 second(s)

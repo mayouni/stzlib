@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# ContainsOneOfThese (inclusive "any") vs ContainsOnlyOneOfThese (exclusive
+# "exactly one").
+#
+# ContainsOneOfThese is TRUE if AT LEAST one of the given items is present.
+# ContainsOnlyOneOfThese is stricter -- TRUE only when EXACTLY one is
+# present. The first list holds both "me" and "you" (any: TRUE, only-one:
+# FALSE); the second holds just "me" (both TRUE).
 #
 # Extracted from stzlisttest.ring, block #8.
 
@@ -11,11 +17,11 @@ pr()
 o1 = new stzList([ "me", "you", "all", "the", "others" ])
 	? o1.ContainsOneOfThese([ "me", "you" ])
 	#--> TRUE
-	
+
 	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
 	#--> FALSE
 
-o1 = new stzlist([ "me", "and", "all", "the", "others" ])
+o1 = new stzList([ "me", "and", "all", "the", "others" ])
 	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
 	#--> TRUE
 
@@ -23,5 +29,4 @@ o1 = new stzlist([ "me", "and", "all", "the", "others" ])
 	#--> TRUE
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.04 second(s) in Ring 1.20
+# Executed in almost 0 second(s)

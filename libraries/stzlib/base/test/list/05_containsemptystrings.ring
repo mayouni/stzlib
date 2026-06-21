@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# The empty-string toolkit: detect, count, locate, replace, and remove the
+# "" holes in a list.
+#
+# ContainsEmptyStrings / CountEmptyStrings / FindEmptyStrings answer the
+# questions; ReplaceEmptyStrings(:With = ...) fills the holes in place, and
+# RemoveEmptyStrings deletes them outright. A common cleanup step for ragged
+# data with blank cells.
 #
 # Extracted from stzlisttest.ring, block #5.
 
@@ -31,4 +37,4 @@ o1.RemoveEmptyStrings()
 #--> [ "A", "B", "C" ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in almost 0 second(s)
