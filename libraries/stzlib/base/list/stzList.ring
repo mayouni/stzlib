@@ -10060,6 +10060,20 @@ class stzList from stzObject
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
+		# Added = items in the OTHER list absent here = other \ this.
+		# Engine-backed (stz_list_difference_cs) so the op is available to
+		# any language binding, not just Ring.
+		_pAic_ = This._EngineListFromContent()
+		_pBic_ = StzEngineMarshalList(paOtherList)
+		if _pAic_ != NULL and _pBic_ != NULL
+			_pDic_ = StzEngineListDifferenceCS(_pBic_, _pAic_, pCaseSensitive)
+			aResult = StzEngineContentFromList(_pDic_)
+			StzEngineListFree(_pDic_)
+			StzEngineListFree(_pAic_)
+			StzEngineListFree(_pBic_)
+			return aResult
+		ok
+		# Fallback (non-marshalable content, e.g. objects)
 		aResult = []
 		nLen = len(paOtherList)
 		for i = 1 to nLen
@@ -10073,6 +10087,18 @@ class stzList from stzObject
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
+		# Removed = items here absent from the OTHER list = this \ other.
+		_pAric_ = This._EngineListFromContent()
+		_pBric_ = StzEngineMarshalList(paOtherList)
+		if _pAric_ != NULL and _pBric_ != NULL
+			_pDric_ = StzEngineListDifferenceCS(_pAric_, _pBric_, pCaseSensitive)
+			aResult = StzEngineContentFromList(_pDric_)
+			StzEngineListFree(_pDric_)
+			StzEngineListFree(_pAric_)
+			StzEngineListFree(_pBric_)
+			return aResult
+		ok
+		# Fallback (non-marshalable content)
 		aResult = []
 		oOtherList = new stzList(paOtherList)
 		nLen = This.NumberOfItems()
@@ -10089,12 +10115,25 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
 
-		aResult = []
+		# "Modified" item pairing (substring overlap for strings, element
+		# overlap for sublists) is the real data algorithm here -- run it in
+		# the Zig engine (stz_list_modified_items_cs) so every binding gets
+		# it. Returns [ old, new ] pairs, nested structure preserved.
+		_pAmi_ = This._EngineListFromContent()
+		_pBmi_ = StzEngineMarshalList(paOtherList)
+		if _pAmi_ != NULL and _pBmi_ != NULL
+			_pMmi_ = StzEngineListModifiedItemsCS(_pAmi_, _pBmi_, pCaseSensitive)
+			aResult = StzEngineContentFromList(_pMmi_)
+			StzEngineListFree(_pMmi_)
+			StzEngineListFree(_pAmi_)
+			StzEngineListFree(_pBmi_)
+			return aResult
+		ok
 
+		# Fallback (non-marshalable content): same semantics in Ring.
+		aResult = []
 		aThisListU = @UniqueCS(This.Content(), pCaseSensitive)
 		aoThisListU = @Objectify(aThisListU)
-
-		# items in paOtherList that are not in aThisListU
 		_aFiltered = []
 		for _k = 1 to len(paOtherList)
 			_bInThis = 0
@@ -10110,10 +10149,8 @@ class stzList from stzObject
 		next
 		aOtherListU = @UniqueCS(_aFiltered, pCaseSensitive)
 		aoOtherListU = @Objectify(aOtherListU)
-
 		nLenThis = len(aThisListU)
 		nLenOther = len(aOtherListU)
-
 		for i = 1 to nLenThis
 			if isString(aThisListU[i])
 				for j = 1 to nLenOther
@@ -10135,7 +10172,6 @@ class stzList from stzObject
 				next
 			ok
 		next
-
 		return aResult
 
 	def DifferentItemsWithCSXTT(paOtherList, pCaseSensitive)

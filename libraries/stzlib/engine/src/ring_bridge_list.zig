@@ -518,6 +518,9 @@ fn ring_UnionCS(p: *anyopaque) callconv(.c) void {
 fn ring_DifferenceCS(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_difference_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
 }
+fn ring_ModifiedItemsCS(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_modified_items_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+}
 fn ring_IsSubsetCS(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_is_subset_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))));
 }
@@ -944,6 +947,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistcommonitemscs", .func = &ring_CommonItemsCS },
     .{ .name = "stzenginelistunioncs", .func = &ring_UnionCS },
     .{ .name = "stzenginelistdifferencecs", .func = &ring_DifferenceCS },
+    .{ .name = "stzenginelistmodifieditemscs", .func = &ring_ModifiedItemsCS },
     .{ .name = "stzenginelistissubsetcs", .func = &ring_IsSubsetCS },
     .{ .name = "stzenginelistfindduplicatescs", .func = &ring_FindDuplicatesCS },
     .{ .name = "stzenginelistfindnonduplicatedcs", .func = &ring_FindNonDuplicatedCS },
