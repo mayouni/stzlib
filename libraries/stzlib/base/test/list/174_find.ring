@@ -1,6 +1,13 @@
 # Narrative
 # --------
-# pr()
+# Finds a value inside a numeric range using the global StzFind().
+#
+# The range 1:100_000 is the list of integers from 1 to 100000, so the
+# value 67_000 sits at position 67000 (in a 1-based, contiguous range the
+# position equals the value). StzFind() returns that 1-based position,
+# demonstrating that the engine-backed find works directly on Softanza
+# ranges without first materializing a wrapper list, and that Ring's
+# underscore digit grouping (67_000) is just sugar for 67000.
 #
 # Extracted from stzlisttest.ring, block #174.
 

@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# pr()
+# The Find family: locating where a value lives inside a list.
+#
+# Find(value) returns every position the value occupies, as a list
+# of 1-based indices -- here 14 sits at positions 1, 3 and 4. The
+# convenience accessors FindFirst and FindLast pull just the leading
+# and trailing match (1 and 4). FindNext(value, :StartingAt = n)
+# resumes the scan from position n, so starting at 2 skips the first
+# hit and returns the next match at 3. Together they form Softanza's
+# positional vocabulary for value lookup on a plain stzList.
 #
 # Extracted from stzlisttest.ring, block #177.
 

@@ -1,6 +1,13 @@
 # Narrative
 # --------
-# pr()
+# Counts and locates how many times an exact item value appears in a list.
+#
+# The list holds many lookalike string items built from the characters
+# '*', '4', '3' and the quoted token '"*"'. NumberOfOccurrence matches on
+# the WHOLE item value, not a substring, so it counts only the items that
+# are exactly the quoted-asterisk token '"*"' -- three of them. Find then
+# returns the 1-based positions of every exact match, here [2, 14, 18].
+# Together they show the count/locate pair built on strict item equality.
 #
 # Extracted from stzlisttest.ring, block #166.
 

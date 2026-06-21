@@ -1,6 +1,15 @@
 # Narrative
 # --------
-# pr()
+# Detecting and locating duplicate values in a stzList.
+#
+# Given a list with several repeated entries, four complementary
+# views are offered: NumberOfDuplicates() counts how many distinct
+# values appear more than once; FindDuplicates() returns the
+# positions of the later (duplicate) occurrences; Duplicates()
+# returns the duplicated values themselves; and DuplicatesZ() pairs
+# each duplicated value with the list of positions where its repeats
+# occur. Note that values like "4" are kept as strings, matching the
+# original list element type rather than being coerced to numbers.
 #
 # Extracted from stzlisttest.ring, block #167.
 
@@ -21,10 +30,10 @@ o1 = new stzList([
 #--> [ 10, 15 ]
 
 ? @@( o1.Duplicates() )
-#--> [ "*", 4 ]
+#--> [ "*", "4" ]
 
 ? @@( o1.DuplicatesZ() )
-#--> [ "*" = 10, "4" = 15 ]
+#--> [ [ "*", [ 10 ] ], [ "4", [ 15 ] ] ]
 
 pf()
 # Executed in 0.90 second(s)
