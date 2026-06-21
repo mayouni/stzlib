@@ -1,6 +1,11 @@
 # Narrative
 # --------
-# pr()
+# ReplaceItemAtPositionsByManyXT with a 3-colour palette over 7 positions.
+#
+# Among positions 1,3,4,5,7,8,9, only those holding "ring" are replaced; the
+# 3-item palette [ "♥", "♥♥", "♥♥♥" ] cycles across the matches. Positions 3
+# and 7 hold "softanza" (not "ring") so they're left untouched, and the ♥
+# cycle advances only on the actual "ring" hits.
 #
 # Extracted from stzlisttest.ring, block #42.
 
@@ -21,4 +26,4 @@ o1.ReplaceItemAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8, 9 ],
 #--> [ "♥", "ruby", "softanza", "♥♥", "♥♥♥", "php", "softanza", "♥", "softanza" ]
 
 pf()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s)

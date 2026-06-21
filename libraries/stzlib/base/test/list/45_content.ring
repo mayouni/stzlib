@@ -1,6 +1,11 @@
 # Narrative
 # --------
-# pr()
+# ReplaceTheseItemsAtPositionsByManyXT: multi-value guard, palette CYCLED.
+#
+# At positions 1,3,4,5,7,8,9, replace any item that is one of [ "ring",
+# "softanza" ] -- here every one of those positions qualifies -- and cycle
+# the palette [ "♥", "♥♥" ] across all seven matches: ♥, ♥, ♥♥, ♥, ♥♥, ♥♥, ♥.
+# Contrast block #43 (non-XT), which spreads the palette instead of cycling.
 #
 # Extracted from stzlisttest.ring, block #45.
 
@@ -16,12 +21,9 @@ o1 = new stzList([
 
 o1.ReplaceTheseItemsAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8, 9 ],
 	[ "ring", "softanza" ], [ "♥", "♥♥" ] )
-				
+
 ? @@( o1.Content() )
-#       1    2       3     4    5     6      7    8     9
 #--> [ "♥", "ruby", "♥", "♥♥", "♥", "php", "♥♥", "♥♥", "♥" ]
-#	^                  ^    ^                 ^
-#                    ^                       ^          ^
 
 pf()
-# Executed in 0.06 second(s)
+# Executed in almost 0 second(s)
