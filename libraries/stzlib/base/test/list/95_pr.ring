@@ -1,6 +1,13 @@
 # Narrative
 # --------
-# pr()
+# Stringify + lowercase + replace on a mixed-type list in one pass.
+#
+# StringifyLowercaseAndReplace() walks a list of mixed numbers and
+# strings, coerces every item to its string form, lowercases each, then
+# performs a codepoint-safe SUBSTRING replace. Here it lowercases
+# "r_INg"->"r_ing", "R_ng"->"r_ng", "R_ING"->"r_ing" (numbers become
+# "1","2","3"), then swaps each "_" for the heart glyph (:With = AHeart()),
+# yielding "r♥ing" / "r♥ng". One chained call does stringify + case + replace.
 #
 # Extracted from stzlisttest.ring, block #95.
 
