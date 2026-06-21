@@ -1,6 +1,11 @@
 # Narrative
 # --------
-# pr()
+# RemoveAllExcept: keep only the listed value(s); drop everything else.
+#
+# The complement of a filter-remove -- everything that is NOT "♥" goes, so the
+# mixed list collapses to its three hearts [ "♥","♥","♥" ] (order and
+# duplicates of the kept value preserved). RemoveItemsOtherThan() is the
+# spelled-out alias.
 #
 # Extracted from stzlisttest.ring, block #84.
 
