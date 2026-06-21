@@ -2425,7 +2425,7 @@ class stzList from stzObject
 			return This.CountW(pcCondition)
 
 		def NumberOfItemsWXT(pcCondition)
-			return This.CountW(pcCondition)
+			return ring_len(This.FindAllItemsWXT(pcCondition))
 
 	  #-------------------------------------------#
 	 #  SORTING ORDER CHECK                      #
@@ -2812,6 +2812,14 @@ class stzList from stzObject
 				but n2 = :First or n2 = :FirstItem
 					n2 = 1
 				ok
+			ok
+
+			# :@ mirrors the partner index: Section(3, :@) == Section(3, 3)
+			if n1 = :@ and isNumber(n2)
+				n1 = n2
+			ok
+			if n2 = :@ and isNumber(n1)
+				n2 = n1
 			ok
 
 			if NOT @BothAreNumbers(n1, n2)
@@ -4325,7 +4333,7 @@ class stzList from stzObject
 		pcCondition = _StzStripBraces(pcCondition)
 		#-- Lower any Softanza Q(EXPR).Method(...) predicate to engine DSL so
 		#-- conditions like Q(This[@i+1]).IsDoubleOf(This[@i-1]) evaluate.
-		if StzFind("Q(", pcCondition) > 0
+		if ring_len( StzFindCS("Q(", pcCondition, 1) ) > 0
 			pcCondition = _StzLowerWPredicates(pcCondition)
 		ok
 		pList = This._EngineListFromContent()
@@ -4365,6 +4373,11 @@ class stzList from stzObject
 	#-- range (e.g. with @NextItem the last position is excluded, since it
 	#-- has no successor). Returns the matching 1-based POSITIONS.
 	def FindAllItemsWXT(pcCondition)
+		#-- Accept the :Where = '...' named-param form as well as a bare string.
+		if isList(pcCondition) and IsWhereNamedParamList(pcCondition)
+			pcCondition = pcCondition[2]
+		ok
+
 		nLen = This.NumberOfItems()
 		if nLen = 0 return [] ok
 
@@ -4372,14 +4385,14 @@ class stzList from stzObject
 		cEng = StzCCodeQ(pcCondition).Transpiled()
 
 		# 2) Lower Softanza Q(EXPR).Method(...) predicates to engine DSL.
-		if StzFind("Q(", cEng) > 0
+		if ring_len( StzFindCS("Q(", cEng, 1) ) > 0
 			cEng = _StzLowerWPredicates(cEng)
 		ok
 
 		# 3) Executable-section bounds: keep This[@i +/- k] indices in range.
 		nStart = 1
 		nEnd = nLen
-		if StzFind("@i", cEng) > 0
+		if ring_len( StzFindCS("@i", cEng, 1) ) > 0
 			anSec = StzCCodeQ(cEng).ExecutableSection()
 			nStart = anSec[1]
 			nEnd   = anSec[2]
@@ -4544,11 +4557,15 @@ class stzList from stzObject
 			This.PerformWF(pCondFunc, pActionFunc)
 			return This
 
-	  #-- FindWXT: find items matching condition (returns items, not positions)
+	  #-- FindWXT: the extended (expressive) where-scan. Returns the matching
+	  #-- POSITIONS (use ItemsWXT for the items at those positions). It accepts
+	  #-- @NextItem/@PreviousItem/... and the Q(EXPR).Method(...) predicate form.
 
 	def FindWXT(pcCondition)
-		anPos = This.FindW(pcCondition)
-		return This.ItemsAtPositions(anPos)
+		return This.FindAllItemsWXT(pcCondition)
+
+	def FindWXTQ(pcCondition)
+		return new stzList( This.FindAllItemsWXT(pcCondition) )
 
 	  #-- ItemsAtPositions: get items at given positions
 
@@ -4886,18 +4903,19 @@ class stzList from stzObject
 		return _nMdResult_
 
 	def NthSmallest(n)
+		# The n-th smallest DISTINCT value (dedup, then ascending rank),
+		# matching the monolith. (The engine NthSmallest ranks with
+		# duplicates; dedup first so [3,3,7,8,8,10] -> 3rd smallest = 8.)
 		if len(@aContent) = 0 return 0 ok
-		_pNsListH_ = This._EngineListFromContent()
-		_nNsResult_ = StzEngineListNthSmallest(_pNsListH_, n)
-		StzEngineListFree(_pNsListH_)
-		return _nNsResult_
+		_oNs_ = This.Copy()
+		_oNs_.RemoveDuplicates()
+		return _oNs_.Sorted()[n]
 
 	def NthLargest(n)
 		if len(@aContent) = 0 return 0 ok
-		_pNlListH_ = This._EngineListFromContent()
-		_nNlResult_ = StzEngineListNthLargest(_pNlListH_, n)
-		StzEngineListFree(_pNlListH_)
-		return _nNlResult_
+		_oNl_ = This.Copy()
+		_oNl_.RemoveDuplicates()
+		return _oNl_.SortedInDescending()[n]
 
 	  #-- Repeat (engine-backed)
 
@@ -5678,8 +5696,7 @@ class stzList from stzObject
 		return _oNuiwCounter_.NumberOfUniqueItemsW(pCondition)
 
 	def CountItemsWXT(pCondition)
-		_oCiwxtCounter_ = new stzListCounter(This)
-		return _oCiwxtCounter_.CountItemsWXT(pCondition)
+		return ring_len(This.FindAllItemsWXT(pCondition))
 
 	def NumberOfUniqueItemsWXT(pCondition)
 		_oNuiwxtCounter_ = new stzListCounter(This)
@@ -6867,18 +6884,20 @@ class stzList from stzObject
 	# items for which the expression is truthy. ItemsWXTQ wraps the
 	# result in stzList for fluent chains.
 	def ItemsW(pcCondition)
-		#-- items at the positions matching the condition (engine W DSL; the
-		#-- Q(...) path is handled inside FindAllItemsW via the legacy bridge).
+		#-- items at the positions matching the condition (engine W DSL; any
+		#-- Q(...) predicate is lowered to engine DSL inside FindAllItemsW).
 		return This.ItemsAtPositions(This.FindAllItemsW(pcCondition))
 
+		#-- XT form: the items at the positions found by the extended scan
+		#-- (supports @NextItem/... and Q(EXPR).Method(...)).
 		def ItemsWXT(pcCondition)
-			return This.ItemsW(pcCondition)
+			return This.ItemsAtPositions(This.FindAllItemsWXT(pcCondition))
 
 		def ItemsWQ(pcCondition)
 			return new stzList( This.ItemsW(pcCondition) )
 
 		def ItemsWXTQ(pcCondition)
-			return new stzList( This.ItemsW(pcCondition) )
+			return new stzList( This.ItemsWXT(pcCondition) )
 
 		def Where(pcCondition)
 			return This.ItemsW(pcCondition)
