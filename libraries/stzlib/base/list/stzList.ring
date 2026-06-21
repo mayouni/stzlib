@@ -10219,3 +10219,22 @@ class stzList from stzObject
 
 	def Objectified()
 		return This.Copy().ObjectifyQ().Content()
+
+	#-- IsQuietEqualTo: approximate equality. Exact-equal (engine-backed
+	#-- IsEqualTo) OR the length-difference ratio is below the tunable
+	#-- QuietEqualityRatio (default 0.09; SetQuietEqualityRatio to change).
+	#-- No element loop here -- the content compare is the engine's job.
+
+	def IsQuietEqualTo(paOtherList)
+		if isList(paOtherList) and IsToNamedParamList(paOtherList)
+			paOtherList = paOtherList[2]
+		ok
+		if This.IsEqualTo(paOtherList)
+			return 1
+		ok
+		nDif = abs(This.NumberOfItems() - len(paOtherList))
+		n = nDif / This.NumberOfItems()
+		if n < QuietEqualityRatio()
+			return 1
+		ok
+		return 0
