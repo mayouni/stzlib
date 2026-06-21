@@ -1536,6 +1536,116 @@ pub fn stz_list_difference_cs(a: ?*const StzList, b: ?*const StzList, case_sensi
     return result;
 }
 
+// ─── DiffXTT support: "modified" item pairing ───
+//
+// Two items are "modified" (changed, not added/removed) when:
+//   - both strings and one is a substring of the other, OR
+//   - both lists and they share at least one element.
+// Returns a list of [ old, new ] pairs (old from `a`, new from `b`),
+// considering only unique items and only `b`-items absent from `a`.
+
+fn strContainsCS(hay: []const u8, needle: []const u8, cs: bool) bool {
+    if (needle.len == 0) return true;
+    if (needle.len > hay.len) return false;
+    if (cs) return std.mem.indexOf(u8, hay, needle) != null;
+    var i: usize = 0;
+    while (i + needle.len <= hay.len) : (i += 1) {
+        if (strEqlCI(hay.ptr + i, needle.len, needle.ptr, needle.len)) return true;
+    }
+    return false;
+}
+
+fn listsOverlapCS(la: *const StzValue, lb: *const StzValue, cs: bool) bool {
+    const a = la.data.list_val;
+    const b = lb.data.list_val;
+    for (0..a.len) |i| {
+        for (0..b.len) |j| {
+            if (valueEqlCS(a.items[i], b.items[j], cs)) return true;
+        }
+    }
+    return false;
+}
+
+fn itemsAreModified(x: *const StzValue, y: *const StzValue, cs: bool) bool {
+    if (x.tag == .string_val and y.tag == .string_val) {
+        const sx = x.data.string_val;
+        const sy = y.data.string_val;
+        return strContainsCS(sx.ptr[0..sx.len], sy.ptr[0..sy.len], cs) or
+            strContainsCS(sy.ptr[0..sy.len], sx.ptr[0..sx.len], cs);
+    }
+    if (x.tag == .list_val and y.tag == .list_val) {
+        return listsOverlapCS(x, y, cs);
+    }
+    return false;
+}
+
+fn makePairValue(x: *const StzValue, y: *const StzValue) ?*StzValue {
+    const items = allocator.alloc(*StzValue, 2) catch return null;
+    items[0] = x.clone() catch {
+        allocator.free(items);
+        return null;
+    };
+    items[1] = y.clone() catch {
+        items[0].deinit();
+        allocator.destroy(items[0]);
+        allocator.free(items);
+        return null;
+    };
+    const v = allocator.create(StzValue) catch return null;
+    v.* = .{ .tag = .list_val, .data = .{ .list_val = .{ .items = items.ptr, .len = 2, .cap = 2 } } };
+    return v;
+}
+
+pub fn stz_list_modified_items_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const la = a orelse return StzList.init() catch null;
+    const lb = b orelse return StzList.init() catch null;
+    const cs = case_sensitive != 0;
+    const result = StzList.init() catch return null;
+
+    // Unique items of `a`, in order.
+    var this_u = std.ArrayList(*StzValue){};
+    defer this_u.deinit(allocator);
+    for (la.items.items) |item| {
+        var seen = false;
+        for (this_u.items) |u| {
+            if (valueEqlCS(item, u, cs)) { seen = true; break; }
+        }
+        if (!seen) this_u.append(allocator, item) catch { result.deinit(); return null; };
+    }
+
+    // Unique items of `b` that are absent from `a`, in order.
+    var other_u = std.ArrayList(*StzValue){};
+    defer other_u.deinit(allocator);
+    for (lb.items.items) |item| {
+        var in_a = false;
+        for (la.items.items) |ai| {
+            if (valueEqlCS(item, ai, cs)) { in_a = true; break; }
+        }
+        if (in_a) continue;
+        var seen = false;
+        for (other_u.items) |u| {
+            if (valueEqlCS(item, u, cs)) { seen = true; break; }
+        }
+        if (!seen) other_u.append(allocator, item) catch { result.deinit(); return null; };
+    }
+
+    for (this_u.items) |ti| {
+        for (other_u.items) |oj| {
+            if (itemsAreModified(ti, oj, cs)) {
+                const pair = makePairValue(ti, oj) orelse { result.deinit(); return null; };
+                result.items.append(allocator, pair) catch {
+                    pair.deinit();
+                    allocator.destroy(pair);
+                    result.deinit();
+                    return null;
+                };
+            }
+        }
+    }
+
+    return result;
+}
+
 pub fn stz_list_is_subset_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) i32 {
     const la = a orelse return 1; // empty set is subset of everything
     const lb = b orelse return if (la.len() == 0) @as(i32, 1) else @as(i32, 0);
