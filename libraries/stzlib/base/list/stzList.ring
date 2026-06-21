@@ -2798,27 +2798,17 @@ class stzList from stzObject
 		nLen = This.NumberOfItems()
 
 		if CheckingParams()
-			if isString(n1)
-				if n1 = :First or n1 = :FirstItem
-					n1 = 1
-				but n1 = :Last or n1 = :LastItem
-					n1 = nLen
-				ok
-			ok
+			n1 = This._SectionResolveBound(n1, TRUE)
+			n2 = This._SectionResolveBound(n2, FALSE)
 
-			if isString(n2)
-				if n2 = :Last or n2 = :LastItem or n2 = :End or n2 = :EndOfList
-					n2 = nLen
-				but n2 = :First or n2 = :FirstItem
-					n2 = 1
-				ok
-			ok
-
-			# :@ mirrors the partner index: Section(3, :@) == Section(3, 3)
-			if n1 = :@ and isNumber(n2)
+			# :@ mirrors the partner index (Section(3,:@)==Section(3,3));
+			# :@ on both sides spans the whole list.
+			if n1 = :@ and n2 = :@
+				n1 = 1
+				n2 = nLen
+			but n1 = :@ and isNumber(n2)
 				n1 = n2
-			ok
-			if n2 = :@ and isNumber(n1)
+			but n2 = :@ and isNumber(n1)
 				n2 = n1
 			ok
 
@@ -2847,6 +2837,41 @@ class stzList from stzObject
 
 		def SectionCSQ(n1, n2, pCaseSensitive)
 			return new stzList(This.SectionCS(n1, n2, pCaseSensitive))
+
+	# Resolve one Section() boundary to a numeric position. Accepts a number;
+	# the named anchors :First(Item)/:Last(Item)/:End/:EndOfList; a value present
+	# in the list (a FROM bound -> its first occurrence, a TO bound -> its last);
+	# the named-param wrappers [:From,x]/[:To,x]; and [:NthToLast(Item),k] ->
+	# NumberOfItems()-k. The :@ mirror token is returned unchanged for the caller.
+	def _SectionResolveBound(px, pbFrom)
+		_nLen_ = This.NumberOfItems()
+		if isNumber(px)
+			return px
+		but isString(px)
+			if px = :First or px = :FirstItem
+				return 1
+			but px = :Last or px = :LastItem or px = :End or px = :EndOfList
+				return _nLen_
+			but px = :@
+				return px
+			else
+				if pbFrom
+					return This.FindFirst(px)
+				else
+					return This.FindLast(px)
+				ok
+			ok
+		but isList(px) and len(px) = 2 and isString(px[1])
+			_k_ = px[1]
+			if _k_ = :From or _k_ = :To
+				return This._SectionResolveBound(px[2], pbFrom)
+			but _k_ = :NthToLast or _k_ = :NthToLastItem
+				return _nLen_ - px[2]
+			but _k_ = :Nth or _k_ = :NthItem or _k_ = :NthFirst or _k_ = :NthFirstItem
+				return px[2]
+			ok
+		ok
+		return px
 
 	def Section(n1, n2)
 		return This.SectionCS(n1, n2, 1)
