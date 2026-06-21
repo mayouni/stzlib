@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# ReplaceThisItemAt: same guarded behaviour as #50, shown with the bare
+# positional 3-arg form.
+#
+# First call uses ReplaceThisItemAt(3, "♥", "★") -- no :With label, the third
+# argument is the replacement -- and succeeds since position 3 holds "♥".
+# The second call (on a fresh list) guards on "BLA" at position 2, which
+# holds 2, so it is a no-op and the list stays unchanged.
 #
 # Extracted from stzlisttest.ring, block #51.
 

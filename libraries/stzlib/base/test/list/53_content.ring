@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# ReplaceByMany: replace successive occurrences of one item with successive
+# palette entries (1-to-1, in order).
+#
+# "ring" occurs three times (positions 1,4,6); the palette
+# [ "♥", "♥♥", "♥♥♥" ] is consumed one entry per occurrence -- first ring->♥,
+# second ring->♥♥, third ring->♥♥♥. Unlike the "XT" position variants this
+# does NOT cycle; it pairs the palette to occurrences left-to-right.
 #
 # Extracted from stzlisttest.ring, block #53.
 

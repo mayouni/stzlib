@@ -1,6 +1,10 @@
 # Narrative
 # --------
-# pr()
+# ReplaceAnyItemAt: single-position, unguarded replace.
+#
+# Overwrite position 3 with "★" regardless of its current value. The other
+# "♥" (at position 5) is untouched -- this is position-addressed, not
+# value-addressed. The :With label reads as "replace any item at 3 with ★".
 #
 # Extracted from stzlisttest.ring, block #49.
 
