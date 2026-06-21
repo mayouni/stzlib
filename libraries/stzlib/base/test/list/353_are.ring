@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# pr()
+# Are() checks that EVERY item of a list satisfies a given predicate
+# (or a whole set of predicates), returning a single TRUE/FALSE.
+#
+# A predicate is named with a category symbol like :Numbers, :Even,
+# :Negative, :Positive, :Punctuation or :Chars. Passed a single symbol
+# Are(:Numbers) it asks "are all items numbers?"; passed a list of
+# symbols Are([ :Even, :Negative, :Numbers ]) it ANDs them together --
+# every item must match every category. This turns a common all-of-a-kind
+# guard into one readable expression instead of a hand-written loop.
 #
 # Extracted from stzlisttest.ring, block #353.
 

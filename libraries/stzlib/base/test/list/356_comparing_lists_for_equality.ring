@@ -1,6 +1,16 @@
 # Narrative
 # --------
-# #narration COMPARING LISTS FOR EQUALITY
+# Comparing two lists for equality by VALUE rather than by reference.
+#
+# Ring compares lists by reference, so [ 1, 2 ] = [ 1, 2 ] is FALSE (two
+# distinct objects). The classic workaround casts both to strings
+# (list2str(...) = list2str(...) -> TRUE). Softanza offers a direct idiom:
+# elevate the left list with Q(), and the overloaded "=" operator routes into
+# stzList.IsEqualTo() for a by-value comparison -- so Q([ 1, 2 ]) = [ 1, 2 ] is
+# TRUE. (The operator only engages when the right-hand side is a list, leaving
+# every other comparison untouched.) The closing example shows why it matters:
+# the same if-guard that silently takes the "Ooops!" branch with a raw list
+# takes the success branch once the list is Q()-wrapped.
 #
 # Extracted from stzlisttest.ring, block #356.
 
@@ -46,7 +56,7 @@ if aMyList = [ 1, 2 ]
 else
 	? "Ooops!"
 ok
-#--> Oppps!
+#--> Ooops!
 
 # Here is the same code enabled with Softanza Q() magic:
 

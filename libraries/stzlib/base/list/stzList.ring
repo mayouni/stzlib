@@ -8877,6 +8877,15 @@ class stzList from stzObject
 
 		ok
 
+		# Value equality: Q(list) = otherlist routes to IsEqualTo (only when the
+		# RHS is a list, so non-list comparisons keep their prior behavior).
+		if pOp = "=" and isList(pValue)
+			return This.IsEqualTo(pValue)
+		ok
+		if (pOp = "!=" or pOp = "<>") and isList(pValue)
+			return NOT This.IsEqualTo(pValue)
+		ok
+
 		StzRaise("operator: unsupported operator '" + pOp + "' on stzList.")
 
 
