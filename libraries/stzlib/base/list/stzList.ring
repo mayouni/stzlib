@@ -1275,7 +1275,12 @@ class stzList from stzObject
 	# XT variant is just an alias for the moment -- the original
 	# Softanza distinguished "internal-staff" semantics, but they
 	# collapse to the same engine path here.
-	def StringifyAndReplace(pItem, pWith)
+	def StringifyAndReplace(pSubStr, pWith)
+		# Stringify every item, then SUBSTRING-replace pSubStr with pWith in
+		# each (monolith semantics: the params are substrings, not whole
+		# items). The replace itself is the engine-backed, UTF-8-safe
+		# StzReplace -- so e.g. the comma inside a stringified sublist is
+		# rewritten, not just items that equal the needle.
 		if isList(pWith) and len(pWith) = 2 and isString(pWith[1])
 			pWith = pWith[2]
 		ok
@@ -1283,8 +1288,8 @@ class stzList from stzObject
 		_aData_ = @aContent
 		_nLen_ = len(_aData_)
 		for _i_ = 1 to _nLen_
-			if _aData_[_i_] = pItem
-				_aData_[_i_] = pWith
+			if isString(_aData_[_i_])
+				_aData_[_i_] = StzReplace(_aData_[_i_], pSubStr, pWith)
 			ok
 		next
 		@aContent = _aData_
