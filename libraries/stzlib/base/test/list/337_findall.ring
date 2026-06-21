@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# pr()
+# Finding every position where a value occurs in a list, and slicing
+# that set of positions from either end with optional anchors.
+#
+# FindAll returns all positions of "abc" in the list. The occurrence
+# family then refines this: NFirstOccurrences / NLastOccurrences take the
+# first or last N hits, while the *ST variants add a :StartingAt anchor so
+# the scan begins at a given position. These methods are abstracted in
+# stzObject, so they behave identically for stzString and stzListOfStrings.
+# Note the two spellings NLastOccurrencesST and LastNOccurrencesST both
+# resolve to the same last-N-from-start-position behavior.
 #
 # Extracted from stzlisttest.ring, block #337.
-#ERR Error (R14) : Calling Method without definition: firstnitemsqrt
 
 load "../../stzBase.ring"
 

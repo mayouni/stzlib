@@ -8509,9 +8509,12 @@ func _StzScanParen(cCode, nOpen)
 	return [ NULL, 0 ]
 
 func _StzIsIdentChar(c)
-	return (c >= "a" and c <= "z") or
-		   (c >= "A" and c <= "Z") or
-		   (c >= "0" and c <= "9") or c = "_"
+	if isNull(c) or len(c) = 0
+		return FALSE
+	ok
+	# Ring's >/< operators coerce strings to numbers (R41), so test
+	# membership against an explicit ASCII alphabet instead.
+	return substr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_", c) > 0
 
 func _StzWBoundaryBefore(cCode, i)
 	if i <= 1
