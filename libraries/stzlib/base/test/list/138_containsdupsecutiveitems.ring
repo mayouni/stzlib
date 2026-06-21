@@ -1,6 +1,18 @@
 # Narrative
 # --------
-# pr()
+# Detecting and removing "DupSecutive" items -- duplicate values that sit
+# in consecutive (adjacent) positions inside a list.
+#
+# Softanza coins DupSecutive = Duplicate + Consecutive: a run of two or more
+# identical items standing next to each other. ContainsDupSecutiveItems()
+# answers yes/no; FindDupSecutiveItems() returns the positions of the
+# trailing members of each run (3,4,9 for the B,B,B and C,C runs), while the
+# *CS(FALSE) form folds case so the lowercase b and c join their runs
+# (3,4,5,9,10). The Z-suffixed variants pair each value with its run
+# positions, and RemoveDupSecutiveItemsCS collapses each adjacent run down
+# to a single item -- distinct from RemoveDuplicates(), which globally keeps
+# only first occurrences. Note Duplicates() reports all repeated values
+# anywhere (A,B,C), not just the consecutive ones.
 #
 # Extracted from stzlisttest.ring, block #138.
 
