@@ -1,19 +1,16 @@
 # Narrative
 # --------
-# Section() with a RICH boundary vocabulary -- a FEATURE STUB.
+# Section() with a rich boundary vocabulary.
 #
-# The intent is one Section() that accepts many ways to name its two bounds:
-# plain numbers (Section(1,4), order-tolerant), named pairs (:From=1, :To=4),
-# value bounds (:From="F", :To="A"), end-relative anchors (:NthToLastItem,
-# :LastItem, :EndOfList) and the :@ mirror token. Only the plain-number and
-# :@ forms are implemented today; the named-param / value / anchor bounds are
-# NOT, so SectionCS raises "Incorrect params! n1 and n2 must be numbers." at
-# the first :From/:To call. The recorded outputs below document the intended
-# full API. Left as a documented stub until the extended bounds are built
-# (chip filed); see the simpler working slice in 335_section / 203_section.
+# One Section() accepts many ways to name its two bounds, each resolved to a
+# numeric position: plain numbers (Section(1,4), order-tolerant); named pairs
+# (:From = 1, :To = 4); a value present in the list (a :From value resolves to
+# its FIRST occurrence, a :To value to its LAST); end-relative anchors
+# (:NthToLastItem = k -> NumberOfItems()-k, :LastItem / :EndOfList -> the end);
+# and the :@ mirror token (:@ adopts the partner index, and :@ on both sides
+# spans the whole list). A single-position section returns a one-item list.
 #
 # Extracted from stzlisttest.ring, block #374.
-#ERR Incorrect params! n1 and n2 must be numbers.  (extended Section bounds pending)
 
 load "../../stzBase.ring"
 
@@ -40,16 +37,13 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 #--> [ "A", "N", "Z", "A" ]
 
 ? o1.Section(4, :@)
-#--> "T"
+#--> [ "T" ]
 
 ? o1.Section(:NthToLast = 3, :@)
-#--> "A"
+#--> [ "A" ]
 
 ? o1.Section(:@, :@)
 #--> [ "S", "O", "F", "T", "A", "N", "Z", "A" ]
 
-//? @@( o1.Section(-99, 99) ) + NL
-#--> ERROR: Line 2453 Indexes out of range! n1 and n2 must be inside the list.
-
 pf()
-# Executed in 0.12 second(s) in Ring 1.22
+# Executed in 0.12 second(s)
