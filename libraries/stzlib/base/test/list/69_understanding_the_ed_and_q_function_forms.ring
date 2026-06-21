@@ -2,8 +2,18 @@
 # --------
 # UNDERSTANDING THE ..ed() and ..Q() FUNCTION FORMS
 #
+# The three Softanza verb forms on one example (reverse):
+#   - ItemsReversed() / ..ed() : returns the result, leaves the object as-is.
+#   - Reverse()                : mutates the object in place, returns nothing.
+#   - ReverseQ()  / ..Q()      : mutates AND returns the object, so calls chain
+#                                 (here on to ToStzListOfStrings().Concatenated...).
+# The list is built with the L() range function ("♥1":"♥3"), exercising the
+# codepoint-aware range parser too.
+#
+# (The old "#ERR ... itemsreversed" header was stale -- ItemsReversed is
+# defined and the test runs clean; verified to STOPPED!.)
+#
 # Extracted from stzlisttest.ring, block #69.
-#ERR Error (R14) : Calling Method without definition: itemsreversed
 
 load "../../stzBase.ring"
 
@@ -33,7 +43,7 @@ o1 = new stzList(L(' "♥1" : "♥3" '))
 # returns a string containing "♥3~♥2~♥1"
 
 #--> Initially the object contained [ "♥1", "♥2", "♥3" ]. It's then
-# reversed and became [ "♥1", "♥2", "♥3" ]. Finally, the stzList object
+# reversed and became [ "♥3", "♥2", "♥1" ]. Finally, the stzList object
 # is transformed to a stzListOfStrings object so it can be concatenated
 # and returned as a string containing "♥3~♥2~♥1".
 

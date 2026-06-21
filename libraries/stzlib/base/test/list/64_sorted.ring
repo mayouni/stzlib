@@ -1,6 +1,13 @@
 # Narrative
 # --------
-# pr()
+# Sorted / SortedInAscending / SortedInDescending: total order over a list of
+# MIXED types.
+#
+# Softanza gives a stable cross-type ordering so heterogeneous lists can be
+# sorted at all: numbers first (1,2,3), then strings ("One","Two"), then
+# sublists ([ "01","02" ] before [ "03","04" ]). Sorted() is the ascending
+# default; SortedInDescending() reverses the whole order, sublists first.
+# Both are non-mutating (..ed form) -- they return a new arrangement.
 #
 # Extracted from stzlisttest.ring, block #64.
 
