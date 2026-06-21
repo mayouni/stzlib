@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# Find -> ReplaceAnyItemsAtPositions: the canonical "locate then act on the
+# positions" idiom.
+#
+# Find("♥") returns every position holding "♥" ([2,3,7,8]); feeding that list
+# straight into ReplaceAnyItemsAtPositions(..., :By="★") overwrites exactly
+# those slots. "Any" means the value at each found position is replaced
+# unconditionally -- the guard is unnecessary because Find already filtered.
 #
 # Extracted from stzlisttest.ring, block #56.
 
