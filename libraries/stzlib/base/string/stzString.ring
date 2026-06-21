@@ -15490,3 +15490,30 @@ class stzString from stzObject
 
 	def StzType()
 		return :stzString
+
+	#-- Locale identifier predicates (thin OR-combinators over the existing
+	#-- name/abbreviation/number locale checks). Used by stzList's
+	#-- IsLocaleList / IsMultilingualString.
+
+	def IsLanguageIdentifier()
+		return This.IsLanguageNumber() or
+		       This.IsLanguageAbbreviation() or
+		       This.IsLanguageName()
+
+	def IsScriptIdentifier()
+		return This.IsScriptNumber() or
+		       This.IsScriptAbbreviation() or
+		       This.IsScriptName()
+
+	def IsCountryIdentifier()
+		return This.IsCountryNumber() or
+		       This.IsCountryAbbreviation() or
+		       This.IsCountryName() or
+		       This.IsCountryPhoneCode()
+
+	def IsLanguageNameOrAbbreviation()
+		if This.IsLanguageName() or This.IsLanguageAbbreviation()
+			return 1
+		else
+			return 0
+		ok

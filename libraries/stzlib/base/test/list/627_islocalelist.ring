@@ -1,9 +1,15 @@
 # Narrative
 # --------
-# pr()
+# IsLocaleList(): does this hashlist describe a LOCALE?
+#
+# A locale list is a hashlist with up to three keys -- :Language, :Country,
+# :Script -- whose values are valid locale identifiers (name, abbreviation
+# or number). At least one must be present. Values may be spelled in full
+# ("arabic") or abbreviated ("ar", "TN"), and the keys are matched case-
+# insensitively (:script works too). The single-string special locales
+# (:Default, :System, "C", ...) also qualify.
 #
 # Extracted from stzlisttest.ring, block #627.
-#ERR Error (R14) : Calling Method without definition: islocalelist
 
 load "../../stzBase.ring"
 
@@ -22,4 +28,4 @@ o1 = new stzList([ :Language = "ar", :Country = "TN", :script = "arabic" ])
 #--> TRUE
 
 pf()
-# Executed in 0.03 second(s).
+# Executed in almost 0 second(s)

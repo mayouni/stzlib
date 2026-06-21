@@ -1,9 +1,14 @@
 # Narrative
 # --------
-# pr()
+# IsMultilingualString(): is this hashlist a set of translations?
+#
+# A multilingual string is a hashlist whose KEYS are language names or
+# abbreviations and whose VALUES are the translated strings -- e.g.
+# [ :english = "house", :french = "maison", :arabic = "منزل" ] or the
+# abbreviated [ :en = ..., :fr = ..., :ar = ... ]. Every value must be a
+# string and every key a recognised language identifier.
 #
 # Extracted from stzlisttest.ring, block #628.
-#ERR Error (R14) : Calling Method without definition: ismultilingualstring
 
 load "../../stzBase.ring"
 
@@ -18,4 +23,4 @@ o1 = new stzList([ :en = "house", :fr = "maison", :ar = "منزل" ])
 #--> TRUE
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s)
