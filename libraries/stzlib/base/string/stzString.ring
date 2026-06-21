@@ -15008,6 +15008,40 @@ class stzString from stzObject
 		_oNsText_ = new stzStringText(This)
 		return _oNsText_.NumberOfScripts()
 
+	# --- Script predicates (delegate to stzStringText so they're
+	#     callable on the stzString that TQ()/StzTextQ()/QQ() return) ---
+
+	def IsScriptOfText(pcScript)
+		_oIsScText_ = new stzStringText(This)
+		return _oIsScText_.ScriptIs(pcScript)
+
+	def IsLatinScript()
+		_oLatScText_ = new stzStringText(This)
+		return _oLatScText_.IsLatinScript()
+
+	def IsArabicScript()
+		_oArScText_ = new stzStringText(This)
+		return _oArScText_.IsArabicScript()
+
+		def IsArabic()
+			return This.IsArabicScript()
+
+	def IsHanScript()
+		_oHanScText_ = new stzStringText(This)
+		return _oHanScText_.IsHanScript()
+
+	def IsHybridScript()
+		_oHybScText_ = new stzStringText(This)
+		return _oHybScText_.IsHybridScript()
+
+	def IsCommonScript()
+		_oComScText_ = new stzStringText(This)
+		return _oComScText_.IsCommonScript()
+
+	def IsInheritedScript()
+		_oInhScText_ = new stzStringText(This)
+		return _oInhScText_.IsInheritedScript()
+
 	# --- Word operations (supplement existing Words/NumberOfWords) ---
 
 	def NthWord(n)
