@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# ReplaceAnyItemAtPositionsByManyXT: replace WHATEVER is at the given
+# positions, cycling a shorter palette.
+#
+# Like block #39 but WITHOUT the value guard -- "Any" means the item's
+# current value is irrelevant. Positions 3,5,7,9 take ♥, ♥♥, ♥, ♥♥ in cycle.
+# Here those positions all happen to hold "ring", so the result matches the
+# guarded version -- the difference shows only when the positions differ.
 #
 # Extracted from stzlisttest.ring, block #40.
 
@@ -15,4 +21,4 @@ o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], [ "♥", "♥♥" ])
 #--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.22
+# Executed in almost 0 second(s)
