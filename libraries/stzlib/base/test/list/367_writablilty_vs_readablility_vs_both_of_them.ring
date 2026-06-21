@@ -1,9 +1,16 @@
 # Narrative
 # --------
-# #narration Writablilty VS Readablility VS Both of them!
+# Two ways to say the same thing: Swap(1,3) and SwapItems(:AtPositions = 1, :And = 3).
+#
+# Softanza is built on a double promise: code should be WRITABLE (quick
+# and frictionless to craft) and READABLE (its intent obvious to a future
+# reader without external docs). The terse Swap(1, 3) form serves the
+# writer in flow; the verbose SwapItems(:AtPositions = 1, :And = 3) form
+# reads almost as plain English and serves the reader. Both compile to the
+# same in-place swap of items at positions 1 and 3, so the same list flips
+# from [C,B,A] to [A,B,C] and back -- you choose the style per moment.
 #
 # Extracted from stzlisttest.ring, block #367.
-#ERR Error (R14) : Calling Method without definition: swapitems
 
 load "../../stzBase.ring"
 

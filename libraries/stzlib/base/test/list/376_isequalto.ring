@@ -1,6 +1,13 @@
 # Narrative
 # --------
-# pr()
+# Two flavors of list equality in Softanza: IsEqualTo and IsStrictlyEqualTo.
+#
+# IsEqualTo treats lists as multisets of values: order does not matter,
+# so [ 1, 2 ] is equal to both [ 1, 2 ] and [ 2, 1 ]. IsStrictlyEqualTo
+# adds the positional constraint: the items must appear in the same order,
+# so [ 1, 2 ] is strictly equal to [ 1, 2 ] but NOT to [ 2, 1 ]. This pair
+# lets you choose set-style comparison or sequence-style comparison from the
+# same object, depending on whether ordering is semantically meaningful.
 #
 # Extracted from stzlisttest.ring, block #376.
 
