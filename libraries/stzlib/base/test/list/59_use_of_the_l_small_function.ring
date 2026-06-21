@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# #narration : Use of the L() small function
+# The L() small function: a Unicode-aware, decimal-aware range enumerator.
+#
+# Ring's native ":" range operator only spans single ASCII chars and integers.
+# L() takes a quoted range expression and expands it correctly for: multibyte
+# Unicode letters (Arabic ا:ج), numbered tokens ("♥1":"♥5", "Ring1":"Ring3"),
+# real numbers with arbitrary decimals (1.02:1.05), plain integers, and even
+# a literal Ring list -- which it just evaluates and returns. Outputs prefixed
+# "#o-->" are observed console renderings (RTL/Unicode order may display oddly
+# on a Windows terminal); the list values themselves are correct.
 #
 # Extracted from stzlisttest.ring, block #59.
 

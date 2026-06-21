@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# pr()
+# Find -> ReplaceAnyItemsAtPositions, the same idiom as #56 but driven from a
+# string's characters and run inside an object-scope { } block.
+#
+# Q("1♥♥456♥♥901♥♥4").Chars() builds a stzList of single characters; inside
+# the o1 { ... } block the unqualified Find/ReplaceAnyItemsAtPositions/Content
+# calls all target o1. Find("♥") locates the six ♥ characters and they are
+# replaced in place by "★". The :With and :By labels are interchangeable here.
+#
+# (The old "#ERR Line 98 Bad parameters" header was stale -- the test runs
+# clean against the current engine; verified to STOPPED!.)
 #
 # Extracted from stzlisttest.ring, block #57.
-#ERR exit 1: Line 98 Bad parameters value, error in length!
 
 load "../../stzBase.ring"
 
