@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# #narration Generalisation of the Ring "A":"B" syntax
+# Generalises Ring's built-in "A":"B" contiguous-char range to any Unicode block.
+#
+# Ring natively expands a string range like "A":"F" into the sequence of
+# in-between chars, but only for ASCII. Softanza keeps that familiar form
+# for ASCII (StzListQ("A":"F") yields A..F) and adds a general solution:
+# the L(' "x" : "y" ') helper parses a quoted range expression and walks
+# the codepoints, so an Arabic range like "ا":"ج" expands to its contiguous
+# Unicode letters. Both lists are then ordinary Softanza lists, queryable
+# with Content() and ItemAtPosition(), proving the two forms are interchangeable.
 #
 # Extracted from stzlisttest.ring, block #384.
 

@@ -1405,6 +1405,9 @@ func IsListOfNumbers(paList)
 	ok
 
 	nLen = len(paList)
+	if nLen = 0
+		return 0   # empty is NOT a list-of-numbers (monolith semantics)
+	ok
 
 	for i = 1 to nLen
 		if not isNumber(paList[i])
@@ -1758,6 +1761,9 @@ func IsListOfStrings(paList)
 
 	bResult = 1
 	nLen = len(paList)
+	if nLen = 0
+		return 0   # empty is NOT a list-of-strings (monolith semantics)
+	ok
 
 	for i = 1 to nLen
 		if NOT isString(paList[i])
