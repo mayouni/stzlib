@@ -1,11 +1,20 @@
 # Narrative
 # --------
-# pr()
+# ReplaceManyByMany (1-to-1 mapping) and the Section<->Range conversions.
+#
+# ReplaceManyByMany pairs each needle with its OWN replacement (no cycling):
+# every "ring"->"♥", "softanza"->"♥♥", "kandaji"->"♥♥♥", including repeats.
+# Then two small position helpers: SectionToRange turns a [start,end] section
+# into a [start, count] range, and RangeToSection does the inverse.
+#
+# (The extraction had two pr()/pf() blocks joined by a stray "#====";
+# merged here into one runnable script.)
 #
 # Extracted from stzlisttest.ring, block #10.
 
 load "../../stzBase.ring"
 
+pr()
 
 o1 = new stzList([
 	"ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "ring", "kandaji" ])
@@ -16,14 +25,6 @@ o1.ReplaceManyByMany([
 ? @@( o1.Content() )
 #--> [ "♥", "qt", "♥♥", "pyhton", "♥♥♥", "csharp", "♥", "♥♥♥" ]
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.21
-# Executed in 0.02 second(s) in Ring 1.20
-
-#====
-
-pr()
-
 ? SectionToRange(3, 7)
 #--> [ 3, 5 ]
 
@@ -31,4 +32,4 @@ pr()
 #--> [ 3, 7 ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.21
+# Executed in almost 0 second(s)

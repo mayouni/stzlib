@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# pr()
+# The frequency-filter family: select items by HOW OFTEN they occur.
+#
+# For [ A, A, B, C, A, C ] (A:3, B:1, C:2):
+#   ItemsOccurringNTimes(2)         -- n or MORE  -> [ "A", "C" ]
+#   ItemsOccurringExactlyNTimes(2)  -- exactly n  -> [ "C" ]
+#   ItemsOccurringLessThanNTimes(3) -- fewer than -> [ "B", "C" ]
+#   ItemsOccurringNTimesOrLess(3)   -- n or fewer -> [ "A", "B", "C" ]
+#   ItemsOccurringNTimesOrMore(3)   -- n or more  -> [ "A" ]
+# A precise vocabulary for the four count comparisons (>=, =, <, <=, >=).
 #
 # Extracted from stzlisttest.ring, block #26.
 
@@ -25,3 +33,4 @@ o1 = new stzList([ "A", "A", "B", "C", "A", "C" ])
 #--> [ "A" ]
 
 pf()
+# Executed in almost 0 second(s)
