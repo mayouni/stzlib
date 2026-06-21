@@ -1,6 +1,11 @@
 # Narrative
 # --------
-# pr()
+# ReplaceManyByMany: distinct 1-to-1, the clean case where each needle occurs
+# once.
+#
+# Three needles [ "3","5","6" ] paired with [ "C","E","F" ]: 3->C, 5->E, 6->F,
+# rebuilding [ "A","B","C","D","E","F" ]. Same value-keyed contract as block
+# #78; here each needle appears a single time so the mapping reads directly.
 #
 # Extracted from stzlisttest.ring, block #79.
 

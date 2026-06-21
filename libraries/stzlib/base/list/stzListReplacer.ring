@@ -349,20 +349,20 @@ class stzListReplacer
 	#============================================#
 
 	def ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
-		if isList(paNewItems) and len(paNewItems) > 0
-			if isString(paNewItems[1]) and
-			   (paNewItems[1] = :by or paNewItems[1] = :with or paNewItems[1] = :By or paNewItems[1] = :With)
-				paNewItems = paNewItems[2]
-			ok
+		paNewItems = This._RpVal(paNewItems)
+
+		if NOT (isList(paItems) and isList(paNewItems))
+			return
 		ok
 
 		_nRmbmItemsLen_ = len(paItems)
 		_nRmbmNewLen_ = len(paNewItems)
-
 		if _nRmbmItemsLen_ = 0 or _nRmbmNewLen_ = 0
 			return
 		ok
 
+		# Non-XT contract: distinct 1-to-1 -- needle[i] -> replacement[i],
+		# replacing ALL occurrences of that needle. Sizes must match.
 		if _nRmbmItemsLen_ != _nRmbmNewLen_
 			StzRaise("Incorrect values! paItems and paNewItems must have the same size.")
 		ok
@@ -398,16 +398,28 @@ class stzListReplacer
 			return
 		ok
 
-		# Build a matched-size replacement list by cycling
-		_aRmbmxtMatched_ = []
-		for _iRmbmxt_ = 1 to _nRmbmxtItemsLen_
-			_nRmbmxtIdx_ = ((_iRmbmxt_ - 1) % _nRmbmxtNewLen_) + 1
-			_aRmbmxtMatched_ + paNewItems[_nRmbmxtIdx_]
+		# Walk once, collect matched positions in occurrence order.
+		_aRmbmxtContent_ = This.Content()
+		_nRmbmxtLen_ = len(_aRmbmxtContent_)
+		_anRmbmxtPos_ = []
+		for _iRmbmxt_ = 1 to _nRmbmxtLen_
+			if This._RpIn(_aRmbmxtContent_[_iRmbmxt_], paItems, pCaseSensitive)
+				_anRmbmxtPos_ + _iRmbmxt_
+			ok
 		next
 
-		for _iRmbmxt2_ = 1 to _nRmbmxtItemsLen_
-			This.ReplaceAllOccurrencesCS(paItems[_iRmbmxt2_], _aRmbmxtMatched_[_iRmbmxt2_], pCaseSensitive)
+		_nRmbmxtMatched_ = len(_anRmbmxtPos_)
+		if _nRmbmxtMatched_ = 0
+			return
+		ok
+
+		# XT: cycle the palette across ALL matched occurrences, in order.
+		for _iRmbmxt2_ = 1 to _nRmbmxtMatched_
+			_nRmbmxtIdx_ = ((_iRmbmxt2_ - 1) % _nRmbmxtNewLen_) + 1
+			_aRmbmxtContent_[ _anRmbmxtPos_[_iRmbmxt2_] ] = paNewItems[_nRmbmxtIdx_]
 		next
+
+		@oList.UpdateWith(_aRmbmxtContent_)
 
 	def ReplaceManyByManyXT(paItems, paNewItems)
 		This.ReplaceManyByManyCSXT(paItems, paNewItems, 1)
