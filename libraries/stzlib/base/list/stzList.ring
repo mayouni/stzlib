@@ -10238,3 +10238,59 @@ class stzList from stzObject
 			return 1
 		ok
 		return 0
+
+	#-- Deep "contains" combinators. The heavy work is DeepContainsCS
+	#-- (engine-backed: stringify the whole list + StzFind). These just
+	#-- loop over the small QUERY list, not the data -- so no data-loop.
+
+	def DeepContainsManyCS(paItems, pCaseSensitive)
+		nLen = len(paItems)
+		for i = 1 to nLen
+			if NOT This.DeepContainsCS(paItems[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
+
+	def DeepContainsMany(paItems)
+		return This.DeepContainsManyCS(paItems, 1)
+
+		def DeepContainsThese(paItems)
+			return This.DeepContainsManyCS(paItems, 1)
+
+	def DeepContainsBothCS(pItem1, pItem2, pCaseSensitive)
+		if isList(pItem2) and IsAndNamedParamList(pItem2)
+			pItem2 = pItem2[2]
+		ok
+		return This.DeepContainsManyCS([ pItem1, pItem2 ], pCaseSensitive)
+
+	def DeepContainsBoth(pItem1, pItem2)
+		return This.DeepContainsBothCS(pItem1, pItem2, 1)
+
+	def DeepContainsOneOfTheseCS(paItems, pCaseSensitive)
+		nLen = len(paItems)
+		for i = 1 to nLen
+			if This.DeepContainsCS(paItems[i], pCaseSensitive)
+				return 1
+			ok
+		next
+		return 0
+
+	def DeepContainsOneOfThese(paItems)
+		return This.DeepContainsOneOfTheseCS(paItems, 1)
+
+	def DeepContainsNOfTheseCS(n, paItems, pCaseSensitive)
+		v = 0
+		nLen = len(paItems)
+		for i = 1 to nLen
+			if This.DeepContainsCS(paItems[i], pCaseSensitive)
+				v++
+				if v = n
+					return 1
+				ok
+			ok
+		next
+		return 0
+
+	def DeepContainsNOfThese(n, paItems)
+		return This.DeepContainsNOfTheseCS(n, paItems, 1)
