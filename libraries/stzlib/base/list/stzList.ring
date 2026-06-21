@@ -4576,6 +4576,7 @@ class stzList from stzObject
 	def ExtendXT(p1, p2)
 		_nTo_ = 0
 		_xWith_ = NULL
+		_xWithItemsIn_ = NULL
 		_bRepeat_ = FALSE
 
 		_aArgs_ = [ p1, p2 ]
@@ -4583,7 +4584,9 @@ class stzList from stzObject
 			_a_ = _aArgs_[_i_]
 			if isList(_a_) and len(_a_) = 2 and isString(_a_[1])
 				_k_ = _a_[1]
-				if _k_ = :With or _k_ = :WithItemsIn
+				if _k_ = :WithItemsIn
+					_xWithItemsIn_ = _a_[2]
+				but _k_ = :With
 					_xWith_ = _a_[2]
 				but _k_ = :ToPosition or _k_ = :To
 					_nTo_ = _a_[2]
@@ -4594,7 +4597,10 @@ class stzList from stzObject
 		next
 
 		if _nTo_ > 0
-			if _xWith_ != NULL
+			if _xWithItemsIn_ != NULL
+				# distribute/cycle the supplied pool into the new slots
+				return This.ExtendToWithItemsIn(_nTo_, _xWithItemsIn_)
+			but _xWith_ != NULL
 				return This.ExtendToWith(_nTo_, _xWith_)
 			but _bRepeat_
 				_aSrc_ = This.Copy().Content()
@@ -8441,7 +8447,8 @@ class stzList from stzObject
 
 	def ExtendToPositionWithItemsIn(n, paItems)
 		nLen = ring_len(paItems)
-		nTemp = n - nLen
+		# fill (target - CURRENT length) slots; cycle the pool (length nLen)
+		nTemp = n - This.NumberOfItems()
 		aTemp = []
 		if nTemp > 0
 			j = 0

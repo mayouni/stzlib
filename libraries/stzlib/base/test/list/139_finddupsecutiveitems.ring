@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# pr()
+# Locating and managing consecutive duplicate items (the "DupSecutive" family).
+#
+# A consecutive duplicate is an item that equals the one immediately before it.
+# FindDupSecutiveItems() returns the positions of every such repeat occurrence,
+# while DupSecutiveItemsZ() groups them per value as [ value, [ positions ] ].
+# FindThisDupSecutiveItem(item) narrows the search to one value, and the *CS
+# variants add a case-sensitivity dial: with :CS = FALSE, the lowercase "b"
+# at position 5 joins the run of "B"s. RemoveDupSecutiveItemCS() then collapses
+# such a case-insensitive run, keeping only the first member of each streak.
 #
 # Extracted from stzlisttest.ring, block #139.
 
