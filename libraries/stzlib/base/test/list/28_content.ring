@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# ReplaceAtByManyXT: replace a SECTION of positions with a list of new
+# values, one-for-one.
+#
+# Positions 3..5 (the "3","4","5") are replaced item-by-item with
+# [ "-3", "-4", "-5" ], leaving the surrounding "_" sentinels in place. The
+# section length and the replacement length line up, so it's a straight
+# in-place swap of that run.
 #
 # Extracted from stzlisttest.ring, block #28.
 
@@ -15,4 +21,4 @@ o1.ReplaceAtByManyXT(3:5, [ "-3", "-4", "-5" ])
 #--> [ "_", "_", "-3", "-4", "-5", "6", "7", "_", "_" ]
 
 pf()
-# Executed in 0.07 second(s)
+# Executed in almost 0 second(s)
