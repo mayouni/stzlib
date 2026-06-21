@@ -78,7 +78,7 @@ func _CharScriptCode(nUnicode)
 	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 11 ok
 	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 8 ok
 	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 14 ok
-	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 38 ok
+	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 37 ok	# CJK Unified Ideographs -> Han (code 37), not Yi (38)
 	if nUnicode >= 0xAC00 and nUnicode <= 0xD7AF return 28 ok
 	if nUnicode >= 0x3040 and nUnicode <= 0x309F return 27 ok
 	if nUnicode >= 0x30A0 and nUnicode <= 0x30FF return 26 ok
