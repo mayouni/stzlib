@@ -1,6 +1,15 @@
 # Narrative
 # --------
-# pr()
+# FindNth(n, value) returns the position of the n-th occurrence of a
+# given value inside a stzList.
+#
+# Here a small heterogeneous list (strings, numbers, a 1:3 range, and
+# the "heart" emoji appearing twice) is grown to a million-plus items
+# to show the lookup stays direct. Asking for the 2nd occurrence of
+# the "heart" value walks the list and reports position 7 -- the index
+# of the second matching element, not a zero-based or count value.
+# This is the occurrence-aware sibling of Find(), letting you skip
+# past earlier matches to address a specific repeat.
 #
 # Extracted from stzlisttest.ring, block #270.
 

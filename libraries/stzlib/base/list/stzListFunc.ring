@@ -8376,6 +8376,198 @@ func @FindPrevious(aList, pItem, nStart)
 	func FindPreviousST(aList, pItem, nStart)
 		return @FindPrevious(aList, pItem, nStart)
 
+  #=====================================================================#
+ #  W-DSL CONDITIONAL CODE: LOWERING Q(EXPR).Method(...) TO ENGINE DSL  #
+#=====================================================================#
+
+# The W ("where") engine DSL is a small functional language:
+# isNumber(@item), This[@i+1] = "*", and so on. But Softanza also lets
+# you write the more expressive object form Q(EXPR).IsNotANumber(),
+# Q(EXPR).IsDoubleOf(OTHER), etc. inside a conditional-code string.
+#
+# _StzLowerWPredicates() rewrites those Q(...).Method(...) chains into
+# the equivalent engine-DSL expression so the engine can evaluate them.
+# It scans with balanced-paren matching (so nested parens in EXPR/args
+# are preserved) and leaves string literals untouched. Method names it
+# does not know are left in place verbatim (the engine then reports the
+# condition as unmatchable, exactly as before this lowering existed).
+#
+# The conditional code is ASCII DSL, so byte-wise scanning is safe here.
+
+func _StzLowerWPredicates(cCode)
+	if isNull(cCode) or NOT isString(cCode)
+		return cCode
+	ok
+
+	cRes = ""
+	n = len(cCode)
+	i = 1
+
+	while i <= n
+		c = cCode[i]
+
+		# Copy string literals through verbatim (don't lower a Q( that
+		# happens to live inside quotes).
+		if c = '"' or c = "'"
+			cQuote = c
+			cRes += c
+			i++
+			while i <= n
+				cRes += cCode[i]
+				if cCode[i] = cQuote
+					i++
+					exit
+				ok
+				i++
+			end
+			loop
+		ok
+
+		# Detect a Q(...) wrapper at a word boundary.
+		if (c = "Q" or c = "q") and _StzWBoundaryBefore(cCode, i)
+			j = i + 1
+			while j <= n and cCode[j] = " "
+				j++
+			end
+
+			if j <= n and cCode[j] = "("
+				aExpr = _StzScanParen(cCode, j)
+				if aExpr[2] > 0
+					cExpr = aExpr[1]
+					nClose = aExpr[2]
+
+					k = nClose + 1
+					while k <= n and cCode[k] = " "
+						k++
+					end
+
+					if k <= n and cCode[k] = "."
+						k++
+						cMeth = ""
+						while k <= n and _StzIsIdentChar(cCode[k])
+							cMeth += cCode[k]
+							k++
+						end
+
+						while k <= n and cCode[k] = " "
+							k++
+						end
+
+						if k <= n and cCode[k] = "("
+							aArg = _StzScanParen(cCode, k)
+							if aArg[2] > 0
+								cLow = _StzMapWPredicate(cMeth, cExpr, aArg[1])
+								if cLow != NULL
+									cRes += cLow
+									i = aArg[2] + 1
+									loop
+								ok
+							ok
+						ok
+					ok
+				ok
+			ok
+		ok
+
+		cRes += c
+		i++
+	end
+
+	return cRes
+
+# Scans cCode starting at the '(' located at nOpen and returns
+# [ cInnerContent, nCloseIndex ] using balanced-paren matching, or
+# [ NULL, 0 ] if no matching ')' is found.
+func _StzScanParen(cCode, nOpen)
+	n = len(cCode)
+	nDepth = 0
+	cContent = ""
+	i = nOpen
+
+	while i <= n
+		c = cCode[i]
+		if c = "("
+			nDepth++
+			if nDepth > 1
+				cContent += c
+			ok
+		but c = ")"
+			nDepth--
+			if nDepth = 0
+				return [ cContent, i ]
+			else
+				cContent += c
+			ok
+		else
+			if nDepth >= 1
+				cContent += c
+			ok
+		ok
+		i++
+	end
+
+	return [ NULL, 0 ]
+
+func _StzIsIdentChar(c)
+	return (c >= "a" and c <= "z") or
+		   (c >= "A" and c <= "Z") or
+		   (c >= "0" and c <= "9") or c = "_"
+
+func _StzWBoundaryBefore(cCode, i)
+	if i <= 1
+		return TRUE
+	ok
+	return NOT _StzIsIdentChar(cCode[i-1])
+
+# Maps a Softanza predicate method to its engine-DSL equivalent.
+# cExpr is the receiver expression, cArg the (possibly empty) argument.
+# Returns NULL for unknown methods so the caller leaves them untouched.
+func _StzMapWPredicate(cMeth, cExpr, cArg)
+	cM = lower(trim(cMeth))
+	cE = trim(cExpr)
+	cA = trim(cArg)
+
+	# --- no-argument type/case predicates ---
+	switch cM
+	on "isnumber"      return "isNumber(" + cE + ")"
+	on "isanumber"     return "isNumber(" + cE + ")"
+	on "isnotanumber"  return "(NOT isNumber(" + cE + "))"
+	on "isnotnumber"   return "(NOT isNumber(" + cE + "))"
+	on "isstring"      return "isString(" + cE + ")"
+	on "isastring"     return "isString(" + cE + ")"
+	on "isnotastring"  return "(NOT isString(" + cE + "))"
+	on "isnotstring"   return "(NOT isString(" + cE + "))"
+	on "islist"        return "isList(" + cE + ")"
+	on "isalist"       return "isList(" + cE + ")"
+	on "isletter"      return "isLetter(" + cE + ")"
+	on "isuppercase"   return "isUppercase(" + cE + ")"
+	on "islowercase"   return "isLowercase(" + cE + ")"
+	on "iseven"        return "iseven(" + cE + ")"
+	on "isodd"         return "isodd(" + cE + ")"
+	on "ispositive"    return "ispositive(" + cE + ")"
+	on "isnegative"    return "isnegative(" + cE + ")"
+	off
+
+	# --- one-argument numeric predicates ---
+	if cA = NULL or cA = ""
+		return NULL
+	ok
+
+	switch cM
+	on "isdoubleof"     return "((" + cE + ") = 2 * (" + cA + "))"
+	on "ishalfof"       return "((2 * (" + cE + ")) = (" + cA + "))"
+	on "isdividableby"  return "(((" + cE + ") % (" + cA + ")) = 0)"
+	on "isdivisibleby"  return "(((" + cE + ") % (" + cA + ")) = 0)"
+	on "ismultipleof"   return "(((" + cE + ") % (" + cA + ")) = 0)"
+	on "isequalto"      return "((" + cE + ") = (" + cA + "))"
+	on "isbiggerthan"   return "((" + cE + ") > (" + cA + "))"
+	on "isgreaterthan"  return "((" + cE + ") > (" + cA + "))"
+	on "issmallerthan"  return "((" + cE + ") < (" + cA + "))"
+	on "islessthan"     return "((" + cE + ") < (" + cA + "))"
+	off
+
+	return NULL
+
   /////////////////
  ///   CLASS   ///
 /////////////////

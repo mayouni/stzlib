@@ -1,6 +1,16 @@
 # Narrative
 # --------
-# pr()
+# Walks the family of in-place removal methods on a stzList, each
+# stripping one item from a running list seeded with "_" separators.
+#
+# The point is the spread of removal idioms Softanza offers: by edge
+# (RemoveFirstItem), by the Nth occurrence of a value (RemoveThisNthItem,
+# RemoveNth), by first occurrence of a value (RemoveFirst), the same with
+# a case-insensitivity dial (RemoveThisFirstItemCS with :CS = FALSE so
+# "b" matches "B"), and by symbolic position. Note the comment on
+# RemoveNthItem(:Last): :Last only works because CheckParams() is TRUE;
+# otherwise prefer RemoveLastItem() or RemoveNthItem(NumberOfItems()).
+# Content() reports the mutated list after each step.
 #
 # Extracted from stzlisttest.ring, block #328.
 

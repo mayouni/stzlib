@@ -4323,6 +4323,11 @@ class stzList from stzObject
 		#-- Ring logic (calling methods, your own funcs) use the WF family
 		#-- (FindWF/ItemsWF/CheckWF/...), not a textual condition.
 		pcCondition = _StzStripBraces(pcCondition)
+		#-- Lower any Softanza Q(EXPR).Method(...) predicate to engine DSL so
+		#-- conditions like Q(This[@i+1]).IsDoubleOf(This[@i-1]) evaluate.
+		if StzFind("Q(", pcCondition) > 0
+			pcCondition = _StzLowerWPredicates(pcCondition)
+		ok
 		pList = This._EngineListFromContent()
 		if pList = NULL return [] ok
 		# Engine returns a ready list of 1-based positions (built Zig-side).
@@ -4337,19 +4342,83 @@ class stzList from stzObject
 			return This.FindAllItemsW(pcCondition)
 
 		def FindAllWXT(pcCondition)
-			return This.FindAllItemsW(pcCondition)
+			return This.FindAllItemsWXT(pcCondition)
 
 		def FindWhere(pcCondition)
 			return This.FindAllItemsW(pcCondition)
 
 		def FindWhereXT(pcCondition)
-			return This.FindAllItemsW(pcCondition)
+			return This.FindAllItemsWXT(pcCondition)
 
 		def PositionsW(pcCondition)
 			return This.FindAllItemsW(pcCondition)
 
 		def PositionsWhere(pcCondition)
 			return This.FindAllItemsW(pcCondition)
+
+	#-- FindAllItemsWXT: the "extended" W scan. Unlike the plain W form, it
+	#-- accepts the expressive Softanza keywords (@NextItem, @PreviousItem,
+	#-- @NextNumber, ...) and the Q(EXPR).Method(...) predicate form. The
+	#-- condition is transpiled to the basic This[@i+1]/This[@i-1] indexing
+	#-- and any Q(...) predicate is lowered to engine DSL; the scan is then
+	#-- bounded to the "executable section" so navigation indices stay in
+	#-- range (e.g. with @NextItem the last position is excluded, since it
+	#-- has no successor). Returns the matching 1-based POSITIONS.
+	def FindAllItemsWXT(pcCondition)
+		nLen = This.NumberOfItems()
+		if nLen = 0 return [] ok
+
+		# 1) Transpile sophisticated keywords (@NextItem -> This[@i + 1], etc.)
+		cEng = StzCCodeQ(pcCondition).Transpiled()
+
+		# 2) Lower Softanza Q(EXPR).Method(...) predicates to engine DSL.
+		if StzFind("Q(", cEng) > 0
+			cEng = _StzLowerWPredicates(cEng)
+		ok
+
+		# 3) Executable-section bounds: keep This[@i +/- k] indices in range.
+		nStart = 1
+		nEnd = nLen
+		if StzFind("@i", cEng) > 0
+			anSec = StzCCodeQ(cEng).ExecutableSection()
+			nStart = anSec[1]
+			nEnd   = anSec[2]
+
+			if isString(nEnd)
+				nEnd = nLen
+			but isNumber(nEnd) and nEnd < 0
+				nEnd += nLen
+			ok
+
+			if isString(nStart)
+				nStart = 1
+			ok
+			if nStart < 1 nStart = 1 ok
+			if nEnd > nLen nEnd = nLen ok
+		ok
+
+		# 4) Engine scan over the whole list, then bound to [nStart, nEnd].
+		pList = This._EngineListFromContent()
+		if pList = NULL return [] ok
+		anAll = StzEngineListFindAllW(pList, cEng)
+		StzEngineListFree(pList)
+
+		anResult = []
+		nA = len(anAll)
+		for i = 1 to nA
+			p = anAll[i]
+			if p >= nStart and p <= nEnd
+				anResult + p
+			ok
+		next
+
+		return anResult
+
+		def FindAllItemsWhereXT(pcCondition)
+			return This.FindAllItemsWXT(pcCondition)
+
+		def FindAllItemsWXTQ(pcCondition)
+			return new stzList( This.FindAllItemsWXT(pcCondition) )
 
 	  #-- WF: anonymous-function constraints (full Ring power, no eval)
 

@@ -1,9 +1,15 @@
 # Narrative
 # --------
-# pr()
+# CommonItems(:With=) returns the set intersection of two lists.
+#
+# The host stzList keeps only the items that also appear in the
+# argument list, and the result is emitted in the host's own order
+# (Ring then Python here), not the argument's order. This is the
+# Softanza idiom for "what do these two collections share" -- a
+# named-argument call (:With=) that reads like prose and leaves the
+# host list untouched while returning a fresh intersection list.
 #
 # Extracted from stzlisttest.ring, block #263.
-#ERR Error (R14) : Calling Method without definition: commonitems
 
 load "../../stzBase.ring"
 

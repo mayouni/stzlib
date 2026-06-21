@@ -1,6 +1,16 @@
 # Narrative
 # --------
-# pr()
+# Internal accelerated find helpers: @FindNthST and @FindNextNthST,
+# the fast-path functions stzList uses to locate the Nth occurrence
+# of a scalar item starting at a given position.
+#
+# The ST suffix marks them as the "string/number" specialization:
+# they are deliberately limited to finding numbers and strings (the
+# common, hot case) so the search can run without the full type
+# machinery. To find items of other types, go through stzList. Here
+# the heart character sits at positions 3 and 6; asking for the 1st
+# heart :StartingAt = 6 returns 6, while @FindNextNthST (which looks
+# strictly past the start) finds nothing further and returns 0.
 #
 # Extracted from stzlisttest.ring, block #281.
 
