@@ -1,9 +1,19 @@
 # Narrative
 # --------
-# StartProfiler()
+# Shallow finds vs DEEP contains -- searching at the top level vs at ANY
+# nesting depth.
+#
+# FindFirst / FindNth / Contains operate on the top-level items (Contains
+# matches the whole sublist [ "2","♥","2" ] as one item). The DeepContains
+# family instead searches recursively into nested sublists:
+#   DeepContains        -- is the value anywhere, at any depth?
+#   DeepContainsMany    -- are ALL of these present (deep)?
+#   DeepContainsBoth    -- both of two (:And names the second)
+#   DeepContainsOneOfThese / DeepContainsNOfThese -- at least one / at least n
+# So "🌞" buried inside [ "2", ["3","🌞"] ] is found by DeepContains but
+# not by a shallow Contains. (Multibyte ♥ / 🌞 are matched codepoint-safe.)
 #
 # Extracted from stzlisttest.ring, block #326.
-#ERR Error (R14) : Calling Method without definition: deepcontainsmany
 
 load "../../stzBase.ring"
 
@@ -38,4 +48,4 @@ o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] , "
 StopProfiler()
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.22
+# Executed in almost 0 second(s)
