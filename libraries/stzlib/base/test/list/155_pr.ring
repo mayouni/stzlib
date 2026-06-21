@@ -1,9 +1,16 @@
 # Narrative
 # --------
-# pr()
+# ExtendToWithItemsRepeated() grows a list up to a target position by
+# cycling the list's own items.
+#
+# Starting from [ 1, 2, 3 ], ExtendToWithItemsRepeated(8) extends the
+# list TO position 8 (a final length of 8), filling the new slots by
+# repeating the existing items in order: 1, 2, 3, 1, 2, 3, 1, 2.
+# Note the "ExtendTo" semantics here are absolute (extend up to the
+# given position), consistent with ExtendToWithItemsIn in block 156 --
+# not a relative "extend BY 8" growth.
 #
 # Extracted from stzlisttest.ring, block #155.
-#ERR Error (R14) : Calling Method without definition: extendtowithitemsrepeated
 
 load "../../stzBase.ring"
 

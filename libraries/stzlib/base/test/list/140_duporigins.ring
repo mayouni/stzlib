@@ -1,9 +1,19 @@
 # Narrative
 # --------
-# pr()
+# Demonstrates the "duplicate origins" family on a stzList: the first
+# appearance of each value that occurs more than once.
+#
+# DupOrigins() returns the set of values that have duplicates, taken
+# in their first-seen order -- here [ "A", "B", "C" ] (note that case
+# matters, so "b" and "c" are distinct from "B" and "C" and are not
+# counted as origins). FindDupOrigins() returns the positions of those
+# first occurrences -- [ 1, 2, 6 ]. RemoveDupOrigins() deletes exactly
+# those origin elements in place, leaving every later duplicate (and the
+# case-variant singletons) untouched. This is the mirror image of the
+# usual de-dup: instead of keeping the first and dropping the rest, it
+# drops the first and keeps the rest.
 #
 # Extracted from stzlisttest.ring, block #140.
-#ERR Error (R14) : Calling Method without definition: duporigins
 
 load "../../stzBase.ring"
 
