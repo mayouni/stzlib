@@ -1,9 +1,16 @@
 # Narrative
 # --------
-# pr()
+# Replaces selected occurrences of a value, counted forward from a position.
+#
+# ReplaceNextNthOccurrences([1, 2], :of = "A", :with = "*", :StartingAt = 3)
+# scans the list from index 3 onward, enumerates the occurrences of "A" it
+# meets there (1st, 2nd, ...), and replaces only those whose ordinal is in
+# [1, 2]. Starting at 3 the remaining "A"s sit at positions 3, 5, 7; the
+# 1st and 2nd of THESE (positions 5 and 7) become "*", leaving the earlier
+# "A"s untouched. NextNthOccurrencesReplaced is the non-mutating twin that
+# returns the new list instead of editing in place.
 #
 # Extracted from stzlisttest.ring, block #444.
-#ERR Error (R3) : Calling Function without definition: replacenextnthoccurrences
 
 load "../../stzBase.ring"
 
@@ -13,7 +20,7 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
 	ReplaceNextNthOccurrences([1, 2], :of = "A", :with = "*",  :StartingAt = 3)
 	? @@( Content() )
-	#--> [ "A" , "B", "A", "C", "*", "D", "*" ]
+	#--> [ "A", "B", "A", "C", "*", "D", "*" ]
 }
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
