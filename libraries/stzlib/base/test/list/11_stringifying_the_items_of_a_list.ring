@@ -11,7 +11,7 @@ pr()
 
 o1 = new stzList([ 120, "abc", 1:3 ])
 o1.Stringify()
-? o1.Content()
+? @@( o1.Content() )
 #--> [ "120", "abc", "[ 1, 2, 3 ]" ]
 
 pf()
