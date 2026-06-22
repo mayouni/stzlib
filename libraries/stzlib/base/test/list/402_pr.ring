@@ -1,8 +1,17 @@
 # Narrative
 # --------
-# pr()
+# The (*) operator's richer right-hand forms -- a partial FEATURE STUB.
+#
+# o1 * 3 repeats the list (the implemented form -> [1,2,3,1,2,3,1,2,3]). The
+# block then explores forms the (*) operator does NOT yet support and which
+# currently raise "operator *: rhs must be a number": a Q()-wrapped number
+# (o1 * Q(3)), a string suffix (Q([...]) * ".ring" -> append to each item),
+# and a Q()-wrapped string. The recorded outputs document the intended
+# behavior. Left as a documented stub until (*) accepts stz-object, string,
+# and list right-hand operands (the bare-number form is verified in 146/147).
 #
 # Extracted from stzlisttest.ring, block #402.
+#ERR operator *: rhs must be a number.  (object/string/list RHS pending)
 
 load "../../stzBase.ring"
 
