@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# #narration List Equality and Strict Equality in Softanza
+# Distinguishes Softanza list equality from strict equality.
+#
+# Two lists are EQUAL (IsEqualTo) when they share the same number of
+# items and the same content, regardless of order -- so 1:3 equals its
+# reverse 3:1, confirmed by HasSameContentAs and HasSameNumberOfItemsAs.
+# Two lists are STRICTLY equal (IsStrictlyEqualTo) only when they are
+# equal AND share the same sorting order. Since 1:3 is sorted ascending
+# and 3:1 descending, they are equal but not strictly equal; 1:3 is
+# strictly equal only to itself. SortingOrder() reports the order as a
+# lowercase string ("ascending" / "descending"), not a symbol.
 #
 # Extracted from stzlisttest.ring, block #507.
-#ERR Error (R14) : Calling Method without definition: hassamenumberofitemsas
 
 load "../../stzBase.ring"
 
@@ -42,10 +50,10 @@ o1 = new stzList(1:3)
 # In fact, the two lists don't have the same sorting order!
 
 ? Q(1:3).SortingOrder()
-#--> :Ascending
+#--> ascending
 
 ? Q(3:1).SortingOrder()
-#--> :Descending
+#--> descending
 
 # Hence, 1:3 is STRICTLY equal only to itself
 

@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# #narration Same semantics for all softanza objects
+# Demonstrates Softanza's uniform semantics: an operation defined on
+# strings carries over to lists with the same name and meaning.
+#
+# A string can be tested for being framed by two delimiters with
+# IsBoundedBy, and those frames stripped with TheseBoundsRemoved.
+# The identical idiom applies to a list: IsBoundedBy checks whether
+# the first and last items are the given bounds, and TheseBoundsRemoved
+# returns the inner items with those bounds dropped. One vocabulary,
+# two object kinds -- so what you learn on strings transfers to lists
+# whenever it makes sense.
 #
 # Extracted from stzlisttest.ring, block #515.
-#ERR Error (R20) : Calling function with extra number of parameters
 
 load "../../stzBase.ring"
 

@@ -1,6 +1,15 @@
 # Narrative
 # --------
-# #narration
+# Sorting a list and reasoning about its order, regardless of element type.
+#
+# Softanza sorts any list (not only numbers/strings) in ascending order via
+# SortInAscending() / SortUp() and in descending order via SortInDescending()
+# / SortDown(). It can also report a list's current order with SortingOrder()
+# (yielding the lowercase string "ascending", "descending", or "unsorted")
+# and compare two lists' orders with HasSameSortingOrderAs(). For conciseness
+# the same checks are available as bare functions HaveSameSortingOrder() and
+# SortingOrders(). The comparison predicates print 1/0 on the console for
+# the logical values TRUE/FALSE recorded below.
 #
 # Extracted from stzlisttest.ring, block #509.
 
@@ -26,7 +35,7 @@ pr()
 #--> [ 3, 2, 1 ]
 
 ? Q(1:3).SortingOrder()
-#--> :Ascending
+#--> ascending
 
 ? Q(1:3).HasSameSortingOrderAs(3:1)
 #--> FALSE

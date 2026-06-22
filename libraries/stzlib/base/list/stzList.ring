@@ -8943,6 +8943,17 @@ class stzList from stzObject
 			end
 			return _aGroups_
 
+		but pOp = "[]"
+			# Bracket indexing: a numeric key reads the item at that
+			# position (Nth, 1-based, negatives count from the end);
+			# any other key returns the positions where it occurs
+			# (FindAll). Mirrors the stzString o1[n] / o1["x"] idiom.
+			if isNumber(pValue)
+				return This.Item(pValue)
+			else
+				return This.FindAll(pValue)
+			ok
+
 		ok
 
 		# Value equality: Q(list) = otherlist routes to IsEqualTo (only when the

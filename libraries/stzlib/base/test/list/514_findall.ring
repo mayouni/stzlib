@@ -1,9 +1,18 @@
 # Narrative
 # --------
-# #narration
+# Shows that Softanza finds and sorts every Ring value type inside a
+# list -- numbers, strings, and nested lists alike.
+#
+# Ring's native find()/sort() only handle numbers and strings. Softanza
+# lifts that limit: FindAll() locates a nested sub-list by value (here
+# [ "L1", "L1" ] sits at position 6), and SortedInAscending() orders a
+# heterogeneous list with a stable type-tier rule -- numbers first
+# (sorted), then strings (sorted), then lists (sorted). Objects are the
+# only type not yet sortable (a documented #TODO); for now they would be
+# appended in appearance order. This makes Softanza's sort effectively
+# total over all Ring types.
 #
 # Extracted from stzlisttest.ring, block #514.
-#ERR Error (R14) : Calling Method without definition: sortedinascending
 
 load "../../stzBase.ring"
 
