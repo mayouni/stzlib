@@ -1,6 +1,16 @@
 # Narrative
 # --------
-# pr()
+# Locating and managing the Softanza singleton objects (TRUE, FALSE, NULL)
+# stored as live items inside a stzList.
+#
+# A stzList can hold the special object instances returned by TRUEObject(),
+# FALSEObject(), and NullObject() alongside ordinary values. FindAll(obj)
+# returns every position holding a given object; FindObjects() returns the
+# positions of all such singleton objects at once; and FindMany([...]) finds
+# the union of positions for a set of objects. Those same objects are valid
+# operands for the mutating ops: Remove, Replace, and RemoveMany delete or
+# swap them by identity, with @trueobject/@falseobject being how @@() renders
+# the singletons in logical bracketed form.
 #
 # Extracted from stzlisttest.ring, block #513.
 

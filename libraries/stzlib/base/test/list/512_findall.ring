@@ -1,6 +1,15 @@
 # Narrative
 # --------
-# pr()
+# FindAll() returns the list of ALL positions where a given item occurs.
+#
+# The list mixes numbers, a key:value pair, a NullObject(), and strings.
+# FindAll() handles each kind uniformly: a scalar (10) yields [ 1, 5 ],
+# a string ("Ring") yields [ 8 ], a pair ("A":"E") yields [ 2, 6 ], and
+# even a repeated object reference (obj) is found at [ 4, 7 ]. Objects are
+# findable because Softanza tracks them as named objects rather than the
+# old approach of relying on the empty slots produced by Ring's list2code().
+# RemoveMany() then deletes every occurrence of the pair and the object,
+# collapsing the list to [ 10, 12, 10, "Ring" ].
 #
 # Extracted from stzlisttest.ring, block #512.
 
