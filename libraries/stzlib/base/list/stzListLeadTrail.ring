@@ -285,29 +285,23 @@ class stzListLeadTrail
 	#======================================================#
 
 	def StartsWithCS(pItem, pCaseSensitive)
+		# Single-value first-item compare: O(1) in Ring, so no engine
+		# round-trip (the value-handle/list-handle live in separate
+		# per-module handle tables and don't cross). The prefix-LIST
+		# variant (StartsWithListCS) is what's worth engine-backing.
 		if This.NumberOfItems() = 0
 			return 0
 		ok
-		if isString(pItem)
-			_pSwList = @oList._EngineListFromContent()
-			if _pSwList != NULL
-				_pSwVal = StzEngineValueNewString(pItem)
-				if _pSwVal != NULL
-					_nCsSw = 1
-					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
-						_nCsSw = pCaseSensitive[2]
-					but isNumber(pCaseSensitive)
-						_nCsSw = pCaseSensitive
-					ok
-					_nResult = StzEngineListStartsWithCS(_pSwList, _pSwVal, _nCsSw)
-					StzEngineValueFree(_pSwVal)
-					StzEngineListFree(_pSwList)
-					return _nResult
-				ok
-				StzEngineListFree(_pSwList)
-			ok
+		_nCsSw = 1
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			_nCsSw = pCaseSensitive[2]
+		but isNumber(pCaseSensitive)
+			_nCsSw = pCaseSensitive
 		ok
-		return BothAreEqualCS(@oList.List()[1], pItem, pCaseSensitive)
+		if BothAreEqualCS(@oList.List()[1], pItem, _nCsSw)
+			return 1
+		ok
+		return 0
 
 	def StartsWith(pItem)
 		return This.StartsWithCS(pItem, 1)
@@ -316,27 +310,17 @@ class stzListLeadTrail
 		if This.NumberOfItems() = 0
 			return 0
 		ok
-		if isString(pItem)
-			_pEwList = @oList._EngineListFromContent()
-			if _pEwList != NULL
-				_pEwVal = StzEngineValueNewString(pItem)
-				if _pEwVal != NULL
-					_nCsEw = 1
-					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
-						_nCsEw = pCaseSensitive[2]
-					but isNumber(pCaseSensitive)
-						_nCsEw = pCaseSensitive
-					ok
-					_nResult2 = StzEngineListEndsWithCS(_pEwList, _pEwVal, _nCsEw)
-					StzEngineValueFree(_pEwVal)
-					StzEngineListFree(_pEwList)
-					return _nResult2
-				ok
-				StzEngineListFree(_pEwList)
-			ok
+		_nCsEw = 1
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			_nCsEw = pCaseSensitive[2]
+		but isNumber(pCaseSensitive)
+			_nCsEw = pCaseSensitive
 		ok
 		nLen = This.NumberOfItems()
-		return BothAreEqualCS(@oList.List()[nLen], pItem, pCaseSensitive)
+		if BothAreEqualCS(@oList.List()[nLen], pItem, _nCsEw)
+			return 1
+		ok
+		return 0
 
 	def EndsWith(pItem)
 		return This.EndsWithCS(pItem, 1)
