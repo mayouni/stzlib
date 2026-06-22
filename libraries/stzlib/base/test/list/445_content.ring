@@ -1,9 +1,16 @@
 # Narrative
 # --------
-# pr()
+# ReplacePreviousNthOccurrencesST targets specific previous occurrences of a
+# value, selected by their ordinal rank, that lie before a starting position.
+#
+# Here the list is [A,B,A,C,A,D,A]. Scanning the occurrences of "A" that come
+# BEFORE position 5, we find them at positions 1 and 3 (the A at 5 is the start
+# anchor, not a "previous" hit). The panList [1,2] selects the 1st and 2nd of
+# those previous occurrences -- i.e. positions 1 and 3 -- and rewrites each to
+# "*", yielding [*,B,*,C,A,D,A]. A 2-element selector can therefore touch at
+# most two cells; the older recorded 3-replacement variant is impossible.
 #
 # Extracted from stzlisttest.ring, block #445.
-#ERR Error (R3) : Calling Function without definition: replacepreviousnthoccurrencesst
 
 load "../../stzBase.ring"
 
@@ -19,7 +26,7 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	# recorded output [*,B,*,C,*,D,A] (3 replacements) is impossible from
 	# a 2-element panList -- confirmed by 444 and 446 which match the
 	# function's anAllPos[panList[i]] rationale exactly.
-	#--> [ "*" , "B", "*", "C", "A", "D", "A" ]
+	#--> [ "*", "B", "*", "C", "A", "D", "A" ]
 }
 
 pf()
