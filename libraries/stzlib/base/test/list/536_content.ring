@@ -1,6 +1,13 @@
 # Narrative
 # --------
-# StartProfiler()
+# Conditional replacement: ReplaceItemsW(:Where, :By) swaps every matching item.
+#
+# ReplaceItemsW replaces, with one given value, every item selected by a W
+# condition. The :Where block '{ isString(@item) and IsLowercase(@item) }'
+# matches each lowercase string; :By = "*" is the replacement. So
+# [ 1, "a", 2, "b", 3, "c" ] becomes [ 1, "*", 2, "*", 3, "*" ] -- the
+# numbers are left untouched. W is the single performant + expressive
+# conditional form (the old WXT is retired).
 #
 # Extracted from stzlisttest.ring, block #536.
 
@@ -8,11 +15,8 @@ load "../../stzBase.ring"
 
 pr()
 
-# Conditional replacement of items can happen for all the items defined by a
-# given condition, and by replacing themn with the same given value like this:
-
 StzListQ( [ 1, "a", 2, "b", 3, "c" ] ) {
-	ReplaceItemsWXT(
+	ReplaceItemsW(
 		:Where = '{ isString(@item) and IsLowercase(@item) }',
 		:By = "*"
 	)
@@ -21,8 +25,5 @@ StzListQ( [ 1, "a", 2, "b", 3, "c" ] ) {
 	#--> [ 1, "*", 2, "*", 3, "*" ]
 }
 
-StopProfiler()
-
 pf()
-# Executed in 0.14 second(s) in Ring 1.21
-# Executed in 0.28 second(s) in Ring 1.19
+# Executed in 0.14 second(s).

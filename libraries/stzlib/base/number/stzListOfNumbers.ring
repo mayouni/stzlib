@@ -1442,7 +1442,7 @@ func PreviousNthPrimeST(nth, nbr)
 
 	#>
 
-func FirstNPrimesWXT(n, pcCondition)
+func FirstNPrimesW(n, pcCondition)
 	/* EXAMPLE
 
 	o1.FirstNPrimesW(25, ' Q(@number).DigitsQRT(:stzListOfNumbers).ArePrime() ')
@@ -1498,14 +1498,8 @@ func FirstNPrimesWXT(n, pcCondition)
 
 	return anResult
 
-	func NFirstPrimesWX(n, pcCondition)
-		return FirstNPrimesWX(n, pcCondition)
-
-	func FirstNPrimesW(n, pcCondition)
-		return FirstNPrimesWXT(n, pcCondition)
-
 	func NFirstPrimesW(n, pcCondition)
-		return FirstNPrimesWXT(n, pcCondition)
+		return FirstNPrimesW(n, pcCondition)
 
 func PrimesUnder(n)
 	return PrimesUnderIB(n-1)
@@ -1676,8 +1670,6 @@ class stzListOfNumbers from stzList
 		# Short aliases used by the narrative tests:
 		#   PrimesUnderQ(5000).WXT(' isWeiferich(@number) ')
 		# Same eval-and-collect contract as NumbersW.
-		def WXT(pcCondition)
-			return This.NumbersW(pcCondition)
 
 		def W(pcCondition)
 			return This.NumbersW(pcCondition)

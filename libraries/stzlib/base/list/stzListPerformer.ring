@@ -95,6 +95,23 @@ class stzListPerformer
 			This.PerformW(pcCondition, pcAction)
 			return This
 
+	#-- PerformAtW: transform only the items that are BOTH at one of panPos
+	#-- and satisfy the W condition (the position-restricted PerformW).
+	def PerformAtW(panPos, pcCondition, pcAction)
+		_anPawMatch_ = @oList.FindW(pcCondition)
+		_anPawSel_ = []
+		_nPawLen_ = len(panPos)
+		for _iPaw_ = 1 to _nPawLen_
+			if ring_find(_anPawMatch_, panPos[_iPaw_]) > 0
+				_anPawSel_ + panPos[_iPaw_]
+			ok
+		next
+		This.PerformOn(_anPawSel_, pcAction)
+
+		def PerformAtWQ(panPos, pcCondition, pcAction)
+			This.PerformAtW(panPos, pcCondition, pcAction)
+			return This
+
 	def Yield(pcYielder)
 		_pYdList_ = @oList._EngineListFromContent()
 		if _pYdList_ != NULL

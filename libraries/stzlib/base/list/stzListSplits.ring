@@ -397,26 +397,19 @@ class stzListSplits
 		_anSwdPos_ = @oList.FindW(pcCondition)
 		return This.SplittedAtPositions(_anSwdPos_)
 
-	# SplitWXT / SplittedWXT -- narrative-test aliases over the W form.
-	def SplitWXT(pcCondition)
-		This.SplitW(pcCondition)
+	# SplitW / SplittedW -- narrative-test aliases over the W form.
 
-		def SplitWXTQ(pcCondition)
-			This.SplitWXT(pcCondition)
-			return This
 
-	def SplittedWXT(pcCondition)
-		return This.SplittedW(pcCondition)
 
-	# SplitAtWXT(pcCondition) -- split AT the positions where the
+	# SplitAtW(pcCondition) -- split AT the positions where the
 	# predicate is true (i.e. the matching elements become break
 	# points). Same semantics as SplitW; aliased here for the
-	# "SplitAt+W" narrative spelling.
-	def SplitAtWXT(pcCondition)
+	# "SplitAt+W" spelling.
+	def SplitAtW(pcCondition)
 		This.SplitW(pcCondition)
 
-		def SplitAtWXTQ(pcCondition)
-			This.SplitAtWXT(pcCondition)
+		def SplitAtWQ(pcCondition)
+			This.SplitAtW(pcCondition)
 			return This
 
 	  #===================================#

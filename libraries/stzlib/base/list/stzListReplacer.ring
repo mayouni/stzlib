@@ -742,20 +742,14 @@ class stzListReplacer
 
 	#-- Replace every item matching the :Where boolean expr with the :By value.
 	#-- Matching positions come from the engine-backed FindAllW (@item placeholder).
-	def ReplaceWXT(pWhere, pBy)
+	def ReplaceW(pWhere, pBy)
 		_cond_ = This._RpNamed(pWhere)
 		_val_  = This._RpNamed(pBy)
 		_pos_  = @oList.FindAllW(_cond_)
 		This.ReplaceAnyItemAtPositions(_pos_, _val_)
 
-		def ReplaceItemsWXT(pWhere, pBy)
-			This.ReplaceWXT(pWhere, pBy)
-
 		def ReplaceItemsW(pWhere, pBy)
-			This.ReplaceWXT(pWhere, pBy)
-
-		def ReplaceW(pWhere, pBy)
-			This.ReplaceWXT(pWhere, pBy)
+			This.ReplaceW(pWhere, pBy)
 
 	#-- Replace the n-th occurrence of pItem at or after position pnStartingAt.
 	def ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)

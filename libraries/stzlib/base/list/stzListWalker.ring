@@ -258,16 +258,6 @@ class stzListWalker
 	def WalkWhere(pcCondition)
 		return @oList.FindAllItemsW(pcCondition)
 
-	def WalkWhereXT(pcCondition, pcDirection, pReturn)
-		_anWhPos_ = @oList.FindAllItemsW(pcCondition)
-		if This._WalkDir_(pcDirection) = :Backward
-			_anWhRev_ = []
-			for _iWh_ = len(_anWhPos_) to 1 step -1
-				@AddItem(_anWhRev_, _anWhPos_[_iWh_])
-			next
-			_anWhPos_ = _anWhRev_
-		ok
-		return This._WalkOut_(_anWhPos_, pReturn)
 
 	  #==========================#
 	 #  WALKING WHEN            #
