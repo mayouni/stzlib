@@ -4395,20 +4395,80 @@ class stzList from stzObject
 			return This.FindAllItemsWCS(pcCondition, pCaseSensitive)
 
 	def FindAllItemsW(pcCondition)
-		#-- W is the sandboxed engine DSL (no eval). Conditions that need real
-		#-- Ring logic (calling methods, your own funcs) use the WF family
-		#-- (FindWF/ItemsWF/CheckWF/...), not a textual condition.
+		#-- W is the single performant + expressive engine DSL (no eval).
+		#-- It accepts the basic keywords (@item, @string, @i, This[@i+1]/
+		#-- This[@i-1]) AND the expressive navigation keywords (@NextItem,
+		#-- @PreviousItem, @NextNumber, ...): those are transpiled to the
+		#-- This[@i +/- k] index form, then the scan is bounded to the
+		#-- "executable section" so neighbour indices stay in range. The old
+		#-- WXT form is gone -- W now does everything it did. Conditions that
+		#-- need real Ring logic (calling methods, your own funcs) use the WF
+		#-- family (FindWF/ItemsWF/CheckWF/...), not a textual condition.
+
+		#-- Accept the :Where = '...' named-param form as well as a bare string.
+		if isList(pcCondition) and IsWhereNamedParamList(pcCondition)
+			pcCondition = pcCondition[2]
+		ok
+
+		nLen = This.NumberOfItems()
+		if nLen = 0 return [] ok
+
+		#-- Transpile the expressive navigation keywords (@NextItem -> This[@i+1],
+		#-- etc.) only when present, so the simple path stays free of parse cost.
+		if ring_len( StzFindCS("@Next", pcCondition, 1) ) > 0 or
+		   ring_len( StzFindCS("@Previous", pcCondition, 1) ) > 0
+			pcCondition = StzCCodeQ(pcCondition).Transpiled()
+		ok
+
 		pcCondition = _StzStripBraces(pcCondition)
+
 		#-- Lower any Softanza Q(EXPR).Method(...) predicate to engine DSL so
 		#-- conditions like Q(This[@i+1]).IsDoubleOf(This[@i-1]) evaluate.
 		if ring_len( StzFindCS("Q(", pcCondition, 1) ) > 0
 			pcCondition = _StzLowerWPredicates(pcCondition)
 		ok
+
+		#-- Executable-section bounds: keep This[@i +/- k] indices in range
+		#-- (e.g. a +1 look-ahead excludes the last position, which has no
+		#-- successor). Only parsed when @i index math is present.
+		nStart = 1
+		nEnd = nLen
+		if ring_len( StzFindCS("@i", pcCondition, 1) ) > 0
+			anSec = StzCCodeQ("{ " + pcCondition + " }").ExecutableSection()
+			nStart = anSec[1]
+			nEnd   = anSec[2]
+
+			if isString(nEnd)
+				nEnd = nLen
+			but isNumber(nEnd) and nEnd < 0
+				nEnd += nLen
+			ok
+			if isString(nStart)
+				nStart = 1
+			ok
+			if nStart < 1 nStart = 1 ok
+			if nEnd > nLen nEnd = nLen ok
+		ok
+
 		pList = This._EngineListFromContent()
 		if pList = NULL return [] ok
 		# Engine returns a ready list of 1-based positions (built Zig-side).
-		anResult = StzEngineListFindAllW(pList, pcCondition)
+		anAll = StzEngineListFindAllW(pList, pcCondition)
 		StzEngineListFree(pList)
+
+		#-- Fast path: no bounding needed.
+		if nStart = 1 and nEnd = nLen
+			return anAll
+		ok
+
+		anResult = []
+		nA = len(anAll)
+		for i = 1 to nA
+			p = anAll[i]
+			if p >= nStart and p <= nEnd
+				anResult + p
+			ok
+		next
 		return anResult
 
 		def FindW(pcCondition)
