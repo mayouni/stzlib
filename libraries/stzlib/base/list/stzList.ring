@@ -2589,6 +2589,18 @@ class stzList from stzObject
 			return This._AllItemsAreNumberLists(TRUE)
 		on "pairofnumbers"
 			return This._AllItemsAreNumberLists(TRUE)
+		on "listofstrings"
+			return This._AllItemsAreStringLists()
+		on "listsofstrings"
+			return This._AllItemsAreStringLists()
+		on "listofstznumbers"
+			return This._AllItemsAreStzTypeLists("stznumber")
+		on "listsofstznumbers"
+			return This._AllItemsAreStzTypeLists("stznumber")
+		on "listofstzstrings"
+			return This._AllItemsAreStzTypeLists("stzstring")
+		on "listsofstzstrings"
+			return This._AllItemsAreStzTypeLists("stzstring")
 		other
 			return FALSE
 		off
@@ -2631,6 +2643,35 @@ class stzList from stzObject
 				if NOT isNumber(_it_[j])
 					return FALSE
 				ok
+			next
+		next
+		return TRUE
+
+	# All items are lists of strings.
+	def _AllItemsAreStringLists()
+		nLen = len(@aContent)
+		if nLen = 0 return FALSE ok
+		for i = 1 to nLen
+			_it_ = @aContent[i]
+			if NOT isList(_it_) return FALSE ok
+			_m_ = len(_it_)
+			for j = 1 to _m_
+				if NOT isString(_it_[j]) return FALSE ok
+			next
+		next
+		return TRUE
+
+	# All items are lists whose items are stz objects of the given stztype.
+	def _AllItemsAreStzTypeLists(cStzType)
+		nLen = len(@aContent)
+		if nLen = 0 return FALSE ok
+		for i = 1 to nLen
+			_it_ = @aContent[i]
+			if NOT isList(_it_) return FALSE ok
+			_m_ = len(_it_)
+			for j = 1 to _m_
+				if NOT isObject(_it_[j]) return FALSE ok
+				if StzLower("" + _it_[j].StzType()) != StzLower(cStzType) return FALSE ok
 			next
 		next
 		return TRUE

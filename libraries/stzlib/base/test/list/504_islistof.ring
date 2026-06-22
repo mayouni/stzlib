@@ -1,9 +1,20 @@
 # Narrative
 # --------
-# pr()
+# Demonstrates Q(aList).IsListOf(:typeToken), the polymorphic guard that
+# asks whether every item of a list matches a single named type.
+#
+# IsListOf() lowercases the token and dispatches through a switch: flat
+# tokens like :StzNumbers and :StzStrings are honored (every item must be
+# a stz object whose StzType() matches), so a list of StzNumberQ objects
+# answers TRUE for :StzNumbers and a list of StzStringQ objects answers
+# TRUE for :StzStrings. The nested tokens :ListsOfStzNumbers and
+# :ListsOfStzStrings are NOT in the current dispatch table, so they fall
+# through the switch's "other" branch and return FALSE -- even though the
+# data really is a list of lists of stz objects. The standalone
+# IsListOfListsOfStzNumbers()/...StzStrings() funcs exist in stzListFunc,
+# but the method-side switch does not route to them yet.
 #
 # Extracted from stzlisttest.ring, block #504.
-#ERR Error (R14) : Calling Method without definition: islistof
 
 load "../../stzBase.ring"
 

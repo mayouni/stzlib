@@ -209,7 +209,10 @@ class stzRegex
 				StzRaise("Incorrect param type! pcMatchType must be a string.")
 			ok
 
-			if NOT ( isList(pacOptions) and IsListOfStrings(pacOptions) )
+			# An empty options list means "no options" and is valid. (Guard
+			# against non-lists and non-string items only -- note an empty list
+			# is NOT a list-of-strings, so it must be allowed explicitly.)
+			if NOT ( isList(pacOptions) and (len(pacOptions) = 0 or IsListOfStrings(pacOptions)) )
 				StzRaise("Incorrect param type! pacOptions must be a list of strings.")
 			ok
 

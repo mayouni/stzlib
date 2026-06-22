@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# #narration: ...W() and ..WXT() forms in Conditional Code
+# The two forms of conditional code: ...W() (performant) vs ...WXT() (expressive).
+#
+# Both drive Softanza's list queries. The W form is faster but limited to the
+# basic keywords (@item, @string, @i, and This[@i-1] / This[@i+1] index math);
+# the WXT form trades speed for richer relational keywords like @NextNumber and
+# @PreviousNumber. Here both locate positions where the next number is double
+# the previous one -- FindWXT('{ Q(@NextNumber).IsDoubleOf(@PreviousNumber) }')
+# and the equivalent index-arithmetic FindW('{ Q(This[@i+1]).IsDoubleOf(This[@i-1]) }')
+# both return [ 8, 11 ]. (The ElapsedTime() line is wall-clock timing, so its
+# printed value varies run to run.)
 #
 # Extracted from stzlisttest.ring, block #483.
-#ERR Error (R24) : Using uninitialized variable: _time0
 
 load "../../stzBase.ring"
 

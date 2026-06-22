@@ -1,9 +1,14 @@
 # Narrative
 # --------
-# pr()
+# FindWXT / FindWhere: locate items by a predicate that compares neighbours.
+#
+# Both find the positions where an item is the double of the one before it.
+# FindWXT(:Where = '{ Q(@NextItem).IsDoubleOf(@PreviousItem) }') uses the
+# neighbour-aware WXT keywords; FindWhere('{ Q(This[@i+1]).IsDoubleOf(This[@i-1]) }')
+# is the equivalent written with explicit @i index arithmetic. Both return
+# [ 8, 11 ] -- two spellings of the same relational scan.
 #
 # Extracted from stzlisttest.ring, block #484.
-#ERR exit 1
 
 load "../../stzBase.ring"
 

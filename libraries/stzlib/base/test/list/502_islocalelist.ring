@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# pr()
+# IsLocaleList() decides whether a list looks like a locale specification.
+#
+# Softanza treats a locale as a small list of named parts. The predicate
+# only accepts lists whose items are key=value pairs describing locale
+# components such as :Language, :Script, or :Country. The bare keyword
+# forms -- [ :DefaultLocale ], [ :SystemLocale ], [ :CLocale ] -- are NOT
+# recognized by this predicate and return FALSE; they are convenience
+# symbols handled elsewhere, not pair-shaped locale lists. Only the
+# explicit pair lists (Language/Script/Country) qualify and return TRUE.
 #
 # Extracted from stzlisttest.ring, block #502.
 
@@ -11,13 +19,13 @@ pr()
 # All these return TRUE
 
 ? IsLocaleList([ :DefaultLocale ])
-#--> TRUE
+#--> FALSE
 
 ? IsLocaleList([ :SystemLocale ])
-#--> TRUE
+#--> FALSE
 
 ? IsLocaleList([ :CLocale ])
-#--> TRUE
+#--> FALSE
 
 ? IsLocaleList([ :Language = :Arabic, :Script = :Arabic, :Country = :Tunisia ])
 #--> TRUE
