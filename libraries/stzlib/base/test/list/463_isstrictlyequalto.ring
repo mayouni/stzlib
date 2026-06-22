@@ -1,6 +1,16 @@
 # Narrative
 # --------
-# pr()
+# Demonstrates stzList.IsStrictlyEqualTo() and how it decomposes into
+# three weaker comparisons.
+#
+# Strict equality is the conjunction of three conditions: the other
+# operand must have the same type (HasSameTypeAs), the same content
+# (IsEqualTo), and the same sorting order (HasSameSortingOrderAs).
+# Here [ "a", "b", "c" ] and [ "a", "b" ] share type and trivially the
+# same ordering, but differ in content, so IsEqualTo is FALSE and the
+# strict check fails. The example shows that a single failing facet --
+# content equality -- is enough to make the strict result FALSE even
+# when the other two facets pass.
 #
 # Extracted from stzlisttest.ring, block #463.
 
