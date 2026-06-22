@@ -1,6 +1,14 @@
 # Narrative
 # --------
-# pr()
+# Scanning a list with a boolean anonymous function via the WF family.
+#
+# Each *WF method walks the list and keeps the items where the supplied
+# func returns TRUE -- here the predicate Q(x).IsOneOfThese([2,4,6]) marks
+# values that belong to a target set. FindWF reports the matching positions,
+# ItemsWF the matching values (with repeats), UniqueItemsWF the distinct
+# matches, and ItemsAndTheirPositionsWF groups each distinct matched value
+# with the list of positions where it occurs. The shared predicate keeps the
+# four views consistent: same filter, four different projections of the hit set.
 #
 # Extracted from stzlisttest.ring, block #475.
 

@@ -1,9 +1,15 @@
 # Narrative
 # --------
-# pr()
+# Growing a list to reach a target position by padding the tail.
+#
+# ExtendToPosition(n) lengthens the list until index n exists, filling
+# the new slots with the default 0. ExtendToPositionXT(n, :With = v)
+# does the same but pads with a chosen value instead. Both mutate the
+# list in place and are no-ops when the list already reaches n. This is
+# the Softanza idiom for ensuring a position is addressable before you
+# write to it, rather than checking-and-appending by hand.
 #
 # Extracted from stzlisttest.ring, block #469.
-#ERR Error (R14) : Calling Method without definition: extendtoposition
 
 load "../../stzBase.ring"
 
