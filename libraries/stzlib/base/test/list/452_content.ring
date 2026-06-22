@@ -1,9 +1,17 @@
 # Narrative
 # --------
-# pr()
+# Replacing list items by value, from the simplest case to several richer variants.
+#
+# The starting point is Replace(item, :With), which swaps every occurrence of a
+# single value (aliased as ReplaceAll / ReplaceAllOccurrences). From there Softanza
+# scales up: ReplaceMany takes a list of items and maps them all to one common
+# replacement value; ReplaceManyByMany pairs each item with its own replacement
+# one-by-one (handy for text interpolation and templating); and ReplaceItemByManyXT
+# cycles through a list of replacements, alternating between them for each successive
+# occurrence of the target item. All four operate in place inside the StzListQ block
+# and are confirmed via Content().
 #
 # Extracted from stzlisttest.ring, block #452.
-#ERR Error (R3) : Calling Function without definition: replacemany
 
 load "../../stzBase.ring"
 

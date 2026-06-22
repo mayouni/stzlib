@@ -1,6 +1,13 @@
 # Narrative
 # --------
-# pr()
+# Locating every occurrence of several values in one pass.
+#
+# FindMany() takes a list of search values and returns a single flat,
+# position-sorted list of all the indices where ANY of them appear --
+# here "a" sits at 1 and 4, "e" at 3 and 7, merged into [ 1, 3, 4, 7 ].
+# When you need to keep the matches grouped per value instead of flattened,
+# TheseItemsZ() returns the structured (Z) view: one [ value, [ positions ] ]
+# pair for each searched item, preserving which index belongs to which value.
 #
 # Extracted from stzlisttest.ring, block #460.
 
