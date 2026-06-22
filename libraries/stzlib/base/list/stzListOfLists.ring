@@ -624,11 +624,7 @@ class stzListOfLists from stzList
 		#TODO // XT form should be implemented in the same way as in stzList
 		# Temprorarily we implement them as alternatives of the normal form
 
-		def PositionWXT(pcCondition)
-			return This.PositionW(pcCondition)
 
-		def FindListsWXT(pcCondition)
-			return This.PositionsW(pcCondition)
 
 
 	  #------------------#
@@ -671,8 +667,6 @@ class stzListOfLists from stzList
 			def ListsWhereQ(pcCondition)
 				return new stzList(This.ListsWhere(pcCondition))
 
-		def ListsWXT(pcCondition)
-			return This.ListsW(pcCondition)
 
 		#>
 
@@ -703,8 +697,6 @@ class stzListOfLists from stzList
 			def ListsWhereZQ(pcCondition)
 				return new stzList(This.ListsWhereZ(pcCondition))
 
-		def ListsWXTZ(pcCondition)
-			return This.ListsWXT(pcCondition)
 
 		#>
 

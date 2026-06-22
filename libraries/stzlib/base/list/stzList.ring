@@ -1256,19 +1256,15 @@ class stzList from stzObject
 		def ReplaceAtByManyXT(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
 
-	def ReplaceWXT(pWhere, pBy)
+
+
+	def ReplaceW(pWhere, pBy)
 		_o_ = new stzListReplacer(This)
-		_o_.ReplaceWXT(pWhere, pBy)
+		_o_.ReplaceW(pWhere, pBy)
 		@aContent = _o_.Content()
 
-		def ReplaceItemsWXT(pWhere, pBy)
-			This.ReplaceWXT(pWhere, pBy)
-
 		def ReplaceItemsW(pWhere, pBy)
-			This.ReplaceWXT(pWhere, pBy)
-
-		def ReplaceW(pWhere, pBy)
-			This.ReplaceWXT(pWhere, pBy)
+			This.ReplaceW(pWhere, pBy)
 
 	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 		_o_ = new stzListReplacer(This)
@@ -2424,8 +2420,12 @@ class stzList from stzObject
 		def NumberOfItemsW(pcCondition)
 			return This.CountW(pcCondition)
 
-		def NumberOfItemsWXT(pcCondition)
-			return ring_len(This.FindAllItemsWXT(pcCondition))
+		def CountItemsW(pcCondition)
+			return This.CountW(pcCondition)
+
+		def HowManyItemsW(pcCondition)
+			return This.CountW(pcCondition)
+
 
 	  #-------------------------------------------#
 	 #  SORTING ORDER CHECK                      #
@@ -3108,7 +3108,7 @@ class stzList from stzObject
 			This.RemoveSection(n1, n2)
 			return This
 
-	  #-- RemoveW / RemoveWXT: drop items where the eval'd predicate
+	  #-- RemoveW / RemoveW: drop items where the eval'd predicate
 	  #   is TRUE. Forwards to stzListRemover.RemoveW. The XT variant
 	  #   is alias (the underlying remover handles both shapes).
 
@@ -3121,12 +3121,7 @@ class stzList from stzObject
 			This.RemoveW(pcCondition)
 			return This
 
-	def RemoveWXT(pcCondition)
-		This.RemoveW(pcCondition)
 
-		def RemoveWXTQ(pcCondition)
-			This.RemoveW(pcCondition)
-			return This
 
 	# RemoveSpaces / RemoveSpacesQ: drop every " " item (string-space)
 	# from the content. Engine-aware: only removes string-typed " ".
@@ -4415,9 +4410,14 @@ class stzList from stzObject
 
 		#-- Transpile the expressive navigation keywords (@NextItem -> This[@i+1],
 		#-- etc.) only when present, so the simple path stays free of parse cost.
+		#-- Using a navigation keyword also opts in to executable-section
+		#-- bounding below (so neighbour access never steps out of range);
+		#-- raw This[@i+k] index math stays unbounded (you own the bounds).
+		bNavKeyword = 0
 		if ring_len( StzFindCS("@Next", pcCondition, 1) ) > 0 or
 		   ring_len( StzFindCS("@Previous", pcCondition, 1) ) > 0
 			pcCondition = StzCCodeQ(pcCondition).Transpiled()
+			bNavKeyword = 1
 		ok
 
 		pcCondition = _StzStripBraces(pcCondition)
@@ -4428,12 +4428,12 @@ class stzList from stzObject
 			pcCondition = _StzLowerWPredicates(pcCondition)
 		ok
 
-		#-- Executable-section bounds: keep This[@i +/- k] indices in range
-		#-- (e.g. a +1 look-ahead excludes the last position, which has no
-		#-- successor). Only parsed when @i index math is present.
+		#-- Executable-section bounds: keep neighbour indices in range (e.g. a
+		#-- +1 look-ahead excludes the last position, which has no successor).
+		#-- Applied only when an expressive navigation keyword was used.
 		nStart = 1
 		nEnd = nLen
-		if ring_len( StzFindCS("@i", pcCondition, 1) ) > 0
+		if bNavKeyword and ring_len( StzFindCS("@i", pcCondition, 1) ) > 0
 			anSec = StzCCodeQ("{ " + pcCondition + " }").ExecutableSection()
 			nStart = anSec[1]
 			nEnd   = anSec[2]
@@ -4477,14 +4477,18 @@ class stzList from stzObject
 		def FindAllW(pcCondition)
 			return This.FindAllItemsW(pcCondition)
 
-		def FindAllWXT(pcCondition)
-			return This.FindAllItemsWXT(pcCondition)
+		def FindAllItemsWhere(pcCondition)
+			return This.FindAllItemsW(pcCondition)
 
 		def FindWhere(pcCondition)
 			return This.FindAllItemsW(pcCondition)
 
-		def FindWhereXT(pcCondition)
-			return This.FindAllItemsWXT(pcCondition)
+		def ItemsPositionsW(pcCondition)
+			return This.FindAllItemsW(pcCondition)
+
+		def ItemsAndTheirPositionsW(pcCondition)
+			return _StzGroupItemsAtPos(This.Content(), This.FindAllItemsW(pcCondition))
+
 
 		def PositionsW(pcCondition)
 			return This.FindAllItemsW(pcCondition)
@@ -4492,7 +4496,7 @@ class stzList from stzObject
 		def PositionsWhere(pcCondition)
 			return This.FindAllItemsW(pcCondition)
 
-	#-- FindAllItemsWXT: the "extended" W scan. Unlike the plain W form, it
+	#-- FindAllItemsW: the "extended" W scan. Unlike the plain W form, it
 	#-- accepts the expressive Softanza keywords (@NextItem, @PreviousItem,
 	#-- @NextNumber, ...) and the Q(EXPR).Method(...) predicate form. The
 	#-- condition is transpiled to the basic This[@i+1]/This[@i-1] indexing
@@ -4500,66 +4504,8 @@ class stzList from stzObject
 	#-- bounded to the "executable section" so navigation indices stay in
 	#-- range (e.g. with @NextItem the last position is excluded, since it
 	#-- has no successor). Returns the matching 1-based POSITIONS.
-	def FindAllItemsWXT(pcCondition)
-		#-- Accept the :Where = '...' named-param form as well as a bare string.
-		if isList(pcCondition) and IsWhereNamedParamList(pcCondition)
-			pcCondition = pcCondition[2]
-		ok
 
-		nLen = This.NumberOfItems()
-		if nLen = 0 return [] ok
 
-		# 1) Transpile sophisticated keywords (@NextItem -> This[@i + 1], etc.)
-		cEng = StzCCodeQ(pcCondition).Transpiled()
-
-		# 2) Lower Softanza Q(EXPR).Method(...) predicates to engine DSL.
-		if ring_len( StzFindCS("Q(", cEng, 1) ) > 0
-			cEng = _StzLowerWPredicates(cEng)
-		ok
-
-		# 3) Executable-section bounds: keep This[@i +/- k] indices in range.
-		nStart = 1
-		nEnd = nLen
-		if ring_len( StzFindCS("@i", cEng, 1) ) > 0
-			anSec = StzCCodeQ(cEng).ExecutableSection()
-			nStart = anSec[1]
-			nEnd   = anSec[2]
-
-			if isString(nEnd)
-				nEnd = nLen
-			but isNumber(nEnd) and nEnd < 0
-				nEnd += nLen
-			ok
-
-			if isString(nStart)
-				nStart = 1
-			ok
-			if nStart < 1 nStart = 1 ok
-			if nEnd > nLen nEnd = nLen ok
-		ok
-
-		# 4) Engine scan over the whole list, then bound to [nStart, nEnd].
-		pList = This._EngineListFromContent()
-		if pList = NULL return [] ok
-		anAll = StzEngineListFindAllW(pList, cEng)
-		StzEngineListFree(pList)
-
-		anResult = []
-		nA = len(anAll)
-		for i = 1 to nA
-			p = anAll[i]
-			if p >= nStart and p <= nEnd
-				anResult + p
-			ok
-		next
-
-		return anResult
-
-		def FindAllItemsWhereXT(pcCondition)
-			return This.FindAllItemsWXT(pcCondition)
-
-		def FindAllItemsWXTQ(pcCondition)
-			return new stzList( This.FindAllItemsWXT(pcCondition) )
 
 	  #-- WF: anonymous-function constraints (full Ring power, no eval)
 
@@ -4578,13 +4524,11 @@ class stzList from stzObject
 		def AllItemsWF(pFunc)
 			return This.CheckWF(pFunc)
 
-	#-- CheckW: all items satisfy a W (DSL) condition. CheckWXT is the same
+	#-- CheckW: all items satisfy a W (DSL) condition. CheckW is the same
 	#-- now that the DSL is engine-backed (the perf/expressiveness split is gone).
 	def CheckW(pcCondition)
 		return ring_len(This.FindAllItemsW(pcCondition)) = This.NumberOfItems()
 
-		def CheckWXT(pcCondition)
-			return This.CheckW(pcCondition)
 
 	#-- the items at panPos all satisfy a W (DSL) condition
 	def CheckItemsAtW(panPos, pcCondition)
@@ -4636,6 +4580,10 @@ class stzList from stzObject
 	def UniqueItemsWF(pFunc)
 		return _StzUniqueItems(This.ItemsWF(pFunc))
 
+	#-- W-DSL twin: the unique items matching a W condition.
+	def UniqueItemsW(pcCondition)
+		return _StzUniqueItems(This.ItemsW(pcCondition))
+
 	#-- the n-th / first / last item matching the function
 	def NthItemWF(n, pFunc)
 		_aWf_ = This.ItemsWF(pFunc)
@@ -4685,15 +4633,11 @@ class stzList from stzObject
 			This.PerformWF(pCondFunc, pActionFunc)
 			return This
 
-	  #-- FindWXT: the extended (expressive) where-scan. Returns the matching
-	  #-- POSITIONS (use ItemsWXT for the items at those positions). It accepts
+	  #-- FindW: the extended (expressive) where-scan. Returns the matching
+	  #-- POSITIONS (use ItemsW for the items at those positions). It accepts
 	  #-- @NextItem/@PreviousItem/... and the Q(EXPR).Method(...) predicate form.
 
-	def FindWXT(pcCondition)
-		return This.FindAllItemsWXT(pcCondition)
 
-	def FindWXTQ(pcCondition)
-		return new stzList( This.FindAllItemsWXT(pcCondition) )
 
 	  #-- ItemsAtPositions: get items at given positions
 
@@ -5786,11 +5730,7 @@ class stzList from stzObject
 			return This.ItemsHaveXT(pcCondition)
 
 	#-- positions matching a W-condition (+ grouped form)
-	def ItemsPositionsWXT(pcCondition)
-		return This.FindAllItemsW(pcCondition)
 
-	def ItemsAndTheirPositionsWXT(pcCondition)
-		return _StzGroupItemsAtPos(This.Content(), This.FindAllItemsW(pcCondition))
 
 	  #=========================================================#
 	 #  INSERT after/before many positions / by W-condition    #
@@ -5803,15 +5743,7 @@ class stzList from stzObject
 		@aContent = _StzInsertBeforePositions(This.Content(), panPos, pItem)
 
 	#-- insert pItem after/before each item matching a W-condition (:Where ok)
-	def InsertAfterWXT(pWhere, pItem)
-		_c_ = pWhere
-		if isList(pWhere) and ring_len(pWhere) = 2 _c_ = pWhere[2] ok
-		@aContent = _StzInsertAfterPositions(This.Content(), This.FindAllItemsW(_c_), pItem)
 
-	def InsertBeforeWXT(pWhere, pItem)
-		_c_ = pWhere
-		if isList(pWhere) and ring_len(pWhere) = 2 _c_ = pWhere[2] ok
-		@aContent = _StzInsertBeforePositions(This.Content(), This.FindAllItemsW(_c_), pItem)
 
 	# CountItemsW/CountW already defined above
 
@@ -5823,12 +5755,7 @@ class stzList from stzObject
 		_oNuiwCounter_ = new stzListCounter(This)
 		return _oNuiwCounter_.NumberOfUniqueItemsW(pCondition)
 
-	def CountItemsWXT(pCondition)
-		return ring_len(This.FindAllItemsWXT(pCondition))
 
-	def NumberOfUniqueItemsWXT(pCondition)
-		_oNuiwxtCounter_ = new stzListCounter(This)
-		return _oNuiwxtCounter_.NumberOfUniqueItemsWXT(pCondition)
 
 	def InsertAfterW(pcCondition, pNewItem)
 		_oIawCounter_ = new stzListCounter(This)
@@ -5996,17 +5923,8 @@ class stzList from stzObject
 		_oSdwSplitter_ = new stzListSplits(This)
 		return _oSdwSplitter_.SplittedW(pcCondition)
 
-	def SplitWXT(pcCondition)
-		_oSwxtSplitter_ = new stzListSplits(This)
-		return _oSwxtSplitter_.SplitWXT(pcCondition)
 
-	def SplitAtWXT(pcCondition)
-		_oSawSplitter_ = new stzListSplits(This)
-		return _oSawSplitter_.SplitAtWXT(pcCondition)
 
-	def SplittedWXT(pcCondition)
-		_oSdwxtSplitter_ = new stzListSplits(This)
-		return _oSdwxtSplitter_.SplittedWXT(pcCondition)
 
 	  #-------------------------------#
 	 #  LEAD/TRAIL DELEGATIONS       #
@@ -6115,9 +6033,15 @@ class stzList from stzObject
 		This.UpdateWith(_oErExt_.Content())
 
 	def ExtractW(pcCondition)
-		_oEwExt_ = new stzListExtractor(This)
-		_oEwExt_.ExtractW(pcCondition)
-		This.UpdateWith(_oEwExt_.Content())
+		# Remove every item matching the W-condition and RETURN them all
+		# (find the matching positions, collect the items, then drop them).
+		anPos = This.FindW(pcCondition)
+		aResult = This.ItemsAtPositions(anPos)
+		This.RemoveItemsAtPositions(anPos)
+		return aResult
+
+		def ExtractWQ(pcCondition)
+			return new stzList( This.ExtractW(pcCondition) )
 
 	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
 		# Remove the nth occurrence of pItem and RETURN it (the extracted
@@ -6496,9 +6420,6 @@ class stzList from stzObject
 		_oWhWk_ = new stzListWalker(This)
 		return _oWhWk_.WalkWhere(pcCondition)
 
-	def WalkWhereXT(pcCondition, pcDirection, pReturn)
-		_oWhxWk_ = new stzListWalker(This)
-		return _oWhxWk_.WalkWhereXT(pcCondition, pcDirection, pReturn)
 
 	def WalkWhen(pcCondition)
 		_oWnWk_ = new stzListWalker(This)
@@ -6980,6 +6901,11 @@ class stzList from stzObject
 		_oPwPrf_.PerformW(pcCondition, pcAction)
 		This.UpdateWith(_oPwPrf_.Content())
 
+	def PerformAtW(panPos, pcCondition, pcAction)
+		_oPawPrf_ = new stzListPerformer(This)
+		_oPawPrf_.PerformAtW(panPos, pcCondition, pcAction)
+		This.UpdateWith(_oPawPrf_.Content())
+
 	def YieldOn(panPos, pcYielder)
 		_oYoPrf_ = new stzListPerformer(This)
 		return _oYoPrf_.YieldOn(panPos, pcYielder)
@@ -6988,26 +6914,19 @@ class stzList from stzObject
 		_oYwPrf_ = new stzListPerformer(This)
 		return _oYwPrf_.YieldW(pcCondition, pcYielder)
 
-	# YieldWXT(pcCondition, pcYielder): the @item-syntax form of YieldW
+	# YieldW(pcCondition, pcYielder): the @item-syntax form of YieldW
 	# -- for items matching pcCondition, yield the value of pcYielder.
 	# Engine-backed via YieldW (no eval).
-	def YieldWXT(pcCondition, pcYielder)
-		return This.YieldW(pcCondition, pcYielder)
 
-		def YieldWXTQ(pcCondition, pcYielder)
-			return new stzList( This.YieldW(pcCondition, pcYielder) )
 
-	# YieldAtW / YieldAtWXT: restrict to the given positions first,
+	# YieldAtW / YieldAtW: restrict to the given positions first,
 	# then yield over those.
 	def YieldAtW(panPos, pcCondition, pcYielder)
 		oYawSub = This.ItemsAtPositionsQ(panPos)
 		return oYawSub.YieldW(pcCondition, pcYielder)
 
-	def YieldAtWXT(panPos, pcCondition, pcYielder)
-		oYaxSub = This.ItemsAtPositionsQ(panPos)
-		return oYaxSub.YieldW(pcCondition, pcYielder)
 
-	# ItemsW / ItemsWXT / ItemsWXTQ: filter the list by an evaluated
+	# ItemsW / ItemsW / ItemsWXTQ: filter the list by an evaluated
 	# Ring expression where @item is the loop variable. Returns the
 	# items for which the expression is truthy. ItemsWXTQ wraps the
 	# result in stzList for fluent chains.
@@ -7018,14 +6937,10 @@ class stzList from stzObject
 
 		#-- XT form: the items at the positions found by the extended scan
 		#-- (supports @NextItem/... and Q(EXPR).Method(...)).
-		def ItemsWXT(pcCondition)
-			return This.ItemsAtPositions(This.FindAllItemsWXT(pcCondition))
 
 		def ItemsWQ(pcCondition)
 			return new stzList( This.ItemsW(pcCondition) )
 
-		def ItemsWXTQ(pcCondition)
-			return new stzList( This.ItemsWXT(pcCondition) )
 
 		def Where(pcCondition)
 			return This.ItemsW(pcCondition)
@@ -8005,8 +7920,6 @@ class stzList from stzObject
 		def NBoundsOf(pItem, pUpTo)
 			return This.BoundsCS(pItem, pUpTo, 1)
 
-	def CountWXT(pCondition)
-		return This.CountItemsWXT(pCondition)
 
 	def DupOrigins()
 		return This.Duplicates()
@@ -8035,8 +7948,12 @@ class stzList from stzObject
 	def NumberOfDuplicatesOf(pItem)
 		return This.NumberOfOccurrence(pItem)
 
-	def OnlyWhereXT(pcCondition)
-		return This.ItemsWXT(pcCondition)
+	def OnlyWhere(pcCondition)
+		return This.ItemsW(pcCondition)
+
+		def OnlyWhereW(pcCondition)
+			return This.ItemsW(pcCondition)
+
 
 	def RemoveCS(pItem, pCaseSensitive)
 		This.RemoveAllCS(pItem, pCaseSensitive)
@@ -8044,11 +7961,13 @@ class stzList from stzObject
 		def RemoveItemCS(pItem, pCaseSensitive)
 			This.RemoveAllCS(pItem, pCaseSensitive)
 
-	def NumberOfOccurrenceWXT(pCondition)
-		return This.CountItemsWXT(pCondition)
+	def NumberOfOccurrenceW(pCondition)
+		return This.CountItemsW(pCondition)
 
-		def NumberOfOccurrencesWXT(pCondition)
-			return This.CountItemsWXT(pCondition)
+		def NumberOfOccurrencesW(pCondition)
+			return This.CountItemsW(pCondition)
+
+
 
 	#-- True if at least one item satisfies the W condition.
 
@@ -9828,13 +9747,6 @@ class stzList from stzObject
 		nLast = This.NumberOfOccurrencesCS(pItem, pCaseSensitive)
 		return This.ExtractNthOccurrenceCS(nLast, pItem, pCaseSensitive)
 
-	def ExtractWXT(pcCondition)
-		# Remove every item matching the W-condition and return them all.
-		# FindW yields the positions of the matches.
-		anPos = This.FindW(pcCondition)
-		aResult = This.ItemsAtPositions(anPos)
-		This.RemoveItemsAtPositions(anPos)
-		return aResult
 
 	def FindNextSTCS(pItem, nStart, pCaseSensitive)
 		return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)

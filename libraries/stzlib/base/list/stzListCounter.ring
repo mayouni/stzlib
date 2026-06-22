@@ -83,34 +83,14 @@ class stzListCounter
 	 #     COUNTING ITEMS VERIFYING A GIVEN CONDITION -- XTended  #
 	#------------------------------------------------------------#
 
-	def CountItemsWXT(pCondition)
-		aItems = @oList.FindWXT(pCondition)
-		nResult = len(aItems)
-		return nResult
 
-		def CountWXT(pCondition)
-			return This.CountItemsWXT(pCondition)
 
-		def NumberOfOccurrencesWXT(pCondition)
-			return This.CountItemsWXT(pCondition)
 
-		def NumberOfItemsWXT(pCondition)
-			return This.CountItemsWXT(pCondition)
 
-		def HowManyItemsWXT(pcCondition)
-			return This.CountItemsWXT(pCondition)
 
-	def NumberOfUniqueItemsWXT(pCondition)
-		return len( @oList.UniqueItemsWXT(pCondition) )
 
-		def CountUniqueItemsWXT(pCondition)
-			return This.NumberOfUniqueItemsWXT(pCondition)
 
-		def CountItemsUWXT(pCondition)
-			return This.NumberOfUniqueItemsWXT(pCondition)
 
-		def HowManyUniqueItemsWXT(pcCondition)
-			return This.NumberOfUniqueItemsWXT(pCondition)
 
 	  #--------------------------------------------------------------------#
 	 #  INSERTING ITEM AFTER OR BEFORE ITEMS VERIFYING A GIVEN CONDITION  #
@@ -129,7 +109,7 @@ class stzListCounter
 
 	def InsertBeforeW(pcCondition, pNewItem)
 		anPos = @oList.FindItemsW(pcCondition)
-		@oList.InsertBeforeThesePositions(anPos, pNewItem)
+		@oList.InsertBeforeManyPositions(anPos, pNewItem)
 
 		def InsertBeforeWQ(pcCondition, pNewItem)
 			This.InsertBeforeW(pcCondition, pNewItem)
@@ -142,27 +122,11 @@ class stzListCounter
 	 #  INSERTING ITEM AFTER OR BEFORE ITEMS VERIFYING A GIVEN CONDITION -- WXT/EXTENDED  #
 	#------------------------------------------------------------------------------------#
 
-	def InsertAfterWXT( pcCondition, pNewItem )
-		anPos = @oList.FindItemsWXT(pcCondition)
-		@oList.InsertAfterManyPositions( anPos, pNewItem )
 
-		def InsertAfterWXTQ( pcCondition, pNewItem )
-			This.InsertAfterWXT( pCondition, pNewItem )
-			return This
 
-		def InsertAfterWhereXT(pcCondition, pNewItem)
-			This.InsertAfterWXT(pCondition, pNewItem)
 
-	def InsertBeforeWXT(pcCondition, pNewItem)
-		anPos = @oList.FindItemsWXT(pcCondition)
-		@oList.InsertBeforeThesePositions(anPos, pNewItem)
 
-		def InsertBeforeWXTQ(pcCondition, pNewItem)
-			This.InsertBeforeWXT(pcCondition, pNewItem)
-			return This
 
-		def InsertAtWXT(pcCondition, pNewItem)
-			This.InsertBeforeWXT(pcCondition, pNewItem)
 
 	  #======================================================#
 	 #   COUNT ITEMS OF SPECIFIC TYPE                       #

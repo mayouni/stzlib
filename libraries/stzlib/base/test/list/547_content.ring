@@ -1,6 +1,12 @@
 # Narrative
 # --------
-# pr()
+# RemoveW with a compound (OR) condition.
+#
+# The block '{ isNumber(@item) or isString(@item) }' selects every scalar
+# (numbers and strings) and RemoveW deletes them, leaving only the nested
+# list: [ 1, "a", "b", 2, 3, "c", 4, [ "..." ], "d" ] -> [ [ "..." ] ].
+# W is the single performant + expressive conditional form -- the predicate
+# can be any engine-evaluable boolean expression over @item.
 #
 # Extracted from stzlisttest.ring, block #547.
 
@@ -10,7 +16,7 @@ pr()
 
 StzListQ([ 1, "a", "b", 2, 3, "c", 4, [ "..." ], "d" ]) {
 
-	RemoveWXT('{
+	RemoveW('{
 		isNumber(@item) or
 		isString(@item)
 	}')
