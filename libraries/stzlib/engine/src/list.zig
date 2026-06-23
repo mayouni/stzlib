@@ -1030,8 +1030,14 @@ pub fn stz_list_classify_cs(list_arg: ?*const StzList, case_sensitive: i32) call
         const orig_len = valueToString(orig_item, &orig_buf);
         _ = stz_list_append_string(result, &orig_buf, orig_len);
 
-        // Build positions CSV (1-based)
-        var csv_buf: [65536]u8 = undefined;
+        // Build positions CSV (1-based). Size the buffer to the group:
+        // each position is at most 20 digits + a comma -> 21 bytes.
+        const grp_n = groups[gi].positions.items.len;
+        const csv_buf = allocator.alloc(u8, grp_n * 21 + 1) catch {
+            result.deinit();
+            return null;
+        };
+        defer allocator.free(csv_buf);
         var pos: usize = 0;
         for (groups[gi].positions.items, 0..) |idx, pi| {
             const val_1based = idx + 1;
@@ -1042,7 +1048,7 @@ pub fn stz_list_classify_cs(list_arg: ?*const StzList, case_sensitive: i32) call
                 pos += 1;
             }
         }
-        _ = stz_list_append_string(result, &csv_buf, pos);
+        _ = stz_list_append_string(result, csv_buf.ptr, pos);
     }
     return result;
 }

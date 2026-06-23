@@ -293,8 +293,18 @@ fn ring_FindW(p: *anyopaque) callconv(.c) void {
     rn(p, if (result >= 0) @as(f64, @floatFromInt(result + 1)) else 0);
 }
 fn ring_FindAllCS(p: *anyopaque) callconv(.c) void {
-    var positions: [65536]i64 = undefined;
-    const count = list.stz_list_find_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)), &positions, 65536);
+    const l = getLC(p, 1);
+    const n = if (l) |ll| ll.len() else 0;
+    if (n == 0) {
+        retPositions(p, &[_]i64{});
+        return;
+    }
+    const positions = std.heap.c_allocator.alloc(i64, n) catch {
+        retPositions(p, &[_]i64{});
+        return;
+    };
+    defer std.heap.c_allocator.free(positions);
+    const count = list.stz_list_find_cs(l, getV(p, 2), @intFromFloat(g(p, 3)), positions.ptr, n);
     retPositions(p, positions[0..count]);
 }
 fn ring_FindAllStringCS(p: *anyopaque) callconv(.c) void {
@@ -310,8 +320,13 @@ fn ring_FindAllStringCS(p: *anyopaque) callconv(.c) void {
         return;
     };
     defer value.stz_value_free(needle_val);
-    var positions: [65536]i64 = undefined;
-    const count = list.stz_list_find_cs(l, needle_val, cs, &positions, 65536);
+    const n = l.len();
+    const positions = std.heap.c_allocator.alloc(i64, if (n == 0) 1 else n) catch {
+        rcp(p, @as(?*anyopaque, null), HL);
+        return;
+    };
+    defer std.heap.c_allocator.free(positions);
+    const count = list.stz_list_find_cs(l, needle_val, cs, positions.ptr, positions.len);
     const result = list.StzList.init() catch {
         rcp(p, @as(?*anyopaque, null), HL);
         return;
@@ -320,6 +335,30 @@ fn ring_FindAllStringCS(p: *anyopaque) callconv(.c) void {
         _ = list.stz_list_append_int(result, positions[ci] + 1);
     }
     rcp(p, @ptrCast(result), HL);
+}
+
+// Find every position where a host item equals an ARBITRARY needle value
+// (number / string / nested list / ...). The needle is passed natively as
+// item[0] of a "holder" engine list, so it lives in the SAME (list) handle
+// table -- no cross-module value-handle marshalling, and no stringify. The
+// comparison is the engine's native structural valueEqlCS. 1-based positions.
+fn ring_FindAllHeldCS(p: *anyopaque) callconv(.c) void {
+    const host = getLC(p, 1);
+    const holder = getLC(p, 2);
+    const cs: i32 = @intFromFloat(g(p, 3));
+    const n = if (host) |h| h.len() else 0;
+    if (n == 0 or holder == null or holder.?.len() == 0) {
+        retPositions(p, &[_]i64{});
+        return;
+    }
+    const needle = list.stz_list_get(holder, 0);
+    const positions = std.heap.c_allocator.alloc(i64, n) catch {
+        retPositions(p, &[_]i64{});
+        return;
+    };
+    defer std.heap.c_allocator.free(positions);
+    const count = list.stz_list_find_cs(host, needle, cs, positions.ptr, n);
+    retPositions(p, positions[0..count]);
 }
 
 fn ring_CountStringCS(p: *anyopaque) callconv(.c) void {
@@ -354,8 +393,18 @@ fn ring_ContainsStringCS(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_FindAllW(p: *anyopaque) callconv(.c) void {
-    var positions: [65536]i64 = undefined;
-    const count = list.stz_list_find_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), &positions, 65536);
+    const l = getLC(p, 1);
+    const n = if (l) |ll| ll.len() else 0;
+    if (n == 0) {
+        retPositions(p, &[_]i64{});
+        return;
+    }
+    const positions = std.heap.c_allocator.alloc(i64, n) catch {
+        retPositions(p, &[_]i64{});
+        return;
+    };
+    defer std.heap.c_allocator.free(positions);
+    const count = list.stz_list_find_w(l, gs(p, 2), @intCast(gss(p, 2)), positions.ptr, n);
     retPositions(p, positions[0..count]);
 }
 fn ring_CountW(p: *anyopaque) callconv(.c) void {
@@ -874,6 +923,39 @@ fn ring_ExpandPath(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_expand_path(getLC(p, 1), getLC(p, 2))), HL);
 }
 
+// Append one engine StzValue to a Ring list (recursing into sub-lists),
+// building the Ring structure entirely engine-side.
+fn appendValueToRing(rl: *anyopaque, v: *const value.StzValue) void {
+    switch (v.tag) {
+        .int_val => R.ring_list_adddouble(rl, @floatFromInt(v.data.int_val)),
+        .float_val => R.ring_list_adddouble(rl, v.data.float_val),
+        .bool_val => R.ring_list_adddouble(rl, if (v.data.bool_val) 1 else 0),
+        .string_val => R.ring_list_addstring2(rl, v.data.string_val.ptr, @intCast(v.data.string_val.len)),
+        .null_val => R.ring_list_addstring2(rl, "", 0),
+        .list_val => {
+            const sub = R.ring_list_newlist(rl) orelse return;
+            const ld = v.data.list_val;
+            var i: usize = 0;
+            while (i < ld.len) : (i += 1) {
+                appendValueToRing(sub, ld.items[i]);
+            }
+        },
+    }
+}
+
+// Bulk engine->Ring unmarshal: build the whole Ring list (including nested
+// sub-lists) in ONE bridge call. Replaces the old per-item Ring loop
+// (StzEngineContentFromList) that made millions of FFI round-trips at scale.
+fn ring_ContentToRingList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (getLC(p, 1)) |l| {
+        for (l.items.items) |item| {
+            appendValueToRing(out, item);
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_MarshalFromRingList(p: *anyopaque) callconv(.c) void {
     if (R.ring_vm_api_islist(p, 1) == 0) {
         rcp(p, @as(?*anyopaque, null), HL);
@@ -932,6 +1014,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistreduceexprnoinit", .func = &ring_ReduceExprNoInit },
     .{ .name = "stzenginelistfindallcs", .func = &ring_FindAllCS },
     .{ .name = "stzenginelistfindallstringcs", .func = &ring_FindAllStringCS },
+    .{ .name = "stzenginelistfindallheldcs", .func = &ring_FindAllHeldCS },
     .{ .name = "stzenginelistcountstringcs", .func = &ring_CountStringCS },
     .{ .name = "stzenginelistcontainsstringcs", .func = &ring_ContainsStringCS },
     .{ .name = "stzenginelistfindw", .func = &ring_FindW },
@@ -996,6 +1079,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistproduct", .func = &ring_Product },
     .{ .name = "stzenginelistmean", .func = &ring_Mean },
     .{ .name = "stzenginelistmarshalfromringlist", .func = &ring_MarshalFromRingList },
+    .{ .name = "stzenginelistcontenttoringlist", .func = &ring_ContentToRingList },
     .{ .name = "stzenginelistisalllists", .func = &ring_IsAllLists },
     .{ .name = "stzenginelistisallpairs", .func = &ring_IsAllPairs },
     .{ .name = "stzenginelistisallsections", .func = &ring_IsAllSections },

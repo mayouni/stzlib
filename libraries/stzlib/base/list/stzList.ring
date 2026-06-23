@@ -3260,46 +3260,52 @@ class stzList from stzObject
 			return []
 		ok
 
-		# Fallback for lists/objects: stringify and compare
+		# LIST needle: native engine value-find. The needle is marshalled as
+		# item[0] of a holder list, so the engine compares it structurally
+		# (valueEqlCS) against each item -- O(n) with no per-item stringify.
+		# (The old Ring stringify-and-compare fallback -- @@() on every item --
+		# was O(n) allocations and ~16s at a million items; it is retired now
+		# that the engine's native stzValue compare handles nested lists.)
+		if isList(pItem)
+			_pFaoHost_ = This._EngineListFromContent()
+			if _pFaoHost_ = NULL return [] ok
+			_pFaoHolder_ = StzEngineMarshalList([ pItem ])
+			if _pFaoHolder_ = NULL
+				StzEngineListFree(_pFaoHost_)
+				return []
+			ok
+			_anFaoOut_ = StzEngineListFindAllHeldCS(_pFaoHost_, _pFaoHolder_, pCaseSensitive)
+			StzEngineListFree(_pFaoHolder_)
+			StzEngineListFree(_pFaoHost_)
+			if NOT isList(_anFaoOut_) return [] ok
+			return _anFaoOut_
+		ok
+
+		# OBJECT needle (rare): objects are not engine stzValues, so compare
+		# by object name among the OBJECT items only (no whole-list stringify).
 		_aFaoContent_ = This.Content()
 		_nFaoLen_ = len(_aFaoContent_)
-
 		_cFaoItem_ = ""
-		if isList(pItem)
-			_cFaoItem_ = @@(pItem)
-		but isObject(pItem) and @IsStzObject(pItem) and pItem.IsNamed()
+		if isObject(pItem) and @IsStzObject(pItem) and pItem.IsNamed()
 			_cFaoItem_ = pItem.ObjectName()
 		else
 			_cFaoItem_ = Q(pItem).Stringified()
 		ok
-
-		_acFaoContent_ = []
-		for _kFao_ = 1 to _nFaoLen_
-			# Use @@(...) -- it stringifies lists/objects safely.
-			# Was `"" + _aFaoContent_[_kFao_]` which raised R21 for
-			# list-valued items (e.g. FindPair on stzListOfPairs).
-			_xFao_ = _aFaoContent_[_kFao_]
-			if isList(_xFao_) or isObject(_xFao_)
-				_acFaoContent_ + @@(_xFao_)
-			else
-				_acFaoContent_ + ("" + _xFao_)
-			ok
-		next
-
-		if pCaseSensitive = 0
-			_cFaoItem_ = StzLower(_cFaoItem_)
-			for _iFao2_ = 1 to _nFaoLen_
-				_acFaoContent_[_iFao2_] = StzLower(_acFaoContent_[_iFao2_])
-			next
-		ok
-
 		_anFaoResult_ = []
 		for _iFao3_ = 1 to _nFaoLen_
-			if _acFaoContent_[_iFao3_] = _cFaoItem_
-				_anFaoResult_ + _iFao3_
+			_xFao_ = _aFaoContent_[_iFao3_]
+			if isObject(_xFao_)
+				_cCurFao_ = ""
+				if @IsStzObject(_xFao_) and _xFao_.IsNamed()
+					_cCurFao_ = _xFao_.ObjectName()
+				else
+					_cCurFao_ = @@(_xFao_)
+				ok
+				if _cCurFao_ = _cFaoItem_
+					_anFaoResult_ + _iFao3_
+				ok
 			ok
 		next
-
 		return _anFaoResult_
 
 		def FindCS(pItem, pCaseSensitive)
