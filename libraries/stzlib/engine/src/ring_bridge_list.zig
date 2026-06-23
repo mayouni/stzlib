@@ -332,6 +332,28 @@ fn ring_FindAllCS(p: *anyopaque) callconv(.c) void {
     const count = list.stz_list_find_cs(l, getV(p, 2), @intFromFloat(g(p, 3)), positions.ptr, n);
     retPositions(p, positions[0..count]);
 }
+// Find all positions of an INTEGER needle, returned as a ready Ring list of
+// 1-based positions. Needle passed as a plain number (no *StzValue handle), so
+// this sidesteps the cross-module value-handle bug that the Ring number-find
+// path was working around. Dense int-mode scans the i64 array directly.
+fn ring_FindAllInt(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (getLCTyped(p, 1)) |l| {
+        const needle: i64 = @intFromFloat(g(p, 2));
+        if (l.ints) |arr| {
+            for (arr.items, 0..) |x, i| {
+                if (x == needle) R.ring_list_adddouble(out, @floatFromInt(i + 1));
+            }
+        } else {
+            for (l.items.items, 0..) |item, i| {
+                if (item.tag == .int_val and item.data.int_val == needle)
+                    R.ring_list_adddouble(out, @floatFromInt(i + 1));
+            }
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_FindAllStringCS(p: *anyopaque) callconv(.c) void {
     const l = getLC(p, 1) orelse {
         rcp(p, @as(?*anyopaque, null), HL);
@@ -1152,6 +1174,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistreduceexprnoinit", .func = &ring_ReduceExprNoInit },
     .{ .name = "stzenginelistfindallcs", .func = &ring_FindAllCS },
     .{ .name = "stzenginelistfindallstringcs", .func = &ring_FindAllStringCS },
+    .{ .name = "stzenginelistfindallint", .func = &ring_FindAllInt },
     .{ .name = "stzenginelistfindallheldcs", .func = &ring_FindAllHeldCS },
     .{ .name = "stzenginelistcountstringcs", .func = &ring_CountStringCS },
     .{ .name = "stzenginelistcontainsstringcs", .func = &ring_ContainsStringCS },
