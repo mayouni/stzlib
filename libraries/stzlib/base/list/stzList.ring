@@ -19,6 +19,16 @@
 class stzList from stzObject
 	@aContent = []
 
+	# Engine-residency state (see _ENGINE_RESIDENCY_PLAN.md).
+	# @pEngine is an engine StzList handle (or NULL). When set, it is the
+	# source of truth and @aContent is a lazily-rebuilt Ring cache of it.
+	# @bRingDirty = TRUE means @aContent is stale and must be rebuilt from
+	# @pEngine on the next _Content() read. In Slice 1 @pEngine stays NULL
+	# (no op populates it yet), so @aContent remains canonical and behavior
+	# is unchanged.
+	@pEngine = NULL
+	@bRingDirty = FALSE
+
 	@aWalkers = []
 
 	These
@@ -37,7 +47,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		@aContent = paList
+		This._SetContent(paList)
 		These = This
 		Those = This
 
@@ -90,7 +100,7 @@ class stzList from stzObject
 			return new stzList(This.Content())
 
 	def Content()
-		return @aContent
+		return This._Content()
 
 		def ContentQ()
 			return new stzList(This.Content())
@@ -449,7 +459,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		@aContent = paNewList
+		This._SetContent(paNewList)
 
 		if _bInHistoryUpdate = 0
 			@TraceObjectHistory(This)
@@ -1538,6 +1548,59 @@ class stzList from stzObject
 
 	def _ContentFromEngineList(pList)
 		return StzEngineContentFromList(pList)
+
+	  #----------------------------------------------#
+	 #  ENGINE-RESIDENCY GETTER / SETTERS (Slice 1) #
+	#----------------------------------------------#
+
+	#-- Canonical content getter. Returns the Ring list. If the engine
+	#   handle is the source of truth and the Ring cache is stale, it is
+	#   rebuilt once (bulk) and cached until the next mutation. In Slice 1
+	#   @pEngine is always NULL, so this just returns @aContent.
+
+	def _Content()
+		if @bRingDirty and @pEngine != NULL
+			@aContent = StzEngineContentFromList(@pEngine)
+			@bRingDirty = FALSE
+		ok
+		return @aContent
+
+	#-- Canonical Ring-side setter. Makes @aContent the source of truth and
+	#   drops any stale engine handle. This is the single chokepoint every
+	#   Ring-list mutation should route through.
+
+	def _SetContent(paRing)
+		@aContent = paRing
+		if @pEngine != NULL
+			StzEngineListFree(@pEngine)
+			@pEngine = NULL
+		ok
+		@bRingDirty = FALSE
+		return This
+
+	#-- Canonical engine-side setter. Adopts an engine list handle as the
+	#   source of truth and marks the Ring cache dirty so _Content() rebuilds
+	#   it lazily on next read. Frees a previously-held (different) handle.
+	#   Used by the hot ops migrated in Slice 2+.
+
+	def _SetEngine(pHandle)
+		if @pEngine != NULL and @pEngine != pHandle
+			StzEngineListFree(@pEngine)
+		ok
+		@pEngine = pHandle
+		@bRingDirty = TRUE
+		return This
+
+	#-- Returns a live engine handle reflecting current content, marshalling
+	#   from @aContent once and caching it. NOTE (Slice 1): not yet used by
+	#   read ops -- they still marshal-and-free per call. Migrated in Slice 2.
+
+	def _Engine()
+		if @pEngine = NULL
+			@pEngine = StzEngineMarshalList(@aContent)
+			@bRingDirty = FALSE
+		ok
+		return @pEngine
 
 	  #------------------------------#
 	 #  SORTING (engine-backed)     #
