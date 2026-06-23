@@ -702,16 +702,16 @@ fn ring_Sum(p: *anyopaque) callconv(.c) void {
     rn(p, list.stz_list_sum(getLCTyped(p, 1)));
 }
 fn ring_Min(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_min(getLC(p, 1)));
+    rn(p, list.stz_list_min(getLCTyped(p, 1)));
 }
 fn ring_Max(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_max(getLC(p, 1)));
+    rn(p, list.stz_list_max(getLCTyped(p, 1)));
 }
 fn ring_Product(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_product(getLC(p, 1)));
+    rn(p, list.stz_list_product(getLCTyped(p, 1)));
 }
 fn ring_Mean(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_mean(getLC(p, 1)));
+    rn(p, list.stz_list_mean(getLCTyped(p, 1)));
 }
 fn ring_Join(p: *anyopaque) callconv(.c) void {
     var buf: [65536]u8 = undefined;
