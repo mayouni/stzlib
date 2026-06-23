@@ -19,15 +19,13 @@
 class stzList from stzObject
 	@aContent = []
 
-	# Engine-residency state (see _ENGINE_RESIDENCY_PLAN.md).
-	# @pEngine is an engine StzList handle (or NULL). When set, it is the
-	# source of truth and @aContent is a lazily-rebuilt Ring cache of it.
-	# @bRingDirty = TRUE means @aContent is stale and must be rebuilt from
-	# @pEngine on the next _Content() read. In Slice 1 @pEngine stays NULL
-	# (no op populates it yet), so @aContent remains canonical and behavior
-	# is unchanged.
-	@pEngine = NULL
-	@bRingDirty = FALSE
+	# Engine-residency (see _ENGINE_RESIDENCY_PLAN.md). @aContent is ALWAYS
+	# the source of truth; @pEngineGen is a generation token into the engine-
+	# side residency cache (0 = no cached handle). The cache OWNS and bounds
+	# the marshalled engine handle (FIFO eviction over item/entry caps) so a
+	# cached handle never leaks despite Ring having no object destructors.
+	# On a cache miss (evicted) _Engine() simply re-marshals from @aContent.
+	@pEngineGen = 0
 
 	@aWalkers = []
 
@@ -1552,92 +1550,65 @@ class stzList from stzObject
 	def _ContentFromEngineList(pList)
 		return StzEngineContentFromList(pList)
 
-	  #----------------------------------------------#
-	 #  ENGINE-RESIDENCY GETTER / SETTERS (Slice 1) #
-	#----------------------------------------------#
+	  #-----------------------------------------------------#
+	 #  ENGINE-RESIDENCY CACHE ACCESS (Model A + keystone) #
+	#-----------------------------------------------------#
+	#
+	#  @aContent is ALWAYS the source of truth. @pEngineGen indexes the
+	#  bounded engine-side residency cache, which OWNS the marshalled handle.
+	#  On a cache miss (evicted under pressure) _Engine() re-marshals from
+	#  @aContent. This is what makes residency safe without object destructors.
 
-	#-- Canonical content getter. Returns the Ring list. If the engine
-	#   handle is the source of truth and the Ring cache is stale, it is
-	#   rebuilt once (bulk) and cached until the next mutation. In Slice 1
-	#   @pEngine is always NULL, so this just returns @aContent.
-
+	#-- Canonical content getter (Model A: @aContent is never stale).
 	def _Content()
-		if @bRingDirty and @pEngine != NULL
-			@aContent = StzEngineContentFromList(@pEngine)
-			@bRingDirty = FALSE
-		ok
 		return @aContent
 
-	#-- Canonical Ring-side setter. Makes @aContent the source of truth and
-	#   drops any stale engine handle. This is the single chokepoint every
-	#   Ring-list mutation should route through.
-
+	#-- Ring-side setter: @aContent becomes truth; drop any cached handle.
 	def _SetContent(paRing)
 		@aContent = paRing
-		if @pEngine != NULL
-			StzEngineListFree(@pEngine)
-			@pEngine = NULL
-		ok
-		@bRingDirty = FALSE
+		This._InvalidateEngine()
 		return This
 
-	#-- Canonical engine-side setter. Adopts an engine list handle as the
-	#   source of truth and marks the Ring cache dirty so _Content() rebuilds
-	#   it lazily on next read. Frees a previously-held (different) handle.
-	#   Used by the hot ops migrated in Slice 2+.
-
-	def _SetEngine(pHandle)
-		if @pEngine != NULL and @pEngine != pHandle
-			StzEngineListFree(@pEngine)
-		ok
-		@pEngine = pHandle
-		@bRingDirty = TRUE
-		return This
-
-	#-- Returns a live engine handle reflecting current content, marshalling
-	#   from @aContent once and caching it. NOTE (Slice 1): not yet used by
-	#   read ops -- they still marshal-and-free per call. Migrated in Slice 2.
-
+	#-- Live engine handle id for the current content. Reuses the warm cached
+	#   handle if still resident; otherwise marshals once and registers it.
 	def _Engine()
-		if @pEngine = NULL
-			@pEngine = StzEngineMarshalList(@aContent)
-			@bRingDirty = FALSE
+		if @pEngineGen != 0
+			_hEng_ = StzEngineListCacheGet(@pEngineGen)
+			if _hEng_ != 0
+				return _hEng_
+			ok
+			@pEngineGen = 0   # was evicted under cache pressure
 		ok
-		return @pEngine
+		_hEng_ = StzEngineMarshalList(@aContent)
+		@pEngineGen = StzEngineListCacheRegister(_hEng_)
+		return _hEng_
 
-	#-- Drops the cached engine handle. Called by any raw-Ring write that
-	#   mutates @aContent in place (so it can't route through _SetContent).
-	#   Cheap no-op when no handle is cached.
-
+	#-- Drop the cached handle (engine frees it + releases its handle slot).
+	#   Called by every write so the cache can never go stale.
 	def _InvalidateEngine()
-		if @pEngine != NULL
-			StzEngineListFree(@pEngine)
-			@pEngine = NULL
+		if @pEngineGen != 0
+			StzEngineListCacheInvalidate(@pEngineGen)
+			@pEngineGen = 0
 		ok
-		@bRingDirty = FALSE
 		return This
 
-	#-- Adopts a fresh engine result handle as the new content (source of
-	#   truth in Model A stays @aContent, so materialize it eagerly), reusing
-	#   the handle as the warm cache. Frees the previous cached handle.
-	#   Used by engine ops that RETURN a new handle which becomes the content.
-
+	#-- Adopt an engine result handle as the new content: materialize @aContent
+	#   (Model A truth) and keep the handle warm in the cache. Used by ops that
+	#   RETURN a new handle which becomes the content (dedup/flatten/merge).
 	def _AdoptEngine(pHandle)
-		if @pEngine != NULL and @pEngine != pHandle
-			StzEngineListFree(@pEngine)
-		ok
-		@pEngine = pHandle
+		This._InvalidateEngine()
 		@aContent = StzEngineContentFromList(pHandle)
-		@bRingDirty = FALSE
+		@pEngineGen = StzEngineListCacheRegister(pHandle)
 		return This
 
-	#-- Resyncs @aContent after an engine op mutated the cached handle
-	#   (@pEngine) in place (e.g. sort/reverse). Keeps the cache warm.
-
+	#-- Resync @aContent after an engine op mutated the cached handle in place
+	#   (e.g. sort/reverse). Keeps the cache warm (gen unchanged).
 	def _RefreshFromEngine()
-		if @pEngine != NULL
-			@aContent = StzEngineContentFromList(@pEngine)
-			@bRingDirty = FALSE
+		if @pEngineGen != 0
+			_hEng_ = StzEngineListCacheGet(@pEngineGen)
+			if _hEng_ != 0
+				@aContent = StzEngineContentFromList(_hEng_)
+			ok
 		ok
 		return This
 
@@ -1940,7 +1911,6 @@ class stzList from stzObject
 			ok
 		ok
 
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return nResult
 
 	  #----------------------------------------------#
@@ -2034,7 +2004,6 @@ class stzList from stzObject
 			aResult = This._ContentFromEngineList(pUnique)
 			StzEngineListFree(pUnique)
 		ok
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return aResult
 
 	def WithoutDuplication()
@@ -2099,7 +2068,6 @@ class stzList from stzObject
 		_pFdList_ = This._Engine()
 		if _pFdList_ != NULL
 			_aFdRes_ = StzEngineListFindDuplicatesCS(_pFdList_, 1)
-			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			return _aFdRes_
 		ok
 		_aRes_ = []
@@ -2296,7 +2264,6 @@ class stzList from stzObject
 			aResult = This._ContentFromEngineList(pFlat)
 			StzEngineListFree(pFlat)
 		ok
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return aResult
 
 	  #-------------------------------------------#
@@ -2324,14 +2291,12 @@ class stzList from stzObject
 		_oEqOther_ = new stzList(paOtherList)
 		_pEqList2_ = _oEqOther_._EngineListFromContent()
 		if _pEqList2_ = NULL
-			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			return 0
 		ok
 
 		_nAsubB_ = StzEngineListIsSubsetCS(_pEqList1_, _pEqList2_, pCaseSensitive)
 		_nBsubA_ = StzEngineListIsSubsetCS(_pEqList2_, _pEqList1_, pCaseSensitive)
 		StzEngineListFree(_pEqList2_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 
 		return _nAsubB_ and _nBsubA_
 
@@ -2358,13 +2323,11 @@ class stzList from stzObject
 		_oSeOther_ = new stzList(paOtherList)
 		_pSeList2_ = _oSeOther_._EngineListFromContent()
 		if _pSeList2_ = NULL
-			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			return 0
 		ok
 
 		_nSeResult_ = StzEngineListEqualsCS(_pSeList1_, _pSeList2_, pCaseSensitive)
 		StzEngineListFree(_pSeList2_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 
 		return _nSeResult_
 
@@ -2392,7 +2355,6 @@ class stzList from stzObject
 		_pSwPrefix_ = StzEngineMarshalList(paItems)
 		_nSwResult_ = StzEngineListStartsWithListCS(_pSwList_, _pSwPrefix_, pCaseSensitive)
 		StzEngineListFree(_pSwPrefix_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nSwResult_
 
 	def StartsWith(paItems)
@@ -2403,7 +2365,6 @@ class stzList from stzObject
 		_pEwSuffix_ = StzEngineMarshalList(paItems)
 		_nEwResult_ = StzEngineListEndsWithListCS(_pEwList_, _pEwSuffix_, pCaseSensitive)
 		StzEngineListFree(_pEwSuffix_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nEwResult_
 
 	def EndsWith(paItems)
@@ -2422,7 +2383,6 @@ class stzList from stzObject
 		aResult = This._ContentFromEngineList(pResult)
 
 		StzEngineListFree(pResult)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return aResult
 
 		def MapQ(pcExpr)
@@ -2437,7 +2397,6 @@ class stzList from stzObject
 		aResult = This._ContentFromEngineList(pResult)
 
 		StzEngineListFree(pResult)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return aResult
 
 		def FilterQ(pcExpr)
@@ -2483,7 +2442,6 @@ class stzList from stzObject
 		pcExpr = _StzStripBraces(pcExpr)
 		result = StzEngineListReduceExpr(pList, pcExpr, pInitValue)
 
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return result
 
 	def ReduceNoInit(pcExpr)
@@ -2493,7 +2451,6 @@ class stzList from stzObject
 		pcExpr = _StzStripBraces(pcExpr)
 		result = StzEngineListReduceExprNoInit(pList, pcExpr)
 
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return result
 
 	def CountW(pcCondition)
@@ -2503,7 +2460,6 @@ class stzList from stzObject
 		pcCondition = _StzStripBraces(pcCondition)
 		nResult = StzEngineListCountW(pList, pcCondition)
 
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return nResult
 
 		def CountWhere(pcCondition)
@@ -3331,7 +3287,6 @@ class stzList from stzObject
 				return []
 			ok
 			_pFaoResult_ = StzEngineListFindAllStringCS(_pFaoList_, pItem, pCaseSensitive)
-			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			if _pFaoResult_ = NULL
 				return []
 			ok
@@ -3363,12 +3318,10 @@ class stzList from stzObject
 			if _pFaoHost_ = NULL return [] ok
 			_pFaoHolder_ = StzEngineMarshalList([ pItem ])
 			if _pFaoHolder_ = NULL
-				This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 				return []
 			ok
 			_anFaoOut_ = StzEngineListFindAllHeldCS(_pFaoHost_, _pFaoHolder_, pCaseSensitive)
 			StzEngineListFree(_pFaoHolder_)
-			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			if NOT isList(_anFaoOut_) return [] ok
 			return _anFaoOut_
 		ok
@@ -4553,7 +4506,6 @@ class stzList from stzObject
 		if pList = NULL return [] ok
 		# Engine returns a ready list of 1-based positions (built Zig-side).
 		anAll = StzEngineListFindAllW(pList, pcCondition)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 
 		#-- Fast path: no bounding needed.
 		if nStart = 1 and nEnd = nLen
@@ -5027,21 +4979,18 @@ class stzList from stzObject
 		if len(@aContent) = 0 return 0 ok
 		_pSmList_ = This._Engine()
 		_nSmResult_ = StzEngineListSum(_pSmList_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nSmResult_
 
 	def Product()
 		if len(@aContent) = 0 return 0 ok
 		_pPrList_ = This._Engine()
 		_nPrResult_ = StzEngineListProduct(_pPrList_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nPrResult_
 
 	def Mean()
 		if len(@aContent) = 0 return 0 ok
 		_pMnList_ = This._Engine()
 		_nMnResult_ = StzEngineListMean(_pMnList_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nMnResult_
 
 		def Average()
@@ -5053,14 +5002,12 @@ class stzList from stzObject
 		if len(@aContent) = 0 return 0 ok
 		_pVarList_ = This._Engine()
 		_nVarResult_ = StzEngineListVariance(_pVarList_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nVarResult_
 
 	def Stddev()
 		if len(@aContent) = 0 return 0 ok
 		_pSdList_ = This._Engine()
 		_nSdResult_ = StzEngineListStddev(_pSdList_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nSdResult_
 
 		def StandardDeviation()
@@ -5072,7 +5019,6 @@ class stzList from stzObject
 		if len(@aContent) = 0 return 0 ok
 		_pMdList_ = This._Engine()
 		_nMdResult_ = StzEngineListMedian(_pMdList_)
-		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nMdResult_
 
 	def NthSmallest(n)
