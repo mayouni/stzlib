@@ -8587,18 +8587,6 @@ func NStepsATime(p)
 func TakingNEqualMoves(p)
 	return [ :NEqualMoves, p ]
 
-#-- Evaluate a walker yielder expression at global scope (NOT inside a class
-#-- method -- there, a bare call like type(item) would bind to a same-named
-#-- method on the receiver). @item / @char / item / Item all denote the value.
-func _StzEvalWalkExpr(pcYielder, item)
-	Item = item
-	_cWe_ = pcYielder
-	_cWe_ = StzReplace(_cWe_, "@item", "item")
-	_cWe_ = StzReplace(_cWe_, "@char", "item")
-	_cWe_ = _StzStripBraces(_cWe_)
-	eval("_walkyieldres_ = (" + _cWe_ + ")")
-	return _walkyieldres_
-
   /////////////////
  ///   CLASS   ///
 /////////////////
