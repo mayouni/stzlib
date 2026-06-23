@@ -675,17 +675,21 @@ pub fn stz_list_reverse(list: ?*StzList) callconv(.c) i32 {
 pub fn stz_list_unique_cs(list: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
     const l = list orelse return null;
     const cs = case_sensitive != 0;
+    // Dense int-mode: native O(n) dedup -> dense result.
+    if (l.ints != null) return uniqueIntsFast(l.ints.?.items);
+    @constCast(l).ensureBoxed();
     const result = StzList.init() catch return null;
 
+    // O(n) via the value hash-set (was O(n^2): a nested scan of the result --
+    // fine only when the distinct count is tiny, catastrophic otherwise).
+    var seen = newValueSet(cs);
+    defer seen.deinit();
     for (l.items.items) |item| {
-        var found = false;
-        for (result.items.items) |existing| {
-            if (valueEqlCS(existing, item, cs)) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
+        const gop = seen.getOrPut(item) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) {
             result.appendClone(item) catch {
                 result.deinit();
                 return null;
@@ -1587,10 +1591,97 @@ pub fn stz_list_all_unique_cs(list_arg: ?*const StzList, case_sensitive: i32) ca
 
 // ─── C ABI: Set Operations ───
 
+// ─── Dense int-mode set-op / dedup fast paths (native i64 hash-set) ───
+//
+// When inputs are dense INT-MODE, set-ops run on contiguous i64 arrays with a
+// native AutoHashMap(i64) -- no pointer-chasing boxed values, no structural
+// value hashing -- and build a dense int-mode result. Near-native speed.
+
+const IntSet = std.AutoHashMapUnmanaged(i64, void);
+
+fn unionIntsFast(a: []const i64, b: []const i64) ?*StzList {
+    const result = StzList.initInts(a.len) catch return null;
+    var seen = IntSet{};
+    defer seen.deinit(allocator);
+    seen.ensureTotalCapacity(allocator, @intCast(a.len + b.len)) catch {};
+    for (a) |x| {
+        const gop = seen.getOrPut(allocator, x) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) result.ints.?.append(allocator, x) catch {};
+    }
+    for (b) |x| {
+        const gop = seen.getOrPut(allocator, x) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) result.ints.?.append(allocator, x) catch {};
+    }
+    return result;
+}
+
+fn intersectionIntsFast(a: []const i64, b: []const i64, keep_dups: bool) ?*StzList {
+    const result = StzList.initInts(0) catch return null;
+    var bset = IntSet{};
+    defer bset.deinit(allocator);
+    bset.ensureTotalCapacity(allocator, @intCast(b.len)) catch {};
+    for (b) |x| bset.put(allocator, x, {}) catch {};
+    if (keep_dups) {
+        // common-items: keep left order AND duplicates
+        for (a) |x| {
+            if (bset.contains(x)) result.ints.?.append(allocator, x) catch {};
+        }
+        return result;
+    }
+    var seen = IntSet{};
+    defer seen.deinit(allocator);
+    for (a) |x| {
+        if (!bset.contains(x)) continue;
+        const gop = seen.getOrPut(allocator, x) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) result.ints.?.append(allocator, x) catch {};
+    }
+    return result;
+}
+
+fn differenceIntsFast(a: []const i64, b: []const i64) ?*StzList {
+    const result = StzList.initInts(0) catch return null;
+    var bset = IntSet{};
+    defer bset.deinit(allocator);
+    bset.ensureTotalCapacity(allocator, @intCast(b.len)) catch {};
+    for (b) |x| bset.put(allocator, x, {}) catch {};
+    for (a) |x| {
+        if (!bset.contains(x)) result.ints.?.append(allocator, x) catch {};
+    }
+    return result;
+}
+
+fn uniqueIntsFast(a: []const i64) ?*StzList {
+    const result = StzList.initInts(0) catch return null;
+    var seen = IntSet{};
+    defer seen.deinit(allocator);
+    seen.ensureTotalCapacity(allocator, @intCast(a.len)) catch {};
+    for (a) |x| {
+        const gop = seen.getOrPut(allocator, x) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) result.ints.?.append(allocator, x) catch {};
+    }
+    return result;
+}
+
 pub fn stz_list_intersection_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
     const la = a orelse return StzList.init() catch null;
     const lb = b orelse return StzList.init() catch null;
     const cs = case_sensitive != 0;
+    if (la.ints != null and lb.ints != null)
+        return intersectionIntsFast(la.ints.?.items, lb.ints.?.items, false);
+    @constCast(la).ensureBoxed();
+    @constCast(lb).ensureBoxed();
     const result = StzList.init() catch return null;
 
     // O(n+m): hash-set of b's values, plus a "seen" set to dedup the result.
@@ -1619,6 +1710,10 @@ pub fn stz_list_common_items_cs(a: ?*const StzList, b: ?*const StzList, case_sen
     const la = a orelse return StzList.init() catch null;
     const lb = b orelse return StzList.init() catch null;
     const cs = case_sensitive != 0;
+    if (la.ints != null and lb.ints != null)
+        return intersectionIntsFast(la.ints.?.items, lb.ints.?.items, true);
+    @constCast(la).ensureBoxed();
+    @constCast(lb).ensureBoxed();
     const result = StzList.init() catch return null;
 
     // O(n+m): keep left order AND duplicates; just test membership in b.
@@ -1641,6 +1736,10 @@ pub fn stz_list_union_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive:
     const la = a orelse return if (b != null) stz_list_clone(b) else StzList.init() catch null;
     const lb = b orelse return stz_list_clone(a);
     const cs = case_sensitive != 0;
+    if (la.ints != null and lb.ints != null)
+        return unionIntsFast(la.ints.?.items, lb.ints.?.items);
+    @constCast(la).ensureBoxed();
+    @constCast(lb).ensureBoxed();
     const result = stz_list_clone(la) orelse return null;
 
     // O(n+m): seed the seen-set from a's items, then add b-items not seen.
@@ -1667,6 +1766,10 @@ pub fn stz_list_difference_cs(a: ?*const StzList, b: ?*const StzList, case_sensi
     const la = a orelse return StzList.init() catch null;
     const lb = b orelse return stz_list_clone(a);
     const cs = case_sensitive != 0;
+    if (la.ints != null and lb.ints != null)
+        return differenceIntsFast(la.ints.?.items, lb.ints.?.items);
+    @constCast(la).ensureBoxed();
+    @constCast(lb).ensureBoxed();
     const result = StzList.init() catch return null;
 
     // O(n+m): items of a not present in b.
