@@ -722,6 +722,26 @@ func @@NL1(pValue)
 	_cAanl1Result_ += "]"
 	return _cAanl1Result_
 
+#-- @@XT: the EXTENDED computable form -- like @@NL but with a caller-chosen
+#-- line separator and per-element prefix. @@XT(list, NL, TAB) == @@NL(list);
+#-- pass a custom prefix (e.g. "#" + TAB) to indent/annotate each row.
+func @@XT(pValue, pcSep, pcPrefix)
+	if NOT isList(pValue)
+		return @@(pValue)
+	ok
+	_cAaxtRes_ = "[" + pcSep
+	_nAaxtLen_ = len(pValue)
+	for _iAaxt_ = 1 to _nAaxtLen_
+		_cAaxtRes_ += pcPrefix + @@(pValue[_iAaxt_])
+		if _iAaxt_ < _nAaxtLen_
+			_cAaxtRes_ += "," + pcSep
+		else
+			_cAaxtRes_ += pcSep
+		ok
+	next
+	_cAaxtRes_ += pcPrefix + "]"
+	return _cAaxtRes_
+
 func @@S(pValue)
     return ComputableShortForm(pValue)
 

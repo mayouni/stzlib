@@ -1,9 +1,20 @@
 # Narrative
 # --------
-# pr()
+# Inspecting the TYPES present in a heterogeneous list.
+#
+# Softanza classifies every item by its Ring type ("NUMBER", "STRING",
+# "LIST", "OBJECT"). Three views:
+#   * TypesU()                -- the DISTINCT types present, in order of
+#                                first appearance.
+#   * ItemsAndTheirTypes()    -- each item paired with its type name.
+#   * TypesAndTheirSections() -- per distinct type, the [start,end] position
+#                                ranges of its maximal same-type runs
+#                                (alias TypesZZ).
+# @@XT(list, separator, prefix) is the extended computable-form printer: like
+# @@NL but with a caller-chosen line separator and per-row prefix, so each
+# top-level row prints compactly on its own indented line.
 #
 # Extracted from stzlisttest.ring, block #31.
-#ERR Error (R14) : Calling Method without definition: typesu
 
 load "../../stzBase.ring"
 
@@ -25,7 +36,7 @@ o1 = new stzList([
 ? o1.TypesU()
 #--> [ "NUMBER", "STRING", "LIST", "OBJECT" ]
 
-? @@XT( o1.ItemsAndTheirTypes(), NL, ("#" + TAB) ) + NL
+? @@XT( o1.ItemsAndTheirTypes(), NL, TAB )
 #--> [
 #	[ 1, "NUMBER" ],
 #	[ 2, "NUMBER" ],
@@ -46,15 +57,15 @@ o1 = new stzList([
 #	[ @nullobject, "OBJECT" ],
 #	[ @trueobject, "OBJECT" ],
 #	[ @falseobject, "OBJECT" ]
-# ]
+#	]
 
-? @@NL( o1.TypesAndTheirSections() ) # same as TypesZZ()
+? @@XT( o1.TypesAndTheirSections(), NL, TAB ) # same as TypesZZ()
 #--> [
 #	[ "NUMBER", [ [ 1, 3 ], [ 7, 8 ], [ 15, 16 ] ] ],
 #	[ "STRING", [ [ 4, 6 ], [ 12, 13 ] ] ],
 #	[ "LIST", [ [ 9, 11 ], [ 14, 14 ] ] ],
-#	[ "NUMBER", [ [ 17, 19 ] ] ]
-# ]
+#	[ "OBJECT", [ [ 17, 19 ] ] ]
+#	]
 
 pf()
 # Executed in 0.02 second(s)

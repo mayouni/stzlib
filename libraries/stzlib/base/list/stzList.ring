@@ -7675,6 +7675,68 @@ class stzList from stzObject
 		def UniqueTypesQ()
 			return new stzList( This.UniqueTypes() )
 
+	#-- ItemsAndTheirTypes: each item paired with its type name, in order.
+	#-- e.g. [ 1, "A", [2] ] -> [ [1,"NUMBER"], ["A","STRING"], [[2],"LIST"] ].
+	def ItemsAndTheirTypes()
+		_aItt_ = []
+		_nIttLen_ = len(@aContent)
+		for _iItt_ = 1 to _nIttLen_
+			_aItt_ + [ @aContent[_iItt_], ring_type(@aContent[_iItt_]) ]
+		next
+		return _aItt_
+
+		def ItemsAndTheirTypesQ()
+			return new stzList( This.ItemsAndTheirTypes() )
+
+	#-- TypesAndTheirSections (alias TypesZZ): group the list into maximal
+	#-- runs of one type, then collect, per distinct type, the [start,end]
+	#-- position ranges of its runs. e.g. [1,2,"A",3] ->
+	#-- [ ["NUMBER",[[1,2],[4,4]]], ["STRING",[[3,3]]] ].
+	def TypesAndTheirSections()
+		_nTtsLen_ = len(@aContent)
+		if _nTtsLen_ = 0 return [] ok
+
+		# 1) maximal same-type runs as [type, start, end]
+		_aTtsRuns_ = []
+		_cTtsCur_ = ring_type(@aContent[1])
+		_nTtsStart_ = 1
+		for _iTts_ = 2 to _nTtsLen_
+			_cTtsT_ = ring_type(@aContent[_iTts_])
+			if _cTtsT_ != _cTtsCur_
+				_aTtsRuns_ + [ _cTtsCur_, _nTtsStart_, _iTts_ - 1 ]
+				_cTtsCur_ = _cTtsT_
+				_nTtsStart_ = _iTts_
+			ok
+		next
+		_aTtsRuns_ + [ _cTtsCur_, _nTtsStart_, _nTtsLen_ ]
+
+		# 2) fold runs by type, preserving first-appearance order
+		_aTtsRes_ = []
+		_nTtsRuns_ = len(_aTtsRuns_)
+		for _iTts2_ = 1 to _nTtsRuns_
+			_cTtsTy_ = _aTtsRuns_[_iTts2_][1]
+			_aTtsSec_ = [ _aTtsRuns_[_iTts2_][2], _aTtsRuns_[_iTts2_][3] ]
+			_nTtsFound_ = 0
+			_nTtsResLen_ = len(_aTtsRes_)
+			for _iTts3_ = 1 to _nTtsResLen_
+				if _aTtsRes_[_iTts3_][1] = _cTtsTy_
+					_aTtsRes_[_iTts3_][2] + _aTtsSec_
+					_nTtsFound_ = 1
+					exit
+				ok
+			next
+			if _nTtsFound_ = 0
+				_aTtsRes_ + [ _cTtsTy_, [ _aTtsSec_ ] ]
+			ok
+		next
+		return _aTtsRes_
+
+		def TypesAndTheirSectionsQ()
+			return new stzList( This.TypesAndTheirSections() )
+
+		def TypesZZ()
+			return This.TypesAndTheirSections()
+
 	#-- The items that are NOT numbers (engine DSL)
 
 	def NonNumbers()
