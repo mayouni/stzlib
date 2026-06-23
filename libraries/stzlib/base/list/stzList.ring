@@ -8531,6 +8531,104 @@ class stzList from stzObject
 		def VizFindAll(pItem)
 			return This.VizFindAllOccurrences(pItem)
 
+	#-- _VizCodeStr / _VizMarkerLine: shared helpers for the Viz family.
+	#-- The marker line aligns to the COLUMNS of the rendered code string:
+	#-- "^" under each occurrence of pItem, "." under each occurrence of any
+	#-- item in paOthers, "-" everywhere else.
+	def _VizCodeStr()
+		oVfc = new stzString(This.ToCode())
+		return oVfc.Simplified()
+
+	def _VizMarkerLine(pItem, paOthers, pcCode)
+		oVfm = new stzString(pcCode)
+		anMine = oVfm.FindAllCS(@@(pItem), 1)
+		anOther = []
+		_nVfmO_ = len(paOthers)
+		for _iVfmO_ = 1 to _nVfmO_
+			_anH_ = oVfm.FindAllCS(@@(paOthers[_iVfmO_]), 1)
+			_nH_ = len(_anH_)
+			for _jVfm_ = 1 to _nH_
+				anOther + _anH_[_jVfm_]
+			next
+		next
+		_nVfmLen_ = StzLen(pcCode)
+		cViz = " "
+		for _iVfm_ = 1 to _nVfmLen_ - 2
+			if ring_find(anMine, _iVfm_) > 0
+				cViz += "^"
+			but ring_find(anOther, _iVfm_) > 0
+				cViz += "."
+			else
+				cViz += "-"
+			ok
+		next
+		return cViz
+
+	#-- VizFindXT: like VizFind, plus a "<item> :" label and a "(count)" tally.
+	def VizFindXT(pItem)
+		return This.VizFindXTCS(pItem, 1)
+
+	def VizFindXTCS(pItem, pCaseSensitive)
+		if NOT @IsChar(pItem)
+			StzRaise("Can't proceed! Only chars can currently be visualised in the output.")
+		ok
+		cCode = This._VizCodeStr()
+		cMark = This._VizMarkerLine(pItem, [], cCode)
+		oVfxCnt = new stzString(cCode)
+		nCount = len( oVfxCnt.FindAllCS(@@(pItem), pCaseSensitive) )
+		return cCode + NL + @@(pItem) + " : " + cMark + " (" + nCount + ")"
+
+	#-- VizFindMany: one labelled marker row per searched item. Each row marks
+	#-- "^" for its own item and "." for the other searched items.
+	def VizFindMany(paItems)
+		return This.VizFindManyCS(paItems, 1)
+
+	def VizFindManyCS(paItems, pCaseSensitive)
+		if NOT isList(paItems)
+			StzRaise("Can't proceed! paItems must be a list.")
+		ok
+		cCode = This._VizCodeStr()
+		cRes = cCode
+		nN = len(paItems)
+		for iM = 1 to nN
+			if NOT @IsChar(paItems[iM])
+				StzRaise("Can't proceed! Only chars can currently be visualised in the output.")
+			ok
+			aOthers = []
+			for jM = 1 to nN
+				if jM != iM aOthers + paItems[jM] ok
+			next
+			cMark = This._VizMarkerLine(paItems[iM], aOthers, cCode)
+			cRes += NL + @@(paItems[iM]) + " : " + cMark
+		next
+		return cRes
+
+	#-- VizFindManyXT: VizFindMany plus a "(count)" tally on each row.
+	def VizFindManyXT(paItems)
+		return This.VizFindManyXTCS(paItems, 1)
+
+	def VizFindManyXTCS(paItems, pCaseSensitive)
+		if NOT isList(paItems)
+			StzRaise("Can't proceed! paItems must be a list.")
+		ok
+		cCode = This._VizCodeStr()
+		cRes = cCode
+		nN = len(paItems)
+		for iMx = 1 to nN
+			if NOT @IsChar(paItems[iMx])
+				StzRaise("Can't proceed! Only chars can currently be visualised in the output.")
+			ok
+			aOthers = []
+			for jMx = 1 to nN
+				if jMx != iMx aOthers + paItems[jMx] ok
+			next
+			cMark = This._VizMarkerLine(paItems[iMx], aOthers, cCode)
+			oVfmxCnt = new stzString(cCode)
+			nCount = len( oVfmxCnt.FindAllCS(@@(paItems[iMx]), pCaseSensitive) )
+			cRes += NL + @@(paItems[iMx]) + " : " + cMark + " (" + nCount + ")"
+		next
+		return cRes
+
 	#-- Type-filter family: Xs() = items of type X, XsZ() = [item,pos]
 	#-- pairs, NumberOfXs() = count. Char = single-codepoint string
 	#-- (StzLen=1); Letter = a single ASCII letter.
