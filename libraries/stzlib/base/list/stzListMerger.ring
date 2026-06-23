@@ -170,7 +170,7 @@ class stzListMerger
 		pResult = StzEngineListInterleave(pList1, pList2)
 		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
-		aResult = StzEngineContentFromList(pResult)
+		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		This.UpdateWith(aResult)
 
@@ -192,7 +192,7 @@ class stzListMerger
 		pResult = StzEngineListZip(pList1, pList2)
 		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
-		aResult = StzEngineContentFromList(pResult)
+		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return aResult
 
@@ -261,7 +261,7 @@ class stzListMerger
 		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
 
-		aResult = StzEngineContentFromList(pResult)
+		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return aResult
 
@@ -283,7 +283,7 @@ class stzListMerger
 		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
 
-		aResult = StzEngineContentFromList(pResult)
+		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return aResult
 
@@ -305,7 +305,7 @@ class stzListMerger
 		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
 
-		aResult = StzEngineContentFromList(pResult)
+		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return aResult
 
@@ -320,7 +320,7 @@ class stzListMerger
 		pList = @oList._EngineListFromContent()
 		pResult = StzEngineListPartition(pList, n)
 		StzEngineListFree(pList)
-		aResult = StzEngineContentFromList(pResult)
+		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return aResult
 

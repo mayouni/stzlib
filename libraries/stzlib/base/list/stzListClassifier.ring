@@ -50,22 +50,16 @@ class stzListClassifier
 		return new stzListClassifier( @oList.Content() )
 
 	def Classify()
-		_pClList_ = @oList._EngineListFromContent()
+		# Residency-aware: reuse @oList's warm engine handle (do NOT free it).
+		_pClList_ = @oList._Engine()
 		_pClResult_ = StzEngineListClassifyCS(_pClList_, 0)
-		StzEngineListFree(_pClList_)
 
-		_aClRaw_ = StzEngineContentFromList(_pClResult_)
+		# Engine now emits the FINAL nested shape [ [keyString, [pos...]], ... ]
+		# directly, so we just unmarshal once -- no Ring-side repackaging loop
+		# (which copied every position sublist, O(n) in interpreted Ring and the
+		# real cost of Classify() at scale).
+		_aClResult_ = StzEngineListContentToRingList(_pClResult_)
 		StzEngineListFree(_pClResult_)
-
-		# Engine returns [ keyString, [pos1, pos2, ...] ] pairs -- positions
-		# already a native number list, so no CSV split / per-item parse.
-		_nClLen_ = len(_aClRaw_)
-		_aClResult_ = []
-		_iCl_ = 1
-		for _kCl_ = 1 to _nClLen_ / 2
-			@AddItem(_aClResult_, [ _aClRaw_[_iCl_], _aClRaw_[_iCl_ + 1] ])
-			_iCl_ += 2
-		next
 		return _aClResult_
 
 		def ClassifyQ()
@@ -84,25 +78,17 @@ class stzListClassifier
 		return _aClsResult_
 
 	def ClassifyBy(pcExpr)
-		_pCbList_ = @oList._EngineListFromContent()
+		# Residency-aware: reuse @oList's warm engine handle (do NOT free it).
+		_pCbList_ = @oList._Engine()
 		_cCbMapExpr_ = "string(" + pcExpr + ")"
 		_pCbMapped_ = StzEngineListMapExpr(_pCbList_, _cCbMapExpr_)
-		StzEngineListFree(_pCbList_)
 
 		_pCbResult_ = StzEngineListClassifyCS(_pCbMapped_, 1)
 		StzEngineListFree(_pCbMapped_)
 
-		_aCbRaw_ = StzEngineContentFromList(_pCbResult_)
+		# Engine emits the final nested [ [keyString, [pos...]], ... ] shape.
+		_aCbResult_ = StzEngineListContentToRingList(_pCbResult_)
 		StzEngineListFree(_pCbResult_)
-
-		# Positions are a native number list now (no CSV parse).
-		_nCbLen_ = len(_aCbRaw_)
-		_aCbResult_ = []
-		_iCb_ = 1
-		for _kCb_ = 1 to _nCbLen_ / 2
-			@AddItem(_aCbResult_, [ _aCbRaw_[_iCb_], _aCbRaw_[_iCb_ + 1] ])
-			_iCb_ += 2
-		next
 		return _aCbResult_
 
 	def PartsCS(pCaseSensitive)
@@ -127,7 +113,7 @@ class stzListClassifier
 		_pFrFreqs_ = StzEngineListFrequenciesCS(_pFrList_, 0)
 		StzEngineListFree(_pFrList_)
 
-		_aFrRaw_ = StzEngineContentFromList(_pFrFreqs_)
+		_aFrRaw_ = StzEngineListContentToRingList(_pFrFreqs_)
 		StzEngineListFree(_pFrFreqs_)
 
 		_nFrLen_ = len(_aFrRaw_)
@@ -382,7 +368,7 @@ class stzListClassifier
 	def Chunks(n)
 		_pChList_ = @oList._EngineListFromContent()
 		_pChResult_ = StzEngineListChunked(_pChList_, n)
-		_aChResult_ = StzEngineContentFromList(_pChResult_)
+		_aChResult_ = StzEngineListContentToRingList(_pChResult_)
 		StzEngineListFree(_pChResult_)
 		StzEngineListFree(_pChList_)
 		return _aChResult_

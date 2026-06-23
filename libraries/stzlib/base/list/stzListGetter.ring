@@ -146,7 +146,7 @@ class stzListGetter
 	def UniqueItemsCS(pCaseSensitive)
 		_pUiList_ = @oList._EngineListFromContent()
 		_pUiResult_ = StzEngineListUniqueCS(_pUiList_, pCaseSensitive)
-		_aUiResult_ = StzEngineContentFromList(_pUiResult_)
+		_aUiResult_ = StzEngineListContentToRingList(_pUiResult_)
 		StzEngineListFree(_pUiResult_)
 		StzEngineListFree(_pUiList_)
 		return _aUiResult_
@@ -320,7 +320,7 @@ class stzListGetter
 	def SlidingWindow(n)
 		_pSwList_ = StzEngineMarshalList(@oList.Content())
 		_pSwResult_ = StzEngineListSlidingWindow(_pSwList_, n)
-		_aSwResult_ = StzEngineContentFromList(_pSwResult_)
+		_aSwResult_ = StzEngineListContentToRingList(_pSwResult_)
 		StzEngineListFree(_pSwResult_)
 		StzEngineListFree(_pSwList_)
 		return _aSwResult_

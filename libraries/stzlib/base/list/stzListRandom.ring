@@ -248,7 +248,7 @@ class stzListRandom
 		_pNriList_ = @oList._EngineListFromContent()
 		_pNriPicked_ = StzEngineListRandomItems(_pNriList_, n)
 		if _pNriPicked_ != NULL
-			_aNriResult_ = StzEngineContentFromList(_pNriPicked_)
+			_aNriResult_ = StzEngineListContentToRingList(_pNriPicked_)
 			StzEngineListFree(_pNriPicked_)
 		else
 			_aNriResult_ = []
@@ -267,7 +267,7 @@ class stzListRandom
 	def Randomize()
 		_pRzList_ = @oList._EngineListFromContent()
 		StzEngineListShuffle(_pRzList_)
-		@oList.UpdateWith( StzEngineContentFromList(_pRzList_) )
+		@oList.UpdateWith( StzEngineListContentToRingList(_pRzList_) )
 		StzEngineListFree(_pRzList_)
 
 		def RandomizeQ()

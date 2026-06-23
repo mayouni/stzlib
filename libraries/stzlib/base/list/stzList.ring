@@ -1502,7 +1502,7 @@ class stzList from stzObject
 		if _pFesResult_ = NULL
 			return []
 		ok
-		_aFesOut_ = StzEngineContentFromList(_pFesResult_)
+		_aFesOut_ = StzEngineListContentToRingList(_pFesResult_)
 		StzEngineListFree(_pFesResult_)
 		return _aFesOut_
 
@@ -1548,7 +1548,7 @@ class stzList from stzObject
 	#-- Reads engine list contents back into a Ring list
 
 	def _ContentFromEngineList(pList)
-		return StzEngineContentFromList(pList)
+		return StzEngineListContentToRingList(pList)
 
 	  #-----------------------------------------------------#
 	 #  ENGINE-RESIDENCY CACHE ACCESS (Model A + keystone) #
@@ -1597,7 +1597,7 @@ class stzList from stzObject
 	#   RETURN a new handle which becomes the content (dedup/flatten/merge).
 	def _AdoptEngine(pHandle)
 		This._InvalidateEngine()
-		@aContent = StzEngineContentFromList(pHandle)
+		@aContent = StzEngineListContentToRingList(pHandle)
 		@pEngineGen = StzEngineListCacheRegister(pHandle)
 		return This
 
@@ -1607,7 +1607,7 @@ class stzList from stzObject
 		if @pEngineGen != 0
 			_hEng_ = StzEngineListCacheGet(@pEngineGen)
 			if _hEng_ != 0
-				@aContent = StzEngineContentFromList(_hEng_)
+				@aContent = StzEngineListContentToRingList(_hEng_)
 			ok
 		ok
 		return This
@@ -1699,7 +1699,7 @@ class stzList from stzObject
 		if pList = NULL return [] ok
 
 		StzEngineListSortCS(pList, pCaseSensitive)
-		aResult = This._ContentFromEngineList(pList)
+		aResult = StzEngineListContentToRingList(pList)
 		StzEngineListFree(pList)
 		return aResult
 
@@ -1737,7 +1737,7 @@ class stzList from stzObject
 		if pList = NULL return [] ok
 
 		StzEngineListSortDescendingCS(pList, pCaseSensitive)
-		aResult = This._ContentFromEngineList(pList)
+		aResult = StzEngineListContentToRingList(pList)
 		StzEngineListFree(pList)
 		return aResult
 
@@ -1764,7 +1764,7 @@ class stzList from stzObject
 		if pList = NULL return [] ok
 
 		StzEngineListReverse(pList)
-		aResult = This._ContentFromEngineList(pList)
+		aResult = StzEngineListContentToRingList(pList)
 		StzEngineListFree(pList)
 		return aResult
 
@@ -2001,7 +2001,7 @@ class stzList from stzObject
 		pUnique = StzEngineListUniqueCS(pList, pCaseSensitive)
 		aResult = @aContent
 		if pUnique != NULL
-			aResult = This._ContentFromEngineList(pUnique)
+			aResult = StzEngineListContentToRingList(pUnique)
 			StzEngineListFree(pUnique)
 		ok
 		return aResult
@@ -2261,7 +2261,7 @@ class stzList from stzObject
 		pFlat = StzEngineListFlatten(pList)
 		aResult = []
 		if pFlat != NULL
-			aResult = This._ContentFromEngineList(pFlat)
+			aResult = StzEngineListContentToRingList(pFlat)
 			StzEngineListFree(pFlat)
 		ok
 		return aResult
@@ -2380,7 +2380,7 @@ class stzList from stzObject
 
 		pcExpr = _StzStripBraces(pcExpr)
 		pResult = StzEngineListMapExpr(pList, pcExpr)
-		aResult = This._ContentFromEngineList(pResult)
+		aResult = StzEngineListContentToRingList(pResult)
 
 		StzEngineListFree(pResult)
 		return aResult
@@ -2394,7 +2394,7 @@ class stzList from stzObject
 
 		pcExpr = _StzStripBraces(pcExpr)
 		pResult = StzEngineListFilterExpr(pList, pcExpr)
-		aResult = This._ContentFromEngineList(pResult)
+		aResult = StzEngineListContentToRingList(pResult)
 
 		StzEngineListFree(pResult)
 		return aResult
@@ -3290,7 +3290,7 @@ class stzList from stzObject
 			if _pFaoResult_ = NULL
 				return []
 			ok
-			_aFaoOut_ = StzEngineContentFromList(_pFaoResult_)
+			_aFaoOut_ = StzEngineListContentToRingList(_pFaoResult_)
 			StzEngineListFree(_pFaoResult_)
 			return _aFaoOut_
 		ok
@@ -3499,7 +3499,7 @@ class stzList from stzObject
 		_pCiB_ = StzEngineMarshalList(_other_)
 		if _pCiA_ != NULL and _pCiB_ != NULL
 			_pCiR_ = StzEngineListCommonItemsCS(_pCiA_, _pCiB_, 1)
-			_aR_ = StzEngineContentFromList(_pCiR_)
+			_aR_ = StzEngineListContentToRingList(_pCiR_)
 			StzEngineListFree(_pCiR_)
 			StzEngineListFree(_pCiA_)
 			StzEngineListFree(_pCiB_)
@@ -4913,7 +4913,7 @@ class stzList from stzObject
 		if pList = NULL return ok
 
 		pResult = StzEngineListMapExpr(pList, pcAction)
-		aNew = This._ContentFromEngineList(pResult)
+		aNew = StzEngineListContentToRingList(pResult)
 
 		for i = 1 to nLen
 			nPos = panPos[i]
@@ -5043,7 +5043,7 @@ class stzList from stzObject
 		if _pRptList_ = NULL return ok
 		_pRptResult_ = StzEngineListRepeat(_pRptList_, n)
 		if _pRptResult_ != NULL
-			This._SetContent(This._ContentFromEngineList(_pRptResult_))
+			This._SetContent(StzEngineListContentToRingList(_pRptResult_))
 			StzEngineListFree(_pRptResult_)
 		ok
 		StzEngineListFree(_pRptList_)
@@ -5058,7 +5058,7 @@ class stzList from stzObject
 		_pRpdResult_ = StzEngineListRepeat(_pRpdList_, n)
 		_aRpdOut_ = []
 		if _pRpdResult_ != NULL
-			_aRpdOut_ = This._ContentFromEngineList(_pRpdResult_)
+			_aRpdOut_ = StzEngineListContentToRingList(_pRpdResult_)
 			StzEngineListFree(_pRpdResult_)
 		ok
 		StzEngineListFree(_pRpdList_)
@@ -5079,7 +5079,7 @@ class stzList from stzObject
 		StzEngineListFree(_pSaList_)
 		if _pSaPos_ != NULL StzEngineListFree(_pSaPos_) ok
 		if _pSaResult_ = NULL return [[], []] ok
-		_aSaOut_ = This._ContentFromEngineList(_pSaResult_)
+		_aSaOut_ = StzEngineListContentToRingList(_pSaResult_)
 		StzEngineListFree(_pSaResult_)
 		return _aSaOut_
 
@@ -5091,7 +5091,7 @@ class stzList from stzObject
 		_pRkResult_ = StzEngineListRanked(_pRkList_)
 		StzEngineListFree(_pRkList_)
 		if _pRkResult_ = NULL return [] ok
-		_aRkOut_ = This._ContentFromEngineList(_pRkResult_)
+		_aRkOut_ = StzEngineListContentToRingList(_pRkResult_)
 		StzEngineListFree(_pRkResult_)
 		return _aRkOut_
 
@@ -6737,7 +6737,7 @@ class stzList from stzObject
 		_pFasList_ = StzEngineMarshalList(This.Content())
 		_pFasSecs_ = StzEngineMarshalList(_aFasAdj_)
 		_pFasResult_ = StzEngineListAntiSections(_pFasList_, _pFasSecs_)
-		_aFasRaw_ = StzEngineContentFromList(_pFasResult_)
+		_aFasRaw_ = StzEngineListContentToRingList(_pFasResult_)
 		StzEngineListFree(_pFasResult_)
 		StzEngineListFree(_pFasSecs_)
 		StzEngineListFree(_pFasList_)
@@ -8501,8 +8501,8 @@ class stzList from stzObject
 		if _pDiwA_ != NULL and _pDiwB_ != NULL
 			_pDiwD1_ = StzEngineListDifferenceCS(_pDiwA_, _pDiwB_, pCaseSensitive)
 			_pDiwD2_ = StzEngineListDifferenceCS(_pDiwB_, _pDiwA_, pCaseSensitive)
-			_aDiwR_ = StzEngineContentFromList(_pDiwD1_)
-			_aDiwT_ = StzEngineContentFromList(_pDiwD2_)
+			_aDiwR_ = StzEngineListContentToRingList(_pDiwD1_)
+			_aDiwT_ = StzEngineListContentToRingList(_pDiwD2_)
 			_nDiwT_ = ring_len(_aDiwT_)
 			for _iDiw_ = 1 to _nDiwT_
 				_aDiwR_ + _aDiwT_[_iDiw_]
@@ -10727,7 +10727,7 @@ class stzList from stzObject
 		_pBic_ = StzEngineMarshalList(paOtherList)
 		if _pAic_ != NULL and _pBic_ != NULL
 			_pDic_ = StzEngineListDifferenceCS(_pBic_, _pAic_, pCaseSensitive)
-			aResult = StzEngineContentFromList(_pDic_)
+			aResult = StzEngineListContentToRingList(_pDic_)
 			StzEngineListFree(_pDic_)
 			StzEngineListFree(_pAic_)
 			StzEngineListFree(_pBic_)
@@ -10752,7 +10752,7 @@ class stzList from stzObject
 		_pBric_ = StzEngineMarshalList(paOtherList)
 		if _pAric_ != NULL and _pBric_ != NULL
 			_pDric_ = StzEngineListDifferenceCS(_pAric_, _pBric_, pCaseSensitive)
-			aResult = StzEngineContentFromList(_pDric_)
+			aResult = StzEngineListContentToRingList(_pDric_)
 			StzEngineListFree(_pDric_)
 			StzEngineListFree(_pAric_)
 			StzEngineListFree(_pBric_)
@@ -10783,7 +10783,7 @@ class stzList from stzObject
 		_pBmi_ = StzEngineMarshalList(paOtherList)
 		if _pAmi_ != NULL and _pBmi_ != NULL
 			_pMmi_ = StzEngineListModifiedItemsCS(_pAmi_, _pBmi_, pCaseSensitive)
-			aResult = StzEngineContentFromList(_pMmi_)
+			aResult = StzEngineListContentToRingList(_pMmi_)
 			StzEngineListFree(_pMmi_)
 			StzEngineListFree(_pAmi_)
 			StzEngineListFree(_pBmi_)

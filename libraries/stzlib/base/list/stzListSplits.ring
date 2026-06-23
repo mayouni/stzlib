@@ -104,7 +104,7 @@ class stzListSplits
 		_pSapList_ = StzEngineMarshalList(@oList.Content())
 		_pSapPos_ = StzEngineMarshalList(_aSapAdj_)
 		_pSapResult_ = StzEngineListSplitAt(_pSapList_, _pSapPos_)
-		_aSapResult_ = StzEngineContentFromList(_pSapResult_)
+		_aSapResult_ = StzEngineListContentToRingList(_pSapResult_)
 		StzEngineListFree(_pSapResult_)
 		StzEngineListFree(_pSapPos_)
 		StzEngineListFree(_pSapList_)
@@ -133,7 +133,7 @@ class stzListSplits
 		_pSadList_ = StzEngineMarshalList(@oList.Content())
 		_pSadPos_ = StzEngineMarshalList(_aSadAdj_)
 		_pSadResult_ = StzEngineListSplitAt(_pSadList_, _pSadPos_)
-		_aSadResult_ = StzEngineContentFromList(_pSadResult_)
+		_aSadResult_ = StzEngineListContentToRingList(_pSadResult_)
 		StzEngineListFree(_pSadResult_)
 		StzEngineListFree(_pSadPos_)
 		StzEngineListFree(_pSadList_)
@@ -151,7 +151,7 @@ class stzListSplits
 		# Engine-backed: stz_list_split_before
 		_pSbpList_ = StzEngineMarshalList(@oList.Content())
 		_pSbpResult_ = StzEngineListSplitBefore(_pSbpList_, n)
-		_aSbpResult_ = StzEngineContentFromList(_pSbpResult_)
+		_aSbpResult_ = StzEngineListContentToRingList(_pSbpResult_)
 		StzEngineListFree(_pSbpResult_)
 		StzEngineListFree(_pSbpList_)
 
@@ -164,7 +164,7 @@ class stzListSplits
 	def SplittedBeforePosition(n)
 		_pSbdList_ = StzEngineMarshalList(@oList.Content())
 		_pSbdResult_ = StzEngineListSplitBefore(_pSbdList_, n)
-		_aSbdResult_ = StzEngineContentFromList(_pSbdResult_)
+		_aSbdResult_ = StzEngineListContentToRingList(_pSbdResult_)
 		StzEngineListFree(_pSbdResult_)
 		StzEngineListFree(_pSbdList_)
 
@@ -203,7 +203,7 @@ class stzListSplits
 		# Engine-backed: stz_list_split_after
 		_pSfpList_ = StzEngineMarshalList(@oList.Content())
 		_pSfpResult_ = StzEngineListSplitAfter(_pSfpList_, n)
-		_aSfpResult_ = StzEngineContentFromList(_pSfpResult_)
+		_aSfpResult_ = StzEngineListContentToRingList(_pSfpResult_)
 		StzEngineListFree(_pSfpResult_)
 		StzEngineListFree(_pSfpList_)
 
@@ -216,7 +216,7 @@ class stzListSplits
 	def SplittedAfterPosition(n)
 		_pSfdList_ = StzEngineMarshalList(@oList.Content())
 		_pSfdResult_ = StzEngineListSplitAfter(_pSfdList_, n)
-		_aSfdResult_ = StzEngineContentFromList(_pSfdResult_)
+		_aSfdResult_ = StzEngineListContentToRingList(_pSfdResult_)
 		StzEngineListFree(_pSfdResult_)
 		StzEngineListFree(_pSfdList_)
 
@@ -315,7 +315,7 @@ class stzListSplits
 		# Use engine split_to_parts_of_n with computed chunk size
 		_pSnpList_ = StzEngineMarshalList(@oList.Content())
 		_pSnpResult_ = StzEngineListSplitToPartsOfN(_pSnpList_, _nSnpChunk_)
-		_aSnpResult_ = StzEngineContentFromList(_pSnpResult_)
+		_aSnpResult_ = StzEngineListContentToRingList(_pSnpResult_)
 		StzEngineListFree(_pSnpResult_)
 		StzEngineListFree(_pSnpList_)
 
@@ -338,7 +338,7 @@ class stzListSplits
 
 		_pSndList_ = StzEngineMarshalList(@oList.Content())
 		_pSndResult_ = StzEngineListSplitToPartsOfN(_pSndList_, _nSndChunk_)
-		_aSndResult_ = StzEngineContentFromList(_pSndResult_)
+		_aSndResult_ = StzEngineListContentToRingList(_pSndResult_)
 		StzEngineListFree(_pSndResult_)
 		StzEngineListFree(_pSndList_)
 
@@ -352,7 +352,7 @@ class stzListSplits
 		# Engine-backed: stz_list_split_to_parts_of_n
 		_pSpnList_ = StzEngineMarshalList(@oList.Content())
 		_pSpnResult_ = StzEngineListSplitToPartsOfN(_pSpnList_, n)
-		_aSpnResult_ = StzEngineContentFromList(_pSpnResult_)
+		_aSpnResult_ = StzEngineListContentToRingList(_pSpnResult_)
 		StzEngineListFree(_pSpnResult_)
 		StzEngineListFree(_pSpnList_)
 
@@ -372,7 +372,7 @@ class stzListSplits
 	def SplittedToPartsOfNItems(n)
 		_pSpdList_ = StzEngineMarshalList(@oList.Content())
 		_pSpdResult_ = StzEngineListSplitToPartsOfN(_pSpdList_, n)
-		_aSpdResult_ = StzEngineContentFromList(_pSpdResult_)
+		_aSpdResult_ = StzEngineListContentToRingList(_pSpdResult_)
 		StzEngineListFree(_pSpdResult_)
 		StzEngineListFree(_pSpdList_)
 

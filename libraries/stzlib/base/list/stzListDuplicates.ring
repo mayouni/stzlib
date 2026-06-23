@@ -260,7 +260,7 @@ class stzListDuplicates
 		_pIdnFreqs_ = StzEngineListFrequenciesCS(_pIdnList_, pCaseSensitive)
 		StzEngineListFree(_pIdnList_)
 
-		_aIdnRaw_ = StzEngineContentFromList(_pIdnFreqs_)
+		_aIdnRaw_ = StzEngineListContentToRingList(_pIdnFreqs_)
 		StzEngineListFree(_pIdnFreqs_)
 
 		_nIdnLen_ = len(_aIdnRaw_)
@@ -288,7 +288,7 @@ class stzListDuplicates
 		_pMdiFreqs_ = StzEngineListFrequenciesCS(_pMdiList_, pCaseSensitive)
 		StzEngineListFree(_pMdiList_)
 
-		_aMdiRaw_ = StzEngineContentFromList(_pMdiFreqs_)
+		_aMdiRaw_ = StzEngineListContentToRingList(_pMdiFreqs_)
 		StzEngineListFree(_pMdiFreqs_)
 
 		_nMdiLen_ = len(_aMdiRaw_)

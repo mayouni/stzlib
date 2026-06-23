@@ -210,7 +210,7 @@ class stzListMover
 	def RotateLeft(n)
 		_pRlList_ = @oList._EngineListFromContent()
 		StzEngineListRotateLeft(_pRlList_, n)
-		@oList.UpdateWith(StzEngineContentFromList(_pRlList_))
+		@oList.UpdateWith(StzEngineListContentToRingList(_pRlList_))
 		StzEngineListFree(_pRlList_)
 
 		def RotateLeftQ(n)
@@ -225,7 +225,7 @@ class stzListMover
 	def RotateRight(n)
 		_pRrList_ = @oList._EngineListFromContent()
 		StzEngineListRotateRight(_pRrList_, n)
-		@oList.UpdateWith(StzEngineContentFromList(_pRrList_))
+		@oList.UpdateWith(StzEngineListContentToRingList(_pRrList_))
 		StzEngineListFree(_pRrList_)
 
 		def RotateRightQ(n)
