@@ -925,7 +925,7 @@ class stzList from stzObject
 	def ReplaceCS(pItem, pNewItem, pCaseSensitive)
 		_oRpl_ = new stzListReplacer(This)
 		_oRpl_.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
-		@aContent = _oRpl_.Content()
+		This._SetContent(_oRpl_.Content())
 
 	def Replace(pItem, pNewItem)
 		This.ReplaceCS(pItem, pNewItem, 1)
@@ -933,7 +933,7 @@ class stzList from stzObject
 	def ReplaceNthCS(n, pItem, pNewItem, pCaseSensitive)
 		_oRplN_ = new stzListReplacer(This)
 		_oRplN_.ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
-		@aContent = _oRplN_.Content()
+		This._SetContent(_oRplN_.Content())
 
 	def ReplaceNth(n, pItem, pNewItem)
 		This.ReplaceNthCS(n, pItem, pNewItem, 1)
@@ -953,7 +953,7 @@ class stzList from stzObject
 		ok
 		_oRplNO_ = new stzListReplacer(This)
 		_oRplNO_.ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
-		@aContent = _oRplNO_.Content()
+		This._SetContent(_oRplNO_.Content())
 
 	def ReplaceNthOccurrence(n, pItem, pNewItem)
 		This.ReplaceNthOccurrenceCS(n, pItem, pNewItem, 1)
@@ -1074,7 +1074,7 @@ class stzList from stzObject
 		ok
 		_oRplAI_ = new stzListReplacer(This)
 		_oRplAI_.ReplaceAllItems(pNewItem)
-		@aContent = _oRplAI_.Content()
+		This._SetContent(_oRplAI_.Content())
 
 		def ReplaceAllItemsQ(pNewItem)
 			This.ReplaceAllItems(pNewItem)
@@ -1083,7 +1083,7 @@ class stzList from stzObject
 	def ReplaceFirstCS(pItem, pNewItem, pCaseSensitive)
 		_oRplF_ = new stzListReplacer(This)
 		_oRplF_.ReplaceFirstOccurrenceCS(pItem, pNewItem, pCaseSensitive)
-		@aContent = _oRplF_.Content()
+		This._SetContent(_oRplF_.Content())
 
 	def ReplaceFirst(pItem, pNewItem)
 		This.ReplaceFirstCS(pItem, pNewItem, 1)
@@ -1091,7 +1091,7 @@ class stzList from stzObject
 	def ReplaceLastCS(pItem, pNewItem, pCaseSensitive)
 		_oRplL_ = new stzListReplacer(This)
 		_oRplL_.ReplaceLastOccurrenceCS(pItem, pNewItem, pCaseSensitive)
-		@aContent = _oRplL_.Content()
+		This._SetContent(_oRplL_.Content())
 
 	def ReplaceLast(pItem, pNewItem)
 		This.ReplaceLastCS(pItem, pNewItem, 1)
@@ -1099,7 +1099,7 @@ class stzList from stzObject
 	def ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
 		_oRplM_ = new stzListReplacer(This)
 		_oRplM_.ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
-		@aContent = _oRplM_.Content()
+		This._SetContent(_oRplM_.Content())
 
 	def ReplaceManyByMany(paItems, paNewItems)
 		This.ReplaceManyByManyCS(paItems, paNewItems, 1)
@@ -1107,12 +1107,12 @@ class stzList from stzObject
 	def ReplaceManyByManyXT(paItems, paNewItems)
 		_oRplMxt_ = new stzListReplacer(This)
 		_oRplMxt_.ReplaceManyByManyXT(paItems, paNewItems)
-		@aContent = _oRplMxt_.Content()
+		This._SetContent(_oRplMxt_.Content())
 
 	def ReplaceSection(n1, n2, pNewItem)
 		_oRpS_ = new stzListReplacer(This)
 		_oRpS_.ReplaceSection(n1, n2, pNewItem)
-		@aContent = _oRpS_.Content()
+		This._SetContent(_oRpS_.Content())
 
 		def ReplaceSectionQ(n1, n2, pNewItem)
 			This.ReplaceSection(n1, n2, pNewItem)
@@ -1121,7 +1121,7 @@ class stzList from stzObject
 	def ReplaceSectionByMany(n1, n2, paNewItems)
 		_oRpSM_ = new stzListReplacer(This)
 		_oRpSM_.ReplaceSectionByMany(n1, n2, paNewItems)
-		@aContent = _oRpSM_.Content()
+		This._SetContent(_oRpSM_.Content())
 
 		def ReplaceSectionByManyQ(n1, n2, paNewItems)
 			This.ReplaceSectionByMany(n1, n2, paNewItems)
@@ -1141,12 +1141,14 @@ class stzList from stzObject
 			_nRaLen_ = len(n)
 			for _iRa_ = 1 to _nRaLen_
 				if n[_iRa_] >= 1 and n[_iRa_] <= len(@aContent)
+					This._InvalidateEngine()   # in-place @aContent mutation below
 					@aContent[ n[_iRa_] ] = pNewItem
 				ok
 			next
 			return
 		ok
 		if n >= 1 and n <= len(@aContent)
+			This._InvalidateEngine()   # in-place @aContent mutation below
 			@aContent[n] = pNewItem
 		ok
 
@@ -1173,7 +1175,7 @@ class stzList from stzObject
 	def ReplaceAnyItemAtPositions(panPos, pNewItem)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceAnyItemAtPositions(panPos, pNewItem)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 		def ReplaceAnyItemsAtPositions(panPos, pNewItem)
 			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
@@ -1187,32 +1189,32 @@ class stzList from stzObject
 	def ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceThisItemAt(n, pItem, pNewItem)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceThisItemAt(n, pItem, pNewItem)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceMany(paItems, pNewItem)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceMany(paItems, pNewItem)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceByMany(pItem, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceByMany(pItem, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceByManyXT(pItem, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceByManyXT(pItem, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 		def ReplaceItemByManyXT(pItem, paNewItems)
 			This.ReplaceByManyXT(pItem, paNewItems)
@@ -1220,37 +1222,37 @@ class stzList from stzObject
 	def ReplaceOccurrencesByMany(panPos, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceOccurrencesByMany(panPos, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceOccurrencesByManyXT(panPos, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceOccurrencesByManyXT(panPos, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceTheseItemsAtPositionsByMany(panPos, paItems, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceTheseItemsAtPositionsByMany(panPos, paItems, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceTheseItemsAtPositionsByManyXT(panPos, paItems, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceTheseItemsAtPositionsByManyXT(panPos, paItems, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 	def ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 		def ReplaceAnyItemsAtPositionsByMany(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
@@ -1258,7 +1260,7 @@ class stzList from stzObject
 	def ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 		def ReplaceAnyItemsAtPositionsByManyXT(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
@@ -1271,7 +1273,7 @@ class stzList from stzObject
 	def ReplaceW(pWhere, pBy)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceW(pWhere, pBy)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 		def ReplaceItemsW(pWhere, pBy)
 			This.ReplaceW(pWhere, pBy)
@@ -1279,7 +1281,7 @@ class stzList from stzObject
 	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
-		@aContent = _o_.Content()
+		This._SetContent(_o_.Content())
 
 		def ReplaceNextNthOccurrenceST(n, pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
@@ -1294,7 +1296,7 @@ class stzList from stzObject
 	def Stringify()
 		_oStfy_ = new stzListStringify(This)
 		_oStfy_.Stringify()
-		@aContent = _oStfy_.Content()
+		This._SetContent(_oStfy_.Content())
 
 		def StringifyQ()
 			This.Stringify()
@@ -1324,7 +1326,7 @@ class stzList from stzObject
 				_aData_[_i_] = StzReplace(_aData_[_i_], pSubStr, pWith)
 			ok
 		next
-		@aContent = _aData_
+		This._SetContent(_aData_)
 
 		def StringifyAndReplaceQ(pItem, pWith)
 			This.StringifyAndReplace(pItem, pWith)
@@ -1349,7 +1351,7 @@ class stzList from stzObject
 				_aData_[_i_] = lower(_aData_[_i_])
 			ok
 		next
-		@aContent = _aData_
+		This._SetContent(_aData_)
 
 		def StringifyAndLower()
 			This.StringifyLowercase()
@@ -1367,7 +1369,7 @@ class stzList from stzObject
 				_aData_[_i_] = upper(_aData_[_i_])
 			ok
 		next
-		@aContent = _aData_
+		This._SetContent(_aData_)
 
 		def StringifyAndUpper()
 			This.StringifyUppercase()
@@ -1391,7 +1393,7 @@ class stzList from stzObject
 				_aData_[_i_] = StzReplace(_aData_[_i_], pItem, pWith)
 			ok
 		next
-		@aContent = _aData_
+		This._SetContent(_aData_)
 
 		def StringifyLowercaseAndReplaceQ(pItem, pWith)
 			This.StringifyLowercaseAndReplace(pItem, pWith)
@@ -1416,7 +1418,7 @@ class stzList from stzObject
 				_aData_[_i_] = StzReplace(_aData_[_i_], pItem, pWith)
 			ok
 		next
-		@aContent = _aData_
+		This._SetContent(_aData_)
 
 		def StringifyUppercaseAndReplaceQ(pItem, pWith)
 			This.StringifyUppercaseAndReplace(pItem, pWith)
@@ -1523,7 +1525,7 @@ class stzList from stzObject
 				_aResContent_[_iRes_] = pNewItem
 			ok
 		next
-		@aContent = _aResContent_
+		This._SetContent(_aResContent_)
 
 	def RemoveEmptyStrings()
 		_anRmesPos_ = This.FindEmptyStrings()
@@ -1531,6 +1533,7 @@ class stzList from stzObject
 		if _nRmesLen_ = 0 return ok
 		# Remove from end to preserve indices
 		for _iRmes_ = _nRmesLen_ to 1 step -1
+			This._InvalidateEngine()   # in-place @aContent mutation below
 			ring_remove(@aContent, _anRmesPos_[_iRmes_])
 		next
 
@@ -1602,6 +1605,42 @@ class stzList from stzObject
 		ok
 		return @pEngine
 
+	#-- Drops the cached engine handle. Called by any raw-Ring write that
+	#   mutates @aContent in place (so it can't route through _SetContent).
+	#   Cheap no-op when no handle is cached.
+
+	def _InvalidateEngine()
+		if @pEngine != NULL
+			StzEngineListFree(@pEngine)
+			@pEngine = NULL
+		ok
+		@bRingDirty = FALSE
+		return This
+
+	#-- Adopts a fresh engine result handle as the new content (source of
+	#   truth in Model A stays @aContent, so materialize it eagerly), reusing
+	#   the handle as the warm cache. Frees the previous cached handle.
+	#   Used by engine ops that RETURN a new handle which becomes the content.
+
+	def _AdoptEngine(pHandle)
+		if @pEngine != NULL and @pEngine != pHandle
+			StzEngineListFree(@pEngine)
+		ok
+		@pEngine = pHandle
+		@aContent = StzEngineContentFromList(pHandle)
+		@bRingDirty = FALSE
+		return This
+
+	#-- Resyncs @aContent after an engine op mutated the cached handle
+	#   (@pEngine) in place (e.g. sort/reverse). Keeps the cache warm.
+
+	def _RefreshFromEngine()
+		if @pEngine != NULL
+			@aContent = StzEngineContentFromList(@pEngine)
+			@bRingDirty = FALSE
+		ok
+		return This
+
 	  #------------------------------#
 	 #  SORTING (engine-backed)     #
 	#------------------------------#
@@ -1615,7 +1654,7 @@ class stzList from stzObject
 		if pList = NULL return ok
 
 		StzEngineListSortCS(pList, pCaseSensitive)
-		@aContent = This._ContentFromEngineList(pList)
+		This._SetContent(This._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 		def SortCSQ(pCaseSensitive)
@@ -1627,7 +1666,7 @@ class stzList from stzObject
 		pcExpr = _StzStripBraces(pcExpr)
 		pList = This._EngineListFromContent()
 		StzEngineListSortByExpr(pList, pcExpr, 1)
-		@aContent = This._ContentFromEngineList(pList)
+		This._SetContent(This._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 		def SortByQ(pcExpr)
@@ -1638,7 +1677,7 @@ class stzList from stzObject
 		pcExpr = _StzStripBraces(pcExpr)
 		pList = This._EngineListFromContent()
 		StzEngineListSortByExpr(pList, pcExpr, 0)
-		@aContent = This._ContentFromEngineList(pList)
+		This._SetContent(This._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 	#-- non-mutating: return the sorted-by-key copy
@@ -1708,7 +1747,7 @@ class stzList from stzObject
 		if pList = NULL return ok
 
 		StzEngineListSortDescendingCS(pList, pCaseSensitive)
-		@aContent = This._ContentFromEngineList(pList)
+		This._SetContent(This._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 		def SortInDescendingCSQ(pCaseSensitive)
@@ -1747,7 +1786,7 @@ class stzList from stzObject
 		if pList = NULL return ok
 
 		StzEngineListReverse(pList)
-		@aContent = This._ContentFromEngineList(pList)
+		This._SetContent(This._ContentFromEngineList(pList))
 		StzEngineListFree(pList)
 
 		def ReverseQ()
@@ -1937,7 +1976,7 @@ class stzList from stzObject
 
 		pUnique = StzEngineListUniqueCS(pList, pCaseSensitive)
 		if pUnique != NULL
-			@aContent = This._ContentFromEngineList(pUnique)
+			This._SetContent(This._ContentFromEngineList(pUnique))
 			StzEngineListFree(pUnique)
 		ok
 		StzEngineListFree(pList)
@@ -2229,7 +2268,7 @@ class stzList from stzObject
 	def Merge()
 		pList = This._EngineListFromContent()
 		pRes = StzEngineListFlattenToDepth(pList, 1)		#-- one-level flatten
-		@aContent = This._ContentFromEngineList(pRes)
+		This._SetContent(This._ContentFromEngineList(pRes))
 		StzEngineListFree(pList)
 		StzEngineListFree(pRes)
 
@@ -2248,7 +2287,7 @@ class stzList from stzObject
 
 		pFlat = StzEngineListFlatten(pList)
 		if pFlat != NULL
-			@aContent = This._ContentFromEngineList(pFlat)
+			This._SetContent(This._ContentFromEngineList(pFlat))
 			StzEngineListFree(pFlat)
 		ok
 		StzEngineListFree(pList)
@@ -3178,7 +3217,7 @@ class stzList from stzObject
 	def RemoveW(pcCondition)
 		_oRwRemover_ = new stzListRemover(This)
 		_oRwRemover_.RemoveW(pcCondition)
-		@aContent = _oRwRemover_.Content()
+		This._SetContent(_oRwRemover_.Content())
 
 		def RemoveWQ(pcCondition)
 			This.RemoveW(pcCondition)
@@ -3196,7 +3235,7 @@ class stzList from stzObject
 				_aOut_ + @aContent[_i_]
 			ok
 		next
-		@aContent = _aOut_
+		This._SetContent(_aOut_)
 
 		def RemoveSpacesQ()
 			This.RemoveSpaces()
@@ -3220,7 +3259,7 @@ class stzList from stzObject
 				_aOut_ + _x_
 			ok
 		next
-		@aContent = _aOut_
+		This._SetContent(_aOut_)
 
 		def RemoveDuplicatedItemsQ()
 			This.RemoveDuplicatedItems()
@@ -3437,7 +3476,7 @@ class stzList from stzObject
 		for _i_ = 1 to _nL_
 			if isNumber(_l_[_i_]) _l_[_i_] = _l_[_i_] + n ok
 		next
-		@aContent = _l_
+		This._SetContent(_l_)
 
 	def LastNItemsQ(n)
 		return new stzList( This.LastNItems(n) )
@@ -3823,7 +3862,7 @@ class stzList from stzObject
 				_aR_ + _v_
 			ok
 		next
-		@aContent = _aR_
+		This._SetContent(_aR_)
 		return This
 
 	def StringsSplitted(pNamedUsing)
@@ -3976,6 +4015,7 @@ class stzList from stzObject
 		for _i_ = 1 to _nL_
 			_p_ = _aSorted_[_i_]
 			if isNumber(_p_) and _p_ >= 1 and _p_ <= len(@aContent)
+				This._InvalidateEngine()   # in-place @aContent mutation below
 				ring_insert(@aContent, _p_, pItem)
 			ok
 		next
@@ -4006,7 +4046,7 @@ class stzList from stzObject
 				_l_[_p_] = _aNew_[_i_]
 			ok
 		next
-		@aContent = _l_
+		This._SetContent(_l_)
 
 
 	def IsIncludedIn(pOther)
@@ -4051,7 +4091,7 @@ class stzList from stzObject
 		for _i_ = 1 to _nL_
 			if _l_[_i_] = _first_ _l_[_i_] = _new_ else exit ok
 		next
-		@aContent = _l_
+		This._SetContent(_l_)
 
 	def ReplaceTrailingItems(p1)
 		_new_ = p1
@@ -4066,7 +4106,7 @@ class stzList from stzObject
 		for _i_ = _nL_ to 1 step -1
 			if _l_[_i_] = _last_ _l_[_i_] = _new_ else exit ok
 		next
-		@aContent = _l_
+		This._SetContent(_l_)
 
 	def ReplaceLeadingAndTrailingItems(p1)
 		This.ReplaceLeadingItems(p1)
@@ -4672,14 +4712,14 @@ class stzList from stzObject
 	#-- WF mutators / transforms (full Ring power, no eval)
 
 	def RemoveWF(pFunc)
-		@aContent = _StzRemoveWF(This.Content(), pFunc)
+		This._SetContent(_StzRemoveWF(This.Content(), pFunc))
 
 		def RemoveWFQ(pFunc)
 			This.RemoveWF(pFunc)
 			return This
 
 	def ReplaceWF(pFunc, pNewItem)
-		@aContent = _StzReplaceWF(This.Content(), pFunc, pNewItem)
+		This._SetContent(_StzReplaceWF(This.Content(), pFunc, pNewItem))
 
 	def MapWF(pFunc)
 		return _StzMapWF(This.Content(), pFunc)
@@ -4688,15 +4728,15 @@ class stzList from stzObject
 			return This.MapWF(pFunc)
 
 	def InsertAfterWF(pFunc, pItem)
-		@aContent = _StzInsertAfterWF(This.Content(), pFunc, pItem)
+		This._SetContent(_StzInsertAfterWF(This.Content(), pFunc, pItem))
 
 	def InsertBeforeWF(pFunc, pItem)
-		@aContent = _StzInsertBeforeWF(This.Content(), pFunc, pItem)
+		This._SetContent(_StzInsertBeforeWF(This.Content(), pFunc, pItem))
 
 	#-- PerformWF(condFunc, actionFunc): transform each matching item with
 	#-- actionFunc; others unchanged. The eval-free form of PerformW(:if,:do).
 	def PerformWF(pCondFunc, pActionFunc)
-		@aContent = _StzPerformWF(This.Content(), pCondFunc, pActionFunc)
+		This._SetContent(_StzPerformWF(This.Content(), pCondFunc, pActionFunc))
 
 		def PerformWFQ(pCondFunc, pActionFunc)
 			This.PerformWF(pCondFunc, pActionFunc)
@@ -4825,7 +4865,7 @@ class stzList from stzObject
 		for _iSh_ = 1 to n
 			_aShNew_ + @aContent[_iSh_]
 		next
-		@aContent = _aShNew_
+		This._SetContent(_aShNew_)
 
 		def ShrinkToQ(n)
 			This.ShrinkTo(n)
@@ -4879,6 +4919,7 @@ class stzList from stzObject
 				_nSrcLen_ = len(_aSrc_)
 				if _nSrcLen_ = 0 return ok
 				while len(@aContent) < _nTo_
+					This._InvalidateEngine()   # in-place @aContent mutation below
 					@aContent + _aSrc_[ ((len(@aContent)) % _nSrcLen_) + 1 ]
 				end
 				return
@@ -4915,7 +4956,7 @@ class stzList from stzObject
 	  #-- Perform: execute code on each item
 
 	def Perform(pcAction)
-		@aContent = This.Map(pcAction)
+		This._SetContent(This.Map(pcAction))
 
 		def PerformQ(pcAction)
 			This.Perform(pcAction)
@@ -4935,6 +4976,7 @@ class stzList from stzObject
 		for i = 1 to nLen
 			nPos = panPos[i]
 			if nPos >= 1 and nPos <= len(@aContent)
+				This._InvalidateEngine()   # in-place @aContent mutation below
 				@aContent[nPos] = aNew[nPos]
 			ok
 		next
@@ -5065,7 +5107,7 @@ class stzList from stzObject
 		if _pRptList_ = NULL return ok
 		_pRptResult_ = StzEngineListRepeat(_pRptList_, n)
 		if _pRptResult_ != NULL
-			@aContent = This._ContentFromEngineList(_pRptResult_)
+			This._SetContent(This._ContentFromEngineList(_pRptResult_))
 			StzEngineListFree(_pRptResult_)
 		ok
 		StzEngineListFree(_pRptList_)
@@ -5486,7 +5528,7 @@ class stzList from stzObject
 		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
 			pCaseSensitive = pCaseSensitive[2]
 		ok
-		@aContent = _StzRemoveDupSecutive(This.Content(), pCaseSensitive)
+		This._SetContent(_StzRemoveDupSecutive(This.Content(), pCaseSensitive))
 
 		def RemoveDupSecutiveItemsCSQ(pCaseSensitive)
 			This.RemoveDupSecutiveItemsCS(pCaseSensitive)
@@ -5499,7 +5541,7 @@ class stzList from stzObject
 		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
 			pCaseSensitive = pCaseSensitive[2]
 		ok
-		@aContent = _StzRemoveThisDupSecutive(This.Content(), pItem, pCaseSensitive)
+		This._SetContent(_StzRemoveThisDupSecutive(This.Content(), pItem, pCaseSensitive))
 
 	def RemoveDupSecutiveItem(pItem)
 		This.RemoveDupSecutiveItemCS(pItem, 1)
@@ -5570,7 +5612,7 @@ class stzList from stzObject
 		if NOT isList(paItems)
 			_items_ = [ paItems ]
 		ok
-		@aContent = _StzKeepMembers(This.Content(), _items_)
+		This._SetContent(_StzKeepMembers(This.Content(), _items_))
 
 		def RemoveItemsOtherThan(paItems)
 			This.RemoveAllExcept(paItems)
@@ -5578,22 +5620,22 @@ class stzList from stzObject
 	#-- remove the panOcc-th occurrences of pItem (by occurrence index)
 	def RemoveOccurrences(panOcc, pItem)
 		_pos_ = This.FindAllCS(pItem, 1)
-		@aContent = _StzRemoveAtPositions(This.Content(), _StzPickPositions(panOcc, _pos_))
+		This._SetContent(_StzRemoveAtPositions(This.Content(), _StzPickPositions(panOcc, _pos_)))
 
 	def RemoveAnyItemFromStart(pItem)
-		@aContent = _StzRemoveLeadingRun(This.Content(), pItem)
+		This._SetContent(_StzRemoveLeadingRun(This.Content(), pItem))
 
 	def RemoveAnyItemFromEnd(pItem)
-		@aContent = _StzRemoveTrailingRun(This.Content(), pItem)
+		This._SetContent(_StzRemoveTrailingRun(This.Content(), pItem))
 
 	def RemoveNonDuplicates()
-		@aContent = _StzRemoveNonDuplicates(This.Content())
+		This._SetContent(_StzRemoveNonDuplicates(This.Content()))
 
 	#-- remove the n-th occurrence of pItem
 	def RemoveThisNthItem(n, pItem)
 		_pos_ = This.FindAllCS(pItem, 1)
 		if n >= 1 and ring_len(_pos_) >= n
-			@aContent = _StzRemoveAtPositions(This.Content(), [ _pos_[n] ])
+			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _pos_[n] ]))
 		ok
 
 		def RemoveNth(n, pItem)
@@ -5604,12 +5646,12 @@ class stzList from stzObject
 	def RemoveNextNthOccurrence(n, pItem, pnStartingAt)
 		_p_ = This.FindNthNextOccurrence(n, pItem, pnStartingAt)
 		if _p_ > 0
-			@aContent = _StzRemoveAtPositions(This.Content(), [ _p_ ])
+			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _p_ ]))
 		ok
 
 	def RemoveNextNthOccurrences(panN, pItem, pnStartingAt)
 		_ps_ = This.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
-		@aContent = _StzRemoveAtPositions(This.Content(), _ps_)
+		This._SetContent(_StzRemoveAtPositions(This.Content(), _ps_))
 
 		def NextNthOccurrencesRemoved(panN, pItem, pnStartingAt)
 			_ps_ = This.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
@@ -5618,12 +5660,12 @@ class stzList from stzObject
 	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
 		_ps_ = This.FindPreviousNthOccurrences([ n ], pItem, pnStartingAt)
 		if ring_len(_ps_) > 0
-			@aContent = _StzRemoveAtPositions(This.Content(), [ _ps_[1] ])
+			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _ps_[1] ]))
 		ok
 
 	def RemovePreviousNthOccurrences(panN, pItem, pnStartingAt)
 		_ps_ = This.FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
-		@aContent = _StzRemoveAtPositions(This.Content(), _ps_)
+		This._SetContent(_StzRemoveAtPositions(This.Content(), _ps_))
 
 		def PreviousNthOccurrencesRemoved(panN, pItem, pnStartingAt)
 			_ps_ = This.FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
@@ -5642,7 +5684,7 @@ class stzList from stzObject
 		ok
 		_pos_ = This.FindAllCS(pItem, pCaseSensitive)
 		if ring_len(_pos_) > 0
-			@aContent = _StzRemoveAtPositions(This.Content(), [ _pos_[1] ])
+			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _pos_[1] ]))
 		ok
 
 	#-- remove the item at position n; accepts :First / :Last
@@ -5806,10 +5848,10 @@ class stzList from stzObject
 	#=========================================================#
 
 	def InsertAfterManyPositions(panPos, pItem)
-		@aContent = _StzInsertAfterPositions(This.Content(), panPos, pItem)
+		This._SetContent(_StzInsertAfterPositions(This.Content(), panPos, pItem))
 
 	def InsertBeforeManyPositions(panPos, pItem)
-		@aContent = _StzInsertBeforePositions(This.Content(), panPos, pItem)
+		This._SetContent(_StzInsertBeforePositions(This.Content(), panPos, pItem))
 
 	#-- insert pItem after/before each item matching a W-condition (:Where ok)
 
@@ -7655,8 +7697,9 @@ class stzList from stzObject
 	# fill it with these items' fluent shape.
 	def FilledWith(pItems)
 		if isList(pItems)
-			@aContent = pItems
+			This._SetContent(pItems)
 		else
+			This._InvalidateEngine()   # in-place @aContent mutation below
 			@aContent + pItems
 		ok
 		return @aContent
@@ -7675,7 +7718,7 @@ class stzList from stzObject
 		   (pNew[1] = :by or pNew[1] = :By or pNew[1] = :with or pNew[1] = :With)
 			pNew = pNew[2]
 		ok
-		@aContent = This._DeepReplaceCS(@aContent, pOld, pNew, pCaseSensitive)
+		This._SetContent(This._DeepReplaceCS(@aContent, pOld, pNew, pCaseSensitive))
 
 		def DeepReplaceCSQ(pOld, pNew, pCaseSensitive)
 			This.DeepReplaceCS(pOld, pNew, pCaseSensitive)
@@ -7748,7 +7791,7 @@ class stzList from stzObject
 		return 0
 
 	def DeepRemove(pItem)
-		@aContent = This._DeepFilterCS(@aContent, [pItem], 1)
+		This._SetContent(This._DeepFilterCS(@aContent, [pItem], 1))
 		
 
 		def DeepRemoveQ(pItem)
@@ -7756,14 +7799,14 @@ class stzList from stzObject
 			return This
 
 		def DeepRemoveCS(pItem, pCaseSensitive)
-			@aContent = This._DeepFilterCS(@aContent, [pItem], pCaseSensitive)
+			This._SetContent(This._DeepFilterCS(@aContent, [pItem], pCaseSensitive))
 			
 
 	def DeepRemoveMany(paItems)
 		if NOT isList(paItems)
 			StzRaise("DeepRemoveMany: paItems must be a list")
 		ok
-		@aContent = This._DeepFilterCS(@aContent, paItems, 1)
+		This._SetContent(This._DeepFilterCS(@aContent, paItems, 1))
 		
 
 		def DeepRemoveManyQ(paItems)
@@ -7774,7 +7817,7 @@ class stzList from stzObject
 			if NOT isList(paItems)
 				StzRaise("DeepRemoveManyCS: paItems must be a list")
 			ok
-			@aContent = This._DeepFilterCS(@aContent, paItems, pCaseSensitive)
+			This._SetContent(This._DeepFilterCS(@aContent, paItems, pCaseSensitive))
 			
 
 	def DeepRemoved(pItem)
@@ -7875,7 +7918,7 @@ class stzList from stzObject
 		if This.IsListOfLists()
 			_oLol_ = new stzListOfLists(@aContent)
 			_oLol_.SortOnDown(n)
-			@aContent = _oLol_.Content()
+			This._SetContent(_oLol_.Content())
 		else
 			This.SortInDescending()
 		ok
@@ -8029,7 +8072,7 @@ class stzList from stzObject
 		if isList(p) and ring_len(p) = 2
 			n = p[2]
 		ok
-		@aContent = This.Section(1, n)
+		This._SetContent(This.Section(1, n))
 		return This
 
 		def ShrinkQ(p)
@@ -9339,7 +9382,7 @@ class stzList from stzObject
 				StzRaise("operator *: rhs must be a number.")
 			ok
 			_aOriginal_ = @aContent
-			@aContent = []
+			This._SetContent([])
 			_nMul_ = floor(pValue)
 			if _nMul_ < 0
 				_nMul_ = 0
@@ -9347,6 +9390,7 @@ class stzList from stzObject
 			_nOrigLen_ = len(_aOriginal_)
 			for _iMul_ = 1 to _nMul_
 				for _jMul_ = 1 to _nOrigLen_
+					This._InvalidateEngine()   # in-place @aContent mutation below
 					@aContent + _aOriginal_[_jMul_]
 				next
 			next
@@ -10646,6 +10690,7 @@ class stzList from stzObject
 			nLen = len(@aContent)
 			for i = 1 to nLen
 				item = @aContent[i]
+				This._InvalidateEngine()   # in-place @aContent mutation below
 				@aContent[i] = [ item, p ]
 			next
 
