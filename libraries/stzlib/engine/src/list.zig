@@ -20,13 +20,16 @@ pub const StzList = struct {
     //   * INT-MODE   : `ints` non-null  -- dense i64.
     //   * FLOAT-MODE : `floats` non-null -- dense f64 (all-numeric incl. ints
     //                  promoted to f64 once any float appears).
-    // ensureBoxed() materializes either dense mode into `items` on demand; the
+    //   * STR-MODE   : `strs` non-null  -- dense owned []u8 (all-string), no
+    //                  per-item *StzValue wrapper.
+    // ensureBoxed() materializes any dense mode into `items` on demand; the
     // bridge handle-resolvers call it for any op not specialized for dense
     // storage, so the hundreds of `items`-based ops keep working unchanged.
     // Specialized hot ops + marshal + unmarshal read the dense array directly.
     items: std.ArrayList(*StzValue) = .{},
     ints: ?std.ArrayList(i64) = null,
     floats: ?std.ArrayList(f64) = null,
+    strs: ?std.ArrayList([]u8) = null,
 
     pub fn init() !*StzList {
         const self = try allocator.create(StzList);
@@ -50,11 +53,22 @@ pub const StzList = struct {
         return self;
     }
 
+    // Build an empty dense str-mode list (optionally pre-sized).
+    pub fn initStrs(capacity: usize) !*StzList {
+        const self = try allocator.create(StzList);
+        self.* = .{ .strs = std.ArrayList([]u8){} };
+        if (capacity > 0) try self.strs.?.ensureTotalCapacity(allocator, capacity);
+        return self;
+    }
+
     pub fn isInts(self: *const StzList) bool {
         return self.ints != null;
     }
     pub fn isFloats(self: *const StzList) bool {
         return self.floats != null;
+    }
+    pub fn isStrs(self: *const StzList) bool {
+        return self.strs != null;
     }
 
     // Promote dense int-mode to dense float-mode (i64 -> f64). Called when a
@@ -96,6 +110,20 @@ pub const StzList = struct {
             }
             arr.deinit(allocator);
             self.floats = null;
+        } else if (self.strs) |*arr| {
+            self.items.ensureTotalCapacity(allocator, arr.items.len) catch {};
+            for (arr.items) |s| {
+                const v = value_mod.stz_value_new_string(s.ptr, s.len);
+                if (v) |vv| {
+                    self.items.append(allocator, vv) catch {
+                        vv.deinit();
+                        allocator.destroy(vv);
+                    };
+                }
+                allocator.free(s);
+            }
+            arr.deinit(allocator);
+            self.strs = null;
         }
     }
 
@@ -103,6 +131,9 @@ pub const StzList = struct {
         if (self.ints) |*arr| {
             arr.deinit(allocator);
         } else if (self.floats) |*arr| {
+            arr.deinit(allocator);
+        } else if (self.strs) |*arr| {
+            for (arr.items) |s| allocator.free(s);
             arr.deinit(allocator);
         } else {
             for (self.items.items) |item| {
@@ -117,11 +148,12 @@ pub const StzList = struct {
     pub fn len(self: *const StzList) usize {
         if (self.ints) |arr| return arr.items.len;
         if (self.floats) |arr| return arr.items.len;
+        if (self.strs) |arr| return arr.items.len;
         return self.items.items.len;
     }
 
     pub fn appendClone(self: *StzList, v: *const StzValue) !void {
-        if (self.ints != null or self.floats != null) self.ensureBoxed();
+        if (self.ints != null or self.floats != null or self.strs != null) self.ensureBoxed();
         const cloned = try v.clone();
         try self.items.append(allocator, cloned);
     }
@@ -129,13 +161,13 @@ pub const StzList = struct {
     // get/getMut require boxed mode. In a dense mode they return null --
     // callers that may see dense mode must ensureBoxed first (resolvers do).
     pub fn get(self: *const StzList, index: usize) ?*const StzValue {
-        if (self.ints != null or self.floats != null) return null;
+        if (self.ints != null or self.floats != null or self.strs != null) return null;
         if (index >= self.items.items.len) return null;
         return self.items.items[index];
     }
 
     pub fn getMut(self: *StzList, index: usize) ?*StzValue {
-        if (self.ints != null or self.floats != null) return null;
+        if (self.ints != null or self.floats != null or self.strs != null) return null;
         if (index >= self.items.items.len) return null;
         return self.items.items[index];
     }
@@ -307,6 +339,7 @@ pub fn stz_list_append_int(list: ?*StzList, n: i64) callconv(.c) i32 {
         arr.append(allocator, @floatFromInt(n)) catch return -1;
         return 0;
     }
+    if (l.strs != null) l.ensureBoxed(); // int after strings -> mixed -> box
     const v = value_mod.stz_value_new_int(n) orelse return -1;
     l.items.append(allocator, v) catch {
         v.deinit();
@@ -325,6 +358,7 @@ pub fn stz_list_append_float(list: ?*StzList, f: f64) callconv(.c) i32 {
         arr.append(allocator, f) catch return -1;
         return 0;
     }
+    if (l.strs != null) l.ensureBoxed(); // float after strings -> mixed -> box
     const v = value_mod.stz_value_new_float(f) orelse return -1;
     l.items.append(allocator, v) catch {
         v.deinit();
@@ -336,7 +370,32 @@ pub fn stz_list_append_float(list: ?*StzList, f: f64) callconv(.c) i32 {
 
 pub fn stz_list_append_string(list: ?*StzList, ptr: [*]const u8, str_len: usize) callconv(.c) i32 {
     const l = list orelse return -1;
-    l.ensureBoxed(); // strings are not int-mode
+    // Dense str-mode: append an owned byte copy, no *StzValue wrapper.
+    if (l.strs) |*arr| {
+        const copy = allocator.dupe(u8, ptr[0..str_len]) catch return -1;
+        arr.append(allocator, copy) catch {
+            allocator.free(copy);
+            return -1;
+        };
+        return 0;
+    }
+    // Fresh marshal whose FIRST item is a string (empty int-mode, no floats):
+    // switch to dense str-mode for an all-string list.
+    if (l.ints) |*iarr| {
+        if (iarr.items.len == 0 and l.floats == null) {
+            iarr.deinit(allocator);
+            l.ints = null;
+            l.strs = std.ArrayList([]u8){};
+            const copy = allocator.dupe(u8, ptr[0..str_len]) catch return -1;
+            l.strs.?.append(allocator, copy) catch {
+                allocator.free(copy);
+                return -1;
+            };
+            return 0;
+        }
+    }
+    // Mixed (had ints/floats) or already boxed -> box.
+    l.ensureBoxed();
     const v = value_mod.stz_value_new_string(ptr, str_len) orelse return -1;
     l.items.append(allocator, v) catch {
         v.deinit();
@@ -693,6 +752,7 @@ pub fn stz_list_sort_cs(list: ?*StzList, case_sensitive: i32) callconv(.c) i32 {
         }.lt);
         return 0;
     }
+    if (l.strs != null) l.ensureBoxed(); // string sort via boxed path (S1)
     if (l.len() <= 1) return 0;
     const cs = case_sensitive != 0;
     std.mem.sort(*StzValue, l.items.items, cs, struct {
@@ -725,6 +785,7 @@ pub fn stz_list_sort_descending_cs(list: ?*StzList, case_sensitive: i32) callcon
         }.gt);
         return 0;
     }
+    if (l.strs != null) l.ensureBoxed(); // string sort via boxed path (S1)
     if (l.len() <= 1) return 0;
     const cs = case_sensitive != 0;
     std.mem.sort(*StzValue, l.items.items, cs, struct {
@@ -749,6 +810,10 @@ pub fn stz_list_reverse(list: ?*StzList) callconv(.c) i32 {
     }
     if (l.floats) |*arr| {
         std.mem.reverse(f64, arr.items);
+        return 0;
+    }
+    if (l.strs) |*arr| {
+        std.mem.reverse([]u8, arr.items);
         return 0;
     }
     const items = l.items.items;

@@ -1010,6 +1010,8 @@ fn ring_ContentToRingList(p: *anyopaque) callconv(.c) void {
             for (arr.items) |iv| R.ring_list_adddouble(out, @floatFromInt(iv));
         } else if (l.floats) |arr| {
             for (arr.items) |fv| R.ring_list_adddouble(out, fv);
+        } else if (l.strs) |arr| {
+            for (arr.items) |s| R.ring_list_addstring2(out, s.ptr, @intCast(s.len));
         } else {
             for (l.items.items) |item| {
                 appendValueToRing(out, item);
