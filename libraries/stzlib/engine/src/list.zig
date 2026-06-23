@@ -140,12 +140,34 @@ fn hashValueInto(h: *std.hash.Wyhash, v: *const StzValue, cs: bool) void {
     }
 }
 
+// splitmix64 finalizer -- a few multiplies, excellent distribution. Used to
+// hash scalar values directly without spinning up Wyhash (init+byte-update+
+// final) per item, which dominated set-op/classify/dedup hashing at scale.
+inline fn mix64(x: u64) u64 {
+    var z = x +% 0x9E3779B97F4A7C15;
+    z = (z ^ (z >> 30)) *% 0xBF58476D1CE4E5B9;
+    z = (z ^ (z >> 27)) *% 0x94D049BB133111EB;
+    return z ^ (z >> 31);
+}
+
 const ValueSetCtx = struct {
     cs: bool,
     pub fn hash(self: @This(), v: *const StzValue) u64 {
-        var h = std.hash.Wyhash.init(0);
-        hashValueInto(&h, v, self.cs);
-        return h.final();
+        // Fast path for scalars (tag folded in as salt -- eql requires equal
+        // tags, so types never need to collide). Strings/lists keep the
+        // structural Wyhash (case-fold-aware for strings).
+        const tagsalt = @as(u64, @intFromEnum(v.tag)) << 56;
+        switch (v.tag) {
+            .int_val => return mix64(@as(u64, @bitCast(v.data.int_val)) ^ tagsalt),
+            .float_val => return mix64(@as(u64, @bitCast(v.data.float_val)) ^ tagsalt),
+            .bool_val => return mix64((if (v.data.bool_val) @as(u64, 1) else @as(u64, 0)) ^ tagsalt),
+            .null_val => return mix64(tagsalt),
+            .string_val, .list_val => {
+                var h = std.hash.Wyhash.init(0);
+                hashValueInto(&h, v, self.cs);
+                return h.final();
+            },
+        }
     }
     pub fn eql(self: @This(), a: *const StzValue, b: *const StzValue) bool {
         return valueEqlCS(a, b, self.cs);

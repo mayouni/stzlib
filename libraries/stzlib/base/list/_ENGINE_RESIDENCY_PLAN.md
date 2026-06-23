@@ -250,6 +250,26 @@ delegation chains (op -> submodule -> wrapper) stack O(n) copies. Prefer the C
 bridge return (no copy) and minimize Ring-return boundaries the big list
 crosses. marshal-IN is cheap (~0.1s); the copies were the real tax.
 
+## Scalar hash fast-path (set-ops / classify / dedup on numbers)
+
+The value hash-set (ValueSetCtx) backing union/intersection/difference/
+classify/dedup spun up a fresh Wyhash (init + byte-update + final) per item.
+For SCALAR values (int/float/bool/null) that per-item overhead dominated at
+scale. Added a splitmix64 (`mix64`) direct hash for scalars, folding the tag in
+as salt (eql requires equal tags, so types never need to collide). Strings/
+lists keep the structural, case-fold-aware Wyhash. Hashes only need internal
+consistency (eql resolves collisions), so this is safe.
+
+Result: looped UnionWith over 1M ints ~5.1s -> ~2.9s (~43%). Classify over
+STRING keys is unchanged (~2.3s -- strings keep Wyhash), confirming the win is
+the int path. Correct across set-ops/dups/classify tests.
+
+Remaining frontier for native-speed set-ops (Python does 1M int-union in
+~0.1s; we're ~2-3s): the list stores boxed `*StzValue` items, so hashing/
+comparing chase pointers and switch on tags. True native speed needs UNBOXED
+typed storage (e.g. a dense i64 array for all-int lists) -- a larger engine
+rearchitecture, deliberately out of scope here.
+
 ## Key files
 
 - `libraries/stzlib/base/list/stzList.ring` — the class (~10k lines).
