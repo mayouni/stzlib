@@ -8577,6 +8577,28 @@ func _StzMapWPredicate(cMeth, cExpr, cArg)
 
 	return NULL
 
+#-- Walker step helpers (produce [:Key, value] pairs for AddWalker).
+#-- Named()/WhileWalking()/With()/Wk() live in stzWalker.ring; StartingAt()/
+#-- EndingAt() live in stzFuncs.ring and return bare values (used positionally).
+
+func NStepsATime(p)
+	return [ :NStep, p ]
+
+func TakingNEqualMoves(p)
+	return [ :NEqualMoves, p ]
+
+#-- Evaluate a walker yielder expression at global scope (NOT inside a class
+#-- method -- there, a bare call like type(item) would bind to a same-named
+#-- method on the receiver). @item / @char / item / Item all denote the value.
+func _StzEvalWalkExpr(pcYielder, item)
+	Item = item
+	_cWe_ = pcYielder
+	_cWe_ = StzReplace(_cWe_, "@item", "item")
+	_cWe_ = StzReplace(_cWe_, "@char", "item")
+	_cWe_ = _StzStripBraces(_cWe_)
+	eval("_walkyieldres_ = (" + _cWe_ + ")")
+	return _walkyieldres_
+
   /////////////////
  ///   CLASS   ///
 /////////////////

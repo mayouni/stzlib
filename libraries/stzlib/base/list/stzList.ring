@@ -6321,9 +6321,131 @@ class stzList from stzObject
 	 #  WALKER DELEGATIONS           #
 	#-------------------------------#
 
-	def AddWalker(pcName, pnStart, pnEnd, pnStep)
-		_oAwWk_ = new stzListWalker(This)
-		_oAwWk_.AddWalker(pcName, pnStart, pnEnd, pnStep)
+	#-- AddWalker: register a NAMED walker over this list. The 4 args may be
+	#-- given positionally (name, start, end, step) OR as named pairs /
+	#-- function-style helpers in any order:
+	#--   AddWalker(:Named=:W, :StartingAt=1, :EndingAt=10, :NStep=2)
+	#--   AddWalker(Named(:W), StartingAt(1), EndingAt(10), NStepsATime(2))
+	#--   AddWalker(:W, 6, 10, [:NStepsATime, 3])
+	#--   AddWalker(Named(:W), StartingAt(1), EndingAt(10), TakingNEqualMoves(3))
+	#-- The walker is stored on THIS list (@aWalkers) and queried later with
+	#-- WalkedItems/WalkedPositions/... ( :By = <name> ).
+	def AddWalker(p1, p2, p3, p4)
+		cAwName = ""
+		nAwStart = 1
+		nAwEnd = This.NumberOfItems()
+		nAwStep = 1
+		nAwMoves = 0
+		cAwMode = :Step
+
+		_aAwArgs_ = [ p1, p2, p3, p4 ]
+		_nAwPos_ = 0
+		for _iAw_ = 1 to 4
+			_a_ = _aAwArgs_[_iAw_]
+			if isList(_a_) and len(_a_) = 2 and isString(_a_[1])
+				_k_ = lower(_a_[1])
+				_v_ = _a_[2]
+				if _k_ = "named" or _k_ = "name"
+					cAwName = _v_
+				but _k_ = "startingat"
+					nAwStart = _v_
+				but _k_ = "endingat"
+					nAwEnd = _v_
+				but _k_ = "nstep" or _k_ = "nstepsatime"
+					nAwStep = _v_ cAwMode = :Step
+				but _k_ = "nequalmoves"
+					nAwMoves = _v_ cAwMode = :EqualMoves
+				ok
+			but isString(_a_) or isNumber(_a_)
+				_nAwPos_++
+				if _nAwPos_ = 1
+					cAwName = _a_
+				but _nAwPos_ = 2
+					nAwStart = _a_
+				but _nAwPos_ = 3
+					nAwEnd = _a_
+				but _nAwPos_ = 4
+					nAwStep = _a_
+				ok
+			ok
+		next
+
+		@aWalkers + [ cAwName, [ nAwStart, nAwEnd, nAwStep, cAwMode, nAwMoves ] ]
+
+	def Walkers()
+		return @aWalkers
+
+	#-- resolve a walker name from a bare name or a [:By/:Named/..., name] pair
+	def _ResolveWalkerName(pName)
+		if isList(pName) and len(pName) = 2 and isString(pName[1])
+			return pName[2]
+		ok
+		return pName
+
+	def _WalkerDef(pName)
+		_cWd_ = This._ResolveWalkerName(pName)
+		_nWd_ = len(@aWalkers)
+		for _iWd_ = 1 to _nWd_
+			if @aWalkers[_iWd_][1] = _cWd_
+				return @aWalkers[_iWd_][2]
+			ok
+		next
+		return NULL
+
+	def WalkedPositions(pBy)
+		_aWp_ = This._WalkerDef(pBy)
+		if _aWp_ = NULL return [] ok
+		_nStart_ = _aWp_[1]
+		_nEnd_   = _aWp_[2]
+		_nStep_  = _aWp_[3]
+		_cMode_  = _aWp_[4]
+		_nMoves_ = _aWp_[5]
+		_nLen_   = This.NumberOfItems()
+		if _nEnd_ > _nLen_ _nEnd_ = _nLen_ ok
+		if _nStart_ < 1 _nStart_ = 1 ok
+
+		_anRes_ = []
+		if _cMode_ = :EqualMoves and _nMoves_ > 1
+			for _iEm_ = 0 to _nMoves_ - 1
+				_p_ = _nStart_ + floor( _iEm_ * (_nEnd_ - _nStart_) / (_nMoves_ - 1) )
+				_anRes_ + _p_
+			next
+		else
+			_iSt_ = _nStart_
+			while _iSt_ <= _nEnd_
+				_anRes_ + _iSt_
+				_iSt_ += _nStep_
+			end
+		ok
+		return _anRes_
+
+	def WalkedItems(pBy)
+		return This.ItemsAtPositions( This.WalkedPositions(pBy) )
+
+	def NumberOfWalkedItems(pBy)
+		return len( This.WalkedPositions(pBy) )
+
+	def WalkedLastPosition(pBy)
+		_anWlp_ = This.WalkedPositions(pBy)
+		if len(_anWlp_) = 0 return 0 ok
+		return _anWlp_[ len(_anWlp_) ]
+
+	def WalkedLastItem(pBy)
+		_nWli_ = This.WalkedLastPosition(pBy)
+		if _nWli_ = 0 return NULL ok
+		return This.Item(_nWli_)
+
+	#-- YieldWhileWalking: evaluate a yielder expression at each position the
+	#-- named walker visits. The yielder may use @item / item / Item for the
+	#-- current value (e.g. 'type(@item)' or '{ StzLen(item) }').
+	def YieldWhileWalking(pcYielder, pWalker)
+		_anYw_ = This.WalkedPositions(pWalker)
+		_aYwRes_ = []
+		_nYw_ = len(_anYw_)
+		for _iYw_ = 1 to _nYw_
+			_aYwRes_ + _StzEvalWalkExpr(pcYielder, This.Item(_anYw_[_iYw_]))
+		next
+		return _aYwRes_
 
 	def WalkNForward(n)
 		_oWnfWk_ = new stzListWalker(This)
