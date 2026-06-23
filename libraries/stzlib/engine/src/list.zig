@@ -3090,6 +3090,12 @@ pub fn stz_list_sum(list_arg: ?*const StzList) callconv(.c) f64 {
 
 pub fn stz_list_product(list_arg: ?*const StzList) callconv(.c) f64 {
     const l = list_arg orelse return 0;
+    if (l.ints) |arr| {
+        if (arr.items.len == 0) return 0;
+        var result: f64 = 1;
+        for (arr.items) |x| result *= @floatFromInt(x);
+        return result;
+    }
     if (l.len() == 0) return 0;
     var result: f64 = 1;
     var found = false;
@@ -3104,6 +3110,14 @@ pub fn stz_list_product(list_arg: ?*const StzList) callconv(.c) f64 {
 
 pub fn stz_list_min(list_arg: ?*const StzList) callconv(.c) f64 {
     const l = list_arg orelse return 0;
+    if (l.ints) |arr| {
+        if (arr.items.len == 0) return 0;
+        var m: i64 = arr.items[0];
+        for (arr.items) |x| {
+            if (x < m) m = x;
+        }
+        return @floatFromInt(m);
+    }
     var result: f64 = std.math.inf(f64);
     var found = false;
     for (l.items.items) |item| {
@@ -3117,6 +3131,14 @@ pub fn stz_list_min(list_arg: ?*const StzList) callconv(.c) f64 {
 
 pub fn stz_list_max(list_arg: ?*const StzList) callconv(.c) f64 {
     const l = list_arg orelse return 0;
+    if (l.ints) |arr| {
+        if (arr.items.len == 0) return 0;
+        var m: i64 = arr.items[0];
+        for (arr.items) |x| {
+            if (x > m) m = x;
+        }
+        return @floatFromInt(m);
+    }
     var result: f64 = -std.math.inf(f64);
     var found = false;
     for (l.items.items) |item| {
@@ -3130,6 +3152,12 @@ pub fn stz_list_max(list_arg: ?*const StzList) callconv(.c) f64 {
 
 pub fn stz_list_mean(list_arg: ?*const StzList) callconv(.c) f64 {
     const l = list_arg orelse return 0;
+    if (l.ints) |arr| {
+        if (arr.items.len == 0) return 0;
+        var total: f64 = 0;
+        for (arr.items) |x| total += @floatFromInt(x);
+        return total / @as(f64, @floatFromInt(arr.items.len));
+    }
     var total: f64 = 0;
     var count: f64 = 0;
     for (l.items.items) |item| {
