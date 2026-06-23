@@ -3300,6 +3300,18 @@ class stzList from stzObject
 		# to StzEngineListFindAllCS+StzEngineValueNewInt returned empty
 		# for all-number lists (bug found via M-S2 regression test).
 		if isNumber(pItem)
+			# Integer needle: engine dense find (scans the i64 array directly;
+			# needle passed as a plain number so no cross-module value handle).
+			if floor(pItem) = pItem
+				_pFaiH_ = This._Engine()
+				if _pFaiH_ != NULL
+					_anFai_ = StzEngineListFindAllInt(_pFaiH_, pItem)
+					if isList(_anFai_)
+						return _anFai_
+					ok
+				ok
+			ok
+			# Float needle (or fallback): the proven Ring helper.
 			_anFaoNumResult_ = @FindAllCS_NbrOrStr( @aContent, pItem, pCaseSensitive )
 			if isList(_anFaoNumResult_)
 				return _anFaoNumResult_
