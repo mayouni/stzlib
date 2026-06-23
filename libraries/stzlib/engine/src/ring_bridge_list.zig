@@ -22,13 +22,38 @@ fn gcp(p: *anyopaque, n: c_int, _: [*:0]const u8) ?*anyopaque {
 const HL: [*:0]const u8 = "StzListHandle";
 const HV: [*:0]const u8 = "StzValueHandle";
 
+// Default resolvers materialize dense int-mode into boxed *StzValue, so the
+// many ops written against boxed `items` keep working unchanged. Specialized
+// dense-aware ops use getLTyped/getLCTyped to preserve int-mode.
 fn getL(p: *anyopaque, n: c_int) ?*list.StzList {
+    const ptr = gcp(p, n, HL);
+    if (ptr) |raw| {
+        const l: *list.StzList = @ptrCast(@alignCast(raw));
+        l.ensureBoxed();
+        return l;
+    }
+    return null;
+}
+
+fn getLC(p: *anyopaque, n: c_int) ?*const list.StzList {
+    const ptr = gcp(p, n, HL);
+    if (ptr) |raw| {
+        const l: *list.StzList = @ptrCast(@alignCast(raw));
+        l.ensureBoxed();
+        return l;
+    }
+    return null;
+}
+
+// Typed resolvers: preserve dense int-mode (no ensureBoxed). ONLY for ops that
+// explicitly handle l.ints (else they'd see an empty boxed view in int-mode).
+fn getLTyped(p: *anyopaque, n: c_int) ?*list.StzList {
     const ptr = gcp(p, n, HL);
     if (ptr) |raw| return @ptrCast(@alignCast(raw));
     return null;
 }
 
-fn getLC(p: *anyopaque, n: c_int) ?*const list.StzList {
+fn getLCTyped(p: *anyopaque, n: c_int) ?*const list.StzList {
     const ptr = gcp(p, n, HL);
     if (ptr) |raw| return @ptrCast(@alignCast(raw));
     return null;
@@ -862,7 +887,10 @@ fn marshalRingListToValue(pRingList: *anyopaque) ?*value.StzValue {
 fn marshalRingList(pRingList: *anyopaque) ?*list.StzList {
     const nSize = R.ringListSize(pRingList);
     if (nSize == 0) return list.stz_list_new();
-    const result = list.stz_list_new() orelse return null;
+    // Start in dense int-mode: stz_list_append_int keeps it dense while items
+    // are ints; the first non-int append transparently ensureBoxed()s. So an
+    // all-int Ring list marshals with ZERO per-item *StzValue boxing.
+    const result = list.stz_list_new_ints() orelse return null;
     var i: c_uint = 1;
     while (i <= nSize) : (i += 1) {
         const itemType = R.ring_list_gettype_gc(null, pRingList, i);
@@ -948,9 +976,15 @@ fn appendValueToRing(rl: *anyopaque, v: *const value.StzValue) void {
 // (StzEngineContentFromList) that made millions of FFI round-trips at scale.
 fn ring_ContentToRingList(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
-    if (getLC(p, 1)) |l| {
-        for (l.items.items) |item| {
-            appendValueToRing(out, item);
+    // Typed resolver: read dense int-mode directly into the Ring list (no
+    // boxing round-trip). Boxed lists take the structural path.
+    if (getLCTyped(p, 1)) |l| {
+        if (l.ints) |arr| {
+            for (arr.items) |iv| R.ring_list_adddouble(out, @floatFromInt(iv));
+        } else {
+            for (l.items.items) |item| {
+                appendValueToRing(out, item);
+            }
         }
     }
     R.ring_vm_api_retlist(p, out);
