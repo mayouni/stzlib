@@ -6914,6 +6914,73 @@ class stzList from stzObject
 		_oYwPrf_ = new stzListPerformer(This)
 		return _oYwPrf_.YieldW(pcCondition, pcYielder)
 
+	#-- YieldXT: positional / conditional yielder. The yielder is "@item"
+	#-- (or "@char") -- the value at each visited position. The window is
+	#-- given by named options:
+	#--   :FromPosition = a, :To = b   -> positions a..b inclusive (b may be
+	#--                                    negative, counting from the end).
+	#--   :StartingAt = a, :Until = c  -> from a onward, stop BEFORE the first
+	#--                                    item satisfying the W-condition c.
+	#--   :StartingAt = a, :UntilXT = c-> same, but INCLUDE that stop item.
+	def YieldXT(pcYielder, p2, p3)
+		nLen = This.NumberOfItems()
+		aC = This.Content()
+
+		_nFrom_ = 0 _nTo_ = 0 _bRange_ = 0
+		_nStart_ = 0 _cUntil_ = "" _bUntil_ = 0 _bInc_ = 0
+
+		_aOpts_ = [ p2, p3 ]
+		for _iYo_ = 1 to 2
+			_p_ = _aOpts_[_iYo_]
+			if isList(_p_) and len(_p_) = 2 and isString(_p_[1])
+				_k_ = lower(_p_[1])
+				_v_ = _p_[2]
+				if _k_ = "fromposition"
+					_nFrom_ = _v_ _bRange_ = 1
+				but _k_ = "to"
+					_nTo_ = _v_ _bRange_ = 1
+				but _k_ = "startingat"
+					_nStart_ = _v_
+				but _k_ = "until"
+					_cUntil_ = _v_ _bUntil_ = 1 _bInc_ = 0
+				but _k_ = "untilxt"
+					_cUntil_ = _v_ _bUntil_ = 1 _bInc_ = 1
+				ok
+			ok
+		next
+
+		_aRes_ = []
+
+		if _bRange_
+			_a_ = _nFrom_
+			_b_ = _nTo_
+			if _b_ < 0 _b_ = nLen + _b_ + 1 ok
+			if _a_ < 1 _a_ = 1 ok
+			if _b_ > nLen _b_ = nLen ok
+			for _i_ = _a_ to _b_
+				_aRes_ + aC[_i_]
+			next
+			return _aRes_
+		ok
+
+		if _bUntil_
+			if _nStart_ < 1 _nStart_ = 1 ok
+			for _i_ = _nStart_ to nLen
+				# does aC[_i_] satisfy the until-condition?
+				_oOne_ = new stzList([ aC[_i_] ])
+				_bHit_ = ( len(_oOne_.FindAllItemsW(_cUntil_)) > 0 )
+				if _bHit_
+					if _bInc_ _aRes_ + aC[_i_] ok
+					exit
+				ok
+				_aRes_ + aC[_i_]
+			next
+			return _aRes_
+		ok
+
+		# no window -> yield every item
+		return aC
+
 	# YieldW(pcCondition, pcYielder): the @item-syntax form of YieldW
 	# -- for items matching pcCondition, yield the value of pcYielder.
 	# Engine-backed via YieldW (no eval).
