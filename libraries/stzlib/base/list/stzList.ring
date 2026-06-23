@@ -8696,49 +8696,44 @@ class stzList from stzObject
 	#-- markers align to single columns; generalising is a TODO.)
 
 	def VizFindAllOccurrencesCS(pItem, pCaseSensitive)
-		if NOT @IsChar(pItem)
-			StzRaise("Can't proceed! Only chars can currently be visualised in the output.")
-		ok
-		oVfCode = new stzString(This.ToCode())
-		cVfRes = oVfCode.Simplified()
-		oVfStr = new stzString(cVfRes)
-		anVfPos = oVfStr.FindAllCS(@@(pItem), pCaseSensitive)
-		nVfLen = StzLen(cVfRes)
-		cVfViz = " "
-		for iVf = 1 to nVfLen - 2
-			if ring_find(anVfPos, iVf) > 0
-				cVfViz += "^"
-			else
-				cVfViz += "-"
-			ok
-		next
-		cVfRes += (NL + cVfViz)
-		return cVfRes
+		return This.VizFindCS(pItem, pCaseSensitive)
 
 	def VizFindAllOccurrences(pItem)
 		return This.VizFindAllOccurrencesCS(pItem, 1)
 
 		def VizFind(pItem)
-			return This.VizFindAllOccurrences(pItem)
+			return This.VizFindCS(pItem, 1)
+
+		def VizFindCS(pItem, pCaseSensitive)
+			# Base form: code + a single unlabelled marker row, wrapped.
+			cCode = This._VizCodeStr()
+			cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive)
+			return This._VizWrap(cCode, [ [ "", cMark, "" ] ], This._VizWidth())
 
 		def VizFindAll(pItem)
-			return This.VizFindAllOccurrences(pItem)
+			return This.VizFindCS(pItem, 1)
 
 	#-- _VizCodeStr / _VizMarkerLine: shared helpers for the Viz family.
 	#-- The marker line aligns to the COLUMNS of the rendered code string:
 	#-- "^" under each occurrence of pItem, "." under each occurrence of any
-	#-- item in paOthers, "-" everywhere else.
+	#-- item in paOthers, "-" everywhere else. Works for ANY string value,
+	#-- not only single chars (long values just span more columns).
 	def _VizCodeStr()
 		oVfc = new stzString(This.ToCode())
 		return oVfc.Simplified()
 
-	def _VizMarkerLine(pItem, paOthers, pcCode)
+	#-- Default wrap width: long renderings are split into lines this wide,
+	#-- each with its marker row(s) underneath.
+	def _VizWidth()
+		return 50
+
+	def _VizMarkerLine(pItem, paOthers, pcCode, pCaseSensitive)
 		oVfm = new stzString(pcCode)
-		anMine = oVfm.FindAllCS(@@(pItem), 1)
+		anMine = oVfm.FindAllCS(@@(pItem), pCaseSensitive)
 		anOther = []
 		_nVfmO_ = len(paOthers)
 		for _iVfmO_ = 1 to _nVfmO_
-			_anH_ = oVfm.FindAllCS(@@(paOthers[_iVfmO_]), 1)
+			_anH_ = oVfm.FindAllCS(@@(paOthers[_iVfmO_]), pCaseSensitive)
 			_nH_ = len(_anH_)
 			for _jVfm_ = 1 to _nH_
 				anOther + _anH_[_jVfm_]
@@ -8757,19 +8752,62 @@ class stzList from stzObject
 		next
 		return cViz
 
+	#-- _VizWrap: render <code> with one or more marker rows beneath it,
+	#-- WRAPPING to nWidth columns. Each row is [ cLabel, cMarker, cSuffix ];
+	#-- the marker is column-aligned to the code (padded to its length) and
+	#-- the suffix (e.g. a "(count)") is appended only after the LAST window.
+	#-- An empty line separates wrapped blocks (none after the last block).
+	def _VizWrap(pcCode, paRows, nWidth)
+		nLen = StzLen(pcCode)
+		oVwCode = new stzString(pcCode)
+
+		# pad each marker to the code length so windows line up
+		aPad = []
+		_nVwR_ = len(paRows)
+		for _rVw_ = 1 to _nVwR_
+			_cM_ = paRows[_rVw_][2]
+			_nM_ = StzLen(_cM_)
+			for _pVw_ = _nM_ + 1 to nLen
+				_cM_ += "-"
+			next
+			aPad + [ paRows[_rVw_][1], _cM_, paRows[_rVw_][3] ]
+		next
+
+		cRes = ""
+		nStart = 1
+		bFirst = 1
+		while nStart <= nLen
+			nEnd = nStart + nWidth - 1
+			if nEnd > nLen nEnd = nLen ok
+			bLastWin = ( nEnd = nLen )
+
+			if NOT bFirst cRes += (NL + NL) ok
+			bFirst = 0
+
+			cRes += oVwCode.Section(nStart, nEnd)
+			for _rVw2_ = 1 to _nVwR_
+				oVwM = new stzString(aPad[_rVw2_][2])
+				cSeg = oVwM.Section(nStart, nEnd)
+				cRes += NL + aPad[_rVw2_][1] + cSeg
+				if bLastWin
+					cRes += aPad[_rVw2_][3]
+				ok
+			next
+			nStart = nEnd + 1
+		end
+		return cRes
+
 	#-- VizFindXT: like VizFind, plus a "<item> :" label and a "(count)" tally.
 	def VizFindXT(pItem)
 		return This.VizFindXTCS(pItem, 1)
 
 	def VizFindXTCS(pItem, pCaseSensitive)
-		if NOT @IsChar(pItem)
-			StzRaise("Can't proceed! Only chars can currently be visualised in the output.")
-		ok
 		cCode = This._VizCodeStr()
-		cMark = This._VizMarkerLine(pItem, [], cCode)
+		cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive)
 		oVfxCnt = new stzString(cCode)
 		nCount = len( oVfxCnt.FindAllCS(@@(pItem), pCaseSensitive) )
-		return cCode + NL + @@(pItem) + " : " + cMark + " (" + nCount + ")"
+		_aRow_ = [ [ @@(pItem) + " : ", cMark, " (" + nCount + ")" ] ]
+		return This._VizWrap(cCode, _aRow_, This._VizWidth())
 
 	#-- VizFindMany: one labelled marker row per searched item. Each row marks
 	#-- "^" for its own item and "." for the other searched items.
@@ -8781,20 +8819,17 @@ class stzList from stzObject
 			StzRaise("Can't proceed! paItems must be a list.")
 		ok
 		cCode = This._VizCodeStr()
-		cRes = cCode
+		aRows = []
 		nN = len(paItems)
 		for iM = 1 to nN
-			if NOT @IsChar(paItems[iM])
-				StzRaise("Can't proceed! Only chars can currently be visualised in the output.")
-			ok
 			aOthers = []
 			for jM = 1 to nN
 				if jM != iM aOthers + paItems[jM] ok
 			next
-			cMark = This._VizMarkerLine(paItems[iM], aOthers, cCode)
-			cRes += NL + @@(paItems[iM]) + " : " + cMark
+			cMark = This._VizMarkerLine(paItems[iM], aOthers, cCode, pCaseSensitive)
+			aRows + [ @@(paItems[iM]) + " : ", cMark, "" ]
 		next
-		return cRes
+		return This._VizWrap(cCode, aRows, This._VizWidth())
 
 	#-- VizFindManyXT: VizFindMany plus a "(count)" tally on each row.
 	def VizFindManyXT(paItems)
@@ -8805,22 +8840,19 @@ class stzList from stzObject
 			StzRaise("Can't proceed! paItems must be a list.")
 		ok
 		cCode = This._VizCodeStr()
-		cRes = cCode
+		oVmx = new stzString(cCode)
+		aRows = []
 		nN = len(paItems)
 		for iMx = 1 to nN
-			if NOT @IsChar(paItems[iMx])
-				StzRaise("Can't proceed! Only chars can currently be visualised in the output.")
-			ok
 			aOthers = []
 			for jMx = 1 to nN
 				if jMx != iMx aOthers + paItems[jMx] ok
 			next
-			cMark = This._VizMarkerLine(paItems[iMx], aOthers, cCode)
-			oVfmxCnt = new stzString(cCode)
-			nCount = len( oVfmxCnt.FindAllCS(@@(paItems[iMx]), pCaseSensitive) )
-			cRes += NL + @@(paItems[iMx]) + " : " + cMark + " (" + nCount + ")"
+			cMark = This._VizMarkerLine(paItems[iMx], aOthers, cCode, pCaseSensitive)
+			nCount = len( oVmx.FindAllCS(@@(paItems[iMx]), pCaseSensitive) )
+			aRows + [ @@(paItems[iMx]) + " : ", cMark, " (" + nCount + ")" ]
 		next
-		return cRes
+		return This._VizWrap(cCode, aRows, This._VizWidth())
 
 	#-- Type-filter family: Xs() = items of type X, XsZ() = [item,pos]
 	#-- pairs, NumberOfXs() = count. Char = single-codepoint string
