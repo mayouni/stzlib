@@ -14,35 +14,64 @@ const StzValue = value_mod.StzValue;
 const ValueType = value_mod.ValueType;
 
 pub const StzList = struct {
-    // Dual storage (unboxed typed-storage refactor). Normally `items` holds
-    // boxed *StzValue. When `ints` is non-null the list is in dense INT-MODE:
-    // `ints` is the source of truth and `items` is empty -- no per-item heap
-    // boxing. ensureBoxed() materializes int-mode into `items` on demand; the
-    // bridge handle-resolvers call it for any op not specialized for int-mode,
-    // so the hundreds of `items`-based ops keep working unchanged. Specialized
-    // hot ops + marshal + unmarshal read `ints` directly for near-native speed.
+    // Tri storage (unboxed typed-storage refactor). Normally `items` holds
+    // boxed *StzValue. Exactly one of these dense modes may be active instead
+    // (then `items` is empty -- no per-item heap boxing):
+    //   * INT-MODE   : `ints` non-null  -- dense i64.
+    //   * FLOAT-MODE : `floats` non-null -- dense f64 (all-numeric incl. ints
+    //                  promoted to f64 once any float appears).
+    // ensureBoxed() materializes either dense mode into `items` on demand; the
+    // bridge handle-resolvers call it for any op not specialized for dense
+    // storage, so the hundreds of `items`-based ops keep working unchanged.
+    // Specialized hot ops + marshal + unmarshal read the dense array directly.
     items: std.ArrayList(*StzValue) = .{},
     ints: ?std.ArrayList(i64) = null,
+    floats: ?std.ArrayList(f64) = null,
 
     pub fn init() !*StzList {
         const self = try allocator.create(StzList);
-        self.* = .{ .items = .{}, .ints = null };
+        self.* = .{};
         return self;
     }
 
     // Build an empty dense int-mode list (optionally pre-sized).
     pub fn initInts(capacity: usize) !*StzList {
         const self = try allocator.create(StzList);
-        self.* = .{ .items = .{}, .ints = std.ArrayList(i64){} };
+        self.* = .{ .ints = std.ArrayList(i64){} };
         if (capacity > 0) try self.ints.?.ensureTotalCapacity(allocator, capacity);
+        return self;
+    }
+
+    // Build an empty dense float-mode list (optionally pre-sized).
+    pub fn initFloats(capacity: usize) !*StzList {
+        const self = try allocator.create(StzList);
+        self.* = .{ .floats = std.ArrayList(f64){} };
+        if (capacity > 0) try self.floats.?.ensureTotalCapacity(allocator, capacity);
         return self;
     }
 
     pub fn isInts(self: *const StzList) bool {
         return self.ints != null;
     }
+    pub fn isFloats(self: *const StzList) bool {
+        return self.floats != null;
+    }
 
-    // Materialize dense int-mode into boxed *StzValue items (one-time,
+    // Promote dense int-mode to dense float-mode (i64 -> f64). Called when a
+    // float appears in an otherwise all-int list during marshal. No-op if
+    // already float-mode or boxed.
+    pub fn ensureFloats(self: *StzList) void {
+        if (self.ints) |*arr| {
+            var f = std.ArrayList(f64){};
+            f.ensureTotalCapacity(allocator, arr.items.len) catch {};
+            for (arr.items) |x| f.append(allocator, @floatFromInt(x)) catch {};
+            arr.deinit(allocator);
+            self.ints = null;
+            self.floats = f;
+        }
+    }
+
+    // Materialize either dense mode into boxed *StzValue items (one-time,
     // idempotent). After this the list is in normal boxed mode.
     pub fn ensureBoxed(self: *StzList) void {
         if (self.ints) |*arr| {
@@ -56,11 +85,24 @@ pub const StzList = struct {
             }
             arr.deinit(allocator);
             self.ints = null;
+        } else if (self.floats) |*arr| {
+            self.items.ensureTotalCapacity(allocator, arr.items.len) catch {};
+            for (arr.items) |fv| {
+                const v = value_mod.stz_value_new_float(fv) orelse continue;
+                self.items.append(allocator, v) catch {
+                    v.deinit();
+                    allocator.destroy(v);
+                };
+            }
+            arr.deinit(allocator);
+            self.floats = null;
         }
     }
 
     pub fn deinit(self: *StzList) void {
         if (self.ints) |*arr| {
+            arr.deinit(allocator);
+        } else if (self.floats) |*arr| {
             arr.deinit(allocator);
         } else {
             for (self.items.items) |item| {
@@ -74,25 +116,26 @@ pub const StzList = struct {
 
     pub fn len(self: *const StzList) usize {
         if (self.ints) |arr| return arr.items.len;
+        if (self.floats) |arr| return arr.items.len;
         return self.items.items.len;
     }
 
     pub fn appendClone(self: *StzList, v: *const StzValue) !void {
-        if (self.ints != null) self.ensureBoxed();
+        if (self.ints != null or self.floats != null) self.ensureBoxed();
         const cloned = try v.clone();
         try self.items.append(allocator, cloned);
     }
 
-    // get/getMut require boxed mode. In int-mode they return null -- callers
-    // that may see int-mode must ensureBoxed first (bridge resolvers do).
+    // get/getMut require boxed mode. In a dense mode they return null --
+    // callers that may see dense mode must ensureBoxed first (resolvers do).
     pub fn get(self: *const StzList, index: usize) ?*const StzValue {
-        if (self.ints != null) return null;
+        if (self.ints != null or self.floats != null) return null;
         if (index >= self.items.items.len) return null;
         return self.items.items[index];
     }
 
     pub fn getMut(self: *StzList, index: usize) ?*StzValue {
-        if (self.ints != null) return null;
+        if (self.ints != null or self.floats != null) return null;
         if (index >= self.items.items.len) return null;
         return self.items.items[index];
     }
@@ -259,6 +302,11 @@ pub fn stz_list_append_int(list: ?*StzList, n: i64) callconv(.c) i32 {
         arr.append(allocator, n) catch return -1;
         return 0;
     }
+    // Dense float-mode: store the int as f64 (keeps the list dense-numeric).
+    if (l.floats) |*arr| {
+        arr.append(allocator, @floatFromInt(n)) catch return -1;
+        return 0;
+    }
     const v = value_mod.stz_value_new_int(n) orelse return -1;
     l.items.append(allocator, v) catch {
         v.deinit();
@@ -270,7 +318,13 @@ pub fn stz_list_append_int(list: ?*StzList, n: i64) callconv(.c) i32 {
 
 pub fn stz_list_append_float(list: ?*StzList, f: f64) callconv(.c) i32 {
     const l = list orelse return -1;
-    l.ensureBoxed(); // floats are not int-mode
+    // A float in an all-int list promotes it to dense float-mode (i64 -> f64),
+    // keeping the list dense-numeric instead of boxing.
+    if (l.ints != null) l.ensureFloats();
+    if (l.floats) |*arr| {
+        arr.append(allocator, f) catch return -1;
+        return 0;
+    }
     const v = value_mod.stz_value_new_float(f) orelse return -1;
     l.items.append(allocator, v) catch {
         v.deinit();
@@ -631,6 +685,14 @@ pub fn stz_list_sort_cs(list: ?*StzList, case_sensitive: i32) callconv(.c) i32 {
         }.lt);
         return 0;
     }
+    if (l.floats) |*arr| {
+        std.mem.sort(f64, arr.items, {}, struct {
+            fn lt(_: void, a: f64, b: f64) bool {
+                return a < b;
+            }
+        }.lt);
+        return 0;
+    }
     if (l.len() <= 1) return 0;
     const cs = case_sensitive != 0;
     std.mem.sort(*StzValue, l.items.items, cs, struct {
@@ -650,6 +712,14 @@ pub fn stz_list_sort_descending_cs(list: ?*StzList, case_sensitive: i32) callcon
     if (l.ints) |*arr| {
         std.mem.sort(i64, arr.items, {}, struct {
             fn gt(_: void, a: i64, b: i64) bool {
+                return a > b;
+            }
+        }.gt);
+        return 0;
+    }
+    if (l.floats) |*arr| {
+        std.mem.sort(f64, arr.items, {}, struct {
+            fn gt(_: void, a: f64, b: f64) bool {
                 return a > b;
             }
         }.gt);
@@ -675,6 +745,10 @@ pub fn stz_list_reverse(list: ?*StzList) callconv(.c) i32 {
     const l = list orelse return -1;
     if (l.ints) |*arr| {
         std.mem.reverse(i64, arr.items);
+        return 0;
+    }
+    if (l.floats) |*arr| {
+        std.mem.reverse(f64, arr.items);
         return 0;
     }
     const items = l.items.items;
@@ -3081,6 +3155,11 @@ pub fn stz_list_sum(list_arg: ?*const StzList) callconv(.c) f64 {
         for (arr.items) |x| total += @floatFromInt(x);
         return total;
     }
+    if (l.floats) |arr| {
+        var total: f64 = 0;
+        for (arr.items) |x| total += x;
+        return total;
+    }
     var total: f64 = 0;
     for (l.items.items) |item| {
         if (numericVal(item)) |v| total += v;
@@ -3094,6 +3173,12 @@ pub fn stz_list_product(list_arg: ?*const StzList) callconv(.c) f64 {
         if (arr.items.len == 0) return 0;
         var result: f64 = 1;
         for (arr.items) |x| result *= @floatFromInt(x);
+        return result;
+    }
+    if (l.floats) |arr| {
+        if (arr.items.len == 0) return 0;
+        var result: f64 = 1;
+        for (arr.items) |x| result *= x;
         return result;
     }
     if (l.len() == 0) return 0;
@@ -3118,6 +3203,14 @@ pub fn stz_list_min(list_arg: ?*const StzList) callconv(.c) f64 {
         }
         return @floatFromInt(m);
     }
+    if (l.floats) |arr| {
+        if (arr.items.len == 0) return 0;
+        var m: f64 = arr.items[0];
+        for (arr.items) |x| {
+            if (x < m) m = x;
+        }
+        return m;
+    }
     var result: f64 = std.math.inf(f64);
     var found = false;
     for (l.items.items) |item| {
@@ -3139,6 +3232,14 @@ pub fn stz_list_max(list_arg: ?*const StzList) callconv(.c) f64 {
         }
         return @floatFromInt(m);
     }
+    if (l.floats) |arr| {
+        if (arr.items.len == 0) return 0;
+        var m: f64 = arr.items[0];
+        for (arr.items) |x| {
+            if (x > m) m = x;
+        }
+        return m;
+    }
     var result: f64 = -std.math.inf(f64);
     var found = false;
     for (l.items.items) |item| {
@@ -3156,6 +3257,12 @@ pub fn stz_list_mean(list_arg: ?*const StzList) callconv(.c) f64 {
         if (arr.items.len == 0) return 0;
         var total: f64 = 0;
         for (arr.items) |x| total += @floatFromInt(x);
+        return total / @as(f64, @floatFromInt(arr.items.len));
+    }
+    if (l.floats) |arr| {
+        if (arr.items.len == 0) return 0;
+        var total: f64 = 0;
+        for (arr.items) |x| total += x;
         return total / @as(f64, @floatFromInt(arr.items.len));
     }
     var total: f64 = 0;
