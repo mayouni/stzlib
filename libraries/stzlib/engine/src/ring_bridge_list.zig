@@ -208,21 +208,21 @@ fn ring_CountCS(p: *anyopaque) callconv(.c) void {
 
 // Sort
 fn ring_SortCS(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(list.stz_list_sort_cs(getL(p, 1), @intFromFloat(g(p, 2)))));
+    rn(p, @floatFromInt(list.stz_list_sort_cs(getLTyped(p, 1), @intFromFloat(g(p, 2)))));
 }
 fn ring_Sort(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(list.stz_list_sort(getL(p, 1))));
+    rn(p, @floatFromInt(list.stz_list_sort(getLTyped(p, 1))));
 }
 fn ring_SortDescendingCS(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(list.stz_list_sort_descending_cs(getL(p, 1), @intFromFloat(g(p, 2)))));
+    rn(p, @floatFromInt(list.stz_list_sort_descending_cs(getLTyped(p, 1), @intFromFloat(g(p, 2)))));
 }
 fn ring_SortDescending(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(list.stz_list_sort_descending(getL(p, 1))));
+    rn(p, @floatFromInt(list.stz_list_sort_descending(getLTyped(p, 1))));
 }
 
 // Reverse
 fn ring_Reverse(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(list.stz_list_reverse(getL(p, 1))));
+    rn(p, @floatFromInt(list.stz_list_reverse(getLTyped(p, 1))));
 }
 
 // Deduplicate
@@ -699,7 +699,7 @@ fn ring_SortedInsertString(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sorted_insert_string(getL(p, 1), gs(p, 2), @intCast(gss(p, 2)))));
 }
 fn ring_Sum(p: *anyopaque) callconv(.c) void {
-    rn(p, list.stz_list_sum(getLC(p, 1)));
+    rn(p, list.stz_list_sum(getLCTyped(p, 1)));
 }
 fn ring_Min(p: *anyopaque) callconv(.c) void {
     rn(p, list.stz_list_min(getLC(p, 1)));
