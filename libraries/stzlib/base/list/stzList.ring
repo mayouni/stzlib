@@ -1650,12 +1650,11 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return ok
 
 		StzEngineListSortCS(pList, pCaseSensitive)
-		This._SetContent(This._ContentFromEngineList(pList))
-		StzEngineListFree(pList)
+		This._RefreshFromEngine()
 
 		def SortCSQ(pCaseSensitive)
 			This.SortCS(pCaseSensitive)
@@ -1664,10 +1663,9 @@ class stzList from stzObject
 	#-- Sort by a key expression (engine-backed via the W DSL).
 	def SortBy(pcExpr)
 		pcExpr = _StzStripBraces(pcExpr)
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		StzEngineListSortByExpr(pList, pcExpr, 1)
-		This._SetContent(This._ContentFromEngineList(pList))
-		StzEngineListFree(pList)
+		This._RefreshFromEngine()
 
 		def SortByQ(pcExpr)
 			This.SortBy(pcExpr)
@@ -1675,10 +1673,9 @@ class stzList from stzObject
 
 	def SortByDescending(pcExpr)
 		pcExpr = _StzStripBraces(pcExpr)
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		StzEngineListSortByExpr(pList, pcExpr, 0)
-		This._SetContent(This._ContentFromEngineList(pList))
-		StzEngineListFree(pList)
+		This._RefreshFromEngine()
 
 	#-- non-mutating: return the sorted-by-key copy
 	def SortedBy(pcExpr)
@@ -1743,12 +1740,11 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return ok
 
 		StzEngineListSortDescendingCS(pList, pCaseSensitive)
-		This._SetContent(This._ContentFromEngineList(pList))
-		StzEngineListFree(pList)
+		This._RefreshFromEngine()
 
 		def SortInDescendingCSQ(pCaseSensitive)
 			This.SortInDescendingCS(pCaseSensitive)
@@ -1782,12 +1778,11 @@ class stzList from stzObject
 	#------------------------------#
 
 	def Reverse()
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return ok
 
 		StzEngineListReverse(pList)
-		This._SetContent(This._ContentFromEngineList(pList))
-		StzEngineListFree(pList)
+		This._RefreshFromEngine()
 
 		def ReverseQ()
 			This.Reverse()
@@ -1928,7 +1923,7 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return 0 ok
 
 		nResult = 0
@@ -1945,7 +1940,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		StzEngineListFree(pList)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return nResult
 
 	  #----------------------------------------------#
@@ -1971,15 +1966,13 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return ok
 
 		pUnique = StzEngineListUniqueCS(pList, pCaseSensitive)
 		if pUnique != NULL
-			This._SetContent(This._ContentFromEngineList(pUnique))
-			StzEngineListFree(pUnique)
+			This._AdoptEngine(pUnique)   # frees old cache (pList), adopts pUnique
 		ok
-		StzEngineListFree(pList)
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
@@ -2032,7 +2025,7 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return @aContent ok
 
 		pUnique = StzEngineListUniqueCS(pList, pCaseSensitive)
@@ -2041,7 +2034,7 @@ class stzList from stzObject
 			aResult = This._ContentFromEngineList(pUnique)
 			StzEngineListFree(pUnique)
 		ok
-		StzEngineListFree(pList)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return aResult
 
 	def WithoutDuplication()
@@ -2103,10 +2096,10 @@ class stzList from stzObject
 		# (Ring's `=` can't compare sublists, so the old O(n^2) loop
 		# silently returned [] for them). Ring loop kept as a fallback
 		# when the content can't be marshalled into an engine list.
-		_pFdList_ = This._EngineListFromContent()
+		_pFdList_ = This._Engine()
 		if _pFdList_ != NULL
 			_aFdRes_ = StzEngineListFindDuplicatesCS(_pFdList_, 1)
-			StzEngineListFree(_pFdList_)
+			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			return _aFdRes_
 		ok
 		_aRes_ = []
@@ -2266,11 +2259,9 @@ class stzList from stzObject
 	#   used by stzHashList.Items() to coalesce list-of-lists values.
 
 	def Merge()
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		pRes = StzEngineListFlattenToDepth(pList, 1)		#-- one-level flatten
-		This._SetContent(This._ContentFromEngineList(pRes))
-		StzEngineListFree(pList)
-		StzEngineListFree(pRes)
+		This._AdoptEngine(pRes)   # frees old cache (pList), adopts pRes
 
 		def MergeQ()
 			This.Merge()
@@ -2282,22 +2273,21 @@ class stzList from stzObject
 		return _oMdTmp_.Content()
 
 	def Flatten()
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return ok
 
 		pFlat = StzEngineListFlatten(pList)
 		if pFlat != NULL
-			This._SetContent(This._ContentFromEngineList(pFlat))
-			StzEngineListFree(pFlat)
+			This._AdoptEngine(pFlat)   # frees old cache (pList), adopts pFlat
 		ok
-		StzEngineListFree(pList)
+		# if pFlat = NULL, pList stays as the cache (not freed)
 
 		def FlattenQ()
 			This.Flatten()
 			return This
 
 	def Flattened()
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return [] ok
 
 		pFlat = StzEngineListFlatten(pList)
@@ -2306,7 +2296,7 @@ class stzList from stzObject
 			aResult = This._ContentFromEngineList(pFlat)
 			StzEngineListFree(pFlat)
 		ok
-		StzEngineListFree(pList)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return aResult
 
 	  #-------------------------------------------#
@@ -2328,20 +2318,20 @@ class stzList from stzObject
 		ok
 
 		# Use mutual subset check (A subset B AND B subset A)
-		_pEqList1_ = This._EngineListFromContent()
+		_pEqList1_ = This._Engine()
 		if _pEqList1_ = NULL return 0 ok
 
 		_oEqOther_ = new stzList(paOtherList)
 		_pEqList2_ = _oEqOther_._EngineListFromContent()
 		if _pEqList2_ = NULL
-			StzEngineListFree(_pEqList1_)
+			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			return 0
 		ok
 
 		_nAsubB_ = StzEngineListIsSubsetCS(_pEqList1_, _pEqList2_, pCaseSensitive)
 		_nBsubA_ = StzEngineListIsSubsetCS(_pEqList2_, _pEqList1_, pCaseSensitive)
-		StzEngineListFree(_pEqList1_)
 		StzEngineListFree(_pEqList2_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 
 		return _nAsubB_ and _nBsubA_
 
@@ -2362,19 +2352,19 @@ class stzList from stzObject
 			return 0
 		ok
 
-		_pSeList1_ = This._EngineListFromContent()
+		_pSeList1_ = This._Engine()
 		if _pSeList1_ = NULL return 0 ok
 
 		_oSeOther_ = new stzList(paOtherList)
 		_pSeList2_ = _oSeOther_._EngineListFromContent()
 		if _pSeList2_ = NULL
-			StzEngineListFree(_pSeList1_)
+			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			return 0
 		ok
 
 		_nSeResult_ = StzEngineListEqualsCS(_pSeList1_, _pSeList2_, pCaseSensitive)
-		StzEngineListFree(_pSeList1_)
 		StzEngineListFree(_pSeList2_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 
 		return _nSeResult_
 
@@ -2398,22 +2388,22 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def StartsWithCS(paItems, pCaseSensitive)
-		_pSwList_ = This._EngineListFromContent()
+		_pSwList_ = This._Engine()
 		_pSwPrefix_ = StzEngineMarshalList(paItems)
 		_nSwResult_ = StzEngineListStartsWithListCS(_pSwList_, _pSwPrefix_, pCaseSensitive)
 		StzEngineListFree(_pSwPrefix_)
-		StzEngineListFree(_pSwList_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nSwResult_
 
 	def StartsWith(paItems)
 		return This.StartsWithCS(paItems, 1)
 
 	def EndsWithCS(paItems, pCaseSensitive)
-		_pEwList_ = This._EngineListFromContent()
+		_pEwList_ = This._Engine()
 		_pEwSuffix_ = StzEngineMarshalList(paItems)
 		_nEwResult_ = StzEngineListEndsWithListCS(_pEwList_, _pEwSuffix_, pCaseSensitive)
 		StzEngineListFree(_pEwSuffix_)
-		StzEngineListFree(_pEwList_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nEwResult_
 
 	def EndsWith(paItems)
@@ -2424,7 +2414,7 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def Map(pcExpr)
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return [] ok
 
 		pcExpr = _StzStripBraces(pcExpr)
@@ -2432,14 +2422,14 @@ class stzList from stzObject
 		aResult = This._ContentFromEngineList(pResult)
 
 		StzEngineListFree(pResult)
-		StzEngineListFree(pList)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return aResult
 
 		def MapQ(pcExpr)
 			return new stzList(This.Map(pcExpr))
 
 	def Filter(pcExpr)
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return [] ok
 
 		pcExpr = _StzStripBraces(pcExpr)
@@ -2447,7 +2437,7 @@ class stzList from stzObject
 		aResult = This._ContentFromEngineList(pResult)
 
 		StzEngineListFree(pResult)
-		StzEngineListFree(pList)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return aResult
 
 		def FilterQ(pcExpr)
@@ -2487,33 +2477,33 @@ class stzList from stzObject
 		# init value and extracts the result scalar INSIDE stz_list.dll, so no
 		# StzValue handle crosses the stz_list<->stz_value DLL boundary (which
 		# previously panicked on the init handle). Returns a plain number.
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return 0 ok
 
 		pcExpr = _StzStripBraces(pcExpr)
 		result = StzEngineListReduceExpr(pList, pcExpr, pInitValue)
 
-		StzEngineListFree(pList)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return result
 
 	def ReduceNoInit(pcExpr)
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return 0 ok
 
 		pcExpr = _StzStripBraces(pcExpr)
 		result = StzEngineListReduceExprNoInit(pList, pcExpr)
 
-		StzEngineListFree(pList)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return result
 
 	def CountW(pcCondition)
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return 0 ok
 
 		pcCondition = _StzStripBraces(pcCondition)
 		nResult = StzEngineListCountW(pList, pcCondition)
 
-		StzEngineListFree(pList)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return nResult
 
 		def CountWhere(pcCondition)
@@ -3336,12 +3326,12 @@ class stzList from stzObject
 
 		# Engine path for string items
 		if isString(pItem)
-			_pFaoList_ = This._EngineListFromContent()
+			_pFaoList_ = This._Engine()
 			if _pFaoList_ = NULL
 				return []
 			ok
 			_pFaoResult_ = StzEngineListFindAllStringCS(_pFaoList_, pItem, pCaseSensitive)
-			StzEngineListFree(_pFaoList_)
+			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			if _pFaoResult_ = NULL
 				return []
 			ok
@@ -3369,16 +3359,16 @@ class stzList from stzObject
 		# was O(n) allocations and ~16s at a million items; it is retired now
 		# that the engine's native stzValue compare handles nested lists.)
 		if isList(pItem)
-			_pFaoHost_ = This._EngineListFromContent()
+			_pFaoHost_ = This._Engine()
 			if _pFaoHost_ = NULL return [] ok
 			_pFaoHolder_ = StzEngineMarshalList([ pItem ])
 			if _pFaoHolder_ = NULL
-				StzEngineListFree(_pFaoHost_)
+				This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 				return []
 			ok
 			_anFaoOut_ = StzEngineListFindAllHeldCS(_pFaoHost_, _pFaoHolder_, pCaseSensitive)
 			StzEngineListFree(_pFaoHolder_)
-			StzEngineListFree(_pFaoHost_)
+			This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 			if NOT isList(_anFaoOut_) return [] ok
 			return _anFaoOut_
 		ok
@@ -4559,11 +4549,11 @@ class stzList from stzObject
 			if nEnd > nLen nEnd = nLen ok
 		ok
 
-		pList = This._EngineListFromContent()
+		pList = This._Engine()
 		if pList = NULL return [] ok
 		# Engine returns a ready list of 1-based positions (built Zig-side).
 		anAll = StzEngineListFindAllW(pList, pcCondition)
-		StzEngineListFree(pList)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 
 		#-- Fast path: no bounding needed.
 		if nStart = 1 and nEnd = nLen
@@ -5035,23 +5025,23 @@ class stzList from stzObject
 
 	def Sum()
 		if len(@aContent) = 0 return 0 ok
-		_pSmList_ = This._EngineListFromContent()
+		_pSmList_ = This._Engine()
 		_nSmResult_ = StzEngineListSum(_pSmList_)
-		StzEngineListFree(_pSmList_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nSmResult_
 
 	def Product()
 		if len(@aContent) = 0 return 0 ok
-		_pPrList_ = This._EngineListFromContent()
+		_pPrList_ = This._Engine()
 		_nPrResult_ = StzEngineListProduct(_pPrList_)
-		StzEngineListFree(_pPrList_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nPrResult_
 
 	def Mean()
 		if len(@aContent) = 0 return 0 ok
-		_pMnList_ = This._EngineListFromContent()
+		_pMnList_ = This._Engine()
 		_nMnResult_ = StzEngineListMean(_pMnList_)
-		StzEngineListFree(_pMnList_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nMnResult_
 
 		def Average()
@@ -5061,16 +5051,16 @@ class stzList from stzObject
 
 	def Variance()
 		if len(@aContent) = 0 return 0 ok
-		_pVarList_ = This._EngineListFromContent()
+		_pVarList_ = This._Engine()
 		_nVarResult_ = StzEngineListVariance(_pVarList_)
-		StzEngineListFree(_pVarList_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nVarResult_
 
 	def Stddev()
 		if len(@aContent) = 0 return 0 ok
-		_pSdList_ = This._EngineListFromContent()
+		_pSdList_ = This._Engine()
 		_nSdResult_ = StzEngineListStddev(_pSdList_)
-		StzEngineListFree(_pSdList_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nSdResult_
 
 		def StandardDeviation()
@@ -5080,9 +5070,9 @@ class stzList from stzObject
 
 	def Median()
 		if len(@aContent) = 0 return 0 ok
-		_pMdList_ = This._EngineListFromContent()
+		_pMdList_ = This._Engine()
 		_nMdResult_ = StzEngineListMedian(_pMdList_)
-		StzEngineListFree(_pMdList_)
+		This._InvalidateEngine()   # terminal read -- free the cache (no destructor in Ring)
 		return _nMdResult_
 
 	def NthSmallest(n)

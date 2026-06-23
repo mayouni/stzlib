@@ -124,6 +124,62 @@ Commit trailer: `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic
 - Build large lists ENGINE-side (`.Repeated(n)`, ranges) — never the Ring-loop
   `*` operator.
 
+## Implementation log + the no-destructor leak finding (slices 1-2)
+
+- **Slice 1** (commit `f8148927`): infra only -- `@pEngine`/`@bRingDirty`
+  fields + `_Content()` / `_SetContent()` / `_SetEngine()` / `_Engine()` /
+  `_InvalidateEngine()` / `_AdoptEngine()` / `_RefreshFromEngine()`. Behavior
+  byte-identical.
+- **Slice 2a** (commit `43e0a7f8`): routed ALL 82 method-body `@aContent = X`
+  reassignments through `This._SetContent(X)` and guarded the 9 in-place
+  writes (`@aContent + x`, `@aContent[i]=`, `ring_remove/insert`) with
+  `_InvalidateEngine()`. Behavior-identical (cache never populated yet).
+- **Model chosen = "Model A":** `@aContent` stays the always-materialized
+  source of truth; `@pEngine` is a pure cache. This keeps the hundreds of
+  direct `@aContent` *reads* correct with zero edits (they're never stale) --
+  only the ~93 *writes* invalidate. Simpler/safer than the engine-truth
+  model, and it targets the plan's primary bottleneck (marshal-IN).
+- **Slice 2b** (this commit): migrated ~30 hot ops to the cached handle.
+
+  THE KEY FINDING -- **Ring has no object destructors**, so a cached
+  `@pEngine` handle is never freed when an stzList object dies. A naive
+  "cache on every read" made 03 regress **33s -> 50s**: 03 builds many large
+  ONE-SHOT objects (oBig=1M, oNum=200k, ...), and each leaked its engine
+  list -> allocator pressure. (Measured by stashing to 2a: 2a=32s, naive
+  2b=50s.)
+
+  THE FIX -- **mutators keep the cache warm; value-returning reads free it
+  after use** (terminal cleanup via `_InvalidateEngine()`). Big one-shot
+  reads no longer leak (-> 03 back to 33s, no regression), while a fluent
+  *mutator chain* still marshals once. A/B on a 5-mutator chain over 1M:
+  **2a=3.84s -> 2b=3.04s (~21% faster)**. Residual leaks are only
+  mutator-chains that end in a pure-Ring op (NumberOfItems/Content) and are
+  usually tiny (the adopted result, e.g. a 2-item deduped handle).
+
+  IMPLICATION for slice 4 (engine-truth, lazy `@aContent`): it faces the
+  SAME no-destructor leak and the win is bigger ONLY if the intermediate
+  unmarshals are also removed -- but then `@aContent` can be stale and EVERY
+  direct read must funnel through `_Content()`. Before doing slice 4, decide
+  a deterministic free strategy: (a) explicit `.Release()`/`.Free()` the
+  fluent forms call at chain end, (b) an engine-side arena/generation that
+  bulk-frees, or (c) make marshal-IN itself bulk (mirror the bulk
+  `ring_ContentToRingList` unmarshal) so caching -- and the leak -- become
+  unnecessary. Option (c) may be the cleanest: it removes the bottleneck
+  without per-object handle lifetime at all.
+
+  Migrated in 2b (cache-aware): SortCS/SortBy/SortByDescending/
+  SortInDescendingCS/Reverse (mutators, warm via `_RefreshFromEngine`);
+  RemoveDuplicatesCS/Merge/Flatten (mutators, warm via `_AdoptEngine`);
+  _FindFirstEngine/Contains, FindAllOccurrencesCS (string+list paths),
+  FindAllItemsW/FindW, WithoutDuplicationCS, FindDuplicates, IsEqualToCS,
+  IsStrictlyEqualToCS, StartsWith/EndsWith, Map/Filter, ReduceXT/
+  ReduceNoInit/CountW, Sum/Product/Mean/Variance/Stddev/Median (reads, free
+  after use). Copy-ops Sorted/Reversed/SortedInDescending keep a FRESH
+  throwaway handle (they sort/reverse in place but must NOT touch This).
+  Set-ops (UnionWith/IntersectionWith) and Classify delegate to submodules
+  -> slice 5. ~32 `_EngineListFromContent` call sites remain (submodule-
+  bound, throwaway-other-handle, or colder core ops).
+
 ## Key files
 
 - `libraries/stzlib/base/list/stzList.ring` — the class (~10k lines).
