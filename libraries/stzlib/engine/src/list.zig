@@ -107,6 +107,57 @@ fn valueEqlCS(a: *const StzValue, b: *const StzValue, case_sensitive: bool) bool
     return a.eql(b);
 }
 
+// ─── Value hash-set (for O(n) set ops / classify) ───
+//
+// A HashMap keyed by *StzValue, hashing/comparing BY VALUE (structurally,
+// case-sensitivity-aware) -- not by pointer. Lets union/intersection/
+// difference/classify run in O(n+m) instead of O(n*m). Correct (no silent
+// hash-collision merges): equality is the engine's valueEqlCS.
+
+fn hashValueInto(h: *std.hash.Wyhash, v: *const StzValue, cs: bool) void {
+    h.update(&[_]u8{@intFromEnum(v.tag)});
+    switch (v.tag) {
+        .null_val => {},
+        .bool_val => h.update(&[_]u8{if (v.data.bool_val) 1 else 0}),
+        .int_val => h.update(std.mem.asBytes(&v.data.int_val)),
+        .float_val => h.update(std.mem.asBytes(&v.data.float_val)),
+        .string_val => {
+            const s = v.data.string_val;
+            if (cs) {
+                h.update(s.ptr[0..s.len]);
+            } else {
+                for (s.ptr[0..s.len]) |c| {
+                    const lc: u8 = if (c >= 'A' and c <= 'Z') c + 32 else c;
+                    h.update(&[_]u8{lc});
+                }
+            }
+        },
+        .list_val => {
+            const ld = v.data.list_val;
+            var i: usize = 0;
+            while (i < ld.len) : (i += 1) hashValueInto(h, ld.items[i], cs);
+        },
+    }
+}
+
+const ValueSetCtx = struct {
+    cs: bool,
+    pub fn hash(self: @This(), v: *const StzValue) u64 {
+        var h = std.hash.Wyhash.init(0);
+        hashValueInto(&h, v, self.cs);
+        return h.final();
+    }
+    pub fn eql(self: @This(), a: *const StzValue, b: *const StzValue) bool {
+        return valueEqlCS(a, b, self.cs);
+    }
+};
+
+const ValueSet = std.HashMap(*const StzValue, void, ValueSetCtx, std.hash_map.default_max_load_percentage);
+
+fn newValueSet(cs: bool) ValueSet {
+    return ValueSet.initContext(allocator, ValueSetCtx{ .cs = cs });
+}
+
 // ─── C ABI: Lifecycle ───
 
 pub fn stz_list_new() callconv(.c) ?*StzList {
@@ -976,79 +1027,57 @@ pub fn stz_list_classify_cs(list_arg: ?*const StzList, case_sensitive: i32) call
     const result = StzList.init() catch return null;
     if (n == 0) return result;
 
-    // Build key strings for each item
-    const key_bufs = allocator.alloc([256]u8, n) catch { result.deinit(); return null; };
-    defer allocator.free(key_bufs);
-    const key_lens = allocator.alloc(usize, n) catch { result.deinit(); return null; };
-    defer allocator.free(key_lens);
+    // O(n) grouping: a value-set maps each distinct value to its group index.
+    // Each group keeps its 1-based positions in a growable list, plus a
+    // representative item (for the key string). Output is a flat list of
+    // [ keyString, [pos1, pos2, ...] ] pairs -- positions as a NATIVE nested
+    // int list (no CSV string), so Ring never re-parses them.
+    var group_of = std.HashMap(*const StzValue, usize, ValueSetCtx, std.hash_map.default_max_load_percentage).initContext(allocator, ValueSetCtx{ .cs = cs });
+    defer group_of.deinit();
+
+    var groups = std.ArrayList(std.ArrayList(i64)){};
+    defer {
+        for (groups.items) |*g| g.deinit(allocator);
+        groups.deinit(allocator);
+    }
+    var reps = std.ArrayList(*const StzValue){};
+    defer reps.deinit(allocator);
 
     for (l.items.items, 0..) |item, i| {
-        key_lens[i] = valueToString(item, &key_bufs[i]);
-        if (!cs) {
-            // lowercase in-place for comparison
-            for (key_bufs[i][0..key_lens[i]]) |*c| {
-                if (c.* >= 'A' and c.* <= 'Z') c.* += 32;
-            }
-        }
-    }
-
-    // Group: seen_keys[], position_lists[]
-    const max_groups = n;
-    const seen_keys = allocator.alloc([]const u8, max_groups) catch { result.deinit(); return null; };
-    defer allocator.free(seen_keys);
-
-    // For each group, store positions as a dynamic list of indices
-    const PosGroup = struct { positions: std.ArrayList(usize) };
-    const groups = allocator.alloc(PosGroup, max_groups) catch { result.deinit(); return null; };
-    defer {
-        for (groups[0..]) |*grp| grp.positions.deinit(allocator);
-        allocator.free(groups);
-    }
-    for (groups) |*grp| grp.* = .{ .positions = .{} };
-
-    var num_groups: usize = 0;
-
-    for (0..n) |i| {
-        const key = key_bufs[i][0..key_lens[i]];
-        if (findInSeen(seen_keys[0..num_groups], key, true)) |gi| {
-            // Already comparing lowercased keys if CI, so always use true here
-            groups[gi].positions.append(allocator, i) catch {};
-        } else {
-            seen_keys[num_groups] = key;
-            groups[num_groups].positions = .{};
-            groups[num_groups].positions.append(allocator, i) catch {};
-            num_groups += 1;
-        }
-    }
-
-    // Build result: alternating [key_string, positions_csv_string]
-    for (0..num_groups) |gi| {
-        // Append the key (use original casing from first occurrence)
-        const first_idx = groups[gi].positions.items[0];
-        const orig_item = l.items.items[first_idx];
-        var orig_buf: [256]u8 = undefined;
-        const orig_len = valueToString(orig_item, &orig_buf);
-        _ = stz_list_append_string(result, &orig_buf, orig_len);
-
-        // Build positions CSV (1-based). Size the buffer to the group:
-        // each position is at most 20 digits + a comma -> 21 bytes.
-        const grp_n = groups[gi].positions.items.len;
-        const csv_buf = allocator.alloc(u8, grp_n * 21 + 1) catch {
+        const gop = group_of.getOrPut(item) catch {
             result.deinit();
             return null;
         };
-        defer allocator.free(csv_buf);
-        var pos: usize = 0;
-        for (groups[gi].positions.items, 0..) |idx, pi| {
-            const val_1based = idx + 1;
-            const slice = std.fmt.bufPrint(csv_buf[pos..], "{d}", .{val_1based}) catch break;
-            pos += slice.len;
-            if (pi + 1 < groups[gi].positions.items.len) {
-                csv_buf[pos] = ',';
-                pos += 1;
-            }
+        if (!gop.found_existing) {
+            gop.value_ptr.* = groups.items.len;
+            groups.append(allocator, .{}) catch {
+                result.deinit();
+                return null;
+            };
+            reps.append(allocator, item) catch {
+                result.deinit();
+                return null;
+            };
         }
-        _ = stz_list_append_string(result, csv_buf.ptr, pos);
+        groups.items[gop.value_ptr.*].append(allocator, @intCast(i + 1)) catch {};
+    }
+
+    for (groups.items, 0..) |grp, gi| {
+        var kbuf: [256]u8 = undefined;
+        const klen = valueToString(reps.items[gi], &kbuf);
+        _ = stz_list_append_string(result, &kbuf, klen);
+
+        const pos_val = value_mod.stz_value_new_list() orelse {
+            result.deinit();
+            return null;
+        };
+        for (grp.items) |pos| {
+            const iv = value_mod.stz_value_new_int(pos) orelse continue;
+            _ = value_mod.stz_value_list_append(pos_val, iv);
+            value_mod.stz_value_free(iv);
+        }
+        _ = stz_list_append_value(result, pos_val);
+        value_mod.stz_value_free(pos_val);
     }
     return result;
 }
@@ -1460,21 +1489,21 @@ pub fn stz_list_intersection_cs(a: ?*const StzList, b: ?*const StzList, case_sen
     const cs = case_sensitive != 0;
     const result = StzList.init() catch return null;
 
+    // O(n+m): hash-set of b's values, plus a "seen" set to dedup the result.
+    var bset = newValueSet(cs);
+    defer bset.deinit();
+    for (lb.items.items) |bi| bset.put(bi, {}) catch {};
+    var seen = newValueSet(cs);
+    defer seen.deinit();
+
     for (la.items.items) |item| {
-        // Check item is in b
-        var in_b = false;
-        for (lb.items.items) |bi| {
-            if (valueEqlCS(item, bi, cs)) { in_b = true; break; }
-        }
-        if (!in_b) continue;
-        // Check not already in result
-        var in_r = false;
-        for (result.items.items) |ri| {
-            if (valueEqlCS(item, ri, cs)) { in_r = true; break; }
-        }
-        if (!in_r) {
-            result.appendClone(item) catch { result.deinit(); return null; };
-        }
+        if (!bset.contains(item)) continue;
+        if (seen.contains(item)) continue;
+        seen.put(item, {}) catch {};
+        result.appendClone(item) catch {
+            result.deinit();
+            return null;
+        };
     }
     return result;
 }
@@ -1488,15 +1517,13 @@ pub fn stz_list_common_items_cs(a: ?*const StzList, b: ?*const StzList, case_sen
     const cs = case_sensitive != 0;
     const result = StzList.init() catch return null;
 
+    // O(n+m): keep left order AND duplicates; just test membership in b.
+    var bset = newValueSet(cs);
+    defer bset.deinit();
+    for (lb.items.items) |bi| bset.put(bi, {}) catch {};
+
     for (la.items.items) |item| {
-        var in_b = false;
-        for (lb.items.items) |bi| {
-            if (valueEqlCS(item, bi, cs)) {
-                in_b = true;
-                break;
-            }
-        }
-        if (in_b) {
+        if (bset.contains(item)) {
             result.appendClone(item) catch {
                 result.deinit();
                 return null;
@@ -1512,13 +1539,21 @@ pub fn stz_list_union_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive:
     const cs = case_sensitive != 0;
     const result = stz_list_clone(la) orelse return null;
 
+    // O(n+m): seed the seen-set from a's items, then add b-items not seen.
+    var seen = newValueSet(cs);
+    defer seen.deinit();
+    for (la.items.items) |ai| seen.put(ai, {}) catch {};
+
     for (lb.items.items) |item| {
-        var found = false;
-        for (result.items.items) |ri| {
-            if (valueEqlCS(item, ri, cs)) { found = true; break; }
-        }
-        if (!found) {
-            result.appendClone(item) catch { result.deinit(); return null; };
+        const gop = seen.getOrPut(item) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) {
+            result.appendClone(item) catch {
+                result.deinit();
+                return null;
+            };
         }
     }
     return result;
@@ -1530,13 +1565,17 @@ pub fn stz_list_difference_cs(a: ?*const StzList, b: ?*const StzList, case_sensi
     const cs = case_sensitive != 0;
     const result = StzList.init() catch return null;
 
+    // O(n+m): items of a not present in b.
+    var bset = newValueSet(cs);
+    defer bset.deinit();
+    for (lb.items.items) |bi| bset.put(bi, {}) catch {};
+
     for (la.items.items) |item| {
-        var in_b = false;
-        for (lb.items.items) |bi| {
-            if (valueEqlCS(item, bi, cs)) { in_b = true; break; }
-        }
-        if (!in_b) {
-            result.appendClone(item) catch { result.deinit(); return null; };
+        if (!bset.contains(item)) {
+            result.appendClone(item) catch {
+                result.deinit();
+                return null;
+            };
         }
     }
     return result;

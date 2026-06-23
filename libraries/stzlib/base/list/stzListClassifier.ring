@@ -57,19 +57,13 @@ class stzListClassifier
 		_aClRaw_ = StzEngineContentFromList(_pClResult_)
 		StzEngineListFree(_pClResult_)
 
+		# Engine returns [ keyString, [pos1, pos2, ...] ] pairs -- positions
+		# already a native number list, so no CSV split / per-item parse.
 		_nClLen_ = len(_aClRaw_)
 		_aClResult_ = []
 		_iCl_ = 1
 		for _kCl_ = 1 to _nClLen_ / 2
-			_cClKey_ = _aClRaw_[_iCl_]
-			_cClPositions_ = _aClRaw_[_iCl_ + 1]
-			_aClParts_ = StzSplit(_cClPositions_, ",")
-			_anClPos_ = []
-			_nClParts_ = len(_aClParts_)
-			for _jCl_ = 1 to _nClParts_
-				@AddItem(_anClPos_, 0 + _aClParts_[_jCl_])
-			next
-			@AddItem(_aClResult_, [_cClKey_, _anClPos_])
+			@AddItem(_aClResult_, [ _aClRaw_[_iCl_], _aClRaw_[_iCl_ + 1] ])
 			_iCl_ += 2
 		next
 		return _aClResult_
@@ -101,19 +95,12 @@ class stzListClassifier
 		_aCbRaw_ = StzEngineContentFromList(_pCbResult_)
 		StzEngineListFree(_pCbResult_)
 
+		# Positions are a native number list now (no CSV parse).
 		_nCbLen_ = len(_aCbRaw_)
 		_aCbResult_ = []
 		_iCb_ = 1
 		for _kCb_ = 1 to _nCbLen_ / 2
-			_cCbKey_ = _aCbRaw_[_iCb_]
-			_cCbPositions_ = _aCbRaw_[_iCb_ + 1]
-			_aCbParts_ = StzSplit(_cCbPositions_, ",")
-			_anCbPos_ = []
-			_nCbParts_ = len(_aCbParts_)
-			for _jCb_ = 1 to _nCbParts_
-				@AddItem(_anCbPos_, 0 + _aCbParts_[_jCb_])
-			next
-			@AddItem(_aCbResult_, [_cCbKey_, _anCbPos_])
+			@AddItem(_aCbResult_, [ _aCbRaw_[_iCb_], _aCbRaw_[_iCb_ + 1] ])
 			_iCb_ += 2
 		next
 		return _aCbResult_

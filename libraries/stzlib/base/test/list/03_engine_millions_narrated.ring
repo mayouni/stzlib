@@ -14,11 +14,11 @@ load "../_narrated.ring"
 #     path stringified every item -- ~16s at a million; now no stringify),
 #   * engine->Ring unmarshal is one bulk call (no per-item FFI storm).
 #
-# Scale note: ops re-marshal the list per call (lists are not yet engine-
-# resident), and Union/Intersection/Classify are still O(n*m)/O(n^2). So the
-# bulk runs at N=200,000 (already > 65536, proving the buffer fix) with a
-# single 1,000,000 headline. See memory for the remaining engine-residency
-# and hash-based set-ops/classify work.
+# Union/Intersection/Classify are now hash-based O(n+m) (were O(n^2)) and run
+# at a million here. The one remaining heavy-perf item is engine-RESIDENT
+# lists: every op still re-marshals @aContent Ring<->engine, so the bulk runs
+# at N=200,000 (already > 65536, proving the buffer fix) with 1,000,000
+# headlines for find/set-ops/classify. See memory for the residency work.
 
 N = 200000        # main scale (> 65536, so it exercises the old cap)
 M = 1000000       # one-million headline
@@ -75,6 +75,19 @@ Scenario("Sort and reverse (engine, O(n log n))")
     Then("Sorted last is N", s[N], N)
     r = Q(1:N).Reversed()
     Then("Reversed first is N / last is 1", ListEq([ r[1], r[N] ], [ N, 1 ]), TRUE)
+EndScenario()
+
+Scenario("Set operations at a million (hash-based, O(n+m))")
+    a = Q(1:M)
+    Then("UnionWith(1..1M, 500001..1.5M) has 1,500,000", Q(a.UnionWith(500001:1500000)).NumberOfItems(), 1500000)
+    Then("IntersectionWith has 500,000", Q(a.IntersectionWith(500001:1500000)).NumberOfItems(), 500000)
+EndScenario()
+
+Scenario("Classify a million items (hash grouping, native positions)")
+    aMix = Q([ "a", "b", "c" ]).Repeated(333334)
+    cl = Q(aMix).Classify()
+    Then("Classify yields 3 value groups", len(cl), 3)
+    Then("group 1 holds 333,334 positions", len(cl[1][2]), 333334)
 EndScenario()
 
 Summary()
