@@ -622,6 +622,15 @@ pub fn stz_list_count_cs(list: ?*const StzList, v: ?*const StzValue, case_sensit
 
 pub fn stz_list_sort_cs(list: ?*StzList, case_sensitive: i32) callconv(.c) i32 {
     const l = list orelse return -1;
+    // Dense int-mode: native i64 sort (no per-compare pointer-deref/tag-switch).
+    if (l.ints) |*arr| {
+        std.mem.sort(i64, arr.items, {}, struct {
+            fn lt(_: void, a: i64, b: i64) bool {
+                return a < b;
+            }
+        }.lt);
+        return 0;
+    }
     if (l.len() <= 1) return 0;
     const cs = case_sensitive != 0;
     std.mem.sort(*StzValue, l.items.items, cs, struct {
@@ -638,6 +647,14 @@ pub fn stz_list_sort(list: ?*StzList) callconv(.c) i32 {
 
 pub fn stz_list_sort_descending_cs(list: ?*StzList, case_sensitive: i32) callconv(.c) i32 {
     const l = list orelse return -1;
+    if (l.ints) |*arr| {
+        std.mem.sort(i64, arr.items, {}, struct {
+            fn gt(_: void, a: i64, b: i64) bool {
+                return a > b;
+            }
+        }.gt);
+        return 0;
+    }
     if (l.len() <= 1) return 0;
     const cs = case_sensitive != 0;
     std.mem.sort(*StzValue, l.items.items, cs, struct {
@@ -656,6 +673,10 @@ pub fn stz_list_sort_descending(list: ?*StzList) callconv(.c) i32 {
 
 pub fn stz_list_reverse(list: ?*StzList) callconv(.c) i32 {
     const l = list orelse return -1;
+    if (l.ints) |*arr| {
+        std.mem.reverse(i64, arr.items);
+        return 0;
+    }
     const items = l.items.items;
     if (items.len <= 1) return 0;
     var lo: usize = 0;
@@ -3055,6 +3076,11 @@ fn numericVal(item: *const StzValue) ?f64 {
 
 pub fn stz_list_sum(list_arg: ?*const StzList) callconv(.c) f64 {
     const l = list_arg orelse return 0;
+    if (l.ints) |arr| {
+        var total: f64 = 0;
+        for (arr.items) |x| total += @floatFromInt(x);
+        return total;
+    }
     var total: f64 = 0;
     for (l.items.items) |item| {
         if (numericVal(item)) |v| total += v;
