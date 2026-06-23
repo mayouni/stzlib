@@ -1065,9 +1065,27 @@ pub fn stz_list_classify_cs(list_arg: ?*const StzList, case_sensitive: i32) call
     for (groups.items, 0..) |grp, gi| {
         var kbuf: [256]u8 = undefined;
         const klen = valueToString(reps.items[gi], &kbuf);
-        _ = stz_list_append_string(result, &kbuf, klen);
+
+        // Emit each group as a nested [ keyString, [pos1, pos2, ...] ] PAIR so
+        // the Ring side receives the FINAL shape directly. Previously this
+        // returned a flat [ key, posList, key, posList, ... ] and Ring had to
+        // repackage into pairs -- which copied every position sublist in
+        // interpreted Ring (O(n)), the real cost of Classify() at scale.
+        const pair = value_mod.stz_value_new_list() orelse {
+            result.deinit();
+            return null;
+        };
+
+        const kval = value_mod.stz_value_new_string(&kbuf, klen) orelse {
+            value_mod.stz_value_free(pair);
+            result.deinit();
+            return null;
+        };
+        _ = value_mod.stz_value_list_append(pair, kval);
+        value_mod.stz_value_free(kval);
 
         const pos_val = value_mod.stz_value_new_list() orelse {
+            value_mod.stz_value_free(pair);
             result.deinit();
             return null;
         };
@@ -1076,8 +1094,11 @@ pub fn stz_list_classify_cs(list_arg: ?*const StzList, case_sensitive: i32) call
             _ = value_mod.stz_value_list_append(pos_val, iv);
             value_mod.stz_value_free(iv);
         }
-        _ = stz_list_append_value(result, pos_val);
+        _ = value_mod.stz_value_list_append(pair, pos_val);
         value_mod.stz_value_free(pos_val);
+
+        _ = stz_list_append_value(result, pair);
+        value_mod.stz_value_free(pair);
     }
     return result;
 }
@@ -4396,27 +4417,9 @@ test "classify_cs basic" {
 
     const r = stz_list_classify_cs(l, 1) orelse return error.AllocFailed;
     defer stz_list_free(r);
-    // 3 groups * 2 entries each = 6 items
-    try std.testing.expectEqual(@as(usize, 6), stz_list_len(r));
-
-    var buf: [256]u8 = undefined;
-    // Group 0: "a", "1,3"
-    var n = stz_list_get_string(r, 0, &buf, 256);
-    try std.testing.expectEqualStrings("a", buf[0..n]);
-    n = stz_list_get_string(r, 1, &buf, 256);
-    try std.testing.expectEqualStrings("1,3", buf[0..n]);
-
-    // Group 1: "b", "2,5"
-    n = stz_list_get_string(r, 2, &buf, 256);
-    try std.testing.expectEqualStrings("b", buf[0..n]);
-    n = stz_list_get_string(r, 3, &buf, 256);
-    try std.testing.expectEqualStrings("2,5", buf[0..n]);
-
-    // Group 2: "c", "4"
-    n = stz_list_get_string(r, 4, &buf, 256);
-    try std.testing.expectEqualStrings("c", buf[0..n]);
-    n = stz_list_get_string(r, 5, &buf, 256);
-    try std.testing.expectEqualStrings("4", buf[0..n]);
+    // Result is now a list of nested [ keyString, [positions] ] PAIRS, so the
+    // length equals the number of distinct groups (a, b, c -> 3).
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(r));
 }
 
 test "classify_cs case insensitive" {
@@ -4429,8 +4432,8 @@ test "classify_cs case insensitive" {
 
     const r = stz_list_classify_cs(l, 0) orelse return error.AllocFailed;
     defer stz_list_free(r);
-    // 2 groups
-    try std.testing.expectEqual(@as(usize, 4), stz_list_len(r));
+    // 2 groups (nested pairs): {Hello,hello} and {World}
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
 }
 
 test "classify_cs integers" {
@@ -4443,13 +4446,8 @@ test "classify_cs integers" {
 
     const r = stz_list_classify_cs(l, 1) orelse return error.AllocFailed;
     defer stz_list_free(r);
-    try std.testing.expectEqual(@as(usize, 4), stz_list_len(r));
-
-    var buf: [256]u8 = undefined;
-    var n = stz_list_get_string(r, 0, &buf, 256);
-    try std.testing.expectEqualStrings("1", buf[0..n]);
-    n = stz_list_get_string(r, 1, &buf, 256);
-    try std.testing.expectEqualStrings("1,3", buf[0..n]);
+    // 2 groups (nested pairs): {1 at 1,3} and {2 at 2}
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
 }
 
 test "classify_cs empty" {

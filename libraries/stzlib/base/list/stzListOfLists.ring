@@ -3140,7 +3140,7 @@ class stzListOfLists from stzList
 			_pCiListA_ = StzEngineMarshalList(_aCiCommon_)
 			_pCiListB_ = StzEngineMarshalList(_aCiContent_[_iCi_])
 			_pCiResult_ = StzEngineListIntersectionCS(_pCiListA_, _pCiListB_, _nCiCsFlag_)
-			_aCiCommon_ = StzEngineContentFromList(_pCiResult_)
+			_aCiCommon_ = StzEngineListContentToRingList(_pCiResult_)
 			StzEngineListFree(_pCiResult_)
 			StzEngineListFree(_pCiListB_)
 			StzEngineListFree(_pCiListA_)

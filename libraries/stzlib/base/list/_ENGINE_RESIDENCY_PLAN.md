@@ -219,6 +219,37 @@ bounded, the engine-truth model can keep dirty handles within the same cap
 owner to do it, so slice 4 remains the harder step, but the leak is no longer
 the blocker). Guard: `test_residency_cache.ring` (15 checks).
 
+## Unmarshal copy elimination (measurement-driven, biggest broad win)
+
+Profiling at 1M (not assumptions) found the real hot spots were NOT marshal-IN
+(only ~0.1s) but the heavy *result-returning* ops: UnionWith 5.4s, Classify
+4.8s, IntersectionWith 2.9s. Two causes, both Ring value-semantics overhead:
+
+1. **Classify repackaged in Ring** -- the engine returned a FLAT
+   `[key, posList, key, posList, ...]` and Ring rebuilt it into `[[key,posList],
+   ...]`, COPYING every position sublist (O(n) in interpreted Ring). Fix:
+   `stz_list_classify_cs` now emits the FINAL nested `[[key,[pos...]],...]`
+   shape, so Ring unmarshals once and returns it -- no repackage.
+
+2. **The unmarshal wrapper added a full list copy.** `StzEngineContentFromList`
+   (a Ring func) calls the C bridge `StzEngineListContentToRingList` (builds the
+   Ring list engine-side, cheap) but then `return`s it -- and **Ring copies a
+   list on every function-return boundary** (~1.3s for 3M items). Measured:
+   bridge-direct 0.80s vs wrapper 2.11s for the same 3M result. Fix: route all
+   77 internal unmarshal sites across the 15 list-module files straight to the
+   bridge `StzEngineListContentToRingList` (handles NULL -> []; the wrapper's
+   per-item fallback was dead). The wrapper stays defined for any external use.
+
+Results (1M, vs the original baseline): **Classify 4.82s -> 2.35s (-51%),
+UnionWith 5.38s -> 3.53s (-34%), IntersectionWith 2.89s -> 1.80s (-38%),
+5-mutator chain 3.54s -> 2.26s (-36%)**. The remaining cost is the unavoidable
+1 copy per Ring method-return boundary + the engine op itself.
+
+KEY LESSON: in Ring, a function/method returning a large list COPIES it. Deep
+delegation chains (op -> submodule -> wrapper) stack O(n) copies. Prefer the C
+bridge return (no copy) and minimize Ring-return boundaries the big list
+crosses. marshal-IN is cheap (~0.1s); the copies were the real tax.
+
 ## Key files
 
 - `libraries/stzlib/base/list/stzList.ring` — the class (~10k lines).

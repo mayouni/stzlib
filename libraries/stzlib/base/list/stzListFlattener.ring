@@ -323,7 +323,7 @@ class stzListFlattener
 		_pDfList_ = @oList._EngineListFromContent()
 		_pDfResult_ = StzEngineListDeepFlatten(_pDfList_)
 		StzEngineListFree(_pDfList_)
-		This.Update(StzEngineContentFromList(_pDfResult_))
+		This.Update(StzEngineListContentToRingList(_pDfResult_))
 		StzEngineListFree(_pDfResult_)
 
 		def DeepFlattenQ()
@@ -334,7 +334,7 @@ class stzListFlattener
 		_pDfdList_ = @oList._EngineListFromContent()
 		_pDfdResult_ = StzEngineListDeepFlatten(_pDfdList_)
 		StzEngineListFree(_pDfdList_)
-		_aDfdResult_ = StzEngineContentFromList(_pDfdResult_)
+		_aDfdResult_ = StzEngineListContentToRingList(_pDfdResult_)
 		StzEngineListFree(_pDfdResult_)
 		return _aDfdResult_
 
@@ -346,7 +346,7 @@ class stzListFlattener
 		_pFtdList_ = @oList._EngineListFromContent()
 		_pFtdResult_ = StzEngineListFlattenToDepth(_pFtdList_, n)
 		StzEngineListFree(_pFtdList_)
-		This.Update(StzEngineContentFromList(_pFtdResult_))
+		This.Update(StzEngineListContentToRingList(_pFtdResult_))
 		StzEngineListFree(_pFtdResult_)
 
 		def FlattenToDepthQ(n)
@@ -357,7 +357,7 @@ class stzListFlattener
 		_pFtddList_ = @oList._EngineListFromContent()
 		_pFtddResult_ = StzEngineListFlattenToDepth(_pFtddList_, n)
 		StzEngineListFree(_pFtddList_)
-		_aFtddResult_ = StzEngineContentFromList(_pFtddResult_)
+		_aFtddResult_ = StzEngineListContentToRingList(_pFtddResult_)
 		StzEngineListFree(_pFtddResult_)
 		return _aFtddResult_
 
@@ -369,7 +369,7 @@ class stzListFlattener
 		_pPdList_ = @oList._EngineListFromContent()
 		_pPdResult_ = StzEngineListPaired(_pPdList_)
 		StzEngineListFree(_pPdList_)
-		_aPdResult_ = StzEngineContentFromList(_pPdResult_)
+		_aPdResult_ = StzEngineListContentToRingList(_pPdResult_)
 		StzEngineListFree(_pPdResult_)
 		return _aPdResult_
 
@@ -381,7 +381,7 @@ class stzListFlattener
 		_pCkList_ = @oList._EngineListFromContent()
 		_pCkResult_ = StzEngineListChunked(_pCkList_, n)
 		StzEngineListFree(_pCkList_)
-		_aCkResult_ = StzEngineContentFromList(_pCkResult_)
+		_aCkResult_ = StzEngineListContentToRingList(_pCkResult_)
 		StzEngineListFree(_pCkResult_)
 		return _aCkResult_
 

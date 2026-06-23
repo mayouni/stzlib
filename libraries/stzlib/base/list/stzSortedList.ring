@@ -13,7 +13,7 @@ class stzSortedList from stzList
 		_pSlInit = This._EngineListFromContent()
 		if _pSlInit != NULL
 			StzEngineListSort(_pSlInit)
-			@aContent = This._ContentFromEngineList(_pSlInit)
+			@aContent = StzEngineListContentToRingList(_pSlInit)
 			StzEngineListFree(_pSlInit)
 		else
 			@aContent = @SortList(paList)
@@ -35,7 +35,7 @@ class stzSortedList from stzList
 			else
 				StzEngineListSortedInsertString(_pSlAdd, "" + pItem)
 			ok
-			@aContent = This._ContentFromEngineList(_pSlAdd)
+			@aContent = StzEngineListContentToRingList(_pSlAdd)
 			StzEngineListFree(_pSlAdd)
 		else
 			@aContent + pItem
