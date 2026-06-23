@@ -7253,13 +7253,20 @@ class stzList from stzObject
 		_oDwMrg_ = new stzListMerger(This)
 		return _oDwMrg_.DiffWith(paOtherList)
 
+	# Set-ops fetch the engine RESULT HANDLE from the merger (a number, no list
+	# copy) and unmarshal ONCE here -- one Ring method-return copy instead of
+	# two (merger return + this return).
 	def IntersectWith(paOtherList)
-		_oIswMrg_ = new stzListMerger(This)
-		return _oIswMrg_.IntersectWith(paOtherList)
+		_pIsw_ = (new stzListMerger(This))._IntersectHandle(paOtherList)
+		_aIsw_ = StzEngineListContentToRingList(_pIsw_)
+		StzEngineListFree(_pIsw_)
+		return _aIsw_
 
 	def UnionWith(paOtherList)
-		_oUwMrg_ = new stzListMerger(This)
-		return _oUwMrg_.UnionWith(paOtherList)
+		_pUw_ = (new stzListMerger(This))._UnionHandle(paOtherList)
+		_aUw_ = StzEngineListContentToRingList(_pUw_)
+		StzEngineListFree(_pUw_)
+		return _aUw_
 
 	  #-------------------------------#
 	 #  INSERTER DELEGATIONS         #

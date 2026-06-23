@@ -164,11 +164,10 @@ class stzListMerger
 	#======================================================#
 
 	def InterleaveWith(paOtherList)
-		pList1 = @oList._EngineListFromContent()
+		pList1 = @oList._Engine()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListInterleave(pList1, pList2)
-		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
 		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
@@ -186,11 +185,10 @@ class stzListMerger
 	#======================================================#
 
 	def ZipWith(paOtherList)
-		pList1 = @oList._EngineListFromContent()
+		pList1 = @oList._Engine()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListZip(pList1, pList2)
-		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
 		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
@@ -253,14 +251,19 @@ class stzListMerger
 	 #   DIFF -- ITEMS IN THIS BUT NOT IN OTHER             #
 	#======================================================#
 
-	def DiffWith(paOtherList)
-		pList1 = @oList._EngineListFromContent()
+	# Returns the engine RESULT HANDLE (a number, not a Ring list) so the
+	# caller unmarshals exactly once -- avoids an extra O(n) list copy that a
+	# Ring method-return of the list would incur.
+	def _DiffHandle(paOtherList)
+		pList1 = @oList._Engine()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListDifferenceCS(pList1, pList2, 1)
-		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
+		return pResult
 
+	def DiffWith(paOtherList)
+		pResult = This._DiffHandle(paOtherList)
 		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return aResult
@@ -275,14 +278,16 @@ class stzListMerger
 	 #   INTERSECT -- ITEMS IN BOTH LISTS                   #
 	#======================================================#
 
-	def IntersectWith(paOtherList)
-		pList1 = @oList._EngineListFromContent()
+	def _IntersectHandle(paOtherList)
+		pList1 = @oList._Engine()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListIntersectionCS(pList1, pList2, 1)
-		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
+		return pResult
 
+	def IntersectWith(paOtherList)
+		pResult = This._IntersectHandle(paOtherList)
 		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return aResult
@@ -297,14 +302,16 @@ class stzListMerger
 	 #   UNION -- ALL UNIQUE ITEMS FROM BOTH LISTS          #
 	#======================================================#
 
-	def UnionWith(paOtherList)
-		pList1 = @oList._EngineListFromContent()
+	def _UnionHandle(paOtherList)
+		pList1 = @oList._Engine()
 		oTemp = new stzList(paOtherList)
 		pList2 = oTemp._EngineListFromContent()
 		pResult = StzEngineListUnionCS(pList1, pList2, 1)
-		StzEngineListFree(pList1)
 		StzEngineListFree(pList2)
+		return pResult
 
+	def UnionWith(paOtherList)
+		pResult = This._UnionHandle(paOtherList)
 		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return aResult
@@ -317,9 +324,8 @@ class stzListMerger
 	#======================================================#
 
 	def Partition(n)
-		pList = @oList._EngineListFromContent()
+		pList = @oList._Engine()
 		pResult = StzEngineListPartition(pList, n)
-		StzEngineListFree(pList)
 		aResult = StzEngineListContentToRingList(pResult)
 		StzEngineListFree(pResult)
 		return aResult
