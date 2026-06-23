@@ -600,7 +600,7 @@ fn ring_AllUniqueCS(p: *anyopaque) callconv(.c) void {
 
 // Classify / Frequencies
 fn ring_ClassifyCS(p: *anyopaque) callconv(.c) void {
-    rcp(p, @ptrCast(list.stz_list_classify_cs(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+    rcp(p, @ptrCast(list.stz_list_classify_cs(getLCTyped(p, 1), @intFromFloat(g(p, 2)))), HL);
 }
 fn ring_FrequenciesCS(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_frequencies_cs(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);

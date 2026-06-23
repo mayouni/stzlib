@@ -1269,9 +1269,85 @@ fn findInSeen(seen: []const []const u8, key: []const u8, case_sensitive: bool) ?
     return null;
 }
 
+// Native dense str-mode classify -> nested [ [repString, [pos...]], ... ].
+// Groups by content (cs: exact bytes; !cs: ASCII case-fold, matching the boxed
+// engine semantics). Representative key = first ORIGINAL occurrence.
+fn classifyStrsFast(arr: []const []u8, cs: bool) ?*StzList {
+    const result = StzList.init() catch return null;
+    if (arr.len == 0) return result;
+
+    var group_of = std.StringHashMapUnmanaged(usize){};
+    var groups = std.ArrayList(std.ArrayList(i64)){};
+    var reps = std.ArrayList([]const u8){};
+    var keys_owned = std.ArrayList([]u8){}; // folded keys (cs=0) to free at end
+    defer {
+        group_of.deinit(allocator);
+        for (groups.items) |*g| g.deinit(allocator);
+        groups.deinit(allocator);
+        reps.deinit(allocator);
+        for (keys_owned.items) |k| allocator.free(k);
+        keys_owned.deinit(allocator);
+    }
+
+    for (arr, 0..) |s, i| {
+        var key: []const u8 = s;
+        var folded: ?[]u8 = null;
+        if (!cs) {
+            const fb = allocator.alloc(u8, s.len) catch continue;
+            for (s, 0..) |c, j| fb[j] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+            key = fb;
+            folded = fb;
+        }
+        const gop = group_of.getOrPut(allocator, key) catch {
+            if (folded) |f| allocator.free(f);
+            continue;
+        };
+        if (!gop.found_existing) {
+            gop.value_ptr.* = groups.items.len;
+            groups.append(allocator, .{}) catch {};
+            reps.append(allocator, s) catch {};
+            if (folded) |f| keys_owned.append(allocator, f) catch {};
+        } else if (folded) |f| {
+            allocator.free(f); // duplicate key -> drop the folded copy
+        }
+        groups.items[gop.value_ptr.*].append(allocator, @intCast(i + 1)) catch {};
+    }
+
+    for (groups.items, 0..) |grp, gi| {
+        const pair = value_mod.stz_value_new_list() orelse {
+            result.deinit();
+            return null;
+        };
+        const rep = reps.items[gi];
+        const kval = value_mod.stz_value_new_string(rep.ptr, rep.len) orelse {
+            value_mod.stz_value_free(pair);
+            result.deinit();
+            return null;
+        };
+        _ = value_mod.stz_value_list_append(pair, kval);
+        value_mod.stz_value_free(kval);
+        const pos_val = value_mod.stz_value_new_list() orelse {
+            value_mod.stz_value_free(pair);
+            result.deinit();
+            return null;
+        };
+        for (grp.items) |pos| {
+            const iv = value_mod.stz_value_new_int(pos) orelse continue;
+            _ = value_mod.stz_value_list_append(pos_val, iv);
+            value_mod.stz_value_free(iv);
+        }
+        _ = value_mod.stz_value_list_append(pair, pos_val);
+        value_mod.stz_value_free(pos_val);
+        _ = stz_list_append_value(result, pair);
+        value_mod.stz_value_free(pair);
+    }
+    return result;
+}
+
 pub fn stz_list_classify_cs(list_arg: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
     const l = list_arg orelse return null;
     const cs = case_sensitive != 0;
+    if (l.strs) |arr| return classifyStrsFast(arr.items, cs);
     const n = l.len();
     const result = StzList.init() catch return null;
     if (n == 0) return result;
