@@ -161,11 +161,18 @@ Commit trailer: `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic
   unmarshals are also removed -- but then `@aContent` can be stale and EVERY
   direct read must funnel through `_Content()`. Before doing slice 4, decide
   a deterministic free strategy: (a) explicit `.Release()`/`.Free()` the
-  fluent forms call at chain end, (b) an engine-side arena/generation that
-  bulk-frees, or (c) make marshal-IN itself bulk (mirror the bulk
-  `ring_ContentToRingList` unmarshal) so caching -- and the leak -- become
-  unnecessary. Option (c) may be the cleanest: it removes the bottleneck
-  without per-object handle lifetime at all.
+  fluent forms call at chain end, or (b) an engine-side arena/generation
+  that bulk-frees.
+
+  NOTE -- "bulk marshal-IN" is NOT an easy alternative. `marshalRingList`
+  (ring_bridge_list.zig:862) is ALREADY a single FFI call
+  (ring_MarshalFromRingList:959) that loops engine-side. The ~1s/op cost is
+  the per-item Ring C-API reads (ring_list_gettype_gc / ring_list_getitem_gc
+  / ring_item_getnumber -- ~3 C calls/item), which are irreducible without
+  replicating Ring's internal `List`/`Item` struct layout in Zig (fragile
+  across Ring versions). So caching the handle (residency) genuinely IS the
+  right lever to avoid repeating those reads across a chain; the leak is the
+  real cost. This corrects an earlier "just bulk the marshal" idea.
 
   Migrated in 2b (cache-aware): SortCS/SortBy/SortByDescending/
   SortInDescendingCS/Reverse (mutators, warm via `_RefreshFromEngine`);
