@@ -7,8 +7,10 @@
 #   WalkedItems / WalkedPositions     -- the items / positions it visits,
 #   WalkedLastItem / WalkedLastPosition,
 #   NumberOfWalkedItems,
-#   YieldWhileWalking(yielder, name)  -- evaluate a yielder ("@item" is the
-#                                        current value) at each visited slot.
+#   YieldWhileWalkingWF(func, name)   -- project each visited item through a
+#                                        Ring anonymous function (eval-free;
+#                                        YieldWhileWalking(dsl, name) is the
+#                                        engine-DSL counterpart).
 # Here Walker1 walks all of "A":"J" one step at a time.
 #
 # Extracted from stzlisttest.ring, block #597.
@@ -35,7 +37,7 @@ StzListQ( "A":"J" ) {
 	? NumberOfWalkedItems( :By = :Walker1 )
 	#--> 10
 
-	? YieldWhileWalking( 'type(@item)', :Walker1 )
+	? YieldWhileWalkingWF( func x { return ring_type(x) }, :Walker1 )
 	#--> [ "STRING", "STRING", "STRING", "STRING", "STRING",
 	#     "STRING", "STRING", "STRING", "STRING", "STRING" ]
 }

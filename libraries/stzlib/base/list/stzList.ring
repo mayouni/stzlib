@@ -6435,17 +6435,21 @@ class stzList from stzObject
 		if _nWli_ = 0 return NULL ok
 		return This.Item(_nWli_)
 
-	#-- YieldWhileWalking: evaluate a yielder expression at each position the
-	#-- named walker visits. The yielder may use @item / item / Item for the
-	#-- current value (e.g. 'type(@item)' or '{ StzLen(item) }').
+	#-- YieldWhileWalking: project each item the named walker visits through an
+	#-- engine W-DSL yielder (e.g. '@item * 2', 'Q(@item).Upper()'). Eval-free
+	#-- and engine-backed (stz_list_map_expr). For arbitrary Ring logic
+	#-- (ring_type, upper, StringContains, ...) use YieldWhileWalkingWF.
 	def YieldWhileWalking(pcYielder, pWalker)
-		_anYw_ = This.WalkedPositions(pWalker)
-		_aYwRes_ = []
-		_nYw_ = len(_anYw_)
-		for _iYw_ = 1 to _nYw_
-			_aYwRes_ + _StzEvalWalkExpr(pcYielder, This.Item(_anYw_[_iYw_]))
-		next
-		return _aYwRes_
+		_aYwSub_ = This.ItemsAtPositions( This.WalkedPositions(pWalker) )
+		_oYwSub_ = new stzList(_aYwSub_)
+		return _oYwSub_.Yield(pcYielder)
+
+	#-- WF form: project the walked items through a Ring anonymous function
+	#-- (full Ring power, eval-free).
+	def YieldWhileWalkingWF(pFunc, pWalker)
+		_aYwfSub_ = This.ItemsAtPositions( This.WalkedPositions(pWalker) )
+		_oYwfSub_ = new stzList(_aYwfSub_)
+		return _oYwfSub_.MapWF(pFunc)
 
 	def WalkNForward(n)
 		_oWnfWk_ = new stzListWalker(This)
