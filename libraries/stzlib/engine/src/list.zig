@@ -14,38 +14,85 @@ const StzValue = value_mod.StzValue;
 const ValueType = value_mod.ValueType;
 
 pub const StzList = struct {
-    items: std.ArrayList(*StzValue),
+    // Dual storage (unboxed typed-storage refactor). Normally `items` holds
+    // boxed *StzValue. When `ints` is non-null the list is in dense INT-MODE:
+    // `ints` is the source of truth and `items` is empty -- no per-item heap
+    // boxing. ensureBoxed() materializes int-mode into `items` on demand; the
+    // bridge handle-resolvers call it for any op not specialized for int-mode,
+    // so the hundreds of `items`-based ops keep working unchanged. Specialized
+    // hot ops + marshal + unmarshal read `ints` directly for near-native speed.
+    items: std.ArrayList(*StzValue) = .{},
+    ints: ?std.ArrayList(i64) = null,
 
     pub fn init() !*StzList {
         const self = try allocator.create(StzList);
-        self.* = .{ .items = .{} };
+        self.* = .{ .items = .{}, .ints = null };
         return self;
     }
 
+    // Build an empty dense int-mode list (optionally pre-sized).
+    pub fn initInts(capacity: usize) !*StzList {
+        const self = try allocator.create(StzList);
+        self.* = .{ .items = .{}, .ints = std.ArrayList(i64){} };
+        if (capacity > 0) try self.ints.?.ensureTotalCapacity(allocator, capacity);
+        return self;
+    }
+
+    pub fn isInts(self: *const StzList) bool {
+        return self.ints != null;
+    }
+
+    // Materialize dense int-mode into boxed *StzValue items (one-time,
+    // idempotent). After this the list is in normal boxed mode.
+    pub fn ensureBoxed(self: *StzList) void {
+        if (self.ints) |*arr| {
+            self.items.ensureTotalCapacity(allocator, arr.items.len) catch {};
+            for (arr.items) |iv| {
+                const v = value_mod.stz_value_new_int(iv) orelse continue;
+                self.items.append(allocator, v) catch {
+                    v.deinit();
+                    allocator.destroy(v);
+                };
+            }
+            arr.deinit(allocator);
+            self.ints = null;
+        }
+    }
+
     pub fn deinit(self: *StzList) void {
-        for (self.items.items) |item| {
-            item.deinit();
-            allocator.destroy(item);
+        if (self.ints) |*arr| {
+            arr.deinit(allocator);
+        } else {
+            for (self.items.items) |item| {
+                item.deinit();
+                allocator.destroy(item);
+            }
         }
         self.items.deinit(allocator);
         allocator.destroy(self);
     }
 
     pub fn len(self: *const StzList) usize {
+        if (self.ints) |arr| return arr.items.len;
         return self.items.items.len;
     }
 
     pub fn appendClone(self: *StzList, v: *const StzValue) !void {
+        if (self.ints != null) self.ensureBoxed();
         const cloned = try v.clone();
         try self.items.append(allocator, cloned);
     }
 
+    // get/getMut require boxed mode. In int-mode they return null -- callers
+    // that may see int-mode must ensureBoxed first (bridge resolvers do).
     pub fn get(self: *const StzList, index: usize) ?*const StzValue {
+        if (self.ints != null) return null;
         if (index >= self.items.items.len) return null;
         return self.items.items[index];
     }
 
     pub fn getMut(self: *StzList, index: usize) ?*StzValue {
+        if (self.ints != null) return null;
         if (index >= self.items.items.len) return null;
         return self.items.items[index];
     }
@@ -198,8 +245,20 @@ pub fn stz_list_len(list: ?*const StzList) callconv(.c) usize {
 
 // ─── C ABI: Add Items ───
 
+// Empty dense int-mode list (used by marshal to build all-int lists without
+// per-item boxing). Appending a non-int via append_float/string/value will
+// transparently ensureBoxed().
+pub fn stz_list_new_ints() callconv(.c) ?*StzList {
+    return StzList.initInts(0) catch null;
+}
+
 pub fn stz_list_append_int(list: ?*StzList, n: i64) callconv(.c) i32 {
     const l = list orelse return -1;
+    // Dense int-mode: append the raw i64, no boxing.
+    if (l.ints) |*arr| {
+        arr.append(allocator, n) catch return -1;
+        return 0;
+    }
     const v = value_mod.stz_value_new_int(n) orelse return -1;
     l.items.append(allocator, v) catch {
         v.deinit();
@@ -211,6 +270,7 @@ pub fn stz_list_append_int(list: ?*StzList, n: i64) callconv(.c) i32 {
 
 pub fn stz_list_append_float(list: ?*StzList, f: f64) callconv(.c) i32 {
     const l = list orelse return -1;
+    l.ensureBoxed(); // floats are not int-mode
     const v = value_mod.stz_value_new_float(f) orelse return -1;
     l.items.append(allocator, v) catch {
         v.deinit();
@@ -222,6 +282,7 @@ pub fn stz_list_append_float(list: ?*StzList, f: f64) callconv(.c) i32 {
 
 pub fn stz_list_append_string(list: ?*StzList, ptr: [*]const u8, str_len: usize) callconv(.c) i32 {
     const l = list orelse return -1;
+    l.ensureBoxed(); // strings are not int-mode
     const v = value_mod.stz_value_new_string(ptr, str_len) orelse return -1;
     l.items.append(allocator, v) catch {
         v.deinit();
