@@ -837,6 +837,8 @@ pub fn stz_list_unique_cs(list: ?*const StzList, case_sensitive: i32) callconv(.
     const cs = case_sensitive != 0;
     // Dense int-mode: native O(n) dedup -> dense result.
     if (l.ints != null) return uniqueIntsFast(l.ints.?.items);
+    // Dense str-mode, case-sensitive: native string hash-set dedup.
+    if (l.strs != null and cs) return uniqueStrsFast(l.strs.?.items);
     @constCast(l).ensureBoxed();
     const result = StzList.init() catch return null;
 
@@ -1834,12 +1836,102 @@ fn uniqueIntsFast(a: []const i64) ?*StzList {
     return result;
 }
 
+// Dense str-mode dedup, CASE-SENSITIVE (exact bytes). Native string hash-set
+// over the []u8 array -> dense str result. (cs=0 keeps the boxed fold path.)
+fn uniqueStrsFast(a: []const []u8) ?*StzList {
+    const result = StzList.initStrs(0) catch return null;
+    var seen = std.StringHashMapUnmanaged(void){};
+    defer seen.deinit(allocator);
+    for (a) |s| {
+        const gop = seen.getOrPut(allocator, s) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) {
+            const copy = allocator.dupe(u8, s) catch continue;
+            result.strs.?.append(allocator, copy) catch {
+                allocator.free(copy);
+            };
+        }
+    }
+    return result;
+}
+
+const StrSet = std.StringHashMapUnmanaged(void);
+
+fn appendStrCopy(result: *StzList, s: []const u8) void {
+    const copy = allocator.dupe(u8, s) catch return;
+    result.strs.?.append(allocator, copy) catch allocator.free(copy);
+}
+
+// Native dense str-mode set-ops (case-sensitive). Mirror the int fast paths.
+fn unionStrsFast(a: []const []u8, b: []const []u8) ?*StzList {
+    const result = StzList.initStrs(a.len) catch return null;
+    var seen = StrSet{};
+    defer seen.deinit(allocator);
+    seen.ensureTotalCapacity(allocator, @intCast(a.len + b.len)) catch {};
+    for (a) |s| {
+        const gop = seen.getOrPut(allocator, s) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) appendStrCopy(result, s);
+    }
+    for (b) |s| {
+        const gop = seen.getOrPut(allocator, s) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) appendStrCopy(result, s);
+    }
+    return result;
+}
+
+fn intersectionStrsFast(a: []const []u8, b: []const []u8, keep_dups: bool) ?*StzList {
+    const result = StzList.initStrs(0) catch return null;
+    var bset = StrSet{};
+    defer bset.deinit(allocator);
+    bset.ensureTotalCapacity(allocator, @intCast(b.len)) catch {};
+    for (b) |s| bset.put(allocator, s, {}) catch {};
+    if (keep_dups) {
+        for (a) |s| {
+            if (bset.contains(s)) appendStrCopy(result, s);
+        }
+        return result;
+    }
+    var seen = StrSet{};
+    defer seen.deinit(allocator);
+    for (a) |s| {
+        if (!bset.contains(s)) continue;
+        const gop = seen.getOrPut(allocator, s) catch {
+            result.deinit();
+            return null;
+        };
+        if (!gop.found_existing) appendStrCopy(result, s);
+    }
+    return result;
+}
+
+fn differenceStrsFast(a: []const []u8, b: []const []u8) ?*StzList {
+    const result = StzList.initStrs(0) catch return null;
+    var bset = StrSet{};
+    defer bset.deinit(allocator);
+    bset.ensureTotalCapacity(allocator, @intCast(b.len)) catch {};
+    for (b) |s| bset.put(allocator, s, {}) catch {};
+    for (a) |s| {
+        if (!bset.contains(s)) appendStrCopy(result, s);
+    }
+    return result;
+}
+
 pub fn stz_list_intersection_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
     const la = a orelse return StzList.init() catch null;
     const lb = b orelse return StzList.init() catch null;
     const cs = case_sensitive != 0;
     if (la.ints != null and lb.ints != null)
         return intersectionIntsFast(la.ints.?.items, lb.ints.?.items, false);
+    if (cs and la.strs != null and lb.strs != null)
+        return intersectionStrsFast(la.strs.?.items, lb.strs.?.items, false);
     @constCast(la).ensureBoxed();
     @constCast(lb).ensureBoxed();
     const result = StzList.init() catch return null;
@@ -1872,6 +1964,8 @@ pub fn stz_list_common_items_cs(a: ?*const StzList, b: ?*const StzList, case_sen
     const cs = case_sensitive != 0;
     if (la.ints != null and lb.ints != null)
         return intersectionIntsFast(la.ints.?.items, lb.ints.?.items, true);
+    if (cs and la.strs != null and lb.strs != null)
+        return intersectionStrsFast(la.strs.?.items, lb.strs.?.items, true);
     @constCast(la).ensureBoxed();
     @constCast(lb).ensureBoxed();
     const result = StzList.init() catch return null;
@@ -1898,6 +1992,8 @@ pub fn stz_list_union_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive:
     const cs = case_sensitive != 0;
     if (la.ints != null and lb.ints != null)
         return unionIntsFast(la.ints.?.items, lb.ints.?.items);
+    if (cs and la.strs != null and lb.strs != null)
+        return unionStrsFast(la.strs.?.items, lb.strs.?.items);
     @constCast(la).ensureBoxed();
     @constCast(lb).ensureBoxed();
     const result = stz_list_clone(la) orelse return null;
@@ -1928,6 +2024,8 @@ pub fn stz_list_difference_cs(a: ?*const StzList, b: ?*const StzList, case_sensi
     const cs = case_sensitive != 0;
     if (la.ints != null and lb.ints != null)
         return differenceIntsFast(la.ints.?.items, lb.ints.?.items);
+    if (cs and la.strs != null and lb.strs != null)
+        return differenceStrsFast(la.strs.?.items, lb.strs.?.items);
     @constCast(la).ensureBoxed();
     @constCast(lb).ensureBoxed();
     const result = StzList.init() catch return null;
