@@ -344,6 +344,11 @@ fn ring_FindAllInt(p: *anyopaque) callconv(.c) void {
             for (arr.items, 0..) |x, i| {
                 if (x == needle) R.ring_list_adddouble(out, @floatFromInt(i + 1));
             }
+        } else if (l.floats) |arr| {
+            const fneedle: f64 = @floatFromInt(needle);
+            for (arr.items, 0..) |x, i| {
+                if (x == fneedle) R.ring_list_adddouble(out, @floatFromInt(i + 1));
+            }
         } else {
             for (l.items.items, 0..) |item, i| {
                 if (item.tag == .int_val and item.data.int_val == needle)
@@ -1003,6 +1008,8 @@ fn ring_ContentToRingList(p: *anyopaque) callconv(.c) void {
     if (getLCTyped(p, 1)) |l| {
         if (l.ints) |arr| {
             for (arr.items) |iv| R.ring_list_adddouble(out, @floatFromInt(iv));
+        } else if (l.floats) |arr| {
+            for (arr.items) |fv| R.ring_list_adddouble(out, fv);
         } else {
             for (l.items.items) |item| {
                 appendValueToRing(out, item);
