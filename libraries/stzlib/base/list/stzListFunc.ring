@@ -63,6 +63,15 @@
 			return []
 		ok
 
+		# Bulk engine->Ring unmarshal in ONE bridge call (engine builds the
+		# whole Ring structure, nested lists included). The old per-item Ring
+		# loop below made millions of FFI round-trips and was O(n)-with-huge-
+		# constant at scale; kept only as a defensive fallback.
+		_aFastEcf_ = StzEngineListContentToRingList(pList)
+		if isList(_aFastEcf_)
+			return _aFastEcf_
+		ok
+
 		_nEcfLen_ = StzEngineListLen(pList)
 		_aEcfResult_ = []
 
