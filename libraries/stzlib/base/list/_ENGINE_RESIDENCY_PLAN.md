@@ -187,6 +187,38 @@ Commit trailer: `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic
   -> slice 5. ~32 `_EngineListFromContent` call sites remain (submodule-
   bound, throwaway-other-handle, or colder core ops).
 
+## The keystone -- bounded residency cache (removes the leak)
+
+The no-destructor leak is solved by an engine-side **bounded, generation-keyed
+residency cache** (ring_bridge_list.zig). It OWNS the marshalled handles:
+
+- `StzEngineListCacheRegister(id) -> gen` : registers a handle id, returns a
+  monotonic generation. Adds its item-count to a running total; **evicts FIFO**
+  when over `CACHE_MAX_ITEMS` (8M) or `CACHE_MAX_ENTRIES` (1024) -- eviction
+  frees the StzList AND `releaseSlot`s its handle-table id (so the 8192-slot
+  table never overflows).
+- `StzEngineListCacheGet(gen) -> id` : live handle id, or 0 = miss (evicted).
+- `StzEngineListCacheInvalidate(gen)` : free + release that entry.
+
+stzList now stores `@pEngineGen` (not a raw handle). `_Engine()` returns the
+warm handle if its gen is still resident, else **re-marshals from @aContent**
+(always truth in Model A) and re-registers. Generations avoid the ABA problem
+of reused handle ids. Because eviction bounds memory, READS can now stay warm
+safely (the 2b "free after each read" rule was removed).
+
+Results (A/B by git-stash, 1M items):
+- **Read-reuse (8 reads on one object): 3.34s -> 1.29s (~2.6x).**
+- 03_engine_millions (one-shot heavy): **33s, no regression** -- the cache
+  evicts the big one-shot handles instead of leaking them (naive always-warm
+  caching had regressed this to 50s).
+- Mutator chain: still warm (the ~21% from 2b), now also leak-free.
+
+This makes residency production-safe and **unblocks slice 4**: with handles
+bounded, the engine-truth model can keep dirty handles within the same cap
+(force-materialize the LRU dirty handle under pressure -- still needs the
+owner to do it, so slice 4 remains the harder step, but the leak is no longer
+the blocker). Guard: `test_residency_cache.ring` (15 checks).
+
 ## Key files
 
 - `libraries/stzlib/base/list/stzList.ring` — the class (~10k lines).

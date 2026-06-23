@@ -969,7 +969,111 @@ fn ring_MarshalFromRingList(p: *anyopaque) callconv(.c) void {
     if (result) |r| rcp(p, @ptrCast(r), HL) else rcp(p, @as(?*anyopaque, null), HL);
 }
 
+// ----------------------------------------------------------------------
+//  ENGINE-RESIDENCY CACHE (bounded, generation-keyed)
+//
+//  stzList caches its marshalled engine handle so a fluent chain / repeated
+//  reads on one object marshal the Ring list only ONCE. Ring has no object
+//  destructors, so a cached handle is never freed when its object dies --
+//  left unbounded that leaks both engine memory AND handle-table slots
+//  (MAX_HANDLES=8192 -> a hard cliff). This cache bounds both: it OWNS the
+//  cached handles, evicts FIFO when over a total-item or entry-count cap
+//  (freeing the StzList AND releasing its handle-table slot), and hands the
+//  owner a monotonic GENERATION token. _Engine() looks up by gen; an evicted
+//  gen simply misses and the owner re-marshals from @aContent (always the
+//  source of truth -- "Model A"). Generations avoid the ABA problem of
+//  reused handle ids. Single-threaded (Ring VM) so no locking.
+// ----------------------------------------------------------------------
+
+const cache_alloc = std.heap.c_allocator;
+const CACHE_MAX_ITEMS: usize = 8_000_000;
+const CACHE_MAX_ENTRIES: usize = 1024;
+
+const CacheEntry = struct { id: f64, items: usize };
+
+var cache_map: std.AutoHashMapUnmanaged(u64, CacheEntry) = .{};
+var cache_fifo: std.ArrayList(u64) = .{};
+var cache_fifo_head: usize = 0;
+var cache_gen: u64 = 0;
+var cache_total_items: usize = 0;
+
+fn cacheFreeEntry(gen: u64) void {
+    if (cache_map.fetchRemove(gen)) |kv| {
+        cache_total_items -= kv.value.items;
+        if (R.resolveHandle(kv.value.id)) |raw| {
+            const h: ?*list.StzList = @ptrCast(@alignCast(raw));
+            list.stz_list_free(h);
+        }
+        R.releaseSlot(kv.value.id);
+    }
+}
+
+fn cachePopFrontLive() ?u64 {
+    while (cache_fifo_head < cache_fifo.items.len) {
+        const gen = cache_fifo.items[cache_fifo_head];
+        cache_fifo_head += 1;
+        if (cache_map.contains(gen)) return gen;
+    }
+    return null;
+}
+
+fn cacheRebuildFifo() void {
+    cache_fifo.clearRetainingCapacity();
+    cache_fifo_head = 0;
+    var it = cache_map.iterator();
+    while (it.next()) |kv| {
+        cache_fifo.append(cache_alloc, kv.key_ptr.*) catch {};
+    }
+}
+
+fn cacheEvict() void {
+    // Evict oldest live entries while over either cap; never drop the last
+    // one (so a single oversized list is allowed, temporarily over-cap).
+    while ((cache_total_items > CACHE_MAX_ITEMS or cache_map.count() > CACHE_MAX_ENTRIES) and cache_map.count() > 1) {
+        const victim = cachePopFrontLive() orelse break;
+        cacheFreeEntry(victim);
+    }
+    // Keep the fifo from growing without bound when entries are invalidated
+    // (stale gens linger in the fifo) rather than evicted.
+    if (cache_fifo.items.len - cache_fifo_head > cache_map.count() * 4 + 64) {
+        cacheRebuildFifo();
+    }
+}
+
+fn cacheRegister(id: f64) u64 {
+    const raw = R.resolveHandle(id) orelse return 0;
+    const h: *const list.StzList = @ptrCast(@alignCast(raw));
+    const n = list.stz_list_len(h);
+    cache_gen += 1;
+    const gen = cache_gen;
+    cache_map.put(cache_alloc, gen, .{ .id = id, .items = n }) catch return 0;
+    cache_total_items += n;
+    cache_fifo.append(cache_alloc, gen) catch {};
+    cacheEvict();
+    return gen;
+}
+
+// Register an engine list handle id in the residency cache -> returns a gen.
+fn ring_CacheRegister(p: *anyopaque) callconv(.c) void {
+    const id = R.ring_vm_api_getnumber(p, 1);
+    R.ring_vm_api_retnumber(p, @floatFromInt(cacheRegister(id)));
+}
+// Resolve a gen -> the live handle id (0 if evicted/unknown == cache miss).
+fn ring_CacheGet(p: *anyopaque) callconv(.c) void {
+    const gen: u64 = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    const idval: f64 = if (cache_map.get(gen)) |e| e.id else 0;
+    R.ring_vm_api_retnumber(p, idval);
+}
+// Drop a gen: free its StzList + release its handle-table slot.
+fn ring_CacheInvalidate(p: *anyopaque) callconv(.c) void {
+    const gen: u64 = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    cacheFreeEntry(gen);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginelistcacheregister", .func = &ring_CacheRegister },
+    .{ .name = "stzenginelistcacheget", .func = &ring_CacheGet },
+    .{ .name = "stzenginelistcacheinvalidate", .func = &ring_CacheInvalidate },
     .{ .name = "stzenginelistnew", .func = &ring_New },
     .{ .name = "stzenginelistfree", .func = &ring_Free },
     .{ .name = "stzenginelistlen", .func = &ring_Len },
