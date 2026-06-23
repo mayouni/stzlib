@@ -227,7 +227,7 @@ fn ring_Reverse(p: *anyopaque) callconv(.c) void {
 
 // Deduplicate
 fn ring_UniqueCS(p: *anyopaque) callconv(.c) void {
-    rcp(p, @ptrCast(list.stz_list_unique_cs(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+    rcp(p, @ptrCast(list.stz_list_unique_cs(getLCTyped(p, 1), @intFromFloat(g(p, 2)))), HL);
 }
 fn ring_RemoveDuplicatesCS(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_remove_duplicates_cs(getL(p, 1), @intFromFloat(g(p, 2)))));
@@ -581,16 +581,16 @@ fn ring_FrequenciesCS(p: *anyopaque) callconv(.c) void {
 
 // Set operations
 fn ring_IntersectionCS(p: *anyopaque) callconv(.c) void {
-    rcp(p, @ptrCast(list.stz_list_intersection_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+    rcp(p, @ptrCast(list.stz_list_intersection_cs(getLCTyped(p, 1), getLCTyped(p, 2), @intFromFloat(g(p, 3)))), HL);
 }
 fn ring_CommonItemsCS(p: *anyopaque) callconv(.c) void {
-    rcp(p, @ptrCast(list.stz_list_common_items_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+    rcp(p, @ptrCast(list.stz_list_common_items_cs(getLCTyped(p, 1), getLCTyped(p, 2), @intFromFloat(g(p, 3)))), HL);
 }
 fn ring_UnionCS(p: *anyopaque) callconv(.c) void {
-    rcp(p, @ptrCast(list.stz_list_union_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+    rcp(p, @ptrCast(list.stz_list_union_cs(getLCTyped(p, 1), getLCTyped(p, 2), @intFromFloat(g(p, 3)))), HL);
 }
 fn ring_DifferenceCS(p: *anyopaque) callconv(.c) void {
-    rcp(p, @ptrCast(list.stz_list_difference_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+    rcp(p, @ptrCast(list.stz_list_difference_cs(getLCTyped(p, 1), getLCTyped(p, 2), @intFromFloat(g(p, 3)))), HL);
 }
 fn ring_ModifiedItemsCS(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_modified_items_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
