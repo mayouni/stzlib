@@ -102,9 +102,34 @@ pub extern fn ring_list_addstring(pList: *anyopaque, cStr: [*:0]const u8) void;
 pub extern fn ring_list_addstring2(pList: *anyopaque, cStr: [*]const u8, nSize: c_uint) void;
 pub extern fn ring_list_newlist(pList: *anyopaque) ?*anyopaque;
 
-// Ring struct layout — stable ABI for direct field access where macros can't be called
+// Ring struct layout — direct field access where Ring exposes data only via
+// macros (no exported getter functions): list size + string bytes.
+//
+// The `String` and `Item` structs are stable across Ring versions, but the
+// internal `List` struct was REORGANIZED in Ring 1.27 (nSize moved from offset
+// 16 to offset 60). So the layout used for reading List.nSize must match the
+// Ring version the engine is built against. build.zig reads RING_VERSION_MINOR
+// from the chosen Ring's state.h and passes it here; rebuild against your Ring.
+const ring_minor: u32 = @import("ring_build_options").ring_minor;
+
 pub const RingString = extern struct { cStr: [*]const u8, nSize: c_uint };
-pub const RingList = extern struct { pFirst: ?*anyopaque, pLast: ?*anyopaque, nSize: c_uint };
+
+// Ring 1.27+ List layout (only the fields up to nSize are needed here).
+const RingList127 = extern struct {
+    pFirst: ?*anyopaque,
+    pLast: ?*anyopaque,
+    pLastItem: ?*anyopaque,
+    pItemsArray: ?*anyopaque,
+    pHashTable: ?*anyopaque,
+    pBlocks: ?*anyopaque,
+    pHashParent: ?*anyopaque,
+    nNextItem: c_uint,
+    nSize: c_uint,
+};
+// Ring <= 1.26 List layout (nSize right after pFirst/pLast).
+const RingListLegacy = extern struct { pFirst: ?*anyopaque, pLast: ?*anyopaque, nSize: c_uint };
+
+pub const RingList = if (ring_minor >= 27) RingList127 else RingListLegacy;
 
 pub inline fn ringListSize(pList: *anyopaque) c_uint {
     const rl: *const RingList = @ptrCast(@alignCast(pList));
