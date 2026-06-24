@@ -351,10 +351,51 @@ fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
     for (win_libs) |l| lib.linkSystemLibrary(l);
 }
 
-fn addRing(mod: *std.Build.Module, lib: *std.Build.Step.Compile) void {
-    mod.addIncludePath(.{ .cwd_relative = "D:/Ring126/language/include" });
-    lib.addLibraryPath(.{ .cwd_relative = "D:/Ring126/lib" });
+fn addRing(b: *std.Build, mod: *std.Build.Module, lib: *std.Build.Step.Compile, ring_dir: []const u8) void {
+    mod.addIncludePath(.{ .cwd_relative = b.fmt("{s}/language/include", .{ring_dir}) });
+    lib.addLibraryPath(.{ .cwd_relative = b.fmt("{s}/lib", .{ring_dir}) });
     lib.linkSystemLibrary("ring");
+}
+
+// Auto-detect the newest installed Ring under D:/RingNNN (highest number with
+// valid headers). Override with -Dring=PATH. Falls back to D:/Ring127.
+fn defaultRingDir(b: *std.Build) []const u8 {
+    var best: []const u8 = "D:/Ring127";
+    var best_n: u32 = 0;
+    var dir = std.fs.cwd().openDir("D:/", .{ .iterate = true }) catch return best;
+    defer dir.close();
+    var it = dir.iterate();
+    while (it.next() catch null) |entry| {
+        if (entry.kind != .directory) continue;
+        if (entry.name.len < 5 or !std.ascii.startsWithIgnoreCase(entry.name, "ring")) continue;
+        const n = std.fmt.parseInt(u32, entry.name[4..], 10) catch continue;
+        const probe = b.fmt("D:/{s}/language/include/state.h", .{entry.name});
+        std.fs.cwd().access(probe, .{}) catch continue;
+        if (n > best_n) {
+            best_n = n;
+            best = b.fmt("D:/{s}", .{entry.name});
+        }
+    }
+    return best;
+}
+
+// Read RING_VERSION_MINOR from <ring_dir>/language/include/state.h so the
+// engine can match the Ring ABI (the internal List struct layout changed in
+// 1.27). Defaults to 27 if the header can't be read/parsed.
+fn readRingMinor(b: *std.Build, ring_dir: []const u8) u32 {
+    const path = b.fmt("{s}/language/include/state.h", .{ring_dir});
+    const data = std.fs.cwd().readFileAlloc(b.allocator, path, 1 << 20) catch return 27;
+    const needle = "RING_VERSION_MINOR";
+    const at = std.mem.indexOf(u8, data, needle) orelse return 27;
+    var i = at + needle.len;
+    while (i < data.len and (data[i] == ' ' or data[i] == '\t')) : (i += 1) {}
+    var n: u32 = 0;
+    var found = false;
+    while (i < data.len and data[i] >= '0' and data[i] <= '9') : (i += 1) {
+        n = n * 10 + (data[i] - '0');
+        found = true;
+    }
+    return if (found) n else 27;
 }
 
 fn addSqlite(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -373,6 +414,17 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    // Ring install to build against (override with -Dring=PATH). The Ring ABI
+    // (internal List struct layout) changed in 1.27, so the engine must be
+    // built for the Ring version it will run under. We read the minor version
+    // from the chosen install's state.h and expose it to the Zig code.
+    const ring_dir = b.option([]const u8, "ring", "Ring install directory (default: newest D:/RingNNN)") orelse defaultRingDir(b);
+    const ring_minor = readRingMinor(b, ring_dir);
+    std.debug.print("[softanza] building against Ring dir='{s}' minor={d}\n", .{ ring_dir, ring_minor });
+    const ring_opts = b.addOptions();
+    ring_opts.addOption(u32, "ring_minor", ring_minor);
+    const ring_opts_mod = ring_opts.createModule();
+
     // Core layer DLLs
     for (core_domains) |dom| {
         const mod = b.createModule(.{
@@ -381,6 +433,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
             .link_libc = true,
         });
+        mod.addImport("ring_build_options", ring_opts_mod);
         const lib = b.addLibrary(.{
             .name = @constCast(dom.name),
             .root_module = mod,
@@ -388,7 +441,7 @@ pub fn build(b: *std.Build) void {
         });
         if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
         if (dom.needs_pcre2) addPcre2(mod, lib, b);
-        if (dom.needs_ring) addRing(mod, lib);
+        if (dom.needs_ring) addRing(b, mod, lib, ring_dir);
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
         b.installArtifact(lib);
     }
@@ -401,6 +454,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
             .link_libc = true,
         });
+        mod.addImport("ring_build_options", ring_opts_mod);
         const lib = b.addLibrary(.{
             .name = @constCast(dom.name),
             .root_module = mod,
@@ -408,7 +462,7 @@ pub fn build(b: *std.Build) void {
         });
         if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
         if (dom.needs_pcre2) addPcre2(mod, lib, b);
-        if (dom.needs_ring) addRing(mod, lib);
+        if (dom.needs_ring) addRing(b, mod, lib, ring_dir);
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
         if (dom.needs_libuv) addLibuv(mod, lib, b, target.result.os.tag);
         if (dom.needs_libcurl) addLibcurl(mod, lib, b, target.result.os.tag);
@@ -422,6 +476,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
+    static_mod.addImport("ring_build_options", ring_opts_mod);
     const static_lib = b.addLibrary(.{
         .name = "softanza_engine_static",
         .root_module = static_mod,
@@ -439,6 +494,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
+    test_mod.addImport("ring_build_options", ring_opts_mod);
     const tests = b.addTest(.{ .root_module = test_mod });
     addUtf8proc(test_mod, tests, b);
     addPcre2(test_mod, tests, b);
