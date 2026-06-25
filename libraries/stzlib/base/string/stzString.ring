@@ -8510,32 +8510,42 @@ class stzString from stzObject
 
 	# ReplaceCharsWXT(pcCondition, pcNewChar): replace every char
 	# matching the predicate with pcNewChar. Engine-backed walk.
-	def ReplaceCharsWXT(pcCondition, pcNewChar)
+	def ReplaceCharsW(pcCondition, pcNewChar)
+		# Replace the characters where the predicate is TRUE with pcNewChar.
+		# Engine-backed (FindCharsW positions, no eval); accepts the expressive
+		# { } / Q(@char).Method() predicate forms and the named-param spellings
+		# :Where = <predicate> and :With/:By = <char>. Replaces the retired
+		# raw-eval ReplaceCharsWXT.
 		_cExpr_ = pcCondition
+		if isList(pcCondition) and len(pcCondition) = 2 and isString(pcCondition[1]) and
+		   lower(pcCondition[1]) = "where"
+			_cExpr_ = pcCondition[2]
+		ok
+		_cNew_ = pcNewChar
+		if isList(pcNewChar) and len(pcNewChar) = 2 and isString(pcNewChar[1]) and
+		   (lower(pcNewChar[1]) = "with" or lower(pcNewChar[1]) = "by")
+			_cNew_ = pcNewChar[2]
+		ok
 		if NOT isString(_cExpr_) return ok
+		_aPos_ = This.FindCharsW(_cExpr_)
+		if len(_aPos_) = 0 return ok
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
+		_nPos_ = len(_aPos_)
+		for _i_ = 1 to _nPos_
+			_p_ = _aPos_[_i_]
+			if _p_ >= 1 and _p_ <= _nLen_
+				_aChars_[_p_] = _cNew_
+			ok
+		next
 		_cOut_ = ""
 		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			_bMatch_ = FALSE
-			try
-				eval("_bMatch_ = " + _cExpr_)
-			catch
-				_bMatch_ = FALSE
-			done
-			if _bMatch_
-				_cOut_ += pcNewChar
-			else
-				_cOut_ += @char
-			ok
+			_cOut_ += _aChars_[_i_]
 		next
 		This.Update(_cOut_)
 
-		def ReplaceCharsWXTQ(pcCondition, pcNewChar)
-			This.ReplaceCharsWXT(pcCondition, pcNewChar)
+		def ReplaceCharsWQ(pcCondition, pcNewChar)
+			This.ReplaceCharsW(pcCondition, pcNewChar)
 			return This
 
 	# ReplaceEachLeadingChar(pcNewChar): replace every leading run
@@ -9048,12 +9058,12 @@ class stzString from stzObject
 		return This.SplitAroundCS(pcSub, _bCase_)
 
 	# ReplaceW(pcCondition, pcNew): replace every char matching the
-	# predicate with pcNew (alias of ReplaceCharsWXT).
+	# predicate with pcNew (alias of ReplaceCharsW).
 	def ReplaceW(pcCondition, pcNew)
-		This.ReplaceCharsWXT(pcCondition, pcNew)
+		This.ReplaceCharsW(pcCondition, pcNew)
 
 		def ReplaceWQ(pcCondition, pcNew)
-			This.ReplaceCharsWXT(pcCondition, pcNew)
+			This.ReplaceCharsW(pcCondition, pcNew)
 			return This
 
 	# SubStringsOccuringNTimes(n): substrings that appear EXACTLY n

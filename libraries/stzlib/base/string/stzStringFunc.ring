@@ -126,9 +126,9 @@ func ReplaceEachLeadingChar(cStr, cNewChar)
 	_o_.ReplaceEachLeadingChar(cNewChar)
 	return _o_.Content()
 
-func ReplaceCharsWXT(cStr, cCondition, cNewChar)
+func ReplaceCharsW(cStr, cCondition, cNewChar)
 	_o_ = new stzString(cStr)
-	_o_.ReplaceCharsWXT(cCondition, cNewChar)
+	_o_.ReplaceCharsW(cCondition, cNewChar)
 	return _o_.Content()
 
 func StzNamedString(paNamed)

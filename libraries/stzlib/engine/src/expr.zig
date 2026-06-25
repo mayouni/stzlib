@@ -19,6 +19,7 @@
 
 const std = @import("std");
 const char = @import("char.zig");
+const unicode = @import("unicode.zig");
 const alloc = std.heap.page_allocator;
 
 // allCharsAreKind: TRUE iff the str is non-empty and EVERY codepoint matches the
@@ -37,6 +38,8 @@ fn allCharsAreKind(s: []const u8, kind: u8) bool {
             0 => char.stz_char_is_letter(cp) != 0,
             1 => char.stz_char_is_digit(cp) != 0,
             2 => (char.stz_char_is_letter(cp) != 0) or (char.stz_char_is_digit(cp) != 0),
+            3 => unicode.stz_unicode_is_arabic(@intCast(cp)) != 0,
+            4 => unicode.stz_unicode_is_latin(@intCast(cp)) != 0,
             else => false,
         };
         if (!ok) return false;
@@ -154,6 +157,8 @@ pub const Op = enum(u8) {
     fn_is_vowel,
     fn_is_consonant,
     fn_is_punctuation,
+    fn_is_arabic,
+    fn_is_latin,
     fn_len,
     fn_lower,
     fn_upper,
@@ -237,6 +242,8 @@ const TTag = enum(u8) {
     fn_is_vowel,
     fn_is_consonant,
     fn_is_punctuation,
+    fn_is_arabic,
+    fn_is_latin,
     fn_len,
     fn_lower,
     fn_upper,
@@ -472,6 +479,10 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "isvowel")) return .fn_is_vowel;
     if (std.mem.eql(u8, w, "isconsonant")) return .fn_is_consonant;
     if (std.mem.eql(u8, w, "ispunctuation")) return .fn_is_punctuation;
+    if (std.mem.eql(u8, w, "isarabic")) return .fn_is_arabic;
+    if (std.mem.eql(u8, w, "isarabicletter")) return .fn_is_arabic;
+    if (std.mem.eql(u8, w, "islatin")) return .fn_is_latin;
+    if (std.mem.eql(u8, w, "islatinletter")) return .fn_is_latin;
     if (std.mem.eql(u8, w, "len")) return .fn_len;
     if (std.mem.eql(u8, w, "lower")) return .fn_lower;
     if (std.mem.eql(u8, w, "upper")) return .fn_upper;
@@ -661,6 +672,8 @@ const Compiler = struct {
             .fn_is_vowel => .fn_is_vowel,
             .fn_is_consonant => .fn_is_consonant,
             .fn_is_punctuation => .fn_is_punctuation,
+            .fn_is_arabic => .fn_is_arabic,
+            .fn_is_latin => .fn_is_latin,
             .fn_len => .fn_len,
             .fn_lower => .fn_lower,
             .fn_upper => .fn_upper,
@@ -1123,6 +1136,16 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                         if (!is_punct) { ok = false; break; }
                     }
                 }
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_arabic => {
+                const a = pop(&stack, &sp);
+                const ok = a.tag == .str_v and allCharsAreKind(a.data.s.ptr[0..a.data.s.len], 3);
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_latin => {
+                const a = pop(&stack, &sp);
+                const ok = a.tag == .str_v and allCharsAreKind(a.data.s.ptr[0..a.data.s.len], 4);
                 push(&stack, &sp, Val.initBool(ok));
             },
             .fn_len => {
