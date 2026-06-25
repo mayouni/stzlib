@@ -19,8 +19,8 @@ The WXT/eval disqualification (Part B step 2) is **DONE** (10 commits
 f679a425..69556872; see memory `project_wxt_disqualification`). The active task
 is **step 1 = narrate the suite, which IS the correctness audit** (not a
 formatting pass): for each test, *understand* impl + original, *run* it, and
-commit a *verified asserted* value. Status: 999 tests, ~14 narrated so far
-(01,02,03,05,09-16,20,21), ~920 to go.
+commit a *verified asserted* value. Status: 999 tests, blocks 01-35 narrated so
+far (01,02,03,05,09-35; 04 + 08 deferred as logged defects), resume from ~36.
 
 **Per-test workflow (the important part):**
 1. Recover the original archive ONCE (the pre-split monolith, 19,572 lines):
