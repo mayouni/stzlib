@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 const Domain = struct {
     name: []const u8,
@@ -357,26 +358,74 @@ fn addRing(b: *std.Build, mod: *std.Build.Module, lib: *std.Build.Step.Compile, 
     lib.linkSystemLibrary("ring");
 }
 
-// Auto-detect the newest installed Ring under D:/RingNNN (highest number with
-// valid headers). Override with -Dring=PATH. Falls back to D:/Ring127.
-fn defaultRingDir(b: *std.Build) []const u8 {
-    var best: []const u8 = "D:/Ring127";
+// A Ring install is identified by the presence of its public header.
+fn ringHasHeaders(b: *std.Build, dir: []const u8) bool {
+    const probe = b.fmt("{s}/language/include/state.h", .{dir});
+    std.fs.cwd().access(probe, .{}) catch return false;
+    return true;
+}
+
+// Locate the `ring` executable on PATH and return its install dir (the parent
+// of the bin/ directory, or the bin dir itself if headers live alongside).
+fn findRingViaPath(b: *std.Build) ?[]const u8 {
+    const exe = if (builtin.os.tag == .windows) "ring.exe" else "ring";
+    const sep: u8 = if (builtin.os.tag == .windows) ';' else ':';
+    const path = std.process.getEnvVarOwned(b.allocator, "PATH") catch return null;
+    var it = std.mem.splitScalar(u8, path, sep);
+    while (it.next()) |entry| {
+        if (entry.len == 0) continue;
+        const exe_path = b.fmt("{s}/{s}", .{ entry, exe });
+        std.fs.cwd().access(exe_path, .{}) catch continue;
+        if (std.fs.path.dirname(entry)) |parent| {
+            if (ringHasHeaders(b, parent)) return parent;
+        }
+        if (ringHasHeaders(b, entry)) return entry;
+    }
+    return null;
+}
+
+// Scan common install roots for a ring<NNN> dir (newest with valid headers).
+fn scanRootsForRing(b: *std.Build) ?[]const u8 {
+    const home = std.process.getEnvVarOwned(b.allocator, if (builtin.os.tag == .windows) "USERPROFILE" else "HOME") catch null;
+    const win_roots = [_][]const u8{ "C:/", "D:/", "E:/" };
+    const nix_roots = [_][]const u8{ "/usr/local", "/opt", "/usr" };
+    const roots: []const []const u8 = if (builtin.os.tag == .windows) &win_roots else &nix_roots;
+    var best: ?[]const u8 = null;
     var best_n: u32 = 0;
-    var dir = std.fs.cwd().openDir("D:/", .{ .iterate = true }) catch return best;
-    defer dir.close();
-    var it = dir.iterate();
-    while (it.next() catch null) |entry| {
-        if (entry.kind != .directory) continue;
-        if (entry.name.len < 5 or !std.ascii.startsWithIgnoreCase(entry.name, "ring")) continue;
-        const n = std.fmt.parseInt(u32, entry.name[4..], 10) catch continue;
-        const probe = b.fmt("D:/{s}/language/include/state.h", .{entry.name});
-        std.fs.cwd().access(probe, .{}) catch continue;
-        if (n > best_n) {
-            best_n = n;
-            best = b.fmt("D:/{s}", .{entry.name});
+    var root_i: usize = 0;
+    const total = roots.len + @as(usize, if (home != null) 1 else 0);
+    while (root_i < total) : (root_i += 1) {
+        const root = if (root_i < roots.len) roots[root_i] else home.?;
+        var dir = std.fs.cwd().openDir(root, .{ .iterate = true }) catch continue;
+        defer dir.close();
+        var it = dir.iterate();
+        while (it.next() catch null) |entry| {
+            if (entry.kind != .directory) continue;
+            if (entry.name.len < 5 or !std.ascii.startsWithIgnoreCase(entry.name, "ring")) continue;
+            const n = std.fmt.parseInt(u32, entry.name[4..], 10) catch continue;
+            const cand = b.fmt("{s}/{s}", .{ root, entry.name });
+            if (n > best_n and ringHasHeaders(b, cand)) {
+                best_n = n;
+                best = cand;
+            }
         }
     }
     return best;
+}
+
+// Discover the Ring install without hardcoding a path, so any user's setup
+// works. Priority: env vars (RING_HOME/RING_PATH/RING) -> `ring` on PATH ->
+// scan common roots. Override anytime with `zig build -Dring=PATH`.
+fn discoverRingDir(b: *std.Build) ?[]const u8 {
+    const env_names = [_][]const u8{ "RING_HOME", "RING_PATH", "RING" };
+    for (env_names) |name| {
+        if (std.process.getEnvVarOwned(b.allocator, name)) |val| {
+            if (ringHasHeaders(b, val)) return val;
+        } else |_| {}
+    }
+    if (findRingViaPath(b)) |d| return d;
+    if (scanRootsForRing(b)) |d| return d;
+    return null;
 }
 
 // Read RING_VERSION_MINOR from <ring_dir>/language/include/state.h so the
@@ -418,7 +467,19 @@ pub fn build(b: *std.Build) void {
     // (internal List struct layout) changed in 1.27, so the engine must be
     // built for the Ring version it will run under. We read the minor version
     // from the chosen install's state.h and expose it to the Zig code.
-    const ring_dir = b.option([]const u8, "ring", "Ring install directory (default: newest D:/RingNNN)") orelse defaultRingDir(b);
+    const ring_dir = b.option([]const u8, "ring", "Ring install directory (auto-detected from RING_HOME / PATH if omitted)") orelse (discoverRingDir(b) orelse {
+        std.debug.print(
+            \\
+            \\[softanza] ERROR: could not locate a Ring installation.
+            \\  Fix one of:
+            \\   * pass it explicitly:   zig build -Dring=/path/to/ring
+            \\   * set an env var:        RING_HOME=/path/to/ring   (or RING_PATH / RING)
+            \\   * put ring on your PATH  (so `ring`/`ring.exe` is found)
+            \\  A valid dir contains:    <dir>/language/include/state.h
+            \\
+        , .{});
+        @panic("Ring installation not found");
+    });
     const ring_minor = readRingMinor(b, ring_dir);
     std.debug.print("[softanza] building against Ring dir='{s}' minor={d}\n", .{ ring_dir, ring_minor });
     const ring_opts = b.addOptions();
