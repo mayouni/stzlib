@@ -1,18 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #438.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Split on a literal delimiter, and SplitW splitting at chars matching a
+# predicate (the split chars are dropped). SplitW is engine-backed, no eval().
+# Migrated from the retired SplitAtCharsWXT.
 
-? Q("ONE-TWO-THREE").Split("-")
-#--> [ "ONE", "TWO", "THREE" ]
+Scenario("Split a hyphenated word into its parts")
+	Given('the string "ONE-TWO-THREE"')
+	Then("Split on the literal hyphen", @@( Q("ONE-TWO-THREE").Split("-") ), @@([ "ONE", "TWO", "THREE" ]))
+	Then("SplitW at every non-letter is equivalent",
+		@@( Q("ONE-TWO-THREE").SplitW('{ Q(@char).IsNotLetter() }') ), @@([ "ONE", "TWO", "THREE" ]))
+EndScenario()
 
-? Q("ONE-TWO-THREE").SplitAtCharsWXT('{ Q(@char).IsNotLetter() }')
-#--> [ "ONE", "TWO", "THREE" ]
-
-pf()
-# Executed in 0.18 second(s) in Ring 1.21
+Summary()

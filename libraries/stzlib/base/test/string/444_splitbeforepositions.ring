@@ -1,20 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #444.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SplitBeforePositions -- split the string just before each given position.
+# (Replaces the convoluted SplitWXT(:BeforePositions = position-predicate),
+# which reduced to exactly this direct call.)
 
-o1 = new stzString("---4---8---")
+Scenario("SplitBeforePositions splits before positions 4 and 8")
+	Given('the string "---4---8---"')
+	Then("the pieces start at 4 and 8", @@( Q("---4---8---").SplitBeforePositions([ 4, 8 ]) ), @@([ "---", "4---", "8---" ]))
+EndScenario()
 
-? @@( o1.SplitBeforePositions([ 4, 8 ]) ) + NL
-#--> [ "---", "4---", "8---" ]
-
-? @@( o1.SplitWXT(:BeforePositions = ' Q(@position).IsOneOfThese([ 4, 8 ]) ') )
-#--> [ "---", "4---", "8---" ]
-
-pf()
-# Executed in 0.13 second(s) in Ring 1.21
+Summary()

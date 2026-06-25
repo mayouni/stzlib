@@ -1,20 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #445.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SplitAfterPositions -- split the string just after each given position.
+# (Replaces SplitWXT(:AfterPositions = position-predicate).)
 
-o1 = new stzString("---4---8---")
+Scenario("SplitAfterPositions splits after positions 4 and 8")
+	Given('the string "---4---8---"')
+	Then("the pieces end at 4 and 8", @@( Q("---4---8---").SplitAfterPositions([ 4, 8 ]) ), @@([ "---4", "---8", "---" ]))
+EndScenario()
 
-? @@( o1.SplitAfterPositions([ 4, 8 ]) ) + NL
-#--> [ "---4", "---8", "---" ]
-
-? @@( o1.SplitWXT(:AfterPositions = ' Q(@position).IsOneOfThese([ 4, 8 ]) ') )
-#--> [ "---4", "---8", "---" ]
-
-pf()
-# Executed in 0.13 second(s) in Ring 1.21
+Summary()
