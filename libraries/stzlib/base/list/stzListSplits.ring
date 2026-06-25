@@ -301,46 +301,47 @@ class stzListSplits
 	#==============================#
 
 	def SplitToNParts(n)
-		# Compute chunk size: ceiling(NumberOfItems / n)
-		_nSnpLen_ = This.NumberOfItems()
-		if n <= 0 or _nSnpLen_ = 0
-			return
-		ok
-
-		_nSnpChunk_ = floor(_nSnpLen_ / n)
-		if _nSnpLen_ % n > 0
-			_nSnpChunk_ = _nSnpChunk_ + 1
-		ok
-
-		# Use engine split_to_parts_of_n with computed chunk size
-		_pSnpList_ = StzEngineMarshalList(@oList.Content())
-		_pSnpResult_ = StzEngineListSplitToPartsOfN(_pSnpList_, _nSnpChunk_)
-		_aSnpResult_ = StzEngineListContentToRingList(_pSnpResult_)
-		StzEngineListFree(_pSnpResult_)
-		StzEngineListFree(_pSnpList_)
-
-		@oList.UpdateWith(_aSnpResult_)
+		# Mutator form: divide into n parts (see SplittedToNParts).
+		@oList.UpdateWith( This.SplittedToNParts(n) )
 
 		def SplitToNPartsQ(n)
 			This.SplitToNParts(n)
 			return This
 
 	def SplittedToNParts(n)
+		# Divide the list into n parts of as-equal-as-possible size: the
+		# documented "/ n -> n parts" contract ([1..6] -> [[1,2],[3,4],[5,6]],
+		# 3 items / 3 -> [[a],[b],[c]]). The remainder is front-loaded -- the
+		# first (len mod n) parts get one extra item (numpy array_split
+		# convention). This is distinct from SplittedToPartsOfNItems, which
+		# chunks by a fixed SIZE. The old ceil-chunk approximation produced
+		# the wrong count when n was close to len (e.g. 7 items / 5).
 		_nSndLen_ = This.NumberOfItems()
 		if n <= 0 or _nSndLen_ = 0
 			return []
 		ok
-
-		_nSndChunk_ = floor(_nSndLen_ / n)
-		if _nSndLen_ % n > 0
-			_nSndChunk_ = _nSndChunk_ + 1
-		ok
-
-		_pSndList_ = StzEngineMarshalList(@oList.Content())
-		_pSndResult_ = StzEngineListSplitToPartsOfN(_pSndList_, _nSndChunk_)
-		_aSndResult_ = StzEngineListContentToRingList(_pSndResult_)
-		StzEngineListFree(_pSndResult_)
-		StzEngineListFree(_pSndList_)
+		n = floor(n)
+		_aSrc_ = @oList.Content()
+		_aSndResult_ = []
+		_nBase_ = floor(_nSndLen_ / n)
+		_nRem_ = _nSndLen_ % n
+		_iCur_ = 1
+		for _iSp_ = 1 to n
+			_nSz_ = _nBase_
+			if _iSp_ <= _nRem_
+				_nSz_ = _nSz_ + 1
+			ok
+			if _nSz_ = 0
+				loop
+			ok
+			_aPart_ = []
+			_iEnd_ = _iCur_ + _nSz_ - 1
+			for _jSp_ = _iCur_ to _iEnd_
+				_aPart_ + _aSrc_[_jSp_]
+			next
+			_aSndResult_ + _aPart_
+			_iCur_ = _iEnd_ + 1
+		next
 
 		return _aSndResult_
 

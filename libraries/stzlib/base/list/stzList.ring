@@ -9376,12 +9376,17 @@ class stzList from stzObject
 			return _aMulRes_
 
 		but pOp = "/"
-			# Chunk into groups of pValue items. Q-elevation rule: a RAW number
-			# returns a raw list of lists; a Q(number) / numeric stz-object
-			# returns a chainable stzList object with the SAME content.
+			# Divide the list into pValue parts of as-equal-as-possible size
+			# (the documented "/ n -> n parts" contract: [1..6] / 3 ->
+			# [[1,2],[3,4],[5,6]]). The remainder is front-loaded -- the first
+			# (len mod n) parts get one extra item (numpy array_split
+			# convention). This is SplitToNParts; chunk-by-SIZE lives in
+			# SplitToPartsOfNItems. Q-elevation rule: a RAW number returns a
+			# raw list of lists; a Q(number) / numeric stz-object returns a
+			# chainable stzList object with the SAME content.
 			_bDivElevate_ = 0
 			if isNumber(pValue)
-				_nChunk_ = pValue
+				_nParts_ = pValue
 			but @IsStzObject(pValue)
 				_vDiv_ = pValue.Content()
 				if @IsStzNumber(pValue)
@@ -9390,30 +9395,36 @@ class stzList from stzObject
 				if NOT isNumber(_vDiv_)
 					StzRaise("operator /: rhs object must hold a number.")
 				ok
-				_nChunk_ = _vDiv_
+				_nParts_ = _vDiv_
 				_bDivElevate_ = 1
 			else
 				StzRaise("operator /: rhs must be a positive number or Q(number).")
 			ok
-			if _nChunk_ < 1
+			if _nParts_ < 1
 				StzRaise("operator /: rhs must be a positive number.")
 			ok
-			_nChunk_ = floor(_nChunk_)
+			_nParts_ = floor(_nParts_)
 			_aGroups_ = []
 			_nCntLen_ = len(@aContent)
+			_nBase_ = floor(_nCntLen_ / _nParts_)
+			_nRem_ = _nCntLen_ % _nParts_
 			_iCur_ = 1
-			while _iCur_ <= _nCntLen_
-				_aGroup_ = []
-				_iEnd_ = _iCur_ + _nChunk_ - 1
-				if _iEnd_ > _nCntLen_
-					_iEnd_ = _nCntLen_
+			for _iP_ = 1 to _nParts_
+				_nSz_ = _nBase_
+				if _iP_ <= _nRem_
+					_nSz_ = _nSz_ + 1
 				ok
+				if _nSz_ = 0
+					loop
+				ok
+				_aGroup_ = []
+				_iEnd_ = _iCur_ + _nSz_ - 1
 				for _jCh_ = _iCur_ to _iEnd_
 					_aGroup_ + @aContent[_jCh_]
 				next
 				_aGroups_ + _aGroup_
 				_iCur_ = _iEnd_ + 1
-			end
+			next
 			if _bDivElevate_
 				return new stzList(_aGroups_)
 			ok
