@@ -13607,107 +13607,70 @@ class stzString from stzObject
 		ok
 		return _aRes_
 
-	# SplitBeforeCharsWXT(pcCondition): split into pieces that begin
-	# at each char position where the eval'd predicate is TRUE.
-	# Predicate runs with @char / @position bindings.
-	def SplitBeforeCharsWXT(pcCondition)
-		_cExpr_ = pcCondition
-		if isList(pcCondition) and len(pcCondition) = 2 and
-		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
-			_cExpr_ = pcCondition[2]
-		ok
-		if NOT isString(_cExpr_) return [] ok
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_anPos_ = []
-		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			_bMatch_ = FALSE
-			try
-				eval("_bMatch_ = " + _cExpr_)
-			catch
-				_bMatch_ = FALSE
-			done
-			if _bMatch_ _anPos_ + _i_ ok
-		next
-		return This.SplitBeforePositions(_anPos_)
+	# SplitBeforeCharsW(pcCondition): split into pieces that begin at each char
+	# where the predicate is TRUE. Engine-backed via FindCharsW (no eval).
+	# Replaces the retired SplitBeforeCharsWXT.
+	def SplitBeforeCharsW(pcCondition)
+		return This.SplitBeforePositions( This.FindCharsW(pcCondition) )
 
-	def SplitAfterCharsWXT(pcCondition)
-		_cExpr_ = pcCondition
-		if isList(pcCondition) and len(pcCondition) = 2 and
-		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
-			_cExpr_ = pcCondition[2]
-		ok
-		if NOT isString(_cExpr_) return [] ok
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_anPos_ = []
-		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			_bMatch_ = FALSE
-			try
-				eval("_bMatch_ = " + _cExpr_)
-			catch
-				_bMatch_ = FALSE
-			done
-			if _bMatch_ _anPos_ + _i_ ok
-		next
-		return This.SplitAfterPositions(_anPos_)
+	def SplitAfterCharsW(pcCondition)
+		return This.SplitAfterPositions( This.FindCharsW(pcCondition) )
 
-	# SplitBeforeSubStringsWXT(pcCondition): walk every substring
-	# position and split before each that matches the predicate
-	# (predicate runs with @SubString bound). Returns the pieces.
-	def SplitBeforeSubStringsWXT(pcCondition)
+	# _SubStringMatchPositions(pcCondition, bWantEnd): the start (bWantEnd=FALSE)
+	# or end (bWantEnd=TRUE) positions of the substrings matching the predicate.
+	# Enumerates the candidate substrings and evaluates the @SubString predicate
+	# via the engine list W-DSL (stzList.FindW, predicate normalized: { } stripped,
+	# @SubString -> @item, Q().Method() lowered) -- NO eval(). One position per
+	# start (first matching length), matching the old WXT exit-per-start shape.
+	# Only engine-expressible predicates (=, or, and, comparisons); complex ones
+	# need the WF form.
+	def _SubStringMatchPositions(pcCondition, bWantEnd)
 		_cExpr_ = pcCondition
 		if isList(pcCondition) and len(pcCondition) = 2 and
 		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
 			_cExpr_ = pcCondition[2]
 		ok
 		if NOT isString(_cExpr_) return [] ok
+		_cExpr_ = _StzNormalizeSubStringCond(_cExpr_)
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
-		_anPos_ = []
+		_aSubs_ = []
+		_aI_ = []
+		_aJ_ = []
 		for _i_ = 1 to _nLen_
 			for _j_ = _i_ to _nLen_
-				@SubString = This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
-				_bMatch_ = FALSE
-				try
-					eval("_bMatch_ = " + _cExpr_)
-				catch
-					_bMatch_ = FALSE
-				done
-				if _bMatch_ _anPos_ + _i_ exit ok
+				_aSubs_ + This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
+				_aI_ + _i_
+				_aJ_ + _j_
 			next
 		next
-		return This.SplitBeforePositions(_anPos_)
+		_oSubs_ = new stzList(_aSubs_)
+		_anMatch_ = _oSubs_.FindW(_cExpr_)
+		_anPos_ = []
+		_aSeen_ = []
+		_nM_ = len(_anMatch_)
+		for _k_ = 1 to _nM_
+			_idx_ = _anMatch_[_k_]
+			_si_ = _aI_[_idx_]
+			if ring_find(_aSeen_, _si_) = 0
+				_aSeen_ + _si_
+				if bWantEnd
+					_anPos_ + _aJ_[_idx_]
+				else
+					_anPos_ + _si_
+				ok
+			ok
+		next
+		return _anPos_
 
-	def SplitAfterSubStringsWXT(pcCondition)
-		_cExpr_ = pcCondition
-		if isList(pcCondition) and len(pcCondition) = 2 and
-		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
-			_cExpr_ = pcCondition[2]
-		ok
-		if NOT isString(_cExpr_) return [] ok
-		_cTxt_ = This.Content()
-		_nLen_ = This._EngineCount(_cTxt_)
-		_anPos_ = []
-		for _i_ = 1 to _nLen_
-			for _j_ = _i_ to _nLen_
-				@SubString = This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
-				_bMatch_ = FALSE
-				try
-					eval("_bMatch_ = " + _cExpr_)
-				catch
-					_bMatch_ = FALSE
-				done
-				if _bMatch_ _anPos_ + _j_ exit ok
-			next
-		next
-		return This.SplitAfterPositions(_anPos_)
+	# SplitBeforeSubStringsW(pcCondition): split before each substring matching
+	# the predicate. Engine-backed (see _SubStringMatchPositions), no eval().
+	# Replaces the retired SplitBeforeSubStringsWXT.
+	def SplitBeforeSubStringsW(pcCondition)
+		return This.SplitBeforePositions( This._SubStringMatchPositions(pcCondition, FALSE) )
+
+	def SplitAfterSubStringsW(pcCondition)
+		return This.SplitAfterPositions( This._SubStringMatchPositions(pcCondition, TRUE) )
 
 	def SplitAfterCS(pcSubStr, pCaseSensitive)
 		_oSafSplitter_ = new stzStringSplitter(This)

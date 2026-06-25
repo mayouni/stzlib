@@ -40,7 +40,7 @@ StzStringQ("What a tutorial! Very instructive tutorial.") {
 	# 	" tutorial."
 	#    ]
 
-	? @@( SplitBeforeCharsWXT(' @char = "a" ') ) + NL
+	? @@( SplitBeforeCharsW(' @char = "a" ') ) + NL
 	#--> [
 	# 	"Wh", "at ", "a tutori",
 	# 	"al! Very instructive tutori", "al."
