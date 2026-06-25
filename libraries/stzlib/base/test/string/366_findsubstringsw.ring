@@ -9,10 +9,10 @@ load "../../stzBase.ring"
 
 o1 = new stzString("...♥♥...♥♥...")
 
-? @@( o1.FindSubStringsWXT('{ @SubString = "♥♥" }') )
-#--> [ 4, 9 ]
+? @@( o1.FindSubStringsW('{ @SubString = "♥♥" }') )
+#--> [ "♥♥", "♥♥" ]
 
-? @@( o1.FindSubStringsWXTZZ('{ @SubString = "♥♥" }') )
+? @@( o1.FindSubStringsWZZ('{ @SubString = "♥♥" }') )
 #--> [ [ 4, 5 ], [ 9, 10 ] ]
 
 pf()

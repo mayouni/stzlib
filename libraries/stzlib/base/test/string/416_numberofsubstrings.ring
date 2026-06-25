@@ -12,7 +12,8 @@ o1 = new stzString("*#!ABC$^..")
 ? o1.NumberOfSubStrings()
 #--> 55
 
-? @@( o1.SubStringsWXT(' Q(@SubString).IsMadeOfLetters() ') )
+# Complex predicate (IsMadeOfLetters not in the engine W-DSL) -> the WF form:
+? @@( o1.SubStringsWF( func s { return Q(s).IsMadeOfLetters() } ) )
 #--> [ "A", "AB", "ABC", "B", "BC", "C" ]
 
 pf()
