@@ -1,21 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #5.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# UrlEncoded / UrlDecoded / HtmlEscaped. Verified against archive block #5.
 
-? Q("ring programming languge").UrlEncoded()
-#--> ring%20programming%20languge
+Scenario("URL and HTML encoding")
+	Given("a phrase, an encoded phrase, and an HTML snippet")
+	Then("UrlEncoded", Q("ring programming languge").UrlEncoded(), "ring%20programming%20languge")
+	Then("UrlDecoded", Q("ring%20programming%20language").UrlDecoded(), "ring programming language")
+	Then("HtmlEscaped",
+		Q('<div class = "article">This is an article</div>').HtmlEscaped(),
+		'&lt;div class = &quot;article&quot;&gt;This is an article&lt;/div&gt;')
+EndScenario()
 
-? Q("ring%20programming%20language").UrlDecoded() + NL
-#--> ring programming language
-
-? Q('<div class = "article">This is an article</div>').HtmlEscaped()
-#--> &lt;div class = &quot;article&quot;&gt;This is an article&lt;/div&gt;
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.21
+Summary()
