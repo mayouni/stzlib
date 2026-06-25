@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #14.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsReverseOf -- TRUE if the string (or list) is the reverse of the argument.
 
-? Q("ring").IsReverseOf("gnir")
-#--> TRUE
+Scenario("IsReverseOf on a string and a range")
+	Given('the string "ring" and the range 1..3')
+	Then('"ring" is the reverse of "gnir"', Q("ring").IsReverseOf("gnir"), TRUE)
+	Then("1..3 is the reverse of 3..1", Q(1:3).IsReverseOf(3:1), TRUE)
+EndScenario()
 
-? Q(1:3).IsReverseOf(3:1)
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

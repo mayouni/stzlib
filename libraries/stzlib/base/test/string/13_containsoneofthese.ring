@@ -1,26 +1,20 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #13.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ContainsOneOfThese(list) -- TRUE if the string contains AT LEAST ONE of the
+# items (inclusive). ContainsOnlyOneOfThese(list) -- TRUE only if it contains
+# EXACTLY ONE of them (exclusive).
 
-o1 = new stzString("me you all the others")
-	? o1.ContainsOneOfThese([ "me", "you" ])
-	#--> TRUE
-	
-	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
-	#--> FALSE
+Scenario("Inclusive vs exclusive containment")
+	Given('"me you all the others" (both) and "me and all the others" (only me)')
+	Then("both present -> ContainsOneOfThese TRUE",
+		Q("me you all the others").ContainsOneOfThese([ "me", "you" ]), TRUE)
+	Then("both present -> ContainsOnlyOneOfThese FALSE",
+		Q("me you all the others").ContainsOnlyOneOfThese([ "me", "you" ]), FALSE)
+	Then("only one present -> ContainsOnlyOneOfThese TRUE",
+		Q("me and all the others").ContainsOnlyOneOfThese([ "me", "you" ]), TRUE)
+	Then("only one present -> ContainsOneOfThese TRUE",
+		Q("me and all the others").ContainsOneOfThese([ "me", "you" ]), TRUE)
+EndScenario()
 
-o1 = new stzString("me and all the others")
-	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
-	#--> TRUE
-
-	? o1.ContainsOneOfThese([ "me", "you" ])
-	#--> TRUE
-
-pf()
-# Executed in 0.03 second(s)
+Summary()
