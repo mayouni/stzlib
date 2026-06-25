@@ -3412,26 +3412,34 @@ class stzString from stzObject
 	# Q form returns a stzList wrapper for fluent chaining.
 
 	def SplitToNParts(n)
+		# Divide the string into n parts of as-equal-as-possible size
+		# (the "RingRingRing" / 3 -> ["Ring","Ring","Ring"] contract). The
+		# remainder is front-loaded: the first (len mod n) parts get one
+		# extra char (numpy array_split convention). Codepoint-safe via
+		# Section() -- byte-based substr would corrupt UTF-8.
 		if NOT (isNumber(n) and n > 0)
 			StzRaise("SplitToNParts: n must be a positive number.")
 		ok
-		_aPartsR_ = []
-		_cSrc_ = This.Content()
-		_nSrcLen_ = len(_cSrc_)
-		_iEnd_ = _nSrcLen_
-		while _iEnd_ > 0
-			_iStart_ = _iEnd_ - n + 1
-			if _iStart_ < 1
-				_iStart_ = 1
-			ok
-			_aPartsR_ + substr(_cSrc_, _iStart_, _iEnd_ - _iStart_ + 1)
-			_iEnd_ = _iStart_ - 1
-		end
-		# _aPartsR_ is right-to-left; reverse to natural left-to-right
+		n = floor(n)
 		_aParts_ = []
-		_nPLen_ = len(_aPartsR_)
-		for _iSp_ = _nPLen_ to 1 step -1
-			_aParts_ + _aPartsR_[_iSp_]
+		_nSrcLen_ = This.NumberOfChars()
+		if _nSrcLen_ = 0
+			return _aParts_
+		ok
+		_nBase_ = floor(_nSrcLen_ / n)
+		_nRem_ = _nSrcLen_ % n
+		_iCur_ = 1
+		for _iSp_ = 1 to n
+			_nSz_ = _nBase_
+			if _iSp_ <= _nRem_
+				_nSz_ = _nSz_ + 1
+			ok
+			if _nSz_ = 0
+				loop
+			ok
+			_iEnd_ = _iCur_ + _nSz_ - 1
+			_aParts_ + This.Section(_iCur_, _iEnd_)
+			_iCur_ = _iEnd_ + 1
 		next
 		return _aParts_
 
