@@ -1,17 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #2.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveFirstAndLastChars -- drop the first and last character of the string.
 
-o1 = new stzString('[ @$2{"a";1;[1]}U ]')
-o1.RemoveFirstAndLastChars()
-? @@( o1.Content() )
-#--> ' @$2{"a";1;[1]}U '
+Scenario("RemoveFirstAndLastChars strips the outer characters")
+	Given("a string wrapped in [ and ]")
+	Then("removing the first and last chars leaves the inner content",
+		RemovedEnds(), ' @$2{"a";1;[1]}U ')
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+Summary()
+
+func RemovedEnds
+	o = new stzString('[ @$2{"a";1;[1]}U ]')
+	o.RemoveFirstAndLastChars()
+	return o.Content()
