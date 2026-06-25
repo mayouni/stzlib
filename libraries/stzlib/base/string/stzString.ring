@@ -6136,51 +6136,80 @@ class stzString from stzObject
 		def FindBoundedByIB(pacBounds)
 			return This.FindSubStringsBoundedByIBZZ(pacBounds)
 
-	# FindSubStringsAsSectionsWXT(pcCondition): enumerate every
-	# substring [start, end] and return the sections where the
-	# eval'd predicate is true. The predicate runs with @SubString
-	# bound to the current substring content.
-	def FindSubStringsAsSectionsWXT(pcCondition)
-		_aRes_ = []
+	# FindSubStringsAsSectionsW(pcCondition): enumerate every substring
+	# [start, end] and return the sections where the @SubString predicate is
+	# TRUE. Engine-backed (stzList.FindW over the candidates), no eval().
+	# FindSubStringsAsSectionsW(pcCondition): the [start,end] sections of every
+	# substring matching the predicate. Engine-backed -- enumerates the candidate
+	# substrings and evaluates the @SubString predicate via the list W-DSL
+	# (stzList.FindW, predicate normalized: { } stripped, @SubString -> @item,
+	# Q().Method() lowered), with NO eval(). For engine-expressible predicates
+	# (=, or, and, comparisons); for richer ones use the WF form below.
+	# Replaces the retired raw-eval FindSubStringsAsSectionsWXT.
+	def FindSubStringsAsSectionsW(pcCondition)
+		return This._FindSubStringSectionsW(pcCondition)
+
+		def FindSubStringsW(pcCondition)
+			return This._SubStringsAtSections( This._FindSubStringSectionsW(pcCondition) )
+
+		def FindSubStringsWZZ(pcCondition)
+			return This._FindSubStringSectionsW(pcCondition)
+
+	# WF forms: the predicate is a Ring anonymous function (func(s) ...) called
+	# per candidate substring -- for predicates the engine W-DSL cannot express
+	# (NumberOfChars/ContainsXT/IsOneOfThese/...). No eval().
+	def FindSubStringsAsSectionsWF(pFunc)
+		return This._FindSubStringSectionsWF(pFunc)
+
+		def FindSubStringsWF(pFunc)
+			return This._SubStringsAtSections( This._FindSubStringSectionsWF(pFunc) )
+
+	# --- shared substring-enumeration helpers ---
+	def _FindSubStringSectionsW(pcCondition)
+		_cExpr_ = _StzNormalizeSubStringCond(pcCondition)
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
+		_aSubs_ = []
+		_aSec_ = []
 		for _i_ = 1 to _nLen_
 			for _j_ = _i_ to _nLen_
-				@SubString = This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
-				_bMatch_ = FALSE
-				try
-					eval("_bMatch_ = " + pcCondition)
-				catch
-					_bMatch_ = FALSE
-				done
-				if _bMatch_
+				_aSubs_ + This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
+				_aSec_ + [ _i_, _j_ ]
+			next
+		next
+		_oSubs_ = new stzList(_aSubs_)
+		_anMatch_ = _oSubs_.FindW(_cExpr_)
+		_aRes_ = []
+		_nM_ = len(_anMatch_)
+		for _k_ = 1 to _nM_
+			_aRes_ + _aSec_[ _anMatch_[_k_] ]
+		next
+		return _aRes_
+
+	def _FindSubStringSectionsWF(pFunc)
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_aRes_ = []
+		for _i_ = 1 to _nLen_
+			for _j_ = _i_ to _nLen_
+				_sub_ = This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
+				if ( call pFunc(_sub_) )
 					_aRes_ + [ _i_, _j_ ]
 				ok
 			next
 		next
 		return _aRes_
 
-		def FindSubStringsWXT(pcCondition)
-			# Same enumeration; return just the matching substrings
-			# rather than their sections.
-			_aRes2_ = []
-			_aSec_ = This.FindSubStringsAsSectionsWXT(pcCondition)
-			_cTxt2_ = This.Content()
-			_nSL_ = len(_aSec_)
-			for _i_ = 1 to _nSL_
-				_s_ = _aSec_[_i_][1]; _e_ = _aSec_[_i_][2]
-				_aRes2_ + This._EngineSlice(_cTxt2_, _s_, _e_ - _s_ + 1)
-			next
-			return _aRes2_
-
-		def FindSubStringsWXTZZ(pcCondition)
-			return This.FindSubStringsAsSectionsWXT(pcCondition)
-
-		def FindSubStringsAsSectionsW(pcCondition)
-			return This.FindSubStringsAsSectionsWXT(pcCondition)
-
-		def FindSubStringsW(pcCondition)
-			return This.FindSubStringsWXT(pcCondition)
+	def _SubStringsAtSections(paSec)
+		_cTxt_ = This.Content()
+		_aRes_ = []
+		_n_ = len(paSec)
+		for _i_ = 1 to _n_
+			_s_ = paSec[_i_][1]
+			_e_ = paSec[_i_][2]
+			_aRes_ + This._EngineSlice(_cTxt_, _s_, _e_ - _s_ + 1)
+		next
+		return _aRes_
 
 	# FindSubStringsMadeOf(pcChar): return the start positions of
 	# each MAXIMAL run of pcChar in the content. e.g. "..._...__"
@@ -6731,10 +6760,13 @@ class stzString from stzObject
 		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
 		return StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, _bCase_)
 
-	# SubStringsWXT(pcCondition): every substring where the eval'd
-	# predicate (with @SubString) is TRUE.
-	def SubStringsWXT(pcCondition)
-		return This.FindSubStringsWXT(pcCondition)
+	# SubStringsW(pcCondition): every substring where the @SubString predicate is
+	# TRUE (engine W form; use SubStringsWF for function predicates).
+	def SubStringsW(pcCondition)
+		return This.FindSubStringsW(pcCondition)
+
+		def SubStringsWF(pFunc)
+			return This.FindSubStringsWF(pFunc)
 
 	# SpacifySections(aSections [, pcSep]): insert pcSep between every
 	# pair of consecutive chars inside each [n1, n2] section. pcSep
@@ -13671,6 +13703,42 @@ class stzString from stzObject
 
 	def SplitAfterSubStringsW(pcCondition)
 		return This.SplitAfterPositions( This._SubStringMatchPositions(pcCondition, TRUE) )
+
+	# SplitAtSubStringsW(pcCondition): split AT the substrings matching the
+	# predicate -- the matched substrings are dropped (delimiters), the pieces
+	# between are returned. Engine-backed (W) and anonymous-function (WF) forms,
+	# no eval().
+	def SplitAtSubStringsW(pcCondition)
+		return This._SplitAtSections( This._FindSubStringSectionsW(pcCondition) )
+
+		def SplitAtSubStringsWF(pFunc)
+			return This._SplitAtSections( This._FindSubStringSectionsWF(pFunc) )
+
+	# _SplitAtSections(paSec): drop the (greedy, non-overlapping, left-to-right)
+	# matched sections and return the non-empty pieces between them.
+	def _SplitAtSections(paSec)
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_aRes_ = []
+		_cur_ = 1
+		_lastEnd_ = 0
+		_nS_ = len(paSec)
+		for _i_ = 1 to _nS_
+			_s_ = paSec[_i_][1]
+			_e_ = paSec[_i_][2]
+			if _s_ <= _lastEnd_
+				loop
+			ok
+			if _s_ > _cur_
+				_aRes_ + This._EngineSlice(_cTxt_, _cur_, _s_ - _cur_)
+			ok
+			_cur_ = _e_ + 1
+			_lastEnd_ = _e_
+		next
+		if _cur_ <= _nLen_
+			_aRes_ + This._EngineSlice(_cTxt_, _cur_, _nLen_ - _cur_ + 1)
+		ok
+		return _aRes_
 
 	def SplitAfterCS(pcSubStr, pCaseSensitive)
 		_oSafSplitter_ = new stzStringSplitter(This)

@@ -63,17 +63,18 @@ o1 = new stzString("...♥...♥...")
 # Splitting at a substring described by a condition
 
 o1 = new stzString("...♥♥...♥♥...")
-? o1.SplitAtSubStringsWXT('{ @SubString = "♥♥" }')
+? o1.SplitAtSubStringsW('{ @SubString = "♥♥" }')
 #--> [ "...", "...", "..." ]
 
 o1 = new stzString("...ONE...TWO...ONE")
-? o1.SplitAtsubStringsWXT('{ @SubString = "ONE" or @SubString = "TWO" }')
+? o1.SplitAtSubStringsW('{ @SubString = "ONE" or @SubString = "TWO" }')
 #--> [ "...", "...", "..." ]
 
-? o1.SplitAtSubStringsWXT('{ Q(@SubString).IsOneOfThese([ "ONE", "TWO"]) }')
+# Complex predicates -> the WF (anonymous-function) form:
+? o1.SplitAtSubStringsWF( func s { return Q(s).IsOneOfThese([ "ONE", "TWO" ]) } )
 #--> [ "...", "...", "..." ]
 
-? o1.SplitAtSubStringsWXT('{ Q(@SubString).IsEither( "ONE", :Or = "TWO") }')
+? o1.SplitAtSubStringsWF( func s { return Q(s).IsEither( "ONE", :Or = "TWO") } )
 #--> [ "...", "...", "..." ]
 
 pf()
