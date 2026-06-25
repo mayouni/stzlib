@@ -1,22 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #22.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveThisCharFromLeftXT(c) -- the Left-spelled alias of RemoveThisCharFromStartXT:
+# strip the whole leading run of char c, no-op if c is absent. Mutating. Archive
+# block #22.
 
-o1 = new stzString("---ring")
+Scenario("Stripping the leading run of a char (Left alias)")
+	Given('"---ring"')
+	o1 = new stzString("---ring")
+	o1.RemoveThisCharFromLeftXT("*")
+	Then("'*' from left (absent) is a no-op", o1.Content(), "---ring")
+	o1.RemoveThisCharFromLeftXT("-")
+	Then("'-' from left strips the leading dashes", o1.Content(), "ring")
+EndScenario()
 
-o1.RemoveThisCharFromLeftXT("*")
-? o1.Content()
-#--> "---ring"
-
-o1.RemoveThisCharFromLeftXT("-")
-? o1.Content()
-#--> ring
-
-pf()
-# Executed in 0.01 second(s).
+Summary()
