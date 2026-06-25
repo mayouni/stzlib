@@ -188,6 +188,16 @@ file -> list -> string -> char -> hashlist -> table -> listof*
 
 1. **Gold-standard narrate** its `base/test/<module>` suite (here:
    `base/test/string/`, currently **999 `.ring` files** -- large).
+   **Narration IS the correctness audit, not a formatting pass.** Converting each
+   `pr()/pf()` print test into an asserted `Scenario/Given/Then` forces you to
+   (a) read and *understand* the implementation + test, (b) *run* it for real,
+   and (c) commit a *verified* expected value. A bare `#-->` comment is
+   unverified and silently wrong far more often than you'd expect -- error-greps
+   and engine A/B diffs never catch a test that runs cleanly but returns the
+   wrong value. Only asserting the output does. On any code-vs-test
+   disagreement, apply the defect policy (fix the code when a narration doc is
+   the authority, else fix the test). This step is the bulk of the work and the
+   real point of the whole module pass.
 
 2. **Disqualify its WXT family.** String has a BIG one -- `stzString.ring`
    currently defines **23 `*WXT` methods** (FindWXT, CharsWXT, SplitWXT,
