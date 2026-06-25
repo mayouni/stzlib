@@ -12634,25 +12634,23 @@ class stzString from stzObject
 
 	# (IsTitlecased -- Ring is case-insensitive, just one def.)
 
-	# CharsWXT(pcCondition): chars where predicate is TRUE. Alias of
-	# CharsW (predicate-driven char filter).
-	def CharsWXT(pcCondition)
+	# CharsW(pcCondition): the characters where the predicate is TRUE
+	# (predicate-driven char filter).
+	def CharsW(pcCondition)
+		# Characters satisfying the predicate. Engine-backed via FindCharsW
+		# (which normalizes the expressive { } / Q(@char).Method() forms with no
+		# eval()); the matched positions are mapped back to their characters.
+		# Replaces the retired raw-eval CharsWXT().
+		_aPos_ = This.FindCharsW(pcCondition)
 		_aRes_ = []
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
+		_nLen_ = len(_aPos_)
 		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			_bMatch_ = FALSE
-			try
-				eval("_bMatch_ = " + pcCondition)
-			catch
-				_bMatch_ = FALSE
-			done
-			if _bMatch_ _aRes_ + @char ok
+			_aRes_ + This.CharAt(_aPos_[_i_])
 		next
 		return _aRes_
+
+		def CharsWQ(pcCondition)
+			return new stzList( This.CharsW(pcCondition) )
 
 	# ContainsLetters(): TRUE iff the content contains any letter.
 	def ContainsLetters()
@@ -12782,8 +12780,8 @@ class stzString from stzObject
 		This.ReplaceAllCharsXT(pcOld, pcNew)
 		return This
 
-	def CountCharsWXT(pcCondition)
-		return len(This.CharsWXT(pcCondition))
+	def CountCharsW(pcCondition)
+		return len(This.FindCharsW(pcCondition))
 
 	# NthSubStringAfterSplittingStringUsing(n, pcSep): the n-th piece
 	# after splitting on pcSep.
@@ -13092,9 +13090,9 @@ class stzString from stzObject
 	def UnicodeCompareWithInSystemLocale(pcOther)
 		return This.UnicodeCompareWithCS(pcOther, 1)
 
-	# NumberOfCharsWXT(pcCondition).
-	def NumberOfCharsWXT(pcCondition)
-		return len(This.CharsWXT(pcCondition))
+	# NumberOfCharsW(pcCondition).
+	def NumberOfCharsW(pcCondition)
+		return This.CountCharsW(pcCondition)
 
 	# ContainsLetter(pcLetter): TRUE iff content contains pcLetter.
 	def ContainsLetter(pcLetter)
@@ -13197,7 +13195,7 @@ class stzString from stzObject
 		This.InsertSubStrings(anPos, pacStr)
 
 	def ItemsWhere(pcCondition)
-		return This.CharsWXT(pcCondition)
+		return This.CharsW(pcCondition)
 
 	# IsShortLanguageAbbreviation(): 2-letter ISO 639-1-style alpha code.
 	def IsShortLanguageAbbreviation()

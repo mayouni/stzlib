@@ -474,7 +474,11 @@ class stzStringFinder
 	#========================================#
 
 	def FindCharsWCS(pcCondition, pCaseSensitive)
-		# Engine-backed: evaluates expression per character
+		# Engine-backed: evaluates expression per character. Normalize first so
+		# the expressive forms (a { ... } block and Q(@char).Method() sugar) are
+		# accepted WITHOUT eval() -- this is the W path that replaced the retired
+		# ...WXT() raw-eval forms. Idempotent for plain-DSL predicates.
+		pcCondition = _StzNormalizeCharCond(pcCondition)
 		_cFcwResult_ = StzEngineStringFindCharsW(@oString.Content(), pcCondition)
 		return _ParseCSVNumbers(_cFcwResult_)
 
