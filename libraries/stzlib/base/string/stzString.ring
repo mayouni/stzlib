@@ -7754,7 +7754,7 @@ class stzString from stzObject
 	# FindNthW(n, pcCondition): n-th position where the predicate is
 	# TRUE (predicate runs over chars with @char binding).
 	def FindNthW(n, pcCondition)
-		_aPos_ = This.FindWXT(pcCondition)
+		_aPos_ = This.FindW(pcCondition)
 		if n < 1 or n > len(_aPos_) return 0 ok
 		return _aPos_[n]
 
@@ -14700,29 +14700,8 @@ class stzString from stzObject
 		return len(This.Letters())
 
 	# FindWXT: predicate-driven find positions; @char binding.
-	def FindWXT(pcCondition)
-		_cExpr_ = pcCondition
-		if isList(pcCondition) and len(pcCondition) = 2 and
-		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
-			_cExpr_ = pcCondition[2]
-		ok
-		if NOT isString(_cExpr_) return [] ok
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_aRes_ = []
-		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			_bMatch_ = FALSE
-			try
-				eval("_bMatch_ = " + _cExpr_)
-			catch
-				_bMatch_ = FALSE
-			done
-			if _bMatch_ _aRes_ + _i_ ok
-		next
-		return _aRes_
+	# (FindWXT removed -- FindW is the single engine-backed form; it accepts the
+	# expressive { } / Q(@char).Method() predicates with no eval. See FindW/FindWCS.)
 
 	# Interpolated(paBindings): replace each `${key}` placeholder in
 	# This with the corresponding value from paBindings (a hashlist
