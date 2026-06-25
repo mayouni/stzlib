@@ -3330,50 +3330,50 @@ class stzString from stzObject
 	def Split(pcSep)
 		return This._SplitByStr(pcSep)
 
-	# SplitWXT(pCond): split the content at every position where the
-	# predicate is TRUE. The predicate runs with @char bound to the
-	# current character and @position to its 1-based position.
-	# Accepts bare expression or :At = expr named-param.
-	def SplitWXT(pCond)
+	# SplitW(pCond): split the content at every char where the predicate is
+	# TRUE (the split chars are DROPPED). Engine-backed via FindCharsW -- no
+	# eval(); the predicate accepts { } blocks and Q(@char).Method() sugar, with
+	# the char position available as @i. Named-param forms: :At / :Where /
+	# :AtChars = <pred> (split AT, dropping) and :After = <pred> (split AFTER,
+	# keeping). Replaces the retired raw-eval SplitWXT.
+	def SplitW(pCond)
+		_cForm_ = "at"
 		_cExpr_ = pCond
-		if isList(pCond) and len(pCond) = 2 and isString(pCond[1]) and
-		   (lower(pCond[1]) = "at" or lower(pCond[1]) = "where")
-			_cExpr_ = pCond[2]
+		if isList(pCond) and len(pCond) = 2 and isString(pCond[1])
+			_k_ = lower(pCond[1])
+			if _k_ = "at" or _k_ = "where" or _k_ = "atchars"
+				_cExpr_ = pCond[2]
+			but _k_ = "after"
+				_cExpr_ = pCond[2]
+				_cForm_ = "after"
+			ok
 		ok
 		if NOT isString(_cExpr_) return [] ok
-		# Engine-backed: walk codepoints, not bytes.
+		_aPos_ = This.FindCharsW(_cExpr_)
+		if _cForm_ = "after"
+			return This.SplitAfterPositions(_aPos_)
+		ok
+		# Split AT: emit the (non-empty) pieces between the dropped chars.
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
 		_aRes_ = []
 		_cCur_ = ""
+		_iSplit_ = 1
+		_nSplits_ = len(_aPos_)
 		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@position = _i_
-			@CurrentItem = @char
-			_bSplit_ = FALSE
-			try
-				eval("_bSplit_ = " + _cExpr_)
-			catch
-				_bSplit_ = FALSE
-			done
-			if _bSplit_
+			if _iSplit_ <= _nSplits_ and _aPos_[_iSplit_] = _i_
 				if len(_cCur_) > 0 _aRes_ + _cCur_ ok
 				_cCur_ = ""
+				_iSplit_++
 			else
-				_cCur_ += @char
+				_cCur_ += _aChars_[_i_]
 			ok
 		next
 		if len(_cCur_) > 0 _aRes_ + _cCur_ ok
 		return _aRes_
 
-		def SplitW(pCond)
-			return This.SplitWXT(pCond)
-
-		def SplitAtWXT(pCond)
-			return This.SplitWXT(pCond)
-
 		def SplitAtW(pCond)
-			return This.SplitWXT(pCond)
+			return This.SplitW(pCond)
 
 	# SplitToNParts: split the string into fixed-size character chunks
 	# of n characters each. The split is RIGHT-anchored (counting from
@@ -7055,11 +7055,10 @@ class stzString from stzObject
 		next
 		return _aRes_
 
-	# SplitAtCharsWXT(pcCondition): split content at every char where
-	# the eval'd predicate is TRUE. Predicate runs with @char binding.
-	# Same semantics as SplitWXT but spelled for char-narratives.
-	def SplitAtCharsWXT(pcCondition)
-		return This.SplitWXT(pcCondition)
+	# SplitAtCharsW(pcCondition): split content at every char where the
+	# predicate is TRUE. Same semantics as SplitW, spelled for char-narratives.
+	def SplitAtCharsW(pcCondition)
+		return This.SplitW(pcCondition)
 
 	# CommonSubStrings(:With = pcOther): substrings appearing in both
 	# This and pcOther (set-style intersection at the char-substring

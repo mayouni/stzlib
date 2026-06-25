@@ -57,7 +57,7 @@ o1 = new stzString("...♥♥♥...♥♥...")
 # Splitting at a char described by a condition
 
 o1 = new stzString("...♥...♥...")
-? o1.SplitAtCharsWXT('@char = "♥"')
+? o1.SplitAtCharsW('@char = "♥"')
 #--> [ "...", "...", "..." ]
 
 # Splitting at a substring described by a condition
