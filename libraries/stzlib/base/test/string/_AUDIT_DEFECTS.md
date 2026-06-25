@@ -14,13 +14,54 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
   correct; the bug is in the per-section replace loop (stzString.ring ~8492).
   `ReplaceInSection` (singular, test 03) works fine, so compare the two.
 
+- **`StartsWithXTQ(...).AndQ().EndsWithXT(...)` chaining returns FALSE** when
+  both sides are TRUE (test 08_write_a, last line).
+  `Q("...Tunis..").StartsWithXTQ(@3(".")).AndQ().EndsWithXT(@2("."))` -> actual
+  FALSE, expected TRUE ("...Tunis.." starts with "..." AND ends with ".."). The
+  individual StartsWithXT/EndsWithXT each return TRUE; the AndQ() fluent-and
+  bridge is the broken link. 08 left as print form (it's a `#todo` stub anyway).
+
+- **`CharRemovedFromLeft(c)` / `CharRemovedFromRight(c)` ignore their char
+  argument** (tests 24_leftcharremoved, 25_rightcharremoved). Both are one-line
+  delegators (`return This.LeftCharRemoved()` / `RightCharRemoved()`,
+  stzString.ring ~8077-8081) that drop the leftmost/rightmost char
+  UNCONDITIONALLY, regardless of `c`. So `Q("---ring").CharRemovedFromLeft("*")`
+  returns `"--ring"` (a `-` removed) when it should be a no-op (`"---ring"`, `*`
+  is absent). The sensible contract — matching the archive `#-->` and the XT
+  twin — is *remove the leftmost char only if it equals `c`* (single, conditional;
+  the XT form removes the whole run). The CharTrimmed* aliases (= XT, remove-all)
+  are fine; only the non-XT single-removal form is wrong. Left un-asserted in the
+  narrated tests (NOTE line); deferred to the fix-pass.
+
 ## Open — semantics to confirm (test #--> vs current impl disagree)
 
-- **`SizeInBytes()` / `SizeInBytes64()` / `SizeInBytes32()`** (test 06_sizeinbytes).
-  `"Softanza"` → current `8 / 548 / 348`; archive `#-->` says `624 / 624 / 400`.
-  `SizeInBytes()=8` (content byte length) looks like the correct modern meaning;
-  the old `#-->` appear to measure object memory footprint. Decide the intended
-  semantics for all three, then fix whichever side is wrong.
+- **`SizeInBytes64()` / `SizeInBytes32()`** (test 06_sizeinbytes). `"Softanza"` →
+  `548 / 348`; archive `#-->` `624 / 400`. These look like object-footprint
+  estimates (platform/version-dependent) -- fragile to assert. Low value; left as
+  print form pending a decision on whether they should exist at all.
+  (`SizeInBytes()` itself is RESOLVED below.)
+
+- **`FindAnyBoundedBy(["<<",">>"])`** (test 17). Returns the SUBSTRINGS
+  `["ring","php"]`; archive `#-->` expected POSITIONS `[7,20]`. Likely
+  FindAnyBoundedBy = substrings and a ...ZZ variant = positions; confirm the
+  intended contract, then fix the test or the method. (17's ReplaceManyByManyXT
+  half is verified correct and narrated.)
+
+## Resolved (impl correct, archive #--> was wrong)
+
+- **`CharTrimmedFromLeft("-")` / `CharTrimmedFromRight("-")`** (tests 24/25):
+  archive `#-->` showed a SINGLE removal (`"--ring"` / `"ring--"`), but these are
+  aliases of the XT (remove-the-whole-run) form, so `"---ring"`->`"ring"` is
+  correct. "Trim" = remove all leading/trailing occurrences; archive author erred.
+  Asserted at the correct value in the narrated 24/25.
+
+- **`SizeInBytes()`** (06): impl returns content byte length (`"Softanza"`->8);
+  archive `#-->624` was stale. CONFIRMED by 07_managing_a_big_text where
+  `SizeInBytes()=6617121` matches the char/byte count. Test 06 not yet rewritten
+  (still bundled with the 64/32 question above).
+- **`AlignXT(width, char, :Right)`** (10): archive `#-->` showed the CENTERED
+  result by copy-paste; impl is correctly right-aligned (`"~~~~~~~~~~~RING"`).
+  Fixed in the narrated 10_aligncenter.
 
 ## Resolved
 

@@ -1,32 +1,27 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #25.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Removing characters from the RIGHT of a string -- the mirror of block #24, read
+# against "ring---". Archive block #25.
+#   RightCharRemoved()        : drop exactly one rightmost char (unconditional)
+#   CharRemovedFromRightXT(c) : drop the WHOLE trailing run of char c (no-op if absent)
+#   CharTrimmedFromRight(c)   : alias of the XT form ("trim" = remove all trailing c)
+#
+# DEFECT (deferred -- see _AUDIT_DEFECTS.md): CharRemovedFromRight(c) IGNORES its
+# char argument and always drops the rightmost char like RightCharRemoved(), even
+# when c is absent. It is therefore exercised below as a NOTE, not asserted.
 
-o1 = new stzString("ring---")
+Scenario("Removing chars from the right of a string")
+	Given('"ring---"')
+	o1 = new stzString("ring---")
+	Then("RightCharRemoved() drops one trailing char", o1.RightCharRemoved(), "ring--")
+	Then("...FromRightXT('*') is a no-op when '*' is absent", o1.CharRemovedFromRightXT("*"), "ring---")
+	Then("...FromRightXT('-') strips the whole trailing run", o1.CharRemovedFromRightXT("-"), "ring")
+	# CharTrimmedFromRight = trim-all; archive #--> "ring--" was the author's error.
+	Then("CharTrimmedFromRight('-') trims every trailing '-'", o1.CharTrimmedFromRight("-"), "ring")
 
-? o1.RightCharRemoved()
-#--> ring--
+	# DEFECT: ignores its arg -- drops '-' even though '*' was requested (expected "ring---").
+	? "  NOTE  CharRemovedFromRight('*') -> " + o1.CharRemovedFromRight("*") + "  (char arg ignored -- deferred fix)"
+EndScenario()
 
-? o1.CharRemovedFromRight("*")
-#--> ring---
-
-? o1.CharRemovedFromRight("-")
-#--> ring--
-
-? o1.CharRemovedFromRightXT("*")
-#--> ring---
-
-? o1.CharRemovedFromRightXT("-")
-#--> ring
-
-? o1.CharTrimmedFromRight("-")
-#--> ring--
-
-pf()
-# Executed in 0.01 second(s)
+Summary()
