@@ -13,6 +13,46 @@ here.
 
 ---
 
+## ⏯ RESUME HERE — the STRING NARRATION AUDIT is IN PROGRESS
+
+The WXT/eval disqualification (Part B step 2) is **DONE** (10 commits
+f679a425..69556872; see memory `project_wxt_disqualification`). The active task
+is **step 1 = narrate the suite, which IS the correctness audit** (not a
+formatting pass): for each test, *understand* impl + original, *run* it, and
+commit a *verified asserted* value. Status: 999 tests, ~14 narrated so far
+(01,02,03,05,09-16,20,21), ~920 to go.
+
+**Per-test workflow (the important part):**
+1. Recover the original archive ONCE (the pre-split monolith, 19,572 lines):
+   `git show f6bdfbcc^:libraries/stzlib/base/test/legacy/stzStringTest.ring > /tmp/orig.ring`
+   Each modular test header says `Extracted from stzStringTest.ring, block #N`;
+   find its block in /tmp/orig.ring (blocks are delimited by `/*===== ... */`,
+   each a `pr()...pf()` section). Triangulate **archive original ↔ Softanza
+   implementation (string/stzString.ring) ↔ the modular test as it runs**.
+2. Run the modular test (`D:/ring127/bin/ring.exe <f>.ring`); compare actual to
+   the archive `#-->`.
+3. If they agree and the value is right → **narrate** it (concise comment + a few
+   asserted `Then(...)`; full `Scenario` narration only when illustrative —
+   "narrate only what deserves it"). Concept-rename `NN_content`/`NN_pr` files.
+4. If they disagree → it's a **defect**. Apply the policy: a narration doc in
+   `doc/narrations/` is authority; else the **implementation** is authority
+   (most archive `#-->` errors are the original author's). Do NOT assert a wrong
+   value. Log every real code bug to `base/test/string/_AUDIT_DEFECTS.md` and
+   DEFER the fix to a focused fix-pass (don't rush fixes inline). Commit verified
+   tests in batches; push both remotes.
+
+**Open defects already found** (in `_AUDIT_DEFECTS.md`): `ReplaceInSections`
+destroys its sections; `StartsWithXTQ().AndQ().EndsWithXT()` returns FALSE when
+both true; `SizeInBytes64/32` + `FindAnyBoundedBy` semantics. These await a
+fix-pass. **Caution:** the engine `isLetter`/`isDigit` are now Unicode-correct
+(utf8proc) -- an A/B over the 32 predicate-using tests was clean (only
+395_replacew changed, intentionally), so that change is verified safe.
+
+After the audit: stress/perf guard (string has none -- 07_managing_a_big_text is
+a 6.6M-char read worth modelling a guard on) + engine-first audit + cleanup.
+
+---
+
 ## STANDING RULES (apply to every commit in this project)
 
 1. **Push BOTH remotes after every commit:**
