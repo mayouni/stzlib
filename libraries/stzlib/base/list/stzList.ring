@@ -1,12 +1,12 @@
 #--------------------------------------------------------------#
-#        SOFTANZA LIBRARY (V0.9) - STZLIST (CORE)             #
+#        SOFTANZA LIBRARY (V0.9) - STZLIST (CORE)              #
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : List core class -- init, content access,    #
-#                  item retrieval, counting, updating, adding.  #
-#                  For full fluency (aliases), use stzListXT.   #
-#   Version      : V0.9 (2026)                                #
+#                  item retrieval, counting, updating, adding. #
+#                  For full fluency (aliases), use stzListXT.  #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
@@ -1516,6 +1516,13 @@ class stzList from stzObject
 		return _nCesCount_
 
 	def ReplaceEmptyStrings(pNewItem)
+		if CheckParams()
+			if isList(pNewItem) and len(pNewItem) = 2 and
+			   isString(pNewItem[1]) and pNewItem[1] = :With
+				pNewItem = pNewItem[2]
+			ok
+		ok
+
 		_aResContent_ = @aContent
 		_nResLen_ = len(_aResContent_)
 		for _iRes_ = 1 to _nResLen_
@@ -9332,32 +9339,66 @@ class stzList from stzObject
 			ok
 
 		but pOp = "*"
-			# Repeat the list pValue times (integer).
-			if NOT isNumber(pValue)
-				StzRaise("operator *: rhs must be a number.")
+			# Repeat the list N times (flat). Q-elevation rule: a RAW number
+			# returns a raw list; a Q(number) / numeric stz-object returns a
+			# chainable stzList object with the SAME content. NON-mutating
+			# (the wrapped object is never changed).
+			_bMulElevate_ = 0
+			if isNumber(pValue)
+				_nMul_ = pValue
+			but @IsStzObject(pValue)
+				_vMul_ = pValue.Content()
+				if @IsStzNumber(pValue)
+					_vMul_ = pValue.NumericValue()
+				ok
+				if NOT isNumber(_vMul_)
+					StzRaise("operator *: rhs object must hold a number.")
+				ok
+				_nMul_ = _vMul_
+				_bMulElevate_ = 1
+			else
+				StzRaise("operator *: rhs must be a number or Q(number).")
 			ok
-			_aOriginal_ = @aContent
-			This._SetContent([])
-			_nMul_ = floor(pValue)
+			_nMul_ = floor(_nMul_)
 			if _nMul_ < 0
 				_nMul_ = 0
 			ok
-			_nOrigLen_ = len(_aOriginal_)
+			_aMulRes_ = []
+			_nMulLen_ = len(@aContent)
 			for _iMul_ = 1 to _nMul_
-				for _jMul_ = 1 to _nOrigLen_
-					This._InvalidateEngine()   # in-place @aContent mutation below
-					@aContent + _aOriginal_[_jMul_]
+				for _jMul_ = 1 to _nMulLen_
+					_aMulRes_ + @aContent[_jMul_]
 				next
 			next
-			return @aContent
+			if _bMulElevate_
+				return new stzList(_aMulRes_)
+			ok
+			return _aMulRes_
 
 		but pOp = "/"
-			# Chunk into groups of pValue. Returns a Ring list of
-			# lists (not a stzList wrapper).
-			if NOT isNumber(pValue) or pValue < 1
+			# Chunk into groups of pValue items. Q-elevation rule: a RAW number
+			# returns a raw list of lists; a Q(number) / numeric stz-object
+			# returns a chainable stzList object with the SAME content.
+			_bDivElevate_ = 0
+			if isNumber(pValue)
+				_nChunk_ = pValue
+			but @IsStzObject(pValue)
+				_vDiv_ = pValue.Content()
+				if @IsStzNumber(pValue)
+					_vDiv_ = pValue.NumericValue()
+				ok
+				if NOT isNumber(_vDiv_)
+					StzRaise("operator /: rhs object must hold a number.")
+				ok
+				_nChunk_ = _vDiv_
+				_bDivElevate_ = 1
+			else
+				StzRaise("operator /: rhs must be a positive number or Q(number).")
+			ok
+			if _nChunk_ < 1
 				StzRaise("operator /: rhs must be a positive number.")
 			ok
-			_nChunk_ = floor(pValue)
+			_nChunk_ = floor(_nChunk_)
 			_aGroups_ = []
 			_nCntLen_ = len(@aContent)
 			_iCur_ = 1
@@ -9373,6 +9414,9 @@ class stzList from stzObject
 				_aGroups_ + _aGroup_
 				_iCur_ = _iEnd_ + 1
 			end
+			if _bDivElevate_
+				return new stzList(_aGroups_)
+			ok
 			return _aGroups_
 
 		but pOp = "[]"
