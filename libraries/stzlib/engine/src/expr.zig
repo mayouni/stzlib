@@ -18,7 +18,32 @@
 // C ABI: stz_expr_* prefix.
 
 const std = @import("std");
+const char = @import("char.zig");
 const alloc = std.heap.page_allocator;
+
+// allCharsAreKind: TRUE iff the str is non-empty and EVERY codepoint matches the
+// Unicode class (utf8proc-backed via char.zig). kind: 0=letter, 1=digit,
+// 2=alphanumeric. Decoding codepoints (not bytes) is what makes isLetter/isDigit
+// correct for multibyte input -- the old `byte >= 0x80` heuristic wrongly
+// classified symbols like the heart sign as letters.
+fn allCharsAreKind(s: []const u8, kind: u8) bool {
+    if (s.len == 0) return false;
+    var i: usize = 0;
+    while (i < s.len) {
+        const n = std.unicode.utf8ByteSequenceLength(s[i]) catch return false;
+        if (i + n > s.len) return false;
+        const cp = std.unicode.utf8Decode(s[i .. i + n]) catch return false;
+        const ok = switch (kind) {
+            0 => char.stz_char_is_letter(cp) != 0,
+            1 => char.stz_char_is_digit(cp) != 0,
+            2 => (char.stz_char_is_letter(cp) != 0) or (char.stz_char_is_digit(cp) != 0),
+            else => false,
+        };
+        if (!ok) return false;
+        i += n;
+    }
+    return true;
+}
 
 // ─── Evaluation value ───
 
@@ -1034,26 +1059,12 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
             },
             .fn_is_letter => {
                 const a = pop(&stack, &sp);
-                var all_alpha = false;
-                if (a.tag == .str_v and a.data.s.len > 0) {
-                    all_alpha = true;
-                    for (0..a.data.s.len) |j| {
-                        const ch = a.data.s.ptr[j];
-                        if (!((ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z') or ch >= 0x80)) { all_alpha = false; break; }
-                    }
-                }
-                push(&stack, &sp, Val.initBool(all_alpha));
+                const ok = a.tag == .str_v and allCharsAreKind(a.data.s.ptr[0..a.data.s.len], 0);
+                push(&stack, &sp, Val.initBool(ok));
             },
             .fn_is_digit => {
                 const a = pop(&stack, &sp);
-                var ok = false;
-                if (a.tag == .str_v and a.data.s.len > 0) {
-                    ok = true;
-                    for (0..a.data.s.len) |j| {
-                        const ch = a.data.s.ptr[j];
-                        if (!(ch >= '0' and ch <= '9')) { ok = false; break; }
-                    }
-                }
+                const ok = a.tag == .str_v and allCharsAreKind(a.data.s.ptr[0..a.data.s.len], 1);
                 push(&stack, &sp, Val.initBool(ok));
             },
             .fn_is_space => {
@@ -1070,14 +1081,7 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
             },
             .fn_is_alphanumeric => {
                 const a = pop(&stack, &sp);
-                var ok = false;
-                if (a.tag == .str_v and a.data.s.len > 0) {
-                    ok = true;
-                    for (0..a.data.s.len) |j| {
-                        const ch = a.data.s.ptr[j];
-                        if (!((ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z') or (ch >= '0' and ch <= '9') or ch >= 0x80)) { ok = false; break; }
-                    }
-                }
+                const ok = a.tag == .str_v and allCharsAreKind(a.data.s.ptr[0..a.data.s.len], 2);
                 push(&stack, &sp, Val.initBool(ok));
             },
             .fn_is_vowel => {
