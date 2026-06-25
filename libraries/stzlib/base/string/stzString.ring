@@ -3174,51 +3174,21 @@ class stzString from stzObject
 
 	# RemoveCharsWXT(pcCondition): remove every char where the
 	# predicate is TRUE. Predicate runs with @char bound.
-	def RemoveCharsWXT(pcCondition)
-		_cExpr_ = pcCondition
-		if isList(pcCondition) and len(pcCondition) = 2 and
-		   isString(pcCondition[1]) and lower(pcCondition[1]) = "where"
-			_cExpr_ = pcCondition[2]
-		ok
-		if NOT isString(_cExpr_) return ok
-		# Engine-backed: walk codepoints, not bytes.
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			_bDrop_ = FALSE
-			try
-				eval("_bDrop_ = " + _cExpr_)
-			catch
-				_bDrop_ = FALSE
-			done
-			if NOT _bDrop_ _cOut_ += @char ok
-		next
-		This.Update(_cOut_)
+	def RemoveCharsW(pcCondition)
+		# Remove the characters where the predicate is TRUE. Engine-backed via
+		# RemoveW (FindW positions -> RemoveSection); the predicate accepts the
+		# expressive { } block and Q(@char).Method() sugar with NO eval().
+		# Replaces the retired raw-eval RemoveCharsWXT().
+		This.RemoveW(pcCondition)
 
-		def RemoveCharsWXTQ(pcCondition)
-			This.RemoveCharsWXT(pcCondition)
+		def RemoveCharsWQ(pcCondition)
+			This.RemoveW(pcCondition)
 			return This
 
-		def RemoveCharsW(pcCondition)
-			This.RemoveCharsWXT(pcCondition)
-
-		# Shorter aliases used by fluent narrative chains: drop chars
-		# where the predicate is TRUE. (RemoveW already exists below
-		# routing through stzStringRemover -- we add only the XT/Q
-		# variants here.)
-		def RemoveWXT(pcCondition)
-			This.RemoveCharsWXT(pcCondition)
-
-		def RemoveWXTQ(pcCondition)
-			This.RemoveCharsWXT(pcCondition)
-			return This
-
+		# Shorter aliases used by fluent narrative chains (RemoveW itself is
+		# defined below, routing through stzStringRemover -> engine).
 		def RemoveWQ(pcCondition)
-			This.RemoveCharsWXT(pcCondition)
+			This.RemoveW(pcCondition)
 			return This
 
 	# RemoveDuplicatedChars: dedup chars in-place (keep first occurrence).
@@ -3500,7 +3470,7 @@ class stzString from stzObject
 		return _aLnResult_
 
 		# Fluent form: return the line list wrapped in stzList so
-		# narrative chains like `o.TrimQ().LinesQ().RemoveWXTQ(...)`
+		# narrative chains like `o.TrimQ().LinesQ().RemoveWQ(...)`
 		# resolve on the list class.
 		def LinesQ()
 			return new stzList( This.Lines() )
