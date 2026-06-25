@@ -9109,39 +9109,30 @@ class stzString from stzObject
 	def EndsWithThisNumber(pcNum)
 		return This.EndsWithNumberN(pcNum)
 
-	# YieldCharsWXT(pcYielder): transform every char by the eval'd
-	# expression. @char binding. Returns the transformed list.
-	def YieldCharsWXT(pcYielder, pNamedWhere)
-		# Optional :Where = predicate filter.
+	# YieldCharsW(pcYielder, pNamedWhere): transform every char through the
+	# yielder expression via the engine char-map (StzEngineStringMapChars,
+	# expr.zig -- no eval). Optional :Where = predicate restricts to the matching
+	# chars first (engine FindCharsW). @char binding. Replaces the retired
+	# raw-eval YieldCharsWXT.
+	def YieldCharsW(pcYielder, pNamedWhere)
 		_cFilter_ = ""
 		if isList(pNamedWhere) and len(pNamedWhere) = 2 and isString(pNamedWhere[1]) and
 		   lower(pNamedWhere[1]) = "where"
 			_cFilter_ = pNamedWhere[2]
 		ok
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_aRes_ = []
-		for _i_ = 1 to _nLen_
-			@char = _aChars_[_i_]
-			@Char = @char
-			@position = _i_
-			if _cFilter_ != ""
-				_bKeep_ = FALSE
-				try
-					eval("_bKeep_ = " + _cFilter_)
-				catch
-					_bKeep_ = FALSE
-				done
-				if NOT _bKeep_ loop ok
-			ok
-			_xVal_ = NULL
-			try
-				eval("_xVal_ = " + pcYielder)
-			catch
-				_xVal_ = NULL
-			done
-			_aRes_ + _xVal_
-		next
+		_cSrc_ = This.Content()
+		if isString(_cFilter_) and _cFilter_ != ""
+			_aKept_ = This.CharsW(_cFilter_)
+			_cSrc_ = ""
+			_nK_ = len(_aKept_)
+			for _i_ = 1 to _nK_
+				_cSrc_ += _aKept_[_i_]
+			next
+		ok
+		_pList_ = StzEngineStringMapChars(_cSrc_, _StzStripBraces(pcYielder))
+		if _pList_ = NULL return [] ok
+		_aRes_ = StzEngineContentFromList(_pList_)
+		StzEngineListFree(_pList_)
 		return _aRes_
 
 	# SplitToPartsOfNChars(n): split into pieces of length n
@@ -13444,13 +13435,8 @@ class stzString from stzObject
 
 	# FindCharsWXT(:Where = expr) -- named-param wrapper over FindCharsW.
 	# Also accepts a bare expression for convenience.
-	def FindCharsWXT(pCond)
-		_cExpr_ = pCond
-		if isList(pCond) and len(pCond) = 2 and isString(pCond[1]) and
-		   lower(pCond[1]) = "where"
-			_cExpr_ = pCond[2]
-		ok
-		return This.FindCharsW(_cExpr_)
+	# (FindCharsWXT removed -- it was a thin :Where-unwrapper over FindCharsW,
+	# which is the single engine-backed form. Pass the predicate to FindCharsW.)
 
 	def FindWCS(pcCondition, pCaseSensitive)
 		_oFwFinder_ = new stzStringFinder(This)
