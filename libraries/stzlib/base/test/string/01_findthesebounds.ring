@@ -1,22 +1,20 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #1.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindTheseBounds("[","]") -> [open,close] positions of the outer bracket pair;
+# RemoveTheseBounds drops the bound chars (here only the matched [ and ] at the
+# ends). Verified against archive block #1.
 
-o1 = new stzString('[ @$2{"a";1;[1]}U ]')
-? @@( o1.FindTheseBounds("[", "]") )
-#--> [ 1, 15 ]
+Scenario("FindTheseBounds / RemoveTheseBounds")
+	Given('the string [ @$2{"a";1;[1]}U ]')
+	Then("FindTheseBounds reports the outer [ ] positions",
+		@@( Q('[ @$2{"a";1;[1]}U ]').FindTheseBounds("[", "]") ), @@([ 1, 15 ]))
+	Then("RemoveTheseBounds drops the outer bounds", RemovedBounds(), ' @$2{"a";1;[1}U ]')
+EndScenario()
 
-o1.RemoveTheseBounds("[", "]")
-? @@(o1.Content())
-#--> ' @$2{"a";1;[1}U ]'
+Summary()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.26 (Powerd by StzEngine)
-# Executed in 0.03 second(s) in Ring 1.26
-# Executed in 0.05 second(s) in Ring 1.22
+func RemovedBounds
+	o = new stzString('[ @$2{"a";1;[1]}U ]')
+	o.RemoveTheseBounds("[", "]")
+	return o.Content()
