@@ -123,6 +123,12 @@ pub const Op = enum(u8) {
     fn_is_positive,
     fn_is_negative,
     fn_is_letter,
+    fn_is_digit,
+    fn_is_space,
+    fn_is_alphanumeric,
+    fn_is_vowel,
+    fn_is_consonant,
+    fn_is_punctuation,
     fn_len,
     fn_lower,
     fn_upper,
@@ -200,6 +206,12 @@ const TTag = enum(u8) {
     fn_is_positive,
     fn_is_negative,
     fn_is_letter,
+    fn_is_digit,
+    fn_is_space,
+    fn_is_alphanumeric,
+    fn_is_vowel,
+    fn_is_consonant,
+    fn_is_punctuation,
     fn_len,
     fn_lower,
     fn_upper,
@@ -429,6 +441,12 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "ispositive")) return .fn_is_positive;
     if (std.mem.eql(u8, w, "isnegative")) return .fn_is_negative;
     if (std.mem.eql(u8, w, "isletter")) return .fn_is_letter;
+    if (std.mem.eql(u8, w, "isdigit")) return .fn_is_digit;
+    if (std.mem.eql(u8, w, "isspace")) return .fn_is_space;
+    if (std.mem.eql(u8, w, "isalphanumeric")) return .fn_is_alphanumeric;
+    if (std.mem.eql(u8, w, "isvowel")) return .fn_is_vowel;
+    if (std.mem.eql(u8, w, "isconsonant")) return .fn_is_consonant;
+    if (std.mem.eql(u8, w, "ispunctuation")) return .fn_is_punctuation;
     if (std.mem.eql(u8, w, "len")) return .fn_len;
     if (std.mem.eql(u8, w, "lower")) return .fn_lower;
     if (std.mem.eql(u8, w, "upper")) return .fn_upper;
@@ -612,6 +630,12 @@ const Compiler = struct {
             .fn_is_positive => .fn_is_positive,
             .fn_is_negative => .fn_is_negative,
             .fn_is_letter => .fn_is_letter,
+            .fn_is_digit => .fn_is_digit,
+            .fn_is_space => .fn_is_space,
+            .fn_is_alphanumeric => .fn_is_alphanumeric,
+            .fn_is_vowel => .fn_is_vowel,
+            .fn_is_consonant => .fn_is_consonant,
+            .fn_is_punctuation => .fn_is_punctuation,
             .fn_len => .fn_len,
             .fn_lower => .fn_lower,
             .fn_upper => .fn_upper,
@@ -1019,6 +1043,83 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                     }
                 }
                 push(&stack, &sp, Val.initBool(all_alpha));
+            },
+            .fn_is_digit => {
+                const a = pop(&stack, &sp);
+                var ok = false;
+                if (a.tag == .str_v and a.data.s.len > 0) {
+                    ok = true;
+                    for (0..a.data.s.len) |j| {
+                        const ch = a.data.s.ptr[j];
+                        if (!(ch >= '0' and ch <= '9')) { ok = false; break; }
+                    }
+                }
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_space => {
+                const a = pop(&stack, &sp);
+                var ok = false;
+                if (a.tag == .str_v and a.data.s.len > 0) {
+                    ok = true;
+                    for (0..a.data.s.len) |j| {
+                        const ch = a.data.s.ptr[j];
+                        if (!(ch == ' ' or ch == '\t' or ch == '\n' or ch == '\r')) { ok = false; break; }
+                    }
+                }
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_alphanumeric => {
+                const a = pop(&stack, &sp);
+                var ok = false;
+                if (a.tag == .str_v and a.data.s.len > 0) {
+                    ok = true;
+                    for (0..a.data.s.len) |j| {
+                        const ch = a.data.s.ptr[j];
+                        if (!((ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z') or (ch >= '0' and ch <= '9') or ch >= 0x80)) { ok = false; break; }
+                    }
+                }
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_vowel => {
+                const a = pop(&stack, &sp);
+                var ok = false;
+                if (a.tag == .str_v and a.data.s.len > 0) {
+                    ok = true;
+                    for (0..a.data.s.len) |j| {
+                        const ch = a.data.s.ptr[j];
+                        const lc = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+                        if (!(lc == 'a' or lc == 'e' or lc == 'i' or lc == 'o' or lc == 'u')) { ok = false; break; }
+                    }
+                }
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_consonant => {
+                const a = pop(&stack, &sp);
+                var ok = false;
+                if (a.tag == .str_v and a.data.s.len > 0) {
+                    ok = true;
+                    for (0..a.data.s.len) |j| {
+                        const ch = a.data.s.ptr[j];
+                        const is_alpha = (ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z');
+                        const lc = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+                        const is_vow = (lc == 'a' or lc == 'e' or lc == 'i' or lc == 'o' or lc == 'u');
+                        if (!(is_alpha and !is_vow)) { ok = false; break; }
+                    }
+                }
+                push(&stack, &sp, Val.initBool(ok));
+            },
+            .fn_is_punctuation => {
+                const a = pop(&stack, &sp);
+                var ok = false;
+                if (a.tag == .str_v and a.data.s.len > 0) {
+                    ok = true;
+                    for (0..a.data.s.len) |j| {
+                        const ch = a.data.s.ptr[j];
+                        const is_punct = (ch >= 0x21 and ch <= 0x2F) or (ch >= 0x3A and ch <= 0x40) or (ch >= 0x5B and ch <= 0x60) or (ch >= 0x7B and ch <= 0x7E);
+                        if (!is_punct) { ok = false; break; }
+                    }
+                }
+                push(&stack, &sp, Val.initBool(ok));
             },
             .fn_len => {
                 const a = pop(&stack, &sp);
