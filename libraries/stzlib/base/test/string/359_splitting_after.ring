@@ -37,11 +37,11 @@ o1 = new stzString("...♥♥♥..♥♥..")
 #--> [ "...♥♥♥", "..♥♥", ".." ]
 
 o1 = new stzString("...♥...♥...")
-? @@( o1.SplitBeforeCharsWXT(' @char = "♥" ') )
+? @@( o1.SplitBeforeCharsW(' @char = "♥" ') )
 #--> [ "...", "♥...", "♥..." ]
 
 o1 = new stzString("...♥♥...♥♥...")
-? @@( o1.SplitAfterSubStringsWXT(' @SubString = "♥♥" ') )
+? @@( o1.SplitAfterSubStringsW(' @SubString = "♥♥" ') )
 #--> [ "...♥♥", "...♥♥", "..." ]
 
 pf()

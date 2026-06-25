@@ -40,11 +40,11 @@ o1 = new stzString("...♥♥♥..♥♥..")
 #--> [ "...", "♥♥♥..", "♥♥.." ]
 
 o1 = new stzString("...♥...♥...")
-? @@( o1.SplitBeforeCharsWXT(' @char = "♥" ') )
+? @@( o1.SplitBeforeCharsW(' @char = "♥" ') )
 #--> [ "...", "♥...", "♥..." ]
 
 o1 = new stzString("...♥♥...♥♥...")
-? @@( o1.SplitBeforeSubStringsWXT(' @SubString = "♥♥" ') )
+? @@( o1.SplitBeforeSubStringsW(' @SubString = "♥♥" ') )
 #--> [ "...", "♥♥...", "♥♥..." ]
 
 

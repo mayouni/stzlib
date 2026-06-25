@@ -3139,3 +3139,22 @@ func _StzNormalizeCharCond(cCond)
 		cCond = ring_trim( substr(cCond, 2, len(cCond) - 2) )
 	ok
 	return _StzLowerWPredicates(cCond)
+
+# _StzNormalizeSubStringCond(cCond): normalize a SUBSTRING-predicate condition
+# (one using @SubString) for evaluation via the list W-DSL over an enumerated
+# list of candidate substrings. Strips an outer { } block, rewrites @SubString /
+# @substring to the list item var @item (case-insensitive), and lowers the
+# Q(@item).Method() sugar. So '@SubString = "X"' -> '@item = "X"', usable by
+# stzList.FindW. Handles only the engine-expressible predicates (=, or, and,
+# comparisons); complex ones (NumberOfChars/ContainsXT/IsOneOfThese/IsEither)
+# are NOT covered -- those need the WF form.
+func _StzNormalizeSubStringCond(cCond)
+	if NOT isString(cCond)
+		return cCond
+	ok
+	cCond = ring_trim(cCond)
+	if ring_left(cCond, 1) = "{" and ring_right(cCond, 1) = "}"
+		cCond = ring_trim( substr(cCond, 2, len(cCond) - 2) )
+	ok
+	cCond = StzReplaceCS(cCond, "@SubString", "@item", FALSE)
+	return _StzLowerWPredicates(cCond)
