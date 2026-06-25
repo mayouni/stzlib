@@ -49,6 +49,22 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
 
 ## Resolved (impl correct, archive #--> was wrong)
 
+- **`LeadingChars()` / `TrailingChars()` return a STRING, not a list** (test 33).
+  Archive `#--> [ "-", "-", "-" ]`; impl returns the run as one string `"---"`
+  (deliberate -- doc-comment at stzString.ring ~4411, with `LeadingChar()` /
+  `NumberOfLeadingChars()` as the companions). Asserted at the string.
+- **`RemoveLeadingChar()` / `RemoveTrailingChar()` are SINGULAR** (test 34):
+  remove exactly one end char (`"---Ring"`->`"--Ring"`). Archive `#--> Ring`
+  reflected the PLURAL `RemoveLeadingChars()`. Impl documents the distinction
+  (~4458). Asserted per impl; plural shown alongside for contrast.
+- **`RemoveCharFromLeft(c)` strips the whole run** (test 27): equivalent to its
+  XT twin (both delegate to RemoveThisCharFromStartXT). Archive expected a single
+  removal for the non-XT form (`"00012.58"`->`"0012.58"`); the singular/plural
+  split is collapsed. Coherent (respects `c`), unlike the block-24 bug below, so
+  recorded as redundancy rather than a code defect. Asserted at strip-all.
+- **Test 28 last two `#--> 3` were wrong**: counting the trailing run of a
+  leading-dash string (and vice versa) is 0, not 3. Asserted at 0.
+
 - **`CharTrimmedFromLeft("-")` / `CharTrimmedFromRight("-")`** (tests 24/25):
   archive `#-->` showed a SINGLE removal (`"--ring"` / `"ring--"`), but these are
   aliases of the XT (remove-the-whole-run) form, so `"---ring"`->`"ring"` is
