@@ -3120,3 +3120,22 @@ func Undo()
 
 func Redo()
 	# History stub.
+
+# _StzNormalizeCharCond(cCond): normalize a character-predicate condition for
+# the engine W-DSL. Strips an outer { ... } block and lowers Q(@char).Method()
+# sugar to engine-DSL calls (Q(@char).isLetter() -> isLetter(@char);
+# Q(@char).isEqualTo("S") -> ((@char) = ("S"))). Idempotent -- a predicate that
+# is already plain DSL (e.g. '@char != "/"' or 'isLetter(@char)') passes through
+# unchanged. This is what lets the W family accept the expressive forms WITHOUT
+# eval(): the retired ...WXT() forms used a raw eval() that choked on the { }
+# block with an uncatchable C27 syntax error. The braces are single-byte ASCII,
+# so the byte-based substr trim is UTF-8 safe (the inner predicate is untouched).
+func _StzNormalizeCharCond(cCond)
+	if NOT isString(cCond)
+		return cCond
+	ok
+	cCond = ring_trim(cCond)
+	if ring_left(cCond, 1) = "{" and ring_right(cCond, 1) = "}"
+		cCond = ring_trim( substr(cCond, 2, len(cCond) - 2) )
+	ok
+	return _StzLowerWPredicates(cCond)
