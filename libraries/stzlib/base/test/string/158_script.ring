@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #158.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Script(char) names the writing system; Name(char) gives the Unicode character
+# name. Archive block #158 (a CJK ideograph).
 
-? Script("鶊")
-#--> han
+Scenario("Script and Unicode name of a CJK character")
+	Then("its script is han", Script("鶊"), "han")
+	Then("its Unicode name", Name("鶊"), "CJK UNIFIED IDEOGRAPH-9D8A")
+EndScenario()
 
-? Name("鶊")
-#--> CJK UNIFIED IDEOGRAPH-9D8A
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.22
+Summary()
