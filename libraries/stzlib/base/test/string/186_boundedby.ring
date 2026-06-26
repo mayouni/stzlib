@@ -1,51 +1,33 @@
-# Narrative
-# --------
-# #narration
-#
-# Extracted from stzStringTest.ring, block #186.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# BoundedBy([open, close]) -- the substrings enclosed by the bounds. Archive #186.
+#
+# DEFECT (deferred -- see _AUDIT_DEFECTS.md): the variants are broken --
+# BoundedByU does NOT deduplicate (returns all 3, not the 2 unique); BoundedByIB
+# (Include Bounds) garbles the last element ("<" instead of "<<♥♥♥>>"); and
+# BoundedByIBU inherits both bugs. Only the base BoundedBy is asserted.
 
-pr()
+Scenario("Extracting substrings bounded by << >>")
+	Given('"<<♥♥♥>>--<<stars>>--<<♥♥♥>>"')
+	o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
+	Then("BoundedBy gives the three enclosed substrings",
+		ListEq( o1.BoundedBy([ "<<", ">>" ]), [ "♥♥♥", "stars", "♥♥♥" ] ), TRUE)
+	# Broken variants:
+	? "  NOTE  BoundedByU  -> " + @@(o1.BoundedByU([ "<<", ">>" ])) + "  (want unique [♥♥♥,stars] -- deferred)"
+	? "  NOTE  BoundedByIB -> " + @@(o1.BoundedByIB([ "<<", ">>" ])) + "  (last element garbled -- deferred)"
+EndScenario()
 
-# Let's start with this string of text:
+Summary()
 
-o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
-
-# If you want to extract all substrings bounded by << and >>,
-# you can do so easily:
-
-? o1.BoundedBy([ "<<", ">>" ])
-#--> ["♥♥♥", "stars", "♥♥♥"]
-
-# There are 3 substrings, and 2 of them are identical! No worries,
-# you can retrieve only the unique substrings by appending the
-# letter "U" (for Unique) to the function name:
-
-? o1.BoundedByU([ "<<", ">>" ])
-#--> ["♥♥♥", "stars"]
-
-# Sometimes, the term "BETWEEN" can be interpreted differently,
-# and you might want  to include the bounds along with the substrings. 
-
-# This can be achieved by adding the "IB" prefix to the function
-# name ("IB" for "Include Bounds"):
-
-? o1.BoundedByIB([ "<<", ">>" ])
-#--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
-
-# Wonderful! But notice that "<<♥♥♥>>" appears twice...
-# No problem, you know the solution: just append the "U" prefix:
-
-? o1.BoundedByIBU([ "<<", ">>" ])
-#--> [ "<<♥♥♥>>", "<<stars>>" ]
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.15 second(s) in Ring 1.18
-
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.15 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
