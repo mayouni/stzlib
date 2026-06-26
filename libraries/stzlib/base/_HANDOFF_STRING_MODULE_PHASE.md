@@ -19,8 +19,9 @@ The WXT/eval disqualification (Part B step 2) is **DONE** (10 commits
 f679a425..69556872; see memory `project_wxt_disqualification`). The active task
 is **step 1 = narrate the suite, which IS the correctness audit** (not a
 formatting pass): for each test, *understand* impl + original, *run* it, and
-commit a *verified asserted* value. Status: 999 tests, blocks 01-145 narrated so
-far (01,02,03,05,09-145; 128 retired stub, 129 deferred-semantics). Resume ~146. Deferred-defect / pending (print-form) blocks: 04, 08,
+commit a *verified asserted* value. Status: 999 tests, blocks 01-155 narrated so
+far (01,02,03,05,09-155; 128 retired stub; 129 deferred-semantics; 147-149
+already WF-narrated). Resume ~156. Deferred-defect / pending (print-form) blocks: 04, 08,
 42-45, 48, 54, 56, 58, 59, 60_isrealinstring, 67, 68, 71, 74, 77-84, 98, 99-101
 (box), 103, 104, 111, 114, 115, 116-119 (Shorten), 120, 121. Partials w/ NOTEs:
 70_section_out_of_range_raises, 91, 92, 97, 102, 106, 109, 110, 112, 124. The
