@@ -1,21 +1,18 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #233.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Reverse() -- reverse the string in place. Archive block #233 ran it on the
+# ~1.9M-char UnicodeData() as a perf demo; UnicodeData() is empty in this
+# checkout, so Reverse is verified here on a small string plus the
+# reverse-twice-is-identity invariant.
 
-oLargeStr = new stzString( UnicodeData() )
-#~> Contains ~2M chars (1.914.201 exactly)
+Scenario("Reversing a string")
+	Given('"Ring"')
+	o1 = new stzString("Ring")
+	o1.Reverse()
+	Then("'Ring' reversed is 'gniR'", o1.Content(), "gniR")
+	o1.Reverse()
+	Then("reversing again restores the original", o1.Content(), "Ring")
+EndScenario()
 
-? oLargeStr.Reverse()
-? oLargeStr.Content()
-
-StopProfiler()
-
-pf()
-# Executed in  8.50 second(s) in Ring 1.22
-# Executed in 14.56 second(s) in Ring 1.17
+Summary()
