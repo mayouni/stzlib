@@ -1,14 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #134.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsPluralOfAStzType() -- whether a symbol names the plural of a Softanza type
+# (e.g. :stzListsOfStrings is the plural family form). Archive block #134.
 
-? Q(:stzListsOfStrings).IsPluralOfAStzType()
-#--> TRUE
+Scenario("Recognising a plural Softanza type name")
+	Then(":stzListsOfStrings is a plural stz type", Q(:stzListsOfStrings).IsPluralOfAStzType(), TRUE)
+EndScenario()
 
-pf()
+Summary()
