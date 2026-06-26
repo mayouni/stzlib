@@ -33,6 +33,19 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
   are fine; only the non-XT single-removal form is wrong. Left un-asserted in the
   narrated tests (NOTE line); deferred to the fix-pass.
 
+- **`LeadingChars()` / `TrailingChars()` must return a LIST of chars, not a
+  string** (test 33). Per the design intent (author-confirmed), `LeadingChars()`
+  on `"---Ring"` should return `[ "-", "-", "-" ]`; the STRING form is
+  `LeadingCharsAsString()` (`"---"`). Currently `LeadingChars()` returns the
+  string `"---"`, and the string aliases (`LeadingCharsXT`, `LeadingCharsAsString`,
+  `LeadingCharsAsSubString`) all just delegate to it (stzString.ring ~4414-4457),
+  so they happen to be right while `LeadingChars()` itself is wrong. Fix:
+  `LeadingChars()`/`TrailingChars()` build the char LIST; the `AsString`/`XT`/
+  `AsSubString` aliases join it back into a string. The archive `#-->` (list)
+  was correct all along — supersedes the earlier (mistaken) "Resolved" note that
+  treated the string return as authoritative. Asserted only the string-form
+  aliases in test 33; LeadingChars/TrailingChars left as un-asserted NOTEs.
+
 ### Bounds family — a defect cluster (tests 42, 43, 44, 45)
 
 - **`BoundsOf(sub)` returns a single flat `[before, after]` pair** instead of the
@@ -75,10 +88,6 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
 
 ## Resolved (impl correct, archive #--> was wrong)
 
-- **`LeadingChars()` / `TrailingChars()` return a STRING, not a list** (test 33).
-  Archive `#--> [ "-", "-", "-" ]`; impl returns the run as one string `"---"`
-  (deliberate -- doc-comment at stzString.ring ~4411, with `LeadingChar()` /
-  `NumberOfLeadingChars()` as the companions). Asserted at the string.
 - **`RemoveLeadingChar()` / `RemoveTrailingChar()` are SINGULAR** (test 34):
   remove exactly one end char (`"---Ring"`->`"--Ring"`). Archive `#--> Ring`
   reflected the PLURAL `RemoveLeadingChars()`. Impl documents the distinction
