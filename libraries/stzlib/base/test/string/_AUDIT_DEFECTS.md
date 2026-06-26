@@ -89,6 +89,10 @@ position/occurrence forms all WORK (verified: `ReplaceMany` block 57,
 - **`ReplaceByManyXT(sub, :By = list)`** (block 59): same garbling --
   `"ring php ring ruby ring python ring"` -> `" php #1 ruby  python #2"` instead
   of `"#1 php #2 ruby #1 python #2"`.
+- **`ReplaceWithMany(sub, list)`** (block 80): same bug as ReplaceByMany --
+  `"--Ring--Softanza--"` with `["1","2","3"]` -> `"Ring1Softanza"` (1st & 3rd
+  dropped) instead of `"1Ring2Softanza3"`. The many-to-many `ReplaceManyWithMany`
+  (block 81) works.
 
 - **`IsRealInString()` / `IsARealInString()` / `RepresentsRealInString()` and the
   global `BothAreRealsInStrings` are missing** (test 60_isrealinstring, R14).
@@ -116,6 +120,38 @@ The plain `RemoveAt` / `ReplaceAt` forms all work (blocks 66, 69, 70, 73); their
   position** (test 71). It routes to `ReplaceNth` (stzString.ring ~2790), so
   `ReplaceXT("ring", :AtPosition = 6)` is a no-op (no 6th "ring"). The plural
   `:AtPositions` form correctly uses absolute positions (block 72 works).
+
+### Except family — a defect cluster (tests 76, 77, 78, 79, 82)
+
+`FindExceptZZ(sep)` with a SINGLE separator works (block 76); the rest of the
+"everything except" family is broken.
+
+- **`Except(sep)` returns the wrong shape** (blocks 76, 77). It should return the
+  non-separator SUBSTRINGS as a list (`[ "ring", "&", "softanza" ]`), but the
+  impl (stzString.ring ~7656) just replaces `sep` with `""` and returns a STRING
+  -- and in practice returns `""`.
+- **`FindExceptZZ([sep1, sep2])` fails with a list** (block 77): returns the whole
+  string as one span (`[ [1,21] ]`) instead of the per-gap sections.
+- **`RemoveAllExcept(keep)` only handles a single keep-token** (block 78): it does
+  `StzRepeatStr(keep, NumberOfOccurrence(keep))` (stzString.ring ~12926), so a
+  LIST of keep-tokens yields `""` instead of `"Ring&Softanza"`.
+- **`ReplaceAllExcept(keeps, :With=c)` granularity + `:And` form** (blocks 79, 82):
+  replaces each excluded CHAR individually instead of each excluded RUN once
+  (block 82's intent is one `c` per run); and the `[ "Ring", :And = "Softanza" ]`
+  named-param form doesn't parse `:And`, so "Softanza" is replaced too. (Block
+  79's archive `#-->` "Ring&♥Ring♥Softanza♥" is itself garbled.)
+
+### W / WXT conditional — deferred to string step 2 (tests 83, 84)
+
+The W mechanism works for simple conditions (`FindW(' len(@item) > 3 ')` ->
+`[1,3,5]`), but the rich `Q(@item).ContainsAnyOfThese( Q("vwto").Chars() )`
+condition evaluates to `[]` under the current engine W-DSL -- it doesn't support
+that method-call expression. So `FindWhere`/`ItemsWhere`/`FindW`/`ItemsW` all
+return `[]` here (block 83). `FindWXT` is already RETIRED (R14, block 84) -- a
+stzList WXT casualty; its replacement is the W form. Both belong to the pending
+WXT-disqualification step for string (memory `project_wxt_disqualification`);
+either expand the W-DSL vocabulary or migrate the examples to a supported
+condition spelling.
 
 ### Bounds family — a defect cluster (tests 42, 43, 44, 45)
 
