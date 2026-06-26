@@ -19,9 +19,9 @@ The WXT/eval disqualification (Part B step 2) is **DONE** (10 commits
 f679a425..69556872; see memory `project_wxt_disqualification`). The active task
 is **step 1 = narrate the suite, which IS the correctness audit** (not a
 formatting pass): for each test, *understand* impl + original, *run* it, and
-commit a *verified asserted* value. Status: 999 tests, blocks 01-195 narrated so
-far (01,02,03,05,09-195; 128 retired stub; 129/159 deferred Duplicates-semantics;
-147-149 already WF-narrated; no 183 file). Resume ~196. NOTE: the open-defect catalogue in
+commit a *verified asserted* value. Status: 999 tests, blocks 01-205 narrated so
+far (01,02,03,05,09-205; 128 retired stub; 129/159 deferred Duplicates-semantics;
+147-149 already WF-narrated; no 183 file). Resume ~206. NOTE: the open-defect catalogue in
 test/string/_AUDIT_DEFECTS.md now also covers ContainsXT named-position forms,
 Contains-in-section, BoundedByZZ/UZ/UZZ grouping, SimplifyExcept, BoundedByUZ. Deferred-defect / pending (print-form) blocks: 04, 08,
 42-45, 48, 54, 56, 58, 59, 60_isrealinstring, 67, 68, 71, 74, 77-84, 98, 99-101
