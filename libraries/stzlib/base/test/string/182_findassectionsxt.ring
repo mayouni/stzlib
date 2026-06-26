@@ -3,15 +3,18 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #182.
+#
+# DEFECT (deferred -- see _AUDIT_DEFECTS.md): FindAsSectionsXT(sub, :Between=[a,b])
+# returns [] (the :Between named param is not parsed) instead of [ [6,6], [14,14] ]
+# on "...<<*>>...<<*>>...". The plain FindBetweenAsSections form works (blocks
+# 179/180). Left in print form; NOT asserted.
 
 load "../../stzBase.ring"
 
 pr()
 
-# 		         6       4
 o1 = new stzString("...<<*>>...<<*>>...")
 ? @@( o1.FindAsSectionsXT( "*", :Between = [ "<<", ">>" ]) )
-#--> [ [ 6, 6 ], [ 14, 14 ] ]
+#--> expected [ [ 6, 6 ], [ 14, 14 ] ] (currently [])
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.21

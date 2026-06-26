@@ -1,25 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #185.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BetweenIB(a, b) -- the section between positions a and b (inclusive bounds);
+# equivalent to Section(a, b) here. Archive block #185.
 
-# Let's take this string of text:
+Scenario("The section between two positions")
+	Given('"<<♥♥♥>>--<<stars>>--<<♥♥♥>>"')
+	o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
+	Then("BetweenIB(3, 5) is the heart run", o1.BetweenIB(3, 5), "♥♥♥")
+	Then("Section(3, 5) gives the same", o1.Section(3, 5), "♥♥♥")
+EndScenario()
 
-o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
-
-# You may want to get the section between two positions:
-
-? o1.BetweenIB(3, 5)
-#--> ♥♥♥
-
-# You can also say:
-? o1.Section(3, 5)
-#--> ♥♥♥
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()
