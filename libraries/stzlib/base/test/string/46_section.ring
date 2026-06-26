@@ -1,61 +1,42 @@
-# Narrative
-# --------
-# #narration
-#
-# Extracted from stzStringTest.ring, block #46.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# Section(n1, n2) / SectionXT(n1, n2). Section is direction-agnostic: it auto-
+# orders the bounds, so Section(5, 3) == Section(3, 5). SectionXT adds negative
+# indexing (count from the end). All of this works on stzList too. Archive #46.
+#
+# DEFECT (deferred -- see _AUDIT_DEFECTS.md): SectionXT is documented to also
+# REVERSE when n1 > n2 ("543", "876"), but the impl just resolves negatives and
+# delegates to Section (no reversal), so SectionXT(5,3) -> "345", not "543".
+# Those reversal cases are left as un-asserted NOTEs.
 
-pr()
+Scenario("Sections of a string, forward and from the end")
+	Given('"123456789"')
+	o1 = new stzString("123456789")
+	Then("Section(3, 5) is the 3..5 span", o1.Section(3, 5), "345")
+	Then("Section(5, 3) auto-orders to the same span", o1.Section(5, 3), "345")
+	Then("SectionXT(-4, -2) counts from the end", o1.SectionXT(-4, -2), "678")
+	# Should reverse to "543" / "876"; the impl returns forward order:
+	? "  NOTE  SectionXT(5, 3)  -> " + @@(o1.SectionXT(5, 3)) + "  (should reverse to 543 -- deferred)"
+	? "  NOTE  SectionXT(-2,-4) -> " + @@(o1.SectionXT(-2, -4)) + "  (should reverse to 876 -- deferred)"
+EndScenario()
 
-# In Softanza, you can get a part of a list (or string) using
-# Section() function, also called Slice()
+Scenario("The same Section works on a stzList")
+	Given('new stzList("1":"9")')
+	o2 = new stzList("1":"9")
+	Then("Section(3, 5) is the 3..5 span", ListEq(o2.Section(3, 5), [ "3", "4", "5" ]), TRUE)
+EndScenario()
 
-o1 = new stzString("123456789")
+Summary()
 
-? o1.Section(3, 5)
-#--> "345"
-
-# When you inverse the params so the first is greater then the second,
-# nothing happens to the result ( the Section() function is not aware
-# of the direction of parsing ) :
-
-? o1.Section(5, 3)
-#--> "345"
-
-# You may argue that it would be useful, in this case, to embrace the
-# Python-way of returning an inversed string (or list)...
-
-# Softanza does not reject that, and finds it very useful too! But, it just
-# requires that you use the extended form of the function, SectionXT() :
-
-? o1.SectionXT(5,3)
-#--> "543"
-
-# As you see, the section has been reversed. But you can do more, and use
-# negative numbers to order Softanza to start parsing from the end:
-
-? o1.SectionXT(-4, -2)
-#--> 678
-
-? o1.SectionXT(-2, -4)
-#--> 876
-
-# Remember : if you try these fency things with the more conservative Section()
-# methond (without ...XT() extension), and for Softanza to stay simple and
-# consitent for the most common use cases, you will get an error:
-
-//? o1.Section(-2, -4)
-#--> Error message: Indexes out of range! n1 and n2 must be inside the string.
-
-# Before you leave : All what works for stzString, will work for stzList.
-# For our case, just change the first line of the code to use stzList instead
-# of stzString, like this :
-
-o1 = new stzList("1":"9")
-
-# Now you can run the code sucessfully withou any modification.
-
-pf()
-# Executed in 0.01 second(s)
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

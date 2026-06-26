@@ -1,21 +1,18 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #52.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Copy() returns an independent stzString, so a chain of mutating Q-ops sculpts
+# the copy while the original is untouched. Archive block #52.
+#
+# NOTE: the archive #--> "I*L*R" dropped one "I" (a copy typo); "ilir" has two
+# i's, so the correct result is "I*L*I*R".
 
-o1 = new stzString("ilir")
+Scenario("Sculpting a copy leaves the original intact")
+	Given('"ilir"')
+	o1 = new stzString("ilir")
+	Then("Copy().Uppercase.Spacify.Replace(' ','*') -> I*L*I*R",
+		o1.Copy().UppercaseQ().SpacifyQ().ReplaceQ(" ", "*").Content(), "I*L*I*R")
+	Then("the original is unchanged", o1.Content(), "ilir")
+EndScenario()
 
-? o1.Copy().UppercaseQ().SpacifyQ().ReplaceQ(" ", "*").Content()
-#--> "I*L*R"
-
-? o1.Content()
-#--> "ilir"
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.21
-# Executed in 0.10 second(s) in Ring 1.17
+Summary()
