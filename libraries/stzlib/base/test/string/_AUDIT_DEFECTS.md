@@ -282,6 +282,29 @@ Note: `BoundedByZZ` / `BoundedByUZZ` lose the substring grouping too (blocks 166
 167) -- same defect as `BoundedByUZ` (block 163): they return position spans only
 instead of `[ substring, span ]` pairs.
 
+### ReplaceXT named-form coverage (tests 188, 190, 191, 192, 194)
+
+The WORKING ReplaceXT forms: `:Nth=n` (189), `:AtPositions=[..]` (193),
+`:In=scope` (195). The broken ones:
+- **`ReplaceXT(:Each=sub, [], :With=)` and `ReplaceXT([], :BoundedBy=[a,b],
+  :With=)` RAISE** "ReplaceXT: unsupported argument shape" (stzString.ring ~2917)
+  -- those argument shapes aren't handled (188, 194).
+- **`ReplaceXT(:First, ...)` / `ReplaceXT(:Last, ...)` are no-ops** (190, 191) --
+  the string comes back unchanged.
+- **`ReplaceXT(sub, :At=n)` treats n as an OCCURRENCE INDEX, not a position**
+  (192) -- same bug as `:AtPosition` (block 71); on "~♥/♥\~~" `:At=2` replaces the
+  2nd heart (pos 4) instead of the heart at position 2.
+
+### BoundedBy variants (tests 186, 187)
+
+`BoundedBy([open,close])` works (186), but the variants are broken:
+- **`BoundedByU` does not deduplicate** -- returns all 3, not the 2 unique (186).
+- **`BoundedByIB` (Include Bounds) garbles/loses elements** -- the last comes back
+  as "<" (186) and on block 187 the second comes back as "" (loses "<<★★>>").
+- **`BoundedByIBU`** inherits both bugs (186).
+- **`BoundedByIBZZ`** returns position spans only (and wrong ones), losing the
+  `[substring, span]` grouping (187) -- same family as BoundedByUZ (block 163).
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
