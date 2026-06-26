@@ -1,21 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #50.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# A "marquer" is a Softanza placeholder token like "#01" (a "#" followed by
+# digits). IsMarquer tests one; BothAreMarquers tests a pair. Archive block #50.
 
-? IsMarquer("#01")
-#--> TRUE
+Scenario("Recognising marquer placeholder tokens")
+	Then("'#01' is a marquer", IsMarquer("#01"), TRUE)
+	Then("'#02' is a marquer", IsMarquer("#02"), TRUE)
+	Then("'#01' and '#02' are both marquers", BothAreMarquers("#01", "#02"), TRUE)
+EndScenario()
 
-? IsMarquer("#02")
-#--> TRUE
-
-? BothAreMarquers("#01", "#02")
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

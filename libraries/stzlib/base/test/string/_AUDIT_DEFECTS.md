@@ -46,6 +46,30 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
   treated the string return as authoritative. Asserted only the string-form
   aliases in test 33; LeadingChars/TrailingChars left as un-asserted NOTEs.
 
+- **`SectionXT` is missing its eXTended behaviours** (tests 46, 49).
+  `SectionXT(n1, n2)` (stzString.ring ~535) resolves negative indices then just
+  delegates to `Section(n1, n2)`, so two documented features are absent:
+  (a) REVERSAL when n1 > n2 -- `SectionXT(5,3)` gives `"345"` not `"543"`,
+  `SectionXT(-2,-4)` gives `"678"` not `"876"`; and (b) the `:UpToNChars` named
+  param -- `SectionXT(6, :UpToNChars = 11)` should take 11 chars from pos 6
+  (`"Programming"`) but returns `""` (n2 arrives as the list `["uptonchars",11]`,
+  which `Section` can't use). Negative indexing in the forward direction works.
+
+- **`ReplaceByMany(sub, [r1,r2,r3])` produces garbled output** (test 48).
+  On `"ring php ruby ring python ring"` with `["X","XX","XXX"]` it should give
+  `"X php ruby XX python XXX"` (each occurrence -> the next replacement, cycling)
+  but returns `" php ruby X python "` -- the 1st and 3rd occurrences are replaced
+  by nothing and only the middle survives. Bug is in the find/append loop
+  (stzString.ring ~2293). 48 left in print form.
+
+- **`ToList()` does not expand a range-string** (test 51). It parses a `"[...]"`
+  list literal (via `eval`, stzString.ring ~5593) and otherwise falls back to
+  `Chars()` (raw char split). The archive expected `' "A" : "E" '` ->
+  `[ "A".."E" ]` and `' "#1" : "#5" '` -> `[ "#1".."#5" ]`; neither is
+  implemented (both char-split). Likely an unimplemented feature rather than a
+  regression -- confirm the intended contract. (Also note ToList still uses
+  `eval` for the list-literal path.)
+
 ### Bounds family — a defect cluster (tests 42, 43, 44, 45)
 
 - **`BoundsOf(sub)` returns a single flat `[before, after]` pair** instead of the
