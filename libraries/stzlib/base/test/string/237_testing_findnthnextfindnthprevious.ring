@@ -1,38 +1,24 @@
 # Narrative
 # --------
-# # Testing FindNthNext()/FindNthPrevious
+# # Testing FindNthNext()/FindNthPrevious on a very large string (~2M chars)
 #
 # Extracted from stzStringTest.ring, block #237.
+#
+# DEFERRED (data unavailable): this perf test searches UnicodeDataAsString()
+# (~1.9M chars), but that global returns "" in this checkout, so the archive's
+# positions (110819, 106564, 300643, ...) can't be reproduced. The directional
+# FindNext/FindNthNext/FindPrevious methods themselves are verified on a small
+# string in block 236. Left in print form; NOT asserted. (See the
+# 07_managing_a_big_text perf guard for large-text coverage.)
 
 load "../../stzBase.ring"
 
 pr()
 
-# on a very large string (~2M chars)
+o1 = new stzString( UnicodeDataAsString() ) # intended: 1_897_793 chars
 
-StartProfiler()
-
-o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
-
-? o1.FindNext("", :StartingAt = 1)
-#--> 0
-
-? o1.FindNext("ARABIC HA", :StartingAt = 1)
-#--> 110819
-
-? o1.FindNthNext(6, "ARABIC", :StartingAt = 3)
-#--> 106564
-
-? o1.FindNthNext(12, "HAN", :StartingAt = 250_000)
-#--> 300643
-
-? o1.FindPrevious("", :StartingAt = 9)
-#--> 0
-
-? o1.FindPrevious("x", :StartingAt = 2)
-#--> 0
-
-StopProfiler()
+? o1.FindNext("ARABIC HA", :StartingAt = 1)        #--> 110819
+? o1.FindNthNext(6, "ARABIC", :StartingAt = 3)     #--> 106564
+? o1.FindNthNext(12, "HAN", :StartingAt = 250_000) #--> 300643
 
 pf()
-# Executed in 0.19 second(s) in Ring 1.21
