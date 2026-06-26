@@ -1,20 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #153.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Section(a, b) on a list -- the list counterpart of block #152, also
+# bound-order independent. Archive block #153.
 
-o1 = new stzList([ "s", "o", "f", "t", "a", "n", "z", "a" ])
-? @@( o1.Section(4, 6) )
-#--> [ "t", "a", "n" ]
+Scenario("A list section is bound-order independent")
+	Given('new stzList([ "s","o","f","t","a","n","z","a" ])')
+	o1 = new stzList([ "s", "o", "f", "t", "a", "n", "z", "a" ])
+	Then("Section(4, 6) is [t,a,n]", ListEq( o1.Section(4, 6), [ "t", "a", "n" ] ), TRUE)
+	Then("Section(6, 4) auto-orders to the same", ListEq( o1.Section(6, 4), [ "t", "a", "n" ] ), TRUE)
+EndScenario()
 
-? @@( o1.Section(6, 4) )
-#--> [ "t", "a", "n" ]
+Summary()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
-# Executed in 0.07 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
