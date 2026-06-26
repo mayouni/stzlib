@@ -153,6 +153,23 @@ WXT-disqualification step for string (memory `project_wxt_disqualification`);
 either expand the W-DSL vocabulary or migrate the examples to a supported
 condition spelling.
 
+### SubStringComes* family (tests 91, 92)
+
+The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
+`...BeforeSubString`, `...AfterPosition`, `...AfterSubString`,
+`...BetweenPositions`); the rest are broken.
+
+- **Named-param forms return FALSE** (block 92): `SubStringComesBefore(sub,
+  :Position = n)` / `(sub, :SubString = s)` and the `...After` equivalents don't
+  dispatch to their working positional twins (the same named-param parsing gap
+  seen in Replace/Section/RemoveXT).
+- **Fluent forms return FALSE** (block 92): `SubStringQ(sub).InQ(host).Comes-
+  BeforeSubString(...)` and `SubStringQ([sub, :In=host]).ComesBeforeSubString(...)`.
+- **`SubStringComesBetween[SubStrings]` is order-dependent** (blocks 91, 92):
+  bound A must precede bound B, but the archive expected order-INDEPENDENT TRUE
+  for both orders (e.g. `SubStringComesBetween("...", "**", "♥♥")` -> FALSE
+  instead of TRUE). Semantics to confirm: order-independent or not?
+
 ### Bounds family — a defect cluster (tests 42, 43, 44, 45)
 
 - **`BoundsOf(sub)` returns a single flat `[before, after]` pair** instead of the
