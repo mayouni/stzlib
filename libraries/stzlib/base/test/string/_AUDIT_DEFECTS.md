@@ -224,6 +224,28 @@ The simple Extend forms work (`ExtendWith`, `ExtendToNChars`, `ExtendToWith`,
 - **`ExtendXT(:ToPosition=5, :ByCharsRepeated)` pads spaces** (test 143) -- gives
   "ABC  " instead of "ABCAB".
 
+### Find-in-section / bounded named-param forms (tests 151, 154, 155)
+
+- **`FindCS(sub, :CaseInSensitive)` symbol not parsed** (test 151) -- returns the
+  case-SENSITIVE result ([1,2] on "aaA..." instead of [1,2,3]). The
+  `:CaseSensitive` symbol works.
+- **`FindInSection(sub, from, to)` does not auto-order its bounds** (test 154) --
+  `FindInSection("♥", 12, 3)` returns [] instead of the same [6,9] as the forward
+  call (Section() itself auto-orders, block 152).
+- **`FindBoundedByAsSections([sub, bound])` returns garbled reversed spans**
+  (test 155): [ [8,7], [16,15] ] instead of [ [5,7], [13,15] ]. And the
+  `FindXT(sub, :Between=[a,b])` / `FindAsSectionsXT(sub, :Between=[a,b])`
+  named-param forms return [] (not parsed). The `:BoundedBy` named-param forms
+  and `FindBetweenAsSections` work.
+
+### First/Last/Next-Chars return strings, not lists (test 150)
+
+`First2Chars()` / `Last3Chars()` / `Next3Chars()` return a STRING ("ab", "CDE")
+instead of a LIST -- same family as `LeadingChars` (block 33; the plural
+`...Chars()` accessor must return a list, the string form is `...AsString()`).
+Also `Next3Chars(:StartingAt=2)` starts AT position 2 ("bCD") whereas the archive
+expected the following run ("CDE") -- confirm the :StartingAt offset.
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
