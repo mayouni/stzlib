@@ -1,20 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #93.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindSSZ / FindSSZZ on an empty string with a degenerate section -- a graceful
+# empty result (no crash). SS = "the Start and end of a Section". Archive #93.
 
-o1 = new stzString("")
+Scenario("Finding in a section of an empty string")
+	Given("an empty stzString")
+	o1 = new stzString("")
+	Then("FindSSZ('', -1, 0) is empty", ListEq( o1.FindSSZ("", -1, 0), [] ), TRUE)
+	Then("FindSSZZ('', -1, 0) is empty", ListEq( o1.FindSSZZ("", -1, 0), [] ), TRUE)
+EndScenario()
 
-? @@( o1.FindSSZ("", -1, 0) ) # FindInSection()
-#--> []
+Summary()
 
-? @@( o1.FindSSZZ("", -1, 0) )
-#-->  []
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

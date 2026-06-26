@@ -1,25 +1,17 @@
-# Narrative
-# --------
-# str = "ring"
-#
-# Extracted from stzStringTest.ring, block #86.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-str = ""
-for i = 1 to 10000
-	str += "ring"
-next
+# Plain Ring string indexing on a large (40000-char) buffer: first and last char.
+# Archive block #86.
 
-pr()
+Scenario("Indexing the ends of a big string")
+	str = ""
+	for i = 1 to 10000
+		str += "ring"
+	next
+	Given("a 40000-char string of repeated 'ring'")
+	Then("str[1] is the first char", str[1], "r")
+	Then("str[len(str)] is the last char", str[len(str)], "g")
+EndScenario()
 
-c1 = str[1]
-? c1
-#--> "r"
-
-c2 = str[len(str)]
-? c2
-#--> "g"
-
-pf()
-# Executed in 0.03 second(s)
+Summary()
