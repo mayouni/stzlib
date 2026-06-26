@@ -346,6 +346,22 @@ suite.)
   the WXT family was removed; the replacement is `YieldW`. These belong to the
   pending string WXT-disqualification step (memory `project_wxt_disqualification`).
 
+- **`ExtractNumbers()` is broken three ways** (test 231). On "Math: 18, Geo: 16,
+  :Physics: 17.80" it (a) splits "17.80" into 17 and 80 (no decimal handling --
+  though `Numbers()` handles decimals, blocks 228/230), (b) returns NUMBERS not
+  strings (`[18,16,17,80]`), and (c) does NOT mutate (Content unchanged, but
+  "Extract" should remove the numbers leaving "Math: , Geo: , :Physics: ").
+
+- **`Between(open, close)` positional returns a list, not the greedy span**
+  (test 226, #TODO). The archive expected the greedy span between the first open
+  and last close ("ring>>>___<<<softanza"); the impl returns the same enclosed-
+  substring list as `BoundedBy`. Confirm the intended Between vs BoundedBy split.
+
+- **`NumbersComingAfter(anchor)` -- trailing unanchored numbers?** (test 229).
+  Returns only the numbers right after each anchor (`["+10","-125"]`); the archive
+  also expected "11" (from "e11", which has no preceding "@i"). Confirm whether it
+  should pick up trailing numbers with no anchor.
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
