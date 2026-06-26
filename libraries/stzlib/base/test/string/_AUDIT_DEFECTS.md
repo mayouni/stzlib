@@ -264,6 +264,20 @@ expected the following run ("CDE") -- confirm the :StartingAt offset.
   copied from a different string ("RINGORIALAND") and don't match the input.
   Confirm the intended Duplicates() contract.
 
+### ContainsXT named-position forms (tests 170, 173, 174, 175)
+
+The plain `ContainsAt` / `ContainsBefore` / `ContainsAfter` forms work (including
+their `:Position` / `:SubString` named params, blocks 170/172), but every
+`ContainsXT(sub, :<position>)` spelling returns FALSE: `:AtPosition` (170),
+`:AfterPosition` / `:BeforePosition` (173/174), and the short `:Before` / `:After`
+(175). The XT named-position dispatch isn't wired up. Also `ContainsInSection` /
+`ContainsBetweenPositions` return FALSE (171, 173 -- the block 103/104 bug), and
+`ContainsInSection("^", 5, 3)` additionally fails to auto-order reversed bounds.
+
+Note: `BoundedByZZ` / `BoundedByUZZ` lose the substring grouping too (blocks 166,
+167) -- same defect as `BoundedByUZ` (block 163): they return position spans only
+instead of `[ substring, span ]` pairs.
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
