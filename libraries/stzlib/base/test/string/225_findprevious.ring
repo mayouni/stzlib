@@ -1,16 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #225.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindPrevious(sub, :StartingAt = p) -- the nearest occurrence of `sub` BEFORE
+# position p. Archive block #225.
 
-o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
-? o1.FindPrevious("<<<", :StartingAt = 11)
-#--> 4
+Scenario("Finding the previous occurrence before a position")
+	Given('"___<<<ring>>>___<<<softanza>>>___"')
+	o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
+	Then("the '<<<' before position 11 is at 4", o1.FindPrevious("<<<", :StartingAt = 11), 4)
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
+Summary()

@@ -1,21 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #224.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindLast / FindLastAsSection -- the last occurrence of a substring, as a
+# position and as a span. Archive block #224.
 
-#		    1  456  901  
-o1 = new stzString("___<<<__<<<__")
+Scenario("Finding the last occurrence")
+	Given('"___<<<__<<<__"')
+	o1 = new stzString("___<<<__<<<__")
+	Then("FindLast('<<<') is 9", o1.FindLast("<<<"), 9)
+	Then("FindLastAsSection('<<<') is [9,11]", ListEq( o1.FindLastAsSection("<<<"), [ 9, 11 ] ), TRUE)
+EndScenario()
 
-? o1.FindLast("<<<")
-#--> 9
+Summary()
 
-? @@( o1.FindLastAsSection("<<<") )
-#--> [9, 11]
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
