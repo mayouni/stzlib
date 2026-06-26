@@ -3,6 +3,10 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #43.
+#
+# DEFECT (deferred -- see _AUDIT_DEFECTS.md): BoundsOf / BoundsOfXT are broken
+# (single flat pair / first-occurrence-only instead of per-occurrence bounds).
+# Left in print form pending the bounds-family fix-pass; NOT asserted.
 
 load "../../stzBase.ring"
 

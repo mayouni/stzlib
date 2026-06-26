@@ -1,42 +1,21 @@
-# Narrative
-# --------
-# #narration: Softanza permissiveness
-#
-# Extracted from stzStringTest.ring, block #37.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# Softanza permissiveness: RemoveFirstChar() drops the first char regardless of
+# case, and RemoveFirstCharCS(bCaseSensitive) ACCEPTS a case-sensitivity flag
+# even though it is meaningless here (the first char is the first char) -- the
+# flag is simply ignored. Archive block #37.
 
-pr()
+Scenario("A case-sensitivity flag that is permissively ignored")
+	Given('"rRing"')
+	o1 = new stzString("rRing")
+	o1.RemoveFirstChar()
+	Then("RemoveFirstChar() drops the leading 'r'", o1.Content(), "Ring")
 
-# Suppose you have a string like this:
+	Given('a fresh "rRing"')
+	o2 = new stzString("rRing")
+	o2.RemoveFirstCharCS(TRUE)
+	Then("RemoveFirstCharCS(TRUE) ignores the flag, same result", o2.Content(), "Ring")
+EndScenario()
 
-o1 = new stzString("rRing")
-
-# And you want to remove the first character:
-
-o1.RemoveFirstChar()
-? o1.Content()
-#--> Ring
-
-# Now, what if you consider applying case sensitivity here?
-# Meaning, you want the removal operation to be case sensitive...
-
-# Actually, this doesn't make much sense, since the first character
-# is the first character, regardless of its case!
-
-# However, Softanza doesn't mind and allows you to apply it,
-# but completely ignores the case sensitivity parameter:
-
-o1 = new stzString("rRing")
-o1.RemoveFirstCharCS(TRUE)
-? o1.Content()
-#--> Ring
-
-# NOTE: This feature is available only for this function
-# to demonstrate the principle of PERMISSIVENESS.
-#~> It will be generalized in the future.
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.03 second(s) in Ring 1.19
+Summary()

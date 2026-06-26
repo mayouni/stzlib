@@ -1,24 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #38.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# HowMany(list) -- a readable count over a domain list. The Arabic alphabet has
+# 28 base letters; the eXTended list (with hamza/lam-alef variants) has 34.
+# Archive block #38. (The 10PercentOf(...) sample on the original middle line is
+# non-deterministic -- archive marked it #o--> "one possible output" -- so only
+# the deterministic counts are asserted here.)
 
-? HowMany( ArabicLetters() ) # Or HowManyArabicLetters() or NumberOfArabicLetters()
-#--> 28
+Scenario("Counting the letters of the Arabic alphabet")
+	Then("the base Arabic alphabet has 28 letters", HowMany( ArabicLetters() ), 28)
+	Then("the extended Arabic letter list has 34", HowMany( ArabicLettersXT() ), 34)
+EndScenario()
 
-? 10PercentOf( ArabicLetters() ) # Or NPercentOf(10, ArabicLetters())
-#o--> [ "ص", "ة", "د", "ص" ]
-
-#NOTE : there is an eXTended list of arabic leters
-
-? HowMany( ArabicLettersXT() )
-#--> 34
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.21
-# Executed in 0.02 second(s) in Ring 1.19
+Summary()

@@ -3,6 +3,12 @@
 # #narration
 #
 # Extracted from stzStringTest.ring, block #45.
+#
+# TheseBoundsRemoved("<<", ">>") -> "Go!" is CORRECT. But the auto-detection has
+# a DEFECT (deferred -- see _AUDIT_DEFECTS.md): Bounds() of "<<Go!>>" greedily
+# returns [ "<<", "!>>" ] (the whole trailing non-letter run, swallowing the
+# "!"), so BoundsRemoved() gives "Go" instead of "Go!". Left in print form
+# pending the bounds-family fix-pass; NOT asserted.
 
 load "../../stzBase.ring"
 
