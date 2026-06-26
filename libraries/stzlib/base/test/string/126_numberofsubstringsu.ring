@@ -1,20 +1,27 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #126.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The U-variants return the UNIQUE substrings (deduplicated). "BEBE" has 7 unique
+# substrings. Archive block #126.
 
-o1 = new stzString("BEBE")
+Scenario("Unique substrings of a string")
+	Given('"BEBE"')
+	o1 = new stzString("BEBE")
+	Then("there are 7 unique substrings", o1.NumberOfSubStringsU(), 7)
+	Then("they are listed without duplicates",
+		ListEq( o1.SubStringsU(), [ "B", "BE", "BEB", "BEBE", "E", "EB", "EBE" ] ), TRUE)
+EndScenario()
 
-? o1.NumberOfSubStringsU()
-#--> 7
+Summary()
 
-? @@( o1.SubStringsU() )
-#-< [ "B", "BE", "BEB", "BEBE", "E", "EB", "EBE" ]
-
-pf()
-# Executed in 0.01 second(s)
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

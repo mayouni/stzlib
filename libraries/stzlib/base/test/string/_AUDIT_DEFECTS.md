@@ -276,6 +276,12 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
 
 ## Open — semantics to confirm (test #--> vs current impl disagree)
 
+- **`Duplicates()` -- characters or substrings?** (test 129). On "RINGORIALAND"
+  it returns the duplicated CHARACTERS `[ "R", "I", "A", "N" ]`, but the archive
+  expected a set including the duplicated multi-char substring "RI"
+  (`[ "R", "RI", "I", "N", "A" ]`). Confirm the intended contract (dup chars vs
+  dup substrings).
+
 - **`Section(n1, n2)` does not raise on out-of-range bounds** (test
   70_section_out_of_range_raises). Block #46's narration documents `Section()` as
   the CONSERVATIVE form that should raise "Indexes out of range!" (leaving the
@@ -296,6 +302,15 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
   half is verified correct and narrated.)
 
 ## Resolved (impl correct, archive #--> was wrong)
+
+- **`SpacifySections(ranges)`** (132): the archive `#-->` "Ring programming
+  language is powerful!" was block #131's boundary-insert output copied by
+  mistake. SpacifySections correctly spacifies the chars WITHIN each section
+  ("programming" -> "p r o g r a m m i n g"), matching its name. Asserted at the
+  impl behavior. (SpacifySubStrings, block 133, is the one that boundary-spaces.)
+- **`SubStringsCS(FALSE)`** (127): archive lowercased the case-insensitive
+  results; the impl keeps each substring's original (first-occurrence) case. Same
+  count/set; asserted at the impl's source-case form.
 
 - **`RemoveLeadingChar()` / `RemoveTrailingChar()` are SINGULAR** (test 34):
   remove exactly one end char (`"---Ring"`->`"--Ring"`). Archive `#--> Ring`
