@@ -19,9 +19,11 @@ The WXT/eval disqualification (Part B step 2) is **DONE** (10 commits
 f679a425..69556872; see memory `project_wxt_disqualification`). The active task
 is **step 1 = narrate the suite, which IS the correctness audit** (not a
 formatting pass): for each test, *understand* impl + original, *run* it, and
-commit a *verified asserted* value. Status: 999 tests, blocks 01-65 narrated so
-far (01,02,03,05,09-65); deferred-defect (print-form) blocks: 04, 08, 42-45, 48,
-54 (interactive), 56, 58, 59, 60_isrealinstring. Resume ~66.
+commit a *verified asserted* value. Status: 999 tests, blocks 01-85 narrated so
+far (01,02,03,05,09-85); deferred-defect / pending (print-form) blocks: 04, 08,
+42-45, 48, 54 (interactive), 56, 58, 59, 60_isrealinstring, 67, 68, 71, 74,
+77, 78, 79, 80, 82, 83, 84 (W/WXT step 2), 70_section_out_of_range_raises
+(semantics). Resume ~86.
 
 **Per-test workflow (the important part):**
 1. Recover the original archive ONCE (the pre-split monolith, 19,572 lines):
@@ -52,8 +54,15 @@ only / `IsBoundedBy` rejects single-string bound / `Bounds()` greedy trailing
 run); a **Replace-by-many cluster** (`ReplaceByMany`/`ReplaceByManyXT`/
 `Replace(:By=list)` broken, while `ReplaceMany`/`ReplaceManyByMany`/
 `ReplaceSubstringAtPositions`/`ReplaceOccurrencesByMany` work); `SectionXT`
-missing reversal + `:UpToNChars`; `ToList` no range-string expansion; and the
-missing `IsRealInString` aliases. These await a fix-pass. **Caution:** the engine `isLetter`/`isDigit` are now Unicode-correct
+missing reversal + `:UpToNChars`; `ToList` no range-string expansion; the
+missing `IsRealInString` aliases; a **Replace-by-many cluster** (`ReplaceByMany`/
+`ReplaceByManyXT`/`ReplaceWithMany`/`Replace(:By=list)` broken, while
+`ReplaceMany`/`ReplaceManyByMany`/`ReplaceManyWithMany`/`ReplaceSubstringAt-
+Positions`/`ReplaceOccurrencesByMany` work); broken **position-anchored XT**
+forms (`RemoveXT(:AtPosition[s])` byte-based, `ReplaceXT(:AtPosition)` uses
+occurrence-index); an **Except-family cluster** (`Except`/`RemoveAllExcept`/
+`ReplaceAllExcept`/`FindExceptZZ([list])`); and **W/WXT-conditional** examples
+(83/84) pending the string WXT-disqualification step. These await a fix-pass. **Caution:** the engine `isLetter`/`isDigit` are now Unicode-correct
 (utf8proc) -- an A/B over the 32 predicate-using tests was clean (only
 395_replacew changed, intentionally), so that change is verified safe.
 
