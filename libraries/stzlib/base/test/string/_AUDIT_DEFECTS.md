@@ -305,6 +305,35 @@ The WORKING ReplaceXT forms: `:Nth=n` (189), `:AtPositions=[..]` (193),
 - **`BoundedByIBZZ`** returns position spans only (and wrong ones), losing the
   `[substring, span]` grouping (187) -- same family as BoundedByUZ (block 163).
 
+### Anti-find / anti-section family (tests 200, 203, 204, 205)
+
+`AntiFind` / `AntiFindZZ` (block 202), `Sections` / `AntiSections` /
+`FindAsSections` (block 204), `AntiPositions` all work. The "*AsSection(s)" and
+"*Z/ZZ" anti-forms are broken:
+- **`AntiFindAsSection(s)` returns the SUBSTRINGS, not the position sections**
+  (203/204/205): e.g. `AntiFindAsSections("ring")` on "...ring..." gives
+  `[ "...", "..." ]` instead of `[ [1,3], [8,10] ]`; the singular
+  `AntiFindAsSection` returns `[]` (200).
+- **`AntiSectionsZ` returns a garbled `[1,3]`** and **`AntiSectionsZZ` returns
+  position spans only** (loses the `[substring, span]` grouping) (204).
+
+### Replace-bounded raises / mis-pairing (tests 198, 199)
+
+- **`ReplaceAnyBoundedBy([b,b], new)` mis-pairs a repeated bound** (198) -- pairs
+  the slashes consecutively so the gap between regions is consumed
+  ("/.../ and /---/" -> "/bla/bla/bla/"). The IB form `ReplaceAnyBoundedByIB`
+  works.
+- **`ReplaceXT([], :BoundedBy=b, :With=)` / `:BoundedByIB` RAISE** "unsupported
+  argument shape" (199) -- same as the :Each/:BoundedBy ReplaceXT raises (block
+  194). Use the non-XT `ReplaceAnyBoundedBy*` path.
+
+### stzList.SplitAt raises R41 (test 201)
+
+`stzList.SplitAt("*")` raises "Error (R41): Invalid numeric string"
+(stzList.ring ~5096) -- it treats the separator value as a numeric index.
+`SplitAtZZ` likely shares the bug. (A list-domain defect surfaced via the string
+suite.)
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
