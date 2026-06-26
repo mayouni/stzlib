@@ -1,33 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #102.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The CONTENT-building half of the boxed-greeting demo: uppercase a substring,
+# then wrap a name with hearts. Archive block #102. (The BoxedRound() rendering
+# itself is part of the box-rendering defect cluster -- see _AUDIT_DEFECTS.md and
+# blocks 99-101 -- so only the content transformation is asserted here.)
 
-# Hi Irwin, Softanza made this for you:
+Scenario("Building a decorated greeting")
+	Given('"Thank you Irwin Rodriguez!"')
+	o1 = new stzString("Thank you Irwin Rodriguez!")
+	o1.UppercaseSubString("Irwin")
+	o1.AddXT( 2Hearts(), :Around = "IRWIN" )
+	Then("Irwin is uppercased and hearted", o1.Content(), "Thank you ♥♥IRWIN♥♥ Rodriguez!")
+EndScenario()
 
-Q("Thank you Irwin Rodriguez!") {
-
-	# Your name is uppercased
-	UppercaseSubString("Irwin")
-
-	# Then it's decoraded with hearts
-	AddXT( 2Hearts(), :Around = "IRWIN" )
-
-	# And finally it's nicely boxed
-	? BoxedRound()
-
-	# Thank you for your trust!
-}
-
-#--> ╭────────────────────────────────╮
-#    │ Thank you ♥♥IRWIN♥♥ Rodriguez! │
-#    ╰────────────────────────────────╯
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.23
-# Executed in 0.14 second(s) in Ring 1.18
+Summary()

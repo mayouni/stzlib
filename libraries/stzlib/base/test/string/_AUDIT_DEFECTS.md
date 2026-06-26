@@ -153,6 +153,34 @@ WXT-disqualification step for string (memory `project_wxt_disqualification`);
 either expand the W-DSL vocabulary or migrate the examples to a supported
 condition spelling.
 
+- **`SectionBoundsIB` / `IBZ` / `IBZZ` are off by one** (test 97). Given the
+  inclusive-bound positions (9, 14) they harvest one char too early
+  (`[ " <", ">> " ]`) instead of matching the plain `SectionBounds(10,13,2,3)`
+  result (`[ "<<", ">>>" ]`). The non-IB forms (`SectionBounds` / `Z` / `ZZ`) are
+  correct.
+
+- **`Section(:FromPosition = a, :To = :LastItem)` raises; `Slice()` is missing**
+  (test 98). The named-param / `:LastItem` symbol form of Section raises
+  "Incorrect params! n1 and n2 must be numbers", and `Slice` is undefined (R14).
+  The plain positional `Section(a, b)` works.
+
+- **Contains-in-section family returns FALSE** (tests 103, 104).
+  `ContainsInSection("♥", 3, 10)`, `ContainsInSections(...)`, and
+  `ContainsXT("♥", :InSection = [3,10])` / `:InSections` all return FALSE on
+  `"123♥♥678♥♥1234♥♥789"` although the sections clearly contain "♥". Both the
+  plain and XT spellings are affected.
+
+### Box-rendering cluster (tests 99, 100, 101, 102-box)
+
+`Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
+`EachCharBoxRounded` render with ASCII `+ - |` instead of the Unicode
+box-drawing glyphs the archive shows (`┌─┐└┘` / `╭─╮╰╯` / `┬┴`), and the round
+variants are not visually distinct from the square ones. `BoxRoundChars` also
+emits garbled ruler/marker rows (`"m   ,   ...   n"` / `"p   4   ...   o"`).
+Likely the box-glyph mojibake issue (memory `feedback_source_mojibake`: rebuild
+the glyph strings with `char()` raw bytes). The non-box content ops in block 102
+(`UppercaseSubString`, `AddXT(:Around)`, hearts) work and ARE asserted there.
+
 ### SubStringComes* family (tests 91, 92)
 
 The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
