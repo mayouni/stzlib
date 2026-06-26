@@ -390,7 +390,12 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
   variant finds all three correctly (block 124). Also `IsBoundedByCS("aa", TRUE)`
   is FALSE (the single-string-bound issue above). The distinct `[open,close]`
   pair forms (`Between`, `BoundedBy([..])`, `FindAnyBoundedByAsSections([..])`)
-  all work.
+  all work. CONFIRMED broadly (blocks 213, 214, 215): with a single-string bound,
+  `BoundedBy("&")` / `FindAnyBoundedBy("&")` drop the in-between gaps (and
+  FindAnyBoundedBy returns substrings), while the IB / Z / ZZ / IBZZ variants
+  RAISE "pacBounds must be [ open, close ] strings" -- the single bound `c` is
+  never widened to `[c, c]`. Fix: widen a string bound to a pair AND use
+  consecutive (overlapping) pairing so no gap is dropped.
 - **`Bounds()` is greedy on the trailing non-letter run** (test 45). For
   `"<<Go!>>"` it returns `["<<", "!>>"]` (swallowing the "!"), so
   `BoundsRemoved()` gives `"Go"` instead of `"Go!"`. The explicit
