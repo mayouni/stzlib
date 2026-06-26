@@ -19,8 +19,8 @@ The WXT/eval disqualification (Part B step 2) is **DONE** (10 commits
 f679a425..69556872; see memory `project_wxt_disqualification`). The active task
 is **step 1 = narrate the suite, which IS the correctness audit** (not a
 formatting pass): for each test, *understand* impl + original, *run* it, and
-commit a *verified asserted* value. Status: 999 tests, blocks 01-35 narrated so
-far (01,02,03,05,09-35; 04 + 08 deferred as logged defects), resume from ~36.
+commit a *verified asserted* value. Status: 999 tests, blocks 01-45 narrated so
+far (01,02,03,05,09-45; 04, 08, 42-45 deferred as logged defects), resume ~46.
 
 **Per-test workflow (the important part):**
 1. Recover the original archive ONCE (the pre-split monolith, 19,572 lines):
@@ -43,8 +43,11 @@ far (01,02,03,05,09-35; 04 + 08 deferred as logged defects), resume from ~36.
 
 **Open defects already found** (in `_AUDIT_DEFECTS.md`): `ReplaceInSections`
 destroys its sections; `StartsWithXTQ().AndQ().EndsWithXT()` returns FALSE when
-both true; `SizeInBytes64/32` + `FindAnyBoundedBy` semantics. These await a
-fix-pass. **Caution:** the engine `isLetter`/`isDigit` are now Unicode-correct
+both true; `SizeInBytes64/32` + `FindAnyBoundedBy` semantics;
+`CharRemovedFromLeft/Right(c)` ignore their char arg; and a **bounds-family
+cluster** (`BoundsOf` flat-pair / `BoundsOfXT` first-occurrence-only /
+`IsBoundedBy` rejects single-string bound / `Bounds()` greedy trailing run).
+These await a fix-pass. **Caution:** the engine `isLetter`/`isDigit` are now Unicode-correct
 (utf8proc) -- an A/B over the 32 predicate-using tests was clean (only
 395_replacew changed, intentionally), so that change is verified safe.
 
