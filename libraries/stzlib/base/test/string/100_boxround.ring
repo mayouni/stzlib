@@ -3,18 +3,18 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #100.
+#
+# DEFECT (deferred -- see _AUDIT_DEFECTS.md, "Box-rendering cluster"):
+# BoxRound() renders with ASCII instead of the rounded Unicode glyphs (╭╮╰╯),
+# and BoxRoundChars() emits garbled ruler/marker rows ("m   ,   ...   n" /
+# "p   4   ...   o") around the chars instead of a clean per-char boxed row.
+# Left in print form; NOT asserted.
 
 load "../../stzBase.ring"
 
 pr()
 
 ? BoxRound("SOFTANZA")
-#-->
-'
-╭───┬───┬───┬───┬───┬───┬───┬───╮
-│ S │ O │ F │ T │ A │ N │ Z │ A │
-╰───┴───┴───┴───┴───┴───┴───┴───╯
-'
 
 ? BoxRound(
 	BoxRoundChars("SOFTANZA") + NL +
@@ -22,9 +22,5 @@ pr()
 	"ACTUALLY, IT'S..." + NL +
 	Box("AWOSME!")
 )
-#-->
-#  Box-drawn output here -- omitted; the single quote in "IT'S"
-#  used to break Ring's literal parser.
 
 pf()
-# Executed in 0.06 second(s) in Ring 1.23

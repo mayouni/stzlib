@@ -1,15 +1,10 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #105.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Unicode() -- the codepoint of a single-char string. Archive block #105.
 
-? Q("I").Unicode()
-#--> 73
+Scenario("The codepoint of a character")
+	Then("'I' is codepoint 73", Q("I").Unicode(), 73)
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()
