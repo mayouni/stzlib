@@ -362,6 +362,21 @@ suite.)
   also expected "11" (from "e11", which has no preceding "@i"). Confirm whether it
   should pick up trailing numbers with no anchor.
 
+- **Half `Z`/`ZZ` forms lose the `[substring, position]` grouping** (test 241) --
+  `FirstHalfZ()` returns `[1,4]` instead of `[ "1234", 1 ]`; `HalvesZZ()` returns
+  `[ [1,4], [5,9] ]` instead of `[ [ "1234",[1,4] ], [ "56789",[5,9] ] ]`. Same
+  Z/ZZ grouping family as BoundedByZ/UZ (blocks 163/166/187/214). The plain
+  FirstHalf/SecondHalf/Halves(+XT) forms work (block 240).
+
+### Environment note: UnicodeData() / UnicodeDataAsString() are empty
+
+In this checkout both globals return "" (instead of the ~1.9M-char Unicode
+database), so the perf/large-text blocks that depend on them can't reproduce
+their archive values: 232, 233, 237, 239, 243 (the FindLast line), 244, 245.
+Those blocks are narrated on small substitute data where possible, otherwise left
+in print form. This is a data-availability issue, NOT a string-method bug; the
+real large-text perf guard is the separate 07_managing_a_big_text step.
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /

@@ -1,24 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #242.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# HowMany / Nth / FindLast for a repeated substring. Archive block #242.
 
-#                      4     0     6    1
-o1 = new stzString("---***---***---***---")
+Scenario("Counting and locating a repeated substring")
+	Given('"---***---***---***---" (three "***")')
+	o1 = new stzString("---***---***---***---")
+	Then("HowMany('***') is 3", o1.HowMany("***"), 3)
+	Then("the 3rd '***' starts at 16", o1.Nth(3, "***"), 16)
+	Then("FindLast('***') is also 16", o1.FindLast("***"), 16)
+EndScenario()
 
-? o1.HowMany("***")
-#--> 3
-
-? o1.Nth(3, "***")
-#--> 16
-
-? o1.FindLast("***")
-#--> 16
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()
