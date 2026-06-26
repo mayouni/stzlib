@@ -246,6 +246,24 @@ instead of a LIST -- same family as `LeadingChars` (block 33; the plural
 Also `Next3Chars(:StartingAt=2)` starts AT position 2 ("bCD") whereas the archive
 expected the following run ("CDE") -- confirm the :StartingAt offset.
 
+- **`SimplifyExcept(sections)` only simplifies the first gap** (test 156).
+  Should collapse space-runs everywhere except inside the given quoted sections,
+  but leaves later gaps ("txt2  =  ") double-spaced and keeps a trailing space.
+  Probably downstream of the single-bound `FindAnyBoundedByAsSections('"')`
+  (block 124).
+
+- **`BoundedByUZ` / `BoundedByUZZ` lose the substring grouping** (test 163).
+  Should return unique bounded substrings grouped with their positions
+  (`[ [ "teeba", [5,27] ], [ "rined", [16] ] ]`) but return a flat position list
+  (`[ 5, 16, 27 ]`).
+
+- **`Duplicates()` chars-vs-substrings (cont. from block 129)** (tests 159, 160).
+  The impl consistently returns duplicated CHARACTERS (block 157's char result
+  matched its archive); blocks 129/159/160 expected SUBSTRINGS. Block 160's
+  NumberOfDuplicates/FindDuplicates/Duplicates/DuplicatesZ #--> were additionally
+  copied from a different string ("RINGORIALAND") and don't match the input.
+  Confirm the intended Duplicates() contract.
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
