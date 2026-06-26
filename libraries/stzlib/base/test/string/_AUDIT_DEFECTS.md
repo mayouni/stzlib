@@ -70,6 +70,32 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
   regression -- confirm the intended contract. (Also note ToList still uses
   `eval` for the list-literal path.)
 
+### Replace-by-many family — a defect cluster (tests 48, 56, 58, 59)
+
+The "replace ONE substring's successive occurrences with a LIST of replacements"
+feature is broken across its whole surface, while the sibling many-substring and
+position/occurrence forms all WORK (verified: `ReplaceMany` block 57,
+`ReplaceManyByMany` block 60, `ReplaceSubstringAtPositions` block 61,
+`ReplaceOccurrencesByMany` block 62).
+
+- **`ReplaceByMany(sub, list)` / `ReplaceByMany(sub, :By = list)`** (blocks 48,
+  56, 58): should map each occurrence of `sub` to `list[1], list[2], ...`
+  (cycling), e.g. `"ring php ruby ring python ring"` -> `"X php ruby XX python
+  XXX"`. Instead the loop (stzString.ring ~2293) drops the 1st and 3rd
+  occurrences and keeps only the middle: `" php ruby X python "`. On
+  `"1♥34♥♥"` with `["2","5","6"]` it returns `"1342"` (expected `"123456"`).
+- **`Replace(sub, :By = list)` / `Replace(sub, :ByMany = list)`** (block 56): a
+  no-op -- returns the string unchanged.
+- **`ReplaceByManyXT(sub, :By = list)`** (block 59): same garbling --
+  `"ring php ring ruby ring python ring"` -> `" php #1 ruby  python #2"` instead
+  of `"#1 php #2 ruby #1 python #2"`.
+
+- **`IsRealInString()` / `IsARealInString()` / `RepresentsRealInString()` and the
+  global `BothAreRealsInStrings` are missing** (test 60_isrealinstring, R14).
+  They exist in the archive monolith as trivial aliases of `RepresentsNumber()`
+  (stzString_monolithic.ring ~94018) but were dropped in modularization; the
+  modular file kept only `RepresentsRealNumber()`. Restore the aliases.
+
 ### Bounds family — a defect cluster (tests 42, 43, 44, 45)
 
 - **`BoundsOf(sub)` returns a single flat `[before, after]` pair** instead of the
