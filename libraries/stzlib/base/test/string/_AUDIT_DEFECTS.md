@@ -33,6 +33,32 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
   are fine; only the non-XT single-removal form is wrong. Left un-asserted in the
   narrated tests (NOTE line); deferred to the fix-pass.
 
+### Bounds family — a defect cluster (tests 42, 43, 44, 45)
+
+- **`BoundsOf(sub)` returns a single flat `[before, after]` pair** instead of the
+  per-occurrence immediate bounds (tests 42, 43).
+  `Q("Hello <<<Ring>>>, the beautiful (((Ring)))!").BoundsOf("Ring")` returns
+  `["Hello <<<", ">>>, the beautiful (((Ring)))!"]` (everything before/after the
+  FIRST match) but should give `[["<<<",">>>"], ["(((",")))"]]`. The underlying
+  `FindSubStringBoundsUpToNCharsAsSections("Ring",2)` is correct
+  (`[[8,9],[14,15],[34,35],[40,41]]`), so the bug is in how BoundsOf assembles
+  the result.
+- **`BoundsOfXT(sub, n)` returns only the FIRST occurrence's bounds** (tests 42,
+  43). Returns `["<<",">>"]` but should give `[["<<",">>"], ["((","))"]]` (one
+  pair per occurrence, n chars each).
+- **`IsBoundedBy(c)` / `IsBoundedByXT` / `IsBoundOfXT` reject a single-string
+  bound** (test 44). `IsBoundedByCS(pacBounds, ...)` short-circuits to FALSE
+  unless `pacBounds` is a 2-element list (stzString.ring ~13439), so
+  `Q("_world_").IsBoundedBy("_")` returns FALSE though "_world_" is bounded by
+  "_" on both sides. Fix: widen a string arg `c` to `[c, c]` (the type-widening
+  pattern -- see CLAUDE.md note 6). The 2-element-list forms work.
+- **`Bounds()` is greedy on the trailing non-letter run** (test 45). For
+  `"<<Go!>>"` it returns `["<<", "!>>"]` (swallowing the "!"), so
+  `BoundsRemoved()` gives `"Go"` instead of `"Go!"`. The explicit
+  `TheseBoundsRemoved("<<", ">>")` -> `"Go!"` is correct; only the auto-detection
+  over-reaches. (Decide whether bounds should be symmetric-bracket-aware or the
+  full leading/trailing non-letter run.)
+
 ## Open — semantics to confirm (test #--> vs current impl disagree)
 
 - **`SizeInBytes64()` / `SizeInBytes32()`** (test 06_sizeinbytes). `"Softanza"` →

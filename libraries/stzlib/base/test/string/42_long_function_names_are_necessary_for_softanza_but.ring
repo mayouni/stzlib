@@ -3,6 +3,12 @@
 # #narration: long function names are necessary for Softanza, but not for you!
 #
 # Extracted from stzStringTest.ring, block #42.
+#
+# DEFECT (deferred -- see _AUDIT_DEFECTS.md): BoundsOf("Ring") returns a single
+# flat [before, after] pair instead of the per-occurrence bracket bounds, and
+# BoundsOfXT returns only the FIRST occurrence. FindSubStringBoundsUpToNChars-
+# AsSections (the underlying section finder) is correct. Left in print form
+# pending the bounds-family fix-pass; NOT asserted.
 
 load "../../stzBase.ring"
 
