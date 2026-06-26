@@ -170,6 +170,34 @@ condition spelling.
   `"123♥♥678♥♥1234♥♥789"` although the sections clearly contain "♥". Both the
   plain and XT spellings are affected.
 
+- **`stzChar.StzType()` returns "stzstring"** (test 106). `ToListOfStzChars()`
+  yields genuine stzChar objects (`classname` = "stzchar", correct content), but
+  their `StzType()` misreports as "stzstring".
+
+- **Hex-unicode reverse direction is broken** (test 109). `HexUnicodeToUnicode(
+  "U+06A2")` returns 0 (should be 1698), and consequently `QQ("U+0649").Content()`
+  yields a bad char. The forward direction (`UnicodeToHexUnicode`, `IsHexUnicode`,
+  stzChar `HexUnicode`) works.
+
+- **stzString `HexUnicode` / `HexUnicodes` drop the "U+" prefix and over-nest**
+  (test 110). `Q("a").HexUnicode()` returns "0061" (stzChar's returns "U+0061",
+  block 109 -- inconsistent), and `HexUnicodes([ "a","bcd","e" ])` wraps each
+  single-char item in a list (`[ ["0061"], [...], ["0065"] ]`) instead of
+  `[ "U+0061", [...], "U+0065" ]`.
+
+- **`$(...)` / `Interpolate()` does not substitute placeholders** (tests 111, 54).
+  `$("...{cName}!")` returns the template verbatim ("...{cName}!") instead of
+  filling `cName` from scope.
+
+- **`Repeated<N>Times()` returns ""** (test 112). The dynamic-name form
+  `Repeated3Times()` yields "" instead of "♥♥♥"; `RepeatedNTimes(3)`, `NCopies`,
+  and `3Copies(:of=...)` all work.
+
+- **`Dotless()` is broken** (tests 114, 115; source has a #TODO). For Latin it
+  replaces "i" with the DIGIT "1" and leaves diacritics (`"alitalia extrême..."`
+  -> `"al1tal1a extrême..."`) instead of dotless-i + diacritic removal; for Arabic
+  it is a NO-OP (returns the input unchanged).
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
