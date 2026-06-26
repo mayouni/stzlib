@@ -1,20 +1,30 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #123.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Between(open, :And = close) and BoundedBy([open, close]) -- the substrings
+# enclosed between a DISTINCT open/close pair. Archive block #123. (With a
+# distinct [open,close] pair these work; the single-repeated-bound form is broken
+# -- see block #121 and _AUDIT_DEFECTS.md.)
 
-o1 = new stzString("<<***>>**<<***>>")
+Scenario("The text enclosed between distinct bounds")
+	Given('"<<***>>**<<***>>"')
+	o1 = new stzString("<<***>>**<<***>>")
+	Then("Between('<<', :And='>>') gives the enclosed parts",
+		ListEq( o1.Between("<<", :and = ">>"), [ "***", "***" ] ), TRUE)
+	Then("BoundedBy(['<<','>>']) agrees",
+		ListEq( o1.BoundedBy([ "<<", ">>" ]), [ "***", "***" ] ), TRUE)
+EndScenario()
 
-? o1.Between("<<", :and = ">>")
-#--> [ "***", "***" ]
+Summary()
 
-? o1.BoundedBy(["<<", ">>"])
-#--> [ "***", "***" ]
-
-pf()
-# Executed in 0.13 second(s)
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

@@ -198,6 +198,18 @@ condition spelling.
   -> `"al1tal1a extrême..."`) instead of dotless-i + diacritic removal; for Arabic
   it is a NO-OP (returns the input unchanged).
 
+### Shorten / Shortened family — a defect cluster (tests 116, 117, 118, 119)
+
+The whole "shorten the middle of a string" family is broken on
+`"1234567890987654321"`:
+- `Shortened()` / `Shorten()` return the string UNCHANGED (should be "123...321").
+- `ShortenedN(2)` returns unchanged; `ShortenedN(5)` / `ShortenN(5)` return "12..."
+  (should be "12345...54321") -- the N and the tail are mishandled.
+- `ShortenedXT(0, n, sep)` drops the HEAD chars (" {...} 21" / " ... 321" instead
+  of "12 {...} 21" / "123 ... 321").
+- `ShortenedUsing(" {...} ")` keeps 4 per side instead of the default 3
+  ("1234 {...} 4321"); `ShortenedNUsing(5, " {...} ")` drops both sides (" {...} ").
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
@@ -245,6 +257,16 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
   `Q("_world_").IsBoundedBy("_")` returns FALSE though "_world_" is bounded by
   "_" on both sides. Fix: widen a string arg `c` to `[c, c]` (the type-widening
   pattern -- see CLAUDE.md note 6). The 2-element-list forms work.
+- **Single-repeated-bound forms drop the middle region** (tests 120, 121, 124).
+  With a single bound that repeats, the occurrences are paired non-overlappingly
+  so the middle gap is lost: `BoundedBy("aa")` on `"aa***aa**aa***aa"` returns
+  `[ "***", "***" ]` instead of `[ "***", "**", "***" ]`, and `FindAnyBoundedBy(
+  "aa")` returns `[ "***", "***" ]` (also wrong TYPE -- substrings, not the
+  positions `[3,8,12]`; see the FindAnyBoundedBy row above). The `...AsSections`
+  variant finds all three correctly (block 124). Also `IsBoundedByCS("aa", TRUE)`
+  is FALSE (the single-string-bound issue above). The distinct `[open,close]`
+  pair forms (`Between`, `BoundedBy([..])`, `FindAnyBoundedByAsSections([..])`)
+  all work.
 - **`Bounds()` is greedy on the trailing non-letter run** (test 45). For
   `"<<Go!>>"` it returns `["<<", "!>>"]` (swallowing the "!"), so
   `BoundsRemoved()` gives `"Go"` instead of `"Go!"`. The explicit
