@@ -1,15 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #218.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Reduce() -- concatenate a list of strings into one. Archive block #218.
 
-? Q([ "I ", "believe ", "in ","Ring!" ]).Reduce()
-#--> I believe in Ring!
+Scenario("Reducing a list of strings to one")
+	Then("the parts join into a sentence",
+		Q([ "I ", "believe ", "in ", "Ring!" ]).Reduce(), "I believe in Ring!")
+EndScenario()
 
-pf()
-#--> Executed in 0.93
+Summary()

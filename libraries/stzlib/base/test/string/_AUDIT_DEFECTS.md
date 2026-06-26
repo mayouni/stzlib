@@ -334,6 +334,18 @@ The WORKING ReplaceXT forms: `:Nth=n` (189), `:AtPositions=[..]` (193),
 `SplitAtZZ` likely shares the bug. (A list-domain defect surfaced via the string
 suite.)
 
+- **`FindAnyBoundedBy` / `FindAnyBoundedByIB` return the wrong TYPE even with a
+  pair bound** (test 222). `FindAnyBoundedBy(["<<",">>"])` returns the substrings
+  `["ring","softanza"]` instead of the positions `[6,17]`; `FindAnyBoundedByIB`
+  returns the `[from,to]` sections `[[4,11],[15,26]]` instead of the positions
+  `[4,15]`. The `...AsSections` / `...AsSectionsIB` and `AnyBoundedBy[IB]` forms
+  are correct. (Reinforces the block-17/124 FindAnyBoundedBy type bug -- it is
+  not specific to single-string bounds.)
+
+- **`YieldWXT` is RETIRED (R14)** (tests 219, 220, 221) -- like FindWXT (block 84),
+  the WXT family was removed; the replacement is `YieldW`. These belong to the
+  pending string WXT-disqualification step (memory `project_wxt_disqualification`).
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
