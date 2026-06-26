@@ -96,6 +96,27 @@ position/occurrence forms all WORK (verified: `ReplaceMany` block 57,
   (stzString_monolithic.ring ~94018) but were dropped in modularization; the
   modular file kept only `RepresentsRealNumber()`. Restore the aliases.
 
+- **`Replace()` has no polymorphic dispatch** (test 74, also 56). `Replace(p1, p2)`
+  is a plain 2-arg `ReplaceCS` (stzString.ring ~1909), so the documented
+  shorthands are no-ops: `Replace([olds], :By = new)` (should route to
+  `ReplaceMany`), `Replace(sub, :By = list)` / `Replace(sub, :ByMany = list)`
+  (should route to `ReplaceByMany`). The explicit `ReplaceMany` works (block 57).
+
+### Position-anchored XT forms (tests 67, 68, 71)
+
+The plain `RemoveAt` / `ReplaceAt` forms all work (blocks 66, 69, 70, 73); their
+`...XT(..., :AtPosition[s] = ...)` twins are broken.
+
+- **`RemoveXT(sub, :AtPosition = n)` / `:AtPositions = [...]` are byte-based**
+  (tests 67, 68). The helper `_RemoveOccurrenceAtPos` (stzString.ring ~2070) uses
+  `len()`/`StzMid` instead of the engine codepoint helpers, so a multibyte sub
+  ("♥♥♥" = 9 bytes / 3 codepoints) corrupts the cut: block 67 returns `"ring ru"`
+  (expected `"ring ruby php"`), block 68 returns `""`.
+- **`ReplaceXT(sub, :AtPosition = n)` treats n as an occurrence index, not a char
+  position** (test 71). It routes to `ReplaceNth` (stzString.ring ~2790), so
+  `ReplaceXT("ring", :AtPosition = 6)` is a no-op (no 6th "ring"). The plural
+  `:AtPositions` form correctly uses absolute positions (block 72 works).
+
 ### Bounds family — a defect cluster (tests 42, 43, 44, 45)
 
 - **`BoundsOf(sub)` returns a single flat `[before, after]` pair** instead of the
@@ -123,6 +144,13 @@ position/occurrence forms all WORK (verified: `ReplaceMany` block 57,
   full leading/trailing non-letter run.)
 
 ## Open — semantics to confirm (test #--> vs current impl disagree)
+
+- **`Section(n1, n2)` does not raise on out-of-range bounds** (test
+  70_section_out_of_range_raises). Block #46's narration documents `Section()` as
+  the CONSERVATIVE form that should raise "Indexes out of range!" (leaving the
+  lenient `SectionXT()` to handle overshoot), but `Q("SOFTANZA").Section(-99, 99)`
+  silently returns the whole `"SOFTANZA"`. Decide: enforce the raise, or accept
+  the clamp and correct block #46's narration.
 
 - **`SizeInBytes64()` / `SizeInBytes32()`** (test 06_sizeinbytes). `"Softanza"` →
   `548 / 348`; archive `#-->` `624 / 400`. These look like object-footprint
