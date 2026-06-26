@@ -236,7 +236,10 @@ The simple Extend forms work (`ExtendWith`, `ExtendToNChars`, `ExtendToWith`,
   (test 155): [ [8,7], [16,15] ] instead of [ [5,7], [13,15] ]. And the
   `FindXT(sub, :Between=[a,b])` / `FindAsSectionsXT(sub, :Between=[a,b])`
   named-param forms return [] (not parsed). The `:BoundedBy` named-param forms
-  and `FindBetweenAsSections` work.
+  and `FindBetweenAsSections` work. CONFIRMED broadly: `FindXT(sub, :Between=[a,b])`
+  and `FindAsSectionsXT(sub, :Between=[a,b])` (incl. the `:And` spelling) return []
+  across blocks 155, 179, 180, 181, 182 -- while the plain `FindBetween` /
+  `FindBetweenAsSections` forms all work.
 
 ### First/Last/Next-Chars return strings, not lists (test 150)
 
@@ -269,8 +272,9 @@ expected the following run ("CDE") -- confirm the :StartingAt offset.
 The plain `ContainsAt` / `ContainsBefore` / `ContainsAfter` forms work (including
 their `:Position` / `:SubString` named params, blocks 170/172), but every
 `ContainsXT(sub, :<position>)` spelling returns FALSE: `:AtPosition` (170),
-`:AfterPosition` / `:BeforePosition` (173/174), and the short `:Before` / `:After`
-(175). The XT named-position dispatch isn't wired up. Also `ContainsInSection` /
+`:AfterPosition` / `:BeforePosition` (173/174), the short `:Before` / `:After`
+(175), the substring-valued `:Before`/`:After` (176), and `:AtPositions=[..]`
+(178). The XT named-position dispatch isn't wired up. Also `ContainsInSection` /
 `ContainsBetweenPositions` return FALSE (171, 173 -- the block 103/104 bug), and
 `ContainsInSection("^", 5, 3)` additionally fails to auto-order reversed bounds.
 
