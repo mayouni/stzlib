@@ -19,11 +19,12 @@ The WXT/eval disqualification (Part B step 2) is **DONE** (10 commits
 f679a425..69556872; see memory `project_wxt_disqualification`). The active task
 is **step 1 = narrate the suite, which IS the correctness audit** (not a
 formatting pass): for each test, *understand* impl + original, *run* it, and
-commit a *verified asserted* value. Status: 999 tests, blocks 01-95 narrated so
-far (01,02,03,05,09-95); deferred-defect / pending (print-form) blocks: 04, 08,
+commit a *verified asserted* value. Status: 999 tests, blocks 01-105 narrated so
+far (01,02,03,05,09-105); deferred-defect / pending (print-form) blocks: 04, 08,
 42-45, 48, 54 (interactive), 56, 58, 59, 60_isrealinstring, 67, 68, 71, 74,
-77, 78, 79, 80, 82, 83, 84 (W/WXT step 2), 70_section_out_of_range_raises +
-91/92 SubStringComes* (semantics/named-param). Resume ~96.
+77, 78, 79, 80, 82, 83, 84 (W/WXT step 2), 98, 99, 100, 101 (box cluster), 103,
+104; partials w/ NOTEs: 70_section_out_of_range_raises, 91, 92, 97, 102.
+Resume ~106.
 
 **Per-test workflow (the important part):**
 1. Recover the original archive ONCE (the pre-split monolith, 19,572 lines):
