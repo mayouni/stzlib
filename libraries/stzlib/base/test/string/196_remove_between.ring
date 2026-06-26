@@ -1,22 +1,14 @@
-# Narrative
-# --------
-# REMOVE BETWEEN
-#
-# Extracted from stzStringTest.ring, block #196.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveBetween(open, close) -- remove the content between the bounds, keeping the
+# bounds themselves. Archive block #196.
 
-StartProfiler()
-
+Scenario("Removing the content between two bounds")
+	Given('"__/♥\__"')
 	o1 = new stzString("__/♥\__")
-
 	o1.RemoveBetween("/", "\")
-	? o1.Content()
-	#--> __/\__
+	Then("the heart between / and \\ is gone, bounds kept", o1.Content(), "__/\__")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s)
+Summary()
