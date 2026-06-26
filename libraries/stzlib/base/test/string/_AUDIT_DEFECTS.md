@@ -210,6 +210,20 @@ The whole "shorten the middle of a string" family is broken on
 - `ShortenedUsing(" {...} ")` keeps 4 per side instead of the default 3
   ("1234 {...} 4321"); `ShortenedNUsing(5, " {...} ")` drops both sides (" {...} ").
 
+### Extend family (tests 139, 142, 143)
+
+The simple Extend forms work (`ExtendWith`, `ExtendToNChars`, `ExtendToWith`,
+`ExtendToWithCharsRepeated`, `ExtendXT(:String,:With=)`, `ExtendXT(:ToPosition=,
+:With=)`); three "repeat the string's own chars" / range forms are broken:
+- **`ExtendToWithCharsIn(8, "1":"3")` is a no-op** (test 139) -- returns "123"
+  instead of repeating the range chars to "12312312"
+  (`ExtendToWithCharsRepeated(8)` works, block 138).
+- **`ExtendXT(:ToPosition=5, :With=:CharsRepeated)` literalizes the symbol**
+  (test 142) -- appends the text "charsrepeated" ("ABCcharsrepeatedcharsrepeated")
+  instead of repeating the string's chars to "ABCAB".
+- **`ExtendXT(:ToPosition=5, :ByCharsRepeated)` pads spaces** (test 143) -- gives
+  "ABC  " instead of "ABCAB".
+
 ### Box-rendering cluster (tests 99, 100, 101, 102-box)
 
 `Box` / `BoxRound` / `Boxed` / `BoxedRound` / `EachCharBoxed` /
