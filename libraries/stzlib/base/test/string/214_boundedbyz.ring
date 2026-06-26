@@ -3,36 +3,23 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #214.
+#
+# DEFECT (deferred -- see _AUDIT_DEFECTS.md): BoundedByZ("&") / BoundedByZZ("&")
+# RAISE "Incorrect param! pacBounds must be a pair of strings" -- the single-
+# string bound is not widened to ["&","&"]. (And even with a pair, the Z/ZZ forms
+# lose the [substring, span] grouping -- blocks 163/166/187.) Left in print form;
+# NOT asserted.
 
 load "../../stzBase.ring"
 
 pr()
 
-#                   ..3...7..0...4..7...1..4...8..  
 o1 = new stzString("..&^^^&..&^^^&..&---&..&---&..")
 
 ? @@NL( o1.BoundedByZ("&") ) + NL
-#--> [
-#	[ "^^^", 4 ],
-#	[ "..", 8 ],
-#	[ "^^^", 11 ],
-#	[ "..", 15 ],
-#	[ "---", 18 ],
-#	[ "..", 22 ],
-#	[ "---", 25 ]
-# ]
+#--> expected each substring paired with its start position (currently raises)
 
 ? @@NL( o1.BoundedByZZ("&") )
-#--> [
-#	[ "^^^", [ 4, 6 ] ],
-#	[ "..", [ 8, 9 ] ],
-#	[ "^^^", [ 11, 13 ] ],
-#	[ "..", [ 15, 16 ] ],
-#	[ "---", [ 18, 20 ] ],
-#	[ "..", [ 22, 23 ] ],
-#	[ "---", [ 25, 27 ] ]
-# ]
+#--> expected each substring paired with its [from,to] span (currently raises)
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.18 second(s) in Ring 1.18

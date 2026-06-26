@@ -3,21 +3,24 @@
 # BOUNDEDBY
 #
 # Extracted from stzStringTest.ring, block #213.
+#
+# DEFECT (deferred -- see _AUDIT_DEFECTS.md, single-repeated-bound family):
+# BoundedBy("&") drops the in-between gaps -- on "...&^^^&...&vvv&...&..." it
+# returns [ "^^^", "vvv" ] instead of [ "^^^", "...", "vvv", "..." ] (consecutive
+# bounds paired non-overlappingly). And BoundedByIB("&") RAISES "pacBounds must be
+# [ open, close ] strings" -- the single-string bound is not widened to ["&","&"].
+# Left in print form; NOT asserted.
 
 load "../../stzBase.ring"
 
-
 pr()
 
-#                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
 ? @@( o1.BoundedBy("&") )
-#--> [ "^^^", "...", "vvv", "..." ]
+#--> expected [ "^^^", "...", "vvv", "..." ] (currently [ "^^^", "vvv" ])
 
 ? @@( o1.BoundedByIB("&") )
-#--> [ "&^^^&", "&...&", "&vvv&", "&...&" ]
+#--> expected [ "&^^^&", "&...&", "&vvv&", "&...&" ] (currently raises)
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.10 second(s) in ring 1.18
