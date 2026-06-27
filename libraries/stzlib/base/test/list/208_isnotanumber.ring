@@ -17,8 +17,9 @@ load "../../stzBase.ring"
 pr()
 
 ? StzCCodeQ('Q(@NextItem).IsNotANumber()').Transpiled()
-#--> Q(  This[@i + 1]  ).IsNotANumber(  )
+#--> Q(This[@i + 1]).IsNotANumber()
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.07 second(s) in Ring 1.21
 # Executed in 0.30 second(s) in Ring 1.17
