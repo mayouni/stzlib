@@ -1,6 +1,6 @@
 # Narrative
 # --------
-# StartProfiler()
+
 #
 # Extracted from stzlisttest.ring, block #227.
 
@@ -15,8 +15,6 @@ o1 = new stzList([ 1, 2, "♥", "♥", "♥", 3, 4 ])
 
 ? o1.Content()
 #--> [1, 2, 3, 4]
-
-StopProfiler()
 
 pf()
 # Executed in 0.02 second(s)

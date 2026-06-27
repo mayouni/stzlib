@@ -1,9 +1,6 @@
 # Narrative
 # --------
-# #narration
-#
 # Extracted from stzlisttest.ring, block #622.
-#ERR Error (R14) : Calling Method without definition: existin
 
 load "../../stzBase.ring"
 
@@ -41,4 +38,5 @@ pr()
 # a single item, as with ExistsIn().
 
 pf()
-# Executed in 0.02 second(s).
+# Executed in almost 0 second(s) in Ring 1.27
+# Executed in 0.02 second(s) before
