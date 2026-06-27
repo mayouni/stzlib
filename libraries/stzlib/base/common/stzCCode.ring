@@ -311,6 +311,16 @@ class stzCCode
 
 			" This[@i - 1] ", 0)
 
+		# Undo the "( " / " )" / "[ " / " ]" padding the normalization added (and
+		# collapse the double-spaces left where a keyword was expanded next to a
+		# bracket), so the transpiled code reads cleanly: Q(This[@i + 1]).Foo().
+		oResult.ReplaceCS("  ", " ", 1)
+		oResult.ReplaceCS("  ", " ", 1)
+		oResult.ReplaceCS("( ", "(", 1)
+		oResult.ReplaceCS(" )", ")", 1)
+		oResult.ReplaceCS("[ ", "[", 1)
+		oResult.ReplaceCS(" ]", "]", 1)
+
 		cResult = oResult.Trimmed()
 
 		@cContent = cResult
