@@ -3083,21 +3083,19 @@ func StzFindFirstCS(p1, p2, pCaseSensitive)
 		return 0
 	ok
 
-	# p2 is a list -> find p1 in p2.
+	# p2 is a list -> find p1 in p2. Route through the engine (StzFindCS) so a
+	# LIST needle is matched structurally (Ring's "=" does not deep-compare lists).
 	if isList(p2)
-		_nLen_ = len(p2)
-		for _i_ = 1 to _nLen_
-			if p2[_i_] = p1 return _i_ ok
-		next
+		_aFfPos_ = StzFindCS(p1, p2, pCaseSensitive)
+		if isList(_aFfPos_) and len(_aFfPos_) > 0 return _aFfPos_[1] ok
 		return 0
 	ok
 
-	# p1 is a list -> find p2 in p1 (backward-compat haystack-first).
+	# p1 is a list -> find p2 in p1 (backward-compat haystack-first). Engine-backed
+	# too, so a LIST needle (p2) is matched structurally.
 	if isList(p1)
-		_nLen_ = len(p1)
-		for _i_ = 1 to _nLen_
-			if p1[_i_] = p2 return _i_ ok
-		next
+		_aFfPos_ = StzFindCS(p2, p1, pCaseSensitive)
+		if isList(_aFfPos_) and len(_aFfPos_) > 0 return _aFfPos_[1] ok
 		return 0
 	ok
 
