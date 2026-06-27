@@ -1,4 +1,4 @@
-﻿
+
 #TODO // general - study the compatibility of softanza comments
 # with JSDoc (https://jsdoc.app/)
 #--> Create a generator of a static web site documentation
@@ -3020,7 +3020,10 @@ func StzVars()
 #----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)
-	if isList(paIn) and Q(paIn).IsInNamedParam()
+
+	# :In marks the HAYSTACK and is natural only AFTER the needle:
+	# StzFind(needle, :In = haystack) == "find needle in haystack".
+	if isList(paIn) and StzIsInNamedParamList(paIn)
 		paIn = paIn[2]
 	ok
 
@@ -3043,21 +3046,96 @@ func StzFindCS(pThing, paIn, pCaseSensitive)
 		return _aResult_
 	ok
 
-	# List haystack -> linear search.
+	# Canonical (needle, haystack): list haystack -> engine-backed find-all
+	# (stzList.FindCS routes to the Zig stz_list_find_cs / *_string_cs / *_int
+	# / *_held_cs paths -- O(n) with no per-item Ring stringify).
 	if isList(paIn)
-		_aResult_ = []
-		_nIL_ = len(paIn)
-		for _iF_ = 1 to _nIL_
-			if paIn[_iF_] = pThing
-				_aResult_ + _iF_
-			ok
-		next
-		return _aResult_
+		return StzListQ(paIn).FindCS(pThing, CaseSensitive(pCaseSensitive))
+	ok
+
+	# Backward-compat (haystack, needle) for list-first callers:
+	# pThing is the list, paIn the item -> find paIn in pThing (engine-backed).
+	if isList(pThing)
+		return StzListQ(pThing).FindCS(paIn, CaseSensitive(pCaseSensitive))
 	ok
 
 	return []
 
+# StzFindFirstCS / StzFindFirst -- the FIRST position only (single number, 0 if
+# not found). This is the COMPATIBILITY surface preserving the historical
+# (polymorphic) StzFind behavior exactly, so callers renamed from StzFind keep
+# working unchanged:
+#   - StzFindFirst(item, list)        -> find item in list   (needle, haystack)
+#   - StzFindFirst(list, item)        -> find item in list   (haystack, needle)
+#   - StzFindFirst(haystackStr, sub)  -> find sub in haystack (two-string: p1 is
+#                                        the haystack, p2 the needle).
+# The canonical StzFind / StzFindCS instead return the full LIST of positions of
+# the NEEDLE (first arg) in the HAYSTACK (second arg).
+func StzFindFirstCS(p1, p2, pCaseSensitive)
+
+	# Natural :In form -- StzFindFirst(needle, :In = haystack) -- resolves via
+	# the canonical StzFindCS and takes the first hit. (:In before the needle is
+	# not natural language and is not supported.) The legacy positional behavior
+	# below handles the no-:In calls.
+	if isList(p2) and StzIsInNamedParamList(p2)
+		_aFfPos_ = StzFindCS(p1, p2, pCaseSensitive)
+		if isList(_aFfPos_) and len(_aFfPos_) > 0 return _aFfPos_[1] ok
+		return 0
+	ok
+
+	# p2 is a list -> find p1 in p2.
+	if isList(p2)
+		_nLen_ = len(p2)
+		for _i_ = 1 to _nLen_
+			if p2[_i_] = p1 return _i_ ok
+		next
+		return 0
+	ok
+
+	# p1 is a list -> find p2 in p1 (backward-compat haystack-first).
+	if isList(p1)
+		_nLen_ = len(p1)
+		for _i_ = 1 to _nLen_
+			if p1[_i_] = p2 return _i_ ok
+		next
+		return 0
+	ok
+
+	# Both strings -> find p2 (needle) in p1 (haystack).
+	if isString(p1) and isString(p2) and p2 != ""
+		_bCase_ = CaseSensitive(pCaseSensitive)
+		_pH_ = StzEngineString(p1)
+		_nPos_ = StzEngineStringFindFirstFromCS(_pH_, p2, 1, _bCase_)
+		StzEngineStringFree(_pH_)
+		if _nPos_ > 0 return _nPos_ ok
+	ok
+
+	return 0
+
+	func @StzFindFirstCS(p1, p2, pCaseSensitive)
+		return StzFindFirstCS(p1, p2, pCaseSensitive)
+
+func StzFindFirst(pThing, paIn)
+	return StzFindFirstCS(pThing, paIn, TRUE)
+
+	func @StzFindFirst(pThing, paIn)
+		return StzFindFirst(pThing, paIn)
+
+# StzFind / StzFindCS ALWAYS return the LIST of all positions of pThing (needle)
+# in paIn (haystack), or an empty list if not found. Engine-backed; works for
+# string and list haystacks. For a single position use StzFindFirst.
+func StzFind(pThing, paIn)
+	return StzFindCS(pThing, paIn, TRUE)
+
+	func @StzFind(pThing, paIn)
+		return StzFind(pThing, paIn)
+
+/*
 func StzFind(p1, p2)
+	if isList(p1)
+		return StzListQ(p1).Find(p2)
+	ok
+
 	# Named param support: StzFind(x, [:in, list])
 	if isList(p2) and len(p2) = 2 and isString(p2[1]) and p2[1] = :in
 		p2 = p2[2]
@@ -3097,6 +3175,7 @@ func StzFind(p1, p2)
 	ok
 
 	return 0
+*/
 
 #-----
 
@@ -5004,7 +5083,7 @@ func StzTodoInCurrent()
 
 func StzTodoXT(pcCurrentOrFuture)
 	if NOT ( isString(pcCurrentOrFuture) and
-	   	 StzFind([
+	   	 StzFindFirst([
 			:Current, :InCurrent, :Future, :InFuture,
 			:CurrentRelease, :InCurrentRelease, :FutureRelease, :InFutureRelease,
 
@@ -5014,7 +5093,7 @@ func StzTodoXT(pcCurrentOrFuture)
 		StzRaise("Incorrect param! pcCurrentOrFuture must be a string equal to :Current or :Future.")
 	ok
 
-	if StzFind([ :Future, :InFuture, :FutureRelase, :InFutureRelase ], pcCurrentOrFuture) > 0
+	if StzFindFirst([ :Future, :InFuture, :FutureRelase, :InFutureRelase ], pcCurrentOrFuture) > 0
 		StzRaise("Unavailable feature in current version (TODO in the future!)")
 
 	else
@@ -5338,7 +5417,7 @@ func IsStzFindableType(cType)
 	ok
 
 	cType = StzLower(cType)
-	if StzFind( StzFindableTypes(), cType) > 0
+	if StzFindFirst( StzFindableTypes(), cType) > 0
 		return 1
 	else
 		return 0
@@ -5362,7 +5441,7 @@ func IsStzFindable(p)
 	ok
 
 	cStzType = p.StzType()
-	if StzFind( StzFindableTypes(), cStzType ) > 0
+	if StzFindFirst( StzFindableTypes(), cStzType ) > 0
 		return 1
 	else
 		return 0
@@ -5535,7 +5614,7 @@ func @StzInfereTypeName(cStr)
 		return cR
 	ok
 
-	if StzFind(c, "list") > 0 or StzFind(c, "pair") > 0
+	if StzFindFirst(c, "list") > 0 or StzFindFirst(c, "pair") > 0
 		return :List
 	ok
 

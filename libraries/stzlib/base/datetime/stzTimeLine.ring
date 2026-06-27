@@ -77,7 +77,7 @@ class stzTimeLine from stzObject
 		ok
 
 		if isString(pEnd)
-			if StzFind(pEnd, " ") = 0
+			if StzFindFirst(pEnd, " ") = 0
 				pEnd += " 23:59:59"
 			ok
 			pEnd = This._normalizeDateTime(pEnd)
@@ -311,7 +311,7 @@ class stzTimeLine from stzObject
 
 		for i = 1 to nLen
 			cLabel = @aPoints[i][1]
-			if StzFind(acSeen, cLabel) = 0
+			if StzFindFirst(acSeen, cLabel) = 0
 				acResult + cLabel
 				acSeen + cLabel
 			ok
@@ -364,7 +364,7 @@ class stzTimeLine from stzObject
 
 		for i = 1 to nLen
 			cLabel = @aSpans[i][1]
-			if StzFind(acSeen, cLabel) = 0
+			if StzFindFirst(acSeen, cLabel) = 0
 				acResult + cLabel
 				acSeen + cLabel
 			ok
@@ -1652,7 +1652,7 @@ class stzTimeLine from stzObject
 			raise("Blocked point is outside timeline boundaries")
 		ok
 
-		if StzFind(@aBlockedPoints, cPoint) = 0
+		if StzFindFirst(@aBlockedPoints, cPoint) = 0
 			@aBlockedPoints + cPoint
 		ok
 	
@@ -1668,7 +1668,7 @@ class stzTimeLine from stzObject
 
 	def RemoveBlockedPoint(pDateTime)
 		cPoint = This._normalizeDateTime(pDateTime)
-		nPos = StzFind(@aBlockedPoints, cPoint)
+		nPos = StzFindFirst(@aBlockedPoints, cPoint)
 		if nPos > 0
 			del(@aBlockedPoints, nPos)
 		ok

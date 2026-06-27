@@ -83,7 +83,7 @@ class stzTableAggregator from stzTable
 
 			This.UpdateWith( _oCopy_.Content() )
 
-		but StzFind([
+		but StzFindFirst([
 			:WithCol, :WithColumn, :UsingCol, :UsingColumn ], cFill) > 0
 
 			This.ReplaceCols(:With = pValue)
@@ -133,10 +133,10 @@ class stzTableAggregator from stzTable
 
 		if isString(p)
 
-			if StzFind([ :First, :FirstCol, :FirstColumn ], p) > 0
+			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], p) > 0
 				p = 1
 
-			but StzFind([ :Last, :LastCol, :LastColumn ], p) > 0
+			but StzFindFirst([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfCols()
 
 			but This.HasColName(p)
@@ -241,10 +241,10 @@ class stzTableAggregator from stzTable
 
 		if isString(p)
 
-			if StzFind([ :First, :FirstCol, :FirstColumn ], p) > 0
+			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], p) > 0
 				p = 1
 
-			but StzFind([ :Last, :LastCol, :LastColumn ], p) > 0
+			but StzFindFirst([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfCols()
 
 			but This.HasColName(p)
@@ -1187,7 +1187,7 @@ class stzTableAggregator from stzTable
 			ok
 
 			# Validate aggregation method
-			if StzFind(aValidMethods, cAggMethod) = 0
+			if StzFindFirst(aValidMethods, cAggMethod) = 0
 				StzRaise("Invalid aggregation method: " + cAggMethod)
 			ok
 
@@ -1339,7 +1339,7 @@ class stzTableAggregator from stzTable
 			next
 
 			# Check if this group key exists
-			nGroupIndex = StzFind(aGroupKeys, cGroupKey)
+			nGroupIndex = StzFindFirst(aGroupKeys, cGroupKey)
 			if nGroupIndex = 0
 				# New group, add to groups
 				aGroupKeys + cGroupKey
@@ -1429,7 +1429,7 @@ class stzTableAggregator from stzTable
 
 			for i = 1 to nLenAgg
 
-				if NOT StzFind(paCols, acColNames[i]) > 0
+				if NOT StzFindFirst(paCols, acColNames[i]) > 0
 					paAggregations + [cColName, :First]
 				ok
 
@@ -1459,13 +1459,13 @@ class stzTableAggregator from stzTable
 
 			# Validate method is supported
 
-			if NOT StzFind(aValidMethods, cAggMethod)
+			if NOT StzFindFirst(aValidMethods, cAggMethod)
 				StzRaise("Invalid aggregation method: " + cAggMethod)
 			ok
 
 			# Validate column is not in grouping columns
 
-			if StzFind(paCols, cColName) > 0
+			if StzFindFirst(paCols, cColName) > 0
 				StzRaise("Cannot aggregate grouping column: " + cColName)
 			ok
 
@@ -1505,7 +1505,7 @@ class stzTableAggregator from stzTable
 
 		# Check if this group key exists
 
-		nGroupIndex = StzFind(aGroupKeys, cGroupKey)
+		nGroupIndex = StzFindFirst(aGroupKeys, cGroupKey)
 
 		if nGroupIndex = 0
 

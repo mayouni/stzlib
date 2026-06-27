@@ -37,7 +37,7 @@ class stzNaturalMarkup from stzObject
 
     def _getHowManyParams(cDynPart)
         cRev = reverse(cDynPart)
-        n = StzFind(cRev, " ")
+        n = StzFindFirst(cRev, " ")
     
         nLen = stzlen(cDynPart)
         cRes = ""
@@ -49,7 +49,7 @@ class stzNaturalMarkup from stzObject
         return nRes
 
     def _getParamRank(cDynPart)
-        n = StzFind(cDynPart, " ")
+        n = StzFindFirst(cDynPart, " ")
     
         cRes = ""
         for i = 2 to n-1
@@ -76,9 +76,9 @@ class stzNaturalMarkup from stzObject
                 if cLeft = "+"
                     acParts[j] + "new"
 
-                    nPos = StzFind(acParts[j][1], ":")
+                    nPos = StzFindFirst(acParts[j][1], ":")
                     if nPos = 0
-                        nPos = StzFind(acParts[j][1], " ")
+                        nPos = StzFindFirst(acParts[j][1], " ")
                     ok
 
                     if nPos > 2

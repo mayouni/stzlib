@@ -367,10 +367,10 @@ class stzTableSearch from stzTable
 
 		if isString(n)
 
-			if StzFind([ :First, :FirstOccurrence ], n) > 0
+			if StzFindFirst([ :First, :FirstOccurrence ], n) > 0
 				n = 1
 
-			but StzFind([ :Last, :LastOccurrence ], n) > 0
+			but StzFindFirst([ :Last, :LastOccurrence ], n) > 0
 				n = This.NumberOfOccurrenceCS(pCellValue, pCaseSensitive)
 			ok
 		ok
@@ -429,10 +429,10 @@ class stzTableSearch from stzTable
 		# the nth position is returned as a pair of numbers
 
 		if isString(n)
-			if StzFind([ :First, :FirstOccurrence ], n) > 0
+			if StzFindFirst([ :First, :FirstOccurrence ], n) > 0
 				n = 1
 
-			but StzFind([ :Last, :LastOccurrence ], n) > 0
+			but StzFindFirst([ :Last, :LastOccurrence ], n) > 0
 				n = This.CountSubValueCS(pSubValue, pCaseSensitive)
 
 			ok
@@ -1644,10 +1644,10 @@ class stzTableSearch from stzTable
 		# Returns an empty pair [] if no occurrence is found.
 
 		if isString(n)
-			if StzFind([ :First, :FirstOccurrence, :FirstValue ], n) > 0
+			if StzFindFirst([ :First, :FirstOccurrence, :FirstValue ], n) > 0
 				n = 1
 
-			but StzFind([ :Last, :LastOccurrence, :LastValue ], n) > 0
+			but StzFindFirst([ :Last, :LastOccurrence, :LastValue ], n) > 0
 				n = This.NumberOfOccurrenceInCellsCS(paCells, pCellValue, pCaseSensitive)
 			ok
 		ok
@@ -1686,10 +1686,10 @@ class stzTableSearch from stzTable
 		# Returns an empty pair [] if no occurrence is found.
 
 		if isString(n)
-			if StzFind([ :First, :FirstOccurrence, :FirstSubValue ], n) > 0
+			if StzFindFirst([ :First, :FirstOccurrence, :FirstSubValue ], n) > 0
 				n = 1
 
-			but StzFind([ :Last, :LastOccurrence, :LastSubValue ], n) > 0
+			but StzFindFirst([ :Last, :LastOccurrence, :LastSubValue ], n) > 0
 				n = This.CountSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 
 			ok
@@ -4416,10 +4416,10 @@ class stzTableSearch from stzTable
 
 		if isString(pCol)
 
-			if StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = 1
 
-			but StzFind([ :Last, :LastCol, :LastColumn ], pCol) > 0
+			but StzFindFirst([ :Last, :LastCol, :LastColumn ], pCol) > 0
 				pCol = This.NumberOfCols()
 		
 			else

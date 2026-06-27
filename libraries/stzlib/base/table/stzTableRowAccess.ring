@@ -25,10 +25,10 @@ class stzTableRowAccess from stzTable
 
 		if isString(n)
 
-			if StzFind([ :First, :FirstRow ], n) > 0
+			if StzFindFirst([ :First, :FirstRow ], n) > 0
 				n = 1
 
-			but StzFind([ :Last, :LastRow ], n) > 0
+			but StzFindFirst([ :Last, :LastRow ], n) > 0
 				n = This.NumberOfRows()
 
 			ok

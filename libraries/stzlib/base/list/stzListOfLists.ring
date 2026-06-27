@@ -1803,7 +1803,7 @@ class stzListOfLists from stzList
 			ok
 	
 			if isString(pItem) and
-			    	StzFind([
+			    	StzFindFirst([
 					:ItemsRepeated, :RepeatingItems,
 					:RepeatedItems, :ByRepeatingItems
 				], pItem) > 0
@@ -3997,7 +3997,7 @@ class stzListOfLists from stzList
 
 				_nClInner_ = len(@aContent[_iCl_])
 
-				if StzFind(_acClSeen_, _acClContent_[_iCl_]) = 0
+				if StzFindFirst(_acClSeen_, _acClContent_[_iCl_]) = 0
 					@AddItem(_aClResult_, [ _acClContent_[_iCl_], [] ])
 
 					for _jCl_ = 2 to _nClInner_

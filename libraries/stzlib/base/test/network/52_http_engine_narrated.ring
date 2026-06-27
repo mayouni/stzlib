@@ -24,7 +24,7 @@ Scenario("GET against an invalid URL surfaces an error")
     cBody = StzEngineHttpGet("not a url")
     Then("the body is empty",        cBody, "")
     Then("LastError reports the failure",
-        StzFind(StzEngineHttpLastError(), "GET failed") > 0, TRUE)
+        StzFindFirst(StzEngineHttpLastError(), "GET failed") > 0, TRUE)
 EndScenario()
 
 Scenario("GET status against an invalid URL is -1")

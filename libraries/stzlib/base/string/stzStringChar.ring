@@ -100,7 +100,7 @@ func StzIsInvisibleChar(c)
 		ok
 	ok
 
-	if StzFind( InvisibleChars(), c )
+	if StzFindFirst( InvisibleChars(), c )
 		return 1
 	else
 		return 0
@@ -1197,10 +1197,10 @@ class stzStringChar from stzString
 			return This.IsPunctuation()
 
 	def IsGeneralPunctuation()
-		return StzFind( GeneralPunctuationUnicodes(), This.Unicode() ) > 0
+		return StzFindFirst( GeneralPunctuationUnicodes(), This.Unicode() ) > 0
 
 	def IsSupplementalPunctuation()
-		return StzFind( SupplementalPunctuationUnicodes(), This.Unicode() ) > 0
+		return StzFindFirst( SupplementalPunctuationUnicodes(), This.Unicode() ) > 0
 
 	def IsSymbol()
 		return StzEngineUnicodeIsSymbol(This.Unicode())
@@ -1232,21 +1232,21 @@ class stzStringChar from stzString
 			ok
 		ok
 
-		if StzFind(pacChars, This.Char()) > 0
+		if StzFindFirst(pacChars, This.Char()) > 0
 			return 1
 		else
 			return 0
 		ok
 
 	def IsWordSeparator()
-		if StzFind( WordSeparators(), This.Char() ) > 0
+		if StzFindFirst( WordSeparators(), This.Char() ) > 0
 			return 1
 		else
 			return 0
 		ok
 
 	def IsSentenceSeparator()
-		if StzFind( SentenceSeparators(), This.Char() ) > 0
+		if StzFindFirst( SentenceSeparators(), This.Char() ) > 0
 			return 1
 		else
 			return 0
@@ -1262,7 +1262,7 @@ class stzStringChar from stzString
 			return This.IsLineSeparator()
 
 	def IsWordNonLetterChar()
-		return StzFind( WordNonLetterChars(), This.Content() ) > 0
+		return StzFindFirst( WordNonLetterChars(), This.Content() ) > 0
 
 	  #==================#
 	 #   MIRRORED CHAR  #

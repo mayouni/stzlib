@@ -122,9 +122,9 @@ class stzListRemover
 	def RemoveItemAtPosition(n)
 
 		if isString(n)
-			if StzFind([ :First, :FirstPosition, :FirstItem ], n) > 0
+			if StzFindFirst([ :First, :FirstPosition, :FirstItem ], n) > 0
 				n = 1
-			but StzFind([ :Last, :LastPosition, :LastItem ], n) > 0
+			but StzFindFirst([ :Last, :LastPosition, :LastItem ], n) > 0
 				n = This.NumberOfItems()
 			ok
 		ok

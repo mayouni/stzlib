@@ -1149,7 +1149,7 @@ class stzString from stzObject
 	# bounded by positions [n1, n2] (inclusive)?
 	def ContainsInSection(pcSubStr, n1, n2)
 		# Engine-backed substring search.
-		return StzFind(pcSubStr, This.Section(n1, n2)) > 0
+		return StzFindFirst(pcSubStr, This.Section(n1, n2)) > 0
 
 		def ContainsInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
 			_cSec_ = This.Section(n1, n2)
@@ -1329,7 +1329,7 @@ class stzString from stzObject
 			_cVoCh_ = substr(_cVoStr_, _iVo_, 1)
 			_nVoB_ = ascii(_cVoCh_)
 			if _nVoB_ < 128
-				if StzFind(_cVoCh_, _cVoVo_) > 0
+				if StzFindFirst(_cVoCh_, _cVoVo_) > 0
 					_acVoR_ + _cVoCh_
 				ok
 				_iVo_ += 1
@@ -2125,9 +2125,9 @@ class stzString from stzObject
 		_subLen_ = len(pcSubStr)
 		_pos_ = 0
 		if _bRfCase_
-			_pos_ = StzFind(pcSubStr, _cIn_)
+			_pos_ = StzFindFirst(pcSubStr, _cIn_)
 		else
-			_pos_ = StzFind(lower(pcSubStr), lower(_cIn_))
+			_pos_ = StzFindFirst(lower(pcSubStr), lower(_cIn_))
 		ok
 		if _pos_ < 1 return ok
 		_cOut_ = StzMid(_cIn_, 1, _pos_ - 1) + pcNewSubStr +
@@ -2160,10 +2160,10 @@ class stzString from stzObject
 		while TRUE
 			if _bRlCase_
 				_p_ = substr(_cIn_, _pos_, len(_cIn_) - _pos_ + 1)
-				_pf_ = StzFind(pcSubStr, _p_)
+				_pf_ = StzFindFirst(pcSubStr, _p_)
 			else
 				_p_ = substr(lower(_cIn_), _pos_, len(_cIn_) - _pos_ + 1)
-				_pf_ = StzFind(lower(pcSubStr), _p_)
+				_pf_ = StzFindFirst(lower(pcSubStr), _p_)
 			ok
 			if _pf_ < 1 exit ok
 			_lastPos_ = _pos_ + _pf_ - 1
@@ -4293,6 +4293,15 @@ class stzString from stzObject
 	#============================#
 
 	def Repeated(n)
+		if CheckParams()
+			if isList(n) and len(n) = 2 and
+			   isNumber(n[1]) and isString(n[2]) and
+			   n[2] = :Times
+
+				n = n[1]
+			ok
+		ok
+
 		_pRptHandle_ = StzEngineStringRepeat(@pEngine, n)
 		if _pRptHandle_ = NULL
 			return This.Content()
@@ -7351,7 +7360,7 @@ class stzString from stzObject
 		if _lb_ < _la_
 			_short_ = lower(_b_); _long_ = lower(_a_)
 		ok
-		return StzFind(_short_, _long_) > 0
+		return StzFindFirst(_short_, _long_) > 0
 
 	# NextOccurrence(pcSub, nFrom): position of the next occurrence
 	# of pcSub strictly after nFrom.
@@ -7919,43 +7928,6 @@ class stzString from stzObject
 		StzEngineStringFree(_pSw_)
 		This.Update(_cSw_)
 
-	# RepeatedXT(:InA = :Table, :OfSize = [r, c]) -> table-shape
-	# list-of-pairs [[col, [items]], ...].
-	def RepeatedXT(pNamedInA, pNamedOfSize)
-		_shape_ = ""
-		_aSize_ = []
-		if isList(pNamedInA) and len(pNamedInA) = 2 and isString(pNamedInA[1]) and
-		   lower(pNamedInA[1]) = "ina"
-			_shape_ = pNamedInA[2]
-			if isString(_shape_) and ring_left(_shape_, 1) = ":"
-				_shape_ = StzMidToEnd(_shape_, 2)
-			ok
-		ok
-		if isList(pNamedOfSize) and len(pNamedOfSize) = 2 and isString(pNamedOfSize[1]) and
-		   lower(pNamedOfSize[1]) = "ofsize"
-			_aSize_ = pNamedOfSize[2]
-		ok
-		if NOT (isList(_aSize_) and len(_aSize_) = 2 and
-		        isNumber(_aSize_[1]) and isNumber(_aSize_[2]))
-			return []
-		ok
-		_nRows_ = _aSize_[1]
-		_nCols_ = _aSize_[2]
-		_cVal_ = This.Content()
-		_aTable_ = []
-		for _c_ = 1 to _nCols_
-			_aCol_ = []
-			for _r_ = 1 to _nRows_
-				_aCol_ + _cVal_
-			next
-			_aTable_ + [ "COL" + _c_, _aCol_ ]
-		next
-		return _aTable_
-
-	def RepeatXTQ(pNamedInA, pNamedOfSize)
-		_t_ = This.RepeatedXT(pNamedInA, pNamedOfSize)
-		return new stzList(_t_)
-
 	# ToStzTable: stub returning content as a single-cell table.
 	def ToStzTable()
 		return new stzList([ [ This.Content() ] ])
@@ -8019,20 +7991,20 @@ class stzString from stzObject
 	def IsContiguousListInShortForm()
 		_c_ = ring_trim(This.Content())
 		# Short form `a:b` -- with colon, no brackets.
-		if StzFind(":", _c_) = 0 return FALSE ok
-		if StzFind("[", _c_) > 0 or StzFind("]", _c_) > 0 return FALSE ok
+		if StzFindFirst(":", _c_) = 0 return FALSE ok
+		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return FALSE ok
 		return TRUE
 
 	def IsContiguousListInString()
 		_c_ = ring_trim(This.Content())
-		if StzFind(":", _c_) = 0 return FALSE ok
+		if StzFindFirst(":", _c_) = 0 return FALSE ok
 		# Trim outer quote-pair if any.
 		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
 			_c_ = StzMid(_c_, 2, len(_c_) - 2)
 		ok
 		# Require non-bracketed form (so `[1,3]` returns FALSE).
-		if StzFind("[", _c_) > 0 or StzFind("]", _c_) > 0 return FALSE ok
+		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return FALSE ok
 		return TRUE
 
 	def ItemsAndTheirNumberOfOccurrence()
@@ -9451,7 +9423,7 @@ class stzString from stzObject
 		# Provisional: TRUE if content looks like a function call
 		# (alphanumeric name + parentheses).
 		_c_ = This.Content()
-		if StzFind("(", _c_) = 0 or StzFind(")", _c_) = 0 return FALSE ok
+		if StzFindFirst("(", _c_) = 0 or StzFindFirst(")", _c_) = 0 return FALSE ok
 		return TRUE
 
 	def IsAnInteger()
@@ -10214,7 +10186,7 @@ class stzString from stzObject
 
 	def IsIncludedIn(pcOther)
 		if NOT isString(pcOther) return FALSE ok
-		return StzFind(This.Content(), pcOther) > 0
+		return StzFindFirst(This.Content(), pcOther) > 0
 
 	# ReplaceSubStringAtPositions(anPos, pcOld, pcNew).
 	# pcNew accepts :By = "..." named-param form.
@@ -11346,7 +11318,7 @@ class stzString from stzObject
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = This._EngineSlice(This.Content(),
 				         _s_[1], _s_[2] - _s_[1] + 1)
-				if StzFind(pcSub, _cMid_) > 0 return TRUE ok
+				if StzFindFirst(pcSub, _cMid_) > 0 return TRUE ok
 			ok
 		next
 		return FALSE
@@ -11358,7 +11330,7 @@ class stzString from stzObject
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
 			_c_ = StzMid(_c_, 2, len(_c_) - 2)
 		ok
-		_nP_ = StzFind(":", _c_)
+		_nP_ = StzFindFirst(":", _c_)
 		if _nP_ = 0 return [] ok
 		_a_ = ring_trim(StzMid(_c_, 1, _nP_ - 1))
 		_b_ = ring_trim(StzMidToEnd(_c_, _nP_ + 1))
@@ -11727,13 +11699,13 @@ class stzString from stzObject
 		if NOT isString(pcSub) return ok
 		_cur_ = This.Content()
 		# Avoid double-tagging.
-		_p_ = StzFind(char(1), _cur_)
+		_p_ = StzFindFirst(char(1), _cur_)
 		if _p_ > 0 _cur_ = StzMid(_cur_, 1, _p_ - 1) ok
 		This.Update(_cur_ + char(1) + pcSub)
 
 	def _NarrativeSubAndHost()
 		_c_ = This.Content()
-		_p_ = StzFind(char(1), _c_)
+		_p_ = StzFindFirst(char(1), _c_)
 		if _p_ < 1 return [ "", _c_ ] ok
 		return [ StzMidToEnd(_c_, _p_ + 1), StzMid(_c_, 1, _p_ - 1) ]
 
@@ -12674,8 +12646,8 @@ class stzString from stzObject
 		if _nLen_ < 3 return FALSE ok
 		# Must have a "(" somewhere after at least 1 char and a ")"
 		# somewhere after that.
-		_nO_ = StzFind("(", _c_)
-		_nC_ = StzFind(")", _c_)
+		_nO_ = StzFindFirst("(", _c_)
+		_nC_ = StzFindFirst(")", _c_)
 		return _nO_ >= 2 and _nC_ > _nO_
 
 	# Inversed: char-reverse alias.
@@ -13120,7 +13092,7 @@ class stzString from stzObject
 	# IsListInShortForm: rough check for `a:b` short-form list literal.
 	def IsListInShortForm()
 		_c_ = ring_trim(This.Content())
-		return StzFind(":", _c_) > 0 and len(_c_) >= 3
+		return StzFindFirst(":", _c_) > 0 and len(_c_) >= 3
 
 	def IncludedIn(pcOther)
 		return This.IsIncludedIn(pcOther)
@@ -13136,7 +13108,7 @@ class stzString from stzObject
 		if NOT isString(pcOther) return FALSE ok
 		_c_ = This.Content()
 		if len(_c_) = 0 return FALSE ok
-		return StzFind(_c_, pcOther) > 0
+		return StzFindFirst(_c_, pcOther) > 0
 
 	def RemoveLeftOccurrenceQ(pcSub)
 		This.RemoveFirstOccurrence(pcSub)
@@ -13149,7 +13121,7 @@ class stzString from stzObject
 	def NumberForm()
 		_c_ = ring_trim(This.Content())
 		if This.IsAnInteger() return :Integer ok
-		if StzFind(".", _c_) > 0 return :Decimal ok
+		if StzFindFirst(".", _c_) > 0 return :Decimal ok
 		if ring_left(_c_, 2) = "0x" return :Hex ok
 		if ring_left(_c_, 2) = "0b" return :Binary ok
 		return :Other

@@ -55,7 +55,7 @@ Scenario("Plan execution dispatches every step without arity errors")
     Given("a table wrangler running the 'clean' plan")
     ot = new stzDataWrangler([ [ "  John ", "25", "sales" ], [ "John", "25", "sales" ], [ "mary", "", "mkt" ] ], [ "Name", "Age", "Dept" ])
     r = ot.ExecutePlan("clean", FALSE)
-    Then("no step fails with an arity error", StzFind(ot._GetExecutionSummary(r[:results]), ", 0 errors") > 0, TRUE)
+    Then("no step fails with an arity error", StzFindFirst(ot._GetExecutionSummary(r[:results]), ", 0 errors") > 0, TRUE)
 EndScenario()
 
 Summary()

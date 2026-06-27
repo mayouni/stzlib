@@ -146,7 +146,7 @@ func StzResolveEdgeStyle(pStyle)
 		return $acEdgeStyles[cStyleKey]
 	ok
 
-	if StzFind(["solid", "dashed", "dotted", "bold"], cStyleKey)
+	if StzFindFirst(["solid", "dashed", "dotted", "bold"], cStyleKey)
 		return cStyleKey
 	ok
 
@@ -158,11 +158,11 @@ func StzResolveEdgeStyle(pStyle)
 func StzResolveNodeType(pcType)
 	cTypeKey = StzLower("" + pcType)
 
-	if StzFind($acDotShapes, cTypeKey) > 0
+	if StzFindFirst($acDotShapes, cTypeKey) > 0
 		return cTypeKey
 	ok
 
-	if StzFind($acNodeTypes, cTypeKey)
+	if StzFindFirst($acNodeTypes, cTypeKey)
 		return cTypeKey
 	ok
 
@@ -212,7 +212,7 @@ func StzNodeTypes()
 		return StzNodeTypes()
 
 func StzIsValidNodeType(pcType)
-	return StzFind($acNodeTypes, pcType) > 0
+	return StzFindFirst($acNodeTypes, pcType) > 0
 
 	func IsValidNodeType(pcType)
 		return StzIsValidNodeType(pcType)
@@ -400,7 +400,7 @@ class stzDiagram from stzGraph
 	def SetSplines(pcType)
 
 	    cType = StzLower(pcType)
-	    if StzFind($acSplineTypes, cType) > 0
+	    if StzFindFirst($acSplineTypes, cType) > 0
 	        @cSplineType = cType
 	    else
 		@cSplineType = $cDefaultSplineType
@@ -1137,7 +1137,7 @@ class stzDiagram from stzGraph
 		ok
 		
 		cTag = aParams[1]
-		return StzFind(aContext[:tags], cTag) > 0
+		return StzFindFirst(aContext[:tags], cTag) > 0
 	
 	def _BuildRuleContext(aElement)
 		aContext = aElement
@@ -1211,7 +1211,7 @@ class stzDiagram from stzGraph
 			aNode = aNodes[_iLoopNodes2_]
 			if HasKey(aNode, :properties) and 
 			   HasKey(aNode[:properties], :tags) and
-			   StzFind(aNode[:properties][:tags], pcTag) > 0
+			   StzFindFirst(aNode[:properties][:tags], pcTag) > 0
 				acResult + aNode[:id]
 			ok
 		end
@@ -1900,9 +1900,9 @@ class stzDiagram from stzGraph
 			ok
 			
 			if bInNodesSection and cLine != "" and
-			   NOT StzFind(cLine, "label:") and
-			   NOT StzFind(cLine, "type:") and
-			   NOT StzFind(cLine, "color:")
+			   NOT StzFindFirst(cLine, "label:") and
+			   NOT StzFindFirst(cLine, "type:") and
+			   NOT StzFindFirst(cLine, "color:")
 				return cLine
 			ok
 			
@@ -1958,7 +1958,7 @@ class stzDiagram from stzGraph
 				loop
 			ok
 			
-			if StzFind(cLine, "diagram ")
+			if StzFindFirst(cLine, "diagram ")
 				cTitle = trim(StzMid(cLine, 10, stzlen(cLine) - 10))
 				@cId = cTitle
 
@@ -1971,7 +1971,7 @@ class stzDiagram from stzGraph
 			but cLine = "edges"
 				cCurrentSection = "edges"
 
-			but cCurrentSection = "properties" and StzFind(cLine, ":")
+			but cCurrentSection = "properties" and StzFindFirst(cLine, ":")
 				aParts = @split(cLine, ":")
 				cKey = trim(aParts[1])
 				cValue = trim(aParts[2])
@@ -1983,7 +1983,7 @@ class stzDiagram from stzGraph
 				ok
 
 			but cCurrentSection = "nodes"
-				if NOT StzFind(cLine, "label:") and NOT StzFind(cLine, "type:") and NOT StzFind(cLine, "color:")
+				if NOT StzFindFirst(cLine, "label:") and NOT StzFindFirst(cLine, "type:") and NOT StzFindFirst(cLine, "color:")
 					if cCurrentNode != "" and cLabel != ""
 						if cType = "" cType = $cDefaultNodeType ok
 						if cColor = "" cColor = $cDefaultNodeColor ok
@@ -1994,17 +1994,17 @@ class stzDiagram from stzGraph
 					cType = ""
 					cColor = ""
 
-				but StzFind(cLine, "label:")
+				but StzFindFirst(cLine, "label:")
 					cLabel = StzMid(cLine, 9, stzlen(cLine) - 9)
 
-				but StzFind(cLine, "type:")
+				but StzFindFirst(cLine, "type:")
 					cType = trim(StzMid(cLine, 7, stzlen(cLine) - 6))
 
-				but StzFind(cLine, "color:")
+				but StzFindFirst(cLine, "color:")
 					cColor = trim(StzMid(cLine, 8, stzlen(cLine) - 7))
 				ok
 
-			but cCurrentSection = "edges" and StzFind(cLine, "->")
+			but cCurrentSection = "edges" and StzFindFirst(cLine, "->")
 				aEdgeParts = @split(cLine, "->")
 				cFrom = trim(aEdgeParts[1])
 				cTo = trim(aEdgeParts[2])
@@ -2602,16 +2602,16 @@ class stzDiagramToDot
 		
 		cRankDir = "TB"
 
-		if cLayout = "topdown" or StzFind($acLayouts[:TopDown], cLayout)
+		if cLayout = "topdown" or StzFindFirst($acLayouts[:TopDown], cLayout)
 			cRankDir = "TB"
 	
-		but cLayout = "bottomup" or StzFind($acLayouts[:BottomUp], cLayout)
+		but cLayout = "bottomup" or StzFindFirst($acLayouts[:BottomUp], cLayout)
 			cRankDir = "BT"
 	
-		but cLayout = "leftright" or StzFind($acLayouts[:LeftRight], cLayout)
+		but cLayout = "leftright" or StzFindFirst($acLayouts[:LeftRight], cLayout)
 			cRankDir = "LR"
 	
-		but cLayout = "rightleft" or StzFind($acLayouts[:RightLeft], cLayout)
+		but cLayout = "rightleft" or StzFindFirst($acLayouts[:RightLeft], cLayout)
 			cRankDir = "RL"
 		ok
 	
@@ -2709,7 +2709,7 @@ class stzDiagramToDot
 	    ok
 	    
 	    # Ensure filled is always present (visual rules already merged in _GetNodeStyle)
-	    if NOT StzFind(cStyle, "filled")
+	    if NOT StzFindFirst(cStyle, "filled")
 	        if cStyle = ""
 	            cStyle = "filled"
 	        else
@@ -2783,7 +2783,7 @@ class stzDiagramToDot
 		ok
 		
 		# Direct DOT shape (bypasses semantic mapping)
-		if StzFind($acDotShapes, cType) > 0
+		if StzFindFirst($acDotShapes, cType) > 0
 			return cType
 		ok
 		
@@ -2828,10 +2828,10 @@ class stzDiagramToDot
 		if HasKey(aEnhancements, "style")
 			cRuleStyle = aEnhancements["style"]
 			# Merge: ensure filled + rounded (for boxes) + rule style
-			if NOT StzFind(cRuleStyle, "filled")
+			if NOT StzFindFirst(cRuleStyle, "filled")
 				cRuleStyle += ",filled"
 			ok
-			if cShape = "box" and NOT StzFind(cRuleStyle, "rounded")
+			if cShape = "box" and NOT StzFindFirst(cRuleStyle, "rounded")
 				cRuleStyle = "rounded," + cRuleStyle
 			ok
 			return cRuleStyle
@@ -2839,19 +2839,19 @@ class stzDiagramToDot
 		
 		# Polygon shapes don't support rounded
 		
-		if StzFind($aPolygonShapes, cShape) > 0
+		if StzFindFirst($aPolygonShapes, cShape) > 0
 			# Add filled if not already there
-			if NOT StzFind(cBaseStyle, "filled")
+			if NOT StzFindFirst(cBaseStyle, "filled")
 				return cBaseStyle + ",filled"
 			ok
 			return cBaseStyle
 		ok
 
 		# For box-like shapes, add rounded and filled
-		if NOT StzFind(cBaseStyle, "filled")
+		if NOT StzFindFirst(cBaseStyle, "filled")
 			cBaseStyle += ",filled"
 		ok
-		if NOT StzFind(cBaseStyle, "rounded") and cShape = "box"
+		if NOT StzFindFirst(cBaseStyle, "rounded") and cShape = "box"
 			cBaseStyle = "rounded," + cBaseStyle
 		ok
 		
@@ -2879,7 +2879,7 @@ class stzDiagramToDot
 	    ok
 	    
 	    # If already hex, return after theme transforms
-	    if StzFind(cColor, "#")
+	    if StzFindFirst(cColor, "#")
 	        if cTheme = "gray"
 	            return @oDiagram.ConvertColorTogray(cColor)
 	        but cTheme = "print"
@@ -3115,7 +3115,7 @@ class stzDiagramToMermaid
 	
 			# Escape reserved keywords
 			cSafeNodeId = cNodeId
-			if StzFind(aReservedWords, StzLower(cNodeId)) > 0
+			if StzFindFirst(aReservedWords, StzLower(cNodeId)) > 0
 				cSafeNodeId = "node_" + cNodeId
 			ok
 	
@@ -3148,10 +3148,10 @@ class stzDiagramToMermaid
 			cToId = aEdge["to"]
 			
 			# Escape reserved keywords in edges
-			if StzFind(aReservedWords, StzLower(cFromId)) > 0
+			if StzFindFirst(aReservedWords, StzLower(cFromId)) > 0
 				cFromId = "node_" + cFromId
 			ok
-			if StzFind(aReservedWords, StzLower(cToId)) > 0
+			if StzFindFirst(aReservedWords, StzLower(cToId)) > 0
 				cToId = "node_" + cToId
 			ok
 			
@@ -3274,7 +3274,7 @@ class stzColorResolver
 
 	def ResolveWithPalette(pcColor, pacPalette)
 
-		if isString(pcColor) and StzFind(pcColor, "#")
+		if isString(pcColor) and StzFindFirst(pcColor, "#")
 			return pcColor
 		ok
 
@@ -3369,13 +3369,13 @@ class stzStylParser
 			ok
 
 			# Style header
-			if StzFind(cLine, "style ")
+			if StzFindFirst(cLine, "style ")
 				aStyle[:name] = This._ExtractQuoted(cLine)
 
-			but StzFind(cLine, "theme:")
+			but StzFindFirst(cLine, "theme:")
 				aStyle[:theme] = This._ExtractValue(cLine)
 
-			but StzFind(cLine, "layout:")
+			but StzFindFirst(cLine, "layout:")
 				aStyle[:layout] = This._ExtractValue(cLine)
 
 			# Sections
@@ -3398,7 +3398,7 @@ class stzStylParser
 				cSection = "custom"
 
 			# Parse section content
-			but cSection != "" and StzFind(cLine, ":")
+			but cSection != "" and StzFindFirst(cLine, ":")
 				aParts = split(cLine, ":")
 				cKey = trim(aParts[1])
 				cValue = trim(aParts[2])
@@ -3424,14 +3424,14 @@ class stzStylParser
 		return cValue
 
 	def _ExtractValue(cLine)
-		nPos = StzFind(cLine, ":")
+		nPos = StzFindFirst(cLine, ":")
 		if nPos = 0 return "" ok
 		cValue = trim(StzMid(cLine, nPos + 1, StzLen(cLine) - nPos))
 		return This._ParseValue(cValue)
 
 	def _ExtractQuoted(cLine)
-		nStart = StzFind(cLine, '"')
+		nStart = StzFindFirst(cLine, '"')
 		if nStart = 0 return "" ok
 		nEnd = StzMid(cLine, nStart + 1, StzLen(cLine) - nStart)
-		nEnd = StzFind(nEnd, '"')
+		nEnd = StzFindFirst(nEnd, '"')
 		return StzMid(cLine, nStart + 1, nEnd - 1)

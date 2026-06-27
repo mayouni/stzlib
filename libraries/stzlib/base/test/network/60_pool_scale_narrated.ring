@@ -22,7 +22,7 @@ Scenario("Bounded pool refuses submissions past max_queue")
     Then("some submissions were denied (backpressure)",
         nDenied > 0, TRUE)
     Then("LastError mentions backpressure",
-        StzFind(StzEnginePoolLastError(), "queue full") > 0, TRUE)
+        StzFindFirst(StzEnginePoolLastError(), "queue full") > 0, TRUE)
     StzEnginePoolDestroy(p)
 EndScenario()
 

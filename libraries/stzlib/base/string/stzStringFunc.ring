@@ -2579,7 +2579,7 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 		return nResult
 
 	but isString(p1) and ( (isList(p2) and len(p2)=0) or (isNumber(p2) and p2 = 0) )
-		return StzFind(str, p1)
+		return StzFindFirst(str, p1)
 
 	else
 

@@ -382,7 +382,7 @@ class stzHistogram
 	def Mode()
 		# Find the bin with highest frequency
 		nMaxFreq = max(@aBinCounts)
-		nModeIndex = StzFind(@aBinCounts, nMaxFreq)
+		nModeIndex = StzFindFirst(@aBinCounts, nMaxFreq)
 		
 		if nModeIndex > 0
 			return @aBinRanges[nModeIndex]

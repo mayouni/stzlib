@@ -254,7 +254,7 @@ class stzListOfBytes from stzList
 
 		aResult = []
 
-		if StzFind(aChars, pcChar) > 0
+		if StzFindFirst(aChars, pcChar) > 0
 			aResult = StzListOfBytesQ(pcChar).Bytes()
 		ok
 

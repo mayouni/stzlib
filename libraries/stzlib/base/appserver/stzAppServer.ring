@@ -329,7 +329,7 @@ class stzAppServer from stzNetwork
 				exit
 			ok
 			
-			nColon = StzFind(aLines[i], ":")
+			nColon = StzFindFirst(aLines[i], ":")
 			if nColon > 0
 				cName = trim(StzLeft(aLines[i], nColon - 1))
 				cValue = trim(StzMidToEnd(aLines[i], nColon + 1))

@@ -222,7 +222,7 @@ func SetCurrentLocale(pcLocaleAbbr)
 
 func _LocaleLangCodeFromAbbr(cLocaleAbbr)
 	cLocaleAbbr = StzReplace(cLocaleAbbr, "-", "_")
-	nPos = StzFind(cLocaleAbbr, "_")
+	nPos = StzFindFirst(cLocaleAbbr, "_")
 	if nPos > 0
 		return StzLower(StzLeft(cLocaleAbbr, nPos - 1))
 	ok
@@ -230,10 +230,10 @@ func _LocaleLangCodeFromAbbr(cLocaleAbbr)
 
 func _LocaleCountryCodeFromAbbr(cLocaleAbbr)
 	cLocaleAbbr = StzReplace(cLocaleAbbr, "-", "_")
-	nPos = StzFind(cLocaleAbbr, "_")
+	nPos = StzFindFirst(cLocaleAbbr, "_")
 	if nPos > 0
 		cRest = StzMid(cLocaleAbbr, nPos + 1, StzLen(cLocaleAbbr))
-		nPos2 = StzFind(cRest, "_")
+		nPos2 = StzFindFirst(cRest, "_")
 		if nPos2 > 0
 			return StzUpper(StzMid(cRest, nPos2 + 1, StzLen(cRest)))
 		ok
@@ -248,7 +248,7 @@ func _LocaleNormalizeAbbr(cInput)
 		return "C"
 	ok
 	cInput = StzReplace(cInput, "-", "_")
-	nPos = StzFind(cInput, "_")
+	nPos = StzFindFirst(cInput, "_")
 	if nPos > 0
 		cLang = StzLower(StzLeft(cInput, nPos - 1))
 		cRest = StzUpper(StzMid(cInput, nPos + 1, StzLen(cInput)))
@@ -1150,7 +1150,7 @@ class stzLocale from stzObject
 
 		cFirstDayInEnglish = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
-		n = StzFind( aDaysInEnglish, cFirstDayInEnglish )
+		n = StzFindFirst( aDaysInEnglish, cFirstDayInEnglish )
 
 		# We need to get that 1st day in native language of the locale
 
@@ -1174,7 +1174,7 @@ class stzLocale from stzObject
 	def NativeDaysOfWeek()
 		cFirstDayInEnglish = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
-		n = StzFind( aDaysInEnglish, cFirstDayInEnglish )
+		n = StzFindFirst( aDaysInEnglish, cFirstDayInEnglish )
 
 		cLang = This.LanguageName()
 
@@ -1249,7 +1249,7 @@ class stzLocale from stzObject
 		cFirstDay = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 
-		nFirst = StzFind( aDaysInEnglish, cFirstDay )
+		nFirst = StzFindFirst( aDaysInEnglish, cFirstDay )
 
 		nDay = nFirst + n - 1
 		if nDay > 7 nDay = nDay - 7 ok
@@ -1289,7 +1289,7 @@ class stzLocale from stzObject
 		cFirstDay = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 
-		nFirst = StzFind( aDaysInEnglish, cFirstDay )
+		nFirst = StzFindFirst( aDaysInEnglish, cFirstDay )
 
 		nDay = nFirst + n - 1
 		if nDay > 7 nDay = nDay - 7 ok

@@ -1272,7 +1272,7 @@ class stzMatrix
 
 			for j = panStart[2] to panEnd[2]
 
-				if StzFind(anElms, @aMatrix[i][j]) > 0
+				if StzFindFirst(anElms, @aMatrix[i][j]) > 0
 					aResult + [i, j]
 				ok
 

@@ -58,12 +58,12 @@ func StzNormalizePathsInCommand(pcCommand)
 
 		if isWindows()
 			# Convert / to \ only if not a flag (doesn't start with /)
-			if StzFind(cToken, "/") > 0 and cToken[1] != "/"
+			if StzFindFirst(cToken, "/") > 0 and cToken[1] != "/"
 				cToken = StzReplace(cToken, "/", "\")
 			ok
 		else
 			# Convert \ to / for Unix paths
-			if StzFind(cToken, "\") > 0
+			if StzFindFirst(cToken, "\") > 0
 				cToken = StzReplace(cToken, "\", "/")
 			ok
 		ok
@@ -123,7 +123,7 @@ class stzSystemCall
 
 	def ParseCommandString(cCmd)
 		# Check for return type suffix (@RETURN:type)
-		nReturnPos = StzFind(cCmd, "@RETURN:")
+		nReturnPos = StzFindFirst(cCmd, "@RETURN:")
 		if nReturnPos > 0
 			# Extract return type
 			oCmd = new stzString(cCmd)
@@ -137,7 +137,7 @@ class stzSystemCall
 		cCmd = trim(cCmd)
 
 		# Extract first token (program name)
-		nPos = StzFind(cCmd, " ")
+		nPos = StzFindFirst(cCmd, " ")
 		if nPos = 0
 			@cProgram = cCmd
 			return
@@ -311,14 +311,14 @@ class stzSystemCall
 			next
 			cCmd += cCommand
 		else
-			if StzFind(@cProgram, " ") > 0
+			if StzFindFirst(@cProgram, " ") > 0
 				cCmd = '"' + @cProgram + '"'
 			else
 				cCmd = @cProgram
 			ok
 			_nArgsLen_2 = len(@acArgs)
 			for i = 1 to _nArgsLen_2
-				if StzFind(@acArgs[i], " ") > 0
+				if StzFindFirst(@acArgs[i], " ") > 0
 					cCmd += ' "' + @acArgs[i] + '"'
 				else
 					cCmd += " " + @acArgs[i]
@@ -422,7 +422,7 @@ class stzSystemCall
 
 	def SetParam(cParam, cValue)
 		# Convert forward slashes to backslashes on Windows for path-like values
-		if isWindows() and (StzFind(cValue, "/") > 0 or StzFind(cValue, "\") > 0)
+		if isWindows() and (StzFindFirst(cValue, "/") > 0 or StzFindFirst(cValue, "\") > 0)
 			cValue = StzReplace(cValue, "/", "\")
 		ok
 
@@ -719,14 +719,14 @@ class stzSystemCall
 		bNeedsShell = FALSE
 
 		# Check for shell operators
-		if StzFind(cCmd, " > ") > 0 or StzFind(cCmd, " < ") > 0 or
-		   StzFind(cCmd, "|") > 0 or StzFind(cCmd, "&&") > 0 or
-		   StzFind(cCmd, "||") > 0
+		if StzFindFirst(cCmd, " > ") > 0 or StzFindFirst(cCmd, " < ") > 0 or
+		   StzFindFirst(cCmd, "|") > 0 or StzFindFirst(cCmd, "&&") > 0 or
+		   StzFindFirst(cCmd, "||") > 0
 			bNeedsShell = TRUE
 		ok
 
 		# Check for single & (but not &&)
-		if StzFind(cCmd, "&") > 0 and StzFind(cCmd, "&&") = 0
+		if StzFindFirst(cCmd, "&") > 0 and StzFindFirst(cCmd, "&&") = 0
 			bNeedsShell = TRUE
 		ok
 

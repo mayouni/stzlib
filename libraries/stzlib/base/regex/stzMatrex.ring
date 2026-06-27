@@ -86,12 +86,12 @@ def ParsePattern(cPattern)
 			loop
 		ok
 		
-		if StzFind(cPart, "|") > 0
+		if StzFindFirst(cPart, "|") > 0
 			if @bDebugMode
 				? ">>> Detected alternation"
 			ok
 			aToken = This.ParseAlternation(cPart)
-		but StzFind(cPart, "&") > 0
+		but StzFindFirst(cPart, "&") > 0
 			if @bDebugMode
 				? ">>> Detected conjunction"
 			ok
@@ -322,11 +322,11 @@ def ParseConjunction(cTokenStr)
 		ok
 		
 		# Parse parentheses content
-		nOpenParen = StzFind(cTokenStr, "(")
+		nOpenParen = StzFindFirst(cTokenStr, "(")
 		nCloseParen = 0
 
 		if nOpenParen > 0
-			nCloseParen = StzFind(cTokenStr, ")")
+			nCloseParen = StzFindFirst(cTokenStr, ")")
 			if nCloseParen > nOpenParen
 				cContent = This._Mid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 				
@@ -353,14 +353,14 @@ def ParseConjunction(cTokenStr)
 		cQuantPart = trim(cQuantPart)
 		
 		if len(cQuantPart) > 0
-			if StzFind(cQuantPart, ":") > 0
-				nColon = StzFind(cQuantPart, ":")
+			if StzFindFirst(cQuantPart, ":") > 0
+				nColon = StzFindFirst(cQuantPart, ":")
 				cBeforeColon = This._Mid(cQuantPart, 1, nColon - 1)
 				cAfterColon = This._Mid(cQuantPart, nColon + 1, len(cQuantPart))
 				
 				cBeforeColon = trim(cBeforeColon)
 				if len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
-					if StzFind(cBeforeColon, "-") > 0
+					if StzFindFirst(cBeforeColon, "-") > 0
 						aSection = @split(cBeforeColon, "-")
 						if len(aSection) = 2
 							nMin = 0 + trim(aSection[1])
@@ -389,7 +389,7 @@ def ParseConjunction(cTokenStr)
 					nMin = 0
 					nMax = 1
 				but This.IsNumeric(cQuantPart)
-					if StzFind(cQuantPart, "-") > 0
+					if StzFindFirst(cQuantPart, "-") > 0
 						aSection = @split(cQuantPart, "-")
 						if len(aSection) = 2
 							nMin = 0 + trim(aSection[1])
@@ -420,7 +420,7 @@ def ParseConjunction(cTokenStr)
 		ok
 		
 		if cType = "element"
-			if StzFind(cConstraintStr, "..") > 0
+			if StzFindFirst(cConstraintStr, "..") > 0
 				aParts = @split(cConstraintStr, "..")
 				if len(aParts) = 2
 					aConstraints + [
@@ -429,9 +429,9 @@ def ParseConjunction(cTokenStr)
 						["end", 0 + trim(aParts[2])]
 					]
 				ok
-			but StzFind(cConstraintStr, "{") > 0
-				nStart = StzFind(cConstraintStr, "{")
-				nEnd = StzFind(cConstraintStr, "}")
+			but StzFindFirst(cConstraintStr, "{") > 0
+				nStart = StzFindFirst(cConstraintStr, "{")
+				nEnd = StzFindFirst(cConstraintStr, "}")
 				cSet = This._Mid(cConstraintStr, nStart + 1, nEnd - 1)
 				aValues = @split(cSet, ";")
 				aConstraints + [
@@ -447,7 +447,7 @@ def ParseConjunction(cTokenStr)
 		
 		but cType = "size"
 			# Handle size constraints like "3x3", "mxn", ">4"
-			if StzFind(cConstraintStr, "x") > 0
+			if StzFindFirst(cConstraintStr, "x") > 0
 				aParts = @split(cConstraintStr, "x")
 				if len(aParts) = 2
 					aConstraints + [
@@ -617,7 +617,7 @@ def ParseConjunction(cTokenStr)
 		if HasKey(aToken, "value")
 			cValue = aToken["value"]
 			
-			if StzFind(cValue, "x") > 0
+			if StzFindFirst(cValue, "x") > 0
 				aParts = @split(cValue, "x")
 				if len(aParts) = 2
 					cRowSpec = trim(aParts[1])

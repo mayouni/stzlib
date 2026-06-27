@@ -341,7 +341,7 @@ class stzDataWrangler
                 for i = 1 to _nDataLen_14
                     if NOT This._IsMissing(@aData[i][j])
                         cType = This._GetDataType(@aData[i][j])
-                        if StzFind(aColumnTypes, cType) = 0
+                        if StzFindFirst(aColumnTypes, cType) = 0
                             aColumnTypes + cType
                         ok
                     ok
@@ -372,7 +372,7 @@ class stzDataWrangler
                 cColumn = rule[1]
                 nMin = rule[2]
                 nMax = rule[3]
-                nColIndex = StzFind(@aHeaders, cColumn)
+                nColIndex = StzFindFirst(@aHeaders, cColumn)
                 
                 if nColIndex > 0
                     _nDataLen_13 = len(@aData)
@@ -446,7 +446,7 @@ class stzDataWrangler
             	rule = aConversionRules[_iLoopConversionRules1_]
                 cColumn = rule[1]
                 cTargetType = rule[2]
-                nColIndex = StzFind(@aHeaders, cColumn)
+                nColIndex = StzFindFirst(@aHeaders, cColumn)
                 
                 if nColIndex > 0
                     _nDataLen_11 = len(@aData)
@@ -747,7 +747,7 @@ class stzDataWrangler
     # ==============
     
     def _IsMissing(value)
-        return isNull(value) or StzFind($aWRANGLE_MISSING_VALUES, "" + value) > 0
+        return isNull(value) or StzFindFirst($aWRANGLE_MISSING_VALUES, "" + value) > 0
 
     def _GetFillValue(aData, cStrategy)
         # Determine best fill value based on data and strategy
@@ -860,7 +860,7 @@ class stzDataWrangler
         return "unknown"
 
     def _IsBoolean(cValue)
-        return StzFind($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, StzLower(trim("" + cValue))) > 0
+        return StzFindFirst($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, StzLower(trim("" + cValue))) > 0
 
     def _IsDate(cValue)
         # Simple date detection - could be enhanced
@@ -884,7 +884,7 @@ class stzDataWrangler
             
         on "boolean"
             if This._IsBoolean(value)
-                return StzFind($aWRANGLE_TRUE_VALUES, StzLower(trim("" + value))) > 0
+                return StzFindFirst($aWRANGLE_TRUE_VALUES, StzLower(trim("" + value))) > 0
             ok
             
         on "date"
@@ -1034,7 +1034,7 @@ next
             for i = 1 to _nDataLen_7
                 if NOT This._IsMissing(@aData[i][j])
                     cType = This._GetDataType(@aData[i][j])
-                    if StzFind(aTypes, cType) = 0
+                    if StzFindFirst(aTypes, cType) = 0
                         aTypes + cType
                     ok
                 ok
@@ -1195,7 +1195,7 @@ next
         _nDataLen_5 = len(@aData)
         for i = 1 to _nDataLen_5
             value = @aData[i][nColIndex]
-            if NOT This._IsMissing(value) and StzFind(aUnique, value) = 0
+            if NOT This._IsMissing(value) and StzFindFirst(aUnique, value) = 0
                 aUnique + value
             ok
         next
@@ -1227,7 +1227,7 @@ next
         for i = 1 to _nDataLen_2
             value = @aData[i][nColIndex]
             if NOT This._IsMissing(value)
-                nLabelIndex = StzFind(aUniqueValues, value)
+                nLabelIndex = StzFindFirst(aUniqueValues, value)
                 if nLabelIndex > 0
                     @aData[i][nColIndex] = nLabelIndex - 1  # 0-based encoding
                     nEncoded++

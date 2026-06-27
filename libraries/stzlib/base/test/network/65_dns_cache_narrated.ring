@@ -44,7 +44,7 @@ func DnsStat(cKey)
     nP = len(aParts)
     for i = 1 to nP
         cKV = aParts[i]
-        nEq = StzFind(cKV, "=")
+        nEq = StzFindFirst(cKV, "=")
         if nEq < 1 loop ok
         if StzLeft(cKV, nEq - 1) = cKey
             return 0 + StzMidToEnd(cKV, nEq + 1)

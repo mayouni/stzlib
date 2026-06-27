@@ -39,7 +39,7 @@ class stzRequestClassifier
             _nPatternkeywords1Len_ = len(_aPatternkeywords1_)
             for _iLoopPatternkeywords1_ = 1 to _nPatternkeywords1Len_
             	cKeyword = _aPatternkeywords1_[_iLoopPatternkeywords1_]
-                if StzFind(cContent, cKeyword) > 0
+                if StzFindFirst(cContent, cKeyword) > 0
                     nScore++
                 ok
             next

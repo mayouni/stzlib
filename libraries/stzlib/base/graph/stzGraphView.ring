@@ -163,8 +163,8 @@ class stzGraphView from stzGraph
 			cFrom = aEdge[:from]
 			cTo = aEdge[:to]
 			
-			if StzFind(@acIncludedNodes, cFrom) > 0 and
-			   StzFind(@acIncludedNodes, cTo) > 0
+			if StzFindFirst(@acIncludedNodes, cFrom) > 0 and
+			   StzFindFirst(@acIncludedNodes, cTo) > 0
 				
 				aEdgeCopy = [
 					:from = cFrom,
