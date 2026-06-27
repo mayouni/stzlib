@@ -6111,16 +6111,21 @@ class stzList from stzObject
 		return This.ExtractLastCS(pItem, 1)
 
 	def ExtractSection(n1, n2)
+		# Capture the section BEFORE removing it (afterwards the list is shorter,
+		# so This.Section(n1,n2) would go out of range).
+		_aEsSection_ = This.Section(n1, n2)
 		_oEsExt_ = new stzListExtractor(This)
 		_oEsExt_.ExtractSection(n1, n2)
 		This.UpdateWith(_oEsExt_.Content())
-		return This.Section(n1, n2)
+		return _aEsSection_
 
 	def ExtractRange(pnStart, pnRange)
+		# Capture the range BEFORE removing it (same as ExtractSection).
+		_aErRange_ = This.Range(pnStart, pnRange)
 		_oErExt_ = new stzListExtractor(This)
 		_oErExt_.ExtractRange(pnStart, pnRange)
 		This.UpdateWith(_oErExt_.Content())
-		return This.Range(pnStart, pnRange)
+		return _aErRange_
 
 	def ExtractW(pcCondition)
 		# Remove every item matching the W-condition and RETURN them all
@@ -8553,6 +8558,9 @@ class stzList from stzObject
 		def IntersectionWith(paOtherList)
 			return This.CommonItems([ :With, paOtherList ])
 
+		def Common(paOtherList)
+			return This.CommonItemsWith(paOtherList)
+
 	#-- Symmetric difference: (this items not in other) ++ (other items not
 	#-- in this). Engine-faithful element compare via BothAreEqualCS.
 
@@ -8612,6 +8620,9 @@ class stzList from stzObject
 
 	def DifferentItemsWith(paOtherList)
 		return This.DifferentItemsWithCS(paOtherList, 1)
+
+		def Diff(paOtherList)
+			return This.DifferentItemsWith(paOtherList)
 
 	#-- Same items as another list, regardless of order/count (set equality).
 
@@ -10973,6 +10984,9 @@ class stzList from stzObject
 
 	def DiffXTT(paOtherList)
 		return This.DifferentItemsWithXTT(paOtherList)
+
+		def DiffXT(paOtherList)
+			return This.DiffXTT(paOtherList)
 
 	#-- Objectify: wrap each item in a Q() stz object (so per-item stz
 	#-- methods like ContainsCS can be called). Needed by DiffXTT's
