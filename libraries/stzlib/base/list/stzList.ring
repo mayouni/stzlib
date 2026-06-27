@@ -5064,20 +5064,19 @@ class stzList from stzObject
 		if CheckParams()
 			if isList(n) and len(n) = 2 and
 			   isNumber(n[1]) and isString(n[2]) and
-			   n[2] = :NTimes
+			   (n[2] = :NTimes or n[2] = :Times)
 
-				n = n[2]
+				n = n[1]
 			ok
 		ok
 
-		_pRptList_ = This._EngineListFromContent()
-		if _pRptList_ = NULL return ok
-		_pRptResult_ = StzEngineListRepeat(_pRptList_, n)
-		if _pRptResult_ != NULL
-			This._SetContent(StzEngineListContentToRingList(_pRptResult_))
-			StzEngineListFree(_pRptResult_)
-		ok
-		StzEngineListFree(_pRptList_)
+		# Mutating, nesting (in place): [1,2].Repeat(3) -> [ [1,2], [1,2], [1,2] ].
+		_aRptContent_ = This.Content()
+		_aRptRes_ = []
+		for _iRpt_ = 1 to n
+			_aRptRes_ + _aRptContent_
+		next
+		This._SetContent(_aRptRes_)
 
 		def RepeatQ(n)
 			This.Repeat(n)
@@ -5093,16 +5092,21 @@ class stzList from stzObject
 			ok
 		ok
 
-		_pRpdList_ = This._EngineListFromContent()
-		if _pRpdList_ = NULL return [] ok
-		_pRpdResult_ = StzEngineListRepeat(_pRpdList_, n)
+		# Repeating a list yields a list CONTAINING that list n times (NESTED):
+		# [1,2].Repeated(3) -> [ [1,2], [1,2], [1,2] ]. (The flat concatenation
+		# is the (*) operator's job: o1 * 3 -> [1,2,1,2,1,2].)
+		_aRpdContent_ = This.Content()
 		_aRpdOut_ = []
-		if _pRpdResult_ != NULL
-			_aRpdOut_ = StzEngineListContentToRingList(_pRpdResult_)
-			StzEngineListFree(_pRpdResult_)
-		ok
-		StzEngineListFree(_pRpdList_)
+		for _iRpd_ = 1 to n
+			_aRpdOut_ + _aRpdContent_
+		next
 		return _aRpdOut_
+
+		def RepeatedNTimes(n)
+			return This.Repeated(n)
+
+		def RepeatNTimes(n)
+			return This.Repeated(n)
 
 	  #-- SplitAt (engine-backed)
 
