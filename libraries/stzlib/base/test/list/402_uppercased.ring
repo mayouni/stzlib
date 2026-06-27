@@ -1,17 +1,12 @@
 # Narrative
 # --------
-# The (*) operator's richer right-hand forms -- a partial FEATURE STUB.
-#
-# o1 * 3 repeats the list (the implemented form -> [1,2,3,1,2,3,1,2,3]). The
-# block then explores forms the (*) operator does NOT yet support and which
-# currently raise "operator *: rhs must be a number": a Q()-wrapped number
-# (o1 * Q(3)), a string suffix (Q([...]) * ".ring" -> append to each item),
-# and a Q()-wrapped string. The recorded outputs document the intended
-# behavior. Left as a documented stub until (*) accepts stz-object, string,
-# and list right-hand operands (the bare-number form is verified in 146/147).
+# The (*) operator's right-hand forms. o1 * 3 repeats the list flat
+# ([1,2,3,1,2,3,1,2,3]); o1 * Q(3) does the same but elevated (a stzList); a
+# string rhs appends a suffix to each item (Q([...]) * ".ring"); and a Q()-wrapped
+# string does the same elevated. The Q-elevation rule applies (raw rhs -> raw
+# list, Q()/stz-object rhs -> chainable stzList of the same content).
 #
 # Extracted from stzlisttest.ring, block #402.
-#ERR operator *: rhs must be a number.  (object/string/list RHS pending)
 
 load "../../stzBase.ring"
 
