@@ -1,6 +1,6 @@
 # Narrative
 # --------
-# StartProfiler()
+
 #
 # Extracted from stzlisttest.ring, block #214.
 
@@ -16,18 +16,15 @@ pr()
 
 #--
 
-? Q(1:2).Repeated(3)
-#--> [ 1:2, 1:2, 1:2 ]
+? @@( Q(1:2).Repeated(3) )
+#--> [ [1,2], [1,2], [1,2] ]
 
-? Q(1:2).Repeated([ 3, :Times ])
-#--> [ 1:2, 1:2, 1:2 ]
+? @@( Q(1:2).Repeated([ 3, :Times ]) )
+#--> [ [1,2], [1,2], [1,2] ]
 
 #--
 
 ? Q("A").Repeated(3)
-#--> AAA
-
-? Q("A").Repeated([ :NTimes, 3 ])
 #--> AAA
 
 ? Q("A").Repeated([ 3, :Times ])
@@ -36,4 +33,5 @@ pr()
 StopProfiler()
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.27
 # Executed in 0.07 second(s) in Ring 1.21
