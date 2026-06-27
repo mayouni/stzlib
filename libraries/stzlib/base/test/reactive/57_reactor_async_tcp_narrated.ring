@@ -12,7 +12,7 @@ oReactor = new stzReactor()
 
 Scenario("The reactor reports its libuv backend version")
     Given("a reactor")
-    Then("Version() looks like a 1.x libuv", StzFind(oReactor.Version(), "1.") > 0, TRUE)
+    Then("Version() looks like a 1.x libuv", StzFindFirst(oReactor.Version(), "1.") > 0, TRUE)
 EndScenario()
 
 Scenario("A timer submitted through the class fires")
@@ -33,7 +33,7 @@ Scenario("An async TCP request returns the HTTP response")
     Then("the request succeeded (status 0)", oReactor.TcpLastStatus(), 0)
     Then("a non-empty body came back", len(cBody) > 0, TRUE)
     Then("the body starts with an HTTP status line",
-        StzFind(cBody, "HTTP/") > 0, TRUE)
+        StzFindFirst(cBody, "HTTP/") > 0, TRUE)
 EndScenario()
 
 oReactor.Destroy()

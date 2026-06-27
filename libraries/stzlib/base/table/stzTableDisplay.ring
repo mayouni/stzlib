@@ -410,7 +410,7 @@ class stzTableDisplay from stzTable
 
 			cGroup = "" + aContent[nGroupCol][2][r]
 
-			if NOT StzFind(aGroups, cGroup) > 0
+			if NOT StzFindFirst(aGroups, cGroup) > 0
 				aGroups + cGroup
 				aGroupTotals[cGroup] = []
 				for i = 1 to nCols

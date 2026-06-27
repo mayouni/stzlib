@@ -389,7 +389,7 @@ class stzPivotTable from stzList
 				# First add values from the custom order
 
 				for i = 1 to nLenColOrder
-					if StzFind(aUniqueValues, @aColumnOrder[i]) > 0
+					if StzFindFirst(aUniqueValues, @aColumnOrder[i]) > 0
 						aOrdered + @aColumnOrder[i]
 					ok
 				next
@@ -398,7 +398,7 @@ class stzPivotTable from stzList
 
 				for i = 1 to nLenU
 					cItem = aUniqueValues[i]
-					if not StzFind(aOrdered, cItem) > 0
+					if not StzFindFirst(aOrdered, cItem) > 0
 						aOrdered + cItem
 					ok
 				next
@@ -1481,11 +1481,11 @@ class stzPivotTable from stzList
 				dim1Value = aParts[1]
 				dim2Value = aParts[2]
 				
-				if StzFind(aColDim1Values, dim1Value) = 0
+				if StzFindFirst(aColDim1Values, dim1Value) = 0
 					aColDim1Values + dim1Value
 				ok
 				
-				if StzFind(aColDim2Values, dim2Value) = 0
+				if StzFindFirst(aColDim2Values, dim2Value) = 0
 					aColDim2Values + dim2Value
 				ok
 				
@@ -2003,11 +2003,11 @@ class stzPivotTable from stzList
 				dim1Value = aParts[1]
 				dim2Value = aParts[2]
 				
-				if StzFind(aColDim1Values, dim1Value) = 0
+				if StzFindFirst(aColDim1Values, dim1Value) = 0
 					aColDim1Values + dim1Value
 				ok
 				
-				if StzFind(aColDim2Values, dim2Value) = 0
+				if StzFindFirst(aColDim2Values, dim2Value) = 0
 					aColDim2Values + dim2Value
 				ok
 				
@@ -2125,7 +2125,7 @@ class stzPivotTable from stzList
 				cGroup = "" + aPivotData[r][1]
 				
 				# Add to group list if new
-				if NOT StzFind(aGroups, cGroup) > 0
+				if NOT StzFindFirst(aGroups, cGroup) > 0
 					aGroups + cGroup
 					aGroupTotals[cGroup] = []
 					
@@ -2684,11 +2684,11 @@ class stzPivotTable from stzList
 				dim1Value = aParts[1]
 				dim2Value = aParts[2]
 			
-				if StzFind(aColDim1Values, dim1Value) = 0
+				if StzFindFirst(aColDim1Values, dim1Value) = 0
 					aColDim1Values = aColDim1Values + dim1Value
 				ok
 			
-				if StzFind(aColDim2Values, dim2Value) = 0
+				if StzFindFirst(aColDim2Values, dim2Value) = 0
 					aColDim2Values = aColDim2Values + dim2Value
 				ok
 			

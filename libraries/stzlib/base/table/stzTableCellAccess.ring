@@ -33,10 +33,10 @@ class stzTableCellAccess from stzTable
 
 		if isString(pCol)
 
-			if StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = 1
 
-			but StzFind([ :Last, :LastCol, :LastColumn ], pCol) > 0
+			but StzFindFirst([ :Last, :LastCol, :LastColumn ], pCol) > 0
 				pCol = This.NumberOfColumns()
 
 			else
@@ -819,10 +819,10 @@ class stzTableCellAccess from stzTable
 			ok
 
 			if isString(pCol)
-				if StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+				if StzFindFirst([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 					pCol = 1
 
-				but StzFind([ :Last, :LastCol, :LastColumn ], pCol) > 0
+				but StzFindFirst([ :Last, :LastCol, :LastColumn ], pCol) > 0
 					pCol = This.NumberOfColumns()
 
 				but This.HasColName(pCol)
@@ -935,10 +935,10 @@ class stzTableCellAccess from stzTable
 
 			if isString(nRow)
 
-				if StzFind([ :First, :FirstRow], nRow) > 0
+				if StzFindFirst([ :First, :FirstRow], nRow) > 0
 					nRow = 1
 
-				but StzFind([ :Last, :LastRow ], nRow) > 0
+				but StzFindFirst([ :Last, :LastRow ], nRow) > 0
 					nRow = This.NumberOfRows()
 				ok
 			ok

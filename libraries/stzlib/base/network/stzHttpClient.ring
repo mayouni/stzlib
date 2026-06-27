@@ -186,7 +186,7 @@ class stzHttpClient from stzNetwork
 		_nP_ = len(_aParts_)
 		for _i_ = 1 to _nP_
 			_cKV_ = _aParts_[_i_]
-			_nEq_ = StzFind(_cKV_, "=")
+			_nEq_ = StzFindFirst(_cKV_, "=")
 			if _nEq_ < 1 loop ok
 			_cKey_ = StzLeft(_cKV_, _nEq_ - 1)
 			_cVal_ = StzMidToEnd(_cKV_, _nEq_ + 1)
@@ -401,7 +401,7 @@ class stzHttpClient from stzNetwork
 		for _i_ = 1 to _nR_
 			_rec_ = _aRaw_[_i_]
 			if _rec_ = "" loop ok
-			_nC_ = StzFind(_rec_, ":")
+			_nC_ = StzFindFirst(_rec_, ":")
 			if _nC_ < 1 loop ok
 			_cStatus_ = StzLeft(_rec_, _nC_ - 1)
 			_cBody_ = StzMidToEnd(_rec_, _nC_ + 1)

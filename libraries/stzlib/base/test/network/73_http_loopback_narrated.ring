@@ -28,7 +28,7 @@ Scenario("Response headers are captured deterministically")
     o2.Get_(cBase + "/headers")
     Then("status is 200", o2.ResponseCode(), 200)
     Then("the custom header is present",
-        StzFind(lower(o2.ResponseHeaders()), "x-test-header") > 0, TRUE)
+        StzFindFirst(lower(o2.ResponseHeaders()), "x-test-header") > 0, TRUE)
 EndScenario()
 
 Scenario("POST echoes the request body")
@@ -93,7 +93,7 @@ Scenario("Cookies round-trip via a jar file")
     o11.Get_(cBase + "/setcookie")
     o11.Get_(cBase + "/checkcookie")
     Then("the cookie was sent back on the second request",
-        StzFind(o11.ResponseBody(), "sid=abc123") > 0, TRUE)
+        StzFindFirst(o11.ResponseBody(), "sid=abc123") > 0, TRUE)
     remove("_ck_test.txt")
 EndScenario()
 

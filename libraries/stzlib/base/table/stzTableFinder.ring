@@ -25,17 +25,17 @@ class stzTableFinder from stzTable
 				StzRaise("Incorrect param type! pcColName must be a string.")
 			ok
 
-			if StzFind([:First, :FirstCol, :FirstColumn], pcColName) > 0
+			if StzFindFirst([:First, :FirstCol, :FirstColumn], pcColName) > 0
 				pcColName = This.FirstColName()
 
-			but StzFind([:Last, :LastCol, :LastColumn], pcColName) > 0
+			but StzFindFirst([:Last, :LastCol, :LastColumn], pcColName) > 0
 				pcColName = This.LastColName()
 			ok
 
 		ok
 
 		pcColName = StzLower(pcColName)
-		n = StzFind( This.Header(), pcColName)
+		n = StzFindFirst( This.Header(), pcColName)
 		return n
 
 		#< @FunctionAlternativeForm
@@ -254,7 +254,7 @@ class stzTableFinder from stzTable
 		anResult = []
 
 		for i = 1 to nLen
-			if StzFind(anColNumbers, i) = 0
+			if StzFindFirst(anColNumbers, i) = 0
 				anResult + i
 			ok
 		next
@@ -485,7 +485,7 @@ class stzTableFinder from stzTable
 		anResult = []
 
 		for i = 1 to nRows
-			if StzFind(anPos, i) = 0 and StzFind(anResult, i) = 0
+			if StzFindFirst(anPos, i) = 0 and StzFindFirst(anResult, i) = 0
 				anResult +i
 			ok
 		next
@@ -525,7 +525,7 @@ class stzTableFinder from stzTable
 		anResult = []
 
 		for i = 1 to nRows
-			if StzFind(panRowNumbers, i) = 0 and StzFind(anResult, i) = 0
+			if StzFindFirst(panRowNumbers, i) = 0 and StzFindFirst(anResult, i) = 0
 				anResult + i
 			ok
 		next

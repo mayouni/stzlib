@@ -2742,7 +2742,7 @@ class stzListNamedParams
 		if This.NumberOfItems() = 2 and
 
 		   ( isString(This.Item(1)) and
-		     StzFind([
+		     StzFindFirst([
 			:InStringAt,
 			:inStringAtPosition,
 			:InStringN ], This.Item(1)) > 0 )
@@ -5332,7 +5332,7 @@ class stzListNamedParams
 
 	def IsEqualsOrIsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzFind([ "equals", "is" ], This.Item(1)) )
+		   ( isString(This.Item(1)) and  StzFindFirst([ "equals", "is" ], This.Item(1)) )
 
 			return 1
 
@@ -5410,7 +5410,7 @@ class stzListNamedParams
 
 	def IsToOrToNodeNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzFind([ "to", "tonode" ], This.Item(1)) )
+		   ( isString(This.Item(1)) and  StzFindFirst([ "to", "tonode" ], This.Item(1)) )
 
 			return 1
 
@@ -5423,7 +5423,7 @@ class stzListNamedParams
 
 	def IsToOrToNodeOrToNodesNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzFind([ "to", "tonode", "tonodes" ], This.Item(1)) )
+		   ( isString(This.Item(1)) and  StzFindFirst([ "to", "tonode", "tonodes" ], This.Item(1)) )
 
 			return 1
 
@@ -5433,7 +5433,7 @@ class stzListNamedParams
 
 	def IsToOrToPositionOrToNodeNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzFind([ "to", "tonode", "toposition" ], This.Item(1)) )
+		   ( isString(This.Item(1)) and  StzFindFirst([ "to", "tonode", "toposition" ], This.Item(1)) )
 
 			return 1
 
@@ -5446,7 +5446,7 @@ class stzListNamedParams
 	
 	def IsToOrToNodeOrAndOrAndNodeNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([ "to", "tonode", "and", "andnode" ], This.Item(1)) > 0 )
+		   ( isString(This.Item(1)) and StzFindFirst([ "to", "tonode", "and", "andnode" ], This.Item(1)) > 0 )
 
 			return 1
 		else
@@ -5459,7 +5459,7 @@ class stzListNamedParams
 
 	def IsToOrToNodeOrUntilReachFNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([
+		   ( isString(This.Item(1)) and StzFindFirst([
 			"to", "tonode", "untilreachf", "untilyoureachf",
 			"untilyoureachf", "untilreachingf" ], This.Item(1)) > 0 )
 
@@ -5470,7 +5470,7 @@ class stzListNamedParams
 
 	def IsToOrToNodeOrToNodesOrAndOrAndNodeOrAndNodesNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([
+		   ( isString(This.Item(1)) and StzFindFirst([
 			"to", "tonode", "tonodes", "and",
 			"andnode", "andnodes" ], This.Item(1)) > 0 )
 
@@ -5481,7 +5481,7 @@ class stzListNamedParams
 
 	def IsOfOrOfPlanNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([
+		   ( isString(This.Item(1)) and StzFindFirst([
 			"of", "ofplan", "plan" ], This.Item(1)) > 0 )
 
 			return 1
@@ -5491,7 +5491,7 @@ class stzListNamedParams
 
 	def IsInOrInPlanNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([
+		   ( isString(This.Item(1)) and StzFindFirst([
 			"in", "inplan", "plan" ], This.Item(1)) > 0 )
 
 			return 1
@@ -5501,7 +5501,7 @@ class stzListNamedParams
 
 	def IsOforOfPlanOrInOrInPlanNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([
+		   ( isString(This.Item(1)) and StzFindFirst([
 			"of", "ofplan", "in", "inplan", "plan" ], This.Item(1)) > 0 )
 
 			return 1
@@ -5511,7 +5511,7 @@ class stzListNamedParams
 
 	def IsPlanOrInPlanNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([
+		   ( isString(This.Item(1)) and StzFindFirst([
 			"plan", "inplan" ], This.Item(1)) > 0 )
 
 			return 1
@@ -5524,7 +5524,7 @@ class stzListNamedParams
 
 	def IsPlanOrOfPlanNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([
+		   ( isString(This.Item(1)) and StzFindFirst([
 			"plan", "ofplan" ], This.Item(1)) > 0 )
 
 			return 1
@@ -5567,7 +5567,7 @@ class stzListNamedParams
 
 	def IsInPlanOrOfPlanNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzFind([ "inplan", "ofplan" ], This.Item(1)) )
+		   ( isString(This.Item(1)) and  StzFindFirst([ "inplan", "ofplan" ], This.Item(1)) )
 
 			return 1
 
@@ -5580,7 +5580,7 @@ class stzListNamedParams
 
 	def IsFromOrFromNodeNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzFind([ "from", "fromnode" ], This.Item(1)) )
+		   ( isString(This.Item(1)) and  StzFindFirst([ "from", "fromnode" ], This.Item(1)) )
 
 			return 1
 
@@ -5593,7 +5593,7 @@ class stzListNamedParams
 
 	def IsNodeOrFromOrFromNodeNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzFind([ "node", "from", "fromnode" ], This.Item(1)) )
+		   ( isString(This.Item(1)) and  StzFindFirst([ "node", "from", "fromnode" ], This.Item(1)) )
 
 			return 1
 
@@ -5612,7 +5612,7 @@ class stzListNamedParams
 
 	def IsNodeOrNodesOrFromOrFromNodeNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzFind([ "from", "fromnode", "node", "nodes" ], This.Item(1)) )
+		   ( isString(This.Item(1)) and  StzFindFirst([ "from", "fromnode", "node", "nodes" ], This.Item(1)) )
 
 			return 1
 
@@ -6643,7 +6643,7 @@ class stzListNamedParams
 	def IsByColNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
-		     StzFind([ :ByCol, :ByCol@ ], This.Item(1)) > 0 )
+		     StzFindFirst([ :ByCol, :ByCol@ ], This.Item(1)) > 0 )
 		  
 			return 1
 
@@ -6654,7 +6654,7 @@ class stzListNamedParams
 	def IsByColumnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
-		     StzFind([ :ByColumn, :ByColumn@ ], This.Item(1)) > 0 )
+		     StzFindFirst([ :ByColumn, :ByColumn@ ], This.Item(1)) > 0 )
 		  
 			return 1
 
@@ -6665,7 +6665,7 @@ class stzListNamedParams
 	def IsUsingColNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
-		     StzFind([ :UsingCol, :UsingCol@ ], This.Item(1)) > 0 )
+		     StzFindFirst([ :UsingCol, :UsingCol@ ], This.Item(1)) > 0 )
 
 			return 1
 
@@ -6676,7 +6676,7 @@ class stzListNamedParams
 	def IsUsingColumnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
-		     StzFind([ :UsingColumn, :UsingColumn@ ], This.Item(1)) > 0 )
+		     StzFindFirst([ :UsingColumn, :UsingColumn@ ], This.Item(1)) > 0 )
 		  
 			return 1
 
@@ -6687,7 +6687,7 @@ class stzListNamedParams
 	def IsWithColNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
-		     StzFind([ :WithCol, :WithCol@ ], This.Item(1)) > 0 )
+		     StzFindFirst([ :WithCol, :WithCol@ ], This.Item(1)) > 0 )
 		  
 			return 1
 
@@ -6698,7 +6698,7 @@ class stzListNamedParams
 	def IsWithColumnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
-		     StzFind([ :WithColumn, :WithColumn@ ], This.Item(1)) > 0 )
+		     StzFindFirst([ :WithColumn, :WithColumn@ ], This.Item(1)) > 0 )
 		  
 			return 1
 
@@ -11796,7 +11796,7 @@ class stzListNamedParams
 
 	def IsInSectionOrBetweenNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind(["insection", "between"], This.Item(1)) )
+		   ( isString(This.Item(1)) and StzFindFirst(["insection", "between"], This.Item(1)) )
 
 			return 1
 		else
@@ -14698,7 +14698,7 @@ class stzListNamedParams
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and
 
-		   StzFind([ :To, :ToCol, :ToRow ], This.Item(1)) > 0
+		   StzFindFirst([ :To, :ToCol, :ToRow ], This.Item(1)) > 0
 
 			return 1
 
@@ -14714,7 +14714,7 @@ class stzListNamedParams
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and
 
-		   StzFind([ :By, :ByCol, :ByRow ], This.Item(1)) > 0
+		   StzFindFirst([ :By, :ByCol, :ByRow ], This.Item(1)) > 0
 
 			return 1
 
@@ -15035,7 +15035,7 @@ class stzListNamedParams
 
 	def IsOnOrOfNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([:On, :Of], This.Item(1)) > 0 )
+		   ( isString(This.Item(1)) and StzFindFirst([:On, :Of], This.Item(1)) > 0 )
 
 			return 1
 		else
@@ -15158,7 +15158,7 @@ class stzListNamedParams
 
 	def IsOfOrOfNodeNamedPAram()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([ "of", "ofnode" ], This.Item(1)) > 0 )
+		   ( isString(This.Item(1)) and StzFindFirst([ "of", "ofnode" ], This.Item(1)) > 0 )
 
 			return 1
 		else
@@ -15170,7 +15170,7 @@ class stzListNamedParams
 
 	def IsOfOrOfPositionNamedPAram()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([ "of", "ofposition" ], This.Item(1)) > 0 )
+		   ( isString(This.Item(1)) and StzFindFirst([ "of", "ofposition" ], This.Item(1)) > 0 )
 
 			return 1
 		else
@@ -15182,7 +15182,7 @@ class stzListNamedParams
 
 	def IsWithOrWithNodeNamedparam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([ "with", "withnode" ], This.Item(1)) > 0 )
+		   ( isString(This.Item(1)) and StzFindFirst([ "with", "withnode" ], This.Item(1)) > 0 )
 
 			return 1
 		else
@@ -15194,7 +15194,7 @@ class stzListNamedParams
 
 	def IsWithOrwithPositionOrwithNodeNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([ "with", "withposition", "withnode" ], This.Item(1)) > 0 )
+		   ( isString(This.Item(1)) and StzFindFirst([ "with", "withposition", "withnode" ], This.Item(1)) > 0 )
 
 			return 1
 		else
@@ -15227,7 +15227,7 @@ class stzListNamedParams
 
 	def IsInGroupOrInRuleGroupNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and StzFind([ "ingroup", "inrulegroup" ], This.Item(1)) > 0 )
+		   ( isString(This.Item(1)) and StzFindFirst([ "ingroup", "inrulegroup" ], This.Item(1)) > 0 )
 
 
 			return 1

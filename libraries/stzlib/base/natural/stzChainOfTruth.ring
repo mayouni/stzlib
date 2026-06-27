@@ -242,14 +242,14 @@ class stzChainOfTruth from stzObject
 				bResult = 1
 
 			# Case of a stz object method
-			but StzFind( methods(This.StzObject()), "is" + pThing ) > 0
+			but StzFindFirst( methods(This.StzObject()), "is" + pThing ) > 0
 				# Example: _("A").Is( :Uppercase )
 	
 				cCode = 'bResult = StzObject().Is' + pThing + '()'
 				eval(cCode)
 	
 			# Case of a function call
-			but (StzFind(pThing, "(") > 1 and StzFind(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and StzFind(pThing, "(") < StzFind(pThing, ")") and StzRight(pThing, 1) = ")")
+			but (StzFindFirst(pThing, "(") > 1 and StzFindFirst(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and StzFindFirst(pThing, "(") < StzFindFirst(pThing, ")") and StzRight(pThing, 1) = ")")
 				# Example: _("H").Is('LetterOf("HUSSEIN")')._
 
 				cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + pThing
@@ -274,7 +274,7 @@ class stzChainOfTruth from stzObject
 			_nThing2Len_ = len(pThing)
 			for _iLoopThing2_ = 1 to _nThing2Len_
 				str = pThing[_iLoopThing2_]
-				if NOT ( StzFind( methods(This.StzObject()), "is" + str ) > 0 )
+				if NOT ( StzFindFirst( methods(This.StzObject()), "is" + str ) > 0 )
 					bIsListOfMethods = 0
 					exit
 				ok
@@ -325,7 +325,7 @@ class stzChainOfTruth from stzObject
 
 		# Managing the special semantic meaning of IsA()
 		if isString(pThing) and
-		   (StzFind(pThing, "(") > 1 and StzFind(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and StzFind(pThing, "(") < StzFind(pThing, ")") and StzRight(pThing, 1) = ")") and
+		   (StzFindFirst(pThing, "(") > 1 and StzFindFirst(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and StzFindFirst(pThing, "(") < StzFindFirst(pThing, ")") and StzRight(pThing, 1) = ")") and
 		   FunctionNameFinishesWithOneOfThese( pThing, [ "in", "of" ] ) and
 		   FunctionParamTypeIsOneOfThese( pThing, [ "STRING", "LIST" ] )
 
@@ -466,7 +466,7 @@ class stzChainOfTruth from stzObject
 
 		cCode = 'bResult = This.StzObject().' + pcMethod
 
-		if NOT (StzFind(pcMethod, "(") > 1 and StzFind(pcMethod, ")") > 0 and StringNumberOfOccurrence(pcMethod, "(") = 1 and StringNumberOfOccurrence(pcMethod, ")") = 1 and StzFind(pcMethod, "(") < StzFind(pcMethod, ")") and StzRight(pcMethod, 1) = ")")
+		if NOT (StzFindFirst(pcMethod, "(") > 1 and StzFindFirst(pcMethod, ")") > 0 and StringNumberOfOccurrence(pcMethod, "(") = 1 and StringNumberOfOccurrence(pcMethod, ")") = 1 and StzFindFirst(pcMethod, "(") < StzFindFirst(pcMethod, ")") and StzRight(pcMethod, 1) = ")")
 			cCode += "()"
 		ok
 
@@ -841,4 +841,4 @@ class stzChainOfTruth from stzObject
 
 	def pvtFunctionParamTypeIsOneOfThese( pcFunctionCall, paSubStr )
 		cType = pvtFunctionParamType(pcFunctionCall)
-		return StzFind(paSubStr, cType) > 0
+		return StzFindFirst(paSubStr, cType) > 0

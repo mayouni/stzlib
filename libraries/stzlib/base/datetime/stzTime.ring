@@ -45,7 +45,7 @@ func StzIsTime(str)
     _nPartsLen_ = len(aParts)
     for i = 1 to _nPartsLen_
         cPart = aParts[i]
-        if i = len(aParts) and StzFind(cPart, ".")
+        if i = len(aParts) and StzFindFirst(cPart, ".")
             aSubParts = split(cPart, ".")
             cPart = aSubParts[1]
         ok
@@ -61,7 +61,7 @@ func StzIsTime(str)
     ok
     if len(aParts) = 3
         cSecPart = aParts[3]
-        if StzFind(cSecPart, ".")
+        if StzFindFirst(cSecPart, ".")
             aSubParts = split(cSecPart, ".")
             cSecPart = aSubParts[1]
         ok
@@ -164,7 +164,7 @@ class stzTime from stzObject
 
         if len(aParts) = 3
             cSecPart = aParts[3]
-            if StzFind(cSecPart, ".")
+            if StzFindFirst(cSecPart, ".")
                 aSubParts = split(cSecPart, ".")
                 nS = 0+ aSubParts[1]
                 if len(aSubParts) > 1
@@ -746,7 +746,7 @@ class stzTime from stzObject
         cResult = StzReplace(cResult, "HH", StzPadLeftXT(''+ @nHour, 2, "0"))
         cResult = StzReplace(cResult, "hh", StzPadLeftXT(''+ @nHour, 2, "0"))
 
-        if StzFind(cResult, "h")
+        if StzFindFirst(cResult, "h")
             cResult = StzReplace(cResult, "h", ''+ @nHour)
         ok
 

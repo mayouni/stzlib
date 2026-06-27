@@ -78,9 +78,9 @@ class stzNumbrex from stzObject
 				loop
 			ok
 			
-			if StzFind(cPart, "|") > 0
+			if StzFindFirst(cPart, "|") > 0
 				aToken = This.ParseAlternation(cPart)
-			but StzFind(cPart, "&") > 0
+			but StzFindFirst(cPart, "&") > 0
 				aToken = This.ParseConjunction(cPart)
 			else
 				aToken = This.ParseSingleToken(cPart)
@@ -288,11 +288,11 @@ def ParseSingleToken(cTokenStr)
 		return []
 	ok
 	
-	nOpenParen = StzFind(cTokenStr, "(")
+	nOpenParen = StzFindFirst(cTokenStr, "(")
 
 	nCloseParen = 0
 	if nOpenParen > 0
-		nCloseParen = StzFind(cTokenStr, ")")
+		nCloseParen = StzFindFirst(cTokenStr, ")")
 		if nCloseParen > nOpenParen
 			cContent = This._Mid(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 
@@ -377,8 +377,8 @@ def ParseSingleToken(cTokenStr)
 	
 	if len(cQuantPart) > 0
 		# Check for colon (constraints like :unique)
-		if StzFind(cQuantPart, ":") > 0
-			nColon = StzFind(cQuantPart, ":")
+		if StzFindFirst(cQuantPart, ":") > 0
+			nColon = StzFindFirst(cQuantPart, ":")
 			cBeforeColon = This._Mid(cQuantPart, 1, nColon - 1)
 			cAfterColon = This._Mid(cQuantPart, nColon + 1, len(cQuantPart))
 			
@@ -389,7 +389,7 @@ def ParseSingleToken(cTokenStr)
 			
 			cBeforeColon = trim(cBeforeColon)
 			if len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
-				if StzFind(cBeforeColon, "-") > 0
+				if StzFindFirst(cBeforeColon, "-") > 0
 					aSection = @split(cBeforeColon, "-")
 					if len(aSection) = 2
 						nMin = 0 + trim(aSection[1])
@@ -433,7 +433,7 @@ def ParseSingleToken(cTokenStr)
 				nMin = 0
 				nMax = 1
 			but This.IsNumeric(cQuantPart)
-				if StzFind(cQuantPart, "-") > 0
+				if StzFindFirst(cQuantPart, "-") > 0
 					aSection = @split(cQuantPart, "-")
 					if len(aSection) = 2
 						nMin = 0 + trim(aSection[1])
@@ -464,9 +464,9 @@ def ParseSingleToken(cTokenStr)
 		ok
 		
 		if cType = "digit"
-			if StzFind(StzLower(cConstraintStr), ":unique") > 0
+			if StzFindFirst(StzLower(cConstraintStr), ":unique") > 0
 				aConstraints + [["type", "unique"]]
-			but StzFind(cConstraintStr, "..") > 0
+			but StzFindFirst(cConstraintStr, "..") > 0
 				aParts = @split(cConstraintStr, "..")
 				if len(aParts) = 2
 					aConstraints + [
@@ -475,16 +475,16 @@ def ParseSingleToken(cTokenStr)
 						["end", 0 + trim(aParts[2])]
 					]
 				ok
-			but StzFind(cConstraintStr, "{") > 0
-				nStart = StzFind(cConstraintStr, "{")
-				nEnd = StzFind(cConstraintStr, "}")
+			but StzFindFirst(cConstraintStr, "{") > 0
+				nStart = StzFindFirst(cConstraintStr, "{")
+				nEnd = StzFindFirst(cConstraintStr, "}")
 				cSet = This._Mid(cConstraintStr, nStart + 1, nEnd - 1)
 				aValues = @split(cSet, ";")
 				aConstraints + [
 					["type", "set"],
 					["values", aValues]
 				]
-			but StzFind(cConstraintStr, ":step") > 0
+			but StzFindFirst(cConstraintStr, ":step") > 0
 				cStep = This._Mid(cConstraintStr, 6, len(cConstraintStr))
 				aConstraints + [
 					["type", "step"],
@@ -495,7 +495,7 @@ def ParseSingleToken(cTokenStr)
 					["type", "exact"],
 					["value", 0 + cConstraintStr]
 				]
-			but StzFind(cConstraintStr, "-") > 0
+			but StzFindFirst(cConstraintStr, "-") > 0
 				aParts = @split(cConstraintStr, "-")
 				if len(aParts) = 2
 					aConstraints + [
@@ -1007,9 +1007,9 @@ def CheckDigits(aToken, nNum)
 	#-----------------------#
 	
 	def CheckRelation(cRelation, nNum)
-		if StzFind(StzLower(cRelation), "mod:") > 0
+		if StzFindFirst(StzLower(cRelation), "mod:") > 0
 			cRest = This._Mid(cRelation, 5, len(cRelation))
-			nEquals = StzFind(cRest, "=")
+			nEquals = StzFindFirst(cRest, "=")
 			if nEquals > 0
 				cMod = This._Mid(cRest, 1, nEquals - 1)
 				cExpected = This._Mid(cRest, nEquals + 1, len(cRest))
@@ -1025,10 +1025,10 @@ def CheckDigits(aToken, nNum)
 			cValue = This._Mid(cApprox, 2, len(cApprox))
 			nDecimals = 2
 			
-			if StzFind(cValue, ":") > 0
+			if StzFindFirst(cValue, ":") > 0
 				aParts = @split(cValue, ":")
 				cValue = aParts[1]
-				if len(aParts) > 1 and StzFind(StzLower(aParts[2]), "decimal") > 0
+				if len(aParts) > 1 and StzFindFirst(StzLower(aParts[2]), "decimal") > 0
 					nLenPart = len(aParts[2])
 					for i = 1 to nLenPart
 						if isDigit(This._Mid(aParts[2], i, i))

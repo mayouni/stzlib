@@ -1053,7 +1053,7 @@ func SortOnXT(n, paList, pcDirection)
 		StzRaise("Incorrect param type! pcDirection must be a string.")
 	ok
 
-	if not StzFind([ "ascending", "descending", "up", "down" ], StzLower(pcDirection))
+	if not StzFindFirst([ "ascending", "descending", "up", "down" ], StzLower(pcDirection))
 		StzRaise("Incorrect param value! pcDirection can be :Forward or :Backward.")
 	ok
 
@@ -5284,7 +5284,7 @@ func IsListOfListsOfSameSize(paList)
 	anSizes = []
 	for i = 1 to nLen
 		nLenList = len(paList[i])
-		if StzFind(anSizes, nLenList)
+		if StzFindFirst(anSizes, nLenList)
 			return 0
 		ok
 	next
@@ -7265,7 +7265,7 @@ func IsRingSortable(pListOrString)
 					bColSortable = 0
 					exit
 				else
-					if StzFind(aSeen, aCol[j]) = 0
+					if StzFindFirst(aSeen, aCol[j]) = 0
 						aSeen + aCol[j]
 					else
 						bColSortable = 0
@@ -7347,7 +7347,7 @@ func IsRingSortableOn(paListOfLists, n)
 			return 0
 		ok
 
-		if StzFind(aSeen, aCol[i]) = 0
+		if StzFindFirst(aSeen, aCol[i]) = 0
 			aSeen + aCol[i]
 		else
 			return 0

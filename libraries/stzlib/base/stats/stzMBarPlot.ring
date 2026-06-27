@@ -147,7 +147,7 @@ class stzMBarPlot from stzBarPlot
 			@bShowLegend = True
 
 	def SetLegendLayout(cLayout)
-		if NOT StzFind([:Horizontal, :Vertical, "horizontal", "vertical", "h", "v"], cLayout)
+		if NOT StzFindFirst([:Horizontal, :Vertical, "horizontal", "vertical", "h", "v"], cLayout)
 			stzRaise("Incorrect legend layout value! Must be 'horizontal' or 'vertical'.")
 		ok
 

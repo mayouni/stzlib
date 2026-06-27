@@ -2558,7 +2558,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT 	( isString(pcBeforeOrAfter) and
-			  StzFind([
+			  StzFindFirst([
 				:Before, :After, :BeforeIt, :AfterIt,
 				:BeforeOrAfter, :BeforeOrAfterIt,
 				:AfterOrBefore, :AfterOrBeforeIt,
@@ -2575,7 +2575,7 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 
-		if StzFind([
+		if StzFindFirst([
 			:BeforeOrAfter, :BeforeOrAfterIt,
 			:AfterOrBefore, :AfterOrBeforeIt,
 
@@ -2585,7 +2585,7 @@ class stzListOfNumbers from stzList
 
 			nResult = This.NearestTo(n)
 
-		but StzFind([
+		but StzFindFirst([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
 			], pcBeforeOrAfter) > 0
@@ -2593,7 +2593,7 @@ class stzListOfNumbers from stzList
 			anPair = This.NeighborsOf(n)
 			nResult = anPair[1]
 
-		but StzFind([
+		but StzFindFirst([
 			:After, :AfterIt,
 			:ComingAfter, :ComingAfterIt
 			], pcBeforeOrAfter) > 0
@@ -2682,7 +2682,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT ( isString(pcBeforeOrAfter) and
-			  StzFind([
+			  StzFindFirst([
 				:Before, :After, :BeforeIt, :AfterIt,
 				:BeforeOrAfter, :BeforeOrAfterIt,
 				:AfterOrBefore, :AfterOrBeforeIt,
@@ -2699,7 +2699,7 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 
-		if StzFind([
+		if StzFindFirst([
 			:BeforeOrAfter, :BeforeOrAfterIt,
 			:AfterOrBefore, :AfterOrBeforeIt,
 
@@ -2709,7 +2709,7 @@ class stzListOfNumbers from stzList
 
 			nResult = This.FarthestTo(n)
 
-		but StzFind([
+		but StzFindFirst([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
 			], pcBeforeOrAfter) > 0
@@ -2729,7 +2729,7 @@ class stzListOfNumbers from stzList
 				ok
 
 			else
-				nPos = StzFind(anSorted, n)
+				nPos = StzFindFirst(anSorted, n)
 
 				if nPos > 1
 					nFirst = anSorted[1]
@@ -2750,7 +2750,7 @@ class stzListOfNumbers from stzList
 
 			ok
 
-		but StzFind([
+		but StzFindFirst([
 			:After, :AfterIt,
 			:ComingAfter, :ComingAfterIt
 			], pcBeforeOrAfter) > 0
@@ -2770,7 +2770,7 @@ class stzListOfNumbers from stzList
 				ok
 
 			else
-				nPos = StzFind(anSorted, n)
+				nPos = StzFindFirst(anSorted, n)
 
 				if nPos > 0 and nPos < nLen
 					nFirst = anSorted[1]
@@ -2866,7 +2866,7 @@ class stzListOfNumbers from stzList
 
 		# Case where n exists in the list
 
-		nPos = StzFind(anSorted, n)
+		nPos = StzFindFirst(anSorted, n)
 
 		if nPos > 0
 			if nPos = 1
@@ -2987,7 +2987,7 @@ class stzListOfNumbers from stzList
 
 		# Case where n exists in the list
 
-		nPos = StzFind(anSorted, n)
+		nPos = StzFindFirst(anSorted, n)
 
 		if nPos > 0
 			nDif1 = abs( n - anSorted[1] )
@@ -3094,7 +3094,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anSorted = This.ToSetQ().Sorted()
-		nPos = StzFind(anSorted, n)
+		nPos = StzFindFirst(anSorted, n)
 
 		if nPos = 0
 			if n < anSorted[1]
@@ -3243,7 +3243,7 @@ class stzListOfNumbers from stzList
 			return [ "", "" ]
 		ok
 
-		nPos = StzFind( anSorted, n )
+		nPos = StzFindFirst( anSorted, n )
 
 		if nPos = 0
 			return [ "", "" ]
@@ -3455,7 +3455,7 @@ class stzListOfNumbers from stzList
 			_nResultLen_ = len(aResult)
 			for i = 1 to _nResultLen_
 
-				if StzFind(panNumbers, nNumber) = 0 and
+				if StzFindFirst(panNumbers, nNumber) = 0 and
 				   aResult[i][1] = nClosestPivot
 
 					aResult[i][2] + nNumber
@@ -5446,7 +5446,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = StzFind( This.Content(), n)
+		nPos = StzFindFirst( This.Content(), n)
 		nResult = This.AnyNumberBeforePosition(nPos)
 
 		return nResult
@@ -5478,7 +5478,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = StzFind( This.Content(), n)
+		nPos = StzFindFirst( This.Content(), n)
 		aResult = This.AnyNumberBeforePositionZ(nPos)
 
 		return aResult
@@ -5647,7 +5647,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = StzFind( new stzList(This.Content()).Reversed(), n )
+		nPos = StzFindFirst( new stzList(This.Content()).Reversed(), n )
 		aResult = This.AnyNumberAfterPositionZ(nPos)
 
 		return aResult
@@ -7540,7 +7540,7 @@ class stzListOfNumbers from stzList
 		anResult = []
 
 		for i = 1 to nLen
-			if NOT StzFind(anNumbers, anContent[i])
+			if NOT StzFindFirst(anNumbers, anContent[i])
 				anResult + aContent[i]
 			ok
 		next
@@ -7587,7 +7587,7 @@ class stzListOfNumbers from stzList
 		aResult = []
 
 		for i = 1 to nLen
-			if NOT StzFind(anNumbers, anContent[i])
+			if NOT StzFindFirst(anNumbers, anContent[i])
 				aResult + [ aContent[i], i ]
 			ok
 		next

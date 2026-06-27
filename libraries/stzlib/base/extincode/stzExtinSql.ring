@@ -55,7 +55,7 @@ func INSERT_INTO(pcTableName, pacColNames)
 		if NOT isString(pcTableName)
 			StzRaise("Incorrect param type! pcTableName must be a string.")
 		ok
-		if NOT StzFind(TempVars(), pcTableName) > 0
+		if NOT StzFindFirst(TempVars(), pcTableName) > 0
 			StzRaise("Undefined named variable!")
 		ok
 		if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )

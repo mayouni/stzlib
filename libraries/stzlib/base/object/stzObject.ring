@@ -4567,7 +4567,7 @@ class stzObject
 			value = This.Content()
 		ok
 
-		if StzFind([ :List, :InList, :AList, :InAList ], pIn) > 0
+		if StzFindFirst([ :List, :InList, :AList, :InAList ], pIn) > 0
 	
 			aResult = []
 			for i = 1 to pnSize
@@ -4575,7 +4575,7 @@ class stzObject
 			next
 			return aResult
 
-		but StzFind([ :Pair, :InPair, :APair, :InAPair ], pIn) > 0
+		but StzFindFirst([ :Pair, :InPair, :APair, :InAPair ], pIn) > 0
 
 			aResult = []
 			for i = 1 to 2
@@ -4583,7 +4583,7 @@ class stzObject
 			next
 			return aResult
 
-		but StzFind([ :ListOfNumbers, :InListOfNumbers,
+		but StzFindFirst([ :ListOfNumbers, :InListOfNumbers,
 				:AListOfNumbers, :InAListOfNumbers ], pIn) > 0
 
 			aResult = []
@@ -4592,7 +4592,7 @@ class stzObject
 			next
 			return aResult
 
-		but StzFind([ :ListOfStrings, :InListOfStrings,
+		but StzFindFirst([ :ListOfStrings, :InListOfStrings,
 				:AListOfStrings, :InAListOfStrings ], pIn) > 0
 
 			aResult = []
@@ -4601,7 +4601,7 @@ class stzObject
 			next
 			return aResult
 
-		but StzFind([ :ListOfLists, :InListOfLists,
+		but StzFindFirst([ :ListOfLists, :InListOfLists,
 				:AListOfLists, :InAListOfLists ], pIn) > 0
 	
 			aResult = []
@@ -4610,7 +4610,7 @@ class stzObject
 			next
 			return aResult
 
-		but StzFind([ :ListOfPairs, :InListOfPairs,
+		but StzFindFirst([ :ListOfPairs, :InListOfPairs,
 				:AListOfPairs, :InAListOfNPairs ], pIn) > 0
 	
 			aResult = []
@@ -4619,7 +4619,7 @@ class stzObject
 			next
 			return aResult
 
-		but StzFind([ :String, :InString, :AString, :InAString ], pIn) > 0
+		but StzFindFirst([ :String, :InString, :AString, :InAString ], pIn) > 0
 
 			cResult = ""
 			for i = 1 to pnSize
@@ -4627,7 +4627,7 @@ class stzObject
 			next
 			return cResult
 
-		but StzFind([ :Grid, :InGrid, :AGrid, :InAGrid ], pIn) > 0
+		but StzFindFirst([ :Grid, :InGrid, :AGrid, :InAGrid ], pIn) > 0
 
 			aResult = StzGridQ([ pnSize[1], pnSize[2] ]).
 					ReplaceAllQ(:With = value).
@@ -4635,12 +4635,12 @@ class stzObject
 
 			return aResult
 
-		but StzFind([ :Table, :InTable, :ATable, :InATable ], pIn) > 0
+		but StzFindFirst([ :Table, :InTable, :ATable, :InATable ], pIn) > 0
 
 			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value).Content()
 			return aResult
 
-		but StzFind([ :StzTable, :InStzTable, :InAStzTable ], pIn) > 0
+		but StzFindFirst([ :StzTable, :InStzTable, :InAStzTable ], pIn) > 0
 
 			oResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value)
 			return oResult

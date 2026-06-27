@@ -25,10 +25,10 @@ class stzTableColumnAccess from stzTable
 
 		if isString(p)
 
-			if StzFind([ :First, :FirstCol, :FirstColumn ], p) > 0
+			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], p) > 0
 				p = 1
 
-			but StzFind([ :Last, :LastCol, :LastColumn ], p) > 0
+			but StzFindFirst([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfColumns()
 
 			but This.HasColName(p)
@@ -222,10 +222,10 @@ class stzTableColumnAccess from stzTable
 	def NthColName(n)
 		if isString(n)
 
-			if StzFind([ :First, :FirstCol, :FirstColumn ], n) > 0
+			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], n) > 0
 				n = 1
 
-			but StzFind([ :Last, :LastCol, :LastColumn ], n) > 0
+			but StzFindFirst([ :Last, :LastCol, :LastColumn ], n) > 0
 				n = This.NumberOfColumns()
 
 			else

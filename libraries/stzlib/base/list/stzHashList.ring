@@ -107,7 +107,7 @@ func HasKey(paList, pcKey)
 		add(_acHkKeys_, StzLower(paList[_iHk_][1]))
 	next
 
-	return iff(StzFind(_acHkKeys_, StzLower(pcKey)) > 0, TRUE, FALSE)
+	return iff(StzFindFirst(_acHkKeys_, StzLower(pcKey)) > 0, TRUE, FALSE)
 
 	func @HasKey(paList, pcKey)
 		return HasKey(paList, pcKey)
@@ -1578,7 +1578,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			if @pEngineMap != NULL
 				return StzEngineHashMapFindKey(@pEngineMap, pcKey)
 			ok
-			return StzFind( Keys(), pcKey)
+			return StzFindFirst( Keys(), pcKey)
 		ok
 
 		def FindThisKey(pcKey)

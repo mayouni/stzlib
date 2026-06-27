@@ -13,7 +13,7 @@ Scenario("libuv is linked and reports its version")
     Given("the stz_reactor engine module is loaded")
     cVer = StzEngineReactorVersion()
     Then("a non-empty version string is returned", len(cVer) > 0, TRUE)
-    Then("it looks like a 1.x libuv version", StzFind(cVer, "1.") > 0, TRUE)
+    Then("it looks like a 1.x libuv version", StzFindFirst(cVer, "1.") > 0, TRUE)
 EndScenario()
 
 Scenario("the libuv event loop actually runs")

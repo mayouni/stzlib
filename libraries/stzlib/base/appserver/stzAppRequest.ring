@@ -36,7 +36,7 @@ class stzAppRequest
 		return cBody
 
 	def ParseQuery()
-		nQuestion = StzFind(cPath, "?")
+		nQuestion = StzFindFirst(cPath, "?")
 		if nQuestion > 0
 			cQueryString = StzMidToEnd(cPath, nQuestion + 1)
 			cPath = StzLeft(cPath, nQuestion - 1)
@@ -45,7 +45,7 @@ class stzAppRequest
 			_nPairs1Len_ = len(aPairs)
 			for _iLoopPairs1_ = 1 to _nPairs1Len_
 				cPair = aPairs[_iLoopPairs1_]
-				nEqual = StzFind(cPair, "=")
+				nEqual = StzFindFirst(cPair, "=")
 				if nEqual > 0
 					cKey = StzLeft(cPair, nEqual - 1)
 					cValue = StzMidToEnd(cPair, nEqual + 1)

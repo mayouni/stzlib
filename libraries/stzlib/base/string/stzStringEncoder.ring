@@ -305,7 +305,7 @@ class stzStringEncoder
 
 		for i = 1 to nLen
 			c = acChars[i]
-			if StzFind(cSpecial, c) > 0
+			if StzFindFirst(cSpecial, c) > 0
 				cResult += "\" + c
 			else
 				cResult += c

@@ -209,10 +209,10 @@ class stzTableStructure from stzTable
 
 		if isString(pCol)
 
-			if StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			if StzFindFirst([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = 1
 
-			but StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			but StzFindFirst([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = This.NumberOfCols()
 
 			but This.HasColName(pCol)

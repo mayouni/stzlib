@@ -67,7 +67,7 @@ class stzLoadBalancer
         _nRoutingRules1Len_ = len(aRoutingRules)
         for _iLoopRoutingRules1_ = 1 to _nRoutingRules1Len_
         	aRule = aRoutingRules[_iLoopRoutingRules1_]
-            if StzFind(cPath, aRule[:pattern]) > 0
+            if StzFindFirst(cPath, aRule[:pattern]) > 0
                 return aRule[:domain]
             ok
         next

@@ -165,7 +165,7 @@ func @dir(cPath) # Same as Ring dir() but in lowercase
 
 func CreateIfInexistant(cPath)
     # Check if it has an extension (likely a file)
-    if StzFind(cPath, ".")
+    if StzFindFirst(cPath, ".")
         CreateFileIfInexistant(cPath)
     else
         CreateFolderIfInexistant(cPath)
@@ -233,7 +233,7 @@ func NormalizePath(cPath)
 		ok
 	ok
 	
-	if StzFind(cPath, ".") > 0
+	if StzFindFirst(cPath, ".") > 0
 		return NormalizeFilePath(cPath)
 	else
 		return NormalizeFolderPath(cPath)
@@ -250,7 +250,7 @@ func NormalizePathXT(cPath)
 	ok
 
 	# Check if it's a file (has extension) or folder
-	if StzFind(cPath, ".") > 0
+	if StzFindFirst(cPath, ".") > 0
 		return NormalizeFilePathXT(cPath)
 	else
 		return NormalizeFolderPathXT(cPath)
@@ -293,7 +293,7 @@ func NormalizeFolderPathXT(cName)
 
 func _CleanPath(cPath)
 	cPath = StzReplace(cPath, "\", "/")
-	while StzFind(cPath, "//") > 0
+	while StzFindFirst(cPath, "//") > 0
 		cPath = StzReplace(cPath, "//", "/")
 	end
 	if StzLen(cPath) > 1 and StzRight(cPath, 1) = "/"
@@ -928,7 +928,7 @@ class stzFolder from stzObject
 	        :type, cType,
 	        :is_file, (cType = "file"),
 	        :is_folder, (cType = "folder"),
-	        :is_relative, (StzLeft(cPath, 1) != This.Separator() AND StzFind(cPath, ":/") = 0 AND StzFind(cPath, ":\\") = 0),
+	        :is_relative, (StzLeft(cPath, 1) != This.Separator() AND StzFindFirst(cPath, ":/") = 0 AND StzFindFirst(cPath, ":\\") = 0),
 	        :parent_folder, This.ParentFolder(cPath)
 	    ]
 	    
@@ -3158,10 +3158,10 @@ class stzFolder from stzObject
 		for j = 1 to nNames
 			cPattern = This.NormalizeFilePath(acNames[j])
 
-			if StzFind(cPattern, "*") > 0
+			if StzFindFirst(cPattern, "*") > 0
 				cPattern = StzReplace(cPattern, "*", "")
 				for i = 1 to nLen
-					if StzFind(StzLower(acFiles[i]), StzLower(cPattern)) > 0
+					if StzFindFirst(StzLower(acFiles[i]), StzLower(cPattern)) > 0
 						acResult + acFiles[i]
 					ok
 				next
@@ -3198,12 +3198,12 @@ class stzFolder from stzObject
 
 		acResult = []
 
-		if StzFind(cPattern, "*") > 0
+		if StzFindFirst(cPattern, "*") > 0
 
 			cPattern = StzReplace(cPattern, "*", "")
 
 			for i = 1 to nLen
-				if StzFind(StzLower(acFolders[i]), StzLower(cPattern)) > 0
+				if StzFindFirst(StzLower(acFolders[i]), StzLower(cPattern)) > 0
 					acResult + acFolders[i]
 				ok
 			next
@@ -3312,14 +3312,14 @@ class stzFolder from stzObject
 		nLen = len(acAll)
 		acFound = []
 
-		bWildcard = (StzFind(cPattern, "*") > 0)
+		bWildcard = (StzFindFirst(cPattern, "*") > 0)
 		if bWildcard
 			cPattern = StzReplace(cPattern, "*", "")
 		ok
 
 		for i = 1 to nLen
 			if bWildcard
-				if StzFind(StzLower(acAll[i]), StzLower(cPattern)) > 0
+				if StzFindFirst(StzLower(acAll[i]), StzLower(cPattern)) > 0
 					acFound + acAll[i]
 				ok
 			else
@@ -3351,14 +3351,14 @@ class stzFolder from stzObject
 		nLen = len(acAll)
 		acFound = []
 
-		bWildcard = (StzFind(cPattern, "*") > 0)
+		bWildcard = (StzFindFirst(cPattern, "*") > 0)
 		if bWildcard
 			cPattern = StzReplace(cPattern, "*", "")
 		ok
 
 		for i = 1 to nLen
 			if bWildcard
-				if StzFind(StzLower(acAll[i]), StzLower(cPattern)) > 0
+				if StzFindFirst(StzLower(acAll[i]), StzLower(cPattern)) > 0
 					acFound + acAll[i]
 				ok
 			else
@@ -3389,7 +3389,7 @@ class stzFolder from stzObject
 			nLenR = len(acFileResults)
 
 			for j = 1 to nLenR
-				if StzFind(acFound, acFileResults[j]) = 0
+				if StzFindFirst(acFound, acFileResults[j]) = 0
 					acFound + acFileResults[j]
 				ok
 			next
@@ -3410,7 +3410,7 @@ class stzFolder from stzObject
 			nLenR = len(acFolderResults)
 
 			for j = 1 to nLenR
-				if StzFind(acFound, acFolderResults[j]) = 0
+				if StzFindFirst(acFound, acFolderResults[j]) = 0
 					acFound + acFolderResults[j]
 				ok
 			next
@@ -3454,7 +3454,7 @@ class stzFolder from stzObject
 
 			nLen = len(acLines)
 			for i = 1 to nLen
-				if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
+				if StzFindFirst(StzLower(acLines[i]), StzLower(cContent)) > 0
 					acLineNumbers + i
 				ok
 			next
@@ -3515,7 +3515,7 @@ class stzFolder from stzObject
 						acLineNumbers = []
 
 						for i = 1 to nLenL
-							if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
+							if StzFindFirst(StzLower(acLines[i]), StzLower(cContent)) > 0
 								acLineNumbers + i
 							ok
 						next
@@ -3578,7 +3578,7 @@ class stzFolder from stzObject
 				acLineNumbers = []
 
 				for k = 1 to nLines
-					if StzFind(StzLower(acLines[k]), StzLower(cContent)) > 0
+					if StzFindFirst(StzLower(acLines[k]), StzLower(cContent)) > 0
 						acLineNumbers + k
 					ok
 				next
@@ -3616,7 +3616,7 @@ class stzFolder from stzObject
 				acLineNumbers = []
 
 				for k = 1 to nLines
-					if StzFind(StzLower(acLines[k]), StzLower(cContent)) > 0
+					if StzFindFirst(StzLower(acLines[k]), StzLower(cContent)) > 0
 						acLineNumbers + k
 					ok
 				next
@@ -3683,7 +3683,7 @@ class stzFolder from stzObject
 							acLineNumbers = []
 
 							for i = 1 to nLenL
-								if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
+								if StzFindFirst(StzLower(acLines[i]), StzLower(cContent)) > 0
 									acLineNumbers + i
 								ok
 							next
@@ -3738,7 +3738,7 @@ class stzFolder from stzObject
 
 		if StzLeft(cPattern, 1) = "*" and StzRight(cPattern, 1) = "*"
 			cMiddle = StzMid(cPattern, 2, StzLen(cPattern) - 2)
-			return StzFind(cName, cMiddle) > 0
+			return StzFindFirst(cName, cMiddle) > 0
 
 		but StzLeft(cPattern, 1) = "*"
 			cSuffix = StzMid(cPattern, 2, StzLen(cPattern) - 1)
@@ -3766,7 +3766,7 @@ class stzFolder from stzObject
 			nLenP = len(acPathParts)
 
 			for j = 1 to nLenP
-				if StzFind(aFolderNames, acPathParts[j]) = 0
+				if StzFindFirst(aFolderNames, acPathParts[j]) = 0
 					aFolderNames + acPathParts[j]
 				end
 			next
@@ -4324,7 +4324,7 @@ class stzFolder from stzObject
 		bResult = 0
 
 		for i = 1 to nLen
-			if StzFind(cPattern, acKeywords[i]) > 0
+			if StzFindFirst(cPattern, acKeywords[i]) > 0
 				bResult = 1
 				exit
 			ok
@@ -4339,7 +4339,7 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param type! cOrder must be a string.")
 		ok
 		acValidOrders = ["systemorder", "filefirstascending", "filefirstdescending", "folderfirstascending", "folderfirstdescending"]
-		if NOT StzFind(acValidOrders, StzLower(cOrder))
+		if NOT StzFindFirst(acValidOrders, StzLower(cOrder))
 			StzRaise("Invalid display order! Must be one of: " + @@(acValidOrders))
 		ok
 		@cDisplayOrder = StzLower(cOrder)
@@ -4351,13 +4351,13 @@ class stzFolder from stzObject
 
 	def IsSecurePath(cPath)
 		# Check for null bytes (path injection attempt)
-		if StzFind(cPath, StzChar(0)) > 0
+		if StzFindFirst(cPath, StzChar(0)) > 0
 			return true
 		ok
 
 		# Check for other control characters that could be used for injection
 		for i = 1 to 31
-			if StzFind(cPath, StzChar(i)) > 0
+			if StzFindFirst(cPath, StzChar(i)) > 0
 				return false
 			ok
 		next
@@ -4443,7 +4443,7 @@ class stzFolder from stzObject
 			if cPath = This.Path()
 				return ""
 			end
-			nPos = max([StzFind(cPath, This.Separator()), StzFind(cPath, "\")])
+			nPos = max([StzFindFirst(cPath, This.Separator()), StzFindFirst(cPath, "\")])
 			if nPos > 0
 				return StzRight(cPath, StzLen(cPath) - nPos)
 			end
@@ -4624,19 +4624,19 @@ class stzFolder from stzObject
 		nAllSubLevelFiles = oFolder.DeepCountFiles()
 		nAllSubLevelFolders = oFolder.DeepCountFolders()
 	
-		if StzFind(cResult, "@countfiles")
+		if StzFindFirst(cResult, "@countfiles")
 			cResult = StzReplace(cResult, "@countfiles", "" + nThisLevelFiles)
 		ok
 
-		if StzFind(cResult, "@deepcountfiles")
+		if StzFindFirst(cResult, "@deepcountfiles")
 			cResult = StzReplace(cResult, "@deepcountfiles", "" + nAllSubLevelFiles)
 		ok
 
-		if StzFind(cResult, "@countfolders")
+		if StzFindFirst(cResult, "@countfolders")
 			cResult = StzReplace(cResult, "@countfolders", "" + nThisLevelFolders)
 		ok
 
-		if StzFind(cResult, "@deepcountfolders")
+		if StzFindFirst(cResult, "@deepcountfolders")
 			cResult = StzReplace(cResult, "@deepcountfolders", "" + nAllSubLevelFolders)
 		ok
 
@@ -4656,7 +4656,7 @@ class stzFolder from stzObject
 
 				# Check if this token contains "0 files" or "0 folders"
 
-				if not (StzFind(cToken, "0 files") or StzFind(cToken, "0 folders"))
+				if not (StzFindFirst(cToken, "0 files") or StzFindFirst(cToken, "0 folders"))
 					acFiltered + cToken
 				ok
 			next
@@ -4783,21 +4783,21 @@ class stzFolder from stzObject
 		
 		# Replace patterns
 
-		if StzFind(cResult, "@countfiles") or StzFind(cResult, "@countfiles")
+		if StzFindFirst(cResult, "@countfiles") or StzFindFirst(cResult, "@countfiles")
 			cResult = StzReplace(cResult, "@countfiles", "" + nFiles)
 			cResult = StzReplace(cResult, "@countfiles", "" + nFiles)
 		ok
 
-		if StzFind(cResult, "@deepcountfiles")
+		if StzFindFirst(cResult, "@deepcountfiles")
 			cResult = StzReplace(cResult, "@deepcountfiles", "" + nDeepFiles)
 		ok
 
-		if StzFind(cResult, "@countfolders") or StzFind(cResult, "@countfolders")
+		if StzFindFirst(cResult, "@countfolders") or StzFindFirst(cResult, "@countfolders")
 			cResult = StzReplace(cResult, "@countfolders", "" + nFolders)
 			cResult = StzReplace(cResult, "@countfolders", "" + nFolders)
 		ok
 
-		if StzFind(cResult, "@deepcountfolders")
+		if StzFindFirst(cResult, "@deepcountfolders")
 			cResult = StzReplace(cResult, "@deepcountfolders", "" + nDeepFolders)
 		ok
 		

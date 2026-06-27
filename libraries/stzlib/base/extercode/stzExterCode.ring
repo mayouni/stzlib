@@ -557,11 +557,11 @@ int main() {
     cMainPredicate = "compute_result"  # default
     
     # Try to find a predicate definition in the code
-    if StzFind(@cCode, "compute_result(") > 0
+    if StzFindFirst(@cCode, "compute_result(") > 0
         cMainPredicate = "compute_result"
-    but StzFind(@cCode, "get_factorials(") > 0
+    but StzFindFirst(@cCode, "get_factorials(") > 0
         cMainPredicate = "get_factorials"
-    but StzFind(@cCode, "res(") > 0
+    but StzFindFirst(@cCode, "res(") > 0
         cMainPredicate = "res"
     ok
 

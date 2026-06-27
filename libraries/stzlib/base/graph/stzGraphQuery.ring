@@ -338,7 +338,7 @@ class stzGraphQuery
 			cInternalOp = This._ConvertOp(cOp)
 			
 			# Add implicit variable if needed
-			if isString(cProp) and NOT StzFind(cProp, ".")
+			if isString(cProp) and NOT StzFindFirst(cProp, ".")
 				cProp = pcVarName + "." + cProp
 			ok
 			
@@ -426,16 +426,16 @@ class stzGraphQuery
 	            aPattern = @aDefinition["match_patterns"][i]
 	            if aPattern["type"] = :node
 	                cVar = aPattern["alias"]
-	                if StzFind(acVars, cVar) = 0
+	                if StzFindFirst(acVars, cVar) = 0
 	                    acVars + cVar
 	                ok
 	            but aPattern["type"] = :edge
 	                cFrom = aPattern["from"]
 	                cTo = aPattern["to"]
-	                if StzFind(acVars, cFrom) = 0
+	                if StzFindFirst(acVars, cFrom) = 0
 	                    acVars + cFrom
 	                ok
-	                if StzFind(acVars, cTo) = 0
+	                if StzFindFirst(acVars, cTo) = 0
 	                    acVars + cTo
 	                ok
 	            ok
@@ -821,7 +821,7 @@ class stzGraphQuery
 				
 				if isList(pValue) and HasKey(pValue, :id)
 					cId = pValue[:id]
-					if StzFind(acNodeIds, cId) = 0
+					if StzFindFirst(acNodeIds, cId) = 0
 						acNodeIds + cId
 					ok
 				ok
@@ -880,7 +880,7 @@ class stzGraphQuery
 				if isList(pValue) and HasKey(pValue, :id)
 					cNodeId = pValue[:id]
 					
-					if StzFind(aSeenNodes, cNodeId) = 0
+					if StzFindFirst(aSeenNodes, cNodeId) = 0
 						aSeenNodes + cNodeId
 						
 						cLabel = ""
@@ -907,7 +907,7 @@ class stzGraphQuery
 			cFrom = aEdge[:from]
 			cTo = aEdge[:to]
 			
-			if StzFind(aSeenNodes, cFrom) > 0 and StzFind(aSeenNodes, cTo) > 0
+			if StzFindFirst(aSeenNodes, cFrom) > 0 and StzFindFirst(aSeenNodes, cTo) > 0
 				cLabel = ""
 				if HasKey(aEdge, :label)
 					cLabel = aEdge[:label]
@@ -1187,7 +1187,7 @@ class stzGraphQuery
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			pRight = pCondition["right"]
 			
-			if isString(pRight) and StzFind(pRight, ".") > 0
+			if isString(pRight) and StzFindFirst(pRight, ".") > 0
 				pRight = This._ResolveValue(pRight, aBinding)
 			ok
 			
@@ -1221,7 +1221,7 @@ class stzGraphQuery
 		but cOp = :contains
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			pRight = This._ResolveValue(pCondition["right"], aBinding)
-			return isString(pLeft) and isString(pRight) and StzFind(StzLower(pLeft), StzLower(pRight)) > 0
+			return isString(pLeft) and isString(pRight) and StzFindFirst(StzLower(pLeft), StzLower(pRight)) > 0
 			
 		but cOp = :startswith
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
@@ -1247,19 +1247,19 @@ class stzGraphQuery
 		but cOp = :in
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			aRight = pCondition["right"]
-			return isList(aRight) and StzFind(aRight, pLeft) > 0
+			return isList(aRight) and StzFindFirst(aRight, pLeft) > 0
 			
 		but cOp = :not_in
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			aRight = pCondition["right"]
-			return isList(aRight) and StzFind(aRight, pLeft) = 0
+			return isList(aRight) and StzFindFirst(aRight, pLeft) = 0
 		ok
 		
 		return TRUE
 	
 	def _ResolveValue(pValue, aBinding)
 		if isString(pValue)
-			if StzFind(pValue, ".") > 0
+			if StzFindFirst(pValue, ".") > 0
 				acParts = @split(pValue, ".")
 				cVar = acParts[1]
 				cProp = acParts[2]
@@ -1484,7 +1484,7 @@ def _ExecuteSetProperty(aOp, aBindings)
 	for i = 1 to nLen
 		aBinding = aBindings[i]
 		
-		if StzFind(cTarget, ".") > 0
+		if StzFindFirst(cTarget, ".") > 0
 			acParts = @split(cTarget, ".")
 			cVar = acParts[1]
 			cProp = acParts[2]
@@ -1510,7 +1510,7 @@ def _ExecuteDelete(aBindings)
 			if HasKey(aBinding, cTarget)
 				aNode = aBinding[cTarget]
 				cId = aNode[:id]
-				if StzFind(acToDelete, cId) = 0
+				if StzFindFirst(acToDelete, cId) = 0
 					acToDelete + cId
 				ok
 			ok
@@ -1562,7 +1562,7 @@ def _ApplyOrderBy(aResults)
 	return aSorted
 
 def _GetResultValue(aResult, cField)
-	if StzFind(cField, ".") > 0
+	if StzFindFirst(cField, ".") > 0
 		acParts = @split(cField, ".")
 		cVar = acParts[1]
 		cProp = acParts[2]

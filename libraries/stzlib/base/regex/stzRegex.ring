@@ -218,7 +218,7 @@ class stzRegex
 
 		ok
 
-		if NOT StzFind(@MatchTypes(), pcMatchType) > 0
+		if NOT StzFindFirst(@MatchTypes(), pcMatchType) > 0
 			StzRaise("Unsupported match type! Should be one of these " + @@(@MatchTypes()) + "!")
 		ok
 
@@ -1189,7 +1189,7 @@ class stzRegex
 
 			cCapture = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
-			if StzFind(acSeen, cCapture) = 0
+			if StzFindFirst(acSeen, cCapture) = 0
 
 				_nS_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 				_nE_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)

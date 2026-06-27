@@ -132,11 +132,11 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
             dim2Value = aParts[2]
             
             # Add to dimension values if not already included (using general approach)
-            if StzFind(aColDim1Values, dim1Value) = 0
+            if StzFindFirst(aColDim1Values, dim1Value) = 0
                 add(aColDim1Values, dim1Value)
             ok
             
-            if StzFind(aColDim2Values, dim2Value) = 0
+            if StzFindFirst(aColDim2Values, dim2Value) = 0
                 add(aColDim2Values, dim2Value)
             ok
             

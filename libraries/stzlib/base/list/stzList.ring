@@ -2915,7 +2915,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		if n1 < 1 or n1 > nLen or n2 < 1 or n2 > nLen
+		if (n1 < 1 or n1 > nLen) or (n2 < 1 or n2 > nLen)
 			StzRaise("Indexes out of range!")
 		ok
 
@@ -3052,9 +3052,9 @@ class stzList from stzObject
 
 	def RemoveItemAtPosition(n)
 		if isString(n)
-			if StzFind([:First, :FirstPosition, :FirstItem], n) > 0
+			if StzFindFirst([:First, :FirstPosition, :FirstItem], n) > 0
 				n = 1
-			but StzFind([:Last, :LastPosition, :LastItem], n) > 0
+			but StzFindFirst([:Last, :LastPosition, :LastItem], n) > 0
 				n = This.NumberOfItems()
 			ok
 		ok
@@ -3110,13 +3110,13 @@ class stzList from stzObject
 
 		if CheckingParams()
 			if isString(n1)
-				if StzFind([:First, :FirstPosition, :FirstItem], n1) > 0
+				if StzFindFirst([:First, :FirstPosition, :FirstItem], n1) > 0
 					n1 = 1
 				ok
 			ok
 
 			if isString(n2)
-				if StzFind([:Last, :LastPosition, :LastItem], n2) > 0
+				if StzFindFirst([:Last, :LastPosition, :LastItem], n2) > 0
 					n2 = nLen
 				ok
 			ok
@@ -5058,6 +5058,15 @@ class stzList from stzObject
 	  #-- Repeat (engine-backed)
 
 	def Repeat(n)
+		if CheckParams()
+			if isList(n) and len(n) = 2 and
+			   isNumber(n[1]) and isString(n[2]) and
+			   n[2] = :NTimes
+
+				n = n[2]
+			ok
+		ok
+
 		_pRptList_ = This._EngineListFromContent()
 		if _pRptList_ = NULL return ok
 		_pRptResult_ = StzEngineListRepeat(_pRptList_, n)
@@ -5072,6 +5081,15 @@ class stzList from stzObject
 			return This
 
 	def Repeated(n)
+		if CheckParams()
+			if isList(n) and len(n) = 2 and
+			   isNumber(n[1]) and isString(n[2]) and
+			   n[2] = :Times
+
+				n = n[1]
+			ok
+		ok
+
 		_pRpdList_ = This._EngineListFromContent()
 		if _pRpdList_ = NULL return [] ok
 		_pRpdResult_ = StzEngineListRepeat(_pRpdList_, n)
@@ -6060,24 +6078,29 @@ class stzList from stzObject
 		_oEcsExt_ = new stzListExtractor(This)
 		_oEcsExt_.ExtractCS(pItem, pCaseSensitive)
 		This.UpdateWith(_oEcsExt_.Content())
+		return pItem
 
 	def ExtractManyCS(paItems, pCaseSensitive)
 		_oEmcsExt_ = new stzListExtractor(This)
 		_oEmcsExt_.ExtractManyCS(paItems, pCaseSensitive)
 		This.UpdateWith(_oEmcsExt_.Content())
+		return paItems
 
 	def ExtractMany(paItems)
-		This.ExtractManyCS(paItems, 1)
+		return This.ExtractManyCS(paItems, 1)
 
 	def ExtractAll()
+		_aContent_ = This.Content()
 		_oEaExt_ = new stzListExtractor(This)
 		_oEaExt_.ExtractAll()
 		This.UpdateWith(_oEaExt_.Content())
+		return _aContent_
 
 	def ExtractNth(n)
 		_oEnExt_ = new stzListExtractor(This)
 		_oEnExt_.ExtractNth(n)
 		This.UpdateWith(_oEnExt_.Content())
+		return This.Content()[n]
 
 	def ExtractFirst(pItem)
 		# Extract = remove the FIRST occurrence of pItem from the list and
@@ -6092,11 +6115,13 @@ class stzList from stzObject
 		_oEsExt_ = new stzListExtractor(This)
 		_oEsExt_.ExtractSection(n1, n2)
 		This.UpdateWith(_oEsExt_.Content())
+		return This.Section(n1, n2)
 
 	def ExtractRange(pnStart, pnRange)
 		_oErExt_ = new stzListExtractor(This)
 		_oErExt_.ExtractRange(pnStart, pnRange)
 		This.UpdateWith(_oErExt_.Content())
+		return This.Range(pnStart, pnRange)
 
 	def ExtractW(pcCondition)
 		# Remove every item matching the W-condition and RETURN them all
@@ -6117,46 +6142,52 @@ class stzList from stzObject
 		return pItem
 
 	def ExtractNthOccurrence(n, pItem)
-		This.ExtractNthOccurrenceCS(n, pItem, 1)
+		return This.ExtractNthOccurrenceCS(n, pItem, 1)
 
 	def ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
 		_oEfocsExt_ = new stzListExtractor(This)
 		_oEfocsExt_.ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
 		This.UpdateWith(_oEfocsExt_.Content())
+		return This.FirstOccurrenceCS(pItem, pCaseSensitive)
 
 	def ExtractFirstOccurrence(pItem)
-		This.ExtractFirstOccurrenceCS(pItem, 1)
+		return This.ExtractFirstOccurrenceCS(pItem, 1)
 
 	def ExtractLastOccurrenceCS(pItem, pCaseSensitive)
 		_oElocsExt_ = new stzListExtractor(This)
 		_oElocsExt_.ExtractLastOccurrenceCS(pItem, pCaseSensitive)
 		This.UpdateWith(_oElocsExt_.Content())
+		return This.LastOccurrenceCS(pItem, pCaseSensitive)
 
 	def ExtractLastOccurrence(pItem)
-		This.ExtractLastOccurrenceCS(pItem, 1)
+		return This.ExtractLastOccurrenceCS(pItem, 1)
 
 	def ExtractDuplicatesCS(pCaseSensitive)
 		_oEdcsExt_ = new stzListExtractor(This)
 		_oEdcsExt_.ExtractDuplicatesCS(pCaseSensitive)
 		This.UpdateWith(_oEdcsExt_.Content())
+		return This.DuplicatesCS(pCaseSensitive)
 
 	def ExtractDuplicates()
-		This.ExtractDuplicatesCS(1)
+		return This.ExtractDuplicatesCS(1)
 
 	def ExtractStrings()
 		_oEsExt2_ = new stzListExtractor(This)
 		_oEsExt2_.ExtractStrings()
 		This.UpdateWith(_oEsExt2_.Content())
+		return This.OnlyStrings()
 
 	def ExtractNumbers()
 		_oEnExt2_ = new stzListExtractor(This)
 		_oEnExt2_.ExtractNumbers()
 		This.UpdateWith(_oEnExt2_.Content())
+		return This.OnlyNumbers()
 
 	def ExtractLists()
 		_oElExt2_ = new stzListExtractor(This)
 		_oElExt2_.ExtractLists()
 		This.UpdateWith(_oElExt2_.Content())
+		return This.OnlyLists()
 
 	def Pop()
 		_nPopLen_ = This.NumberOfItems()
@@ -7311,7 +7342,7 @@ class stzList from stzObject
 			_s_ = _aSec_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = _o_._EngineSlice(pNamedIn[2], _s_[1], _s_[2] - _s_[1] + 1)
-				if StzFind(pcSub, _cMid_) > 0 return TRUE ok
+				if StzFindFirst(pcSub, _cMid_) > 0 return TRUE ok
 			ok
 		next
 		return FALSE
@@ -9512,7 +9543,7 @@ class stzList from stzObject
 		anPos = [ [] ]
 
 		for i = 1 to nLen
-			n = StzFind(acSeen, acStr[i])
+			n = StzFindFirst(acSeen, acStr[i])
 			if n = 0
 				acSeen + acStr[i]
 				anPos + [ i ]
@@ -9583,7 +9614,7 @@ class stzList from stzObject
 		anPos = [ [] ]
 
 		for i = 1 to nLen
-			n = StzFind(acSeen, acStr[i])
+			n = StzFindFirst(acSeen, acStr[i])
 			if n = 0
 				acSeen + acStr[i]
 				anPos + [ i ]
@@ -9657,13 +9688,13 @@ class stzList from stzObject
 		aResult = []
 
 		for i = 1 to nLen
-			n = StzFind(acSeen, acStr[i])
+			n = StzFindFirst(acSeen, acStr[i])
 			if n = 0
 				acSeen + acStr[i]
 				anSeen + i
 				aResult + [ aContent[i], [i] ]
 			else
-				if StzFind(anPos, anSeen[n]) = 0
+				if StzFindFirst(anPos, anSeen[n]) = 0
 					anPos + anSeen[n]
 				ok
 				anPos + i
@@ -9727,7 +9758,7 @@ class stzList from stzObject
 		anPos = []
 
 		for i = 1 to nLen
-			n = StzFind(acSeen, acStr[i])
+			n = StzFindFirst(acSeen, acStr[i])
 			if n = 0
 				acSeen + acStr[i]
 			else
@@ -9789,12 +9820,12 @@ class stzList from stzObject
 		anPos = []
 
 		for i = 1 to nLen
-			n = StzFind(acSeen, acStr[i])
+			n = StzFindFirst(acSeen, acStr[i])
 			if n = 0
 				acSeen + acStr[i]
 				anSeen + i
 			else
-				if StzFind(anPos, anSeen[n]) = 0
+				if StzFindFirst(anPos, anSeen[n]) = 0
 					anPos + anSeen[n]
 				ok
 				anPos + i
@@ -9906,13 +9937,13 @@ class stzList from stzObject
 		anPos = []
 
 		for i = 1 to nLen
-			n = StzFind(acSeen, acStr[i])
+			n = StzFindFirst(acSeen, acStr[i])
 			if n = 0
 				acSeen + acStr[i]
 				acResult + acStr[i]
 				anPos + i
 			else
-				nPos = StzFind(acResult, acStr[i])
+				nPos = StzFindFirst(acResult, acStr[i])
 				if nPos > 0
 					ring_del(acResult, nPos)
 					ring_del(anPos, nPos)
@@ -9989,13 +10020,13 @@ class stzList from stzObject
 		anResult = []
 
 		for i = 1 to nLen
-			n = StzFind(acSeen, acStr[i])
+			n = StzFindFirst(acSeen, acStr[i])
 			if n = 0
 				acSeen + acStr[i]
 				acResult + acStr[i]
 				anResult + i
 			else
-				nPos = StzFind(acResult, acStr[i])
+				nPos = StzFindFirst(acResult, acStr[i])
 				if nPos > 0
 					ring_del(acResult, nPos)
 					ring_del(anResult, nPos)
@@ -10056,7 +10087,7 @@ class stzList from stzObject
 		aResult = []
 		acSeen = []
 		for i = 1 to nLenList
-			if StzFind(acSeen, acListStringified[i])
+			if StzFindFirst(acSeen, acListStringified[i])
 				loop
 			ok
 
@@ -11063,7 +11094,7 @@ class stzList from stzObject
 		nLen = len(@aContent)
 
 		if nLen = 1 and isString(@aContent[1]) and
-		   StzFind([ :Default, :DefaultLocale, :System, :SystemLocale, "c", "C", :CLocale ], @aContent[1]) > 0
+		   StzFindFirst([ :Default, :DefaultLocale, :System, :SystemLocale, "c", "C", :CLocale ], @aContent[1]) > 0
 			return 1
 		ok
 
@@ -11078,9 +11109,9 @@ class stzList from stzObject
 		for i = 1 to nLen
 			acKeys + @aContent[i][1]
 		next
-		bLanguage = StzFind(acKeys, "language")
-		bScript = StzFind(acKeys, "script")
-		bCountry = StzFind(acKeys, "country")
+		bLanguage = StzFindFirst(acKeys, "language")
+		bScript = StzFindFirst(acKeys, "script")
+		bCountry = StzFindFirst(acKeys, "country")
 		if bLanguage = 0 and bScript = 0 and bCountry = 0
 			return 0
 		ok
@@ -11322,7 +11353,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 StzFind([
+			 StzFindFirst([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -11407,7 +11438,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 StzFind([
+			 StzFindFirst([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -11492,7 +11523,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 StzFind([
+			 StzFindFirst([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -11567,7 +11598,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 StzFind([
+			 StzFindFirst([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,

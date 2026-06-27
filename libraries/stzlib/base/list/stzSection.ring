@@ -142,14 +142,14 @@ class stzSection
 	
 			if isString(n1)
 
-				if StzFind([
+				if StzFindFirst([
 					:Start, :First, :FirstChar,
 					:FromFirst, :FromFirstChar,
 					:FirstItem, :FromFirstItem], n1) > 0
 
 					n1 = 1
 	
-				but StzFind([
+				but StzFindFirst([
 					:Last, :LastChar, :ToLast, :ToLastChar,
 					:LastItem, :ToLastItem ], n1) > 0
 
@@ -163,7 +163,7 @@ class stzSection
 		
 			if isString(n2)
 
-				if StzFind([
+				if StzFindFirst([
 					:End, :Last, :LastChar, :EndOfString,
 					:ToEnd, :ToLast, :ToLastChar, :ToEndOfString,
 
@@ -175,7 +175,7 @@ class stzSection
 
 					n2 = nSize
 	
-				but StzFind([
+				but StzFindFirst([
 					:First, :FirstChar,
 					:FromFirst, :FromFirstChar,
 

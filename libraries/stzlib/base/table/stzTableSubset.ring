@@ -651,12 +651,12 @@ class stzTableSubset from stzTable
 
 		if isString(pnFrom)
 
-			if StzFind([
+			if StzFindFirst([
 				:First, :FirstCol, :FirstColumn, :FirstPosition ], pnForm) > 0
 
 				pnFrom = 1
 
-			but StzFind([
+			but StzFindFirst([
 				:Last, :LastCol, :LastColumn, :LastPosition ], pnFrom) > 0
 
 				pnFrom = This.NumberOfCols()
@@ -665,12 +665,12 @@ class stzTableSubset from stzTable
 
 		if isString(pnTo)
 
-			if StzFind([
+			if StzFindFirst([
 				:First, :FirstCol, :FirstColumn, :FirstPosition ], pnTo) > 0
 
 				pnTo = 1
 
-			but StzFind([
+			but StzFindFirst([
 				:Last, :LastCol, :LastColumn, :LastPosition ], pnTo) > 0
 
 				pnTo = This.NumberOfCols()

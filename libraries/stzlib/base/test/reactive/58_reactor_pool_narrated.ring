@@ -33,9 +33,9 @@ Scenario("A batch of async requests runs across the loops")
     aBodies = oPool2.FetchAll(aReqs, 20000)
     Then("we got 4 responses back", len(aBodies), 4)
     Then("the first response is an HTTP reply",
-        StzFind(aBodies[1], "HTTP/") > 0, TRUE)
+        StzFindFirst(aBodies[1], "HTTP/") > 0, TRUE)
     Then("the last response is an HTTP reply",
-        StzFind(aBodies[4], "HTTP/") > 0, TRUE)
+        StzFindFirst(aBodies[4], "HTTP/") > 0, TRUE)
     oPool2.Destroy()
 EndScenario()
 

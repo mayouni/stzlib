@@ -189,7 +189,7 @@ func StzVxt(cVarName)
 
 	cVarName = StzLower(cVarName)
 
-	if NOT StzFind(TempVarNames(), cVarName)
+	if NOT StzFindFirst(TempVarNames(), cVarName)
 		StzRaise("Variable name does not exist!")
 	ok
 

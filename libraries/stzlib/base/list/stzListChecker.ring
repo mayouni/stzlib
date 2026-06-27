@@ -251,7 +251,7 @@ class stzListChecker
 	def IsWithOrByOrUsingNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(@oList.Item(1)) and
-		     StzFind([ "with", "by", "using" ], @oList.Item(1)) > 0 )
+		     StzFindFirst([ "with", "by", "using" ], @oList.Item(1)) > 0 )
 			return 1
 		else
 			return 0

@@ -273,9 +273,9 @@ class stzGraphex from stzGraph
 		ok
 	
 		# Process set constraints - look for {...}U or {...}
-		nBraceStart = StzFind(cTokenStr, "{")
+		nBraceStart = StzFindFirst(cTokenStr, "{")
 		if nBraceStart > 0
-			nBraceEnd = StzFind(cTokenStr, "}")
+			nBraceEnd = StzFindFirst(cTokenStr, "}")
 			if nBraceEnd > nBraceStart
 	
 				# span BETWEEN the braces, not the absolute end index
@@ -305,9 +305,9 @@ class stzGraphex from stzGraph
 		if startsWith(cTokenLower, "@node")
 			
 			# Manual extraction: @Node(label){props}
-			nParenStart = StzFind(cTokenStr, "(")
+			nParenStart = StzFindFirst(cTokenStr, "(")
 			if nParenStart > 0
-				nParenEnd = StzFind(cTokenStr, ")")
+				nParenEnd = StzFindFirst(cTokenStr, ")")
 				if nParenEnd > nParenStart
 					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - nParenStart - 1)
 				ok
@@ -331,9 +331,9 @@ class stzGraphex from stzGraph
 		but startsWith(cTokenLower, "@edge")
 			
 			# Manual extraction: @Edge(label){props}
-			nParenStart = StzFind(cTokenStr, "(")
+			nParenStart = StzFindFirst(cTokenStr, "(")
 			if nParenStart > 0
-				nParenEnd = StzFind(cTokenStr, ")")
+				nParenEnd = StzFindFirst(cTokenStr, ")")
 				if nParenEnd > nParenStart
 					cLabel = @StzMid(cTokenStr, nParenStart + 1, nParenEnd - nParenStart - 1)
 				ok
@@ -730,9 +730,9 @@ class stzGraphex from stzGraph
 				cToken = aPatternBranch[j]
 				cLabel = ""
 
-				nParenPos = StzFind(cToken, "(")
+				nParenPos = StzFindFirst(cToken, "(")
 				if nParenPos > 0
-					nClosePos = StzFind(cToken, ")")
+					nClosePos = StzFindFirst(cToken, ")")
 					if nClosePos > nParenPos
 						# count is the span BETWEEN the parens, not nClosePos-1
 						# (which leaked the ')' into the label -> "start)").
@@ -880,9 +880,9 @@ class stzGraphex from stzGraph
 		if NOT isString(cLabel)
 			return ""
 		ok
-		np = StzFind(cLabel, "(")
+		np = StzFindFirst(cLabel, "(")
 		if np > 0
-			nc = StzFind(cLabel, ")")
+			nc = StzFindFirst(cLabel, ")")
 			if nc > np
 				return @StzMid(cLabel, np + 1, nc - np - 1)
 			ok
@@ -1071,9 +1071,9 @@ class stzGraphex from stzGraph
 			
 			if isString(cToken)
 				# Extract label from "edge(flows)" -> "flows"
-				nParenPos = StzFind(cToken, "(")
+				nParenPos = StzFindFirst(cToken, "(")
 				if nParenPos > 0
-					nClosePos = StzFind(cToken, ")")
+					nClosePos = StzFindFirst(cToken, ")")
 					if nClosePos > nParenPos
 						cLabel = @StzMid(cToken, nParenPos + 1, nClosePos - nParenPos - 1)
 						aPattern + cLabel

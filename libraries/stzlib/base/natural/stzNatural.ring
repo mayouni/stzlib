@@ -371,7 +371,7 @@ class stzNaturalEngine
 	
 	def GetContextValue(cKey, aContext)
 		# Handle nested keys like "user.profile.name"
-		if StzFind(cKey, ".") > 0
+		if StzFindFirst(cKey, ".") > 0
 			aParts = @split(cKey, ".")
 			xCurrent = aContext
 			
@@ -638,7 +638,7 @@ class stzNaturalEngine
 		return 0
 	
 	def IsIgnoredWord(cWord)
-		return StzFind(@aIgnoredWords, StzLower(cWord)) > 0
+		return StzFindFirst(@aIgnoredWords, StzLower(cWord)) > 0
 	
 	def ToSemantic(cWord)
 		cLower = StzLower(cWord)

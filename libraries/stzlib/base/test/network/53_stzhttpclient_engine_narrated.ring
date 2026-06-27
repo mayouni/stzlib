@@ -28,11 +28,11 @@ Scenario("Header blob composer formats RFC-style lines")
     o.SetCookie("b", "2")
     o.SetHeader("X-Custom", "yes")
     Then("header blob carries every expected line",
-        StzFind(o._ComposeHeaderBlob(), "User-Agent: Agent/1") > 0, TRUE)
+        StzFindFirst(o._ComposeHeaderBlob(), "User-Agent: Agent/1") > 0, TRUE)
     Then("cookie line concatenates with semicolons",
-        StzFind(o._ComposeHeaderBlob(), "Cookie: a=1; b=2") > 0, TRUE)
+        StzFindFirst(o._ComposeHeaderBlob(), "Cookie: a=1; b=2") > 0, TRUE)
     Then("custom header preserved",
-        StzFind(o._ComposeHeaderBlob(), "X-Custom: yes") > 0, TRUE)
+        StzFindFirst(o._ComposeHeaderBlob(), "X-Custom: yes") > 0, TRUE)
 EndScenario()
 
 Scenario("Transport-level error path surfaces gracefully")
@@ -42,7 +42,7 @@ Scenario("Transport-level error path surfaces gracefully")
     Then("HasError flips to TRUE",          o.HasError(), TRUE)
     Then("ResponseCode is -1",              o.ResponseCode(), -1)
     Then("LastError mentions GET failure",
-        StzFind(o.LastError(), "GET failed") > 0, TRUE)
+        StzFindFirst(o.LastError(), "GET failed") > 0, TRUE)
 EndScenario()
 
 Scenario("UrlEncode (from stzNetworkUtils) encodes reserved chars")

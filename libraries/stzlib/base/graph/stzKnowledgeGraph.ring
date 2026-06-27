@@ -139,7 +139,7 @@ class stzKnowledgeGraph from stzGraph
 			for _i_ = 1 to _nLen_
 				if _aEdges_[_i_][:to] = _cObjLow_ and _aEdges_[_i_][:label] = _cPredLow_
 					_cFromLab_ = This.Node(_aEdges_[_i_][:from])[:label]
-					if StzFind(_acResults_, _cFromLab_) = 0
+					if StzFindFirst(_acResults_, _cFromLab_) = 0
 						_acResults_ + _cFromLab_
 					ok
 				ok
@@ -149,7 +149,7 @@ class stzKnowledgeGraph from stzGraph
 			for _i_ = 1 to _nLen_
 				if _aEdges_[_i_][:from] = _cSubjLow_ and _aEdges_[_i_][:label] = _cPredLow_
 					_cToLab_ = This.Node(_aEdges_[_i_][:to])[:label]
-					if StzFind(_acResults_, _cToLab_) = 0
+					if StzFindFirst(_acResults_, _cToLab_) = 0
 						_acResults_ + _cToLab_
 					ok
 				ok
@@ -197,7 +197,7 @@ class stzKnowledgeGraph from stzGraph
 		_nLen_ = len(_aEdges_)
 		for _i_ = 1 to _nLen_
 			if _aEdges_[_i_][:from] = _cPenE_
-				if StzFind(_acPredicates_, _aEdges_[_i_][:label]) = 0
+				if StzFindFirst(_acPredicates_, _aEdges_[_i_][:label]) = 0
 					_acPredicates_ + _aEdges_[_i_][:label]
 				ok
 			ok
@@ -243,7 +243,7 @@ class stzKnowledgeGraph from stzGraph
 
 				_nMyLen_ = len(_aMyPredicates_)
 				for _j_ = 1 to _nMyLen_
-					if StzFind(_aTheirPredicates_, _aMyPredicates_[_j_]) > 0
+					if StzFindFirst(_aTheirPredicates_, _aMyPredicates_[_j_]) > 0
 						_nOverlap_++
 					ok
 				next
@@ -350,7 +350,7 @@ class stzKnowledgeGraph from stzGraph
 		nEdgeLen = len(aEdges)
 		for i = 1 to nEdgeLen
 			cPred = aEdges[i][:label]
-			if cPred != "" and StzFind(acAllPredicates, cPred) = 0
+			if cPred != "" and StzFindFirst(acAllPredicates, cPred) = 0
 				acAllPredicates + cPred
 			ok
 		end
@@ -486,7 +486,7 @@ class stzKnowParser
                 loop
             ok
             
-            if StzFind(cLine, "knowledge ")
+            if StzFindFirst(cLine, "knowledge ")
                 cId = This._ExtractQuoted(cLine)
                 oKG = new stzKnowledgeGraph(cId)
             
@@ -499,7 +499,7 @@ class stzKnowParser
             but cLine = "rules"
                 cSection = "rules"
             
-            but cSection = "facts" and StzFind(cLine, "|")
+            but cSection = "facts" and StzFindFirst(cLine, "|")
                 aParts = split(cLine, "|")
                 if len(aParts) = 3
                     oKG.AddFact(trim(aParts[1]), trim(aParts[2]), trim(aParts[3]))
@@ -510,8 +510,8 @@ class stzKnowParser
         return oKG
     
     def _ExtractQuoted(cLine)
-        nStart = StzFind(cLine, '"')
+        nStart = StzFindFirst(cLine, '"')
         if nStart = 0 return "" ok
         nEnd = StzMid(cLine, nStart + 1, StzLen(cLine) - nStart)
-        nEnd = StzFind(nEnd, '"')
+        nEnd = StzFindFirst(nEnd, '"')
         return StzMid(cLine, nStart + 1, nEnd - 1)
