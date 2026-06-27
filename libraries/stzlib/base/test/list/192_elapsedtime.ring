@@ -1,9 +1,8 @@
 # Narrative
 # --------
-# pr()
+
 #
 # Extracted from stzlisttest.ring, block #192.
-#ERR Error (R24) : Using uninitialized variable: _time0
 
 load "../../stzBase.ring"
 
@@ -15,12 +14,13 @@ for i = 1 to 299_000
 next
 
 ? ElapsedTime()
-#--> Extecuted in 0.08 second(s) in seconds
+#--> Extecuted in 0.05 second(s) in seconds
 
 o1 = new stzList( aLarge + 10 + 20 + [ "+", "-" ] )
 ? len( o1.OnlyStrings() )
 #--> 299000
-# Executed in 2 second(s)
+# (OnlyStrings is now ~3s on 299k items, down from >120s -- the per-item
+#  @AddItem copy was removed from stzListGetter.)
 
 pf()
 # Executed in 0.61 second(s) in Ring 1.22

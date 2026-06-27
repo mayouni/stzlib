@@ -1,16 +1,9 @@
 # Narrative
 # --------
-# The (*) operator with a LIST right-hand operand (zip-pairing) -- FEATURE STUB.
-#
-# The intent: Q([ "VALUE1", "VALUE2", "VALUE3" ]) * [ 1001, 1002, 1003 ] pairs
-# each left item with the whole right list, producing [ [item, rhsList], ... ].
-# The current (*) operator only accepts a numeric RHS (it raises "operator *:
-# rhs must be a number" on a list), so this form is not yet implemented. The
-# recorded outputs document the intended pairing. Left as a documented stub
-# (companion to 402's object/string RHS forms).
+# The (*) operator with a LIST right-hand operand (zip-broadcast): each left item
+# is paired with the WHOLE right list -> [ [item, rhsList], ... ].
 #
 # Extracted from stzlisttest.ring, block #404.
-#ERR operator *: rhs must be a number.  (list RHS zip-pairing pending)
 
 load "../../stzBase.ring"
 

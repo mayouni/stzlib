@@ -9400,37 +9400,53 @@ class stzList from stzObject
 			ok
 
 		but pOp = "*"
-			# Repeat the list N times (flat). Q-elevation rule: a RAW number
-			# returns a raw list; a Q(number) / numeric stz-object returns a
-			# chainable stzList object with the SAME content. NON-mutating
-			# (the wrapped object is never changed).
+			# (*) dispatches on the RHS type. Q-elevation rule: a RAW rhs returns
+			# a raw list; a Q()-wrapped / stz-object rhs returns a chainable
+			# stzList with the SAME content. NON-mutating.
+			#   number  -> repeat the list N times, FLAT  ([1,2]*3 -> [1,2,1,2,1,2])
+			#   string  -> append the suffix to each item  (["a","b"]*"!" -> ["a!","b!"])
+			#   list    -> pair each item with the whole rhs list (zip-broadcast)
 			_bMulElevate_ = 0
-			if isNumber(pValue)
-				_nMul_ = pValue
-			but @IsStzObject(pValue)
-				_vMul_ = pValue.Content()
-				if @IsStzNumber(pValue)
-					_vMul_ = pValue.NumericValue()
-				ok
-				if NOT isNumber(_vMul_)
-					StzRaise("operator *: rhs object must hold a number.")
-				ok
-				_nMul_ = _vMul_
+			_vMulRhs_ = pValue
+			if @IsStzObject(pValue)
 				_bMulElevate_ = 1
-			else
-				StzRaise("operator *: rhs must be a number or Q(number).")
+				if @IsStzNumber(pValue)
+					_vMulRhs_ = pValue.NumericValue()
+				else
+					_vMulRhs_ = pValue.Content()
+				ok
 			ok
-			_nMul_ = floor(_nMul_)
-			if _nMul_ < 0
-				_nMul_ = 0
-			ok
+
 			_aMulRes_ = []
 			_nMulLen_ = len(@aContent)
-			for _iMul_ = 1 to _nMul_
-				for _jMul_ = 1 to _nMulLen_
-					_aMulRes_ + @aContent[_jMul_]
+
+			if isNumber(_vMulRhs_)
+				_nMul_ = floor(_vMulRhs_)
+				if _nMul_ < 0 _nMul_ = 0 ok
+				for _iMul_ = 1 to _nMul_
+					for _jMul_ = 1 to _nMulLen_
+						_aMulRes_ + @aContent[_jMul_]
+					next
 				next
-			next
+
+			but isString(_vMulRhs_)
+				for _jMul_ = 1 to _nMulLen_
+					if isString(@aContent[_jMul_])
+						_aMulRes_ + (@aContent[_jMul_] + _vMulRhs_)
+					else
+						_aMulRes_ + @aContent[_jMul_]
+					ok
+				next
+
+			but isList(_vMulRhs_)
+				for _jMul_ = 1 to _nMulLen_
+					_aMulRes_ + [ @aContent[_jMul_], _vMulRhs_ ]
+				next
+
+			else
+				StzRaise("operator *: rhs must be a number, string, list, or Q(...) of these.")
+			ok
+
 			if _bMulElevate_
 				return new stzList(_aMulRes_)
 			ok
