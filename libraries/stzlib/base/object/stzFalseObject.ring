@@ -130,3 +130,50 @@ class stzFalseObject from stzObject
 
 			def DivisibleByQ(n)
 				return This
+
+#-----------------------------------------------------------------#
+#  WHOLE-OBJECT CONDITION GUARD                                    #
+#-----------------------------------------------------------------#
+# Returned by the passing branch of a type-guard like IsAPairQ():
+# a truthy guard whose .Where(cond) evaluates the condition ONCE
+# with the type keyword (@pair, @list, @string, @number, @object)
+# bound to the WHOLE object -- so @pair[1] means the pair's first
+# element, not "index into each item". (A FAILING type-guard returns
+# a stzFalseObject instead, whose .Where(cond) -> 0.) This is what
+# makes  o.IsAPairQ().Where('isString(@pair[1]) and isNumber(@pair[2])')
+# answer TRUE for the pair [ :x, 5 ].
+
+class stzObjectGuard from stzObject
+	@oObj
+	@cKeyword
+
+	def init(poObj, pcKeyword)
+		@oObj = poObj
+		@cKeyword = pcKeyword
+
+	def Content()
+		return @oObj.Content()
+
+		def Value()
+			return This.Content()
+
+	def Object()
+		return @oObj
+
+	def Keyword()
+		return @cKeyword
+
+	def Where(pcCondition)
+		#-- Bind every whole-object keyword to the whole receiver, so
+		#-- @pair[1] -> This[1]. The condition is then item-invariant; a
+		#-- single engine-backed CheckW over the object answers TRUE/FALSE.
+		_cWogCond_ = pcCondition
+		_aWogKw_ = [ "@pair", "@list", "@string", "@number", "@object" ]
+		_nWogKw_ = len(_aWogKw_)
+		for _iWog_ = 1 to _nWogKw_
+			_cWogCond_ = StzReplace(_cWogCond_, _aWogKw_[_iWog_], "This")
+		next
+		return @oObj.CheckW(_cWogCond_)
+
+		def W(pcCondition)
+			return This.Where(pcCondition)

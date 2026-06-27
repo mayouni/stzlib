@@ -10217,7 +10217,10 @@ class stzList from stzObject
 
 	def IsPairQ()
 		if This.IsPair()
-			return This
+			#-- Pass back a whole-object guard so a chained .Where(cond) binds
+			#-- @pair to the WHOLE pair (@pair[1]/@pair[2] are its elements),
+			#-- not item-by-item. A non-pair yields a stzFalseObject (Where->0).
+			return new stzObjectGuard(This, :Pair)
 		else
 			return StzFalseObjectQ()
 		ok
