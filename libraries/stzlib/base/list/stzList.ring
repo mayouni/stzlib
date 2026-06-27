@@ -1300,6 +1300,12 @@ class stzList from stzObject
 			This.Stringify()
 			return This
 
+	# ToListInAString: the content rendered as a "[ ... ]" string (computable
+	# form). Delegates to stzListStringify, like the rest of this section.
+	def ToListInAString()
+		_oTlasStfy_ = new stzListStringify(This)
+		return _oTlasStfy_.ToListInAString()
+
 	# StringifyAndReplace: Stringify the content, then replace every
 	# occurrence of pItem with the supplied value (pWith). pWith
 	# accepts the :With named-param form or a bare string.
