@@ -2175,6 +2175,109 @@ class stzList from stzObject
 	def Duplications()
 		return This.DuplicatedItems()
 
+	  #-----------------------------------------------#
+	 #  DUPLICATES OF A SPECIFIC ITEM / STRING       #
+	#-----------------------------------------------#
+	# "...OfString" is the historical name (these came from the
+	# list-of-strings API) but they work for any item type. The
+	# "duplicates" of an item are its 2nd-and-later occurrences --
+	# the first one is the original, the rest are the copies.
+
+	def FindDuplicatesOfStringCS(pItem, pCaseSensitive)
+		_anFdosAll_ = This.FindAllCS(pItem, pCaseSensitive)
+		_nFdosLen_ = len(_anFdosAll_)
+		if _nFdosLen_ <= 1 return [] ok
+		_anFdosRes_ = []
+		for _iFdos_ = 2 to _nFdosLen_
+			_anFdosRes_ + _anFdosAll_[_iFdos_]
+		next
+		return _anFdosRes_
+
+	def FindDuplicatesOfString(pItem)
+		return This.FindDuplicatesOfStringCS(pItem, 1)
+
+		def FindDuplicatesOfItemCS(pItem, pCaseSensitive)
+			return This.FindDuplicatesOfStringCS(pItem, pCaseSensitive)
+
+		def FindDuplicatesOfItem(pItem)
+			return This.FindDuplicatesOfStringCS(pItem, 1)
+
+	# Same set of positions, but exposed under the "Duplications" name and
+	# accepting the :CS = TRUE|FALSE named param for the case dial.
+	def FindDuplicationsOfItemCS(pItem, pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		return This.FindDuplicatesOfStringCS(pItem, pCaseSensitive)
+
+		def FindDuplicationsOfItem(pItem)
+			return This.FindDuplicatesOfStringCS(pItem, 1)
+
+	def NumberOfDuplicatesOfStringCS(pItem, pCaseSensitive)
+		return len(This.FindDuplicatesOfStringCS(pItem, pCaseSensitive))
+
+	def NumberOfDuplicatesOfString(pItem)
+		return This.NumberOfDuplicatesOfStringCS(pItem, 1)
+
+		def NumberOfDuplicatesOfItemCS(pItem, pCaseSensitive)
+			return This.NumberOfDuplicatesOfStringCS(pItem, pCaseSensitive)
+
+		def NumberOfDuplicatesOfItem(pItem)
+			return This.NumberOfDuplicatesOfStringCS(pItem, 1)
+
+	def StringIsDuplicatedNTimesCS(pItem, n, pCaseSensitive)
+		return This.NumberOfDuplicatesOfStringCS(pItem, pCaseSensitive) = n
+
+	def StringIsDuplicatedNTimes(pItem, n)
+		return This.StringIsDuplicatedNTimesCS(pItem, n, 1)
+
+		def ItemIsDuplicatedNTimesCS(pItem, n, pCaseSensitive)
+			return This.StringIsDuplicatedNTimesCS(pItem, n, pCaseSensitive)
+
+		def ItemIsDuplicatedNTimes(pItem, n)
+			return This.StringIsDuplicatedNTimesCS(pItem, n, 1)
+
+	# ALL positions of an item -- but only when it actually IS duplicated
+	# (appears more than once); a non-duplicated item yields the empty list.
+	def FindDuplicatedStringCS(pItem, pCaseSensitive)
+		_anFdsAll_ = This.FindAllCS(pItem, pCaseSensitive)
+		if len(_anFdsAll_) <= 1 return [] ok
+		return _anFdsAll_
+
+	def FindDuplicatedString(pItem)
+		return This.FindDuplicatedStringCS(pItem, 1)
+
+		def FindDuplicatedItemCS(pItem, pCaseSensitive)
+			return This.FindDuplicatedStringCS(pItem, pCaseSensitive)
+
+		def FindDuplicatedItem(pItem)
+			return This.FindDuplicatedStringCS(pItem, 1)
+
+	def ContainsDuplicatedStringCS(pItem, pCaseSensitive)
+		return len(This.FindAllCS(pItem, pCaseSensitive)) > 1
+
+	def ContainsDuplicatedString(pItem)
+		return This.ContainsDuplicatedStringCS(pItem, 1)
+
+		def ContainsDuplicatedItemCS(pItem, pCaseSensitive)
+			return This.ContainsDuplicatedStringCS(pItem, pCaseSensitive)
+
+		def ContainsDuplicatedItem(pItem)
+			return This.ContainsDuplicatedStringCS(pItem, 1)
+
+	# The distinct items that have duplicates, and how many such items there are.
+	def DuplicatedStringsCS(pCaseSensitive)
+		return This.DuplicatesCS(pCaseSensitive)
+
+	def DuplicatedStrings()
+		return This.Duplicates()
+
+	def NumberOfDuplicatedStringsCS(pCaseSensitive)
+		return len(This.DuplicatesCS(pCaseSensitive))
+
+	def NumberOfDuplicatedStrings()
+		return len(This.Duplicates())
+
 	  #--------------------------------------#
 	 #  FLATTEN (engine-backed)             #
 	#--------------------------------------#
