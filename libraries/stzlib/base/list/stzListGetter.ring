@@ -73,7 +73,7 @@ class stzListGetter
 	def NFirstItems(n)
 		_aNfResult_ = []
 		for _iNf_ = 1 to n
-			@AddItem(_aNfResult_, This.List()[_iNf_])
+			_aNfResult_ + This.List()[_iNf_]
 		next
 		return _aNfResult_
 
@@ -84,7 +84,7 @@ class stzListGetter
 		_nNlLen_ = This.NumberOfItems()
 		_aNlResult_ = []
 		for _iNl_ = _nNlLen_ - n + 1 to _nNlLen_
-			@AddItem(_aNlResult_, This.List()[_iNl_])
+			_aNlResult_ + This.List()[_iNl_]
 		next
 		return _aNlResult_
 
@@ -99,7 +99,7 @@ class stzListGetter
 		_aIapResult_ = []
 		_nIapLen_ = len(panPositions)
 		for _iIap_ = 1 to _nIapLen_
-			@AddItem(_aIapResult_, This.List()[panPositions[_iIap_]])
+			_aIapResult_ + This.List()[panPositions[_iIap_]]
 		next
 		return _aIapResult_
 
@@ -132,7 +132,7 @@ class stzListGetter
 		ok
 		_aScFallback_ = []
 		for _iSc_ = n1 to n2
-			@AddItem(_aScFallback_, This.List()[_iSc_])
+			_aScFallback_ + This.List()[_iSc_]
 		next
 		return _aScFallback_
 
@@ -179,7 +179,7 @@ class stzListGetter
 		if n >= _nNriLen_
 			_aNriAll_ = []
 			for _iNri_ = 1 to _nNriLen_
-				@AddItem(_aNriAll_, _aNriContent_[_iNri_])
+				_aNriAll_ + _aNriContent_[_iNri_]
 			next
 			return _aNriAll_
 		ok
@@ -192,7 +192,7 @@ class stzListGetter
 		next
 		_aNriPick_ = []
 		for _kNri_ = 1 to n
-			@AddItem(_aNriPick_, _aNriContent_[_anNriIdx_[_kNri_]])
+			_aNriPick_ + _aNriContent_[_anNriIdx_[_kNri_]]
 		next
 		return _aNriPick_
 
@@ -215,7 +215,7 @@ class stzListGetter
 		_nEniLen_ = len(_aEniContent_)
 		_aEniResult_ = []
 		for _iEni_ = n to _nEniLen_ step n
-			@AddItem(_aEniResult_, _aEniContent_[_iEni_])
+			_aEniResult_ + _aEniContent_[_iEni_]
 		next
 		return _aEniResult_
 
@@ -251,7 +251,7 @@ class stzListGetter
 		_aOsResult_ = []
 		for _iOs_ = 1 to _nOsLen_
 			if isString(_aOsContent_[_iOs_])
-				@AddItem(_aOsResult_, _aOsContent_[_iOs_])
+				_aOsResult_ + _aOsContent_[_iOs_]
 			ok
 		next
 		return _aOsResult_
@@ -262,7 +262,7 @@ class stzListGetter
 		_aOnResult_ = []
 		for _iOn_ = 1 to _nOnLen_
 			if isNumber(_aOnContent_[_iOn_])
-				@AddItem(_aOnResult_, _aOnContent_[_iOn_])
+				_aOnResult_ + _aOnContent_[_iOn_]
 			ok
 		next
 		return _aOnResult_
@@ -273,7 +273,7 @@ class stzListGetter
 		_aOlResult_ = []
 		for _iOl_ = 1 to _nOlLen_
 			if isList(_aOlContent_[_iOl_])
-				@AddItem(_aOlResult_, _aOlContent_[_iOl_])
+				_aOlResult_ + _aOlContent_[_iOl_]
 			ok
 		next
 		return _aOlResult_
@@ -284,7 +284,7 @@ class stzListGetter
 		_aOcResult_ = []
 		for _iOc_ = 1 to _nOcLen_
 			if isString(_aOcContent_[_iOc_]) and len(_aOcContent_[_iOc_]) = 1
-				@AddItem(_aOcResult_, _aOcContent_[_iOc_])
+				_aOcResult_ + _aOcContent_[_iOc_]
 			ok
 		next
 		return _aOcResult_
@@ -298,7 +298,7 @@ class stzListGetter
 		_nPrLen_ = len(_aPrContent_)
 		_aPrResult_ = []
 		for _iPr_ = 1 to _nPrLen_ - 1
-			@AddItem(_aPrResult_, [_aPrContent_[_iPr_], _aPrContent_[_iPr_ + 1]])
+			_aPrResult_ + [_aPrContent_[_iPr_], _aPrContent_[_iPr_ + 1]]
 		next
 		return _aPrResult_
 
@@ -310,7 +310,7 @@ class stzListGetter
 		_nTrLen_ = len(_aTrContent_)
 		_aTrResult_ = []
 		for _iTr_ = 1 to _nTrLen_ - 2
-			@AddItem(_aTrResult_, [_aTrContent_[_iTr_], _aTrContent_[_iTr_ + 1], _aTrContent_[_iTr_ + 2]])
+			_aTrResult_ + [_aTrContent_[_iTr_], _aTrContent_[_iTr_ + 1], _aTrContent_[_iTr_ + 2]]
 		next
 		return _aTrResult_
 
