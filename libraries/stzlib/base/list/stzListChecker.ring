@@ -112,8 +112,16 @@ class stzListChecker
 		aContent = This.Content()
 		nLen = len(aContent)
 
+		# Normalize the type name to Ring's type() vocabulary (NUMBER / STRING /
+		# LIST / OBJECT): accept the plural forms (:Numbers, :Strings, ...).
+		_cT_ = StzUpper("" + pcType)
+		if _cT_ = "NUMBERS" _cT_ = "NUMBER" ok
+		if _cT_ = "STRINGS" _cT_ = "STRING" ok
+		if _cT_ = "LISTS"   _cT_ = "LIST"   ok
+		if _cT_ = "OBJECTS" _cT_ = "OBJECT" ok
+
 		for i = 1 to nLen
-			if type(aContent[i]) != StzUpper(pcType)
+			if type(aContent[i]) != _cT_
 				return 0
 			ok
 		next

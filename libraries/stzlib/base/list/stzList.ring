@@ -1479,9 +1479,6 @@ class stzList from stzObject
 		def EachItemIs(pcType)
 			return This.AllItemsAreOfType(pcType)
 
-		def AllItemsAre(pcType)
-			return This.AllItemsAreOfType(pcType)
-
 	def ContainsEmptyStrings()
 		_aEsContent_ = @aContent
 		_nEsLen_ = len(_aEsContent_)
@@ -3684,7 +3681,7 @@ class stzList from stzObject
 		return new stzNumber(_n_)
 
 	def AreIncludedIn(pOther)
-		return This.IsIncludedIn(pOther)
+		return This.EachItemExistsInCS(pOther, 1)  # plural = subset (every item of mine exists in pOther)
 
 	# FindObjects([pcExpr]): 0-arg = positions of every object item;
 	# 1-arg = ItemsWhere(pcExpr).
@@ -4015,7 +4012,7 @@ class stzList from stzObject
 		if NOT isList(pOther) return FALSE ok
 		pList = This._EngineListFromContent()
 		pOth = StzEngineMarshalList(pOther)
-		nResult = StzEngineListIsSubsetCS(pList, pOth, 1)
+		nResult = This.IsContainedInCS(pOther, 1)  # singular = whole-list-as-element (ExistsIn); AreIncludedIn = subset
 		StzEngineListFree(pList)
 		StzEngineListFree(pOth)
 		return nResult
@@ -5801,7 +5798,9 @@ class stzList from stzObject
 		return _StzAllEqualTyped(This.Content(), pItem)
 
 		def ContainsOnly(pItem)
-			return This.ItemsAreEqualTo(pItem)
+			# Route type symbols (:Number, :Numbers, :Strings, ...) through the
+			# type-check; otherwise fall back to value equality.
+			return This.AllItemsAre(pItem)
 
 		def ContainsOnlyCS(pItem, pCaseSensitive)
 			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
@@ -8164,6 +8163,16 @@ class stzList from stzObject
 		return This.ItemsAreEqualTo(pItem)
 
 		def IsMadeOfThisItem(pItem)
+			return This.ItemsAreEqualTo(pItem)
+
+		def AllItemsAre(pItem)
+			if isString(pItem) and
+			   (@IsRingOrStzType(pItem) or
+			    @IsRingTypePlural(pItem) or @IsStzTypePlural(pItem))
+
+				return This.AllItemsAreOfType(pItem)
+			ok
+
 			return This.ItemsAreEqualTo(pItem)
 
 	#-- IsMadeOfOneOfThese  -> contains at least one of the given items.
