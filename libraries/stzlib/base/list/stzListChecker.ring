@@ -120,6 +120,45 @@ class stzListChecker
 		if _cT_ = "LISTS"   _cT_ = "LIST"   ok
 		if _cT_ = "OBJECTS" _cT_ = "OBJECT" ok
 
+		# Compound "list of <type>" checks: every item must itself be a list
+		# whose elements are all of the inner type. A "char" is a single-
+		# codepoint string. Accept :ListOfNumbers / :ListsOfNumbers / singular.
+		_cInner_ = ""
+		if _cT_ = "LISTOFNUMBERS" or _cT_ = "LISTSOFNUMBERS" or _cT_ = "LISTOFNUMBER"
+			_cInner_ = "NUMBER"
+		but _cT_ = "LISTOFSTRINGS" or _cT_ = "LISTSOFSTRINGS" or _cT_ = "LISTOFSTRING"
+			_cInner_ = "STRING"
+		but _cT_ = "LISTOFCHARS" or _cT_ = "LISTSOFCHARS" or _cT_ = "LISTOFCHAR"
+			_cInner_ = "CHAR"
+		but _cT_ = "LISTOFLISTS" or _cT_ = "LISTSOFLISTS" or _cT_ = "LISTOFLIST"
+			_cInner_ = "LIST"
+		but _cT_ = "LISTOFOBJECTS" or _cT_ = "LISTSOFOBJECTS" or _cT_ = "LISTOFOBJECT"
+			_cInner_ = "OBJECT"
+		ok
+
+		if _cInner_ != ""
+			for i = 1 to nLen
+				_xItem_ = aContent[i]
+				if NOT isList(_xItem_)
+					return 0
+				ok
+				_nInner_ = len(_xItem_)
+				for j = 1 to _nInner_
+					_yElem_ = _xItem_[j]
+					if _cInner_ = "CHAR"
+						if NOT ( isString(_yElem_) and StzLen(_yElem_) = 1 )
+							return 0
+						ok
+					else
+						if type(_yElem_) != _cInner_
+							return 0
+						ok
+					ok
+				next
+			next
+			return 1
+		ok
+
 		for i = 1 to nLen
 			if type(aContent[i]) != _cT_
 				return 0
