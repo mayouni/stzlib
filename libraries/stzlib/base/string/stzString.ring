@@ -2192,22 +2192,22 @@ class stzString from stzObject
 	# Internal: remove the substring pcSubStr at exact character
 	# position nPos (the occurrence starts there). No-op if no match.
 	def _RemoveOccurrenceAtPos(pcSubStr, nPos)
+		# Codepoint-correct: a multibyte sub (e.g. "♥♥♥" = 9 bytes / 3 codepoints)
+		# at codepoint position nPos must be cut by codepoint, not by byte.
 		_cStr_ = This.Content()
-		_nSubLen_ = len(pcSubStr)
-		if nPos < 1 or nPos + _nSubLen_ - 1 > len(_cStr_)
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		_nTxtLen_ = This._EngineCount(_cStr_)
+		if nPos < 1 or nPos + _nSubLen_ - 1 > _nTxtLen_
 			return
 		ok
-		if StzMid(_cStr_, nPos, _nSubLen_) != pcSubStr
+		if This._EngineSlice(_cStr_, nPos, _nSubLen_) != pcSubStr
 			return
 		ok
 		_cBefore_ = ""
 		if nPos > 1
-			_cBefore_ = StzMid(_cStr_, 1, nPos - 1)
+			_cBefore_ = This._EngineSlice(_cStr_, 1, nPos - 1)
 		ok
-		_cAfter_ = ""
-		if nPos + _nSubLen_ - 1 < len(_cStr_)
-			_cAfter_ = StzMidToEnd(_cStr_, nPos + _nSubLen_)
-		ok
+		_cAfter_ = This._EngineSliceFrom(_cStr_, nPos + _nSubLen_)
 		This.Update(_cBefore_ + _cAfter_)
 
 		def RemoveAllCS(pcSubStr, pCaseSensitive)
@@ -2912,7 +2912,8 @@ class stzString from stzObject
 			_xAnchorV_ = p2[2]
 
 			if _cAnchor_ = "at" or _cAnchor_ = "atposition"
-				This.ReplaceNth(_xAnchorV_, p1, _pWith_)
+				# ABSOLUTE char position (not an occurrence index -- that is :Nth).
+				This.ReplaceSubStringAtPosition(_xAnchorV_, p1, _pWith_)
 				return
 			but _cAnchor_ = "atpositions"
 				if NOT isList(_xAnchorV_) return ok

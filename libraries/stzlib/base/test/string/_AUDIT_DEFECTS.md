@@ -112,20 +112,15 @@ position/occurrence forms all WORK (verified: `ReplaceMany` block 57,
   -> `ReplaceManyByMany`; string + string -> plain replace (the positional
   `Replace(str, str)` path is unchanged).
 
-### Position-anchored XT forms (tests 67, 68, 71)
+### ✅ RESOLVED — Position-anchored XT forms (tests 67, 68, 71, also 192) — commit 38b7b20b+
 
-The plain `RemoveAt` / `ReplaceAt` forms all work (blocks 66, 69, 70, 73); their
-`...XT(..., :AtPosition[s] = ...)` twins are broken.
-
-- **`RemoveXT(sub, :AtPosition = n)` / `:AtPositions = [...]` are byte-based**
-  (tests 67, 68). The helper `_RemoveOccurrenceAtPos` (stzString.ring ~2070) uses
-  `len()`/`StzMid` instead of the engine codepoint helpers, so a multibyte sub
-  ("♥♥♥" = 9 bytes / 3 codepoints) corrupts the cut: block 67 returns `"ring ru"`
-  (expected `"ring ruby php"`), block 68 returns `""`.
-- **`ReplaceXT(sub, :AtPosition = n)` treats n as an occurrence index, not a char
-  position** (test 71). It routes to `ReplaceNth` (stzString.ring ~2790), so
-  `ReplaceXT("ring", :AtPosition = 6)` is a no-op (no 6th "ring"). The plural
-  `:AtPositions` form correctly uses absolute positions (block 72 works).
+- `_RemoveOccurrenceAtPos` was byte-based (`len`/`StzMid`); rewritten with the
+  codepoint engine helpers, so multibyte subs cut correctly: 67 -> "ring ruby php",
+  68 (:AtPositions) -> "ring ruby php".
+- `ReplaceXT(sub, :At / :AtPosition = n)` now routes to `ReplaceSubStringAtPosition`
+  (absolute char position) instead of `ReplaceNth` (occurrence index): 71 ->
+  "ruby ♥♥♥ php", and the `:At` form of block 192 -> "~~/♥\~~". The plural
+  `:AtPositions` already used absolute positions.
 
 ### ✅ RESOLVED — Except family (tests 76, 77, 78, 79, 82) — commit 471300a3+
 
@@ -283,9 +278,9 @@ The WORKING ReplaceXT forms: `:Nth=n` (189), `:AtPositions=[..]` (193),
   -- those argument shapes aren't handled (188, 194).
 - **`ReplaceXT(:First, ...)` / `ReplaceXT(:Last, ...)` are no-ops** (190, 191) --
   the string comes back unchanged.
-- **`ReplaceXT(sub, :At=n)` treats n as an OCCURRENCE INDEX, not a position**
-  (192) -- same bug as `:AtPosition` (block 71); on "~♥/♥\~~" `:At=2` replaces the
-  2nd heart (pos 4) instead of the heart at position 2.
+- **✅ RESOLVED `ReplaceXT(sub, :At=n)`** (192) -- now routes to
+  ReplaceSubStringAtPosition (char position), same fix as `:AtPosition` (block 71);
+  on "~♥/♥\~~" `:At=2` -> "~~/♥\~~". (188/190/191/194 of this section still open.)
 
 ### BoundedBy variants (tests 186, 187)
 
