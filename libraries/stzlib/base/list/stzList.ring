@@ -9204,8 +9204,9 @@ class stzList from stzObject
 	def VizFindXTCS(pItem, pCaseSensitive)
 		cCode = This._VizCodeStr()
 		cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive, 0)
-		oVfxCnt = new stzString(cCode)
-		nCount = len( oVfxCnt.FindAllCS(@@(pItem), pCaseSensitive) )
+		# (count) = the SHALLOW count -- exactly what Find returns (top-level
+		# items), so it matches the number of "^" carets drawn.
+		nCount = len( This.FindAllCS(pItem, pCaseSensitive) )
 		_aRow_ = [ [ @@(pItem) + " : ", cMark, " (" + nCount + ")" ] ]
 		return This._VizWrap(cCode, _aRow_, This._VizWidth())
 
@@ -9265,7 +9266,6 @@ class stzList from stzObject
 			StzRaise("Can't proceed! paItems must be a list.")
 		ok
 		cCode = This._VizCodeStr()
-		oVmx = new stzString(cCode)
 		aRows = []
 		nN = len(paItems)
 		for iMx = 1 to nN
@@ -9274,7 +9274,8 @@ class stzList from stzObject
 				if jMx != iMx aOthers + paItems[jMx] ok
 			next
 			cMark = This._VizMarkerLine(paItems[iMx], aOthers, cCode, pCaseSensitive, 0)
-			nCount = len( oVmx.FindAllCS(@@(paItems[iMx]), pCaseSensitive) )
+			# shallow count = what Find returns (top-level items), matching the carets
+			nCount = len( This.FindAllCS(paItems[iMx], pCaseSensitive) )
 			aRows + [ @@(paItems[iMx]) + " : ", cMark, " (" + nCount + ")" ]
 		next
 		return This._VizWrap(cCode, aRows, This._VizWidth())
