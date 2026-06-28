@@ -55,12 +55,8 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
   (`"Programming"`) but returns `""` (n2 arrives as the list `["uptonchars",11]`,
   which `Section` can't use). Negative indexing in the forward direction works.
 
-- **`ReplaceByMany(sub, [r1,r2,r3])` produces garbled output** (test 48).
-  On `"ring php ruby ring python ring"` with `["X","XX","XXX"]` it should give
-  `"X php ruby XX python XXX"` (each occurrence -> the next replacement, cycling)
-  but returns `" php ruby X python "` -- the 1st and 3rd occurrences are replaced
-  by nothing and only the middle survives. Bug is in the find/append loop
-  (stzString.ring ~2293). 48 left in print form.
+- **✅ RESOLVED `ReplaceByMany(sub, [r1,r2,r3])`** (test 48) — see the Replace-by-many
+  family section below (operator-precedence flatten bug, fixed by parenthesising).
 
 - **`ToList()` does not expand a range-string** (test 51). It parses a `"[...]"`
   list literal (via `eval`, stzString.ring ~5593) and otherwise falls back to
@@ -70,8 +66,19 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
   regression -- confirm the intended contract. (Also note ToList still uses
   `eval` for the list-literal path.)
 
-### Replace-by-many family — a defect cluster (tests 48, 56, 58, 59)
+### ✅ RESOLVED — Replace-by-many family (tests 48, 56, 58, 59, 74, 80) — commit d5cf08b8+
 
+ROOT CAUSE: the replacement-list flatten in `ReplaceByMany` wrote
+`_aFlat_ + "" + _v_`, which Ring parses as `(_aFlat_ + "") + _v_` — appending an
+EMPTY element THEN the value (the operator-precedence trap, CLAUDE.md note 5). So
+`["X","XX","XXX"]` flattened to `["","X","","XX","","XXX"]` (6 items), and the
+cycling index landed on the empty slots for the 1st and 3rd occurrences. Fixed by
+parenthesising `("" + _v_)`. This one fix repaired ReplaceByMany / ReplaceByManyXT
+/ ReplaceWithMany (and their :By forms) across 48/56/58/59/80. Separately,
+`Replace()` gained polymorphic dispatch (below), so `Replace(sub, :By/:ByMany =
+list)` and `Replace([olds], :By = new/[news])` now route correctly (56/74).
+
+Original report (for history):
 The "replace ONE substring's successive occurrences with a LIST of replacements"
 feature is broken across its whole surface, while the sibling many-substring and
 position/occurrence forms all WORK (verified: `ReplaceMany` block 57,
@@ -100,11 +107,12 @@ position/occurrence forms all WORK (verified: `ReplaceMany` block 57,
   (stzString_monolithic.ring ~94018) but were dropped in modularization; the
   modular file kept only `RepresentsRealNumber()`. Restore the aliases.
 
-- **`Replace()` has no polymorphic dispatch** (test 74, also 56). `Replace(p1, p2)`
-  is a plain 2-arg `ReplaceCS` (stzString.ring ~1909), so the documented
-  shorthands are no-ops: `Replace([olds], :By = new)` (should route to
-  `ReplaceMany`), `Replace(sub, :By = list)` / `Replace(sub, :ByMany = list)`
-  (should route to `ReplaceByMany`). The explicit `ReplaceMany` works (block 57).
+- **✅ RESOLVED `Replace()` polymorphic dispatch** (test 74, also 56) — commit d5cf08b8+.
+  `Replace(p1, p2)` was a plain 2-arg `ReplaceCS`. Added a :By / :With / :ByMany
+  named-param dispatch: `Replace(sub, :By/:ByMany = list)` -> `ReplaceByMany`;
+  `Replace([olds], :By = new)` -> `ReplaceMany`; `Replace([olds], :By = [news])`
+  -> `ReplaceManyByMany`; string + string -> plain replace (the positional
+  `Replace(str, str)` path is unchanged).
 
 ### Position-anchored XT forms (tests 67, 68, 71)
 
