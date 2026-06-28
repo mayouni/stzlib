@@ -158,6 +158,8 @@ else
 	? "SOME EDGE CASES FAILED!"
 ok
 
+pf()
+
 func chk(cLabel, bCond)
 	nTtl++
 	if bCond
@@ -166,5 +168,3 @@ func chk(cLabel, bCond)
 		nFld++
 		? "  FAIL: " + cLabel
 	ok
-
-pf()
