@@ -1,47 +1,39 @@
 # Narrative
 # --------
-# pr()
+# Type-targeted shuffles on a stzList. The order is RANDOM, so we assert the
+# invariants (which positions are frozen, and that the multiset is preserved):
+#   RandomizeNumbers()  - only number slots are reshuffled
+#   RandomizeStrings()  - only string slots are reshuffled
+#   RandomizeSection()  - only the given slice is reshuffled
 #
 # Extracted from stzrandomtest.ring, block #10.
 
 load "../../stzBase.ring"
 
+pr()
 
-o1 = new stzList([ "A", "B", 30, 40, 50, 60, "A", "B", "C" ])
+# Only the numbers move; the string slots (1,2,7,8,9) stay put
+aL = [ "A", "B", 30, 40, 50, 60, "A", "B", "C" ]
+o1 = new stzList(aL)
 o1.RandomizeNumbers()
-? @@( o1.Content() )
-#--> [ "A", "B", 30, 50, 40, 60, "A", "B", "C" ]
-#--> [ "A", "B", 30, 40, 60, 50, "A", "B", "C" ]
-#--> [ "A", "B", 30, 50, 60, 40, "A", "B", "C" ]
+c = o1.Content()
+? ( @@([ c[1], c[2], c[7], c[8], c[9] ]) = @@([ "A", "B", "A", "B", "C" ]) and o1.ContainsAllOfThese(aL) )
+#--> 1
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.23
-
-#--
-
-pr()
-
-o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
+# Only the strings move; the number slots (1..4) stay put
+aL = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
+o1 = new stzList(aL)
 o1.RandomizeStrings()
-? o1.Content()
-#--> [ 1, 2, 3, 4, "B", "C", "D", "A" ]
+c = o1.Content()
+? ( @@([ c[1], c[2], c[3], c[4] ]) = @@([ 1, 2, 3, 4 ]) and o1.ContainsAllOfThese(aL) )
+#--> 1
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.23
-# Executed in 0.03 second(s) in Ring 1.20
-
-#--
-
-pr()
-
-o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
-
+# Only positions 1..4 move; positions 5..8 stay [ "A", "B", "C", "D" ]
+aL = [ 1, 2, 3, 4, "A", "B", "C", "D" ]
+o1 = new stzList(aL)
 o1.RandomizeSection(1, 4)
-? @@( o1.Content() )
-#--> [ 1, 4, 2, 3, "A", "B", "C", "D" ]
-#--> [ 2, 1, 3, 4, "A", "B", "C", "D" ]
-#--> [ 4, 3, 1, 2, "A", "B", "C", "D" ]
+c = o1.Content()
+? ( @@([ c[5], c[6], c[7], c[8] ]) = @@([ "A", "B", "C", "D" ]) and o1.ContainsAllOfThese(aL) )
+#--> 1
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
-# Executed in 0.04 second(s) in Ring 1.20
