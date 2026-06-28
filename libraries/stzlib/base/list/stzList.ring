@@ -2687,6 +2687,18 @@ class stzList from stzObject
 		def IsNotHashList()
 			return NOT This.IsHashList()
 
+	#-- ToStzHashList: view this list (a hashlist / list of [key,value] pairs,
+	#   e.g. [ :a = 1, :b = 2 ]) as a stzHashList, so you can chain KeysQ(),
+	#   ValuesQ(), etc. The stzHashList ctor normalizes a list of pairs.
+	def ToStzHashList()
+		return new stzHashList(This.Content())
+
+		def ToHashList()
+			return This.ToStzHashList()
+
+		def ToStzHashListQ()
+			return This.ToStzHashList()
+
 	def IsPair()
 		return len(@aContent) = 2
 
@@ -4704,6 +4716,20 @@ class stzList from stzObject
 	#-- now that the DSL is engine-backed (the perf/expressiveness split is gone).
 	def CheckW(pcCondition)
 		return ring_len(This.FindAllItemsW(pcCondition)) = This.NumberOfItems()
+
+	#-- AllItemsVerifyW: readable alias of CheckW ("do ALL items verify ...?").
+	#   Ring's NULL is the empty string, but the W-engine doesn't know the NULL
+	#   token, so '@item != NULL' is normalized to '@item != ""' first -- making
+	#   the idiomatic non-null-string check work.
+	def AllItemsVerifyW(pcCondition)
+		_cAivCond_ = StzReplace(pcCondition, " NULL", ' ""')
+		return This.CheckW(_cAivCond_)
+
+		def AllItemsVerify(pcCondition)
+			return This.AllItemsVerifyW(pcCondition)
+
+		def EachItemVerifiesW(pcCondition)
+			return This.AllItemsVerifyW(pcCondition)
 
 
 	#-- the items at panPos all satisfy a W (DSL) condition
