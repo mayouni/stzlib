@@ -1,9 +1,9 @@
 # Narrative
 # --------
-# pr()
+# NumbersAfter("@i") collects every number that follows an "@i" token (signs
+# normalized: "-3" kept, "+3" -> "3"); NumberComingAfter returns just the first.
 #
 # Extracted from stzlisttest.ring, block #481.
-#ERR Error (R14) : Calling Method without definition: numbercomingafter
 
 load "../../stzBase.ring"
 

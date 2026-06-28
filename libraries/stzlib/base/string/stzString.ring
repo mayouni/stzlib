@@ -365,6 +365,57 @@ class stzString from stzObject
 			return new stzNumber( This.NumberOfChars() )
 
 	  #=======================================#
+	 #  COMPARING SIZE (NUMBER OF CHARS)     #
+	#=======================================#
+	# "Larger/Smaller" compare by NUMBER OF CHARS. The precise twins
+	# HasMoreChars / HasLessChars say so explicitly and read with the
+	# :Than named param. The comparand may be a plain string or a stzString.
+
+	def _CharsOf(pVal)
+		# unwrap a :Than / :Then named param, then return the char count
+		if isList(pVal) and len(pVal) = 2 and isString(pVal[1]) and
+		   ( StzLower("" + pVal[1]) = "than" or StzLower("" + pVal[1]) = "then" )
+			pVal = pVal[2]
+		ok
+		if isObject(pVal)
+			return StzLen(pVal.Content())
+		ok
+		return StzLen("" + pVal)
+
+	def HasMoreChars(pVal)
+		return This.NumberOfChars() > This._CharsOf(pVal)
+
+		def IsLargerThan(pVal)
+			return This.HasMoreChars(pVal)
+
+		def IsLarger(pVal)
+			return This.HasMoreChars(pVal)
+
+		def HasMoreCharsThan(pVal)
+			return This.HasMoreChars(pVal)
+
+	def HasLessChars(pVal)
+		return This.NumberOfChars() < This._CharsOf(pVal)
+
+		def HasFewerChars(pVal)
+			return This.HasLessChars(pVal)
+
+		def IsSmallerThan(pVal)
+			return This.HasLessChars(pVal)
+
+		def IsSmaller(pVal)
+			return This.HasLessChars(pVal)
+
+		def HasLessCharsThan(pVal)
+			return This.HasLessChars(pVal)
+
+	def HasSameNumberOfCharsAs(pVal)
+		return This.NumberOfChars() = This._CharsOf(pVal)
+
+		def HasAsManyCharsAs(pVal)
+			return This.HasSameNumberOfCharsAs(pVal)
+
+	  #=======================================#
 	 #  CHECKING IF THE STRING IS EMPTY      #
 	#=======================================#
 
@@ -1050,6 +1101,11 @@ class stzString from stzObject
 				ok
 
 				if _bHasDigit_
+					# Normalize the sign: a number is "3" not "+3" (drop the
+					# redundant leading "+"; "-" is kept for negatives).
+					if len(_cNum_) > 0 and substr(_cNum_, 1, 1) = "+"
+						_cNum_ = substr(_cNum_, 2)
+					ok
 					_acNcaResult_ + _cNum_
 				ok
 				_iNca_ = _j_
@@ -1067,6 +1123,21 @@ class stzString from stzObject
 
 		def NumbersAfterCS(pcSubStr, pCaseSensitive)
 			return This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)
+
+	#-- The FIRST number coming after the substring (NULL if none).
+	def NumberComingAfterCS(pcSubStr, pCaseSensitive)
+		_aNcaAll_ = This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)
+		if len(_aNcaAll_) = 0 return NULL ok
+		return _aNcaAll_[1]
+
+	def NumberComingAfter(pcSubStr)
+		return This.NumberComingAfterCS(pcSubStr, 1)
+
+		def NumberAfter(pcSubStr)
+			return This.NumberComingAfterCS(pcSubStr, 1)
+
+		def FirstNumberComingAfter(pcSubStr)
+			return This.NumberComingAfterCS(pcSubStr, 1)
 
 	#-- Vowels: return the list of vowel chars in the string (ASCII
 	#   a/e/i/o/u, case-insensitive). Ported from archive line

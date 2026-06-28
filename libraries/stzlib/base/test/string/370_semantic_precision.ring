@@ -1,9 +1,10 @@
 # Narrative
 # --------
-# #narration SEMANTIC PRECISION
+# SEMANTIC PRECISION -- the loose "larger/smaller" verbs compare by NUMBER OF
+# CHARS, and the precise twins HasMoreChars / HasLessChars say so explicitly
+# (reading with the :Than named param). "SFTANZA" (7) vs "RING" (4).
 #
 # Extracted from stzlisttest.ring, block #370.
-#ERR Error (R14) : Calling Method without definition: islargerthan
 
 load "../../stzBase.ring"
 
