@@ -196,17 +196,16 @@ condition spelling.
   -> `"al1tal1a extrême..."`) instead of dotless-i + diacritic removal; for Arabic
   it is a NO-OP (returns the input unchanged).
 
-### Shorten / Shortened family — a defect cluster (tests 116, 117, 118, 119)
+### ✅ RESOLVED — Shorten / Shortened family (tests 116, 117, 118, 119) — commit 7326f46e+
 
-The whole "shorten the middle of a string" family is broken on
-`"1234567890987654321"`:
-- `Shortened()` / `Shorten()` return the string UNCHANGED (should be "123...321").
-- `ShortenedN(2)` returns unchanged; `ShortenedN(5)` / `ShortenN(5)` return "12..."
-  (should be "12345...54321") -- the N and the tail are mishandled.
-- `ShortenedXT(0, n, sep)` drops the HEAD chars (" {...} 21" / " ... 321" instead
-  of "12 {...} 21" / "123 ... 321").
-- `ShortenedUsing(" {...} ")` keeps 4 per side instead of the default 3
-  ("1234 {...} 4321"); `ShortenedNUsing(5, " {...} ")` drops both sides (" {...} ").
+The family was a left-truncation (`first n-3 chars + "..."`) instead of the
+middle-shorten the names imply. Reworked around one ShortenedXT(nLeft, nRight,
+ellipsis) core that keeps nLeft from the start + nRight from the end (a 0 left
+mirrors the right). ShortenedN(n) -> ShortenedXT(n,n,"..."); Shortened()/Shorten()
+-> n=3; ShortenedUsing(e) -> ShortenedXT(3,3,e); ShortenedNUsing(n,e) ->
+ShortenedXT(n,n,e). Shorten/ShortenN mutate, the rest return. Verified:
+ShortenedN(2)->"12...21", Shortened()->"123...321", ShortenedNUsing(5," {...} ")->
+"12345 {...} 54321", etc.
 
 ### Extend family (tests 139, 142, 143)
 
