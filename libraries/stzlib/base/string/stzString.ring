@@ -6410,6 +6410,33 @@ class stzString from stzObject
 		next
 		return _aNiRes_
 
+	#-- RemoveSubStringsBoundedByIB([o,c]): drop every bounded region together with
+	#-- its bounds (e.g. removing the "]---[" runs from "Hello ]---[Ring!]---[" ->
+	#-- "Hello Ring!"). MUTATING; returns This.
+	def RemoveSubStringsBoundedByIB(pacBounds)
+		_aRsPos_ = This.FindSubStringsBoundedByIBZZ(pacBounds)
+		_aRsChars_ = This.Chars()
+		_nRsLen_ = len(_aRsChars_)
+		_aRsKeep_ = []
+		for _iRs_ = 1 to _nRsLen_ _aRsKeep_ + 1 next
+		_nRsP_ = len(_aRsPos_)
+		for _jRs_ = 1 to _nRsP_
+			for _kRs_ = _aRsPos_[_jRs_][1] to _aRsPos_[_jRs_][2]
+				if _kRs_ >= 1 and _kRs_ <= _nRsLen_ _aRsKeep_[_kRs_] = 0 ok
+			next
+		next
+		_cRsNew_ = ""
+		for _mRs_ = 1 to _nRsLen_
+			if _aRsKeep_[_mRs_] = 1
+				_cRsNew_ += _aRsChars_[_mRs_]
+			ok
+		next
+		This.Update(_cRsNew_)
+		return This
+
+		def RemoveSubStringsBoundedByIBQ(pacBounds)
+			return This.RemoveSubStringsBoundedByIB(pacBounds)
+
 		# (Older nested aliases dropped to avoid C22 redefinition --
 		# the unified two-arg FindAnyBoundedBy above subsumes them.)
 		def FindAnyBoundedByIB(pacBounds)
