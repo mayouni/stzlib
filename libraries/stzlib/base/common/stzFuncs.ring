@@ -87,6 +87,9 @@ _bParamCheck = 1  	# Activates the "# Checking params region" in softanza functi
 
 _bEarlyCheck = 1	# Used for the same reason as _bParamCheck
 
+_nVizWidth = 50		# Default wrap width (columns) for the VizFind* visuals.
+			#--> Change it with SetVizWidth(80); read it with DefaultVizWidth().
+
 cCacheFileName = "stzcache.txt"
 _CacheFileHandler = ""
 
@@ -2547,6 +2550,43 @@ func StzParamChecking()
 		return _bParamCheck
 
 	#>
+
+#-- VizFind* default wrap width (columns). The visuals split a too-wide render
+#-- into successive lines this wide. Read it with DefaultVizWidth(); change it
+#-- globally with SetVizWidth(80). A width < 1 restores the 50-column default.
+
+func DefaultVizWidth()
+	return _nVizWidth
+
+	func VizWidth()
+		return _nVizWidth
+
+	func GetVizWidth()
+		return _nVizWidth
+
+func SetVizWidth(n)
+	if isList(n) and len(n) = 2 and isString(n[1])
+		n = n[2]
+	ok
+	if NOT isNumber(n)
+		StzRaise("Can't set the Viz width! n must be a number.")
+	ok
+	n = floor(n)
+	if n < 1
+		n = 50
+	ok
+	_nVizWidth = n
+	return _nVizWidth
+
+	func SetVizWidthTo(n)
+		return SetVizWidth(n)
+
+	func SetDefaultVizWidth(n)
+		return SetVizWidth(n)
+
+func ResetVizWidth()
+	_nVizWidth = 50
+	return _nVizWidth
 
 #--
 
