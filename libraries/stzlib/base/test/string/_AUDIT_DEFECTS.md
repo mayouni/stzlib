@@ -207,19 +207,14 @@ ShortenedXT(n,n,e). Shorten/ShortenN mutate, the rest return. Verified:
 ShortenedN(2)->"12...21", Shortened()->"123...321", ShortenedNUsing(5," {...} ")->
 "12345 {...} 54321", etc.
 
-### Extend family (tests 139, 142, 143)
+### ✅ RESOLVED — Extend family (tests 139, 142, 143) — commit 31da57d2+
 
-The simple Extend forms work (`ExtendWith`, `ExtendToNChars`, `ExtendToWith`,
-`ExtendToWithCharsRepeated`, `ExtendXT(:String,:With=)`, `ExtendXT(:ToPosition=,
-:With=)`); three "repeat the string's own chars" / range forms are broken:
-- **`ExtendToWithCharsIn(8, "1":"3")` is a no-op** (test 139) -- returns "123"
-  instead of repeating the range chars to "12312312"
-  (`ExtendToWithCharsRepeated(8)` works, block 138).
-- **`ExtendXT(:ToPosition=5, :With=:CharsRepeated)` literalizes the symbol**
-  (test 142) -- appends the text "charsrepeated" ("ABCcharsrepeatedcharsrepeated")
-  instead of repeating the string's chars to "ABCAB".
-- **`ExtendXT(:ToPosition=5, :ByCharsRepeated)` pads spaces** (test 143) -- gives
-  "ABC  " instead of "ABCAB".
+- ExtendToWithCharsIn: the source-pool build only joined a 2-element list, but a
+  range like "1":"3" expands to a 3-element list, so it no-op'd. Now joins any
+  list (forced if/but/else) -> "123" extend-to-8 = "12312312".
+- ExtendXT(:ToPosition=n, :With=:CharsRepeated) and the bare :ByCharsRepeated /
+  :CharsRepeated now route to ExtendToWithCharsRepeated(n) (repeat THIS string's
+  own chars) instead of appending the literal symbol / padding spaces -> "ABCAB".
 
 ### Find-in-section / bounded named-param forms (tests 151, 154, 155)
 
