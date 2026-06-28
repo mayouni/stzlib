@@ -1,32 +1,42 @@
 # Narrative
 # --------
-# VizFind on a LONG list: the rendering wraps into fixed-width lines.
+# VizFind on a long, NESTED list -- wrapping + shallow-vs-deep marking.
 #
-# When the rendered list is wider than the wrap width (default 50 columns),
-# VizFind/VizFindXT/VizFindMany split it into successive lines and draw the
-# marker row(s) beneath EACH line, with a blank line separating the wrapped
-# blocks (none after the last). The "(count)" tally of an XT form is printed
-# once, at the end of the final block. This keeps the visual readable for
-# lists too wide for one line -- and it works for any string value, not just
-# single chars.
+# The rendering wraps into fixed-width lines (default 50 cols), drawing the
+# marker row(s) beneath EACH line with a blank line between wrapped blocks; the
+# "(count)" of an XT form prints once at the end of the last block. The code
+# line is indented by the label width so the "^" carets sit under their items.
 #
-# Authored example (not extracted) -- exercises the wrapping path of VizFind.
+# SHALLOW (VizFind / VizFindXT / VizFindMany): marks only TOP-LEVEL occurrences
+# -- an "A" nested inside a sub-list [ "A", "B" ] is NOT marked. DEEP
+# (VizDeepFind / VizDeepFindXT): marks occurrences at any depth. In both, the
+# "(count)" is the total number of occurrences in the data.
+#
+# Authored example (not extracted).
 
 load "../../stzBase.ring"
 
 pr()
 
-StzListQ([ "A","B","A","C","A","D","E","A","B","F","A","C","A","G","A" ]) {
-	? VizFindXT("A")
-}
-#-->       [ "A", "B", "A", "C", "A", "D", "E", "A", "B", "F"
-#    "A" :  --^---------^---------^--------------^-----------
+o1 = new stzList([ "A","B","A",[ "A", "B" ], "C","A","D","E", [ "A", "B" ], "A","B" ])
+
+# Shallow: the "A" inside each [ "A", "B" ] is left unmarked
+? o1.VizFindXT("A")
+#-->       [ "A", "B", "A", [ "A", "B" ], "C", "A", "D", "E",
+#    "A" :  --^---------^-----------------------^------------
 #
-#          , "A", "C", "A", "G", "A" ]
-#    "A" : ---^---------^---------^--- (7)
+#           [ "A", "B" ], "A", "B" ]
+#    "A" : ----------------^-------- (6)
+
+? ""
+
+# Deep: every "A" is marked, including the two nested in sub-lists
+? o1.VizDeepFindXT("A")
+#-->       [ "A", "B", "A", [ "A", "B" ], "C", "A", "D", "E",
+#    "A" :  --^---------^------^----------------^------------
 #
-# (The code line is indented by the label width so the "^" carets line up
-#  directly under the matched items in every wrapped block.)
+#           [ "A", "B" ], "A", "B" ]
+#    "A" : ----^-----------^-------- (6)
 
 pf()
 # Executed in 0.01 second(s).

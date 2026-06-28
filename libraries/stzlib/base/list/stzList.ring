@@ -9054,8 +9054,9 @@ class stzList from stzObject
 
 		def VizFindCS(pItem, pCaseSensitive)
 			# Base form: code + a single unlabelled marker row, wrapped.
+			# Shallow: only top-level occurrences are marked (see VizDeepFind).
 			cCode = This._VizCodeStr()
-			cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive)
+			cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive, 0)
 			return This._VizWrap(cCode, [ [ "", cMark, "" ] ], This._VizWidth())
 
 		def VizFindAll(pItem)
@@ -9075,7 +9076,7 @@ class stzList from stzObject
 	def _VizWidth()
 		return 50
 
-	def _VizMarkerLine(pItem, paOthers, pcCode, pCaseSensitive)
+	def _VizMarkerLine(pItem, paOthers, pcCode, pCaseSensitive, bDeep)
 		oVfm = new stzString(pcCode)
 		anMine = oVfm.FindAllCS(@@(pItem), pCaseSensitive)
 		anOther = []
@@ -9087,18 +9088,49 @@ class stzList from stzObject
 				anOther + _anH_[_jVfm_]
 			next
 		next
+		# Depth filter: a SHALLOW viz (bDeep=0) marks only TOP-LEVEL occurrences
+		# (bracket depth 1); a DEEP viz (bDeep=1) marks occurrences at any depth,
+		# including those nested inside sub-lists.
+		aVfmDepth = This._VizDepthMap(pcCode)
 		_nVfmLen_ = StzLen(pcCode)
 		cViz = " "
 		for _iVfm_ = 1 to _nVfmLen_ - 2
-			if ring_find(anMine, _iVfm_) > 0
+			_bVfmShow_ = ( bDeep = 1 or aVfmDepth[_iVfm_] = 1 )
+			if _bVfmShow_ and ring_find(anMine, _iVfm_) > 0
 				cViz += "^"
-			but ring_find(anOther, _iVfm_) > 0
+			but _bVfmShow_ and ring_find(anOther, _iVfm_) > 0
 				cViz += "."
 			else
 				cViz += "-"
 			ok
 		next
 		return cViz
+
+	#-- _VizDepthMap: structural bracket-nesting depth at each codepoint of the
+	#-- rendered code -- brackets inside "..." string values are ignored. Depth 1
+	#-- = a top-level item; depth >= 2 = nested inside a sub-list. Lets the Viz
+	#-- markers tell shallow occurrences from deep ones.
+	def _VizDepthMap(pcCode)
+		_oDmStr_ = new stzString(pcCode)
+		_aDmChars_ = _oDmStr_.Chars()
+		_nDmLen_ = len(_aDmChars_)
+		_aDmDepth_ = []
+		_nDmD_ = 0
+		_bDmInStr_ = 0
+		for _iDm_ = 1 to _nDmLen_
+			_aDmDepth_ + _nDmD_
+			_cDmCh_ = _aDmChars_[_iDm_]
+			if _cDmCh_ = '"'
+				_bDmInStr_ = 1 - _bDmInStr_
+			but _bDmInStr_ = 0
+				if _cDmCh_ = "["
+					_nDmD_++
+				but _cDmCh_ = "]"
+					_nDmD_--
+				ok
+			ok
+		next
+		return _aDmDepth_
 
 	#-- _VizWrap: render <code> with one or more marker rows beneath it,
 	#-- WRAPPING to nWidth columns. Each row is [ cLabel, cMarker, cSuffix ];
@@ -9171,11 +9203,36 @@ class stzList from stzObject
 
 	def VizFindXTCS(pItem, pCaseSensitive)
 		cCode = This._VizCodeStr()
-		cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive)
+		cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive, 0)
 		oVfxCnt = new stzString(cCode)
 		nCount = len( oVfxCnt.FindAllCS(@@(pItem), pCaseSensitive) )
 		_aRow_ = [ [ @@(pItem) + " : ", cMark, " (" + nCount + ")" ] ]
 		return This._VizWrap(cCode, _aRow_, This._VizWidth())
+
+	#-- VizDeepFind* : like VizFind*, but the markers ALSO cover occurrences
+	#-- nested inside sub-lists (any bracket depth), not just top-level ones.
+	#-- The "(count)" is the total occurrences, same as the deep markers.
+	def VizDeepFindCS(pItem, pCaseSensitive)
+		cCode = This._VizCodeStr()
+		cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive, 1)
+		return This._VizWrap(cCode, [ [ "", cMark, "" ] ], This._VizWidth())
+
+	def VizDeepFind(pItem)
+		return This.VizDeepFindCS(pItem, 1)
+
+		def VizDeepFindAll(pItem)
+			return This.VizDeepFindCS(pItem, 1)
+
+	def VizDeepFindXTCS(pItem, pCaseSensitive)
+		cCode = This._VizCodeStr()
+		cMark = This._VizMarkerLine(pItem, [], cCode, pCaseSensitive, 1)
+		oVdxCnt = new stzString(cCode)
+		nCount = len( oVdxCnt.FindAllCS(@@(pItem), pCaseSensitive) )
+		_aRow_ = [ [ @@(pItem) + " : ", cMark, " (" + nCount + ")" ] ]
+		return This._VizWrap(cCode, _aRow_, This._VizWidth())
+
+	def VizDeepFindXT(pItem)
+		return This.VizDeepFindXTCS(pItem, 1)
 
 	#-- VizFindMany: one labelled marker row per searched item. Each row marks
 	#-- "^" for its own item and "." for the other searched items.
@@ -9194,7 +9251,7 @@ class stzList from stzObject
 			for jM = 1 to nN
 				if jM != iM aOthers + paItems[jM] ok
 			next
-			cMark = This._VizMarkerLine(paItems[iM], aOthers, cCode, pCaseSensitive)
+			cMark = This._VizMarkerLine(paItems[iM], aOthers, cCode, pCaseSensitive, 0)
 			aRows + [ @@(paItems[iM]) + " : ", cMark, "" ]
 		next
 		return This._VizWrap(cCode, aRows, This._VizWidth())
@@ -9216,7 +9273,7 @@ class stzList from stzObject
 			for jMx = 1 to nN
 				if jMx != iMx aOthers + paItems[jMx] ok
 			next
-			cMark = This._VizMarkerLine(paItems[iMx], aOthers, cCode, pCaseSensitive)
+			cMark = This._VizMarkerLine(paItems[iMx], aOthers, cCode, pCaseSensitive, 0)
 			nCount = len( oVmx.FindAllCS(@@(paItems[iMx]), pCaseSensitive) )
 			aRows + [ @@(paItems[iMx]) + " : ", cMark, " (" + nCount + ")" ]
 		next
