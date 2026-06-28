@@ -1,26 +1,22 @@
 # Narrative
 # --------
-# String editing via the (-) operator on a Q()/stzString -- with two caveats.
+# String editing via the (-) operator on a Q()/stzString (NON-mutating).
 #
-# `- N` trims N trailing chars and `- "x"` removes a substring, each returning
-# a NEW stzString. Two things hold in the current build: (1) a bare `?` on the
-# returned stzString prints the object dump, not its text -- use @@()/.Content()
-# or a scalar projection like .StzType()/.Lowercased(); and (2) subtraction with
-# a Q()-WRAPPED operand, `- Q("*")`, is currently a NO-OP (the asterisks
-# survive), so .Lowercased() yields "a**bc***de***" rather than "abcde". The raw
-# `- "*"` form works (see 996_minusoperator). Documented stub pending the
-# stz-object-operand subtraction fix.
+# `- N` trims N trailing chars; `- "x"` removes every "x". Q-elevation applies:
+# a RAW operand (- 3, - "*") yields the raw result string, so a bare `?` prints
+# it; a Q()-WRAPPED operand (- Q("*")) yields a chainable stzString, so you read
+# it with a projection like .StzType() / .Lowercased(). (See 996_minusoperator
+# for the raw form on a plain stzString.)
 #
 # Repositioned from test/list (stzlisttest.ring, block #421): this is a
 # stzString test, so it belongs under test/string.
-#ERR (stz-object-operand subtraction is a no-op; bare ? dumps the object)
 
 load "../../stzBase.ring"
 
 pr()
 
 ? Q("A**BC***DE***") - 3	# Remove the last 3 chars
-#--> "A**BC***DE"
+#--> A**BC***DE
 
 ? Q("A**BC***DE***") - "*"
 #--> ABCDE

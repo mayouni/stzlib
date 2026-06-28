@@ -82,11 +82,23 @@ class stzString from stzObject
 		ok
 
 		if pOp = "-"
-			# Subtract: remove every occurrence of pValue (a string)
-			# or each item in pValue (a list of strings) from content.
-			# Use StzReplace (engine-backed, Unicode-safe).
+			# Subtract (NON-mutating): a NUMBER trims that many trailing chars;
+			# a STRING / list of strings removes those substrings (engine-backed,
+			# Unicode-safe). Q-elevation: a RAW operand returns the raw result
+			# string, a Q()-wrapped / stz-object operand returns a chainable
+			# stzString with the same content.
 			_cOut_ = This.Content()
-			if isString(pValue)
+			_bMinElevate_ = 0
+			if isNumber(pValue)
+				_nMinLen_ = This._EngineCount(_cOut_)
+				_nMinKeep_ = _nMinLen_ - floor(pValue)
+				if _nMinKeep_ < 0 _nMinKeep_ = 0 ok
+				if _nMinKeep_ = 0
+					_cOut_ = ""
+				else
+					_cOut_ = This.Section(1, _nMinKeep_)
+				ok
+			but isString(pValue)
 				_cOut_ = StzReplace(_cOut_, pValue, "")
 			but isList(pValue)
 				_nLP_ = len(pValue)
@@ -96,22 +108,29 @@ class stzString from stzObject
 					ok
 				next
 			but isObject(pValue)
+				# A stz-object operand (e.g. Q("*")): subtract its CONTENT.
+				_bMinElevate_ = 1
+				_inner_ = NULL
 				try
-					_inner_ = pValue.List()
-					if isList(_inner_)
-						_nLI_ = len(_inner_)
-						for _iI_ = 1 to _nLI_
-							if isString(_inner_[_iI_])
-								_cOut_ = StzReplace(_cOut_, _inner_[_iI_], "")
-							ok
-						next
-					ok
+					_inner_ = pValue.Content()
 				catch
-					# Object doesn't expose .List() -- nothing to remove.
+					_inner_ = NULL
 				done
+				if isString(_inner_)
+					_cOut_ = StzReplace(_cOut_, _inner_, "")
+				but isList(_inner_)
+					_nLI_ = len(_inner_)
+					for _iI_ = 1 to _nLI_
+						if isString(_inner_[_iI_])
+							_cOut_ = StzReplace(_cOut_, _inner_[_iI_], "")
+						ok
+					next
+				ok
 			ok
-			This.Update(_cOut_)
-			return This
+			if _bMinElevate_
+				return new stzString(_cOut_)
+			ok
+			return _cOut_
 		ok
 
 		if pOp = "/"
