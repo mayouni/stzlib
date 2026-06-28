@@ -1,14 +1,11 @@
 # Narrative
 # --------
-# 5 cases of the many cheks Softanza has for bounds
+# Five spellings of "is X bounded by Y". IsBoundedBy accepts a single string bound
+# (-> [c,c]) or an [open,close] pair. The XT forms take :In = host: IsBoundedByXT
+# asks whether THIS substring is bounded by `bound` inside host; IsBoundOfXT asks
+# whether THIS string is a bound of a substring inside host. All five are TRUE.
 #
 # Extracted from stzStringTest.ring, block #44.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md): IsBoundedBy / IsBoundedByXT /
-# IsBoundOfXT reject a SINGLE-string bound (IsBoundedByCS requires a 2-element
-# list, so IsBoundedBy("_") on "_world_" returns FALSE instead of TRUE). The
-# 2-element-list forms work. Left in print form pending the fix-pass; NOT
-# asserted. (Note: several literals here use "\" escapes that also need a look.)
 
 load "../../stzBase.ring"
 

@@ -1,16 +1,10 @@
 # Narrative
 # --------
-# pr()
+# IsRealInString() asks whether the string content represents a real number --
+# an alias of RepresentsRealNumber(). The global BothAreRealsInStrings(a, b)
+# checks two at once.
 #
 # Extracted from stzlisttest.ring, block #60.
-# #ERR Error (R14) : Calling Method without definition: isrealinstring
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md): IsRealInString() / IsARealInString()
-# / RepresentsRealInString() (and the global BothAreRealsInStrings) were dropped
-# during modularization. In the archive monolith they are trivial aliases of
-# RepresentsNumber() (stzString_monolithic.ring ~94018); the modular file kept
-# only RepresentsRealNumber(). Restore the aliases in the fix-pass. Left in
-# print/#ERR form; NOT asserted.
 
 load "../../stzBase.ring"
 

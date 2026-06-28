@@ -5680,6 +5680,16 @@ class stzString from stzObject
 		_oRrnChk_ = new stzStringChecker(This)
 		return _oRrnChk_.RepresentsRealNumber()
 
+		#-- "...InString" aliases: does the STRING content represent a real?
+		def IsRealInString()
+			return This.RepresentsRealNumber()
+
+		def IsARealInString()
+			return This.RepresentsRealNumber()
+
+		def RepresentsRealInString()
+			return This.RepresentsRealNumber()
+
 	def RepresentsSignedNumber()
 		_oRsnChk_ = new stzStringChecker(This)
 		return _oRsnChk_.RepresentsSignedNumber()
@@ -9742,20 +9752,40 @@ class stzString from stzObject
 
 	# IsBoundedByXT(:Open=, :Close=) -- named-param IsBoundedBy.
 	def IsBoundedByXT(pNamed1, pNamed2)
+		# Forms: (bound, :In = host) -- is THIS substring bounded by `bound`
+		# (a string -> [c,c], or [open,close]) within host? -- plus the legacy
+		# (:Open =, :Close =) which checks THIS itself.
 		_cO_ = NULL
 		_cC_ = NULL
+		_cIn_ = NULL
+		_vBound_ = NULL
 		_aArgs_ = [ pNamed1, pNamed2 ]
 		for _i_ = 1 to 2
 			_a_ = _aArgs_[_i_]
-			if isList(_a_) and len(_a_) = 2 and isString(_a_[1])
-				_k_ = lower(_a_[1])
-				if _k_ = "open" _cO_ = _a_[2]
-				but _k_ = "close" _cC_ = _a_[2]
-				ok
+			if isList(_a_) and len(_a_) = 2 and isString(_a_[1]) and lower(_a_[1]) = "open"
+				_cO_ = _a_[2]
+			but isList(_a_) and len(_a_) = 2 and isString(_a_[1]) and lower(_a_[1]) = "close"
+				_cC_ = _a_[2]
+			but isList(_a_) and len(_a_) = 2 and isString(_a_[1]) and lower(_a_[1]) = "in"
+				_cIn_ = _a_[2]
+			else
+				_vBound_ = _a_
 			ok
 		next
-		if _cO_ = NULL or _cC_ = NULL return FALSE ok
-		return This.IsBoundedBy([ _cO_, _cC_ ])
+		if _cO_ != NULL and _cC_ != NULL
+			return This.IsBoundedBy([ _cO_, _cC_ ])
+		ok
+		_aIbx_ = []
+		if isString(_vBound_)
+			_aIbx_ = [ _vBound_, _vBound_ ]
+		but isList(_vBound_) and len(_vBound_) = 2
+			_aIbx_ = _vBound_
+		else
+			return FALSE
+		ok
+		if _cIn_ = NULL return FALSE ok
+		_oIbxHost_ = new stzString("" + _cIn_)
+		return _oIbxHost_.Contains(_aIbx_[1] + This.Content() + _aIbx_[2])
 
 	# InfereMethod(pcMethodName): return TRUE if the stzString has
 	# such method name (no engine reflection -- delegate via Ring's
@@ -9895,21 +9925,23 @@ class stzString from stzObject
 	# IsBoundOfXT(:Open=, :Close=) -- TRUE iff the content equals one
 	# of the bounds (i.e. it IS the opening or closing string).
 	def IsBoundOfXT(pNamed1, pNamed2)
-		_cO_ = NULL
-		_cC_ = NULL
+		# (sub, :In = host): is THIS string a bound of `sub` in host -- i.e. does
+		# `this+sub` or `sub+this` occur in host?
+		_cIn_ = NULL
+		_cSub_ = NULL
 		_aArgs_ = [ pNamed1, pNamed2 ]
 		for _i_ = 1 to 2
 			_a_ = _aArgs_[_i_]
-			if isList(_a_) and len(_a_) = 2 and isString(_a_[1])
-				_k_ = lower(_a_[1])
-				if _k_ = "open" _cO_ = _a_[2]
-				but _k_ = "close" _cC_ = _a_[2]
-				ok
+			if isList(_a_) and len(_a_) = 2 and isString(_a_[1]) and lower(_a_[1]) = "in"
+				_cIn_ = _a_[2]
+			but isString(_a_)
+				_cSub_ = _a_
 			ok
 		next
-		if NOT (isString(_cO_) and isString(_cC_)) return FALSE ok
-		_c_ = This.Content()
-		return _c_ = _cO_ or _c_ = _cC_
+		if _cIn_ = NULL or _cSub_ = NULL return FALSE ok
+		_cBnd_ = This.Content()
+		_oIboHost_ = new stzString("" + _cIn_)
+		return _oIboHost_.Contains(_cBnd_ + _cSub_) or _oIboHost_.Contains(_cSub_ + _cBnd_)
 
 	# IsAClass(): TRUE if content is a Ring class name (lookup via
 	# Ring's classes() introspection).
@@ -13860,11 +13892,22 @@ class stzString from stzObject
 	# IsBoundedByCS / IsBoundedBy: predicate. True iff the content
 	# starts with pacBounds[1] AND ends with pacBounds[2].
 	def IsBoundedByCS(pacBounds, pCaseSensitive)
-		if NOT (isList(pacBounds) and len(pacBounds) = 2)
+		# A single string bound c means "bounded by c on both sides" -> [c, c].
+		# Build a fresh var via if/but/else (the single-clause type-widening if
+		# can silently no-op -- CLAUDE.md note 6).
+		_aIbb_ = []
+		if isString(pacBounds)
+			_aIbb_ = [ pacBounds, pacBounds ]
+		but isList(pacBounds)
+			_aIbb_ = pacBounds
+		else
 			return 0
 		ok
-		return This.StartsWithCS(pacBounds[1], pCaseSensitive) and
-		       This.EndsWith(pacBounds[2])
+		if len(_aIbb_) != 2
+			return 0
+		ok
+		return This.StartsWithCS(_aIbb_[1], pCaseSensitive) and
+		       This.EndsWith(_aIbb_[2])
 
 	def IsBoundedBy(pacBounds)
 		return This.IsBoundedByCS(pacBounds, 1)
