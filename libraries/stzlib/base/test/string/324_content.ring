@@ -1,9 +1,9 @@
 # Narrative
 # --------
-# StartProfiler()
+# RemoveSubStringsBoundedByIB drops each bounded run together with its bounds:
+# the two "]---[" segments vanish, leaving "Hello Ring!". MUTATING.
 #
 # Extracted from stzlisttest.ring, block #324.
-#ERR Error (R14) : Calling Method without definition: removesubstringsboundedbyib
 
 load "../../stzBase.ring"
 
