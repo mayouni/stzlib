@@ -1,9 +1,11 @@
 # Narrative
 # --------
-# StartProfiler()
+# Searching outward from a position: FindPreviousNthOccurrence / FindNextNthOccurrence
+# (n-th match before / after :StartingAt, via the :Of named param), and the n=1
+# shorthands FindFirstPrevious / FindFirstNext. Positions are codepoint-based, so
+# the multibyte heart counts as one char.
 #
 # Extracted from stzlisttest.ring, block #294.
-#ERR Error (R14) : Calling Method without definition: findpreviousnthoccurrence
 
 load "../../stzBase.ring"
 
