@@ -1,9 +1,11 @@
 # Narrative
 # --------
-# StartProfiler()
+# FindAnyBoundedByZZ + SubStringsBoundedByZZ give the 3 SHALLOW top-level regions
+# (each "[" paired with the next "]"); the Deep* forms below report the proper
+# nested match -- inner [7,9] and the outer span [5,17] -- each substring paired
+# with its [start, end].
 #
 # Extracted from stzlisttest.ring, block #317.
-#ERR Error (R14) : Calling Method without definition: substringsboundedbyzz
 
 load "../../stzBase.ring"
 

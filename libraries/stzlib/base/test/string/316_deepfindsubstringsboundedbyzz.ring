@@ -1,9 +1,11 @@
 # Narrative
 # --------
-# StartProfiler()
+# DEEP nested-bracket extraction, with and without the bounds. The ZZ form gives
+# the content span [open+1 .. close-1]; the IBZZ form keeps the bounds [open ..
+# close]. Regions are ordered leaves first, then their parents (close order).
+# Codepoint-correct (the bullets are multibyte).
 #
 # Extracted from stzlisttest.ring, block #316.
-#ERR Error (R14) : Calling Method without definition: deepfindsubstringsboundedbyzz
 
 load "../../stzBase.ring"
 

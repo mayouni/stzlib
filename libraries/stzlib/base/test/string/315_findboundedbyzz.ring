@@ -1,9 +1,11 @@
 # Narrative
 # --------
-# StartProfiler()
+# SHALLOW vs DEEP bounded-by. FindBoundedByZZ / BoundedBy pair each "[" with the
+# next "]" (non-nesting), giving the 3 top-level regions. The Deep* forms do a
+# proper nested match: each "[" with its matching "]", so the outer span [5,17]
+# and the inner [7,9] are both reported -- ordered leaves first, then parents.
 #
 # Extracted from stzlisttest.ring, block #315.
-#ERR Error (R14) : Calling Method without definition: deepboundedby
 
 load "../../stzBase.ring"
 

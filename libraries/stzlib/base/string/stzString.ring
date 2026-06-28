@@ -6188,10 +6188,17 @@ class stzString from stzObject
 		return This.BoundedBy(pacBounds)
 
 	def FindAnyBoundedByZZ(pacBounds)
+		# Same-char bounds (e.g. "&" or "aa"/"aa") admit OVERLAPPING consecutive
+		# pairs -> FindBoundedByAsSections. Distinct bounds ("["/"]") pair each
+		# open with the next close (non-nesting, top-level) -> the SubStrings form,
+		# which avoids the spurious nested section the AsSections walk emitted.
 		if isString(pacBounds)
 			return This.FindBoundedByAsSections([ pacBounds, pacBounds ])
 		ok
-		return This.FindBoundedByAsSections(pacBounds)
+		if isList(pacBounds) and len(pacBounds) = 2 and pacBounds[1] = pacBounds[2]
+			return This.FindBoundedByAsSections(pacBounds)
+		ok
+		return This.FindSubStringsBoundedByZZ(pacBounds)
 
 	def FindAnyBoundedByIBZZ(pacBounds)
 		return This.FindSubStringsBoundedByIBZZ(pacBounds)
@@ -6205,8 +6212,156 @@ class stzString from stzObject
 	# DeepFindBoundedByZZ -- a stub forwarder. The "deep" variant is
 	# intended to recurse into nested bounds; for the narrative-test
 	# surface we keep parity with the flat form so the call resolves.
+	#-- DEEP bounded-by family: a proper stack-based bracket matcher that respects
+	#-- NESTING. Each open is paired with its matching close; the content span is
+	#-- [open+openLen .. close-1] (IB forms keep the bounds: [open .. close]).
+	#-- Regions are ordered LEAVES first (those with no nested region inside),
+	#-- then their parents, each group in close-position order.
+
+	def _DeepBounds(pacBounds)
+		if isList(pacBounds) and len(pacBounds) = 2 and isString(pacBounds[1]) and
+		   lower(pacBounds[1]) = "boundedby"
+			pacBounds = pacBounds[2]
+		ok
+		if isString(pacBounds)
+			return [ pacBounds, pacBounds ]
+		ok
+		return pacBounds
+
+	def _DbMatchAt(paChars, n, pcBound, nBoundLen)
+		if n + nBoundLen - 1 > len(paChars) return FALSE ok
+		_cDbB_ = ""
+		for _kDb_ = n to n + nBoundLen - 1
+			_cDbB_ += paChars[_kDb_]
+		next
+		return _cDbB_ = pcBound
+
+	def _DeepSlice(nStart, nEnd)
+		_aDsC_ = This.Chars()
+		_cDs_ = ""
+		for _kDs_ = nStart to nEnd
+			if _kDs_ >= 1 and _kDs_ <= len(_aDsC_)
+				_cDs_ += _aDsC_[_kDs_]
+			ok
+		next
+		return _cDs_
+
+	def _DeepBoundedSections(pcOpen, pcClose)
+		_aDbChars_ = This.Chars()
+		_nDbLen_ = len(_aDbChars_)
+		_nDbOL_ = StzLen(pcOpen)
+		_nDbCL_ = StzLen(pcClose)
+		_aDbStack_ = []
+		_aDbReg_ = []
+		_iDb_ = 1
+		while _iDb_ <= _nDbLen_
+			if This._DbMatchAt(_aDbChars_, _iDb_, pcOpen, _nDbOL_)
+				_aDbStack_ + _iDb_
+				_iDb_ += _nDbOL_
+			but len(_aDbStack_) > 0 and This._DbMatchAt(_aDbChars_, _iDb_, pcClose, _nDbCL_)
+				_nDbO_ = _aDbStack_[ len(_aDbStack_) ]
+				del(_aDbStack_, len(_aDbStack_))
+				_aDbReg_ + [ _nDbO_, _iDb_ ]
+				_iDb_ += _nDbCL_
+			else
+				_iDb_++
+			ok
+		end
+		# split into leaves (no nested region) and non-leaves, keeping the
+		# close-position order each group was recorded in.
+		_nDbR_ = len(_aDbReg_)
+		_aDbLeaf_ = []
+		_aDbNon_ = []
+		for _aDb_ = 1 to _nDbR_
+			_bDbLeaf_ = TRUE
+			for _bDb_ = 1 to _nDbR_
+				if _bDb_ != _aDb_ and _aDbReg_[_aDb_][1] < _aDbReg_[_bDb_][1] and
+				   _aDbReg_[_bDb_][2] < _aDbReg_[_aDb_][2]
+					_bDbLeaf_ = FALSE
+					exit
+				ok
+			next
+			if _bDbLeaf_
+				_aDbLeaf_ + _aDbReg_[_aDb_]
+			else
+				_aDbNon_ + _aDbReg_[_aDb_]
+			ok
+		next
+		_aDbOut_ = []
+		_nDbL_ = len(_aDbLeaf_)
+		for _cDb_ = 1 to _nDbL_ _aDbOut_ + _aDbLeaf_[_cDb_] next
+		_nDbN_ = len(_aDbNon_)
+		for _dDb_ = 1 to _nDbN_ _aDbOut_ + _aDbNon_[_dDb_] next
+		return _aDbOut_
+
 	def DeepFindBoundedByZZ(pacBounds)
-		return This.FindBoundedByAsSections(pacBounds)
+		_aDfb_ = This._DeepBounds(pacBounds)
+		_aDfReg_ = This._DeepBoundedSections(_aDfb_[1], _aDfb_[2])
+		_nDfOL_ = StzLen(_aDfb_[1])
+		_aDfRes_ = []
+		_nDf_ = len(_aDfReg_)
+		for _iDf_ = 1 to _nDf_
+			_aDfRes_ + [ _aDfReg_[_iDf_][1] + _nDfOL_, _aDfReg_[_iDf_][2] - 1 ]
+		next
+		return _aDfRes_
+
+		def DeepFindSubStringsZZ(pacBounds)
+			return This.DeepFindBoundedByZZ(pacBounds)
+
+		def DeepFindSubStringsBoundedByZZ(pacBounds)
+			return This.DeepFindBoundedByZZ(pacBounds)
+
+	def DeepBoundedBy(pacBounds)
+		_aDbbPos_ = This.DeepFindBoundedByZZ(pacBounds)
+		_aDbbRes_ = []
+		_nDbb_ = len(_aDbbPos_)
+		for _iDbb_ = 1 to _nDbb_
+			_aDbbRes_ + This._DeepSlice(_aDbbPos_[_iDbb_][1], _aDbbPos_[_iDbb_][2])
+		next
+		return _aDbbRes_
+
+	def DeepSubStringsZZ(pacBounds)
+		_aDszPos_ = This.DeepFindBoundedByZZ(pacBounds)
+		_aDszRes_ = []
+		_nDsz_ = len(_aDszPos_)
+		for _iDsz_ = 1 to _nDsz_
+			_aDszRes_ + [ This._DeepSlice(_aDszPos_[_iDsz_][1], _aDszPos_[_iDsz_][2]), _aDszPos_[_iDsz_] ]
+		next
+		return _aDszRes_
+
+		def DeepSubStringsBoundedByZZ(pacBounds)
+			return This.DeepSubStringsZZ(pacBounds)
+
+	def DeepFindBoundedByIBZZ(pacBounds)
+		_aDib_ = This._DeepBounds(pacBounds)
+		_aDiReg_ = This._DeepBoundedSections(_aDib_[1], _aDib_[2])
+		_aDiRes_ = []
+		_nDi_ = len(_aDiReg_)
+		for _iDi_ = 1 to _nDi_
+			_aDiRes_ + [ _aDiReg_[_iDi_][1], _aDiReg_[_iDi_][2] ]
+		next
+		return _aDiRes_
+
+		def DeepFindSubStringsBoundedByIBZZ(pacBounds)
+			return This.DeepFindBoundedByIBZZ(pacBounds)
+
+	def DeepSubStringsBoundedByIBZZ(pacBounds)
+		_aDsiPos_ = This.DeepFindBoundedByIBZZ(pacBounds)
+		_aDsiRes_ = []
+		_nDsi_ = len(_aDsiPos_)
+		for _iDsi_ = 1 to _nDsi_
+			_aDsiRes_ + [ This._DeepSlice(_aDsiPos_[_iDsi_][1], _aDsiPos_[_iDsi_][2]), _aDsiPos_[_iDsi_] ]
+		next
+		return _aDsiRes_
+
+		def DeepBoundedByIB(pacBounds)
+			_aDbiPos_ = This.DeepFindBoundedByIBZZ(pacBounds)
+			_aDbiRes_ = []
+			_nDbi_ = len(_aDbiPos_)
+			for _iDbi_ = 1 to _nDbi_
+				_aDbiRes_ + This._DeepSlice(_aDbiPos_[_iDbi_][1], _aDbiPos_[_iDbi_][2])
+			next
+			return _aDbiRes_
 
 		# (Older nested aliases dropped to avoid C22 redefinition --
 		# the unified two-arg FindAnyBoundedBy above subsumes them.)
@@ -8225,6 +8380,20 @@ class stzString from stzObject
 	# SubStringsBoundedByIBZZ: inclusive-bounds sectional substrings.
 	def SubStringsBoundedByIBZZ(pacBounds)
 		return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+	#-- SubStringsBoundedByZZ: each shallow bounded substring paired with its
+	#-- [start, end] positions -- the BoundedBy substrings zipped with their
+	#-- FindSubStringsBoundedByZZ sections.
+	def SubStringsBoundedByZZ(pacBounds)
+		_aSbzPos_ = This.FindSubStringsBoundedByZZ(pacBounds)
+		_aSbzSub_ = This.BoundedBy(pacBounds)
+		_nSbz_ = len(_aSbzPos_)
+		if len(_aSbzSub_) < _nSbz_ _nSbz_ = len(_aSbzSub_) ok
+		_aSbzRes_ = []
+		for _iSbz_ = 1 to _nSbz_
+			_aSbzRes_ + [ _aSbzSub_[_iSbz_], _aSbzPos_[_iSbz_] ]
+		next
+		return _aSbzRes_
 
 	# Substrongs / Substrinks: deliberate Softanza misspellings of
 	# SubStrings -- accept and route through.
