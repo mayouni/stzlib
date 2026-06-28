@@ -127,25 +127,17 @@ The plain `RemoveAt` / `ReplaceAt` forms all work (blocks 66, 69, 70, 73); their
   `ReplaceXT("ring", :AtPosition = 6)` is a no-op (no 6th "ring"). The plural
   `:AtPositions` form correctly uses absolute positions (block 72 works).
 
-### Except family — a defect cluster (tests 76, 77, 78, 79, 82)
+### ✅ RESOLVED — Except family (tests 76, 77, 78, 79, 82) — commit 471300a3+
 
-`FindExceptZZ(sep)` with a SINGLE separator works (block 76); the rest of the
-"everything except" family is broken.
-
-- **`Except(sep)` returns the wrong shape** (blocks 76, 77). It should return the
-  non-separator SUBSTRINGS as a list (`[ "ring", "&", "softanza" ]`), but the
-  impl (stzString.ring ~7656) just replaces `sep` with `""` and returns a STRING
-  -- and in practice returns `""`.
-- **`FindExceptZZ([sep1, sep2])` fails with a list** (block 77): returns the whole
-  string as one span (`[ [1,21] ]`) instead of the per-gap sections.
-- **`RemoveAllExcept(keep)` only handles a single keep-token** (block 78): it does
-  `StzRepeatStr(keep, NumberOfOccurrence(keep))` (stzString.ring ~12926), so a
-  LIST of keep-tokens yields `""` instead of `"Ring&Softanza"`.
-- **`ReplaceAllExcept(keeps, :With=c)` granularity + `:And` form** (blocks 79, 82):
-  replaces each excluded CHAR individually instead of each excluded RUN once
-  (block 82's intent is one `c` per run); and the `[ "Ring", :And = "Softanza" ]`
-  named-param form doesn't parse `:And`, so "Softanza" is replaced too. (Block
-  79's archive `#-->` "Ring&♥Ring♥Softanza♥" is itself garbled.)
+All four methods rewritten around a single codepoint-walk (using `_DbMatchAt` +
+`Chars()`), so they handle one OR many tokens and are multibyte-correct:
+- `FindExceptZZ(sep | [seps])` -> the gap spans (single-clause widening via
+  if/but/else); `Except(...)` -> those substrings as a list.
+- `RemoveAllExcept(keep | [keeps])` -> keeps only those tokens.
+- `ReplaceAllExcept(keeps, :With=c)` -> ONE `c` per excluded RUN, and the keep-list
+  now flattens inline `:And = value` (so `[ "Ring", :And = "Softanza" ]` keeps both).
+Verified: 77 -> [[3,6],[9,9],[12,19]] / ["ring","&","softanza"]; 78 -> "Ring&Softanza";
+79/82 -> "♥Ring♥Softanza♥". (79's garbled archive #--> was the author's error.)
 
 ### W / WXT conditional — deferred to string step 2 (tests 83, 84)
 
