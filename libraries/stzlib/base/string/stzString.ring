@@ -1551,16 +1551,24 @@ class stzString from stzObject
 				if isString(_pNa2_[1])
 					_cKb_ = lower(_pNa2_[1])
 					if _cKb_ = "toposition" or _cKb_ = "to"
+						_nXtPos_ = _pNa2_[2]
+						# :With = :CharsRepeated, or the bare :ByCharsRepeated /
+						# :CharsRepeated -> extend to that position by repeating
+						# THIS string's own chars (e.g. "ABC" to 5 -> "ABCAB").
+						_bXtRep_ = FALSE
+						if isString(pWarg) and (lower(pWarg) = "bycharsrepeated" or lower(pWarg) = "charsrepeated")
+							_bXtRep_ = TRUE
+						but isList(pWarg) and len(pWarg) = 2 and isString(pWarg[2]) and lower(pWarg[2]) = "charsrepeated"
+							_bXtRep_ = TRUE
+						ok
+						if _bXtRep_
+							This.ExtendToWithCharsRepeated(_nXtPos_)
+							return
+						ok
 						if isList(pWarg) and len(pWarg) = 2
-							_cWk_ = ""
-							if isString(pWarg[1]) _cWk_ = lower(pWarg[1]) ok
-							if _cWk_ = "withcharsin" or _cWk_ = "withchars"
-								This.ExtendToPositionWith(_pNa2_[2], pWarg[2])
-							else
-								This.ExtendToPositionWith(_pNa2_[2], pWarg[2])
-							ok
+							This.ExtendToPositionWith(_nXtPos_, pWarg[2])
 						else
-							This.ExtendToPosition(_pNa2_[2])
+							This.ExtendToPosition(_nXtPos_)
 						ok
 						return
 					but _cKb_ = "tonchars"
@@ -3250,17 +3258,20 @@ class stzString from stzObject
 	def ExtendToWithCharsIn(n, pcCharsOrRange)
 		# Pad out to total length n by cycling through pcCharsOrRange.
 		# A Ring range like "1":"3" expands to "123".
-		_cSrc_ = pcCharsOrRange
-		if isList(pcCharsOrRange) and len(pcCharsOrRange) = 2
-			# Could be range form -- already expanded by Ring to list of chars.
-			_tmp_ = ""
+		# Build the source pool. A Ring range like "1":"3" expands to the LIST
+		# ["1","2","3"] (any length, not just 2) -- join all of it.
+		_cSrc_ = ""
+		if isList(pcCharsOrRange)
 			_nRL_ = len(pcCharsOrRange)
-			for _i_ = 1 to _nRL_
-				_tmp_ += pcCharsOrRange[_i_]
+			for _iRl_ = 1 to _nRL_
+				_cSrc_ += "" + pcCharsOrRange[_iRl_]
 			next
-			_cSrc_ = _tmp_
+		but isString(pcCharsOrRange)
+			_cSrc_ = pcCharsOrRange
+		else
+			return
 		ok
-		if NOT isString(_cSrc_) or len(_cSrc_) = 0 return ok
+		if len(_cSrc_) = 0 return ok
 		# Engine-backed: codepoint-aware cycling.
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
