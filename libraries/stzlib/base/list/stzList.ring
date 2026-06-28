@@ -9109,9 +9109,13 @@ class stzList from stzObject
 		nLen = StzLen(pcCode)
 		oVwCode = new stzString(pcCode)
 
-		# pad each marker to the code length so windows line up
+		# pad each marker to the code length so windows line up, and track the
+		# widest row LABEL: the marker lines carry that label as a prefix, so the
+		# code line must be indented by the same width or the "^" carets drift
+		# right of the items they point at.
 		aPad = []
 		_nVwR_ = len(paRows)
+		_nLblW_ = 0
 		for _rVw_ = 1 to _nVwR_
 			_cM_ = paRows[_rVw_][2]
 			_nM_ = StzLen(_cM_)
@@ -9119,6 +9123,22 @@ class stzList from stzObject
 				_cM_ += "-"
 			next
 			aPad + [ paRows[_rVw_][1], _cM_, paRows[_rVw_][3] ]
+			_nLW_ = StzLen(paRows[_rVw_][1])
+			if _nLW_ > _nLblW_ _nLblW_ = _nLW_ ok
+		next
+
+		# right-justify every label to the common width (so the markers -- and the
+		# " : " separators -- all start at the same column), and build the matching
+		# indent for the code line above them.
+		cVwIndent = ""
+		for _iVwI_ = 1 to _nLblW_ cVwIndent += " " next
+		for _rVwL_ = 1 to _nVwR_
+			_cL_ = aPad[_rVwL_][1]
+			_cLpad_ = ""
+			for _pLp_ = StzLen(_cL_) + 1 to _nLblW_
+				_cLpad_ += " "
+			next
+			aPad[_rVwL_][1] = _cLpad_ + _cL_
 		next
 
 		cRes = ""
@@ -9132,7 +9152,7 @@ class stzList from stzObject
 			if NOT bFirst cRes += (NL + NL) ok
 			bFirst = 0
 
-			cRes += oVwCode.Section(nStart, nEnd)
+			cRes += cVwIndent + oVwCode.Section(nStart, nEnd)
 			for _rVw2_ = 1 to _nVwR_
 				oVwM = new stzString(aPad[_rVw2_][2])
 				cSeg = oVwM.Section(nStart, nEnd)

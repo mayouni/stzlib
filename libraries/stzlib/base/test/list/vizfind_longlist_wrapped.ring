@@ -19,11 +19,14 @@ pr()
 StzListQ([ "A","B","A","C","A","D","E","A","B","F","A","C","A","G","A" ]) {
 	? VizFindXT("A")
 }
-#--> [ "A", "B", "A", "C", "A", "D", "E", "A", "B", "F"
+#-->       [ "A", "B", "A", "C", "A", "D", "E", "A", "B", "F"
 #    "A" :  --^---------^---------^--------------^-----------
 #
-#    , "A", "C", "A", "G", "A" ]
+#          , "A", "C", "A", "G", "A" ]
 #    "A" : ---^---------^---------^--- (7)
+#
+# (The code line is indented by the label width so the "^" carets line up
+#  directly under the matched items in every wrapped block.)
 
 pf()
 # Executed in 0.01 second(s).
