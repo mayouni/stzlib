@@ -9074,7 +9074,7 @@ class stzList from stzObject
 	#-- Default wrap width: long renderings are split into lines this wide,
 	#-- each with its marker row(s) underneath.
 	def _VizWidth()
-		return 50
+		return DefaultVizWidth()
 
 	def _VizMarkerLine(pItem, paOthers, pcCode, pCaseSensitive, bDeep)
 		# Depth filter: a SHALLOW viz (bDeep=0) marks only TOP-LEVEL occurrences
