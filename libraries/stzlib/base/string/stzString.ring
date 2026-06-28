@@ -1997,6 +1997,36 @@ class stzString from stzObject
 			return This
 
 	def Replace(pcSubStr, pcNewSubStr)
+		# Polymorphic shorthands when the 2nd arg is a :By / :With / :ByMany
+		# named param -- otherwise a plain case-sensitive replace:
+		#   Replace(sub, :By = list)      -> ReplaceByMany (cycle replacements)
+		#   Replace(sub, :ByMany = list)  -> ReplaceByMany
+		#   Replace([olds], :By = new)    -> ReplaceMany
+		#   Replace([olds], :By = [news]) -> ReplaceManyByMany
+		#   Replace(sub, :By = newstring) -> plain replace
+		if isList(pcNewSubStr) and len(pcNewSubStr) = 2 and isString(pcNewSubStr[1])
+			_kRpl_ = lower(pcNewSubStr[1])
+			if _kRpl_ = "by" or _kRpl_ = "with" or _kRpl_ = "bymany" or _kRpl_ = "withmany"
+				_vRpl_ = pcNewSubStr[2]
+				if _kRpl_ = "bymany" or _kRpl_ = "withmany"
+					This.ReplaceByMany(pcSubStr, _vRpl_)
+					return
+				ok
+				if isList(pcSubStr)
+					if isList(_vRpl_)
+						This.ReplaceManyByMany(pcSubStr, _vRpl_)
+					else
+						This.ReplaceMany(pcSubStr, _vRpl_)
+					ok
+					return
+				but isString(pcSubStr) and isList(_vRpl_)
+					This.ReplaceByMany(pcSubStr, _vRpl_)
+					return
+				ok
+				This.ReplaceCS(pcSubStr, _vRpl_, 1)
+				return
+			ok
+		ok
 		This.ReplaceCS(pcSubStr, pcNewSubStr, 1)
 
 		def ReplaceQ(pcSubStr, pcNewSubStr)
@@ -2366,9 +2396,9 @@ class stzString from stzObject
 			_v_ = paReplacements[_ix_]
 			if isList(_v_) and len(_v_) = 2 and isString(_v_[1]) and
 			   (lower(_v_[1]) = "and" or lower(_v_[1]) = "with" or lower(_v_[1]) = "by")
-				_aFlat_ + ""+ _v_[2]
+				_aFlat_ + ("" + _v_[2])
 			but isString(_v_) or isNumber(_v_)
-				_aFlat_ + ""+ _v_
+				_aFlat_ + ("" + _v_)
 			ok
 		next
 		paReplacements = _aFlat_
