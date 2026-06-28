@@ -7796,76 +7796,105 @@ class stzString from stzObject
 	# FindExceptZZ(pcSub): the sections of content that do NOT
 	# contain pcSub -- the complement of FindSubString positions.
 	def FindExceptZZ(pcSub)
-		_aPos_ = This.AllPositionsOf(pcSub)
-		_nSubLen_ = This._EngineCount(pcSub)
-		_nTxtLen_ = This._EngineCount(This.Content())
-		_aRes_ = []
-		_nStart_ = 1
-		_nL_ = len(_aPos_)
-		for _i_ = 1 to _nL_
-			_p_ = _aPos_[_i_]
-			if _p_ > _nStart_
-				_aRes_ + [ _nStart_, _p_ - 1 ]
-			ok
-			_nStart_ = _p_ + _nSubLen_
-		next
-		if _nStart_ <= _nTxtLen_
-			_aRes_ + [ _nStart_, _nTxtLen_ ]
+		# Spans of the text BETWEEN the separator(s) -- pcSub may be a single
+		# string or a LIST of separators. Codepoint walk: a run of non-separator
+		# chars becomes one [start, end] span.
+		_aFezSeps_ = []
+		if isString(pcSub)
+			_aFezSeps_ = [ pcSub ]
+		but isList(pcSub)
+			_aFezSeps_ = pcSub
+		else
+			return []
 		ok
-		return _aRes_
+		_aFezChars_ = This.Chars()
+		_nFezLen_ = len(_aFezChars_)
+		_aFezRes_ = []
+		_nFezGap_ = 0
+		_iFez_ = 1
+		while _iFez_ <= _nFezLen_
+			_nFezM_ = 0
+			_nFezS_ = len(_aFezSeps_)
+			for _jFez_ = 1 to _nFezS_
+				_cFezSep_ = _aFezSeps_[_jFez_]
+				_nFezSL_ = StzLen(_cFezSep_)
+				if _nFezSL_ > 0 and This._DbMatchAt(_aFezChars_, _iFez_, _cFezSep_, _nFezSL_)
+					_nFezM_ = _nFezSL_
+					exit
+				ok
+			next
+			if _nFezM_ > 0
+				if _nFezGap_ > 0
+					_aFezRes_ + [ _nFezGap_, _iFez_ - 1 ]
+					_nFezGap_ = 0
+				ok
+				_iFez_ += _nFezM_
+			else
+				if _nFezGap_ = 0 _nFezGap_ = _iFez_ ok
+				_iFez_++
+			ok
+		end
+		if _nFezGap_ > 0
+			_aFezRes_ + [ _nFezGap_, _nFezLen_ ]
+		ok
+		return _aFezRes_
 
 	# ReplaceAllExcept(pcKeep, :With = pcWith): replace every char that
 	# is NOT pcKeep (or NOT in the list pcKeep) with pcWith.
 	def ReplaceAllExcept(pcKeep, pcWith)
+		# Replace every excluded RUN (a maximal stretch of non-keep chars) with a
+		# single pcWith, keeping the keep-token(s). pcKeep is a string or a list
+		# (which may carry inline :And = value); pcWith reads the :With param.
+		_cRaeW_ = pcWith
 		if isList(pcWith) and len(pcWith) = 2 and isString(pcWith[1]) and
 		   (lower(pcWith[1]) = "with" or lower(pcWith[1]) = "by")
-			pcWith = pcWith[2]
+			_cRaeW_ = pcWith[2]
 		ok
 		_aKeep_ = []
-		if isList(pcKeep)
+		if isString(pcKeep)
+			_aKeep_ + pcKeep
+		but isList(pcKeep)
 			_nKL_ = len(pcKeep)
 			for _k_ = 1 to _nKL_
-				if isString(pcKeep[_k_]) _aKeep_ + pcKeep[_k_] ok
+				_v_ = pcKeep[_k_]
+				if isList(_v_) and len(_v_) = 2 and isString(_v_[1]) and
+				   (lower(_v_[1]) = "and" or lower(_v_[1]) = "with")
+					_aKeep_ + ("" + _v_[2])
+				but isString(_v_)
+					_aKeep_ + _v_
+				ok
 			next
-		but isString(pcKeep)
-			_aKeep_ + pcKeep
+		else
+			return
 		ok
-		_cTxt_ = This.Content()
-		_nKL_ = len(_aKeep_)
-		# Find all occurrences (sections) of any keep-item.
-		_aPositions_ = []   # list of [start, end]
-		for _k_ = 1 to _nKL_
-			_w_ = _aKeep_[_k_]
-			_wlen_ = This._EngineCount(_w_)
-			_pos_ = 1
-			while TRUE
-				_p_ = This._FindFrom(_cTxt_, _w_, _pos_)
-				if _p_ < 1 exit ok
-				_aPositions_ + [ _p_, _p_ + _wlen_ - 1 ]
-				_pos_ = _p_ + _wlen_
-			end
-		next
-		# Walk chars: if codepoint is inside any keep section, keep it;
-		# else emit pcWith.
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
-		_nPL_ = len(_aPositions_)
+		_nKL2_ = len(_aKeep_)
 		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			_bKeep_ = FALSE
-			for _j_ = 1 to _nPL_
-				_sec_ = _aPositions_[_j_]
-				if _i_ >= _sec_[1] and _i_ <= _sec_[2]
-					_bKeep_ = TRUE
+		_bPrevExcl_ = FALSE
+		_i_ = 1
+		while _i_ <= _nLen_
+			_nMatch_ = 0
+			for _j_ = 1 to _nKL2_
+				_w_ = _aKeep_[_j_]
+				_wlen_ = StzLen(_w_)
+				if _wlen_ > 0 and This._DbMatchAt(_aChars_, _i_, _w_, _wlen_)
+					_nMatch_ = _wlen_
 					exit
 				ok
 			next
-			if _bKeep_
-				_cOut_ += _aChars_[_i_]
+			if _nMatch_ > 0
+				if _bPrevExcl_ _cOut_ += _cRaeW_ _bPrevExcl_ = FALSE ok
+				for _k_ = _i_ to _i_ + _nMatch_ - 1
+					_cOut_ += _aChars_[_k_]
+				next
+				_i_ += _nMatch_
 			else
-				_cOut_ += pcWith
+				_bPrevExcl_ = TRUE
+				_i_++
 			ok
-		next
+		end
+		if _bPrevExcl_ _cOut_ += _cRaeW_ ok
 		This.Update(_cOut_)
 
 		def ReplaceAllExceptQ(pcKeep, pcWith)
@@ -8022,12 +8051,15 @@ class stzString from stzObject
 
 	# Except(pcSub): the content with all occurrences of pcSub removed.
 	def Except(pcSub)
-		_pH_ = StzEngineString(This.Content())
-		_pR_ = StzEngineStringReplaceCS(_pH_, pcSub, "", 1)
-		_cR_ = StzEngineStringData(_pR_)
-		StzEngineStringFree(_pR_)
-		StzEngineStringFree(_pH_)
-		return _cR_
+		# The non-separator SUBSTRINGS, as a list (pcSub = one string or a list
+		# of separators). The substrings sit at the FindExceptZZ spans.
+		_aExcSpans_ = This.FindExceptZZ(pcSub)
+		_aExcRes_ = []
+		_nExc_ = len(_aExcSpans_)
+		for _iExc_ = 1 to _nExc_
+			_aExcRes_ + This._DeepSlice(_aExcSpans_[_iExc_][1], _aExcSpans_[_iExc_][2])
+		next
+		return _aExcRes_
 
 	# Nth(n[, pcSub]):
 	#   Nth(n)        : the n-th char (1-based, codepoint-aware)
@@ -13379,8 +13411,41 @@ class stzString from stzObject
 
 	# RemoveAllExcept(pcKeep): remove every char that is NOT pcKeep.
 	def RemoveAllExcept(pcKeep)
-		_nN_ = This.NumberOfOccurrence(pcKeep)
-		This.Update(StzRepeatStr(pcKeep, _nN_))
+		# Keep only the keep-token(s) (one string or a list), dropping everything
+		# else: "--Ring--&__Softanza__" keep [Ring,&,Softanza] -> "Ring&Softanza".
+		_aRaeKeep_ = []
+		if isString(pcKeep)
+			_aRaeKeep_ = [ pcKeep ]
+		but isList(pcKeep)
+			_aRaeKeep_ = pcKeep
+		else
+			return
+		ok
+		_aRaeChars_ = This.Chars()
+		_nRaeLen_ = len(_aRaeChars_)
+		_cRaeOut_ = ""
+		_iRae_ = 1
+		while _iRae_ <= _nRaeLen_
+			_nRaeM_ = 0
+			_nRaeK_ = len(_aRaeKeep_)
+			for _jRae_ = 1 to _nRaeK_
+				_cRaeK_ = _aRaeKeep_[_jRae_]
+				_nRaeKL_ = StzLen(_cRaeK_)
+				if _nRaeKL_ > 0 and This._DbMatchAt(_aRaeChars_, _iRae_, _cRaeK_, _nRaeKL_)
+					_nRaeM_ = _nRaeKL_
+					exit
+				ok
+			next
+			if _nRaeM_ > 0
+				for _kRae_ = _iRae_ to _iRae_ + _nRaeM_ - 1
+					_cRaeOut_ += _aRaeChars_[_kRae_]
+				next
+				_iRae_ += _nRaeM_
+			else
+				_iRae_++
+			ok
+		end
+		This.Update(_cRaeOut_)
 
 		def RemoveAllExceptQ(pcKeep)
 			This.RemoveAllExcept(pcKeep)
