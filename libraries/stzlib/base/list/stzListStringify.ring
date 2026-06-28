@@ -197,12 +197,38 @@ class stzListStringify
 		def ToListInAString()
 			return This.ComputableForm()
 
+	# Short form: a contiguous run of integers (a, a+1, ..., b -- or the
+	# descending a, a-1, ..., b) collapses to the range literal "a:b". Anything
+	# else falls back to the full stringified list.
+	def ToListInAStringInShortForm()
+		_aTlsfC_ = This.Content()
+		_nTlsfN_ = len(_aTlsfC_)
+		if _nTlsfN_ >= 2 and isNumber(_aTlsfC_[1]) and isNumber(_aTlsfC_[2])
+			_nTlsfStep_ = _aTlsfC_[2] - _aTlsfC_[1]
+			if _nTlsfStep_ = 1 or _nTlsfStep_ = -1
+				_bTlsfRange_ = TRUE
+				for _iTlsf_ = 2 to _nTlsfN_
+					if NOT ( isNumber(_aTlsfC_[_iTlsf_]) and
+						 _aTlsfC_[_iTlsf_] = _aTlsfC_[_iTlsf_ - 1] + _nTlsfStep_ )
+						_bTlsfRange_ = FALSE
+						exit
+					ok
+				next
+				if _bTlsfRange_
+					return "" + _aTlsfC_[1] + ":" + _aTlsfC_[_nTlsfN_]
+				ok
+			ok
+		ok
+		return This.ToListInAString()
+
+		def ToListInAStringInShortFormQ()
+			return new stzString( This.ToListInAStringInShortForm() )
+
 	def ToListInStringInShortForm()
-		_cTlisfResult_ = This.ToCodeQ().ToListInShortForm()
-		return _cTlisfResult_
+		return This.ToListInAStringInShortForm()
 
 		def ToListInShortForm()
-			return This.ToListInStringInShortForm()
+			return This.ToListInAStringInShortForm()
 
 	  #======================================================#
 	 #   JOIN -- CONCATENATE ITEMS INTO A STRING            #
