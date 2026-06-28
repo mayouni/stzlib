@@ -157,11 +157,10 @@ condition spelling.
   "Incorrect params! n1 and n2 must be numbers", and `Slice` is undefined (R14).
   The plain positional `Section(a, b)` works.
 
-- **Contains-in-section family returns FALSE** (tests 103, 104).
-  `ContainsInSection("♥", 3, 10)`, `ContainsInSections(...)`, and
-  `ContainsXT("♥", :InSection = [3,10])` / `:InSections` all return FALSE on
-  `"123♥♥678♥♥1234♥♥789"` although the sections clearly contain "♥". Both the
-  plain and XT spellings are affected.
+- **✅ RESOLVED Contains-in-section family** (tests 103, 104) — commit c5a59dee+.
+  `ContainsInSection` had its StzFindFirst args BACKWARDS (it searched for the
+  section inside the sub). Swapped to `StzFindFirst(Section, sub)`. The XT
+  `:InSection` / `:InSections` spellings now dispatch to it (see below).
 
 - **`stzChar.StzType()` returns "stzstring"** (test 106). `ToListOfStzChars()`
   yields genuine stzChar objects (`classname` = "stzchar", correct content), but
@@ -254,16 +253,14 @@ expected the following run ("CDE") -- confirm the :StartingAt offset.
   copied from a different string ("RINGORIALAND") and don't match the input.
   Confirm the intended Duplicates() contract.
 
-### ContainsXT named-position forms (tests 170, 173, 174, 175)
+### ✅ RESOLVED — ContainsXT named-position forms (tests 170, 173, 174, 175, 176, 178) — commit c5a59dee+
 
-The plain `ContainsAt` / `ContainsBefore` / `ContainsAfter` forms work (including
-their `:Position` / `:SubString` named params, blocks 170/172), but every
-`ContainsXT(sub, :<position>)` spelling returns FALSE: `:AtPosition` (170),
-`:AfterPosition` / `:BeforePosition` (173/174), the short `:Before` / `:After`
-(175), the substring-valued `:Before`/`:After` (176), and `:AtPositions=[..]`
-(178). The XT named-position dispatch isn't wired up. Also `ContainsInSection` /
-`ContainsBetweenPositions` return FALSE (171, 173 -- the block 103/104 bug), and
-`ContainsInSection("^", 5, 3)` additionally fails to auto-order reversed bounds.
+Wired the named-position keys into ContainsXT, each routing to the working
+positional twin: `:AtPosition` -> ContainsAt(sub, :Position); `:AtPositions` ->
+ContainsAt([pos], sub); `:After`/`:AfterPosition` -> ContainsAfter (number =
+position, string = substring anchor); `:Before`/`:BeforePosition` ->
+ContainsBefore; `:InSection`/`:InSections` -> ContainsInSection(s). All TRUE.
+(ContainsInSection auto-orders via Section(); the args-swap fix is above.)
 
 Note: `BoundedByZZ` / `BoundedByUZZ` lose the substring grouping too (blocks 166,
 167) -- same defect as `BoundedByUZ` (block 163): they return position spans only

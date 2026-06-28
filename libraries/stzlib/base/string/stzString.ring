@@ -1221,12 +1221,22 @@ class stzString from stzObject
 			_xVal_ = pNamed[2]
 			if _cKey_ = "insection" and isList(_xVal_) and len(_xVal_) = 2
 				return This.ContainsInSection(pcSubStr, _xVal_[1], _xVal_[2])
+			but _cKey_ = "insections" and isList(_xVal_)
+				return This.ContainsInSections(pcSubStr, _xVal_)
 			but _cKey_ = "morethen" or _cKey_ = "morethan"
 				return This.NumberOfOccurrence(pcSubStr) > _xVal_
 			but _cKey_ = "atleast"
 				return This.NumberOfOccurrence(pcSubStr) >= _xVal_
 			but _cKey_ = "exactly"
 				return This.NumberOfOccurrence(pcSubStr) = _xVal_
+			but _cKey_ = "atposition"
+				return This.ContainsAt(pcSubStr, [ "Position", _xVal_ ])
+			but _cKey_ = "atpositions"
+				return This.ContainsAt(_xVal_, pcSubStr)
+			but _cKey_ = "afterposition" or _cKey_ = "after"
+				return This.ContainsAfter(pcSubStr, _xVal_)
+			but _cKey_ = "beforeposition" or _cKey_ = "before"
+				return This.ContainsBefore(pcSubStr, _xVal_)
 			ok
 		ok
 		# Bare number first arg + string second = "at least N occurrences"
@@ -1238,8 +1248,8 @@ class stzString from stzObject
 	# ContainsInSection: does pcSubStr appear within the substring
 	# bounded by positions [n1, n2] (inclusive)?
 	def ContainsInSection(pcSubStr, n1, n2)
-		# Engine-backed substring search.
-		return StzFindFirst(pcSubStr, This.Section(n1, n2)) > 0
+		# Does pcSubStr occur inside the section? (haystack = section, needle = sub.)
+		return StzFindFirst(This.Section(n1, n2), pcSubStr) > 0
 
 		def ContainsInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
 			_cSec_ = This.Section(n1, n2)
