@@ -12551,6 +12551,12 @@ class stzString from stzObject
 
 	# FindNextNthOccurrence(n, pcSub, nFrom).
 	def FindNextNthOccurrence(n, pcSub, nFrom)
+		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and lower(pcSub[1]) = "of"
+			pcSub = pcSub[2]
+		ok
+		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and lower(nFrom[1]) = "startingat"
+			nFrom = nFrom[2]
+		ok
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nPos_ = nFrom; _nC_ = 0
 		while TRUE
@@ -12579,6 +12585,88 @@ class stzString from stzObject
 		_nBL_ = len(_aB_)
 		if n < 1 or n > _nBL_ return 0 ok
 		return _aB_[_nBL_ - n + 1]
+
+	#-- FindPreviousNthOccurrence(n, :Of = sub, :StartingAt = pos): position of
+	#-- the n-th occurrence of sub BEFORE pos (0 if none). FindFirstPrevious /
+	#-- FindFirstNext are the n=1 shorthands.
+	def FindPreviousNthOccurrence(n, pOf, pStartingAt)
+		if isList(pOf) and len(pOf) = 2 and isString(pOf[1]) and lower(pOf[1]) = "of"
+			pOf = pOf[2]
+		ok
+		return This.NthPreviousOccurrence(n, pOf, pStartingAt)
+
+		def FindPreviousNthOccurrenceOf(n, pOf, pStartingAt)
+			return This.FindPreviousNthOccurrence(n, pOf, pStartingAt)
+
+	def FindFirstPrevious(pOf, pStartingAt)
+		if isList(pOf) and len(pOf) = 2 and isString(pOf[1]) and lower(pOf[1]) = "of"
+			pOf = pOf[2]
+		ok
+		return This.NthPreviousOccurrence(1, pOf, pStartingAt)
+
+		def FindFirstPreviousOccurrence(pOf, pStartingAt)
+			return This.FindFirstPrevious(pOf, pStartingAt)
+
+	def FindFirstNext(pOf, pStartingAt)
+		if isList(pOf) and len(pOf) = 2 and isString(pOf[1]) and lower(pOf[1]) = "of"
+			pOf = pOf[2]
+		ok
+		return This.FindNextNthOccurrence(1, pOf, pStartingAt)
+
+		def FindFirstNextOccurrence(pOf, pStartingAt)
+			return This.FindFirstNext(pOf, pStartingAt)
+
+	#-- DistanceTo(target, :StartingAt = p): how many chars lie BETWEEN p and the
+	#-- next occurrence of target (exclusive of both ends). target is a bare char,
+	#-- :Next = char, or :NextNth = [ n, char ]. DistanceToXT / DistanceToSTXT
+	#-- count the two bounding positions too (inclusive). Codepoint-based.
+	def _DistTargetN(pTarget)
+		# returns [ char, n, direction ]  -- direction is "next" or "previous"
+		if isString(pTarget)
+			return [ pTarget, 1, "next" ]
+		but isList(pTarget) and len(pTarget) = 2 and isString(pTarget[1])
+			_kDt_ = lower(pTarget[1])
+			if _kDt_ = "next"
+				return [ pTarget[2], 1, "next" ]
+			but _kDt_ = "nextnth"
+				return [ pTarget[2][2], pTarget[2][1], "next" ]
+			but _kDt_ = "previous"
+				return [ pTarget[2], 1, "previous" ]
+			but _kDt_ = "previousnth"
+				return [ pTarget[2][2], pTarget[2][1], "previous" ]
+			ok
+		ok
+		return [ "" + pTarget, 1, "next" ]
+
+	def _DistStart(pStartingAt)
+		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			return pStartingAt[2]
+		ok
+		return pStartingAt
+
+	def _DistFind(paTN, nStart)
+		if paTN[3] = "previous"
+			return This.NthPreviousOccurrence(paTN[2], paTN[1], nStart)
+		ok
+		return This.FindNextNthOccurrence(paTN[2], paTN[1], nStart + 1)
+
+	def DistanceTo(pTarget, pStartingAt)
+		_aDtTN_ = This._DistTargetN(pTarget)
+		_nDtStart_ = This._DistStart(pStartingAt)
+		_nDtFound_ = This._DistFind(_aDtTN_, _nDtStart_)
+		if _nDtFound_ = 0 return 0 ok
+		return fabs(_nDtFound_ - _nDtStart_) - 1
+
+	def DistanceToXT(pTarget, pStartingAt)
+		_aDxTN_ = This._DistTargetN(pTarget)
+		_nDxStart_ = This._DistStart(pStartingAt)
+		_nDxFound_ = This._DistFind(_aDxTN_, _nDxStart_)
+		if _nDxFound_ = 0 return 0 ok
+		return fabs(_nDxFound_ - _nDxStart_) + 1
+
+		def DistanceToSTXT(pTarget, pStartingAt)
+			return This.DistanceToXT(pTarget, pStartingAt)
 
 	# ContainsTheLetters(pacLetters): TRUE iff content contains
 	# every letter in pacLetters (in any order).

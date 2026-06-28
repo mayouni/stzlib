@@ -1,9 +1,10 @@
 # Narrative
 # --------
-# StartProfiler()
+# DistanceTo("6", :StartingAt = 4) counts the chars strictly BETWEEN position 4
+# and the next "6" (exclusive: just position 5 -> 1). DistanceToXT counts the two
+# bounding positions too (4,5,6 -> 3).
 #
 # Extracted from stzlisttest.ring, block #308.
-#ERR Error (R14) : Calling Method without definition: distanceto
 
 load "../../stzBase.ring"
 

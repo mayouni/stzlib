@@ -1,9 +1,11 @@
 # Narrative
 # --------
-# StartProfiler()
+# DistanceTo with direction: :Next / :NextNth = [n, char] search forward,
+# :Previous / :PreviousNth search backward from :StartingAt. The plain form is
+# the exclusive gap; the STXT form counts the two bounding positions (inclusive).
+# Positions are codepoint-based (the bullets are multibyte).
 #
 # Extracted from stzlisttest.ring, block #309.
-#ERR Error (R14) : Calling Method without definition: distanceto
 
 load "../../stzBase.ring"
 
