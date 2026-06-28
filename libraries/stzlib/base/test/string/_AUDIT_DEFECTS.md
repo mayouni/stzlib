@@ -101,11 +101,9 @@ position/occurrence forms all WORK (verified: `ReplaceMany` block 57,
   dropped) instead of `"1Ring2Softanza3"`. The many-to-many `ReplaceManyWithMany`
   (block 81) works.
 
-- **`IsRealInString()` / `IsARealInString()` / `RepresentsRealInString()` and the
-  global `BothAreRealsInStrings` are missing** (test 60_isrealinstring, R14).
-  They exist in the archive monolith as trivial aliases of `RepresentsNumber()`
-  (stzString_monolithic.ring ~94018) but were dropped in modularization; the
-  modular file kept only `RepresentsRealNumber()`. Restore the aliases.
+- **✅ RESOLVED `IsRealInString()` / `IsARealInString()` / `RepresentsRealInString()`**
+  (test 60) — commit 754f9a38+. Added the three as aliases of RepresentsRealNumber()
+  on stzString. The global `BothAreRealsInStrings` already existed (stzFuncs.ring).
 
 - **✅ RESOLVED `Replace()` polymorphic dispatch** (test 74, also 56) — commit d5cf08b8+.
   `Replace(p1, p2)` was a plain 2-arg `ReplaceCS`. Added a :By / :With / :ByMany
@@ -426,12 +424,13 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
 - **`BoundsOfXT(sub, n)` returns only the FIRST occurrence's bounds** (tests 42,
   43). Returns `["<<",">>"]` but should give `[["<<",">>"], ["((","))"]]` (one
   pair per occurrence, n chars each).
-- **`IsBoundedBy(c)` / `IsBoundedByXT` / `IsBoundOfXT` reject a single-string
-  bound** (test 44). `IsBoundedByCS(pacBounds, ...)` short-circuits to FALSE
-  unless `pacBounds` is a 2-element list (stzString.ring ~13439), so
-  `Q("_world_").IsBoundedBy("_")` returns FALSE though "_world_" is bounded by
-  "_" on both sides. Fix: widen a string arg `c` to `[c, c]` (the type-widening
-  pattern -- see CLAUDE.md note 6). The 2-element-list forms work.
+- **✅ RESOLVED `IsBoundedBy(c)` / `IsBoundedByXT` / `IsBoundOfXT`** (test 44) — commit 754f9a38+.
+  IsBoundedByCS now widens a string bound `c` -> `[c, c]` via the forced if/but/else
+  pattern (the single-clause type-widening if was no-op'ing -- CLAUDE.md note 6).
+  IsBoundedByXT / IsBoundOfXT gained the `(bound, :In = host)` form (legacy
+  :Open/:Close kept). All 5 cases in block 44 are now TRUE. (The single-bound
+  gap-dropping in BoundedBy/FindAnyBoundedBy -- blocks 120/121/124/213/214/215 --
+  is a SEPARATE, still-open issue in the core BoundedBy family below.)
 - **Single-repeated-bound forms drop the middle region** (tests 120, 121, 124).
   With a single bound that repeats, the occurrences are paired non-overlappingly
   so the middle gap is lost: `BoundedBy("aa")` on `"aa***aa**aa***aa"` returns
