@@ -1,9 +1,10 @@
 # Narrative
 # --------
-# StartProfiler()
+# NestedSubStringsIB: split the (simplified) string at every bound marker and keep
+# each fragment from one marker to the next INCLUSIVE -- so neighbours share a "["
+# or "]". The trailing "] ]" pieces are the closing markers winding back out.
 #
 # Extracted from stzlisttest.ring, block #320.
-#ERR Error (R14) : Calling Method without definition: nestedsubstringsib
 
 load "../../stzBase.ring"
 
