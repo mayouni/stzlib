@@ -1306,6 +1306,13 @@ class stzList from stzObject
 		_oTlasStfy_ = new stzListStringify(This)
 		return _oTlasStfy_.ToListInAString()
 
+	def ToListInAStringInShortForm()
+		_oTlsfStfy_ = new stzListStringify(This)
+		return _oTlsfStfy_.ToListInAStringInShortForm()
+
+		def ToListInShortForm()
+			return This.ToListInAStringInShortForm()
+
 	# StringifyAndReplace: Stringify the content, then replace every
 	# occurrence of pItem with the supplied value (pWith). pWith
 	# accepts the :With named-param form or a bare string.
@@ -10671,7 +10678,7 @@ class stzList from stzObject
 		# Compress a contiguous integer list into its "a:b" range form,
 		# e.g. [ 4, 5, 6, 7, 8 ] -> "4:8". Falls back to the full code
 		# string for non-contiguous / non-numeric lists.
-		return _StzListKeyToShortForm(This.ToCode())
+		return This.ToListInAStringInShortForm()
 
 	#-- First sublist (item that is itself a list) and its position.
 
