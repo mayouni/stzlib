@@ -1327,29 +1327,27 @@ class stzString from stzObject
 
 	# Shorten: truncate the content to the first N chars + "..."
 	# if it's longer than N. Defaults to N = 30.
+	# The "shorten the MIDDLE" family: keep N chars from each side and join them
+	# with an ellipsis. Shorten/ShortenN mutate; Shortened/ShortenedN return.
 	def Shorten()
-		return This.ShortenedN(30)
+		This.Update(This.ShortenedN(3))
 
 	def ShortenedN(n)
-		if NOT isNumber(n) or n < 4
+		if NOT isNumber(n) or n < 1
 			return This.Content()
 		ok
-		_cStr_ = This.Content()
-		if This._EngineCount(_cStr_) <= n
-			return _cStr_
-		ok
-		return This._EngineSlice(_cStr_, 1, n - 3) + "..."
+		return This.ShortenedXT(n, n, "...")
 
 		def Shortened()
-			return This.ShortenedN(30)
+			return This.ShortenedN(3)
 
-		# ShortenedXT(nLeft, nRight, pcEllipsis): keep nLeft chars from
-		# the start, nRight chars from the end, and inject pcEllipsis
-		# between them. When nLeft = 0 the ellipsis is preceded by
-		# nothing; when nRight = 0, followed by nothing.
+		# ShortenedXT(nLeft, nRight, pcEllipsis): keep nLeft chars from the start
+		# and nRight from the end, with pcEllipsis between. A 0 left count mirrors
+		# the right (the symmetric default).
 		def ShortenedXT(nLeft, nRight, pcEllipsis)
 			_cStr_ = This.Content()
 			_nTxtLen_ = This._EngineCount(_cStr_)
+			if nLeft = 0 nLeft = nRight ok
 			if nLeft + nRight >= _nTxtLen_
 				return _cStr_
 			ok
@@ -1363,12 +1361,10 @@ class stzString from stzObject
 			ok
 			return _cL_ + pcEllipsis + _cR_
 
-		# ShortenedUsing(p1[, p2]):
-		#   ShortenedUsing(pcEllipsis)        : keep first+last 4 chars, glue with ellipsis
-		#   ShortenedUsing(n, pcSuffix)       : keep first n chars, end with suffix
+		# ShortenedUsing(pcEllipsis): keep first+last 3 chars, glued with the ellipsis.
 		def ShortenedUsing(p1)
 			if isString(p1)
-				return This._ShortenedUsingMid(p1, 4)
+				return This.ShortenedXT(3, 3, p1)
 			ok
 			return This.Content()
 
@@ -8490,7 +8486,7 @@ class stzString from stzObject
 		return _aR_
 
 	def ShortenedNUsing(n, pcSuffix)
-		return This.ShortenedUsingXT(n, pcSuffix)
+		return This.ShortenedXT(n, n, pcSuffix)
 
 	# BoundsRemoved(): drop the auto-detected leading + trailing
 	# non-letter bounds.
