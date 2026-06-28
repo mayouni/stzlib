@@ -6465,6 +6465,63 @@ class stzList from stzObject
 		_oNriGt_ = new stzListGetter(This)
 		return _oNriGt_.NRandomItems(n)
 
+	#-- rnd* : terse random helpers (the "give me some random cards" idiom).
+	#   rndItems() returns a random NUMBER of random items; rndNItems(n) a
+	#   fixed n. The rndRemove* forms are the MUTATING counterparts -- they
+	#   drop random items from the list in place and return This for chaining.
+
+	def rndNItems(n)
+		return This.NRandomItems(n)
+
+		def RandomNItems(n)
+			return This.NRandomItems(n)
+
+	def rndItems()
+		_nRiN_ = This.NumberOfItems()
+		if _nRiN_ = 0 return [] ok
+		_nRiK_ = random(_nRiN_ - 1) + 1
+		return This.NRandomItems(_nRiK_)
+
+		def RandomItems()
+			return This.rndItems()
+
+	def rndRemoveNItems(n)
+		_nRrN_ = This.NumberOfItems()
+		if n <= 0 or _nRrN_ = 0 return This ok
+		if n > _nRrN_ n = _nRrN_ ok
+		#-- shuffle the positions 1.._nRrN_ and remove the first n of them
+		_anRrIdx_ = 1 : _nRrN_
+		for _iRr_ = _nRrN_ to 2 step -1
+			_jRr_ = random(_iRr_ - 1) + 1
+			_xRr_ = _anRrIdx_[_iRr_]
+			_anRrIdx_[_iRr_] = _anRrIdx_[_jRr_]
+			_anRrIdx_[_jRr_] = _xRr_
+		next
+		_anRrPick_ = []
+		for _kRr_ = 1 to n
+			_anRrPick_ + _anRrIdx_[_kRr_]
+		next
+		This.RemoveItemsAtPositions(_anRrPick_)
+		return This
+
+		def rndRemoveNItemsQ(n)
+			return This.rndRemoveNItems(n)
+
+		def RandomRemoveNItems(n)
+			return This.rndRemoveNItems(n)
+
+	def rndRemoveItems()
+		_nRr2N_ = This.NumberOfItems()
+		if _nRr2N_ = 0 return This ok
+		_nRr2K_ = random(_nRr2N_ - 1) + 1
+		return This.rndRemoveNItems(_nRr2K_)
+
+		def rndRemoveItemsQ()
+			return This.rndRemoveItems()
+
+		def RandomRemoveItems()
+			return This.rndRemoveItems()
+
 	def ItemsBetween(n1, n2)
 		_oIbGt_ = new stzListGetter(This)
 		return _oIbGt_.ItemsBetween(n1, n2)
