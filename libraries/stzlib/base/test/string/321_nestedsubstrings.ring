@@ -1,9 +1,10 @@
 # Narrative
 # --------
-# StartProfiler()
+# NestedSubStrings: the text fragments between the "[[[" / "]]]" markers, in
+# document order (a multi-delimiter split that drops the markers and the empty
+# pieces). Bounds can be multi-char ("[[[") and content multibyte.
 #
 # Extracted from stzlisttest.ring, block #321.
-#ERR Error (R14) : Calling Method without definition: nestedsubstrings
 
 load "../../stzBase.ring"
 

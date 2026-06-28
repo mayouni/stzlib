@@ -6363,6 +6363,53 @@ class stzString from stzObject
 			next
 			return _aDbiRes_
 
+	#-- NestedSubStrings(:BoundedBy = [o,c]): the text fragments BETWEEN successive
+	#-- bound markers (open OR close) in document order -- a multi-delimiter split.
+	#-- Non-IB drops the bounds and the empty pieces; the IB form keeps each fragment
+	#-- from one bound to the next (inclusive), so neighbours share a marker.
+	def _NestedBoundPositions(pcOpen, pcClose)
+		_aNbChars_ = This.Chars()
+		_nNbLen_ = len(_aNbChars_)
+		_nNbOL_ = StzLen(pcOpen)
+		_nNbCL_ = StzLen(pcClose)
+		_aNbB_ = []
+		_iNb_ = 1
+		while _iNb_ <= _nNbLen_
+			if This._DbMatchAt(_aNbChars_, _iNb_, pcOpen, _nNbOL_)
+				_aNbB_ + [ _iNb_, _iNb_ + _nNbOL_ - 1 ]
+				_iNb_ += _nNbOL_
+			but This._DbMatchAt(_aNbChars_, _iNb_, pcClose, _nNbCL_)
+				_aNbB_ + [ _iNb_, _iNb_ + _nNbCL_ - 1 ]
+				_iNb_ += _nNbCL_
+			else
+				_iNb_++
+			ok
+		end
+		return _aNbB_
+
+	def NestedSubStrings(pacBounds)
+		_aNsb_ = This._DeepBounds(pacBounds)
+		_aNsB_ = This._NestedBoundPositions(_aNsb_[1], _aNsb_[2])
+		_aNsRes_ = []
+		_nNs_ = len(_aNsB_)
+		for _iNs_ = 1 to _nNs_ - 1
+			_cNsF_ = This._DeepSlice(_aNsB_[_iNs_][2] + 1, _aNsB_[_iNs_ + 1][1] - 1)
+			if _cNsF_ != ""
+				_aNsRes_ + _cNsF_
+			ok
+		next
+		return _aNsRes_
+
+	def NestedSubStringsIB(pacBounds)
+		_aNib_ = This._DeepBounds(pacBounds)
+		_aNiB_ = This._NestedBoundPositions(_aNib_[1], _aNib_[2])
+		_aNiRes_ = []
+		_nNi_ = len(_aNiB_)
+		for _iNi_ = 1 to _nNi_ - 1
+			_aNiRes_ + This._DeepSlice(_aNiB_[_iNi_][1], _aNiB_[_iNi_ + 1][2])
+		next
+		return _aNiRes_
+
 		# (Older nested aliases dropped to avoid C22 redefinition --
 		# the unified two-arg FindAnyBoundedBy above subsumes them.)
 		def FindAnyBoundedByIB(pacBounds)
