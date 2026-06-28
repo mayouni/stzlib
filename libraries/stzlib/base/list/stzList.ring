@@ -2105,6 +2105,9 @@ class stzList from stzObject
 		def FindDuplications()
 			return This.FindDuplicates()
 
+		def FindDuplicatedItems()
+			return This.FindDuplicates()
+
 		def FindDuplicatesQ()
 			return new stzList( This.FindDuplicates() )
 
@@ -2128,6 +2131,9 @@ class stzList from stzObject
 			return This.DuplicatesCSZ(1)
 
 		def DuplicationsZ()
+			return This.DuplicatesCSZ(1)
+
+		def DuplicatedItemsZ()
 			return This.DuplicatesCSZ(1)
 
 	# FindNextNthItem(n, :StartingAt = pos): the POSITION of the n-th item
@@ -2211,6 +2217,9 @@ class stzList from stzObject
 		return This.FindDuplicatesOfStringCS(pItem, pCaseSensitive)
 
 		def FindDuplicationsOfItem(pItem)
+			return This.FindDuplicatesOfStringCS(pItem, 1)
+
+		def FindDuplicationsOf(pItem)
 			return This.FindDuplicatesOfStringCS(pItem, 1)
 
 	def NumberOfDuplicatesOfStringCS(pItem, pCaseSensitive)
@@ -7303,6 +7312,17 @@ class stzList from stzObject
 
 		def ShuffleNumbers()
 			This.RandomizeNumbers()
+
+	def RandomizeStrings()
+		_oRzsStr_ = new stzListRandom(This)
+		_oRzsStr_.RandomizeStrings()
+		This.UpdateWith(_oRzsStr_.Content())
+
+		def RandomiseStrings()
+			This.RandomizeStrings()
+
+		def ShuffleStrings()
+			This.RandomizeStrings()
 
 	def RandomizeSection(n1, n2)
 		_oRzsRnd_ = new stzListRandom(This)
