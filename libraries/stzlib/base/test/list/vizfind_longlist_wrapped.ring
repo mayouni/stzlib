@@ -10,7 +10,9 @@
 # SHALLOW (VizFindXT): marks only TOP-LEVEL occurrences -- the "A" nested inside
 # a sub-list [ "A", "B" ] is NOT marked -- and the "(count)" is what Find returns
 # (top-level items: 4). DEEP (VizDeepFindXT): marks every occurrence at any depth
-# and counts them all (6). The searched value can itself be a sub-list.
+# and counts them all (6). The searched value can itself be a sub-list: because a
+# list is WIDE, its match is UNDERLINED across its whole footprint, not pinned to
+# a single caret (a scalar value keeps the single caret).
 #
 # Authored example (not extracted).
 
@@ -40,13 +42,14 @@ o1 = new stzList([ "A","B","A",[ "A", "B" ], "C","A","D","E", [ "A", "B" ], "A",
 
 ? ""
 
-# The value can be a whole sub-list: marks each [ "A", "B" ] item (2 of them)
+# The value can be a whole sub-list: each [ "A", "B" ] item is underlined across
+# its full width (2 of them)
 ? o1.VizFindXT([ "A", "B" ])
 #-->                [ "A", "B", "A", [ "A", "B" ], "C", "A", "D", "E",
-#    [ "A", "B" ] :  -----------------^-------------------------------
+#    [ "A", "B" ] :  ----------------^^^^^^^^^^^^---------------------
 #
 #                     [ "A", "B" ], "A", "B" ]
-#    [ "A", "B" ] : --^---------------------- (2)
+#    [ "A", "B" ] : -^^^^^^^^^^^^------------ (2)
 
 pf()
 # Executed in 0.01 second(s).

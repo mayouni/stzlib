@@ -9077,34 +9077,61 @@ class stzList from stzObject
 		return 50
 
 	def _VizMarkerLine(pItem, paOthers, pcCode, pCaseSensitive, bDeep)
-		oVfm = new stzString(pcCode)
-		anMine = oVfm.FindAllCS(@@(pItem), pCaseSensitive)
-		anOther = []
-		_nVfmO_ = len(paOthers)
-		for _iVfmO_ = 1 to _nVfmO_
-			_anH_ = oVfm.FindAllCS(@@(paOthers[_iVfmO_]), pCaseSensitive)
-			_nH_ = len(_anH_)
-			for _jVfm_ = 1 to _nH_
-				anOther + _anH_[_jVfm_]
-			next
-		next
 		# Depth filter: a SHALLOW viz (bDeep=0) marks only TOP-LEVEL occurrences
-		# (bracket depth 1); a DEEP viz (bDeep=1) marks occurrences at any depth,
-		# including those nested inside sub-lists.
+		# (bracket depth 1); a DEEP viz (bDeep=1) marks occurrences at any depth.
+		oVfm = new stzString(pcCode)
 		aVfmDepth = This._VizDepthMap(pcCode)
 		_nVfmLen_ = StzLen(pcCode)
-		cViz = " "
-		for _iVfm_ = 1 to _nVfmLen_ - 2
-			_bVfmShow_ = ( bDeep = 1 or aVfmDepth[_iVfm_] = 1 )
-			if _bVfmShow_ and ring_find(anMine, _iVfm_) > 0
-				cViz += "^"
-			but _bVfmShow_ and ring_find(anOther, _iVfm_) > 0
-				cViz += "."
-			else
-				cViz += "-"
+
+		# One marker cell per code column. The opening "[" (col 1) keeps a blank
+		# under it; the rest default to "-". OTHERS are painted first so MINE
+		# overrides on overlap.
+		_aVfmCell_ = [ " " ]
+		for _iVfmC_ = 2 to _nVfmLen_
+			_aVfmCell_ + "-"
+		next
+
+		_nVfmO_ = len(paOthers)
+		for _iVfmO_ = 1 to _nVfmO_
+			This._VizPaint(_aVfmCell_, oVfm, paOthers[_iVfmO_], pCaseSensitive, aVfmDepth, bDeep, ".")
+		next
+		This._VizPaint(_aVfmCell_, oVfm, pItem, pCaseSensitive, aVfmDepth, bDeep, "^")
+
+		_cVfmRes_ = ""
+		for _iVfmJ_ = 1 to _nVfmLen_
+			_cVfmRes_ += _aVfmCell_[_iVfmJ_]
+		next
+		return _cVfmRes_
+
+	#-- _VizPaint: paint one searched value's matches into the marker cells.
+	#-- A SCALAR value gets a single mark at the value's content (start + 1); a
+	#-- LIST value -- being wider -- is UNDERLINED across its whole footprint
+	#-- (start .. start + width - 1). The depth of each match's START decides
+	#-- shallow (depth 1) vs deep visibility.
+	def _VizPaint(paCell, poStr, pValue, pCaseSensitive, paDepth, bDeep, pcSym)
+		_cVpVal_ = @@(pValue)
+		_anVpPos_ = poStr.FindAllCS(_cVpVal_, pCaseSensitive)
+		_nVpValLen_ = StzLen(_cVpVal_)
+		_bVpSpan_ = isList(pValue)
+		_nVpCells_ = len(paCell)
+		_nVpN_ = len(_anVpPos_)
+		for _iVp_ = 1 to _nVpN_
+			_pVp_ = _anVpPos_[_iVp_]
+			if bDeep = 1 or paDepth[_pVp_] = 1
+				if _bVpSpan_
+					for _kVp_ = _pVp_ to _pVp_ + _nVpValLen_ - 1
+						if _kVp_ >= 1 and _kVp_ <= _nVpCells_
+							paCell[_kVp_] = pcSym
+						ok
+					next
+				else
+					_kVp_ = _pVp_ + 1
+					if _kVp_ >= 1 and _kVp_ <= _nVpCells_
+						paCell[_kVp_] = pcSym
+					ok
+				ok
 			ok
 		next
-		return cViz
 
 	#-- _VizDepthMap: structural bracket-nesting depth at each codepoint of the
 	#-- rendered code -- brackets inside "..." string values are ignored. Depth 1
