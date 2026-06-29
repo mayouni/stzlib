@@ -1,21 +1,20 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
-# BoundedBy([open, close]) -- the substrings enclosed by the bounds. Archive #186.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md): the variants are broken --
-# BoundedByU does NOT deduplicate (returns all 3, not the 2 unique); BoundedByIB
-# (Include Bounds) garbles the last element ("<" instead of "<<♥♥♥>>"); and
-# BoundedByIBU inherits both bugs. Only the base BoundedBy is asserted.
+# BoundedBy([open, close]) -- the substrings enclosed by the bounds, plus the
+# U (unique) and IB (include-bounds) variants. Archive #186.
 
 Scenario("Extracting substrings bounded by << >>")
 	Given('"<<♥♥♥>>--<<stars>>--<<♥♥♥>>"')
 	o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
 	Then("BoundedBy gives the three enclosed substrings",
 		ListEq( o1.BoundedBy([ "<<", ">>" ]), [ "♥♥♥", "stars", "♥♥♥" ] ), TRUE)
-	# Broken variants:
-	? "  NOTE  BoundedByU  -> " + @@(o1.BoundedByU([ "<<", ">>" ])) + "  (want unique [♥♥♥,stars] -- deferred)"
-	? "  NOTE  BoundedByIB -> " + @@(o1.BoundedByIB([ "<<", ">>" ])) + "  (last element garbled -- deferred)"
+	Then("BoundedByU keeps only the unique ones",
+		ListEq( o1.BoundedByU([ "<<", ">>" ]), [ "♥♥♥", "stars" ] ), TRUE)
+	Then("BoundedByIB includes the bounds",
+		ListEq( o1.BoundedByIB([ "<<", ">>" ]), [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ] ), TRUE)
+	Then("BoundedByIBU is unique AND includes the bounds",
+		ListEq( o1.BoundedByIBU([ "<<", ">>" ]), [ "<<♥♥♥>>", "<<stars>>" ] ), TRUE)
 EndScenario()
 
 Summary()
