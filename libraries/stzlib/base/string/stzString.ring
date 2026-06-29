@@ -8225,23 +8225,14 @@ class stzString from stzObject
 	# ExtractNumbers(): every contiguous run of digits as a list of
 	# numbers. e.g. "abc12def345" -> [12, 345].
 	def ExtractNumbers()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_aRes_ = []
-		_cCur_ = ""
+		# Reuse Numbers() (decimal- and sign-aware, returns STRINGS),
+		# then REMOVE each extracted number from the content (Extract
+		# mutates -- "Math: 18, Geo: 16" -> "Math: , Geo: ").
+		_aRes_ = This.Numbers()
+		_nLen_ = len(_aRes_)
 		for _i_ = 1 to _nLen_
-			if isDigit(_aChars_[_i_])
-				_cCur_ += _aChars_[_i_]
-			else
-				if len(_cCur_) > 0
-					_aRes_ + (0 + _cCur_)
-					_cCur_ = ""
-				ok
-			ok
+			This.RemoveFirst(_aRes_[_i_])
 		next
-		if len(_cCur_) > 0
-			_aRes_ + (0 + _cCur_)
-		ok
 		return _aRes_
 
 	# FirstHalfXTZ / SecondHalfXTZ -- sectional XT variants.
@@ -9722,9 +9713,10 @@ class stzString from stzObject
 		end
 		return _aRes_
 
-	# UniqueNumbers(): the distinct numbers in the content.
+	# UniqueNumbers(): the distinct numbers in the content. Uses Numbers()
+	# (NOT ExtractNumbers, which now mutates by removing them).
 	def UniqueNumbers()
-		_aAll_ = This.ExtractNumbers()
+		_aAll_ = This.Numbers()
 		_aRes_ = []
 		_nL_ = len(_aAll_)
 		for _i_ = 1 to _nL_

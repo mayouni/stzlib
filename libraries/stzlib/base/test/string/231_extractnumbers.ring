@@ -1,25 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #231.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md): ExtractNumbers() is broken three
-# ways on "Math: 18, Geo: 16, :Physics: 17.80": it splits "17.80" into 17 and 80
-# (decimal not handled -- though Numbers() handles decimals, blocks 228/230), it
-# returns NUMBERS not strings ([18,16,17,80]), and it does NOT mutate the string
-# (Content() is unchanged, but Extract should REMOVE the numbers leaving
-# "Math: , Geo: , :Physics: "). Left in print form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ExtractNumbers() pulls the numbers OUT of the string: it reuses the decimal-
+# and sign-aware Numbers() (so "17.80" stays one token), returns them as STRINGS,
+# and REMOVES them from the content (Extract mutates). Archive block #231.
 
-o1 = new stzString("Math: 18, Geo: 16, :Physics: 17.80")
-? @@( o1.ExtractNumbers() )
-#--> expected [ "18", "16", "17.80" ] (currently [ 18, 16, 17, 80 ])
+Scenario("Extracting the numbers out of a string")
+	Given('"Math: 18, Geo: 16, :Physics: 17.80"')
+	o1 = new stzString("Math: 18, Geo: 16, :Physics: 17.80")
+	Then("the numbers come back as strings (decimal kept whole)",
+		ListEq( o1.ExtractNumbers(), [ "18", "16", "17.80" ] ), TRUE)
+	Then("and they are removed from the content", o1.Content(), "Math: , Geo: , :Physics: ")
+EndScenario()
 
-? o1.Content()
-#--> expected "Math: , Geo: , :Physics: " (currently unchanged)
+Summary()
 
-pf()
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
