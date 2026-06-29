@@ -1425,7 +1425,7 @@ class stzString from stzObject
 			_cVoCh_ = substr(_cVoStr_, _iVo_, 1)
 			_nVoB_ = ascii(_cVoCh_)
 			if _nVoB_ < 128
-				if StzFindFirst(_cVoCh_, _cVoVo_) > 0
+				if StzFindFirst(_cVoVo_, _cVoCh_) > 0
 					_acVoR_ + _cVoCh_
 				ok
 				_iVo_ += 1
@@ -2259,9 +2259,9 @@ class stzString from stzObject
 		_subLen_ = len(pcSubStr)
 		_pos_ = 0
 		if _bRfCase_
-			_pos_ = StzFindFirst(pcSubStr, _cIn_)
+			_pos_ = StzFindFirst(_cIn_, pcSubStr)
 		else
-			_pos_ = StzFindFirst(lower(pcSubStr), lower(_cIn_))
+			_pos_ = StzFindFirst(lower(_cIn_), lower(pcSubStr))
 		ok
 		if _pos_ < 1 return ok
 		_cOut_ = StzMid(_cIn_, 1, _pos_ - 1) + pcNewSubStr +
@@ -2294,10 +2294,10 @@ class stzString from stzObject
 		while TRUE
 			if _bRlCase_
 				_p_ = substr(_cIn_, _pos_, len(_cIn_) - _pos_ + 1)
-				_pf_ = StzFindFirst(pcSubStr, _p_)
+				_pf_ = StzFindFirst(_p_, pcSubStr)
 			else
 				_p_ = substr(lower(_cIn_), _pos_, len(_cIn_) - _pos_ + 1)
-				_pf_ = StzFindFirst(lower(pcSubStr), _p_)
+				_pf_ = StzFindFirst(_p_, lower(pcSubStr))
 			ok
 			if _pf_ < 1 exit ok
 			_lastPos_ = _pos_ + _pf_ - 1
@@ -7737,7 +7737,7 @@ class stzString from stzObject
 		if _lb_ < _la_
 			_short_ = lower(_b_); _long_ = lower(_a_)
 		ok
-		return StzFindFirst(_short_, _long_) > 0
+		return StzFindFirst(_long_, _short_) > 0
 
 	# NextOccurrence(pcSub, nFrom): position of the next occurrence
 	# of pcSub strictly after nFrom.
@@ -8400,20 +8400,20 @@ class stzString from stzObject
 	def IsContiguousListInShortForm()
 		_c_ = ring_trim(This.Content())
 		# Short form `a:b` -- with colon, no brackets.
-		if StzFindFirst(":", _c_) = 0 return FALSE ok
-		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return FALSE ok
+		if StzFindFirst(_c_, ":") = 0 return FALSE ok
+		if StzFindFirst(_c_, "[") > 0 or StzFindFirst(_c_, "]") > 0 return FALSE ok
 		return TRUE
 
 	def IsContiguousListInString()
 		_c_ = ring_trim(This.Content())
-		if StzFindFirst(":", _c_) = 0 return FALSE ok
+		if StzFindFirst(_c_, ":") = 0 return FALSE ok
 		# Trim outer quote-pair if any.
 		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
 			_c_ = StzMid(_c_, 2, len(_c_) - 2)
 		ok
 		# Require non-bracketed form (so `[1,3]` returns FALSE).
-		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return FALSE ok
+		if StzFindFirst(_c_, "[") > 0 or StzFindFirst(_c_, "]") > 0 return FALSE ok
 		return TRUE
 
 	def ItemsAndTheirNumberOfOccurrence()
@@ -9866,7 +9866,7 @@ class stzString from stzObject
 		# Provisional: TRUE if content looks like a function call
 		# (alphanumeric name + parentheses).
 		_c_ = This.Content()
-		if StzFindFirst("(", _c_) = 0 or StzFindFirst(")", _c_) = 0 return FALSE ok
+		if StzFindFirst(_c_, "(") = 0 or StzFindFirst(_c_, ")") = 0 return FALSE ok
 		return TRUE
 
 	def IsAnInteger()
@@ -11763,7 +11763,7 @@ class stzString from stzObject
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = This._EngineSlice(This.Content(),
 				         _s_[1], _s_[2] - _s_[1] + 1)
-				if StzFindFirst(pcSub, _cMid_) > 0 return TRUE ok
+				if StzFindFirst(_cMid_, pcSub) > 0 return TRUE ok
 			ok
 		next
 		return FALSE
@@ -11775,7 +11775,7 @@ class stzString from stzObject
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
 			_c_ = StzMid(_c_, 2, len(_c_) - 2)
 		ok
-		_nP_ = StzFindFirst(":", _c_)
+		_nP_ = StzFindFirst(_c_, ":")
 		if _nP_ = 0 return [] ok
 		_a_ = ring_trim(StzMid(_c_, 1, _nP_ - 1))
 		_b_ = ring_trim(StzMidToEnd(_c_, _nP_ + 1))
@@ -13200,8 +13200,8 @@ class stzString from stzObject
 		if _nLen_ < 3 return FALSE ok
 		# Must have a "(" somewhere after at least 1 char and a ")"
 		# somewhere after that.
-		_nO_ = StzFindFirst("(", _c_)
-		_nC_ = StzFindFirst(")", _c_)
+		_nO_ = StzFindFirst(_c_, "(")
+		_nC_ = StzFindFirst(_c_, ")")
 		return _nO_ >= 2 and _nC_ > _nO_
 
 	# Inversed: char-reverse alias.
@@ -13679,7 +13679,7 @@ class stzString from stzObject
 	# IsListInShortForm: rough check for `a:b` short-form list literal.
 	def IsListInShortForm()
 		_c_ = ring_trim(This.Content())
-		return StzFindFirst(":", _c_) > 0 and len(_c_) >= 3
+		return StzFindFirst(_c_, ":") > 0 and len(_c_) >= 3
 
 	def IncludedIn(pcOther)
 		return This.IsIncludedIn(pcOther)
@@ -13708,7 +13708,7 @@ class stzString from stzObject
 	def NumberForm()
 		_c_ = ring_trim(This.Content())
 		if This.IsAnInteger() return :Integer ok
-		if StzFindFirst(".", _c_) > 0 return :Decimal ok
+		if StzFindFirst(_c_, ".") > 0 return :Decimal ok
 		if ring_left(_c_, 2) = "0x" return :Hex ok
 		if ring_left(_c_, 2) = "0b" return :Binary ok
 		return :Other

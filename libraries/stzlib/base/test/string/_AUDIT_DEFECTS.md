@@ -5,6 +5,24 @@ Running log of genuine defects surfaced while narrating (= correctness-auditing)
 `stzStringTest.ring` (from git `f6bdfbcc^`, the pre-split monolith). Each entry:
 what's wrong, evidence, and the fix decision (code vs test, per defect policy).
 
+## ✅ RESOLVED — SYSTEMIC: StzFindFirst args-backwards sweep (2026-06-29)
+
+`StzFindFirst(haystack, needle)` is HAYSTACK-FIRST, but the StzFind->StzFindFirst
+bulk rename left ~18 callsites in stzString.ring written needle-first
+(`StzFindFirst(needle, content)`), silently searching the wrong way -> the feature
+returned 0/FALSE. Found by grepping `StzFindFirst(` and checking the first arg.
+SWAPPED all of them; this repaired ~12 methods that were quietly broken (uncaught
+because most string tests are print-form, not asserted):
+- **ReplaceFirst / ReplaceLast were COMPLETE NO-OPS** (the biggest casualties).
+- IsAFunction, IsAlmostAFunctionCall, IsListInShortForm,
+  IsContiguousListInShortForm / ...InString, ToListInShortForm, NumberForm,
+  Vowels, IsQuietEqualTo, SubStringIsBoundedBy.
+The other string files (Char/Encoder/Func/Randomizer/Text/Visualizer) and the
+common/stzFuncs callers were checked and are CORRECT (item-in-list = list-first,
+or genuinely haystack-first). Earlier the same bug hit ContainsInSection and the
+narrative-sub helpers (committed f47aa782 / 781cc944). See memory
+reference_stzfind_contract for the contract + the sweep recipe.
+
 ## Open — code bugs (need a fix in the implementation)
 
 - **`ReplaceInSections(old, new, sections)` is broken** (test 04_findzz).
