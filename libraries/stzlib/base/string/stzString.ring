@@ -4962,8 +4962,27 @@ class stzString from stzObject
 		def BoundedByCSZZ(pacBounds, pCaseSensitive)
 			return This.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 
+		# AnyBoundedBy: the bounded SUBSTRINGS, derived from FindAnyBoundedByZZ so a
+		# repeated single bound ("*") keeps every overlapping region (BoundedBy's
+		# non-overlapping pairing drops the middles). AnyBoundedByZZ pairs each
+		# substring with its [start, end] span.
 		def AnyBoundedBy(pacBounds)
-			return This.BoundedBy(pacBounds)
+			_aAbZZ_ = This.FindAnyBoundedByZZ(pacBounds)
+			_aAbRes_ = []
+			_nAb_ = len(_aAbZZ_)
+			for _iAb_ = 1 to _nAb_
+				_aAbRes_ + This._DeepSlice(_aAbZZ_[_iAb_][1], _aAbZZ_[_iAb_][2])
+			next
+			return _aAbRes_
+
+		def AnyBoundedByZZ(pacBounds)
+			_aAzZZ_ = This.FindAnyBoundedByZZ(pacBounds)
+			_aAzRes_ = []
+			_nAz_ = len(_aAzZZ_)
+			for _iAz_ = 1 to _nAz_
+				_aAzRes_ + [ This._DeepSlice(_aAzZZ_[_iAz_][1], _aAzZZ_[_iAz_][2]), _aAzZZ_[_iAz_] ]
+			next
+			return _aAzRes_
 
 	def ContainsSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 		return len(This.BoundedByCS(pacBounds, pCaseSensitive)) > 0
@@ -6259,10 +6278,15 @@ class stzString from stzObject
 	# FindAnyBoundedBy(pacBounds): single-arg form. Accepts a list
 	# [open, close] or a single string used for both ends.
 	def FindAnyBoundedBy(pacBounds)
-		if isString(pacBounds)
-			return This.BoundedBy([ pacBounds, pacBounds ])
-		ok
-		return This.BoundedBy(pacBounds)
+		# The START position of each bounded region's CONTENT (not the substrings
+		# -- that is BoundedBy; not the spans -- that is ...AsSections / ...ZZ).
+		_aFabZZ_ = This.FindAnyBoundedByZZ(pacBounds)
+		_aFabRes_ = []
+		_nFab_ = len(_aFabZZ_)
+		for _iFab_ = 1 to _nFab_
+			_aFabRes_ + _aFabZZ_[_iFab_][1]
+		next
+		return _aFabRes_
 
 	def FindAnyBoundedByZZ(pacBounds)
 		# Same-char bounds (e.g. "&" or "aa"/"aa") admit OVERLAPPING consecutive
@@ -6517,7 +6541,22 @@ class stzString from stzObject
 		# (Older nested aliases dropped to avoid C22 redefinition --
 		# the unified two-arg FindAnyBoundedBy above subsumes them.)
 		def FindAnyBoundedByIB(pacBounds)
-			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+			# The START position of each region INCLUDING its open bound:
+			# content-start - openLen.
+			_cFibOpen_ = ""
+			if isString(pacBounds)
+				_cFibOpen_ = pacBounds
+			but isList(pacBounds) and len(pacBounds) >= 1
+				_cFibOpen_ = pacBounds[1]
+			ok
+			_nFibOL_ = StzLen(_cFibOpen_)
+			_aFibZZ_ = This.FindAnyBoundedByZZ(pacBounds)
+			_aFibRes_ = []
+			_nFib_ = len(_aFibZZ_)
+			for _iFib_ = 1 to _nFib_
+				_aFibRes_ + ( _aFibZZ_[_iFib_][1] - _nFibOL_ )
+			next
+			return _aFibRes_
 
 		def FindBoundedByIB(pacBounds)
 			return This.FindSubStringsBoundedByIBZZ(pacBounds)
