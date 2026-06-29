@@ -352,11 +352,13 @@ suite.)
   the WXT family was removed; the replacement is `YieldW`. These belong to the
   pending string WXT-disqualification step (memory `project_wxt_disqualification`).
 
-- **`ExtractNumbers()` is broken three ways** (test 231). On "Math: 18, Geo: 16,
-  :Physics: 17.80" it (a) splits "17.80" into 17 and 80 (no decimal handling --
-  though `Numbers()` handles decimals, blocks 228/230), (b) returns NUMBERS not
-  strings (`[18,16,17,80]`), and (c) does NOT mutate (Content unchanged, but
-  "Extract" should remove the numbers leaving "Math: , Geo: , :Physics: ").
+- **✅ RESOLVED `ExtractNumbers()` three-way fix** (test 231). Rewrote it to
+  reuse `Numbers()` (decimal- and sign-aware, already returns STRINGS), then
+  `RemoveFirst()` each extracted number so the content mutates
+  ("Math: , Geo: , :Physics: "). Fixes all three: decimal kept whole, strings
+  not numbers, and removal. Also repointed `UniqueNumbers()` at `Numbers()`
+  (it called ExtractNumbers and would now mutate as a side-effect). Test
+  converted from print-form to narrated assertions (231: 2/2).
 
 - **`Between(open, close)` positional returns a list, not the greedy span**
   (test 226, #TODO). The archive expected the greedy span between the first open
