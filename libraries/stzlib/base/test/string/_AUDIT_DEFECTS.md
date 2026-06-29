@@ -432,17 +432,13 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
 
 ### Bounds family — a defect cluster (tests 42, 43, 44, 45)
 
-- **`BoundsOf(sub)` returns a single flat `[before, after]` pair** instead of the
-  per-occurrence immediate bounds (tests 42, 43).
-  `Q("Hello <<<Ring>>>, the beautiful (((Ring)))!").BoundsOf("Ring")` returns
-  `["Hello <<<", ">>>, the beautiful (((Ring)))!"]` (everything before/after the
-  FIRST match) but should give `[["<<<",">>>"], ["(((",")))"]]`. The underlying
-  `FindSubStringBoundsUpToNCharsAsSections("Ring",2)` is correct
-  (`[[8,9],[14,15],[34,35],[40,41]]`), so the bug is in how BoundsOf assembles
-  the result.
-- **`BoundsOfXT(sub, n)` returns only the FIRST occurrence's bounds** (tests 42,
-  43). Returns `["<<",">>"]` but should give `[["<<",">>"], ["((","))"]]` (one
-  pair per occurrence, n chars each).
+- **✅ RESOLVED `BoundsOf` / `BoundsOfXT` per-occurrence bounds** (tests 42, 43).
+  Rewrote `BoundsOf(sub)` to walk EACH occurrence and collect the maximal run of
+  the same bound char (non-alnum, non-space, gated by new `_IsBoundChar`) before
+  and after -> `[ ["<<<",">>>"], ["(((",")))"] ]`. `BoundsOfUpToNChars` /
+  `BoundsOfXT` / `BoundsOfXT3` now iterate those per-occurrence pairs and cap each
+  side (the old code took only the first pair). Tests upgraded to assertions
+  (42: 3/3, 43: 2/2).
 - **✅ RESOLVED `IsBoundedBy(c)` / `IsBoundedByXT` / `IsBoundOfXT`** (test 44) — commit 754f9a38+.
   IsBoundedByCS now widens a string bound `c` -> `[c, c]` via the forced if/but/else
   pattern (the single-clause type-widening if was no-op'ing -- CLAUDE.md note 6).
@@ -465,12 +461,12 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
   RAISE "pacBounds must be [ open, close ] strings" -- the single bound `c` is
   never widened to `[c, c]`. Fix: widen a string bound to a pair AND use
   consecutive (overlapping) pairing so no gap is dropped.
-- **`Bounds()` is greedy on the trailing non-letter run** (test 45). For
-  `"<<Go!>>"` it returns `["<<", "!>>"]` (swallowing the "!"), so
-  `BoundsRemoved()` gives `"Go"` instead of `"Go!"`. The explicit
-  `TheseBoundsRemoved("<<", ">>")` -> `"Go!"` is correct; only the auto-detection
-  over-reaches. (Decide whether bounds should be symmetric-bracket-aware or the
-  full leading/trailing non-letter run.)
+- **✅ RESOLVED `Bounds()` greedy trailing run** (test 45). Changed the auto-
+  detection from "any leading/trailing non-letter run" to "the maximal run of the
+  same EDGE char (when it is a bound char)". For `"<<Go!>>"` the trailing run of
+  `>` stops at `!` -> `["<<", ">>"]`, so `BoundsRemoved()` -> `"Go!"`. Verified
+  the same-char rule keeps `"<<word>>"` (592) and `"<<<word>>>"` (366) correct.
+  Test upgraded to assertions (45: 3/3).
 
 ## Open — semantics to confirm (test #--> vs current impl disagree)
 

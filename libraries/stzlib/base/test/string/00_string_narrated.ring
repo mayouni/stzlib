@@ -70,7 +70,7 @@ Scenario("Section ops are codepoint-correct (multibyte)")
     bx = new stzString("caf" + Chr0xE9())
     Then("Boxify bar width counts codepoints, not bytes", StzLen(BoxTopBar(bx.Boxify())), 8)
     bd = new stzString("a" + Chr0xE9() + "X" + Chr0xE9() + "b")
-    Then("BoundsOfXT caps the prefix/suffix by codepoints", ListEq(bd.BoundsOfXT("X", [ 1, 1 ]), [ Chr0xE9(), Chr0xE9() ]), TRUE)
+    Then("BoundsOfXT caps the prefix/suffix by codepoints (per occurrence)", ListEq(bd.BoundsOfXT("X", [ 1, 1 ]), [ [ Chr0xE9(), Chr0xE9() ] ]), TRUE)
 EndScenario()
 
 Summary()
