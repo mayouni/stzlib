@@ -690,6 +690,11 @@ func StzCharByName(cName)
  ///   CLASS   ///
 /////////////////
 class stzChar from stzStringChar
+
+	#-- Report stzchar, not the inherited "stzstring".
+	def StzType()
+		return :stzChar
+
 class stzStringChar from stzString
 
 	@oString	# Composition: wraps a 1-char stzString
@@ -710,9 +715,18 @@ class stzStringChar from stzString
 			if oStr.NumberOfChars() = 1
 				@oString = new stzString(pChar)
 
-			but oStr.RepresentsNumberInHexForm() or
-			    oStr.RepresentsNumberInUnicodeHexForm()
-				_nCiUni_ = StzHexNumberQ(pChar).ToDecimal()
+			but oStr.RepresentsNumberInUnicodeHexForm()
+				# "U+06A2" -- drop the 2-char "U+" prefix before hex->decimal.
+				# ToDecimal() returns a STRING -- coerce to a number, else
+				# StzEngineCharToUtf8 mis-encodes it (1-byte garbage).
+				_nLenU_ = oStr.NumberOfChars()
+				_cHexU_ = oStr.Section(3, _nLenU_)
+				_oHexU_ = StzHexNumberQ(_cHexU_)
+				_nCiUni_ = 0 + _oHexU_.ToDecimal()
+				@oString = new stzString(StzEngineCharToUtf8(_nCiUni_))
+
+			but oStr.RepresentsNumberInHexForm()
+				_nCiUni_ = 0 + StzHexNumberQ(pChar).ToDecimal()
 				@oString = new stzString(StzEngineCharToUtf8(_nCiUni_))
 
 			but oStr.IsCharName()

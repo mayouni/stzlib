@@ -64,14 +64,11 @@ reference_stzfind_contract for the contract + the sweep recipe.
   treated the string return as authoritative. Asserted only the string-form
   aliases in test 33; LeadingChars/TrailingChars left as un-asserted NOTEs.
 
-- **`SectionXT` is missing its eXTended behaviours** (tests 46, 49).
-  `SectionXT(n1, n2)` (stzString.ring ~535) resolves negative indices then just
-  delegates to `Section(n1, n2)`, so two documented features are absent:
-  (a) REVERSAL when n1 > n2 -- `SectionXT(5,3)` gives `"345"` not `"543"`,
-  `SectionXT(-2,-4)` gives `"678"` not `"876"`; and (b) the `:UpToNChars` named
-  param -- `SectionXT(6, :UpToNChars = 11)` should take 11 chars from pos 6
-  (`"Programming"`) but returns `""` (n2 arrives as the list `["uptonchars",11]`,
-  which `Section` can't use). Negative indexing in the forward direction works.
+- **✅ RESOLVED `SectionXT` eXTended behaviours** (tests 46, 49). Added two
+  guard branches ahead of the negative-index resolution: (a) `:UpToNChars` named
+  form -- `n2 = ["uptonchars", count]` -> `Section(n1, n1+count-1)`; and (b)
+  REVERSAL when n1 > n2 -- take `Section(n2, n1)` and `Reversed()` it. Both
+  tests upgraded from un-asserted NOTEs to assertions (46: 6/6, 49: 4/4).
 
 - **✅ RESOLVED `ReplaceByMany(sub, [r1,r2,r3])`** (test 48) — see the Replace-by-many
   family section below (operator-precedence flatten bug, fixed by parenthesising).
@@ -180,20 +177,25 @@ condition spelling.
   section inside the sub). Swapped to `StzFindFirst(Section, sub)`. The XT
   `:InSection` / `:InSections` spellings now dispatch to it (see below).
 
-- **`stzChar.StzType()` returns "stzstring"** (test 106). `ToListOfStzChars()`
-  yields genuine stzChar objects (`classname` = "stzchar", correct content), but
-  their `StzType()` misreports as "stzstring".
+- **✅ RESOLVED `stzChar.StzType()` returns "stzstring"** (test 106). `stzChar`
+  was an empty subclass of `stzStringChar`, so it inherited stzString's
+  `StzType()` -> `:stzString`. Gave `stzChar` its own one-line body
+  `def StzType() return :stzChar`. (`classname(This)` was tried first but
+  collides R20 with a case-insensitive builtin in class scope.) Test upgraded
+  from un-asserted NOTE to assertion (106: 3/3).
 
-- **Hex-unicode reverse direction is broken** (test 109). `HexUnicodeToUnicode(
-  "U+06A2")` returns 0 (should be 1698), and consequently `QQ("U+0649").Content()`
-  yields a bad char. The forward direction (`UnicodeToHexUnicode`, `IsHexUnicode`,
-  stzChar `HexUnicode`) works.
+- **✅ RESOLVED Hex-unicode reverse direction** (test 109). `stzStringChar.init`
+  funnelled both plain-hex ("06A2") and unicode-hex ("U+06A2") through ONE branch
+  that fed the whole literal to `StzHexNumber.ToDecimal()` -- the "U+" prefix
+  broke parsing -> 0. Split into two branches: the unicode-hex one drops the
+  2-char "U+" via `Section(3, len)` first. Also coerced `ToDecimal()` (returns a
+  STRING) to a number with `0 + ...`, else `StzEngineCharToUtf8` mis-encoded it
+  to 1 garbage byte. Test upgraded to assertions (109: 5/5).
 
-- **stzString `HexUnicode` / `HexUnicodes` drop the "U+" prefix and over-nest**
-  (test 110). `Q("a").HexUnicode()` returns "0061" (stzChar's returns "U+0061",
-  block 109 -- inconsistent), and `HexUnicodes([ "a","bcd","e" ])` wraps each
-  single-char item in a list (`[ ["0061"], [...], ["0065"] ]`) instead of
-  `[ "U+0061", [...], "U+0065" ]`.
+- **✅ RESOLVED stzString `HexUnicode` / `HexUnicodes` "U+" prefix** (test 110).
+  Both now prepend "U+" (`"U+" + _cHex_`, parenthesised in HexUnicodes to dodge
+  the append-precedence trap), consistent with stzChar.HexUnicode(). Test
+  upgraded to assertions (110: 8/8).
 
 - **`$(...)` / `Interpolate()` does not substitute placeholders** (tests 111, 54).
   `$("...{cName}!")` returns the template verbatim ("...{cName}!") instead of

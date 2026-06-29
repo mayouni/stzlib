@@ -604,8 +604,26 @@ class stzString from stzObject
 	# Negative n means (nLen + n + 1).
 	def SectionXT(n1, n2)
 		_nLen_ = This._EngineCount(This.Content())
+
+		# Named form: SectionXT(pos, :UpToNChars = count) -- take `count`
+		# chars starting at `pos`.
+		if isList(n2) and len(n2) = 2 and isString(n2[1])
+			if lower(n2[1]) = "uptonchars"
+				if isNumber(n1) and n1 < 0 n1 = _nLen_ + n1 + 1 ok
+				return This.Section(n1, n1 + n2[2] - 1)
+			ok
+		ok
+
 		if isNumber(n1) and n1 < 0 n1 = _nLen_ + n1 + 1 ok
 		if isNumber(n2) and n2 < 0 n2 = _nLen_ + n2 + 1 ok
+
+		# Bounds given high-to-low -> reverse the span ("543", "876").
+		if isNumber(n1) and isNumber(n2) and n1 > n2
+			_cSxtFwd_ = This.Section(n2, n1)
+			_oSxtRev_ = new stzString(_cSxtFwd_)
+			return _oSxtRev_.Reversed()
+		ok
+
 		return This.Section(n1, n2)
 
 		def SectionXTQ(n1, n2)
@@ -7159,7 +7177,7 @@ class stzString from stzObject
 			while len(_cHex_) < 4
 				_cHex_ = "0" + _cHex_
 			end
-			_aRes_ + _cHex_
+			_aRes_ + ("U+" + _cHex_)
 		next
 		return _aRes_
 
@@ -7412,7 +7430,7 @@ class stzString from stzObject
 		while len(_cHex_) < 4
 			_cHex_ = "0" + _cHex_
 		end
-		return _cHex_
+		return "U+" + _cHex_
 
 	# First2Chars / Last2Chars: convenience codepoint slicers.
 	def First2Chars()
