@@ -5,10 +5,8 @@ load "../_narrated.ring"
 # orders the bounds, so Section(5, 3) == Section(3, 5). SectionXT adds negative
 # indexing (count from the end). All of this works on stzList too. Archive #46.
 #
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md): SectionXT is documented to also
-# REVERSE when n1 > n2 ("543", "876"), but the impl just resolves negatives and
-# delegates to Section (no reversal), so SectionXT(5,3) -> "345", not "543".
-# Those reversal cases are left as un-asserted NOTEs.
+# SectionXT also REVERSES when n1 > n2 ("543", "876"), where plain Section
+# would auto-order to the forward span.
 
 Scenario("Sections of a string, forward and from the end")
 	Given('"123456789"')
@@ -16,9 +14,8 @@ Scenario("Sections of a string, forward and from the end")
 	Then("Section(3, 5) is the 3..5 span", o1.Section(3, 5), "345")
 	Then("Section(5, 3) auto-orders to the same span", o1.Section(5, 3), "345")
 	Then("SectionXT(-4, -2) counts from the end", o1.SectionXT(-4, -2), "678")
-	# Should reverse to "543" / "876"; the impl returns forward order:
-	? "  NOTE  SectionXT(5, 3)  -> " + @@(o1.SectionXT(5, 3)) + "  (should reverse to 543 -- deferred)"
-	? "  NOTE  SectionXT(-2,-4) -> " + @@(o1.SectionXT(-2, -4)) + "  (should reverse to 876 -- deferred)"
+	Then("SectionXT(5, 3) reverses the span", o1.SectionXT(5, 3), "543")
+	Then("SectionXT(-2, -4) reverses from the end", o1.SectionXT(-2, -4), "876")
 EndScenario()
 
 Scenario("The same Section works on a stzList")
