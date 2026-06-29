@@ -1,22 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #194.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md): ReplaceXT([], :BoundedBy = [a,b],
-# :With = new) RAISES "ReplaceXT: unsupported argument shape" (stzString.ring
-# ~2917) -- the :BoundedBy form is not handled. Should replace the bounded
-# content: "bla bla <<♥♥♥>> and bla!" -> "bla bla <<bla>> and bla!". Left in print
-# form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceXT([], :BoundedBy = [open, close], :With = new) replaces the content
+# between the bounds (no explicit sub needed). Archive block #194.
 
-o1 = new stzString("bla bla <<♥♥♥>> and bla!")
-o1.ReplaceXT( [], :BoundedBy = ["<<",">>"], :With = "bla" )  # raises: unsupported argument shape
-? o1.Content()
-#--> expected "bla bla <<bla>> and bla!"
+Scenario("Replacing content between bounds")
+	Given('"bla bla <<♥♥♥>> and bla!"')
+	o1 = new stzString("bla bla <<♥♥♥>> and bla!")
+	o1.ReplaceXT( [], :BoundedBy = ["<<",">>"], :With = "bla" )
+	Then("the bounded content is replaced", o1.Content(), "bla bla <<bla>> and bla!")
+EndScenario()
 
-pf()
+Summary()
