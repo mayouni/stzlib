@@ -261,10 +261,13 @@ expected the following run ("CDE") -- confirm the :StartingAt offset.
   Probably downstream of the single-bound `FindAnyBoundedByAsSections('"')`
   (block 124).
 
-- **`BoundedByUZ` / `BoundedByUZZ` lose the substring grouping** (test 163).
-  Should return unique bounded substrings grouped with their positions
-  (`[ [ "teeba", [5,27] ], [ "rined", [16] ] ]`) but return a flat position list
-  (`[ 5, 16, 27 ]`).
+- **✅ RESOLVED `BoundedByZZ`/`UZ`/`UZZ` substring grouping** (tests 163, 166,
+  167). Root mislabel: "U" was treated as case-Insensitive (the old impls called
+  `FindBoundedByAsSectionsCS(..,0)`) instead of **Unique**. Rewrote the family:
+  `BoundedByZZ` -> `[ [substr,[s,e]], ... ]` (wrap each codepoint-correct section
+  with its `_DeepSlice` substring); `BoundedByUZ` -> unique `[ [substr,[starts]] ]`;
+  `BoundedByUZZ` -> unique `[ [substr,[[s,e],..]] ]`. No internal callers relied
+  on the old span-only return. Tests upgraded to assertions (163/166: 2/2, 167: 2/2).
 
 - **`Duplicates()` chars-vs-substrings (cont. from block 129)** (tests 159, 160).
   The impl consistently returns duplicated CHARACTERS (block 157's char result
@@ -306,15 +309,20 @@ The WORKING ReplaceXT forms: `:Nth=n` (189), `:AtPositions=[..]` (193),
 - **✅ RESOLVED `ReplaceXT(sub, :At=n)`** (192) -- routes to
   ReplaceSubStringAtPosition (char position), same fix as `:AtPosition` (block 71).
 
-### BoundedBy variants (tests 186, 187)
+### ✅ RESOLVED — BoundedBy variants (tests 186, 187)
 
-`BoundedBy([open,close])` works (186), but the variants are broken:
-- **`BoundedByU` does not deduplicate** -- returns all 3, not the 2 unique (186).
-- **`BoundedByIB` (Include Bounds) garbles/loses elements** -- the last comes back
-  as "<" (186) and on block 187 the second comes back as "" (loses "<<★★>>").
-- **`BoundedByIBU`** inherits both bugs (186).
-- **`BoundedByIBZZ`** returns position spans only (and wrong ones), losing the
-  `[substring, span]` grouping (187) -- same family as BoundedByUZ (block 163).
+ROOT CAUSE of the IB garble was byte-vs-codepoint: `FindSubStringsBoundedByIBCSZZ`
+scanned with byte-based `substr`/`len` and returned BYTE spans, then
+`SubStringsBoundedByIBCS` sliced them with byte-based `StzMid` -- inconsistent on
+multibyte (last element "<", second "" for hearts/stars). Tests 124/222 only
+passed because they were ASCII. Rewrote the finder with `_FindFrom` (codepoint
+positions) and the slicer with `_EngineSlice`; fixed the exclusive-span deriver's
+`len()` -> `_EngineCount`. This corrected the whole IB / AsSections family on
+multibyte. Then:
+- **`BoundedByU` / `BoundedByIBU`** now dedupe (were pass-throughs).
+- **`BoundedByIB`** returns the correct include-bounds substrings.
+- **`BoundedByIBZZ`** now pairs each IB substring with its `[s,e]` span.
+Tests upgraded to assertions (186: 4/4, 187: 2/2).
 
 ### Anti-find / anti-section family (tests 200, 203, 204, 205)
 

@@ -1,24 +1,30 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #187.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md, "BoundedBy variants"): BoundedByIB
-# (Include Bounds) loses the second element ("<<★★>>" comes back as ""), and
-# BoundedByIBZZ returns position spans only ([ [4,16], [20,29] ]) -- wrong spans
-# AND missing the substring grouping it should provide. Left in print form; NOT
-# asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoundedByIB returns the include-bounds substrings; BoundedByIBZZ pairs each
+# with its [from,to] span. Both are codepoint-correct on multibyte content.
+# Archive block #187.
 
-o1 = new stzString("...<<♥♥♥>>...<<★★>>...")
-? o1.BoundedByIB([ "<<", ">>" ])
-#--> expected [ "<<♥♥♥>>", "<<★★>>" ] (currently second element is empty)
+Scenario("Include-bounds substrings and their spans")
+	Given('"...<<♥♥♥>>...<<★★>>..."')
+	o1 = new stzString("...<<♥♥♥>>...<<★★>>...")
+	Then("BoundedByIB keeps the bounds",
+		ListEq( o1.BoundedByIB([ "<<", ">>" ]), [ "<<♥♥♥>>", "<<★★>>" ] ), TRUE)
+	Then("BoundedByIBZZ pairs each with its span",
+		ListEq( o1.BoundedByIBZZ([ "<<", ">>" ]),
+			[ [ "<<♥♥♥>>", [4,10] ], [ "<<★★>>", [14,19] ] ] ), TRUE)
+EndScenario()
 
-? @@NL( o1.BoundedByIBZZ([ "<<", ">>" ]) )
-#--> expected each substring paired with its [from,to] span (currently positions only)
+Summary()
 
-pf()
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

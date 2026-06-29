@@ -4277,7 +4277,16 @@ class stzString from stzObject
 
 	# Long-tail alias batch (each unlocks a 1-test miss).
 	def BoundedByU(pacBounds)
-		return This.BoundedBy(pacBounds)
+		# Unique: the distinct bounded substrings, first-seen order.
+		_aBbuAll_ = This.BoundedBy(pacBounds)
+		_aBbuRes_ = []
+		_nBbu_ = len(_aBbuAll_)
+		for _iBbu_ = 1 to _nBbu_
+			if ring_find(_aBbuRes_, _aBbuAll_[_iBbu_]) = 0
+				_aBbuRes_ + _aBbuAll_[_iBbu_]
+			ok
+		next
+		return _aBbuRes_
 
 	def FirstHalfXTZZ()
 		_nL_ = This.NumberOfChars()
@@ -4316,7 +4325,16 @@ class stzString from stzObject
 		return [ [ _nH_ + 1, _nL_ ] ]
 
 	def BoundedByIBU(pacBounds)
-		return This.BoundedByIB(pacBounds)
+		# Unique + include-bounds: distinct IB substrings, first-seen order.
+		_aBibuAll_ = This.BoundedByIB(pacBounds)
+		_aBibuRes_ = []
+		_nBibu_ = len(_aBibuAll_)
+		for _iBibu_ = 1 to _nBibu_
+			if ring_find(_aBibuRes_, _aBibuAll_[_iBibu_]) = 0
+				_aBibuRes_ + _aBibuAll_[_iBibu_]
+			ok
+		next
+		return _aBibuRes_
 
 	def NumberOfOccurrenceOfCharStartingSide(pcChar)
 		return This.NumberOfOccurrenceOfCharLeftSide(pcChar)
@@ -4995,21 +5013,44 @@ class stzString from stzObject
 		def AnySubStringsBoundedBy(pacBounds)
 			return This.BoundedBy(pacBounds)
 
-		# BoundedByZZ: sectional form [start, end] for each bounded
-		# substring (exclusive of the bounds themselves). Single-string
-		# pacBounds is used as both open and close.
+		# BoundedByZZ: each bounded substring paired with its [start, end]
+		# span -> [ [substr, [s,e]], ... ]. Single-string pacBounds is used
+		# as both open and close.
 		def BoundedByZZ(pacBounds)
+			_aBzSecs_ = NULL
 			if isString(pacBounds)
-				return This.FindBoundedByAsSections([ pacBounds, pacBounds ])
+				_aBzSecs_ = This.FindBoundedByAsSections([ pacBounds, pacBounds ])
+			else
+				_aBzSecs_ = This.FindBoundedByAsSections(pacBounds)
 			ok
-			return This.FindBoundedByAsSections(pacBounds)
+			_aBzRes_ = []
+			_nBz_ = len(_aBzSecs_)
+			for _iBz_ = 1 to _nBz_
+				_aBzRes_ + [ This._DeepSlice(_aBzSecs_[_iBz_][1], _aBzSecs_[_iBz_][2]), _aBzSecs_[_iBz_] ]
+			next
+			return _aBzRes_
 
-		# Case-insensitive variant.
+		# BoundedByUZZ: UNIQUE bounded substrings grouped with ALL their
+		# spans -> [ [substr, [ [s,e], ... ]], ... ].
 		def BoundedByUZZ(pacBounds)
-			if isString(pacBounds)
-				return This.FindBoundedByAsSectionsCS([ pacBounds, pacBounds ], 0)
-			ok
-			return This.FindBoundedByAsSectionsCS(pacBounds, 0)
+			_aUzzZZ_ = This.BoundedByZZ(pacBounds)
+			_aUzzRes_ = []
+			_nUzz_ = len(_aUzzZZ_)
+			for _iUzz_ = 1 to _nUzz_
+				_cUzzSub_ = _aUzzZZ_[_iUzz_][1]
+				_aUzzSpan_ = _aUzzZZ_[_iUzz_][2]
+				_nUzzIdx_ = 0
+				_mUzz_ = len(_aUzzRes_)
+				for _jUzz_ = 1 to _mUzz_
+					if _aUzzRes_[_jUzz_][1] = _cUzzSub_ _nUzzIdx_ = _jUzz_ exit ok
+				next
+				if _nUzzIdx_ = 0
+					_aUzzRes_ + [ _cUzzSub_, [ _aUzzSpan_ ] ]
+				else
+					_aUzzRes_[_nUzzIdx_][2] + _aUzzSpan_
+				ok
+			next
+			return _aUzzRes_
 
 		def BoundedByCSZZ(pacBounds, pCaseSensitive)
 			return This.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
@@ -7171,8 +7212,19 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# BoundedByIBZZ: each INCLUDE-BOUNDS substring paired with its
+	# [start, end] span -> [ [substr, [s,e]], ... ].
 	def BoundedByIBZZ(pacBounds)
-		return This.FindAnyBoundedByIBZZ(pacBounds)
+		_aIbzSecs_ = This.FindAnyBoundedByIBZZ(pacBounds)
+		_aIbzRes_ = []
+		_cIbzStr_ = This.Content()
+		_nIbz_ = len(_aIbzSecs_)
+		for _iIbz_ = 1 to _nIbz_
+			_aIbzPair_ = _aIbzSecs_[_iIbz_]
+			_cIbzSub_ = This._EngineSlice(_cIbzStr_, _aIbzPair_[1], _aIbzPair_[2] - _aIbzPair_[1] + 1)
+			_aIbzRes_ + [ _cIbzSub_, _aIbzPair_ ]
+		next
+		return _aIbzRes_
 
 	# FindDZ / FindStD / FindTheseOccurrencesAsSectionsD aliases.
 	def FindDZ(pcSub, pDir)
@@ -7502,11 +7554,24 @@ class stzString from stzObject
 	# BoundedByUZ: case-insensitive single-position list of contents
 	# between bounds (alias over FindBoundedByAsSectionsCS positions).
 	def BoundedByUZ(pacBounds)
-		_aSec_ = This.FindBoundedByAsSectionsCS(pacBounds, 0)
+		# UNIQUE bounded substrings grouped with their START positions
+		# -> [ [substr, [pos, ...]], ... ].
+		_aUzZZ_ = This.BoundedByZZ(pacBounds)
 		_aRes_ = []
-		_nL_ = len(_aSec_)
+		_nL_ = len(_aUzZZ_)
 		for _i_ = 1 to _nL_
-			_aRes_ + _aSec_[_i_][1]
+			_cUzSub_ = _aUzZZ_[_i_][1]
+			_nUzStart_ = _aUzZZ_[_i_][2][1]
+			_nUzIdx_ = 0
+			_mUz_ = len(_aRes_)
+			for _jUz_ = 1 to _mUz_
+				if _aRes_[_jUz_][1] = _cUzSub_ _nUzIdx_ = _jUz_ exit ok
+			next
+			if _nUzIdx_ = 0
+				_aRes_ + [ _cUzSub_, [ _nUzStart_ ] ]
+			else
+				_aRes_[_nUzIdx_][2] + _nUzStart_
+			ok
 		next
 		return _aRes_
 
@@ -14895,7 +14960,8 @@ class stzString from stzObject
 			_aSibPair_ = _aSibZZ_[_iLoop_aSibZZ1_]
 			_nA_ = _aSibPair_[1]
 			_nB_ = _aSibPair_[2]
-			_acSibR_ + StzMid(_cSibStr_, _nA_, _nB_ - _nA_ + 1)
+			# Codepoint slice (spans are now codepoint positions).
+			_acSibR_ + This._EngineSlice(_cSibStr_, _nA_, _nB_ - _nA_ + 1)
 		next
 		return _acSibR_
 
@@ -14931,8 +14997,8 @@ class stzString from stzObject
 	def FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 		_aFsbcIB_ = This.FindSubStringsBoundedByIBCSZZ(pacBounds, pCaseSensitive)
 		_acFsbcR_ = []
-		_nOpenLen_ = len(pacBounds[1])
-		_nCloseLen_ = len(pacBounds[2])
+		_nOpenLen_ = This._EngineCount(pacBounds[1])
+		_nCloseLen_ = This._EngineCount(pacBounds[2])
 		_n_aFsbcIB1Len_ = len(_aFsbcIB_)
 		for _iLoop_aFsbcIB1_ = 1 to _n_aFsbcIB1Len_
 			_aFsbcPair_ = _aFsbcIB_[_iLoop_aFsbcIB1_]
@@ -14949,9 +15015,10 @@ class stzString from stzObject
 		_cFsibStr_ = This.Content()
 		_cFsibOpen_ = pacBounds[1]
 		_cFsibClose_ = pacBounds[2]
-		_nFsibLen_ = len(_cFsibStr_)
-		_nFsibO_ = len(_cFsibOpen_)
-		_nFsibC_ = len(_cFsibClose_)
+		# Codepoint-correct: count + find in CODEPOINTS (the old byte-based
+		# substr/len scan returned byte spans that garbled multibyte content).
+		_nFsibO_ = This._EngineCount(_cFsibOpen_)
+		_nFsibC_ = This._EngineCount(_cFsibClose_)
 		if _nFsibO_ = 0 or _nFsibC_ = 0
 			return _acFsibResult_
 		ok
@@ -14964,25 +15031,13 @@ class stzString from stzObject
 			_cFsibC2_ = lower(_cFsibC2_)
 		ok
 		_iFsib_ = 1
-		while _iFsib_ <= _nFsibLen_ - _nFsibO_ + 1
-			if substr(_cFsibHay_, _iFsib_, _nFsibO_) = _cFsibO2_
-				_jFsib_ = _iFsib_ + _nFsibO_
-				_bFsibFound_ = 0
-				while _jFsib_ <= _nFsibLen_ - _nFsibC_ + 1
-					if substr(_cFsibHay_, _jFsib_, _nFsibC_) = _cFsibC2_
-						_acFsibResult_ + [ _iFsib_, _jFsib_ + _nFsibC_ - 1 ]
-						_iFsib_ = _jFsib_ + _nFsibC_
-						_bFsibFound_ = 1
-						exit
-					ok
-					_jFsib_++
-				end
-				if NOT _bFsibFound_
-					_iFsib_++
-				ok
-			else
-				_iFsib_++
-			ok
+		while TRUE
+			_nOpen_ = This._FindFrom(_cFsibHay_, _cFsibO2_, _iFsib_)
+			if _nOpen_ < 1 exit ok
+			_nClose_ = This._FindFrom(_cFsibHay_, _cFsibC2_, _nOpen_ + _nFsibO_)
+			if _nClose_ < 1 exit ok
+			_acFsibResult_ + [ _nOpen_, _nClose_ + _nFsibC_ - 1 ]
+			_iFsib_ = _nClose_ + _nFsibC_
 		end
 		return _acFsibResult_
 
