@@ -20,11 +20,12 @@ Scenario("Relative position of a substring (positional forms)")
 	Then("** comes after the substring ♥♥", o1.SubStringComesAfterSubString("**", "♥♥"), TRUE)
 	Then("♥♥ comes between positions 3 and 6", o1.SubStringComesBetweenPositions("♥♥", 3, 6), TRUE)
 
-	# Named-param + fluent forms currently return FALSE (not dispatched):
-	? "  NOTE  ...ComesBefore(:Position=6) -> " + @@(o1.SubStringComesBefore("♥♥", :Position = 6)) + "  (named-param broken -- deferred)"
-	? "  NOTE  ...ComesBefore(:SubString='**') -> " + @@(o1.SubStringComesBefore("♥♥", :SubString = "**")) + "  (named-param broken -- deferred)"
-	? "  NOTE  SubStringQ('♥♥').InQ('--♥♥--**--').ComesBeforeSubString('**') -> " +
-		@@(SubStringQ("♥♥").InQ("--♥♥--**--").ComesBeforeSubString("**")) + "  (fluent form broken -- deferred)"
+	# Named-param forms dispatch to the positional twins:
+	Then("...ComesBefore(:Position = 6)", o1.SubStringComesBefore("♥♥", :Position = 6), TRUE)
+	Then("...ComesBefore(:SubString = '**')", o1.SubStringComesBefore("♥♥", :SubString = "**"), TRUE)
+	# Fluent form: SubStringQ(sub).InQ(host).ComesBeforeSubString(other)
+	Then("fluent ...ComesBeforeSubString('**')",
+		SubStringQ("♥♥").InQ("--♥♥--**--").ComesBeforeSubString("**"), TRUE)
 EndScenario()
 
 Summary()

@@ -378,12 +378,14 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
 `...BeforeSubString`, `...AfterPosition`, `...AfterSubString`,
 `...BetweenPositions`); the rest are broken.
 
-- **Named-param forms return FALSE** (block 92): `SubStringComesBefore(sub,
-  :Position = n)` / `(sub, :SubString = s)` and the `...After` equivalents don't
-  dispatch to their working positional twins (the same named-param parsing gap
-  seen in Replace/Section/RemoveXT).
-- **Fluent forms return FALSE** (block 92): `SubStringQ(sub).InQ(host).Comes-
-  BeforeSubString(...)` and `SubStringQ([sub, :In=host]).ComesBeforeSubString(...)`.
+- **✅ RESOLVED Named-param forms** (block 92) — commit f47aa782+. SubStringComesBefore
+  / ...After now dispatch `:Position = n` -> ...Position and `:SubString = s` ->
+  the substring form.
+- **✅ RESOLVED Fluent forms** (block 92) — commit f47aa782+. The narrative-sub helpers
+  `_SetNarrativeSub` / `_NarrativeSubAndHost` had StzFindFirst(char(1), c) args
+  BACKWARDS (and a byte-based split), so the sub was never recovered -> every
+  fluent `SubStringQ(sub).InQ(host).Comes...` form returned FALSE. Swapped the
+  args and switched to codepoint slices; the `[sub, :In = host]` form works too.
 - **`SubStringComesBetween[SubStrings]` is order-dependent** (blocks 91, 92):
   bound A must precede bound B, but the archive expected order-INDEPENDENT TRUE
   for both orders (e.g. `SubStringComesBetween("...", "**", "♥♥")` -> FALSE

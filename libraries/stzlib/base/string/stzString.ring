@@ -12038,13 +12038,29 @@ class stzString from stzObject
 		return TRUE
 
 	def SubStringComesBefore(pcSub, pcOther)
-		# TRUE if pcSub appears before pcOther in content.
+		# pcOther may be a substring, or :Position = n / :SubString = s.
+		if isList(pcOther) and len(pcOther) = 2 and isString(pcOther[1])
+			_kSc_ = lower(pcOther[1])
+			if _kSc_ = "position" or _kSc_ = "atposition"
+				return This.SubStringComesBeforePosition(pcSub, pcOther[2])
+			but _kSc_ = "substring"
+				return This.SubStringComesBefore(pcSub, pcOther[2])
+			ok
+		ok
 		_p1_ = This._FindFrom(This.Content(), pcSub, 1)
 		_p2_ = This._FindFrom(This.Content(), pcOther, 1)
 		if _p1_ < 1 or _p2_ < 1 return FALSE ok
 		return _p1_ < _p2_
 
 	def SubStringComesAfter(pcSub, pcOther)
+		if isList(pcOther) and len(pcOther) = 2 and isString(pcOther[1])
+			_kSc_ = lower(pcOther[1])
+			if _kSc_ = "position" or _kSc_ = "atposition"
+				return This.SubStringComesAfterPosition(pcSub, pcOther[2])
+			but _kSc_ = "substring"
+				return This.SubStringComesAfter(pcSub, pcOther[2])
+			ok
+		ok
 		_p1_ = This._FindFrom(This.Content(), pcSub, 1)
 		_p2_ = This._FindFrom(This.Content(), pcOther, 1)
 		if _p1_ < 1 or _p2_ < 1 return FALSE ok
@@ -12143,16 +12159,21 @@ class stzString from stzObject
 	def _SetNarrativeSub(pcSub)
 		if NOT isString(pcSub) return ok
 		_cur_ = This.Content()
-		# Avoid double-tagging.
-		_p_ = StzFindFirst(char(1), _cur_)
-		if _p_ > 0 _cur_ = StzMid(_cur_, 1, _p_ - 1) ok
+		# Avoid double-tagging (find char(1) IN _cur_: haystack first).
+		_p_ = StzFindFirst(_cur_, char(1))
+		if _p_ > 0 _cur_ = This._EngineSlice(_cur_, 1, _p_ - 1) ok
 		This.Update(_cur_ + char(1) + pcSub)
 
 	def _NarrativeSubAndHost()
 		_c_ = This.Content()
-		_p_ = StzFindFirst(char(1), _c_)
+		_p_ = StzFindFirst(_c_, char(1))
 		if _p_ < 1 return [ "", _c_ ] ok
-		return [ StzMidToEnd(_c_, _p_ + 1), StzMid(_c_, 1, _p_ - 1) ]
+		_nNshLen_ = This._EngineCount(_c_)
+		_cNshHost_ = ""
+		if _p_ > 1 _cNshHost_ = This._EngineSlice(_c_, 1, _p_ - 1) ok
+		_cNshSub_ = ""
+		if _p_ < _nNshLen_ _cNshSub_ = This._EngineSliceFrom(_c_, _p_ + 1) ok
+		return [ _cNshSub_, _cNshHost_ ]
 
 	def _NarrativeSub()
 		_pair_ = This._NarrativeSubAndHost()
