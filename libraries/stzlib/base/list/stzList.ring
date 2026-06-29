@@ -7569,7 +7569,7 @@ class stzList from stzObject
 			_s_ = _aSec_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = _o_._EngineSlice(pNamedIn[2], _s_[1], _s_[2] - _s_[1] + 1)
-				if StzFindFirst(pcSub, _cMid_) > 0 return TRUE ok
+				if StzFindFirst(_cMid_, pcSub) > 0 return TRUE ok
 			ok
 		next
 		return FALSE
