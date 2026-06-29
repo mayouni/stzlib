@@ -253,48 +253,88 @@ class stzString from stzObject
 	# (Note: this is the "characters that bound" semantic the
 	# narrative tests expect. For positional bounds use FindAs* or
 	# IndexOf + ring_len.)
+	# BoundsOf(pcSub): for EACH occurrence of pcSub, the maximal run of the
+	# same bound char (non-alphanumeric, non-space) immediately before and
+	# after it -> [ [before, after], ... ]. E.g. "<<<Ring>>>...(((Ring)))"
+	# gives [ ["<<<",">>>"], ["(((",")))"] ].
 	def BoundsOf(pcSub)
 		_cTxt_ = This.Content()
-		# Engine find: codepoint-aware first-occurrence search.
-		_nPos_ = StzEngineStringFindFirstFromCS(This.Engine(), pcSub, 1, 1)
-		if _nPos_ < 1 return [] ok
-		_nLenSub_ = This._EngineCount(pcSub)
-		# Slice both sides via the codepoint-aware engine slicer.
-		_cBefore_ = ""
-		if _nPos_ > 1
-			_cBefore_ = This._EngineSlice(_cTxt_, 1, _nPos_ - 1)
-		ok
-		_cAfter_  = This._EngineSliceFrom(_cTxt_, _nPos_ + _nLenSub_)
-		return [ _cBefore_, _cAfter_ ]
+		_aChars_ = This.Chars()
+		_nLen_ = len(_aChars_)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_aRes_ = []
+		_nFrom_ = 1
+		_nFound_ = This._FindFrom(_cTxt_, pcSub, _nFrom_)
+		while _nFound_ > 0
+			# before: run of the same bound char ending at nFound-1
+			_cBefore_ = ""
+			_p_ = _nFound_ - 1
+			if _p_ >= 1 and This._IsBoundChar(_aChars_[_p_])
+				_bcB_ = _aChars_[_p_]
+				while _p_ >= 1 and _aChars_[_p_] = _bcB_
+					_cBefore_ = _bcB_ + _cBefore_
+					_p_--
+				end
+			ok
+			# after: run of the same bound char starting at nFound+subLen
+			_cAfter_ = ""
+			_q_ = _nFound_ + _nSubLen_
+			if _q_ <= _nLen_ and This._IsBoundChar(_aChars_[_q_])
+				_bcA_ = _aChars_[_q_]
+				while _q_ <= _nLen_ and _aChars_[_q_] = _bcA_
+					_cAfter_ = _cAfter_ + _bcA_
+					_q_++
+				end
+			ok
+			_aRes_ + [ _cBefore_, _cAfter_ ]
+			_nFrom_ = _nFound_ + _nSubLen_
+			_nFound_ = This._FindFrom(_cTxt_, pcSub, _nFrom_)
+		end
+		return _aRes_
 
 		def BoundsOfFirstOccurrence(pcSub)
-			return This.BoundsOf(pcSub)
+			_aBof_ = This.BoundsOf(pcSub)
+			if len(_aBof_) = 0 return [] ok
+			return _aBof_[1]
 
-	# BoundsOfUpToNChars(pcSub, n): like BoundsOf but cap each side
-	# at n chars (counted from the inside out). n can also be the
-	# list [nBefore, nAfter] for independent caps.
+	# A bound char: not alphanumeric, not a space (so bracket/punctuation runs
+	# like "<<<" or "((( " are bounds, but letters/digits/spaces are not).
+	def _IsBoundChar(c)
+		if c = " " return FALSE ok
+		if isAlpha(c) return FALSE ok
+		if isDigit(c) return FALSE ok
+		return TRUE
+
+	# BoundsOfUpToNChars(pcSub, n): like BoundsOf but cap each PER-OCCURRENCE
+	# side at n chars (counted from the inside out). n can also be the list
+	# [nBefore, nAfter] for independent caps.
 	def BoundsOfUpToNChars(pcSub, n)
-		_aB_ = This.BoundsOf(pcSub)
-		if len(_aB_) = 0 return [] ok
-		_cBefore_ = _aB_[1]; _cAfter_ = _aB_[2]
 		_nBefore_ = n
 		_nAfter_  = n
 		if isList(n) and len(n) = 2
 			_nBefore_ = n[1]
 			_nAfter_  = n[2]
 		ok
-		# Engine-backed codepoint cap (Unicode-correct for ♥ etc.).
-		_nBeLen_ = This._EngineCount(_cBefore_)
-		if _nBeLen_ > _nBefore_
-			# Keep last _nBefore_ codepoints.
-			_cBefore_ = This._EngineSliceFrom(_cBefore_, _nBeLen_ - _nBefore_ + 1)
-		ok
-		_nAfLen_ = This._EngineCount(_cAfter_)
-		if _nAfLen_ > _nAfter_
-			# Keep first _nAfter_ codepoints.
-			_cAfter_  = This._EngineSlice(_cAfter_, 1, _nAfter_)
-		ok
-		return [ _cBefore_, _cAfter_ ]
+		_aAll_ = This.BoundsOf(pcSub)
+		_aRes_ = []
+		_nL_ = len(_aAll_)
+		for _iBuc_ = 1 to _nL_
+			_cBefore_ = _aAll_[_iBuc_][1]
+			_cAfter_  = _aAll_[_iBuc_][2]
+			# Engine-backed codepoint cap (Unicode-correct for ♥ etc.).
+			_nBeLen_ = This._EngineCount(_cBefore_)
+			if _nBeLen_ > _nBefore_
+				# Keep last _nBefore_ codepoints.
+				_cBefore_ = This._EngineSliceFrom(_cBefore_, _nBeLen_ - _nBefore_ + 1)
+			ok
+			_nAfLen_ = This._EngineCount(_cAfter_)
+			if _nAfLen_ > _nAfter_
+				# Keep first _nAfter_ codepoints.
+				_cAfter_  = This._EngineSlice(_cAfter_, 1, _nAfter_)
+			ok
+			_aRes_ + [ _cBefore_, _cAfter_ ]
+		next
+		return _aRes_
 
 	# (No lowercase-c alias needed -- Ring is case-insensitive on
 	# method names, so BoundsOfUpToNchars resolves here directly.)
@@ -303,8 +343,6 @@ class stzString from stzObject
 	#   :UpToNChars = n           --> BoundsOfUpToNChars
 	#   [nBefore, nAfter]         --> cap each side independently
 	#   n (number)                --> same as :UpToNChars = n
-	# (For BoundsOfXT(pcSub, m, n) -- three-arg form -- callers use
-	# BoundsOfXT3(pcSub, m, n) since Ring lacks optional params.)
 	def BoundsOfXT(pcSub, p2)
 		# :UpToNChars = n
 		if isList(p2) and len(p2) = 2 and isString(p2[1]) and
@@ -314,14 +352,7 @@ class stzString from stzObject
 
 		# [nBefore, nAfter] list (independent caps)
 		if isList(p2) and len(p2) = 2 and isNumber(p2[1]) and isNumber(p2[2])
-			_aB_ = This.BoundsOf(pcSub)
-			if len(_aB_) = 0 return [] ok
-			_cBefore_ = _aB_[1]; _cAfter_ = _aB_[2]
-			# Cap by codepoints, not bytes: keep the last p2[1] chars of the
-			# prefix and the first p2[2] chars of the suffix.
-			if StzLen(_cBefore_) > p2[1] _cBefore_ = This._EngineSliceFrom(_cBefore_, StzLen(_cBefore_) - p2[1] + 1) ok
-			if StzLen(_cAfter_)  > p2[2] _cAfter_  = This._EngineSlice(_cAfter_, 1, p2[2]) ok
-			return [ _cBefore_, _cAfter_ ]
+			return This.BoundsOfUpToNChars(pcSub, p2)
 		ok
 
 		# Bare number = symmetric cap
@@ -332,18 +363,7 @@ class stzString from stzObject
 		return []
 
 	def BoundsOfXT3(pcSub, nBefore, nAfter)
-		_aB_ = This.BoundsOf(pcSub)
-		if len(_aB_) = 0 return [] ok
-		_cBefore_ = _aB_[1]; _cAfter_ = _aB_[2]
-		_nBeLen_ = This._EngineCount(_cBefore_)
-		if _nBeLen_ > nBefore
-			_cBefore_ = This._EngineSliceFrom(_cBefore_, _nBeLen_ - nBefore + 1)
-		ok
-		_nAfLen_ = This._EngineCount(_cAfter_)
-		if _nAfLen_ > nAfter
-			_cAfter_  = This._EngineSlice(_cAfter_, 1, nAfter)
-		ok
-		return [ _cBefore_, _cAfter_ ]
+		return This.BoundsOfUpToNChars(pcSub, [ nBefore, nAfter ])
 
 	#-- Override stzObject.Stringified/ToString. The parent returns
 	#   ObjectName() (which is "@noname" for unnamed objects);
@@ -8184,19 +8204,29 @@ class stzString from stzObject
 	# Bounds(): auto-detect leading and trailing non-letter runs
 	# - e.g. "<<Ring>>" -> [ "<<", ">>" ], "---Ring___" -> [ "---", "___" ].
 	# Falls back to [ firstchar, lastchar ] for fully alphanumeric input.
+	# Bounds(): auto-detect the leading/trailing bound. Each side is the
+	# maximal run of the SAME edge char (when it is a bound char), so "<<Go!>>"
+	# -> [ "<<", ">>" ] -- the "!" is content, NOT swallowed into the trailing
+	# bound (the old "any non-alpha" walk greedily took "!>>").
 	def Bounds()
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
 		if _nLen_ = 0 return [] ok
 		if _nLen_ = 1 return [ _aChars_[1], _aChars_[1] ] ok
-		_cLead_ = ""; _i_ = 1
-		while _i_ <= _nLen_ and NOT isAlpha(_aChars_[_i_])
-			_cLead_ += _aChars_[_i_]; _i_++
-		end
-		_cTrail_ = ""; _i_ = _nLen_
-		while _i_ >= 1 and NOT isAlpha(_aChars_[_i_])
-			_cTrail_ = _aChars_[_i_] + _cTrail_; _i_--
-		end
+		_cLead_ = ""
+		if This._IsBoundChar(_aChars_[1])
+			_bcL_ = _aChars_[1]; _i_ = 1
+			while _i_ <= _nLen_ and _aChars_[_i_] = _bcL_
+				_cLead_ += _bcL_; _i_++
+			end
+		ok
+		_cTrail_ = ""
+		if This._IsBoundChar(_aChars_[_nLen_])
+			_bcT_ = _aChars_[_nLen_]; _i_ = _nLen_
+			while _i_ >= 1 and _aChars_[_i_] = _bcT_
+				_cTrail_ = _bcT_ + _cTrail_; _i_--
+			end
+		ok
 		if _cLead_ = "" _cLead_ = _aChars_[1] ok
 		if _cTrail_ = "" _cTrail_ = _aChars_[_nLen_] ok
 		return [ _cLead_, _cTrail_ ]

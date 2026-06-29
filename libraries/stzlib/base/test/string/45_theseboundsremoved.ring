@@ -1,37 +1,29 @@
-# Narrative
-# --------
-# #narration
-#
-# Extracted from stzStringTest.ring, block #45.
-#
-# TheseBoundsRemoved("<<", ">>") -> "Go!" is CORRECT. But the auto-detection has
-# a DEFECT (deferred -- see _AUDIT_DEFECTS.md): Bounds() of "<<Go!>>" greedily
-# returns [ "<<", "!>>" ] (the whole trailing non-letter run, swallowing the
-# "!"), so BoundsRemoved() gives "Go" instead of "Go!". Left in print form
-# pending the bounds-family fix-pass; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# TheseBoundsRemoved strips known bounds; Bounds() auto-detects them (the
+# leading/trailing run of the same bound char) so BoundsRemoved() can strip
+# them for you -- without swallowing trailing content like "!". Archive #45.
 
-pr()
+Scenario("Removing bounds, known and auto-detected")
+	Given('"<<Go!>>"')
+	o1 = new stzString("<<Go!>>")
+	Then("TheseBoundsRemoved strips the given bounds", o1.TheseBoundsRemoved("<<", ">>"), "Go!")
+	Then("Bounds auto-detects << and >> (the ! stays content)",
+		ListEq( o1.Bounds(), [ "<<", ">>" ] ), TRUE)
+	Then("BoundsRemoved strips the auto-detected bounds", o1.BoundsRemoved(), "Go!")
+EndScenario()
 
-# In Softanza, if you have a string bounded by some chars,
-# you can remove them to keep only the string:
+Summary()
 
-o1 = new stzString("<<Go!>>")
-? o1.TheseBoundsRemoved("<<", ">>")
-#--> "Go!"
-
-# In case you don't know the bounds, Softanza knows them,
-# and can remove them for you:
-
-o1 = new stzString("<<Go!>>")
-? o1.Bounds()
-#--> [ "<<", ">>" ]
-
-? o1.BoundsRemoved()
-#--> "Go!"
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.21
-# Executed in 0.24 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
