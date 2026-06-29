@@ -336,13 +336,15 @@ The WORKING ReplaceXT forms: `:Nth=n` (189), `:AtPositions=[..]` (193),
 `SplitAtZZ` likely shares the bug. (A list-domain defect surfaced via the string
 suite.)
 
-- **`FindAnyBoundedBy` / `FindAnyBoundedByIB` return the wrong TYPE even with a
-  pair bound** (test 222). `FindAnyBoundedBy(["<<",">>"])` returns the substrings
-  `["ring","softanza"]` instead of the positions `[6,17]`; `FindAnyBoundedByIB`
-  returns the `[from,to]` sections `[[4,11],[15,26]]` instead of the positions
-  `[4,15]`. The `...AsSections` / `...AsSectionsIB` and `AnyBoundedBy[IB]` forms
-  are correct. (Reinforces the block-17/124 FindAnyBoundedBy type bug -- it is
-  not specific to single-string bounds.)
+- **✅ RESOLVED `FindAnyBoundedBy` / `FindAnyBoundedByIB` wrong TYPE** (tests 17, 124,
+  222, 266, 340, 343, 344, 550, 551, 565) — commit 61e3dc8b+. FindAnyBoundedBy now
+  returns the content START positions (from FindAnyBoundedByZZ); FindAnyBoundedByIB
+  the bound-inclusive starts (content_start - openLen). Added AnyBoundedBy
+  (substrings) + AnyBoundedByZZ ([substring, span] pairs), both derived from
+  FindAnyBoundedByZZ so a repeated single bound keeps EVERY overlapping region
+  (BoundedBy's non-overlapping pairing still drops middles for same-char -- the
+  separate 120/121/124-BoundedBy issue below). 565's FindSubStringBoundedBy("word")
+  filter (returns [11,30,43] instead of [11]) is a DIFFERENT, still-open method.
 
 - **`YieldWXT` is RETIRED (R14)** (tests 219, 220, 221) -- like FindWXT (block 84),
   the WXT family was removed; the replacement is `YieldW`. These belong to the

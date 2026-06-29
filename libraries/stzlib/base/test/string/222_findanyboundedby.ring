@@ -2,12 +2,8 @@ load "../../stzBase.ring"
 load "../_narrated.ring"
 
 # The FindAnyBoundedBy / AnyBoundedBy family with a distinct [open,close] pair.
-# Archive block #222.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md): FindAnyBoundedBy returns the
-# SUBSTRINGS (not the positions [6,17]), and FindAnyBoundedByIB returns the
-# [from,to] SECTIONS (not the positions [4,15]). The ...AsSections and
-# AnyBoundedBy[IB] forms are correct and asserted.
+# FindAnyBoundedBy gives the content START positions; ...IB the bound-inclusive
+# starts; ...AsSections the spans; AnyBoundedBy the substrings. Archive block #222.
 
 Scenario("Finding content bounded by << >>")
 	Given('"...<<ring>>...<<softanza>>..."')
@@ -20,9 +16,10 @@ Scenario("Finding content bounded by << >>")
 		ListEq( o1.FindAnyBoundedByAsSectionsIB(["<<",">>"]), [ [4, 11], [15, 26] ] ), TRUE)
 	Then("AnyBoundedByIB gives the bound-inclusive substrings",
 		ListEq( o1.AnyBoundedByIB(["<<",">>"]), ["<<ring>>", "<<softanza>>"] ), TRUE)
-	# Wrong-type forms:
-	? "  NOTE  FindAnyBoundedBy -> " + @@(o1.FindAnyBoundedBy(["<<",">>"])) + "  (want positions [6,17] -- deferred)"
-	? "  NOTE  FindAnyBoundedByIB -> " + @@(o1.FindAnyBoundedByIB(["<<",">>"])) + "  (want positions [4,15] -- deferred)"
+	Then("FindAnyBoundedBy gives the content start positions",
+		ListEq( o1.FindAnyBoundedBy(["<<",">>"]), [6, 17] ), TRUE)
+	Then("FindAnyBoundedByIB gives the bound-inclusive start positions",
+		ListEq( o1.FindAnyBoundedByIB(["<<",">>"]), [4, 15] ), TRUE)
 EndScenario()
 
 Summary()
