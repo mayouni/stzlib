@@ -2271,10 +2271,11 @@ class stzString from stzObject
 		ok
 		if NOT (isString(pcSubStr) and isString(pcNewSubStr) and pcSubStr != "") return ok
 		_bRfCase_ = @CaseSensitive(pCaseSensitive)
-		# Ring-side replace-first to dodge engine @memcpy alias panic.
+		# Codepoint-correct replace-first (StzFindFirst returns a codepoint
+		# position; slice with the engine helpers, NOT byte-based StzMid/len,
+		# which corrupt multibyte content like hearts/CJK).
 		_cIn_ = This.Content()
-		_nIL_ = len(_cIn_)
-		_subLen_ = len(pcSubStr)
+		_subLen_ = This._EngineCount(pcSubStr)
 		_pos_ = 0
 		if _bRfCase_
 			_pos_ = StzFindFirst(_cIn_, pcSubStr)
@@ -2282,8 +2283,11 @@ class stzString from stzObject
 			_pos_ = StzFindFirst(lower(_cIn_), lower(pcSubStr))
 		ok
 		if _pos_ < 1 return ok
-		_cOut_ = StzMid(_cIn_, 1, _pos_ - 1) + pcNewSubStr +
-		         StzMidToEnd(_cIn_, _pos_ + _subLen_)
+		_cBefore_ = ""
+		if _pos_ > 1
+			_cBefore_ = This._EngineSlice(_cIn_, 1, _pos_ - 1)
+		ok
+		_cOut_ = _cBefore_ + pcNewSubStr + This._EngineSliceFrom(_cIn_, _pos_ + _subLen_)
 		This.Update(_cOut_)
 
 		def ReplaceFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -2304,27 +2308,33 @@ class stzString from stzObject
 		ok
 		if NOT (isString(pcSubStr) and isString(pcNewSubStr) and pcSubStr != "") return ok
 		_bRlCase_ = @CaseSensitive(pCaseSensitive)
-		# Ring-side replace-last to dodge engine @memcpy alias panic.
+		# Codepoint-correct replace-last: walk every occurrence start with
+		# the engine find-from helper (codepoint positions), keep the last,
+		# then slice with the engine helpers. The old byte-based substr/StzMid
+		# loop corrupted multibyte content AND replaced the FIRST match.
 		_cIn_ = This.Content()
-		_subLen_ = len(pcSubStr)
+		_subLen_ = This._EngineCount(pcSubStr)
+		if _bRlCase_
+			_hay_ = _cIn_
+			_needle_ = pcSubStr
+		else
+			_hay_ = lower(_cIn_)
+			_needle_ = lower(pcSubStr)
+		ok
 		_lastPos_ = 0
-		_pos_ = 1
+		_from_ = 1
 		while TRUE
-			if _bRlCase_
-				_p_ = substr(_cIn_, _pos_, len(_cIn_) - _pos_ + 1)
-				_pf_ = StzFindFirst(_p_, pcSubStr)
-			else
-				_p_ = substr(lower(_cIn_), _pos_, len(_cIn_) - _pos_ + 1)
-				_pf_ = StzFindFirst(_p_, lower(pcSubStr))
-			ok
-			if _pf_ < 1 exit ok
-			_lastPos_ = _pos_ + _pf_ - 1
-			_pos_ = _lastPos_ + 1
-			if _pos_ > len(_cIn_) exit ok
+			_p_ = This._FindFrom(_hay_, _needle_, _from_)
+			if _p_ < 1 exit ok
+			_lastPos_ = _p_
+			_from_ = _p_ + 1
 		end
 		if _lastPos_ < 1 return ok
-		_cOut_ = StzMid(_cIn_, 1, _lastPos_ - 1) + pcNewSubStr +
-		         StzMidToEnd(_cIn_, _lastPos_ + _subLen_)
+		_cBefore_ = ""
+		if _lastPos_ > 1
+			_cBefore_ = This._EngineSlice(_cIn_, 1, _lastPos_ - 1)
+		ok
+		_cOut_ = _cBefore_ + pcNewSubStr + This._EngineSliceFrom(_cIn_, _lastPos_ + _subLen_)
 		This.Update(_cOut_)
 
 		def ReplaceLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -2915,6 +2925,29 @@ class stzString from stzObject
 		if isList(p3) and len(p3) = 2 and isString(p3[1]) and lower(p3[1]) = "with"
 			_pWith_ = p3[2]
 		ok
+		# ... or :With / :By carried in p2 (e.g. ReplaceXT(sub, :With=new, []))
+		if isList(p2) and len(p2) = 2 and isString(p2[1]) and
+		   (lower(p2[1]) = "with" or lower(p2[1]) = "by")
+			_pWith_ = p2[2]
+		ok
+
+		# :Each form -- replace ALL occurrences of a substring.
+		#   ReplaceXT(:Each = sub, [], :With = new)
+		#   ReplaceXT(sub, :With = new, [])
+		_bEach_ = FALSE
+		_xEachSub_ = ""
+		if isList(p1) and len(p1) = 2 and isString(p1[1]) and lower(p1[1]) = "each"
+			_bEach_ = TRUE
+			_xEachSub_ = p1[2]
+		but isString(p1) and isList(p2) and len(p2) = 2 and isString(p2[1]) and
+		    (lower(p2[1]) = "with" or lower(p2[1]) = "by")
+			_bEach_ = TRUE
+			_xEachSub_ = p1
+		ok
+		if _bEach_ and isString(_xEachSub_)
+			This.ReplaceAll(_xEachSub_, _pWith_)
+			return
+		ok
 
 		# Form A: :Nth = n + substr + :With
 		if isList(p1) and len(p1) = 2 and isString(p1[1]) and lower(p1[1]) = "nth"
@@ -2934,8 +2967,9 @@ class stzString from stzObject
 			ok
 		ok
 
-		# Forms C+: pcSubStr first, anchor as p2
-		if isString(p1) and isList(p2) and len(p2) = 2 and isString(p2[1])
+		# Forms C+: pcSubStr first, anchor as p2 (p1 may be [] for
+		# :BoundedBy, which replaces the bounded content regardless of p1).
+		if (isString(p1) or (isList(p1) and len(p1) = 0)) and isList(p2) and len(p2) = 2 and isString(p2[1])
 			_cAnchor_ = lower(p2[1])
 			_xAnchorV_ = p2[2]
 

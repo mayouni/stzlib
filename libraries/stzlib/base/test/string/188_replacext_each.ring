@@ -1,26 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #188.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md): ReplaceXT(:Each = sub, [], :With =
-# new) RAISES "ReplaceXT: unsupported argument shape" (stzString.ring ~2917) --
-# the :Each form (with the trailing []) is not handled. Use ReplaceAll / the
-# plain Replace instead. Left in print form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceXT(:Each = sub, [], :With = new) replaces EVERY occurrence; the inverse
+# form ReplaceXT(sub, :With = new, []) does the same with the sub first. Both
+# route to ReplaceAll. Archive block #188.
 
-Q("♥♥♥ Ring programing language ♥♥♥") {
-	ReplaceXT( :Each = "♥", [], :With = "*")  # raises: unsupported argument shape
-	? Content()
-	#--> expected "*** Ring programing language ***"
+Scenario("Replacing every occurrence two ways")
+	Given('"♥♥♥ Ring programing language ♥♥♥"')
+	o1 = new stzString("♥♥♥ Ring programing language ♥♥♥")
+	o1.ReplaceXT( :Each = "♥", [], :With = "*")
+	Then("every heart becomes a star", o1.Content(), "*** Ring programing language ***")
+	o1.ReplaceXT("*", :With = "♥", [])
+	Then("and back again", o1.Content(), "♥♥♥ Ring programing language ♥♥♥")
+EndScenario()
 
-	ReplaceXT("*", :With = "♥", [])
-	? Content()
-	#--> expected "♥♥♥ Ring programing language ♥♥♥"
-}
-
-pf()
+Summary()

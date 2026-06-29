@@ -289,15 +289,22 @@ instead of `[ substring, span ]` pairs.
 ### ReplaceXT named-form coverage (tests 188, 190, 191, 192, 194)
 
 The WORKING ReplaceXT forms: `:Nth=n` (189), `:AtPositions=[..]` (193),
-`:In=scope` (195). The broken ones:
-- **`ReplaceXT(:Each=sub, [], :With=)` and `ReplaceXT([], :BoundedBy=[a,b],
-  :With=)` RAISE** "ReplaceXT: unsupported argument shape" (stzString.ring ~2917)
-  -- those argument shapes aren't handled (188, 194).
-- **`ReplaceXT(:First, ...)` / `ReplaceXT(:Last, ...)` are no-ops** (190, 191) --
-  the string comes back unchanged.
-- **✅ RESOLVED `ReplaceXT(sub, :At=n)`** (192) -- now routes to
-  ReplaceSubStringAtPosition (char position), same fix as `:AtPosition` (block 71);
-  on "~♥/♥\~~" `:At=2` -> "~~/♥\~~". (188/190/191/194 of this section still open.)
+`:In=scope` (195).
+- **✅ RESOLVED `:Each` and empty-sub `:BoundedBy`** (188, 194). Added a `:Each`
+  branch (also accepts `ReplaceXT(sub, :With=new, [])` with :With carried in p2)
+  routing to ReplaceAll, and relaxed the Forms-C+ guard so an empty-list p1 is
+  accepted for `:BoundedBy` (which replaces the bounded content regardless of p1).
+  Gotcha hit en route: Ring's `NULL` is `""` and `isString("")` is TRUE, so the
+  unset-sentinel guard fired spuriously -- switched to a boolean flag.
+- **✅ RESOLVED `:First` / `:Last`** (190, 191). Root cause was NOT the dispatch
+  (Form B was correct) but ReplaceFirst/ReplaceLast themselves: their slicing
+  mixed BYTE units (`len`, `substr`, `StzMid`) with CODEPOINT find positions, so
+  they corrupted/truncated multibyte content (and ReplaceLast even hit the FIRST
+  match). Rewrote both with engine codepoint helpers (`_FindFrom`, `_EngineSlice`,
+  `_EngineSliceFrom`, `_EngineCount`). This also fixes RemoveFirst/RemoveLast on
+  multibyte. All four upgraded to assertions.
+- **✅ RESOLVED `ReplaceXT(sub, :At=n)`** (192) -- routes to
+  ReplaceSubStringAtPosition (char position), same fix as `:AtPosition` (block 71).
 
 ### BoundedBy variants (tests 186, 187)
 
