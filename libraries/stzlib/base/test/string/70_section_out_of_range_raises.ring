@@ -1,22 +1,23 @@
-# Narrative
-# --------
-# Section(n1, n2) vs out-of-range bounds.
-#
-# Block #46's narration documents Section() as the CONSERVATIVE form that should
-# RAISE ("Indexes out of range!") when the bounds escape the string, leaving the
-# lenient SectionXT() to handle negatives/overshoot quietly.
-#
-# SEMANTICS TO CONFIRM (deferred -- see _AUDIT_DEFECTS.md): the current impl does
-# NOT raise -- Q("SOFTANZA").Section(-99, 99) returns the whole "SOFTANZA"
-# (silently clamped). Either Section() should enforce its conservative contract
-# and raise, or block #46's narration is wrong. Pending the author's call; left
-# in print form, NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Section is the CONSERVATIVE form: it auto-orders but RAISES on out-of-range
+# indexes (per the original). SectionXT is the lenient form (negatives count from
+# the end, out-of-range is clamped). Archive block #70.
 
-? @@( Q("SOFTANZA").Section(-99, 99) )
-#--> currently "SOFTANZA" (block #46 says it should raise "Indexes out of range!")
+Scenario("Section raises out-of-range; SectionXT is lenient")
+	Given('"SOFTANZA"')
+	o1 = new stzString("SOFTANZA")
+	bRaised = FALSE
+	try
+		r = o1.Section(-99, 99)
+	catch
+		bRaised = TRUE
+	done
+	Then("Section(-99, 99) raises", bRaised, TRUE)
+	Then("SectionXT(-99, 99) clamps to the whole string", o1.SectionXT(-99, 99), "SOFTANZA")
+	Then("Slice is the strict alias of Section", o1.Slice(2, 4), "OFT")
+	Then("SliceXT is the lenient alias of SectionXT", o1.SliceXT(-3, -1), "NZA")
+EndScenario()
 
-pf()
+Summary()
