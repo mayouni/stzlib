@@ -366,10 +366,14 @@ suite.)
   (it called ExtractNumbers and would now mutate as a side-effect). Test
   converted from print-form to narrated assertions (231: 2/2).
 
-- **`Between(open, close)` positional returns a list, not the greedy span**
-  (test 226, #TODO). The archive expected the greedy span between the first open
-  and last close ("ring>>>___<<<softanza"); the impl returns the same enclosed-
-  substring list as `BoundedBy`. Confirm the intended Between vs BoundedBy split.
+- **✅ RESOLVED `Between` vs `BoundedBy` split** (tests 226, 123). Per the ORIGINAL
+  monolithic (BetweenCS: `n1 = FindFirst(open)+len; n2 = FindLast(close)-1;
+  Section(n1,n2)`), `Between` is the GREEDY single span from first-open to
+  last-close (a STRING); `BoundedBy` is the LIST of enclosed regions. The modular
+  code had conflated them (BoundedBy delegated to a list-returning BetweenCS).
+  Decoupled: `BoundedByCS` now routes ALL bounds through `AnyBoundedBy` (the only
+  caller of `This.BetweenCS`), freeing `BetweenCS` to be the greedy string.
+  Test 123's `Between` #--> was corrected from the list to the greedy span.
 
 - **`NumbersComingAfter(anchor)` -- trailing unanchored numbers?** (test 229).
   Returns only the numbers right after each anchor (`["+10","-125"]`); the archive
@@ -416,10 +420,13 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
   BACKWARDS (and a byte-based split), so the sub was never recovered -> every
   fluent `SubStringQ(sub).InQ(host).Comes...` form returned FALSE. Swapped the
   args and switched to codepoint slices; the `[sub, :In = host]` form works too.
-- **`SubStringComesBetween[SubStrings]` is order-dependent** (blocks 91, 92):
-  bound A must precede bound B, but the archive expected order-INDEPENDENT TRUE
-  for both orders (e.g. `SubStringComesBetween("...", "**", "♥♥")` -> FALSE
-  instead of TRUE). Semantics to confirm: order-independent or not?
+- **✅ RESOLVED `SubStringComesBetween` order-independence** (test 91). The
+  ORIGINAL is order-INDEPENDENT (its own example shows both orders -> TRUE).
+  Extracted the adjacency check to `_ComesBetweenOrdered` and made
+  `SubStringComesBetween` try BOTH orders (OR). Test asserted.
+
+- Also resolved: `ContainsXT(:AtPosition / :AtPositions)` (tests 170, 178) already
+  returned TRUE (block 170-resolved fix); NOTEs upgraded to assertions.
 
 ### Bounds family — a defect cluster (tests 42, 43, 44, 45)
 

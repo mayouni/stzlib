@@ -13,9 +13,7 @@ Scenario("A substring positioned between two bounds")
 	Given('"---♥♥...**---" (hearts, then "...", then "**")')
 	o1 = new stzString("---♥♥...**---")
 	Then("'...' comes between ♥♥ and ** (in order)", o1.SubStringComesBetween("...", "♥♥", "**"), TRUE)
-	# Archive expected TRUE here too (order-independent); impl returns FALSE:
-	? "  NOTE  SubStringComesBetween('...','**','♥♥') -> " +
-		@@(o1.SubStringComesBetween("...", "**", "♥♥")) + "  (order-dependent; archive wanted TRUE -- deferred)"
+	Then("and order-independently between ** and ♥♥", o1.SubStringComesBetween("...", "**", "♥♥"), TRUE)
 EndScenario()
 
 Summary()
