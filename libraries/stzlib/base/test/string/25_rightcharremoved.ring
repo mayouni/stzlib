@@ -20,8 +20,10 @@ Scenario("Removing chars from the right of a string")
 	# CharTrimmedFromRight = trim-all; archive #--> "ring--" was the author's error.
 	Then("CharTrimmedFromRight('-') trims every trailing '-'", o1.CharTrimmedFromRight("-"), "ring")
 
-	# DEFECT: ignores its arg -- drops '-' even though '*' was requested (expected "ring---").
-	? "  NOTE  CharRemovedFromRight('*') -> " + o1.CharRemovedFromRight("*") + "  (char arg ignored -- deferred fix)"
+	Then("CharRemovedFromRight('*') is a no-op when '*' is not the trailing char",
+		o1.CharRemovedFromRight("*"), "ring---")
+	Then("CharRemovedFromRight('-') drops one matching trailing char",
+		o1.CharRemovedFromRight("-"), "ring--")
 EndScenario()
 
 Summary()

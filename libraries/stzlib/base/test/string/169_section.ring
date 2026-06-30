@@ -14,8 +14,7 @@ Scenario("Sections forward and end-relative")
 	Then("Section(3, 5) is '345'", o1.Section(3, 5), "345")
 	Then("Section(5, 3) auto-orders to '345'", o1.Section(5, 3), "345")
 	Then("SectionXT(3, -3) resolves -3 from the end -> '345'", o1.SectionXT(3, -3), "345")
-	# Should reverse to "543"; impl returns "345":
-	? "  NOTE  SectionXT(-3, 3) -> " + @@(o1.SectionXT(-3, 3)) + "  (should reverse to 543 -- deferred)"
+	Then("SectionXT(-3, 3) resolves -3 (=5) then reverses -> '543'", o1.SectionXT(-3, 3), "543")
 EndScenario()
 
 Summary()

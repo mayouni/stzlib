@@ -14,8 +14,8 @@ Scenario("Case-sensitive find by symbol flag")
 	o1 = new stzString("aaA...")
 	Then("FindCS('a', :CaseSensitive) finds the two lowercase a's",
 		ListEq( o1.FindCS("a", :CaseSensitive), [ 1, 2 ] ), TRUE)
-	# Should be [1,2,3] (case-insensitive); the symbol isn't parsed:
-	? "  NOTE  FindCS('a', :CaseInSensitive) -> " + @@(o1.FindCS("a", :CaseInSensitive)) + "  (want [1,2,3] -- deferred)"
+	Then("FindCS('a', :CaseInSensitive) also matches the uppercase A",
+		ListEq( o1.FindCS("a", :CaseInSensitive), [ 1, 2, 3 ] ), TRUE)
 EndScenario()
 
 Summary()

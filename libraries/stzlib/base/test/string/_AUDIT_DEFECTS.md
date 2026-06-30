@@ -39,30 +39,19 @@ reference_stzfind_contract for the contract + the sweep recipe.
   individual StartsWithXT/EndsWithXT each return TRUE; the AndQ() fluent-and
   bridge is the broken link. 08 left as print form (it's a `#todo` stub anyway).
 
-- **`CharRemovedFromLeft(c)` / `CharRemovedFromRight(c)` ignore their char
-  argument** (tests 24_leftcharremoved, 25_rightcharremoved). Both are one-line
-  delegators (`return This.LeftCharRemoved()` / `RightCharRemoved()`,
-  stzString.ring ~8077-8081) that drop the leftmost/rightmost char
-  UNCONDITIONALLY, regardless of `c`. So `Q("---ring").CharRemovedFromLeft("*")`
-  returns `"--ring"` (a `-` removed) when it should be a no-op (`"---ring"`, `*`
-  is absent). The sensible contract — matching the archive `#-->` and the XT
-  twin — is *remove the leftmost char only if it equals `c`* (single, conditional;
-  the XT form removes the whole run). The CharTrimmed* aliases (= XT, remove-all)
-  are fine; only the non-XT single-removal form is wrong. Left un-asserted in the
-  narrated tests (NOTE line); deferred to the fix-pass.
+- **✅ RESOLVED `CharRemovedFromLeft(c)` / `CharRemovedFromRight(c)`** (tests 24,
+  25). Rewrote both to remove the leftmost/rightmost char ONLY if it equals `c`
+  (no-op otherwise), codepoint-safe. `CharRemovedFromLeft("*")` on "---ring" ->
+  "---ring"; `("-")` -> "--ring". Tests asserted (24/25: 6 each).
 
-- **`LeadingChars()` / `TrailingChars()` must return a LIST of chars, not a
-  string** (test 33). Per the design intent (author-confirmed), `LeadingChars()`
-  on `"---Ring"` should return `[ "-", "-", "-" ]`; the STRING form is
-  `LeadingCharsAsString()` (`"---"`). Currently `LeadingChars()` returns the
-  string `"---"`, and the string aliases (`LeadingCharsXT`, `LeadingCharsAsString`,
-  `LeadingCharsAsSubString`) all just delegate to it (stzString.ring ~4414-4457),
-  so they happen to be right while `LeadingChars()` itself is wrong. Fix:
-  `LeadingChars()`/`TrailingChars()` build the char LIST; the `AsString`/`XT`/
-  `AsSubString` aliases join it back into a string. The archive `#-->` (list)
-  was correct all along — supersedes the earlier (mistaken) "Resolved" note that
-  treated the string return as authoritative. Asserted only the string-form
-  aliases in test 33; LeadingChars/TrailingChars left as un-asserted NOTEs.
+- **✅ RESOLVED `LeadingChars()` / `TrailingChars()` LIST form** (tests 33, 150).
+  Split each: `LeadingCharsAsString()` holds the string run "---";
+  `LeadingChars()` returns the char LIST `["-","-","-"]`; the `XT`/`AsSubString`
+  aliases point at the AsString form; `LeadingChar`/`NumberOfLeadingChars` and the
+  `HowMany*` callers were repointed at the string form. Same for the plural
+  First2Chars/First3Chars/Last2Chars/Last3Chars (list) vs their `AsString` twins,
+  via a new `_CharListOf` splitter. Also fixed `Next3Chars(:StartingAt=n)` to take
+  the run AFTER position n (-> "CDE"). Tests asserted (33: 5, 150: 5).
 
 - **✅ RESOLVED `SectionXT` eXTended behaviours** (tests 46, 49). Added two
   guard branches ahead of the negative-index resolution: (a) `:UpToNChars` named
@@ -232,12 +221,13 @@ ShortenedN(2)->"12...21", Shortened()->"123...321", ShortenedNUsing(5," {...} ")
 
 ### Find-in-section / bounded named-param forms (tests 151, 154, 155)
 
-- **`FindCS(sub, :CaseInSensitive)` symbol not parsed** (test 151) -- returns the
-  case-SENSITIVE result ([1,2] on "aaA..." instead of [1,2,3]). The
-  `:CaseSensitive` symbol works.
-- **`FindInSection(sub, from, to)` does not auto-order its bounds** (test 154) --
-  `FindInSection("♥", 12, 3)` returns [] instead of the same [6,9] as the forward
-  call (Section() itself auto-orders, block 152).
+- **✅ RESOLVED `FindCS(sub, :CaseInSensitive)`** (test 151) -- added
+  "caseinsensitive"/"iscaseinsensitive"/"ci" to the FALSE branch of FindCS's
+  symbol normaliser, so `FindCS("a", :CaseInSensitive)` -> [1,2,3]. Asserted.
+- **✅ RESOLVED `FindInSection` auto-order** (test 154) -- swaps n1/n2 when n1>n2
+  (like Section), so `FindInSection("♥",12,3)` == `FindInSection("♥",3,12)`.
+  Asserted. (155/179/180/182 `:Between` forms also done -- see the Replace-bounded
+  resolved section.)
 - **`FindBoundedByAsSections([sub, bound])` returns garbled reversed spans**
   (test 155): [ [8,7], [16,15] ] instead of [ [5,7], [13,15] ]. And the
   `FindXT(sub, :Between=[a,b])` / `FindAsSectionsXT(sub, :Between=[a,b])`

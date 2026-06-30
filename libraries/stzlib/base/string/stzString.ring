@@ -1820,7 +1820,9 @@ class stzString from stzObject
 			   _kw_ = "cs" or _kw_ = "iscs"
 				_csNorm_ = 1
 			but _kw_ = "notcasesensitive" or _kw_ = "isnotcasesensitive" or
-			     _kw_ = "nocs" or _kw_ = "isnotcs"
+			     _kw_ = "nocs" or _kw_ = "isnotcs" or
+			     _kw_ = "caseinsensitive" or _kw_ = "iscaseinsensitive" or
+			     _kw_ = "ci" or _kw_ = "isci"
 				_csNorm_ = 0
 			else
 				_csNorm_ = 1
@@ -1845,15 +1847,17 @@ class stzString from stzObject
 		if NOT (isNumber(n1) and isNumber(n2))
 			StzRaise("FindInSection: n1 and n2 must be numbers.")
 		ok
+		# Auto-order the bounds like Section() does, so FindInSection(sub, 12, 3)
+		# == FindInSection(sub, 3, 12).
+		if n1 > n2
+			_nFisTmp_ = n1 ; n1 = n2 ; n2 = _nFisTmp_
+		ok
 		_nFisLen_ = This.NumberOfChars()
 		if n1 < 1
 			n1 = 1
 		ok
 		if n2 > _nFisLen_
 			n2 = _nFisLen_
-		ok
-		if n1 > n2
-			return []
 		ok
 		_cFisSection_ = This.Section(n1, n2)
 		_aFisRel_ = StzStringQ(_cFisSection_).FindCS(pcSubStr, pCaseSensitive)
@@ -4663,49 +4667,70 @@ class stzString from stzObject
 	# LeadingChars() / TrailingChars() -- return the leading (or
 	# trailing) RUN of identical chars as a single string. e.g.
 	# "----Ring" -> "----". Used by narrative leading-char analysis.
-	def LeadingChars()
+	# LeadingChars() returns the leading run as a LIST of chars
+	# (e.g. ["-","-","-"]); LeadingCharsAsString() returns the run "---".
+	def LeadingCharsAsString()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return "" ok
 		_n_ = StzEngineStringCountLeadingChar(@pEngine, StzEngineStringCharAt(@pEngine, 1))
 		if _n_ = 0 return "" ok
 		return This._EngineSlice(This.Content(), 1, _n_)
 
+	def LeadingChars()
+		_cRun_ = This.LeadingCharsAsString()
+		if _cRun_ = "" return [] ok
+		_c1_ = This._EngineSlice(_cRun_, 1, 1)
+		_aRes_ = []
+		_nN_ = This._EngineCount(_cRun_)
+		for _iLc_ = 1 to _nN_
+			_aRes_ + _c1_
+		next
+		return _aRes_
+
 		def LeadingChar()
-			_lc_ = This.LeadingChars()
-			if len(_lc_) = 0 return "" ok
-			return _lc_[1]
+			_cLcR_ = This.LeadingCharsAsString()
+			if _cLcR_ = "" return "" ok
+			return This._EngineSlice(_cLcR_, 1, 1)
 
 		def NumberOfLeadingChars()
-			return len(This.LeadingChars())
+			return This._EngineCount(This.LeadingCharsAsString())
 
-	def TrailingChars()
+	def TrailingCharsAsString()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return "" ok
 		_n_ = StzEngineStringCountTrailingChar(@pEngine, StzEngineStringCharAt(@pEngine, _nLen_))
 		if _n_ = 0 return "" ok
 		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
 
+	def TrailingChars()
+		_cRun_ = This.TrailingCharsAsString()
+		if _cRun_ = "" return [] ok
+		_c1_ = This._EngineSlice(_cRun_, 1, 1)
+		_aRes_ = []
+		_nN_ = This._EngineCount(_cRun_)
+		for _iTc_ = 1 to _nN_
+			_aRes_ + _c1_
+		next
+		return _aRes_
+
 		def TrailingChar()
-			_tc_ = This.TrailingChars()
-			if len(_tc_) = 0 return "" ok
-			return _tc_[1]
+			_cTcR_ = This.TrailingCharsAsString()
+			if _cTcR_ = "" return "" ok
+			return This._EngineSlice(_cTcR_, 1, 1)
 
 		def NumberOfTrailingChars()
-			return len(This.TrailingChars())
+			return This._EngineCount(This.TrailingCharsAsString())
 
-		# LeadingCharsXT / LeadingCharsAsString / LeadingCharsAsSubString
+		# LeadingCharsXT / LeadingCharsAsSubString
 		# -- aliases that return the leading run as a SINGLE string.
 		def LeadingCharsXT()
-			return This.LeadingChars()
-
-		def LeadingCharsAsString()
-			return This.LeadingChars()
+			return This.LeadingCharsAsString()
 
 		def LeadingCharsAsSubString()
-			return This.LeadingChars()
+			return This.LeadingCharsAsString()
 
 		def TrailingCharsXT()
-			return This.TrailingChars()
+			return This.TrailingCharsAsString()
 
 	# Singular forms: RemoveLeadingChar = remove ONE leading char,
 	# RemoveAnyLeadingChar = peel every leading char of the same type.
@@ -6968,10 +6993,10 @@ class stzString from stzObject
 		return This.NumberOfSubStrings()
 
 	def HowManyTrailingChar()
-		return This._EngineCount(This.TrailingChars())
+		return len(This.TrailingChars())
 
 	def HowManyLeadingChar()
-		return This._EngineCount(This.LeadingChars())
+		return len(This.LeadingChars())
 
 	# HowManyOccurrenceOfCharRightSide(pcChar) / EndSide: count the
 	# trailing run of pcChar.
@@ -7337,10 +7362,12 @@ class stzString from stzObject
 
 	# First2CharsAsString / Last2CharsAsString: aliases.
 	def First2CharsAsString()
-		return This.First2Chars()
+		return This._EngineSlice(This.Content(), 1, 2)
 
 	def Last2CharsAsString()
-		return This.Last2Chars()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ < 2 return This.Content() ok
+		return This._EngineSliceFrom(This.Content(), _nLen_ - 1)
 
 	# RemoveSpacesQ on stzString -- fluent form (existing RemoveSpaces
 	# at line ~6094 isn't followed by a Q form). Wrap and return This.
@@ -7587,21 +7614,31 @@ class stzString from stzObject
 		return "U+" + _cHex_
 
 	# First2Chars / Last2Chars: convenience codepoint slicers.
+	# The plural ...Chars() forms return a LIST of chars; the ...AsString twins
+	# return the substring. _CharListOf splits a string into its codepoint chars.
+	def _CharListOf(cStr)
+		_nClo_ = This._EngineCount(cStr)
+		_aClo_ = []
+		for _iClo_ = 1 to _nClo_
+			_aClo_ + This._EngineSlice(cStr, _iClo_, 1)
+		next
+		return _aClo_
+
 	def First2Chars()
-		return This._EngineSlice(This.Content(), 1, 2)
+		return This._CharListOf( This._EngineSlice(This.Content(), 1, 2) )
 
 	def Last2Chars()
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ < 2 return This.Content() ok
-		return This._EngineSliceFrom(This.Content(), _nLen_ - 1)
+		if _nLen_ < 2 return This._CharListOf(This.Content()) ok
+		return This._CharListOf( This._EngineSliceFrom(This.Content(), _nLen_ - 1) )
 
 	def Last3Chars()
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ < 3 return This.Content() ok
-		return This._EngineSliceFrom(This.Content(), _nLen_ - 2)
+		if _nLen_ < 3 return This._CharListOf(This.Content()) ok
+		return This._CharListOf( This._EngineSliceFrom(This.Content(), _nLen_ - 2) )
 
 	def First3Chars()
-		return This._EngineSlice(This.Content(), 1, 3)
+		return This._CharListOf( This._EngineSlice(This.Content(), 1, 3) )
 
 	def FirstNChars(n)
 		return This._EngineSlice(This.Content(), 1, n)
@@ -8665,32 +8702,40 @@ class stzString from stzObject
 		return This.HexUnicodes()
 
 	def Last3CharsAsString()
-		return This.Last3Chars()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ < 3 return This.Content() ok
+		return This._EngineSliceFrom(This.Content(), _nLen_ - 2)
 
 	def First3CharsAsString()
-		return This.First3Chars()
+		return This._EngineSlice(This.Content(), 1, 3)
 
 	# More codepoint convenience slices.
+	# Next3Chars(:StartingAt = n): the 3 chars AFTER position n (a LIST);
+	# Next3CharsAsString returns them as a substring.
 	def Next3Chars(p1)
-		_nStart_ = 2
-		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
-		   lower(p1[1]) = "startingat"
-			_nStart_ = p1[2]
-		but isNumber(p1) and p1 >= 1
-			_nStart_ = p1
-		ok
-		_nLen_ = This._EngineCount(This.Content())
-		if _nStart_ + 2 > _nLen_ return "" ok
-		return This._EngineSlice(This.Content(), _nStart_, 3)
+		return This._CharListOf( This.Next3CharsAsString(p1) )
 
 	# CharRemovedFromLeft / FromRight: non-mutating singular form.
 	# Accepts a one-arg call (param ignored) for narrative-friendly
 	# spellings like CharRemovedFromLeft("*").
-	def CharRemovedFromLeft(p1)
-		return This.LeftCharRemoved()
+	# CharRemovedFromLeft(c): drop ONE leading char ONLY if it equals c
+	# (no-op when c is absent). Non-mutating. The XT form strips the whole run.
+	def CharRemovedFromLeft(c)
+		_cTxt_ = This.Content()
+		if This._EngineCount(_cTxt_) = 0 return _cTxt_ ok
+		if isString(c) and This._EngineSlice(_cTxt_, 1, 1) = c
+			return This._EngineSliceFrom(_cTxt_, 2)
+		ok
+		return _cTxt_
 
-	def CharRemovedFromRight(p1)
-		return This.RightCharRemoved()
+	def CharRemovedFromRight(c)
+		_cTxt_ = This.Content()
+		_nCrr_ = This._EngineCount(_cTxt_)
+		if _nCrr_ = 0 return _cTxt_ ok
+		if isString(c) and This._EngineSlice(_cTxt_, _nCrr_, 1) = c
+			return This._EngineSlice(_cTxt_, 1, _nCrr_ - 1)
+		ok
+		return _cTxt_
 
 	# RemoveCharFromLeftXT(pcChar): peel leading run of pcChar
 	# (alias of RemoveThisCharFromStartXT for char-narrative spelling).
@@ -9401,7 +9446,16 @@ class stzString from stzObject
 		return [ _p_, _p_ + This._EngineCount(pcSub) - 1 ]
 
 	def Next3CharsAsString(p1)
-		return This.Next3Chars(p1)
+		_nStart_ = 2
+		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
+		   lower(p1[1]) = "startingat"
+			_nStart_ = p1[2]
+		but isNumber(p1) and p1 >= 1
+			_nStart_ = p1
+		ok
+		_nLen_ = This._EngineCount(This.Content())
+		if _nStart_ + 3 > _nLen_ return "" ok
+		return This._EngineSlice(This.Content(), _nStart_ + 1, 3)
 
 	def CharRemovedFromLeftXT(pcChar)
 		_o_ = new stzString(This.Content())

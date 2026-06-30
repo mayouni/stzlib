@@ -15,9 +15,21 @@ Scenario("First / last / next chars as strings")
 	Then("First2CharsAsString() is 'ab'", o1.First2CharsAsString(), "ab")
 	Then("Last3CharsAsString() is 'CDE'", o1.Last3CharsAsString(), "CDE")
 	# Should be lists, but return strings:
-	? "  NOTE  First2Chars() -> " + @@(o1.First2Chars()) + "  (should be a LIST -- deferred)"
-	? "  NOTE  Last3Chars()  -> " + @@(o1.Last3Chars()) + "  (should be a LIST -- deferred)"
-	? "  NOTE  Next3CharsAsString(:StartingAt=2) -> " + @@(o1.Next3CharsAsString(:StartingAt = 2)) + "  (archive wanted 'CDE' -- deferred)"
+	Then("First2Chars() is a LIST", ListEq( o1.First2Chars(), [ "a", "b" ] ), TRUE)
+	Then("Last3Chars() is a LIST", ListEq( o1.Last3Chars(), [ "C", "D", "E" ] ), TRUE)
+	Then("Next3CharsAsString(:StartingAt=2) is the run after pos 2", o1.Next3CharsAsString(:StartingAt = 2), "CDE")
 EndScenario()
 
 Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

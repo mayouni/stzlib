@@ -17,14 +17,24 @@ Scenario("The leading / trailing run as a string (alias forms)")
 	o1 = new stzString("---Ring")
 	Then("LeadingCharsAsString() is the run as a string", o1.LeadingCharsAsString(), "---")
 	Then("LeadingCharsXT() is the same", o1.LeadingCharsXT(), "---")
-	# Should be [ "-", "-", "-" ] (a list); currently returns the string "---":
-	? "  NOTE  LeadingChars() -> " + @@( o1.LeadingChars() ) + "  (should be a LIST of chars -- deferred)"
+	Then("LeadingChars() is the run as a LIST", ListEq( o1.LeadingChars(), [ "-", "-", "-" ] ), TRUE)
 
 	Given('"Ring---"')
 	o2 = new stzString("Ring---")
 	Then("TrailingCharsXT() is the trailing run as a string", o2.TrailingCharsXT(), "---")
-	# Should be [ "-", "-", "-" ] (a list); currently returns the string "---":
-	? "  NOTE  TrailingChars() -> " + @@( o2.TrailingChars() ) + "  (should be a LIST of chars -- deferred)"
+	Then("TrailingChars() is the run as a LIST", ListEq( o2.TrailingChars(), [ "-", "-", "-" ] ), TRUE)
 EndScenario()
 
 Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
