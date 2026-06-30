@@ -5019,12 +5019,18 @@ class stzString from stzObject
 	# Single-bound forms: same character on both sides.
 	# E.g. RemoveBounds('"') strips matching leading + trailing quotes.
 
-	def RemoveBounds(pcBound)
-		This.RemoveTheseBoundsCS(pcBound, pcBound, 1)
+	# RemoveBounds(): no-arg, AUTO-detects the bounds and removes them in place
+	# (the mutating active form of BoundsRemoved). Matches the original.
+	def RemoveBounds()
+		This.Update(This.BoundsRemoved())
 
-		def RemoveBoundsQ(pcBound)
-			This.RemoveBounds(pcBound)
+		def RemoveBoundsQ()
+			This.RemoveBounds()
 			return This
+
+	# RemoveThisBound(c): remove a specific same-char bound from both ends.
+	def RemoveThisBound(pcBound)
+		This.RemoveTheseBoundsCS(pcBound, pcBound, 1)
 
 	  #===============================#
 	 #   BETWEEN                      #
@@ -9276,11 +9282,12 @@ class stzString from stzObject
 			if _n2_ < _nLT_
 				_cAfter_ = This._EngineSliceFrom(_cTxt_, _n2_ + 1)
 			ok
-			# Replace pcOld with pcNew via the engine on _cMid_.
+			# Replace pcOld with pcNew via the engine on _cMid_. The engine
+			# mutates the handle IN PLACE (it does NOT return a new handle);
+			# read the result back from _pH_.
 			_pH_ = StzEngineString(_cMid_)
-			_pR_ = StzEngineStringReplaceCS(_pH_, pcOld, pcNew, 1)
-			_cMidNew_ = StzEngineStringData(_pR_)
-			StzEngineStringFree(_pR_)
+			StzEngineStringReplaceCS(_pH_, pcOld, pcNew, 1)
+			_cMidNew_ = StzEngineStringData(_pH_)
 			StzEngineStringFree(_pH_)
 			This.Update(_cBefore_ + _cMidNew_ + _cAfter_)
 		next
@@ -15703,9 +15710,8 @@ class stzString from stzObject
 				_cVal_ = "" + _p_[2]
 				# Engine-replace (codepoint-aware).
 				_pH_ = StzEngineString(_cOut_)
-				_pR_ = StzEngineStringReplaceCS(_pH_, _cPh_, _cVal_, 1)
-				_cOut_ = StzEngineStringData(_pR_)
-				StzEngineStringFree(_pR_)
+				StzEngineStringReplaceCS(_pH_, _cPh_, _cVal_, 1)
+				_cOut_ = StzEngineStringData(_pH_)
 				StzEngineStringFree(_pH_)
 			ok
 		next

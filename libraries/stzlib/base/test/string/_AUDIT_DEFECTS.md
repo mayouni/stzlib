@@ -5,6 +5,22 @@ Running log of genuine defects surfaced while narrating (= correctness-auditing)
 `stzStringTest.ring` (from git `f6bdfbcc^`, the pre-split monolith). Each entry:
 what's wrong, evidence, and the fix decision (code vs test, per defect policy).
 
+## Per-file audit (post-203) — chunk log
+
+**Chunk 1 (2026-06-30):** 04, 40, 44 audited→narrated (16 assertions). Real fixes:
+- `StzEngineStringReplaceCS` mutates its handle IN PLACE (does NOT return a new
+  handle). `ReplaceInSections` and `Interpolated(bindings)` both captured the
+  (null) return -> empty output. Fixed both to read back from the input handle.
+  This repaired `ReplaceInSections` (04) AND the `Interpolated([[k,v]])` form.
+- `RemoveBounds()` is no-arg auto-detect in the original (was `RemoveBounds(c)`);
+  restored, with the specific form kept as `RemoveThisBound(c)` (40, 2nd block).
+- DEFERRED this chunk: **06** `SizeInBytes`/64/32 -- the original monolith has NO
+  such method (no reference) and 64/32 are Ring-build-specific memory sizes
+  (548/348 here vs archive 624/400); not portably assertable. **39**
+  `SubStringsOccuringNTimes(3)` returns EXACTLY-3 but the archive expects >=3
+  (semantics to resolve vs original) + its `SomeXT(..,1/100)` line samples
+  RANDOMLY (non-deterministic).
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
