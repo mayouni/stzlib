@@ -32,6 +32,20 @@ Real fixes in the occurrence-count family (resolved vs the original aliases):
   NoMoreThan(1) -> [].
 48/56/60/67 were already correct (earlier family fixes) -- just converted.
 
+**Chunk 3 (2026-06-30):** 08, 58, 59, 68 audited→narrated (12 assertions; all
+already correct from earlier ReplaceByMany/RemoveXT fixes). DEFERRED (logged):
+- **70** `Section(-99,99)` should RAISE "Indexes out of range!" per the original
+  (`SectionCS` raises; `SectionXT` is the lenient form). The modular `Section`
+  clamps. This is a CENTRAL change (Section used everywhere) -- needs `SectionXT`
+  to clamp instead + full regression; do it as a dedicated pass. NOTE: the
+  original ALSO defines `Slice(n1,n2) = Section(n1,n2)` (relevant to test 98).
+- **08 line 41** the fluent `StartsWithXTQ(..).AndQ().EndsWithXT(..)` chain
+  returns 0. `AndQ()` is pass-through and `EndsWithXT` doesn't combine the stored
+  StartsWith result (and something corrupts it). Complex fluent-boolean mechanism.
+- **07** managing_a_big_text: a perf demo over `_data/bigtext.txt` (file-dependent
+  huge counts); left as a visual/perf test. (Confirms SizeInBytes = char count for
+  ASCII = 6617121, supporting the 06 "archive 624 was a different definition".)
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
