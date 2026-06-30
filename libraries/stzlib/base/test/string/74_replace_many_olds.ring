@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #74.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md, "Replace-by-many family"): Replace()
-# is a plain 2-arg ReplaceCS (stzString.ring ~1909) with no polymorphic dispatch,
-# so the documented Replace([olds], :By = new) shorthand for ReplaceMany is a
-# no-op. The explicit ReplaceMany([olds], :By = new) form (block #57) works. Left
-# in print form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Replace([olds], :By = new) is the ReplaceMany shorthand -- every listed old
+# substring is replaced by the single new one. Archive block #74.
 
-o1 = new stzString( "a + b - c / d = 0")
-o1.Replace( [ "+", "-", "/" ], :By = "*" ) # Or ReplaceMany()
-? o1.Content() #--> expected "a * b * c * d = 0" (currently a no-op)
+Scenario("Replacing many substrings by one")
+	Given('"a + b - c / d = 0"')
+	o1 = new stzString("a + b - c / d = 0")
+	o1.Replace( [ "+", "-", "/" ], :By = "*" )
+	Then("each operator becomes a star", o1.Content(), "a * b * c * d = 0")
+EndScenario()
 
-pf()
+Summary()

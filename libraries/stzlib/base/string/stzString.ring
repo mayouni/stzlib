@@ -689,30 +689,32 @@ class stzString from stzObject
 		return [ This.FirstHalfXT(), This.SecondHalfXT() ]
 
 	# FirstHalfZ / SecondHalfZ -- sectional [start, end] forms.
+	# Z forms pair the half-substring with its START position; ZZ forms with
+	# its [from,to] span.
 	def FirstHalfZ()
-		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ = 0 return [] ok
-		_nMid_ = floor(_nLen_ / 2)
-		return [ 1, _nMid_ ]
+		if This._EngineCount(This.Content()) = 0 return [] ok
+		return [ This.FirstHalf(), 1 ]
 
 	def SecondHalfZ()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return [] ok
-		_nMid_ = floor(_nLen_ / 2) + 1
-		return [ _nMid_, _nLen_ ]
+		return [ This.SecondHalf(), floor(_nLen_ / 2) + 1 ]
 
 	def HalvesZ()
 		return [ This.FirstHalfZ(), This.SecondHalfZ() ]
 
-	# ZZ variants -- same as Z but the wider tests expect this spelling.
 	def FirstHalfZZ()
-		return This.FirstHalfZ()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return [] ok
+		return [ This.FirstHalf(), [ 1, floor(_nLen_ / 2) ] ]
 
 	def SecondHalfZZ()
-		return This.SecondHalfZ()
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ = 0 return [] ok
+		return [ This.SecondHalf(), [ floor(_nLen_ / 2) + 1, _nLen_ ] ]
 
 	def HalvesZZ()
-		return This.HalvesZ()
+		return [ This.FirstHalfZZ(), This.SecondHalfZZ() ]
 
 	# IsCircledNumber / IsCircledDigit -- Unicode-aware single-char
 	# predicates (Enclosed Alphanumerics block etc.).
@@ -12546,8 +12548,10 @@ class stzString from stzObject
 		ok
 		return [ _cLeft_, _cRight_ ]
 
+	# IB ("inclusive-bounds"): n1, n2 are the bound-inclusive positions, so the
+	# inner section is (n1+1 .. n2-1) -- harvest the bounds around THAT.
 	def SectionBoundsIB(n1, n2, nLeftMax, nRightMax)
-		return This.SectionBounds(n1, n2, nLeftMax, nRightMax)
+		return This.SectionBounds(n1 + 1, n2 - 1, nLeftMax, nRightMax)
 
 	def SectionBoundsZ(n1, n2, nLeftMax, nRightMax)
 		_a_ = This.SectionBounds(n1, n2, nLeftMax, nRightMax)
@@ -12571,10 +12575,10 @@ class stzString from stzObject
 		return This.FindSSZZ(pcSub, n1, n2)
 
 	def SectionBoundsIBZ(n1, n2, nLeftMax, nRightMax)
-		return This.SectionBoundsZ(n1, n2, nLeftMax, nRightMax)
+		return This.SectionBoundsZ(n1 + 1, n2 - 1, nLeftMax, nRightMax)
 
 	def SectionBoundsIBZZ(n1, n2, nLeftMax, nRightMax)
-		return This.SectionBoundsZZ(n1, n2, nLeftMax, nRightMax)
+		return This.SectionBoundsZZ(n1 + 1, n2 - 1, nLeftMax, nRightMax)
 
 	def FindBetweenZZ(pcSub, n1, n2)
 		return This.FindSSZZ(pcSub, n1, n2)

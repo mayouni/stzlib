@@ -19,8 +19,10 @@ Scenario("The bounds around a section, plain and located")
 		ListEq( o1.SectionBoundsZ(10, 13, 2, 3), [ [ "<<", 8 ], [ ">>>", 14 ] ] ), TRUE)
 	Then("SectionBoundsZZ adds each bound's [from,to] span",
 		ListEq( o1.SectionBoundsZZ(10, 13, 2, 3), [ [ "<<", [ 8, 9 ] ], [ ">>>", [ 14, 16 ] ] ] ), TRUE)
-	# The IB variants are off by one (should match the plain form):
-	? "  NOTE  SectionBoundsIB(9,14,2,3) -> " + @@(o1.SectionBoundsIB(9, 14, 2, 3)) + "  (off-by-one -- deferred)"
+	Then("SectionBoundsIB(9,14,2,3) matches the plain form (inclusive bounds)",
+		ListEq( o1.SectionBoundsIB(9, 14, 2, 3), [ "<<", ">>>" ] ), TRUE)
+	Then("SectionBoundsIBZZ(9,14,2,3) gives the bound spans",
+		ListEq( o1.SectionBoundsIBZZ(9, 14, 2, 3), [ [ "<<", [ 8, 9 ] ], [ ">>>", [ 14, 16 ] ] ] ), TRUE)
 EndScenario()
 
 Summary()
