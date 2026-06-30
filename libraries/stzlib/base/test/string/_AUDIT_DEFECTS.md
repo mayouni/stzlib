@@ -39,9 +39,16 @@ already correct from earlier ReplaceByMany/RemoveXT fixes). DEFERRED (logged):
   clamps. This is a CENTRAL change (Section used everywhere) -- needs `SectionXT`
   to clamp instead + full regression; do it as a dedicated pass. NOTE: the
   original ALSO defines `Slice(n1,n2) = Section(n1,n2)` (relevant to test 98).
-- **08 line 41** the fluent `StartsWithXTQ(..).AndQ().EndsWithXT(..)` chain
-  returns 0. `AndQ()` is pass-through and `EndsWithXT` doesn't combine the stored
-  StartsWith result (and something corrupts it). Complex fluent-boolean mechanism.
+- **✅ RESOLVED 08 line 41** the fluent `StartsWithXTQ(..).AndQ().EndsWithXT(..)`
+  chain. ROOT CAUSE: the modular `StartsWithXTQ`/`EndsWithXTQ` stored the boolean
+  via `_SetNarrativeSub` which APPENDS `char(1)+value` to the content -> the
+  following `EndsWithXT` matched against the corrupted content ("...Tunis..1").
+  The original design (StartsWithCSXTQ) instead returns THIS when TRUE (content
+  intact, chain continues on the real string) or `AFalseObject()` when FALSE
+  (short-circuit). Rewrote both XTQ forms that way. `AFalseObject` already exists
+  in `base/object/stzFalseObject.ring` -- ADDED the missing chain methods
+  (AndQ/OrQ/StartsWith*/EndsWith*) to that class so the false-branch stays FALSE.
+  (Do NOT recreate the class -- it lives under base/object, with stzTrueObject.)
 - **07** managing_a_big_text: a perf demo over `_data/bigtext.txt` (file-dependent
   huge counts); left as a visual/perf test. (Confirms SizeInBytes = char count for
   ASCII = 6617121, supporting the 06 "archive 624 was a different definition".)

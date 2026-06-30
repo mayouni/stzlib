@@ -2,9 +2,8 @@ load "../../stzBase.ring"
 load "../_narrated.ring"
 
 # Ways to write "N copies of X": @N(n,x) / Three(x) / @3(x) give a LIST; @NXT
-# with :InAString joins them. They feed StartsWith / EndsWith(XT). Archive #8.
-# (The fluent StartsWithXTQ(..).AndQ().EndsWithXT(..) chaining is a separate
-# deferred defect -- see _AUDIT_DEFECTS.md -- so it is not asserted here.)
+# with :InAString joins them. They feed StartsWith / EndsWith(XT), and the fluent
+# StartsWithXTQ(..).AndQ().EndsWithXT(..) chain (TRUE iff both hold). Archive #8.
 
 Scenario("Writing N copies and matching prefixes/suffixes")
 	Then("@N(3,'.') is a list of three dots", ListEq( @N(3, "."), [ ".", ".", "." ] ), TRUE)
@@ -17,6 +16,8 @@ Scenario("Writing N copies and matching prefixes/suffixes")
 	Then("'...Tunis' starts with '...'", Q("...Tunis").StartsWith("..."), TRUE)
 	Then("'...Tunis' starts with @3('.')", Q("...Tunis").StartsWithXT( @3(".") ), TRUE)
 	Then("'..Tunis..' ends with @2('.')", Q("..Tunis..").EndsWithXT( @2(".") ), TRUE)
+	Then("'...Tunis..' starts with @3('.') AND ends with @2('.')",
+		Q("...Tunis..").StartsWithXTQ( @3(".") ).AndQ().EndsWithXT( @2(".") ), TRUE)
 EndScenario()
 
 Summary()
