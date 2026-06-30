@@ -15,8 +15,8 @@ Scenario("Substrings bounded by <<< >>>")
 	o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
 	Then("BoundedBy gives the two enclosed substrings",
 		ListEq( o1.BoundedBy([ "<<<", ">>>" ]), [ "ring", "softanza" ] ), TRUE)
-	# Between currently returns the same list, not the greedy span:
-	? "  NOTE  Between('<<<','>>>') -> " + @@(o1.Between("<<<", ">>>")) + "  (archive wanted the greedy span string -- deferred)"
+	Then("Between is the GREEDY span: first open to last close",
+		o1.Between("<<<", ">>>"), "ring>>>___<<<softanza")
 EndScenario()
 
 Summary()

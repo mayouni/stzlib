@@ -5033,9 +5033,26 @@ class stzString from stzObject
 	# Between() returns ALL substrings between bounds (Softanza Universal Naming Convention)
 	# FirstBetween/LastBetween/NthBetween for specific occurrences
 
+	# Between: the GREEDY single span between the FIRST open and the LAST close
+	# (matches the original Softanza Between -- returns a STRING, not a list).
 	def BetweenCS(pBound1, pBound2, pCaseSensitive)
-		_oBtBounder_ = new stzStringBounder(This)
-		return _oBtBounder_.BetweenCS(pBound1, pBound2, pCaseSensitive)
+		# :And normalisation for the close bound
+		if isList(pBound2) and len(pBound2) = 2 and isString(pBound2[1]) and
+		   lower(pBound2[1]) = "and"
+			pBound2 = pBound2[2]
+		ok
+		if isNumber(pBound1) and isNumber(pBound2)
+			return This.Section(pBound1 + 1, pBound2 - 1)
+		ok
+		if NOT (isString(pBound1) and isString(pBound2)) return "" ok
+		_aBtOpen_ = This.FindCS(pBound1, pCaseSensitive)
+		if len(_aBtOpen_) = 0 return "" ok
+		_aBtClose_ = This.FindCS(pBound2, pCaseSensitive)
+		if len(_aBtClose_) = 0 return "" ok
+		_nBtN1_ = _aBtOpen_[1] + This._EngineCount(pBound1)
+		_nBtN2_ = _aBtClose_[ len(_aBtClose_) ] - 1
+		if _nBtN2_ < _nBtN1_ return "" ok
+		return This.Section(_nBtN1_, _nBtN2_)
 
 	def Between(pBound1, pBound2)
 		return This.BetweenCS(pBound1, pBound2, 1)
@@ -5059,7 +5076,9 @@ class stzString from stzObject
 		if NOT (isList(pacBounds) and len(pacBounds) = 2)
 			StzRaise("BoundedByCS: pacBounds must be a string or a 2-list [ open, close ]")
 		ok
-		return This.BetweenCS(pacBounds[1], pacBounds[2], pCaseSensitive)
+		# The list of enclosed regions (NOT the greedy single span -- that is
+		# Between). Routed through AnyBoundedBy so Between stays free to be greedy.
+		return This.AnyBoundedBy(pacBounds)
 
 	# Same-char bound helpers: a bound is "same-char" when one string is used
 	# for both ends ("&") or a 2-list with equal ends (["&","&"]).
@@ -12364,7 +12383,13 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	# SubStringComesBetween is order-INDEPENDENT (matches the original): TRUE
+	# if pcSub sits between the two bounds in EITHER order.
 	def SubStringComesBetween(pcSub, pcLeft, pcRight)
+		if This._ComesBetweenOrdered(pcSub, pcLeft, pcRight) return TRUE ok
+		return This._ComesBetweenOrdered(pcSub, pcRight, pcLeft)
+
+	def _ComesBetweenOrdered(pcSub, pcLeft, pcRight)
 		# TRUE if pcSub has pcLeft just before it and pcRight just after.
 		_p_ = This._FindFrom(This.Content(), pcSub, 1)
 		if _p_ < 1 return FALSE ok

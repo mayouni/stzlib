@@ -1,17 +1,16 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
-# Between(open, :And = close) and BoundedBy([open, close]) -- the substrings
-# enclosed between a DISTINCT open/close pair. Archive block #123. (With a
-# distinct [open,close] pair these work; the single-repeated-bound form is broken
-# -- see block #121 and _AUDIT_DEFECTS.md.)
+# Between vs BoundedBy: Between is the GREEDY single span from the first open to
+# the last close (a string); BoundedBy returns the LIST of each enclosed region.
+# Archive block #123.
 
 Scenario("The text enclosed between distinct bounds")
 	Given('"<<***>>**<<***>>"')
 	o1 = new stzString("<<***>>**<<***>>")
-	Then("Between('<<', :And='>>') gives the enclosed parts",
-		ListEq( o1.Between("<<", :and = ">>"), [ "***", "***" ] ), TRUE)
-	Then("BoundedBy(['<<','>>']) agrees",
+	Then("Between('<<', :And='>>') is the greedy span (first open to last close)",
+		o1.Between("<<", :and = ">>"), "***>>**<<***")
+	Then("BoundedBy(['<<','>>']) gives each enclosed region",
 		ListEq( o1.BoundedBy([ "<<", ">>" ]), [ "***", "***" ] ), TRUE)
 EndScenario()
 
