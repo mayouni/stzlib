@@ -5,10 +5,17 @@ Running log of genuine defects surfaced while narrating (= correctness-auditing)
 `stzStringTest.ring` (from git `f6bdfbcc^`, the pre-split monolith). Each entry:
 what's wrong, evidence, and the fix decision (code vs test, per defect policy).
 
-## FINAL STATUS (2026-06-30): every fixable stzString defect resolved
+## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
-Narrated string suite **203/203 green**. The only tests still in print-form / with
-un-asserted NOTEs are NOT stzString defects:
+NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
+narrated assertions + green** (the backlog below is from those). **~796 remain
+un-audited** (print-form pr()/pf() + `from_*` cross-module extracts) and must be
+processed the same way: read the current test, recover its original block from the
+monolith (`git show f6bdfbcc^:.../legacy/stzStringTest.ring`), read the original
+impl (`archive/stzString_monolithic.ring`), take the ORIGINAL as reference, run,
+fix or log, convert to narrated. Do it in CHUNKS.
+
+Within the 203 audited, the tests left print-form / NOTE are NOT stzString defects:
 - **Ring-language limits:** `$()`/`Interpolate` (111 — no caller-scope reflection),
   `Repeated<N>Times` (112 — no method-missing).
 - **Upstream `#TODO`:** `Dotless` Latin/Arabic (114, 115).
