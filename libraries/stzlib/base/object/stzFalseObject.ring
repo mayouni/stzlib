@@ -43,6 +43,39 @@ class stzFalseObject from stzObject
 	def StzType()
 		return :stzFalseObject
 
+	#-- Fluent boolean short-circuit: every check stays FALSE; AndQ/OrQ keep the
+	#-- chain going (so StartsWithXTQ(a).AndQ().EndsWithXT(b) is FALSE when a fails).
+
+	def AndQ()
+		return This
+
+	def OrQ()
+		return This
+
+	def StartsWith(p)
+		return 0
+
+	def StartsWithXT(p)
+		return 0
+
+	def StartsWithAny(p)
+		return 0
+
+	def StartsWithXTQ(p)
+		return This
+
+	def EndsWith(p)
+		return 0
+
+	def EndsWithXT(p)
+		return 0
+
+	def EndsWithAny(p)
+		return 0
+
+	def EndsWithXTQ(p)
+		return This
+
 	#--
 
 	def Where(pcCondition)

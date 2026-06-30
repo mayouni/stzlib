@@ -6486,27 +6486,21 @@ class stzString from stzObject
 		ok
 		return 0
 
+	# Fluent boolean chain (per the original): if the check is TRUE, return THIS
+	# (content intact) so the chain continues on the real string; if FALSE, return
+	# a false-object whose subsequent chained checks all stay FALSE (short-circuit).
+	# e.g. Q(s).StartsWithXTQ(a).AndQ().EndsWithXT(b) == StartsWith(a) AND EndsWith(b).
 	def StartsWithXTQ(pVal)
-		_o_ = new stzString(This.Content())
-		_v_ = 0
-		if isString(pVal)
-			_v_ = _o_.StartsWith(pVal)
-		but isList(pVal)
-			_v_ = _o_.StartsWithAny(pVal)
+		if This.StartsWithXT(pVal)
+			return This
 		ok
-		_o_._SetNarrativeSub("" + _v_)
-		return _o_
+		return AFalseObject()
 
 	def EndsWithXTQ(pVal)
-		_o_ = new stzString(This.Content())
-		_v_ = 0
-		if isString(pVal)
-			_v_ = _o_.EndsWith(pVal)
-		but isList(pVal)
-			_v_ = _o_.EndsWithAny(pVal)
+		if This.EndsWithXT(pVal)
+			return This
 		ok
-		_o_._SetNarrativeSub("" + _v_)
-		return _o_
+		return AFalseObject()
 
 	def EndsWithAnyCS(pcSuffixes, pCaseSensitive)
 		_oEwFinder_ = new stzStringFinder(This)
