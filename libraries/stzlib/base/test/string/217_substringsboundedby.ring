@@ -1,14 +1,16 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
-# SubStringsBoundedBy('"') -- the substrings enclosed by a single quote-mark bound.
-# (Unlike BoundedBy("&"), this single-bound form works.) Archive block #217.
+# SubStringsBoundedBy('"') with a single repeated quote bound pairs the marks
+# OVERLAPPINGLY (the original impl reuses each closer as the next opener), so the
+# gap BETWEEN the two quoted segments is also returned. Archive block #217.
 
-Scenario("Extracting quoted segments")
+Scenario("Extracting segments bounded by a repeated quote mark")
 	Given('a line with two double-quoted segments')
 	o1 = new stzString('this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"')
-	Then("both quoted contents are returned, spaces preserved",
-		ListEq( o1.SubStringsBoundedBy('"'), [ "<    leave spaces    >", "< leave spaces >" ] ), TRUE)
+	Then("all three consecutive gaps are returned, spaces preserved",
+		ListEq( o1.SubStringsBoundedBy('"'),
+			[ "<    leave spaces    >", " and this code: txt2 = ", "< leave spaces >" ] ), TRUE)
 EndScenario()
 
 Summary()

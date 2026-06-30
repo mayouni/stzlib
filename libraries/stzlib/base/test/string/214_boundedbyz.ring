@@ -1,25 +1,30 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #214.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md): BoundedByZ("&") / BoundedByZZ("&")
-# RAISE "Incorrect param! pacBounds must be a pair of strings" -- the single-
-# string bound is not widened to ["&","&"]. (And even with a pair, the Z/ZZ forms
-# lose the [substring, span] grouping -- blocks 163/166/187.) Left in print form;
-# NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoundedByZ / BoundedByZZ widen the single "&" bound and group each bounded
+# substring with its start position / [from,to] span. Archive block #214.
 
-o1 = new stzString("..&^^^&..&^^^&..&---&..&---&..")
+Scenario("Bounded substrings grouped with positions, single & bound")
+	Given('"..&^^^&..&^^^&..&---&..&---&.."')
+	o1 = new stzString("..&^^^&..&^^^&..&---&..&---&..")
+	Then("BoundedByZ pairs each substring with its start",
+		ListEq( o1.BoundedByZ("&"),
+			[ [ "^^^", 4 ], [ "..", 8 ], [ "^^^", 11 ], [ "..", 15 ], [ "---", 18 ], [ "..", 22 ], [ "---", 25 ] ] ), TRUE)
+	Then("BoundedByZZ pairs each substring with its span",
+		ListEq( o1.BoundedByZZ("&"),
+			[ [ "^^^", [4,6] ], [ "..", [8,9] ], [ "^^^", [11,13] ], [ "..", [15,16] ], [ "---", [18,20] ], [ "..", [22,23] ], [ "---", [25,27] ] ] ), TRUE)
+EndScenario()
 
-? @@NL( o1.BoundedByZ("&") ) + NL
-#--> expected each substring paired with its start position (currently raises)
+Summary()
 
-? @@NL( o1.BoundedByZZ("&") )
-#--> expected each substring paired with its [from,to] span (currently raises)
-
-pf()
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
