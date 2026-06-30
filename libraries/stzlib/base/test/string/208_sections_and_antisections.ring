@@ -17,7 +17,8 @@ Scenario("Sections and anti-sections with uniform gaps")
 		ListEq( o1.AntiSections([ [4, 6], [10, 12] ]), [ "...", "...", "..." ] ), TRUE)
 	Then("FindAsSections locates the substrings",
 		ListEq( o1.FindAsSections([ "456", "012" ]), [ [ 4, 6 ], [ 10, 12 ] ] ), TRUE)
-	? "  NOTE  AntiFindAsSections -> " + @@(o1.AntiFindAsSections([ "456", "012" ])) + "  (want sections, got substrings -- deferred)"
+	Then("AntiFindAsSections gives the complement spans",
+		ListEq( o1.AntiFindAsSections([ "456", "012" ]), [ [1,3], [7,9], [13,15] ] ), TRUE)
 EndScenario()
 
 Summary()

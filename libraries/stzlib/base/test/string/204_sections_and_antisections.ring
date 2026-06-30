@@ -17,9 +17,10 @@ Scenario("Sections and anti-sections of a string")
 		ListEq( o1.AntiSections([ [4, 6], [10, 12] ]), [ "^^^", "---", "..." ] ), TRUE)
 	Then("FindAsSections locates the substrings",
 		ListEq( o1.FindAsSections([ "456", "012" ]), [ [ 4, 6 ], [ 10, 12 ] ] ), TRUE)
-	# Broken anti-forms:
-	? "  NOTE  AntiFindAsSections -> " + @@(o1.AntiFindAsSections([ "456", "012" ])) + "  (want sections, got substrings -- deferred)"
-	? "  NOTE  AntiSectionsZ -> " + @@(o1.AntiSectionsZ([ [4, 6], [10, 12] ])) + "  (garbled -- deferred)"
+	Then("AntiFindAsSections gives the complement spans",
+		ListEq( o1.AntiFindAsSections([ "456", "012" ]), [ [1,3], [7,9], [13,15] ] ), TRUE)
+	Then("AntiSectionsZ pairs each gap with its start",
+		ListEq( o1.AntiSectionsZ([ [4, 6], [10, 12] ]), [ [ "^^^", 1 ], [ "---", 7 ], [ "...", 13 ] ] ), TRUE)
 EndScenario()
 
 Summary()

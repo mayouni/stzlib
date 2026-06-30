@@ -12,8 +12,8 @@ Scenario("The section of a substring vs its complement")
 	Given('"ring..."')
 	o1 = new stzString("ring...")
 	Then("FindAsSection('ring') is [1,4]", ListEq( o1.FindAsSection("ring"), [ 1, 4 ] ), TRUE)
-	# AntiFindAsSection should be [5,7]:
-	? "  NOTE  AntiFindAsSection('ring') -> " + @@(o1.AntiFindAsSection("ring")) + "  (want [5,7] -- deferred)"
+	Then("AntiFindAsSection('ring') is the complement span [5,7]",
+		ListEq( o1.AntiFindAsSection("ring"), [ 5, 7 ] ), TRUE)
 EndScenario()
 
 Summary()

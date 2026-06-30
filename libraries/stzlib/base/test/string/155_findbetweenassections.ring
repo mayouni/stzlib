@@ -18,9 +18,10 @@ Scenario("Finding ABC bounded by | markers")
 		ListEq( o1.FindXT("ABC", :BoundedBy = "|"), [ 5, 13 ] ), TRUE)
 	Then("FindAsSectionsXT(..., :BoundedBy='|') gives both spans",
 		ListEq( o1.FindAsSectionsXT("ABC", :BoundedBy = "|"), [ [ 5, 7 ], [ 13, 15 ] ] ), TRUE)
-	# Broken forms:
-	? "  NOTE  FindBoundedByAsSections(['ABC','|']) -> " + @@(o1.FindBoundedByAsSections([ "ABC", "|" ])) + "  (garbled -- deferred)"
-	? "  NOTE  FindXT('ABC', :Between=['|','|']) -> " + @@(o1.FindXT("ABC", :Between = [ "|", "|" ])) + "  (want [5,13] -- deferred)"
+	Then("FindXT(..., :Between=['|','|']) gives the start positions",
+		ListEq( o1.FindXT("ABC", :Between = [ "|", "|" ]), [ 5, 13 ] ), TRUE)
+	Then("FindAsSectionsXT(..., :Between=['|','|']) gives both spans",
+		ListEq( o1.FindAsSectionsXT("ABC", :Between = [ "|", "|" ]), [ [ 5, 7 ], [ 13, 15 ] ] ), TRUE)
 EndScenario()
 
 Summary()

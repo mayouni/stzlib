@@ -15,8 +15,8 @@ Scenario("Finding a substring between markers (multi-char gaps)")
 		ListEq( o1.FindBetween("hi!", "<<", ">>"), [ 8, 29 ] ), TRUE)
 	Then("FindBetweenAsSections gives their spans",
 		ListEq( o1.FindBetweenAsSections("hi!", "<<", ">>"), [ [ 8, 10 ], [ 29, 31 ] ] ), TRUE)
-	# The :Between/:And XT form returns []:
-	? "  NOTE  FindXT('hi!', :Between=['<<',:And='>>']) -> " + @@(o1.FindXT("hi!", :Between = ["<<", :And = ">>"])) + "  (want [8,29] -- deferred)"
+	Then("FindXT(..., :Between=['<<',:And='>>']) gives the two positions",
+		ListEq( o1.FindXT("hi!", :Between = ["<<", :And = ">>"]), [ 8, 29 ] ), TRUE)
 EndScenario()
 
 Summary()

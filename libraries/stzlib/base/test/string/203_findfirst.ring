@@ -14,8 +14,8 @@ Scenario("First position, section, and complement of a substring")
 	Then("FindAsSection('ring') is [4,7]", ListEq( o1.FindAsSection("ring"), [ 4, 7 ] ), TRUE)
 	Then("AntiFind('ring') is the complement positions",
 		ListEq( o1.AntiFind("ring"), [ 1, 2, 3, 8, 9, 10 ] ), TRUE)
-	# AntiFindAsSections should give [[1,3],[8,10]] but returns substrings:
-	? "  NOTE  AntiFindAsSections('ring') -> " + @@(o1.AntiFindAsSections("ring")) + "  (want [[1,3],[8,10]] -- deferred)"
+	Then("AntiFindAsSections('ring') gives the complement spans",
+		ListEq( o1.AntiFindAsSections("ring"), [ [1,3], [8,10] ] ), TRUE)
 EndScenario()
 
 Summary()
