@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# #expressiveness #elegant-code
-# The elegant [ "Ring", :And = "Softanza" ] keep-list reads naturally and is
-# honoured: both tokens are kept, each excluded run becomes one heart.
-#
-# Extracted from stzStringTest.ring, block #82.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceAllExcept accepts the [a, :And = b] spelling for the kept list. Archive #82.
 
-o1 = new stzString("--Ring--__Softanza__")
-o1.ReplaceAllExcept([ "Ring", :And = "Softanza" ], :With = AHeart())
-? o1.Content()
-#--> ♥Ring♥Softanza♥
+Scenario("Replace-all-except with the :And spelling")
+	Given('"--Ring--__Softanza__"')
+	o1 = new stzString("--Ring--__Softanza__")
+	o1.ReplaceAllExcept([ "Ring", :And = "Softanza" ], :With = AHeart())
+	Then("each non-kept run becomes a heart", o1.Content(), "♥Ring♥Softanza♥")
+EndScenario()
 
-pf()
+Summary()

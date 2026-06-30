@@ -1,18 +1,14 @@
-# Narrative
-# --------
-# ReplaceAllExcept replaces every excluded RUN (a maximal stretch of non-keep
-# chars) with a single :With value -- here one heart per run. The keep "&" is
-# absent from the input, so the three runs (--, --__, __) each become one ♥.
-#
-# Extracted from stzStringTest.ring, block #79.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceAllExcept([...], :With = new) replaces every run that is NOT in the kept
+# list with `new` (one replacement per run). Archive block #79.
 
-o1 = new stzString("--Ring--__Softanza__")
-o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], :With = AHeart())
-? o1.Content()
-#--> ♥Ring♥Softanza♥
+Scenario("Replacing everything except the listed runs")
+	Given('"--Ring--__Softanza__"')
+	o1 = new stzString("--Ring--__Softanza__")
+	o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], :With = AHeart())
+	Then("each non-kept run becomes a heart", o1.Content(), "♥Ring♥Softanza♥")
+EndScenario()
 
-pf()
+Summary()

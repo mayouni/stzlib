@@ -64,6 +64,10 @@ directly-called public Section is strict). `SectionXT` now slices via
 original defines Slice=Section). Test 70 asserts the raise + lenient XT + Slice.
 NOTE: test 98 (`Q(1:20).Slice(...)`) is stzLIST.Slice -- still list-domain.
 
+**Chunk 4 (2026-07-01):** 71, 77, 78, 79, 80, 82 audited→narrated (7 assertions;
+all already correct from the earlier ReplaceXT/Except/ReplaceAllExcept/
+ReplaceWithMany fixes -- pure conversions, no impl change).
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
