@@ -1,25 +1,34 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #241.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md, Z/ZZ grouping family): the plain
-# FirstHalf/SecondHalf/Halves(+XT) forms work (block 240), but every Z/ZZ form
-# loses the [substring, position] grouping -- FirstHalfZ returns [1,4] instead of
-# [ "1234", 1 ], HalvesZZ returns [ [1,4], [5,9] ] instead of
-# [ [ "1234",[1,4] ], [ "56789",[5,9] ] ], etc. Left in print form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The Z / ZZ half forms pair each half-substring with its start position (Z) or
+# its [from,to] span (ZZ). Archive block #241.
 
-o1 = new stzString("123456789")
+Scenario("The halves of a string, grouped with positions")
+	Given('"123456789"')
+	o1 = new stzString("123456789")
+	Then("FirstHalfZ pairs the first half with its start",
+		ListEq( o1.FirstHalfZ(), [ "1234", 1 ] ), TRUE)
+	Then("FirstHalfZZ pairs it with its span",
+		ListEq( o1.FirstHalfZZ(), [ "1234", [1,4] ] ), TRUE)
+	Then("SecondHalfZZ pairs the second half with its span",
+		ListEq( o1.SecondHalfZZ(), [ "56789", [5,9] ] ), TRUE)
+	Then("HalvesZ groups both with their starts",
+		ListEq( o1.HalvesZ(), [ [ "1234", 1 ], [ "56789", 5 ] ] ), TRUE)
+	Then("HalvesZZ groups both with their spans",
+		ListEq( o1.HalvesZZ(), [ [ "1234", [1,4] ], [ "56789", [5,9] ] ] ), TRUE)
+EndScenario()
 
-? @@( o1.FirstHalfZ() )   #--> expected [ "1234", 1 ] (currently [ 1, 4 ])
-? @@( o1.FirstHalfZZ() )  #--> expected [ "1234", [ 1, 4 ] ]
-? @@( o1.SecondHalfZZ() ) #--> expected [ "56789", [ 5, 9 ] ]
-? @@( o1.HalvesZ() )      #--> expected [ [ "1234", 1 ], [ "56789", 5 ] ]
-? @@( o1.HalvesZZ() )     #--> expected [ [ "1234", [1,4] ], [ "56789", [5,9] ] ]
+Summary()
 
-pf()
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
