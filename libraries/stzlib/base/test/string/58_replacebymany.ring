@@ -1,17 +1,14 @@
-# Narrative
-# --------
-# The :By named-param form of ReplaceByMany: each "ring" maps to the next item
-# in the list (multibyte replacements).
-#
-# Extracted from stzStringTest.ring, block #58.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceByMany(sub, :By = list) cycles the replacements (multibyte-safe).
+# Archive block #58.
 
-o1 = new stzString("ring php ruby ring python ring")
-o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
-? o1.Content()
-#--> ♥ php ruby ♥♥ python ♥♥♥
+Scenario("Replace-by-many with the :By named param")
+	Given('"ring php ruby ring python ring"')
+	o1 = new stzString("ring php ruby ring python ring")
+	o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+	Then("each 'ring' gets the next heart-run", o1.Content(), "♥ php ruby ♥♥ python ♥♥♥")
+EndScenario()
 
-pf()
+Summary()

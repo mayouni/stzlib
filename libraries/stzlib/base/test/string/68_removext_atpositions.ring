@@ -1,17 +1,14 @@
-# Narrative
-# --------
-# RemoveXT(sub, :AtPosition = n / :AtPositions = [...]): remove the sub at exact
-# codepoint position(s) -- multibyte-correct (the heart is 1 char, not 3 bytes).
-#
-# Extracted from stzStringTest.ring, block #68.
-#
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveXT(sub, :AtPositions = [...]) removes the occurrences of sub starting at
+# each given codepoint position (multibyte-safe). Archive block #68.
 
-o1 = new stzString("♥♥♥ring ♥♥♥ruby ♥♥♥php")
-o1.RemoveXT("♥♥♥", :AtPositions = [ 1, 9, 17 ])
-? o1.Content() #--> ring ruby php
+Scenario("Removing a substring at several positions")
+	Given('"♥♥♥ring ♥♥♥ruby ♥♥♥php"')
+	o1 = new stzString("♥♥♥ring ♥♥♥ruby ♥♥♥php")
+	o1.RemoveXT("♥♥♥", :AtPositions = [ 1, 9, 17 ])
+	Then("all three heart-runs are removed", o1.Content(), "ring ruby php")
+EndScenario()
 
-pf()
+Summary()
