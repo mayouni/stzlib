@@ -1,19 +1,14 @@
-# Narrative
-# --------
-# ReplaceByMany(sub, [r1, r2, r3]) replaces each successive occurrence of `sub`
-# with r1, r2, r3 in turn (cycling if there are more occurrences than
-# replacements). Each "ring" maps to the next item in the list.
-#
-# Extracted from stzStringTest.ring, block #48.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceByMany(sub, [r1,r2,r3]) replaces each occurrence of sub by cycling
+# through the replacements (1st->r1, 2nd->r2, 3rd->r3, wrapping). Archive #48.
 
-o1 = new stzString("ring php ruby ring python ring")
-o1.ReplaceByMany("ring", [ "X", "XX", "XXX" ])
+Scenario("Replacing occurrences by cycling replacements")
+	Given('"ring php ruby ring python ring"')
+	o1 = new stzString("ring php ruby ring python ring")
+	o1.ReplaceByMany("ring", [ "X", "XX", "XXX" ])
+	Then("each 'ring' gets the next replacement", o1.Content(), "X php ruby XX python XXX")
+EndScenario()
 
-? o1.Content()
-#--> X php ruby XX python XXX
-
-pf()
+Summary()

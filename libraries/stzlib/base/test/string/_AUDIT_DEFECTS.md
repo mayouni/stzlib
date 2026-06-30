@@ -21,6 +21,17 @@ what's wrong, evidence, and the fix decision (code vs test, per defect policy).
   (semantics to resolve vs original) + its `SomeXT(..,1/100)` line samples
   RANDOMLY (non-deterministic).
 
+**Chunk 2 (2026-06-30):** 39, 48, 56, 60, 67 audited→narrated (12 assertions).
+Real fixes in the occurrence-count family (resolved vs the original aliases):
+- `SubStringsOccurringNTimes(n)` means **>= n** in the original (aliased to
+  `...NTimesOrMore`); the modular returned `= n`. Added a `_SubStringsByOccurrence
+  (n, bExact)` helper and repointed: NTimes / misspelled `Occuring` -> ">= n";
+  `Exactly` / `Only` -> "= n".
+- `SubStringsOccurringNoMoreThanNTimes(n)` is aliased to `...LessThanNTimes` in the
+  original (strictly `< n`); the modular used `<= n`. Now delegates, so
+  NoMoreThan(1) -> [].
+48/56/60/67 were already correct (earlier family fixes) -- just converted.
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to

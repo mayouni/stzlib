@@ -9865,10 +9865,13 @@ class stzString from stzObject
 
 	# SubStringsOccuringNTimes(n): substrings that appear EXACTLY n
 	# times in the content.
-	def SubStringsOccuringNTimes(n)
+	# _SubStringsByOccurrence(n, bExact): the unique substrings occurring exactly n
+	# times (bExact=TRUE) or n-OR-MORE times (bExact=FALSE). Per the original,
+	# SubStringsOccurringNTimes means ">= n" (aliased to ...NTimesOrMore), while
+	# Exactly/Only mean "= n".
+	def _SubStringsByOccurrence(n, bExact)
 		_aAll_ = This.SubStrings()
 		_aRes_ = []
-		# Dedup first.
 		_aUniq_ = []
 		_nL_ = len(_aAll_)
 		for _i_ = 1 to _nL_
@@ -9883,14 +9886,24 @@ class stzString from stzObject
 		_nUL_ = len(_aUniq_)
 		for _i_ = 1 to _nUL_
 			_s_ = _aUniq_[_i_]
-			if len(_s_) > 0 and This.HowMany(_s_) = n
-				_aRes_ + _s_
+			if len(_s_) > 0
+				_nc_ = This.HowMany(_s_)
+				if bExact
+					if _nc_ = n _aRes_ + _s_ ok
+				else
+					if _nc_ >= n _aRes_ + _s_ ok
+				ok
 			ok
 		next
 		return _aRes_
 
+	# >= n occurrences (canonical + misspelled alias)
+	def SubStringsOccuringNTimes(n)
+		return This._SubStringsByOccurrence(n, FALSE)
+
+	# = n occurrences
 	def SubStringsOccurringOnlyNTimes(n)
-		return This.SubStringsOccuringNTimes(n)
+		return This._SubStringsByOccurrence(n, TRUE)
 
 	# (NumbersComingAfter already exists earlier; just add the Q form.)
 	def NumbersComingAfterQ(pcAnchor)
@@ -10068,10 +10081,10 @@ class stzString from stzObject
 		return This.FindConsecutiveSubStringsOfNCharsZZ(n)
 
 	def SubStringsOccurringExactlyNTimes(n)
-		return This.SubStringsOccuringNTimes(n)
+		return This._SubStringsByOccurrence(n, TRUE)
 
 	def SubStringsOccurringNTimes(n)
-		return This.SubStringsOccuringNTimes(n)
+		return This._SubStringsByOccurrence(n, FALSE)
 
 	# NumbrifyQ / NumbrifiedQ: alias for ToNumber wrap.
 	def NumbrifyQ()
@@ -10286,30 +10299,10 @@ class stzString from stzObject
 		next
 		return TRUE
 
-	# SubStringsOccurringNoMoreThanNTimes / LessThanNTimes: bounded
-	# count predicates.
+	# SubStringsOccurringNoMoreThanNTimes is aliased to LessThanNTimes in the
+	# original (strictly < n), so NoMoreThan(1) -> [] (every substring occurs >=1).
 	def SubStringsOccurringNoMoreThanNTimes(n)
-		_aAll_ = This.SubStrings()
-		_aUniq_ = []
-		_nL_ = len(_aAll_)
-		for _i_ = 1 to _nL_
-			_s_ = _aAll_[_i_]
-			_bD_ = FALSE
-			_nUL_ = len(_aUniq_)
-			for _j_ = 1 to _nUL_
-				if _aUniq_[_j_] = _s_ _bD_ = TRUE exit ok
-			next
-			if NOT _bD_ _aUniq_ + _s_ ok
-		next
-		_aRes_ = []
-		_nUL_ = len(_aUniq_)
-		for _i_ = 1 to _nUL_
-			_s_ = _aUniq_[_i_]
-			if len(_s_) > 0 and This.HowMany(_s_) <= n
-				_aRes_ + _s_
-			ok
-		next
-		return _aRes_
+		return This.SubStringsOccurringLessThanNTimes(n)
 
 	def SubStringsOccurringLessThanNTimes(n)
 		_aAll_ = This.SubStrings()
