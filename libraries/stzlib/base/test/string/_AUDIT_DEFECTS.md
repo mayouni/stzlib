@@ -5,6 +5,21 @@ Running log of genuine defects surfaced while narrating (= correctness-auditing)
 `stzStringTest.ring` (from git `f6bdfbcc^`, the pre-split monolith). Each entry:
 what's wrong, evidence, and the fix decision (code vs test, per defect policy).
 
+## FINAL STATUS (2026-06-30): every fixable stzString defect resolved
+
+Narrated string suite **203/203 green**. The only tests still in print-form / with
+un-asserted NOTEs are NOT stzString defects:
+- **Ring-language limits:** `$()`/`Interpolate` (111 — no caller-scope reflection),
+  `Repeated<N>Times` (112 — no method-missing).
+- **Upstream `#TODO`:** `Dotless` Latin/Arabic (114, 115).
+- **stzLIST-module (mis-filed under test/string):** `Slice`/named `Section`
+  (98), `stzList.SplitAt` R41 (201).
+- **Visual rendering (not assertable):** box-drawing glyph style — ASCII vs
+  Unicode (99, 100, 101); ASCII is the Windows-console-safe choice per CLAUDE.md.
+- **Inconsistent archive `#-->`:** `SimplifyExcept` (156 — its overlapping quote
+  sections keep the middle even in the original); `Duplicates` (160 — the
+  archive values were copied from a different string, "RINGORIALAND").
+
 ## ✅ RESOLVED — SYSTEMIC: StzFindFirst args-backwards sweep (2026-06-29)
 
 `StzFindFirst(haystack, needle)` is HAYSTACK-FIRST, but the StzFind->StzFindFirst
