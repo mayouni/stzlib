@@ -1,33 +1,35 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #39.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# HowManySubStrings + the occurrence-count families. Per the original:
+# SubStringsOccurringNTimes(n) = ">= n" (alias ...NTimesOrMore); ...ExactlyNTimes
+# = "= n"; ...NoMoreThanNTimes = ...LessThanNTimes = "< n". Archive block #39.
+# (The archive's SomeXT(.., 1/100) line samples RANDOMLY -> not asserted.)
 
-o1 = new stzString( "one two one three two one four five" )
+Scenario("Counting and classifying the substrings by occurrence")
+	Given('"one two one three two one four five"')
+	o1 = new stzString("one two one three two one four five")
+	Then("HowManySubStrings is 630", o1.HowManySubStrings(), 630)
+	Then("SubStringsOccuringNTimes(3) is the >=3 set",
+		ListEq( o1.SubStringsOccuringNTimes(3),
+			[ "o", "on", "one", "one ", "n", "ne", "ne ", "e", "e ", "e t", " ", " t", "t" ] ), TRUE)
+	Then("SubStringsOccurringExactlyNTimes(3) is the =3 set",
+		ListEq( o1.SubStringsOccurringExactlyNTimes(3),
+			[ "on", "one", "one ", "n", "ne", "ne ", "e t", " t", "t" ] ), TRUE)
+	Then("SubStringsOccurringNoMoreThanNTimes(1) is empty (< 1)",
+		ListEq( o1.SubStringsOccurringNoMoreThanNTimes(1), [ ] ), TRUE)
+EndScenario()
 
-? o1.HowManySubStrings()
-#--> 630
+Summary()
 
-? @@( SomeXT( o1.SubStrings(), 1/100 ) ) + NL # 1% of all the substrings
-#--> [ " four", "e three two", "hree t", "one th", "one three two o", "th", "wo on" ]
-
-# can also be written direcltly:
-//? @@( OnePercentOf( o1.SubStrings() ) ) # or just 1Percent()
-
-? @@( o1.SubStringsOccuringNTimes(3) ) + NL #NOTE // "occuring" is mispelled (one r instead of two)
-#--> [ "o", "on", "one", "one ", "n", "ne", "ne ", "e", "e ", "e t", " ", " t", "t" ]
-
-? @@( o1.SubStringsOccurringExactlyNtimes(3) ) + NL
-#--> [ "on", "one", "one ", "n", "ne", "ne ", "e t", " t", "t" ]
-
-? @@( o1.SubStringsOccurringNoMoreThanNTimes(1) )
-#--> [ ]
-
-pf()
-# Executed in 0.90 second(s) in Ring 1.21
-# Executed in 4.46 second(s) in Ring 1.19
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
