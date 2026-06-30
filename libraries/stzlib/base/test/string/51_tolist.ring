@@ -13,9 +13,10 @@ load "../_narrated.ring"
 Scenario("Parsing a list-literal string into a list")
 	Then("a bracketed literal parses into its items",
 		ListEq( Q('[  "ABC" , "EB" , "AA"  , 12 ]').ToList(), [ "ABC", "EB", "AA", 12 ] ), TRUE)
-	# Should expand the range; instead ToList char-splits the raw string:
-	? "  NOTE  ToList of a quoted A-to-E range is char-split, not expanded -- deferred"
-	? "  NOTE  ToList of a quoted #1-to-#5 range is char-split, not expanded -- deferred"
+	Then("a quoted A-to-E range expands to its chars",
+		ListEq( Q(' "A" : "E" ').ToList(), [ "A", "B", "C", "D", "E" ] ), TRUE)
+	Then("a quoted #1-to-#5 range expands with its prefix",
+		ListEq( Q(' "#1" : "#5" ').ToList(), [ "#1", "#2", "#3", "#4", "#5" ] ), TRUE)
 EndScenario()
 
 Summary()
