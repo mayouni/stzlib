@@ -20,8 +20,10 @@ Scenario("Removing chars from the left of a string")
 	# CharTrimmedFromLeft = trim-all; archive #--> "--ring" was the author's error.
 	Then("CharTrimmedFromLeft('-') trims every leading '-'", o1.CharTrimmedFromLeft("-"), "ring")
 
-	# DEFECT: ignores its arg -- drops '-' even though '*' was requested (expected "---ring").
-	? "  NOTE  CharRemovedFromLeft('*') -> " + o1.CharRemovedFromLeft("*") + "  (char arg ignored -- deferred fix)"
+	Then("CharRemovedFromLeft('*') is a no-op when '*' is not the leading char",
+		o1.CharRemovedFromLeft("*"), "---ring")
+	Then("CharRemovedFromLeft('-') drops one matching leading char",
+		o1.CharRemovedFromLeft("-"), "--ring")
 EndScenario()
 
 Summary()

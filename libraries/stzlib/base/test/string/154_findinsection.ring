@@ -12,8 +12,7 @@ Scenario("Finding a char within a section")
 	Given('"..3..♥..♥..2.." (hearts at 6 and 9)')
 	o1 = new stzString("..3..♥..♥..2..")
 	Then("FindInSection('♥', 3, 12) finds both hearts", ListEq( o1.FindInSection("♥", 3, 12), [ 6, 9 ] ), TRUE)
-	# Reversed bounds should auto-order but return []:
-	? "  NOTE  FindInSection('♥', 12, 3) -> " + @@(o1.FindInSection("♥", 12, 3)) + "  (want [6,9] -- deferred)"
+	Then("FindInSection('♥', 12, 3) auto-orders to the same", ListEq( o1.FindInSection("♥", 12, 3), [ 6, 9 ] ), TRUE)
 EndScenario()
 
 Summary()
