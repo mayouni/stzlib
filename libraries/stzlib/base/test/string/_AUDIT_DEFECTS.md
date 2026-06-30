@@ -62,13 +62,12 @@ reference_stzfind_contract for the contract + the sweep recipe.
 - **✅ RESOLVED `ReplaceByMany(sub, [r1,r2,r3])`** (test 48) — see the Replace-by-many
   family section below (operator-precedence flatten bug, fixed by parenthesising).
 
-- **`ToList()` does not expand a range-string** (test 51). It parses a `"[...]"`
-  list literal (via `eval`, stzString.ring ~5593) and otherwise falls back to
-  `Chars()` (raw char split). The archive expected `' "A" : "E" '` ->
-  `[ "A".."E" ]` and `' "#1" : "#5" '` -> `[ "#1".."#5" ]`; neither is
-  implemented (both char-split). Likely an unimplemented feature rather than a
-  regression -- confirm the intended contract. (Also note ToList still uses
-  `eval` for the list-literal path.)
+- **✅ RESOLVED `ToList()` range-string expansion** (test 51). Added
+  `_TryExpandRangeString`: a single-char endpoint range (`"A":"E"`) expands by
+  codepoint; a common-prefix + numeric-suffix range (`"#1":"#5"`) expands the
+  numeric part keeping the prefix. Bracketed-literal path unchanged. Asserted
+  (51: 3/3). (Note: Ring's native `:` can't range multi-char strings -- it returns
+  the left operand -- so the prefix path is custom, not eval.)
 
 ### ✅ RESOLVED — Replace-by-many family (tests 48, 56, 58, 59, 74, 80) — commit d5cf08b8+
 

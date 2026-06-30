@@ -5946,7 +5946,65 @@ class stzString from stzObject
 			eval(_cTlCode_)
 			return _aTlRes_
 		ok
+		# Range string ("A" : "E" -> A..E; "#1" : "#5" -> #1..#5).
+		_aTlRng_ = This._TryExpandRangeString()
+		if isList(_aTlRng_) and len(_aTlRng_) > 0
+			return _aTlRng_
+		ok
 		return This.Chars()
+
+	# _TryExpandRangeString: expand a quoted range string into its list. Handles
+	# a single-char endpoint range ("A":"E") and a common-prefix + numeric-suffix
+	# range ("#1":"#5"). Returns [] when the content is not a range.
+	def _TryExpandRangeString()
+		_c_ = ring_trim(This.Content())
+		_nCol_ = This._FindFrom(_c_, ":", 1)
+		if _nCol_ < 2 return [] ok
+		_cL_ = This._UnquoteTrim( This._EngineSlice(_c_, 1, _nCol_ - 1) )
+		_cR_ = This._UnquoteTrim( This._EngineSliceFrom(_c_, _nCol_ + 1) )
+		if _cL_ = "" or _cR_ = "" return [] ok
+		# single-char endpoints -> codepoint range
+		if This._EngineCount(_cL_) = 1 and This._EngineCount(_cR_) = 1
+			_aR_ = []
+			for _k_ = StzEngineCharUnicode(_cL_) to StzEngineCharUnicode(_cR_)
+				_aR_ + StzEngineCharToUtf8(_k_)
+			next
+			return _aR_
+		ok
+		# common-prefix + numeric-suffix -> prefixed range
+		_pre_ = This._CommonPrefixOf(_cL_, _cR_)
+		_pl_ = This._EngineCount(_pre_)
+		_sL_ = This._EngineSliceFrom(_cL_, _pl_ + 1)
+		_sR_ = This._EngineSliceFrom(_cR_, _pl_ + 1)
+		if _sL_ != "" and _sR_ != "" and isDigit(_sL_) and isDigit(_sR_)
+			_aR_ = []
+			for _k_ = (0 + _sL_) to (0 + _sR_)
+				_aR_ + (_pre_ + _k_)
+			next
+			return _aR_
+		ok
+		return []
+
+	def _UnquoteTrim(cStr)
+		_c_ = ring_trim(cStr)
+		_n_ = This._EngineCount(_c_)
+		if _n_ >= 2 and This._EngineSlice(_c_, 1, 1) = '"' and This._EngineSlice(_c_, _n_, 1) = '"'
+			return This._EngineSlice(_c_, 2, _n_ - 2)
+		ok
+		return _c_
+
+	def _CommonPrefixOf(cA, cB)
+		_nA_ = This._EngineCount(cA)
+		_nB_ = This._EngineCount(cB)
+		_nMin_ = _nA_
+		if _nB_ < _nMin_ _nMin_ = _nB_ ok
+		_cPre_ = ""
+		for _k_ = 1 to _nMin_
+			_chA_ = This._EngineSlice(cA, _k_, 1)
+			if _chA_ != This._EngineSlice(cB, _k_, 1) exit ok
+			_cPre_ = _cPre_ + _chA_
+		next
+		return _cPre_
 
 		def ToListQ()
 			return new stzList( This.ToList() )
