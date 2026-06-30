@@ -324,27 +324,29 @@ multibyte. Then:
 - **`BoundedByIBZZ`** now pairs each IB substring with its `[s,e]` span.
 Tests upgraded to assertions (186: 4/4, 187: 2/2).
 
-### Anti-find / anti-section family (tests 200, 203, 204, 205)
+### ✅ RESOLVED — Anti-find / anti-section family (tests 200, 203, 204, 205, 208)
 
-`AntiFind` / `AntiFindZZ` (block 202), `Sections` / `AntiSections` /
-`FindAsSections` (block 204), `AntiPositions` all work. The "*AsSection(s)" and
-"*Z/ZZ" anti-forms are broken:
-- **`AntiFindAsSection(s)` returns the SUBSTRINGS, not the position sections**
-  (203/204/205): e.g. `AntiFindAsSections("ring")` on "...ring..." gives
-  `[ "...", "..." ]` instead of `[ [1,3], [8,10] ]`; the singular
-  `AntiFindAsSection` returns `[]` (200).
-- **`AntiSectionsZ` returns a garbled `[1,3]`** and **`AntiSectionsZZ` returns
-  position spans only** (loses the `[substring, span]` grouping) (204).
+- **`AntiFindAsSection(s)`** aliased `FindAntiSections` (substrings) -> repointed
+  to `FindAntiSectionsZZ` (the complement POSITION spans). Singular
+  `AntiFindAsSection` was using bounded-by logic -> now returns the first
+  complement span. e.g. `AntiFindAsSections("ring")` on "...ring..." ->
+  `[[1,3],[8,10]]`; `AntiFindAsSection("ring")` on "ring..." -> `[5,7]`.
+- **`AntiSectionsZ`** returned a single garbled span -> now the `[substr, start]`
+  grouping list. (`AntiSectionsZZ` stays plain spans -- `AntiSections` depends on
+  it returning spans.) Tests upgraded to assertions (200/205: 2, 203/208: 4,
+  204: 5).
 
 ### Replace-bounded raises / mis-pairing (tests 198, 199)
 
-- **`ReplaceAnyBoundedBy([b,b], new)` mis-pairs a repeated bound** (198) -- pairs
-  the slashes consecutively so the gap between regions is consumed
-  ("/.../ and /---/" -> "/bla/bla/bla/"). The IB form `ReplaceAnyBoundedByIB`
-  works.
-- **`ReplaceXT([], :BoundedBy=b, :With=)` / `:BoundedByIB` RAISE** "unsupported
-  argument shape" (199) -- same as the :Each/:BoundedBy ReplaceXT raises (block
-  194). Use the non-XT `ReplaceAnyBoundedBy*` path.
+- **✅ RESOLVED `ReplaceAnyBoundedBy`** (198) -- repointed to the ReplaceXT
+  `:BoundedBy` path, which pairs ALTERNATING (a replace can't overlap), so the
+  gap between regions is preserved: "/.../ and /---/" -> "/bla/ and /bla/".
+- **✅ RESOLVED `ReplaceXT :BoundedBy` / `:BoundedByIB`** (199). `:BoundedBy`
+  already worked (block 194 fix); added the `:BoundedByIB` anchor (replace the
+  whole region including bounds, advancing past the inserted text). Single-string
+  bounds widen to `[c,c]`. Both tests asserted.
+- Also added `:Between` (with `:And` spelling) to `FindXT` / `FindAsSectionsXT`
+  (tests 155, 179, 180) -> routes to `FindBetween` / spans. All asserted.
 
 ### stzList.SplitAt raises R41 (test 201)
 

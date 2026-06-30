@@ -842,12 +842,18 @@ class stzString from stzObject
 		ok
 		return _aGaps_
 
+		# AntiSectionsZ: each gap substring paired with its START position
+		# -> [ [substr, start], ... ].
 		def AntiSectionsZ(aSections)
 			_aZZ_ = This.AntiSectionsZZ(aSections)
-			if len(_aZZ_) = 0
-				return []
-			ok
-			return _aZZ_[1]
+			_aRes_ = []
+			_cTxt_ = This.Content()
+			_nL_ = len(_aZZ_)
+			for _i_ = 1 to _nL_
+				_sp_ = _aZZ_[_i_]
+				_aRes_ + [ This._EngineSlice(_cTxt_, _sp_[1], _sp_[2] - _sp_[1] + 1), _sp_[1] ]
+			next
+			return _aRes_
 
 	def AntiSections(aSections)
 		return This.Sections( This.AntiSectionsZZ(aSections) )
@@ -888,8 +894,10 @@ class stzString from stzObject
 		def FindAsAntiSections(pcSubStr)
 			return This.FindAntiSections(pcSubStr)
 
+		# AntiFindAsSections: the complement POSITION sections (the gaps
+		# between occurrences), e.g. [[1,3],[8,10]] -- not the substrings.
 		def AntiFindAsSections(pcSubStr)
-			return This.FindAntiSections(pcSubStr)
+			return This.FindAntiSectionsZZ(pcSubStr)
 
 		def AntiFindAsSectionsZZ(pcSubStr)
 			return This.FindAntiSectionsZZ(pcSubStr)
@@ -3028,9 +3036,11 @@ class stzString from stzObject
 				_cNewTxt_ = StzReplace(_cTxt_, _cCtx_, _cNewCtx_)
 				This.Update(_cNewTxt_)
 				return
-			but _cAnchor_ = "boundedby"
-				# Replace whatever is between the bounds with _pWith_.
-				# Supports either two-element list or single string.
+			but _cAnchor_ = "boundedby" or _cAnchor_ = "boundedbyib"
+				# Replace the content between the bounds with _pWith_.
+				# :BoundedByIB replaces INCLUDING the bounds. Supports either
+				# a two-element [open,close] list or a single string for both.
+				_bRxIB_ = (_cAnchor_ = "boundedbyib")
 				_aOpen_ = _xAnchorV_
 				_aClose_ = NULL
 				if isList(_aOpen_) and len(_aOpen_) = 2
@@ -3052,8 +3062,13 @@ class stzString from stzObject
 						_cBefore_ = This._EngineSlice(_cTxt_, 1, _nStart_ - 1)
 					ok
 					_cAfter_  = This._EngineSliceFrom(_cTxt_, _nEnd_ + _nCloseLen_)
-					_cTxt_ = _cBefore_ + _aOpen_ + _pWith_ + _aClose_ + _cAfter_
-					_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nStart_ + _nOpenLen_ + _nWithLen_ + _nCloseLen_)
+					if _bRxIB_
+						_cTxt_ = _cBefore_ + _pWith_ + _cAfter_
+						_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nStart_ + _nWithLen_)
+					else
+						_cTxt_ = _cBefore_ + _aOpen_ + _pWith_ + _aClose_ + _cAfter_
+						_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nStart_ + _nOpenLen_ + _nWithLen_ + _nCloseLen_)
+					ok
 				end
 				This.Update(_cTxt_)
 				return
@@ -8150,7 +8165,9 @@ class stzString from stzObject
 	# ReplaceAnyBoundedBy(pacBounds, pcNew): wrapper over the
 	# substrings-bounded-by-replace family.
 	def ReplaceAnyBoundedBy(pacBounds, pcNew)
-		This.ReplaceSubStringsBoundedBy(pacBounds, pcNew)
+		# Replace the content between each ALTERNATING bound pair (so the gap
+		# between two regions is preserved). Routes through ReplaceXT :BoundedBy.
+		This.ReplaceXT([], [ :BoundedBy, pacBounds ], [ :With, pcNew ])
 
 	def ReplaceAnyBoundedByIB(pacBounds, pcNew)
 		# Replace the entire bounded block (including bounds).
@@ -8198,8 +8215,10 @@ class stzString from stzObject
 
 	# AntiFindAsSection: alias for the singular form (just first
 	# section from AntiFindAsSections, or [] if none).
+	# AntiFindAsSection: the FIRST complement span (the first gap not covered
+	# by an occurrence of pcSub).
 	def AntiFindAsSection(pcSub)
-		_aSec_ = This.FindBoundedByAsSectionsCS([ pcSub, pcSub ], 1)
+		_aSec_ = This.FindAntiSectionsZZ(pcSub)
 		if len(_aSec_) = 0 return [] ok
 		return _aSec_[1]
 
@@ -14178,9 +14197,24 @@ class stzString from stzObject
 
 	# FindXT(pcWhat, :BoundedBy = pacBounds) -- named-param wrapper
 	def FindXT(pcWhat, pNamed)
-		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1]) and
-		   lower(pNamed[1]) = "boundedby"
-			return This.FindSubStringBoundedBy(pcWhat, pNamed[2])
+		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1])
+			_cFxtKey_ = lower(pNamed[1])
+			if _cFxtKey_ = "boundedby"
+				return This.FindSubStringBoundedBy(pcWhat, pNamed[2])
+
+			but _cFxtKey_ = "between"
+				# :Between = [open, close]  (close may be [:And, close])
+				_aFxtBt_ = pNamed[2]
+				if isList(_aFxtBt_) and len(_aFxtBt_) = 2
+					_cFxtOpen_ = _aFxtBt_[1]
+					_cFxtClose_ = _aFxtBt_[2]
+					if isList(_cFxtClose_) and len(_cFxtClose_) = 2 and
+					   isString(_cFxtClose_[1]) and lower(_cFxtClose_[1]) = "and"
+						_cFxtClose_ = _cFxtClose_[2]
+					ok
+					return This.FindBetween(pcWhat, _cFxtOpen_, _cFxtClose_)
+				ok
+			ok
 		ok
 		return []
 

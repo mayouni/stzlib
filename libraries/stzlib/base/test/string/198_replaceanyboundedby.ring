@@ -16,10 +16,10 @@ Scenario("Replacing bounded content, including bounds")
 	o1.ReplaceAnyBoundedByIB([ "/", "/" ], "bla")
 	Then("IB replaces each /../  region wholesale", o1.Content(), "bla bla bla and bla!")
 
-	# Non-IB form mis-pairs the repeated "/" bound:
+	# Non-IB form replaces only the content, keeping the bounds and the gap:
 	o2 = new stzString("bla bla /.../ and /---/!")
 	o2.ReplaceAnyBoundedBy([ "/", "/" ], "bla")
-	? "  NOTE  ReplaceAnyBoundedBy -> " + o2.Content() + "  (want '...bla/ and /bla...' -- deferred)"
+	Then("non-IB replaces each region's content, keeps the gap", o2.Content(), "bla bla /bla/ and /bla/!")
 EndScenario()
 
 Summary()

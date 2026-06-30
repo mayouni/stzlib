@@ -13,8 +13,8 @@ Scenario("Locating several quoted segments")
 	o1 = new stzString('this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"')
 	Then("FindAsSections gives both segment spans",
 		ListEq( o1.FindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]), [ [ 20, 43 ], [ 67, 84 ] ] ), TRUE)
-	# AntiFindAsSections should give [[1,19],[44,66]] but returns substrings:
-	? "  NOTE  AntiFindAsSections -> substrings, not [[1,19],[44,66]] -- deferred"
+	Then("AntiFindAsSections gives the complement spans",
+		ListEq( o1.AntiFindAsSections([ '"<    leave spaces    >"', '"< leave spaces >"' ]), [ [1,19], [44,66] ] ), TRUE)
 EndScenario()
 
 Summary()
