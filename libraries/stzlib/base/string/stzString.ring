@@ -5007,13 +5007,31 @@ class stzString from stzObject
 	def BoundedByCS(pacBounds, pCaseSensitive)
 		# Accept either a single-string bound (same on both sides,
 		# e.g. BoundedBy('"')) or a 2-list [ open, close ].
-		if isString(pacBounds)
-			return This.BetweenCS(pacBounds, pacBounds, pCaseSensitive)
+		# SAME-CHAR bounds use OVERLAPPING consecutive pairing (so the middle
+		# gaps are kept: BoundedBy("&") on "&a&b&" -> ["a","b"] with all gaps),
+		# routed through AnyBoundedBy. DISTINCT bounds keep the top-level
+		# BetweenCS pairing.
+		if This._IsSameCharBound(pacBounds)
+			return This.AnyBoundedBy(This._SameCharBoundPair(pacBounds))
 		ok
 		if NOT (isList(pacBounds) and len(pacBounds) = 2)
 			StzRaise("BoundedByCS: pacBounds must be a string or a 2-list [ open, close ]")
 		ok
 		return This.BetweenCS(pacBounds[1], pacBounds[2], pCaseSensitive)
+
+	# Same-char bound helpers: a bound is "same-char" when one string is used
+	# for both ends ("&") or a 2-list with equal ends (["&","&"]).
+	def _IsSameCharBound(pacBounds)
+		if isString(pacBounds) return TRUE ok
+		if isList(pacBounds) and len(pacBounds) = 2 and
+		   isString(pacBounds[1]) and isString(pacBounds[2]) and pacBounds[1] = pacBounds[2]
+			return TRUE
+		ok
+		return FALSE
+
+	def _SameCharBoundPair(pacBounds)
+		if isString(pacBounds) return [ pacBounds, pacBounds ] ok
+		return pacBounds
 
 		def SubStringsBoundedByCS(pacBounds, pCaseSensitive)
 			return This.BoundedByCS(pacBounds, pCaseSensitive)
@@ -6415,6 +6433,19 @@ class stzString from stzObject
 		return This.FindSubStringsBoundedByZZ(pacBounds)
 
 	def FindAnyBoundedByIBZZ(pacBounds)
+		# Same-char bounds: derive OVERLAPPING include-bounds spans from the
+		# content spans (expand each [cs,ce] by the bound length on both sides).
+		if This._IsSameCharBound(pacBounds)
+			_aIbPair_ = This._SameCharBoundPair(pacBounds)
+			_nIbL_ = This._EngineCount(_aIbPair_[1])
+			_aIbCont_ = This.FindAnyBoundedByZZ(_aIbPair_)
+			_aIbR_ = []
+			_nIbN_ = len(_aIbCont_)
+			for _iIbF_ = 1 to _nIbN_
+				_aIbR_ + [ _aIbCont_[_iIbF_][1] - _nIbL_, _aIbCont_[_iIbF_][2] + _nIbL_ ]
+			next
+			return _aIbR_
+		ok
 		return This.FindSubStringsBoundedByIBZZ(pacBounds)
 
 	def FindAnyBoundedByAsSectionsIB(pacBounds)
@@ -7223,12 +7254,14 @@ class stzString from stzObject
 
 	# BoundedByIBZ: just the starting positions inside the inclusive
 	# bounds (a positional flat form of FindAnyBoundedByIBZZ).
+	# BoundedByIBZ: each include-bounds substring paired with its START
+	# position -> [ [ib-substr, start], ... ].
 	def BoundedByIBZ(pacBounds)
-		_aSec_ = This.FindAnyBoundedByIBZZ(pacBounds)
+		_aZZ_ = This.BoundedByIBZZ(pacBounds)
 		_aRes_ = []
-		_nL_ = len(_aSec_)
+		_nL_ = len(_aZZ_)
 		for _i_ = 1 to _nL_
-			_aRes_ + _aSec_[_i_][1]
+			_aRes_ + [ _aZZ_[_i_][1], _aZZ_[_i_][2][1] ]
 		next
 		return _aRes_
 
@@ -8304,12 +8337,14 @@ class stzString from stzObject
 
 	# BoundedByZ: the flat list of starting positions for each bounded
 	# substring (alias over BoundedBy + reduce-to-positions).
+	# BoundedByZ: each bounded substring paired with its START position
+	# -> [ [substr, start], ... ].
 	def BoundedByZ(pacBounds)
-		_aSec_ = This.FindBoundedByAsSections(pacBounds)
+		_aZZ_ = This.BoundedByZZ(pacBounds)
 		_aRes_ = []
-		_nL_ = len(_aSec_)
+		_nL_ = len(_aZZ_)
 		for _i_ = 1 to _nL_
-			_aRes_ + _aSec_[_i_][1]
+			_aRes_ + [ _aZZ_[_i_][1], _aZZ_[_i_][2][1] ]
 		next
 		return _aRes_
 
@@ -14999,10 +15034,21 @@ class stzString from stzObject
 		return This.SubStringsBoundedByIBCS(pacBounds, 1)
 
 		def BoundedByIB(pacBounds)
+			# Same-char bound -> overlapping IB substrings (keep the middle gaps);
+			# derive from BoundedByIBZZ. Distinct bounds use the top-level walk.
+			if This._IsSameCharBound(pacBounds)
+				_aIbbZZ_ = This.BoundedByIBZZ(pacBounds)
+				_aIbbRes_ = []
+				_nIbb_ = len(_aIbbZZ_)
+				for _iIbb_ = 1 to _nIbb_
+					_aIbbRes_ + _aIbbZZ_[_iIbb_][1]
+				next
+				return _aIbbRes_
+			ok
 			return This.SubStringsBoundedByIB(pacBounds)
 
 		def AnyBoundedByIB(pacBounds)
-			return This.SubStringsBoundedByIB(pacBounds)
+			return This.BoundedByIB(pacBounds)
 
 		def AnySubStringsBoundedByIB(pacBounds)
 			return This.SubStringsBoundedByIB(pacBounds)

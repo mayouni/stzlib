@@ -1,26 +1,29 @@
-# Narrative
-# --------
-# BOUNDEDBY
-#
-# Extracted from stzStringTest.ring, block #213.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md, single-repeated-bound family):
-# BoundedBy("&") drops the in-between gaps -- on "...&^^^&...&vvv&...&..." it
-# returns [ "^^^", "vvv" ] instead of [ "^^^", "...", "vvv", "..." ] (consecutive
-# bounds paired non-overlappingly). And BoundedByIB("&") RAISES "pacBounds must be
-# [ open, close ] strings" -- the single-string bound is not widened to ["&","&"].
-# Left in print form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# A single repeated bound "&" keeps the in-between gaps (overlapping pairing),
+# and BoundedByIB widens the single bound to ["&","&"] and includes the bounds.
+# Archive block #213.
 
-o1 = new stzString("...&^^^&...&vvv&...&...")
+Scenario("Substrings bounded by a single & marker")
+	Given('"...&^^^&...&vvv&...&..."')
+	o1 = new stzString("...&^^^&...&vvv&...&...")
+	Then("BoundedBy keeps all the gaps",
+		ListEq( o1.BoundedBy("&"), [ "^^^", "...", "vvv", "..." ] ), TRUE)
+	Then("BoundedByIB includes the bounds",
+		ListEq( o1.BoundedByIB("&"), [ "&^^^&", "&...&", "&vvv&", "&...&" ] ), TRUE)
+EndScenario()
 
-? @@( o1.BoundedBy("&") )
-#--> expected [ "^^^", "...", "vvv", "..." ] (currently [ "^^^", "vvv" ])
+Summary()
 
-? @@( o1.BoundedByIB("&") )
-#--> expected [ "&^^^&", "&...&", "&vvv&", "&...&" ] (currently raises)
-
-pf()
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

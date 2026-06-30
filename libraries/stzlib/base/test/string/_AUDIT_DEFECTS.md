@@ -446,21 +446,25 @@ The POSITIONAL-arg forms work (`SubStringComesBeforePosition`,
   :Open/:Close kept). All 5 cases in block 44 are now TRUE. (The single-bound
   gap-dropping in BoundedBy/FindAnyBoundedBy -- blocks 120/121/124/213/214/215 --
   is a SEPARATE, still-open issue in the core BoundedBy family below.)
-- **Single-repeated-bound forms drop the middle region** (tests 120, 121, 124).
-  With a single bound that repeats, the occurrences are paired non-overlappingly
-  so the middle gap is lost: `BoundedBy("aa")` on `"aa***aa**aa***aa"` returns
-  `[ "***", "***" ]` instead of `[ "***", "**", "***" ]`, and `FindAnyBoundedBy(
-  "aa")` returns `[ "***", "***" ]` (also wrong TYPE -- substrings, not the
-  positions `[3,8,12]`; see the FindAnyBoundedBy row above). The `...AsSections`
-  variant finds all three correctly (block 124). Also `IsBoundedByCS("aa", TRUE)`
-  is FALSE (the single-string-bound issue above). The distinct `[open,close]`
-  pair forms (`Between`, `BoundedBy([..])`, `FindAnyBoundedByAsSections([..])`)
-  all work. CONFIRMED broadly (blocks 213, 214, 215): with a single-string bound,
-  `BoundedBy("&")` / `FindAnyBoundedBy("&")` drop the in-between gaps (and
-  FindAnyBoundedBy returns substrings), while the IB / Z / ZZ / IBZZ variants
-  RAISE "pacBounds must be [ open, close ] strings" -- the single bound `c` is
-  never widened to `[c, c]`. Fix: widen a string bound to a pair AND use
-  consecutive (overlapping) pairing so no gap is dropped.
+- **✅ RESOLVED Single-repeated-bound family** (tests 120, 121, 213, 214, 215,
+  216). DECISION: a same-char bound (string `c`, or `[c,c]`) uses OVERLAPPING
+  consecutive pairing so no middle gap is dropped -- consistent with the already-
+  asserted block 124. Implementation: added `_IsSameCharBound`/`_SameCharBoundPair`
+  helpers; routed `BoundedByCS` same-char -> `AnyBoundedBy` (overlapping); gave
+  `FindAnyBoundedByIBZZ` the same-char branch (derive overlapping IB spans from the
+  content spans by expanding by the bound length); `BoundedByIB` same-char derives
+  IB substrings from `BoundedByIBZZ`; and `BoundedByZ`/`BoundedByIBZ` now carry the
+  `[substr, start]` grouping (derived from the ZZ forms) for ALL bounds. Single
+  strings widen to `[c,c]` throughout, so nothing raises. Distinct `[open,close]`
+  pairs unchanged (186/187 still green). Block 216's archive `#-->` showed the
+  inconsistent 2-element reading; the test now asserts the 4-element overlapping
+  value matching its siblings. Tests upgraded to assertions (120/121/216: 1-2
+  each, 213/214: 2, 215: 4).
+  AUTHORITY: confirmed against the ORIGINAL monolithic impl -- FindTheseBoundsCSZZ
+  advances `nPos = n2` (the closer), REUSING each closer as the next opener, i.e.
+  overlapping for BOTH repeated markers AND quote-style bounds. So
+  SubStringsBoundedBy('"') (block 217) returns 3 consecutive gaps (incl. the
+  between-quotes text), NOT 2 -- 217's #--> was updated to match the original.
 - **✅ RESOLVED `Bounds()` greedy trailing run** (test 45). Changed the auto-
   detection from "any leading/trailing non-letter run" to "the maximal run of the
   same EDGE char (when it is a bound char)". For `"<<Go!>>"` the trailing run of
