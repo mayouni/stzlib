@@ -96,7 +96,7 @@ class stzString from stzObject
 				if _nMinKeep_ = 0
 					_cOut_ = ""
 				else
-					_cOut_ = This.Section(1, _nMinKeep_)
+					_cOut_ = This._SectionLenient(1, _nMinKeep_)
 				ok
 			but isString(pValue)
 				_cOut_ = StzReplace(_cOut_, pValue, "")
@@ -589,26 +589,46 @@ class stzString from stzObject
 		# Symbolic positions: :First / :Last / :LastChar / :Middle.
 		n1 = This._ResolveSymPos(n1, nLen)
 		n2 = This._ResolveSymPos(n2, nLen)
-		if NOT isNumber(n1) return "" ok
-		if NOT isNumber(n2) return "" ok
-		# Negative indices count from end.
-		if n1 < 0 n1 = nLen + n1 + 1 ok
-		if n2 < 0 n2 = nLen + n2 + 1 ok
-		if n1 < 1
-			n1 = 1
+		if NOT (isNumber(n1) and isNumber(n2))
+			StzRaise("Section: n1 and n2 must be numbers (or symbolic positions).")
 		ok
-		if n2 < 1
-			n2 = 1
-		ok
-		if n1 > nLen n1 = nLen ok
-		if n2 > nLen
-			n2 = nLen
-		ok
+		# Auto-order (Section(5,3) == Section(3,5)).
 		if n1 > n2
 			temp = n1
 			n1 = n2
 			n2 = temp
 		ok
+		# STRICT range check, per the original: out-of-range RAISES. Use SectionXT
+		# (or SliceXT) for negative / out-of-range / count-from-the-end indexing.
+		if NOT ( n1 >= 1 and n1 <= nLen and n2 >= 1 and n2 <= nLen )
+			StzRaise("Indexes out of range! n1 and n2 must be inside the string.")
+		ok
+		pH = This.Engine()
+		pR = StzEngineStringSlice(pH, n1, n2 - n1 + 1)
+		if pR != NULL
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			return c
+		ok
+		return ""
+
+	# _SectionLenient(n1, n2): resolve negatives, CLAMP to [1,len], auto-order.
+	# The forgiving slice used internally and by SectionXT so they never raise.
+	def _SectionLenient(n1, n2)
+		nLen = This.NumberOfChars()
+		if NOT (isNumber(n1) and isNumber(n2)) return "" ok
+		if n1 < 0 n1 = nLen + n1 + 1 ok
+		if n2 < 0 n2 = nLen + n2 + 1 ok
+		if n1 < 1 n1 = 1 ok
+		if n2 < 1 n2 = 1 ok
+		if n1 > nLen n1 = nLen ok
+		if n2 > nLen n2 = nLen ok
+		if n1 > n2
+			temp = n1
+			n1 = n2
+			n2 = temp
+		ok
+		if nLen = 0 return "" ok
 		pH = This.Engine()
 		pR = StzEngineStringSlice(pH, n1, n2 - n1 + 1)
 		if pR != NULL
@@ -630,7 +650,7 @@ class stzString from stzObject
 		if isList(n2) and len(n2) = 2 and isString(n2[1])
 			if lower(n2[1]) = "uptonchars"
 				if isNumber(n1) and n1 < 0 n1 = _nLen_ + n1 + 1 ok
-				return This.Section(n1, n1 + n2[2] - 1)
+				return This._SectionLenient(n1, n1 + n2[2] - 1)
 			ok
 		ok
 
@@ -639,12 +659,12 @@ class stzString from stzObject
 
 		# Bounds given high-to-low -> reverse the span ("543", "876").
 		if isNumber(n1) and isNumber(n2) and n1 > n2
-			_cSxtFwd_ = This.Section(n2, n1)
+			_cSxtFwd_ = This._SectionLenient(n2, n1)
 			_oSxtRev_ = new stzString(_cSxtFwd_)
 			return _oSxtRev_.Reversed()
 		ok
 
-		return This.Section(n1, n2)
+		return This._SectionLenient(n1, n2)
 
 		def SectionXTQ(n1, n2)
 			return new stzString( This.SectionXT(n1, n2) )
@@ -653,7 +673,21 @@ class stzString from stzObject
 	# stzString so subsequent .CharsReversed() / .Uppercase() etc
 	# resolve on the string class.
 	def SectionQ(n1, n2)
-		return new stzString( This.Section(n1, n2) )
+		return new stzString( This._SectionLenient(n1, n2) )
+
+	# Slice is an alias of Section (strict); SliceXT of SectionXT (lenient).
+	# Per the original (Slice/SliceQ = Section/SectionQ).
+	def Slice(n1, n2)
+		return This.Section(n1, n2)
+
+		def SliceQ(n1, n2)
+			return new stzString( This._SectionLenient(n1, n2) )
+
+	def SliceXT(n1, n2)
+		return This.SectionXT(n1, n2)
+
+		def SliceXTQ(n1, n2)
+			return new stzString( This.SectionXT(n1, n2) )
 
 	# FirstHalf / SecondHalf -- split the content in two equal halves
 	# (rounded down on odd length). FirstHalfXT returns trailing char.
@@ -798,7 +832,7 @@ class stzString from stzObject
 			n1 = _sec_[1]
 			n2 = _sec_[2]
 			if n1 >= 1 and n2 >= n1 and n2 <= nCharCount
-				acResult + This.Section(n1, n2)
+				acResult + This._SectionLenient(n1, n2)
 			ok
 		next
 		return acResult
@@ -908,7 +942,7 @@ class stzString from stzObject
 			return This.FindAntiSectionsZ(pcSubStr)
 
 	def Range(nStart, nRange)
-		return This.Section(nStart, nStart + nRange - 1)
+		return This._SectionLenient(nStart, nStart + nRange - 1)
 
 	def IsLeftToRight()
 		return TRUE
@@ -1297,10 +1331,10 @@ class stzString from stzObject
 	# bounded by positions [n1, n2] (inclusive)?
 	def ContainsInSection(pcSubStr, n1, n2)
 		# Does pcSubStr occur inside the section? (haystack = section, needle = sub.)
-		return StzFindFirst(This.Section(n1, n2), pcSubStr) > 0
+		return StzFindFirst(This._SectionLenient(n1, n2), pcSubStr) > 0
 
 		def ContainsInSectionCS(pcSubStr, n1, n2, pCaseSensitive)
-			_cSec_ = This.Section(n1, n2)
+			_cSec_ = This._SectionLenient(n1, n2)
 			_aP_ = StzFindCS(pcSubStr, _cSec_, pCaseSensitive)
 			return isList(_aP_) and len(_aP_) > 0
 
@@ -1861,7 +1895,7 @@ class stzString from stzObject
 		if n2 > _nFisLen_
 			n2 = _nFisLen_
 		ok
-		_cFisSection_ = This.Section(n1, n2)
+		_cFisSection_ = This._SectionLenient(n1, n2)
 		_aFisRel_ = StzStringQ(_cFisSection_).FindCS(pcSubStr, pCaseSensitive)
 		_aFisAbs_ = []
 		_nFisRelLen_ = len(_aFisRel_)
@@ -3639,7 +3673,7 @@ class stzString from stzObject
 				loop
 			ok
 			_iEnd_ = _iCur_ + _nSz_ - 1
-			_aParts_ + This.Section(_iCur_, _iEnd_)
+			_aParts_ + This._SectionLenient(_iCur_, _iEnd_)
 			_iCur_ = _iEnd_ + 1
 		next
 		return _aParts_
@@ -3847,10 +3881,10 @@ class stzString from stzObject
 
 	def NLeftChars(n)
 		if This.IsLeftToRight()
-			return This.Section(1, n)
+			return This._SectionLenient(1, n)
 		else
 			nLen = This.NumberOfChars()
-			return This.Section(nLen - n + 1, nLen)
+			return This._SectionLenient(nLen - n + 1, nLen)
 		ok
 
 		def NLeftCharsAsString(n)
@@ -3862,9 +3896,9 @@ class stzString from stzObject
 	def NRightChars(n)
 		if This.IsLeftToRight()
 			nLen = This.NumberOfChars()
-			return This.Section(nLen - n + 1, nLen)
+			return This._SectionLenient(nLen - n + 1, nLen)
 		else
-			return This.Section(1, n)
+			return This._SectionLenient(1, n)
 		ok
 
 		def NRightCharsAsString(n)
@@ -3874,11 +3908,11 @@ class stzString from stzObject
 			return new stzString(This.NRightChars(n))
 
 	def NFirstChars(n)
-		return This.Section(1, n)
+		return This._SectionLenient(1, n)
 
 	def NLastChars(n)
 		nLen = This.NumberOfChars()
-		return This.Section(nLen - n + 1, nLen)
+		return This._SectionLenient(nLen - n + 1, nLen)
 
 	  #========================================#
 	 #     MUTATION PRIMITIVES                #
@@ -5048,7 +5082,7 @@ class stzString from stzObject
 			pBound2 = pBound2[2]
 		ok
 		if isNumber(pBound1) and isNumber(pBound2)
-			return This.Section(pBound1 + 1, pBound2 - 1)
+			return This._SectionLenient(pBound1 + 1, pBound2 - 1)
 		ok
 		if NOT (isString(pBound1) and isString(pBound2)) return "" ok
 		_aBtOpen_ = This.FindCS(pBound1, pCaseSensitive)
@@ -5058,7 +5092,7 @@ class stzString from stzObject
 		_nBtN1_ = _aBtOpen_[1] + This._EngineCount(pBound1)
 		_nBtN2_ = _aBtClose_[ len(_aBtClose_) ] - 1
 		if _nBtN2_ < _nBtN1_ return "" ok
-		return This.Section(_nBtN1_, _nBtN2_)
+		return This._SectionLenient(_nBtN1_, _nBtN2_)
 
 	def Between(pBound1, pBound2)
 		return This.BetweenCS(pBound1, pBound2, 1)
@@ -14742,12 +14776,12 @@ class stzString from stzObject
 		_nPtSepLen_ = StzLen(pcSubStr)
 		_cPtBefore_ = ""
 		if _nPtPos_ > 1
-			_cPtBefore_ = This.Section(1, _nPtPos_ - 1)
+			_cPtBefore_ = This._SectionLenient(1, _nPtPos_ - 1)
 		ok
 		_cPtAfter_ = ""
 		_nPtEnd_ = _nPtPos_ + _nPtSepLen_
 		if _nPtEnd_ <= This.NumberOfChars()
-			_cPtAfter_ = This.Section(_nPtEnd_, This.NumberOfChars())
+			_cPtAfter_ = This._SectionLenient(_nPtEnd_, This.NumberOfChars())
 		ok
 		return [ _cPtBefore_, pcSubStr, _cPtAfter_ ]
 
@@ -14759,12 +14793,12 @@ class stzString from stzObject
 		_nRpSepLen_ = StzLen(pcSubStr)
 		_cRpBefore_ = ""
 		if _nRpPos_ > 1
-			_cRpBefore_ = This.Section(1, _nRpPos_ - 1)
+			_cRpBefore_ = This._SectionLenient(1, _nRpPos_ - 1)
 		ok
 		_cRpAfter_ = ""
 		_nRpEnd_ = _nRpPos_ + _nRpSepLen_
 		if _nRpEnd_ <= This.NumberOfChars()
-			_cRpAfter_ = This.Section(_nRpEnd_, This.NumberOfChars())
+			_cRpAfter_ = This._SectionLenient(_nRpEnd_, This.NumberOfChars())
 		ok
 		return [ _cRpBefore_, pcSubStr, _cRpAfter_ ]
 

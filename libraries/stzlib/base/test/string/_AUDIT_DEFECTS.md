@@ -46,6 +46,17 @@ already correct from earlier ReplaceByMany/RemoveXT fixes). DEFERRED (logged):
   huge counts); left as a visual/perf test. (Confirms SizeInBytes = char count for
   ASCII = 6617121, supporting the 06 "archive 624 was a different definition".)
 
+**Section pass (2026-06-30):** ✅ RESOLVED test 70. Per the original, `Section`
+is the CONSERVATIVE form -- it auto-orders but RAISES "Indexes out of range!" on
+out-of-bounds; `SectionXT` is the lenient form (negatives from the end, clamped).
+The modular `Section` clamped silently. Made public `Section` strict; added
+`_SectionLenient` (the old clamping body) and repointed all 23 internal
+`This.Section(` callers to it (preserves their exact behavior -- only the
+directly-called public Section is strict). `SectionXT` now slices via
+`_SectionLenient`. Added `Slice`=Section / `SliceXT`=SectionXT / `SliceQ` (the
+original defines Slice=Section). Test 70 asserts the raise + lenient XT + Slice.
+NOTE: test 98 (`Q(1:20).Slice(...)`) is stzLIST.Slice -- still list-domain.
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
