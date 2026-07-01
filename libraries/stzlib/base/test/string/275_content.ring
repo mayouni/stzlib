@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #275.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SpacifyXT(sep, step, :Backward) groups from the right. Archive block #275.
 
-o1 = new stzString("99999999999")
+Scenario("Grouping from the right with a space")
+	Given('"99999999999"')
+	o1 = new stzString("99999999999")
+	o1.SpacifyXT( " ", 3, :Backward )
+	Then("spaces group every 3 from the right", o1.Content(), "99 999 999 999")
+EndScenario()
 
-o1.SpacifyXT( " ", 3, :Backward )
-? o1.Content() + NL
-#--> 99 999 999 999
-
-pf()
-# Executed in 0.01 second(s).
+Summary()
