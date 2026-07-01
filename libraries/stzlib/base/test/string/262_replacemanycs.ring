@@ -1,22 +1,19 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #262.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceManyCSQ([aliases], :By = " @i ", :CS = FALSE) replaces each listed alias
+# by " @i ". Here none of the aliases occur in the string, so it is unchanged.
+# Archive block #262.
 
-o1 = new stzString(" isNumber( 0+  @item  ) ")
-? o1.ReplaceManyCSQ([
-	" @position ", " @CurrentPosition ",
-	" @Current@i ", " @CurrentI ",
-	" @EachPosition ", " @EachI " ],
+Scenario("Replace-many-CS with no matching alias")
+	Given('" isNumber( 0+  @item  ) "')
+	o1 = new stzString(" isNumber( 0+  @item  ) ")
+	cResult = o1.ReplaceManyCSQ([
+		" @position ", " @CurrentPosition ",
+		" @Current@i ", " @CurrentI ",
+		" @EachPosition ", " @EachI " ],
+		:By = " @i ", :CS = FALSE).Content()
+	Then("no alias matches, so the string is unchanged", cResult, " isNumber( 0+  @item  ) ")
+EndScenario()
 
-	:By = " @i ", :CS = FALSE).Content()
-
-#--> " isNumber( 0+  @item  ) "
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()
