@@ -1,19 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #269.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Spacified() is the non-mutating form of SpacifyChars (space between chars);
+# SpacifiedUsing(sep) uses a custom separator. Archive block #269.
 
-o1 = new stzString("99999999999")
-? o1.Spacified()
-#--> 9 9 9 9 9 9 9 9 9 9 9 
+Scenario("Non-mutating spacing of chars")
+	Given('"99999999999"')
+	o1 = new stzString("99999999999")
+	Then("Spacified() spaces the chars", o1.Spacified(), "9 9 9 9 9 9 9 9 9 9 9")
+	Then("SpacifiedUsing('_') uses underscores", o1.SpacifiedUsing("_"), "9_9_9_9_9_9_9_9_9_9_9")
+EndScenario()
 
-? o1.SpacifiedUsing("_")
-#--> 9_9_9_9_9_9_9_9_9_9_9
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

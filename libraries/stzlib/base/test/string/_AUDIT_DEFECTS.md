@@ -116,6 +116,16 @@ DEFERRED:
   fluent W chain (R14) -- needs the W-form replacement + a substring-W finder
   (same family as 246's @substring). See [[reference-conditional-code-w-wf]].
 
+**Chunk 10 (2026-07-01):** 258, 260, 261, 262, 268, 269 audited→narrated (9
+assertions; no impl change). 258/260/261 confirm Softanza's empty-substring
+safety (FindZZ("")=[], Replace("",..)/ReplaceMany([""],..) = no-op) where Ring's
+substr raises. 262 (ReplaceManyCSQ, no matching alias), 268/269 (SpacifyChars /
+Spacified). DEFERRED:
+- **263** uses `stzCCode(...).Transpile()` -- a DIFFERENT class (the conditional-
+  code transpiler), not stzString. Out of scope for this pass.
+- **265** retired `RemoveWXTQ` (R14) -- same substring-W-finder gap as 246/256.
+- 257 (`_pr`) / 259 (`block_259`) look like empty placeholders -- verify later.
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
