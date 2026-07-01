@@ -90,6 +90,20 @@ assertions; no impl change). Notes:
   it); asserted that FindBetweenAsSections == FindAsSectionsXT(:Between) instead
   (the :Between form now works, was the deferred point).
 
+**Chunk 8 (2026-07-01):** 246 audited→narrated (@char W form). DEFERRED:
+- **246 `@substring` form** -- `FindWCS` routes @substring to the per-CHAR engine
+  finder (`FindCharsWCS`), so a multi-char `@substring = "•♥•"` never matches
+  (returns 0). Needs a substring-level W finder (`FindSubStringsWCS` -- iterate
+  substrings + eval the predicate, or a new engine fn). The @char form is fine.
+  Even the simple `@substring = "literal"` -> FindAll(literal) dispatch is not
+  wired. Conditional-code area -- see [[reference-conditional-code-w-wf]].
+- **237, 244, 245** use `UnicodeData()` / `UnicodeDataAsString()` which return
+  EMPTY here (the ~1.9M-char unicode data resource is not populated), so every
+  find is 0/[]. Data-dependent, not a code defect. (237/239 are also 2M-char perf
+  demos.)
+- **234** `post_it..._for_correction` is a Ring-community bug note about the
+  builtin `substr()` with bullet chars -- not a stzString feature; left as-is.
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
