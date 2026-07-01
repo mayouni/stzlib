@@ -3935,20 +3935,19 @@ class stzString from stzObject
 		ok
 
 	def RemoveSections(aSections)
-		# Remove sections from end to start to preserve positions
-		# Sort sections by start position descending
-		nLen = len(aSections)
-		for i = 1 to nLen - 1
-			for j = 1 to nLen - i
-				if aSections[j][1] < aSections[j+1][1]
-					temp = aSections[j]
-					aSections[j] = aSections[j+1]
-					aSections[j+1] = temp
-				ok
-			next
-		next
+		if len(aSections) = 0
+			return
+		ok
 
-		for i = 1 to nLen
+		# Merge inclusive/overlapping sections first (the original
+		# monolith merges before removing), then remove from the end
+		# to preserve positions.
+		_oSec_ = new stzListOfSections(aSections)
+		_oSec_.MergeOverlapping()
+		aSections = _oSec_.Content()
+		nLen = len(aSections)
+
+		for i = nLen to 1 step -1
 			This.RemoveSection(aSections[i][1], aSections[i][2])
 		next
 
@@ -4376,16 +4375,34 @@ class stzString from stzObject
 	def NumberOfOccurrenceOfCharStartSide(pcChar)
 		return This.NumberOfOccurrenceOfCharLeftSide(pcChar)
 
+	# ConsecutiveSubStringsZ()/ZZ(): every window of lengths 1..floor(n/2)
+	# paired with its start / [start, end] span, per the original monolith
+	# ([ Section(j, j+i-1), j ] rows, ascending start within each length).
 	def ConsecutiveSubStringsZ()
-		_n_ = This._EngineCount(This.Content())
-		_a_ = []
-		for _i_ = 1 to _n_
-			_a_ + _i_
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_aRes_ = []
+		if _nLen_ <= 1 return _aRes_ ok
+		_nMax_ = floor(_nLen_ / 2)
+		for _i_ = 1 to _nMax_
+			for _j_ = 1 to _nLen_ - _i_ + 1
+				_aRes_ + [ This._EngineSlice(_cTxt_, _j_, _i_), _j_ ]
+			next
 		next
-		return _a_
+		return _aRes_
 
 	def ConsecutiveSubStringsZZ()
-		return This.FindConsecutiveSubStringsZZ()
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_aRes_ = []
+		if _nLen_ <= 1 return _aRes_ ok
+		_nMax_ = floor(_nLen_ / 2)
+		for _i_ = 1 to _nMax_
+			for _j_ = 1 to _nLen_ - _i_ + 1
+				_aRes_ + [ This._EngineSlice(_cTxt_, _j_, _i_), [ _j_, _j_ + _i_ - 1 ] ]
+			next
+		next
+		return _aRes_
 
 	def SpacesRemovedQ()
 		return new stzString( This.SpacesRemoved() )
@@ -8893,35 +8910,66 @@ class stzString from stzObject
 			This.RemoveCharFromRightXT(pcChar)
 			return This
 
-	# NumberOfConsecutiveSubStrings([pcSub]): count of back-to-back
-	# identical occurrences. 0-arg form returns total char count.
+	# Consecutive (adjacent) substrings, per the original monolith:
+	# for each length i in 1..floor(n/2), the string is tiled from each
+	# of the i phase offsets into i-char windows (phase-major order).
+	# Across all phases that yields every window of length i, so the
+	# count per length is n-i+1 and the total is Sum(n-i+1).
 	def NumberOfConsecutiveSubStrings()
-		return This._EngineCount(This.Content())
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ <= 1 return 0 ok
+		_nMax_ = floor(_nLen_ / 2)
+		_nRes_ = 0
+		for _i_ = 1 to _nMax_
+			_nRes_ += (_nLen_ - _i_ + 1)
+		next
+		return _nRes_
 
 	def NumberOfConsecutiveSubStringsOf(pcSub)
 		return len(This.FindDupSecutiveSubString(pcSub))
 
 	def ConsecutiveSubStrings()
-		return This.Chars()
+		_nLen_ = This._EngineCount(This.Content())
+		_aRes_ = []
+		if _nLen_ <= 1 return _aRes_ ok
+		_nMax_ = floor(_nLen_ / 2)
+		for _i_ = 1 to _nMax_
+			_aT_ = This.ConsecutiveSubStringsOfNChars(_i_)
+			_nT_ = len(_aT_)
+			for _j_ = 1 to _nT_
+				_aRes_ + _aT_[_j_]
+			next
+		next
+		return _aRes_
 
+		def ConsecutiveSubStringsQ()
+			return new stzList(This.ConsecutiveSubStrings())
+
+	# The original Find form returns the UNIQUE per-length indices,
+	# which reduce to [1..n] (the length-1 row alone spans them all).
 	def FindConsecutiveSubStrings()
-		return This.Chars()
+		_nLen_ = This._EngineCount(This.Content())
+		_aRes_ = []
+		if _nLen_ <= 1 return _aRes_ ok
+		for _i_ = 1 to _nLen_
+			_aRes_ + _i_
+		next
+		return _aRes_
 
 	def FindConsecutiveSubStringsZ()
-		_n_ = This._EngineCount(This.Content())
-		_aR_ = []
-		for _i_ = 1 to _n_
-			_aR_ + _i_
-		next
-		return _aR_
+		return This.FindConsecutiveSubStrings()
 
 	def FindConsecutiveSubStringsZZ()
-		_n_ = This._EngineCount(This.Content())
-		_aR_ = []
-		for _i_ = 1 to _n_
-			_aR_ + [ StzChar(StzEngineStringCharAt(@pEngine, _i_)), [ _i_, _i_ ] ]
+		_nLen_ = This._EngineCount(This.Content())
+		_aRes_ = []
+		if _nLen_ <= 1 return _aRes_ ok
+		_nMax_ = floor(_nLen_ / 2)
+		for _i_ = 1 to _nMax_
+			for _j_ = 1 to _nLen_ - _i_ + 1
+				_aRes_ + [ _j_, _j_ + _i_ - 1 ]
+			next
 		next
-		return _aR_
+		return _aRes_
 
 	def ShortenedNUsing(n, pcSuffix)
 		return This.ShortenedXT(n, n, pcSuffix)
@@ -8946,24 +8994,18 @@ class stzString from stzObject
 
 	def NumberOfConsecutiveSubStringsOfNChars(n)
 		_nLen_ = This._EngineCount(This.Content())
-		_nC_ = 0
-		if _nLen_ < 2 * n return 0 ok
-		for _i_ = 1 to _nLen_ - 2 * n + 1
-			_bMatch_ = TRUE
-			for _k_ = 0 to n - 1
-				if StzEngineStringCharAt(@pEngine, _i_ + _k_) !=
-				   StzEngineStringCharAt(@pEngine, _i_ + n + _k_)
-					_bMatch_ = FALSE
-					exit
-				ok
-			next
-			if _bMatch_ _nC_++ ok
-		next
-		return _nC_
+		if NOT isNumber(n) or n <= 0 or n > _nLen_ return 0 ok
+		return _nLen_ - n + 1
 
-	# Unspacify(): strip every space.
+	# Unspacify(): trim, then collapse each run of 2+ spaces to one
+	# (the original monolith: Trim + remove dup-consecutive spaces).
 	def Unspacify()
-		This.RemoveSpaces()
+		This.Trim()
+		_c_ = This.Content()
+		while StzFindFirst(_c_, "  ") > 0
+			_c_ = StzReplace(_c_, "  ", " ")
+		end
+		This.Update(_c_)
 
 		def UnspacifyQ()
 			This.Unspacify()
@@ -8971,7 +9013,7 @@ class stzString from stzObject
 
 	def Unspacified()
 		_oTmp_ = new stzString(This.Content())
-		_oTmp_.RemoveSpaces()
+		_oTmp_.Unspacify()
 		return _oTmp_.Content()
 
 	# (SpacesRemoved already exists below; Unspacified is the new alias.)
@@ -9153,22 +9195,20 @@ class stzString from stzObject
 
 	# ConsecutiveSubStringsOfNChars(n) -- value form: the substrings
 	# (not just count) that appear consecutively.
+	# ConsecutiveSubStringsOfNChars(n): the n-char windows obtained by
+	# tiling the string from each of the n phase offsets (phase-major),
+	# per the original monolith.
 	def ConsecutiveSubStringsOfNChars(n)
 		_aRes_ = []
-		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ < 2 * n return _aRes_ ok
-		for _i_ = 1 to _nLen_ - 2 * n + 1
-			_bMatch_ = TRUE
-			for _k_ = 0 to n - 1
-				if StzEngineStringCharAt(@pEngine, _i_ + _k_) !=
-				   StzEngineStringCharAt(@pEngine, _i_ + n + _k_)
-					_bMatch_ = FALSE
-					exit
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		if NOT isNumber(n) or n <= 0 or n > _nLen_ return _aRes_ ok
+		for _i_ = 1 to n
+			for _j_ = _i_ to _nLen_ step n
+				if _j_ + n - 1 <= _nLen_
+					_aRes_ + This._EngineSlice(_cTxt_, _j_, n)
 				ok
 			next
-			if _bMatch_
-				_aRes_ + This._EngineSlice(This.Content(), _i_, n)
-			ok
 		next
 		return _aRes_
 
@@ -10118,22 +10158,42 @@ class stzString from stzObject
 
 	# FindConsecutiveSubStringsOfNCharsZZ(n): sectional form of
 	# FindConsecutiveSubStringsOfNChars.
+	# FindConsecutiveSubStringsOfNCharsZZ(n): the [start, end] spans of
+	# the phase-tiled windows, phase-major (original monolith).
 	def FindConsecutiveSubStringsOfNCharsZZ(n)
-		_aPos_ = This.FindConsecutiveSubStringsOfNChars(n)
+		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
-		_nL_ = len(_aPos_)
-		for _i_ = 1 to _nL_
-			_p_ = _aPos_[_i_]
-			_aRes_ + [ _p_, _p_ + n - 1 ]
+		if NOT isNumber(n) or n <= 0 or n > _nLen_ return _aRes_ ok
+		for _i_ = 1 to n
+			for _j_ = _i_ to _nLen_ step n
+				if _j_ + n - 1 <= _nLen_
+					_aRes_ + [ _j_, _j_ + n - 1 ]
+				ok
+			next
 		next
 		return _aRes_
 
-	# ConsecutiveSubStringsOfNCharsZ: positions only (alias).
+	# ConsecutiveSubStringsOfNCharsZ/ZZ: each window with its start /
+	# [start, end] span, phase-major.
 	def ConsecutiveSubStringsOfNCharsZ(n)
-		return This.FindConsecutiveSubStringsOfNChars(n)
+		_aSec_ = This.FindConsecutiveSubStringsOfNCharsZZ(n)
+		_cTxt_ = This.Content()
+		_aRes_ = []
+		_nL_ = len(_aSec_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ This._EngineSlice(_cTxt_, _aSec_[_i_][1], n), _aSec_[_i_][1] ]
+		next
+		return _aRes_
 
 	def ConsecutiveSubStringsOfNCharsZZ(n)
-		return This.FindConsecutiveSubStringsOfNCharsZZ(n)
+		_aSec_ = This.FindConsecutiveSubStringsOfNCharsZZ(n)
+		_cTxt_ = This.Content()
+		_aRes_ = []
+		_nL_ = len(_aSec_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ This._EngineSlice(_cTxt_, _aSec_[_i_][1], n), _aSec_[_i_] ]
+		next
+		return _aRes_
 
 	def SubStringsOccurringExactlyNTimes(n)
 		return This._SubStringsByOccurrence(n, TRUE)
@@ -14330,20 +14390,17 @@ class stzString from stzObject
 			This.ReplaceOccurrences(p1, p2, p3)
 			return This
 
+	# FindConsecutiveSubStringsOfNChars(n): the unique phase offsets
+	# that carry at least one full window (the original returns U(XT)
+	# over the per-window phase labels).
 	def FindConsecutiveSubStringsOfNChars(n)
 		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
-		if _nLen_ < 2 * n return _aRes_ ok
-		for _i_ = 1 to _nLen_ - 2 * n + 1
-			_bMatch_ = TRUE
-			for _k_ = 0 to n - 1
-				if StzEngineStringCharAt(@pEngine, _i_ + _k_) !=
-				   StzEngineStringCharAt(@pEngine, _i_ + n + _k_)
-					_bMatch_ = FALSE
-					exit
-				ok
-			next
-			if _bMatch_ _aRes_ + _i_ ok
+		if NOT isNumber(n) or n <= 0 or n > _nLen_ return _aRes_ ok
+		for _i_ = 1 to n
+			if _i_ + n - 1 <= _nLen_
+				_aRes_ + _i_
+			ok
 		next
 		return _aRes_
 
@@ -15616,7 +15673,7 @@ class stzString from stzObject
 		while _i_ + 2 * _nSubLen_ - 1 <= _nLen_
 			if This._EngineSlice(_cTxt_, _i_, _nSubLen_) = pcSub and
 			   This._EngineSlice(_cTxt_, _i_ + _nSubLen_, _nSubLen_) = pcSub
-				_aRes_ + _i_ + _nSubLen_
+				_aRes_ + (_i_ + _nSubLen_)
 				_i_ += _nSubLen_
 			else
 				_i_++
@@ -15667,10 +15724,10 @@ class stzString from stzObject
 		_aRes_ + [ _nStart_, _nPrev_ ]
 		return _aRes_
 
-	# Z-suffix alias: just the start positions of dup-consec
-	# substring matches (same as the bare FindDupSecutiveSubString).
+	# DupSecutiveSubStringZ(sub): the substring grouped with the
+	# positions of its consecutive-duplicate occurrences.
 	def DupSecutiveSubStringZ(pcSub)
-		return This.FindDupSecutiveSubString(pcSub)
+		return [ pcSub, This.FindDupSecutiveSubString(pcSub) ]
 
 	def DupSecutiveCharsZ()
 		return This.FindDupSecutiveChars()
@@ -15685,12 +15742,79 @@ class stzString from stzObject
 		next
 		return _aRes_
 
-		# Drop-the-Find prefix alias.
+		# DupSecutiveSubStringZZ(sub): the substring grouped with the
+		# [start, end] sections of its consecutive-duplicate occurrences.
 		def DupSecutiveSubStringZZ(pcSub)
-			return This.FindDupSecutiveSubStringZZ(pcSub)
+			return [ pcSub, This.FindDupSecutiveSubStringZZ(pcSub) ]
 
 		def DupSecutiveCharsZZ()
 			return This.FindDupSecutiveCharsZZ()
+
+	# The plural family: every substring that occurs duplicated
+	# back-to-back somewhere in the string (derived, per the original
+	# monolith, from the consecutive-duplicate items of the phase-tiled
+	# ConsecutiveSubStrings() list), with the positions/sections of the
+	# duplicate occurrences.
+	# NOTE (engine backlog): O(n^2) Ring-side enumeration -- move the
+	# window scan + dup detection engine-side.
+	def DupSecutiveSubStrings()
+		return This.ConsecutiveSubStringsQ().DupSecutiveItemsCS(1)
+
+	def FindDupSecutiveSubStrings()
+		_acSubs_ = This.DupSecutiveSubStrings()
+		_aRes_ = []
+		_nL_ = len(_acSubs_)
+		for _i_ = 1 to _nL_
+			_aP_ = This.FindDupSecutiveSubString(_acSubs_[_i_])
+			_nP_ = len(_aP_)
+			for _j_ = 1 to _nP_
+				_aRes_ + _aP_[_j_]
+			next
+		next
+		return _aRes_
+
+	def FindDupSecutiveSubStringsZZ()
+		_acSubs_ = This.DupSecutiveSubStrings()
+		_aRes_ = []
+		_nL_ = len(_acSubs_)
+		for _i_ = 1 to _nL_
+			_aS_ = This.FindDupSecutiveSubStringZZ(_acSubs_[_i_])
+			_nS_ = len(_aS_)
+			for _j_ = 1 to _nS_
+				_aRes_ + _aS_[_j_]
+			next
+		next
+		return _aRes_
+
+	def DupSecutiveSubStringsZ()
+		_acSubs_ = This.DupSecutiveSubStrings()
+		_aRes_ = []
+		_nL_ = len(_acSubs_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _acSubs_[_i_], This.FindDupSecutiveSubString(_acSubs_[_i_]) ]
+		next
+		return _aRes_
+
+	def DupSecutiveSubStringsZZ()
+		_acSubs_ = This.DupSecutiveSubStrings()
+		_aRes_ = []
+		_nL_ = len(_acSubs_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _acSubs_[_i_], This.FindDupSecutiveSubStringZZ(_acSubs_[_i_]) ]
+		next
+		return _aRes_
+
+	def RemoveDupSecutiveSubStrings()
+		This.RemoveSections( This.FindDupSecutiveSubStringsZZ() )
+
+		def RemoveDupSecutiveSubStringsQ()
+			This.RemoveDupSecutiveSubStrings()
+			return This
+
+	def DupSecutiveSubStringsRemoved()
+		_oTmp_ = new stzString(This.Content())
+		_oTmp_.RemoveDupSecutiveSubStrings()
+		return _oTmp_.Content()
 
 	# FindBetween(pcSub, pcOpen, pcClose): the positions of pcSub
 	# when it appears between pcOpen .. pcClose bounded sections.

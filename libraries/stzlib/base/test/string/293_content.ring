@@ -1,17 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #293.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Unspacify() = Trim + collapse each run of 2+ spaces to a single space
+# (the original monolith: Trim + remove the duplicate-consecutive spaces).
+# Inner single spaces survive; edges are trimmed. Archive block #293.
 
-o1 = new stzString(" so ftan   za ")
-o1.Unspacify()
-? o1.Content()
-#--> "so ftan za"
+Scenario("Unspacifying a string")
+	Given('" so ftan   za "')
+	o1 = new stzString(" so ftan   za ")
+	o1.Unspacify()
+	Then("edges trimmed, the 3-space run collapsed", o1.Content(), "so ftan za")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s)
+Summary()
