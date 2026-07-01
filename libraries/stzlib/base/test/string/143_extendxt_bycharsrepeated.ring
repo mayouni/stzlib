@@ -1,17 +1,14 @@
-# Narrative
-# --------
-# Extend the string by repeating chars (a given pool, or the string's own).
-#
-# Extracted from stzStringTest.ring, block #143.
-#
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ExtendXT(:ToPosition = n, :ByCharsRepeated) is the same as :With=:CharsRepeated:
+# grow to length n by repeating the string's own chars. Archive block #143.
 
-o1 = new stzString("ABC")
-o1.ExtendXT( :ToPosition = 5, :ByCharsRepeated )
-o1.Show()
-#--> ABCAB
+Scenario("Extending to a position, :ByCharsRepeated spelling")
+	Given('"ABC"')
+	o1 = new stzString("ABC")
+	o1.ExtendXT( :ToPosition = 5, :ByCharsRepeated )
+	Then("it grows to 'ABCAB'", o1.Content(), "ABCAB")
+EndScenario()
 
-pf()
+Summary()

@@ -1,22 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #129.
-#
-# SEMANTICS TO CONFIRM (deferred -- see _AUDIT_DEFECTS.md): Duplicates() on
-# "RINGORIALAND" returns the duplicated CHARACTERS [ "R", "I", "A", "N" ], but
-# the archive expected a set that also includes the duplicated multi-char
-# substring "RI" ([ "R", "RI", "I", "N", "A" ]). Unclear whether Duplicates()
-# should enumerate duplicated SUBSTRINGS or just characters; pending the author's
-# call. Left in print form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Duplicates() returns every duplicated SUBSTRING (not just chars), deduped, in
+# scan order -- so "RINGORIALAND" includes the multi-char "RI". Archive block #129.
 
-o1 = new stzString("RINGORIALAND")
-? @@( o1.Duplicates() )
-#--> currently [ "R", "I", "A", "N" ]; archive expected [ "R", "RI", "I", "N", "A" ]
+Scenario("The duplicated substrings of a string")
+	Given('"RINGORIALAND"')
+	o1 = new stzString("RINGORIALAND")
+	Then("Duplicates includes multi-char runs like 'RI'",
+		ListEq( o1.Duplicates(), [ "R", "RI", "I", "N", "A" ] ), TRUE)
+EndScenario()
 
-pf()
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

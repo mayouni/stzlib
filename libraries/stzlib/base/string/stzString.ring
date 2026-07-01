@@ -4199,7 +4199,7 @@ class stzString from stzObject
 		return This.DuplicatedSubStringsCS(1)
 
 	def NumberOfDuplicatesCS(pCaseSensitive)
-		return len(This.DuplicatedSubStringsCS(pCaseSensitive))
+		return len(This.DuplicatesCS(pCaseSensitive))
 
 	def NumberOfDuplicates()
 		return This.NumberOfDuplicatesCS(1)
@@ -5622,9 +5622,26 @@ class stzString from stzObject
 	 #   DUPLICATED SUBSTRINGS    #
 	#============================#
 
+	# Duplicates(): every duplicated SUBSTRING (not just chars), deduped, in
+	# (i,j) scan order -- matches the original DuplicatesCS. e.g. "RINGORIALAND"
+	# -> [ "R","I","A","N", ...multi-char dups... ]. (For a string with no repeated
+	# multi-char run, this coincides with the duplicated chars.)
 	def Duplicates()
-		_oDup_ = new stzStringDuplicates(This)
-		return _oDup_.DuplicatedChars()
+		return This.DuplicatesCS(1)
+
+	def DuplicatesCS(pCaseSensitive)
+		_nLen_ = This.NumberOfChars()
+		if _nLen_ = 0 return [] ok
+		_aRes_ = []
+		for _iDup_ = 1 to _nLen_
+			for _jDup_ = _iDup_ to _nLen_
+				_cSub_ = This.Section(_iDup_, _jDup_)
+				if ring_find(_aRes_, _cSub_) = 0 and This.HowMany(_cSub_) > 1
+					_aRes_ + _cSub_
+				ok
+			next
+		next
+		return _aRes_
 
 	  #========================================#
 	 #     CHECKER DELEGATIONS (EXPANDED)     #
