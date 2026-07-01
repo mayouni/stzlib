@@ -1,23 +1,29 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #229.
-#
-# SEMANTICS TO CONFIRM (deferred -- see _AUDIT_DEFECTS.md): NumbersComingAfter("@i")
-# on " @i + 10, @i- 125, e11" returns [ "+10", "-125" ] (the numbers right after
-# each "@i"); the archive expected [ "+10", "-125", "11" ], but "11" (from "e11")
-# does not follow an "@i". Confirm whether NumbersComingAfter should also pick up
-# trailing numbers with no preceding anchor. Left in print form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Numbers() lists every number in the string; NumbersComingAfter(anchor) lists
+# only the (signed) numbers that follow the anchor -- per the original, a leading
+# "+" is dropped and unanchored trailing numbers (the "11" of "e11") are excluded.
+# Archive block #229.
 
-o1 = new stzString(" @i + 10, @i- 125, e11")
-? @@( o1.Numbers() ) + NL
+Scenario("Numbers, and the numbers coming after an anchor")
+	Given('" @i + 10, @i- 125, e11"')
+	o1 = new stzString(" @i + 10, @i- 125, e11")
+	Then("Numbers() finds all three", ListEq( o1.Numbers(), [ "10", "-125", "11" ] ), TRUE)
+	Then("NumbersComingAfter('@i') keeps only the two anchored ones",
+		ListEq( o1.NumbersComingAfter("@i"), [ "10", "-125" ] ), TRUE)
+EndScenario()
 
-? @@( o1.NumbersComingAfter("@i") )
-#--> archive [ "+10", "-125", "11" ]; currently [ "+10", "-125" ]
+Summary()
 
-pf()
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
