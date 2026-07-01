@@ -15646,13 +15646,25 @@ class stzString from stzObject
 	def DuplicationsZ()
 		return This.FindDuplicates()
 
+	# FindDupSecutiveCharsZZ: GROUP the consecutive dup-char positions into
+	# [first, last] runs, e.g. [3,4,5,7,8,9,11] -> [[3,5],[7,9],[11,11]].
 	def FindDupSecutiveCharsZZ()
 		_aPos_ = This.FindDupSecutiveChars()
 		_aRes_ = []
 		_nL_ = len(_aPos_)
-		for _i_ = 1 to _nL_
-			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] ]
+		if _nL_ = 0 return _aRes_ ok
+		_nStart_ = _aPos_[1]
+		_nPrev_ = _aPos_[1]
+		for _i_ = 2 to _nL_
+			if _aPos_[_i_] = _nPrev_ + 1
+				_nPrev_ = _aPos_[_i_]
+			else
+				_aRes_ + [ _nStart_, _nPrev_ ]
+				_nStart_ = _aPos_[_i_]
+				_nPrev_ = _aPos_[_i_]
+			ok
 		next
+		_aRes_ + [ _nStart_, _nPrev_ ]
 		return _aRes_
 
 	# Z-suffix alias: just the start positions of dup-consec

@@ -160,6 +160,22 @@ impl change). Notes:
   monolith ~90657) is broken. No 275-278 test uses it, so logged for later.
 - 272/273 (`stzListOfNumbers.ToSections`) are list-domain.
 
+**Chunk 13 (2026-07-01):** 279, 287 audited→narrated. Fix:
+- **`FindDupSecutiveCharsZZ`** (287) returned singletons `[[p,p],...]`; now GROUPS
+  the consecutive dup positions into `[first,last]` runs ([3,4,5,7,8,9,11] ->
+  [[3,5],[7,9],[11,11]]).
+DEFERRED clusters found this chunk:
+- **SpacifyXT ADVANCED SEPARATOR family** (280, 281, 282, 283, 284, 285) -- the
+  `:Separator/:Using = [s1, :AndThen=s2, :LastNChars=n]` + `:Step=[a,:AndThen=b]`
+  + `:Direction=[..:AndThen..]` advanced forms are broken (the literal word
+  "separator" leaks; :LastNChars/:LastChars ignored). 6 tests -> strong FOCUSED-
+  PASS candidate. The simple positional/named forms (270/271/275/276) are fine.
+- **288** FindDupSecutiveSubString("ring") -> [4,4,8,4], archive wants [8,12].
+- **291** NumberOfConsecutiveSubStringsOfNChars(4) -> 6, archive wants 26.
+- **295** Unspacified: current removes ALL spaces; archive REDUCES runs of 2+ to
+  one and drops single/edge spaces (" "->""; "  "->" "). Check original UnSpacify.
+- 286/294 are list-domain (stzListOfNumbers / stzListOfStrings).
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
