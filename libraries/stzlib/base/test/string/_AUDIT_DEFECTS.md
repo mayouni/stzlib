@@ -104,6 +104,18 @@ assertions; no impl change). Notes:
 - **234** `post_it..._for_correction` is a Ring-community bug note about the
   builtin `substr()` with bullet chars -- not a stzString feature; left as-is.
 
+**Chunk 9 (2026-07-01):** 247, 248, 249, 250, 254, 255 audited→narrated (15
+assertions). Real fix:
+- **`CapitalCased()` / `IsCapitalcase()`** (250). Per the original, CapitalCased is
+  TITLE case (capitalise EVERY word, via `StzEngineStringToTitle`) -- the modular
+  did sentence-case (first letter only, rest lower). Rewrote CapitalCased to use
+  the `StzStringTitlecased` global, and IsCapitalcase to `CapitalCased()==Content()`
+  (was a first-letter checker). "i believe in ring..." -> "I Believe In Ring...".
+DEFERRED:
+- **256** uses the retired `RemoveWXTQ` inside a `TrimQ().LinesQ()....RemoveWXTQ`
+  fluent W chain (R14) -- needs the W-form replacement + a substring-W finder
+  (same family as 246's @substring). See [[reference-conditional-code-w-wf]].
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to

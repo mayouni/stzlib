@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #248.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Uppercased() returns the upper-cased string; IsUppercase() tests it. Archive #248.
 
-? Q("i believe in ring future and engage for it!").Uppercased()
-#--> I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!
+Scenario("Upper-casing a string")
+	Then("Uppercased raises the case",
+		Q("i believe in ring future and engage for it!").Uppercased(),
+		"I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!")
+	Then("the all-caps string IS uppercase",
+		Q("I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!").IsUppercase(), TRUE)
+EndScenario()
 
-? Q("I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!").IsUppercase()
-#--> TRUE
-
-StopProfiler()
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.21
+Summary()

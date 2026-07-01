@@ -1,24 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #249.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Lowercased() returns the lower-cased string; IsLowercase() tests it. Archive #249.
 
-? Q("I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!").Lowercased()
-#--> i believe in ring future and engage for it!
+Scenario("Lower-casing a string")
+	Then("Lowercased drops the case",
+		Q("I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!").Lowercased(),
+		"i believe in ring future and engage for it!")
+	Then("the all-lower string IS lowercase",
+		Q("i believe in ring future and engage for it!").IsLowercase(), TRUE)
+EndScenario()
 
-? Q("i believe in ring future and engage for it!").IsLowercase()
-#--> TRUE
-
-# As a side note, the last fuction used above (IsLowercase()) is
-# misspelled (should be IsLowerCase() with an "r" after low),*
-# but Softanza accepts it.
-
-StopProfiler()
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.21
+Summary()

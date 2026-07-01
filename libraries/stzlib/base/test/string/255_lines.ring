@@ -1,26 +1,19 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #255.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Lines() splits a multi-line string into its lines; the 3rd line here is all
+# digits. Archive block #255.
 
-o1 = new stzString("ABCDEF
+Scenario("The lines of a multi-line string")
+	Given('a 6-line block, line 3 = "123346"')
+	o1 = new stzString("ABCDEF
 GHIJKL
 123346
 MNOPQU
 RSTUVW
 984332")
+	Then("the 3rd line is '123346'", o1.Lines()[3], "123346")
+	Then("that line is made of numbers", Q( o1.Lines()[3] ).IsMadeOfNumbers(), TRUE)
+EndScenario()
 
-? o1.Lines()[3]
-#--> "123346"
-
-? Q( o1.Lines()[3] ).IsMadeOfNumbers()
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.05 second(s) in Ring 1.18
+Summary()
