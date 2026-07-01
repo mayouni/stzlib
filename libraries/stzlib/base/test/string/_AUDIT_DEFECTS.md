@@ -201,17 +201,18 @@ DEFERRED clusters found this chunk:
   one and drops single/edge spaces (" "->""; "  "->" "). Check original UnSpacify.
 - 286/294 are list-domain (stzListOfNumbers / stzListOfStrings).
 
-## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
+## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
 
-NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
-narrated assertions + green** (the backlog below is from those). **~796 remain
-un-audited** (print-form pr()/pf() + `from_*` cross-module extracts) and must be
-processed the same way: read the current test, recover its original block from the
-monolith (`git show f6bdfbcc^:.../legacy/stzStringTest.ring`), read the original
-impl (`archive/stzString_monolithic.ring`), take the ORIGINAL as reference, run,
-fix or log, convert to narrated. Do it in CHUNKS.
+NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
+narrated assertions + green** (the backlog below is from those). **~736 remain
+un-audited** (718 numbered print-form pr()/pf() + 18 `from_*` cross-module
+extracts) and must be processed the same way: read the current test, recover its
+original block from the monolith (`git show f6bdfbcc^:.../legacy/stzStringTest.ring`),
+read the original impl (`archive/stzString_monolithic.ring`), take the ORIGINAL as
+reference, run, fix or log, convert to narrated. Do it in CHUNKS. Full self-contained
+handoff: `_STRING_MODULE_HANDOFF.md` (this dir).
 
-Within the 203 audited, the tests left print-form / NOTE are NOT stzString defects:
+Within the audited set, the tests left print-form / NOTE are NOT stzString defects:
 - **Ring-language limits:** `$()`/`Interpolate` (111 — no caller-scope reflection),
   `Repeated<N>Times` (112 — no method-missing).
 - **Upstream `#TODO`:** `Dotless` Latin/Arabic (114, 115).
