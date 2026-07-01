@@ -1,20 +1,18 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #320.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# HowManyST(sub, :StartingAt = n) counts the occurrences at or after the
+# starting position -- on a stzString and, symmetrically, on a stzList of
+# its chars. Archive block #320.
 
-o1 = new stzString("123456♥..♥♥")
-? o1.HowManyST("♥", :StartingAt = 6) # Or NumberOfOuccurrenceST() or CountST()
-#--> 3
+Scenario("Counting occurrences from a starting position")
+	Given('"123456♥..♥♥" (hearts at 7, 10, 11)')
+	o1 = new stzString("123456♥..♥♥")
+	Then("3 hearts live at or after position 6",
+		o1.HowManyST("♥", :StartingAt = 6), 3)
+	o2 = new stzList( @Chars("123456♥..♥♥") )
+	Then("the char-list counts the same",
+		o2.HowManyST("♥", :StartingAt = 6), 3)
+EndScenario()
 
-o1 = new stzList( @Chars("123456♥..♥♥") )
-? o1.HowManyST("♥", :StartingAt = 6)
-#--> 3
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()
