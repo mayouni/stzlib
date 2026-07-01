@@ -68,6 +68,18 @@ NOTE: test 98 (`Q(1:20).Slice(...)`) is stzLIST.Slice -- still list-domain.
 all already correct from the earlier ReplaceXT/Except/ReplaceAllExcept/
 ReplaceWithMany fixes -- pure conversions, no impl change).
 
+**Chunk 5 (2026-07-01):** 104, 116, 117, 118, 119 audited→narrated (11
+assertions; already correct from earlier ContainsInSection/Shorten* fixes -- pure
+conversions). DEFERRED (LIST-domain, not stzString):
+- **83** `SplitQ(" ").FindWhere(cond)` / `ItemsWhere` return [] -- the `This[@i]`
+  W-DSL on a stzLIST evaluates empty. The string side (Split) is fine (returns a
+  stzlist). List-domain W-DSL -- see [[reference-conditional-code-w-wf]].
+- **84** `FindWXT` is RETIRED by design (R14 "no definition") per the WXT
+  disqualification -- W is the single form. Its positive replacement (FindWhere)
+  is the 83 issue.
+- **128** already a documented `#SKIP` retired placeholder (FindSubStringsCS
+  combinatorial analysis pending an engine-backed impl).
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to

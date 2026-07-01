@@ -1,16 +1,13 @@
-# Narrative
-# --------
-# Shortening the MIDDLE: keep N chars from each side joined by an ellipsis
-# (ShortenedN/Shortened/...Using return; Shorten/ShortenN mutate).
-#
-# Extracted from stzStringTest.ring, block #116.
-#
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ShortenedN(n) keeps n chars each side around "..."; ShortenedXT(left, right, ell)
+# controls each side and the ellipsis (0 left mirrors the right count). Archive #116.
 
-? Q("1234567890987654321").ShortenedN(2)            #--> 12...21
-? Q("1234567890987654321").ShortenedXT(0, 2, " {...} ") #--> 12 {...} 21
+Scenario("Shortening with N chars per side")
+	Then("ShortenedN(2) keeps 2 each side", Q("1234567890987654321").ShortenedN(2), "12...21")
+	Then("ShortenedXT(0,2,' {...} ') mirrors and uses the ellipsis",
+		Q("1234567890987654321").ShortenedXT(0, 2, " {...} "), "12 {...} 21")
+EndScenario()
 
-pf()
+Summary()
