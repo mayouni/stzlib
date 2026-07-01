@@ -147,6 +147,19 @@ assertions). Fix:
 grouping) were already correct. DEFERRED: 272 (`stzListOfNumbers.ToSections`,
 list-domain), 259 (empty placeholder), 263 (stzCCode), 264/265 (WXT/RemoveWXTQ).
 
+**Chunk 12 (2026-07-01):** 275, 276, 277, 278 audited→narrated (7 assertions; no
+impl change). Notes:
+- **277** the archive `#-->` was "999 999 999 999" for ALL three cases (a copy-
+  paste). Case 1 uses MIXED separators `[" ","."]` + steps `[3,2]` -> the actual
+  (and correct) output is "99.99 999.99 999" -- the original's OWN example shows
+  mixed separators emit the second separator. Asserted the real values.
+- **NEW DEFECT (deferred): SpacifyXT advanced named form** `SpacifyXT(:Using =
+  [".", :AndThen = " "], :Stepping = [2, :AndThen = 3], :Going = :Backward)`
+  returns the string UNCHANGED (the `:AndThen`-nested list isn't parsed). The
+  POSITIONAL mixed form works; only this named "advanced mode" (original example,
+  monolith ~90657) is broken. No 275-278 test uses it, so logged for later.
+- 272/273 (`stzListOfNumbers.ToSections`) are list-domain.
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
