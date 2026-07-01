@@ -5,6 +5,31 @@ Running log of genuine defects surfaced while narrating (= correctness-auditing)
 `stzStringTest.ring` (from git `f6bdfbcc^`, the pre-split monolith). Each entry:
 what's wrong, evidence, and the fix decision (code vs test, per defect policy).
 
+## ⚙️ ENGINE-SIDE OPTIMIZATION BACKLOG (Ring-loop impls -> move to the Zig engine)
+
+Per the engine-first rule, heavy per-char / per-substring work belongs in the Zig
+engine (add fn + bridge + rebuild), NOT Ring loops. The following were written
+Ring-side during the per-file audit for CORRECTNESS (all pass their tests) but
+must be reimplemented engine-side for efficiency:
+
+- **`DuplicatesCS`** (stzString.ring ~5636, chunk 6) -- O(n^3): Ring
+  `for i / for j / Section(i,j)` + `HowMany` per candidate. Needs an engine fn
+  returning all duplicated substrings (hashing / suffix structure, O(n^2) or less).
+- **`_SubStringsByOccurrence(n, bExact)`** (~9927, chunk 2) -- O(n^2+):
+  `SubStrings()` (itself O(n^2)) + dedup + `HowMany` per unique sub. Engine:
+  count-substrings-by-occurrence, feeding SubStringsOccurring{,Exactly,Only}NTimes.
+- **`FindSubStringsWCS`** (stzStringFinder.ring ~501, substring-W pass) -- O(n^2):
+  Ring `for i / for j / Section(i,j)` enumeration + `stzList.FindW`. Engine: a
+  `StzEngineStringFindSubStringsW` (per-substring predicate eval) mirroring the
+  existing `StzEngineStringFindCharsW`.
+- **`FindDupSecutiveCharsZZ`** (~15651, chunk 13) -- O(n) Ring grouping loop over
+  the positions (LIGHT; the base `FindDupSecutiveChars` is already engine-backed).
+  Engine: return the [first,last] runs directly.
+
+(Rule reinforced 2026-07-01 after `FindDupSecutiveCharsZZ` was flagged: during the
+audit, if a fix needs heavy char/substring iteration, implement it engine-side or
+add it here -- do NOT ship a Ring loop as the permanent impl.)
+
 ## Per-file audit (post-203) — chunk log
 
 **Chunk 1 (2026-06-30):** 04, 40, 44 audited→narrated (16 assertions). Real fixes:
