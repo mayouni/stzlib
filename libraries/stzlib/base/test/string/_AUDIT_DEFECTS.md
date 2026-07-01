@@ -80,6 +80,16 @@ conversions). DEFERRED (LIST-domain, not stzString):
 - **128** already a documented `#SKIP` retired placeholder (FindSubStringsCS
   combinatorial analysis pending an engine-backed impl).
 
+**Chunk 7 (2026-07-01):** 174, 175, 176, 181, 192, 229 audited→narrated (10
+assertions; no impl change). Notes:
+- **229** the archive `#-->` `["+10","-125","11"]` for `NumbersComingAfter("@i")`
+  was WRONG on both counts: the original drops a leading "+" (its own example
+  "@i+3" -> "3") and excludes unanchored numbers ("11" of "e11" follows "e", not
+  "@i"). Current `["10","-125"]` matches the original -- asserted as-is.
+- **181** the backslash-escaped data makes literal spans unreliable (header admits
+  it); asserted that FindBetweenAsSections == FindAsSectionsXT(:Between) instead
+  (the :Between form now works, was the deferred point).
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to

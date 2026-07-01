@@ -1,15 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #176.
-#
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ContainsXT(sub, :Before = anchor) / :After = anchor -- here the anchor is a
+# SUBSTRING rather than a position. Archive block #176.
 
-? Q("^^♥^^").ContainsXT("^", :Before = "♥^") #--> TRUE
-? Q("--♥^^").ContainsXT("^", :After = "-♥")  #--> TRUE
+Scenario("Contains before/after a substring anchor")
+	Then("'^' occurs before '♥^' in '^^♥^^'", Q("^^♥^^").ContainsXT("^", :Before = "♥^"), TRUE)
+	Then("'^' occurs after '-♥' in '--♥^^'", Q("--♥^^").ContainsXT("^", :After = "-♥"), TRUE)
+EndScenario()
 
-pf()
+Summary()

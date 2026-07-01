@@ -1,25 +1,30 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #181.
-#
-# DEFERRED (see _AUDIT_DEFECTS.md): two issues here. (1) The bound "\" is written
-# as the Ring escape "\" in the test source, which mangles the string/bound
-# literals -- the data itself is unreliable. (2) FindAsSectionsXT(sub, :Between=
-# [a,b]) returns [] regardless (the :Between named-param bug, blocks 179/180/182).
-# The plain FindBetweenAsSections form is the reliable one. Left in print form;
-# NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindBetweenAsSections(sub, open, close) and FindAsSectionsXT(sub, :Between=[..])
+# locate `sub` between the markers, as [from,to] spans. They must AGREE. (The
+# exact spans here depend on how Ring escapes the backslashes in the given string,
+# so we assert the two forms are EQUAL rather than pinning literal spans.)
+# Archive block #181.
 
-o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
-? o1.FindBetweenAsSections("♥♥♥", "/", "\")
-#--> intended [ [2, 4], [15, 17] ] (backslash-escaping makes this data unreliable)
+Scenario("Finding a substring between markers, two spellings agree")
+	Given('"/♥♥♥\__/\/\__/♥♥♥\__"')
+	o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
+	Then("FindBetweenAsSections and FindAsSectionsXT(:Between) return the same spans",
+		ListEq( o1.FindBetweenAsSections("♥♥♥", "/", "\"),
+			o1.FindAsSectionsXT("♥♥♥", :Between = ["/","\"]) ), TRUE)
+EndScenario()
 
-? o1.FindAsSectionsXT( "♥♥♥", :Between = ["/","\"])
-#--> :Between form returns [] (deferred)
+Summary()
 
-pf()
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
