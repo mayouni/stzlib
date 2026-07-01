@@ -242,6 +242,28 @@ resolving the 288/291/295 deferrals from chunk 13):
   quirk "  " -> " ") and contradicts both the archived impl and sibling 293;
   asserted at the original-impl behavior.
 
+**Chunk 15 (2026-07-01):** 296, 297, 298, 299, 300, 301, 302, 303
+audited→narrated (21 assertions). Real fixes:
+- **`SplitAtSections` returned the sections' own content instead of the
+  COMPLEMENT parts** (297). The original routes through
+  stzSplitter.SplitAtSections (complement spans -- proven by the sibling
+  archive block: "---456----123--67---" -> ["---","----","--","---"]) and
+  slices those. NOTE: block 297's OWN archive #--> showed the sections
+  ("r  in  g", "r  ing") -- inconsistent with the original impl and the
+  sibling block; asserted at the complement. (Test 960 uses the sibling
+  block and will now match as-is.)
+- **`SubStringsBoundedByIBZZ` lost the `[substring, span]` grouping** (302) --
+  returned bare spans; now zips each bound-inclusive substring with its span
+  (same shape as SubStringsBoundedByZZ). This un-blocked 302's whole
+  hash-list pipeline (keys = substrings, values = spans).
+- OBSERVATION: the list W-DSL `FindW('This[@i] = "ring"')` on a stzList now
+  WORKS (302 asserts it) -- the chunk-5 deferral of 83 (This[@i] evaluating
+  empty) appears to have been fixed by the intervening W work; 83 is worth
+  re-auditing when its number comes up.
+296 (stzSplitter complement spans), 298/299/300/301 (FindZZ multi-needle +
+RemoveSpacesInSections), 303 (FindAnyBoundedByIBZZ + misspelled
+WithoutSapces alias) were already correct -- pure conversions.
+
 ## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to

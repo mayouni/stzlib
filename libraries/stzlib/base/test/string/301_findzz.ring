@@ -1,21 +1,30 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #301.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindZZ over a list of spaced substrings + RemoveSpacesInSections, with the
+# last section running to the end of the string. Archive block #301.
 
-o1 = new stzString("Ring langua  ge is like a r  ing at your fing er  tips!")
+Scenario("Unspacing sections found by FindZZ")
+	Given('"Ring langua  ge is like a r  ing at your fing er  tips!"')
+	o1 = new stzString("Ring langua  ge is like a r  ing at your fing er  tips!")
+	Then("the three spaced substrings are located",
+		ListEq( o1.FindZZ([ "langua  ge", "r  ing", "fing er  tips!" ]),
+			[ [6,15], [27,32], [42,55] ] ), TRUE)
+	o1.RemoveSpacesInSections([ [ 6, 15 ], [ 27, 32 ], [ 42, 55 ] ])
+	Then("the sentence reads clean",
+		o1.Content(), "Ring language is like a ring at your fingertips!")
+EndScenario()
 
-? @@( o1.FindZZ([ "langua  ge", "r  ing", "fing er  tips!" ]) )
-#--> [ [ 6, 15 ], [ 27, 32 ], [ 42, 55 ] ]
+Summary()
 
-o1.RemoveSpacesInSections([ [ 6, 15 ], [ 27, 32 ], [ 42, 55 ] ])
-? o1.Content()
-#--> Ring language is like a ring at your fingertips!
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
