@@ -1,21 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #287.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindDupSecutiveChars gives the positions where a char repeats the previous one;
+# the ZZ form GROUPS those into [first,last] runs. Archive block #287.
 
-#                   1234567890123457890
-o1 = new stzString("ABBBBbbbbCCcFFFaABCC")
+Scenario("Finding runs of duplicated consecutive chars")
+	Given('"ABBBBbbbbCCcFFFaABCC"')
+	o1 = new stzString("ABBBBbbbbCCcFFFaABCC")
+	Then("the dup-consecutive positions",
+		ListEq( o1.FindDupSecutiveChars(), [ 3, 4, 5, 7, 8, 9, 11, 14, 15, 20 ] ), TRUE)
+	Then("the ZZ form groups them into runs",
+		ListEq( o1.FindDupSecutiveCharsZZ(), [ [3,5], [7,9], [11,11], [14,15], [20,20] ] ), TRUE)
+EndScenario()
 
-? @@( o1.FindDupSecutiveChars() ) + NL
-#--> [ 3, 4, 5, 7, 8, 9, 11, 14, 15, 20 ]
+Summary()
 
-? @@( o1.FindDupSecutiveCharsZZ() ) + NL
-#--> [ [ 3, 5 ], [ 7, 9 ], [ 11, 11 ], [ 14, 15 ], [ 20, 20 ] ]
-
-pf()
-# Executed in 0.02 second(s).
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
