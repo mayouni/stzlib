@@ -126,6 +126,17 @@ Spacified). DEFERRED:
 - **265** retired `RemoveWXTQ` (R14) -- same substring-W-finder gap as 246/256.
 - 257 (`_pr`) / 259 (`block_259`) look like empty placeholders -- verify later.
 
+**Substring-W focused pass (2026-07-01):** ✅ RESOLVED the `@substring` W-DSL
+gap (246). Added `stzStringFinder.FindSubStringsWCS`: enumerate all substrings
+with their start positions, rewrite `@substring`->`@item` via the existing
+`_StzNormalizeSubStringCond`, filter with `stzList.FindW`, map matching indices
+back to positions (deduped, in order). `FindWCS` now routes `@substring` there
+(`@char`/default still go to the per-char engine finder). `FindNthW(2,
+'@substring="•♥•"')` -> 6. (83's list-W issue was specifically `This[@i]`; plain
+`@item` works, which is what the normalizer emits.)
+- STILL DEFERRED **256, 265** -- their `RemoveWXTQ` is on a `LinesQ()` result (a
+  stzLIST), so it's the LIST-domain WXT->W migration, not stzString.
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to
