@@ -1,18 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #271.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SpacifyXT with the named params (:Using, :Step, :Direction) -- the same as the
+# positional form in block #270. Archive block #271.
 
-o1 = new stzString("99999999999")
-o1.SpacifyXT( :Using = "_", :Step = 3, :Direction = :Backward )
+Scenario("Grouping digits from the right, named params")
+	Given('"99999999999"')
+	o1 = new stzString("99999999999")
+	o1.SpacifyXT( :Using = "_", :Step = 3, :Direction = :Backward )
+	Then("the named-param form groups the same way", o1.Content(), "99_999_999_999")
+EndScenario()
 
-? o1.Content()
-#--> 99_999_999_999
-
-pf()
-# Executed in 0.02 second(s)
+Summary()

@@ -137,6 +137,16 @@ back to positions (deduped, in order). `FindWCS` now routes `@substring` there
 - STILL DEFERRED **256, 265** -- their `RemoveWXTQ` is on a `LinesQ()` result (a
   stzLIST), so it's the LIST-domain WXT->W migration, not stzString.
 
+**Chunk 11 (2026-07-01):** 266, 267, 270, 271, 274 audited→narrated (11
+assertions). Fix:
+- **`(/)` operator with a LIST of sizes** (274). `o1 / [3,4,2]` fell through to
+  `return ""` -- the operator handled a string (Split), a number (SplitToNParts),
+  and stz objects, but not a raw list. Added `but isList(pValue) ->
+  SplitToPartsOfSizes(pValue)` so `o1 / [3,4,2]` == ["123","4567","89"].
+266 (FindAnyBoundedBy + IB), 267 (DeepFindBoundedByZZ nested), 270/271 (SpacifyXT
+grouping) were already correct. DEFERRED: 272 (`stzListOfNumbers.ToSections`,
+list-domain), 259 (empty placeholder), 263 (stzCCode), 264/265 (WXT/RemoveWXTQ).
+
 ## STATUS (2026-06-30): 203/999 test files audited; ~796 still to audit
 
 NOT complete. `base/test/string` has 999 files; **203 are audited + converted to

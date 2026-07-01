@@ -146,6 +146,10 @@ class stzString from stzObject
 			but isNumber(pValue)
 				return This.SplitToNParts(pValue)
 
+			but isList(pValue)
+				# A list of sizes -> consecutive parts of those sizes.
+				return This.SplitToPartsOfSizes(pValue)
+
 			but isObject(pValue)
 				if @IsStzNumber(pValue)
 					return Q( This.SplitToNParts(pValue.NumericValue()) )
