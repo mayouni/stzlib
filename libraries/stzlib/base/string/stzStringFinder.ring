@@ -486,15 +486,41 @@ class stzStringFinder
 		return This.FindCharsWCS(pcCondition, 1)
 
 	def FindWCS(pcCondition, pCaseSensitive)
-		# Dispatch: @char -> FindCharsWCS
+		# Dispatch: @substring -> substring-level W; @char (or default) -> char-level.
 		cLower = StzCaseFold(pcCondition)
 		oTmp = new stzStringFinder(cLower)
-		if oTmp.Contains("@char")
-			return This.FindCharsWCS(pcCondition, pCaseSensitive)
+		if oTmp.Contains("@substring")
+			return This.FindSubStringsWCS(pcCondition, pCaseSensitive)
 		ok
-
-		# Default: character-level find
 		return This.FindCharsWCS(pcCondition, pCaseSensitive)
+
+	# FindSubStringsWCS: the START positions of every SUBSTRING satisfying an
+	# @substring W-predicate. Enumerates all substrings (with their start pos),
+	# rewrites @substring -> @item (via _StzNormalizeSubStringCond) and filters
+	# with the list W-DSL, then maps the matching indices back to positions.
+	def FindSubStringsWCS(pcCondition, pCaseSensitive)
+		_cNorm_ = _StzNormalizeSubStringCond(pcCondition)
+		_nN_ = @oString.NumberOfChars()
+		if _nN_ = 0 return [] ok
+		_aSubs_ = []
+		_aPos_ = []
+		for _iSsw_ = 1 to _nN_
+			for _jSsw_ = _iSsw_ to _nN_
+				_aSubs_ + @oString.Section(_iSsw_, _jSsw_)
+				_aPos_ + _iSsw_
+			next
+		next
+		_oLssw_ = new stzList(_aSubs_)
+		_aIdx_ = _oLssw_.FindW(_cNorm_)
+		_aRes_ = []
+		_nM_ = len(_aIdx_)
+		for _kSsw_ = 1 to _nM_
+			_pSsw_ = _aPos_[ _aIdx_[_kSsw_] ]
+			if ring_find(_aRes_, _pSsw_) = 0
+				_aRes_ + _pSsw_
+			ok
+		next
+		return _aRes_
 
 	def FindW(pcCondition)
 		return This.FindWCS(pcCondition, 1)
