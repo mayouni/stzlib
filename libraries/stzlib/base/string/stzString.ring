@@ -7877,16 +7877,20 @@ class stzString from stzObject
 
 	# SplitAtSections(aSections): the pieces of content sliced by the
 	# listed [n1, n2] sections. Each section becomes one piece.
+	# SplitAtSections(aSections): split AT the sections -- return the
+	# COMPLEMENT parts between them (the original monolith routes the
+	# complement computation through stzSplitter).
 	def SplitAtSections(aSections)
 		if NOT isList(aSections) return [] ok
-		_aRes_ = []
-		_nL_ = len(aSections)
 		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		if _nLen_ = 0 return [] ok
+		_aComp_ = StzSplitterQ(_nLen_).SplitAtSections(aSections)
+		_aRes_ = []
+		_nL_ = len(_aComp_)
 		for _i_ = 1 to _nL_
-			_s_ = aSections[_i_]
-			if isList(_s_) and len(_s_) = 2
-				_aRes_ + This._EngineSlice(_cTxt_, _s_[1], _s_[2] - _s_[1] + 1)
-			ok
+			_s_ = _aComp_[_i_]
+			_aRes_ + This._EngineSlice(_cTxt_, _s_[1], _s_[2] - _s_[1] + 1)
 		next
 		return _aRes_
 
@@ -9018,9 +9022,18 @@ class stzString from stzObject
 
 	# (SpacesRemoved already exists below; Unspacified is the new alias.)
 
-	# SubStringsBoundedByIBZZ: inclusive-bounds sectional substrings.
+	# SubStringsBoundedByIBZZ: each bound-inclusive substring paired with
+	# its [start, end] span (same grouping shape as SubStringsBoundedByZZ).
 	def SubStringsBoundedByIBZZ(pacBounds)
-		return This.FindSubStringsBoundedByIBZZ(pacBounds)
+		_aSec_ = This.FindSubStringsBoundedByIBZZ(pacBounds)
+		_cTxt_ = This.Content()
+		_aRes_ = []
+		_nL_ = len(_aSec_)
+		for _i_ = 1 to _nL_
+			_s_ = _aSec_[_i_]
+			_aRes_ + [ This._EngineSlice(_cTxt_, _s_[1], _s_[2] - _s_[1] + 1), _s_ ]
+		next
+		return _aRes_
 
 	#-- SubStringsBoundedByZZ: each shallow bounded substring paired with its
 	#-- [start, end] positions -- the BoundedBy substrings zipped with their

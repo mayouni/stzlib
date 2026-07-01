@@ -1,26 +1,31 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #303.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindAnyBoundedByIBZZ returns the bound-INCLUSIVE spans of the regions
+# enclosed by [open, close]; SubStringsBoundedByIB gives those substrings,
+# here piped through the (deliberately misspelled, still accepted)
+# WithoutSapces(). Archive block #303.
 
-#                      4      11      19   24
-#                      v      v       v    v
-o1 = new stzString("   r  in  g  is a rin  g  ")
+Scenario("Bound-inclusive spans and their unspaced substrings")
+	Given('"   r  in  g  is a rin  g  " (r..g regions at 4-11 and 19-24)')
+	o1 = new stzString("   r  in  g  is a rin  g  ")
+	Then("the IB spans include the bounds",
+		ListEq( o1.FindAnyBoundedByIBZZ([ "r", "g" ]), [ [4,11], [19,24] ] ), TRUE)
+	Then("the unspaced substrings both read 'ring'",
+		ListEq( QRT( o1.SubStringsBoundedByIB([ "r","g" ]), :stzListOfStrings).WithoutSapces(),
+			[ "ring", "ring" ] ), TRUE)
+EndScenario()
 
-? @@( o1.FindAnyBoundedByIBZZ([ "r", "g" ]) )
-#--> [ [ 4, 11 ], [ 19, 24 ] ]
+Summary()
 
-? QRT( o1.SubStringsBoundedByIB([ "r","g" ]), :stzListOfStrings).WithoutSapces()
-#NOTE: WithoutSapces() is misspelled and the correct form is WithoutSpaces!
-# Despite that, softanza accepts it ;)
-
-#--> [ "ring", "ring" ]
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.21.
-# Executed in 0.07 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
