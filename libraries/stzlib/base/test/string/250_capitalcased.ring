@@ -1,20 +1,15 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #250.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Capitalcased() = TITLE case: capitalise the first letter of every word (engine
+# ToTitle); IsCapitalcase() tests it. Archive block #250.
 
-? Q("i believe in ring future and engage for it!").Capitalcased()
-#--> I Believe In Ring Future And Engage For It!
+Scenario("Capital-casing (title case) a string")
+	Then("Capitalcased capitalises every word",
+		Q("i believe in ring future and engage for it!").Capitalcased(),
+		"I Believe In Ring Future And Engage For It!")
+	Then("the title-cased string IS capital-case",
+		Q("I Believe In Ring Future And Engage For It!").IsCapitalcase(), TRUE)
+EndScenario()
 
-? Q("I Believe In Ring Future And Engage For It!").IsCapitalcase()
-#--> TRUE
-
-StopProfiler()
-
-pf()
-# Executed in 0.07 second(s) in Ring 1.21
+Summary()

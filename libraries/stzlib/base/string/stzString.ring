@@ -5679,9 +5679,14 @@ class stzString from stzObject
 		_oIlChk_ = new stzStringChecker(This)
 		return _oIlChk_.IsLowercase()
 
+	# IsCapitalcase(): TRUE iff the string already equals its TITLE-cased form
+	# (every word capitalised), per the original.
 	def IsCapitalcase()
-		_oIccChk_ = new stzStringChecker(This)
-		return _oIccChk_.IsCapitalcase()
+		if NOT This.ContainsLetters() return "" ok
+		if This.CapitalCased() = This.Content()
+			return 1
+		ok
+		return 0
 
 	def IsHybridcase()
 		_oIhcChk_ = new stzStringChecker(This)
@@ -8617,11 +8622,12 @@ class stzString from stzObject
 		return This._EngineSlice(This.Content(), 1, _nLen_ - 1)
 
 	# CapitalCased(): first char uppercase, rest lowercase.
+	# CapitalCased(): TITLE case -- capitalise the first letter of EVERY word
+	# (engine ToTitle), per the original. (NOT sentence-case / first-letter-only.)
 	def CapitalCased()
 		_c_ = This.Content()
 		if This._EngineCount(_c_) = 0 return "" ok
-		return upper(This._EngineSlice(_c_, 1, 1)) +
-		       lower(This._EngineSliceFrom(_c_, 2))
+		return StzStringTitlecased(_c_)
 
 	def CapitalCase()
 		This.Update(This.CapitalCased())
