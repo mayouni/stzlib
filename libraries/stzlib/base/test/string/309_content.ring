@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #309.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# InsertBefore([positions], str) -- alias InsertBeforePositions -- inserts
+# str before each of the given char positions. Archive block #309.
 
-o1 = new stzString("123456789")
+Scenario("Inserting before positions")
+	Given('"123456789"')
+	o1 = new stzString("123456789")
+	o1.InsertBefore([4, 7], "_")
+	Then("underscores land before positions 4 and 7", o1.Content(), "123_456_789")
+EndScenario()
 
-o1.InsertBefore([4, 7], "_") # or o1.InsertBeforePositions([4, 7], "_")
-#--> 123_456_789
-
-? o1.Content()
-#--> 123_456_789
-
-pf()
-# Executed in 0.03 second(s)
+Summary()

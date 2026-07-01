@@ -1,27 +1,30 @@
-# Narrative
-# --------
-# SUBSTRONGS & SUBSTRINKS #narration #funny
-#
-# Extracted from stzStringTest.ring, block #305.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# SUBSTRONGS & SUBSTRINKS (deliberate Softanza wordplay): on a list of
+# strings, SubStrongs() are the items that CONTAIN another item of the list,
+# and SubStrinks() the items CONTAINED IN another item. Here "Ring" contains
+# the item "in". Archive block #305.
 
-pr()
+Scenario("Substrongs and substrinks of a word list")
+	Given('[ "I", "believe", "in", "Ring", "future", "and", "engage", "for", "it!" ]')
+	o1 = new stzListOfStrings([
+		"I", "believe", "in", "Ring", "future", "and", "engage", "for", "it!"
+	])
+	Then("the strings containing other items", ListEq( o1.SubStrongs(), [ "Ring" ] ), TRUE)
+	Then("the strings contained in other items", ListEq( o1.SubStrinks(), [ "in" ] ), TRUE)
+EndScenario()
 
-o1 = new stzListOfStrings([
-	"I", "believe", "in", "Ring", "future", "and", "engage", "for", "it!"
-])
+Summary()
 
-? @@( o1.SubStrongs() ) # the strings containing other strings from the list
-#--> [ "Ring" ]
-
-# In fact, "Ring" contains "in" and "in" is an item from the list
-
-? @@( o1.SubStrinks() ) # the strings that are contained IN other strings from the list
-#--> [ "in" ]
-
-# In fact, "in" is contained in the item "Ring"
-
-pf()
-# Executed in 0.06 second(s)
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

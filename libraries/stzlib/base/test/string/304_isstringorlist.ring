@@ -1,15 +1,10 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #304.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsStringOrList() -- a type-union check on stz objects. Archive block #304.
 
-? Q("believe").IsStringOrList()
-#--> TRUE
+Scenario("A string is a string-or-list")
+	Then('Q("believe").IsStringOrList()', Q("believe").IsStringOrList(), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

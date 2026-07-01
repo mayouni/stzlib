@@ -871,11 +871,38 @@ class stzStringList
 			This.RemoveSpaces()
 			return This
 
+	# Substrongs/Substrinks (deliberate Softanza wordplay): the strings
+	# that CONTAIN another item of the list, and the ones that are
+	# CONTAINED IN another item (case-sensitive, engine-backed find).
 	def SubStrongs()
-		return @acContent
+		_aSbg_ = @acContent
+		_nSbg_ = ring_len(_aSbg_)
+		_aSbgRes_ = []
+		for _iSbg_ = 1 to _nSbg_
+			for _jSbg_ = 1 to _nSbg_
+				if _iSbg_ != _jSbg_ and _aSbg_[_iSbg_] != _aSbg_[_jSbg_] and
+				   StzFindFirst(_aSbg_[_iSbg_], _aSbg_[_jSbg_]) > 0
+					_aSbgRes_ + _aSbg_[_iSbg_]
+					exit
+				ok
+			next
+		next
+		return _aSbgRes_
 
 	def SubStrinks()
-		return @acContent
+		_aSbk_ = @acContent
+		_nSbk_ = ring_len(_aSbk_)
+		_aSbkRes_ = []
+		for _iSbk_ = 1 to _nSbk_
+			for _jSbk_ = 1 to _nSbk_
+				if _iSbk_ != _jSbk_ and _aSbk_[_iSbk_] != _aSbk_[_jSbk_] and
+				   StzFindFirst(_aSbk_[_jSbk_], _aSbk_[_iSbk_]) > 0
+					_aSbkRes_ + _aSbk_[_iSbk_]
+					exit
+				ok
+			next
+		next
+		return _aSbkRes_
 
 	def StringsW(pcExpr)
 		_l_ = @acContent
