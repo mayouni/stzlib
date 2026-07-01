@@ -8174,6 +8174,9 @@ class stzString from stzObject
 		return StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 		       nFrom + 1, 1)
 
+	# PreviousOccurrence(sub, nFrom): the last occurrence lying ENTIRELY
+	# before nFrom (the original searches Section(1, nFrom-1), so an
+	# occurrence overlapping nFrom does not count).
 	def PreviousOccurrence(pcSub, nFrom)
 		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
 		   lower(nFrom[1]) = "startingat"
@@ -8181,9 +8184,10 @@ class stzString from stzObject
 		ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_nL_ = len(_aAll_)
+		_nSubLen_ = This._EngineCount(pcSub)
 		_nBest_ = 0
 		for _i_ = 1 to _nL_
-			if _aAll_[_i_] < nFrom _nBest_ = _aAll_[_i_] ok
+			if _aAll_[_i_] + _nSubLen_ - 1 < nFrom _nBest_ = _aAll_[_i_] ok
 		next
 		return _nBest_
 
@@ -9130,33 +9134,39 @@ class stzString from stzObject
 		_nL_ = len(_aAll_)
 		nFrom = This._ResolveSymPos(nFrom, This.NumberOfChars())
 		if NOT isNumber(nFrom) return 0 ok
+		_nSubLen_ = This._EngineCount(pcSub)
 		_aBefore_ = []
 		for _i_ = 1 to _nL_
-			if _aAll_[_i_] < nFrom _aBefore_ + _aAll_[_i_] ok
+			if _aAll_[_i_] + _nSubLen_ - 1 < nFrom _aBefore_ + _aAll_[_i_] ok
 		next
 		_nBL_ = len(_aBefore_)
-		# Symbolic n: :First / :Last
+		# Symbolic n, counting BACKWARD from nFrom: the :First previous
+		# is the nearest one, the :Last previous the farthest (original
+		# monolith: :Last = the occurrence count before nFrom).
 		if isString(n)
 			_kw_ = lower(n)
 			if StzMid(_kw_, 1, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
-			if _kw_ = "last" n = 1
-			but _kw_ = "first" n = _nBL_
+			if _kw_ = "first" n = 1
+			but _kw_ = "last" n = _nBL_
 			ok
 		ok
 		if NOT isNumber(n) return 0 ok
 		if n < 1 or n > _nBL_ return 0 ok
 		return _aBefore_[_nBL_ - n + 1]
 
-	# FirstZ / LastZ -- sectional first / last char (0-arg) or first
-	# occurrence section of pcSub (1-arg).
+	# FirstZ(sub) -- the Z grouping [sub, position] of the first
+	# occurrence (0-arg keeps the first-char section form).
 	def FirstZ(pcSub)
 		if isString(pcSub) and pcSub != ""
 			_n_ = This._FindFrom(This.Content(), pcSub, 1)
 			if _n_ < 1 return [] ok
-			return [ _n_, _n_ + This._EngineCount(pcSub) - 1 ]
+			return [ pcSub, _n_ ]
 		ok
 		if This._EngineCount(This.Content()) = 0 return [] ok
 		return [ 1, 1 ]
+
+		def FindFirstZ(pcSub)
+			return This.FirstZ(pcSub)
 
 	def LastZ()
 		_nLen_ = This._EngineCount(This.Content())
@@ -9241,9 +9251,11 @@ class stzString from stzObject
 			This.RemoveThisFirstCharXT(pcChar)
 			return This
 
-	# FindLastZ: alias of FindLastAsSection (returns single [start, end]).
+	# FindLastZ(sub): the Z grouping [sub, position] of the last occurrence.
 	def FindLastZ(pcSub)
-		return This.FindLastAsSection(pcSub)
+		_n_ = This.FindLast(pcSub)
+		if _n_ < 1 return [] ok
+		return [ pcSub, _n_ ]
 
 	# FindNthAsSection(n, pcSub): [start, end] of the n-th occurrence.
 	def FindNthAsSection(n, pcSub)
@@ -9269,12 +9281,12 @@ class stzString from stzObject
 			_pos_ = _nFrom_
 			while TRUE
 				_p_ = This._FindFrom(This.Content(), pcSub, _pos_)
-				if _p_ < 1 return 0 ok
+				if _p_ < 1 return [] ok
 				_iCount_++
-				if _iCount_ = n return _p_ ok
+				if _iCount_ = n return [ pcSub, _p_ ] ok
 				_pos_ = _p_ + 1
 			end
-			return 0
+			return []
 		ok
 		_c_ = This.NthChar1(n)
 		if _c_ = "" return NULL ok
@@ -9289,8 +9301,7 @@ class stzString from stzObject
 		but isNumber(pStartingAt) and pStartingAt >= 1
 			_nFrom_ = pStartingAt
 		ok
-		if _nFrom_ <= 1 return This.FindNthAsSection(n, pcSub) ok
-		# n-th occurrence at/after _nFrom_.
+		# n-th occurrence at/after _nFrom_, grouped [sub, [start, end]].
 		_iCount_ = 0
 		_pos_ = _nFrom_
 		_subLen_ = This._EngineCount(pcSub)
@@ -9298,7 +9309,7 @@ class stzString from stzObject
 			_p_ = This._FindFrom(This.Content(), pcSub, _pos_)
 			if _p_ < 1 return [] ok
 			_iCount_++
-			if _iCount_ = n return [ _p_, _p_ + _subLen_ - 1 ] ok
+			if _iCount_ = n return [ pcSub, [ _p_, _p_ + _subLen_ - 1 ] ] ok
 			_pos_ = _p_ + 1
 		end
 		return []
@@ -9526,17 +9537,20 @@ class stzString from stzObject
 		if StzEngineStringCharAt(@pEngine, 1) != StzCodepoint(pcChar) return ok
 		This.RemoveThisCharFromStartXT(pcChar)
 
-	# FindLastZZ alias.
+	# FindLastZZ(sub): the ZZ grouping [sub, [start, end]] of the last
+	# occurrence.
 	def FindLastZZ(pcSub)
-		return This.FindLastAsSection(pcSub)
+		_aSec_ = This.FindLastAsSection(pcSub)
+		if len(_aSec_) = 0 return [] ok
+		return [ pcSub, _aSec_ ]
 
-	# NthZ: single-position section of nth char (1-arg) or section of
-	# the n-th occurrence of pcSub (2-arg).
+	# NthZ: single-position section of nth char (1-arg) or the Z grouping
+	# [sub, position] of the n-th occurrence of pcSub (2-arg).
 	def NthZ(n, pcSub)
 		if isString(pcSub) and pcSub != ""
 			_p_ = This.FindNth(n, pcSub)
 			if _p_ < 1 return [] ok
-			return [ _p_, _p_ + This._EngineCount(pcSub) - 1 ]
+			return [ pcSub, _p_ ]
 		ok
 		_nLen_ = This._EngineCount(This.Content())
 		if n < 0 n = _nLen_ + n + 1 ok
@@ -9666,12 +9680,32 @@ class stzString from stzObject
 		_o_.RemoveThisCharFromEndXT(pcChar)
 		return _o_.Content()
 
+	# FirstZZ(sub): the ZZ grouping [sub, [start, end]] of the first
+	# occurrence.
 	def FirstZZ(pcSub)
-		return This.FirstZ(pcSub)
+		_aSec_ = This.FindFirstAsSection(pcSub)
+		if len(_aSec_) = 0 return [] ok
+		return [ pcSub, _aSec_ ]
 
+		def FindFirstZZ(pcSub)
+			return This.FirstZZ(pcSub)
+
+	# FindNthZZ(n, sub): the ZZ grouping [sub, [start, end]] of the n-th
+	# occurrence.
 	def FindNthZZ(n, pcSub)
-		return This.NthZ(n, pcSub)
+		_aSec_ = This.FindNthAsSection(n, pcSub)
+		if len(_aSec_) = 0 return [] ok
+		return [ pcSub, _aSec_ ]
 
+		def NthZZ(n, pcSub)
+			return This.FindNthZZ(n, pcSub)
+
+		def FindNthZ(n, pcSub)
+			return This.NthZ(n, pcSub)
+
+	# FirstStz / LastStz: the [sub, position] grouping of the first /
+	# last occurrence at or after :StartingAt (the S = starting-at
+	# family is forward-looking).
 	def FirstStz(pcSub, pStartingAt)
 		_nFrom_ = 1
 		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
@@ -9681,24 +9715,29 @@ class stzString from stzObject
 			_nFrom_ = pStartingAt
 		ok
 		_n_ = This._FindFrom(This.Content(), pcSub, _nFrom_)
-		if _n_ < 1 return 0 ok
-		return _n_
+		if _n_ < 1 return [] ok
+		return [ pcSub, _n_ ]
 
-	def LastStz(pcSub, pStartingAt)
-		_nEnd_ = This._EngineCount(This.Content())
+	def _LastStFrom(pcSub, pStartingAt)
+		_nFrom_ = 1
 		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
 		   lower(pStartingAt[1]) = "startingat"
-			_nEnd_ = pStartingAt[2]
+			_nFrom_ = pStartingAt[2]
 		but isNumber(pStartingAt) and pStartingAt >= 1
-			_nEnd_ = pStartingAt
+			_nFrom_ = pStartingAt
 		ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_nL_ = len(_aAll_)
 		_last_ = 0
 		for _i_ = 1 to _nL_
-			if _aAll_[_i_] <= _nEnd_ _last_ = _aAll_[_i_] ok
+			if _aAll_[_i_] >= _nFrom_ _last_ = _aAll_[_i_] ok
 		next
 		return _last_
+
+	def LastStz(pcSub, pStartingAt)
+		_p_ = This._LastStFrom(pcSub, pStartingAt)
+		if _p_ < 1 return [] ok
+		return [ pcSub, _p_ ]
 
 	def CharTrimmedFromLeft(pcChar)
 		return This.CharRemovedFromLeftXT(pcChar)
@@ -9706,10 +9745,12 @@ class stzString from stzObject
 	def CharTrimmedFromRight(pcChar)
 		return This.CharRemovedFromRightXT(pcChar)
 
+	# The SZZ forms group [sub, [start, end]] (per the original archive:
+	# FindLastSZZ("♥♥♥", :StartingAt = 6) --> [ "♥♥♥", [13, 15] ]).
 	def FindLastSZZ(pcSub, pStartingAt)
-		_p_ = This.LastStz(pcSub, pStartingAt)
+		_p_ = This._LastStFrom(pcSub, pStartingAt)
 		if _p_ < 1 return [] ok
-		return [ _p_, _p_ + This._EngineCount(pcSub) - 1 ]
+		return [ pcSub, [ _p_, _p_ + This._EngineCount(pcSub) - 1 ] ]
 
 	def FindTheseOccurrencesZZ(p1, pNamedOf)
 		return This.FindTheseOccurrencesAsSections(p1, pNamedOf)
@@ -9730,7 +9771,7 @@ class stzString from stzObject
 		ok
 		_n_ = This._FindFrom(This.Content(), pcSub, _nFrom_)
 		if _n_ < 1 return [] ok
-		return [ _n_, _n_ + This._EngineCount(pcSub) - 1 ]
+		return [ pcSub, [ _n_, _n_ + This._EngineCount(pcSub) - 1 ] ]
 
 	def FindTheseOccurrences(p1, pNamedOf)
 		return This.FindOccurrences(p1, pNamedOf)
@@ -15552,7 +15593,7 @@ class stzString from stzObject
 			_nFound_ = This._FindSubStr(pcSubStr, _nPos_, 1)
 			if _nFound_ = 0 exit ok
 			_nLast_ = _nFound_
-			_nPos_ = _nFound_ + len(pcSubStr)
+			_nPos_ = _nFound_ + This._EngineCount(pcSubStr)
 		end
 		return _nLast_
 
@@ -15571,34 +15612,38 @@ class stzString from stzObject
 		end
 		return 0
 
+	# _IsBackwardDir(pDir): TRUE for the bare :Backward symbol or the
+	# :Direction = :Backward / :Going = :Backward named-param shapes.
+	def _IsBackwardDir(pDir)
+		if isString(pDir) and lower(pDir) = "backward"
+			return TRUE
+		but isList(pDir) and len(pDir) = 2 and isString(pDir[1]) and
+		   (lower(pDir[1]) = "direction" or lower(pDir[1]) = "going")
+			if isString(pDir[2]) and lower(pDir[2]) = "backward"
+				return TRUE
+			ok
+		ok
+		return FALSE
+
 	# FindFirstSTD: directional find-from-position.
 	#   FindFirstSTD(sub, :StartingAt = n, :Backward)
-	#   FindFirstSTD(sub, :StartingAt = n, :Direction = :Forward|:Backward)
+	#   FindFirstSTD(sub, :StartingAt = n, :Direction/:Going = :Backward)
+	# Backward candidates are the occurrences ENDING at or before the
+	# starting position (per the original archive blocks), the "first"
+	# being the nearest one going backward.
 	def FindFirstSTD(pcSubStr, nStartAt, pDir)
 		if isList(nStartAt) and len(nStartAt) = 2 and
 		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
 			nStartAt = nStartAt[2]
 		ok
 		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
-		# pDir can be the bare :Backward / :Forward symbol or the
-		# :Direction = :Forward/:Backward named-param shape.
-		_bBackward_ = FALSE
-		if isString(pDir) and lower(pDir) = "backward"
-			_bBackward_ = TRUE
-		but isList(pDir) and len(pDir) = 2 and isString(pDir[1]) and
-		   lower(pDir[1]) = "direction"
-			if isString(pDir[2]) and lower(pDir[2]) = "backward"
-				_bBackward_ = TRUE
-			ok
-		ok
 		_cTxt_ = This.Content()
-		if NOT _bBackward_
+		if NOT This._IsBackwardDir(pDir)
 			return This._FindFrom(_cTxt_, pcSubStr, nStartAt)
 		ok
-		# Backward: scan from position nStartAt walking down to 1,
-		# checking codepoint slices of pcSubStr length at each step.
+		# Backward: highest start whose occurrence ends <= nStartAt.
 		_nSubLen_ = This._EngineCount(pcSubStr)
-		_nMax_ = nStartAt
+		_nMax_ = nStartAt - _nSubLen_ + 1
 		if _nMax_ > This._EngineCount(_cTxt_) - _nSubLen_ + 1
 			_nMax_ = This._EngineCount(_cTxt_) - _nSubLen_ + 1
 		ok
@@ -15632,22 +15677,29 @@ class stzString from stzObject
 		return [ _nPos_, _nPos_ + _nSubLen_ - 1 ]
 
 	def FindLastSTD(pcSubStr, nStartAt, pDir)
-		# Forward FindLastSTD := FindLastST starting forward from nStartAt;
-		# Backward := walk backwards looking for any occurrence (so the
-		# "last" one ends up being the highest position <= nStartAt).
-		_bBackward_ = FALSE
-		if isString(pDir) and lower(pDir) = "backward"
-			_bBackward_ = TRUE
-		but isList(pDir) and len(pDir) = 2 and isString(pDir[1]) and
-		   lower(pDir[1]) = "direction"
-			if isString(pDir[2]) and lower(pDir[2]) = "backward"
-				_bBackward_ = TRUE
-			ok
-		ok
-		if NOT _bBackward_
+		# Forward: FindLastST starting forward from nStartAt.
+		# Backward: the FARTHEST occurrence going backward (the lowest
+		# start whose occurrence ends <= nStartAt).
+		if NOT This._IsBackwardDir(pDir)
 			return This.FindLastST(pcSubStr, nStartAt)
 		ok
-		return This.FindFirstSTD(pcSubStr, nStartAt, :Backward)
+		if isList(nStartAt) and len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
+		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
+		_cTxt_ = This.Content()
+		_nSubLen_ = This._EngineCount(pcSubStr)
+		_nMax_ = nStartAt - _nSubLen_ + 1
+		if _nMax_ > This._EngineCount(_cTxt_) - _nSubLen_ + 1
+			_nMax_ = This._EngineCount(_cTxt_) - _nSubLen_ + 1
+		ok
+		for _i_ = 1 to _nMax_
+			if This._EngineSlice(_cTxt_, _i_, _nSubLen_) = pcSubStr
+				return _i_
+			ok
+		next
+		return 0
 
 	def FindLastSTDZZ(pcSubStr, nStartAt, pDir)
 		_nPos_ = This.FindLastSTD(pcSubStr, nStartAt, pDir)
@@ -16049,22 +16101,15 @@ class stzString from stzObject
 		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
 			nStartAt = nStartAt[2]
 		ok
-		_bBackward_ = FALSE
-		if isString(pDir) and lower(pDir) = "backward"
-			_bBackward_ = TRUE
-		but isList(pDir) and len(pDir) = 2 and isString(pDir[1]) and
-		   lower(pDir[1]) = "direction"
-			if isString(pDir[2]) and lower(pDir[2]) = "backward"
-				_bBackward_ = TRUE
-			ok
-		ok
-		if NOT _bBackward_
+		if NOT This._IsBackwardDir(pDir)
 			return This.FindNthST(n, pcSubStr, nStartAt)
 		ok
-		# Backward: walk down collecting positions, return the n-th.
+		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
+		# Backward: walk down over the occurrences ending <= nStartAt,
+		# nearest first; return the n-th.
 		_cTxt_ = This.Content()
 		_nSubLen_ = This._EngineCount(pcSubStr)
-		_nMax_ = nStartAt
+		_nMax_ = nStartAt - _nSubLen_ + 1
 		_nTxtLen_ = This._EngineCount(_cTxt_)
 		if _nMax_ > _nTxtLen_ - _nSubLen_ + 1
 			_nMax_ = _nTxtLen_ - _nSubLen_ + 1

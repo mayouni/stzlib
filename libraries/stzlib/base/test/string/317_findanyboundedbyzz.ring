@@ -1,49 +1,44 @@
-# Narrative
-# --------
-# FindAnyBoundedByZZ + SubStringsBoundedByZZ give the 3 SHALLOW top-level regions
-# (each "[" paired with the next "]"); the Deep* forms below report the proper
-# nested match -- inner [7,9] and the outer span [5,17] -- each substring paired
-# with its [start, end].
-#
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# FindAnyBoundedByZZ + SubStringsBoundedByZZ give the 3 SHALLOW top-level
+# regions (each "[" paired with the next "]"); the Deep* :BoundedBy forms
+# report the proper nested match -- inner [7,9] and the outer span [5,17] --
+# each substring paired with its [start, end].
 # Extracted from stzlisttest.ring, block #317.
 
-load "../../stzBase.ring"
+Scenario("Shallow any-bounded-by")
+	Given('"---[ [===]---[=] ]--[=]--"')
+	o1 = new stzString("---[ [===]---[=] ]--[=]--")
+	Then("the 3 shallow spans",
+		ListEq( o1.FindAnyBoundedByZZ([ "[", "]" ]), [ [5,9], [15,15], [22,22] ] ), TRUE)
+	Then("each substring pairs with its span",
+		ListEq( o1.SubStringsBoundedByZZ([ "[", "]" ]),
+			[ [ " [===", [5,9] ], [ "=", [15,15] ], [ "=", [22,22] ] ] ), TRUE)
+EndScenario()
 
-pr()
+Scenario("Deep :BoundedBy spelling")
+	Given('the same string')
+	o1 = new stzString("---[ [===]---[=] ]--[=]--")
+	Then("the nested spans, leaves first",
+		ListEq( o1.DeepFindSubStringsZZ(:BoundedBy = [ "[", "]" ]),
+			[ [7,9], [15,15], [22,22], [5,17] ] ), TRUE)
+	Then("each deep substring pairs with its span",
+		ListEq( o1.DeepSubStringsZZ(:BoundedBy = [ "[", "]" ]),
+			[ [ "===", [7,9] ], [ "=", [15,15] ], [ "=", [22,22] ],
+			  [ " [===]---[=] ", [5,17] ] ] ), TRUE)
+EndScenario()
 
-#  BOUNDED-BY             v-------v
-#                       v---v     v-v    v           
-o1 = new stzString("---[ [===]---[=] ]--[=]--")
-#                       | | |     ‖ |    ‖
-#   DEEP-FIND >>        | \_/    15 |   22
-#                       | 7 9       |
-#                       \___________/
-#                       5           17
+Summary()
 
-? @@( o1.FindAnyBoundedByZZ([ "[", "]" ]) ) + NL
-#--> [ [ 5, 9 ], [ 15, 15 ], [ 22, 22 ] ]
-
-? @@NL( o1.SubStringsBoundedByZZ([ "[", "]" ]) ) + NL
-#--> [
-#	[ " [===", [ 5, 9 ] ],
-#	[ "=", [ 15, 15 ] ],
-#	[ "=", [ 22, 22 ] ]
-# ]
-
-#---
-
-? @@( o1.DeepFindSubStringsZZ(:BoundedBy = [ "[", "]" ]) ) + NL
-#--> [ [ 7, 9 ], [ 15, 15 ], [ 22, 22 ], [ 5, 17 ] ]
-
-? @@NL( o1.DeepSubStringsZZ(:BoundedBy = [ "[", "]" ]) )
-#--> [
-#	[ "===", [ 7, 9 ] ],
-#	[ "=", [ 15, 15 ] ],
-#	[ "=", [ 22, 22 ] ],
-#	[ " [===]---[=] ", [ 5, 17 ] ]
-# ]
-
-StopProfiler()
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

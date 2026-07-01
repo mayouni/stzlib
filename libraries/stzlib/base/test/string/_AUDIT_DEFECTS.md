@@ -288,6 +288,31 @@ DEFERRED:
 304 (IsStringOrList), 308/309_distanceto (DistanceTo/XT/STXT directional
 family), 309/310 (InsertBefore/AfterPositions) were already correct.
 
+**Chunk 17 (2026-07-02):** 312, 313, 314, 315 (x2), 316 (x2), 317 (x2), 318,
+319, 320 (x2) audited→narrated (13 files, 44 assertions). Real fixes -- the
+ST/STD/Z/ZZ finder-extension cluster:
+- **`FindNthPrevious` :First/:Last were INVERTED** (312) -- :Last mapped to
+  the nearest-backward instead of the farthest. Also `PreviousOccurrence` /
+  `FindPrevious` now require the occurrence to lie ENTIRELY before
+  :StartingAt (original searches Section(1, start-1)), fixing 316's
+  FindPrevious(:StartingAt=10) -> 3 (not the overlapping 8).
+- **Single-occurrence Z/ZZ groupings** (313, 314, 315) -- FirstZ/FirstZZ/
+  FindLastZ/FindLastZZ/NthZ/FindNthZZ returned bare spans; now the settled
+  [sub, pos] / [sub, span] shapes (+ added FindFirstZ/FindFirstZZ/FindNthZ/
+  NthZZ aliases).
+- **ST/STD family** (317, 318, 319; also pins the monolith SZZ/STDZZ blocks
+  covered by later files): FindLastST advanced by BYTE length (missed the
+  last multibyte occurrence); STD :Backward candidates now = occurrences
+  ENDING at/before :StartingAt (were start<=), FindLastSTD :Backward = the
+  FARTHEST such occurrence (was nearest), FindNthSTD gained the :Going =
+  :Backward spelling (via a shared _IsBackwardDir helper); NthSTZ/FirstSTZ/
+  LastSTZ now group [sub, pos] and LastSTZ is forward-from (was
+  backward-bounded); FindFirstSZZ/FindNthSZZ/FindLastSZZ group
+  [sub, [start, end]] per the archive.
+315_findboundedbyzz/316_deep/317_findany (shallow vs DEEP bounded-by),
+316_findnthst, 320_howmanyst (string+list HowManyST), 320_simplify
+(NestedSubStringsIB) were already correct -- pure conversions.
+
 ## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
