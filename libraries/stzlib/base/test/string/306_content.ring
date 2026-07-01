@@ -1,21 +1,20 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #306.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SpacifyTheseSubStrings segments the string around ALL the given tokens at
+# once: their sections are found together, occurrences strictly included in
+# a previous section are dropped (the "in" inside "Ring" stays part of
+# "Ring"), and ONE space goes before each kept token plus one after the
+# last -- so adjacent tokens never double-space. Archive block #306.
 
-o1 = new stzString("IbelieveinRingfutureandengageforit!")
-o1.SpacifyTheseSubStrings([
-	"believe", "in", "Ring", "future", "and", "engage", "for"
-])
+Scenario("Spacifying the words of a concatenated sentence")
+	Given('"IbelieveinRingfutureandengageforit!"')
+	o1 = new stzString("IbelieveinRingfutureandengageforit!")
+	o1.SpacifyTheseSubStrings([
+		"believe", "in", "Ring", "future", "and", "engage", "for"
+	])
+	Then("the sentence reads with single spaces",
+		o1.Content(), "I believe in Ring future and engage for it!")
+EndScenario()
 
-? o1.Content()
-#--> I believe in Ring future and engage for it!
-
-pf()
-# Executed in 0.07 second(s) in Ring 1.21
-# Executed in 0.13 second(s) in Ring 1.19
+Summary()

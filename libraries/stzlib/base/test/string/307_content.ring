@@ -1,22 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #307.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SpacifyTheseSubStrings when the tokens tile the WHOLE string: single
+# separators appear between tokens and the edge whitespace is trimmed.
+# Archive block #307.
 
-o1 = new stzString(
-"MahmoudBertAhmedMansourIlirGalMajdi"
-)
+Scenario("Spacifying a fully-tiled name string")
+	Given('"MahmoudBertAhmedMansourIlirGalMajdi"')
+	o1 = new stzString("MahmoudBertAhmedMansourIlirGalMajdi")
+	o1.SpacifyTheseSubStrings([
+		"Mahmoud", "Bert", "Ahmed", "Mansour", "Ilir", "Gal", "Majdi" ])
+	Then("the names separate with single spaces, no edge spaces",
+		o1.Content(), "Mahmoud Bert Ahmed Mansour Ilir Gal Majdi")
+EndScenario()
 
-o1.SpacifyTheseSubStrings([
-	"Mahmoud", "Bert", "Ahmed", "Mansour", "Ilir", "Gal", "Majdi" ])
-
-? o1.Content()
-#--> Mahmoud Bert Ahmed Mansour Ilir Gal Majdi
-
-pf()
-# Executed in 0.06 second(s)
+Summary()

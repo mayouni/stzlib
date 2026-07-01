@@ -264,6 +264,30 @@ audited→narrated (21 assertions). Real fixes:
 RemoveSpacesInSections), 303 (FindAnyBoundedByIBZZ + misspelled
 WithoutSapces alias) were already correct -- pure conversions.
 
+**Chunk 16 (2026-07-02):** 304, 305, 306, 307, 308 (+308_distanceto), 309
+(+309_distanceto), 310 audited→narrated (21 assertions). Real fixes:
+- **`SpacifySubStringsUsingCS` rewritten** (306, 307; also re-grounds 133).
+  The old impl spaced each substring SEPARATELY with a byte-based walk ->
+  double spaces + "in" spacified INSIDE "Ring". New impl: find ALL sections
+  at once (FindManyAsSectionsCS, sorted), drop sections strictly included in
+  their predecessor (the original monolith's inclusion rule), bound each kept
+  section with the separator on both sides, collapse duplicate separators,
+  strip edges. The archive triple 133 + 306 + 307 pins the semantics (the
+  original's insert-before-only algorithm CONTRADICTS its own block 133;
+  the both-sides + collapse form satisfies all three).
+- **`InsertXT(str, :EachNChars = n)`** (308) -- new branch routing to the
+  existing InsertAfterEachNChars (was a silent no-op).
+- **`stzStringList.SubStrongs()/SubStrinks()`** (305) -- were stubs returning
+  the whole list; now the items CONTAINING another item / CONTAINED IN
+  another item (engine StzFindFirst). Same fix mirrored in stzList.
+DEFERRED:
+- **311** `InsertAfterEachNCharsXT(3, :StartingFrom = :End)` -- the archive
+  marks the block TODO and the call passes NO substring to insert (the "_"
+  in the expected output has no source). Needs an upstream API decision;
+  the forward form is covered by InsertXT(:EachNChars) in 308.
+304 (IsStringOrList), 308/309_distanceto (DistanceTo/XT/STXT directional
+family), 309/310 (InsertBefore/AfterPositions) were already correct.
+
 ## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to

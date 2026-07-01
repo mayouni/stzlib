@@ -7864,12 +7864,10 @@ class stzString from stzObject
 
 	def _SpacifyTheseSubStringsSep(paSubStr, pcSep)
 		if NOT (isList(paSubStr) and isString(pcSep)) return ok
-		_nLen_ = len(paSubStr)
-		for _i_ = 1 to _nLen_
-			if isString(paSubStr[_i_])
-				This.SpacifySubStringsUsing([paSubStr[_i_]], pcSep)
-			ok
-		next
+		# One-shot: the sections of ALL the substrings must be gathered
+		# together so adjacent tokens share one separator and included
+		# occurrences are dropped (see SpacifySubStringsUsingCS).
+		This.SpacifySubStringsUsingCS(paSubStr, pcSep, 1)
 
 		def SpacifyTheseSubStringsQ(paSubStr)
 			This.SpacifyTheseSubStrings(paSubStr)
@@ -9059,6 +9057,13 @@ class stzString from stzObject
 
 	# InsertXT(:After=pcAnchor, :With=pcStr) / (:Before=, :With=) etc.
 	def InsertXT(p1, p2)
+		# InsertXT(str, :EachNChars = n): insert str after every n chars
+		# (no trailing insert after the final group).
+		if isString(p1) and isList(p2) and len(p2) = 2 and isString(p2[1]) and
+		   lower(p2[1]) = "eachnchars"
+			This.InsertAfterEachNChars(p2[2], p1)
+			return
+		ok
 		_cWhat_ = NULL
 		_cAnchor_ = NULL
 		_bAfter_ = TRUE
@@ -15145,44 +15150,55 @@ class stzString from stzObject
 	# occurrence of each substring in pacSubStr with the given
 	# separator on both sides.
 
+	# SpacifySubStringsUsingCS: find ALL the substrings' sections at once
+	# (sorted), drop the ones strictly included in their predecessor (so
+	# "in" inside "Ring" survives as part of "Ring"), bound each kept
+	# section with the separator on BOTH sides, then collapse duplicate
+	# separators (adjacent tokens share one) and strip them from the
+	# edges. Satisfies the archive triple: blocks 133, 306, 307.
 	def SpacifySubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
 		if NOT (isList(pacSubStr) and @IsListOfStrings(pacSubStr))
 			StzRaise("SpacifySubStringsUsing: pacSubStr must be a list of strings")
 		ok
-		if NOT isString(pcSep)
-			StzRaise("SpacifySubStringsUsing: pcSep must be a string")
+		if NOT isString(pcSep) or pcSep = ""
+			StzRaise("SpacifySubStringsUsing: pcSep must be a non-empty string")
 		ok
-		_cRes_ = This.Content()
-		_nLen_ = len(pacSubStr)
-		for _i_ = 1 to _nLen_
-			_cSub_ = pacSubStr[_i_]
-			if _cSub_ = "" loop ok
-			# Walk-and-substitute matching SubStringsSpacifiedCS' shape
-			_cOut_ = ""
-			_cHay_ = _cRes_
-			if NOT @CaseSensitive(pCaseSensitive)
-				_cHayLow_ = lower(_cHay_)
-				_cNdlLow_ = lower(_cSub_)
+		_aSec_ = This.FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
+		_nSec_ = len(_aSec_)
+		if _nSec_ = 0
+			return
+		ok
+		_aKept_ = [ _aSec_[1] ]
+		for _i_ = 2 to _nSec_
+			if _aSec_[_i_][1] > _aSec_[_i_-1][1] and _aSec_[_i_][1] < _aSec_[_i_-1][2] and
+			   _aSec_[_i_][2] > _aSec_[_i_-1][1] and _aSec_[_i_][2] < _aSec_[_i_-1][2]
+				# strictly included in the previous section -- drop
 			else
-				_cHayLow_ = _cHay_
-				_cNdlLow_ = _cSub_
+				_aKept_ + _aSec_[_i_]
 			ok
-			_nHayLen_ = len(_cHay_)
-			_nSubLen_ = len(_cSub_)
-			_iC_ = 1
-			while _iC_ <= _nHayLen_
-				if _iC_ + _nSubLen_ - 1 <= _nHayLen_ and
-				   substr(_cHayLow_, _iC_, _nSubLen_) = _cNdlLow_
-					_cOut_ += pcSep + substr(_cHay_, _iC_, _nSubLen_) + pcSep
-					_iC_ += _nSubLen_
-				else
-					_cOut_ += substr(_cHay_, _iC_, 1)
-					_iC_++
-				ok
-			end
-			_cRes_ = _cOut_
 		next
-		This.Update(_cRes_)
+		_nK_ = len(_aKept_)
+		_oCopy_ = new stzString(This.Content())
+		for _i_ = _nK_ to 1 step -1
+			_oCopy_.InsertAfterPosition(_aKept_[_i_][2], pcSep)
+			_oCopy_.InsertBeforePosition(_aKept_[_i_][1], pcSep)
+		next
+		_c_ = _oCopy_.Content()
+		_cDup_ = pcSep + pcSep
+		while StzFindFirst(_c_, _cDup_) > 0
+			_c_ = StzReplace(_c_, _cDup_, pcSep)
+		end
+		_nSepLen_ = StzLen(pcSep)
+		_nCLen_ = StzLen(_c_)
+		if _nCLen_ >= _nSepLen_ and This._EngineSlice(_c_, 1, _nSepLen_) = pcSep
+			_c_ = This._EngineSliceFrom(_c_, _nSepLen_ + 1)
+			_nCLen_ = StzLen(_c_)
+		ok
+		if _nCLen_ >= _nSepLen_ and
+		   This._EngineSlice(_c_, _nCLen_ - _nSepLen_ + 1, _nSepLen_) = pcSep
+			_c_ = This._EngineSlice(_c_, 1, _nCLen_ - _nSepLen_)
+		ok
+		This.Update(_c_)
 
 		def SpacifySubStringsUsingCSQ(pacSubStr, pcSep, pCaseSensitive)
 			This.SpacifySubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
