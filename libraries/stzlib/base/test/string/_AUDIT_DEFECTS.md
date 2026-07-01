@@ -355,12 +355,14 @@ expected the following run ("CDE") -- confirm the :StartingAt offset.
   `BoundedByUZZ` -> unique `[ [substr,[[s,e],..]] ]`. No internal callers relied
   on the old span-only return. Tests upgraded to assertions (163/166: 2/2, 167: 2/2).
 
-- **`Duplicates()` chars-vs-substrings (cont. from block 129)** (tests 159, 160).
-  The impl consistently returns duplicated CHARACTERS (block 157's char result
-  matched its archive); blocks 129/159/160 expected SUBSTRINGS. Block 160's
-  NumberOfDuplicates/FindDuplicates/Duplicates/DuplicatesZ #--> were additionally
-  copied from a different string ("RINGORIALAND") and don't match the input.
-  Confirm the intended Duplicates() contract.
+- **✅ RESOLVED `Duplicates()` = duplicated SUBSTRINGS** (tests 129, 159; 157/160
+  unaffected). The original `DuplicatesCS` scans ALL substrings `Section(i,j)` and
+  keeps those occurring > 1 time (deduped, in (i,j) order) -- NOT just chars. The
+  modular returned `DuplicatedChars()`. Reimplemented `DuplicatesCS` with the
+  original algorithm and repointed `Duplicates()` + `NumberOfDuplicatesCS` at it.
+  "RINGORIALAND" -> `["R","RI","I","N","A"]`; "ring php ringoria" -> 12 subs.
+  157's "*4*34" has no repeated multi-char run, so chars == substrings there --
+  it still passes. (Section is now strict but i,j are always in range here.)
 
 ### ✅ RESOLVED — ContainsXT named-position forms (tests 170, 173, 174, 175, 176, 178) — commit c5a59dee+
 
