@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #386.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT([open, close], :AroundEach = anchor) wraps every occurrence with a
+# distinct open/close pair. Archive block #386.
 
-Q("__♥__♥__♥__") {
+Scenario("Wrapping each occurrence with slashes")
+	Given('"__♥__♥__♥__"')
+	o1 = new stzString("__♥__♥__♥__")
+	o1.AddXT([ "/","\" ], :AroundEach = "♥")
+	Then("every heart gets its wings", o1.Content(), "__/♥\__/♥\__/♥\__")
+EndScenario()
 
-	AddXT([ "/","\" ], :AroundEach = "♥") # ... or just :Around = "♥" if you want
-	? Content()
-	#--> __/♥\__/♥\__/♥\__
-}
-# Executed in 0.06 second(s)
-
-StopProfiler()
-
-pf()
+Summary()

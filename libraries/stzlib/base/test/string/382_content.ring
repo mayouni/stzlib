@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #382.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT(what, :BeforeNth = [n, anchor]) inserts before the n-th occurrence
+# only. Archive block #382.
 
-Q("__♥__♥)__♥__") {
+Scenario("Adding before the nth occurrence")
+	Given('"__♥__♥)__♥__"')
+	o1 = new stzString("__♥__♥)__♥__")
+	o1.AddXT( "(", :BeforeNth = [2, "♥"] )
+	Then("only the second heart gets opened", o1.Content(), "__♥__(♥)__♥__")
+EndScenario()
 
-	AddXT( "(", :BeforeNth = [2, "♥"] )
-	? Content()
-	#--> __♥__(♥)__♥__
-}
-
-StopProfiler()
-
-pf()
-# Executed in 0.05 second(s)
+Summary()

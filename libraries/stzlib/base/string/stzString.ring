@@ -15711,6 +15711,52 @@ class stzString from stzObject
 			ok
 		ok
 
+		# Around forms: p1 = sep (both sides) or [open, close];
+		# :AroundEach = anchor, :AroundNth = [n, anchor],
+		# :AroundFirst / :AroundLast = anchor. (The bare :Around key
+		# keeps its dedicated form below.)
+		if isList(p2) and len(p2) = 2 and isString(p2[1])
+			_cKeyA_ = lower(p2[1])
+			if _cKeyA_ = "aroundeach" or _cKeyA_ = "aroundnth" or
+			   _cKeyA_ = "aroundfirst" or _cKeyA_ = "aroundlast"
+				_cAxOpen_ = ""
+				_cAxClose_ = ""
+				if isString(p1)
+					_cAxOpen_ = p1
+					_cAxClose_ = p1
+				but isList(p1) and len(p1) = 2 and isString(p1[1]) and isString(p1[2])
+					_cAxOpen_ = p1[1]
+					_cAxClose_ = p1[2]
+				else
+					StzRaise("AddXT: unsupported around-separator shape.")
+				ok
+				_aAxSec_ = []
+				if _cKeyA_ = "aroundeach"
+					_aAxSec_ = This.FindZZ(p2[2])
+				but _cKeyA_ = "aroundnth" and isList(p2[2]) and len(p2[2]) = 2
+					_pAx_ = This.FindNth(p2[2][1], p2[2][2])
+					if _pAx_ > 0
+						_aAxSec_ = [ [ _pAx_, _pAx_ + This._EngineCount(p2[2][2]) - 1 ] ]
+					ok
+				but _cKeyA_ = "aroundfirst"
+					_pAx_ = This.FindFirst(p2[2])
+					if _pAx_ > 0
+						_aAxSec_ = [ [ _pAx_, _pAx_ + This._EngineCount(p2[2]) - 1 ] ]
+					ok
+				but _cKeyA_ = "aroundlast"
+					_pAx_ = This.FindLast(p2[2])
+					if _pAx_ > 0
+						_aAxSec_ = [ [ _pAx_, _pAx_ + This._EngineCount(p2[2]) - 1 ] ]
+					ok
+				ok
+				for _iAx_ = len(_aAxSec_) to 1 step -1
+					This.InsertAfterPosition(_aAxSec_[_iAx_][2], _cAxClose_)
+					This.InsertBeforePosition(_aAxSec_[_iAx_][1], _cAxOpen_)
+				next
+				return
+			ok
+		ok
+
 		# Form 1/2: pcSep + :AfterThese / :BeforeThese
 		if isString(p1) and isList(p2) and len(p2) = 2 and isString(p2[1])
 			_cKey_ = lower(p2[1])

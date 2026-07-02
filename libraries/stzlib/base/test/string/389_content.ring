@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #389.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT([open, close], :AroundLast = anchor) wraps the LAST occurrence.
+# Archive block #389.
 
-Q("__/♥\__/♥\__♥__") {
+Scenario("Wrapping the last occurrence")
+	Given('"__/♥\__/♥\__♥__"')
+	o1 = new stzString("__/♥\__/♥\__♥__")
+	o1.AddXT( [ "/","\" ], :AroundLast = "♥" )
+	Then("the bare last heart joins the flock", o1.Content(), "__/♥\__/♥\__/♥\__")
+EndScenario()
 
-	AddXT( [ "/","\" ], :AroundLast = "♥" )
-	? Content()
-	#--> __/♥\__/♥\__/♥\__
-}
-
-StopProfiler()
-
-pf()
-# Executed in 0.07 second(s)
+Summary()

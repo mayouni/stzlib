@@ -435,7 +435,21 @@ assertions). Real fixes:
 372-376, 380 (RemoveSection, RemoveFromStart/End, ReplaceSection multibyte,
 AddXT :After/:AfterEach/:Before) were already correct -- pure conversions.
 
-## STATUS (2026-07-02): 361/999 test files audited (chunks 14-23 added 98); ~638 still to audit
+**Chunk 24 (2026-07-02):** 381-389 audited→narrated (9 files, 9
+assertions). Real fix:
+- **`AddXT` :AroundEach / :AroundNth = [n, anchor] / :AroundFirst /
+  :AroundLast** (385-389) raised "unsupported argument shape"; wired
+  (p1 = one separator for both sides, or an [open, close] pair; inserts
+  applied descending so positions stay valid). The bare :Around form
+  already worked. 381-384 (:BeforeEach/:BeforeNth/:BeforeFirst/
+  :BeforeLast) were covered by chunk 23's mirrors -- pure conversions.
+DEFERRED:
+- **390** `Replace(sub, :By@ = '<ring code>')` -- the eval-based @-form
+  references a CALLER-SCOPE variable inside a code string; eval is retired
+  (W/WF policy) and Ring has no caller-scope reflection (same family as
+  the $()/Interpolate deferral, block #111). No #--> in the archive either.
+
+## STATUS (2026-07-02): 370/999 test files audited (chunks 14-24 added 107); ~629 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

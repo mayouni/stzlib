@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #387.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT([open, close], :AroundNth = [n, anchor]) wraps the n-th occurrence
+# only. Archive block #387.
 
-Q("__♥__♥__♥__") {
+Scenario("Wrapping the nth occurrence")
+	Given('"__♥__♥__♥__"')
+	o1 = new stzString("__♥__♥__♥__")
+	o1.AddXT([ "/","\" ], :AroundNth = [2, "♥"])
+	Then("only the second heart gets wings", o1.Content(), "__♥__/♥\__♥__")
+EndScenario()
 
-	AddXT([ "/","\" ], :AroundNth = [2, "♥"])
-	? Content()
-	#--> __♥__/♥\__♥__
-}
-
-StopProfiler()
-
-pf()
-# Executed in 0.06 second(s)
+Summary()
