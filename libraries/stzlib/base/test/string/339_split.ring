@@ -1,21 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #339.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Same chain as block #338, with the condition spelled using the This.
+# prefix ('This.NumberOfItems() > 2') -- both spellings are accepted.
+# Archive block #339.
 
-#                     3    8   3
-o1 = new stzString("**aa***aa**aa***")
+Scenario("Conditional fluent chain, This-prefixed condition")
+	Given('"**aa***aa**aa***"')
+	o1 = new stzString("**aa***aa**aa***")
+	Then("the middle parts survive the IfQ gate",
+		ListEq( o1.SplitQ("aa").IfQ('This.NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content(),
+			[ "***", "**" ] ), TRUE)
+EndScenario()
 
-? o1.SplitQ("aa").IfQ('This.NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content()
-#--> ["***", "**"]
+Summary()
 
-#TODO // IfQ() function Needs more thinking, because the ELSE case should also be considered.
-#--> A use case better suited for stzChainOfValue
-
-pf()
-# Executed in 0.03 second(s)
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

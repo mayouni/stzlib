@@ -4407,8 +4407,17 @@ class stzString from stzObject
 	def SpacesRemovedQ()
 		return new stzString( This.SpacesRemoved() )
 
+	# FindSTZZ: the [start, end] spans of ALL occurrences starting at or
+	# after :StartingAt.
 	def FindSTZZ(pcSub, pStartingAt)
-		return This.FindFirstSZZ(pcSub, pStartingAt)
+		_aPos_ = This.FindST(pcSub, pStartingAt)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_aRes_ = []
+		_nL_ = len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] + _nSubLen_ - 1 ]
+		next
+		return _aRes_
 
 	def FindTheseOccurrencesSTZZ(anN, pNamedOf, pStartingAt)
 		return This.FindTheseOccurrencesAsSections(anN, pNamedOf)
@@ -5503,8 +5512,13 @@ class stzString from stzObject
 		def FindZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
 
+		# FindZ: all the positions (same as Find; accepts :Of = sub).
 		def FindZ(pcSubStr)
-			return This.FindAsSection(pcSubStr)
+			if isList(pcSubStr) and len(pcSubStr) = 2 and
+			   isString(pcSubStr[1]) and lower(pcSubStr[1]) = "of"
+				pcSubStr = pcSubStr[2]
+			ok
+			return This.Find(pcSubStr)
 
 		def FindAllZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
@@ -7479,12 +7493,37 @@ class stzString from stzObject
 	def FindDZ(pcSub, pDir)
 		return This.FindD(pcSub, pDir)
 
+	# FindStD (case-insensitively = FindSTD): ALL the candidate
+	# positions -- forward: starting at/after nStartAt; backward:
+	# ending at/before nStartAt, nearest first.
 	def FindStD(pcSub, nStartAt, pDir)
-		return This.FindFirstSTD(pcSub, nStartAt, pDir)
+		if NOT This._IsBackwardDir(pDir)
+			return This.FindST(pcSub, nStartAt)
+		ok
+		if isList(nStartAt) and len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
+		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
+		_aAll_ = This.Find(pcSub)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_aRes_ = []
+		_nL_ = len(_aAll_)
+		for _i_ = _nL_ to 1 step -1
+			if _aAll_[_i_] + _nSubLen_ - 1 <= nStartAt _aRes_ + _aAll_[_i_] ok
+		next
+		return _aRes_
 
 	# (Ring is case-insensitive; one method name covers StD / STD.)
 	def FindAsSectionsStD(pcSub, nStartAt, pDir)
-		return This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
+		_aPos_ = This.FindStD(pcSub, nStartAt, pDir)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_aRes_ = []
+		_nL_ = len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] + _nSubLen_ - 1 ]
+		next
+		return _aRes_
 
 	def FindTheseOccurrencesAsSectionsD(anN, pNamedOf, pDir)
 		_aPos_ = This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
@@ -9586,12 +9625,26 @@ class stzString from stzObject
 		_nSubLen_ = This._EngineCount(pcSub)
 		return [ _nP_, _nP_ + _nSubLen_ - 1 ]
 
-	# FindST(pcSub, nStartAt): alias of FindFirstST (positional).
+	# FindST(pcSub, nStartAt): ALL the positions of occurrences starting
+	# at or after :StartingAt.
 	def FindST(pcSub, nStartAt)
-		return This.FindFirstST(pcSub, nStartAt)
+		if isList(nStartAt) and len(nStartAt) = 2 and
+		   isString(nStartAt[1]) and lower(nStartAt[1]) = "startingat"
+			nStartAt = nStartAt[2]
+		ok
+		nStartAt = This._ResolveSymPos(nStartAt, This.NumberOfChars())
+		_aAll_ = This.Find(pcSub)
+		_aRes_ = []
+		_nL_ = len(_aAll_)
+		for _i_ = 1 to _nL_
+			if _aAll_[_i_] >= nStartAt _aRes_ + _aAll_[_i_] ok
+		next
+		return _aRes_
 
+	# FindSTDZ: the [sub, positions] grouping of the directional
+	# starting-at find.
 	def FindSTDZ(pcSub, nStartAt, pDir)
-		return This.FindFirstSTD(pcSub, nStartAt, pDir)
+		return [ pcSub, This.FindStD(pcSub, nStartAt, pDir) ]
 
 	# FindOccurrences(pcSub | anN, :Of = pcSub): all positions, or
 	# select positions of nth-occurrences from a list.
@@ -9992,12 +10045,12 @@ class stzString from stzObject
 		if len(_aSec_) = 0 return [] ok
 		return [ pcSub, _aSec_ ]
 
-	# FindSTZ / FindSTDZZ: aliases.
+	# FindSTZ / FindSTDZZ: list aliases.
 	def FindSTZ(pcSub, nStartAt)
-		return This.FindFirstST(pcSub, nStartAt)
+		return This.FindST(pcSub, nStartAt)
 
 	def FindSTDZZ(pcSub, nStartAt, pDir)
-		return This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
+		return This.FindAsSectionsStD(pcSub, nStartAt, pDir)
 
 	# TheseSubstringsZZ(pacSubStr): sections of first occurrences.
 	def TheseSubstringsZZ(pacSubStr)
