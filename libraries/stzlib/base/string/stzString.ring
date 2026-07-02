@@ -9315,11 +9315,16 @@ class stzString from stzObject
 		return []
 
 	# FirstSTDZ(pcSub, nStartAt, pDir): pos only (no section).
+	# The STDZ/STDZZ forms carry the [sub, pos] / [sub, span] grouping.
 	def FirstSTDZ(pcSub, nStartAt, pDir)
-		return This.FindFirstSTD(pcSub, nStartAt, pDir)
+		_p_ = This.FindFirstSTD(pcSub, nStartAt, pDir)
+		if _p_ = 0 return [] ok
+		return [ pcSub, _p_ ]
 
 	def FirstSTDZZ(pcSub, nStartAt, pDir)
-		return This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
+		_aSec_ = This.FindFirstSTDZZ(pcSub, nStartAt, pDir)
+		if len(_aSec_) = 0 return [] ok
+		return [ pcSub, _aSec_ ]
 
 	def FindFirstAsSectionST(pcSub, nStartAt)
 		_nP_ = This.FindFirstST(pcSub, nStartAt)
@@ -9560,10 +9565,14 @@ class stzString from stzObject
 	# LastSTDZ / LastSTDZZ: positional / sectional last-occurrence
 	# directional search from a starting position.
 	def LastSTDZ(pcSub, nStartAt, pDir)
-		return This.FindLastSTD(pcSub, nStartAt, pDir)
+		_p_ = This.FindLastSTD(pcSub, nStartAt, pDir)
+		if _p_ = 0 return [] ok
+		return [ pcSub, _p_ ]
 
 	def LastSTDZZ(pcSub, nStartAt, pDir)
-		return This.FindLastSTDZZ(pcSub, nStartAt, pDir)
+		_aSec_ = This.FindLastSTDZZ(pcSub, nStartAt, pDir)
+		if len(_aSec_) = 0 return [] ok
+		return [ pcSub, _aSec_ ]
 
 	# FindNthD / FindNthDZZ: nth in chosen direction.
 	def FindNthD(n, pcSub, pDir)
@@ -9974,10 +9983,14 @@ class stzString from stzObject
 
 	# NthSTDZ / NthSTDZZ: nth-occurrence directional variants.
 	def NthSTDZ(n, pcSub, nStartAt, pDir)
-		return This.FindNthSTD(n, pcSub, nStartAt, pDir)
+		_p_ = This.FindNthSTD(n, pcSub, nStartAt, pDir)
+		if _p_ = 0 return [] ok
+		return [ pcSub, _p_ ]
 
 	def NthSTDZZ(n, pcSub, nStartAt, pDir)
-		return This.FindNthSTDZZ(n, pcSub, nStartAt, pDir)
+		_aSec_ = This.FindNthSTDZZ(n, pcSub, nStartAt, pDir)
+		if len(_aSec_) = 0 return [] ok
+		return [ pcSub, _aSec_ ]
 
 	# FindSTZ / FindSTDZZ: aliases.
 	def FindSTZ(pcSub, nStartAt)

@@ -313,6 +313,17 @@ ST/STD/Z/ZZ finder-extension cluster:
 316_findnthst, 320_howmanyst (string+list HowManyST), 320_simplify
 (NestedSubStringsIB) were already correct -- pure conversions.
 
+**Chunk 18 (2026-07-02):** 321 (x2), 322, 323, 324 (x2), 325, 326, 327, 328,
+329, 330 audited→narrated (12 files, 32 assertions). Real fix:
+- **`FirstSTDZ/LastSTDZ/NthSTDZ` + `FirstSTDZZ/LastSTDZZ/NthSTDZZ`** (326,
+  328) were pass-throughs to the Find forms; now carry the [sub, pos] /
+  [sub, span] grouping like their Z/ZZ siblings.
+The rest were already correct after chunk 17's ST/STD/SZZ overhaul: 321
+(SZZ groupings + NestedSubStrings multi-char bounds), 322/324 (forward
+STDZZ/STZZ spans), 323/325 (ST/STD positions), 327 (backward FindSTDZZ),
+329 (FindFirstAsSection + ST), 330 (direction-only FindFirstDZZ), 324
+(RemoveSubStringsBoundedByIB).
+
 ## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
