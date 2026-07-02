@@ -9750,12 +9750,25 @@ class stzString from stzObject
 			This.RemoveThisLastCharXT(pcChar)
 			return This
 
+	# RemoveThisFirstCharCS(c, :CS = bCase): remove the FIRST char only
+	# if it equals c under the given case sensitivity.
 	def RemoveThisFirstCharCS(pcChar, pCaseSensitive)
-		# Permissiveness: ignore case-sens flag (per narrative #37
-		# style); just route to the position-aware singular form.
-		if This._EngineCount(This.Content()) = 0 return ok
-		if StzEngineStringCharAt(@pEngine, 1) != StzCodepoint(pcChar) return ok
-		This.RemoveThisCharFromStartXT(pcChar)
+		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and lower(pCaseSensitive[1]) = "cs"
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		_cTxt_ = This.Content()
+		if This._EngineCount(_cTxt_) = 0 return ok
+		_cFirst_ = This._EngineSlice(_cTxt_, 1, 1)
+		_bMatch_ = FALSE
+		if @CaseSensitive(pCaseSensitive)
+			_bMatch_ = (_cFirst_ = pcChar)
+		else
+			_bMatch_ = (lower(_cFirst_) = lower(pcChar))
+		ok
+		if _bMatch_
+			This.Update( This._EngineSliceFrom(_cTxt_, 2) )
+		ok
 
 	# FindLastZZ(sub): the ZZ grouping [sub, [start, end]] of the last
 	# occurrence.
@@ -11751,13 +11764,18 @@ class stzString from stzObject
 		return _o_.Content()
 
 	def RemoveThisNthChar(n, pcChar)
-		# 1-arg: remove the n-th char. 2-arg: remove the n-th occurrence
-		# of pcChar (a string).
+		# Remove the char AT position n only if it EQUALS pcChar (per the
+		# archive: "remove nth item only if it is equal to pItem");
+		# an empty pcChar removes the n-th char unconditionally.
 		if isString(pcChar) and pcChar != ""
-			_p_ = This.FindNth(n, pcChar)
-			if _p_ < 1 return ok
-			_nSubLen_ = This._EngineCount(pcChar)
-			This.RemoveSection(_p_, _p_ + _nSubLen_ - 1)
+			_cTxt_ = This.Content()
+			_nLen_ = This._EngineCount(_cTxt_)
+			n = This._ResolveSymPos(n, _nLen_)
+			if NOT isNumber(n) return ok
+			if n < 1 or n > _nLen_ return ok
+			if This._EngineSlice(_cTxt_, n, 1) = pcChar
+				This.RemoveNthChar(n)
+			ok
 			return
 		ok
 		This.RemoveNthChar(n)
@@ -15653,6 +15671,42 @@ class stzString from stzObject
 				_cTxt_ = This.Content()
 				_cTxt_ = substr(_cTxt_, _xVal0_, p1 + _xVal0_)
 				This.Update(_cTxt_)
+				return
+			but _cKey0_ = "afternth" and isList(_xVal0_) and len(_xVal0_) = 2
+				_pAx_ = This.FindNth(_xVal0_[1], _xVal0_[2])
+				if _pAx_ > 0
+					This.InsertAfterPosition(_pAx_ + This._EngineCount(_xVal0_[2]) - 1, p1)
+				ok
+				return
+			but _cKey0_ = "beforenth" and isList(_xVal0_) and len(_xVal0_) = 2
+				_pAx_ = This.FindNth(_xVal0_[1], _xVal0_[2])
+				if _pAx_ > 0
+					This.InsertBeforePosition(_pAx_, p1)
+				ok
+				return
+			but (_cKey0_ = "afterfirst" or _cKey0_ = "tofirst") and isString(_xVal0_)
+				_pAx_ = This.FindFirst(_xVal0_)
+				if _pAx_ > 0
+					This.InsertAfterPosition(_pAx_ + This._EngineCount(_xVal0_) - 1, p1)
+				ok
+				return
+			but (_cKey0_ = "afterlast" or _cKey0_ = "tolast") and isString(_xVal0_)
+				_pAx_ = This.FindLast(_xVal0_)
+				if _pAx_ > 0
+					This.InsertAfterPosition(_pAx_ + This._EngineCount(_xVal0_) - 1, p1)
+				ok
+				return
+			but _cKey0_ = "beforefirst" and isString(_xVal0_)
+				_pAx_ = This.FindFirst(_xVal0_)
+				if _pAx_ > 0
+					This.InsertBeforePosition(_pAx_, p1)
+				ok
+				return
+			but _cKey0_ = "beforelast" and isString(_xVal0_)
+				_pAx_ = This.FindLast(_xVal0_)
+				if _pAx_ > 0
+					This.InsertBeforePosition(_pAx_, p1)
+				ok
 				return
 			ok
 		ok
