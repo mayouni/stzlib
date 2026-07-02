@@ -430,13 +430,16 @@ class stzList from stzObject
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		n2 = pnStartingAt + n - 1
+		# The n items AFTER the starting position (exclusive), matching
+		# the string-side NextNChars(:StartingAt) semantics.
+		n1 = pnStartingAt + 1
+		n2 = pnStartingAt + n
 		if n2 > nLen
 			n2 = nLen
 		ok
 
 		aResult = []
-		for i = pnStartingAt to n2
+		for i = n1 to n2
 			aResult + aContent[i]
 		next
 
@@ -3690,14 +3693,24 @@ class stzList from stzObject
 		next
 		return _aU_
 
-	# PreviousNItems(pcAnchor, n): the n items appearing before pcAnchor.
+	# PreviousNItems: two shapes --
+	#   PreviousNItems(n, :StartingAt/:StartingAtPosition = p): the n
+	#   items strictly BEFORE position p;
+	#   PreviousNItems(pcAnchor, n): the n items before the anchor item.
 	def PreviousNItems(pcAnchor, n)
 		_l_ = This.List()
 		_nL_ = len(_l_)
 		_pos_ = 0
-		for _i_ = 1 to _nL_
-			if _l_[_i_] = pcAnchor _pos_ = _i_ exit ok
-		next
+		if isNumber(pcAnchor) and isList(n) and len(n) = 2 and
+		   isString(n[1]) and
+		   (lower(n[1]) = "startingat" or lower(n[1]) = "startingatposition")
+			_pos_ = n[2]
+			n = pcAnchor
+		else
+			for _i_ = 1 to _nL_
+				if _l_[_i_] = pcAnchor _pos_ = _i_ exit ok
+			next
+		ok
 		if _pos_ <= 1 return [] ok
 		_start_ = _pos_ - n
 		if _start_ < 1 _start_ = 1 ok

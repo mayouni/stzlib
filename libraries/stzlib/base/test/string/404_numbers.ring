@@ -1,20 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #404.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Numbers() extracts the numeric literals; NumbersAfter(anchor) keeps the
+# ones following the anchor. Archive block #404.
 
-o1 = new stzString("@item = This[ @i+1 ]")
+Scenario("Numbers in a W-ish expression")
+	Given('"@item = This[ @i+1 ]"')
+	o1 = new stzString("@item = This[ @i+1 ]")
+	Then("the numbers", ListEq( o1.Numbers(), [ "1" ] ), TRUE)
+	Then("the numbers after @i", ListEq( o1.NumbersAfter("@i"), [ "1" ] ), TRUE)
+EndScenario()
 
-? @@( o1.Numbers() ) + NL
-#--> [ "1" ]
+Summary()
 
-? @@( o1.NumbersAfter("@i") )
-#--> [ "1" ]
-
-pf()
-# Executed in 0.12 second(s) in Ring 1.21
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

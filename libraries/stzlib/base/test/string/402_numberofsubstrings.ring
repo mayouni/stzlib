@@ -1,24 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #402.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# All 21 windows of "123456" (all distinct). Archive block #402.
 
-o1 = new stzString("123456")
-? o1.NumberOfSubStrings()
-#--> 21
+Scenario("All substrings of 123456")
+	o1 = new stzString("123456")
+	Then("the count", o1.NumberOfSubStrings(), 21)
+	Then("the windows",
+		ListEq( o1.SubStrings(),
+			[ "1", "12", "123", "1234", "12345", "123456", "2",
+			  "23", "234", "2345", "23456", "3", "34", "345",
+			  "3456", "4", "45", "456", "5", "56", "6" ] ), TRUE)
+EndScenario()
 
-? @@( o1.SubStrings() )
-#--> [
-#	"1", "12", "123", "1234", "12345", "123456", "2",
-#	"23", "234", "2345", "23456", "3", "34", "345",
-#	"3456", "4", "45", "456", "5", "56", "6"
-# ]
+Summary()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.06 second(s) in Ring 1.19
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

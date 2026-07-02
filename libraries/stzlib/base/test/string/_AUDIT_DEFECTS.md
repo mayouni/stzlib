@@ -468,7 +468,30 @@ audited→narrated (9 files, 27 assertions). Real fixes:
 391 (Concatenate spellings), 392/394 (CommonSubStrings), 398/399/400
 (SubStrings counts + case folding) were already correct.
 
-## STATUS (2026-07-02): 379/999 test files audited (chunks 14-25 added 116); ~620 still to audit
+**Chunk 26 (2026-07-02, first BIGGER chunk -- 19 files):** 401-411, 414-420
+audited→narrated (18 files, 43 assertions), 412 deferred. Real fixes:
+- **`LeadingNumber` / `TrailingNumber` sign- and decimal-aware** (408-411):
+  both stopped at the first non-digit, so "Amount: -132.45" trailed "45"
+  and "-23.67 pounds" led with "". Now one decimal point between digits
+  and an adjacent +/- sign belong to the number. `StartsWithANumber` now
+  = LeadingNumber() != "" (was first-char-digit, missing signed opens).
+- **`SplitToPartsOfNChars(n)` drops the shorter remainder** (414) -- it is
+  the "exactly n" form (alias SplitToPartsOfExactlyNChars added); the XT
+  form keeps the remainder (was: both kept it).
+- **`stzList.NextNItems(n, :StartingAtPosition = p)` is EXCLUSIVE** (417)
+  -- returns the n items strictly AFTER p (was inclusive-from-p),
+  matching the string-side NextNChars. `PreviousNItems` gained the
+  positional (n, :StartingAtPosition = p) shape alongside its
+  anchor-based (pcAnchor, n) form. (List test 331_nextnitems still green.)
+DEFERRED:
+- **412** `stzList.FindWXT` -- retired by design (WXT disqualification;
+  same precedent as #84, #219-#221); replacement is FindW.
+Pure conversions: 401/402/415 (SubStrings), 403/404 (NumbersComingAfter +
+Numbrify/Numberify chain), 405 (SectionXT negative), 406/407 (Find/ZZ +
+FindManyAsSections), 416 (SubStringsWF), 418 (Next/PreviousNChars),
+419 (Sectioned), 420 (MergeContiguous).
+
+## STATUS (2026-07-02): 397/999 test files audited (chunks 14-26 added 134); ~602 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

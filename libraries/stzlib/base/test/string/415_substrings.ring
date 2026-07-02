@@ -1,16 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #415.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The 6 windows of "ABC". Archive block #415.
 
-o1 = new stzString("ABC")
-? @@( o1.SubStrings() )
-#--> [ "A", "AB", "ABC", "B", "BC", "C" ]
+Scenario("All substrings of ABC")
+	o1 = new stzString("ABC")
+	Then("the windows",
+		ListEq( o1.SubStrings(), [ "A", "AB", "ABC", "B", "BC", "C" ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s).
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
