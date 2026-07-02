@@ -1,21 +1,15 @@
-# Narrative
-# --------
-# RemoveSubStringsBoundedByIB drops each bounded run together with its bounds:
-# the two "]---[" segments vanish, leaving "Hello Ring!". MUTATING.
-#
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# RemoveSubStringsBoundedByIB drops each bounded run together with its
+# bounds: the two "]---[" segments vanish, leaving "Hello Ring!". MUTATING.
 # Extracted from stzlisttest.ring, block #324.
 
-load "../../stzBase.ring"
+Scenario("Removing bounded runs including their bounds")
+	Given("'Hello ]---[Ring!]---['")
+	o1 = new stzString('Hello ]---[Ring!]---[')
+	o1.RemoveSubStringsBoundedByIB([ "]","[" ])
+	Then("the bracketed dashes vanish", o1.Content(), "Hello Ring!")
+EndScenario()
 
-pr()
-
-o1 = new stzString('Hello ]---[Ring!]---[')
-
-o1.RemoveSubStringsBoundedByIB([ "]","[" ])
-? o1.Content()
-#--> Hello Ring!
-
-StopProfiler()
-
-pf()
-# Executed in 0.04 second(s)
+Summary()
