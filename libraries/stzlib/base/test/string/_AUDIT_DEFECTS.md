@@ -365,6 +365,28 @@ audited→narrated (10 files, 37 assertions). Real fixes:
   `_IsBackwardDir` tolerates the archive's ":Bakcward" misspelling (350).
 343/344/345/347/348 were already correct -- pure conversions.
 
+**Chunk 21 (2026-07-02):** 351-360 audited→narrated (10 files, 41
+assertions). Real fixes:
+- **`Find([subs])` multi-needle** (354) returned a grouped shape; now flat
+  sorted positions. `TheseSubstringsZ/ZZ` returned first-hit flats; now the
+  [sub, [positions]] / [sub, [sections]] groupings (+ FindManyZZ alias).
+- **`FindBoundedBy` / `FindBoundedByIB`** (352, 353) returned spans; now
+  the content-start / opener-start POSITIONS (ZZ/IBZZ keep the spans).
+- **`Split`/`SplitCS`/`SplitAt` named-param dispatch** (356, 358, 359) --
+  :At (position / positions / substrings), :AtSection(s), :Before/:After
+  (single, list, position(s), section(s)) were all unhandled (returned the
+  string unsplit or raised). Wired through SplitAtSections /
+  SplitBefore(After)Positions / SplitBefore(After)CS.
+- **`stzString.IsEither(a, :Or = b)`** (358's WF predicate) -- the
+  stzObject impl doesn't unwrap :Or and falls into its "not implemented"
+  object branch; added a string-side override. (stzObject.ring left
+  untouched -- it carries pre-existing uncommitted changes.)
+351 (converging ST finders), 355 (narrative table placeholder -> three
+representative split one-liners), 357 (sections/anti-sections), 360
+(SplitAroundSections + IB on splitter and string; the splitter IB line had
+no archive #--> -- asserted at spans matching the string IB pieces) --
+pure conversions.
+
 ## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
