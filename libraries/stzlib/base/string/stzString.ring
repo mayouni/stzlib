@@ -590,6 +590,16 @@ class stzString from stzObject
 			ok
 		ok
 		nLen = This.NumberOfChars()
+		# The :@ symbol mirrors the OTHER param (both :@ = whole string),
+		# per the original SectionCS.
+		if isString(n1) and n1 = "@" and isString(n2) and n2 = "@"
+			n1 = 1
+			n2 = nLen
+		but isString(n1) and n1 = "@"
+			n1 = n2
+		but isString(n2) and n2 = "@"
+			n2 = n1
+		ok
 		# Symbolic positions: :First / :Last / :LastChar / :Middle.
 		n1 = This._ResolveSymPos(n1, nLen)
 		n2 = This._ResolveSymPos(n2, nLen)
@@ -4597,17 +4607,15 @@ class stzString from stzObject
 		return _aRes_
 
 
+	# TheseCharsZ([chars]): each char grouped with ALL its positions --
+	# [ [c, [positions]], ... ].
 	def TheseCharsZ(pacChars)
 		if NOT isList(pacChars) return [] ok
 		_aR_ = []
 		_nL_ = len(pacChars)
 		for _i_ = 1 to _nL_
 			if isString(pacChars[_i_])
-				_a_ = This.AllPositionsOf(pacChars[_i_])
-				_nAL_ = len(_a_)
-				for _j_ = 1 to _nAL_
-					_aR_ + _a_[_j_]
-				next
+				_aR_ + [ pacChars[_i_], This.AllPositionsOf(pacChars[_i_]) ]
 			ok
 		next
 		return _aR_

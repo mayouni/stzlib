@@ -449,7 +449,26 @@ DEFERRED:
   (W/WF policy) and Ring has no caller-scope reflection (same family as
   the $()/Interpolate deferral, block #111). No #--> in the archive either.
 
-## STATUS (2026-07-02): 370/999 test files audited (chunks 14-24 added 107); ~629 still to audit
+**Chunk 25 (2026-07-02):** 391, 392, 393, 394, 396, 397, 398, 399, 400
+audited→narrated (9 files, 27 assertions). Real fixes:
+- **`Section` :@ mirror param** (397) -- :@ now mirrors the OTHER param
+  (both :@ = whole string), per the original SectionCS. NOTE: 397's
+  archive `Section(2, -2) --> "234"` never matched the original impl
+  (which raises out-of-range, as does the strict modular Section); the
+  negatives-from-end reading is SectionXT's -- asserted there.
+- **`TheseCharsZ`** (396) on BOTH stzString and stzList returned flat
+  position lists; now the [c, [positions]] grouping.
+- **`stzList.CommonItems`** (393) rejected a direct list argument
+  (returned []; only :With = worked), and returned MULTISET results
+  (duplicates); now accepts both arg shapes and dedupes keeping the
+  host's order (the set-intersection semantic its own narrative doc
+  states; the affected list-module tests still pass). The archive's
+  stzListOfLists ordering differed for the same 12-item set; both forms
+  now agree on host order.
+391 (Concatenate spellings), 392/394 (CommonSubStrings), 398/399/400
+(SubStrings counts + case folding) were already correct.
+
+## STATUS (2026-07-02): 379/999 test files audited (chunks 14-25 added 116); ~620 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

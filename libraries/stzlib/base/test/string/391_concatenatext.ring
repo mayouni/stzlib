@@ -1,27 +1,21 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #391.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Concatenating a list of strings: bare Concatenate() glues, ConcatenateXT
+# takes a separator (positional or :Using =), ConcatenateUsing spells it
+# out. Archive block #391.
 
-o1 = new stzListOfStrings([ "Ring", "Python", "PHP", "JS" ])
-? o1.ConcatenateXT(", ")
-#--> Ring, Python, PHP, JS
+Scenario("Concatenation spellings")
+	Given('[ "Ring", "Python", "PHP", "JS" ]')
+	o1 = new stzListOfStrings([ "Ring", "Python", "PHP", "JS" ])
+	Then("XT with a positional separator",
+		o1.ConcatenateXT(", "), "Ring, Python, PHP, JS")
+	Then("XT with :Using",
+		o1.ConcatenateXT(:Using = ", "), "Ring, Python, PHP, JS")
+	Then("bare concatenation glues",
+		o1.Concatenate(), "RingPythonPHPJS")
+	Then("the Using spelling",
+		o1.ConcatenateUsing(", "), "Ring, Python, PHP, JS")
+EndScenario()
 
-? o1.ConcatenateXT(:Using = ", ")
-#--> Ring, Python, PHP, JS
-
-? o1.Concatenate()
-#--> RingPythonPHPJS
-
-? o1.ConcatenateUsing(", ")
-#--> Ring, Python, PHP, JS
-
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

@@ -1,30 +1,33 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #398.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Substring counting with case control: the case-sensitive walk sees 10
+# windows on "abAb"; case-insensitively "A"/"Ab" fold into "a"/"ab" and 7
+# unique remain. Archive block #398.
 
-o1 = new stzString("abAb")
+Scenario("Counting substrings, case on and off")
+	Given('"abAb"')
+	o1 = new stzString("abAb")
+	Then("all windows", o1.NumberOfSubStrings(), 10)
+	Then("their list",
+		ListEq( o1.SubStrings(),
+			[ "a", "ab", "abA", "abAb", "b", "bA", "bAb", "A", "Ab", "b" ] ), TRUE)
+	Then("case-insensitive count", o1.NumberOfSubStringsCS(FALSE), 7)
+	Then("the folded list",
+		ListEq( o1.SubStringsCS(FALSE),
+			[ "a", "ab", "abA", "abAb", "b", "bA", "bAb" ] ), TRUE)
+EndScenario()
 
-? o1.NumberOfSubStrings()
-#--> 10
-# Executed in 0.02 second(s)
+Summary()
 
-? @@( o1.SubStrings() )
-#--> [ "a", "ab", "abA", "abAb", "b", "bA", "bAb", "A", "Ab", "b" ]
-# Executed in 0.04 second(s)
-
-? o1.NumberOfSubStringsCS(FALSE)
-#--> 7
-# Executed in 0.12 second(s)
-
-? @@( o1.SubStringsCS(FALSE) )
-#--> [ "a", "ab", "abA", "abAb", "b", "bA", "bAb" ]
-# Executed in 0.12 second(s)
-
-pf()
-#--> Executed in 0.27 second(s)
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
