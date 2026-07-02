@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #385.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT(sep, :AroundEach = anchor) wraps EVERY occurrence with the same
+# separator on both sides. Archive block #385.
 
-Q("__♥__♥__♥__") {
+Scenario("Wrapping each occurrence with spaces")
+	Given('"__♥__♥__♥__"')
+	o1 = new stzString("__♥__♥__♥__")
+	o1.AddXT(" ", :AroundEach = "♥")
+	Then("every heart breathes", o1.Content(), "__ ♥ __ ♥ __ ♥ __")
+EndScenario()
 
-	AddXT(" ", :AroundEach = "♥")
-	? Content()
-	#--> __ ♥ __ ♥ __ ♥ __
-}
-
-StopProfiler()
-
-pf()
-# Executed in 0.06 second(s)
+Summary()

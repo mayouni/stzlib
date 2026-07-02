@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #381.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT(what, :BeforeEach = anchor) inserts before EVERY occurrence.
+# Archive block #381.
 
-Q("__♥)__♥)__♥)__") {
+Scenario("Adding before each occurrence")
+	Given('"__♥)__♥)__♥)__"')
+	o1 = new stzString("__♥)__♥)__♥)__")
+	o1.AddXT( "(", :BeforeEach = "♥" )
+	Then("every heart gets opened", o1.Content(), "__(♥)__(♥)__(♥)__")
+EndScenario()
 
-	AddXT( "(", :BeforeEach = "♥" ) # ... you can also say :Before = "♥"
-	? Content()
-	#--> __(♥)__(♥)__(♥)__
-}
-
-StopProfiler()
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.22
+Summary()

@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #388.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT([open, close], :AroundFirst = anchor) wraps the FIRST occurrence.
+# Archive block #388.
 
-Q("__♥__/♥\__/♥\__") {
+Scenario("Wrapping the first occurrence")
+	Given('"__♥__/♥\__/♥\__"')
+	o1 = new stzString("__♥__/♥\__/♥\__")
+	o1.AddXT( [ "/","\" ], :AroundFirst = "♥" )
+	Then("the bare first heart joins the flock", o1.Content(), "__/♥\__/♥\__/♥\__")
+EndScenario()
 
-	AddXT( [ "/","\" ], :AroundFirst = "♥" )
-	? Content()
-	#--> __/♥\__/♥\__/♥\__
-}
-
-StopProfiler()
-
-pf()
-# Executed in 0.06 second(s)
+Summary()
