@@ -1,26 +1,33 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #353.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The IB (include-bounds) family: FindBoundedByIB anchors at the openers;
+# BoundedByIBZ/IBZZ group each bound-inclusive substring with its position
+# / span. Archive block #353.
 
-o1 = new stzString("The range is between {min} and {max}")
+Scenario("Bound-inclusive positions and groupings")
+	Given('"The range is between {min} and {max}"')
+	o1 = new stzString("The range is between {min} and {max}")
+	Then("the opener positions",
+		ListEq( o1.FindBoundedByIB([ "{", "}" ]), [ 22, 32 ] ), TRUE)
+	Then("the IBZ grouping",
+		ListEq( o1.BoundedByIBZ([ "{", "}" ]),
+			[ [ "{min}", 22 ], [ "{max}", 32 ] ] ), TRUE)
+	Then("the IBZZ grouping",
+		ListEq( o1.BoundedByIBZZ([ "{", "}" ]),
+			[ [ "{min}", [22, 26] ], [ "{max}", [32, 36] ] ] ), TRUE)
+EndScenario()
 
-? @@( o1.FindBoundedByIB([ "{", "}" ]) ) + NL
-#--> [ 22, 32 ]
+Summary()
 
-? @@( o1.BoundedByIBZ([ "{", "}" ]) ) + NL
-#--> [ [ "{min}", 22 ], [ "{max}", 32 ] ]
-
-? @@( o1.BoundedByIBZZ([ "{", "}" ]) )
-#--> [ [ "{min}", [ 22, 26 ] ], [ "{max}", [ 32, 36 ] ] ]
-
-StopProfiler()
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.24 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

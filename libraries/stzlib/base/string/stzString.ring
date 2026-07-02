@@ -1883,6 +1883,17 @@ class stzString from stzObject
 		return _oFaFinder_.FindCS(pcSubStr, _csNorm_)
 
 	def Find(pcSubStr)
+		# Multi-needle form: Find([sub1, sub2, ...]) -> ALL their
+		# positions, flat and sorted ascending.
+		if isList(pcSubStr) and @IsListOfStrings(pcSubStr)
+			_aFmSec_ = This.FindManyAsSectionsCS(pcSubStr, 1)
+			_aFmRes_ = []
+			_nFmL_ = len(_aFmSec_)
+			for _iFm_ = 1 to _nFmL_
+				_aFmRes_ + _aFmSec_[_iFm_][1]
+			next
+			return _aFmRes_
+		ok
 		return This.FindCS(pcSubStr, 1)
 
 		def FindAll(pcSubStr)
@@ -3604,11 +3615,98 @@ class stzString from stzObject
 	#============================================#
 
 	def SplitCS(pcSep, pCaseSensitive)
+		# SplitCS(:Before/:After = sub, :CS = bCase) named forms.
+		if isList(pcSep) and len(pcSep) = 2 and isString(pcSep[1])
+			_cSpKey_ = lower(pcSep[1])
+			if _cSpKey_ = "before"
+				return This.SplitBeforeCS(pcSep[2], pCaseSensitive)
+			but _cSpKey_ = "after"
+				return This.SplitAfterCS(pcSep[2], pCaseSensitive)
+			ok
+		ok
 		_bSpCase_ = @CaseSensitive(pCaseSensitive)
 		return This._SplitByStrCS(pcSep, _bSpCase_)
 
 	def Split(pcSep)
+		# Named-param dispatch: :At / :Before / :After (+ Position(s) /
+		# Section(s) refinements).
+		if isList(pcSep) and len(pcSep) = 2 and isString(pcSep[1])
+			_cSpKey_ = lower(pcSep[1])
+			_xSpV_ = pcSep[2]
+			if _cSpKey_ = "at" or _cSpKey_ = "atposition"
+				return This._SplitAtAny(_xSpV_)
+			but _cSpKey_ = "atpositions"
+				return This._SplitAtAny(_xSpV_)
+			but _cSpKey_ = "atsection"
+				return This.SplitAtSections([ _xSpV_ ])
+			but _cSpKey_ = "atsections"
+				return This.SplitAtSections(_xSpV_)
+			but _cSpKey_ = "before"
+				if isList(_xSpV_)
+					return This.SplitBeforePositions( This.Find(_xSpV_) )
+				ok
+				return This.SplitBeforeCS(_xSpV_, 0)
+			but _cSpKey_ = "beforeposition"
+				return This.SplitBeforePositions([ _xSpV_ ])
+			but _cSpKey_ = "beforepositions"
+				return This.SplitBeforePositions(_xSpV_)
+			but _cSpKey_ = "beforesection"
+				return This.SplitBeforePositions([ _xSpV_[1] ])
+			but _cSpKey_ = "beforesections"
+				_aSpP_ = []
+				_nSpL_ = len(_xSpV_)
+				for _iSp_ = 1 to _nSpL_
+					_aSpP_ + _xSpV_[_iSp_][1]
+				next
+				return This.SplitBeforePositions(_aSpP_)
+			but _cSpKey_ = "after"
+				if isList(_xSpV_)
+					_aSpSec_ = This.FindManyAsSectionsCS(_xSpV_, 1)
+					_aSpP_ = []
+					_nSpL_ = len(_aSpSec_)
+					for _iSp_ = 1 to _nSpL_
+						_aSpP_ + _aSpSec_[_iSp_][2]
+					next
+					return This.SplitAfterPositions(_aSpP_)
+				ok
+				return This.SplitAfterCS(_xSpV_, 0)
+			but _cSpKey_ = "afterposition"
+				return This.SplitAfterPositions([ _xSpV_ ])
+			but _cSpKey_ = "afterpositions"
+				return This.SplitAfterPositions(_xSpV_)
+			but _cSpKey_ = "aftersection"
+				return This.SplitAfterPositions([ _xSpV_[2] ])
+			but _cSpKey_ = "aftersections"
+				_aSpP_ = []
+				_nSpL_ = len(_xSpV_)
+				for _iSp_ = 1 to _nSpL_
+					_aSpP_ + _xSpV_[_iSp_][2]
+				next
+				return This.SplitAfterPositions(_aSpP_)
+			ok
+		ok
 		return This._SplitByStr(pcSep)
+
+	# _SplitAtAny(v): split AT a position, a list of positions, a list
+	# of substrings, or a substring -- the split anchors are removed.
+	def _SplitAtAny(v)
+		if isNumber(v)
+			return This.SplitAtSections([ [ v, v ] ])
+		ok
+		if isList(v) and len(v) > 0
+			if isNumber(v[1])
+				_aSaSec_ = []
+				_nSaL_ = len(v)
+				for _iSa_ = 1 to _nSaL_
+					_aSaSec_ + [ v[_iSa_], v[_iSa_] ]
+				next
+				return This.SplitAtSections(_aSaSec_)
+			ok
+			if isString(v[1])
+				return This.SplitAtSections( This.FindManyAsSectionsCS(v, 1) )
+			ok
+		ok
+		return This._SplitByStr(v)
 
 	# SplitW(pCond): split the content at every char where the predicate is
 	# TRUE (the split chars are DROPPED). Engine-backed via FindCharsW -- no
@@ -6931,8 +7029,16 @@ class stzString from stzObject
 			next
 			return _aFibRes_
 
+		# FindBoundedByIB: the OPENER start positions of the bounded
+		# regions (the IBZZ form carries the bound-inclusive spans).
 		def FindBoundedByIB(pacBounds)
-			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+			_aFbiSec_ = This.FindSubStringsBoundedByIBZZ(pacBounds)
+			_aFbiRes_ = []
+			_nFbiL_ = len(_aFbiSec_)
+			for _iFbi_ = 1 to _nFbiL_
+				_aFbiRes_ + _aFbiSec_[_iFbi_][1]
+			next
+			return _aFbiRes_
 
 	# FindSubStringsAsSectionsW(pcCondition): enumerate every substring
 	# [start, end] and return the sections where the @SubString predicate is
@@ -9908,15 +10014,15 @@ class stzString from stzObject
 
 	# TheseSubstringsZ(pacSubStr): start positions of any listed
 	# substring's first occurrence.
+	# TheseSubstringsZ([subs]): each substring grouped with ALL its
+	# positions -- [ [sub, [positions]], ... ].
 	def TheseSubstringsZ(pacSubStr)
 		if NOT isList(pacSubStr) return [] ok
 		_aRes_ = []
 		_nL_ = len(pacSubStr)
 		for _i_ = 1 to _nL_
 			if isString(pacSubStr[_i_])
-				_nP_ = StzEngineStringFindFirstFromCS(@pEngine,
-				       pacSubStr[_i_], 1, 1)
-				if _nP_ > 0 _aRes_ + _nP_ ok
+				_aRes_ + [ pacSubStr[_i_], This.FindCS(pacSubStr[_i_], 1) ]
 			ok
 		next
 		return _aRes_
@@ -10103,17 +10209,28 @@ class stzString from stzObject
 		return This.FindAsSectionsStD(pcSub, nStartAt, pDir)
 
 	# TheseSubstringsZZ(pacSubStr): sections of first occurrences.
+	# TheseSubstringsZZ([subs]): each substring grouped with ALL its
+	# [start, end] sections -- [ [sub, [[s,e], ...]], ... ].
 	def TheseSubstringsZZ(pacSubStr)
-		_aPos_ = This.TheseSubstringsZ(pacSubStr)
+		if NOT isList(pacSubStr) return [] ok
 		_aRes_ = []
-		_nPL_ = len(_aPos_)
-		for _i_ = 1 to _nPL_
-			if _i_ <= len(pacSubStr)
-				_n_ = This._EngineCount(pacSubStr[_i_])
-				_aRes_ + [ _aPos_[_i_], _aPos_[_i_] + _n_ - 1 ]
+		_nL_ = len(pacSubStr)
+		for _i_ = 1 to _nL_
+			if isString(pacSubStr[_i_])
+				_aPos_ = This.FindCS(pacSubStr[_i_], 1)
+				_nSubLen_ = This._EngineCount(pacSubStr[_i_])
+				_aSecs_ = []
+				_nPL_ = len(_aPos_)
+				for _j_ = 1 to _nPL_
+					_aSecs_ + [ _aPos_[_j_], _aPos_[_j_] + _nSubLen_ - 1 ]
+				next
+				_aRes_ + [ pacSubStr[_i_], _aSecs_ ]
 			ok
 		next
 		return _aRes_
+
+		def FindManyZZ(pacSubStr)
+			return This.TheseSubstringsZZ(pacSubStr)
 
 	# SplitAroundCS alias delegating to existing.
 	def SplitAroundCSNamed(pcSub, pNamed)
@@ -14705,11 +14822,19 @@ class stzString from stzObject
 	# FindBoundedBy / FindBoundedByCS -- the most common spelling
 	# in narrative tests. Returns the [startPos, endPos] of each
 	# bounded section.
+	# FindBoundedBy: the content START positions of the bounded regions
+	# (the ZZ / AsSections forms carry the spans).
 	def FindBoundedByCS(pacBounds, pCaseSensitive)
-		return This.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+		_aFbSec_ = This.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+		_aFbRes_ = []
+		_nFbL_ = len(_aFbSec_)
+		for _iFb_ = 1 to _nFbL_
+			_aFbRes_ + _aFbSec_[_iFb_][1]
+		next
+		return _aFbRes_
 
 	def FindBoundedBy(pacBounds)
-		return This.FindBoundedByAsSectionsCS(pacBounds, 1)
+		return This.FindBoundedByCS(pacBounds, 1)
 
 	# IsBoundedByCS / IsBoundedBy: predicate. True iff the content
 	# starts with pacBounds[1] AND ends with pacBounds[2].
@@ -14855,7 +14980,25 @@ class stzString from stzObject
 		_oSaSplitter_ = new stzStringSplitter(This)
 		return _oSaSplitter_.SplitAtCS(pcSepOrPos, pCaseSensitive)
 
+	# IsEither(a, :Or = b): TRUE when the content equals either value
+	# (string-side override; unwraps the :Or named param).
+	def IsEither(p1, p2)
+		if isList(p2) and len(p2) = 2 and isString(p2[1]) and
+		   lower(p2[1]) = "or"
+			p2 = p2[2]
+		ok
+		return This.Content() = p1 or This.Content() = p2
+
 	def SplitAt(pcSepOrPos)
+		# SplitAt(:Section = [a, b]) / (:Sections = [..]) named forms.
+		if isList(pcSepOrPos) and len(pcSepOrPos) = 2 and isString(pcSepOrPos[1])
+			_cSakKey_ = lower(pcSepOrPos[1])
+			if _cSakKey_ = "section"
+				return This.SplitAtSections([ pcSepOrPos[2] ])
+			but _cSakKey_ = "sections"
+				return This.SplitAtSections(pcSepOrPos[2])
+			ok
+		ok
 		return This.SplitAtCS(pcSepOrPos, 1)
 
 	def SplitBeforeCS(pcSubStr, pCaseSensitive)
