@@ -1,28 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #485.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The global Repeat trio: Repeat/RepeatInList give a list, RepeatInString
+# concatenates (Ring's copy() equivalent). Archive block #485.
 
-# Softanza have a Repeat() function you can use like thois:
+Scenario("Repeating A three times")
+	Then("Repeat gives a list", ListEq( Repeat("A", 3), [ "A", "A", "A" ] ), TRUE)
+	Then("RepeatInList is its explicit spelling",
+		ListEq( RepeatInList("A", 3), [ "A", "A", "A" ] ), TRUE)
+	Then("RepeatInString concatenates", RepeatInString("A", 3), "AAA")
+EndScenario()
 
-? Repeat("A", 3)
-#--> [ "A", "A", "A" ]
+Summary()
 
-# Which is the same as:
-
-? RepeatInList("A", 3)
-
-# And when you want the repetinion putpt to be a sitring:
-
-? RepeatInString("A", 3) # Equaivalent of Ring copy() function
-#--> "AAA"
-
-# But this is just a part of the story. Say hello the extented RepeatXT() function!
-# ~> See next narration.
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

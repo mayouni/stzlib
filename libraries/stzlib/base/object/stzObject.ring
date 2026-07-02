@@ -1,4 +1,4 @@
-﻿
+
 # SOFTANZA OBJECT CLASS
 
 /*
@@ -607,18 +607,12 @@ func StzIsPluralOfRingType(cPlural)
 
 	cPlural = StzLower(cPlural)
 	acRingTypesPlurals = RingTypesPlurals()
-	nLen = len(acRingTypesPlurals)
 
-	bResult = 0
-
-	for i = 1 to nLen
-		if acRingTypesPlurals[i] = cPlural
-			bResult = 1
-			exit
-		ok
-	next
-
-	return bResult
+	if ring_find(acRingTypesPlurals, cPlural)
+		return 1
+	else
+		return 0
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -4556,8 +4550,11 @@ class stzObject
 
 		# Doing the job
 
+		# Only a real stzNumber repeats its numeric value; a stzString
+		# holding "5" keeps the STRING "5" (the :ListOfNumbers /
+		# :ListOfStrings kinds do the explicit coercion below).
 		value = ""
-		if This.IsANumber()
+		if This.StzType() = :stzNumber
 			if This.IsInteger()
 				value = This.NumericValue()
 			else

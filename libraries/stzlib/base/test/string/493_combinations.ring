@@ -1,23 +1,27 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #493.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# stzList.Combinations() defaults to the pairwise combinations.
+# Archive block #493.
 
-o1 = new stzList([ "V", "T", "M", "S" ])
-? @@NL( o1.Combinations() )
-#--> [
-#	[ "V", "T" ],
-#	[ "V", "M" ],
-#	[ "V", "S" ],
-#	[ "T", "M" ],
-#	[ "T", "S" ],
-#	[ "M", "S" ]
-# ]
+Scenario("Pairs from VTMS")
+	o1 = new stzList([ "V", "T", "M", "S" ])
+	Then("the 6 pairs",
+		ListEq( o1.Combinations(),
+			[ [ "V", "T" ], [ "V", "M" ], [ "V", "S" ],
+			  [ "T", "M" ], [ "T", "S" ], [ "M", "S" ] ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

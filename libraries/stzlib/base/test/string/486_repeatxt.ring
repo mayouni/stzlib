@@ -1,18 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #486.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RepeatXTQ names the output container and returns the elevated object.
+# Archive block #486.
 
-? Q("A").RepeatXTQ(:String, 3).StzType()
-#--> "stzstring"
+Scenario("Choosing the repeat container")
+	Then("a :String repeat elevates to stzString",
+		Q("A").RepeatXTQ(:String, 3).StzType(), :stzString)
+	Then("a :List repeat elevates to stzList",
+		Q("A").RepeatXTQ(:List, 3).StzType(), :stzList)
+EndScenario()
 
-? Q("A").RepeatXTQ(:List, 3).StzType()
-#--> "stzlist"
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

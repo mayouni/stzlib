@@ -580,7 +580,24 @@ DEFERRED:
   :Invertible kind check IS asserted. The current CharsInverted (swapcase
   chars) also mismatches the original (= CharsTurned); noted with the family.
 
-## STATUS (2026-07-02): 441/999 test files audited (chunks 14-29 added 178); ~558 still to audit
+**Chunk 30 (2026-07-02, 20 files):** 481(x2), 483-494, 498, 500 audited→narrated
+(16 files, 47 assertions; 495-497/499 already retired #SKIP placeholders).
+Real fixes:
+- **`RepeatXT`/`RepeatedXT` type preservation** (487): the value resolver
+  treated ANY object whose content "is a number" numerically, so
+  Q("5").RepeatedXT(:InA=:List) produced [5,5] instead of ["5","5"]. Now only
+  a real stzNumber repeats its numeric value; :ListOfNumbers/:ListOfStrings
+  keep doing the explicit coercion.
+- **`SpacifyItR` returns the result STRING** (500): the R-suffixed narrative
+  ending returned This (the ? printed the attribute dump); now returns
+  Content().
+- **`UppercaseQ`/`LowercaseQ` are history-aware** (489): added the
+  _StzHistoOpen/Add boundary hooks so QH("h e l l o").RemoveSpacesQ().
+  UppercaseQ().History() captures all three steps.
+Pure conversions: 481(x2), 483, 484, 485, 486, 488, 490-494, 498. 487's
+final ToStzTable().Show() is visual and noted, not asserted.
+
+## STATUS (2026-07-02): 457/999 test files audited (chunks 14-30 added 194); ~542 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

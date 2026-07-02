@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #498.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The narrative @()-chain: name a substring, remove it, and then
+# uppercase the host string. Archive block #498.
 
-o1 = new stzString("__Ri__ng__")
+Scenario("Naming, removing, transforming")
+	o1 = new stzString("__Ri__ng__")
+	o1.@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
+	Then("the underscores are gone, the rest shouted", o1.Content(), "RING")
+EndScenario()
 
-o1.@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
-
-? o1.Content()
-#--> RING
-
-pf()
+Summary()

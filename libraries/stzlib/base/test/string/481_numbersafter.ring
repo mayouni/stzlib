@@ -1,20 +1,26 @@
-# Narrative
-# --------
-# NumbersAfter("@i") collects every number that follows an "@i" token (signs
-# normalized: "-3" kept, "+3" -> "3"); NumberComingAfter returns just the first.
-#
-# Extracted from stzlisttest.ring, block #481.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# NumbersAfter picks every signed decimal following the anchor;
+# NumberComingAfter returns the first. Archive block #481.
 
-o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] .... @i -12233.87  @i + 764.3322 }')
-? o1.NumbersAfter("@i")
-#--> [ "-3", "3", "-12233.87", "764.3322" ]
+Scenario("Signed decimals after @i")
+	o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] .... @i -12233.87  @i + 764.3322 }')
+	Then("all four numbers",
+		ListEq( o1.NumbersAfter("@i"), [ "-3", "3", "-12233.87", "764.3322" ] ), TRUE)
+	Then("the first one", o1.NumberComingAfter("@i"), "-3")
+EndScenario()
 
-? o1.NumberComingAfter("@i")
-#--> "-3"
+Summary()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
