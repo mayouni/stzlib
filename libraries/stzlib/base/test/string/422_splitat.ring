@@ -1,17 +1,25 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #422.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# stzSplitter.SplitAt([positions]): the complement spans (the positions
+# themselves are dropped). Archive block #422.
 
-o1 = new stzSplitter(8)
-? @@( o1.SplitAt([3, 5]) )
-#--> [ [ 1, 2 ], [ 4, 4 ], [ 6, 8 ] ]
+Scenario("Splitting a 1..8 range at two positions")
+	o1 = new stzSplitter(8)
+	Then("the spans between",
+		ListEq( o1.SplitAt([3, 5]), [ [1, 2], [4, 4], [6, 8] ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.07 second(s) in Ring 1.20
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

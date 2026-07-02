@@ -7174,36 +7174,33 @@ class stzString from stzObject
 	# FindSubStringsMadeOf(pcChar): return the start positions of
 	# each MAXIMAL run of pcChar in the content. e.g. "..._...__"
 	# with pcChar="_" -> [4, 8].
-	def FindSubStringsMadeOf(pcChar)
+	# "Made of" runs: the arg is a POOL of chars ("12" = chars 1 and 2),
+	# and a run is a maximal stretch whose every char belongs to the pool.
+	def FindSubStringsMadeOf(pcChars)
+		_aZZ_ = This.FindSubStringsMadeOfZZ(pcChars)
 		_aRes_ = []
-		_nLen_ = This._EngineCount(This.Content())
-		_nNeed_ = StzCodepoint(pcChar)
-		_i_ = 1
-		while _i_ <= _nLen_
-			if StzEngineStringCharAt(@pEngine, _i_) = _nNeed_
-				_aRes_ + _i_
-				while _i_ <= _nLen_ and
-				      StzEngineStringCharAt(@pEngine, _i_) = _nNeed_
-					_i_++
-				end
-			else
-				_i_++
-			ok
-		end
+		_nL_ = len(_aZZ_)
+		for _i_ = 1 to _nL_
+			_aRes_ + _aZZ_[_i_][1]
+		next
 		return _aRes_
 
-	# FindSubStringsMadeOfZZ(pcChar): return [start, end] of each
-	# maximal run.
-	def FindSubStringsMadeOfZZ(pcChar)
+	# FindSubStringsMadeOfZZ(pcChars): the [start, end] span of each
+	# maximal run made only of the pool's chars.
+	def FindSubStringsMadeOfZZ(pcChars)
 		_aRes_ = []
 		_nLen_ = This._EngineCount(This.Content())
-		_nNeed_ = StzCodepoint(pcChar)
+		_nPoolL_ = This._EngineCount(pcChars)
+		_anPool_ = []
+		for _k_ = 1 to _nPoolL_
+			_anPool_ + StzCodepoint( This._EngineSlice(pcChars, _k_, 1) )
+		next
 		_i_ = 1
 		while _i_ <= _nLen_
-			if StzEngineStringCharAt(@pEngine, _i_) = _nNeed_
+			if ring_find(_anPool_, StzEngineStringCharAt(@pEngine, _i_)) > 0
 				_nS_ = _i_
 				while _i_ <= _nLen_ and
-				      StzEngineStringCharAt(@pEngine, _i_) = _nNeed_
+				      ring_find(_anPool_, StzEngineStringCharAt(@pEngine, _i_)) > 0
 					_i_++
 				end
 				_aRes_ + [ _nS_, _i_ - 1 ]
@@ -10582,8 +10579,18 @@ class stzString from stzObject
 	def FindMadeOf(pcChar)
 		return This.FindSubStringsMadeOf(pcChar)
 
-	# FindNumbers(): start positions of every number-run.
+	# FindNumbers(): start positions of every (sign- and decimal-aware)
+	# number -- derived from the same sections Numbers() uses.
 	def FindNumbers()
+		_aSec_ = This.FindNumbersAsSections()
+		_aRes_ = []
+		_nL_ = len(_aSec_)
+		for _i_ = 1 to _nL_
+			_aRes_ + _aSec_[_i_][1]
+		next
+		return _aRes_
+
+	def _FindNumbersOld_unused()
 		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
 		_i_ = 1
@@ -10685,25 +10692,45 @@ class stzString from stzObject
 		return This.FindSubStringsMadeOfZZ(pcChar)
 
 	# (Numbers already exists earlier.)
-	def NumbersZ()
-		return This.FindNumbers()
-
-	def NumbersZZ()
-		_aPos_ = This.FindNumbers()
-		_nLen_ = This._EngineCount(This.Content())
+	# NumbersZ / NumbersZZ: each UNIQUE number grouped with all its
+	# start positions / [start, end] sections (first-occurrence order).
+	def _NumbersGrouped(bSections)
+		_aSec_ = This.FindNumbersAsSections()
+		_cTxt_ = This.Content()
 		_aRes_ = []
-		_nL_ = len(_aPos_)
+		_nL_ = len(_aSec_)
 		for _i_ = 1 to _nL_
-			_p_ = _aPos_[_i_]
-			_j_ = _p_
-			while _j_ <= _nLen_
-				_nC_ = StzEngineStringCharAt(@pEngine, _j_)
-				if _nC_ < 48 or _nC_ > 57 exit ok
-				_j_++
-			end
-			_aRes_ + [ _p_, _j_ - 1 ]
+			_s_ = _aSec_[_i_][1]
+			_e_ = _aSec_[_i_][2]
+			_cNum_ = This._EngineSlice(_cTxt_, _s_, _e_ - _s_ + 1)
+			_nAt_ = 0
+			_nRL_ = len(_aRes_)
+			for _j_ = 1 to _nRL_
+				if _aRes_[_j_][1] = _cNum_ _nAt_ = _j_ exit ok
+			next
+			if _nAt_ = 0
+				_aRes_ + [ _cNum_, [] ]
+				_nAt_ = len(_aRes_)
+			ok
+			if bSections
+				_aRes_[_nAt_][2] + _aSec_[_i_]
+			else
+				_aRes_[_nAt_][2] + _s_
+			ok
 		next
 		return _aRes_
+
+	def NumbersZ()
+		return This._NumbersGrouped(FALSE)
+
+	def NumbersZZ()
+		return This._NumbersGrouped(TRUE)
+
+		def NumbersAndTheirPositions()
+			return This.NumbersZ()
+
+		def NumbersAndTheirSections()
+			return This.NumbersZZ()
 
 	# NthNumberComingAfter(n, pcAnchor): the n-th number after pcAnchor.
 	def NthNumberComingAfter(n, pcAnchor)
@@ -10883,8 +10910,18 @@ class stzString from stzObject
 		return _aRes_
 
 	# SubStringsMadeOfZZ alias (no Find prefix).
+	# SubStringsMadeOfZZ: each run substring paired with its span.
 	def SubStringsMadeOfZZ(pcChar)
-		return This.FindSubStringsMadeOfZZ(pcChar)
+		_aZZ_ = This.FindSubStringsMadeOfZZ(pcChar)
+		_cTxt_ = This.Content()
+		_aRes_ = []
+		_nL_ = len(_aZZ_)
+		for _i_ = 1 to _nL_
+			_s_ = _aZZ_[_i_][1]
+			_e_ = _aZZ_[_i_][2]
+			_aRes_ + [ This._EngineSlice(_cTxt_, _s_, _e_ - _s_ + 1), _aZZ_[_i_] ]
+		next
+		return _aRes_
 
 	# Removed() -- mutating-then-return removal of pcWhat.
 	def Removed(pcWhat)

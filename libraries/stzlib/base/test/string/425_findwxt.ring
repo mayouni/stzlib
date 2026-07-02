@@ -3,6 +3,10 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #425.
+#
+# NOTE (audit, 2026-07-02): DEFERRED. stzList.FindWXT is RETIRED by design
+# (WXT disqualification; precedent #84, #219-#221, #412). The W replacement
+# of this block's pipeline is asserted in tests 423/424.
 
 load "../../stzBase.ring"
 
