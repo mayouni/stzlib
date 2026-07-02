@@ -324,6 +324,24 @@ STDZZ/STZZ spans), 323/325 (ST/STD positions), 327 (backward FindSTDZZ),
 329 (FindFirstAsSection + ST), 330 (direction-only FindFirstDZZ), 324
 (RemoveSubStringsBoundedByIB).
 
+**Chunk 19 (2026-07-02):** 331, 333, 334, 335, 336, 337, 338, 339, 340
+audited→narrated (9 files, 27 assertions). Real fixes -- the plural
+list-form finders:
+- **`FindZ(:Of = sub)`** (334) returned the FIRST section instead of the
+  position list; now = Find (with :Of normalisation).
+- **`FindST/FindSTZ/FindSTZZ`** (336) returned a single first hit; now ALL
+  the occurrences starting at/after :StartingAt (positions / spans).
+- **`FindSTD/FindSTDZ/FindSTDZZ/FindAsSectionsSTD`** (337) same singular
+  bug; now ALL candidates -- forward = FindST; backward = occurrences
+  ENDING at/before :StartingAt, nearest first; FindSTDZ = [sub, positions].
+  NOTE: 337's archive #--> pasted FORWARD values into its first two
+  backward calls ([8,13] backward-from-6 is impossible); asserted at the
+  coherent rule its own last two lines and blocks #325-#328 pin.
+331/333/335 (FindD/DZZ/DZ/AsSectionsD backward lists; 335's archive
+"[13, 5]" is a typo for [13,15]), 338/339 (SplitQ().IfQ() fluent gate, both
+condition spellings), 340 (same-substring bounds, overlapping) were already
+correct -- pure conversions.
+
 ## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to

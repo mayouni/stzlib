@@ -1,21 +1,29 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #340.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindAnyBoundedBy with a SAME substring as both bounds ("aa".."aa"):
+# overlapping pairing reuses each closer as the next opener, so both gaps
+# are found -- content start positions, and ZZ spans. Archive block #340.
 
-o1 = new stzString("aa***aa**aa***")
+Scenario("Same-substring bounds")
+	Given('"aa***aa**aa***"')
+	o1 = new stzString("aa***aa**aa***")
+	Then("the content start positions",
+		ListEq( o1.FindAnyBoundedBy([ "aa", "aa" ]), [ 3, 8 ] ), TRUE)
+	Then("the content spans",
+		ListEq( o1.FindAnyBoundedByZZ([ "aa", "aa" ]), [ [3, 5], [8, 9] ] ), TRUE)
+EndScenario()
 
-? @@( o1.FindAnyBoundedBy([ "aa", "aa" ]) )
-#--> [ 3, 8 ]
+Summary()
 
-? @@( o1.FindAnyBoundedByZZ([ "aa", "aa" ]) )
-#--> [ [ 3, 5 ], [ 8, 9 ] ]
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.10 second(s) in Ring 1.17
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
