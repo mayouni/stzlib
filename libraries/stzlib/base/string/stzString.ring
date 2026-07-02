@@ -147,7 +147,66 @@ class stzString from stzObject
 				return This.SplitToNParts(pValue)
 
 			but isList(pValue)
+				# WXT(cond) marker -> split at the chars satisfying
+				# the condition (routes to the W form, no eval).
+				if len(pValue) = 2 and isString(pValue[1]) and
+				   lower(pValue[1]) = "wherext" and isString(pValue[2])
+					return This.SplitW(pValue[2])
+				ok
 				# A list of sizes -> consecutive parts of those sizes.
+				if @IsListOfNumbers(pValue)
+					return This.SplitToPartsOfSizes(pValue)
+				ok
+				# A list of [name, size] pairs (size may be a symbol
+				# like :RemainingChars) -> named portions, in order.
+				_nDivL_ = len(pValue)
+				_bDivPairs_ = _nDivL_ > 0
+				for _iDiv_ = 1 to _nDivL_
+					if NOT ( isList(pValue[_iDiv_]) and len(pValue[_iDiv_]) = 2 and
+					         isString(pValue[_iDiv_][1]) )
+						_bDivPairs_ = FALSE
+						exit
+					ok
+				next
+				if _bDivPairs_
+					_cDivTxt_ = This.Content()
+					_nDivLen_ = This._EngineCount(_cDivTxt_)
+					_aDivRes_ = []
+					_nDivPos_ = 1
+					for _iDiv_ = 1 to _nDivL_
+						_vDivSize_ = pValue[_iDiv_][2]
+						if isNumber(_vDivSize_)
+							_nDivTake_ = floor(_vDivSize_)
+						else
+							# :RemainingChars and friends
+							_nDivTake_ = _nDivLen_ - _nDivPos_ + 1
+						ok
+						if _nDivTake_ < 0 _nDivTake_ = 0 ok
+						if _nDivPos_ + _nDivTake_ - 1 > _nDivLen_
+							_nDivTake_ = _nDivLen_ - _nDivPos_ + 1
+						ok
+						_cDivPart_ = ""
+						if _nDivTake_ > 0
+							_cDivPart_ = This._EngineSlice(_cDivTxt_, _nDivPos_, _nDivTake_)
+						ok
+						_aDivRes_ + [ pValue[_iDiv_][1], _cDivPart_ ]
+						_nDivPos_ += _nDivTake_
+					next
+					return _aDivRes_
+				ok
+				# A list of NAMES -> distribute the string equally.
+				if @IsListOfStrings(pValue)
+					_aDivParts_ = This.SplitToNParts(_nDivL_)
+					_aDivRes_ = []
+					for _iDiv_ = 1 to _nDivL_
+						_cDivPart_ = ""
+						if _iDiv_ <= len(_aDivParts_)
+							_cDivPart_ = _aDivParts_[_iDiv_]
+						ok
+						_aDivRes_ + [ pValue[_iDiv_], _cDivPart_ ]
+					next
+					return _aDivRes_
+				ok
 				return This.SplitToPartsOfSizes(pValue)
 
 			but isObject(pValue)
@@ -10804,18 +10863,34 @@ class stzString from stzObject
 		_oIbxHost_ = new stzString("" + _cIn_)
 		return _oIbxHost_.Contains(_aIbx_[1] + This.Content() + _aIbx_[2])
 
-	# InfereMethod(pcMethodName): return TRUE if the stzString has
-	# such method name (no engine reflection -- delegate via Ring's
-	# methods() introspection).
-	def InfereMethod(pcMethodName)
-		if NOT isString(pcMethodName) return FALSE ok
-		_aM_ = methods(This)
-		_nL_ = len(_aM_)
-		_low_ = lower(pcMethodName)
-		for _i_ = 1 to _nL_
-			if lower(_aM_[_i_]) = _low_ return TRUE ok
-		next
-		return FALSE
+	# InfereMethod(:From = :stzClass): infer the predicate method the
+	# given class offers for THIS string -- "is" + string, else
+	# "is" + string-minus-final-s (per the original monolith). E.g.
+	# Q("punctuation").InfereMethod(:From = :stzChar) -> "ispunctuation".
+	def InfereMethod(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   ring_find([ "from", "in", "of" ], lower(p[1])) > 0
+			p = p[2]
+		ok
+		if NOT isString(p)
+			StzRaise("Incorrect param type! The class must be a string.")
+		ok
+		_cImCls_ = lower(p)
+		if ring_left(_cImCls_, 3) != "stz"
+			_cImCls_ = "stz" + _cImCls_
+		ok
+		_acImM_ = Stz( substr(_cImCls_, 4), :Methods )
+		_cImName_ = lower(This.Content())
+		if ListContainsCS(_acImM_, "is" + _cImName_, 0)
+			return "is" + _cImName_
+		ok
+		if ring_right(_cImName_, 1) = "s"
+			_cImSing_ = ring_left(_cImName_, len(_cImName_) - 1)
+			if ListContainsCS(_acImM_, "is" + _cImSing_, 0)
+				return "is" + _cImSing_
+			ok
+		ok
+		StzRaise("Sorry! Can't infere the method name from the provided string.")
 
 	# RemoveDuplicatesQ alias.
 	def RemoveDuplicatesQ()

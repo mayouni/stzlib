@@ -522,7 +522,27 @@ DEFERRED:
   family (blocks #99-#101); visual, not assertable.
 Pure conversions: 422, 427, 430, 431, 433, 435, 437.
 
-## STATUS (2026-07-02): 411/999 test files audited (chunks 14-27 added 148); ~588 still to audit
+**Chunk 28 (2026-07-02, 14 files):** 441, 447-458, 460 audited→narrated
+(14 files, 26 assertions). Real fixes:
+- **`(/)` operator list-divisor dispatch** (447): a non-numeric list fell
+  into SplitToPartsOfSizes and crashed in _EngineSlice. Now dispatches:
+  the `WXT(cond)` marker ([:WhereXT, cCode]) -> SplitW(cond) (the W form,
+  no eval); a list of numbers -> SplitToPartsOfSizes (unchanged); a list
+  of [name, size] pairs (size may be :RemainingChars) -> named portions
+  [[name, part]]; a list of string names -> SplitToNParts distributed as
+  [[name, part]] pairs.
+- **`InfereMethod(:From = :stzClass)` restored to the original contract**
+  (450): was a boolean does-this-method-exist stub; now infers the class's
+  predicate method for THIS string ("is"+string, else "is"+string minus
+  the final s, via Stz(type, :Methods)). The archive's "ispunctauion" was
+  a typo for "ispunctuation".
+- **W-DSL sugar: `Q(@char).IsNumberInString()` lowers to isDigit** (460):
+  added isnumberinstring/isanumberinstring to _StzMapWPredicate, so the
+  digit-removal chain works through the engine. 460's retired
+  RemoveCharsWXTQ spelling converted to RemoveCharsWQ (WXT precedent).
+Pure conversions: 441, 448, 449, 451-458.
+
+## STATUS (2026-07-02): 425/999 test files audited (chunks 14-28 added 162); ~574 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

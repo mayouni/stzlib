@@ -1,18 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #449.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The reverse checks: is this string the plural of some (or a given)
+# Softanza type? Archive block #449.
 
-? Q("stzchars").IsPluralOfAStzType()
-#--> TRUE
+Scenario("Recognizing type plurals")
+	Then("stzchars is a plural of a stz type",
+		Q("stzchars").IsPluralOfAStzType(), TRUE)
+	Then("... specifically of stzchar",
+		Q("stzchars").IsPluralOfThisStzType("stzchar"), TRUE)
+EndScenario()
 
-? Q("stzchars").IsPluralOfThisStzType("stzchar")
-#--> TRUE
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.21
+Summary()

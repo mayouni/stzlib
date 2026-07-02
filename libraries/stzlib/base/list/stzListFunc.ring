@@ -8570,6 +8570,8 @@ func _StzMapWPredicate(cMeth, cExpr, cArg)
 	on "isvowel"       return "isVowel(" + cE + ")"
 	on "isconsonant"   return "isConsonant(" + cE + ")"
 	on "ispunctuation" return "isPunctuation(" + cE + ")"
+	on "isnumberinstring"  return "isDigit(" + cE + ")"
+	on "isanumberinstring" return "isDigit(" + cE + ")"
 	on "isarabic"      return "isArabic(" + cE + ")"
 	on "isarabicletter" return "isArabic(" + cE + ")"
 	on "islatin"       return "isLatin(" + cE + ")"

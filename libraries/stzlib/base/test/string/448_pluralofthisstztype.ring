@@ -1,15 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #448.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# PluralOfThisStzType pluralizes a Softanza class name (lowercased).
+# Archive block #448.
 
-? PLuralOfThisStzType("stzChar")
-#--> "stzchars"
+Scenario("Pluralizing a stz type name")
+	Then("stzChar pluralizes", PLuralOfThisStzType("stzChar"), "stzchars")
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.21
+Summary()

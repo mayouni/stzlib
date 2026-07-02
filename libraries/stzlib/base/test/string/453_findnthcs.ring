@@ -1,16 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #453.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# stzList.FindNthCS: the nth occurrence, case-insensitively here.
+# Archive block #453.
 
-o1 = new stzList([ "A", "A", "A", "B", "B", "C" ])
-? o1.FindNthCS(3, "A", FALSE)
-#--> 3
+Scenario("Third A in a list")
+	o1 = new stzList([ "A", "A", "A", "B", "B", "C" ])
+	Then("the 3rd A sits at 3", o1.FindNthCS(3, "A", FALSE), 3)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()

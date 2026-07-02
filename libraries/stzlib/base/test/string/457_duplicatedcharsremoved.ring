@@ -1,15 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #457.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# DuplicatedCharsRemoved does the block-#456 pipeline in one call.
+# Archive block #457.
 
-? Q("Riiiiinngg").DuplicatedCharsRemoved()
-#--> "Ring"
+Scenario("One-call char dedup")
+	Then("Riiiiinngg dedups to Ring",
+		Q("Riiiiinngg").DuplicatedCharsRemoved(), "Ring")
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
+Summary()

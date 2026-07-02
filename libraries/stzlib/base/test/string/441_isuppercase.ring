@@ -1,14 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #441.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsAtCharsNamedParam recognizes the [:AtChars, cond] named-param shape.
+# Archive block #441.
 
-? Q([ "atchars", "Q(@char).IsUppercase()" ]).IsAtCharsNamedParam()
-#--> TRUE
+Scenario("Recognizing the :AtChars named param")
+	Then("the pair is an :AtChars named param",
+		Q([ "atchars", "Q(@char).IsUppercase()" ]).IsAtCharsNamedParam(), TRUE)
+EndScenario()
 
-pf()
+Summary()

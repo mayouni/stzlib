@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #458.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsNumberInString: does the string hold a (decimal) number? Method and
+# global forms. Archive block #458.
 
-? Q("123.98").IsNumberInString()
-#--> TRUE
+Scenario("A decimal in a string")
+	Then("the method form", Q("123.98").IsNumberInString(), TRUE)
+	Then("the global form", IsNumberInString("123.98"), TRUE)
+EndScenario()
 
-? IsNumberInString("123.98")
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()
