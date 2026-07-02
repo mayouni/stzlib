@@ -3639,37 +3639,56 @@ class stzList from stzObject
 
 	# CommonItems(:With = otherList): items present in both lists.
 	def CommonItems(pNamedWith)
-		if NOT (isList(pNamedWith) and len(pNamedWith) = 2 and
-		       isString(pNamedWith[1]) and lower(pNamedWith[1]) = "with")
-			return []
+		# Accept CommonItems(:With = list) or a direct list argument.
+		_other_ = pNamedWith
+		if isList(pNamedWith) and len(pNamedWith) = 2 and
+		   isString(pNamedWith[1]) and lower(pNamedWith[1]) = "with"
+			_other_ = pNamedWith[2]
 		ok
-		_other_ = pNamedWith[2]
 		if NOT isList(_other_) return [] ok
-		# Engine-backed multiset intersection: keeps This's order + duplicates
-		# (the stzList semantic, distinct from stzSet's deduping Intersection),
-		# content-compared (nested-list correct). O(n*m) in C, not Ring.
+		# Engine-backed intersection (content-compared, nested-list
+		# correct, O(n*m) in C), then a UNIQUE pass keeping This's order
+		# -- CommonItems is the SET intersection (per its own narrative
+		# doc; duplicates in the host appear once).
 		_pCiA_ = This._EngineListFromContent()
 		_pCiB_ = StzEngineMarshalList(_other_)
+		_aR_ = []
+		_bCiDone_ = FALSE
 		if _pCiA_ != NULL and _pCiB_ != NULL
 			_pCiR_ = StzEngineListCommonItemsCS(_pCiA_, _pCiB_, 1)
 			_aR_ = StzEngineListContentToRingList(_pCiR_)
 			StzEngineListFree(_pCiR_)
 			StzEngineListFree(_pCiA_)
 			StzEngineListFree(_pCiB_)
-			return _aR_
+			_bCiDone_ = TRUE
 		ok
-		# Fallback (non-marshalable content): same multiset semantics.
-		_a_ = This.List()
-		_nL_ = len(_a_)
-		_aR_ = []
-		for _i_ = 1 to _nL_
-			_v_ = _a_[_i_]
-			_nB_ = len(_other_)
-			for _j_ = 1 to _nB_
-				if BothAreEqualCS(_v_, _other_[_j_], 1) _aR_ + _v_ exit ok
+		if NOT _bCiDone_
+			# Fallback (non-marshalable content).
+			_a_ = This.List()
+			_nL_ = len(_a_)
+			for _i_ = 1 to _nL_
+				_v_ = _a_[_i_]
+				_nB_ = len(_other_)
+				for _j_ = 1 to _nB_
+					if BothAreEqualCS(_v_, _other_[_j_], 1) _aR_ + _v_ exit ok
+				next
 			next
+		ok
+		# Dedup, keeping first occurrences.
+		_aU_ = []
+		_nRL_ = len(_aR_)
+		for _i_ = 1 to _nRL_
+			_bSeen_ = FALSE
+			_nUL_ = len(_aU_)
+			for _j_ = 1 to _nUL_
+				if BothAreEqualCS(_aR_[_i_], _aU_[_j_], 1)
+					_bSeen_ = TRUE
+					exit
+				ok
+			next
+			if NOT _bSeen_ _aU_ + _aR_[_i_] ok
 		next
-		return _aR_
+		return _aU_
 
 	# PreviousNItems(pcAnchor, n): the n items appearing before pcAnchor.
 	def PreviousNItems(pcAnchor, n)
@@ -4368,17 +4387,20 @@ class stzList from stzObject
 		_aRes_ + _grp_
 		return _aRes_
 
-	# TheseCharsZ(pacChars): positions of every listed char in the list.
+	# TheseCharsZ([chars]): each char grouped with ALL its positions in
+	# the list -- [ [c, [positions]], ... ].
 	def TheseCharsZ(pacChars)
 		if NOT isList(pacChars) return [] ok
 		_l_ = This.List()
-		_nL_ = len(_l_)
+		_nL_ = ring_len(_l_)
+		_nP_ = ring_len(pacChars)
 		_aR_ = []
-		for _i_ = 1 to _nL_
-			_nP_ = len(pacChars)
-			for _j_ = 1 to _nP_
-				if _l_[_i_] = pacChars[_j_] _aR_ + _i_ exit ok
+		for _j_ = 1 to _nP_
+			_aPos_ = []
+			for _i_ = 1 to _nL_
+				if _l_[_i_] = pacChars[_j_] _aPos_ + _i_ ok
 			next
+			_aR_ + [ pacChars[_j_], _aPos_ ]
 		next
 		return _aR_
 
