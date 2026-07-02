@@ -1,24 +1,30 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #343.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindAnyBoundedBy with the same "aa" marker as both bounds: the
+# overlapping rule finds all three enclosed regions (content start
+# positions + their sections). Archive block #343.
 
-#                      4 6  90  3 5
-o1 = new stzString("*aa***aa**aa***aa*")
+Scenario("Any-bounded-by with a repeated marker")
+	Given('"*aa***aa**aa***aa*"')
+	o1 = new stzString("*aa***aa**aa***aa*")
+	Then("the content start positions",
+		ListEq( o1.FindAnyBoundedBy([ "aa", "aa" ]), [ 4, 9, 13 ] ), TRUE)
+	Then("the content sections",
+		ListEq( o1.FindAnyBoundedByAsSections([ "aa", "aa" ]),
+			[ [4, 6], [9, 10], [13, 15] ] ), TRUE)
+EndScenario()
 
-? o1.FindAnyBoundedBy([ "aa", "aa" ])
-#--> [4, 9, 13]
+Summary()
 
-? @@( o1.FindAnyBoundedByAsSections([ "aa", "aa" ]) )
-#--> [ [ 4, 6 ], [ 9, 10 ], [ 13, 15 ] ]
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.15 second(s) in ring 1.17
-
-pf()
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
