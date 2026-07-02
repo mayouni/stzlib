@@ -1,29 +1,35 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #367.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoundsOf(sub) returns the bounds around EACH occurrence as [open, close]
+# pairs (the per-occurrence nested shape settled in block #42; this
+# archive block displayed the single pair flattened). The XT / UpToNChars
+# forms cap each side. Archive block #367.
 
-o1 = new stzString("<<<word>>>")
+Scenario("Bounds of a single occurrence, capped")
+	Given('"<<<word>>>"')
+	o1 = new stzString("<<<word>>>")
+	Then("the full bound runs",
+		ListEq( o1.BoundsOf("word"), [ [ "<<<", ">>>" ] ] ), TRUE)
+	Then("capped at 2 a side",
+		ListEq( o1.BoundsOfXT("word", :UpToNChars = 2), [ [ "<<", ">>" ] ] ), TRUE)
+	Then("capped per side",
+		ListEq( o1.BoundsOfXT("word", [ 1, 2 ]), [ [ "<", ">>" ] ] ), TRUE)
+	Then("the UpToNChars spelling",
+		ListEq( o1.BoundsOfUpToNChars("word", 2), [ [ "<<", ">>" ] ] ) and
+		ListEq( o1.BoundsOfUpToNChars("word", [ 1, 2 ]), [ [ "<", ">>" ] ] ), TRUE)
+EndScenario()
 
-? o1.BoundsOf("word")
-#--> [ "<<<", ">>>" ]
+Summary()
 
-? o1.BoundsOfXT("word", :UpToNChars = 2)
-#--> [ "<<", ">>" ]
-
-? o1.BoundsOfXT("word", [ 1, 2 ])
-#--> [ "<", ">>" ]
-
-? o1.BoundsOfUpToNChars("word", 2)
-#--> [ "<<", ">>" ]
-
-? o1.BoundsOfUpToNChars("word", [ 1, 2 ])
-#--> [ "<", ">>" ]
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.21
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

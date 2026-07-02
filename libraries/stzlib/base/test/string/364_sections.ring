@@ -1,21 +1,31 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #364.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Sections vs AntiSections: the substrings AT the spans, and the gap
+# substrings around them. (The archive's third #--> value "THREE" was a
+# typo -- section [16,18] of the string reads "ONE".) Archive block #364.
 
-o1 = new stzString("...ONE...TWO...ONE")
+Scenario("Sections and their complements")
+	Given('"...ONE...TWO...ONE"')
+	o1 = new stzString("...ONE...TWO...ONE")
+	Then("the section substrings",
+		ListEq( o1.Sections([ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ]),
+			[ "ONE", "TWO", "ONE" ] ), TRUE)
+	Then("the gaps around them",
+		ListEq( o1.AntiSections([ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ]),
+			[ "...", "...", "..." ] ), TRUE)
+EndScenario()
 
-? o1.Sections([ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ])
-#--> [ "ONE", "TWO", "THREE"
+Summary()
 
-? o1.AntiSections([ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ])
-#--> [ "...", "...", "..." ]
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.07 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

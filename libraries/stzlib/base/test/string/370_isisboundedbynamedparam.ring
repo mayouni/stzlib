@@ -1,22 +1,18 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #370.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The :IsBoundedBy named-param plumbing: the param-shape detector on a
+# Q()-list, the direct SubStringIsBoundedBy check (a single bound string
+# widens to both sides), and the SubStringXT spelling.
+# Archive block #370.
 
-? Q(:IsBoundedBy = ".").IsIsBoundedByNamedParam()
-#--> TRUE
+Scenario("IsBoundedBy in three spellings")
+	Then("the named-param shape is recognised",
+		Q(:IsBoundedBy = ".").IsIsBoundedByNamedParam(), TRUE)
+	Then("the direct check",
+		Q(".♥.").SubStringIsBoundedBy("♥", "."), TRUE)
+	Then("the SubStringXT spelling",
+		Q(".♥.").SubStringXT("♥", :IsBoundedBy = "."), TRUE)
+EndScenario()
 
-? Q(".♥.").SubStringIsBoundedBy("♥", ".")
-#--> TRUE
-
-? Q(".♥.").SubStringXT("♥", :IsBoundedBy = ".")
-#--> TRUE
-
-pf()
-# Executed in 0.08 second(s) in Ring 1.21
-# Executed in 0.17 second(s) in Ring 1.18
+Summary()

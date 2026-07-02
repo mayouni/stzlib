@@ -4582,8 +4582,10 @@ class stzString from stzObject
 	def NumberOfOccurrenceOfCharEndSide(pcChar)
 		return This.NumberOfOccurrenceOfCharRightSide(pcChar)
 
+	# SplitAroundIB(sub): the pieces EXTENDED by one char into each
+	# adjacent occurrence (neighbours share the boundary chars).
 	def SplitAroundIB(pcSubStr)
-		return This.SplitAroundCS(pcSubStr, 1)
+		return This.SplitAroundSectionsIB( This.FindZZ(pcSubStr) )
 
 	# SplitAroundPosition(n): two pieces around codepoint position n.
 	def SplitAroundPosition(n)
@@ -6609,6 +6611,55 @@ class stzString from stzObject
 
 	def SubStringsU()
 		return This.SubStringsCS(0)
+
+		def UniqueSubStrings()
+			return This.SubStringsU()
+
+	def NumberOfUniqueSubStrings()
+		return len(This.SubStringsU())
+
+	# SubStringsZ(): each unique substring grouped with ALL its start
+	# positions; SubStringsZZ() with its [start, end] sections.
+	def SubStringsZ()
+		_acU_ = This.SubStringsU()
+		_aRes_ = []
+		_nL_ = len(_acU_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _acU_[_i_], This.FindCS(_acU_[_i_], 1) ]
+		next
+		return _aRes_
+
+	def SubStringsZZ()
+		_acU_ = This.SubStringsU()
+		_aRes_ = []
+		_nL_ = len(_acU_)
+		for _i_ = 1 to _nL_
+			_aPos_ = This.FindCS(_acU_[_i_], 1)
+			_nSubLen_ = This._EngineCount(_acU_[_i_])
+			_aSecs_ = []
+			_nPL_ = len(_aPos_)
+			for _j_ = 1 to _nPL_
+				_aSecs_ + [ _aPos_[_j_], _aPos_[_j_] + _nSubLen_ - 1 ]
+			next
+			_aRes_ + [ _acU_[_i_], _aSecs_ ]
+		next
+		return _aRes_
+
+	# IsEitherCS(a, :Or = b, :CS = bCase): case-controlled IsEither.
+	def IsEitherCS(p1, p2, pCaseSensitive)
+		if isList(p2) and len(p2) = 2 and isString(p2[1]) and
+		   lower(p2[1]) = "or"
+			p2 = p2[2]
+		ok
+		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and lower(pCaseSensitive[1]) = "cs"
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		_c_ = This.Content()
+		if NOT @CaseSensitive(pCaseSensitive)
+			return lower(_c_) = lower(p1) or lower(_c_) = lower(p2)
+		ok
+		return _c_ = p1 or _c_ = p2
 
 	# --- IndexOf ---
 
@@ -10070,6 +10121,46 @@ class stzString from stzObject
 			if _nS_ < 1 _nS_ = 1 ok
 			return This._EngineSlice(_cTxt_, _nS_, _nP_ - _nS_)
 		ok
+		# Bound predicates: SubStringXT(sub, :IsBoundOf / :IsBoundedBy /
+		# :IsFirstBoundOf / :IsLastBoundOf / :IsLeftBoundOf /
+		# :IsRightBoundOf = other).
+		if isString(p1) and isList(p2) and len(p2) = 2 and isString(p2[1]) and
+		   isString(p2[2])
+			_cSxKey_ = lower(p2[1])
+			_cSxVal_ = p2[2]
+			if _cSxKey_ = "isboundof"
+				return len( This.FindSubStringBoundedBy(_cSxVal_, [ p1, p1 ]) ) > 0
+			but _cSxKey_ = "isboundedby"
+				return This.SubStringIsBoundedBy(p1, _cSxVal_)
+			but _cSxKey_ = "isfirstboundof" or _cSxKey_ = "isleftboundof"
+				# p1 immediately precedes an occurrence of _cSxVal_.
+				_aSxPos_ = This.Find(_cSxVal_)
+				_nSxBL_ = This._EngineCount(p1)
+				_nSxN_ = len(_aSxPos_)
+				for _iSx_ = 1 to _nSxN_
+					_pSx_ = _aSxPos_[_iSx_]
+					if _pSx_ - _nSxBL_ >= 1 and
+					   This._EngineSlice(_cTxt_, _pSx_ - _nSxBL_, _nSxBL_) = p1
+						return TRUE
+					ok
+				next
+				return FALSE
+			but _cSxKey_ = "islastboundof" or _cSxKey_ = "isrightboundof"
+				# p1 immediately follows an occurrence of _cSxVal_.
+				_aSxPos_ = This.Find(_cSxVal_)
+				_nSxBL_ = This._EngineCount(p1)
+				_nSxVL_ = This._EngineCount(_cSxVal_)
+				_nSxN_ = len(_aSxPos_)
+				for _iSx_ = 1 to _nSxN_
+					_pSx_ = _aSxPos_[_iSx_] + _nSxVL_
+					if _pSx_ + _nSxBL_ - 1 <= _nLen_ and
+					   This._EngineSlice(_cTxt_, _pSx_, _nSxBL_) = p1
+						return TRUE
+					ok
+				next
+				return FALSE
+			ok
+		ok
 		return ""
 
 	# IsIsBoundedByNamedParam: predicate on the content list for the
@@ -10557,34 +10648,16 @@ class stzString from stzObject
 
 	# SplitAroundPositions(anPos): split at each position; the
 	# delimiter char at each position becomes its own piece.
+	# SplitAroundPositions(anPos): the pieces between the positions
+	# (the chars AT the positions are dropped).
 	def SplitAroundPositions(anPos)
-		_aRes_ = []
-		_cTxt_ = This.Content()
-		_nLen_ = This._EngineCount(_cTxt_)
-		_aSorted_ = _ListCopy(anPos)
-		_nPL_ = len(_aSorted_)
-		for _i_ = 2 to _nPL_
-			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and _aSorted_[_j_] > _v_
-				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
-			end
-			_aSorted_[_j_ + 1] = _v_
+		if NOT isList(anPos) return [ This.Content() ] ok
+		_aSapSec_ = []
+		_nSapL_ = len(anPos)
+		for _iSap_ = 1 to _nSapL_
+			_aSapSec_ + [ anPos[_iSap_], anPos[_iSap_] ]
 		next
-		_nStart_ = 1
-		for _i_ = 1 to _nPL_
-			_p_ = _aSorted_[_i_]
-			if _p_ < _nStart_ loop ok
-			if _p_ > _nLen_ exit ok
-			if _p_ > _nStart_
-				_aRes_ + This._EngineSlice(_cTxt_, _nStart_, _p_ - _nStart_)
-			ok
-			_aRes_ + This._EngineSlice(_cTxt_, _p_, 1)
-			_nStart_ = _p_ + 1
-		next
-		if _nStart_ <= _nLen_
-			_aRes_ + This._EngineSliceFrom(_cTxt_, _nStart_)
-		ok
-		return _aRes_
+		return This.SplitAroundSections(_aSapSec_)
 
 	# IsPluralOfThisStzType(pcType): TRUE if content is the plural
 	# form of pcType (i.e. equal to pcType + "s").
@@ -10900,16 +10973,38 @@ class stzString from stzObject
 		return This.NumberOfLines() - This.NumberOfEmptyLines()
 
 	# BoundsXT(pacBounds, n): the bounds of the n-th bounded match.
-	def BoundsXT(pacBounds, n)
-		# Accept named-param :Of = "needle" for pacBounds.
-		if isList(pacBounds) and len(pacBounds) = 2 and
-		   isString(pacBounds[1]) and lower(pacBounds[1]) = "of"
-			pacBounds = pacBounds[2]
+	# BoundsXT(p): the auto-detected Bounds() capped at N chars a side --
+	# p = :UpToNChars = n, a bare number, or a [nLeft, nRight] pair.
+	def BoundsXT(p)
+		_aB_ = This.Bounds()
+		if len(_aB_) != 2 return _aB_ ok
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (lower(p[1]) = "uptonchars" or lower(p[1]) = "uptochars")
+			p = p[2]
 		ok
-		if NOT isNumber(n) return [] ok
-		_aSec_ = This.FindBoundedByAsSections(pacBounds)
-		if n < 1 or n > len(_aSec_) return [] ok
-		return _aSec_[n]
+		_nBxL_ = 0
+		_nBxR_ = 0
+		if isNumber(p)
+			_nBxL_ = p
+			_nBxR_ = p
+		but isList(p) and len(p) = 2 and isNumber(p[1]) and isNumber(p[2])
+			_nBxL_ = p[1]
+			_nBxR_ = p[2]
+		else
+			return _aB_
+		ok
+		_cL_ = _aB_[1]
+		_cR_ = _aB_[2]
+		if This._EngineCount(_cL_) > _nBxL_
+			_cL_ = This._EngineSlice(_cL_, 1, _nBxL_)
+		ok
+		if This._EngineCount(_cR_) > _nBxR_
+			_cR_ = This._EngineSlice(_cR_, 1, _nBxR_)
+		ok
+		return [ _cL_, _cR_ ]
+
+		def BoundsUpToNChars(p)
+			return This.BoundsXT(p)
 
 	# Move(n1, n2): move char from position n1 to position n2.
 	# Accepts named-param form Move(:CharFromPosition = N, :To = M).
@@ -12520,9 +12615,14 @@ class stzString from stzObject
 	# More long-tail aliases.
 	def SubStringIsBoundedBy(pcSub, pacBounds)
 		# Accept single string (used as both open and close) or a pair.
-		_aBnd_ = pacBounds
+		# Fresh-var if/but/else (single-clause widening no-ops, note 6).
+		_aBnd_ = []
 		if isString(pacBounds)
 			_aBnd_ = [ pacBounds, pacBounds ]
+		but isList(pacBounds)
+			_aBnd_ = pacBounds
+		else
+			return FALSE
 		ok
 		if NOT (isList(_aBnd_) and len(_aBnd_) = 2 and
 		        isString(_aBnd_[1]) and isString(_aBnd_[2]))
@@ -13474,101 +13574,50 @@ class stzString from stzObject
 		return This.SplitAround(pcSub)
 
 	def SplitAroundSubStringIB(pcSub)
-		# Inclusive variant: each split keeps the boundary chars.
-		_aPos_ = This.AllPositionsOf(pcSub)
-		_subLen_ = This._EngineCount(pcSub)
-		_cAll_ = This.Content()
-		_nTL_ = This.NumberOfChars()
-		_aR_ = []
-		_nL_ = len(_aPos_)
-		_nPrev_ = 1
-		for _i_ = 1 to _nL_
-			_p_ = _aPos_[_i_]
-			_end_ = _p_ + _subLen_ - 1
-			if _end_ > _nTL_ _end_ = _nTL_ ok
-			_aR_ + This._EngineSlice(_cAll_, _nPrev_, _end_ - _nPrev_ + 1)
-			_nPrev_ = _p_
-		next
-		if _nPrev_ <= _nTL_
-			_aR_ + This._EngineSliceFrom(_cAll_, _nPrev_)
-		ok
-		return _aR_
+		return This.SplitAroundSectionsIB( This.FindZZ(pcSub) )
+
+	# SplitAroundSubStrings([subs]): the pieces between ALL the subs'
+	# occurrences, with overlapping/adjacent occurrences MERGED first
+	# (so no empty fragments appear between touching matches).
+	def _MergedSectionsOfSubs(pacSub)
+		_aSec_ = This.FindManyAsSectionsCS(pacSub, 1)
+		if len(_aSec_) = 0 return [] ok
+		_oSec_ = new stzListOfSections(_aSec_)
+		_oSec_.MergeOverlapping()
+		return _oSec_.Content()
 
 	def SplitAroundSubStrings(pacSub)
 		if NOT isList(pacSub) return [ This.Content() ] ok
-		_pos_ = []
-		_nL_ = len(pacSub)
-		for _i_ = 1 to _nL_
-			if NOT isString(pacSub[_i_]) loop ok
-			_a_ = This.AllPositionsOf(pacSub[_i_])
-			_nAL_ = len(_a_)
-			for _j_ = 1 to _nAL_
-				_pos_ + [ _a_[_j_], This._EngineCount(pacSub[_i_]) ]
-			next
-		next
-		# Sort by position ascending.
-		_nPL_ = len(_pos_)
-		for _i_ = 2 to _nPL_
-			_v_ = _pos_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and _pos_[_j_][1] > _v_[1]
-				_pos_[_j_ + 1] = _pos_[_j_]; _j_--
-			end
-			_pos_[_j_ + 1] = _v_
-		next
-		_cAll_ = This.Content()
-		_nTL_ = This.NumberOfChars()
-		_aR_ = []
-		_nPrev_ = 1
-		for _i_ = 1 to _nPL_
-			_p_ = _pos_[_i_][1]
-			_subLen_ = _pos_[_i_][2]
-			if _p_ > _nPrev_
-				_aR_ + This._EngineSlice(_cAll_, _nPrev_, _p_ - _nPrev_)
-			else
-				_aR_ + ""
-			ok
-			_nPrev_ = _p_ + _subLen_
-		next
-		if _nPrev_ <= _nTL_
-			_aR_ + This._EngineSliceFrom(_cAll_, _nPrev_)
-		else
-			_aR_ + ""
-		ok
-		return _aR_
+		return This.SplitAroundSections( This._MergedSectionsOfSubs(pacSub) )
 
 	def SplitAroundSubStringsIB(pacSub)
-		return This.SplitAroundSubStrings(pacSub)
+		if NOT isList(pacSub) return [ This.Content() ] ok
+		return This.SplitAroundSectionsIB( This._MergedSectionsOfSubs(pacSub) )
 
+	# Accept either ([n1, n2]) or (n1, n2) -- the widening uses a fresh
+	# var via if/but/else (the single-clause param-reassign no-ops,
+	# CLAUDE.md note 6).
 	def SplitAroundSectionIB(aSection, n2)
+		_aSasSec_ = []
 		if isNumber(aSection) and isNumber(n2)
-			aSection = [ aSection, n2 ]
-		ok
-		return This.SplitAroundSectionsIB([ aSection ])
-
-	def SplitAroundSection(aSection, n2)
-		# Accept either (aSection) or (n1, n2).
-		if isNumber(aSection) and isNumber(n2)
-			aSection = [ aSection, n2 ]
-		ok
-		if NOT (isList(aSection) and len(aSection) = 2 and
-		        isNumber(aSection[1]) and isNumber(aSection[2]))
+			_aSasSec_ = [ aSection, n2 ]
+		but isList(aSection) and len(aSection) = 2
+			_aSasSec_ = aSection
+		else
 			return [ This.Content() ]
 		ok
-		_cAll_ = This.Content()
-		_nLen_ = This.NumberOfChars()
-		_n1_ = aSection[1]; _n2_ = aSection[2]
-		_aR_ = []
-		if _n1_ > 1
-			_aR_ + This._EngineSlice(_cAll_, 1, _n1_ - 1)
+		return This.SplitAroundSectionsIB([ _aSasSec_ ])
+
+	def SplitAroundSection(aSection, n2)
+		_aSasSec_ = []
+		if isNumber(aSection) and isNumber(n2)
+			_aSasSec_ = [ aSection, n2 ]
+		but isList(aSection) and len(aSection) = 2
+			_aSasSec_ = aSection
 		else
-			_aR_ + ""
+			return [ This.Content() ]
 		ok
-		if _n2_ < _nLen_
-			_aR_ + This._EngineSliceFrom(_cAll_, _n2_ + 1)
-		else
-			_aR_ + ""
-		ok
-		return _aR_
+		return This.SplitAroundSections([ _aSasSec_ ])
 
 	def MarquersPositionsSortedInAscending()
 		_a_ = This.MarquersPositions()
