@@ -1,17 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #480.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AllCharsAre(:CircledNumbers) over ①②③ (the archive source had the
+# first char double-encoded; rebuilt with the real glyphs).
+# Archive block #480.
 
-? Q("â‘ ②③").AllCharsAre(:CircledNumbers)
-#--> TRUE
+Scenario("All chars are circled numbers")
+	Then("the plural kind", Q("①②③").AllCharsAre(:CircledNumbers), TRUE)
+	Then("the XT list of kinds",
+		Q("①②③").AllCharsAreXT([:CircledNumber, :Chars], []), TRUE)
+EndScenario()
 
-? Q("â‘ ②③").AllCharsAre([:CircledNumber, :Chars]) #TODO check after reincluding check()
-#--> TRUE
-
-pf()
+Summary()

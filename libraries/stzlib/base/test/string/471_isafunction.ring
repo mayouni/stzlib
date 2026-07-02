@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #471.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsAFunction: the content names a DEFINED function; IsAClass: a defined
+# class. Archive block #471.
 
-? Q("stzLen").IsAFunction() # or isFunc()
-#--> TRUE
+Scenario("Recognizing defined names")
+	Then("stzLen is a function", Q("stzLen").IsAFunction(), TRUE)
+	Then("stzChar is a class", Q("stzChar").IsAClass(), TRUE)
+EndScenario()
 
-? Q("stzChar").IsAClass()
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

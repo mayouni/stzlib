@@ -542,7 +542,45 @@ Pure conversions: 422, 427, 430, 431, 433, 435, 437.
   RemoveCharsWXTQ spelling converted to RemoveCharsWQ (WXT precedent).
 Pure conversions: 441, 448, 449, 451-458.
 
-## STATUS (2026-07-02): 425/999 test files audited (chunks 14-28 added 162); ~574 still to audit
+**Chunk 29 (2026-07-02, 16 files):** 461-464, 466-472, 476-480 audited→narrated
+(16 files, 42 assertions; 473-475 already retired #SKIP placeholders). Real fixes:
+- **Object-history feature implemented** (466-469). QH()/Qh() and
+  KeepHistory()/DontKeepHistory() now work: recording happens at the PUBLIC
+  fluent-op boundary via new `_StzHistoOpen` (records the pre-op value once
+  per stream) + `_StzHistoAdd` (records each op's result) -- hooked into
+  RemoveCharsWQ/RemoveWQ/RemoveSpacesQ/RemoveDuplicatedCharsQ (string),
+  RemoveWQ/RemoveSpacesQ/RemoveDuplicatedItemsQ (list), Add/SubStruct/
+  MultiplyBy/DivideBy (number). History() consumes the stream. A per-Update
+  trace was tried first and FLOODS with internal steps -- boundary-only is
+  the design. TWO VM traps hit en route: (a) `StzTraceObjectHistory`'s call
+  to the missing `AddHistoricValueInternal` raised inside try/catch and
+  CORRUPTED the calling method's This (number ops read Content()="" after) --
+  the basic-path call is now removed; (b) nested-def Q wrappers in stzNumber
+  could not read This.Content() after the inner call -- hooks moved to the
+  parent methods. NOTE: 468's archive omitted the initial value from the
+  number history (its siblings 466/467/469 include it) and its #--> "45" was
+  wrong arithmetic (46); asserted at the uniform impl behavior. The archive's
+  retired RemoveWXTQ spellings converted to the W forms.
+- **`UnicodeDirectionNumber` translated utf8proc->Qt** (472): the engine
+  reports utf8proc bidi classes (AL=5) but the public contract is Qt's
+  QChar::Direction (AL=13) -- added the 23-entry map, so the European-
+  separator/terminator ("3"/"4") and RTL-embedding ("14") checks are
+  consistent again. **IsRightToLeft / IsLeftToRight** now check the full
+  Qt class sets ({1,13,14,15,20} / {0,11,12,19}) instead of one value.
+- **`IsAFunction` restored to the original contract** (471): TRUE iff the
+  content names a DEFINED function (functions() lookup); was a "looks like
+  a call" stub. **`stzString.IsAString`** added (was only on stzChar; 476).
+- **`AllCharsAre(:CircledNumbers)`** (480): added the circled-number kind
+  (U+2460-2473, U+24EA, double-circled, CJK circled ranges).
+- **479/480 source mojibake**: the circled-digit literals were double-
+  encoded ("â‘ " for "①"); rebuilt with the real glyphs.
+DEFERRED:
+- **477's CharsInverted() glyph line** -- the Turned/Inverted upside-down
+  family is retired pending the inverted-char table port (473-475); the
+  :Invertible kind check IS asserted. The current CharsInverted (swapcase
+  chars) also mismatches the original (= CharsTurned); noted with the family.
+
+## STATUS (2026-07-02): 441/999 test files audited (chunks 14-29 added 178); ~558 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

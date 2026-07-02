@@ -1,27 +1,20 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #463.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The global @Contains / @ContainsCS on a W-condition string.
+# Archive block #463.
 
-? @Contains(" Q(@char).IsNumberInString() ", "@char")
-#--> TRUE
+Scenario("Probing a condition string for its binding var")
+	Then("it contains @char",
+		@Contains(" Q(@char).IsNumberInString() ", "@char"), TRUE)
+	Then("... but not @substring",
+		@Contains(" Q(@char).IsNumberInString() ", "@substring"), FALSE)
+	Then("@CHAR matches case-insensitively",
+		@ContainsCS(" Q(@char).IsNumberInString() ", "@CHAR", FALSE), TRUE)
+	Then("@substring stays absent, case-sensitively",
+		@ContainsCS(" Q(@char).IsNumberInString() ", "@substring", TRUE), FALSE)
+	Then("... and case-insensitively",
+		@ContainsCS(" Q(@char).IsNumberInString() ", "@substring", FALSE), FALSE)
+EndScenario()
 
-? @Contains(" Q(@char).IsNumberInString() ", "@substring")
-#--> FALSE
-
-? @ContainsCS(" Q(@char).IsNumberInString() ", "@CHAR", FALSE)
-#--> TRUE
-
-? @ContainsCS(" Q(@char).IsNumberInString() ", "@substring", TRUE)
-#--> FALSE
-
-? @ContainsCS(" Q(@char).IsNumberInString() ", "@substring", FALSE)
-#--> FALSE
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+Summary()

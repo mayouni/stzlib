@@ -941,7 +941,19 @@ class stzStringChar from stzString
 		next
 
 	def UnicodeDirectionNumber()
-		return "" + _CharBidiClass(This.Unicode())
+		# The engine reports utf8proc bidi classes; the public contract
+		# (and the archive) uses Qt's QChar::Direction numbering --
+		# translate (utf8proc 1..23 -> Qt): L->0, LRE->11, LRO->12,
+		# R->1, AL->13, RLE->14, RLO->15, PDF->16, EN->2, ES->3, ET->4,
+		# AN->5, CS->6, NSM->17, BN->18, B->7, S->8, WS->9, ON->10,
+		# LRI->19, RLI->20, FSI->21, PDI->22.
+		_nUdnB_ = _CharBidiClass(This.Unicode())
+		_aUdnMap_ = [ 0, 11, 12, 1, 13, 14, 15, 16, 2, 3, 4, 5, 6,
+		              17, 18, 7, 8, 9, 10, 19, 20, 21, 22 ]
+		if _nUdnB_ >= 1 and _nUdnB_ <= len(_aUdnMap_)
+			return "" + _aUdnMap_[_nUdnB_]
+		ok
+		return "" + _nUdnB_
 
 	def IsVowel()
 		# NOTE: do NOT call Vowels() here -- it resolves to the inherited
@@ -954,10 +966,12 @@ class stzStringChar from stzString
 			return This.IsVowel()
 
 	def IsLeftToRight()
-		return This.UnicodeDirectionNumber() = "0"
+		# L, LRE, LRO, LRI (Qt numbering)
+		return ring_find([ "0", "11", "12", "19" ], This.UnicodeDirectionNumber()) > 0
 
 	def IsRightToLeft()
-		return This.UnicodeDirectionNumber() = "13"
+		# R, AL, RLE, RLO, RLI (Qt numbering)
+		return ring_find([ "1", "13", "14", "15", "20" ], This.UnicodeDirectionNumber()) > 0
 
 	def IsArabicFraction()
 		return ring_find(ArabicFractionsUnicodes(), This.Unicode()) > 0

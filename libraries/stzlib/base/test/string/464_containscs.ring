@@ -1,20 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #464.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The method form of the block-#463 checks. Archive block #464.
 
-o1 = new stzString(" Q(@char).IsNumberInString() ")
+Scenario("ContainsCS on a condition string")
+	o1 = new stzString(" Q(@char).IsNumberInString() ")
+	Then("it contains @char", o1.ContainsCS("@char", FALSE), TRUE)
+	Then("... but not @substring", o1.ContainsCS("@substring", FALSE), FALSE)
+EndScenario()
 
-? o1.ContainsCS("@char", FALSE)
-#--> TRUE
-
-? o1.ContainsCS("@substring", FALSE)
-#--> FALSE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

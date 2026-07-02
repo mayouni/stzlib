@@ -1,14 +1,10 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #461.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# A lone space is not a number in a string. Archive block #461.
 
-? Q(" ").IsNumberInString()
-#--> FALSE
+Scenario("Space is not a number")
+	Then("IsNumberInString on a space", Q(" ").IsNumberInString(), FALSE)
+EndScenario()
 
-pf()
+Summary()

@@ -90,10 +90,12 @@ func StzTraceObjectHistory(poStzObj)
 	_bInHistoryUpdate = 1
 
 	try
-		# Basic history tracking
-		if StzKeepingHistory() = 1
-			_obj_.AddHistoricValueInternal(_obj_.Content())
-		ok
+		# Basic history tracking happens at the PUBLIC fluent-op
+		# boundary (_StzHistoOpen / _StzHistoAdd in the op methods),
+		# NOT per internal Update -- a per-Update trace floods the
+		# stream with intermediate steps. (The old call here raised
+		# method-missing inside try, which corrupts the calling
+		# method's This -- the Ring VM trap.)
 
 		# Extended history tracking
 		if StzKeepingHistoryXT() = 1

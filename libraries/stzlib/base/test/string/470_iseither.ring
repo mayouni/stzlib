@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #470.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsEither(a, :Or = b). Archive block #470.
 
-str = "sun"
-? Q(str).IsEither("moon", :Or = "sun")
-#--> TRUE
+Scenario("Sun or moon")
+	str = "sun"
+	Then("sun is either moon or sun", Q(str).IsEither("moon", :Or = "sun"), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
