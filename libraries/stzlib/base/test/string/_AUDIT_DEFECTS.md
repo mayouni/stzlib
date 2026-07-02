@@ -491,7 +491,38 @@ Numbrify/Numberify chain), 405 (SectionXT negative), 406/407 (Find/ZZ +
 FindManyAsSections), 416 (SubStringsWF), 418 (Next/PreviousNChars),
 419 (Sectioned), 420 (MergeContiguous).
 
-## STATUS (2026-07-02): 397/999 test files audited (chunks 14-26 added 134); ~602 still to audit
+**Chunk 27 (2026-07-02, 17 files):** 421-424, 427-431, 433-437 audited→narrated
+(14 files, 40 assertions), 425/426/432 deferred. Real fixes:
+- **"Made of" runs take a char POOL** (421): FindSubStringsMadeOf(ZZ) treated
+  the arg as ONE char, so FindMadeOf("12") found per-char singles instead of
+  the maximal runs made of {1,2}. Rewrote the family pool-based (single-char
+  args unchanged -- 427 still green); SubStringsMadeOfZZ now returns the
+  [run, span] grouping (was bare spans).
+- **`FindNumbers` now = number STARTS** (428/429): was digit-run starts
+  (sign/decimal blind, so "-132114.45" split into 2, 9). Derived from
+  FindNumbersAsSections (already sign-aware). **NumbersZ / NumbersZZ** now
+  group each UNIQUE number with its positions / sections (were: bare starts /
+  digit-run spans); + NumbersAndTheirPositions/Sections aliases. NOTE: 428's
+  archive #--> displayed single-occurrence ZZ groups flattened ([num, span]);
+  asserted at the [num, [sections]] shape that 429's own archive pins.
+- **`stzList.SplitAtPositions` / `SplitW` now MUTATE and drop anchors**
+  (423/424): they returned parts (or nothing) without updating the content,
+  and the engine split kept the anchor items in the parts. Now: content
+  becomes the parts, the split positions' items are dropped (Splitted* stay
+  the passive twins). List test 557_splitat still green.
+- **434** Five(Star())/Three(Heart()): archive showed strings, but @N/Three/
+  Five are PINNED as list-returning by the earlier narrated block-08 test --
+  asserted at the settled LIST shape (string spelling = RepeatedNTimes).
+- **436** archive's `RepeatedNTimesXT(0, :InAList) --> ["Hi!"x3]` was a typo
+  for n=3; n=0 asserted as [].
+DEFERRED:
+- **425, 426** `stzList.FindWXT` / `SplitWXT` -- retired WXT (precedent
+  #84/#219-#221/#412); the W pipeline is asserted in 423/424.
+- **432** `SoftanzaLogo()` box-glyph art -- placeholder impl + source-mojibake
+  family (blocks #99-#101); visual, not assertable.
+Pure conversions: 422, 427, 430, 431, 433, 435, 437.
+
+## STATUS (2026-07-02): 411/999 test files audited (chunks 14-27 added 148); ~588 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

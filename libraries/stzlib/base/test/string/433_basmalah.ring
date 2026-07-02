@@ -1,17 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #433.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The glyph shorthands: Basmalah, Heart, and the numbered plural forms.
+# Archive block #433.
 
-? Basmalah()	#--> ﷽
-? Heart()	#--> ♥
-? 3Hearts()	#--> ♥♥♥
-? 5Stars()	#--> ★★★★★
+Scenario("Glyph shorthands")
+	Then("the Basmalah ligature", Basmalah(), "﷽")
+	Then("a heart", Heart(), "♥")
+	Then("three hearts", 3Hearts(), "♥♥♥")
+	Then("five stars", 5Stars(), "★★★★★")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()

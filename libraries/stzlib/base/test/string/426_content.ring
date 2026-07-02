@@ -3,6 +3,10 @@
 # pr()
 #
 # Extracted from stzStringTest.ring, block #426.
+#
+# NOTE (audit, 2026-07-02): DEFERRED. stzList.SplitWXT is RETIRED by design
+# (WXT disqualification; precedent #84, #219-#221, #412). The W replacement
+# (SplitW) is asserted in test 424.
 
 load "../../stzBase.ring"
 

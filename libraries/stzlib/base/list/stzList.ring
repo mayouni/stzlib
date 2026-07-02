@@ -6097,9 +6097,33 @@ class stzList from stzObject
 		_oScsSplitter_ = new stzListSplits(This)
 		return _oScsSplitter_.SplitCS(pItemOrPos, pCaseSensitive)
 
+	# SplitAtPositions MUTATES the content into the list of parts; the
+	# items AT the positions are DROPPED (split "at", not "before").
 	def SplitAtPositions(panPos)
-		_oSapSplitter_ = new stzListSplits(This)
-		return _oSapSplitter_.SplitAtPositions(panPos)
+		if NOT isList(panPos) return [ This.Content() ] ok
+		_aSap_ = This.Content()
+		_nSapL_ = ring_len(_aSap_)
+		_nSapPL_ = ring_len(panPos)
+		_aSapParts_ = []
+		_aSapCur_ = []
+		for _iSap_ = 1 to _nSapL_
+			_bSapAnchor_ = FALSE
+			for _jSap_ = 1 to _nSapPL_
+				if panPos[_jSap_] = _iSap_
+					_bSapAnchor_ = TRUE
+					exit
+				ok
+			next
+			if _bSapAnchor_
+				if ring_len(_aSapCur_) > 0 _aSapParts_ + _aSapCur_ ok
+				_aSapCur_ = []
+			else
+				_aSapCur_ + _aSap_[_iSap_]
+			ok
+		next
+		if ring_len(_aSapCur_) > 0 _aSapParts_ + _aSapCur_ ok
+		This.Update(_aSapParts_)
+		return _aSapParts_
 
 	def SplittedAtPositions(panPos)
 		_oSdapSplitter_ = new stzListSplits(This)
@@ -6219,9 +6243,10 @@ class stzList from stzObject
 		_oSdapcrSplitter_ = new stzListSplits(This)
 		return _oSdapcrSplitter_.SplittedAtPacer(nPace, nStart)
 
+	# SplitW MUTATES the content into the list of parts (the matching
+	# items are dropped; SplittedW is the passive twin).
 	def SplitW(pcCondition)
-		_oSwSplitter_ = new stzListSplits(This)
-		return _oSwSplitter_.SplitW(pcCondition)
+		return This.SplitAtPositions( This.FindW(pcCondition) )
 
 	def SplittedW(pcCondition)
 		_oSdwSplitter_ = new stzListSplits(This)

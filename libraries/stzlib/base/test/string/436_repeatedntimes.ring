@@ -1,47 +1,39 @@
-# Narrative
-# --------
-# #narration
-#
-# Extracted from stzStringTest.ring, block #436.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# RepeatedNTimes' dual behavior: a STRING duplicates into a string; every
+# other type repeats inside a LIST. RepeatedNTimesXT names the output
+# format explicitly. (The archive's XT(0, :InAList) line was a typo for
+# n = 3 -- with n = 0 the list is empty.) Archive block #436.
 
-pr()
+Scenario("Repeating by type")
+	Then("a string repeats into a string",
+		Q("Hi!").RepeatedNTimes(3), "Hi!Hi!Hi!")
+	Then("a number repeats into a list",
+		ListEq( Q(5).RepeatedNTimes(3), [ 5, 5, 5 ] ), TRUE)
+	Then("a list repeats into a list of lists",
+		ListEq( Q(1:3).RepeatedNTimes(3), [ 1:3, 1:3, 1:3 ] ), TRUE)
+EndScenario()
 
-# When applied to the string "Hi!", RepeatedNTimes() will duplicate
-# it, resulting in "Hi!Hi!Hi!".
+Scenario("Naming the output format with XT")
+	Then("explicitly in a string",
+		Q("Hi!").RepeatedNTimesXT(3, :InAString), "Hi!Hi!Hi!")
+	Then("explicitly in a list",
+		ListEq( Q("Hi!").RepeatedNTimesXT(3, :InAList), [ "Hi!", "Hi!", "Hi!" ] ), TRUE)
+	Then("zero repetitions give an empty list",
+		ListEq( Q("Hi!").RepeatedNTimesXT(0, :InAList), [ ] ), TRUE)
+EndScenario()
 
-? Q("Hi!").RepeatedNTimes(3)
-#--> "Hi!Hi!Hi!"
+Summary()
 
-# For all other types (stzList, stzNumber, and stzObject),
-# it repeats the object value within a list:
-
-? Q(5).RepeatedNTimes(3)
-#--> [5, 5, 5]
-
-? Q(1:3).RepeatedNTimes(3)
-#--> [ 1:3, 1:3, 1:3 ]
-
-# You might ask why we chose different behavior for strings
-# compared to other types, and why we don't produce a list 
-# when the function is applied to a string, like this:
-# ? Q("Hi!").RepeatNTimes(3) #!--> [ "Hi!", "Hi!", "Hi!" ] ?
-
-# The reason is that it feels more intuitive to duplicate the
-# string directly when asked to repeat it, producing a string
-# as the result, rather than a list!
-
-# If you'd like to avoid potential confusion from this dual behavior,
-# you can use RepeatNTimesXT(), where you explicitly specify the
-# desired output format, like this:
-
-? Q("Hi!").RepeatedNTimesXT(3, :InAString)
-#--> "Hi!Hi!Hi!"
-
-? Q("Hi!").RepeatedNTimesXT(0, :InAList)
-#--> [ "Hi!", "Hi!", "Hi!" ]
-
-pf()
-# Executed in 0.08 second(s) in Ring 1.21
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
