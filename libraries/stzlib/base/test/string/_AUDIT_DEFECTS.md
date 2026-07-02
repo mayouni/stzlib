@@ -342,6 +342,29 @@ list-form finders:
 condition spellings), 340 (same-substring bounds, overlapping) were already
 correct -- pure conversions.
 
+**Chunk 20 (2026-07-02):** 341, 342, 343, 344, 345, 346, 347, 348, 349, 350
+audited→narrated (10 files, 37 assertions). Real fixes:
+- **`FindAsAntiSections`** (342) returned the gap SUBSTRINGS; now the
+  complement [start, end] spans (repointed at FindAntiSectionsZZ).
+- **`ContainsXT(:SubString = s, :BoundedBy = b)`** (342) -- new dispatch
+  (was FALSE); checks FindSubStringBoundedBy non-empty.
+- **`FindAsSectionsXT` used BYTE length** for the substring span (multibyte
+  hearts -> [8,16] instead of [8,10]); now codepoint. Same byte-length bug
+  fixed in `FindBetweenAsSections` (its 181 agreement guard caught it).
+- **`:BoundedByIB` support** in FindXT (positions anchor at the opener) and
+  FindAsSectionsXT (spans include both bounds), via a `_BoundsPair`
+  normaliser (single string widens, :And unwraps) (346).
+- **`FindSubStringsBoundedByIBCSZZ` same-bounds overlap** (341) -- the
+  pairing loop now reuses each closer as the next opener when open=close
+  (was skipping past it, dropping every second gap).
+- **Occurrence-index selectors** (349, 350): FindTheseOccurrencesST/STZZ
+  ignored :StartingAt (and the archive #--> for 349's ST lines listed all 3
+  occurrences for a 2-index selector -- incoherent; asserted at
+  renumber-then-pick); FindTheseOccurrencesSD/AsSectionsSTD ignored both
+  :StartingAt and direction; all four now pick by index from FindST/FindStD.
+  `_IsBackwardDir` tolerates the archive's ":Bakcward" misspelling (350).
+343/344/345/347/348 were already correct -- pure conversions.
+
 ## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to

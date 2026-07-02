@@ -1,15 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #345.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The Bounds() global normalises a [open, :And = close] pair to a plain
+# [open, close] list. Archive block #345.
 
-? Bounds([ "67", :And = "12" ])
-#--> [ "67", "12" ]
+Scenario("Normalising a bounds pair")
+	Then('Bounds([ "67", :And = "12" ])',
+		ListEq( Bounds([ "67", :And = "12" ]), [ "67", "12" ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.21
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

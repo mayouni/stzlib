@@ -931,8 +931,10 @@ class stzString from stzObject
 	def FindAntiSections(pcSubStr)
 		return This.Sections( This.FindAntiSectionsZZ(pcSubStr) )
 
+		# FindAsAntiSections: the complement [start, end] spans (the
+		# gaps around the occurrences), not the gap substrings.
 		def FindAsAntiSections(pcSubStr)
-			return This.FindAntiSections(pcSubStr)
+			return This.FindAntiSectionsZZ(pcSubStr)
 
 		# AntiFindAsSections: the complement POSITION sections (the gaps
 		# between occurrences), e.g. [[1,3],[8,10]] -- not the substrings.
@@ -1300,6 +1302,15 @@ class stzString from stzObject
 				ok
 			next
 			return 0
+		ok
+
+		# ContainsXT(:SubString = sub, :BoundedBy = bounds): does sub
+		# occur inside a bounded region?
+		if isList(pcSubStr) and len(pcSubStr) = 2 and isString(pcSubStr[1]) and
+		   lower(pcSubStr[1]) = "substring" and
+		   isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1]) and
+		   lower(pNamed[1]) = "boundedby"
+			return len( This.FindSubStringBoundedBy(pcSubStr[2], pNamed[2]) ) > 0
 		ok
 
 		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1])
@@ -4420,7 +4431,15 @@ class stzString from stzObject
 		return _aRes_
 
 	def FindTheseOccurrencesSTZZ(anN, pNamedOf, pStartingAt)
-		return This.FindTheseOccurrencesAsSections(anN, pNamedOf)
+		_cSub_ = This._OfSubUnwrapped(pNamedOf)
+		_aPos_ = This._PickTheseOf(anN, This.FindST(_cSub_, pStartingAt))
+		_nSubLen_ = This._EngineCount(_cSub_)
+		_aRes_ = []
+		_nL_ = len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] + _nSubLen_ - 1 ]
+		next
+		return _aRes_
 
 
 	def SecondHalfXTZZ()
@@ -6585,7 +6604,7 @@ class stzString from stzObject
 		# FindSubStringBoundedBy then maps to [start, end] pairs.
 		if isString(p3) and p3 != ""
 			_aPos_ = This.FindSubStringBoundedBy(p1, [ p2, p3 ])
-			_nWLen_ = len(p1)
+			_nWLen_ = This._EngineCount(p1)
 			_aSec_ = []
 			_nPL_ = len(_aPos_)
 			for _i_ = 1 to _nPL_
@@ -9688,7 +9707,8 @@ class stzString from stzObject
 	# FindTheseOccurrencesSD(anN, :Of=pcSub, :StartingAt=N, pDir):
 	# typo-tolerant alias accepting optional :StartingAt.
 	def FindTheseOccurrencesSD(anN, pNamedOf, pStartingAt, pDir)
-		return This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
+		_cSub_ = This._OfSubUnwrapped(pNamedOf)
+		return This._PickTheseOf(anN, This.FindStD(_cSub_, pStartingAt, pDir))
 
 	def FindTheseOccurrencesSDXT(anN, pNamedOf, pDir)
 		return This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
@@ -9817,11 +9837,41 @@ class stzString from stzObject
 	def FindTheseOccurrencesZZ(p1, pNamedOf)
 		return This.FindTheseOccurrencesAsSections(p1, pNamedOf)
 
-	def FindTheseOccurrencesAsSectionsSTD(anN, pNamedOf, pStartingAt, pDir)
-		return This.FindTheseOccurrencesD(anN, pNamedOf, pDir)
+	# _PickTheseOf(anN, aAll): the aAll entries at the 1-based indices anN.
+	def _PickTheseOf(anN, aAll)
+		_aRes_ = []
+		_nT_ = len(aAll)
+		_nNL_ = len(anN)
+		for _i_ = 1 to _nNL_
+			if anN[_i_] >= 1 and anN[_i_] <= _nT_
+				_aRes_ + aAll[anN[_i_]]
+			ok
+		next
+		return _aRes_
 
+	def _OfSubUnwrapped(pNamedOf)
+		if isList(pNamedOf) and len(pNamedOf) = 2 and
+		   isString(pNamedOf[1]) and lower(pNamedOf[1]) = "of"
+			return pNamedOf[2]
+		ok
+		return pNamedOf
+
+	# The occurrence-index selectors with :StartingAt (+ direction):
+	# candidates come from FindST / FindStD, then anN picks by index.
 	def FindTheseOccurrencesST(anN, pNamedOf, pStartingAt)
-		return This.FindTheseOccurrences(anN, pNamedOf)
+		_cSub_ = This._OfSubUnwrapped(pNamedOf)
+		return This._PickTheseOf(anN, This.FindST(_cSub_, pStartingAt))
+
+	def FindTheseOccurrencesAsSectionsSTD(anN, pNamedOf, pStartingAt, pDir)
+		_cSub_ = This._OfSubUnwrapped(pNamedOf)
+		_aPos_ = This._PickTheseOf(anN, This.FindStD(_cSub_, pStartingAt, pDir))
+		_nSubLen_ = This._EngineCount(_cSub_)
+		_aRes_ = []
+		_nL_ = len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] + _nSubLen_ - 1 ]
+		next
+		return _aRes_
 
 	def FindFirstSZZ(pcSub, pStartingAt)
 		_nFrom_ = 1
@@ -14574,11 +14624,39 @@ class stzString from stzObject
 		return :Mixed
 
 	# FindXT(pcWhat, :BoundedBy = pacBounds) -- named-param wrapper
+	# _BoundsPair(p): normalise a bounds spec to [open, close] --
+	# a single string c widens to [c, c]; [a, :And = b] -> [a, b].
+	def _BoundsPair(p)
+		if isString(p)
+			return [ p, p ]
+		ok
+		if isList(p) and len(p) = 2
+			_x_ = p[2]
+			if isList(_x_) and len(_x_) = 2 and isString(_x_[1]) and
+			   lower(_x_[1]) = "and"
+				_x_ = _x_[2]
+			ok
+			return [ p[1], _x_ ]
+		ok
+		return p
+
 	def FindXT(pcWhat, pNamed)
 		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1])
 			_cFxtKey_ = lower(pNamed[1])
 			if _cFxtKey_ = "boundedby"
 				return This.FindSubStringBoundedBy(pcWhat, pNamed[2])
+
+			but _cFxtKey_ = "boundedbyib"
+				# Bound-inclusive: the region starts at the opener.
+				_aFxtB_ = This._BoundsPair(pNamed[2])
+				_nFxtOL_ = This._EngineCount(_aFxtB_[1])
+				_aFxtPos_ = This.FindSubStringBoundedBy(pcWhat, pNamed[2])
+				_aFxtR_ = []
+				_nFxtN_ = len(_aFxtPos_)
+				for _iFxt_ = 1 to _nFxtN_
+					_aFxtR_ + (_aFxtPos_[_iFxt_] - _nFxtOL_)
+				next
+				return _aFxtR_
 
 			but _cFxtKey_ = "between"
 				# :Between = [open, close]  (close may be [:And, close])
@@ -14597,10 +14675,25 @@ class stzString from stzObject
 		return []
 
 	# FindAsSectionsXT(pcWhat, :BoundedBy = pacBounds) -- return start/end
-	# pairs for each match inside any bounded section.
+	# pairs for each match inside any bounded section; the :BoundedByIB
+	# form spans the WHOLE region including the bounds.
 	def FindAsSectionsXT(pcWhat, pNamed)
+		_nWLen_ = This._EngineCount(pcWhat)
+		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1]) and
+		   lower(pNamed[1]) = "boundedbyib"
+			_aXsB_ = This._BoundsPair(pNamed[2])
+			_nXsOL_ = This._EngineCount(_aXsB_[1])
+			_nXsCL_ = This._EngineCount(_aXsB_[2])
+			_aPos_ = This.FindXT(pcWhat, [ "boundedby", pNamed[2] ])
+			_aRes_ = []
+			_nPL_ = len(_aPos_)
+			for _i_ = 1 to _nPL_
+				_p_ = _aPos_[_i_]
+				_aRes_ + [ _p_ - _nXsOL_, _p_ + _nWLen_ - 1 + _nXsCL_ ]
+			next
+			return _aRes_
+		ok
 		_aPos_ = This.FindXT(pcWhat, pNamed)
-		_nWLen_ = len(pcWhat)
 		_aRes_ = []
 		_nPL_ = len(_aPos_)
 		for _i_ = 1 to _nPL_
@@ -15536,7 +15629,14 @@ class stzString from stzObject
 			_nClose_ = This._FindFrom(_cFsibHay_, _cFsibC2_, _nOpen_ + _nFsibO_)
 			if _nClose_ < 1 exit ok
 			_acFsibResult_ + [ _nOpen_, _nClose_ + _nFsibC_ - 1 ]
-			_iFsib_ = _nClose_ + _nFsibC_
+			# SAME open/close bounds OVERLAP: reuse each closer as the
+			# next opener (the original FindTheseBoundsCSZZ advances to
+			# the closer, not past it).
+			if _cFsibO2_ = _cFsibC2_
+				_iFsib_ = _nClose_
+			else
+				_iFsib_ = _nClose_ + _nFsibC_
+			ok
 		end
 		return _acFsibResult_
 
@@ -15681,11 +15781,13 @@ class stzString from stzObject
 	# _IsBackwardDir(pDir): TRUE for the bare :Backward symbol or the
 	# :Direction = :Backward / :Going = :Backward named-param shapes.
 	def _IsBackwardDir(pDir)
-		if isString(pDir) and lower(pDir) = "backward"
+		# ("bakcward" is a tolerated archive misspelling.)
+		if isString(pDir) and (lower(pDir) = "backward" or lower(pDir) = "bakcward")
 			return TRUE
 		but isList(pDir) and len(pDir) = 2 and isString(pDir[1]) and
 		   (lower(pDir[1]) = "direction" or lower(pDir[1]) = "going")
-			if isString(pDir[2]) and lower(pDir[2]) = "backward"
+			if isString(pDir[2]) and
+			   (lower(pDir[2]) = "backward" or lower(pDir[2]) = "bakcward")
 				return TRUE
 			ok
 		ok
