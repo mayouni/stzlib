@@ -1,13 +1,17 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
-# SplitAroundPositions -- isolate the chars at the given positions as their own
-# pieces. (Replaces SplitWXT(:AroundPositions = position-predicate).)
+# SplitAroundPositions -- the pieces AROUND the given positions (the chars
+# at the positions are dropped), consistent with the whole SplitAround
+# family (SplitAround / SplitAroundSections / archive block #363). An
+# earlier version of this test (authored as the SplitWXT(:AroundPositions)
+# replacement) asserted isolate-the-anchors semantics; the monolith's own
+# SplitAroundPositions block (#363) drops them.
 
-Scenario("SplitAroundPositions isolates positions 4 and 8")
+Scenario("SplitAroundPositions drops the chars at 4 and 8")
 	Given('the string "---4---8---"')
-	Then("the chars at 4 and 8 become their own pieces",
-		@@( Q("---4---8---").SplitAroundPositions([ 4, 8 ]) ), @@([ "---", "4", "---", "8", "---" ]))
+	Then("the pieces between the positions remain",
+		@@( Q("---4---8---").SplitAroundPositions([ 4, 8 ]) ), @@([ "---", "---", "---" ]))
 EndScenario()
 
 Summary()

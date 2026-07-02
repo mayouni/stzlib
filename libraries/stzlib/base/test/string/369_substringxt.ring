@@ -1,27 +1,21 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #369.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SubStringXT bound predicates: is a substring the bound (both sides), the
+# first/left bound, or the last/right bound of another substring?
+# Archive block #369.
 
-? Q(".. ♥♥ring♥♥ ..").SubStringXT("♥♥", :IsBoundOf = "ring")
-#--> TRUE
+Scenario("Bound predicates")
+	Then("hearts bound ring on both sides",
+		Q(".. ♥♥ring♥♥ ..").SubStringXT("♥♥", :IsBoundOf = "ring"), TRUE)
+	Then("<< is the first bound",
+		Q(".. <<ring>> ..").SubStringXT("<<", :IsFirstBoundOf = "ring"), TRUE)
+	Then(">> is the last bound",
+		Q(".. <<ring>> ..").SubStringXT(">>", :IsLastBoundOf = "ring"), TRUE)
+	Then("... left spelling",
+		Q(".. <<ring>> ..").SubStringXT("<<", :IsLeftBoundOf = "ring"), TRUE)
+	Then("... right spelling",
+		Q(".. <<ring>> ..").SubStringXT(">>", :IsRightBoundOf = "ring"), TRUE)
+EndScenario()
 
-? Q(".. <<ring>> ..").SubStringXT("<<", :IsFirstBoundOf = "ring")
-#--> TRUE
-
-? Q(".. <<ring>> ..").SubStringXT(">>", :IsLastBoundOf = "ring")
-#--> TRUE
-
-? Q(".. <<ring>> ..").SubStringXT("<<", :IsLeftBoundOf = "ring")
-#--> TRUE
-
-? Q(".. <<ring>> ..").SubStringXT(">>", :IsRightBoundOf = "ring")
-#--> TRUE
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.21
+Summary()

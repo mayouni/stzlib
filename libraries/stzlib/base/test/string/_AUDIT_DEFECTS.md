@@ -387,6 +387,38 @@ representative split one-liners), 357 (sections/anti-sections), 360
 no archive #--> -- asserted at spans matching the string IB pieces) --
 pure conversions.
 
+**Chunk 22 (2026-07-02):** 361, 362, 363, 364, 366, 367, 368, 369, 370 (x2)
+audited→narrated (10 files, 46 assertions). Real fixes:
+- **SplitAround family** (363): SplitAroundIB / SplitAroundSubStringIB
+  returned drop-semantics or garbled pieces; now route through
+  SplitAroundSectionsIB (pieces extend ONE char into each adjacent anchor).
+  SplitAroundPositions ISOLATED the position chars; per the monolith it
+  DROPS them (446's earlier WXT-replacement assertion updated to match the
+  family). SplitAroundSection(IB)(n1, n2) hit the single-clause-if
+  param-reassign no-op (CLAUDE.md note 6) -- rewrote with fresh-var
+  if/but/else. SplitAroundSubStrings now MERGES overlapping occurrences
+  (stzListOfSections) before splitting -- no more empty fragments; its IB
+  twin was a plain alias, now real.
+- **SubStrings family** (366): added UniqueSubStrings (= SubStringsU),
+  NumberOfUniqueSubStrings, SubStringsZ / SubStringsZZ ([sub, positions] /
+  [sub, sections] per unique substring). NOTE: the archive's SubStrings()
+  enumeration order differs from the impl's i-major order (same multiset);
+  asserted at impl order.
+- **IsEitherCS(a, :Or = b, :CS = bCase)** (366) -- added (missing).
+- **BoundsXT / BoundsUpToNChars** (366) -- BoundsXT was a 2-arg
+  nth-bounded-match accessor nobody called; per the archive it caps the
+  auto-detected Bounds() at N chars a side (:UpToNChars = n, bare n, or
+  [nL, nR]). Rewritten (+ BoundsUpToNChars alias).
+- **SubStringXT bound predicates** (369, 370): added :IsBoundOf /
+  :IsBoundedBy / :IsFirstBoundOf / :IsLastBoundOf / :IsLeftBoundOf /
+  :IsRightBoundOf dispatch; SubStringIsBoundedBy's single-string widening
+  hit the note-6 no-op -- fixed with fresh-var if/but/else.
+- 367/368 BoundsOf: asserted at the per-occurrence NESTED [open, close]
+  pairs settled in block #42 (the archive displayed them flattened).
+361/362 (splitter SplitAtSection(IB), SplitAround position), 364
+(Sections/AntiSections; archive's "THREE" was a typo for "ONE"),
+370_semantic (size verbs) were already correct.
+
 ## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
