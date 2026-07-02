@@ -1,21 +1,16 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #378.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT(what, :AfterFirst = anchor) inserts after the FIRST occurrence
+# (:ToFirst works too). NOTE: the archive #--> pasted block #377's result;
+# with the "(" sitting before the FIRST heart here, the close lands there.
+# Archive block #378.
 
-Q("__(♥__♥__♥__") {
+Scenario("Adding after the first occurrence")
+	Given('"__(♥__♥__♥__"')
+	o1 = new stzString("__(♥__♥__♥__")
+	o1.AddXT( ")", :AfterFirst = "♥" )
+	Then("the first heart gets closed", o1.Content(), "__(♥)__♥__♥__")
+EndScenario()
 
-	AddXT( ")", :AfterFirst = "♥" ) # ... or :ToFirst
-	? Content()
-	#--> __♥__(♥)__♥__
-}
-
-StopProfiler()
-
-pf()
-# Executed in 0.04 second(s)
+Summary()

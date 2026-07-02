@@ -1,22 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #375.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT(what, :After = anchor) inserts right after the anchor substring
+# (:To works too). Archive block #375.
 
-Q("Ring programmin language.") {
+Scenario("Adding after an anchor")
+	Given('"Ring programmin language."')
+	o1 = new stzString("Ring programmin language.")
+	o1.AddXT("g", :After = "programmin")
+	Then("the missing g lands", o1.Content(), "Ring programming language.")
+EndScenario()
 
-	AddXT("g", :After = "programmin") # You can use :To instead of :After
-	? Content()
-	#--> Ring programming language.
-
-}
-
-StopProfiler()
-#--> Executed in 0.02 second(s) in Ring 1.21
-
-pf()
+Summary()

@@ -1,42 +1,22 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #371.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The singular char removers: RemoveFirstChar (unconditional),
+# RemoveThisFirstCharCS (only if the first char equals c, case-dialed),
+# RemoveNthChar(:Last), and RemoveThisNthChar(n, c) -- remove the char AT
+# position n only if it equals c. Archive block #371.
 
-#NOTE :
-#	- RemoveNthItem(n) : Remove item at position n
-#
-#	- RemoveNthXT(n, pItem) : Remove nth occurrence of pItem
-# 	  (you can also use RemoveNthOccurrence(n, pItem)
-#
-#	- RemoveThisNthItem(n, pItem) : remove nth item only if it
-#	  is equal to pItem
+Scenario("Peeling chars off a string, conditionally")
+	Given('"_ABC_DE_"')
+	o1 = new stzString("_ABC_DE_")
+	o1.RemoveFirstChar()
+	Then("the leading underscore goes", o1.Content(), "ABC_DE_")
+	o1.RemoveThisFirstCharCS("a", :CS = FALSE)
+	Then("the case-insensitive A goes too", o1.Content(), "BC_DE_")
+	o1.RemoveNthChar(:Last)
+	Then("the last char goes", o1.Content(), "BC_DE")
+	o1.RemoveThisNthChar(3, "_")
+	Then("position 3 goes because it IS an underscore", o1.Content(), "BCDE")
+EndScenario()
 
-
-o1 = new stzString("_ABC_DE_")
-
-o1.RemoveFirstChar()
-? o1.Content()
-#--> ABC_DE_
-
-o1.RemoveThisFirstCharCS("a", :CS = FALSE)
-? o1.Content()
-#--> BC_DE_
-
-o1.RemoveNthChar(:Last) # Works when ChekParams() = TRUE (the default)
-			# Otherwise use o1.RemoveLastChar() or
-			# o1.RemoveNthChar(o1.NumberOfChars())
-? o1.Content()
-#--> BC_DE
-
-o1.RemoveThisNthChar(3, "_")
-? o1.Content()
-#--> BCDE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()

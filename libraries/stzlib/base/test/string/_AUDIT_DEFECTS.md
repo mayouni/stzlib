@@ -419,7 +419,23 @@ audited→narrated (10 files, 46 assertions). Real fixes:
 (Sections/AntiSections; archive's "THREE" was a typo for "ONE"),
 370_semantic (size verbs) were already correct.
 
-## STATUS (2026-07-01): 263/999 test files audited; ~736 still to audit
+**Chunk 23 (2026-07-02):** 371-380 audited→narrated (10 files, 17
+assertions). Real fixes:
+- **`RemoveThisFirstCharCS(c, :CS = b)`** (371) ignored the case flag and
+  compared raw codepoints (case-insensitive "a" vs "A" never matched); now
+  removes the single first char under the requested case rule.
+- **`RemoveThisNthChar(n, c)`** (371) removed the n-th OCCURRENCE of c;
+  per the archive's own NOTE it removes the char AT position n only if it
+  equals c. Rewritten.
+- **`AddXT` :AfterNth = [n, sub] / :AfterFirst / :AfterLast (+ :ToFirst /
+  :ToLast) and the :BeforeNth / :BeforeFirst / :BeforeLast mirrors**
+  (377, 378, 379) -- all raised "unsupported argument shape"; wired to
+  FindNth/FindFirst/FindLast + positional inserts. NOTE: 378's archive
+  #--> pasted 377's result; asserted at the real AfterFirst outcome.
+372-376, 380 (RemoveSection, RemoveFromStart/End, ReplaceSection multibyte,
+AddXT :After/:AfterEach/:Before) were already correct -- pure conversions.
+
+## STATUS (2026-07-02): 361/999 test files audited (chunks 14-23 added 98); ~638 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

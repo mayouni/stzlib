@@ -1,21 +1,16 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #373.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveFromStart / RemoveFromEnd peel a given substring off the edges.
+# Archive block #373.
 
-o1 = new stzString("{HELLO}")
-o1.RemoveFromStart("{")
-? o1.Content()
-#--> "HELLO}"
+Scenario("Removing from the edges")
+	Given('"{HELLO}"')
+	o1 = new stzString("{HELLO}")
+	o1.RemoveFromStart("{")
+	Then("the opening brace goes", o1.Content(), "HELLO}")
+	o1.RemoveFromEnd("}")
+	Then("the closing brace goes", o1.Content(), "HELLO")
+EndScenario()
 
-o1.RemoveFromEnd("}")
-? o1.Content()
-#--> "HELLO"
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()

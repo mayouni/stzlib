@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #376.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddXT(what, :AfterEach = anchor) inserts after EVERY occurrence.
+# Archive block #376.
 
-Q("__(♥__(♥__(♥__") {
+Scenario("Adding after each occurrence")
+	Given('"__(♥__(♥__(♥__"')
+	o1 = new stzString("__(♥__(♥__(♥__")
+	o1.AddXT( ")", :AfterEach = "♥" )
+	Then("every heart gets closed", o1.Content(), "__(♥)__(♥)__(♥)__")
+EndScenario()
 
-	AddXT( ")", :AfterEach = "♥" ) # ... you can also say :After = "♥"
-	? Content()
-	#--> __(♥)__(♥)__(♥)__
-}
-
-StopProfiler()
-
-pf()
-# Executed in 0.02 second(s)
+Summary()
