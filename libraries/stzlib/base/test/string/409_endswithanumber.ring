@@ -1,22 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #409.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Trailing-number detection keeps the sign and the decimal point:
+# "Amount: -132.45" trails "-132.45". Archive block #409.
 
-o1 = new stzString("Amount: -132.45")
-? o1.EndsWithANumber()
-#--> TRUE
+Scenario("A negative decimal closes the string")
+	Given('"Amount: -132.45"')
+	o1 = new stzString("Amount: -132.45")
+	Then("it ends with a number", o1.EndsWithANumber(), TRUE)
+	Then("the explicit check", o1.EndsWithThisNumber("-132.45"), TRUE)
+	Then("the trailing number", o1.TrailingNumber(), "-132.45")
+EndScenario()
 
-? o1.EndsWithThisNumber("-132.45")
-#--> TRUE
-
-? o1.TrailingNumber()
-#--> "-132.45"
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.21
+Summary()

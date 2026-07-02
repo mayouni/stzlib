@@ -1,27 +1,16 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #410.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Same with a "+" sign: EndsWithNumberN is the arity-safe spelling of
+# EndsWithThisNumber (the bare EndsWithNumber() is the 0-arg predicate,
+# per the archive's own error note). Archive block #410.
 
-o1 = new stzString("Amount: +132.45")
-? o1.EndsWithANumber()
-#--> TRUE
+Scenario("A plus-signed decimal closes the string")
+	Given('"Amount: +132.45"')
+	o1 = new stzString("Amount: +132.45")
+	Then("it ends with a number", o1.EndsWithANumber(), TRUE)
+	Then("the N-suffixed check", o1.EndsWithNumberN("+132.45"), TRUE)
+	Then("the trailing number keeps the plus", o1.TrailingNumber(), "+132.45")
+EndScenario()
 
-//? o1.EndsWithNumber("+132.45")
-#--> ERROR: Calling function with extra number of parameters
-
-? o1.EndsWithNumberN("+132.45") #NOTE
-				# the N a the end of function name
-				# Or you can say EndsWithThisNumber(...)
-#--> TRUE
-
-? o1.TrailingNumber()
-#--> "+132.45"
-
-pf()
-#--> Executed in 0.04 second(s) in Ring 1.21
+Summary()

@@ -1,22 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #408.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Leading-number detection is sign- and decimal-aware: "-23.67 pounds"
+# starts with the number "-23.67". Archive block #408.
 
-o1 = new stzString("-23.67 pounds")
-? o1.StartsWithANumber() # Or BeginsWith...
-#--> TRUE
+Scenario("A signed decimal opens the string")
+	Given('"-23.67 pounds"')
+	o1 = new stzString("-23.67 pounds")
+	Then("it starts with a number", o1.StartsWithANumber(), TRUE)
+	Then("the starting number", o1.StartingNumber(), "-23.67")
+	Then("the explicit check", o1.StartsWithThisNumber("-23.67"), TRUE)
+EndScenario()
 
-? o1.StartingNumber()
-#--> "-23.67"
-
-? o1.StartsWithThisNumber("-23.67") # OR StartsWithNumberN(...)
-#--? TRUE
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.21
+Summary()

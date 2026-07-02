@@ -2012,11 +2012,8 @@ class stzString from stzObject
 			return This.EndsWithANumber()
 
 	def StartsWithANumber()
-		_cSwanStr_ = This.Content()
-		if len(_cSwanStr_) = 0
-			return 0
-		ok
-		return ring_find([ "0","1","2","3","4","5","6","7","8","9" ], left(_cSwanStr_, 1)) > 0
+		# Sign- and decimal-aware: "-23.67 pounds" starts with a number.
+		return This.LeadingNumber() != ""
 
 		def StartsWithALeadingNumber()
 			return This.StartsWithANumber()
@@ -8645,27 +8642,68 @@ class stzString from stzObject
 		return _aSec_[1]
 
 	# Trailing/leading number helpers.
+	# TrailingNumber / LeadingNumber: decimal- and SIGN-aware, so
+	# "Amount: -132.45" trails "-132.45" and "-23.67 pounds" leads with
+	# "-23.67".
 	def TrailingNumber()
-		_nLen_ = This._EngineCount(This.Content())
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
 		_n_ = 0
+		_bDot_ = FALSE
 		while _n_ < _nLen_
 			_nC_ = StzEngineStringCharAt(@pEngine, _nLen_ - _n_)
-			if _nC_ < 48 or _nC_ > 57 exit ok
-			_n_++
+			if _nC_ >= 48 and _nC_ <= 57
+				_n_++
+			but _nC_ = 46 and NOT _bDot_ and _n_ > 0 and _n_ < _nLen_ - 1 and
+			    StzEngineStringCharAt(@pEngine, _nLen_ - _n_ - 1) >= 48 and
+			    StzEngineStringCharAt(@pEngine, _nLen_ - _n_ - 1) <= 57
+				_bDot_ = TRUE
+				_n_++
+			else
+				exit
+			ok
 		end
 		if _n_ = 0 return "" ok
-		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
+		# An immediately preceding sign belongs to the number.
+		if _n_ < _nLen_
+			_nC_ = StzEngineStringCharAt(@pEngine, _nLen_ - _n_)
+			if _nC_ = 43 or _nC_ = 45
+				_n_++
+			ok
+		ok
+		return This._EngineSliceFrom(_cTxt_, _nLen_ - _n_ + 1)
 
 	def LeadingNumber()
-		_nLen_ = This._EngineCount(This.Content())
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
 		_n_ = 0
+		_bDot_ = FALSE
+		# An opening sign followed by a digit belongs to the number.
+		if _nLen_ >= 2
+			_nC_ = StzEngineStringCharAt(@pEngine, 1)
+			if (_nC_ = 43 or _nC_ = 45) and
+			   StzEngineStringCharAt(@pEngine, 2) >= 48 and
+			   StzEngineStringCharAt(@pEngine, 2) <= 57
+				_n_ = 1
+			ok
+		ok
 		while _n_ < _nLen_
 			_nC_ = StzEngineStringCharAt(@pEngine, _n_ + 1)
-			if _nC_ < 48 or _nC_ > 57 exit ok
-			_n_++
+			if _nC_ >= 48 and _nC_ <= 57
+				_n_++
+			but _nC_ = 46 and NOT _bDot_ and _n_ < _nLen_ - 1 and
+			    StzEngineStringCharAt(@pEngine, _n_ + 2) >= 48 and
+			    StzEngineStringCharAt(@pEngine, _n_ + 2) <= 57
+				_bDot_ = TRUE
+				_n_++
+			else
+				exit
+			ok
 		end
 		if _n_ = 0 return "" ok
-		return This._EngineSlice(This.Content(), 1, _n_)
+		_cLead_ = This._EngineSlice(_cTxt_, 1, _n_)
+		if _cLead_ = "+" or _cLead_ = "-" return "" ok
+		return _cLead_
 
 	def NumberOfTrailingNumberDigits()
 		return This._EngineCount(This.TrailingNumber())
@@ -10444,9 +10482,25 @@ class stzString from stzObject
 		StzEngineListFree(_pList_)
 		return _aRes_
 
-	# SplitToPartsOfNChars(n): split into pieces of length n
-	# (last piece may be shorter).
+	# SplitToPartsOfNChars(n): split into pieces of EXACTLY n chars --
+	# a shorter trailing remainder is DROPPED (the XT form keeps it).
 	def SplitToPartsOfNChars(n)
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nLen_ = This._EngineCount(_cTxt_)
+		_nPos_ = 1
+		while _nPos_ + n - 1 <= _nLen_
+			_aRes_ + This._EngineSlice(_cTxt_, _nPos_, n)
+			_nPos_ += n
+		end
+		return _aRes_
+
+		def SplitToPartsOfExactlyNChars(n)
+			return This.SplitToPartsOfNChars(n)
+
+	# _SplitToPartsOfNCharsKeep(n): pieces of length n, last may be
+	# shorter (the XT behavior).
+	def _SplitToPartsOfNCharsKeep(n)
 		_aRes_ = []
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
@@ -10618,13 +10672,13 @@ class stzString from stzObject
 		_nLen_ = This._EngineCount(pcNum)
 		return This._EngineSlice(This.Content(), 1, _nLen_) = pcNum
 
-	# SplitToPartsOfNCharsXT(n[, pNamed]): same as SplitToPartsOfNChars
-	# but accepts options (currently a stub forwarder).
+	# SplitToPartsOfNCharsXT(n): like SplitToPartsOfNChars but KEEPS the
+	# shorter trailing remainder.
 	def SplitToPartsOfNCharsXT(n)
-		return This.SplitToPartsOfNChars(n)
+		return This._SplitToPartsOfNCharsKeep(n)
 
 	def SplitToPartsOfNCharsXTOpt(n, pNamed)
-		return This.SplitToPartsOfNChars(n)
+		return This._SplitToPartsOfNCharsKeep(n)
 
 	# FindMadeOfZZ alias.
 	def FindMadeOfZZ(pcChar)

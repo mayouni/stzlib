@@ -1,21 +1,29 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #416.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Filtering the 55 windows of a noisy string down to the letter-made ones
+# with the WF (anonymous-function) form -- IsMadeOfLetters is beyond the
+# engine W-DSL. Archive block #416.
 
-o1 = new stzString("*#!ABC$^..")
-? o1.NumberOfSubStrings()
-#--> 55
+Scenario("Letter-made substrings via WF")
+	Given('"*#!ABC$^.."')
+	o1 = new stzString("*#!ABC$^..")
+	Then("all windows", o1.NumberOfSubStrings(), 55)
+	Then("the letter-made ones",
+		ListEq( o1.SubStringsWF( func s { return Q(s).IsMadeOfLetters() } ),
+			[ "A", "AB", "ABC", "B", "BC", "C" ] ), TRUE)
+EndScenario()
 
-# Complex predicate (IsMadeOfLetters not in the engine W-DSL) -> the WF form:
-? @@( o1.SubStringsWF( func s { return Q(s).IsMadeOfLetters() } ) )
-#--> [ "A", "AB", "ABC", "B", "BC", "C" ]
+Summary()
 
-pf()
-# Executed in 0.58 second(s) in Ring 1.22
-# Executed in 0.99 second(s) in Ring 1.19
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
