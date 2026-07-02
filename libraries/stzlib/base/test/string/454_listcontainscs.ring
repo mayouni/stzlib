@@ -1,15 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #454.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The global ListContainsCS with the case-insensitivity dial.
+# Archive block #454.
 
-? ListContainsCS([ "A", "A", "A", "B", "B", "C" ], "a", FALSE)
-#--> TRUE
+Scenario("Case-insensitive containment")
+	Then("a matches A when case is off",
+		ListContainsCS([ "A", "A", "A", "B", "B", "C" ], "a", FALSE), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()

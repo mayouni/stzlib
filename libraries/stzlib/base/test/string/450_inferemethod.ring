@@ -1,18 +1,16 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #450.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# InfereMethod(:From = :stzClass) finds the predicate method the class
+# offers for this string: "is" + string, else "is" + string minus its
+# final s. (The archive's second #--> "ispunctauion" was a hand-typo for
+# "ispunctuation" -- the singular fallback.) Archive block #450.
 
-? Q("punctuation").InfereMethod(:From = :stzChar)
-#--> "ispunctuation"
+Scenario("Inferring stzChar predicates")
+	Then("punctuation infers its checker",
+		Q("punctuation").InfereMethod(:From = :stzChar), "ispunctuation")
+	Then("the plural falls back to the singular",
+		Q("punctuations").InfereMethod(:From = :stzChar), "ispunctuation")
+EndScenario()
 
-? Q("punctuations").InfereMethod(:From = :stzChar)
-#--> "ispunctauion"
-
-pf()
-# Executed in 0.32 second(s) in Ring 1.21
+Summary()
