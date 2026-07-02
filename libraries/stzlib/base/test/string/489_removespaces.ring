@@ -1,18 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #489.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# A two-step chain and its QH history (RemoveSpaces + Uppercase are both
+# history-aware). Archive block #489.
 
-? Q("h e l l o").RemoveSpacesQ().UppercaseQ().Content() + NL
-#--> "HELLO"
+Scenario("Cleaning and shouting hello")
+	Then("the chain result",
+		Q("h e l l o").RemoveSpacesQ().UppercaseQ().Content(), "HELLO")
+	Then("the captured steps",
+		ListEq( QH("h e l l o").RemoveSpacesQ().UppercaseQ().History(),
+			[ "h e l l o", "hello", "HELLO" ] ), TRUE)
+	DontKeepHistory()
+EndScenario()
 
-? QH("h e l l o").RemoveSpacesQ().UppercaseQ().History()
-#--> [ "h e l l o", "hello", "HELLO" ]
+Summary()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

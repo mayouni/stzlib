@@ -2088,7 +2088,9 @@ class stzString from stzObject
 		This.Update(StzUpper(This.Content()))
 
 		def UppercaseQ()
+			_StzHistoOpen(This.Content())
 			This.Uppercase()
+			_StzHistoAdd(This.Content())
 			return This
 
 	def Uppercased()
@@ -2108,7 +2110,9 @@ class stzString from stzObject
 			return This.InLowercase()
 
 		def LowercaseQ()
+			_StzHistoOpen(This.Content())
 			This.Lowercase()
+			_StzHistoAdd(This.Content())
 			return This
 
 	def Lowercased()
@@ -13231,8 +13235,10 @@ class stzString from stzObject
 		This.Update(_cSp_)
 		return This
 
+	# The R-suffixed form returns the RESULT string (not the object).
 	def SpacifyItR()
-		return This.SpacifyItQ()
+		This.SpacifyItQ()
+		return This.Content()
 
 	def AsWell()
 		return This.Content()

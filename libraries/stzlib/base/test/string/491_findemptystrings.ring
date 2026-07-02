@@ -1,19 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #491.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Spaces are not empty strings: FindEmptyStrings vs FindSpaces on a list.
+# Archive block #491.
 
-o1 = new stzList([ "H", " ", "E", " ", "L", " ", "L", " ", "O" ])
-? @@( o1.FindEmptyStrings() )
-#--> []
+Scenario("Spaces vs empties")
+	o1 = new stzList([ "H", " ", "E", " ", "L", " ", "L", " ", "O" ])
+	Then("no empty strings", ListEq( o1.FindEmptyStrings(), [] ), TRUE)
+	Then("the spaces sit at even positions",
+		ListEq( o1.FindSpaces(), [ 2, 4, 6, 8 ] ), TRUE)
+EndScenario()
 
-? o1.FindSpaces()
-#--> [ 2, 4, 6, 8 ]
+Summary()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

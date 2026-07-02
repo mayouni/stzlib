@@ -1,19 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #490.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The KeepingTime flag and its setter. Archive block #490.
 
-? KeepingTime()
-#--> FALSE
+Scenario("Toggling time-keeping")
+	Then("off by default", KeepingTime(), FALSE)
+	SetKeepingTimeTo(TRUE)
+	Then("on after the setter", KeepingTime(), TRUE)
+	SetKeepingTimeTo(FALSE)
+EndScenario()
 
-SetKeepingTimeTo(TRUE)
-
-? KeepingTime()
-#--> TRUE
-
-pf()
+Summary()
