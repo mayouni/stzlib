@@ -3310,7 +3310,9 @@ class stzList from stzObject
 		This._SetContent(_oRwRemover_.Content())
 
 		def RemoveWQ(pcCondition)
+			_StzHistoOpen(This.Content())
 			This.RemoveW(pcCondition)
+			_StzHistoAdd(This.Content())
 			return This
 
 
@@ -3328,7 +3330,9 @@ class stzList from stzObject
 		This._SetContent(_aOut_)
 
 		def RemoveSpacesQ()
+			_StzHistoOpen(This.Content())
 			This.RemoveSpaces()
+			_StzHistoAdd(This.Content())
 			return This
 
 	# RemoveDuplicatedItems / Q: in-place dedup. Order-preserving:
@@ -3352,7 +3356,9 @@ class stzList from stzObject
 		This._SetContent(_aOut_)
 
 		def RemoveDuplicatedItemsQ()
+			_StzHistoOpen(This.Content())
 			This.RemoveDuplicatedItems()
+			_StzHistoAdd(This.Content())
 			return This
 
 	# IsReverseOf(paOther): TRUE iff @aContent is the reverse of

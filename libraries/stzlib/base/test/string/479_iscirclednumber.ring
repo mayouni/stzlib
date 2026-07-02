@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #479.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsCircledNumber on the circled digit 1 (U+2460). The archive source
+# had the char double-encoded (mojibake); rebuilt with the real glyph.
+# Archive block #479.
 
-? QQ("â‘ ").IsCircledNumber()
-#--> TRUE
+Scenario("A circled digit")
+	Then("① is a circled number", QQ("①").IsCircledNumber(), TRUE)
+EndScenario()
 
-# or QQ("â‘ ").IsCircledDigit() if you wana embrace the semantics of Unicode
-
-pf()
-# Executed in 0.03 second(s).
+Summary()

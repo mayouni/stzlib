@@ -3538,7 +3538,9 @@ class stzNumber from stzObject
 	#----------------#
 
 	def Add(pOtherNumber)
+		_StzHistoOpen(0 + This.Content())
 		This.Update( pvtCalculate("+", pOtherNumber ) )
+		_StzHistoAdd(0 + This.Content())
 
 		#< @FunctionFluentForm
 
@@ -3664,7 +3666,9 @@ class stzNumber from stzObject
 
 	def SubStruct(pOtherNumber)
 
+		_StzHistoOpen(0 + This.Content())
 		This.Update( pvtCalculate("-", pOtherNumber ) )
+		_StzHistoAdd(0 + This.Content())
 
 		#< @FunctionFluentForm
 
@@ -3865,7 +3869,9 @@ class stzNumber from stzObject
 			ok
 		ok
 
+		_StzHistoOpen(0 + This.Content())
 		This.Update( pvtCalculate("*", pOtherNumber ) )
+		_StzHistoAdd(0 + This.Content())
 
 		#< @FunctionAlternativeForm
 
@@ -3982,7 +3988,9 @@ class stzNumber from stzObject
 		#>
 
 	def DivideBy(pOtherNumber)
+		_StzHistoOpen(0 + This.Content())
 		This.Update( pvtCalculate("/", pOtherNumber ) )
+		_StzHistoAdd(0 + This.Content())
 
 		#< @FunctionFluentForm
 

@@ -3539,13 +3539,17 @@ class stzString from stzObject
 		This.RemoveW(pcCondition)
 
 		def RemoveCharsWQ(pcCondition)
+			_StzHistoOpen(This.Content())
 			This.RemoveW(pcCondition)
+			_StzHistoAdd(This.Content())
 			return This
 
 		# Shorter aliases used by fluent narrative chains (RemoveW itself is
 		# defined below, routing through stzStringRemover -> engine).
 		def RemoveWQ(pcCondition)
+			_StzHistoOpen(This.Content())
 			This.RemoveW(pcCondition)
+			_StzHistoAdd(This.Content())
 			return This
 
 	# RemoveDuplicatedChars: dedup chars in-place (keep first occurrence).
@@ -3556,7 +3560,9 @@ class stzString from stzObject
 		This.Update(_cOut_)
 
 		def RemoveDuplicatedCharsQ()
+			_StzHistoOpen(This.Content())
 			This.RemoveDuplicatedChars()
+			_StzHistoAdd(This.Content())
 			return This
 
 		def RemoveDupChars()
@@ -10903,13 +10909,21 @@ class stzString from stzObject
 		_oTmp_.RemoveDuplicatedChars()
 		return _oTmp_.Content()
 
-	# IsAFunction / IsAnInteger: predicate checks.
-	def IsAFunction()
-		# Provisional: TRUE if content looks like a function call
-		# (alphanumeric name + parentheses).
-		_c_ = This.Content()
-		if StzFindFirst(_c_, "(") = 0 or StzFindFirst(_c_, ")") = 0 return FALSE ok
+	# A stzString IS a string (stzChar answers TRUE via its own def).
+	def IsAString()
 		return TRUE
+
+	# IsAFunction: is the content the name of a DEFINED function
+	# (per the original monolith: functions() lookup)? The call-looking
+	# check is IsAlmostAFunctionCall.
+	def IsAFunction()
+		return ring_find( functions(), lower(This.Content()) ) > 0
+
+		def IsAFunctionName()
+			return This.IsAFunction()
+
+		def IsFunc()
+			return This.IsAFunction()
 
 	def IsAnInteger()
 		_c_ = ring_trim(This.Content())
@@ -15585,7 +15599,9 @@ class stzString from stzObject
 		This.Remove(" ")
 
 		def RemoveSpacesQ()
+			_StzHistoOpen(This.Content())
 			This.RemoveSpaces()
+			_StzHistoAdd(This.Content())
 			return This
 
 	# RemoveSpacesInSections(aSections): remove every space inside the
@@ -16652,6 +16668,13 @@ class stzString from stzObject
 			but _k_ = "righttoleft" or _k_ = "rtl"
 				_n_ = StzCharToUnicode(_c_)
 				_bOk_ = ((_n_ >= 0x0590 and _n_ <= 0x08FF) or (_n_ >= 0xFB1D and _n_ <= 0xFDFF) or (_n_ >= 0xFE70 and _n_ <= 0xFEFF))
+			but _k_ = "circlednumbers" or _k_ = "circlednumber" or
+			    _k_ = "circleddigits" or _k_ = "circleddigit"
+				_n_ = StzCharToUnicode(_c_)
+				_bOk_ = ((_n_ >= 0x2460 and _n_ <= 0x2473) or _n_ = 0x24EA or
+					 (_n_ >= 0x24F5 and _n_ <= 0x24FE) or
+					 (_n_ >= 0x3251 and _n_ <= 0x325F) or
+					 (_n_ >= 0x32B1 and _n_ <= 0x32BF))
 			but _k_ = "invertible"
 				# Provisional: ASCII letters are considered invertible
 				# in the narrative. Real impl needs the Unicode upside-

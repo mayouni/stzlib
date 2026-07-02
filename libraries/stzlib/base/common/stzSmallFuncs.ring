@@ -42,11 +42,26 @@ func StzQH(p)
 	#~> // Use a copy on which the loop is used and then update
 	# the main object in on UpdateWith() call
 
-	if isglobal("_aHisto")
-		_aHisto + p
-	ok
+	# Turn history-keeping ON; the first history-aware fluent op opens
+	# the stream with its pre-op (initial) value, and every such op
+	# appends its result (see _StzHistoOpen / _StzHistoAdd).
+	StzKeepHistoryON()
 
 	return StzQ(p)
+
+# History snapshots at the PUBLIC fluent-op boundary (per-op values,
+# not the internal per-step Updates). _StzHistoOpen records the pre-op
+# value once per stream (History() consumes and clears the stream);
+# _StzHistoAdd records each op's result.
+func _StzHistoOpen(v)
+	if StzKeepingHistory() = 1 and len(_aHisto) = 0
+		_aHisto + v
+	ok
+
+func _StzHistoAdd(v)
+	if StzKeepingHistory() = 1
+		_aHisto + v
+	ok
 
 # Global stub: history-tracking toggle. The full implementation will
 # weave through each mutating method; for now we just declare the

@@ -1,21 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #478.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Number predicates through Q. Archive block #478.
 
-? Q(2).IsANumber()
-#--> TRUE
+Scenario("2 is an even positive number")
+	Then("a number", Q(2).IsANumber(), TRUE)
+	Then("even", Q(2).IsEven(), TRUE)
+	Then("positive", Q(2).IsPositive(), TRUE)
+EndScenario()
 
-? Q(2).IsEven()
-#--> TRUE
-
-? Q(2).IsPositive()
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s).
+Summary()
