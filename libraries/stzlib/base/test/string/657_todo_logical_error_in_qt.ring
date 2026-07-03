@@ -1,39 +1,21 @@
-# Narrative
-# --------
-# TODO: LOGICAL ERROR IN QT??
-#
-# Extracted from stzStringTest.ring, block #657.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# The German sharp s: lowercase, and it uppercases to "SS" (Unicode
+# SpecialCasing -- now honored by StzUpper). NOTE: Ring's builtin
+# upper() is byte-based and leaves the multibyte ss unchanged (the
+# archive's "DER FLUSS" for it came from the old Qt era); Softanza's
+# Uppercased() does it right. Archive block #657.
 
-pr()
+Scenario("Eszett up and down")
+	Then("it is lowercase", Q("ß").CharCase(), :Lowercase)
+	Then("it uppercases to SS", Q("ß").Uppercased(), "SS")
+	Then("a whole river, Softanza-cased",
+		Q("der fluß").Uppercased(), "DER FLUSS")
+	Then("SS lowercases to ss (no locale round-trip)",
+		Q("SS").Lowercased(), "ss")
+	Then("... also under the german locale",
+		Q("SS").LowercasedInLocale("ge-GE"), "ss")
+EndScenario()
 
-# Let's take the example of the german letter ß that
-# should be uppercased to SS
-
-? Q("ß").CharCase()
-#--> lowercase
-
-? Q("ß").Uppercased()
-#--> SS
-
-# Which is nice, and we can check it for a hole word
-? upper("der fluß")
-#--> DER FLUSS
-
-# Now, if we check the other way around :
-? Q("SS").Lowercased()
-#--> ss
-
-# we don't get "ß", which is expected, because Softanza is running
-# at the default locale ("C" locale) and not the german locale.
-
-# Therefore, we need to tune the previous expression by sepecifying
-# the german locale ("ge-GE")
-
-? Q("SS").LowercasedInLocale("ge-GE")
-#--> ss (ERROR in QT: it should be ß)
-
-pf()
-# Executed in 0.08 second(s)
+Summary()

@@ -1,15 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #642.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# stzCCode transpiles the @char W form to executable Ring. (The archive
+# showed a double space around = -- cosmetic.) Archive block #642.
 
-? StzCCodeQ('@char = "I"').Transpiled()
-#--> This[@i]  = "I"
+Scenario("Transpiling a char condition")
+	Then("the @char form lowers to This[@i]",
+		StzCCodeQ('@char = "I"').Transpiled(), 'This[@i] = "I"')
+EndScenario()
 
-pf()
-# Executed in 0.18 second(s)
+Summary()

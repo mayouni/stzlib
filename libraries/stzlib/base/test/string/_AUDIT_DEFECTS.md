@@ -800,7 +800,46 @@ Real fixes (the marquer SORTING semantics, settled from the archives):
 Pure conversions: 621-625, 632, 633, 635-640 (incl. the Unicode
 UpTo/DownTo generalisation of Ring's ASCII-bound ":" ranges).
 
-## STATUS (2026-07-03): 589/999 test files audited (chunks 14-37 added 326); ~410 still to audit
+### Chunk 38 (tests 641-660, 2026-07-03)
+
+- **`ReplaceNextNthOccurrence` / `ReplacePreviousNthOccurrence` accept
+  named params in ANY order** (646/647): new `_ResolveOfWithFrom()`
+  resolves `:Of`/`:With`/`:StartingAt` hashes wherever they appear
+  (positional fallback preserved). Before, the archive's
+  `(2, :Of=.., :StartingAt=.., :With=..)` order silently no-oped.
+- **`IsLocaleAbbreviation()` is structural** (649): split on `_`,
+  1-3 alpha parts of len 2-4, a 4-letter part only in the script slot,
+  single part <= 3. Was a stub returning FALSE for `ar_Arab_TN`.
+- **`StringCase()` / `CharCase()` are codepoint-aware** (653/654/657):
+  rewritten on StzLower/StzUpper (byte `upper()` misread Greek and
+  eszett). Vocabulary RULING: the every-word-capitalised case is
+  **`:Capitalcase`** (653's archive + the settled `CapitalCased` name);
+  247_stringcase said "titlecase" for the same concept -- updated.
+- **`StzUpper` honors the ß->SS SpecialCasing** (657): pre-replace in
+  stzPrimitives; `Q("der fluß").Uppercased() = "DER FLUSS"`. Ring's
+  builtin `upper()` stays byte-based ("DER FLUß") -- asserted as such
+  in 658 with a note (archive's "DER FLUSS" for it was Qt-era).
+  Full SpecialCasing.txt (incl. tr-TR dotless i) stays on the engine
+  backlog; 655 DEFERRED on it, and 659's eszett round-trip
+  (`IsLowercaseOfXT`) asserted FALSE per the archive's own limitation
+  note.
+- **`Unicode()` on a multi-char string returns the codepoint LIST**
+  (656): was a raise; now delegates to `Unicodes()`. 656 also fixed
+  `CharsNames()` (R24: uninitialized result var) and asserts the
+  composed-vs-decomposed e-circumflex pair built PROGRAMMATICALLY
+  (`StzEngineCharToUtf8(234)` / `"e"+StzEngineCharToUtf8(770)`) so no
+  editor normalization can corrupt the decomposed literal.
+- **`HasLeadingChars()`/`HasTrailingChars()`** (645): now
+  `NumberOfLeading/TrailingChars() > 0` (the old checker path was
+  broken); list-side twins verified against the same fixture.
+- **642**: transpiled form asserted at single-space `This[@i] = "I"`
+  (archive's double space was cosmetic garble).
+- **650 DEFERRED**: stzLocale-domain narrative (script->language
+  inference, country compatibility) with self-declared TODOs; belongs
+  to the locale module pass.
+Pure conversions: 641, 644, 648, 651, 652, 660.
+
+## STATUS (2026-07-03): 607/999 test files audited (chunks 14-38 added 344); ~392 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

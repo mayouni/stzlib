@@ -1,5 +1,7 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-03): DEFERRED -- documented Unicode SpecialCasing locale TODO (tr-TR dotless i) -- upstream, like Dotless (114/115); see the engine backlog.
 # pr()
 #
 # Extracted from stzStringTest.ring, block #655.

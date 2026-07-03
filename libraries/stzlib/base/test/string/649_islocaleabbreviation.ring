@@ -1,16 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #649.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsLocaleAbbreviation validates the ISO lang[_Script][_COUNTRY] shape.
+# Archive block #649.
 
-o1 = new stzString("ar_Arab_TN")
-? o1.IsLocaleAbbreviation()
-#--> TRUE
+Scenario("A full locale abbreviation")
+	o1 = new stzString("ar_Arab_TN")
+	Then("well formed", o1.IsLocaleAbbreviation(), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()

@@ -1,18 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #652.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsLowercase / IsLowercaseOf. Archive block #652.
 
-? Q("date").IsLowercase()
-#--> TRUE
+Scenario("date is lowercase")
+	Then("in itself", Q("date").IsLowercase(), TRUE)
+	Then("... and of DATE", Q("date").IsLowercaseOf("DATE"), TRUE)
+EndScenario()
 
-? Q("date").IsLowercaseOf("DATE")
-#--> TRUE
-
-pf()
-# Executed in 0.03 second(s)
+Summary()

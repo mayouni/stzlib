@@ -1,54 +1,39 @@
-# Narrative
-# --------
-# #narration
-#
-# Extracted from stzStringTest.ring, block #656.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# Composed vs decomposed: the precomposed e-circumflex (U+00EA) and the
+# e + combining circumflex pair look alike but differ -- Unicode() gives
+# a NUMBER for the single char and the codepoint LIST for the pair, and
+# CharsNames() names both parts. (Built programmatically so no editor
+# normalizes the decomposed literal away.) Archive block #656.
 
-pr()
+Scenario("Two lookalike circumflexed e's")
+	cComposed = StzEngineCharToUtf8(234)
+	cDecomposed = "e" + StzEngineCharToUtf8(770)
+	Then("Ring sees them different", cComposed = cDecomposed, FALSE)
+	Then("Softanza too", Q(cComposed).IsEqualTo(cDecomposed), FALSE)
+	Then("the composed one is one char", Q(cComposed).NumberOfChars(), 1)
+	Then("... with codepoint 234", Q(cComposed).Unicode(), 234)
+	Then("the decomposed one is two chars", Q(cDecomposed).NumberOfChars(), 2)
+	Then("... with two codepoints",
+		ListEq( Q(cDecomposed).Unicode(), [101, 770] ), TRUE)
+	Then("the composed char's name",
+		Q(cComposed).CharName(), "LATIN SMALL LETTER E WITH CIRCUMFLEX")
+	Then("the decomposed pair's names",
+		ListEq( Q(cDecomposed).CharsNames(),
+			[ "LATIN SMALL LETTER E", "COMBINING CIRCUMFLEX ACCENT" ] ), TRUE)
+EndScenario()
 
-# Do you think "ê" and "ê" are the same?
-# If one should trust the visual shape of these two strings, then yes...
-# but, the truth, is that they are different.
+Summary()
 
-# In fact, both Ring and Softanza know it:
-
-? "ê" = "ê"
-#--> FALSE
-
-? Q("ê").IsEqualTo("ê")
-#--> FALSE
-
-# and that's because ê is just one char:
-
-Q("ê") { ? NumberOfChars() ? Unicode() }
-#--> 1
-#--> 234
-
-# while ê are two chars:
-
-Q("ê") { ? NumberOfChars() ? Unicode() }
-#--> 2
-#--> [101, 770]
-
-# And we can do even better by getting the names of the chars in every string.
-# So "ê" contains one char called :
-
-? Q("ê").CharName() 
-#--> LATIN SMALL LETTER E WITH CIRCUMFLEX
-
-# While "ê" contains two chars called:
-
-? Q("ê").CharsNames() 	
-#--> [ 'LATIN SMALL LETTER E', 'COMBINING CIRCUMFLEX ACCENT' ]
-
-# Combining characters is an advanced aspect of Unicode we are not going to delve
-# in now. For more details you can read these FAQs at the following link:
-# http://unicode.org/faq/char_combmark.html
-
-pf()
-# Executed in 0.11 second(s) in Ring 1.22
-# Executed in 0.36 second(s) in Ring 1.18
-# Executed in 0.75 second(s) in Ring 1.17
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

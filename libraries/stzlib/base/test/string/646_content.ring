@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #646.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceNextNthOccurrence: named params in any order.
+# Archive block #646.
 
-o1 = new stzString( "----@@--@@-------@@----@@---")
+Scenario("Replacing forward")
+	o1 = new stzString( "----@@--@@-------@@----@@---")
+	o1.ReplaceNextNthOccurrence(2, :Of = "@@", :StartingAt = 12, :With = "##")
+	Then("the 2nd @@ after 12 became ##",
+		o1.Content(), "----@@--@@-------@@----##---")
+EndScenario()
 
-o1.ReplaceNextNthOccurrence(2, :Of = "@@", :StartingAt = 12, :With = "##")
-? o1.Content()
-#--> ----@@--@@-------@@----##---
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-# Executed in 0.07 second(s) in Ring 1.18
-# Executed in 0.05 second(s) in Ring 1.17
+Summary()

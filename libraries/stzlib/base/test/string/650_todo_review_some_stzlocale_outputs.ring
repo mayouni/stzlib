@@ -1,5 +1,7 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-03): DEFERRED -- stzLocale-DOMAIN narrative (script->language inference, country compatibility) with self-declared TODOs; defer to the locale module pass.
 # TODO: review some stzLocale outputs...
 #
 # Extracted from stzStringTest.ring, block #650.

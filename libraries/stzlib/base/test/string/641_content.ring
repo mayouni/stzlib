@@ -1,17 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #641.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SpacifySubStringsUsing inserts the separator around the listed
+# substrings. Archive block #641.
 
-o1 = new stzString("IloveRingprogramminglanguage!")
-o1.SpacifySubStringsUsing( [ "love", "Ring", "programming" ], " " )
-? o1.Content()
-#--> I love Ring programming language!
+Scenario("Wordifying a squashed sentence")
+	o1 = new stzString("IloveRingprogramminglanguage!")
+	o1.SpacifySubStringsUsing( [ "love", "Ring", "programming" ], " " )
+	Then("readable again", o1.Content(), "I love Ring programming language!")
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s) in Ring 1.22
+Summary()
