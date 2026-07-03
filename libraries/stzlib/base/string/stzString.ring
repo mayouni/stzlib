@@ -1103,6 +1103,15 @@ class stzString from stzObject
 				aResult + ""
 			ok
 		next
+		# EDGE empty parts (leading/trailing separators) are dropped;
+		# interior empties (adjacent separators) are kept -- the
+		# original Split contract.
+		while len(aResult) > 0 and aResult[1] = ""
+			del(aResult, 1)
+		end
+		while len(aResult) > 0 and aResult[len(aResult)] = ""
+			del(aResult, len(aResult))
+		end
 		return aResult
 
 	def _SplitByStr(cSep)
@@ -6955,11 +6964,10 @@ class stzString from stzObject
 	# name -- the alias below accepts both via Ring's lookup rules.
 	def FindBetweenAsSections(p1, p2, p3)
 		# Three-arg form: FindBetweenAsSections(pcSub, pcOpen, pcClose)
-		# returns the positions of pcSub when it appears inside a section
-		# bounded by pcOpen .. pcClose. Forwards through the existing
-		# FindSubStringBoundedBy then maps to [start, end] pairs.
+		# returns the spans of pcSub when it appears inside a section
+		# bounded by pcOpen .. pcClose (containment, via FindBetween).
 		if isString(p3) and p3 != ""
-			_aPos_ = This.FindSubStringBoundedBy(p1, [ p2, p3 ])
+			_aPos_ = This.FindBetween(p1, p2, p3)
 			_nWLen_ = This._EngineCount(p1)
 			_aSec_ = []
 			_nPL_ = len(_aPos_)
@@ -6974,7 +6982,35 @@ class stzString from stzObject
 
 	# --- FindBoundedByAsSections ---
 
+	# _BoundedContentSpansOC(pcOpen, pcClose): the CONTENT spans of the
+	# bounded regions, scanned left-to-right. When open = close the
+	# closer is REUSED as the next opener (the settled overlap rule);
+	# distinct bounds advance past the closer.
+	def _BoundedContentSpansOC(pcOpen, pcClose)
+		_aBcsRes_ = []
+		_cBcsTxt_ = This.Content()
+		_nBcsOL_ = This._EngineCount(pcOpen)
+		_nBcsCL_ = This._EngineCount(pcClose)
+		_nBcsS_ = This._FindFrom(_cBcsTxt_, pcOpen, 1)
+		while _nBcsS_ > 0
+			_nBcsIn_ = _nBcsS_ + _nBcsOL_
+			_nBcsE_ = This._FindFrom(_cBcsTxt_, pcClose, _nBcsIn_)
+			if _nBcsE_ = 0 exit ok
+			_aBcsRes_ + [ _nBcsIn_, _nBcsE_ - 1 ]
+			if pcOpen = pcClose
+				_nBcsS_ = _nBcsE_
+			else
+				_nBcsS_ = This._FindFrom(_cBcsTxt_, pcOpen, _nBcsE_ + _nBcsCL_)
+			ok
+		end
+		return _aBcsRes_
+
 	def FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+		# Single-string / same-string bounds take the overlapping walk.
+		if This._IsSameCharBound(pacBounds)
+			_aFbbPair_ = This._SameCharBoundPair(pacBounds)
+			return This._BoundedContentSpansOC(_aFbbPair_[1], _aFbbPair_[2])
+		ok
 		_oFbbasFinder_ = new stzStringFinder(This)
 		return _oFbbasFinder_.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 
@@ -7015,7 +7051,7 @@ class stzString from stzObject
 		if isList(pacBounds) and len(pacBounds) = 2 and pacBounds[1] = pacBounds[2]
 			return This.FindBoundedByAsSections(pacBounds)
 		ok
-		return This.FindSubStringsBoundedByZZ(pacBounds)
+		return This.FindSubStringsBoundedByCSZZ(pacBounds, 1)
 
 	def FindAnyBoundedByIBZZ(pacBounds)
 		# Same-char bounds: derive OVERLAPPING include-bounds spans from the
@@ -7463,6 +7499,10 @@ class stzString from stzObject
 
 	# FindLastNOccurrences(n, pcSub): the last n positions.
 	def FindLastNOccurrences(n, pcSub)
+		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and
+		   ring_find([ "of", "ofsubstring", "ofstring" ], lower(pcSub[1])) > 0
+			pcSub = pcSub[2]
+		ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_nT_ = len(_aAll_)
 		if n >= _nT_ return _aAll_ ok
@@ -7675,20 +7715,13 @@ class stzString from stzObject
 		ok
 		if NOT (isString(_aOpen_) and isString(_aClose_)) return [] ok
 
+		# The overlap-aware region walk (same bounds reuse the closer).
+		_aSpans_ = This._BoundedContentSpansOC(_aOpen_, _aClose_)
 		_aRes_ = []
-		_cTxt_ = This.Content()
-		_nOpenLen_ = This._EngineCount(_aOpen_)
-		_nCloseLen_ = This._EngineCount(_aClose_)
-		# Engine find: codepoint-aware, so positions inside Unicode
-		# content (♥ etc.) match what the test expects.
-		_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
-		while _nStart_ > 0
-			_nInside_ = _nStart_ + _nOpenLen_
-			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInside_)
-			if _nEnd_ = 0 exit ok
-			_aRes_ + _nInside_
-			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + _nCloseLen_)
-		end
+		_nSp_ = len(_aSpans_)
+		for _iSp_ = 1 to _nSp_
+			_aRes_ + _aSpans_[_iSp_][1]
+		next
 		return _aRes_
 
 		def FindSubStringsBetween(pcOpen, pcClose)
@@ -7710,33 +7743,64 @@ class stzString from stzObject
 		ok
 		if NOT (isString(_aOpen_) and isString(_aClose_)) return [] ok
 
+		# Only the occurrences of pcWhat that ARE a bounded region's
+		# whole content count (so "word" inside <<noword>> is skipped).
+		_aSpans_ = This._BoundedContentSpansOC(_aOpen_, _aClose_)
 		_aRes_ = []
 		_cTxt_ = This.Content()
-		_nOpenLen_ = This._EngineCount(_aOpen_)
-		_nCloseLen_ = This._EngineCount(_aClose_)
-		_nWhatLen_ = This._EngineCount(pcWhat)
-		_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
-		while _nStart_ > 0
-			_nInside_ = _nStart_ + _nOpenLen_
-			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInside_)
-			if _nEnd_ = 0 exit ok
-			_nW_ = This._FindFrom(_cTxt_, pcWhat, _nInside_)
-			while _nW_ > 0 and _nW_ < _nEnd_
-				_aRes_ + _nW_
-				_nW_ = This._FindFrom(_cTxt_, pcWhat, _nW_ + _nWhatLen_)
-			end
-			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + _nCloseLen_)
-		end
+		_nSp_ = len(_aSpans_)
+		for _iSp_ = 1 to _nSp_
+			_s_ = _aSpans_[_iSp_][1]
+			_e_ = _aSpans_[_iSp_][2]
+			_cReg_ = ""
+			if _e_ >= _s_
+				_cReg_ = This._EngineSlice(_cTxt_, _s_, _e_ - _s_ + 1)
+			ok
+			if _cReg_ = pcWhat
+				_aRes_ + _s_
+			ok
+		next
 		return _aRes_
 
 		def FindSubStringsBetweenXT(pcWhat, pcOpen, pcClose)
 			return This.FindSubStringBoundedBy(pcWhat, [ pcOpen, pcClose ])
 
-		# CS variant + sectional variants
+		# CS variant: lower-compare when case-insensitive.
 		def FindSubStringBoundedByCS(pcWhat, pacBounds, pCaseSensitive)
-			# Forward to the case-insensitive aware bounded search.
-			# Bounds normalisation reused from FindSubStringBoundedBy.
-			return This.FindSubStringBoundedBy(pcWhat, pacBounds)
+			_bCase_ = @CaseSensitive(pCaseSensitive)
+			if _bCase_ = 1
+				return This.FindSubStringBoundedBy(pcWhat, pacBounds)
+			ok
+			_aFsbcOpen_ = pacBounds
+			_aFsbcClose_ = NULL
+			if isList(pacBounds) and len(pacBounds) = 2
+				_aFsbcOpen_ = pacBounds[1]
+				_aFsbcClose_ = pacBounds[2]
+				if isList(_aFsbcClose_) and len(_aFsbcClose_) = 2 and
+				   isString(_aFsbcClose_[1]) and lower(_aFsbcClose_[1]) = "and"
+					_aFsbcClose_ = _aFsbcClose_[2]
+				ok
+			but isString(pacBounds)
+				_aFsbcClose_ = pacBounds
+			ok
+			if NOT (isString(_aFsbcOpen_) and isString(_aFsbcClose_)) return [] ok
+			_aFsbcSpans_ = This._BoundedContentSpansOC(_aFsbcOpen_, _aFsbcClose_)
+			_aFsbcRes_ = []
+			_cFsbcTxt_ = This.Content()
+			_cFsbcWhat_ = lower(pcWhat)
+			_nFsbcSp_ = len(_aFsbcSpans_)
+			for _iFsbc_ = 1 to _nFsbcSp_
+				_s_ = _aFsbcSpans_[_iFsbc_][1]
+				_e_ = _aFsbcSpans_[_iFsbc_][2]
+				_cReg_ = ""
+				if _e_ >= _s_
+					_cReg_ = This._EngineSlice(_cFsbcTxt_, _s_, _e_ - _s_ + 1)
+				ok
+				if lower(_cReg_) = _cFsbcWhat_
+					_aFsbcRes_ + _s_
+				ok
+			next
+			return _aFsbcRes_
 
 		def FindSubStringBoundedByZZ(pcWhat, pacBounds)
 			_aPos_ = This.FindSubStringBoundedBy(pcWhat, pacBounds)
@@ -11579,6 +11643,12 @@ class stzString from stzObject
 	# FindNthBoundedBy(n, pacBounds, pcSub): position of the n-th
 	# occurrence of pcSub inside any bounded section.
 	def FindNthBoundedBy(n, pacBounds, pcSub)
+		# Accepts both (n, bounds, sub) and (n, sub, bounds).
+		if isString(pacBounds) and isList(pcSub)
+			_tmpFnb_ = pacBounds
+			pacBounds = pcSub
+			pcSub = _tmpFnb_
+		ok
 		_aAll_ = This.FindSubStringBoundedBy(pcSub, pacBounds)
 		if n < 1 or n > len(_aAll_) return 0 ok
 		return _aAll_[n]
@@ -11738,6 +11808,12 @@ class stzString from stzObject
 
 	# FindNthBoundedByZZ: sectional form of FindNthBoundedBy.
 	def FindNthBoundedByZZ(n, pacBounds, pcSub)
+		# Accepts both (n, bounds, sub) and (n, sub, bounds).
+		if isString(pacBounds) and isList(pcSub)
+			_tmpFnbz_ = pacBounds
+			pacBounds = pcSub
+			pcSub = _tmpFnbz_
+		ok
 		_nP_ = This.FindNthBoundedBy(n, pacBounds, pcSub)
 		if _nP_ = 0 return [] ok
 		_nSubLen_ = This._EngineCount(pcSub)
@@ -12105,12 +12181,19 @@ class stzString from stzObject
 		next
 		return _aS_
 
+	# NLastOccurrencesST: the stzString spelling of the abstract
+	# stzObject form (whose SectionQ pipeline can't take symbols).
+	def NLastOccurrencesST(n, pNamedOf, pStartingAt)
+		return This.LastNOccurrencesST(n, pNamedOf, pStartingAt)
+
 	def LastNOccurrencesST(n, pNamedOf, pStartingAt)
 		_cSub_ = ""
 		_nFrom_ = 1
 		if isList(pNamedOf) and len(pNamedOf) = 2 and isString(pNamedOf[1]) and
 		   lower(pNamedOf[1]) = "of"
 			_cSub_ = pNamedOf[2]
+		but isString(pNamedOf)
+			_cSub_ = pNamedOf
 		ok
 		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
 		   lower(pStartingAt[1]) = "startingat"
@@ -16294,6 +16377,11 @@ class stzString from stzObject
 	#   start past the open token and the end before the close token.
 
 	def FindSubStringsBoundedByZZ(pacBounds)
+		# Single-string / same-string bounds -> the overlapping walk.
+		if This._IsSameCharBound(pacBounds)
+			_aFsbPair_ = This._SameCharBoundPair(pacBounds)
+			return This._BoundedContentSpansOC(_aFsbPair_[1], _aFsbPair_[2])
+		ok
 		return This.FindSubStringsBoundedByCSZZ(pacBounds, 1)
 
 		def FindAnySubStringBoundedByZZ(pacBounds)
@@ -16787,8 +16875,25 @@ class stzString from stzObject
 	# FindBetween(pcSub, pcOpen, pcClose): the positions of pcSub
 	# when it appears between pcOpen .. pcClose bounded sections.
 	# Convenience wrapper over FindSubStringBoundedBy.
+	# FindBetween(sub, open, close): every occurrence of sub ANYWHERE
+	# INSIDE a bounded region (containment -- unlike
+	# FindSubStringBoundedBy, which requires sub to BE the region).
 	def FindBetween(pcSub, pcOpen, pcClose)
-		return This.FindSubStringBoundedBy(pcSub, [ pcOpen, pcClose ])
+		_aSpans_ = This._BoundedContentSpansOC(pcOpen, pcClose)
+		_aRes_ = []
+		_cTxt_ = This.Content()
+		_nSubLen_ = This._EngineCount(pcSub)
+		_nSp_ = len(_aSpans_)
+		for _iSp_ = 1 to _nSp_
+			_s_ = _aSpans_[_iSp_][1]
+			_e_ = _aSpans_[_iSp_][2]
+			_nW_ = This._FindFrom(_cTxt_, pcSub, _s_)
+			while _nW_ > 0 and _nW_ + _nSubLen_ - 1 <= _e_
+				_aRes_ + _nW_
+				_nW_ = This._FindFrom(_cTxt_, pcSub, _nW_ + _nSubLen_)
+			end
+		next
+		return _aRes_
 
 	# ContainsAt(p1, p2): does the content contain p2 at position p1?
 	# Two shapes supported by narratives:

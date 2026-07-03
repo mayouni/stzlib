@@ -1,23 +1,33 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #553.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindBoundedByAsSections with distinct bounds and with quotes (a
+# same-char bound: each closing quote reopens the next region -- the
+# settled overlap rule). Archive block #553.
 
-? @@( Q("txt <<ring>> txt <<ring>>").FindBoundedByAsSections([ "<<", ">>" ]) ) + NL
-#--> [ [ 7, 10 ], [ 20, 23 ] ]
+Scenario("Bounded sections, then their substrings")
+	Then("two distinct-bound sections",
+		ListEq( Q("txt <<ring>> txt <<ring>>").FindBoundedByAsSections([ "<<", ">>" ]),
+			[ [7, 10], [20, 23] ] ), TRUE)
+	str = 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!'
+	Then("quotes overlap into three sections",
+		ListEq( Q(str).FindBoundedByAsSections('"'),
+			[ [18, 26], [28, 34], [36, 42] ] ), TRUE)
+	Then("their contents",
+		ListEq( Q(str).Sections([ [ 18, 26 ], [ 28, 34 ], [ 36, 42 ] ]),
+			[ "   val1  ", "   to  ", "   val2" ] ), TRUE)
+EndScenario()
 
-str = 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!'
-? @@( Q(str).FindBoundedByAsSections('"') ) + NL
-#--> [ [ 18, 26 ], [ 28, 34 ], [ 36, 42 ] ]
+Summary()
 
-? @@( Q(str).Sections([ [ 18, 26 ], [ 28, 34 ], [ 36, 42 ] ]) )
-#--> [ "   val1  ", "   to  ", "   val2" ]
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
-# Executed in 0.12 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

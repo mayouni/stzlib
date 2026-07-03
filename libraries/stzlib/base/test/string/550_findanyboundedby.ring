@@ -1,17 +1,25 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #550.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindAnyBoundedBy: the content START positions of the bounded regions.
+# Archive block #550.
 
-o1 = new stzString("txt <<ring>> txt <<php>>")
+Scenario("Two bounded words")
+	o1 = new stzString("txt <<ring>> txt <<php>>")
+	Then("the content starts",
+		ListEq( o1.FindAnyBoundedBy([ "<<",">>" ]), [7, 20] ), TRUE)
+EndScenario()
 
-? @@( o1.FindAnyBoundedBy([ "<<",">>" ]) )
-#--> [7, 20]
+Summary()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

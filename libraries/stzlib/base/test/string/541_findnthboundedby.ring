@@ -1,26 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #541.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindNthBoundedBy(n, sub, bounds): the n-th occurrence of sub that IS a
+# bounded region's content; the ZZ form returns its span, and FindNthXT
+# takes the :BoundedBy named spelling. Archive block #541.
 
-o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
+Scenario("The second bounded word")
+	o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
+	Then("its position", o1.FindNthBoundedBy(2, "word", [ "<<", ">>" ]), 28)
+	Then("its span",
+		ListEq( o1.FindNthBoundedByZZ(2, "word", [ "<<", ">>" ]), [28, 31] ), TRUE)
+	Then("the XT spelling", o1.FindNthXT(2, "word", :BoundedBy = ["<<", ">>"]), 28)
+EndScenario()
 
-? o1.FindNthBoundedBy(2, "word", [ "<<", ">>" ]) + NL
-#--> 28
+Summary()
 
-? o1.FindNthBoundedByZZ(2, "word", [ "<<", ">>" ])
-#--> [28, 31]
-
-? o1.FindNthXT(2, "word", :BoundedBy = ["<<", ">>"]) + NL
-#--> 28
-
-# TODO
-# ? o1.FindNthXTZZ(2, "word", :BoundedBy = ["<<", ">>"])
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

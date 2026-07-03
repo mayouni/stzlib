@@ -1,24 +1,29 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #554.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindSubStringBoundedBy with a single-char bound and its FindXT
+# :BoundedBy spellings (string or pair). Archive block #554.
 
-o1 = new stzString("12*♥*78*♥*")
+Scenario("Hearts between stars")
+	o1 = new stzString("12*♥*78*♥*")
+	Then("the bounded hearts",
+		ListEq( o1.FindSubStringBoundedBy("♥", "*"), [ 4, 9 ] ), TRUE)
+	Then("the FindXT string spelling",
+		ListEq( o1.FindXT("♥", :BoundedBy = "*" ), [ 4, 9 ] ), TRUE)
+	Then("the FindXT pair spelling",
+		ListEq( o1.FindXT("♥", :BoundedBy = [ "*", "*" ] ), [ 4, 9 ] ), TRUE)
+EndScenario()
 
-? @@( o1.FindSubStringBoundedBy("♥", "*") )
-#--> [ 4, 9 ]
+Summary()
 
-? @@( o1.FindXT("♥", :BoundedBy = "*" ) )
-#--> [ 4, 9 ]
-
-? @@( o1.FindXT("♥", :BoundedBy = [ "*", "*" ] ) )
-#--> [ 4, 9 ]
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.22
-# Executed in 0.08 second(s) in Ring 1.20
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
