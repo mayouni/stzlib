@@ -1,14 +1,19 @@
-# Narrative
-# --------
-# StzRaise
-#
-# Extracted from stzStringTest.ring, block #593.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# StzRaise raises with the given message. Archive block #593.
 
-? StzRaise("Simple error message!")
-#--> Simple error message!
+Scenario("A simple raise")
+	bRaised = FALSE
+	cMsg = ""
+	try
+		StzRaise("Simple error message!")
+	catch
+		bRaised = TRUE
+		cMsg = cCatchError
+	done
+	Then("it raises", bRaised, TRUE)
+	Then("with the message", Q(cMsg).Contains("Simple error message!"), TRUE)
+EndScenario()
 
-pf()
+Summary()

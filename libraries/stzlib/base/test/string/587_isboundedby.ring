@@ -1,21 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #587.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsBoundedBy + RemoveTheseBounds. Archive block #587.
 
-o1 = new stzString("<<word>>")
+Scenario("Checking and stripping bounds")
+	o1 = new stzString("<<word>>")
+	Then("it is angle-bounded", o1.IsBoundedBy(["<<", ">>"]), TRUE)
+	o1.RemoveTheseBounds("<<",">>")
+	Then("stripped", o1.Content(), "word")
+EndScenario()
 
-? o1.IsBoundedBy(["<<", ">>"])
-#--> TRUE
-
-o1.RemoveTheseBounds("<<",">>")
-? o1.Content()
-#--> word
-
-pf()
-# Executed in 0.04 second(s)
+Summary()

@@ -1,17 +1,25 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #590.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Occurrences at the string edges (one side empty) do not count -- only
+# the fully bounded middle one does. Archive block #590.
 
-o1 = new stzString("Ring>>, the nice ---Ring---, the beautiful ((Ring")
-? @@( o1.BoundsOf("Ring") )
-#--> [ "---", "---" ]
+Scenario("Edge occurrences have no bounds")
+	o1 = new stzString("Ring>>, the nice ---Ring---, the beautiful ((Ring")
+	Then("only the dashed one counts",
+		ListEq( o1.BoundsOf("Ring"), [ "---", "---" ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
-# Executed in 0.09 second(s) in ring 1.20
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

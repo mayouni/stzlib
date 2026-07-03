@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #595.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BeginsWithOneOfTheseCS with an inline :Or spelling. Archive block #595.
 
-o1 = new stzString("@str = Q(@str).Uppercased()")
+Scenario("A W-expression prefix")
+	o1 = new stzString("@str = Q(@str).Uppercased()")
+	Then("it begins with one of the spellings",
+		o1.BeginsWithOneOfTheseCS([ "@str =", :Or = "@str=" ], TRUE), TRUE)
+EndScenario()
 
-? o1.BeginsWithOneOfTheseCS([ "@str =", :Or = "@str=" ], TRUE)
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

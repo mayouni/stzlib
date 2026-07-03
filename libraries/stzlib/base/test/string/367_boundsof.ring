@@ -9,8 +9,10 @@ load "../_narrated.ring"
 Scenario("Bounds of a single occurrence, capped")
 	Given('"<<<word>>>"')
 	o1 = new stzString("<<<word>>>")
-	Then("the full bound runs",
-		ListEq( o1.BoundsOf("word"), [ [ "<<<", ">>>" ] ] ), TRUE)
+	# RULING (chunk 35): BoundsOf is FLAT per the original impl
+	# (blocks #589-#591).
+	Then("the full bound runs, flat",
+		ListEq( o1.BoundsOf("word"), [ "<<<", ">>>" ] ), TRUE)
 	Then("capped at 2 a side",
 		ListEq( o1.BoundsOfXT("word", :UpToNChars = 2), [ [ "<<", ">>" ] ] ), TRUE)
 	Then("capped per side",

@@ -7,8 +7,10 @@ load "../_narrated.ring"
 Scenario("BoundsOf and its capped XT form")
 	Given('"Hello <<<Ring>>>, the beautiful (((Ring)))!"')
 	o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
-	Then("BoundsOf returns the full bound runs per occurrence",
-		ListEq( o1.BoundsOf("Ring"), [ [ "<<<", ">>>" ], [ "(((", ")))" ] ] ), TRUE)
+	# RULING (chunk 35): BoundsOf is FLAT per the original impl
+	# (blocks #589-#591).
+	Then("BoundsOf returns the full bound runs, flat",
+		ListEq( o1.BoundsOf("Ring"), [ "<<<", ">>>", "(((", ")))" ] ), TRUE)
 	Then("BoundsOfXT(:UpToNChars=2) caps each side to 2 chars",
 		ListEq( o1.BoundsOfXT("Ring", :UpToNChars = 2), [ [ "<<", ">>" ], [ "((", "))" ] ] ), TRUE)
 EndScenario()

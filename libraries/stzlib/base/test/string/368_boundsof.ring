@@ -10,9 +10,11 @@ load "../_narrated.ring"
 Scenario("Bounds of two occurrences")
 	Given('" <<<<word>>> and ~~~~word~~~~~ "')
 	o1 = new stzString(" <<<<word>>> and ~~~~word~~~~~ ")
-	Then("each occurrence keeps its own bounds",
+	# RULING (chunk 35): BoundsOf is FLAT per the original impl
+	# (blocks #589-#591).
+	Then("each occurrence contributes its runs, flat",
 		ListEq( o1.BoundsOf( "word"),
-			[ [ "<<<<", ">>>" ], [ "~~~~", "~~~~~" ] ] ), TRUE)
+			[ "<<<<", ">>>", "~~~~", "~~~~~" ] ), TRUE)
 	Then("capped at [3, 2]",
 		ListEq( o1.BoundsOfXT( "word", [ 3, 2 ] ),
 			[ [ "<<<", ">>" ], [ "~~~", "~~" ] ] ), TRUE)

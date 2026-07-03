@@ -320,7 +320,10 @@ class stzString from stzObject
 	# same bound char (non-alphanumeric, non-space) immediately before and
 	# after it -> [ [before, after], ... ]. E.g. "<<<Ring>>>...(((Ring)))"
 	# gives [ ["<<<",">>>"], ["(((",")))"] ].
-	def BoundsOf(pcSub)
+	# _BoundsOfPairs(pcSub): per-occurrence [before, after] bound-run
+	# pairs (empty sides kept) -- the internal walker behind BoundsOf,
+	# BoundsOfXT and the capped forms.
+	def _BoundsOfPairs(pcSub)
 		_cTxt_ = This.Content()
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
@@ -355,8 +358,47 @@ class stzString from stzObject
 		end
 		return _aRes_
 
+	# BoundsOf(pcSub): the FLAT bound runs (left then right, per
+	# occurrence) of the occurrences bounded on BOTH sides -- per the
+	# original SubStringBoundsCS (Sections of the bound sections).
+	def BoundsOf(pcSub)
+		_aPairs_ = This._BoundsOfPairs(pcSub)
+		_aRes_ = []
+		_nL_ = len(_aPairs_)
+		for _i_ = 1 to _nL_
+			if _aPairs_[_i_][1] != "" and _aPairs_[_i_][2] != ""
+				_aRes_ + _aPairs_[_i_][1]
+				_aRes_ + _aPairs_[_i_][2]
+			ok
+		next
+		return _aRes_
+
+	# FirstBoundsOf / LastBoundsOf: just the left / right runs of the
+	# both-side-bounded occurrences.
+	def FirstBoundsOf(pcSub)
+		_aPairs_ = This._BoundsOfPairs(pcSub)
+		_aRes_ = []
+		_nL_ = len(_aPairs_)
+		for _i_ = 1 to _nL_
+			if _aPairs_[_i_][1] != "" and _aPairs_[_i_][2] != ""
+				_aRes_ + _aPairs_[_i_][1]
+			ok
+		next
+		return _aRes_
+
+	def LastBoundsOf(pcSub)
+		_aPairs_ = This._BoundsOfPairs(pcSub)
+		_aRes_ = []
+		_nL_ = len(_aPairs_)
+		for _i_ = 1 to _nL_
+			if _aPairs_[_i_][1] != "" and _aPairs_[_i_][2] != ""
+				_aRes_ + _aPairs_[_i_][2]
+			ok
+		next
+		return _aRes_
+
 		def BoundsOfFirstOccurrence(pcSub)
-			_aBof_ = This.BoundsOf(pcSub)
+			_aBof_ = This._BoundsOfPairs(pcSub)
 			if len(_aBof_) = 0 return [] ok
 			return _aBof_[1]
 
@@ -378,7 +420,7 @@ class stzString from stzObject
 			_nBefore_ = n[1]
 			_nAfter_  = n[2]
 		ok
-		_aAll_ = This.BoundsOf(pcSub)
+		_aAll_ = This._BoundsOfPairs(pcSub)
 		_aRes_ = []
 		_nL_ = len(_aAll_)
 		for _iBuc_ = 1 to _nL_
@@ -7973,7 +8015,7 @@ class stzString from stzObject
 				_nSbxL_ = _vSbxCap_[1]
 				_nSbxR_ = _vSbxCap_[2]
 			ok
-			_aSbxRuns_ = This.BoundsOf(_cSbxSub_)
+			_aSbxRuns_ = This._BoundsOfPairs(_cSbxSub_)
 			_aSbxRes_ = []
 			_nSbxN_ = len(_aSbxRuns_)
 			for _i_ = 1 to _nSbxN_
@@ -11490,7 +11532,7 @@ class stzString from stzObject
 		   isList(p2[2])
 			_cBxSub_ = p1[2]
 			_aBxCaps_ = p2[2]
-			_aBxAll_ = This.BoundsOf(_cBxSub_)
+			_aBxAll_ = This._BoundsOfPairs(_cBxSub_)
 			_nBxN_ = len(_aBxAll_)
 			_aBxRes_ = []
 			for _i_ = 1 to _nBxN_
@@ -11865,33 +11907,69 @@ class stzString from stzObject
 			return This
 
 	# NRightCharsAsSubString(n) / NLeftCharsAsSubString(n).
+	# For a right-to-left string the VISUAL right is the string START
+	# (per the original NRightCharsAsSubString: IsRightToLeft -> the
+	# leading codepoints).
+	def IsRightToLeft()
+		# First STRONG directional char decides (utf8proc classes:
+		# L = 1 -> LTR; R = 4 / AL = 5 -> RTL).
+		_aChars_ = This.Chars()
+		_nL_ = len(_aChars_)
+		for _i_ = 1 to _nL_
+			_nB_ = _CharBidiClass( StzCharToUnicode(_aChars_[_i_]) )
+			if _nB_ = 1 return FALSE ok
+			if _nB_ = 4 or _nB_ = 5 return TRUE ok
+		next
+		return FALSE
+
 	def NRightCharsAsSubString(n)
+		if This.IsRightToLeft()
+			return This._EngineSlice(This.Content(), 1, n)
+		ok
 		return This.LastNChars(n)
 
 	def NLeftCharsAsSubString(n)
+		if This.IsRightToLeft()
+			_nLen_ = This._EngineCount(This.Content())
+			if n > _nLen_ n = _nLen_ ok
+			return This._EngineSlice(This.Content(), _nLen_ - n + 1, n)
+		ok
 		return This.FirstNChars(n)
 
 	# RemoveNthOccurrence(n, pcSub): remove the n-th occurrence of
 	# pcSub.
+	# RemoveNthOccurrence(n, pcSub): remove the n-th occurrence of
+	# pcSub; n may be the symbols :First / :Last.
 	def RemoveNthOccurrence(n, pcSub)
-		_nP_ = This.FindNthOccurrence(n, pcSub)
-		if _nP_ = 0 return ok
-		_nSubLen_ = This._EngineCount(pcSub)
-		_cTxt_ = This.Content()
-		_cBefore_ = ""
-		if _nP_ > 1
-			_cBefore_ = This._EngineSlice(_cTxt_, 1, _nP_ - 1)
-		ok
-		_cAfter_ = This._EngineSliceFrom(_cTxt_, _nP_ + _nSubLen_)
-		This.Update(_cBefore_ + _cAfter_)
+		This.RemoveNthOccurrenceCS(n, pcSub, 1)
 
 		def RemoveNthOccurrenceQ(n, pcSub)
 			This.RemoveNthOccurrence(n, pcSub)
 			return This
 
 	def RemoveNthOccurrenceCS(n, pcSub, pCaseSensitive)
-		# Permissiveness -- ignore case flag (per stzString narrative).
-		This.RemoveNthOccurrence(n, pcSub)
+		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and
+		   (lower(pCaseSensitive[1]) = "casesensitive" or lower(pCaseSensitive[1]) = "cs")
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+		_bCase_ = 1
+		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		_aAll_ = This.FindCS(pcSub, _bCase_)
+		_nT_ = len(_aAll_)
+		if _nT_ = 0 return ok
+		if isString(n)
+			_kN_ = lower(n)
+			if _kN_ = "first"
+				n = 1
+			but _kN_ = "last"
+				n = _nT_
+			ok
+		ok
+		if NOT isNumber(n) return ok
+		if n < 1 or n > _nT_ return ok
+		_nSubLen_ = This._EngineCount(pcSub)
+		This.RemoveSection(_aAll_[n], _aAll_[n] + _nSubLen_ - 1)
 
 		def RemoveNthOccurrenceCSQ(n, pcSub, pCaseSensitive)
 			This.RemoveNthOccurrenceCS(n, pcSub, pCaseSensitive)
@@ -11918,35 +11996,7 @@ class stzString from stzObject
 			This.AddBounds(p1)
 			return This
 
-	# FirstBoundsOf(pcSub): the first [before, after] bounds (same
-	# as SubStringBounds).
-	def FirstBoundsOf(pcSub)
-		return This.SubStringBounds(pcSub)
-
-	def LastBoundsOf(pcSub)
-		# Find last occurrence then return its single-char bounds.
-		_nLast_ = 0
-		_nSubLen_ = This._EngineCount(pcSub)
-		_nPos_ = 1
-		while TRUE
-			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
-			           _nPos_, 1)
-			if _nFound_ < 1 exit ok
-			_nLast_ = _nFound_
-			_nPos_ = _nFound_ + _nSubLen_
-		end
-		if _nLast_ = 0 return [] ok
-		_nLen_ = This._EngineCount(This.Content())
-		_cBefore_ = ""
-		if _nLast_ > 1
-			_cBefore_ = This._EngineSlice(This.Content(), _nLast_ - 1, 1)
-		ok
-		_cAfter_ = ""
-		if _nLast_ + _nSubLen_ <= _nLen_
-			_cAfter_ = This._EngineSlice(This.Content(),
-			           _nLast_ + _nSubLen_, 1)
-		ok
-		return [ _cBefore_, _cAfter_ ]
+	# (FirstBoundsOf / LastBoundsOf live next to BoundsOf above.)
 
 	# BeginsWithOneOfTheseCS(pacSubStr, pCaseSensitive): TRUE if the
 	# content starts with any of the listed substrings.
@@ -16629,6 +16679,12 @@ class stzString from stzObject
 		This.RemoveFromLeftCS(pcSubStr, 1)
 
 	def RemoveFromRightCS(pcSubStr, pCaseSensitive)
+		# In a right-to-left string the visual right is the START (the
+		# original RemoveFromRightCS mirrors when IsRightToLeft).
+		if This.IsRightToLeft()
+			This.RemoveFromStart(pcSubStr)
+			return
+		ok
 		_oRfrRemover_ = new stzStringRemover(This)
 		_oRfrRemover_.RemoveFromRightCS(pcSubStr, pCaseSensitive)
 		This.Update(_oRfrRemover_.Content())
