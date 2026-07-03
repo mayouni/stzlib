@@ -1,21 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #680.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveNLastChars (mutating) / LastNCharsRemoved (functional).
+# Archive block #680.
 
-o1 = new stzString("BATISTA123")
+Scenario("Dropping the numeric tail")
+	o1 = new stzString("BATISTA123")
+	o1.RemoveNLastChars(3)
+	Then("mutated in place", o1.Content(), "BATISTA")
+	Then("or functionally",
+		StzStringQ("BATISTA123").LastNCharsRemoved(3), "BATISTA")
+EndScenario()
 
-o1.RemoveNLastChars(3)
-? o1.Content()
-#--> BATISTA
-
-? StzStringQ("BATISTA123").LastNCharsRemoved(3)
-#--> BATISTA
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

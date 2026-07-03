@@ -1,27 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #671.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# RemoveThisTrailingChar (mutating) and ThisTrailingCharRemoved
+# (functional twin). Archive block #671.
 
-o1 = new stzString("12.4560000")
+Scenario("Peeling the trailing zeros")
+	o1 = new stzString("12.4560000")
+	o1.RemoveThisTrailingChar("0")
+	Then("mutated in place", o1.Content(), "12.456")
+	Then("or functionally",
+		Q("12.45600").ThisTrailingCharRemoved("0"), "12.456")
+EndScenario()
 
-o1.RemoveThisTrailingChar("0")
-? o1.Content()
-#--> 12.456
-
-pf()
-# Executed in 0.06 second(s).
-
-#------
-
-pr()
-
-? Q("12.45600").ThisTrailingCharRemoved("0")
-#--> "12.456"
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

@@ -1,5 +1,10 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-03): DEFERRED -- TitlecasedInLocale/CapitalisedInLocale
+# need the locale rules (fr-FR keeps particles lowercase and only caps the
+# sentence head); current impl caps every word regardless of locale. Belongs
+# to the stzLocale module pass (with 650). Mojibake literals repaired.
 # pr()
 #
 # Extracted from stzStringTest.ring, block #664.

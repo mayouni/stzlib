@@ -1,26 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #670.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The trailing-run reading toolkit. Archive block #670.
 
-o1 = new stzString("12.4560000")
+Scenario("Trailing zeros of a number-in-string")
+	o1 = new stzString("12.4560000")
+	Then("there is a trailing run", o1.HasTrailingChars(), TRUE)
+	Then("of four chars", o1.HowManyTrailingChar(), 4)
+	Then("the char is 0", o1.TrailingChar(), "0")
+	Then("... confirmed", o1.TrailingCharIs("0"), TRUE)
+EndScenario()
 
-? o1.HasTrailingChars()
-#--> TRUE
-
-? o1.HowManyTrailingChar()
-#--> 4
-
-? @@( o1.TrailingChar() )
-#--> "0"
-
-? o1.TrailingCharIs("0")
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

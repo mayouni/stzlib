@@ -839,7 +839,37 @@ UpTo/DownTo generalisation of Ring's ASCII-bound ":" ranges).
   to the locale module pass.
 Pure conversions: 641, 644, 648, 651, 652, 660.
 
-## STATUS (2026-07-03): 607/999 test files audited (chunks 14-38 added 344); ~392 still to audit
+### Chunk 39 (tests 661-680, 2026-07-03)
+
+- **`LeadingSubString` / `TrailingSubString` = the repeated-char RUN**
+  (672-675): were "longest non-letter prefix" (returned the WHOLE of
+  "000012.456"); now alias the LeadingCharsXT run family, per the
+  archive's own gloss ("TrailingSubString() # Or TrailingCharsXT()").
+  ZZ twins return the zipped `[run, [start, end]]`
+  (`"12.4560000"` -> `["0000", [7, 10]]`); Remove*SubString =
+  Remove*Chars.
+- **A run needs >= 2 chars** (668): `.....mmMm` has NO case-sensitive
+  trailing run (lone "m") -> Has FALSE / TrailingChar "". Rule wired
+  into Leading/TrailingCharsAsString cores so the whole family
+  (counts, lists, XT, removals) agrees.
+- **`Has/Leading/TrailingChar-CS` dials are real now** (668): were
+  stubs ignoring the flag; case-insensitive walk (StzLower per char
+  over Chars()) finds "mmMm" as a run -> CS(FALSE) TRUE / "m".
+- **`SplitsZ` / `SplitsZZ` zip the parts** (662): Z = `[part, start]`,
+  ZZ = `[part, [start, end]]` per the settled Z-shape convention (were
+  positions-only / sections-only). Interior empty parts kept, edge
+  empties dropped (mirrors Splits). Also caught an `_EngineSlice`
+  arity trap: 3rd arg is COUNT, not end.
+- **`ThisTrailingCharRemoved` / `ThisLeadingCharRemoved`** (671): the
+  functional twins of RemoveThis*Char existed only as mutators; added.
+- **664 DEFERRED**: TitlecasedInLocale/CapitalisedInLocale need real
+  locale rules (fr-FR lowercases particles); impl caps every word.
+  Goes with 650 to the stzLocale pass. The file's mojibake literals
+  ("A-tilde " for a-grave) repaired to proper UTF-8.
+Pure conversions: 661, 663, 665, 666, 669, 670, 676-680 (667 was
+already narrated in the W-migration).
+
+## STATUS (2026-07-03): 626/999 test files audited (chunks 14-39 added 363); ~373 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

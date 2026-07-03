@@ -1,18 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #677.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# LeadingChar reads the run's char; RemoveThisLeadingChar peels the
+# run when it matches. Archive block #677.
 
-o1 = new stzString("000122.12")
-? o1.LeadingChar() #--> "0"
+Scenario("Reading then removing the leading zeros")
+	o1 = new stzString("000122.12")
+	Then("the leading char", o1.LeadingChar(), "0")
+	o1.RemoveThisLeadingChar("0")
+	Then("the run is gone", o1.Content(), "122.12")
+EndScenario()
 
-o1.RemoveThisLeadingChar("0")
-? o1.Content()	#--> "122.12"
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

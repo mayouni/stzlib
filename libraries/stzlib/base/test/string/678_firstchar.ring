@@ -1,16 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #678.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FirstChar / LastChar. Archive block #678.
 
-o1 = new stzString("ABC")
-? o1.FirstChar() #--> A
-? o1.LastChar()  #--> C
+Scenario("The ends of ABC")
+	o1 = new stzString("ABC")
+	Then("first", o1.FirstChar(), "A")
+	Then("last", o1.LastChar(), "C")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

@@ -5069,7 +5069,9 @@ class stzString from stzObject
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return "" ok
 		_n_ = StzEngineStringCountLeadingChar(@pEngine, StzEngineStringCharAt(@pEngine, 1))
-		if _n_ = 0 return "" ok
+		# A "leading run" means the first char REPEATED: one lone
+		# char at the start is not a run (see test 668's twin rule).
+		if _n_ < 2 return "" ok
 		return This._EngineSlice(This.Content(), 1, _n_)
 
 	def LeadingChars()
@@ -5095,7 +5097,8 @@ class stzString from stzObject
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return "" ok
 		_n_ = StzEngineStringCountTrailingChar(@pEngine, StzEngineStringCharAt(@pEngine, _nLen_))
-		if _n_ = 0 return "" ok
+		# Same rule as the leading side: a run needs at least 2 chars.
+		if _n_ < 2 return "" ok
 		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
 
 	def TrailingChars()
@@ -7987,10 +7990,7 @@ class stzString from stzObject
 		return This.FindSubStringBoundsUpToNCharsAsSections(pcSub, n)
 
 	def RemoveTrailingSubString()
-		_z_ = This.TrailingSubStringZZ()
-		if len(_z_) = 2
-			This.RemoveSection(_z_[1], _z_[2])
-		ok
+		This.RemoveTrailingChars()
 
 		def RemoveTrailingSubStringQ()
 			This.RemoveTrailingSubString()
@@ -8727,35 +8727,23 @@ class stzString from stzObject
 		This.RemoveAt(n, pcSub)
 		return This
 
-	# LeadingSubString: longest leading non-letter prefix.
-	# (Narrative semantic: the "prefix" before the alphabetic body.)
+	# LeadingSubString / TrailingSubString: the repeated-char RUN at
+	# the string's edge, as a string -- same thing LeadingCharsXT()
+	# returns ("000012.456" -> "0000"). The ZZ twins zip the run with
+	# its section.
 	def LeadingSubString()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_n_ = 0
-		while _n_ < _nLen_ and (NOT isAlpha(_aChars_[_n_ + 1]))
-			_n_++
-		end
-		if _n_ = 0 return "" ok
-		return This._EngineSlice(This.Content(), 1, _n_)
+		return This.LeadingCharsAsString()
 
 		def LeadingSubStringCS(pCaseSensitive)
 			return This.LeadingSubString()
 
 	def LeadingSubStringZZ()
-		_nLeadLen_ = This._EngineCount(This.LeadingSubString())
-		if _nLeadLen_ = 0 return [] ok
-		return [ 1, _nLeadLen_ ]
+		_cRun_ = This.LeadingSubString()
+		if _cRun_ = "" return [] ok
+		return [ _cRun_, [ 1, This._EngineCount(_cRun_) ] ]
 
 	def TrailingSubString()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_n_ = 0
-		while _n_ < _nLen_ and (NOT isAlpha(_aChars_[_nLen_ - _n_]))
-			_n_++
-		end
-		if _n_ = 0 return "" ok
-		return This._EngineSliceFrom(This.Content(), _nLen_ - _n_ + 1)
+		return This.TrailingCharsAsString()
 
 	# IsQuietEqualTo(pcOther): "quiet" equality -- accept up to ~30%
 	# char-level mismatches. Useful for fuzzy comparisons. Uses
@@ -12664,28 +12652,45 @@ class stzString from stzObject
 		return This.Split(pcSep)
 
 	def SplitsZ(pcSep)
-		# Start positions of each split, in absolute codepoint coords.
-		if NOT isString(pcSep) or pcSep = "" return [] ok
-		_aRes_ = [ 1 ]
-		_aP_ = This.AllPositionsOf(pcSep)
-		_nSL_ = This._EngineCount(pcSep)
-		_nL_ = len(_aP_)
+		# Each part zipped with its start position:
+		# [ ["one", 1], ["two", 5], ... ]
+		_aZZ_ = This.SplitsZZ(pcSep)
+		_aRes_ = []
+		_nL_ = len(_aZZ_)
 		for _i_ = 1 to _nL_
-			_aRes_ + (_aP_[_i_] + _nSL_)
+			_aRes_ + [ _aZZ_[_i_][1], _aZZ_[_i_][2][1] ]
 		next
 		return _aRes_
 
 	def SplitsZZ(pcSep)
-		_aS_ = This.SplitsZ(pcSep)
-		_aRes_ = []
-		_nL_ = len(_aS_)
-		_nTL_ = This.NumberOfChars()
+		# Each part zipped with its section:
+		# [ ["one", [1, 3]], ["two", [5, 7]], ... ]
+		if NOT isString(pcSep) or pcSep = "" return [] ok
+		_aP_ = This.AllPositionsOf(pcSep)
 		_nSL_ = This._EngineCount(pcSep)
+		_nTL_ = This.NumberOfChars()
+		_aStarts_ = [ 1 ]
+		_nL_ = len(_aP_)
 		for _i_ = 1 to _nL_
-			_start_ = _aS_[_i_]
+			_aStarts_ + (_aP_[_i_] + _nSL_)
+		next
+		_aRes_ = []
+		_nS_ = len(_aStarts_)
+		for _i_ = 1 to _nS_
+			_start_ = _aStarts_[_i_]
 			_end_ = _nTL_
-			if _i_ < _nL_ _end_ = _aS_[_i_ + 1] - _nSL_ - 1 ok
-			_aRes_ + [ _start_, _end_ ]
+			if _i_ < _nS_ _end_ = _aStarts_[_i_ + 1] - _nSL_ - 1 ok
+			_cPart_ = ""
+			if _end_ >= _start_
+				_cPart_ = This._EngineSlice(This.Content(), _start_, (_end_ - _start_ + 1))
+			ok
+			# Mirror Splits(): interior empty parts kept, edge
+			# empties dropped.
+			if _cPart_ != ""
+				_aRes_ + [ _cPart_, [ _start_, _end_ ] ]
+			but _i_ > 1 and _i_ < _nS_
+				_aRes_ + [ "", [ _start_, _end_ ] ]
+			ok
 		next
 		return _aRes_
 
@@ -13024,18 +13029,11 @@ class stzString from stzObject
 		return This.StartsWithCS(pcSub, 1)
 
 	def TrailingSubStringZZ()
-		# Bounds of the trailing-substring auto-detected from the
-		# last word of the content.
-		_cSub_ = This.TrailingSubString()
-		if _cSub_ = "" return [] ok
+		_cRun_ = This.TrailingSubString()
+		if _cRun_ = "" return [] ok
 		_nLen_ = This._EngineCount(This.Content())
-		_nSubLen_ = This._EngineCount(_cSub_)
-		if _nSubLen_ > _nLen_ return [] ok
-		if This._EngineSliceFrom(This.Content(),
-		                         _nLen_ - _nSubLen_ + 1) != _cSub_
-			return []
-		ok
-		return [ _nLen_ - _nSubLen_ + 1, _nLen_ ]
+		_nSub_ = This._EngineCount(_cRun_)
+		return [ _cRun_, [ (_nLen_ - _nSub_ + 1), _nLen_ ] ]
 
 	def TrailingSubStringZZOf(pcSub)
 		if NOT isString(pcSub) or pcSub = "" return [] ok
@@ -14492,11 +14490,7 @@ class stzString from stzObject
 			return This
 
 	def LeadingSubStringRemove()
-		# Mutating: drop the leading non-letter prefix.
-		_cLead_ = This.LeadingSubString()
-		if len(_cLead_) = 0 return ok
-		This.Update(This._EngineSliceFrom(This.Content(),
-		            This._EngineCount(_cLead_) + 1))
+		This.RemoveLeadingChars()
 
 	def RemoveLeadingSubString()
 		This.LeadingSubStringRemove()
@@ -15023,11 +15017,68 @@ class stzString from stzObject
 			This.ReplaceTrailingCharsCS(pcNew, pCaseSensitive)
 			return This
 
+	# The case dial matters for runs like ".....mmMm": case-sensitive
+	# the trailing run is the lone "m" (no run); case-insensitive it
+	# is "mmMm". Resolve the flag, then pick the right walk.
+	def _CaseFlagValue(p)
+		if isNumber(p) return p ok
+		_bCfv_ = TRUE
+		if isList(p) and len(p) = 2
+			if isString(p[1])
+				if lower(p[1]) = "cs" or lower(p[1]) = "casesensitive"
+					if p[2] = FALSE or p[2] = 0 _bCfv_ = FALSE ok
+				ok
+			ok
+		ok
+		return _bCfv_
+
+	def _LeadingRunCIAsString()
+		_aCh_ = This.Chars()
+		_nLen_ = len(_aCh_)
+		if _nLen_ = 0 return "" ok
+		_cRef_ = StzLower(_aCh_[1])
+		_nRun_ = 1
+		_iLr_ = 2
+		while _iLr_ <= _nLen_
+			if StzLower(_aCh_[_iLr_]) = _cRef_
+				_nRun_++
+				_iLr_++
+			else
+				exit
+			ok
+		end
+		if _nRun_ < 2 return "" ok
+		return This._EngineSlice(This.Content(), 1, _nRun_)
+
+	def _TrailingRunCIAsString()
+		_aCh_ = This.Chars()
+		_nLen_ = len(_aCh_)
+		if _nLen_ = 0 return "" ok
+		_cRef_ = StzLower(_aCh_[_nLen_])
+		_nRun_ = 1
+		_iTr_ = _nLen_ - 1
+		while _iTr_ >= 1
+			if StzLower(_aCh_[_iTr_]) = _cRef_
+				_nRun_++
+				_iTr_--
+			else
+				exit
+			ok
+		end
+		if _nRun_ < 2 return "" ok
+		return This._EngineSliceFrom(This.Content(), _nLen_ - _nRun_ + 1)
+
 	def HasLeadingCharsCS(pCaseSensitive)
-		return This.HasLeadingChars()
+		if This._CaseFlagValue(pCaseSensitive)
+			return This.HasLeadingChars()
+		ok
+		return This._LeadingRunCIAsString() != ""
 
 	def HasTrailingCharsCS(pCaseSensitive)
-		return This.HasTrailingChars()
+		if This._CaseFlagValue(pCaseSensitive)
+			return This.HasTrailingChars()
+		ok
+		return This._TrailingRunCIAsString() != ""
 
 	def RemoveThisLeadingCharCS(pcChar, pCaseSensitive)
 		This.RemoveThisCharFromStartXT(pcChar)
@@ -15283,10 +15334,21 @@ class stzString from stzObject
 		return This.IsIncludedIn(pcOther)
 
 	def TrailingCharCS(pCaseSensitive)
-		return This.TrailingChar()
+		if This._CaseFlagValue(pCaseSensitive)
+			return This.TrailingChar()
+		ok
+		_cRun_ = This._TrailingRunCIAsString()
+		if _cRun_ = "" return "" ok
+		_nRl_ = This._EngineCount(_cRun_)
+		return This._EngineSlice(_cRun_, _nRl_, _nRl_)
 
 	def LeadingCharCS(pCaseSensitive)
-		return This.LeadingChar()
+		if This._CaseFlagValue(pCaseSensitive)
+			return This.LeadingChar()
+		ok
+		_cRun_ = This._LeadingRunCIAsString()
+		if _cRun_ = "" return "" ok
+		return This._EngineSlice(_cRun_, 1, 1)
 
 	# IsALetterOf(pcOther): TRUE iff single-char This appears in pcOther.
 	def IsALetterOf(pcOther)
@@ -16743,6 +16805,16 @@ class stzString from stzObject
 		def RemoveThisTrailingCharQ(c)
 			This.RemoveThisTrailingChar(c)
 			return This
+
+		def ThisTrailingCharRemoved(c)
+			_oTtcr_ = new stzString(This.Content())
+			_oTtcr_.RemoveThisTrailingChar(c)
+			return _oTtcr_.Content()
+
+		def ThisLeadingCharRemoved(c)
+			_oTlcr_ = new stzString(This.Content())
+			_oTlcr_.RemoveThisLeadingChar(c)
+			return _oTlcr_.Content()
 
 		def RemoveThisRepeatedTrailingChar(c)
 			This.RemoveThisTrailingChar(c)

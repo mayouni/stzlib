@@ -1,20 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #679.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FirstChar / LastChar again, on a dashed string. Archive block #679.
 
-o1 = new stzString("---Ring")
+Scenario("The ends of ---Ring")
+	o1 = new stzString("---Ring")
+	Then("first", o1.FirstChar(), "-")
+	Then("last", o1.LastChar(), "g")
+EndScenario()
 
-? o1.FirstChar()
-#--> "-"
-
-? o1.LastChar()
-#--> "g"
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

@@ -1,18 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #663.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindWords: the start position of every word. Archive block #663.
 
-o1 = new stzString("in search of lost time, all the time")
-? @@( o1.FindWords() )
-#--> [ 1, 4, 11, 14, 19, 25, 29, 33 ]
+Scenario("Word positions in a Proust echo")
+	o1 = new stzString("in search of lost time, all the time")
+	Then("eight word starts",
+		ListEq( o1.FindWords(), [ 1, 4, 11, 14, 19, 25, 29, 33 ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s) in Ring 1.22
-# Executed in 0.05 second(s) in Ring 1.21
-# Executed in 0.08 second(s) in Ring 1.17
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
