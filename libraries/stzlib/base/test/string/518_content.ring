@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #518.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Swapping two SUBSTRINGS by value. Archive block #518.
 
-o1 = new stzString("TWO, ONE, THREE!")
-o1.Swap("TWO", :And = "ONE") # Or SwapSubStrings()
-? o1.Content()
-#--> ONE, TWO, THREE!
+Scenario("Putting ONE before TWO")
+	o1 = new stzString("TWO, ONE, THREE!")
+	o1.Swap("TWO", :And = "ONE")
+	Then("the words traded places", o1.Content(), "ONE, TWO, THREE!")
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
+Summary()

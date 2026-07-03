@@ -1,19 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #509.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The first / last N occurrences. Archive block #509.
 
-o1 = new stzString("ab_cd_ef_gh")
+Scenario("First and last two underscores")
+	o1 = new stzString("ab_cd_ef_gh")
+	Then("the first two", ListEq( o1.FindFirstNOccurrences(2, "_"), [3, 6] ), TRUE)
+	Then("the last two", ListEq( o1.FindLastNOccurrences(2, "_"), [6, 9] ), TRUE)
+EndScenario()
 
-? o1.FindFirstNOccurrences(2, "_")
-#--> [3, 6]
-? o1.FindLastNOccurrences(2, "_")
-#--> [6, 9]
+Summary()
 
-pf()
-# Executed in 0.03 second(s).
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

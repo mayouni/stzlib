@@ -47,13 +47,15 @@ Scenario("Case-insensitive either-check and capped bounds")
 		Q("one").IsEitherCS("ONE", :Or = "TWO", :CS = FALSE), TRUE)
 	o1 = new stzString("<<<word>>>")
 	Then("the auto-detected bounds", ListEq( o1.Bounds(), [ "<<<", ">>>" ] ), TRUE)
+	# NOTE: the whole-string capped form is BoundsUpToNChars; BoundsXT
+	# is the 2-arg per-occurrence (:Of = sub, :UpToNChars = caps) form
+	# (block #515) -- Ring has no arity overloading.
 	Then("capped at 2 a side",
-		ListEq( o1.BoundsXT(:UpToNChars = 2), [ "<<", ">>" ] ), TRUE)
+		ListEq( o1.BoundsUpToNChars(:UpToNChars = 2), [ "<<", ">>" ] ), TRUE)
 	Then("capped per side",
-		ListEq( o1.BoundsXT([ 1, 2 ]), [ "<", ">>" ] ), TRUE)
-	Then("the UpToNChars spelling",
-		ListEq( o1.BoundsUpToNChars(2), [ "<<", ">>" ] ) and
 		ListEq( o1.BoundsUpToNChars([ 1, 2 ]), [ "<", ">>" ] ), TRUE)
+	Then("the plain-number spelling",
+		ListEq( o1.BoundsUpToNChars(2), [ "<<", ">>" ] ), TRUE)
 EndScenario()
 
 Summary()

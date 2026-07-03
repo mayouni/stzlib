@@ -68,14 +68,18 @@ class stzListMover
 			ok
 		ok
 		if NOT (isNumber(n1) and isNumber(n2)) return ok
-		_nL_ = len(This.List())
+		# Work on a local copy and write back -- Ring returns lists
+		# from methods by value, so mutating This.List() in place is
+		# silently lost.
+		_aMv_ = This.List()
+		_nL_ = len(_aMv_)
 		if n1 < 1 or n1 > _nL_ or n2 < 1 or n2 > _nL_ return ok
-		_mvItem_ = This.List()[n1]
-		ring_remove(This.List(), n1)
-		if n2 > n1
-			n2 = n2 - 1
-		ok
-		ring_insert(This.List(), n2 - 1, _mvItem_)
+		_mvItem_ = _aMv_[n1]
+		ring_remove(_aMv_, n1)
+		# ring_insert places the value AT the given position, and after
+		# the removal the target position needs no further adjustment.
+		ring_insert(_aMv_, n2, _mvItem_)
+		@oList.Update(_aMv_)
 
 		def MoveQ(n1, n2)
 			This.Move(n1, n2)

@@ -1,19 +1,29 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #513.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ToListOfStzStrings yields real stzString objects to iterate over.
+# Archive block #513.
 
-aStzStrList = StzListOfStringsQ([ "one", "two", "three" ]).ToListOfStzStrings()
+Scenario("Iterating stzStrings")
+	aStzStrList = StzListOfStringsQ([ "one", "two", "three" ]).ToListOfStzStrings()
+	acRes = []
+	foreach oStr in aStzStrList
+		acRes + oStr.Uppercased()
+	next
+	Then("each uppercases on its own",
+		ListEq( acRes, [ "ONE", "TWO", "THREE" ] ), TRUE)
+EndScenario()
 
-foreach oStr in aStzStrList
-	? oStr.Uppercased()
-next
-#-- [ "ONE", "TWO", "THREE" ]
+Summary()
 
-pf()
-# Executed in 0.02 second(s).
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

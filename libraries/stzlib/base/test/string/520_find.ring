@@ -1,27 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #520.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Three spellings of the same find -- all return ALL the positions (the
+# StzFind list contract). Archive block #520.
 
-o1 = new stzString("*AB*")
+Scenario("Finding the stars, three ways")
+	o1 = new stzString("*AB*")
+	Then("Find", ListEq( o1.Find("*"), [1, 4] ), TRUE)
+	Then("the named-param spelling",
+		ListEq( o1.Find( :SubString = "*" ), [1, 4] ), TRUE)
+	Then("FindSubString",
+		ListEq( o1.FindSubString( "*" ), [1, 4] ), TRUE)
+EndScenario()
 
-? @@( o1.Find("*") )
-#--> [1, 4]
+Summary()
 
-# Or you can say:
-? @@( o1.Find( :SubString = "*" ) )
-#--> [1, 4]
-
-# Or also:
-? @@( o1.FindSubString( "*" ) )
-#--> [1, 4]
-
-# And many other alternatives that you can discover in the fucntion code
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

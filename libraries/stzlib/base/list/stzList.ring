@@ -6977,12 +6977,42 @@ class stzList from stzObject
 	 #  MOVER DELEGATIONS            #
 	#-------------------------------#
 
+	# Move / Swap accept the named-param spellings
+	# Move(:ItemFromPosition = a, :To = b), Swap(:Positions = a, :And = b),
+	# and the value form Swap(item1, :And = item2).
 	def Move(n1, n2)
+		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
+		   (lower(n1[1]) = "itemfromposition" or lower(n1[1]) = "fromposition" or
+		    lower(n1[1]) = "from") and isNumber(n1[2])
+			n1 = n1[2]
+		ok
+		if isList(n2) and len(n2) = 2 and isString(n2[1]) and
+		   (lower(n2[1]) = "to" or lower(n2[1]) = "toposition") and isNumber(n2[2])
+			n2 = n2[2]
+		ok
 		_oMvMvr_ = new stzListMover(This)
 		_oMvMvr_.Move(n1, n2)
 		This.UpdateWith(_oMvMvr_.Content())
 
 	def Swap(n1, n2)
+		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
+		   (lower(n1[1]) = "positions" or lower(n1[1]) = "position") and
+		   isNumber(n1[2])
+			n1 = n1[2]
+		ok
+		if isList(n2) and len(n2) = 2 and isString(n2[1]) and
+		   lower(n2[1]) = "and"
+			# Swap(item1, :And = item2) -- swap the two VALUES' positions.
+			if NOT isNumber(n1)
+				_nSw1_ = This.FindFirst(n1)
+				_nSw2_ = This.FindFirst(n2[2])
+				if _nSw1_ < 1 or _nSw2_ < 1 return ok
+				n1 = _nSw1_
+				n2 = _nSw2_
+			but isNumber(n2[2])
+				n2 = n2[2]
+			ok
+		ok
 		_oSwMvr_ = new stzListMover(This)
 		_oSwMvr_.Swap(n1, n2)
 		This.UpdateWith(_oSwMvr_.Content())
@@ -11272,11 +11302,15 @@ class stzList from stzObject
 	#-- chaining (mirrors LowercaseQ; relies on Uppercased).
 
 	def UppercaseQ()
+		_StzHistoOpen(This.Content())
 		This.UpdateWith( This.Uppercased() )
+		_StzHistoAdd(This.Content())
 		return This
 
 		def LowercaseQ()
+			_StzHistoOpen(This.Content())
 			This.UpdateWith( This.Lowercased() )
+			_StzHistoAdd(This.Content())
 			return This
 
 	#========================================================#

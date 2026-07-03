@@ -270,7 +270,9 @@ class stzStringCharList
 		@acChars = _aOut_
 
 		def RemoveSpacesQ()
+			_StzHistoOpen(This.Content())
 			This.RemoveSpaces()
+			_StzHistoAdd(This.Content())
 			return This
 
 	# Uppercase / UppercaseQ / Lowercase / LowercaseQ: case-map.
@@ -285,7 +287,9 @@ class stzStringCharList
 		next
 
 		def UppercaseQ()
+			_StzHistoOpen(This.Content())
 			This.Uppercase()
+			_StzHistoAdd(This.Content())
 			return This
 
 	def Lowercase()
@@ -312,7 +316,9 @@ class stzStringCharList
 		return _cOut_
 
 		def JoinQ()
-			return new stzString( This.Join() )
+			_cJq_ = This.Join()
+			_StzHistoAdd(_cJq_)
+			return new stzString( _cJq_ )
 
 	def NumberOfChars()
 		return len(@acChars)

@@ -1,28 +1,32 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #512.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveEmptyLinesQ drops the leading empty lines and keeps the data
+# rows (trailing spaces preserved). Archive block #512.
 
-o1 = new stzString("
+Scenario("Cleaning empty lines from semi-structured data")
+	o1 = new stzString("
 
 .;1;.;.;.
 1;2;3;4;5
 .;3;.;.;.
 .;4;.;.;.
 .;5;.;.;.  " )
+	Then("only the data lines remain",
+		ListEq( Q(o1.RemoveEmptyLinesQ().Content()).Lines(),
+			[ ".;1;.;.;.", "1;2;3;4;5", ".;3;.;.;.", ".;4;.;.;.", ".;5;.;.;.  " ] ), TRUE)
+EndScenario()
 
-? o1.RemoveEmptyLinesQ().Content()
-#-->
-# .;1;.;.;.
-# 1;2;3;4;5
-# .;3;.;.;.
-# .;4;.;.;.
-# .;5;.;.;.  
+Summary()
 
-pf()
-# Executed in 0.01 second(s).
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

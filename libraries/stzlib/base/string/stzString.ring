@@ -607,7 +607,10 @@ class stzString from stzObject
 		def CharsQ()
 			# Fluent form: return the char list wrapped in stzListOfChars
 			# so .Section(:From, :To) etc. resolve on the list class.
-			return new stzListOfChars( This.Chars() )
+			_aCq_ = This.Chars()
+			_StzHistoOpen(This.Content())
+			_StzHistoAdd(_aCq_)
+			return new stzListOfChars( _aCq_ )
 
 	def CharsNames()
 		_acResult_ = []
@@ -2226,7 +2229,9 @@ class stzString from stzObject
 		This.ReplaceCS(pcSubStr, pcNewSubStr, 1)
 
 		def ReplaceQ(pcSubStr, pcNewSubStr)
+			_StzHistoOpen(This.Content())
 			This.Replace(pcSubStr, pcNewSubStr)
+			_StzHistoAdd(This.Content())
 			return This
 
 		def ReplaceAll(pcSubStr, pcNewSubStr)
@@ -3232,7 +3237,9 @@ class stzString from stzObject
 		This.SpacifyCharsUsing(" ")
 
 		def SpacifyQ()
+			_StzHistoOpen(This.Content())
 			This.Spacify()
+			_StzHistoAdd(This.Content())
 			return This
 
 	# SpacifyUsing: alias of SpacifyCharsUsing.
@@ -7817,14 +7824,16 @@ class stzString from stzObject
 		This.RemoveSpaces()
 		return This
 
-	# FindSubString(pcSub): the first position of pcSub in the content.
+	# FindSubString(pcSub): ALL the positions of pcSub (alias of Find,
+	# per the StzFind list contract; the single-position form is
+	# FindFirst).
 	def FindSubString(pcSub)
-		return StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, 1)
+		return This.Find(pcSub)
 
 	def FindSubStringCS(pcSub, pCaseSensitive)
 		_bCase_ = 1
 		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
-		return StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, _bCase_)
+		return This.FindCS(pcSub, _bCase_)
 
 	# SubStringsW(pcCondition): every substring where the @SubString predicate is
 	# TRUE (engine W form; use SubStringsWF for function predicates).
@@ -11180,7 +11189,55 @@ class stzString from stzObject
 	# BoundsXT(pacBounds, n): the bounds of the n-th bounded match.
 	# BoundsXT(p): the auto-detected Bounds() capped at N chars a side --
 	# p = :UpToNChars = n, a bare number, or a [nLeft, nRight] pair.
-	def BoundsXT(p)
+	# BoundsXT(:Of = sub, :UpToNChars = caps): per-occurrence bounds of
+	# sub, each side capped by the matching entry of caps (a number ->
+	# both sides, a [l, r] pair -> per side; 0 -> NULL side).
+	# The single-arg whole-string form lives in BoundsUpToNChars (pass
+	# the cap as p1 and 0 as p2).
+	def BoundsXT(p1, p2)
+		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
+		   lower(p1[1]) = "of" and isString(p1[2]) and
+		   isList(p2) and len(p2) = 2 and isString(p2[1]) and
+		   (lower(p2[1]) = "uptonchars" or lower(p2[1]) = "uptochars") and
+		   isList(p2[2])
+			_cBxSub_ = p1[2]
+			_aBxCaps_ = p2[2]
+			_aBxAll_ = This.BoundsOf(_cBxSub_)
+			_nBxN_ = len(_aBxAll_)
+			_aBxRes_ = []
+			for _i_ = 1 to _nBxN_
+				_nCapL_ = 0
+				_nCapR_ = 0
+				if _i_ <= len(_aBxCaps_)
+					if isNumber(_aBxCaps_[_i_])
+						_nCapL_ = _aBxCaps_[_i_]
+						_nCapR_ = _aBxCaps_[_i_]
+					but isList(_aBxCaps_[_i_]) and len(_aBxCaps_[_i_]) = 2
+						_nCapL_ = _aBxCaps_[_i_][1]
+						_nCapR_ = _aBxCaps_[_i_][2]
+					ok
+				ok
+				_cL_ = NULL
+				_cR_ = NULL
+				if _nCapL_ > 0 and _aBxAll_[_i_][1] != ""
+					_cL_ = _aBxAll_[_i_][1]
+					if This._EngineCount(_cL_) > _nCapL_
+						_cL_ = This._EngineSlice(_cL_, 1, _nCapL_)
+					ok
+				ok
+				if _nCapR_ > 0 and _aBxAll_[_i_][2] != ""
+					_cR_ = _aBxAll_[_i_][2]
+					if This._EngineCount(_cR_) > _nCapR_
+						_cR_ = This._EngineSlice(_cR_, 1, _nCapR_)
+					ok
+				ok
+				_aBxRes_ + [ _cL_, _cR_ ]
+			next
+			return _aBxRes_
+		ok
+		return This.BoundsUpToNChars(p1)
+
+	def BoundsUpToNChars(p)
 		_aB_ = This.Bounds()
 		if len(_aB_) != 2 return _aB_ ok
 		if isList(p) and len(p) = 2 and isString(p[1]) and
@@ -11207,9 +11264,6 @@ class stzString from stzObject
 			_cR_ = This._EngineSlice(_cR_, 1, _nBxR_)
 		ok
 		return [ _cL_, _cR_ ]
-
-		def BoundsUpToNChars(p)
-			return This.BoundsXT(p)
 
 	# Move(n1, n2): move char from position n1 to position n2.
 	# Accepts named-param form Move(:CharFromPosition = N, :To = M).
@@ -11249,8 +11303,18 @@ class stzString from stzObject
 			return This
 
 	# Swap(n1, n2): swap chars at positions n1 and n2.
-	# Also accepts Swap(pcA, :And = pcB) to swap two substrings.
+	# Also accepts Swap(:Positions = n1, :And = n2) and
+	# Swap(pcA, :And = pcB) to swap two substrings.
 	def Swap(n1, n2)
+		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
+		   (lower(n1[1]) = "positions" or lower(n1[1]) = "position") and
+		   isNumber(n1[2])
+			n1 = n1[2]
+		ok
+		if isNumber(n1) and isList(n2) and len(n2) = 2 and
+		   isString(n2[1]) and lower(n2[1]) = "and" and isNumber(n2[2])
+			n2 = n2[2]
+		ok
 		# Substring-swap form: Swap("TWO", :And = "ONE")
 		if isString(n1) and isList(n2) and len(n2) = 2 and
 		   isString(n2[1]) and lower(n2[1]) = "and" and isString(n2[2])

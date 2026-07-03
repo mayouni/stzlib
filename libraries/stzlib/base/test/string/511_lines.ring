@@ -1,33 +1,37 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #511.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Lines() keeps the empties (a whitespace-only line counts as empty for
+# NumberOfEmptyLines / RemoveEmptyLines). Archive block #511.
 
-o1 = new stzString("
+Scenario("Lines and empty lines")
+	o1 = new stzString("
 lfldfkdlfk
 mlsdlk
 
 llkslkflk
    
 medmf")
+	Then("the raw lines, empties included",
+		ListEq( o1.Lines(),
+			[ "", "lfldfkdlfk", "mlsdlk", "", "llkslkflk", "   ", "medmf" ] ), TRUE)
+	Then("three of them are empty", o1.NumberOfEmptyLines(), 3)
+	o1.RemoveEmptyLines()
+	Then("removing them keeps the content lines",
+		ListEq( Q(o1.Content()).Lines(),
+			[ "lfldfkdlfk", "mlsdlk", "llkslkflk", "medmf" ] ), TRUE)
+EndScenario()
 
-? @@NL( o1.Lines() ) + NL
+Summary()
 
-? o1.NumberOfEmptyLines() + NL
-#--> 3
-
-o1.RemoveEmptyLines()
-? o1.Content()
-#-->
-# lfldfkdlfk
-# mlsdlk
-# llkslkflk
-# medmf
-
-pf()
-# Executed in 0.01 second(s).
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
