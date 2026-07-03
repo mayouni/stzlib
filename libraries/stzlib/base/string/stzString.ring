@@ -2741,46 +2741,18 @@ class stzString from stzObject
 	# pcWhat with pcNew only when it sits inside a bounded section.
 	# pacBounds may be ["open","close"] OR a single string used both
 	# ways.
+	# ReplaceSubStringBoundedBy(pcWhat, bounds, :With = new): replace
+	# the occurrences of pcWhat that ARE a whole bounded region's
+	# content (the same equality contract as FindSubStringBoundedBy;
+	# same-string bounds pair with the overlap walk).
 	def ReplaceSubStringBoundedBy(pcWhat, pacBounds, pcNew)
 		if isList(pcNew) and len(pcNew) = 2 and isString(pcNew[1]) and
 		   lower(pcNew[1]) = "with"
 			pcNew = pcNew[2]
 		ok
-		_aOpen_ = pacBounds
-		_aClose_ = NULL
-		if isList(pacBounds) and len(pacBounds) = 2
-			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
-		but isString(pacBounds)
-			_aClose_ = pacBounds
-		ok
-		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
-
-		_cTxt_ = This.Content()
-		_nOpenLen_ = This._EngineCount(_aOpen_)
-		_nCloseLen_ = This._EngineCount(_aClose_)
-		_nWhatLen_ = This._EngineCount(pcWhat)
-		_nNewLen_ = This._EngineCount(pcNew)
-		_nStart_ = This._FindFrom(_cTxt_, _aOpen_, 1)
-		while _nStart_ > 0
-			_nInsideStart_ = _nStart_ + _nOpenLen_
-			_nEnd_ = This._FindFrom(_cTxt_, _aClose_, _nInsideStart_)
-			if _nEnd_ = 0 exit ok
-			# Look for pcWhat strictly inside [_nInsideStart_, _nEnd_-1]
-			_nWFound_ = This._FindFrom(_cTxt_, pcWhat, _nInsideStart_)
-			while _nWFound_ > 0 and _nWFound_ < _nEnd_
-				_cBefore_ = ""
-				if _nWFound_ > 1
-					_cBefore_ = This._EngineSlice(_cTxt_, 1, _nWFound_ - 1)
-				ok
-				_cAfter_  = This._EngineSliceFrom(_cTxt_, _nWFound_ + _nWhatLen_)
-				_cTxt_ = _cBefore_ + pcNew + _cAfter_
-				_nEnd_ += _nNewLen_ - _nWhatLen_
-				_nWFound_ = This._FindFrom(_cTxt_, pcWhat, _nWFound_ + _nNewLen_)
-			end
-			# Move past this bounded section so we don't re-match.
-			_nStart_ = This._FindFrom(_cTxt_, _aOpen_, _nEnd_ + _nCloseLen_)
-		end
-		This.Update(_cTxt_)
+		_aSecs_ = This.FindSubStringBoundedByZZ(pcWhat, pacBounds)
+		if len(_aSecs_) = 0 return ok
+		This.ReplaceSections(_aSecs_, pcNew)
 
 		def ReplaceSubStringBoundedByQ(pcWhat, pacBounds, pcNew)
 			This.ReplaceSubStringBoundedBy(pcWhat, pacBounds, pcNew)
@@ -3280,6 +3252,13 @@ class stzString from stzObject
 				# :BoundedByIB replaces INCLUDING the bounds. Supports either
 				# a two-element [open,close] list or a single string for both.
 				_bRxIB_ = (_cAnchor_ = "boundedbyib")
+				# A non-empty substring p1 -> replace only the regions
+				# EQUAL to it (the FindSubStringBoundedBy contract;
+				# handles same-string bounds via the overlap walk).
+				if isString(p1) and p1 != "" and NOT _bRxIB_
+					This.ReplaceSubStringBoundedBy(p1, _xAnchorV_, _pWith_)
+					return
+				ok
 				_aOpen_ = _xAnchorV_
 				_aClose_ = NULL
 				if isList(_aOpen_) and len(_aOpen_) = 2
@@ -7822,13 +7801,60 @@ class stzString from stzObject
 	# FindBoundedSubString: 1-arg form finds occurrences of pcSub that
 	# sit inside any auto-detected bounded section; 2-arg form takes
 	# explicit bounds.
+	# _SubBoundRunsOf(pcSub): for each occurrence of pcSub, the maximal
+	# runs of the SAME non-space char immediately before and after it:
+	# [ [occStart, occEnd, [ls, le] or [], [rs, re] or []], ... ].
+	# An occurrence is BOUNDED when both runs are non-empty.
+	def _SubBoundRunsOf(pcSub)
+		_cTxt_ = This.Content()
+		_aChars_ = This.Chars()
+		_nLen_ = len(_aChars_)
+		_nSubLen_ = This._EngineCount(pcSub)
+		_aRes_ = []
+		_nFound_ = This._FindFrom(_cTxt_, pcSub, 1)
+		while _nFound_ > 0
+			_nOcE_ = _nFound_ + _nSubLen_ - 1
+			_aL_ = []
+			_p_ = _nFound_ - 1
+			if _p_ >= 1 and _aChars_[_p_] != " "
+				_cB_ = _aChars_[_p_]
+				_nLe_ = _p_
+				while _p_ >= 1 and _aChars_[_p_] = _cB_
+					_p_--
+				end
+				_aL_ = [ _p_ + 1, _nLe_ ]
+			ok
+			_aR_ = []
+			_q_ = _nOcE_ + 1
+			if _q_ <= _nLen_ and _aChars_[_q_] != " "
+				_cA_ = _aChars_[_q_]
+				_nRs_ = _q_
+				while _q_ <= _nLen_ and _aChars_[_q_] = _cA_
+					_q_++
+				end
+				_aR_ = [ _nRs_, _q_ - 1 ]
+			ok
+			_aRes_ + [ _nFound_, _nOcE_, _aL_, _aR_ ]
+			_nFound_ = This._FindFrom(_cTxt_, pcSub, _nOcE_ + 1)
+		end
+		return _aRes_
+
+	# FindBoundedSubString(pcSub): the start positions of the
+	# occurrences of pcSub that carry non-space bound runs on BOTH
+	# sides (a 2-list arg keeps the legacy BoundedBy behavior).
 	def FindBoundedSubString(pcSubOrOpen)
 		if isList(pcSubOrOpen) and len(pcSubOrOpen) = 2
 			return This.BoundedBy(pcSubOrOpen)
 		ok
-		# pcSubOrOpen treated as the substring to locate -- return
-		# every occurrence's section.
-		return This.FindAsSections(pcSubOrOpen)
+		_aRuns_ = This._SubBoundRunsOf(pcSubOrOpen)
+		_aRes_ = []
+		_nL_ = len(_aRuns_)
+		for _i_ = 1 to _nL_
+			if len(_aRuns_[_i_][3]) = 2 and len(_aRuns_[_i_][4]) = 2
+				_aRes_ + _aRuns_[_i_][1]
+			ok
+		next
+		return _aRes_
 
 	def FindBoundedSubStringXT(pcOpen, pcClose)
 		return This.BoundedBy([ pcOpen, pcClose ])
@@ -7854,16 +7880,47 @@ class stzString from stzObject
 		return _aR_
 
 	def FindBoundedSubStringZZ(pcSubOrOpen)
-		return This.FindBoundedSubString(pcSubOrOpen)
+		_aRuns_ = This._SubBoundRunsOf(pcSubOrOpen)
+		_aRes_ = []
+		_nL_ = len(_aRuns_)
+		for _i_ = 1 to _nL_
+			if len(_aRuns_[_i_][3]) = 2 and len(_aRuns_[_i_][4]) = 2
+				_aRes_ + [ _aRuns_[_i_][1], _aRuns_[_i_][2] ]
+			ok
+		next
+		return _aRes_
 
+	# IB forms: from the left run's start to the right run's end.
 	def FindBoundedSubStringIB(pcSubOrOpen)
-		return This.FindBoundedSubString(pcSubOrOpen)
+		_aIbz_ = This.FindBoundedSubStringIBZZ(pcSubOrOpen)
+		_aRes_ = []
+		_nL_ = len(_aIbz_)
+		for _i_ = 1 to _nL_
+			_aRes_ + _aIbz_[_i_][1]
+		next
+		return _aRes_
 
 	def FindBoundedSubStringIBZZ(pcSubOrOpen)
-		return This.FindBoundedSubString(pcSubOrOpen)
+		_aRuns_ = This._SubBoundRunsOf(pcSubOrOpen)
+		_aRes_ = []
+		_nL_ = len(_aRuns_)
+		for _i_ = 1 to _nL_
+			if len(_aRuns_[_i_][3]) = 2 and len(_aRuns_[_i_][4]) = 2
+				_aRes_ + [ _aRuns_[_i_][3][1], _aRuns_[_i_][4][2] ]
+			ok
+		next
+		return _aRes_
 
+	# FindSubStringBounds(pcSub): the FLAT start positions of the bound
+	# runs (left then right, per bounded occurrence, in order).
 	def FindSubStringBounds(pcSub)
-		return This.FindSubStringBoundsZZ(pcSub)
+		_aSbz_ = This.FindSubStringBoundsZZ(pcSub)
+		_aRes_ = []
+		_nL_ = len(_aSbz_)
+		for _i_ = 1 to _nL_
+			_aRes_ + _aSbz_[_i_][1]
+		next
+		return _aRes_
 
 	def FindSubStringBoundsUpToNChars(pcSub, n)
 		return This.FindSubStringBoundsUpToNCharsAsSections(pcSub, n)
@@ -8528,18 +8585,18 @@ class stzString from stzObject
 	# substring surrounding the (first) occurrence of pcSub. Returns
 	# [leftSec, rightSec] where leftSec = the part before pcSub and
 	# rightSec = the part after.
+	# FindSubStringBoundsZZ(pcSub): the FLAT spans of the bound runs of
+	# every bounded occurrence (left run then right run, in order).
 	def FindSubStringBoundsZZ(pcSub)
-		_nPos_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, 1)
-		if _nPos_ < 1 return [] ok
-		_nSubLen_ = This._EngineCount(pcSub)
-		_nTxtLen_ = This._EngineCount(This.Content())
+		_aRuns_ = This._SubBoundRunsOf(pcSub)
 		_aRes_ = []
-		if _nPos_ > 1
-			_aRes_ + [ 1, _nPos_ - 1 ]
-		ok
-		if _nPos_ + _nSubLen_ <= _nTxtLen_
-			_aRes_ + [ _nPos_ + _nSubLen_, _nTxtLen_ ]
-		ok
+		_nL_ = len(_aRuns_)
+		for _i_ = 1 to _nL_
+			if len(_aRuns_[_i_][3]) = 2 and len(_aRuns_[_i_][4]) = 2
+				_aRes_ + _aRuns_[_i_][3]
+				_aRes_ + _aRuns_[_i_][4]
+			ok
+		next
 		return _aRes_
 
 	# IsScript(): TRUE if content is a known Unicode script name.
@@ -11702,13 +11759,18 @@ class stzString from stzObject
 
 	# RemoveBoundedSubString(pacBounds): remove the entire bounded
 	# section (including bounds) of the FIRST match.
+	# RemoveBoundedSubString(pcSub): remove the BOUNDED occurrences of
+	# pcSub (their content only -- the bounds stay); a 2-list keeps the
+	# legacy remove-first-region-with-bounds behavior.
 	def RemoveBoundedSubString(pacBounds)
+		if isString(pacBounds)
+			This.RemoveSections( This.FindBoundedSubStringZZ(pacBounds) )
+			return
+		ok
 		_aOpen_ = pacBounds
 		_aClose_ = NULL
 		if isList(pacBounds) and len(pacBounds) = 2
 			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
-		but isString(pacBounds)
-			_aClose_ = pacBounds
 		ok
 		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
 		_cTxt_ = This.Content()
@@ -11729,80 +11791,50 @@ class stzString from stzObject
 			This.RemoveBoundedSubString(pacBounds)
 			return This
 
+	# RemoveAnySubStringBoundedBy: remove every bounded region's
+	# CONTENT (the bounds stay); the IB form removes bounds too.
 	def RemoveAnySubStringBoundedBy(pacBounds)
-		# Remove EVERY bounded section.
-		_aOpen_ = pacBounds
-		_aClose_ = NULL
-		if isList(pacBounds) and len(pacBounds) = 2
-			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
-		but isString(pacBounds)
-			_aClose_ = pacBounds
-		ok
-		if NOT (isString(_aOpen_) and isString(_aClose_)) return ok
-		while This.Contains(_aOpen_) and This.Contains(_aClose_)
-			This.RemoveBoundedSubString([ _aOpen_, _aClose_ ])
-		end
+		This.RemoveSections( This.FindAnyBoundedByZZ(pacBounds) )
 
 		def RemoveAnySubStringBoundedByQ(pacBounds)
 			This.RemoveAnySubStringBoundedBy(pacBounds)
 			return This
 
 	def RemoveAnySubStringBoundedByIB(pacBounds)
-		# Same as above (inclusive bounds is the default for Remove*).
-		This.RemoveAnySubStringBoundedBy(pacBounds)
+		This.RemoveSections( This.FindAnyBoundedByIBZZ(pacBounds) )
 
 		def RemoveAnySubStringBoundedByIBQ(pacBounds)
-			This.RemoveAnySubStringBoundedBy(pacBounds)
+			This.RemoveAnySubStringBoundedByIB(pacBounds)
 			return This
 
-	# SubStringBounds(pcSub): the chars immediately before / after
-	# the first occurrence of pcSub (single chars each).
+	# SubStringBounds(pcSub): the FLAT bound-run SUBSTRINGS of every
+	# bounded occurrence (left then right, in order) -- ["<<", ">>",
+	# "<<", ">>", ...].
 	def SubStringBounds(pcSub)
-		_nP_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, 1)
-		if _nP_ < 1 return [] ok
-		_nLen_ = This._EngineCount(This.Content())
-		_nSubLen_ = This._EngineCount(pcSub)
-		_cBefore_ = ""
-		if _nP_ > 1
-			_cBefore_ = This._EngineSlice(This.Content(), _nP_ - 1, 1)
-		ok
-		_cAfter_ = ""
-		if _nP_ + _nSubLen_ <= _nLen_
-			_cAfter_ = This._EngineSlice(This.Content(),
-			           _nP_ + _nSubLen_, 1)
-		ok
-		return [ _cBefore_, _cAfter_ ]
+		_aSbz_ = This.FindSubStringBoundsZZ(pcSub)
+		_cTxt_ = This.Content()
+		_aRes_ = []
+		_nL_ = len(_aSbz_)
+		for _i_ = 1 to _nL_
+			_s_ = _aSbz_[_i_][1]
+			_e_ = _aSbz_[_i_][2]
+			_aRes_ + This._EngineSlice(_cTxt_, _s_, _e_ - _s_ + 1)
+		next
+		return _aRes_
 
 	# FindTheseSubStringBounds(pcSub|pacSubStr [, pacBounds]):
 	# - 1-arg list: per substring, the [before, after] single-char bounds
 	# - 2-arg (string, list): the bounds of pcSub when found inside any
 	#   of the explicit pacBounds [open, close] pair
+	# FindTheseSubStringBounds(pcSub, [open, close]): the FLAT start
+	# positions of the open/close tokens IMMEDIATELY around each
+	# occurrence of pcSub (only exactly-bounded occurrences count).
 	def FindTheseSubStringBounds(pacSubStr, pacBounds)
-		if isString(pacSubStr) and isList(pacBounds) and len(pacBounds) = 2
-			# Treat as: find pcSub inside the bounded regions and return
-			# each region's bounds when pcSub is present.
-			_aSec_ = This.FindBoundedByAsSections(pacBounds)
-			_aRes_ = []
-			_nL_ = len(_aSec_)
-			for _i_ = 1 to _nL_
-				_s_ = _aSec_[_i_]
-				if isList(_s_) and len(_s_) = 2
-					_cMid_ = This._EngineSlice(This.Content(),
-					         _s_[1], _s_[2] - _s_[1] + 1)
-					if substr(_cMid_, pacSubStr) > 0
-						_aRes_ + pacBounds
-					ok
-				ok
-			next
-			return _aRes_
-		ok
+		_aTz_ = This.FindTheseSubStringBoundsZZ(pacSubStr, pacBounds)
 		_aRes_ = []
-		if NOT isList(pacSubStr) return _aRes_ ok
-		_nL_ = len(pacSubStr)
+		_nL_ = len(_aTz_)
 		for _i_ = 1 to _nL_
-			if isString(pacSubStr[_i_])
-				_aRes_ + This.SubStringBounds(pacSubStr[_i_])
-			ok
+			_aRes_ + _aTz_[_i_][1]
 		next
 		return _aRes_
 
@@ -11819,13 +11851,17 @@ class stzString from stzObject
 		_nSubLen_ = This._EngineCount(pcSub)
 		return [ _nP_, _nP_ + _nSubLen_ - 1 ]
 
-	# RemoveBoundedSubStringIB: inclusive-bounds remove (same as
-	# RemoveBoundedSubString since both already include the bounds).
+	# RemoveBoundedSubStringIB(pcSub): remove the bounded occurrences
+	# INCLUDING their bound runs.
 	def RemoveBoundedSubStringIB(pacBounds)
+		if isString(pacBounds)
+			This.RemoveSections( This.FindBoundedSubStringIBZZ(pacBounds) )
+			return
+		ok
 		This.RemoveBoundedSubString(pacBounds)
 
 		def RemoveBoundedSubStringIBQ(pacBounds)
-			This.RemoveBoundedSubString(pacBounds)
+			This.RemoveBoundedSubStringIB(pacBounds)
 			return This
 
 	# NRightCharsAsSubString(n) / NLeftCharsAsSubString(n).
@@ -12535,8 +12571,36 @@ class stzString from stzObject
 			This.RemoveRanges(p1)
 			return This
 
+	# FindTheseSubStringBoundsZZ: the flat SPANS of those open/close
+	# tokens ([open span, close span] per exactly-bounded occurrence).
 	def FindTheseSubStringBoundsZZ(pacSubStr, pacBounds)
-		return This.FindTheseSubStringBounds(pacSubStr, pacBounds)
+		if NOT (isString(pacSubStr) and isList(pacBounds) and len(pacBounds) = 2)
+			return []
+		ok
+		_cOpen_ = pacBounds[1]
+		_cClose_ = pacBounds[2]
+		if isList(_cClose_) and len(_cClose_) = 2 and
+		   isString(_cClose_[1]) and lower(_cClose_[1]) = "and"
+			_cClose_ = _cClose_[2]
+		ok
+		_cTxt_ = This.Content()
+		_nOL_ = This._EngineCount(_cOpen_)
+		_nCL_ = This._EngineCount(_cClose_)
+		_nSubLen_ = This._EngineCount(pacSubStr)
+		_aRes_ = []
+		_nFound_ = This._FindFrom(_cTxt_, pacSubStr, 1)
+		while _nFound_ > 0
+			_nOs_ = _nFound_ - _nOL_
+			_nCs_ = _nFound_ + _nSubLen_
+			if _nOs_ >= 1 and
+			   This._EngineSlice(_cTxt_, _nOs_, _nOL_) = _cOpen_ and
+			   This._EngineSlice(_cTxt_, _nCs_, _nCL_) = _cClose_
+				_aRes_ + [ _nOs_, _nOs_ + _nOL_ - 1 ]
+				_aRes_ + [ _nCs_, _nCs_ + _nCL_ - 1 ]
+			ok
+			_nFound_ = This._FindFrom(_cTxt_, pacSubStr, _nFound_ + _nSubLen_)
+		end
+		return _aRes_
 
 	# RemoveTheseSubStringBounds(pcSub, pacBounds): strip the bounds
 	# surrounding every occurrence of pcSub inside the bounded regions.
@@ -15335,7 +15399,48 @@ class stzString from stzObject
 	def FindXT(pcWhat, pNamed)
 		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1])
 			_cFxtKey_ = lower(pNamed[1])
-			if _cFxtKey_ = "boundedby"
+			if _cFxtKey_ = "startingat" or _cFxtKey_ = "startingatposition"
+				# Occurrences from the given position on.
+				_aFxtAll_ = This.Find(pcWhat)
+				_aFxtR_ = []
+				_nFxtN_ = len(_aFxtAll_)
+				for _iFxt_ = 1 to _nFxtN_
+					if _aFxtAll_[_iFxt_] >= pNamed[2]
+						_aFxtR_ + _aFxtAll_[_iFxt_]
+					ok
+				next
+				return _aFxtR_
+
+			but _cFxtKey_ = "insection" or _cFxtKey_ = "insections"
+				# Occurrences fully inside the [n1, n2] section(s).
+				# (Fresh-variable widening -- the reassign form of this
+				# if can silently no-op, CLAUDE.md note 6.)
+				_aFxtIn_ = pNamed[2]
+				_aFxtSecs_ = []
+				if isList(_aFxtIn_) and len(_aFxtIn_) = 2 and
+				   isNumber(_aFxtIn_[1]) and isNumber(_aFxtIn_[2])
+					_aFxtSecs_ + _aFxtIn_
+				else
+					_aFxtSecs_ = _aFxtIn_
+				ok
+				_aFxtAll_ = This.Find(pcWhat)
+				_nFxtWL_ = This._EngineCount(pcWhat)
+				_aFxtR_ = []
+				_nFxtN_ = len(_aFxtAll_)
+				for _iFxt_ = 1 to _nFxtN_
+					_p_ = _aFxtAll_[_iFxt_]
+					_nFxtSN_ = len(_aFxtSecs_)
+					for _jFxt_ = 1 to _nFxtSN_
+						if _p_ >= _aFxtSecs_[_jFxt_][1] and
+						   _p_ + _nFxtWL_ - 1 <= _aFxtSecs_[_jFxt_][2]
+							_aFxtR_ + _p_
+							exit
+						ok
+					next
+				next
+				return _aFxtR_
+
+			but _cFxtKey_ = "boundedby"
 				return This.FindSubStringBoundedBy(pcWhat, pNamed[2])
 
 			but _cFxtKey_ = "boundedbyib"

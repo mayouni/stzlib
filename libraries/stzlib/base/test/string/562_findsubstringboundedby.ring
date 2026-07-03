@@ -1,17 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #562.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The same with a same-string bound (the overlap walk). Archive block #562.
 
-o1 = new stzString("my **word** and your **word**")
+Scenario("Star-bounded words")
+	o1 = new stzString("my **word** and your **word**")
+	Then("their content starts",
+		ListEq( o1.FindSubStringBoundedBy("word", [ "**", "**" ]), [6, 24] ), TRUE)
+EndScenario()
 
-? o1.FindSubStringBoundedBy("word", [ "**", "**" ])
-#--> [6, 24]
+Summary()
 
-pf()
-# Executed in 0.03 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

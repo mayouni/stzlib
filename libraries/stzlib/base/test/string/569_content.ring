@@ -1,18 +1,16 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #569.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveBoundedSubString removes the BOUNDED occurrences' content only
+# -- the bare first and trailing "word"s stay, the bounds stay. (The
+# archive #--> had dropped the first bare word by typo -- inconsistent
+# with its sibling #570 whose IB removal keeps it.) Archive block #569.
 
-o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
+Scenario("Removing the bounded words")
+	o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
+	o1.RemoveBoundedSubString("word")
+	Then("only the bounded contents vanish",
+		o1.Content(), "bla word bla <<>> bla bla <<>> bla <<>> word")
+EndScenario()
 
-o1.RemoveBoundedSubString("word")
-? o1.Content()
-#--> bla  bla <<>> bla bla <<>> bla <<>> word
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.22
+Summary()
