@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #681.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveLastChar / LastCharRemoved. Archive block #681.
 
-o1 = new stzString("BATISTA1")
-o1.RemoveLastChar()
-? o1.Content()
-#--> BATISTA
+Scenario("Dropping the last char")
+	o1 = new stzString("BATISTA1")
+	o1.RemoveLastChar()
+	Then("mutated in place", o1.Content(), "BATISTA")
+	Then("or functionally",
+		StzStringQ("BATISTA1").LastCharRemoved(), "BATISTA")
+EndScenario()
 
-? StzStringQ("BATISTA1").LastCharRemoved()
-#--> BATISTA
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

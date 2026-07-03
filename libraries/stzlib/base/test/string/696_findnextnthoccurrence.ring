@@ -1,24 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #696.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindNextNthOccurrence: the nth occurrence at or after a position.
+# Archive block #696.
 
-#		    1...5...9...3...7...1...5..
-o1 = new stzString("---Mio---Mio---Mio---Mio---")
+Scenario("Walking the Mios forward")
+	o1 = new stzString("---Mio---Mio---Mio---Mio---")
+	Then("1st from the start",
+		o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 1), 4)
+	Then("2nd from 7",
+		o1.FindNextNthOccurrence(2, "Mio", :StartingAt = 7), 16)
+	Then("1st from 20",
+		o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 20), 22)
+EndScenario()
 
-? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 1)
-#--> 4
-
-? o1.FindNextNthOccurrence(2, "Mio", :StartingAt = 7)
-#--> 16
-
-? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 20)
-#--> 22
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

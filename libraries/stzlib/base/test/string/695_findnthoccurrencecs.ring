@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #695.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindNthOccurrenceCS. Archive block #695.
 
-o1 = new stzString("---Mio---Mio---Mio---Mio---")
-? o1.FindNthOccurrenceCS(3, "Mio", TRUE)
-#--> 16
+Scenario("The third Mio")
+	o1 = new stzString("---Mio---Mio---Mio---Mio---")
+	Then("sits at 16", o1.FindNthOccurrenceCS(3, "Mio", TRUE), 16)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

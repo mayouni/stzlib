@@ -36,12 +36,32 @@ class stzString from stzObject
 	# counts from the end: Q("ABCDE")[-1] = "E", [-2] = "D".
 	def operator(pOp, pValue)
 		if pOp = "[]"
-			if NOT isNumber(pValue) return "" ok
-			_nLen_ = This._EngineCount(This.Content())
-			_n_ = pValue
-			if _n_ < 0 _n_ = _nLen_ + _n_ + 1 ok
-			if _n_ < 1 or _n_ > _nLen_ return "" ok
-			return This._EngineSlice(This.Content(), _n_, 1)
+			# str[n] -> nth char; str[:First]/str[:Last] keywords;
+			# str["{ cond }"] -> positions where the condition holds;
+			# str[sub] -> positions of sub (find semantics).
+			if isString(pValue)
+				if pValue = :First or pValue = :FirstChar
+					pValue = 1
+				but pValue = :Last or pValue = :LastChar
+					pValue = This.NumberOfChars()
+				ok
+			ok
+			if isNumber(pValue)
+				_nLen_ = This._EngineCount(This.Content())
+				_n_ = pValue
+				if _n_ < 0 _n_ = _nLen_ + _n_ + 1 ok
+				if _n_ < 1 or _n_ > _nLen_ return "" ok
+				return This._EngineSlice(This.Content(), _n_, 1)
+			ok
+			if isString(pValue)
+				_cOpTrim_ = ring_trim(pValue)
+				if ring_len(_cOpTrim_) >= 2 and left(_cOpTrim_, 1) = "{" and
+				   right(_cOpTrim_, 1) = "}"
+					return This.FindCharsW(pValue)
+				ok
+				return This.FindAll(pValue)
+			ok
+			return ""
 		ok
 
 		if pOp = "+"
@@ -8749,46 +8769,17 @@ class stzString from stzObject
 	# char-level mismatches. Useful for fuzzy comparisons. Uses
 	# Levenshtein-style distance with simple thresholding.
 	def IsQuietEqualTo(pcOther)
+		# Original semantic: case-blind equality, else accept a small
+		# LENGTH drift -- abs(lenDiff) / lenThis <= QuietEqualityRatio()
+		# (0.09 by default; dial with SetQuietEqualityRatio(n)).
 		if NOT isString(pcOther) return FALSE ok
-		_a_ = This.Content()
-		_b_ = pcOther
-		_la_ = This._EngineCount(_a_)
-		_lb_ = This._EngineCount(_b_)
-		_max_ = _la_
-		if _lb_ > _max_ _max_ = _lb_ ok
-		if _max_ = 0 return TRUE ok
-		# Allow up to 30% of the longest length as mismatch budget.
-		_budget_ = floor(_max_ * 0.3)
-		if _budget_ < 1 _budget_ = 1 ok
-		# Quick distance via char-walk + dynamic budget.
-		_aA_ = This.Chars()
-		_oB_ = new stzString(_b_)
-		_aB_ = _oB_.Chars()
-		# DP-lite: just count positional mismatches when lengths match;
-		# otherwise charge each length difference + char swap.
-		# Guard against engine-count vs Chars()-length drift.
-		_nWalk_ = _la_
-		if len(_aA_) < _nWalk_ _nWalk_ = len(_aA_) ok
-		if len(_aB_) < _nWalk_ _nWalk_ = len(_aB_) ok
-		if _la_ = _lb_
-			_n_ = 0
-			for _i_ = 1 to _nWalk_
-				if lower(_aA_[_i_]) != lower(_aB_[_i_]) _n_++ ok
-				if _n_ > _budget_ return FALSE ok
-			next
-			return TRUE
-		ok
-		# Length mismatch -- conservative: only accept if difference is
-		# within budget and the shorter is a substring (case-insens.).
-		if (_la_ - _lb_) > _budget_ and (_lb_ - _la_) > _budget_
-			return FALSE
-		ok
-		# Loose containment.
-		_short_ = lower(_a_); _long_ = lower(_b_)
-		if _lb_ < _la_
-			_short_ = lower(_b_); _long_ = lower(_a_)
-		ok
-		return StzFindFirst(_long_, _short_) > 0
+		_cThis_ = StzLower(This.Content())
+		_cOther_ = StzLower(pcOther)
+		if _cThis_ = _cOther_ return TRUE ok
+		_nThis_ = This.NumberOfChars()
+		if _nThis_ = 0 return FALSE ok
+		_nDif_ = fabs(_nThis_ - StzLen(_cOther_))
+		return (_nDif_ / _nThis_) <= QuietEqualityRatio()
 
 	# NextOccurrence(pcSub, nFrom): position of the next occurrence
 	# of pcSub strictly after nFrom.

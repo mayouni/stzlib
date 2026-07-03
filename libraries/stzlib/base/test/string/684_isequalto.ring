@@ -1,23 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #684.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Strict equality, the CS dial, and IsUppercaseOf. Archive block #684.
 
-o1 = new stzString("SOFTANZA IS AWSOME!")
+Scenario("Comparing across cases")
+	o1 = new stzString("SOFTANZA IS AWSOME!")
+	Then("strictly different", o1.IsEqualTo("softanza is awsome!"), FALSE)
+	Then("equal case-aside",
+		o1.IsEqualToCS("softanza is awsome!", :CS = FALSE), TRUE)
+	Then("it IS the uppercase of it",
+		o1.IsUppercaseOf("softanza is awsome!"), TRUE)
+EndScenario()
 
-? o1.IsEqualTo("softanza is awsome!")
-#--> FALSE
-
-? o1.IsEqualToCS("softanza is awsome!", :CS = FALSE)
-#--> TRUE
-
-? o1.IsUppercaseOf("softanza is awsome!")
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

@@ -1,25 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #686.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Quiet equality shines in French, where accents and case come and go.
+# Archive block #686.
 
-# Quiet-eqality is particularily useful in french where "énoncé" and "ÉNONCÉ" are the same:
+Scenario("Un enonce, trois graphies")
+	o1 = new stzString("énoncé")
+	Then("strictly different from enonce", o1.IsEqualTo("enonce"), FALSE)
+	Then("but quietly equal", o1.IsQuietEqualTo("enonce"), TRUE)
+	Then("... and to its uppercase", o1.IsQuietEqualTo("ÉNONCÉ"), TRUE)
+EndScenario()
 
-o1 = new stzString("énoncé")
-
-? o1.IsEqualTo("enonce")
-#--> FALSE
-
-? o1.IsQuietEqualTo("enonce")
-#--> TRUE
-
-? o1.IsQuietEqualTo("ÉNONCÉ")
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

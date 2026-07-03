@@ -74,6 +74,13 @@ func _CharScriptCode(nUnicode)
 	# Codes index _aUnicodeScriptsXT (stzCharData.ring): 3 Latin, 4 Greek,
 	# 5 Cyrillic, 6 Armenian, 7 Hebrew, 8 Arabic, 11 Devanagari, 21 Thai,
 	# 26 Hangul, 34 Hiragana, 35 Katakana, 37 Han.
+# Common script (code 2) first: spaces, digits, punctuation and
+	# symbols are script-neutral, NOT Latin (UAX #24).
+	if nUnicode <= 0x40 return 2 ok					# space, digits, punctuation
+	if nUnicode >= 0x5B and nUnicode <= 0x60 return 2 ok		# [ \ ] ^ _ `
+	if nUnicode >= 0x7B and nUnicode <= 0xBF return 2 ok		# { | } ~ + Latin-1 symbols
+	if nUnicode = 0xD7 or nUnicode = 0xF7 return 2 ok		# multiply / divide signs
+	if nUnicode >= 0x300 and nUnicode <= 0x36F return 1 ok		# combining marks -> Inherited
 	if nUnicode <= 0x24F return 3 ok				# Basic Latin + Latin-1 + Latin Ext-A/B
 	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 4 ok		# Greek
 	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 5 ok		# Cyrillic

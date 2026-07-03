@@ -1,26 +1,17 @@
-# Narrative
-# --------
-# Quiet-Equality of two strings
-#
-# Extracted from stzStringTest.ring, block #685.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Quiet equality: case-blind equality, or a small length drift
+# (abs(lenDiff)/lenThis <= QuietEqualityRatio(), 0.09 by default).
+# Archive block #685.
 
-o1 = new stzString("SOFTANZA IS AWSOME!")
+Scenario("Quietly equal, up to a point")
+	o1 = new stzString("SOFTANZA IS AWSOME!")
+	Then("case aside: equal", o1.IsQuietEqualTo("softanza is awsome!"), TRUE)
+	Then("one extra char: still quiet",
+		o1.IsQuietEqualTo("Softansa is aowsome!"), TRUE)
+	Then("two extra chars: too loud",
+		o1.IsQuietEqualTo("Softansa iis aowsome!"), FALSE)
+EndScenario()
 
-#TODO // Check performance of IsQuietEqualTo() --> Root cause RemoveDiacritics()
-#UPDATE Done, performance is now good (Ring 1.22)
-
-? o1.IsQuietEqualTo("softanza is awsome!")
-#--> TRUE
-
-? o1.IsQuietEqualTo("Softansa is aowsome!")
-#--> TRUE (we added an "o" to "awsome")
-
-? o1.IsQuietEqualTo("Softansa iis aowsome!")
-#--> FALSE (we add "i" to "is" and "o" to "awsome")
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

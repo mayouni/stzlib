@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #682.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveNFirstChars / FirstNCharsRemoved. Archive block #682.
 
-o1 = new stzString("123BATISTA")
+Scenario("Dropping the numeric head")
+	o1 = new stzString("123BATISTA")
+	o1.RemoveNFirstChars(3)
+	Then("mutated in place", o1.Content(), "BATISTA")
+	Then("or functionally",
+		StzStringQ("123BATISTA").FirstNCharsRemoved(3), "BATISTA")
+EndScenario()
 
-o1.RemoveNFirstChars(3)
-? o1.Content()
-#--> BATISTA
-
-? StzStringQ("123BATISTA").FirstNCharsRemoved(3)
-#--> BATISTA
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()
