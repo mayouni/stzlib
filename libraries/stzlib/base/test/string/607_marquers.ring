@@ -1,24 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #607.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Marquers come back in TEXT order, whatever their numbers.
+# Archive block #607.
 
-StzStringQ("My name is #1, my age is #2, and my job is #3.") {
-	? Marquers()
-	#--> [ "#1", "#2", "#3" ]
-}
+Scenario("Ordered and shuffled marquers")
+	Then("1-2-3 in order",
+		ListEq( Q("My name is #1, my age is #2, and my job is #3.").Marquers(),
+			[ "#1", "#2", "#3" ] ), TRUE)
+	Then("2-3-1 as written",
+		ListEq( Q("My name is #2, my age is #3, and my job is #1.").Marquers(),
+			[ "#2", "#3", "#1" ] ), TRUE)
+EndScenario()
 
-StzStringQ("My name is #2, my age is #3, and my job is #1.") {
-	? Marquers()
-	#--> [ "#2", "#3", "#1" ]
-}
+Summary()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.28 second(s) in Ring 1.19
-# Executed in 0.30 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

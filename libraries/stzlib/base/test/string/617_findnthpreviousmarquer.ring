@@ -1,25 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #617.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindNthPreviousMarquer and the nearest-previous Z pair.
+# Archive block #617.
 
-CheckparamsOff() # Potential Gain of performance
+Scenario("First marquer back from 50")
+	CheckparamsOff()
+	o1 = new stzString("My name is #1, my age is #2, and my job is #3. Again: my name is #1!")
+	Then("its position", o1.FindNthPreviousMarquer(1, 50), 44)
+	Then("the Z pair",
+		ListEq( o1.PreviousMarquerZ(50), [ "#3", 44 ] ), TRUE)
+	CheckParamsOn()
+EndScenario()
 
-StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
+Summary()
 
-	? FindNthPreviousMarquer(1, 50)
-	#--> 44
-
-	? @@( PreviousMarquerZ(50) )
-	#--> [ "#3", 44 ]
-
-}
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.21
-# Executed in 0.79 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

@@ -1,33 +1,27 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #616.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The previous-nth marquer: string, position, and Z forms.
+# Archive block #616.
 
-StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
+Scenario("Third marquer back from 50")
+	o1 = new stzString("My name is #1, my age is #2, and my job is #3. Again: my name is #1!")
+	Then("the marquer", o1.PreviousNthMarquer(3, :StartingAt = 50), "#1")
+	Then("its position", o1.FindPreviousNthMarquer(3, :StartingAt = 50), 12)
+	Then("the Z pair",
+		ListEq( o1.PreviousNthMarquerZ(3, :StartingAt = 50), [ "#1", 12 ] ), TRUE)
+EndScenario()
 
-	? PreviousNthMarquer(3, :StartingAt = 50)
-	#--> #1
+Summary()
 
-	? FindPreviousNthMarquer(3, :StartingAt = 50) # or  PreviousNthMarquerPosition(3, :StartingAt = 50)
-	#--> 12
-
-	? @@( PreviousNthMarquerZ(3, :StartingAt = 50) ) # or PreviousNthMarquerAndItsPosition(3, :StartingAt = 50)
-	#--> [ "#1", 12 ]
-
-	#TODO : Add these functions	
-	# 	? NthMarquerZ(n)
-	# 	? NthMarquerZZ(n)
-	
-	# 	? NextNthMarquerZZ(n, nStart)
-	# 	? PreviousNthMarquerZZ(n, nStart)
-}
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.22
-# Executed in 0.05 second(s) in Ring 1.21
-# Executed in 2.02 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

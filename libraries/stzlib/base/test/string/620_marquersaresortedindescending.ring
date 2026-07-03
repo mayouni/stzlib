@@ -1,23 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #620.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... and descending. Archive block #620.
 
-StzStringQ("My name is #3, my age is #2, and my job is #1.") {	
-	? MarquersAreSortedIndescending()
-	#--> TRUE
-}
+Scenario("Descending or not")
+	Then("3-2-1 descends",
+		Q("My name is #3, my age is #2, and my job is #1.").MarquersAreSortedIndescending(), TRUE)
+	Then("2-1-3 does not",
+		Q("My name is #2, my age is #1, and my job is #3.").MarquersAreSortedInDescending(), FALSE)
+EndScenario()
 
-StzStringQ("My name is #2, my age is #1, and my job is #3.") {	
-	? MarquersAreSortedInDescending()
-	#--> FALSE
-}
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.29 second(s) in Ring 1.18
+Summary()
