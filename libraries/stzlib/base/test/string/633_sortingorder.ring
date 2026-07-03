@@ -1,30 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #633.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SortingOrder on already-sorted strings. Archive block #633.
 
-Q("AAABCDDEFGILNTVX") {
-	IsSorted() 
-	#--> TRUE
+Scenario("Detecting the order")
+	Then("an ascending string is sorted",
+		Q("AAABCDDEFGILNTVX").IsSorted(), TRUE)
+	Then("... ascending", Q("AAABCDDEFGILNTVX").SortingOrder(), :Ascending)
+	Then("a descending string is sorted",
+		Q("XVTNLIGFEDDCBAAA").IsSorted(), TRUE)
+	Then("... descending", Q("XVTNLIGFEDDCBAAA").SortingOrder(), :Descending)
+EndScenario()
 
-	? SortingOrder()
-	#--> :Ascending
-}
-
-Q("XVTNLIGFEDDCBAAA") {
-	IsSorted()
-	#--> TRUE
-
-	SortingOrder()
-	#--> :Descending
-}
-
-pf()
-# Executed in 0.16 second(s) in Ring 1.21
-# Executed in 0.32 second(s) in Ring 1.18
-# Executed in 0.74 second(s) in Ring 1.17
+Summary()

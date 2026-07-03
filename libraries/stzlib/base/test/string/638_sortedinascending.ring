@@ -1,22 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #638.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Sorting digits. Archive block #638.
 
-StzStringQ("73964532041") {
+Scenario("Digits sorted both ways")
+	o1 = new stzString("73964532041")
+	Then("ascending", o1.SortedInAscending(), "01233445679")
+	Then("descending", o1.SortedInDescending(), "97654433210")
+EndScenario()
 
-	? SortedInAscending()
-	#--> 01233445679
-
-	? SortedInDescending()
-	#--> 97654433210
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-# Executed in 0.04 second(s) in Ring 1.20
+Summary()

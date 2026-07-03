@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #640.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsAnagramOfCS with the case dial. Archive block #640.
 
-? StzStringQ("Arc").IsAnagramOfCS("cra", :CS = FALSE)
-#--> TRUE
+Scenario("Arc vs cra")
+	Then("anagrams, case aside",
+		StzStringQ("Arc").IsAnagramOfCS("cra", :CS = FALSE), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-# Executed in 0.06 second(s) in Ring 1.18
+Summary()

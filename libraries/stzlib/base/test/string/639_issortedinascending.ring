@@ -1,18 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #639.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The sortedness checks. Archive block #639.
 
-? Q("01233445679").IsSortedInAscending()
-#--> TRUE
+Scenario("An ascending digit string")
+	Then("is ascending", Q("01233445679").IsSortedInAscending(), TRUE)
+	Then("not descending", Q("01233445679").IsSortedInDescending(), FALSE)
+EndScenario()
 
-? Q("01233445679").IsSortedInDescending()
-#--> FALSE
-
-pf()
-# Executed in 0.08 second(s)
+Summary()

@@ -1,24 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #623.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... and 1-3-2 is unsorted. Archive block #623.
 
-StzStringQ("My name is #1, my age is #3, and my job is #2.") {	
+Scenario("Unsorted marquers")
+	o1 = new stzString("My name is #1, my age is #3, and my job is #2.")
+	Then("they are unsorted", o1.MarquersAreUnsorted(), TRUE)
+	Then("the order says so", o1.MarquersSortingOrder(), :Unsorted)
+EndScenario()
 
-	? MarquersAreUnsorted()
-	#--> TRUE
-
-	? MarquersSortingOrder()
-	#--> :Unsorted
-
-}
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.31 second(s) in Ring 1.18
-# Executed in 0.53 second(s) in Ring 1.17
+Summary()

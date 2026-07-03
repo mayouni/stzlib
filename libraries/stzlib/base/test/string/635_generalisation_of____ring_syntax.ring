@@ -1,39 +1,34 @@
-# Narrative
-# --------
-# #narration GENERALISATION OF _:_ RING SYNTAX
-#
-# Extracted from stzStringTest.ring, block #635.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# UpTo/DownTo generalize Ring's "A":"E" range syntax to any Unicode
+# char (Ring's own : is ASCII/byte-bound). Archive block #635.
 
-pr()
+Scenario("Ranges, Ring and Softanza")
+	Then("Ring's forward range",
+		ListEq( "A" : "E", [ "A", "B", "C", "D", "E" ] ), TRUE)
+	Then("... and backward",
+		ListEq( "E" : "A", [ "E", "D", "C", "B", "A" ] ), TRUE)
+	Then("UpTo mirrors it",
+		ListEq( Q("A").UpTo("E"), [ "A", "B", "C", "D", "E" ] ), TRUE)
+	Then("DownTo too",
+		ListEq( Q("E").DownTo("A"), [ "E", "D", "C", "B", "A" ] ), TRUE)
+	Then("and it speaks Arabic",
+		ListEq( Q("ب").UpTo("ج"), [ "ب", "ة", "ت", "ث", "ج" ] ), TRUE)
+	Then("... in both directions",
+		ListEq( Q("ج").DownTo("ب"), [ "ج", "ث", "ت", "ة", "ب" ] ), TRUE)
+EndScenario()
 
-# The "A":"E" syntax is a beautiful feature of Ring:
+Summary()
 
-? "A" : "E"
-#--> [ "A", "B", "C", "D", "E" ]
-
-# And it works backward like this:
-
-? "E" : "A"
-#--> [ "E", "D", "C", "B", "A" ]
-
-# Softanza reproduces it using UpTo() and DownTo() functions:
-
-? Q("A").UpTo("E")
-#--> [ "A", "B", "C", "D", "E" ]
-
-? Q("E").DownTo("A")
-#--> [ "E", "D", "C", "B", "A" ]
-
-# And extends it to cover any Unicode char not only ASCII chars
-# as it is the case for the Ring syntax:
-
-? Q("ب").UpTo("ج") 	#--> [ "ب", "ة", "ت", "ث", "ج" ]
-? Q("ج").DownTo("ب")	#--> [ "ج", "ث", "ت", "ة", "ب" ]
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.21
-# Executed in 0.14 second(s) in Ring 1.18
-# Executed in 0.24 second(s) in Ring 1.17
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

@@ -777,7 +777,30 @@ Pure conversions: 582, 585-588, 592, 595, 596, 598.
 Pure conversions: 601-603, 612 (the emptiness constitution), 613, 619,
 620.
 
-## STATUS (2026-07-03): 570/999 test files audited (chunks 14-36 added 307); ~429 still to audit
+**Chunk 37 (2026-07-03, 20 files):** 621-633, 635-640 audited→narrated
+(19 files, 63 assertions; 634 already a retired #SKIP placeholder).
+Real fixes (the marquer SORTING semantics, settled from the archives):
+- **Two sort views coexist**: MarquersSortedZ/ZZ and
+  MarquersSortedInDescendingZZ ZIP the number-sorted marquer strings
+  onto the TEXT-ORDER positions/sections (the view of the would-be
+  sorted string -- 626/627 pin it); MarquersSortedUZ/UZZ sort the
+  UNIQUE marquers by number, each keeping its OWN positions/sections
+  (628 pins it). The UZZ comparator R21'd on the new grouped shapes --
+  both comparators now compare the marquer NUMBERS. (626's archive
+  section ends were off by one; asserted at the real 2-char spans.)
+- **`SortMarquersInAscending/Descending` actually SORT** (629/631):
+  they returned a sorted positions list without touching the content;
+  now they rewrite the marquer slots with the sorted values.
+- **`MarkTheseSubStringsCS` / `MarkSubStringsCS` produce ordinal
+  marquers** (630): each listed substring becomes #1, #2, ... (was: a
+  [|...|] wrap); ReplaceSubstringsWithMarquersCS alias added, and
+  **`ReplaceSubStringsWithMarquers` was wired BACKWARDS** (it called
+  ReplaceMarquers, filling instead of marking) -- now marks (631's
+  round-trip: fill -> re-mark -> sort -> refill all green).
+Pure conversions: 621-625, 632, 633, 635-640 (incl. the Unicode
+UpTo/DownTo generalisation of Ring's ASCII-bound ":" ranges).
+
+## STATUS (2026-07-03): 589/999 test files audited (chunks 14-37 added 326); ~410 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain
