@@ -1,23 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #676.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# HasLeadingChars / LeadingCharsXT / LeadingCharsRemoved.
+# Archive block #676.
 
-o1 = new stzString("000122.12")
+Scenario("Leading zeros of 000122.12")
+	o1 = new stzString("000122.12")
+	Then("there is a leading run", o1.HasLeadingChars(), TRUE)
+	Then("the run as a string", o1.LeadingCharsXT(), "000")
+	Then("the string without it", o1.LeadingCharsRemoved(), "122.12")
+EndScenario()
 
-? o1.HasLeadingChars()
-#--> TRUE
-
-? o1.LeadingCharsXT()
-#--> "000"
-
-? o1.LeadingCharsRemoved()
-#--> "122.12"
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

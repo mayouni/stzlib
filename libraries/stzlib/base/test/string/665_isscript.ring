@@ -1,24 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #665.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Script identifiers: name, abbreviation, code. Archive block #665.
 
-? StzStringQ(:Arabic).IsScript()
-#--> TRUE
+Scenario("Recognizing script identifiers")
+	Then("arabic is a script", StzStringQ(:Arabic).IsScript(), TRUE)
+	Then("... and a script name", StzStringQ(:Arabic).IsScriptName(), TRUE)
+	Then("Arab is its abbreviation", StzStringQ(:Arab).IsScriptAbbreviation(), TRUE)
+	Then("1 is a script code", StzStringQ("1").IsScriptCode(), TRUE)
+EndScenario()
 
-? StzStringQ(:Arabic).IsScriptName()
-#--> TRUE
-
-? StzStringQ(:Arab).IsScriptAbbreviation()
-#--> TRUE
-
-? StzStringQ("1").IsScriptCode()
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

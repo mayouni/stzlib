@@ -1,37 +1,41 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #661.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# CountInSections / FindInSections restrict the search to the given
+# sections -- same semantics on strings and lists. Archive block #661.
 
-o1 = new stzString("...ONE...NONE...SONY...")
+Scenario("Counting N inside sections of a string")
+	o1 = new stzString("...ONE...NONE...SONY...")
+	Then("four N's in the three words",
+		o1.CountInSections("N", [ [3, 5], [9, 12], [16, 19] ]), 4)
+	Then("... at these positions",
+		ListEq( o1.FindInSections("N", [ [3, 5], [9, 12], [16, 19] ]),
+			[ 5, 10, 12, 19 ] ), TRUE)
+EndScenario()
 
-? o1.CountInSections("N", [ [3, 5], [9, 12], [16, 19] ])
-#--> 4
+Scenario("The same on the char list")
+	o2 = new stzList([
+		".", ".", ".", "O", "N", "E", ".", ".", ".",
+		"N", "O", "N", "E", ".", ".", ".",
+		"S", "O", "N", "Y", ".", ".", "."
+	])
+	Then("same count",
+		o2.CountInSections("N", [ [3, 5], [9, 12], [16, 19] ]), 4)
+	Then("same positions",
+		ListEq( o2.FindInSections("N", [ [3, 5], [9, 12], [16, 19] ]),
+			[ 5, 10, 12, 19 ] ), TRUE)
+EndScenario()
 
-? @@ ( o1.FindInSections("N", [ [3, 5], [9, 12], [16, 19] ]) ) + NL
-#--> [ 5, 10, 12, 19 ]
+Summary()
 
-# Same functions work for lists
-
-o1 = new stzList([
-	".", ".", ".",
-	"O", "N", "E",
-	".", ".", ".",
-	"N", "O", "N", "E",
-	".", ".", ".",
-	"S", "O", "N", "Y",
-	".", ".", "."
-])
-
-? o1.CountInSections("N", [ [3, 5], [9, 12], [16, 19] ])
-#--> 4
-
-? @@ ( o1.FindInSections("N", [ [3, 5], [9, 12], [16, 19] ]) )
-
-pf()
-# Executed in 0.04 second(s)
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
