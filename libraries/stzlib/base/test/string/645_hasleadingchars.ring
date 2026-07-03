@@ -1,126 +1,53 @@
-# Narrative
-# --------
-# #narration
-#
-# Extracted from stzStringTest.ring, block #645.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# Leading/trailing chars on strings and their item twins on lists --
+# the same semantics both sides (a Softanza design goal).
+# Archive block #645.
 
-pr()
+Scenario("Leading and trailing chars of a string")
+	o1 = new stzString( "***Ring++" )
+	Then("has leading chars", o1.HasLeadingChars(), TRUE)
+	Then("three of them", o1.NumberOfLeadingChars(), 3)
+	Then("as a list",
+		ListEq( o1.LeadingChars(), [ "*", "*", "*" ] ), TRUE)
+	Then("has trailing chars", o1.HasTrailingChars(), TRUE)
+	Then("two of them", o1.NumberOfTrailingChars(), 2)
+	Then("as a string", o1.TrailingCharsXT(), "++")
+	o1.ReplaceEachLeadingChar(:With = "+")
+	Then("leading run replaced", o1.Content(), "+++Ring++")
+	o1.ReplaceEachLeadingAndTrailingChar(:With = "*")
+	Then("both runs replaced", o1.Content(), "***Ring**")
+EndScenario()
 
-# One of the design goals of Softanza is to be as consitent as possible
-# in managing Strings and Lists. In other terms, what works for one,
-# should work for the other, preserving the same semantics.
+Scenario("The same on a char list")
+	o2 = new stzList([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ])
+	Then("has leading items", o2.HasLeadingItems(), TRUE)
+	Then("three of them", o2.NumberOfLeadingItems(), 3)
+	Then("the items",
+		ListEq( o2.LeadingItems(), [ "*", "*", "*" ] ), TRUE)
+	Then("has trailing items", o2.HasTrailingItems(), TRUE)
+	Then("two of them", o2.NumberOfTrailingItems(), 2)
+	Then("the items",
+		ListEq( o2.TrailingItems(), [ "+", "+" ] ), TRUE)
+	o2.ReplaceLeadingItems(:With = "+")
+	Then("leading replaced",
+		ListEq( o2.Content(), [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ] ), TRUE)
+	o2.ReplaceLeadingAndTrailingItems(:With = "*")
+	Then("both replaced",
+		ListEq( o2.Content(), [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ] ), TRUE)
+EndScenario()
 
-# To show this, the following code that plays with leading and trailing
-# chars in a string...
+Summary()
 
-StzStringQ( "***Ring++" ) {
-
-	? HasLeadingChars()
-	#--> TRUE
-
-	? NumberOfLeadingChars()
-	#--> 3
-
-	? @@( LeadingChars() ) # Or LeadingCharsXT() #--> "***"
-	#--> [ "*", "*", "*" ]
-	
-	? HasTrailingChars()
-	#--> TRUE
-
-	? NumberOfTrailingChars()
-	#--> 2
-
-	? @@( TrailingCharsXT() )
-	#--> "++"
-
-	ReplaceEachLeadingChar(:With = "+")
-	? Content()
-	#--> "+++Ring++"
-	
-	//ReplaceLeadingAndTrailingChars(:With = "*")
-	ReplaceEachLeadingAndTrailingChar(:With = "*")
-	? Content() + NL + NL + "---" + NL
-	#--> "***Ring**"
-}
-
-# works quiet the same with leading and trailing items items of this list:
-
-StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
-
-	? HasLeadingItems()
-	#--> TRUE
-
-	? NumberOfLeadingItems()
-	#--> 3
-
-	? @@( LeadingItems() )
-	#--> [ "*", "*", "*" ]
-	
-	? HasTrailingItems()
-	#--> TRUE
-
-	? NumberOfTrailingItems()
-	#--> 2
-	? @@( TrailingItems() )
-	#--> [ "+", "+" ]
-
-	ReplaceLeadingItems(:With = "+")
-	? @@( Content() )
-	#--> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
-	
-	ReplaceLeadingAndTrailingItems(:With = "*") + NL+NL + "---" + NL
-	? @@( Content() )
-	#--> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
-}
-
-#NOTE that, as far as strings are concerned, both if the main objec we
-# are working on is a string or a list containing string itmes as leading
-# or trailing chars, this feature is sensitive to case:
-# so we can say:
-
-StzStringQ("eeEEeeTUNISeeEE") {
-
-	? NumberOfLeadingCharsCS(:CaseSensitive = FALSE)
-	#--> 6
-
-	? LeadingCharsCS(:CaseSensitive = FALSE)
-	#--> eeEEee
-
-	? NumberOfLeadingCharsCS(TRUE)
-	#--> 2
-
-	? LeadingCharsCS(TRUE)
-	#--> ee
-
-	? LeadingCharIsCS("E", :CaseSensitive = FALSE)	+ NL
-	#--> TRUE
-
-	#--
-
-	? NumberOfTrailingCharsCS(:CaseSensitive = FALSE) + NL
-	#--> 4
-
-	? TrailingCharsCS(:CaseSensitive = FALSE)
-	#--> EEee
-
-	? NumberOfTrailingCharsCS(TRUE) + NL
-	#--> 2
-
-	? TrailingCharsCS(TRUE)
-	#--> EE
-
-	? LeadingCharIsCS("e", :CaseSensitive = FALSE)
-	#--> TRUE
-
-}
-
-pf()
-# Executed in 0.08 second(s) in Ring 1.22
-# Executed in 0.35 second(s) in Ring 1.18
-# Executed in 0.61 second(s) in Ring 1.17
-
-#NOTE: Case sensitivity is also supported in Lists with most functions.
-# In the future, all functions wil be covered.
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

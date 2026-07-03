@@ -1,18 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #658.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The river again: Ring's byte-based upper() vs the Softanza check.
+# Archive block #658.
 
-? upper("der fluß")
-#--> DER FLUSS
+Scenario("Casing checks on der fluss")
+	Then("Ring's upper leaves the eszett (byte-based)",
+		upper("der fluß"), "DER FLUß")
+	Then("StringIsLowercase sees it lowercase",
+		StringIsLowercase("der fluß"), TRUE)
+EndScenario()
 
-? StringIsLowercase("der fluß")
-#--> TRUE
-
-pf()
-# Executed in 0.03 second(s)
+Summary()

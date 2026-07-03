@@ -1,40 +1,20 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #653.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Greek casing end to end: script detection, StringCase, the case
+# transforms and CI equality. Archive block #653.
 
-# Here we take an example of a greek word
+Scenario("Sisyphus in Greek")
+	Then("the script", TQ("Σίσυφος").Script(), :Greek)
+	Then("capitalcase", Q("Σίσυφος").StringCase(), :Capitalcase)
+	Then("uppercase", Q("ΣΊΣΥΦΟΣ").StringCase(), :Uppercase)
+	Then("lowercased", Q("ΣΊΣΥΦΟΣ").Lowercased(), "σίσυφοσ")
+	Then("uppercased", Q("σίσυφοσ").Uppercased(), "ΣΊΣΥΦΟΣ")
+	Then("capitalcased", Q("σίσυφοσ").Capitalcased(), "Σίσυφοσ")
+	Then("equal, case aside",
+		Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = FALSE), TRUE)
+	Then("not equal, case strict",
+		Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", TRUE), FALSE)
+EndScenario()
 
-? TQ("Σίσυφος").Script()
-#--> greek
-
-? Q("Σίσυφος").StringCase()
-#--> capitalcase
-
-? Q("ΣΊΣΥΦΟΣ").StringCase()
-#--> uppercase
-
-? Q("ΣΊΣΥΦΟΣ").Lowercased()
-#--> σίσυφοσ
-
-? Q("σίσυφοσ").Uppercased()
-#--> ΣΊΣΥΦΟΣ
-
-? Q("σίσυφοσ").Capitalcased()
-#--> Σίσυφοσ
-
-? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = FALSE)
-#--> TRUE
-
-? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", TRUE)
-#--> FALSE
-
-pf()
-# Executed in 0.12 second(s) in Ring 1.22
-# Executed in 0.11 second(s) in Ring 1.18
-# Executed in 0.21 second(s) in Ring 1.17
+Summary()

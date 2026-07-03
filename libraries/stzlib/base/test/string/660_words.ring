@@ -1,18 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #660.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# stzText.Words. Archive block #660.
 
-o1 = new stzText("in search of lost time")
-? @@( o1.Words() )
-#--> [ "in", "search", "of", "lost", "time" ]
+Scenario("Words of a Proust title")
+	o1 = new stzText("in search of lost time")
+	Then("five words",
+		ListEq( o1.Words(), [ "in", "search", "of", "lost", "time" ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s) in Ring 1.21
-# Executed in 0.40 second(s) in Ring 1.18
-# Executed in 0.49 second(s) in Ring 1.17
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

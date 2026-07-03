@@ -37,6 +37,12 @@ func StzUpper(cStr)
 	if NOT isString(cStr)
 		cStr = "" + cStr
 	ok
+	# Unicode SpecialCasing: the German sharp s uppercases to "SS"
+	# (utf8proc's simple map gives the capital sharp s). TODO(engine):
+	# implement SpecialCasing.txt fully engine-side.
+	if StzFindFirst(cStr, "ß") > 0
+		cStr = StzReplace(cStr, "ß", "SS")
+	ok
 	pH = StzEngineString(cStr)
 	pR = StzEngineStringToUpper(pH)
 	c = StzEngineStringData(pR)

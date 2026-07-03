@@ -658,14 +658,11 @@ class stzString from stzObject
 		_acResult_ = []
 		_acChars_ = This.Chars()
 		_nLen_ = len(_acChars_)
-
 		for i = 1 to _nLen_
-			_acResult + @CharName(@acChar[i])
+			_oCnCh_ = new stzChar(_acChars_[i])
+			_acResult_ + _oCnCh_.Name()
 		next
-
 		return _acResult_
-
-		return @CharsNames(This.Content())
 
 	def Section(n1, n2)
 		nLen = This.NumberOfChars()
@@ -4880,8 +4877,10 @@ class stzString from stzObject
 	#============================#
 
 	def Unicode()
+		# A single char gives its codepoint NUMBER; a longer string
+		# gives the codepoint LIST (Q("ê" decomposed) -> [101, 770]).
 		if This.NumberOfChars() != 1
-			StzRaise("Can't get unicode! String must be a single character.")
+			return This.Unicodes()
 		ok
 		return StzCharToUnicode(This.Content())
 
@@ -6256,10 +6255,24 @@ class stzString from stzObject
 		return 0
 
 	def IsLocaleAbbreviation()
-		# Minimal stub matching the convention. Full impl in the
-		# monolith depended on a locale-abbreviations table we don't
-		# have wired here yet. Returns 0 for now.
-		return 0
+		# Structural check of the ISO shapes (case-insensitive):
+		# lang(2-3) [_ script(4)] [_ country(2-3)]. The deep semantic
+		# inference (script->language, country compatibility) is the
+		# stzLocale class's job.
+		_aParts_ = @Split(This.Content(), "_")
+		_nP_ = len(_aParts_)
+		if _nP_ < 1 or _nP_ > 3 return FALSE ok
+		for _i_ = 1 to _nP_
+			_cP_ = _aParts_[_i_]
+			_nPL_ = len(_cP_)
+			if _nPL_ < 2 or _nPL_ > 4 return FALSE ok
+			if NOT isalpha(_cP_) return FALSE ok
+		next
+		# The first part must be a language (2-3) or a script (4).
+		if _nP_ = 1 return len(_aParts_[1]) <= 3 ok
+		# A 4-letter part is only valid as the script slot.
+		if len(_aParts_[1]) = 4 and _nP_ = 3 return FALSE ok
+		return TRUE
 
 	def IsCurrencyName()
 		if This.IsEmpty() return 0 ok
@@ -6627,12 +6640,10 @@ class stzString from stzObject
 	# --- Leading/Trailing ---
 
 	def HasLeadingChars()
-		_oHlcChk_ = new stzStringChecker(This)
-		return _oHlcChk_.HasLeadingChars()
+		return This.NumberOfLeadingChars() > 0
 
 	def HasTrailingChars()
-		_oHtcChk_ = new stzStringChecker(This)
-		return _oHtcChk_.HasTrailingChars()
+		return This.NumberOfTrailingChars() > 0
 
 	def HasLeadingAndTrailingChars()
 		return This.HasLeadingChars() and This.HasTrailingChars()
@@ -12513,7 +12524,49 @@ class stzString from stzObject
 			This.RemoveManySections(aSections)
 			return This
 
+	# _ResolveOfWithFrom(p2, p3, p4): the three trailing args of the
+	# directional replaces may be the named params :Of / :With /
+	# :StartingAt in ANY order (or positional sub/new/from).
+	def _ResolveOfWithFrom(p2, p3, p4)
+		_cSub_ = ""
+		_cNew_ = ""
+		_nFrom_ = 1
+		_aArgs_ = [ p2, p3, p4 ]
+		_nIdx_ = 1
+		for _i_ = 1 to 3
+			_a_ = _aArgs_[_i_]
+			if isList(_a_) and len(_a_) = 2 and isString(_a_[1])
+				_k_ = lower(_a_[1])
+				if _k_ = "of" or _k_ = "ofsubstring"
+					_cSub_ = _a_[2]
+					loop
+				but _k_ = "with" or _k_ = "by"
+					_cNew_ = _a_[2]
+					loop
+				but _k_ = "startingat" or _k_ = "startingatposition"
+					_nFrom_ = _a_[2]
+					loop
+				ok
+			ok
+			# positional fallback: sub, new, from in order
+			if _nIdx_ = 1 and isString(_a_)
+				_cSub_ = _a_
+				_nIdx_ = 2
+			but _nIdx_ = 2 and isString(_a_)
+				_cNew_ = _a_
+				_nIdx_ = 3
+			but isNumber(_a_)
+				_nFrom_ = _a_
+			ok
+		next
+		return [ _cSub_, _cNew_, _nFrom_ ]
+
 	def ReplaceNextNthOccurrence(n, pcSub, pcNew, nFrom)
+		_aRno_ = This._ResolveOfWithFrom(pcSub, pcNew, nFrom)
+		pcSub = _aRno_[1]
+		pcNew = _aRno_[2]
+		nFrom = _aRno_[3]
+		if pcSub = "" return ok
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nPos_ = nFrom; _nCount_ = 0
 		while TRUE
@@ -12540,6 +12593,11 @@ class stzString from stzObject
 			return This
 
 	def ReplacePreviousNthOccurrence(n, pcSub, pcNew, nFrom)
+		_aRpo_ = This._ResolveOfWithFrom(pcSub, pcNew, nFrom)
+		pcSub = _aRpo_[1]
+		pcNew = _aRpo_[2]
+		nFrom = _aRpo_[3]
+		if pcSub = "" return ok
 		_aAll_ = This.AllPositionsOf(pcSub)
 		_aBefore_ = []
 		_nAL_ = len(_aAll_)
@@ -12578,10 +12636,12 @@ class stzString from stzObject
 		return lower(This.Content())
 
 	def CharCase()
+		# Codepoint-aware (Ring's upper/lower are byte-based and fail
+		# on multibyte chars like the German sharp s).
 		_c_ = This.Content()
 		if This._EngineCount(_c_) != 1 return :Mixed ok
-		if _c_ = upper(_c_) and _c_ != lower(_c_) return :Uppercase ok
-		if _c_ = lower(_c_) and _c_ != upper(_c_) return :Lowercase ok
+		if _c_ = StzLower(_c_) and _c_ != StzUpper(_c_) return :Lowercase ok
+		if _c_ = StzUpper(_c_) and _c_ != StzLower(_c_) return :Uppercase ok
 		return :Mixed
 
 	def CountInSections(pcSub, aSections)
@@ -15476,26 +15536,12 @@ class stzString from stzObject
 
 	# StringCase(): return :Lowercase, :Uppercase, :TitleCase, or :Mixed.
 	def StringCase()
+		# Codepoint-aware: uppercase / lowercase / capitalcase (the
+		# settled title-case notion, via CapitalCased) / mixed.
 		_c_ = This.Content()
-		if _c_ = lower(_c_) and _c_ != upper(_c_) return :Lowercase ok
-		if _c_ = upper(_c_) and _c_ != lower(_c_) return :Uppercase ok
-		# Title case = each whitespace-bounded word starts with upper.
-		_bTitle_ = TRUE
-		_nLen_ = len(_c_)
-		_bAtStart_ = TRUE
-		for _i_ = 1 to _nLen_
-			_ch_ = _c_[_i_]
-			if _ch_ = " " or _ch_ = char(9)
-				_bAtStart_ = TRUE
-			else
-				if _bAtStart_ and isAlpha(_ch_) and lower(_ch_) = _ch_
-					_bTitle_ = FALSE
-					exit
-				ok
-				_bAtStart_ = FALSE
-			ok
-		next
-		if _bTitle_ return :TitleCase ok
+		if _c_ = StzLower(_c_) and _c_ != StzUpper(_c_) return :Lowercase ok
+		if _c_ = StzUpper(_c_) and _c_ != StzLower(_c_) return :Uppercase ok
+		if This.CapitalCased() = _c_ return :Capitalcase ok
 		return :Mixed
 
 	# FindXT(pcWhat, :BoundedBy = pacBounds) -- named-param wrapper
