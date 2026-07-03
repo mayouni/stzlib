@@ -1,26 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #560.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindXT(:BoundedBy) on a repeated bounded word. Archive block #560.
 
-#                       +----------------------+
-#                       |                      |
-#                       V                      V
-o1 = new stzString("my <<word>> and your <<word>>")
-? o1.FindXT("word", :BoundedBy = [ "<<", ">>" ])
-#--> [ 6, 24 ]
+Scenario("Both bounded words")
+	o1 = new stzString("my <<word>> and your <<word>>")
+	Then("their content starts",
+		ListEq( o1.FindXT("word", :BoundedBy = [ "<<", ">>" ]), [ 6, 24 ] ), TRUE)
+EndScenario()
 
-#                       +----+            +----+
-#                       |    |            |    |
-#                       V    V            V    V
-o1 = new stzString("my <<word>> and your <<word>>")
-? o1.FindXT("word", :BoundedBy = [ "<<", ">>" ])
-#--> [6, 24]
+Summary()
 
-pf()
-# Executed in 0.04 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

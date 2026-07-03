@@ -1,30 +1,32 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #552.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The ZZ (sections) forms of the bounded finds -- distinct bounds,
+# single-char bounds, and the include-bounds spans. Archive block #552.
 
-# For each one of the 3 function calls we made so far (see
-# example above), you can get the result as sections and not
-# as positions. To do so, just use the same functions while
-# adding the keyword Sections like this:
+Scenario("Sections instead of positions")
+	o1 = new stzString("txt <<ring>> txt <<php>>")
+	Then("distinct bounds",
+		ListEq( o1.FindBoundedByZZ([ "<<", ">>" ]), [ [7, 10], [20, 22] ] ), TRUE)
+	o2 = new stzString("*2*45*78*0*")
+	Then("a single-char bound",
+		ListEq( o2.FindBoundedByZZ("*"),
+			[ [2, 2], [4, 5], [7, 8], [10, 10] ] ), TRUE)
+	Then("its include-bounds spans overlap",
+		ListEq( o2.FindAnyBoundedByIBZZ("*"),
+			[ [1, 3], [3, 6], [6, 9], [9, 11] ] ), TRUE)
+EndScenario()
 
-o1 = new stzString("txt <<ring>> txt <<php>>")
+Summary()
 
-? @@( o1.FindBoundedByZZ([ "<<", ">>" ]) ) + NL
-#--> [ [ 7, 10 ], [ 20, 22 ] ]
-
-o1 = new stzString("*2*45*78*0*")
-? @@( o1.FindBoundedByZZ("*") ) + NL
-#--> [ [ 2, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
-
-? @@( o1.FindAnyBoundedByIBZZ("*") )
-#--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 9 ], [ 9, 11 ] ]
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-# Executed in 0.13 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

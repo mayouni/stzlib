@@ -663,7 +663,39 @@ whitespace-only line that had to be preserved byte-exactly.
   lack the **/_ decorations) with CI splitting; asserted at both dials'
   real outputs. 532 asserts Section's strict raises via try/catch.
 
-## STATUS (2026-07-03): 492/999 test files audited (chunks 14-32 added 229); ~507 still to audit
+**Chunk 33 (2026-07-03, 20 files):** 541-543, 545-560 audited→narrated
+(19 files, 55 assertions; 544 does not exist). Real fixes (the bounded-by
+family consolidation):
+- **One canonical region walk** `_BoundedContentSpansOC(open, close)`:
+  scans bound TOKENS non-overlappingly and, for SAME-string bounds,
+  REUSES each closer as the next opener (the settled overlap rule) --
+  distinct bounds advance past the closer. Rewired:
+  FindSubStringsBoundedBy(+ZZ) (548: "**" now yields all 5 gaps, single-
+  string widened -- no more raise), FindBoundedByAsSectionsCS same-char
+  (553: quotes overlap without recursion), FindAnyBoundedByZZ same-char,
+  and FindAnyBoundedByIB(ZZ) (549: "**" inside "***" no longer emits
+  overlapping TOKEN artifacts -- [1,7,13] / [[1,8],[7,14],[13,22]]).
+- **`FindSubStringBoundedBy(CS)` = EQUALITY** (545/559): only occurrences
+  that ARE a whole bounded content count ("word" inside <<noword>> is
+  skipped; the CS dial lower-compares). **`FindBetween` keeps CONTAINMENT**
+  (sub anywhere inside a region) with its own walk -- the two semantics
+  were riding the same impl and 161/180 caught the split immediately.
+- **`FindManyCS` = FLAT + SORTED positions** (549), per the original
+  monolith (FlattenQ().Sorted()); was the grouped [sub, positions] shape
+  (which remains TheseCharsZ / the Z-family's job -- 396 unaffected).
+- **`Split` drops EDGE empty parts** (549 + 525 re-asserted): leading/
+  trailing separators produce no "" parts; interior empties (adjacent
+  separators) are kept -- matching both archives' part counts.
+- **`FindNthBoundedBy(ZZ)` accepts (n, sub, bounds)** (541) alongside the
+  legacy (n, bounds, sub) order.
+- **`NLastOccurrences(:Of=)` / `NLastOccurrencesST`** (547): the stzObject
+  fallbacks ran a SectionQ(:Last) pipeline that can't take symbols (and
+  the :Of named list reached the engine raw). stzString unwraps :Of in
+  FindLastNOccurrences and routes NLastOccurrencesST to its own
+  LastNOccurrencesST (now also accepting a plain-string sub).
+Pure conversions: 542, 543, 546, 550-558, 560.
+
+## STATUS (2026-07-03): 511/999 test files audited (chunks 14-33 added 248); ~488 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

@@ -1,20 +1,28 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #543.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Ranges take [start, COUNT] pairs (the sections' sibling).
+# Archive block #543.
 
-o1 = new stzString("**word1***word2**word3***")
-? o1.Ranges([ [1,2], [8, 3], [16, 2], [23, 3] ])
-#--> [ "**", "***", "**", "***" ]
+Scenario("Star runs by ranges")
+	o1 = new stzString("**word1***word2**word3***")
+	Then("the star ranges",
+		ListEq( o1.Ranges([ [1,2], [8, 3], [16, 2], [23, 3] ]),
+			[ "**", "***", "**", "***" ] ), TRUE)
+	o1.RemoveRanges([ [1,2], [8, 3], [16, 2], [23, 3] ])
+	Then("removing them joins the words", o1.Content(), "word1word2word3")
+EndScenario()
 
-o1.RemoveRanges([ [1,2], [8, 3], [16, 2], [23, 3] ])
-? o1.Content()
-#--> "word1word2word3"
+Summary()
 
-pf()
-# Executed in 0.06 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

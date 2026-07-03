@@ -253,13 +253,28 @@ class stzStringFinder
 			StzRaise("Incorrect param type! pacSubStrings must be a list.")
 		ok
 
+		# Per the original monolith: the FLAT, ascending-sorted list of
+		# every substring's positions (the grouped [sub, positions]
+		# shape is the Z-family's job).
 		aResult = []
 		nLen = len(pacSubStrings)
 		for i = 1 to nLen
 			anPositions = This.FindCS(pacSubStrings[i], pCaseSensitive)
-			if len(anPositions) > 0
-				aResult + [ pacSubStrings[i], anPositions ]
-			ok
+			nPL = len(anPositions)
+			for j = 1 to nPL
+				aResult + anPositions[j]
+			next
+		next
+		# Ascending insertion sort (the lists are small).
+		nRL = len(aResult)
+		for i = 2 to nRL
+			nV = aResult[i]
+			j = i - 1
+			while j >= 1 and aResult[j] > nV
+				aResult[j + 1] = aResult[j]
+				j--
+			end
+			aResult[j + 1] = nV
 		next
 		return aResult
 

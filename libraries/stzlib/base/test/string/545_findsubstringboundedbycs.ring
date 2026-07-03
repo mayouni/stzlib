@@ -1,17 +1,27 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #545.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindSubStringBoundedByCS: only the occurrences that ARE a whole
+# bounded content count -- the "word" inside <<noword>> is skipped.
+# Archive block #545.
 
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+Scenario("Case-insensitive bounded word find")
+	o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+	Then("only the two real <<word>>s",
+		ListEq( o1.FindSubStringBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE),
+			[ 11, 43 ] ), TRUE)
+EndScenario()
 
-? o1.FindSubStringBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE)
-#--> [ 11, 43 ]
+Summary()
 
-pf()
-# Executed in 0.04 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

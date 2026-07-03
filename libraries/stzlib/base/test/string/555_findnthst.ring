@@ -1,21 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #555.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindNthST / FindFirstST: nth and first occurrence from a position.
+# Archive block #555.
 
-o1 = new stzString("12*45*78*90")
+Scenario("Stars from position 4")
+	o1 = new stzString("12*45*78*90")
+	Then("the 2nd star from 4", o1.FindNthST(2, "*", :StartingAt = 4), 9)
+	Then("the first star from 4", o1.FindFirstST("*", :StartingAt = 4), 6)
+EndScenario()
 
-? o1.FindNthST(2, "*", :StartingAt = 4)
-#--> 9
-
-? o1.FindFirstST("*", :StartingAt = 4)
-#--> 6
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-# Executed in 0.05 second(s) in Ring 1.20
+Summary()
