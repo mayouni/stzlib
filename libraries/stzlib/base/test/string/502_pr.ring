@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #502.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The S() stringifier and the N() numberifier shorthands.
+# Archive block #502.
 
-? @@( S(1:3) )
-#--> "[ 1, 2, 3 ]"
+Scenario("Casting shorthands")
+	Then("S stringifies a range", S(1:3), "[ 1, 2, 3 ]")
+	Then("N numberifies a signed string", N("-12500"), -12500)
+EndScenario()
 
-? N("-12500")
-#--> -12500
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+Summary()

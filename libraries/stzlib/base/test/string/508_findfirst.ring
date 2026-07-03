@@ -1,31 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #508.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindFirst / FindFirstST / FindLast / FindNth -- single-position finds.
+# Archive block #508.
 
-o1 = new stzString("ab_cd_ef_gh")
-? o1.FindFirst("_")
-#--> 3
+Scenario("Single-position finds")
+	o1 = new stzString("ab_cd_ef_gh")
+	Then("the first underscore", o1.FindFirst("_"), 3)
+	Then("a missing star from 4", o1.FindFirstST("*", :StartingAt = 4), 0)
+	Then("the underscore from 3", o1.FindFirstST("_", :StartingAt = 3), 3)
+	Then("the last underscore", o1.FindLast("_"), 9)
+	Then("no last star", o1.FindLast("*"), 0)
+	Then("the 2nd underscore", o1.FindNth(2, "_"), 6)
+EndScenario()
 
-? o1.FindFirstST("*", :StartingAt = 4)
-#--> 0
-
-? o1.FindFirstST("_", :StartingAt = 3)
-#--> 3
-
-? o1.FindLast("_")
-#--> 9
-
-? o1.FindLast("*")
-#--> 0
-
-? o1.FindNth(2,"_")
-#--> 6
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

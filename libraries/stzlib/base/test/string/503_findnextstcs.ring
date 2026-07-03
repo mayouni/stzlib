@@ -1,16 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #503.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindNextSTCS: the next occurrence starting at a position, with the
+# case dial. Archive block #503.
 
-o1 = new stzString("123456789RING")
-? o1.FindNextSTCS("ring", 5, FALSE)
-#--> 10
+Scenario("Case-insensitive next find")
+	o1 = new stzString("123456789RING")
+	Then("ring matches RING at 10", o1.FindNextSTCS("ring", 5, FALSE), 10)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

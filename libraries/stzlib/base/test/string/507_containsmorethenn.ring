@@ -1,23 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #507.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ContainsMoreThenN (the archive's spelling) vs ContainsNTimes.
+# Archive block #507.
 
-o1 = new stzString("ab_cd_ef_gh")
+Scenario("Counting occurrences")
+	o1 = new stzString("ab_cd_ef_gh")
+	Then("more than one underscore", o1.ContainsMoreThenN(1, "_"), TRUE)
+	Then("not more than one a", o1.ContainsMoreThenN(1, "a"), FALSE)
+	Then("exactly one a", o1.ContainsNTimes(1, "a"), TRUE)
+EndScenario()
 
-? o1.ContainsMoreThenN(1, "_")
-#--> TRUE
-
-? o1.ContainsMoreThenN(1, "a")
-#--> FALSE
-
-? o1.ContainsNTimes(1, "a")
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

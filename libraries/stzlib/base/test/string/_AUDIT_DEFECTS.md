@@ -597,7 +597,37 @@ Real fixes:
 Pure conversions: 481(x2), 483, 484, 485, 486, 488, 490-494, 498. 487's
 final ToStzTable().Show() is visual and noted, not asserted.
 
-## STATUS (2026-07-02): 457/999 test files audited (chunks 14-30 added 194); ~542 still to audit
+**Chunk 31 (2026-07-03, 18 files):** 502-503, 505, 507-520 audited→narrated
+(17 files, 47 assertions), 506 left as a visual stzTable demo. Real fixes:
+- **`stzListMover.Move` was a silent no-op** (517): it mutated the list
+  returned by This.List() -- Ring returns lists from methods BY VALUE, so
+  the edits were lost; and its ring_insert offset was off by one. Now works
+  on a local copy, inserts AT the target position, and writes back. NOTE:
+  517's archive #--> showed the post-swap list unchanged -- a copy-paste
+  error; asserted at [A, C, B], consistent with the string twin (516).
+- **Named-param normalization for `Swap`/`Move`** (516/517/519):
+  stzString.Swap(:Positions = a, :And = b); stzList.Move(:ItemFromPosition
+  = a, :To = b), stzList.Swap(:Positions/:And) and the value form
+  Swap(item1, :And = item2) (find both, swap positions).
+- **`FindSubString` returns ALL positions** (520): was the first position
+  (engine FindFirst); now aliases Find per the StzFind list contract
+  (FindSubStringCS -> FindCS likewise).
+- **`BoundsXT(:Of = sub, :UpToNChars = caps)`** (515): the per-occurrence
+  capped-bounds form (caps: number = both sides, [l, r] = per side, 0 ->
+  NULL side), built on the per-occurrence BoundsOf walker. The whole-string
+  single-arg cap moved to `BoundsUpToNChars` (Ring has no arity
+  overloading; the two archive spellings collided -- test 366 repointed to
+  the UpToNChars spelling, same values).
+- **History hooks extended across type-crossing chains** (505): SpacifyQ /
+  CharsQ / ReplaceQ (string), UppercaseQ / LowercaseQ (stzList),
+  RemoveSpacesQ / UppercaseQ / JoinQ (stzListOfChars) -- so
+  QH("LIFE")...History() captures all 9 steps incl. the string->list->
+  string transitions. (The QHH VTMS time/size columns are machine-dependent
+  -- noted, not asserted.)
+Pure conversions: 502, 503, 507-514, 518. 511's source had a
+whitespace-only line that had to be preserved byte-exactly.
+
+## STATUS (2026-07-03): 474/999 test files audited (chunks 14-31 added 211); ~525 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain
