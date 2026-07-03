@@ -1,19 +1,29 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #528.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SubstringsBoundedBy with the inline [ open, :And = close ] spelling,
+# and its U (unique) variant. Archive block #528.
 
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.SubstringsBoundedBy([ "<<", :and = ">>" ])
-#--> [ "word", "noword", "word" ]
+Scenario("Bounded words, all and unique")
+	o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+	Then("every bounded substring",
+		ListEq( o1.SubstringsBoundedBy([ "<<", :and = ">>" ]),
+			[ "word", "noword", "word" ] ), TRUE)
+	Then("the unique set",
+		ListEq( o1.SubStringsBoundedByU([ "<<", :and = ">>" ]),
+			[ "word", "noword" ] ), TRUE)
+EndScenario()
 
-? o1.SubStringsBoundedByU([ "<<", :and = ">>" ]) # Or UniqueSubStringsBoundedBy()
-#--> [ "word", "noword" ]
+Summary()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

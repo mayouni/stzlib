@@ -1,13 +1,17 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
-# Section(:From = a, :To = b) -- the span delimited by the first 'a' and the next
-# 'b' (inclusive). Works on the string and on its char-list. Archive block #168.
+# Section(:From = a, :To = b) -- per the ORIGINAL SectionCS, the :From
+# anchor resolves to its FIRST occurrence and the :To anchor to its
+# LAST (FindFirstCS / FindLastCS), so F..A on SOFTANZA spans "FTANZA".
+# (Archive block #168's #--> "FTA" contradicted the original impl and
+# its sibling block #523; the impl wins.) The char-LIST Section keeps
+# its own first-occurrence anchors (list domain). Archive block #168.
 
 Scenario("A section delimited by chars")
-	Then("Section(:From='F', :To='A') of SOFTANZA is 'FTA'",
-		Q("SOFTANZA").Section(:From = "F", :To = "A"), "FTA")
-	Then("the same on a char-list",
+	Then("Section(:From='F', :To='A') spans to the LAST A",
+		Q("SOFTANZA").Section(:From = "F", :To = "A"), "FTANZA")
+	Then("the char-list twin anchors on the first A",
 		ListEq( Q("SOFTANZA").CharsQ().Section(:From = "F", :To = "A"), [ "F", "T", "A" ] ), TRUE)
 EndScenario()
 
