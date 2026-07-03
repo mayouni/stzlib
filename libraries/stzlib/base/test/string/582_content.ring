@@ -1,17 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #582.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveLast removes the LAST occurrence only. Archive block #582.
 
-o1 = new stzString("من كان في زمنه من أصحابه فهو من أكبر المحظوظين")
-o1.RemoveLast(" من") # Or o1.RemoveNthOccurrence(:Last, " من")
-? o1.Content()
-#--> Gives من كان في زمنه من أصحابه فهو أكبر المحظوظين
+Scenario("Dropping the last من")
+	o1 = new stzString("من كان في زمنه من أصحابه فهو من أكبر المحظوظين")
+	o1.RemoveLast(" من")
+	Then("only the third one vanishes",
+		o1.Content(), "من كان في زمنه من أصحابه فهو أكبر المحظوظين")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

@@ -1,16 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #596.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ContainsOneOfTheseCS with the case dial. Archive block #596.
 
-o1 = new stzString("Baba, Mama, and Dada")
-? o1.ContainsOneOfTheseCS([ "Mom", "mama" ], :CaseSensitive = FALSE)
-#--> TRUE
+Scenario("Mama matches, case aside")
+	o1 = new stzString("Baba, Mama, and Dada")
+	Then("one of the two is there",
+		o1.ContainsOneOfTheseCS([ "Mom", "mama" ], :CaseSensitive = FALSE), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

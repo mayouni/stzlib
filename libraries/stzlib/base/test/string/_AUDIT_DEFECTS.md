@@ -729,7 +729,36 @@ Pure conversions: 542, 543, 546, 550-558, 560.
 - 565's long-open defect (FindSubStringBoundedBy("word") -> [11,30,43])
   CLOSED by chunk 33's equality semantics -- now [11] as the archive wants.
 
-## STATUS (2026-07-03): 531/999 test files audited (chunks 14-34 added 268); ~468 still to audit
+**Chunk 35 (2026-07-03, 20 files):** 581-596, 598-600 audited→narrated
+(19 files, 45 assertions), 597 deferred (network-dependent FromURL demo).
+Real fixes:
+- **`BoundsOf` is FLAT** (589-591): the original SubStringBoundsCS
+  computes Sections(bound sections) -- a flat [left, right, left, right,
+  ...] list of the occurrences bounded on BOTH sides (590: edge
+  occurrences drop out) -- while its own doc comment showed pairs (the
+  shape my chunk-early ruling on 42/43/367/368 had followed). RULING:
+  impl + 3 archive blocks win; BoundsOf/FirstBoundsOf/LastBoundsOf are
+  flat projections of the internal `_BoundsOfPairs` walker (which
+  BoundsOfXT and the capped forms keep using -- their pair shapes are
+  archive-pinned). Tests 42/43/367/368 re-ruled to flat.
+- **RTL-aware Left/Right** (581): stzString.IsRightToLeft() (first
+  strong bidi char), NRightCharsAsSubString / NLeftCharsAsSubString
+  mirror for RTL text (per the original IsRightToLeft-aware impl), and
+  RemoveFromRight removes from the START of an RTL string.
+- **`RemoveNthOccurrence(CS)` accepts :First / :Last** (583/584) and the
+  CS dial now actually dials (was documented-permissive ignore); rebuilt
+  on FindCS + RemoveSection.
+- **`StzRaise` hash form fixed** (594): the [:Where,:What,:Why,:Todo]
+  hash was gated behind IsRaiseNamedParamList (which only matches a
+  [:Raise, x] pair) -- now detected structurally, so the formatted
+  multi-line message raises as documented.
+- 593/594 assert the raises via try/catch. NOTE: 599/600's archive
+  #-->s for Next-occurrence positions (2/40 and [18,40]) were off-by-one
+  hand values contradicted by their own FindAll lines ([1,17,39]);
+  asserted at the coherent inclusive-ST values.
+Pure conversions: 582, 585-588, 592, 595, 596, 598.
+
+## STATUS (2026-07-03): 550/999 test files audited (chunks 14-35 added 287); ~449 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

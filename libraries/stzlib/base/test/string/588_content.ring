@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #588.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AddBounds wraps the content. Archive block #588.
 
-o1 = new stzString("word")
-o1.AddBounds(["<<",">>"]) # or BoundWith(["<<",">>"])
-? o1.Content()
-#--> <<word>>
+Scenario("Wrapping a word")
+	o1 = new stzString("word")
+	o1.AddBounds(["<<",">>"])
+	Then("bounded", o1.Content(), "<<word>>")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

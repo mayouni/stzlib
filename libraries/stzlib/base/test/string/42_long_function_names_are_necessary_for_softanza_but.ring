@@ -14,8 +14,11 @@ Scenario("The bounds around each occurrence of a substring")
 			[ [8,9], [14,15], [34,35], [40,41] ] ), TRUE)
 	Then("BoundsOfXT caps each bound to 2 chars",
 		ListEq( o1.BoundsOfXT("Ring", [ 2, 2 ]), [ [ "<<", ">>" ], [ "((", "))" ] ] ), TRUE)
-	Then("BoundsOf returns the full bound runs",
-		ListEq( o1.BoundsOf("Ring"), [ [ "<<<", ">>>" ], [ "(((", ")))" ] ] ), TRUE)
+	# RULING (chunk 35): BoundsOf is FLAT per the original impl
+	# (Sections of the bound sections) -- blocks #589-#591 pin it; the
+	# pair-grouped shape was only the monolith's stale doc comment.
+	Then("BoundsOf returns the full bound runs, flat",
+		ListEq( o1.BoundsOf("Ring"), [ "<<<", ">>>", "(((", ")))" ] ), TRUE)
 EndScenario()
 
 Summary()

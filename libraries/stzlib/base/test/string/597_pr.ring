@@ -1,5 +1,8 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-03): DEFERRED -- network-dependent demo (FromURL
+# fetches a live web page); not assertable offline.
 # pr()
 #
 # Extracted from stzStringTest.ring, block #597.

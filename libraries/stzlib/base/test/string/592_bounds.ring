@@ -1,27 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #592.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Bounds() auto-detects; LeftBound/RightBound name the sides.
+# Archive block #592.
 
-o1 = new stzString("<<word>>")
+Scenario("The bounds of a wrapped word")
+	o1 = new stzString("<<word>>")
+	Then("both bounds", ListEq( o1.Bounds(), [ "<<", ">>" ] ), TRUE)
+	Then("the left one", o1.LeftBound(), "<<")
+	Then("the right one", o1.RightBound(), ">>")
+EndScenario()
 
-? o1.Bounds()
-#--> [ "<<", ">>" ]
+Summary()
 
-? o1.LeftBound() + NL
-#--> "<<"
-
-? o1.RightBound()
-#--> ">>"
-
-# And also FirstBound() and LastBound() for general
-# use with left-to-right and right-toleft strings
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
-# Executed in 0.13 second(s) in Ring 1.20
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

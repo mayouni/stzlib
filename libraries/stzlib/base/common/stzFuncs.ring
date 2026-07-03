@@ -2957,7 +2957,22 @@ func StzRaise(paMessage)
 		raise(paMessage + NL)
 	ok
 
-	if isList(paMessage) and IsRaiseNamedParamList(paMessage)
+	# The hash form: a list of [key, value] pairs with keys among
+	# :Where / :What / :Why / :Todo.
+	bRaiseHash = FALSE
+	if isList(paMessage) and len(paMessage) > 0
+		bRaiseHash = TRUE
+		for iRhk = 1 to len(paMessage)
+			if NOT ( isList(paMessage[iRhk]) and len(paMessage[iRhk]) = 2 and
+			         isString(paMessage[iRhk][1]) and
+			         ring_find([ "where", "what", "why", "todo" ],
+			                   lower(paMessage[iRhk][1])) > 0 )
+				bRaiseHash = FALSE
+				exit
+			ok
+		next
+	ok
+	if bRaiseHash
 		cWhere = paMessage[ :Where  ]
 		cWhat  = paMessage[ :What   ]
 		cWhy   = paMessage[ :Why    ]
