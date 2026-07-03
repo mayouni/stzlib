@@ -1,25 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #629.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SortMarquersIn* rewrites the marquer slots with the sorted values.
+# Archive block #629.
 
-StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {
+Scenario("Sorting the candidates")
+	o1 = new stzString("The first candidate is #3, the second is #1, while the third is #2!")
+	o1.SortMarquersInAscending()
+	Then("ascending",
+		o1.Content(), "The first candidate is #1, the second is #2, while the third is #3!")
+	o1.SortMarquersInDescending()
+	Then("then descending",
+		o1.Content(), "The first candidate is #3, the second is #2, while the third is #1!")
+EndScenario()
 
-	SortMarquersInAscending()
-	? Content() + NL
-	#--> The first candidate is #1, the second is #2, while the third is #3!
-
-	SortMarquersInDescending()
-	? Content()
-	#--> The first candidate is #3, the second is #2, while the third is #1!
-}
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.21
-# Executed in 0.53 second(s) in Ring 1.18
-# Executed in 0.81 second(s) in Ring 1.17
+Summary()

@@ -10179,15 +10179,18 @@ class stzString from stzObject
 			This.ReplaceEachLeadingAndTrailingChar(pcNewChar)
 			return This
 
+	# ReplaceSubStringsWithMarquers: turn the listed substrings INTO
+	# their ordinal marquers (#1, #2, ...) -- the inverse of
+	# ReplaceMarquers.
 	def ReplaceSubStringsWithMarquers(paReplacements)
-		This.ReplaceMarquers(paReplacements)
+		This.MarkTheseSubStringsCS(paReplacements, 1)
 
 		def ReplaceSubStringsWithMarquersQ(paReplacements)
-			This.ReplaceMarquers(paReplacements)
+			This.ReplaceSubStringsWithMarquers(paReplacements)
 			return This
 
 	def ReplaceSubStringsWithMarkers(paReplacements)
-		This.ReplaceMarquers(paReplacements)
+		This.ReplaceSubStringsWithMarquers(paReplacements)
 
 	# UnicodeDataAsString() and MarquersPositions(): missing globals
 	# called inside the test scripts.
@@ -12150,51 +12153,60 @@ class stzString from stzObject
 			return This
 
 	# SortMarquersInDescending(): list of marker positions sorted desc.
-	def SortMarquersInDescending()
-		_aPos_ = This.MarquersPositions()
-		_nL_ = len(_aPos_)
+	# _MarquersSortedStrings(bAscending): the marquer strings sorted by
+	# their numeric value.
+	def _MarquersSortedStrings(bAscending)
+		_a_ = This.Marquers()
+		_nL_ = len(_a_)
 		for _i_ = 2 to _nL_
-			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and _aPos_[_j_] < _v_
-				_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
+			_v_ = _a_[_i_]
+			_nV_ = 0 + StzMidToEnd(_v_, 2)
+			_j_ = _i_ - 1
+			while _j_ >= 1
+				_nJ_ = 0 + StzMidToEnd(_a_[_j_], 2)
+				if (bAscending and _nJ_ > _nV_) or
+				   (NOT bAscending and _nJ_ < _nV_)
+					_a_[_j_ + 1] = _a_[_j_]
+					_j_--
+				else
+					exit
+				ok
 			end
-			_aPos_[_j_ + 1] = _v_
+			_a_[_j_ + 1] = _v_
 		next
-		return _aPos_
+		return _a_
+
+	# SortMarquersInAscending/Descending: REWRITE the marquer slots (in
+	# text order) with the sorted marquer values.
+	def _SortMarquers(bAscending)
+		_aSecs_ = This.FindMarquersAsSections()
+		_aSorted_ = This._MarquersSortedStrings(bAscending)
+		_nL_ = len(_aSecs_)
+		for _i_ = _nL_ to 1 step -1
+			This.ReplaceSection(_aSecs_[_i_][1], _aSecs_[_i_][2], _aSorted_[_i_])
+		next
+
+	def SortMarquersInDescending()
+		This._SortMarquers(FALSE)
 
 	def SortMarkersInDescending()
-		return This.SortMarquersInDescending()
+		This.SortMarquersInDescending()
 
 	def SortMarquersInAscending()
-		_aPos_ = This.MarquersPositions()
-		_nL_ = len(_aPos_)
-		for _i_ = 2 to _nL_
-			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and _aPos_[_j_] > _v_
-				_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
-			end
-			_aPos_[_j_ + 1] = _v_
-		next
-		return _aPos_
+		This._SortMarquers(TRUE)
 
 	def SortMarkersInAscending()
-		return This.SortMarquersInAscending()
+		This.SortMarquersInAscending()
 
-	# MarquersSortedInDescendingZZ.
+	# MarquersSortedInDescendingZZ: the sorted marquers ZIPPED onto the
+	# text-order slots (the ZZ view of the would-be sorted string).
 	def MarquersSortedInDescendingZZ()
-		_aPos_ = This.MarquersPositions()
-		_nL_ = len(_aPos_)
-		for _i_ = 2 to _nL_
-			_v_ = _aPos_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and _aPos_[_j_] < _v_
-				_aPos_[_j_ + 1] = _aPos_[_j_]; _j_--
-			end
-			_aPos_[_j_ + 1] = _v_
-		next
+		_aSecs_ = This.FindMarquersAsSections()
+		_aSorted_ = This._MarquersSortedStrings(FALSE)
 		_aRes_ = []
-		_nL_ = len(_aPos_)
+		_nL_ = len(_aSecs_)
 		for _i_ = 1 to _nL_
-			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] ]
+			_aRes_ + [ _aSorted_[_i_], _aSecs_[_i_] ]
 		next
 		return _aRes_
 
@@ -12353,15 +12365,25 @@ class stzString from stzObject
 			return This
 
 	# MarkTheseSubStringsCS: wrap each occurrence in [|...|].
+	# MarkTheseSubStringsCS: replace each listed substring with its
+	# ordinal marquer #1, #2, ... (aka ReplaceSubstringsWithMarquersCS).
 	def MarkTheseSubStringsCS(pacSubStr, pCaseSensitive)
+		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and
+		   (lower(pCaseSensitive[1]) = "cs" or lower(pCaseSensitive[1]) = "casesensitive")
+			pCaseSensitive = pCaseSensitive[2]
+		ok
 		if NOT isList(pacSubStr) return ok
 		_nL_ = len(pacSubStr)
 		for _i_ = 1 to _nL_
 			_s_ = pacSubStr[_i_]
 			if isString(_s_)
-				This.ReplaceCS(_s_, "[|" + _s_ + "|]", pCaseSensitive)
+				This.ReplaceCS(_s_, "#" + _i_, pCaseSensitive)
 			ok
 		next
+
+		def ReplaceSubstringsWithMarquersCS(pacSubStr, pCaseSensitive)
+			This.MarkTheseSubStringsCS(pacSubStr, pCaseSensitive)
 
 	def RemoveCharQ(n)
 		# Accept a single-char string: remove every occurrence.
@@ -12829,18 +12851,13 @@ class stzString from stzObject
 		   (lower(pCaseSensitive[1]) = "cs" or lower(pCaseSensitive[1]) = "casesensitive")
 			pCaseSensitive = pCaseSensitive[2]
 		ok
-		# pcSubStr may be a list of substrings to mark.
+		# pcSubStr may be a list of substrings to mark -- each becomes
+		# its ordinal marquer #1, #2, ...
 		if isList(pcSubStr)
-			_nL_ = len(pcSubStr)
-			for _i_ = 1 to _nL_
-				if isString(pcSubStr[_i_])
-					This.ReplaceCS(pcSubStr[_i_],
-						"[|" + pcSubStr[_i_] + "|]", pCaseSensitive)
-				ok
-			next
+			This.MarkTheseSubStringsCS(pcSubStr, pCaseSensitive)
 			return
 		ok
-		This.ReplaceCS(pcSubStr, "[|" + pcSubStr + "|]", pCaseSensitive)
+		This.ReplaceCS(pcSubStr, "#1", pCaseSensitive)
 
 	# ReplaceMarquers(paReplacements): replace #1, #2, ... in order
 	# with paReplacements[1], [2], ... (engine-replace).
@@ -13182,28 +13199,28 @@ class stzString from stzObject
 	def MarkersUZZ()
 		return This.MarquersUZZ()
 
+	# MarquersSortedZ/ZZ: the ASCENDING-sorted marquers zipped onto the
+	# text-order positions / sections.
 	def MarquersSortedZ()
-		_a_ = This.MarquersPositions()
-		_aSorted_ = _ListCopy(_a_)
-		_nL_ = len(_aSorted_)
-		for _i_ = 2 to _nL_
-			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and _aSorted_[_j_] > _v_
-				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
-			end
-			_aSorted_[_j_ + 1] = _v_
+		_aPos_ = This.MarquersPositions()
+		_aSorted_ = This._MarquersSortedStrings(TRUE)
+		_aR_ = []
+		_nL_ = len(_aPos_)
+		for _i_ = 1 to _nL_
+			_aR_ + [ _aSorted_[_i_], _aPos_[_i_] ]
 		next
-		return _aSorted_
+		return _aR_
 
 	def MarkersSortedZ()
 		return This.MarquersSortedZ()
 
 	def MarquersSortedZZ()
-		_a_ = This.MarquersSortedZ()
+		_aSecs_ = This.FindMarquersAsSections()
+		_aSorted_ = This._MarquersSortedStrings(TRUE)
 		_aR_ = []
-		_nL_ = len(_a_)
+		_nL_ = len(_aSecs_)
 		for _i_ = 1 to _nL_
-			_aR_ + [ _a_[_i_], _a_[_i_] ]
+			_aR_ + [ _aSorted_[_i_], _aSecs_[_i_] ]
 		next
 		return _aR_
 
@@ -13249,14 +13266,17 @@ class stzString from stzObject
 	def PreviousMarkerZ(pStartingAt)
 		return This.PreviousMarquerZ(pStartingAt)
 
+	# MarquersSortedUZ: the unique marquers sorted by NUMBER, each with
+	# its own positions.
 	def MarquersSortedUZ()
 		_a_ = This.MarquersUZ()
 		_aSorted_ = _ListCopy(_a_)
 		_nL_ = len(_aSorted_)
 		for _i_ = 2 to _nL_
-			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and isList(_aSorted_[_j_]) and isList(_v_) and
-			      _aSorted_[_j_][2][1] > _v_[2][1]
+			_v_ = _aSorted_[_i_]
+			_nV_ = 0 + StzMidToEnd(_v_[1], 2)
+			_j_ = _i_ - 1
+			while _j_ >= 1 and (0 + StzMidToEnd(_aSorted_[_j_][1], 2)) > _nV_
 				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
 			end
 			_aSorted_[_j_ + 1] = _v_
@@ -13293,15 +13313,17 @@ class stzString from stzObject
 		def PreviousNthMarquerAndItsPosition(n, pStartingAt)
 			return This.PreviousNthMarquerZ(n, pStartingAt)
 
+	# MarquersSortedUZZ: the unique marquers sorted by NUMBER, each
+	# with its own sections.
 	def MarquersSortedUZZ()
 		_a_ = This.MarquersUZZ()
 		_aSorted_ = _ListCopy(_a_)
 		_nL_ = len(_aSorted_)
 		for _i_ = 2 to _nL_
-			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
-			while _j_ >= 1 and isList(_aSorted_[_j_]) and isList(_v_) and
-			      isList(_aSorted_[_j_][2]) and isList(_v_[2]) and
-			      _aSorted_[_j_][2][1] > _v_[2][1]
+			_v_ = _aSorted_[_i_]
+			_nV_ = 0 + StzMidToEnd(_v_[1], 2)
+			_j_ = _i_ - 1
+			while _j_ >= 1 and (0 + StzMidToEnd(_aSorted_[_j_][1], 2)) > _nV_
 				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
 			end
 			_aSorted_[_j_ + 1] = _v_

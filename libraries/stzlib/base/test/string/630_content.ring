@@ -1,27 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #630.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# MarkTheseSubStringsCS turns each listed substring into its ordinal
+# marquer (aka ReplaceSubstringsWithMarquersCS), with the case dial.
+# Archive block #630.
 
-o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
+Scenario("Marking the languages")
+	o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
+	o1.MarkTheseSubStringsCS( [ "Ring", "Python", "Ruby", "PHP" ], TRUE )
+	Then("case-sensitively", o1.Content(), "#1 can be compared to #2, #3 and #4.")
+	o2 = new stzString("Ring can be compared to Python, Ruby and PHP.")
+	o2.MarkSubStringsCS( [ "ring", "python", "ruby", "PHP" ], :CS = FALSE )
+	Then("case aside", o2.Content(), "#1 can be compared to #2, #3 and #4.")
+EndScenario()
 
-o1.MarkTheseSubStringsCS( [ "Ring", "Python", "Ruby", "PHP" ], TRUE )
-# Or ReplaceSubstringsWithMarquersCS
-
-? o1.Content() + NL
-#--> "#1 can be compared to #2, #3 and #4."
-
-o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
-o1.MarkSubStringsCS( [ "ring", "python", "ruby", "PHP" ], :CS = FALSE )
-# Or ReplaceSubstringsWithMarquersCS
-
-? o1.Content()
-#--> "#1 can be compared to #2, #3 and #4."
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

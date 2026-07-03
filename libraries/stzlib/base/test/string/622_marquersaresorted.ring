@@ -1,21 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #622.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Descending marquers are sorted too. Archive block #622.
 
-StzStringQ("My name is #3, my age is #2, and my job is #1.") {	
-	? MarquersAreSorted()
-	#--> TRUE
+Scenario("Descending marquers")
+	o1 = new stzString("My name is #3, my age is #2, and my job is #1.")
+	Then("they are sorted", o1.MarquersAreSorted(), TRUE)
+	Then("... descending", o1.MarquersSortingOrder(), :Descending)
+EndScenario()
 
-	? MarquersSortingOrder()
-	#--> :Descending
-}
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.31 second(s) in Ring 1.18
+Summary()

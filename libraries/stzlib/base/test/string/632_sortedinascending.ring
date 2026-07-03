@@ -1,38 +1,19 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #632.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Char sorting: the passive Sorted* forms, the checks, and the mutating
+# Sort(). Archive block #632.
 
-StzStringQ("BCAADDEFAGTILNXV") {
+Scenario("Sorting a jumble of letters")
+	o1 = new stzString("BCAADDEFAGTILNXV")
+	Then("ascending copy", o1.SortedInAscending(), "AAABCDDEFGILNTVX")
+	Then("not sorted yet", o1.IsSortedInAscending(), FALSE)
+	Then("descending copy", o1.SortedInDescending(), "XVTNLIGFEDDCBAAA")
+	Then("not descending either", o1.IsSortedInDescending(), FALSE)
+	Then("so unsorted", o1.SortingOrder(), :Unsorted)
+	o1.Sort()
+	Then("Sort() mutates ascending", o1.Content(), "AAABCDDEFGILNTVX")
+	Then("and the order says so", o1.SortingOrder(), :Ascending)
+EndScenario()
 
-	? SortedInAscending()
-	#--> AAABCDDEFGILNTVX
-	
-	? IsSortedInAscending()
-	#--> FALSE
-	
-	? SortedInDescending()
-	#--> XVTNLIGFEDDCBAAA
-	
-	? IsSortedInDescending()
-	#--> FALSE
-	
-	? SortingOrder()
-	#--> :Unsorted
-	
-	Sort()
-	? Content()
-	#--> AAABCDDEFGILNTVX
-	
-	? SortingOrder()
-	#--> :ascending
-}
-
-pf()
-# Executed in 0.17 second(s) in Ring 1.21
-# Executed in 0.21 second(s) in Ring 1.18
+Summary()

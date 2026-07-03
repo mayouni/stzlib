@@ -1,22 +1,30 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #627.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# MarquersSortedZ/ZZ zip the ASCENDING-sorted marquers onto the
+# text-order positions / sections. Archive block #627.
 
-StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!") {	
+Scenario("Ascending zips")
+	o1 = new stzString("My name is #1, my age is #3, and my job is #2. Again: my name is #1!")
+	Then("the Z zip",
+		ListEq( o1.MarquersSortedZ(),
+			[ [ "#1", 12 ], [ "#1", 26 ], [ "#2", 44 ], [ "#3", 66 ] ] ), TRUE)
+	Then("the ZZ zip",
+		ListEq( o1.MarquersSortedZZ(),
+			[ [ "#1", [12, 13] ], [ "#1", [26, 27] ],
+			  [ "#2", [44, 45] ], [ "#3", [66, 67] ] ] ), TRUE)
+EndScenario()
 
-	? @@( MarquersSortedZ() ) + NL
-	#--> [ [ "#1", 12 ], [ "#1", 26 ], [ "#2", 44 ], [ "#3", 66 ] ]
+Summary()
 
-	? @@( MarquersSortedZZ() )
-	#--> [ [ "#1", [ 12, 13 ] ], [ "#1", [ 26, 27 ] ], [ "#2", [ 44, 45 ] ], [ "#3", [ 66, 67 ] ] ]
-}
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.21
-# Executed in 0.66 second(s) in Ring 1.18
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

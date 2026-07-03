@@ -1,33 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #636.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Four spellings of space removal. Archive block #636.
 
-o1 = new stzString("I Work For Afterward")
+Scenario("Removing the spaces")
+	Then("the fluent Q form",
+		Q("I Work For Afterward").RemoveCharQ(" ").Content(), "IWorkForAfterward")
+	Then("the passive form",
+		Q("I Work For Afterward").CharRemoved(" "), "IWorkForAfterward")
+	Then("the expressive form",
+		Q("I Work For Afterward").WithoutSpaces(), "IWorkForAfterward")
+	Then("the removed form",
+		Q("I Work For Afterward").SpacesRemoved(), "IWorkForAfterward")
+EndScenario()
 
-? o1.RemoveCharQ(" ").Content()
-#--> IWorkForAfterward
-
-# Or you can say it more naturally:
-
-? Q("I Work For Afterward").CharRemoved(" ")
-#--> IWorkForAfterward
-
-# Or even more expressively:
-
-? Q("I Work For Afterward").WithoutSpaces()
-#--> IWorkForAfterward
-
-# Or if you prefer:
-
-? Q("I Work For Afterward").SpacesRemoved()
-#--> IWorkForAfterward
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.03 second(s) in Ring 1.18
+Summary()
