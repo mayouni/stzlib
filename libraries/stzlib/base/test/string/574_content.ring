@@ -1,26 +1,16 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #574.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Replacing one bounded content, method and ReplaceXT spellings.
+# Archive block #574.
 
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+Scenario("Fixing the noword")
+	o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+	o1.ReplaceSubStringBoundedBy("noword", [ "<<", ">>" ], :With = "word")
+	Then("the method form", o1.Content(), "bla bla <<word>> bla bla <<word>> bla <<word>>")
+	o2 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+	o2.ReplaceXT("noword", :BoundedBy = ["<<", ">>"], :With = "word")
+	Then("the XT form", o2.Content(), "bla bla <<word>> bla bla <<word>> bla <<word>>")
+EndScenario()
 
-o1.ReplaceSubStringBoundedBy("noword", [ "<<", ">>" ], :With = "word")
-? o1.Content() + NL
-#--> bla bla <<word>> bla bla <<word>> bla <<word>>
-
-# or, more naturally, you can say:
-
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.ReplaceXT("noword", :BoundedBy = ["<<", ">>"], :With = "word")
-? o1.Content()
-#--> bla bla <<word>> bla bla <<word>> bla <<word>>
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.20
-# Executed in 0.12 second(s) in Ring 1.19
+Summary()

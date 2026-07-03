@@ -1,19 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #577.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveAnySubStringBoundedBy empties every region, keeping the bounds.
+# Archive block #577.
 
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+Scenario("Emptying the regions")
+	o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+	o1.RemoveAnySubStringBoundedBy([ "<<", ">>" ])
+	Then("the shells remain", o1.Content(), "bla bla <<>> bla bla <<>> bla <<>>")
+EndScenario()
 
-o1.RemoveAnySubStringBoundedBy([ "<<", ">>" ])
-? o1.Content()
-#--> bla bla <<>> bla bla <<>> bla <<>>
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.22
-# Executed in 0.07 second(s) in Ring 1.19
+Summary()

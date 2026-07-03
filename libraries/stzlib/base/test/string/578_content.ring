@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #578.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The IB variant removes the bounds as well. Archive block #578.
 
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+Scenario("Removing the regions whole")
+	o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+	o1.RemoveAnySubStringBoundedByIB([ "<<", ">>" ])
+	Then("nothing but the blas", o1.Content(), "bla bla  bla bla  bla ")
+EndScenario()
 
-o1.RemoveAnySubStringBoundedByIB([ "<<", ">>" ])
-? o1.Content()
-#--> bla bla  bla bla  bla 
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.22
+Summary()

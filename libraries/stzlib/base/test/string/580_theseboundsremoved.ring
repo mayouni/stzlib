@@ -1,16 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #580.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# TheseBoundsRemoved: the passive strip of a given bound pair.
+# Archive block #580.
 
-o1 = new stzString("<<Go!>>")
-? o1.TheseBoundsRemoved("<<", ">>")
-#--> "Go!"
+Scenario("Unwrapping Go!")
+	o1 = new stzString("<<Go!>>")
+	Then("the bounds fall away", o1.TheseBoundsRemoved("<<", ">>"), "Go!")
+EndScenario()
 
-pf()
-# Executed in 0.06 second(s) in Ring 1.22
+Summary()

@@ -695,7 +695,41 @@ family consolidation):
   LastNOccurrencesST (now also accepting a plain-string sub).
 Pure conversions: 542, 543, 546, 550-558, 560.
 
-## STATUS (2026-07-03): 511/999 test files audited (chunks 14-33 added 248); ~488 still to audit
+**Chunk 34 (2026-07-03, 20 files):** 561-580 audited→narrated (20 files,
+44 assertions). Real fixes (the AUTO-BOUND family + bounded edits):
+- **Auto-bound rule settled** (567/568/570/572, harmonized): for each
+  occurrence of a substring, its bounds are the maximal runs of the SAME
+  NON-SPACE char immediately before/after; an occurrence is "bounded"
+  when BOTH runs are non-empty (so bare space-separated words never
+  count, but 572's "n" run does). One helper `_SubBoundRunsOf` feeds:
+  FindBoundedSubString(ZZ) (occurrence starts/spans), the IB forms
+  (left-run start .. right-run end), FindSubStringBounds(ZZ) (flat run
+  starts/spans), SubStringBounds (flat run substrings), and the
+  RemoveBoundedSubString(IB) removals. RULINGS: 569's archive #-->
+  dropped the first bare "word" (typo -- sibling 570's IB removal keeps
+  it); 573's plain-FindSubStringBoundsZZ #--> was a copy-paste of its
+  These-form's flat value.
+- **`FindTheseSubStringBounds(ZZ)`** (573): only occurrences IMMEDIATELY
+  wrapped by the explicit open/close tokens count; flat token positions /
+  token spans (was: returning the bound STRINGS).
+- **`ReplaceSubStringBoundedBy` = the equality contract** (574/575):
+  routes through FindSubStringBoundedByZZ + ReplaceSections, so
+  same-string bounds ("--") pair with the overlap walk and "--nword-"
+  survives; `ReplaceXT(:BoundedBy)` with a non-empty substring now takes
+  the same path (the empty-p1 replace-all-regions behavior of blocks
+  194/199 is preserved). 575's second archive example replaced :With =
+  "word" but showed --WORD-- (typo); asserted with "WORD" in both forms.
+- **`RemoveAnySubStringBoundedBy` keeps the bounds** (577): removes the
+  region CONTENTS via FindAnyBoundedByZZ (was: a while-loop that ate the
+  bounds too); the IB variant removes bounds via FindAnyBoundedByIBZZ.
+- **`FindXT` :StartingAt / :InSection(s)** (563): positional filters
+  added. Gotcha re-hit: the reassign type-widening if silently no-ops
+  (CLAUDE.md note 6) -- fresh-variable form used.
+- 566's archive #--> showed <<word>> for a replace-with-"wrod" (typo).
+- 565's long-open defect (FindSubStringBoundedBy("word") -> [11,30,43])
+  CLOSED by chunk 33's equality semantics -- now [11] as the archive wants.
+
+## STATUS (2026-07-03): 531/999 test files audited (chunks 14-34 added 268); ~468 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

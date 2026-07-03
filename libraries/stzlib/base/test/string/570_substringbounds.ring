@@ -1,21 +1,30 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #570.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SubStringBounds lists the bound-run substrings; the IB removal drops
+# the bounded occurrences WITH their bounds (bare words survive).
+# Archive block #570.
 
-o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
+Scenario("The bounds, then the full removal")
+	o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
+	Then("the bound runs",
+		ListEq( o1.SubStringBounds("word"),
+			[ "<<", ">>", "<<", ">>", "<<", ">>" ] ), TRUE)
+	o1.RemoveBoundedSubStringIB("word")
+	Then("bounded blocks gone, bare words kept",
+		o1.Content(), "bla word bla  bla bla  bla  word")
+EndScenario()
 
-? @@( o1.SubStringBounds("word") )
-#--> [ "<<", ">>", "<<", ">>", "<<", ">>" ]
+Summary()
 
-o1.RemoveBoundedSubStringIB("word")
-? o1.Content()
-#--> bla word bla  bla bla  bla  word
-
-pf()
-# Executed in 0.07 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
