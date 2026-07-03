@@ -869,7 +869,35 @@ Pure conversions: 641, 644, 648, 651, 652, 660.
 Pure conversions: 661, 663, 665, 666, 669, 670, 676-680 (667 was
 already narrated in the W-migration).
 
-## STATUS (2026-07-03): 626/999 test files audited (chunks 14-39 added 363); ~373 still to audit
+### Chunk 40 (tests 681-700, 2026-07-03)
+
+- **`IsQuietEqualTo` restored to the ORIGINAL length-drift semantic**
+  (685/686/689): case-blind equality, else
+  `abs(lenDiff)/lenThis <= QuietEqualityRatio()` (0.09 default,
+  SetQuietEqualityRatio dial). The replacement "Levenshtein-style"
+  impl rejected the archive's canonical cases. Codepoint-aware
+  upgrade over the original: StzLower/StzLen instead of byte
+  lower()/len() (so "énoncé" vs "ÉNONCÉ" is quiet-equal, which the
+  byte path missed).
+- **`_CharScriptCode`: Common script (UAX #24)** (688): spaces,
+  digits, punctuation and Latin-1 symbols now map to :Common (code 2),
+  combining marks to :Inherited -- were all "latin", so
+  "père frère mère tête" reported ONE script instead of
+  [latin, common]. stzText.Script() already knew how to pick the
+  dominant one.
+- **stzString `[]` operator finds substrings** (690): `o1["A"]` ->
+  positions [5, 8] (FindAll), `o1["{ cond }"]` -> FindCharsW
+  positions, `:First`/`:Last` keywords -- were all dead (only the
+  numeric char-read worked). `=` operator deliberately NOT added,
+  honoring the original's own warning (stzExtCode CREATE_TABLE
+  conflict); the narrated 690 compares via Content().
+- **700**: nested brackets stay out of SubStringsBoundedBy's scope
+  (first-opener/first-closer flat scan) -- the archive's own `!-->`;
+  asserted at the actual flat reading.
+Pure conversions: 681-684, 691-699. (687 does not exist in the
+numbering.)
+
+## STATUS (2026-07-03): 645/999 test files audited (chunks 14-40 added 382); ~354 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

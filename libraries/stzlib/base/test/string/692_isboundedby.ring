@@ -1,18 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #692.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsBoundedBy with a NULL side: only the given bound is required.
+# Archive block #692.
 
-o1 = new stzString('"name"')
-? o1.IsBoundedBy([ '"','"' ])	#--> TRUE
+Scenario("Bounded on both sides, or just one")
+	o1 = new stzString('"name"')
+	Then("quoted on both sides", o1.IsBoundedBy([ '"', '"' ]), TRUE)
+	o2 = new stzString(":name")
+	Then("a leading colon is enough",
+		o2.IsBoundedBy([ ":", NULL ]), TRUE)
+EndScenario()
 
-o1 = new stzString(':name')
-? o1.IsBoundedBy([ ':', NULL ])	#--> TRUE
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

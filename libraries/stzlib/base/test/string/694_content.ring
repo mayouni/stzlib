@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #694.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceMany with :By. Archive block #694.
 
-o1 = new stzString("one two three four")
-o1.ReplaceMany([ "two", "four" ], :By = "---")
-? o1.Content()
-#--> "one --- three ---"
+Scenario("Replacing two words at once")
+	o1 = new stzString("one two three four")
+	o1.ReplaceMany([ "two", "four" ], :By = "---")
+	Then("both became dashes", o1.Content(), "one --- three ---")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

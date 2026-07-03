@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #693.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceAll. Archive block #693.
 
-o1 = new stzString("one two three four")
-o1.ReplaceAll( "two", "---")
-? o1.Content()
-#--> "one --- three four"
+Scenario("Replacing a word")
+	o1 = new stzString("one two three four")
+	o1.ReplaceAll("two", "---")
+	Then("two became dashes", o1.Content(), "one --- three four")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

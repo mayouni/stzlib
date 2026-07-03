@@ -1,26 +1,16 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #691.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BeginsWith / EndsWith / IsBoundedBy / TheseBoundsRemoved.
+# Archive block #691.
 
-o1 = new stzString("{{{ Scope of Life }}}")
+Scenario("Peeling one layer of braces")
+	o1 = new stzString("{{{ Scope of Life }}}")
+	Then("begins with {", o1.BeginsWith("{"), TRUE)
+	Then("ends with }", o1.EndsWith("}"), TRUE)
+	Then("bounded by the pair", o1.IsBoundedBy([ "{", "}" ]), TRUE)
+	Then("one layer removed",
+		o1.TheseBoundsRemoved("{", "}"), "{{ Scope of Life }}")
+EndScenario()
 
-? o1.BeginsWith("{")
-#--> TRUE
-
-? o1.EndsWith("}")
-#--> TRUE
-
-? o1.IsBoundedBy([ "{", "}" ])
-#--> TRUE
-
-? o1.TheseBoundsRemoved("{", "}")
-#--> {{ Scope of Life }}
-
-pf()
-# Executed in 0.07 second(s) in Ring 1.22
+Summary()
