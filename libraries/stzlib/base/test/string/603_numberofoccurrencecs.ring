@@ -1,14 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #603.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# NumberOfOccurrenceCS with the case dial. Archive block #603.
 
-? Q("dfgfdgg Arabic Arabic Arabic dgdgf arabic KKKK").NumberOfOccurrenceCS("Arabic", FALSE)
-#--> 4
+Scenario("Counting Arabic, case aside")
+	Then("four hits",
+		Q("dfgfdgg Arabic Arabic Arabic dgdgf arabic KKKK").NumberOfOccurrenceCS("Arabic", FALSE), 4)
+EndScenario()
 
-pf()
+Summary()

@@ -3128,8 +3128,16 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+		# Marquers() returns the "#N" STRINGS (the numeric-only view
+		# stays in Markers(), which the sorting checks use).
 		def Marquers()
-			return This.Markers()
+			_aMq_ = This.MarquersAndSections()
+			_aMqR_ = []
+			_nMqL_ = len(_aMq_)
+			for _iMq_ = 1 to _nMqL_
+				_aMqR_ + _aMq_[_iMq_][1]
+			next
+			return _aMqR_
 
 	def NumberOfMarkers()
 		return len(This.Markers())
@@ -12099,10 +12107,9 @@ class stzString from stzObject
 		return _cTxt_ = _cExpect_
 
 	# Marquer / Marker: the FIRST marker number.
+	# Marquer(): the marquer SYMBOL itself.
 	def Marquer()
-		_aM_ = This.Markers()
-		if len(_aM_) = 0 return 0 ok
-		return _aM_[1]
+		return "#"
 
 	def Marker()
 		return This.Marquer()
@@ -12191,25 +12198,28 @@ class stzString from stzObject
 		next
 		return _aRes_
 
+	# MarquersZZ: each marquer grouped with its [start, end] section.
 	def MarquersZZ()
-		_aPos_ = This.MarquersPositions()
-		_aRes_ = []
-		_nL_ = len(_aPos_)
-		for _i_ = 1 to _nL_
-			_aRes_ + [ _aPos_[_i_], _aPos_[_i_] ]
-		next
-		return _aRes_
+		return This.MarquersAndSections()
 
 	def MarkersZZ()
 		return This.MarquersZZ()
 
-	# MarquersZ / MarkersZ: flat-position alternatives (returns just
-	# the start position list of every marker).
+	# MarquersZ: each marquer grouped with its start position.
 	def MarquersZ()
-		return This.MarquersPositions()
+		_a_ = This.MarquersAndSections()
+		_aR_ = []
+		_nL_ = len(_a_)
+		for _i_ = 1 to _nL_
+			_aR_ + [ _a_[_i_][1], _a_[_i_][2][1] ]
+		next
+		return _aR_
 
 	def MarkersZ()
-		return This.MarquersPositions()
+		return This.MarquersZ()
+
+		def MarquersAndPositions()
+			return This.MarquersZ()
 
 	# NFirstOccurrences(n, :Of = pcSub): the first n positions of pcSub.
 	def NFirstOccurrences(n, pNamedOf)
@@ -12991,55 +13001,62 @@ class stzString from stzObject
 	# These wrappers expose Find/First/Nth/Previous variants used
 	# by the StzStringQ block tests (609-628).
 
+	# Marquer accessors: the plain forms return the "#N" STRING, the
+	# Find* twins the position.
 	def FirstMarquer()
-		_a_ = This.MarquersPositions()
-		if len(_a_) < 1 return 0 ok
+		_a_ = This.Marquers()
+		if len(_a_) < 1 return "" ok
 		return _a_[1]
 
 	def FirstMarker()
 		return This.FirstMarquer()
 
 	def FindFirstMarquer()
-		return This.FirstMarquer()
+		_a_ = This.MarquersPositions()
+		if len(_a_) < 1 return 0 ok
+		return _a_[1]
 
 	def NthMarquer(n)
-		_a_ = This.MarquersPositions()
-		if n < 1 or n > len(_a_) return 0 ok
+		_a_ = This.Marquers()
+		if n < 1 or n > len(_a_) return "" ok
 		return _a_[n]
 
 	def NthMarker(n)
 		return This.NthMarquer(n)
 
 	def FindNthMarquer(n)
-		return This.NthMarquer(n)
+		_a_ = This.MarquersPositions()
+		if n < 1 or n > len(_a_) return 0 ok
+		return _a_[n]
 
 	def LastMarquer()
+		_a_ = This.Marquers()
+		_nL_ = len(_a_)
+		if _nL_ < 1 return "" ok
+		return _a_[_nL_]
+
+	def FindLastMarquer()
 		_a_ = This.MarquersPositions()
 		_nL_ = len(_a_)
 		if _nL_ < 1 return 0 ok
 		return _a_[_nL_]
 
-	def FindLastMarquer()
-		return This.LastMarquer()
+	def _ResolveStartingAt(pStartingAt, nDefault)
+		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
+		   lower(pStartingAt[1]) = "startingat"
+			return pStartingAt[2]
+		but isNumber(pStartingAt)
+			return pStartingAt
+		ok
+		return nDefault
 
 	def NextNthMarquerST(n, pStartingAt)
-		_nFrom_ = 1
-		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
-		   lower(pStartingAt[1]) = "startingat"
-			_nFrom_ = pStartingAt[2]
-		but isNumber(pStartingAt)
-			_nFrom_ = pStartingAt
-		ok
-		return This.FindNextNthMarquer(n, _nFrom_)
+		_p_ = This.FindNextNthMarquerST(n, pStartingAt)
+		if _p_ = 0 return "" ok
+		return This.MarquerByPosition(_p_)
 
-	def PreviousMarquers(pStartingAt)
-		_nUntil_ = This.NumberOfChars()
-		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
-		   lower(pStartingAt[1]) = "startingat"
-			_nUntil_ = pStartingAt[2]
-		but isNumber(pStartingAt)
-			_nUntil_ = pStartingAt
-		ok
+	def _PreviousMarquerPositions(pStartingAt)
+		_nUntil_ = This._ResolveStartingAt(pStartingAt, This.NumberOfChars())
 		_a_ = This.MarquersPositions()
 		_aR_ = []
 		_nL_ = len(_a_)
@@ -13048,14 +13065,8 @@ class stzString from stzObject
 		next
 		return _aR_
 
-	def NextMarquers(pStartingAt)
-		_nFrom_ = 1
-		if isList(pStartingAt) and len(pStartingAt) = 2 and isString(pStartingAt[1]) and
-		   lower(pStartingAt[1]) = "startingat"
-			_nFrom_ = pStartingAt[2]
-		but isNumber(pStartingAt)
-			_nFrom_ = pStartingAt
-		ok
+	def _NextMarquerPositions(pStartingAt)
+		_nFrom_ = This._ResolveStartingAt(pStartingAt, 1)
 		_a_ = This.MarquersPositions()
 		_aR_ = []
 		_nL_ = len(_a_)
@@ -13064,14 +13075,34 @@ class stzString from stzObject
 		next
 		return _aR_
 
+	def PreviousMarquers(pStartingAt)
+		_aP_ = This._PreviousMarquerPositions(pStartingAt)
+		_aR_ = []
+		_nL_ = len(_aP_)
+		for _i_ = 1 to _nL_
+			_aR_ + This.MarquerByPosition(_aP_[_i_])
+		next
+		return _aR_
+
+	def NextMarquers(pStartingAt)
+		_aP_ = This._NextMarquerPositions(pStartingAt)
+		_aR_ = []
+		_nL_ = len(_aP_)
+		for _i_ = 1 to _nL_
+			_aR_ + This.MarquerByPosition(_aP_[_i_])
+		next
+		return _aR_
+
 	def PreviousNthMarquer(n, pStartingAt)
-		_a_ = This.PreviousMarquers(pStartingAt)
+		_p_ = This.FindPreviousNthMarquer(n, pStartingAt)
+		if _p_ = 0 return "" ok
+		return This.MarquerByPosition(_p_)
+
+	def FindNthPreviousMarquer(n, pStartingAt)
+		_a_ = This._PreviousMarquerPositions(pStartingAt)
 		_nL_ = len(_a_)
 		if n < 1 or n > _nL_ return 0 ok
 		return _a_[_nL_ - n + 1]
-
-	def FindNthPreviousMarquer(n, pStartingAt)
-		return This.PreviousNthMarquer(n, pStartingAt)
 
 	def FindMarquersAsSections()
 		_a_ = This.MarquersAndSections()
@@ -13098,22 +13129,23 @@ class stzString from stzObject
 		return This.AllPositionsOf(pcMarker)
 
 	def MarquersUZ()
-		# Unique markers and their first position: list of [text, pos].
+		# Unique marquers with ALL their positions: [ [m, [pos...]] ].
 		_a_ = This.MarquersAndSections()
 		_aR_ = []
 		_nL_ = len(_a_)
 		for _i_ = 1 to _nL_
-			_pair_ = _a_[_i_]
-			if isList(_pair_) and len(_pair_) >= 2
-				_txt_ = _pair_[1]
-				_pos_ = _pair_[2][1]
-				_bSeen_ = FALSE
-				_nRL_ = len(_aR_)
-				for _j_ = 1 to _nRL_
-					if _aR_[_j_][1] = _txt_ _bSeen_ = TRUE exit ok
-				next
-				if NOT _bSeen_ _aR_ + [ _txt_, _pos_ ] ok
+			_txt_ = _a_[_i_][1]
+			_pos_ = _a_[_i_][2][1]
+			_nAt_ = 0
+			_nRL_ = len(_aR_)
+			for _j_ = 1 to _nRL_
+				if _aR_[_j_][1] = _txt_ _nAt_ = _j_ exit ok
+			next
+			if _nAt_ = 0
+				_aR_ + [ _txt_, [] ]
+				_nAt_ = len(_aR_)
 			ok
+			_aR_[_nAt_][2] + _pos_
 		next
 		return _aR_
 
@@ -13124,21 +13156,23 @@ class stzString from stzObject
 		return This.MarquersUZ()
 
 	def MarquersUZZ()
+		# Unique marquers with ALL their sections: [ [m, [[s,e]...]] ].
 		_a_ = This.MarquersAndSections()
 		_aR_ = []
 		_nL_ = len(_a_)
 		for _i_ = 1 to _nL_
-			_pair_ = _a_[_i_]
-			if isList(_pair_) and len(_pair_) >= 2
-				_txt_ = _pair_[1]
-				_sec_ = _pair_[2]
-				_bSeen_ = FALSE
-				_nRL_ = len(_aR_)
-				for _j_ = 1 to _nRL_
-					if _aR_[_j_][1] = _txt_ _bSeen_ = TRUE exit ok
-				next
-				if NOT _bSeen_ _aR_ + [ _txt_, _sec_ ] ok
+			_txt_ = _a_[_i_][1]
+			_sec_ = _a_[_i_][2]
+			_nAt_ = 0
+			_nRL_ = len(_aR_)
+			for _j_ = 1 to _nRL_
+				if _aR_[_j_][1] = _txt_ _nAt_ = _j_ exit ok
+			next
+			if _nAt_ = 0
+				_aR_ + [ _txt_, [] ]
+				_nAt_ = len(_aR_)
 			ok
+			_aR_[_nAt_][2] + _sec_
 		next
 		return _aR_
 
@@ -13177,10 +13211,12 @@ class stzString from stzObject
 		return This.MarquersSortedZZ()
 
 	def FindNextNthMarquerST(n, pStartingAt)
-		return This.NextNthMarquerST(n, pStartingAt)
+		_a_ = This._NextMarquerPositions(pStartingAt)
+		if n < 1 or n > len(_a_) return 0 ok
+		return _a_[n]
 
 	def FindNextNthMarkerST(n, pStartingAt)
-		return This.NextNthMarquerST(n, pStartingAt)
+		return This.FindNextNthMarquerST(n, pStartingAt)
 
 	def MarquerByPosition(pos)
 		_a_ = This.MarquersAndSections()
@@ -13198,16 +13234,17 @@ class stzString from stzObject
 		return This.MarquerByPosition(pos)
 
 	def FindPreviousNthMarquer(n, pStartingAt)
-		return This.PreviousNthMarquer(n, pStartingAt)
+		return This.FindNthPreviousMarquer(n, pStartingAt)
 
 	def FindPreviousNthMarker(n, pStartingAt)
-		return This.PreviousNthMarquer(n, pStartingAt)
+		return This.FindNthPreviousMarquer(n, pStartingAt)
 
+	# PreviousMarquerZ: the nearest previous marquer with its position.
 	def PreviousMarquerZ(pStartingAt)
-		_a_ = This.PreviousMarquers(pStartingAt)
+		_a_ = This._PreviousMarquerPositions(pStartingAt)
 		_nL_ = len(_a_)
-		if _nL_ < 1 return 0 ok
-		return _a_[_nL_]
+		if _nL_ < 1 return [] ok
+		return [ This.MarquerByPosition(_a_[_nL_]), _a_[_nL_] ]
 
 	def PreviousMarkerZ(pStartingAt)
 		return This.PreviousMarquerZ(pStartingAt)
@@ -13219,7 +13256,7 @@ class stzString from stzObject
 		for _i_ = 2 to _nL_
 			_v_ = _aSorted_[_i_]; _j_ = _i_ - 1
 			while _j_ >= 1 and isList(_aSorted_[_j_]) and isList(_v_) and
-			      _aSorted_[_j_][2] > _v_[2]
+			      _aSorted_[_j_][2][1] > _v_[2][1]
 				_aSorted_[_j_ + 1] = _aSorted_[_j_]; _j_--
 			end
 			_aSorted_[_j_ + 1] = _v_
@@ -13247,9 +13284,14 @@ class stzString from stzObject
 	def MarkerByPositions(positions)
 		return This.MarquerByPositions(positions)
 
+	# PreviousNthMarquerZ: the marquer with its position.
 	def PreviousNthMarquerZ(n, pStartingAt)
-		_p_ = This.PreviousNthMarquer(n, pStartingAt)
-		return _p_
+		_p_ = This.FindPreviousNthMarquer(n, pStartingAt)
+		if _p_ = 0 return [] ok
+		return [ This.MarquerByPosition(_p_), _p_ ]
+
+		def PreviousNthMarquerAndItsPosition(n, pStartingAt)
+			return This.PreviousNthMarquerZ(n, pStartingAt)
 
 	def MarquersSortedUZZ()
 		_a_ = This.MarquersUZZ()
@@ -14592,6 +14634,11 @@ class stzString from stzObject
 		return _c_ = pcChar
 
 	def IsMultipleOfCS(pcUnit, pCaseSensitive)
+		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and
+		   isString(pCaseSensitive[1]) and
+		   (lower(pCaseSensitive[1]) = "cs" or lower(pCaseSensitive[1]) = "casesensitive")
+			pCaseSensitive = pCaseSensitive[2]
+		ok
 		if pCaseSensitive = FALSE or pCaseSensitive = 0
 			_oTmp_ = new stzString(lower(This.Content()))
 			return _oTmp_.IsMultipleOf(lower(pcUnit))

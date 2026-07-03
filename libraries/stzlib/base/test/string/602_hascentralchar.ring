@@ -1,24 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #602.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Central-char accessors on an odd-length string. Archive block #602.
 
-? Q("RINGO").HasCentralChar()
-#--> TRUE
+Scenario("The center of RINGO")
+	Then("it has one", Q("RINGO").HasCentralChar(), TRUE)
+	Then("it is N", Q("RINGO").CentralChar(), "N")
+	Then("at position 3", Q("RINGO").PositionOfCentralChar(), 3)
+	Then("the named check", Q("RINGO").HasThisCentralChar("N"), TRUE)
+EndScenario()
 
-? Q("RINGO").CentralChar()
-#--> N
-
-? Q("RINGO").PositionOfCentralChar()
-#--> 3
-
-? Q("RINGO").HasThisCentralChar("N")
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

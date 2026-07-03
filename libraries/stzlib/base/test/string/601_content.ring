@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #601.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceSubStringAtPosition with the :With spelling. Archive block #601.
 
-o1 = new stzString("Softanza embraces ♥♥♥ simplicty and flexibility")
+Scenario("Hearts become Ring")
+	o1 = new stzString("Softanza embraces ♥♥♥ simplicty and flexibility")
+	o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
+	Then("replaced in place",
+		o1.Content(), "Softanza embraces Ring simplicty and flexibility")
+EndScenario()
 
-o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
-? o1.Content()
-#--> Softanza embraces Ring simplicty and flexibility
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

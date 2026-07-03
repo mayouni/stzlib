@@ -758,7 +758,26 @@ Real fixes:
   asserted at the coherent inclusive-ST values.
 Pure conversions: 582, 585-588, 592, 595, 596, 598.
 
-## STATUS (2026-07-03): 550/999 test files audited (chunks 14-35 added 287); ~449 still to audit
+**Chunk 36 (2026-07-03, 20 files):** 601-620 audited→narrated (20 files,
+70 assertions). Real fixes (the MARQUER family reshape):
+- **Marquers are "#N" STRINGS** (606-608 pin the shape; 605's archive
+  showed the bare digits -- garble): Marquers()/First/Last/NthMarquer/
+  NextNthMarquerST/PreviousNthMarquer/Previous+NextMarquers now return
+  the marquer strings; the Find* twins return positions (FindFirst/
+  FindNth/FindLast were repointed off the string forms). The numeric
+  view stays in Markers(), which the sorted-ascending/descending checks
+  keep using. Marquer() itself returns the SYMBOL "#".
+- **The grouped projections**: MarquersZ = [m, pos] pairs; MarquersZZ =
+  MarquersAndSections; MarquersUZ / UZZ = unique marquers with ALL their
+  positions / sections (were: first-only). PreviousMarquerZ /
+  PreviousNthMarquerZ return the [m, pos] pair. A circular alias
+  (FindPreviousNthMarquer <-> PreviousNthMarquer) caused a stack
+  overflow en route -- repointed to the computing FindNthPreviousMarquer.
+- **`IsMultipleOfCS` accepts :CS = named spelling** (604).
+Pure conversions: 601-603, 612 (the emptiness constitution), 613, 619,
+620.
+
+## STATUS (2026-07-03): 570/999 test files audited (chunks 14-36 added 307); ~429 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

@@ -1,44 +1,35 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #618.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The sectional projections: flat sections, the ZZ grouping, and the
+# unique UZZ grouping. Archive block #618.
 
-CheckParamsOff() # Potential gain of performance
+Scenario("Marquer sections, three ways")
+	o1 = new stzString("My name is #1, my age is #2, and my job is #3. Again: my name is #1!")
+	Then("the flat sections",
+		ListEq( o1.FindMarquersAsSections(),
+			[ [12, 13], [26, 27], [44, 45], [66, 67] ] ), TRUE)
+	Then("the ZZ grouping",
+		ListEq( o1.MarquersZZ(),
+			[ [ "#1", [12, 13] ], [ "#2", [26, 27] ],
+			  [ "#3", [44, 45] ], [ "#1", [66, 67] ] ] ), TRUE)
+	Then("the unique UZZ grouping",
+		ListEq( o1.MarquersUZZ(),
+			[ [ "#1", [ [12, 13], [66, 67] ] ],
+			  [ "#2", [ [26, 27] ] ],
+			  [ "#3", [ [44, 45] ] ] ] ), TRUE)
+EndScenario()
 
-StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
+Summary()
 
-	? @@( FindMarquersAsSections() ) + NL
-	#--> [ [ 12, 13 ], [ 26, 27 ], [ 44, 45 ], [ 66, 67 ] ]
-
-	? @@( MarquersZZ() ) + NL
-	#--> [
-	# 	[ "#1", [ 12, 13 ] ],
-	# 	[ "#2", [ 26, 27 ] ],
-	# 	[ "#3", [ 44, 45 ] ],
-	# 	[ "#1", [ 66, 67 ] ]
-	# ]
-
-	? @@( MarquersUZZ() ) # Or UniqueMarquersAndTheirSections()
-	#--> [
-	# 	[ "#1", [ [ 12, 13 ], [ 66, 67 ] ] ],
-	# 	[ "#2", [ [ 26, 27 ] ] ],
-	# 	[ "#3", [ [ 44, 45 ] ] ]
-	# ]
-
-}
-
-pf()
-
-# Executed in 0.05 second(s) in Ring 1.21 WithCheckParamsOff()
-# Executed in 0.05 second(s) in Ring 1.21 WithCheckParams()
-
-# Executed in 1.67 second(s) in Ring 1.19 with CheckParamsOff()
-# Executed in 2.58 second(s) in Ring 1.19 without CheckParamsOff()
-
-# Executed in 4.65 second(s) in Ring 1.18
-# Executed in 7.74 second(s) in Ring 1.17
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

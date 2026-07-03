@@ -1,39 +1,16 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #609.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Count, first and last -- the plain forms give the marquer STRING, the
+# Find twins its position. Archive block #609.
 
-StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
+Scenario("First and last of four")
+	o1 = new stzString("My name is #1, my age is #2, and my job is #3. Again: my name is #1!")
+	Then("four marquers", o1.NumberOfMarquers(), 4)
+	Then("the first", o1.FirstMarquer(), "#1")
+	Then("... at 12", o1.FindFirstMarquer(), 12)
+	Then("the last", o1.LastMarquer(), "#1")
+	Then("... at 66", o1.FindLastMarquer(), 66)
+EndScenario()
 
-	? NumberOfMarquers()
-	#--> 4
-
-	? FirstMarquer()
-	#--> #1
-
-	? FindFirstMarquer()
-	#--> 12
-		# You can also say:
-		# ? FirstMarquerOccurrence()
-		# ? FirstMarquerPosition()
-
-	? LastMarquer()
-	#--> #1
-	
-	? FindLastMarquer()
-	#--> 66
-		# You can also say:
-		# ? LastMarquerOccurrence()
-		# ? LastMarquerPosition()
-
-}
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
-# Executed in 1.64 second(s) in Ring 1.21
-# Executed in 1.64 second(s) in Ring 1.19
+Summary()

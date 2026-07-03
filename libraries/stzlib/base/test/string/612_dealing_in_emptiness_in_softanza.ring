@@ -1,76 +1,44 @@
-# Narrative
-# --------
-# #narration DEALING IN EMPTINESS IN SOFTANZA
-#
-# Extracted from stzStringTest.ring, block #612.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# Softanza's emptiness rules: the empty string is uncountable,
+# unfindable, uncontainable, irreplaceable and irremovable.
+# Archive block #612.
 
-# Read documentaion here:
-# https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/doc/narrations/stz-narration-stzstring-emptiness.md#emptiness-in-strings-clear-rules-the-softanza-way
+Scenario("Emptiness is uncountable and unfindable")
+	Then("counting it in empty", Q("").Count(''), 0)
+	Then("counting it in text", Q("text").Count(''), 0)
+	Then("finding it in empty", ListEq( Q("").Find(''), [ ] ), TRUE)
+	Then("finding it in text", ListEq( Q("text").Find(''), [ ] ), TRUE)
+EndScenario()
 
-pr()
+Scenario("Emptiness is uncontainable")
+	Then("empty contains nothing", Q("").Contains(''), FALSE)
+	Then("... not even text", Q("").Contains('text'), FALSE)
+	Then("text does not contain it", Q("text").Contains(''), FALSE)
+EndScenario()
 
-# Rule 1 - Emptiness is uncountable:
-# We can not cout its occurrences inside any string, beeing empty or not
+Scenario("Emptiness is irreplaceable and irremovable")
+	Then("replace on empty", Q("").ReplaceQ('', '').Content(), "")
+	Then("replace any on empty", Q("").ReplaceQ('any', '').Content(), "")
+	Then("replace it by any on empty", Q("").ReplaceQ('', 'any').Content(), "")
+	Then("replace it in text", Q("text").ReplaceQ('', "").Content(), "text")
+	Then("... by X", Q("text").ReplaceQ('', "X").Content(), "text")
+	Then("remove it from empty", Q("").RemoveQ('').Content(), "")
+	Then("remove text from empty", Q("").RemoveQ('text').Content(), "")
+	Then("remove it from text", Q("text").RemoveQ('').Content(), "text")
+EndScenario()
 
-	? Q("").Count('')
-	#--> 0
-	
-	? Q("text").Count('') + NL
-	#--> 0  
-	
-# Rule 2 - Emptiness is unfindable (since it is uncountable ~> Rule 1)
+Summary()
 
-	? @@( Q("").Find('') )
-	#--> [ ]
-	
-	? @@( Q("text").Find('') ) + NL
-	#--> [ ]
-
-# Rule 3 - Emptiness is uncontainable in both directions
-
-#~> An empty string contains nothing, being an empty string or not,
-#~> and a non empty string does not contain any empty one
-#~> (which is completely coherent with Rule 1)
-
-	? Q("").Contains('') 
-	#--> FALSE
-	
-	? Q("").Contains('text')
-	#--> FALSE
-	
-	? Q("text").Contains('') + NL
-	#--> FALSE
-
-# Rule 4 - Emptiness is irreplaçable in both directions
-
-	? @@( Q("").ReplaceQ('', '').Content() )
-	#--> ""
-	
-	? @@( Q("").ReplaceQ('any', '').Content() )
-	#--> ""
-	
-	? @@( Q("").ReplaceQ('', 'any').Content() )
-	#--> ""
-	
-	? @@( Q("text").ReplaceQ('', "").Content() )
-	#--> text
-	
-	? @@( Q("text").ReplaceQ('', "X").Content() ) + NL
-	#--> text
-
-# Rule 5 - Emptiness is irremovalbe in both directions
-
-	? @@( Q("").RemoveQ('').Content() )
-	#--> ""
-
-	? @@( Q("").RemoveQ('text').Content() )
-	#--> ""
-
-	? @@( Q("text").RemoveQ('').Content() )
-	#--> "text"
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE
