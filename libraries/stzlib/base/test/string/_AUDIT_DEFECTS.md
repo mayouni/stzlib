@@ -627,7 +627,43 @@ final ToStzTable().Show() is visual and noted, not asserted.
 Pure conversions: 502, 503, 507-514, 518. 511's source had a
 whitespace-only line that had to be preserved byte-exactly.
 
-## STATUS (2026-07-03): 474/999 test files audited (chunks 14-31 added 211); ~525 still to audit
+**Chunk 32 (2026-07-03, 19 files):** 521-523, 525, 527-540 audited→narrated
+(18 files, 63 assertions; 526 already a retired #SKIP placeholder). Real fixes:
+- **Section named-anchor vocabulary restored** (523, per the ORIGINAL
+  SectionCS): symbol pass-through for :FirstChar/:LastChar/:EndOfString/
+  :EndOfLine (CR/LF-aware, from n1); substring anchors -- :From = FIRST
+  occurrence, :To = LAST (FindFirstCS/FindLastCS); the :NthToLast named
+  param. RULING: block #168's #--> "FTA" for Section(:From="F",:To="A")
+  contradicted the original impl and sibling #523 ("FTANZA") -- the impl
+  wins; 168 re-asserted (its char-LIST twin keeps first-occurrence
+  anchors, list domain).
+- **`NthToLast(n)` = char at len - n** (522), per the original
+  CharAtPosition(NumberOfChars() - n); was len - n + 1.
+- **`Sit` extended** (536-538): :OnPosition, :AndHarvestSections (spans
+  instead of substrings), and the CONDITIONAL harvests :CharsBeforeW /
+  :CharsAfterW (maximal run of chars satisfying a W predicate). In char
+  context "IsANumber" lowers to the engine's isDigit (a char is a string
+  to isNumber's type check). Gotchas re-hit: NULL sentinels (isString("")
+  = TRUE) -> boolean flags; Ring's non-short-circuit `and` -> nested ifs.
+- **`SubStringBoundsXT(:Of=, :UpToNChars=)`** (533/534): flat per-
+  occurrence bound runs, capped per side, empty sides dropped.
+- **Inline `[ open, :And = close ]` bound shape** accepted by the
+  BoundedBy family (528/539; normalized in BoundedByCS -- nested-if +
+  temp-var form, Ring indexes literals eagerly). **SubStringsBoundedByU
+  is UNIQUE** (was mislabeled case-insensitive; the settled U convention).
+- **Named unwraps**: NumberOfOccurrence(:OfSubString=), Positions /
+  FindPositions(:Of=), Split(:Using/:By/:With=) (525, 529, 539).
+- **`IsListInString` accepts short-form ranges** (527) and the To*Form
+  converters implemented: ToListInShortForm ("1 : 3" / '"A" : "D"'),
+  ToListInNormalForm / ToListInString (@@-canonical), ToListInStringSF.
+  **`ToList` expands ranges BEFORE eval** -- Ring's native ':' is
+  byte-based and returns the left operand for multibyte endpoints
+  (Arabic ranges); unquoted numeric endpoints now expand to NUMBERS.
+- NOTE: 525's archive #--> was written against a simplified input (parts
+  lack the **/_ decorations) with CI splitting; asserted at both dials'
+  real outputs. 532 asserts Section's strict raises via try/catch.
+
+## STATUS (2026-07-03): 492/999 test files audited (chunks 14-32 added 229); ~507 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

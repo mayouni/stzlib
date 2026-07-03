@@ -1,37 +1,37 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #529.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Counting and locating occurrences with the named spellings, plus the
+# two faces of Sections() (of a substring -> spans; of spans -> their
+# substrings) and the bounded-occurrences counter. Archive block #529.
 
-o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
+Scenario("Counting many")
+	o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
+	Then("five occurrences", o1.NumberOfOccurrence(:OfSubString = "many"), 5)
+	Then("their positions",
+		ListEq( o1.Positions(:of = "many"), [5, 12, 33, 40, 54] ), TRUE)
+	Then("their sections",
+		ListEq( o1.Sections(:Of = "many"),
+			[ [5, 8], [12, 15], [33, 36], [40, 43], [54, 57] ] ), TRUE)
+	Then("sections of spans give the substrings",
+		ListEq( o1.Sections([ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ] ]),
+			[ "many", "many", "many" ] ), TRUE)
+	Then("three of them are << >>-bounded",
+		o1.NumberOfOccurrenceXT(
+			:OfSubString = "many",
+			:BoundedBy = [ "<<", :and = ">>" ]), 3)
+EndScenario()
 
-? o1.NumberOfOccurrence(:OfSubString = "many")
-#--> 5
+Summary()
 
-? @@( o1.Positions(:of = "many") ) + NL	# or o1.FindSubString("many")
-#--> [5, 12, 33, 40, 54]
-
-? @@(o1.Sections(:Of = "many")) + NL # or o1.FindAsSections(:OfSubString = "many")
-#--> [ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ], [ 40, 43 ], [ 54, 57 ] ]
-
-	#NOTE that Sections() has an other syntax that returns, not the sections
-	# as pairs of numbers as in the example above, the substrings corresponding
-	# to the sections themselves:
-
-	? o1.Sections([ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ] ])
-	#--> [ "many", "many", "many" ]
-
-? o1.NumberOfOccurrenceXT(
-	:OfSubString = "many",
-	:BoundedBy = [ "<<", :and = ">>" ]
-	# or :BoundedBySubStrings = ["<<", :and = ">>"]
-)
-#--> 3
-
-pf()
-# Executed in 0.11 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

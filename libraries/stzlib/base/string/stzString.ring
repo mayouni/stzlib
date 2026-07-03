@@ -626,32 +626,45 @@ class stzString from stzObject
 		return @CharsNames(This.Content())
 
 	def Section(n1, n2)
-		# Narrative aliases: Section(:From = pcA, :To = pcB) where
-		# pcA/pcB are characters or substrings. Resolve to positions
-		# (first occurrence) before the numeric path.
+		nLen = This.NumberOfChars()
+		# Narrative aliases: Section(:From = pcA, :To = pcB). A string
+		# pcA/pcB may be a SYMBOL (:FirstChar/:LastChar/:EndOfString/
+		# :EndOfLine/:@) -- passed through to the symbolic resolution
+		# below -- or a substring anchor: :From finds its FIRST
+		# occurrence, :To the LAST one (Section(:From = "F", :To = "A")
+		# on SOFTANZA -> "FTANZA").
+		_acSecSyms_ = [ "@", "first", "firstchar", "last", "lastchar",
+		                "middle", "endofstring", "endofline" ]
 		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
 		   lower(n1[1]) = "from"
 			_vF_ = n1[2]
-			if isString(_vF_)
+			if isString(_vF_) and ring_find(_acSecSyms_, lower(_vF_)) = 0
 				# Codepoint-aware first-occurrence find.
 				n1 = StzEngineStringFindFirstFromCS(This.Engine(), _vF_, 1, 1)
 			else
 				n1 = _vF_
 			ok
+		but isList(n1) and len(n1) = 2 and isString(n1[1]) and
+		    lower(n1[1]) = "nthtolast" and isNumber(n1[2])
+			n1 = nLen - n1[2]
 		ok
 		if isList(n2) and len(n2) = 2 and isString(n2[1]) and
 		   lower(n2[1]) = "to"
 			_vT_ = n2[2]
-			if isString(_vT_)
-				n2 = StzEngineStringFindFirstFromCS(This.Engine(), _vT_, 1, 1)
-				if n2 > 0
-					n2 = n2 + This._EngineCount(_vT_) - 1
+			if isString(_vT_) and ring_find(_acSecSyms_, lower(_vT_)) = 0
+				# The :To anchor closes at its LAST occurrence.
+				_aTo_ = This.Find(_vT_)
+				n2 = 0
+				if len(_aTo_) > 0
+					n2 = _aTo_[len(_aTo_)] + This._EngineCount(_vT_) - 1
 				ok
 			else
 				n2 = _vT_
 			ok
+		but isList(n2) and len(n2) = 2 and isString(n2[1]) and
+		    lower(n2[1]) = "nthtolast" and isNumber(n2[2])
+			n2 = nLen - n2[2]
 		ok
-		nLen = This.NumberOfChars()
 		# The :@ symbol mirrors the OTHER param (both :@ = whole string),
 		# per the original SectionCS.
 		if isString(n1) and n1 = "@" and isString(n2) and n2 = "@"
@@ -662,8 +675,32 @@ class stzString from stzObject
 		but isString(n2) and n2 = "@"
 			n2 = n1
 		ok
-		# Symbolic positions: :First / :Last / :LastChar / :Middle.
+		# Symbolic positions: :First / :Last / :LastChar / :Middle,
+		# plus :EndOfString (the last char) and :EndOfLine (the char
+		# before the next newline after n1, or the end).
+		if isString(n1) and lower(n1) = "endofstring"
+			n1 = nLen
+		ok
+		if isString(n2) and lower(n2) = "endofstring"
+			n2 = nLen
+		ok
 		n1 = This._ResolveSymPos(n1, nLen)
+		if isString(n2) and lower(n2) = "endofline"
+			n2 = nLen
+			if isNumber(n1)
+				_nEolFrom_ = n1
+				if _nEolFrom_ < 1 _nEolFrom_ = 1 ok
+				_nEolCR_ = This._FindFrom(This.Content(), char(13), _nEolFrom_)
+				_nEolLF_ = This._FindFrom(This.Content(), char(10), _nEolFrom_)
+				_nEol_ = _nEolLF_
+				if _nEolCR_ > 0 and (_nEol_ = 0 or _nEolCR_ < _nEol_)
+					_nEol_ = _nEolCR_
+				ok
+				if _nEol_ > 0
+					n2 = _nEol_ - 1
+				ok
+			ok
+		ok
 		n2 = This._ResolveSymPos(n2, nLen)
 		if NOT (isNumber(n1) and isNumber(n2))
 			StzRaise("Section: n1 and n2 must be numbers (or symbolic positions).")
@@ -1926,6 +1963,10 @@ class stzString from stzObject
 		return StzEngineStringCountOfCS(@pEngine, pcSubStr, _bCase_)
 
 		def NumberOfOccurrence(pcSubStr)
+			if isList(pcSubStr) and len(pcSubStr) = 2 and isString(pcSubStr[1]) and
+			   ring_find([ "of", "ofsubstring", "ofstring" ], lower(pcSubStr[1])) > 0
+				pcSubStr = pcSubStr[2]
+			ok
 			return StzEngineStringCountOf(@pEngine, pcSubStr)
 
 	  #============================================#
@@ -2941,9 +2982,17 @@ class stzString from stzObject
 	# Sit(:OnSection = [n1, n2], :AndHarvest = [:NCharsBefore=a,
 	# :NCharsAfter=b]) -- "sit on a section" and harvest a chars to
 	# the left + b chars to the right of it. Returns [cLeft, cRight].
+	# Sit(:OnSection = [n1,n2] / :OnPosition = n,
+	#     :AndHarvest = [...] / :AndHarvestSections = [...]):
+	# sit on a section (or single position) and harvest what's around
+	# it. Harvest specs: :NCharsBefore / :NCharsAfter (fixed counts) and
+	# :CharsBeforeW / :CharsAfterW (the run of chars satisfying a W
+	# predicate). The Sections variant returns the [start, end] spans
+	# instead of the substrings.
 	def Sit(p1, p2)
 		_aSec_ = NULL
 		_aHarvest_ = NULL
+		_bSitSections_ = FALSE
 		_aArgs_ = [ p1, p2 ]
 		for _i_ = 1 to 2
 			_a_ = _aArgs_[_i_]
@@ -2951,8 +3000,15 @@ class stzString from stzObject
 				_k_ = lower(_a_[1])
 				if _k_ = "onsection" or _k_ = "on"
 					_aSec_ = _a_[2]
+				but _k_ = "onposition" or _k_ = "atposition"
+					if isNumber(_a_[2])
+						_aSec_ = [ _a_[2], _a_[2] ]
+					ok
 				but _k_ = "andharvest" or _k_ = "harvest"
 					_aHarvest_ = _a_[2]
+				but _k_ = "andharvestsections" or _k_ = "harvestsections"
+					_aHarvest_ = _a_[2]
+					_bSitSections_ = TRUE
 				ok
 			ok
 		next
@@ -2960,6 +3016,10 @@ class stzString from stzObject
 			return []
 		ok
 		_nBefore_ = 0; _nAfter_ = 0
+		# Boolean flags, NOT NULL sentinels -- Ring's NULL is "" and
+		# isString("") is TRUE (the documented trap).
+		_bCondBefore_ = FALSE; _bCondAfter_ = FALSE
+		_cCondBefore_ = ""; _cCondAfter_ = ""
 		if isList(_aHarvest_)
 			_nHL_ = len(_aHarvest_)
 			for _i_ = 1 to _nHL_
@@ -2970,20 +3030,49 @@ class stzString from stzObject
 						_nBefore_ = _h_[2]
 					but _hk_ = "ncharsafter" or _hk_ = "after"
 						_nAfter_ = _h_[2]
+					but _hk_ = "charsbeforew"
+						_bCondBefore_ = TRUE
+						_cCondBefore_ = _h_[2]
+					but _hk_ = "charsafterw"
+						_bCondAfter_ = TRUE
+						_cCondAfter_ = _h_[2]
 					ok
 				ok
 			next
 		ok
 		_cTxt_ = This.Content()
+		_nTxtLen_ = This._EngineCount(_cTxt_)
 		_n1_ = _aSec_[1]; _n2_ = _aSec_[2]
+		# The conditional harvests take the maximal run of matching
+		# chars adjacent to the section.
+		if _bCondBefore_
+			_anW_ = This.FindCharsW(_cCondBefore_)
+			_p_ = _n1_ - 1
+			_nBefore_ = 0
+			while _p_ >= 1 and ring_find(_anW_, _p_) > 0
+				_nBefore_++
+				_p_--
+			end
+		ok
+		if _bCondAfter_
+			_anW_ = This.FindCharsW(_cCondAfter_)
+			_p_ = _n2_ + 1
+			_nAfter_ = 0
+			while _p_ <= _nTxtLen_ and ring_find(_anW_, _p_) > 0
+				_nAfter_++
+				_p_++
+			end
+		ok
 		_nLeftStart_ = _n1_ - _nBefore_
 		if _nLeftStart_ < 1 _nLeftStart_ = 1 ok
-		_cLeft_  = This._EngineSlice(_cTxt_, _nLeftStart_, _n1_ - _nLeftStart_)
 		_nRightStart_ = _n2_ + 1
 		_nRightLen_ = _nAfter_
-		_nTxtLen_ = This._EngineCount(_cTxt_)
 		_nMaxRight_ = _nTxtLen_ - _nRightStart_ + 1
 		if _nRightLen_ > _nMaxRight_ _nRightLen_ = _nMaxRight_ ok
+		if _bSitSections_
+			return [ [ _nLeftStart_, _n1_ - 1 ], [ _nRightStart_, _nRightStart_ + _nRightLen_ - 1 ] ]
+		ok
+		_cLeft_  = This._EngineSlice(_cTxt_, _nLeftStart_, _n1_ - _nLeftStart_)
 		_cRight_ = ""
 		if _nRightLen_ > 0
 			_cRight_ = This._EngineSlice(_cTxt_, _nRightStart_, _nRightLen_)
@@ -3711,11 +3800,15 @@ class stzString from stzObject
 		return This._SplitByStrCS(pcSep, _bSpCase_)
 
 	def Split(pcSep)
-		# Named-param dispatch: :At / :Before / :After (+ Position(s) /
-		# Section(s) refinements).
+		# Named-param dispatch: :Using / :By / :With unwrap to the plain
+		# separator; :At / :Before / :After (+ Position(s) / Section(s)
+		# refinements) route to their splitters.
 		if isList(pcSep) and len(pcSep) = 2 and isString(pcSep[1])
 			_cSpKey_ = lower(pcSep[1])
 			_xSpV_ = pcSep[2]
+			if _cSpKey_ = "using" or _cSpKey_ = "by" or _cSpKey_ = "with"
+				return This.Split(_xSpV_)
+			ok
 			if _cSpKey_ = "at" or _cSpKey_ = "atposition"
 				return This._SplitAtAny(_xSpV_)
 			but _cSpKey_ = "atpositions"
@@ -5335,7 +5428,24 @@ class stzString from stzObject
 
 	def BoundedByCS(pacBounds, pCaseSensitive)
 		# Accept either a single-string bound (same on both sides,
-		# e.g. BoundedBy('"')) or a 2-list [ open, close ].
+		# e.g. BoundedBy('"')) or a 2-list [ open, close ] -- including
+		# the inline-named [ open, :And = close ] spelling. (Nested ifs:
+		# Ring's `and` does not short-circuit, so a flat condition would
+		# index into a single-string bound.)
+		if isList(pacBounds) and len(pacBounds) = 2
+			_aBbClose_ = pacBounds[2]
+			if isList(_aBbClose_)
+				if len(_aBbClose_) = 2
+					if isString(_aBbClose_[1])
+						if lower(_aBbClose_[1]) = "and"
+							_cBbOpen_ = pacBounds[1]
+							_cBbClose_ = _aBbClose_[2]
+							pacBounds = [ _cBbOpen_, _cBbClose_ ]
+						ok
+					ok
+				ok
+			ok
+		ok
 		# SAME-CHAR bounds use OVERLAPPING consecutive pairing (so the middle
 		# gaps are kept: BoundedBy("&") on "&a&b&" -> ["a","b"] with all gaps),
 		# routed through AnyBoundedBy. DISTINCT bounds keep the top-level
@@ -6233,8 +6343,11 @@ class stzString from stzObject
 		return _oInisChk_.IsNumberInString()
 
 	def IsListInString()
+		# A list lives in the string either in normal form ([...]) or
+		# in short-form range syntax (1:3, "a":"d").
 		_oIlisChk_ = new stzStringChecker(This)
-		return _oIlisChk_.IsListInString()
+		if _oIlisChk_.IsListInString() return TRUE ok
+		return This.IsListInShortForm()
 
 	# FilledWith(pItem): for an empty (or any) wrapped string, set
 	# the content to the string form of pItem and return it. Used
@@ -6256,16 +6369,18 @@ class stzString from stzObject
 	# eval it into the actual list. Otherwise returns the chars.
 	# Used by stzSmallFuncs.StzN to count list-in-string elements.
 	def ToList()
+		# Range strings expand FIRST (codepoint-safe): Ring's native
+		# ':' under eval is byte-based and returns the left operand for
+		# multibyte endpoints (Arabic etc.).
+		_aTlRng_ = This._TryExpandRangeString()
+		if isList(_aTlRng_) and len(_aTlRng_) > 0
+			return _aTlRng_
+		ok
 		if This.IsListInString()
 			_aTlRes_ = []
 			_cTlCode_ = "_aTlRes_ = " + This.Content()
 			eval(_cTlCode_)
 			return _aTlRes_
-		ok
-		# Range string ("A" : "E" -> A..E; "#1" : "#5" -> #1..#5).
-		_aTlRng_ = This._TryExpandRangeString()
-		if isList(_aTlRng_) and len(_aTlRng_) > 0
-			return _aTlRng_
 		ok
 		return This.Chars()
 
@@ -6276,9 +6391,20 @@ class stzString from stzObject
 		_c_ = ring_trim(This.Content())
 		_nCol_ = This._FindFrom(_c_, ":", 1)
 		if _nCol_ < 2 return [] ok
-		_cL_ = This._UnquoteTrim( This._EngineSlice(_c_, 1, _nCol_ - 1) )
-		_cR_ = This._UnquoteTrim( This._EngineSliceFrom(_c_, _nCol_ + 1) )
+		_cLRaw_ = ring_trim( This._EngineSlice(_c_, 1, _nCol_ - 1) )
+		_cRRaw_ = ring_trim( This._EngineSliceFrom(_c_, _nCol_ + 1) )
+		_cL_ = This._UnquoteTrim(_cLRaw_)
+		_cR_ = This._UnquoteTrim(_cRRaw_)
 		if _cL_ = "" or _cR_ = "" return [] ok
+		# UNQUOTED numeric endpoints -> a numeric range (1:3 -> [1,2,3])
+		if ring_left(_cLRaw_, 1) != char(34) and ring_left(_cRRaw_, 1) != char(34) and
+		   isdigit(_cL_) and isdigit(_cR_)
+			_aR_ = []
+			for _k_ = (0 + _cL_) to (0 + _cR_)
+				_aR_ + _k_
+			next
+			return _aR_
+		ok
 		# single-char endpoints -> codepoint range
 		if This._EngineCount(_cL_) = 1 and This._EngineCount(_cR_) = 1
 			_aR_ = []
@@ -7705,7 +7831,48 @@ class stzString from stzObject
 	# SubStringBoundsXT(pcSub, n): per occurrence, the [startBefore,
 	# endBefore] + [startAfter, endAfter] cap-n-char sections (alias
 	# of FindSubStringBoundsUpToNCharsAsSections).
+	# SubStringBoundsXT(:Of = sub, :UpToNChars = cap): the FLAT list of
+	# per-occurrence bound runs, each capped (number = both sides,
+	# [l, r] = per side), with the empty sides dropped. The positional
+	# (pcSub, n) form keeps the sectional behavior.
 	def SubStringBoundsXT(pcSub, n)
+		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and
+		   lower(pcSub[1]) = "of" and isString(pcSub[2]) and
+		   isList(n) and len(n) = 2 and isString(n[1]) and
+		   (lower(n[1]) = "uptonchars" or lower(n[1]) = "uptochars")
+			_cSbxSub_ = pcSub[2]
+			_vSbxCap_ = n[2]
+			_nSbxL_ = 0
+			_nSbxR_ = 0
+			if isNumber(_vSbxCap_)
+				_nSbxL_ = _vSbxCap_
+				_nSbxR_ = _vSbxCap_
+			but isList(_vSbxCap_) and len(_vSbxCap_) = 2 and
+			    isNumber(_vSbxCap_[1]) and isNumber(_vSbxCap_[2])
+				_nSbxL_ = _vSbxCap_[1]
+				_nSbxR_ = _vSbxCap_[2]
+			ok
+			_aSbxRuns_ = This.BoundsOf(_cSbxSub_)
+			_aSbxRes_ = []
+			_nSbxN_ = len(_aSbxRuns_)
+			for _i_ = 1 to _nSbxN_
+				_cL_ = _aSbxRuns_[_i_][1]
+				if _cL_ != "" and _nSbxL_ > 0
+					if This._EngineCount(_cL_) > _nSbxL_
+						_cL_ = This._EngineSlice(_cL_, 1, _nSbxL_)
+					ok
+					_aSbxRes_ + _cL_
+				ok
+				_cR_ = _aSbxRuns_[_i_][2]
+				if _cR_ != "" and _nSbxR_ > 0
+					if This._EngineCount(_cR_) > _nSbxR_
+						_cR_ = This._EngineSlice(_cR_, 1, _nSbxR_)
+					ok
+					_aSbxRes_ + _cR_
+				ok
+			next
+			return _aSbxRes_
+		ok
 		return This.FindSubStringBoundsUpToNCharsAsSections(pcSub, n)
 
 	# ContainsSubStringBoundedBy(pcSub, pacBounds): TRUE if pcSub
@@ -11366,9 +11533,11 @@ class stzString from stzObject
 			return This
 
 	# NthToLast(n): the n-th-to-last char ("1st to last" = last).
+	# NthToLast(n): the char at position len - n (the original:
+	# CharAtPosition(NumberOfChars() - n)).
 	def NthToLast(n)
 		_nLen_ = This._EngineCount(This.Content())
-		_p_ = _nLen_ - n + 1
+		_p_ = _nLen_ - n
 		if _p_ < 1 return "" ok
 		return This._EngineSlice(This.Content(), _p_, 1)
 
@@ -11379,16 +11548,33 @@ class stzString from stzObject
 		if len(_c_) < 2 return FALSE ok
 		return _c_[1] = "[" and _c_[len(_c_)] = "]"
 
-	# SubStringsBoundedByU: case-insensitive variant.
+	# SubStringsBoundedByU: the UNIQUE bounded substrings ("U" = unique,
+	# not case-insensitive -- the settled Z/U convention).
 	def SubStringsBoundedByU(pacBounds)
-		return This.BoundedByCS(pacBounds, 0)
+		_aSbu_ = This.BoundedBy(pacBounds)
+		_aSbuRes_ = []
+		_nSbuL_ = len(_aSbu_)
+		for _iSbu_ = 1 to _nSbuL_
+			if ring_find(_aSbuRes_, _aSbu_[_iSbu_]) = 0
+				_aSbuRes_ + _aSbu_[_iSbu_]
+			ok
+		next
+		return _aSbuRes_
 
-	# Positions(pcSub): all positions of pcSub (alias of AllPositionsOf).
+		def UniqueSubStringsBoundedBy(pacBounds)
+			return This.SubStringsBoundedByU(pacBounds)
+
+	# Positions(pcSub): all positions of pcSub (alias of AllPositionsOf;
+	# accepts the :Of / :OfSubString named spelling).
 	def Positions(pcSub)
+		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and
+		   ring_find([ "of", "ofsubstring", "ofstring" ], lower(pcSub[1])) > 0
+			pcSub = pcSub[2]
+		ok
 		return This.AllPositionsOf(pcSub)
 
 	def FindPositions(pcSub)
-		return This.AllPositionsOf(pcSub)
+		return This.Positions(pcSub)
 
 	# FindNthBoundedBy(n, pacBounds, pcSub): position of the n-th
 	# occurrence of pcSub inside any bounded section.
@@ -12914,18 +13100,17 @@ class stzString from stzObject
 		next
 		return FALSE
 
+	# ToListInShortForm(): render the hosted list in the short range
+	# syntax -- "1 : 3" for numbers, '"A" : "D"' for strings.
 	def ToListInShortForm()
-		_c_ = ring_trim(This.Content())
-		# Strip outer quotes if symmetric.
-		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
-		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
-			_c_ = StzMid(_c_, 2, len(_c_) - 2)
+		_aTlsf_ = This.ToList()
+		if NOT isList(_aTlsf_) or len(_aTlsf_) = 0 return "" ok
+		_v1_ = _aTlsf_[1]
+		_v2_ = _aTlsf_[len(_aTlsf_)]
+		if isNumber(_v1_)
+			return ("" + _v1_) + " : " + ("" + _v2_)
 		ok
-		_nP_ = StzFindFirst(_c_, ":")
-		if _nP_ = 0 return [] ok
-		_a_ = ring_trim(StzMid(_c_, 1, _nP_ - 1))
-		_b_ = ring_trim(StzMidToEnd(_c_, _nP_ + 1))
-		return [ _a_, ":", _b_ ]
+		return '"' + _v1_ + '" : "' + _v2_ + '"'
 
 	def FindNextOccurrence(pcSub, pStartingAt)
 		_nFrom_ = 1
@@ -13001,30 +13186,11 @@ class stzString from stzObject
 		if _nRL_ < 1 return 0 ok
 		return _aR_[_nRL_]
 
+	# ToListInNormalForm(): the hosted list rendered in normal
+	# bracketed form (whatever syntax hosted it -- short ranges
+	# included).
 	def ToListInNormalForm()
-		_c_ = ring_trim(This.Content())
-		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
-		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
-			_c_ = StzMid(_c_, 2, len(_c_) - 2)
-		ok
-		# Strip wrapping brackets if present.
-		if ring_left(_c_, 1) = "[" and ring_right(_c_, 1) = "]"
-			_c_ = StzMid(_c_, 2, len(_c_) - 2)
-		ok
-		# Naive comma-split.
-		_aR_ = []
-		_buf_ = ""
-		_nL_ = len(_c_)
-		for _i_ = 1 to _nL_
-			if _c_[_i_] = ","
-				_aR_ + ring_trim(_buf_)
-				_buf_ = ""
-			else
-				_buf_ += _c_[_i_]
-			ok
-		next
-		if len(_buf_) > 0 _aR_ + ring_trim(_buf_) ok
-		return _aR_
+		return @@( This.ToList() )
 
 	def NumberOfLeadingItems()
 		_nL_ = This._EngineCount(This.Content())
@@ -13390,10 +13556,10 @@ class stzString from stzObject
 		return This.UnicodesXT()
 
 	def ToListInStringSF()
-		return This.Content()
+		return This.ToListInShortForm()
 
 	def ToListInStringNF()
-		return This.Content()
+		return @@( This.ToList() )
 
 	# SectionBounds(n1, n2, nLeftMax, nRightMax): the [open, close]
 	# bound substrings just before n1 and just after n2.
@@ -13749,8 +13915,9 @@ class stzString from stzObject
 			This.ReplaceSubStringAtPosition(_pair_[1], pcOld, _pair_[2])
 		next
 
+	# ToListInString(): the hosted list rendered in normal form (@@).
 	def ToListInString()
-		return This.Content()
+		return @@( This.ToList() )
 
 	def TrailingSubStringCS(pCaseSensitive)
 		return This.TrailingSubString()

@@ -3138,7 +3138,11 @@ func _StzNormalizeCharCond(cCond)
 	if ring_left(cCond, 1) = "{" and ring_right(cCond, 1) = "}"
 		cCond = ring_trim( substr(cCond, 2, len(cCond) - 2) )
 	ok
-	return _StzLowerWPredicates(cCond)
+	cCond = _StzLowerWPredicates(cCond)
+	# In CHAR context, "is a number" means "is a digit char" (a char is
+	# always a string to the engine's isNumber type check).
+	cCond = StzReplaceCS(cCond, "isNumber(", "isDigit(", FALSE)
+	return cCond
 
 # _StzNormalizeSubStringCond(cCond): normalize a SUBSTRING-predicate condition
 # (one using @SubString) for evaluation via the list W-DSL over an enumerated

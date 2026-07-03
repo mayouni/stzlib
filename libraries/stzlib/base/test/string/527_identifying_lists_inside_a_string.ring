@@ -1,102 +1,80 @@
-# Narrative
-# --------
-# #narration IDENTIFYING LISTS INSIDE A STRING
-#
-# Extracted from stzStringTest.ring, block #527.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# Lists hosted in strings: recognition (normal [..] and short a:b
+# forms), form conversion, and runtime evaluation back to a real list.
+# The To*Form converters render at the canonical @@ spacing
+# ("[ 1, 2, 3 ]" -- the archive showed hand-typed "[1, 2, 3]").
+# Archive block #527.
 
-#NOTE // I made an article on the subject here:
-# https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/doc/narrations/stz-narration-list-in-strings.md
+Scenario("Recognizing lists in strings")
+	Then("a normal-form list", StzStringQ('[1,2,3]').IsListInString(), TRUE)
+	Then("a short-form range", StzStringQ('1:3').IsListInString(), TRUE)
+	Then("a char range", StzStringQ(' "A":"C" ').IsListInString(), TRUE)
+	Then("an Arabic char range", StzStringQ(' "ا":"ج" ').IsListInString(), TRUE)
+	Then("the normal form named", StzStringQ('[1,2,3]').IsListInNormalForm(), TRUE)
+	Then("the short form named", StzStringQ('1:3').IsListInShortForm(), TRUE)
+	Then("... for char ranges too", StzStringQ(' "A":"C" ').IsListInShortForm(), TRUE)
+	Then("... and Arabic ones", StzStringQ(' "ا":"ج" ').IsListInShortForm(), TRUE)
+EndScenario()
 
-pr()
+Scenario("Contiguity of the hosted list")
+	Then("[1,3] is not contiguous", StzStringQ('[1,3]').IsContiguousListInString(), FALSE)
+	Then("1:3 is", StzStringQ('1:3').IsContiguousListInString(), TRUE)
+	Then("A:C is", StzStringQ(' "A":"C" ').IsContiguousListInString(), TRUE)
+	Then("the Arabic range is", StzStringQ(' "ا":"ج" ').IsContiguousListInString(), TRUE)
+	Then("IsContiguous on a real range", IsContiguous(1:3), TRUE)
+	Then("... and on a char range", IsContiguous("A":"E"), TRUE)
+	Then("contiguous + normal form",
+		StzStringQ('[1,2,3]').IsContiguousListInNormalForm(), TRUE)
+	Then("contiguous + short form",
+		StzStringQ('1:3').IsContiguousListInShortForm(), TRUE)
+	Then("... char ranges",
+		StzStringQ(' "A":"C" ').IsContiguousListInShortForm(), TRUE)
+	Then("... Arabic ranges",
+		StzStringQ(' "ا":"ج" ').IsContiguousListInShortForm(), TRUE)
+EndScenario()
 
-# In many situations (especially in advanced metaprogramming scenarios),
-# you may need to host a list inside a string, do whatever operations
-# on it as as string, and then evaluate it back, in runtime, to
-# transform it to a vibrant Ring list again!
+Scenario("Converting between the forms")
+	Then("normal to short", StzStringQ('[1,2,3]').ToListInShortForm(), "1 : 3")
+	Then("short to normal", StzStringQ('1:3').ToListInNormalForm(), "[ 1, 2, 3 ]")
+	Then("a string list to short",
+		StzStringQ(' ["A","B","C","D"] ').ToListInShortForm(), '"A" : "D"')
+	Then("an Arabic range to short",
+		StzStringQ(' "ا":"ج" ').ToListInShortForm(), '"ا" : "ج"')
+	Then("the default rendering is normal",
+		StzStringQ('[1,2,3]').ToListInString(), "[ 1, 2, 3 ]")
+	Then("... whatever hosted it", StzStringQ('1:3').ToListInString(), "[ 1, 2, 3 ]")
+	Then("... expanding char ranges",
+		StzStringQ(' "A":"C" ').ToListInString(), '[ "A", "B", "C" ]')
+	Then("the SF abbreviation",
+		StzStringQ('[1,2, 3]').ToListInStringSF(), "1 : 3")
+	Then("... on a short host", StzStringQ('1:3').ToListInStringSF(), "1 : 3")
+	Then("... on a string list",
+		StzStringQ(' ["A","B","C","D"] ').ToListInStringSF(), '"A" : "D"')
+	Then("... on an Arabic list",
+		StzStringQ(' [ "ا", "ب", "ة", "ت" ] ').ToListInStringSF(), '"ا" : "ت"')
+EndScenario()
 
-# Whatever syntax is used ( noramal [ _ , _ , _ ] or short _:_ ), Softanza
-# can recognize any Ring list you would host inside a string:
+Scenario("Evaluating back to a live list")
+	Then("a number range", ListEq( StzStringQ('1:3').ToList(), [1, 2, 3] ), TRUE)
+	Then("a char range",
+		ListEq( StzStringQ(' "A":"C" ').ToList(), ["A", "B", "C"] ), TRUE)
+	Then("an Arabic char range",
+		ListEq( StzStringQ(' "ا":"ج" ').ToList(),
+			[ "ا", "ب", "ة", "ت", "ث", "ج" ] ), TRUE)
+EndScenario()
 
-? StzStringQ('[1,2,3]').IsListInString()		#--> TRUE
+Summary()
 
-? StzStringQ('1:3').IsListInString()			#--> TRUE
-
-? StzStringQ(' "A":"C" ').IsListInString()		#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsListInString() + NL		#--> TRUE
-
-# Softanza can tell you if the syntax used is normal or short:
-
-? StzStringQ('[1,2,3]').IsListInNormalForm()		#--> TRUE
-? StzStringQ('1:3').IsListInShortForm()			#--> TRUE
-
-? StzStringQ(' "A":"C" ').IsListInShortForm()		#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsListInShortForm() + NL	#--> TRUE
-
-# And knows about the list beeing contiguous or not:
-
-? StzStringQ('[1,3]').IsContiguousListInString()	#--> FALSE
-? StzStringQ('1:3').IsContiguousListInString()		#--> TRUE
-
-? StzStringQ(' "A":"C" ').IsContiguousListInString()	#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsContiguousListInString()	#--> TRUE
-
-	# REMINDER: A contiguous list can be made of  numbers,
-	# or contiguous chars (based on their unicode numbers).
-	# And you can identify them using the stzList.IsContiguous():
-
-	? IsContiguous(1:3)			#--> TRUE
-	? IsContiguous("A":"E") + NL	#--> TRUE
-
-# Back to list IN STRINGS!
-
-# Not only Softanza can see if the list in string is contiguous
-# or not, it can also see in what form they are:
-
-? StzStringQ('[1,2,3]').IsContiguousListInNormalForm()	#--> TRUE
-? StzStringQ('1:3').IsContiguousListInShortForm()	#--> TRUE
-
-? StzStringQ(' "A":"C" ').IsContiguousListInShortForm()	#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsContiguousListInShortForm()	#--> TRUE
-? NL
-
-# Now, what about tranforming one form to another: possible in
-# both directions, from normal to short, and from short to normal!
-
-? @@( StzStringQ('[1,2,3]').ToListInShortForm() )	#--> "1 : 3"
-
-? @@( StzStringQ('1:3').ToListInNormalForm() )		#--> "[1, 2, 3]"
-
-? StzStringQ(' ["A","B","C","D"] ').ToListInShortForm()	#--> "A" : "D"
-? StzStringQ(' "ا":"ج" ').ToListInShortForm() + NL	#--> "ا" : "ج"
-
-# And by default, of course, the normal form is used:
-
-? @@( StzStringQ('[1,2,3]').ToListInString() )	#--> "[1, 2, 3]"
-? @@( StzStringQ('1:3').ToListInString() )	#--> "[1, 2, 3]"
-
-? StzStringQ(' "A":"C" ').ToListInString()	#--> [ "A", "B", "C" ]
-? StzStringQ(' "ا":"ج" ').ToListInString() + NL	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
-
-# If you prefer (or need) the short form, there is an interesting
-# abbreviation to the ToListInShortForm() alternative that uses
-# the simple SF prefix (S for Short and F for Form), like this:
-
-? @@( StzStringQ('[1,2, 3]').ToListInStringSF() ) 		#--> "1 : 3"
-
-? @@( StzStringQ('1:3').ToListInStringSF() )			#--> "1 : 3"
-
-? StzStringQ(' ["A","B","C","D"] ').ToListInStringSF()		#--> "A" : "D"
-? StzStringQ(' [ "ا", "ب", "ة", "ت" ] ').ToListInStringSF()+ NL	#--> "ا" : "ت"
-
-# Finally, as a cherry on the cake, you can evaluate
-# the string in list in runtime like this:
-
-? StzStringQ('1:3').ToList()	   	#--> [1, 2, 3]
-? StzStringQ(' "A":"C" ').ToList() 	#--> ["A", "B", "C"]
-? StzStringQ(' "ا":"ج" ').ToList() 	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
-
-pf()
-# Executed in 1.62 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

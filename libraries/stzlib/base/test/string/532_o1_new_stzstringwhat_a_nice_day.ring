@@ -1,21 +1,32 @@
-# Narrative
-# --------
-# o1 = new stzString("what a <<nice>>> day!")
-#
-# Extracted from stzStringTest.ring, block #532.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Section is STRICT: out-of-range indexes RAISE "Indexes out of range!"
+# (the lenient form is SectionXT). Archive block #532.
 
-o1 = new stzString("what a <<nice>>> day!")
-# All these return an error message:
+Scenario("Out-of-range sections raise")
+	o1 = new stzString("what a <<nice>>> day!")
+	bRaised1 = FALSE
+	try
+		o1.Section(50, 0)
+	catch
+		bRaised1 = TRUE
+	done
+	Then("Section(50, 0) raises", bRaised1, TRUE)
+	bRaised2 = FALSE
+	try
+		o1.Section(0, 0)
+	catch
+		bRaised2 = TRUE
+	done
+	Then("Section(0, 0) raises", bRaised2, TRUE)
+	bRaised3 = FALSE
+	try
+		o1.Section(-20, 10)
+	catch
+		bRaised3 = TRUE
+	done
+	Then("Section(-20, 10) raises", bRaised3, TRUE)
+EndScenario()
 
-? o1.Section(50, 0)	#-->NULL
-? o1.Section(0, 0)	#-->NULL
-? o1.Section(-20, 10)	#-->NULL
-
-#--> ERROR MESSAGE:
-#--> Indexes out of range! n1 and n2 must be inside the string.
-
-pf()
+Summary()
