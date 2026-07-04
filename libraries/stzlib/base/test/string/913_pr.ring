@@ -1,35 +1,21 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #913.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Undo and Redo walk the mutation journal; InsertXT places text by
+# anchor. Archive block #913.
 
-Q("Softanza is awosme!") {
+Scenario("Editing with second thoughts")
+	o1 = Q("Softanza is awosme!")
+	o1.Replace("awosme", :with = "wonderful")
+	Then("replaced", o1.Content(), "Softanza is wonderful!")
+	o1.Undo()
+	Then("undone", o1.Content(), "Softanza is awosme!")
+	o1.Redo()
+	Then("redone", o1.Content(), "Softanza is wonderful!")
+	o1.InsertXT("really ", :Before = "wonderful")
+	Then("emphasized", o1.Content(), "Softanza is really wonderful!")
+	o1.Undo()
+	Then("emphasis withdrawn", o1.Content(), "Softanza is wonderful!")
+EndScenario()
 
-	Replace("awosme", :with = "wonderful")
-	? content()
-	#--> Softanza is wonderful!
-
-	Undo()
-	? Content()
-	#--> Softanza is awosme!
-
-	Redo()
-	? Content()
-	#--> Softanza is wonderful!
-
-	InsertXT("really ", :Before = "wonderful")
-	? Content()
-	#--> Softanza is really wonderful!
-
-	Undo()
-	? Content()
-	#--> Softanza is wonderful!
-}
-
-pf()
-# Executed in 0.03 second(s).
+Summary()

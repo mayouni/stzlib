@@ -1,20 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #919.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The sorted-pairs checkers. Archive block #919.
 
-? IsSortedListOfPairsOfNumbers([ [4, 6], [10, 12], [16, 18] ])
-#--> TRUE
+Scenario("Three sections in order")
+	Then("sorted",
+		IsSortedListOfPairsOfNumbers([ [4, 6], [10, 12], [16, 18] ]), TRUE)
+	Then("sorted up",
+		IsListOfPairsOfNumbersSortedUp([ [4, 6], [10, 12], [16, 18] ]), TRUE)
+	Then("sorted down",
+		IsListOfPairsOfNumbersSortedDown([ [16, 18], [10, 12], [4, 6] ]), TRUE)
+EndScenario()
 
-? IsListOfPairsOfNumbersSortedUp([ [4, 6], [10, 12], [16, 18] ])
-#--> TRUE
-
-? IsListOfPairsOfNumbersSortedDown([ [16, 18], [10, 12], [4, 6] ])
-#--> TRUE
-
-pf()
+Summary()

@@ -1155,7 +1155,33 @@ Pure conversions: 861, 864, 871.
   archive (was spaces).
 Pure conversions: 881, 889, 895, 896, 898, 899.
 
-## STATUS (2026-07-04): 817/999 test files audited (chunks 14-50 added 554); ~182 still to audit
+### Chunk 51 (tests 901-920, 2026-07-04)
+
+- **Undo/Redo journal** (913): stzString gains @aUndoStack/@aRedoStack
+  (capped at 8, FIFO). Update() snapshots the pre-state (same-content
+  Updates journal nothing); in-place engine mutators journal their own
+  pre-state via the new `_Journal()` (wired into ReplaceCS -- other
+  in-place paths currently no-op on Undo, noted granularity caveat).
+  Undo/Redo swap between the stacks with tracking suspended.
+- **InsertXT accepts a bare inserted string** (913):
+  InsertXT("really ", :Before = anchor) -- only the :With form worked.
+- **InsertBefore/InsertAfter arg flip** (912): when only the SECOND
+  arg is found in the content it is the anchor (912's
+  InsertBefore("my ", "dear") vs 823's anchor-first) -- runtime
+  disambiguation keeps both archives green.
+- **Box aliases wired to the renderer and MUTATING per the archive**
+  (902-905): BoxEachChar/BoxifyChars/BoxifyCharsXT mutate;
+  CharsBoxed returns; all were the stacked ASCII per-char stub.
+- **`SectionsOfSameItems` groups by VALUE across the list** (916,
+  stzList): first-seen order, not adjacent runs; the archive's lone
+  ["THREE"] was a garble (input holds two).
+- **`ReplaceSectionsByMany` validates** (920): pairs of numbers,
+  ascending starts, no overlap -- raises the archive's message
+  instead of a partial mangle.
+Pure conversions: 908, 909, 914, 915, 917-919. (901/906/907/910/911
+stay retired -- stzListOfChars grid renderer.)
+
+## STATUS (2026-07-04): 832/999 test files audited (chunks 14-51 added 569); ~167 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

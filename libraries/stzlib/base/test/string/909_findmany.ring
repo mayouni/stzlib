@@ -1,16 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #909.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindMany on a string -- flat, sorted positions. Archive block #909.
 
-o1 = new stzString("--R--I--N--G--")
-? o1.FindMany([ "R", "I", "N", "G" ])
-#--> [ 3, 6, 9, 12 ]
+Scenario("The letters between the dashes")
+	o1 = new stzString("--R--I--N--G--")
+	Then("3, 6, 9, 12",
+		ListEq( o1.FindMany([ "R", "I", "N", "G" ]), [ 3, 6, 9, 12 ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

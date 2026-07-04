@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #905.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoxifyCharsXT with no options matches the plain form.
+# Archive block #905.
 
-o1 = new stzString("SOFTANZA")
-o1.BoxifyCharsXT([])
-? o1.Content()
-#-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴───┴───┴───┴───┘
+Scenario("SOFTANZA in cells, XT spelling")
+	o1 = new stzString("SOFTANZA")
+	o1.BoxifyCharsXT([])
+	Then("same eight cells",
+		o1.Content(), "┌───┬───┬───┬───┬───┬───┬───┬───┐" + NL + "│ S │ O │ F │ T │ A │ N │ Z │ A │" + NL + "└───┴───┴───┴───┴───┴───┴───┴───┘")
+EndScenario()
 
-pf()
-# Executed in 0.04 second(s).
+Summary()

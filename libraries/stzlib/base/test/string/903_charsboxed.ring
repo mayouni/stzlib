@@ -1,18 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #903.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# CharsBoxed is the non-mutating reading. Archive block #903.
 
-? Q("RING").CharsBoxed()
-#-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
+Scenario("RING in cells, functional")
+	Then("the strip",
+		Q("RING").CharsBoxed(), "┌───┬───┬───┬───┐" + NL + "│ R │ I │ N │ G │" + NL + "└───┴───┴───┴───┘")
+EndScenario()
 
-pf()
-# Executed in 0.04 second(s).
+Summary()

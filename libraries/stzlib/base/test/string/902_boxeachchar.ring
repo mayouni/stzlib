@@ -1,26 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #902.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoxEachChar mutates the string into its per-char cell strip.
+# Archive block #902.
 
-o1 = new stzString("RING")
+Scenario("RING in cells, in place")
+	o1 = new stzString("RING")
+	Then("the Q form returns the strip",
+		o1.BoxEachCharQ().Content(), "┌───┬───┬───┬───┐" + NL + "│ R │ I │ N │ G │" + NL + "└───┴───┴───┴───┘")
+	Then("... and the object holds it",
+		o1.Content(), "┌───┬───┬───┬───┐" + NL + "│ R │ I │ N │ G │" + NL + "└───┴───┴───┴───┘")
+EndScenario()
 
-? o1.BoxEachCharQ().Content()
-#-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
-
-? o1.Content()
-#-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
-
-pf()
-# Executed in 0.04 second(s).
+Summary()
