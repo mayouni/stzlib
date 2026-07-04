@@ -1,20 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #759.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# / divides the string into N parts; % gives the remainder part (the
+# last, unequal one). Archive block #759.
 
-o1 = new stzString("abcdefj")
+Scenario("Dividing seven chars by two")
+	o1 = new stzString("abcdefj")
+	Then("two parts",
+		ListEq( o1 / 2, [ "abcd", "efj" ] ), TRUE)
+	Then("the remainder part", o1 % 2, "efj")
+EndScenario()
 
-? o1 / 2
-#--> [ "abcd", "efj" ]
+Summary()
 
-? o1 % 2
-#--> "efj"
-
-pf()
-# Executed in 0.03 second(s).
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

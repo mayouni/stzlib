@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #758.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... and the * operator does the same. Archive block #758.
 
-o1 = new stzString("a")
-? o1 * [ "b", "c", "d" ]
-#--> abacad
+Scenario("a * a list")
+	o1 = new stzString("a")
+	Then("distributes", o1 * [ "b", "c", "d" ], "abacad")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

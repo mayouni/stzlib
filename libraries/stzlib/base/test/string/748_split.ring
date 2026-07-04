@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #748.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SplitQ chains into the parts list; the long natural-coding name does
+# the same in one call. Archive block #748.
 
-o1 = new stzString("abc;123;gafsa;ykj")
-? o1.SplitQ(";").NthItem(3)
-#--> gafsa
+Scenario("The third field of a record")
+	o1 = new stzString("abc;123;gafsa;ykj")
+	Then("via SplitQ", o1.SplitQ(";").NthItem(3), "gafsa")
+	Then("via the long natural name",
+		o1.NthSubstringAfterSplittingStringUsing(3, ";"), "gafsa")
+EndScenario()
 
-# Same as:
-? o1.NthSubstringAfterSplittingStringUsing(3, ";") # Long, but useful in natural-coding
-#--> gafsa
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

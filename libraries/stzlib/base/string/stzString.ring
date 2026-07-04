@@ -83,12 +83,15 @@ class stzString from stzObject
 
 		if pOp = "*"
 			# A NUMBER repeats the string; a STRING is used as a separator
-			# placed after each char ("ABC" * " -> " -> "A -> B -> C -> ").
+			# placed after each char ("ABC" * " -> " -> "A -> B -> C -> ");
+			# a LIST distributes ("a" * ["b","c","d"] -> "abacad").
 			# Raw RHS -> raw result; Q()-wrapped RHS -> chainable stzString.
 			if isString(pValue)
 				return This._OpJoinWith(pValue)
 			but isNumber(pValue)
 				return This._OpRepeat(floor(pValue))
+			but isList(pValue)
+				return This._OpDistribute(pValue)
 			but isObject(pValue)
 				if @IsStzNumber(pValue)
 					return new stzString( This._OpRepeat(floor(pValue.NumericValue())) )
@@ -96,9 +99,21 @@ class stzString from stzObject
 				_vOpSep_ = pValue.Content()
 				if isString(_vOpSep_)
 					return new stzString( This._OpJoinWith(_vOpSep_) )
+				but isList(_vOpSep_)
+					return new stzString( This._OpDistribute(_vOpSep_) )
 				ok
 			ok
 			return This.Content()
+		ok
+
+		if pOp = "%"
+			# Remainder of the division: the LAST part of (This / n).
+			if isNumber(pValue)
+				_aOpMod_ = This.SplitToNParts(floor(pValue))
+				if len(_aOpMod_) = 0 return "" ok
+				return _aOpMod_[len(_aOpMod_)]
+			ok
+			return ""
 		ok
 
 		if pOp = "-"
@@ -4587,52 +4602,169 @@ class stzString from stzObject
 			return This
 
 	def BoxXT(paBoxOptions)
-		_cBxLine_ = :Solid
-		_bBxRounded_ = 0
-
-		if isList(paBoxOptions)
-			_nBxLen_ = len(paBoxOptions)
-			for _iBx_ = 1 to _nBxLen_
-				if isList(paBoxOptions[_iBx_]) and len(paBoxOptions[_iBx_]) = 2
-					_cBxKey_ = paBoxOptions[_iBx_][1]
-					_vBxVal_ = paBoxOptions[_iBx_][2]
-					if isString(_cBxKey_)
-						if StzLower(_cBxKey_) = "line" and isString(_vBxVal_) and StzLower(_vBxVal_) = "dashed"
-							_cBxLine_ = :Dashed
-						ok
-						if StzLower(_cBxKey_) = "allcorners" and isString(_vBxVal_) and (StzLower(_vBxVal_) = "round" or StzLower(_vBxVal_) = "rounded")
-							_bBxRounded_ = 1
-						ok
-						if StzLower(_cBxKey_) = "rounded" and isNumber(_vBxVal_) and _vBxVal_ = 1
-							_bBxRounded_ = 1
-						ok
-					ok
-				ok
-			next
-		ok
-
-		_nBxWidth_ = This.NumberOfChars() + 2
-		_cBxVTrait_ = "|"
-		_cBxHTrait_ = "-"
-		_cBxC1_ = "+"
-		_cBxC2_ = "+"
-		_cBxC3_ = "+"
-		_cBxC4_ = "+"
-
-		if _cBxLine_ = :Dashed
-			_cBxHTrait_ = "-"
-		ok
-
-		_cBxHLine_ = StzRepeatStr(_cBxHTrait_, _nBxWidth_)
-		_cBxUp_ = _cBxC1_ + _cBxHLine_ + _cBxC2_
-		_cBxMid_ = _cBxVTrait_ + " " + This.Content() + " " + _cBxVTrait_
-		_cBxDown_ = _cBxC4_ + _cBxHLine_ + _cBxC3_
-
-		This.Update(_cBxUp_ + NL + _cBxMid_ + NL + _cBxDown_)
+		This.Update( This._BoxRender(paBoxOptions) )
 
 		def BoxXTQ(paBoxOptions)
 			This.BoxXT(paBoxOptions)
 			return This
+
+	# The box renderer. Options (named params, all optional):
+	#   :Line = :Solid | :Dashed
+	#   :AllCorners = :Rectangular | :Round
+	#   :Corners = [TL, TR, BR, BL]   (clockwise)
+	#   :Width = n                     (inner width, pads included)
+	#   :TextAdjustedTo = :Left | :Center | :Right | :Justified
+	#   :EachChar = TRUE               (one cell per char)
+	#   :VizFind = c                   (mark c's cells on the bottom rail)
+	# Glyphs are composed from raw UTF-8 bytes via char() -- never
+	# paste the glyphs literally (source-mojibake trap).
+	def _BoxRender(paOpts)
+		_cLine_ = :Solid
+		_aCorn_ = [ "rect", "rect", "rect", "rect" ]
+		_nWidth_ = 0
+		_cAdj_ = ""
+		_bEach_ = 0
+		_cMark_ = ""
+		if isList(paOpts)
+			_nOl_ = len(paOpts)
+			for _iBo_ = 1 to _nOl_
+				_vBo_ = paOpts[_iBo_]
+				if isList(_vBo_) and len(_vBo_) = 2 and isString(_vBo_[1])
+					_kBo_ = StzLower(_vBo_[1])
+					_wBo_ = _vBo_[2]
+					if _kBo_ = "line"
+						if isString(_wBo_) and StzLower(_wBo_) = "dashed"
+							_cLine_ = :Dashed
+						ok
+					but _kBo_ = "allcorners" or _kBo_ = "rounded"
+						if isString(_wBo_)
+							if StzLower(_wBo_) = "round" or StzLower(_wBo_) = "rounded"
+								_aCorn_ = [ "round", "round", "round", "round" ]
+							ok
+						but isNumber(_wBo_) and _wBo_ = 1
+							_aCorn_ = [ "round", "round", "round", "round" ]
+						ok
+					but _kBo_ = "corners"
+						if isList(_wBo_) and len(_wBo_) = 4
+							_aCorn_ = []
+							for _jBo_ = 1 to 4
+								_cBoC_ = "rect"
+								if isString(_wBo_[_jBo_])
+									if StzLower(_wBo_[_jBo_]) = "round" or StzLower(_wBo_[_jBo_]) = "rounded"
+										_cBoC_ = "round"
+									ok
+								ok
+								_aCorn_ + _cBoC_
+							next
+						ok
+					but _kBo_ = "width"
+						if isNumber(_wBo_) _nWidth_ = _wBo_ ok
+					but _kBo_ = "textadjustedto"
+						if isString(_wBo_) _cAdj_ = StzLower(_wBo_) ok
+					but _kBo_ = "eachchar"
+						if _wBo_ = 1 _bEach_ = 1 ok
+					but _kBo_ = "vizfind"
+						if isString(_wBo_) _cMark_ = _wBo_ ok
+					ok
+				ok
+			next
+		ok
+		# Box-drawing glyphs, raw UTF-8 bytes.
+		_cH_ = char(226) + char(148) + char(128)		# solid horizontal
+		_cV_ = char(226) + char(148) + char(130)		# solid vertical
+		if _cLine_ = :Dashed
+			_cH_ = char(226) + char(149) + char(140)	# dashed horizontal
+			_cV_ = char(226) + char(148) + char(138)	# dashed vertical
+		ok
+		_cTL_ = char(226) + char(148) + char(140)
+		if _aCorn_[1] = "round" _cTL_ = char(226) + char(149) + char(173) ok
+		_cTR_ = char(226) + char(148) + char(144)
+		if _aCorn_[2] = "round" _cTR_ = char(226) + char(149) + char(174) ok
+		_cBR_ = char(226) + char(148) + char(152)
+		if _aCorn_[3] = "round" _cBR_ = char(226) + char(149) + char(175) ok
+		_cBL_ = char(226) + char(148) + char(148)
+		if _aCorn_[4] = "round" _cBL_ = char(226) + char(149) + char(176) ok
+		if _bEach_
+			_cTD_ = char(226) + char(148) + char(172)	# T down
+			_cTU_ = char(226) + char(148) + char(180)	# T up
+			_cBu_ = char(226) + char(128) + char(162)	# bullet
+			_aBoCh_ = This.Chars()
+			_nBoCh_ = len(_aBoCh_)
+			_cSeg_ = _cH_ + _cH_ + _cH_
+			_cTop_ = _cTL_
+			_cMid_ = _cV_
+			_cBot_ = _cBL_
+			for _iBo_ = 1 to _nBoCh_
+				_cTop_ += _cSeg_
+				_cBoSeg_ = _cSeg_
+				if _cMark_ != ""
+					if _aBoCh_[_iBo_] = _cMark_
+						_cBoSeg_ = _cH_ + _cBu_ + _cH_
+					ok
+				ok
+				_cBot_ += _cBoSeg_
+				_cMid_ += " " + _aBoCh_[_iBo_] + " " + _cV_
+				if _iBo_ < _nBoCh_
+					_cTop_ += _cTD_
+					_cBot_ += _cTU_
+				ok
+			next
+			_cTop_ += _cTR_
+			_cBot_ += _cBR_
+			return _cTop_ + NL + _cMid_ + NL + _cBot_
+		ok
+		_cText_ = This.Content()
+		_nChars_ = This.NumberOfChars()
+		_nInner_ = _nChars_ + 2
+		if _nWidth_ > 0 _nInner_ = _nWidth_ ok
+		_cMidTxt_ = ""
+		if _cAdj_ = "right"
+			_cMidTxt_ = _cText_ + " "
+			while StzLen(_cMidTxt_) < _nInner_
+				_cMidTxt_ = " " + _cMidTxt_
+			end
+		but _cAdj_ = "center"
+			_nBoSp_ = _nInner_ - StzLen(_cText_)
+			if _nBoSp_ < 0 _nBoSp_ = 0 ok
+			_nBoL_ = floor(_nBoSp_ / 2)
+			_cMidTxt_ = StzRepeatStr(" ", _nBoL_) + _cText_ +
+			            StzRepeatStr(" ", _nBoSp_ - _nBoL_)
+		but _cAdj_ = "justified"
+			_aBoCh_ = This.Chars()
+			_nBoCh_ = len(_aBoCh_)
+			if _nBoCh_ < 2
+				_cMidTxt_ = " " + _cText_
+				while StzLen(_cMidTxt_) < _nInner_
+					_cMidTxt_ += " "
+				end
+			else
+				_nGaps_ = _nBoCh_ - 1
+				_nSpTot_ = _nInner_ - _nBoCh_ - 2
+				if _nSpTot_ < _nGaps_ _nSpTot_ = _nGaps_ ok
+				_nBase_ = floor(_nSpTot_ / _nGaps_)
+				_nExtra_ = _nSpTot_ - (_nBase_ * _nGaps_)
+				_cMidTxt_ = " "
+				for _iBo_ = 1 to _nBoCh_
+					_cMidTxt_ += _aBoCh_[_iBo_]
+					if _iBo_ < _nBoCh_
+						_nBoG_ = _nBase_
+						if _iBo_ <= _nExtra_ _nBoG_++ ok
+						_cMidTxt_ += StzRepeatStr(" ", _nBoG_)
+					ok
+				next
+				_cMidTxt_ += " "
+			ok
+		else
+			# :Left and the default both lead with one pad space.
+			_cMidTxt_ = " " + _cText_ + " "
+			while StzLen(_cMidTxt_) < _nInner_
+				_cMidTxt_ += " "
+			end
+		ok
+		_cHL_ = StzRepeatStr(_cH_, _nInner_)
+		return _cTL_ + _cHL_ + _cTR_ + NL +
+		       _cV_ + _cMidTxt_ + _cV_ + NL +
+		       _cBL_ + _cHL_ + _cBR_
 
 	def Boxed()
 		_oBxCopy_ = This.Copy()
@@ -4648,46 +4780,20 @@ class stzString from stzObject
 		return This.BoxedRound()
 
 	def BoxedRoundedDashed()
-		return This.BoxedRound()
+		return This._BoxRender([ :Line = :Dashed, :AllCorners = :Round ])
 
 	def BoxedRoundDashed()
-		return This.BoxedRound()
+		return This.BoxedRoundedDashed()
 
 	def EachCharBoxed()
-		return This.BoxifyCharsXT([])
+		return This._BoxRender([ :EachChar = TRUE ])
 
 	def EachCharBoxedQ()
 		return new stzString( This.EachCharBoxed() )
 
 	# BoxRoundEachChar: surround each char with a rounded-corner box.
 	def BoxRoundEachChar()
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		if _nLen_ = 0 return ok
-		_top_ = char(0x256D)   # u+256D round corner
-		_bot_ = char(0x2570)
-		_tr_  = char(0x256E)
-		_br_  = char(0x256F)
-		_h_   = char(0x2500)
-		_v_   = char(0x2502)
-		_tdn_ = char(0x252C)
-		_bup_ = char(0x2534)
-		# Build top, middle, bottom lines.
-		_topL_ = _top_
-		_midL_ = _v_
-		_botL_ = _bot_
-		for _i_ = 1 to _nLen_
-			_topL_ += _h_ + _h_ + _h_
-			_botL_ += _h_ + _h_ + _h_
-			_midL_ += " " + _aChars_[_i_] + " " + _v_
-			if _i_ < _nLen_
-				_topL_ += _tdn_
-				_botL_ += _bup_
-			ok
-		next
-		_topL_ += _tr_
-		_botL_ += _br_
-		This.Update(_topL_ + char(10) + _midL_ + char(10) + _botL_)
+		This.Update( This._BoxRender([ :EachChar = TRUE, :AllCorners = :Round ]) )
 
 		def BoxRoundEachCharQ()
 			This.BoxRoundEachChar()
@@ -13472,9 +13578,7 @@ class stzString from stzObject
 			return _oHhTmp_.Content()
 
 	def EachCharBoxedRounded()
-		_o_ = new stzString(This.Content())
-		_o_.BoxRoundEachChar()
-		return _o_.Content()
+		return This._BoxRender([ :EachChar = TRUE, :AllCorners = :Round ])
 
 	def TitlecasedInLocale(pcLocale)
 		# Locale-aware titlecase is non-trivial; fall back to plain.
@@ -14116,13 +14220,13 @@ class stzString from stzObject
 		return This.EachCharBoxed()
 
 	def VizFindBoxed(pcSub)
-		return This.VizFindCS(pcSub, 1)
+		return This._BoxRender([ :EachChar = TRUE, :VizFind = pcSub ])
 
 	def VizFindBoxedRounded(pcSub)
-		return This.VizFindCS(pcSub, 1)
+		return This._BoxRender([ :EachChar = TRUE, :AllCorners = :Round, :VizFind = pcSub ])
 
 	def VizFindBoxedDashed(pcSub)
-		return This.VizFindCS(pcSub, 1)
+		return This._BoxRender([ :EachChar = TRUE, :Line = :Dashed, :VizFind = pcSub ])
 
 	def BoxedDashed()
 		return This.BoxedRound()
@@ -15050,7 +15154,12 @@ class stzString from stzObject
 		return This.ContainsEachCS(pacSubStr, pCaseSensitive)
 
 	# MultiplyBy(n): repeat content n times.
+	# MultiplyBy(list): distribute -- "a" x ["b","c"] -> "ab" + "ac".
 	def MultiplyBy(n)
+		if isList(n)
+			This.Update( This._OpDistribute(n) )
+			return
+		ok
 		if NOT isNumber(n) return ok
 		if n < 1 This.Update("") return ok
 		This.Update(StzRepeatStr(This.Content(), n))
@@ -15058,6 +15167,19 @@ class stzString from stzObject
 		def MultiplyByQ(n)
 			This.MultiplyBy(n)
 			return This
+
+	def _OpDistribute(paItems)
+		_cMdBase_ = This.Content()
+		_cMdRes_ = ""
+		_nMdL_ = len(paItems)
+		for _iMd_ = 1 to _nMdL_
+			if isString(paItems[_iMd_])
+				_cMdRes_ += (_cMdBase_ + paItems[_iMd_])
+			but isNumber(paItems[_iMd_])
+				_cMdRes_ += (_cMdBase_ + ("" + paItems[_iMd_]))
+			ok
+		next
+		return _cMdRes_
 
 	# (RemoveRepeatedLeading/TrailingCharsCS already exist below;
 	# only need Q variants.)

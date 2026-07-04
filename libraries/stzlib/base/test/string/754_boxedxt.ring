@@ -1,28 +1,19 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #754.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoxedXT: whole-string box vs the :EachChar cells. Archive block #754.
 
-# You can box the entire string like this:
-? StzStringQ("SOFTANZA").BoxedXT([])
-#-->
-# ┌──────────┐
-# │ SOFTANZA │
-# └──────────┘
+Scenario("SOFTANZA, one box or eight")
+	Then("one box",
+		StzStringQ("SOFTANZA").BoxedXT([]),
+		"┌──────────┐" + NL +
+		"│ SOFTANZA │" + NL +
+		"└──────────┘")
+	Then("eight cells",
+		StzStringQ("SOFTANZA").BoxedXT([ :EachChar = TRUE ]),
+		"┌───┬───┬───┬───┬───┬───┬───┬───┐" + NL +
+		"│ S │ O │ F │ T │ A │ N │ Z │ A │" + NL +
+		"└───┴───┴───┴───┴───┴───┴───┴───┘")
+EndScenario()
 
-# Or box it char by char like this:
-
-? StzStringQ("SOFTANZA").BoxedXT([ :EachChar = TRUE ])
-
-#-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴───┴───┴───┴───┘
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.23
+Summary()

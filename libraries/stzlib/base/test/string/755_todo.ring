@@ -1,5 +1,9 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-04): DEFERRED -- boxing CJK needs display-width-aware
+# padding (fullwidth chars render 2 cells); the archive block is itself a
+# TODO about it. Engine backlog: codepoint display-width (UAX #11).
 # TODO
 #
 # Extracted from stzStringTest.ring, block #755.

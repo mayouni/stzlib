@@ -1,19 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #756.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ContainsEachCS and ContainsBoth. Archive block #756.
 
-? StzStringQ("ar_TN-tun").ContainsEachCS(["_", "-"],TRUE)
-#--> TRUE
+Scenario("Both separators of a locale string")
+	o1 = new stzString("ar_TN-tun")
+	Then("contains each of _ and -",
+		o1.ContainsEachCS([ "_", "-" ], TRUE), TRUE)
+	Then("contains both",
+		o1.ContainsBoth("_", "-"), TRUE)
+EndScenario()
 
-? StzStringQ("ar_TN-tun").ContainsBoth("_", "-")
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-# Executed in 0.03 second(s).in Ring 1.20
+Summary()
