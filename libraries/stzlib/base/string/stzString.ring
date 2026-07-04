@@ -13444,18 +13444,32 @@ class stzString from stzObject
 		done
 
 	def Hash(pAlgo)
-		# Naive per-char hash; ignores algo selection (stub).
-		_c_ = This.Content()
-		_n_ = 0
-		_nL_ = len(_c_)
-		for _i_ = 1 to _nL_
-			_n_ = (_n_ * 31 + ascii(_c_[_i_])) % 2147483647
-		next
-		return _n_
+		# Mutates the content into its hex digest. Engine-backed:
+		# :MD5 and :SHA256 (SHA1/384/512/224 pending engine port --
+		# see the engine backlog).
+		if isList(pAlgo) and len(pAlgo) = 2 and isString(pAlgo[1])
+			pAlgo = pAlgo[2]
+		ok
+		if NOT isString(pAlgo)
+			StzRaise("Incorrect param type! pAlgo must be a string.")
+		ok
+		_cHhAlgo_ = lower(pAlgo)
+		if _cHhAlgo_ = "md5"
+			This.Update( StzEngineCryptoMd5(This.Content()) )
+		but _cHhAlgo_ = "sha256"
+			This.Update( StzEngineCryptoSha256(This.Content()) )
+		else
+			StzRaise("Unsupported hashing algorithm! Engine-backed algos are :MD5 and :SHA256.")
+		ok
 
 		def HashQ(pAlgo)
-			This.Update("" + This.Hash(pAlgo))
+			This.Hash(pAlgo)
 			return This
+
+		def Hashed(pAlgo)
+			_oHhTmp_ = new stzString(This.Content())
+			_oHhTmp_.Hash(pAlgo)
+			return _oHhTmp_.Content()
 
 	def EachCharBoxedRounded()
 		_o_ = new stzString(This.Content())
@@ -14675,6 +14689,31 @@ class stzString from stzObject
 		   right(_cPuExpr_, 1) = "}"
 			_cPuExpr_ = ring_trim( _StzStripBraces(_cPuExpr_) )
 		ok
+		# Multi-line blocks: drop #-comments and fold to one line so
+		# the expression can sit inside eval's parentheses.
+		if StzFindFirst(_cPuExpr_, nl) > 0
+			_aPuLines_ = StzSplit(_cPuExpr_, nl)
+			_cPuExpr_ = ""
+			_nPuNL_ = len(_aPuLines_)
+			for _iPuL_ = 1 to _nPuNL_
+				_cPuLine_ = _aPuLines_[_iPuL_]
+				_nPuHash_ = StzFindFirst(_cPuLine_, "#")
+				if _nPuHash_ > 0
+					_cPuLine_ = left(_cPuLine_, _nPuHash_ - 1)
+				ok
+				_cPuExpr_ += (" " + ring_trim(_cPuLine_))
+			next
+			_cPuExpr_ = ring_trim(_cPuExpr_)
+		ok
+		# Bare CharQ(@i) means This.CharQ(@i) -- resolve it so the
+		# eval (a function scope) finds it. Keep StzCharQ intact.
+		if StzFindFirst(_cPuExpr_, "CharQ(") > 0
+			_cPuExpr_ = StzReplace(_cPuExpr_, "StzCharQ(", "@__STZCQ__(")
+			_cPuExpr_ = StzReplace(_cPuExpr_, "This.CharQ(", "@__THISCQ__(")
+			_cPuExpr_ = StzReplace(_cPuExpr_, "CharQ(", "This.CharQ(")
+			_cPuExpr_ = StzReplace(_cPuExpr_, "@__THISCQ__(", "This.CharQ(")
+			_cPuExpr_ = StzReplace(_cPuExpr_, "@__STZCQ__(", "StzCharQ(")
+		ok
 		_aPuChars_ = This.Chars()
 		_nPuLen_ = len(_aPuChars_)
 		if _nPuLen_ = 0 return [ [], [] ] ok
@@ -14893,14 +14932,45 @@ class stzString from stzObject
 
 	# Parts2UsingXT / Parts2Using / PartsClassifiedUsingXT /
 	# PartsAndPartitionersUsingXT: split-DSL surface variants.
-	def Parts2Using(pcSep)
-		return This.PartsUsing(pcSep)
+	def Parts2Using(pcExpr)
+		return This.PartsAndPartitionersUsingXT(pcExpr)
 
-	def Parts2UsingXT(pcSep)
-		return This.PartsUsing(pcSep)
+	def Parts2UsingXT(pcExpr)
+		return This.PartsAndPartitionersUsingXT(pcExpr)
 
-	def PartsClassifiedUsingXT(pcSep)
-		return This.PartsUsing(pcSep)
+	def CharQ(n)
+		return new stzChar( This.NthChar(n) )
+
+	def PartsClassifiedUsingXT(pcExpr)
+		# Group the parts by their partitioner value:
+		# [ [value, [parts...]], ... ] in first-seen order.
+		_aPw_ = This._PartsUsingWalk(pcExpr)
+		_aPcSecs_ = _aPw_[1]
+		_aPcVals_ = _aPw_[2]
+		_aRes_ = []
+		_nL_ = len(_aPcSecs_)
+		for _i_ = 1 to _nL_
+			_nPcS_ = _aPcSecs_[_i_][1]
+			_nPcE_ = _aPcSecs_[_i_][2]
+			_cPcPart_ = This._EngineSlice(This.Content(), _nPcS_, (_nPcE_ - _nPcS_ + 1))
+			_nPcAt_ = 0
+			_nPcR_ = len(_aRes_)
+			for _j_ = 1 to _nPcR_
+				if _aRes_[_j_][1] = _aPcVals_[_i_]
+					_nPcAt_ = _j_
+					exit
+				ok
+			next
+			if _nPcAt_ = 0
+				_aRes_ + [ _aPcVals_[_i_], [ _cPcPart_ ] ]
+			else
+				_aRes_[_nPcAt_][2] + _cPcPart_
+			ok
+		next
+		return _aRes_
+
+		def PartsClassifiedUsing(pcExpr)
+			return This.PartsClassifiedUsingXT(pcExpr)
 
 	def PartsAndPartitionersUsingXT(pcExpr)
 		# Each part zipped with its partitioner (the expression's
@@ -15644,12 +15714,13 @@ class stzString from stzObject
 	# StringCase(): return :Lowercase, :Uppercase, :TitleCase, or :Mixed.
 	def StringCase()
 		# Codepoint-aware: uppercase / lowercase / capitalcase (the
-		# settled title-case notion, via CapitalCased) / mixed.
+		# settled title-case notion, via CapitalCased) / hybridcase
+		# (the original's word for a mix of cases).
 		_c_ = This.Content()
 		if _c_ = StzLower(_c_) and _c_ != StzUpper(_c_) return :Lowercase ok
 		if _c_ = StzUpper(_c_) and _c_ != StzLower(_c_) return :Uppercase ok
 		if This.CapitalCased() = _c_ return :Capitalcase ok
-		return :Mixed
+		return :Hybridcase
 
 	# FindXT(pcWhat, :BoundedBy = pacBounds) -- named-param wrapper
 	# _BoundsPair(p): normalise a bounds spec to [open, close] --

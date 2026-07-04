@@ -1,27 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #726.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Inversed reverses the order of the chars. Archive block #726.
 
-? Q("LIFE").Inversed()
-#--> EFIL
+Scenario("Five names backwards")
+	Then("LIFE", Q("LIFE").Inversed(), "EFIL")
+	Then("GAYA", Q("GAYA").Inversed(), "AYAG")
+	Then("TIBA", Q("TIBA").Inversed(), "ABIT")
+	Then("HANEEN", Q("HANEEN").Inversed(), "NEENAH")
+	Then("even with digits and symbols",
+		Q("MILLAVOY (Y908$)").Inversed(), ")$809Y( YOVALLIM")
+EndScenario()
 
-? Q("GAYA").Inversed()
-#--> AYAG
-
-? Q("TIBA").Inversed()
-#--> ABIT
-
-? Q("HANEEN").Inversed()
-#--> NEENAH
-
-? Q("MILLAVOY (Y908$)").Inversed()
-#--> )$809Y( YOVALLIM
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

@@ -1,21 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #731.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# StringCase: lowercase / uppercase / hybridcase (the original's word
+# for a mix). Archive block #731.
 
-? StzStringQ("ring").StringCase()
-#--> :Lowercase
+Scenario("Three strings, three cases")
+	Then("ring", StzStringQ("ring").StringCase(), :Lowercase)
+	Then("RING", StzStringQ("RING").StringCase(), :Uppercase)
+	Then("RING and python", StzStringQ("RING and python").StringCase(), :Hybridcase)
+EndScenario()
 
-? StzStringQ("RING").StringCase()
-#--> :Uppercase
-
-? StzStringQ("RING and python").StringCase()
-#--> :hybridcase
-
-pf()
-# Executed in 0.25 second(s).
+Summary()
