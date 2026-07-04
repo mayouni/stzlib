@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #946.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... and positionally, walking backward with step 3.
+# Archive block #946.
 
-o1 = new stzString("SOFTANZA")
-o1.SpacifyCharsXT("~", 3, :backward)
-? o1.Content()
-#--> SO~FTA~NZA
+Scenario("Tilde every three chars, from the right")
+	o1 = new stzString("SOFTANZA")
+	o1.SpacifyCharsXT("~", 3, :backward)
+	Then("threes from the tail", o1.Content(), "SO~FTA~NZA")
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-# Executed in 0.01 second(s) in Ring 1.20
+Summary()

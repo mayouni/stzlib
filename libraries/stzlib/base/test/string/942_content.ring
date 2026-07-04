@@ -1,17 +1,27 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #942.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... and the Before twin inserts at every named position.
+# Archive block #942.
 
-o1 = new stzList( @Chars("SOFTANZA") )
-o1.InsertBeforePositions([ 2, 4, 6, 8 ], "~")
-? @@( o1.Content() )
-#--> [ "S", "~", "O", "F", "~", "T", "A", "~", "N", "Z", "~", "A" ]
+Scenario("Tildes before every second letter")
+	o1 = new stzList( @Chars("SOFTANZA") )
+	o1.InsertBeforePositions([ 2, 4, 6, 8 ], "~")
+	Then("four tildes",
+		ListEq( o1.Content(),
+			[ "S", "~", "O", "F", "~", "T", "A", "~", "N", "Z", "~", "A" ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

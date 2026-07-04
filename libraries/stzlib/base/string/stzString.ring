@@ -3766,7 +3766,7 @@ class stzString from stzObject
 	def SpacifyXT(p1, p2, p3)
 		# Normalise named-param form to positional.
 		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
-		   lower(p1[1]) = "using"
+		   (lower(p1[1]) = "using" or lower(p1[1]) = "separator" or lower(p1[1]) = "sep")
 			p1 = p1[2]
 		ok
 		if isList(p2) and len(p2) = 2 and isString(p2[1]) and
@@ -4141,8 +4141,12 @@ class stzString from stzObject
 			end
 			_aPos_[_j_ + 1] = _v_
 		next
+		# No trailing insert after the FINAL char (block #944).
+		_nIapLen_ = This.NumberOfChars()
 		for _i_ = 1 to _nPL_
-			This.InsertAfter(_aPos_[_i_], pcStr)
+			if isNumber(_aPos_[_i_]) and _aPos_[_i_] < _nIapLen_
+				This.InsertAfter(_aPos_[_i_], pcStr)
+			ok
 		next
 
 		def InsertAfterPositionsQ(anPos, pcStr)
@@ -5004,6 +5008,7 @@ class stzString from stzObject
 		_cMark_ = ""
 		_bNumbered_ = 0
 		_bForceRect_ = 0
+		_aMarkPos_ = []
 		if isList(paOpts)
 			_nOl_ = len(paOpts)
 			for _iBo_ = 1 to _nOl_
@@ -5050,6 +5055,8 @@ class stzString from stzObject
 						if isString(_wBo_) _cMark_ = _wBo_ ok
 					but _kBo_ = "numbered"
 						if _wBo_ = 1 _bNumbered_ = 1 ok
+					but _kBo_ = "markpositions"
+						if isList(_wBo_) _aMarkPos_ = _wBo_ ok
 					ok
 				ok
 			next
@@ -5087,6 +5094,11 @@ class stzString from stzObject
 				_cBoSeg_ = _cSeg_
 				if _cMark_ != ""
 					if _aBoCh_[_iBo_] = _cMark_
+						_cBoSeg_ = _cH_ + _cBu_ + _cH_
+					ok
+				ok
+				if len(_aMarkPos_) > 0
+					if ring_find(_aMarkPos_, _iBo_) > 0
 						_cBoSeg_ = _cH_ + _cBu_ + _cH_
 					ok
 				ok
@@ -10502,10 +10514,51 @@ class stzString from stzObject
 		return _cTxt_ + NL + _cMark_
 
 	def VizFindCSXT(pcSub, pCaseSensitive, pOpts)
-		return This.VizFind(pcSub)
+		_bVfNum_ = 0
+		if isList(pOpts)
+			_nVfL_ = len(pOpts)
+			for _iVf_ = 1 to _nVfL_
+				_vVf_ = pOpts[_iVf_]
+				if isList(_vVf_) and len(_vVf_) = 2 and isString(_vVf_[1])
+					if lower(_vVf_[1]) = "numbered" and _vVf_[2] = 1
+						_bVfNum_ = 1
+					ok
+				ok
+			next
+		ok
+		_cVfBase_ = This.VizFindCS(pcSub, pCaseSensitive)
+		if _bVfNum_ = 0 return _cVfBase_ ok
+		# Numbers line: each match position printed under its caret.
+		_aVfP_ = This.FindAllCS(pcSub, @CaseSensitive(pCaseSensitive))
+		_nVfLen_ = This.NumberOfChars()
+		_cVfNum_ = ""
+		_nVfP_ = len(_aVfP_)
+		for _iVf_ = 1 to _nVfP_
+			while ring_len(_cVfNum_) < _aVfP_[_iVf_] - 1
+				_cVfNum_ += " "
+			end
+			_cVfNum_ += "" + _aVfP_[_iVf_]
+		next
+		while ring_len(_cVfNum_) < _nVfLen_
+			_cVfNum_ += " "
+		end
+		return _cVfBase_ + NL + _cVfNum_
 
 	def VizFindXT(pcSub, pOpts)
-		return This.VizFind(pcSub)
+		# :CS may ride in the options list.
+		_bVfxCs_ = 1
+		if isList(pOpts)
+			_nVfxL_ = len(pOpts)
+			for _iVfx_ = 1 to _nVfxL_
+				_vVfx_ = pOpts[_iVfx_]
+				if isList(_vVfx_) and len(_vVfx_) = 2 and isString(_vVfx_[1])
+					if lower(_vVfx_[1]) = "cs" or lower(_vVfx_[1]) = "casesensitive"
+						if _vVfx_[2] = 0 _bVfxCs_ = 0 ok
+					ok
+				ok
+			next
+		ok
+		return This.VizFindCSXT(pcSub, _bVfxCs_, pOpts)
 
 	# BoxifyCharsXT(opts): provisional -- return each char on its own
 	# line within an ASCII box. Not a full grid renderer.
@@ -14758,23 +14811,24 @@ class stzString from stzObject
 	# matches are. We return the visualised string so the test's
 	# `?` operator prints it; functional intent preserved.
 	def VizFindCS(pcSub, pCaseSensitive)
+		# One caret at each match START (case dial honored), dashes
+		# elsewhere -- same rail as VizFind.
 		_cTxt_ = This.Content()
-		_aPos_ = This.AllPositionsOf(pcSub)
+		_aPos_ = This.FindAllCS(pcSub, @CaseSensitive(pCaseSensitive))
 		_nL_ = This._EngineCount(_cTxt_)
 		_mark_ = ""
 		_nP_ = len(_aPos_)
-		_subLen_ = This._EngineCount(pcSub)
 		for _i_ = 1 to _nL_
 			_b_ = FALSE
 			for _j_ = 1 to _nP_
-				if _i_ >= _aPos_[_j_] and _i_ <= _aPos_[_j_] + _subLen_ - 1
+				if _aPos_[_j_] = _i_
 					_b_ = TRUE
 					exit
 				ok
 			next
 			if _b_ _mark_ += "^" else _mark_ += "-" ok
 		next
-		return _cTxt_ + char(10) + _mark_
+		return _cTxt_ + NL + _mark_
 
 	def VizFindZZ(pcSub)
 		return This.VizFindCS(pcSub, 1)
@@ -14800,7 +14854,8 @@ class stzString from stzObject
 		return This.VizFindManyXT(pacSub)
 
 	def VizFindBoxedCSXT(pcSub, pCaseSensitive, pNamed)
-		return This.VizFindCS(pcSub, pCaseSensitive)
+		_aVfbP_ = This.FindAllCS(pcSub, @CaseSensitive(pCaseSensitive))
+		return This._BoxRender([ :EachChar = TRUE, :MarkPositions = _aVfbP_ ])
 
 	def IsADigitInString()
 		_c_ = ring_trim(This.Content())

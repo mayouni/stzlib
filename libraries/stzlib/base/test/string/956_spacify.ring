@@ -1,18 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #956.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Spacify then VizFind: the carets land on the spaced-out positions.
+# Archive block #956.
 
-? Q("ABTCADNBBABEFACCC").SpacifyQ().vizFind("A")
-#-->
-# A B T C A D N B B A B E F A C C C
-# ^-------^---------^-------^------   
+Scenario("Marking the As of a spaced string")
+	Then("four carets, doubled gaps",
+		Q("ABTCADNBBABEFACCC").SpacifyQ().vizFind("A"),
+		"A B T C A D N B B A B E F A C C C" + NL +
+		"^-------^---------^-------^------")
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.26
-# Executed in 0.02 second(s) in Ring 1.22
+Summary()

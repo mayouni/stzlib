@@ -1,35 +1,20 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #954.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The XT forms add a numbers rail; :CS can ride in the options list.
+# Archive block #954.
 
-o1 = new stzString("..STZ..StZ..stz")
+Scenario("Numbered carets, two spellings of the call")
+	o1 = new stzString("..STZ..StZ..stz")
+	cExp = "..STZ..StZ..stz" + NL +
+	       "--^----^----^--" + NL +
+	       "  3    8    13 "
+	Then("VizFindXT with :CS in the options",
+		o1.VizFindXT("stz", [ :Numbered = TRUE, :CS = FALSE ]), cExp)
+	Then("VizFindCSXT with the dial as its own param",
+		o1.VizFindCSXT("stz", :CS = FALSE, [ :Numbered = TRUE ]), cExp)
+	Then("... and the uppercase needle finds the same",
+		o1.VizFindCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ]), cExp)
+EndScenario()
 
-# The fellowing calls all return  the same result:
-
-? o1.VizFindCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ]) + NL
-#-->
-# ..STZ..StZ..stz
-# --^----^----^--
-#   3    8    13 
-
-? o1.VizFindXT("stz", [ :Numbered = TRUE, :CS = FALSE ] ) + NL
-#-->
-# ..STZ..StZ..stz
-# --^----^----^--
-#   3    8    13 
-
-? o1.VizFindCSXT("stz", :CS = FALSE, [ :Numbered = TRUE ] )
-#-->
-# ..STZ..StZ..stz
-# --^----^----^--
-#   3    8    13 
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.26
-# Executed in 0.02 second(s) in Ring 1.21
+Summary()

@@ -4179,11 +4179,13 @@ class stzList from stzObject
 			end
 			_aSorted_[_j_ + 1] = _v_
 		next
+		# ring_insert places AT the position, so AFTER p means p + 1.
+		# No trailing insert after the FINAL item (block #941).
 		for _i_ = 1 to _nL_
 			_p_ = _aSorted_[_i_]
-			if isNumber(_p_) and _p_ >= 1 and _p_ <= len(@aContent)
+			if isNumber(_p_) and _p_ >= 1 and _p_ < len(@aContent)
 				This._InvalidateEngine()   # in-place @aContent mutation below
-				ring_insert(@aContent, _p_, pItem)
+				ring_insert(@aContent, (_p_ + 1), pItem)
 			ok
 		next
 
@@ -7719,9 +7721,28 @@ class stzList from stzObject
 		This.UpdateWith(_oIapIns_.Content())
 
 	def InsertBeforePositions(panPositions, pItem)
-		_oIbpsIns_ = new stzListInserter(This)
-		_oIbpsIns_.InsertBeforePositions(panPositions, pItem)
-		This.UpdateWith(_oIbpsIns_.Content())
+		if NOT isList(panPositions) return ok
+		_aIbpSorted_ = _ListCopy(panPositions)
+		_nIbpL_ = len(_aIbpSorted_)
+		# Sort descending so earlier inserts stay valid.
+		for _iIbp_ = 2 to _nIbpL_
+			_vIbp_ = _aIbpSorted_[_iIbp_]
+			_jIbp_ = _iIbp_ - 1
+			while _jIbp_ >= 1 and _aIbpSorted_[_jIbp_] < _vIbp_
+				_aIbpSorted_[_jIbp_ + 1] = _aIbpSorted_[_jIbp_]
+				_jIbp_--
+			end
+			_aIbpSorted_[_jIbp_ + 1] = _vIbp_
+		next
+		# ring_insert places AT the position = right before the old
+		# p-th item.
+		for _iIbp_ = 1 to _nIbpL_
+			_pIbp_ = _aIbpSorted_[_iIbp_]
+			if isNumber(_pIbp_) and _pIbp_ >= 1 and _pIbp_ <= len(@aContent)
+				This._InvalidateEngine()
+				ring_insert(@aContent, _pIbp_, pItem)
+			ok
+		next
 
 	  #-------------------------------#
 	 #  BOUNDER DELEGATIONS          #

@@ -654,21 +654,24 @@ class stzStringCharList
 	def Are(p)
 		return len(This.Content()) > 0
 
-	# Boxify (delegates to stzString via concat).
+	# Boxify (delegates to the stzString cell renderer via concat).
 	def Boxify()
+		_o_ = new stzString(This._JoinedChars())
+		return _o_._BoxRender([ :EachChar = TRUE ])
+
+	def Box()
+		return This.Boxify()
+
+	def BoxDash()
+		_o_ = new stzString(This._JoinedChars())
+		return _o_._BoxRender([ :EachChar = TRUE, :Line = :Dashed ])
+
+	def _JoinedChars()
 		_l_ = This.Content()
 		_nL_ = len(_l_)
 		_c_ = ""
 		for _i_ = 1 to _nL_
 			if isString(_l_[_i_]) _c_ += _l_[_i_] ok
 		next
-		_o_ = new stzString(_c_)
-		_o_.BoxRoundEachChar()
-		return _o_.Content()
-
-	def Box()
-		return This.Boxify()
-
-	def BoxDash()
-		return This.Boxify()
+		return _c_
 

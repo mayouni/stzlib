@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #943.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The string twin of 942. Archive block #943.
 
-o1 = new stzString("SOFTANZA")
-o1.InsertBeforePositions([ 2, 4, 6, 8 ], " ")
-? o1.Content()
-#--> S OF TA NZ A
+Scenario("Spaces before the even positions")
+	o1 = new stzString("SOFTANZA")
+	o1.InsertBeforePositions([ 2, 4, 6, 8 ], " ")
+	Then("split look", o1.Content(), "S OF TA NZ A")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

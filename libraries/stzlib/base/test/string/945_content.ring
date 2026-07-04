@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #945.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# SpacifyCharsXT with named params. Archive block #945.
 
-o1 = new stzString("SOFTANZA")
-o1.SpacifyCharsXT(:Separator = "~", :Step = 2, :Direction = :Default)
-? o1.Content()
-#--> SO~FT~AN~ZA
+Scenario("Tilde every two chars")
+	o1 = new stzString("SOFTANZA")
+	o1.SpacifyCharsXT(:Separator = "~", :Step = 2, :Direction = :Default)
+	Then("pairs joined by tildes", o1.Content(), "SO~FT~AN~ZA")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-# Executed in 0.01 second(s) in ring 1.20
+Summary()
