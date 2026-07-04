@@ -1,22 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #970.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Longer replacements grow the string. Archive block #970.
 
-o1 = new stzString("^---^---^---^---")
+Scenario("Carets become their positions")
+	o1 = new stzString("^---^---^---^---")
+	o1.ReplaceSectionsByMany(
+		[ [ 1, 1 ], [ 5, 5 ], [ 9, 9 ], [ 13, 14 ] ],
+		[ "1", "5", "9", "13" ]
+	)
+	Then("self-describing", o1.Content(), "1---5---9---13--")
+EndScenario()
 
-o1.ReplaceSectionsByMany(
-	[ [ 1, 1 ], [ 5, 5 ], [ 9, 9 ], [ 13, 14 ] ],
-	[ "1", "5", "9", "13" ]
-)
-
-? o1.Content()
-#--> 1---5---9---13--
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()

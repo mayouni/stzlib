@@ -1,5 +1,9 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-04): HISTORICAL tombstone -- the block measured
+# Qt QStringList appends; Qt is gone and the engine covers this (see 976
+# for the live Concatenate() assertion). Nothing to assert here.
 # #perf string append (HISTORICAL -- Qt removed, engine-based now)
 #
 # Extracted from stzStringTest.ring, block #979.

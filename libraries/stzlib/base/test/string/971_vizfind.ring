@@ -1,27 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #971.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# vizFind and its numbered XT form on a periodic string.
+# Archive block #971.
 
-o1 = new stzString("ringringringring")
+Scenario("Four rings")
+	o1 = new stzString("ringringringring")
+	Then("carets every four",
+		o1.vizFind("ring"),
+		"ringringringring" + NL + "^---^---^---^---")
+	Then("with the numbers rail",
+		o1.vizFindXT("ring", [ :Numbered = TRUE ]),
+		"ringringringring" + NL + "^---^---^---^---" + NL + "1   5   9   13  ")
+EndScenario()
 
-? o1.vizFind("ring") + NL
-#-->
-# ringringringring
-# ^---^---^---^---
-
-? o1.vizFindXT("ring", [ :Numbered = TRUE ])
-#-->
-# ringringringring
-# ^---^---^---^---
-# 1   5   9   13 
-
-pf()
-# Executed in 0.02 second(s).
-
-pf()
+Summary()

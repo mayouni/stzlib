@@ -1,47 +1,19 @@
-# Narrative
-# --------
-# #narration #perf CONCATENATING STRINGS IN RING AND SOFTANZA
-#
-# Extracted from stzStringTest.ring, block #976.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The perf narration: Ring's += over a million Arabic strings takes
+# ~45s; Softanza's Concatenate() does it in seconds. Asserted here
+# functionally (exact result length); the timing story lives in the
+# archive. Archive block #976.
 
-StartProfiler()
-
-# In Ring, concatenating 1 million strings takes about 45 seconds:
-#~> (The code setion is commented,  because it takes a lot of time)
-
-#	str = ""
-#	for i = 1 to 1_000_000
-#		str += "السّلام عليكم ورحمة الله"
-#	next
-#	? "Finished"
-#
-#	? ElapsedTime() + NL
-#	# Executed in 44.94 second(s) in Ring 1.22
-
-# While in Softanza, using  Concatenate(), this take about 4 seconds:
-
-	ResetTimer()
-
+Scenario("Concatenating a million Arabic strings")
 	acList = []
-	for i = 1 to 1_000_000
+	for i = 1 to 1000000
 		acList + "السّلام عليكم ورحمة الله"
 	next
-	
-	Concatenate(acList)
-	#--> Executed in 3.64 second(s) in Ring 1.22
+	cRes = Concatenate(acList)
+	Then("a million joined copies",
+		StzLen(cRes), 1000000 * StzLen("السّلام عليكم ورحمة الله"))
+EndScenario()
 
-	? ElapsedTime()
-
-# Which is a speed factor of about 11 times!
-
-	? SpeedX(45, 4)
-	#--> 11.25
-
-StopProfiler()
-
-pf()
-# Executed in 3.83 second(s) in Ring 1.22
+Summary()

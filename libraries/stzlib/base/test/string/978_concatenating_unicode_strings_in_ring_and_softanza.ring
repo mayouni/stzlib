@@ -1,63 +1,17 @@
-# Narrative
-# --------
-# #narration #perf #ring CONCATENATING UNICODE STRINGS IN RING AND SOFTANZA
-#
-# Extracted from stzStringTest.ring, block #978.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Ring's += is fine on latin (seconds) but degrades badly on
+# multibyte content -- the archive clocks the arabic loop at ~45s,
+# which is why it stays commented and Concatenate() exists.
+# Asserted functionally on the latin half. Archive block #978.
 
-# Ring can concatenate 1 million latin strings in almost 2 seconds:
-
+Scenario("A million latin concatenations")
 	cStr = ""
-	for i = 1 to 1_000_000
+	for i = 1 to 1000000
 		cStr += "any text"
 	next
+	Then("eight million chars", StzLen(cStr), 8000000)
+EndScenario()
 
-	? ElapsedTime()
-	#--> 1.70 second(s)
-
-# But when the string is in unicode (arabic in this case), Ring's
-# performance degradates to more then 45 seconds:
-#~> (The code setion is commented,  because it takes a lot of time)
-
-#	ResetTimer()
-#
-#	cStr = ""
-#	for i = 1 to 1_000_000
-#		cStr += "السّلام عليكم ورحمة الله"
-#	next
-#
-#	? ElapsedTime() + NL
-#	#--> 45.63 second(s)
-
-# Hopefully, Softanza has the Concatenate() function that
-# does the job in less then 4 seconds:
-
-	ResetTimer()
-
-	aListOfStr = []
-
-	for i = 1 to 1_000_000
-		aListOfStr + "السّلام عليكم ورحمة الله"
-	next
-	# The filling takes 1.70 seconds
-
-	str = Concat(aListOfStr)
-
-	? ElapsedTime() + NL
-	# 3.66 second(s)
-
-# Which is a performance gain of +88%
-
-	? PerfGain100(45.63, 3.66)
-	#--> 91.98
-
-# or a speed factor of +8 times!
-
-	? SpeedFactor(45.63, 3.66)
-	#--> 12.47
-
-pf()
-# Executed in 5.33 second(s) in Ring 1.22
+Summary()
