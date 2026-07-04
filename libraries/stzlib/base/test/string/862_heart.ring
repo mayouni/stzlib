@@ -1,36 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #862.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The little glyph helpers. Archive block #862.
 
-? Heart()
-#--> "♥"
+Scenario("Eight glyphs by name")
+	Then("heart", Heart(), "♥")
+	Then("smile", Smile(), "😆")
+	Then("handshake", Handshake(), "🤝")
+	Then("sun", Sun(), "🌞")
+	Then("star", Star(), "★")
+	Then("check mark", CheckMark(), "✓")
+	Then("dot", Dot(), "•")
+	Then("flower", Flower(), "✤")
+EndScenario()
 
-? Smile()
-#--> "😆"
-
-? Handshake()
-#--> "🤝"
-
-? Sun()
-#--> "🌞"
-
-? Star()
-#--> "★"
-
-? CheckMark()
-#--> "✓"
-
-? Dot()
-#--> "•"
-
-? Flower()
-#--> "✤"
-
-pf()
-# Executed in almost 0 second(s).
+Summary()

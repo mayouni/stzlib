@@ -1,23 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #878.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-	
+# :BeforeEach. Archive block #878.
 
-pr()
+Scenario("Three openers before three hearts")
+	o1 = new stzString("__(♥__(♥__(♥__")
+	o1.RemoveXT( "(", :BeforeEach = "♥" )
+	Then("all three gone", o1.Content(), "__♥__♥__♥__")
+EndScenario()
 
-Q("__(♥__(♥__(♥__") {
-
-	RemoveXT( "(", :BeforeEach = "♥" ) # ... you can also say :Before = "♥"
-	? Content()
-	#--> __♥__♥__♥__
-}
-	
-StopProfiler()
-
-pf()
-# Executed in 0.04 second(s)
+Summary()

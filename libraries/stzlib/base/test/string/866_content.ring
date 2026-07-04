@@ -1,22 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #866.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-	
+# RemoveXT(:Each = sub, :From = context). Archive block #866.
 
-pr()
-
+Scenario("Three stars, all gone")
 	o1 = new stzString("Ring *progr*amming* language")
 	o1.RemoveXT( :Each = "*", :From = "*progr*amming*")
-	
-	? o1.Content()
-	#--> Ring programming language
-	
-StopProfiler()
+	Then("clean", o1.Content(), "Ring programming language")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s)
+Summary()

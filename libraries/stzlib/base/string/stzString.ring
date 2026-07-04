@@ -2061,6 +2061,10 @@ class stzString from stzObject
 			return This.FindFirst(pcSubStr)
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		if isList(pcSubStr) and len(pcSubStr) = 2 and isString(pcSubStr[1]) and
+		   ring_find([ "of", "ofsubstring", "ofstring" ], lower(pcSubStr[1])) > 0
+			pcSubStr = pcSubStr[2]
+		ok
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringCountOfCS(@pEngine, pcSubStr, _bCase_)
 
@@ -2438,32 +2442,36 @@ class stzString from stzObject
 	# (key,value) named-param list -> positional remove of the
 	# occurrence(s) at byte position(s) given by the value.
 	def RemoveXT(p1, p2)
-		# Form A: RemoveXT(:Selector = p, :From = c)
+		# Form A: RemoveXT(:Selector = p, :From = cContext) -- apply
+		# the removal INSIDE the context substring, then splice the
+		# edited context back in place (the rest of the string is
+		# untouched).
 		if isList(p1) and len(p1) = 2 and isString(p1[1])
 			_cSel_ = lower(p1[1])
 			if isList(p2) and len(p2) = 2 and isString(p2[1]) and lower(p2[1]) = "from"
-				This.Update(p2[2])
+				_cRxCtx_ = p2[2]
+				_nRxCtxAt_ = This._FindFrom(This.Content(), _cRxCtx_, 1)
+				if _nRxCtxAt_ < 1 return ok
+				_oRxCtx_ = new stzString(_cRxCtx_)
 				_pVal_ = p1[2]
+				_bRxDone_ = 0
 				if _cSel_ = "each"
-					This.RemoveAll(_pVal_)
-					return
-				ok
-				if _cSel_ = "first"
-					This.RemoveFirst(_pVal_)
-					return
-				ok
-				if _cSel_ = "last"
-					This.RemoveLast(_pVal_)
-					return
-				ok
-				if _cSel_ = "nth"
+					_oRxCtx_.RemoveAll(_pVal_)
+					_bRxDone_ = 1
+				but _cSel_ = "first"
+					_oRxCtx_.RemoveFirst(_pVal_)
+					_bRxDone_ = 1
+				but _cSel_ = "last"
+					_oRxCtx_.RemoveLast(_pVal_)
+					_bRxDone_ = 1
+				but _cSel_ = "nth"
 					# :Nth = [N, "subStr"]  or  [[N1,N2,...], "subStr"]
 					if isList(_pVal_) and len(_pVal_) = 2
 						_xN_ = _pVal_[1]
 						_cSubStr_ = _pVal_[2]
 						if isNumber(_xN_)
-							This.RemoveNth(_xN_, _cSubStr_)
-							return
+							_oRxCtx_.RemoveNth(_xN_, _cSubStr_)
+							_bRxDone_ = 1
 						but isList(_xN_)
 							# Sort descending so positions stay valid
 							_anNs_ = _xN_
@@ -2478,21 +2486,33 @@ class stzString from stzObject
 								next
 							next
 							for _iRx_ = 1 to _nNs_
-								This.RemoveNth(_anNs_[_iRx_], _cSubStr_)
+								_oRxCtx_.RemoveNth(_anNs_[_iRx_], _cSubStr_)
 							next
-							return
+							_bRxDone_ = 1
 						ok
 					ok
+				ok
+				if _bRxDone_
+					This.ReplaceSection(_nRxCtxAt_,
+						(_nRxCtxAt_ + This._EngineCount(_cRxCtx_) - 1),
+						_oRxCtx_.Content())
+					return
 				ok
 			ok
 		ok
 
-		# Form B: RemoveXT(pcSubStr, :From = c) -- rebind content, then
-		# remove every occurrence.
+		# Form B: RemoveXT(pcSubStr, :From = cContext) -- remove every
+		# occurrence inside the context, splice back.
 		if isString(p1) and isList(p2) and len(p2) = 2 and
 		   isString(p2[1]) and lower(p2[1]) = "from"
-			This.Update(p2[2])
-			This.RemoveAll(p1)
+			_cRxCtx_ = p2[2]
+			_nRxCtxAt_ = This._FindFrom(This.Content(), _cRxCtx_, 1)
+			if _nRxCtxAt_ < 1 return ok
+			_oRxCtx_ = new stzString(_cRxCtx_)
+			_oRxCtx_.RemoveAll(p1)
+			This.ReplaceSection(_nRxCtxAt_,
+				(_nRxCtxAt_ + This._EngineCount(_cRxCtx_) - 1),
+				_oRxCtx_.Content())
 			return
 		ok
 
@@ -2518,6 +2538,65 @@ class stzString from stzObject
 				next
 				for _iRp_ = 1 to _nPs_
 					This._RemoveOccurrenceAtPos(p1, _anPs_[_iRp_])
+				next
+				return
+			ok
+		ok
+
+		# Form D: RemoveXT(pcSubStr, :After.../:Before... = anchor) --
+		# remove pcSubStr sitting immediately AFTER (or BEFORE) the
+		# anchor's occurrences. :After = :AfterEach; Nth takes
+		# [n, anchor]; First/Last pick one occurrence.
+		if isString(p1) and isList(p2) and len(p2) = 2 and isString(p2[1])
+			_cRxKey_ = lower(p2[1])
+			_vRxAnch_ = p2[2]
+			_bRxAfter_ = ring_find([ "after", "aftereach", "afternth",
+			                         "afterfirst", "afterlast" ], _cRxKey_) > 0
+			_bRxBefore_ = ring_find([ "before", "beforeeach", "beforenth",
+			                          "beforefirst", "beforelast" ], _cRxKey_) > 0
+			if _bRxAfter_ or _bRxBefore_
+				_nRxSubLen_ = This._EngineCount(p1)
+				# Resolve the anchor occurrence positions + length.
+				_aRxAp_ = []
+				_nRxAnchLen_ = 0
+				if _cRxKey_ = "afternth" or _cRxKey_ = "beforenth"
+					if isList(_vRxAnch_) and len(_vRxAnch_) = 2 and
+					   isNumber(_vRxAnch_[1]) and isString(_vRxAnch_[2])
+						_aRxAll_ = This.FindAll(_vRxAnch_[2])
+						_nRxAnchLen_ = This._EngineCount(_vRxAnch_[2])
+						if _vRxAnch_[1] >= 1 and _vRxAnch_[1] <= len(_aRxAll_)
+							_aRxAp_ + _aRxAll_[_vRxAnch_[1]]
+						ok
+					ok
+				else
+					if isString(_vRxAnch_)
+						_aRxAll_ = This.FindAll(_vRxAnch_)
+						_nRxAnchLen_ = This._EngineCount(_vRxAnch_)
+						_nRxAl_ = len(_aRxAll_)
+						if _cRxKey_ = "afterfirst" or _cRxKey_ = "beforefirst"
+							if _nRxAl_ > 0 _aRxAp_ + _aRxAll_[1] ok
+						but _cRxKey_ = "afterlast" or _cRxKey_ = "beforelast"
+							if _nRxAl_ > 0 _aRxAp_ + _aRxAll_[_nRxAl_] ok
+						else
+							for _iRx_ = 1 to _nRxAl_
+								_aRxAp_ + _aRxAll_[_iRx_]
+							next
+						ok
+					ok
+				ok
+				# Remove, walking DESCENDING so positions stay valid.
+				_nRxN_ = len(_aRxAp_)
+				for _iRx_ = _nRxN_ to 1 step -1
+					if _bRxAfter_
+						_nRxAt_ = _aRxAp_[_iRx_] + _nRxAnchLen_
+					else
+						_nRxAt_ = _aRxAp_[_iRx_] - _nRxSubLen_
+					ok
+					if _nRxAt_ >= 1
+						if This._EngineSlice(This.Content(), _nRxAt_, _nRxSubLen_) = p1
+							This.RemoveSection(_nRxAt_, (_nRxAt_ + _nRxSubLen_ - 1))
+						ok
+					ok
 				next
 				return
 			ok
@@ -9491,17 +9570,22 @@ class stzString from stzObject
 		return This.PreviousOccurrence(pcSub, nFrom)
 
 	def FindPreviousNth(n, pcSub, nFrom)
+		# The :StartingAt position is INCLUSIVE: an occurrence sitting
+		# exactly there counts as the 1st previous (per block #863).
 		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
 		   lower(nFrom[1]) = "startingat"
 			nFrom = nFrom[2]
 		ok
-		_pos_ = nFrom
-		for _k_ = 1 to n
-			_pos_ = This.PreviousOccurrence(pcSub, _pos_)
-			if _pos_ = 0 return 0 ok
-			if _k_ < n _pos_-- ok
+		_aFpn_ = This.FindAll(pcSub)
+		_nFpnL_ = len(_aFpn_)
+		_nFpnCnt_ = 0
+		for _iFpn_ = _nFpnL_ to 1 step -1
+			if _aFpn_[_iFpn_] <= nFrom
+				_nFpnCnt_++
+				if _nFpnCnt_ = n return _aFpn_[_iFpn_] ok
+			ok
 		next
-		return _pos_
+		return 0
 
 	# ExtractNumbers(): every contiguous run of digits as a list of
 	# numbers. e.g. "abc12def345" -> [12, 345].

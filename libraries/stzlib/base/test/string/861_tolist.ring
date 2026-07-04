@@ -1,15 +1,19 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #861.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ToList parses a list-in-string. Archive block #861.
 
-? Q('[1, 2, 3]').ToList()
-#--> [1, 2, 3]
+Scenario("A bracketed triple")
+	Then("parsed back to a Ring list",
+		ListEq( Q('[1, 2, 3]').ToList(), [ 1, 2, 3 ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if aA[i] != aE[i] return FALSE ok
+	next
+	return TRUE
