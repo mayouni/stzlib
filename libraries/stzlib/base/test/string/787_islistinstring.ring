@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #787.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsListInString. Archive block #787.
 
-? StzStringQ("[ 2, 3, 5:7 ]").IsListInString()
-#--> TRUE
+Scenario("Strings that hold lists")
+	Then("a bracketed list",
+		StzStringQ("[ 2, 3, 5:7 ]").IsListInString(), TRUE)
+	Then("a char range",
+		StzStringQ("'A':'F'").IsListInString(), TRUE)
+EndScenario()
 
-? StzStringQ("'A':'F'").IsListInString()
-#--> TRUE
-
-pf()
-# Executed in 0.04 second(s).
+Summary()

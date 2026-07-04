@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #797.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# - with a string removes ALL its occurrences. Archive block #797.
 
-o1 = new stzString("RingoriaLandLand")
-? o1 - "Land"
-#--> Ringoria
+Scenario("Both Lands go")
+	Then("Ringoria remains",
+		Q("RingoriaLandLand") - "Land", "Ringoria")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

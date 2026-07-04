@@ -1,21 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #783.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveThisLeadingChar and its CS dial. Archive block #783.
 
-o1 = new stzString("oooTunisia")
-o1.RemoveThisLeadingChar("O")
-? o1.Content()
-#--> oooTunisia
+Scenario("Removing an o-run named in uppercase")
+	o1 = new stzString("oooTunisia")
+	o1.RemoveThisLeadingChar("O")
+	Then("case-sensitive: no match, no change", o1.Content(), "oooTunisia")
+	o1.RemoveThisLeadingCharCS("O", :CS = FALSE)
+	Then("case-blind: the run goes", o1.Content(), "Tunisia")
+EndScenario()
 
-o1.RemoveThisLeadingCharCS("O", :CS=FALSE)
-? o1.Content()
-#--> Tunisia
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

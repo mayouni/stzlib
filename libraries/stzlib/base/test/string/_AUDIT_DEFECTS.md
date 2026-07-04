@@ -1008,7 +1008,33 @@ W-migration; 752 stays retired -- stzListOfChars grid renderer;
   implemented.
 Pure conversions: 761, 764, 769, 770, 772-774, 776-780.
 
-## STATUS (2026-07-04): 706/999 test files audited (chunks 14-44 added 443); ~293 still to audit
+### Chunk 45 (tests 781-800, 2026-07-04)
+
+- **The CS dial is real across the whole edge-run family**
+  (781-784): ReplaceLeading/TrailingCharsCS,
+  Leading/TrailingCharsCS, Leading/TrailingSubStringCS,
+  RemoveThisLeadingCharCS, ReplaceLeadingCharCS all honored only
+  the case-sensitive path (some were stubs, one indexed a LIST with
+  _EngineCount). Each now routes to the case-insensitive run walk
+  when the dial is off, and unwraps :With named params.
+  ReplaceLeadingCharCS is run-collapse (match char -> replace whole
+  run), consistent with the plain form.
+- **Section grows :EndOfWord / :EndOfSentence** (793): word = up to
+  the next space (punctuation included, "back!"); sentence = up to
+  the next full stop inclusive. Both fall back to the string end.
+- **`ReplaceNthOccurrenceCS`** (795): honored neither the dial nor
+  :With; now case-blind via FindAllCS + splice.
+- **`RemoveFirstOccurrence(:Of = ...)`** (796): named param
+  unwrapped (was treated as a raw list, no-op).
+- **781**: archive's CS-form outputs were copy-garble (mid-string
+  changes); the CI forms are the point -- asserted CS = no-op
+  (lone-O rule), CI = collapse.
+- **800**: RemoveNLeftChars removes string-order HEAD chars; the
+  archive expected the tail (RTL visual mixup, like 765).
+Pure conversions: 785-792, 794, 797, 798. (799 does not exist in the
+numbering.)
+
+## STATUS (2026-07-04): 725/999 test files audited (chunks 14-45 added 462); ~274 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

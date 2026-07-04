@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #789.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceSection. Archive block #789.
 
-o1 = new stzstring("123456789")
-o1.ReplaceSection(4, 6, :with = "***")
-? o1.Content()
-#--> "123***789"
+Scenario("Starring the middle third")
+	o1 = new stzString("123456789")
+	o1.ReplaceSection(4, 6, :With = "***")
+	Then("stars in place", o1.Content(), "123***789")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

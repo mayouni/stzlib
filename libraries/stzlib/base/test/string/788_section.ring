@@ -1,15 +1,10 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #788.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Section by positions. Archive block #788.
 
-o1 = new stzstring("123456789")
-? o1.Section(4,6)
-#--> "456"
+Scenario("The middle third")
+	Then("456", StzStringQ("123456789").Section(4, 6), "456")
+EndScenario()
 
-pf()
+Summary()
