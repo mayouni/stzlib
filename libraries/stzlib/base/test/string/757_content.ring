@@ -1,16 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #757.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# MultiplyBy a LIST distributes the string over its items.
+# Archive block #757.
 
-o1 = new stzString("a")
-o1.MultiplyBy([ "b", "c", "d" ])
-? o1.Content() #--> "abacad"
+Scenario("a times three suffixes")
+	o1 = new stzString("a")
+	o1.MultiplyBy([ "b", "c", "d" ])
+	Then("ab + ac + ad", o1.Content(), "abacad")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

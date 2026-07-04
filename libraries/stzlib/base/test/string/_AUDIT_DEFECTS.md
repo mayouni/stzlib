@@ -958,7 +958,34 @@ narrated in the W-migration; 724/725 stay retired -- Turned/Inverted
 upside-down table pending engine port; 728/732/737/740 do not exist
 in the numbering.)
 
-## STATUS (2026-07-04): 674/999 test files audited (chunks 14-42 added 411); ~325 still to audit
+### Chunk 43 (tests 741-760, 2026-07-04)
+
+- **Box renderer rebuilt** (749-751, 753, 754): the family rendered
+  ASCII `+---+` and ignored every option. New `_BoxRender(paOpts)`
+  honors :Line (:Solid/:Dashed -> dashed H ANDdashed side rail),
+  :AllCorners/:Corners (CLOCKWISE [TL, TR, BR, BL] -- pinned by
+  749's mixed-corner output), :Width (inner width, pads included),
+  :TextAdjustedTo (:Left/:Center/:Right/:Justified -- 753's archive
+  had the right outputs under the WRONG labels, a copy-scramble),
+  :EachChar cells, and :VizFind (bullet on the bottom rail under
+  each hit). Glyphs composed from raw UTF-8 bytes via char()
+  (mojibake trap; the old BoxRoundEachChar used char(0x256D) which
+  is out of char()'s byte range). Boxed/BoxedRounded/
+  BoxedRoundedDashed/EachCharBoxed(+Rounded)/VizFindBoxed* all
+  rewired to the renderer.
+- **`MultiplyBy(list)` / `* list` distribute** (757/758):
+  "a" x ["b","c","d"] -> "abacad" (content + item, concatenated);
+  were a silent no-op (list fell through the isNumber guard).
+- **`%` operator** (759): remainder-of-division -- the LAST part of
+  SplitToNParts(n) ("abcdefj" % 2 -> "efj"); was unhandled.
+- **755 DEFERRED**: CJK boxing needs display-width-aware padding
+  (UAX #11 fullwidth = 2 cells); the archive block is itself a TODO
+  about exactly that. Engine backlog: codepoint display-width.
+Pure conversions: 748, 756, 760. (744/746/747 already narrated in the
+W-migration; 752 stays retired -- stzListOfChars grid renderer;
+741-743/745 do not exist in the numbering.)
+
+## STATUS (2026-07-04): 687/999 test files audited (chunks 14-43 added 424); ~312 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

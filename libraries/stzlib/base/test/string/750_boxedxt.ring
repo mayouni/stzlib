@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #750.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoxedXT with no options: a plain rectangular box. Archive block #750.
 
-? StzStringQ("RING").BoxedXT([ ])
-#-->
-# ┌──────┐
-# │ RING │
-# └──────┘
+Scenario("The default box")
+	cExp = "┌──────┐" + NL +
+	       "│ RING │" + NL +
+	       "└──────┘"
+	Then("RING boxed", StzStringQ("RING").BoxedXT([ ]), cExp)
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.23
+Summary()

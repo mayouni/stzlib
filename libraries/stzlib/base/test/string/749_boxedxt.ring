@@ -1,26 +1,20 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #749.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoxedXT with mixed corners -- the :Corners list reads CLOCKWISE:
+# [TopLeft, TopRight, BottomRight, BottomLeft]. Archive block #749.
 
-? StzStringQ("SOFTANZA IS AWSOME!").BoxedXT([
-	:Line = :Solid,	# or :Dashed
-		
-	:AllCorners = :Round, # can also be :Rectangualr
-	:Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
-		
-	:TextAdjustedTo = :Center # or :Left or :Right or :Justified
-])
+Scenario("A box with alternating corners")
+	cExp = "╭─────────────────────┐" + NL +
+	       "│ SOFTANZA IS AWSOME! │" + NL +
+	       "└─────────────────────╯"
+	Then("round-rect-round-rect, clockwise",
+		StzStringQ("SOFTANZA IS AWSOME!").BoxedXT([
+			:Line = :Solid,
+			:AllCorners = :Round,
+			:Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
+			:TextAdjustedTo = :Center
+		]), cExp)
+EndScenario()
 
-#--> ╭─────────────────────┐
-#    │ SOFTANZA IS AWSOME! │
-#    └─────────────────────╯
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-# Executed in 0.02 second(s) in Ring 1.20
+Summary()

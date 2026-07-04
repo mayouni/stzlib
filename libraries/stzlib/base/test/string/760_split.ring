@@ -1,16 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #760.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# / with a string divisor splits on it. Archive block #760.
 
-o1 = new stzString("ab-ac-ad")
-? o1 / "-" 			# Same as ? o1.Split("-")
-#--> [ "ab", "ac", "ad" ]
+Scenario("Splitting on a dash")
+	o1 = new stzString("ab-ac-ad")
+	Then("three parts",
+		ListEq( o1 / "-", [ "ab", "ac", "ad" ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

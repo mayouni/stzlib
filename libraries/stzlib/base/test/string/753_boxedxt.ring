@@ -1,52 +1,25 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #753.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoxedXT with :Width and the four :TextAdjustedTo modes. (The archive
+# listed the right outputs under the wrong labels -- a copy-scramble;
+# each mode below asserts its own natural output.) Archive block #753.
 
-? StzStringQ("PARIS").BoxedXT([
-	:AllCorners = :Round,
-	:Width = 20,
-	:TextAdjustedTo = :Center
-])
-#-->
-# ╭────────────────────╮
-# │ PARIS              │
-# ╰────────────────────╯
+Scenario("PARIS in a 20-wide box, four ways")
+	cTop = "╭────────────────────╮"
+	cBot = "╰────────────────────╯"
+	Then("centered",
+		StzStringQ("PARIS").BoxedXT([ :AllCorners = :Round, :Width = 20, :TextAdjustedTo = :Center ]),
+		cTop + NL + "│       PARIS        │" + NL + cBot)
+	Then("left",
+		StzStringQ("PARIS").BoxedXT([ :AllCorners = :Round, :Width = 20, :TextAdjustedTo = :Left ]),
+		cTop + NL + "│ PARIS              │" + NL + cBot)
+	Then("right",
+		StzStringQ("PARIS").BoxedXT([ :AllCorners = :Round, :Width = 20, :TextAdjustedTo = :Right ]),
+		cTop + NL + "│              PARIS │" + NL + cBot)
+	Then("justified",
+		StzStringQ("PARIS").BoxedXT([ :AllCorners = :Round, :Width = 20, :TextAdjustedTo = :Justified ]),
+		cTop + NL + "│ P    A   R   I   S │" + NL + cBot)
+EndScenario()
 
-? StzStringQ("PARIS").BoxedXT([
-	:AllCorners = :Round,
-	:Width = 20,
-	:TextAdjustedTo = :Left
-])
-#-->
-# ╭────────────────────╮
-# │       PARIS        │
-# ╰────────────────────╯
-
-? StzStringQ("PARIS").BoxedXT([
-	:AllCorners = :Round,
-	:Width = 20,
-	:TextAdjustedTo = :Right
-])
-#-->
-# ╭────────────────────╮
-# │ P    A   R   I   S │
-# ╰────────────────────╯
-
-? StzStringQ("PARIS").BoxedXT([
-	:AllCorners = :Round,
-	:Width = 20,
-	:TextAdjustedTo = :Justified
-])
-#-->
-# ╭────────────────────╮
-# │              PARIS │
-# ╰────────────────────╯
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.23
+Summary()
