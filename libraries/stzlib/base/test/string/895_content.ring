@@ -1,21 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #895.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveXT(sub, :AtPosition = n). Archive block #895.
 
-	Q("^^♥^^") {
-		RemoveXT( "♥", :AtPosition = 3)
-		? Content()
-		#--> ^^^^
-	}
+Scenario("A heart at position 3")
+	o1 = new stzString("^^♥^^")
+	o1.RemoveXT( "♥", :AtPosition = 3)
+	Then("carets only", o1.Content(), "^^^^")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.04 second(s) in Ring 1.19
+Summary()

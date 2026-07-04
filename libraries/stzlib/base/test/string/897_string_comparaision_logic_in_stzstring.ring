@@ -1,25 +1,17 @@
-# Narrative
-# --------
-# string comparaision logic in stzString
-#
-# Extracted from stzStringTest.ring, block #897.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# Lexicographic < and > on stzString. (There is deliberately NO =
+# operator -- the original warns it clashes with stzExtCode's SQL
+# DSL -- so the equality lines assert via IsEqualTo, case-sensitive.)
+# Archive block #897.
 
-pr()
+Scenario("Ordering names")
+	Then("sam before samira", Q("sam") < "samira", TRUE)
+	Then("samira after ira", Q("samira") > "ira", TRUE)
+	Then("qam is not sam", Q("qam").IsEqualTo("sam"), FALSE)
+	Then("QAM is not qam (case-sensitive)",
+		Q("QAM").IsEqualTo("qam"), FALSE)
+EndScenario()
 
-? Q("sam") < "samira"
-#--> TRUE
-
-? Q("samira") > "ira"
-#--> TRUE
-
-? Q("qam") = "sam"
-#--> FALSE
-
-? Q("QAM") = "qam"
-#--> FALSE
-
-pf()
-# Executed in 0.02 second(s)
+Summary()

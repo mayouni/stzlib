@@ -1,23 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #886.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-	
+# :AroundLast. Archive block #886.
 
-pr()
+Scenario("Only around the last heart")
+	o1 = new stzString("__♥__♥__/♥\__")
+	o1.RemoveXT( [ "/", "\" ], :AroundLast = "♥" )
+	Then("cleaned", o1.Content(), "__♥__♥__♥__")
+EndScenario()
 
-Q("__♥__♥__/♥\__") {
-	
-	RemoveXT( [ "/","\" ], :AroundLast = "♥" )
-	? Content()
-	#--> __♥__♥__♥__
-}
-	
-StopProfiler()
-
-pf()
-# Executed in 0.10 second(s)
+Summary()

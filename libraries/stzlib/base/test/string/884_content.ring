@@ -1,23 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #884.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-	
+# :AroundNth = [n, anchor]. Archive block #884.
 
-pr()
+Scenario("Only around the second heart")
+	o1 = new stzString("__♥__/♥\__♥__")
+	o1.RemoveXT([ "/", "\" ], :AroundNth = [2, "♥"])
+	Then("cleaned", o1.Content(), "__♥__♥__♥__")
+EndScenario()
 
-Q("__♥__/♥\__♥__") {
-
-	RemoveXT([ "/","\" ], :AroundNth = [2, "♥"])
-	? Content()
-	#--> __♥__♥__♥__
-}
-	
-StopProfiler()
-
-pf()
-# Executed in 0.07 second(s)
+Summary()
