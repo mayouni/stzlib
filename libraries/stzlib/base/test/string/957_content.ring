@@ -1,21 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #957.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceByMany distributes over the carets. Archive block #957.
 
-o1 = new stzString("----^----------^----------^-----")
+Scenario("Three carets, three letters")
+	o1 = new stzString("----^----------^----------^-----")
+	Then("the canvas", o1.Content(), "----^----------^----------^-----")
+	o1.ReplaceByMany("^", [ "A", "B", "C" ])
+	Then("lettered", o1.Content(), "----A----------B----------C-----")
+EndScenario()
 
-? o1.content()
-#--> ----^----------^----------^-----
-
-o1.ReplaceByMany("^", [ "A", "B", "C" ])
-? o1.Content()
-#--> ----A----------B----------C-----
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
+Summary()

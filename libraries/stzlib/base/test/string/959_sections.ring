@@ -1,16 +1,25 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #959.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Sections reads several slices at once. Archive block #959.
 
-o1 = new stzString("---456----123--67---")
-? @@( o1.Sections([ [ 1, 3], [ 7, 10], [ 14, 15], [18, 20] ]) )
-#--> [ "---", "----", "--", "---" ]
+Scenario("The dashes between the numbers")
+	o1 = new stzString("---456----123--67---")
+	Then("four dash runs",
+		ListEq( o1.Sections([ [ 1, 3 ], [ 7, 10 ], [ 14, 15 ], [ 18, 20 ] ]),
+			[ "---", "----", "--", "---" ] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

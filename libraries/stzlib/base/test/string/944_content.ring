@@ -1,17 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #944.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The string twin of 941: no trailing space after the final char.
+# Archive block #944.
 
-o1 = new stzString("SOFTANZA")
-o1.InsertAfterPositions([ 2, 4, 6, 8 ], " ")
-? o1.Content()
-#--> "SO FT AN ZA"
+Scenario("Spaces after the even positions")
+	o1 = new stzString("SOFTANZA")
+	o1.InsertAfterPositions([ 2, 4, 6, 8 ], " ")
+	Then("pairs, no trailing space", o1.Content(), "SO FT AN ZA")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

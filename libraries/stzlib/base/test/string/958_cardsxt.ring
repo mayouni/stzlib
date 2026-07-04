@@ -1,45 +1,38 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #958.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The playing-card helpers. Archive block #958.
 
-? @@NL( CardsXT() ) + NL
-#--> [
-#	[ "ace","🂡" ],
-#	[ "two", "🂢" ],
-#	[ "three", "🂣" ],
-#	[ "four", "🂤" ],
-#	[ "five", "🂥" ],
-#	[ "six", "🂦" ],
-#	[ "seven", "🂧" ],
-#	[ "eight", "🂨" ],
-#	[ "nine", "🂩" ],
-#	[ "ten", "🂪" ],
-#	[ "jack", "🂫" ],
-#	[ "queen", "🂭" ],
-#	[ "king", "🂮" ]
-# ]
+Scenario("A deck of names and glyphs")
+	aXT = CardsXT()
+	Then("thirteen cards", len(aXT), 13)
+	Then("ace first",
+		ListEq( aXT[1], [ "ace", "🂡" ] ), TRUE)
+	Then("king last",
+		ListEq( aXT[13], [ "king", "🂮" ] ), TRUE)
+	Then("the glyphs alone",
+		ListEq( Cards(),
+			[ "🂡", "🂢", "🂣", "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂪",
+			  "🂫", "🂭", "🂮" ] ), TRUE)
+	Then("one by name", Card(:jack), "🂫")
+	Then("a chosen few",
+		ListEq( TheseCards([ :four, :nine, :king ]),
+			[ "🂤", "🂩", "🂮" ] ), TRUE)
+	Then("... with their names",
+		ListEq( TheseCardsXT([ :four, :nine, :king ]),
+			[ [ "four", "🂤" ], [ "nine", "🂩" ], [ "king", "🂮" ] ] ), TRUE)
+EndScenario()
 
-? @@( Cards() ) + NL
-#--> [ "🂡", "🂢", "🂣", "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂪", "🂫", "🂭", "🂮" ]
+Summary()
 
-? Card(:jack) + NL
-#--> 🂫
-
-? @@( TheseCards([ :four, :nine, :king ]) ) + NL
-#--> [ "🂤", "🂩", "🂮" ]
-
-? @@NL( TheseCardsXT([ :four, :nine, :king ]) )
-#--> [
-#	[ "four", "🂤" ],
-#	[ "nine", "🂩" ],
-#	[ "king", "🂮" ]
-# ]
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

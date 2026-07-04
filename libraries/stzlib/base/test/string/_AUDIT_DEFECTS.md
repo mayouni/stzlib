@@ -1199,7 +1199,30 @@ stay retired -- stzListOfChars grid renderer.)
 Pure conversions: 922-926, 933, 934, 939, 940. (928-932/935-937
 stay retired -- stzListOfChars grid renderer.)
 
-## STATUS (2026-07-04): 844/999 test files audited (chunks 14-52 added 581); ~155 still to audit
+### Chunk 53 (tests 941-960, 2026-07-04)
+
+- **stzList Insert*Positions were OFF BY ONE** (941/942):
+  InsertAfterPositions inserted AT the position (= before), because
+  ring_insert places AT its index; now p + 1, and no trailing insert
+  after the FINAL item (941's archive). InsertBeforePositions
+  (via stzListInserter) inserted at p - 1; now inline at p. String
+  InsertAfterPositions also skips the after-last insert (944).
+- **`SpacifyCharsXT` named params** (945): :Separator/:Sep now
+  unwrap (only :Using did, so the KEY landed in the output).
+- **VizFind family rebuilt on start-only carets** (953-955):
+  VizFindCS = one caret per match START with the case dial honored
+  (was span-marking, CI broken); VizFindCSXT/VizFindXT add the
+  :Numbered rail (positions under the carets) and :CS can ride in
+  the options list; VizFindBoxedCSXT = the cell strip with a bullet
+  under each match start (new :MarkPositions renderer option).
+- **stzListOfChars Boxify/Box/BoxDash** (952): wired to the cell
+  renderer (solid + dashed); were the round-corner char() garble
+  path. The archive's lone rounded corner on Boxify was a one-char
+  garble (its own BoxDash is rectangular).
+Pure conversions: 943, 946, 956-960. (947-951 stay retired --
+stzListOfChars grid-renderer extras.)
+
+## STATUS (2026-07-04): 859/999 test files audited (chunks 14-53 added 596); ~140 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

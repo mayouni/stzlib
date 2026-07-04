@@ -1,26 +1,23 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #952.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# stzListOfChars: Boxify renders the cell strip; BoxDash uses dashed
+# lines. (The archive's lone rounded corner on Boxify was a one-char
+# garble; the box is rectangular, like its own BoxDash.)
+# Archive block #952.
 
-o1 = new stzListOfChars( @Chars("..STZ..StZ..stz") )
+Scenario("A char list in cells, twice")
+	o1 = new stzListOfChars( @Chars("..STZ..StZ..stz") )
+	Then("solid cells",
+		o1.Boxify(),
+		"┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐" + NL +
+		"│ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │" + NL +
+		"└───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘")
+	Then("dashed cells",
+		o1.BoxDash(),
+		"┌╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┐" + NL +
+		"┊ . ┊ . ┊ S ┊ T ┊ Z ┊ . ┊ . ┊ S ┊ t ┊ Z ┊ . ┊ . ┊ s ┊ t ┊ z ┊" + NL +
+		"└╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┘")
+EndScenario()
 
-? o1.Boxify() # Or simply Box()
-#-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-# │ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │
-# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
-
-? o1.BoxDash()
-#-->
-# ┌╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┐
-# ┊ . ┊ . ┊ S ┊ T ┊ Z ┊ . ┊ . ┊ S ┊ t ┊ Z ┊ . ┊ . ┊ s ┊ t ┊ z ┊
-# └╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┘
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.24
+Summary()

@@ -1,19 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #953.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# VizFindCS: one caret at each match start, case dial honored.
+# Archive block #953.
 
-o1 = new stzString("..STZ..StZ..stz")
+Scenario("Three spellings of stz")
+	o1 = new stzString("..STZ..StZ..stz")
+	Then("all three marked",
+		o1.vizFindCS("stz", FALSE),
+		"..STZ..StZ..stz" + NL + "--^----^----^--")
+EndScenario()
 
-? o1.vizFindCS("stz", FALSE)
-# ..STZ..StZ..stz
-# --^----^----^--
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.26
-# Executed in 0.01 second(s) in Ring 1.24
+Summary()
