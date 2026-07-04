@@ -1,16 +1,10 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #838.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsScriptName. Archive block #838.
 
-o1 = new stzString("latin")
-? o1.IsScriptName()
-#--> TRUE
+Scenario("latin is a script name")
+	Then("yes", StzStringQ("latin").IsScriptName(), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

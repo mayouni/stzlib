@@ -1,16 +1,10 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #832.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RepresentsRealNumber. Archive block #832.
 
-o1 = new stzString("12500543.12")
-? o1.RepresentsRealNumber()
-#--> TRUE
+Scenario("A plain decimal real")
+	Then("yes", Q("12500543.12").RepresentsRealNumber(), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

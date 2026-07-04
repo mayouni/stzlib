@@ -1,20 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #836.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The plain InsertSubStrings form: default parens-and-commas format.
+# Archive block #836.
 
-# You can use the simple form of InsertSubStrings() without ..XT and
-# get default configurations that works:
+Scenario("Three versions, default dress")
+	o1 = new stzString("All our software versions must be updated!")
+	o1.InsertSubStrings( o1.PositionAfter("versions"), [ "V1", "V2", "V3" ])
+	Then("parenthesized with padding spaces",
+		o1.Content(),
+		"All our software versions (V1, V2, V3)  must be updated!")
+EndScenario()
 
-o1 = new stzString("All our software versions must be updated!")
-o1.InsertSubStrings( o1.PositionAfter("versions"), [ "V1", "V2", "V3" ])
-? o1.Content()
-#--> All our software versions (V1, V2, V3)  must be updated!
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

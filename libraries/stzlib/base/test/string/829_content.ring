@@ -1,17 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #829.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceAll on an Arabic sentence. Archive block #829.
 
-o1 = new stzString("اسمي هو فلانة، قلت لك فلانة! أوَ لم يعجبك أن يكون اسمي فلانة؟")
-o1.ReplaceAll("فلانة", "فلسطين")
-? o1.Content()
-o#--> اسمي هو فلسطين، قلت لك فلسطين! أوَ لم يعجبك أن يكون اسمي فلسطين؟
+Scenario("Foulana becomes Palestine")
+	o1 = new stzString("اسمي هو فلانة، قلت لك فلانة! أوَ لم يعجبك أن يكون اسمي فلانة؟")
+	o1.ReplaceAll("فلانة", "فلسطين")
+	Then("all three replaced",
+		o1.Content(),
+		"اسمي هو فلسطين، قلت لك فلسطين! أوَ لم يعجبك أن يكون اسمي فلسطين؟")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
