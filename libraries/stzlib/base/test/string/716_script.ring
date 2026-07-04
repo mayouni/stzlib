@@ -1,20 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #716.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# TQ(...).Script() -- the dominant script of a text. Archive block #716.
 
-# TQ is an abbreviation of StzTextQ()
+Scenario("Two scripts, two answers")
+	Then("arabic", TQ("عربي").Script(), "arabic")
+	Then("latin", TQ("ring").Script(), "latin")
+EndScenario()
 
-? TQ("عربي").Script()
-#--> arabic
-
-? TQ("ring").Script()
-#--> latin
-
-pf()
-# Executed in 0.06 second(s).
+Summary()

@@ -1,15 +1,10 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #720.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# StringIsLowercase. Archive block #720.
 
-? StringIsLowercase("sAlut")
-#--> FALSE
+Scenario("A capital in the middle")
+	Then("sAlut is not lowercase", StringIsLowercase("sAlut"), FALSE)
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s).
+Summary()

@@ -1,22 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #711.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... and their checkers. Archive block #711.
 
-? StzStringQ("tunis").IsLowercased()
-#--> TRUE
+Scenario("Checking the case of tunis")
+	Then("tunis is lowercased", StzStringQ("tunis").IsLowercased(), TRUE)
+	Then("TUNIS is uppercased", StzStringQ("TUNIS").IsUppercased(), TRUE)
+	Then("Tunis is titlecased", StzStringQ("Tunis").IsTitlecased(), TRUE)
+EndScenario()
 
-? StzStringQ("TUNIS").IsUppercased()
-#--> TRUE
-
-? StzStringQ("Tunis").IsTitlecased()
-#--> TRUE
-
-//? StzStringQ("tunis").IsFoldcased()	#TODO
-
-pf()
+Summary()

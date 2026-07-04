@@ -1,23 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #718.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsLetter and the global case helpers. (FoldcaseOf is a TODO in the
+# archive.) Archive block #718.
 
-? StzStringQ("G").IsLetter()
-#--> TRUE
+Scenario("One letter, two directions")
+	Then("G is a letter", StzStringQ("G").IsLetter(), TRUE)
+	Then("b goes up", UppercaseOf("b"), "B")
+	Then("B comes down", LowercaseOf("B"), "b")
+EndScenario()
 
-? UppercaseOf("b")
-#--> B
-
-? LowercaseOf("B")
-#--> b
-
-//? FoldcaseOf("sinus")		# !!! Undefined function #TODO
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

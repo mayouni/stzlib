@@ -897,7 +897,34 @@ already narrated in the W-migration).
 Pure conversions: 681-684, 691-699. (687 does not exist in the
 numbering.)
 
-## STATUS (2026-07-03): 645/999 test files audited (chunks 14-40 added 382); ~354 still to audit
+### Chunk 41 (tests 701-720, 2026-07-03)
+
+- **LETTER methods are case-blind** (701/714): ContainsTheLetters /
+  ContainsLetter now use ContainsCS(_, FALSE); IsALetterOf had the
+  StzFindFirst args REVERSED (searched "HUSSEIN" inside "H") -- fixed
+  + case-blind via StzLower.
+- **PartsUsing family partitions by EXPRESSION** (705/706/707): the
+  rewrite had degraded them to separator-splits. Restored the original
+  semantic: evaluate the expression per char (@char / This[@i] / @i
+  in scope), group consecutive equal values. New `_PartsUsingWalk`
+  core returns sections + partitioner values; PartsUsing/XT ->
+  parts, PartsUsingZZ -> [part, [start, end]] (Z-shape),
+  PartsAndPartitionersUsingXT -> [part, value]. Ring-side eval per
+  char (value-producing expressions are beyond the boolean engine
+  DSL -- engine backlog if it ever gets hot).
+- **704**: Scripts() now leads with "common" (the underscores) after
+  chunk 40's UAX #24 fix; archive predates it -- asserted at
+  [common, latin, han, arabic].
+- **715**: CharsReversed = reversed ORDER ("AZNATFOS"); the archive's
+  upside-down glyphs came from a retired Qt char-flipping toy.
+- **719**: archive's SizeInBytes 435 / per-char 33-35 were stale
+  garble; real values 5 and [1, 3, 1] for "s / circled-36 / m".
+- **702**: FindSubStringBetween returns the positions LIST ([10])
+  per the settled Find* contract; archive's bare 10 was legacy.
+Pure conversions: 709-712, 716-718, 720 (713 was already narrated in
+the W-migration; 703/708 do not exist in the numbering).
+
+## STATUS (2026-07-03): 662/999 test files audited (chunks 14-41 added 399); ~337 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

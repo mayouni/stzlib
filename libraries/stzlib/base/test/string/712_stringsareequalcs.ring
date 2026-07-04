@@ -1,24 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #712.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The global equality helpers. Archive block #712.
 
-? StringsAreEqualCS([ "abc","abc" ], TRUE )
-#--> TRUE
+Scenario("Equal strings, four spellings of the check")
+	Then("StringsAreEqualCS",
+		StringsAreEqualCS([ "abc", "abc" ], TRUE), TRUE)
+	Then("StringsAreEqual on three",
+		StringsAreEqual([ "cbad", "cbad", "cbad" ]), TRUE)
+	Then("BothStringsAreEqualCS",
+		BothStringsAreEqualCS("abc", "abc", TRUE), TRUE)
+	Then("BothStringsAreEqual",
+		BothStringsAreEqual("abc", "abc"), TRUE)
+EndScenario()
 
-? StringsAreEqual([ "cbad", "cbad", "cbad" ])
-#--> TRUE
-
-? BothStringsAreEqualCS("abc", "abc", TRUE)
-#--> TRUE
-
-? BothStringsAreEqual("abc", "abc")
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s).
+Summary()
