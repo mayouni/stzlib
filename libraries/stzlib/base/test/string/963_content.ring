@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #963.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceSection at the head. Archive block #963.
 
-o1 = new stzString('123--67--')
-o1.ReplaceSection(1, 3, "~")
-? o1.Content()
-#--> ~--67--
+Scenario("The leading number becomes a tilde")
+	o1 = new stzString("123--67--")
+	o1.ReplaceSection(1, 3, "~")
+	Then("collapsed", o1.Content(), "~--67--")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

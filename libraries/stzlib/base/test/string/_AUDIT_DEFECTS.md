@@ -1222,7 +1222,27 @@ stay retired -- stzListOfChars grid renderer.)
 Pure conversions: 943, 946, 956-960. (947-951 stay retired --
 stzListOfChars grid-renderer extras.)
 
-## STATUS (2026-07-04): 859/999 test files audited (chunks 14-53 added 596); ~140 still to audit
+### Chunk 54 (tests 961-980, 2026-07-04)
+
+- **viz-find sectioned/boxed ensemble** (972): vizFindZZ = the
+  '--' section rail; vizFindXT gains :Sectioned (+ numbers with
+  ends RIGHT-aligned to the end column) and :Boxed/:Rounded (the
+  cell strip with bullets under BOTH section ends, then the rail
+  and numbers in box coordinates). Archive's comment-art spacing
+  was loose; asserted at the principled layout.
+- **`ReplaceSectionsByMany` raises on a bare-string replacements
+  arg** (966): the archive's own error message.
+- **974/975 DEFERRED**: VizFindMany labeled-rails -- self-declared
+  TODOs whose expected output is aspirational and garbled
+  (different text, phantom "X" row).
+- **976-978**: the perf narrations asserted FUNCTIONALLY (million-
+  item Concatenate length, million-append list sizes, million-latin
+  += length); the timing story stays in the archive. 979 = Qt
+  tombstone, noted as historical.
+Pure conversions: 961-965, 967-971. (973 stays retired; 980 does
+not exist in the numbering.)
+
+## STATUS (2026-07-04): 874/999 test files audited (chunks 14-54 added 611); ~125 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

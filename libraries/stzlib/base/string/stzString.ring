@@ -4701,7 +4701,10 @@ class stzString from stzObject
 	# from paReplacements. Walks sections in reverse so earlier
 	# positions stay valid as later ones shift.
 	def ReplaceSectionsByMany(aSections, paReplacements)
-		if NOT (isList(aSections) and isList(paReplacements)) return ok
+		if NOT isList(paReplacements)
+			StzRaise("Incorrect param type! pacSubStr must be a list.")
+		ok
+		if NOT isList(aSections) return ok
 		_nL_ = len(aSections)
 		_nR_ = len(paReplacements)
 		if _nL_ = 0 or _nR_ = 0 return ok
@@ -10526,6 +10529,36 @@ class stzString from stzObject
 				ok
 			next
 		ok
+		_bVfSec_ = 0
+		_bVfBox_ = 0
+		_bVfRound_ = 0
+		if isList(pOpts)
+			_nVfL_ = len(pOpts)
+			for _iVf_ = 1 to _nVfL_
+				_vVf_ = pOpts[_iVf_]
+				if isList(_vVf_) and len(_vVf_) = 2 and isString(_vVf_[1])
+					if lower(_vVf_[1]) = "sectioned" and _vVf_[2] = 1
+						_bVfSec_ = 1
+					but lower(_vVf_[1]) = "boxed" and _vVf_[2] = 1
+						_bVfBox_ = 1
+					but lower(_vVf_[1]) = "rounded" and _vVf_[2] = 1
+						_bVfRound_ = 1
+					ok
+				ok
+			next
+		ok
+		if _bVfBox_ = 1
+			return This._VizFindBoxedSectioned(pcSub, pCaseSensitive,
+				_bVfRound_, _bVfSec_, _bVfNum_)
+		ok
+		if _bVfSec_ = 1
+			_aVfSec_ = This.FindAsSectionsCS(pcSub, @CaseSensitive(pCaseSensitive))
+			_cVfOut_ = This.Content() + NL + This._VizRailSectioned(_aVfSec_)
+			if _bVfNum_ = 1
+				_cVfOut_ += NL + This._VizNumsSectioned(_aVfSec_)
+			ok
+			return _cVfOut_
+		ok
 		_cVfBase_ = This.VizFindCS(pcSub, pCaseSensitive)
 		if _bVfNum_ = 0 return _cVfBase_ ok
 		# Numbers line: each match position printed under its caret.
@@ -14831,7 +14864,53 @@ class stzString from stzObject
 		return _cTxt_ + NL + _mark_
 
 	def VizFindZZ(pcSub)
-		return This.VizFindCS(pcSub, 1)
+		# Sectioned rail: quotes at each match section's ends, dashes
+		# between, spaces elsewhere.
+		_aVzSec_ = This.FindAsSections(pcSub)
+		return This.Content() + NL + This._VizRailSectioned(_aVzSec_)
+
+	def _VizRailSectioned(paSections)
+		_nVzL_ = This.NumberOfChars()
+		_cVzR_ = ""
+		_nVzS_ = len(paSections)
+		for _iVz_ = 1 to _nVzL_
+			_cVzC_ = " "
+			for _jVz_ = 1 to _nVzS_
+				if _iVz_ = paSections[_jVz_][1] or _iVz_ = paSections[_jVz_][2]
+					_cVzC_ = "'"
+					exit
+				but _iVz_ > paSections[_jVz_][1] and _iVz_ < paSections[_jVz_][2]
+					_cVzC_ = "-"
+					exit
+				ok
+			next
+			_cVzR_ += _cVzC_
+		next
+		return _cVzR_
+
+	def _VizNumsSectioned(paSections)
+		# Start numbers left-aligned at the start column; end numbers
+		# RIGHT-aligned so they finish on the end column.
+		_nVzL_ = This.NumberOfChars()
+		_cVzN_ = ""
+		_nVzS_ = len(paSections)
+		for _iVz_ = 1 to _nVzS_
+			_cVzStart_ = "" + paSections[_iVz_][1]
+			_cVzEnd_ = "" + paSections[_iVz_][2]
+			while ring_len(_cVzN_) < paSections[_iVz_][1] - 1
+				_cVzN_ += " "
+			end
+			_cVzN_ += _cVzStart_
+			_nVzTo_ = paSections[_iVz_][2] - ring_len(_cVzEnd_)
+			while ring_len(_cVzN_) < _nVzTo_
+				_cVzN_ += " "
+			end
+			_cVzN_ += _cVzEnd_
+		next
+		while ring_len(_cVzN_) < _nVzL_
+			_cVzN_ += " "
+		end
+		return _cVzN_
 
 	def VizFindMany(pacSub)
 		_o_ = ""
@@ -14852,6 +14931,64 @@ class stzString from stzObject
 
 	def VizFindManyXT2(pacSub, pNamed)
 		return This.VizFindManyXT(pacSub)
+
+	def _VizFindBoxedSectioned(pcSub, pCaseSensitive, bRounded, bSectioned, bNumbered)
+		# The cell strip with bullets under each match section's two
+		# ends, then (optionally) the section rail and the numbers,
+		# both in box coordinates (cell i's center = 4(i-1)+3).
+		_aVbsSec_ = This.FindAsSectionsCS(pcSub, @CaseSensitive(pCaseSensitive))
+		_aVbsMark_ = []
+		_nVbsS_ = len(_aVbsSec_)
+		for _iVbs_ = 1 to _nVbsS_
+			_aVbsMark_ + _aVbsSec_[_iVbs_][1]
+			_aVbsMark_ + _aVbsSec_[_iVbs_][2]
+		next
+		_aVbsOpts_ = [ :EachChar = TRUE, :MarkPositions = _aVbsMark_ ]
+		if bRounded = 1
+			_aVbsOpts_ + [ "allcorners", "round" ]
+		ok
+		_cVbsOut_ = This._BoxRender(_aVbsOpts_)
+		if bSectioned = 0 and bNumbered = 0 return _cVbsOut_ ok
+		_nVbsW_ = (This.NumberOfChars() * 4) + 1
+		if bSectioned = 1
+			_cVbsRail_ = ""
+			for _iVbs_ = 1 to _nVbsW_
+				_cVbsC_ = " "
+				for _jVbs_ = 1 to _nVbsS_
+					_nVbsC1_ = ((_aVbsSec_[_jVbs_][1] - 1) * 4) + 3
+					_nVbsC2_ = ((_aVbsSec_[_jVbs_][2] - 1) * 4) + 3
+					if _iVbs_ = _nVbsC1_ or _iVbs_ = _nVbsC2_
+						_cVbsC_ = "'"
+						exit
+					but _iVbs_ > _nVbsC1_ and _iVbs_ < _nVbsC2_
+						_cVbsC_ = "-"
+						exit
+					ok
+				next
+				_cVbsRail_ += _cVbsC_
+			next
+			_cVbsOut_ += NL + _cVbsRail_
+		ok
+		if bNumbered = 1
+			_cVbsNum_ = ""
+			for _iVbs_ = 1 to _nVbsS_
+				_cVbsN1_ = "" + _aVbsSec_[_iVbs_][1]
+				_cVbsN2_ = "" + _aVbsSec_[_iVbs_][2]
+				_nVbsC1_ = ((_aVbsSec_[_iVbs_][1] - 1) * 4) + 3
+				_nVbsC2_ = ((_aVbsSec_[_iVbs_][2] - 1) * 4) + 3
+				while ring_len(_cVbsNum_) < _nVbsC1_ - 1
+					_cVbsNum_ += " "
+				end
+				_cVbsNum_ += _cVbsN1_
+				_nVbsTo_ = _nVbsC2_ - ring_len(_cVbsN2_)
+				while ring_len(_cVbsNum_) < _nVbsTo_
+					_cVbsNum_ += " "
+				end
+				_cVbsNum_ += _cVbsN2_
+			next
+			_cVbsOut_ += NL + _cVbsNum_
+		ok
+		return _cVbsOut_
 
 	def VizFindBoxedCSXT(pcSub, pCaseSensitive, pNamed)
 		_aVfbP_ = This.FindAllCS(pcSub, @CaseSensitive(pCaseSensitive))

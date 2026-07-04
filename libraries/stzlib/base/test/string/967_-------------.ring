@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# /*-------------
-#
-# Extracted from stzStringTest.ring, block #967.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# ... while a proper list works. Archive block #967.
 
-pr()
+Scenario("Ups and downs")
+	o1 = new stzString("123---789---")
+	o1.ReplaceSectionsByMany([ [1, 3], [7, 9] ], [ "^^^", "vvv" ])
+	Then("both replaced", o1.Content(), "^^^---vvv---")
+EndScenario()
 
-o1 = new stzString("123---789---")
-o1.ReplaceSectionsByMany([ [1, 3], [7, 9] ], [ "^^^", "vvv" ])
-? o1.Content()
-#--> ^^^---vvv---
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

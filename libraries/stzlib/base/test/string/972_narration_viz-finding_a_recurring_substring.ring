@@ -1,74 +1,53 @@
-# Narrative
-# --------
-# narration #visiality VIZ-FINDING A RECURRING SUBSTRING
-#
-# Extracted from stzStringTest.ring, block #972.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# The full viz-find tour: plain carets, numbers, sections ('--'),
+# and the boxed + sectioned + numbered ensemble. (The archive's
+# comment-art spacing on the section numbers is loose -- ends are
+# right-aligned to the end column, which makes 15/18 touch.)
+# Archive block #972.
 
-# This narration explores methods to locate and highlight recurring 
-# sequences within strings, with both precision and visual assistance.
+Scenario("Viz-finding a recurring substring")
+	o1 = new stzString("fjringljringdjringg")
+	Then("three positions",
+		ListEq( o1.Find("ring"), [ 3, 9, 15 ] ), TRUE)
+	Then("carets",
+		o1.vizFind("ring"),
+		"fjringljringdjringg" + NL + "--^-----^-----^----")
+	Then("numbered",
+		o1.vizFindXT("ring", [ :Numbered = TRUE ]),
+		"fjringljringdjringg" + NL + "--^-----^-----^----" + NL +
+		"  3     9     15   ")
+	Then("as sections",
+		ListEq( o1.FindAsSections("ring"),
+			[ [3, 6], [9, 12], [15, 18] ] ), TRUE)
+	Then("sectioned rail",
+		o1.vizFindZZ("ring"),
+		"fjringljringdjringg" + NL + "  '--'  '--'  '--' ")
+	Then("sectioned + numbered",
+		o1.vizFindXT("ring", [ :Sectioned = TRUE, :Numbered = TRUE ]),
+		"fjringljringdjringg" + NL + "  '--'  '--'  '--' " + NL +
+		"  3  6  9 12  1518 ")
+	Then("the boxed ensemble",
+		o1.vizFindXT("ring", [ :Boxed = TRUE, :Rounded = TRUE,
+			:Sectioned = TRUE, :Numbered = TRUE ]),
+		"╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮" + NL +
+		"│ f │ j │ r │ i │ n │ g │ l │ j │ r │ i │ n │ g │ d │ j │ r │ i │ n │ g │ g │" + NL +
+		"╰───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───╯" + NL +
+		"          '-----------'           '-----------'           '-----------'      " + NL +
+		"          3           6           9          12           15         18")
+EndScenario()
 
-pr()
+Summary()
 
-# Searching for "ring" within a jumble of letters:
-
-o1 = new stzString("fjringljringdjringg")
-
-# Let's start with a straightforward approach using Find(),
-# which returns the list of positions where "ring" appears:
-
-? @@( o1.Find("ring") ) + NL
-#--> [ 3, 9, 15 ]
-
-# We can go further and add a visual dimension by using
-# the "viz" prefix with Find(), making the positions easy to spot:
-
-? o1.vizFind("ring") + NL
-#-->
-# fjringljringdjringg
-# --^-----^-----^----
-
-# To gain even more insight, we can add the XT() suffix,
-# providing a numeric guide for each matched position:
-
-? o1.vizFindXT("ring", [ :Numbered = TRUE ]) + NL
-#-->
-# fjringljringdjringg
-# --^-----^-----^----
-#   3     9     15       
-
-# Now, let's find the positions of "ring" as sections:
-
-? @@( o1.FindAsSections("ring") ) + NL # Or simply FindZZ()
-#--> [ [3, 6], [9, 12], [15, 18] ]
-
-# The sections can also be visualized by using
-# the :Sectioned option:
-
-? o1.vizFindZZ("ring") + NL
-#-->
-# fjringljringdjringg
-#   '--'  '--'  '--'
-
-? o1.vizFindXT("ring", [ :Sectioned = TRUE, :Numbered = TRUE ]) + NL
-#-->
-# fjringljringdjringg
-#   '--'  '--'  '--'
-#   3  6  9 12  15 18
-
-# For a more sophisticated display, we can box and section the output,
-# the results become both visually structured and detailed:
-
-? o1.vizFindXT("ring", [
-	:Boxed = TRUE, :Rounded = TRUE, :Sectioned = TRUE, :Numbered = TRUE ])
-#-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ f │ j │ r │ i │ n │ g │ l │ j │ r │ i │ n │ g │ d │ j │ r │ i │ n │ g │ g │
-# ╰───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───╯
-#           '-----------'           '-----------'           '-----------'
-#           3           6           9         12            15         18
-
-pf()
-# Code executed in 0.17 second(s) in Ring 1.21
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

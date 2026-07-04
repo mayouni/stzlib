@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# #ring
-#
-# Extracted from stzStringTest.ring, block #962.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# The global StzReplace. Archive block #962.
 
-pr()
+Scenario("Dashes to spaces")
+	Then("replaced everywhere",
+		StzReplace("--^---^^--^", "-", " "), "  ^   ^^  ^")
+EndScenario()
 
-? StzReplace("--^---^^--^", "-", " ")
-#--> "  ^   ^^  ^"
-
-pf()
-# Executed in almost 0 second(s).
+Summary()

@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #969.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... including at the head. Archive block #969.
 
-o1 = new stzString("123---78--")
-o1.ReplaceSectionsByMany([ [1, 3], [7,8] ], [ "*", "~" ] )
-? o1.Content()
-# *---~--
+Scenario("Head and middle shrunk")
+	o1 = new stzString("123---78--")
+	o1.ReplaceSectionsByMany([ [1, 3], [7, 8] ], [ "*", "~" ])
+	Then("shrunk", o1.Content(), "*---~--")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

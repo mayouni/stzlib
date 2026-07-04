@@ -1,16 +1,19 @@
-# Narrative
-# --------
-# o1 = new stzString("123---789---")
-#
-# Extracted from stzStringTest.ring, block #966.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceSectionsByMany refuses a bare-string replacements arg with a
+# raise, per the archive. Archive block #966.
 
-o1 = new stzString("123---789---")
-o1.ReplaceSectionsByMany([ [1, 3], [7, 9] ], "^")
-? o1.Content()
-#--> ERROR MESSAGE: Incorrect param type! pacSubStr must be a list.
+Scenario("A string is not a replacements list")
+	o1 = new stzString("123---789---")
+	bRaised = FALSE
+	try
+		o1.ReplaceSectionsByMany([ [1, 3], [7, 9] ], "^")
+	catch
+		bRaised = TRUE
+	done
+	Then("the call raises", bRaised, TRUE)
+	Then("content untouched", o1.Content(), "123---789---")
+EndScenario()
 
-pf()
+Summary()

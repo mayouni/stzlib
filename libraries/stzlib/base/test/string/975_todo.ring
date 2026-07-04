@@ -1,5 +1,7 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-04): DEFERRED -- VizFindManyXT with counts -- same aspirational-TODO family as 974.
 # (TODO)
 #
 # Extracted from stzStringTest.ring, block #975.

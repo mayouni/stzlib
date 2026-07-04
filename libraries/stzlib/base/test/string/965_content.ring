@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #965.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceSectionsByMany, same-width replacements. Archive block #965.
 
-o1 = new stzString("--345--89---")
-o1.ReplaceSectionsByMany([ [3, 5], [8, 9] ], [ "^^^", "^^" ])
-? o1.Content()
-#--> --^^^--^^---
+Scenario("Numbers to carets")
+	o1 = new stzString("--345--89---")
+	o1.ReplaceSectionsByMany([ [3, 5], [8, 9] ], [ "^^^", "^^" ])
+	Then("shape preserved", o1.Content(), "--^^^--^^---")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-# Executed in 0.08 second(s) in Ring 1.19
+Summary()

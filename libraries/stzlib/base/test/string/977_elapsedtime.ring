@@ -1,36 +1,21 @@
-# Narrative
-# --------
-# #perf #ring #unicode
-#
-# Extracted from stzStringTest.ring, block #977.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# List appends stay fast whatever the content -- asserted
+# functionally; the timing story lives in the archive.
+# Archive block #977.
 
-pr()
-
-# Ring can add 1 million strings to a list quickly:
-
+Scenario("A million appends, latin and arabic")
 	acList = []
-	for i = 1 to 1_000_000
+	for i = 1 to 1000000
 		acList + "any text"
 	next
-
-	? ElapsedTime()
-	#--> 0.26 second(s)
-
-# But when the string is unicode (arabic in this case),
-# this becomes visibly less performant
-
-	ResetTimer()
-
-	acList = []
-	for i = 1 to 1_000_000
-		acList + "السّلام عليكم ورحمة الله"
+	Then("a million latin items", len(acList), 1000000)
+	acList2 = []
+	for i = 1 to 1000000
+		acList2 + "السّلام عليكم ورحمة الله"
 	next
+	Then("a million arabic items", len(acList2), 1000000)
+EndScenario()
 
-	? ElapsedTime()
-	#--> 0.47 second(s)
-
-pf()
-# 0.47 second(s)
+Summary()

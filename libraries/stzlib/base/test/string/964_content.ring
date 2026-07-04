@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #964.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceSection in the middle. Archive block #964.
 
-o1 = new stzString("--345--89--")
-o1.ReplaceSection(8, 9, "~")
-? o1.Content()
-# --345--~--
+Scenario("The second number becomes a tilde")
+	o1 = new stzString("--345--89--")
+	o1.ReplaceSection(8, 9, "~")
+	Then("collapsed", o1.Content(), "--345--~--")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
