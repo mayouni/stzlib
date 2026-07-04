@@ -1,16 +1,12 @@
-# Narrative
-# --------
-# vizFind
-#
-# Extracted from stzStringTest.ring, block #899.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# IsHashList -- the option-shape check VizFind uses internally.
+# Archive block #899.
 
-pr()
+Scenario("A one-pair hash list")
+	Then("recognized",
+		IsHashList([ [ "positionchar", "^" ] ]), TRUE)
+EndScenario()
 
-? IsHashList([ [ "positionchar", "^" ] ])
-#--> TRUE
-
-pf()
-# Executed in almost 0 second(s).
+Summary()

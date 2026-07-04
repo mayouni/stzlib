@@ -1,20 +1,13 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #888.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... while :BoundedByIB (Including Bounds) removes the bounds too.
+# Archive block #888.
 
-	Q("__/\/\__/♥\__") {
-		RemoveXT("♥", :BoundedByIB = ["/", "\"]) # IB -> Bounds are also removed
-		? Content()
-		#--> __/\/\____
-	}
+Scenario("Heart and its slashes")
+	o1 = new stzString("__/\/\__/♥\__")
+	o1.RemoveXT("♥", :BoundedByIB = ["/", "\"])
+	Then("all three gone", o1.Content(), "__/\/\____")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.10 second(s).
+Summary()

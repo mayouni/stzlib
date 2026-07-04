@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #894.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveXT(:Nth = n, sub) -- selector-first spelling.
+# Archive block #894.
 
-	Q("_/♥\_/♥\_/♥♥\_/♥\_") {
-		RemoveXT(:Nth = 4, "♥")
-		? Content()
-		#--> _/♥\_/♥\_/♥\_/♥\_
-	}
+Scenario("The fourth heart")
+	o1 = new stzString("_/♥\_/♥\_/♥♥\_/♥\_")
+	o1.RemoveXT(:Nth = 4, "♥")
+	Then("the double becomes single",
+		o1.Content(), "_/♥\_/♥\_/♥\_/♥\_")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

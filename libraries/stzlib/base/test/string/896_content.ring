@@ -1,21 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #896.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveXT(sub, :AtPositions = [...]). Archive block #896.
 
-	Q("♥^^♥^^♥") {
-		RemoveXT( "♥", :AtPositions = [1, 7]) # or :At = [1, 7]
-		? Content()
-		#--> ^^♥^^
-	}
+Scenario("The outer hearts")
+	o1 = new stzString("♥^^♥^^♥")
+	o1.RemoveXT( "♥", :AtPositions = [1, 7])
+	Then("the middle one stays", o1.Content(), "^^♥^^")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.08 second(s) in Ring 1.19
+Summary()

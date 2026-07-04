@@ -1,20 +1,13 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #887.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveXT :BoundedBy removes the substring only where the bounds
+# enclose it -- the bounds themselves stay. Archive block #887.
 
-	Q("/♥♥♥\__/\/\__/♥♥♥\__") {
-		RemoveXT("♥♥♥", :BoundedBy = [ "/", :And = "\" ])
-		? Content()
-		#--> /\__/\/\__/\__
-	}
+Scenario("Hearts between slashes")
+	o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
+	o1.RemoveXT("♥♥♥", :BoundedBy = [ "/", :And = "\" ])
+	Then("bounds survive", o1.Content(), "/\__/\/\__/\__")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.12 second(s).
+Summary()

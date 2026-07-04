@@ -116,6 +116,19 @@ class stzString from stzObject
 			return ""
 		ok
 
+		# Lexicographic comparison ("sam" < "samira"). No "=" operator
+		# here, per the original's stzExtCode warning -- use IsEqualTo.
+		if pOp = "<" or pOp = ">" or pOp = "<=" or pOp = ">="
+			_cOpCmp_ = pValue
+			if isObject(pValue) _cOpCmp_ = pValue.Content() ok
+			if NOT isString(_cOpCmp_) return FALSE ok
+			_nOpCmp_ = strcmp(This.Content(), _cOpCmp_)
+			if pOp = "<" return _nOpCmp_ < 0 ok
+			if pOp = ">" return _nOpCmp_ > 0 ok
+			if pOp = "<=" return _nOpCmp_ <= 0 ok
+			return _nOpCmp_ >= 0
+		ok
+
 		if pOp = "-"
 			# Subtract (NON-mutating): a NUMBER trims that many trailing chars;
 			# a STRING / list of strings removes those substrings (engine-backed,
@@ -2599,6 +2612,144 @@ class stzString from stzObject
 					ok
 				next
 				return
+			ok
+		ok
+
+		# Form E: an EMPTY options list on either side means plain
+		# remove-all of the other side.
+		if isString(p1) and isList(p2) and len(p2) = 0
+			This.RemoveAll(p1)
+			return
+		ok
+		if isList(p1) and len(p1) = 0 and isString(p2)
+			This.RemoveAll(p2)
+			return
+		ok
+
+		# Form F: RemoveXT(:Nth = n, pcSub) -- selector first.
+		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
+		   lower(p1[1]) = "nth" and isNumber(p1[2]) and isString(p2)
+			This.RemoveNth(p1[2], p2)
+			return
+		ok
+
+		# Form G: :Around family -- p1 is one substring (both sides)
+		# or a [pre, post] pair, removed around the anchor(s).
+		if isList(p2) and len(p2) = 2 and isString(p2[1])
+			_cRxKey_ = lower(p2[1])
+			if ring_find([ "around", "aroundeach", "aroundnth",
+			               "aroundfirst", "aroundlast" ], _cRxKey_) > 0
+				_cRxPre_ = ""
+				_cRxPost_ = ""
+				_bRxOk_ = 0
+				if isString(p1)
+					_cRxPre_ = p1
+					_cRxPost_ = p1
+					_bRxOk_ = 1
+				but isList(p1) and len(p1) = 2 and isString(p1[1]) and isString(p1[2])
+					_cRxPre_ = p1[1]
+					_cRxPost_ = p1[2]
+					_bRxOk_ = 1
+				ok
+				if _bRxOk_
+					_vRxAnch_ = p2[2]
+					_aRxAp_ = []
+					_nRxAnchLen_ = 0
+					if _cRxKey_ = "aroundnth"
+						if isList(_vRxAnch_) and len(_vRxAnch_) = 2 and
+						   isNumber(_vRxAnch_[1]) and isString(_vRxAnch_[2])
+							_aRxAll_ = This.FindAll(_vRxAnch_[2])
+							_nRxAnchLen_ = This._EngineCount(_vRxAnch_[2])
+							if _vRxAnch_[1] >= 1 and _vRxAnch_[1] <= len(_aRxAll_)
+								_aRxAp_ + _aRxAll_[_vRxAnch_[1]]
+							ok
+						ok
+					but isString(_vRxAnch_)
+						_aRxAll_ = This.FindAll(_vRxAnch_)
+						_nRxAnchLen_ = This._EngineCount(_vRxAnch_)
+						_nRxAl_ = len(_aRxAll_)
+						if _cRxKey_ = "aroundfirst"
+							if _nRxAl_ > 0 _aRxAp_ + _aRxAll_[1] ok
+						but _cRxKey_ = "aroundlast"
+							if _nRxAl_ > 0 _aRxAp_ + _aRxAll_[_nRxAl_] ok
+						else
+							for _iRx_ = 1 to _nRxAl_
+								_aRxAp_ + _aRxAll_[_iRx_]
+							next
+						ok
+					ok
+					_nRxPreLen_ = This._EngineCount(_cRxPre_)
+					_nRxPostLen_ = This._EngineCount(_cRxPost_)
+					_nRxN_ = len(_aRxAp_)
+					for _iRx_ = _nRxN_ to 1 step -1
+						# POST side first, then PRE, so positions
+						# stay valid while we edit.
+						_nRxAt_ = _aRxAp_[_iRx_] + _nRxAnchLen_
+						if This._EngineSlice(This.Content(), _nRxAt_, _nRxPostLen_) = _cRxPost_
+							This.RemoveSection(_nRxAt_, (_nRxAt_ + _nRxPostLen_ - 1))
+						ok
+						_nRxAt_ = _aRxAp_[_iRx_] - _nRxPreLen_
+						if _nRxAt_ >= 1
+							if This._EngineSlice(This.Content(), _nRxAt_, _nRxPreLen_) = _cRxPre_
+								This.RemoveSection(_nRxAt_, (_nRxAt_ + _nRxPreLen_ - 1))
+							ok
+						ok
+					next
+					return
+				ok
+			ok
+
+			# Form H: :BoundedBy / :BoundedByIB -- remove p1 when it
+			# sits between the bounds; IB removes the bounds too.
+			if (_cRxKey_ = "boundedby" or _cRxKey_ = "boundedbyib") and isString(p1)
+				_vRxB_ = p2[2]
+				_cRxPre_ = ""
+				_cRxPost_ = ""
+				_bRxOk_ = 0
+				if isString(_vRxB_)
+					_cRxPre_ = _vRxB_
+					_cRxPost_ = _vRxB_
+					_bRxOk_ = 1
+				but isList(_vRxB_) and len(_vRxB_) = 2
+					if isString(_vRxB_[1])
+						_cRxPre_ = _vRxB_[1]
+						_vRxB2_ = _vRxB_[2]
+						if isString(_vRxB2_)
+							_cRxPost_ = _vRxB2_
+							_bRxOk_ = 1
+						but isList(_vRxB2_) and len(_vRxB2_) = 2 and
+						    isString(_vRxB2_[1]) and lower(_vRxB2_[1]) = "and"
+							_cRxPost_ = _vRxB2_[2]
+							_bRxOk_ = 1
+						ok
+					ok
+				ok
+				if _bRxOk_
+					_nRxSubLen_ = This._EngineCount(p1)
+					_nRxPreLen_ = This._EngineCount(_cRxPre_)
+					_nRxPostLen_ = This._EngineCount(_cRxPost_)
+					_aRxAll_ = This.FindAll(p1)
+					_nRxN_ = len(_aRxAll_)
+					for _iRx_ = _nRxN_ to 1 step -1
+						_nRxP_ = _aRxAll_[_iRx_]
+						_nRxB1_ = _nRxP_ - _nRxPreLen_
+						if _nRxB1_ < 1 loop ok
+						if This._EngineSlice(This.Content(), _nRxB1_, _nRxPreLen_) != _cRxPre_
+							loop
+						ok
+						if This._EngineSlice(This.Content(),
+						   (_nRxP_ + _nRxSubLen_), _nRxPostLen_) != _cRxPost_
+							loop
+						ok
+						if _cRxKey_ = "boundedbyib"
+							This.RemoveSection(_nRxB1_,
+								(_nRxP_ + _nRxSubLen_ + _nRxPostLen_ - 1))
+						else
+							This.RemoveSection(_nRxP_, (_nRxP_ + _nRxSubLen_ - 1))
+						ok
+					next
+					return
+				ok
 			ok
 		ok
 
@@ -10179,7 +10330,7 @@ class stzString from stzObject
 			for _j_ = 1 to _nP_
 				if _aPos_[_j_] = _i_ _bMark_ = TRUE exit ok
 			next
-			if _bMark_ _cMark_ += "^" else _cMark_ += " " ok
+			if _bMark_ _cMark_ += "^" else _cMark_ += "-" ok
 		next
 		return _cTxt_ + NL + _cMark_
 

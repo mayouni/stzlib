@@ -1,20 +1,13 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #892.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveXT with an empty options list is a plain remove-all.
+# Archive block #892.
 
-	Q("/♥♥♥\__/♥\/♥♥\__/♥\__") {
-		RemoveXT("♥", [])
-		? Content()
-		#--> /\__/\/\__/\__
-	}
+Scenario("No options, no hearts")
+	o1 = new stzString("/♥♥♥\__/♥\/♥♥\__/♥\__")
+	o1.RemoveXT("♥", [])
+	Then("every heart gone", o1.Content(), "/\__/\/\__/\__")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

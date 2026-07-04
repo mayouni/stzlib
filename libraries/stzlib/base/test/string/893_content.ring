@@ -1,20 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #893.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... and the arguments swap too. Archive block #893.
 
-	Q("/♥♥♥\__/♥\/♥♥\__/♥\__") {
-		RemoveXT([], "♥")
-		? Content()
-		#--> /\__/\/\__/\__
-	}
+Scenario("Empty list first")
+	o1 = new stzString("/♥♥♥\__/♥\/♥♥\__/♥\__")
+	o1.RemoveXT([], "♥")
+	Then("same result", o1.Content(), "/\__/\/\__/\__")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

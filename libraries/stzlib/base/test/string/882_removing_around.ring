@@ -1,23 +1,13 @@
-# Narrative
-# --------
-# REMOVING AROUND
-#
-# Extracted from stzStringTest.ring, block #882.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveXT :AroundEach removes the substring on BOTH sides of each
+# anchor. Archive block #882.
 
-StartProfiler()
-	
-Q("_-♥-_-♥-_-♥-_") {
-	
-	RemoveXT("-", :AroundEach = "♥") # Or simply :Around
-	? Content()
-	#--> _♥_♥_♥_
-}
-	
-StopProfiler()
+Scenario("Dashes hugging three hearts")
+	o1 = new stzString("_-♥-_-♥-_-♥-_")
+	o1.RemoveXT("-", :AroundEach = "♥")
+	Then("hugs released", o1.Content(), "_♥_♥_♥_")
+EndScenario()
 
-pf()
-# Executed in 0.06 second(s)
+Summary()

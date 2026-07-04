@@ -1133,7 +1133,29 @@ not exist in the numbering.)
 - **`Flower()` = the four-petaled U+2724** (862): impl had U+2740.
 Pure conversions: 861, 864, 871.
 
-## STATUS (2026-07-04): 797/999 test files audited (chunks 14-49 added 534); ~202 still to audit
+### Chunk 50 (tests 881-900, 2026-07-04)
+
+- **RemoveXT `:Around*` family** (882-886): Around/AroundEach/
+  AroundNth [n, anchor]/AroundFirst/AroundLast -- p1 is one
+  substring (both sides) or a [pre, post] pair, removed on both
+  sides of the resolved anchors (post side edited first so
+  positions stay valid).
+- **RemoveXT `:BoundedBy` / `:BoundedByIB`** (887, 888, 890, 891):
+  remove p1 only where the bounds enclose it; the IB form removes
+  the bounds too. Bounds spec: one string (both sides), [a, b], or
+  [a, :And = b].
+- **RemoveXT convenience forms** (892-894): an empty options list
+  on either side = plain remove-all; (:Nth = n, sub) selector-first
+  spelling.
+- **`<` and `>` operators** (897): lexicographic strcmp; <= / >=
+  thrown in. NO `=` operator, honoring the original's stzExtCode
+  warning -- 897's equality lines assert via IsEqualTo
+  (case-sensitive).
+- **VizFind rail uses dashes** (900): "^---^----^---^---" per the
+  archive (was spaces).
+Pure conversions: 881, 889, 895, 896, 898, 899.
+
+## STATUS (2026-07-04): 817/999 test files audited (chunks 14-50 added 554); ~182 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

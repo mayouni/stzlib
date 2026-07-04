@@ -1,17 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #900.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# VizFind draws the text and a caret rail underneath -- carets on the
+# hits, dashes elsewhere. Archive block #900.
 
-? StzStringQ("ABTCADNBBABEFACCC").VizFind("A")
-#--> 
-#	"ABTCADNBBABEFACCC"
-#	 ^---^----^---^---
+Scenario("Marking every A")
+	Then("four carets on the rail",
+		StzStringQ("ABTCADNBBABEFACCC").VizFind("A"),
+		"ABTCADNBBABEFACCC" + NL + "^---^----^---^---")
+EndScenario()
 
-pf()
-# Executed in 0.06 second(s).
+Summary()

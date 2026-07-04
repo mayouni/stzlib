@@ -1,20 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #891.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# :BoundedByIB with a single-string bound. Archive block #891.
 
-	Q("__/\/\__^^♥^^__") {
-		RemoveXT("♥", :BoundedByIB = "^^")
-		? Content()
-		#--> __/\/\____
-	}
+Scenario("Heart and its carets")
+	o1 = new stzString("__/\/\__^^♥^^__")
+	o1.RemoveXT("♥", :BoundedByIB = "^^")
+	Then("all gone", o1.Content(), "__/\/\____")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.10 second(s)
+Summary()
