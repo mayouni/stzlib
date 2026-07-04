@@ -1058,7 +1058,38 @@ numbering.)
 Pure conversions: 802, 803, 805-810, 814, 818, 819 (820 was already
 narrated in the W-migration).
 
-## STATUS (2026-07-04): 744/999 test files audited (chunks 14-46 added 481); ~255 still to audit
+### Chunk 47 (tests 821-840, 2026-07-04)
+
+- **Number-literal family rebuilt on one structural core** (831/833/
+  834): new `_NumLiteralInfo()` parses optional sign, 0x/0b/0o
+  prefix, "_" digit separators and at most one dot (digits both
+  sides). All 16 Represents* answers of the octal-real block now
+  match; sign-inside-prefix is malformed (833); NumberForm gains
+  :Octal and checks prefixes before decimal (was "decimal" for hex).
+  Calculable* = aliases of the base checks; Real = has-dot. Removed
+  a SHADOWING duplicate RepresentsNumberInHexForm (engine IsHex on
+  the whole prefixed string -- always false).
+- **InsertBefore/InsertAfter accept substring ANCHORS** (823):
+  InsertBefore("language", ...) lands at the anchor's first
+  occurrence (was inserting at position 1).
+- **InsertSubStrings(nPos, list) + InsertSubStringsXT** (835-837):
+  the XT was a no-op alias; now formats the list (opening/closing
+  chars, main separator +optional space, last-separator "and"
+  +combine, :SpaceOption lead/trail, :InsertBeforeOrAfter) and
+  inserts at the position. The plain scalar form = XT with the
+  parens-and-commas default.
+- **`UnicodeCompareWithCS` speaks :Less/:Equal/:Greater** (826): was
+  -1/0/1; case-blind path via StzLower (codepoint-aware).
+  UnicodeCompareWithInSystemLocale (827): case-blind compare, tie
+  broken by the uppercase side sorting greater.
+- **`FindNthOccurrence(n, :Of = ...)`** (825): named param unwrapped.
+- **839/840 DEFERRED**: semantic locale validation ("ar-fr" invalid
+  needs language-country data) and stzLocale.Name() -- both to the
+  stzLocale pass with 650/664.
+Pure conversions: 822, 824, 828-830, 832, 838 (821 was already
+narrated in the W-migration).
+
+## STATUS (2026-07-04): 761/999 test files audited (chunks 14-47 added 498); ~238 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

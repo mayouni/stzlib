@@ -3596,6 +3596,13 @@ class stzString from stzObject
 				pcSubStr = pcSubStr[2]
 			ok
 		ok
+		# Anchor form: InsertBefore("language", "programming ") --
+		# a STRING first arg anchors at its first occurrence.
+		if isString(n)
+			_nIbAt_ = This._FindFrom(This.Content(), n, 1)
+			if _nIbAt_ < 1 return ok
+			n = _nIbAt_
+		ok
 		# List-of-positions form: walk descending so positions stay
 		# valid as later inserts shift the string. Only enter this
 		# path when the list is plain numbers (not a named-param pair).
@@ -3769,6 +3776,13 @@ class stzString from stzObject
 			return This
 
 	def InsertAfter(n, pcSubStr)
+		# Anchor form: InsertAfter("Ring", " programming") inserts
+		# after the anchor's last char.
+		if isString(n)
+			_nIaAt_ = This._FindFrom(This.Content(), n, 1)
+			if _nIaAt_ < 1 return ok
+			n = _nIaAt_ + This._EngineCount(n) - 1
+		ok
 		This.InsertBefore(n + 1, pcSubStr)
 
 		def InsertAfterQ(n, pcSubStr)
@@ -4130,10 +4144,6 @@ class stzString from stzObject
 
 		def IsACharName()
 			return This.IsCharName()
-
-	def RepresentsNumberInHexForm()
-		pH = @pEngine
-		return StzEngineStringIsHexString(pH)
 
 	def RepresentsNumberInUnicodeHexForm()
 		_cContent_ = This.Content()
@@ -6500,20 +6510,21 @@ class stzString from stzObject
 		return This.ContainsNTimesCS(n, pcSubStr, 1)
 
 	def RepresentsInteger()
-		_oRiChk_ = new stzStringChecker(This)
-		return _oRiChk_.RepresentsInteger()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and NOT _aRn_[3]
 
 	def RepresentsSignedInteger()
-		_oRsiChk_ = new stzStringChecker(This)
-		return _oRsiChk_.RepresentsSignedInteger()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and NOT _aRn_[3] and _aRn_[2]
 
 	def RepresentsUnsignedInteger()
-		_oRuiChk_ = new stzStringChecker(This)
-		return _oRuiChk_.RepresentsUnsignedInteger()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and NOT _aRn_[3] and NOT _aRn_[2]
 
 	def RepresentsRealNumber()
-		_oRrnChk_ = new stzStringChecker(This)
-		return _oRrnChk_.RepresentsRealNumber()
+		# A REAL carries a fractional dot (any base form).
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and _aRn_[3]
 
 		#-- "...InString" aliases: does the STRING content represent a real?
 		def IsRealInString()
@@ -6526,16 +6537,16 @@ class stzString from stzObject
 			return This.RepresentsRealNumber()
 
 	def RepresentsSignedNumber()
-		_oRsnChk_ = new stzStringChecker(This)
-		return _oRsnChk_.RepresentsSignedNumber()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and _aRn_[2]
 
 	def RepresentsUnsignedNumber()
-		_oRunChk_ = new stzStringChecker(This)
-		return _oRunChk_.RepresentsUnsignedNumber()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and NOT _aRn_[2]
 
 	def RepresentsCalculableNumber()
-		_oRcnChk_ = new stzStringChecker(This)
-		return _oRcnChk_.RepresentsCalculableNumber()
+		# Any valid literal is calculable (double precision).
+		return This.RepresentsNumber()
 
 	def IsNumberInString()
 		_oInisChk_ = new stzStringChecker(This)
@@ -6650,31 +6661,99 @@ class stzString from stzObject
 		def ToListQ()
 			return new stzList( This.ToList() )
 
+	# _NumLiteralInfo(): structural parse of a number literal --
+	# optional sign, optional 0x/0b/0o base prefix, digits with "_"
+	# separators, at most one dot with digits on both sides.
+	# Returns [ cForm, bSigned, bHasDot, bValid ].
+	def _NumLiteralInfo()
+		_c_ = ring_trim(This.Content())
+		_bSg_ = 0
+		_nL_ = ring_len(_c_)
+		if _nL_ > 0
+			if _c_[1] = "+" or _c_[1] = "-"
+				_bSg_ = 1
+				_c_ = ring_right(_c_, _nL_ - 1)
+				_nL_ = _nL_ - 1
+			ok
+		ok
+		_cForm_ = "decimal"
+		_cDig_ = "0123456789"
+		if _nL_ >= 2
+			_cPfx_ = lower(ring_left(_c_, 2))
+			if _cPfx_ = "0x"
+				_cForm_ = "hex"
+				_cDig_ = "0123456789abcdef"
+				_c_ = ring_right(_c_, _nL_ - 2)
+				_nL_ = _nL_ - 2
+			but _cPfx_ = "0b"
+				_cForm_ = "binary"
+				_cDig_ = "01"
+				_c_ = ring_right(_c_, _nL_ - 2)
+				_nL_ = _nL_ - 2
+			but _cPfx_ = "0o"
+				_cForm_ = "octal"
+				_cDig_ = "01234567"
+				_c_ = ring_right(_c_, _nL_ - 2)
+				_nL_ = _nL_ - 2
+			ok
+		ok
+		_bDot_ = 0
+		_bOk_ = 0
+		if _nL_ > 0 _bOk_ = 1 ok
+		_nSide_ = 0
+		_iNl_ = 1
+		while _iNl_ <= _nL_
+			_ch_ = lower(_c_[_iNl_])
+			if _ch_ = "."
+				if _bDot_ = 1 or _nSide_ = 0
+					_bOk_ = 0
+					exit
+				ok
+				_bDot_ = 1
+				_nSide_ = 0
+			but _ch_ = "_"
+				# digit-group separator, ignored
+			else
+				if StzFindFirst(_cDig_, _ch_) > 0
+					_nSide_++
+				else
+					_bOk_ = 0
+					exit
+				ok
+			ok
+			_iNl_++
+		end
+		if _nSide_ = 0 _bOk_ = 0 ok
+		return [ _cForm_, _bSg_, _bDot_, _bOk_ ]
+
 	def RepresentsNumber()
-		_oRnChk_ = new stzStringChecker(This)
-		return _oRnChk_.RepresentsNumber()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4]
 
 	def RepresentsDecimalNumber()
-		_oRdnChk_ = new stzStringChecker(This)
-		return _oRdnChk_.RepresentsDecimalNumber()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and _aRn_[1] = "decimal"
 
 		def RepresentsNumberInDecimalForm()
 			return This.RepresentsDecimalNumber()
 
 	def RepresentsBinaryNumber()
-		_oRbnChk_ = new stzStringChecker(This)
-		return _oRbnChk_.RepresentsBinaryNumber()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and _aRn_[1] = "binary"
 
 		def RepresentsNumberInBinaryForm()
 			return This.RepresentsBinaryNumber()
 
 	def RepresentsHexNumber()
-		_oRhnChk_ = new stzStringChecker(This)
-		return _oRhnChk_.RepresentsHexNumber()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and _aRn_[1] = "hex"
+
+		def RepresentsNumberInHexForm()
+			return This.RepresentsHexNumber()
 
 	def RepresentsOctalNumber()
-		_oRonChk_ = new stzStringChecker(This)
-		return _oRonChk_.RepresentsOctalNumber()
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and _aRn_[1] = "octal"
 
 		def RepresentsNumberInOctalForm()
 			return This.RepresentsOctalNumber()
@@ -7658,6 +7737,10 @@ class stzString from stzObject
 		return 0
 
 	def FindNthOccurrence(n, pcSub)
+		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and
+		   lower(pcSub[1]) = "of"
+			pcSub = pcSub[2]
+		ok
 		return This.FindNthOccurrenceCS(n, pcSub, 1)
 
 	# All positions of pcSub (collect-them-all helper).
@@ -13686,16 +13769,7 @@ class stzString from stzObject
 		       StzEngineStringContainsArabic(@pEngine) = 1
 
 	def RepresentsCalculableInteger()
-		_c_ = ring_trim(This.Content())
-		if len(_c_) = 0 return FALSE ok
-		_i_ = 1
-		if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
-		if _i_ > len(_c_) return FALSE ok
-		while _i_ <= len(_c_)
-			if NOT isDigit(_c_[_i_]) return FALSE ok
-			_i_++
-		end
-		return TRUE
+		return This.RepresentsInteger()
 
 	def LanguageAbbreviationForm()
 		_c_ = This.Content()
@@ -13704,44 +13778,15 @@ class stzString from stzObject
 		return :Unknown
 
 	def RepresentsSignedRealNumber()
-		_c_ = ring_trim(This.Content())
-		if len(_c_) = 0 return FALSE ok
-		_i_ = 1
-		if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
-		if _i_ > len(_c_) return FALSE ok
-		_bDot_ = FALSE
-		while _i_ <= len(_c_)
-			if _c_[_i_] = "."
-				if _bDot_ return FALSE ok
-				_bDot_ = TRUE
-			but NOT isDigit(_c_[_i_])
-				return FALSE
-			ok
-			_i_++
-		end
-		# Must have at least one sign to be SIGNED.
-		_h_ = This.Content()[1]
-		return _h_ = "-" or _h_ = "+"
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and _aRn_[3] and _aRn_[2]
 
 	def RepresentsUnsignedRealNumber()
-		_c_ = ring_trim(This.Content())
-		if len(_c_) = 0 return FALSE ok
-		_bDot_ = FALSE
-		_i_ = 1
-		while _i_ <= len(_c_)
-			if _c_[_i_] = "."
-				if _bDot_ return FALSE ok
-				_bDot_ = TRUE
-			but NOT isDigit(_c_[_i_])
-				return FALSE
-			ok
-			_i_++
-		end
-		return TRUE
+		_aRn_ = This._NumLiteralInfo()
+		return _aRn_[4] and _aRn_[3] and NOT _aRn_[2]
 
 	def RepresentsCalculableRealNumber()
-		return This.RepresentsUnsignedRealNumber() or
-		       This.RepresentsSignedRealNumber()
+		return This.RepresentsRealNumber()
 
 	def IsLongLanguageAbbreviation()
 		# Long form: 3-letter ISO 639-2/3 (e.g. "eng", "fra").
@@ -15609,7 +15654,7 @@ class stzString from stzObject
 			return This
 
 	# UnicodeCompareWithCS(pcOther, pCaseSensitive): codepoint
-	# comparison. Returns -1, 0 or 1.
+	# comparison. Returns :Less, :Equal or :Greater.
 	def UnicodeCompareWithCS(pcOther, pCaseSensitive)
 		# Accept :CaseSensitive = TRUE/FALSE named-param.
 		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and
@@ -15619,19 +15664,28 @@ class stzString from stzObject
 		_a_ = This.Content()
 		_b_ = pcOther
 		if pCaseSensitive = FALSE or pCaseSensitive = 0
-			_a_ = lower(_a_)
-			_b_ = lower(_b_)
+			_a_ = StzLower(_a_)
+			_b_ = StzLower(_b_)
 		ok
 		_n_ = strcmp(_a_, _b_)
-		if _n_ < 0 return -1 ok
-		if _n_ > 0 return 1 ok
-		return 0
+		if _n_ < 0 return :Less ok
+		if _n_ > 0 return :Greater ok
+		return :Equal
 
 	def UnicodeCompareWith(pcOther)
 		return This.UnicodeCompareWithCS(pcOther, 1)
 
 	def UnicodeCompareWithInSystemLocale(pcOther)
-		return This.UnicodeCompareWithCS(pcOther, 1)
+		# Locale-flavored: compare case-blind first; on a tie the
+		# UPPERCASE side sorts greater (collation convention).
+		_cUcl_ = This.UnicodeCompareWithCS(pcOther, 0)
+		if _cUcl_ != :Equal return _cUcl_ ok
+		_cThis_ = This.Content()
+		if _cThis_ = pcOther return :Equal ok
+		if _cThis_ = StzUpper(_cThis_) and pcOther != StzUpper(pcOther)
+			return :Greater
+		ok
+		return :Less
 
 	# NumberOfCharsW(pcCondition).
 	def NumberOfCharsW(pcCondition)
@@ -15702,12 +15756,13 @@ class stzString from stzObject
 
 	# NumberForm(): :Integer, :Decimal, :Hex, :Binary, or :Other.
 	def NumberForm()
-		_c_ = ring_trim(This.Content())
-		if This.IsAnInteger() return :Integer ok
-		if StzFindFirst(_c_, ".") > 0 return :Decimal ok
-		if ring_left(_c_, 2) = "0x" return :Hex ok
-		if ring_left(_c_, 2) = "0b" return :Binary ok
-		return :Other
+		_aNf_ = This._NumLiteralInfo()
+		if NOT _aNf_[4] return :Other ok
+		if _aNf_[1] = "hex" return :Hex ok
+		if _aNf_[1] = "binary" return :Binary ok
+		if _aNf_[1] = "octal" return :Octal ok
+		if _aNf_[3] return :Decimal ok
+		return :Integer
 
 	# PositionAfter(pcSub): position right after first occurrence.
 	def PositionAfter(pcSub)
@@ -15723,6 +15778,19 @@ class stzString from stzObject
 	# InsertSubStrings(anPos, pacStr): insert pacStr[i] at anPos[i],
 	# processed from highest position down so earlier positions stay valid.
 	def InsertSubStrings(anPos, pacStr)
+		# Scalar-position form: insert the whole list, formatted with
+		# the default configuration (parens, comma+space, padding
+		# spaces): "... versions (V1, V2, V3)  must ...".
+		if isNumber(anPos) and isList(pacStr)
+			This.InsertSubStringsXT(anPos, pacStr, [
+				:OpeningChar = "(",
+				:ClosingChar = ")",
+				:MainSeparator = ",",
+				:AddSpaceAfterSeparator = TRUE,
+				:SpaceOption = :AddLeadingAndTrailingSpaces
+			])
+			return
+		ok
 		if NOT (isList(anPos) and isList(pacStr)) return ok
 		_aPairs_ = []
 		_nPL_ = len(anPos); _nSL_ = len(pacStr)
@@ -15749,7 +15817,93 @@ class stzString from stzObject
 			return This
 
 	def InsertSubStringsXT(anPos, pacStr, pNamed)
-		This.InsertSubStrings(anPos, pacStr)
+		# Formatted list insertion at a single position. Options:
+		# :InsertBeforeOrAfter, :OpeningChar/:ClosingChar,
+		# :MainSeparator (+ :AddSpaceAfterSeparator),
+		# :LastSeparator (+ :AddLastToMainSeparator),
+		# :SpaceOption (:AddLeadingSpace / :AddTrailingSpace /
+		# :AddLeadingAndTrailingSpaces).
+		if NOT (isNumber(anPos) and isList(pacStr))
+			This.InsertSubStrings(anPos, pacStr)
+			return
+		ok
+		_cIsOpen_ = ""
+		_cIsClose_ = ""
+		_cIsSep_ = ""
+		_bIsSpaceSep_ = 0
+		_cIsLastSep_ = ""
+		_bIsLastMain_ = 0
+		_cIsWhere_ = "before"
+		_bIsLead_ = 0
+		_bIsTrail_ = 0
+		if isList(pNamed)
+			_nIsOl_ = len(pNamed)
+			for _iIs_ = 1 to _nIsOl_
+				_vIs_ = pNamed[_iIs_]
+				if isList(_vIs_) and len(_vIs_) = 2 and isString(_vIs_[1])
+					_kIs_ = lower(_vIs_[1])
+					_wIs_ = _vIs_[2]
+					if _kIs_ = "openingchar"
+						_cIsOpen_ = _wIs_
+					but _kIs_ = "closingchar"
+						_cIsClose_ = _wIs_
+					but _kIs_ = "mainseparator"
+						_cIsSep_ = _wIs_
+					but _kIs_ = "addspaceafterseparator"
+						if _wIs_ = 1 _bIsSpaceSep_ = 1 ok
+					but _kIs_ = "lastseparator"
+						_cIsLastSep_ = _wIs_
+					but _kIs_ = "addlasttomainseparator"
+						if _wIs_ = 1 _bIsLastMain_ = 1 ok
+					but _kIs_ = "insertbeforeorafter"
+						if isString(_wIs_) _cIsWhere_ = lower(_wIs_) ok
+					but _kIs_ = "spaceoption"
+						if isString(_wIs_)
+							_cIsSo_ = lower(_wIs_)
+							if _cIsSo_ = "addleadingspace"
+								_bIsLead_ = 1
+							but _cIsSo_ = "addtrailingspace"
+								_bIsTrail_ = 1
+							but _cIsSo_ = "addleadingandtrailingspaces" or
+							    _cIsSo_ = "addleadingandtrailingspace"
+								_bIsLead_ = 1
+								_bIsTrail_ = 1
+							ok
+						ok
+					ok
+				ok
+			next
+		ok
+		_cIsSepFull_ = _cIsSep_
+		if _bIsSpaceSep_ _cIsSepFull_ += " " ok
+		_nIsN_ = len(pacStr)
+		_cIsBody_ = ""
+		for _iIs_ = 1 to _nIsN_
+			_cIsBody_ += pacStr[_iIs_]
+			if _iIs_ < _nIsN_
+				if _iIs_ = _nIsN_ - 1 and _cIsLastSep_ != ""
+					if _bIsLastMain_
+						_cIsBody_ += (_cIsSepFull_ + _cIsLastSep_ + " ")
+					else
+						_cIsBody_ += (" " + _cIsLastSep_ + " ")
+					ok
+				else
+					_cIsBody_ += _cIsSepFull_
+				ok
+			ok
+		next
+		_cIsIns_ = _cIsOpen_ + _cIsBody_ + _cIsClose_
+		if _bIsLead_ _cIsIns_ = " " + _cIsIns_ ok
+		if _bIsTrail_ _cIsIns_ += " " ok
+		if _cIsWhere_ = "after"
+			This.InsertBefore(anPos + 1, _cIsIns_)
+		else
+			This.InsertBefore(anPos, _cIsIns_)
+		ok
+
+		def InsertSubStringsXTQ(anPos, pacStr, pNamed)
+			This.InsertSubStringsXT(anPos, pacStr, pNamed)
+			return This
 
 	def ItemsWhere(pcCondition)
 		return This.CharsW(pcCondition)

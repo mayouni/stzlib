@@ -1,25 +1,19 @@
-# Narrative
-# --------
-# STRING COMPARAISON
-#
-# Extracted from stzStringTest.ring, block #826.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# UnicodeCompareWithCS speaks :Less / :Equal / :Greater.
+# Archive block #826.
 
-pr()
+Scenario("Three reservations")
+	Then("same word, case aside",
+		Q("reserve").UnicodeCompareWithCS("RESERVE", :CaseSensitive = FALSE),
+		:Equal)
+	Then("accents sort after",
+		Q("réservé").UnicodeCompareWithCS("RESERVE", :CaseSensitive = FALSE),
+		:Greater)
+	Then("a shorter prefix sorts before",
+		Q("reserv").UnicodeCompareWithCS("RESERVE", :CaseSensitive = FALSE),
+		:Less)
+EndScenario()
 
-o1 = new stzString("reserve")
-? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = FALSE )
-#--> :Equal
-
-o1 = new stzString("réservé")
-? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = FALSE )
-#--> :Greater
-
-o1 = new stzString("reserv")
-? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = FALSE )
-#--> :Less
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

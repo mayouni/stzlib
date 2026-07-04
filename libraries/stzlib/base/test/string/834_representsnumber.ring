@@ -1,36 +1,21 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #834.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Hex and octal forms, with digit-group underscores, and NumberForm.
+# Archive block #834.
 
-o1 = new stzString("0x12_5AB34.123F")
+Scenario("A hex real with underscores")
+	o1 = new stzString("0x12_5AB34.123F")
+	Then("a number", o1.RepresentsNumber(), TRUE)
+	Then("its form", o1.NumberForm(), :Hex)
+	Then("hex-form indeed", o1.RepresentsNumberInHexForm(), TRUE)
+EndScenario()
 
-? o1.RepresentsNumber()
-#--> TRUE
+Scenario("An octal real")
+	o2 = new stzString("0o2304.307")
+	Then("a number", o2.RepresentsNumber(), TRUE)
+	Then("its form", o2.NumberForm(), :Octal)
+	Then("octal-form indeed", o2.RepresentsNumberInOctalForm(), TRUE)
+EndScenario()
 
-? o1.NumberForm()
-#--> :Hex
-
-? o1.RepresentsNumberInHexForm() + NL
-#--> TRUE
-
-#--
-
-o1 = new stzString("0o2304.307")
-
-? o1.RepresentsNumber()
-#--> TRUE
-
-? o1.NumberForm()
-#--> :Octal
-
-? o1.RepresentsNumberInOctalForm()
-#--> TRUE
-
-pf()
-# Executed in 0.08 second(s) in Ring 1.22
+Summary()

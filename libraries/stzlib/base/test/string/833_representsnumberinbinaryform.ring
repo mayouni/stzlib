@@ -1,24 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #833.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Binary-form literals: the sign belongs BEFORE the 0b prefix.
+# Archive block #833.
 
-o1 = new stzString("0b110001.1001")
-? o1.RepresentsNumberInBinaryForm()
-#--> TRUE
+Scenario("Three binary spellings")
+	Then("plain", Q("0b110001.1001").RepresentsNumberInBinaryForm(), TRUE)
+	Then("signed before the prefix",
+		Q("-0b110001.1001").RepresentsNumberInBinaryForm(), TRUE)
+	Then("sign inside: malformed",
+		Q("0b-110001.1001").RepresentsNumberInBinaryForm(), FALSE)
+EndScenario()
 
-o1 = new stzString("-0b110001.1001")
-? o1.RepresentsNumberInBinaryForm()
-#--> TRUE
-
-o1 = new stzString("0b-110001.1001")
-? o1.RepresentsNumberInBinaryForm()
-#--> FALSE
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.22
+Summary()

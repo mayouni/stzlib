@@ -1,23 +1,19 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #837.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# InsertSubStringsXT with just one option: everything else stays off.
+# Archive block #837.
 
-# You can use InsertSubStringsXT() with just the configurations you want:
+Scenario("Plus-separated versions")
+	o1 = new stzString("All our software versions must be updated!")
+	o1.InsertSubStringsXT(
+		o1.PositionAfter("versions"),
+		[ " V1", "V2", "V3" ],
+		[ :MainSeparator = "+" ]
+	)
+	Then("bare join",
+		o1.Content(),
+		"All our software versions V1+V2+V3 must be updated!")
+EndScenario()
 
-o1 = new stzString("All our software versions must be updated!")
-o1.InsertSubStringsXT(
-	o1.PositionAfter("versions"),
-	[ " V1", "V2", "V3" ],
-	[ :MainSeparator = "+" ]
-)
-? o1.Content()
-#--> All our software versions V1+V2+V3 must be updated!
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

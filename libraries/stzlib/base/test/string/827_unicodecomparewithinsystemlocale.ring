@@ -1,19 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #827.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# UnicodeCompareWithInSystemLocale: case-blind first, and on a tie the
+# uppercase side sorts greater (collation convention).
+# Archive block #827.
 
-o1 = new stzString("RÉSERVÉ")
+Scenario("Caps against minuscules")
+	Then("RESERVE beats reserve on the tie-break",
+		Q("RÉSERVÉ").UnicodeCompareWithInSystemLocale("réservé"), :Greater)
+EndScenario()
 
-? o1.UnicodeCompareWithInSystemLocale("réservé")
-#--> :Greater
-
-//? o1.UnicodeCompareWithInLocale("réservé", "fr-FR")	#TODO
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

@@ -1,5 +1,7 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-04): DEFERRED -- SEMANTIC locale validation ("ar-tn" TRUE but "ar-fr"/"tn-fr" FALSE needs the language-country compatibility data); goes with 650/664 to the stzLocale pass. The structural IsLocaleAbbreviation (649) stays.
 # pr()
 #
 # Extracted from stzStringTest.ring, block #839.

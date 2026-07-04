@@ -1,35 +1,27 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #831.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The Represents* number-literal family on an octal REAL.
+# Archive block #831.
 
-o1 = new stzString("0o20723.034")
-o1 {
-	? RepresentsNumber()			#--> TRUE
-	? RepresentsSignedNumber()		#--> FALSE
-	? RepresentsUnsignedNumber()		#--> TRUE
-	? RepresentsCalculableNumber() + NL	#--> TRUE
-	
-	? RepresentsInteger()			#--> FALSE
-	? RepresentsSignedInteger()		#--> FALSE
-	? RepresentsUnsignedInteger()		#--> FALSE
-	? RepresentsCalculableInteger()	 + NL	#--> FALSE
-	
-	? RepresentsRealNumber()		#--> TRUE
-	? RepresentsSignedRealNumber()		#--> FALSE
-	? RepresentsUnsignedRealNumber()	#--> TRUE
-	? RepresentsCalculableRealNumber() + NL	#--> TRUE
-	
-	? RepresentsNumberInDecimalForm()	#--> FALSE
-	? RepresentsNumberInBinaryForm()	#--> FALSE
-	? RepresentsNumberInHexForm()		#--> FALSE
-	? RepresentsNumberInOctalForm()		#--> TRUE
-}
+Scenario("An octal real, sixteen questions")
+	o1 = new stzString("0o20723.034")
+	Then("a number", o1.RepresentsNumber(), TRUE)
+	Then("not signed", o1.RepresentsSignedNumber(), FALSE)
+	Then("so unsigned", o1.RepresentsUnsignedNumber(), TRUE)
+	Then("calculable", o1.RepresentsCalculableNumber(), TRUE)
+	Then("not an integer (it has a dot)", o1.RepresentsInteger(), FALSE)
+	Then("nor a signed one", o1.RepresentsSignedInteger(), FALSE)
+	Then("nor an unsigned one", o1.RepresentsUnsignedInteger(), FALSE)
+	Then("nor calculable-as-integer", o1.RepresentsCalculableInteger(), FALSE)
+	Then("a real number", o1.RepresentsRealNumber(), TRUE)
+	Then("not a signed real", o1.RepresentsSignedRealNumber(), FALSE)
+	Then("an unsigned real", o1.RepresentsUnsignedRealNumber(), TRUE)
+	Then("a calculable real", o1.RepresentsCalculableRealNumber(), TRUE)
+	Then("not decimal-form", o1.RepresentsNumberInDecimalForm(), FALSE)
+	Then("not binary-form", o1.RepresentsNumberInBinaryForm(), FALSE)
+	Then("not hex-form", o1.RepresentsNumberInHexForm(), FALSE)
+	Then("octal-form", o1.RepresentsNumberInOctalForm(), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.16 second(s) in Ring 1.22
+Summary()

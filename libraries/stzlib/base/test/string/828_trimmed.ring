@@ -1,20 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #828.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Trimmed and Simplify + Uppercased. Archive block #828.
 
-o1 = new stzString("  lots   of    whitespace  ")
+Scenario("Whitespace housekeeping")
+	o1 = new stzString("  lots   of    whitespace  ")
+	Then("edges trimmed", o1.Trimmed(), "lots   of    whitespace")
+	Then("then squeezed and shouted",
+		o1.SimplifyQ().Uppercased(), "LOTS OF WHITESPACE")
+EndScenario()
 
-? o1.Trimmed()
-#--> "lots   of    whitespace"
-
-? o1.SimplifyQ().UPPERcased()
-#--> "LOTS OF WHITESPACE"
-
-pf()
-# Executed in 0.01 second(s).
+Summary()
