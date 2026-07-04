@@ -1,22 +1,13 @@
-# Narrative
-# --------
-# REMOVE XT ================= #todo Write a #narration
-#
-# Extracted from stzStringTest.ring, block #865.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveXT(sub, :From = context): rebind then remove.
+# Archive block #865.
 
-StartProfiler()
-	
+Scenario("A heart in the wrong place")
 	o1 = new stzString("Ring programming♥ language")
 	o1.RemoveXT("♥", :From = "programming♥")
-	
-	? o1.Content()
-	#--> Ring programming language
-	
-StopProfiler()
+	Then("gone", o1.Content(), "Ring programming language")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s)
+Summary()

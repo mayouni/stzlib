@@ -1,23 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #880.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-	
+# :BeforeFirst. Archive block #880.
 
-pr()
+Scenario("Only before the first heart")
+	o1 = new stzString("__(♥__♥__♥__")
+	o1.RemoveXT( "(", :BeforeFirst = "♥" )
+	Then("cleaned", o1.Content(), "__♥__♥__♥__")
+EndScenario()
 
-Q("__(♥__♥__♥__") {
-
-	RemoveXT( "(", :BeforeFirst = "♥" )
-	? Content()
-	#--> __♥__♥__♥__
-}
-	
-StopProfiler()
-
-pf()
-# Executed in 0.05 second(s)
+Summary()

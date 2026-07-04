@@ -2792,7 +2792,7 @@ _cMarquerChar = "#"
 			return Dot()
 
 	func Flower()
-		return "❀"
+		return "✤"
 
 		func AFlower()
 			return Flower()

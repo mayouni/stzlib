@@ -1112,7 +1112,28 @@ narrated in the W-migration).
 Pure conversions: 844, 846, 848, 850, 852, 859. (841/843/853/858 do
 not exist in the numbering.)
 
-## STATUS (2026-07-04): 777/999 test files audited (chunks 14-48 added 514); ~222 still to audit
+### Chunk 49 (tests 861-880, 2026-07-04)
+
+- **RemoveXT `:From = context` edits IN PLACE** (865-870): the impl
+  REBOUND the whole content to the context ("Ring programming
+  language" collapsed to "programming"); now the removal is applied
+  inside the context substring and spliced back with ReplaceSection.
+  (The old behavior slipped past triage because print-form output
+  looked plausible -- the narrated asserts caught it.)
+- **RemoveXT `:After`/`:Before` family implemented** (872-880):
+  After/AfterEach/AfterNth [n, anchor]/AfterFirst/AfterLast + the
+  Before mirror -- remove the substring sitting immediately
+  after/before the resolved anchor occurrence(s), walking descending.
+  Was "unsupported argument shape" for all nine forms.
+- **`FindPreviousNth` :StartingAt is INCLUSIVE** (863): an
+  occurrence exactly at the start position counts as the 1st
+  previous (kept 697's NthPreviousOccurrence semantics intact --
+  its start positions are not occurrence positions).
+- **`NumberOfOccurrenceCS` :Of unwrap** (863).
+- **`Flower()` = the four-petaled U+2724** (862): impl had U+2740.
+Pure conversions: 861, 864, 871.
+
+## STATUS (2026-07-04): 797/999 test files audited (chunks 14-49 added 534); ~202 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

@@ -1,23 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #873.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-	
+# :AfterEach -- every occurrence gets cleaned. Archive block #873.
 
-pr()
+Scenario("Three closers after three hearts")
+	o1 = new stzString("__♥)__♥)__♥)__")
+	o1.RemoveXT( ")", :AfterEach = "♥" )
+	Then("all three gone", o1.Content(), "__♥__♥__♥__")
+EndScenario()
 
-Q("__♥)__♥)__♥)__") {
-	
-	RemoveXT( ")", :AfterEach = "♥" ) # ... you can also say :After = "♥"
-	? Content()
-	#--> __♥__♥__♥__
-}
-	
-StopProfiler()
-
-pf()
-# Executed in 0.02 second(s)
+Summary()

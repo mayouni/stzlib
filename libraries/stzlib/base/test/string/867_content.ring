@@ -1,22 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #867.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-	
+# RemoveXT(:Nth = [n, sub], :From = context). Archive block #867.
 
-pr()
-
+Scenario("Only the second opener")
 	o1 = new stzString("Ring (progr(amming) language")
 	o1.RemoveXT( :Nth = [ 2, "(" ], :From = "(progr(amming)")
-	
-	? o1.Content()
-	#--> Ring (programming) language
-	
-StopProfiler()
+	Then("balanced again", o1.Content(), "Ring (programming) language")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s)
+Summary()

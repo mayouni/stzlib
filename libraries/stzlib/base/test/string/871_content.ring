@@ -1,21 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #871.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-	
+# RemoveFromEnd. Archive block #871.
 
-pr()
-
+Scenario("A star off the tail")
 	o1 = new stzString("programming*")
 	o1.RemoveFromEnd("*")
-	? o1.Content()
-	#--> programming
+	Then("bare word", o1.Content(), "programming")
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

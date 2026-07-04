@@ -1,24 +1,12 @@
-# Narrative
-# --------
-# REMOVING BEFORE
-#
-# Extracted from stzStringTest.ring, block #877.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveXT(sub, :Before = anchor). Archive block #877.
 
-StartProfiler()
-	
-Q("Ring ***programming language.") {
-	
-	RemoveXT("***", :Before = "programming")
-	? Content()
-	#--> Ring programming language.
-	
-}
-	
-StopProfiler()
-#--> Executed in 0.04 second(s)
+Scenario("Stars before programming")
+	o1 = new stzString("Ring ***programming language.")
+	o1.RemoveXT("***", :Before = "programming")
+	Then("stars gone", o1.Content(), "Ring programming language.")
+EndScenario()
 
-pf()
+Summary()
