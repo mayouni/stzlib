@@ -1,21 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #784.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceLeadingChar and its CS dial -- collapse the run when it is
+# made of the named char. Archive block #784.
 
-o1 = new stzString("oooTunisia")
-o1.ReplaceLeadingChar("O", :With = "")
-? o1.Content()
-#--> oooTunisia
+Scenario("Replacing an o-run named in uppercase")
+	o1 = new stzString("oooTunisia")
+	o1.ReplaceLeadingChar("O", :With = "")
+	Then("case-sensitive: no match", o1.Content(), "oooTunisia")
+	o1.ReplaceLeadingCharCS("O", :With = "", :CS = FALSE)
+	Then("case-blind: collapsed away", o1.Content(), "Tunisia")
+EndScenario()
 
-o1.ReplaceLeadingCharCS("O", :With = "", :CS=FALSE)
-? o1.Content()
-#--> Tunisia
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

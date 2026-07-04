@@ -1,17 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #800.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveNLeftChars on an Arabic string removes the first 7 chars in
+# STRING order ("salam la-" -- the archive expected the tail removed,
+# the familiar RTL visual mixup). Archive block #800.
 
-o1 = new stzString("سلام لأهل مصر الكرام")
-o1.RemoveNLeftChars(7)
-? o1.Content()
-o#--> سلام لأهل مصر
+Scenario("Seven chars off the head of an Arabic greeting")
+	o1 = new stzString("سلام لأهل مصر الكرام")
+	o1.RemoveNLeftChars(7)
+	Then("the head is gone, string-order",
+		o1.Content(), "هل مصر الكرام")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

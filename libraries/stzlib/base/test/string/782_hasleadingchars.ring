@@ -1,35 +1,31 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #782.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The whole leading-run toolkit, with and without the case dial.
+# Archive block #782.
 
-o1 = new stzString("Oooo Tunisia---")
+Scenario("Oooo, read both ways")
+	o1 = new stzString("Oooo Tunisia---")
+	Then("no case-sensitive run", o1.HasLeadingChars(), FALSE)
+	Then("... so no leading char", o1.LeadingChar(), "")
+	Then("case-blind: there is one", o1.HasLeadingCharsCS(FALSE), TRUE)
+	Then("its char", o1.LeadingCharCS(:CS = FALSE), "O")
+	Then("empty CS list", len( o1.LeadingChars() ), 0)
+	Then("the CI list",
+		ListEq( o1.LeadingCharsCS(:CS = FALSE), [ "O", "o", "o", "o" ] ), TRUE)
+	Then("the CI run string", o1.LeadingSubStringCS(FALSE), "Oooo")
+EndScenario()
 
-? o1.HasLeadingChars()
-#--> FALSE
+Summary()
 
-? @@( o1.LeadingChar() )
-#--> ""
-
-? o1.HasLeadingCharsCS(FALSE)
-#--> TRUE
-
-? o1.LeadingCharCS(:CS = FALSE)
-#--> "O"
-
-? @@( o1.LeadingChars()	)
-#--> []
-
-? o1.LeadingCharsCS(:CS=FALSE)
-#--> [ "O", "o", "o", "o" ]
-
-? o1.LeadingSubStringCS(FALSE)
-#--> "Oooo"
-
-pf()
-# Executed in 0.02 second(s).
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

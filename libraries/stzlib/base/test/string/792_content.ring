@@ -1,18 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #792.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceMany. Archive block #792.
 
-StzStringQ( "a + b - c / d = 0" ) {
-	ReplaceMany( [ "+", "-", "/" ], "*" )
-	? Content()
-}
-#--> a * b * c * d = 0
+Scenario("Unifying the operators")
+	o1 = new stzString("a + b - c / d = 0")
+	o1.ReplaceMany([ "+", "-", "/" ], "*")
+	Then("all become *", o1.Content(), "a * b * c * d = 0")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

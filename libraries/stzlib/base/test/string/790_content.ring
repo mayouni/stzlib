@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #790.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceAll. Archive block #790.
 
-StzStringQ("Tunis is the town of my memories.") {
-	ReplaceAll("Tunis", "Niamey" )
-	? Content()
-}
-#--> Niamey is the town of my memories.
+Scenario("Changing towns")
+	o1 = new stzString("Tunis is the town of my memories.")
+	o1.ReplaceAll("Tunis", "Niamey")
+	Then("Niamey now", o1.Content(),
+		"Niamey is the town of my memories.")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

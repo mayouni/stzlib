@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #791.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceAllCS with the case dial off. Archive block #791.
 
-StzStringQ("Tunis is the town of my memories.") {
-	ReplaceAllCS("TUNIS", "Niamey", :CS = FALSE )
-	? Content()
-}
-#--> Niamey is the town of my memories
+Scenario("Changing towns, case-blind")
+	o1 = new stzString("Tunis is the town of my memories.")
+	o1.ReplaceAllCS("TUNIS", "Niamey", :CS = FALSE)
+	Then("found despite the caps", o1.Content(),
+		"Niamey is the town of my memories.")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

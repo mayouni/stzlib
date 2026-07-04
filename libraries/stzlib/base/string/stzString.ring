@@ -708,7 +708,8 @@ class stzString from stzObject
 		# occurrence, :To the LAST one (Section(:From = "F", :To = "A")
 		# on SOFTANZA -> "FTANZA").
 		_acSecSyms_ = [ "@", "first", "firstchar", "last", "lastchar",
-		                "middle", "endofstring", "endofline" ]
+		                "middle", "endofstring", "endofline",
+		                "endofword", "endofsentence" ]
 		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
 		   lower(n1[1]) = "from"
 			_vF_ = n1[2]
@@ -773,6 +774,24 @@ class stzString from stzObject
 				if _nEol_ > 0
 					n2 = _nEol_ - 1
 				ok
+			ok
+		ok
+		# :EndOfWord = char before the next space after n1 (a word
+		# runs to the next space, punctuation included -- "back!");
+		# no space left -> end of string. :EndOfSentence = the next
+		# full stop after n1 (inclusive), else the end.
+		if isString(n2) and lower(n2) = "endofword"
+			n2 = nLen
+			if isNumber(n1)
+				_nEowSp_ = This._FindFrom(This.Content(), " ", n1)
+				if _nEowSp_ > 0 n2 = _nEowSp_ - 1 ok
+			ok
+		ok
+		if isString(n2) and lower(n2) = "endofsentence"
+			n2 = nLen
+			if isNumber(n1)
+				_nEosDot_ = This._FindFrom(This.Content(), ".", n1)
+				if _nEosDot_ > 0 n2 = _nEosDot_ ok
 			ok
 		ok
 		n2 = This._ResolveSymPos(n2, nLen)
@@ -8861,7 +8880,10 @@ class stzString from stzObject
 		return This.LeadingCharsAsString()
 
 		def LeadingSubStringCS(pCaseSensitive)
-			return This.LeadingSubString()
+			if This._CaseFlagValue(pCaseSensitive)
+				return This.LeadingSubString()
+			ok
+			return This._LeadingRunCIAsString()
 
 	def LeadingSubStringZZ()
 		_cRun_ = This.LeadingSubString()
@@ -13631,10 +13653,16 @@ class stzString from stzObject
 		return This.NumberOfTrailingItems()
 
 	def LeadingCharsCS(pCaseSensitive)
-		return This.LeadingChars()
+		if This._CaseFlagValue(pCaseSensitive)
+			return This.LeadingChars()
+		ok
+		return This._RunToCharsList(This._LeadingRunCIAsString())
 
 	def TrailingCharsCS(pCaseSensitive)
-		return This.TrailingChars()
+		if This._CaseFlagValue(pCaseSensitive)
+			return This.TrailingChars()
+		ok
+		return This._RunToCharsList(This._TrailingRunCIAsString())
 
 	def RemoveRepeatedLeadingCharsW(pcCondition)
 		This.RemoveLeadingChars()
@@ -14342,7 +14370,10 @@ class stzString from stzObject
 		return @@( This.ToList() )
 
 	def TrailingSubStringCS(pCaseSensitive)
-		return This.TrailingSubString()
+		if This._CaseFlagValue(pCaseSensitive)
+			return This.TrailingSubString()
+		ok
+		return This._TrailingRunCIAsString()
 
 	def LanguageAbbreviationFor(pcLanguage)
 		# Map common language names to ISO 639-1 codes.
@@ -15227,12 +15258,18 @@ class stzString from stzObject
 			return This
 
 	# ReplaceLeadingCharsCS(pcNew, pCaseSensitive): swap the leading
-	# run with pcNew.
+	# run (case-insensitive run when the dial is off) with pcNew.
 	def ReplaceLeadingCharsCS(pcNew, pCaseSensitive)
-		_cLead_ = This.LeadingChars()
-		if len(_cLead_) = 0 return ok
-		_nLeadLen_ = This._EngineCount(_cLead_)
-		_cTail_ = This._EngineSliceFrom(This.Content(), _nLeadLen_ + 1)
+		if isList(pcNew) and len(pcNew) = 2 and isString(pcNew[1])
+			pcNew = pcNew[2]
+		ok
+		_cRun_ = This.LeadingCharsAsString()
+		if NOT This._CaseFlagValue(pCaseSensitive)
+			_cRun_ = This._LeadingRunCIAsString()
+		ok
+		if _cRun_ = "" return ok
+		_nRunLen_ = This._EngineCount(_cRun_)
+		_cTail_ = This._EngineSliceFrom(This.Content(), _nRunLen_ + 1)
 		This.Update(pcNew + _cTail_)
 
 		def ReplaceLeadingCharsCSQ(pcNew, pCaseSensitive)
@@ -15240,11 +15277,17 @@ class stzString from stzObject
 			return This
 
 	def ReplaceTrailingCharsCS(pcNew, pCaseSensitive)
-		_cTrail_ = This.TrailingChars()
-		if len(_cTrail_) = 0 return ok
+		if isList(pcNew) and len(pcNew) = 2 and isString(pcNew[1])
+			pcNew = pcNew[2]
+		ok
+		_cRun_ = This.TrailingCharsAsString()
+		if NOT This._CaseFlagValue(pCaseSensitive)
+			_cRun_ = This._TrailingRunCIAsString()
+		ok
+		if _cRun_ = "" return ok
 		_nLen_ = This._EngineCount(This.Content())
-		_nTrailLen_ = This._EngineCount(_cTrail_)
-		_cHead_ = This._EngineSlice(This.Content(), 1, _nLen_ - _nTrailLen_)
+		_nRunLen_ = This._EngineCount(_cRun_)
+		_cHead_ = This._EngineSlice(This.Content(), 1, _nLen_ - _nRunLen_)
 		This.Update(_cHead_ + pcNew)
 
 		def ReplaceTrailingCharsCSQ(pcNew, pCaseSensitive)
@@ -15315,17 +15358,37 @@ class stzString from stzObject
 		return This._TrailingRunCIAsString() != ""
 
 	def RemoveThisLeadingCharCS(pcChar, pCaseSensitive)
-		This.RemoveThisCharFromStartXT(pcChar)
+		if This._CaseFlagValue(pCaseSensitive)
+			This.RemoveThisCharFromStartXT(pcChar)
+			return
+		ok
+		_cRun_ = This._LeadingRunCIAsString()
+		if _cRun_ = "" return ok
+		if StzLower(This._EngineSlice(_cRun_, 1, 1)) = StzLower(pcChar)
+			This.Update(This._EngineSliceFrom(This.Content(),
+			            This._EngineCount(_cRun_) + 1))
+		ok
 
 		def RemoveThisLeadingCharCSQ(pcChar, pCaseSensitive)
 			This.RemoveThisLeadingCharCS(pcChar, pCaseSensitive)
 			return This
 
 	def ReplaceLeadingCharCS(pcChar, pcNew, pCaseSensitive)
-		# Replace the leading char (singular) if it matches pcChar.
-		if This._EngineCount(This.Content()) = 0 return ok
-		if StzEngineStringCharAt(@pEngine, 1) != StzCodepoint(pcChar) return ok
-		This.ReplaceCharAtSimple(1, pcNew)
+		# Collapse the leading run to pcNew when the run is made of
+		# pcChar (case-blind when the dial is off).
+		if isList(pcNew) and len(pcNew) = 2 and isString(pcNew[1])
+			pcNew = pcNew[2]
+		ok
+		_bRlcCs_ = This._CaseFlagValue(pCaseSensitive)
+		_cRun_ = This.LeadingCharsAsString()
+		if NOT _bRlcCs_ _cRun_ = This._LeadingRunCIAsString() ok
+		if _cRun_ = "" return ok
+		_c1_ = This._EngineSlice(_cRun_, 1, 1)
+		_bMatch_ = (_c1_ = pcChar)
+		if NOT _bRlcCs_ _bMatch_ = (StzLower(_c1_) = StzLower(pcChar)) ok
+		if NOT _bMatch_ return ok
+		This.Update(pcNew + This._EngineSliceFrom(This.Content(),
+		            This._EngineCount(_cRun_) + 1))
 
 		def ReplaceLeadingCharCSQ(pcChar, pcNew, pCaseSensitive)
 			This.ReplaceLeadingCharCS(pcChar, pcNew, pCaseSensitive)
@@ -15390,10 +15453,30 @@ class stzString from stzObject
 		This.Update(_cBefore_ + pcNew + _cAfter_)
 
 	def ReplaceNthOccurrenceCS(n, pcSub, pcNew, pCaseSensitive)
-		This.ReplaceNthOccurrence(n, pcSub, pcNew)
+		if isList(pcNew) and len(pcNew) = 2 and isString(pcNew[1])
+			pcNew = pcNew[2]
+		ok
+		if This._CaseFlagValue(pCaseSensitive)
+			This.ReplaceNthOccurrence(n, pcSub, pcNew)
+			return
+		ok
+		_aRnoP_ = This.FindAllCS(pcSub, 0)
+		if n < 1 or n > len(_aRnoP_) return ok
+		_nP_ = _aRnoP_[n]
+		_nSubLen_ = This._EngineCount(pcSub)
+		_cTxt_ = This.Content()
+		_cBefore_ = ""
+		if _nP_ > 1
+			_cBefore_ = This._EngineSlice(_cTxt_, 1, _nP_ - 1)
+		ok
+		_cAfter_ = This._EngineSliceFrom(_cTxt_, _nP_ + _nSubLen_)
+		This.Update(_cBefore_ + pcNew + _cAfter_)
 
-	# RemoveFirstOccurrence(pcSub).
+	# RemoveFirstOccurrence(pcSub) -- accepts :Of = pcSub.
 	def RemoveFirstOccurrence(pcSub)
+		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1])
+			pcSub = pcSub[2]
+		ok
 		This.ReplaceFirst(pcSub, "")
 
 		def RemoveFirstOccurrenceQ(pcSub)
