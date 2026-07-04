@@ -1,16 +1,19 @@
-# Narrative
-# --------
-# o1 = new stzString("ab3de6gh9")
-#
-# Extracted from stzStringTest.ring, block #921.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceCharsAtPositionsByMany REJECTS unsorted positions with a
+# raise (the pairing needs ascending order). Archive block #921.
 
-o1 = new stzString("ab3de6gh9")
-o1.ReplaceCharsAtPositionsByMany([3, 12, 9], [ "c", "f", "i" ])
-? o1.Content()
-#--> ERROR MSG: Incorrect param type! panPos must be a list of numbers sorted in ascending.
+Scenario("Unsorted positions refused")
+	o1 = new stzString("ab3de6gh9")
+	bRaised = FALSE
+	try
+		o1.ReplaceCharsAtPositionsByMany([3, 12, 9], [ "c", "f", "i" ])
+	catch
+		bRaised = TRUE
+	done
+	Then("the call raises", bRaised, TRUE)
+	Then("content untouched", o1.Content(), "ab3de6gh9")
+EndScenario()
 
-pf()
+Summary()

@@ -1,33 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #924.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The sortedness checkers know their types apart. Archive block #924.
 
-? IsSortedString(1:5)
-#--> FALSE
+Scenario("Strings are not lists, lists are not strings")
+	Then("a list is not a sorted STRING", IsSortedString(1:5), FALSE)
+	Then("a string is not a sorted LIST", IsSortedList("abc"), FALSE)
+	Then("1:5 sorts ascending", IsSortedListInAscending(1:5), TRUE)
+	Then("5:1 sorts descending", IsSortedListInDescending(5:1), TRUE)
+	Then("abc sorts ascending", IsSortedStringInAscending("abc"), TRUE)
+	Then("cba sorts descending", IsSortedStringInDescending("cba"), TRUE)
+	Then("the method form too",
+		StzStringQ("cba").IsSortedInDescending(), TRUE)
+EndScenario()
 
-? IsSortedList("abc")
-#--> FALSE
-
-? IsSortedListInAscending(1:5)
-#--> TRUE
-
-? IsSortedListInDescending(5:1)
-#--> TRUE
-
-? IsSortedStringInAscending("abc")
-#--> TRUE
-
-? IsSortedStringInDescending("cba")
-#--> TRUE
-
-? StzStringQ("cba").IsSortedInDescending()
-#--> TRUE
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

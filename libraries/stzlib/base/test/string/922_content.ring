@@ -1,17 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #922.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The plain ReplaceCharsAtPositions tolerates any order.
+# Archive block #922.
 
-o1 = new stzString("AB3CD6EF9GH")
-o1.ReplaceCharsAtPositions([ 3, 9, 6], Heart())
-? o1.Content()
-#--> AB♥CD♥EF♥GH
+Scenario("Hearts at three positions")
+	o1 = new stzString("AB3CD6EF9GH")
+	o1.ReplaceCharsAtPositions([ 3, 9, 6 ], Heart())
+	Then("all three replaced", o1.Content(), "AB♥CD♥EF♥GH")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

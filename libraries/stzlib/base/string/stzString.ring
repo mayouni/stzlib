@@ -3324,6 +3324,19 @@ class stzString from stzObject
 		_nPL_ = len(anPos)
 		_nCL_ = len(paChars)
 		if _nPL_ = 0 or _nCL_ = 0 return ok
+		# The positions must be numbers sorted ascending (the plain
+		# ReplaceCharsAtPositions tolerates any order; the ByMany
+		# pairing does not -- per the archive, block #921).
+		for _i_ = 1 to _nPL_
+			if NOT isNumber(anPos[_i_])
+				StzRaise("Incorrect param type! panPos must be a list of numbers sorted in ascending.")
+			ok
+			if _i_ > 1
+				if anPos[_i_] < anPos[_i_ - 1]
+					StzRaise("Incorrect param type! panPos must be a list of numbers sorted in ascending.")
+				ok
+			ok
+		next
 		# Engine-backed: get the codepoint list, swap each pos.
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
@@ -4989,6 +5002,8 @@ class stzString from stzObject
 		_cAdj_ = ""
 		_bEach_ = 0
 		_cMark_ = ""
+		_bNumbered_ = 0
+		_bForceRect_ = 0
 		if isList(paOpts)
 			_nOl_ = len(paOpts)
 			for _iBo_ = 1 to _nOl_
@@ -5007,6 +5022,10 @@ class stzString from stzObject
 							ok
 						but isNumber(_wBo_) and _wBo_ = 1
 							_aCorn_ = [ "round", "round", "round", "round" ]
+						but isNumber(_wBo_) and _wBo_ = 0 and _kBo_ = "rounded"
+							# :Rounded = FALSE forces rectangular corners
+							# even when :Corners says otherwise.
+							_bForceRect_ = 1
 						ok
 					but _kBo_ = "corners"
 						if isList(_wBo_) and len(_wBo_) = 4
@@ -5029,9 +5048,14 @@ class stzString from stzObject
 						if _wBo_ = 1 _bEach_ = 1 ok
 					but _kBo_ = "vizfind"
 						if isString(_wBo_) _cMark_ = _wBo_ ok
+					but _kBo_ = "numbered"
+						if _wBo_ = 1 _bNumbered_ = 1 ok
 					ok
 				ok
 			next
+		ok
+		if _bForceRect_ = 1
+			_aCorn_ = [ "rect", "rect", "rect", "rect" ]
 		ok
 		# Box-drawing glyphs, raw UTF-8 bytes.
 		_cH_ = char(226) + char(148) + char(128)		# solid horizontal
@@ -5075,6 +5099,18 @@ class stzString from stzObject
 			next
 			_cTop_ += _cTR_
 			_cBot_ += _cBR_
+			if _bNumbered_ = 1
+				# One 4-wide slot per cell: "  1 ", "  2 ", ... "  10".
+				_cNum_ = ""
+				for _iBo_ = 1 to _nBoCh_
+					_cBoSlot_ = "  " + _iBo_
+					while ring_len(_cBoSlot_) < 4
+						_cBoSlot_ += " "
+					end
+					_cNum_ += _cBoSlot_
+				next
+				return _cTop_ + NL + _cMid_ + NL + _cBot_ + NL + _cNum_
+			ok
 			return _cTop_ + NL + _cMid_ + NL + _cBot_
 		ok
 		_cText_ = This.Content()
@@ -6266,12 +6302,34 @@ class stzString from stzObject
 			return
 		ok
 
-		if _nRmbmLen_ != _nRmbmNewLen_
-			StzRaise("Incorrect values! paSubStr and paNewSubStr must have the same size.")
+		# Two archive-pinned modes:
+		# - ALL-DISTINCT olds (blocks #15/#60): each pair replaces ALL
+		#   occurrences of its old.
+		# - A REPEATED old in the list (block #927): every pair turns
+		#   occurrence-wise -- it replaces the first still-unreplaced
+		#   occurrence, so successive duplicates map to successive
+		#   news. Extra olds or news beyond the shorter list are
+		#   ignored.
+		if _nRmbmNewLen_ < _nRmbmLen_
+			_nRmbmLen_ = _nRmbmNewLen_
 		ok
 
+		_bRmbmDup_ = 0
 		for _iRmbm_ = 1 to _nRmbmLen_
-			This.ReplaceCS(paSubStr[_iRmbm_], paNewSubStr[_iRmbm_], pCaseSensitive)
+			for _jRmbm_ = _iRmbm_ + 1 to _nRmbmLen_
+				if paSubStr[_iRmbm_] = paSubStr[_jRmbm_]
+					_bRmbmDup_ = 1
+					exit 2
+				ok
+			next
+		next
+
+		for _iRmbm_ = 1 to _nRmbmLen_
+			if _bRmbmDup_ = 1
+				This.ReplaceFirstCS(paSubStr[_iRmbm_], paNewSubStr[_iRmbm_], pCaseSensitive)
+			else
+				This.ReplaceCS(paSubStr[_iRmbm_], paNewSubStr[_iRmbm_], pCaseSensitive)
+			ok
 		next
 
 	def ReplaceManyByMany(paSubStr, paNewSubStr)

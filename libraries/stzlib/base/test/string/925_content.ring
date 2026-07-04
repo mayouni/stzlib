@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #925.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... and with sorted positions the ByMany pairing works.
+# Archive block #925.
 
-o1 = new stzString("ab3de6gh9")
-o1.ReplaceCharsAtPositionsByMany([3, 6, 9], [ "c", "f", "i" ])
+Scenario("Filling in the missing letters")
+	o1 = new stzString("ab3de6gh9")
+	o1.ReplaceCharsAtPositionsByMany([3, 6, 9], [ "c", "f", "i" ])
+	Then("the alphabet restored", o1.Content(), "abcdefghi")
+EndScenario()
 
-? o1.Content()
-#--> "abcdefghi"
-
-pf()
-# Executed in 0.01 second(s).
+Summary()
