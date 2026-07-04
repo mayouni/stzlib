@@ -1,16 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #807.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Replace replaces ALL occurrences. Archive block #807.
 
-o1 = new stzString("Rixo Rixo Rixo")
-? o1.ReplaceQ("xo", "ng").Content()
-#--> Ring Ring Ring
+Scenario("Rixo to Ring, thrice")
+	Then("all three replaced",
+		Q("Rixo Rixo Rixo").ReplaceQ("xo", "ng").Content(),
+		"Ring Ring Ring")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

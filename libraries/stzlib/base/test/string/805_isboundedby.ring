@@ -1,19 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #805.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsBoundedBy with char and word bounds. Archive block #805.
 
-? StzStringQ("{nnnnn}").IsBoundedBy(["{","}"])
-#--> TRUE
+Scenario("Braces and a basmala")
+	Then("braced", StzStringQ("{nnnnn}").IsBoundedBy([ "{", "}" ]), TRUE)
+	o1 = new stzString("بسم الله الرّحمن الرّحيم")
+	Then("opens with bism, closes with arrahim",
+		o1.IsBoundedBy([ "بسم", "الرّحيم" ]), TRUE)
+EndScenario()
 
-o1 = new stzString("بسم الله الرّحمن الرّحيم")
-? o1.IsBoundedBy(["بسم", "الرّحيم"])
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s)
+Summary()

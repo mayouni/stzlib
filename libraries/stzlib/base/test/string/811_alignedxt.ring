@@ -1,15 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #811.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# AlignedXT with named :Width / :Char / :Direction.
+# Archive block #811.
 
-? Q("SFOTANZA").AlignedXT( :Width = 30, :Char= ".", :Direction = :Center )
-#--> ...........SFOTANZA...........
+Scenario("Centering with dots")
+	Then("eleven dots each side",
+		Q("SFOTANZA").AlignedXT( :Width = 30, :Char = ".", :Direction = :Center ),
+		"...........SFOTANZA...........")
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s).
+Summary()

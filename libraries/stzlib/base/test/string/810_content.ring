@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #810.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveRange. Archive block #810.
 
-o1 = new stzString("extrasection")
-o1.RemoveRange(1, 5)
-? o1.Content()
-#--> section
+Scenario("Keeping just the section")
+	o1 = new stzString("extrasection")
+	o1.RemoveRange(1, 5)
+	Then("range removed", o1.Content(), "section")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

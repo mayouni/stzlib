@@ -154,7 +154,12 @@ class stzStringChecker
 		cCopy = @oString.Content()
 		nLen = len(acSubStr)
 
+		# The ORIGINAL requires every listed part to be USED (an
+		# unused extra token -> FALSE), then full coverage.
 		for i = 1 to nLen
+			if NOT @oString.ContainsCS(acSubStr[i], pCaseSensitive)
+				return 0
+			ok
 			cCopy = @ReplaceCS(cCopy, acSubStr[i], "", pCaseSensitive)
 		next
 

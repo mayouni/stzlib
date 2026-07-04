@@ -1034,7 +1034,31 @@ Pure conversions: 761, 764, 769, 770, 772-774, 776-780.
 Pure conversions: 785-792, 794, 797, 798. (799 does not exist in the
 numbering.)
 
-## STATUS (2026-07-04): 725/999 test files audited (chunks 14-45 added 462); ~274 still to audit
+### Chunk 46 (tests 801-820, 2026-07-04)
+
+- **`IsMadeOf` requires every token USED** (816/817): the ORIGINAL
+  contains-check (each part must occur, then removal leaves empty)
+  had been dropped -- an unused extra token wrongly returned TRUE.
+  Restored in stzStringChecker.IsMadeOfCS; IsMadeOfSome untouched.
+- **`IsBoundedBy` narrative forms** (804): [ open, :And = close ]
+  now unwrapped; NULL/"" side means "only the other bound required"
+  (kept 692 green).
+- **`StringAlignXT :Justified`** (812/813): was falling into the
+  center branch; new _StzJustifyAlign spreads chars with
+  front-loaded gaps. AlignedXT also accepts :Char (only :PadChar
+  worked, so 811 padded with spaces).
+- **`CompressUsingBinary`** (815): was a return-content stub; now
+  keeps the chars whose mask bit is "1" (mutating + Q form).
+- **813**: alignment is codepoint-based (shadda = own unit, 9 chars/
+  21 dots); the archive counted grapheme clusters (8/22). Engine
+  backlog: grapheme-cluster segmentation (with the UAX #11 width
+  item from 755).
+- **801**: CharsReversed = reversed order ("gnir"); archive glyphs
+  were the retired Qt char-flip (same ruling as 715).
+Pure conversions: 802, 803, 805-810, 814, 818, 819 (820 was already
+narrated in the W-migration).
+
+## STATUS (2026-07-04): 744/999 test files audited (chunks 14-46 added 481); ~255 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

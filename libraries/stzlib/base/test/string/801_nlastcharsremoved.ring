@@ -1,20 +1,16 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #801.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# NLastCharsRemoved, and CharsReversed on a section. (The archive's
+# upside-down glyphs came from the retired Qt char-flip toy, like 715;
+# CharsReversed reverses the ORDER.) Archive block #801.
 
-o1 = new stzString("ring language is nice language")
+Scenario("Trimming a tail, reversing a head")
+	o1 = new stzString("ring language is nice language")
+	Then("nine chars off the end",
+		o1.NLastCharsRemoved(9), "ring language is nice")
+	Then("the first word backwards",
+		o1.SectionQ(1, 4).CharsReversed(), "gnir")
+EndScenario()
 
-? o1.NLastCharsRemoved(9)
-#--> ring language is nice
-
-? o1.SectionQ(1,4).CharsReversed()
-#--> ɹᴉnᵷ
-
-pf()
-# Executed in 0.06 second(s).
+Summary()

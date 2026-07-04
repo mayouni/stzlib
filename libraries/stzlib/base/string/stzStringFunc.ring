@@ -1329,6 +1329,9 @@ func StzIsSortedStringInDescending(pcStr)
 #TODO: Review if the String...() functions are necessary
 
 func StzStringAlignXT(cStr, nWidth, cChar, cDirection)
+	if cDirection = :Justified
+		return _StzJustifyAlign(cStr, nWidth, cChar)
+	ok
 	pStr = StzEngineString(cStr)
 	if cDirection = :Left
 		pResult = StzEngineStringLjust(pStr, nWidth, cChar)
@@ -1341,6 +1344,32 @@ func StzStringAlignXT(cStr, nWidth, cChar, cDirection)
 	StzEngineStringFree(pResult)
 	StzEngineStringFree(pStr)
 	return cResult
+
+func _StzJustifyAlign(cStr, nWidth, cChar)
+	# Spread the chars over nWidth, gaps filled with cChar, extras
+	# front-loaded ("SOFTANZA" @ 30 -> "S....O...F...T...A...N...Z...A").
+	nJfyLen = StzLen(cStr)
+	if nJfyLen < 2 or nJfyLen >= nWidth
+		return cStr
+	ok
+	oJfy = new stzString(cStr)
+	aJfyCh = oJfy.Chars()
+	nJfyGaps = nJfyLen - 1
+	nJfySp = nWidth - nJfyLen
+	nJfyBase = floor(nJfySp / nJfyGaps)
+	nJfyExtra = nJfySp - (nJfyBase * nJfyGaps)
+	cJfyRes = ""
+	for iJfy = 1 to nJfyLen
+		cJfyRes += aJfyCh[iJfy]
+		if iJfy < nJfyLen
+			nJfyG = nJfyBase
+			if iJfy <= nJfyExtra nJfyG++ ok
+			for jJfy = 1 to nJfyG
+				cJfyRes += cChar
+			next
+		ok
+	next
+	return cJfyRes
 
 	func StringAlignXT(cStr, nWidth, cChar, cDirection)
 		return StzStringAlignXT(cStr, nWidth, cChar, cDirection)

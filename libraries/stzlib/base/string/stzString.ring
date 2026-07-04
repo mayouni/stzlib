@@ -15552,7 +15552,7 @@ class stzString from stzObject
 			if isList(_a_) and len(_a_) = 2 and isString(_a_[1])
 				_k_ = lower(_a_[1])
 				if _k_ = "width" _nW_ = _a_[2]
-				but _k_ = "padchar" _cPad_ = _a_[2]
+				but _k_ = "padchar" or _k_ = "char" _cPad_ = _a_[2]
 				but _k_ = "direction" _cDir_ = _a_[2]
 				ok
 			ok
@@ -15587,10 +15587,26 @@ class stzString from stzObject
 	def NFirstCharsQ(n)
 		return new stzString( This.NFirstChars(n) )
 
-	# CompressUsingBinary([pcMask]): hand-wave stub -- return content
-	# unchanged regardless of optional binary mask.
+	# CompressUsingBinary(pcMask): keep the chars whose mask bit is
+	# "1", drop the "0" ones ("ABCDEFGH" x "10011011" -> "ADEGH").
 	def CompressUsingBinary(pcMask)
-		return This.Content()
+		if NOT isString(pcMask) return ok
+		_aCbCh_ = This.Chars()
+		_nCbL_ = len(_aCbCh_)
+		_nCbM_ = ring_len(pcMask)
+		_cCbRes_ = ""
+		for _iCb_ = 1 to _nCbL_
+			if _iCb_ <= _nCbM_
+				if pcMask[_iCb_] = "1"
+					_cCbRes_ += _aCbCh_[_iCb_]
+				ok
+			ok
+		next
+		This.Update(_cCbRes_)
+
+		def CompressUsingBinaryQ(pcMask)
+			This.CompressUsingBinary(pcMask)
+			return This
 
 	# UnicodeCompareWithCS(pcOther, pCaseSensitive): codepoint
 	# comparison. Returns -1, 0 or 1.
@@ -16081,8 +16097,21 @@ class stzString from stzObject
 		if len(_aIbb_) != 2
 			return 0
 		ok
+		# [ open, :And = close ] narrative form.
+		_vIbbClose_ = _aIbb_[2]
+		if isList(_vIbbClose_) and len(_vIbbClose_) = 2 and
+		   isString(_vIbbClose_[1]) and lower(_vIbbClose_[1]) = "and"
+			_vIbbClose_ = _vIbbClose_[2]
+		ok
+		# A NULL side means "only the other bound is required".
+		if isString(_vIbbClose_) and _vIbbClose_ = ""
+			return This.StartsWithCS(_aIbb_[1], pCaseSensitive)
+		ok
+		if isString(_aIbb_[1]) and _aIbb_[1] = ""
+			return This.EndsWith(_vIbbClose_)
+		ok
 		return This.StartsWithCS(_aIbb_[1], pCaseSensitive) and
-		       This.EndsWith(_aIbb_[2])
+		       This.EndsWith(_vIbbClose_)
 
 	def IsBoundedBy(pacBounds)
 		return This.IsBoundedByCS(pacBounds, 1)
