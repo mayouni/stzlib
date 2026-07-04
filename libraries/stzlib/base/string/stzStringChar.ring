@@ -82,6 +82,7 @@ func _CharScriptCode(nUnicode)
 	if nUnicode = 0xD7 or nUnicode = 0xF7 return 2 ok		# multiply / divide signs
 	if nUnicode >= 0x300 and nUnicode <= 0x36F return 1 ok		# combining marks -> Inherited
 	if nUnicode <= 0x24F return 3 ok				# Basic Latin + Latin-1 + Latin Ext-A/B
+	if nUnicode >= 0x2160 and nUnicode <= 0x217F return 3 ok	# Roman numerals -> Latin (UAX #24)
 	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 4 ok		# Greek
 	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 5 ok		# Cyrillic
 	if nUnicode >= 0x0530 and nUnicode <= 0x058F return 6 ok		# Armenian

@@ -1,24 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #842.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# A bare language code is not a locale; lang-COUNTRY is. And the
+# stzLocale side can name the country. Archive block #842.
 
-o1 = new stzString("fr")
-? o1.IsLocaleAbbreviation()
-#--> FALSE
+Scenario("fr alone, then fr-fr")
+	Then("fr alone is not a locale",
+		Q("fr").IsLocaleAbbreviation(), FALSE)
+	Then("fr-fr is", Q("fr-fr").IsLocaleAbbreviation(), TRUE)
+	Then("and its country reads france",
+		StzLocaleQ("fr-fr").Country(), "france")
+EndScenario()
 
-o1 = new stzString("fr-fr")
-? o1.IsLocaleAbbreviation()
-#--> TRUE
-
-? StzLocaleQ("fr-fr").Country()
-# france
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-# Executed in 0.02 second(s).in ring 1.20
+Summary()

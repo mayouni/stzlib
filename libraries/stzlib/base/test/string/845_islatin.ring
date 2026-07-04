@@ -1,20 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #845.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Roman numerals carry the Latin script (UAX #24).
+# Archive block #845.
 
-o1 = new stzString("Ⅱ")
-? o1.IsLatin()
-#--> TRUE
+Scenario("The numeral two")
+	Then("Latin script", StzStringQ("Ⅱ").IsLatin(), TRUE)
+	Then("and a Roman number", StzCharQ("Ⅱ").IsRomanNumber(), TRUE)
+EndScenario()
 
-o1 = new stzChar("Ⅱ")
-? o1.IsRomanNumber()
-#--> TRUE
-
-pf()
-# Executed in 0.04 second(s).
+Summary()

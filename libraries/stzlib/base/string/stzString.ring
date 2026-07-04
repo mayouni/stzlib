@@ -6281,7 +6281,16 @@ class stzString from stzObject
 		but isList(acSubStr)
 			_nIL_ = len(acSubStr)
 			for _iI_ = 1 to _nIL_
-				if isString(acSubStr[_iI_]) _imoArg_ + acSubStr[_iI_] ok
+				if isString(acSubStr[_iI_])
+					_imoArg_ + acSubStr[_iI_]
+				but isList(acSubStr[_iI_]) and len(acSubStr[_iI_]) = 2 and
+				    isString(acSubStr[_iI_][1]) and
+				    lower(acSubStr[_iI_][1]) = "and"
+					# [ "1", "0", :and = "3" ] narrative tail.
+					if isString(acSubStr[_iI_][2])
+						_imoArg_ + acSubStr[_iI_][2]
+					ok
+				ok
 			next
 		else
 			return FALSE
@@ -6417,7 +6426,9 @@ class stzString from stzObject
 		# lang(2-3) [_ script(4)] [_ country(2-3)]. The deep semantic
 		# inference (script->language, country compatibility) is the
 		# stzLocale class's job.
-		_aParts_ = @Split(This.Content(), "_")
+		# "-" and "_" are both accepted separators ("fr-fr" = "fr_FR").
+		_cIlaTxt_ = StzReplace(This.Content(), "-", "_")
+		_aParts_ = @Split(_cIlaTxt_, "_")
 		_nP_ = len(_aParts_)
 		if _nP_ < 1 or _nP_ > 3 return FALSE ok
 		for _i_ = 1 to _nP_
@@ -6426,8 +6437,9 @@ class stzString from stzObject
 			if _nPL_ < 2 or _nPL_ > 4 return FALSE ok
 			if NOT isalpha(_cP_) return FALSE ok
 		next
-		# The first part must be a language (2-3) or a script (4).
-		if _nP_ = 1 return len(_aParts_[1]) <= 3 ok
+		# A bare language code is NOT a locale ("fr" FALSE, per the
+		# archive); at least lang + country/script is required.
+		if _nP_ = 1 return FALSE ok
 		# A 4-letter part is only valid as the script slot.
 		if len(_aParts_[1]) = 4 and _nP_ = 3 return FALSE ok
 		return TRUE
@@ -6680,6 +6692,7 @@ class stzString from stzObject
 		_cDig_ = "0123456789"
 		if _nL_ >= 2
 			_cPfx_ = lower(ring_left(_c_, 2))
+			_cPfx1_ = lower(ring_left(_c_, 1))
 			if _cPfx_ = "0x"
 				_cForm_ = "hex"
 				_cDig_ = "0123456789abcdef"
@@ -6695,6 +6708,23 @@ class stzString from stzObject
 				_cDig_ = "01234567"
 				_c_ = ring_right(_c_, _nL_ - 2)
 				_nL_ = _nL_ - 2
+			# Bare single-letter prefixes are accepted too
+			# ("x4E992", "o01234567", "b100011").
+			but _cPfx1_ = "x"
+				_cForm_ = "hex"
+				_cDig_ = "0123456789abcdef"
+				_c_ = ring_right(_c_, _nL_ - 1)
+				_nL_ = _nL_ - 1
+			but _cPfx1_ = "b"
+				_cForm_ = "binary"
+				_cDig_ = "01"
+				_c_ = ring_right(_c_, _nL_ - 1)
+				_nL_ = _nL_ - 1
+			but _cPfx1_ = "o"
+				_cForm_ = "octal"
+				_cDig_ = "01234567"
+				_c_ = ring_right(_c_, _nL_ - 1)
+				_nL_ = _nL_ - 1
 			ok
 		ok
 		_bDot_ = 0
@@ -13817,11 +13847,13 @@ class stzString from stzObject
 			return This
 
 	def UnicodesXT()
+		# [ [unicode, char], ... ] -- codepoint first (the char-first
+		# twin is CharsAndTheirUnicodes).
 		_nL_ = This._EngineCount(This.Content())
 		_aR_ = []
 		for _i_ = 1 to _nL_
 			_cp_ = StzEngineStringCharAt(@pEngine, _i_)
-			_aR_ + [ StzChar(_cp_), _cp_ ]
+			_aR_ + [ _cp_, StzChar(_cp_) ]
 		next
 		return _aR_
 
@@ -14048,7 +14080,14 @@ class stzString from stzObject
 		return _aR_
 
 	def CharsAndTheirUnicodes()
-		return This.UnicodesXT()
+		# Char-first pairs (the codepoint-first twin is UnicodesXT).
+		_aCtu_ = This.UnicodesXT()
+		_aRes_ = []
+		_nCtuL_ = len(_aCtu_)
+		for _iCtu_ = 1 to _nCtuL_
+			_aRes_ + [ _aCtu_[_iCtu_][2], _aCtu_[_iCtu_][1] ]
+		next
+		return _aRes_
 
 	def ToListInStringSF()
 		return This.ToListInShortForm()
@@ -15916,20 +15955,41 @@ class stzString from stzObject
 
 	# IsLatin(): TRUE iff every char is ASCII-Latin.
 	def IsLatin()
-		if This._EngineCount(This.Content()) = 0 return FALSE ok
-		return StzEngineStringIsAlpha(@pEngine) = 1
+		# Every char carries the Latin script (Roman numerals like
+		# U+2161 included, per UAX #24).
+		_nIlt_ = This._EngineCount(This.Content())
+		if _nIlt_ = 0 return FALSE ok
+		for _iIlt_ = 1 to _nIlt_
+			if _CharScriptCode(StzEngineStringCharAt(@pEngine, _iIlt_)) != 3
+				return FALSE
+			ok
+		next
+		return TRUE
 
 	def ContainsNOccurrences(n, pcSub)
+		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and
+		   lower(pcSub[1]) = "of"
+			pcSub = pcSub[2]
+		ok
 		return This.HowMany(pcSub) = n
 
 	def ContainsNOccurrencesCS(n, pcSub, pCaseSensitive)
 		return This.HowManyCS(pcSub, pCaseSensitive) = n
 
 	def OnlyNumbers()
-		return This.IsMadeOfNumbers()
+		# EXTRACTS the digits as one string ("number 125" -> "125").
+		_aOnCh_ = This.Chars()
+		_nOnL_ = len(_aOnCh_)
+		_cOnRes_ = ""
+		for _iOn_ = 1 to _nOnL_
+			if isDigit(_aOnCh_[_iOn_])
+				_cOnRes_ += _aOnCh_[_iOn_]
+			ok
+		next
+		return _cOnRes_
 
 	def OnlyDigits()
-		return This.IsMadeOfNumbers()
+		return This.OnlyNumbers()
 
 	def ExtendTo(n)
 		This.ExtendToWith(n, " ")

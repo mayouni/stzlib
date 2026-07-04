@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #851.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The bare x prefix also reads as hex. Archive block #851.
 
-o1 = new stzString("x4E992")
-? o1.RepresentsNumberInHexForm()
-#--> TRUE
+Scenario("x without the 0")
+	Then("hex form",
+		Q("x4E992").RepresentsNumberInHexForm(), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

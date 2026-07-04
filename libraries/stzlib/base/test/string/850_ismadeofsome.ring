@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #850.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsMadeOfSome with HexChars. Archive block #850.
 
-o1 = new stzString("4E992")
-? o1.IsMadeOfSome( HexChars() )
-#--> TRUE
+Scenario("A hex fragment")
+	Then("all chars are hex digits",
+		Q("4E992").IsMadeOfSome( HexChars() ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
