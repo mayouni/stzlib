@@ -1181,7 +1181,25 @@ Pure conversions: 881, 889, 895, 896, 898, 899.
 Pure conversions: 908, 909, 914, 915, 917-919. (901/906/907/910/911
 stay retired -- stzListOfChars grid renderer.)
 
-## STATUS (2026-07-04): 832/999 test files audited (chunks 14-51 added 569); ~167 still to audit
+### Chunk 52 (tests 921-940, 2026-07-04)
+
+- **`ReplaceManyByMany` has two archive-pinned modes** (927 vs
+  15/60): ALL-DISTINCT olds -> each pair replaces ALL occurrences
+  (15/60); a REPEATED old in the list -> every pair goes
+  occurrence-wise (first still-unreplaced occurrence, successive
+  duplicates map to successive news; 927). Unequal sizes no longer
+  raise -- extras on either side are ignored (927's own cases).
+  Caught by the suite gate: the first cut broke 15/60.
+- **`ReplaceCharsAtPositionsByMany` validates** (921): positions
+  must be numbers sorted ascending (raises the archive message);
+  the plain ReplaceCharsAtPositions stays order-tolerant (922).
+- **Box renderer: `:Numbered` rail + `:Rounded = FALSE` override**
+  (938): numbers in 4-wide slots under each cell; Rounded=FALSE
+  forces rectangular corners even when :Corners says otherwise.
+Pure conversions: 922-926, 933, 934, 939, 940. (928-932/935-937
+stay retired -- stzListOfChars grid renderer.)
+
+## STATUS (2026-07-04): 844/999 test files audited (chunks 14-52 added 581); ~155 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

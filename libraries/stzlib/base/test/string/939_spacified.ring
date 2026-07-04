@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #939.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Spacified. Archive block #939.
 
-o1 = new stzString("SOFTANZA")
-? o1.Spacified()
-#--> S O F T A N Z A
+Scenario("Letters given room")
+	Then("spaces between",
+		Q("SOFTANZA").Spacified(), "S O F T A N Z A")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
