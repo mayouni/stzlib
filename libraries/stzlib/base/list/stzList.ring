@@ -3589,20 +3589,22 @@ class stzList from stzObject
 	# SectionsOfSameItems(): group consecutive equal items into runs.
 	# "AABBCCAA" -> [["A","A"], ["B","B"], ["C","C"], ["A","A"]]
 	def SectionsOfSameItems()
+		# Groups the SAME items together across the whole list
+		# (first-seen order), not just adjacent runs:
+		# [ONE, TWO, TWO, ONE] -> [[ONE, ONE], [TWO, TWO]].
 		_l_ = This.List()
 		_nL_ = len(_l_)
+		_aVals_ = []
 		_aRes_ = []
-		if _nL_ = 0 return _aRes_ ok
-		_grp_ = [ _l_[1] ]
-		for _i_ = 2 to _nL_
-			if _l_[_i_] = _l_[_i_ - 1]
-				_grp_ + _l_[_i_]
+		for _i_ = 1 to _nL_
+			_nAt_ = ring_find(_aVals_, _l_[_i_])
+			if _nAt_ = 0
+				_aVals_ + _l_[_i_]
+				_aRes_ + [ _l_[_i_] ]
 			else
-				_aRes_ + _grp_
-				_grp_ = [ _l_[_i_] ]
+				_aRes_[_nAt_] + _l_[_i_]
 			ok
 		next
-		_aRes_ + _grp_
 		return _aRes_
 
 	# FindInSections(pItem, aSections): absolute-position occurrences of

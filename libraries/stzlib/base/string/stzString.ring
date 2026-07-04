@@ -24,6 +24,11 @@ class stzString from stzObject
 
 	@pEngine
 
+	# Undo/Redo journal: one snapshot per Update(), capped (FIFO).
+	@aUndoStack = []
+	@aRedoStack = []
+	@bUndoTracking = 1
+
 	These
 	Those
 
@@ -638,6 +643,21 @@ class stzString from stzObject
 			ok
 		ok
 
+		# Undo journal (one snapshot per Update, capped at 8). A new
+		# edit clears the redo trail. Same-content Updates journal
+		# nothing (in-place engine mutators journal their own
+		# pre-state via _Journal, then re-Update with the result).
+		if @bUndoTracking = 1
+			_cUpdCur_ = This.Content()
+			if NOT (_cUpdCur_ = pcNewStr)
+				@aUndoStack + _cUpdCur_
+				if len(@aUndoStack) > 8
+					del(@aUndoStack, 1)
+				ok
+				@aRedoStack = []
+			ok
+		ok
+
 		StzEngineStringFree(@pEngine)
 		@pEngine = StzEngineString(pcNewStr)
 
@@ -648,6 +668,47 @@ class stzString from stzObject
 			return This
 
 		#>
+
+	def Undo()
+		if len(@aUndoStack) = 0 return ok
+		_cUdo_ = @aUndoStack[len(@aUndoStack)]
+		del(@aUndoStack, len(@aUndoStack))
+		@aRedoStack + This.Content()
+		@bUndoTracking = 0
+		This.Update(_cUdo_)
+		@bUndoTracking = 1
+
+		def UndoQ()
+			This.Undo()
+			return This
+
+	def Redo()
+		if len(@aRedoStack) = 0 return ok
+		_cRdo_ = @aRedoStack[len(@aRedoStack)]
+		del(@aRedoStack, len(@aRedoStack))
+		@aUndoStack + This.Content()
+		@bUndoTracking = 0
+		This.Update(_cRdo_)
+		@bUndoTracking = 1
+
+		def RedoQ()
+			This.Redo()
+			return This
+
+	def UndoStack()
+		return @aUndoStack
+
+	def _Journal()
+		# Snapshot the CURRENT content -- called by mutators that edit
+		# the engine string in place (Update never sees their
+		# pre-state).
+		if @bUndoTracking = 1
+			@aUndoStack + This.Content()
+			if len(@aUndoStack) > 8
+				del(@aUndoStack, 1)
+			ok
+			@aRedoStack = []
+		ok
 
 	  #========================================#
 	 #     FUNDAMENTAL ACCESSORS              #
@@ -2348,6 +2409,7 @@ class stzString from stzObject
 		# content) and faster. The historical @memcpy alias panic is gone --
 		# the engine now builds a fresh result buffer (verified across ASCII,
 		# case-insensitive, multibyte and 60 length-combos, no panic).
+		This._Journal()
 		StzEngineStringReplaceCS(@pEngine, pcSubStr, pcNewSubStr, _bRpCase_)
 		This.Update(StzEngineStringData(@pEngine))
 
@@ -3827,11 +3889,27 @@ class stzString from stzObject
 			ok
 		ok
 		# Anchor form: InsertBefore("language", "programming ") --
-		# a STRING first arg anchors at its first occurrence.
+		# a STRING first arg anchors at its first occurrence. When the
+		# first arg is NOT in the content but the second is, the args
+		# read the other way round: InsertBefore("my ", "dear")
+		# inserts "my " before the anchor "dear" (block #912).
 		if isString(n)
 			_nIbAt_ = This._FindFrom(This.Content(), n, 1)
-			if _nIbAt_ < 1 return ok
-			n = _nIbAt_
+			if _nIbAt_ < 1
+				if isString(pcSubStr)
+					_nIbAlt_ = This._FindFrom(This.Content(), pcSubStr, 1)
+					if _nIbAlt_ >= 1
+						pcSubStr = n
+						n = _nIbAlt_
+					else
+						return
+					ok
+				else
+					return
+				ok
+			else
+				n = _nIbAt_
+			ok
 		ok
 		# List-of-positions form: walk descending so positions stay
 		# valid as later inserts shift the string. Only enter this
@@ -4007,11 +4085,26 @@ class stzString from stzObject
 
 	def InsertAfter(n, pcSubStr)
 		# Anchor form: InsertAfter("Ring", " programming") inserts
-		# after the anchor's last char.
+		# after the anchor's last char. Args flip like InsertBefore
+		# when only the second one is found in the content.
 		if isString(n)
 			_nIaAt_ = This._FindFrom(This.Content(), n, 1)
-			if _nIaAt_ < 1 return ok
-			n = _nIaAt_ + This._EngineCount(n) - 1
+			if _nIaAt_ < 1
+				if isString(pcSubStr)
+					_nIaAlt_ = This._FindFrom(This.Content(), pcSubStr, 1)
+					if _nIaAlt_ >= 1
+						_cIaTmp_ = pcSubStr
+						pcSubStr = n
+						n = _nIaAlt_ + This._EngineCount(_cIaTmp_) - 1
+					else
+						return
+					ok
+				else
+					return
+				ok
+			else
+				n = _nIaAt_ + This._EngineCount(n) - 1
+			ok
 		ok
 		This.InsertBefore(n + 1, pcSubStr)
 
@@ -4595,6 +4688,18 @@ class stzString from stzObject
 		_nL_ = len(aSections)
 		_nR_ = len(paReplacements)
 		if _nL_ = 0 or _nR_ = 0 return ok
+		# Validate: pairs of numbers, ascending starts, no overlap.
+		for _i_ = 1 to _nL_
+			if NOT ( isList(aSections[_i_]) and len(aSections[_i_]) = 2 and
+			         isNumber(aSections[_i_][1]) and isNumber(aSections[_i_][2]) )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers sorted in ascending.")
+			ok
+			if _i_ > 1
+				if aSections[_i_][1] <= aSections[_i_ - 1][2]
+					StzRaise("Incorrect param type! paSections must be a list of pairs of numbers sorted in ascending.")
+				ok
+			ok
+		next
 		# Build [origIdx, section] pairs and sort by section start desc.
 		_aWork_ = []
 		for _i_ = 1 to _nL_
@@ -10219,6 +10324,10 @@ class stzString from stzObject
 				but _k_ = "with"
 					_cWhat_ = _a_[2]
 				ok
+			but isString(_a_)
+				# A bare string is the inserted text:
+				# InsertXT("really ", :Before = "wonderful").
+				_cWhat_ = _a_
 			ok
 		next
 		if _cWhat_ = NULL or _cAnchor_ = NULL return ok
@@ -10343,14 +10452,19 @@ class stzString from stzObject
 	# BoxifyCharsXT(opts): provisional -- return each char on its own
 	# line within an ASCII box. Not a full grid renderer.
 	def BoxifyCharsXT(pOpts)
-		_aChars_ = This.Chars()
-		_nLen_ = len(_aChars_)
-		_cOut_ = ""
-		for _i_ = 1 to _nLen_
-			_cOut_ += "+---+" + NL + "| " + _aChars_[_i_] + " |" + NL +
-			           "+---+" + NL
-		next
-		return _cOut_
+		# Mutating: render the per-char cell strip (options honored).
+		_aBcOpts_ = [ :EachChar = TRUE ]
+		if isList(pOpts)
+			_nBcL_ = len(pOpts)
+			for _iBc_ = 1 to _nBcL_
+				_aBcOpts_ + pOpts[_iBc_]
+			next
+		ok
+		This.Update( This._BoxRender(_aBcOpts_) )
+
+		def BoxifyCharsXTQ(pOpts)
+			This.BoxifyCharsXT(pOpts)
+			return This
 
 	# SectionsOfSameItems already defined as method; expose as alias
 	# in case test calls a slightly different spelling.
@@ -16255,16 +16369,17 @@ class stzString from stzObject
 			return This
 
 	def BoxEachChar()
-		return This.BoxifyCharsXT([])
+		This.Update( This._BoxRender([ :EachChar = TRUE ]) )
 
 	def BoxEachCharQ()
-		return new stzString( This.BoxEachChar() )
+		This.BoxEachChar()
+		return This
 
 	def CharsBoxed()
-		return This.BoxifyCharsXT([])
+		return This._BoxRender([ :EachChar = TRUE ])
 
 	def BoxifyChars()
-		return This.BoxifyCharsXT([])
+		This.Update( This._BoxRender([ :EachChar = TRUE ]) )
 
 	def FindAnyBoundedByAsSectionss(p1, p2, p3)
 		return This.FindAnyBoundedByAsSections([ p1, p2 ])

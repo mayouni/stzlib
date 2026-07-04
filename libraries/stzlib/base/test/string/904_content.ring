@@ -1,20 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #904.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# BoxifyChars mutates too. Archive block #904.
 
-o1 = new stzString("SOFTANZA")
-o1.BoxifyChars()
-? o1.Content()
-#-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴───┴───┴───┴───┘
+Scenario("SOFTANZA in cells")
+	o1 = new stzString("SOFTANZA")
+	o1.BoxifyChars()
+	Then("eight cells",
+		o1.Content(), "┌───┬───┬───┬───┬───┬───┬───┬───┐" + NL + "│ S │ O │ F │ T │ A │ N │ Z │ A │" + NL + "└───┴───┴───┴───┴───┴───┴───┴───┘")
+EndScenario()
 
-pf()
-# Executed in 0.04 second(s).
+Summary()

@@ -1,16 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #914.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceByMany with the :And tail distributes the replacements over
+# the occurrences. Archive block #914.
 
-o1 = new stzString("--*--*--*--")
-o1.ReplaceByMany("*", [ "ONE", "TWO", :And = "THREE" ])
-? o1.Content()
+Scenario("Three stars, three words")
+	o1 = new stzString("--*--*--*--")
+	o1.ReplaceByMany("*", [ "ONE", "TWO", :And = "THREE" ])
+	Then("one word per star", o1.Content(), "--ONE--TWO--THREE--")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
