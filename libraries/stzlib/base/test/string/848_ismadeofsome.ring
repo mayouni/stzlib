@@ -1,20 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #848.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsMadeOfSome with the char-set helpers. Archive block #848.
 
-o1 = new stzString("01234567")
-? o1.IsMadeOfSome( OctalChars() )
-#--> TRUE
+Scenario("Octal and binary digit sets")
+	Then("all octal digits qualify",
+		Q("01234567").IsMadeOfSome( OctalChars() ), TRUE)
+	Then("a binary string uses both bits",
+		Q("001100101").IsMadeOf( BinaryChars() ), TRUE)
+EndScenario()
 
-o1 = new stzString("001100101")
-? o1.IsMadeOf( BinaryChars() )
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

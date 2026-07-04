@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #852.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsMadeOf tolerates repeated tokens. Archive block #852.
 
-o1 = new stzString("maan")
-? o1.IsMadeOf([ "m", "a", "a", "n" ])
-#--> TRUE
+Scenario("maan from its letters")
+	Then("made of m, a, a, n",
+		Q("maan").IsMadeOf([ "m", "a", "a", "n" ]), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

@@ -1089,7 +1089,30 @@ narrated in the W-migration).
 Pure conversions: 822, 824, 828-830, 832, 838 (821 was already
 narrated in the W-migration).
 
-## STATUS (2026-07-04): 761/999 test files audited (chunks 14-47 added 498); ~238 still to audit
+### Chunk 48 (tests 841-860, 2026-07-04)
+
+- **Number prefixes: bare x/o/b accepted** (849/851/857):
+  `_NumLiteralInfo` now reads "x4E992"/"o01234567"/"b100011" like
+  their 0-prefixed twins; plain digits stay decimal.
+- **`IsLocaleAbbreviation`**: accepts "-" as separator ("fr-fr");
+  a BARE language code is FALSE ("fr", per 842 -- tightened the
+  chunk-38 rule).
+- **`IsLatin` is script-based** (845): every char must carry the
+  Latin script -- Roman numerals (U+2160-217F) added to
+  `_CharScriptCode` per UAX #24 (the old engine IsAlpha said FALSE).
+- **`UnicodesXT` = [code, char] pairs** (855): was char-first;
+  CharsAndTheirUnicodes is the char-first twin (now flips it).
+- **`OnlyNumbers`/`OnlyDigits` EXTRACT the digits** (856): were
+  aliased to the IsMadeOfNumbers predicate.
+- **`IsMadeOf` accepts the :and tail** (847) and
+  **`ContainsNOccurrences` the :Of param** (854).
+- **860**: SizeInBytes = real byte length (4 for the koala; the
+  archive's 624 was Ring-struct accounting, now in SizeInBytesXT
+  whose exact rows track the Ring version -- only the shape pinned).
+Pure conversions: 844, 846, 848, 850, 852, 859. (841/843/853/858 do
+not exist in the numbering.)
+
+## STATUS (2026-07-04): 777/999 test files audited (chunks 14-48 added 514); ~222 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

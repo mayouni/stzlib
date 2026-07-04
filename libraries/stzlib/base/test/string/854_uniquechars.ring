@@ -1,19 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #854.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# UniqueChars and ContainsNOccurrences(:Of). Archive block #854.
 
-o1 = new stzString("abcbbaccbtttx")
-? @@( o1.UniqueChars() )
-#--> [ "a", "b", "c", "t", "x" ]
+Scenario("The five letters underneath")
+	o1 = new stzString("abcbbaccbtttx")
+	Then("first-seen unique chars",
+		ListEq( o1.UniqueChars(), [ "a", "b", "c", "t", "x" ] ), TRUE)
+	Then("exactly two a's",
+		o1.ContainsNOccurrences(2, :Of = "a"), TRUE)
+EndScenario()
 
-? o1.ContainsNOccurrences(2, :Of = "a")
-#--> TRUE
+Summary()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

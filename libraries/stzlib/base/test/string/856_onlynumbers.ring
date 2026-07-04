@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #856.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# OnlyNumbers extracts the digits. Archive block #856.
 
-o1 = new stzString("number 12500 number 18200")
-? o1.OnlyNumbers()
-#--> "1250018200"
+Scenario("Two numbers squeezed out")
+	Then("digits only",
+		Q("number 12500 number 18200").OnlyNumbers(), "1250018200")
+EndScenario()
 
-pf()
-# Executed in 0.06 second(s).
+Summary()

@@ -1,16 +1,11 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #849.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The bare o prefix also reads as octal. Archive block #849.
 
-o1 = new stzString("o01234567")
-? o1.RepresentsNumberInOctalForm()
-#--> TRUE
+Scenario("o without the 0")
+	Then("octal form",
+		Q("o01234567").RepresentsNumberInOctalForm(), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

@@ -1,21 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #859.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Chars vs bytes: the koala is ONE char and four bytes.
+# Archive block #859.
 
-? Q("M").NumberOfChars()
-#--> 1
+Scenario("Counting a koala")
+	Then("M is one char", Q("M").NumberOfChars(), 1)
+	Then("the koala too", Q("🐨").NumberOfChars(), 1)
+	Then("but four bytes", len("🐨"), 4)
+EndScenario()
 
-? Q("🐨").NumberOfChars()
-#--> 1
-
-? len("🐨")
-#--> 4 (bytes, not chars)
-
-pf()
-# Executed in almost 0 second(s).
+Summary()

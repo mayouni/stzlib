@@ -1,19 +1,11 @@
-# Narrative
-# --------
-# #qt
-#
-# Extracted from stzStringTest.ring, block #846.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# A plain string variable. Archive block #846.
 
-pr()
+Scenario("salem is salem")
+	cStr = "salem"
+	Then("it prints as itself", cStr, "salem")
+EndScenario()
 
-# String concatenation example
-
-cStr = "salem"
-? cStr
-#--> salem
-
-pf()
-# Executed in almost 0 second(s).
+Summary()

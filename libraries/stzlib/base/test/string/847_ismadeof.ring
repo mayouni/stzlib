@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #847.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsMadeOf with the :and narrative tail. Archive block #847.
 
-o1 = new stzString("10011033001")
+Scenario("A binary-ish string of three digits")
+	o1 = new stzString("10011033001")
+	Then("made of 1, 0 and 3",
+		o1.IsMadeOf([ "1", "0", "3" ]), TRUE)
+	Then("same, said narratively",
+		o1.IsMadeOf([ "1", "0", :and = "3" ]), TRUE)
+EndScenario()
 
-? o1.IsMadeOf([ "1", "0", "3" ])
-#--> TRUE
-
-? o1.IsMadeOf([ "1", "0", :and = "3" ])
-#--> TRUE
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
+Summary()

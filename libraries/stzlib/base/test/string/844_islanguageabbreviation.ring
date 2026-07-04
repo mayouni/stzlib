@@ -1,25 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #844.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Language abbreviations: short (2) vs long (3). Archive block #844.
 
-o1 = new stzString("ara")
-? o1.IsLanguageAbbreviation()
-#--> TRUE
+Scenario("ara is the long form")
+	o1 = new stzString("ara")
+	Then("a language abbreviation", o1.IsLanguageAbbreviation(), TRUE)
+	Then("not the short form", o1.IsShortLanguageAbbreviation(), FALSE)
+	Then("the long one", o1.IsLongLanguageAbbreviation(), TRUE)
+	Then("says so itself", o1.LanguageAbbreviationForm(), :Long)
+EndScenario()
 
-? o1.IsShortLanguageAbbreviation()
-#--> FALSE
-
-? o1.IsLongLanguageAbbreviation()
-#--> TRUE
-
-? o1.LanguageAbbreviationForm()
-#--> long
-
-pf()
-# Executed in 0.02 second(s).
+Summary()
