@@ -1,21 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #804.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsBoundedBy with the [ open, :And = close ] narrative form, then
+# removing the bounds. Archive block #804.
 
-o1 = new stzString("<script>func return :done<script/>")
-? o1.IsBoundedBy(["<script>", :And = "<script/>"])
-#--> TRUE
+Scenario("A script tag pair")
+	o1 = new stzString("<script>func return :done<script/>")
+	Then("bounded by the pair",
+		o1.IsBoundedBy([ "<script>", :And = "<script/>" ]), TRUE)
+	o1.RemoveTheseBounds("<script>", "<script/>")
+	Then("bounds gone", o1.Content(), "func return :done")
+EndScenario()
 
-o1.RemoveTheseBounds("<script>", "<script/>")
-? o1.Content()
-#--> "func return :done"
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.14
-# Executed in 0.14 second(s) in Ring 1.17
+Summary()

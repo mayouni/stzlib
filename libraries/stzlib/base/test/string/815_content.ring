@@ -1,17 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #815.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# CompressUsingBinary keeps the chars whose mask bit is 1.
+# Archive block #815.
 
-o1 = new stzString("ABCDEFGH")
-o1.CompressUsingBinary("10011011")
-? o1.Content()
- #--> ADEGH
+Scenario("Masking ABCDEFGH")
+	o1 = new stzString("ABCDEFGH")
+	o1.CompressUsingBinary("10011011")
+	Then("the 1-bits survive", o1.Content(), "ADEGH")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

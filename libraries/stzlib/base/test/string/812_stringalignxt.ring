@@ -1,23 +1,22 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #812.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The four StringAlignXT directions -- including :Justified, which
+# spreads the chars with front-loaded gaps. Archive block #812.
 
-? StringAlignXT("SOFTANZA", 30, ".", :Left)
-? StringAlignXT("SOFTANZA", 30, ".", :Right)
-? StringAlignXT("SOFTANZA", 30, ".", :Center)
-? StringAlignXT("SOFTANZA", 30, ".", :Justified) + NL
+Scenario("SOFTANZA four ways in 30 columns")
+	Then("left",
+		StringAlignXT("SOFTANZA", 30, ".", :Left),
+		"SOFTANZA......................")
+	Then("right",
+		StringAlignXT("SOFTANZA", 30, ".", :Right),
+		"......................SOFTANZA")
+	Then("center",
+		StringAlignXT("SOFTANZA", 30, ".", :Center),
+		"...........SOFTANZA...........")
+	Then("justified",
+		StringAlignXT("SOFTANZA", 30, ".", :Justified),
+		"S....O...F...T...A...N...Z...A")
+EndScenario()
 
-#-->
-# SOFTANZA......................
-# ......................SOFTANZA
-# ...........SOFTANZA...........
-# S....O...F...T...A...N...Z...A
-
-pf()
-# Executed in 0.05 second(s).
+Summary()

@@ -1,17 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #808.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveAll. Archive block #808.
 
-o1 = new stzString("Ringos Ringos Ringos")
-o1.RemoveAll("os")
-? o1.Content()
-#--> Ring Ring Ring
+Scenario("Ringos to Ring, thrice")
+	o1 = new stzString("Ringos Ringos Ringos")
+	o1.RemoveAll("os")
+	Then("all os gone", o1.Content(), "Ring Ring Ring")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()
