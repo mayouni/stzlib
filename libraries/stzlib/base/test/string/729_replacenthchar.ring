@@ -1,18 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #729.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceNthChar, positional and :With forms -- codepoint-aware (the
+# accented chars count as ONE char each). Archive block #729.
 
-? StzStringQ("évènement").ReplaceNthCharQ(3, "*").Content()
-#--> év*nement
+Scenario("Starring the 3rd char of a French word")
+	Then("positional",
+		StzStringQ("évènement").ReplaceNthCharQ(3, "*").Content(), "év*nement")
+	Then("named",
+		StzStringQ("évènement").ReplaceNthCharQ(3, :With = "*").Content(), "év*nement")
+EndScenario()
 
-? StzStringQ("évènement").ReplaceNthCharQ(3, :With = "*").Content()
-#--> év*nement
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

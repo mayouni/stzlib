@@ -1,22 +1,32 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #735.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# PartsAndPartitionersUsingXT zips each part with the value that
+# partitioned it. Archive block #735.
 
-o1 = new stzString("AM23-X ")
-? o1.PartsAndPartitionersUsingXT('StzCharQ(@char).CharType()') # or Parts2UsingXT()
-#--> [
-#	"AM" = :Letter_Uppercase,
-#	"23" = :Number_Decimaldigit,
-#	"-"  = :Punctuation_Dash",
-#	"X"  = :Letter_Uppercase,
-#	" "  = :Separator_Space
-#    ]
+Scenario("Char types of a plate number")
+	o1 = new stzString("AM23-X ")
+	Then("five typed parts",
+		ListEq( o1.PartsAndPartitionersUsingXT('StzCharQ(@char).CharType()'),
+		[
+			[ "AM", :Letter_Uppercase ],
+			[ "23", :Number_DecimalDigit ],
+			[ "-", :Punctuation_Dash ],
+			[ "X", :Letter_Uppercase ],
+			[ " ", :Separator_Space ]
+		] ), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.12 second(s).
+Summary()
+
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

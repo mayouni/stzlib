@@ -924,7 +924,41 @@ numbering.)
 Pure conversions: 709-712, 716-718, 720 (713 was already narrated in
 the W-migration; 703/708 do not exist in the numbering).
 
-## STATUS (2026-07-03): 662/999 test files audited (chunks 14-41 added 399); ~337 still to audit
+### Chunk 42 (tests 721-740, 2026-07-04)
+
+- **`Hash` is ENGINE-BACKED and mutating** (730): the stub (naive
+  31-multiplier number, non-mutating) replaced with
+  StzEngineCryptoMd5/Sha256 -- the engine already exported both, the
+  Ring side just never called them. `Q(...).Hash(:MD5)` mutates to
+  the hex digest; HashQ/Hashed added. SHA1/384/512/224 -> engine
+  backlog.
+- **StringCase mixed case is `:Hybridcase`** (731): the ORIGINAL
+  impl's own fallback word; chunk 38's `:Mixed` was an invention --
+  247 updated again (uppercase/lowercase/capitalcase/hybridcase is
+  now the full settled vocabulary).
+- **Parts2Using / Parts2UsingXT = PartsAndPartitionersUsingXT**
+  (736/738): they aliased plain PartsUsing (parts only); the archive
+  shows [part, partitioner] pairs. PartsClassifiedUsingXT now GROUPS
+  by partitioner value: [ [value, [parts...]], ... ] first-seen order
+  (734).
+- **`_PartsUsingWalk` hardening** (736/738): multi-line { } blocks
+  fold to one line with #-comments stripped; bare `CharQ(` resolves
+  to `This.CharQ(` (placeholder-protected so StzCharQ survives); new
+  stzString.CharQ(n) -> stzChar. Also stzChar.IsArabicShaddah was
+  MISSING entirely (IsLetter raised R14 on any Arabic char) -- added
+  (U+0651).
+- **727 WalkBackward/ForwardW**: asserted at the impl's consistent
+  stop-one-short-in-walk-direction (6/6); the archive's 5/9 (in a
+  block it had itself marked #TODO) landed ON the space and skipped
+  the first matching r.
+- **738**: Orientation asserted at the settled compact ltr/rtl
+  vocabulary (archive's :LeftToRight was Qt-era).
+Pure conversions: 721, 726, 729, 733, 735, 739. (722/723 were already
+narrated in the W-migration; 724/725 stay retired -- Turned/Inverted
+upside-down table pending engine port; 728/732/737/740 do not exist
+in the numbering.)
+
+## STATUS (2026-07-04): 674/999 test files audited (chunks 14-42 added 411); ~325 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

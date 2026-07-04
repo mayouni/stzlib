@@ -1,15 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #721.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceAllQ chains. Archive block #721.
 
-? StzStringQ("@char___@char___@char").ReplaceAllQ("@char","@item").Content()
-#--> @item___@item___@item
+Scenario("Renaming a placeholder")
+	Then("every @char becomes @item",
+		StzStringQ("@char___@char___@char").ReplaceAllQ("@char", "@item").Content(),
+		"@item___@item___@item")
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

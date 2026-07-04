@@ -1100,6 +1100,10 @@ class stzStringChar from stzString
 	 #   CHARACTER CLASSIFICATION   #
 	#==============================#
 
+	def IsArabicShaddah()
+		# U+0651 ARABIC SHADDA -- treated as a letter in Softanza.
+		return This.Unicode() = 1617
+
 	def IsLetter()
 		# Use engine for the primary check
 		nUnicode = This.Unicode()
