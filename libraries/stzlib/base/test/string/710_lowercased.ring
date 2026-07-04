@@ -1,23 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #710.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The three case transforms. (Foldcased is a TODO in the archive.)
+# Archive block #710.
 
-? Q("tunis").Lowercased()
-#--> tunis
+Scenario("tunis in three cases")
+	Then("lowercased", Q("tunis").Lowercased(), "tunis")
+	Then("uppercased", Q("tunis").Uppercased(), "TUNIS")
+	Then("titlecased", Q("tunis").Titlecased(), "Tunis")
+EndScenario()
 
-? Q("tunis").Uppercased()
-#--> TUNIS
-
-? Q("tunis").Titlecased()
-#--> Tunis
-
- //? Q("tunis").Foldcased()	#TODO
-
-pf()
-# Executed in 0.06 second(s).
+Summary()

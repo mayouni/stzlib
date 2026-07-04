@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #709.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ContainsNoOneOfThese. Archive block #709.
 
-o1 = new stzString("abcdef")
+Scenario("None of these, then one of these")
+	o1 = new stzString("abcdef")
+	Then("none present",
+		o1.ContainsNoOneOfThese([ "xy", "xyz", "mwb" ]), TRUE)
+	Then("de spoils it",
+		o1.ContainsNoOneOfThese([ "xy", "xyz", "de", "mwb" ]), FALSE)
+EndScenario()
 
-? o1.ContainsNoOneOfThese([ "xy", "xyz", "mwb" ])
-#--> TRUE
-
-? o1.ContainsNoOneOfThese([ "xy", "xyz", "de", "mwb" ])
-#--> FALSE
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

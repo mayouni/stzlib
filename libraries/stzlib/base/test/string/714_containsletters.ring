@@ -1,30 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #714.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ContainsLetters / ContainsLetter / IsALetterOf -- all case-blind,
+# because a LETTER is an abstraction over its two cases.
+# Archive block #714.
 
-? Q("--A--B--").ContainsLetters()
-#--> TRUE
+Scenario("Letters in a decorated string")
+	Then("contains letters", Q("--A--B--").ContainsLetters(), TRUE)
+	Then("contains the letter A", Q("--A--B--").ContainsLetter("A"), TRUE)
+	Then("... asked in lowercase too", Q("--A--B--").ContainsLetter("a"), TRUE)
+	Then("but no M", Q("--A--B--").ContainsLetter("M"), FALSE)
+	Then("H is a letter of HUSSEIN", Q("H").IsALetterOf("HUSSEIN"), TRUE)
+	Then("... and so is h", Q("h").IsALetterOf("HUSSEIN"), TRUE)
+EndScenario()
 
-? Q("--A--B--").ContainsLetter("A")
-#--> TRUE
-
-? Q("--A--B--").ContainsLetter("a")
-#--> TRUE
-
-? Q("--A--B--").ContainsLetter("M")
-#--> FALSE
-
-? Q("H").IsALetterOf("HUSSEIN")
-#--> TRUE
-
-? Q("h").IsALetterOf("HUSSEIN")
-#--> TRUE
-
-pf()
-# Executed in 0.04 second(s).
+Summary()

@@ -8814,25 +8814,19 @@ class stzString from stzObject
 		next
 		return _nBest_
 
-	# PartsUsingZZ(pcSep): split by pcSep, return each piece as
-	# [start, end] section.
-	def PartsUsingZZ(pcSep)
-		_aPos_ = This.AllPositionsOf(pcSep)
-		_nSepLen_ = This._EngineCount(pcSep)
-		_nTxtLen_ = This._EngineCount(This.Content())
+	# PartsUsingZZ(pcExpr): the partition-expression parts, each
+	# zipped with its section: [ [part, [start, end]], ... ].
+	def PartsUsingZZ(pcExpr)
+		_aPw_ = This._PartsUsingWalk(pcExpr)
+		_aPzSecs_ = _aPw_[1]
 		_aRes_ = []
-		_nStart_ = 1
-		_nL_ = len(_aPos_)
+		_nL_ = len(_aPzSecs_)
 		for _i_ = 1 to _nL_
-			_p_ = _aPos_[_i_]
-			if _p_ > _nStart_
-				_aRes_ + [ _nStart_, _p_ - 1 ]
-			ok
-			_nStart_ = _p_ + _nSepLen_
+			_nPzS_ = _aPzSecs_[_i_][1]
+			_nPzE_ = _aPzSecs_[_i_][2]
+			_aRes_ + [ This._EngineSlice(This.Content(), _nPzS_, (_nPzE_ - _nPzS_ + 1)),
+			           [ _nPzS_, _nPzE_ ] ]
 		next
-		if _nStart_ <= _nTxtLen_
-			_aRes_ + [ _nStart_, _nTxtLen_ ]
-		ok
 		return _aRes_
 
 	# RepeatedLeadingChar(): the single char that begins a leading
@@ -14644,10 +14638,12 @@ class stzString from stzObject
 	# ContainsTheLetters(pacLetters): TRUE iff content contains
 	# every letter in pacLetters (in any order).
 	def ContainsTheLetters(pacLetters)
+		# LETTER semantics are case-blind: "n" and "N" are both the
+		# letter N.
 		if NOT isList(pacLetters) return FALSE ok
 		_nL_ = len(pacLetters)
 		for _i_ = 1 to _nL_
-			if NOT (isString(pacLetters[_i_]) and This.Contains(pacLetters[_i_]))
+			if NOT (isString(pacLetters[_i_]) and This.ContainsCS(pacLetters[_i_], FALSE))
 				return FALSE
 			ok
 		next
@@ -14662,12 +14658,54 @@ class stzString from stzObject
 	def ToStzText()
 		return new stzString( This.Content() )
 
-	# PartsUsing(pcSep) / PartsUsingXT.
-	def PartsUsing(pcSep)
-		return This._SplitByStr(pcSep)
+	# PartsUsing(pcExpr) / PartsUsingXT: partition the string into runs
+	# of consecutive chars for which the given expression yields the
+	# SAME value (the "partitioner"). The expression sees @char, @i and
+	# This, e.g. 'StzCharQ(@char).Script()' or
+	# 'StzCharQ(This[@i]).Script()'.
+	def _PartsUsingWalk(pcExpr)
+		# Returns [ sections, values ]: one [start, end] + one
+		# partitioner value per part.
+		if isList(pcExpr) and len(pcExpr) = 2 and isString(pcExpr[1])
+			pcExpr = pcExpr[2]
+		ok
+		if NOT isString(pcExpr) return [ [], [] ] ok
+		_cPuExpr_ = ring_trim(pcExpr)
+		if ring_len(_cPuExpr_) >= 2 and left(_cPuExpr_, 1) = "{" and
+		   right(_cPuExpr_, 1) = "}"
+			_cPuExpr_ = ring_trim( _StzStripBraces(_cPuExpr_) )
+		ok
+		_aPuChars_ = This.Chars()
+		_nPuLen_ = len(_aPuChars_)
+		if _nPuLen_ = 0 return [ [], [] ] ok
+		_aPuVals_ = []
+		@char = ""
+		for @i = 1 to _nPuLen_
+			@char = _aPuChars_[@i]
+			_vPu_ = ""
+			eval("_vPu_ = ( " + _cPuExpr_ + " )")
+			_aPuVals_ + _vPu_
+		next
+		_aPuSecs_ = []
+		_aPuPart_ = []
+		_nPuStart_ = 1
+		for _iPu_ = 2 to _nPuLen_
+			if NOT (_aPuVals_[_iPu_] = _aPuVals_[_nPuStart_])
+				_aPuSecs_ + [ _nPuStart_, (_iPu_ - 1) ]
+				_aPuPart_ + _aPuVals_[_nPuStart_]
+				_nPuStart_ = _iPu_
+			ok
+		next
+		_aPuSecs_ + [ _nPuStart_, _nPuLen_ ]
+		_aPuPart_ + _aPuVals_[_nPuStart_]
+		return [ _aPuSecs_, _aPuPart_ ]
 
-	def PartsUsingXT(pcSep)
-		return This._SplitByStr(pcSep)
+	def PartsUsing(pcExpr)
+		_aPw_ = This._PartsUsingWalk(pcExpr)
+		return This.Sections(_aPw_[1])
+
+	def PartsUsingXT(pcExpr)
+		return This.PartsUsing(pcExpr)
 
 	# ContainsNoOneOfThese(paSubStr): TRUE iff content contains NONE
 	# of the listed substrings.
@@ -14864,8 +14902,21 @@ class stzString from stzObject
 	def PartsClassifiedUsingXT(pcSep)
 		return This.PartsUsing(pcSep)
 
-	def PartsAndPartitionersUsingXT(pcSep)
-		return This.PartsUsing(pcSep)
+	def PartsAndPartitionersUsingXT(pcExpr)
+		# Each part zipped with its partitioner (the expression's
+		# value over that part): [ [part, value], ... ].
+		_aPw_ = This._PartsUsingWalk(pcExpr)
+		_aPpSecs_ = _aPw_[1]
+		_aPpVals_ = _aPw_[2]
+		_aRes_ = []
+		_nL_ = len(_aPpSecs_)
+		for _i_ = 1 to _nL_
+			_nPpS_ = _aPpSecs_[_i_][1]
+			_nPpE_ = _aPpSecs_[_i_][2]
+			_aRes_ + [ This._EngineSlice(This.Content(), _nPpS_, (_nPpE_ - _nPpS_ + 1)),
+			           _aPpVals_[_i_] ]
+		next
+		return _aRes_
 
 	# ReplaceAllChars(pcOld, pcNew): char-by-char map.
 	# ReplaceAllChars:
@@ -15297,7 +15348,9 @@ class stzString from stzObject
 
 	# ContainsLetter(pcLetter): TRUE iff content contains pcLetter.
 	def ContainsLetter(pcLetter)
-		return This.Contains(pcLetter)
+		# Case-blind, like every LETTER-flavored method.
+		if NOT isString(pcLetter) return FALSE ok
+		return This.ContainsCS(pcLetter, FALSE)
 
 	# ContainsBoth(pcA, pcB): TRUE iff content contains BOTH.
 	def ContainsBoth(pcA, pcB)
@@ -15343,10 +15396,11 @@ class stzString from stzObject
 
 	# IsALetterOf(pcOther): TRUE iff single-char This appears in pcOther.
 	def IsALetterOf(pcOther)
+		# TRUE iff This (a single char) appears in pcOther, case-blind.
 		if NOT isString(pcOther) return FALSE ok
 		_c_ = This.Content()
 		if len(_c_) = 0 return FALSE ok
-		return StzFindFirst(_c_, pcOther) > 0
+		return StzFindFirst(StzLower(pcOther), StzLower(_c_)) > 0
 
 	def RemoveLeftOccurrenceQ(pcSub)
 		This.RemoveFirstOccurrence(pcSub)

@@ -1,17 +1,27 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #705.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# PartsUsingXT partitions the string into runs of chars sharing the
+# same value of the given expression -- here, their script.
+# Archive block #705.
 
-o1 = new stzString("__b和平س__a_ووو")
+Scenario("Partitioning by script")
+	o1 = new stzString("__b和平س__a_ووو")
+	Then("eight script runs",
+		ListEq( o1.PartsUsingXT(' StzCharQ(@char).Script() '),
+			[ "__", "b", "和平", "س", "__", "a", "_", "ووو" ] ), TRUE)
+EndScenario()
 
-? @@( o1.PartsUsingXT(' StzCharQ(@char).Script() ') )
-#--> [ "__", "b", "和平", "س", "__", "a", "_", "ووو" ]
+Summary()
 
-pf()
-# Executed in 0.13 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

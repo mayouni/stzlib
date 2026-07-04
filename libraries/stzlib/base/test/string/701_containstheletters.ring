@@ -1,18 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #701.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# LETTER-flavored methods are case-blind: n and N are both the letter N.
+# Archive block #701.
 
-# In Softanza both n and N chars correspond to the letter "N"
+Scenario("Letters regardless of their case")
+	o1 = new stzString("Adoption of the plan B")
+	Then("contains the letters N and b",
+		o1.ContainsTheLetters([ "N", "b" ]), TRUE)
+EndScenario()
 
-o1 = new stzString("Adoption of the plan B")
-? o1.ContainsTheLetters([ "N", "b" ])
-#--> TRUE
-
-pf()
-# Executed in 0.02 second(s).
+Summary()
