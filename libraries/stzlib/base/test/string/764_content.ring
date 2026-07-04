@@ -1,26 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #764.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# TrimLeft / TrimRight. Archive block #764.
 
-o1 = new stzString(" same   ")
-o1 {
-	TrimLeft()
-	? @@( Content() )
-	#--> "same   "
+Scenario("Trimming one side at a time")
+	o1 = new stzString(" same   ")
+	o1.TrimLeft()
+	Then("left trimmed", o1.Content(), "same   ")
+	o1.TrimRight()
+	Then("then right", o1.Content(), "same")
+EndScenario()
 
-	TrimRight()
-	? @@( Content() )
-	#--> "same"
-}
-
-# Try also: TrimStart(), TrimEnd()
-# RemoveLeadingSpaces(), and RemoveTrailingSpaces
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

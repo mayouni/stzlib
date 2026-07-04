@@ -1,22 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #778.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceFirstNChars / ReplaceLastNChars. Archive block #778.
 
-o1 = new stzString("---Ring!")
-o1.ReplaceFirstNChars(3, :With = "Hi ")
-? o1.Content()
-#--> Hi Ring!
+Scenario("Swapping the ends")
+	o1 = new stzString("---Ring!")
+	o1.ReplaceFirstNChars(3, :With = "Hi ")
+	Then("head replaced", o1.Content(), "Hi Ring!")
+	o2 = new stzString("Hi Ring---")
+	o2.ReplaceLastNChars(3, :With = "!")
+	Then("tail replaced", o2.Content(), "Hi Ring!")
+EndScenario()
 
-o1 = new stzString("Hi Ring---")
-o1.ReplaceLastNChars(3, :With= "!")
-? o1.Content()
-#--> Hi Ring!
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

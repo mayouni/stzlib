@@ -18104,19 +18104,32 @@ class stzString from stzObject
 	 #     LEAD/TRAIL DELEGATIONS             #
 	#========================================#
 
+	# Repeated*Chars return the run as a LIST of chars ([] when there
+	# is no run); the *SubString twins give it as a string.
 	def RepeatedLeadingCharsCS(pCaseSensitive)
-		_oRlcLt_ = new stzStringLeadTrail(This)
-		return _oRlcLt_.RepeatedLeadingCharsCS(pCaseSensitive)
+		if This._CaseFlagValue(pCaseSensitive)
+			return This.LeadingChars()
+		ok
+		_cRun_ = This._LeadingRunCIAsString()
+		return This._RunToCharsList(_cRun_)
 
 	def RepeatedLeadingChars()
 		return This.RepeatedLeadingCharsCS(1)
 
 	def RepeatedTrailingCharsCS(pCaseSensitive)
-		_oRtcLt_ = new stzStringLeadTrail(This)
-		return _oRtcLt_.RepeatedTrailingCharsCS(pCaseSensitive)
+		if This._CaseFlagValue(pCaseSensitive)
+			return This.TrailingChars()
+		ok
+		_cRun_ = This._TrailingRunCIAsString()
+		return This._RunToCharsList(_cRun_)
 
 	def RepeatedTrailingChars()
 		return This.RepeatedTrailingCharsCS(1)
+
+	def _RunToCharsList(pcRun)
+		if pcRun = "" return [] ok
+		_oRtc_ = new stzString(pcRun)
+		return _oRtc_.Chars()
 
 	def RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 		_oRrlcLt_ = new stzStringLeadTrail(This)

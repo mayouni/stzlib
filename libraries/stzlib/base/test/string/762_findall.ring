@@ -1,52 +1,41 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #762.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# A find-and-split tour of one sentence. (SplitToPartsOfNChars is the
+# EXACT form per block #414's own ruling; the kept-remainder variant
+# asserted here is the XT form.) Archive block #762.
 
-StzStringQ("What a tutorial! Very instructive tutorial.") {
+Scenario("Finding and splitting a tutorial sentence")
+	o1 = new stzString("What a tutorial! Very instructive tutorial.")
+	Then("both tutorials found",
+		ListEq( o1.FindAll("tutorial"), [ 8, 35 ] ), TRUE)
+	Then("counted", o1.NumberOfOccurrence("tutorial"), 2)
+	Then("the next after 20",
+		o1.FindNextOccurrence("tutorial", :StartingAt = 20), 35)
+	Then("the previous before 20",
+		o1.FindPreviousOccurrence("tutorial", :StartingAt = 20), 8)
+	Then("43 chars in all", o1.NumberOfChars(), 43)
+	Then("12-char pieces, remainder kept (XT)",
+		ListEq( o1.SplitToPartsOfNCharsXT(12),
+			[ "What a tutor", "ial! Very in", "structive tu", "torial." ] ), TRUE)
+	Then("split before positions",
+		ListEq( o1.SplitBeforePositions([ 17, 34 ]),
+			[ "What a tutorial!", " Very instructive", " tutorial." ] ), TRUE)
+	Then("split before each a",
+		ListEq( o1.SplitBeforeCharsW(' @char = "a" '),
+			[ "Wh", "at ", "a tutori", "al! Very instructive tutori", "al." ] ), TRUE)
+EndScenario()
 
-	? FindAll("tutorial")
-	#--> [ 8, 35 ]
+Summary()
 
-	? NumberOfOccurrence("tutorial") + NL
-	#--> 2
-
-	? FindNextOccurrence("tutorial", :StartingAt = 20) + NL
-	#--> 35
-
-	? FindPreviousOccurrence("tutorial", :StartingAt = 20) + NL
-	#--> 8
-
-	? NumberOfChars() + NL
-	#--> 43
-	 
-	? @@( SplitToPartsOfNChars(12) ) + NL
-	#--> [
-	# 	"What a tutor",
-	# 	"ial! Very in",
-	# 	"structive tu",
-	# 	"torial."
-	#    ]
-
-	? @@( SplitBeforePositions([ 17, 34 ]) ) + NL
-	#--> [
-	# 	"What a tutorial!",
-	# 	" Very instructive",
-	# 	" tutorial."
-	#    ]
-
-	? @@( SplitBeforeCharsW(' @char = "a" ') ) + NL
-	#--> [
-	# 	"Wh", "at ", "a tutori",
-	# 	"al! Very instructive tutori", "al."
-	#     ]
-
-}
-
-pf()
-# Executed in 0.25 second(s).
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

@@ -1,22 +1,16 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #774.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The explicit-char forms: replace the run ONLY when it is made of
+# the given char. Archive block #774.
 
-o1 = new stzString("___VAR---")
-o1.ReplaceLeadingChar("_", :With = "*")
-? o1.Content()
-#--> *VAR---
+Scenario("Naming the run char")
+	o1 = new stzString("___VAR---")
+	o1.ReplaceLeadingChar("_", :With = "*")
+	Then("underscores collapsed", o1.Content(), "*VAR---")
+	o2 = new stzString("___VAR---")
+	o2.ReplaceTrailingChar("-", :With = "*")
+	Then("dashes collapsed", o2.Content(), "___VAR*")
+EndScenario()
 
-o1 = new stzString("___VAR---")
-o1.ReplaceTrailingChar("-", :With = "*")
-? o1.Content()
-#--> ___VAR*
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

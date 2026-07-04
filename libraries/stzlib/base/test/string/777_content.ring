@@ -1,23 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #777.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceEachLeadingChar, then removing the trailing run by replacing
+# each of its chars with "". Archive block #777.
 
-o1 = new stzString("aaaaah Tunisia!---")
-o1 {
-	ReplaceEachLeadingChar(:With = "O")
-	? Content()
-	#--> OOOOOh Tunisia!---
+Scenario("Cheering then cleaning")
+	o1 = new stzString("aaaaah Tunisia!---")
+	o1.ReplaceEachLeadingChar(:With = "O")
+	Then("five O's", o1.Content(), "OOOOOh Tunisia!---")
+	o1.ReplaceEachTrailingChar(:With = "")
+	Then("dashes vanished", o1.Content(), "OOOOOh Tunisia!")
+EndScenario()
 
-	ReplaceEachTrailingChar(:With = "")
-	? Content()
-	#--> OOOOOh Tunisia!
-}
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

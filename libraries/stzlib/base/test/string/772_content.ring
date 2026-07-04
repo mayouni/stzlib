@@ -1,27 +1,19 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #772.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceLeadingChars / ReplaceTrailingChars replace the WHOLE run
+# with the given string (once). Archive block #772.
 
-o1 = new stzString("___VAR---")
-o1.ReplaceLeadingChars(:With = "*")
-? o1.Content()
-#--> *VAR---
+Scenario("Collapsing each run to one star")
+	o1 = new stzString("___VAR---")
+	o1.ReplaceLeadingChars(:With = "*")
+	Then("leading run collapsed", o1.Content(), "*VAR---")
+	o2 = new stzString("___VAR---")
+	o2.ReplaceTrailingChars(:With = "*")
+	Then("trailing run collapsed", o2.Content(), "___VAR*")
+	o3 = new stzString("___VAR---")
+	o3.ReplaceLeadingAndTrailingChars(:With = "*")
+	Then("both at once", o3.Content(), "*VAR*")
+EndScenario()
 
-o1 = new stzString("___VAR---")
-o1.ReplaceTrailingChars(:With = "*")
-? o1.Content()
-#--> ___VAR*
-
-o1 = new stzString("___VAR---")
-o1.ReplaceLeadingAndTrailingChars(:With = "*")
-? o1.Content()
-#--> *VAR*
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

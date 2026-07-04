@@ -1,22 +1,15 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #780.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceLeadingChars / ReplaceTrailingChars, chained.
+# Archive block #780.
 
-o1 = new stzString("aaaaah Tunisia---")
+Scenario("Oh Tunisia")
+	o1 = new stzString("aaaaah Tunisia---")
+	o1.ReplaceLeadingChars(:With = "O")
+	Then("a-run collapsed to O", o1.Content(), "Oh Tunisia---")
+	o1.ReplaceTrailingChars(:With = "!")
+	Then("dash-run collapsed to !", o1.Content(), "Oh Tunisia!")
+EndScenario()
 
-o1.ReplaceLeadingChars(:With = "O")
-? o1.Content()
-#--> Oh Tunisia---
-
-o1.ReplaceTrailingChars(:With = "!")
-? o1.Content()
-#--> Oh Tunisia!
-
-pf()
-# Executed in 0.02 second(s).
+Summary()

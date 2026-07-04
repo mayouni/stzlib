@@ -1,28 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #770.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveRepeatedLeading/TrailingChars and the combined form.
+# Archive block #770.
 
-o1 = new stzString("eeeTuniseee")
-o1 {
-	RemoveRepeatedLeadingChars()
-	RemoveRepeatedTrailingChars()
-	
-	? Content()
-	#--> Tunis
-}
+Scenario("Stripping both runs")
+	o1 = new stzString("eeeTuniseee")
+	o1.RemoveRepeatedLeadingChars()
+	o1.RemoveRepeatedTrailingChars()
+	Then("runs gone", o1.Content(), "Tunis")
+	o2 = new stzString("eeeTuniseee")
+	o2.RemoveLeadingAndTrailingChars()
+	Then("same in one call", o2.Content(), "Tunis")
+EndScenario()
 
-o1 = new stzString("eeeTuniseee")
-o1 {
-	RemoveLeadingAndTrailingChars()
-	? Content()
-	#--> Tunis
-}
-
-pf()
-# Executed in 0.03 second(s).
+Summary()
