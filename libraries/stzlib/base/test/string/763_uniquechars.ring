@@ -5,8 +5,7 @@
 # Extracted from stzStringTest.ring, block #763.
 
 load "../../stzBase.ring"
-
-pr()
+load "../_narrated.ring"
 
 str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لَّنَا مَا هِيَ إِنَّ الْبَقَرَ 
 تَشَابَهَ عَلَيْنَا وَإِنَّا إِن شَاءَ اللَّهُ لَمُهْتَدُونَ (70)
@@ -30,12 +29,13 @@ str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لّ
 
 o1 = new stzString(str)
 
-? ShowShort( o1.UniqueChars() ) //+ NL
-#o--> [ "ق", "َ", "ا", "...", "ؤ", "5", "6" ]
+Scenario("Unique chars of a long Arabic text")
+	aU = o1.UniqueChars()
+	Then("58 distinct chars in the passage", len(aU), 58)
+	Then("the first is qaf", aU[1], "ق")
+	Then("the last is the digit 6", aU[len(aU)], "6")
+	Then("the ornament splits it in two",
+		len( o1.SplitAt("۞") ), 2)
+EndScenario()
 
-? len( o1.SplitAt("۞") )
-#--> 2
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.09 second(s) in Ring 1.17
+Summary()

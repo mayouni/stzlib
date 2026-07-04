@@ -1,27 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #769.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveNLeftChars / RemoveNRightChars. Archive block #769.
 
-o1 = new stzString("eeebxeTuniseee")
-o1 {
+Scenario("Shaving three chars off each end")
+	o1 = new stzString("eeebxeTuniseee")
+	o1.RemoveNLeftChars(3)
+	o1.RemoveNRightChars(3)
+	Then("the middle remains", o1.Content(), "bxeTunis")
+EndScenario()
 
-	RemoveNLeftChars(3)
-	RemoveNRightChars(3)
-
-	# or alternatively:
-	# RemoveFirstNChars(3)
-	# RemoveLastNChars(3)
-
-	? Content()
-	#--> bxeTunis
-	
-}
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

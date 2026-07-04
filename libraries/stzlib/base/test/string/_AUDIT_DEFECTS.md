@@ -985,7 +985,30 @@ Pure conversions: 748, 756, 760. (744/746/747 already narrated in the
 W-migration; 752 stays retired -- stzListOfChars grid renderer;
 741-743/745 do not exist in the numbering.)
 
-## STATUS (2026-07-04): 687/999 test files audited (chunks 14-43 added 424); ~312 still to audit
+### Chunk 44 (tests 761-780, 2026-07-04)
+
+- **`RepeatedLeading/TrailingChars(CS)` return char LISTS** (766-768,
+  776): were strings via stzStringLeadTrail; now alias the
+  Leading/TrailingChars run family ([] when no run -- 767's archive
+  wrote "" loosely for the list form too; ruled as []). CS dial does
+  the case-insensitive run walk.
+- **762**: SplitToPartsOfNChars stays the EXACT form (block #414's
+  archive pins it explicitly, "Same as SplitToPartsOfExactlyNChars");
+  762's kept-remainder line asserted via the XT form. Ruling: the
+  two archive blocks conflict; 414's is the deliberate one.
+- **771**: plain Section(7, 4) NORMALIZES (the original monolith
+  ring_sorts n1/n2 -> "bxeT"); the reversed reading ("Texb", what
+  762's archive showed) belongs to SectionXT, which already does it.
+- **765**: the archive TrimRight'ed leading spaces of an RTL string
+  (visual mixup); narrated as TrimRight = no-op + TrimLeft = removal.
+- **763**: ShowShort PRINTS (returns nothing) -- asserted the
+  UniqueChars list itself (58 distinct, qaf first, "6" last).
+- **775 DEFERRED**: future-feature wishlist (W-context vars
+  cChar/oChar/nNumberOfLeadingChars...) -- self-declared TODO, never
+  implemented.
+Pure conversions: 761, 764, 769, 770, 772-774, 776-780.
+
+## STATUS (2026-07-04): 706/999 test files audited (chunks 14-44 added 443); ~293 still to audit
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

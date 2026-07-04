@@ -1,20 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #767.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ... and when the run breaks at the second char, there is none.
+# (The list form returns [] -- the archive wrote "" loosely.)
+# Archive block #767.
 
-o1 = new stzString("exeeeeeTUNIS")
- 	
-? @@( o1.RepeatedLeadingChar() )
-#--> ""
+Scenario("No run when the second char differs")
+	o1 = new stzString("exeeeeeTUNIS")
+	Then("no repeated leading char", o1.RepeatedLeadingChar(), "")
+	Then("empty list", len( o1.RepeatedLeadingChars() ), 0)
+EndScenario()
 
-? @@( o1.RepeatedLeadingChars() )
-#--> ""
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

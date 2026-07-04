@@ -1,21 +1,13 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #761.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsLowercase / IsUppercase. Archive block #761.
 
-o1 = new stzString("happy-holidays")
+Scenario("Two holiday strings")
+	Then("happy-holidays is lowercase",
+		StzStringQ("happy-holidays").IsLowercase(), TRUE)
+	Then("HOLIDAYS! is uppercase",
+		StzStringQ("HOLIDAYS!").IsUppercase(), TRUE)
+EndScenario()
 
-? o1.IsLowercase()
-#--> TRUE
-
-o1 = new stzString("HOLIDAYS!")
-? o1.IsUppercase()
-#--> TRUE
-
-pf()
-# Executed in 0.04 second(s).
+Summary()
