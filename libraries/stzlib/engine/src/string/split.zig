@@ -16,8 +16,41 @@ const str_from = core.str_from;
 const decodeCodepoint = core.decodeCodepoint;
 const ciMatch = core.ciMatch;
 const INDEX_BASE = core.INDEX_BASE;
+const StzStrListResult = core.StzStrListResult;
+const StzStrListResultHandle = core.StzStrListResultHandle;
 
 // ─── Split by separator ───
+
+// One-pass split: compute ALL parts in a single scan and return them as a
+// string-list result. Replaces the count+get protocol whose per-index get
+// rescans from 0 (O(n) each -> O(n^2) for the full Ring drain). Same part
+// semantics as str_split_count_cs / str_split_get_cs.
+pub fn str_split_all_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, case: c_int) callconv(.c) StzStrListResultHandle {
+    const r = gpa.create(StzStrListResult) catch return null;
+    r.* = StzStrListResult.init();
+    if (handle) |s| {
+        const hay = s.slice();
+        if (sep == null or sep_len == 0) {
+            r.push(hay);
+            return r;
+        }
+        const d = sep[0..sep_len];
+        var start: usize = 0;
+        var pos: usize = 0;
+        while (pos + d.len <= hay.len) {
+            const matches = if (case == 0) ciMatch(hay[pos..][0..d.len], d) else mem.eql(u8, hay[pos..][0..d.len], d);
+            if (matches) {
+                r.push(hay[start..pos]);
+                pos += d.len;
+                start = pos;
+            } else {
+                pos += 1;
+            }
+        }
+        r.push(hay[start..]);
+    }
+    return r;
+}
 
 pub fn str_split_count(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) c_int {
     return str_split_count_cs(handle, sep, sep_len, 1);

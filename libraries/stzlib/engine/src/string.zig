@@ -123,6 +123,7 @@ pub const str_split_count = split.str_split_count;
 pub const str_split_get = split.str_split_get;
 pub const str_split_count_cs = split.str_split_count_cs;
 pub const str_split_get_cs = split.str_split_get_cs;
+pub const str_split_all_cs = split.str_split_all_cs;
 pub const str_lines_count = split.str_lines_count;
 pub const str_lines_split_count = split.str_lines_split_count;
 pub const str_line_at = split.str_line_at;
