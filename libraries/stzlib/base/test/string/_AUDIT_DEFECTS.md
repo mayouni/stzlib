@@ -99,6 +99,15 @@ SubStringsZ/ZZ + FindConsecutiveSubStringsOfNCharsZZ were already light (engine
 FindCS / pure position arithmetic) and needed no change. Verified: hand-computed
 assertions per batch + the 41 rewired-method test files green.
 
+CS DIAL (2026-07-05, commit 53a8bfe0c): the 3 comparison-bearing engine fns took
+a cs param (str_substrings_unique already had one). str_substrings_by_count(cs):
+cs controls DEDUP only, count stays case-sensitive (monolith DuplicatesCS =
+ContainsNoCS(sub,cs) + NumberOfOccurrenceCS(sub,1)). str_find_dupsecutive_chars/
+_substring(cs): cs=0 compares via per-codepoint casefold (multi-cp folds like
+ß->ss handled). Ring: DuplicatesCS honors its dial; exposed FindDupSecutiveCharsCS
+/ FindDupSecutiveSubStringCS; bare forms delegate cs=1. Pure enumerators
+(str_substrings/consecutive/windows) have no comparison -> CS n/a.
+
 ## Per-file audit (post-203) — chunk log
 
 **Chunk 1 (2026-06-30):** 04, 40, 44 audited→narrated (16 assertions). Real fixes:
