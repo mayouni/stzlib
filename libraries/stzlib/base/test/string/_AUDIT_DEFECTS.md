@@ -1242,7 +1242,30 @@ stzListOfChars grid-renderer extras.)
 Pure conversions: 961-965, 967-971. (973 stays retired; 980 does
 not exist in the numbering.)
 
-## STATUS (2026-07-04): 874/999 test files audited (chunks 14-54 added 611); ~125 still to audit
+### Chunk 55 (tests 981-997, 2026-07-04) -- END OF THE NUMBERED RANGE
+
+- **`FindPreviousNth` RE-RULED to strictly-exclusive** (989 vs 863):
+  the ORIGINAL scans Section(1, nStart - 1), so an occurrence AT the
+  start position does NOT count. Block #863's archive line (9 for
+  the 2nd previous from 12) contradicted the original impl and #989;
+  the narrated 863 now asserts 0 + the 1st previous. Chunk 49's
+  inclusive ruling is superseded.
+- **986**: SectionXT(5, 3) = "543" -- the reversal ruling from #771
+  holds; this file's earlier list-side header claimed order-tolerant
+  "345", contradicting the monolith. Negative second arg = forward
+  length ("567").
+- **995**: ToList expands the char ranges (chunk-37 UpTo/DownTo
+  generalisation); the archive listed the raw source chars.
+- **981/982 DEFERRED**: the constraints DSL sketch (future feature)
+  and the WalkUntil string-vs-list inconsistency (self-deferred to
+  the stzWalker completion).
+Pure conversions: 983-985, 987, 988, 990-994, 996, 997.
+
+## STATUS (2026-07-04): 889/999 test files audited (chunks 14-55 added 626); ~110 still to audit
+## The numbered range 01-997 is now fully processed. Remaining: the
+## 18 from_* cross-module extracts + the early-numbered print-form
+## leftovers (Ring-limit / engine-backlog / locale-pass items listed
+## above).
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain
