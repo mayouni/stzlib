@@ -517,11 +517,14 @@ class stzStringFinder
 		_cNorm_ = _StzNormalizeSubStringCond(pcCondition)
 		_nN_ = @oString.NumberOfChars()
 		if _nN_ = 0 return [] ok
-		_aSubs_ = []
+		# ENGINE-BACKED enumeration: SubStrings() returns every substring in
+		# the same (i,j) order this loop used, without the O(n^2) per-Section
+		# engine round-trips. Positions are reconstructed by the same nested
+		# counter (pure Ring arithmetic, no round-trips).
+		_aSubs_ = @oString.SubStrings()
 		_aPos_ = []
 		for _iSsw_ = 1 to _nN_
 			for _jSsw_ = _iSsw_ to _nN_
-				_aSubs_ + @oString.Section(_iSsw_, _jSsw_)
 				_aPos_ + _iSsw_
 			next
 		next
