@@ -6,8 +6,11 @@ load "../_narrated.ring"
 # many engine functions (search, count, pattern-match, replace, sort, reverse,
 # dedup). Deterministic -- asserts results, not timing.
 #
-# Large lists are built ENGINE-SIDE (range and .Repeated(), via the bulk
-# marshal/unmarshal bridges) -- never the Ring-loop "*" operator. It guards:
+# Large lists are built with range and the flat-tiling (*) operator
+# (["a","b"] * k -> a,b,a,b,... k times). Repeated() now NESTS (it wraps the
+# whole list n times: [1,2].Repeated(3) -> [[1,2],[1,2],[1,2]]), so flat
+# concatenation lives on (*). Each Q(list) then marshals the flat list into the
+# engine, exercising the bulk marshal/unmarshal bridges. It guards:
 #   * find returns ALL matches even when there are > 65536 of them (the old
 #     fixed 65536-element bridge buffer used to overflow / cap),
 #   * nested-list find uses the native stzValue structural compare (the old
@@ -25,7 +28,7 @@ M = 1000000       # one-million headline
 
 # --- shared big lists, built once, engine-side ---
 oNum = Q(1:N)
-aAB  = Q([ "a", "b" ]).Repeated(N / 2)     # N items: "a" and "b" each N/2 times
+aAB  = Q([ "a", "b" ]) * (N / 2)           # N items: "a" and "b" each N/2 times
 
 Scenario("Large numeric list: stats, find, membership")
     Then("NumberOfItems is 200,000", oNum.NumberOfItems(), N)
@@ -49,7 +52,7 @@ EndScenario()
 
 Scenario("A MILLION-match find (headline)")
     Given("a single value repeated a million times, engine-side")
-    oBig = Q(Q([ "x" ]).Repeated(M))
+    oBig = Q(Q([ "x" ]) * M)
     Then("FindAll(x) returns all 1,000,000 positions", len(oBig.FindAll("x")), M)
 EndScenario()
 
@@ -63,7 +66,7 @@ EndScenario()
 
 Scenario("Nested sub-lists: native value find (no stringify)")
     Given("[1,2] repeated engine-side 100,000 times")
-    aNest = Q([ [1, 2] ]).Repeated(100000)
+    aNest = Q([ [1, 2] ]) * 100000
     o = Q(aNest)
     Then("FindAll([1,2]) finds all 100,000", len(o.FindAll([ 1, 2 ])), 100000)
     Then("RemoveDuplicates collapses to one sub-list", Q(aNest).RemoveDuplicatesQ().NumberOfItems(), 1)
@@ -80,11 +83,11 @@ EndScenario()
 Scenario("Set operations at a million (hash-based, O(n+m))")
     a = Q(1:M)
     Then("UnionWith(1..1M, 500001..1.5M) has 1,500,000", Q(a.UnionWith(500001:1500000)).NumberOfItems(), 1500000)
-    Then("IntersectionWith has 500,000", Q(a.IntersectionWith(500001:1500000)).NumberOfItems(), 500000)
+    Then("IntersectWith has 500,000", Q(a.IntersectWith(500001:1500000)).NumberOfItems(), 500000)
 EndScenario()
 
 Scenario("Classify a million items (hash grouping, native positions)")
-    aMix = Q([ "a", "b", "c" ]).Repeated(333334)
+    aMix = Q([ "a", "b", "c" ]) * 333334
     cl = Q(aMix).Classify()
     Then("Classify yields 3 value groups", len(cl), 3)
     Then("group 1 holds 333,334 positions", len(cl[1][2]), 333334)

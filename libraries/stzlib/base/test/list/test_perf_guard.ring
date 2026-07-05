@@ -16,8 +16,8 @@ nFail = 0
 
 # --- shared inputs (built once; build time is NOT measured) ---
 anNums   = Q(1:N)                                  # 1M distinct ints
-afFloats = Q( Q([1.5]).Repeated(N) )               # 1M floats
-aStrMix  = Q( Q([ "alpha","beta","gamma" ]).Repeated(N / 3) )  # ~1M strings, 3 groups
+afFloats = Q( Q([1.5]) * N )                       # 1M floats (flat-tiled)
+aStrMix  = Q( Q([ "alpha","beta","gamma" ]) * (N / 3) )  # ~1M strings, 3 groups
 acDistinct = []
 for i = 1 to 50000 acDistinct + ("key_" + i) next  # 50k distinct strings
 
