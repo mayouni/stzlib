@@ -1308,9 +1308,13 @@ edge behavior), 263 (stzCCode @item transpile), 272/273 (ToSections),
 286 (ContigToSections), 294 x2 (bracket-find + SpacesRemoved).
 
 Deferred (genuinely-unimplemented features, backlog notes in-file):
-- **256/264/265**: the WXT->W migration needs a working list-item
-  W-predicate (Q(@item).Method() over list items returns []/no-match);
-  engine/DSL backlog.
+- **256/264/265**: WXT migration -- **✅ RESOLVED 2026-07-05.** The
+  right target is NOT the textual W form (which only lowers ENGINE
+  predicates -- calling IsMadeOfNumbers/isNumberInString over items
+  returns []) but the **WF** family (FindWF/RemoveWFQ), which runs a
+  real Ring anonymous-function predicate. Migrated the three tests to
+  `func it { return ... }`; no impl change needed (WF already worked).
+  264 -> [3, 6]; 256/265 -> the four letter lines. All narrated.
 - **280-285**: SpacifyXT multi-PHASE formatting -- **✅ RESOLVED
   2026-07-05.** New head/tail model: :LastNChars splits content into a
   head + tail zone; each zone is grouped with the first separator
@@ -1322,8 +1326,9 @@ Deferred (genuinely-unimplemented features, backlog notes in-file):
   (945/946) is untouched. All 6 archive cases pass; 280-285 narrated.
 
 ### RESOLVED post-audit (2026-07-05): Dotless (114/115) + SpacifyXT
-### multi-phase (280-285). Two of the deferred string-owned features
-### are now implemented, verified, and narrated. See their entries.
+### multi-phase (280-285) IMPLEMENTED; WXT->WF migration (256/264/265)
+### done via the correct WF func-predicate form. Three deferred
+### string-owned items cleared. See their entries.
 
 ## STATUS (2026-07-05): 926/999 test files audited. The ENTIRE string
 ## test folder is processed: every file is a green narrated suite OR an

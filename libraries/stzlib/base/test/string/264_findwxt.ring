@@ -1,26 +1,25 @@
-# Narrative
-# --------
-#
-# NOTE (audit, 2026-07-05): DEFERRED -- FindWXT is retired and its W replacement (FindW with a Q(@item).Method() predicate over list items) returns [] instead of [3,6] -- the list-item W-predicate evaluation needs work. Engine/DSL backlog with 256/265.
-# pr()
-#
-# Extracted from stzStringTest.ring, block #264.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# FindWF (function form) finds the items a predicate accepts. The
+# retired FindWXT / textual-W form can't call arbitrary methods/funcs
+# -- the W DSL only lowers engine predicates -- so a func predicate
+# (real Ring logic) is the right tool. Extracted from stzlisttest.ring,
+# block #264 (migrated from the retired WXT form).
 
-o1 = new stzList([
-	"ABCDEF",
-	"GHIJKL",
-	"123346",
-	"MNOPQU",
-	"RSTUVW",
-	"984332"
-])
+Scenario("The numeric rows of a table")
+	o1 = new stzList([ "ABCDEF", "GHIJKL", "123346", "MNOPQU", "RSTUVW", "984332" ])
+	Then("rows 3 and 6 are numbers",
+		ListEq( o1.FindWF( func it { return isNumberInString(it) } ),
+			[ 3, 6 ] ), TRUE)
+EndScenario()
 
-? o1.FindWXT(' @IsNumberInString(@item) ')
-#--> [ 3, 6 ]
+Summary()
 
-pf()
-# Executed in 0.13 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if aA[i] != aE[i] return FALSE ok
+	next
+	return TRUE
