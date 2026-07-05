@@ -3903,7 +3903,29 @@ class stzList from stzObject
 		return _aR_
 
 	def ObjectsZ()
-		return This.FindObjects()
+		# [ [name, [positions...]], ... ] grouped by object name in
+		# first-seen order (@noname objects grouped together).
+		_l_ = This.List()
+		_nL_ = len(_l_)
+		_acOzNames_ = []
+		_aOzRes_ = []
+		for _i_ = 1 to _nL_
+			if NOT isObject(_l_[_i_]) loop ok
+			_cOzN_ = "@noname"
+			try
+				_cOzN_ = _l_[_i_].ObjectName()
+			catch
+			done
+			if NOT isString(_cOzN_) _cOzN_ = "@noname" ok
+			_nOzAt_ = ring_find(_acOzNames_, _cOzN_)
+			if _nOzAt_ = 0
+				_acOzNames_ + _cOzN_
+				_aOzRes_ + [ _cOzN_, [ _i_ ] ]
+			else
+				_aOzRes_[_nOzAt_][2] + _i_
+			ok
+		next
+		return _aOzRes_
 
 	def ObjectsZZ()
 		_l_ = This.List()
@@ -4112,6 +4134,23 @@ class stzList from stzObject
 		_l_ = This.List()
 		_nL_ = len(_l_)
 		_aR_ = []
+		# A string names the object: FindObject(:oGreeting) -> the
+		# positions of objects carrying that name.
+		if isString(pObj)
+			_cFoN_ = lower(pObj)
+			for _i_ = 1 to _nL_
+				if NOT isObject(_l_[_i_]) loop ok
+				_cFoV_ = ""
+				try
+					_cFoV_ = _l_[_i_].ObjectName()
+				catch
+				done
+				if isString(_cFoV_) and lower(_cFoV_) = _cFoN_
+					_aR_ + _i_
+				ok
+			next
+			return _aR_
+		ok
 		for _i_ = 1 to _nL_
 			if _l_[_i_] = pObj _aR_ + _i_ ok
 		next

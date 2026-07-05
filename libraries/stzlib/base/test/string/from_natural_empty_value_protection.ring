@@ -1,5 +1,10 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-05): DEFERRED -- Naturally() is the stzNatural
+# natural-language-to-code translator, a separate subsystem; the block
+# exercises its empty-value protection, not stzString. Goes to the
+# stzNatural pass.
 # EMPTY VALUE PROTECTION
 #
 # Extracted from stznaturaltest.ring, block #27.

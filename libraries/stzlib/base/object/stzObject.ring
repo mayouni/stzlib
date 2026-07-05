@@ -2776,6 +2776,17 @@ class stzObject
 		#>
 
 	def Is(pcType)
+		# Is(:StzString) et al: match the StzType directly (with or
+		# without the stz prefix), then fall back to IsA.
+		if isString(pcType)
+			_kwIs_ = lower(pcType)
+			if ring_left(_kwIs_, 1) = ":"
+				_kwIs_ = StzMidToEnd(_kwIs_, 2)
+			ok
+			_tIs_ = lower(This.StzType())
+			if _tIs_ = _kwIs_ return TRUE ok
+			if _tIs_ = "stz" + _kwIs_ return TRUE ok
+		ok
 		return This.IsA(pcType)
 
 		def IsQ(pcType)

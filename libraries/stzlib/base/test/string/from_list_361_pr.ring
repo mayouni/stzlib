@@ -1,39 +1,20 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzlisttest.ring, block #361.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Insert(sub, :BeforePosition = n) and InsertBefore(:Position = n,
+# :SubString = sub) are two orders for the same edit; the short forms
+# take bare positions. Extracted from stzlisttest.ring, block #361.
 
-# to get the background of this sample, read this:
-# https://groups.google.com/g/ring-lang/c/_33L7miE3QM
+Scenario("Two orderings, one insertion")
+	o1 = new stzString("ACD")
+	o1.Insert("B", :BeforePosition = 2)
+	Then("substring-first form", o1.Content(), "ABCD")
+	o2 = new stzString("ACD")
+	o2.InsertBefore( :Position = 2, :SubString = "B")
+	Then("position-first form", o2.Content(), "ABCD")
+	o2.Insert("B", 2)
+	o2.InsertBefore(2, "B")
+	Then("the short forms stack", o2.Content(), "ABBBCD")
+EndScenario()
 
-# First way: Substring first
-
-o1 = new stzString("ACD")
-o1.Insert("B", :BeforePosition = 2)
-? o1.Content()
-#--> "ABCD"
-
-# Second way: Position first
-
-o1 = new stzString("ACD")
-o1.InsertBefore( :Position = 2, :SubString = "B")
-? o1.Content()
-#--> "ABCD"
-
-# Short forms:
-
-o1.Insert("B", 2)
-o1.InsertBefore(2, "B")
-? o1.Content()
-#--> ABBBCD
-
-#TODO // add ( :Position = ... and :SubString = ... ) everywhere!
-#UPDATE: done!
-
-pf()
-# Executed in 0.02 second(s).
+Summary()
