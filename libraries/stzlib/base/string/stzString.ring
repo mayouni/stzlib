@@ -18290,39 +18290,31 @@ class stzString from stzObject
 	# FindDupSecutiveChars -- positions of any char that EQUALS the
 	# previous one in the codepoint walk (i.e. immediate-duplicates).
 	# Returns the 2nd+ position of each run.
-	def FindDupSecutiveChars()
-		_nLen_ = This._EngineCount(This.Content())
-		_aRes_ = []
-		if _nLen_ < 2 return _aRes_ ok
-		_nPrev_ = StzEngineStringCharAt(@pEngine, 1)
-		for _i_ = 2 to _nLen_
-			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
-			if _nC_ = _nPrev_ _aRes_ + _i_ ok
-			_nPrev_ = _nC_
+	# Drain an engine find-result (position list) handle into a Ring list.
+	def _DrainFind(pResult)
+		_aOut_ = []
+		_nN_ = StzEngineFindResultCount(pResult)
+		for _i_ = 1 to _nN_
+			_aOut_ + StzEngineFindResultGet(pResult, _i_)
 		next
-		return _aRes_
+		StzEngineFindResultFree(pResult)
+		return _aOut_
+
+	# ENGINE-BACKED (StzEngineStringFindDupSecutiveChars): positions of each
+	# char equal to the one before it. Retires the O(len) CharAt loop.
+	def FindDupSecutiveChars()
+		return This._DrainFind( StzEngineStringFindDupSecutiveChars(@pEngine) )
 
 	# FindDupSecutiveSubString: positions where the substring at i+1
 	# equals the substring of the same length ending at i (i.e.
 	# back-to-back identical substrings). Returns the start positions
 	# of the second copy in each consecutive pair.
+	# ENGINE-BACKED (StzEngineStringFindDupSecutiveSubString): start of the
+	# second copy in each back-to-back identical-substring pair. Retires the
+	# O(len) Ring while-loop (2 EngineSlice round-trips per step).
 	def FindDupSecutiveSubString(pcSub)
-		_nSubLen_ = This._EngineCount(pcSub)
-		if _nSubLen_ = 0 return [] ok
-		_cTxt_ = This.Content()
-		_nLen_ = This._EngineCount(_cTxt_)
-		_aRes_ = []
-		_i_ = 1
-		while _i_ + 2 * _nSubLen_ - 1 <= _nLen_
-			if This._EngineSlice(_cTxt_, _i_, _nSubLen_) = pcSub and
-			   This._EngineSlice(_cTxt_, _i_ + _nSubLen_, _nSubLen_) = pcSub
-				_aRes_ + (_i_ + _nSubLen_)
-				_i_ += _nSubLen_
-			else
-				_i_++
-			ok
-		end
-		return _aRes_
+		if NOT isString(pcSub) return [] ok
+		return This._DrainFind( StzEngineStringFindDupSecutiveSubString(@pEngine, pcSub) )
 
 	# Z-suffix sectional forms (return [start, end] instead of just
 	# start) for the duplicate finders.
