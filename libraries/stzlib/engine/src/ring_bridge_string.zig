@@ -238,6 +238,17 @@ fn ring_StringSubStringsByCount(p: *anyopaque) callconv(.c) void {
     R.retHandle(p, @ptrCast(string.str_substrings_by_count(h, nWant, exact)));
 }
 
+fn ring_StringConsecutiveSubStringsOfN(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const nWant: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    R.retHandle(p, @ptrCast(string.str_consecutive_substrings_of_n(h, nWant)));
+}
+
+fn ring_StringConsecutiveSubStrings(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    R.retHandle(p, @ptrCast(string.str_consecutive_substrings(h)));
+}
+
 fn ring_StrListCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_strlist_count(getStrListHandle(p, 1))));
 }
@@ -3276,6 +3287,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsubstrings", .func = &ring_StringSubStrings },
     .{ .name = "stzenginestringsubstringsunique", .func = &ring_StringSubStringsUnique },
     .{ .name = "stzenginestringsubstringsbycount", .func = &ring_StringSubStringsByCount },
+    .{ .name = "stzenginestringconsecutivesubstringsofn", .func = &ring_StringConsecutiveSubStringsOfN },
+    .{ .name = "stzenginestringconsecutivesubstrings", .func = &ring_StringConsecutiveSubStrings },
     .{ .name = "stzenginestrlistcount", .func = &ring_StrListCount },
     .{ .name = "stzenginestrlistget", .func = &ring_StrListGet },
     .{ .name = "stzenginestrlistfree", .func = &ring_StrListFree },
