@@ -1,20 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #252.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceCharAt with named params. Archive block #252.
 
-o1 = new stzString("ABC*EF")
+Scenario("Fixing the fourth char")
+	o1 = new stzString("ABC*EF")
+	o1.ReplaceCharAt( :Position = 4, :By = "D")
+	Then("the star became D", o1.Content(), "ABCDEF")
+EndScenario()
 
-o1.ReplaceCharAt( :Position = 4, :By = "D")
-? o1.Content()
-#--> "ABCDEF"
-
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()

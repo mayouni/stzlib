@@ -1,41 +1,17 @@
-# Narrative
-# --------
-# #perf managing a big text
-#
-# Extracted from stzStringTest.ring, block #7.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
+# A 6.6-million-char text: counting its chars, lines and bytes, and
+# finding a word inside it. Archive block #07.
 
-pr()
+Scenario("Managing a big text")
+	cBigText = read("../_data/bigtext.txt")
+	oBig = new stzString(cBigText)
+	Then("six-plus million chars", oBig.NumberOfChars(), 6617121)
+	Then("128,457 lines", oBig.NumberOfLines(), 128457)
+	Then("its byte size", oBig.SizeInBytes(), 6617121)
+	Then("madrid appears eight times",
+		len( oBig.FindCS("madrid", FALSE) ), 8)
+EndScenario()
 
-cBigText = read("../_data/bigtext.txt")
-
-oBig = new stzString(cBigText)
-
-? oBig.NumberOfChars()
-#--> 6617121
-
-? oBig.NumberOfLines() + NL
-#--> 128457
-
-? oBig.SizeInBytes() + NL
-#--> 6617121
-
-? oBig.FindCS("madrid", FALSE)
-#--> [
-#	1538708
-#	1543968
-#	1544385
-#	1546342
-#	1550119
-#	5270717
-#	5621458
-#	6590675
-# ]
-
-oBig.ReplaceCS("madrid", "vienna", FALSE)
-
-pf()
-# Executed in 1.54 second(s) in Ring 1.26 (Powered by StzEngine)
-# Executed in 5.21 second(s) in Ring 1.22
+Summary()

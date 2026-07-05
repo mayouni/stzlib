@@ -1,5 +1,7 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-05): DEFERRED -- SpacifyXT multi-phase (thousands + decimal tail via :LastNChars) not honored. Feature backlog.
 # pr()
 #
 # Extracted from stzStringTest.ring, block #281.

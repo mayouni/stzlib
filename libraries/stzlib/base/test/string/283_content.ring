@@ -1,5 +1,7 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-05): DEFERRED -- SpacifyXT multi-phase not honored. Feature backlog.
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #283.

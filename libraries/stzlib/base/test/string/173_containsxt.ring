@@ -1,15 +1,14 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #173.
-#
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ContainsXT after a position, and ContainsInSection with inverted
+# bounds. Archive block #173.
 
-? Q("^^♥^^").ContainsXT("^", :AfterPosition = 2) #--> TRUE
-? Q("^^♥^^").ContainsInSection("^", 5, 3)        #--> TRUE
+Scenario("Carets after a point")
+	Then("a caret after position 2",
+		Q("^^♥^^").ContainsXT("^", :AfterPosition = 2), TRUE)
+	Then("a caret in the 5..3 span (normalized)",
+		Q("^^♥^^").ContainsInSection("^", 5, 3), TRUE)
+EndScenario()
 
-pf()
+Summary()

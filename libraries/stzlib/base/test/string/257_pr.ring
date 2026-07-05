@@ -1,15 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #257.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# @replace on an Arabic phrase. Archive block #257.
 
-? @replace("صباح الخير أصدقائي", "خير", "نور")
-#o--> صباح النور أصدقائي
+Scenario("Good morning becomes good light")
+	Then("kheir -> nour",
+		@replace("صباح الخير أصدقائي", "خير", "نور"),
+		"صباح النور أصدقائي")
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.22
+Summary()

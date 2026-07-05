@@ -1,5 +1,7 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-05): DEFERRED -- RemoveWXTQ over lines -- same list-item W-predicate gap as 256/264. Engine/DSL backlog.
 # StartProfiler()
 #
 # Extracted from stzStringTest.ring, block #265.
