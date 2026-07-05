@@ -201,8 +201,13 @@ fn countNonOverlapping(hay: []const u8, needle: []const u8) i64 {
 
 // Unique substrings whose NON-OVERLAPPING occurrence count matches the
 // filter, first-seen order. exact != 0 -> count == n; else count >= n.
-// (DuplicatesCS = n=2, exact=0 ; _SubStringsByOccurrence = (n, bExact))
-pub fn str_substrings_by_count(handle: StzStringHandle, n_want: c_int, exact: c_int) callconv(.c) StzStrListResultHandle {
+// cs controls the DEDUP only (cs==0 -> case-insensitive dedup, casefolded
+// key); the occurrence count stays CASE-SENSITIVE on the first-seen exact
+// representative -- faithful to the monolith DuplicatesCS, which dedups via
+// ContainsNoCS(sub, cs) but counts via NumberOfOccurrenceCS(sub, 1).
+// (DuplicatesCS = n=2, exact=0, cs=pCaseSensitive ;
+//  _SubStringsByOccurrence = (n, bExact, cs=1))
+pub fn str_substrings_by_count(handle: StzStringHandle, n_want: c_int, exact: c_int, cs: c_int) callconv(.c) StzStrListResultHandle {
     const s = (handle orelse return null);
     const src = s.slice();
     const r = gpa.create(StzStrListResult) catch return null;
@@ -212,17 +217,33 @@ pub fn str_substrings_by_count(handle: StzStringHandle, n_want: c_int, exact: c_
     defer gpa.free(offs);
     const n = offs.len - 1;
     const want: i64 = n_want;
-    // Enumerate each distinct substring once (exact dedup, first-seen
-    // order), scoring its non-overlapping occurrence count.
+    // Enumerate each distinct substring once (first-seen order), scoring its
+    // non-overlapping case-sensitive occurrence count.
     var seen = std.StringHashMap(void).init(gpa);
     defer seen.deinit();
+    // For cs==0 the dedup keys are casefolded allocations we must free.
+    var keys = std.ArrayList([]u8){};
+    defer {
+        for (keys.items) |k| gpa.free(k);
+        keys.deinit(gpa);
+    }
     var i: usize = 0;
     while (i < n) : (i += 1) {
         var j: usize = i;
         while (j < n) : (j += 1) {
             const sub = src[offs[i]..offs[j + 1]];
-            if (seen.contains(sub)) continue;
-            seen.put(sub, {}) catch {};
+            if (cs != 0) {
+                if (seen.contains(sub)) continue;
+                seen.put(sub, {}) catch {};
+            } else {
+                const key = casefoldAlloc(sub) orelse continue;
+                if (seen.contains(key)) {
+                    gpa.free(key);
+                    continue;
+                }
+                keys.append(gpa, key) catch { gpa.free(key); continue; };
+                seen.put(key, {}) catch {};
+            }
             const cnt = countNonOverlapping(src, sub);
             const match = if (exact != 0) (cnt == want) else (cnt >= want);
             if (match) r.push(sub);

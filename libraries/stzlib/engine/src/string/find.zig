@@ -220,9 +220,22 @@ pub fn str_find(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize
     return str_find_cs(handle, needle, needle_len, 1);
 }
 
+// Codepoint equality with optional case-fold. cs==0 folds each codepoint
+// individually (handles multi-cp folds like ß->ss), matching the monolith's
+// CharsCSQ(cs) comparison.
+fn cpEql(a: []const u8, b: []const u8, cs: c_int) bool {
+    if (cs != 0) return mem.eql(u8, a, b);
+    const fa = casefoldAlloc(a) orelse return mem.eql(u8, a, b);
+    defer gpa.free(fa);
+    const fb = casefoldAlloc(b) orelse return mem.eql(u8, a, b);
+    defer gpa.free(fb);
+    return mem.eql(u8, fa, fb);
+}
+
 // 1-based positions of each char equal to the char immediately before it
-// (consecutive-duplicate chars). Ring FindDupSecutiveChars. One pass.
-pub fn str_find_dupsecutive_chars(handle: StzStringHandle) callconv(.c) StzFindResultHandle {
+// (consecutive-duplicate chars). cs==0 compares case-insensitively.
+// Ring FindDupSecutiveChars (cs=1) / FindDupSecutiveCharsCS(cs). One pass.
+pub fn str_find_dupsecutive_chars(handle: StzStringHandle, cs: c_int) callconv(.c) StzFindResultHandle {
     const r = gpa.create(StzFindResult) catch return null;
     r.* = StzFindResult.init();
     if (handle) |s| {
@@ -233,7 +246,7 @@ pub fn str_find_dupsecutive_chars(handle: StzStringHandle) callconv(.c) StzFindR
         while (byte_pos < hay.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
             const cur = hay[byte_pos..][0..cp_len];
-            if (cp_idx >= 1 and mem.eql(u8, cur, prev)) {
+            if (cp_idx >= 1 and cpEql(cur, prev, cs)) {
                 r.positions.append(gpa, toExternal(cp_idx)) catch break;
             }
             prev = cur;
@@ -245,9 +258,10 @@ pub fn str_find_dupsecutive_chars(handle: StzStringHandle) callconv(.c) StzFindR
 }
 
 // 1-based start positions of the SECOND copy in each back-to-back
-// identical-substring pair. Ring FindDupSecutiveSubString. Greedy: on a
-// hit, advance by one substring length; else by one codepoint.
-pub fn str_find_dupsecutive_substring(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
+// identical-substring pair. cs==0 compares case-insensitively. Ring
+// FindDupSecutiveSubString (cs=1) / FindDupSecutiveSubStringCS(sub, cs).
+// Greedy: on a hit, advance by one substring length; else by one codepoint.
+pub fn str_find_dupsecutive_substring(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, cs: c_int) callconv(.c) StzFindResultHandle {
     const r = gpa.create(StzFindResult) catch return null;
     r.* = StzFindResult.init();
     const s = (handle orelse return r);
@@ -258,6 +272,9 @@ pub fn str_find_dupsecutive_substring(handle: StzStringHandle, needle: [*c]const
     if (sublen == 0) return r;
     const total = utf8CodepointCount(src);
     if (2 * sublen > total) return r;
+    // Optional casefolded needle for cs==0 comparison.
+    const need_fold: ?[]u8 = if (cs == 0) casefoldAlloc(need) else null;
+    defer if (need_fold) |nf| gpa.free(nf);
     // Codepoint -> byte offset table (offs[total] = src.len).
     const offs = gpa.alloc(usize, total + 1) catch return r;
     defer gpa.free(offs);
@@ -276,7 +293,11 @@ pub fn str_find_dupsecutive_substring(handle: StzStringHandle, needle: [*c]const
     while (i + 2 * sublen <= total) {
         const first = src[offs[i]..offs[i + sublen]];
         const second = src[offs[i + sublen]..offs[i + 2 * sublen]];
-        if (mem.eql(u8, first, need) and mem.eql(u8, second, need)) {
+        const hit = if (cs != 0)
+            (mem.eql(u8, first, need) and mem.eql(u8, second, need))
+        else
+            eqlFold(first, need_fold) and eqlFold(second, need_fold);
+        if (hit) {
             r.positions.append(gpa, toExternal(i + sublen)) catch break;
             i += sublen;
         } else {
@@ -284,6 +305,14 @@ pub fn str_find_dupsecutive_substring(handle: StzStringHandle, needle: [*c]const
         }
     }
     return r;
+}
+
+// window casefold == precomputed needle fold (null-safe).
+fn eqlFold(window: []const u8, need_fold: ?[]u8) bool {
+    const nf = need_fold orelse return false;
+    const wf = casefoldAlloc(window) orelse return false;
+    defer gpa.free(wf);
+    return mem.eql(u8, wf, nf);
 }
 
 // ─── Find Result Accessors ───
