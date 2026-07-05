@@ -228,7 +228,7 @@ fn ring_StringSubStrings(p: *anyopaque) callconv(.c) void {
 fn ring_StringSubStringsUnique(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    R.retHandle(p, @ptrCast(string.str_substrings_unique(h, cs)));
+    R.retHandle(p, @ptrCast(string.str_substrings_unique_cs(h, cs)));
 }
 
 fn ring_StringSubStringsByCount(p: *anyopaque) callconv(.c) void {
@@ -236,13 +236,13 @@ fn ring_StringSubStringsByCount(p: *anyopaque) callconv(.c) void {
     const nWant: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const exact: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
     const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
-    R.retHandle(p, @ptrCast(string.str_substrings_by_count(h, nWant, exact, cs)));
+    R.retHandle(p, @ptrCast(string.str_substrings_by_count_cs(h, nWant, exact, cs)));
 }
 
 fn ring_StringFindDupSecutiveChars(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_dupsecutive_chars(h, cs)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_dupsecutive_chars_cs(h, cs)), FIND_HANDLE);
 }
 
 fn ring_StringFindDupSecutiveSubString(p: *anyopaque) callconv(.c) void {
@@ -250,7 +250,7 @@ fn ring_StringFindDupSecutiveSubString(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_dupsecutive_substring(h, s, len, cs)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_dupsecutive_substring_cs(h, s, len, cs)), FIND_HANDLE);
 }
 
 fn ring_StringConsecutiveSubStringsOfN(p: *anyopaque) callconv(.c) void {
@@ -3305,13 +3305,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringbytetocp", .func = &ring_StringByteToCp },
     .{ .name = "stzenginestringcountof", .func = &ring_StringCountOf },
     .{ .name = "stzenginestringsubstrings", .func = &ring_StringSubStrings },
-    .{ .name = "stzenginestringsubstringsunique", .func = &ring_StringSubStringsUnique },
-    .{ .name = "stzenginestringsubstringsbycount", .func = &ring_StringSubStringsByCount },
+    .{ .name = "stzenginestringsubstringsuniquecs", .func = &ring_StringSubStringsUnique },
+    .{ .name = "stzenginestringsubstringsbycountcs", .func = &ring_StringSubStringsByCount },
     .{ .name = "stzenginestringconsecutivesubstringsofn", .func = &ring_StringConsecutiveSubStringsOfN },
     .{ .name = "stzenginestringconsecutivesubstrings", .func = &ring_StringConsecutiveSubStrings },
     .{ .name = "stzenginestringwindowsuptohalf", .func = &ring_StringWindowsUptoHalf },
-    .{ .name = "stzenginestringfinddupsecutivechars", .func = &ring_StringFindDupSecutiveChars },
-    .{ .name = "stzenginestringfinddupsecutivesubstring", .func = &ring_StringFindDupSecutiveSubString },
+    .{ .name = "stzenginestringfinddupsecutivecharscs", .func = &ring_StringFindDupSecutiveChars },
+    .{ .name = "stzenginestringfinddupsecutivesubstringcs", .func = &ring_StringFindDupSecutiveSubString },
     .{ .name = "stzenginestrlistcount", .func = &ring_StrListCount },
     .{ .name = "stzenginestrlistget", .func = &ring_StrListGet },
     .{ .name = "stzenginestrlistfree", .func = &ring_StrListFree },
