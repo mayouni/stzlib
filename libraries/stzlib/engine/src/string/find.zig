@@ -220,6 +220,72 @@ pub fn str_find(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize
     return str_find_cs(handle, needle, needle_len, 1);
 }
 
+// 1-based positions of each char equal to the char immediately before it
+// (consecutive-duplicate chars). Ring FindDupSecutiveChars. One pass.
+pub fn str_find_dupsecutive_chars(handle: StzStringHandle) callconv(.c) StzFindResultHandle {
+    const r = gpa.create(StzFindResult) catch return null;
+    r.* = StzFindResult.init();
+    if (handle) |s| {
+        const hay = s.slice();
+        var byte_pos: usize = 0;
+        var cp_idx: usize = 0;
+        var prev: []const u8 = &[_]u8{};
+        while (byte_pos < hay.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            const cur = hay[byte_pos..][0..cp_len];
+            if (cp_idx >= 1 and mem.eql(u8, cur, prev)) {
+                r.positions.append(gpa, toExternal(cp_idx)) catch break;
+            }
+            prev = cur;
+            byte_pos += cp_len;
+            cp_idx += 1;
+        }
+    }
+    return r;
+}
+
+// 1-based start positions of the SECOND copy in each back-to-back
+// identical-substring pair. Ring FindDupSecutiveSubString. Greedy: on a
+// hit, advance by one substring length; else by one codepoint.
+pub fn str_find_dupsecutive_substring(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
+    const r = gpa.create(StzFindResult) catch return null;
+    r.* = StzFindResult.init();
+    const s = (handle orelse return r);
+    if (needle == null or needle_len == 0) return r;
+    const src = s.slice();
+    const need = needle[0..needle_len];
+    const sublen = utf8CodepointCount(need);
+    if (sublen == 0) return r;
+    const total = utf8CodepointCount(src);
+    if (2 * sublen > total) return r;
+    // Codepoint -> byte offset table (offs[total] = src.len).
+    const offs = gpa.alloc(usize, total + 1) catch return r;
+    defer gpa.free(offs);
+    {
+        var pos: usize = 0;
+        var k: usize = 0;
+        while (pos < src.len and k < total) {
+            offs[k] = pos;
+            const cl = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
+            pos += cl;
+            k += 1;
+        }
+        offs[total] = src.len;
+    }
+    var i: usize = 0;
+    while (i + 2 * sublen <= total) {
+        const first = src[offs[i]..offs[i + sublen]];
+        const second = src[offs[i + sublen]..offs[i + 2 * sublen]];
+        if (mem.eql(u8, first, need) and mem.eql(u8, second, need)) {
+            r.positions.append(gpa, toExternal(i + sublen)) catch break;
+            i += sublen;
+        } else {
+            i += 1;
+        }
+    }
+    return r;
+}
+
 // ─── Find Result Accessors ───
 
 pub fn stz_find_result_count(result: StzFindResultHandle) callconv(.c) c_int {
