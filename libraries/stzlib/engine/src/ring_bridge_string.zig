@@ -248,6 +248,19 @@ fn ring_StringToLower(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_to_lower(getHandle(p, 1))), STZ_HANDLE);
 }
 
+fn ring_StringDotless(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_dotless(getHandle(p, 1))), STZ_HANDLE);
+}
+
+fn ring_StringGroupInsert(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const sep = ring_vm_api_getstring(p, 2);
+    const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const step: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const backward: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_group_insert(h, sep, sep_len, step, backward)), STZ_HANDLE);
+}
+
 fn ring_StringToTitle(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_to_title(getHandle(p, 1))), STZ_HANDLE);
 }
@@ -3225,6 +3238,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsplitget", .func = &ring_StringSplitGet },
     .{ .name = "stzenginestringtoupper", .func = &ring_StringToUpper },
     .{ .name = "stzenginestringtolower", .func = &ring_StringToLower },
+    .{ .name = "stzenginestringdotless", .func = &ring_StringDotless },
+    .{ .name = "stzenginestringgroupinsert", .func = &ring_StringGroupInsert },
     .{ .name = "stzenginestringtotitle", .func = &ring_StringToTitle },
     .{ .name = "stzenginestringcharat", .func = &ring_StringCharAt },
     .{ .name = "stzenginestringmidcp", .func = &ring_StringMidCp },
