@@ -3763,6 +3763,96 @@ class stzString from stzObject
 	#   SpacifyXT([sep1, sep2], [step1, step2], :Backward)
 	# The named-param form normalises to the positional form.
 	# Multi-separator form alternates: every step1 insert sep1, etc.
+	# _SpacifyParseSpec(pSpec) -> [ phaseValues, nLast ]. Bare values
+	# become phase 1, 2, ...; an [:AndThen = x] pair appends x; an
+	# [:LastNChars = n] / [:LastChars = n] pair sets the boundary.
+	def _SpacifyParseSpec(pSpec)
+		_aSpsPh_ = []
+		_nSpsLast_ = 0
+		if isString(pSpec) or isNumber(pSpec)
+			_aSpsPh_ + pSpec
+		but isList(pSpec)
+			_nSpsL_ = len(pSpec)
+			for _iSps_ = 1 to _nSpsL_
+				_vSps_ = pSpec[_iSps_]
+				if isList(_vSps_) and len(_vSps_) = 2 and isString(_vSps_[1])
+					_kSps_ = lower(_vSps_[1])
+					if _kSps_ = "andthen"
+						_aSpsPh_ + _vSps_[2]
+					but _kSps_ = "lastnchars" or _kSps_ = "lastchars"
+						_nSpsLast_ = _vSps_[2]
+					ok
+				else
+					_aSpsPh_ + _vSps_
+				ok
+			next
+		ok
+		return [ _aSpsPh_, _nSpsLast_ ]
+
+	# _GroupZone(cZone, cSep, nStep, bBackward): insert cSep every
+	# nStep chars (nStep 0 = no grouping), walking from the left
+	# (forward) or the right (backward).
+	def _GroupZone(cZone, cSep, nStep, bBackward)
+		if NOT isNumber(nStep) or nStep < 1 return cZone ok
+		_oGz_ = new stzString(cZone)
+		_aGzCh_ = _oGz_.Chars()
+		_nGzL_ = len(_aGzCh_)
+		_cGzOut_ = ""
+		_nGzCnt_ = 0
+		if bBackward
+			for _iGz_ = _nGzL_ to 1 step -1
+				_cGzOut_ = _aGzCh_[_iGz_] + _cGzOut_
+				_nGzCnt_++
+				if _iGz_ > 1 and _nGzCnt_ = nStep
+					_cGzOut_ = cSep + _cGzOut_
+					_nGzCnt_ = 0
+				ok
+			next
+		else
+			for _iGz_ = 1 to _nGzL_
+				_cGzOut_ += _aGzCh_[_iGz_]
+				_nGzCnt_++
+				if _iGz_ < _nGzL_ and _nGzCnt_ = nStep
+					_cGzOut_ += cSep
+					_nGzCnt_ = 0
+				ok
+			next
+		ok
+		return _cGzOut_
+
+	def _SpacifyMultiPhase(aSepPh, aStepPh, aDirPh, nLast)
+		_cSmContent_ = This.Content()
+		_nSmLen_ = This.NumberOfChars()
+		if nLast >= _nSmLen_ return _cSmContent_ ok
+		# grouping separator = phase-1 value; join separator (decimal)
+		# = phase-2 value (falls back to phase 1 if only one given).
+		_cSmGroup_ = " "
+		if len(aSepPh) >= 1 and isString(aSepPh[1]) _cSmGroup_ = aSepPh[1] ok
+		_cSmJoin_ = _cSmGroup_
+		if len(aSepPh) >= 2 and isString(aSepPh[2]) _cSmJoin_ = aSepPh[2] ok
+		# steps: head = phase 1, tail = phase 2 (default 0 = ungrouped).
+		_nSmStepH_ = 0
+		if len(aStepPh) >= 1 and isNumber(aStepPh[1]) _nSmStepH_ = aStepPh[1] ok
+		_nSmStepT_ = 0
+		if len(aStepPh) >= 2 and isNumber(aStepPh[2]) _nSmStepT_ = aStepPh[2] ok
+		# directions: head = phase 1 (default backward -- the natural
+		# thousands grouping); tail = phase 2 (default forward).
+		_bSmDirH_ = TRUE
+		if len(aDirPh) >= 1 and isString(aDirPh[1])
+			if lower(aDirPh[1]) = "forward" _bSmDirH_ = FALSE ok
+		ok
+		_bSmDirT_ = FALSE
+		if len(aDirPh) >= 2 and isString(aDirPh[2])
+			if lower(aDirPh[2]) = "backward" or lower(aDirPh[2]) = "reverse"
+				_bSmDirT_ = TRUE
+			ok
+		ok
+		_cSmHead_ = This._EngineSlice(_cSmContent_, 1, _nSmLen_ - nLast)
+		_cSmTail_ = This._EngineSliceFrom(_cSmContent_, _nSmLen_ - nLast + 1)
+		_cSmHF_ = This._GroupZone(_cSmHead_, _cSmGroup_, _nSmStepH_, _bSmDirH_)
+		_cSmTF_ = This._GroupZone(_cSmTail_, _cSmGroup_, _nSmStepT_, _bSmDirT_)
+		return _cSmHF_ + _cSmJoin_ + _cSmTF_
+
 	def SpacifyXT(p1, p2, p3)
 		# Normalise named-param form to positional.
 		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
@@ -3776,6 +3866,24 @@ class stzString from stzObject
 		if isList(p3) and len(p3) = 2 and isString(p3[1]) and
 		   (lower(p3[1]) = "direction" or lower(p3[1]) = "going")
 			p3 = p3[2]
+		ok
+
+		# MULTI-PHASE form: :Separator/:Step carry an :AndThen second
+		# value and a :LastNChars boundary. The last N chars become the
+		# TAIL zone, the rest the HEAD zone; each zone is grouped with
+		# the grouping separator (spec value 1) using its own step +
+		# direction, and the two zones are joined by the :AndThen
+		# separator (spec value 2 -- the decimal point).
+		_aSpPhSep_ = This._SpacifyParseSpec(p1)
+		_aSpPhStep_ = This._SpacifyParseSpec(p2)
+		_aSpPhDir_ = This._SpacifyParseSpec(p3)
+		_nSpLast_ = _aSpPhSep_[2]
+		if _nSpLast_ = 0 _nSpLast_ = _aSpPhStep_[2] ok
+		if _nSpLast_ = 0 _nSpLast_ = _aSpPhDir_[2] ok
+		if isNumber(_nSpLast_) and _nSpLast_ > 0
+			This.Update( This._SpacifyMultiPhase(
+				_aSpPhSep_[1], _aSpPhStep_[1], _aSpPhDir_[1], _nSpLast_) )
+			return
 		ok
 
 		# Determine direction.
