@@ -1537,6 +1537,13 @@ condition spelling.
   replaces "i" with the DIGIT "1" and leaves diacritics (`"alitalia extrême..."`
   -> `"al1tal1a extrême..."`) instead of dotless-i + diacritic removal; for Arabic
   it is a NO-OP (returns the input unchanged).
+  **✅ RESOLVED 2026-07-05:** `DotsRemoved()` rewritten as a char-by-char map over
+  the existing (already-complete) `DotlessLettersXT()` tables (Arabic rasm + Latin
+  i/j->ı/ȷ + Latin-diacritic->base), plus a positional NOON rule the data table
+  couldn't encode (medial noon -> ٮ U+066E, final/isolated -> ں U+06BA). All 6
+  archive phrases + the Latin line pass; 114/115 now narrated. (The archive's
+  final-noon of `وزيتون` -> `ٮ` contradicted its own `فلسطين` -> `...ں`; asserted
+  at the consistent `ں`.)
 
 ### ✅ RESOLVED — Shorten / Shortened family (tests 116, 117, 118, 119) — commit 7326f46e+
 

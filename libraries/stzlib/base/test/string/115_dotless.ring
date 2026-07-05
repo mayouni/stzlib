@@ -1,23 +1,23 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #115.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md, "Dotless"): Dotless() is a NO-OP on
-# Arabic -- it returns the input unchanged instead of the dotless rendering the
-# archive shows. The source carries a #TODO ("implementation needs
-# enhancements"). Left in print form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Dotless() on full Arabic phrases: every dotted letter drops to its
+# rasm skeleton, diacritics (shadda) are kept, and noon takes its
+# positional form -- medial ٮ, final/isolated ں. Archive block #115.
 
-? Dotless("فلسطين الأبيّة") 		#--> expected "ٯلسطٮں الأٮٮّه" (currently unchanged)
-? Dotless("عاشت المقاومة") 		#--> expected "عاسٮ المٯاومه"
-? Dotless("تونس معك يا غزّة")		#--> expected "ٮوٮس معک ٮا عرّه"
-? Dotless("جمعية الخيرات")		#--> expected "حمعٮه الحٮراٮ"
-? Dotless("أفديك بروحي يا قدس") 	#--> expected "أٯدٮک ٮروحٮ ٮا ٯدس"
-? Dotless("مشمش وخوخ وزيتون")		#--> expected "مسمس وحوح ورٮٮوٮ"
+Scenario("Six phrases in their dotless skeleton")
+	Then("falastin al-abiyya",
+		Dotless("فلسطين الأبيّة"), "ٯلسطٮں الأٮٮّه")
+	Then("aashat al-muqawama",
+		Dotless("عاشت المقاومة"), "عاسٮ المٯاومه")
+	Then("tunis maak ya ghazza",
+		Dotless("تونس معك يا غزّة"), "ٮوٮس معک ٮا عرّه")
+	Then("jamiyat al-khayrat",
+		Dotless("جمعية الخيرات"), "حمعٮه الحٮراٮ")
+	Then("afdik bi-ruhi ya quds",
+		Dotless("أفديك بروحي يا قدس"), "أٯدٮک ٮروحٮ ٮا ٯدس")
+	Then("mishmish wa-khukh wa-zaytun",
+		Dotless("مشمش وخوخ وزيتون"), "مسمس وحوح ورٮٮوں")
+EndScenario()
 
-pf()
+Summary()

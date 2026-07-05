@@ -4585,10 +4585,48 @@ class stzString from stzObject
 			return This.ContainsDiacritics()
 
 	def DotsRemoved()
-		_cDrContent_ = This.Content()
-		_cDrR_ = StzReplace(_cDrContent_, "i", char(305))     # U+0131
-		_cDrR_ = StzReplace(_cDrR_, "j", char(567))           # U+0237
-		_cDrR_ = StzReplace(_cDrR_, "I", char(304))           # U+0130
+		# Map each dotted letter to its dotless form, per the
+		# Arabic-rasm + Latin tables (DotlessLettersXT = both scripts,
+		# each entry [source, dotless]). i/î -> ı, j -> ȷ, Latin
+		# diacritics -> their base; Arabic letters -> their rasm; any
+		# char not in the tables (incl. Arabic diacritics like shadda)
+		# is kept as-is. Codepoint-correct (per-char, engine slices).
+		_aDrMap_ = DotlessLettersXT()
+		_nDrMapLen_ = len(_aDrMap_)
+		_aDrChars_ = This.Chars()
+		_nDrLen_ = len(_aDrChars_)
+		_cDrR_ = ""
+		for _iDr_ = 1 to _nDrLen_
+			_cDrC_ = _aDrChars_[_iDr_]
+			# NOON (U+0646) is positional: a MEDIAL/initial noon (one
+			# that joins forward to a following Arabic letter) takes
+			# the tooth rasm ٮ (U+066E); a FINAL/isolated noon takes
+			# the deep-bowl rasm ں (U+06BA). (The data table can't
+			# encode this -- see its own #TODO.)
+			if StzCodepoint(_cDrC_) = 1606
+				_bDrNoonFinal_ = TRUE
+				if _iDr_ < _nDrLen_
+					_nDrNext_ = StzCodepoint(_aDrChars_[_iDr_ + 1])
+					if _nDrNext_ >= 1569 and _nDrNext_ <= 1610
+						_bDrNoonFinal_ = FALSE
+					ok
+				ok
+				if _bDrNoonFinal_
+					_cDrR_ += StzEngineCharToUtf8(1722)
+				else
+					_cDrR_ += StzEngineCharToUtf8(1646)
+				ok
+				loop
+			ok
+			_cDrOut_ = _cDrC_
+			for _jDr_ = 1 to _nDrMapLen_
+				if _aDrMap_[_jDr_][1] = _cDrC_
+					_cDrOut_ = _aDrMap_[_jDr_][2]
+					exit
+				ok
+			next
+			_cDrR_ += _cDrOut_
+		next
 		return _cDrR_
 
 		def Dotless()
