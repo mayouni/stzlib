@@ -1,5 +1,7 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-04): DEFERRED -- the block documents a WalkUntil inconsistency between stzString (last position) and stzList (all positions) and defers itself to the stzWalker completion. Goes to the walker pass.
 # TODO - FIX THIS : Revisit this after completing stzWalker
 #
 # Extracted from stzStringTest.ring, block #982.

@@ -1,21 +1,10 @@
-# Narrative
-# --------
-# Arabic-script detection on a word.
-#
-# TQ("واحد").IsArabic() returns TRUE because every letter of the Arabic word
-# for "one" is in the Arabic script. IsArabic() is an alias of IsArabicScript();
-# both delegate to stzStringText so they're callable on the stzString that TQ()
-# returns.
-#
-# Repositioned from test/list (stzlisttest.ring, block #344): this is a
-# stzString/stzChar script test, so it belongs under test/string.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# IsArabic on a text. Archive block #991.
 
-? TQ("واحد").IsArabic()
-#--> TRUE
+Scenario("The word one, in Arabic")
+	Then("arabic indeed", TQ("واحد").IsArabic(), TRUE)
+EndScenario()
 
-pf()
-# Executed in 0.04 second(s).
+Summary()

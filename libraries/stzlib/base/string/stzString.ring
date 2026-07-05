@@ -9899,8 +9899,10 @@ class stzString from stzObject
 		return This.PreviousOccurrence(pcSub, nFrom)
 
 	def FindPreviousNth(n, pcSub, nFrom)
-		# The :StartingAt position is INCLUSIVE: an occurrence sitting
-		# exactly there counts as the 1st previous (per block #863).
+		# STRICTLY BEFORE the :StartingAt position -- the ORIGINAL
+		# counts occurrences in Section(1, nStart - 1) (block #989;
+		# block #863's inclusive line contradicted the original impl
+		# and was re-ruled).
 		if isList(nFrom) and len(nFrom) = 2 and isString(nFrom[1]) and
 		   lower(nFrom[1]) = "startingat"
 			nFrom = nFrom[2]
@@ -9909,7 +9911,7 @@ class stzString from stzObject
 		_nFpnL_ = len(_aFpn_)
 		_nFpnCnt_ = 0
 		for _iFpn_ = _nFpnL_ to 1 step -1
-			if _aFpn_[_iFpn_] <= nFrom
+			if _aFpn_[_iFpn_] < nFrom
 				_nFpnCnt_++
 				if _nFpnCnt_ = n return _aFpn_[_iFpn_] ok
 			ok

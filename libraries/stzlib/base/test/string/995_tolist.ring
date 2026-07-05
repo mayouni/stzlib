@@ -1,27 +1,25 @@
-# Narrative
-# --------
-# stzString.ToList(): list-literal expansion, with a character-split fallback.
-#
-# ToList() expands a string only when it actually IS a Ring list literal
-# (IsListInString() -- a bracketed "[ ... ]"); otherwise it falls back to
-# Chars() and returns the individual characters of the raw string. A range
-# expression like ' "A" : "C" ' is plain text, not a list literal, so ToList()
-# does NOT interpret the ":" as a range -- it returns every character, including
-# the surrounding spaces, the quote marks, and the colon. To expand a range,
-# use the L() helper or StzListQ("A":"C") instead (see blocks 384 / 385).
-#
-# Repositioned from test/list (stzlisttest.ring, block #383): this is a
-# stzString test, so it belongs under test/string.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ToList expands char RANGES inside the string -- latin and Arabic
+# alike (the archive listed the raw chars of the source string, the
+# pre-range-expansion behavior; ToList has expanded ranges since the
+# chunk-37 UpTo/DownTo generalisation). Archive block #995.
 
-? @@( Q(' "A" : "C" ').ToList() )
-#--> [ " ", '"', "A", '"', " ", ":", " ", '"', "C", '"', " " ]
+Scenario("Two ranges in strings")
+	Then("A through C",
+		ListEq( Q(' "A" : "C" ').ToList(), [ "A", "B", "C" ] ), TRUE)
+	Then("alif through jim",
+		ListEq( Q(' "ا" : "ج" ').ToList(),
+			[ "ا", "ب", "ة", "ت", "ث", "ج" ] ), TRUE)
+EndScenario()
 
-? @@( Q(' "ا" : "ج" ').ToList() )
-#--> [ " ", '"', "ا", '"', " ", ":", " ", '"', "ج", '"', " " ]
+Summary()
 
-pf()
-# Executed in 0.09 second(s)
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if aA[i] != aE[i] return FALSE ok
+	next
+	return TRUE

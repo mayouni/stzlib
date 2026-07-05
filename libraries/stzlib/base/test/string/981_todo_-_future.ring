@@ -1,5 +1,7 @@
 # Narrative
 # --------
+#
+# NOTE (audit, 2026-07-04): DEFERRED -- the constraint-oriented DSL (DefineConstraints/EnforceConstraints with @n@/@c@ templates) is a FUTURE feature the archive block sketches; nothing implemented to assert. Revisit with the constraints design.
 # // TODO - FUTURE //
 #
 # Extracted from stzStringTest.ring, block #981.
