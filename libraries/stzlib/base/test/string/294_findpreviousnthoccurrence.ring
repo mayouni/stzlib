@@ -1,29 +1,19 @@
-# Narrative
-# --------
-# Searching outward from a position: FindPreviousNthOccurrence / FindNextNthOccurrence
-# (n-th match before / after :StartingAt, via the :Of named param), and the n=1
-# shorthands FindFirstPrevious / FindFirstNext. Positions are codepoint-based, so
-# the multibyte heart counts as one char.
-#
-# Extracted from stzlisttest.ring, block #294.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Finding brackets around a cursor in a deep-list string -- the named
+# and the FindFirst spellings agree. Archive block #294.
 
-o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] ]' )
+Scenario("Brackets around position 21")
+	o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] ]' )
+	Then("previous open bracket",
+		o1.FindPreviousNthOccurrence(1, :Of = "[", :StartingAt = 21), 13)
+	Then("next close bracket",
+		o1.FindNextNthOccurrence(1, :Of = "]", :StartingAt = 21), 28)
+	Then("first previous, same",
+		o1.FindFirstPrevious("[", :StartingAt = 21), 13)
+	Then("first next, same",
+		o1.FindFirstNext(:Of = "]", :StartingAt = 21), 28)
+EndScenario()
 
-? o1.FindPreviousNthOccurrence(1, :Of = "[", :StartingAt = 21)
-#--> 13
-? o1.FindNextNthOccurrence(1, :Of = "]", :StartingAt = 21)
-#--> 28
-
-? o1.FindFirstPrevious("[", :StartingAt = 21)
-#--> 13
-? o1.FindFirstNext(:Of = "]", :StartingAt = 21)
-#--> 28
-
-StopProfiler()
-#--> Executed in 0.01 second(s)
-
-pf()
+Summary()

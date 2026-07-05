@@ -1,17 +1,26 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #272.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# stzListOfNumbers.ToSections turns break-points into consecutive
+# sections. Archive block #272.
 
-o1 = new stzListOfNumbers([ 3, 7, 12, 15 ])
+Scenario("Four break-points, four sections")
+	o1 = new stzListOfNumbers([ 3, 7, 12, 15 ])
+	Then("the sections",
+		ListEq( o1.ToSections(),
+			[ [ 1, 3 ], [ 4, 7 ], [ 8, 12 ], [ 13, 15 ] ] ), TRUE)
+EndScenario()
 
-? @@( o1.ToSections() ) # Or Sectioned()
-#--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 12 ], [ 13, 15 ] ]
+Summary()
 
-pf()
-#--> Executed in 0.02 second(s).
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

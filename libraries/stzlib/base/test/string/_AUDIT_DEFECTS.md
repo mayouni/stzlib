@@ -1298,10 +1298,31 @@ HEAD independent of the string work). Spawned as a separate task.
 Remaining string-folder work: the early-numbered print-form leftovers
 (Ring-limit / engine-backlog / locale-pass items listed above).
 
-## STATUS (2026-07-05): 906/999 test files audited (chunk 56 added 17);
-## the entire numbered range 01-997 AND the from_* extracts are done.
-## What's left is only the deferred set (locale pass, engine backlog,
-## Ring-limit, stzNatural/stzWalker/constraints DSL).
+### Chunk 57 (the remaining print-form leftovers, 2026-07-05)
+
+Narrated: 06 (SizeInBytes = real byte length; 64/32 are
+version-dependent struct accounting), 07 (6.6M-char big text counts +
+find), 103/173 (ContainsXT sections/after-position), 252/253
+(ReplaceCharAt/Section), 257 (@replace Arabic), 259 (Ring substr
+edge behavior), 263 (stzCCode @item transpile), 272/273 (ToSections),
+286 (ContigToSections), 294 x2 (bracket-find + SpacesRemoved).
+
+Deferred (genuinely-unimplemented features, backlog notes in-file):
+- **256/264/265**: the WXT->W migration needs a working list-item
+  W-predicate (Q(@item).Method() over list items returns []/no-match);
+  engine/DSL backlog.
+- **280-285**: SpacifyXT multi-PHASE formatting (:AndThen
+  separator/step/direction + :LastNChars) is only partially
+  implemented -- the mid-string phase switch and the grouped/decimal
+  tail are wrong; feature backlog.
+
+## STATUS (2026-07-05): 920/999 test files audited (chunk 57 added 14).
+## The ENTIRE string test folder is now processed: every file is a
+## green narrated suite OR an explicitly-deferred/retired block with a
+## documented reason (box-render cluster, Dotless, Interpolate/$(),
+## locale pass, engine backlog, SpacifyXT multi-phase, WXT->W
+## list-predicate, stzNatural/stzWalker/constraints DSL). Full suite
+## green at 916/916. Both remotes pushed.
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

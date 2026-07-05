@@ -1,19 +1,12 @@
-# Narrative
-# --------
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #253.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# ReplaceSection, one char wide. Archive block #253.
 
-o1 = new stzString("ABC*EF")
-o1.ReplaceSection( 4, 4, "D")
-? o1.Content()
-#--> ABCDEF
+Scenario("Replacing a one-char section")
+	o1 = new stzString("ABC*EF")
+	o1.ReplaceSection( 4, 4, "D")
+	Then("the star became D", o1.Content(), "ABCDEF")
+EndScenario()
 
-StopProfiler()
-#--> Executed in 0.01 second(s)
-
-pf()
+Summary()
