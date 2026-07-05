@@ -34,6 +34,50 @@ must be reimplemented engine-side for efficiency:
 audit, if a fix needs heavy char/substring iteration, implement it engine-side or
 add it here -- do NOT ship a Ring loop as the permanent impl.)
 
+### ✅ DONE 2026-07-05: DotsRemoved + _GroupZone moved engine-side
+(str_dotless, str_group_insert; commit 3db78e8e6). See the Dotless / SpacifyXT
+entries above. These were the two loops written during the post-audit feature work.
+
+### FULL SWEEP 2026-07-05 (fresh read of the whole string source): 16 critical
+### loops STILL Ring-looped. Root smell = SUBSTRING ENUMERATION (for i / for j /
+### Section(i,j)). Ranked, hottest first:
+
+FOUNDATION (fix first -- cascades to ~8 consumers):
+- **`SubStrings` / `SubStringsCS`** (stzString.ring ~7584 / ~7599) -- O(n^2),
+  CS variant O(n^3) (Ring-side case-fold dedup). Feeds SubStringsU/Z/ZZ,
+  _SubStringsByOccurrence, SubStringsBoundedBy*, and more.
+- **`SubStringsZ` / `SubStringsZZ`** (~7642 / ~7651) -- O(n^2)+ (per-unique FindCS).
+
+HOT (O(n^2)/O(n^3), independent):
+- **`DuplicatesCS`** (~6678, was mis-cited 5636) -- O(n^3): for i/for j/Section +
+  HowMany per candidate.
+- **`_SubStringsByOccurrence`** (~11649, was 9927) -- O(n^2)+; backs
+  SubStringsOccurring{,Only,Exactly}NTimes.
+- **`FindSubStringsWCS`** (stzStringFinder.ring ~516) -- O(n^2) substring
+  enumeration + stzList.FindW. Needs a StzEngineStringFindSubStringsW (mirror of
+  the existing StzEngineStringFindCharsW).
+- **`ConsecutiveSubStringsZ` / `ConsecutiveSubStringsZZ`** (~5340 / ~5353) -- O(n^2)
+  window enumeration; feeds ConsecutiveSubStrings + DupSecutive family.
+- **`FindDupSecutiveSubStrings` / ...ZZ** (~18463 / ~18476) -- O(n^2) composite
+  (code comment already flags it).
+
+MEDIUM (O(n) but per-window slice / compound calls):
+- **`ConsecutiveSubStringsOfNChars`** (~10727), **`FindConsecutiveSubStringsOfNCharsZZ`**
+  (~11871), **`FindDupSecutiveSubString`** (~18366, per-substring while-scan).
+
+NEWLY FOUND (not previously in the backlog):
+- **`ConsecutiveSubStrings`** (~10355) -- O(n^2): calls ConsecutiveSubStringsOfNChars(i)
+  in a loop over lengths.
+- **`FindDupSecutiveCharsZZ`** (~18408) -- O(n) run-grouping post-process; light,
+  but the engine could return [first,last] runs directly.
+
+HIGHEST-LEVERAGE PLAN: add an engine substring-enumeration family
+(StzEngineStringSubStrings[CS], ...Z, ...ZZ, ...ByOccurrence) -- one primitive set
+retires the FOUNDATION + most of the HOT tier via delegation. Then the
+consecutive-window family (ConsecutiveSubStrings[OfNChars][ZZ]) and
+FindSubStringsW / FindDupSecutiveSubStrings. Pattern: Zig fn + bridge, rebuild
+`zig build -Dring=D:/ring127`, rewire Ring, verify the suite green.
+
 ## Per-file audit (post-203) — chunk log
 
 **Chunk 1 (2026-06-30):** 04, 40, 44 audited→narrated (16 assertions). Real fixes:
