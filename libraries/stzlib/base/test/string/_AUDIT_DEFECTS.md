@@ -1311,18 +1311,29 @@ Deferred (genuinely-unimplemented features, backlog notes in-file):
 - **256/264/265**: the WXT->W migration needs a working list-item
   W-predicate (Q(@item).Method() over list items returns []/no-match);
   engine/DSL backlog.
-- **280-285**: SpacifyXT multi-PHASE formatting (:AndThen
-  separator/step/direction + :LastNChars) is only partially
-  implemented -- the mid-string phase switch and the grouped/decimal
-  tail are wrong; feature backlog.
+- **280-285**: SpacifyXT multi-PHASE formatting -- **✅ RESOLVED
+  2026-07-05.** New head/tail model: :LastNChars splits content into a
+  head + tail zone; each zone is grouped with the first separator
+  using its own step + direction (_GroupZone), and the two are joined
+  by the :AndThen separator (the decimal point). New helpers
+  _SpacifyParseSpec (parses bare / :AndThen / :LastNChars|:LastChars
+  from each of separator/step/direction) + _SpacifyMultiPhase; the
+  branch triggers only when :LastNChars > 0, so the single-phase path
+  (945/946) is untouched. All 6 archive cases pass; 280-285 narrated.
 
-## STATUS (2026-07-05): 920/999 test files audited (chunk 57 added 14).
-## The ENTIRE string test folder is now processed: every file is a
-## green narrated suite OR an explicitly-deferred/retired block with a
-## documented reason (box-render cluster, Dotless, Interpolate/$(),
-## locale pass, engine backlog, SpacifyXT multi-phase, WXT->W
-## list-predicate, stzNatural/stzWalker/constraints DSL). Full suite
-## green at 916/916. Both remotes pushed.
+### RESOLVED post-audit (2026-07-05): Dotless (114/115) + SpacifyXT
+### multi-phase (280-285). Two of the deferred string-owned features
+### are now implemented, verified, and narrated. See their entries.
+
+## STATUS (2026-07-05): 926/999 test files audited. The ENTIRE string
+## test folder is processed: every file is a green narrated suite OR an
+## explicitly-deferred/retired block with a documented reason. Two
+## previously-deferred string-owned features (Dotless, SpacifyXT
+## multi-phase) were implemented post-audit. Full suite green at
+## 925/925. Both remotes pushed. Remaining deferrals need OTHER
+## subsystems (stzLocale/stzNatural/stzWalker/constraints), the engine
+## (SpecialCasing/CJK-width), or hit Ring limits (Interpolate/$()) --
+## plus the WXT->W list-item predicate and the box-render cluster.
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

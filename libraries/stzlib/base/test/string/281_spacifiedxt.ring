@@ -1,23 +1,16 @@
-# Narrative
-# --------
-#
-# NOTE (audit, 2026-07-05): DEFERRED -- SpacifyXT multi-phase (thousands + decimal tail via :LastNChars) not honored. Feature backlog.
-# pr()
-#
-# Extracted from stzStringTest.ring, block #281.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The functional SpacifiedXT: thousands with commas, three-digit
+# decimal tail after a dot. Archive block #281.
 
-? Q("123456789050").SpacifiedXT(
+Scenario("A price, comma-grouped")
+	Then("123,456,789.050",
+		Q("123456789050").SpacifiedXT(
+			:Separator = [ ",", "." , :LastNChars = 3 ],
+			:Step      = [ 3, 0 ],
+			:Direction = :Backward),
+		"123,456,789.050")
+EndScenario()
 
-    :Separator	= [ ",", "." , :LastNChars = 3 ],
-    :Step 	= [ 3, 0 ], 
-    :Direction 	= :Backward
-
-)
-#--> 123,456,789.050
-
-pf()
-# Executed in 0.03 second(s).
+Summary()
