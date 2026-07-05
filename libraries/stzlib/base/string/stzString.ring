@@ -3793,31 +3793,17 @@ class stzString from stzObject
 	# nStep chars (nStep 0 = no grouping), walking from the left
 	# (forward) or the right (backward).
 	def _GroupZone(cZone, cSep, nStep, bBackward)
+		# ENGINE-BACKED (StzEngineStringGroupInsert): insert cSep every
+		# nStep codepoints, grouping from the left (forward) or the
+		# right (backward). nStep < 1 = unchanged.
 		if NOT isNumber(nStep) or nStep < 1 return cZone ok
-		_oGz_ = new stzString(cZone)
-		_aGzCh_ = _oGz_.Chars()
-		_nGzL_ = len(_aGzCh_)
-		_cGzOut_ = ""
-		_nGzCnt_ = 0
-		if bBackward
-			for _iGz_ = _nGzL_ to 1 step -1
-				_cGzOut_ = _aGzCh_[_iGz_] + _cGzOut_
-				_nGzCnt_++
-				if _iGz_ > 1 and _nGzCnt_ = nStep
-					_cGzOut_ = cSep + _cGzOut_
-					_nGzCnt_ = 0
-				ok
-			next
-		else
-			for _iGz_ = 1 to _nGzL_
-				_cGzOut_ += _aGzCh_[_iGz_]
-				_nGzCnt_++
-				if _iGz_ < _nGzL_ and _nGzCnt_ = nStep
-					_cGzOut_ += cSep
-					_nGzCnt_ = 0
-				ok
-			next
-		ok
+		_nGzB_ = 0
+		if bBackward _nGzB_ = 1 ok
+		_pGzH_ = StzEngineString(cZone)
+		_pGzR_ = StzEngineStringGroupInsert(_pGzH_, cSep, nStep, _nGzB_)
+		_cGzOut_ = StzEngineStringData(_pGzR_)
+		StzEngineStringFree(_pGzR_)
+		StzEngineStringFree(_pGzH_)
 		return _cGzOut_
 
 	def _SpacifyMultiPhase(aSepPh, aStepPh, aDirPh, nLast)
@@ -4693,49 +4679,15 @@ class stzString from stzObject
 			return This.ContainsDiacritics()
 
 	def DotsRemoved()
-		# Map each dotted letter to its dotless form, per the
-		# Arabic-rasm + Latin tables (DotlessLettersXT = both scripts,
-		# each entry [source, dotless]). i/î -> ı, j -> ȷ, Latin
-		# diacritics -> their base; Arabic letters -> their rasm; any
-		# char not in the tables (incl. Arabic diacritics like shadda)
-		# is kept as-is. Codepoint-correct (per-char, engine slices).
-		_aDrMap_ = DotlessLettersXT()
-		_nDrMapLen_ = len(_aDrMap_)
-		_aDrChars_ = This.Chars()
-		_nDrLen_ = len(_aDrChars_)
-		_cDrR_ = ""
-		for _iDr_ = 1 to _nDrLen_
-			_cDrC_ = _aDrChars_[_iDr_]
-			# NOON (U+0646) is positional: a MEDIAL/initial noon (one
-			# that joins forward to a following Arabic letter) takes
-			# the tooth rasm ٮ (U+066E); a FINAL/isolated noon takes
-			# the deep-bowl rasm ں (U+06BA). (The data table can't
-			# encode this -- see its own #TODO.)
-			if StzCodepoint(_cDrC_) = 1606
-				_bDrNoonFinal_ = TRUE
-				if _iDr_ < _nDrLen_
-					_nDrNext_ = StzCodepoint(_aDrChars_[_iDr_ + 1])
-					if _nDrNext_ >= 1569 and _nDrNext_ <= 1610
-						_bDrNoonFinal_ = FALSE
-					ok
-				ok
-				if _bDrNoonFinal_
-					_cDrR_ += StzEngineCharToUtf8(1722)
-				else
-					_cDrR_ += StzEngineCharToUtf8(1646)
-				ok
-				loop
-			ok
-			_cDrOut_ = _cDrC_
-			for _jDr_ = 1 to _nDrMapLen_
-				if _aDrMap_[_jDr_][1] = _cDrC_
-					_cDrOut_ = _aDrMap_[_jDr_][2]
-					exit
-				ok
-			next
-			_cDrR_ += _cDrOut_
-		next
-		return _cDrR_
+		# Render the string in its dotless skeleton (rasm). ENGINE-BACKED
+		# (StzEngineStringDotless): codepoint-by-codepoint, i/î -> ı,
+		# j -> ȷ, Latin diacritics -> base, Arabic letters -> their rasm,
+		# and NOON positionally (medial ٮ U+066E, final/isolated ں
+		# U+06BA). Arabic diacritics (shadda) and unmapped chars kept.
+		_pDr_ = StzEngineStringDotless(@pEngine)
+		_cDr_ = StzEngineStringData(_pDr_)
+		StzEngineStringFree(_pDr_)
+		return _cDr_
 
 		def Dotless()
 			return This.DotsRemoved()

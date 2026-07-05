@@ -253,6 +253,8 @@ const transform = @import("string/transform.zig");
 
 pub const str_to_upper = transform.str_to_upper;
 pub const str_to_lower = transform.str_to_lower;
+pub const str_dotless = transform.str_dotless;
+pub const str_group_insert = transform.str_group_insert;
 pub const str_foldcase = transform.str_foldcase;
 pub const str_to_title = transform.str_to_title;
 pub const str_swap_case = transform.str_swap_case;

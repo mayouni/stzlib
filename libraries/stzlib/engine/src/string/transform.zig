@@ -672,6 +672,123 @@ pub export fn str_to_constant_case(handle: ?*StzString) callconv(.c) ?*StzString
     return result;
 }
 
+// ─── Dotless (rasm) ───
+
+/// Map a codepoint to its dotless form. Latin: i/î/ì/í/ï/ı -> ı,
+/// j/ȷ -> ȷ, accented vowels -> their base, ç -> c, ñ -> n, ý/ÿ -> y.
+/// Arabic: each dotted letter -> its rasm skeleton. Noon (U+0646) is
+/// handled positionally by the caller; everything else is kept.
+fn dotlessMapCp(cp: i32) i32 {
+    return switch (cp) {
+        // Latin i-family -> dotless i (ı, U+0131)
+        0x69, 0xEC, 0xED, 0xEE, 0xEF, 0x131 => 0x131,
+        // Latin j-family -> dotless j (ȷ, U+0237)
+        0x6A, 0x237 => 0x237,
+        0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5 => 0x61, // a-family -> a
+        0xE8, 0xE9, 0xEA, 0xEB => 0x65, // e-family -> e
+        0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF8 => 0x6F, // o-family -> o
+        0xF9, 0xFA, 0xFB, 0xFC => 0x75, // u-family -> u
+        0xE7 => 0x63, // ç -> c
+        0xF1 => 0x6E, // ñ -> n
+        0xFD, 0xFF => 0x79, // ý ÿ -> y
+        // Arabic rasm
+        0x64A => 0x66E, // ي -> ٮ (dotless beh)
+        0x62E, 0x62C => 0x62D, // خ ج -> ح
+        0x630 => 0x62F, // ذ -> د
+        0x632 => 0x631, // ز -> ر
+        0x634 => 0x633, // ش -> س
+        0x636 => 0x635, // ض -> ص
+        0x638 => 0x637, // ظ -> ط
+        0x643 => 0x6A9, // ك -> ک
+        0x63A => 0x639, // غ -> ع
+        0x628, 0x62A, 0x62B => 0x66E, // ب ت ث -> ٮ (dotless beh)
+        0x642, 0x641 => 0x66F, // ق ف -> ٯ (dotless qaf)
+        0x629 => 0x647, // ة -> ه
+        else => cp,
+    };
+}
+
+fn isArabicLetterCp(cp: i32) bool {
+    return cp >= 0x621 and cp <= 0x64A;
+}
+
+/// Render the string in its dotless skeleton (rasm). Codepoint-by-
+/// codepoint; noon takes the tooth rasm ٮ (U+066E) when it joins
+/// forward to a following Arabic letter, else the deep-bowl ں (U+06BA).
+/// Returns a new handle.
+pub fn str_dotless(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    const result = str_new() orelse return null;
+    if (bytes.len == 0) return result;
+    result.data.ensureTotalCapacity(gpa, bytes.len) catch { setError(.out_of_memory); };
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_end = @min(i + cp_len, bytes.len);
+        const cp: i32 = decodeCodepoint(bytes, i, cp_len);
+        var out_cp: i32 = cp;
+        if (cp == 0x646) { // NOON: positional
+            var final = true;
+            if (cp_end < bytes.len) {
+                const nlen = std.unicode.utf8ByteSequenceLength(bytes[cp_end]) catch 1;
+                const ncp: i32 = decodeCodepoint(bytes, cp_end, nlen);
+                if (isArabicLetterCp(ncp)) final = false;
+            }
+            out_cp = if (final) 0x6BA else 0x66E;
+        } else {
+            out_cp = dotlessMapCp(cp);
+        }
+        if (out_cp == cp) {
+            result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
+        } else {
+            var buf: [4]u8 = undefined;
+            const n = std.unicode.utf8Encode(@intCast(out_cp), &buf) catch {
+                result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
+                i = cp_end;
+                continue;
+            };
+            result.data.appendSlice(gpa, buf[0..n]) catch break;
+        }
+        i = cp_end;
+    }
+    return result;
+}
+
+// ─── Group-insert (Spacify grouping) ───
+
+/// Insert `sep` every `step` codepoints. Forward (backward == 0) groups
+/// from the left; backward groups from the right (so the first group
+/// may be shorter). step < 1 or empty sep = the string unchanged.
+/// Returns a new handle.
+pub fn str_group_insert(handle: StzStringHandle, sep_ptr: [*]const u8, sep_len: usize, step: usize, backward: c_int) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    const result = str_new() orelse return null;
+    if (bytes.len == 0) return result;
+    if (step < 1) {
+        result.data.appendSlice(gpa, bytes) catch { setError(.out_of_memory); };
+        return result;
+    }
+    const sep = sep_ptr[0..sep_len];
+    const total = core.utf8CodepointCount(bytes);
+    result.data.ensureTotalCapacity(gpa, bytes.len + (total / step) * sep_len) catch {};
+    var i: usize = 0; // codepoint index
+    var pos: usize = 0; // byte pos
+    while (pos < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[pos]) catch 1;
+        const cp_end = @min(pos + cp_len, bytes.len);
+        if (i > 0) {
+            const do_ins = if (backward != 0) ((total - i) % step == 0) else (i % step == 0);
+            if (do_ins and sep_len > 0) result.data.appendSlice(gpa, sep) catch break;
+        }
+        result.data.appendSlice(gpa, bytes[pos..cp_end]) catch break;
+        pos = cp_end;
+        i += 1;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 fn sliceFromHandle(h: StzStringHandle) []const u8 {
