@@ -6683,14 +6683,14 @@ class stzString from stzObject
 	def Duplicates()
 		return This.DuplicatesCS(1)
 
-	# ENGINE-BACKED (StzEngineStringSubStringsByCount, n>=2): distinct
+	# ENGINE-BACKED (StzEngineStringSubStringsByCountCS, n>=2): distinct
 	# substrings occurring more than once. pCaseSensitive controls the DEDUP
 	# (cs=0 -> case-insensitive); the count stays case-sensitive, matching the
 	# monolith (ContainsNoCS(sub, cs) + NumberOfOccurrenceCS(sub, 1)).
 	def DuplicatesCS(pCaseSensitive)
-		_nCs_ = 1
-		if pCaseSensitive = 0 _nCs_ = 0 ok
-		return This._DrainStrList( StzEngineStringSubStringsByCount(@pEngine, 2, 0, _nCs_) )
+		_bCs_ = TRUE
+		if pCaseSensitive = 0 _bCs_ = FALSE ok
+		return This._DrainStrList( StzEngineStringSubStringsByCountCS(@pEngine, 2, FALSE, _bCs_) )
 
 	  #========================================#
 	 #     CHECKER DELEGATIONS (EXPANDED)     #
@@ -7606,12 +7606,12 @@ class stzString from stzObject
 		_n_ = This._EngineCount(This.Content())
 		return (_n_ * (_n_ + 1)) / 2
 
-	# ENGINE-BACKED (StzEngineStringSubStringsUnique): dedup, first-seen
+	# ENGINE-BACKED (StzEngineStringSubStringsUniqueCS): dedup, first-seen
 	# order. cs=1 exact, cs=0 case-insensitive. Retires the O(n^3) loop.
 	def SubStringsCS(pCaseSensitive)
-		_nCs_ = 0
-		if pCaseSensitive = 1 _nCs_ = 1 ok
-		return This._DrainStrList( StzEngineStringSubStringsUnique(@pEngine, _nCs_) )
+		_bCs_ = FALSE
+		if pCaseSensitive = 1 _bCs_ = TRUE ok
+		return This._DrainStrList( StzEngineStringSubStringsUniqueCS(@pEngine, _bCs_) )
 
 	def NumberOfSubStringsCS(pCaseSensitive)
 		return len(This.SubStringsCS(pCaseSensitive))
@@ -11620,14 +11620,14 @@ class stzString from stzObject
 	# times (bExact=TRUE) or n-OR-MORE times (bExact=FALSE). Per the original,
 	# SubStringsOccurringNTimes means ">= n" (aliased to ...NTimesOrMore), while
 	# Exactly/Only mean "= n".
-	# ENGINE-BACKED (StzEngineStringSubStringsByCount): distinct substrings
+	# ENGINE-BACKED (StzEngineStringSubStringsByCountCS): distinct substrings
 	# whose non-overlapping occurrence count == n (bExact) or >= n. Matches
 	# HowMany. Retires the O(n^3) Ring dedup+count loops.
 	def _SubStringsByOccurrence(n, bExact)
-		_nEx_ = 0
-		if bExact _nEx_ = 1 ok
-		# Exact dedup (cs=1) -- the occurrence family is case-sensitive by design.
-		return This._DrainStrList( StzEngineStringSubStringsByCount(@pEngine, n, _nEx_, 1) )
+		_bEx_ = FALSE
+		if bExact _bEx_ = TRUE ok
+		# Case-sensitive (TRUE) dedup -- the occurrence family is CS by design.
+		return This._DrainStrList( StzEngineStringSubStringsByCountCS(@pEngine, n, _bEx_, TRUE) )
 
 	# >= n occurrences (canonical + misspelled alias)
 	def SubStringsOccuringNTimes(n)
@@ -18315,13 +18315,13 @@ class stzString from stzObject
 		StzEngineFindResultFree(pResult)
 		return _aOut_
 
-	# ENGINE-BACKED (StzEngineStringFindDupSecutiveChars): positions of each
+	# ENGINE-BACKED (StzEngineStringFindDupSecutiveCharsCS): positions of each
 	# char equal to the one before it. Retires the O(len) CharAt loop.
 	# pCaseSensitive=0 compares case-insensitively (per-codepoint casefold).
 	def FindDupSecutiveCharsCS(pCaseSensitive)
-		_nCs_ = 1
-		if pCaseSensitive = 0 _nCs_ = 0 ok
-		return This._DrainFind( StzEngineStringFindDupSecutiveChars(@pEngine, _nCs_) )
+		_bCs_ = TRUE
+		if pCaseSensitive = 0 _bCs_ = FALSE ok
+		return This._DrainFind( StzEngineStringFindDupSecutiveCharsCS(@pEngine, _bCs_) )
 
 	def FindDupSecutiveChars()
 		return This.FindDupSecutiveCharsCS(1)
@@ -18330,15 +18330,15 @@ class stzString from stzObject
 	# equals the substring of the same length ending at i (i.e.
 	# back-to-back identical substrings). Returns the start positions
 	# of the second copy in each consecutive pair.
-	# ENGINE-BACKED (StzEngineStringFindDupSecutiveSubString): start of the
+	# ENGINE-BACKED (StzEngineStringFindDupSecutiveSubStringCS): start of the
 	# second copy in each back-to-back identical-substring pair. Retires the
 	# O(len) Ring while-loop (2 EngineSlice round-trips per step).
 	# pCaseSensitive=0 compares the substrings case-insensitively.
 	def FindDupSecutiveSubStringCS(pcSub, pCaseSensitive)
 		if NOT isString(pcSub) return [] ok
-		_nCs_ = 1
-		if pCaseSensitive = 0 _nCs_ = 0 ok
-		return This._DrainFind( StzEngineStringFindDupSecutiveSubString(@pEngine, pcSub, _nCs_) )
+		_bCs_ = TRUE
+		if pCaseSensitive = 0 _bCs_ = FALSE ok
+		return This._DrainFind( StzEngineStringFindDupSecutiveSubStringCS(@pEngine, pcSub, _bCs_) )
 
 	def FindDupSecutiveSubString(pcSub)
 		return This.FindDupSecutiveSubStringCS(pcSub, 1)

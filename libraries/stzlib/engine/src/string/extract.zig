@@ -68,7 +68,7 @@ pub fn str_substrings(handle: StzStringHandle) callconv(.c) StzStrListResultHand
 
 // Unique substrings, first-seen order. cs != 0 -> exact dedup;
 // cs == 0 -> case-insensitive dedup (casefolded key). (SubStringsCS / U)
-pub fn str_substrings_unique(handle: StzStringHandle, cs: c_int) callconv(.c) StzStrListResultHandle {
+pub fn str_substrings_unique_cs(handle: StzStringHandle, cs: c_int) callconv(.c) StzStrListResultHandle {
     const s = (handle orelse return null);
     const src = s.slice();
     const r = gpa.create(StzStrListResult) catch return null;
@@ -207,7 +207,7 @@ fn countNonOverlapping(hay: []const u8, needle: []const u8) i64 {
 // ContainsNoCS(sub, cs) but counts via NumberOfOccurrenceCS(sub, 1).
 // (DuplicatesCS = n=2, exact=0, cs=pCaseSensitive ;
 //  _SubStringsByOccurrence = (n, bExact, cs=1))
-pub fn str_substrings_by_count(handle: StzStringHandle, n_want: c_int, exact: c_int, cs: c_int) callconv(.c) StzStrListResultHandle {
+pub fn str_substrings_by_count_cs(handle: StzStringHandle, n_want: c_int, exact: c_int, cs: c_int) callconv(.c) StzStrListResultHandle {
     const s = (handle orelse return null);
     const src = s.slice();
     const r = gpa.create(StzStrListResult) catch return null;

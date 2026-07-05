@@ -235,7 +235,7 @@ fn cpEql(a: []const u8, b: []const u8, cs: c_int) bool {
 // 1-based positions of each char equal to the char immediately before it
 // (consecutive-duplicate chars). cs==0 compares case-insensitively.
 // Ring FindDupSecutiveChars (cs=1) / FindDupSecutiveCharsCS(cs). One pass.
-pub fn str_find_dupsecutive_chars(handle: StzStringHandle, cs: c_int) callconv(.c) StzFindResultHandle {
+pub fn str_find_dupsecutive_chars_cs(handle: StzStringHandle, cs: c_int) callconv(.c) StzFindResultHandle {
     const r = gpa.create(StzFindResult) catch return null;
     r.* = StzFindResult.init();
     if (handle) |s| {
@@ -261,7 +261,7 @@ pub fn str_find_dupsecutive_chars(handle: StzStringHandle, cs: c_int) callconv(.
 // identical-substring pair. cs==0 compares case-insensitively. Ring
 // FindDupSecutiveSubString (cs=1) / FindDupSecutiveSubStringCS(sub, cs).
 // Greedy: on a hit, advance by one substring length; else by one codepoint.
-pub fn str_find_dupsecutive_substring(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, cs: c_int) callconv(.c) StzFindResultHandle {
+pub fn str_find_dupsecutive_substring_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, cs: c_int) callconv(.c) StzFindResultHandle {
     const r = gpa.create(StzFindResult) catch return null;
     r.* = StzFindResult.init();
     const s = (handle orelse return r);
