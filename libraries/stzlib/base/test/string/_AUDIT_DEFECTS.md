@@ -81,9 +81,9 @@ FindSubStringsW / FindDupSecutiveSubStrings. Pattern: Zig fn + bridge, rebuild
 ### ✅ DONE 2026-07-05: all 16 loops engine-backed (5 batches, commits
 ### add97479d / 2473ac1d6 / 0f1045a0e / 6d66c6209 / 133138af8)
 New engine primitives (extract.zig / find.zig, StzStrListResult protocol in
-core.zig): str_substrings, str_substrings_unique(cs), str_substrings_by_count
+core.zig): str_substrings, str_substrings_unique_cs(cs), str_substrings_by_count_cs
 (n,exact), str_consecutive_substrings, str_consecutive_substrings_of_n(n),
-str_windows_upto_half, str_find_dupsecutive_chars, str_find_dupsecutive_substring.
+str_windows_upto_half, str_find_dupsecutive_chars_cs, str_find_dupsecutive_substring_cs.
 Bridges + StzEngineStrListCount/Get/Free + Ring _DrainStrList / _DrainFind helpers.
 - Batch 1 (FOUNDATION+HOT): SubStrings, SubStringsCS/U, DuplicatesCS,
   _SubStringsByOccurrence. Occurrence count is NON-overlapping to match HowMany
@@ -100,9 +100,9 @@ FindCS / pure position arithmetic) and needed no change. Verified: hand-computed
 assertions per batch + the 41 rewired-method test files green.
 
 CS DIAL (2026-07-05, commit 53a8bfe0c): the 3 comparison-bearing engine fns took
-a cs param (str_substrings_unique already had one). str_substrings_by_count(cs):
+a cs param (str_substrings_unique_cs already had one). str_substrings_by_count_cs:
 cs controls DEDUP only, count stays case-sensitive (monolith DuplicatesCS =
-ContainsNoCS(sub,cs) + NumberOfOccurrenceCS(sub,1)). str_find_dupsecutive_chars/
+ContainsNoCS(sub,cs) + NumberOfOccurrenceCS(sub,1)). str_find_dupsecutive_chars_cs/
 _substring(cs): cs=0 compares via per-codepoint casefold (multi-cp folds like
 ß->ss handled). Ring: DuplicatesCS honors its dial; exposed FindDupSecutiveCharsCS
 / FindDupSecutiveSubStringCS; bare forms delegate cs=1. Pure enumerators
