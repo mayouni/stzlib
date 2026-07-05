@@ -208,6 +208,55 @@ fn ring_FindResultFree(p: *anyopaque) callconv(.c) void {
     }
 }
 
+// ─── String-list Result (substring enumeration) ───
+
+fn getStrListHandle(p: *anyopaque, n: c_int) string.StzStrListResultHandle {
+    const ptr = R.getHandle(p, n);
+    if (ptr) |raw| {
+        const addr = @intFromPtr(raw);
+        if (addr == 0) return null;
+        return @ptrFromInt(addr);
+    }
+    return null;
+}
+
+fn ring_StringSubStrings(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    R.retHandle(p, @ptrCast(string.str_substrings(h)));
+}
+
+fn ring_StringSubStringsUnique(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    R.retHandle(p, @ptrCast(string.str_substrings_unique(h, cs)));
+}
+
+fn ring_StringSubStringsByCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const nWant: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const exact: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    R.retHandle(p, @ptrCast(string.str_substrings_by_count(h, nWant, exact)));
+}
+
+fn ring_StrListCount(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_strlist_count(getStrListHandle(p, 1))));
+}
+
+fn ring_StrListGet(p: *anyopaque) callconv(.c) void {
+    const h = getStrListHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    // Returns a FRESH string handle Ring can query via StzEngineStringData.
+    R.retHandle(p, @ptrCast(string.stz_strlist_get(h, idx)));
+}
+
+fn ring_StrListFree(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const lh: string.StzStrListResultHandle = @ptrFromInt(@intFromPtr(ptr));
+        string.stz_strlist_free(lh);
+    }
+}
+
 fn ring_StringReplace(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const old_s = ring_vm_api_getstring(p, 2);
@@ -3224,6 +3273,12 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringfindfirstfrom", .func = &ring_StringFindFirstFrom },
     .{ .name = "stzenginestringbytetocp", .func = &ring_StringByteToCp },
     .{ .name = "stzenginestringcountof", .func = &ring_StringCountOf },
+    .{ .name = "stzenginestringsubstrings", .func = &ring_StringSubStrings },
+    .{ .name = "stzenginestringsubstringsunique", .func = &ring_StringSubStringsUnique },
+    .{ .name = "stzenginestringsubstringsbycount", .func = &ring_StringSubStringsByCount },
+    .{ .name = "stzenginestrlistcount", .func = &ring_StrListCount },
+    .{ .name = "stzenginestrlistget", .func = &ring_StrListGet },
+    .{ .name = "stzenginestrlistfree", .func = &ring_StrListFree },
     .{ .name = "stzenginestringfindlast", .func = &ring_StringFindLast },
     .{ .name = "stzenginestringcontains", .func = &ring_StringContains },
     .{ .name = "stzenginestringstartswith", .func = &ring_StringStartsWith },

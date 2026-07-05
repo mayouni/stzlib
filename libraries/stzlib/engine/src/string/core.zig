@@ -168,6 +168,56 @@ pub const StzFindResult = struct {
 
 pub const StzFindResultHandle = ?*StzFindResult;
 
+// A compute-once, query-by-index list of STRINGS (the string analog of
+// StzFindResult). Owns copies of each item's bytes. Used by the
+// substring-enumeration family so O(n^2) work is done once engine-side
+// and Ring pulls items by index (never re-enumerating).
+pub const StzStrListResult = struct {
+    items: std.ArrayList([]u8),
+
+    pub fn init() StzStrListResult {
+        return .{ .items = .{} };
+    }
+
+    pub fn push(self: *StzStrListResult, bytes: []const u8) void {
+        const copy = gpa.alloc(u8, bytes.len) catch return;
+        @memcpy(copy, bytes);
+        self.items.append(gpa, copy) catch {
+            gpa.free(copy);
+        };
+    }
+
+    pub fn deinit(self: *StzStrListResult) void {
+        for (self.items.items) |it| gpa.free(it);
+        self.items.deinit(gpa);
+    }
+};
+
+pub const StzStrListResultHandle = ?*StzStrListResult;
+
+pub fn stz_strlist_count(result: StzStrListResultHandle) callconv(.c) c_int {
+    if (result) |r| return @intCast(r.items.items.len);
+    return 0;
+}
+
+// 1-based index; returns a FRESH string handle (caller frees it).
+pub fn stz_strlist_get(result: StzStrListResultHandle, index: c_int) callconv(.c) StzStringHandle {
+    if (result) |r| {
+        if (index >= 1 and @as(usize, @intCast(index)) <= r.items.items.len) {
+            const it = r.items.items[@as(usize, @intCast(index)) - 1];
+            return str_from(it.ptr, it.len);
+        }
+    }
+    return str_new();
+}
+
+pub fn stz_strlist_free(result: StzStrListResultHandle) callconv(.c) void {
+    if (result) |r| {
+        r.deinit();
+        gpa.destroy(r);
+    }
+}
+
 // ─── Lifecycle ───
 
 pub fn str_new() callconv(.c) StzStringHandle {
