@@ -3657,47 +3657,46 @@ class stzList from stzObject
 			_other_ = pNamedWith[2]
 		ok
 		if NOT isList(_other_) return [] ok
-		# Engine-backed intersection (content-compared, nested-list
-		# correct, O(n*m) in C), then a UNIQUE pass keeping This's order
-		# -- CommonItems is the SET intersection (per its own narrative
-		# doc; duplicates in the host appear once).
+		# CommonItems is the SET intersection: This's items that also appear
+		# in _other_, in This's order, each once (duplicates in the host
+		# appear once per its narrative doc). The engine's IntersectionCS
+		# already does exactly that -- host order + first-occurrence dedup --
+		# in ONE O(n+m) hash pass. (The old path called the multiset
+		# CommonItemsCS and then a UNIQUE pass in Ring that was O(k^2) and
+		# effectively hung at ~1,000,000 shared items.)
 		_pCiA_ = This._EngineListFromContent()
 		_pCiB_ = StzEngineMarshalList(_other_)
-		_aR_ = []
-		_bCiDone_ = FALSE
 		if _pCiA_ != NULL and _pCiB_ != NULL
-			_pCiR_ = StzEngineListCommonItemsCS(_pCiA_, _pCiB_, 1)
+			_pCiR_ = StzEngineListIntersectionCS(_pCiA_, _pCiB_, 1)
 			_aR_ = StzEngineListContentToRingList(_pCiR_)
 			StzEngineListFree(_pCiR_)
 			StzEngineListFree(_pCiA_)
 			StzEngineListFree(_pCiB_)
-			_bCiDone_ = TRUE
+			return _aR_
 		ok
-		if NOT _bCiDone_
-			# Fallback (non-marshalable content).
-			_a_ = This.List()
-			_nL_ = len(_a_)
-			for _i_ = 1 to _nL_
-				_v_ = _a_[_i_]
-				_nB_ = len(_other_)
-				for _j_ = 1 to _nB_
-					if BothAreEqualCS(_v_, _other_[_j_], 1) _aR_ + _v_ exit ok
-				next
-			next
-		ok
-		# Dedup, keeping first occurrences.
+		if _pCiA_ != NULL StzEngineListFree(_pCiA_) ok
+		if _pCiB_ != NULL StzEngineListFree(_pCiB_) ok
+
+		# Fallback (non-marshalable content): O(n*m) membership test with a
+		# first-occurrence dedup folded into the same pass.
+		_a_ = This.List()
+		_nL_ = len(_a_)
+		_nB_ = len(_other_)
 		_aU_ = []
-		_nRL_ = len(_aR_)
-		for _i_ = 1 to _nRL_
-			_bSeen_ = FALSE
-			_nUL_ = len(_aU_)
-			for _j_ = 1 to _nUL_
-				if BothAreEqualCS(_aR_[_i_], _aU_[_j_], 1)
-					_bSeen_ = TRUE
-					exit
-				ok
+		for _i_ = 1 to _nL_
+			_v_ = _a_[_i_]
+			_bIn_ = FALSE
+			for _j_ = 1 to _nB_
+				if BothAreEqualCS(_v_, _other_[_j_], 1) _bIn_ = TRUE exit ok
 			next
-			if NOT _bSeen_ _aU_ + _aR_[_i_] ok
+			if _bIn_
+				_bSeen_ = FALSE
+				_nUL_ = len(_aU_)
+				for _k_ = 1 to _nUL_
+					if BothAreEqualCS(_v_, _aU_[_k_], 1) _bSeen_ = TRUE exit ok
+				next
+				if NOT _bSeen_ _aU_ + _v_ ok
+			ok
 		next
 		return _aU_
 
