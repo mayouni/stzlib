@@ -108,6 +108,56 @@ pub fn str_substrings_unique(handle: StzStringHandle, cs: c_int) callconv(.c) St
     return r;
 }
 
+// Tile the string into windows of exactly `n` codepoints, phase-major:
+// for each phase offset 0..n-1, emit windows stepping by n. (Ring
+// ConsecutiveSubStringsOfNChars.)
+pub fn str_consecutive_substrings_of_n(handle: StzStringHandle, n_want: c_int) callconv(.c) StzStrListResultHandle {
+    const s = (handle orelse return null);
+    const src = s.slice();
+    const r = gpa.create(StzStrListResult) catch return null;
+    r.* = StzStrListResult.init();
+    if (src.len == 0 or n_want <= 0) return r;
+    const offs = cpOffsets(src) orelse return r;
+    defer gpa.free(offs);
+    const total = offs.len - 1;
+    const win: usize = @intCast(n_want);
+    if (win > total) return r;
+    var phase: usize = 0;
+    while (phase < win) : (phase += 1) {
+        var j: usize = phase;
+        while (j + win <= total) : (j += win) {
+            r.push(src[offs[j]..offs[j + win]]);
+        }
+    }
+    return r;
+}
+
+// All consecutive substrings: for every window 1..floor(total/2), the
+// phase-major tiling above, concatenated. (Ring ConsecutiveSubStrings.)
+pub fn str_consecutive_substrings(handle: StzStringHandle) callconv(.c) StzStrListResultHandle {
+    const s = (handle orelse return null);
+    const src = s.slice();
+    const r = gpa.create(StzStrListResult) catch return null;
+    r.* = StzStrListResult.init();
+    if (src.len == 0) return r;
+    const offs = cpOffsets(src) orelse return r;
+    defer gpa.free(offs);
+    const total = offs.len - 1;
+    if (total <= 1) return r;
+    const max = total / 2;
+    var win: usize = 1;
+    while (win <= max) : (win += 1) {
+        var phase: usize = 0;
+        while (phase < win) : (phase += 1) {
+            var j: usize = phase;
+            while (j + win <= total) : (j += win) {
+                r.push(src[offs[j]..offs[j + win]]);
+            }
+        }
+    }
+    return r;
+}
+
 // Non-overlapping occurrence count of needle in hay (matches HowMany /
 // str_count_of: advance by needle length on a hit).
 fn countNonOverlapping(hay: []const u8, needle: []const u8) i64 {

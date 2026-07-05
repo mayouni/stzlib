@@ -10332,19 +10332,10 @@ class stzString from stzObject
 	def NumberOfConsecutiveSubStringsOf(pcSub)
 		return len(This.FindDupSecutiveSubString(pcSub))
 
+	# ENGINE-BACKED (StzEngineStringConsecutiveSubStrings): all window
+	# tilings 1..floor(len/2). Retires the O(len^2) Ring double-loop.
 	def ConsecutiveSubStrings()
-		_nLen_ = This._EngineCount(This.Content())
-		_aRes_ = []
-		if _nLen_ <= 1 return _aRes_ ok
-		_nMax_ = floor(_nLen_ / 2)
-		for _i_ = 1 to _nMax_
-			_aT_ = This.ConsecutiveSubStringsOfNChars(_i_)
-			_nT_ = len(_aT_)
-			for _j_ = 1 to _nT_
-				_aRes_ + _aT_[_j_]
-			next
-		next
-		return _aRes_
+		return This._DrainStrList( StzEngineStringConsecutiveSubStrings(@pEngine) )
 
 		def ConsecutiveSubStringsQ()
 			return new stzList(This.ConsecutiveSubStrings())
@@ -10704,19 +10695,11 @@ class stzString from stzObject
 	# ConsecutiveSubStringsOfNChars(n): the n-char windows obtained by
 	# tiling the string from each of the n phase offsets (phase-major),
 	# per the original monolith.
+	# ENGINE-BACKED (StzEngineStringConsecutiveSubStringsOfN): phase-major
+	# window tiling of n codepoints. Retires the O(len) Ring double-loop.
 	def ConsecutiveSubStringsOfNChars(n)
-		_aRes_ = []
-		_cTxt_ = This.Content()
-		_nLen_ = This._EngineCount(_cTxt_)
-		if NOT isNumber(n) or n <= 0 or n > _nLen_ return _aRes_ ok
-		for _i_ = 1 to n
-			for _j_ = _i_ to _nLen_ step n
-				if _j_ + n - 1 <= _nLen_
-					_aRes_ + This._EngineSlice(_cTxt_, _j_, n)
-				ok
-			next
-		next
-		return _aRes_
+		if NOT isNumber(n) return [] ok
+		return This._DrainStrList( StzEngineStringConsecutiveSubStringsOfN(@pEngine, n) )
 
 	# RemoveThisFirstCharXT(pcChar) -- like RemoveThisCharFromStartXT
 	# but only when the first character matches pcChar.
