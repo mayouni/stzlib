@@ -78,6 +78,27 @@ consecutive-window family (ConsecutiveSubStrings[OfNChars][ZZ]) and
 FindSubStringsW / FindDupSecutiveSubStrings. Pattern: Zig fn + bridge, rebuild
 `zig build -Dring=D:/ring127`, rewire Ring, verify the suite green.
 
+### ✅ DONE 2026-07-05: all 16 loops engine-backed (5 batches, commits
+### add97479d / 2473ac1d6 / 0f1045a0e / 6d66c6209 / 133138af8)
+New engine primitives (extract.zig / find.zig, StzStrListResult protocol in
+core.zig): str_substrings, str_substrings_unique(cs), str_substrings_by_count
+(n,exact), str_consecutive_substrings, str_consecutive_substrings_of_n(n),
+str_windows_upto_half, str_find_dupsecutive_chars, str_find_dupsecutive_substring.
+Bridges + StzEngineStrListCount/Get/Free + Ring _DrainStrList / _DrainFind helpers.
+- Batch 1 (FOUNDATION+HOT): SubStrings, SubStringsCS/U, DuplicatesCS,
+  _SubStringsByOccurrence. Occurrence count is NON-overlapping to match HowMany
+  (overlapping enumeration-count diverges, e.g. "aa" in "aaa").
+- Batch 2: ConsecutiveSubStrings, ConsecutiveSubStringsOfNChars (phase-tiled).
+- Batch 3: FindDupSecutiveChars, FindDupSecutiveSubString (+ ...CharsZZ /
+  ...SubStringZZ / plural variants ride along as pure-Ring projections).
+- Batch 4: ConsecutiveSubStringsZ/ZZ (sliding, str_windows_upto_half) +
+  ConsecutiveSubStringsOfNCharsZ/ZZ (zip engine contents w/ light span list).
+- Batch 5: FindSubStringsWCS enumerates via @oString.SubStrings() (engine),
+  positions reconstructed by Ring arithmetic; no new engine fn.
+SubStringsZ/ZZ + FindConsecutiveSubStringsOfNCharsZZ were already light (engine
+FindCS / pure position arithmetic) and needed no change. Verified: hand-computed
+assertions per batch + the 41 rewired-method test files green.
+
 ## Per-file audit (post-203) — chunk log
 
 **Chunk 1 (2026-06-30):** 04, 40, 44 audited→narrated (16 assertions). Real fixes:
