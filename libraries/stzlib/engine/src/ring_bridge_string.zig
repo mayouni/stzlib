@@ -269,6 +269,14 @@ fn ring_StringWindowsUptoHalf(p: *anyopaque) callconv(.c) void {
     R.retHandle(p, @ptrCast(string.str_windows_upto_half(h)));
 }
 
+fn ring_StringSplitAllCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const sep = ring_vm_api_getstring(p, 2);
+    const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    R.retHandle(p, @ptrCast(string.str_split_all_cs(h, sep, sep_len, cs)));
+}
+
 fn ring_StrListCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_strlist_count(getStrListHandle(p, 1))));
 }
@@ -3310,6 +3318,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringconsecutivesubstringsofn", .func = &ring_StringConsecutiveSubStringsOfN },
     .{ .name = "stzenginestringconsecutivesubstrings", .func = &ring_StringConsecutiveSubStrings },
     .{ .name = "stzenginestringwindowsuptohalf", .func = &ring_StringWindowsUptoHalf },
+    .{ .name = "stzenginestringsplitallcs", .func = &ring_StringSplitAllCS },
     .{ .name = "stzenginestringfinddupsecutivecharscs", .func = &ring_StringFindDupSecutiveChars },
     .{ .name = "stzenginestringfinddupsecutivesubstringcs", .func = &ring_StringFindDupSecutiveSubString },
     .{ .name = "stzenginestrlistcount", .func = &ring_StrListCount },

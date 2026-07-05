@@ -1259,17 +1259,11 @@ class stzString from stzObject
 		return cResult
 
 	def _SplitByStrCS(cSep, bCaseSensitive)
-		nCount = StzEngineStringSplitCountCS(@pEngine, cSep, bCaseSensitive)
-		aResult = []
-		for i = 1 to nCount
-			pPart = StzEngineStringSplitGetCS(@pEngine, cSep, i, bCaseSensitive)
-			if pPart != NULL
-				aResult + StzEngineStringData(pPart)
-				StzEngineStringFree(pPart)
-			else
-				aResult + ""
-			ok
-		next
+		# ENGINE-BACKED one-pass (StzEngineStringSplitAllCS): splits the whole
+		# string in a single scan and drains all parts. Replaces the count+get
+		# protocol whose per-index get rescanned from 0 -> O(n^2) for a Ring
+		# drain of n parts (60s at 50k separators). Now linear.
+		aResult = This._DrainStrList( StzEngineStringSplitAllCS(@pEngine, cSep, bCaseSensitive) )
 		# EDGE empty parts (leading/trailing separators) are dropped;
 		# interior empties (adjacent separators) are kept -- the
 		# original Split contract.
