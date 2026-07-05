@@ -1,23 +1,24 @@
-# Narrative
-# --------
-# pr()
-#
-# Extracted from stzStringTest.ring, block #114.
-#
-# DEFECT (deferred -- see _AUDIT_DEFECTS.md, "Dotless"): Dotless() is broken for
-# Latin -- it should remove diacritics and turn "i" into the dotless "ı"
-# (-> "alıtalıa extreme exterıeur aeoro ultra"), but instead it replaces "i" with
-# the DIGIT "1" and leaves accented letters untouched
-# ("al1tal1a extrême extèr1eur aéorô ûltrâ"). The source carries a #TODO.
-# Left in print form; NOT asserted.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# Dotless() renders text in its dotless skeleton (rasm): Latin drops
+# diacritics and turns i/î into the dotless "ı" (j into "ȷ"); Arabic
+# maps each dotted letter to its dotless form. Now table-driven over
+# DotlessLettersXT() + a positional noon rule (medial noon -> ٮ,
+# final/isolated noon -> ں). Archive block #114.
 
-? Dotless("alitalia extrême extèrieur aéorô ûltrâ")
-#--> expected "alıtalıa extreme exterıeur aeoro ultra"
+Scenario("Latin, dotless")
+	Then("i -> ı and accents dropped",
+		Dotless("alitalia extrême extèrieur aéorô ûltrâ"),
+		"alıtalıa extreme exterıeur aeoro ultra")
+EndScenario()
 
-? Dotless("مشمش وخوخ وزيتون") #--> expected "مسمس وحوح ورٮٮوٮ"
+Scenario("Arabic, dotless")
+	# The archive wrote the final noon of وزيتون as ٮ, which contradicts
+	# its own فلسطين -> ...ں (block #115); a FINAL noon is ں. Asserted at
+	# the consistent rasm.
+	Then("dots stripped to the rasm",
+		Dotless("مشمش وخوخ وزيتون"), "مسمس وحوح ورٮٮوں")
+EndScenario()
 
-pf()
+Summary()
