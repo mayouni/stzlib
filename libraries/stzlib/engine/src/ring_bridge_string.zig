@@ -235,19 +235,22 @@ fn ring_StringSubStringsByCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const nWant: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const exact: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    R.retHandle(p, @ptrCast(string.str_substrings_by_count(h, nWant, exact)));
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    R.retHandle(p, @ptrCast(string.str_substrings_by_count(h, nWant, exact, cs)));
 }
 
 fn ring_StringFindDupSecutiveChars(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_dupsecutive_chars(h)), FIND_HANDLE);
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_dupsecutive_chars(h, cs)), FIND_HANDLE);
 }
 
 fn ring_StringFindDupSecutiveSubString(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_dupsecutive_substring(h, s, len)), FIND_HANDLE);
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_dupsecutive_substring(h, s, len, cs)), FIND_HANDLE);
 }
 
 fn ring_StringConsecutiveSubStringsOfN(p: *anyopaque) callconv(.c) void {
