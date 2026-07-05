@@ -1,13 +1,13 @@
-# Narrative
-# --------
-# ? StzStringQ(" 4  ُ  ").Scripts() #--> [ :Common, :Inherited ]
-#
-# Extracted from stzTtexttest.ring, block #10.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# A string of only spaces, a digit and a dhammah has no real script --
+# its dominant reading is Inherited. Extracted from stzTtexttest.ring,
+# block #10.
 
-? StzStringQ(" 4  ُ  ").Script()	 #--> :Inherited
+Scenario("Nothing but neutrals")
+	Then("Inherited",
+		StzStringQ(" 4  " + ArabicDhammah() + "  ").Script(), :Inherited)
+EndScenario()
 
-pf()
+Summary()

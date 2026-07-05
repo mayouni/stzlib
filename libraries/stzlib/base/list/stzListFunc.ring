@@ -5700,6 +5700,37 @@ func AreEqualCS(paValues, pCaseSensitive)
 		return 1
 	ok
 
+	# NAMED objects compare by NAME (the "named objects equality"
+	# narrative): when every value is a named Softanza object, the
+	# names decide.
+	bAllNamed = 1
+	for _k = 1 to nLen
+		if NOT isObject(paValues[_k])
+			bAllNamed = 0
+			exit
+		ok
+		cNm = ""
+		try
+			cNm = paValues[_k].ObjectName()
+		catch
+			bAllNamed = 0
+			exit
+		done
+		if NOT (isString(cNm) and cNm != "" and cNm != "@noname")
+			bAllNamed = 0
+			exit
+		ok
+	next
+	if bAllNamed = 1
+		cFirstNm = paValues[1].ObjectName()
+		for _k = 2 to nLen
+			if NOT (paValues[_k].ObjectName() = cFirstNm)
+				return 0
+			ok
+		next
+		return 1
+	ok
+
 	bCaseSensitive = CaseSensitive(pCaseSensitive)
 	for _k = 2 to nLen
 		if bCaseSensitive

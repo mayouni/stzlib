@@ -1,16 +1,12 @@
-# Narrative
-# --------
-# pr()
-#
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# Is(:StzString) matches the object's own type.
 # Extracted from stzObjectTest.ring, block #29.
 
-load "../../stzBase.ring"
+Scenario("A string is a stzString")
+	o1 = new stzString("hello")
+	Then("yes", o1.Is(:StzString), TRUE)
+EndScenario()
 
-pr()
-
-o1 = new stzString("hello")
-? o1.Is(:StzString)
-#--> TRUE
-
-pf()
-# Executed in 0.03 second(s)
+Summary()

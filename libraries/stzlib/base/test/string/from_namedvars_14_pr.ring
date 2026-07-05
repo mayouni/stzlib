@@ -1,41 +1,17 @@
-# Narrative
-# --------
-# pr()
-#
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# A named object carries its name; an unnamed one reports @noname.
 # Extracted from stznamedvarstest.ring, block #14.
 
-load "../../stzBase.ring"
+Scenario("Named and unnamed objects")
+	o1 = new stzString(:nation = "Niger")
+	Then("it is a stzString", ClassName(o1), "stzstring")
+	Then("it is named", IsNamedObject(o1), TRUE)
+	Then("its name", ObjectName(o1), "nation")
+	o2 = new stzString("Niger")
+	Then("this one is not named", IsNamedObject(o2), FALSE)
+	Then("... so it reports @noname", ObjectName(o2), "@noname")
+EndScenario()
 
-pr()
-
-o1 = new stzString(:nation = "Niger")
-
-? ClassName(o1)
-#--> stzstring
-
-? IsNamedObject(o1)
-#--> TRUE
-
-? ObjectName(o1)
-#--> nation
-
-#----
-
-o1 = new stzString("Niger")
-
-? ISNamedObject(o1)
-#--> FALSE
-
-? ObjectName(o1)
-#--> @noname
-
-#TODO // Reflect...
-# Does any normal object (not necessarilty a stzObject) containing an
-# @cVarName attribute and an ObjectVarName() method should be
-# considered as potentially named ?
-
-# In fact, the actual implementation ignores those objects completely
-# and assign a @noname to them --> they are considered UnnamedObject!
-
-pf()
-# Executed in 0.01 second(s).
+Summary()

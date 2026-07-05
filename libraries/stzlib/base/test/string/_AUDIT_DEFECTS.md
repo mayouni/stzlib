@@ -1262,10 +1262,46 @@ not exist in the numbering.)
 Pure conversions: 983-985, 987, 988, 990-994, 996, 997.
 
 ## STATUS (2026-07-04): 889/999 test files audited (chunks 14-55 added 626); ~110 still to audit
-## The numbered range 01-997 is now fully processed. Remaining: the
-## 18 from_* cross-module extracts + the early-numbered print-form
-## leftovers (Ring-limit / engine-backlog / locale-pass items listed
-## above).
+## The numbered range 01-997 is now fully processed.
+
+### Chunk 56 (the 18 from_* cross-module extracts, 2026-07-05)
+
+- **`MultiplyByN`/`DivideByN`/`AddN`/`RetrieveN` transform the numbers
+  INSIDE the string** (from_regexuter): were repeat-content/no-op
+  stubs; now apply one factor to every embedded number (the XT twins
+  take one per number). `_ApplyNumberTransform` hit the single-clause
+  type-widening no-op trap (CLAUDE.md note 6) on a bare-number arg --
+  fixed with the fresh-variable if/but/else.
+- **`ScriptIs` / `IsScriptOf` = dominant-script equality** (from_ttext
+  x4): were per-char eval-based checks; now compare Script() by name.
+  Added Gujarati (U+0A80-0AFF) and mapped Arabic diacritics
+  (U+064B-065F, U+0670) to Inherited in `_CharScriptCode` -- so a
+  lone harakah is Inherited and " 4 dhammah " reads Inherited.
+- **`AreEqual` on NAMED objects compares by NAME** (from_list/605):
+  when every value is a named Softanza object, the names decide
+  (stzListFunc.AreEqualCS).
+- **`stzList.ObjectsZ` groups by object name** (from_namedvars):
+  [ [name, [positions...]], ... ]; `FindObject(:name)` finds by name
+  (was identity-only).
+- **`stzObject.Is(:StzString)`** matches the StzType directly
+  (from_object) -- IsA alone returned FALSE.
+- **`Insert(sub, n)`** accepts a bare-number position (from_list/361).
+- **from_natural DEFERRED** (Naturally() = stzNatural domain).
+- Pure conversions: from_list (17, 35, 366, 605), from_namedvars (14),
+  from_table (9), from_global (38, "HI3" garble -> "HI").
+
+### PRE-EXISTING (not this audit): list FindAll >65536 -> 0
+test/list/03_engine_millions_narrated.ring fails -- FindAll/count on a
+100k-match list returns 0 (engine buffer-cap regression, reproduces at
+HEAD independent of the string work). Spawned as a separate task.
+
+Remaining string-folder work: the early-numbered print-form leftovers
+(Ring-limit / engine-backlog / locale-pass items listed above).
+
+## STATUS (2026-07-05): 906/999 test files audited (chunk 56 added 17);
+## the entire numbered range 01-997 AND the from_* extracts are done.
+## What's left is only the deferred set (locale pass, engine backlog,
+## Ring-limit, stzNatural/stzWalker/constraints DSL).
 
 NOT complete. `base/test/string` has 999 files; **263 are audited + converted to
 narrated assertions + green** (the backlog below is from those). **~736 remain

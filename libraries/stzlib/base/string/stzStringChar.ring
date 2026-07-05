@@ -87,8 +87,11 @@ func _CharScriptCode(nUnicode)
 	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 5 ok		# Cyrillic
 	if nUnicode >= 0x0530 and nUnicode <= 0x058F return 6 ok		# Armenian
 	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 7 ok		# Hebrew
+	if nUnicode >= 0x064B and nUnicode <= 0x065F return 1 ok	# Arabic diacritics -> Inherited
+	if nUnicode = 0x0670 return 1 ok				# superscript alef -> Inherited
 	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 8 ok		# Arabic
 	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 11 ok	# Devanagari
+	if nUnicode >= 0x0A80 and nUnicode <= 0x0AFF return 14 ok	# Gujarati
 	if nUnicode >= 0x0E00 and nUnicode <= 0x0E7F return 21 ok	# Thai
 	if nUnicode >= 0x3040 and nUnicode <= 0x309F return 34 ok	# Hiragana
 	if nUnicode >= 0x30A0 and nUnicode <= 0x30FF return 35 ok	# Katakana

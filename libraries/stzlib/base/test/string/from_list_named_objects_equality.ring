@@ -1,33 +1,32 @@
-# Narrative
-# --------
-# #narration NAMED OBJECTS EQuALiTY
-#
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# Named objects can be compared: AreEqual reads their NAMES, so two
+# objects sharing a name are equal regardless of their values.
 # Extracted from stzlisttest.ring, block #605.
 
-load "../../stzBase.ring"
+Scenario("Named objects equality")
+	obj1 = new stzString(:first  = "Ring")
+	obj2 = new stzString(:second = "Python")
+	obj3 = new stzString(:first  = "basic")
+	Then("all are named", AreNamedObjects([ obj1, obj2, obj3 ]), TRUE)
+	Then("their names",
+		ListEq( ObjectsNames([ obj1, obj2, obj3 ]),
+			[ :first, :second, :first ] ), TRUE)
+	Then("different names, not equal", AreEqual([ obj1, obj2 ]), FALSE)
+	Then("same name, equal", AreEqual([ obj1, obj3 ]), TRUE)
+EndScenario()
 
+Summary()
 
-# Softanza can check objects equality only if objects are
-# created as named objects (a special form of a Softanza
-# object that you cread along with its name)
-
-pr()
-
-obj1 = new stzString(:first  = "Ring")
-obj2 = new stzString(:second = "Python")
-obj3 = new stzString(:first  = "basic")
-
-? AreNamedObjects([ obj1, obj2, obj3 ])
-#--> TRUE
-
-? ObjectsNames([ obj1, obj2, obj3 ])
-#--> [ :first, :second, :first ]
-
-? AreEqual([ obj1, obj2 ]) # Or AreEqualObjects()
-#--> FALSE
-
-? AreEqual([ obj1, obj3 ])
-#--> TRUE
-
-pf()
-# Executed in 0.08 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if isList(aA[i]) and isList(aE[i])
+			if NOT ListEq(aA[i], aE[i]) return FALSE ok
+		else
+			if aA[i] != aE[i] return FALSE ok
+		ok
+	next
+	return TRUE

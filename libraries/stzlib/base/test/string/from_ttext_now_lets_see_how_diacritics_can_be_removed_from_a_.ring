@@ -1,19 +1,16 @@
-# Narrative
-# --------
-# # Now, let's see how diacritics can be removed from a french text
-#
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# DiacriticsRemoved strips accents from Latin and Arabic alike.
 # Extracted from stzTtexttest.ring, block #9.
 
-load "../../stzBase.ring"
+Scenario("Removing diacritics")
+	Then("a French sentence loses its accents",
+		StzStringQ("C'était un énoncé accentuée, à vrai-dire, extrâ!").DiacriticsRemoved(),
+		"C'etait un enonce accentuee, a vrai-dire, extra!")
+	Then("an Arabic greeting loses its harakat",
+		StzStringQ("السَّلَامُ عَلَيْكُمْ").DiacriticsRemoved(),
+		"السلام عليكم")
+EndScenario()
 
-pr()
-
-? StzStringQ("C'était un énoncé accentuée, à vrai-dire, extrâ!").DiacriticsRemoved()
-# and than from an arabic text
-? StzStringQ("السَّلَامُ عَلَيْكُمْ").DiacriticsRemoved()
-
-# Which is a useful feature when you are building the index of a search
-# application, since diacritics corrospond to sound variations of the
-# main letters.
-
-pf()
+Summary()

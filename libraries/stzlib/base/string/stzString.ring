@@ -9331,11 +9331,17 @@ class stzString from stzObject
 		return This.IsScriptName()
 
 	def ScriptIs(pcScript)
-		return This.IsScriptOf(pcScript)
+		# Dominant-script equality (:Latin / :Han / :Inherited ...).
+		if NOT isString(pcScript) or pcScript = "" return FALSE ok
+		_kwSi_ = lower(pcScript)
+		if ring_left(_kwSi_, 1) = ":" _kwSi_ = StzMidToEnd(_kwSi_, 2) ok
+		return lower(This.Script()) = _kwSi_
 
-	# IsScriptOf(pcScript): TRUE if every char is in the given Unicode
-	# script. Accepts :Common / :Latin / :Hebrew etc.
+	# IsScriptOf(pcScript): same dominant-script equality as ScriptIs.
 	def IsScriptOf(pcScript)
+		return This.ScriptIs(pcScript)
+
+	def _IsScriptOfOld(pcScript)
 		if NOT isString(pcScript) or pcScript = "" return FALSE ok
 		_kw_ = lower(pcScript)
 		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
@@ -14697,12 +14703,21 @@ class stzString from stzObject
 		return This.SubStrings()
 
 	def MultiplyByN(n)
-		# String multiplication: repeat content n times.
-		_o_ = ""
-		for _i_ = 1 to n
-			_o_ += This.Content()
-		next
-		return _o_
+		# Multiply EVERY number inside the string by n (the XT twin
+		# takes one factor per number).
+		This._ApplyNumberTransform(n, "mul")
+
+	def DivideByN(n)
+		This._ApplyNumberTransform(n, "div")
+
+	def AddN(n)
+		This._ApplyNumberTransform(n, "add")
+
+	def RetrieveN(n)
+		This._ApplyNumberTransform(n, "sub")
+
+	def SubtractN(n)
+		This._ApplyNumberTransform(n, "sub")
 
 	# Apply a per-number-occurrence transform: each number in
 	# content gets multiplied / divided / added / subtracted by the
@@ -14728,6 +14743,20 @@ class stzString from stzObject
 		This._ApplyNumberTransform(anN, "sub")
 
 	def _ApplyNumberTransform(anN, pcOp)
+		# Widen a bare number to a single-factor list via a FRESH
+		# variable (the single-clause type-widening `if` can no-op --
+		# CLAUDE.md note 6).
+		_bAntAll_ = 0
+		_aAntN_ = []
+		if isNumber(anN)
+			_bAntAll_ = 1
+			_aAntN_ + anN
+		but isList(anN)
+			_aAntN_ = anN
+		else
+			return
+		ok
+		anN = _aAntN_
 		if NOT isList(anN) return ok
 		_cIn_ = This.Content()
 		_nLen_ = len(_cIn_)
@@ -14743,6 +14772,7 @@ class stzString from stzObject
 					_num_ += _cIn_[_i_]
 					_i_++
 				end
+				if _bAntAll_ = 1 _nIdx_ = 1 ok
 				if _nIdx_ <= _nNL_ and isNumber(anN[_nIdx_])
 					_n_ = 0 + _num_
 					_op_ = pcOp
@@ -14771,11 +14801,13 @@ class stzString from stzObject
 		This.Update("")
 		return ""
 
-	# Insert(pcSub, :BeforePosition = n / :AfterPosition = n).
+	# Insert(pcSub, :BeforePosition = n / :AfterPosition = n / n).
 	def Insert(pcSub, pNamed)
 		_n_ = 0
 		_bAfter_ = FALSE
-		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1])
+		if isNumber(pNamed)
+			_n_ = pNamed
+		but isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1])
 			_kw_ = lower(pNamed[1])
 			if _kw_ = "beforeposition" or _kw_ = "before"
 				_n_ = pNamed[2]

@@ -1,21 +1,15 @@
-# Narrative
-# --------
-# stzString first and last non-space chars
-#
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# The first and last non-space chars, and their positions.
 # Extracted from stztabletest.ring, block #9.
 
-load "../../stzBase.ring"
+Scenario("The real edges of a padded string")
+	o1 = new stzString("   RING  ")
+	Then("first non-space char", o1.FirstNonSpaceChar(), "R")
+	Then("... at position 4", o1.FindFirstNonSpaceChar(), 4)
+	Then("last non-space char", o1.LastNonSpaceChar(), "G")
+	Then("... at position 7", o1.FindLastNonSpaceChar(), 7)
+EndScenario()
 
-
-pr()
-
-o1 = new stzString("   RING  ")
-
-? o1.FirstNonSpaceChar()		#--> R
-? o1.FindFirstNonSpaceChar()	#--> 4
-
-? o1.LastNonSpaceChar()		#--> G
-? o1.FindLastNonSpaceChar()	#--> 7
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.22
+Summary()
