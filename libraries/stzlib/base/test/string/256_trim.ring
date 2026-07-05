@@ -1,32 +1,32 @@
-# Narrative
-# --------
-#
-# NOTE (audit, 2026-07-05): DEFERRED -- RemoveWXTQ on lines -- the WXT retirement should migrate this to the W form, but Q(@item).IsMadeOfNumbers() as a RemoveWQ predicate over list items does not match (the list-item W-predicate path needs work). Engine/DSL backlog with 264/265.
-# pr()
-#
-# Extracted from stzStringTest.ring, block #256.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# The same, via the number-in-string predicate. Trimmed lines with
+# their all-number members removed (WF func form). Extracted from
+# stzStringTest.ring, block #256 (migrated from the retired WXT form).
 
-o1 = new stzString("
-
+Scenario("Keeping the non-numeric lines")
+	o1 = new stzString("
 ABCDEF
 GHIJKL
 123346
 MNOPQU
 RSTUVW
 984332
-
 ")
+	Then("the four letter lines",
+		ListEq( o1.TrimQ().LinesQ().RemoveWFQ(
+				func it { return isNumberInString(it) }
+			).Content(),
+			[ "ABCDEF", "GHIJKL", "MNOPQU", "RSTUVW" ] ), TRUE)
+EndScenario()
 
-? @@( o1.TrimQ().
-	LinesQ().
-	RemoveWXTQ("Q(@char).IsNumberInString()").
-	Content()
-)
-#--> [ "ABCDEF", "GHIJKL", "MNOPQU", "RSTUVW" ]
+Summary()
 
-pf()
-# Executed in 0.12 second(s) in Ring 1.22
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if aA[i] != aE[i] return FALSE ok
+	next
+	return TRUE

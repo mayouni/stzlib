@@ -1,36 +1,33 @@
-# Narrative
-# --------
-#
-# NOTE (audit, 2026-07-05): DEFERRED -- RemoveWXTQ over lines -- same list-item W-predicate gap as 256/264. Engine/DSL backlog.
-# StartProfiler()
-#
-# Extracted from stzStringTest.ring, block #265.
-
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+# RemoveWF drops the items a predicate accepts. Trimmed, split into
+# lines, then the all-number lines removed via a func predicate (the
+# WF form -- the textual W can't call IsMadeOfNumbers).
+# Extracted from stzStringTest.ring, block #265 (migrated from WXT).
 
-o1 = new stzString("
-
+Scenario("Dropping the number lines")
+	o1 = new stzString("
 ABCDEF
 GHIJKL
 123346
 MNOPQU
 RSTUVW
 984332
-
 ")
+	Then("only the letter lines remain",
+		ListEq( o1.TrimQ().LinesQ().RemoveWFQ(
+				func it { return StzStringQ(it).IsMadeOfNumbers() }
+			).Content(),
+			[ "ABCDEF", "GHIJKL", "MNOPQU", "RSTUVW" ] ), TRUE)
+EndScenario()
 
-? o1.TrimQ().LinesQ().RemoveWXTQ(' Q(@line).IsMadeOfNumbers() ').Content()
+Summary()
 
-#-->
-# "ABCDEF
-#  GHIJKL
-#  MNOPQU
-#  RSTUVW"
-
-StopProfiler()
-
-pf()
-# Executed in 0.09 second(s) in Ring 1.21
-# Executed in 0.14 second(s) in Ring 1.19
+func ListEq aA, aE
+	if len(aA) != len(aE) return FALSE ok
+	nLen = len(aA)
+	for i = 1 to nLen
+		if aA[i] != aE[i] return FALSE ok
+	next
+	return TRUE
