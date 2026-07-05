@@ -6675,19 +6675,11 @@ class stzString from stzObject
 	def Duplicates()
 		return This.DuplicatesCS(1)
 
+	# ENGINE-BACKED (StzEngineStringSubStringsByCount, n>=2): distinct
+	# substrings occurring more than once (non-overlapping count, matching
+	# HowMany), first-seen order. Retires the O(n^3) Ring triple-loop.
 	def DuplicatesCS(pCaseSensitive)
-		_nLen_ = This.NumberOfChars()
-		if _nLen_ = 0 return [] ok
-		_aRes_ = []
-		for _iDup_ = 1 to _nLen_
-			for _jDup_ = _iDup_ to _nLen_
-				_cSub_ = This.Section(_iDup_, _jDup_)
-				if ring_find(_aRes_, _cSub_) = 0 and This.HowMany(_cSub_) > 1
-					_aRes_ + _cSub_
-				ok
-			next
-		next
-		return _aRes_
+		return This._DrainStrList( StzEngineStringSubStringsByCount(@pEngine, 2, 0) )
 
 	  #========================================#
 	 #     CHECKER DELEGATIONS (EXPANDED)     #
@@ -7581,46 +7573,34 @@ class stzString from stzObject
 	# WITH MULTIPLICITY (no dedup); SubStringsCS(1) dedups case-sens.;
 	# SubStringsCS(0) dedups case-insensitively.
 
-	def SubStrings()
-		_cTxt_ = This.Content()
-		_nLen_ = This._EngineCount(_cTxt_)
-		_aRes_ = []
-		for _i_ = 1 to _nLen_
-			for _j_ = _i_ to _nLen_
-				_aRes_ + This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
-			next
+	# Drain an engine string-list result handle into a Ring list of
+	# strings, freeing every item handle and the result itself.
+	def _DrainStrList(pResult)
+		_aOut_ = []
+		_nN_ = StzEngineStrListCount(pResult)
+		for _i_ = 1 to _nN_
+			_pItem_ = StzEngineStrListGet(pResult, _i_)
+			_aOut_ + StzEngineStringData(_pItem_)
+			StzEngineStringFree(_pItem_)
 		next
-		return _aRes_
+		StzEngineStrListFree(pResult)
+		return _aOut_
+
+	# ENGINE-BACKED (StzEngineStringSubStrings): all substrings in (i,j)
+	# order, no dedup. Retires the O(n^2) Ring double-loop.
+	def SubStrings()
+		return This._DrainStrList( StzEngineStringSubStrings(@pEngine) )
 
 	def NumberOfSubStrings()
 		_n_ = This._EngineCount(This.Content())
 		return (_n_ * (_n_ + 1)) / 2
 
+	# ENGINE-BACKED (StzEngineStringSubStringsUnique): dedup, first-seen
+	# order. cs=1 exact, cs=0 case-insensitive. Retires the O(n^3) loop.
 	def SubStringsCS(pCaseSensitive)
-		_cTxt_ = This.Content()
-		_nLen_ = This._EngineCount(_cTxt_)
-		_aRes_ = []
-		_bCase_ = (pCaseSensitive = 1)
-		for _i_ = 1 to _nLen_
-			for _j_ = _i_ to _nLen_
-				_s_ = This._EngineSlice(_cTxt_, _i_, _j_ - _i_ + 1)
-				# Dedup: walk the result list, comparing per chosen
-				# case sensitivity. OK on the narrative-test sizes.
-				_bDup_ = FALSE
-				_nrLen_ = len(_aRes_)
-				for _k_ = 1 to _nrLen_
-					if _bCase_
-						if _aRes_[_k_] = _s_ _bDup_ = TRUE exit ok
-					else
-						if upper(_aRes_[_k_]) = upper(_s_)
-							_bDup_ = TRUE exit
-						ok
-					ok
-				next
-				if NOT _bDup_ _aRes_ + _s_ ok
-			next
-		next
-		return _aRes_
+		_nCs_ = 0
+		if pCaseSensitive = 1 _nCs_ = 1 ok
+		return This._DrainStrList( StzEngineStringSubStringsUnique(@pEngine, _nCs_) )
 
 	def NumberOfSubStringsCS(pCaseSensitive)
 		return len(This.SubStringsCS(pCaseSensitive))
@@ -11646,33 +11626,13 @@ class stzString from stzObject
 	# times (bExact=TRUE) or n-OR-MORE times (bExact=FALSE). Per the original,
 	# SubStringsOccurringNTimes means ">= n" (aliased to ...NTimesOrMore), while
 	# Exactly/Only mean "= n".
+	# ENGINE-BACKED (StzEngineStringSubStringsByCount): distinct substrings
+	# whose non-overlapping occurrence count == n (bExact) or >= n. Matches
+	# HowMany. Retires the O(n^3) Ring dedup+count loops.
 	def _SubStringsByOccurrence(n, bExact)
-		_aAll_ = This.SubStrings()
-		_aRes_ = []
-		_aUniq_ = []
-		_nL_ = len(_aAll_)
-		for _i_ = 1 to _nL_
-			_s_ = _aAll_[_i_]
-			_bD_ = FALSE
-			_nUL_ = len(_aUniq_)
-			for _j_ = 1 to _nUL_
-				if _aUniq_[_j_] = _s_ _bD_ = TRUE exit ok
-			next
-			if NOT _bD_ _aUniq_ + _s_ ok
-		next
-		_nUL_ = len(_aUniq_)
-		for _i_ = 1 to _nUL_
-			_s_ = _aUniq_[_i_]
-			if len(_s_) > 0
-				_nc_ = This.HowMany(_s_)
-				if bExact
-					if _nc_ = n _aRes_ + _s_ ok
-				else
-					if _nc_ >= n _aRes_ + _s_ ok
-				ok
-			ok
-		next
-		return _aRes_
+		_nEx_ = 0
+		if bExact _nEx_ = 1 ok
+		return This._DrainStrList( StzEngineStringSubStringsByCount(@pEngine, n, _nEx_) )
 
 	# >= n occurrences (canonical + misspelled alias)
 	def SubStringsOccuringNTimes(n)

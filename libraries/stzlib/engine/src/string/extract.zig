@@ -22,6 +22,140 @@ const toExternal = core.toExternal;
 const utf8CodepointCount = core.utf8CodepointCount;
 const codepointIndexToByteOffset = core.codepointIndexToByteOffset;
 const casefoldAlloc = core.casefoldAlloc;
+const StzStrListResult = core.StzStrListResult;
+const StzStrListResultHandle = core.StzStrListResultHandle;
+
+// ─── Substring enumeration (engine-side; retires the O(n^2)/O(n^3)
+//      Ring loops SubStrings / SubStringsCS / SubStringsU / DuplicatesCS
+//      / _SubStringsByOccurrence). All codepoint-correct. ───
+
+// Build a table of byte offsets: offs[k] = byte offset of codepoint k,
+// offs[cpCount] = src.len. Caller frees.
+fn cpOffsets(src: []const u8) ?[]usize {
+    const n = utf8CodepointCount(src);
+    const offs = gpa.alloc(usize, n + 1) catch return null;
+    var pos: usize = 0;
+    var k: usize = 0;
+    while (pos < src.len and k < n) {
+        offs[k] = pos;
+        const cl = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
+        pos += cl;
+        k += 1;
+    }
+    offs[n] = src.len;
+    return offs;
+}
+
+// All substrings in (i,j) order, no dedup. (SubStrings)
+pub fn str_substrings(handle: StzStringHandle) callconv(.c) StzStrListResultHandle {
+    const s = (handle orelse return null);
+    const src = s.slice();
+    const r = gpa.create(StzStrListResult) catch return null;
+    r.* = StzStrListResult.init();
+    if (src.len == 0) return r;
+    const offs = cpOffsets(src) orelse return r;
+    defer gpa.free(offs);
+    const n = offs.len - 1;
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        var j: usize = i;
+        while (j < n) : (j += 1) {
+            r.push(src[offs[i]..offs[j + 1]]);
+        }
+    }
+    return r;
+}
+
+// Unique substrings, first-seen order. cs != 0 -> exact dedup;
+// cs == 0 -> case-insensitive dedup (casefolded key). (SubStringsCS / U)
+pub fn str_substrings_unique(handle: StzStringHandle, cs: c_int) callconv(.c) StzStrListResultHandle {
+    const s = (handle orelse return null);
+    const src = s.slice();
+    const r = gpa.create(StzStrListResult) catch return null;
+    r.* = StzStrListResult.init();
+    if (src.len == 0) return r;
+    const offs = cpOffsets(src) orelse return r;
+    defer gpa.free(offs);
+    const n = offs.len - 1;
+    var seen = std.StringHashMap(void).init(gpa);
+    defer seen.deinit();
+    // For cs==0 the keys are casefolded allocations we must free.
+    var keys = std.ArrayList([]u8){};
+    defer {
+        for (keys.items) |k| gpa.free(k);
+        keys.deinit(gpa);
+    }
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        var j: usize = i;
+        while (j < n) : (j += 1) {
+            const sub = src[offs[i]..offs[j + 1]];
+            if (cs != 0) {
+                if (seen.contains(sub)) continue;
+                seen.put(sub, {}) catch {};
+            } else {
+                const key = casefoldAlloc(sub) orelse continue;
+                if (seen.contains(key)) {
+                    gpa.free(key);
+                    continue;
+                }
+                keys.append(gpa, key) catch { gpa.free(key); continue; };
+                seen.put(key, {}) catch {};
+            }
+            r.push(sub);
+        }
+    }
+    return r;
+}
+
+// Non-overlapping occurrence count of needle in hay (matches HowMany /
+// str_count_of: advance by needle length on a hit).
+fn countNonOverlapping(hay: []const u8, needle: []const u8) i64 {
+    if (needle.len == 0 or needle.len > hay.len) return 0;
+    var count: i64 = 0;
+    var pos: usize = 0;
+    while (pos + needle.len <= hay.len) {
+        if (std.mem.eql(u8, hay[pos..][0..needle.len], needle)) {
+            count += 1;
+            pos += needle.len;
+        } else {
+            pos += 1;
+        }
+    }
+    return count;
+}
+
+// Unique substrings whose NON-OVERLAPPING occurrence count matches the
+// filter, first-seen order. exact != 0 -> count == n; else count >= n.
+// (DuplicatesCS = n=2, exact=0 ; _SubStringsByOccurrence = (n, bExact))
+pub fn str_substrings_by_count(handle: StzStringHandle, n_want: c_int, exact: c_int) callconv(.c) StzStrListResultHandle {
+    const s = (handle orelse return null);
+    const src = s.slice();
+    const r = gpa.create(StzStrListResult) catch return null;
+    r.* = StzStrListResult.init();
+    if (src.len == 0) return r;
+    const offs = cpOffsets(src) orelse return r;
+    defer gpa.free(offs);
+    const n = offs.len - 1;
+    const want: i64 = n_want;
+    // Enumerate each distinct substring once (exact dedup, first-seen
+    // order), scoring its non-overlapping occurrence count.
+    var seen = std.StringHashMap(void).init(gpa);
+    defer seen.deinit();
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        var j: usize = i;
+        while (j < n) : (j += 1) {
+            const sub = src[offs[i]..offs[j + 1]];
+            if (seen.contains(sub)) continue;
+            seen.put(sub, {}) catch {};
+            const cnt = countNonOverlapping(src, sub);
+            const match = if (exact != 0) (cnt == want) else (cnt >= want);
+            if (match) r.push(sub);
+        }
+    }
+    return r;
+}
 
 // ─── Byte-level Extraction ───
 
