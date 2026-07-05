@@ -5337,28 +5337,36 @@ class stzString from stzObject
 	# ConsecutiveSubStringsZ()/ZZ(): every window of lengths 1..floor(n/2)
 	# paired with its start / [start, end] span, per the original monolith
 	# ([ Section(j, j+i-1), j ] rows, ascending start within each length).
+	# ENGINE-BACKED (StzEngineStringWindowsUptoHalf): sliding windows of
+	# length 1..floor(len/2), length-major. Substring CONTENTS come from the
+	# engine (one call); the [content, position] wrap is pure Ring
+	# arithmetic in the same deterministic order (no per-window round-trip).
 	def ConsecutiveSubStringsZ()
-		_cTxt_ = This.Content()
-		_nLen_ = This._EngineCount(_cTxt_)
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ <= 1 return [] ok
+		_acSubs_ = This._DrainStrList( StzEngineStringWindowsUptoHalf(@pEngine) )
 		_aRes_ = []
-		if _nLen_ <= 1 return _aRes_ ok
 		_nMax_ = floor(_nLen_ / 2)
+		_k_ = 1
 		for _i_ = 1 to _nMax_
 			for _j_ = 1 to _nLen_ - _i_ + 1
-				_aRes_ + [ This._EngineSlice(_cTxt_, _j_, _i_), _j_ ]
+				_aRes_ + [ _acSubs_[_k_], _j_ ]
+				_k_++
 			next
 		next
 		return _aRes_
 
 	def ConsecutiveSubStringsZZ()
-		_cTxt_ = This.Content()
-		_nLen_ = This._EngineCount(_cTxt_)
+		_nLen_ = This._EngineCount(This.Content())
+		if _nLen_ <= 1 return [] ok
+		_acSubs_ = This._DrainStrList( StzEngineStringWindowsUptoHalf(@pEngine) )
 		_aRes_ = []
-		if _nLen_ <= 1 return _aRes_ ok
 		_nMax_ = floor(_nLen_ / 2)
+		_k_ = 1
 		for _i_ = 1 to _nMax_
 			for _j_ = 1 to _nLen_ - _i_ + 1
-				_aRes_ + [ This._EngineSlice(_cTxt_, _j_, _i_), [ _j_, _j_ + _i_ - 1 ] ]
+				_aRes_ + [ _acSubs_[_k_], [ _j_, _j_ + _i_ - 1 ] ]
+				_k_++
 			next
 		next
 		return _aRes_
@@ -11826,23 +11834,26 @@ class stzString from stzObject
 
 	# ConsecutiveSubStringsOfNCharsZ/ZZ: each window with its start /
 	# [start, end] span, phase-major.
+	# Zip the engine-backed window contents (ConsecutiveSubStringsOfNChars,
+	# phase-major) with the light phase-major span list -- same order, same
+	# length -- so no per-window EngineSlice round-trip is needed.
 	def ConsecutiveSubStringsOfNCharsZ(n)
+		_acSubs_ = This.ConsecutiveSubStringsOfNChars(n)
 		_aSec_ = This.FindConsecutiveSubStringsOfNCharsZZ(n)
-		_cTxt_ = This.Content()
 		_aRes_ = []
 		_nL_ = len(_aSec_)
 		for _i_ = 1 to _nL_
-			_aRes_ + [ This._EngineSlice(_cTxt_, _aSec_[_i_][1], n), _aSec_[_i_][1] ]
+			_aRes_ + [ _acSubs_[_i_], _aSec_[_i_][1] ]
 		next
 		return _aRes_
 
 	def ConsecutiveSubStringsOfNCharsZZ(n)
+		_acSubs_ = This.ConsecutiveSubStringsOfNChars(n)
 		_aSec_ = This.FindConsecutiveSubStringsOfNCharsZZ(n)
-		_cTxt_ = This.Content()
 		_aRes_ = []
 		_nL_ = len(_aSec_)
 		for _i_ = 1 to _nL_
-			_aRes_ + [ This._EngineSlice(_cTxt_, _aSec_[_i_][1], n), _aSec_[_i_] ]
+			_aRes_ + [ _acSubs_[_i_], _aSec_[_i_] ]
 		next
 		return _aRes_
 

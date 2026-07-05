@@ -182,6 +182,7 @@ pub const str_substrings_unique = extract.str_substrings_unique;
 pub const str_substrings_by_count = extract.str_substrings_by_count;
 pub const str_consecutive_substrings_of_n = extract.str_consecutive_substrings_of_n;
 pub const str_consecutive_substrings = extract.str_consecutive_substrings;
+pub const str_windows_upto_half = extract.str_windows_upto_half;
 pub const str_find_last_cs = find.str_find_last_cs;
 pub const str_find_last = find.str_find_last;
 pub const str_contains_cs = find.str_contains_cs;
