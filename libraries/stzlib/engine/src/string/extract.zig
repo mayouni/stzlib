@@ -158,6 +158,30 @@ pub fn str_consecutive_substrings(handle: StzStringHandle) callconv(.c) StzStrLi
     return r;
 }
 
+// All sliding windows of length 1..floor(total/2), length-major (length
+// outer, start inner, step 1). The caller reconstructs positions from the
+// deterministic order. (Ring ConsecutiveSubStringsZ/ZZ contents.)
+pub fn str_windows_upto_half(handle: StzStringHandle) callconv(.c) StzStrListResultHandle {
+    const s = (handle orelse return null);
+    const src = s.slice();
+    const r = gpa.create(StzStrListResult) catch return null;
+    r.* = StzStrListResult.init();
+    if (src.len == 0) return r;
+    const offs = cpOffsets(src) orelse return r;
+    defer gpa.free(offs);
+    const total = offs.len - 1;
+    if (total <= 1) return r;
+    const max = total / 2;
+    var win: usize = 1;
+    while (win <= max) : (win += 1) {
+        var start: usize = 0;
+        while (start + win <= total) : (start += 1) {
+            r.push(src[offs[start]..offs[start + win]]);
+        }
+    }
+    return r;
+}
+
 // Non-overlapping occurrence count of needle in hay (matches HowMany /
 // str_count_of: advance by needle length on a hit).
 fn countNonOverlapping(hay: []const u8, needle: []const u8) i64 {
