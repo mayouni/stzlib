@@ -4379,6 +4379,20 @@ class stzString from stzObject
 		def WordsStemmed()
 			return This.StemmedWords()
 
+	# --- Search tokenization (CJK-friendly) ---
+	# Like Words() but CJK runs become OVERLAPPING CHARACTER BIGRAMS -- the
+	# dictionary-free CJK indexing baseline (cf. Lucene CJKBigramFilter), much
+	# better recall than per-character for CJK search/matching. Non-CJK words are
+	# unchanged. (True dictionary word segmentation would be a future ICU step.)
+	def WordsForSearch()
+		_pSrch_ = StzEngineStringSearchTokens(@pEngine)
+		_cSrchJoined_ = StzEngineStringData(_pSrch_)
+		StzEngineStringFree(_pSrch_)
+		return _SplitNullDelimited(_cSrchJoined_)
+
+		def SearchTokens()
+			return This.WordsForSearch()
+
 	  #============================================#
 	 #     SPLIT                                  #
 	#============================================#

@@ -2906,6 +2906,11 @@ fn ring_StringChop(p: *anyopaque) callconv(.c) void {
 
 // Stemming (Snowball English). Stemmed() = stem words in place; StemWords() =
 // NUL-delimited list of stems.
+fn ring_StringSearchTokens(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_search_tokens(h)), STZ_HANDLE);
+}
+
 fn ring_StringStemmed(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const lang = ring_vm_api_getstring(p, 2);
@@ -3938,6 +3943,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringexpandtabs", .func = &ring_StringExpandTabs },
     .{ .name = "stzenginestringsentencecount", .func = &ring_StringSentenceCount },
     .{ .name = "stzenginestringchop", .func = &ring_StringChop },
+    .{ .name = "stzenginestringsearchtokens", .func = &ring_StringSearchTokens },
     .{ .name = "stzenginestringstemmed", .func = &ring_StringStemmed },
     .{ .name = "stzenginestringstemwords", .func = &ring_StringStemWords },
     .{ .name = "stzenginestringscanint", .func = &ring_StringScanInt },

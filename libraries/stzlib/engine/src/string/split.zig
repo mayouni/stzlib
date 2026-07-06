@@ -559,6 +559,24 @@ pub export fn str_words_split(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
+// Search tokenization: like str_words_split but CJK runs become overlapping
+// character bigrams (dictionary-free CJK indexing, cf. Lucene CJKBigramFilter) --
+// far better recall than per-codepoint for CJK search/matching. Non-CJK words
+// are unchanged. NUL-delimited. (True dictionary segmentation = future ICU.)
+pub export fn str_search_tokens(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = str_new() orelse return null;
+    var wit = wb.WordIter.initBigram(src);
+    var first = true;
+    while (wit.next()) |span| {
+        if (!first) result.data.append(gpa, 0) catch break;
+        result.data.appendSlice(gpa, src[span.start..span.end]) catch break;
+        first = false;
+    }
+    return result;
+}
+
 /// Swap two words at given indices (1-based from host, converted to 0-based internally). Words separated by spaces.
 pub export fn str_swap_words(handle: ?*StzString, idx1: c_int, idx2: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
