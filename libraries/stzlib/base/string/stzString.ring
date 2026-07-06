@@ -19038,6 +19038,27 @@ class stzString from stzObject
 	def MostFrequentNGrams(n, nTop)
 		return This.MostFrequentNGramsCS(n, nTop, 1)
 
+	# --- Sentence segmentation stats (readability) ---
+	# Sentence = text up to each . ! ? terminator. All engine-direct, no
+	# materialization: averages come from cached engine counts; the extremes
+	# from one segmenting pass.
+
+	def AverageWordsPerSentence()
+		_nSt_ = This.NumberOfSentences()
+		if _nSt_ = 0 return 0 ok
+		return This.NumberOfWords() / _nSt_
+
+	def AverageCharsPerSentence()
+		_nSt_ = This.NumberOfSentences()
+		if _nSt_ = 0 return 0 ok
+		return This.NumberOfChars() / _nSt_
+
+	def LongestSentenceInWords()
+		return StzEngineStringSentenceStat(@pEngine, 0)
+
+	def ShortestSentenceInWords()
+		return StzEngineStringSentenceStat(@pEngine, 1)
+
 	# --- Sentences ---
 
 	def NumberOfSentences()
