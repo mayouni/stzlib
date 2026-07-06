@@ -4348,24 +4348,33 @@ class stzString from stzObject
 		def HowManyWords()
 			return This.NumberOfWords()
 
-	# --- Stemming (Snowball English) ---
+	# --- Stemming (Snowball, 25 languages) ---
 	# Reduce inflected words to their stem ("running"->"run") for search /
-	# matching / dedup. Stemmed() stems each word in place (separators kept);
-	# StemmedWords() returns the list of stems.
-	def Stemmed()
-		_pStem_ = StzEngineStringStemmed(@pEngine)
+	# matching / dedup. Stemmed()/StemmedWords() default to English;
+	# *InLanguage(cLang) selects one of the 25 Snowball languages (english,
+	# french, german, spanish, russian, arabic, ... unknown -> english).
+	def StemmedInLanguage(pcLang)
+		if NOT isString(pcLang) pcLang = "english" ok
+		_pStem_ = StzEngineStringStemmed(@pEngine, pcLang)
 		_cStem_ = StzEngineStringData(_pStem_)
 		StzEngineStringFree(_pStem_)
 		return _cStem_
 
+	def Stemmed()
+		return This.StemmedInLanguage("english")
+
 		def Stem()
 			return This.Stemmed()
 
-	def StemmedWords()
-		_pStemW_ = StzEngineStringStemWords(@pEngine)
+	def StemmedWordsInLanguage(pcLang)
+		if NOT isString(pcLang) pcLang = "english" ok
+		_pStemW_ = StzEngineStringStemWords(@pEngine, pcLang)
 		_cStemJoined_ = StzEngineStringData(_pStemW_)
 		StzEngineStringFree(_pStemW_)
 		return _SplitNullDelimited(_cStemJoined_)
+
+	def StemmedWords()
+		return This.StemmedWordsInLanguage("english")
 
 		def WordsStemmed()
 			return This.StemmedWords()
