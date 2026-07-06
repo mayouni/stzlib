@@ -306,6 +306,13 @@ fn ring_StringWordFreq(p: *anyopaque) callconv(.c) void {
     R.retHandle(p, @ptrCast(string.str_word_freq(h, cs, nTop)));
 }
 
+fn ring_StringCharFreq(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const nTop: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    R.retHandle(p, @ptrCast(string.str_char_freq(h, cs, nTop)));
+}
+
 fn ring_WordFreqCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_word_freq_count(getWordFreqHandle(p, 1))));
 }
@@ -3390,6 +3397,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringreplacemanycs", .func = &ring_StringReplaceManyCS },
     .{ .name = "stzenginestringcountwordcs", .func = &ring_StringCountWordCS },
     .{ .name = "stzenginestringwordfreq", .func = &ring_StringWordFreq },
+    .{ .name = "stzenginestringcharfreq", .func = &ring_StringCharFreq },
     .{ .name = "stzenginewordfreqcount", .func = &ring_WordFreqCount },
     .{ .name = "stzenginewordfreqword", .func = &ring_WordFreqWord },
     .{ .name = "stzenginewordfreqnum", .func = &ring_WordFreqNum },

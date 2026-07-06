@@ -18961,6 +18961,41 @@ class stzString from stzObject
 		_oWtcText_ = new stzStringText(This)
 		return _oWtcText_.WordsAndTheirCounts()
 
+	# --- Character frequency (engine-direct, one pass) ---
+	# Histograms, cryptanalysis, entropy, text stats.
+
+	def _DrainCharWordFreq(pRes)
+		_aFqOut_ = []
+		_nFq_ = StzEngineWordFreqCount(pRes)
+		for _iFq_ = 1 to _nFq_
+			_pFqW_ = StzEngineWordFreqWord(pRes, _iFq_)
+			_aFqOut_ + [ StzEngineStringData(_pFqW_), StzEngineWordFreqNum(pRes, _iFq_) ]
+			StzEngineStringFree(_pFqW_)
+		next
+		StzEngineWordFreqFree(pRes)
+		return _aFqOut_
+
+	# [[char, count], ...] for every distinct character (first-appearance order).
+	def CharsAndTheirCountsCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return This._DrainCharWordFreq( StzEngineStringCharFreq(@pEngine, _bCase_, 0) )
+
+	def CharsAndTheirCounts()
+		return This.CharsAndTheirCountsCS(1)
+
+	# The top-N most frequent characters as [[char, count], ...] (count desc).
+	def MostFrequentCharsCS(n, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return This._DrainCharWordFreq( StzEngineStringCharFreq(@pEngine, _bCase_, n) )
+
+	def MostFrequentChars(n)
+		return This.MostFrequentCharsCS(n, 1)
+
+	def MostFrequentChar()
+		_aMfc_ = This.MostFrequentChars(1)
+		if len(_aMfc_) = 0 return "" ok
+		return _aMfc_[1][1]
+
 	# --- Sentences ---
 
 	def NumberOfSentences()
