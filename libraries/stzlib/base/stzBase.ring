@@ -85,6 +85,8 @@ ok
 
     load "string/stzStringText.ring"
 
+    load "string/stzWordStream.ring"
+
     # Modular subclasses
 
     load "string/stzStringFinder.ring"
