@@ -5,6 +5,7 @@
 
 const std = @import("std");
 const core = @import("core.zig");
+const wb = @import("word_break.zig");
 const mem = core.mem;
 const gpa = core.gpa;
 const unicode = core.unicode;
@@ -483,107 +484,38 @@ pub fn str_word_count(handle: StzStringHandle) callconv(.c) c_int {
 }
 
 /// Count words (Unicode-aware). Alternate implementation using utf8Decode.
+// Word count via the UAX#29 segmentation seam (word_break.WordIter) so Words(),
+// NumberOfWords() and the whole word-accessor family agree. (The previous
+// whitespace-split counted "hello," as one token and CJK as one blob.)
 pub fn str_count_words(handle: StzStringHandle) callconv(.c) c_int {
     const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    var count: c_int = 0;
-    var in_word = false;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
-        if (unicode.stz_unicode_is_space(cp) != 0) {
-            if (in_word) {
-                in_word = false;
-            }
-        } else {
-            if (!in_word) {
-                in_word = true;
-                count += 1;
-            }
-        }
-        off += cp_len;
-    }
-    return count;
+    return @intCast(wb.countWords(s.slice()));
 }
 
-/// Get nth word (1-based from host, converted to 0-based internally), words separated by whitespace (ASCII fast-path).
+/// Nth word (1-based from host) via the UAX#29 seam. Returns null if out of range.
 pub fn str_word_at(handle: StzStringHandle, word_index: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
-    const buf = s.slice();
+    const src = s.slice();
     const target: usize = if (word_index >= INDEX_BASE) @intCast(word_index - INDEX_BASE) else return null;
-
-    var wi: usize = 0;
-    var i: usize = 0;
-
-    // Skip leading whitespace
-    while (i < buf.len and isWhitespace(buf[i])) : (i += 1) {}
-
-    while (i < buf.len) {
-        // Find word start (already at non-space)
-        const start = i;
-        // Find word end
-        while (i < buf.len and !isWhitespace(buf[i])) : (i += 1) {}
-        if (wi == target) {
-            const result = gpa.create(StzString) catch return null;
-            result.* = StzString.init();
-            result.data.appendSlice(gpa, buf[start..i]) catch {
-                result.deinit();
-                gpa.destroy(result);
-                return null;
-            };
-            return result;
-        }
-        wi += 1;
-        // Skip whitespace between words
-        while (i < buf.len and isWhitespace(buf[i])) : (i += 1) {}
+    var wit = wb.WordIter.init(src);
+    var idx: usize = 0;
+    while (wit.next()) |span| : (idx += 1) {
+        if (idx == target) return str_from(src[span.start..span.end].ptr, span.end - span.start);
     }
     return null;
 }
 
-/// Get nth word (1-based from host, converted to 0-based internally), Unicode-aware whitespace.
+/// Nth word (1-based from host) via the UAX#29 seam. Returns empty if out of range.
 pub fn str_nth_word(handle: StzStringHandle, n: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return str_new();
     const src = s.slice();
     if (n < INDEX_BASE) return str_new();
     const target: usize = @intCast(n - INDEX_BASE);
-
-    var word_idx: usize = 0;
-    var in_word = false;
-    var word_start: usize = 0;
-    var off: usize = 0;
-
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
-        const is_ws = unicode.stz_unicode_is_space(cp) != 0;
-
-        if (is_ws) {
-            if (in_word) {
-                if (word_idx == target) {
-                    return str_from(src[word_start..off].ptr, off - word_start);
-                }
-                word_idx += 1;
-                in_word = false;
-            }
-        } else {
-            if (!in_word) {
-                word_start = off;
-                in_word = true;
-            }
-        }
-        off += cp_len;
+    var wit = wb.WordIter.init(src);
+    var idx: usize = 0;
+    while (wit.next()) |span| : (idx += 1) {
+        if (idx == target) return str_from(src[span.start..span.end].ptr, span.end - span.start);
     }
-
-    // Handle last word
-    if (in_word and word_idx == target) {
-        return str_from(src[word_start..off].ptr, off - word_start);
-    }
-
     return str_new();
 }
 
@@ -591,12 +523,8 @@ pub export fn str_first_word(handle: ?*StzString) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
-    var pos: usize = 0;
-    while (pos < src.len and src[pos] == ' ') pos += 1;
-    while (pos < src.len and src[pos] != ' ') {
-        result.data.appendSlice(gpa, &[_]u8{src[pos]}) catch break;
-        pos += 1;
-    }
+    var wit = wb.WordIter.init(src);
+    if (wit.next()) |span| result.data.appendSlice(gpa, src[span.start..span.end]) catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -604,47 +532,28 @@ pub export fn str_last_word(handle: ?*StzString) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
-    if (src.len == 0) return result;
-    var end: usize = src.len;
-    while (end > 0 and src[end - 1] == ' ') end -= 1;
-    if (end == 0) return result;
-    var start: usize = end;
-    while (start > 0 and src[start - 1] != ' ') start -= 1;
-    result.data.appendSlice(gpa, src[start..end]) catch {
-        setError(.out_of_memory);
-    };
+    var wit = wb.WordIter.init(src);
+    var last: ?wb.Span = null;
+    while (wit.next()) |span| last = span;
+    if (last) |sp| result.data.appendSlice(gpa, src[sp.start..sp.end]) catch { setError(.out_of_memory); };
     return result;
 }
 
 /// Split string into individual words, null-separated. Words are sequences of
 /// non-whitespace separated by whitespace (Unicode-aware).
+// Split into words (NUL-separated) via the UAX#29 segmentation seam -- backs
+// Words()/WordsQ(). Digits stay in words, apostrophes/decimals hold, punctuation
+// & symbols separate, CJK breaks per codepoint. (The previous whitespace split
+// kept trailing punctuation and treated CJK as one blob.)
 pub export fn str_words_split(handle: ?*StzString) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
-    var off: usize = 0;
+    var wit = wb.WordIter.init(src);
     var first = true;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch 1;
-        const end = @min(off + cp_len, src.len);
-        const is_space = (cp_len == 1 and (src[off] == ' ' or src[off] == '\t' or src[off] == '\n' or src[off] == '\r'));
-        if (is_space) {
-            off = end;
-            continue;
-        }
-        // Start of a word
-        const word_start = off;
-        off = end;
-        while (off < src.len) {
-            const next_len = std.unicode.utf8ByteSequenceLength(src[off]) catch 1;
-            const next_end = @min(off + next_len, src.len);
-            if (next_len == 1 and (src[off] == ' ' or src[off] == '\t' or src[off] == '\n' or src[off] == '\r')) break;
-            off = next_end;
-        }
-        if (!first) {
-            result.data.append(gpa, 0) catch break;
-        }
-        result.data.appendSlice(gpa, src[word_start..off]) catch break;
+    while (wit.next()) |span| {
+        if (!first) result.data.append(gpa, 0) catch break;
+        result.data.appendSlice(gpa, src[span.start..span.end]) catch break;
         first = false;
     }
     return result;
