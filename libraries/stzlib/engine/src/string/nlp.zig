@@ -1150,7 +1150,21 @@ pub fn str_collocations(handle: StzStringHandle, min_count: c_int, top: c_int, c
     r.* = StzStrListResult.init();
     const s = (handle orelse return r);
     const raw = s.slice();
-    const folded: ?[]u8 = if (cs == 0) casefoldAlloc(raw) else null;
+    // Fold once for cs=0. ASCII fast-path (byte-wise lowercase == ASCII casefold)
+    // avoids running utf8proc over the whole (often multi-MB) buffer.
+    var folded: ?[]u8 = null;
+    if (cs == 0) {
+        if (s.isAscii()) {
+            if (gpa.alloc(u8, raw.len)) |buf| {
+                for (raw, 0..) |ch, idx| buf[idx] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+                folded = buf;
+            } else |_| {
+                folded = casefoldAlloc(raw);
+            }
+        } else {
+            folded = casefoldAlloc(raw);
+        }
+    }
     defer if (folded) |f| gpa.free(f);
     const work: []const u8 = if (folded) |f| f else raw;
 
@@ -1183,21 +1197,46 @@ pub fn str_collocations(handle: StzStringHandle, min_count: c_int, top: c_int, c
         big.deinit();
     }
     var i: usize = 0;
+    var keybuf: [512]u8 = undefined; // reused probe buffer for "w1 w2"
     while (i + 1 < words.items.len) : (i += 1) {
         const w1 = words.items[i];
         const w2 = words.items[i + 1];
-        const key = gpa.alloc(u8, w1.len + 1 + w2.len) catch continue;
-        @memcpy(key[0..w1.len], w1);
-        key[w1.len] = ' ';
-        @memcpy(key[w1.len + 1 ..], w2);
-        const gop = big.getOrPut(key) catch {
+        const klen = w1.len + 1 + w2.len;
+
+        // Build the probe key WITHOUT allocating when it fits the stack buffer.
+        var probe: []const u8 = undefined;
+        var probe_owned: ?[]u8 = null;
+        if (klen <= keybuf.len) {
+            @memcpy(keybuf[0..w1.len], w1);
+            keybuf[w1.len] = ' ';
+            @memcpy(keybuf[w1.len + 1 .. klen], w2);
+            probe = keybuf[0..klen];
+        } else {
+            const k = gpa.alloc(u8, klen) catch continue;
+            @memcpy(k[0..w1.len], w1);
+            k[w1.len] = ' ';
+            @memcpy(k[w1.len + 1 ..], w2);
+            probe = k;
+            probe_owned = k;
+        }
+
+        // Probe first: a repeated bigram just bumps its count -- zero allocation.
+        if (big.getPtr(probe)) |vp| {
+            vp.* += 1;
+            if (probe_owned) |k| gpa.free(k);
+            continue;
+        }
+        // New bigram: reuse the owned buffer if we made one, else copy the stack
+        // key into an owned slot.
+        const key = probe_owned orelse blk: {
+            const k = gpa.alloc(u8, klen) catch continue;
+            @memcpy(k, probe);
+            break :blk k;
+        };
+        big.put(key, 1) catch {
             gpa.free(key);
             continue;
         };
-        if (gop.found_existing) {
-            gpa.free(key);
-            gop.value_ptr.* += 1;
-        } else gop.value_ptr.* = 1;
     }
 
     const Nu: f64 = @floatFromInt(words.items.len);
