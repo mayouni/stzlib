@@ -286,37 +286,79 @@ pub const WordIter = struct {
     }
 };
 
-// ─── Sentence segmentation ───
+// ─── Sentence segmentation (UAX#29 Sentence_Break) ───
 //
-// A pragmatic sentence segmenter -- a large improvement on "split on any .!?"
-// without the full UAX#29 Sentence_Break machinery (which, like Qt, is the
-// documented ICU/BreakIterator upgrade path). It breaks after a terminator
-// (. ! ? and common Unicode variants) + optional closing quotes/brackets, only
-// when followed by whitespace/end, and suppresses two big false-positive
-// sources: decimals ("3.14" -- the '.' is followed by a digit, not space) and
-// abbreviations ('.' after a single-letter initial like "J." or a short known
-// abbreviation like "Dr.", "e.g.").
+// Full UAX#29 Sentence_Break rule engine (SB3..SB11) over a Sentence_Break class
+// derived from General_Category + the specific ATerm/STerm/SContinue/Sep/Close
+// codepoints -- same approach as the word segmentation above. Handles decimals
+// (SB6), initialisms like U.S.A (SB7), lowercase continuation after "etc."
+// (SB8), SContinue/quotes/paragraph separators, and the many Unicode sentence
+// terminators (。 ！ ？ ؟ । ...). ONE enhancement beyond the spec: UAX#29 does
+// not detect abbreviations ("Dr. Smith" would split), so a break placed right
+// after an ATerm following a known abbreviation / single initial is suppressed.
 
-fn isTerminator(cp: u21) bool {
-    return switch (cp) {
-        '.', '!', '?' => true,
-        0x2026, // … horizontal ellipsis
-        0x061F, // ؟ arabic question mark
-        0x06D4, // ۔ arabic full stop
-        0x3002, // 。 ideographic full stop
-        0xFF01, // ！ fullwidth !
-        0xFF1F, // ？ fullwidth ?
-        0x0964, // । devanagari danda
-        => true,
-        else => false,
+// Sentence_Break property class (UAX#29), derived from General_Category + the
+// specific codepoints UAX#29 assigns (ATerm/STerm/SContinue/Sep...).
+const SB = enum { other, cr, lf, sep, sp, extend, format, lower, upper, oletter, numeric, aterm, scontinue, sterm, close };
+
+const PS = 14;
+const PE = 15;
+const PI = 16;
+const PF = 17;
+
+fn sbClass(cp: u21) SB {
+    switch (cp) {
+        0x000D => return .cr,
+        0x000A => return .lf,
+        0x0085, 0x2028, 0x2029 => return .sep,
+        0x0009, 0x000B, 0x000C => return .sp, // tab / VT / FF (White_Space, not Sep)
+        '.', 0x2024, 0xFE52, 0xFF0E => return .aterm,
+        0x002C, 0x002D, 0x003A, 0x055D, 0x060C, 0x060D, 0x07F8, 0x1802, 0x1808, 0x2013, 0x2014, 0x3001, 0xFE50, 0xFE51, 0xFE55, 0xFF0C, 0xFF0D, 0xFF1A, 0xFF64 => return .scontinue,
+        '!', '?', 0x0589, 0x061F, 0x06D4, 0x0700, 0x0701, 0x0702, 0x07F9, 0x0964, 0x0965, 0x104A, 0x104B, 0x1362, 0x1367, 0x1368, 0x166E, 0x1803, 0x1809, 0x1944, 0x1945, 0x1AA8, 0x1AA9, 0x1AAA, 0x1AAB, 0x1B5A, 0x1B5B, 0x1B5E, 0x1B5F, 0x1C3B, 0x1C3C, 0x1C7E, 0x1C7F, 0x203C, 0x203D, 0x2047, 0x2048, 0x2049, 0x2E2E, 0x2E3C, 0x3002, 0xA60E, 0xA60F, 0xA6F3, 0xA6F7, 0xA9C8, 0xA9C9, 0xAA5D, 0xAA5E, 0xAA5F, 0xAAF0, 0xAAF1, 0xABEB, 0xFE56, 0xFE57, 0xFF01, 0xFF1F, 0xFF61 => return .sterm,
+        0x0022, 0x0027 => return .close, // straight quotes
+        else => {},
+    }
+    if (cp < 0x80) {
+        if (cp >= 'a' and cp <= 'z') return .lower;
+        if (cp >= 'A' and cp <= 'Z') return .upper;
+        if (cp >= '0' and cp <= '9') return .numeric;
+        if (cp == ' ') return .sp;
+        return switch (cp) {
+            '(', ')', '[', ']', '{', '}' => .close,
+            else => .other,
+        };
+    }
+    const cat = unicode.stz_unicode_category(@intCast(cp));
+    return switch (cat) {
+        LL => .lower,
+        LU, LT => .upper,
+        LO, LM, NL => .oletter,
+        ND => .numeric,
+        MN, MC, ME => .extend,
+        CF => .format,
+        ZS => .sp,
+        PS, PE, PI, PF => .close,
+        else => .other,
     };
 }
 
-fn isClosing(cp: u21) bool {
-    return switch (cp) {
-        ')', ']', '}', '"', '\'', 0x00BB, 0x201D, 0x2019 => true,
-        else => false,
-    };
+// SB8: after "ATerm Close* Sp*", scanning over chars that are none of
+// {OLetter,Upper,Sep,CR,LF,STerm,ATerm}, do we reach a Lower first? Then the
+// ATerm did NOT end a sentence (e.g. "etc. and ..." lowercase continuation).
+fn sb8Lookahead(src: []const u8, from: usize) bool {
+    var j = from;
+    while (j < src.len) {
+        const d = decodeAt(src, j);
+        const c = sbClass(d.cp);
+        switch (c) {
+            .extend, .format => {},
+            .oletter, .upper, .sep, .cr, .lf, .sterm, .aterm => return false,
+            .lower => return true,
+            else => {}, // numeric, close, sp, scontinue, other -> skip
+        }
+        j += d.len;
+    }
+    return false;
 }
 
 // Is the ASCII lowercase of the letter-run ending just before `dot_start` a
@@ -358,35 +400,118 @@ pub const SentenceIter = struct {
         return .{ .src = src, .i = 0 };
     }
 
+    // UAX#29 Sentence_Break (rules SB3..SB11) with one practical enhancement:
+    // a break that SB would place right after an ATerm ('.') is suppressed when
+    // the preceding token is a known abbreviation or a single initial (UAX#29
+    // itself does NOT do abbreviation detection -- "Dr. Smith" would split --
+    // so production tokenizers layer this on, as we do).
     pub fn next(self: *SentenceIter) ?Span {
         const src = self.src;
         if (self.i >= src.len) return null;
         const start = self.i;
-        var j = self.i;
-        while (j < src.len) {
-            const d = decodeAt(src, j);
-            if (isTerminator(d.cp)) {
-                const term_start = j;
-                var k = j + d.len;
-                // Skip trailing closing quotes/brackets.
-                while (k < src.len) {
-                    const cd = decodeAt(src, k);
-                    if (isClosing(cd.cp)) {
-                        k += cd.len;
-                    } else break;
-                }
-                // Boundary only if what follows is whitespace or end-of-text.
-                var follows_break = k >= src.len;
-                if (!follows_break) {
-                    const nd = decodeAt(src, k);
-                    follows_break = classOf(nd.cp) == .wsegspace or nd.cp == '\n' or nd.cp == '\r' or nd.cp == '\t';
-                }
-                if (follows_break and !(d.cp == '.' and isAbbrevBefore(src, term_start))) {
-                    self.i = k;
-                    return .{ .start = start, .end = k };
-                }
+        var i = self.i;
+        var prev: SB = .sep; // class of the previous significant codepoint
+        var term: SB = .other; // .aterm/.sterm once a terminator region is open
+        var aterm_prev: SB = .other; // class right before the ATerm (SB7)
+        var term_pos: usize = 0; // byte pos of the terminator (abbrev check)
+        var saw_close_sp = false; // Close/Sp seen since the terminator (SB6/7 need immediacy)
+
+        while (i < src.len) {
+            const d = decodeAt(src, i);
+            const cls = sbClass(d.cp);
+            if (cls == .extend or cls == .format) { // SB5
+                i += d.len;
+                continue;
             }
-            j += d.len;
+
+            if (term != .other) {
+                if (cls == .close) { // SB9
+                    saw_close_sp = true;
+                    prev = cls;
+                    i += d.len;
+                    continue;
+                }
+                if (cls == .sp) { // SB10
+                    saw_close_sp = true;
+                    prev = cls;
+                    i += d.len;
+                    continue;
+                }
+                if (cls == .scontinue or cls == .sterm or cls == .aterm) { // SB8a
+                    if (cls == .aterm) {
+                        term = .aterm;
+                        aterm_prev = prev;
+                        term_pos = i;
+                        saw_close_sp = false;
+                    } else if (cls == .sterm) {
+                        term = .sterm;
+                    }
+                    prev = cls;
+                    i += d.len;
+                    continue;
+                }
+                if (cls == .sep or cls == .cr or cls == .lf) { // SB4: break AFTER
+                    i += d.len;
+                    if (cls == .cr and i < src.len and src[i] == 0x0A) i += 1;
+                    self.i = i;
+                    return .{ .start = start, .end = i };
+                }
+                if (term == .aterm and !saw_close_sp and cls == .numeric) { // SB6
+                    term = .other;
+                    prev = cls;
+                    i += d.len;
+                    continue;
+                }
+                if (term == .aterm and !saw_close_sp and cls == .upper and
+                    (aterm_prev == .upper or aterm_prev == .lower)) // SB7
+                {
+                    term = .other;
+                    prev = cls;
+                    i += d.len;
+                    continue;
+                }
+                if (term == .aterm and sb8Lookahead(src, i)) { // SB8
+                    term = .other;
+                    prev = cls;
+                    i += d.len;
+                    continue;
+                }
+                // Enhancement: suppress the break if the ATerm follows a known
+                // abbreviation / single initial ("Dr.", "e.g.", "J.").
+                if (term == .aterm and isAbbrevBefore(src, term_pos)) {
+                    term = .other;
+                    prev = cls;
+                    i += d.len;
+                    continue;
+                }
+                self.i = i; // SB11: break before this codepoint
+                return .{ .start = start, .end = i };
+            }
+
+            if (cls == .sep or cls == .cr or cls == .lf) { // SB4
+                i += d.len;
+                if (cls == .cr and i < src.len and src[i] == 0x0A) i += 1;
+                self.i = i;
+                return .{ .start = start, .end = i };
+            }
+            if (cls == .aterm) {
+                term = .aterm;
+                aterm_prev = prev;
+                term_pos = i;
+                saw_close_sp = false;
+                prev = cls;
+                i += d.len;
+                continue;
+            }
+            if (cls == .sterm) {
+                term = .sterm;
+                saw_close_sp = false;
+                prev = cls;
+                i += d.len;
+                continue;
+            }
+            prev = cls;
+            i += d.len;
         }
         self.i = src.len;
         return .{ .start = start, .end = src.len };
