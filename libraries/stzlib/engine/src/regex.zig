@@ -33,7 +33,12 @@ const Regex = struct {
     input: []const u8,
     last_match_count: c_int,
     all_captures: std.ArrayList(Cap),
-    max_input_len: u32 = 1_048_576,
+    // Guards runaway memory on enormous inputs. NOT the ReDoS guard -- PCRE2's
+    // own default match_limit (~10M steps) bounds catastrophic backtracking
+    // regardless of input length -- so this can be generous. 1 MB was too low
+    // for document/log processing and silently returned 0 (looked like "no
+    // matches"). 64 MB covers real documents; truly enormous inputs still bail.
+    max_input_len: u32 = 67_108_864,
     const Cap = struct { start: i32, end: i32 };
 };
 
@@ -165,7 +170,12 @@ pub fn stz_regex_match_all(h: ?*Regex, inp: [*c]const u8, inp_len: usize) callco
 
     var pos: usize = 0;
     var n: c_int = 0;
+    // First call validates the UTF-8 subject; every subsequent call over the
+    // SAME subject passes PCRE2_NO_UTF_CHECK. Without this, PCRE2 re-validates
+    // the ENTIRE subject on every match -> O(matches * input_len). On a 1 MB
+    // subject with thousands of matches that was seconds; this makes it O(n).
     var opts: u32 = 0;
+    const revisit: u32 = pcre2.PCRE2_NO_UTF_CHECK;
 
     while (pos <= inp_len) {
         const rc = pcre2.pcre2_match_8(r.code, inp, inp_len, pos, opts, r.match_data, r.match_ctx);
@@ -190,10 +200,10 @@ pub fn stz_regex_match_all(h: ?*Regex, inp: [*c]const u8, inp_len: usize) callco
             // Zero-length match: advance by one character
             if (pos >= inp_len) break;
             pos = nextCharPos(inp, inp_len, pos);
-            opts = 0;
+            opts = revisit;
         } else {
             pos = match_end;
-            opts = 0;
+            opts = revisit;
         }
     }
 
@@ -354,9 +364,13 @@ pub fn stz_regex_replace(h: ?*Regex, inp: [*c]const u8, inp_len: usize, repl: [*
 
     var res: std.ArrayList(u8) = .{};
     var pos: usize = 0;
+    // Validate UTF-8 once, then skip re-validation on every subsequent match
+    // over the same subject (else replace-all is O(matches * input_len)).
+    var opts: u32 = 0;
 
     while (pos <= inp_len) {
-        const rc = pcre2.pcre2_match_8(r.code, inp, inp_len, pos, 0, r.match_data, r.match_ctx);
+        const rc = pcre2.pcre2_match_8(r.code, inp, inp_len, pos, opts, r.match_data, r.match_ctx);
+        opts = pcre2.PCRE2_NO_UTF_CHECK;
         if (rc < 0) {
             res.appendSlice(gpa, text[pos..]) catch { res.deinit(gpa); return null; };
             break;

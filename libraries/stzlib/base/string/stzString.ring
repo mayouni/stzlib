@@ -17165,7 +17165,8 @@ class stzString from stzObject
 		if NOT isString(pcPattern) return [] ok
 		_nExFlags_ = 0
 		if pCaseSensitive = 0 _nExFlags_ = 1 ok
-		return This._DrainStrList( StzEngineStringRegexExtractAll(@pEngine, pcPattern, _nExFlags_) )
+		# Bulk native-list bridge (O(n)); the per-item drain was O(n^2).
+		return StzEngineStringRegexExtractAllList(@pEngine, pcPattern, _nExFlags_)
 
 	def ExtractPattern(pcPattern)
 		return This.ExtractPatternCS(pcPattern, 1)
