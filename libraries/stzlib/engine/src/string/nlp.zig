@@ -693,6 +693,26 @@ fn orderLessThan(_: void, a: FreqEntry, b: FreqEntry) bool {
     return a.order < b.order; // first-appearance order
 }
 
+fn allAscii(bytes: []const u8) bool {
+    for (bytes) |b| {
+        if (b >= 0x80) return false;
+    }
+    return true;
+}
+
+// ASCII-fast whole-buffer fold for cs=0: pure-ASCII -> byte lowercase (== ASCII
+// casefold, no utf8proc); else utf8proc casefold. Returns null when cs!=0 (the
+// caller then uses the raw buffer). Caller frees the returned buffer.
+fn foldWholeAlloc(raw: []const u8, cs: c_int, is_ascii: bool) ?[]u8 {
+    if (cs != 0) return null;
+    if (is_ascii) {
+        const buf = gpa.alloc(u8, raw.len) catch return casefoldAlloc(raw);
+        for (raw, 0..) |ch, idx| buf[idx] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+        return buf;
+    }
+    return casefoldAlloc(raw);
+}
+
 // n_top <= 0 -> all words; else the top n_top by count. cs != 0 case-sensitive.
 pub fn str_word_freq(handle: StzStringHandle, cs: c_int, n_top: c_int) callconv(.c) StzWordFreqResultHandle {
     const r = gpa.create(StzWordFreqResult) catch return null;
@@ -907,42 +927,54 @@ pub fn str_char_freq(handle: StzStringHandle, cs: c_int, n_top: c_int) callconv(
     var map = std.StringHashMap(FreqEntry).init(gpa);
     var order: usize = 0;
     var pos: usize = 0;
+    var cbuf: [1]u8 = undefined; // reused fold buffer for a single ASCII codepoint
     while (pos < src.len) {
         const cp_len = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
         const end = @min(pos + cp_len, src.len);
         const ch = src[pos..end];
-        const key: []u8 = if (cs == 0)
-            (casefoldAlloc(ch) orelse {
-                pos = end;
-                continue;
-            })
-        else blk: {
-            const k = gpa.alloc(u8, ch.len) catch {
-                pos = end;
-                continue;
-            };
-            @memcpy(k, ch);
-            break :blk k;
+
+        // Probe key without allocating in the common case. cs=1 -> raw cp; cs=0
+        // ASCII single byte -> reused stack buffer; cs=0 multibyte -> owned fold.
+        var probe: []const u8 = ch;
+        var probe_owned: ?[]u8 = null;
+        if (cs == 0) {
+            if (ch.len == 1 and ch[0] < 0x80) {
+                cbuf[0] = if (ch[0] >= 'A' and ch[0] <= 'Z') ch[0] + 32 else ch[0];
+                probe = cbuf[0..1];
+            } else if (casefoldAlloc(ch)) |f| {
+                probe = f;
+                probe_owned = f;
+            }
+        }
+
+        // Probe first: an already-seen codepoint just bumps its count (a text
+        // has few distinct codepoints, so nearly every char is a zero-alloc hit).
+        if (map.getPtr(probe)) |vp| {
+            vp.count += 1;
+            if (probe_owned) |f| gpa.free(f);
+            pos = end;
+            continue;
+        }
+        const key = gpa.alloc(u8, probe.len) catch {
+            if (probe_owned) |f| gpa.free(f);
+            pos = end;
+            continue;
         };
-        const gop = map.getOrPut(key) catch {
+        @memcpy(key, probe);
+        if (probe_owned) |f| gpa.free(f);
+        const rep = gpa.alloc(u8, ch.len) catch {
             gpa.free(key);
             pos = end;
             continue;
         };
-        if (gop.found_existing) {
+        @memcpy(rep, ch);
+        map.put(key, .{ .rep = rep, .count = 1, .order = order }) catch {
             gpa.free(key);
-            gop.value_ptr.count += 1;
-        } else {
-            const rep = gpa.alloc(u8, ch.len) catch {
-                _ = map.remove(key);
-                gpa.free(key);
-                pos = end;
-                continue;
-            };
-            @memcpy(rep, ch);
-            gop.value_ptr.* = .{ .rep = rep, .count = 1, .order = order };
-            order += 1;
-        }
+            gpa.free(rep);
+            pos = end;
+            continue;
+        };
+        order += 1;
         pos = end;
     }
     finalizeFreq(&map, n_top, r);
@@ -1044,40 +1076,60 @@ pub fn str_word_ngram_freq(handle: StzStringHandle, n_gram: c_int, cs: c_int, n_
     var map = std.StringHashMap(FreqEntry).init(gpa);
     var order: usize = 0;
     var i: usize = 0;
+    var grambuf: std.ArrayList(u8) = .{}; // reused: raw gram (original case) -> rep
+    defer grambuf.deinit(gpa);
+    var foldbuf: std.ArrayList(u8) = .{}; // reused: ASCII-folded gram -> probe key
+    defer foldbuf.deinit(gpa);
     while (i + N <= words.items.len) : (i += 1) {
-        // Build the gram: words[i..i+N] joined by a single space.
-        var gram: std.ArrayList(u8) = .{};
-        defer gram.deinit(gpa);
+        // Build the gram: words[i..i+N] joined by a single space, into a REUSED
+        // buffer (no per-position ArrayList alloc/free).
+        grambuf.clearRetainingCapacity();
         var j: usize = 0;
         while (j < N) : (j += 1) {
-            if (j > 0) gram.append(gpa, ' ') catch {};
-            gram.appendSlice(gpa, words.items[i + j]) catch {};
+            if (j > 0) grambuf.append(gpa, ' ') catch {};
+            grambuf.appendSlice(gpa, words.items[i + j]) catch {};
         }
-        const g = gram.items;
-        const key: []u8 = if (cs == 0)
-            (casefoldAlloc(g) orelse continue)
-        else blk: {
-            const k = gpa.alloc(u8, g.len) catch continue;
-            @memcpy(k, g);
-            break :blk k;
+        const g = grambuf.items;
+
+        // Fold for cs=0 into a REUSED buffer (ASCII) or an owned alloc (multibyte);
+        // the raw `g` is kept for the display rep.
+        var probe: []const u8 = g;
+        var probe_owned: ?[]u8 = null;
+        if (cs == 0) {
+            if (allAscii(g)) {
+                foldbuf.clearRetainingCapacity();
+                foldbuf.appendSlice(gpa, g) catch continue;
+                for (foldbuf.items, 0..) |ch, idx| foldbuf.items[idx] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+                probe = foldbuf.items;
+            } else if (casefoldAlloc(g)) |f| {
+                probe = f;
+                probe_owned = f;
+            }
+        }
+
+        // Probe first: a repeated gram just bumps its count -- zero allocation.
+        if (map.getPtr(probe)) |vp| {
+            vp.count += 1;
+            if (probe_owned) |f| gpa.free(f);
+            continue;
+        }
+        const key = gpa.alloc(u8, probe.len) catch {
+            if (probe_owned) |f| gpa.free(f);
+            continue;
         };
-        const gop = map.getOrPut(key) catch {
+        @memcpy(key, probe);
+        if (probe_owned) |f| gpa.free(f);
+        const rep = gpa.alloc(u8, g.len) catch {
             gpa.free(key);
             continue;
         };
-        if (gop.found_existing) {
+        @memcpy(rep, g);
+        map.put(key, .{ .rep = rep, .count = 1, .order = order }) catch {
             gpa.free(key);
-            gop.value_ptr.count += 1;
-        } else {
-            const rep = gpa.alloc(u8, g.len) catch {
-                _ = map.remove(key);
-                gpa.free(key);
-                continue;
-            };
-            @memcpy(rep, g);
-            gop.value_ptr.* = .{ .rep = rep, .count = 1, .order = order };
-            order += 1;
-        }
+            gpa.free(rep);
+            continue;
+        };
+        order += 1;
     }
     finalizeFreq(&map, n_top, r);
     return r;
@@ -1104,9 +1156,10 @@ pub fn str_cosine_similarity(handle: StzStringHandle, other: [*c]const u8, other
     const s = (handle orelse return 0);
     const a_raw = s.slice();
     const b_raw = if (other == null) &[_]u8{} else other[0..other_len];
-    const fa: ?[]u8 = if (cs == 0) casefoldAlloc(a_raw) else null;
+    // ASCII fast-fold (the cached flag for a; a scan for the other buffer).
+    const fa = foldWholeAlloc(a_raw, cs, s.isAscii());
     defer if (fa) |f| gpa.free(f);
-    const fb: ?[]u8 = if (cs == 0) casefoldAlloc(b_raw) else null;
+    const fb = foldWholeAlloc(b_raw, cs, allAscii(b_raw));
     defer if (fb) |f| gpa.free(f);
     const wa: []const u8 = if (fa) |f| f else a_raw;
     const wb: []const u8 = if (fb) |f| f else b_raw;
@@ -1150,21 +1203,8 @@ pub fn str_collocations(handle: StzStringHandle, min_count: c_int, top: c_int, c
     r.* = StzStrListResult.init();
     const s = (handle orelse return r);
     const raw = s.slice();
-    // Fold once for cs=0. ASCII fast-path (byte-wise lowercase == ASCII casefold)
-    // avoids running utf8proc over the whole (often multi-MB) buffer.
-    var folded: ?[]u8 = null;
-    if (cs == 0) {
-        if (s.isAscii()) {
-            if (gpa.alloc(u8, raw.len)) |buf| {
-                for (raw, 0..) |ch, idx| buf[idx] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
-                folded = buf;
-            } else |_| {
-                folded = casefoldAlloc(raw);
-            }
-        } else {
-            folded = casefoldAlloc(raw);
-        }
-    }
+    // Fold once for cs=0, ASCII fast-path (avoids utf8proc over the whole buffer).
+    const folded = foldWholeAlloc(raw, cs, s.isAscii());
     defer if (folded) |f| gpa.free(f);
     const work: []const u8 = if (folded) |f| f else raw;
 
