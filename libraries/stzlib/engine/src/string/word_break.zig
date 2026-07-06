@@ -185,9 +185,19 @@ pub const Span = struct { start: usize, end: usize };
 pub const WordIter = struct {
     src: []const u8,
     i: usize = 0,
+    // When true, an ideographic (CJK) run yields OVERLAPPING CHARACTER BIGRAMS
+    // instead of single codepoints -- the standard dictionary-free CJK tokenizer
+    // for search recall (cf. Lucene CJKBigramFilter). Non-CJK is unaffected.
+    // 日本語 -> [日本, 本語, 語]. True dictionary word segmentation (ICU) is the
+    // future upgrade; this is the self-contained interim.
+    bigram: bool = false,
 
     pub fn init(src: []const u8) WordIter {
         return .{ .src = src, .i = 0 };
+    }
+
+    pub fn initBigram(src: []const u8) WordIter {
+        return .{ .src = src, .i = 0, .bigram = true };
     }
 
     // Skip Extend/Format/ZWJ at self.i (WB4: they attach to the preceding char).
@@ -232,8 +242,17 @@ pub const WordIter = struct {
         self.i += first.len;
         self.consumeExtend();
 
-        // Ideographs break per codepoint (UAX#29 default): a single-cp token.
-        if (firstcls == .ideo) return .{ .start = start, .end = self.i };
+        // Ideographs break per codepoint (UAX#29 default). In bigram mode a CJK
+        // run yields overlapping bigrams: pair this ideograph with the next one
+        // (if any) but advance only past THIS one, so the next call starts on the
+        // 2nd char -- 日本語 -> 日本, 本語, then 語 alone at the run's end.
+        if (firstcls == .ideo) {
+            if (self.bigram and self.i < src.len) {
+                const d2 = decodeAt(src, self.i);
+                if (classOf(d2.cp) == .ideo) return .{ .start = start, .end = self.i + d2.len };
+            }
+            return .{ .start = start, .end = self.i };
+        }
 
         var prev = firstcls;
         while (self.i < src.len) {

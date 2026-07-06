@@ -180,6 +180,7 @@ pub const str_rpartition_after_cs = split.str_rpartition_after_cs;
 pub const str_rpartition_after = split.str_rpartition_after;
 pub const str_chunk = split.str_chunk;
 pub const str_chars_split = split.str_chars_split;
+pub const str_search_tokens = split.str_search_tokens;
 pub const str_words_split = split.str_words_split;
 pub const str_sort_null_items_cs = split.str_sort_null_items_cs;
 pub const str_sort_null_items = split.str_sort_null_items;
