@@ -13,6 +13,7 @@
 
 const std = @import("std");
 const core = @import("core.zig");
+const wb = @import("word_break.zig");
 
 const mem = core.mem;
 const gpa = core.gpa;
@@ -644,20 +645,14 @@ pub fn str_extract_words(handle: ?*StzString) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
-    var pos: usize = 0;
+    // Tokenize through the UAX#29 word-segmentation seam (word_break.zig):
+    // digits stay in words ("word2vec"), apostrophes/decimals hold ("don't",
+    // "3.14"), CJK breaks per codepoint, punctuation/symbols separate.
+    var wit = wb.WordIter.init(src);
     var first = true;
-    while (pos < src.len) {
-        // Skip non-word bytes (ASCII punctuation/whitespace). A word byte is
-        // an ASCII letter OR any byte >= 0x80 -- the lead/continuation bytes
-        // of a multibyte UTF-8 letter -- so accented/CJK words stay intact
-        // ('café' was being split into 'caf'). ASCII punctuation still
-        // separates, matching the previous behaviour.
-        while (pos < src.len and !isWordByte(src[pos])) pos += 1;
-        if (pos >= src.len) break;
-        const start_off = pos;
-        while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
+    while (wit.next()) |span| {
         if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
-        result.data.appendSlice(gpa, src[start_off..pos]) catch { setError(.out_of_memory); };
+        result.data.appendSlice(gpa, src[span.start..span.end]) catch { setError(.out_of_memory); };
         first = false;
     }
     return result;
@@ -751,13 +746,9 @@ fn asciiFoldInto(word: []const u8, buf: []u8) ?[]u8 {
 fn accumulateWords(map: *std.StringHashMap(FreqEntry), order: *usize, src: []const u8, cs: c_int) u64 {
     var total: u64 = 0;
     var foldbuf: [256]u8 = undefined;
-    var pos: usize = 0;
-    while (pos < src.len) {
-        while (pos < src.len and !isWordByte(src[pos])) pos += 1;
-        if (pos >= src.len) break;
-        const start_off = pos;
-        while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
-        const word = src[start_off..pos];
+    var wit = wb.WordIter.init(src);
+    while (wit.next()) |span| {
+        const word = src[span.start..span.end];
         total += 1;
 
         // Build a PROBE key without allocating in the common case. cs=1 -> raw
@@ -1032,13 +1023,9 @@ pub fn str_count_word_cs(handle: StzStringHandle, word: [*c]const u8, word_len: 
     const src = s.slice();
     const w = word[0..word_len];
     var count: c_int = 0;
-    var pos: usize = 0;
-    while (pos < src.len) {
-        while (pos < src.len and !isWordByte(src[pos])) pos += 1;
-        if (pos >= src.len) break;
-        const start = pos;
-        while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
-        if (wordEql(src[start..pos], w, cs)) count += 1;
+    var wit = wb.WordIter.init(src);
+    while (wit.next()) |span| {
+        if (wordEql(src[span.start..span.end], w, cs)) count += 1;
     }
     return count;
 }
@@ -1056,18 +1043,12 @@ pub fn str_word_ngram_freq(handle: StzStringHandle, n_gram: c_int, cs: c_int, n_
     const N: usize = @intCast(n_gram);
     const src = s.slice();
 
-    // Collect word slices (views into src).
+    // Collect word slices (views into src) through the UAX#29 seam.
     var words: std.ArrayList([]const u8) = .{};
     defer words.deinit(gpa);
     {
-        var pos: usize = 0;
-        while (pos < src.len) {
-            while (pos < src.len and !isWordByte(src[pos])) pos += 1;
-            if (pos >= src.len) break;
-            const start = pos;
-            while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
-            words.append(gpa, src[start..pos]) catch {};
-        }
+        var wit = wb.WordIter.init(src);
+        while (wit.next()) |span| words.append(gpa, src[span.start..span.end]) catch {};
     }
     if (words.items.len < N) {
         return r; // fewer words than the gram size -> no grams
@@ -1140,13 +1121,9 @@ pub fn str_word_ngram_freq(handle: StzStringHandle, n_gram: c_int, cs: c_int, n_
 // duplicate / clustering / "find similar". One pass each; cs=0 folds. Term
 // vectors are TF; for corpus TF-IDF weighting see str_tfidf_keywords.
 fn tokenCounts(work: []const u8, map: *std.StringHashMap(f64)) void {
-    var pos: usize = 0;
-    while (pos < work.len) {
-        while (pos < work.len and !isWordByte(work[pos])) pos += 1;
-        if (pos >= work.len) break;
-        const start = pos;
-        while (pos < work.len and (isWordByte(work[pos]) or work[pos] == '\'')) pos += 1;
-        const gop = map.getOrPut(work[start..pos]) catch continue;
+    var wit = wb.WordIter.init(work);
+    while (wit.next()) |span| {
+        const gop = map.getOrPut(work[span.start..span.end]) catch continue;
         if (!gop.found_existing) gop.value_ptr.* = 0;
         gop.value_ptr.* += 1;
     }
@@ -1162,14 +1139,14 @@ pub fn str_cosine_similarity(handle: StzStringHandle, other: [*c]const u8, other
     const fb = foldWholeAlloc(b_raw, cs, allAscii(b_raw));
     defer if (fb) |f| gpa.free(f);
     const wa: []const u8 = if (fa) |f| f else a_raw;
-    const wb: []const u8 = if (fb) |f| f else b_raw;
+    const wdb: []const u8 = if (fb) |f| f else b_raw;
 
     var ta = std.StringHashMap(f64).init(gpa);
     defer ta.deinit();
     var tb = std.StringHashMap(f64).init(gpa);
     defer tb.deinit();
     tokenCounts(wa, &ta);
-    tokenCounts(wb, &tb);
+    tokenCounts(wdb, &tb);
 
     var dot: f64 = 0;
     var na: f64 = 0;
@@ -1211,14 +1188,8 @@ pub fn str_collocations(handle: StzStringHandle, min_count: c_int, top: c_int, c
     var words: std.ArrayList([]const u8) = .{};
     defer words.deinit(gpa);
     {
-        var pos: usize = 0;
-        while (pos < work.len) {
-            while (pos < work.len and !isWordByte(work[pos])) pos += 1;
-            if (pos >= work.len) break;
-            const start = pos;
-            while (pos < work.len and (isWordByte(work[pos]) or work[pos] == '\'')) pos += 1;
-            words.append(gpa, work[start..pos]) catch {};
-        }
+        var wit = wb.WordIter.init(work);
+        while (wit.next()) |span| words.append(gpa, work[span.start..span.end]) catch {};
     }
     if (words.items.len < 2) return r;
 
@@ -1441,13 +1412,9 @@ pub fn str_tfidf_keywords(handle: StzStringHandle, n_top: c_int, cs: c_int) call
     for (docs.items) |doc| {
         var seen = std.StringHashMap(void).init(gpa);
         defer seen.deinit();
-        var pos: usize = 0;
-        while (pos < doc.len) {
-            while (pos < doc.len and !isWordByte(doc[pos])) pos += 1;
-            if (pos >= doc.len) break;
-            const start = pos;
-            while (pos < doc.len and (isWordByte(doc[pos]) or doc[pos] == '\'')) pos += 1;
-            const term = doc[start..pos];
+        var wit = wb.WordIter.init(doc);
+        while (wit.next()) |span| {
+            const term = doc[span.start..span.end];
             if (!seen.contains(term)) {
                 seen.put(term, {}) catch {};
                 const gop = df.getOrPut(term) catch continue;
@@ -1463,13 +1430,9 @@ pub fn str_tfidf_keywords(handle: StzStringHandle, n_top: c_int, cs: c_int) call
     for (docs.items, 0..) |doc, di| {
         var tf = std.StringHashMap(f64).init(gpa);
         defer tf.deinit();
-        var pos: usize = 0;
-        while (pos < doc.len) {
-            while (pos < doc.len and !isWordByte(doc[pos])) pos += 1;
-            if (pos >= doc.len) break;
-            const start = pos;
-            while (pos < doc.len and (isWordByte(doc[pos]) or doc[pos] == '\'')) pos += 1;
-            const term = doc[start..pos];
+        var wit = wb.WordIter.init(doc);
+        while (wit.next()) |span| {
+            const term = doc[span.start..span.end];
             const gop = tf.getOrPut(term) catch continue;
             if (!gop.found_existing) gop.value_ptr.* = 0;
             gop.value_ptr.* += 1;
@@ -1502,24 +1465,15 @@ pub fn str_tfidf_keywords(handle: StzStringHandle, n_top: c_int, cs: c_int) call
 pub fn str_sentence_stat(handle: StzStringHandle, mode: c_int) callconv(.c) c_int {
     const s = (handle orelse return 0);
     const src = s.slice();
+    // Segment through the sentence seam (handles decimals / abbreviations), and
+    // count words in each sentence through the word seam.
     var maxw: c_int = 0;
     var minw: c_int = -1;
-    var cur: c_int = 0;
-    var in_word = false;
-    for (src) |c| {
-        if (c == '.' or c == '!' or c == '?') {
-            if (cur > maxw) maxw = cur;
-            if (cur > 0 and (minw < 0 or cur < minw)) minw = cur;
-            cur = 0;
-            in_word = false;
-        } else if (isWordByte(c) or c == '\'') {
-            if (!in_word) {
-                cur += 1;
-                in_word = true;
-            }
-        } else {
-            in_word = false;
-        }
+    var sit = wb.SentenceIter.init(src);
+    while (sit.next()) |span| {
+        const cur: c_int = @intCast(wb.countWords(src[span.start..span.end]));
+        if (cur > maxw) maxw = cur;
+        if (cur > 0 and (minw < 0 or cur < minw)) minw = cur;
     }
     return switch (mode) {
         0 => maxw,

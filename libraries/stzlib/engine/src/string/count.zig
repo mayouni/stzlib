@@ -6,6 +6,7 @@
 
 const std = @import("std");
 const core = @import("core.zig");
+const wb = @import("word_break.zig");
 const mem = core.mem;
 const gpa = core.gpa;
 const unicode = core.unicode;
@@ -692,14 +693,19 @@ pub fn str_count_consonants(handle: StzStringHandle) callconv(.c) c_int {
 }
 
 /// Count sentences (terminated by '.', '!', or '?').
+// Count sentences through the shared segmentation seam (word_break.SentenceIter),
+// so this agrees with str_sentence_stat and does not miscount decimals ("3.14")
+// or abbreviations ("Dr.") as sentence breaks. A sentence counts only if it
+// contains at least one word (trailing whitespace is not a sentence).
 pub fn str_count_sentences(handle: StzStringHandle) callconv(.c) c_int {
     const s = handle orelse return 0;
     const src = s.slice();
     if (src.len == 0) return 0;
 
     var count: c_int = 0;
-    for (src) |c| {
-        if (c == '.' or c == '!' or c == '?') count += 1;
+    var sit = wb.SentenceIter.init(src);
+    while (sit.next()) |span| {
+        if (wb.countWords(src[span.start..span.end]) > 0) count += 1;
     }
     return count;
 }
