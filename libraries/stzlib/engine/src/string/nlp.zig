@@ -703,46 +703,56 @@ pub fn str_word_freq(handle: StzStringHandle, cs: c_int, n_top: c_int) callconv(
     // key (owned) -> FreqEntry. key is casefolded when cs==0, else raw word.
     var map = std.StringHashMap(FreqEntry).init(gpa);
     var order: usize = 0;
-    {
-        var pos: usize = 0;
-        while (pos < src.len) {
-            while (pos < src.len and !isWordByte(src[pos])) pos += 1;
-            if (pos >= src.len) break;
-            const start_off = pos;
-            while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
-            const word = src[start_off..pos];
-
-            // The map key: casefolded copy (cs=0) or a raw copy (cs=1).
-            const key: []u8 = if (cs == 0)
-                (casefoldAlloc(word) orelse continue)
-            else blk: {
-                const k = gpa.alloc(u8, word.len) catch continue;
-                @memcpy(k, word);
-                break :blk k;
-            };
-            const gop = map.getOrPut(key) catch {
-                gpa.free(key);
-                continue;
-            };
-            if (gop.found_existing) {
-                gpa.free(key); // key already stored
-                gop.value_ptr.count += 1;
-            } else {
-                // first sighting: keep an owned copy of the ORIGINAL word as rep
-                const rep = gpa.alloc(u8, word.len) catch {
-                    _ = map.remove(key);
-                    gpa.free(key);
-                    continue;
-                };
-                @memcpy(rep, word);
-                gop.value_ptr.* = .{ .rep = rep, .count = 1, .order = order };
-                order += 1;
-            }
-        }
-    }
+    _ = accumulateWords(&map, &order, src, cs);
 
     finalizeFreq(&map, n_top, r);
     return r;
+}
+
+// Tokenize `src` (word = run of isWordByte + interior apostrophes) and fold its
+// counts into `map`: key is a casefolded copy when cs==0 else a raw copy, and
+// value.rep is an owned copy of the ORIGINAL first-seen bytes. *order advances
+// per newly-seen key. Returns the number of tokens seen. Shared by str_word_freq
+// (one-shot) and the streaming accumulator so both tokenize identically.
+fn accumulateWords(map: *std.StringHashMap(FreqEntry), order: *usize, src: []const u8, cs: c_int) u64 {
+    var total: u64 = 0;
+    var pos: usize = 0;
+    while (pos < src.len) {
+        while (pos < src.len and !isWordByte(src[pos])) pos += 1;
+        if (pos >= src.len) break;
+        const start_off = pos;
+        while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
+        const word = src[start_off..pos];
+        total += 1;
+
+        // The map key: casefolded copy (cs=0) or a raw copy (cs=1).
+        const key: []u8 = if (cs == 0)
+            (casefoldAlloc(word) orelse continue)
+        else blk: {
+            const k = gpa.alloc(u8, word.len) catch continue;
+            @memcpy(k, word);
+            break :blk k;
+        };
+        const gop = map.getOrPut(key) catch {
+            gpa.free(key);
+            continue;
+        };
+        if (gop.found_existing) {
+            gpa.free(key); // key already stored
+            gop.value_ptr.count += 1;
+        } else {
+            // first sighting: keep an owned copy of the ORIGINAL word as rep
+            const rep = gpa.alloc(u8, word.len) catch {
+                _ = map.remove(key);
+                gpa.free(key);
+                continue;
+            };
+            @memcpy(rep, word);
+            gop.value_ptr.* = .{ .rep = rep, .count = 1, .order = order.* };
+            order.* += 1;
+        }
+    }
+    return total;
 }
 
 // Shared: collect the hashmap entries, sort (first-appearance for n_top<=0,
@@ -771,6 +781,89 @@ fn finalizeFreq(map: *std.StringHashMap(FreqEntry), n_top: c_int, r: *StzWordFre
     var kit = map.keyIterator();
     while (kit.next()) |k| gpa.free(k.*);
     map.deinit();
+}
+
+// Like finalizeFreq but NON-destructive: COPIES the kept reps into r and leaves
+// `map` (its reps AND keys) intact so a streaming accumulator can keep growing
+// and be queried again. Used by str_word_stream_top.
+fn snapshotFreq(map: *std.StringHashMap(FreqEntry), n_top: c_int, r: *StzWordFreqResult) void {
+    var entries = std.ArrayList(FreqEntry){};
+    defer entries.deinit(gpa);
+    var it = map.iterator();
+    while (it.next()) |kv| entries.append(gpa, kv.value_ptr.*) catch {};
+    if (n_top <= 0) {
+        std.sort.pdq(FreqEntry, entries.items, {}, orderLessThan);
+    } else {
+        std.sort.pdq(FreqEntry, entries.items, {}, freqLessThan);
+    }
+    const keep: usize = if (n_top <= 0) entries.items.len else @min(@as(usize, @intCast(n_top)), entries.items.len);
+    var i: usize = 0;
+    while (i < keep) : (i += 1) {
+        const src_rep = entries.items[i].rep;
+        const rep_copy = gpa.alloc(u8, src_rep.len) catch continue;
+        @memcpy(rep_copy, src_rep);
+        r.words.append(gpa, rep_copy) catch {
+            gpa.free(rep_copy);
+            continue;
+        };
+        r.counts.append(gpa, entries.items[i].count) catch {};
+    }
+}
+
+// --- Streaming / incremental word-frequency accumulator ---
+// Bounded-memory word counting over data too large (or too live) to hold at
+// once: feed chunks, query top-N / totals at any point, keep feeding. State is
+// bounded by the VOCABULARY size, not the input size -- a 10 GB log costs only
+// its distinct-word table. Reuses the FreqEntry map + stz_word_freq_* accessors.
+pub const StzWordStream = struct {
+    map: std.StringHashMap(FreqEntry),
+    order: usize,
+    cs: c_int,
+    total: u64, // running count of ALL tokens fed (with multiplicity)
+};
+pub const StzWordStreamHandle = ?*StzWordStream;
+
+pub fn str_word_stream_new(cs: c_int) callconv(.c) StzWordStreamHandle {
+    const st = gpa.create(StzWordStream) catch return null;
+    st.* = .{ .map = std.StringHashMap(FreqEntry).init(gpa), .order = 0, .cs = cs, .total = 0 };
+    return st;
+}
+
+pub fn str_word_stream_feed(handle: StzWordStreamHandle, chunk: [*c]const u8, chunk_len: usize) callconv(.c) void {
+    const st = handle orelse return;
+    if (chunk_len == 0) return;
+    const src = chunk[0..chunk_len];
+    st.total += accumulateWords(&st.map, &st.order, src, st.cs);
+}
+
+// Snapshot the current top-N (n_top<=0 = all, first-appearance order) WITHOUT
+// consuming the accumulator. Returns a StzWordFreqResult drained the usual way.
+pub fn str_word_stream_top(handle: StzWordStreamHandle, n_top: c_int) callconv(.c) StzWordFreqResultHandle {
+    const r = gpa.create(StzWordFreqResult) catch return null;
+    r.* = .{ .words = .{}, .counts = .{} };
+    const st = handle orelse return r;
+    snapshotFreq(&st.map, n_top, r);
+    return r;
+}
+
+pub fn str_word_stream_total(handle: StzWordStreamHandle) callconv(.c) i64 {
+    const st = handle orelse return 0;
+    return @intCast(st.total);
+}
+
+pub fn str_word_stream_distinct(handle: StzWordStreamHandle) callconv(.c) i64 {
+    const st = handle orelse return 0;
+    return @intCast(st.map.count());
+}
+
+pub fn str_word_stream_free(handle: StzWordStreamHandle) callconv(.c) void {
+    const st = handle orelse return;
+    var vit = st.map.valueIterator();
+    while (vit.next()) |v| gpa.free(v.rep);
+    var kit = st.map.keyIterator();
+    while (kit.next()) |k| gpa.free(k.*);
+    st.map.deinit();
+    gpa.destroy(st);
 }
 
 // Character (codepoint) frequency -- histograms, cryptanalysis, entropy. One

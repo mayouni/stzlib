@@ -395,6 +395,51 @@ fn ring_WordFreqFree(p: *anyopaque) callconv(.c) void {
     }
 }
 
+// --- Streaming word-frequency accumulator bridges ---
+fn getWordStreamHandle(p: *anyopaque, n: c_int) string.StzWordStreamHandle {
+    const ptr = R.getHandle(p, n);
+    if (ptr) |raw| {
+        const addr = @intFromPtr(raw);
+        if (addr == 0) return null;
+        return @ptrFromInt(addr);
+    }
+    return null;
+}
+
+fn ring_StringWordStreamNew(p: *anyopaque) callconv(.c) void {
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 1));
+    R.retHandle(p, @ptrCast(string.str_word_stream_new(cs)));
+}
+
+fn ring_StringWordStreamFeed(p: *anyopaque) callconv(.c) void {
+    const st = getWordStreamHandle(p, 1);
+    const chunk = ring_vm_api_getstring(p, 2);
+    const chunk_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    string.str_word_stream_feed(st, chunk, chunk_len);
+}
+
+fn ring_StringWordStreamTop(p: *anyopaque) callconv(.c) void {
+    const st = getWordStreamHandle(p, 1);
+    const nTop: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    R.retHandle(p, @ptrCast(string.str_word_stream_top(st, nTop)));
+}
+
+fn ring_StringWordStreamTotal(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_word_stream_total(getWordStreamHandle(p, 1))));
+}
+
+fn ring_StringWordStreamDistinct(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_word_stream_distinct(getWordStreamHandle(p, 1))));
+}
+
+fn ring_StringWordStreamFree(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const sh: string.StzWordStreamHandle = @ptrFromInt(@intFromPtr(ptr));
+        string.str_word_stream_free(sh);
+    }
+}
+
 fn ring_StringSplitAllCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const sep = ring_vm_api_getstring(p, 2);
@@ -3462,6 +3507,12 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtfidfkeywords", .func = &ring_StringTfidfKeywords },
     .{ .name = "stzenginestringregexextractall", .func = &ring_StringRegexExtractAll },
     .{ .name = "stzenginestringwordfreq", .func = &ring_StringWordFreq },
+    .{ .name = "stzenginestringwordstreamnew", .func = &ring_StringWordStreamNew },
+    .{ .name = "stzenginestringwordstreamfeed", .func = &ring_StringWordStreamFeed },
+    .{ .name = "stzenginestringwordstreamtop", .func = &ring_StringWordStreamTop },
+    .{ .name = "stzenginestringwordstreamtotal", .func = &ring_StringWordStreamTotal },
+    .{ .name = "stzenginestringwordstreamdistinct", .func = &ring_StringWordStreamDistinct },
+    .{ .name = "stzenginestringwordstreamfree", .func = &ring_StringWordStreamFree },
     .{ .name = "stzenginestringcharfreq", .func = &ring_StringCharFreq },
     .{ .name = "stzenginestringwordngramfreq", .func = &ring_StringWordNgramFreq },
     .{ .name = "stzenginewordfreqcount", .func = &ring_WordFreqCount },
