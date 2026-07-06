@@ -17157,6 +17157,26 @@ class stzString from stzObject
 		def FindAllRegexMatchesCS(pcPattern, pCaseSensitive)
 			return This.FindAllRegexCS(pcPattern, pCaseSensitive)
 
+	# ENGINE-DIRECT regex EXTRACTION: the matched TEXT of every match in ONE
+	# call (emails, URLs, dates, IDs, hashtags). FindAllRegex returns match
+	# POSITIONS; this returns the matched substrings themselves. Was a Ring
+	# while-loop (MatchAt + CaptureText per match).
+	def ExtractPatternCS(pcPattern, pCaseSensitive)
+		if NOT isString(pcPattern) return [] ok
+		_nExFlags_ = 0
+		if pCaseSensitive = 0 _nExFlags_ = 1 ok
+		return This._DrainStrList( StzEngineStringRegexExtractAll(@pEngine, pcPattern, _nExFlags_) )
+
+	def ExtractPattern(pcPattern)
+		return This.ExtractPatternCS(pcPattern, 1)
+
+		# Aliases matching the Find*Regex naming family.
+		def ExtractMatches(pcPattern)
+			return This.ExtractPattern(pcPattern)
+
+		def RegexMatches(pcPattern)
+			return This.ExtractPattern(pcPattern)
+
 	  #========================================#
 	 #     COUNTER DELEGATIONS                #
 	#========================================#

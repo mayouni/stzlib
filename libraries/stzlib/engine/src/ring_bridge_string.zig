@@ -291,6 +291,14 @@ fn ring_StringReplaceManyCS(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_many_cs(h, olds, olds_len, news, news_len, cs)), STZ_HANDLE);
 }
 
+fn ring_StringRegexExtractAll(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pat = ring_vm_api_getstring(p, 2);
+    const pat_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const flags: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    R.retHandle(p, @ptrCast(string.str_regex_extract_all(h, pat, pat_len, flags)));
+}
+
 fn ring_StringTfidfKeywords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const nTop: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -3434,6 +3442,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsentencestat", .func = &ring_StringSentenceStat },
     .{ .name = "stzenginestringeditcluster", .func = &ring_StringEditCluster },
     .{ .name = "stzenginestringtfidfkeywords", .func = &ring_StringTfidfKeywords },
+    .{ .name = "stzenginestringregexextractall", .func = &ring_StringRegexExtractAll },
     .{ .name = "stzenginestringwordfreq", .func = &ring_StringWordFreq },
     .{ .name = "stzenginestringcharfreq", .func = &ring_StringCharFreq },
     .{ .name = "stzenginestringwordngramfreq", .func = &ring_StringWordNgramFreq },
