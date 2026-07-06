@@ -1064,6 +1064,94 @@ pub fn str_edit_cluster(handle: StzStringHandle, threshold: c_int, cs: c_int) ca
     return r;
 }
 
+// ─── TF-IDF keyword extraction across a document corpus ───
+//
+// Input: documents NUL-packed into one buffer. For each document, rank its
+// terms by TF-IDF = tf(term,doc) * ln(Ndocs / df(term)) and emit the top-N
+// keywords. Output packing: documents separated by 0x01, keywords within a
+// document by NUL. Keyword extraction, search relevance, doc summarization,
+// tag suggestion. cs=0 folds the whole corpus once (keywords come out folded).
+const TfidfEntry = struct { term: []const u8, score: f64 };
+fn tfidfLess(_: void, a: TfidfEntry, b: TfidfEntry) bool {
+    return a.score > b.score; // higher score first
+}
+
+pub fn str_tfidf_keywords(handle: StzStringHandle, n_top: c_int, cs: c_int) callconv(.c) StzStringHandle {
+    const result = str_new() orelse return null;
+    const s = (handle orelse return result);
+    const raw = s.slice();
+    if (raw.len == 0) return result;
+    const folded: ?[]u8 = if (cs == 0) casefoldAlloc(raw) else null;
+    defer if (folded) |f| gpa.free(f);
+    const work: []const u8 = if (folded) |f| f else raw; // NUL folds to NUL -> doc boundaries preserved
+
+    var docs: std.ArrayList([]const u8) = .{};
+    defer docs.deinit(gpa);
+    splitNulLocal(work, &docs);
+    const ND = docs.items.len;
+    if (ND == 0) return result;
+
+    // Pass 1: document frequency df[term] = # docs containing term. Keys are
+    // views into `work` (stable for the whole call), so no key ownership.
+    var df = std.StringHashMap(f64).init(gpa);
+    defer df.deinit();
+    for (docs.items) |doc| {
+        var seen = std.StringHashMap(void).init(gpa);
+        defer seen.deinit();
+        var pos: usize = 0;
+        while (pos < doc.len) {
+            while (pos < doc.len and !isWordByte(doc[pos])) pos += 1;
+            if (pos >= doc.len) break;
+            const start = pos;
+            while (pos < doc.len and (isWordByte(doc[pos]) or doc[pos] == '\'')) pos += 1;
+            const term = doc[start..pos];
+            if (!seen.contains(term)) {
+                seen.put(term, {}) catch {};
+                const gop = df.getOrPut(term) catch continue;
+                if (!gop.found_existing) gop.value_ptr.* = 0;
+                gop.value_ptr.* += 1;
+            }
+        }
+    }
+
+    const NDf: f64 = @floatFromInt(ND);
+    const keep_n: usize = if (n_top <= 0) std.math.maxInt(usize) else @intCast(n_top);
+    // Pass 2: per document, TF-IDF, rank, emit.
+    for (docs.items, 0..) |doc, di| {
+        var tf = std.StringHashMap(f64).init(gpa);
+        defer tf.deinit();
+        var pos: usize = 0;
+        while (pos < doc.len) {
+            while (pos < doc.len and !isWordByte(doc[pos])) pos += 1;
+            if (pos >= doc.len) break;
+            const start = pos;
+            while (pos < doc.len and (isWordByte(doc[pos]) or doc[pos] == '\'')) pos += 1;
+            const term = doc[start..pos];
+            const gop = tf.getOrPut(term) catch continue;
+            if (!gop.found_existing) gop.value_ptr.* = 0;
+            gop.value_ptr.* += 1;
+        }
+        var entries: std.ArrayList(TfidfEntry) = .{};
+        defer entries.deinit(gpa);
+        var it = tf.iterator();
+        while (it.next()) |kv| {
+            const dfv = df.get(kv.key_ptr.*) orelse 1;
+            const idf = @log(NDf / dfv);
+            entries.append(gpa, .{ .term = kv.key_ptr.*, .score = kv.value_ptr.* * idf }) catch {};
+        }
+        std.sort.pdq(TfidfEntry, entries.items, {}, tfidfLess);
+        const keep = @min(keep_n, entries.items.len);
+
+        if (di > 0) result.data.append(gpa, 0x01) catch {}; // doc separator
+        var j: usize = 0;
+        while (j < keep) : (j += 1) {
+            if (j > 0) result.data.append(gpa, 0) catch {}; // keyword separator (NUL)
+            result.data.appendSlice(gpa, entries.items[j].term) catch {};
+        }
+    }
+    return result;
+}
+
 // Sentence-length extremes (readability stats). Sentence = text up to each
 // .!? terminator (matching str_count_sentences). mode 0 = max words in any
 // sentence, 1 = min words over NON-empty sentences. One pass. Multibyte words
