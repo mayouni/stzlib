@@ -122,22 +122,30 @@ pub fn str_byte_to_cp(handle: StzStringHandle, byte_pos: usize) callconv(.c) i64
 
 // ─── Count Of ───
 
+// Non-overlapping occurrence count. Search step uses std.mem.indexOfPos
+// (SIMD memchr for the first byte, then verify) instead of a byte-by-byte
+// mem.eql loop -- memchr-class speed, matching what CPython's str.count does.
+fn countNonOverlapBytes(hay: []const u8, n: []const u8) c_int {
+    if (n.len == 0 or n.len > hay.len) return 0;
+    // Single-byte needle: a plain equality-count loop auto-vectorizes to
+    // SIMD (LLVM), which is optimal for dense matches where memchr can't
+    // skip. This is the common case (counting a char).
+    if (n.len == 1) {
+        const target = n[0];
+        var count: usize = 0;
+        for (hay) |b| {
+            if (b == target) count += 1;
+        }
+        return @intCast(count);
+    }
+    // Multi-byte: std.mem.count (optimized non-overlapping count).
+    return @intCast(std.mem.count(u8, hay, n));
+}
+
 pub fn str_count_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
     if (handle) |s| {
         if (needle == null or needle_len == 0) return 0;
-        const hay = s.slice();
-        const n = needle[0..needle_len];
-        var count: c_int = 0;
-        var pos: usize = 0;
-        while (pos + n.len <= hay.len) {
-            if (mem.eql(u8, hay[pos..][0..n.len], n)) {
-                count += 1;
-                pos += n.len;
-            } else {
-                pos += 1;
-            }
-        }
-        return count;
+        return countNonOverlapBytes(s.slice(), needle[0..needle_len]);
     }
     return 0;
 }
@@ -153,17 +161,7 @@ pub fn str_count_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len
             defer gpa.free(hay_folded);
             const n_folded = casefoldAlloc(n) orelse return 0;
             defer gpa.free(n_folded);
-            var count: c_int = 0;
-            var pos: usize = 0;
-            while (pos + n_folded.len <= hay_folded.len) {
-                if (mem.eql(u8, hay_folded[pos..][0..n_folded.len], n_folded)) {
-                    count += 1;
-                    pos += n_folded.len;
-                } else {
-                    pos += 1;
-                }
-            }
-            return count;
+            return countNonOverlapBytes(hay_folded, n_folded);
         } else {
             return str_count_of(handle, needle, needle_len);
         }
@@ -200,16 +198,25 @@ pub fn str_find_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: us
                 cp_pos += 1;
             }
         } else {
-            // Case-sensitive: direct comparison
-            var byte_pos: usize = 0;
-            var cp_pos: usize = 0;
-            while (byte_pos + n.len <= hay.len) {
-                if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
-                    r.positions.append(gpa, toExternal(cp_pos)) catch break;
+            // Case-sensitive: memchr-class search (std.mem.indexOfPos does a
+            // vectorized first-byte scan + verify) instead of byte-by-byte
+            // mem.eql. Advance ONE codepoint after each hit to preserve
+            // OVERLAPPING matches; positions stay codepoint-correct via
+            // incremental counting (byte == cp on ASCII, so skip counting).
+            const ascii = s.isAscii();
+            var from: usize = 0;
+            var last_byte: usize = 0;
+            var cp_at_last: usize = 0;
+            while (std.mem.indexOfPos(u8, hay, from, n)) |bpos| {
+                var cp: usize = bpos;
+                if (!ascii) {
+                    cp_at_last += utf8CodepointCount(hay[last_byte..bpos]);
+                    last_byte = bpos;
+                    cp = cp_at_last;
                 }
-                const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
-                byte_pos += cp_len;
-                cp_pos += 1;
+                r.positions.append(gpa, toExternal(cp)) catch break;
+                const step = std.unicode.utf8ByteSequenceLength(hay[bpos]) catch 1;
+                from = bpos + step;
             }
         }
     }
