@@ -960,6 +960,56 @@ pub fn str_word_ngram_freq(handle: StzStringHandle, n_gram: c_int, cs: c_int, n_
     return r;
 }
 
+// Cosine similarity of two documents' word-frequency (bag-of-words) vectors.
+// 1.0 = identical term distribution, 0.0 = no shared terms. Plagiarism / near-
+// duplicate / clustering / "find similar". One pass each; cs=0 folds. Term
+// vectors are TF; for corpus TF-IDF weighting see str_tfidf_keywords.
+fn tokenCounts(work: []const u8, map: *std.StringHashMap(f64)) void {
+    var pos: usize = 0;
+    while (pos < work.len) {
+        while (pos < work.len and !isWordByte(work[pos])) pos += 1;
+        if (pos >= work.len) break;
+        const start = pos;
+        while (pos < work.len and (isWordByte(work[pos]) or work[pos] == '\'')) pos += 1;
+        const gop = map.getOrPut(work[start..pos]) catch continue;
+        if (!gop.found_existing) gop.value_ptr.* = 0;
+        gop.value_ptr.* += 1;
+    }
+}
+
+pub fn str_cosine_similarity(handle: StzStringHandle, other: [*c]const u8, other_len: usize, cs: c_int) callconv(.c) f64 {
+    const s = (handle orelse return 0);
+    const a_raw = s.slice();
+    const b_raw = if (other == null) &[_]u8{} else other[0..other_len];
+    const fa: ?[]u8 = if (cs == 0) casefoldAlloc(a_raw) else null;
+    defer if (fa) |f| gpa.free(f);
+    const fb: ?[]u8 = if (cs == 0) casefoldAlloc(b_raw) else null;
+    defer if (fb) |f| gpa.free(f);
+    const wa: []const u8 = if (fa) |f| f else a_raw;
+    const wb: []const u8 = if (fb) |f| f else b_raw;
+
+    var ta = std.StringHashMap(f64).init(gpa);
+    defer ta.deinit();
+    var tb = std.StringHashMap(f64).init(gpa);
+    defer tb.deinit();
+    tokenCounts(wa, &ta);
+    tokenCounts(wb, &tb);
+
+    var dot: f64 = 0;
+    var na: f64 = 0;
+    var it = ta.iterator();
+    while (it.next()) |kv| {
+        const v = kv.value_ptr.*;
+        na += v * v;
+        if (tb.get(kv.key_ptr.*)) |bv| dot += v * bv;
+    }
+    var nb: f64 = 0;
+    var itb = tb.valueIterator();
+    while (itb.next()) |vp| nb += vp.* * vp.*;
+    if (na == 0 or nb == 0) return 0;
+    return dot / (@sqrt(na) * @sqrt(nb));
+}
+
 // ─── Collocations via PMI (statistically significant word pairs) ───
 //
 // Pointwise Mutual Information ranks adjacent word pairs: PMI(w1,w2) =
