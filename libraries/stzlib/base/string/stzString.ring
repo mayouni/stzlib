@@ -19071,6 +19071,21 @@ class stzString from stzObject
 	def MostSignificantCollocations(nTop)
 		return This.CollocationsCS(1, nTop, 1)
 
+	# --- Cosine similarity (document similarity) ---
+	# Bag-of-words cosine between this text and another: 1.0 = same term
+	# distribution, 0.0 = nothing shared. Plagiarism, near-duplicate, "find
+	# similar". (For corpus TF-IDF weighting see StzTFIDFKeywords.)
+	def CosineSimilarityWithCS(pcOther, pCaseSensitive)
+		if NOT isString(pcOther) return 0 ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return StzEngineStringCosineSimilarity(@pEngine, pcOther, _bCase_)
+
+	def CosineSimilarityWith(pcOther)
+		return This.CosineSimilarityWithCS(pcOther, 1)
+
+		def SimilarityWith(pcOther)
+			return This.CosineSimilarityWith(pcOther)
+
 	# --- Sentence segmentation stats (readability) ---
 	# Sentence = text up to each . ! ? terminator. All engine-direct, no
 	# materialization: averages come from cached engine counts; the extremes

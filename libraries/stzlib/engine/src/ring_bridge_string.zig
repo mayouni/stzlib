@@ -306,6 +306,14 @@ fn ring_StringTfidfKeywords(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_tfidf_keywords(h, nTop, cs)), STZ_HANDLE);
 }
 
+fn ring_StringCosineSimilarity(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const other = ring_vm_api_getstring(p, 2);
+    const olen: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, string.str_cosine_similarity(h, other, olen, cs));
+}
+
 fn ring_StringCollocations(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const minc: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -3449,6 +3457,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringnumbersagg", .func = &ring_StringNumbersAgg },
     .{ .name = "stzenginestringsentencestat", .func = &ring_StringSentenceStat },
     .{ .name = "stzenginestringcollocations", .func = &ring_StringCollocations },
+    .{ .name = "stzenginestringcosinesimilarity", .func = &ring_StringCosineSimilarity },
     .{ .name = "stzenginestringeditcluster", .func = &ring_StringEditCluster },
     .{ .name = "stzenginestringtfidfkeywords", .func = &ring_StringTfidfKeywords },
     .{ .name = "stzenginestringregexextractall", .func = &ring_StringRegexExtractAll },

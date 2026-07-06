@@ -115,6 +115,7 @@ pub const str_numbers_agg = nlp.str_numbers_agg;
 pub const str_sentence_stat = nlp.str_sentence_stat;
 pub const str_edit_cluster = nlp.str_edit_cluster;
 pub const str_collocations = nlp.str_collocations;
+pub const str_cosine_similarity = nlp.str_cosine_similarity;
 pub const str_tfidf_keywords = nlp.str_tfidf_keywords;
 pub const stz_word_freq_count = nlp.stz_word_freq_count;
 pub const stz_word_freq_word = nlp.stz_word_freq_word;
