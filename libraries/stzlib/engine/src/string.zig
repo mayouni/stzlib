@@ -98,6 +98,11 @@ pub const str_locale_compare = locale.str_locale_compare;
 const textstats = @import("string/textstats.zig");
 const fuzzy = @import("string/fuzzy.zig");
 const phonetics = @import("string/phonetics.zig");
+const stem = @import("string/stem.zig");
+
+pub const str_stem_word = stem.str_stem_word;
+pub const str_stem_words = stem.str_stem_words;
+pub const str_stem_text = stem.str_stem_text;
 
 pub const str_levenshtein = fuzzy.str_levenshtein;
 pub const str_hamming_distance = fuzzy.str_hamming_distance;
@@ -603,6 +608,7 @@ test {
     _ = textstats;
     _ = fuzzy;
     _ = phonetics;
+    _ = stem;
     _ = split;
     _ = find;
     _ = replace;

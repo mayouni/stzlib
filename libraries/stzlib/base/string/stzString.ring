@@ -4348,6 +4348,28 @@ class stzString from stzObject
 		def HowManyWords()
 			return This.NumberOfWords()
 
+	# --- Stemming (Snowball English) ---
+	# Reduce inflected words to their stem ("running"->"run") for search /
+	# matching / dedup. Stemmed() stems each word in place (separators kept);
+	# StemmedWords() returns the list of stems.
+	def Stemmed()
+		_pStem_ = StzEngineStringStemmed(@pEngine)
+		_cStem_ = StzEngineStringData(_pStem_)
+		StzEngineStringFree(_pStem_)
+		return _cStem_
+
+		def Stem()
+			return This.Stemmed()
+
+	def StemmedWords()
+		_pStemW_ = StzEngineStringStemWords(@pEngine)
+		_cStemJoined_ = StzEngineStringData(_pStemW_)
+		StzEngineStringFree(_pStemW_)
+		return _SplitNullDelimited(_cStemJoined_)
+
+		def WordsStemmed()
+			return This.StemmedWords()
+
 	  #============================================#
 	 #     SPLIT                                  #
 	#============================================#

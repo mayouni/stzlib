@@ -6,6 +6,7 @@ const Domain = struct {
     entry: []const u8,
     needs_utf8proc: bool = false,
     needs_pcre2: bool = false,
+    needs_snowball: bool = false,
     needs_ring: bool = false,
     needs_sqlite: bool = false,
     needs_libuv: bool = false,
@@ -14,7 +15,7 @@ const Domain = struct {
 
 // Core (stk_*): minimal, fast, constrained environments
 const core_domains = [_]Domain{
-    .{ .name = "stk_string", .entry = "src/stk_string_entry.zig", .needs_utf8proc = true, .needs_pcre2 = true, .needs_ring = true },
+    .{ .name = "stk_string", .entry = "src/stk_string_entry.zig", .needs_utf8proc = true, .needs_pcre2 = true, .needs_snowball = true, .needs_ring = true },
     .{ .name = "stk_datetime", .entry = "src/stk_datetime_entry.zig", .needs_ring = true },
     .{ .name = "stk_file", .entry = "src/stk_file_entry.zig", .needs_ring = true },
     .{ .name = "stk_locale", .entry = "src/stk_locale_entry.zig", .needs_ring = true },
@@ -22,7 +23,7 @@ const core_domains = [_]Domain{
 
 // Base (stz_*): full features, superset of Core
 const base_domains = [_]Domain{
-    .{ .name = "stz_string", .entry = "src/stz_string_entry.zig", .needs_utf8proc = true, .needs_pcre2 = true, .needs_ring = true },
+    .{ .name = "stz_string", .entry = "src/stz_string_entry.zig", .needs_utf8proc = true, .needs_pcre2 = true, .needs_snowball = true, .needs_ring = true },
     .{ .name = "stz_datetime", .entry = "src/stz_datetime_entry.zig", .needs_ring = true },
     .{ .name = "stz_file", .entry = "src/stz_file_entry.zig", .needs_ring = true },
     .{ .name = "stz_locale", .entry = "src/stz_locale_entry.zig", .needs_ring = true },
@@ -102,6 +103,19 @@ fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Bui
     lib.addCSourceFiles(.{
         .files = &.{"vendor/utf8proc/utf8proc.c"},
         .flags = &.{"-DUTF8PROC_STATIC"},
+    });
+}
+
+// Snowball stemmer (libstemmer) -- English UTF-8 only, minimal footprint.
+fn addSnowball(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/snowball/runtime"));
+    mod.addIncludePath(b.path("vendor/snowball/src_c"));
+    lib.addCSourceFiles(.{
+        .files = &.{
+            "vendor/snowball/runtime/api.c",
+            "vendor/snowball/runtime/utilities.c",
+            "vendor/snowball/src_c/stem_UTF_8_english.c",
+        },
     });
 }
 
@@ -502,6 +516,7 @@ pub fn build(b: *std.Build) void {
         });
         if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
         if (dom.needs_pcre2) addPcre2(mod, lib, b);
+        if (dom.needs_snowball) addSnowball(mod, lib, b);
         if (dom.needs_ring) addRing(b, mod, lib, ring_dir);
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
         b.installArtifact(lib);
@@ -523,6 +538,7 @@ pub fn build(b: *std.Build) void {
         });
         if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
         if (dom.needs_pcre2) addPcre2(mod, lib, b);
+        if (dom.needs_snowball) addSnowball(mod, lib, b);
         if (dom.needs_ring) addRing(b, mod, lib, ring_dir);
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
         if (dom.needs_libuv) addLibuv(mod, lib, b, target.result.os.tag);
@@ -545,6 +561,7 @@ pub fn build(b: *std.Build) void {
     });
     addUtf8proc(static_mod, static_lib, b);
     addPcre2(static_mod, static_lib, b);
+    addSnowball(static_mod, static_lib, b);
     addSqlite(static_mod, static_lib, b);
     b.installArtifact(static_lib);
 
@@ -559,6 +576,7 @@ pub fn build(b: *std.Build) void {
     const tests = b.addTest(.{ .root_module = test_mod });
     addUtf8proc(test_mod, tests, b);
     addPcre2(test_mod, tests, b);
+    addSnowball(test_mod, tests, b);
     addSqlite(test_mod, tests, b);
     const run_tests = b.addRunArtifact(tests);
     const test_step = b.step("test", "Run Softanza Engine tests");
