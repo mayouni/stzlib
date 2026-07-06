@@ -714,8 +714,23 @@ pub fn str_word_freq(handle: StzStringHandle, cs: c_int, n_top: c_int) callconv(
 // value.rep is an owned copy of the ORIGINAL first-seen bytes. *order advances
 // per newly-seen key. Returns the number of tokens seen. Shared by str_word_freq
 // (one-shot) and the streaming accumulator so both tokenize identically.
+// If `word` is pure ASCII, lowercase it into `buf` and return that slice
+// (ASCII casefold == ASCII lowercase). Returns null if any byte is >= 0x80
+// (needs full Unicode casefold) or the word doesn't fit the buffer.
+fn asciiFoldInto(word: []const u8, buf: []u8) ?[]u8 {
+    if (word.len > buf.len) return null;
+    var i: usize = 0;
+    while (i < word.len) : (i += 1) {
+        const ch = word[i];
+        if (ch >= 0x80) return null;
+        buf[i] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+    }
+    return buf[0..word.len];
+}
+
 fn accumulateWords(map: *std.StringHashMap(FreqEntry), order: *usize, src: []const u8, cs: c_int) u64 {
     var total: u64 = 0;
+    var foldbuf: [256]u8 = undefined;
     var pos: usize = 0;
     while (pos < src.len) {
         while (pos < src.len and !isWordByte(src[pos])) pos += 1;
@@ -725,32 +740,47 @@ fn accumulateWords(map: *std.StringHashMap(FreqEntry), order: *usize, src: []con
         const word = src[start_off..pos];
         total += 1;
 
-        // The map key: casefolded copy (cs=0) or a raw copy (cs=1).
-        const key: []u8 = if (cs == 0)
-            (casefoldAlloc(word) orelse continue)
-        else blk: {
-            const k = gpa.alloc(u8, word.len) catch continue;
-            @memcpy(k, word);
-            break :blk k;
+        // Build a PROBE key without allocating in the common case. cs=1 -> raw
+        // word; cs=0 ASCII -> reused stack buffer; cs=0 non-ASCII -> owned fold.
+        var probe: []const u8 = word;
+        var fold_owned: ?[]u8 = null;
+        if (cs == 0) {
+            if (asciiFoldInto(word, &foldbuf)) |f| {
+                probe = f;
+            } else if (casefoldAlloc(word)) |f| {
+                probe = f;
+                fold_owned = f;
+            }
+        }
+
+        // Probe first: an EXISTING word just bumps its count -- zero allocation.
+        // This is the hot path (Zipf-distributed text hits the same keys again
+        // and again), so it must not touch the allocator.
+        if (map.getPtr(probe)) |vp| {
+            vp.count += 1;
+            if (fold_owned) |f| gpa.free(f);
+            continue;
+        }
+
+        // New word: own the key (a copy of the fold) and the rep (the ORIGINAL
+        // first-seen bytes).
+        const key = gpa.alloc(u8, probe.len) catch {
+            if (fold_owned) |f| gpa.free(f);
+            continue;
         };
-        const gop = map.getOrPut(key) catch {
+        @memcpy(key, probe);
+        if (fold_owned) |f| gpa.free(f);
+        const rep = gpa.alloc(u8, word.len) catch {
             gpa.free(key);
             continue;
         };
-        if (gop.found_existing) {
-            gpa.free(key); // key already stored
-            gop.value_ptr.count += 1;
-        } else {
-            // first sighting: keep an owned copy of the ORIGINAL word as rep
-            const rep = gpa.alloc(u8, word.len) catch {
-                _ = map.remove(key);
-                gpa.free(key);
-                continue;
-            };
-            @memcpy(rep, word);
-            gop.value_ptr.* = .{ .rep = rep, .count = 1, .order = order.* };
-            order.* += 1;
-        }
+        @memcpy(rep, word);
+        map.put(key, .{ .rep = rep, .count = 1, .order = order.* }) catch {
+            gpa.free(key);
+            gpa.free(rep);
+            continue;
+        };
+        order.* += 1;
     }
     return total;
 }
