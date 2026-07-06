@@ -2120,6 +2120,28 @@ class stzString from stzObject
 		def NumbersQ()
 			return new stzList( This.Numbers() )
 
+	# --- Numeric aggregates (engine-direct, ONE pass, no materialization) ---
+	# Data extraction: total amounts in an invoice/log, averages, ranges. A
+	# number = optional '-', digits, one optional '.' with more digits.
+
+	def SumOfNumbers()
+		return StzEngineStringNumbersAgg(@pEngine, 0)
+
+	def CountNumbers()
+		return StzEngineStringNumbersAgg(@pEngine, 1)
+
+	def MinNumber()
+		return StzEngineStringNumbersAgg(@pEngine, 2)
+
+	def MaxNumber()
+		return StzEngineStringNumbersAgg(@pEngine, 3)
+
+	def AverageOfNumbers()
+		return StzEngineStringNumbersAgg(@pEngine, 4)
+
+		def MeanOfNumbers()
+			return This.AverageOfNumbers()
+
 		def FindFirstOccurrence(pcSubStr)
 			return This.FindFirst(pcSubStr)
 
