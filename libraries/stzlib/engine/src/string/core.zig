@@ -325,6 +325,21 @@ pub fn str_insert(handle: StzStringHandle, byte_pos: usize, utf8: [*c]const u8, 
 
 // ─── Shared Helpers ───
 
+// Split a NUL-packed buffer into slices (views into `buf`), including a final
+// possibly-empty segment. Shared by the corpus/list FFI paths (edit clustering,
+// TF-IDF) that pass a Ring string-list as one NUL-delimited engine string.
+pub fn splitNul(buf: []const u8, out: *std.ArrayList([]const u8)) void {
+    var start: usize = 0;
+    var i: usize = 0;
+    while (i < buf.len) : (i += 1) {
+        if (buf[i] == 0) {
+            out.append(gpa, buf[start..i]) catch {};
+            start = i + 1;
+        }
+    }
+    out.append(gpa, buf[start..]) catch {};
+}
+
 pub fn casefoldAlloc(input: []const u8) ?[]u8 {
     if (input.len == 0) return null;
     var out_len: usize = 0;
