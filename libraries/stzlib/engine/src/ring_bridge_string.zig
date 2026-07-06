@@ -306,6 +306,14 @@ fn ring_StringTfidfKeywords(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_tfidf_keywords(h, nTop, cs)), STZ_HANDLE);
 }
 
+fn ring_StringCollocations(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const minc: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const top: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    R.retHandle(p, @ptrCast(string.str_collocations(h, minc, top, cs)));
+}
+
 fn ring_StringEditCluster(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const thr: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -3440,6 +3448,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcountwordcs", .func = &ring_StringCountWordCS },
     .{ .name = "stzenginestringnumbersagg", .func = &ring_StringNumbersAgg },
     .{ .name = "stzenginestringsentencestat", .func = &ring_StringSentenceStat },
+    .{ .name = "stzenginestringcollocations", .func = &ring_StringCollocations },
     .{ .name = "stzenginestringeditcluster", .func = &ring_StringEditCluster },
     .{ .name = "stzenginestringtfidfkeywords", .func = &ring_StringTfidfKeywords },
     .{ .name = "stzenginestringregexextractall", .func = &ring_StringRegexExtractAll },
