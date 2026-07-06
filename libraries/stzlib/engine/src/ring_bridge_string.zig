@@ -269,6 +269,49 @@ fn ring_StringWindowsUptoHalf(p: *anyopaque) callconv(.c) void {
     R.retHandle(p, @ptrCast(string.str_windows_upto_half(h)));
 }
 
+// ─── Word frequency (one-pass ranked table) ───
+
+fn getWordFreqHandle(p: *anyopaque, n: c_int) string.StzWordFreqResultHandle {
+    const ptr = R.getHandle(p, n);
+    if (ptr) |raw| {
+        const addr = @intFromPtr(raw);
+        if (addr == 0) return null;
+        return @ptrFromInt(addr);
+    }
+    return null;
+}
+
+fn ring_StringWordFreq(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const nTop: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    R.retHandle(p, @ptrCast(string.str_word_freq(h, cs, nTop)));
+}
+
+fn ring_WordFreqCount(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_word_freq_count(getWordFreqHandle(p, 1))));
+}
+
+fn ring_WordFreqWord(p: *anyopaque) callconv(.c) void {
+    const h = getWordFreqHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    R.retHandle(p, @ptrCast(string.stz_word_freq_word(h, idx)));
+}
+
+fn ring_WordFreqNum(p: *anyopaque) callconv(.c) void {
+    const h = getWordFreqHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_word_freq_num(h, idx)));
+}
+
+fn ring_WordFreqFree(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const wh: string.StzWordFreqResultHandle = @ptrFromInt(@intFromPtr(ptr));
+        string.stz_word_freq_free(wh);
+    }
+}
+
 fn ring_StringSplitAllCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const sep = ring_vm_api_getstring(p, 2);
@@ -3326,6 +3369,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringconsecutivesubstrings", .func = &ring_StringConsecutiveSubStrings },
     .{ .name = "stzenginestringwindowsuptohalf", .func = &ring_StringWindowsUptoHalf },
     .{ .name = "stzenginestringsplitallcs", .func = &ring_StringSplitAllCS },
+    .{ .name = "stzenginestringwordfreq", .func = &ring_StringWordFreq },
+    .{ .name = "stzenginewordfreqcount", .func = &ring_WordFreqCount },
+    .{ .name = "stzenginewordfreqword", .func = &ring_WordFreqWord },
+    .{ .name = "stzenginewordfreqnum", .func = &ring_WordFreqNum },
+    .{ .name = "stzenginewordfreqfree", .func = &ring_WordFreqFree },
     .{ .name = "stzenginestringfinddupsecutivecharscs", .func = &ring_StringFindDupSecutiveChars },
     .{ .name = "stzenginestringfinddupsecutivesubstringcs", .func = &ring_StringFindDupSecutiveSubString },
     .{ .name = "stzenginestrlistcount", .func = &ring_StrListCount },
