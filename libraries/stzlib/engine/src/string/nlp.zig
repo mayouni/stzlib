@@ -884,6 +884,62 @@ pub fn str_count_word_cs(handle: StzStringHandle, word: [*c]const u8, word_len: 
     return count;
 }
 
+// One-pass numeric aggregate over the numbers embedded in text (invoices,
+// logs, totals, data extraction). A number token = optional '-', digits, one
+// optional '.' with more digits -- matching Numbers(). Parses each to f64 and
+// returns the requested aggregate WITHOUT materializing a number list.
+//   mode 0=sum  1=count  2=min  3=max  4=mean
+pub fn str_numbers_agg(handle: StzStringHandle, mode: c_int) callconv(.c) f64 {
+    const s = (handle orelse return 0);
+    const src = s.slice();
+    var count: usize = 0;
+    var sum: f64 = 0;
+    var vmin: f64 = 0;
+    var vmax: f64 = 0;
+    var pos: usize = 0;
+    while (pos < src.len) {
+        const c = src[pos];
+        const digit_next = pos + 1 < src.len and src[pos + 1] >= '0' and src[pos + 1] <= '9';
+        const is_start = (c >= '0' and c <= '9') or (c == '-' and digit_next);
+        if (!is_start) {
+            pos += 1;
+            continue;
+        }
+        const start = pos;
+        if (src[pos] == '-') pos += 1;
+        var seen_dot = false;
+        while (pos < src.len) {
+            const d = src[pos];
+            if (d >= '0' and d <= '9') {
+                pos += 1;
+            } else if (d == '.' and !seen_dot) {
+                seen_dot = true;
+                pos += 1;
+            } else break;
+        }
+        var tok = src[start..pos];
+        if (tok.len > 0 and tok[tok.len - 1] == '.') tok = tok[0 .. tok.len - 1]; // "5." -> "5"
+        const v = std.fmt.parseFloat(f64, tok) catch continue;
+        count += 1;
+        sum += v;
+        if (count == 1) {
+            vmin = v;
+            vmax = v;
+        } else {
+            if (v < vmin) vmin = v;
+            if (v > vmax) vmax = v;
+        }
+    }
+    return switch (mode) {
+        0 => sum,
+        1 => @floatFromInt(count),
+        2 => if (count == 0) 0 else vmin,
+        3 => if (count == 0) 0 else vmax,
+        4 => if (count == 0) 0 else sum / @as(f64, @floatFromInt(count)),
+        else => 0,
+    };
+}
+
 // ─── Linguistic Transforms ───
 
 /// Simple English pluralization.
