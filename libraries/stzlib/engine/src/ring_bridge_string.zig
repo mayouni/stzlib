@@ -281,6 +281,16 @@ fn getWordFreqHandle(p: *anyopaque, n: c_int) string.StzWordFreqResultHandle {
     return null;
 }
 
+fn ring_StringReplaceManyCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const olds = ring_vm_api_getstring(p, 2);
+    const olds_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const news = ring_vm_api_getstring(p, 3);
+    const news_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_many_cs(h, olds, olds_len, news, news_len, cs)), STZ_HANDLE);
+}
+
 fn ring_StringWordFreq(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cs: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -3369,6 +3379,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringconsecutivesubstrings", .func = &ring_StringConsecutiveSubStrings },
     .{ .name = "stzenginestringwindowsuptohalf", .func = &ring_StringWindowsUptoHalf },
     .{ .name = "stzenginestringsplitallcs", .func = &ring_StringSplitAllCS },
+    .{ .name = "stzenginestringreplacemanycs", .func = &ring_StringReplaceManyCS },
     .{ .name = "stzenginestringwordfreq", .func = &ring_StringWordFreq },
     .{ .name = "stzenginewordfreqcount", .func = &ring_WordFreqCount },
     .{ .name = "stzenginewordfreqword", .func = &ring_WordFreqWord },

@@ -221,6 +221,7 @@ const replace = @import("string/replace.zig");
 pub const str_replace_range = replace.str_replace_range;
 pub const str_replace_cs = replace.str_replace_cs;
 pub const str_replace = replace.str_replace;
+pub const str_replace_many_cs = replace.str_replace_many_cs;
 pub const str_replace_first_cs = replace.str_replace_first_cs;
 pub const str_replace_first = replace.str_replace_first;
 pub const str_replace_last_cs = replace.str_replace_last_cs;

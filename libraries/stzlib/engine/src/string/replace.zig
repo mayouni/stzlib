@@ -170,6 +170,87 @@ pub fn str_replace(handle: StzStringHandle, old: [*c]const u8, old_len: usize, n
     str_replace_cs(handle, old, old_len, new, new_len, 1);
 }
 
+// Split a NUL-delimited packed buffer into slices (views into buf). A trailing
+// empty segment is dropped; interior empties are kept (rare for patterns).
+fn splitNulInto(buf: []const u8, out: *std.ArrayList([]const u8)) void {
+    var start: usize = 0;
+    var i: usize = 0;
+    while (i < buf.len) : (i += 1) {
+        if (buf[i] == 0) {
+            out.append(gpa, buf[start..i]) catch {};
+            start = i + 1;
+        }
+    }
+    if (start < buf.len) out.append(gpa, buf[start..]) catch {};
+}
+
+// One-pass DICTIONARY replace: olds/news are NUL-delimited packed lists (old[k]
+// -> new[k]). Scans the source ONCE; at each position the FIRST matching old
+// (in list order) wins, emits its new, and advances past it -- so a
+// replacement's output is NEVER re-scanned (no cascade, unlike N sequential
+// Replace passes). Returns a NEW string handle. cs=0 uses ASCII-case-folded
+// matching. Patterns must not contain NUL (the packing delimiter).
+pub fn str_replace_many_cs(handle: StzStringHandle, olds_p: [*c]const u8, olds_len: usize, news_p: [*c]const u8, news_len: usize, cs: c_int) callconv(.c) StzStringHandle {
+    const s = (handle orelse return str_new());
+    const src = s.slice();
+    const r = str_new() orelse return null;
+    if (olds_p == null or olds_len == 0) {
+        r.data.appendSlice(gpa, src) catch {};
+        return r;
+    }
+    var olds: std.ArrayList([]const u8) = .{};
+    defer olds.deinit(gpa);
+    var news: std.ArrayList([]const u8) = .{};
+    defer news.deinit(gpa);
+    splitNulInto(olds_p[0..olds_len], &olds);
+    if (news_p != null and news_len > 0) splitNulInto(news_p[0..news_len], &news);
+
+    // First-byte bucket index: bucket[b] = the pattern indices whose old starts
+    // with byte b, IN LIST ORDER. At each source position we only test the
+    // patterns in bucket[src[pos]] instead of ALL patterns -> O(L) rather than
+    // O(L x K). Two patterns can only collide at a position if they share that
+    // first byte, so first-in-list semantics is preserved within the bucket.
+    // For cs=0 a pattern is also filed under the opposite ASCII case of its
+    // first byte so it still matches case-insensitively.
+    var buckets: [256]std.ArrayList(usize) = undefined;
+    for (&buckets) |*b| b.* = .{};
+    defer for (&buckets) |*b| b.deinit(gpa);
+    for (olds.items, 0..) |old, k| {
+        if (old.len == 0) continue;
+        const fb = old[0];
+        buckets[fb].append(gpa, k) catch {};
+        if (cs == 0) {
+            const alt: ?u8 = if (fb >= 'a' and fb <= 'z') fb - 32 else if (fb >= 'A' and fb <= 'Z') fb + 32 else null;
+            if (alt) |a| buckets[a].append(gpa, k) catch {};
+        }
+    }
+
+    r.data.ensureTotalCapacity(gpa, src.len) catch {};
+    var pos: usize = 0;
+    outer: while (pos < src.len) {
+        const bucket = buckets[src[pos]].items;
+        if (bucket.len > 0) {
+            for (bucket) |k| {
+                const old = olds.items[k];
+                if (pos + old.len > src.len) continue;
+                const hit = if (cs != 0)
+                    mem.eql(u8, src[pos..][0..old.len], old)
+                else
+                    ciMatch(src[pos..][0..old.len], old);
+                if (hit) {
+                    const nw = if (k < news.items.len) news.items[k] else "";
+                    r.data.appendSlice(gpa, nw) catch {};
+                    pos += old.len;
+                    continue :outer;
+                }
+            }
+        }
+        r.data.append(gpa, src[pos]) catch {};
+        pos += 1;
+    }
+    return r;
+}
+
 // ─── CI find helpers for replace ───
 
 fn ciMatch(a: []const u8, b: []const u8) bool {
