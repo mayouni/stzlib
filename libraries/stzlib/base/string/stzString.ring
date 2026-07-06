@@ -17177,6 +17177,47 @@ class stzString from stzObject
 		def RegexMatches(pcPattern)
 			return This.ExtractPattern(pcPattern)
 
+	# --- Named-entity extraction library (curated patterns) ---
+	# Convenience extractors over ExtractPattern for the common entity types.
+	# Char classes ([0-9] etc.) are used instead of \d/\w to avoid Ring string
+	# escaping. Return the matched substrings.
+
+	def ExtractEmails()
+		return This.ExtractPattern("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+[.][A-Za-z]{2,}")
+
+	def ExtractURLs()
+		return This.ExtractPattern("https?://[A-Za-z0-9./?=&_%#~:+-]+")
+
+	def ExtractIPv4Addresses()
+		return This.ExtractPattern("[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}")
+
+		def ExtractIPAddresses()
+			return This.ExtractIPv4Addresses()
+
+	def ExtractHashtags()
+		return This.ExtractPattern("#[A-Za-z0-9_]+")
+
+	def ExtractMentions()
+		return This.ExtractPattern("@[A-Za-z0-9_]+")
+
+	def ExtractDates()
+		# ISO (YYYY-MM-DD) or slashed (D/M/Y).
+		return This.ExtractPattern("[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}")
+
+	def ExtractTimes()
+		# Non-capturing (?:...) so the whole match (not a sub-group) is extracted.
+		return This.ExtractPattern("[0-9]{1,2}:[0-9]{2}(?::[0-9]{2})?")
+
+	def ExtractPhoneNumbers()
+		return This.ExtractPattern("[+]?[0-9][0-9 .()-]{6,}[0-9]")
+
+		def ExtractPhones()
+			return This.ExtractPhoneNumbers()
+
+	def ExtractPrices()
+		# A currency symbol ($ EUR GBP JPY) then a number.
+		return This.ExtractPattern("(?:[$]|" + char(0xE2)+char(0x82)+char(0xAC) + "|" + char(0xC2)+char(0xA3) + "|" + char(0xC2)+char(0xA5) + ")[ ]?[0-9][0-9,]*(?:[.][0-9]+)?")
+
 	  #========================================#
 	 #     COUNTER DELEGATIONS                #
 	#========================================#
