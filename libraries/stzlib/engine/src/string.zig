@@ -112,6 +112,7 @@ pub const str_char_freq = nlp.str_char_freq;
 pub const str_word_ngram_freq = nlp.str_word_ngram_freq;
 pub const str_count_word_cs = nlp.str_count_word_cs;
 pub const str_numbers_agg = nlp.str_numbers_agg;
+pub const str_sentence_stat = nlp.str_sentence_stat;
 pub const stz_word_freq_count = nlp.stz_word_freq_count;
 pub const stz_word_freq_word = nlp.stz_word_freq_word;
 pub const stz_word_freq_num = nlp.stz_word_freq_num;

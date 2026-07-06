@@ -956,6 +956,39 @@ pub fn str_word_ngram_freq(handle: StzStringHandle, n_gram: c_int, cs: c_int, n_
     return r;
 }
 
+// Sentence-length extremes (readability stats). Sentence = text up to each
+// .!? terminator (matching str_count_sentences). mode 0 = max words in any
+// sentence, 1 = min words over NON-empty sentences. One pass. Multibyte words
+// count as one (a run of isWordByte).
+pub fn str_sentence_stat(handle: StzStringHandle, mode: c_int) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const src = s.slice();
+    var maxw: c_int = 0;
+    var minw: c_int = -1;
+    var cur: c_int = 0;
+    var in_word = false;
+    for (src) |c| {
+        if (c == '.' or c == '!' or c == '?') {
+            if (cur > maxw) maxw = cur;
+            if (cur > 0 and (minw < 0 or cur < minw)) minw = cur;
+            cur = 0;
+            in_word = false;
+        } else if (isWordByte(c) or c == '\'') {
+            if (!in_word) {
+                cur += 1;
+                in_word = true;
+            }
+        } else {
+            in_word = false;
+        }
+    }
+    return switch (mode) {
+        0 => maxw,
+        1 => if (minw < 0) 0 else minw,
+        else => 0,
+    };
+}
+
 // One-pass numeric aggregate over the numbers embedded in text (invoices,
 // logs, totals, data extraction). A number token = optional '-', digits, one
 // optional '.' with more digits -- matching Numbers(). Parses each to f64 and
