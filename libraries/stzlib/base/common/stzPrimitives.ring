@@ -46,6 +46,42 @@ func StzUpper(cStr)
 	StzEngineStringFree(pH)
 	return c
 
+// Group similar strings by edit (Levenshtein) distance -- fuzzy dedup, typo
+// grouping, near-duplicate detection. Greedy "leader" clustering ENGINE-SIDE:
+// each string joins the FIRST cluster whose representative is within nThreshold
+// edits, else starts a new one. Returns [[member, ...], ...]. cs default 1.
+func StzClusterByEditDistance(paStrings, nThreshold)
+	return StzClusterByEditDistanceCS(paStrings, nThreshold, 1)
+
+func StzClusterByEditDistanceCS(paStrings, nThreshold, pCaseSensitive)
+	if NOT isList(paStrings) or len(paStrings) = 0
+		return []
+	ok
+	nLen = len(paStrings)
+	cPacked = ""
+	for i = 1 to nLen
+		cPacked += ("" + paStrings[i])
+		if i < nLen cPacked += char(0) ok
+	next
+	pH = StzEngineString(cPacked)
+	pRes = StzEngineStringEditCluster(pH, nThreshold, pCaseSensitive)
+	anIDs = []
+	nC = StzEngineFindResultCount(pRes)
+	for i = 1 to nC
+		anIDs + StzEngineFindResultGet(pRes, i)
+	next
+	StzEngineFindResultFree(pRes)
+	StzEngineStringFree(pH)
+	aClusters = []
+	for i = 1 to nLen
+		nCid = anIDs[i]
+		while len(aClusters) < nCid
+			aClusters + []
+		end
+		aClusters[nCid] + paStrings[i]
+	next
+	return aClusters
+
 func StzLower(cStr)
 	if NOT isString(cStr)
 		cStr = "" + cStr

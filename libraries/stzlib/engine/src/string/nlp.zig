@@ -27,6 +27,8 @@ const decodeCodepoint = core.decodeCodepoint;
 const utf8CodepointCount = core.utf8CodepointCount;
 const casefoldAlloc = core.casefoldAlloc;
 const ciMatch = core.ciMatch;
+const StzFindResult = core.StzFindResult;
+const StzFindResultHandle = core.StzFindResultHandle;
 const isVowelAscii = core.isVowelAscii;
 
 // ─── Similarity Metrics ───
@@ -953,6 +955,112 @@ pub fn str_word_ngram_freq(handle: StzStringHandle, n_gram: c_int, cs: c_int, n_
         }
     }
     finalizeFreq(&map, n_top, r);
+    return r;
+}
+
+// ─── Edit-distance clustering (fuzzy dedup, typo grouping) ───
+
+fn decodeAllCp(bytes: []const u8, buf: *std.ArrayList(i32)) void {
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cl = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        buf.append(gpa, decodeCodepoint(bytes, i, cl)) catch return;
+        i += cl;
+    }
+}
+
+// Codepoint Levenshtein on two byte slices (two-row DP). Cheap-exits when the
+// length gap already exceeds `cap` (used to skip full DP when we only care
+// whether distance <= threshold).
+fn editDistCpCapped(a: []const u8, b: []const u8, cap: usize) usize {
+    var ca: std.ArrayList(i32) = .{};
+    defer ca.deinit(gpa);
+    var cb: std.ArrayList(i32) = .{};
+    defer cb.deinit(gpa);
+    decodeAllCp(a, &ca);
+    decodeAllCp(b, &cb);
+    const n = ca.items.len;
+    const m = cb.items.len;
+    if (n == 0) return m;
+    if (m == 0) return n;
+    const gap = if (n > m) n - m else m - n;
+    if (gap > cap) return gap; // cannot be <= cap
+    var prev = gpa.alloc(usize, m + 1) catch return @max(n, m);
+    defer gpa.free(prev);
+    var curr = gpa.alloc(usize, m + 1) catch return @max(n, m);
+    defer gpa.free(curr);
+    var j: usize = 0;
+    while (j <= m) : (j += 1) prev[j] = j;
+    var i: usize = 1;
+    while (i <= n) : (i += 1) {
+        curr[0] = i;
+        j = 1;
+        while (j <= m) : (j += 1) {
+            const cost: usize = if (ca.items[i - 1] == cb.items[j - 1]) 0 else 1;
+            const del = prev[j] + 1;
+            const ins = curr[j - 1] + 1;
+            const sub = prev[j - 1] + cost;
+            curr[j] = @min(@min(del, ins), sub);
+        }
+        std.mem.swap([]usize, &prev, &curr);
+    }
+    return prev[m];
+}
+
+fn splitNulLocal(buf: []const u8, out: *std.ArrayList([]const u8)) void {
+    var start: usize = 0;
+    var i: usize = 0;
+    while (i < buf.len) : (i += 1) {
+        if (buf[i] == 0) {
+            out.append(gpa, buf[start..i]) catch {};
+            start = i + 1;
+        }
+    }
+    out.append(gpa, buf[start..]) catch {}; // final segment (incl. a possible empty)
+}
+
+// Greedy "leader" clustering: the input is a NUL-packed list of strings; group
+// them so each joins the FIRST existing cluster whose representative is within
+// `threshold` edit distance, else starts a new cluster. Returns a StzFindResult
+// whose positions[i] = the 1-based cluster id of string i. cs=0 case-folds for
+// comparison. Fuzzy dedup, typo/name grouping, near-duplicate detection.
+pub fn str_edit_cluster(handle: StzStringHandle, threshold: c_int, cs: c_int) callconv(.c) StzFindResultHandle {
+    const r = gpa.create(StzFindResult) catch return null;
+    r.* = StzFindResult.init();
+    const s = (handle orelse return r);
+    const src = s.slice();
+    var items: std.ArrayList([]const u8) = .{};
+    defer items.deinit(gpa);
+    splitNulLocal(src, &items);
+
+    const thr: usize = if (threshold < 0) 0 else @intCast(threshold);
+    var reps: std.ArrayList([]const u8) = .{};
+    defer reps.deinit(gpa);
+    var folded: std.ArrayList([]u8) = .{}; // casefolded copies to free (cs=0)
+    defer {
+        for (folded.items) |f| gpa.free(f);
+        folded.deinit(gpa);
+    }
+    for (items.items) |item| {
+        const cmp: []const u8 = if (cs == 0) blk: {
+            if (casefoldAlloc(item)) |f| {
+                folded.append(gpa, f) catch {};
+                break :blk f;
+            } else break :blk item;
+        } else item;
+        var assigned: i64 = -1;
+        for (reps.items, 0..) |rep, k| {
+            if (editDistCpCapped(cmp, rep, thr) <= thr) {
+                assigned = @intCast(k + 1);
+                break;
+            }
+        }
+        if (assigned < 0) {
+            reps.append(gpa, cmp) catch {};
+            assigned = @intCast(reps.items.len);
+        }
+        r.positions.append(gpa, assigned) catch break;
+    }
     return r;
 }
 
