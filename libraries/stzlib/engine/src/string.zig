@@ -581,6 +581,7 @@ pub const str_regex_is_match = regex.str_regex_is_match;
 pub const str_regex_count = regex.str_regex_count;
 pub const str_regex_find_first = regex.str_regex_find_first;
 pub const str_regex_find_all = regex.str_regex_find_all;
+pub const str_regex_extract_all = regex.str_regex_extract_all;
 pub const str_regex_replace_all = regex.str_regex_replace_all;
 pub const str_regex_split_count = regex.str_regex_split_count;
 pub const str_regex_split_get = regex.str_regex_split_get;

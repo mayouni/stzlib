@@ -18,6 +18,8 @@ const unicode = core.unicode;
 const setError = core.setError;
 const str_from = core.str_from;
 const byteOffsetToCodepointIndex = core.byteOffsetToCodepointIndex;
+const StzStrListResult = core.StzStrListResult;
+const StzStrListResultHandle = core.StzStrListResultHandle;
 
 // ─── str_regex_is_match ───
 //
@@ -84,6 +86,34 @@ pub fn str_regex_find_all(handle: StzStringHandle, pat: [*c]const u8, pat_len: u
             const byte_off: usize = @intCast(byte_start - 1);
             const cp_idx = byteOffsetToCodepointIndex(text, byte_off);
             r.positions.append(gpa, toExternal(cp_idx)) catch {};
+        }
+    }
+    return r;
+}
+
+// Extract the TEXT of every regex match (not just positions) in ONE call --
+// emails, URLs, dates, IDs, etc. Was a Ring while-loop (MatchAt + CaptureText
+// per match). Returns a StzStrListResult of the whole-match substrings.
+pub fn str_regex_extract_all(handle: StzStringHandle, pat: [*c]const u8, pat_len: usize, flags: u32) callconv(.c) StzStrListResultHandle {
+    const r = gpa.create(StzStrListResult) catch return null;
+    r.* = StzStrListResult.init();
+    const s = (handle orelse return r);
+    const h = rx.stz_regex_new(pat, pat_len, flags) orelse return r;
+    defer rx.stz_regex_free(h);
+    const text = s.slice();
+    const n = rx.stz_regex_match_all(h, text.ptr, text.len);
+    if (n <= 0) return r;
+    const cap_count = rx.stz_regex_capture_count(h);
+    const groups_per_match = if (n > 0 and cap_count > 0) @divTrunc(@as(usize, @intCast(cap_count)), @as(usize, @intCast(n))) else 1;
+    var i: usize = 0;
+    while (i < @as(usize, @intCast(n))) : (i += 1) {
+        const cap_idx: c_int = @intCast(i * groups_per_match + 1);
+        const bstart = rx.stz_regex_capture_start(h, cap_idx); // 1-based byte
+        const bend = rx.stz_regex_capture_end(h, cap_idx); // 1-based byte, one-PAST the last
+        if (bstart >= 1 and bend > bstart) {
+            const a: usize = @intCast(bstart - 1);
+            const b: usize = @min(@as(usize, @intCast(bend - 1)), text.len);
+            if (b > a) r.push(text[a..b]);
         }
     }
     return r;
