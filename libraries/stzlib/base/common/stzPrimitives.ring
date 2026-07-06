@@ -82,6 +82,42 @@ func StzClusterByEditDistanceCS(paStrings, nThreshold, pCaseSensitive)
 	next
 	return aClusters
 
+// TF-IDF keyword extraction across a document corpus. For each document,
+// returns its top-N keywords ranked by tf(term)*ln(Ndocs/df(term)) -- terms
+// that are frequent in THIS doc but rare across the corpus. Keyword extraction,
+// search relevance, summarization, tag suggestion. Returns [[kw,...] per doc].
+# nTop <= 0 -> all terms. cs default 1 (case-sensitive).
+func StzTFIDFKeywords(paDocs, nTop)
+	return StzTFIDFKeywordsCS(paDocs, nTop, 1)
+
+func StzTFIDFKeywordsCS(paDocs, nTop, pCaseSensitive)
+	if NOT isList(paDocs) or len(paDocs) = 0
+		return []
+	ok
+	nLen = len(paDocs)
+	cPacked = ""
+	for i = 1 to nLen
+		cPacked += ("" + paDocs[i])
+		if i < nLen cPacked += char(0) ok
+	next
+	pH = StzEngineString(cPacked)
+	pRes = StzEngineStringTFIDFKeywords(pH, nTop, pCaseSensitive)
+	cOut = StzEngineStringData(pRes)
+	StzEngineStringFree(pRes)
+	StzEngineStringFree(pH)
+	# Unpack: documents are separated by char(1), keywords within a doc by
+	# char(0). Split doc-by-doc (there are exactly nLen of them).
+	aResult = []
+	aDocChunks = str2list( substr(cOut, char(1), char(10)) )
+	for i = 1 to nLen
+		if i <= len(aDocChunks) and aDocChunks[i] != ""
+			aResult + str2list( substr(aDocChunks[i], char(0), char(10)) )
+		else
+			aResult + []
+		ok
+	next
+	return aResult
+
 func StzLower(cStr)
 	if NOT isString(cStr)
 		cStr = "" + cStr
