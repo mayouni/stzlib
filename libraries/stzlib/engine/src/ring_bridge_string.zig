@@ -299,6 +299,26 @@ fn ring_StringRegexExtractAll(p: *anyopaque) callconv(.c) void {
     R.retHandle(p, @ptrCast(string.str_regex_extract_all(h, pat, pat_len, flags)));
 }
 
+// Bulk variant: builds a NATIVE Ring list of the matches in ONE call
+// (ring_list_addstring2 per item, no per-item string handles). The per-item
+// handle drain was O(n^2) -- Ring's managed-pointer tracking is O(n) per
+// StrListGet -- so a 8000-match extract took seconds. This is O(n).
+fn ring_StringRegexExtractAllList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const h = getHandle(p, 1);
+    const pat = ring_vm_api_getstring(p, 2);
+    const pat_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const flags: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const res = string.str_regex_extract_all(h, pat, pat_len, flags);
+    if (res) |r| {
+        for (r.items.items) |it| {
+            R.ring_list_addstring2(out, it.ptr, @intCast(it.len));
+        }
+        string.stz_strlist_free(res);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_StringTfidfKeywords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const nTop: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -3506,6 +3526,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringeditcluster", .func = &ring_StringEditCluster },
     .{ .name = "stzenginestringtfidfkeywords", .func = &ring_StringTfidfKeywords },
     .{ .name = "stzenginestringregexextractall", .func = &ring_StringRegexExtractAll },
+    .{ .name = "stzenginestringregexextractalllist", .func = &ring_StringRegexExtractAllList },
     .{ .name = "stzenginestringwordfreq", .func = &ring_StringWordFreq },
     .{ .name = "stzenginestringwordstreamnew", .func = &ring_StringWordStreamNew },
     .{ .name = "stzenginestringwordstreamfeed", .func = &ring_StringWordStreamFeed },
