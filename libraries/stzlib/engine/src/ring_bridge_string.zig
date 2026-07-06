@@ -277,6 +277,13 @@ fn ring_StringSplitAllCS(p: *anyopaque) callconv(.c) void {
     R.retHandle(p, @ptrCast(string.str_split_all_cs(h, sep, sep_len, cs)));
 }
 
+// NOTE: Zig-side bulk list returns (ring_vm_api_newlist + add* + retlist) for
+// FindAll/Split were prototyped here but REMOVED: the built list is lost
+// through deep Ring call chains (a VM-level fragility -- the bridge builds the
+// list correctly, yet the nested caller receives an empty list). FindAll/Split
+// use the correct result-handle drain instead; the real win for list-returning
+// ops is laziness (not materializing), not a Zig-side bulk build.
+
 fn ring_StrListCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_strlist_count(getStrListHandle(p, 1))));
 }

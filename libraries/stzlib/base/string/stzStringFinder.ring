@@ -119,22 +119,22 @@ class stzStringFinder
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		# Bulk find via Engine: one call returns all positions
+		# Bulk find via Engine: one call returns all positions as a result
+		# handle, drained here. (A Zig-side newlist/retlist bulk return was
+		# tried but loses the list through deep Ring call chains -- a VM-level
+		# fragility; the drain is correct and findall is Ring-list-bound
+		# anyway, so bulk gave no real gain here.)
 		pResult = StzEngineStringFindCS(@oString.Engine(), pcSubStr, _bCase_)
-
 		nCount = StzEngineFindResultCount(pResult)
 		if nCount = 0
 			StzEngineFindResultFree(pResult)
 			return []
 		ok
-
 		anResult = []
 		for i = 1 to nCount
-			# Engine uses 1-based index for stz_find_result_get
 			anResult + StzEngineFindResultGet(pResult, i)
 		next
 		StzEngineFindResultFree(pResult)
-
 		return anResult
 
 	def Find(pcSubStr)

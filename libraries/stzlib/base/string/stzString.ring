@@ -553,7 +553,11 @@ class stzString from stzObject
 	#=======================================#
 
 	def NumberOfChars()
-		return StzLen(This.Content())
+		# ENGINE-DIRECT + CACHED: ask the resident engine string for its
+		# codepoint count (StzEngineStringCount -> cached cpCount()). The old
+		# StzLen(This.Content()) copied the ENTIRE buffer Ring-side first and
+		# recomputed every call.
+		return StzEngineStringCount(@pEngine)
 
 		def Length()
 			return This.NumberOfChars()
@@ -1260,13 +1264,10 @@ class stzString from stzObject
 
 	def _SplitByStrCS(cSep, bCaseSensitive)
 		# ENGINE-BACKED one-pass (StzEngineStringSplitAllCS): splits the whole
-		# string in a single scan and drains all parts. Replaces the count+get
-		# protocol whose per-index get rescanned from 0 -> O(n^2) for a Ring
-		# drain of n parts (60s at 50k separators). Now linear.
+		# string in a single scan (fixed the old O(n^2) count+get) and drains
+		# all parts. (A Zig-side newlist/retlist bulk return was tried but
+		# loses the list through deep Ring call chains -- a VM-level fragility.)
 		aResult = This._DrainStrList( StzEngineStringSplitAllCS(@pEngine, cSep, bCaseSensitive) )
-		# EDGE empty parts (leading/trailing separators) are dropped;
-		# interior empties (adjacent separators) are kept -- the
-		# original Split contract.
 		while len(aResult) > 0 and aResult[1] = ""
 			del(aResult, 1)
 		end
