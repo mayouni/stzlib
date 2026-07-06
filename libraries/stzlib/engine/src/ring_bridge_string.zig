@@ -2908,12 +2908,16 @@ fn ring_StringChop(p: *anyopaque) callconv(.c) void {
 // NUL-delimited list of stems.
 fn ring_StringStemmed(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_stem_text(h)), STZ_HANDLE);
+    const lang = ring_vm_api_getstring(p, 2);
+    const lang_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_stem_text(h, lang, lang_len)), STZ_HANDLE);
 }
 
 fn ring_StringStemWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_stem_words(h)), STZ_HANDLE);
+    const lang = ring_vm_api_getstring(p, 2);
+    const lang_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_stem_words(h, lang, lang_len)), STZ_HANDLE);
 }
 
 fn ring_StringScanInt(p: *anyopaque) callconv(.c) void {
