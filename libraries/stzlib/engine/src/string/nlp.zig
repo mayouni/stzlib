@@ -737,19 +737,23 @@ pub fn str_word_freq(handle: StzStringHandle, cs: c_int, n_top: c_int) callconv(
         }
     }
 
-    // Collect, sort by count desc (stable), truncate to n_top.
+    finalizeFreq(&map, n_top, r);
+    return r;
+}
+
+// Shared: collect the hashmap entries, sort (first-appearance for n_top<=0,
+// count-desc for top-N), move the kept reps into r, free dropped reps + all
+// keys, deinit the map. Used by str_word_freq and str_char_freq.
+fn finalizeFreq(map: *std.StringHashMap(FreqEntry), n_top: c_int, r: *StzWordFreqResult) void {
     var entries = std.ArrayList(FreqEntry){};
     defer entries.deinit(gpa);
     var it = map.iterator();
     while (it.next()) |kv| entries.append(gpa, kv.value_ptr.*) catch {};
-    // n_top<=0 -> ALL words in first-appearance order (parallels the classic
-    // WordsAndTheir* text order). n_top>0 -> the top-N ranked by count desc.
     if (n_top <= 0) {
         std.sort.pdq(FreqEntry, entries.items, {}, orderLessThan);
     } else {
         std.sort.pdq(FreqEntry, entries.items, {}, freqLessThan);
     }
-
     const keep: usize = if (n_top <= 0) entries.items.len else @min(@as(usize, @intCast(n_top)), entries.items.len);
     var i: usize = 0;
     while (i < entries.items.len) : (i += 1) {
@@ -757,13 +761,64 @@ pub fn str_word_freq(handle: StzStringHandle, cs: c_int, n_top: c_int) callconv(
             r.words.append(gpa, entries.items[i].rep) catch gpa.free(entries.items[i].rep);
             r.counts.append(gpa, entries.items[i].count) catch {};
         } else {
-            gpa.free(entries.items[i].rep); // dropped rep
+            gpa.free(entries.items[i].rep);
         }
     }
-    // Free the map keys (reps were moved into r or freed above).
     var kit = map.keyIterator();
     while (kit.next()) |k| gpa.free(k.*);
     map.deinit();
+}
+
+// Character (codepoint) frequency -- histograms, cryptanalysis, entropy. One
+// pass, same result shape as str_word_freq (reuses stz_word_freq_* accessors).
+// n_top<=0 -> all chars first-appearance order; else top-N by count. cs=0 folds.
+pub fn str_char_freq(handle: StzStringHandle, cs: c_int, n_top: c_int) callconv(.c) StzWordFreqResultHandle {
+    const r = gpa.create(StzWordFreqResult) catch return null;
+    r.* = .{ .words = .{}, .counts = .{} };
+    const s = handle orelse return r;
+    const src = s.slice();
+    var map = std.StringHashMap(FreqEntry).init(gpa);
+    var order: usize = 0;
+    var pos: usize = 0;
+    while (pos < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
+        const end = @min(pos + cp_len, src.len);
+        const ch = src[pos..end];
+        const key: []u8 = if (cs == 0)
+            (casefoldAlloc(ch) orelse {
+                pos = end;
+                continue;
+            })
+        else blk: {
+            const k = gpa.alloc(u8, ch.len) catch {
+                pos = end;
+                continue;
+            };
+            @memcpy(k, ch);
+            break :blk k;
+        };
+        const gop = map.getOrPut(key) catch {
+            gpa.free(key);
+            pos = end;
+            continue;
+        };
+        if (gop.found_existing) {
+            gpa.free(key);
+            gop.value_ptr.count += 1;
+        } else {
+            const rep = gpa.alloc(u8, ch.len) catch {
+                _ = map.remove(key);
+                gpa.free(key);
+                pos = end;
+                continue;
+            };
+            @memcpy(rep, ch);
+            gop.value_ptr.* = .{ .rep = rep, .count = 1, .order = order };
+            order += 1;
+        }
+        pos = end;
+    }
+    finalizeFreq(&map, n_top, r);
     return r;
 }
 
