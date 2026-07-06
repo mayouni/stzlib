@@ -2313,17 +2313,13 @@ class stzString from stzObject
 			return This
 
 	def Uppercased()
-		# ENGINE-DIRECT for ASCII (the hot path): no Content() round-trip, no
-		# re-marshal, no ß-scan; the engine uppercases in place via its ASCII
-		# fast path. ASCII can't contain ß, so the SpecialCasing (ß -> SS) path
-		# is only needed for non-ASCII content -- kept via StzUpper there.
-		if StzEngineStringIsAscii(@pEngine)
-			_pUc_ = StzEngineStringToUpper(@pEngine)
-			_cUc_ = StzEngineStringData(_pUc_)
-			StzEngineStringFree(_pUc_)
-			return _cUc_
-		ok
-		return StzUpper(This.Content())
+		# FULLY ENGINE-DIRECT: str_to_upper does the ASCII fast path AND full
+		# Unicode SpecialCasing (ß->SS, ﬄ->FFL, İ handling, ...) engine-side --
+		# no Content() round-trip, no re-marshal, no Ring-side ß scan.
+		_pUc_ = StzEngineStringToUpper(@pEngine)
+		_cUc_ = StzEngineStringData(_pUc_)
+		StzEngineStringFree(_pUc_)
+		return _cUc_
 
 	def Lowercase()
 		This.Update(StzLower(This.Content()))

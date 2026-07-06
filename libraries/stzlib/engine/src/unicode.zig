@@ -256,14 +256,86 @@ pub fn stz_unicode_to_title(cp: i32) callconv(.c) i32 {
 
 // ─── String-level Case Conversion ───
 
+// Unconditional full-case SpecialCasing expansions (Unicode SpecialCasing.txt)
+// that utf8proc's simple 1:1 toupper/tolower CANNOT produce (its tables hold
+// only single-codepoint case maps -- e.g. it gives ß->ẞ, not ß->SS). Covers
+// the Latin set (ß, the fi/fl/ffi/ffl/st ligatures, the accented-consonant
+// expansions, Armenian ligatures) plus the clearest Greek breathing-mark ones,
+// and İ for lowercase. Language-independent (no locale/context conditions).
+fn specialUpper(cp: i32) ?[]const i32 {
+    return switch (cp) {
+        0x00DF => &[_]i32{ 0x53, 0x53 }, // ß -> SS
+        0x0149 => &[_]i32{ 0x02BC, 0x4E }, // ŉ -> ʼN
+        0x01F0 => &[_]i32{ 0x4A, 0x30C }, // ǰ -> J + caron
+        0x1E96 => &[_]i32{ 0x48, 0x331 },
+        0x1E97 => &[_]i32{ 0x54, 0x308 },
+        0x1E98 => &[_]i32{ 0x57, 0x30A },
+        0x1E99 => &[_]i32{ 0x59, 0x30A },
+        0x1E9A => &[_]i32{ 0x41, 0x2BE },
+        0x1F50 => &[_]i32{ 0x3A5, 0x313 },
+        0x1F52 => &[_]i32{ 0x3A5, 0x313, 0x300 },
+        0x1F54 => &[_]i32{ 0x3A5, 0x313, 0x301 },
+        0x1F56 => &[_]i32{ 0x3A5, 0x313, 0x342 },
+        0x1FB6 => &[_]i32{ 0x391, 0x342 },
+        0x1FC6 => &[_]i32{ 0x397, 0x342 },
+        0x1FD6 => &[_]i32{ 0x399, 0x342 },
+        0x1FE6 => &[_]i32{ 0x3A5, 0x342 },
+        0x1FF6 => &[_]i32{ 0x3A9, 0x342 },
+        0xFB00 => &[_]i32{ 0x46, 0x46 }, // ﬀ -> FF
+        0xFB01 => &[_]i32{ 0x46, 0x49 }, // ﬁ -> FI
+        0xFB02 => &[_]i32{ 0x46, 0x4C }, // ﬂ -> FL
+        0xFB03 => &[_]i32{ 0x46, 0x46, 0x49 }, // ﬃ -> FFI
+        0xFB04 => &[_]i32{ 0x46, 0x46, 0x4C }, // ﬄ -> FFL
+        0xFB05 => &[_]i32{ 0x53, 0x54 }, // ﬅ -> ST
+        0xFB06 => &[_]i32{ 0x53, 0x54 }, // ﬆ -> ST
+        0xFB13 => &[_]i32{ 0x544, 0x546 },
+        0xFB14 => &[_]i32{ 0x544, 0x535 },
+        0xFB15 => &[_]i32{ 0x544, 0x538 },
+        0xFB16 => &[_]i32{ 0x54E, 0x546 },
+        0xFB17 => &[_]i32{ 0x544, 0x53D },
+        else => null,
+    };
+}
+
+fn specialLower(cp: i32) ?[]const i32 {
+    return switch (cp) {
+        0x0130 => &[_]i32{ 0x69, 0x307 }, // İ -> i + combining dot above
+        else => null,
+    };
+}
+
+fn stzUpperFull(cp: i32, dst: [*]i32, bufsize: isize) callconv(.c) isize {
+    if (specialUpper(cp)) |seq| {
+        const cap: usize = if (bufsize < 0) 0 else @intCast(bufsize);
+        const n = @min(seq.len, cap);
+        var i: usize = 0;
+        while (i < n) : (i += 1) dst[i] = seq[i];
+        return @intCast(n);
+    }
+    if (bufsize >= 1) dst[0] = c.utf8proc_toupper(cp);
+    return 1;
+}
+
+fn stzLowerFull(cp: i32, dst: [*]i32, bufsize: isize) callconv(.c) isize {
+    if (specialLower(cp)) |seq| {
+        const cap: usize = if (bufsize < 0) 0 else @intCast(bufsize);
+        const n = @min(seq.len, cap);
+        var i: usize = 0;
+        while (i < n) : (i += 1) dst[i] = seq[i];
+        return @intCast(n);
+    }
+    if (bufsize >= 1) dst[0] = c.utf8proc_tolower(cp);
+    return 1;
+}
+
 pub fn stz_unicode_to_lower_str(data: [*c]const u8, len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     if (data == null or len == 0) return 0;
-    return caseConvertStr(data[0..len], buf, buf_len, c.utf8proc_tolower);
+    return caseConvertStrFull(data[0..len], buf, buf_len, &stzLowerFull);
 }
 
 pub fn stz_unicode_to_upper_str(data: [*c]const u8, len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     if (data == null or len == 0) return 0;
-    return caseConvertStr(data[0..len], buf, buf_len, c.utf8proc_toupper);
+    return caseConvertStrFull(data[0..len], buf, buf_len, &stzUpperFull);
 }
 
 pub fn stz_unicode_to_title_str(data: [*c]const u8, len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
@@ -306,6 +378,31 @@ fn caseConvertStr(src: []const u8, buf: [*c]u8, buf_len: usize, convert: *const 
         if (enc_len < 1 or out + @as(usize, @intCast(enc_len)) > buf_len) break;
         @memcpy(buf[out..][0..@intCast(enc_len)], enc_buf[0..@intCast(enc_len)]);
         out += @intCast(enc_len);
+        pos += @intCast(consumed);
+    }
+    return out;
+}
+
+// Like caseConvertStr but the converter expands ONE codepoint into up to
+// several (full Unicode SpecialCasing: ß->SS, İ->i̇, ﬄ->FFL, ...).
+fn caseConvertStrFull(src: []const u8, buf: [*c]u8, buf_len: usize, convert_full: *const fn (i32, [*]i32, isize) callconv(.c) isize) usize {
+    var out: usize = 0;
+    var pos: usize = 0;
+    while (pos < src.len) {
+        var cp: i32 = undefined;
+        const consumed = c.utf8proc_iterate(src.ptr + pos, @intCast(src.len - pos), &cp);
+        if (consumed < 1) break;
+        var cps: [8]i32 = undefined; // max SpecialCasing expansion is 3, 8 is safe
+        const n = convert_full(cp, &cps, cps.len);
+        if (n < 1) break;
+        var k: usize = 0;
+        while (k < @as(usize, @intCast(n))) : (k += 1) {
+            var enc_buf: [4]u8 = undefined;
+            const enc_len = c.utf8proc_encode_char(cps[k], &enc_buf);
+            if (enc_len < 1 or out + @as(usize, @intCast(enc_len)) > buf_len) return out;
+            @memcpy(buf[out..][0..@intCast(enc_len)], enc_buf[0..@intCast(enc_len)]);
+            out += @intCast(enc_len);
+        }
         pos += @intCast(consumed);
     }
     return out;
