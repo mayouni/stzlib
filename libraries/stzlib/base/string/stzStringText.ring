@@ -527,27 +527,12 @@ class stzStringText
 	#------------------------------------------#
 
 	def NumberOfOccurrenceOfWordCS(pcWord, pCaseSensitive)
-		acWords = This.Words()
+		# ENGINE-DIRECT one-pass whole-word count. Was Words() (materialize
+		# EVERY word into a Ring list) + a Ring compare loop -- O(n) alloc + O(n)
+		# compares per call. Now a single engine scan, no materialization.
+		if NOT isString(pcWord) return 0 ok
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		nResult = 0
-		nLen = len(acWords)
-
-		if _bCase_ = 1
-			for i = 1 to nLen
-				if acWords[i] = pcWord
-					nResult++
-				ok
-			next
-		else
-			cLower = StzCaseFold(pcWord)
-			for i = 1 to nLen
-				if StzCaseFold(acWords[i]) = cLower
-					nResult++
-				ok
-			next
-		ok
-
-		return nResult
+		return StzEngineStringCountWordCS(This.Engine(), pcWord, _bCase_)
 
 	def NumberOfOccurrenceOfWord(pcWord)
 		return This.NumberOfOccurrenceOfWordCS(pcWord, 1)

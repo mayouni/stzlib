@@ -26,6 +26,7 @@ const str_free = core.str_free;
 const decodeCodepoint = core.decodeCodepoint;
 const utf8CodepointCount = core.utf8CodepointCount;
 const casefoldAlloc = core.casefoldAlloc;
+const ciMatch = core.ciMatch;
 const isVowelAscii = core.isVowelAscii;
 
 // ─── Similarity Metrics ───
@@ -793,6 +794,39 @@ pub fn stz_word_freq_free(r: StzWordFreqResultHandle) callconv(.c) void {
         res.deinit();
         gpa.destroy(res);
     }
+}
+
+// Count occurrences of `word` as a WHOLE WORD (same tokenization as
+// str_extract_words), in ONE pass -- no materialization of the word list.
+// Replaces the Ring NumberOfOccurrenceOfWordCS which did Words() (materialize
+// EVERY word) then a Ring compare loop. cs=0 is ASCII-case-insensitive
+// (casefold fallback for length-changing folds).
+fn wordEql(token: []const u8, w: []const u8, cs: c_int) bool {
+    if (cs != 0) return mem.eql(u8, token, w);
+    if (token.len == w.len) return ciMatch(token, w);
+    // Rare: fold both (length-changing case fold, e.g. ß).
+    const ft = casefoldAlloc(token) orelse return false;
+    defer gpa.free(ft);
+    const fw = casefoldAlloc(w) orelse return false;
+    defer gpa.free(fw);
+    return mem.eql(u8, ft, fw);
+}
+
+pub fn str_count_word_cs(handle: StzStringHandle, word: [*c]const u8, word_len: usize, cs: c_int) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    if (word == null or word_len == 0) return 0;
+    const src = s.slice();
+    const w = word[0..word_len];
+    var count: c_int = 0;
+    var pos: usize = 0;
+    while (pos < src.len) {
+        while (pos < src.len and !isWordByte(src[pos])) pos += 1;
+        if (pos >= src.len) break;
+        const start = pos;
+        while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
+        if (wordEql(src[start..pos], w, cs)) count += 1;
+    }
+    return count;
 }
 
 // ─── Linguistic Transforms ───
