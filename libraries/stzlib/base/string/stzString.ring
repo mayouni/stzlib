@@ -18907,6 +18907,18 @@ class stzString from stzObject
 		_oMfwText_ = new stzStringText(This)
 		return _oMfwText_.MostFrequentWord()
 
+	# The top-N most frequent words as [[word, count], ...] (count desc).
+	# ENGINE-DIRECT one-pass word frequency -- the classic text-analytics
+	# workload (search indexing, tag clouds, NLP) that was O(unique x length).
+	def MostFrequentWords(n)
+		_oMfwsText_ = new stzStringText(This)
+		return _oMfwsText_.MostFrequentWords(n)
+
+	# [[word, count], ...] for every distinct word (first-appearance order).
+	def WordsAndTheirCounts()
+		_oWtcText_ = new stzStringText(This)
+		return _oWtcText_.WordsAndTheirCounts()
+
 	# --- Sentences ---
 
 	def NumberOfSentences()

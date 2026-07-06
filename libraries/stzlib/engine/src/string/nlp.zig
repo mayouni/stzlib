@@ -25,6 +25,7 @@ const str_from = core.str_from;
 const str_free = core.str_free;
 const decodeCodepoint = core.decodeCodepoint;
 const utf8CodepointCount = core.utf8CodepointCount;
+const casefoldAlloc = core.casefoldAlloc;
 const isVowelAscii = core.isVowelAscii;
 
 // ─── Similarity Metrics ───
@@ -655,6 +656,143 @@ pub fn str_extract_words(handle: ?*StzString) callconv(.c) ?*StzString {
         first = false;
     }
     return result;
+}
+
+// ─── Word frequency (one-pass, engine-direct) ───
+//
+// Ranked (word, count) table computed in a SINGLE pass with a hashmap --
+// replaces the Ring-side WordsAndTheirFrequencies which did UniqueWords() then
+// re-scanned the whole text once PER unique word (O(unique x length), quadratic
+// on any real document). This is O(length). Same tokenization as
+// str_extract_words (word = run of isWordByte + apostrophe).
+
+pub const StzWordFreqResult = struct {
+    words: std.ArrayList([]u8), // representative (first-seen) original word bytes
+    counts: std.ArrayList(i64), // parallel counts, sorted with words by count desc
+
+    pub fn deinit(self: *StzWordFreqResult) void {
+        for (self.words.items) |w| gpa.free(w);
+        self.words.deinit(gpa);
+        self.counts.deinit(gpa);
+    }
+};
+pub const StzWordFreqResultHandle = ?*StzWordFreqResult;
+
+const FreqEntry = struct { rep: []u8, count: i64, order: usize };
+
+fn freqLessThan(_: void, a: FreqEntry, b: FreqEntry) bool {
+    if (a.count != b.count) return a.count > b.count; // higher count first
+    return a.order < b.order; // stable tie-break: first appearance
+}
+fn orderLessThan(_: void, a: FreqEntry, b: FreqEntry) bool {
+    return a.order < b.order; // first-appearance order
+}
+
+// n_top <= 0 -> all words; else the top n_top by count. cs != 0 case-sensitive.
+pub fn str_word_freq(handle: StzStringHandle, cs: c_int, n_top: c_int) callconv(.c) StzWordFreqResultHandle {
+    const r = gpa.create(StzWordFreqResult) catch return null;
+    r.* = .{ .words = .{}, .counts = .{} };
+    const s = handle orelse return r;
+    const src = s.slice();
+
+    // key (owned) -> FreqEntry. key is casefolded when cs==0, else raw word.
+    var map = std.StringHashMap(FreqEntry).init(gpa);
+    var order: usize = 0;
+    {
+        var pos: usize = 0;
+        while (pos < src.len) {
+            while (pos < src.len and !isWordByte(src[pos])) pos += 1;
+            if (pos >= src.len) break;
+            const start_off = pos;
+            while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
+            const word = src[start_off..pos];
+
+            // The map key: casefolded copy (cs=0) or a raw copy (cs=1).
+            const key: []u8 = if (cs == 0)
+                (casefoldAlloc(word) orelse continue)
+            else blk: {
+                const k = gpa.alloc(u8, word.len) catch continue;
+                @memcpy(k, word);
+                break :blk k;
+            };
+            const gop = map.getOrPut(key) catch {
+                gpa.free(key);
+                continue;
+            };
+            if (gop.found_existing) {
+                gpa.free(key); // key already stored
+                gop.value_ptr.count += 1;
+            } else {
+                // first sighting: keep an owned copy of the ORIGINAL word as rep
+                const rep = gpa.alloc(u8, word.len) catch {
+                    _ = map.remove(key);
+                    gpa.free(key);
+                    continue;
+                };
+                @memcpy(rep, word);
+                gop.value_ptr.* = .{ .rep = rep, .count = 1, .order = order };
+                order += 1;
+            }
+        }
+    }
+
+    // Collect, sort by count desc (stable), truncate to n_top.
+    var entries = std.ArrayList(FreqEntry){};
+    defer entries.deinit(gpa);
+    var it = map.iterator();
+    while (it.next()) |kv| entries.append(gpa, kv.value_ptr.*) catch {};
+    // n_top<=0 -> ALL words in first-appearance order (parallels the classic
+    // WordsAndTheir* text order). n_top>0 -> the top-N ranked by count desc.
+    if (n_top <= 0) {
+        std.sort.pdq(FreqEntry, entries.items, {}, orderLessThan);
+    } else {
+        std.sort.pdq(FreqEntry, entries.items, {}, freqLessThan);
+    }
+
+    const keep: usize = if (n_top <= 0) entries.items.len else @min(@as(usize, @intCast(n_top)), entries.items.len);
+    var i: usize = 0;
+    while (i < entries.items.len) : (i += 1) {
+        if (i < keep) {
+            r.words.append(gpa, entries.items[i].rep) catch gpa.free(entries.items[i].rep);
+            r.counts.append(gpa, entries.items[i].count) catch {};
+        } else {
+            gpa.free(entries.items[i].rep); // dropped rep
+        }
+    }
+    // Free the map keys (reps were moved into r or freed above).
+    var kit = map.keyIterator();
+    while (kit.next()) |k| gpa.free(k.*);
+    map.deinit();
+    return r;
+}
+
+pub fn stz_word_freq_count(r: StzWordFreqResultHandle) callconv(.c) c_int {
+    if (r) |res| return @intCast(res.words.items.len);
+    return 0;
+}
+// 1-based; returns a FRESH string handle for the i-th word (caller frees).
+pub fn stz_word_freq_word(r: StzWordFreqResultHandle, index: c_int) callconv(.c) StzStringHandle {
+    if (r) |res| {
+        if (index >= 1 and @as(usize, @intCast(index)) <= res.words.items.len) {
+            const w = res.words.items[@as(usize, @intCast(index)) - 1];
+            return str_from(w.ptr, w.len);
+        }
+    }
+    return str_new();
+}
+pub fn stz_word_freq_num(r: StzWordFreqResultHandle, index: c_int) callconv(.c) i64 {
+    if (r) |res| {
+        if (index >= 1 and @as(usize, @intCast(index)) <= res.counts.items.len) {
+            return res.counts.items[@as(usize, @intCast(index)) - 1];
+        }
+    }
+    return 0;
+}
+pub fn stz_word_freq_free(r: StzWordFreqResultHandle) callconv(.c) void {
+    if (r) |res| {
+        res.deinit();
+        gpa.destroy(res);
+    }
 }
 
 // ─── Linguistic Transforms ───

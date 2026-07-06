@@ -565,15 +565,49 @@ class stzStringText
 		def FrequencyOfWord(pcWord)
 			return This.WordFrequency(pcWord)
 
-	def WordsAndTheirFrequencies()
-		aResult = []
-		acWords = This.UniqueWords()
-		nLen = len(acWords)
-
-		for i = 1 to nLen
-			aResult + [ acWords[i], This.WordFrequency(acWords[i]) ]
+	# Drain an engine word-frequency result into [[word, count], ...].
+	def _DrainWordFreq(pRes)
+		aOut = []
+		n = StzEngineWordFreqCount(pRes)
+		for i = 1 to n
+			pW = StzEngineWordFreqWord(pRes, i)
+			cW = StzEngineStringData(pW)
+			StzEngineStringFree(pW)
+			aOut + [ cW, StzEngineWordFreqNum(pRes, i) ]
 		next
+		StzEngineWordFreqFree(pRes)
+		return aOut
 
+	# [[word, count], ...] in first-appearance order. ENGINE-DIRECT, ONE pass.
+	def WordsAndTheirCountsCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return This._DrainWordFreq( StzEngineStringWordFreq(This.Engine(), _bCase_, 0) )
+
+	def WordsAndTheirCounts()
+		return This.WordsAndTheirCountsCS(1)
+
+	# The top-N most frequent words as [[word, count], ...], count descending
+	# (ties by first appearance). ENGINE-DIRECT, ONE pass + partial rank.
+	def MostFrequentWordsCS(n, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return This._DrainWordFreq( StzEngineStringWordFreq(This.Engine(), _bCase_, n) )
+
+	def MostFrequentWords(n)
+		return This.MostFrequentWordsCS(n, 1)
+
+	def WordsAndTheirFrequencies()
+		# ENGINE-DIRECT one-pass: was UniqueWords() then a full-text rescan PER
+		# unique word (NumberOfOccurrenceOfWord), i.e. O(unique x length) --
+		# quadratic on any real document. Now every word is counted in a single
+		# hashmap pass; frequency = count / total. First-appearance order kept.
+		aCounts = This.WordsAndTheirCounts()
+		nTotal = This.NumberOfWords()
+		if nTotal = 0 return [] ok
+		aResult = []
+		nLen = len(aCounts)
+		for i = 1 to nLen
+			aResult + [ aCounts[i][1], aCounts[i][2] / nTotal ]
+		next
 		return aResult
 
 	def MostFrequentWord()
