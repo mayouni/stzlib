@@ -26,10 +26,26 @@ pub fn str_to_upper(handle: StzStringHandle) callconv(.c) StzStringHandle {
         const src = s.slice();
         const r = str_new() orelse return null;
         if (src.len == 0) return r;
-        // Heap buffer (max UTF-8 expansion). The old [64]u8 fast path
-        // truncated any string >64 bytes: stz_unicode_to_upper_str caps its
-        // return at the buffer size, so the `len <= 64` overflow check never
-        // fired and the big-buffer fallback was unreachable.
+        // ASCII fast path (is_ascii cached): ASCII uppercasing is locale-
+        // independent and 1:1 (a-z -> A-Z, all else unchanged), so a byte-wise
+        // transform is EXACT and auto-vectorizes -- no utf8proc, no per-
+        // codepoint decode, no expansion buffer. ~200x on large ASCII.
+        if (s.isAscii()) {
+            r.data.resize(gpa, src.len) catch {
+                setError(.out_of_memory);
+                return r;
+            };
+            for (src, 0..) |b, i| {
+                r.data.items[i] = if (b >= 'a' and b <= 'z') b - 32 else b;
+            }
+            r.cached_is_ascii = true;
+            r.cached_cp_count = src.len;
+            return r;
+        }
+        // Unicode path. Heap buffer (max UTF-8 expansion). The old [64]u8 fast
+        // path truncated any string >64 bytes: stz_unicode_to_upper_str caps
+        // its return at the buffer size, so the `len <= 64` overflow check
+        // never fired and the big-buffer fallback was unreachable.
         r.data.ensureTotalCapacity(gpa, src.len * 2) catch { setError(.out_of_memory); };
         const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
         defer gpa.free(big_buf);
@@ -47,10 +63,24 @@ pub fn str_to_lower(handle: StzStringHandle) callconv(.c) StzStringHandle {
         const src = s.slice();
         const r = str_new() orelse return null;
         if (src.len == 0) return r;
-        // Heap buffer (max UTF-8 expansion). The old [64]u8 fast path
-        // truncated any string >64 bytes: stz_unicode_to_lower_str caps its
-        // return at the buffer size, so the `len <= 64` overflow check never
-        // fired and the big-buffer fallback was unreachable.
+        // ASCII fast path (see str_to_upper): A-Z -> a-z byte-wise, exact +
+        // auto-vectorized.
+        if (s.isAscii()) {
+            r.data.resize(gpa, src.len) catch {
+                setError(.out_of_memory);
+                return r;
+            };
+            for (src, 0..) |b, i| {
+                r.data.items[i] = if (b >= 'A' and b <= 'Z') b + 32 else b;
+            }
+            r.cached_is_ascii = true;
+            r.cached_cp_count = src.len;
+            return r;
+        }
+        // Unicode path. Heap buffer (max UTF-8 expansion). The old [64]u8 fast
+        // path truncated any string >64 bytes: stz_unicode_to_lower_str caps
+        // its return at the buffer size, so the `len <= 64` overflow check
+        // never fired and the big-buffer fallback was unreachable.
         r.data.ensureTotalCapacity(gpa, src.len * 2) catch { setError(.out_of_memory); };
         const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
         defer gpa.free(big_buf);
