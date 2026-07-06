@@ -141,18 +141,20 @@ pub fn str_replace_cs(handle: StzStringHandle, old: [*c]const u8, old_len: usize
             s.data = result;
             s.invalidateCache();
         } else {
-            // Case-sensitive: direct comparison
+            // Case-sensitive: memchr-class search (std.mem.indexOfPos) + BULK
+            // copy of the gap between matches, into a pre-sized buffer. Was a
+            // byte-by-byte append into an un-reserved ArrayList (repeated
+            // growth reallocs + per-byte call overhead).
             var result: std.ArrayList(u8) = .{};
+            result.ensureTotalCapacity(gpa, src.len) catch return;
             var pos: usize = 0;
-
-            while (pos <= src.len) {
-                if (pos + old_len <= src.len and mem.eql(u8, src[pos..][0..old_len], old_slice)) {
-                    result.appendSlice(gpa, new_slice) catch return;
-                    pos += old_len;
-                } else if (pos < src.len) {
-                    result.append(gpa, src[pos]) catch return;
-                    pos += 1;
+            while (pos < src.len) {
+                if (std.mem.indexOfPos(u8, src, pos, old_slice)) |m| {
+                    result.appendSlice(gpa, src[pos..m]) catch return; // gap before match
+                    result.appendSlice(gpa, new_slice) catch return; // replacement
+                    pos = m + old_len;
                 } else {
+                    result.appendSlice(gpa, src[pos..]) catch return; // tail
                     break;
                 }
             }
