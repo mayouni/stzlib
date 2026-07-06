@@ -1,15 +1,20 @@
-// Softanza Engine -- String NLP / Text Analysis Operations
+// Softanza Engine -- Text Analytics (was nlp.zig)
 //
-// Similarity metrics, phonetic encoding, n-grams, text extraction,
-// and linguistic transforms. Extracted from string.zig as part of
-// Phase D module separation.
+// String metrics, phonetics, frequency/statistics, and text transforms. This is
+// text ANALYTICS, not linguistic NLP: it does statistics over already-tokenized
+// text. Tokenization itself lives behind the segmentation seam in word_break.zig
+// (UAX#29), which every word/sentence consumer here routes through. The genuinely
+// linguistic layer (stemming, lemmatization, POS, dictionary CJK/Thai
+// segmentation) is a future vendor step (ICU / snowball / libthai), not this file.
 //
 // Categories:
-//   Similarity: Levenshtein, Hamming, Jaro, Jaro-Winkler, Jaccard
+//   Similarity/fuzzy: Levenshtein, Hamming, Jaro, Jaro-Winkler, Jaccard, edit-cluster
 //   Phonetics: Soundex, Metaphone
+//   Frequency/stats: word/char/n-gram frequency, streaming accumulator,
+//                    collocations (PMI), cosine similarity, TF-IDF
 //   N-grams: ngram, ngram_count, char_ngrams, word_ngrams
-//   Extraction: extract_numbers, extract_emails, extract_words
-//   Linguistic: pluralize, to_pig_latin, to_nato, mask_email
+//   Extraction/aggregates: numbers (+ numeric aggregates), emails, words, sentence stats
+//   Transforms: pluralize, to_pig_latin, to_nato, mask_email
 
 const std = @import("std");
 const core = @import("core.zig");
