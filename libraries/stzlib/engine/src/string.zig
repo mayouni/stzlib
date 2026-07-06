@@ -108,6 +108,7 @@ pub const str_ngram = nlp.str_ngram;
 pub const str_ngram_count = nlp.str_ngram_count;
 pub const StzWordFreqResultHandle = nlp.StzWordFreqResultHandle;
 pub const str_word_freq = nlp.str_word_freq;
+pub const str_count_word_cs = nlp.str_count_word_cs;
 pub const stz_word_freq_count = nlp.stz_word_freq_count;
 pub const stz_word_freq_word = nlp.stz_word_freq_word;
 pub const stz_word_freq_num = nlp.stz_word_freq_num;
