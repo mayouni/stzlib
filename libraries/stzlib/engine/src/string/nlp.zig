@@ -29,6 +29,8 @@ const casefoldAlloc = core.casefoldAlloc;
 const ciMatch = core.ciMatch;
 const StzFindResult = core.StzFindResult;
 const StzFindResultHandle = core.StzFindResultHandle;
+const StzStrListResult = core.StzStrListResult;
+const StzStrListResultHandle = core.StzStrListResultHandle;
 const isVowelAscii = core.isVowelAscii;
 
 // ─── Similarity Metrics ───
@@ -955,6 +957,95 @@ pub fn str_word_ngram_freq(handle: StzStringHandle, n_gram: c_int, cs: c_int, n_
         }
     }
     finalizeFreq(&map, n_top, r);
+    return r;
+}
+
+// ─── Collocations via PMI (statistically significant word pairs) ───
+//
+// Pointwise Mutual Information ranks adjacent word pairs: PMI(w1,w2) =
+// log( c(w1,w2) * Ntokens / (c(w1) * c(w2)) ). High PMI = a pair that occurs
+// together far more than chance ("machine learning", "New York"). min_count
+// filters rare/noisy pairs. Returns the top-N bigrams by PMI as a
+// StzStrListResult (the phrases). cs=0 folds. One pass over the tokens.
+const Colloc = struct { phrase: []const u8, pmi: f64 };
+fn collLess(_: void, a: Colloc, b: Colloc) bool {
+    return a.pmi > b.pmi;
+}
+
+pub fn str_collocations(handle: StzStringHandle, min_count: c_int, top: c_int, cs: c_int) callconv(.c) StzStrListResultHandle {
+    const r = gpa.create(StzStrListResult) catch return null;
+    r.* = StzStrListResult.init();
+    const s = (handle orelse return r);
+    const raw = s.slice();
+    const folded: ?[]u8 = if (cs == 0) casefoldAlloc(raw) else null;
+    defer if (folded) |f| gpa.free(f);
+    const work: []const u8 = if (folded) |f| f else raw;
+
+    var words: std.ArrayList([]const u8) = .{};
+    defer words.deinit(gpa);
+    {
+        var pos: usize = 0;
+        while (pos < work.len) {
+            while (pos < work.len and !isWordByte(work[pos])) pos += 1;
+            if (pos >= work.len) break;
+            const start = pos;
+            while (pos < work.len and (isWordByte(work[pos]) or work[pos] == '\'')) pos += 1;
+            words.append(gpa, work[start..pos]) catch {};
+        }
+    }
+    if (words.items.len < 2) return r;
+
+    var uni = std.StringHashMap(f64).init(gpa);
+    defer uni.deinit();
+    for (words.items) |w| {
+        const gop = uni.getOrPut(w) catch continue;
+        if (!gop.found_existing) gop.value_ptr.* = 0;
+        gop.value_ptr.* += 1;
+    }
+    // bigram counts, keyed by owned "w1 w2".
+    var big = std.StringHashMap(i64).init(gpa);
+    defer {
+        var kit = big.keyIterator();
+        while (kit.next()) |k| gpa.free(k.*);
+        big.deinit();
+    }
+    var i: usize = 0;
+    while (i + 1 < words.items.len) : (i += 1) {
+        const w1 = words.items[i];
+        const w2 = words.items[i + 1];
+        const key = gpa.alloc(u8, w1.len + 1 + w2.len) catch continue;
+        @memcpy(key[0..w1.len], w1);
+        key[w1.len] = ' ';
+        @memcpy(key[w1.len + 1 ..], w2);
+        const gop = big.getOrPut(key) catch {
+            gpa.free(key);
+            continue;
+        };
+        if (gop.found_existing) {
+            gpa.free(key);
+            gop.value_ptr.* += 1;
+        } else gop.value_ptr.* = 1;
+    }
+
+    const Nu: f64 = @floatFromInt(words.items.len);
+    const minc: i64 = min_count;
+    var entries: std.ArrayList(Colloc) = .{};
+    defer entries.deinit(gpa);
+    var it = big.iterator();
+    while (it.next()) |kv| {
+        if (kv.value_ptr.* < minc) continue;
+        const phrase = kv.key_ptr.*;
+        const sp = std.mem.indexOfScalar(u8, phrase, ' ') orelse continue;
+        const c1 = uni.get(phrase[0..sp]) orelse continue;
+        const c2 = uni.get(phrase[sp + 1 ..]) orelse continue;
+        const cbg: f64 = @floatFromInt(kv.value_ptr.*);
+        const pmi = @log(cbg * Nu / (c1 * c2));
+        entries.append(gpa, .{ .phrase = phrase, .pmi = pmi }) catch {};
+    }
+    std.sort.pdq(Colloc, entries.items, {}, collLess);
+    const keep: usize = if (top <= 0) entries.items.len else @min(@as(usize, @intCast(top)), entries.items.len);
+    var k: usize = 0;
+    while (k < keep) : (k += 1) r.push(entries.items[k].phrase);
     return r;
 }
 

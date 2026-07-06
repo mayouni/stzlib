@@ -19058,6 +19058,19 @@ class stzString from stzObject
 	def MostFrequentNGrams(n, nTop)
 		return This.MostFrequentNGramsCS(n, nTop, 1)
 
+	# --- Collocations (PMI-ranked significant word pairs) ---
+	# Word pairs that co-occur far more than chance ("machine learning",
+	# "New York"). nMinCount filters rare pairs. Returns top-N phrases by PMI.
+	def CollocationsCS(nMinCount, nTop, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return This._DrainStrList( StzEngineStringCollocations(@pEngine, nMinCount, nTop, _bCase_) )
+
+	def Collocations(nMinCount, nTop)
+		return This.CollocationsCS(nMinCount, nTop, 1)
+
+	def MostSignificantCollocations(nTop)
+		return This.CollocationsCS(1, nTop, 1)
+
 	# --- Sentence segmentation stats (readability) ---
 	# Sentence = text up to each . ! ? terminator. All engine-direct, no
 	# materialization: averages come from cached engine counts; the extremes
