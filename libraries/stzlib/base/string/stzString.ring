@@ -6613,6 +6613,48 @@ class stzString from stzObject
 	def ReplaceMany(pacSubStrings, pcNewSubStr)
 		This.ReplaceManyCS(pacSubStrings, pcNewSubStr, 1)
 
+	#-- NUL-pack a list of strings for the engine multi-replace bridge.
+	def _PackNullDelim(paList)
+		_cPk_ = ""
+		_nPkL_ = len(paList)
+		for _iPk_ = 1 to _nPkL_
+			_cPk_ += paList[_iPk_]
+			if _iPk_ < _nPkL_ _cPk_ += char(0) ok
+		next
+		return _cPk_
+
+	# ONE-PASS dictionary replace: old[i] -> new[i], scanning the text ONCE.
+	# The FIRST matching pattern (in list order) wins at each position and the
+	# scan advances past it -- so a replacement's output is NEVER re-matched
+	# (no cascade). Contrast the classic ReplaceManyByMany which runs N
+	# sequential Replace passes (N full rebuilds + cascade). For templating,
+	# sanitization and dictionary substitution. Patterns must not contain NUL.
+	def MultiReplacedCS(paOlds, paNews, pCaseSensitive)
+		if NOT (isList(paOlds) and isList(paNews)) return This.Content() ok
+		if len(paOlds) = 0 return This.Content() ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_pMrR_ = StzEngineStringReplaceManyCS(@pEngine, This._PackNullDelim(paOlds), This._PackNullDelim(paNews), _bCase_)
+		_cMrRes_ = StzEngineStringData(_pMrR_)
+		StzEngineStringFree(_pMrR_)
+		return _cMrRes_
+
+	def MultiReplaced(paOlds, paNews)
+		return This.MultiReplacedCS(paOlds, paNews, 1)
+
+	def MultiReplaceCS(paOlds, paNews, pCaseSensitive)
+		This.Update( This.MultiReplacedCS(paOlds, paNews, pCaseSensitive) )
+
+		def MultiReplaceCSQ(paOlds, paNews, pCaseSensitive)
+			This.MultiReplaceCS(paOlds, paNews, pCaseSensitive)
+			return This
+
+	def MultiReplace(paOlds, paNews)
+		This.MultiReplaceCS(paOlds, paNews, 1)
+
+		def MultiReplaceQ(paOlds, paNews)
+			This.MultiReplace(paOlds, paNews)
+			return This
+
 	#-- Immutable forms of ReplaceMany. Return the new string content
 	#   without mutating This. Ported from archive line 41923.
 
