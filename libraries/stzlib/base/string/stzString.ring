@@ -19018,6 +19018,26 @@ class stzString from stzObject
 		if len(_aMfc_) = 0 return "" ok
 		return _aMfc_[1][1]
 
+	# --- Word N-grams (engine-direct, one pass) ---
+	# Sequences of n consecutive words (n=2 bigrams, 3 trigrams). Language
+	# modeling, autocomplete, collocation detection, plagiarism.
+
+	# [[ngram, count], ...] for every distinct n-gram (first-appearance order).
+	def NGramsAndTheirCountsCS(n, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return This._DrainCharWordFreq( StzEngineStringWordNGramFreq(@pEngine, n, _bCase_, 0) )
+
+	def NGramsAndTheirCounts(n)
+		return This.NGramsAndTheirCountsCS(n, 1)
+
+	# The top-N most frequent n-grams as [[ngram, count], ...] (count desc).
+	def MostFrequentNGramsCS(n, nTop, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return This._DrainCharWordFreq( StzEngineStringWordNGramFreq(@pEngine, n, _bCase_, nTop) )
+
+	def MostFrequentNGrams(n, nTop)
+		return This.MostFrequentNGramsCS(n, nTop, 1)
+
 	# --- Sentences ---
 
 	def NumberOfSentences()

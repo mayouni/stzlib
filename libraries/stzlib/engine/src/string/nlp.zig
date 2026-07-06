@@ -884,6 +884,78 @@ pub fn str_count_word_cs(handle: StzStringHandle, word: [*c]const u8, word_len: 
     return count;
 }
 
+// Word N-GRAM frequency -- sequences of N consecutive words (bigrams,
+// trigrams). Language modeling, autocomplete, collocation detection,
+// plagiarism. One pass over the tokenized words; reuses StzWordFreqResult +
+// the word-freq accessors. n_gram = words per gram (2=bigram, ...). Grams are
+// the member words joined by a single space. cs=0 case-folds the key.
+pub fn str_word_ngram_freq(handle: StzStringHandle, n_gram: c_int, cs: c_int, n_top: c_int) callconv(.c) StzWordFreqResultHandle {
+    const r = gpa.create(StzWordFreqResult) catch return null;
+    r.* = .{ .words = .{}, .counts = .{} };
+    const s = handle orelse return r;
+    if (n_gram <= 0) return r;
+    const N: usize = @intCast(n_gram);
+    const src = s.slice();
+
+    // Collect word slices (views into src).
+    var words: std.ArrayList([]const u8) = .{};
+    defer words.deinit(gpa);
+    {
+        var pos: usize = 0;
+        while (pos < src.len) {
+            while (pos < src.len and !isWordByte(src[pos])) pos += 1;
+            if (pos >= src.len) break;
+            const start = pos;
+            while (pos < src.len and (isWordByte(src[pos]) or src[pos] == '\'')) pos += 1;
+            words.append(gpa, src[start..pos]) catch {};
+        }
+    }
+    if (words.items.len < N) {
+        return r; // fewer words than the gram size -> no grams
+    }
+
+    var map = std.StringHashMap(FreqEntry).init(gpa);
+    var order: usize = 0;
+    var i: usize = 0;
+    while (i + N <= words.items.len) : (i += 1) {
+        // Build the gram: words[i..i+N] joined by a single space.
+        var gram: std.ArrayList(u8) = .{};
+        defer gram.deinit(gpa);
+        var j: usize = 0;
+        while (j < N) : (j += 1) {
+            if (j > 0) gram.append(gpa, ' ') catch {};
+            gram.appendSlice(gpa, words.items[i + j]) catch {};
+        }
+        const g = gram.items;
+        const key: []u8 = if (cs == 0)
+            (casefoldAlloc(g) orelse continue)
+        else blk: {
+            const k = gpa.alloc(u8, g.len) catch continue;
+            @memcpy(k, g);
+            break :blk k;
+        };
+        const gop = map.getOrPut(key) catch {
+            gpa.free(key);
+            continue;
+        };
+        if (gop.found_existing) {
+            gpa.free(key);
+            gop.value_ptr.count += 1;
+        } else {
+            const rep = gpa.alloc(u8, g.len) catch {
+                _ = map.remove(key);
+                gpa.free(key);
+                continue;
+            };
+            @memcpy(rep, g);
+            gop.value_ptr.* = .{ .rep = rep, .count = 1, .order = order };
+            order += 1;
+        }
+    }
+    finalizeFreq(&map, n_top, r);
+    return r;
+}
+
 // One-pass numeric aggregate over the numbers embedded in text (invoices,
 // logs, totals, data extraction). A number token = optional '-', digits, one
 // optional '.' with more digits -- matching Numbers(). Parses each to f64 and
