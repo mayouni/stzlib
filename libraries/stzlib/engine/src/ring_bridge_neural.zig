@@ -76,8 +76,27 @@ fn ring_NeuralModelTensorName(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring(p, n);
 }
 
+fn ring_NeuralTokenize(p: *anyopaque) callconv(.c) void {
+    const ptr = gs(p, 1);
+    const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    rn(p, @floatFromInt(embed.neural_tokenize(ptr, len)));
+}
+fn ring_NeuralTokenAt(p: *anyopaque) callconv(.c) void {
+    const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    rn(p, @floatFromInt(embed.neural_token_at(i)));
+}
+
+fn ring_NeuralVocabToken(p: *anyopaque) callconv(.c) void {
+    const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    const t: [*:0]const u8 = @ptrCast(embed.neural_vocab_token(i));
+    R.ring_vm_api_retstring(p, t);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzengineneuralvocabtoken", .func = &ring_NeuralVocabToken },
     .{ .name = "stzengineneuralmodeltensorname", .func = &ring_NeuralModelTensorName },
+    .{ .name = "stzengineneuraltokenize", .func = &ring_NeuralTokenize },
+    .{ .name = "stzengineneuraltokenat", .func = &ring_NeuralTokenAt },
     .{ .name = "stzengineneuralsmoke", .func = &ring_NeuralSmoke },
     .{ .name = "stzengineneuralversion", .func = &ring_NeuralVersion },
     .{ .name = "stzengineneuralmodelload", .func = &ring_NeuralModelLoad },
