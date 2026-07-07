@@ -27,4 +27,17 @@ Scenario("Runtime snapshot + global shortcuts")
 		isObject(StzNeuralQ()), TRUE)
 EndScenario()
 
+Scenario("Model API (GGUF loads at RUNTIME -- no real model needed here)")
+	o = new stzNeural()
+	Then("no model is loaded initially",
+		o.ModelLoaded(), FALSE)
+	Then("loading a missing file fails cleanly (no crash)",
+		o.LoadModel("does_not_exist.gguf"), FALSE)
+	Then("a non-string path is rejected",
+		o.LoadModel(123), FALSE)
+	# NOTE: real loading is verified manually with a BERT GGUF, e.g. all-MiniLM-
+	# L6-v2 -- o.LoadModel(cPath) -> o.ModelInfo() reads arch/dim/layers/vocab.
+	# Models are LARGE + user-provided at runtime, so not committed to the suite.
+EndScenario()
+
 Summary()

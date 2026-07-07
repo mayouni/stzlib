@@ -1,4 +1,5 @@
 pub const neural = @import("neural.zig");
+pub const neural_embed = @import("neural_embed.zig");
 pub const ring_bridge = @import("ring_bridge_neural.zig");
 
 comptime {
@@ -11,4 +12,5 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
 
 test {
     _ = neural;
+    _ = neural_embed;
 }

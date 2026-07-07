@@ -80,8 +80,52 @@ class stzNeural
 		? "  ready   : " + This.IsReady()
 		return This
 
+	  #==========================================================#
+	 #   MODEL (runtime GGUF loading)                           #
+	#==========================================================#
+	# Neural models are LARGE and load from disk at RUNTIME (not @embedFile'd).
+	# LoadModel(cPath) loads a BERT-family GGUF (e.g. all-MiniLM-L6-v2) into the
+	# runtime; ModelInfo() reads its architecture + hyperparameters.
+
+	def LoadModel(cPath)
+		if NOT isString(cPath) return FALSE ok
+		return StzEngineNeuralModelLoad(cPath) = 1
+
+	def ModelLoaded()
+		return StzEngineNeuralModelLoaded() = 1
+
+	def UnloadModel()
+		StzEngineNeuralModelFree()
+		return This
+
+	def ModelArch()
+		return StzEngineNeuralModelArch()
+
+	# Architecture + hyperparameters of the loaded model as [key, value] data.
+	def ModelInfo()
+		return [
+			[ "arch", StzEngineNeuralModelArch() ],
+			[ "embedding_dim", StzEngineNeuralModelNEmbd() ],
+			[ "layers", StzEngineNeuralModelNLayers() ],
+			[ "heads", StzEngineNeuralModelNHeads() ],
+			[ "context_length", StzEngineNeuralModelNCtx() ],
+			[ "vocab_size", StzEngineNeuralModelNVocab() ],
+			[ "tensors", StzEngineNeuralModelNTensors() ]
+		]
+
+	def ShowModel()
+		if NOT This.ModelLoaded()
+			? "no model loaded"
+			return This
+		ok
+		? "model: " + This.ModelArch() +
+		  "  dim=" + StzEngineNeuralModelNEmbd() +
+		  "  layers=" + StzEngineNeuralModelNLayers() +
+		  "  vocab=" + StzEngineNeuralModelNVocab()
+		return This
+
 	#-- ROADMAP (next milestones, wired to the engine as they land):
-	#   def LoadModelQ(cPath)         -> stzNeuralModel (GGUF, runtime-loaded)
+	#   def LoadModelQ(cPath)         -> stzNeuralModel object (chainable)
 	#   stzText.EmbeddingQ()          -> sentence embedding vector
 	#   stzText.SemanticSimilarityWith(cOther)
 	#   class stzNeuralNetwork ...    -> build/train networks
