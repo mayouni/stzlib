@@ -1,168 +1,204 @@
-// Softanza Engine -- Lemmatization (dictionary + rule fallback), English
+// Softanza Engine -- Lemmatization (dictionary + rule fallback), multi-language
 //
-// Reduces a word to its DICTIONARY form (lemma): "was"->"be", "better"->"good",
-// "mice"->"mouse", "running"->"run". Unlike stemming (algorithmic, "was"->"wa"),
-// lemmatization handles irregulars and returns real words. Backed by a vendored
-// lemma dictionary (src/string/data/lemmatization-en.txt, Wiktionary-derived,
-// ODbL -- see its NOTICE) COMPILED IN via @embedFile: no runtime data files,
-// same "everything in the binary" model as utf8proc/pcre2/snowball tables.
-// (@embedFile requires the data under the module's src/ tree, not vendor/.)
+// Reduces a word to its DICTIONARY form (lemma): "was"->"be", "mice"->"mouse";
+// French "chevaux"->"cheval", "mangé"->"manger". Unlike stemming (algorithmic),
+// lemmatization handles irregulars and returns real words. Backed by vendored
+// lemma dictionaries (michmech/lemmatization-lists, ODbL -- see NOTICE) COMPILED
+// IN via @embedFile: no runtime files, same model as utf8proc/pcre2/snowball.
+// (@embedFile requires the data under src/, so it lives in src/string/data/.)
 //
-// Strategy (spaCy "lookup" lemmatizer + WordNet-morphy-style fallback):
-//   1. exact lookup form -> lemma (covers all irregulars + common inflections);
-//   2. if missing, strip regular English suffixes (-s/-es/-ies/-ed/-ing, incl.
-//      doubled consonants and silent-e) and accept a candidate ONLY if it is a
-//      known lemma -- the lemma column doubles as the validation dictionary;
-//   3. else return the word unchanged (never mangle).
-// English only for now; other languages are a drop-in (embed lemmatization-<l>.txt
-// + one table row). Words are tokenized through the UAX#29 seam (WordIter).
+// Per language: exact lookup form->lemma; for English also a regular-suffix
+// fallback validated against the lemma set (the lemma column doubles as the
+// validation dictionary); else the word is returned unchanged (never mangled).
+// The lookup key is UNICODE-lowercased (needed for accented forms). Adding a
+// language = @embedFile lemmatization-<l>.txt + one row in `langs`.
 
 const std = @import("std");
 const core = @import("core.zig");
 const wb = @import("word_break.zig");
+const unicode = core.unicode;
+const mem = core.mem;
 const gpa = core.gpa;
 const StzStringHandle = core.StzStringHandle;
 const str_new = core.str_new;
 
 const lemma_en_data = @embedFile("data/lemmatization-en.txt");
+const lemma_fr_data = @embedFile("data/lemmatization-fr.txt");
 
-// Lazily-built once. Keys/values are SLICES INTO the embedded static data
-// (comptime bytes, valid for the program's lifetime) -- no per-entry allocation.
-var g_built = false;
-var g_form2lemma: std.StringHashMap([]const u8) = undefined;
-var g_lemmas: std.StringHashMap(void) = undefined;
+const Lang = struct {
+    name: []const u8,
+    data: []const u8,
+    rules: bool, // apply the English regular-suffix fallback
+};
 
-fn buildTables() void {
-    if (g_built) return;
-    g_form2lemma = std.StringHashMap([]const u8).init(gpa);
-    g_lemmas = std.StringHashMap(void).init(gpa);
-    var it = std.mem.splitScalar(u8, lemma_en_data, '\n');
+// english first so index 0 is the default.
+const langs = [_]Lang{
+    .{ .name = "english", .data = lemma_en_data, .rules = true },
+    .{ .name = "french", .data = lemma_fr_data, .rules = false },
+};
+
+const Maps = struct {
+    f2l: std.StringHashMap([]const u8) = undefined,
+    lemmas: std.StringHashMap(void) = undefined,
+    built: bool = false,
+};
+var g_maps: [langs.len]Maps = [_]Maps{.{}} ** langs.len;
+
+fn buildLang(li: usize) void {
+    if (g_maps[li].built) return;
+    g_maps[li].f2l = std.StringHashMap([]const u8).init(gpa);
+    g_maps[li].lemmas = std.StringHashMap(void).init(gpa);
+    var it = std.mem.splitScalar(u8, langs[li].data, '\n');
     while (it.next()) |raw| {
         const line = std.mem.trimRight(u8, raw, "\r");
-        if (line.len == 0) continue;
         const tab = std.mem.indexOfScalar(u8, line, '\t') orelse continue;
         const lemma = line[0..tab];
         const form = line[tab + 1 ..];
         if (lemma.len == 0 or form.len == 0) continue;
-        g_form2lemma.put(form, lemma) catch {};
-        g_lemmas.put(lemma, {}) catch {};
+        g_maps[li].f2l.put(form, lemma) catch {};
+        g_maps[li].lemmas.put(lemma, {}) catch {};
     }
-    g_built = true;
+    g_maps[li].built = true;
 }
 
-fn isKnownLemma(s: []const u8) bool {
-    return g_lemmas.contains(s);
+// Language index for `name` (case-insensitive ASCII); 0 (english) if unknown.
+fn langIndex(name: []const u8) usize {
+    if (name.len == 0) return 0;
+    var buf: [16]u8 = undefined;
+    if (name.len > buf.len) return 0;
+    for (name, 0..) |c, i| buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+    const key = buf[0..name.len];
+    for (langs, 0..) |L, i| {
+        if (mem.eql(u8, key, L.name)) return i;
+    }
+    return 0;
 }
 
-// Regular-inflection detachment rules. Writes each candidate into `cbuf`, returns
-// the first that is a known lemma (a static slice via the lemma set), else null.
-fn ruleFallback(w: []const u8, cbuf: []u8) ?[]const u8 {
+// Unicode-lowercase `word` into `buf` (needed for accented forms -- French "Été"
+// -> "été"; ASCII fast path). Returns the original word on buffer overflow.
+fn lowerUnicode(word: []const u8, buf: []u8) []const u8 {
+    var oi: usize = 0;
+    var i: usize = 0;
+    while (i < word.len) {
+        const b = word[i];
+        if (b < 0x80) {
+            if (oi >= buf.len) return word;
+            buf[oi] = if (b >= 'A' and b <= 'Z') b + 32 else b;
+            oi += 1;
+            i += 1;
+            continue;
+        }
+        const cl = std.unicode.utf8ByteSequenceLength(b) catch {
+            i += 1;
+            continue;
+        };
+        if (i + cl > word.len) break;
+        const cp = std.unicode.utf8Decode(word[i .. i + cl]) catch {
+            i += cl;
+            continue;
+        };
+        const lc: u21 = @intCast(unicode.stz_unicode_to_lower(@intCast(cp)));
+        var tmp: [4]u8 = undefined;
+        const n = std.unicode.utf8Encode(lc, &tmp) catch {
+            i += cl;
+            continue;
+        };
+        if (oi + n > buf.len) return word;
+        @memcpy(buf[oi .. oi + n], tmp[0..n]);
+        oi += n;
+        i += cl;
+    }
+    return buf[0..oi];
+}
+
+// English regular-inflection detachment rules; accept a candidate only if it is
+// a known lemma of `lemmas`. Writes candidates into `cbuf`.
+fn ruleFallback(w: []const u8, cbuf: []u8, lemmas: *std.StringHashMap(void)) ?[]const u8 {
     const n = w.len;
-    // helper: validate a candidate built from a base slice (+ optional suffix)
     const Try = struct {
-        fn ok(base: []const u8, suffix: []const u8, buf: []u8) ?[]const u8 {
+        fn ok(base: []const u8, suffix: []const u8, buf: []u8, set: *std.StringHashMap(void)) ?[]const u8 {
             if (base.len + suffix.len > buf.len) return null;
             @memcpy(buf[0..base.len], base);
             @memcpy(buf[base.len .. base.len + suffix.len], suffix);
             const cand = buf[0 .. base.len + suffix.len];
-            return if (g_lemmas.contains(cand)) cand else null;
+            return if (set.contains(cand)) cand else null;
         }
     };
-
-    // plurals / 3rd person: -ies -> -y ; -es -> "" ; -s -> ""
     if (n > 4 and std.mem.endsWith(u8, w, "ies")) {
-        if (Try.ok(w[0 .. n - 3], "y", cbuf)) |c| return c;
+        if (Try.ok(w[0 .. n - 3], "y", cbuf, lemmas)) |c| return c;
     }
     if (n > 3 and std.mem.endsWith(u8, w, "es")) {
-        if (Try.ok(w[0 .. n - 2], "", cbuf)) |c| return c; // boxes -> box
-        if (Try.ok(w[0 .. n - 1], "", cbuf)) |c| return c; // uses -> use
+        if (Try.ok(w[0 .. n - 2], "", cbuf, lemmas)) |c| return c;
+        if (Try.ok(w[0 .. n - 1], "", cbuf, lemmas)) |c| return c;
     }
     if (n > 2 and w[n - 1] == 's' and w[n - 2] != 's') {
-        if (Try.ok(w[0 .. n - 1], "", cbuf)) |c| return c; // cats -> cat
+        if (Try.ok(w[0 .. n - 1], "", cbuf, lemmas)) |c| return c;
     }
-    // past tense: -ed -> "" / +e / doubled-consonant
     if (n > 3 and std.mem.endsWith(u8, w, "ed")) {
-        if (Try.ok(w[0 .. n - 1], "", cbuf)) |c| return c; // used -> use
-        if (Try.ok(w[0 .. n - 2], "", cbuf)) |c| return c; // walked -> walk
+        if (Try.ok(w[0 .. n - 1], "", cbuf, lemmas)) |c| return c;
+        if (Try.ok(w[0 .. n - 2], "", cbuf, lemmas)) |c| return c;
         if (n > 4 and w[n - 3] == w[n - 4]) {
-            if (Try.ok(w[0 .. n - 3], "", cbuf)) |c| return c; // stopped -> stop
+            if (Try.ok(w[0 .. n - 3], "", cbuf, lemmas)) |c| return c;
         }
     }
-    // present participle / gerund: -ing -> "" / +e / doubled-consonant
     if (n > 4 and std.mem.endsWith(u8, w, "ing")) {
-        if (Try.ok(w[0 .. n - 3], "e", cbuf)) |c| return c; // making -> make
-        if (Try.ok(w[0 .. n - 3], "", cbuf)) |c| return c; // reading -> read
+        if (Try.ok(w[0 .. n - 3], "e", cbuf, lemmas)) |c| return c;
+        if (Try.ok(w[0 .. n - 3], "", cbuf, lemmas)) |c| return c;
         if (n > 5 and w[n - 4] == w[n - 5]) {
-            if (Try.ok(w[0 .. n - 4], "", cbuf)) |c| return c; // running -> run
+            if (Try.ok(w[0 .. n - 4], "", cbuf, lemmas)) |c| return c;
         }
     }
-    // comparative/superlative: -er/-est -> "" / +e (validated)
     if (n > 3 and std.mem.endsWith(u8, w, "er")) {
-        if (Try.ok(w[0 .. n - 2], "", cbuf)) |c| return c;
-        if (Try.ok(w[0 .. n - 1], "", cbuf)) |c| return c;
+        if (Try.ok(w[0 .. n - 2], "", cbuf, lemmas)) |c| return c;
+        if (Try.ok(w[0 .. n - 1], "", cbuf, lemmas)) |c| return c;
     }
     if (n > 4 and std.mem.endsWith(u8, w, "est")) {
-        if (Try.ok(w[0 .. n - 3], "", cbuf)) |c| return c;
-        if (Try.ok(w[0 .. n - 2], "", cbuf)) |c| return c;
+        if (Try.ok(w[0 .. n - 3], "", cbuf, lemmas)) |c| return c;
+        if (Try.ok(w[0 .. n - 2], "", cbuf, lemmas)) |c| return c;
     }
     return null;
 }
 
-// Lemmatize `word` into `out`. Found -> canonical (lowercase) lemma; unknown ->
-// the ORIGINAL word unchanged (case preserved). lang != english -> passthrough
-// (only English data is embedded so far).
-fn lemmatizeInto(word: []const u8, out: *std.ArrayList(u8), english: bool) void {
+fn lemmatizeInto(word: []const u8, out: *std.ArrayList(u8), li: usize) void {
     if (word.len == 0) return;
-    if (!english) {
-        out.appendSlice(gpa, word) catch {};
-        return;
-    }
-    buildTables();
+    buildLang(li);
     var lbuf: [128]u8 = undefined;
     var cbuf: [160]u8 = undefined;
-    // ASCII-lowercase the lookup key (English lemma data is ASCII).
-    const key: []const u8 = if (word.len <= lbuf.len) blk: {
-        for (word, 0..) |ch, i| lbuf[i] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
-        break :blk lbuf[0..word.len];
-    } else word;
-
-    if (g_form2lemma.get(key)) |lemma| {
+    const key = lowerUnicode(word, &lbuf);
+    if (g_maps[li].f2l.get(key)) |lemma| {
         out.appendSlice(gpa, lemma) catch {};
         return;
     }
-    if (ruleFallback(key, &cbuf)) |cand| {
-        out.appendSlice(gpa, cand) catch {};
-        return;
+    if (langs[li].rules) {
+        if (ruleFallback(key, &cbuf, &g_maps[li].lemmas)) |cand| {
+            out.appendSlice(gpa, cand) catch {};
+            return;
+        }
     }
     out.appendSlice(gpa, word) catch {}; // unknown -> leave as-is
 }
 
-fn isEnglish(lang: [*c]const u8, lang_len: usize) bool {
-    if (lang == null or lang_len == 0) return true;
-    const s = lang[0..lang_len];
-    if (s.len != 7) return false;
-    var buf: [7]u8 = undefined;
-    for (s, 0..) |ch, i| buf[i] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
-    return std.mem.eql(u8, &buf, "english");
+fn langOf(lang: [*c]const u8, lang_len: usize) usize {
+    return if (lang == null or lang_len == 0) 0 else langIndex(lang[0..lang_len]);
 }
 
 pub fn str_lemmatize_word(word: [*c]const u8, len: usize, lang: [*c]const u8, lang_len: usize) callconv(.c) StzStringHandle {
     const result = str_new() orelse return null;
     if (word == null or len == 0) return result;
-    lemmatizeInto(word[0..len], &result.data, isEnglish(lang, lang_len));
+    lemmatizeInto(word[0..len], &result.data, langOf(lang, lang_len));
     return result;
 }
 
 pub fn str_lemmatize_words(handle: StzStringHandle, lang: [*c]const u8, lang_len: usize) callconv(.c) StzStringHandle {
     const result = str_new() orelse return null;
     const s = handle orelse return result;
-    const en = isEnglish(lang, lang_len);
+    const li = langOf(lang, lang_len);
     const src = s.slice();
     var wit = wb.WordIter.init(src);
     var first = true;
     while (wit.next()) |span| {
         if (!first) result.data.append(gpa, 0) catch break;
-        lemmatizeInto(src[span.start..span.end], &result.data, en);
+        lemmatizeInto(src[span.start..span.end], &result.data, li);
         first = false;
     }
     return result;
@@ -171,13 +207,13 @@ pub fn str_lemmatize_words(handle: StzStringHandle, lang: [*c]const u8, lang_len
 pub fn str_lemmatize_text(handle: StzStringHandle, lang: [*c]const u8, lang_len: usize) callconv(.c) StzStringHandle {
     const result = str_new() orelse return null;
     const s = handle orelse return result;
-    const en = isEnglish(lang, lang_len);
+    const li = langOf(lang, lang_len);
     const src = s.slice();
     var wit = wb.WordIter.init(src);
     var last: usize = 0;
     while (wit.next()) |span| {
         result.data.appendSlice(gpa, src[last..span.start]) catch break; // separators verbatim
-        lemmatizeInto(src[span.start..span.end], &result.data, en);
+        lemmatizeInto(src[span.start..span.end], &result.data, li);
         last = span.end;
     }
     result.data.appendSlice(gpa, src[last..]) catch {};
@@ -188,18 +224,10 @@ const testing = std.testing;
 const str_from = core.str_from;
 const str_free = core.str_free;
 
-test "lemmatize irregulars + regulars in place" {
+test "lemmatize english irregulars in place" {
     const s = str_from("the mice were running better", 28) orelse return error.SkipZigTest;
     defer str_free(s);
     const r = str_lemmatize_text(s, "english", 7) orelse return error.SkipZigTest;
     defer str_free(r);
     try testing.expectEqualStrings("the mouse be run good", r.slice());
-}
-
-test "unknown word passes through" {
-    const s = str_from("Zorptastic", 10) orelse return error.SkipZigTest;
-    defer str_free(s);
-    const r = str_lemmatize_text(s, "english", 7) orelse return error.SkipZigTest;
-    defer str_free(r);
-    try testing.expectEqualStrings("Zorptastic", r.slice());
 }

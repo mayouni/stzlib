@@ -24,3 +24,5 @@ ner_places augmented with US states, some provinces/regions.
 
 stopwords_en.txt: the standard English stopword list (common public-domain set,
 as used by NLTK et al.).
+
+lemmatization-fr.txt: French, same michmech/lemmatization-lists source (ODbL).
