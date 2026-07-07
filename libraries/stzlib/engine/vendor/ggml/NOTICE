@@ -6,3 +6,10 @@ CPU-only: GPU backends (CUDA/Vulkan/Metal/SYCL/etc.) and non-x86 arch dirs
 (arm/riscv/powerpc/s390/loongarch/wasm) removed. Compiled from source via Zig's
 clang (no cmake) -- see engine/build.zig addGgml(). GGML_VERSION/GGML_COMMIT
 (normally injected by cmake) are defined as "0.0.0-stz" at build time.
+
+SOFTANZA PATCH (src/gguf.cpp gguf_type_size): replaced the namespace-scope
+`static std::map GGUF_TYPE_SIZE` lookup with a switch. Reason: C++ global
+constructors are NOT invoked in the Zig-built DLL on Windows, so the map stays
+empty -> returns 0 -> division-by-zero in gguf get_ne(). The switch is
+ctor-independent. (The broader "run C++ global ctors in the DLL" fix is pending
+for the embedding forward pass, which touches more C++ static state.)

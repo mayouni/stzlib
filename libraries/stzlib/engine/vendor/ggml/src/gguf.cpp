@@ -124,8 +124,23 @@ static const std::map<gguf_type, const char *> GGUF_TYPE_NAME = {
 static_assert(GGUF_TYPE_COUNT == 13, "GGUF_TYPE_COUNT != 13");
 
 size_t gguf_type_size(enum gguf_type type) {
-    auto it = GGUF_TYPE_SIZE.find(type);
-    return it == GGUF_TYPE_SIZE.end() ? 0 : it->second;
+    // Softanza patch: switch instead of the namespace-scope std::map lookup --
+    // that map's global constructor does NOT run in the Zig-built DLL (Windows),
+    // leaving it empty -> 0 -> division-by-zero in get_ne(). See ../NOTICE.
+    switch (type) {
+        case GGUF_TYPE_UINT8:
+        case GGUF_TYPE_INT8:
+        case GGUF_TYPE_BOOL:    return 1;
+        case GGUF_TYPE_UINT16:
+        case GGUF_TYPE_INT16:   return 2;
+        case GGUF_TYPE_UINT32:
+        case GGUF_TYPE_INT32:
+        case GGUF_TYPE_FLOAT32: return 4;
+        case GGUF_TYPE_UINT64:
+        case GGUF_TYPE_INT64:
+        case GGUF_TYPE_FLOAT64: return 8;
+        default:               return 0; // STRING, ARRAY (undefined)
+    }
 }
 
 struct gguf_kv {
