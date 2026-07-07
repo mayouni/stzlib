@@ -88,8 +88,10 @@ ok
     # NLP / text-meaning domain (stzText from stzStringText)
     load "nlp/stzText.ring"
 
-    # Modern / neural domain (stzNeural -- ggml runtime facade)
+    # Modern / neural domain (base/neural/): stzNeural base -> engine + model
     load "neural/stzNeural.ring"
+    load "neural/stzNeuralEngine.ring"
+    load "neural/stzNeuralModel.ring"
 
     load "string/stzWordStream.ring"
 
