@@ -78,9 +78,11 @@ Scenario("Language detection across six languages + script + unknown")
 	Then("no signal -> unknown", ou.Language(), "unknown")
 EndScenario()
 
-Scenario("Q-chaining: SentencesQ keeps TEXT ops, not just generic list ops")
+Scenario("Q-chaining: SentencesQ returns a stzListOfTexts (meaning ops), not stzListOfStrings")
 	o1 = new stzString("I love this wonderful product. The service was terrible and slow. It is a plain wooden chair.")
-	Then("MostSimilarByMeaning picks by word overlap (cosine)",
+	Then("a list of sentences is a list of TEXTS (they carry meaning)",
+		classname(o1.SentencesQ()), "stzlistoftexts")
+	Then("MostSimilarByMeaning (a natural op) picks by word overlap (cosine)",
 		o1.SentencesQ().MostSimilarByMeaning("bad slow service"), "The service was terrible and slow.")
 	Then("ThatAre filters sentences by sentiment",
 		@@(o1.SentencesQ().ThatAre("positive")), @@([ "I love this wonderful product." ]))
