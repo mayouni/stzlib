@@ -1212,6 +1212,36 @@ pub export fn str_scan_int(handle: ?*StzString) callconv(.c) c_int {
     return if (neg) -val else val;
 }
 
+// Parse the leading numeric token (optional sign, digits, one '.', optional
+// exponent) to an f64; 0 on no number. Engine-backed StzNumber().
+pub export fn str_to_number(handle: ?*StzString) callconv(.c) f64 {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var i: usize = 0;
+    while (i < src.len and (src[i] == ' ' or src[i] == '\t' or src[i] == '\n' or src[i] == '\r')) i += 1;
+    const start = i;
+    if (i < src.len and (src[i] == '-' or src[i] == '+')) i += 1;
+    var seen_digit = false;
+    var seen_dot = false;
+    while (i < src.len) : (i += 1) {
+        const c = src[i];
+        if (c >= '0' and c <= '9') {
+            seen_digit = true;
+        } else if (c == '.' and !seen_dot) {
+            seen_dot = true;
+        } else break;
+    }
+    if (seen_digit and i < src.len and (src[i] == 'e' or src[i] == 'E')) {
+        var j = i + 1;
+        if (j < src.len and (src[j] == '-' or src[j] == '+')) j += 1;
+        var exp_digit = false;
+        while (j < src.len and src[j] >= '0' and src[j] <= '9') : (j += 1) exp_digit = true;
+        if (exp_digit) i = j;
+    }
+    if (!seen_digit) return 0;
+    return std.fmt.parseFloat(f64, src[start..i]) catch 0;
+}
+
 pub export fn str_to_ordinal(handle: ?*StzString) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();

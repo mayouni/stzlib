@@ -3048,6 +3048,10 @@ fn ring_StringScanInt(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_scan_int(h)));
 }
 
+fn ring_StringToNumber(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retnumber(p, string.str_to_number(getHandle(p, 1)));
+}
+
 fn ring_StringToOrdinal(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retcpointer(p, @ptrCast(string.str_to_ordinal(h)), STZ_HANDLE);
@@ -4080,6 +4084,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringstemmed", .func = &ring_StringStemmed },
     .{ .name = "stzenginestringstemwords", .func = &ring_StringStemWords },
     .{ .name = "stzenginestringscanint", .func = &ring_StringScanInt },
+    .{ .name = "stzenginestringtonumber", .func = &ring_StringToNumber },
     .{ .name = "stzenginestringtoordinal", .func = &ring_StringToOrdinal },
     .{ .name = "stzenginestringcpcount", .func = &ring_StringCpCount },
     .{ .name = "stzenginestringcharssplit", .func = &ring_StringCharsSplit },
