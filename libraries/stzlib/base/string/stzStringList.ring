@@ -934,52 +934,14 @@ class stzStringList
 		return This.ConcatenatedUsing(pcSep)
 
 	  #==================================================#
-	 #  TEXT-LIST ANALYSIS (for WordsQ / SentencesQ)    #
+	 #  STRING-LIST SELECTION (lexical)                 #
 	#==================================================#
-	# Composable text operations on a list of fragments (sentences or words), so
-	# fluent chains read naturally: Q(text).SentencesQ().MostSimilarTo(query),
-	# .ThatAre(:Positive), .ThatContain("word"), .Longest(). Each fragment is
-	# scored via a throwaway stzString, so all the engine-backed NLP applies.
-
-	# The fragment most similar to pcQuery by MEANING. Uses the loaded neural
-	# model's sentence embeddings when one is present (StzUseNeuralModel(path)),
-	# else lexical WORD-OVERLAP cosine -- the right notion for sentences/documents.
-	# (The inherited MostSimilarTo() uses Jaro-Winkler CHARACTER similarity, better
-	# for fuzzy word/typo matching.)
-	def MostSimilarByMeaning(pcQuery)
-		if NOT isString(pcQuery) return "" ok
-		_nMsN_ = len(@acContent)
-		if _nMsN_ = 0 return "" ok
-		_cMsBest_ = ""
-		_nMsBest_ = -2
-		for _iMs_ = 1 to _nMsN_
-			_nMsSim_ = StzSemanticSimilarity(@acContent[_iMs_], pcQuery)
-			if _nMsSim_ > _nMsBest_
-				_nMsBest_ = _nMsSim_
-				_cMsBest_ = @acContent[_iMs_]
-			ok
-		next
-		return _cMsBest_
-
-		def MostSimilarByMeaningQ(pcQuery)
-			return new stzString(This.MostSimilarByMeaning(pcQuery))
-
-	# Fragments whose sentiment label matches "positive"/"negative"/"neutral".
-	def ThatAre(pcPolarity)
-		if NOT isString(pcPolarity) return [] ok
-		_cTaWant_ = StzLower(pcPolarity)
-		_aTaOut_ = []
-		_nTaN_ = len(@acContent)
-		for _iTa_ = 1 to _nTaN_
-			_oTa_ = new stzString(@acContent[_iTa_])
-			if _oTa_.Sentiment() = _cTaWant_
-				_aTaOut_ + @acContent[_iTa_]
-			ok
-		next
-		return _aTaOut_
-
-		def ThatAreQ(pcPolarity)
-			return new stzListOfStrings(This.ThatAre(pcPolarity))
+	# Lexical (non-semantic) selection over a list of fragments -- substring
+	# membership and word-length ranking -- so chains like
+	# Q(text).WordsQ().ThatContain("ing").Longest() read naturally. These are
+	# STRING ops (any list of strings has them). MEANING-based selection
+	# (MostSimilarByMeaning, ThatAre by sentiment) lives on stzListOfTexts, the
+	# list-of-texts domain -- because that is natural processing, not a string op.
 
 	# Fragments that contain pcSub (engine-backed, codepoint-safe).
 	def ThatContain(pcSub)

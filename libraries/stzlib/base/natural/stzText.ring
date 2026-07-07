@@ -396,6 +396,12 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   SENTENCE FILTERS (sentiment / similarity)              #
 	#==========================================================#
+	# SentencesQ() -- the sentences as a list of TEXTS (they carry meaning), so
+	# the chain keeps the natural ops: Q(str).TextQ().SentencesQ().ThatAre(
+	# :Positive) / .MostSimilarByMeaning(query).
+	def SentencesQ()
+		return new stzListOfTexts(This.Sentences())
+
 	def SentencesThatAre(pcPolarity)
 		if NOT isString(pcPolarity) return [] ok
 		_cStWant_ = StzLower(pcPolarity)

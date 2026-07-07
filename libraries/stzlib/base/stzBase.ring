@@ -89,6 +89,9 @@ ok
     # operations applied to text, so stzText lives in the natural/ domain. It is
     # loaded here (early) because it depends on stzStringText, loaded just above.
     load "natural/stzText.ring"
+    # stzListOfTexts (from stzStringList): a list of texts (sentences carry
+    # meaning) with the natural/meaning list ops. SentencesQ() returns it.
+    load "natural/stzListOfTexts.ring"
 
     # Modern / neural domain (base/neural/): stzNeural base -> engine + model
     load "neural/stzNeural.ring"

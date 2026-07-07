@@ -19483,9 +19483,11 @@ class stzString from stzObject
 		return StzEngineStringSentencesList(@pEngine)
 
 		def SentencesQ()
-			# stzListOfStrings so the chain keeps TEXT ops (MostSimilarTo, ThatAre,
-			# ThatContain, Longest) on top of the generic list ops.
-			return new stzListOfStrings(This.Sentences())
+			# A list of SENTENCES is a list of TEXTS -- fragments that carry meaning
+			# -- so it returns stzListOfTexts: the natural (meaning) ops
+			# (MostSimilarByMeaning, ThatAre by sentiment) plus the inherited lexical
+			# list ops (ThatContain, Longest, MostSimilarTo, NthString, Joined).
+			return new stzListOfTexts(This.Sentences())
 
 	def NthSentence(n)
 		_aNsnt_ = This.Sentences()
