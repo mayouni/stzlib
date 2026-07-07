@@ -115,39 +115,20 @@ class stzSelfDoc
 		if _nM_ = 0 return [] ok
 		if NOT isNumber(n) or n < 1 n = 3 ok
 
-		_aScored_ = []
-		if StzHasNeuralModel()
-			This._EnsureIndex()
-			_qv_ = _StzEmbedInto(pcQuestion)
-			for _i_ = 1 to _nM_
-				_aScored_ + [ _i_, _StzDotVec(_qv_, @aVectors[_i_]) ]
-			next
-		else
-			for _i_ = 1 to _nM_
-				_aScored_ + [ _i_, StzSemanticSimilarity(pcQuestion, _StzMethodText(@aMethods[_i_])) ]
-			next
-		ok
-
-		# selection sort by descending score, take top n
-		_nS_ = len(_aScored_)
-		_nTop_ = n
-		if _nTop_ > _nS_ _nTop_ = _nS_ ok
-		for _i_ = 1 to _nTop_
-			_iMax_ = _i_
-			for _j_ = _i_ + 1 to _nS_
-				if _aScored_[_j_][2] > _aScored_[_iMax_][2] _iMax_ = _j_ ok
-			next
-			if _iMax_ != _i_
-				_tmp_ = _aScored_[_i_]
-				_aScored_[_i_] = _aScored_[_iMax_]
-				_aScored_[_iMax_] = _tmp_
-			ok
+		_aTexts_ = []
+		for _i_ = 1 to _nM_
+			_aTexts_ + _StzMethodText(@aMethods[_i_])
 		next
+		if StzHasNeuralModel() and NOT StzHasRerankerModel()
+			This._EnsureIndex()
+		ok
+		_aTop_ = _StzRankMethodTexts(pcQuestion, _aTexts_, @aVectors, n)
 
 		_aOut_ = []
-		for _i_ = 1 to _nTop_
-			_ix_ = _aScored_[_i_][1]
-			_aOut_ + [ @aMethods[_ix_][1], _aScored_[_i_][2], @aMethods[_ix_][2] ]
+		_nT_ = len(_aTop_)
+		for _i_ = 1 to _nT_
+			_ix_ = _aTop_[_i_][1]
+			_aOut_ + [ @aMethods[_ix_][1], _aTop_[_i_][2], @aMethods[_ix_][2] ]
 		next
 		return _aOut_
 
@@ -175,127 +156,3 @@ class stzSelfDoc
 			@aVectors + _StzEmbedInto(_StzMethodText(@aMethods[_i_]))
 		next
 		@bIndexed = TRUE
-
-#===================================================================#
-#  GLOBAL HELPERS (kept out of class scope to dodge the len()/trim() #
-#  R20 gotcha; also reusable by a future engine-side harvester)      #
-#===================================================================#
-
-# The text embedded/compared for a method: its name as words + its description.
-func _StzMethodText(paMethod)
-	_c_ = _StzSplitCamel(paMethod[1])
-	if paMethod[2] != ""
-		_c_ += ". " + paMethod[2]
-	ok
-	return _c_
-
-# Dot product of two equal-length vectors (embeddings are L2-normalized).
-func _StzDotVec(paA, paB)
-	if NOT (isList(paA) and isList(paB)) return 0 ok
-	_n_ = len(paA)
-	if _n_ = 0 or len(paB) != _n_ return 0 ok
-	_s_ = 0
-	for _i_ = 1 to _n_
-		_s_ += paA[_i_] * paB[_i_]
-	next
-	return _s_
-
-# "MostSimilarByMeaning" -> "most similar by meaning" (better for embedding/match).
-func _StzSplitCamel(pcName)
-	_cOut_ = ""
-	_n_ = len(pcName)
-	for _i_ = 1 to _n_
-		_c_ = pcName[_i_]
-		_nC_ = ascii(_c_)
-		if _i_ > 1 and _nC_ >= 65 and _nC_ <= 90
-			_cOut_ += " "
-		ok
-		_cOut_ += _c_
-	next
-	return lower(_cOut_)
-
-# Harvest [ [name, description], ... ] from a Softanza source file: each public
-# `def Name(...)` with the doc-comment block immediately above it. Section header
-# boxes (#===#) are not descriptions. Private methods (leading _) are skipped.
-func _StzHarvestMethods(pcFile)
-	_cContent_ = read(pcFile)
-	_aLines_ = str2list(_cContent_)
-	_aMethods_ = []
-	_cDesc_ = ""
-	_nLen_ = len(_aLines_)
-	for _i_ = 1 to _nLen_
-		_cTrim_ = trim(_aLines_[_i_])
-		if len(_cTrim_) >= 4 and lower(left(_cTrim_, 4)) = "def "
-			_cName_ = _StzDefName(_cTrim_)
-			if _cName_ != "" and left(_cName_, 1) != "_"
-				_aMethods_ + [ _cName_, trim(_cDesc_) ]
-			ok
-			_cDesc_ = ""
-		but len(_cTrim_) >= 1 and left(_cTrim_, 1) = "#"
-			if right(_cTrim_, 1) = "#"   # a boxed header/separator line
-				_cDesc_ = ""
-			else
-				_cDesc_ += " " + trim(substr(_cTrim_, 2, len(_cTrim_) - 1))
-			ok
-		else
-			if _cTrim_ != "" _cDesc_ = "" ok   # code breaks the comment block
-		ok
-	next
-	return _aMethods_
-
-func _StzDefName(pcDefLine)   # "def Name(pa, pb)" -> "Name"
-	_cRest_ = trim(substr(pcDefLine, 4, len(pcDefLine) - 3))
-	_cName_ = ""
-	_n_ = len(_cRest_)
-	for _i_ = 1 to _n_
-		_c_ = _cRest_[_i_]
-		if _c_ = "(" or _c_ = " " exit ok
-		_cName_ += _c_
-	next
-	return _cName_
-
-func _StzLooksLikePath(pcT)
-	return substr(pcT, ".ring") > 0 or substr(pcT, "/") > 0 or substr(pcT, "\") > 0
-
-func _StzNameFromPath(pcPath)
-	# last path segment without extension
-	_c_ = pcPath
-	_p_ = max([ _StzLastPos(_c_, "/"), _StzLastPos(_c_, "\") ])
-	if _p_ > 0 _c_ = substr(_c_, _p_ + 1, len(_c_) - _p_) ok
-	_e_ = substr(_c_, ".ring")
-	if _e_ > 0 _c_ = left(_c_, _e_ - 1) ok
-	return _c_
-
-func _StzLastPos(pcStr, pcCh)
-	_pos_ = 0
-	_n_ = len(pcStr)
-	for _i_ = 1 to _n_
-		if pcStr[_i_] = pcCh _pos_ = _i_ ok
-	next
-	return _pos_
-
-# Softanza's base/ source dir, derived from the auto-discovered $cEngineDir.
-func _StzBaseDir()
-	_cE_ = $cEngineDir
-	if NOT isString(_cE_) or _cE_ = "" return "" ok
-	if len(_cE_) >= 7 and right(_cE_, 7) = "/engine"
-		return left(_cE_, len(_cE_) - 7) + "/base"
-	ok
-	return _cE_ + "/../base"
-
-# Resolve a class name to its source file by scanning the base/ subfolders for
-# <name>.ring (Softanza's file-per-class convention).
-func _StzResolveSource(pcName)
-	_cBase_ = _StzBaseDir()
-	if _cBase_ = "" return "" ok
-	_cRoot_ = _cBase_ + "/" + pcName + ".ring"
-	if fexists(_cRoot_) return _cRoot_ ok
-	_aEntries_ = dir(_cBase_)
-	_n_ = len(_aEntries_)
-	for _i_ = 1 to _n_
-		if _aEntries_[_i_][2] = 1   # a subdirectory
-			_cCand_ = _cBase_ + "/" + _aEntries_[_i_][1] + "/" + pcName + ".ring"
-			if fexists(_cCand_) return _cCand_ ok
-		ok
-	next
-	return ""

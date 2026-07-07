@@ -101,7 +101,9 @@ ok
     # Reflection: self-describing objects -- harvest a class's methods + docs from
     # source, then Ask()/ExplainMethod() via the neural tier (near-natural
     # programming, no heavy LLM). Loaded after neural (uses its globals at runtime).
+    load "reflect/stzReflectFuncs.ring"
     load "reflect/stzSelfDoc.ring"
+    load "reflect/stzLibDoc.ring"
 
     load "string/stzWordStream.ring"
 
