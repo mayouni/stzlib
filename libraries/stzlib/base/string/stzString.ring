@@ -4570,6 +4570,50 @@ class stzString from stzObject
 		if len(_aTkp_) = 0 return "" ok
 		return _aTkp_[1]
 
+	# --- TextRank: graph-centrality keywords + extractive summary ---
+	# TextRank (Mihalcea 2004) ranks by PageRank over a word/sentence graph --
+	# global centrality, complementing RAKE's local phrase scoring.
+	# RankedKeywordsXT(n) = top-n [[word, score], ...]; RankedKeywords(n) = just
+	# the words. Summary(n) / SummarizedIn(n) = the n most central sentences as a
+	# short extractive summary, returned IN READING ORDER. (RankedKeywords is named
+	# distinctly because Keywords() is already a ContentWords alias.)
+	def RankedKeywordsXT(n)
+		_aKwRaw_ = StzEngineStringTextRankKeywordsList(@pEngine, n)
+		_aKwOut_ = []
+		_nKwN_ = len(_aKwRaw_)
+		for _iKw_ = 1 to _nKwN_
+			_aKwPair_ = StzSplit(_aKwRaw_[_iKw_], char(1))
+			if len(_aKwPair_) = 2
+				_aKwOut_ + [ _aKwPair_[1], StzNumber(_aKwPair_[2]) ]
+			ok
+		next
+		return _aKwOut_
+
+	def RankedKeywords(n)
+		_aKwL_ = This.RankedKeywordsXT(n)
+		_aKwJust_ = []
+		_nKwL_ = len(_aKwL_)
+		for _iKwL_ = 1 to _nKwL_
+			_aKwJust_ + _aKwL_[_iKwL_][1]
+		next
+		return _aKwJust_
+
+		def RankedKeywordsQ(n)
+			return new stzListOfStrings(This.RankedKeywords(n))
+
+	def SummarySentences(n)
+		return StzEngineStringSummarizeList(@pEngine, n)
+
+		def SummarySentencesQ(n)
+			return new stzListOfStrings(This.SummarySentences(n))
+
+	def SummarizedIn(n)
+		_oSmz_ = new stzListOfStrings(This.SummarySentences(n))
+		return _oSmz_.JoinedUsing(" ")
+
+		def Summary(n)
+			return This.SummarizedIn(n)
+
 	# --- Search tokenization (CJK-friendly) ---
 	# Like Words() but CJK runs become OVERLAPPING CHARACTER BIGRAMS -- the
 	# dictionary-free CJK indexing baseline (cf. Lucene CJKBigramFilter), much

@@ -114,6 +114,9 @@ pub const str_is_stopword = textutil.str_is_stopword;
 pub const str_readability = textutil.str_readability;
 pub const str_detect_language = textutil.str_detect_language;
 pub const str_key_phrases = textutil.str_key_phrases;
+const textrank = @import("string/textrank.zig");
+pub const str_textrank_keywords = textrank.str_textrank_keywords;
+pub const str_summarize = textrank.str_summarize;
 
 pub const str_stem_word = stem.str_stem_word;
 pub const str_stem_words = stem.str_stem_words;
@@ -635,6 +638,7 @@ test {
     _ = pos;
     _ = ner;
     _ = textutil;
+    _ = textrank;
     _ = split;
     _ = find;
     _ = replace;

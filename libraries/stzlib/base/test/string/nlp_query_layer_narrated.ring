@@ -108,6 +108,19 @@ Scenario("Key-phrase extraction (RAKE)")
 		@@([ "strict inequations", "nonstrict inequations" ]))
 EndScenario()
 
+Scenario("TextRank: graph-centrality keywords + extractive summary")
+	o1 = new stzString("Natural language processing enables computers to understand human language. Machine learning models power modern natural language processing. Language models learn patterns from large text corpora. These models improve many language tasks and applications. Deep learning has transformed natural language processing research.")
+	Then("the single most central keyword",
+		o1.RankedKeywords(1)[1], "language")
+	Then("top-3 ranked keywords by PageRank centrality",
+		@@(o1.RankedKeywords(3)), @@([ "language", "models", "processing" ]))
+	Then("summary keeps the n most central sentences",
+		len(o1.SummarySentences(2)), 2)
+	Then("summary is joined in reading order",
+		o1.Summary(2),
+		"Machine learning models power modern natural language processing. Deep learning has transformed natural language processing research.")
+EndScenario()
+
 Scenario("Concordance / keyword in context")
 	o1 = new stzString("a red car and a blue car and a green car")
 	ak = o1.InContextWithWindow("car", 2)

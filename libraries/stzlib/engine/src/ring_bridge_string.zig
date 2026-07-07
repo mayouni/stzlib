@@ -3005,6 +3005,22 @@ fn ring_StringKeyPhrasesList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// TextRank keywords. Native list of "word\x01score" strings.
+fn ring_StringTextRankKeywordsList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    emitNulList(out, string.str_textrank_keywords(getHandle(p, 1), n));
+    R.ring_vm_api_retlist(p, out);
+}
+
+// Extractive summary (TextRank). Native list of sentence texts, reading order.
+fn ring_StringSummarizeList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    emitNulList(out, string.str_summarize(getHandle(p, 1), n));
+    R.ring_vm_api_retlist(p, out);
+}
+
 // Sentiment breakdown. Native list of "token\x01valence" (Ring splits on 0x01).
 fn ring_StringSentimentExplainedList(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -4086,6 +4102,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsentenceslist", .func = &ring_StringSentencesList },
     .{ .name = "stzenginestringdetectlanguage", .func = &ring_StringDetectLanguage },
     .{ .name = "stzenginestringkeyphraseslist", .func = &ring_StringKeyPhrasesList },
+    .{ .name = "stzenginestringtextrankkeywordslist", .func = &ring_StringTextRankKeywordsList },
+    .{ .name = "stzenginestringsummarizelist", .func = &ring_StringSummarizeList },
     .{ .name = "stzenginestringsentiment", .func = &ring_StringSentiment },
     .{ .name = "stzenginestringsentimentexplainedlist", .func = &ring_StringSentimentExplainedList },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
