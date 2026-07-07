@@ -444,17 +444,91 @@ class stzText from stzStringText
 		_aMsAll_ = This.Sentences()
 		_nMsN_ = len(_aMsAll_)
 		if _nMsN_ = 0 return "" ok
+
+		# Prefer semantic (embedding) ranking when a neural model is loaded;
+		# otherwise fall back to lexical bag-of-words cosine. When semantic, the
+		# query is embedded once and each sentence compared by dot product.
+		_bMsSem_ = This.HasSemanticModel()
+		_aMsQEmb_ = []
+		if _bMsSem_
+			_oMsQ_ = new stzText(pcQuery)
+			_aMsQEmb_ = _oMsQ_.Embedding()
+			if len(_aMsQEmb_) = 0 _bMsSem_ = FALSE ok
+		ok
+
 		_cMsBest_ = ""
-		_nMsBest_ = -1
+		_nMsBest_ = -2
 		for _iMs_ = 1 to _nMsN_
-			_oMs_ = new stzString(_aMsAll_[_iMs_])
-			_nMsSim_ = _oMs_.CosineSimilarityWith(pcQuery)
+			if _bMsSem_
+				_oMsS_ = new stzText(_aMsAll_[_iMs_])
+				_nMsSim_ = This._EmbeddingDot(_oMsS_.Embedding(), _aMsQEmb_)
+			else
+				_oMs_ = new stzString(_aMsAll_[_iMs_])
+				_nMsSim_ = _oMs_.CosineSimilarityWith(pcQuery)
+			ok
 			if _nMsSim_ > _nMsBest_
 				_nMsBest_ = _nMsSim_
 				_cMsBest_ = _aMsAll_[_iMs_]
 			ok
 		next
 		return _cMsBest_
+
+		def MostSemanticallySimilarSentenceTo(pcQuery)
+			return This.MostSimilarSentenceTo(pcQuery)
+
+	  #==========================================================#
+	 #   SEMANTIC LAYER (neural embeddings)                     #
+	#==========================================================#
+	# Upgrades text similarity from lexical bag-of-words to true MEANING via a
+	# runtime neural model (load one process-wide with StzUseNeuralModel(path)).
+	# With no model loaded these degrade gracefully to the lexical path, so code
+	# keeps working and auto-improves once a model is present.
+
+	# TRUE if a runtime embedding model is loaded and ready.
+	def HasSemanticModel()
+		return StzHasNeuralModel()
+
+		def IsSemanticModelReady()
+			return This.HasSemanticModel()
+
+	# Embedding() -- this text's sentence-embedding vector (list of floats) via
+	# the loaded model; [] if none is loaded (DATA, per Softanza's Q rule).
+	def Embedding()
+		if NOT This.HasSemanticModel() return [] ok
+		return _StzEmbedInto(This.Content())
+
+		def EmbeddingVector()
+			return This.Embedding()
+
+	def EmbeddingQ()
+		return new stzList(This.Embedding())
+
+	# SemanticSimilarityWith(other) -- cosine of the two texts' embeddings in
+	# [-1, 1]; falls back to lexical cosine when no model is loaded (DATA).
+	def SemanticSimilarityWith(pcOther)
+		if NOT isString(pcOther) return 0 ok
+		return StzSemanticSimilarity(This.Content(), pcOther)
+
+		def SemanticSimilarityTo(pcOther)
+			return This.SemanticSimilarityWith(pcOther)
+
+	# IsSemanticallySimilarTo(other, threshold) -- TRUE if the meaning-similarity
+	# meets the threshold (default 0.5).
+	def IsSemanticallySimilarTo(pcOther, pnThreshold)
+		if NOT isNumber(pnThreshold) pnThreshold = 0.5 ok
+		return This.SemanticSimilarityWith(pcOther) >= pnThreshold
+
+	# Dot product of two equal-length vectors (0 if empty/mismatched). Private
+	# helper for embedding cosine (vectors arrive L2-normalized).
+	def _EmbeddingDot(paA, paB)
+		if NOT (isList(paA) and isList(paB)) return 0 ok
+		_nEdN_ = len(paA)
+		if _nEdN_ = 0 or len(paB) != _nEdN_ return 0 ok
+		_nEdDot_ = 0
+		for _iEd_ = 1 to _nEdN_
+			_nEdDot_ += paA[_iEd_] * paB[_iEd_]
+		next
+		return _nEdDot_
 
 	  #==========================================================#
 	 #   LANGUAGE DETECTION                                     #
@@ -559,7 +633,8 @@ class stzText from stzStringText
 	def ComparedTo(pcOther)
 		if NOT isString(pcOther) return [] ok
 		_oCmOther_ = new stzText(pcOther)
-		_nCmSim_   = @oString.CosineSimilarityWith(pcOther)
+		# Semantic similarity when a neural model is loaded, else lexical cosine.
+		_nCmSim_   = StzSemanticSimilarity(This.Content(), pcOther)
 		_nCmSentA_ = This.SentimentScore()
 		_nCmSentB_ = _oCmOther_.SentimentScore()
 		_nCmGrA_   = This.ReadabilityGrade()

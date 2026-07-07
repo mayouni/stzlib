@@ -166,4 +166,30 @@ Scenario("Concordance / keyword in context")
 		ak[1], "a red car and a")
 EndScenario()
 
+Scenario("Semantic layer -- graceful lexical fallback with no model loaded")
+	# The embedding-backed ops (upgraded when StzUseNeuralModel(path) is called)
+	# degrade to lexical bag-of-words when no neural model is present, so the
+	# API always works. Model-free here; the true-semantic path is verified
+	# manually with a BERT GGUF (see below).
+	o = new stzText("The cat sits on the mat")
+	Then("no model loaded here",
+		o.HasSemanticModel(), FALSE)
+	Then("Embedding() is empty without a model",
+		len(o.Embedding()), 0)
+	Then("SemanticSimilarityWith falls back to a lexical score in [-1,1]",
+		o.SemanticSimilarityWith("A kitten rests on the rug") >= 0, TRUE)
+	Then("identical text is maximally similar (lexical)",
+		o.SemanticSimilarityWith("The cat sits on the mat") > 0.99, TRUE)
+	Then("a non-string comparand is rejected",
+		o.SemanticSimilarityWith(123), 0)
+	Then("IsSemanticallySimilarTo respects the threshold",
+		o.IsSemanticallySimilarTo("The cat sits on the mat", 0.5), TRUE)
+	# MANUAL (needs a BERT GGUF, e.g. all-MiniLM-L6-v2 -- large, not committed):
+	#   StzUseNeuralModel(cPath)
+	#   Q("The cat sits on the mat").TextQ().SemanticSimilarityWith("A kitten rests on the rug")
+	#     -> ~0.65 (semantic); vs "Stock markets fell today" -> ~0.06
+	#   new stzText("... Cats are wonderful pets.").MostSimilarSentenceTo("feline animals")
+	#     -> "Cats are wonderful pets." (matched by MEANING, zero word overlap)
+EndScenario()
+
 Summary()
