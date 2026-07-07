@@ -113,6 +113,7 @@ pub const str_without_stopwords = textutil.str_without_stopwords;
 pub const str_is_stopword = textutil.str_is_stopword;
 pub const str_readability = textutil.str_readability;
 pub const str_detect_language = textutil.str_detect_language;
+pub const str_key_phrases = textutil.str_key_phrases;
 
 pub const str_stem_word = stem.str_stem_word;
 pub const str_stem_words = stem.str_stem_words;
