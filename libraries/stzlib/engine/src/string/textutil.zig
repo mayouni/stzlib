@@ -133,6 +133,148 @@ pub fn str_readability(handle: StzStringHandle, mode: c_int) callconv(.c) f64 {
     };
 }
 
+// ---- Key-phrase extraction (RAKE) --------------------------------------------
+// RAKE (Rose et al. 2010): rapid, deterministic, model-free keyword extraction.
+// Candidate phrases = maximal runs of content words delimited by stopwords and
+// punctuation. Each content word scores deg(w)/freq(w) (deg = summed length of
+// the phrases it appears in); a phrase scores the sum of its words. Reuses the
+// embedded stopword set. Emits "phrase\x01score" NUL-delimited, top-N by score.
+
+fn isSepPunct(src: []const u8, a: usize, b: usize) bool {
+    var k = a;
+    while (k < b) : (k += 1) {
+        const c = src[k];
+        if (!(c == ' ' or c == '\t' or c == '\n' or c == '\r')) return true;
+    }
+    return false;
+}
+
+pub fn str_key_phrases(handle: StzStringHandle, n_top: c_int) callconv(.c) StzStringHandle {
+    const result = str_new() orelse return null;
+    const s = handle orelse return result;
+    buildSw();
+    const src = s.slice();
+
+    // Pass 1: candidate phrases. Words within a phrase are space-separated, so a
+    // phrase is a contiguous source slice [start,end]; we also record each
+    // content word's lowercased key and its phrase id.
+    var words = std.ArrayList([]const u8){}; // owned lowercased keys
+    var word_pid = std.ArrayList(usize){};
+    var spans = std.ArrayList([2]usize){}; // phrase source spans
+    defer {
+        for (words.items) |w| gpa.free(w);
+        words.deinit(gpa);
+        word_pid.deinit(gpa);
+        spans.deinit(gpa);
+    }
+
+    var lb: [256]u8 = undefined;
+    var cur: ?usize = null;
+    var have_prev = false;
+    var last_end: usize = 0;
+    var wit = wb.WordIter.init(src);
+    while (wit.next()) |sp| {
+        if (have_prev and isSepPunct(src, last_end, sp.start)) cur = null;
+        const w = src[sp.start..sp.end];
+        const key = lowerAscii(w, &lb);
+        if (g_stopwords.contains(key)) {
+            cur = null;
+        } else {
+            const owned = gpa.dupe(u8, key) catch {
+                have_prev = true;
+                last_end = sp.end;
+                continue;
+            };
+            if (cur) |pid| {
+                spans.items[pid][1] = sp.end;
+            } else {
+                cur = spans.items.len;
+                spans.append(gpa, .{ sp.start, sp.end }) catch {
+                    gpa.free(owned);
+                    have_prev = true;
+                    last_end = sp.end;
+                    continue;
+                };
+            }
+            words.append(gpa, owned) catch gpa.free(owned);
+            word_pid.append(gpa, cur.?) catch {};
+        }
+        have_prev = true;
+        last_end = sp.end;
+    }
+    if (spans.items.len == 0) return result;
+
+    // phrase lengths (word counts)
+    var plen = gpa.alloc(usize, spans.items.len) catch return result;
+    defer gpa.free(plen);
+    @memset(plen, 0);
+    for (word_pid.items) |pid| plen[pid] += 1;
+
+    // freq + degree per word key
+    var freq = std.StringHashMap(f64).init(gpa);
+    var deg = std.StringHashMap(f64).init(gpa);
+    defer freq.deinit();
+    defer deg.deinit();
+    for (words.items, 0..) |key, i| {
+        const l: f64 = @floatFromInt(plen[word_pid.items[i]]);
+        const gf = freq.getOrPut(key) catch return result;
+        if (!gf.found_existing) gf.value_ptr.* = 0;
+        gf.value_ptr.* += 1;
+        const gd = deg.getOrPut(key) catch return result;
+        if (!gd.found_existing) gd.value_ptr.* = 0;
+        gd.value_ptr.* += l;
+    }
+
+    // phrase scores = sum of member word scores (deg/freq)
+    var pscore = gpa.alloc(f64, spans.items.len) catch return result;
+    defer gpa.free(pscore);
+    @memset(pscore, 0);
+    for (words.items, 0..) |key, i| {
+        const f = freq.get(key) orelse 1;
+        const d = deg.get(key) orelse 0;
+        pscore[word_pid.items[i]] += d / f;
+    }
+
+    // unique phrases by lowercased text -> best (equal) score + index
+    const KP = struct { text: []const u8, score: f64 };
+    var seen = std.StringHashMap(void).init(gpa);
+    defer seen.deinit();
+    var kps = std.ArrayList(KP){};
+    defer kps.deinit(gpa);
+    var kb: [512]u8 = undefined;
+    for (spans.items, 0..) |sp, pid| {
+        const text = src[sp[0]..sp[1]];
+        const lk = lowerAscii(text, &kb);
+        if (seen.contains(lk)) continue;
+        seen.put(gpa.dupe(u8, lk) catch continue, {}) catch {};
+        kps.append(gpa, .{ .text = text, .score = pscore[pid] }) catch {};
+    }
+    // free the seen keys we duped
+    defer {
+        var it = seen.keyIterator();
+        while (it.next()) |k| gpa.free(k.*);
+    }
+
+    // sort by score desc; STABLE so tied phrases keep first-appearance order
+    std.mem.sort(KP, kps.items, {}, struct {
+        fn lt(_: void, a: KP, b: KP) bool {
+            return a.score > b.score;
+        }
+    }.lt);
+
+    const limit: usize = if (n_top <= 0) kps.items.len else @min(@as(usize, @intCast(n_top)), kps.items.len);
+    var i: usize = 0;
+    while (i < limit) : (i += 1) {
+        if (i > 0) result.data.append(gpa, 0) catch break;
+        result.data.appendSlice(gpa, kps.items[i].text) catch break;
+        result.data.append(gpa, 1) catch break;
+        var nb: [32]u8 = undefined;
+        const ns = std.fmt.bufPrint(&nb, "{d:.3}", .{kps.items[i].score}) catch "0";
+        result.data.appendSlice(gpa, ns) catch break;
+    }
+    return result;
+}
+
 // ---- Language detection (english / french / arabic) --------------------------
 // Script first (Arabic block dominance), else distinctive function-word scoring
 // to separate the two Latin languages we support. Returns a language name, or
@@ -244,6 +386,23 @@ test "detect language" {
     const rf = str_detect_language(fr) orelse return error.SkipZigTest;
     defer str_free(rf);
     try testing.expectEqualStrings("french", rf.slice());
+}
+
+test "key phrases (RAKE)" {
+    // classic RAKE example; "minimal generating sets" should rank at/near the top
+    const txt = "Criteria of compatibility of a system of linear Diophantine equations, strict inequations, and nonstrict inequations are considered.";
+    const s = str_from(txt, txt.len) orelse return error.SkipZigTest;
+    defer str_free(s);
+    const r = str_key_phrases(s, 3) orelse return error.SkipZigTest;
+    defer str_free(r);
+    // top-3 non-empty, each has a \x01 score field
+    var parts = std.mem.splitScalar(u8, r.slice(), 0);
+    var count: usize = 0;
+    while (parts.next()) |p| {
+        try testing.expect(std.mem.indexOfScalar(u8, p, 1) != null);
+        count += 1;
+    }
+    try testing.expect(count >= 1 and count <= 3);
 }
 
 test "content words drop stopwords" {

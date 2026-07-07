@@ -2997,6 +2997,14 @@ fn ring_StringDetectLanguage(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_detect_language(getHandle(p, 1))), STZ_HANDLE);
 }
 
+// Key phrases (RAKE). Native list of "phrase\x01score" strings.
+fn ring_StringKeyPhrasesList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    emitNulList(out, string.str_key_phrases(getHandle(p, 1), n));
+    R.ring_vm_api_retlist(p, out);
+}
+
 // Sentiment breakdown. Native list of "token\x01valence" (Ring splits on 0x01).
 fn ring_StringSentimentExplainedList(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -4077,6 +4085,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringreadability", .func = &ring_StringReadability },
     .{ .name = "stzenginestringsentenceslist", .func = &ring_StringSentencesList },
     .{ .name = "stzenginestringdetectlanguage", .func = &ring_StringDetectLanguage },
+    .{ .name = "stzenginestringkeyphraseslist", .func = &ring_StringKeyPhrasesList },
     .{ .name = "stzenginestringsentiment", .func = &ring_StringSentiment },
     .{ .name = "stzenginestringsentimentexplainedlist", .func = &ring_StringSentimentExplainedList },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },

@@ -4536,6 +4536,40 @@ class stzString from stzObject
 		def FleschKincaidGrade()
 			return This.ReadabilityGrade()
 
+	# --- Key-phrase extraction (RAKE) ---
+	# The most salient multi-word phrases (what the text is ABOUT), scored by word
+	# co-occurrence over stopword/punctuation-delimited candidates. Model-free,
+	# deterministic. KeyPhrasesXT(n) = top-n [[phrase, score], ...]; KeyPhrases(n) =
+	# just the phrases; KeyPhrasesQ(n) = chainable stzListOfStrings.
+	def KeyPhrasesXT(n)
+		_aKpRaw_ = StzEngineStringKeyPhrasesList(@pEngine, n)
+		_aKpOut_ = []
+		_nKpN_ = len(_aKpRaw_)
+		for _iKp_ = 1 to _nKpN_
+			_aKpPair_ = StzSplit(_aKpRaw_[_iKp_], char(1))
+			if len(_aKpPair_) = 2
+				_aKpOut_ + [ _aKpPair_[1], StzNumber(_aKpPair_[2]) ]
+			ok
+		next
+		return _aKpOut_
+
+	def KeyPhrases(n)
+		_aKpL_ = This.KeyPhrasesXT(n)
+		_aKpJust_ = []
+		_nKpL_ = len(_aKpL_)
+		for _iKpL_ = 1 to _nKpL_
+			_aKpJust_ + _aKpL_[_iKpL_][1]
+		next
+		return _aKpJust_
+
+		def KeyPhrasesQ(n)
+			return new stzListOfStrings(This.KeyPhrases(n))
+
+	def TopKeyPhrase()
+		_aTkp_ = This.KeyPhrases(1)
+		if len(_aTkp_) = 0 return "" ok
+		return _aTkp_[1]
+
 	# --- Search tokenization (CJK-friendly) ---
 	# Like Words() but CJK runs become OVERLAPPING CHARACTER BIGRAMS -- the
 	# dictionary-free CJK indexing baseline (cf. Lucene CJKBigramFilter), much

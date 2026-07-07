@@ -96,6 +96,18 @@ Scenario("Stylometry and comparison")
 		@@(ac[4][2]), @@([ "sat", "mat" ]))
 EndScenario()
 
+Scenario("Key-phrase extraction (RAKE)")
+	o1 = new stzString("Criteria of compatibility of a system of linear Diophantine equations, strict inequations, and nonstrict inequations are considered.")
+	Then("the top phrase is the multi-word technical term",
+		o1.TopKeyPhrase(), "linear Diophantine equations")
+	kp = o1.KeyPhrases(3)
+	Then("top-3 are content phrases (stopwords/punctuation delimit them)",
+		@@(kp), @@([ "linear Diophantine equations", "strict inequations", "nonstrict inequations" ]))
+	Then("KeyPhrasesQ chains text-list ops",
+		@@(o1.KeyPhrasesQ(0).ThatContain("inequations")),
+		@@([ "strict inequations", "nonstrict inequations" ]))
+EndScenario()
+
 Scenario("Concordance / keyword in context")
 	o1 = new stzString("a red car and a blue car and a green car")
 	ak = o1.InContextWithWindow("car", 2)
