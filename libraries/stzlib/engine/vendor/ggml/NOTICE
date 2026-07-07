@@ -7,9 +7,33 @@ CPU-only: GPU backends (CUDA/Vulkan/Metal/SYCL/etc.) and non-x86 arch dirs
 clang (no cmake) -- see engine/build.zig addGgml(). GGML_VERSION/GGML_COMMIT
 (normally injected by cmake) are defined as "0.0.0-stz" at build time.
 
+ROOT CAUSE for all the C++ patches below: the Zig-built (mingw/gnu-ABI) DLL does
+NOT run C++ static initializers on Windows -- neither namespace-scope global
+constructors NOR function-local-static (Meyers-singleton) guards initialize. So
+ANY static needing dynamic construction (std::map, std::mutex, std::vector, even
+a lazily-inited function-local one) stays zero/garbage and crashes on first use.
+The fix pattern is to make each such construct ctor-INDEPENDENT: a switch, a
+constant-initialized primitive, or a short-circuit when the feature is unused.
+
 SOFTANZA PATCH (src/gguf.cpp gguf_type_size): replaced the namespace-scope
-`static std::map GGUF_TYPE_SIZE` lookup with a switch. Reason: C++ global
-constructors are NOT invoked in the Zig-built DLL on Windows, so the map stays
-empty -> returns 0 -> division-by-zero in gguf get_ne(). The switch is
-ctor-independent. (The broader "run C++ global ctors in the DLL" fix is pending
-for the embedding forward pass, which touches more C++ static state.)
+`static std::map GGUF_TYPE_SIZE` lookup with a switch. Without it the map stays
+empty -> returns 0 -> division-by-zero in gguf get_ne().
+
+SOFTANZA PATCH (src/ggml-threading.cpp): replaced `std::mutex
+ggml_critical_section_mutex;` with a constant-initialized `std::atomic_flag`
+(ATOMIC_FLAG_INIT) spinlock. The std::mutex needs a ctor (namespace or Meyers);
+atomic_flag with ATOMIC_FLAG_INIT is constant-initialized (lands zero-init in
+.bss, no runtime init) so ggml_cpu_init()'s critical section works. Held only
+briefly during one-time table/registry init, so a spinlock is fine.
+
+SOFTANZA PATCH (src/ggml-cpu/traits.cpp): ggml_cpu_extra_work_size() and
+ggml_cpu_extra_compute_forward() now early-return false. They iterate the
+function-local-static std::vector from ggml_backend_cpu_get_extra_buffer_types()
+(a Meyers singleton that crashes here). We compile WITHOUT GGML_USE_CPU_REPACK /
+AMX / KLEIDIAI, so that vector is always empty and the short-circuit is a
+behavior-preserving no-op on the hot compute path.
+
+SOFTANZA BUILD FLAG (engine/build.zig addGgml, -fno-sanitize=undefined): ggml's
+own C relies on pointer arithmetic that UBSan flags as UB (e.g. null+offset in
+graph/hash-set traversal in ggml_build_forward_expand). It is vendored upstream
+code that runs in production (llama.cpp); we don't subject it to our UBSan.

@@ -18,6 +18,15 @@ Scenario("stzNeuralEngine: the ggml runtime is vendored, built, and live")
 		e.Content()[1][2], "ggml (CPU)")
 EndScenario()
 
+Scenario("The ggml compute graph runs (graph_plan + graph_compute live)")
+	# Proves the full compute path -- not just tensor write/read, but building a
+	# graph and running ggml_graph_compute. This exercises the ctor-independent
+	# patches (atomic_flag critical section, traits short-circuits) that make the
+	# BERT embedding forward pass possible on this Zig-built DLL.
+	Then("a trivial add graph computes to the right result",
+		StzEngineNeuralComputeSmoke(), 1)
+EndScenario()
+
 Scenario("Shared base + global shortcuts")
 	e = new stzNeuralEngine()
 	Then("engine inherits GgmlReady from the stzNeural base",
@@ -40,9 +49,12 @@ Scenario("stzNeuralModel: GGUF loads at RUNTIME (no real model needed here)")
 		m.LoadFrom(123), FALSE)
 	Then("the model shares the ggml runtime via the base",
 		m.GgmlReady(), TRUE)
-	# NOTE: real loading is verified manually with a BERT GGUF (all-MiniLM-L6-v2):
+	# NOTE: real loading + the BERT forward pass are verified manually with a
+	# BERT GGUF (all-MiniLM-L6-v2), which is large and NOT committed:
 	#   m = StzNeuralModelQ(cPath) ; ? @@(m.Info())
 	#   -> arch=bert dim=384 layers=6 heads=12 ctx=512 vocab=30522 tensors=101.
+	#   m.EmbeddingOf("the cat sat")            -> 384-float L2-normalized vector
+	#   m.SemanticSimilarityBetween(a, b)       -> cosine; related ~0.65, unrelated ~0.05
 	# Models are LARGE + user-provided at runtime, so not committed to the suite.
 EndScenario()
 

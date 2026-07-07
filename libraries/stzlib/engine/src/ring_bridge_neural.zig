@@ -8,6 +8,9 @@ const gs = R.ring_vm_api_getstring;
 fn ring_NeuralSmoke(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(neural.neural_ggml_smoke()));
 }
+fn ring_NeuralComputeSmoke(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(neural.neural_ggml_compute_smoke()));
+}
 
 fn ring_NeuralVersion(p: *anyopaque) callconv(.c) void {
     const v: [*:0]const u8 = @ptrCast(neural.neural_ggml_version());
@@ -86,6 +89,16 @@ fn ring_NeuralTokenAt(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(embed.neural_token_at(i)));
 }
 
+fn ring_NeuralEmbed(p: *anyopaque) callconv(.c) void {
+    const ptr = gs(p, 1);
+    const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    rn(p, @floatFromInt(embed.neural_embed_text(ptr, len)));
+}
+fn ring_NeuralEmbedAt(p: *anyopaque) callconv(.c) void {
+    const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    rn(p, embed.neural_embed_at(i));
+}
+
 fn ring_NeuralVocabToken(p: *anyopaque) callconv(.c) void {
     const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
     const t: [*:0]const u8 = @ptrCast(embed.neural_vocab_token(i));
@@ -97,7 +110,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralmodeltensorname", .func = &ring_NeuralModelTensorName },
     .{ .name = "stzengineneuraltokenize", .func = &ring_NeuralTokenize },
     .{ .name = "stzengineneuraltokenat", .func = &ring_NeuralTokenAt },
+    .{ .name = "stzengineneuralembed", .func = &ring_NeuralEmbed },
+    .{ .name = "stzengineneuralembedat", .func = &ring_NeuralEmbedAt },
     .{ .name = "stzengineneuralsmoke", .func = &ring_NeuralSmoke },
+    .{ .name = "stzengineneuralcomputesmoke", .func = &ring_NeuralComputeSmoke },
     .{ .name = "stzengineneuralversion", .func = &ring_NeuralVersion },
     .{ .name = "stzengineneuralmodelload", .func = &ring_NeuralModelLoad },
     .{ .name = "stzengineneuralmodelfree", .func = &ring_NeuralModelFree },

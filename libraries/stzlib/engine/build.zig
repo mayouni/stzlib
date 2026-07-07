@@ -163,6 +163,10 @@ fn addGgml(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
         "-DGGML_USE_CPU",
         "-DGGML_SCHED_MAX_COPIES=4",
         "-DNDEBUG",
+        // ggml's own C relies on pointer arithmetic UBSan flags as UB (null+offset
+        // in graph/hash-set code). It's vendored third-party code, not ours, and
+        // works in production (llama.cpp) -- don't run it under our UBSan.
+        "-fno-sanitize=undefined",
     };
     lib.addCSourceFiles(.{
         .files = &.{
@@ -183,6 +187,7 @@ fn addGgml(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
         "-DGGML_SCHED_MAX_COPIES=4",
         "-DNDEBUG",
         "-std=c++17",
+        "-fno-sanitize=undefined",
     };
     lib.addCSourceFiles(.{
         .files = &.{

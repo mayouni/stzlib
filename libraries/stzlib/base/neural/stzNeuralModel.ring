@@ -108,6 +108,44 @@ class stzNeuralModel from stzNeural
 		  "  vocab=" + This.VocabSize() + " ]"
 		return This
 
-	#-- ROADMAP (next milestone): the forward pass.
-	#   def EmbeddingOf(cText)   -> sentence-embedding vector (list of floats)
-	#   Then stzText.EmbeddingQ() / SemanticSimilarityWith() use a stzNeuralModel.
+		  #==========================================================#
+		 #   FORWARD PASS -- sentence embeddings                    #
+		#==========================================================#
+		# EmbeddingOf(cText) -- run the BERT forward pass (embeddings + N
+		# transformer layers + mean-pool + L2-normalize) and return the
+		# sentence-embedding vector as a list of EmbeddingDim() floats (DATA).
+		def EmbeddingOf(pcText)
+			if NOT isString(pcText) return [] ok
+			nDim = StzEngineNeuralEmbed(pcText)
+			if nDim = 0 return [] ok
+			aVec = []
+			for i = 0 to nDim - 1
+				aVec + StzEngineNeuralEmbedAt(i)
+			next
+			return aVec
+
+			def Embedding(pcText)
+				return This.EmbeddingOf(pcText)
+
+		# WordPiece token ids for cText (with [CLS]..[SEP]) -- DATA.
+		def Tokenize(pcText)
+			if NOT isString(pcText) return [] ok
+			nCount = StzEngineNeuralTokenize(pcText)
+			aIds = []
+			for i = 0 to nCount - 1
+				aIds + StzEngineNeuralTokenAt(i)
+			next
+			return aIds
+
+		# Cosine similarity of two texts' embeddings, in [-1, 1] (DATA). The
+		# vectors are already L2-normalized, so cosine = dot product.
+		def SemanticSimilarityBetween(pcA, pcB)
+			aA = This.EmbeddingOf(pcA)
+			aB = This.EmbeddingOf(pcB)
+			nLen = len(aA)
+			if nLen = 0 or len(aB) != nLen return 0 ok
+			nDot = 0
+			for i = 1 to nLen
+				nDot += aA[i] * aB[i]
+			next
+			return nDot
