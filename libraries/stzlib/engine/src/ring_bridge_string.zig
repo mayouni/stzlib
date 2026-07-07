@@ -2985,6 +2985,18 @@ fn ring_StringReadability(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, string.str_readability(h, mode));
 }
 
+// Sentences (UAX#29). Native list of trimmed sentence texts.
+fn ring_StringSentencesList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_sentences(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
+// Language detection (english / french / arabic / unknown).
+fn ring_StringDetectLanguage(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_detect_language(getHandle(p, 1))), STZ_HANDLE);
+}
+
 // Sentiment (VADER). mode: 0=compound 1=pos 2=neg 3=neu.
 fn ring_StringSentiment(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
@@ -4052,6 +4064,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringwithoutstopwords", .func = &ring_StringWithoutStopwords },
     .{ .name = "stzenginestringisstopword", .func = &ring_StringIsStopword },
     .{ .name = "stzenginestringreadability", .func = &ring_StringReadability },
+    .{ .name = "stzenginestringsentenceslist", .func = &ring_StringSentencesList },
+    .{ .name = "stzenginestringdetectlanguage", .func = &ring_StringDetectLanguage },
     .{ .name = "stzenginestringsentiment", .func = &ring_StringSentiment },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
     .{ .name = "stzenginestringlemmatizewordslist", .func = &ring_StringLemmatizeWordsList },

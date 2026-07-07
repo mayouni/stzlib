@@ -559,6 +559,27 @@ pub export fn str_words_split(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
+// Split into SENTENCES (UAX#29 Sentence_Break), NUL-delimited, each trimmed of
+// leading/trailing whitespace. Backs Sentences()/SentencesQ().
+pub export fn str_sentences(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = str_new() orelse return null;
+    var sit = wb.SentenceIter.init(src);
+    var first = true;
+    while (sit.next()) |span| {
+        var a = span.start;
+        var b = span.end;
+        while (a < b and (src[a] == ' ' or src[a] == '\t' or src[a] == '\n' or src[a] == '\r')) a += 1;
+        while (b > a and (src[b - 1] == ' ' or src[b - 1] == '\t' or src[b - 1] == '\n' or src[b - 1] == '\r')) b -= 1;
+        if (b <= a) continue; // whitespace-only
+        if (!first) result.data.append(gpa, 0) catch break;
+        result.data.appendSlice(gpa, src[a..b]) catch break;
+        first = false;
+    }
+    return result;
+}
+
 // Search tokenization: like str_words_split but CJK runs become overlapping
 // character bigrams (dictionary-free CJK indexing, cf. Lucene CJKBigramFilter) --
 // far better recall than per-codepoint for CJK search/matching. Non-CJK words
