@@ -81,8 +81,9 @@ class stzNeuralModel from stzNeural
 	def NumberOfTensors()
 		return StzEngineNeuralModelNTensors()
 
-	# Architecture + hyperparameters as [key, value] data.
-	def Info()
+	# Content() = what the model IS: its architecture + hyperparameters as
+	# [key, value] data. Show() renders it (Softanza Show = visualize Content).
+	def Content()
 		return [
 			[ "arch", This.Arch() ],
 			[ "embedding_dim", This.EmbeddingDim() ],
@@ -93,15 +94,18 @@ class stzNeuralModel from stzNeural
 			[ "tensors", This.NumberOfTensors() ]
 		]
 
+		def Info()
+			return This.Content()
+
 	def Show()
 		if NOT This.IsLoaded()
-			? "stzNeuralModel: no model loaded"
+			? "stzNeuralModel [ not loaded ]"
 			return This
 		ok
-		? "stzNeuralModel: " + This.Arch() +
+		? "stzNeuralModel [ " + This.Arch() +
 		  "  dim=" + This.EmbeddingDim() +
 		  "  layers=" + This.NumberOfLayers() +
-		  "  vocab=" + This.VocabSize()
+		  "  vocab=" + This.VocabSize() + " ]"
 		return This
 
 	#-- ROADMAP (next milestone): the forward pass.

@@ -20,11 +20,11 @@ func StzNeuralEngineQ()
 class stzNeuralEngine from stzNeural
 
 	def init()
-		# stateless facade over the ggml runtime.
+		# stateless facade over the ggml inference backend.
 
-	# TRUE if the runtime is compiled in and executes.
+	# TRUE if the ggml backend is compiled in and executes.
 	def IsReady()
-		return This.RuntimeReady()
+		return This.GgmlReady()
 
 		def IsAvailable()
 			return This.IsReady()
@@ -32,17 +32,17 @@ class stzNeuralEngine from stzNeural
 	def Backend()
 		return "ggml (CPU)"
 
-	# Backend / runtime snapshot as [key, value] data.
-	def RuntimeInfo()
+	# Content() = what the engine IS: its [key, value] snapshot (backend, version,
+	# readiness). Show() renders it (the Softanza Show = visualize Content rule).
+	def Content()
 		return [
 			[ "backend", This.Backend() ],
 			[ "version", This.GgmlVersion() ],
 			[ "ready", This.IsReady() ]
 		]
 
-	# Print the runtime snapshot; returns This for chaining.
-	def ShowRuntime()
-		? "Softanza neural engine (" + This.Backend() + ")"
-		? "  version : " + This.GgmlVersion()
-		? "  ready   : " + This.IsReady()
+	def Show()
+		aC = This.Content()
+		? "stzNeuralEngine [ backend=" + aC[1][2] +
+		  ", version=" + aC[2][2] + ", ready=" + aC[3][2] + " ]"
 		return This
