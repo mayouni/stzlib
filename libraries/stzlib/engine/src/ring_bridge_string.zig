@@ -2911,6 +2911,45 @@ fn ring_StringSearchTokens(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_search_tokens(h)), STZ_HANDLE);
 }
 
+// Split a NUL-delimited engine string into a NATIVE Ring list in ONE call (O(n)),
+// then free the intermediate. Replaces the Ring-side _SplitNullDelimited byte-walk
+// which was O(n^2) at large token counts (150k CJK bigrams: 61s -> ms).
+fn emitNulList(out: *anyopaque, res: string.StzStringHandle) void {
+    const s = res orelse return;
+    const buf = s.slice();
+    var start: usize = 0;
+    var i: usize = 0;
+    while (i < buf.len) : (i += 1) {
+        if (buf[i] == 0) {
+            R.ring_list_addstring2(out, buf.ptr + start, @intCast(i - start));
+            start = i + 1;
+        }
+    }
+    if (buf.len > start) R.ring_list_addstring2(out, buf.ptr + start, @intCast(buf.len - start));
+    string.str_free(s);
+}
+
+fn ring_StringSearchTokensList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_search_tokens(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_StringWordsSplitList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_words_split(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_StringStemWordsList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const h = getHandle(p, 1);
+    const lang = ring_vm_api_getstring(p, 2);
+    const lang_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    emitNulList(out, string.str_stem_words(h, lang, lang_len));
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_StringStemmed(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const lang = ring_vm_api_getstring(p, 2);
@@ -3944,6 +3983,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsentencecount", .func = &ring_StringSentenceCount },
     .{ .name = "stzenginestringchop", .func = &ring_StringChop },
     .{ .name = "stzenginestringsearchtokens", .func = &ring_StringSearchTokens },
+    .{ .name = "stzenginestringsearchtokenslist", .func = &ring_StringSearchTokensList },
+    .{ .name = "stzenginestringwordssplitlist", .func = &ring_StringWordsSplitList },
+    .{ .name = "stzenginestringstemwordslist", .func = &ring_StringStemWordsList },
     .{ .name = "stzenginestringstemmed", .func = &ring_StringStemmed },
     .{ .name = "stzenginestringstemwords", .func = &ring_StringStemWords },
     .{ .name = "stzenginestringscanint", .func = &ring_StringScanInt },
