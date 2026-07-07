@@ -108,10 +108,10 @@ func StzTFIDFKeywordsCS(paDocs, nTop, pCaseSensitive)
 	# Unpack: documents are separated by char(1), keywords within a doc by
 	# char(0). Split doc-by-doc (there are exactly nLen of them).
 	aResult = []
-	aDocChunks = str2list( substr(cOut, char(1), char(10)) )
+	aDocChunks = str2list( StzReplace(cOut, char(1), char(10)) )
 	for i = 1 to nLen
 		if i <= len(aDocChunks) and aDocChunks[i] != ""
-			aResult + str2list( substr(aDocChunks[i], char(0), char(10)) )
+			aResult + str2list( StzReplace(aDocChunks[i], char(0), char(10)) )
 		else
 			aResult + []
 		ok
