@@ -54,6 +54,9 @@ pub export fn neural_model_free() callconv(.c) void {
     freeVocab();
     g_tok_ids.clearAndFree(gpa);
     g_emb.clearAndFree(gpa);
+    g_tok_emb.clearAndFree(gpa);
+    g_tok_emb_ntok = 0;
+    g_tok_emb_ndim = 0;
 }
 
 pub export fn neural_model_loaded() callconv(.c) c_int {
@@ -316,28 +319,37 @@ fn layerNorm(ctx: ?*c.ggml_context, x: *c.ggml_tensor, w: *c.ggml_tensor, b: *c.
     return t;
 }
 
-// Embed `text` -> a normalized sentence vector, stored in g_emb; returns the dim
-// (0 on failure). Read back via neural_embed_at(i).
-pub export fn neural_embed_text(text: [*c]const u8, len: usize) callconv(.c) c_int {
-    if (!buildVocab()) return 0;
-    const mctx = g_ctx orelse return 0;
+// Per-token hidden-state vectors from the forward pass (token-major: token t,
+// dim e at t*n_embd+e). The shared substrate for the mean-pooled sentence
+// embedding AND any token-level task (NER, token classification, QA).
+var g_tok_emb: std.ArrayList(f32) = .{};
+var g_tok_emb_ntok: usize = 0;
+var g_tok_emb_ndim: usize = 0;
+
+// Run the BERT forward pass and leave the RAW per-token hidden states in
+// g_tok_emb (copied out before the compute context is freed). Returns false on
+// any failure. Both neural_embed_text (mean-pool) and neural_embed_tokens build
+// on this.
+fn forwardTokens(text: [*c]const u8, len: usize) bool {
+    if (!buildVocab()) return false;
+    const mctx = g_ctx orelse return false;
 
     g_tok_ids.clearRetainingCapacity();
-    if (text == null or len == 0) return 0;
+    if (text == null or len == 0) return false;
     tokenizeInto(text[0..len], &g_tok_ids);
     var n_tok: usize = g_tok_ids.items.len;
-    if (n_tok < 2) return 0;
+    if (n_tok < 2) return false;
     if (n_tok > 256) n_tok = 256; // cap sequence length
 
     const n_embd: usize = @intCast(neural_model_n_embd());
     const n_head: usize = @intCast(neural_model_n_heads());
     const n_layer: usize = @intCast(neural_model_n_layers());
-    if (n_embd == 0 or n_head == 0 or n_layer == 0) return 0;
+    if (n_embd == 0 or n_head == 0 or n_layer == 0) return false;
     const head_dim = n_embd / n_head;
     const eps = kvArchF32(".attention.layer_norm_epsilon", 1e-12);
 
     const mem_size: usize = 48 * 1024 * 1024 + n_tok * n_tok * n_head * n_layer * 64;
-    const ctx = c.ggml_init(.{ .mem_size = mem_size, .mem_buffer = null, .no_alloc = false }) orelse return 0;
+    const ctx = c.ggml_init(.{ .mem_size = mem_size, .mem_buffer = null, .no_alloc = false }) orelse return false;
     defer c.ggml_free(ctx);
 
     // inputs
@@ -395,27 +407,42 @@ pub export fn neural_embed_text(text: [*c]const u8, len: usize) callconv(.c) c_i
         cur = layerNorm(ctx, ff, T.get(mctx, "blk.{d}.layer_output_norm.weight", .{L}, &nb), T.get(mctx, "blk.{d}.layer_output_norm.bias", .{L}, &nb2), eps);
     }
 
-    // compute cur = [n_embd, n_tok]; mean-pool + L2-normalize in Zig (avoids
-    // ggml_mean/transpose/cont in the graph).
-    const graph = c.ggml_new_graph(ctx) orelse return 0;
+    // compute cur = [n_embd, n_tok]
+    const graph = c.ggml_new_graph(ctx) orelse return false;
     c.ggml_build_forward_expand(graph, cur);
     var plan = c.ggml_graph_plan(graph, 4, null);
     var wbuf: ?[]u8 = null;
     if (plan.work_size > 0) {
-        wbuf = gpa.alloc(u8, plan.work_size) catch return 0;
+        wbuf = gpa.alloc(u8, plan.work_size) catch return false;
         plan.work_data = wbuf.?.ptr;
     }
     defer if (wbuf) |w| gpa.free(w);
     _ = c.ggml_graph_compute(graph, &plan);
 
-    // cur.data is contiguous [n_embd, n_tok]: element (e,t) at t*n_embd + e.
+    // cur.data is contiguous [n_embd, n_tok] = token-major (token t's vector is
+    // cd[t*n_embd .. +n_embd]). Copy it out before the ctx (and its data) is freed.
     const cd: [*]const f32 = @ptrCast(@alignCast(cur.*.data));
+    g_tok_emb.clearRetainingCapacity();
+    g_tok_emb.ensureTotalCapacity(gpa, n_tok * n_embd) catch return false;
+    for (0..n_tok * n_embd) |i| g_tok_emb.appendAssumeCapacity(cd[i]);
+    g_tok_emb_ntok = n_tok;
+    g_tok_emb_ndim = n_embd;
+    return true;
+}
+
+// Embed `text` -> a normalized SENTENCE vector (mean-pool of the per-token
+// hidden states), stored in g_emb; returns the dim (0 on failure). Read via
+// neural_embed_at(i).
+pub export fn neural_embed_text(text: [*c]const u8, len: usize) callconv(.c) c_int {
+    if (!forwardTokens(text, len)) return 0;
+    const n_tok = g_tok_emb_ntok;
+    const n_embd = g_tok_emb_ndim;
     g_emb.clearRetainingCapacity();
     g_emb.ensureTotalCapacity(gpa, n_embd) catch return 0;
     var norm: f32 = 0;
     for (0..n_embd) |e| {
         var s: f32 = 0;
-        for (0..n_tok) |t| s += cd[t * n_embd + e];
+        for (0..n_tok) |t| s += g_tok_emb.items[t * n_embd + e];
         const m = s / @as(f32, @floatFromInt(n_tok));
         g_emb.appendAssumeCapacity(m);
         norm += m * m;
@@ -430,4 +457,27 @@ pub export fn neural_embed_at(i: c_int) callconv(.c) f64 {
     const idx: usize = @intCast(i);
     if (idx >= g_emb.items.len) return 0;
     return g_emb.items[idx];
+}
+
+// --- Token-level embeddings (foundation for NER / token classification) -------
+// neural_embed_tokens runs the forward pass and returns the TOKEN COUNT (incl.
+// the [CLS]/[SEP] wrappers). The RAW per-token hidden-state vectors are then read
+// via neural_token_dim() + neural_token_value(tok, dim). Raw (not L2-normalized):
+// normalize caller-side for cosine. This is the substrate a real token-
+// classification NER head plugs onto.
+pub export fn neural_embed_tokens(text: [*c]const u8, len: usize) callconv(.c) c_int {
+    if (!forwardTokens(text, len)) return 0;
+    return @intCast(g_tok_emb_ntok);
+}
+
+pub export fn neural_token_dim() callconv(.c) c_int {
+    return @intCast(g_tok_emb_ndim);
+}
+
+pub export fn neural_token_value(tok: c_int, dim: c_int) callconv(.c) f64 {
+    if (tok < 0 or dim < 0) return 0;
+    const t: usize = @intCast(tok);
+    const d: usize = @intCast(dim);
+    if (t >= g_tok_emb_ntok or d >= g_tok_emb_ndim) return 0;
+    return g_tok_emb.items[t * g_tok_emb_ndim + d];
 }
