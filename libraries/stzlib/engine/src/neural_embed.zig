@@ -531,16 +531,50 @@ pub export fn neural_token_value(tok: c_int, dim: c_int) callconv(.c) f64 {
 // A NER-head GGUF (e.g. cstr/bert-base-NER-GGUF) carries a `ner.classifier`
 // linear head on top of the BERT backbone. We run backbone -> per-token logits
 // [n_labels, n_tok] -> argmax per token -> word tags -> BIO decode -> entities.
-// Label order is the CoNLL-2003 / dslim scheme: 0=O, then B/I pairs for
-// MISC(1,2), PER(3,4), ORG(5,6), LOC(7,8). Type id = (tag-1)/2.
-const NER_TYPE_NAMES = [_][*:0]const u8{ "MISC", "PERSON", "ORGANIZATION", "LOCATION" };
+// The label id->string map is read from the GGUF `ner.labels` array (NOT
+// hardcoded), so any scheme/order works: "O", "B-<TYPE>"/"I-<TYPE>" (BILOU
+// prefixes B/I/L/U/S/E tolerated). PER/ORG/LOC normalize to the rule-NER's
+// PERSON/ORGANIZATION/LOCATION so the two NER paths share a type vocabulary.
 var g_ner_texts: std.ArrayList([:0]u8) = .{};
-var g_ner_types: std.ArrayList(u8) = .{}; // type id per entity
+var g_ner_types: std.ArrayList([:0]u8) = .{}; // normalized type string per entity
 
 fn clearNer() void {
     for (g_ner_texts.items) |t| gpa.free(t);
+    for (g_ner_types.items) |t| gpa.free(t);
     g_ner_texts.clearRetainingCapacity();
     g_ner_types.clearRetainingCapacity();
+}
+
+// The k-th NER label string from the GGUF `ner.labels` array (stable while the
+// model is loaded); "O" if unavailable.
+fn nerLabel(k: usize) []const u8 {
+    const ctx = g_gguf orelse return "O";
+    const id = c.gguf_find_key(ctx, "ner.labels");
+    if (id < 0) return "O";
+    if (k >= c.gguf_get_arr_n(ctx, id)) return "O";
+    return std.mem.span(c.gguf_get_arr_str(ctx, id, k));
+}
+
+fn normType(t: []const u8) []const u8 {
+    if (std.mem.eql(u8, t, "PER")) return "PERSON";
+    if (std.mem.eql(u8, t, "ORG")) return "ORGANIZATION";
+    if (std.mem.eql(u8, t, "LOC")) return "LOCATION";
+    return t; // pass through (MISC, GPE, DATE, ...)
+}
+
+const TagKind = enum { outside, begin, inside };
+const ParsedTag = struct { kind: TagKind, type_name: []const u8 };
+fn parseLabel(label: []const u8) ParsedTag {
+    if (label.len == 0) return .{ .kind = .outside, .type_name = "" };
+    if (label.len == 1 and label[0] == 'O') return .{ .kind = .outside, .type_name = "" };
+    if (label.len >= 2 and label[1] == '-') {
+        const t = normType(label[2..]);
+        return switch (label[0]) {
+            'I', 'L', 'E' => .{ .kind = .inside, .type_name = t },
+            else => .{ .kind = .begin, .type_name = t }, // B, U, S, ...
+        };
+    }
+    return .{ .kind = .begin, .type_name = normType(label) };
 }
 
 fn argmaxTag(ld: [*]const f32, t: usize, n_labels: usize) usize {
@@ -670,29 +704,25 @@ pub export fn neural_ner(text: [*c]const u8, len: usize) callconv(.c) c_int {
 
     const ld: [*]const f32 = @ptrCast(@alignCast(logits.*.data)); // (k,t) at t*n_labels+k
 
-    // BIO decode over words (word tag = argmax at its first subword)
+    // BIO decode over words (word tag = argmax label at its first subword)
     clearNer();
     var wi: usize = 0;
     const nw = word_first.items.len;
     while (wi < nw) {
         const ft = word_first.items[wi];
         if (ft >= n_tok) break; // truncated by the cap
-        const tag = argmaxTag(ld, ft, n_labels);
-        if (tag == 0) { // O
+        const lab = parseLabel(nerLabel(argmaxTag(ld, ft, n_labels)));
+        if (lab.kind == .outside) {
             wi += 1;
             continue;
         }
-        const type_id: usize = (tag - 1) / 2;
         var ent: std.ArrayList(u8) = .{};
         defer ent.deinit(gpa);
         ent.appendSlice(gpa, word_text.items[wi]) catch {};
         var wj = wi + 1;
         while (wj < nw and word_first.items[wj] < n_tok) {
-            const tag2 = argmaxTag(ld, word_first.items[wj], n_labels);
-            if (tag2 == 0) break;
-            const type2: usize = (tag2 - 1) / 2;
-            const bio2 = (tag2 - 1) % 2; // 1 = I- continues
-            if (bio2 == 1 and type2 == type_id) {
+            const lab2 = parseLabel(nerLabel(argmaxTag(ld, word_first.items[wj], n_labels)));
+            if (lab2.kind == .inside and std.mem.eql(u8, lab2.type_name, lab.type_name)) {
                 ent.append(gpa, ' ') catch {};
                 ent.appendSlice(gpa, word_text.items[wj]) catch {};
                 wj += 1;
@@ -703,8 +733,14 @@ pub export fn neural_ner(text: [*c]const u8, len: usize) callconv(.c) c_int {
             continue;
         };
         @memcpy(buf, ent.items);
+        const tbuf = gpa.allocSentinel(u8, lab.type_name.len, 0) catch {
+            gpa.free(buf);
+            wi = wj;
+            continue;
+        };
+        @memcpy(tbuf, lab.type_name);
         g_ner_texts.append(gpa, buf) catch {};
-        g_ner_types.append(gpa, @intCast(@min(type_id, 3))) catch {};
+        g_ner_types.append(gpa, tbuf) catch {};
         wi = wj;
     }
     return @intCast(g_ner_texts.items.len);
@@ -719,5 +755,5 @@ pub export fn neural_ner_text(i: c_int) callconv(.c) [*c]const u8 {
 pub export fn neural_ner_type(i: c_int) callconv(.c) [*c]const u8 {
     const idx: usize = @intCast(i);
     if (i < 0 or idx >= g_ner_types.items.len) return @ptrCast("");
-    return NER_TYPE_NAMES[g_ner_types.items[idx]];
+    return g_ner_types.items[idx].ptr;
 }
