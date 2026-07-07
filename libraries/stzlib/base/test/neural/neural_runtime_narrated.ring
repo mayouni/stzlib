@@ -60,6 +60,12 @@ Scenario("stzNeuralModel: GGUF loads at RUNTIME (no real model needed here)")
 	#   Q(str).TextQ().SemanticSimilarityWith(other) / MostSimilarSentenceTo(q)
 	#   stzText.SummarySentences(n) -> embedding-TextRank (cosine graph + PageRank)
 	#     instead of the engine's word-overlap TextRank; falls back w/o a model.
+	#   stzText.ClassifiedAs(labels)     -> zero-shot classification by meaning
+	#   stzText.EntitiesTypedAs(types)   -> entities re-typed by meaning
+	# Token-level substrate for NER/token-classification (raw per-token hidden
+	# states): StzEngineNeuralEmbedTokens(text) -> n_tok; StzEngineNeuralTokenDim();
+	# StzEngineNeuralTokenValue(tok, dim). A real token-classification NER head
+	# plugs onto this.
 	# Models are LARGE + user-provided at runtime, so not committed to the suite.
 EndScenario()
 

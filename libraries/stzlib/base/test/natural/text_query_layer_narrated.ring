@@ -242,4 +242,25 @@ Scenario("Zero-shot classification -- rank arbitrary labels, no training")
 	#     ["sports","politics","cooking"]) -> "sports".
 EndScenario()
 
+Scenario("Embedding-based entity typing -- arbitrary types by meaning")
+	# The rule NER detects + coarsely types spans; this re-types each against
+	# USER-DEFINED types. Model-free here (lexical fallback, lexically-distinct
+	# types); with a model it types by MEANING.
+	t = new stzText("Barack Obama loves the wonderful city of Paris.")
+	Then("EntityTypeOf picks the closest type",
+		t.EntityTypeOf("New York City", [ "city location", "food dish" ]), "city location")
+	Then("a non-list of types is rejected",
+		t.EntityTypeOf("Paris", "not a list"), "")
+	ae = t.EntitiesTypedAs([ "person", "place" ])
+	Then("EntitiesTypedAs returns [entity, type] pairs for detected entities",
+		len(ae) >= 1 and len(ae[1]) = 2, TRUE)
+	Then("EntitiesTypedAsQQ is stzListOfPairs",
+		classname(t.EntitiesTypedAsQQ([ "person", "place" ])), "stzlistofpairs")
+	# MANUAL (with a BERT GGUF): types entities by meaning --
+	#   new stzText("Obama visited Paris and met Google's CEO").EntitiesTypedAs(
+	#     ["person","city","company"]) -> Obama:person, Paris:city, Google:company.
+	# The per-token engine substrate (neural_embed_tokens) is ready for a real
+	# token-classification NER-head GGUF to plug onto later.
+EndScenario()
+
 Summary()

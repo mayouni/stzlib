@@ -239,6 +239,41 @@ class stzText from stzStringText
 	def Locations()
 		return This.EntitiesOfType("LOCATION")
 
+	# --- Embedding-based entity typing (neural upgrade) --------------------
+	# The rule-based NER above detects + coarsely types spans. These re-TYPE an
+	# entity against ARBITRARY, user-defined types BY MEANING (zero-shot, via the
+	# neural model when loaded; lexical fallback otherwise) -- so the type set
+	# adapts to any domain, and "Paris" the city vs the person is disambiguated by
+	# meaning. (A real token-classification NER-head GGUF, once available, plugs
+	# onto the per-token engine substrate -- neural_embed_tokens -- underneath.)
+
+	# EntityTypeOf(entity, types) -- the candidate type whose MEANING best matches
+	# the entity mention (DATA, a string).
+	def EntityTypeOf(pcEntity, paTypes)
+		if NOT (isString(pcEntity) and isList(paTypes)) return "" ok
+		_oEtoT_ = new stzText(pcEntity)
+		return _oEtoT_.ClassifiedAs(paTypes)
+
+	# EntitiesTypedAs(types) -- every detected entity re-typed against `types` by
+	# meaning: [[entity, best_type], ...] (DATA).
+	def EntitiesTypedAs(paTypes)
+		if NOT isList(paTypes) return [] ok
+		_aEtaAll_ = This.NamedEntities()
+		_aEtaOut_ = []
+		_nEtaN_ = len(_aEtaAll_)
+		for _iEta_ = 1 to _nEtaN_
+			_cEtaEnt_ = _aEtaAll_[_iEta_][1]
+			_aEtaOut_ + [ _cEtaEnt_, This.EntityTypeOf(_cEtaEnt_, paTypes) ]
+		next
+		return _aEtaOut_
+
+		# Q-ladder: Q -> basic stzList; QQ -> stzListOfPairs.
+		def EntitiesTypedAsQ(paTypes)
+			return new stzList(This.EntitiesTypedAs(paTypes))
+
+		def EntitiesTypedAsQQ(paTypes)
+			return new stzListOfPairs(This.EntitiesTypedAs(paTypes))
+
 	  #==========================================================#
 	 #   STOPWORDS + READABILITY                                #
 	#==========================================================#
