@@ -76,6 +76,10 @@ load "../../engine/stz_sequence.ring"
 load "../../engine/stz_intseq.ring"
 load "../../engine/stz_relations.ring"
 load "../../engine/stz_statemachine.ring"
+
+# Modern / neural tier (vendored ggml runtime)
+load "../../engine/stz_neural.ring"
+
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)
