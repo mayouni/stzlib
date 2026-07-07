@@ -3,3 +3,8 @@ Lemmatization data (lemmatization-en.txt) vendored from:
 Derived from Wiktionary; provided under the Open Database License (ODbL).
 Format: one "lemma<TAB>inflected_form" pair per line, UTF-8, BOM stripped.
 Used by the Softanza engine lemmatizer (src/string/lemma.zig, @embedFile).
+
+vader_lexicon.txt (token<TAB>mean_valence, trimmed): from
+  cjhutto/vaderSentiment (https://github.com/cjhutto/vaderSentiment), MIT License.
+  Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for
+  Sentiment Analysis of Social Media Text. ICWSM-14.

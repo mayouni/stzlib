@@ -2950,6 +2950,13 @@ fn ring_StringStemWordsList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// Sentiment (VADER). mode: 0=compound 1=pos 2=neg 3=neu.
+fn ring_StringSentiment(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const mode: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, string.str_sentiment(h, mode));
+}
+
 // Lemmatization (dictionary form). Lemmatized() = in place; LemmatizedWords() =
 // native list.
 fn ring_StringLemmatized(p: *anyopaque) callconv(.c) void {
@@ -4004,6 +4011,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsearchtokenslist", .func = &ring_StringSearchTokensList },
     .{ .name = "stzenginestringwordssplitlist", .func = &ring_StringWordsSplitList },
     .{ .name = "stzenginestringstemwordslist", .func = &ring_StringStemWordsList },
+    .{ .name = "stzenginestringsentiment", .func = &ring_StringSentiment },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
     .{ .name = "stzenginestringlemmatizewordslist", .func = &ring_StringLemmatizeWordsList },
     .{ .name = "stzenginestringstemmed", .func = &ring_StringStemmed },

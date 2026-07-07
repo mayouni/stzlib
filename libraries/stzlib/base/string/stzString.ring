@@ -4403,6 +4403,41 @@ class stzString from stzObject
 		def WordsLemmatized()
 			return This.LemmatizedWords()
 
+	# --- Sentiment analysis (VADER) ---
+	# Rule-based sentiment: SentimentScore() = compound valence in [-1,1];
+	# Sentiment() = "positive"/"negative"/"neutral"; Positive/Negative/Neutral
+	# Score() = the proportion breakdown.
+	def SentimentScore()
+		return StzEngineStringSentiment(@pEngine, 0)
+
+		def SentimentCompound()
+			return This.SentimentScore()
+
+	def Sentiment()
+		_nScore_ = This.SentimentScore()
+		if _nScore_ >= 0.05
+			return "positive"
+		but _nScore_ <= -0.05
+			return "negative"
+		else
+			return "neutral"
+		ok
+
+	def PositiveScore()
+		return StzEngineStringSentiment(@pEngine, 1)
+
+	def NegativeScore()
+		return StzEngineStringSentiment(@pEngine, 2)
+
+	def NeutralScore()
+		return StzEngineStringSentiment(@pEngine, 3)
+
+	def IsPositive()
+		return This.SentimentScore() >= 0.05
+
+	def IsNegative()
+		return This.SentimentScore() <= -0.05
+
 	# --- Search tokenization (CJK-friendly) ---
 	# Like Words() but CJK runs become OVERLAPPING CHARACTER BIGRAMS -- the
 	# dictionary-free CJK indexing baseline (cf. Lucene CJKBigramFilter), much
