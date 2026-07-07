@@ -2997,6 +2997,13 @@ fn ring_StringDetectLanguage(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_detect_language(getHandle(p, 1))), STZ_HANDLE);
 }
 
+// Sentiment breakdown. Native list of "token\x01valence" (Ring splits on 0x01).
+fn ring_StringSentimentExplainedList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_sentiment_explained(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
 // Sentiment (VADER). mode: 0=compound 1=pos 2=neg 3=neu.
 fn ring_StringSentiment(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
@@ -4067,6 +4074,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsentenceslist", .func = &ring_StringSentencesList },
     .{ .name = "stzenginestringdetectlanguage", .func = &ring_StringDetectLanguage },
     .{ .name = "stzenginestringsentiment", .func = &ring_StringSentiment },
+    .{ .name = "stzenginestringsentimentexplainedlist", .func = &ring_StringSentimentExplainedList },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
     .{ .name = "stzenginestringlemmatizewordslist", .func = &ring_StringLemmatizeWordsList },
     .{ .name = "stzenginestringstemmed", .func = &ring_StringStemmed },

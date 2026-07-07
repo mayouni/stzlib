@@ -4338,6 +4338,11 @@ class stzString from stzObject
 		# O(n^2) at large token counts.
 		return StzEngineStringWordsSplitList(@pEngine)
 
+		def WordsQ()
+			# stzListOfStrings -> chain TEXT ops (MostSimilarTo, ThatContain, ...)
+			# plus the generic list ops.
+			return new stzListOfStrings(This.Words())
+
 	def NumberOfWords()
 		return StzEngineStringCountWords(@pEngine)
 
@@ -4690,25 +4695,30 @@ class stzString from stzObject
 			return This.StemmedInLanguage(_cAsLg_)
 
 		# --- Explainability ---
-		# SentimentExplained() shows the overall label/score plus which individual
-		# words carry positive vs negative lexical polarity -- so you can SEE why a
-		# "not good" sentence lands negative even though "good" is a positive word
-		# (negation / boosters / context are applied to the overall score, not the
-		# per-word lexical view). ReadabilityExplained() shows the raw ingredients.
+		# SentimentExplained() returns each contributing word with its NET VADER
+		# valence (engine-computed, AFTER negation/boosters/but), split into
+		# positive_words and negative_words as [word, valence] pairs. Because the
+		# per-word view applies the same rules as the score, "not good" shows "good"
+		# among the NEGATIVE words -- you SEE exactly which words moved the score and
+		# by how much. ReadabilityExplained() shows the raw ingredients.
 		def SentimentExplained()
 			_nSeScore_ = This.SentimentScore()
 			_cSeLabel_ = This.Sentiment()
-			_aSeWords_ = This.Words()
+			# engine-backed: each contributing token's NET VADER valence (after
+			# boosters/negation/but), so the breakdown matches the overall score.
+			_aSeRaw_ = StzEngineStringSentimentExplainedList(@pEngine)
 			_aSePos_ = []
 			_aSeNeg_ = []
-			_nSeN_ = len(_aSeWords_)
+			_nSeN_ = len(_aSeRaw_)
 			for _iSe_ = 1 to _nSeN_
-				_oSeW_ = new stzString(_aSeWords_[_iSe_])
-				_nSeW_ = _oSeW_.SentimentScore()
-				if _nSeW_ >= 0.05
-					_aSePos_ + _aSeWords_[_iSe_]
-				but _nSeW_ <= -0.05
-					_aSeNeg_ + _aSeWords_[_iSe_]
+				_aSePair_ = StzSplit(_aSeRaw_[_iSe_], char(1))
+				if len(_aSePair_) = 2
+					_nSeV_ = number(_aSePair_[2])
+					if _nSeV_ > 0
+						_aSePos_ + [ _aSePair_[1], _nSeV_ ]
+					but _nSeV_ < 0
+						_aSeNeg_ + [ _aSePair_[1], _nSeV_ ]
+					ok
 				ok
 			next
 			return [
@@ -19696,7 +19706,9 @@ class stzString from stzObject
 		return StzEngineStringSentencesList(@pEngine)
 
 		def SentencesQ()
-			return new stzList(This.Sentences())
+			# stzListOfStrings so the chain keeps TEXT ops (MostSimilarTo, ThatAre,
+			# ThatContain, Longest) on top of the generic list ops.
+			return new stzListOfStrings(This.Sentences())
 
 	def NthSentence(n)
 		_aNsnt_ = This.Sentences()

@@ -14,6 +14,7 @@ const core = @import("core.zig");
 const mem = core.mem;
 const gpa = core.gpa;
 const StzStringHandle = core.StzStringHandle;
+const str_new = core.str_new;
 
 const lexicon_data = @embedFile("data/vader_lexicon.txt");
 
@@ -109,11 +110,12 @@ fn punctuationEmphasis(text: []const u8) f64 {
 
 pub const Scores = struct { compound: f64, pos: f64, neg: f64, neu: f64 };
 
-pub fn analyze(text: []const u8) Scores {
+// Whitespace-tokenize `text` into `toks` and return the allocated per-token net
+// VADER valences (after caps/booster/negation/but). Caller frees the slice and
+// deinits `toks`. Returns null on empty input / OOM. Shared by analyze() and
+// str_sentiment_explained so the explanation matches the score exactly.
+fn tokenizeAndScore(text: []const u8, toks: *std.ArrayList(Tok)) ?[]f64 {
     buildLex();
-    // tokenize on whitespace
-    var toks: std.ArrayList(Tok) = .{};
-    defer toks.deinit(gpa);
     {
         var i: usize = 0;
         while (i < text.len) {
@@ -125,7 +127,7 @@ pub fn analyze(text: []const u8) Scores {
         }
     }
     const n = toks.items.len;
-    if (n == 0) return .{ .compound = 0, .pos = 0, .neg = 0, .neu = 0 };
+    if (n == 0) return null;
 
     // ALL-CAPS differential: some (but not all) tokens are ALL CAPS.
     var caps: usize = 0;
@@ -134,8 +136,7 @@ pub fn analyze(text: []const u8) Scores {
     }
     const cap_diff = caps > 0 and caps != n;
 
-    var sentiments = gpa.alloc(f64, n) catch return .{ .compound = 0, .pos = 0, .neg = 0, .neu = 0 };
-    defer gpa.free(sentiments);
+    var sentiments = gpa.alloc(f64, n) catch return null;
 
     var lbuf: [128]u8 = undefined;
     var pbuf: [128]u8 = undefined;
@@ -169,6 +170,48 @@ pub fn analyze(text: []const u8) Scores {
     }
 
     butCheck(toks.items, sentiments, &lbuf);
+    return sentiments;
+}
+
+// Strip leading/trailing non-wordish bytes WITHOUT lowercasing (display form).
+fn stripPunct(t: []const u8) []const u8 {
+    var s: usize = 0;
+    var e: usize = t.len;
+    while (s < e and !isWordish(t[s])) s += 1;
+    while (e > s and !isWordish(t[e - 1])) e -= 1;
+    return if (s < e) t[s..e] else t;
+}
+
+// Per-contributing-token breakdown: "token\x01valence" NUL-delimited, only the
+// tokens whose net VADER valence is nonzero (the words that actually moved the
+// score). Backs SentimentExplained().
+pub fn str_sentiment_explained(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const result = str_new() orelse return null;
+    const s = handle orelse return result;
+    var toks: std.ArrayList(Tok) = .{};
+    defer toks.deinit(gpa);
+    const sentiments = tokenizeAndScore(s.slice(), &toks) orelse return result;
+    defer gpa.free(sentiments);
+    var first = true;
+    var i: usize = 0;
+    while (i < toks.items.len) : (i += 1) {
+        if (sentiments[i] == 0) continue;
+        if (!first) result.data.append(gpa, 0) catch break;
+        result.data.appendSlice(gpa, stripPunct(toks.items[i].s)) catch break;
+        result.data.append(gpa, 1) catch break; // 0x01 field separator
+        var nb: [32]u8 = undefined;
+        const ns = std.fmt.bufPrint(&nb, "{d:.3}", .{sentiments[i]}) catch "0";
+        result.data.appendSlice(gpa, ns) catch break;
+        first = false;
+    }
+    return result;
+}
+
+pub fn analyze(text: []const u8) Scores {
+    var toks: std.ArrayList(Tok) = .{};
+    defer toks.deinit(gpa);
+    const sentiments = tokenizeAndScore(text, &toks) orelse return .{ .compound = 0, .pos = 0, .neg = 0, .neu = 0 };
+    defer gpa.free(sentiments);
 
     // sum + punctuation emphasis
     var sum: f64 = 0;

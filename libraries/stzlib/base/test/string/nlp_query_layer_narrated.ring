@@ -39,22 +39,52 @@ Scenario("Sentence filters by sentiment and similarity")
 		o1.MostSimilarSentenceTo("bad slow service"), "The service was terrible and slow.")
 EndScenario()
 
-Scenario("Language detection across the three supported languages")
+Scenario("Language detection across six languages + script + unknown")
 	oe = new stzString("The quick brown fox that was running in the field")
 	of = new stzString("Le renard brun qui est dans la maison des voisins")
+	os = new stzString("El zorro marrón que está en la casa de los vecinos")
+	og = new stzString("Der schnelle braune Fuchs ist nicht in dem Haus und")
+	oi = new stzString("Il veloce volpe che sono nella casa degli vicini anche")
+	op = new stzString("A raposa que não está com você então são muito mais")
 	oa = new stzString("الطلاب يدرسون في المدارس الكبيرة")
+	ou = new stzString("1234 5678")
 	Then("english", oe.Language(), "english")
 	Then("french",  of.Language(), "french")
-	Then("arabic",  oa.Language(), "arabic")
+	Then("spanish", os.Language(), "spanish")
+	Then("german",  og.Language(), "german")
+	Then("italian", oi.Language(), "italian")
+	Then("portuguese", op.Language(), "portuguese")
+	Then("arabic (by script)", oa.Language(), "arabic")
+	Then("no signal -> unknown", ou.Language(), "unknown")
 EndScenario()
 
-Scenario("Explainability: why an overall score differs from word polarity")
+Scenario("Q-chaining: SentencesQ keeps TEXT ops, not just generic list ops")
+	o1 = new stzString("I love this wonderful product. The service was terrible and slow. It is a plain wooden chair.")
+	Then("MostSimilarByMeaning picks by word overlap (cosine)",
+		o1.SentencesQ().MostSimilarByMeaning("bad slow service"), "The service was terrible and slow.")
+	Then("ThatAre filters sentences by sentiment",
+		@@(o1.SentencesQ().ThatAre("positive")), @@([ "I love this wonderful product." ]))
+	Then("ThatContain filters by substring",
+		@@(o1.SentencesQ().ThatContain("chair")), @@([ "It is a plain wooden chair." ]))
+	Then("chain ThatAreQ -> Joined stays fluent",
+		o1.SentencesQ().ThatAreQ("positive").Joined(), "I love this wonderful product.")
+	Then("generic list ops still available (NthString)",
+		o1.SentencesQ().NthString(2), "The service was terrible and slow.")
+	# the inherited Jaro-Winkler MostSimilarTo (character similarity) is preserved
+	Then("WordsQ().MostSimilarTo fuzzy-matches a typo",
+		o1.WordsQ().MostSimilarTo("wonderfull"), "wonderful")
+EndScenario()
+
+Scenario("Explainability: per-word valences follow the score's own rules")
 	o1 = new stzString("The movie was not good")
 	ae = o1.SentimentExplained()
-	Then("overall lands negative (negation applied)",
+	Then("overall lands negative",
 		ae[1][2], "negative")
-	Then("yet 'good' still reads as a positive word lexically",
-		@@(ae[2][2]), @@([ "good" ]))
+	# the engine applies 'not' to 'good', so 'good' is a NEGATIVE contributor
+	Then("'good' contributes negatively because of 'not'",
+		ae[3][2][1][1], "good")
+	Then("no positive contributors remain",
+		@@(ae[2][2]), @@([ ]))
 EndScenario()
 
 Scenario("Stylometry and comparison")
