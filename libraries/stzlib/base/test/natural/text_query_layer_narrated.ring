@@ -259,8 +259,27 @@ Scenario("Embedding-based entity typing -- arbitrary types by meaning")
 	# MANUAL (with a BERT GGUF): types entities by meaning --
 	#   new stzText("Obama visited Paris and met Google's CEO").EntitiesTypedAs(
 	#     ["person","city","company"]) -> Obama:person, Paris:city, Google:company.
-	# The per-token engine substrate (neural_embed_tokens) is ready for a real
-	# token-classification NER-head GGUF to plug onto later.
+EndScenario()
+
+Scenario("Transformer NER -- token classification when a NER-head GGUF is loaded")
+	# NamedEntities() upgrades to a BERT token-classification head (per-token
+	# logits -> BIO decode -> multi-word entities) when a NER GGUF is loaded
+	# (StzUseNeuralModel with e.g. cstr/bert-base-NER-GGUF); else the rule-based
+	# engine NER. Model-free here: NeuralEntities() is empty without a NER head,
+	# and NamedEntities() falls back to the rule NER.
+	t = new stzText("Barack Obama visited Paris.")
+	Then("NeuralEntities() is empty without a NER-head model",
+		@@(t.NeuralEntities()), @@([ ]))
+	Then("NamedEntities() still works via the rule-based fallback",
+		len(t.NamedEntities()) >= 1, TRUE)
+	# MANUAL (with a NER-head GGUF, verified with cstr/bert-base-NER-GGUF):
+	#   StzUseNeuralModel(cNerPath)
+	#   new stzText("Angela Merkel met Emmanuel Macron in Berlin").NamedEntities()
+	#     -> [[Angela Merkel,PERSON],[Emmanuel Macron,PERSON],[Berlin,LOCATION]]
+	#   "The New York Times reported from Washington" -> The New York Times:
+	#   ORGANIZATION (4-word entity via BIO decode), Washington:LOCATION.
+	#   PersonNames/Organizations/Locations auto-benefit. The classifier head runs
+	#   on the per-token engine substrate (neural_ner over buildBackbone).
 EndScenario()
 
 Summary()

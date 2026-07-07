@@ -33,6 +33,11 @@ func StzUseNeuralModel(pcPath)
 func StzHasNeuralModel()
 	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelNEmbd() > 0
 
+# TRUE if the loaded model carries a token-classification NER head (e.g. a
+# bert-base-NER GGUF) -- then stzText.NamedEntities() upgrades to transformer NER.
+func StzHasNeuralNerModel()
+	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelHasNer() = 1
+
 # StzSemanticSimilarity(cA, cB) -- similarity of two texts in [-1, 1]. Uses the
 # loaded model's sentence embeddings (cosine == dot, since L2-normalized) when a
 # model is present; otherwise degrades gracefully to lexical bag-of-words cosine.

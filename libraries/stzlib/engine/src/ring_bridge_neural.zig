@@ -113,6 +113,23 @@ fn ring_NeuralTokenValue(p: *anyopaque) callconv(.c) void {
     rn(p, embed.neural_token_value(t, d));
 }
 
+fn ring_NeuralModelHasNer(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(embed.neural_model_has_ner()));
+}
+fn ring_NeuralNer(p: *anyopaque) callconv(.c) void {
+    const ptr = gs(p, 1);
+    const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    rn(p, @floatFromInt(embed.neural_ner(ptr, len)));
+}
+fn ring_NeuralNerText(p: *anyopaque) callconv(.c) void {
+    const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    R.ring_vm_api_retstring(p, @ptrCast(embed.neural_ner_text(i)));
+}
+fn ring_NeuralNerType(p: *anyopaque) callconv(.c) void {
+    const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    R.ring_vm_api_retstring(p, @ptrCast(embed.neural_ner_type(i)));
+}
+
 fn ring_NeuralVocabToken(p: *anyopaque) callconv(.c) void {
     const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
     const t: [*:0]const u8 = @ptrCast(embed.neural_vocab_token(i));
@@ -129,6 +146,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralembedtokens", .func = &ring_NeuralEmbedTokens },
     .{ .name = "stzengineneuraltokendim", .func = &ring_NeuralTokenDim },
     .{ .name = "stzengineneuraltokenvalue", .func = &ring_NeuralTokenValue },
+    .{ .name = "stzengineneuralmodelhasner", .func = &ring_NeuralModelHasNer },
+    .{ .name = "stzengineneuralner", .func = &ring_NeuralNer },
+    .{ .name = "stzengineneuralnertext", .func = &ring_NeuralNerText },
+    .{ .name = "stzengineneuralnertype", .func = &ring_NeuralNerType },
     .{ .name = "stzengineneuralsmoke", .func = &ring_NeuralSmoke },
     .{ .name = "stzengineneuralcomputesmoke", .func = &ring_NeuralComputeSmoke },
     .{ .name = "stzengineneuralversion", .func = &ring_NeuralVersion },
