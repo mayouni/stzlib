@@ -27,14 +27,20 @@ vocab = ["the", "of", "and", "to", "in", "a", "is", "that", "for", "it", "as",
 weights = [1.0 / (i + 1) for i in range(len(vocab))]
 
 words = random.choices(vocab, weights=weights, k=600000)
+# Capitalize the first word of each ~12-word sentence so sentence segmentation
+# is actually exercised: UAX#29 SB8 suppresses breaks before a LOWERCASE word
+# (treats the period as an abbreviation), so an all-lowercase corpus would read
+# as ONE sentence. Real sentences start with a capital.
 out = []
+cap_next = True
 for i, w in enumerate(words):
-    out.append(w)
-    out.append(". " if i % 12 == 11 else " ")
+    out.append(w.capitalize() if cap_next else w)
+    cap_next = (i % 12 == 11)
+    out.append(". " if cap_next else " ")
 text = "".join(out)
 with open(os.path.join(HERE, "corpus.txt"), "w", encoding="utf-8") as f:
     f.write(text)
-print("corpus.txt   ", len(text), "bytes,", len(words), "tokens")
+print("corpus.txt   ", len(text), "bytes,", len(words), "tokens, ~%d sentences" % (len(words) // 12))
 
 block = ("Contact a.b@example.com or admin_42@mail.co.uk. See "
          "https://softanza.org/docs?x=1 and http://example.net/path#frag. "
@@ -53,3 +59,14 @@ with open(os.path.join(HERE, "docA.txt"), "w", encoding="utf-8") as f:
 with open(os.path.join(HERE, "docB.txt"), "w", encoding="utf-8") as f:
     f.write(docB)
 print("docA.txt/docB.txt  8000 words each")
+
+# CJK corpus (common Chinese characters) for the bigram-tokenization workload.
+cjk_chars = ("的一是不了人我在有他这为之大来以个中上们到说国和地也子时道出而要于就下"
+             "得可你年生自会那后能对着事其里所去行过家十用发天如然作方成者多日都三小"
+             "军二无同么经法当起与好看学进种将还分此心前面又定见只主没公从")
+cjk_blocks = ["".join(random.choice(cjk_chars) for _ in range(random.randint(2, 8)))
+              for _ in range(30000)]
+cjk = " ".join(cjk_blocks)
+with open(os.path.join(HERE, "cjk.txt"), "w", encoding="utf-8") as f:
+    f.write(cjk)
+print("cjk.txt      ", len(cjk.encode("utf-8")), "bytes,", len(cjk_blocks), "runs")

@@ -29,22 +29,35 @@ committing it.
 | 2 | Cosine similarity of two docs | `CosineSimilarityWithCS` | docA/docB (8k words each) |
 | 3 | Collocations / PMI, top-10 bigrams | `CollocationsCS(5,10,0)` | corpus.txt |
 | 4 | NER: emails + URLs + IPv4 | `ExtractEmails/URLs/IPv4Addresses` | entities.txt (1.2 MB) |
+| 5 | Sentence segmentation (UAX#29) | `NumberOfSentences` | corpus.txt (~50k capitalized sentences) |
+| 6 | CJK bigram tokenization | `WordsForSearch` | cjk.txt (~150k CJK chars) |
+| 7 | Stemming (Snowball English) | `Stemmed` | corpus.txt |
 
-Each reports best-of-5. **Windows Ring `clock()` has ~10–15 ms resolution** —
+corpus.txt capitalizes each sentence's first word on purpose — UAX#29 SB8
+suppresses breaks before a lowercase word, so an all-lowercase corpus reads as
+ONE sentence (correct, but doesn't exercise segmentation). Each reports best-of-5. **Windows Ring `clock()` has ~10–15 ms resolution** —
 treat sub-15 ms numbers (e.g. cosine) as noise.
 
-## Last measured (2026-07-06, Opus session; Ring 1.27, Python 3.13)
+## Last measured (2026-07-07, Opus session; Ring 1.27, Python 3.13)
 
-| Workload | Softanza | Python | Ratio |
-|----------|---------:|-------:|------:|
-| Word frequency top-20 | 106 ms | 59 ms | 1.8× |
-| Cosine similarity | ~10 ms | ~1 ms | (both at noise floor) |
-| Collocations / PMI | 203 ms | 124 ms | 1.6× |
-| NER emails+urls+ips | 332 ms | 27 ms | 12× |
+| Workload | Softanza | Python | Note |
+|----------|---------:|-------:|------|
+| Word frequency top-20 | 168 ms | 59 ms | 2.8× |
+| Cosine similarity | ~5 ms | ~1 ms | both at noise floor |
+| Collocations / PMI | 275 ms | 123 ms | 2.2× |
+| NER emails+urls+ips | 584 ms | 25 ms | PCRE2 vs C `re` |
+| Sentences (UAX#29) | 337 ms | 28 ms | Softanza n=48072 (real UAX#29) vs regex n=50001 (naive) |
+| CJK bigrams | 237 ms | 19 ms | incl. 150k-item Ring list build |
+| Stemming 600k words | ~600–900 ms | — | C Snowball; no Python stdlib baseline |
 
-Python's `Counter`/`re` are hand-tuned C, so it stays ahead; Softanza is the only
-Ring-native option that is both Unicode-correct and free of the O(n²) cliffs.
-Two catastrophic bugs were found and fixed via this harness: PCRE2 re-validating
-the whole subject on every match (extract/replace were O(matches × input) — a
-140k-match extract went 103 s → 0.22 s), and per-token allocation in every
-frequency tokenizer (probe-first + ASCII fast-fold, ~4× on word frequency).
+Python's `Counter`/`re`/`str` are hand-tuned C, so it stays ahead in raw ms;
+Softanza is the only Ring-native option that is both Unicode-correct and free of
+O(n²) cliffs. The sentence and CJK rows are not apples-to-apples on *semantics*:
+Softanza runs full UAX#29 Sentence_Break (skips single-letter-initial periods, so
+48072 vs the naive regex's 50001) and emits a trailing CJK unigram per run.
+
+Bugs found & fixed **via this harness**: PCRE2 re-validating the whole subject on
+every match (extract/replace O(matches × input) — a 140k-match extract 103 s →
+0.22 s); per-token allocation in every frequency tokenizer (probe-first + ASCII
+fast-fold, ~4×); and `_SplitNullDelimited` O(n²) in Words()/StemmedWords()/
+WordsForSearch() (150k CJK bigrams 61 s → 0.13 s via a native-list bridge).
