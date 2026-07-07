@@ -26,7 +26,9 @@ pub export fn neural_ggml_version() callconv(.c) [*c]const u8 {
 // all link and execute.
 pub export fn neural_ggml_smoke() callconv(.c) c_int {
     const params = c.ggml_init_params{
-        .mem_size = 4 * 1024 * 1024,
+        // 64 KB: ample for one 3-element f32 tensor + ggml context/object/tensor
+        // overhead. It's a liveness probe, not a workload -- keep it lean.
+        .mem_size = 64 * 1024,
         .mem_buffer = null,
         .no_alloc = false,
     };
