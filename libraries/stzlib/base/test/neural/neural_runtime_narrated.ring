@@ -14,18 +14,18 @@ Scenario("stzNeuralEngine: the ggml runtime is vendored, built, and live")
 		e.IsReady(), TRUE)
 	Then("backend is ggml (CPU)",
 		e.Backend(), "ggml (CPU)")
-	Then("RuntimeInfo carries the snapshot",
-		e.RuntimeInfo()[1][2], "ggml (CPU)")
+	Then("Content carries the snapshot",
+		e.Content()[1][2], "ggml (CPU)")
 EndScenario()
 
 Scenario("Shared base + global shortcuts")
 	e = new stzNeuralEngine()
-	Then("engine inherits RuntimeReady from the stzNeural base",
-		e.RuntimeReady(), TRUE)
+	Then("engine inherits GgmlReady from the stzNeural base",
+		e.GgmlReady(), TRUE)
 	Then("StzGgmlVersion() global returns the version data",
 		StzGgmlVersion(), "0.0.0-stz")
-	Then("StzNeuralReady() global returns readiness data",
-		StzNeuralReady(), TRUE)
+	Then("StzGgmlReady() global returns readiness data",
+		StzGgmlReady(), TRUE)
 	Then("StzNeuralEngineQ() returns the engine object",
 		isObject(StzNeuralEngineQ()), TRUE)
 EndScenario()
@@ -39,7 +39,7 @@ Scenario("stzNeuralModel: GGUF loads at RUNTIME (no real model needed here)")
 	Then("a non-string path is rejected",
 		m.LoadFrom(123), FALSE)
 	Then("the model shares the ggml runtime via the base",
-		m.RuntimeReady(), TRUE)
+		m.GgmlReady(), TRUE)
 	# NOTE: real loading is verified manually with a BERT GGUF (all-MiniLM-L6-v2):
 	#   m = StzNeuralModelQ(cPath) ; ? @@(m.Info())
 	#   -> arch=bert dim=384 layers=6 heads=12 ctx=512 vocab=30522 tensors=101.

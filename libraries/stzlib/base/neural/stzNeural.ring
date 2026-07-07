@@ -20,28 +20,26 @@
  ///   FUNCTIONS   ///
 /////////////////////
 
-# Data-returning runtime shortcuts (no object needed).
+# Data-returning shortcuts (no object needed).
 func StzGgmlVersion()
 	return StzEngineNeuralVersion()
 
-func StzNeuralReady()
+func StzGgmlReady()
 	return StzEngineNeuralSmoke() = 1
 
   /////////////////
  ///   CLASS   ///
 /////////////////
 
-# Base class -- not meant to be instantiated directly; derive from it.
+# Base class -- not meant to be instantiated directly; derive from it. Carries
+# only what the whole domain shares: access to the vendored ggml backend.
 class stzNeural
 
 	# The vendored ggml build version (common to the whole domain).
 	def GgmlVersion()
 		return StzEngineNeuralVersion()
 
-	# TRUE if the ggml runtime is compiled in and executes (context -> tensor ->
+	# TRUE if the ggml backend is compiled in and executes (context -> tensor ->
 	# compute round-trip). Every neural class depends on this being ready.
-	def RuntimeReady()
+	def GgmlReady()
 		return StzEngineNeuralSmoke() = 1
-
-		def IsRuntimeReady()
-			return This.RuntimeReady()
