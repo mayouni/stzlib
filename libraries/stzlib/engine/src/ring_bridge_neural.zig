@@ -70,7 +70,14 @@ fn ring_NeuralModelKeyType(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(embed.neural_model_key_type(i)));
 }
 
+fn ring_NeuralModelTensorName(p: *anyopaque) callconv(.c) void {
+    const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
+    const n: [*:0]const u8 = @ptrCast(embed.neural_model_tensor_name(i));
+    R.ring_vm_api_retstring(p, n);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzengineneuralmodeltensorname", .func = &ring_NeuralModelTensorName },
     .{ .name = "stzengineneuralsmoke", .func = &ring_NeuralSmoke },
     .{ .name = "stzengineneuralversion", .func = &ring_NeuralVersion },
     .{ .name = "stzengineneuralmodelload", .func = &ring_NeuralModelLoad },

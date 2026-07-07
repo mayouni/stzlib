@@ -19,11 +19,12 @@ var g_ctx: ?*c.ggml_context = null;
 var g_arch: [64]u8 = undefined;
 var g_arch_len: usize = 0;
 
-// Load a GGUF model's metadata (no tensor data yet: no_alloc). 1 on success.
+// Load a GGUF model: metadata + WEIGHTS (no_alloc=false makes gguf read the
+// tensor blob into the created ggml_context and wire tensor->data). 1 on success.
 pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
     neural_model_free();
     var mctx: ?*c.ggml_context = null;
-    const params = c.gguf_init_params{ .no_alloc = true, .ctx = &mctx };
+    const params = c.gguf_init_params{ .no_alloc = false, .ctx = &mctx };
     const ctx = c.gguf_init_from_file(path, params) orelse return 0;
     g_gguf = ctx;
     g_ctx = mctx;
@@ -132,4 +133,9 @@ pub export fn neural_model_key(i: c_int) callconv(.c) [*c]const u8 {
 pub export fn neural_model_key_type(i: c_int) callconv(.c) c_int {
     const ctx = g_gguf orelse return -1;
     return @intCast(c.gguf_get_kv_type(ctx, @intCast(i)));
+}
+
+pub export fn neural_model_tensor_name(i: c_int) callconv(.c) [*c]const u8 {
+    const ctx = g_gguf orelse return @ptrCast("");
+    return c.gguf_get_tensor_name(ctx, @intCast(i));
 }
