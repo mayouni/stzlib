@@ -4338,9 +4338,13 @@ class stzString from stzObject
 		# O(n^2) at large token counts.
 		return StzEngineStringWordsSplitList(@pEngine)
 
+		# Q-ladder: Q -> basic stzList; QQ -> stzListOfStrings (words are LEXICAL
+		# tokens, so there is no stzListOfTexts rung -- a word does not carry
+		# meaning the way a sentence does). Use QRT(.,:type) / .ToStzXxx() otherwise.
 		def WordsQ()
-			# stzListOfStrings -> chain TEXT ops (MostSimilarTo, ThatContain, ...)
-			# plus the generic list ops.
+			return new stzList(This.Words())
+
+		def WordsQQ()
 			return new stzListOfStrings(This.Words())
 
 	def NumberOfWords()
@@ -4400,11 +4404,17 @@ class stzString from stzObject
 		def SynonymsQ()
 			return This.TextQ().SynonymsQ()
 
+		def SynonymsQQ()
+			return This.TextQ().SynonymsQQ()
+
 	def Hypernyms()
 		return This.TextQ().Hypernyms()
 
 		def HypernymsQ()
 			return This.TextQ().HypernymsQ()
+
+		def HypernymsQQ()
+			return This.TextQ().HypernymsQQ()
 
 	def IsSynonymOf(pcOther)
 		return This.TextQ().IsSynonymOf(pcOther)
@@ -4524,6 +4534,9 @@ class stzString from stzObject
 		def KeyPhrasesQ(n)
 			return This.TextQ().KeyPhrasesQ(n)
 
+		def KeyPhrasesQQ(n)
+			return This.TextQ().KeyPhrasesQQ(n)
+
 	def TopKeyPhrase()
 		return This.TextQ().TopKeyPhrase()
 
@@ -4537,11 +4550,17 @@ class stzString from stzObject
 		def RankedKeywordsQ(n)
 			return This.TextQ().RankedKeywordsQ(n)
 
+		def RankedKeywordsQQ(n)
+			return This.TextQ().RankedKeywordsQQ(n)
+
 	def SummarySentences(n)
 		return This.TextQ().SummarySentences(n)
 
 		def SummarySentencesQ(n)
 			return This.TextQ().SummarySentencesQ(n)
+
+		def SummarySentencesQQ(n)
+			return This.TextQ().SummarySentencesQQ(n)
 
 	def SummarizedIn(n)
 		return This.TextQ().SummarizedIn(n)
@@ -19482,11 +19501,18 @@ class stzString from stzObject
 	def Sentences()
 		return StzEngineStringSentencesList(@pEngine)
 
+		# The Softanza Q-ladder (called on a stzString): Q gives the BASIC object,
+		# QQ the first logical secondary type, QQQ the most specific one. For
+		# sentences on a STRING: stzList -> stzListOfStrings -> stzListOfTexts.
+		# (On stzText the ladder is stzList -> stzListOfTexts directly -- no
+		# "string" rung above the text layer. Also QRT(.,:type) / .ToStzXxx().)
 		def SentencesQ()
-			# A list of SENTENCES is a list of TEXTS -- fragments that carry meaning
-			# -- so it returns stzListOfTexts: the natural (meaning) ops
-			# (MostSimilarByMeaning, ThatAre by sentiment) plus the inherited lexical
-			# list ops (ThatContain, Longest, MostSimilarTo, NthString, Joined).
+			return new stzList(This.Sentences())
+
+		def SentencesQQ()
+			return new stzListOfStrings(This.Sentences())
+
+		def SentencesQQQ()
 			return new stzListOfTexts(This.Sentences())
 
 	def NthSentence(n)
