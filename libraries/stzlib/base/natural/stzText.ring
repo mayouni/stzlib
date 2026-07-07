@@ -204,7 +204,15 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   NAMED-ENTITY RECOGNITION                               #
 	#==========================================================#
+	# NamedEntities() -- [[entity, type], ...]. Upgrades to TRANSFORMER NER (a BERT
+	# token-classification head) when a NER-head GGUF is loaded (StzUseNeuralModel
+	# with e.g. bert-base-NER); otherwise the rule-based engine NER. Both emit the
+	# same PERSON/ORGANIZATION/LOCATION type vocabulary, so PersonNames()/
+	# Organizations()/Locations() and EntitiesOfType() work either way.
 	def NamedEntities()
+		if StzHasNeuralNerModel()
+			return This.NeuralEntities()
+		ok
 		_aNeRaw_ = StzEngineStringNamedEntitiesList(This.Engine())
 		_aNeOut_ = []
 		_nNeN_ = len(_aNeRaw_)
@@ -215,6 +223,17 @@ class stzText from stzStringText
 			ok
 		next
 		return _aNeOut_
+
+		# NeuralEntities() -- the transformer-NER result explicitly: [[entity,
+		# type], ...] via the loaded NER-head model; [] if none is loaded (DATA).
+		def NeuralEntities()
+			if StzEngineNeuralModelHasNer() != 1 return [] ok
+			_nNueN_ = StzEngineNeuralNer(This.Content())
+			_aNueOut_ = []
+			for _iNue_ = 0 to _nNueN_ - 1
+				_aNueOut_ + [ StzEngineNeuralNerText(_iNue_), StzEngineNeuralNerType(_iNue_) ]
+			next
+			return _aNueOut_
 
 		def Entities()
 			return This.NamedEntities()

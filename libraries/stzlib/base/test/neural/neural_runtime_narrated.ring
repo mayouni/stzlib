@@ -62,6 +62,11 @@ Scenario("stzNeuralModel: GGUF loads at RUNTIME (no real model needed here)")
 	#     instead of the engine's word-overlap TextRank; falls back w/o a model.
 	#   stzText.ClassifiedAs(labels)     -> zero-shot classification by meaning
 	#   stzText.EntitiesTypedAs(types)   -> entities re-typed by meaning
+	# With a NER-HEAD GGUF (cstr/bert-base-NER-GGUF) instead, NamedEntities()
+	# upgrades to TRANSFORMER NER (token classification + BIO decode):
+	#   StzEngineNeuralModelHasNer() -> 1; StzHasNeuralNerModel() -> TRUE
+	#   new stzText("Barack Obama visited Paris").NamedEntities()
+	#     -> [[Barack Obama,PERSON],[Paris,LOCATION]] (multi-word entities merged)
 	# Token-level substrate for NER/token-classification (raw per-token hidden
 	# states): StzEngineNeuralEmbedTokens(text) -> n_tok; StzEngineNeuralTokenDim();
 	# StzEngineNeuralTokenValue(tok, dim). A real token-classification NER head
