@@ -1,0 +1,273 @@
+3m
+abbvie
+adidas
+adobe
+airbnb
+airbus
+aldi
+alibaba
+amazon
+amd
+american express
+amgen
+amnesty
+apple
+associated press
+astrazeneca
+atlassian
+audi
+baidu
+bank
+bank of america
+barclays
+bayer
+bbc
+bentley
+berkeley
+berkshire hathaway
+blackrock
+bloomberg
+blue
+bmw
+boeing
+bosch
+bp
+broadcom
+buick
+burger
+bytedance
+cadillac
+caltech
+cambridge
+carrefour
+caterpillar
+chanel
+chase
+chevrolet
+chevron
+chrysler
+cisco
+citibank
+citigroup
+citroen
+cnn
+coca cola
+coca-cola
+comcast
+conocophillips
+costco
+credit
+credit suisse
+cross
+danone
+deere
+dell
+delta
+deutsche
+dhl
+didi
+disney
+dodge
+dominos
+dow
+dropbox
+dupont
+easyjet
+ebay
+electric
+emirates
+ericsson
+esa
+espn
+european
+european central bank
+exxon
+exxon mobil
+facebook
+fedex
+ferrari
+fiat
+fidelity
+ford
+gazprom
+general
+general dynamics
+general electric
+general motors
+goldman
+goldman sachs
+google
+greenpeace
+gsk
+gucci
+halliburton
+harvard
+heinz
+hewlett packard
+home depot
+honda
+honeywell
+hp
+hsbc
+huawei
+hulu
+hyundai
+ibm
+ikea
+imf
+instagram
+intel
+interpol
+jaguar
+jd.com
+jeep
+jetblue
+johnson
+johnson johnson
+jp morgan
+kellogg
+kfc
+kia
+komatsu
+kraft
+kroger
+lamborghini
+lenovo
+lg
+lidl
+linkedin
+lloyds
+lockheed
+lockheed martin
+loreal
+lufthansa
+lyft
+mars
+maserati
+mastercard
+mazda
+mcdonalds
+meituan
+mercedes
+merck
+meta
+microsoft
+mit
+mitsubishi
+moderna
+mondelez
+morgan
+morgan stanley
+nasa
+nations
+nato
+natwest
+nestle
+netflix
+new york times
+nike
+nissan
+nokia
+nomura
+northrop
+northrop grumman
+novartis
+nvidia
+opec
+oracle
+orange
+origin
+oxfam
+oxford
+palantir
+panasonic
+paramount
+paypal
+pepsico
+peugeot
+pfizer
+philips
+pinduoduo
+pinterest
+porsche
+prada
+princeton
+procter gamble
+puma
+qatar
+qualcomm
+raytheon
+red
+reddit
+reebok
+renault
+reuters
+roche
+rolls-royce
+royal dutch shell
+ryanair
+salesforce
+samsung
+sanofi
+santander
+sap
+schlumberger
+servicenow
+shell
+shopify
+siemens
+slack
+snapchat
+snowflake
+sony
+spacex
+spotify
+square
+standard chartered
+stanford
+starbucks
+stripe
+subaru
+subway
+target
+telefonica
+tencent
+tesco
+tesla
+texas instruments
+tiktok
+toshiba
+total
+toyota
+twilio
+twitter
+uber
+ubs
+unesco
+unicef
+unilever
+union
+united
+united nations
+universal
+ups
+vanguard
+verizon
+visa
+vodafone
+volkswagen
+volvo
+wall street journal
+walmart
+warner
+wells
+whatsapp
+who
+workday
+world
+world health organization
+xiaomi
+yale
+youtube
+zara
+zoom

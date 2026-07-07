@@ -22,25 +22,29 @@ const str_new = core.str_new;
 
 const firstnames_data = @embedFile("data/ner_firstnames.txt");
 const places_data = @embedFile("data/ner_places.txt");
+const orgs_data = @embedFile("data/ner_orgs.txt");
 
 var g_built = false;
 var g_firstnames: std.StringHashMap(void) = undefined;
 var g_places: std.StringHashMap(void) = undefined;
+var g_orgs: std.StringHashMap(void) = undefined;
+
+fn loadSet(map: *std.StringHashMap(void), data: []const u8) void {
+    var it = std.mem.splitScalar(u8, data, '\n');
+    while (it.next()) |raw| {
+        const w = std.mem.trimRight(u8, raw, "\r");
+        if (w.len > 0) map.put(w, {}) catch {};
+    }
+}
 
 fn buildSets() void {
     if (g_built) return;
     g_firstnames = std.StringHashMap(void).init(gpa);
     g_places = std.StringHashMap(void).init(gpa);
-    var fi = std.mem.splitScalar(u8, firstnames_data, '\n');
-    while (fi.next()) |raw| {
-        const w = std.mem.trimRight(u8, raw, "\r");
-        if (w.len > 0) g_firstnames.put(w, {}) catch {};
-    }
-    var pi = std.mem.splitScalar(u8, places_data, '\n');
-    while (pi.next()) |raw| {
-        const w = std.mem.trimRight(u8, raw, "\r");
-        if (w.len > 0) g_places.put(w, {}) catch {};
-    }
+    g_orgs = std.StringHashMap(void).init(gpa);
+    loadSet(&g_firstnames, firstnames_data);
+    loadSet(&g_places, places_data);
+    loadSet(&g_orgs, orgs_data);
     g_built = true;
 }
 
@@ -152,13 +156,17 @@ pub fn str_named_entities(handle: StzStringHandle) callconv(.c) StzStringHandle 
         if (was_title) {
             typ = "PERSON";
         } else blk: {
-            // org keyword anywhere in the chunk?
+            // org keyword anywhere in the chunk, OR a known organization?
             var k = estart;
             while (k <= last) : (k += 1) {
-                if (isOrgKeyword(lower(toks.items[k], &lbuf))) {
+                if (isOrgKeyword(lower(toks.items[k], &lbuf)) or g_orgs.contains(lower(toks.items[k], &lbuf))) {
                     typ = "ORGANIZATION";
                     break :blk;
                 }
+            }
+            if (g_orgs.contains(lower(text, &tbuf))) { // multi-word org name
+                typ = "ORGANIZATION";
+                break :blk;
             }
             // whole entity text a known place?
             if (g_places.contains(lower(text, &tbuf))) {

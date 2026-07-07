@@ -17,3 +17,7 @@ POS tagger by Matthew Honnibal. Penn Treebank tagset.
 ner_firstnames.txt: from NLTK's names corpus (public domain, Kantrowitz/Ross
 name lists). ner_places.txt: country/capital/nationality names from
 dr5hn/countries-states-cities-database (ODbL) + a curated major-cities list.
+
+ner_orgs.txt: a curated list of well-known global organizations/companies (hand-
+compiled). ner_firstnames augmented with modern/international names;
+ner_places augmented with US states, some provinces/regions.
