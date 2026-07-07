@@ -104,6 +104,8 @@ const sentiment = @import("string/sentiment.zig");
 pub const str_sentiment = sentiment.str_sentiment;
 const pos = @import("string/pos.zig");
 pub const str_pos_tags = pos.str_pos_tags;
+const ner = @import("string/ner.zig");
+pub const str_named_entities = ner.str_named_entities;
 
 pub const str_stem_word = stem.str_stem_word;
 pub const str_stem_words = stem.str_stem_words;
@@ -621,6 +623,7 @@ test {
     _ = lemma;
     _ = sentiment;
     _ = pos;
+    _ = ner;
     _ = split;
     _ = find;
     _ = replace;

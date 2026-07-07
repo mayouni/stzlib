@@ -13,3 +13,7 @@ pos_classes.txt / pos_tagdict.txt / pos_weights.txt: exported (compacted to
 tag-index:weight) from NLTK's averaged_perceptron_tagger model
 (https://github.com/nltk/nltk_data, Apache License 2.0), the averaged-perceptron
 POS tagger by Matthew Honnibal. Penn Treebank tagset.
+
+ner_firstnames.txt: from NLTK's names corpus (public domain, Kantrowitz/Ross
+name lists). ner_places.txt: country/capital/nationality names from
+dr5hn/countries-states-cities-database (ODbL) + a curated major-cities list.
