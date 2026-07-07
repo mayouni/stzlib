@@ -4357,189 +4357,194 @@ class stzString from stzObject
 	#==========================================================#
 	# In Softanza NLP is not a string operation -- it's the TEXT domain, where a
 	# string is elevated to MEANING (words, sentences, sentiment, entities, topics,
-	# semantics). Text() / ToStzText() bridge this string into stzText (base/nlp/),
-	# which OWNS every NLP method. The methods below are thin, backward-compatible
-	# delegators; the canonical form is Q(str).Text().<op>().
-	def Text()
+	# semantics). TextQ() / ToStzText() bridge this string into the stzText OBJECT
+	# (base/nlp/), which OWNS every NLP method. Per Softanza's rule fluent chaining
+	# ALWAYS goes through the Q-form -- canonical entry is Q(str).TextQ().<op>();
+	# Text() (no Q) returns DATA (the text content). The methods below are thin
+	# backward-compatible delegators.
+	def TextQ()
 		return new stzText(This)
+
+	def Text()
+		return This.Content()
 
 	# --- Stemming (Snowball, 25 languages) ---
 	def StemmedInLanguage(pcLang)
-		return This.Text().StemmedInLanguage(pcLang)
+		return This.TextQ().StemmedInLanguage(pcLang)
 
 	def Stemmed()
-		return This.Text().Stemmed()
+		return This.TextQ().Stemmed()
 
 		def Stem()
 			return This.Stemmed()
 
 	def StemmedWordsInLanguage(pcLang)
-		return This.Text().StemmedWordsInLanguage(pcLang)
+		return This.TextQ().StemmedWordsInLanguage(pcLang)
 
 	def StemmedWords()
-		return This.Text().StemmedWords()
+		return This.TextQ().StemmedWords()
 
 		def WordsStemmed()
 			return This.StemmedWords()
 
 	def SupportedStemmerLanguages()
-		return This.Text().SupportedStemmerLanguages()
+		return This.TextQ().SupportedStemmerLanguages()
 
 	def SupportedLemmaLanguages()
-		return This.Text().SupportedLemmaLanguages()
+		return This.TextQ().SupportedLemmaLanguages()
 
 	# --- WordNet lexical semantics (synonyms + hypernyms) ---
 	def Synonyms()
-		return This.Text().Synonyms()
+		return This.TextQ().Synonyms()
 
 		def SynonymsQ()
-			return This.Text().SynonymsQ()
+			return This.TextQ().SynonymsQ()
 
 	def Hypernyms()
-		return This.Text().Hypernyms()
+		return This.TextQ().Hypernyms()
 
 		def HypernymsQ()
-			return This.Text().HypernymsQ()
+			return This.TextQ().HypernymsQ()
 
 	def IsSynonymOf(pcOther)
-		return This.Text().IsSynonymOf(pcOther)
+		return This.TextQ().IsSynonymOf(pcOther)
 
 	def HasSynonyms()
-		return This.Text().HasSynonyms()
+		return This.TextQ().HasSynonyms()
 
 	# --- Lemmatization (dictionary form) ---
 	def LemmatizedInLanguage(pcLang)
-		return This.Text().LemmatizedInLanguage(pcLang)
+		return This.TextQ().LemmatizedInLanguage(pcLang)
 
 	def Lemmatized()
-		return This.Text().Lemmatized()
+		return This.TextQ().Lemmatized()
 
 		def Lemma()
 			return This.Lemmatized()
 
 	def LemmatizedWordsInLanguage(pcLang)
-		return This.Text().LemmatizedWordsInLanguage(pcLang)
+		return This.TextQ().LemmatizedWordsInLanguage(pcLang)
 
 	def LemmatizedWords()
-		return This.Text().LemmatizedWords()
+		return This.TextQ().LemmatizedWords()
 
 		def WordsLemmatized()
 			return This.LemmatizedWords()
 
 	# --- Sentiment analysis (VADER) ---
 	def SentimentScore()
-		return This.Text().SentimentScore()
+		return This.TextQ().SentimentScore()
 
 		def SentimentCompound()
 			return This.SentimentScore()
 
 	def Sentiment()
-		return This.Text().Sentiment()
+		return This.TextQ().Sentiment()
 
 	def PositiveScore()
-		return This.Text().PositiveScore()
+		return This.TextQ().PositiveScore()
 
 	def NegativeScore()
-		return This.Text().NegativeScore()
+		return This.TextQ().NegativeScore()
 
 	def NeutralScore()
-		return This.Text().NeutralScore()
+		return This.TextQ().NeutralScore()
 
 	def IsPositive()
-		return This.Text().IsPositive()
+		return This.TextQ().IsPositive()
 
 	def IsNegative()
-		return This.Text().IsNegative()
+		return This.TextQ().IsNegative()
 
 	# --- Part-of-speech tagging ---
 	def POSTags()
-		return This.Text().POSTags()
+		return This.TextQ().POSTags()
 
 		def PartOfSpeechTags()
 			return This.POSTags()
 
 	def TaggedWords()
-		return This.Text().TaggedWords()
+		return This.TextQ().TaggedWords()
 
 		def WordsWithPOS()
 			return This.TaggedWords()
 
 	# --- Named-entity recognition ---
 	def NamedEntities()
-		return This.Text().NamedEntities()
+		return This.TextQ().NamedEntities()
 
 		def Entities()
 			return This.NamedEntities()
 
 	def EntitiesOfType(pcType)
-		return This.Text().EntitiesOfType(pcType)
+		return This.TextQ().EntitiesOfType(pcType)
 
 	def PersonNames()
-		return This.Text().PersonNames()
+		return This.TextQ().PersonNames()
 
 	def Organizations()
-		return This.Text().Organizations()
+		return This.TextQ().Organizations()
 
 	def Locations()
-		return This.Text().Locations()
+		return This.TextQ().Locations()
 
 	# --- Stopwords + readability ---
 	def ContentWords()
-		return This.Text().ContentWords()
+		return This.TextQ().ContentWords()
 
 		def Keywords()
 			return This.ContentWords()
 
 	def WithoutStopwords()
-		return This.Text().WithoutStopwords()
+		return This.TextQ().WithoutStopwords()
 
 	def IsStopword()
-		return This.Text().IsStopword()
+		return This.TextQ().IsStopword()
 
 	# --- Flesch readability ---
 	def ReadingEase()
-		return This.Text().ReadingEase()
+		return This.TextQ().ReadingEase()
 
 		def FleschReadingEase()
 			return This.ReadingEase()
 
 	def ReadabilityGrade()
-		return This.Text().ReadabilityGrade()
+		return This.TextQ().ReadabilityGrade()
 
 		def FleschKincaidGrade()
 			return This.ReadabilityGrade()
 
 	# --- Key-phrase extraction (RAKE) ---
 	def KeyPhrasesXT(n)
-		return This.Text().KeyPhrasesXT(n)
+		return This.TextQ().KeyPhrasesXT(n)
 
 	def KeyPhrases(n)
-		return This.Text().KeyPhrases(n)
+		return This.TextQ().KeyPhrases(n)
 
 		def KeyPhrasesQ(n)
-			return This.Text().KeyPhrasesQ(n)
+			return This.TextQ().KeyPhrasesQ(n)
 
 	def TopKeyPhrase()
-		return This.Text().TopKeyPhrase()
+		return This.TextQ().TopKeyPhrase()
 
 	# --- TextRank: graph-centrality keywords + extractive summary ---
 	def RankedKeywordsXT(n)
-		return This.Text().RankedKeywordsXT(n)
+		return This.TextQ().RankedKeywordsXT(n)
 
 	def RankedKeywords(n)
-		return This.Text().RankedKeywords(n)
+		return This.TextQ().RankedKeywords(n)
 
 		def RankedKeywordsQ(n)
-			return This.Text().RankedKeywordsQ(n)
+			return This.TextQ().RankedKeywordsQ(n)
 
 	def SummarySentences(n)
-		return This.Text().SummarySentences(n)
+		return This.TextQ().SummarySentences(n)
 
 		def SummarySentencesQ(n)
-			return This.Text().SummarySentencesQ(n)
+			return This.TextQ().SummarySentencesQ(n)
 
 	def SummarizedIn(n)
-		return This.Text().SummarizedIn(n)
+		return This.TextQ().SummarizedIn(n)
 
 		def Summary(n)
 			return This.SummarizedIn(n)
@@ -4563,106 +4568,106 @@ class stzString from stzObject
 	# Canonical form is Q(str).Text().<op>(); these keep Q(str).<op>() working too.
 
 	def WordsThatAre(pcPenn)
-		return This.Text().WordsThatAre(pcPenn)
+		return This.TextQ().WordsThatAre(pcPenn)
 
 		def WordsThatAreQ(pcPenn)
-			return This.Text().WordsThatAreQ(pcPenn)
+			return This.TextQ().WordsThatAreQ(pcPenn)
 
 	def Nouns()
-		return This.Text().Nouns()
+		return This.TextQ().Nouns()
 
 		def NounsQ()
-			return This.Text().NounsQ()
+			return This.TextQ().NounsQ()
 
 	def ProperNouns()
-		return This.Text().ProperNouns()
+		return This.TextQ().ProperNouns()
 
 	def Verbs()
-		return This.Text().Verbs()
+		return This.TextQ().Verbs()
 
 		def VerbsQ()
-			return This.Text().VerbsQ()
+			return This.TextQ().VerbsQ()
 
 	def Adjectives()
-		return This.Text().Adjectives()
+		return This.TextQ().Adjectives()
 
 		def AdjectivesQ()
-			return This.Text().AdjectivesQ()
+			return This.TextQ().AdjectivesQ()
 
 	def Adverbs()
-		return This.Text().Adverbs()
+		return This.TextQ().Adverbs()
 
 	def Pronouns()
-		return This.Text().Pronouns()
+		return This.TextQ().Pronouns()
 
 	def SentencesThatAre(pcPolarity)
-		return This.Text().SentencesThatAre(pcPolarity)
+		return This.TextQ().SentencesThatAre(pcPolarity)
 
 	def PositiveSentences()
-		return This.Text().PositiveSentences()
+		return This.TextQ().PositiveSentences()
 
 	def NegativeSentences()
-		return This.Text().NegativeSentences()
+		return This.TextQ().NegativeSentences()
 
 	def MostPositiveSentence()
-		return This.Text().MostPositiveSentence()
+		return This.TextQ().MostPositiveSentence()
 
 	def MostNegativeSentence()
-		return This.Text().MostNegativeSentence()
+		return This.TextQ().MostNegativeSentence()
 
 	def MostSimilarSentenceTo(pcQuery)
-		return This.Text().MostSimilarSentenceTo(pcQuery)
+		return This.TextQ().MostSimilarSentenceTo(pcQuery)
 
 	def Language()
-		return This.Text().Language()
+		return This.TextQ().Language()
 
 		def DetectedLanguage()
 			return This.Language()
 
 	def AutoLemmatized()
-		return This.Text().AutoLemmatized()
+		return This.TextQ().AutoLemmatized()
 
 	def AutoStemmed()
-		return This.Text().AutoStemmed()
+		return This.TextQ().AutoStemmed()
 
 	def SentimentExplained()
-		return This.Text().SentimentExplained()
+		return This.TextQ().SentimentExplained()
 
 	def ReadabilityExplained()
-		return This.Text().ReadabilityExplained()
+		return This.TextQ().ReadabilityExplained()
 
 	def Profile()
-		return This.Text().Profile()
+		return This.TextQ().Profile()
 
 	def LexicalDiversity()
-		return This.Text().LexicalDiversity()
+		return This.TextQ().LexicalDiversity()
 
 		def TypeTokenRatio()
 			return This.LexicalDiversity()
 
 	def StyleProfile()
-		return This.Text().StyleProfile()
+		return This.TextQ().StyleProfile()
 
 	def InContextWithWindow(pcWord, nWindow)
-		return This.Text().InContextWithWindow(pcWord, nWindow)
+		return This.TextQ().InContextWithWindow(pcWord, nWindow)
 
 	def InContext(pcWord)
-		return This.Text().InContext(pcWord)
+		return This.TextQ().InContext(pcWord)
 
 		def Concordance(pcWord)
 			return This.InContext(pcWord)
 
 	def ComparedTo(pcOther)
-		return This.Text().ComparedTo(pcOther)
+		return This.TextQ().ComparedTo(pcOther)
 
 	def ShowTagged()
-		return This.Text().ShowTagged()
+		return This.TextQ().ShowTagged()
 
 	def ShowEntities()
-		return This.Text().ShowEntities()
+		return This.TextQ().ShowEntities()
 
 	def ShowSentiment()
-		return This.Text().ShowSentiment()
+		return This.TextQ().ShowSentiment()
 
 	  #============================================#
 	 #     SPLIT                                  #
