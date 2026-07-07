@@ -45,4 +45,25 @@ Scenario("Ask: near-natural method discovery")
 	# 22M embedder, instant on CPU, deterministic, zero hallucination -- no LLM.
 EndScenario()
 
+Scenario("stzLibDoc: cross-class method discovery")
+	# Harvests MANY classes into one index, so Ask() spans the whole (curated)
+	# library and the answer names the CLASS a method lives in -- fixing the
+	# single-class blind spot (e.g. a text query whose method is on stzListOfTexts).
+	o = StzLibDoc([ "stzText", "stzListOfTexts" ])
+	Then("harvests across classes",
+		o.NumberOfClasses(), 2)
+	Then("with all their methods pooled",
+		o.NumberOfEntries() >= 120, TRUE)
+	r = o.AskFor("rank documents for a query", 3)
+	Then("Ask returns [class, method, score, description] quadruples",
+		len(r) = 3 and len(r[1]) = 4, TRUE)
+	Then("BestMethodFor returns a class.method string",
+		substr(o.BestMethodFor("rank documents for a query"), ".") > 0, TRUE)
+	# MANUAL (embedding model): "sort documents by relevance to a query" ->
+	#   stzListOfTexts.RankedForQuery (the method the SINGLE-class stzText missed).
+	# MANUAL (reranker model, e.g. jina): the lexical-narrow-then-cross-encode path
+	#   scales to a big corpus with no index -- StzLibDoc(["stzText","stzList",
+	#   "stzNumber"]).Ask("most relevant document") -> stzListOfTexts.MostRelevantTo.
+EndScenario()
+
 Summary()
