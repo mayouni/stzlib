@@ -121,3 +121,53 @@ for r = 1 to REPS
 	if dt < nBest  nBest = dt ok
 next
 ? "stem 600k words     : " + floor(nBest) + " ms"
+
+# --- Linguistic layer (Tier 1): no Python stdlib baseline (NLTK is pure Python) ---
+
+# 8) lemmatization (dictionary, 600k words)
+nBest = 9999999
+for r = 1 to REPS
+	t0 = clock()
+	oLm = new stzString(cCorpus)
+	cLm = oLm.Lemmatized()
+	dt = ((clock() - t0) / clockspersecond()) * 1000
+	if dt < nBest  nBest = dt ok
+next
+? "lemmatize 600k words: " + floor(nBest) + " ms"
+
+# 9) sentiment (VADER, 2.7MB)
+nBest = 9999999
+for r = 1 to REPS
+	t0 = clock()
+	oSn = new stzString(cCorpus)
+	xSn = oSn.SentimentScore()
+	dt = ((clock() - t0) / clockspersecond()) * 1000
+	if dt < nBest  nBest = dt ok
+next
+? "sentiment 2.7MB     : " + floor(nBest) + " ms"
+
+# 10) POS tagging (perceptron) + 11) NER on a 300k-byte slice (heavy per-token)
+cLingSlice = left(cCorpus, 300000)
+nBest = 9999999
+nPos = 0
+for r = 1 to REPS
+	t0 = clock()
+	oPs = new stzString(cLingSlice)
+	aPs = oPs.POSTags()
+	nPos = len(aPs)
+	dt = ((clock() - t0) / clockspersecond()) * 1000
+	if dt < nBest  nBest = dt ok
+next
+? "POS tag ~66k words  : " + floor(nBest) + " ms   (n=" + nPos + ")"
+
+nBest = 9999999
+nEnt = 0
+for r = 1 to REPS
+	t0 = clock()
+	oNr = new stzString(cLingSlice)
+	aNr = oNr.NamedEntities()
+	nEnt = len(aNr)
+	dt = ((clock() - t0) / clockspersecond()) * 1000
+	if dt < nBest  nBest = dt ok
+next
+? "NER ~66k words      : " + floor(nBest) + " ms   (entities=" + nEnt + ")"
