@@ -85,8 +85,10 @@ ok
 
     load "string/stzStringText.ring"
 
-    # NLP / text-meaning domain (stzText from stzStringText)
-    load "nlp/stzText.ring"
+    # Text-meaning domain (stzText from stzStringText): "NLP" is just natural
+    # operations applied to text, so stzText lives in the natural/ domain. It is
+    # loaded here (early) because it depends on stzStringText, loaded just above.
+    load "natural/stzText.ring"
 
     # Modern / neural domain (base/neural/): stzNeural base -> engine + model
     load "neural/stzNeural.ring"

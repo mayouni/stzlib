@@ -1115,6 +1115,6 @@ class stzStringText
 	def NumberOfChars2()
 		return @oString.NumberOfChars()
 
-# NOTE: class stzText moved to base/nlp/stzText.ring -- it is now the NLP /
+# NOTE: class stzText moved to base/natural/stzText.ring -- it is now the
 # text-meaning DOMAIN class (still 'from stzStringText', so a superset).
 

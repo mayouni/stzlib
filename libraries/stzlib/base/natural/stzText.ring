@@ -1,14 +1,17 @@
 #--------------------------------------------------------------#
-#         SOFTANZA LIBRARY (V1.2) - STZTEXT (NLP DOMAIN)        #
+#      SOFTANZA LIBRARY (V1.2) - STZTEXT (TEXT DOMAIN)          #
 #   An accelerative library for Ring applications, and more!    #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : stzText -- the NLP / natural-language domain. #
-#                  In Softanza a "string" is raw characters; a   #
-#                  "text" CARRIES MEANING: words, sentences,     #
-#                  sentiment, entities, topics, semantics.       #
-#                  stzText (from stzStringText) is where every   #
-#                  NLP operation lives; stzString.Text() bridges  #
+#   Description  : stzText -- text as MEANING, the natural-       #
+#                  language operations on text. (What others      #
+#                  call "NLP" is just natural operations applied  #
+#                  to text, so it lives in the natural/ domain.)  #
+#                  In Softanza a "string" is raw characters; a    #
+#                  "text" CARRIES MEANING: words, sentences,      #
+#                  sentiment, entities, topics, semantics.        #
+#                  stzText (from stzStringText) is where every    #
+#                  such operation lives; stzString.Text() bridges #
 #                  a string into this domain. All engine-backed.  #
 #   Version      : V1.2 (2026)                                  #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)        #
