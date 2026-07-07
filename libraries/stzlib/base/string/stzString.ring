@@ -4499,6 +4499,38 @@ class stzString from stzObject
 	def Locations()
 		return This.EntitiesOfType("LOCATION")
 
+	# --- Stopwords + readability ---
+	# ContentWords()/Keywords() = words minus stopwords; WithoutStopwords() =
+	# the text re-joined without them; IsStopword() tests the whole string.
+	def ContentWords()
+		return StzEngineStringContentWordsList(@pEngine)
+
+		def Keywords()
+			return This.ContentWords()
+
+	def WithoutStopwords()
+		_pWs_ = StzEngineStringWithoutStopwords(@pEngine)
+		_cWs_ = StzEngineStringData(_pWs_)
+		StzEngineStringFree(_pWs_)
+		return _cWs_
+
+	def IsStopword()
+		return StzEngineStringIsStopword(@pEngine) = 1
+
+	# Flesch readability: ReadingEase() (higher = easier, ~0-100) and
+	# ReadabilityGrade() (US grade level).
+	def ReadingEase()
+		return StzEngineStringReadability(@pEngine, 0)
+
+		def FleschReadingEase()
+			return This.ReadingEase()
+
+	def ReadabilityGrade()
+		return StzEngineStringReadability(@pEngine, 1)
+
+		def FleschKincaidGrade()
+			return This.ReadabilityGrade()
+
 	# --- Search tokenization (CJK-friendly) ---
 	# Like Words() but CJK runs become OVERLAPPING CHARACTER BIGRAMS -- the
 	# dictionary-free CJK indexing baseline (cf. Lucene CJKBigramFilter), much

@@ -2964,6 +2964,27 @@ fn ring_StringNamedEntitiesList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// Stopwords + readability.
+fn ring_StringContentWordsList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_content_words(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_StringWithoutStopwords(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_without_stopwords(getHandle(p, 1))), STZ_HANDLE);
+}
+
+fn ring_StringIsStopword(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_stopword(getHandle(p, 1))));
+}
+
+fn ring_StringReadability(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const mode: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, string.str_readability(h, mode));
+}
+
 // Sentiment (VADER). mode: 0=compound 1=pos 2=neg 3=neu.
 fn ring_StringSentiment(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
@@ -4027,6 +4048,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringstemwordslist", .func = &ring_StringStemWordsList },
     .{ .name = "stzenginestringpostagslist", .func = &ring_StringPosTagsList },
     .{ .name = "stzenginestringnamedentitieslist", .func = &ring_StringNamedEntitiesList },
+    .{ .name = "stzenginestringcontentwordslist", .func = &ring_StringContentWordsList },
+    .{ .name = "stzenginestringwithoutstopwords", .func = &ring_StringWithoutStopwords },
+    .{ .name = "stzenginestringisstopword", .func = &ring_StringIsStopword },
+    .{ .name = "stzenginestringreadability", .func = &ring_StringReadability },
     .{ .name = "stzenginestringsentiment", .func = &ring_StringSentiment },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
     .{ .name = "stzenginestringlemmatizewordslist", .func = &ring_StringLemmatizeWordsList },

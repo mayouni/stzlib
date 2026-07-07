@@ -106,6 +106,11 @@ const pos = @import("string/pos.zig");
 pub const str_pos_tags = pos.str_pos_tags;
 const ner = @import("string/ner.zig");
 pub const str_named_entities = ner.str_named_entities;
+const textutil = @import("string/textutil.zig");
+pub const str_content_words = textutil.str_content_words;
+pub const str_without_stopwords = textutil.str_without_stopwords;
+pub const str_is_stopword = textutil.str_is_stopword;
+pub const str_readability = textutil.str_readability;
 
 pub const str_stem_word = stem.str_stem_word;
 pub const str_stem_words = stem.str_stem_words;
@@ -624,6 +629,7 @@ test {
     _ = sentiment;
     _ = pos;
     _ = ner;
+    _ = textutil;
     _ = split;
     _ = find;
     _ = replace;

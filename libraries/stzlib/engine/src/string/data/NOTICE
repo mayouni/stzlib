@@ -21,3 +21,6 @@ dr5hn/countries-states-cities-database (ODbL) + a curated major-cities list.
 ner_orgs.txt: a curated list of well-known global organizations/companies (hand-
 compiled). ner_firstnames augmented with modern/international names;
 ner_places augmented with US states, some provinces/regions.
+
+stopwords_en.txt: the standard English stopword list (common public-domain set,
+as used by NLTK et al.).
