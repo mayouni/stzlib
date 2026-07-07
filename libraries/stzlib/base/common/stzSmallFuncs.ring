@@ -299,11 +299,11 @@ func StzQQ(p)
 
 		oQTemp = StzQ(p)
 
+		# QQ = the FIRST LOGICAL secondary type. A list of chars is a list of
+		# STRINGS here (chars are single-char strings) -> stzListOfStrings; the
+		# more specific stzListOfChars is QQQ's job, not QQ's.
 		if oQTemp.IsListOfNumbers()
 			return new stzListOfNumbers(p)
-
-		but oQTemp.IsListOfChars()
-			return new stzListOfChars(p)
 
 		but oQTemp.IsListOfStrings()
 			return new stzListOfStrings(p)
@@ -327,6 +327,47 @@ func StzQQ(p)
 
 	func QQ(p)
 		return StzQQ(p)
+
+# QQQ = the MOST SPECIFIC type the content maps to. Past QQ's stzListOfStrings,
+# a list resolves further by what the items ACTUALLY are -- today the reliably
+# structurally-detectable refinement is chars -> stzListOfChars (a proper
+# IsListOfDates/Bytes/Words/Regex predicate would extend this). For non-lists it
+# falls back to StzQQ (whose string branch already detects char/date/number).
+# NOTE: for SOLID code where the content could be ambiguous, prefer the explicit
+# QRT(p, :stzExactType) over relying on QQQ's auto-detection.
+func StzQQQ(p)
+	if isList(p)
+
+		oQTemp = StzQ(p)
+
+		if oQTemp.IsListOfNumbers()
+			return new stzListOfNumbers(p)
+
+		but oQTemp.IsListOfChars()
+			return new stzListOfChars(p)
+
+		but oQTemp.IsListOfStrings()
+			return new stzListOfStrings(p)
+
+		but oQTemp.IsListOfHashLists()
+			return new stzListOfHashLists(p)
+
+		but oQTemp.IsListOfPairs()
+			return new stzListOfPairs(p)
+
+		but oQTemp.IsListOfLists()
+			return new stzListOfLists(p)
+
+		else
+			return new stzList(p)
+		ok
+
+	else
+		return StzQQ(p)
+	ok
+
+	func QQQ(p)
+		return StzQQQ(p)
 
 #---
 
