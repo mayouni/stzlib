@@ -4560,12 +4560,8 @@ class stzString from stzObject
 		# --- POS-aware word filters ---
 		# WordsThatAre(cPenn) keeps words whose Penn tag STARTS WITH cPenn: "NN"
 		# catches every noun (NN/NNS/NNP/NNPS), "VB" every verb form. Nouns() /
-		# Verbs() / ... spell out the common ones.
-		def _TagHasPrefix(pcTag, pcPrefix)
-			nTp = ring_len(pcPrefix)
-			if ring_len(pcTag) < nTp return FALSE ok
-			return left(pcTag, nTp) = pcPrefix
-
+		# Verbs() / ... spell out the common ones. Prefix test is engine-backed
+		# (StzStartsWith), codepoint-safe.
 		def WordsThatAre(pcPenn)
 			if NOT isString(pcPenn) return [] ok
 			_aWtWords_ = This.Words()
@@ -4574,7 +4570,7 @@ class stzString from stzObject
 			_nWtN_ = len(_aWtWords_)
 			if len(_aWtTags_) < _nWtN_ _nWtN_ = len(_aWtTags_) ok
 			for _iWt_ = 1 to _nWtN_
-				if This._TagHasPrefix(_aWtTags_[_iWt_], pcPenn)
+				if StzStartsWith(_aWtTags_[_iWt_], pcPenn)
 					_aWtOut_ + _aWtWords_[_iWt_]
 				ok
 			next
@@ -4613,7 +4609,7 @@ class stzString from stzObject
 		# --- Sentence filters by sentiment / similarity ---
 		def SentencesThatAre(pcPolarity)
 			if NOT isString(pcPolarity) return [] ok
-			_cStWant_ = lower(pcPolarity)
+			_cStWant_ = StzLower(pcPolarity)
 			_aStAll_ = This.Sentences()
 			_aStOut_ = []
 			_nStN_ = len(_aStAll_)
@@ -4800,11 +4796,11 @@ class stzString from stzObject
 		def InContextWithWindow(pcWord, nWindow)
 			if NOT isString(pcWord) return [] ok
 			_aIcWords_ = This.Words()
-			_cIcTarget_ = lower(pcWord)
+			_cIcTarget_ = StzLower(pcWord)
 			_aIcOut_ = []
 			_nIcN_ = len(_aIcWords_)
 			for _iIc_ = 1 to _nIcN_
-				if lower(_aIcWords_[_iIc_]) = _cIcTarget_
+				if StzLower(_aIcWords_[_iIc_]) = _cIcTarget_
 					_nIcA_ = _iIc_ - nWindow
 					if _nIcA_ < 1 _nIcA_ = 1 ok
 					_nIcB_ = _iIc_ + nWindow
@@ -4838,14 +4834,15 @@ class stzString from stzObject
 			_nCmGrA_   = This.ReadabilityGrade()
 			_nCmGrB_   = _oCmOther_.ReadabilityGrade()
 
-			# shared content vocabulary (lowercased; de-duplicated inline)
+			# shared content vocabulary (lowercased; de-duplicated inline).
+			# Membership is engine-backed (StzContains), not Ring's find.
 			_aCmA_ = StzListOfStringsQ(This.ContentWords()).Lowercased()
 			_aCmB_ = StzListOfStringsQ(_oCmOther_.ContentWords()).Lowercased()
 			_aCmShared_ = []
 			_nCmA_ = len(_aCmA_)
 			for _iCm_ = 1 to _nCmA_
 				_cCmW_ = _aCmA_[_iCm_]
-				if ring_find(_aCmB_, _cCmW_) > 0 and ring_find(_aCmShared_, _cCmW_) = 0
+				if StzContains(_aCmB_, _cCmW_) and NOT StzContains(_aCmShared_, _cCmW_)
 					_aCmShared_ + _cCmW_
 				ok
 			next
