@@ -4709,7 +4709,7 @@ class stzString from stzObject
 			for _iSe_ = 1 to _nSeN_
 				_aSePair_ = StzSplit(_aSeRaw_[_iSe_], char(1))
 				if len(_aSePair_) = 2
-					_nSeV_ = number(_aSePair_[2])
+					_nSeV_ = StzNumber(_aSePair_[2])
 					if _nSeV_ > 0
 						_aSePos_ + [ _aSePair_[1], _nSeV_ ]
 					but _nSeV_ < 0

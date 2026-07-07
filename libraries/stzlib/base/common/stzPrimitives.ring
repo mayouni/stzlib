@@ -146,6 +146,20 @@ func StzCaseFold(cStr)
 	ok
 	return StzEngineUnicodeCaseFold(cStr)
 
+#-- Number parse (engine-backed): leading numeric token -> number, else 0
+
+func StzNumber(cStr)
+	if isNumber(cStr)
+		return cStr
+	ok
+	if NOT isString(cStr)
+		cStr = "" + cStr
+	ok
+	pH = StzEngineString(cStr)
+	n = StzEngineStringToNumber(pH)
+	StzEngineStringFree(pH)
+	return n
+
 #-- Length (codepoint count, not byte count)
 
 func StzLen(cStr)

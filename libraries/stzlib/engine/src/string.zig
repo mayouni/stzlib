@@ -592,6 +592,7 @@ pub const str_number_lines = format.str_number_lines;
 pub const str_hide = format.str_hide;
 pub const str_chop = format.str_chop;
 pub const str_scan_int = format.str_scan_int;
+pub const str_to_number = format.str_to_number;
 pub const str_to_ordinal = format.str_to_ordinal;
 pub const str_truncate_words = format.str_truncate_words;
 
