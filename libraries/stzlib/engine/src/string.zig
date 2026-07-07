@@ -102,6 +102,7 @@ const stem = @import("string/stem.zig");
 const lemma = @import("string/lemma.zig");
 const sentiment = @import("string/sentiment.zig");
 pub const str_sentiment = sentiment.str_sentiment;
+pub const str_sentiment_explained = sentiment.str_sentiment_explained;
 const pos = @import("string/pos.zig");
 pub const str_pos_tags = pos.str_pos_tags;
 const ner = @import("string/ner.zig");

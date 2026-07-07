@@ -932,3 +932,89 @@ class stzStringList
 
 	def JoinedUsing(pcSep)
 		return This.ConcatenatedUsing(pcSep)
+
+	  #==================================================#
+	 #  TEXT-LIST ANALYSIS (for WordsQ / SentencesQ)    #
+	#==================================================#
+	# Composable text operations on a list of fragments (sentences or words), so
+	# fluent chains read naturally: Q(text).SentencesQ().MostSimilarTo(query),
+	# .ThatAre(:Positive), .ThatContain("word"), .Longest(). Each fragment is
+	# scored via a throwaway stzString, so all the engine-backed NLP applies.
+
+	# The fragment most similar to pcQuery by WORD OVERLAP (bag-of-words cosine) --
+	# the right notion for sentences/documents. (The inherited MostSimilarTo() uses
+	# Jaro-Winkler CHARACTER similarity, better for fuzzy word/typo matching.)
+	def MostSimilarByMeaning(pcQuery)
+		if NOT isString(pcQuery) return "" ok
+		_nMsN_ = len(@acContent)
+		if _nMsN_ = 0 return "" ok
+		_cMsBest_ = ""
+		_nMsBest_ = -1
+		for _iMs_ = 1 to _nMsN_
+			_oMs_ = new stzString(@acContent[_iMs_])
+			_nMsSim_ = _oMs_.CosineSimilarityWith(pcQuery)
+			if _nMsSim_ > _nMsBest_
+				_nMsBest_ = _nMsSim_
+				_cMsBest_ = @acContent[_iMs_]
+			ok
+		next
+		return _cMsBest_
+
+		def MostSimilarByMeaningQ(pcQuery)
+			return new stzString(This.MostSimilarByMeaning(pcQuery))
+
+	# Fragments whose sentiment label matches "positive"/"negative"/"neutral".
+	def ThatAre(pcPolarity)
+		if NOT isString(pcPolarity) return [] ok
+		_cTaWant_ = lower(pcPolarity)
+		_aTaOut_ = []
+		_nTaN_ = len(@acContent)
+		for _iTa_ = 1 to _nTaN_
+			_oTa_ = new stzString(@acContent[_iTa_])
+			if _oTa_.Sentiment() = _cTaWant_
+				_aTaOut_ + @acContent[_iTa_]
+			ok
+		next
+		return _aTaOut_
+
+		def ThatAreQ(pcPolarity)
+			return new stzListOfStrings(This.ThatAre(pcPolarity))
+
+	# Fragments that contain pcSub (engine-backed, codepoint-safe).
+	def ThatContain(pcSub)
+		if NOT isString(pcSub) return [] ok
+		_aTcOut_ = []
+		_nTcN_ = len(@acContent)
+		for _iTc_ = 1 to _nTcN_
+			_oTc_ = new stzString(@acContent[_iTc_])
+			if _oTc_.Contains(pcSub)
+				_aTcOut_ + @acContent[_iTc_]
+			ok
+		next
+		return _aTcOut_
+
+		def ThatContainQ(pcSub)
+			return new stzListOfStrings(This.ThatContain(pcSub))
+
+	# The fragment with the most / fewest words (ties -> first).
+	def _ByWordCount(bLongest)
+		_nBwN_ = len(@acContent)
+		if _nBwN_ = 0 return "" ok
+		_cBwBest_ = @acContent[1]
+		_oBw1_ = new stzString(_cBwBest_)
+		_nBwBest_ = _oBw1_.NumberOfWords()
+		for _iBw_ = 2 to _nBwN_
+			_oBw_ = new stzString(@acContent[_iBw_])
+			_nBwW_ = _oBw_.NumberOfWords()
+			if (bLongest and _nBwW_ > _nBwBest_) or (NOT bLongest and _nBwW_ < _nBwBest_)
+				_nBwBest_ = _nBwW_
+				_cBwBest_ = @acContent[_iBw_]
+			ok
+		next
+		return _cBwBest_
+
+	def Longest()
+		return This._ByWordCount(TRUE)
+
+	def Shortest()
+		return This._ByWordCount(FALSE)

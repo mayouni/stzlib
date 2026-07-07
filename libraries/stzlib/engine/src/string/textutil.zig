@@ -138,15 +138,17 @@ pub fn str_readability(handle: StzStringHandle, mode: c_int) callconv(.c) f64 {
 // to separate the two Latin languages we support. Returns a language name, or
 // "unknown" when there is no usable signal. Small + deterministic, no model file.
 
-const en_markers = [_][]const u8{
-    "the", "and", "of",   "is",   "that", "was",  "with", "this",
-    "have", "from", "not", "were", "which", "would", "there", "their",
-    "what", "when", "your", "about", "these", "been", "they", "will",
-};
-const fr_markers = [_][]const u8{
-    "le",  "la",  "les", "des", "une", "est",  "et",   "que",
-    "dans", "pour", "sur", "qui", "pas", "avec", "sont", "cette",
-    "vous", "nous", "mais", "leur", "être", "aux", "plus", "ces",
+// Distinctive high-frequency function words per language. Chosen to minimize
+// cross-language overlap (esp. among the Romance languages); it's a lightweight
+// heuristic, not an n-gram language model.
+const LangMarkers = struct { name: []const u8, words: []const []const u8 };
+const lang_markers = [_]LangMarkers{
+    .{ .name = "english", .words = &.{ "the", "and", "of", "is", "that", "was", "with", "this", "have", "from", "not", "were", "which", "would", "there", "their", "what", "when", "your", "about", "these", "been", "they", "will" } },
+    .{ .name = "french", .words = &.{ "le", "les", "des", "une", "est", "et", "que", "dans", "pour", "sur", "qui", "pas", "avec", "sont", "cette", "vous", "nous", "mais", "leur", "être", "aux", "plus", "ces", "aussi" } },
+    .{ .name = "spanish", .words = &.{ "el", "los", "las", "una", "por", "para", "pero", "muy", "está", "esto", "con", "como", "más", "son", "sus", "porque", "también", "cuando", "hola", "gracias" } },
+    .{ .name = "german", .words = &.{ "der", "die", "das", "und", "ist", "nicht", "ein", "eine", "mit", "auch", "sich", "für", "den", "dem", "wird", "sind", "aber", "auf", "von", "zu", "werden", "haben" } },
+    .{ .name = "italian", .words = &.{ "il", "gli", "della", "degli", "sono", "perché", "anche", "questo", "quello", "molto", "però", "che", "con", "non", "delle", "nella", "sono", "come", "più" } },
+    .{ .name = "portuguese", .words = &.{ "não", "você", "então", "são", "também", "muito", "isso", "uma", "dos", "das", "obrigado", "com", "mais", "porque", "está", "seu", "essa", "pela" } },
 };
 
 fn isArabicCp(cp: u21) bool {
@@ -212,9 +214,16 @@ pub fn str_detect_language(handle: StzStringHandle) callconv(.c) StzStringHandle
         return result;
     }
 
-    const en = markerHits(src, &en_markers);
-    const fr = markerHits(src, &fr_markers);
-    const name = if (en == 0 and fr == 0) "unknown" else if (fr > en) "french" else "english";
+    var best_i: usize = 0;
+    var best_hits: usize = 0;
+    for (lang_markers, 0..) |lm, idx| {
+        const h = markerHits(src, lm.words);
+        if (h > best_hits) {
+            best_hits = h;
+            best_i = idx;
+        }
+    }
+    const name = if (best_hits == 0) "unknown" else lang_markers[best_i].name;
     result.data.appendSlice(gpa, name) catch {};
     return result;
 }
