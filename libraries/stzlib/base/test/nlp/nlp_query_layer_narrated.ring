@@ -4,15 +4,18 @@ load "../_narrated.ring"
 # NLP DOMAIN (stzText, base/nlp/). Softanza treats NLP as the TEXT domain: a
 # string elevated to meaning (words, sentences, sentiment, entities, topics,
 # semantics). Every op below runs for real. The methods are reachable both
-# directly on stzString (thin delegators) and via the domain object Q(str).Text().
+# directly on stzString (thin delegators) and via the domain object Q(str).TextQ().
 
-Scenario("The text domain: stzText carries meaning; stzString.Text() bridges to it")
-	# Same result three ways: direct on string, via Text(), and on a stzText.
+Scenario("The text domain: stzText carries meaning; stzString.TextQ() bridges to it")
+	# Same result three ways: direct on string, via TextQ() (the chainable domain
+	# OBJECT -- Q-form is mandatory for chaining), and on a stzText.
 	o1 = new stzString("Barack Obama loves the wonderful city of Paris.")
 	Then("string delegates to the domain",
 		o1.Sentiment(), "positive")
-	Then("Q(str).Text() reaches the same domain",
-		o1.Text().Sentiment(), "positive")
+	Then("Q(str).TextQ() reaches the same domain object",
+		o1.TextQ().Sentiment(), "positive")
+	Then("Text() (no Q) returns DATA -- the content, not an object",
+		o1.Text(), "Barack Obama loves the wonderful city of Paris.")
 	ot = StzTextQ("Barack Obama loves the wonderful city of Paris.")
 	Then("a stzText is the domain object itself",
 		@@(ot.PersonNames()), @@([ "Barack Obama" ]))
