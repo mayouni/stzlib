@@ -1,0 +1,48 @@
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# SELF-DESCRIBING OBJECTS (stzSelfDoc, base/reflect/). Harvests a class's methods
+# + doc-comments straight from source, then answers plain-English questions about
+# them (Ask) and explains them (ExplainMethod) -- powered by the neural tier's
+# embeddings, NOT a heavy LLM. Near-natural programming: describe intent, get the
+# operation. Deterministic; the knowledge lives in the library's own source.
+
+Scenario("Harvest + explain a class from its source (deterministic, no model)")
+	o = StzDoc("stzText")
+	Then("resolves the class to its source file",
+		o.Source() != "", TRUE)
+	Then("harvests the public methods from source",
+		o.NumberOfMethods() >= 100, TRUE)
+	Then("knows a method it has",
+		o.HasMethod("Classify"), TRUE)
+	Then("and rejects one it doesn't",
+		o.HasMethod("NoSuchThing"), FALSE)
+	Then("ExplainMethod returns the real doc-comment",
+		substr(o.ExplainMethod("Classify"), "labels") > 0, TRUE)
+	Then("DescriptionOf a documented method is non-empty",
+		len(o.DescriptionOf("Classify")) > 0, TRUE)
+	Then("a class can also be opened by source path",
+		StzDoc("natural/stzText.ring").ClassName(), "stzText")
+EndScenario()
+
+Scenario("Ask: near-natural method discovery")
+	# Model-free here (lexical fallback), so this asserts STRUCTURE + that results
+	# are real methods. With an embedding model the ranking is semantic -- see the
+	# manual note. The escape hatch for the long tail of "how do I ...?".
+	o = StzDoc("stzText")
+	r = o.Ask("find the named entities in the text")
+	Then("Ask returns up to 3 [name, score, description] triples",
+		len(r) = 3 and len(r[1]) = 3, TRUE)
+	Then("each answer names a real method of the class",
+		o.HasMethod(r[1][1]), TRUE)
+	Then("BestMethodFor returns a single real method name",
+		o.HasMethod(o.BestMethodFor("detect the language")), TRUE)
+	# MANUAL (with an embedding model -- StzUseNeuralModel(minilm.gguf)):
+	#   o.Ask("detect the language")                 -> DetectedLanguage / Language
+	#   o.Ask("classify into topics without training") -> Classify
+	#   o.Ask("how positive or negative is the tone") -> IsPositive / IsNegative
+	#   o.Ask("names of people and places")          -> PersonNames / Locations
+	# 22M embedder, instant on CPU, deterministic, zero hallucination -- no LLM.
+EndScenario()
+
+Summary()
