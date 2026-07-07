@@ -38,6 +38,45 @@ func StzHasNeuralModel()
 func StzHasNeuralNerModel()
 	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelHasNer() = 1
 
+# TRUE if the loaded model is a cross-encoder reranker (e.g. jina-reranker GGUF).
+func StzHasRerankerModel()
+	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelHasReranker() = 1
+
+# StzRerank(query, docs) -- rank docs by relevance to the query, [[doc, score],
+# ...] sorted by DESCENDING relevance. Uses a CROSS-ENCODER (joint query+doc
+# scoring, the accurate reranking approach) when a reranker head is loaded, else
+# falls back to bi-encoder/lexical semantic similarity. The retrieve-then-rerank
+# second stage.
+func StzRerank(pcQuery, paDocs)
+	if NOT (isString(pcQuery) and isList(paDocs)) return [] ok
+	bXEnc = StzHasRerankerModel()
+	aScored = []
+	nD = len(paDocs)
+	for i = 1 to nD
+		if isString(paDocs[i])
+			if bXEnc
+				nS = StzEngineNeuralRerank(pcQuery, paDocs[i])
+			else
+				nS = StzSemanticSimilarity(pcQuery, paDocs[i])
+			ok
+			aScored + [ paDocs[i], nS ]
+		ok
+	next
+	# selection sort by descending score (doc count is small)
+	nSc = len(aScored)
+	for i = 1 to nSc - 1
+		iMax = i
+		for j = i + 1 to nSc
+			if aScored[j][2] > aScored[iMax][2] iMax = j ok
+		next
+		if iMax != i
+			tmp = aScored[i]
+			aScored[i] = aScored[iMax]
+			aScored[iMax] = tmp
+		ok
+	next
+	return aScored
+
 # StzSemanticSimilarity(cA, cB) -- similarity of two texts in [-1, 1]. Uses the
 # loaded model's sentence embeddings (cosine == dot, since L2-normalized) when a
 # model is present; otherwise degrades gracefully to lexical bag-of-words cosine.

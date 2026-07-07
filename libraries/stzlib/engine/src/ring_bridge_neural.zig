@@ -130,6 +130,17 @@ fn ring_NeuralNerType(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring(p, @ptrCast(embed.neural_ner_type(i)));
 }
 
+fn ring_NeuralModelHasReranker(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(embed.neural_model_has_reranker()));
+}
+fn ring_NeuralRerank(p: *anyopaque) callconv(.c) void {
+    const q = gs(p, 1);
+    const qlen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    const d = gs(p, 2);
+    const dlen: usize = @intCast(R.ring_vm_api_getstringsize(p, 2));
+    rn(p, embed.neural_rerank(q, qlen, d, dlen));
+}
+
 fn ring_NeuralVocabToken(p: *anyopaque) callconv(.c) void {
     const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
     const t: [*:0]const u8 = @ptrCast(embed.neural_vocab_token(i));
@@ -150,6 +161,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralner", .func = &ring_NeuralNer },
     .{ .name = "stzengineneuralnertext", .func = &ring_NeuralNerText },
     .{ .name = "stzengineneuralnertype", .func = &ring_NeuralNerType },
+    .{ .name = "stzengineneuralmodelhasreranker", .func = &ring_NeuralModelHasReranker },
+    .{ .name = "stzengineneuralrerank", .func = &ring_NeuralRerank },
     .{ .name = "stzengineneuralsmoke", .func = &ring_NeuralSmoke },
     .{ .name = "stzengineneuralcomputesmoke", .func = &ring_NeuralComputeSmoke },
     .{ .name = "stzengineneuralversion", .func = &ring_NeuralVersion },

@@ -80,6 +80,31 @@ class stzListOfTexts from stzStringList
 		def ThatAreQ(pcPolarity)
 			return new stzListOfTexts(This.ThatAre(pcPolarity))
 
+	  #==========================================================#
+	 #   CROSS-ENCODER RERANKING                               #
+	#==========================================================#
+	# Rank these texts (candidate documents) by relevance to a query. Uses a
+	# CROSS-ENCODER (joint query+doc scoring) when a reranker GGUF is loaded
+	# (StzUseNeuralModel with e.g. jina-reranker), else bi-encoder/lexical
+	# similarity. The accurate second stage of retrieve-then-rerank.
+
+	# RankedForQuery(query) -- [[doc, score], ...] sorted by descending relevance.
+	def RankedForQuery(pcQuery)
+		return StzRerank(pcQuery, @acContent)
+
+		# Q-ladder: Q -> stzList; QQ -> stzListOfPairs.
+		def RankedForQueryQ(pcQuery)
+			return new stzList(This.RankedForQuery(pcQuery))
+
+		def RankedForQueryQQ(pcQuery)
+			return new stzListOfPairs(This.RankedForQuery(pcQuery))
+
+	# The single most relevant text to the query (DATA, a string).
+	def MostRelevantTo(pcQuery)
+		_aMrR_ = This.RankedForQuery(pcQuery)
+		if len(_aMrR_) = 0 return "" ok
+		return _aMrR_[1][1]
+
 	# A copy stays a list of TEXTS (override the base, which returns stzStringList).
 	def Copy()
 		return new stzListOfTexts(@acContent)
