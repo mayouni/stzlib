@@ -133,9 +133,109 @@ pub fn str_readability(handle: StzStringHandle, mode: c_int) callconv(.c) f64 {
     };
 }
 
+// ---- Language detection (english / french / arabic) --------------------------
+// Script first (Arabic block dominance), else distinctive function-word scoring
+// to separate the two Latin languages we support. Returns a language name, or
+// "unknown" when there is no usable signal. Small + deterministic, no model file.
+
+const en_markers = [_][]const u8{
+    "the", "and", "of",   "is",   "that", "was",  "with", "this",
+    "have", "from", "not", "were", "which", "would", "there", "their",
+    "what", "when", "your", "about", "these", "been", "they", "will",
+};
+const fr_markers = [_][]const u8{
+    "le",  "la",  "les", "des", "une", "est",  "et",   "que",
+    "dans", "pour", "sur", "qui", "pas", "avec", "sont", "cette",
+    "vous", "nous", "mais", "leur", "être", "aux", "plus", "ces",
+};
+
+fn isArabicCp(cp: u21) bool {
+    return (cp >= 0x0600 and cp <= 0x06FF) or (cp >= 0x0750 and cp <= 0x077F) or
+        (cp >= 0x08A0 and cp <= 0x08FF) or (cp >= 0xFB50 and cp <= 0xFDFF) or
+        (cp >= 0xFE70 and cp <= 0xFEFF);
+}
+
+fn markerHits(src: []const u8, markers: []const []const u8) usize {
+    var hits: usize = 0;
+    var buf: [64]u8 = undefined;
+    var wit = wb.WordIter.init(src);
+    while (wit.next()) |sp| {
+        const w = src[sp.start..sp.end];
+        if (w.len == 0 or w.len > buf.len) continue;
+        const lw = lowerAscii(w, &buf);
+        for (markers) |m| {
+            if (std.mem.eql(u8, lw, m)) {
+                hits += 1;
+                break;
+            }
+        }
+    }
+    return hits;
+}
+
+// Detected language name as a fresh string handle.
+pub fn str_detect_language(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const result = str_new() orelse return null;
+    const s = handle orelse return result;
+    const src = s.slice();
+
+    // Script pass: fraction of letters that are Arabic-script.
+    var arabic: usize = 0;
+    var letters: usize = 0;
+    var i: usize = 0;
+    while (i < src.len) {
+        const b = src[i];
+        if (b < 0x80) {
+            if ((b >= 'a' and b <= 'z') or (b >= 'A' and b <= 'Z')) letters += 1;
+            i += 1;
+            continue;
+        }
+        const cl = std.unicode.utf8ByteSequenceLength(b) catch {
+            i += 1;
+            continue;
+        };
+        if (i + cl > src.len) break;
+        const cp = std.unicode.utf8Decode(src[i .. i + cl]) catch {
+            i += cl;
+            continue;
+        };
+        letters += 1;
+        if (isArabicCp(cp)) arabic += 1;
+        i += cl;
+    }
+    if (letters == 0) {
+        result.data.appendSlice(gpa, "unknown") catch {};
+        return result;
+    }
+    if (arabic * 2 > letters) { // majority Arabic-script letters
+        result.data.appendSlice(gpa, "arabic") catch {};
+        return result;
+    }
+
+    const en = markerHits(src, &en_markers);
+    const fr = markerHits(src, &fr_markers);
+    const name = if (en == 0 and fr == 0) "unknown" else if (fr > en) "french" else "english";
+    result.data.appendSlice(gpa, name) catch {};
+    return result;
+}
+
 const testing = std.testing;
 const str_from = core.str_from;
 const str_free = core.str_free;
+
+test "detect language" {
+    const en = str_from("the quick brown fox that was running", 36) orelse return error.SkipZigTest;
+    defer str_free(en);
+    const re = str_detect_language(en) orelse return error.SkipZigTest;
+    defer str_free(re);
+    try testing.expectEqualStrings("english", re.slice());
+
+    const fr = str_from("le renard brun qui est dans la maison", 37) orelse return error.SkipZigTest;
+    defer str_free(fr);
+    const rf = str_detect_language(fr) orelse return error.SkipZigTest;
+    defer str_free(rf);
+    try testing.expectEqualStrings("french", rf.slice());
+}
 
 test "content words drop stopwords" {
     const s = str_from("the quick brown fox and the lazy dog", 36) orelse return error.SkipZigTest;

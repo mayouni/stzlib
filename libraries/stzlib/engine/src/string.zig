@@ -111,6 +111,7 @@ pub const str_content_words = textutil.str_content_words;
 pub const str_without_stopwords = textutil.str_without_stopwords;
 pub const str_is_stopword = textutil.str_is_stopword;
 pub const str_readability = textutil.str_readability;
+pub const str_detect_language = textutil.str_detect_language;
 
 pub const str_stem_word = stem.str_stem_word;
 pub const str_stem_words = stem.str_stem_words;
@@ -197,6 +198,7 @@ pub const str_chunk = split.str_chunk;
 pub const str_chars_split = split.str_chars_split;
 pub const str_search_tokens = split.str_search_tokens;
 pub const str_words_split = split.str_words_split;
+pub const str_sentences = split.str_sentences;
 pub const str_sort_null_items_cs = split.str_sort_null_items_cs;
 pub const str_sort_null_items = split.str_sort_null_items;
 pub const str_unique_null_items_cs = split.str_unique_null_items_cs;

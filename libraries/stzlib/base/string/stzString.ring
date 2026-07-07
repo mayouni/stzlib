@@ -4543,6 +4543,345 @@ class stzString from stzObject
 		def SearchTokens()
 			return This.WordsForSearch()
 
+		  #==================================================#
+		 #  LINGUISTIC QUERY  .  EXPLAIN  .  EXPLORE        #
+		#==================================================#
+		# A fluent layer over the NLP primitives (POS / NER / sentiment / lemma /
+		# UAX#29 segmentation): filter words by part of speech, sentences by
+		# sentiment or similarity, explain a score, detect the language, profile a
+		# whole text, and print an annotated view. The point is composition -- each
+		# reads like the question you are actually asking.
+
+		# --- POS-aware word filters ---
+		# WordsThatAre(cPenn) keeps words whose Penn tag STARTS WITH cPenn: "NN"
+		# catches every noun (NN/NNS/NNP/NNPS), "VB" every verb form. Nouns() /
+		# Verbs() / ... spell out the common ones.
+		def _TagHasPrefix(pcTag, pcPrefix)
+			nTp = ring_len(pcPrefix)
+			if ring_len(pcTag) < nTp return FALSE ok
+			return left(pcTag, nTp) = pcPrefix
+
+		def WordsThatAre(pcPenn)
+			if NOT isString(pcPenn) return [] ok
+			_aWtWords_ = This.Words()
+			_aWtTags_  = This.POSTags()
+			_aWtOut_ = []
+			_nWtN_ = len(_aWtWords_)
+			if len(_aWtTags_) < _nWtN_ _nWtN_ = len(_aWtTags_) ok
+			for _iWt_ = 1 to _nWtN_
+				if This._TagHasPrefix(_aWtTags_[_iWt_], pcPenn)
+					_aWtOut_ + _aWtWords_[_iWt_]
+				ok
+			next
+			return _aWtOut_
+
+			def WordsThatAreQ(pcPenn)
+				return new stzList(This.WordsThatAre(pcPenn))
+
+		def Nouns()
+			return This.WordsThatAre("NN")
+
+			def NounsQ()
+				return new stzList(This.Nouns())
+
+		def ProperNouns()
+			return This.WordsThatAre("NNP")
+
+		def Verbs()
+			return This.WordsThatAre("VB")
+
+			def VerbsQ()
+				return new stzList(This.Verbs())
+
+		def Adjectives()
+			return This.WordsThatAre("JJ")
+
+			def AdjectivesQ()
+				return new stzList(This.Adjectives())
+
+		def Adverbs()
+			return This.WordsThatAre("RB")
+
+		def Pronouns()
+			return This.WordsThatAre("PRP")
+
+		# --- Sentence filters by sentiment / similarity ---
+		def SentencesThatAre(pcPolarity)
+			if NOT isString(pcPolarity) return [] ok
+			_cStWant_ = lower(pcPolarity)
+			_aStAll_ = This.Sentences()
+			_aStOut_ = []
+			_nStN_ = len(_aStAll_)
+			for _iSt_ = 1 to _nStN_
+				_oStS_ = new stzString(_aStAll_[_iSt_])
+				if _oStS_.Sentiment() = _cStWant_
+					_aStOut_ + _aStAll_[_iSt_]
+				ok
+			next
+			return _aStOut_
+
+		def PositiveSentences()
+			return This.SentencesThatAre("positive")
+
+		def NegativeSentences()
+			return This.SentencesThatAre("negative")
+
+		def _BestSentenceBy(nSign)
+			_aBsAll_ = This.Sentences()
+			_nBsN_ = len(_aBsAll_)
+			if _nBsN_ = 0 return "" ok
+			_cBsBest_ = _aBsAll_[1]
+			_oBs1_ = new stzString(_cBsBest_)
+			_nBsBest_ = _oBs1_.SentimentScore() * nSign
+			for _iBs_ = 2 to _nBsN_
+				_oBs_ = new stzString(_aBsAll_[_iBs_])
+				_nBsS_ = _oBs_.SentimentScore() * nSign
+				if _nBsS_ > _nBsBest_
+					_nBsBest_ = _nBsS_
+					_cBsBest_ = _aBsAll_[_iBs_]
+				ok
+			next
+			return _cBsBest_
+
+		def MostPositiveSentence()
+			return This._BestSentenceBy(1)
+
+		def MostNegativeSentence()
+			return This._BestSentenceBy(-1)
+
+		def MostSimilarSentenceTo(pcQuery)
+			if NOT isString(pcQuery) return "" ok
+			_aMsAll_ = This.Sentences()
+			_nMsN_ = len(_aMsAll_)
+			if _nMsN_ = 0 return "" ok
+			_cMsBest_ = ""
+			_nMsBest_ = -1
+			for _iMs_ = 1 to _nMsN_
+				_oMs_ = new stzString(_aMsAll_[_iMs_])
+				_nMsSim_ = _oMs_.CosineSimilarityWith(pcQuery)
+				if _nMsSim_ > _nMsBest_
+					_nMsBest_ = _nMsSim_
+					_cMsBest_ = _aMsAll_[_iMs_]
+				ok
+			next
+			return _cMsBest_
+
+		# --- Language detection ---
+		# Language() -> "english" / "french" / "arabic" / "unknown" (Arabic-script
+		# dominance, else distinctive function-word scoring). Auto* pick the
+		# language for you before lemmatising / stemming.
+		def Language()
+			_pLg_ = StzEngineStringDetectLanguage(@pEngine)
+			_cLg_ = StzEngineStringData(_pLg_)
+			StzEngineStringFree(_pLg_)
+			return _cLg_
+
+			def DetectedLanguage()
+				return This.Language()
+
+		def AutoLemmatized()
+			_cAlLg_ = This.Language()
+			if _cAlLg_ = "unknown" _cAlLg_ = "english" ok
+			return This.LemmatizedInLanguage(_cAlLg_)
+
+		def AutoStemmed()
+			_cAsLg_ = This.Language()
+			if _cAsLg_ = "unknown" _cAsLg_ = "english" ok
+			return This.StemmedInLanguage(_cAsLg_)
+
+		# --- Explainability ---
+		# SentimentExplained() shows the overall label/score plus which individual
+		# words carry positive vs negative lexical polarity -- so you can SEE why a
+		# "not good" sentence lands negative even though "good" is a positive word
+		# (negation / boosters / context are applied to the overall score, not the
+		# per-word lexical view). ReadabilityExplained() shows the raw ingredients.
+		def SentimentExplained()
+			_nSeScore_ = This.SentimentScore()
+			_cSeLabel_ = This.Sentiment()
+			_aSeWords_ = This.Words()
+			_aSePos_ = []
+			_aSeNeg_ = []
+			_nSeN_ = len(_aSeWords_)
+			for _iSe_ = 1 to _nSeN_
+				_oSeW_ = new stzString(_aSeWords_[_iSe_])
+				_nSeW_ = _oSeW_.SentimentScore()
+				if _nSeW_ >= 0.05
+					_aSePos_ + _aSeWords_[_iSe_]
+				but _nSeW_ <= -0.05
+					_aSeNeg_ + _aSeWords_[_iSe_]
+				ok
+			next
+			return [
+				[ "overall", _cSeLabel_, _nSeScore_ ],
+				[ "positive_words", _aSePos_ ],
+				[ "negative_words", _aSeNeg_ ]
+			]
+
+		def ReadabilityExplained()
+			_nReWords_ = This.NumberOfWords()
+			_nReSent_  = This.NumberOfSentences()
+			_nReWps_ = 0
+			if _nReSent_ > 0 _nReWps_ = _nReWords_ / _nReSent_ ok
+			return [
+				[ "words", _nReWords_ ],
+				[ "sentences", _nReSent_ ],
+				[ "words_per_sentence", _nReWps_ ],
+				[ "reading_ease", This.ReadingEase() ],
+				[ "grade_level", This.ReadabilityGrade() ]
+			]
+
+		# --- Text profile: one call to understand a text ---
+		# Composes language, size, readability, sentiment, lexical diversity, the
+		# top content keywords, and the named entities into a single [key, value]
+		# list you can ShowShort or walk.
+		def Profile()
+			_oPfNoStop_ = new stzString(This.WithoutStopwords())
+			_aPfTop_ = _oPfNoStop_.MostFrequentWords(5)
+			_aPfKw_ = []
+			_nPfT_ = len(_aPfTop_)
+			for _iPf_ = 1 to _nPfT_
+				_aPfKw_ + _aPfTop_[_iPf_][1]
+			next
+			return [
+				[ "language", This.Language() ],
+				[ "words", This.NumberOfWords() ],
+				[ "sentences", This.NumberOfSentences() ],
+				[ "reading_grade", This.ReadabilityGrade() ],
+				[ "sentiment", This.Sentiment() ],
+				[ "lexical_diversity", This.LexicalDiversity() ],
+				[ "top_keywords", _aPfKw_ ],
+				[ "entities", This.NamedEntities() ]
+			]
+
+		# --- Stylometry ---
+		# LexicalDiversity() = distinct words / total words (type-token ratio, a
+		# vocabulary-richness measure). StyleProfile() adds average word length and
+		# sentence length.
+		def LexicalDiversity()
+			_nLdTotal_ = This.NumberOfWords()
+			if _nLdTotal_ = 0 return 0 ok
+			_oLdLow_ = new stzString(This.Lowercased())
+			_aLdUniq_ = _oLdLow_.WordsAndTheirCounts()
+			return len(_aLdUniq_) / _nLdTotal_
+
+			def TypeTokenRatio()
+				return This.LexicalDiversity()
+
+		def StyleProfile()
+			_aSpWords_ = This.Words()
+			_nSpWords_ = len(_aSpWords_)
+			_nSpChars_ = 0
+			for _iSp_ = 1 to _nSpWords_
+				_oSpW_ = new stzString(_aSpWords_[_iSp_])
+				_nSpChars_ += _oSpW_.NumberOfChars()
+			next
+			_nSpAvgLen_ = 0
+			if _nSpWords_ > 0 _nSpAvgLen_ = _nSpChars_ / _nSpWords_ ok
+			return [
+				[ "avg_word_length", _nSpAvgLen_ ],
+				[ "avg_words_per_sentence", This.AverageWordsPerSentence() ],
+				[ "lexical_diversity", This.LexicalDiversity() ]
+			]
+
+		# --- Concordance / KWIC (keyword in context) ---
+		# For each occurrence of pcWord (case-insensitive), a line of nWindow words
+		# on each side -- the corpus-linguistics staple for seeing how a word is
+		# actually used across a text.
+		def InContextWithWindow(pcWord, nWindow)
+			if NOT isString(pcWord) return [] ok
+			_aIcWords_ = This.Words()
+			_cIcTarget_ = lower(pcWord)
+			_aIcOut_ = []
+			_nIcN_ = len(_aIcWords_)
+			for _iIc_ = 1 to _nIcN_
+				if lower(_aIcWords_[_iIc_]) = _cIcTarget_
+					_nIcA_ = _iIc_ - nWindow
+					if _nIcA_ < 1 _nIcA_ = 1 ok
+					_nIcB_ = _iIc_ + nWindow
+					if _nIcB_ > _nIcN_ _nIcB_ = _nIcN_ ok
+					_cIcLine_ = ""
+					for _jIc_ = _nIcA_ to _nIcB_
+						_cIcLine_ += _aIcWords_[_jIc_]
+						if _jIc_ < _nIcB_ _cIcLine_ += " " ok
+					next
+					_aIcOut_ + _cIcLine_
+				ok
+			next
+			return _aIcOut_
+
+		def InContext(pcWord)
+			return This.InContextWithWindow(pcWord, 5)
+
+			def Concordance(pcWord)
+				return This.InContext(pcWord)
+
+		# --- Comparative analysis ---
+		# ComparedTo(cOther) = how this text relates to another on the dimensions
+		# that matter: bag-of-words similarity, sentiment gap, readability gap, and
+		# the content vocabulary they share.
+		def ComparedTo(pcOther)
+			if NOT isString(pcOther) return [] ok
+			_oCmOther_ = new stzString(pcOther)
+			_nCmSim_   = This.CosineSimilarityWith(pcOther)
+			_nCmSentA_ = This.SentimentScore()
+			_nCmSentB_ = _oCmOther_.SentimentScore()
+			_nCmGrA_   = This.ReadabilityGrade()
+			_nCmGrB_   = _oCmOther_.ReadabilityGrade()
+
+			# shared content vocabulary (lowercased; de-duplicated inline)
+			_aCmA_ = StzListOfStringsQ(This.ContentWords()).Lowercased()
+			_aCmB_ = StzListOfStringsQ(_oCmOther_.ContentWords()).Lowercased()
+			_aCmShared_ = []
+			_nCmA_ = len(_aCmA_)
+			for _iCm_ = 1 to _nCmA_
+				_cCmW_ = _aCmA_[_iCm_]
+				if ring_find(_aCmB_, _cCmW_) > 0 and ring_find(_aCmShared_, _cCmW_) = 0
+					_aCmShared_ + _cCmW_
+				ok
+			next
+			return [
+				[ "similarity", _nCmSim_ ],
+				[ "sentiment_delta", _nCmSentA_ - _nCmSentB_ ],
+				[ "grade_delta", _nCmGrA_ - _nCmGrB_ ],
+				[ "shared_keywords", _aCmShared_ ]
+			]
+
+		# --- Annotated display ---
+		# ShowTagged() prints "word/TAG" inline; ShowEntities() brackets each entity
+		# with its type; ShowSentiment() prints every sentence with its polarity and
+		# score. Each prints and returns This so it chains.
+		def ShowTagged()
+			_aShTw_ = This.TaggedWords()
+			_cShOut_ = ""
+			_nShN_ = len(_aShTw_)
+			for _iSh_ = 1 to _nShN_
+				_cShOut_ += _aShTw_[_iSh_][1] + "/" + _aShTw_[_iSh_][2]
+				if _iSh_ < _nShN_ _cShOut_ += " " ok
+			next
+			? _cShOut_
+			return This
+
+		def ShowEntities()
+			_aSeeNe_ = This.NamedEntities()
+			_cSeeOut_ = This.Content()
+			_nSeeN_ = len(_aSeeNe_)
+			for _iSee_ = 1 to _nSeeN_
+				_cSeeEnt_ = _aSeeNe_[_iSee_][1]
+				_cSeeTy_  = _aSeeNe_[_iSee_][2]
+				_cSeeOut_ = StzReplace(_cSeeOut_, _cSeeEnt_, "[" + _cSeeEnt_ + ":" + _cSeeTy_ + "]")
+			next
+			? _cSeeOut_
+			return This
+
+		def ShowSentiment()
+			_aSsSt_ = This.Sentences()
+			_nSsN_ = len(_aSsSt_)
+			for _iSs_ = 1 to _nSsN_
+				_oSsS_ = new stzString(_aSsSt_[_iSs_])
+				? "(" + _oSsS_.Sentiment() + " " + _oSsS_.SentimentScore() + ") " + _aSsSt_[_iSs_]
+			next
+			return This
+
 	  #============================================#
 	 #     SPLIT                                  #
 	#============================================#
@@ -19350,20 +19689,29 @@ class stzString from stzObject
 		_oNsText_ = new stzStringText(This)
 		return _oNsText_.NumberOfSentences()
 
+	# UAX#29 sentence segmentation (engine-backed), aligned with NumberOfSentences()
+	# -- correctly keeps "Dr. Smith", "3.14", "U.S.A." as one sentence rather than
+	# splitting on every '.'. Bulk native-list bridge (O(n)).
 	def Sentences()
-		_oSText_ = new stzStringText(This)
-		return _oSText_.Sentences()
+		return StzEngineStringSentencesList(@pEngine)
+
+		def SentencesQ()
+			return new stzList(This.Sentences())
 
 	def NthSentence(n)
-		_oNsntText_ = new stzStringText(This)
-		return _oNsntText_.NthSentence(n)
+		_aNsnt_ = This.Sentences()
+		if n >= 1 and n <= len(_aNsnt_)
+			return _aNsnt_[n]
+		ok
+		return ""
 
 	def FirstSentence()
 		return This.NthSentence(1)
 
 	def LastSentence()
-		_oLsText_ = new stzStringText(This)
-		return _oLsText_.LastSentence()
+		_aLsnt_ = This.Sentences()
+		if len(_aLsnt_) = 0 return "" ok
+		return _aLsnt_[len(_aLsnt_)]
 
 	# --- Paragraphs ---
 
