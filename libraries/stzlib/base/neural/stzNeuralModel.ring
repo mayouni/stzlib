@@ -22,6 +22,47 @@ func StzNeuralModel(pcPath)
 func StzNeuralModelQ(pcPath)
 	return new stzNeuralModel(pcPath)
 
+# StzUseNeuralModel(cPath) -- load a neural embedding model process-wide (into
+# the engine's single active slot) so the text-meaning layer (stzText) and the
+# string-list similarity ops transparently upgrade from lexical bag-of-words to
+# true semantic embeddings. Returns the stzNeuralModel object.
+func StzUseNeuralModel(pcPath)
+	return new stzNeuralModel(pcPath)
+
+# TRUE if a runtime neural embedding model is currently loaded and ready.
+func StzHasNeuralModel()
+	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelNEmbd() > 0
+
+# StzSemanticSimilarity(cA, cB) -- similarity of two texts in [-1, 1]. Uses the
+# loaded model's sentence embeddings (cosine == dot, since L2-normalized) when a
+# model is present; otherwise degrades gracefully to lexical bag-of-words cosine.
+# The single source of truth for "how similar do these two texts MEAN?".
+func StzSemanticSimilarity(pcA, pcB)
+	if NOT (isString(pcA) and isString(pcB)) return 0 ok
+	if StzHasNeuralModel()
+		aA = _StzEmbedInto(pcA)
+		aB = _StzEmbedInto(pcB)
+		nLen = len(aA)
+		if nLen = 0 or len(aB) != nLen return 0 ok
+		nDot = 0
+		for i = 1 to nLen
+			nDot += aA[i] * aB[i]
+		next
+		return nDot
+	ok
+	oA = new stzString(pcA)
+	return oA.CosineSimilarityWith(pcB)
+
+# Run one forward pass and copy the embedding out of the engine's single g_emb
+# buffer into a fresh Ring list (so a second embed doesn't clobber the first).
+func _StzEmbedInto(pcText)
+	nDim = StzEngineNeuralEmbed(pcText)
+	aVec = []
+	for i = 0 to nDim - 1
+		aVec + StzEngineNeuralEmbedAt(i)
+	next
+	return aVec
+
 class stzNeuralModel from stzNeural
 
 	@cPath = ""

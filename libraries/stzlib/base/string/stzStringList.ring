@@ -941,18 +941,19 @@ class stzStringList
 	# .ThatAre(:Positive), .ThatContain("word"), .Longest(). Each fragment is
 	# scored via a throwaway stzString, so all the engine-backed NLP applies.
 
-	# The fragment most similar to pcQuery by WORD OVERLAP (bag-of-words cosine) --
-	# the right notion for sentences/documents. (The inherited MostSimilarTo() uses
-	# Jaro-Winkler CHARACTER similarity, better for fuzzy word/typo matching.)
+	# The fragment most similar to pcQuery by MEANING. Uses the loaded neural
+	# model's sentence embeddings when one is present (StzUseNeuralModel(path)),
+	# else lexical WORD-OVERLAP cosine -- the right notion for sentences/documents.
+	# (The inherited MostSimilarTo() uses Jaro-Winkler CHARACTER similarity, better
+	# for fuzzy word/typo matching.)
 	def MostSimilarByMeaning(pcQuery)
 		if NOT isString(pcQuery) return "" ok
 		_nMsN_ = len(@acContent)
 		if _nMsN_ = 0 return "" ok
 		_cMsBest_ = ""
-		_nMsBest_ = -1
+		_nMsBest_ = -2
 		for _iMs_ = 1 to _nMsN_
-			_oMs_ = new stzString(@acContent[_iMs_])
-			_nMsSim_ = _oMs_.CosineSimilarityWith(pcQuery)
+			_nMsSim_ = StzSemanticSimilarity(@acContent[_iMs_], pcQuery)
 			if _nMsSim_ > _nMsBest_
 				_nMsBest_ = _nMsSim_
 				_cMsBest_ = @acContent[_iMs_]
