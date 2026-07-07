@@ -662,6 +662,73 @@ class stzText from stzStringText
 		return _nEdDot_
 
 	  #==========================================================#
+	 #   ZERO-SHOT CLASSIFICATION                               #
+	#==========================================================#
+	# Classify this text against ARBITRARY candidate labels with no training:
+	# rank each label by how closely its MEANING matches the text (embedding
+	# cosine when a model is loaded, else lexical). Pass richer label strings
+	# (e.g. "about sports") for sharper separation.
+
+	# Classify(labels) -- ranked [label, score] pairs, most similar first (DATA).
+	def Classify(paLabels)
+		if NOT isList(paLabels) return [] ok
+		_cClText_ = This.Content()
+		_aClOut_ = []
+		_nClN_ = len(paLabels)
+		for _iCl_ = 1 to _nClN_
+			if isString(paLabels[_iCl_])
+				_nClSim_ = StzSemanticSimilarity(_cClText_, paLabels[_iCl_])
+				_aClOut_ + [ paLabels[_iCl_], _nClSim_ ]
+			ok
+		next
+		return This._SortPairsByScoreDesc(_aClOut_)
+
+		def ClassificationOf(paLabels)
+			return This.Classify(paLabels)
+
+		# Q-ladder: Q -> basic stzList; QQ -> stzListOfPairs (it is a list of pairs).
+		def ClassifyQ(paLabels)
+			return new stzList(This.Classify(paLabels))
+
+		def ClassifyQQ(paLabels)
+			return new stzListOfPairs(This.Classify(paLabels))
+
+	# ClassifiedAs(labels) -- the single best-matching label (DATA, a string).
+	def ClassifiedAs(paLabels)
+		_aCaR_ = This.Classify(paLabels)
+		if len(_aCaR_) = 0 return "" ok
+		return _aCaR_[1][1]
+
+		def ClassifiedAsQ(paLabels)
+			return new stzString(This.ClassifiedAs(paLabels))
+
+	# The score (similarity) the winning label got, in [-1, 1] (DATA).
+	def ClassificationConfidence(paLabels)
+		_aCcR_ = This.Classify(paLabels)
+		if len(_aCcR_) = 0 return 0 ok
+		return _aCcR_[1][2]
+
+	# Selection-sort [label, score] pairs by DESCENDING score (label count is
+	# small; avoids the list-sort ABI caveats). Private.
+	def _SortPairsByScoreDesc(paPairs)
+		_aSpP_ = paPairs
+		_nSpN_ = len(_aSpP_)
+		for _iSp_ = 1 to _nSpN_ - 1
+			_nSpMax_ = _iSp_
+			for _jSp_ = _iSp_ + 1 to _nSpN_
+				if _aSpP_[_jSp_][2] > _aSpP_[_nSpMax_][2]
+					_nSpMax_ = _jSp_
+				ok
+			next
+			if _nSpMax_ != _iSp_
+				_aSpTmp_ = _aSpP_[_iSp_]
+				_aSpP_[_iSp_] = _aSpP_[_nSpMax_]
+				_aSpP_[_nSpMax_] = _aSpTmp_
+			ok
+		next
+		return _aSpP_
+
+	  #==========================================================#
 	 #   LANGUAGE DETECTION                                     #
 	#==========================================================#
 	def Language()

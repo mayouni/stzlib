@@ -221,4 +221,25 @@ Scenario("Semantic layer -- graceful lexical fallback with no model loaded")
 	#     -> "Cats are wonderful pets." (matched by MEANING, zero word overlap)
 EndScenario()
 
+Scenario("Zero-shot classification -- rank arbitrary labels, no training")
+	# Model-free here (deterministic lexical fallback with lexically-distinct
+	# labels). With StzUseNeuralModel(path) it ranks by MEANING instead.
+	t = new stzText("the stock market prices fell sharply on wall street today")
+	Then("ClassifiedAs picks the closest label",
+		t.ClassifiedAs([ "market finance", "cooking food" ]), "market finance")
+	Then("Classify returns ranked [label, score] pairs, best first",
+		t.Classify([ "market finance", "cooking food" ])[1][1], "market finance")
+	Then("Classify keeps all labels",
+		len(t.Classify([ "market finance", "cooking food", "space travel" ])), 3)
+	Then("ClassifyQ is the basic stzList",
+		classname(t.ClassifyQ([ "a", "b" ])), "stzlist")
+	Then("ClassifyQQ is stzListOfPairs",
+		classname(t.ClassifyQQ([ "a", "b" ])), "stzlistofpairs")
+	Then("a non-list of labels is rejected",
+		@@(t.Classify("not a list")), @@([ ]))
+	# MANUAL (with a BERT GGUF): classifies by MEANING, not word overlap --
+	#   Q("The team scored in the final minute").TextQ().ClassifiedAs(
+	#     ["sports","politics","cooking"]) -> "sports".
+EndScenario()
+
 Summary()
