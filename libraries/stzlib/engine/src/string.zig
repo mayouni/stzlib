@@ -117,6 +117,10 @@ pub const str_key_phrases = textutil.str_key_phrases;
 const textrank = @import("string/textrank.zig");
 pub const str_textrank_keywords = textrank.str_textrank_keywords;
 pub const str_summarize = textrank.str_summarize;
+const wordnet = @import("string/wordnet.zig");
+pub const str_synonyms = wordnet.str_synonyms;
+pub const str_hypernyms = wordnet.str_hypernyms;
+pub const str_are_synonyms = wordnet.str_are_synonyms;
 
 pub const str_stem_word = stem.str_stem_word;
 pub const str_stem_words = stem.str_stem_words;
@@ -639,6 +643,7 @@ test {
     _ = ner;
     _ = textutil;
     _ = textrank;
+    _ = wordnet;
     _ = split;
     _ = find;
     _ = replace;

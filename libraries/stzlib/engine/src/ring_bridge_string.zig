@@ -3021,6 +3021,25 @@ fn ring_StringSummarizeList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// WordNet synonyms / hypernyms. Native lists.
+fn ring_StringSynonymsList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_synonyms(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_StringHypernymsList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_hypernyms(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_StringAreSynonyms(p: *anyopaque) callconv(.c) void {
+    const other = ring_vm_api_getstring(p, 2);
+    const other_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_are_synonyms(getHandle(p, 1), other, other_len)));
+}
+
 // Sentiment breakdown. Native list of "token\x01valence" (Ring splits on 0x01).
 fn ring_StringSentimentExplainedList(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -4104,6 +4123,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringkeyphraseslist", .func = &ring_StringKeyPhrasesList },
     .{ .name = "stzenginestringtextrankkeywordslist", .func = &ring_StringTextRankKeywordsList },
     .{ .name = "stzenginestringsummarizelist", .func = &ring_StringSummarizeList },
+    .{ .name = "stzenginestringsynonymslist", .func = &ring_StringSynonymsList },
+    .{ .name = "stzenginestringhypernymslist", .func = &ring_StringHypernymsList },
+    .{ .name = "stzenginestringaresynonyms", .func = &ring_StringAreSynonyms },
     .{ .name = "stzenginestringsentiment", .func = &ring_StringSentiment },
     .{ .name = "stzenginestringsentimentexplainedlist", .func = &ring_StringSentimentExplainedList },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
