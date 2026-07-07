@@ -100,6 +100,8 @@ const fuzzy = @import("string/fuzzy.zig");
 const phonetics = @import("string/phonetics.zig");
 const stem = @import("string/stem.zig");
 const lemma = @import("string/lemma.zig");
+const sentiment = @import("string/sentiment.zig");
+pub const str_sentiment = sentiment.str_sentiment;
 
 pub const str_stem_word = stem.str_stem_word;
 pub const str_stem_words = stem.str_stem_words;
@@ -615,6 +617,7 @@ test {
     _ = phonetics;
     _ = stem;
     _ = lemma;
+    _ = sentiment;
     _ = split;
     _ = find;
     _ = replace;
