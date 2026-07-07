@@ -4468,10 +4468,10 @@ class stzString from stzObject
 		_aNeOut_ = []
 		_nNeN_ = len(_aNeRaw_)
 		for _iNe_ = 1 to _nNeN_
-			_cNeItem_ = _aNeRaw_[_iNe_]
-			_nNeSep_ = substr(_cNeItem_, char(1))
-			if _nNeSep_ > 0
-				_aNeOut_ + [ left(_cNeItem_, _nNeSep_ - 1), substr(_cNeItem_, _nNeSep_ + 1) ]
+			# engine-backed, codepoint-safe split on the 0x01 text|type delimiter
+			_aNePair_ = StzSplit(_aNeRaw_[_iNe_], char(1))
+			if len(_aNePair_) = 2
+				_aNeOut_ + [ _aNePair_[1], _aNePair_[2] ]
 			ok
 		next
 		return _aNeOut_
