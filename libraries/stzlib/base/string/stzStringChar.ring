@@ -1204,6 +1204,13 @@ class stzStringChar from stzString
 		# Use engine call
 		return StzEngineCharIsDigit(This.Unicode()) = 1
 
+		# IsADigit alias -- a char's digit test IS the engine-backed IsDigit above.
+		# Without this, IsADigit fell through to the string-level inherited form
+		# (FALSE for a single-char stzChar). Surfaced once QQ("3") correctly
+		# resolves to a stzChar rather than being coerced to a stzNumber.
+		def IsADigit()
+			return This.IsDigit()
+
 	def IsArabicNumber()
 		if NOT This.IsANumber()
 			return 0

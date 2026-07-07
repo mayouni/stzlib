@@ -39,6 +39,20 @@ Scenario("QQQ -> the most specific type the content maps to")
 		classname(QQQ([1, 2, 3])), "stzlistofnumbers")
 EndScenario()
 
+Scenario("QQ on a string -> most-specific STRING-family type (no coercion)")
+	# A string elevates to a string-family type; a single char is one.
+	Then("Q of a string is the basic stzString",
+		classname(Q("3")), "stzstring")
+	Then("QQ of a single char '3' is stzChar, NOT stzNumber (that would be coercion)",
+		classname(QQ("3")), "stzchar")
+	Then("QQ of a single letter is stzChar too",
+		classname(QQ("a")), "stzchar")
+	# NOTE: multi-char number/list strings still coerce (stzNumber / stzList) until
+	# stzNumberInString / stzListInString classes exist -- deliberately unchanged.
+	Then("QQ of a multi-char number string still coerces to stzNumber (for now)",
+		classname(QQ("19")), "stznumber")
+EndScenario()
+
 Scenario("QRT -> explicit type (the solid-code choice when ambiguous)")
 	Then("QRT builds the exact requested type",
 		classname(QRT(["a", "b", "c"], :stzListOfChars)), "stzlistofchars")
