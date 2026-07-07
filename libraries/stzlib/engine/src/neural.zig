@@ -13,7 +13,34 @@
 const std = @import("std");
 const c = @cImport({
     @cInclude("ggml.h");
+    @cInclude("ggml-cpu.h");
 });
+
+// Compute-path smoke: build a trivial 2-tensor add graph and run it through
+// ggml_graph_plan + ggml_graph_compute. Returns 1 if a+b == expected.
+pub export fn neural_ggml_compute_smoke() callconv(.c) c_int {
+    const ctx = c.ggml_init(.{ .mem_size = 16 * 1024 * 1024, .mem_buffer = null, .no_alloc = false }) orelse return 0;
+    defer c.ggml_free(ctx);
+    const a = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_F32, 3) orelse return 0;
+    const b = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_F32, 3) orelse return 0;
+    const ad: [*]f32 = @ptrCast(@alignCast(a.*.data));
+    const bd: [*]f32 = @ptrCast(@alignCast(b.*.data));
+    ad[0] = 1;
+    ad[1] = 2;
+    ad[2] = 3;
+    bd[0] = 10;
+    bd[1] = 20;
+    bd[2] = 30;
+    const cc = c.ggml_add(ctx, a, b) orelse return 0;
+    const graph = c.ggml_new_graph(ctx) orelse return 0;
+    c.ggml_build_forward_expand(graph, cc);
+    var plan = c.ggml_graph_plan(graph, 1, null);
+    var wbuf: [1024 * 1024]u8 = undefined;
+    if (plan.work_size > 0) plan.work_data = &wbuf;
+    _ = c.ggml_graph_compute(graph, &plan);
+    const cd: [*]const f32 = @ptrCast(@alignCast(cc.*.data));
+    return if (cd[0] > 10.9 and cd[0] < 11.1) 1 else 0;
+}
 
 // ggml build version string (proves the header + lib are wired).
 pub export fn neural_ggml_version() callconv(.c) [*c]const u8 {

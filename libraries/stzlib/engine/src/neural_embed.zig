@@ -10,6 +10,7 @@
 const std = @import("std");
 const c = @cImport({
     @cInclude("ggml.h");
+    @cInclude("ggml-cpu.h");
     @cInclude("gguf.h");
 });
 
@@ -52,6 +53,7 @@ pub export fn neural_model_free() callconv(.c) void {
     g_arch_len = 0;
     freeVocab();
     g_tok_ids.clearAndFree(gpa);
+    g_emb.clearAndFree(gpa);
 }
 
 pub export fn neural_model_loaded() callconv(.c) c_int {
@@ -287,4 +289,145 @@ pub export fn neural_vocab_token(i: c_int) callconv(.c) [*c]const u8 {
     const tid = c.gguf_find_key(ctx, "tokenizer.ggml.tokens");
     if (tid < 0) return @ptrCast("");
     return c.gguf_get_arr_str(ctx, tid, @intCast(i));
+}
+
+// ---- BERT embedding forward pass --------------------------------------------
+var g_emb: std.ArrayList(f32) = .{};
+
+fn kvArchF32(suffix: []const u8, dflt: f32) f32 {
+    const ctx = g_gguf orelse return dflt;
+    if (g_arch_len == 0) return dflt;
+    var buf: [96]u8 = undefined;
+    if (g_arch_len + suffix.len + 1 > buf.len) return dflt;
+    @memcpy(buf[0..g_arch_len], g_arch[0..g_arch_len]);
+    @memcpy(buf[g_arch_len..][0..suffix.len], suffix);
+    buf[g_arch_len + suffix.len] = 0;
+    const key: [*:0]const u8 = @ptrCast(&buf[0]);
+    const id = c.gguf_find_key(ctx, key);
+    if (id < 0) return dflt;
+    if (c.gguf_get_kv_type(ctx, id) == c.GGUF_TYPE_FLOAT32) return c.gguf_get_val_f32(ctx, id);
+    return dflt;
+}
+
+fn layerNorm(ctx: ?*c.ggml_context, x: *c.ggml_tensor, w: *c.ggml_tensor, b: *c.ggml_tensor, eps: f32) *c.ggml_tensor {
+    var t = c.ggml_norm(ctx, x, eps).?;
+    t = c.ggml_mul(ctx, t, w).?;
+    t = c.ggml_add(ctx, t, b).?;
+    return t;
+}
+
+// Embed `text` -> a normalized sentence vector, stored in g_emb; returns the dim
+// (0 on failure). Read back via neural_embed_at(i).
+pub export fn neural_embed_text(text: [*c]const u8, len: usize) callconv(.c) c_int {
+    if (!buildVocab()) return 0;
+    const mctx = g_ctx orelse return 0;
+
+    g_tok_ids.clearRetainingCapacity();
+    if (text == null or len == 0) return 0;
+    tokenizeInto(text[0..len], &g_tok_ids);
+    var n_tok: usize = g_tok_ids.items.len;
+    if (n_tok < 2) return 0;
+    if (n_tok > 256) n_tok = 256; // cap sequence length
+
+    const n_embd: usize = @intCast(neural_model_n_embd());
+    const n_head: usize = @intCast(neural_model_n_heads());
+    const n_layer: usize = @intCast(neural_model_n_layers());
+    if (n_embd == 0 or n_head == 0 or n_layer == 0) return 0;
+    const head_dim = n_embd / n_head;
+    const eps = kvArchF32(".attention.layer_norm_epsilon", 1e-12);
+
+    const mem_size: usize = 48 * 1024 * 1024 + n_tok * n_tok * n_head * n_layer * 64;
+    const ctx = c.ggml_init(.{ .mem_size = mem_size, .mem_buffer = null, .no_alloc = false }) orelse return 0;
+    defer c.ggml_free(ctx);
+
+    // inputs
+    const tokens = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n_tok)).?;
+    const positions = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n_tok)).?;
+    const types = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n_tok)).?;
+    const td: [*]i32 = @ptrCast(@alignCast(tokens.*.data));
+    const pd: [*]i32 = @ptrCast(@alignCast(positions.*.data));
+    const yd: [*]i32 = @ptrCast(@alignCast(types.*.data));
+    for (0..n_tok) |i| {
+        td[i] = g_tok_ids.items[i];
+        pd[i] = @intCast(i);
+        yd[i] = 0;
+    }
+    var nb: [64]u8 = undefined;
+    const T = struct {
+        fn get(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, b: []u8) *c.ggml_tensor {
+            const s = std.fmt.bufPrintZ(b, fmt, args) catch unreachable;
+            return c.ggml_get_tensor(m, s.ptr).?;
+        }
+    };
+
+    // embeddings + LayerNorm
+    var cur = c.ggml_get_rows(ctx, T.get(mctx, "token_embd.weight", .{}, &nb), tokens).?;
+    cur = c.ggml_add(ctx, cur, c.ggml_get_rows(ctx, T.get(mctx, "token_types.weight", .{}, &nb), types)).?;
+    cur = c.ggml_add(ctx, cur, c.ggml_get_rows(ctx, T.get(mctx, "position_embd.weight", .{}, &nb), positions)).?;
+    cur = layerNorm(ctx, cur, T.get(mctx, "token_embd_norm.weight", .{}, &nb), T.get(mctx, "token_embd_norm.bias", .{}, &nb), eps);
+
+    var nb2: [64]u8 = undefined;
+    for (0..n_layer) |L| {
+        const inpL = cur;
+        // Q,K,V  [n_embd, n_tok]
+        var Q = c.ggml_add(ctx, c.ggml_mul_mat(ctx, T.get(mctx, "blk.{d}.attn_q.weight", .{L}, &nb), cur), T.get(mctx, "blk.{d}.attn_q.bias", .{L}, &nb2)).?;
+        var K = c.ggml_add(ctx, c.ggml_mul_mat(ctx, T.get(mctx, "blk.{d}.attn_k.weight", .{L}, &nb), cur), T.get(mctx, "blk.{d}.attn_k.bias", .{L}, &nb2)).?;
+        var V = c.ggml_add(ctx, c.ggml_mul_mat(ctx, T.get(mctx, "blk.{d}.attn_v.weight", .{L}, &nb), cur), T.get(mctx, "blk.{d}.attn_v.bias", .{L}, &nb2)).?;
+        // heads
+        Q = c.ggml_cont(ctx, c.ggml_permute(ctx, c.ggml_reshape_3d(ctx, Q, @intCast(head_dim), @intCast(n_head), @intCast(n_tok)), 0, 2, 1, 3)).?;
+        K = c.ggml_cont(ctx, c.ggml_permute(ctx, c.ggml_reshape_3d(ctx, K, @intCast(head_dim), @intCast(n_head), @intCast(n_tok)), 0, 2, 1, 3)).?;
+        V = c.ggml_cont(ctx, c.ggml_permute(ctx, c.ggml_reshape_3d(ctx, V, @intCast(head_dim), @intCast(n_head), @intCast(n_tok)), 1, 2, 0, 3)).?;
+        // attention
+        var KQ = c.ggml_mul_mat(ctx, K, Q).?;
+        KQ = c.ggml_scale(ctx, KQ, 1.0 / @sqrt(@as(f32, @floatFromInt(head_dim)))).?;
+        KQ = c.ggml_soft_max(ctx, KQ).?;
+        var KQV = c.ggml_mul_mat(ctx, V, KQ).?; // [head_dim, n_tok, n_head]
+        KQV = c.ggml_cont(ctx, c.ggml_permute(ctx, KQV, 0, 2, 1, 3)).?;
+        KQV = c.ggml_reshape_2d(ctx, KQV, @intCast(n_embd), @intCast(n_tok)).?;
+        var attn = c.ggml_add(ctx, c.ggml_mul_mat(ctx, T.get(mctx, "blk.{d}.attn_output.weight", .{L}, &nb), KQV), T.get(mctx, "blk.{d}.attn_output.bias", .{L}, &nb2)).?;
+        attn = c.ggml_add(ctx, attn, inpL).?;
+        attn = layerNorm(ctx, attn, T.get(mctx, "blk.{d}.attn_output_norm.weight", .{L}, &nb), T.get(mctx, "blk.{d}.attn_output_norm.bias", .{L}, &nb2), eps);
+        // FFN
+        var ff = c.ggml_add(ctx, c.ggml_mul_mat(ctx, T.get(mctx, "blk.{d}.ffn_up.weight", .{L}, &nb), attn), T.get(mctx, "blk.{d}.ffn_up.bias", .{L}, &nb2)).?;
+        ff = c.ggml_gelu(ctx, ff).?;
+        ff = c.ggml_add(ctx, c.ggml_mul_mat(ctx, T.get(mctx, "blk.{d}.ffn_down.weight", .{L}, &nb), ff), T.get(mctx, "blk.{d}.ffn_down.bias", .{L}, &nb2)).?;
+        ff = c.ggml_add(ctx, ff, attn).?;
+        cur = layerNorm(ctx, ff, T.get(mctx, "blk.{d}.layer_output_norm.weight", .{L}, &nb), T.get(mctx, "blk.{d}.layer_output_norm.bias", .{L}, &nb2), eps);
+    }
+
+    // compute cur = [n_embd, n_tok]; mean-pool + L2-normalize in Zig (avoids
+    // ggml_mean/transpose/cont in the graph).
+    const graph = c.ggml_new_graph(ctx) orelse return 0;
+    c.ggml_build_forward_expand(graph, cur);
+    var plan = c.ggml_graph_plan(graph, 4, null);
+    var wbuf: ?[]u8 = null;
+    if (plan.work_size > 0) {
+        wbuf = gpa.alloc(u8, plan.work_size) catch return 0;
+        plan.work_data = wbuf.?.ptr;
+    }
+    defer if (wbuf) |w| gpa.free(w);
+    _ = c.ggml_graph_compute(graph, &plan);
+
+    // cur.data is contiguous [n_embd, n_tok]: element (e,t) at t*n_embd + e.
+    const cd: [*]const f32 = @ptrCast(@alignCast(cur.*.data));
+    g_emb.clearRetainingCapacity();
+    g_emb.ensureTotalCapacity(gpa, n_embd) catch return 0;
+    var norm: f32 = 0;
+    for (0..n_embd) |e| {
+        var s: f32 = 0;
+        for (0..n_tok) |t| s += cd[t * n_embd + e];
+        const m = s / @as(f32, @floatFromInt(n_tok));
+        g_emb.appendAssumeCapacity(m);
+        norm += m * m;
+    }
+    norm = @sqrt(norm);
+    if (norm == 0) norm = 1;
+    for (0..n_embd) |e| g_emb.items[e] /= norm;
+    return @intCast(n_embd);
+}
+
+pub export fn neural_embed_at(i: c_int) callconv(.c) f64 {
+    const idx: usize = @intCast(i);
+    if (idx >= g_emb.items.len) return 0;
+    return g_emb.items[idx];
 }
