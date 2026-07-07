@@ -2957,6 +2957,13 @@ fn ring_StringPosTagsList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// Named entities. Native list of "text\x01TYPE" strings (Ring splits on 0x01).
+fn ring_StringNamedEntitiesList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_named_entities(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
 // Sentiment (VADER). mode: 0=compound 1=pos 2=neg 3=neu.
 fn ring_StringSentiment(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
@@ -4019,6 +4026,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringwordssplitlist", .func = &ring_StringWordsSplitList },
     .{ .name = "stzenginestringstemwordslist", .func = &ring_StringStemWordsList },
     .{ .name = "stzenginestringpostagslist", .func = &ring_StringPosTagsList },
+    .{ .name = "stzenginestringnamedentitieslist", .func = &ring_StringNamedEntitiesList },
     .{ .name = "stzenginestringsentiment", .func = &ring_StringSentiment },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
     .{ .name = "stzenginestringlemmatizewordslist", .func = &ring_StringLemmatizeWordsList },

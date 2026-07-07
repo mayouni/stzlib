@@ -177,49 +177,64 @@ fn predict(ti: usize, word: []const u8, context: [][]const u8, prev: []const u8,
     return besti;
 }
 
+// Tag a list of word tokens; returns an allocated array of tag strings (static
+// slices into the embedded classes data). Caller frees the outer slice. Shared
+// by str_pos_tags and the NER layer.
+pub fn tagTokens(toks: [][]const u8) ?[][]const u8 {
+    buildTables();
+    const n = toks.len;
+    const tags = gpa.alloc([]const u8, n) catch return null;
+    if (n == 0) return tags;
+    const context = gpa.alloc([]const u8, n + 4) catch {
+        gpa.free(tags);
+        return null;
+    };
+    defer gpa.free(context);
+    const normbufs = gpa.alloc([64]u8, n) catch {
+        gpa.free(tags);
+        return null;
+    };
+    defer gpa.free(normbufs);
+    context[0] = START1;
+    context[1] = START2;
+    context[n + 2] = END1;
+    context[n + 3] = END2;
+    for (toks, 0..) |tok, idx| context[idx + 2] = normalize(tok, &normbufs[idx]);
+
+    var prev: []const u8 = START1;
+    var prev2: []const u8 = START2;
+    var idx: usize = 0;
+    while (idx < n) : (idx += 1) {
+        var tag: []const u8 = undefined;
+        if (g_tagdict.get(toks[idx])) |td| {
+            tag = td;
+        } else {
+            tag = g_classes.items[predict(idx, toks[idx], context, prev, prev2)];
+        }
+        tags[idx] = tag;
+        prev2 = prev;
+        prev = tag;
+    }
+    return tags;
+}
+
 // Tag every word token; return the tags NUL-delimited, aligned with WordIter/Words().
 pub fn str_pos_tags(handle: StzStringHandle) callconv(.c) StzStringHandle {
     const result = str_new() orelse return null;
     const s = handle orelse return result;
-    buildTables();
     const src = s.slice();
-
-    // collect word tokens (slices into src)
     var toks: std.ArrayList([]const u8) = .{};
     defer toks.deinit(gpa);
     {
         var wit = wb.WordIter.init(src);
         while (wit.next()) |sp| toks.append(gpa, src[sp.start..sp.end]) catch {};
     }
-    const n = toks.items.len;
-    if (n == 0) return result;
-
-    // normalized context with 2 START + 2 END padding
-    var context = gpa.alloc([]const u8, n + 4) catch return result;
-    defer gpa.free(context);
-    var normbufs = gpa.alloc([64]u8, n) catch return result;
-    defer gpa.free(normbufs);
-    context[0] = START1;
-    context[1] = START2;
-    context[n + 2] = END1;
-    context[n + 3] = END2;
-    for (toks.items, 0..) |tok, idx| context[idx + 2] = normalize(tok, &normbufs[idx]);
-
-    var prev: []const u8 = START1;
-    var prev2: []const u8 = START2;
-    var idx: usize = 0;
-    while (idx < n) : (idx += 1) {
-        if (idx > 0) result.data.append(gpa, 0) catch break;
-        var tag: []const u8 = undefined;
-        if (g_tagdict.get(toks.items[idx])) |td| {
-            tag = td;
-        } else {
-            const ti = predict(idx, toks.items[idx], context, prev, prev2);
-            tag = g_classes.items[ti];
-        }
-        result.data.appendSlice(gpa, tag) catch break;
-        prev2 = prev;
-        prev = tag;
+    if (toks.items.len == 0) return result;
+    const tags = tagTokens(toks.items) orelse return result;
+    defer gpa.free(tags);
+    for (tags, 0..) |t, i| {
+        if (i > 0) result.data.append(gpa, 0) catch break;
+        result.data.appendSlice(gpa, t) catch break;
     }
     return result;
 }

@@ -4460,6 +4460,45 @@ class stzString from stzObject
 		def WordsWithPOS()
 			return This.TaggedWords()
 
+	# --- Named-entity recognition (POS-driven, gazetteer + rules) ---
+	# NamedEntities() = [[text, type], ...] with type in PERSON / ORGANIZATION /
+	# LOCATION / ENTITY. PersonNames()/Organizations()/Locations() filter by type.
+	def NamedEntities()
+		_aNeRaw_ = StzEngineStringNamedEntitiesList(@pEngine)
+		_aNeOut_ = []
+		_nNeN_ = len(_aNeRaw_)
+		for _iNe_ = 1 to _nNeN_
+			_cNeItem_ = _aNeRaw_[_iNe_]
+			_nNeSep_ = substr(_cNeItem_, char(1))
+			if _nNeSep_ > 0
+				_aNeOut_ + [ left(_cNeItem_, _nNeSep_ - 1), substr(_cNeItem_, _nNeSep_ + 1) ]
+			ok
+		next
+		return _aNeOut_
+
+		def Entities()
+			return This.NamedEntities()
+
+	def EntitiesOfType(pcType)
+		_aEtAll_ = This.NamedEntities()
+		_aEtOut_ = []
+		_nEtN_ = len(_aEtAll_)
+		for _iEt_ = 1 to _nEtN_
+			if _aEtAll_[_iEt_][2] = pcType
+				_aEtOut_ + _aEtAll_[_iEt_][1]
+			ok
+		next
+		return _aEtOut_
+
+	def PersonNames()
+		return This.EntitiesOfType("PERSON")
+
+	def Organizations()
+		return This.EntitiesOfType("ORGANIZATION")
+
+	def Locations()
+		return This.EntitiesOfType("LOCATION")
+
 	# --- Search tokenization (CJK-friendly) ---
 	# Like Words() but CJK runs become OVERLAPPING CHARACTER BIGRAMS -- the
 	# dictionary-free CJK indexing baseline (cf. Lucene CJKBigramFilter), much
