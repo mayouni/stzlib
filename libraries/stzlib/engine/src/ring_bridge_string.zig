@@ -2950,6 +2950,24 @@ fn ring_StringStemWordsList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// Lemmatization (dictionary form). Lemmatized() = in place; LemmatizedWords() =
+// native list.
+fn ring_StringLemmatized(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const lang = ring_vm_api_getstring(p, 2);
+    const lang_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_lemmatize_text(h, lang, lang_len)), STZ_HANDLE);
+}
+
+fn ring_StringLemmatizeWordsList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const h = getHandle(p, 1);
+    const lang = ring_vm_api_getstring(p, 2);
+    const lang_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    emitNulList(out, string.str_lemmatize_words(h, lang, lang_len));
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_StringStemmed(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const lang = ring_vm_api_getstring(p, 2);
@@ -3986,6 +4004,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsearchtokenslist", .func = &ring_StringSearchTokensList },
     .{ .name = "stzenginestringwordssplitlist", .func = &ring_StringWordsSplitList },
     .{ .name = "stzenginestringstemwordslist", .func = &ring_StringStemWordsList },
+    .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
+    .{ .name = "stzenginestringlemmatizewordslist", .func = &ring_StringLemmatizeWordsList },
     .{ .name = "stzenginestringstemmed", .func = &ring_StringStemmed },
     .{ .name = "stzenginestringstemwords", .func = &ring_StringStemWords },
     .{ .name = "stzenginestringscanint", .func = &ring_StringScanInt },

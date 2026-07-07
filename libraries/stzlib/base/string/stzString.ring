@@ -4375,6 +4375,34 @@ class stzString from stzObject
 		def WordsStemmed()
 			return This.StemmedWords()
 
+	# --- Lemmatization (dictionary form) ---
+	# Reduce words to their DICTIONARY lemma ("was"->"be", "mice"->"mouse",
+	# "better"->"good") -- unlike stemming, handles irregulars and returns real
+	# words. Lemmatized() rewrites each word in place; LemmatizedWords() = list.
+	# English for now (dictionary-backed); unknown words are left unchanged.
+	def LemmatizedInLanguage(pcLang)
+		if NOT isString(pcLang) pcLang = "english" ok
+		_pLem_ = StzEngineStringLemmatized(@pEngine, pcLang)
+		_cLem_ = StzEngineStringData(_pLem_)
+		StzEngineStringFree(_pLem_)
+		return _cLem_
+
+	def Lemmatized()
+		return This.LemmatizedInLanguage("english")
+
+		def Lemma()
+			return This.Lemmatized()
+
+	def LemmatizedWordsInLanguage(pcLang)
+		if NOT isString(pcLang) pcLang = "english" ok
+		return StzEngineStringLemmatizeWordsList(@pEngine, pcLang)
+
+	def LemmatizedWords()
+		return This.LemmatizedWordsInLanguage("english")
+
+		def WordsLemmatized()
+			return This.LemmatizedWords()
+
 	# --- Search tokenization (CJK-friendly) ---
 	# Like Words() but CJK runs become OVERLAPPING CHARACTER BIGRAMS -- the
 	# dictionary-free CJK indexing baseline (cf. Lucene CJKBigramFilter), much

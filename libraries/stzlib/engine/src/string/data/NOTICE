@@ -1,0 +1,5 @@
+Lemmatization data (lemmatization-en.txt) vendored from:
+  michmech/lemmatization-lists  (https://github.com/michmech/lemmatization-lists)
+Derived from Wiktionary; provided under the Open Database License (ODbL).
+Format: one "lemma<TAB>inflected_form" pair per line, UTF-8, BOM stripped.
+Used by the Softanza engine lemmatizer (src/string/lemma.zig, @embedFile).
