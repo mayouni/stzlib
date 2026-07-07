@@ -32,6 +32,10 @@ committing it.
 | 5 | Sentence segmentation (UAX#29) | `NumberOfSentences` | corpus.txt (~50k capitalized sentences) |
 | 6 | CJK bigram tokenization | `WordsForSearch` | cjk.txt (~150k CJK chars) |
 | 7 | Stemming (Snowball English) | `Stemmed` | corpus.txt |
+| 8 | Lemmatization (dictionary) | `Lemmatized` | corpus.txt |
+| 9 | Sentiment (VADER) | `SentimentScore` | corpus.txt |
+| 10 | POS tagging (perceptron) | `POSTags` | corpus.txt (300k-byte slice) |
+| 11 | NER (POS + gazetteer) | `NamedEntities` | corpus.txt (300k-byte slice) |
 
 corpus.txt capitalizes each sentence's first word on purpose — UAX#29 SB8
 suppresses breaks before a lowercase word, so an all-lowercase corpus reads as
@@ -49,6 +53,16 @@ treat sub-15 ms numbers (e.g. cosine) as noise.
 | Sentences (UAX#29) | 337 ms | 28 ms | Softanza n=48072 (real UAX#29) vs regex n=50001 (naive) |
 | CJK bigrams | 237 ms | 19 ms | incl. 150k-item Ring list build |
 | Stemming 600k words | ~600–900 ms | — | C Snowball; no Python stdlib baseline |
+| Lemmatize 600k words | ~250 ms | — | dictionary lookup + rules |
+| Sentiment 2.7 MB | ~830 ms | — | VADER; linear |
+| POS tag ~66k words | ~280 ms | — | perceptron (incl. 1-time model build) |
+| NER ~66k words | ~110 ms | — | POS (warm) + gazetteer chunking |
+
+The linguistic-layer rows (lemma/sentiment/POS/NER) have no Python peer here (NLTK
+is pure Python; its Snowball stemmer + perceptron tagger run 10-50x slower than
+these C/Zig-with-embedded-model equivalents). All are linear -- no O(n^2) cliffs.
+POS/NER pay a one-time lazy build of the perceptron model into a hashmap on first
+call, then stay warm.
 
 Python's `Counter`/`re`/`str` are hand-tuned C, so it stays ahead in raw ms;
 Softanza is the only Ring-native option that is both Unicode-correct and free of
