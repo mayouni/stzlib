@@ -276,14 +276,22 @@ func StzQQ(p)
 
 		oParam = new stzString(p)
 
-		if oParam.IsNumberInString()
+		# QQ elevates a string to its most-specific STRING-FAMILY type. A single
+		# char is one -> stzChar, checked FIRST: "3" is a single char, so QQ("3")
+		# is stzChar (NOT stzNumber -- converting "3" the STRING to 3 the NUMBER is
+		# a coercion, StzN()/ToStzNumber()'s job, not a Q-elevation).
+		if oParam.IsChar() or oParam.IsHexUnicode()
+			return new stzChar(p)
+
+		# NOTE: these two still COERCE to non-string types (stzNumber / stzList),
+		# which strictly should be stzNumberInString / stzListInString -- but those
+		# classes don't exist yet. Kept as-is (option 1) until they land; then a
+		# multi-char "19" -> stzNumberInString, "[1,2,3]" -> stzListInString.
+		but oParam.IsNumberInString()
 			return new stzNumber(p)
 
 		but oParam.IsListInString()
 			return new stzList(StzL(p))
-
-		but oParam.IsChar() or oParam.IsHexUnicode()
-			return new stzChar(p)
 
 		but StzIsDate(p)
 			return new stzDate(p)
