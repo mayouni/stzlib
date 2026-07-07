@@ -966,7 +966,7 @@ class stzStringList
 	# Fragments whose sentiment label matches "positive"/"negative"/"neutral".
 	def ThatAre(pcPolarity)
 		if NOT isString(pcPolarity) return [] ok
-		_cTaWant_ = lower(pcPolarity)
+		_cTaWant_ = StzLower(pcPolarity)
 		_aTaOut_ = []
 		_nTaN_ = len(@acContent)
 		for _iTa_ = 1 to _nTaN_
