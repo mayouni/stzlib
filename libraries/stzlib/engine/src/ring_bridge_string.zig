@@ -2950,6 +2950,13 @@ fn ring_StringStemWordsList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// POS tagging (averaged perceptron). Native list of Penn tags, aligned with Words().
+fn ring_StringPosTagsList(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    emitNulList(out, string.str_pos_tags(getHandle(p, 1)));
+    R.ring_vm_api_retlist(p, out);
+}
+
 // Sentiment (VADER). mode: 0=compound 1=pos 2=neg 3=neu.
 fn ring_StringSentiment(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
@@ -4011,6 +4018,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsearchtokenslist", .func = &ring_StringSearchTokensList },
     .{ .name = "stzenginestringwordssplitlist", .func = &ring_StringWordsSplitList },
     .{ .name = "stzenginestringstemwordslist", .func = &ring_StringStemWordsList },
+    .{ .name = "stzenginestringpostagslist", .func = &ring_StringPosTagsList },
     .{ .name = "stzenginestringsentiment", .func = &ring_StringSentiment },
     .{ .name = "stzenginestringlemmatized", .func = &ring_StringLemmatized },
     .{ .name = "stzenginestringlemmatizewordslist", .func = &ring_StringLemmatizeWordsList },

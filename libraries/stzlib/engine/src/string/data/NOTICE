@@ -8,3 +8,8 @@ vader_lexicon.txt (token<TAB>mean_valence, trimmed): from
   cjhutto/vaderSentiment (https://github.com/cjhutto/vaderSentiment), MIT License.
   Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for
   Sentiment Analysis of Social Media Text. ICWSM-14.
+
+pos_classes.txt / pos_tagdict.txt / pos_weights.txt: exported (compacted to
+tag-index:weight) from NLTK's averaged_perceptron_tagger model
+(https://github.com/nltk/nltk_data, Apache License 2.0), the averaged-perceptron
+POS tagger by Matthew Honnibal. Penn Treebank tagset.

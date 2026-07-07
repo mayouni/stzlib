@@ -4438,6 +4438,28 @@ class stzString from stzObject
 	def IsNegative()
 		return This.SentimentScore() <= -0.05
 
+	# --- Part-of-speech tagging (averaged perceptron, Penn Treebank tags) ---
+	# POSTags() = list of tags aligned with Words(); TaggedWords() = [[word,tag],...]
+	def POSTags()
+		return StzEngineStringPosTagsList(@pEngine)
+
+		def PartOfSpeechTags()
+			return This.POSTags()
+
+	def TaggedWords()
+		_aTwWords_ = This.Words()
+		_aTwTags_  = This.POSTags()
+		_aTwOut_ = []
+		_nTwN_ = len(_aTwWords_)
+		if len(_aTwTags_) < _nTwN_ _nTwN_ = len(_aTwTags_) ok
+		for _iTw_ = 1 to _nTwN_
+			_aTwOut_ + [ _aTwWords_[_iTw_], _aTwTags_[_iTw_] ]
+		next
+		return _aTwOut_
+
+		def WordsWithPOS()
+			return This.TaggedWords()
+
 	# --- Search tokenization (CJK-friendly) ---
 	# Like Words() but CJK runs become OVERLAPPING CHARACTER BIGRAMS -- the
 	# dictionary-free CJK indexing baseline (cf. Lucene CJKBigramFilter), much
