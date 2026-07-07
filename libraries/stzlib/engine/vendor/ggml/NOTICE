@@ -1,0 +1,8 @@
+ggml -- tensor library for machine learning (https://github.com/ggml-org/ggml)
+Copyright (c) 2023-2024 The ggml authors. MIT License.
+
+Vendored into Softanza as the modern/neural NLP tier's inference core. Pruned to
+CPU-only: GPU backends (CUDA/Vulkan/Metal/SYCL/etc.) and non-x86 arch dirs
+(arm/riscv/powerpc/s390/loongarch/wasm) removed. Compiled from source via Zig's
+clang (no cmake) -- see engine/build.zig addGgml(). GGML_VERSION/GGML_COMMIT
+(normally injected by cmake) are defined as "0.0.0-stz" at build time.
