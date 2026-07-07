@@ -26,3 +26,8 @@ stopwords_en.txt: the standard English stopword list (common public-domain set,
 as used by NLTK et al.).
 
 lemmatization-fr.txt: French, same michmech/lemmatization-lists source (ODbL).
+
+lemmatization-ar.txt: Arabic form->lemma pairs extracted from the Universal
+Dependencies Arabic-PADT treebank (CC BY-SA 3.0/4.0), diacritics stripped for
+robust matching. Treebank-coverage (~25k forms), complemented by the Snowball
+Arabic stemmer for OOV words.
