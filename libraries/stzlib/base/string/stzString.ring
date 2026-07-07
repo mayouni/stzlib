@@ -4772,8 +4772,8 @@ class stzString from stzObject
 			_nSpWords_ = len(_aSpWords_)
 			_nSpChars_ = 0
 			for _iSp_ = 1 to _nSpWords_
-				_oSpW_ = new stzString(_aSpWords_[_iSp_])
-				_nSpChars_ += _oSpW_.NumberOfChars()
+				# StzLen = engine codepoint count, no per-word object allocation
+				_nSpChars_ += StzLen(_aSpWords_[_iSp_])
 			next
 			_nSpAvgLen_ = 0
 			if _nSpWords_ > 0 _nSpAvgLen_ = _nSpChars_ / _nSpWords_ ok
