@@ -99,10 +99,14 @@ const textstats = @import("string/textstats.zig");
 const fuzzy = @import("string/fuzzy.zig");
 const phonetics = @import("string/phonetics.zig");
 const stem = @import("string/stem.zig");
+const lemma = @import("string/lemma.zig");
 
 pub const str_stem_word = stem.str_stem_word;
 pub const str_stem_words = stem.str_stem_words;
 pub const str_stem_text = stem.str_stem_text;
+pub const str_lemmatize_word = lemma.str_lemmatize_word;
+pub const str_lemmatize_words = lemma.str_lemmatize_words;
+pub const str_lemmatize_text = lemma.str_lemmatize_text;
 
 pub const str_levenshtein = fuzzy.str_levenshtein;
 pub const str_hamming_distance = fuzzy.str_hamming_distance;
@@ -610,6 +614,7 @@ test {
     _ = fuzzy;
     _ = phonetics;
     _ = stem;
+    _ = lemma;
     _ = split;
     _ = find;
     _ = replace;
