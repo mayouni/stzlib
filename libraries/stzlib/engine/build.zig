@@ -11,6 +11,7 @@ const Domain = struct {
     needs_sqlite: bool = false,
     needs_libuv: bool = false,
     needs_libcurl: bool = false,
+    needs_ggml: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -96,6 +97,8 @@ const base_domains = [_]Domain{
     .{ .name = "stz_intseq", .entry = "src/stz_intseq_entry.zig", .needs_ring = true },
     .{ .name = "stz_relations", .entry = "src/stz_relations_entry.zig", .needs_ring = true },
     .{ .name = "stz_statemachine", .entry = "src/stz_statemachine_entry.zig", .needs_ring = true },
+    // Modern/neural tier: vendored ggml (CPU-only) for runtime GGUF inference.
+    .{ .name = "stz_neural", .entry = "src/stz_neural_entry.zig", .needs_ring = true, .needs_ggml = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -141,6 +144,68 @@ fn addSnowball(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Bui
             "vendor/snowball/src_c/stem_UTF_8_turkish.c",
         },
     });
+}
+
+// Vendored ggml (CPU-only) -- the modern/neural inference core. Compiled from
+// source like utf8proc/pcre2/snowball; GPU backends pruned. GGML_VERSION/COMMIT
+// are normally injected by CMake, so we define them. C and C++ are split (C++
+// needs c++17 + libc++).
+fn addGgml(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    const g = "vendor/ggml";
+    mod.addIncludePath(b.path(g ++ "/include"));
+    mod.addIncludePath(b.path(g ++ "/src"));
+    mod.addIncludePath(b.path(g ++ "/src/ggml-cpu"));
+    mod.addIncludePath(b.path(g ++ "/src/ggml-cpu/arch/x86"));
+
+    const cflags = &[_][]const u8{
+        "-DGGML_VERSION=\"0.0.0-stz\"",
+        "-DGGML_COMMIT=\"stz\"",
+        "-DGGML_USE_CPU",
+        "-DGGML_SCHED_MAX_COPIES=4",
+        "-DNDEBUG",
+    };
+    lib.addCSourceFiles(.{
+        .files = &.{
+            g ++ "/src/ggml.c",
+            g ++ "/src/ggml-alloc.c",
+            g ++ "/src/ggml-quants.c",
+            g ++ "/src/ggml-cpu/ggml-cpu.c",
+            g ++ "/src/ggml-cpu/quants.c",
+            g ++ "/src/ggml-cpu/arch/x86/quants.c",
+        },
+        .flags = cflags,
+    });
+
+    const cxxflags = &[_][]const u8{
+        "-DGGML_VERSION=\"0.0.0-stz\"",
+        "-DGGML_COMMIT=\"stz\"",
+        "-DGGML_USE_CPU",
+        "-DGGML_SCHED_MAX_COPIES=4",
+        "-DNDEBUG",
+        "-std=c++17",
+    };
+    lib.addCSourceFiles(.{
+        .files = &.{
+            g ++ "/src/ggml.cpp",
+            g ++ "/src/ggml-threading.cpp",
+            g ++ "/src/ggml-backend.cpp",
+            g ++ "/src/ggml-backend-reg.cpp",
+            g ++ "/src/ggml-backend-meta.cpp",
+            g ++ "/src/ggml-backend-dl.cpp",
+            g ++ "/src/gguf.cpp",
+            g ++ "/src/ggml-cpu/ggml-cpu.cpp",
+            g ++ "/src/ggml-cpu/ops.cpp",
+            g ++ "/src/ggml-cpu/vec.cpp",
+            g ++ "/src/ggml-cpu/binary-ops.cpp",
+            g ++ "/src/ggml-cpu/unary-ops.cpp",
+            g ++ "/src/ggml-cpu/traits.cpp",
+            g ++ "/src/ggml-cpu/repack.cpp",
+            g ++ "/src/ggml-cpu/arch/x86/cpu-feats.cpp",
+            g ++ "/src/ggml-cpu/arch/x86/repack.cpp",
+        },
+        .flags = cxxflags,
+    });
+    lib.linkLibCpp();
 }
 
 fn addPcre2(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -567,6 +632,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_sqlite) addSqlite(mod, lib, b);
         if (dom.needs_libuv) addLibuv(mod, lib, b, target.result.os.tag);
         if (dom.needs_libcurl) addLibcurl(mod, lib, b, target.result.os.tag);
+        if (dom.needs_ggml) addGgml(mod, lib, b);
         b.installArtifact(lib);
     }
 
