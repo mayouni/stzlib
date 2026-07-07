@@ -4334,10 +4334,9 @@ class stzString from stzObject
 	#============================================#
 
 	def Words()
-		_pWdResult_ = StzEngineStringWordsSplit(@pEngine)
-		_cWdJoined_ = StzEngineStringData(_pWdResult_)
-		StzEngineStringFree(_pWdResult_)
-		return _SplitNullDelimited(_cWdJoined_)
+		# Bulk native-list bridge (O(n)); the _SplitNullDelimited byte-walk was
+		# O(n^2) at large token counts.
+		return StzEngineStringWordsSplitList(@pEngine)
 
 	def NumberOfWords()
 		return StzEngineStringCountWords(@pEngine)
@@ -4368,10 +4367,7 @@ class stzString from stzObject
 
 	def StemmedWordsInLanguage(pcLang)
 		if NOT isString(pcLang) pcLang = "english" ok
-		_pStemW_ = StzEngineStringStemWords(@pEngine, pcLang)
-		_cStemJoined_ = StzEngineStringData(_pStemW_)
-		StzEngineStringFree(_pStemW_)
-		return _SplitNullDelimited(_cStemJoined_)
+		return StzEngineStringStemWordsList(@pEngine, pcLang)
 
 	def StemmedWords()
 		return This.StemmedWordsInLanguage("english")
@@ -4385,10 +4381,8 @@ class stzString from stzObject
 	# better recall than per-character for CJK search/matching. Non-CJK words are
 	# unchanged. (True dictionary word segmentation would be a future ICU step.)
 	def WordsForSearch()
-		_pSrch_ = StzEngineStringSearchTokens(@pEngine)
-		_cSrchJoined_ = StzEngineStringData(_pSrch_)
-		StzEngineStringFree(_pSrch_)
-		return _SplitNullDelimited(_cSrchJoined_)
+		# Bulk native-list bridge (O(n)); _SplitNullDelimited was O(n^2).
+		return StzEngineStringSearchTokensList(@pEngine)
 
 		def SearchTokens()
 			return This.WordsForSearch()
