@@ -5,19 +5,27 @@ adamstown
 addis ababa
 afghan
 afghanistan
+africa
+alabama
 aland island
 aland islands
+alaska
 albania
-albanian 
+albanian
+alberta
 algeria
 algerian
 algiers
 alofi
+alps
+amazon
+america
 american
 american samoa
 american samoan
 amman
 amsterdam
+andalusia
 andorra
 andorra la vella
 andorran
@@ -34,11 +42,14 @@ antiguan or barbudan
 apia
 argentina
 argentine
+arizona
+arkansas
 armenia
 armenian
 aruba
 aruban
 ashgabat
+asia
 asmara
 astana
 asunción
@@ -56,6 +67,7 @@ bahamian
 bahrain
 bahraini
 baku
+balkans
 bamako
 bandar seri begawan
 bangkok
@@ -70,6 +82,7 @@ barthelemois
 basotho
 basse-terre
 basseterre
+bavaria
 beijing
 beirut
 belarus
@@ -80,6 +93,7 @@ belgrade
 belize
 belizean
 belmopan
+bengal
 benin
 beninese, beninois
 berlin
@@ -129,6 +143,7 @@ burundi
 burundian
 cairo
 calgary
+california
 cambodia
 cambodian
 cameroon
@@ -139,8 +154,10 @@ canberra
 cape town
 cape verde
 caracas
+caribbean
 casablanca
 castries
+catalonia
 cayenne
 cayman islands
 caymanian
@@ -165,11 +182,13 @@ cocos island
 colombia
 colombian
 colombo
+colorado
 comoran, comorian
 comoros
 conakry
 congo
 congolese
+connecticut
 cook island
 cook islands
 copenhagen
@@ -189,6 +208,7 @@ dakar
 dallas
 damascus
 danish
+delaware
 delhi
 democratic republic of the congo
 denmark
@@ -217,6 +237,7 @@ egyptian
 el salvador
 el-aaiun
 emirati, emirian, emiri
+england
 equatorial guinea
 equatorial guinean, equatoguinean
 eritrea
@@ -226,6 +247,7 @@ estonian
 eswatini
 ethiopia
 ethiopian
+europe
 falkland island
 falkland islands
 faroe islands
@@ -234,6 +256,7 @@ fiji islands
 fijian
 finland
 finnish
+florida
 flying fish cove
 fort-de-france
 france
@@ -277,6 +300,7 @@ guernsey
 guinea
 guinea-bissau
 guinean
+gujarat
 gustavia
 guyana
 guyanese
@@ -288,9 +312,11 @@ hamilton
 hanoi
 harare
 havana
+hawaii
 heard island and mcdonald islands
 heard island or mcdonald islands
 helsinki
+himalayas
 honduran
 honduras
 hong kong
@@ -303,10 +329,14 @@ hungary
 i-kiribati
 iceland
 icelandic
+idaho
+illinois
 india
 indian
+indiana
 indonesia
 indonesian
+iowa
 iran
 iranian, persian
 iraq
@@ -335,12 +365,15 @@ jordanian
 juba
 kabul
 kampala
+kansas
 karachi
 kathmandu
 kazakhstan
 kazakhstani, kazakh
+kentucky
 kenya
 kenyan
+kerala
 khartoum
 kigali
 kingston
@@ -385,6 +418,7 @@ lome
 london
 longyearbyen
 los angeles
+louisiana
 luanda
 lusaka
 luxembourg
@@ -396,6 +430,7 @@ macedonian
 madagascar
 madrid
 mahoran
+maine
 majuro
 malabo
 malagasy
@@ -416,6 +451,7 @@ managua
 manama
 manchester
 manila
+manitoba
 manx
 maputo
 mariehamn
@@ -424,7 +460,9 @@ marshall islands
 marshallese
 martiniquais, martinican
 martinique
+maryland
 maseru
+massachusetts
 mata utu
 mauritania
 mauritanian
@@ -437,10 +475,15 @@ melekeok
 mexican
 mexico
 miami
+michigan
 micronesia
 micronesian
+middle east
 milan
+minnesota
 minsk
+mississippi
+missouri
 mogadishu
 moldova
 moldovan
@@ -449,6 +492,7 @@ monegasque, monacan
 mongolia
 mongolian
 monrovia
+montana
 montenegrin
 montenegro
 montevideo
@@ -475,12 +519,17 @@ nassau
 nauru
 nauruan
 nay pyi taw
+nebraska
 nepal
 nepali, nepalese
 netherlands
+nevada
 new caledonia
 new caledonian
 new delhi
+new hampshire
+new jersey
+new mexico
 new orleans
 new york
 new zealand
@@ -497,6 +546,9 @@ nigerien
 niue
 niuean
 norfolk island
+normandy
+north carolina
+north dakota
 north korea
 north korean
 north macedonia
@@ -508,9 +560,14 @@ nouakchott
 noumea
 nuku'alofa
 nuuk
+oceania
+ohio
+oklahoma
 oman
 omani
+ontario
 oranjestad
+oregon
 osaka
 oslo
 ottawa
@@ -533,6 +590,7 @@ paraguay
 paraguayan
 paramaribo
 paris
+pennsylvania
 peru
 peruvian
 philadelphia
@@ -558,16 +616,21 @@ prague
 praia
 pretoria
 pristina
+provence
 puerto rican
 puerto rico
+punjab
 pyongyang
 qatar
 qatari
+quebec
+queensland
 quito
 rabat
 reunion
 reunionese, reunionnais
 reykjavik
+rhode island
 riga
 rio de janeiro
 riyadh
@@ -580,6 +643,7 @@ russia
 russian
 rwanda
 rwandan
+sahara
 sahrawi, sahrawian, sahraouian
 saint helena
 saint helenian
@@ -616,8 +680,11 @@ sao tome
 sao tome and principe
 sao tomean
 sarajevo
+saskatchewan
 saudi arabia
 saudi, saudi arabian
+scandinavia
+scotland
 seattle
 senegal
 senegalese
@@ -646,6 +713,8 @@ somali, somalian
 somalia
 south africa
 south african
+south carolina
+south dakota
 south georgia
 south georgia or south sandwich islands
 south korea
@@ -686,10 +755,13 @@ tanzania
 tanzanian
 tarawa
 tashkent
+tasmania
 tbilisi
 tegucigalpa
 tehran
 tel aviv
+tennessee
+texas
 thai
 thailand
 the bahamas
@@ -720,6 +792,7 @@ turkmen
 turkmenistan
 turks and caicos island
 turks and caicos islands
+tuscany
 tuvalu
 tuvaluan
 u.s. virgin island
@@ -734,6 +807,7 @@ united states
 united states minor outlying islands
 uruguay
 uruguayan
+utah
 uzbekistan
 uzbekistani, uzbek
 vaduz
@@ -746,6 +820,7 @@ vatican city state (holy see)
 venezuela
 venezuelan
 verdean
+vermont
 victoria
 vienna
 vientiane
@@ -754,15 +829,20 @@ vietnamese
 vilnius
 virgin islands (british)
 virgin islands (us)
+virginia
+wales
 wallis and futuna islands
 wallis and futuna, wallisian or futunan
 warsaw
 washington
 wellington
 west island
+west virginia
 western sahara
 willemstad
 windhoek
+wisconsin
+wyoming
 yamoussoukro
 yaounde
 yaren
