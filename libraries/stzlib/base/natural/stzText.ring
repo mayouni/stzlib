@@ -352,6 +352,12 @@ class stzText from stzStringText
 			return new stzListOfStrings(This.RankedKeywords(n))
 
 	def SummarySentences(n)
+		# When a neural model is loaded, rank sentences by EMBEDDING similarity
+		# (TextRank over a cosine graph) -- semantically stronger than the engine's
+		# word-overlap TextRank. Else fall back to the engine.
+		if This.HasSemanticModel()
+			return This._EmbeddingSummarySentences(n)
+		ok
 		return StzEngineStringSummarizeList(This.Engine(), n)
 
 		# Q-ladder: Q -> basic stzList; QQ -> stzListOfTexts (summary SENTENCES
@@ -361,6 +367,93 @@ class stzText from stzStringText
 
 		def SummarySentencesQQ(n)
 			return new stzListOfTexts(This.SummarySentences(n))
+
+	# Embedding-based extractive summary: embed each sentence, build a cosine
+	# similarity graph, rank by TextRank (PageRank), return the top-n sentences in
+	# ORIGINAL document order.
+	def _EmbeddingSummarySentences(n)
+		_aSsAll_ = This.Sentences()
+		_nSsN_ = len(_aSsAll_)
+		if _nSsN_ = 0 return [] ok
+		if n <= 0 n = 1 ok
+		if n >= _nSsN_ return _aSsAll_ ok
+
+		_aSsEmb_ = []
+		for _iSs_ = 1 to _nSsN_
+			_oSsT_ = new stzText(_aSsAll_[_iSs_])
+			_aSsEmb_ + _oSsT_.Embedding()
+		next
+
+		_aSsScore_ = This._TextRankScores(_aSsEmb_)
+		_aSsIdx_ = This._TopNIndices(_aSsScore_, n)
+
+		_aSsOut_ = []
+		for _iSs_ = 1 to _nSsN_
+			if StzContains(_aSsIdx_, _iSs_)
+				_aSsOut_ + _aSsAll_[_iSs_]
+			ok
+		next
+		return _aSsOut_
+
+	# PageRank (damping 0.85, 40 iters) over the sentence cosine graph. Vectors
+	# are L2-normalized so cosine = dot; negative cosines clamp to 0.
+	def _TextRankScores(paEmb)
+		_nTrN_ = len(paEmb)
+		if _nTrN_ = 0 return [] ok
+
+		_aTrW_ = []
+		_aTrRowSum_ = []
+		for _iTr_ = 1 to _nTrN_
+			_aTrRow_ = []
+			_nTrSum_ = 0
+			for _jTr_ = 1 to _nTrN_
+				if _iTr_ = _jTr_
+					_aTrRow_ + 0
+				else
+					_nTrC_ = This._EmbeddingDot(paEmb[_iTr_], paEmb[_jTr_])
+					if _nTrC_ < 0 _nTrC_ = 0 ok
+					_aTrRow_ + _nTrC_
+					_nTrSum_ += _nTrC_
+				ok
+			next
+			_aTrW_ + _aTrRow_
+			_aTrRowSum_ + _nTrSum_
+		next
+
+		_nTrD_ = 0.85
+		_aTrScore_ = []
+		for _iTr_ = 1 to _nTrN_ _aTrScore_ + (1.0 / _nTrN_) next
+		for _kTr_ = 1 to 40
+			_aTrNew_ = []
+			for _iTr_ = 1 to _nTrN_
+				_nTrAcc_ = 0
+				for _jTr_ = 1 to _nTrN_
+					if _jTr_ != _iTr_ and _aTrRowSum_[_jTr_] > 0
+						_nTrAcc_ += ( _aTrW_[_jTr_][_iTr_] / _aTrRowSum_[_jTr_] ) * _aTrScore_[_jTr_]
+					ok
+				next
+				_aTrNew_ + ( (1 - _nTrD_) / _nTrN_ + _nTrD_ * _nTrAcc_ )
+			next
+			_aTrScore_ = _aTrNew_
+		next
+		return _aTrScore_
+
+	# Indices (1-based) of the n highest scores; ties broken by earlier index.
+	def _TopNIndices(paScore, n)
+		_nTnN_ = len(paScore)
+		_aTnChosen_ = []
+		for _cTn_ = 1 to n
+			_nTnBest_ = -1
+			_nTnBestIx_ = 0
+			for _iTn_ = 1 to _nTnN_
+				if NOT StzContains(_aTnChosen_, _iTn_) and paScore[_iTn_] > _nTnBest_
+					_nTnBest_ = paScore[_iTn_]
+					_nTnBestIx_ = _iTn_
+				ok
+			next
+			if _nTnBestIx_ > 0 _aTnChosen_ + _nTnBestIx_ ok
+		next
+		return _aTnChosen_
 
 	def SummarizedIn(n)
 		_oSmz_ = new stzListOfStrings(This.SummarySentences(n))
