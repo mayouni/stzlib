@@ -4380,6 +4380,42 @@ class stzString from stzObject
 		def WordsStemmed()
 			return This.StemmedWords()
 
+	# The Snowball stemmer languages available to StemmedInLanguage() (25), and
+	# the dictionary-lemma languages available to LemmatizedInLanguage().
+	def SupportedStemmerLanguages()
+		return [ "english", "arabic", "basque", "catalan", "danish",
+			"dutch", "finnish", "french", "german", "greek", "hindi",
+			"hungarian", "indonesian", "irish", "italian", "lithuanian",
+			"nepali", "norwegian", "portuguese", "romanian", "russian",
+			"spanish", "swedish", "tamil", "turkish" ]
+
+	def SupportedLemmaLanguages()
+		return [ "english", "french", "arabic" ]
+
+	# --- WordNet lexical semantics (synonyms + hypernyms) ---
+	# Synonyms() = words sharing a sense (thesaurus / query expansion); Hypernyms()
+	# = the "is-a" parents ("car" -> "motor vehicle"). Merged across parts of
+	# speech from Princeton WordNet 3.1. Look up a single word (multiword lemmas
+	# use spaces, e.g. "cable car").
+	def Synonyms()
+		return StzEngineStringSynonymsList(@pEngine)
+
+		def SynonymsQ()
+			return new stzListOfStrings(This.Synonyms())
+
+	def Hypernyms()
+		return StzEngineStringHypernymsList(@pEngine)
+
+		def HypernymsQ()
+			return new stzListOfStrings(This.Hypernyms())
+
+	def IsSynonymOf(pcOther)
+		if NOT isString(pcOther) return FALSE ok
+		return StzEngineStringAreSynonyms(@pEngine, pcOther) = 1
+
+	def HasSynonyms()
+		return len(This.Synonyms()) > 0
+
 	# --- Lemmatization (dictionary form) ---
 	# Reduce words to their DICTIONARY lemma ("was"->"be", "mice"->"mouse",
 	# "better"->"good") -- unlike stemming, handles irregulars and returns real

@@ -31,3 +31,10 @@ lemmatization-ar.txt: Arabic form->lemma pairs extracted from the Universal
 Dependencies Arabic-PADT treebank (CC BY-SA 3.0/4.0), diacritics stripped for
 robust matching. Treebank-coverage (~25k forms), complemented by the Snowball
 Arabic stemmer for OOV words.
+
+-------------------------------------------------------------------------------
+wordnet.txt -- Princeton WordNet 3.1 (WordNet License, BSD-like/permissive).
+  Copyright 2011 Princeton University. https://wordnet.princeton.edu/
+  Compacted for Softanza: glosses/examples dropped; only synonyms (synset-mates)
+  and hypernyms (@ / @i pointers) kept, merged across parts of speech. ~140k
+  words, ~9MB (vs ~30MB full DB). Backs Synonyms()/Hypernyms()/IsSynonymOf().

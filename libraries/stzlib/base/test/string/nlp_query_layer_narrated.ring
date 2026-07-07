@@ -121,6 +121,22 @@ Scenario("TextRank: graph-centrality keywords + extractive summary")
 		"Machine learning models power modern natural language processing. Deep learning has transformed natural language processing research.")
 EndScenario()
 
+Scenario("WordNet synonyms + hypernyms + language support")
+	oh = new stzString("happy")
+	Then("synonyms of 'happy'",
+		@@(oh.Synonyms()), @@([ "felicitous", "glad", "well-chosen" ]))
+	oc = new stzString("car")
+	Then("'car' is a synonym of 'automobile'",
+		oc.IsSynonymOf("automobile"), TRUE)
+	Then("'car' hypernyms include 'motor vehicle' (is-a parent)",
+		StzContains(oc.Hypernyms(), "motor vehicle"), 1)
+	ox = new stzString("xyzzy")
+	Then("unknown word -> no synonyms",
+		len(ox.Synonyms()), 0)
+	Then("25 Snowball stemmer languages are exposed",
+		len(oc.SupportedStemmerLanguages()), 25)
+EndScenario()
+
 Scenario("Concordance / keyword in context")
 	o1 = new stzString("a red car and a blue car and a green car")
 	ak = o1.InContextWithWindow("car", 2)
