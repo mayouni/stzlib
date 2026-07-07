@@ -35,6 +35,16 @@ fn lowerAscii(w: []const u8, buf: []u8) []const u8 {
     return buf[0..w.len];
 }
 
+// Public helpers so sibling modules (textrank) can reuse the stopword set +
+// ascii-lowercasing without duplicating the embedded list.
+pub fn isStopwordLower(lower_key: []const u8) bool {
+    buildSw();
+    return g_stopwords.contains(lower_key);
+}
+pub fn lowerAsciiInto(w: []const u8, buf: []u8) []const u8 {
+    return lowerAscii(w, buf);
+}
+
 // Non-stopword ("content") word tokens, NUL-delimited (original case kept).
 pub fn str_content_words(handle: StzStringHandle) callconv(.c) StzStringHandle {
     const result = str_new() orelse return null;
