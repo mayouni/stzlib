@@ -60,6 +60,7 @@ pub export fn neural_model_free() callconv(.c) void {
     clearNer();
     g_ner_texts.clearAndFree(gpa);
     g_ner_types.clearAndFree(gpa);
+    g_seg.clearAndFree(gpa);
 }
 
 pub export fn neural_model_loaded() callconv(.c) c_int {
@@ -364,19 +365,49 @@ fn getT(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, b: []u8) *
     const s = std.fmt.bufPrintZ(b, fmt, args) catch unreachable;
     return c.ggml_get_tensor(m, s.ptr).?;
 }
+// Optional variant: null if the tensor is absent (for architecture branches).
+fn getTOpt(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, b: []u8) ?*c.ggml_tensor {
+    const s = std.fmt.bufPrintZ(b, fmt, args) catch unreachable;
+    return c.ggml_get_tensor(m, s.ptr);
+}
 
-// Build the BERT backbone graph in `ctx` (embeddings + N transformer layers) and
-// return the final per-token hidden states `cur` [n_embd, n_tok]. The inputs
-// (tokens/positions/types) are already created + filled by the caller. Shared by
-// the sentence-embedding path AND the NER (token-classification) path.
+// Build the transformer backbone in `ctx` and return the final per-token hidden
+// states `cur` [n_embd, n_tok]. AUTO-ADAPTS across architectures:
+//   - learned position embeddings (BERT/MiniLM/RoBERTa) vs NONE + ALiBi in the
+//     softmax (jina-bert-v2);
+//   - standard FFN (up->gelu->down) vs GEGLU (gelu(gate)*up -> down, no up/gate
+//     bias, jina-bert-v2).
+// Shared by embeddings, NER, and the cross-encoder reranker.
 fn buildBackbone(ctx: ?*c.ggml_context, mctx: ?*c.ggml_context, tokens: *c.ggml_tensor, positions: *c.ggml_tensor, types: *c.ggml_tensor, n_tok: usize, n_embd: usize, n_head: usize, n_layer: usize, head_dim: usize, eps: f32) *c.ggml_tensor {
     var nb: [64]u8 = undefined;
     var nb2: [64]u8 = undefined;
 
+    const pos_w = getTOpt(mctx, "position_embd.weight", .{}, &nb);
+    const has_gate = getTOpt(mctx, "blk.0.ffn_gate.weight", .{}, &nb) != null;
+    // No learned positions -> ALiBi (jina-bert-v2). max_bias 8.0 is the standard.
+    const max_bias: f32 = if (pos_w == null) 8.0 else 0.0;
+    const scale: f32 = 1.0 / @sqrt(@as(f32, @floatFromInt(head_dim)));
+
+    // ALiBi mask: soft_max_ext applies `slope_h * mask[q][k]` per head, so the
+    // mask carries the symmetric distances -|q-k| (bidirectional encoder ALiBi).
+    // Required (non-null) whenever max_bias>0.
+    var alibi_mask: ?*c.ggml_tensor = null;
+    if (max_bias > 0.0) {
+        const m = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(n_tok), @intCast(n_tok)).?;
+        const md: [*]f32 = @ptrCast(@alignCast(m.*.data));
+        for (0..n_tok) |q| {
+            for (0..n_tok) |k| {
+                const dist = if (q > k) q - k else k - q;
+                md[q * n_tok + k] = -@as(f32, @floatFromInt(dist));
+            }
+        }
+        alibi_mask = m;
+    }
+
     // embeddings + LayerNorm
     var cur = c.ggml_get_rows(ctx, getT(mctx, "token_embd.weight", .{}, &nb), tokens).?;
     cur = c.ggml_add(ctx, cur, c.ggml_get_rows(ctx, getT(mctx, "token_types.weight", .{}, &nb), types)).?;
-    cur = c.ggml_add(ctx, cur, c.ggml_get_rows(ctx, getT(mctx, "position_embd.weight", .{}, &nb), positions)).?;
+    if (pos_w) |pw| cur = c.ggml_add(ctx, cur, c.ggml_get_rows(ctx, pw, positions)).?;
     cur = layerNorm(ctx, cur, getT(mctx, "token_embd_norm.weight", .{}, &nb), getT(mctx, "token_embd_norm.bias", .{}, &nb), eps);
 
     for (0..n_layer) |L| {
@@ -388,17 +419,27 @@ fn buildBackbone(ctx: ?*c.ggml_context, mctx: ?*c.ggml_context, tokens: *c.ggml_
         K = c.ggml_cont(ctx, c.ggml_permute(ctx, c.ggml_reshape_3d(ctx, K, @intCast(head_dim), @intCast(n_head), @intCast(n_tok)), 0, 2, 1, 3)).?;
         V = c.ggml_cont(ctx, c.ggml_permute(ctx, c.ggml_reshape_3d(ctx, V, @intCast(head_dim), @intCast(n_head), @intCast(n_tok)), 1, 2, 0, 3)).?;
         var KQ = c.ggml_mul_mat(ctx, K, Q).?;
-        KQ = c.ggml_scale(ctx, KQ, 1.0 / @sqrt(@as(f32, @floatFromInt(head_dim)))).?;
-        KQ = c.ggml_soft_max(ctx, KQ).?;
+        // soft_max_ext folds in the 1/sqrt(d) scale AND (when max_bias>0) ALiBi.
+        KQ = c.ggml_soft_max_ext(ctx, KQ, alibi_mask, scale, max_bias).?;
         var KQV = c.ggml_mul_mat(ctx, V, KQ).?;
         KQV = c.ggml_cont(ctx, c.ggml_permute(ctx, KQV, 0, 2, 1, 3)).?;
         KQV = c.ggml_reshape_2d(ctx, KQV, @intCast(n_embd), @intCast(n_tok)).?;
         var attn = c.ggml_add(ctx, c.ggml_mul_mat(ctx, getT(mctx, "blk.{d}.attn_output.weight", .{L}, &nb), KQV), getT(mctx, "blk.{d}.attn_output.bias", .{L}, &nb2)).?;
         attn = c.ggml_add(ctx, attn, inpL).?;
         attn = layerNorm(ctx, attn, getT(mctx, "blk.{d}.attn_output_norm.weight", .{L}, &nb), getT(mctx, "blk.{d}.attn_output_norm.bias", .{L}, &nb2), eps);
-        var ff = c.ggml_add(ctx, c.ggml_mul_mat(ctx, getT(mctx, "blk.{d}.ffn_up.weight", .{L}, &nb), attn), getT(mctx, "blk.{d}.ffn_up.bias", .{L}, &nb2)).?;
-        ff = c.ggml_gelu(ctx, ff).?;
-        ff = c.ggml_add(ctx, c.ggml_mul_mat(ctx, getT(mctx, "blk.{d}.ffn_down.weight", .{L}, &nb), ff), getT(mctx, "blk.{d}.ffn_down.bias", .{L}, &nb2)).?;
+
+        var ff: *c.ggml_tensor = undefined;
+        if (has_gate) {
+            // GEGLU: gelu(gate(x)) * up(x) -> down (+bias); no bias on up/gate
+            const up = c.ggml_mul_mat(ctx, getT(mctx, "blk.{d}.ffn_up.weight", .{L}, &nb), attn).?;
+            const gate = c.ggml_mul_mat(ctx, getT(mctx, "blk.{d}.ffn_gate.weight", .{L}, &nb2), attn).?;
+            ff = c.ggml_mul(ctx, c.ggml_gelu(ctx, gate), up).?;
+            ff = c.ggml_add(ctx, c.ggml_mul_mat(ctx, getT(mctx, "blk.{d}.ffn_down.weight", .{L}, &nb), ff), getT(mctx, "blk.{d}.ffn_down.bias", .{L}, &nb2)).?;
+        } else {
+            ff = c.ggml_add(ctx, c.ggml_mul_mat(ctx, getT(mctx, "blk.{d}.ffn_up.weight", .{L}, &nb), attn), getT(mctx, "blk.{d}.ffn_up.bias", .{L}, &nb2)).?;
+            ff = c.ggml_gelu(ctx, ff).?;
+            ff = c.ggml_add(ctx, c.ggml_mul_mat(ctx, getT(mctx, "blk.{d}.ffn_down.weight", .{L}, &nb), ff), getT(mctx, "blk.{d}.ffn_down.bias", .{L}, &nb2)).?;
+        }
         ff = c.ggml_add(ctx, ff, attn).?;
         cur = layerNorm(ctx, ff, getT(mctx, "blk.{d}.layer_output_norm.weight", .{L}, &nb), getT(mctx, "blk.{d}.layer_output_norm.bias", .{L}, &nb2), eps);
     }
@@ -756,4 +797,115 @@ pub export fn neural_ner_type(i: c_int) callconv(.c) [*c]const u8 {
     const idx: usize = @intCast(i);
     if (i < 0 or idx >= g_ner_types.items.len) return @ptrCast("");
     return g_ner_types.items[idx].ptr;
+}
+
+// --- Cross-encoder reranking -------------------------------------------------
+// A reranker GGUF (e.g. jina-reranker-v1-turbo-en) carries a `cls` head scoring
+// a [CLS] query [SEP] doc [SEP] pair for relevance. jina-bert-v2's ALiBi + GEGLU
+// are handled by buildBackbone's auto-detection; query/doc get segment ids 0/1.
+var g_seg: std.ArrayList(i32) = .{};
+
+// 1 if the loaded model carries a cross-encoder scoring head.
+pub export fn neural_model_has_reranker() callconv(.c) c_int {
+    const mctx = g_ctx orelse return 0;
+    return if (c.ggml_get_tensor(mctx, "cls.weight") != null) 1 else 0;
+}
+
+// Tokenize `text` (words) into g_tok_ids, recording segment id `seg` per token.
+fn addTextTokens(text: []const u8, seg: i32) void {
+    var wb: [256]u8 = undefined;
+    var i: usize = 0;
+    while (i < text.len) {
+        const ch = text[i];
+        if (isSpace(ch)) {
+            i += 1;
+            continue;
+        }
+        const before = g_tok_ids.items.len;
+        if (isPunct(ch)) {
+            wordpiece(text[i .. i + 1], &g_tok_ids);
+            i += 1;
+        } else {
+            var n: usize = 0;
+            while (i < text.len and !isSpace(text[i]) and !isPunct(text[i])) : (i += 1) {
+                if (n < wb.len) {
+                    const b = text[i];
+                    wb[n] = if (!g_cased and b >= 'A' and b <= 'Z') b + 32 else b;
+                    n += 1;
+                }
+            }
+            wordpiece(wb[0..n], &g_tok_ids);
+        }
+        var k = before;
+        while (k < g_tok_ids.items.len) : (k += 1) g_seg.append(gpa, seg) catch {};
+    }
+}
+
+// Cross-encoder relevance score for (query, doc): [CLS] q [SEP] doc [SEP] ->
+// backbone -> [CLS] hidden -> cls head. Higher = more relevant. 0 if no head.
+pub export fn neural_rerank(qptr: [*c]const u8, qlen: usize, dptr: [*c]const u8, dlen: usize) callconv(.c) f64 {
+    if (!buildVocab()) return 0;
+    const mctx = g_ctx orelse return 0;
+    const Wt = c.ggml_get_tensor(mctx, "cls.weight") orelse return 0;
+    const Bt = c.ggml_get_tensor(mctx, "cls.bias");
+    const n_out: usize = @intCast(Wt.*.ne[1]);
+    if (qptr == null or dptr == null or n_out == 0) return 0;
+
+    g_tok_ids.clearRetainingCapacity();
+    g_seg.clearRetainingCapacity();
+    g_tok_ids.append(gpa, g_cls) catch {};
+    g_seg.append(gpa, 0) catch {};
+    addTextTokens(qptr[0..qlen], 0);
+    g_tok_ids.append(gpa, g_sep) catch {};
+    g_seg.append(gpa, 0) catch {};
+    addTextTokens(dptr[0..dlen], 1);
+    g_tok_ids.append(gpa, g_sep) catch {};
+    g_seg.append(gpa, 1) catch {};
+
+    var n_tok: usize = g_tok_ids.items.len;
+    if (n_tok < 3) return 0;
+    if (n_tok > 256) n_tok = 256;
+
+    const n_embd: usize = @intCast(neural_model_n_embd());
+    const n_head: usize = @intCast(neural_model_n_heads());
+    const n_layer: usize = @intCast(neural_model_n_layers());
+    if (n_embd == 0 or n_head == 0 or n_layer == 0) return 0;
+    const head_dim = n_embd / n_head;
+    const eps = kvArchF32(".attention.layer_norm_epsilon", 1e-12);
+
+    const mem_size: usize = 96 * 1024 * 1024 + n_tok * n_tok * n_head * n_layer * 24;
+    const ctx = c.ggml_init(.{ .mem_size = mem_size, .mem_buffer = null, .no_alloc = false }) orelse return 0;
+    defer c.ggml_free(ctx);
+
+    const tokens = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n_tok)).?;
+    const positions = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n_tok)).?;
+    const types = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n_tok)).?;
+    const td: [*]i32 = @ptrCast(@alignCast(tokens.*.data));
+    const pd: [*]i32 = @ptrCast(@alignCast(positions.*.data));
+    const yd: [*]i32 = @ptrCast(@alignCast(types.*.data));
+    for (0..n_tok) |i| {
+        td[i] = g_tok_ids.items[i];
+        pd[i] = @intCast(i);
+        yd[i] = g_seg.items[i];
+    }
+
+    const cur = buildBackbone(ctx, mctx, tokens, positions, types, n_tok, n_embd, n_head, n_layer, head_dim, eps);
+    // [CLS] hidden = token 0 = first n_embd contiguous floats -> cls head
+    const cls_h = c.ggml_view_1d(ctx, cur, @intCast(n_embd), 0).?;
+    var score_t = c.ggml_mul_mat(ctx, Wt, cls_h).?;
+    if (Bt) |b| score_t = c.ggml_add(ctx, score_t, b).?;
+
+    const graph = c.ggml_new_graph(ctx) orelse return 0;
+    c.ggml_build_forward_expand(graph, score_t);
+    var plan = c.ggml_graph_plan(graph, 4, null);
+    var wbuf: ?[]u8 = null;
+    if (plan.work_size > 0) {
+        wbuf = gpa.alloc(u8, plan.work_size) catch return 0;
+        plan.work_data = wbuf.?.ptr;
+    }
+    defer if (wbuf) |w| gpa.free(w);
+    _ = c.ggml_graph_compute(graph, &plan);
+
+    const sd: [*]const f32 = @ptrCast(@alignCast(score_t.*.data));
+    return sd[n_out - 1];
 }

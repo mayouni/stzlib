@@ -67,6 +67,10 @@ Scenario("stzNeuralModel: GGUF loads at RUNTIME (no real model needed here)")
 	#   StzEngineNeuralModelHasNer() -> 1; StzHasNeuralNerModel() -> TRUE
 	#   new stzText("Barack Obama visited Paris").NamedEntities()
 	#     -> [[Barack Obama,PERSON],[Paris,LOCATION]] (multi-word entities merged)
+	# With a CROSS-ENCODER reranker GGUF (jina-reranker-v1-turbo-en):
+	#   StzEngineNeuralModelHasReranker() -> 1; StzHasRerankerModel() -> TRUE
+	#   new stzListOfTexts(docs).RankedForQuery(q) / .MostRelevantTo(q) -- joint
+	#   [CLS] query [SEP] doc scoring (jina-bert-v2 ALiBi + GEGLU via buildBackbone).
 	# Token-level substrate for NER/token-classification (raw per-token hidden
 	# states): StzEngineNeuralEmbedTokens(text) -> n_tok; StzEngineNeuralTokenDim();
 	# StzEngineNeuralTokenValue(tok, dim). A real token-classification NER head

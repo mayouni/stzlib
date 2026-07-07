@@ -282,4 +282,23 @@ Scenario("Transformer NER -- token classification when a NER-head GGUF is loaded
 	#   on the per-token engine substrate (neural_ner over buildBackbone).
 EndScenario()
 
+Scenario("Cross-encoder reranking -- retrieve-then-rerank second stage")
+	# RankedForQuery/MostRelevantTo score a query+doc JOINTLY with a cross-encoder
+	# when a reranker GGUF is loaded (jina-reranker), else bi-encoder/lexical.
+	# Model-free here: lexical fallback with lexically-distinct docs.
+	docs = new stzListOfTexts([ "the stock market fell today", "a chocolate cake recipe" ])
+	Then("MostRelevantTo picks the closest doc (lexical fallback)",
+		docs.MostRelevantTo("financial market news"), "the stock market fell today")
+	Then("RankedForQuery returns [doc, score] pairs, best first",
+		docs.RankedForQuery("financial market news")[1][1], "the stock market fell today")
+	Then("RankedForQueryQQ is stzListOfPairs",
+		classname(docs.RankedForQueryQQ("x")), "stzlistofpairs")
+	# MANUAL (with a reranker GGUF, verified with jina-reranker-v1-turbo-en):
+	#   StzUseNeuralModel(cRerankerPath)
+	#   new stzListOfTexts([...]).RankedForQuery("training AI models")
+	#     -> "Machine learning models are trained..." ranks above unrelated docs.
+	#   Cross-encoder = joint [CLS] query [SEP] doc scoring; jina-bert-v2's ALiBi +
+	#   GEGLU are auto-handled by the shared buildBackbone.
+EndScenario()
+
 Summary()
