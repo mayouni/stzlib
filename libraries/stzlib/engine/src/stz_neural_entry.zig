@@ -10,13 +10,12 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
     if (pState) |s| ring_bridge.registerAll(s);
 }
 
-// NOTE: C++ global constructors are NOT auto-invoked in this Zig-built DLL
-// (mingw/gnu COFF ABI -> ctors in `.ctors`, not run at load). So ggml's
-// namespace-scope statics (std::map type tables, backend registries) stay
-// empty. We currently neutralise this per-global with ctor-independent patches
-// (e.g. vendor/ggml/src/gguf.cpp gguf_type_size -> switch). The proper fix
-// (run the ctors at load, or force the msvc ABI so they land in .CRT$XCU) is
-// pending -- see memory reference_neural_tier.
+// C++ global constructors are NOT auto-invoked in this (gnu-ABI) Zig DLL, and the
+// two clean fixes are both blocked/fragile here: (1) msvc ABI so ctors land in
+// .CRT$XCU -> Zig 0.15.2 libc++abi won't compile for msvc; (2) walk the mingw
+// `.ctors` list -> no linked crtend terminator, unsafe to bound. So ggml's
+// namespace-scope statics are initialised via ctor-independent per-global patches
+// (see vendor/ggml/src/gguf.cpp). See memory reference_neural_tier for the plan.
 
 test {
     _ = neural;

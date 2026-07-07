@@ -566,6 +566,14 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    // NOTE: we tried building stz_neural with the msvc ABI (so C++ global ctors
+    // land in .CRT$XCU and can be run at load) -- BLOCKED by a Zig 0.15.2 bug:
+    // its bundled libc++abi fails to compile for x86_64-windows-msvc
+    // (stdlib_stdexcept.cpp declaration mismatch). So stz_neural stays on the
+    // default (gnu) ABI, and ggml's C++ static state is initialised via
+    // ctor-independent per-global patches (see vendor/ggml/NOTICE + gguf.cpp).
+    const ggml_target = target;
+
     // Ring install to build against (override with -Dring=PATH). The Ring ABI
     // (internal List struct layout) changed in 1.27, so the engine must be
     // built for the Ring version it will run under. We read the minor version
@@ -615,7 +623,7 @@ pub fn build(b: *std.Build) void {
     for (base_domains) |dom| {
         const mod = b.createModule(.{
             .root_source_file = b.path(dom.entry),
-            .target = target,
+            .target = if (dom.needs_ggml) ggml_target else target,
             .optimize = optimize,
             .link_libc = true,
         });

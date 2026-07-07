@@ -125,9 +125,8 @@ static_assert(GGUF_TYPE_COUNT == 13, "GGUF_TYPE_COUNT != 13");
 
 size_t gguf_type_size(enum gguf_type type) {
     // Softanza patch: switch instead of the namespace-scope std::map lookup --
-    // C++ global constructors do NOT run in the Zig-built DLL (mingw-ABI ctors in
-    // .ctors are not invoked at load), so the map stays empty -> 0 -> div-by-zero
-    // in get_ne(). Ctor-independent. See ../NOTICE.
+    // C++ global constructors do NOT run in the (gnu-ABI) Zig DLL, so the map
+    // stays empty -> 0 -> div-by-zero in get_ne(). Ctor-independent. See ../NOTICE.
     switch (type) {
         case GGUF_TYPE_UINT8:
         case GGUF_TYPE_INT8:
