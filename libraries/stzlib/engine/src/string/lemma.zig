@@ -24,6 +24,7 @@ const str_new = core.str_new;
 
 const lemma_en_data = @embedFile("data/lemmatization-en.txt");
 const lemma_fr_data = @embedFile("data/lemmatization-fr.txt");
+const lemma_ar_data = @embedFile("data/lemmatization-ar.txt");
 
 const Lang = struct {
     name: []const u8,
@@ -35,7 +36,16 @@ const Lang = struct {
 const langs = [_]Lang{
     .{ .name = "english", .data = lemma_en_data, .rules = true },
     .{ .name = "french", .data = lemma_fr_data, .rules = false },
+    // Arabic: UD-PADT-derived (~15k), diacritics stripped -- see NOTICE. Coverage
+    // is treebank-bound; StemmedInLanguage("arabic") complements OOV words.
+    .{ .name = "arabic", .data = lemma_ar_data, .rules = false },
 };
+
+// Arabic diacritics / tatweel -- stripped from the lookup key so undiacritized
+// input matches the (diacritic-stripped) Arabic dictionary.
+fn isArabicDiacritic(cp: u21) bool {
+    return cp == 0x0640 or (cp >= 0x064B and cp <= 0x065F) or cp == 0x0670;
+}
 
 const Maps = struct {
     f2l: std.StringHashMap([]const u8) = undefined,
@@ -97,6 +107,10 @@ fn lowerUnicode(word: []const u8, buf: []u8) []const u8 {
             i += cl;
             continue;
         };
+        if (isArabicDiacritic(cp)) {
+            i += cl; // drop diacritics/tatweel from the key
+            continue;
+        }
         const lc: u21 = @intCast(unicode.stz_unicode_to_lower(@intCast(cp)));
         var tmp: [4]u8 = undefined;
         const n = std.unicode.utf8Encode(lc, &tmp) catch {
