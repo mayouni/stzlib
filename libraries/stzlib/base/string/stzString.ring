@@ -4353,12 +4353,12 @@ class stzString from stzObject
 			return This.NumberOfWords()
 
 	  #==========================================================#
-	 #   NLP / TEXT-MEANING DOMAIN (stzText, base/nlp/)         #
+	 #   TEXT-MEANING DOMAIN (stzText, base/natural/)           #
 	#==========================================================#
-	# In Softanza NLP is not a string operation -- it's the TEXT domain, where a
+	# In Softanza "NLP" is not a string operation -- it's the TEXT domain, where a
 	# string is elevated to MEANING (words, sentences, sentiment, entities, topics,
 	# semantics). TextQ() / ToStzText() bridge this string into the stzText OBJECT
-	# (base/nlp/), which OWNS every NLP method. Per Softanza's rule fluent chaining
+	# (base/natural/), which OWNS every text-meaning method. Per Softanza's rule fluent chaining
 	# ALWAYS goes through the Q-form -- canonical entry is Q(str).TextQ().<op>();
 	# Text() (no Q) returns DATA (the text content). The methods below are thin
 	# backward-compatible delegators.
@@ -4564,7 +4564,7 @@ class stzString from stzObject
 	  #==================================================#
 	 #  LINGUISTIC QUERY  .  EXPLAIN  .  EXPLORE        #
 	#==================================================#
-	# Fluent NLP layer -- thin delegators to the text domain (base/nlp/stzText).
+	# Fluent text-meaning layer -- thin delegators to the text domain (base/natural/stzText).
 	# Canonical form is Q(str).Text().<op>(); these keep Q(str).<op>() working too.
 
 	def WordsThatAre(pcPenn)
@@ -15968,7 +15968,7 @@ class stzString from stzObject
 	def FindSubStringBetween(pcSub, pcOpen, pcClose)
 		return This.FindSubStringBoundedBy(pcSub, [ pcOpen, pcClose ])
 
-	# ToStzText() -- bridge into the NLP / text-meaning domain (base/nlp/stzText).
+	# ToStzText() -- bridge into the text-meaning domain (base/natural/stzText).
 	def ToStzText()
 		return new stzText(This)
 

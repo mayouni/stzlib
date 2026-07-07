@@ -1,10 +1,11 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
-# NLP DOMAIN (stzText, base/nlp/). Softanza treats NLP as the TEXT domain: a
-# string elevated to meaning (words, sentences, sentiment, entities, topics,
-# semantics). Every op below runs for real. The methods are reachable both
-# directly on stzString (thin delegators) and via the domain object Q(str).TextQ().
+# TEXT DOMAIN (stzText, base/natural/). What others call "NLP" is just natural
+# operations applied to text, so it lives in the natural/ domain: a string
+# elevated to meaning (words, sentences, sentiment, entities, topics, semantics).
+# Every op below runs for real. The methods are reachable both directly on
+# stzString (thin delegators) and via the domain object Q(str).TextQ().
 
 Scenario("The text domain: stzText carries meaning; stzString.TextQ() bridges to it")
 	# Same result three ways: direct on string, via TextQ() (the chainable domain
