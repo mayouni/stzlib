@@ -78,23 +78,46 @@ Scenario("Language detection across six languages + script + unknown")
 	Then("no signal -> unknown", ou.Language(), "unknown")
 EndScenario()
 
-Scenario("Q-chaining: SentencesQ returns a stzListOfTexts (meaning ops), not stzListOfStrings")
+Scenario("The Q-ladder: Q -> basic, QQ -> secondary, QQQ -> most specific")
 	o1 = new stzString("I love this wonderful product. The service was terrible and slow. It is a plain wooden chair.")
-	Then("a list of sentences is a list of TEXTS (they carry meaning)",
-		classname(o1.SentencesQ()), "stzlistoftexts")
-	Then("MostSimilarByMeaning (a natural op) picks by word overlap (cosine)",
-		o1.SentencesQ().MostSimilarByMeaning("bad slow service"), "The service was terrible and slow.")
+	# On a STRING, sentences climb stzList -> stzListOfStrings -> stzListOfTexts.
+	Then("SentencesQ() is the BASIC object (stzList)",
+		classname(o1.SentencesQ()), "stzlist")
+	Then("SentencesQQ() is the first secondary type (stzListOfStrings)",
+		classname(o1.SentencesQQ()), "stzlistofstrings")
+	Then("SentencesQQQ() is the most specific (stzListOfTexts)",
+		classname(o1.SentencesQQQ()), "stzlistoftexts")
+	# Meaning ops live on stzListOfTexts (QQQ from a string).
+	Then("MostSimilarByMeaning (a natural op) picks the closest sentence",
+		o1.SentencesQQQ().MostSimilarByMeaning("bad slow service"), "The service was terrible and slow.")
 	Then("ThatAre filters sentences by sentiment",
-		@@(o1.SentencesQ().ThatAre("positive")), @@([ "I love this wonderful product." ]))
-	Then("ThatContain filters by substring",
-		@@(o1.SentencesQ().ThatContain("chair")), @@([ "It is a plain wooden chair." ]))
+		@@(o1.SentencesQQQ().ThatAre("positive")), @@([ "I love this wonderful product." ]))
 	Then("chain ThatAreQ -> Joined stays fluent",
-		o1.SentencesQ().ThatAreQ("positive").Joined(), "I love this wonderful product.")
-	Then("generic list ops still available (NthString)",
-		o1.SentencesQ().NthString(2), "The service was terrible and slow.")
-	# the inherited Jaro-Winkler MostSimilarTo (character similarity) is preserved
-	Then("WordsQ().MostSimilarTo fuzzy-matches a typo",
-		o1.WordsQ().MostSimilarTo("wonderfull"), "wonderful")
+		o1.SentencesQQQ().ThatAreQ("positive").Joined(), "I love this wonderful product.")
+	# Lexical ops on the stzListOfStrings rung (QQ).
+	Then("ThatContain (lexical) filters by substring",
+		@@(o1.SentencesQQ().ThatContain("chair")), @@([ "It is a plain wooden chair." ]))
+	Then("NthString on the stzListOfStrings rung",
+		o1.SentencesQQ().NthString(2), "The service was terrible and slow.")
+	# Words are LEXICAL: the ladder stops at stzListOfStrings (QQ), no text rung.
+	Then("WordsQ() is the BASIC object (stzList)",
+		classname(o1.WordsQ()), "stzlist")
+	Then("WordsQQ().MostSimilarTo fuzzy-matches a typo (Jaro-Winkler)",
+		o1.WordsQQ().MostSimilarTo("wonderfull"), "wonderful")
+EndScenario()
+
+Scenario("The Q-ladder on stzText: QQ jumps straight to stzListOfTexts")
+	# In the TEXT layer there is no 'string' rung above -- a sentence of a text
+	# IS a text -- so QQ lands on stzListOfTexts directly (no QQQ needed).
+	t = new stzText("I love this wonderful product. The service was terrible and slow.")
+	Then("SentencesQ() is still the basic stzList",
+		classname(t.SentencesQ()), "stzlist")
+	Then("SentencesQQ() is stzListOfTexts immediately",
+		classname(t.SentencesQQ()), "stzlistoftexts")
+	Then("meaning ops chain off QQ on a text",
+		t.SentencesQQ().MostSimilarByMeaning("great item"), "I love this wonderful product.")
+	Then("words stay lexical: WordsQQ() is stzListOfStrings",
+		classname(t.WordsQQ()), "stzlistofstrings")
 EndScenario()
 
 Scenario("Explainability: per-word valences follow the score's own rules")
@@ -125,8 +148,12 @@ Scenario("Key-phrase extraction (RAKE)")
 	kp = o1.KeyPhrases(3)
 	Then("top-3 are content phrases (stopwords/punctuation delimit them)",
 		@@(kp), @@([ "linear Diophantine equations", "strict inequations", "nonstrict inequations" ]))
-	Then("KeyPhrasesQ chains text-list ops",
-		@@(o1.KeyPhrasesQ(0).ThatContain("inequations")),
+	# Q -> basic stzList; QQ -> stzListOfTexts (key phrases carry meaning), which
+	# chains the list ops.
+	Then("KeyPhrasesQ() is the basic stzList",
+		classname(o1.KeyPhrasesQ(0)), "stzlist")
+	Then("KeyPhrasesQQ chains text-list ops",
+		@@(o1.KeyPhrasesQQ(0).ThatContain("inequations")),
 		@@([ "strict inequations", "nonstrict inequations" ]))
 EndScenario()
 

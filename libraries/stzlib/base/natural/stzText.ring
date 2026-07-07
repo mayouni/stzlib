@@ -70,13 +70,21 @@ class stzText from stzStringText
 	def Synonyms()
 		return StzEngineStringSynonymsList(This.Engine())
 
+		# Q-ladder: Q -> basic stzList; QQ -> stzListOfStrings (synonyms are
+		# lexical WORDS, so no text rung).
 		def SynonymsQ()
+			return new stzList(This.Synonyms())
+
+		def SynonymsQQ()
 			return new stzListOfStrings(This.Synonyms())
 
 	def Hypernyms()
 		return StzEngineStringHypernymsList(This.Engine())
 
 		def HypernymsQ()
+			return new stzList(This.Hypernyms())
+
+		def HypernymsQQ()
 			return new stzListOfStrings(This.Hypernyms())
 
 	def IsSynonymOf(pcOther)
@@ -298,8 +306,13 @@ class stzText from stzStringText
 		next
 		return _aKpJust_
 
+		# Q-ladder: Q -> basic stzList; QQ -> stzListOfTexts (a key PHRASE is a
+		# multi-word unit that carries meaning, i.e. a text).
 		def KeyPhrasesQ(n)
-			return new stzListOfStrings(This.KeyPhrases(n))
+			return new stzList(This.KeyPhrases(n))
+
+		def KeyPhrasesQQ(n)
+			return new stzListOfTexts(This.KeyPhrases(n))
 
 	def TopKeyPhrase()
 		_aTkp_ = This.KeyPhrases(1)
@@ -330,14 +343,24 @@ class stzText from stzStringText
 		next
 		return _aKwJust_
 
+		# Q-ladder: Q -> basic stzList; QQ -> stzListOfStrings (keywords are
+		# single lexical WORDS).
 		def RankedKeywordsQ(n)
+			return new stzList(This.RankedKeywords(n))
+
+		def RankedKeywordsQQ(n)
 			return new stzListOfStrings(This.RankedKeywords(n))
 
 	def SummarySentences(n)
 		return StzEngineStringSummarizeList(This.Engine(), n)
 
+		# Q-ladder: Q -> basic stzList; QQ -> stzListOfTexts (summary SENTENCES
+		# carry meaning).
 		def SummarySentencesQ(n)
-			return new stzListOfStrings(This.SummarySentences(n))
+			return new stzList(This.SummarySentences(n))
+
+		def SummarySentencesQQ(n)
+			return new stzListOfTexts(This.SummarySentences(n))
 
 	def SummarizedIn(n)
 		_oSmz_ = new stzListOfStrings(This.SummarySentences(n))
@@ -396,11 +419,20 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   SENTENCE FILTERS (sentiment / similarity)              #
 	#==========================================================#
-	# SentencesQ() -- the sentences as a list of TEXTS (they carry meaning), so
-	# the chain keeps the natural ops: Q(str).TextQ().SentencesQ().ThatAre(
-	# :Positive) / .MostSimilarByMeaning(query).
+	# Q-ladder (called on a stzText): Q -> basic stzList; QQ -> stzListOfTexts
+	# IMMEDIATELY -- in the text layer there is no "string" rung above, a sentence
+	# of a text IS a text. So the natural ops chain via SentencesQQ():
+	# Q(str).TextQ().SentencesQQ().ThatAre(:Positive) / .MostSimilarByMeaning(query).
+	# (On a stzString the ladder is stzList -> stzListOfStrings -> stzListOfTexts.)
 	def SentencesQ()
+		return new stzList(This.Sentences())
+
+	def SentencesQQ()
 		return new stzListOfTexts(This.Sentences())
+
+	# Words are LEXICAL even inside a text -> QQ stops at stzListOfStrings.
+	def WordsQQ()
+		return new stzListOfStrings(This.Words())
 
 	def SentencesThatAre(pcPolarity)
 		if NOT isString(pcPolarity) return [] ok
