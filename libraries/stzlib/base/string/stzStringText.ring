@@ -1115,8 +1115,6 @@ class stzStringText
 	def NumberOfChars2()
 		return @oString.NumberOfChars()
 
-
-# stzText: narrative-text class. Thin subclass of stzStringText so
-# tests that write 'new stzText("...")' resolve to the same behaviour.
-class stzText from stzStringText
+# NOTE: class stzText moved to base/nlp/stzText.ring -- it is now the NLP /
+# text-meaning DOMAIN class (still 'from stzStringText', so a superset).
 

@@ -1,8 +1,24 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
-# Linguistic query / explain / explore layer -- the fluent surface over the NLP
-# primitives (POS, NER, sentiment, lemma, UAX#29 segmentation). Runs for real.
+# NLP DOMAIN (stzText, base/nlp/). Softanza treats NLP as the TEXT domain: a
+# string elevated to meaning (words, sentences, sentiment, entities, topics,
+# semantics). Every op below runs for real. The methods are reachable both
+# directly on stzString (thin delegators) and via the domain object Q(str).Text().
+
+Scenario("The text domain: stzText carries meaning; stzString.Text() bridges to it")
+	# Same result three ways: direct on string, via Text(), and on a stzText.
+	o1 = new stzString("Barack Obama loves the wonderful city of Paris.")
+	Then("string delegates to the domain",
+		o1.Sentiment(), "positive")
+	Then("Q(str).Text() reaches the same domain",
+		o1.Text().Sentiment(), "positive")
+	ot = StzTextQ("Barack Obama loves the wonderful city of Paris.")
+	Then("a stzText is the domain object itself",
+		@@(ot.PersonNames()), @@([ "Barack Obama" ]))
+	Then("stzText inherits the structural layer (Words) from stzStringText",
+		len(ot.Words()), 8)
+EndScenario()
 
 Scenario("UAX#29 sentences keep abbreviations and decimals whole")
 	o1 = new stzString("The fox ran fast. Dr. Smith paid $3.14 today. It works.")

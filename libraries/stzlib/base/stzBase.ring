@@ -85,6 +85,9 @@ ok
 
     load "string/stzStringText.ring"
 
+    # NLP / text-meaning domain (stzText from stzStringText)
+    load "nlp/stzText.ring"
+
     load "string/stzWordStream.ring"
 
     # Modular subclasses
