@@ -94,3 +94,36 @@ def ner():
 
 t, r = timed(ner)
 print(f"NER emails+urls+ips : {t:8.2f} ms   (counts={r})")
+
+# 5) sentence segmentation -- naive stdlib regex (NOT UAX#29; different semantics)
+sent_re = re.compile(r"(?<=[.!?])\s+")
+
+
+def sentences():
+    return len(sent_re.split(corpus))
+
+
+t, r = timed(sentences)
+print(f"sentence split(regex): {t:8.2f} ms   (n={r})")
+
+# 6) CJK overlapping bigrams (dictionary-free CJK search tokenization)
+cjk = rd("cjk.txt")
+
+
+def cjk_bigrams():
+    out = []
+    for run in cjk.split(" "):
+        if len(run) <= 1:
+            out.append(run)
+        else:
+            out.extend(run[i:i + 2] for i in range(len(run) - 1))
+            out.append(run[-1])  # trailing unigram, matching Softanza's scheme
+    return len(out)
+
+
+t, r = timed(cjk_bigrams)
+print(f"CJK bigrams         : {t:8.2f} ms   (tokens={r})")
+
+# stemming has no Python stdlib baseline (NLTK's Snowball is pure-Python, ~10-50x
+# slower than the C libstemmer Softanza vendors) -- see bench_softanza.ring.
+print("stemming            :   (no stdlib baseline; Softanza uses C Snowball)")

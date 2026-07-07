@@ -84,3 +84,40 @@ for r = 1 to REPS
 	ok
 next
 ? "NER emails+urls+ips : " + floor(nBest) + " ms   (counts=" + cN + ")"
+
+# 5) sentence segmentation (full UAX#29 Sentence_Break)
+nBest = 9999999
+nSent = 0
+for r = 1 to REPS
+	t0 = clock()
+	oSe = new stzString(cCorpus)
+	nSent = oSe.NumberOfSentences()
+	dt = ((clock() - t0) / clockspersecond()) * 1000
+	if dt < nBest  nBest = dt ok
+next
+? "sentences (UAX#29)  : " + floor(nBest) + " ms   (n=" + nSent + ")"
+
+# 6) CJK overlapping bigrams (dictionary-free CJK search tokenization)
+cCjk = read("cjk.txt")
+nBest = 9999999
+nBg = 0
+for r = 1 to REPS
+	t0 = clock()
+	oBg = new stzString(cCjk)
+	aBg = oBg.WordsForSearch()
+	nBg = len(aBg)
+	dt = ((clock() - t0) / clockspersecond()) * 1000
+	if dt < nBest  nBest = dt ok
+next
+? "CJK bigrams         : " + floor(nBest) + " ms   (tokens=" + nBg + ")"
+
+# 7) stemming (Snowball English, in place) -- no Python stdlib baseline
+nBest = 9999999
+for r = 1 to REPS
+	t0 = clock()
+	oSt = new stzString(cCorpus)
+	cSt = oSt.Stemmed()
+	dt = ((clock() - t0) / clockspersecond()) * 1000
+	if dt < nBest  nBest = dt ok
+next
+? "stem 600k words     : " + floor(nBest) + " ms"
