@@ -202,7 +202,7 @@ func StzFormAudit(pcClass)
 	next
 	return _aOut_
 
-# A near-natural-programming call TEMPLATE: idiomatic receiver + the method + its
+# A natural-programming call TEMPLATE: idiomatic receiver + the method + its
 # arguments SYNTHESIZED from the def signature. Softanza encodes a param's TYPE in
 # its name (pc=string, pn=number, pa=list, pb=bool) -- the same convention the (not-
 # yet-built) inf-form would expose -- so "def Replace(pcSubStr, pcNewSubStr)" yields
@@ -214,50 +214,92 @@ func _StzCallTemplate(pcClass, pcMethod, pcOwner)
 	return _StzSampleReceiver(pcClass) + "." + pcMethod + "(" + _cArgs_ + ")"
 
 # The synthesized argument list for a method, e.g. '"...", "..."' or '0' or '' .
+# Reads the def signature AND the method's opening CheckParam block (the is<Type>(p)
+# validations) so a GENERIC param whose name doesn't encode its type is still typed.
 func _StzArgTemplate(pcOwner, pcMethod)
 	_cSrc_ = _StzResolveSource(pcOwner)
 	if _cSrc_ = "" or NOT fexists(_cSrc_) return "" ok
-	_cParams_ = _StzDefParams(_cSrc_, pcMethod)
+	_aLines_ = str2list(read(_cSrc_))
+	_cML_ = lower(pcMethod)
+	_n_ = len(_aLines_)
+	_idx_ = 0
+	for _i_ = 1 to _n_
+		_cT_ = trim(_aLines_[_i_])
+		if len(_cT_) >= 4 and lower(left(_cT_, 4)) = "def " and lower(_StzDefName(_cT_)) = _cML_
+			_idx_ = _i_
+			exit
+		ok
+	next
+	if _idx_ = 0 return "" ok
+	_cDef_ = trim(_aLines_[_idx_])
+	_p1_ = substr(_cDef_, "(")
+	if _p1_ = 0 return "" ok
+	_p2_ = _StzLastPos(_cDef_, ")")
+	if _p2_ <= _p1_ + 1 return "" ok
+	_cParams_ = substr(_cDef_, _p1_ + 1, _p2_ - _p1_ - 1)
 	if trim(_cParams_) = "" return "" ok
+	# CheckParam block = the opening lines of the body (up to the next def).
+	_cBody_ = ""
+	_end_ = _idx_ + 25
+	if _end_ > _n_ _end_ = _n_ ok
+	for _j_ = _idx_ + 1 to _end_
+		_bt_ = trim(_aLines_[_j_])
+		if len(_bt_) >= 4 and lower(left(_bt_, 4)) = "def " exit ok
+		_cBody_ += lower(_aLines_[_j_]) + " "
+	next
 	_aP_ = _StzSplitOnChar(_cParams_, ",")
 	_cOut_ = ""
-	_n_ = len(_aP_)
-	for _i_ = 1 to _n_
-		_cOut_ += _StzArgFor(trim(_aP_[_i_]))
-		if _i_ < _n_ _cOut_ += ", " ok
+	_np_ = len(_aP_)
+	for _k_ = 1 to _np_
+		_cOut_ += _StzArgFor(trim(_aP_[_k_]), _cBody_)
+		if _k_ < _np_ _cOut_ += ", " ok
 	next
 	return _cOut_
 
-# The raw parameter string of `def <method>(...)` in a source file ("" if none).
-func _StzDefParams(pcSource, pcMethod)
-	_aLines_ = str2list(read(pcSource))
-	_cML_ = lower(pcMethod)
-	_n_ = len(_aLines_)
-	for _i_ = 1 to _n_
-		_cT_ = trim(_aLines_[_i_])
-		if len(_cT_) >= 4 and lower(left(_cT_, 4)) = "def "
-			if lower(_StzDefName(_cT_)) = _cML_
-				_p1_ = substr(_cT_, "(")
-				if _p1_ = 0 return "" ok
-				_p2_ = _StzLastPos(_cT_, ")")
-				if _p2_ <= _p1_ + 1 return "" ok
-				return substr(_cT_, _p1_ + 1, _p2_ - _p1_ - 1)
-			ok
-		ok
-	next
-	return ""
-
-# A placeholder ARGUMENT literal from a param name, using Softanza's type prefixes.
-func _StzArgFor(pcParam)
+# A placeholder ARGUMENT literal for a param, inferred in three tiers: (1) Softanza's
+# LOWERCASE type prefix (pcX=string/pnX=number/paX=list/pbX=bool -- a CAPITAL after p,
+# like pNamed, is a generic param, NOT one of these); (2) the CheckParam block's
+# is<Type>(param) validation; (3) a name substring hint. Else "..." (honestly unknown).
+func _StzArgFor(pcParam, pcBody)
+	# 1. Hungarian type PREFIX (lowercase pc/pn/pa/pb).
+	if left(pcParam, 2) = "pc" return '"..."' ok
+	if left(pcParam, 2) = "pn" return "0" ok
+	if left(pcParam, 2) = "pa" return "[...]" ok
+	if left(pcParam, 2) = "pb" return "TRUE" ok
+	# 2. single-letter Hungarian (c/n/a + digit or uppercase: n1, cExpr, aList). This
+	#    RELIABLE naming convention wins over the check-block, so a positional n1/n2
+	#    stays a NUMBER even when the method ALSO accepts a polymorphic :From list.
+	_cSl_ = _StzSingleLetterType(pcParam)
+	if _cSl_ != "" return _cSl_ ok
 	_p_ = lower(pcParam)
-	if left(_p_, 2) = "pc" return '"..."' ok
-	if left(_p_, 2) = "pn" return "0" ok
-	if left(_p_, 2) = "pa" return "[...]" ok
-	if left(_p_, 2) = "pb" return "TRUE" ok
-	if left(_p_, 1) = "c" return '"..."' ok
-	if left(_p_, 1) = "n" return "0" ok
-	if left(_p_, 1) = "a" return "[...]" ok
+	# 3. CheckParam block -- for a GENERIC param (pNamed, pWhere) with no convention.
+	#    Closing paren required: isNumber(p) matches, indexed isString(p[1]) does not.
+	if isString(pcBody) and pcBody != ""
+		if substr(pcBody, "isnumber(" + _p_ + ")") > 0 return "0" ok
+		if substr(pcBody, "isstring(" + _p_ + ")") > 0 return '"..."' ok
+		if substr(pcBody, "islist(" + _p_ + ")") > 0 return "[...]" ok
+	ok
+	# 4. name substring hint.
+	if substr(_p_, "number") > 0 return "0" ok
+	if substr(_p_, "string") > 0 or substr(_p_, "text") > 0 return '"..."' ok
+	if substr(_p_, "list") > 0 return "[...]" ok
+	if substr(_p_, "char") > 0 return '"a"' ok
 	return "..."
+
+# The type of a single-letter Hungarian param (c=string/n=number/a=list) -- but only
+# a GENUINE one: bare (c/n/a) or the letter followed by a digit or an uppercase
+# (n1, cExpr, aList), NOT a normal word that merely starts with it ("count"). "" else.
+func _StzSingleLetterType(pcParam)
+	if len(pcParam) < 1 return "" ok
+	_f_ = lower(left(pcParam, 1))
+	if _f_ != "c" and _f_ != "n" and _f_ != "a" return "" ok
+	if len(pcParam) > 1
+		_a2_ = ascii(substr(pcParam, 2, 1))
+		if NOT ((_a2_ >= 48 and _a2_ <= 57) or (_a2_ >= 65 and _a2_ <= 90)) return "" ok
+	ok
+	if _f_ = "c" return '"..."' ok
+	if _f_ = "n" return "0" ok
+	return "[...]"
 
 func _StzSampleReceiver(pcClass)
 	_c_ = lower(pcClass)
@@ -378,7 +420,7 @@ func _StzHasRichFormTag(paTags)
 	return FALSE
 
 # _StzNameGloss(name) -- re-verbalize a name's grammar into a natural sentence
-# (deterministic; the inverse is name GENERATION -- the near-natural-programming
+# (deterministic; the inverse is name GENERATION -- the natural-programming
 # endgame). E.g. "AllRemovedCS" -> "returns a copy with all removed (case-sensitive)".
 func _StzNameGloss(pcName)
 	_p_ = _StzParseName(pcName)

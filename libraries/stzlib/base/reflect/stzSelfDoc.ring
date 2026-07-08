@@ -11,7 +11,7 @@
 #                  embeddings (2c) + cross-encoder (2h), NOT a     #
 #                  heavy LLM. The knowledge already lives in the   #
 #                  library; this indexes and queries it. Enables   #
-#                  near-natural programming: describe intent, get   #
+#                  natural programming: describe intent, get   #
 #                  the operation. Deterministic, zero hallucination.#
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)        #
 #                                                              #
@@ -152,7 +152,7 @@ class stzSelfDoc from stzObject
 	# Ask(question) -- the methods whose MEANING best matches a plain-English
 	# question, as [ [name, score, description], ... ] best first (DATA). Uses the
 	# loaded embedding model (2c) when present, else lexical similarity -- so it
-	# works with zero setup and sharpens with a model. The near-natural-
+	# works with zero setup and sharpens with a model. The natural-
 	# programming entry: describe what you want, get the operation.
 	def Ask(pcQuestion)
 		return This.AskFor(pcQuestion, 3)
@@ -201,7 +201,7 @@ class stzSelfDoc from stzObject
 		return _aR_[1][1]
 
 	  #==========================================================#
-	 #   GENERATE (near-natural programming: intent -> a call) #
+	 #   GENERATE (natural programming: intent -> a call) #
 	#==========================================================#
 	# HowTo(intent) -- resolve a plain-English intent to a runnable method call on
 	# this class, DETERMINISTICALLY (no LLM). Two engines, unified: (1) the GRAMMAR
