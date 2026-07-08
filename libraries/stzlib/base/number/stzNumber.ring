@@ -2510,6 +2510,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	#@ aka  below zero, less than zero, minus, negative sign
 	def IsNegative()
 		if This.Sign() = "-"
 			return 1
@@ -2525,6 +2526,7 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	#@ aka  above zero, greater than zero, plus, positive sign
 	def IsPositive()
 		if This.IsNotSigned() or This.Sign() = "+"
 			return 1
@@ -3352,6 +3354,7 @@ class stzNumber from stzObject
 
 		return nResult
 
+	#@ aka  round to nearest, nearest whole number, round off
 	def Round()
 		return @nRound
 
@@ -4062,6 +4065,7 @@ class stzNumber from stzObject
 
 	# MODULO
 
+	#@ aka  remainder, mod, leftover of division
 	def Modulo(pOtherNumber)
 		return This.pvtCalculate("%", pOtherNumber)
 
@@ -4070,6 +4074,7 @@ class stzNumber from stzObject
 	
 	# POWER
 
+	#@ aka  to the power of, exponent, raised to, power
 	def Power(pOtherNumber)
 		return This.pvtCalculate("^", pOtherNumber)
 
@@ -4210,6 +4215,7 @@ class stzNumber from stzObject
 		def AbsoluteQ()
 			return new stzNumber(This.AbsoluteQ())
 
+		#@ aka  absolute value, magnitude, without the sign, distance from zero
 		def Abs()
 			return This.Absolute()
 
@@ -4218,6 +4224,7 @@ class stzNumber from stzObject
 	
 	# SQRT
 
+	#@ aka  square root, sqrt, root of the number
 	def SquareRoot()
 		return This.pvtCalculate( "sqrt", "" )
 
@@ -4759,6 +4766,7 @@ class stzNumber from stzObject
 
 		#< @FunctionAlternativeForm
 
+		#@ aka  hexadecimal, hex, base 16
 		def ToHex()
 			return ToHexForm()
 
@@ -4814,6 +4822,7 @@ class stzNumber from stzObject
 		oConversion = new stzDecimalToBinary(This.Content())
 		return oConversion.ToBinaryForm()
 
+		#@ aka  binary, base 2, bits, binary representation
 		def ToBinary()
 			return This.ToBinaryForm()
 

@@ -233,6 +233,7 @@ class stzList from stzObject
 		def ItemQ(n)
 			return Q(This.Item(n))
 
+		#@ aka  item at position, element at, get by index, the nth one
 		def NthItem(n)
 			return This.Item(n)
 
@@ -249,6 +250,7 @@ class stzList from stzObject
 	 #  GETTING THE FIRST ITEM IN THE LIST  #
 	#--------------------------------------#
 
+	#@ aka  head, front, first element, the top, beginning item
 	def FirstItem()
 		return This.NthItem(1)
 
@@ -259,6 +261,7 @@ class stzList from stzObject
 	 #  GETTING THE LAST ITEM IN THE LIST  #
 	#-------------------------------------#
 
+	#@ aka  tail, back, last element, the end, final item
 	def LastItem()
 		return This.NthItem( This.NumberOfItems() )
 
@@ -504,6 +507,7 @@ class stzList from stzObject
 			This.AddItem(pItem)
 			return This
 
+		#@ aka  append, push, add to the end, put at the back
 		def Add(pItem)
 			This.AddItem(pItem)
 
@@ -603,6 +607,7 @@ class stzList from stzObject
 	 #     IS EMPTY      #
 	#-------------------#
 
+	#@ aka  empty, blank, has no items, nothing in it, contains nothing
 	def IsEmpty()
 		return This.NumberOfItems() = 0
 
@@ -5271,6 +5276,7 @@ class stzList from stzObject
 		_nSmResult_ = StzEngineListSum(_pSmList_)
 		return _nSmResult_
 
+	#@ aka  multiply all, times all together, multiplied product
 	def Product()
 		if len(@aContent) = 0 return 0 ok
 		_pPrList_ = This._Engine()
@@ -5306,6 +5312,7 @@ class stzList from stzObject
 
 	  #-- Median / Nth Smallest / Nth Largest (engine-backed)
 
+	#@ aka  middle value, midpoint, the median
 	def Median()
 		if len(@aContent) = 0 return 0 ok
 		_pMdList_ = This._Engine()
@@ -5675,6 +5682,7 @@ class stzList from stzObject
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindFirstPrevious(pItem, pnStartingAt)
 
+	#@ aka  index of, position of, locate, where is, at what index
 	def FindItem(pItem)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindItem(pItem)
@@ -7046,6 +7054,7 @@ class stzList from stzObject
 		_oMvMvr_.Move(n1, n2)
 		This.UpdateWith(_oMvMvr_.Content())
 
+	#@ aka  exchange, swap positions, interchange two items
 	def Swap(n1, n2)
 		if isList(n1) and len(n1) = 2 and isString(n1[1]) and
 		   (lower(n1[1]) = "positions" or lower(n1[1]) = "position") and

@@ -736,12 +736,14 @@ class stzString from stzObject
 		def CharAt(n)
 			return This.NthChar(n)
 
+	#@ aka  first character, initial, leading character, opening char
 	def FirstChar()
 		return This.NthChar(1)
 
 		def FirstCharQ()
 			return new stzString( This.FirstChar() )
 
+	#@ aka  last character, final char, trailing character, ending char
 	def LastChar()
 		return This.NthChar(This.NumberOfChars())
 
@@ -4744,6 +4746,7 @@ class stzString from stzObject
 
 	# Split the string into a list of parts around a separator.
 	#@ aka  split, separate, tokenize, break apart, delimiter, explode, cut into parts
+	#@ aka  separate, tokenize, break apart, cut into parts, explode, divide on
 	def Split(pcSep)
 		# Named-param dispatch: :Using / :By / :With unwrap to the plain
 		# separator; :At / :Before / :After (+ Position(s) / Section(s)
@@ -6031,6 +6034,7 @@ class stzString from stzObject
 			This.Concatenate(pcStr)
 			return This
 
+		#@ aka  add to the end, concatenate, tack on, put after, join to
 		def Append(pcStr)
 			This.Concatenate(pcStr)
 
@@ -7176,10 +7180,12 @@ class stzString from stzObject
 
 	# --- Case checking ---
 
+	#@ aka  all caps, in capitals, all uppercase, is it shouting
 	def IsUppercase()
 		_oIuChk_ = new stzStringChecker(This)
 		return _oIuChk_.IsUppercase()
 
+	#@ aka  all lowercase, all small letters, in lower case
 	def IsLowercase()
 		_oIlChk_ = new stzStringChecker(This)
 		return _oIlChk_.IsLowercase()
@@ -9693,6 +9699,7 @@ class stzString from stzObject
 
 	# Spacified / SpacifiedUsing / SpacifiedXT: non-mutating Spacify
 	# variants. Return the spaced-out string without altering This.
+	#@ aka  add spaces between characters, space out, letter spacing
 	def Spacified()
 		_oTmp_ = new stzString(This.Content())
 		_oTmp_.Spacify()
@@ -19766,6 +19773,7 @@ class stzString from stzObject
 	def PadRight(nWidth, cFillChar)
 		This.AlignXT(nWidth, cFillChar, :Left)
 
+	#@ aka  pad on the left, right-align, fill to width, left-pad
 	def PaddedLeft(nWidth, cFillChar)
 		_oCpFmt_ = This.Copy()
 		_oCpFmt_.PadLeft(nWidth, cFillChar)
