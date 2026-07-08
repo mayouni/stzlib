@@ -102,6 +102,8 @@ Scenario("Generative: intent resolves to a grounded method (compose-then-retriev
 		substr(oStr.HowTo("substitute one word for another"), 'Replace("...", "...")') > 0, TRUE)
 	Then("args synthesized: Section -> two number args",
 		substr(oStr.HowTo("extract a portion between two positions"), "Section(0, 0)") > 0, TRUE)
+	Then("named-param synthesis: Insert -> :BeforePosition = <n> (from doc + CheckParam)",
+		substr(oStr.HowTo("put something at a position"), ":BeforePosition = 0") > 0, TRUE)
 EndScenario()
 
 # Conversational layer: "how do I X" intents should surface an intent RECIPE (a

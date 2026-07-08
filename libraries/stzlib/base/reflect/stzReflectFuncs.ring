@@ -247,14 +247,73 @@ func _StzArgTemplate(pcOwner, pcMethod)
 		if len(_bt_) >= 4 and lower(left(_bt_, 4)) = "def " exit ok
 		_cBody_ += lower(_aLines_[_j_]) + " "
 	next
+	# Doc-comment ABOVE the def documents the NAMED form (e.g. ":BeforePosition = n");
+	# harvest its :Keywords, in order, for the generic params that take named args.
+	_cDoc_ = ""
+	_j_ = _idx_ - 1
+	while _j_ >= 1 and left(trim(_aLines_[_j_]), 1) = "#"
+		_cDoc_ = _aLines_[_j_] + " " + _cDoc_
+		_j_--
+	end
+	_aKw_ = _StzDocKeywords(_cDoc_)
+	_ki_ = 1
 	_aP_ = _StzSplitOnChar(_cParams_, ",")
 	_cOut_ = ""
 	_np_ = len(_aP_)
 	for _k_ = 1 to _np_
-		_cOut_ += _StzArgFor(trim(_aP_[_k_]), _cBody_)
+		_cP_ = trim(_aP_[_k_])
+		_cVal_ = _StzArgFor(_cP_, _cBody_)
+		# a GENERIC param (no type convention) that has a documented :Keyword -> the
+		# NAMED form ":Keyword = value"; conventional params stay positional.
+		if _StzIsGenericParam(_cP_) and _ki_ <= len(_aKw_)
+			_cVal_ = _aKw_[_ki_] + " = " + _cVal_
+			_ki_++
+		ok
+		_cOut_ += _cVal_
 		if _k_ < _np_ _cOut_ += ", " ok
 	next
 	return _cOut_
+
+# TRUE if a param has NO type-encoding convention (not pc/pn/pa/pb, not a single-
+# letter c/n/a form) -- i.e. a generic holder like pNamed/pWhere that often takes
+# named arguments.
+func _StzIsGenericParam(pcParam)
+	if left(pcParam, 2) = "pc" or left(pcParam, 2) = "pn" return FALSE ok
+	if left(pcParam, 2) = "pa" or left(pcParam, 2) = "pb" return FALSE ok
+	if _StzSingleLetterType(pcParam) != "" return FALSE ok
+	return TRUE
+
+# The :Keyword named-param tokens in a doc string, in order (":BeforePosition" ...).
+# A named param is a colon followed by a letter then word chars (Softanza style).
+func _StzDocKeywords(pcDoc)
+	_aOut_ = []
+	_n_ = len(pcDoc)
+	_i_ = 1
+	while _i_ < _n_
+		if pcDoc[_i_] = ":"
+			_a2_ = ascii(pcDoc[_i_ + 1])
+			if (_a2_ >= 65 and _a2_ <= 90) or (_a2_ >= 97 and _a2_ <= 122)
+				_cKw_ = ":"
+				_j_ = _i_ + 1
+				while _j_ <= _n_
+					_ac_ = ascii(pcDoc[_j_])
+					if (_ac_ >= 65 and _ac_ <= 90) or (_ac_ >= 97 and _ac_ <= 122) or (_ac_ >= 48 and _ac_ <= 57)
+						_cKw_ += pcDoc[_j_]
+						_j_++
+					else
+						exit
+					ok
+				end
+				if len(_cKw_) >= 3 _aOut_ + _cKw_ ok
+				_i_ = _j_
+			else
+				_i_++
+			ok
+		else
+			_i_++
+		ok
+	end
+	return _aOut_
 
 # A placeholder ARGUMENT literal for a param, inferred in three tiers: (1) Softanza's
 # LOWERCASE type prefix (pcX=string/pnX=number/paX=list/pbX=bool -- a CAPITAL after p,
