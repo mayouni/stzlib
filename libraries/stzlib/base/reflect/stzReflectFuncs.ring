@@ -75,6 +75,120 @@ func _StzMethodRetrievalText(paMethod)
 # semantically honest (a passive form is NOT the mutating verb) and lets Explain
 # teach the distinction -- by design, no per-method hand-tagging.
 
+# _StzParseName(name) -> [ baseWords, [formTags...] ]. A Softanza method name is a
+# COMPOSITIONAL linguistic expression -- prefix* + baseVerb(+object) + form* + suffix*
+# -- so it PARSES like a sentence: voice (active/passive), fluency (Q/QC), number
+# (Many), mood (X statement / IsNot negative), aspect (Deep recursive / F future),
+# modality (rnd random / viz visual), and parameter grammar (CS/ST/IB). This is the
+# core of Softanza's design (functions-as-linguistic-expressions narration): the
+# name IS the meaning. The NL layer reads that grammar instead of guessing keywords.
+func _StzParseName(pcName)
+	_n_ = pcName
+	_tags_ = []
+	# -- prefixes --
+	if len(_n_) >= 1 and left(_n_, 1) = "@"  _tags_ + "partial"  _n_ = substr(_n_, 2, len(_n_) - 1) ok
+	if len(_n_) > 3 and left(_n_, 3) = "viz"  _tags_ + "visual"       _n_ = substr(_n_, 4, len(_n_) - 3) ok
+	if len(_n_) > 3 and left(_n_, 3) = "rnd"  _tags_ + "random"       _n_ = substr(_n_, 4, len(_n_) - 3) ok
+	if len(_n_) > 3 and left(_n_, 3) = "inf"  _tags_ + "introspect"   _n_ = substr(_n_, 4, len(_n_) - 3) ok
+	if len(_n_) > 3 and left(_n_, 3) = "dft"  _tags_ + "default"      _n_ = substr(_n_, 4, len(_n_) - 3) ok
+	if len(_n_) > 4 and left(_n_, 4) = "Deep" _tags_ + "deep"         _n_ = substr(_n_, 5, len(_n_) - 4) ok
+	# -- fluency / immutability --
+	if _StzEndsWith(_n_, "QC")  _tags_ + "immutable"  _n_ = left(_n_, len(_n_) - 2)
+	but len(_n_) > 1 and right(_n_, 1) = "Q"  _tags_ + "fluent"  _n_ = left(_n_, len(_n_) - 1) ok
+	# -- parameter suffixes (may stack: ...STIBCS) --
+	_more_ = TRUE
+	while _more_
+		_more_ = FALSE
+		if _StzEndsWith(_n_, "CS") _tags_ + "case-sensitive" _n_ = left(_n_, len(_n_)-2) _more_ = TRUE
+		but _StzEndsWith(_n_, "IB") _tags_ + "inclusive-bounds" _n_ = left(_n_, len(_n_)-2) _more_ = TRUE
+		but _StzEndsWith(_n_, "ST") _tags_ + "from-position" _n_ = left(_n_, len(_n_)-2) _more_ = TRUE ok
+	end
+	# -- conditional / extended / statement / future / freeform --
+	if _StzEndsWith(_n_, "WXT") _tags_ + "conditional" _n_ = left(_n_, len(_n_)-3)
+	but _StzEndsWith(_n_, "WF")  _tags_ + "conditional" _n_ = left(_n_, len(_n_)-2)
+	but _StzEndsWith(_n_, "XT")  _tags_ + "extended"    _n_ = left(_n_, len(_n_)-2)
+	but _StzEndsWith(_n_, "FX")  _tags_ + "freeform"    _n_ = left(_n_, len(_n_)-2)
+	but len(_n_) > 1 and right(_n_,1) = "W"  _tags_ + "conditional" _n_ = left(_n_, len(_n_)-1)
+	but len(_n_) > 1 and right(_n_,1) = "X"  _tags_ + "statement"   _n_ = left(_n_, len(_n_)-1) ok
+	# -- number (plural) --
+	if _StzEndsWith(_n_, "Many") _tags_ + "plural" _n_ = left(_n_, len(_n_)-4) ok
+	# -- exception --
+	if substr(lower(_n_), "except") > 0 _tags_ + "exceptional" ok
+	# -- mood: predicate / negation --
+	_low_ = lower(_n_)
+	if left(_low_,5) = "isnot" or left(_low_,6) = "arenot" or left(_low_,7) = "doesnot" or left(_low_,5) = "hasno"
+		_tags_ + "negative"
+		_tags_ + "predicate"
+	but left(_low_,2) = "is" or left(_low_,3) = "are" or left(_low_,3) = "has"
+		_tags_ + "predicate"
+	ok
+	# -- voice: active vs passive (past participle) --
+	if ring_find(_tags_, "predicate") = 0
+		if len(_low_) > 3 and right(_low_,2) = "ed"
+			_tags_ + "passive"
+		else
+			_tags_ + "active"
+		ok
+	ok
+	return [ _StzSplitCamel(_n_), _tags_ ]
+
+# TRUE if the parsed tags carry a compositional MODIFIER worth spelling out in a
+# gloss (beyond a plain active/passive/fluent voice, which the form-note covers).
+func _StzHasRichFormTag(paTags)
+	_aRich_ = [ "deep", "plural", "exceptional", "conditional", "partial",
+		"negative", "statement", "immutable", "random", "visual", "extended",
+		"case-sensitive", "from-position" ]
+	_n_ = len(_aRich_)
+	for _i_ = 1 to _n_
+		if ring_find(paTags, _aRich_[_i_]) > 0 return TRUE ok
+	next
+	return FALSE
+
+# _StzNameGloss(name) -- re-verbalize a name's grammar into a natural sentence
+# (deterministic; the inverse is name GENERATION -- the near-natural-programming
+# endgame). E.g. "AllRemovedCS" -> "returns a copy with all removed (case-sensitive)".
+func _StzNameGloss(pcName)
+	_p_ = _StzParseName(pcName)
+	_base_ = _p_[1]
+	_t_ = _p_[2]
+	_lead_ = ""
+	if ring_find(_t_, "predicate") > 0
+		if ring_find(_t_, "negative") > 0
+			_lead_ = "a negated test -- " + _base_
+		else
+			_lead_ = "tests whether " + _base_
+		ok
+	but ring_find(_t_, "passive") > 0
+		_lead_ = "returns a copy: " + _base_ + " (original unchanged)"
+	but ring_find(_t_, "statement") > 0
+		_lead_ = "asserts that " + _base_
+	else
+		# active form: the imperative/acting form (states the operation; whether it
+		# mutates depends on the verb -- transformers do, queries return data).
+		_lead_ = _base_
+	ok
+	_mods_ = []
+	if ring_find(_t_, "partial") > 0    _mods_ + "on a part of the object" ok
+	if ring_find(_t_, "deep") > 0       _mods_ + "recursively through nested structures" ok
+	if ring_find(_t_, "plural") > 0     _mods_ + "over many values at once" ok
+	if ring_find(_t_, "exceptional") > 0 _mods_ + "with exceptions" ok
+	if ring_find(_t_, "conditional") > 0 _mods_ + "where a condition holds" ok
+	if ring_find(_t_, "case-sensitive") > 0 _mods_ + "case-sensitively" ok
+	if ring_find(_t_, "from-position") > 0 _mods_ + "from a start position" ok
+	if ring_find(_t_, "fluent") > 0     _mods_ + "and returns the object for chaining" ok
+	if ring_find(_t_, "immutable") > 0  _mods_ + "on a safe copy (original preserved)" ok
+	if ring_find(_t_, "random") > 0     _mods_ + "on random elements" ok
+	if ring_find(_t_, "visual") > 0     _mods_ + "with a visual view of the result" ok
+	if ring_find(_t_, "extended") > 0   _mods_ + "with extended options" ok
+	if len(_mods_) = 0 return _lead_ ok
+	_cM_ = ""
+	_nm_ = len(_mods_)
+	for _i_ = 1 to _nm_
+		_cM_ += _mods_[_i_]
+		if _i_ < _nm_ _cM_ += ", " ok
+	next
+	return _lead_ + " -- " + _cM_
+
 # _StzFormOf(name) -> [ formLabel, baseVerb(lowercased, markers stripped) ].
 func _StzFormOf(pcName)
 	_n_ = pcName

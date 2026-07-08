@@ -126,6 +126,12 @@ class stzSelfDoc from stzObject
 		if _cFn_ != ""
 			_cOut_ += nl + "  (" + _cFn_ + ")"
 		ok
+		# For a compositionally-rich name, spell its grammar out as a sentence --
+		# the name IS the meaning (functions-as-linguistic-expressions).
+		_aPn_ = _StzParseName(@aMethods[_ix_][1])
+		if _StzHasRichFormTag(_aPn_[2])
+			_cOut_ += nl + "  reads as: " + _StzNameGloss(@aMethods[_ix_][1])
+		ok
 		# Point at a provably-running example from the tests, if one exercises it.
 		_aEg_ = _StzExampleFor(lower(@aMethods[_ix_][1]))
 		if len(_aEg_) = 3
