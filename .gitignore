@@ -1,2 +1,5 @@
 # Softanza reflect: generated example-index cache (rebuilt on demand from tests)
 *.stzcache
+
+# Neural model files (large; downloaded on demand)
+*.gguf
