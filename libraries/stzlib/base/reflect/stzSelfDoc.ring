@@ -121,6 +121,11 @@ class stzSelfDoc from stzObject
 		if lower(@aMethods[_ix_][4]) != lower(@cName)
 			_cOut_ += "  [inherited from " + @aMethods[_ix_][4] + "]"
 		ok
+		# Teach the function FORM (active mutates / passive returns a copy / ...).
+		_cFn_ = _StzFormNote(@aMethods[_ix_][1])
+		if _cFn_ != ""
+			_cOut_ += nl + "  (" + _cFn_ + ")"
+		ok
 		# Point at a provably-running example from the tests, if one exercises it.
 		_aEg_ = _StzExampleFor(lower(@aMethods[_ix_][1]))
 		if len(_aEg_) = 3
@@ -151,13 +156,16 @@ class stzSelfDoc from stzObject
 
 		_aTexts_ = []
 		_aBonus_ = []
+		_cCue_ = _StzQueryFormCue(pcQuestion)
 		for _i_ = 1 to _nM_
 			_aTexts_ + _StzMethodRetrievalText(@aMethods[_i_])
-			# Bonus = own-method prior + a tiny SHORTER-NAME preference so a
-			# canonical op (Split) wins a coverage tie against a specialized
-			# variant (SplitAroundPositions). Tiny: only tips genuine ties.
+			# Bonus = own-method prior + FORM preference (passive by default, active
+			# on a mutate cue, fluent on a chain cue) + a tiny SHORTER-NAME nudge so
+			# a canonical op (Split) wins a coverage tie against a variant. All small:
+			# they only tip genuine ties, never override real coverage.
 			_nb_ = 0
 			if lower(@aMethods[_i_][4]) = lower(@cName) _nb_ = 0.05 ok
+			_nb_ += _StzFormPreferenceBonus(@aMethods[_i_][1], _cCue_)
 			_nb_ -= 0.0002 * len(@aMethods[_i_][1])
 			_aBonus_ + _nb_
 		next

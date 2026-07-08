@@ -25,6 +25,12 @@ $aStzExampleIndex = []      # [ [ methodLower, titles, exampleCode, file ], ... 
 $aStzExampleKeys  = []      # parallel keys list for fast ring_find
 $bStzExampleIndexBuilt = FALSE
 
+# Ubiquitous PLUMBING methods -- called for display/setup in nearly every scenario
+# (? o.Content(), o.Show()...), so linking them to those scenarios' titles is pure
+# noise (they are never the answer to "how do I X"). Excluded from the L3 index.
+$aStzExamplePlumbing = [ "content", "show", "string", "tostring", "stztype", "copy",
+	"init", "q", "qq", "qqq", "stringify", "print", "display", "value", "object" ]
+
 $aStzStopwords = [ "the", "a", "an", "of", "to", "in", "on", "at", "by", "for",
 	"from", "with", "and", "or", "but", "is", "are", "was", "were", "be", "been",
 	"being", "am", "this", "that", "these", "those", "it", "its", "i", "me", "my",
@@ -46,13 +52,126 @@ func _StzMethodText(paMethod)
 	return _c_
 
 # The full RETRIEVAL text of a method = its own text (name + intent + folded #@
-# aka) PLUS the intent phrases of any test scenarios that exercise it (Layer 3).
-# One place, so lexical scoring, the embedding index, and stzLibDoc all agree.
+# aka) PLUS the intent phrases of any test scenarios that exercise it (Layer 3)
+# PLUS form-derived base-verb variants (so the active verb "reverse" finds the
+# passive form "Reversed"). One place, so lexical scoring, the embedding index,
+# and stzLibDoc all agree.
 func _StzMethodRetrievalText(paMethod)
 	_c_ = _StzMethodText(paMethod)
 	_cEg_ = _StzExampleTitlesFor(lower(paMethod[1]))
 	if _cEg_ != "" _c_ += " " + _cEg_ ok
+	_cFv_ = _StzFormBaseVariants(paMethod[1])
+	if _cFv_ != "" _c_ += " " + _cFv_ ok
 	return _c_
+
+  #==========================================================#
+ #   FUNCTION FORMS -- the linguistic taxonomy of a name    #
+#==========================================================#
+# Softanza encodes SEMANTICS in a method's name FORM (see the function-forms
+# narration): the ACTIVE form (Reverse) mutates in place; the PASSIVE form
+# (Reversed / ...ed) returns a transformed COPY, original untouched; the FLUENT
+# form (ReverseQ / ...Q) mutates AND returns for chaining; plus Deep.../...Many/
+# IsNot.../...W/...X etc. Reading this off the name lets the NL layer stay
+# semantically honest (a passive form is NOT the mutating verb) and lets Explain
+# teach the distinction -- by design, no per-method hand-tagging.
+
+# _StzFormOf(name) -> [ formLabel, baseVerb(lowercased, markers stripped) ].
+func _StzFormOf(pcName)
+	_n_ = pcName
+	_low_ = lower(_n_)
+	_len_ = len(_n_)
+	if _len_ >= 5 and left(_low_, 5) = "isnot" return [ "negative", substr(_low_, 6, _len_ - 5) ] ok
+	if _len_ >= 2 and left(_low_, 2) = "is"  return [ "predicate", substr(_low_, 3, _len_ - 2) ] ok
+	if _len_ >= 3 and left(_low_, 3) = "are" return [ "predicate", substr(_low_, 4, _len_ - 3) ] ok
+	if _len_ >= 3 and left(_low_, 3) = "has" return [ "predicate", substr(_low_, 4, _len_ - 3) ] ok
+	if _len_ >= 4 and left(_low_, 4) = "deep" return [ "deep", substr(_low_, 5, _len_ - 4) ] ok
+	if _len_ > 1 and right(_n_, 1) = "Q" return [ "fluent", lower(left(_n_, _len_ - 1)) ] ok
+	if _len_ > 2 and right(_n_, 2) = "XT" return [ "extended", lower(left(_n_, _len_ - 2)) ] ok
+	if _len_ > 2 and right(_n_, 2) = "WF" return [ "conditional", lower(left(_n_, _len_ - 2)) ] ok
+	if _len_ > 1 and right(_n_, 1) = "W" return [ "conditional", lower(left(_n_, _len_ - 1)) ] ok
+	if _len_ > 1 and right(_n_, 1) = "X" return [ "statement", lower(left(_n_, _len_ - 1)) ] ok
+	if _len_ > 4 and right(_low_, 4) = "many" return [ "plural", left(_low_, _len_ - 4) ] ok
+	if _len_ > 3 and right(_low_, 2) = "ed" return [ "passive", _low_ ] ok
+	return [ "active", _low_ ]
+
+# For a passive/fluent form, the base-verb variants to fold into retrieval so the
+# ACTIVE verb finds it ("reverse"->Reversed, "trim"->Trimmed). "" for other forms.
+func _StzFormBaseVariants(pcName)
+	_aF_ = _StzFormOf(pcName)
+	if _aF_[1] = "passive" return _StzEdVariants(lower(pcName)) ok
+	if _aF_[1] = "fluent"  return _aF_[2] ok
+	return ""
+
+# Candidate base verbs of a "...ed" word, as a keyword string. Adds both the
+# drop-d ("reversed"->reverse) and drop-ed ("trimmed"->trimm->trim) stems; extra
+# non-words are harmless (they match no query), the real base is always present.
+func _StzEdVariants(pcW)
+	_n_ = len(pcW)
+	if _n_ <= 3 or right(pcW, 2) != "ed" return "" ok
+	_s2_ = left(pcW, _n_ - 2)
+	_s1_ = left(pcW, _n_ - 1)
+	_out_ = _s1_ + " " + _s2_
+	_l2_ = len(_s2_)
+	if _l2_ >= 2 and _s2_[_l2_] = _s2_[_l2_ - 1]
+		_out_ += " " + left(_s2_, _l2_ - 1)
+	ok
+	return _out_
+
+# A one-line semantics note for Explain, or "" for the (default) active form.
+func _StzFormNote(pcName)
+	_f_ = _StzFormOf(pcName)[1]
+	if _f_ = "passive"
+		return "passive form -- returns a new transformed copy, leaving the original unchanged (use the active/mutating or ...Q/chainable sibling if you need those)"
+	but _f_ = "fluent"
+		return "fluent form -- transforms the object AND returns it, so calls chain"
+	but _f_ = "deep"
+		return "deep form -- applies recursively through nested structures"
+	but _f_ = "negative"
+		return "negative form -- the logical negation of the test"
+	but _f_ = "plural"
+		return "plural form -- applies the operation to many items at once"
+	but _f_ = "conditional"
+		return "conditional form -- constrains the operation with a per-item condition"
+	but _f_ = "statement"
+		return "statement form -- reads as a natural logical assertion"
+	ok
+	return ""
+
+# What FORM the query is really after: "mutate" (in place), "chain" (fluent), or
+# "" (no cue -> default to the non-destructive passive form). Keeps the NL layer
+# honest about Softanza's active/passive/fluent distinction.
+func _StzQueryFormCue(pcQuery)
+	_q_ = lower(pcQuery)
+	if substr(_q_, "in place") > 0 or substr(_q_, "in-place") > 0 or
+	   substr(_q_, "modify") > 0 or substr(_q_, "mutate") > 0 or
+	   substr(_q_, "destructive") > 0 or substr(_q_, "change the original") > 0
+		return "mutate"
+	ok
+	if substr(_q_, "and then") > 0 or substr(_q_, "chain") > 0 or
+	   substr(_q_, "continue") > 0 or substr(_q_, "keep working") > 0
+		return "chain"
+	ok
+	return ""
+
+# A small ranking prior favouring the FORM that fits the query's intent: with a
+# mutate cue prefer active, with a chain cue prefer fluent, otherwise prefer the
+# non-destructive passive form (then fluent). Small: tips form ties within one
+# operation, never overrides real relevance.
+func _StzFormPreferenceBonus(pcName, pcCue)
+	_f_ = _StzFormOf(pcName)[1]
+	if pcCue = "mutate"
+		if _f_ = "active" return 0.06 ok
+		return 0
+	but pcCue = "chain"
+		if _f_ = "fluent" return 0.06 ok
+		return 0
+	else
+		# No cue: prefer the non-destructive passive form of a transformation.
+		# Do NOT boost fluent here -- ...Q is for chaining, not the default answer,
+		# and boosting it would wrongly beat a plain data method (SplitQ over Split).
+		if _f_ = "passive" return 0.04 ok
+	ok
+	return 0
 
 # The runtime class name of an object. A GLOBAL wrapper because inside a class
 # with a ClassName() method, a bare `classname(This)` resolves to that method
@@ -700,8 +819,13 @@ func _StzEnsureExampleIndex()
 			_cCode_  = _aScn_[_s_][2]
 			_aMeth_  = _StzExtractMethodCalls(_cCode_)
 			_nm_ = len(_aMeth_)
+			# Skip kitchen-sink scenarios (many methods -> each link is weak) and
+			# plumbing methods (display/setup noise). Focused scenarios give the
+			# cleanest method<->intent signal.
+			if _nm_ > 6 loop ok
 			for _m_ = 1 to _nm_
 				_k_ = lower(_aMeth_[_m_])
+				if ring_find($aStzExamplePlumbing, _k_) > 0 loop ok
 				_pos_ = ring_find($aStzExampleKeys, _k_)
 				if _pos_ = 0
 					$aStzExampleKeys + _k_
