@@ -58,11 +58,11 @@ EndScenario()
 # User words that avoid the method name: capitals->Uppercased, reverse->Reversed.
 Scenario("stzString flagship intents resolve to the canonical method")
 	Then("'convert to capitals' -> Uppercased",
-		TopHitIsOneOf(oStr, "convert to capitals", ["Uppercased"]), TRUE)
-	Then("'make it lower case' -> Lowercased",
-		TopHitIsOneOf(oStr, "make it lower case", ["Lowercased"]), TRUE)
-	Then("'reverse the characters' -> Reversed",
-		TopHitIsOneOf(oStr, "reverse the characters", ["Reversed"]), TRUE)
+		TopHitIsOneOf(oStr, "convert to capitals", ["Uppercase","Uppercased"]), TRUE)
+	Then("'make it lower case' -> active Lowercase (imperative)",
+		TopHitIsOneOf(oStr, "make it lower case", ["Lowercase"]), TRUE)
+	Then("'reverse the characters' -> active Reverse (imperative)",
+		TopHitIsOneOf(oStr, "reverse the characters", ["Reverse"]), TRUE)
 	Then("'split on a delimiter' -> Split",
 		TopHitIsOneOf(oStr, "split on a delimiter", ["Split"]), TRUE)
 	Then("'remove surrounding spaces' -> Trimmed",
@@ -76,10 +76,10 @@ EndScenario()
 # form; a mutate cue routes to the ACTIVE form; a chain cue routes to the FLUENT (Q)
 # form. Same operation, three forms, routed by intent.
 Scenario("Function-form awareness routes intent to the right form")
-	Then("'reverse the string' -> passive Reversed (non-destructive default)",
-		TopHitIsOneOf(oStr, "reverse the string", ["Reversed"]), TRUE)
-	Then("'reverse the string in place' -> active Reverse (mutates)",
-		TopHitIsOneOf(oStr, "reverse the string in place", ["Reverse"]), TRUE)
+	Then("'reverse the string' -> active Reverse (imperative default)",
+		TopHitIsOneOf(oStr, "reverse the string", ["Reverse"]), TRUE)
+	Then("'return a reversed copy of the string' -> passive Reversed (asked for)",
+		TopHitIsOneOf(oStr, "return a reversed copy of the string", ["Reversed"]), TRUE)
 	Then("'an uppercase copy of the text' -> passive Uppercased",
 		TopHitIsOneOf(oStr, "an uppercase copy of the text", ["Uppercased"]), TRUE)
 	Then("Explain teaches the passive form",

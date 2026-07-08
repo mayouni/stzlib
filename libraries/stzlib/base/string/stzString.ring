@@ -2336,6 +2336,7 @@ class stzString from stzObject
 	#============================================#
 
 	# Change the string to UPPER CASE in place (mutating). For a copy, use Uppercased.
+	#@ aka  capitals, all caps, in capitals
 	def Uppercase()
 		This.Update(StzUpper(This.Content()))
 
@@ -2357,6 +2358,7 @@ class stzString from stzObject
 		return _cUc_
 
 	# Change the string to lower case in place (mutating). For a copy, use Lowercased.
+	#@ aka  small letters, in lowercase
 	def Lowercase()
 		This.Update(StzLower(This.Content()))
 
