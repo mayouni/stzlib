@@ -59,7 +59,7 @@ oLib = StzLibDoc([ "stzText", "stzListOfTexts" ])
 
 Scenario("Conversational intents surface a runnable recipe")
 	Then("recipes are loaded into the union index",
-		oLib.NumberOfRecipes() >= 6, TRUE)
+		oLib.NumberOfRecipes() >= 19, TRUE)
 	Then("class count excludes recipes (stays at owners)",
 		oLib.NumberOfClasses(), 4)
 	Then("'how do I detect the mood of a paragraph' -> recipe",
@@ -68,6 +68,21 @@ Scenario("Conversational intents surface a runnable recipe")
 		LibTopIsRecipe(oLib, "get the people and places from text"), TRUE)
 	Then("'shorten a long text' -> recipe",
 		LibTopIsRecipe(oLib, "shorten a long text"), TRUE)
+EndScenario()
+
+Scenario("Cross-domain recipes (string / list / number) are retrievable")
+	Then("'make text uppercase' -> recipe",
+		LibTopIsRecipe(oLib, "make text uppercase"), TRUE)
+	Then("'remove duplicate items from a list' -> recipe",
+		LibTopIsRecipe(oLib, "remove duplicate items from a list"), TRUE)
+	Then("'sort these numbers' -> recipe",
+		LibTopIsRecipe(oLib, "sort these numbers"), TRUE)
+	Then("'check if a number is prime' -> recipe",
+		LibTopIsRecipe(oLib, "check if a number is prime"), TRUE)
+	Then("'split a string on commas' -> recipe",
+		LibTopIsRecipe(oLib, "split a string on commas"), TRUE)
+	Then("'find all divisors of a number' -> recipe",
+		LibTopIsRecipe(oLib, "find all divisors of a number"), TRUE)
 EndScenario()
 
 # TRUE if Ask's top-1 method for cQuery is one of the acceptable answers (a
