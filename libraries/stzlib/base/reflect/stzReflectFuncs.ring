@@ -18,11 +18,18 @@ $aStzClassSrcCache = []
 # Function words filtered out of a QUERY before lexical scoring, so a question
 # matches on its CONTENT words ("mood", "language") not its glue ("what", "is",
 # "the"). Top-level init for the same R24 reason.
+# Session cache for the test-sample index (Layer 3): method name -> the scenario
+# titles that exercise it (extra retrieval keywords) + one runnable example. Built
+# lazily once from test/**/*_narrated.ring. Top-level init for the R24 reason.
+$aStzExampleIndex = []      # [ [ methodLower, titles, exampleCode, file ], ... ]
+$aStzExampleKeys  = []      # parallel keys list for fast ring_find
+$bStzExampleIndexBuilt = FALSE
+
 $aStzStopwords = [ "the", "a", "an", "of", "to", "in", "on", "at", "by", "for",
 	"from", "with", "and", "or", "but", "is", "are", "was", "were", "be", "been",
 	"being", "am", "this", "that", "these", "those", "it", "its", "i", "me", "my",
 	"you", "your", "he", "she", "him", "her", "they", "them", "their", "we", "us",
-	"our", "what", "which", "who", "whom", "how", "do", "does", "did", "done",
+	"our", "what", "which", "whom", "how", "do", "does", "did", "done",
 	"can", "could", "would", "should", "will", "shall", "may", "might", "must",
 	"have", "has", "had", "here", "there", "where", "when", "why", "as", "into",
 	"over", "under", "about", "if", "then", "else", "so", "not", "no", "yes",
@@ -30,9 +37,21 @@ $aStzStopwords = [ "the", "a", "an", "of", "to", "in", "on", "at", "by", "for",
 
 func _StzMethodText(paMethod)
 	_c_ = _StzSplitCamel(paMethod[1])
-	if paMethod[2] != ""
+	if len(paMethod) >= 2 and paMethod[2] != ""
 		_c_ += ". " + paMethod[2]
 	ok
+	if len(paMethod) >= 3 and paMethod[3] != ""   # aka synonyms (retrieval only)
+		_c_ += " " + paMethod[3]
+	ok
+	return _c_
+
+# The full RETRIEVAL text of a method = its own text (name + intent + folded #@
+# aka) PLUS the intent phrases of any test scenarios that exercise it (Layer 3).
+# One place, so lexical scoring, the embedding index, and stzLibDoc all agree.
+func _StzMethodRetrievalText(paMethod)
+	_c_ = _StzMethodText(paMethod)
+	_cEg_ = _StzExampleTitlesFor(lower(paMethod[1]))
+	if _cEg_ != "" _c_ += " " + _cEg_ ok
 	return _c_
 
 # The runtime class name of an object. A GLOBAL wrapper because inside a class
@@ -160,6 +179,7 @@ func _StzHarvestClass(pcFile, pcName)
 func _StzHarvestRange(paLines, nStart, nEnd)
 	_aMethods_ = []
 	_cDesc_ = ""
+	_cAka_ = ""
 	_cSection_ = ""
 	if nStart < 1 nStart = 1 ok
 	if nEnd > len(paLines) nEnd = len(paLines) ok
@@ -170,16 +190,18 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			if _cName_ != "" and left(_cName_, 1) != "_"
 				_cD_ = trim(_cDesc_)
 				if _cD_ = "" _cD_ = _cSection_ ok
-				_aMethods_ + [ _cName_, _cD_ ]
+				# Record = [ name, DISPLAY desc (clean), AKA keywords ]. Keeping
+				# aka separate is what lets Explain show a clean description while
+				# retrieval still scores against the synonyms.
+				_aMethods_ + [ _cName_, _cD_, trim(_cAka_) ]
 			ok
 			_cDesc_ = ""
+			_cAka_ = ""
 		but len(_cTrim_) >= 1 and left(_cTrim_, 1) = "#"
 			if len(_cTrim_) >= 2 and left(_cTrim_, 2) = "#@"
-				# A structured InfoTag (#@ aka/tags/see/...). aka/tags/see values
-				# fold into the retrieval text (user-language synonyms = the big
-				# lexical + neural recall boost); other tags are ignored here (kept
-				# for the structured-explain layer). Never resets the desc block.
-				_cDesc_ += _StzInfoTagText(_cTrim_)
+				# #@ aka/tags/see -> user-language synonyms, into the AKA field
+				# (retrieval-only). Other tags ignored here. Never touches desc.
+				_cAka_ += _StzInfoTagText(_cTrim_)
 			but right(_cTrim_, 1) = "#"   # a boxed line: a border OR a section title
 				_cInner_ = ""
 				if len(_cTrim_) >= 3 _cInner_ = trim(substr(_cTrim_, 2, len(_cTrim_) - 2)) ok
@@ -190,7 +212,10 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 				_cDesc_ += " " + trim(substr(_cTrim_, 2, len(_cTrim_) - 1))
 			ok
 		else
-			if _cTrim_ != "" _cDesc_ = "" ok   # code breaks the comment block
+			if _cTrim_ != ""   # code breaks the comment block
+				_cDesc_ = ""
+				_cAka_ = ""
+			ok
 		ok
 	next
 	return _aMethods_
@@ -255,7 +280,7 @@ func _StzHasLetter(pcStr)
 # universal root stzObject -- whose common-ground/reflection methods (Doc/Ask/
 # Content...) are not domain capability and would flood every class. This is what
 # makes "explain an object AND ITS METHODS" complete: e.g. stzMatrix now surfaces
-# the stzListOfLists ops it inherits. Returns [ [name, desc, ownerClass], ... ].
+# the stzListOfLists ops it inherits. Returns [ [name, desc, aka, ownerClass], ... ].
 func _StzHarvestChain(pcName)
 	_aOut_ = []
 	_aSeen_ = []
@@ -272,7 +297,8 @@ func _StzHarvestChain(pcName)
 			_cKey_ = lower(_aM_[_i_][1])
 			if ring_find(_aSeen_, _cKey_) = 0
 				_aSeen_ + _cKey_
-				_aOut_ + [ _aM_[_i_][1], _aM_[_i_][2], _cCur_ ]
+				# [ name, desc(clean), aka, owner ]
+				_aOut_ + [ _aM_[_i_][1], _aM_[_i_][2], _aM_[_i_][3], _cCur_ ]
 			ok
 		next
 		_cParent_ = _StzParentOf(_cCur_)
@@ -627,3 +653,140 @@ func _StzDeMarkdown(pcLine)
 	_c_ = trim(_c_)
 	if len(_c_) >= 2 and left(_c_, 2) = "- " _c_ = trim(substr(_c_, 3, len(_c_) - 2)) ok
 	return _c_
+
+  #==========================================================#
+ #   TEST-SAMPLE HARVEST (Layer 3 of the info-tagging plan) #
+#==========================================================#
+# The narrated scenario suites already pair an intent-titled Scenario(...) with
+# runnable code + #--> outputs. Harvest them ONCE into an index keyed by the
+# methods each scenario exercises, so (a) a method becomes findable by the real
+# intent phrases written in its tests, and (b) Explain can show a provably-running
+# example -- library-wide, at zero authoring cost.
+
+# Titles that exercise cMethodLower, as one keyword string ("" if none).
+func _StzExampleTitlesFor(pcMethodLower)
+	_StzEnsureExampleIndex()
+	_pos_ = ring_find($aStzExampleKeys, pcMethodLower)
+	if _pos_ = 0 return "" ok
+	return $aStzExampleIndex[_pos_][2]
+
+# A runnable example for cMethodLower: [ titles, code, file ] or [].
+func _StzExampleFor(pcMethodLower)
+	_StzEnsureExampleIndex()
+	_pos_ = ring_find($aStzExampleKeys, pcMethodLower)
+	if _pos_ = 0 return [] ok
+	_r_ = $aStzExampleIndex[_pos_]
+	return [ _r_[2], _r_[3], _r_[4] ]
+
+func _StzEnsureExampleIndex()
+	if $bStzExampleIndexBuilt return ok
+	$bStzExampleIndexBuilt = TRUE
+	_cB_ = _StzBaseDir()
+	if _cB_ = "" return ok
+	_aFiles_ = _StzNarratedFilesUnder(_cB_ + "/test", 0)
+	_nf_ = len(_aFiles_)
+	for _i_ = 1 to _nf_
+		_aScn_ = _StzParseScenarios(_aFiles_[_i_])
+		_ns_ = len(_aScn_)
+		for _s_ = 1 to _ns_
+			_cTitle_ = _aScn_[_s_][1]
+			_cCode_  = _aScn_[_s_][2]
+			_aMeth_  = _StzExtractMethodCalls(_cCode_)
+			_nm_ = len(_aMeth_)
+			for _m_ = 1 to _nm_
+				_k_ = lower(_aMeth_[_m_])
+				_pos_ = ring_find($aStzExampleKeys, _k_)
+				if _pos_ = 0
+					$aStzExampleKeys + _k_
+					$aStzExampleIndex + [ _k_, _cTitle_, _cCode_, _aFiles_[_i_] ]
+				else
+					$aStzExampleIndex[_pos_][2] += " " + _cTitle_
+				ok
+			next
+		next
+	next
+
+# Recursive scan for *_narrated.ring under a folder (depth-bounded).
+func _StzNarratedFilesUnder(pcFolder, nDepth)
+	_aOut_ = []
+	if nDepth > 6 or NOT direxists(pcFolder) return _aOut_ ok
+	_aE_ = dir(pcFolder)
+	_n_ = len(_aE_)
+	for _i_ = 1 to _n_
+		_cN_ = _aE_[_i_][1]
+		if _aE_[_i_][2] = 0
+			if _StzEndsWith(lower(_cN_), "_narrated.ring") _aOut_ + (pcFolder + "/" + _cN_) ok
+		but _cN_ != "." and _cN_ != ".."
+			_aSub_ = _StzNarratedFilesUnder(pcFolder + "/" + _cN_, nDepth + 1)
+			_ns_ = len(_aSub_)
+			for _j_ = 1 to _ns_ _aOut_ + _aSub_[_j_] next
+		ok
+	next
+	return _aOut_
+
+# Parse a narrated file into [ [title, code], ... ] -- one per Scenario(...) block.
+func _StzParseScenarios(pcFile)
+	_aLines_ = str2list(read(pcFile))
+	_aOut_ = []
+	_cTitle_ = ""
+	_cCode_ = ""
+	_bIn_ = FALSE
+	_n_ = len(_aLines_)
+	for _i_ = 1 to _n_
+		_cT_ = trim(_aLines_[_i_])
+		if len(_cT_) >= 9 and left(_cT_, 9) = "Scenario("
+			_cTitle_ = _StzFirstQuoted(_cT_)
+			_cCode_ = ""
+			_bIn_ = TRUE
+		but len(_cT_) >= 12 and left(_cT_, 12) = "EndScenario("
+			if _bIn_ and _cTitle_ != "" _aOut_ + [ _cTitle_, _cCode_ ] ok
+			_bIn_ = FALSE
+			_cTitle_ = ""
+		else
+			if _bIn_ _cCode_ += _aLines_[_i_] + nl ok
+		ok
+	next
+	return _aOut_
+
+# The content of the first "..." on a line ("" if none).
+func _StzFirstQuoted(pcLine)
+	_p1_ = substr(pcLine, '"')
+	if _p1_ = 0 return "" ok
+	_cRest_ = substr(pcLine, _p1_ + 1, len(pcLine) - _p1_)
+	_p2_ = substr(_cRest_, '"')
+	if _p2_ = 0 return "" ok
+	return left(_cRest_, _p2_ - 1)
+
+# Distinct PascalCase method names called as `.Name(` in a code block.
+func _StzExtractMethodCalls(pcCode)
+	_aOut_ = []
+	_n_ = len(pcCode)
+	_i_ = 1
+	while _i_ < _n_
+		if pcCode[_i_] = "."
+			_a_ = ascii(pcCode[_i_ + 1])
+			if _a_ >= 65 and _a_ <= 90   # next char is A-Z
+				_cId_ = ""
+				_j_ = _i_ + 1
+				while _j_ <= _n_
+					_c_ = pcCode[_j_]
+					_ac_ = ascii(_c_)
+					if (_ac_ >= 65 and _ac_ <= 90) or (_ac_ >= 97 and _ac_ <= 122) or (_ac_ >= 48 and _ac_ <= 57)
+						_cId_ += _c_
+						_j_++
+					else
+						exit
+					ok
+				end
+				if _j_ <= _n_ and pcCode[_j_] = "(" and _cId_ != ""
+					if ring_find(_aOut_, _cId_) = 0 _aOut_ + _cId_ ok
+				ok
+				_i_ = _j_
+			else
+				_i_++
+			ok
+		else
+			_i_++
+		ok
+	end
+	return _aOut_

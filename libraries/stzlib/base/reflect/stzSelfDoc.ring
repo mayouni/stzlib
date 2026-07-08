@@ -31,7 +31,7 @@ class stzSelfDoc from stzObject
 
 	@cName = ""       # class name (e.g. "stzText")
 	@cSource = ""     # resolved source file path
-	@aMethods = []    # [ [name, description, ownerClass], ... ] own + inherited
+	@aMethods = []    # [ [name, description, aka, ownerClass], ... ] own + inherited
 	@aVectors = []    # per-method embedding (lazy; only when a model is loaded)
 	@bIndexed = FALSE
 
@@ -48,7 +48,7 @@ class stzSelfDoc from stzObject
 				_aM_ = _StzHarvestClass(@cSource, @cName)
 				_nM_ = len(_aM_)
 				for _i_ = 1 to _nM_
-					@aMethods + [ _aM_[_i_][1], _aM_[_i_][2], @cName ]
+					@aMethods + [ _aM_[_i_][1], _aM_[_i_][2], _aM_[_i_][3], @cName ]
 				next
 			ok
 		else
@@ -92,14 +92,14 @@ class stzSelfDoc from stzObject
 	def DefiningClassOf(pcName)
 		_ix_ = This._IndexOf(pcName)
 		if _ix_ = 0 return "" ok
-		return @aMethods[_ix_][3]
+		return @aMethods[_ix_][4]
 
 	# How many of the harvested methods are inherited (defined by an ancestor).
 	def NumberOfInheritedMethods()
 		_n_ = 0
 		_nN_ = len(@aMethods)
 		for _i_ = 1 to _nN_
-			if lower(@aMethods[_i_][3]) != lower(@cName) _n_++ ok
+			if lower(@aMethods[_i_][4]) != lower(@cName) _n_++ ok
 		next
 		return _n_
 
@@ -118,8 +118,13 @@ class stzSelfDoc from stzObject
 			_cD_ = "(" + _StzSplitCamel(@aMethods[_ix_][1]) + ")"
 		ok
 		_cOut_ = @aMethods[_ix_][1] + " -- " + _cD_
-		if lower(@aMethods[_ix_][3]) != lower(@cName)
-			_cOut_ += "  [inherited from " + @aMethods[_ix_][3] + "]"
+		if lower(@aMethods[_ix_][4]) != lower(@cName)
+			_cOut_ += "  [inherited from " + @aMethods[_ix_][4] + "]"
+		ok
+		# Point at a provably-running example from the tests, if one exercises it.
+		_aEg_ = _StzExampleFor(lower(@aMethods[_ix_][1]))
+		if len(_aEg_) = 3
+			_cOut_ += nl + "  e.g. tested in: " + _aEg_[1]
 		ok
 		return _cOut_
 
@@ -147,9 +152,9 @@ class stzSelfDoc from stzObject
 		_aTexts_ = []
 		_aBonus_ = []
 		for _i_ = 1 to _nM_
-			_aTexts_ + _StzMethodText(@aMethods[_i_])
+			_aTexts_ + _StzMethodRetrievalText(@aMethods[_i_])
 			# Own methods get a small prior over inherited ones (see the ranker).
-			if lower(@aMethods[_i_][3]) = lower(@cName)
+			if lower(@aMethods[_i_][4]) = lower(@cName)
 				_aBonus_ + 0.05
 			else
 				_aBonus_ + 0
@@ -189,6 +194,6 @@ class stzSelfDoc from stzObject
 		@aVectors = []
 		_nN_ = len(@aMethods)
 		for _i_ = 1 to _nN_
-			@aVectors + _StzEmbedInto(_StzMethodText(@aMethods[_i_]))
+			@aVectors + _StzEmbedInto(_StzMethodRetrievalText(@aMethods[_i_]))
 		next
 		@bIndexed = TRUE
