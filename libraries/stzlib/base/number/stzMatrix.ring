@@ -183,11 +183,11 @@ func IsListOfMatrices(paList)
 
 	return bResult
 
-class stzMatrix from stzObject
+class stzMatrix from stzListOfLists
 
 	# Matrix core attributes
 
-	@aMatrix     # Stores the actual matrix data
+	@aContent     # Stores the actual matrix data
 	@nRows       # Number of rows
 	@nCols       # Number of columns
 	@pEngineMatrix = NULL
@@ -216,19 +216,23 @@ class stzMatrix from stzObject
 			# Zero matrix of given dimensions
 			@nRows = paInput[1]
 			@nCols = paInput[2]
-			@aMatrix = list(@nRows)
 
-			# Ring's list(n) creates a list of n zeros (1D) -- the
-			# original `list(@nCols, 0)` form takes only one arg in
-			# Ring and would raise "Bad parameters value, error in
-			# range!". Build each row explicitly.
+			# Build rows explicitly. Do NOT use the `list()` builtin
+			# here: stzMatrix now inherits stzList, whose List()
+			# method shadows Ring's `list()` in class scope (Ring is
+			# case-insensitive), so `list(n)` would call List(n) -> R20.
+			@aContent = []
 			for i = 1 to @nRows
-				@aMatrix[i] = list(@nCols)
+				_row_ = []
+				for j = 1 to @nCols
+					_row_ + 0
+				next
+				@aContent + _row_
 			next
 
 		else
 			# 2D matrix list
-			@aMatrix = paInput
+			@aContent = paInput
 			@nRows = len(paInput)
 			@nCols = len(paInput[1])
 		ok
@@ -237,7 +241,7 @@ class stzMatrix from stzObject
 		if @pEngineMatrix != NULL
 			return
 		ok
-		@pEngineMatrix = StzEngineMatrixNewFromList(@nRows, @nCols, @aMatrix)
+		@pEngineMatrix = StzEngineMatrixNewFromList(@nRows, @nCols, @aContent)
 
 	def _InvalidateEngineMatrix()
 		if @pEngineMatrix != NULL
@@ -253,19 +257,19 @@ class stzMatrix from stzObject
 		_nEmCols = StzEngineMatrixCols(@pEngineMatrix)
 		@nRows = _nEmRows
 		@nCols = _nEmCols
-		@aMatrix = []
+		@aContent = []
 		for _iSf = 1 to _nEmRows
 			_aRow = []
 			for _jSf = 1 to _nEmCols
 				_aRow + StzEngineMatrixGet(@pEngineMatrix, _iSf - 1, _jSf - 1)
 			next
-			@aMatrix + _aRow
+			@aContent + _aRow
 		next
 
 	# Engine-backed in-place region update (replaces the removed RingFastPro
 	# updateList dependency). Applies +nVal (:add) or *nVal (:mul) to the cells
 	# in rows nR1..nR2 x cols nC1..nC2 (1-based, inclusive) inside the Zig
-	# matrix engine, then syncs @aMatrix back.
+	# matrix engine, then syncs @aContent back.
 	def _UpdateRegion(cOp, nR1, nR2, nC1, nC2, nVal)
 		nOp = 0
 		if cOp = :mul
@@ -278,10 +282,10 @@ class stzMatrix from stzObject
 	# Raw matrix access
 
 	def Content()
-		return @aMatrix
+		return @aContent
 
 	def Copy()
-		return new stzMatrix(@aMatrix)
+		return new stzMatrix(@aContent)
 
 	# Matrix Structure Queries
 
@@ -411,7 +415,7 @@ class stzMatrix from stzObject
 		# Instead of this:
 
 		# for i = 1 to @nRows
-		# 	@aMatrix[i][pnCol] += pnValue
+		# 	@aContent[i][pnCol] += pnValue
 		# next
 
 	# Adds a value to a specific row
@@ -425,7 +429,7 @@ class stzMatrix from stzObject
 		# Instead of this:
 
 		# for j = 1 to @nCols
-		# 	@aMatrix[pnRow][j] += pnValue
+		# 	@aContent[pnRow][j] += pnValue
 		# next
 
 	# Adds a value to multiple columns
@@ -464,7 +468,7 @@ class stzMatrix from stzObject
 		for _iLoopColumns1_ = 1 to _nColumns1Len_
 			nCol = paColumns[_iLoopColumns1_]
 			for i = 1 to @nRows
-				@aMatrix[i][nCol] += pnValue
+				@aContent[i][nCol] += pnValue
 			next
 		next
 
@@ -504,8 +508,8 @@ class stzMatrix from stzObject
 
 		for i = 1 to nLen
 			for j = 1 to @nCols
-				@aMatrix[nRow][j] += pnValue
-				@aMatrix[panRows[i]][j] += pnValue
+				@aContent[nRow][j] += pnValue
+				@aContent[panRows[i]][j] += pnValue
 			next
 		next
 
@@ -516,7 +520,7 @@ class stzMatrix from stzObject
 		nMin = @min([@nRows, @nCols])
 
 		for i = 1 to nMin
-			@aMatrix[i][i] += pnValue
+			@aContent[i][i] += pnValue
 		next
 
 	# Add value to secondary diagonal elements
@@ -526,7 +530,7 @@ class stzMatrix from stzObject
 		nMin = @min([@nRows, @nCols])
 
 		for i = 1 to nMin
-			@aMatrix[i][@nCols - i + 1] += pnValue
+			@aContent[i][@nCols - i + 1] += pnValue
 		next
 
 	  #-----------------------------#
@@ -670,7 +674,7 @@ class stzMatrix from stzObject
 		nLen = len(panCols)
 
 		aCommands = []
-		cCode = 'updateColumn(@aMatrix, '
+		cCode = 'updateColumn(@aContent, '
 
 		for i = 1 to nLen
 			cCode += ':mul, ' + panCols[i] + ', ' + pnValue + ', '
@@ -684,7 +688,7 @@ class stzMatrix from stzObject
 		# More performant then:
 
 		# for i = 1 to nLen
-		# 	updateList(@aMatrix, :mul, :col, panCols[i], pnValue)
+		# 	updateList(@aContent, :mul, :col, panCols[i], pnValue)
 		# next
 
 	# Multiply a specific row by a value
@@ -777,7 +781,7 @@ class stzMatrix from stzObject
 		nMin = @min([@nRows, @nCols])
 
 		for i = 1 to nMin
-			@aMatrix[i][i] *= pnValue
+			@aContent[i][i] *= pnValue
 		next
 
 		#< @FunctionAlternativeForms
@@ -806,7 +810,7 @@ class stzMatrix from stzObject
 		nMin = @min([@nRows, @nCols])
 
 		for i = 1 to nMin
-			@aMatrix[i][@nCols - i + 1] *= pnValue
+			@aContent[i][@nCols - i + 1] *= pnValue
 		next
 
 		def MultiplyByInDagonal2(pnValue)
@@ -835,7 +839,7 @@ class stzMatrix from stzObject
 
 		for i = 1 to @nRows
 			for j = 1 to @nCols
-				@aMatrix[i][j] += paMatrix[i][j]
+				@aContent[i][j] += paMatrix[i][j]
 			next
 		next
 		This._InvalidateEngineMatrix()
@@ -886,7 +890,7 @@ class stzMatrix from stzObject
 				nSum = 0
 
 				for k = 1 to @nCols
-					nSum += @aMatrix[i][k] * paMatrix[k][j]
+					nSum += @aContent[i][k] * paMatrix[k][j]
 				next
 
 				aResultRow + nSum
@@ -897,7 +901,7 @@ class stzMatrix from stzObject
 
 		# Update the current matrix with the result
 
-		@aMatrix = aResultMatrix
+		@aContent = aResultMatrix
 		@nCols = nInputCols
 		This._InvalidateEngineMatrix()
 
@@ -921,7 +925,7 @@ class stzMatrix from stzObject
 		for i = 1 to @nRows
 
 			for j = 1 to @nCols
-				nTotal += @aMatrix[i][j]
+				nTotal += @aContent[i][j]
 			next
 
 		next
@@ -941,12 +945,12 @@ class stzMatrix from stzObject
 			return StzEngineMatrixMax(@pEngineMatrix)
 		ok
 
-		nMax = @aMatrix[1][1]
+		nMax = @aContent[1][1]
 
 		for i = 1 to @nRows
 			for j = 1 to @nCols
-				if @aMatrix[i][j] > nMax
-					nMax = @aMatrix[i][j]
+				if @aContent[i][j] > nMax
+					nMax = @aContent[i][j]
 				ok
 			next
 		next
@@ -961,12 +965,12 @@ class stzMatrix from stzObject
 			return StzEngineMatrixMin(@pEngineMatrix)
 		ok
 
-		nMin = @aMatrix[1][1]
+		nMin = @aContent[1][1]
 
 		for i = 1 to @nRows
 			for j = 1 to @nCols
-				if @aMatrix[i][j] < nMin
-					nMin = @aMatrix[i][j]
+				if @aContent[i][j] < nMin
+					nMin = @aContent[i][j]
 				ok
 			next
 		next
@@ -988,7 +992,7 @@ class stzMatrix from stzObject
 		for i = 1 to @nRows
 
 			for j = 1 to @nCols
-				@aMatrix[i][j] = pow(@aMatrix[i][j], n)
+				@aContent[i][j] = pow(@aContent[i][j], n)
 			next
 
 		next
@@ -1018,7 +1022,7 @@ class stzMatrix from stzObject
     
 		for i = 1 to @nRows
 			for j = 1 to @nCols
-				if @aMatrix[i][j] = nElm
+				if @aContent[i][j] = nElm
 					aPositions + [i, j]
 				ok
 			next
@@ -1051,7 +1055,7 @@ class stzMatrix from stzObject
 			bMatch = True
 
 			for nRowIndex = 1 to @nRows
-				if @aMatrix[nRowIndex][nColIndex] != paCol[nRowIndex]
+				if @aContent[nRowIndex][nColIndex] != paCol[nRowIndex]
 					bMatch = False
 					exit
 				ok
@@ -1088,7 +1092,7 @@ class stzMatrix from stzObject
 			bMatch = True
 
 			for nColIndex = 1 to @nCols
-				if @aMatrix[nRowIndex][nColIndex] != panRow[nColIndex]
+				if @aContent[nRowIndex][nColIndex] != panRow[nColIndex]
 					bMatch = False
 					exit
 				ok
@@ -1212,7 +1216,7 @@ class stzMatrix from stzObject
 
 			for j = panStart[2] to panEnd[2]
 
-				if @aMatrix[i][j] = pnElm
+				if @aContent[i][j] = pnElm
 					aResult + [i, j]
 				ok
 
@@ -1272,7 +1276,7 @@ class stzMatrix from stzObject
 
 			for j = panStart[2] to panEnd[2]
 
-				if StzFindFirst(anElms, @aMatrix[i][j]) > 0
+				if StzFindFirst(anElms, @aContent[i][j]) > 0
 					aResult + [i, j]
 				ok
 
@@ -1314,7 +1318,7 @@ class stzMatrix from stzObject
 		for i = panStart[1] to panEnd[1]
 			aRow = []
 			for j = panStart[2] to panEnd[2]
-				aRow + @aMatrix[j][i]
+				aRow + @aContent[j][i]
 			next
 
 			aResult + aRow
@@ -1389,7 +1393,7 @@ class stzMatrix from stzObject
 		for i = panStart[1] to panEnd[1]
 			aRow = []
 			for j = panStart[2] to panEnd[2]
-				aRow + @aMatrix[i][j]
+				aRow + @aContent[i][j]
 			next
 
 			aResult + aRow
@@ -1429,7 +1433,7 @@ class stzMatrix from stzObject
 		ok
 		
 		for i = 1 to @nRows
-			@aMatrix[i][pnCol] = panNewCol[i]
+			@aContent[i][pnCol] = panNewCol[i]
 		next
 
 	# Replace multiple columns
@@ -1471,7 +1475,7 @@ class stzMatrix from stzObject
 			nCol = panCols[k]
 
 			for i = 1 to @nRows
-				@aMatrix[i][nCol] = panNewCols[k][i]
+				@aContent[i][nCol] = panNewCols[k][i]
 			next
 		next
 
@@ -1501,7 +1505,7 @@ class stzMatrix from stzObject
 			raise("Can't proceed! New row must match matrix columns.")
 		ok
 
-		@aMatrix[pnRow] = panNewRow
+		@aContent[pnRow] = panNewRow
 
 	# Replace multiple rows
 
@@ -1535,7 +1539,7 @@ class stzMatrix from stzObject
 				raise("Replacement row must match matrix columns")
 			ok
 
-			@aMatrix[nRow] = paNewRows[k]
+			@aContent[nRow] = paNewRows[k]
 		next
 
 	  #------------------------------------#
@@ -1600,8 +1604,8 @@ class stzMatrix from stzObject
 
 		for i = 1 to @nRows
 			for j = 1 to @nCols
-				if @aMatrix[i][j] = pnElm
-					@aMatrix[i][j] = pnNewElm
+				if @aContent[i][j] = pnElm
+					@aContent[i][j] = pnNewElm
 				ok
 			next
 		next
@@ -1637,7 +1641,7 @@ class stzMatrix from stzObject
 		nRow = panRowCol[1]
 		nCol = panRowCol[2]
 
-		@aMatrix[nRow][nCol] = pnNewElm
+		@aContent[nRow][nCol] = pnNewElm
 
 		def ReplaceNumberAt(panRowCol, pnNewElm)
 			This.ReplaceElementAt(panRowCol, pnNewElm)
@@ -1668,8 +1672,8 @@ class stzMatrix from stzObject
 		nRow = panRowCol[1]
 		nCol = panRowCol[2]
 
-		if @aMatrix[nRow][nCol] = pnElm
-			@aMatrix[nRow][nCol] = pnNewElm
+		if @aContent[nRow][nCol] = pnElm
+			@aContent[nRow][nCol] = pnNewElm
 		else
 			stzraise("Can't proceed! pnElm must be equal to the element in position panRowCol.")
 		ok
@@ -1708,8 +1712,8 @@ class stzMatrix from stzObject
 	
 			if nRow <= @nRows and nCol <= @nCols
 				if i <= len(panElms)
-					if @aMatrix[nRow][nCol] = panElms[i]
-						@aMatrix[nRow][nCol] = pnNewElm
+					if @aContent[nRow][nCol] = panElms[i]
+						@aContent[nRow][nCol] = pnNewElm
 					ok
 				ok
 			ok
@@ -1747,7 +1751,7 @@ class stzMatrix from stzObject
 		for i = 1 to nToReplace
 			nRow = aPositions[i][1]
 			nCol = aPositions[i][2]
-			@aMatrix[nRow][nCol] = panNewElms[i]
+			@aContent[nRow][nCol] = panNewElms[i]
 		next
 
 		def ReplaceAllOccurrencesByMany(pnElm, panNewElms)
@@ -1782,7 +1786,7 @@ class stzMatrix from stzObject
 			nRow = aPositions[i][1]
 			nCol = aPositions[i][2]
 			nIndex = ((i-1) % nNewElmsLen) + 1  # Cycle through new elements
-			@aMatrix[nRow][nCol] = panNewElms[nIndex]
+			@aContent[nRow][nCol] = panNewElms[nIndex]
 		next
 
 		def ReplaceAllOccurrencesXT(pnElm, panNewElms)
@@ -1828,8 +1832,8 @@ class stzMatrix from stzObject
 
 			if nRow <= @nRows and nCol <= @nCols
 
-				if @aMatrix[nRow][nCol] = panElms[i]
-					@aMatrix[nRow][nCol] = panNewElms[i]
+				if @aContent[nRow][nCol] = panElms[i]
+					@aContent[nRow][nCol] = panNewElms[i]
 				ok
 
 			ok
@@ -1872,9 +1876,9 @@ class stzMatrix from stzObject
 			nCol = panPos[i][2]
 
 			if nRow <= @nRows and nCol <= @nCols
-				if @aMatrix[nRow][nCol] = panElms[i]
+				if @aContent[nRow][nCol] = panElms[i]
 					nIndex = ((i-1) % nNewElmsLen) + 1  # Cycle through new elements
-					@aMatrix[nRow][nCol] = panNewElms[nIndex]
+					@aContent[nRow][nCol] = panNewElms[nIndex]
 				ok
 			ok
 
@@ -1920,7 +1924,7 @@ class stzMatrix from stzObject
 		nLen = len(panPos)
 
 		for i = 1 to nLen
-			@aMatrix[ panPos[i][1] ][ panPos[i][2] ] = pBy
+			@aContent[ panPos[i][1] ][ panPos[i][2] ] = pBy
 		next
 
 	def ReplaceElementsAtByMany(panPos, panMany)
@@ -1934,7 +1938,7 @@ class stzMatrix from stzObject
 		_nMin_ = @Min([ len(panPos), len(panMany) ])
 
 		for i = 1 to _nMin_
-			@aMatrix[ panPos[i][1] ][ panPos[i][2] ] = panMany[i]
+			@aContent[ panPos[i][1] ][ panPos[i][2] ] = panMany[i]
 		next
 		
 	def ReplaceElementsAtByManyXT(panPos, panByMany)
@@ -1952,7 +1956,7 @@ class stzMatrix from stzObject
 			nRow = panPos[i][1]
 			nCol = panPos[i][2]
 			nIndex = ((i-1) % nNewElmsLen) + 1  # Cycle through new elements
-			@aMatrix[nRow][nCol] = panByMany[nIndex]
+			@aContent[nRow][nCol] = panByMany[nIndex]
 		next
 
 	def ReplaceSection(panStart, panEnd, pBy)
@@ -2012,7 +2016,7 @@ class stzMatrix from stzObject
 		aDiagonal = []
 
 		for i = 1 to nMin
-			aDiagonal + @aMatrix[i][i]
+			aDiagonal + @aContent[i][i]
 		next
 
 		return aDiagonal
@@ -2027,7 +2031,7 @@ class stzMatrix from stzObject
 		aDiagonal = []
 
 		for i = 1 to nMin
-			aDiagonal + @aMatrix[i][@nCols - i + 1]
+			aDiagonal + @aContent[i][@nCols - i + 1]
 		next
 
 		return aDiagonal
@@ -2056,13 +2060,13 @@ class stzMatrix from stzObject
 		# Base cases
 
 		if @nRows = 1
-			return @aMatrix[1][1]
+			return @aContent[1][1]
 		ok
 
 		if @nRows = 2
 
-			return  @aMatrix[1][1] * @aMatrix[2][2] - 
-				@aMatrix[1][2] * @aMatrix[2][1]
+			return  @aContent[1][1] * @aContent[2][2] - 
+				@aContent[1][2] * @aContent[2][1]
 		ok
 
 		# Recursive calculation for larger matrices
@@ -2082,7 +2086,7 @@ class stzMatrix from stzObject
 
 				for l = 1 to @nCols
 					if l != j
-						aRow + @aMatrix[k][l]
+						aRow + @aContent[k][l]
 					ok
 				next
 
@@ -2091,7 +2095,7 @@ class stzMatrix from stzObject
 
 			# Recursive determinant calculation
 
-			nDeterminant += nSign * @aMatrix[1][j] * 
+			nDeterminant += nSign * @aContent[1][j] * 
                         		StzMatrixQ(aSubMatrix).Determinant()
 
 			nSign *= -1
@@ -2126,7 +2130,7 @@ class stzMatrix from stzObject
 					_aInvMatrix + _aInvRow
 				next
 				StzEngineMatrixFree(_pInvResult)
-				@aMatrix = _aInvMatrix
+				@aContent = _aInvMatrix
 				This._InvalidateEngineMatrix()
 				return
 			ok
@@ -2149,7 +2153,7 @@ class stzMatrix from stzObject
 			aRow = []
 	
 			for j = 1 to @nCols
-				aRow + @aMatrix[i][j]
+				aRow + @aContent[i][j]
 			next
 	
 			for j = 1 to @nCols
@@ -2206,7 +2210,7 @@ class stzMatrix from stzObject
 			aInverse + aRow
 		next
 	
-		@aMatrix = aInverse
+		@aContent = aInverse
 
 
 	# Computes the difference between adjacent elements in the matrix
@@ -2220,7 +2224,7 @@ class stzMatrix from stzObject
 			rowDiffs = []
 
 			for j = 2 to @nCols
-				rowDiffs + (@aMatrix[i][j] - @aMatrix[i][j-1])
+				rowDiffs + (@aContent[i][j] - @aContent[i][j-1])
 			next
 
 			aResult + rowDiffs
@@ -2237,18 +2241,18 @@ class stzMatrix from stzObject
 		
 		for i = 1 to @nRows
 	
-			rowMean = @Mean(@aMatrix[i])
+			rowMean = @Mean(@aContent[i])
 	
 			rowAdjusted = []
 	
 			for j = 1 to @nCols
-				rowAdjusted + (@aMatrix[i][j] - rowMean)
+				rowAdjusted + (@aContent[i][j] - rowMean)
 			next
 	
 			aResult + rowAdjusted
 		next
 	
-		@aMatrix = aResult
+		@aContent = aResult
 
 		def SubMeanQ()
 			This.SubMean()
@@ -2291,7 +2295,7 @@ class stzMatrix from stzObject
 
 				# Format number to remove unnecessary decimals
 
-				cFormattedNum = _FormatNumber(@aMatrix[i][j])
+				cFormattedNum = _FormatNumber(@aContent[i][j])
 				nWidth = StzLen(cFormattedNum)
 
 				if nWidth > nMaxWidth
@@ -2321,7 +2325,7 @@ class stzMatrix from stzObject
 
 				# Format and left-pad numbers
 
-				cFormattedNum = _FormatNumber(@aMatrix[i][j])
+				cFormattedNum = _FormatNumber(@aContent[i][j])
 				see ring_copy(" ", anColWidths[j] - StzLen(cFormattedNum)) + cFormattedNum + " "
 
 			next
