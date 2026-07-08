@@ -232,7 +232,12 @@ class stzSelfDoc from stzObject
 		if _cMethod_ = ""
 			return "No method in " + @cName + " matches: " + pcIntent
 		ok
-		return _StzCallTemplate(@cName, _cMethod_) + "   -- " + _cHow_ + " (" + _StzNameGloss(_cMethod_) + ")"
+		# owner = the class that DEFINES the method (may be an ancestor) -- its source
+		# is where the signature (and thus the arg types) live.
+		_ix_ = This._IndexOf(_cMethod_)
+		_cOwner_ = @cName
+		if _ix_ > 0 _cOwner_ = @aMethods[_ix_][4] ok
+		return _StzCallTemplate(@cName, _cMethod_, _cOwner_) + "   -- " + _cHow_ + " (" + _StzNameGloss(_cMethod_) + ")"
 
 	# The resolved method NAME only (DATA), grammar-first then retrieval.
 	def MethodForIntent(pcIntent)
