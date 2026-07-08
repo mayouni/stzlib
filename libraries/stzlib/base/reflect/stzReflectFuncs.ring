@@ -31,6 +31,19 @@ $bStzExampleIndexBuilt = FALSE
 $aStzExamplePlumbing = [ "content", "show", "string", "tostring", "stztype", "copy",
 	"init", "q", "qq", "qqq", "stringify", "print", "display", "value", "object" ]
 
+# NAME GENERATION -- user verb -> Softanza base verb (the head of the expression).
+# Top-level init (statements after a func in a loaded file don't run -> R24).
+$aStzVerbMap = [
+	[ "remove", "Remove" ], [ "delete", "Remove" ], [ "strip", "Remove" ], [ "erase", "Remove" ],
+	[ "reverse", "Reverse" ], [ "flip", "Reverse" ], [ "invert", "Reverse" ],
+	[ "find", "Find" ], [ "locate", "Find" ], [ "search", "Find" ],
+	[ "replace", "Replace" ], [ "substitute", "Replace" ],
+	[ "uppercase", "Uppercase" ], [ "capitalize", "Uppercase" ],
+	[ "lowercase", "Lowercase" ],
+	[ "sort", "Sort" ], [ "add", "Add" ], [ "insert", "Insert" ],
+	[ "count", "Count" ], [ "contain", "Contains" ], [ "trim", "Trim" ],
+	[ "split", "Split" ], [ "join", "Join" ], [ "repeat", "Repeat" ] ]
+
 $aStzStopwords = [ "the", "a", "an", "of", "to", "in", "on", "at", "by", "for",
 	"from", "with", "and", "or", "but", "is", "are", "was", "were", "be", "been",
 	"being", "am", "this", "that", "these", "those", "it", "its", "i", "me", "my",
@@ -131,6 +144,108 @@ func _StzParseName(pcName)
 		ok
 	ok
 	return [ _StzSplitCamel(_n_), _tags_ ]
+
+# ==== NAME GENERATION -- the gloss run BACKWARDS ==========================
+# The payoff of a designed, regular, invertible grammar: compose a method name
+# from a natural-language intent, deterministically, NO model. _StzComposeName
+# maps intent -> a candidate name by grammar; callers then VERIFY it against the
+# real method inventory (so it never hallucinates -- it composes, then grounds).
+
+# Public: compose a Softanza method name from an intent, grounded against a class's
+# real API. Returns [ composedName, bExists, cClass ]. bExists FALSE means the
+# grammar produced a valid form the class does not implement yet (a coverage gap).
+func StzComposeMethodFor(pcIntent, pcClass)
+	_cName_ = _StzComposeName(pcIntent)
+	if _cName_ = "" return [ "", FALSE, pcClass ] ok
+	_oSd_ = new stzSelfDoc(pcClass)
+	return [ _cName_, _oSd_.HasMethod(_cName_), pcClass ]
+
+func _StzComposeName(pcIntent)
+	_q_ = lower(pcIntent)
+	_aTok_ = _StzAlnumTokens(_q_)
+	_verb_ = ""
+	_nVi_ = 0
+	_nT_ = len(_aTok_)
+	for _i_ = 1 to _nT_
+		_p_ = _StzVerbLookup(_aTok_[_i_])
+		if _p_ != "" _verb_ = _p_ _nVi_ = _i_ exit ok
+	next
+	if _verb_ = "" return "" ok
+	# form cues (word-level, so "case sensitively" etc. still tokenise to hits)
+	_passive_ = _StzHasAny(_q_, [ "copy", "version", "without changing", "leaving the original", "a reversed", "an uppercase" ])
+	_fluent_  = _StzHasAny(_q_, [ "and then", "then continue", "chain", "keep working" ])
+	_plural_  = _StzHasAny(_q_, [ "these", "many", "several", "each of", "all of them" ])
+	_deep_    = _StzHasAny(_q_, [ "nested", "recursively", "deep", "at all levels", "everywhere in" ])
+	_cs_      = _StzHasAny(_q_, [ "case sensitive", "case-sensitive", "case sensitively" ])
+	_random_  = _StzHasAny(_q_, [ "random", "randomly" ])
+	_viz_     = _StzHasAny(_q_, [ "show", "visualize", "visualise", "see the" ])
+	# object = capitalised content tokens AFTER the verb that aren't cue words
+	_obj_ = ""
+	for _i_ = _nVi_ + 1 to _nT_
+		_w_ = _aTok_[_i_]
+		if ring_find($aStzStopwords, _w_) > 0 loop ok
+		if _StzIsCueWord(_w_) loop ok
+		# The CONTAINER noun (the string/list/etc.) is the implicit main object,
+		# not a sub-object part -- drop it, so "reverse the string" -> Reverse.
+		if _StzIsContainerNoun(_w_) loop ok
+		_obj_ += _StzCapFirst(_w_)
+	next
+	# compose: prefix* + base(voice) + object + Many + CS + Q
+	_name_ = ""
+	if _deep_   _name_ += "Deep" ok
+	if _viz_    _name_ += "viz" ok
+	if _random_ _name_ += "rnd" ok
+	_base_ = _verb_
+	if _passive_ _base_ = _StzPastParticiple(_verb_) ok
+	_name_ += _base_ + _obj_
+	if _plural_ _name_ += "Many" ok
+	if _cs_     _name_ += "CS" ok
+	if _fluent_ _name_ += "Q" ok
+	return _name_
+
+func _StzVerbLookup(pcWord)
+	# try the word, then a couple of de-inflected stems ("reversed"/"removes"->base)
+	_aCand_ = [ pcWord ]
+	_lw_ = len(pcWord)
+	if _lw_ > 3 and right(pcWord, 2) = "ed" _aCand_ + left(pcWord, _lw_ - 1) _aCand_ + left(pcWord, _lw_ - 2) ok
+	if _lw_ > 3 and right(pcWord, 1) = "s" _aCand_ + left(pcWord, _lw_ - 1) ok
+	if _lw_ > 4 and right(pcWord, 3) = "ing" _aCand_ + left(pcWord, _lw_ - 3) ok
+	_nc_ = len(_aCand_)
+	_nm_ = len($aStzVerbMap)
+	for _c_ = 1 to _nc_
+		for _i_ = 1 to _nm_
+			if $aStzVerbMap[_i_][1] = _aCand_[_c_] return $aStzVerbMap[_i_][2] ok
+		next
+	next
+	return ""
+
+func _StzIsContainerNoun(pcW)
+	return ring_find([ "string", "list", "text", "number", "numbers", "item", "items",
+		"char", "chars", "character", "characters", "it", "them", "this", "that",
+		"me", "some", "value", "values", "word", "words", "substring", "substrings" ], pcW) > 0
+
+func _StzHasAny(pcHay, paNeedles)
+	_n_ = len(paNeedles)
+	for _i_ = 1 to _n_
+		if substr(pcHay, paNeedles[_i_]) > 0 return TRUE ok
+	next
+	return FALSE
+
+func _StzIsCueWord(pcW)
+	return ring_find([ "copy","version","nested","recursively","deep","random","randomly",
+		"show","visualize","case","sensitive","sensitively","then","chain","these","many",
+		"several","original","changing","leaving","without","continue","everywhere","give",
+		"get","keep","working" ], pcW) > 0
+
+func _StzCapFirst(pcW)
+	if len(pcW) = 0 return "" ok
+	return upper(left(pcW, 1)) + substr(pcW, 2, len(pcW) - 1)
+
+func _StzPastParticiple(pcVerb)
+	_n_ = len(pcVerb)
+	if _n_ = 0 return pcVerb ok
+	if right(pcVerb, 1) = "e" return pcVerb + "d" ok
+	return pcVerb + "ed"
 
 # TRUE if the parsed tags carry a compositional MODIFIER worth spelling out in a
 # gloss (beyond a plain active/passive/fluent voice, which the form-note covers).
