@@ -683,10 +683,17 @@ func _StzEnsureExampleIndex()
 	$bStzExampleIndexBuilt = TRUE
 	_cB_ = _StzBaseDir()
 	if _cB_ = "" return ok
-	_aFiles_ = _StzNarratedFilesUnder(_cB_ + "/test", 0)
+	# Harvest EVERY test .ring that uses Scenario() -- not just files named
+	# *_narrated.ring -- so a module's scenarios light up however the grind has
+	# them arranged (stzString alone has ~1000 in numbered files). ~2s, cached.
+	_aFiles_ = []
+	_StzCollectTestRing(_cB_ + "/test", _aFiles_, 0)
 	_nf_ = len(_aFiles_)
 	for _i_ = 1 to _nf_
-		_aScn_ = _StzParseScenarios(_aFiles_[_i_])
+		if NOT fexists(_aFiles_[_i_]) loop ok
+		_cContent_ = read(_aFiles_[_i_])
+		if substr(_cContent_, "Scenario(") = 0 loop ok
+		_aScn_ = _StzParseScenariosText(_cContent_)
 		_ns_ = len(_aScn_)
 		for _s_ = 1 to _ns_
 			_cTitle_ = _aScn_[_s_][1]
@@ -700,33 +707,36 @@ func _StzEnsureExampleIndex()
 					$aStzExampleKeys + _k_
 					$aStzExampleIndex + [ _k_, _cTitle_, _cCode_, _aFiles_[_i_] ]
 				else
-					$aStzExampleIndex[_pos_][2] += " " + _cTitle_
+					# Cap accumulated titles so a hot method (contains, split...)
+					# used in hundreds of scenarios keeps a bounded record.
+					if len($aStzExampleIndex[_pos_][2]) < 800
+						$aStzExampleIndex[_pos_][2] += " " + _cTitle_
+					ok
 				ok
 			next
 		next
 	next
 
-# Recursive scan for *_narrated.ring under a folder (depth-bounded).
-func _StzNarratedFilesUnder(pcFolder, nDepth)
-	_aOut_ = []
-	if nDepth > 6 or NOT direxists(pcFolder) return _aOut_ ok
+# Recursively collect every .ring file under a folder (depth-bounded).
+func _StzCollectTestRing(pcFolder, aOut, nDepth)
+	if nDepth > 6 or NOT direxists(pcFolder) return ok
 	_aE_ = dir(pcFolder)
 	_n_ = len(_aE_)
 	for _i_ = 1 to _n_
 		_cN_ = _aE_[_i_][1]
 		if _aE_[_i_][2] = 0
-			if _StzEndsWith(lower(_cN_), "_narrated.ring") _aOut_ + (pcFolder + "/" + _cN_) ok
+			if _StzEndsWith(lower(_cN_), ".ring") aOut + (pcFolder + "/" + _cN_) ok
 		but _cN_ != "." and _cN_ != ".."
-			_aSub_ = _StzNarratedFilesUnder(pcFolder + "/" + _cN_, nDepth + 1)
-			_ns_ = len(_aSub_)
-			for _j_ = 1 to _ns_ _aOut_ + _aSub_[_j_] next
+			_StzCollectTestRing(pcFolder + "/" + _cN_, aOut, nDepth + 1)
 		ok
 	next
-	return _aOut_
 
-# Parse a narrated file into [ [title, code], ... ] -- one per Scenario(...) block.
+# Parse a file's scenarios: [ [title, code], ... ], one per Scenario(...) block.
 func _StzParseScenarios(pcFile)
-	_aLines_ = str2list(read(pcFile))
+	return _StzParseScenariosText(read(pcFile))
+
+func _StzParseScenariosText(pcContent)
+	_aLines_ = str2list(pcContent)
 	_aOut_ = []
 	_cTitle_ = ""
 	_cCode_ = ""
