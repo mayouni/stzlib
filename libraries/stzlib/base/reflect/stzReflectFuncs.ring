@@ -56,14 +56,44 @@ func _StzSplitCamel(pcName)
 # Harvest [ [name, description], ... ] from a Softanza source file: each public
 # `def Name(...)` with the doc-comment block immediately above it. Section header
 # boxes (#===#) are not descriptions. Private methods (leading _) are skipped.
+# NOTE: whole-file harvest -- grabs every def regardless of which class owns it.
+# For multi-class files use _StzHarvestClass(file, name) instead.
 func _StzHarvestMethods(pcFile)
-	_cContent_ = read(pcFile)
-	_aLines_ = str2list(_cContent_)
+	_aLines_ = str2list(read(pcFile))
+	return _StzHarvestRange(_aLines_, 1, len(_aLines_))
+
+# Harvest ONLY the methods of class pcName within pcFile (a file may hold several
+# classes -- stzObject.ring alone holds many). Scans from that class's `class`
+# line to the next `class`/`func` declaration. Empty pcName => whole file.
+func _StzHarvestClass(pcFile, pcName)
+	_aLines_ = str2list(read(pcFile))
+	_nLen_ = len(_aLines_)
+	if NOT (isString(pcName) and pcName != "")
+		return _StzHarvestRange(_aLines_, 1, _nLen_)
+	ok
+	_cNL_ = lower(pcName)
+	for _i_ = 1 to _nLen_
+		if _StzIsClassLineNamed(trim(_aLines_[_i_]), _cNL_)
+			_nEnd_ = _nLen_
+			for _j_ = _i_ + 1 to _nLen_
+				if _StzIsClassOrFuncDecl(trim(_aLines_[_j_]))
+					_nEnd_ = _j_ - 1
+					exit
+				ok
+			next
+			return _StzHarvestRange(_aLines_, _i_ + 1, _nEnd_)
+		ok
+	next
+	return []
+
+# The shared harvest loop, over a line range [nStart, nEnd].
+func _StzHarvestRange(paLines, nStart, nEnd)
 	_aMethods_ = []
 	_cDesc_ = ""
-	_nLen_ = len(_aLines_)
-	for _i_ = 1 to _nLen_
-		_cTrim_ = trim(_aLines_[_i_])
+	if nStart < 1 nStart = 1 ok
+	if nEnd > len(paLines) nEnd = len(paLines) ok
+	for _i_ = nStart to nEnd
+		_cTrim_ = trim(paLines[_i_])
 		if len(_cTrim_) >= 4 and lower(left(_cTrim_, 4)) = "def "
 			_cName_ = _StzDefName(_cTrim_)
 			if _cName_ != "" and left(_cName_, 1) != "_"
@@ -81,6 +111,91 @@ func _StzHarvestMethods(pcFile)
 		ok
 	next
 	return _aMethods_
+
+# Harvest a class's FULL method surface: its own methods + everything it inherits
+# up the domain chain (child overrides parent by name), STOPPING before the
+# universal root stzObject -- whose common-ground/reflection methods (Doc/Ask/
+# Content...) are not domain capability and would flood every class. This is what
+# makes "explain an object AND ITS METHODS" complete: e.g. stzMatrix now surfaces
+# the stzListOfLists ops it inherits. Returns [ [name, desc, ownerClass], ... ].
+func _StzHarvestChain(pcName)
+	_aOut_ = []
+	_aSeen_ = []
+	_cCur_ = pcName
+	_nGuard_ = 0
+	while isString(_cCur_) and _cCur_ != "" and _nGuard_ < 15
+		_nGuard_++
+		if lower(_cCur_) = "stzobject" exit ok
+		_cSrc_ = _StzResolveSource(_cCur_)
+		if _cSrc_ = "" or NOT fexists(_cSrc_) exit ok
+		_aM_ = _StzHarvestClass(_cSrc_, _cCur_)
+		_nM_ = len(_aM_)
+		for _i_ = 1 to _nM_
+			_cKey_ = lower(_aM_[_i_][1])
+			if ring_find(_aSeen_, _cKey_) = 0
+				_aSeen_ + _cKey_
+				_aOut_ + [ _aM_[_i_][1], _aM_[_i_][2], _cCur_ ]
+			ok
+		next
+		_cParent_ = _StzParentOf(_cCur_)
+		if isString(_cParent_) and lower(_cParent_) = lower(_cCur_) exit ok
+		_cCur_ = _cParent_
+	end
+	return _aOut_
+
+# The parent class of pcName (the `from X` in its `class` decl), "" if none / root.
+func _StzParentOf(pcName)
+	_cSrc_ = _StzResolveSource(pcName)
+	if _cSrc_ = "" or NOT fexists(_cSrc_) return "" ok
+	_aLines_ = str2list(read(_cSrc_))
+	_cNL_ = lower(pcName)
+	_n_ = len(_aLines_)
+	for _i_ = 1 to _n_
+		_cT_ = trim(_aLines_[_i_])
+		if _StzIsClassLineNamed(_cT_, _cNL_)
+			_aTok_ = _StzWords(_cT_)
+			if len(_aTok_) >= 4 and lower(_aTok_[3]) = "from"
+				return _aTok_[4]
+			ok
+			return ""
+		ok
+	next
+	return ""
+
+# TRUE if a trimmed line is `class <pcNameLower> ...` (Ring allows `Class` too).
+func _StzIsClassLineNamed(pcTrim, pcNameLower)
+	if len(pcTrim) < 6 return FALSE ok
+	if lower(left(pcTrim, 6)) != "class " return FALSE ok
+	_aTok_ = _StzWords(pcTrim)
+	if len(_aTok_) >= 2 and lower(_aTok_[2]) = pcNameLower return TRUE ok
+	return FALSE
+
+# TRUE if a trimmed line opens a new class or func declaration (block boundary).
+func _StzIsClassOrFuncDecl(pcTrim)
+	if len(pcTrim) >= 6 and lower(left(pcTrim, 6)) = "class " return TRUE ok
+	if len(pcTrim) >= 5 and lower(left(pcTrim, 5)) = "func " return TRUE ok
+	return FALSE
+
+# Split a string on whitespace (space/tab/CR) into words.
+func _StzWords(pcStr)
+	_aOut_ = []
+	_cCur_ = ""
+	_n_ = len(pcStr)
+	for _i_ = 1 to _n_
+		_c_ = pcStr[_i_]
+		if _c_ = " " or _c_ = char(9) or _c_ = char(13)
+			if _cCur_ != ""
+				_aOut_ + _cCur_
+				_cCur_ = ""
+			ok
+		else
+			_cCur_ += _c_
+		ok
+	next
+	if _cCur_ != ""
+		_aOut_ + _cCur_
+	ok
+	return _aOut_
 
 func _StzDefName(pcDefLine)   # "def Name(pa, pb)" -> "Name"
 	_cRest_ = trim(substr(pcDefLine, 4, len(pcDefLine) - 3))
@@ -131,6 +246,15 @@ func _StzBaseDir()
 #   - neither -> lexical bag-of-words cosine (zero-setup).
 # Returns [[idx, score], ...] sorted desc, top n.
 func _StzRankMethodTexts(pcQuestion, paTexts, paVectors, n)
+	return _StzRankMethodTextsBonus(pcQuestion, paTexts, paVectors, n, [])
+
+# As above, plus an optional per-text additive BONUS (paBonus[i], same length as
+# paTexts). Callers use it to give an object's OWN methods a small prior over the
+# generic ones it inherits: when you ask an object about ITSELF, its purpose-built
+# methods should win near-ties against inherited utilities (a terse-named inherited
+# method must not beat a well-matched own method on a stopword). The bonus is small,
+# so it only tips genuine ties -- a strongly-matching inherited method still wins.
+func _StzRankMethodTextsBonus(pcQuestion, paTexts, paVectors, n, paBonus)
 	_nT_ = len(paTexts)
 	_aSc_ = []
 	if StzHasRerankerModel()
@@ -149,6 +273,12 @@ func _StzRankMethodTexts(pcQuestion, paTexts, paVectors, n)
 		_oQ_ = new stzString(pcQuestion)
 		for _i_ = 1 to _nT_
 			_aSc_ + [ _i_, _oQ_.CosineSimilarityWith(paTexts[_i_]) ]
+		next
+	ok
+	if isList(paBonus) and len(paBonus) = _nT_
+		_ns_ = len(_aSc_)
+		for _i_ = 1 to _ns_
+			_aSc_[_i_][2] += paBonus[ _aSc_[_i_][1] ]
 		next
 	ok
 	return _StzTopNScored(_aSc_, n)

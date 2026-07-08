@@ -47,15 +47,15 @@ class stzLibDoc from stzObject
 		for _c_ = 1 to _nC_
 			_cClass_ = paClasses[_c_]
 			if isString(_cClass_)
-				_cSrc_ = _StzResolveSource(_cClass_)
-				if _cSrc_ != "" and fexists(_cSrc_)
-					_aM_ = _StzHarvestMethods(_cSrc_)
-					_nM_ = len(_aM_)
-					for _m_ = 1 to _nM_
-						@aEntries + [ _cClass_, _aM_[_m_][1], _aM_[_m_][2] ]
-						@aTexts + _StzMethodText(_aM_[_m_])
-					next
-				ok
+				# Harvest own + inherited methods; report each under the class
+				# that actually DEFINES it (the owner), so "which class has X?"
+				# answers truthfully across the inheritance chain.
+				_aM_ = _StzHarvestChain(_cClass_)
+				_nM_ = len(_aM_)
+				for _m_ = 1 to _nM_
+					@aEntries + [ _aM_[_m_][3], _aM_[_m_][1], _aM_[_m_][2] ]
+					@aTexts + _StzMethodText([ _aM_[_m_][1], _aM_[_m_][2] ])
+				next
 			ok
 		next
 

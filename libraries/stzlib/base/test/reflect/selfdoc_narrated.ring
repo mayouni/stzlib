@@ -49,9 +49,12 @@ Scenario("stzLibDoc: cross-class method discovery")
 	# Harvests MANY classes into one index, so Ask() spans the whole (curated)
 	# library and the answer names the CLASS a method lives in -- fixing the
 	# single-class blind spot (e.g. a text query whose method is on stzListOfTexts).
+	# Harvest is inheritance-aware: each method is attributed to the class that
+	# DEFINES it, so the 2 curated classes pool methods from their ancestors too
+	# (stzText + stzListOfTexts + inherited stzStringList/stzListOfStrings = 4 owners).
 	o = StzLibDoc([ "stzText", "stzListOfTexts" ])
-	Then("harvests across classes",
-		o.NumberOfClasses(), 2)
+	Then("harvests across classes (owners span the inheritance chain)",
+		o.NumberOfClasses(), 4)
 	Then("with all their methods pooled",
 		o.NumberOfEntries() >= 120, TRUE)
 	r = o.AskFor("rank documents for a query", 3)
