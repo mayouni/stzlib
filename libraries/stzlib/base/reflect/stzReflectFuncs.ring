@@ -1361,6 +1361,79 @@ func _StzSaveExampleCache(nSig)
 	catch
 	done
 
+# ==== EMBEDDING-INDEX PERSISTENCE ==========================================
+# Embedding all of a class's methods is ~80ms each (170s for stzString's 2000+),
+# so the neural bi-encoder index is persisted to disk keyed by (model dims + the
+# retrieval-texts signature). A warm session LOADS the vectors instead of re-
+# embedding. Same idea as the L3 cache. Vectors are stored index-aligned with the
+# method order (the signature guarantees the set+order match), so no names needed.
+
+func _StzEmbCachePath(pcClass)
+	_cB_ = _StzBaseDir()
+	if _cB_ = "" return "" ok
+	return _cB_ + "/doc/.emb_" + lower(pcClass) + ".stzcache"
+
+# Cheap signature of the retrieval texts: count + total length + first-char sum.
+# Any aka/intent edit changes a length -> the cache invalidates and re-embeds.
+func _StzTextsSig(paTexts)
+	_n_ = len(paTexts)
+	_s_ = _n_
+	for _i_ = 1 to _n_
+		_s_ += len(paTexts[_i_])
+		if len(paTexts[_i_]) > 0 _s_ += ascii(paTexts[_i_][1]) ok
+	next
+	return _s_
+
+# Load cached vectors IF (model dims, count, texts-signature) all match; else [].
+func _StzLoadEmbCache(pcClass, paTexts)
+	_cPath_ = _StzEmbCachePath(pcClass)
+	if _cPath_ = "" or NOT fexists(_cPath_) return [] ok
+	_aLines_ = str2list(read(_cPath_))
+	if len(_aLines_) < 1 return [] ok
+	_aHW_ = _StzWords(trim(_aLines_[1]))
+	if len(_aHW_) < 4 or _aHW_[1] != "EMB" return [] ok
+	if number(_aHW_[2]) != StzEngineNeuralModelNEmbd() return [] ok
+	if number(_aHW_[3]) != len(paTexts) return [] ok
+	if number(_aHW_[4]) != _StzTextsSig(paTexts) return [] ok
+	_aV_ = []
+	_nl_ = len(_aLines_)
+	for _i_ = 2 to _nl_
+		_ln_ = trim(_aLines_[_i_])
+		if _ln_ != "" _aV_ + _StzStrToFloats(_ln_) ok
+	next
+	return _aV_
+
+func _StzSaveEmbCache(pcClass, paTexts, paVectors)
+	_cPath_ = _StzEmbCachePath(pcClass)
+	if _cPath_ = "" return ok
+	_c_ = "EMB " + StzEngineNeuralModelNEmbd() + " " + len(paTexts) + " " + _StzTextsSig(paTexts) + nl
+	_n_ = len(paVectors)
+	for _i_ = 1 to _n_
+		_c_ += _StzFloatsToStr(paVectors[_i_]) + nl
+	next
+	try
+		write(_cPath_, _c_)
+	catch
+	done
+
+func _StzFloatsToStr(paV)
+	_c_ = ""
+	_n_ = len(paV)
+	for _i_ = 1 to _n_
+		_c_ += paV[_i_]
+		if _i_ < _n_ _c_ += "," ok
+	next
+	return _c_
+
+func _StzStrToFloats(pcS)
+	_aP_ = _StzSplitOnChar(pcS, ",")
+	_aV_ = []
+	_n_ = len(_aP_)
+	for _i_ = 1 to _n_
+		_aV_ + number(_aP_[_i_])
+	next
+	return _aV_
+
 # Split a string on a single-character separator into fields (empty fields kept).
 func _StzSplitOnChar(pcStr, pcCh)
 	_aOut_ = []

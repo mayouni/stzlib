@@ -33,6 +33,32 @@ func StzUseNeuralModel(pcPath)
 func StzHasNeuralModel()
 	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelNEmbd() > 0
 
+# The Softanza models directory (sibling of engine/: libraries/stzlib/models).
+func StzModelsDir()
+	_e_ = $cEngineDir
+	if isString(_e_) and len(_e_) >= 7 and right(_e_, 7) = "/engine"
+		return left(_e_, len(_e_) - 7) + "/models"
+	ok
+	return ""
+
+# StzAutoLoadNeuralModel() -- zero-config enablement: if no model is loaded, load
+# the first *.gguf found in the models/ dir. Returns TRUE if a model is now ready.
+# A user just drops a GGUF into libraries/stzlib/models/ and semantic retrieval
+# turns on -- no path to hardcode.
+func StzAutoLoadNeuralModel()
+	if StzHasNeuralModel() return TRUE ok
+	_d_ = StzModelsDir()
+	if _d_ = "" or NOT direxists(_d_) return FALSE ok
+	_aE_ = dir(_d_)
+	_n_ = len(_aE_)
+	for _i_ = 1 to _n_
+		if _aE_[_i_][2] = 0 and len(_aE_[_i_][1]) >= 5 and right(lower(_aE_[_i_][1]), 5) = ".gguf"
+			StzUseNeuralModel(_d_ + "/" + _aE_[_i_][1])
+			return StzHasNeuralModel()
+		ok
+	next
+	return FALSE
+
 # TRUE if the loaded model carries a token-classification NER head (e.g. a
 # bert-base-NER GGUF) -- then stzText.NamedEntities() upgrades to transformer NER.
 func StzHasNeuralNerModel()

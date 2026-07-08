@@ -212,9 +212,20 @@ class stzSelfDoc from stzObject
 
 	def _EnsureIndex()
 		if @bIndexed return ok
-		@aVectors = []
 		_nN_ = len(@aMethods)
+		_aTexts_ = []
+		for _i_ = 1 to _nN_ _aTexts_ + _StzMethodRetrievalText(@aMethods[_i_]) next
+		# Fast path: load the persisted embedding index instead of re-embedding
+		# every method (~80ms each). Keyed by model dims + texts signature.
+		_aV_ = _StzLoadEmbCache(@cName, _aTexts_)
+		if len(_aV_) = _nN_
+			@aVectors = _aV_
+			@bIndexed = TRUE
+			return
+		ok
+		@aVectors = []
 		for _i_ = 1 to _nN_
-			@aVectors + _StzEmbedInto(_StzMethodRetrievalText(@aMethods[_i_]))
+			@aVectors + _StzEmbedInto(_aTexts_[_i_])
 		next
+		_StzSaveEmbCache(@cName, _aTexts_, @aVectors)
 		@bIndexed = TRUE
