@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListMover
+class stzListMover from stzObject
 
 	@oList
 

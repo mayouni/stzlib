@@ -18,7 +18,7 @@ func StzImgToAsciiQ(pcImagePath)
     func ImgToAsciiQ(pcImagePath)
         return StzImgToAsciiQ(pcImagePath)
 
-class stzImgToAscii
+class stzImgToAscii from stzObject
 
     @cExe      = $cImg2AnsiExe
     @cImage    = ""

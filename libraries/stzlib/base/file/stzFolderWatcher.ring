@@ -10,7 +10,7 @@
 	    o.Stop()
 */
 
-class stzFolderWatcher
+class stzFolderWatcher from stzObject
 
 	@hWatcher = NULL    # opaque engine handle
 	@cPath = ""

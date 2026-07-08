@@ -285,7 +285,7 @@ func Scripts(p)
 func StzScriptQ(pcScriptIdentifier)
 	return new stzScript(pcScriptIdentifier)
 
-class stzScript
+class stzScript from stzObject
 
 	#NOTE: the class have a @aScriptInfo@ attribute in PRIVATE section
 	# We put it there, because we use it just for initializing the object.

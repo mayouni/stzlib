@@ -386,7 +386,7 @@ func CountryAbbreviation(pcCountryIdentifier)
 	func @CountryAbbreviation(pcCountryIdentifier)
 		return CountryAbbreviation(pcCountryIdentifier)
 
-class stzCountry
+class stzCountry from stzObject
 	@aCountryInfo
 
 	def init(pcCountryIdentifier)	# Can be: code, name, abbreviation, phone code, defaultlanguage, or a locale abbreviation

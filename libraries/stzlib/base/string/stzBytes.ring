@@ -24,7 +24,7 @@ func StzBytesQ(pData)
  ///   CLASS   ///
 /////////////////
 
-class stzBytes
+class stzBytes from stzObject
 
 	@pEngine = NULL
 

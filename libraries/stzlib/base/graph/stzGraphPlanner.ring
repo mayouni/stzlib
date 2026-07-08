@@ -2,7 +2,7 @@
 #  stzGraphPlanner - Enhanced Version
 #============================================#
 
-class stzGraphPlanner
+class stzGraphPlanner from stzObject
 	@oGraph
 	@aPlans  
 	@cCurrentPlan
@@ -1710,7 +1710,7 @@ class stzGraphPlanner
 #  stzPlanComparison Helper Class      #
 #======================================#
 
-class stzPlanComparison
+class stzPlanComparison from stzObject
 	@oPlanner
 	@cPlan1
 	@cPlan2
@@ -1853,7 +1853,7 @@ class stzPlanComparison
 #  stzMultiPlanComparison Class        #
 #======================================#
 
-class stzMultiPlanComparison
+class stzMultiPlanComparison from stzObject
 	@oPlanner
 	@acPlanNames
 	@aResults
@@ -1973,7 +1973,7 @@ class stzMultiPlanComparison
 #  stzHistoricalComparison Class       #
 #======================================#
 
-class stzHistoricalComparison
+class stzHistoricalComparison from stzObject
 	@oPlanner
 	@cCurrentPlan
 	@aCurrentResult
@@ -2042,7 +2042,7 @@ class stzHistoricalComparison
 #  stzPlanFilter Class                 #
 #======================================#
 
-class stzPlanFilter
+class stzPlanFilter from stzObject
 	@oPlanner
 	@acFilteredPlans
 	@aConstraints

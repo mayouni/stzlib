@@ -33,7 +33,7 @@ func StzGgmlReady()
 
 # Base class -- not meant to be instantiated directly; derive from it. Carries
 # only what the whole domain shares: access to the vendored ggml backend.
-class stzNeural
+class stzNeural from stzObject
 
 	# The vendored ggml build version (common to the whole domain).
 	def GgmlVersion()

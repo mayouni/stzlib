@@ -12,7 +12,7 @@ func StzLxuter()
     func lxu()
         return StzLxuter()
 
-class stzListexuter
+class stzListexuter from stzObject
 
     # Core data structures
     aTriggers = []      # Pairs of [cTriggerName, cListPattern]

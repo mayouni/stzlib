@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringRandomizer
+class stzStringRandomizer from stzObject
 
 	@oString
 

@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringEncoder
+class stzStringEncoder from stzObject
 
 	@oString
 

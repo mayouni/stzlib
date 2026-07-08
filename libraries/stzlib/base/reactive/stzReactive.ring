@@ -15,7 +15,7 @@
 
 class stzReactiveEngine from stzReactiveSystem
 class stzReactive from stzReactiveSystem
-class stzReactiveSystem
+class stzReactiveSystem from stzObject
 
 	# Libuv internal loop
 	@libuvLoop

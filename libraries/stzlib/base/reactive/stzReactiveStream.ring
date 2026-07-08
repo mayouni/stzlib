@@ -1,6 +1,6 @@
 
 
-class stzReactiveStream
+class stzReactiveStream from stzObject
 
 	streamId = ""
 	sourceType = STREAM_SOURCE_MANUAL

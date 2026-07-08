@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringReplacer
+class stzStringReplacer from stzObject
 
 	@oString
 

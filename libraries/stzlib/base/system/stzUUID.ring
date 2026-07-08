@@ -34,7 +34,7 @@ func StzIsValidUuid(cUuidStr)
 func StzUUIDQ()
 	return new stzUUID()
 
-class stzUUID
+class stzUUID from stzObject
 
 	# Private attributes
 	@cUuid = ""

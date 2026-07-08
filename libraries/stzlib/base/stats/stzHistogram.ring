@@ -3,7 +3,7 @@
 #  HISTOGRAM CHART CLASS  #
 #-------------------------#
 
-class stzHistogram
+class stzHistogram from stzObject
 
 	@bShowVAxis = True      # Vertical axis (was Y-axis)
 	@bShowHAxis = True      # Horizontal axis (was X-axis)

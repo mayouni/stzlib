@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListComparator
+class stzListComparator from stzObject
 
 	@oList
 

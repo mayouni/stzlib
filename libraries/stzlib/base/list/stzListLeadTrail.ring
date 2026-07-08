@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListLeadTrail
+class stzListLeadTrail from stzObject
 
 	@oList
 

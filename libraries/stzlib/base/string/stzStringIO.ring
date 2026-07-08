@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringIO
+class stzStringIO from stzObject
 
 	@oString
 

@@ -17,7 +17,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListExtractor
+class stzListExtractor from stzObject
 
 	@oList
 

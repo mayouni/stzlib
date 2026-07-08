@@ -22,7 +22,7 @@ func IsEntity(p)
 
 	#>
 
-class stzEntity
+class stzEntity from stzObject
 	@aEntity
 
 	def init(paEntity)

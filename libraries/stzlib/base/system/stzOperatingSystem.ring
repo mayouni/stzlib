@@ -281,7 +281,7 @@ func StzOperatingSystemXT()
 # THE CLASS
 #===========
 
-class stzOperatingSystem
+class stzOperatingSystem from stzObject
 
 	def init()
 

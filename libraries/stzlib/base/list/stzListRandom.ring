@@ -17,7 +17,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListRandom
+class stzListRandom from stzObject
 
 	@oList
 

@@ -40,7 +40,7 @@ func IsStzGridNav(pObj)
  ///   CLASS   ///
 /////////////////
 
-class stzGridNav
+class stzGridNav from stzObject
 
 	@cName = ""
 

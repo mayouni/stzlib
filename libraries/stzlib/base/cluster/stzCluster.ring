@@ -1,5 +1,5 @@
 # stzCluster: Main cluster orchestration class
-class stzCluster
+class stzCluster from stzObject
     oClusterManager = NULL
     
     def init()

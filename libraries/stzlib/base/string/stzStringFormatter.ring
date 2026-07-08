@@ -14,7 +14,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringFormatter
+class stzStringFormatter from stzObject
 
 	@oString
 

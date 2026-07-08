@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListRemover
+class stzListRemover from stzObject
 
 	@oList
 

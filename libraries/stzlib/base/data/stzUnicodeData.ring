@@ -722,7 +722,7 @@ func CharsNamesContaining(pcPartOfName)
 		return CharsNamesContaining(pcPartOfName)
 
 
-class stzUnicodeData
+class stzUnicodeData from stzObject
 	# All methods now delegate to engine SQLite — no text file needed
 
 	def init()

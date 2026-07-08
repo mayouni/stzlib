@@ -22,7 +22,7 @@
 func StzIntSeqQ(pHandle)
 	return new stzIntSeq(pHandle)
 
-class stzIntSeq
+class stzIntSeq from stzObject
 
 	@pHandle = NULL
 	@bOwned  = 1

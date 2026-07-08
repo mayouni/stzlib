@@ -989,7 +989,7 @@ func StzCompareDatasets(paData1, paData2)
 #  THE CLASS  #
 #-------------#
 
-class stzDataSet
+class stzDataSet from stzObject
 
     @anData = []
     @cDataType = "numeric"  # numeric, categorical, mixed, empty

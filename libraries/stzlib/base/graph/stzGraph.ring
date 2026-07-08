@@ -61,7 +61,7 @@ func IsStzGraph(pObj)
 	func @IsStzGraphObject(pObj)
 		return IsStzGraph(pObj)
 
-class stzGraph
+class stzGraph from stzObject
 
 	@cId = ""
 	@cGraphType = $cDefaultGraphType  # "structural", "flow", "semantic", "dependency"
@@ -5644,7 +5644,7 @@ class stzGraph
 
 		return 1
 
-class stzGraphFinder
+class stzGraphFinder from stzObject
 	# Basic Finder of Nodes ane Edges
 	# Used by the Find() method in stzGraph
 	# For advanced queries use stzGraphQuery class
@@ -5863,7 +5863,7 @@ class stzGraphFinder
 		return FALSE
 
 
-class stzGraphAsciiVisualizer
+class stzGraphAsciiVisualizer from stzObject
 	@oGraph
 
 	@cBoxTopLeft = "ââ€¢­"
@@ -6118,7 +6118,7 @@ class stzGraphAsciiVisualizer
 			ok
 		ok
 
-class stzGraphComparison
+class stzGraphComparison from stzObject
 	@oBaselineGraph
 	@aGraphs = []
 	@aComparisonData = []

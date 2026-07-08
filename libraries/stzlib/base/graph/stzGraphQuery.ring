@@ -38,7 +38,7 @@ $aDefaultQueryDefinition = [
 func StzGraphQueryQ(oGraph)
 	return new stzGraphQuery(oGraph)
 
-class stzGraphQuery
+class stzGraphQuery from stzObject
 	@oGraph
 	
 	# Single source of truth - all state lives here

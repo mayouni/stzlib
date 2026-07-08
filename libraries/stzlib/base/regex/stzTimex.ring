@@ -22,7 +22,7 @@ func Timex(cPattern)
 func Tmx(cPattern)
 	return new stzTimex(cPattern)
 
-class stzTimex
+class stzTimex from stzObject
 	
 	@cPattern           # The pattern string, e.g., "{@Instant -> @Duration(1h..2h) -> @Event}"
 	@aTokens            # Parsed token definitions

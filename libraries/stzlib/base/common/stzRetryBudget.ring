@@ -28,7 +28,7 @@
 func StzRetryBudget(nBudget, nWindowSeconds)
 	return new stzRetryBudget(nBudget, nWindowSeconds)
 
-class stzRetryBudget
+class stzRetryBudget from stzObject
 
 	pHandle = NULL
 	bReady  = FALSE

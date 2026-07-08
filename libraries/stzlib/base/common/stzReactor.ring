@@ -26,7 +26,7 @@
 func StzReactor()
 	return new stzReactor()
 
-class stzReactor
+class stzReactor from stzObject
 
 	pHandle = NULL
 	bReady  = FALSE

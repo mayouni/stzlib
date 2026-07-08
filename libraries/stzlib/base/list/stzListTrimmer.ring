@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListTrimmer
+class stzListTrimmer from stzObject
 
 	@oList
 

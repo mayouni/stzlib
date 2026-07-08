@@ -21,7 +21,7 @@
 func StzCancelToken()
 	return new stzCancelToken()
 
-class stzCancelToken
+class stzCancelToken from stzObject
 
 	pHandle = NULL
 	# Plain boolean guard -- reliable, unlike comparing a cpointer to

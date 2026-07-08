@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListSorter
+class stzListSorter from stzObject
 
 	@oList
 

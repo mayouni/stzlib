@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringBounder
+class stzStringBounder from stzObject
 
 	@oString
 

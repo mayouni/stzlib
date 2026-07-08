@@ -42,7 +42,7 @@ func HtmlToText(pcHtml)
 
 # ── stzHtml -- document handle ──────────────────────────────
 
-class stzHtml
+class stzHtml from stzObject
 
 	@cHtml = ""        # original source
 	@pDoc = NULL       # engine handle (opaque pointer)
@@ -223,7 +223,7 @@ class stzHtml
 
 # ── stzHtmlNode -- single element handle ────────────────────
 
-class stzHtmlNode
+class stzHtmlNode from stzObject
 
 	@oDoc = NULL       # owning stzHtml
 	@cTag = ""         # tag name
@@ -276,7 +276,7 @@ class stzHtmlNode
 # mutation bridges), building a tree of stzHtmlBuildNode and
 # serialising to an HTML string.
 
-class stzHtmlBuilder
+class stzHtmlBuilder from stzObject
 
 	@oRoot    = NULL   # document fragment (tag-less container)
 	@oCurrent = NULL   # node new children are appended to
@@ -328,7 +328,7 @@ class stzHtmlBuilder
 
 # ── stzHtmlBuildNode -- a node in a builder tree ────────────
 
-class stzHtmlBuildNode
+class stzHtmlBuildNode from stzObject
 
 	@cTag      = ""
 	@cText     = ""

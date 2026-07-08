@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringDuplicates
+class stzStringDuplicates from stzObject
 
 	@oString
 

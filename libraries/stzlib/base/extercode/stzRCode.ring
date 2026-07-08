@@ -4,7 +4,7 @@ func XR()
 	func R()
 		return new stzRCode
 
-class stzRCode
+class stzRCode from stzObject
 	@oRCode = new stzExterCode(:R)
 
 	# Initializing the external code

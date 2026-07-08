@@ -2214,7 +2214,7 @@ class stzDiagram from stzGraph
 #  stzDiagramAnnotator - properties OVERLAY  #
 #==========================================#
 
-class stzDiagramAnnotator
+class stzDiagramAnnotator from stzObject
 
 	@cType = ""
 	@aNodeData = []
@@ -2253,7 +2253,7 @@ class stzDiagramAnnotator
 #  stzDiagramToStzDiag - NATIVE FORMAT  #
 #=======================================#
 
-class stzDiagramToStzDiag
+class stzDiagramToStzDiag from stzObject
 
 	@oDiagram
 	@cStzDiagCode
@@ -2444,7 +2444,7 @@ class stzDiagramToStzDiag
 #  stzDiagramToDot - GRAPHVIZ DOT  #
 #==================================#
 
-class stzDiagramToDot
+class stzDiagramToDot from stzObject
 
 	@oDiagram
 	@cDotCode
@@ -3081,7 +3081,7 @@ class stzDiagramToDot
 #  stzDiagramToMermaid - MERMAID.JS  #
 #====================================#
 
-class stzDiagramToMermaid
+class stzDiagramToMermaid from stzObject
 
 	@oDiagram
 	@cMermaidCode
@@ -3183,7 +3183,7 @@ class stzDiagramToMermaid
 #  stzDiagramToJSON - JSON FORMAT  #
 #==================================#
 
-class stzDiagramToJSON
+class stzDiagramToJSON from stzObject
 
 	@oDiagram
 	@cJsonCode
@@ -3221,7 +3221,7 @@ class stzDiagramToJSON
 #  COLOR RESOLVER CLASS  #
 #========================#
 
-class stzColorResolver
+class stzColorResolver from stzObject
 
 	def init()
 
@@ -3335,7 +3335,7 @@ class stzColorResolver
 #  Visual theme and styling definitions      #
 #============================================#
 
-class stzStylParser
+class stzStylParser from stzObject
 	
 	def init()
 

@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListSplits
+class stzListSplits from stzObject
 
 	@oList
 

@@ -7,7 +7,7 @@ func StzListParserQ(paList)
 # stzParser stub so it can be loaded directly from stzBase.
 # Both classes are declared together so Ring's "subsequent funcs
 # get swallowed by the most-recent class" rule doesn't bite us.
-class stzParser
+class stzParser from stzObject
 	@xSource = NULL
 
 	def init(pSource)

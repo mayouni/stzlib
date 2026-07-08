@@ -121,7 +121,7 @@ class stzItem from stzItemCS
 		@aList = paList
 		@pCaseSensitive = 1
 
-class stzItemCS
+class stzItemCS from stzObject
 	@Item
 	@aList
 	@pCaseSensitive

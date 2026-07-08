@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringNumbers
+class stzStringNumbers from stzObject
 
 	@oString
 

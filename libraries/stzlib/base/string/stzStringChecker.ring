@@ -14,7 +14,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringChecker
+class stzStringChecker from stzObject
 
 	@oString
 

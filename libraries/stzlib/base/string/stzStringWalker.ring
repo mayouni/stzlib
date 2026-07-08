@@ -14,7 +14,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringWalker
+class stzStringWalker from stzObject
 
 	@oString
 	@aWalkers = []

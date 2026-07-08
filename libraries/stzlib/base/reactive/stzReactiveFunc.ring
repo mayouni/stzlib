@@ -3,7 +3,7 @@
 #  REACTIVE FUNCTION WRAPPER - Makes any function reactive  #
 #-----------------------------------------------------------#
 
-class stzReactiveFunc
+class stzReactiveFunc from stzObject
 
 	originalFunc = NULL
 	engine = NULL

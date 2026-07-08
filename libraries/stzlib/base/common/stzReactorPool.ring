@@ -24,7 +24,7 @@
 func StzReactorPool(nWorkers)
 	return new stzReactorPool(nWorkers)
 
-class stzReactorPool
+class stzReactorPool from stzObject
 
 	aReactors = []
 	nNext = 1

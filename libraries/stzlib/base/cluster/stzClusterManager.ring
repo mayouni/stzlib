@@ -1,5 +1,5 @@
 # stzClusterManager: Orchestrates the entire cluster ecosystem
-class stzClusterManager
+class stzClusterManager from stzObject
     aClusters = []
     oLoadBalancer = NULL
     oHealthMonitor = NULL

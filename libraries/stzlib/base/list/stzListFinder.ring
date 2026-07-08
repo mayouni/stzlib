@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListFinder
+class stzListFinder from stzObject
 
 	@oList
 

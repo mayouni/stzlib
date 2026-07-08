@@ -59,7 +59,7 @@ func _FlattenDepthHelper(paList, nDepth)
  ///   CLASS   ///
 /////////////////
 
-class stzListFlattener
+class stzListFlattener from stzObject
 
 	@oList
 

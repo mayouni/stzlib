@@ -40,7 +40,7 @@ func StzQmlCodeQ()
 	func QmlQ()
 		return new stzQmlCode()
 
-class stzQmlCode
+class stzQmlCode from stzObject
 
 	@cQmlCode    = ""
 	@cQmlPath    = $cQmlPath

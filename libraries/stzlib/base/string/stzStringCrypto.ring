@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringCrypto
+class stzStringCrypto from stzObject
 
 	@oString
 

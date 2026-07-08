@@ -1,4 +1,4 @@
-class stzAppRequest
+class stzAppRequest from stzObject
 	cMethod = ""
 	cPath = ""
 	aHeaders = []

@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListGetter
+class stzListGetter from stzObject
 
 	@oList
 

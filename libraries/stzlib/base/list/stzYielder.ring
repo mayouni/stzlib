@@ -10,7 +10,7 @@
 #   ? oYielder.Reduce(:Sum)       # => 3
 #   ? oYielder.MapFiltered(:IsPositive, :Square) # => [1, 9, 25]
 
-class stzYielder
+class stzYielder from stzObject
 
 	@aContent = []
 

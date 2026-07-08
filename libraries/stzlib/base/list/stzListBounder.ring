@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListBounder
+class stzListBounder from stzObject
 
 	@oList
 

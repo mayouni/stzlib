@@ -9,7 +9,7 @@ func StzListexQ(cPattern)
 func Lx(cPattern)
 	return StzListRegexQ(cPattern)
 
-class stzListex
+class stzListex from stzObject
 
 	@cPattern		# The original pattern string
 	@aTokens		# List of parsed token definitions

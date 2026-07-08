@@ -17,7 +17,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListSections
+class stzListSections from stzObject
 
 	@oList
 

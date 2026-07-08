@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringFinder
+class stzStringFinder from stzObject
 
 	@oString
 

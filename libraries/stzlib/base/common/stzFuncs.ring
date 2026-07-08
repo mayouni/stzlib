@@ -5706,7 +5706,7 @@ func StzView(cFileName)
 #WARNING: Be careful! don't put global functions after theses classes,
 # because Ring will consider them as methods of the classes and not global functons!
 
-class stzForEachObjectOld
+class stzForEachObjectOld from stzObject
 	@acVars
 	@aValues
 
@@ -5825,7 +5825,7 @@ class stzForEachObjectOld
 
 		return
 
-class stzForEachObject
+class stzForEachObject from stzObject
 	@acVars
 	@aValues
 

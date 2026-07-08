@@ -1737,7 +1737,7 @@ class stzOrgChart from stzDiagram
 # placeholders -- a real rule-evaluation engine will replace them
 # without changing the public Load + Validate surface.
 
-class stzRuleBase
+class stzRuleBase from stzObject
 	@cName = ""
 	def init(pcName)
 		if isString(pcName)
@@ -1781,7 +1781,7 @@ class stzBCEAORuleBase from stzRuleBase
 #  stzOrgChartBCEAOValidator
 #=====================================================
 
-class stzOrgChartBCEAOValidator
+class stzOrgChartBCEAOValidator from stzObject
 
 	@oOrgChart
 
@@ -1862,7 +1862,7 @@ class stzOrgChartBCEAOValidator
 #  stzOrgChartSODValidator
 #=====================================================
 
-class stzOrgChartSODValidator
+class stzOrgChartSODValidator from stzObject
 
 	@oOrgChart
 
@@ -1910,7 +1910,7 @@ class stzOrgChartSODValidator
 #  stzOrgChartReporter
 #=====================================================
 
-class stzOrgChartReporter
+class stzOrgChartReporter from stzObject
 
 	@oOrgChart
 
@@ -2154,7 +2154,7 @@ class stzOrgChartReporter
 #  stzOrgChartSimulation
 #=====================================================
 
-class stzOrgChartSimulation
+class stzOrgChartSimulation from stzObject
 
 	@oOriginalChart
 	@oSimulatedChart

@@ -2,7 +2,7 @@
 func StzOccurrenceQ(panOccurr, pcSubStr, pcStr)
 	return new stzOccurrences(panOccurr, pcSubStr, pcStr)
 
-class stzOccurrences
+class stzOccurrences from stzObject
 	@anOccurrences
 	@cSubStr
 	@cStr

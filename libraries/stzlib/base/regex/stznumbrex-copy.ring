@@ -9,7 +9,7 @@ func StzNumberexQ(cPattern)
 func Nx(cPattern)
 	return StzNumberRegexQ(cPattern)
 
-class stzNumberex
+class stzNumberex from stzObject
 
 	@cPattern		# Original pattern string
 	@aTokens		# Parsed token definitions

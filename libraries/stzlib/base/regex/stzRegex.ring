@@ -103,7 +103,7 @@ func StzRegexReplace(cInput, cPattern, cReplacement)
  #  STZREGEX CLASS  #
 #==================#
 
-class stzRegex
+class stzRegex from stzObject
 
 	@pRegexHandle = NULL
 	@cMatchType = ""

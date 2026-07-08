@@ -17,7 +17,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListNamedParams
+class stzListNamedParams from stzObject
 
 	@oList
 

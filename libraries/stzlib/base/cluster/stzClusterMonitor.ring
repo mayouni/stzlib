@@ -1,5 +1,5 @@
 # stzClusterMonitor: Monitors cluster health and auto-scaling
-class stzClusterMonitor
+class stzClusterMonitor from stzObject
     aClusters = []
     bIsMonitoring = False
     nMonitorInterval = 5000  # 5 seconds

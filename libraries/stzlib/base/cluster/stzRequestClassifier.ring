@@ -1,5 +1,5 @@
 # stzRequestClassifier: AI-powered request analysis for routing
-class stzRequestClassifier
+class stzRequestClassifier from stzObject
     aPatterns = []
     
     def init()

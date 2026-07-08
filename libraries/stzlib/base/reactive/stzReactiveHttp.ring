@@ -3,7 +3,7 @@
 #  REACTIVE HTTP CLIENT - For web requests  #
 #-------------------------------------------#
 
-class stzReactiveHttp
+class stzReactiveHttp from stzObject
 
 	engine = NULL
 	

@@ -2,7 +2,7 @@
 #  CONTEXT POOL FOR STZAPPSERCER - MEMORY MANAGEMENT  #
 #=====================================================#
 
-class stzContextPool
+class stzContextPool from stzObject
 	aAvailable = []
 	aActive = []
 	nMaxContexts = 10
@@ -49,7 +49,7 @@ class stzContextPool
 		return len(aAvailable)
 
 
-class stzComputeContext
+class stzComputeContext from stzObject
 	# Each context maintains its own Softanza workspace
 	# while sharing the pre-loaded engine components
 

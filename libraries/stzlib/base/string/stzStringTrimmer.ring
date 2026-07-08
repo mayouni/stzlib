@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringTrimmer
+class stzStringTrimmer from stzObject
 
 	@oString
 

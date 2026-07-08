@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListWalker
+class stzListWalker from stzObject
 
 	@oList
 
