@@ -99,6 +99,8 @@ class stzLibDoc from stzObject
 		_nE_ = len(@aEntries)
 		if _nE_ = 0 return [] ok
 		if NOT isNumber(n) or n < 1 n = 5 ok
+		_aQC_ = _StzStrictContentTokens(pcQuestion)
+		if len(_aQC_) = 0 return [] ok
 
 		if StzHasNeuralModel() and NOT StzHasRerankerModel()
 			This._EnsureIndex()
@@ -123,10 +125,12 @@ class stzLibDoc from stzObject
 		next
 		_aTop_ = _StzRankMethodTextsHeaded(pcQuestion, @aTexts, @aVectors, n, _aBonus_, _aHeads_)
 
+		_bLex_ = NOT StzHasNeuralModel()
 		_aOut_ = []
 		_nT_ = len(_aTop_)
 		for _i_ = 1 to _nT_
 			_ix_ = _aTop_[_i_][1]
+			if _bLex_ and NOT _StzTextSharesToken(@aTexts[_ix_], _aQC_) loop ok
 			_aOut_ + [ @aEntries[_ix_][1], @aEntries[_ix_][2], _aTop_[_i_][2], @aEntries[_ix_][3] ]
 		next
 		return _aOut_
