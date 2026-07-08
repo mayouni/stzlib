@@ -13,7 +13,7 @@ func StzRxuter()
 	func rxu()
 		return StzRxuter()
 
-class stzRegexuter
+class stzRegexuter from stzObject
 
 	# Core data structures
 	aTriggers = []		# Pairs of [cTriggerName, cRegexPattern]

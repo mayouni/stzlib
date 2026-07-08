@@ -67,7 +67,7 @@ class stzVBarChart from stzBarPlot
 class stzBarChart from stzBarPlot
 class stzVBarPlot from stzBarPlot
 
-class stzBarPlot
+class stzBarPlot from stzObject
 
 	# Data properties
 	@anValues = []

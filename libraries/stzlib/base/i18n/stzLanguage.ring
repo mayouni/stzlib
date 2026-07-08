@@ -398,7 +398,7 @@ func LocaleLanguageNumbers()
 func StzLanguageQ(pcLangIdentifier)
 	return new stzLanguage(pcLangIdentifier)
 
-class stzLanguage
+class stzLanguage from stzObject
 	
 	#NOTE// the class have a @aLanguageInfo@ attribute in PRIVATE section
 	# We put it there, because we use it just for initializing the object.

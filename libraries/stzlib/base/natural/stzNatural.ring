@@ -255,7 +255,7 @@ func Naturally(cCode)
 
 #-- NATURAL ENGINE CLASS WITH CONTEXT
 
-class stzNaturalEngine
+class stzNaturalEngine from stzObject
 	@cLanguage = "en"
 	@aIgnoredWords = []
 	@aMappings = []

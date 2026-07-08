@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringConcat
+class stzStringConcat from stzObject
 
 	@oString
 

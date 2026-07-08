@@ -468,7 +468,7 @@ class stzKnowledgeGraph from stzGraph
 	        This.AddFact(aFact[1], aFact[2], aFact[3])
 	    end
 
-class stzKnowParser
+class stzKnowParser from stzObject
     def ParseFile(pcFilename)
         cContent = read(pcFilename)
         return This.Parse(cContent)

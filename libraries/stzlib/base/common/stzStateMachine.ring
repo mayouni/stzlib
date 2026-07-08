@@ -36,7 +36,7 @@ func IsStzStateMachine(pObj)
  ///   CLASS   ///
 /////////////////
 
-class stzStateMachine
+class stzStateMachine from stzObject
 
 	@cName = ""
 	@nHandle = -1

@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListClassifier
+class stzListClassifier from stzObject
 
 	@oList
 

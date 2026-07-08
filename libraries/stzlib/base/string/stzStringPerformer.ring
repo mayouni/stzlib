@@ -17,7 +17,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringPerformer
+class stzStringPerformer from stzObject
 
 	@oString
 

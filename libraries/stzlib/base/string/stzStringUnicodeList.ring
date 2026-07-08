@@ -46,7 +46,7 @@ func StzIsUnicode(n)
  ///   CLASS   ///
 /////////////////
 
-class stzStringUnicodeList
+class stzStringUnicodeList from stzObject
 
 	@anUnicodes
 

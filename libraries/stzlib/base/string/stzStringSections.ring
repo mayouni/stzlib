@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringSections
+class stzStringSections from stzObject
 
 	@oString
 

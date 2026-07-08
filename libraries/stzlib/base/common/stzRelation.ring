@@ -34,7 +34,7 @@ func IsStzRelation(pObj)
  ///   CLASS   ///
 /////////////////
 
-class stzRelation
+class stzRelation from stzObject
 
 	  #--------------#
 	 #     INIT     #

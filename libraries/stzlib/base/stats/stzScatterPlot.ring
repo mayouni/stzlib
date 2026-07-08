@@ -5,7 +5,7 @@
 
 class stzScatterChart from stzScatterPlot
 
-class stzScatterPlot
+class stzScatterPlot from stzObject
 
 	@anHValues = []
 	@anVValues = []

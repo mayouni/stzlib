@@ -67,7 +67,7 @@ func StzDec2Hex(nNum)
 # BASE NETWORK CLASS -- foundation for HTTP-style I/O
 # =============================================================================
 
-class stzNetwork
+class stzNetwork from stzObject
 	# Connection state (was curl_handle in the libcurl era).
 	cLastUrl = ""             # most-recently-used URL
 	nLastStatus = 0           # last HTTP status code

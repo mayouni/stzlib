@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListReplacer
+class stzListReplacer from stzObject
 
 	@oList
 

@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringInserter
+class stzStringInserter from stzObject
 
 	@oString
 

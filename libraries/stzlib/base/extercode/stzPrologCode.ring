@@ -4,7 +4,7 @@ func XPg()
 	func Pg()
 		return new stzPrologCode
 
-class stzPrologCode
+class stzPrologCode from stzObject
 	@oPrlgCode = new stzExterCode(:Prolog)
 
 	# Initializing the external code

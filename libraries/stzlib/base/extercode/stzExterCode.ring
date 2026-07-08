@@ -61,7 +61,7 @@ ok
 #  THE MAIN CLASS  #
 #------------------#
 
-class stzExterCode
+class stzExterCode from stzObject
     # Configuring supported languages with full paths
     @aLanguages = [
 

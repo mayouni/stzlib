@@ -28,7 +28,7 @@ func StzBoxedString(str)
  ///   CLASS   ///
 /////////////////
 
-class stzStringBoxed
+class stzStringBoxed from stzObject
 
 	@oString
 

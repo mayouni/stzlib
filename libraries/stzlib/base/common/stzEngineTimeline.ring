@@ -35,7 +35,7 @@ func IsStzEngineTimeline(pObj)
  ///   CLASS   ///
 /////////////////
 
-class stzEngineTimeline
+class stzEngineTimeline from stzObject
 
 	  #--------------#
 	 #     INIT     #

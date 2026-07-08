@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListDuplicates
+class stzListDuplicates from stzObject
 
 	@oList
 

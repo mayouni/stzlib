@@ -34,7 +34,7 @@ func StzLibDocQ(paClasses)
 func _StzDefaultDocClasses()
 	return [ "stzText", "stzListOfTexts" ]
 
-class stzLibDoc
+class stzLibDoc from stzObject
 
 	@aEntries = []    # [ className, methodName, description ]
 	@aTexts = []      # per-entry "name-as-words + description" (built once)

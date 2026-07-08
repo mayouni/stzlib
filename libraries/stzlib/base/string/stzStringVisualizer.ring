@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringVisualizer
+class stzStringVisualizer from stzObject
 
 	@oString
 

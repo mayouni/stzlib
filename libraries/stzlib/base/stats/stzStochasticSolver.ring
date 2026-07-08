@@ -6,7 +6,7 @@
     Features: Scenario-based optimization, robust optimization, uncertainty modeling, string constraint values
 */
 
-class stzStochasticSolver
+class stzStochasticSolver from stzObject
 
     @aVariables = []
     @aConstraints = []

@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringLocale
+class stzStringLocale from stzObject
 
 	@oString
 

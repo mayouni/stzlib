@@ -32,7 +32,7 @@ class stzStringSubString from stzStringSubStringCS
 	def init(pcSubStr, pcStr)
 		super.init(pcSubStr, pcStr, 1)
 
-class stzStringSubStringCS
+class stzStringSubStringCS from stzObject
 
 	@cSubStr
 	@cStr

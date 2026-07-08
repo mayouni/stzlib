@@ -1,5 +1,5 @@
 # stzLoadBalancer: Routes requests based on computational domain
-class stzLoadBalancer
+class stzLoadBalancer from stzObject
     aClusters = []         # Available clusters by type
     oRequestClassifier = NULL
     aRoutingRules = []

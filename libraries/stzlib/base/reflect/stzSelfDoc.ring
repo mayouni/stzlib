@@ -27,7 +27,7 @@ func StzSelfDoc(pcTarget)
 func StzSelfDocQ(pcTarget)
 	return new stzSelfDoc(pcTarget)
 
-class stzSelfDoc
+class stzSelfDoc from stzObject
 
 	@cName = ""       # class name (e.g. "stzText")
 	@cSource = ""     # resolved source file path

@@ -22,7 +22,7 @@ func Section(n1, n2, nSize)
 func StzSectionQ(n1, n2, nSize)
 	return new stzSection(n1, n2, nSize)
 
-class stzSection
+class stzSection from stzObject
 	@aContent
 
 	def init(n1, n2, nSize)

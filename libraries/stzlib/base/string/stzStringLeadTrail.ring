@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringLeadTrail
+class stzStringLeadTrail from stzObject
 
 	@oString
 

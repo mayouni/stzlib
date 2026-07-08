@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListPerformer
+class stzListPerformer from stzObject
 
 	@oList
 

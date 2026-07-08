@@ -23,7 +23,7 @@ func StzConditionalCodeQ(cCode)
 
 class stzConditionalCode from stzCCode 
 
-class stzCCode
+class stzCCode from stzObject
 
 	@cContent
 

@@ -73,7 +73,7 @@ func CurrenciesAndTheirCountriesOrRegions()
 	
 	return aResult
 
-class stzCurrency
+class stzCurrency from stzObject
 
 	#NOTE: the class have a @cCurrencyInfo@ attribute in PRIVATE section
 	# We put it there, because we use it just for initializing the object.

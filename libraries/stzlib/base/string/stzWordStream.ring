@@ -27,7 +27,7 @@ func StzWordStreamCSQ(pCaseSensitive)
 	func StzWordStreamCS(pCaseSensitive)
 		return StzWordStreamCSQ(pCaseSensitive)
 
-class stzWordStream
+class stzWordStream from stzObject
 
 	@pEngine = NULL
 

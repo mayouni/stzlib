@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringRemover
+class stzStringRemover from stzObject
 
 	@oString
 

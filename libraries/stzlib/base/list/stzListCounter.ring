@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListCounter
+class stzListCounter from stzObject
 
 	@oList
 

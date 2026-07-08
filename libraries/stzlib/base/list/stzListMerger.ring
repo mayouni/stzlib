@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListMerger
+class stzListMerger from stzObject
 
 	@oList
 

@@ -637,7 +637,7 @@ class stzWorkflow from stzDiagram
 #  Workflow-Specific Rule Bases              #
 #============================================#
 
-class stzBPMRuleBase from stzGraphRuleBase
+class stzBPMRuleBase from stzObject
 	def init()
 		super.init("BPM Best Practices")
 		@cDomain = "bpm"
@@ -688,7 +688,7 @@ class stzBPMRuleBase from stzGraphRuleBase
 		This.AddRule(oRule4)
 
 
-class stzSLARuleBase from stzGraphRuleBase
+class stzSLARuleBase from stzObject
 	def init()
 		super.init("SLA Compliance")
 		@cDomain = "sla"
@@ -721,7 +721,7 @@ class stzSLARuleBase from stzGraphRuleBase
 #  Workflow Simulations                      #
 #============================================#
 
-class stzWorkflowSimulation from stzGraphSimulation
+class stzWorkflowSimulation from stzObject
 	
 	def OptimizeStep(pcStepId, nNewDuration)
 		@aChanges + [
@@ -820,7 +820,7 @@ class stzWorkflowSimulation from stzGraphSimulation
 #  stzFlowParser - *.stzflow Parser          #
 #============================================#
 
-class stzFlowParser
+class stzFlowParser from stzObject
 	def ParseFile(pcFilename)
 		cContent = read(pcFilename)
 		return This.Parse(cContent)

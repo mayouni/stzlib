@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringCaseChanger
+class stzStringCaseChanger from stzObject
 
 	@oString
 

@@ -43,7 +43,7 @@ func IsStzValidator(pObj)
  ///   CLASS   ///
 /////////////////
 
-class stzValidator
+class stzValidator from stzObject
 
 	@aRuleHandles = []
 

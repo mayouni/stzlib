@@ -17,7 +17,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListStringify
+class stzListStringify from stzObject
 
 	@oList
 

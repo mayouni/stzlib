@@ -42,7 +42,7 @@ func StzDotCodeQ()
 		return new stzDotCode()
 
 
-class stzDotCode
+class stzDotCode from stzObject
 	@cDotCode = ""
 	@cOutputFormat = $cDefaultDotOutputFormat
 	@cDotPath = $cDotPath

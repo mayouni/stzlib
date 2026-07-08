@@ -7,7 +7,7 @@ class stzSurfaceChart from stzSurfacePlot
 class stzSquareChart from stzSurfacePlot
 class stzSquarePlot from stzSurfacePlot
 
-class stzSurfacePlot
+class stzSurfacePlot from stzObject
 
 	@bShowPercent = FALSE
 	@bShowBorders = TRUE

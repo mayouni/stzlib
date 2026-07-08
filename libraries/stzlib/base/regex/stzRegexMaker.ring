@@ -96,7 +96,7 @@ func NTimes(n)
 #  REGEX MAKER CLASS  #
 #=====================#
 
-class stzRegexMaker
+class stzRegexMaker from stzObject
 	acFragments = []
 	aSequences = []
 	aGroups = []  	# List of [name, pattern] pairs
@@ -1104,7 +1104,7 @@ class stzRegexMaker
 
 class stzNestedRegexMaker from stzRecursiveRegexMaker
 
-class stzRecursiveRegexMaker
+class stzRecursiveRegexMaker from stzObject
 
 	aLevels = []
 	bNamedRecursion = FALSE
@@ -1322,7 +1322,7 @@ class stzRecursiveRegexMaker
 #  CONDITIONAL REGEX MAKER CLASS  #
 #=================================#
 
-class stzConditionalRegexMaker
+class stzConditionalRegexMaker from stzObject
 
 	@cCondition = ""    # Stores the if condition
 	@cThenPart = ""     # Stores the then pattern
@@ -1498,7 +1498,7 @@ class stzConditionalRegexMaker
 #  STZ REGEX LOOKING AROUND CLASS  #
 #==================================#
 
-class stzRegexLookaroundMaker
+class stzRegexLookaroundMaker from stzObject
 	@cDirection = ""	# 'ahead' or 'behind'
 	@cType = ""    		# 'positive' or 'negative' 
 	@cPattern = ""		# The actual pattern to look for

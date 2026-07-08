@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringCounter
+class stzStringCounter from stzObject
 
 	@oString
 

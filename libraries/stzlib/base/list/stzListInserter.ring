@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzListInserter
+class stzListInserter from stzObject
 
 	@oList
 

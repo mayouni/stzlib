@@ -14,7 +14,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringSplitter
+class stzStringSplitter from stzObject
 
 	@oString
 

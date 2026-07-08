@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringComparator
+class stzStringComparator from stzObject
 
 	@oString
 

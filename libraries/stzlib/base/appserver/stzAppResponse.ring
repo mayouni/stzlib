@@ -1,4 +1,4 @@
-class stzAppResponse
+class stzAppResponse from stzObject
 	oClient = NULL
 	bSent = False
 	aHeaders = []

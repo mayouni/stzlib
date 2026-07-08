@@ -1,4 +1,4 @@
-class stzComputeEngine
+class stzComputeEngine from stzObject
 	bStringEngineLoaded = False
 	bObjectSystemLoaded = False
 	bCollectionsLoaded = False

@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringCode
+class stzStringCode from stzObject
 
 	@oString
 

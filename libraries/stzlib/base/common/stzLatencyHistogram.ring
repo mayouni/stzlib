@@ -19,7 +19,7 @@
 func StzLatencyHistogram()
 	return new stzLatencyHistogram
 
-class stzLatencyHistogram
+class stzLatencyHistogram from stzObject
 
 	pHandle = NULL
 	bReady  = FALSE

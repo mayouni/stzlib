@@ -39,7 +39,7 @@ func IsStzSequence(pObj)
  ///   CLASS   ///
 /////////////////
 
-class stzSequence
+class stzSequence from stzObject
 
 	@cName = ""
 

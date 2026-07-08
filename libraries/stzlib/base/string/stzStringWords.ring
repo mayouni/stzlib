@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringWords
+class stzStringWords from stzObject
 
 	@oString
 

@@ -25,7 +25,7 @@ func StzTraceContextFrom(cHeader)
 	oT.SetHeader(cHeader)
 	return oT
 
-class stzTraceContext
+class stzTraceContext from stzObject
 
 	cTP = ""
 

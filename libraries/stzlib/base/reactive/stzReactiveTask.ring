@@ -37,7 +37,7 @@ HTTP_TASK_POST = "http_post"
 HTTP_TASK_PUT = "http_put"
 HTTP_TASK_DELETE = "http_delete"
 
-class stzReactiveTask
+class stzReactiveTask from stzObject
 
 	# Task properties
 	#----------------

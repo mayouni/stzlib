@@ -84,7 +84,7 @@ $aWranglingGoals = [
 # stzDataWrangler Class Definition
 # =============================================================================
 
-class stzDataWrangler
+class stzDataWrangler from stzObject
     # ATTRIBUTES
     # ==========
     @aData = []              # The dataset (list or 2D list)

@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringLines
+class stzStringLines from stzObject
 
 	@oString
 

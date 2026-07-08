@@ -94,7 +94,7 @@ func StzSystemSilentXT(pcProgram, pacArgs)
 # THE CLASS
 #===========
 
-class stzSystemCall
+class stzSystemCall from stzObject
 	@cCommandString = ""
 	@cProgram = ""
 	@acArgs = []

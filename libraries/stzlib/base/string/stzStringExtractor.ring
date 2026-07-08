@@ -12,7 +12,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringExtractor
+class stzStringExtractor from stzObject
 
 	@oString
 

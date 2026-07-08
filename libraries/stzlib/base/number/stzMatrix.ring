@@ -183,7 +183,7 @@ func IsListOfMatrices(paList)
 
 	return bResult
 
-class stzMatrix
+class stzMatrix from stzObject
 
 	# Matrix core attributes
 

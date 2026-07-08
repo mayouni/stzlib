@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 
 
-class stzStringAligner
+class stzStringAligner from stzObject
 
 	@oString
 

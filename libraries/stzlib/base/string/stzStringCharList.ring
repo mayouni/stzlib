@@ -200,7 +200,7 @@ func StzListOfLetters(paList)
 
 class stzListOfChars from stzStringCharList
 
-class stzStringCharList
+class stzStringCharList from stzObject
 
 	@acChars = []
 

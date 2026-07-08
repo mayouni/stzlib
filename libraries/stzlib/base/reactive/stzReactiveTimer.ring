@@ -7,7 +7,7 @@
 # preemptive thread today. Real async will arrive when the
 # cross-platform Zig event loop ships in a later slice.
 
-class stzReactiveTimer
+class stzReactiveTimer from stzObject
 
 	timerId = ""
 	interval = ONE_SECOND  # milliseconds
@@ -78,7 +78,7 @@ class stzReactiveTimer
 # Pure Ring timer using clock()
 # Direct object method access, handles timing logic in Ring's native paradigm
 
-class stzRingTimer
+class stzRingTimer from stzObject
 
 	timerId = ""
 	interval = ONE_SECOND    # milliseconds
@@ -161,7 +161,7 @@ class stzRingTimer
 
 # Timer manager to check all active timers
 
-class stzTimerManager
+class stzTimerManager from stzObject
 
 	timers = []
 	isRunning = false

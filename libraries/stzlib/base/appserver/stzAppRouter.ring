@@ -1,4 +1,4 @@
-class stzAppRouter
+class stzAppRouter from stzObject
 	aRoutes = []
 	aMiddleware = []
 	aStaticRoutes = []
