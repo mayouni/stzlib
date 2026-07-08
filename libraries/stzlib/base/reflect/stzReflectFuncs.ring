@@ -1271,6 +1271,11 @@ func _StzEnsureExampleIndex()
 	_aFiles_ = []
 	_StzCollectTestRing(_cB_ + "/test", _aFiles_, 0)
 	_nf_ = len(_aFiles_)
+	# Fast path: load a valid PERSISTED cache instead of re-reading all ~4693 test
+	# files (a ~100s cold-cache stall on the first Ask). The directory WALK above is
+	# metadata-cheap; the expensive part was reading every file, which the cache skips.
+	# Signature = the test .ring file count (a rename/add/remove invalidates it).
+	if _StzLoadExampleCache(_nf_) return ok
 	for _i_ = 1 to _nf_
 		if NOT fexists(_aFiles_[_i_]) loop ok
 		_cContent_ = read(_aFiles_[_i_])
@@ -1303,6 +1308,74 @@ func _StzEnsureExampleIndex()
 			next
 		next
 	next
+	_StzSaveExampleCache(_nf_)
+
+# The persisted example-index cache path (under doc/, gitignored via *.stzcache).
+func _StzExampleCachePath()
+	_cB_ = _StzBaseDir()
+	if _cB_ = "" return "" ok
+	return _cB_ + "/doc/reflect_example_index.stzcache"
+
+# Load the index from the cache IF its signature matches nSig (the current test
+# file count). Returns TRUE on a valid load. Any malformed/stale/missing cache ->
+# FALSE (caller rebuilds). Reconstructs the 4-field records with code left empty
+# (Explain only shows the titles, so the example code is not persisted).
+func _StzLoadExampleCache(nSig)
+	_cPath_ = _StzExampleCachePath()
+	if _cPath_ = "" or NOT fexists(_cPath_) return FALSE ok
+	_c_ = read(_cPath_)
+	if _c_ = "" return FALSE ok
+	_aLines_ = str2list(_c_)
+	if len(_aLines_) < 1 return FALSE ok
+	_cSig_ = trim(_aLines_[1])
+	if len(_cSig_) < 5 or left(_cSig_, 4) != "SIG " return FALSE ok
+	if number(substr(_cSig_, 5, len(_cSig_) - 4)) != nSig return FALSE ok
+	$aStzExampleIndex = []
+	$aStzExampleKeys = []
+	_nl_ = len(_aLines_)
+	for _i_ = 2 to _nl_
+		_ln_ = trim(_aLines_[_i_])
+		if _ln_ = "" loop ok
+		_aP_ = _StzSplitOnChar(_ln_, char(1))
+		if len(_aP_) >= 3
+			$aStzExampleKeys + _aP_[1]
+			$aStzExampleIndex + [ _aP_[1], _aP_[2], "", _aP_[3] ]
+		ok
+	next
+	return TRUE
+
+# Persist the index: line 1 = "SIG <count>", then one "key\x01titles\x01file" per
+# entry (titles/file never contain \x01 or newline). Best-effort -- write failure
+# just means the next session rebuilds; never fatal.
+func _StzSaveExampleCache(nSig)
+	_cPath_ = _StzExampleCachePath()
+	if _cPath_ = "" return ok
+	_c_ = "SIG " + nSig + nl
+	_n_ = len($aStzExampleIndex)
+	for _i_ = 1 to _n_
+		_r_ = $aStzExampleIndex[_i_]
+		_c_ += _r_[1] + char(1) + _r_[2] + char(1) + _r_[4] + nl
+	next
+	try
+		write(_cPath_, _c_)
+	catch
+	done
+
+# Split a string on a single-character separator into fields (empty fields kept).
+func _StzSplitOnChar(pcStr, pcCh)
+	_aOut_ = []
+	_cCur_ = ""
+	_n_ = len(pcStr)
+	for _i_ = 1 to _n_
+		if pcStr[_i_] = pcCh
+			_aOut_ + _cCur_
+			_cCur_ = ""
+		else
+			_cCur_ += pcStr[_i_]
+		ok
+	next
+	_aOut_ + _cCur_
+	return _aOut_
 
 # Recursively collect every .ring file under a folder (depth-bounded).
 func _StzCollectTestRing(pcFolder, aOut, nDepth)
