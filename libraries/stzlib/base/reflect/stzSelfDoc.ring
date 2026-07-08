@@ -31,7 +31,7 @@ class stzSelfDoc from stzObject
 
 	@cName = ""       # class name (e.g. "stzText")
 	@cSource = ""     # resolved source file path
-	@aMethods = []    # [ [name, description], ... ] harvested public methods
+	@aMethods = []    # [ [name, description, ownerClass], ... ] own + inherited
 	@aVectors = []    # per-method embedding (lazy; only when a model is loaded)
 	@bIndexed = FALSE
 
@@ -40,14 +40,23 @@ class stzSelfDoc from stzObject
 			StzRaise("stzSelfDoc needs a class name or a source path.")
 		ok
 		if _StzLooksLikePath(pcTarget)
+			# By-path form: harvest only this file's named class (no chain,
+			# since we resolve parents by name, not path).
 			@cSource = pcTarget
 			@cName = _StzNameFromPath(pcTarget)
+			if @cSource != "" and fexists(@cSource)
+				_aM_ = _StzHarvestClass(@cSource, @cName)
+				_nM_ = len(_aM_)
+				for _i_ = 1 to _nM_
+					@aMethods + [ _aM_[_i_][1], _aM_[_i_][2], @cName ]
+				next
+			ok
 		else
+			# By-name form: harvest the full inherited method surface (own +
+			# domain ancestors), so Ask/Explain see what the object can REALLY do.
 			@cName = pcTarget
 			@cSource = _StzResolveSource(pcTarget)
-		ok
-		if @cSource != "" and fexists(@cSource)
-			@aMethods = _StzHarvestMethods(@cSource)
+			@aMethods = _StzHarvestChain(pcTarget)
 		ok
 
 	  #==========================================================#
@@ -78,6 +87,22 @@ class stzSelfDoc from stzObject
 		if _ix_ = 0 return "" ok
 		return @aMethods[_ix_][2]
 
+	# The class that actually DEFINES pcName (this class or an ancestor it inherits
+	# from). "" if the method is unknown.
+	def DefiningClassOf(pcName)
+		_ix_ = This._IndexOf(pcName)
+		if _ix_ = 0 return "" ok
+		return @aMethods[_ix_][3]
+
+	# How many of the harvested methods are inherited (defined by an ancestor).
+	def NumberOfInheritedMethods()
+		_n_ = 0
+		_nN_ = len(@aMethods)
+		for _i_ = 1 to _nN_
+			if lower(@aMethods[_i_][3]) != lower(@cName) _n_++ ok
+		next
+		return _n_
+
 	  #==========================================================#
 	 #   EXPLAIN (deterministic, templated -- no model)        #
 	#==========================================================#
@@ -92,7 +117,11 @@ class stzSelfDoc from stzObject
 		if _cD_ = ""
 			_cD_ = "(" + _StzSplitCamel(@aMethods[_ix_][1]) + ")"
 		ok
-		return @aMethods[_ix_][1] + " -- " + _cD_
+		_cOut_ = @aMethods[_ix_][1] + " -- " + _cD_
+		if lower(@aMethods[_ix_][3]) != lower(@cName)
+			_cOut_ += "  [inherited from " + @aMethods[_ix_][3] + "]"
+		ok
+		return _cOut_
 
 	def Show()
 		? "stzSelfDoc [ " + @cName + " : " + len(@aMethods) + " methods ]"
@@ -116,13 +145,20 @@ class stzSelfDoc from stzObject
 		if NOT isNumber(n) or n < 1 n = 3 ok
 
 		_aTexts_ = []
+		_aBonus_ = []
 		for _i_ = 1 to _nM_
 			_aTexts_ + _StzMethodText(@aMethods[_i_])
+			# Own methods get a small prior over inherited ones (see the ranker).
+			if lower(@aMethods[_i_][3]) = lower(@cName)
+				_aBonus_ + 0.05
+			else
+				_aBonus_ + 0
+			ok
 		next
 		if StzHasNeuralModel() and NOT StzHasRerankerModel()
 			This._EnsureIndex()
 		ok
-		_aTop_ = _StzRankMethodTexts(pcQuestion, _aTexts_, @aVectors, n)
+		_aTop_ = _StzRankMethodTextsBonus(pcQuestion, _aTexts_, @aVectors, n, _aBonus_)
 
 		_aOut_ = []
 		_nT_ = len(_aTop_)
