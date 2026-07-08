@@ -523,3 +523,107 @@ func _StzEndsWith(pcStr, pcSuffix)
 	_ls_ = len(pcSuffix)
 	if len(pcStr) < _ls_ return FALSE ok
 	return right(pcStr, _ls_) = pcSuffix
+
+  #==========================================================#
+ #   INTENT RECIPES (Layer 4 of the info-tagging strategy)  #
+#==========================================================#
+# Atomic "one intent -> one solution" docs under doc/quickers/recipes/**. Each is
+# a knowledge record the retrieval index unions in alongside methods, so a
+# conversational "how do I X" query surfaces a runnable snippet, not just a name.
+
+# The standard recipes directory (under base/), or "" if base can't be located.
+func _StzRecipesDir()
+	_cB_ = _StzBaseDir()
+	if _cB_ = "" return "" ok
+	return _cB_ + "/doc/quickers/recipes"
+
+# Harvest every recipe under pcFolder (and its immediate subfolders) into records
+# [ intent, tags, methodsCSV, example, file ]. Files without an "# Intent:" line
+# are skipped (not recipes).
+func _StzHarvestRecipes(pcFolder)
+	_aOut_ = []
+	if NOT (isString(pcFolder) and pcFolder != "") return _aOut_ ok
+	_aFiles_ = _StzMdFilesUnder(pcFolder)
+	_n_ = len(_aFiles_)
+	for _i_ = 1 to _n_
+		_aR_ = _StzParseRecipe(_aFiles_[_i_])
+		if len(_aR_) > 0 _aOut_ + _aR_ ok
+	next
+	return _aOut_
+
+# .md files directly in pcFolder plus those one subfolder deep.
+func _StzMdFilesUnder(pcFolder)
+	_aOut_ = []
+	if NOT direxists(pcFolder) return _aOut_ ok
+	_aE_ = dir(pcFolder)
+	_n_ = len(_aE_)
+	for _i_ = 1 to _n_
+		_cN_ = _aE_[_i_][1]
+		if _aE_[_i_][2] = 0
+			if _StzEndsWith(lower(_cN_), ".md") _aOut_ + (pcFolder + "/" + _cN_) ok
+		but _cN_ != "." and _cN_ != ".."
+			_cSub_ = pcFolder + "/" + _cN_
+			if direxists(_cSub_)
+				_aS_ = dir(_cSub_)
+				_m_ = len(_aS_)
+				for _j_ = 1 to _m_
+					if _aS_[_j_][2] = 0 and _StzEndsWith(lower(_aS_[_j_][1]), ".md")
+						_aOut_ + (_cSub_ + "/" + _aS_[_j_][1])
+					ok
+				next
+			ok
+		ok
+	next
+	return _aOut_
+
+# Parse one recipe file -> [ intent, tags, methodsCSV, example, file ] or [] if it
+# has no "# Intent:" line. The example is the concatenated fenced ```ring block(s).
+func _StzParseRecipe(pcFile)
+	_aLines_ = str2list(read(pcFile))
+	_cIntent_ = ""
+	_cTags_ = ""
+	_cMethods_ = ""
+	_cEg_ = ""
+	_bCode_ = FALSE
+	_n_ = len(_aLines_)
+	for _i_ = 1 to _n_
+		_cRaw_ = _aLines_[_i_]
+		_cT_ = trim(_cRaw_)
+		if len(_cT_) >= 3 and left(_cT_, 3) = "```"
+			_bCode_ = NOT _bCode_
+			loop
+		ok
+		if _bCode_
+			_cEg_ += _cRaw_ + nl
+			loop
+		ok
+		_cV_ = _StzLineTagValue(_cT_, "# intent:")
+		if _cV_ != "" _cIntent_ = _cV_ loop ok
+		_cV_ = _StzLineTagValue(_cT_, "tags:")
+		if _cV_ != "" _cTags_ = _cV_ loop ok
+		_cV_ = _StzLineTagValue(_cT_, "methods:")
+		if _cV_ != "" _cMethods_ = _cV_ loop ok
+	next
+	if _cIntent_ = "" return [] ok
+	return [ _cIntent_, _cTags_, _cMethods_, trim(_cEg_), pcFile ]
+
+# If the de-marked-down line starts with pcTagLower, return the text after it;
+# else "". Strips markdown bold (*) and a leading "- " bullet first.
+func _StzLineTagValue(pcLine, pcTagLower)
+	_c_ = _StzDeMarkdown(pcLine)
+	_cLow_ = lower(_c_)
+	_lt_ = len(pcTagLower)
+	if len(_cLow_) >= _lt_ and left(_cLow_, _lt_) = pcTagLower
+		return trim(substr(_c_, _lt_ + 1, len(_c_) - _lt_))
+	ok
+	return ""
+
+func _StzDeMarkdown(pcLine)
+	_c_ = ""
+	_n_ = len(pcLine)
+	for _i_ = 1 to _n_
+		if pcLine[_i_] != "*" _c_ += pcLine[_i_] ok
+	next
+	_c_ = trim(_c_)
+	if len(_c_) >= 2 and left(_c_, 2) = "- " _c_ = trim(substr(_c_, 3, len(_c_) - 2)) ok
+	return _c_

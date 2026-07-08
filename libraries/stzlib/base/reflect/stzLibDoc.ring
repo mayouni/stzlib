@@ -36,10 +36,11 @@ func _StzDefaultDocClasses()
 
 class stzLibDoc from stzObject
 
-	@aEntries = []    # [ className, methodName, description ]
+	@aEntries = []    # [ ownerOrKind, name, description ] (kind "(recipe)" for recipes)
 	@aTexts = []      # per-entry "name-as-words + description" (built once)
 	@aVectors = []    # per-entry embedding (lazy; embedding model only)
 	@bIndexed = FALSE
+	@nRecipes = 0     # how many entries are intent recipes
 
 	def init(paClasses)
 		if NOT isList(paClasses) return ok
@@ -59,6 +60,18 @@ class stzLibDoc from stzObject
 			ok
 		next
 
+		# Union in the intent RECIPES (kind "(recipe)"): atomic "one intent -> one
+		# solution" units, so a conversational "how do I X" query surfaces a
+		# runnable snippet, not just a method name (info-tagging strategy L4). The
+		# recipe's retrieval text is its intent + tags (user-language synonyms).
+		_aRec_ = _StzHarvestRecipes(_StzRecipesDir())
+		_nR_ = len(_aRec_)
+		for _r_ = 1 to _nR_
+			@aEntries + [ "(recipe)", _aRec_[_r_][1], _aRec_[_r_][4] ]
+			@aTexts + ( _aRec_[_r_][1] + " " + _StzCommasToSpaces(_aRec_[_r_][2]) )
+			@nRecipes++
+		next
+
 	def NumberOfEntries()
 		return len(@aEntries)
 
@@ -66,11 +79,14 @@ class stzLibDoc from stzObject
 		_aSeen_ = []
 		_nE_ = len(@aEntries)
 		for _i_ = 1 to _nE_
-			if ring_find(_aSeen_, @aEntries[_i_][1]) = 0
+			if @aEntries[_i_][1] != "(recipe)" and ring_find(_aSeen_, @aEntries[_i_][1]) = 0
 				_aSeen_ + @aEntries[_i_][1]
 			ok
 		next
 		return len(_aSeen_)
+
+	def NumberOfRecipes()
+		return @nRecipes
 
 	# Ask(question) -- which methods, ACROSS the harvested classes, best match the
 	# question by MEANING: [ [class, method, score, description], ... ] best first.
@@ -86,7 +102,20 @@ class stzLibDoc from stzObject
 		if StzHasNeuralModel() and NOT StzHasRerankerModel()
 			This._EnsureIndex()
 		ok
-		_aTop_ = _StzRankMethodTexts(pcQuestion, @aTexts, @aVectors, n)
+		# Intent RECIPES get a small prior: on an intent-shaped query they should
+		# win a tie against an incidental method match (e.g. a "detect the
+		# language" recipe over the SetLanguage setter), because a recipe answers
+		# with a runnable snippet. Small enough to only tip genuine ties.
+		_aBonus_ = []
+		_nE2_ = len(@aEntries)
+		for _iB_ = 1 to _nE2_
+			if @aEntries[_iB_][1] = "(recipe)"
+				_aBonus_ + 0.05
+			else
+				_aBonus_ + 0
+			ok
+		next
+		_aTop_ = _StzRankMethodTextsBonus(pcQuestion, @aTexts, @aVectors, n, _aBonus_)
 
 		_aOut_ = []
 		_nT_ = len(_aTop_)
