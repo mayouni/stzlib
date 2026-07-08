@@ -107,13 +107,14 @@ class stzLibDoc from stzObject
 		# language" recipe over the SetLanguage setter), because a recipe answers
 		# with a runnable snippet. Small enough to only tip genuine ties.
 		_aBonus_ = []
+		_cCue_ = _StzQueryFormCue(pcQuestion)
 		_nE2_ = len(@aEntries)
 		for _iB_ = 1 to _nE2_
 			if @aEntries[_iB_][1] = "(recipe)"
 				_aBonus_ + 0.05
 			else
-				# tiny shorter-name preference so a canonical op wins ties
-				_aBonus_ + ( -0.0002 * len(@aEntries[_iB_][2]) )
+				# form preference + tiny shorter-name nudge (see stzSelfDoc.AskFor)
+				_aBonus_ + ( _StzFormPreferenceBonus(@aEntries[_iB_][2], _cCue_) - 0.0002 * len(@aEntries[_iB_][2]) )
 			ok
 		next
 		_aTop_ = _StzRankMethodTextsBonus(pcQuestion, @aTexts, @aVectors, n, _aBonus_)

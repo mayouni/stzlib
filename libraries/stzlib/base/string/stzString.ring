@@ -2344,8 +2344,8 @@ class stzString from stzObject
 			_StzHistoAdd(This.Content())
 			return This
 
-	# Convert the string to UPPER CASE (all capitals).
-	#@ aka  uppercase, upper case, capitals, all caps, capitalize all, make uppercase, shout
+	# An UPPER CASE (all capitals) copy of the string; the original is unchanged.
+	#@ aka  upper case, capitals, all caps, in capitals
 	def Uppercased()
 		# FULLY ENGINE-DIRECT: str_to_upper does the ASCII fast path AND full
 		# Unicode SpecialCasing (ß->SS, ﬄ->FFL, İ handling, ...) engine-side --
@@ -2374,8 +2374,8 @@ class stzString from stzObject
 			_StzHistoAdd(This.Content())
 			return This
 
-	# Convert the string to lower case.
-	#@ aka  lowercase, lower case, small letters, make lowercase, uncapitalize
+	# A lower case copy of the string; the original is unchanged.
+	#@ aka  lower case, small letters, in lowercase
 	def Lowercased()
 		# ENGINE-DIRECT: lowercase the resident @pEngine in place (ASCII fast
 		# path inside). No Content() round-trip + re-marshal. Behavior-
@@ -2405,8 +2405,8 @@ class stzString from stzObject
 			This.Capitalize()
 			return This
 
-	# Capitalize the first letter of the string (title-style).
-	#@ aka  capitalize, title case, first letter uppercase, sentence case, proper case
+	# A copy with the first letter capitalized (title-style); original unchanged.
+	#@ aka  title case, first letter capital, sentence case, proper case
 	def Capitalized()
 		_oCapCopy_ = This.Copy()
 		_oCapCopy_.Capitalize()
@@ -2427,8 +2427,8 @@ class stzString from stzObject
 			This.Reverse()
 			return This
 
-	# Reverse the order of the characters in the string.
-	#@ aka  reverse, reversed, backwards, flip, invert, mirror the characters
+	# A copy of the string with the characters in reverse order; original unchanged.
+	#@ aka  backwards, in reverse order, mirrored, flipped
 	def Reversed()
 		_pRvdResult_ = StzEngineStringReverse(@pEngine)
 		if _pRvdResult_ != NULL
@@ -4908,8 +4908,8 @@ class stzString from stzObject
 	 #     TRIMMED                                #
 	#============================================#
 
-	# Remove leading and trailing whitespace from the string.
-	#@ aka  trim, strip, remove surrounding spaces, remove spaces, clean whitespace, remove padding, chomp
+	# A copy without leading and trailing whitespace; the original is unchanged.
+	#@ aka  without surrounding spaces, whitespace stripped, without padding, cleaned
 	def Trimmed()
 		_pTmResult_ = StzEngineStringTrim(@pEngine)
 		if _pTmResult_ != 0

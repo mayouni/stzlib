@@ -71,6 +71,21 @@ Scenario("stzString flagship intents resolve to the canonical method")
 		TopHitIsOneOf(oStr, "does it contain a word", ["Contains"]), TRUE)
 EndScenario()
 
+# FUNCTION-FORM awareness (Softanza's active/passive/fluent distinction, read off
+# the method NAME by design): a bare intent defaults to the non-destructive PASSIVE
+# form; a mutate cue routes to the ACTIVE form; a chain cue routes to the FLUENT (Q)
+# form. Same operation, three forms, routed by intent.
+Scenario("Function-form awareness routes intent to the right form")
+	Then("'reverse the string' -> passive Reversed (non-destructive default)",
+		TopHitIsOneOf(oStr, "reverse the string", ["Reversed"]), TRUE)
+	Then("'reverse the string in place' -> active Reverse (mutates)",
+		TopHitIsOneOf(oStr, "reverse the string in place", ["Reverse"]), TRUE)
+	Then("'an uppercase copy of the text' -> passive Uppercased",
+		TopHitIsOneOf(oStr, "an uppercase copy of the text", ["Uppercased"]), TRUE)
+	Then("Explain teaches the passive form",
+		substr(oStr.ExplainMethod("Reversed"), "passive form") > 0, TRUE)
+EndScenario()
+
 # Conversational layer: "how do I X" intents should surface an intent RECIPE (a
 # runnable snippet), not just a method name -- across the stzLibDoc union index.
 oLib = StzLibDoc([ "stzText", "stzListOfTexts" ])
