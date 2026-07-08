@@ -74,11 +74,16 @@ func _StzMethodText(paMethod)
 # passive form "Reversed"). One place, so lexical scoring, the embedding index,
 # and stzLibDoc all agree.
 func _StzMethodRetrievalText(paMethod)
+	# CURATED zone: name + intent + aka + form-base variants (high signal).
 	_c_ = _StzMethodText(paMethod)
-	_cEg_ = _StzExampleTitlesFor(lower(paMethod[1]))
-	if _cEg_ != "" _c_ += " " + _cEg_ ok
 	_cFv_ = _StzFormBaseVariants(paMethod[1])
 	if _cFv_ != "" _c_ += " " + _cFv_ ok
+	# EXAMPLE-TITLE zone after a "|||" sentinel (the alnum tokenizer ignores it):
+	# lexical IDF scoring weights this zone DOWN, so a rare word buried in a
+	# method's test-title soup can't hijack the ranking (the IDF lesson). The
+	# embedding/reranker paths just see the full text; the sentinel is inert.
+	_cEg_ = _StzExampleTitlesFor(lower(paMethod[1]))
+	if _cEg_ != "" _c_ += " ||| " + _cEg_ ok
 	return _c_
 
   #==========================================================#
@@ -501,15 +506,27 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 	# is untouched and risk is low): "readable"->read, "reversed"->reverse.
 	_aQV_ = []
 	for _j_ = 1 to _nq_ _aQV_ + _StzStemVariants(_aQ_[_j_]) next
-	# tokenize every doc once (reused for df + scoring); count df of each query token
-	_aDocToks_ = []
+	# split each doc into its CURATED zone and its (down-weighted) TITLE zone at the
+	# "|||" sentinel; tokenize each once (reused for df + scoring). df is counted over
+	# the CURATED zone only, so IDF rarity reflects the high-signal text.
+	_aCur_ = []
+	_aTit_ = []
 	_aDf_ = []
 	for _j_ = 1 to _nq_ _aDf_ + 0 next
 	for _i_ = 1 to _nT_
-		_aTok_ = _StzAlnumTokens(lower(paTexts[_i_]))
-		_aDocToks_ + _aTok_
+		_full_ = paTexts[_i_]
+		_p_ = substr(_full_, "|||")
+		if _p_ > 0
+			_ct_ = _StzAlnumTokens(lower(left(_full_, _p_ - 1)))
+			_tt_ = _StzAlnumTokens(lower(substr(_full_, _p_ + 3, len(_full_) - _p_ - 2)))
+		else
+			_ct_ = _StzAlnumTokens(lower(_full_))
+			_tt_ = []
+		ok
+		_aCur_ + _ct_
+		_aTit_ + _tt_
 		for _j_ = 1 to _nq_
-			if _StzAnyIn(_aQV_[_j_], _aTok_) _aDf_[_j_]++ ok
+			if _StzAnyIn(_aQV_[_j_], _ct_) _aDf_[_j_]++ ok
 		next
 	next
 	# smoothed IDF weight per query token (rarer -> higher; always > 0)
@@ -523,17 +540,23 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 		_aW_ + _w_
 		_wSum_ += _w_
 	next
-	# IDF-weighted coverage per doc + tiny density tie-breaker
+	# zone-weighted coverage: a CURATED match earns full IDF weight, a TITLE-only
+	# match earns 0.3x (recall without letting the title-soup hijack ranks).
 	for _i_ = 1 to _nT_
-		_aTok_ = _aDocToks_[_i_]
 		_num_ = 0
 		_hits_ = 0
 		for _j_ = 1 to _nq_
-			if _StzAnyIn(_aQV_[_j_], _aTok_) _num_ += _aW_[_j_] _hits_++ ok
+			if _StzAnyIn(_aQV_[_j_], _aCur_[_i_])
+				_num_ += _aW_[_j_]
+				_hits_++
+			but _StzAnyIn(_aQV_[_j_], _aTit_[_i_])
+				_num_ += 0.4 * _aW_[_j_]
+				_hits_++
+			ok
 		next
 		_sc_ = 0
 		if _wSum_ > 0 _sc_ = _num_ / _wSum_ ok
-		_dl_ = len(_aTok_)
+		_dl_ = len(_aCur_[_i_]) + len(_aTit_[_i_])
 		if _dl_ > 0 _sc_ += 0.001 * (_hits_ / _dl_) ok
 		_aOut_ + [ _i_, _sc_ ]
 	next
