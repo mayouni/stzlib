@@ -96,6 +96,23 @@ class stzStringText
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Self-description: harvest this class's methods + doc-comments and answer
+	# plain-English questions about them (no LLM; see base/reflect/stzSelfDoc).
+	def Doc()
+		return new stzSelfDoc(_StzClassNameOf(This))
+
+	def Ask(pcQuestion)
+		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
+		return _oSd_.Ask(pcQuestion)
+
+	def AskFor(pcQuestion, n)
+		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
+		return _oSd_.AskFor(pcQuestion, n)
+
+	def ExplainMethod(pcName)
+		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
+		return _oSd_.ExplainMethod(pcName)
+
 	def Content()
 		return @oString.Content()
 

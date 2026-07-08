@@ -66,4 +66,29 @@ Scenario("stzLibDoc: cross-class method discovery")
 	#   "stzNumber"]).Ask("most relevant document") -> stzListOfTexts.MostRelevantTo.
 EndScenario()
 
+Scenario("Q(obj).Ask() -- any object describes ITSELF")
+	# Doc()/Ask()/ExplainMethod() live on stzObject (-> stzString/stzList/stzNumber)
+	# and stzStringText/stzStringList (-> stzText/stzListOfTexts), so any Softanza
+	# object can answer questions about its own methods. Model-free lexical here.
+	on = new stzNumber(5)
+	Then("a number finds its square-root method by description",
+		on.AskFor("compute the square root", 1)[1][1], "SquareRoot")
+	ot = new stzText("The cat runs")
+	Then("a text finds its language method",
+		ot.AskFor("detect the language", 1)[1][1], "Language")
+	Then("ExplainMethod works off the object",
+		substr(ot.ExplainMethod("Classify"), "labels") > 0, TRUE)
+	olt = new stzListOfTexts([ "a", "b" ])
+	Then("a list-of-texts finds its relevance-ranking method",
+		olt.AskFor("rank documents by relevance", 1)[1][1], "RankedForQuery")
+	ol = new stzList([ 1, 2, 3 ])
+	Then("a list can open its own doc",
+		ol.Doc().NumberOfMethods() >= 100, TRUE)
+	# A class whose FILE name != class name still resolves (content scan):
+	Then("stzListOfStrings resolves (lives in stzStringList.ring)",
+		StzDoc("stzListOfStrings").NumberOfMethods() >= 50, TRUE)
+	# MANUAL (embedding model): Q("...").TextQ().Ask("closest sentence by meaning")
+	#   -> MostSimilarSentenceTo; ranking is semantic, not just word overlap.
+EndScenario()
+
 Summary()
