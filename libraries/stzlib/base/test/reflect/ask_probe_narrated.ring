@@ -53,9 +53,32 @@ Scenario("Part-of-speech + readability + language intents")
 		TopHitIsOneOf(o, "which language is this written in", ["Language","DetectedLanguage"]), TRUE)
 EndScenario()
 
+# Conversational layer: "how do I X" intents should surface an intent RECIPE (a
+# runnable snippet), not just a method name -- across the stzLibDoc union index.
+oLib = StzLibDoc([ "stzText", "stzListOfTexts" ])
+
+Scenario("Conversational intents surface a runnable recipe")
+	Then("recipes are loaded into the union index",
+		oLib.NumberOfRecipes() >= 6, TRUE)
+	Then("class count excludes recipes (stays at owners)",
+		oLib.NumberOfClasses(), 4)
+	Then("'how do I detect the mood of a paragraph' -> recipe",
+		LibTopIsRecipe(oLib, "how do I detect the mood of a paragraph"), TRUE)
+	Then("'get the people and places from text' -> recipe",
+		LibTopIsRecipe(oLib, "get the people and places from text"), TRUE)
+	Then("'shorten a long text' -> recipe",
+		LibTopIsRecipe(oLib, "shorten a long text"), TRUE)
+EndScenario()
+
 # TRUE if Ask's top-1 method for cQuery is one of the acceptable answers (a
 # capability often has an alias/Q-variant family, all correct).
 func TopHitIsOneOf(oDoc, cQuery, aAcceptable)
 	aR = oDoc.AskFor(cQuery, 1)
 	if len(aR) = 0 return FALSE ok
 	return ring_find(aAcceptable, aR[1][1]) > 0
+
+# TRUE if the stzLibDoc top-1 for cQuery is an intent recipe (kind "(recipe)").
+func LibTopIsRecipe(oLib, cQuery)
+	aR = oLib.AskFor(cQuery, 1)
+	if len(aR) = 0 return FALSE ok
+	return aR[1][1] = "(recipe)"
