@@ -1688,6 +1688,7 @@ class stzList from stzObject
 			This.SortInDescending()
 			return This
 
+	#@ aka  order, arrange, rank, ascending, smallest to largest
 	def Sort()
 		This.SortCS(1)
 
@@ -1768,6 +1769,7 @@ class stzList from stzObject
 	 #  REVERSING (engine-backed)   #
 	#------------------------------#
 
+	#@ aka  flip, backwards, invert order, last to first
 	def Reverse()
 		pList = This._Engine()
 		if pList = NULL return ok
@@ -1944,6 +1946,7 @@ class stzList from stzObject
 
 		return This._FindFirstEngine(pItem, pCaseSensitive) > 0
 
+	#@ aka  includes, has, is in, member of, present, holds
 	def Contains(pItem)
 		return This.ContainsCS(pItem, 1)
 
@@ -1968,6 +1971,7 @@ class stzList from stzObject
 			This.RemoveDuplicatesCS(pCaseSensitive)
 			return This
 
+	#@ aka  unique, distinct, dedupe, remove repeats, deduplicate
 	def RemoveDuplicates()
 		This.RemoveDuplicatesCS(1)
 
@@ -2372,6 +2376,7 @@ class stzList from stzObject
 		_oMdTmp_.Merge()
 		return _oMdTmp_.Content()
 
+	#@ aka  unnest, merge levels, single level, ungroup, collapse nesting
 	def Flatten()
 		pList = This._Engine()
 		if pList = NULL return ok
@@ -2520,6 +2525,7 @@ class stzList from stzObject
 		def MapQ(pcExpr)
 			return new stzList(This.Map(pcExpr))
 
+	#@ aka  keep where, select, subset, matching items, pick out
 	def Filter(pcExpr)
 		pList = This._Engine()
 		if pList = NULL return [] ok
@@ -5217,6 +5223,7 @@ class stzList from stzObject
 
 	  #-- Min / Max for numeric lists
 
+	#@ aka  smallest, minimum, lowest, least
 	def Min()
 		if len(@aContent) = 0
 			return 0
@@ -5234,6 +5241,7 @@ class stzList from stzObject
 		def Lowest()
 			return This.Min()
 
+	#@ aka  largest, maximum, highest, biggest, greatest
 	def Max()
 		if len(@aContent) = 0
 			return 0
@@ -5256,6 +5264,7 @@ class stzList from stzObject
 
 	  #-- Sum / Product / Mean (engine-backed)
 
+	#@ aka  total, add up, aggregate, sum of the numbers
 	def Sum()
 		if len(@aContent) = 0 return 0 ok
 		_pSmList_ = This._Engine()
@@ -5274,6 +5283,7 @@ class stzList from stzObject
 		_nMnResult_ = StzEngineListMean(_pMnList_)
 		return _nMnResult_
 
+		#@ aka  mean, avg, typical value, arithmetic mean
 		def Average()
 			return This.Mean()
 
@@ -7102,6 +7112,7 @@ class stzList from stzObject
 		_oShMvr_.Shuffle()
 		This.UpdateWith(_oShMvr_.Content())
 
+	#@ aka  randomize, mix, scramble, random order, jumble
 	def Shuffled()
 		_oShdMvr_ = new stzListMover(This)
 		return _oShdMvr_.Shuffled()
@@ -7743,6 +7754,7 @@ class stzList from stzObject
 		next
 		return FALSE
 
+	#@ aka  put at position, add at, place into, inject at index
 	def Insert(pItem, pWhere)
 		_oIIns_ = new stzListInserter(This)
 		_oIIns_.Insert(pItem, pWhere)
