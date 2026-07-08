@@ -374,6 +374,45 @@ func _StzFormOf(pcName)
 	if _len_ > 3 and right(_low_, 2) = "ed" return [ "passive", _low_ ] ok
 	return [ "active", _low_ ]
 
+# Active/passive/fluent TAGGING SYMMETRY: #@ aka describes the OPERATION (user
+# words like "capitals", "backwards"), which is voice-NEUTRAL, so a method inherits
+# its voice-sibling's aka -- tag once, all three forms of the op become findable.
+# Fills the EMPTY aka of any method whose active/passive/fluent sibling HAS aka.
+# In place on the harvested records; construct-and-verify (only fills siblings that
+# actually EXIST), so imperfect de-inflection can't invent a bad tag.
+func _StzFillSiblingAka(paMethods)
+	_n_ = len(paMethods)
+	if _n_ = 0 return paMethods ok
+	_aNames_ = []
+	for _i_ = 1 to _n_ _aNames_ + lower(paMethods[_i_][1]) next
+	for _i_ = 1 to _n_
+		if len(paMethods[_i_]) < 3 loop ok
+		_ak_ = trim(paMethods[_i_][3])
+		if _ak_ = "" loop ok
+		_aBases_ = _StzSiblingBases(paMethods[_i_][1])
+		_nb_ = len(_aBases_)
+		for _b_ = 1 to _nb_
+			_base_ = _aBases_[_b_]
+			_aSibs_ = [ _base_, _base_ + "ed", _base_ + "d", _base_ + "q" ]
+			for _s_ = 1 to 4
+				_p_ = ring_find(_aNames_, _aSibs_[_s_])
+				if _p_ > 0 and _p_ != _i_ and len(paMethods[_p_]) >= 3 and trim(paMethods[_p_][3]) = ""
+					paMethods[_p_][3] = _ak_
+				ok
+			next
+		next
+	next
+	return paMethods
+
+# Candidate base verbs shared by a method's voice-siblings (lowercased): active ->
+# itself; fluent -> minus Q; passive -> its de-ed stems (imperfect, but the caller
+# only uses bases whose constructed siblings actually exist).
+func _StzSiblingBases(pcName)
+	_aF_ = _StzFormOf(pcName)
+	if _aF_[1] = "fluent" return [ _aF_[2] ] ok
+	if _aF_[1] = "passive" return _StzAlnumTokens(_StzEdVariants(lower(pcName))) ok
+	return [ lower(pcName) ]
+
 # For a passive/fluent form, the base-verb variants to fold into retrieval so the
 # ACTIVE verb finds it ("reverse"->Reversed, "trim"->Trimmed). "" for other forms.
 func _StzFormBaseVariants(pcName)
