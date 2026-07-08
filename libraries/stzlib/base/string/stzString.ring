@@ -624,6 +624,7 @@ class stzString from stzObject
 
 	# Whether the string has no characters.
 	#@ aka  empty, blank, is empty, no characters, nothing, void
+	#@ aka  blank, empty, has nothing, no characters, is it empty
 	def IsEmpty()
 		return This.Content() = ""
 
@@ -781,6 +782,7 @@ class stzString from stzObject
 		next
 		return _acResult_
 
+	#@ aka  substring, slice, part, portion, extract, characters between two positions
 	def Section(n1, n2)
 		nLen = This.NumberOfChars()
 		# Narrative aliases: Section(:From = pcA, :To = pcB). A string
@@ -1296,6 +1298,7 @@ class stzString from stzObject
 
 	# Whether the string contains the given substring.
 	#@ aka  contain, contains, includes, has, contain a word, is present, occurs in
+	#@ aka  includes, has, holds, is there, present in, does it have
 	def Contains(pcSubStr)
 		return StzEngineStringContainsCS(@pEngine, pcSubStr, 1)
 
@@ -2198,6 +2201,7 @@ class stzString from stzObject
 		_oFaFinder_ = new stzStringFinder(This)
 		return _oFaFinder_.FindCS(pcSubStr, _csNorm_)
 
+	#@ aka  locate, search for, position of, index of, where is
 	def Find(pcSubStr)
 		# Multi-needle form: Find([sub1, sub2, ...]) -> ALL their
 		# positions, flat and sorted ascending.
@@ -2212,6 +2216,7 @@ class stzString from stzObject
 		ok
 		return This.FindCS(pcSubStr, 1)
 
+		#@ aka  all positions, every occurrence, locate all, indexes of
 		def FindAll(pcSubStr)
 			return This.Find(pcSubStr)
 
@@ -2279,6 +2284,7 @@ class stzString from stzObject
 
 	# Whether the string starts with the given prefix.
 	#@ aka  starts with, begins with, prefix, leading, has prefix
+	#@ aka  begins with, prefix, at the start, opens with
 	def StartsWith(pcSubStr)
 		return StzEngineStringStartsWith(@pEngine, pcSubStr)
 
@@ -2288,6 +2294,7 @@ class stzString from stzObject
 
 	# Whether the string ends with the given suffix.
 	#@ aka  ends with, finishes with, suffix, trailing, has suffix
+	#@ aka  finishes with, suffix, at the end, closes with
 	def EndsWith(pcSubStr)
 		return StzEngineStringEndsWith(@pEngine, pcSubStr)
 
@@ -2474,6 +2481,7 @@ class stzString from stzObject
 
 	# Replace every occurrence of a substring with another.
 	#@ aka  replace, substitute, swap text, find and replace, change all, rename
+	#@ aka  substitute, swap, change, find and replace, put instead
 	def Replace(pcSubStr, pcNewSubStr)
 		# Polymorphic shorthands when the 2nd arg is a :By / :With / :ByMany
 		# named param -- otherwise a plain case-sensitive replace:
@@ -2553,6 +2561,7 @@ class stzString from stzObject
 			This.Remove(pcSubStr)
 			return This
 
+		#@ aka  delete, strip, erase, get rid of, take out, drop
 		def RemoveAll(pcSubStr)
 			This.Remove(pcSubStr)
 
@@ -5986,6 +5995,7 @@ class stzString from stzObject
 
 	# The string repeated n times.
 	#@ aka  repeat, duplicate, times, concatenate copies, tile
+	#@ aka  duplicate, repeat n times, multiply the string, echo
 	def Repeated(n)
 		if CheckParams()
 			if isList(n) and len(n) = 2 and
@@ -15304,6 +15314,7 @@ class stzString from stzObject
 		return ""
 
 	# Insert(pcSub, :BeforePosition = n / :AfterPosition = n / n).
+	#@ aka  put at position, add at, place into, inject
 	def Insert(pcSub, pNamed)
 		_n_ = 0
 		_bAfter_ = FALSE
@@ -17615,6 +17626,7 @@ class stzString from stzObject
 	def Count(pcSubStr)
 		return This.CountCS(pcSubStr, 1)
 
+		#@ aka  how many times, count occurrences, tally, frequency of, times it appears
 		def NumberOfOccurrences(pcSubStr)
 			return This.Count(pcSubStr)
 
