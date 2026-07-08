@@ -34,6 +34,9 @@ class stzSelfDoc from stzObject
 	@aMethods = []    # [ [name, description, aka, ownerClass], ... ] own + inherited
 	@aVectors = []    # per-method embedding (lazy; only when a model is loaded)
 	@bIndexed = FALSE
+	@aRetTexts = []   # per-method retrieval text (query-INDEPENDENT; built once)
+	@aRetHeads = []   # per-method head words (query-independent; built once)
+	@bRetBuilt = FALSE
 
 	def init(pcTarget)
 		if NOT isString(pcTarget)
@@ -162,19 +165,26 @@ class stzSelfDoc from stzObject
 		_nM_ = len(@aMethods)
 		if _nM_ = 0 return [] ok
 		if NOT isNumber(n) or n < 1 n = 3 ok
+		# No-match guard: an empty or all-stopword query has no content to match.
+		_aQC_ = _StzStrictContentTokens(pcQuestion)
+		if len(_aQC_) = 0 return [] ok
 
-		_aTexts_ = []
-		_aHeads_ = []
+		# Retrieval texts + heads are query-INDEPENDENT -- build them ONCE per object
+		# (was rebuilt every AskFor: ~0.77s/query on stzString's 2112 methods).
+		if NOT @bRetBuilt
+			@aRetTexts = []
+			@aRetHeads = []
+			for _i_ = 1 to _nM_
+				@aRetTexts + _StzMethodRetrievalText(@aMethods[_i_])
+				@aRetHeads + _StzParseName(@aMethods[_i_][1])[1]
+			next
+			@bRetBuilt = TRUE
+		ok
+		# Bonus IS query-dependent (form cue) -- rebuild it (cheap): own-method prior
+		# + FORM preference + a tiny SHORTER-NAME nudge. All small: tip ties only.
 		_aBonus_ = []
 		_cCue_ = _StzQueryFormCue(pcQuestion)
 		for _i_ = 1 to _nM_
-			_aTexts_ + _StzMethodRetrievalText(@aMethods[_i_])
-			# The method's HEAD (base verb+object) drives verb-headed scoring.
-			_aHeads_ + _StzParseName(@aMethods[_i_][1])[1]
-			# Bonus = own-method prior + FORM preference (passive by default, active
-			# on a mutate cue, fluent on a chain cue) + a tiny SHORTER-NAME nudge so
-			# a canonical op (Split) wins a coverage tie against a variant. All small:
-			# they only tip genuine ties, never override real coverage.
 			_nb_ = 0
 			if lower(@aMethods[_i_][4]) = lower(@cName) _nb_ = 0.05 ok
 			_nb_ += _StzFormPreferenceBonus(@aMethods[_i_][1], _cCue_)
@@ -184,12 +194,17 @@ class stzSelfDoc from stzObject
 		if StzHasNeuralModel() and NOT StzHasRerankerModel()
 			This._EnsureIndex()
 		ok
-		_aTop_ = _StzRankMethodTextsHeaded(pcQuestion, _aTexts_, @aVectors, n, _aBonus_, _aHeads_)
+		_aTop_ = _StzRankMethodTextsHeaded(pcQuestion, @aRetTexts, @aVectors, n, _aBonus_, @aRetHeads)
 
+		# On the model-free LEXICAL path, a result must genuinely share a token with
+		# the query -- else the bonuses alone fabricated a phantom match (gibberish/
+		# unmatched query). Embeddings/reranker match by meaning, so no such filter.
+		_bLex_ = NOT StzHasNeuralModel()
 		_aOut_ = []
 		_nT_ = len(_aTop_)
 		for _i_ = 1 to _nT_
 			_ix_ = _aTop_[_i_][1]
+			if _bLex_ and NOT _StzTextSharesToken(@aRetTexts[_ix_], _aQC_) loop ok
 			_aOut_ + [ @aMethods[_ix_][1], _aTop_[_i_][2], @aMethods[_ix_][2] ]
 		next
 		return _aOut_

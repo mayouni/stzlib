@@ -837,6 +837,33 @@ func _StzAlnumTokens(pcStr)
 	if _cCur_ != "" and ring_find(_aOut_, _cCur_) = 0 _aOut_ + _cCur_ ok
 	return _aOut_
 
+# STRICT content tokens: alphanumeric minus stopwords, NO fallback (empty if the
+# query is empty or all stopwords). Used to detect a genuine no-match query.
+func _StzStrictContentTokens(pcStr)
+	_aAll_ = _StzAlnumTokens(lower(pcStr))
+	_aOut_ = []
+	_n_ = len(_aAll_)
+	for _i_ = 1 to _n_
+		if ring_find($aStzStopwords, _aAll_[_i_]) = 0 _aOut_ + _aAll_[_i_] ok
+	next
+	return _aOut_
+
+# The CURATED zone of a retrieval text (before the "|||" title sentinel).
+func _StzCuratedZone(pcText)
+	_p_ = substr(pcText, "|||")
+	if _p_ = 0 return pcText ok
+	return trim(left(pcText, _p_ - 1))
+
+# TRUE if a doc text shares at least one (stem-tolerant) token with the query's
+# content tokens -- a real lexical match, as opposed to a bonus-only phantom.
+func _StzTextSharesToken(pcText, paQTokens)
+	_aT_ = _StzAlnumTokens(lower(pcText))
+	_n_ = len(paQTokens)
+	for _i_ = 1 to _n_
+		if _StzAnyIn(_StzStemVariants(paQTokens[_i_]), _aT_) return TRUE ok
+	next
+	return FALSE
+
 # Distinct content tokens of a query: alphanumeric tokens minus stopwords. Falls
 # back to all tokens if the query is entirely stopwords.
 func _StzContentTokens(pcStr)
@@ -1171,8 +1198,11 @@ func _StzRankMethodTextsHeaded(pcQuestion, paTexts, paVectors, n, paBonus, paHea
 		_nc_ = len(_aCand_)
 		for _i_ = 1 to _nc_
 			_idx_ = _aCand_[_i_]
-			_aSc_ + [ _idx_, StzEngineNeuralRerank(pcQuestion, paTexts[_idx_]) ]
+			_aSc_ + [ _idx_, StzEngineNeuralRerank(pcQuestion, _StzCuratedZone(paTexts[_idx_])) ]
 		next
+		# NOTE: on a 30-intent challenge this small cross-encoder underperformed the
+		# lexical path (terse method blobs are off-domain for a query-document reranker);
+		# kept for recipe/document reranking, but it is NOT the method-retrieval winner.
 	but StzHasNeuralModel() and len(paVectors) = _nT_
 		_qv_ = _StzEmbedInto(pcQuestion)
 		for _i_ = 1 to _nT_
