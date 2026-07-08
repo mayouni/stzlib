@@ -2053,6 +2053,16 @@ class stzObject
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
 		return _oSd_.ExplainMethod(pcName)
 
+	# HowTo(intent) -- near-natural programming: resolve a plain-English intent to a
+	# runnable method call on THIS object's class (grammar-composed then retrieved).
+	def HowTo(pcIntent)
+		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
+		return _oSd_.HowTo(pcIntent)
+
+	def MethodForIntent(pcIntent)
+		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
+		return _oSd_.MethodForIntent(pcIntent)
+
 	def Content()
 		return @content
 

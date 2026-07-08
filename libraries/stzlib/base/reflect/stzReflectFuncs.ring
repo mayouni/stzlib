@@ -202,6 +202,22 @@ func StzFormAudit(pcClass)
 	next
 	return _aOut_
 
+# A near-natural-programming call TEMPLATE for a method on a class: an idiomatic
+# receiver + the method. Args aren't synthesized (the user fills them); the value
+# is showing WHICH method and that it is Q-chainable.
+func _StzCallTemplate(pcClass, pcMethod)
+	return _StzSampleReceiver(pcClass) + "." + pcMethod + "()"
+
+func _StzSampleReceiver(pcClass)
+	_c_ = lower(pcClass)
+	if _c_ = "stzstring" return 'Q("...")' ok
+	if _c_ = "stzlist" return "Q([...])" ok
+	if _c_ = "stznumber" return "Q(5)" ok
+	if _c_ = "stztext" return 'Q("...").TextQ()' ok
+	if _c_ = "stzlistoftexts" return "Q([...]).ToListOfTextsQ()" ok
+	if _c_ = "stzchar" return 'Q("a")' ok
+	return "Q(...)"
+
 # Public: compose a Softanza method name from an intent, grounded against a class's
 # real API. Returns [ composedName, bExists, cClass ]. bExists FALSE means the
 # grammar produced a valid form the class does not implement yet (a coverage gap).

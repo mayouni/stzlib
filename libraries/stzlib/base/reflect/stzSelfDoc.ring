@@ -200,6 +200,46 @@ class stzSelfDoc from stzObject
 		if len(_aR_) = 0 return "" ok
 		return _aR_[1][1]
 
+	  #==========================================================#
+	 #   GENERATE (near-natural programming: intent -> a call) #
+	#==========================================================#
+	# HowTo(intent) -- resolve a plain-English intent to a runnable method call on
+	# this class, DETERMINISTICALLY (no LLM). Two engines, unified: (1) the GRAMMAR
+	# composes a method name from the intent and grounds it against this class's real
+	# API; if the class implements it, that is the answer (highest confidence, it is
+	# derived not guessed). (2) Otherwise fall back to semantic RETRIEVAL (the ranker:
+	# reranker/embeddings/lexical). Returns a human line: the call template + how it
+	# was resolved + the name's grammatical gloss.
+	def HowTo(pcIntent)
+		if NOT isString(pcIntent) return "" ok
+		_cComposed_ = _StzComposeName(pcIntent)
+		_cMethod_ = ""
+		_cHow_ = ""
+		if _cComposed_ != "" and This.HasMethod(_cComposed_)
+			_cMethod_ = _cComposed_
+			_cHow_ = "composed by grammar"
+		else
+			_aR_ = This.AskFor(pcIntent, 1)
+			if len(_aR_) > 0
+				_cMethod_ = _aR_[1][1]
+				_cHow_ = "retrieved by meaning"
+				# surface the coverage gap when the grammar named a valid-but-absent form
+				if _cComposed_ != "" and NOT This.HasMethod(_cComposed_)
+					_cHow_ += " (grammar suggested " + _cComposed_ + ", not implemented here)"
+				ok
+			ok
+		ok
+		if _cMethod_ = ""
+			return "No method in " + @cName + " matches: " + pcIntent
+		ok
+		return _StzCallTemplate(@cName, _cMethod_) + "   -- " + _cHow_ + " (" + _StzNameGloss(_cMethod_) + ")"
+
+	# The resolved method NAME only (DATA), grammar-first then retrieval.
+	def MethodForIntent(pcIntent)
+		_cComposed_ = _StzComposeName(pcIntent)
+		if _cComposed_ != "" and This.HasMethod(_cComposed_) return _cComposed_ ok
+		return This.BestMethodFor(pcIntent)
+
 	#-- private -------------------------------------------------
 	def _IndexOf(pcName)
 		if NOT isString(pcName) return 0 ok
