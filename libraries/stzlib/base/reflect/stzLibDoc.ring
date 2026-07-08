@@ -112,7 +112,8 @@ class stzLibDoc from stzObject
 			if @aEntries[_iB_][1] = "(recipe)"
 				_aBonus_ + 0.05
 			else
-				_aBonus_ + 0
+				# tiny shorter-name preference so a canonical op wins ties
+				_aBonus_ + ( -0.0002 * len(@aEntries[_iB_][2]) )
 			ok
 		next
 		_aTop_ = _StzRankMethodTextsBonus(pcQuestion, @aTexts, @aVectors, n, _aBonus_)

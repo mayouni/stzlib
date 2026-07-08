@@ -11,6 +11,7 @@ load "../_narrated.ring"
 # A neural model only sharpens these, so passing under lexical is the hard floor.
 
 o = new stzSelfDoc("stzText")
+oStr = new stzSelfDoc("stzString")
 
 Scenario("Sentiment intents (mood/tone/emotion -- name is 'Sentiment')")
 	Then("'what is the mood of this'",
@@ -51,6 +52,23 @@ Scenario("Part-of-speech + readability + language intents")
 		TopHitIsOneOf(o, "how hard is this to read", ["ReadabilityGrade","ReadingEase","FleschKincaidGrade","FleschReadingEase"]), TRUE)
 	Then("'which language is this written in'",
 		TopHitIsOneOf(o, "which language is this written in", ["Language","DetectedLanguage"]), TRUE)
+EndScenario()
+
+# stzString flagship intents (grind-complete module; L1 intent + L2 aka tagged).
+# User words that avoid the method name: capitals->Uppercased, reverse->Reversed.
+Scenario("stzString flagship intents resolve to the canonical method")
+	Then("'convert to capitals' -> Uppercased",
+		TopHitIsOneOf(oStr, "convert to capitals", ["Uppercased"]), TRUE)
+	Then("'make it lower case' -> Lowercased",
+		TopHitIsOneOf(oStr, "make it lower case", ["Lowercased"]), TRUE)
+	Then("'reverse the characters' -> Reversed",
+		TopHitIsOneOf(oStr, "reverse the characters", ["Reversed"]), TRUE)
+	Then("'split on a delimiter' -> Split",
+		TopHitIsOneOf(oStr, "split on a delimiter", ["Split"]), TRUE)
+	Then("'remove surrounding spaces' -> Trimmed",
+		TopHitIsOneOf(oStr, "remove surrounding spaces", ["Trimmed"]), TRUE)
+	Then("'does it contain a word' -> Contains",
+		TopHitIsOneOf(oStr, "does it contain a word", ["Contains"]), TRUE)
 EndScenario()
 
 # Conversational layer: "how do I X" intents should surface an intent RECIPE (a

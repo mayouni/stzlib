@@ -153,12 +153,13 @@ class stzSelfDoc from stzObject
 		_aBonus_ = []
 		for _i_ = 1 to _nM_
 			_aTexts_ + _StzMethodRetrievalText(@aMethods[_i_])
-			# Own methods get a small prior over inherited ones (see the ranker).
-			if lower(@aMethods[_i_][4]) = lower(@cName)
-				_aBonus_ + 0.05
-			else
-				_aBonus_ + 0
-			ok
+			# Bonus = own-method prior + a tiny SHORTER-NAME preference so a
+			# canonical op (Split) wins a coverage tie against a specialized
+			# variant (SplitAroundPositions). Tiny: only tips genuine ties.
+			_nb_ = 0
+			if lower(@aMethods[_i_][4]) = lower(@cName) _nb_ = 0.05 ok
+			_nb_ -= 0.0002 * len(@aMethods[_i_][1])
+			_aBonus_ + _nb_
 		next
 		if StzHasNeuralModel() and NOT StzHasRerankerModel()
 			This._EnsureIndex()

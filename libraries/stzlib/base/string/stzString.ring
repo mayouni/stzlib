@@ -552,6 +552,8 @@ class stzString from stzObject
 	 #     GETTING THE SIZE OF THE STRING    #
 	#=======================================#
 
+	# The length of the string in characters (Unicode codepoints).
+	#@ aka  length, string length, length of the string, size, how long, count characters, number of letters
 	def NumberOfChars()
 		# ENGINE-DIRECT + CACHED: ask the resident engine string for its
 		# codepoint count (StzEngineStringCount -> cached cpCount()). The old
@@ -620,6 +622,8 @@ class stzString from stzObject
 	 #  CHECKING IF THE STRING IS EMPTY      #
 	#=======================================#
 
+	# Whether the string has no characters.
+	#@ aka  empty, blank, is empty, no characters, nothing, void
 	def IsEmpty()
 		return This.Content() = ""
 
@@ -1290,6 +1294,8 @@ class stzString from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringContainsCS(@pEngine, pcSubStr, _bCase_)
 
+	# Whether the string contains the given substring.
+	#@ aka  contain, contains, includes, has, contain a word, is present, occurs in
 	def Contains(pcSubStr)
 		return StzEngineStringContainsCS(@pEngine, pcSubStr, 1)
 
@@ -2271,6 +2277,8 @@ class stzString from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringStartsWithCS(@pEngine, pcSubStr, _bCase_)
 
+	# Whether the string starts with the given prefix.
+	#@ aka  starts with, begins with, prefix, leading, has prefix
 	def StartsWith(pcSubStr)
 		return StzEngineStringStartsWith(@pEngine, pcSubStr)
 
@@ -2278,6 +2286,8 @@ class stzString from stzObject
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		return StzEngineStringEndsWithCS(@pEngine, pcSubStr, _bCase_)
 
+	# Whether the string ends with the given suffix.
+	#@ aka  ends with, finishes with, suffix, trailing, has suffix
 	def EndsWith(pcSubStr)
 		return StzEngineStringEndsWith(@pEngine, pcSubStr)
 
@@ -2334,6 +2344,8 @@ class stzString from stzObject
 			_StzHistoAdd(This.Content())
 			return This
 
+	# Convert the string to UPPER CASE (all capitals).
+	#@ aka  uppercase, upper case, capitals, all caps, capitalize all, make uppercase, shout
 	def Uppercased()
 		# FULLY ENGINE-DIRECT: str_to_upper does the ASCII fast path AND full
 		# Unicode SpecialCasing (ß->SS, ﬄ->FFL, İ handling, ...) engine-side --
@@ -2362,6 +2374,8 @@ class stzString from stzObject
 			_StzHistoAdd(This.Content())
 			return This
 
+	# Convert the string to lower case.
+	#@ aka  lowercase, lower case, small letters, make lowercase, uncapitalize
 	def Lowercased()
 		# ENGINE-DIRECT: lowercase the resident @pEngine in place (ASCII fast
 		# path inside). No Content() round-trip + re-marshal. Behavior-
@@ -2391,6 +2405,8 @@ class stzString from stzObject
 			This.Capitalize()
 			return This
 
+	# Capitalize the first letter of the string (title-style).
+	#@ aka  capitalize, title case, first letter uppercase, sentence case, proper case
 	def Capitalized()
 		_oCapCopy_ = This.Copy()
 		_oCapCopy_.Capitalize()
@@ -2411,6 +2427,8 @@ class stzString from stzObject
 			This.Reverse()
 			return This
 
+	# Reverse the order of the characters in the string.
+	#@ aka  reverse, reversed, backwards, flip, invert, mirror the characters
 	def Reversed()
 		_pRvdResult_ = StzEngineStringReverse(@pEngine)
 		if _pRvdResult_ != NULL
@@ -2446,6 +2464,8 @@ class stzString from stzObject
 			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
+	# Replace every occurrence of a substring with another.
+	#@ aka  replace, substitute, swap text, find and replace, change all, rename
 	def Replace(pcSubStr, pcNewSubStr)
 		# Polymorphic shorthands when the 2nd arg is a :By / :With / :ByMany
 		# named param -- otherwise a plain case-sensitive replace:
@@ -4705,6 +4725,8 @@ class stzString from stzObject
 		_bSpCase_ = @CaseSensitive(pCaseSensitive)
 		return This._SplitByStrCS(pcSep, _bSpCase_)
 
+	# Split the string into a list of parts around a separator.
+	#@ aka  split, separate, tokenize, break apart, delimiter, explode, cut into parts
 	def Split(pcSep)
 		# Named-param dispatch: :Using / :By / :With unwrap to the plain
 		# separator; :At / :Before / :After (+ Position(s) / Section(s)
@@ -4886,6 +4908,8 @@ class stzString from stzObject
 	 #     TRIMMED                                #
 	#============================================#
 
+	# Remove leading and trailing whitespace from the string.
+	#@ aka  trim, strip, remove surrounding spaces, remove spaces, clean whitespace, remove padding, chomp
 	def Trimmed()
 		_pTmResult_ = StzEngineStringTrim(@pEngine)
 		if _pTmResult_ != 0
@@ -5951,6 +5975,8 @@ class stzString from stzObject
 	 #   REPEATED / CONCATENATE   #
 	#============================#
 
+	# The string repeated n times.
+	#@ aka  repeat, duplicate, times, concatenate copies, tile
 	def Repeated(n)
 		if CheckParams()
 			if isList(n) and len(n) = 2 and
