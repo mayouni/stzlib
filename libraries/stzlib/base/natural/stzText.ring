@@ -38,6 +38,7 @@ class stzText from stzStringText
 		StzEngineStringFree(_pStem_)
 		return _cStem_
 
+	# The text with every word reduced to its root/stem ("running" -> "run").
 	def Stemmed()
 		return This.StemmedInLanguage("english")
 
@@ -67,6 +68,7 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   WORDNET (synonyms + hypernyms)                         #
 	#==========================================================#
+	# Words with the same or a similar meaning (synonyms, from WordNet).
 	def Synonyms()
 		return StzEngineStringSynonymsList(This.Engine())
 
@@ -78,6 +80,7 @@ class stzText from stzStringText
 		def SynonymsQQ()
 			return new stzListOfStrings(This.Synonyms())
 
+	# More general "is-a" parent words for the term (dog -> animal), from WordNet.
 	def Hypernyms()
 		return StzEngineStringHypernymsList(This.Engine())
 
@@ -104,6 +107,8 @@ class stzText from stzStringText
 		StzEngineStringFree(_pLem_)
 		return _cLem_
 
+	# The text with every word reduced to its dictionary base form / lemma
+	# ("better" -> "good", "ran" -> "run"). Smarter than stemming.
 	def Lemmatized()
 		return This.LemmatizedInLanguage("english")
 
@@ -123,12 +128,14 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   SENTIMENT (VADER)                                      #
 	#==========================================================#
+	# The overall sentiment score (compound polarity) in [-1, 1]: negative to positive.
 	def SentimentScore()
 		return StzEngineStringSentiment(This.Engine(), 0)
 
 		def SentimentCompound()
 			return This.SentimentScore()
 
+	# The overall tone/mood of the text as "positive", "negative", or "neutral".
 	def Sentiment()
 		_nScore_ = This.SentimentScore()
 		if _nScore_ >= 0.05
@@ -181,6 +188,7 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   PART-OF-SPEECH TAGGING (Penn Treebank)                 #
 	#==========================================================#
+	# The part-of-speech tag (noun, verb, adjective...) for each word.
 	def POSTags()
 		return StzEngineStringPosTagsList(This.Engine())
 
@@ -238,6 +246,7 @@ class stzText from stzStringText
 		def Entities()
 			return This.NamedEntities()
 
+	# The named entities of one type (e.g. "PERSON") mentioned in the text.
 	def EntitiesOfType(pcType)
 		_aEtAll_ = This.NamedEntities()
 		_aEtOut_ = []
@@ -249,12 +258,15 @@ class stzText from stzStringText
 		next
 		return _aEtOut_
 
+	# The people (person names) mentioned in the text.
 	def PersonNames()
 		return This.EntitiesOfType("PERSON")
 
+	# The organizations and companies mentioned in the text.
 	def Organizations()
 		return This.EntitiesOfType("ORGANIZATION")
 
+	# The places and locations mentioned in the text.
 	def Locations()
 		return This.EntitiesOfType("LOCATION")
 
@@ -296,6 +308,7 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   STOPWORDS + READABILITY                                #
 	#==========================================================#
+	# The meaningful content words, with common stopwords (the, a, of...) removed.
 	def ContentWords()
 		return StzEngineStringContentWordsList(This.Engine())
 
@@ -311,12 +324,14 @@ class stzText from stzStringText
 	def IsStopword()
 		return StzEngineStringIsStopword(This.Engine()) = 1
 
+	# How easy the text is to read as a Flesch reading-ease score (higher = easier).
 	def ReadingEase()
 		return StzEngineStringReadability(This.Engine(), 0)
 
 		def FleschReadingEase()
 			return This.ReadingEase()
 
+	# The US school grade level needed to read the text (Flesch-Kincaid grade).
 	def ReadabilityGrade()
 		return StzEngineStringReadability(This.Engine(), 1)
 
@@ -351,6 +366,7 @@ class stzText from stzStringText
 		next
 		return _aKpOut_
 
+	# The n most important multi-word key phrases (main topics/themes) in the text.
 	def KeyPhrases(n)
 		_aKpL_ = This.KeyPhrasesXT(n)
 		_aKpJust_ = []
@@ -388,6 +404,7 @@ class stzText from stzStringText
 		next
 		return _aKwOut_
 
+	# The n most important single keywords, ranked by importance (TextRank).
 	def RankedKeywords(n)
 		_aKwL_ = This.RankedKeywordsXT(n)
 		_aKwJust_ = []
@@ -509,6 +526,8 @@ class stzText from stzStringText
 		next
 		return _aTnChosen_
 
+	# A short summary of the text in n sentences (extractive: the most important
+	# sentences, joined). Summary(n) is the alias.
 	def SummarizedIn(n)
 		_oSmz_ = new stzListOfStrings(This.SummarySentences(n))
 		return _oSmz_.JoinedUsing(" ")
@@ -536,30 +555,36 @@ class stzText from stzStringText
 		def WordsThatAreQ(pcPenn)
 			return new stzList(This.WordsThatAre(pcPenn))
 
+	# The nouns (naming words: people, things, ideas) in the text.
 	def Nouns()
 		return This.WordsThatAre("NN")
 
 		def NounsQ()
 			return new stzList(This.Nouns())
 
+	# The proper nouns (capitalized names) in the text.
 	def ProperNouns()
 		return This.WordsThatAre("NNP")
 
+	# The verbs (action words) in the text.
 	def Verbs()
 		return This.WordsThatAre("VB")
 
 		def VerbsQ()
 			return new stzList(This.Verbs())
 
+	# The adjectives (describing words) in the text.
 	def Adjectives()
 		return This.WordsThatAre("JJ")
 
 		def AdjectivesQ()
 			return new stzList(This.Adjectives())
 
+	# The adverbs (how/when/where modifiers) in the text.
 	def Adverbs()
 		return This.WordsThatAre("RB")
 
+	# The pronouns (he, she, it, they...) in the text.
 	def Pronouns()
 		return This.WordsThatAre("PRP")
 
@@ -826,6 +851,7 @@ class stzText from stzStringText
 			[ "entities", This.NamedEntities() ]
 		]
 
+	# Vocabulary richness: the ratio of unique words to total words (type-token ratio).
 	def LexicalDiversity()
 		_nLdTotal_ = This.NumberOfWords()
 		if _nLdTotal_ = 0 return 0 ok
@@ -876,12 +902,16 @@ class stzText from stzStringText
 		next
 		return _aIcOut_
 
+	# Every occurrence of a word shown with its surrounding context (a concordance /
+	# keyword-in-context view).
 	def InContext(pcWord)
 		return This.InContextWithWindow(pcWord, 5)
 
 		def Concordance(pcWord)
 			return This.InContext(pcWord)
 
+	# Compare this text with another: their similarity, sentiment difference,
+	# readability difference, and shared keywords.
 	def ComparedTo(pcOther)
 		if NOT isString(pcOther) return [] ok
 		_oCmOther_ = new stzText(pcOther)
