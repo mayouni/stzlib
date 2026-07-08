@@ -375,7 +375,7 @@ class stzText from stzStringText
 		return _aKpOut_
 
 	# The n most important multi-word key phrases (main topics/themes) in the text.
-	#@ aka  main topics, themes, subjects, what it is about, important phrases
+	#@ aka  main topics, themes, subjects, what it is about, important phrases, main ideas, key ideas, key points, the gist
 	#@ see  RankedKeywords, TopKeyPhrase
 	def KeyPhrases(n)
 		_aKpL_ = This.KeyPhrasesXT(n)

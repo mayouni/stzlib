@@ -191,23 +191,41 @@ class stzSelfDoc from stzObject
 			_nb_ -= 0.0002 * len(@aMethods[_i_][1])
 			_aBonus_ + _nb_
 		next
-		if StzHasNeuralModel() and NOT StzHasRerankerModel()
-			This._EnsureIndex()
-		ok
-		_aTop_ = _StzRankMethodTextsHeaded(pcQuestion, @aRetTexts, @aVectors, n, _aBonus_, @aRetHeads)
-
-		# On the model-free LEXICAL path, a result must genuinely share a token with
-		# the query -- else the bonuses alone fabricated a phantom match (gibberish/
-		# unmatched query). Embeddings/reranker match by meaning, so no such filter.
-		_bLex_ = NOT StzHasNeuralModel()
-		_aOut_ = []
-		_nT_ = len(_aTop_)
-		for _i_ = 1 to _nT_
-			_ix_ = _aTop_[_i_][1]
-			if _bLex_ and NOT _StzTextSharesToken(@aRetTexts[_ix_], _aQC_) loop ok
-			_aOut_ + [ @aMethods[_ix_][1], _aTop_[_i_][2], @aMethods[_ix_][2] ]
+		# HYBRID (measured): the curated-aka LEXICAL path is the STRONGEST for method
+		# retrieval -- a 30-intent challenge scored lexical 19/30 vs reranker 15/30 vs
+		# embedding 10/30 (terse aka bags are ideal for IDF, off-domain for the neural
+		# models). So run LEXICAL first; the neural models only RESCUE queries lexical
+		# can't touch (zero token overlap), so loading a model can only help, never hurt.
+		_aScL_ = _StzLexScoreAllIdf(pcQuestion, @aRetTexts)
+		_nsL_ = len(_aScL_)
+		for _i_ = 1 to _nsL_
+			_aScL_[_i_][2] += _aBonus_[ _aScL_[_i_][1] ]
 		next
-		return _aOut_
+		_aTopL_ = _StzTopNScored(_aScL_, n)
+		_aOut_ = []
+		_ntL_ = len(_aTopL_)
+		for _i_ = 1 to _ntL_
+			_ix_ = _aTopL_[_i_][1]
+			# a real match must SHARE a token (bonuses must not fabricate a phantom).
+			if _StzTextSharesToken(@aRetTexts[_ix_], _aQC_)
+				_aOut_ + [ @aMethods[_ix_][1], _aTopL_[_i_][2], @aMethods[_ix_][2] ]
+			ok
+		next
+		if len(_aOut_) > 0 return _aOut_ ok
+		# Lexical found nothing (zero overlap) -> NEURAL rescue by meaning, if a model
+		# is loaded (embedding index / reranker cross-encode).
+		if StzHasNeuralModel()
+			if NOT StzHasRerankerModel() This._EnsureIndex() ok
+			_aTopN_ = _StzRankMethodTextsHeaded(pcQuestion, @aRetTexts, @aVectors, n, _aBonus_, @aRetHeads)
+			_aOut2_ = []
+			_ntN_ = len(_aTopN_)
+			for _i_ = 1 to _ntN_
+				_ix_ = _aTopN_[_i_][1]
+				_aOut2_ + [ @aMethods[_ix_][1], _aTopN_[_i_][2], @aMethods[_ix_][2] ]
+			next
+			return _aOut2_
+		ok
+		return []
 
 	# The single best-matching method name for a question (DATA, a string).
 	def BestMethodFor(pcQuestion)
