@@ -15,6 +15,19 @@
 # an uninitialized $global raises R24, so it must exist before any func runs).
 $aStzClassSrcCache = []
 
+# Function words filtered out of a QUERY before lexical scoring, so a question
+# matches on its CONTENT words ("mood", "language") not its glue ("what", "is",
+# "the"). Top-level init for the same R24 reason.
+$aStzStopwords = [ "the", "a", "an", "of", "to", "in", "on", "at", "by", "for",
+	"from", "with", "and", "or", "but", "is", "are", "was", "were", "be", "been",
+	"being", "am", "this", "that", "these", "those", "it", "its", "i", "me", "my",
+	"you", "your", "he", "she", "him", "her", "they", "them", "their", "we", "us",
+	"our", "what", "which", "who", "whom", "how", "do", "does", "did", "done",
+	"can", "could", "would", "should", "will", "shall", "may", "might", "must",
+	"have", "has", "had", "here", "there", "where", "when", "why", "as", "into",
+	"over", "under", "about", "if", "then", "else", "so", "not", "no", "yes",
+	"all", "any", "some", "each", "one", "get", "want", "need", "please" ]
+
 func _StzMethodText(paMethod)
 	_c_ = _StzSplitCamel(paMethod[1])
 	if paMethod[2] != ""
@@ -27,6 +40,59 @@ func _StzMethodText(paMethod)
 # (case-insensitive) and raises R20; here at global scope it's the builtin.
 func _StzClassNameOf(pObj)
 	return classname(pObj)
+
+# Length-ROBUST lexical relevance of a doc to a query. Bag-of-words cosine has a
+# fatal length bias -- adding synonyms/aka to a method's description LENGTHENS its
+# vector and DILUTES each term, so a well-tagged method can lose to a shorter
+# unrelated one on a rare query word. Instead: score = fraction of the query's
+# CONTENT tokens (stopwords removed) present in the doc's token set, with a tiny
+# density tie-breaker so a focused doc wins an equal-coverage tie. No length
+# penalty on the doc, so richer tags only ever help. Zero-setup (no model).
+func _StzLexScore(pcQuery, pcDoc)
+	_aQ_ = _StzContentTokens(pcQuery)
+	_nQ_ = len(_aQ_)
+	if _nQ_ = 0 return 0 ok
+	_aD_ = _StzAlnumTokens(lower(pcDoc))
+	_nHit_ = 0
+	for _i_ = 1 to _nQ_
+		if ring_find(_aD_, _aQ_[_i_]) > 0 _nHit_++ ok
+	next
+	_nCov_ = _nHit_ / _nQ_
+	_nDen_ = 0
+	_dl_ = len(_aD_)
+	if _dl_ > 0 _nDen_ = _nHit_ / _dl_ ok
+	return _nCov_ + 0.001 * _nDen_
+
+# Distinct lowercased alphanumeric tokens of a string (a token SET as a list).
+func _StzAlnumTokens(pcStr)
+	_aOut_ = []
+	_cCur_ = ""
+	_n_ = len(pcStr)
+	for _i_ = 1 to _n_
+		_a_ = ascii(pcStr[_i_])
+		if (_a_ >= 97 and _a_ <= 122) or (_a_ >= 48 and _a_ <= 57)
+			_cCur_ += pcStr[_i_]
+		else
+			if _cCur_ != ""
+				if ring_find(_aOut_, _cCur_) = 0 _aOut_ + _cCur_ ok
+				_cCur_ = ""
+			ok
+		ok
+	next
+	if _cCur_ != "" and ring_find(_aOut_, _cCur_) = 0 _aOut_ + _cCur_ ok
+	return _aOut_
+
+# Distinct content tokens of a query: alphanumeric tokens minus stopwords. Falls
+# back to all tokens if the query is entirely stopwords.
+func _StzContentTokens(pcStr)
+	_aAll_ = _StzAlnumTokens(lower(pcStr))
+	_aOut_ = []
+	_n_ = len(_aAll_)
+	for _i_ = 1 to _n_
+		if ring_find($aStzStopwords, _aAll_[_i_]) = 0 _aOut_ + _aAll_[_i_] ok
+	next
+	if len(_aOut_) = 0 return _aAll_ ok
+	return _aOut_
 
 # Dot product of two equal-length vectors (embeddings are L2-normalized).
 func _StzDotVec(paA, paB)
@@ -108,7 +174,13 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			ok
 			_cDesc_ = ""
 		but len(_cTrim_) >= 1 and left(_cTrim_, 1) = "#"
-			if right(_cTrim_, 1) = "#"   # a boxed line: a border OR a section title
+			if len(_cTrim_) >= 2 and left(_cTrim_, 2) = "#@"
+				# A structured InfoTag (#@ aka/tags/see/...). aka/tags/see values
+				# fold into the retrieval text (user-language synonyms = the big
+				# lexical + neural recall boost); other tags are ignored here (kept
+				# for the structured-explain layer). Never resets the desc block.
+				_cDesc_ += _StzInfoTagText(_cTrim_)
+			but right(_cTrim_, 1) = "#"   # a boxed line: a border OR a section title
 				_cInner_ = ""
 				if len(_cTrim_) >= 3 _cInner_ = trim(substr(_cTrim_, 2, len(_cTrim_) - 2)) ok
 				_cTitle_ = _StzSectionTitle(_cInner_)
@@ -139,6 +211,36 @@ func _StzSectionTitle(pcInner)
 
 func _StzIsBorderChar(pc)
 	return pc = "=" or pc = "-" or pc = " " or pc = "#" or pc = "*" or pc = char(9)
+
+# Parse a `#@ <tag> <value>` InfoTag line (already trimmed, starts with "#@").
+# Returns the text to FOLD into a method's retrieval description -- the value of
+# aka/tags/see (commas -> spaces so tokens separate) -- or "" for tags that are
+# not retrieval keywords (eg/out/...). See the info-tagging strategy doc.
+func _StzInfoTagText(pcLine)
+	_cRest_ = ""
+	if len(pcLine) > 2 _cRest_ = trim(substr(pcLine, 3, len(pcLine) - 2)) ok
+	if _cRest_ = "" return "" ok
+	_sp_ = substr(_cRest_, " ")
+	_cTag_ = ""
+	_cVal_ = ""
+	if _sp_ > 0
+		_cTag_ = lower(left(_cRest_, _sp_ - 1))
+		_cVal_ = trim(substr(_cRest_, _sp_ + 1, len(_cRest_) - _sp_))
+	else
+		_cTag_ = lower(_cRest_)
+	ok
+	if (_cTag_ = "aka" or _cTag_ = "tags" or _cTag_ = "see") and _cVal_ != ""
+		return " " + _StzCommasToSpaces(_cVal_)
+	ok
+	return ""
+
+func _StzCommasToSpaces(pcStr)
+	_cOut_ = ""
+	_n_ = len(pcStr)
+	for _i_ = 1 to _n_
+		if pcStr[_i_] = "," _cOut_ += " " else _cOut_ += pcStr[_i_] ok
+	next
+	return _cOut_
 
 func _StzHasLetter(pcStr)
 	_n_ = len(pcStr)
@@ -306,9 +408,8 @@ func _StzRankMethodTextsBonus(pcQuestion, paTexts, paVectors, n, paBonus)
 			_aSc_ + [ _i_, _StzDotVec(_qv_, paVectors[_i_]) ]
 		next
 	else
-		_oQ_ = new stzString(pcQuestion)
 		for _i_ = 1 to _nT_
-			_aSc_ + [ _i_, _oQ_.CosineSimilarityWith(paTexts[_i_]) ]
+			_aSc_ + [ _i_, _StzLexScore(pcQuestion, paTexts[_i_]) ]
 		next
 	ok
 	if isList(paBonus) and len(paBonus) = _nT_
@@ -319,13 +420,13 @@ func _StzRankMethodTextsBonus(pcQuestion, paTexts, paVectors, n, paBonus)
 	ok
 	return _StzTopNScored(_aSc_, n)
 
-# Model-free lexical prefilter: indices of the top-k texts by bag-of-words cosine.
+# Model-free lexical prefilter: indices of the top-k texts by length-robust
+# lexical score (the pool the reranker then cross-encodes).
 func _StzLexicalTopKIdx(pcQuestion, paTexts, k)
-	_oQ_ = new stzString(pcQuestion)
 	_aSc_ = []
 	_n_ = len(paTexts)
 	for _i_ = 1 to _n_
-		_aSc_ + [ _i_, _oQ_.CosineSimilarityWith(paTexts[_i_]) ]
+		_aSc_ + [ _i_, _StzLexScore(pcQuestion, paTexts[_i_]) ]
 	next
 	_aTop_ = _StzTopNScored(_aSc_, k)
 	_aIdx_ = []
