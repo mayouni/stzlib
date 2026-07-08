@@ -11,12 +11,22 @@
 #   trim() R20 gotcha.                                           #
 #--------------------------------------------------------------#
 
+# Session cache for class-name -> source-file resolution (top-level init: reading
+# an uninitialized $global raises R24, so it must exist before any func runs).
+$aStzClassSrcCache = []
+
 func _StzMethodText(paMethod)
 	_c_ = _StzSplitCamel(paMethod[1])
 	if paMethod[2] != ""
 		_c_ += ". " + paMethod[2]
 	ok
 	return _c_
+
+# The runtime class name of an object. A GLOBAL wrapper because inside a class
+# with a ClassName() method, a bare `classname(This)` resolves to that method
+# (case-insensitive) and raises R20; here at global scope it's the builtin.
+func _StzClassNameOf(pObj)
+	return classname(pObj)
 
 # Dot product of two equal-length vectors (embeddings are L2-normalized).
 func _StzDotVec(paA, paB)
@@ -180,19 +190,69 @@ func _StzTopNScored(paScored, n)
 	for _i_ = 1 to _nTop_ _aOut_ + _aP_[_i_] next
 	return _aOut_
 
-# Resolve a class name to its source file by scanning the base/ subfolders for
-# <name>.ring (Softanza's file-per-class convention).
+# Resolve a class name to its source file (cached per session). Fast path:
+# Softanza's file-per-class convention (<name>.ring in a base subfolder).
+# Fallback: scan each subfolder's .ring files for a `class <name>` declaration,
+# so classes whose FILE name differs from the class name resolve too (e.g.
+# stzListOfStrings lives in stzStringList.ring, stzChar in stzStringChar.ring).
 func _StzResolveSource(pcName)
+	_cKey_ = lower(pcName)
+	_nc_ = len($aStzClassSrcCache)
+	for _i_ = 1 to _nc_
+		if $aStzClassSrcCache[_i_][1] = _cKey_ return $aStzClassSrcCache[_i_][2] ok
+	next
+	_cPath_ = _StzResolveSourceScan(pcName)
+	$aStzClassSrcCache + [ _cKey_, _cPath_ ]
+	return _cPath_
+
+func _StzResolveSourceScan(pcName)
 	_cBase_ = _StzBaseDir()
 	if _cBase_ = "" return "" ok
 	_cRoot_ = _cBase_ + "/" + pcName + ".ring"
 	if fexists(_cRoot_) return _cRoot_ ok
 	_aEntries_ = dir(_cBase_)
 	_n_ = len(_aEntries_)
+	# fast path: file named exactly like the class
 	for _i_ = 1 to _n_
-		if _aEntries_[_i_][2] = 1   # a subdirectory
+		if _aEntries_[_i_][2] = 1
 			_cCand_ = _cBase_ + "/" + _aEntries_[_i_][1] + "/" + pcName + ".ring"
 			if fexists(_cCand_) return _cCand_ ok
 		ok
 	next
+	# fallback: content scan for `class <name>` (file name != class name)
+	_cNameLower_ = lower(pcName)
+	for _i_ = 1 to _n_
+		if _aEntries_[_i_][2] = 1
+			_cHit_ = _StzScanFolderForClass(_cBase_ + "/" + _aEntries_[_i_][1], _cNameLower_)
+			if _cHit_ != "" return _cHit_ ok
+		ok
+	next
 	return ""
+
+func _StzScanFolderForClass(pcFolder, pcNameLower)
+	_aF_ = dir(pcFolder)
+	_n_ = len(_aF_)
+	for _i_ = 1 to _n_
+		if _aF_[_i_][2] = 0 and _StzEndsWith(lower(_aF_[_i_][1]), ".ring")
+			_cPath_ = pcFolder + "/" + _aF_[_i_][1]
+			if _StzFileHasClass(lower(read(_cPath_)), pcNameLower)
+				return _cPath_
+			ok
+		ok
+	next
+	return ""
+
+# TRUE if lowercased content declares `class <name>` (name followed by a word
+# boundary, so "stzListOfStrings" doesn't match "stzListOfStringsError").
+func _StzFileHasClass(pcContentLower, pcNameLower)
+	_needle_ = "class " + pcNameLower
+	if substr(pcContentLower, _needle_ + " ") > 0 return TRUE ok
+	if substr(pcContentLower, _needle_ + nl) > 0 return TRUE ok
+	if substr(pcContentLower, _needle_ + char(13)) > 0 return TRUE ok
+	if substr(pcContentLower, _needle_ + char(9)) > 0 return TRUE ok
+	return FALSE
+
+func _StzEndsWith(pcStr, pcSuffix)
+	_ls_ = len(pcSuffix)
+	if len(pcStr) < _ls_ return FALSE ok
+	return right(pcStr, _ls_) = pcSuffix

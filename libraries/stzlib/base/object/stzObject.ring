@@ -2032,6 +2032,27 @@ class stzObject
 		These = This
 		Those = This
 
+	  #==========================================================#
+	 #   SELF-DESCRIPTION (ask/explain this object's methods)   #
+	#==========================================================#
+	# Doc()/Ask()/ExplainMethod() let the object describe ITSELF -- harvest its
+	# class's methods + doc-comments from source and answer plain-English
+	# questions (near-natural programming, no LLM; see base/reflect/stzSelfDoc).
+	def Doc()
+		return new stzSelfDoc(_StzClassNameOf(This))
+
+	def Ask(pcQuestion)
+		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
+		return _oSd_.Ask(pcQuestion)
+
+	def AskFor(pcQuestion, n)
+		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
+		return _oSd_.AskFor(pcQuestion, n)
+
+	def ExplainMethod(pcName)
+		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
+		return _oSd_.ExplainMethod(pcName)
+
 	def Content()
 		return @content
 
