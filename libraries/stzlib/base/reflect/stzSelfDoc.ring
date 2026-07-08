@@ -161,10 +161,13 @@ class stzSelfDoc from stzObject
 		if NOT isNumber(n) or n < 1 n = 3 ok
 
 		_aTexts_ = []
+		_aHeads_ = []
 		_aBonus_ = []
 		_cCue_ = _StzQueryFormCue(pcQuestion)
 		for _i_ = 1 to _nM_
 			_aTexts_ + _StzMethodRetrievalText(@aMethods[_i_])
+			# The method's HEAD (base verb+object) drives verb-headed scoring.
+			_aHeads_ + _StzParseName(@aMethods[_i_][1])[1]
 			# Bonus = own-method prior + FORM preference (passive by default, active
 			# on a mutate cue, fluent on a chain cue) + a tiny SHORTER-NAME nudge so
 			# a canonical op (Split) wins a coverage tie against a variant. All small:
@@ -178,7 +181,7 @@ class stzSelfDoc from stzObject
 		if StzHasNeuralModel() and NOT StzHasRerankerModel()
 			This._EnsureIndex()
 		ok
-		_aTop_ = _StzRankMethodTextsBonus(pcQuestion, _aTexts_, @aVectors, n, _aBonus_)
+		_aTop_ = _StzRankMethodTextsHeaded(pcQuestion, _aTexts_, @aVectors, n, _aBonus_, _aHeads_)
 
 		_aOut_ = []
 		_nT_ = len(_aTop_)
