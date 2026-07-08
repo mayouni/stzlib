@@ -151,6 +151,44 @@ func _StzParseName(pcName)
 # maps intent -> a candidate name by grammar; callers then VERIFY it against the
 # real method inventory (so it never hallucinates -- it composes, then grounds).
 
+# Public: audit a class's function-FORM coverage. For each single-word base verb
+# that behaves like a transformation (has a passive ...ed OR fluent ...Q form), it
+# reports which of the core triad {active Verb, passive Verbed, fluent VerbQ} are
+# PRESENT vs MISSING -- an incomplete triad is a concrete gap for the "implement the
+# forms uniformly" mission. Returns [ [baseVerb, hasActive, hasPassive, hasFluent], ...]
+# for verbs missing at least one. The same grammar that generates names audits them.
+func StzFormAudit(pcClass)
+	_cSrc_ = _StzResolveSource(pcClass)
+	if _cSrc_ = "" or NOT fexists(_cSrc_) return [] ok
+	_aM_ = _StzHarvestClass(_cSrc_, pcClass)
+	_aSet_ = []
+	_nM_ = len(_aM_)
+	for _i_ = 1 to _nM_ _aSet_ + lower(_aM_[_i_][1]) next
+	# candidate base verbs = single-word bases of the class's methods
+	_aBases_ = []
+	for _i_ = 1 to _nM_
+		_p_ = _StzParseName(_aM_[_i_][1])
+		_b_ = _p_[1]
+		if substr(_b_, " ") = 0 and len(_b_) >= 3 and ring_find(_aBases_, _b_) = 0
+			_aBases_ + _b_
+		ok
+	next
+	_aOut_ = []
+	_nb_ = len(_aBases_)
+	for _i_ = 1 to _nb_
+		_v_ = _aBases_[_i_]
+		_hA_ = ring_find(_aSet_, _v_) > 0
+		_hP_ = (ring_find(_aSet_, _v_ + "ed") > 0) or (ring_find(_aSet_, _v_ + "d") > 0)
+		_hF_ = ring_find(_aSet_, _v_ + "q") > 0
+		# HIGH-SIGNAL gap: a PASSIVE form (...ed) confirms this is a transformation
+		# that returns a copy -- so it SHOULD have the active + fluent siblings too.
+		# Missing-passive-only is excluded (queries/actions legitimately lack it).
+		if _hP_ and NOT (_hA_ and _hF_)
+			_aOut_ + [ _v_, _hA_, _hP_, _hF_ ]
+		ok
+	next
+	return _aOut_
+
 # Public: compose a Softanza method name from an intent, grounded against a class's
 # real API. Returns [ composedName, bExists, cClass ]. bExists FALSE means the
 # grammar produced a valid form the class does not implement yet (a coverage gap).
@@ -416,6 +454,15 @@ func _StzClassNameOf(pObj)
 # density tie-breaker so a focused doc wins an equal-coverage tie. No length
 # penalty on the doc, so richer tags only ever help. Zero-setup (no model).
 func _StzLexScore(pcQuery, pcDoc)
+	return _StzLexScoreH(pcQuery, pcDoc, "")
+
+# Length-robust lexical score: fraction of the query's CONTENT tokens present in
+# the doc, with a tiny density tie-breaker. pcHead is accepted (heads are threaded
+# through the ranker) but NOT yet used -- a first verb-headed attempt over-promoted
+# generic name collisions over the aka/recipe layers and was reverted; verb-headed
+# retrieval needs a term-specificity (IDF) basis, deferred. See the info-tagging
+# backlog. Keeping the head plumbing inert-but-ready avoids churn when we revisit.
+func _StzLexScoreH(pcQuery, pcDoc, pcHead)
 	_aQ_ = _StzContentTokens(pcQuery)
 	_nQ_ = len(_aQ_)
 	if _nQ_ = 0 return 0 ok
@@ -429,6 +476,20 @@ func _StzLexScore(pcQuery, pcDoc)
 	_dl_ = len(_aD_)
 	if _dl_ > 0 _nDen_ = _nHit_ / _dl_ ok
 	return _nCov_ + 0.001 * _nDen_
+
+# TRUE if token pcTok matches a token in paSet, tolerating morphology via a prefix
+# rule (either is a prefix of the other, min length 4): reverse~reversed, trim~trimmed.
+func _StzTokenInSet(pcTok, paSet)
+	_n_ = len(paSet)
+	_lt_ = len(pcTok)
+	for _i_ = 1 to _n_
+		_s_ = paSet[_i_]
+		if pcTok = _s_ return TRUE ok
+		_ls_ = len(_s_)
+		if _lt_ >= 4 and _ls_ >= _lt_ and left(_s_, _lt_) = pcTok return TRUE ok
+		if _ls_ >= 4 and _lt_ >= _ls_ and left(pcTok, _ls_) = _s_ return TRUE ok
+	next
+	return FALSE
 
 # Distinct lowercased alphanumeric tokens of a string (a token SET as a list).
 func _StzAlnumTokens(pcStr)
@@ -767,10 +828,19 @@ func _StzRankMethodTexts(pcQuestion, paTexts, paVectors, n)
 # method must not beat a well-matched own method on a stopword). The bonus is small,
 # so it only tips genuine ties -- a strongly-matching inherited method still wins.
 func _StzRankMethodTextsBonus(pcQuestion, paTexts, paVectors, n, paBonus)
+	return _StzRankMethodTextsHeaded(pcQuestion, paTexts, paVectors, n, paBonus, [])
+
+# As above, plus per-text HEAD words (paHeads[i] = the method's base verb+object,
+# from _StzParseName). The lexical path weights a query token that matches the head
+# far above one matching a modifier/example word (verb-headed retrieval). paHeads []
+# => plain scoring. The head only shapes the LEXICAL path; embeddings/reranker
+# already capture semantics.
+func _StzRankMethodTextsHeaded(pcQuestion, paTexts, paVectors, n, paBonus, paHeads)
 	_nT_ = len(paTexts)
+	_bH_ = (isList(paHeads) and len(paHeads) = _nT_)
 	_aSc_ = []
 	if StzHasRerankerModel()
-		_aCand_ = _StzLexicalTopKIdx(pcQuestion, paTexts, 25)
+		_aCand_ = _StzLexicalTopKIdxH(pcQuestion, paTexts, paHeads, 25)
 		_nc_ = len(_aCand_)
 		for _i_ = 1 to _nc_
 			_idx_ = _aCand_[_i_]
@@ -783,7 +853,9 @@ func _StzRankMethodTextsBonus(pcQuestion, paTexts, paVectors, n, paBonus)
 		next
 	else
 		for _i_ = 1 to _nT_
-			_aSc_ + [ _i_, _StzLexScore(pcQuestion, paTexts[_i_]) ]
+			_h_ = ""
+			if _bH_ _h_ = paHeads[_i_] ok
+			_aSc_ + [ _i_, _StzLexScoreH(pcQuestion, paTexts[_i_], _h_) ]
 		next
 	ok
 	if isList(paBonus) and len(paBonus) = _nT_
@@ -794,13 +866,19 @@ func _StzRankMethodTextsBonus(pcQuestion, paTexts, paVectors, n, paBonus)
 	ok
 	return _StzTopNScored(_aSc_, n)
 
-# Model-free lexical prefilter: indices of the top-k texts by length-robust
-# lexical score (the pool the reranker then cross-encodes).
+# Model-free lexical prefilter: indices of the top-k texts by head-aware lexical
+# score (the pool the reranker then cross-encodes).
 func _StzLexicalTopKIdx(pcQuestion, paTexts, k)
+	return _StzLexicalTopKIdxH(pcQuestion, paTexts, [], k)
+
+func _StzLexicalTopKIdxH(pcQuestion, paTexts, paHeads, k)
+	_bH_ = (isList(paHeads) and len(paHeads) = len(paTexts))
 	_aSc_ = []
 	_n_ = len(paTexts)
 	for _i_ = 1 to _n_
-		_aSc_ + [ _i_, _StzLexScore(pcQuestion, paTexts[_i_]) ]
+		_h_ = ""
+		if _bH_ _h_ = paHeads[_i_] ok
+		_aSc_ + [ _i_, _StzLexScoreH(pcQuestion, paTexts[_i_], _h_) ]
 	next
 	_aTop_ = _StzTopNScored(_aSc_, k)
 	_aIdx_ = []
