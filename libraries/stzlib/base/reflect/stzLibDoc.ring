@@ -52,6 +52,7 @@ class stzLibDoc from stzObject
 				# that actually DEFINES it (the owner), so "which class has X?"
 				# answers truthfully across the inheritance chain.
 				_aM_ = _StzHarvestChain(_cClass_)
+				_aM_ = _StzFillSiblingAka(_aM_)   # voice-sibling aka symmetry
 				_nM_ = len(_aM_)
 				for _m_ = 1 to _nM_
 					@aEntries + [ _aM_[_m_][4], _aM_[_m_][1], _aM_[_m_][2] ]

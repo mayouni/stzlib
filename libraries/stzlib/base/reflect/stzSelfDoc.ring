@@ -58,6 +58,9 @@ class stzSelfDoc from stzObject
 			@cSource = _StzResolveSource(pcTarget)
 			@aMethods = _StzHarvestChain(pcTarget)
 		ok
+		# Voice-sibling aka symmetry: an active form inherits its passive sibling's
+		# operation synonyms (and vice versa), so imperatives find the active form.
+		@aMethods = _StzFillSiblingAka(@aMethods)
 
 	  #==========================================================#
 	 #   INTROSPECTION                                          #

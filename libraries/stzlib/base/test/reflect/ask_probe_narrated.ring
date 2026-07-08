@@ -65,8 +65,8 @@ Scenario("stzString flagship intents resolve to the canonical method")
 		TopHitIsOneOf(oStr, "reverse the characters", ["Reverse"]), TRUE)
 	Then("'split on a delimiter' -> Split",
 		TopHitIsOneOf(oStr, "split on a delimiter", ["Split"]), TRUE)
-	Then("'remove surrounding spaces' -> Trimmed",
-		TopHitIsOneOf(oStr, "remove surrounding spaces", ["Trimmed"]), TRUE)
+	Then("'remove surrounding spaces' -> active Trim (imperative; aka via sibling)",
+		TopHitIsOneOf(oStr, "remove surrounding spaces", ["Trim"]), TRUE)
 	Then("'does it contain a word' -> Contains",
 		TopHitIsOneOf(oStr, "does it contain a word", ["Contains"]), TRUE)
 EndScenario()
