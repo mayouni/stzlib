@@ -86,10 +86,15 @@ func _StzHarvestClass(pcFile, pcName)
 	next
 	return []
 
-# The shared harvest loop, over a line range [nStart, nEnd].
+# The shared harvest loop, over a line range [nStart, nEnd]. Tracks the enclosing
+# SECTION title (from boxed `#==#` headers) so a method with no doc-comment of its
+# own still gets a coarse semantic anchor -- e.g. every method under the "SENTIMENT
+# (VADER)" box is at least tagged with that, far better than its name alone. This
+# lifts undocumented methods library-wide with no per-method editing.
 func _StzHarvestRange(paLines, nStart, nEnd)
 	_aMethods_ = []
 	_cDesc_ = ""
+	_cSection_ = ""
 	if nStart < 1 nStart = 1 ok
 	if nEnd > len(paLines) nEnd = len(paLines) ok
 	for _i_ = nStart to nEnd
@@ -97,11 +102,17 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 		if len(_cTrim_) >= 4 and lower(left(_cTrim_, 4)) = "def "
 			_cName_ = _StzDefName(_cTrim_)
 			if _cName_ != "" and left(_cName_, 1) != "_"
-				_aMethods_ + [ _cName_, trim(_cDesc_) ]
+				_cD_ = trim(_cDesc_)
+				if _cD_ = "" _cD_ = _cSection_ ok
+				_aMethods_ + [ _cName_, _cD_ ]
 			ok
 			_cDesc_ = ""
 		but len(_cTrim_) >= 1 and left(_cTrim_, 1) = "#"
-			if right(_cTrim_, 1) = "#"   # a boxed header/separator line
+			if right(_cTrim_, 1) = "#"   # a boxed line: a border OR a section title
+				_cInner_ = ""
+				if len(_cTrim_) >= 3 _cInner_ = trim(substr(_cTrim_, 2, len(_cTrim_) - 2)) ok
+				_cTitle_ = _StzSectionTitle(_cInner_)
+				if _cTitle_ != "" _cSection_ = _cTitle_ ok
 				_cDesc_ = ""
 			else
 				_cDesc_ += " " + trim(substr(_cTrim_, 2, len(_cTrim_) - 1))
@@ -111,6 +122,31 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 		ok
 	next
 	return _aMethods_
+
+# Extract a section TITLE from the inner text of a boxed header line: strip the
+# border runs (= - # * space/tab) off both ends; "" if only border chars remain
+# (a plain separator). Keeps parentheticals/digits ("stemming (snowball, 25 ...)").
+func _StzSectionTitle(pcInner)
+	_c_ = pcInner
+	while len(_c_) > 0 and _StzIsBorderChar(left(_c_, 1))
+		_c_ = substr(_c_, 2, len(_c_) - 1)
+	end
+	while len(_c_) > 0 and _StzIsBorderChar(right(_c_, 1))
+		_c_ = left(_c_, len(_c_) - 1)
+	end
+	if _StzHasLetter(_c_) return lower(_c_) ok
+	return ""
+
+func _StzIsBorderChar(pc)
+	return pc = "=" or pc = "-" or pc = " " or pc = "#" or pc = "*" or pc = char(9)
+
+func _StzHasLetter(pcStr)
+	_n_ = len(pcStr)
+	for _i_ = 1 to _n_
+		_a_ = ascii(pcStr[_i_])
+		if (_a_ >= 65 and _a_ <= 90) or (_a_ >= 97 and _a_ <= 122) return TRUE ok
+	next
+	return FALSE
 
 # Harvest a class's FULL method surface: its own methods + everything it inherits
 # up the domain chain (child overrides parent by name), STOPPING before the
