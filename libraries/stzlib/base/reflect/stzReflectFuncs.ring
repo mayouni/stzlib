@@ -56,7 +56,11 @@ $aStzStopwords = [ "the", "a", "an", "of", "to", "in", "on", "at", "by", "for",
 	# form-directive words: they steer the FORM (see _StzQueryFormCue), they are
 	# not content -- so exclude them from lexical scoring ("in place" must not let
 	# "place" match a spurious method, especially under IDF).
-	"place", "modify", "mutate", "destructive", "continue" ]
+	"place", "modify", "mutate", "destructive", "continue",
+	# container nouns: the string/list IS the implicit object, not a search term,
+	# so the imperative "reverse the string" reduces to the verb "reverse" and the
+	# ACTIVE-form preference decides -- exactly the natural reading.
+	"string", "list" ]
 
 func _StzMethodText(paMethod)
 	_c_ = _StzSplitCamel(paMethod[1])
@@ -418,34 +422,41 @@ func _StzFormNote(pcName)
 # honest about Softanza's active/passive/fluent distinction.
 func _StzQueryFormCue(pcQuery)
 	_q_ = lower(pcQuery)
-	if substr(_q_, "in place") > 0 or substr(_q_, "in-place") > 0 or
-	   substr(_q_, "modify") > 0 or substr(_q_, "mutate") > 0 or
-	   substr(_q_, "destructive") > 0 or substr(_q_, "change the original") > 0
-		return "mutate"
+	# PASSIVE must be asked for explicitly -- Softanza's imperative default is ACTIVE
+	# ("reverse the string" = DO the reversing). Passive = a transformed COPY:
+	# "a reversed copy", "a version", "return a ...", "without changing/altering the
+	# original", "leaving the original".
+	if substr(_q_, "copy") > 0 or substr(_q_, "version") > 0 or
+	   substr(_q_, "without changing") > 0 or substr(_q_, "without altering") > 0 or
+	   substr(_q_, "leaving the original") > 0 or substr(_q_, "leave the original") > 0 or
+	   substr(_q_, "return a") > 0 or substr(_q_, "as a new") > 0
+		return "passive"
 	ok
+	# FLUENT: chaining language.
 	if substr(_q_, "and then") > 0 or substr(_q_, "chain") > 0 or
 	   substr(_q_, "continue") > 0 or substr(_q_, "keep working") > 0
 		return "chain"
 	ok
-	return ""
+	# Bare imperative -> the ACTIVE form.
+	return "active"
 
-# A small ranking prior favouring the FORM that fits the query's intent: with a
-# mutate cue prefer active, with a chain cue prefer fluent, otherwise prefer the
-# non-destructive passive form (then fluent). Small: tips form ties within one
-# operation, never overrides real relevance.
+# A small ranking prior favouring the FORM the phrasing calls for. Softanza's
+# design: a bare imperative maps to the ACTIVE form (do it); the PASSIVE (a
+# transformed copy) and FLUENT (chainable) forms must be asked for explicitly.
+# Small: tips form ties within one operation, never overrides real relevance.
 func _StzFormPreferenceBonus(pcName, pcCue)
 	_f_ = _StzFormOf(pcName)[1]
-	if pcCue = "mutate"
-		if _f_ = "active" return 0.06 ok
+	if pcCue = "passive"
+		if _f_ = "passive" return 0.06 ok
 		return 0
 	but pcCue = "chain"
 		if _f_ = "fluent" return 0.06 ok
 		return 0
 	else
-		# No cue: prefer the non-destructive passive form of a transformation.
-		# Do NOT boost fluent here -- ...Q is for chaining, not the default answer,
-		# and boosting it would wrongly beat a plain data method (SplitQ over Split).
-		if _f_ = "passive" return 0.04 ok
+		# default (bare imperative): prefer the ACTIVE form. Do NOT boost fluent --
+		# ...Q is for chaining, and boosting it would wrongly beat a plain data
+		# method (SplitQ over Split).
+		if _f_ = "active" return 0.05 ok
 	ok
 	return 0
 
@@ -550,7 +561,7 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 				_num_ += _aW_[_j_]
 				_hits_++
 			but _StzAnyIn(_aQV_[_j_], _aTit_[_i_])
-				_num_ += 0.4 * _aW_[_j_]
+				_num_ += 0.3 * _aW_[_j_]
 				_hits_++
 			ok
 		next
