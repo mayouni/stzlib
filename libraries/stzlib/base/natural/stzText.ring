@@ -109,6 +109,8 @@ class stzText from stzStringText
 
 	# The text with every word reduced to its dictionary base form / lemma
 	# ("better" -> "good", "ran" -> "run"). Smarter than stemming.
+	#@ aka  base form, dictionary form, root word, canonical form, normalize words
+	#@ see  Stemmed, AutoLemmatized
 	def Lemmatized()
 		return This.LemmatizedInLanguage("english")
 
@@ -136,6 +138,10 @@ class stzText from stzStringText
 			return This.SentimentScore()
 
 	# The overall tone/mood of the text as "positive", "negative", or "neutral".
+	#@ aka  mood, emotion, feeling, attitude, opinion, how positive or negative
+	#@ out  string: "positive" | "negative" | "neutral"
+	#@ eg   Q("The food was terrible.").Text().Sentiment()   #--> "negative"
+	#@ see  SentimentScore, IsPositive, IsNegative
 	def Sentiment()
 		_nScore_ = This.SentimentScore()
 		if _nScore_ >= 0.05
@@ -217,6 +223,8 @@ class stzText from stzStringText
 	# with e.g. bert-base-NER); otherwise the rule-based engine NER. Both emit the
 	# same PERSON/ORGANIZATION/LOCATION type vocabulary, so PersonNames()/
 	# Organizations()/Locations() and EntitiesOfType() work either way.
+	#@ aka  who and what is mentioned, people places organizations, proper names
+	#@ see  PersonNames, Organizations, Locations, EntitiesOfType
 	def NamedEntities()
 		if StzHasNeuralNerModel()
 			return This.NeuralEntities()
@@ -367,6 +375,8 @@ class stzText from stzStringText
 		return _aKpOut_
 
 	# The n most important multi-word key phrases (main topics/themes) in the text.
+	#@ aka  main topics, themes, subjects, what it is about, important phrases
+	#@ see  RankedKeywords, TopKeyPhrase
 	def KeyPhrases(n)
 		_aKpL_ = This.KeyPhrasesXT(n)
 		_aKpJust_ = []
@@ -528,6 +538,8 @@ class stzText from stzStringText
 
 	# A short summary of the text in n sentences (extractive: the most important
 	# sentences, joined). Summary(n) is the alias.
+	#@ aka  summarize, summarise, shorten, condense, brief, briefly, tldr, gist, key points
+	#@ see  SummarySentences, KeyPhrases
 	def SummarizedIn(n)
 		_oSmz_ = new stzListOfStrings(This.SummarySentences(n))
 		return _oSmz_.JoinedUsing(" ")
@@ -810,6 +822,8 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   LANGUAGE DETECTION                                     #
 	#==========================================================#
+	# Detect which natural language the text is written in.
+	#@ aka  what language, which tongue, detect language, idiom, locale
 	def Language()
 		_pLg_ = StzEngineStringDetectLanguage(This.Engine())
 		_cLg_ = StzEngineStringData(_pLg_)
