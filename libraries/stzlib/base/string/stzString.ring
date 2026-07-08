@@ -2335,6 +2335,7 @@ class stzString from stzObject
 	 #     CASE CHANGE                            #
 	#============================================#
 
+	# Change the string to UPPER CASE in place (mutating). For a copy, use Uppercased.
 	def Uppercase()
 		This.Update(StzUpper(This.Content()))
 
@@ -2355,6 +2356,7 @@ class stzString from stzObject
 		StzEngineStringFree(_pUc_)
 		return _cUc_
 
+	# Change the string to lower case in place (mutating). For a copy, use Lowercased.
 	def Lowercase()
 		This.Update(StzLower(This.Content()))
 
@@ -2385,6 +2387,7 @@ class stzString from stzObject
 		StzEngineStringFree(_pLc_)
 		return _cLc_
 
+	# Capitalize the first letter in place (mutating). For a copy, use Capitalized.
 	def Capitalize()
 		_cCapStr_ = This.Content()
 		if StzLen(_cCapStr_) > 0
@@ -2416,6 +2419,8 @@ class stzString from stzObject
 	 #     REVERSE                                #
 	#============================================#
 
+	# Reverse the order of the characters in the string, in place (mutating). For a
+	# copy that leaves the original unchanged, use Reversed.
 	def Reverse()
 		_pRvResult_ = StzEngineStringReverse(@pEngine)
 		if _pRvResult_ != NULL
@@ -5396,6 +5401,7 @@ class stzString from stzObject
 		if _nLen_ = 0 or _cTxt_[_nLen_] != pcChar return ok
 		This.ReplaceTrailingChars(pWith)
 
+	# Remove leading and trailing whitespace in place (mutating). For a copy, use Trimmed.
 	def Trim()
 		pH = This.Engine()
 		pR = StzEngineStringTrim(pH)
