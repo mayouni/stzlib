@@ -98,6 +98,10 @@ Scenario("Generative: intent resolves to a grounded method (compose-then-retriev
 		oStr.MethodForIntent("make it uppercase"), "Uppercase")
 	Then("HowTo returns a runnable Q-chainable call template",
 		substr(oStr.HowTo("reverse the string"), ".Reverse()") > 0, TRUE)
+	Then("args synthesized from the signature: Replace -> two string args",
+		substr(oStr.HowTo("substitute one word for another"), 'Replace("...", "...")') > 0, TRUE)
+	Then("args synthesized: Section -> two number args",
+		substr(oStr.HowTo("extract a portion between two positions"), "Section(0, 0)") > 0, TRUE)
 EndScenario()
 
 # Conversational layer: "how do I X" intents should surface an intent RECIPE (a

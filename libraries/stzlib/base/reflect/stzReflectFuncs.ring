@@ -202,11 +202,62 @@ func StzFormAudit(pcClass)
 	next
 	return _aOut_
 
-# A near-natural-programming call TEMPLATE for a method on a class: an idiomatic
-# receiver + the method. Args aren't synthesized (the user fills them); the value
-# is showing WHICH method and that it is Q-chainable.
-func _StzCallTemplate(pcClass, pcMethod)
-	return _StzSampleReceiver(pcClass) + "." + pcMethod + "()"
+# A near-natural-programming call TEMPLATE: idiomatic receiver + the method + its
+# arguments SYNTHESIZED from the def signature. Softanza encodes a param's TYPE in
+# its name (pc=string, pn=number, pa=list, pb=bool) -- the same convention the (not-
+# yet-built) inf-form would expose -- so "def Replace(pcSubStr, pcNewSubStr)" yields
+# Q("...").Replace("...", "..."). pcOwner is where the method is DEFINED (may be an
+# ancestor); "" -> no arg synthesis.
+func _StzCallTemplate(pcClass, pcMethod, pcOwner)
+	_cArgs_ = ""
+	if isString(pcOwner) and pcOwner != "" _cArgs_ = _StzArgTemplate(pcOwner, pcMethod) ok
+	return _StzSampleReceiver(pcClass) + "." + pcMethod + "(" + _cArgs_ + ")"
+
+# The synthesized argument list for a method, e.g. '"...", "..."' or '0' or '' .
+func _StzArgTemplate(pcOwner, pcMethod)
+	_cSrc_ = _StzResolveSource(pcOwner)
+	if _cSrc_ = "" or NOT fexists(_cSrc_) return "" ok
+	_cParams_ = _StzDefParams(_cSrc_, pcMethod)
+	if trim(_cParams_) = "" return "" ok
+	_aP_ = _StzSplitOnChar(_cParams_, ",")
+	_cOut_ = ""
+	_n_ = len(_aP_)
+	for _i_ = 1 to _n_
+		_cOut_ += _StzArgFor(trim(_aP_[_i_]))
+		if _i_ < _n_ _cOut_ += ", " ok
+	next
+	return _cOut_
+
+# The raw parameter string of `def <method>(...)` in a source file ("" if none).
+func _StzDefParams(pcSource, pcMethod)
+	_aLines_ = str2list(read(pcSource))
+	_cML_ = lower(pcMethod)
+	_n_ = len(_aLines_)
+	for _i_ = 1 to _n_
+		_cT_ = trim(_aLines_[_i_])
+		if len(_cT_) >= 4 and lower(left(_cT_, 4)) = "def "
+			if lower(_StzDefName(_cT_)) = _cML_
+				_p1_ = substr(_cT_, "(")
+				if _p1_ = 0 return "" ok
+				_p2_ = _StzLastPos(_cT_, ")")
+				if _p2_ <= _p1_ + 1 return "" ok
+				return substr(_cT_, _p1_ + 1, _p2_ - _p1_ - 1)
+			ok
+		ok
+	next
+	return ""
+
+# A placeholder ARGUMENT literal from a param name, using Softanza's type prefixes.
+func _StzArgFor(pcParam)
+	_p_ = lower(pcParam)
+	if left(_p_, 2) = "pc" return '"..."' ok
+	if left(_p_, 2) = "pn" return "0" ok
+	if left(_p_, 2) = "pa" return "[...]" ok
+	if left(_p_, 2) = "pb" return "TRUE" ok
+	if left(_p_, 1) = "c" return '"..."' ok
+	if left(_p_, 1) = "n" return "0" ok
+	if left(_p_, 1) = "a" return "[...]" ok
+	return "..."
 
 func _StzSampleReceiver(pcClass)
 	_c_ = lower(pcClass)
