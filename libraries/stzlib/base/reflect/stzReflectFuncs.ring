@@ -497,6 +497,10 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 		for _i_ = 1 to _nT_ _aOut_ + [ _i_, 0 ] next
 		return _aOut_
 	ok
+	# light morphological variants per query token (query-side only, so the corpus
+	# is untouched and risk is low): "readable"->read, "reversed"->reverse.
+	_aQV_ = []
+	for _j_ = 1 to _nq_ _aQV_ + _StzStemVariants(_aQ_[_j_]) next
 	# tokenize every doc once (reused for df + scoring); count df of each query token
 	_aDocToks_ = []
 	_aDf_ = []
@@ -505,7 +509,7 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 		_aTok_ = _StzAlnumTokens(lower(paTexts[_i_]))
 		_aDocToks_ + _aTok_
 		for _j_ = 1 to _nq_
-			if ring_find(_aTok_, _aQ_[_j_]) > 0 _aDf_[_j_]++ ok
+			if _StzAnyIn(_aQV_[_j_], _aTok_) _aDf_[_j_]++ ok
 		next
 	next
 	# smoothed IDF weight per query token (rarer -> higher; always > 0)
@@ -525,7 +529,7 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 		_num_ = 0
 		_hits_ = 0
 		for _j_ = 1 to _nq_
-			if ring_find(_aTok_, _aQ_[_j_]) > 0 _num_ += _aW_[_j_] _hits_++ ok
+			if _StzAnyIn(_aQV_[_j_], _aTok_) _num_ += _aW_[_j_] _hits_++ ok
 		next
 		_sc_ = 0
 		if _wSum_ > 0 _sc_ = _num_ / _wSum_ ok
@@ -534,6 +538,30 @@ func _StzLexScoreAllIdf(pcQuery, paTexts)
 		_aOut_ + [ _i_, _sc_ ]
 	next
 	return _aOut_
+
+# Conservative morphological variants of a word (itself + a stripped stem), so a
+# query word matches the method's differently-inflected wording. Deliberately light
+# to limit false conflations; min stem length guards keep short words intact.
+func _StzStemVariants(pcW)
+	_aV_ = [ pcW ]
+	_n_ = len(pcW)
+	# Only the SAFE derivational suffixes (-able/-ible/-ing/-ed). The plural -s and
+	# adverbial -ly rules were tried and reverted: "capitals"->capital and
+	# "verbs"->verb created false ties that regressed the probe set. Morphology on
+	# nouns is better handled per-method by #@ aka than by blanket stripping.
+	if _n_ > 6 and right(pcW, 4) = "able" _aV_ + left(pcW, _n_ - 4) ok
+	if _n_ > 6 and right(pcW, 4) = "ible" _aV_ + left(pcW, _n_ - 4) ok
+	if _n_ > 5 and right(pcW, 3) = "ing" _aV_ + left(pcW, _n_ - 3) ok
+	if _n_ > 4 and right(pcW, 2) = "ed" _aV_ + left(pcW, _n_ - 2) _aV_ + left(pcW, _n_ - 1) ok
+	return _aV_
+
+# TRUE if any token in paNeedles is in paHay.
+func _StzAnyIn(paNeedles, paHay)
+	_n_ = len(paNeedles)
+	for _i_ = 1 to _n_
+		if ring_find(paHay, paNeedles[_i_]) > 0 return TRUE ok
+	next
+	return FALSE
 
 # TRUE if token pcTok matches a token in paSet, tolerating morphology via a prefix
 # rule (either is a prefix of the other, min length 4): reverse~reversed, trim~trimmed.
