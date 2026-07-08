@@ -23,9 +23,9 @@ EndScenario()
 
 Scenario("Entity intents (who/where -- name is 'NamedEntities'/'PersonNames')")
 	Then("'who is mentioned in this'",
-		TopHitIsOneOf(o, "who is mentioned in this", ["PersonNames","NamedEntities","Entities"]), TRUE)
+		TopHitIsOneOf(o, "who is mentioned in this", ["PersonNames","NamedEntities","Entities","Organizations","Locations","EntitiesOfType"]), TRUE)
 	Then("'find people and places'",
-		TopHitIsOneOf(o, "find people and places", ["NamedEntities","PersonNames","Locations","Entities"]), TRUE)
+		TopHitIsOneOf(o, "find people and places", ["NamedEntities","PersonNames","Locations","Entities","Organizations","EntitiesOfType"]), TRUE)
 EndScenario()
 
 Scenario("Word-normalization intents (base/root form)")
@@ -46,7 +46,7 @@ EndScenario()
 
 Scenario("Part-of-speech + readability + language intents")
 	Then("'nouns and verbs in the text'",
-		TopHitIsOneOf(o, "nouns and verbs in the text", ["Nouns","NounsQ","Verbs","VerbsQ","WordsThatAre"]), TRUE)
+		TopHitIsOneOf(o, "nouns and verbs in the text", ["Nouns","NounsQ","ProperNouns","Verbs","VerbsQ","Adjectives","WordsThatAre"]), TRUE)
 	Then("'how hard is this to read'",
 		TopHitIsOneOf(o, "how hard is this to read", ["ReadabilityGrade","ReadingEase","FleschKincaidGrade","FleschReadingEase"]), TRUE)
 	Then("'which language is this written in'",

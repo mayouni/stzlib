@@ -54,8 +54,8 @@ class stzLibDoc from stzObject
 				_aM_ = _StzHarvestChain(_cClass_)
 				_nM_ = len(_aM_)
 				for _m_ = 1 to _nM_
-					@aEntries + [ _aM_[_m_][3], _aM_[_m_][1], _aM_[_m_][2] ]
-					@aTexts + _StzMethodText([ _aM_[_m_][1], _aM_[_m_][2] ])
+					@aEntries + [ _aM_[_m_][4], _aM_[_m_][1], _aM_[_m_][2] ]
+					@aTexts + _StzMethodRetrievalText([ _aM_[_m_][1], _aM_[_m_][2], _aM_[_m_][3] ])
 				next
 			ok
 		next
