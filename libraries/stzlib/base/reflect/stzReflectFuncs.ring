@@ -52,7 +52,11 @@ $aStzStopwords = [ "the", "a", "an", "of", "to", "in", "on", "at", "by", "for",
 	"can", "could", "would", "should", "will", "shall", "may", "might", "must",
 	"have", "has", "had", "here", "there", "where", "when", "why", "as", "into",
 	"over", "under", "about", "if", "then", "else", "so", "not", "no", "yes",
-	"all", "any", "some", "each", "one", "get", "want", "need", "please" ]
+	"all", "any", "some", "each", "one", "get", "want", "need", "please",
+	# form-directive words: they steer the FORM (see _StzQueryFormCue), they are
+	# not content -- so exclude them from lexical scoring ("in place" must not let
+	# "place" match a spurious method, especially under IDF).
+	"place", "modify", "mutate", "destructive", "continue" ]
 
 func _StzMethodText(paMethod)
 	_c_ = _StzSplitCamel(paMethod[1])
@@ -477,6 +481,60 @@ func _StzLexScoreH(pcQuery, pcDoc, pcHead)
 	if _dl_ > 0 _nDen_ = _nHit_ / _dl_ ok
 	return _nCov_ + 0.001 * _nDen_
 
+# IDF-weighted lexical ranking over the whole corpus at once: [[idx, score], ...].
+# Each query token is weighted by its rarity across the method set -- a token in
+# FEW methods (uppercase, mood) is specific and worth more; one in MANY (text,
+# string, the) is generic and worth little. This fixes term SPECIFICITY at the
+# root and, unlike the reverted verb-headed bonus, it REINFORCES the aka layer
+# (a rare aka word is exactly a high-IDF token) instead of fighting it. df is
+# computed only for the query's few tokens, so it stays fast even on 2000 methods.
+func _StzLexScoreAllIdf(pcQuery, paTexts)
+	_nT_ = len(paTexts)
+	_aOut_ = []
+	_aQ_ = _StzContentTokens(pcQuery)
+	_nq_ = len(_aQ_)
+	if _nq_ = 0 or _nT_ = 0
+		for _i_ = 1 to _nT_ _aOut_ + [ _i_, 0 ] next
+		return _aOut_
+	ok
+	# tokenize every doc once (reused for df + scoring); count df of each query token
+	_aDocToks_ = []
+	_aDf_ = []
+	for _j_ = 1 to _nq_ _aDf_ + 0 next
+	for _i_ = 1 to _nT_
+		_aTok_ = _StzAlnumTokens(lower(paTexts[_i_]))
+		_aDocToks_ + _aTok_
+		for _j_ = 1 to _nq_
+			if ring_find(_aTok_, _aQ_[_j_]) > 0 _aDf_[_j_]++ ok
+		next
+	next
+	# smoothed IDF weight per query token (rarer -> higher; always > 0)
+	_aW_ = []
+	_wSum_ = 0
+	for _j_ = 1 to _nq_
+		_df_ = _aDf_[_j_]
+		if _df_ < 1 _df_ = 1 ok
+		_w_ = log( (_nT_ + 1.0) / _df_ )
+		if _w_ <= 0 _w_ = 0.0001 ok
+		_aW_ + _w_
+		_wSum_ += _w_
+	next
+	# IDF-weighted coverage per doc + tiny density tie-breaker
+	for _i_ = 1 to _nT_
+		_aTok_ = _aDocToks_[_i_]
+		_num_ = 0
+		_hits_ = 0
+		for _j_ = 1 to _nq_
+			if ring_find(_aTok_, _aQ_[_j_]) > 0 _num_ += _aW_[_j_] _hits_++ ok
+		next
+		_sc_ = 0
+		if _wSum_ > 0 _sc_ = _num_ / _wSum_ ok
+		_dl_ = len(_aTok_)
+		if _dl_ > 0 _sc_ += 0.001 * (_hits_ / _dl_) ok
+		_aOut_ + [ _i_, _sc_ ]
+	next
+	return _aOut_
+
 # TRUE if token pcTok matches a token in paSet, tolerating morphology via a prefix
 # rule (either is a prefix of the other, min length 4): reverse~reversed, trim~trimmed.
 func _StzTokenInSet(pcTok, paSet)
@@ -852,11 +910,8 @@ func _StzRankMethodTextsHeaded(pcQuestion, paTexts, paVectors, n, paBonus, paHea
 			_aSc_ + [ _i_, _StzDotVec(_qv_, paVectors[_i_]) ]
 		next
 	else
-		for _i_ = 1 to _nT_
-			_h_ = ""
-			if _bH_ _h_ = paHeads[_i_] ok
-			_aSc_ + [ _i_, _StzLexScoreH(pcQuestion, paTexts[_i_], _h_) ]
-		next
+		# zero-setup lexical path: IDF-weighted coverage over the whole corpus.
+		_aSc_ = _StzLexScoreAllIdf(pcQuestion, paTexts)
 	ok
 	if isList(paBonus) and len(paBonus) = _nT_
 		_ns_ = len(_aSc_)
