@@ -86,6 +86,20 @@ Scenario("Function-form awareness routes intent to the right form")
 		substr(oStr.ExplainMethod("Reversed"), "passive form") > 0, TRUE)
 EndScenario()
 
+# GENERATIVE near-natural programming: intent -> a grounded method call, by GRAMMAR
+# (compose the name + verify it exists) then RETRIEVAL fallback -- deterministic, no
+# LLM. This is the inverse of Explain's gloss.
+Scenario("Generative: intent resolves to a grounded method (compose-then-retrieve)")
+	Then("'reverse the string' composes to active Reverse",
+		oStr.MethodForIntent("reverse the string"), "Reverse")
+	Then("'a reversed copy of it' composes to passive Reversed",
+		oStr.MethodForIntent("a reversed copy of it"), "Reversed")
+	Then("'make it uppercase' composes to Uppercase",
+		oStr.MethodForIntent("make it uppercase"), "Uppercase")
+	Then("HowTo returns a runnable Q-chainable call template",
+		substr(oStr.HowTo("reverse the string"), ".Reverse()") > 0, TRUE)
+EndScenario()
+
 # Conversational layer: "how do I X" intents should surface an intent RECIPE (a
 # runnable snippet), not just a method name -- across the stzLibDoc union index.
 oLib = StzLibDoc([ "stzText", "stzListOfTexts" ])
