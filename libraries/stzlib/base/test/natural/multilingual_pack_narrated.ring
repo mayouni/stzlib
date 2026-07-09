@@ -105,6 +105,14 @@ Scenario("Vocalized, real-world Arabic writing is accepted")
 	ov4 = NaturallyIn("ar", "أنشئ قائمة بـ [ 1, 2, 2 ] ثمّ أزل التكرارات واعكسها")
 	Then("shadda on thumma + wa-attached dictionary verb",
 		@@( ov4.Result() ), @@([ 2, 1 ]))
+
+	# the author's own stress sentence (test/naturalcode/13_areboth):
+	# fully vocalized -- tanween, an INTERNAL kasra in takrarati-ha,
+	# shadda -- with THREE chained wa-attached suffixed verbs:
+	# remove-its-duplicates, wa-sort-it, wa-reverse-it
+	ov5 = NaturallyIn("ar", "أنشئ قائمةََ بـ [ 3, 1, 3, 3, 1, 3, 2 ] ثمّ احذف تكراراتِها ورتّبها واقلبها")
+	Then("three chained inflected verbs: dedup, wa-sort, wa-reverse",
+		@@( ov5.Result() ), @@([ 3, 2, 1 ]))
 EndScenario()
 
 Scenario("Verified affix chains: risky strips allowed when the base is known")

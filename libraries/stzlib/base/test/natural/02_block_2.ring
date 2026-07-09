@@ -16,10 +16,10 @@ Naturally('
     {Show} it
 
      Create an other {+list} and leave it empty.
-     fill it with the content of the {first:list}.
+     @{fill~} it with the content of the {first:list}@.
 
      @{Erase} that {fruits:list}@.
-     Show it.
+     {Show} it.
 
      Show the {second:list}.
 
