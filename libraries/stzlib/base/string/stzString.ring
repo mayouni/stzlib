@@ -15373,7 +15373,10 @@ class stzString from stzObject
 		return This.AllPositionsOf(_cSub_)
 
 	def EachCharBoxedDashed()
-		return This.BoxRoundEachChar()
+		# passive form: RETURNS the dashed per-char box render, original
+		# untouched (was wrongly delegating to the MUTATING BoxRoundEachChar,
+		# which is also rounded, not dashed -- StzNamingLint's second catch)
+		return This._BoxRender([ :EachChar = TRUE, :Line = :Dashed ])
 
 	def EachCharBoxed_alias()
 		return This.EachCharBoxed()
@@ -19610,9 +19613,12 @@ class stzString from stzObject
 			return This
 
 	def Simplified()
+		# NB: stzStringText(This) holds THIS by reference -- calling the
+		# helper's mutating Simplify() would write back into the original
+		# (the naming bug StzNamingLint caught). The passive form must
+		# leave the original untouched.
 		_oSmdText_ = new stzStringText(This)
-		_oSmdText_.Simplify()
-		return _oSmdText_.Content()
+		return _oSmdText_.Simplified()
 
 	def ToSlug()
 		_oTsText_ = new stzStringText(This)
