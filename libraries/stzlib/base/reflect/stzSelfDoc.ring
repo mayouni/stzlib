@@ -138,10 +138,15 @@ class stzSelfDoc from stzObject
 		if _StzHasRichFormTag(_aPn_[2])
 			_cOut_ += nl + "  reads as: " + _StzNameGloss(@aMethods[_ix_][1])
 		ok
-		# Point at a provably-running example from the tests, if one exercises it.
+		# A provably-running example from the tests: prefer a real "code #--> output"
+		# snippet; else name the scenario that exercises it.
 		_aEg_ = _StzExampleFor(lower(@aMethods[_ix_][1]))
 		if len(_aEg_) = 3
-			_cOut_ += nl + "  e.g. tested in: " + _aEg_[1]
+			if _aEg_[2] != ""
+				_cOut_ += nl + "  e.g. " + _aEg_[2]
+			but _aEg_[1] != ""
+				_cOut_ += nl + "  e.g. tested in: " + _aEg_[1]
+			ok
 		ok
 		return _cOut_
 
