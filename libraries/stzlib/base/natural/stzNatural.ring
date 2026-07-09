@@ -34,6 +34,12 @@ $aLanguageDefinitions = [
 			[:natural = "stznumber", :semantic = "OBJECT_NUMBER"],
 
 			[:natural = "with", :semantic = "VALUE_INDICATOR"],
+
+			# multi-object naming: 'Create a list with [...] called basket'
+			# then 'Use basket' to switch the live object
+			[:natural = "called", :semantic = "NAME_INDICATOR"],
+			[:natural = "named",  :semantic = "NAME_INDICATOR"],
+			[:natural = "use",    :semantic = "SWITCH_OBJECT"],
 			
 			[:natural = "uppercase", :semantic = "METHOD_UPPERCASE"],
 			[:natural = "lowercase", :semantic = "METHOD_LOWERCASE"],
@@ -283,6 +289,8 @@ class stzNaturalEngine from stzObject
 				# or list literal (those must NEVER be fallback-resolved)
 	@aUnresolved = []	# [ [word, suggestion], ... ] -- action-position words
 				# the language could not understand (see Unresolved())
+	@aNamedObjects = []	# [ [name, var, type], ... ] -- the multi-object
+				# registry ('called basket' ... 'Use basket')
 	@aSemanticTokens = []
 	@cCurrentObject = ""
 	@cCurrentVariable = ""
@@ -468,6 +476,7 @@ class stzNaturalEngine from stzObject
 		@aValues = []
 		@aTokenIsWord = []
 		@aUnresolved = []
+		@aNamedObjects = []
 		_cCode_ = trim(_cCode_)
 		_aTokens_ = This.SmartSplit(_cCode_)
 		@aValues = _aTokens_
@@ -926,8 +935,12 @@ class stzNaturalEngine from stzObject
 		
 		_aLast_ = _aTokens_[_nLen_]
 		
-		if _aLast_[:type] = "semantic" and _aLast_[:value] = "VALUE_INDICATOR"
-			return 1
+		if _aLast_[:type] = "semantic" and
+		   ( _aLast_[:value] = "VALUE_INDICATOR" or
+		     _aLast_[:value] = "NAME_INDICATOR" or
+		     _aLast_[:value] = "SWITCH_OBJECT" )
+			return 1	# a VALUE or a NAME: even a dictionary word
+					# ('called box') stays literal here
 		ok
 
 		if _aLast_[:type] = "literal" and _nLen_ >= 2
@@ -959,7 +972,8 @@ class stzNaturalEngine from stzObject
 		if _aLast_[:type] = "semantic"
 			_cVal_ = _aLast_[:value]
 
-			if StzLeft(_cVal_, 7) = "OBJECT_" or _cVal_ = "VALUE_INDICATOR"
+			if StzLeft(_cVal_, 7) = "OBJECT_" or _cVal_ = "VALUE_INDICATOR" or
+			   _cVal_ = "NAME_INDICATOR" or _cVal_ = "SWITCH_OBJECT"
 				return 0
 			ok
 
@@ -1040,7 +1054,22 @@ class stzNaturalEngine from stzObject
 						_aCodeLines_ + _aResult_[:code]
 					ok
 					_i_ = _aResult_[:next_index]
-					
+
+				but _cSemantic_ = "NAME_INDICATOR"
+					# '... called basket': alias the live object under
+					# o_<name> (Ring objects assign by REFERENCE, so the
+					# alias survives the default var being rebound by a
+					# later creation) and register it
+					_aResult_ = This.ProcessObjectNaming(_i_)
+					if stzlen(_aResult_[:code]) > 0
+						_aCodeLines_ + _aResult_[:code]
+					ok
+					_i_ = _aResult_[:next_index]
+
+				but _cSemantic_ = "SWITCH_OBJECT"
+					# 'Use basket': the named object becomes the live one
+					_i_ = This.ProcessObjectSwitch(_i_)
+
 				but StzLeft(_cSemantic_, 7) = "METHOD_"
 					_aResult_ = This.ProcessMethod(_i_, _cSemantic_)
 					if stzlen(_aResult_[:code]) > 0
@@ -1131,6 +1160,79 @@ class stzNaturalEngine from stzObject
 		
 		_aResult_ = [:code = "", :next_index = nIndex+1]
 		return _aResult_
+
+	# '... called <name>': alias the CURRENT object as o_<name>. The next
+	# literal token after NAME_INDICATOR is the name (guards make sure it
+	# stayed literal even if it collides with a dictionary word).
+
+	def ProcessObjectNaming(nIndex)
+		_nLen_ = len(@aSemanticTokens)
+		for _k_ = nIndex + 1 to _nLen_
+			_aToken_ = @aSemanticTokens[_k_]
+			if _aToken_[:type] = "literal" and isString(_aToken_[:value])
+				# the registry KEY keeps the name as written (any
+				# script); the Ring VARIABLE must stay ASCII, so
+				# non-Latin names get a generated one
+				_cName_ = StzLower(trim(_aToken_[:value]))
+				if _cName_ = "" or trim(@cCurrentVariable) = ""
+					exit
+				ok
+				_cVar_ = This.SanitizedName(_cName_)
+				if _cVar_ != ""
+					_cVar_ = "o_" + _cVar_
+				else
+					_cVar_ = "o_named" + (len(@aNamedObjects) + 1)
+				ok
+				@aNamedObjects + [ _cName_, _cVar_, @cCurrentObject ]
+				_cAlias_ = _cVar_ + " = " + @cCurrentVariable
+				@cCurrentVariable = _cVar_
+				This.AddToDebugLog("Named object: " + _cName_ + " -> " + _cVar_)
+				return [:code = _cAlias_, :next_index = _k_ + 1]
+			ok
+			exit
+		next
+		return [:code = "", :next_index = nIndex + 1]
+
+	# 'Use <name>': switch the live object to a previously named one.
+	# Unknown names are skipped with a debug note (permissive execution).
+
+	def ProcessObjectSwitch(nIndex)
+		_nLen_ = len(@aSemanticTokens)
+		for _k_ = nIndex + 1 to _nLen_
+			_aToken_ = @aSemanticTokens[_k_]
+			if _aToken_[:type] = "literal" and isString(_aToken_[:value])
+				_cName_ = StzLower(trim(_aToken_[:value]))
+				_nReg_ = len(@aNamedObjects)
+				for _r_ = 1 to _nReg_
+					if @aNamedObjects[_r_][1] = _cName_
+						@cCurrentVariable = @aNamedObjects[_r_][2]
+						@cCurrentObject = @aNamedObjects[_r_][3]
+						This.AddToDebugLog("Switched to: " + _cName_)
+						return _k_ + 1
+					ok
+				next
+				This.AddToDebugLog("Unknown object name: " + _cName_)
+				return _k_ + 1
+			ok
+			exit
+		next
+		return nIndex + 1
+
+	def SanitizedName(_cValue_)
+		_cOut_ = ""
+		_cLow_ = StzLower(trim(_cValue_))
+		_nL_ = len(_cLow_)
+		for _k_ = 1 to _nL_
+			_cCh_ = _cLow_[_k_]
+			_nA_ = ascii(_cCh_)
+			if (_nA_ >= 97 and _nA_ <= 122) or (_nA_ >= 48 and _nA_ <= 57) or _nA_ = 95
+				_cOut_ += _cCh_
+			ok
+		next
+		return _cOut_
+
+	def NamedObjects()
+		return @aNamedObjects
 
 	def ProcessMethod(nIndex, _cSemantic_)
 		This.AddToDebugLog("Processing method: " + _cSemantic_)

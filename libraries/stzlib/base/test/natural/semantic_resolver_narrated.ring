@@ -184,6 +184,27 @@ Scenario("Intents become executable natural plans")
 		bRaised, TRUE)
 EndScenario()
 
+Scenario("Multiple live objects: name them, switch between them")
+	om1 = Naturally("Create a string with 'ring' called first Create a string with 'zig' called second Use first Uppercase it")
+	Then("two objects coexist; 'Use first' switches back before acting",
+		om1.Result(), "RING")
+
+	om2 = Naturally("Create a string with 'ring' called first Create a string with 'zig' called second Use second Reverse it")
+	Then("...and 'Use second' addresses the other one", om2.Result(), "giz")
+
+	om3 = Naturally("Create a list with [ 1, 2, 2 ] called basket Create a string with 'hi' called tag Use basket Remove its duplicates")
+	Then("mixed types by name, grown verbs included",
+		@@( om3.Result() ), @@([ 1, 2 ]))
+
+	om4 = Naturally("Create a string with 'x' called box Use box Uppercase it")
+	Then("a dictionary word used as a NAME stays a name (guards)",
+		om4.Result(), "X")
+
+	om5 = NaturallyIn("ar", "أنشئ قائمة بـ [ 1, 2, 3 ] سمها سلتي أنشئ قائمة بـ [ 9 ] استخدم سلتي اعكسها")
+	Then("Arabic naming works (registry keeps the script; the var is generated)",
+		@@( om5.Result() ), @@([ 3, 2, 1 ]))
+EndScenario()
+
 Scenario("Classic dictionary behavior unchanged (regression)")
 	o5 = Naturally("Create a string with 'softanza' Uppercase it")
 	Then("plain dictionary verb still works", o5.Result(), "SOFTANZA")
