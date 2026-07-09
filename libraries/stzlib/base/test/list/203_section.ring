@@ -18,31 +18,25 @@
 # Extracted from stzlisttest.ring, block #203.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Slicing a list four ways: Section / SectionXT / Range / RangeXT.")
 
-o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
+	o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
 
-? o1.Section(3, 5)
-#--> [ "3", "4", "5" ]
+	Then("section example 1", @@( o1.Section(3, 5) ), @@( [ "3", "4", "5" ] ))
 
-? o1.Section(5, 3)
-#--> [ "3", "4", "5" ]
+	Then("section example 2", @@( o1.Section(5, 3) ), @@( [ "3", "4", "5" ] ))
 
-? o1.SectionXT(3, -3)
-#--> [ "3", "4", "5" ]
+	Then("section example 3", @@( o1.SectionXT(3, -3) ), @@( [ "3", "4", "5" ] ))
 
-? o1.SectionXT(-3, 3)
-#--> [ "5", "4", "3" ]
+	Then("section example 4", @@( o1.SectionXT(-3, 3) ), @@( [ "5", "4", "3" ] ))
 
-? o1.Range(3, 3)
-#--> [ "3", "4", "5" ]
+	Then("section example 5", @@( o1.Range(3, 3) ), @@( [ "3", "4", "5" ] ))
 
-? o1.RangeXT(3, 3)
-#--> [ "3", "4", "5" ]
+	Then("section example 6", @@( o1.RangeXT(3, 3) ), @@( [ "3", "4", "5" ] ))
 
-? o1.RangeXT(-5, 3)
-#--> [ "3", "4", "5" ]
+	Then("section example 7", @@( o1.RangeXT(-5, 3) ), @@( [ "3", "4", "5" ] ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s)
+Summary()

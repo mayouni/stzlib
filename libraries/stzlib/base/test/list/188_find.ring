@@ -12,11 +12,11 @@
 # Extracted from stzlisttest.ring, block #188.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Finding a value inside a large numeric range with the global StzFindFirst().")
 
-? StzFindFirst(1:299_000, 40_000)
-#--> 40000
-pf()
-# Executed in 0.02 second(s) in Ring 1.27
-# Executed in 0.04 second(s) before
+	Then("find example 1", @@( StzFindFirst(1:299_000, 40_000) ), @@( 40000 ))
+EndScenario()
+
+Summary()

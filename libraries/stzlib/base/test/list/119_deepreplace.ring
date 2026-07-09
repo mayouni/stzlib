@@ -13,19 +13,20 @@
 # Extracted from stzlisttest.ring, block #119.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("DeepReplace() does a recursive replace-by-value across the whole tree.")
 
-o1 = new stzList([
-	"me",
-	"other",
-	[ "other", "me", [ "me" ], "other" ],
-	"other",
-	"me"
-])
+	o1 = new stzList([
+		"me",
+		"other",
+		[ "other", "me", [ "me" ], "other" ],
+		"other",
+		"me"
+	])
 
-o1.DeepReplace("me", :By = "you")
-? @@( o1.Content() )
-#--> [ "you", "other", [ "other", "you", [ "you" ], "other" ], "other", "you" ]
+	o1.DeepReplace("me", :By = "you")
+	Then("deepreplace example 1", @@( o1.Content() ), @@( [ "you", "other", [ "other", "you", [ "you" ], "other" ], "other", "you" ] ))
+EndScenario()
 
-pf()
+Summary()

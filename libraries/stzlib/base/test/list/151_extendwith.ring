@@ -8,20 +8,17 @@
 # the tail in place, so the list becomes [ "A", "B", "C", "D", "E" ].
 # This contrasts with AddItem (one element) -- ExtendWith splices a
 # whole list, keeping the result a flat sequence rather than nesting.
-# pr()/pf() wrap the block in the profiler; the "STOPPED!" banner is
-# the success marker, not an error.
 #
 # Extracted from stzlisttest.ring, block #151.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Builds a stzList from a character range and grows it with ExtendWith().")
 
-o1 = new stzList("A" : "C")
-o1.ExtendWith(["D", "E"])
-o1.Show()
-#--> [ "A", "B", "C", "D", "E" ]
+	o1 = new stzList("A" : "C")
+	o1.ExtendWith(["D", "E"])
+	Then("extendwith example 1", @@( o1.Content() ), @@( [ "A", "B", "C", "D", "E" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.04 second(s)
-# Including 0.02 seconds consumed by the Show() function
+Summary()

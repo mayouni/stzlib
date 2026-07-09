@@ -11,12 +11,12 @@
 # Extracted from stzlisttest.ring, block #207.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("SortedBy() orders a list using a computed key rather than the raw items.")
 
-o1 = new stzList([ "programming", "is" ])
-? o1.SortedBy('len(@item)')
-#--> [ "is", "programming" ]
+	o1 = new stzList([ "programming", "is" ])
+	Then("sortedby example 1", @@( o1.SortedBy('len(@item)') ), @@( [ "is", "programming" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s) in Ring 1.21
+Summary()

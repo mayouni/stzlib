@@ -12,12 +12,13 @@
 # Extracted from stzlisttest.ring, block #178.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Drops a contiguous slice of a list by position range with RemoveSection().")
 
-o1 = new stzList([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])
-o1.RemoveSection(3, 8)
-? @@( o1.Content() )
-#--> [ 1, 2, 9, 10 ]
+	o1 = new stzList([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])
+	o1.RemoveSection(3, 8)
+	Then("removesection example 1", @@( o1.Content() ), @@( [ 1, 2, 9, 10 ] ))
+EndScenario()
 
-pf()
+Summary()

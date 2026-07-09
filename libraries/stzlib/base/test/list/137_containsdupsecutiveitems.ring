@@ -13,12 +13,12 @@
 # Extracted from stzlisttest.ring, block #137.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ContainsDupSecutiveItems() reports whether any two side-by-side items in the list are equa")
 
-o1 = new stzList([ "A", "B", "C" ])
-? o1.ContainsDupSecutiveItems()
-#--> FALSE
+	o1 = new stzList([ "A", "B", "C" ])
+	Then("containsdupsecutiveitems example 1", @@( o1.ContainsDupSecutiveItems() ), @@( FALSE ))
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s).
+Summary()

@@ -11,22 +11,19 @@
 # Extracted from stzlisttest.ring, block #8.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ContainsOneOfThese (inclusive any) vs ContainsOnlyOneOfThese (exclusive exactly one).")
 
-o1 = new stzList([ "me", "you", "all", "the", "others" ])
-	? o1.ContainsOneOfThese([ "me", "you" ])
-	#--> TRUE
+	o1 = new stzList([ "me", "you", "all", "the", "others" ])
+	Then("containsoneofthese example 1", @@( o1.ContainsOneOfThese([ "me", "you" ]) ), @@( TRUE ))
 
-	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
-	#--> FALSE
+	Then("containsoneofthese example 2", @@( o1.ContainsOnlyOneOfThese([ "me", "you" ]) ), @@( FALSE ))
 
-o1 = new stzList([ "me", "and", "all", "the", "others" ])
-	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
-	#--> TRUE
+	o1 = new stzList([ "me", "and", "all", "the", "others" ])
+	Then("containsoneofthese example 3", @@( o1.ContainsOnlyOneOfThese([ "me", "you" ]) ), @@( TRUE ))
 
-	? o1.ContainsOneOfThese([ "me", "you" ])
-	#--> TRUE
+	Then("containsoneofthese example 4", @@( o1.ContainsOneOfThese([ "me", "you" ]) ), @@( TRUE ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s)
+Summary()

@@ -13,13 +13,13 @@
 # Extracted from stzlisttest.ring, block #152.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ExtendTo() grows a list in place until it reaches a target length.")
 
-o1 = new stzList("A" : "C")
-o1.ExtendTo(5)
-o1.Show()
-#--> [ "A", "B", "C", "", "" ]
+	o1 = new stzList("A" : "C")
+	o1.ExtendTo(5)
+	Then("extendto example 1", @@( o1.Content() ), @@( [ "A", "B", "C", "", "" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()

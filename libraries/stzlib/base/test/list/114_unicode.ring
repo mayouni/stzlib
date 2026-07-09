@@ -12,11 +12,11 @@
 # Extracted from stzlisttest.ring, block #114.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Unicodes() maps a string to the list of its characters' Unicode codepoints.")
 
-? Unicodes("Hi")
-#--> [ 72, 105 ]
+	Then("unicode example 1", @@( Unicodes("Hi") ), @@( [ 72, 105 ] ))
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()

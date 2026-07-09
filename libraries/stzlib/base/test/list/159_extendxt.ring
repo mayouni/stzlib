@@ -12,15 +12,15 @@
 # Extracted from stzlisttest.ring, block #159.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Growing a list to a fixed length by cycling its existing items.")
 
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendXT( :ToPosition = 5, :ByItemsRepeated )
-// ByItemsRepeated
+	o1 = new stzList([ "A", "B", "C" ])
+	o1.ExtendXT( :ToPosition = 5, :ByItemsRepeated )
+	// ByItemsRepeated
 
-o1.Show()
-#--> [ "A", "B", "C", "A", "B" ]
+	Then("extendxt example 1", @@( o1.Content() ), @@( [ "A", "B", "C", "A", "B" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.04 second(s)
+Summary()

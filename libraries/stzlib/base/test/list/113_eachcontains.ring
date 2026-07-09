@@ -14,25 +14,21 @@
 # Extracted from stzlisttest.ring, block #113.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Demonstrates stzList.EachContains() -- a whole-list predicate that returns TRUE only when")
 
-o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
-? o1.EachContains("♥")
-#--> TRUE
+	o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
+	Then("eachcontains example 1", @@( o1.EachContains("♥") ), @@( TRUE ))
 
-o1 = new stzList([ ["ee","♥","ee"], ["♥", "bb"], "ccc♥", "♥♥" ])
-? o1.EachContains("♥")
-#--> TRUE
+	o1 = new stzList([ ["ee","♥","ee"], ["♥", "bb"], "ccc♥", "♥♥" ])
+	Then("eachcontains example 2", @@( o1.EachContains("♥") ), @@( TRUE ))
 
-o1 = new stzList([ "a♥a" ])
-? o1.EachContains("♥")
-#--> TRUE
+	o1 = new stzList([ "a♥a" ])
+	Then("eachcontains example 3", @@( o1.EachContains("♥") ), @@( TRUE ))
 
-o1 = new stzList([ 0, "a♥a" ])
-? o1.EachContains("♥")
-#--> FALSE
+	o1 = new stzList([ 0, "a♥a" ])
+	Then("eachcontains example 4", @@( o1.EachContains("♥") ), @@( FALSE ))
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.22
-# Executed in 0.04 second(s) in Ring 1.19
+Summary()

@@ -14,32 +14,25 @@
 # Extracted from stzlisttest.ring, block #115.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("IsChar() answers whether a value qualifies as a single character.")
 
-? IsChar(12.5)
-#--> FALSE
+	Then("ischar example 1", @@( IsChar(12.5) ), @@( FALSE ))
 
-? IsChar(-7)
-#--> FALSE
+	Then("ischar example 2", @@( IsChar(-7) ), @@( FALSE ))
 
-? IsChar(14)
-#--> FALSE
+	Then("ischar example 3", @@( IsChar(14) ), @@( FALSE ))
 
-? IsChar(6)
-#--> TRUE
+	Then("ischar example 4", @@( IsChar(6) ), @@( TRUE ))
 
-? IsChar("A")
-#--> TRUE
+	Then("ischar example 5", @@( IsChar("A") ), @@( TRUE ))
 
-? IsChar("م")
-#--> TRUE
+	Then("ischar example 6", @@( IsChar("م") ), @@( TRUE ))
 
-? IsChar("♥")
-#--> TRUE
+	Then("ischar example 7", @@( IsChar("♥") ), @@( TRUE ))
 
-? IsChar("Hi")
-#--> FALSE
+	Then("ischar example 8", @@( IsChar("Hi") ), @@( FALSE ))
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
+Summary()

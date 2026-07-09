@@ -1,26 +1,21 @@
 # Narrative
 # --------
-# StartProfiler()
+
 #
 # Extracted from stzlisttest.ring, block #218.
-#ERR Error (R14) : Calling Method without definition: extract
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("extract")
 
- # Extract(item) removes the item from the list and returns it
+	 # Extract(item) removes the item from the list and returns it
 
-o1 = new stzList([ "A", "B", "_", "C" ])
+	o1 = new stzList([ "A", "B", "_", "C" ])
 
-? o1.Extract("_")
-#--> "_"
+	Then("extract example 1", @@( o1.Extract("_") ), @@( "_" ))
 
-? o1.Content()
-#--> [ "A", "B", "C" ]
+	Then("extract example 2", @@( o1.Content() ), @@( [ "A", "B", "C" ] ))
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.03 second(s) in Ring 1.20
+Summary()

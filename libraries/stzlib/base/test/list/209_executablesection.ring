@@ -14,12 +14,11 @@
 # Extracted from stzlisttest.ring, block #209.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Asks an StzCCode (Softanza conditional-code) object where its executable part lives inside")
 
-? StzCCodeQ('NOT isNumber( This[@i + 1] )').ExecutableSection()
-#--> [1, -1]
+	Then("executablesection example 1", @@( StzCCodeQ('NOT isNumber( This[@i + 1] )').ExecutableSection() ), @@( [1, -1] ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s) in Ring 1.21
-# Executed in 0.12 second(s) in Ring 1.18
+Summary()

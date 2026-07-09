@@ -13,14 +13,14 @@
 # Extracted from stzlisttest.ring, block #120.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Sorts a list of strings by a derived key rather than by value.")
 
-o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
+	o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
 
-o1.SortBy('len(@item)')
-? o1.Content()
-#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+	o1.SortBy('len(@item)')
+	Then("sortby example 1", @@( o1.Content() ), @@( [ "a", "ab", "abc", "abcd", "abcde" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.11 second(s)
+Summary()

@@ -12,12 +12,12 @@
 # Extracted from stzlisttest.ring, block #172.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("FindFirst() returns the 1-based position of the first occurrence of an item.")
 
-o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
-? o1.FindFirst("*")
-#--> 4
+	o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
+	Then("findfirst example 1", @@( o1.FindFirst("*") ), @@( 4 ))
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s)
+Summary()

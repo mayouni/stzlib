@@ -12,12 +12,12 @@
 # Extracted from stzlisttest.ring, block #186.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("NumberOfOccurrence(value) counts how many times a value appears in a list.")
 
-o1 = new stzList(1:14 + 12)
-? o1.NumberOfOccurrence(12)
-#--> 2
+	o1 = new stzList(1:14 + 12)
+	Then("numberofoccurrence example 1", @@( o1.NumberOfOccurrence(12) ), @@( 2 ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()

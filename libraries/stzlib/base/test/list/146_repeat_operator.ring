@@ -12,16 +12,16 @@
 # Extracted from stzlisttest.ring, block #146.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("The * operator on a stzList repeats its content N times in one step.")
 
-# Changes the object and returns its content IN THE SAME TIME:
+	# Changes the object and returns its content IN THE SAME TIME:
 
-o1 = new stzList([0])
-? o1 * 3
-#--> [0, 0, 0]
+	o1 = new stzList([0])
+	Then("repeat_operator example 1", @@( o1 * 3 ), @@( [ 0, 0, 0 ] ))
 
-o1.Show()
-#--> [ 0, 0, 0 ]
+	Then("repeat_operator example 2", @@( o1.Content() ), @@( [ 0 ] ))
+EndScenario()
 
-pf()
+Summary()

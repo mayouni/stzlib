@@ -11,13 +11,13 @@
 # Extracted from stzlisttest.ring, block #158.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Growing a list up to a target length with ExtendXT(:List, :ToPosition).")
 
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendXT( :List, :ToPosition = 5 )
-o1.Show()
-#--> [ "A", "B", "C", "", "" ]
+	o1 = new stzList([ "A", "B", "C" ])
+	o1.ExtendXT( :List, :ToPosition = 5 )
+	Then("extendxt example 1", @@( o1.Content() ), @@( [ "A", "B", "C", "", "" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s)
+Summary()

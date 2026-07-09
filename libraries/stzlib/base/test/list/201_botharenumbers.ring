@@ -13,24 +13,21 @@
 # Extracted from stzlisttest.ring, block #201.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("The BothAre* predicate family: type-checking the two members of a pair-sized list.")
 
-o1 = new stzList([ 12, 88 ])
-? o1.BothAreNumbers()
-#--> TRUE
+	o1 = new stzList([ 12, 88 ])
+	Then("botharenumbers example 1", @@( o1.BothAreNumbers() ), @@( TRUE ))
 
-o1 = new stzList([ "hi", "ring" ])
-? o1.BothAreStrings()
-#--> TRUE
+	o1 = new stzList([ "hi", "ring" ])
+	Then("botharenumbers example 2", @@( o1.BothAreStrings() ), @@( TRUE ))
 
-o1 = new stzList([ :name = "Dan", :job = "Programmer" ])
-? o1.BothAreLists()
-#--> TRUE
+	o1 = new stzList([ :name = "Dan", :job = "Programmer" ])
+	Then("botharenumbers example 3", @@( o1.BothAreLists() ), @@( TRUE ))
 
-o1 = new stzList([ o1, o1 ])
-? o1.BothAreObjects()
-#--> TRUE
+	o1 = new stzList([ o1, o1 ])
+	Then("botharenumbers example 4", @@( o1.BothAreObjects() ), @@( TRUE ))
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s)
+Summary()

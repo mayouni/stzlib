@@ -12,17 +12,17 @@
 # Extracted from stzlisttest.ring, block #181.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Treating a list's CODE STRING as text, then slicing it.")
 
-o1 = new stzList(1:10)
-oListInStr = o1.ToCodeQ()
+	o1 = new stzList(1:10)
+	oListInStr = o1.ToCodeQ()
 
-n1 = oListInStr.FindNth(3, ",")
-n2 = oListInStr.FindNth(7, ",")
+	n1 = oListInStr.FindNth(3, ",")
+	n2 = oListInStr.FindNth(7, ",")
 
-? oListInStr.Section(n1-1, n2-1)
-#--> "3, 4, 5, 6, 7"
+	Then("section example 1", @@( oListInStr.Section(n1-1, n2-1) ), @@( "3, 4, 5, 6, 7" ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()

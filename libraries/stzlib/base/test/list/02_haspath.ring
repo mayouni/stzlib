@@ -10,37 +10,32 @@
 # Extracted from stzlisttest.ring, block #2.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("HasPath: does a nested hashlist contain a given key PATH? Given a tree of nested hashlists")
 
-aHash = [
-	:user = [
-		:profile = [
-			:settings = [
-				:theme = "dark",
-				:language = "en"
-			]
+	aHash = [
+		:user = [
+			:profile = [
+				:settings = [
+					:theme = "dark",
+					:language = "en"
+				]
+			],
+			:name = "John"
 		],
-		:name = "John"
-	],
-	:config = "value"
-]
+		:config = "value"
+	]
 
-# Present paths -> TRUE
-? HasPath(aHash, [:user])
-#--> TRUE
-? HasPath(aHash, [:user, :profile])
-#--> TRUE
-? HasPath(aHash, [:user, :profile, :settings])
-#--> TRUE
+	# Present paths -> TRUE
+	Then("haspath example 1", @@( HasPath(aHash, [:user]) ), @@( TRUE ))
+	Then("haspath example 2", @@( HasPath(aHash, [:user, :profile]) ), @@( TRUE ))
+	Then("haspath example 3", @@( HasPath(aHash, [:user, :profile, :settings]) ), @@( TRUE ))
 
-# Missing / overrun paths -> FALSE
-? HasPath(aHash, [:user, :profile, :settings, :nonexistent])
-#--> FALSE
-? HasPath(aHash, [:user, :missing])
-#--> FALSE
-? HasPath(aHash, [:nothere])
-#--> FALSE
+	# Missing / overrun paths -> FALSE
+	Then("haspath example 4", @@( HasPath(aHash, [:user, :profile, :settings, :nonexistent]) ), @@( FALSE ))
+	Then("haspath example 5", @@( HasPath(aHash, [:user, :missing]) ), @@( FALSE ))
+	Then("haspath example 6", @@( HasPath(aHash, [:nothere]) ), @@( FALSE ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s)
+Summary()

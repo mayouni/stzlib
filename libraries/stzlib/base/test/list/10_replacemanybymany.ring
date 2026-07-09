@@ -13,23 +13,21 @@
 # Extracted from stzlisttest.ring, block #10.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ReplaceManyByMany (1-to-1 mapping) and the Section<->Range conversions.")
 
-o1 = new stzList([
-	"ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "ring", "kandaji" ])
+	o1 = new stzList([
+		"ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "ring", "kandaji" ])
 
-o1.ReplaceManyByMany([
-	"ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
+	o1.ReplaceManyByMany([
+		"ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
 
-? @@( o1.Content() )
-#--> [ "♥", "qt", "♥♥", "pyhton", "♥♥♥", "csharp", "♥", "♥♥♥" ]
+	Then("replacemanybymany example 1", @@( o1.Content() ), @@( [ "♥", "qt", "♥♥", "pyhton", "♥♥♥", "csharp", "♥", "♥♥♥" ] ))
 
-? SectionToRange(3, 7)
-#--> [ 3, 5 ]
+	Then("replacemanybymany example 2", @@( SectionToRange(3, 7) ), @@( [ 3, 5 ] ))
 
-? RangeToSection(3, 5)
-#--> [ 3, 7 ]
+	Then("replacemanybymany example 3", @@( RangeToSection(3, 5) ), @@( [ 3, 7 ] ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s)
+Summary()
