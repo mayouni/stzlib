@@ -55,6 +55,13 @@ StzAddNaturalLanguage([
 
 		[:natural = "avec",       :semantic = "VALUE_INDICATOR"],
 
+		[:natural = "appelée",    :semantic = "NAME_INDICATOR"],
+		[:natural = "appelee",    :semantic = "NAME_INDICATOR"],
+		[:natural = "nommée",     :semantic = "NAME_INDICATOR"],
+		[:natural = "nommee",     :semantic = "NAME_INDICATOR"],
+		[:natural = "utilise",    :semantic = "SWITCH_OBJECT"],
+		[:natural = "prends",     :semantic = "SWITCH_OBJECT"],
+
 		[:natural = "majuscule",  :semantic = "METHOD_UPPERCASE"],
 		[:natural = "majuscules", :semantic = "METHOD_UPPERCASE"],
 		[:natural = "minuscule",  :semantic = "METHOD_LOWERCASE"],
@@ -158,6 +165,11 @@ StzAddNaturalLanguage([
 		[:natural = "يحتوي",   :semantic = "VALUE_INDICATOR"],
 		[:natural = "مع",      :semantic = "VALUE_INDICATOR"],
 		[:natural = "بواسطة",  :semantic = "VALUE_INDICATOR"],
+
+		[:natural = "سمها",    :semantic = "NAME_INDICATOR"],
+		[:natural = "سمّها",   :semantic = "NAME_INDICATOR"],
+		[:natural = "استخدم",  :semantic = "SWITCH_OBJECT"],
+		[:natural = "خذ",      :semantic = "SWITCH_OBJECT"],
 
 		[:natural = "اعكس",    :semantic = "METHOD_REVERSE"],
 		[:natural = "اقلب",    :semantic = "METHOD_REVERSE"],
