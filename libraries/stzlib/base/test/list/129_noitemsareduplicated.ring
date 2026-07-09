@@ -12,16 +12,15 @@
 # Extracted from stzlisttest.ring, block #129.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("NoItemsAreDuplicated(): the positive, readable spelling of this list is a set -- every ite")
 
-	o1 = new stzList([ "A", "B", "2", 1:3, "C", 2 ])
-	? o1.NoItemsAreDuplicated()
-	#--> TRUE
+		o1 = new stzList([ "A", "B", "2", 1:3, "C", 2 ])
+	Then("noitemsareduplicated example 1", @@( o1.NoItemsAreDuplicated() ), @@( TRUE ))
 
-	o1 = new stzList("A":"E")
-	? o1.NoItemsAreDuplicated()
-	#--> TRUE
+		o1 = new stzList("A":"E")
+	Then("noitemsareduplicated example 2", @@( o1.NoItemsAreDuplicated() ), @@( TRUE ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s)
+Summary()

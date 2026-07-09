@@ -13,12 +13,12 @@
 # Extracted from stzlisttest.ring, block #205.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("IsAPairQ() as a chainable GUARD.")
 
-o1 = new stzList([ :StartingAt, 5 ])
-? o1.IsAPairQ().Where('{ isString(@pair[1]) and isNumber(@pair[2]) }')
-#--> 1
+	o1 = new stzList([ :StartingAt, 5 ])
+	Then("isapair example 1", @@( o1.IsAPairQ().Where('{ isString(@pair[1]) and isNumber(@pair[2]) }') ), @@( 1 ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s)
+Summary()

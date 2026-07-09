@@ -13,16 +13,15 @@
 # Extracted from stzlisttest.ring, block #184.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Checks whether BOTH numbers in a pair lie inside an inclusive range.")
 
-o1 = new stzList([ 14, 10, 14, 14, 20 ])
+	o1 = new stzList([ 14, 10, 14, 14, 20 ])
 
-? QRT([2, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
-#--> TRUE
+	Then("botharebetween example 1", @@( QRT([2, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems()) ), @@( TRUE ))
 
-? QRT([0, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems())
-#--> FALSE
+	Then("botharebetween example 2", @@( QRT([0, 4], :stzPairOfNumbers).BothAreBetween(1, o1.NumberOfItems()) ), @@( FALSE ))
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s)
+Summary()

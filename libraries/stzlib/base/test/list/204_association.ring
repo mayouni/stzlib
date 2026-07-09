@@ -12,12 +12,11 @@
 # Extracted from stzlisttest.ring, block #204.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Association() zips two parallel lists into a list of [key, value] pairs.")
 
-? Association([ [ 1, 2, 3 ], [ "One", "Two", "Three" ] ])
-#--> [ [ 1, "One" ], [ 2, "Two" ], [ 3, "Three" ] ]
+	Then("association example 1", @@( Association([ [ 1, 2, 3 ], [ "One", "Two", "Three" ] ]) ), @@( [ [ 1, "One" ], [ 2, "Two" ], [ 3, "Three" ] ] ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.21
-# Executed in 0.04 second(s) in Ring 1.20
+Summary()

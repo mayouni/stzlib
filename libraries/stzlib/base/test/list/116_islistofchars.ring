@@ -11,14 +11,13 @@
 # Extracted from stzlisttest.ring, block #116.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("IsListOfChars() reports whether a list holds only single-character items.")
 
-? Q([ "a", "b", "c" ]).IsListOfChars()
-#--> TRUE
+	Then("islistofchars example 1", @@( Q([ "a", "b", "c" ]).IsListOfChars() ), @@( TRUE ))
 
-? Q([ 1, 2, 3 ]).IsListOfChars()
-#--> TRUE
+	Then("islistofchars example 2", @@( Q([ 1, 2, 3 ]).IsListOfChars() ), @@( TRUE ))
+EndScenario()
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.21
+Summary()

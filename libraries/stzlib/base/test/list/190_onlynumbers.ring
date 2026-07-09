@@ -14,12 +14,12 @@
 # Extracted from stzlisttest.ring, block #190.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("OnlyNumbers() keeps just the numeric members of a heterogeneous list.")
 
-o1 = new stzList( 1:7 + "str1" + "str2" + [ "+", "-" ] )
-? @@( o1.OnlyNumbers() )
-#--> [ 1, 2, 3, 4, 5, 6, 7 ]
+	o1 = new stzList( 1:7 + "str1" + "str2" + [ "+", "-" ] )
+	Then("onlynumbers example 1", @@( o1.OnlyNumbers() ), @@( [ 1, 2, 3, 4, 5, 6, 7 ] ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()

@@ -11,14 +11,14 @@
 # Extracted from stzlisttest.ring, block #9.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ReplaceManyByManyXT: replace several items, RECYCLING a shorter replacement list.")
 
-o1 = new stzList([ "ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "zai" ])
-o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", "♥♥" ])
+	o1 = new stzList([ "ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "zai" ])
+	o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", "♥♥" ])
 
-? @@( o1.Content() )
-#--> [ "♥", "qt", "♥♥", "pyhton", "♥", "csharp", "♥♥" ]
+	Then("replacemanybymanyxt example 1", @@( o1.Content() ), @@( [ "♥", "qt", "♥♥", "pyhton", "♥", "csharp", "♥♥" ] ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s)
+Summary()

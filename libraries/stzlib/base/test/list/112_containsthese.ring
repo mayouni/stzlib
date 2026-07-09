@@ -14,15 +14,14 @@
 # Extracted from stzlisttest.ring, block #112.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Two membership checks: ContainsThese on a single list, and EachContainsThese broadcast ove")
 
-? Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*"])
-#--> TRUE
+	Then("containsthese example 1", @@( Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*"]) ), @@( TRUE ))
 
-o1 = new stzList([ [ "a", "♥", "*" ], [ "♥", "*"], [ "a", "b", "♥", "*" ] ])
-? o1.EachContainsThese([ "♥", "*" ])
-#--> TRUE
+	o1 = new stzList([ [ "a", "♥", "*" ], [ "♥", "*"], [ "a", "b", "♥", "*" ] ])
+	Then("containsthese example 2", @@( o1.EachContainsThese([ "♥", "*" ]) ), @@( TRUE ))
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s) in Ring 1.21
+Summary()

@@ -17,41 +17,34 @@
 # Extracted from stzlisttest.ring, block #138.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Detecting and removing DupSecutive items -- duplicate values that sit in consecutive (adja")
 
-# DupSecutive = Duplicate + Consecutive
+	# DupSecutive = Duplicate + Consecutive
 
-o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
-#                             ^    ^    ^                   ^    ^
-? o1.ContainsDupSecutiveItems()
-#--> TRUE
+	o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
+	#                             ^    ^    ^                   ^    ^
+	Then("containsdupsecutiveitems example 1", @@( o1.ContainsDupSecutiveItems() ), @@( TRUE ))
 
-? o1.FindDupSecutiveItems()
-#--> [ 3, 4, 9 ]
+	Then("containsdupsecutiveitems example 2", @@( o1.FindDupSecutiveItems() ), @@( [ 3, 4, 9 ] ))
 
-? o1.FindDupSecutiveItemsCS(FALSE)
-#--> [ 3, 4, 5, 9, 10 ]
+	Then("containsdupsecutiveitems example 3", @@( o1.FindDupSecutiveItemsCS(FALSE) ), @@( [ 3, 4, 5, 9, 10 ] ))
 
-? o1.Duplicates()
-#--> [ "A", "B", "C" ]
+	Then("containsdupsecutiveitems example 4", @@( o1.Duplicates() ), @@( [ "A", "B", "C" ] ))
 
-? o1.DupSecutiveItems()
-#--> [ "B", "C" ]
+	Then("containsdupsecutiveitems example 5", @@( o1.DupSecutiveItems() ), @@( [ "B", "C" ] ))
 
-? @@( o1.DupSecutiveItemsZ() ) + NL
-#--> [ [ "B", [ 3, 4 ] ], [ "C", [ 9 ] ] ]
+	Then("containsdupsecutiveitems example 6", @@( o1.DupSecutiveItemsZ() ), @@( [ [ "B", [ 3, 4 ] ], [ "C", [ 9 ] ] ] ))
 
-? @@( o1.DupSecutiveItemsCSZ(FALSE) ) + NL
-#--> [ [ "B", [ 3, 4, 5 ] ], [ "C", [ 9, 10 ] ] ]
+	Then("containsdupsecutiveitems example 7", @@( o1.DupSecutiveItemsCSZ(FALSE) ), @@( [ [ "B", [ 3, 4, 5 ] ], [ "C", [ 9, 10 ] ] ] ))
 
-o1.RemoveDupSecutiveItemsCS(FALSE)
-? @@( o1.Content() ) + nl
-#--> [ "A", "B", "C", "B", "C", "A" ]
+	o1.RemoveDupSecutiveItemsCS(FALSE)
+	Then("containsdupsecutiveitems example 8", @@( o1.Content() ), @@( [ "A", "B", "C", "B", "C", "A" ] ))
 
-o1.RemoveDuplicates()
-? @@( o1.Content() )
-# [ "A", "B", "C" ]
+	o1.RemoveDuplicates()
+	? @@( o1.Content() )
+	# [ "A", "B", "C" ]
+EndScenario()
 
-pf()
-# Executed in 0.02 second(s).
+Summary()

@@ -12,13 +12,13 @@
 # Extracted from stzlisttest.ring, block #132.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Removing duplicate items from a list in place with RemoveDuplicates().")
 
-o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
-o1.RemoveDuplicates()
-? @@(o1.Content())
-#--> [ "A", "B", "2", 2, "." ]
+	o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
+	o1.RemoveDuplicates()
+	Then("removeduplicates example 1", @@( o1.Content() ), @@( [ "A", "B", "2", 2, "." ] ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s).
+Summary()

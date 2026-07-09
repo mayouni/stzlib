@@ -11,13 +11,13 @@
 # Extracted from stzlisttest.ring, block #160.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ExtendXT() grows a list up to a target position, padding the gap with a filler value.")
 
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendXT( :ToPosition = 5, :With = "*" )
-o1.Show()
-#--> [ "A", "B", "C", "*", "*" ]
+	o1 = new stzList([ "A", "B", "C" ])
+	o1.ExtendXT( :ToPosition = 5, :With = "*" )
+	Then("extendxt example 1", @@( o1.Content() ), @@( [ "A", "B", "C", "*", "*" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.04 second(s)
+Summary()

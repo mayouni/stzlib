@@ -14,18 +14,17 @@
 # Extracted from stzlisttest.ring, block #179.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("RemoveSection(n1, n2) vs RemoveRange(start, count): two ways to delete a contiguous run of")
 
-o1 = new stzList([ "1", "2", "_", "_", "_", "3", "4" ])
-o1.RemoveSection(3, 5)
-? @@( o1.Content() )
-#--> [ "1", "2", "3", "4" ]
+	o1 = new stzList([ "1", "2", "_", "_", "_", "3", "4" ])
+	o1.RemoveSection(3, 5)
+	Then("removesection example 1", @@( o1.Content() ), @@( [ "1", "2", "3", "4" ] ))
 
-o1 = new stzList([ "1", "2", "_", "_", "_", "3", "4" ])
-o1.RemoveRange(3, 3)
-? @@( o1.Content() )
-#--> [ "1", "2", "3", "4" ]
+	o1 = new stzList([ "1", "2", "_", "_", "_", "3", "4" ])
+	o1.RemoveRange(3, 3)
+	Then("removesection example 2", @@( o1.Content() ), @@( [ "1", "2", "3", "4" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()

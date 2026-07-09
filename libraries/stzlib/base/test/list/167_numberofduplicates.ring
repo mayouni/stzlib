@@ -14,26 +14,23 @@
 # Extracted from stzlisttest.ring, block #167.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Detecting and locating duplicate values in a stzList.")
 
-o1 = new stzList([
-	"*", "*4", "*4*", "*4*3", "*4*34",
-	"4", "4*", "4*3", "4*34", "*", "*3",
-	"*34", "3", "34", "4"
-])
+	o1 = new stzList([
+		"*", "*4", "*4*", "*4*3", "*4*34",
+		"4", "4*", "4*3", "4*34", "*", "*3",
+		"*34", "3", "34", "4"
+	])
 
-? o1.NumberOfDuplicates()
-#--> 2
+	Then("numberofduplicates example 1", @@( o1.NumberOfDuplicates() ), @@( 2 ))
 
-? @@( o1.FindDuplicates() )
-#--> [ 10, 15 ]
+	Then("numberofduplicates example 2", @@( o1.FindDuplicates() ), @@( [ 10, 15 ] ))
 
-? @@( o1.Duplicates() )
-#--> [ "*", "4" ]
+	Then("numberofduplicates example 3", @@( o1.Duplicates() ), @@( [ "*", "4" ] ))
 
-? @@( o1.DuplicatesZ() )
-#--> [ [ "*", [ 10 ] ], [ "4", [ 15 ] ] ]
+	Then("numberofduplicates example 4", @@( o1.DuplicatesZ() ), @@( [ [ "*", [ 10 ] ], [ "4", [ 15 ] ] ] ))
+EndScenario()
 
-pf()
-# Executed in 0.90 second(s)
+Summary()

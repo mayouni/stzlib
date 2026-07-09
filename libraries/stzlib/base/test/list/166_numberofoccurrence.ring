@@ -12,20 +12,19 @@
 # Extracted from stzlisttest.ring, block #166.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Counts and locates how many times an exact item value appears in a list.")
 
-o1 = new stzList([
-	"*", '"*"', "*4", "*4*", "*4*3", "*4*34",
-	"4", "4*", "4*3", "4*34", "*", "*3",
-	"*34", '"*"', "3", "34", "4", '"*"'
-])
+	o1 = new stzList([
+		"*", '"*"', "*4", "*4*", "*4*3", "*4*34",
+		"4", "4*", "4*3", "4*34", "*", "*3",
+		"*34", '"*"', "3", "34", "4", '"*"'
+	])
 
-? o1.NumberOfOccurrence('"*"')
-#--> 3
+	Then("numberofoccurrence example 1", @@( o1.NumberOfOccurrence('"*"') ), @@( 3 ))
 
-? o1.Find('"*"')
-#--> [2, 14, 18]
+	Then("numberofoccurrence example 2", @@( o1.Find('"*"') ), @@( [2, 14, 18] ))
+EndScenario()
 
-pf()
-# Executed in 0.15 second(s)
+Summary()

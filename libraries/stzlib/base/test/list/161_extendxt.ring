@@ -12,13 +12,13 @@
 # Extracted from stzlisttest.ring, block #161.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ExtendXT(:ToPosition, :WithItemsIn): grow to a target length, distributing a pool of items")
 
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendXT( :ToPosition = 5, :WithItemsIn = [ "D", "E" ])
-o1.Show()
-#--> [ "A", "B", "C", "D", "E" ]
+	o1 = new stzList([ "A", "B", "C" ])
+	o1.ExtendXT( :ToPosition = 5, :WithItemsIn = [ "D", "E" ])
+	Then("extendxt example 1", @@( o1.Content() ), @@( [ "A", "B", "C", "D", "E" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s)
+Summary()

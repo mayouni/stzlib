@@ -11,12 +11,12 @@
 # Extracted from stzlisttest.ring, block #171.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Locating the LAST occurrence of a value in a list with FindLast().")
 
-o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
-? o1.FindLast("*")
-#--> 7
+	o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
+	Then("findlast example 1", @@( o1.FindLast("*") ), @@( 7 ))
+EndScenario()
 
-pf()
-# Executed in 0.04 second(s)
+Summary()

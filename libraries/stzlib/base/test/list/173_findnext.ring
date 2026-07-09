@@ -13,12 +13,12 @@
 # Extracted from stzlisttest.ring, block #173.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("FindNext() returns the position of the next occurrence of a value, scanning forward from a")
 
-o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
-? o1.FindNext("*", :StartingAt = 4)
-#--> 7
+	o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8, 9 ])
+	Then("findnext example 1", @@( o1.FindNext("*", :StartingAt = 4) ), @@( 7 ))
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s)
+Summary()

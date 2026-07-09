@@ -12,19 +12,17 @@
 # Extracted from stzlisttest.ring, block #211.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Counting and locating a repeated value inside a stzList.")
 
-o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8 ])
+	o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 8 ])
 
-? o1.HowMany("*")
-#--> 2
+	Then("howmany example 1", @@( o1.HowMany("*") ), @@( 2 ))
 
-? o1.FindFirst("*")
-#--> 4
+	Then("howmany example 2", @@( o1.FindFirst("*") ), @@( 4 ))
 
-? o1.FindLast("*")
-#--> 7
+	Then("howmany example 3", @@( o1.FindLast("*") ), @@( 7 ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()

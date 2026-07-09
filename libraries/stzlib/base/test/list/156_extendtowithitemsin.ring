@@ -13,13 +13,13 @@
 # Extracted from stzlisttest.ring, block #156.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ExtendToWithItemsIn() grows a list up to a target length, filling the new slots by cycling")
 
-o1 = new stzList(1 : 3)
-o1.ExtendToWithItemsIn( 8, "A":"C" )
-o1.Show()
-#--> [ 1, 2, 3, "A", "B", "C", "A", "B" ]
+	o1 = new stzList(1 : 3)
+	o1.ExtendToWithItemsIn( 8, "A":"C" )
+	Then("extendtowithitemsin example 1", @@( o1.Content() ), @@( [ 1, 2, 3, "A", "B", "C", "A", "B" ] ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()

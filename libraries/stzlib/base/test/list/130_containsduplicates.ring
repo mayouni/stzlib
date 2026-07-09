@@ -11,13 +11,12 @@
 # Extracted from stzlisttest.ring, block #130.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ContainsDuplicates() reports whether any value occurs more than once.")
 
-o1 = new stzList([ "2", 2 ])
-? o1.ContainsDuplicates()
-#--> FALSE
+	o1 = new stzList([ "2", 2 ])
+	Then("containsduplicates example 1", @@( o1.ContainsDuplicates() ), @@( FALSE ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s) in Ring 1.21
-# Executed in 0.02 second(s) in Ring 1.19
+Summary()

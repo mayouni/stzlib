@@ -10,15 +10,15 @@
 # Extracted from stzlisttest.ring, block #7.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("ContainsEither(a, :or = b): an EXCLUSIVE either -- TRUE when exactly ONE of the two items")
 
-o1 = new stzList([ "me", "you", "all", "the", "others" ])
-? o1.ContainsEither("me", :or = "you")
-#--> FALSE
+	o1 = new stzList([ "me", "you", "all", "the", "others" ])
+	Then("containseither example 1", @@( o1.ContainsEither("me", :or = "you") ), @@( FALSE ))
 
-o1 = new stzlist([ "me", "and", "all", "the", "others" ])
-? o1.ContainsEither("me", :or = "you")
-#--> TRUE
+	o1 = new stzlist([ "me", "and", "all", "the", "others" ])
+	Then("containseither example 2", @@( o1.ContainsEither("me", :or = "you") ), @@( TRUE ))
+EndScenario()
 
-pf()
+Summary()

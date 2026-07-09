@@ -12,11 +12,11 @@
 # Extracted from stzlisttest.ring, block #189.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Find(value) returns every position at which a value appears in a list.")
 
-? Q([1, 2, 3, 4, 5, 3, 7]).Find(3)
-#--> [ 3, 6 ]
+	Then("find example 1", @@( Q([1, 2, 3, 4, 5, 3, 7]).Find(3) ), @@( [ 3, 6 ] ))
+EndScenario()
 
-pf()
-# Executed in 0.03 second(s)
+Summary()

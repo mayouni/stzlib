@@ -1,23 +1,19 @@
 # Narrative
 # --------
-# StartProfiler()
+
 #
 # Extracted from stzlisttest.ring, block #220.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("extractall")
 
-o1 = new stzList([ "A", "B", "C" ])
+	o1 = new stzList([ "A", "B", "C" ])
 
-? o1.ExtractAll()
-#--> [ "A", "B", "C" ]
+	Then("extractall example 1", @@( o1.ExtractAll() ), @@( [ "A", "B", "C" ] ))
 
-? @@( o1.Content() )
-#--> []
+	Then("extractall example 2", @@( o1.Content() ), @@( [] ))
+EndScenario()
 
-StopProfiler()
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.21
-# Executed in 0.01 second(s) in Ring 1.20
+Summary()

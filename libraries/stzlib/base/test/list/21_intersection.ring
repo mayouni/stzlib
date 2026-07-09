@@ -1,15 +1,15 @@
 # Narrative
 # --------
-# pr()
+
 #
 # Extracted from stzlisttest.ring, block #21.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("intersection")
 
-? Intersection([ 1:3, 2:7, 2:3 ])
-#--> [ 2, 3 ]
+	Then("intersection example 1", @@( Intersection([ 1:3, 2:7, 2:3 ]) ), @@( [ 2, 3 ] ))
+EndScenario()
 
-pf()
-# Executed in 0.05 second(s)
+Summary()

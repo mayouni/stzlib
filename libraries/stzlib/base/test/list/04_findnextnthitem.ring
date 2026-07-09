@@ -12,24 +12,21 @@
 # Extracted from stzlisttest.ring, block #4.
 
 load "../../stzBase.ring"
+load "../_narrated.ring"
 
-pr()
+Scenario("Find the n-th item forward / backward from a position -- by POSITION or by VALUE.")
 
-o1 = new stzList([ "A1", "A2", "A3", "A4", "A5", "A6", "A7" ])
+	o1 = new stzList([ "A1", "A2", "A3", "A4", "A5", "A6", "A7" ])
 
-? o1.FindNextNthItem(3, :StartingAt = 4)
-#--> 7
+	Then("findnextnthitem example 1", @@( o1.FindNextNthItem(3, :StartingAt = 4) ), @@( 7 ))
 
-? o1.NextNthItem(3, :StartingAt = 4) + NL
-#--> "A7"
+	Then("findnextnthitem example 2", @@( o1.NextNthItem(3, :StartingAt = 4) ), @@( "A7" ))
 
-#--
+	#--
 
-? o1.FindPreviousNthItem(4, :StartingAt = 7)
-#--> 4
+	Then("findnextnthitem example 3", @@( o1.FindPreviousNthItem(4, :StartingAt = 7) ), @@( 4 ))
 
-? o1.PreviousNthItem(4, :StartingAt = 7)
-#--> "A4"
+	Then("findnextnthitem example 4", @@( o1.PreviousNthItem(4, :StartingAt = 7) ), @@( "A4" ))
+EndScenario()
 
-pf()
-# Executed in almost 0 second(s)
+Summary()
