@@ -963,6 +963,56 @@ func _StzSemLangIdfBest(pacWords, paBags)
 	ok
 	return ""
 
+#--- NATURAL PLANS ----------------------------------------------------------
+# An INTENT becomes EXECUTABLE NATURAL CODE. Natural code is the library's
+# first-class data medium, so the reflect layer answers "how do I do X?"
+# with a runnable narration: a Create line for the live object, then the
+# intent's steps split on their connectors. Each step is spoken in the
+# same language the intent used -- the unified lexicon resolves it.
+
+func StzNaturalPlanFor(pcIntent, pcTypeWord, pxValue)
+	if NOT ( isString(pcIntent) and isString(pcTypeWord) )
+		StzRaise("Incorrect params! pcIntent and pcTypeWord must be strings.")
+	ok
+	# connector normalization -> single "then" separators
+	_cI_ = " " + trim(pcIntent) + " "
+	_cI_ = StzReplace(_cI_, " and then ", " then ")
+	_cI_ = StzReplace(_cI_, ", then ", " then ")
+	_cI_ = StzReplace(_cI_, "; ", " then ")
+	_cI_ = StzReplace(_cI_, ", ", " then ")
+	_aSteps_ = _StzSemSplitOnWord(_cI_, "then")
+	_cPlan_ = "Create a " + pcTypeWord + " with " + _StzSemValueLiteral(pxValue)
+	_n_ = len(_aSteps_)
+	for _i_ = 1 to _n_
+		_cS_ = trim(_aSteps_[_i_])
+		if _cS_ != ""
+			_cPlan_ += nl + _cS_
+		ok
+	next
+	return _cPlan_
+
+	func @StzNaturalPlanFor(pcIntent, pcTypeWord, pxValue)
+		return StzNaturalPlanFor(pcIntent, pcTypeWord, pxValue)
+
+func _StzSemValueLiteral(pxValue)
+	if isString(pxValue)
+		if StzFindFirst(pxValue, "'") > 0
+			return '"' + pxValue + '"'
+		ok
+		return "'" + pxValue + "'"
+	but isNumber(pxValue)
+		return "" + pxValue
+	but isList(pxValue)
+		return @@(pxValue)
+	ok
+	return "''"
+
+# split a padded string on a whole WORD (space-bounded), keeping the pieces
+
+func _StzSemSplitOnWord(pcStr, pcWord)
+	_aParts_ = _StzSplitOnChar(StzReplace(pcStr, " " + pcWord + " ", char(1)), char(1))
+	return _aParts_
+
 #--- UNDERSTANDABILITY FEEDBACK --------------------------------------------
 # A natural system's flexibility is measured by how it behaves when it does
 # NOT understand: report the word, and suggest the nearest known one.

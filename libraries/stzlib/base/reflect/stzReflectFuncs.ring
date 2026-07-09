@@ -542,6 +542,44 @@ func _StzFormOf(pcName)
 	if _len_ > 3 and right(_low_, 2) = "ed" return [ "passive", _low_ ] ok
 	return [ "active", _low_ ]
 
+# FORM SLOTS: the whole linguistic family of one verb in one class, slotted
+# by grammatical form -- the queryable version of the functions-as-linguistic-
+# expressions taxonomy (and the _ActionsXT lesson made structural: all forms
+# of one action, one record). Returns [ [cForm, cMethodName, cAka], ... ].
+# Consumers: Explain (show the siblings), plan generation (pick the form the
+# intent asks for), pack authoring (see what a verb offers).
+
+func StzFormFamily(pcClass, pcVerb)
+	_cV_ = lower(pcVerb)
+	_aH_ = _StzHarvestChain(pcClass)
+	_aOut_ = []
+	_nH_ = len(_aH_)
+	for _i_ = 1 to _nH_
+		_aRec_ = _aH_[_i_]
+		if len(_aRec_) < 3
+			loop
+		ok
+		_aF_ = _StzFormOf(_aRec_[1])
+		_aBases_ = []
+		if _aF_[1] = "predicate" or _aF_[1] = "negative"
+			if _aF_[2] != ""
+				_aBases_ = _StzSiblingBases(_aF_[2])
+				if ring_find(_aBases_, _aF_[2]) = 0
+					_aBases_ + _aF_[2]
+				ok
+			ok
+		else
+			_aBases_ = _StzSiblingBases(_aRec_[1])
+		ok
+		if ring_find(_aBases_, _cV_) > 0
+			_aOut_ + [ _aF_[1], _aRec_[1], _aRec_[3] ]
+		ok
+	next
+	return _aOut_
+
+	func @StzFormFamily(pcClass, pcVerb)
+		return StzFormFamily(pcClass, pcVerb)
+
 # Active/passive/fluent TAGGING SYMMETRY: #@ aka describes the OPERATION (user
 # words like "capitals", "backwards"), which is voice-NEUTRAL, so a method inherits
 # its voice-sibling's aka -- tag once, all three forms of the op become findable.

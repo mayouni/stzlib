@@ -141,6 +141,49 @@ Scenario("Understandability: unknown words are reported with suggestions")
 		ou2.UnderstoodAll(), TRUE)
 EndScenario()
 
+Scenario("Form slots: one verb's whole linguistic family, queryable")
+	aFam = StzFormFamily("stzString", "uppercase")
+	Then("the family has at least active + passive + fluent + predicate forms",
+		len(aFam) >= 4, TRUE)
+	acForms = []
+	nFam = len(aFam)
+	for nIdx = 1 to nFam
+		aSlot = aFam[nIdx]
+		cForm = aSlot[1]
+		if ring_find(acForms, cForm) = 0
+			acForms + cForm
+		ok
+	next
+	Then("the active form is slotted", ring_find(acForms, "active") > 0, TRUE)
+	Then("the passive form is slotted", ring_find(acForms, "passive") > 0, TRUE)
+	Then("the predicate form is slotted", ring_find(acForms, "predicate") > 0, TRUE)
+EndScenario()
+
+Scenario("Intents become executable natural plans")
+	oP1 = new stzString("hello world")
+	cPlan = oP1.PlanForIntent("uppercase it then reverse it")
+	Then("the plan opens with the Create line over the live content",
+		StzFindFirst(cPlan, "Create a string with 'hello world'") > 0, TRUE)
+	Then("...and executing the intent chains both steps",
+		oP1.DoIntent("uppercase it then reverse it"), "DLROW OLLEH")
+
+	oP2 = new stzList([ 3, 1, 3 ])
+	Then("list intents work, including grown verbs",
+		@@( oP2.DoIntent("remove its duplicates then reverse it") ), @@([ 1, 3 ]))
+
+	oP3 = new stzNumber(5)
+	Then("number intents work", oP3.DoIntent("add 3 to it"), "8")
+
+	bRaised = FALSE
+	try
+		oP1.DoIntent("fooify it")
+	catch
+		bRaised = ( StzFindFirst(cCatchError, "did you mean") > 0 )
+	done
+	Then("a not-understood intent raises WITH a suggestion (plans are strict)",
+		bRaised, TRUE)
+EndScenario()
+
 Scenario("Classic dictionary behavior unchanged (regression)")
 	o5 = Naturally("Create a string with 'softanza' Uppercase it")
 	Then("plain dictionary verb still works", o5.Result(), "SOFTANZA")
